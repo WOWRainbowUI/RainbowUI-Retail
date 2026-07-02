@@ -2112,12 +2112,14 @@ function Details:Refresher(instanceObject, combatObject, bForceUpdate, bExportDa
 end
 --]=]
 
-local oldapi = select(4, GetBuildInfo()) < 120000
+--local oldapi = select(4, GetBuildInfo()) < 120000
 function Details:IsUsingBlizzardAPI(instance)
-	if oldapi then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
 		return false
 	end
-	return Details222.Apocalypse.ShouldUseGameData(instance)
+	--the true boolean is for debug purposes only
+	return true
+	--return Details222.Apocalypse.ShouldUseGameData(instance)
 	--return Details.appocalypse_mode == 0
 end
 
