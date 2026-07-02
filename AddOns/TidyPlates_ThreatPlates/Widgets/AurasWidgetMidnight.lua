@@ -513,13 +513,6 @@ local function FlagAuraGridForUpdate(aura_grid_update, is_crowdcontrol_aura, is_
   end
 end
 
-function Widget:UNIT_AURA(unitid, unit_aura_update_info)
-  local widget_frame = self:GetWidgetFrameForUnit(unitid)
-  if widget_frame then 
-    widget_frame.Widget:UpdateAuras(widget_frame, widget_frame.unit)
-  end
-end
-
 function Widget:UNIT_AURA(unitid, update_info)
   local widget_frame = self:GetWidgetFrameForUnit(unitid)
   if widget_frame then 
@@ -1336,7 +1329,7 @@ local function UpdateWidgetTimeBarModeNoDuration(self, aura_frame, expiration, d
 
     local db = self.db_widget
     if db.FlashWhenExpiring and timeleft < db.FlashTime then
-      Animation:Flash(aura_frame)
+      AnimationFlash(aura_frame)
     end
 
     aura_frame.Statusbar:SetValue(timeleft * 100 / duration)
