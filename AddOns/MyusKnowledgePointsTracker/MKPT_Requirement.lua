@@ -207,7 +207,7 @@ function MKPT_KpItemRequirement:New(kpItem)
   self.__index = self
 
   o.kpItem = kpItem
-  kpItem:GetFormattedName()
+  kpItem:GetName()
 
   return o
 end

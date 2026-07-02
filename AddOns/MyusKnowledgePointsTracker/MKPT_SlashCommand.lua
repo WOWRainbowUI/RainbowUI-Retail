@@ -1,6 +1,7 @@
 local AddonName, MKPT_env, _ = ...
 
 local Utils = MKPT_env.Utils
+local L = MKPT_env.L
 
 local Commands = {}
 
@@ -53,15 +54,15 @@ function Commands.autohide(_)
 end
 
 function Commands.help(_)
-  print("可用指令：")
-  print(Utils.GoldTextColor("/mkpt"), " - 顯示/隱藏插件介面")
-  print(Utils.GoldTextColor("/mkpt minimap"), " - 顯示/隱藏小地圖按鈕")
-  print(Utils.GoldTextColor("/mkpt compartment"), " - 顯示/隱藏插件在小地圖選單中的入口")
-  print(Utils.GoldTextColor("/mkpt scale 1.0"), " - 調整介面大小，接受 0.5 到 1.5 的數值")
-  print(Utils.GoldTextColor("/mkpt lock"), " - 鎖定視窗位置")
-  print(Utils.GoldTextColor("/mkpt unlock"), " - 解鎖視窗位置")
-  print(Utils.GoldTextColor("/mkpt config"), " - 打開設定選單")
-  print(Utils.GoldTextColor("/mkpt autohide"), " - 當滑鼠不在視窗上時自動隱藏")
+  print(L["Available commands:"])
+  print(Utils.GoldTextColor("/mkpt"), " - " .. L["Show/Hide the addon HUD"])
+  print(Utils.GoldTextColor("/mkpt minimap"), " - " .. L["Show/Hide the minimap Icon"])
+  print(Utils.GoldTextColor("/mkpt compartment"), " - " .. L["Show/Hide addon entry inside compartment"])
+  print(Utils.GoldTextColor("/mkpt scale 1.0"), " - " .. L["Scales the Ui size, accepts values from 0.5 to 1.5"])
+  print(Utils.GoldTextColor("/mkpt lock"), " - " .. L["Locks window movement"])
+  print(Utils.GoldTextColor("/mkpt unlock"), " - " .. L["Unlocks window movement"])
+  print(Utils.GoldTextColor("/mkpt config"), " - " .. L["Opens configuration menu"])
+  print(Utils.GoldTextColor("/mkpt autohide"), " - " .. L["Hides the window when the cursor is not over it"])
 end
 
 function MKPT_env.InitializeSlashCommand()
@@ -73,7 +74,7 @@ function MKPT_env.InitializeSlashCommand()
 
     local command = Commands[commandName]
     if not command then
-      print(Utils.GoldTextColor("/mkpt ") .. Utils.RequirementsNotMetColor(arg), "command not found.")
+      print(Utils.GoldTextColor("/mkpt ") .. Utils.RequirementsNotMetColor(arg), L["command not found."])
       command = Commands.help
     end
 

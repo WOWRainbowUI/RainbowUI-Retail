@@ -9,6 +9,9 @@ function MKPT_env.InitializeSavedVariables()
         show = true,
         firstTimeLoaded = true,
       },
+      config = {
+        professionsStartExpanded = false,
+      }
     },
     global = {
       minimap = {
@@ -27,9 +30,11 @@ function MKPT_env.InitializeSavedVariables()
         hideWeeklyTreasures = false,
         hideUniqueBooks = false,
         hideUniqueTreasures = false,
+        hideDundun = false,
         hideWhenDone = false,
         minimized = true,
         showAllProfessions = false,
+        professionsStartExpanded = false,
       },
       ui = {
         autohide = false,
@@ -42,6 +47,13 @@ function MKPT_env.InitializeSavedVariables()
         scale = 1.0,
         lockWindow = false,
         hideInCombat = false,
+        colors = {
+          weekly= "FF006FDD",
+          catchUp= "FF1EFF00",
+          unique= "FFA435EE",
+          missing= "FFFF8000",
+          unspent= "FFFF6DCE",
+        }
       }
     }
   }
