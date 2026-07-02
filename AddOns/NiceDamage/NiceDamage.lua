@@ -1,6 +1,5 @@
 local addonName, addon, categoryId, frame = ...
 local LSM = LibStub("LibSharedMedia-3.0")
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 -- Create the Ace3 Addon object
 LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceConsole-3.0")
@@ -21,7 +20,6 @@ function addon:OnInitialize()
         },
         profile = {
             enabled = true,
-            loadCustomFont = false,
             -- Combat font
             updateWorldText = true, -- Combat Damage Number Font
             fontName = defaultFont,
@@ -88,16 +86,16 @@ function addon:ApplySystemFonts()
     local fontPath = LSM:Fetch("font", self.db.profile.fontName)
     local sizeScale = tostring(self.db.profile.fontSize or 1)
 
-    local suffix = isRetail and "_v2" or ""
-    
     if fontPath then
         -- 1. WORLD TEXT (Damage/Healing numbers floating in the 3D world)
         if self.db.profile.updateWorldText then
             DAMAGE_TEXT_FONT = fontPath
-            -- Dynamically set CVars based on the game version
-            SetCVar("WorldTextScale" .. suffix, sizeScale)
-            SetCVar("WorldTextGravity" .. suffix, tostring(self.db.profile.fontGravity or 0.5))
-            SetCVar("WorldTextRampDuration" .. suffix, tostring(self.db.profile.fontRampDuration or 1.0))
+            -- Set both the original and _v2 CVars for robustness across all game versions
+            for _, suffix in ipairs({ "", "_v2" }) do
+                SetCVar("WorldTextScale" .. suffix, sizeScale)
+                SetCVar("WorldTextGravity" .. suffix, tostring(self.db.profile.fontGravity or 0.5))
+                SetCVar("WorldTextRampDuration" .. suffix, tostring(self.db.profile.fontRampDuration or 1.0))
+            end
         end
                 
         -- 2. UI TEXT (Damage received, scrolling combat text on player frame)

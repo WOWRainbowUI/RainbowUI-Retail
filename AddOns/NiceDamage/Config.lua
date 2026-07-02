@@ -28,24 +28,6 @@ function addon:GetOptions()
                         set = function(_, v) self.db.global.minimap.hide = not v self:UpdateMinimapIcon() end,
                         order = 2,
                     },
-                    loadCustom = {
-                        type = "toggle",
-                        name = "載入自訂字型",
-                        desc = "載入並自動選擇「Custom Font NDR」。|cFFFF0000(需要登出並重新登入才能在列表中看到)|r",
-                        get = function() return self.db.profile.loadCustomFont end,
-                        set = function(_, v)
-                            self.db.profile.loadCustomFont = v
-                            if v then
-                                self.db.profile.fontName = "Custom Font NDR"
-                                self.db.profile.uiFont = "Custom Font NDR"
-                            else
-                                self.db.profile.fontName = "Pepsi Modern"
-                                self.db.profile.uiFont = "Pepsi Modern"
-                            end
-                            self:ApplySystemFonts()
-                        end,
-                        order = 3,
-                    },
                 }
             },
             targets = {
@@ -64,8 +46,8 @@ function addon:GetOptions()
                     },
                     ui = {
                         type = "toggle",
-                        name = "捲動戰鬥文字",
-                        desc = "套用字型到你受到的傷害與捲動戰鬥文字。",
+                        name = "浮動戰鬥文字",
+                        desc = "套用字型到你受到的傷害與浮動戰鬥文字。",
                         get = function() return self.db.profile.updateUiText end,
                         set = function(_, v) self.db.profile.updateUiText = v self:ApplySystemFonts() end,
                         order = 2,
@@ -130,14 +112,14 @@ function addon:GetOptions()
                 },
             },
             uiFontGroup = {
-                name = "捲動戰鬥文字外觀",
+                name = "浮動戰鬥文字外觀",
                 type = "group",
                 inline = true,
                 order = 4,
                 args = {
                     uiFont = {
                         type = "select",
-                        name = "捲動戰鬥文字字型",
+                        name = "浮動戰鬥文字字型",
                         desc = "選擇用於收到的傷害/治療的字型。",
                         dialogControl = 'LSM30_Font',
                         values = LSM:HashTable("font"),
