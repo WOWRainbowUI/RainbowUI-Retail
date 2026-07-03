@@ -4,8 +4,61 @@
 ------------------------------------------------------------
 local _, ns = ...
 
+-- 字型清單：偵測到 LibSharedMedia-3.0 就用共享字型，否則退回 WoW 內建字型。
+-- 每次呼叫都重新讀取，下拉選單打開時即時反映 LSM 動態註冊的字型。
+local function GetFontList()
+    local list = { { text = "沿用暴雪字型", value = "" } }
+    local LSM = _G.LibStub and _G.LibStub("LibSharedMedia-3.0", true)
+    if LSM then
+        local hash = LSM:HashTable("font")
+        local names = {}
+        for name in pairs(hash) do names[#names + 1] = name end
+        table.sort(names)
+        for _, name in ipairs(names) do
+            list[#list + 1] = { text = name, value = hash[name] }
+        end
+    else
+        list[#list + 1] = { text = "Friz Quadrata", value = "Fonts\\FRIZQT__.TTF" }
+        list[#list + 1] = { text = "Arial Narrow",  value = "Fonts\\ARIALN.TTF" }
+        list[#list + 1] = { text = "Skurri",        value = "Fonts\\skurri.TTF" }
+        list[#list + 1] = { text = "Morpheus",      value = "Fonts\\MORPHEUS.TTF" }
+    end
+    return list
+end
+
 local function BuildOptions()
     local Style = ns.BuffDurationStyle
+
+    -- 依儲存的字型路徑找回顯示名稱（找不到時直接顯示路徑）
+    local function FontTextOf(value)
+        value = value or ""
+        for _, opt in ipairs(GetFontList()) do
+            if opt.value == value then return opt.text end
+        end
+        return value ~= "" and value or "沿用暴雪字型"
+    end
+
+    -- 建立一個字型下拉選單，選擇時呼叫 setter(path)
+    -- 每次打開選單都重新取得字型清單，即時反映 LSM 動態註冊
+    local function CreateFontDropdown(name, parent, setter)
+        local dd = CreateFrame("Frame", name, parent, "UIDropDownMenuTemplate")
+        UIDropDownMenu_SetWidth(dd, 140)
+        UIDropDownMenu_Initialize(dd, function(self, level)
+            for _, opt in ipairs(GetFontList()) do
+                local value, text = opt.value, opt.text
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = text
+                info.value = value
+                info.func = function()
+                    UIDropDownMenu_SetSelectedValue(dd, value)
+                    UIDropDownMenu_SetText(dd, text)
+                    setter(value)
+                end
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+        return dd
+    end
 
     -- ============================================================
     -- 光環強化 面板
@@ -15,11 +68,11 @@ local function BuildOptions()
 
     local auraTitle = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     auraTitle:SetPoint("TOPLEFT", 16, -16)
-    auraTitle:SetText("|cffffe00a光環強化|r")
+    auraTitle:SetText("|cffffe00a光環時間美化|r")
 
     local auraDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     auraDesc:SetPoint("TOPLEFT", auraTitle, "BOTTOMLEFT", 0, -8)
-    auraDesc:SetText("調整增益 / 減益圖示下方時間文字的位置、大小與描邊。")
+    auraDesc:SetText("調整增益 / 減益圖示下方時間文字的位置、大小與邊框。")
     auraDesc:SetTextColor(0.7, 0.7, 0.7)
 
 
@@ -31,7 +84,7 @@ local function BuildOptions()
     -- 啟用 checkbox
     local auraCB = CreateFrame("CheckButton", "AuraEnhance_BuffDurEnabledCB", auraFrame, "UICheckButtonTemplate")
     auraCB:SetPoint("TOPLEFT", durLabel, "BOTTOMLEFT", 0, -8)
-    auraCB.text:SetText("啟用時間文字強化")
+    auraCB.text:SetText("啟用時間文字美化")
     auraCB.text:SetFontObject("GameFontHighlight")
 
     local auraCBDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -41,15 +94,15 @@ local function BuildOptions()
     auraCBDesc:SetText("自訂增益 / 減益圖示下方的時間文字樣式與位置。\n不修改文字內容，純粹調整外觀。")
     auraCBDesc:SetTextColor(0.5, 0.5, 0.5)
 
-    -- 描邊 checkbox
+    -- 邊框 checkbox
     local outlineCB = CreateFrame("CheckButton", "AuraEnhance_BuffDurOutlineCB", auraFrame, "UICheckButtonTemplate")
     outlineCB:SetPoint("TOPLEFT", auraCBDesc, "BOTTOMLEFT", -26, -12)
-    outlineCB.text:SetText("文字描邊")
+    outlineCB.text:SetText("文字邊框")
     outlineCB.text:SetFontObject("GameFontHighlight")
 
     local outlineDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     outlineDesc:SetPoint("TOPLEFT", outlineCB, "BOTTOMLEFT", 26, -2)
-    outlineDesc:SetText("為時間文字加上 1px 黑色描邊以提升可讀性")
+    outlineDesc:SetText("為時間文字加上 1px 黑色邊框以提升可讀性")
     outlineDesc:SetTextColor(0.5, 0.5, 0.5)
 
     -- 文字大小 slider
@@ -75,16 +128,26 @@ local function BuildOptions()
     yOffsetSlider:SetObeyStepOnDrag(true)
     yOffsetSlider.Low:SetText("-10")
     yOffsetSlider.High:SetText("20")
-    yOffsetSlider.Text:SetText("Y 軸偏移")
+    yOffsetSlider.Text:SetText("垂直位移")
 
     local yOffsetValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     yOffsetValue:SetPoint("LEFT", yOffsetSlider, "RIGHT", 12, 0)
+
+    -- 時間文字字型
+    local durFontLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    durFontLabel:SetPoint("TOPLEFT", yOffsetSlider, "BOTTOMLEFT", 0, -30)
+    durFontLabel:SetText("字型：")
+
+    local durFontDropdown = CreateFontDropdown("AuraEnhance_BuffDurFontDropdown", auraFrame, function(path)
+        if Style then Style.SetFontFace(path) end
+    end)
+    durFontDropdown:SetPoint("LEFT", durFontLabel, "RIGHT", -8, -2)
 
     -- ============================================================
     -- 堆疊層數區塊
     -- ============================================================
     local countLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    countLabel:SetPoint("TOPLEFT", yOffsetSlider, "BOTTOMLEFT", 0, -30)
+    countLabel:SetPoint("TOPLEFT", durFontLabel, "BOTTOMLEFT", 0, -28)
     countLabel:SetText("堆疊層數")
 
     -- 啟用堆疊層數調整
@@ -97,7 +160,7 @@ local function BuildOptions()
     countCBDesc:SetPoint("TOPLEFT", countCB, "BOTTOMLEFT", 26, -2)
     countCBDesc:SetWidth(520)
     countCBDesc:SetJustifyH("LEFT")
-    countCBDesc:SetText("自訂堆疊層數文字的錨點與位置。")
+    countCBDesc:SetText("自訂堆疊層數文字的位置與字型。")
     countCBDesc:SetTextColor(0.5, 0.5, 0.5)
 
     -- 錨點下拉選單
@@ -114,7 +177,7 @@ local function BuildOptions()
 
     local anchorLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     anchorLabel:SetPoint("TOPLEFT", countCBDesc, "BOTTOMLEFT", -26, -14)
-    anchorLabel:SetText("錨點位置：")
+    anchorLabel:SetText("位置：")
 
     local anchorDropdown = CreateFrame("Frame", "AuraEnhance_CountAnchorDropdown", auraFrame, "UIDropDownMenuTemplate")
     anchorDropdown:SetPoint("LEFT", anchorLabel, "RIGHT", -8, -2)
@@ -147,7 +210,7 @@ local function BuildOptions()
     countXSlider:SetObeyStepOnDrag(true)
     countXSlider.Low:SetText("-20")
     countXSlider.High:SetText("20")
-    countXSlider.Text:SetText("X 軸偏移")
+    countXSlider.Text:SetText("水平位移")
 
     local countXValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     countXValue:SetPoint("LEFT", countXSlider, "RIGHT", 12, 0)
@@ -161,10 +224,20 @@ local function BuildOptions()
     countYSlider:SetObeyStepOnDrag(true)
     countYSlider.Low:SetText("-20")
     countYSlider.High:SetText("20")
-    countYSlider.Text:SetText("Y 軸偏移")
+    countYSlider.Text:SetText("垂直位移")
 
     local countYValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     countYValue:SetPoint("LEFT", countYSlider, "RIGHT", 12, 0)
+
+    -- 堆疊層數字型
+    local countFontLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    countFontLabel:SetPoint("TOPLEFT", countYSlider, "BOTTOMLEFT", 0, -24)
+    countFontLabel:SetText("字型：")
+
+    local countFontDropdown = CreateFontDropdown("AuraEnhance_CountFontDropdown", auraFrame, function(path)
+        if Style then Style.SetCountFontFace(path) end
+    end)
+    countFontDropdown:SetPoint("LEFT", countFontLabel, "RIGHT", -8, -2)
 
     -- 控制子選項的啟用/反灰狀態
     local function UpdateCountSubControls(enabled)
@@ -172,10 +245,12 @@ local function BuildOptions()
             anchorDropdown:SetAlpha(1)
             countXSlider:Enable()
             countYSlider:Enable()
+            UIDropDownMenu_EnableDropDown(countFontDropdown)
         else
             anchorDropdown:SetAlpha(0.5)
             countXSlider:Disable()
             countYSlider:Disable()
+            UIDropDownMenu_DisableDropDown(countFontDropdown)
         end
     end
 
@@ -185,6 +260,7 @@ local function BuildOptions()
             outlineCB.text:SetFontObject("GameFontHighlight")
             fontSizeSlider:Enable()
             yOffsetSlider:Enable()
+            UIDropDownMenu_EnableDropDown(durFontDropdown)
             countCB:Enable()
             countCB.text:SetFontObject("GameFontHighlight")
         else
@@ -192,6 +268,7 @@ local function BuildOptions()
             outlineCB.text:SetFontObject("GameFontDisable")
             fontSizeSlider:Disable()
             yOffsetSlider:Disable()
+            UIDropDownMenu_DisableDropDown(durFontDropdown)
             countCB:Disable()
             countCB.text:SetFontObject("GameFontDisable")
             UpdateCountSubControls(false)
@@ -208,8 +285,12 @@ local function BuildOptions()
         fontSizeValue:SetText(db.fontSize)
         yOffsetSlider:SetValue(db.yOffset)
         yOffsetValue:SetText(db.yOffset)
+        UIDropDownMenu_SetSelectedValue(durFontDropdown, db.fontFace or "")
+        UIDropDownMenu_SetText(durFontDropdown, FontTextOf(db.fontFace))
         -- 堆疊層數
         countCB:SetChecked(db.countEnabled)
+        UIDropDownMenu_SetSelectedValue(countFontDropdown, db.countFontFace or "")
+        UIDropDownMenu_SetText(countFontDropdown, FontTextOf(db.countFontFace))
         UIDropDownMenu_SetSelectedValue(anchorDropdown, db.countAnchor)
         for _, opt in ipairs(anchorOptions) do
             if opt.value == db.countAnchor then
@@ -237,14 +318,14 @@ local function BuildOptions()
         if enabled then
             UpdateCountSubControls(countCB:GetChecked())
         end
-        print("|cff00ff00[光環強化]|r 時間文字強化:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 時間文字美化:", enabled and "開" or "關")
     end)
 
     outlineCB:HookScript("OnClick", function(self)
         if not Style then return end
         local enabled = self:GetChecked() and true or false
         Style.SetOutline(enabled)
-        print("|cff00ff00[光環強化]|r 文字描邊:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 文字邊框:", enabled and "開" or "關")
     end)
 
     fontSizeSlider:SetScript("OnValueChanged", function(self, value)
@@ -268,7 +349,7 @@ local function BuildOptions()
         local enabled = self:GetChecked() and true or false
         Style.SetCountEnabled(enabled)
         UpdateCountSubControls(enabled)
-        print("|cff00ff00[光環強化]|r 層數位置調整:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 層數位置調整:", enabled and "開" or "關")
     end)
 
     countXSlider:SetScript("OnValueChanged", function(self, value)
@@ -288,9 +369,10 @@ local function BuildOptions()
     end)
 
     -- 註冊為獨立的頂層設定分類
-    local category = Settings.RegisterCanvasLayoutCategory(auraFrame, "光環強化")
-    category.ID = "AuraEnhance"
+    local category = Settings.RegisterCanvasLayoutCategory(auraFrame, "光環時間")
+
     Settings.RegisterAddOnCategory(category)
+    MiliUI_AuraEnhanceDB.categoryID = category:GetID()
 end
 
 -- 等 SavedVariables 載入後再建立面板（確保同步顯示正確的值）
