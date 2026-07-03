@@ -266,21 +266,104 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
 
     if msg == "font" then
         CCS:ShowFontTester()
-        print(CCS.fontname)
-        print(option("default_font"))
-        return
-    end
-    
-    if msg == "test" then
-        
-        -- TEST CODE --
-        local unit = UnitExists("target") and "target" or "player"
-        local stats = CCS:GetUnitEquipmentStats(unit)
-        
-        -- END TEST CODE --        
+        print("==== CCS Fonts ====")
+        print("CCS global font:", CCS.fontname)
+        print("CCS default font:", option("default_font"))
+        print("CCS text options: ", CCS.textoutline)
         return
     end
 
+   --[[ for ejID in pairs(CCS.Season.dungeons) do
+        firstDungeonID = ejID
+        break
+    end--]]
+
+    
+    if msg == "test" then
+
+        print("---- Testing Item Link Builder ----")
+
+        local firstDungeonID = 945
+        local dungeonName = EJ_GetInstanceInfo(firstDungeonID)
+        print("First dungeon:", dungeonName, "(EJ ID:", firstDungeonID .. ")")
+
+        local firstBossName = nil
+        for _, data in pairs(CCS.MasterLoot) do
+            if data.source and data.source.ejID == firstDungeonID then
+                firstBossName = data.source.bossName
+                break
+            end
+        end
+
+        if not firstBossName then
+            print("No bosses found for dungeon:", dungeonName)
+            return
+        end
+
+        print("First boss:", firstBossName)
+        print("---- Item Links (Raw + Escaped) ----")
+
+        local testTrackName = "Champion"
+        local testIlvl      = 250
+
+        local count = 0
+
+        for itemID, data in pairs(CCS.MasterLoot) do
+            if data.source
+               and data.source.ejID == firstDungeonID
+               and data.source.bossName == firstBossName then
+
+                ------------------------------------------------
+                -- Build the itemString using new API
+                ------------------------------------------------
+                local itemString = CCS.BuilditemString(itemID, testTrackName, testIlvl)
+
+                ------------------------------------------------
+                -- Build clickable hyperlink
+                ------------------------------------------------
+                local itemName = C_Item.GetItemNameByID(itemID) or ("Item "..itemID)
+                local clickable = string.format("|cffFFFFFF|H%s|h[%s]|h|r", itemString, itemName)
+
+                ------------------------------------------------
+                -- Debug output
+                ------------------------------------------------
+                print("=======")
+                print(string.format("ItemID=%d  Track=%s  Ilvl=%d  Link=%s",
+                    itemID, testTrackName, testIlvl, clickable))
+
+                ------------------------------------------------
+                -- ⭐ Primary Stats (via tooltip scan)
+                ------------------------------------------------
+                local prim = CCS.ExtractPrimaryStats(clickable)
+                print("Primary Stats →  STR:", prim.STR, " AGI:", prim.AGI, " INT:", prim.INT)
+
+                ------------------------------------------------
+                -- ⭐ Secondary Stats (via Blizzard API)
+                ------------------------------------------------
+                local sec = C_Item.GetItemStats(clickable) or {}
+
+                print("Secondary Stats RAW DUMP →")
+                for k, v in pairs(sec) do
+                    print("   ", k, "=", v)
+                end
+                
+                print("Secondary Stats →",
+                    "Crit:",    sec["ITEM_MOD_CRIT_RATING_SHORT"] or 0,
+                    "Haste:",   sec["ITEM_MOD_HASTE_RATING_SHORT"] or 0,
+                    "Mastery:", sec["ITEM_MOD_MASTERY_RATING_SHORT"] or 0,
+                    "Vers:",    sec["ITEM_MOD_VERSATILITY_SHORT"] or 0
+                )
+
+                count = count + 1
+                if count >= 5 then break end
+            end
+        end
+
+        return
+
+
+
+    end
     -- Test
     if msg == "testio" then
         CCS.testExportImport()
@@ -374,6 +457,52 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         return
     end
 
+    if msg == "loot" then
+        print("---- Checking BIS items against MasterLoot ----")
+
+        local printed = {}
+
+        local function check(itemID)
+            local item = Item:CreateFromItemID(itemID)
+            item:ContinueOnItemLoad(function()
+                if not printed[itemID] then
+                    printed[itemID] = true
+                    local name = item:GetItemName() or ("Item "..itemID)
+                    print("Missing:", itemID, name)
+                end
+            end)
+        end
+
+        for classID, specs in pairs(CCS.BIS) do
+            for specID, specData in pairs(specs) do
+
+                -- Slots
+                if specData.Slots then
+                    for _, itemID in pairs(specData.Slots) do
+                        if itemID and not CCS.MasterLoot[itemID] then
+                            check(itemID)
+                        end
+                    end
+                end
+
+                -- Trinkets
+                if specData.Trinkets then
+                    for _, list in pairs(specData.Trinkets) do
+                        for _, itemID in ipairs(list) do
+                            if itemID and not CCS.MasterLoot[itemID] then
+                                check(itemID)
+                            end
+                        end
+                    end
+                end
+
+            end
+        end
+
+        print("---- Done scanning BIS ----")
+        return
+    end
+
     
     if msg == "testevents" then
         print("|cff00ff00Running Events Test...|r")
@@ -438,7 +567,7 @@ end
 ---------------------------
 do
     local currentVersion = CCS.GetCurrentVersion()
-    -- print("|cff00ff00[CCS]|r Current WoW version:", currentVersion)
+    --print("|cff00ff00[CCS]|r Current WoW version:", currentVersion)
 
     local registeredCount = 0
 

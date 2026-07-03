@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
-if CCS.GetCurrentVersion() ~= CCS.RETAIL then
+if CCS.CurrentVersion ~= CCS.RETAIL then
     return
 end
 
@@ -12,6 +12,10 @@ local module = {
 	Name = "mythicPlusStats",
 	CompatibleVersions = { CCS.RETAIL },
 }
+module.frames = module.frames or {}
+module.frames.rows = module.frames.rows or {}
+module.frames.rewards = module.frames.rewards or {}
+module.frames.affixes = module.frames.affixes or {}
 
 CCS.Modules[module.Name] = module
 
@@ -405,6 +409,7 @@ end
 
 function CCS.updatemplussideframe(sortby, sortdirection)
 	if option("showm_sp") ~= true or InCombatLockdown() == true then return end
+	if CCS.initall == true then return end
 
     -- fall back to stored state or default state if nil
     sortby = sortby or ccsm_sf.currentSortBy or option("mplus_sortby") or "Name"
@@ -850,6 +855,21 @@ local function CreateRewardFrame(name, anchorPoint, anchorFrame, relativePoint, 
     return frame
 end
 
+local function CacheReward(name, frame)
+    module.frames.rewards[name] = {
+        frame = frame,
+        bg    = _G[name.."_bg"],
+        bgtex = _G[name.."_bgtex"],
+        tex1  = _G[name.."_tex1"],
+        tex2  = _G[name.."_tex2"],
+        tex3  = _G[name.."_tex3"],
+        tex4  = _G[name.."_tex4"],
+        fs1   = _G[name.."_fs1"],
+        fs2   = _G[name.."_fs2"],
+        fs3   = _G[name.."_fs3"],
+        fs4   = _G[name.."_fs4"],
+    }
+end
 
 local function CreateAffixButton(index, anchorFrame, parentFrame)
     local name = "ccsm_aff"..index
@@ -937,6 +957,12 @@ local function initializeframes()
 	local sf_topbar = _G["ccsm_sf_tb"] or ccsm_sf:CreateTexture("ccsm_sf_tb", "BACKGROUND", nil, 2)
 	local sf_topstreaks = _G["ccsm_sf_ts"] or ccsm_sf:CreateTexture("ccsm_sf_ts", "BACKGROUND", nil, 2)
 	local sf_bottombar = _G["ccsm_sf_bb"] or ccsm_sf:CreateTexture("ccsm_sf_bb", "BACKGROUND", nil, 2)
+
+	module.frames.ccsm_sf = ccsm_sf
+	module.frames.sf_bg = sf_bg
+	module.frames.sf_topbar = sf_topbar
+	module.frames.sf_topstreaks = sf_topstreaks
+	module.frames.sf_bottombar = sf_bottombar
 
     if not CCS.AreSecretsDisabled() and _G["ccsm_sf"] and (option("showm_sp_onopen") == true) and (UnitLevel("player") == CCS.MaxLevel) then
             _G["ccsm_sf"]:Show()
@@ -1026,6 +1052,11 @@ local function initializeframes()
 	ccsm_fs4:SetText("|cFFFFFF00" .. WEEKLY_REWARDS_RETURN_TO_CLAIM .. "|r")
 	ccsm_fs4:Hide()               
 
+	module.frames.header_key = ccsm_fs1
+	module.frames.header_title = ccsm_fs2
+	module.frames.header_right = ccsm_fs3
+	module.frames.header_rewards = ccsm_fs4
+
 	local affixLevels = { "2", "5", "7", "10", "12" }
 
 	for i = 1, 5 do
@@ -1034,6 +1065,13 @@ local function initializeframes()
 		if fs then
 			fs:SetText(affixLevels[i])
 		end
+
+		local name = "ccsm_aff"..i
+		module.frames.affixes[i] = {
+			btn = _G[name.."_btn"],
+			fs  = _G[name.."_fs1"],
+			tex = _G[name.."_tex"],
+		}
 	end
 
 	-- Visibility toggles
@@ -1042,19 +1080,35 @@ local function initializeframes()
 	local showRaid = option("showm_raidrewards") == true
 
 	-- Create all frames unconditionally
+	-- World Rewards
 	local ccms_world1 = CreateRewardFrame("ccms_world1", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_worldrewards" })
+	CacheReward("ccms_world1", ccms_world1)
+
 	local ccms_world2 = CreateRewardFrame("ccms_world2", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_worldrewards" })
+	CacheReward("ccms_world2", ccms_world2)
+
 	local ccms_world3 = CreateRewardFrame("ccms_world3", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_worldrewards" })
+	CacheReward("ccms_world3", ccms_world3)
 
+	-- Dungeon (Mythic+) Rewards
 	local ccms_r1 = CreateRewardFrame("ccms_r1", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_mplusrewards" })
+	CacheReward("ccms_r1", ccms_r1)
+
 	local ccms_r2 = CreateRewardFrame("ccms_r2", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_mplusrewards" })
+	CacheReward("ccms_r2", ccms_r2)
+
 	local ccms_r3 = CreateRewardFrame("ccms_r3", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_mplusrewards" })
+	CacheReward("ccms_r3", ccms_r3)
 
+	-- Raid Rewards
 	local ccms_raid1 = CreateRewardFrame("ccms_raid1", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_raidrewards" })
-	local ccms_raid2 = CreateRewardFrame("ccms_raid2", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_raidrewards" })
-	local ccms_raid3 = CreateRewardFrame("ccms_raid3", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_raidrewards" })
+	CacheReward("ccms_raid1", ccms_raid1)
 
-	-- Apply anchor logic
+	local ccms_raid2 = CreateRewardFrame("ccms_raid2", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_raidrewards" })
+	CacheReward("ccms_raid2", ccms_raid2)
+
+	local ccms_raid3 = CreateRewardFrame("ccms_raid3", "BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", ccsm_sf, 0, 0, { showToggle = "showm_raidrewards" })
+	CacheReward("ccms_raid3", ccms_raid3)
 
 	-- World Rewards Row
 	ccms_world1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 28, 7)
@@ -1138,7 +1192,7 @@ local function initializeframes()
 		
 		local ccsm_bx_btn2_fs = _G["ccsm_b"..x.."_btn2_fs"] or ccsm_bx_btn2:CreateFontString("ccsm_b"..x.."_btn2_fs")
 		ccsm_bx_btn2_fs:SetPoint("CENTER", ccsm_bx_btn2, "CENTER",0 ,0);
-		ccsm_bx_btn2_fs:SetFont(CCS.fontname, (option("fontsize") or 10), CCS.textoutline);
+		ccsm_bx_btn2_fs:SetFont(option("fontname_mplus_row") or CCS.fontname, (option("fontsize_mplus_key") or 11), CCS.textoutline);
 		if option("showfontshadow") == true then
 			ccsm_bx_btn2_fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 			ccsm_bx_btn2_fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
@@ -1207,6 +1261,20 @@ local function initializeframes()
 		
 		ccsm_bx_fs7:SetJustifyH("RIGHT")
 		ccsm_bx_fs7:Show()
+		module.frames.rows[x] = {
+			row = ccsm_bx,
+			bg = ccsm_bx_tex1,
+			icon = ccsm_bx_tex2,
+			iconBG = ccsm_bx_btn1_bg,
+			spellButton = ccsm_bx_btn2,
+			spellButtonFS = ccsm_bx_btn2_fs,
+			spellButtonBG = ccsm_bx_btn2_bg,
+			fs_overIcon = ccsm_bx_fs1,
+			fs_name = ccsm_bx_fs2,
+			fs_level = ccsm_bx_fs3,
+			fs_rating = ccsm_bx_fs4,
+			fs_best = ccsm_bx_fs7,
+		}
 	end
 	_G["ccsm_b8"]:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 5, sf_bottombar:GetHeight()+3)
 	_G["ccsm_b7"]:SetPoint("BOTTOMLEFT", _G["ccsm_b8"], "TOPLEFT", 0, 2)
@@ -1405,7 +1473,10 @@ local function initializeframes()
 		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
 		CCS.updatemplussideframe(newSortBy, newDir)
 	end)
-
+	module.frames.header_lvl = ccsm_headerlvl_fs
+	module.frames.header_rating = ccsm_header_fs_text
+	module.frames.header_time = ccsm_fbt_fs
+	module.frames.header_name = ccsm_tp_fs
 	ccsm_tp_fs:Show()
 	UpdateSortIndicators()
 	_G["ccsm_sf_bg"]:SetColorTexture(bgr,bgg,bgb,bgalpha)
@@ -1413,14 +1484,329 @@ local function initializeframes()
 	C_Timer.After(1, function() CCS.updatemplussideframe(); end)
 end
 
-function module:Initialize()     
+local function ApplyStyle()
+    local f = module.frames
+    if not f then return end
+
+    -------------------------------------------------
+    -- Top-level panel background + bars
+    -------------------------------------------------
+    if f.sf_bg then
+        local bg = option("ccsmbgcolor")
+        f.sf_bg:SetColorTexture(bg[1], bg[2], bg[3], bg[4])
+    end
+
+    -------------------------------------------------
+    -- Scale
+    -------------------------------------------------
+    if f.ccsm_sf then
+        f.ccsm_sf:SetScale(option("mplus_sp_scale"))
+    end
+
+    -------------------------------------------------
+    -- Header fonts
+    -------------------------------------------------
+    local function StyleHeader(fs)
+        if not fs then return end
+        fs:SetFont(option("fontname_mplus_header") or CCS.fontname,
+                   option("fontsize_mplus_header") or 14,
+                   CCS.textoutline)
+
+        local col = option("fontcolor_mplus_header") or {1,1,1,1}
+        fs:SetTextColor(col[1], col[2], col[3], col[4])
+
+        if option("showfontshadow") then
+            fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+            fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+        else
+            fs:SetShadowColor(0,0,0,0)
+        end
+    end
+
+    StyleHeader(f.header_lvl)
+    StyleHeader(f.header_rating)
+    StyleHeader(f.header_time)
+    StyleHeader(f.header_name)
+
+    -------------------------------------------------
+    -- Column text fields (key, title, right, rewards)
+    -------------------------------------------------
+    local function StyleTop(fs, fontKey, sizeKey)
+        if not fs then return end
+        fs:SetFont(option(fontKey) or CCS.fontname,
+                   option(sizeKey) or 12,
+                   CCS.textoutline)
+
+        if option("showfontshadow") then
+            fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+            fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+        else
+            fs:SetShadowColor(0,0,0,0)
+        end
+    end
+
+    StyleTop(f.header_key,   "fontname_mplus_key",   "fontsize_mplus_key")
+    StyleTop(f.header_title, "fontname_mplus_title", "fontsize_mplus_title")
+    StyleTop(f.header_right, "fontname_mplus_title", "fontsize_mplus_title")
+    StyleTop(f.header_rewards, "fontname_mplus_header", "fontsize_mplus_header")
+
+    -------------------------------------------------
+    -- Rows
+    -------------------------------------------------
+    if f.rows then
+        for _, row in pairs(f.rows) do
+
+            -- Fonts for row text
+            local function StyleRowFont(fs, sizeKey)
+                if not fs then return end
+                fs:SetFont(option("fontname_mplus_row") or CCS.fontname,
+                           option(sizeKey) or 14,
+                           CCS.textoutline)
+
+                if option("showfontshadow") then
+                    fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                    fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+                else
+                    fs:SetShadowColor(0,0,0,0)
+                end
+            end
+
+            StyleRowFont(row.fs_overIcon, "fontsize_mplus_row")
+            StyleRowFont(row.fs_name,     "fontsize_mplus_row")
+            StyleRowFont(row.fs_level,    "fontsize_mplus_row")
+            StyleRowFont(row.fs_rating,   "fontsize_mplus_row")
+            StyleRowFont(row.fs_best,     "fontsize_mplus_row")
+
+            -- Spell button font
+            if row.spellButtonFS then
+                row.spellButtonFS:SetFont(option("fontname_mplus_row") or CCS.fontname,
+                                          option("fontsize_mplus_key") or 11,
+                                          CCS.textoutline)
+            end
+        end
+    end
+	
+	-------------------------------------------------
+	-- Reward Frames
+	-------------------------------------------------
+	if module.frames.rewards then
+		for name, r in pairs(module.frames.rewards) do
+
+			-------------------------------------------------
+			-- Background textures
+			-------------------------------------------------
+			if r.bgtex then
+				local bgc = option("wc_bgcolor") or {0.2, 0, 0.3, 1}
+				r.bgtex:SetGradient(
+					"Vertical",
+					CreateColor(0, 0, 0, .4),
+					CreateColor(bgc[1], bgc[2], bgc[3], bgc[4])
+				)
+			end
+
+			-------------------------------------------------
+			-- Icon textures
+			-------------------------------------------------
+			if r.tex3 then
+				local ilvlc = option("wc_ilvlbannercolor") or {0.64, 0.21, 0.93, 1}
+				r.tex3:SetGradient(
+					"Horizontal",
+					CreateColor(ilvlc[1], ilvlc[2], ilvlc[3], ilvlc[4]),
+					CreateColor(0, 0, 0, 1)
+				)
+			end
+
+			-------------------------------------------------
+			-- Font: fs1 (objective text)
+			-------------------------------------------------
+			if r.fs1 then
+				r.fs1:SetFont(
+					option("fontname_wc_obj") or CCS.fontname,
+					option("fontsize_wc_obj") or 10,
+					CCS.textoutline
+				)
+
+				local c = option("fontcolor_wc_obj_incomplete") or {0.62, 0.62, 0.62, 1}
+				r.fs1:SetTextColor(c[1], c[2], c[3], c[4])
+
+				if option("showfontshadow") then
+					r.fs1:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+					r.fs1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+				else
+					r.fs1:SetShadowColor(0,0,0,0)
+				end
+			end
+
+			-------------------------------------------------
+			-- Font: fs2 (item level)
+			-------------------------------------------------
+			if r.fs2 then
+				r.fs2:SetFont(
+					option("fontname_wc_ilvl") or CCS.fontname,
+					option("fontsize_wc_ilvl") or 20,
+					CCS.textoutline
+				)
+
+				local c = option("fontcolor_wc_ilvl") or {1,1,1,1}
+				r.fs2:SetTextColor(c[1], c[2], c[3], c[4])
+
+				if option("showfontshadow") then
+					r.fs2:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+					r.fs2:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+				else
+					r.fs2:SetShadowColor(0,0,0,0)
+				end
+			end
+
+			-------------------------------------------------
+			-- Font: fs3 (difficulty text)
+			-------------------------------------------------
+			if r.fs3 then
+				r.fs3:SetFont(
+					option("fontname_wc_diff") or CCS.fontname,
+					option("fontsize_wc_diff") or 10,
+					CCS.textoutline
+				)
+
+				local c = option("fontcolor_wc_diff_complete") or {0.12, 1, 0, 1}
+				r.fs3:SetTextColor(c[1], c[2], c[3], c[4])
+
+				if option("showfontshadow") then
+					r.fs3:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+					r.fs3:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+				else
+					r.fs3:SetShadowColor(0,0,0,0)
+				end
+			end
+
+			-------------------------------------------------
+			-- Font: fs4 (progress text)
+			-------------------------------------------------
+			if r.fs4 then
+				r.fs4:SetFont(
+					option("fontname_wc_prog") or CCS.fontname,
+					option("fontsize_wc_prog") or 10,
+					CCS.textoutline
+				)
+
+				local c = option("fontcolor_wc_prog_incomplete") or {0.62, 0.62, 0.62, 1}
+				r.fs4:SetTextColor(c[1], c[2], c[3], c[4])
+
+				if option("showfontshadow") then
+					r.fs4:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+					r.fs4:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+				else
+					r.fs4:SetShadowColor(0,0,0,0)
+				end
+			end
+		end
+	end
+
+	-------------------------------------------------
+	-- Affix Buttons
+	-------------------------------------------------
+	if module.frames.affixes then
+		for i, a in pairs(module.frames.affixes) do
+
+			-- Font
+			if a.fs then
+				a.fs:SetFont(
+					option("fontname_mplus_affix") or CCS.fontname,
+					option("fontsize_mplus_affix") or 11,
+					CCS.textoutline
+				)
+
+				local c = option("fontcolor_mplus_affix") or {1,1,1,1}
+				a.fs:SetTextColor(c[1], c[2], c[3], c[4])
+
+				if option("showfontshadow") then
+					a.fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+					a.fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+				else
+					a.fs:SetShadowColor(0,0,0,0)
+				end
+			end
+		end
+	end
+
+	-------------------------------------------------
+	-- Main Button (Score Text)
+	-------------------------------------------------
+	if module.frames.mainButtonFS then
+		local fs = module.frames.mainButtonFS
+
+		fs:SetFont(
+			option("fontname_mplus") or CCS.fontname,
+			option("fontsize_mplus") or 11,
+			CCS.textoutline
+		)
+
+		if option("showfontshadow") then
+			fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+			fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+		else
+			fs:SetShadowColor(0,0,0,0)
+		end
+	end
+
+	-- Visibility toggle
+	if module.frames.mainButton then
+		module.frames.mainButton:SetShown(option("showmythicplusscore"))
+	end
+
+	-------------------------------------------------
+	-- Icon Button (Toggle Button)
+	-------------------------------------------------
+	if module.frames.iconButton then
+		local btn = module.frames.iconButton
+
+		if option("showm_altbtn") then
+			-- ALT style (left arrow + mplus icon)
+			CCS:ApplyIconStyle(btn, "ightarrow", 17)
+
+			if module.frames.iconButtonTex then
+				module.frames.iconButtonTex:SetAllPoints()
+				module.frames.iconButtonTex:Show()
+			end
+
+			if module.frames.iconButtonBG then
+				module.frames.iconButtonBG:SetTexture(
+					"Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mplus.png"
+				)
+			end
+		else
+			-- NORMAL style (right arrow)
+			CCS:ApplyIconStyle(btn, "rightarrow", 17)
+
+			if module.frames.iconButtonTex then
+				module.frames.iconButtonTex:Hide()
+			end
+		end
+
+		-- Visibility toggle
+		btn:SetShown(option("showm_sp_btn"))
+	end
+end
+
+function module:Initialize(onlyStyle)     
+	module.frames = module.frames or {}
+	
+    if CCS.AreSecretsDisabled() then 
+        CCS.initall = true
+        return 
+    end
+
 	if option("showm_sp") ~= true then return end
+
+	if onlyStyle and _G["MPlusScoreBtn"] ~= nil then
+		ApplyStyle()
+		CCS.updatemplussideframe(option("mplus_sortby"), option("mplus_direction"))
+		return
+	end
 	
 	local btn = _G["MPlusScoreBtn"] or CreateFrame("Button", "MPlusScoreBtn", CharacterHeadSlot)
 	local textstring = CCS.getraiderioscoreplayer(true) or ""
-
-    if InCombatLockdown()then CCS.secretsdisabled = true return end
-
+	
 	initializeframes()
 ----
 ---- Create the main button
@@ -1444,6 +1830,10 @@ function module:Initialize()
 
 	btn:SetScript("OnClick", function() 
 			PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
+			if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
+				if ClassCodexPanel and ClassCodexPanel:IsVisible() then ClassCodexPanel:Hide() end
+			end
+
 			if not InCombatLockdown() then
 				if _G["ccsm_sf"]:IsShown() then 
 					_G["ccsm_sf"]:Hide()
@@ -1458,6 +1848,9 @@ function module:Initialize()
 				RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
 			end
 	end)
+	-- Cache main button + fontstring
+	module.frames.mainButton = btn
+	module.frames.mainButtonFS = btnfont1
 
 ----
 ---- Create the second button
@@ -1465,7 +1858,7 @@ function module:Initialize()
 
 	-- Create the new button
 	local btn2 = _G["MPlusScoreIconBtn"] or CreateFrame("Button", "MPlusScoreIconBtn", PaperDollFrame)
-	btn2:SetSize(28, 28)
+	btn2:SetSize(20, 20)
 	btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -1)
 	btn2:SetFrameStrata("HIGH")
 
@@ -1483,17 +1876,17 @@ function module:Initialize()
 	if option("showm_altbtn") then
 		local btn2_tex = btn2.tex or btn2:CreateTexture(nil, "ARTWORK")
 		btn2.tex = btn2_tex
-		CCS:ApplyIconStyle(btn2, "ightarrow", 20)
+		CCS:ApplyIconStyle(btn2, "ightarrow", 17)
 		btn2_tex:SetAllPoints()
-		btn2_tex:Show()
-		btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mplus.png")
+		btn2.bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mplus.png")
+		--btn2_tex:Show()
+		--btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mplus.png")
 	else
-		CCS:ApplyIconStyle(btn2, "rightarrow", 20)
+		CCS:ApplyIconStyle(btn2, "rightarrow", 17)
 		if btn2 and btn2.tex ~= nil then
 			btn2.tex:Hide()
 		end
 	end
-
 
 	-- Click behavior
 	btn2:SetScript("OnClick", function(self, button)
@@ -1507,7 +1900,13 @@ function module:Initialize()
 			end
 			return
 		end
+		
+		if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
+			if ClassCodexPanel and ClassCodexPanel:IsVisible() then ClassCodexPanel:Hide() end
+		end
+		
 		if _G["ccsrf_sf"] and _G["ccsrf_sf"]:IsShown() then _G["ccsrf_sf"]:Hide() end
+		if _G["ccsgf_sf"] and _G["ccsgf_sf"]:IsShown() then _G["ccsgf_sf"]:Hide() end
 		
 		if not InCombatLockdown() then
 			if _G["ccsm_sf"]:IsShown() then
@@ -1523,15 +1922,22 @@ function module:Initialize()
 			RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
 		end
 	end)
+	-- Cache icon button + its texture
+	module.frames.iconButton = btn2
+	module.frames.iconButtonTex = btn2.tex
+	module.frames.iconButtonBG = btn2.bg   -- if it exists
 
-		btn:SetShown(option("showmythicplusscore"))
-		btn2:SetShown(option("showm_sp_btn"))
+	btn:SetShown(option("showmythicplusscore"))
+	btn2:SetShown(option("showm_sp_btn"))
+	CCS.updatemplussideframe()		
 end
 
 function CCS.MythicPlusEventHandler(event, ...)
     local arg1 = ...
-    --if InCombatLockdown()then CCS.secretsdisabled = true return end
-	if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
+
+	if CCS.CurrentVersion ~= CCS.RETAIL then return end
+
+    if CCS.initall == true then return end
 	
 	if option("showm_sp") ~= true then 
 		if _G["MPlusScoreIconBtn"] then _G["MPlusScoreIconBtn"]:Hide() end
@@ -1563,11 +1969,6 @@ function CCS.MythicPlusEventHandler(event, ...)
 
     if not CCS.mythicUpdatePending then
         CCS.mythicUpdatePending = true
-		-- Update the Weekly Rewards Frames
-		--print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "Mplus Update:", event)
-
-		--C_WeeklyRewards.OnUIInteract();
-		--C_WeeklyRewards.CloseInteraction();
 		WeeklyRewardsFrame:FullRefresh()
 		
         C_Timer.After(1, function()

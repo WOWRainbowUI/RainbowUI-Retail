@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 local loopitems
-if CCS.GetCurrentVersion() ~= CCS.RETAIL then
+if CCS.CurrentVersion ~= CCS.RETAIL then
     return
 end
 
@@ -16,16 +16,16 @@ CCS.Modules[module.Name] = module
 
 local modbg = _G["InspectModelFramebg"] or CreateFrame("Frame", "InspectModelFramebg")
 local modtex = _G["InspectModelFramebgtex"] or modbg:CreateTexture("InspectModelFramebgtex", "BACKGROUND")    
+local modtex2 = _G["InspectModelFramebgtex2"] or modbg:CreateTexture("InspectModelFramebgtex2", "ARTWORK")    
 
 ---------------------------
 -- Module methods
 ---------------------------
-function module:Initialize()
+function module:Initialize(onlyStyle)
     -- Optional setup for the inspect sheet
     -- print("[CCS] inspectSheet initialized")
     -- Nothing to set up yet in this.  This will be future creation code.
 end
-
 
 function CCS.getraiderioscoreinspect()
     if option("showmythicplusscore_inspect") ~= true or InspectFrame == nil or InspectFrame.unit == nil then return "" end    
@@ -455,6 +455,11 @@ function CCS:inspect()
 								[103] = 2,   -- Feral
 								[104] = 2,   -- Guardian
 								[105] = 4, -- Restoration
+
+								-- DEMON HUNTER
+								[577] = 2, -- Havoc
+								[581] = 2, -- Vengeance
+								[1480] = 4, -- Devourer
 
 								-- SHAMAN
 								[262] = 4, -- Elemental
@@ -1251,90 +1256,7 @@ local function MoveInspectModelLeft()
     modbg:SetPoint("TOPLEFT", InspectHeadSlot, "TOPLEFT", 0, 0)
     modbg:SetPoint("RIGHT", InspectHandsSlot, "RIGHT", 0, 0)    
     modbg:SetPoint("BOTTOM", InspectMainHandSlot, "BOTTOM", 0, 0)            
-
     
-end
-
-local function clamp(val, min, max)
-    if val < min then return min end
-    if val > max then return max end
-    return val
-end
-
-local function ChangeModelBg()
- if InspectFrame == nil or InspectFrame.unit == nil then return end
-
-    if option("bgtype_inspect") == "Hide" then
-        modtex:Hide()
-        return
---[[    else
-        -- Default background
-		modtex:SetAllPoints()		
-        modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")
-        modtex:SetTexCoord(0, 0.69, 0, 0.87)
-        modtex:SetVertexColor(0.4, 0, 0.4, 0.9)
-		modtex:Show()
-		return--]]
-    end
-
-    local _, _, classID = UnitClass(InspectFrame.unit)
-    local _, _, raceID = UnitRace(InspectFrame.unit)
-    local specID = GetInspectSpecialization(InspectFrame.unit)
-	specID = CCS.GetSpecIndexFromSpecID(specID)
-    local entry = nil
-
-    if modbg:GetParent() == nil then
-        modbg:SetParent(InspectModelFrame)
-    end
-    
-    modtex:Show()
-	
-    if option("bgtype_inspect") == "Class" then 
-        -- Class/Specialization background
-        entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][specID]        
-        modtex:SetVertexColor(0.8, 0.8, 0.8, 1)
-    elseif option("bgtype_inspect") == "Race" then 
-        -- Race background
-        if classID == 6 then raceID = 998 -- Death Knight
-        elseif classID == 12 then raceID = 999 -- Demon Hunter
-        end
-        entry = CCS.Race_Bg[raceID] 
-        modtex:SetVertexColor(0.7, 0.7, 0.7, 1)
-    end
-    
-    modtex:ClearAllPoints()
-    modtex:SetAllPoints()
-    
-    if entry then
-        local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
-        local frameWidth, frameHeight = modtex:GetWidth(), modtex:GetHeight()
-        
-        modtex:SetTexture(entry.texture)
-        
-        if option("bgtype_inspect") == "Class" then
-			local visibleWidth = frameWidth / (frameHeight / texHeight)
-			local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
-			left = clamp(left, uMin, uMax)
-
-			modtex:SetTexCoord(left, uMax, vMin, vMax)
-        else
-			-- Race: horizontally centered
-			local visibleWidth = frameWidth / (frameHeight / texHeight)
-			local uRange = uMax - uMin
-			local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
-
-			local left  = clamp(uMin + uOffset, uMin, uMax)
-			local right = clamp(uMax - uOffset, uMin, uMax)
-
-			modtex:SetTexCoord(left, right, vMin, vMax)
-        end
-    else
-        -- Default background
-        modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")
-        modtex:SetTexCoord(0, 0.69, 0, 0.87)
-        modtex:SetVertexColor(0.4, 0, 0.4, 0.9)
-    end
-    -- end of dynamic background
 end
 
 local function InspectClicky(endstate)
@@ -1347,7 +1269,7 @@ local function InspectClicky(endstate)
             MoveInspectModelRight()
         end
     end
-    ChangeModelBg()
+	CCS.ChangeModelBg(true)
     PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK); -- just puts a sound in when clicking on the button for more feedback
 end
 
@@ -1612,7 +1534,7 @@ function CCS.initializeinspectframe()
     modbg:SetFrameStrata("BACKGROUND")
     modbg:SetFrameLevel(100)
 
-    C_Timer.After(.1, function() ChangeModelBg() end)
+    C_Timer.After(.1, function() CCS.ChangeModelBg(true) end)
 
     if InspectPaperDollFrame.ViewButton ~= nil then
         InspectPaperDollFrame.ViewButton.Left:Hide()
@@ -1686,8 +1608,6 @@ loopitems = function()
     local ilvlTxt = _G["InspectFrameilvlfs"] or _G["InspectPaperDollFrame"]:CreateFontString("InspectFrameilvlfs")
     local color = "ffffff"
 
-    if iLvl == nil then return true end
-    
     color = CCS:GetAverageEquippedRarityHex(unit) or "ffffff"
     
     ilvlTxt:SetPoint("TOP", _G["InspectLevelText"], "BOTTOM", 0, -10) 
@@ -1696,10 +1616,15 @@ loopitems = function()
 		ilvlTxt:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		ilvlTxt:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
 	end
-    
-    ilvlTxt:SetText("|cFF".. color .. format("%.2f", iLvl or "") .. "|r")
-    ilvlTxt:SetShown(option("showilvl_inspect"))
-    
+		
+    if C_AddOns.IsAddOnLoaded("LoxxInterruptTracker") then
+		ilvlTxt:SetFont(option("fontname_inspect_ilvl") or CCS.fontname, 12, CCS.textoutline)
+		ilvlTxt:SetText("|cFFFFFF00Loxx Interrupt Tracker is Interfering with this addon.|r")
+		ilvlTxt:Show()
+	else
+		ilvlTxt:SetText("|cFF".. color .. format("%.2f", iLvl or "") .. "|r")
+		ilvlTxt:SetShown(option("showilvlinspect"))
+    end
     initmplusframe()
     initclickframe()
 end 
@@ -1708,7 +1633,7 @@ end
 function CCS.InspectSheetEventHandler(event, ...)
 
     -- Retail-only inspect frame updates
-    if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
+    if CCS.CurrentVersion ~= CCS.RETAIL then return end
     if not InspectFrame or not InspectFrame.unit or not option("show_inspect") then return end
 
 	if not InspectFrame.loaded then
@@ -1722,24 +1647,19 @@ function CCS.InspectSheetEventHandler(event, ...)
             RaidNotice_AddMessage(RaidBossEmoteFrame, msg, ChatTypeInfo["SYSTEM"])
             ReloadUI()
         end
+		
+		if InspectFrame:IsVisible() == true then
+			CCS.initializeinspectframe()
+			initializemplusplanelframe()
+			loopitems()			
+        end
+
 		InspectFrame.loaded = false
         return true
 	elseif event == "INSPECT_READY" then
-		--print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "INSPECT TEST")
-        if not CCS.inspectUpdatePending then
-            CCS.inspectUpdatePending = true
-			C_Timer.After(0.25, function() 
-				if not InspectFrame or not InspectFrame.unit then
-					CCS.inspectUpdatePending = false
-					return
-				end
-
-				ChangeModelBg()
-				CCS.inspectUpdatePending = false 
+				CCS.ChangeModelBg(true)
 				initializemplusplanelframe()
 				loopitems()
-				end)
-		end
 	end
 end
 
