@@ -74,6 +74,18 @@ L.NODE_BARBER_TITLE = "Peluqueria"
 L.NODE_BARBER_DESC = "Personaliza la apariencia de tu personaje."
 L.NPC_TRIM_AND_DYE_EXPERT = "Experto en corte y tinte"
 
+L.NODE_SILVERMOON_INN_TITLE = "Posada de Lunargenta"
+L.NODE_SILVERMOON_INN_DESC = "Solo para la Horda: zona de descanso y punto de vinculacion de piedra de hogar."
+
+L.NODE_SILVERMOON_BANK_TITLE = "Camara y banco"
+L.NODE_SILVERMOON_BANK_DESC = "Solo para la Horda: acceso al banco y a la gran boveda."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "Casa de Subastas"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "Solo para la Horda: acceso a la casa de subastas."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "Catalizador"
+L.NODE_SILVERMOON_CATALYST_DESC = "Solo para la Horda: acceso al catalizador."
+
 L.NODE_TIMEWAYS_TITLE = "Sendas temporales"
 L.NODE_TIMEWAYS_DESC = "Accede a campanas de Paseo en el Tiempo."
 L.NPC_LINDORMI = "Lindormi"

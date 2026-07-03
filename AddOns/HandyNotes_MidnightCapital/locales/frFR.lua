@@ -73,6 +73,18 @@ L.NODE_BARBER_TITLE = "Salon de coiffure"
 L.NODE_BARBER_DESC = "Personnalisez l'apparence de votre personnage."
 L.NPC_TRIM_AND_DYE_EXPERT = "Expert coupe et couleur"
 
+L.NODE_SILVERMOON_INN_TITLE = "Auberge de Lune-d'Argent"
+L.NODE_SILVERMOON_INN_DESC = "Reserve a la Horde : zone de repos et point de foyer."
+
+L.NODE_SILVERMOON_BANK_TITLE = "Coffre et banque"
+L.NODE_SILVERMOON_BANK_DESC = "Reserve a la Horde : acces a la banque et au grand coffre."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "Hotel des ventes"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "Reserve a la Horde : acces a l'hotel des ventes."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "Catalyseur"
+L.NODE_SILVERMOON_CATALYST_DESC = "Reserve a la Horde : acces au catalyseur."
+
 L.NODE_TIMEWAYS_TITLE = "Voies temporelles"
 L.NODE_TIMEWAYS_DESC = "Accedez aux campagnes des Marcheurs du temps."
 L.NPC_LINDORMI = "Lindormi"

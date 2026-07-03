@@ -73,6 +73,18 @@ L.NODE_BARBER_TITLE = "Barbier"
 L.NODE_BARBER_DESC = "Passe das Aussehen deines Charakters an."
 L.NPC_TRIM_AND_DYE_EXPERT = "Schneid- und Faerbeexperte"
 
+L.NODE_SILVERMOON_INN_TITLE = "Gasthaus von Silbermond"
+L.NODE_SILVERMOON_INN_DESC = "Nur fuer die Horde: Ruhebereich und Heimatstein-Bindepunkt."
+
+L.NODE_SILVERMOON_BANK_TITLE = "Gewoelbe und Bank"
+L.NODE_SILVERMOON_BANK_DESC = "Nur fuer die Horde: Zugang zu Bank und Grossem Gewoelbe."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "Auktionshaus"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "Nur fuer die Horde: Zugang zum Auktionshaus."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "Katalysator"
+L.NODE_SILVERMOON_CATALYST_DESC = "Nur fuer die Horde: Zugang zum Katalysator."
+
 L.NODE_TIMEWAYS_TITLE = "Zeitpfade"
 L.NODE_TIMEWAYS_DESC = "Greife auf Zeitwanderungskampagnen zu."
 L.NPC_LINDORMI = "Lindormi"

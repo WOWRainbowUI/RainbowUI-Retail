@@ -73,6 +73,18 @@ L.NODE_BARBER_TITLE = "Парикмахерская"
 L.NODE_BARBER_DESC = "Настройте внешний вид своего персонажа."
 L.NPC_TRIM_AND_DYE_EXPERT = "Эксперт по стрижке и окраске"
 
+L.NODE_SILVERMOON_INN_TITLE = "Таверна Луносвета"
+L.NODE_SILVERMOON_INN_DESC = "Только для Орды: зона отдыха и точка привязки камня возвращения."
+
+L.NODE_SILVERMOON_BANK_TITLE = "Хранилище и банк"
+L.NODE_SILVERMOON_BANK_DESC = "Только для Орды: доступ к банку и великому хранилищу."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "Аукционный дом"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "Только для Орды: доступ к аукционному дому."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "Катализатор"
+L.NODE_SILVERMOON_CATALYST_DESC = "Только для Орды: доступ к катализатору."
+
 L.NODE_TIMEWAYS_TITLE = "Пути времени"
 L.NODE_TIMEWAYS_DESC = "Доступ к кампаниям путешествий во времени."
 L.NPC_LINDORMI = "Линдорми"

@@ -73,6 +73,18 @@ L.NODE_BARBER_TITLE = "미용실"
 L.NODE_BARBER_DESC = "캐릭터 외형을 꾸밉니다."
 L.NPC_TRIM_AND_DYE_EXPERT = "염색 및 커트 전문가"
 
+L.NODE_SILVERMOON_INN_TITLE = "실버문 여관"
+L.NODE_SILVERMOON_INN_DESC = "호드 전용 휴식 지역 및 귀환석 귀속 지점입니다."
+
+L.NODE_SILVERMOON_BANK_TITLE = "금고와 은행"
+L.NODE_SILVERMOON_BANK_DESC = "호드 전용 은행 및 위대한 금고 이용 장소입니다."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "경매장"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "호드 전용 경매장 이용 장소입니다."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "촉매"
+L.NODE_SILVERMOON_CATALYST_DESC = "호드 전용 촉매 이용 장소입니다."
+
 L.NODE_TIMEWAYS_TITLE = "시간의 길"
 L.NODE_TIMEWAYS_DESC = "시간여행 캠페인에 접근합니다."
 L.NPC_LINDORMI = "린도르미"

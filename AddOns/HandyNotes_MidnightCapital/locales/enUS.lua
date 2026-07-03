@@ -69,6 +69,18 @@ L.NODE_BARBER_TITLE = "Barber Shop"
 L.NODE_BARBER_DESC = "Customize your character's appearance."
 L.NPC_TRIM_AND_DYE_EXPERT = "Trim-and-Dye Expert"
 
+L.NODE_SILVERMOON_INN_TITLE = "Silvermoon City Inn"
+L.NODE_SILVERMOON_INN_DESC = "Horde-only inn and hearthstone bind point."
+
+L.NODE_SILVERMOON_BANK_TITLE = "Vault and Bank"
+L.NODE_SILVERMOON_BANK_DESC = "Horde-only access to the bank and Great Vault."
+
+L.NODE_SILVERMOON_AUCTION_HOUSE_TITLE = "Auction House"
+L.NODE_SILVERMOON_AUCTION_HOUSE_DESC = "Horde-only auction house access."
+
+L.NODE_SILVERMOON_CATALYST_TITLE = "Catalyst"
+L.NODE_SILVERMOON_CATALYST_DESC = "Horde-only catalyst access."
+
 L.NODE_TIMEWAYS_TITLE = "Timeways"
 L.NODE_TIMEWAYS_DESC = "Access Timewalking campaigns."
 L.NPC_LINDORMI = "Lindormi"
