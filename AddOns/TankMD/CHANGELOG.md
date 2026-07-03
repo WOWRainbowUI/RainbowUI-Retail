@@ -1,7 +1,7 @@
 # TankMD
 
-## [v3.2.11](https://github.com/Oppzippy/TankMD/tree/v3.2.11) (2026-06-03)
-[Full Changelog](https://github.com/Oppzippy/TankMD/compare/v3.2.10...v3.2.11) [Previous Releases](https://github.com/Oppzippy/TankMD/releases)
+## [v3.2.13](https://github.com/Oppzippy/TankMD/tree/v3.2.13) (2026-06-17)
+[Full Changelog](https://github.com/Oppzippy/TankMD/compare/v3.2.12...v3.2.13) [Previous Releases](https://github.com/Oppzippy/TankMD/releases)
 
-- Update Interface version (#39)  
+- Update Interface version (#40)  
     Co-authored-by: Oppzippy <Oppzippy@users.noreply.github.com>  
