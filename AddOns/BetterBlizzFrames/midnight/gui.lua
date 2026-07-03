@@ -363,7 +363,7 @@ local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, op
             local displayText = GetLocalizedText(option)
             -- Create each item as a button
             local button = rootDescription:CreateButton(displayText, function()
-                BetterBlizzFramesDB[settingKey] = option
+                BetterBlizzFramesDB[settingKey] = tonumber(option) or option
                 dropdown:SetDefaultText(displayText)
                 if toggleFunc then
                     toggleFunc(option)
@@ -3204,7 +3204,7 @@ local function guiProfiles()
     frame.streamerText:SetText(L["Profile_Streamers"])
 
     frame.infoText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 107)
+    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 100)
     frame.infoText:SetText(L["Profile_Info_Message"])
     frame.infoText:SetWidth(100)
 

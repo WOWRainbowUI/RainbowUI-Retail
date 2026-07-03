@@ -16,7 +16,6 @@ local defaultSettings = {
     version = addonVersion,
     updates = "empty",
     wasOnLoadingScreen = true,
-    enableBigDebuffs = true,
     -- General
     removeRealmNames = true,
     centerNames = false,
@@ -2721,6 +2720,8 @@ end
 function BBF.InstantComboPoints()
     if not BetterBlizzFramesDB.instantComboPoints then return end
     if BBF.InstantComboPointsActive then return end
+
+    local prdClassFrame = PersonalResourceDisplayFrame.classFrame
     -- Call the function for each frame
     local _, class = UnitClass("player")
 
@@ -5236,6 +5237,20 @@ First:SetScript("OnEvent", function(_, event, addonName)
             end
             BetterBlizzFramesDB.fontOutlineFix = true
         end
+        if not BetterBlizzFramesDB.fontSizeNumFix then
+            local sizeKeys = {
+                "unitFrameFontSize", "unitFrameValueFontSize",
+                "partyFrameFontSize", "partyFrameStatusFontSize",
+                "actionBarFontSize", "actionBarKeyFontSize", "actionBarChargeFontSize"
+            }
+            for _, key in ipairs(sizeKeys) do
+                local val = BetterBlizzFramesDB[key]
+                if type(val) == "string" then
+                    BetterBlizzFramesDB[key] = tonumber(val) or val
+                end
+            end
+            BetterBlizzFramesDB.fontSizeNumFix = true
+        end
         FetchAndSaveValuesOnFirstLogin()
         TurnTestModesOff()
         BBF.ChatFilterCaller()
@@ -5561,10 +5576,11 @@ function BBF.CreateBigDebuffs()
             spellID, texture, auraInstanceID = IterateAuras("HELPFUL|EXTERNAL_DEFENSIVE", nil, unit, seen)
         end
 
-        -- Important buffs
-        if not spellID then
-            spellID, texture, auraInstanceID = IterateAuras("HELPFUL|IMPORTANT", C_Spell.IsSpellImportant, unit, seen)
-        end
+        -- -- Important buffs
+        -- if not spellID then
+        --     spellID, texture, auraInstanceID = IterateAuras("HELPFUL|IMPORTANT", C_Spell.IsSpellImportant, unit, seen)
+        -- end
+        -- - WoW 12.0.7 comes with more bugs. Important aura filter is broken because of Blizzard and shows a bunch of trash auras. Temporarily disabled important auras until Blizzard fixes it.
 
         if spellID then
             local durationObj = C_UnitAuras.GetAuraDuration(unit, auraInstanceID)
