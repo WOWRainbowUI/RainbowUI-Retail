@@ -10,7 +10,7 @@ frame.OnRefresh = function() end
 frame:Hide()
 
 local category, layout = Settings.RegisterCanvasLayoutCategory(frame, myfullname)
-category.ID = 37920793
+category.ID = myname
 layout:AddAnchorPoint("TOPLEFT", 10, -10)
 layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10)
 
