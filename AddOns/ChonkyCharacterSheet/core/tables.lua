@@ -24,6 +24,7 @@ CCS.raidupdatedisabled = false
 CCS.activeClickedRow = nil
 CCS.initall = nil
 CCS.tempEnchantTicker = nil
+CCS.modbg_retries = 0
 
 -- Game version flags
 CCS.RETAIL  = 1
@@ -62,7 +63,16 @@ CCS.Throttles = {
     PlayerLootSpec = 0,
     RaidProgress = 0,
     Init = 0,
+    CharacterRep = 0,
 }
+
+-- Item Upgrade Tracks
+CCS.Explorer = 1
+CCS.Adventurer = 2
+CCS.Veteran = 3
+CCS.Champion = 4
+CCS.Hero = 5
+CCS.Myth = 6
 
 function CCS:GetDefaultFontForLocale()
 
@@ -92,7 +102,7 @@ function CCS:GetDefaultFontForLocale()
     -- Default for enUS and others
     return "Fonts\\FRIZQT__.TTF"
 end
-
+CCS.fontname = CCS:GetDefaultFontForLocale()
 
 -- Determine current game version flag
 function CCS.GetCurrentVersion()
@@ -114,9 +124,9 @@ function CCS.GetCurrentVersion()
     end
 end
 
+CCS.CurrentVersion = CCS.GetCurrentVersion()
 
 -- Option definitions table
-
 ns.optionDefs = {
     -- Ignore these specific ones
     { type="slider", cat="IGNORE", ver=bit.bor(CCS.ALL), key="optionsheetscale", label="", value=1, default=1, min=0.5, max=1.25, step=0.05, slots=1 },
@@ -128,7 +138,7 @@ ns.optionDefs = {
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="showcharacterstats", label=L["SHOW_CHARACTER_STATS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="show_inspect", label=L["SHOW_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showraidprogress", label=L["SHOW_RAID_PROGRESS"], value=true, default=true, slots=1 },
-    { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label="", slots=1, color={1, 1, 1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showgearfinder", label=L["SHOW_GEAR_FINDER"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp", label=L["SHOW_MYTHIC_SP"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_btn", label=L["SHOW_MYTHIC_SP_BTN"], value=true, default=true, slots=1 },    
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_onopen", label=L["SHOW_MYTHIC_SP_ONOPEN"], value=false, default=false, slots=2 },    
@@ -140,6 +150,7 @@ ns.optionDefs = {
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="sheetscale_inspect", label=L["SHEET_SCALE_INSPECT"], value=1, default=1, min=0.5, max=1.25, step=0.1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="vpad_inspect", label=L["V_PAD_INSPECT"], value=23, default=23, min=0, max=40, step=1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="raid_sp_scale", label=L["RAID_SP_SCALE"], value=1, default=1, min=0.5, max=1.5, step=0.1, slots=2 },
+    { type="slider", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="gear_gf_scale", label=L["CATEGORY_GEAR-FINDER"].." "..L["SCALE"], value=1, default=1, min=0.5, max=1.5, step=0.1, slots=2 },
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
     { type="font", cat="GENERAL", ver=bit.bor(CCS.ALL), key="default_font", label=L["DEFAULT_FONT_NAME"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2},
     { type="button", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label=L["Apply Font to All"],  slots = 2, 
@@ -170,6 +181,7 @@ ns.optionDefs = {
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="fontshadowx", label=L["Shadow X Offset"], value=0, default=0, min=-15, max=15, step=1, slots=1 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="fontshadowy", label=L["Shadow Y Offset"], value=0, default=0, min=-15, max=15, step=1, slots=1 },
     { type="dropdown", cat="GENERAL", ver=bit.bor(CCS.ALL), key="textoutline", label=L["TEXT_OUTLINE"], value="Thin Outline", default="Thin Outline", values={"No Outline", "Thin Outline", "Thick Outline"}, slots=2 },
+    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="font_slug", label=L["Slug Rendering"], value=false, default=false, slots=2 },    
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
     { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label=L["ADDON COLORS"], slots=4, color={1, 1, 1}, fontSize=16, fontOutline="THICKOUTLINE" },
     { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="button_color", label=L["Button Foreground Color"], value={0.49, 0.196, 0.659, 1}, default={0.49, 0.196, 0.659, 1}, slots=1 },
@@ -182,7 +194,8 @@ ns.optionDefs = {
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_GENERAL_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
-    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
@@ -193,25 +206,35 @@ ns.optionDefs = {
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemnamelength", label=L["ITEM_NAME_LENGTH"], value=75, default=75, min=1, max=75, step=1, slots=2 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showdurability", label=L["SHOW_DURABILITY"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showdurabilitybar", label=L["SHOW_DURABILITY_BAR"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="hideshowchbtn", label=L["HIDE_SHOW_CHAR_BTN"], value=false, default=false, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="hideshowchbtn", label=L["HIDE_SHOW_CHAR_BTN"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="hideiconborders", label=L["HIDE_ICON_BORDERS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showenchants", label=L["SHOW_ENCHANTS"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showtempenchants", label=L["SHOW_TEMP_ENCHANTS"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showtempenchants", label=L["SHOW_TEMP_ENCHANTS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showgems", label=L["SHOW_GEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showilvl", label=L["SHOW_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showpvpilvl", label=L["SHOW_PVP_ILVL"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showhighwater", label=L["SHOW_HIGHWATER"], value=false, default=false, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showhighwater", label=L["SHOW_HIGHWATER"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showenchantgemerrors", label=L["SHOW_ENCHANT_GEM_ERRORS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showmissingsockets", label=L["SHOW_MISSING_SOCKETS"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemupgrade", label=L["SHOW_ITEM_UPGRADE"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="upgradecolorrarity", label=L["Upgrade Color by Rarity"], value=false, default=false, slots=1 },
+--    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="upgradecolorrarity", label=L["Upgrade Color by Rarity"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemcolor", label=L["SHOW_ITEM_COLOR_BG"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetitems", label=L["SHOW_SET_ITEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetclasscolor", label=L["SHOW_SET_CLASS_COLOR"], value=true, default=true, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=1 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=2 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
+    { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
+    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Upgrade Color by Rarity"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="customupgradecolor", label=L["Custom Upgrade Color"], value=true, default=true, slots=2 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_explorer", label=L["Explorer"], value={0.62, 0.62, 0.62, 1}, default={0.62, 0.62, 0.62, 1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_adventurer", label=L["Adventurer"], value={1.00, 1.00, 1.00, 1}, default={1.00, 1.00, 1.00, 1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_veteran", label=L["Veteran"], value={0.12, 1.00, 0.00, 1}, default={0.12, 1.00, 0.00, 1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_champion", label=L["Champion"], value={0.00, 0.44, 0.87, 1}, default={0.00, 0.44, 0.87, 1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_hero", label=L["Hero"], value={1, .3, 1, 1}, default={1, .3, 1, 1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_myth", label=L["Myth"], value={1.00, 0.50, 0.00, 1}, default={1.00, 0.50, 0.00, 1}, slots=1 },
 
     -- Spec Display Options
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
@@ -407,8 +430,8 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showmythicplusscore", label=L["SHOW_MYTHIC_SCORE"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showm_overundertime", label=L["SHOW_M_OVERUNDER"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showm_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=2 },
-    { type="color", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="ccsmbgcolor", label=L["CCS_M_BG_COLOR"], value={0,0,0,0.85}, default={0,0,0,0.85}, slots=4 },
-    { type="dropdown", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="mplus_sortby", label=RAID_FRAME_SORT_LABELccccc, value="Name", default="Name", values={"Name", "Level", "Rating", "Time"}, slots=2 },
+    { type="color", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="ccsmbgcolor", label=L["CCS_M_BG_COLOR"], value={0,0,0,.85}, default={0,0,0,.85}, slots=4 },
+    { type="dropdown", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="mplus_sortby", label=RAID_FRAME_SORT_LABEL, value="Name", default="Name", values={"Name", "Level", "Rating", "Time"}, slots=2 },
     { type="dropdown", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="mplus_direction", label=L["Sort Direction"], value="Ascending", default="Ascending", values={"Ascending", "Descending"}, slots=2 },
 
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
@@ -475,7 +498,7 @@ ns.optionDefs = {
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_RAID_PROGRESS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={.12,.12,.12,1}, default={.12,.12,.12,1}, slots=2 },
+    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={0.0039, 0.0, 0.1451,1}, default={0.0039, 0.0, 0.1451,1}, slots=2 },
     { type="checkbox", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="showr_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=2 },
 
     { type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raidtitle", label=L["FONT_NAME_RAID_TITLE"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
@@ -495,10 +518,11 @@ ns.optionDefs = {
     { type="header", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_INSPECT_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="color", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor_inspect", label=L["INSPECT_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=2 },
-    { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Default", default="Default", values={"Default", "Class", "Race", "Hide"}, slots=2 },
+    { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Default", default="Default", values={"Default", "Class", "Class Crest", "Race", "Hide"}, slots=2 },
+    { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
 
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },    
-    { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showilvl_inspect", label=L["SHOW_ILVL_INSPECT"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showilvlinspect", label=L["SHOW_ILVL_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showenchants_inspect", label=L["SHOW_ENCHANTS_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showgems_inspect", label=L["SHOW_GEMS_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showenchantgemerrors_inspect", label=L["SHOW_ENCHANT_GEM_ERRORS"], value=true, default=true, slots=1 },
@@ -552,6 +576,45 @@ ns.optionDefs = {
     { type="font", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), key="fontname_iname_inspect", label=L["FONT_NAME_INSPECT_ITEMNAME"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2},
     { type="slider", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), key="fontsize_iname_inspect", label=FONT_SIZE, value=12, default=12, min=3, max=36, step=1, slots=1 },
 
+    ------------------
+    -- Gear Finder
+    ------------------
+    { type="divider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), slots=4 },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label=L["CATEGORY_GEAR-FINDER"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="divider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), slots=4 },
+    { type="color", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="bgcolor_gearfinder", label=L["BG_COLOR"], value={0,0,0,.85}, default={0,0,0,.85}, slots=1 },
+    { type="color", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="bgcolor_gearfinderfooter", label=L["FOOTER_COLOR"], value={0.0039, 0.0, 0.1451, 0.85}, default={0, 0, 0, 0.85}, slots=1 },
+    { type="checkbox", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="showgf_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=1 },
+    { type="divider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), slots=4 },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_title", label=L["TITLE_FONT"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_title", label=FONT_SIZE, value=18, default=18, min=3, max=34, step=1, slots=1 },
+    { type="color",  cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontcolor_gf_title", label=COLOR, value={1,1,1,1}, default={1,1,1,1}, slots=1 },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_header", label=L["HEADER_FONT"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_header", label=FONT_SIZE, value=14, default=14, min=3, max=34, step=1, slots=1 },
+    { type="color",  cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontcolor_gf_header", label=COLOR, value={0.1647, 0.9804, 0.7098, 1}, default={0.1647, 0.9804, 0.7098, 1}, slots=1 },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_itemname", label=L["FONT_NAME_INAME"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_itemname", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_itemslot", label=L["FONT_NAME_GF_ITEMSLOT"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_itemslot", label=FONT_SIZE, value=10, default=10, min=3, max=34, step=1, slots=1 },
+    { type="color",  cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontcolor_gf_itemslot", label=COLOR, value={1,1,1,1}, default={1,1,1,1}, slots=1 },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_stats", label=L["FONT_NAME_STATS"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_stats", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_dungeon", label=L["FONT_NAME_GF_DRAID"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_dungeon", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
+    { type="color",  cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontcolor_gf_dungeon", label=COLOR, value={.6,.85,1,1}, default={.6,.85,1,1}, slots=1 },
+
+    { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_boss", label=L["FONT_NAME_GF_BOSS"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
+    { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_boss", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
+    { type="color",  cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontcolor_gf_boss", label=COLOR, value={1,1,1,1}, default={1,1,1,1}, slots=1 },
+
 }
 
 -- Alls fonts defined so we can look them up later.
@@ -561,7 +624,6 @@ CCS.fonts = {
     ["Anonymous Pro"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\AnonymousPro-Bold.ttf",
     ["Arial Narrow"] = "Fonts\\ARIALN.TTF", -- BLIZ
     ["AR Hei"] = "Fonts\\ARHei.TTF", -- Blizz zhCN
-    ["AR Hei UHK Bold"] = "Fonts\\ARHEIUHK_BD.TTF", -- Blizz zhTW
     ["ARKai_C (Simplified Chinese)"] = "Fonts\\ARKai_C.ttf", -- BLIZ zhCN
     ["ARKai_T (Traditional Chinese)"] = "Fonts\\ARKai_T.ttf", -- BLIZ zhCN
     ["Avengeance"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Avengeance.ttf",
@@ -611,6 +673,62 @@ CCS.fonts = {
     ["Wakanda 4 Ever"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Wakanda.ttf",
     ["White Rabbit"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\WHITRABT.TTF",
 }
+
+CCS.fontFiles = {
+    ["2002.TTF"] = "2002 (Korean)",
+    ["Accidental Presidency.ttf"] = "Accidental Presidency",
+    ["AnonymousPro-Bold.ttf"] = "Anonymous Pro",
+    ["ARIALN.TTF"] = "Arial Narrow",
+    ["ARHei.TTF"] = "AR Hei",
+    ["ARKai_C.ttf"] = "ARKai_C (Simplified Chinese)",
+    ["ARKai_T.ttf"] = "ARKai_T (Traditional Chinese)",
+    ["Avengeance.ttf"] = "Avengeance",
+    ["Bazooka.ttf"] = "Bazooka",
+    ["bHEI00M.ttf"] = "BHEI00M (Traditional Chinese)",
+    ["BLEI00D.TTF"] = "BL Hei",
+    ["BKAI00M.TTF"] = "BKai Medium",
+    ["BradleyGratis.ttf"] = "Bradley Gratis",
+    ["Brave.ttf"] = "Brave",
+    ["Danvers.ttf"] = "CaptainMarvel",
+    ["Carlito-Regular.ttf"] = "Carlito",
+    ["CRYSRG__.TTF"] = "Crystal",
+    ["DejaVuSansMono.ttf"] = "DejaVu Sans Mono",
+    ["DORISPP.TTF"] = "Doris PP",
+    ["ElMessiri-VariableFont_wght.ttf"] = "El Messiri",
+    ["Emblem.ttf"] = "Emblem",
+    ["Enigma__2.TTF"] = "Enigmatic Unicode",
+    ["Expressway.ttf"] = "Expressway",
+    ["FiraMono-Regular.ttf"] = "Fira Mono",
+    ["FiraMono-Medium.ttf"] = "Fira Mono Medium",
+    ["FiraSansCondensed-Heavy.ttf"] = "Fira Sans Condensed Heavy",
+    ["FiraSansCondensed-Medium.ttf"] = "Fira Sans Condensed Medium",
+    ["FiraSans-Heavy.ttf"] = "Fira Sans Heavy",
+    ["FiraSans-Medium.ttf"] = "Fira Sans Medium",
+    ["FSEX300.ttf"] = "Fixedsys Excelsior 3.01",
+    ["FORCED SQUARE.ttf"] = "FORCED SQUARE",
+    ["FRIZQT___CYR.TTF"] = "Friz Quadrata (Cyrillic)",
+    ["FRIZQT__.TTF"] = "Friz Quadrata TT",
+    ["Futura Condensed.ttf"] = "Futura",
+    ["HARRYP__.TTF"] = "Harry P",
+    ["K_PAGETEXT.TTF"] = "Korean Page Text",
+    ["LiberationSans-Regular.ttf"] = "Liberation Sans",
+    ["MONOFONT.TTF"] = "Monofonto",
+    ["MORPHEUS_CYR.TTF"] = "Morpheus",
+    ["Memoirs.ttf"] = "Mouse Memoirs",
+    ["Walt.ttf"] = "New Walt Disney Font",
+    ["NotoNaskhArabic-Regular.ttf"] = "Noto Naskh Arabic",
+    ["Nueva Std Cond.ttf"] = "Nueva Std Cond",
+    ["Oswald-Regular.ttf"] = "Oswald",
+    ["Rebellion.ttf"] = "Rebellion",
+    ["SF Diego Sans.ttf"] = "SF Diego Sans",
+    ["Jedi.ttf"] = "Star Jedi",
+    ["Shield.ttf"] = "Star Shield",
+    ["SKURRI.TTF"] = "Skurri",
+    ["TrashHand.TTF"] = "TrashHand",
+    ["Wakanda.ttf"] = "Wakanda 4 Ever",
+    ["WHITRABT.TTF"] = "White Rabbit",
+}
+
 
 CCS.fontLabels = {
     ["2002 (Korean)"] = {
@@ -666,19 +784,6 @@ CCS.fontLabels = {
         itIT = "AR Hei",
     },
 
-    ["AR Hei UHK Bold"] = {
-        enUS = "AR Hei UHK Bold",
-        koKR = "AR 헤이 UHK 볼드",
-        frFR = "AR Hei UHK Gras",
-        deDE = "AR Hei UHK Fett",
-        zhCN = "雅黑加粗",
-        esES = "AR Hei UHK Negrita",
-        zhTW = "雅黑加粗",
-        esMX = "AR Hei UHK Negrita",
-        ruRU = "AR Хэй UHK Полужирный",
-        ptBR = "AR Hei UHK Negrito",
-        itIT = "AR Hei UHK Grassetto",
-    },
     ["Arial Narrow"] = {
         enUS = "Arial Narrow",
         koKR = "에리얼 내로우",
@@ -1489,200 +1594,226 @@ CCS.SPEC_ID_TO_INDEX = {
 
 CCS.Class_Bg = {
     [1] = { -- Warrior
-        [1] = { name = "Arms", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Fury", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Protection", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIWarrior.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 261, 0.03515625, 0.2353515625, 0.611328125, 0.8662109375} },
+        [1] = { name = "Arms", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Fury", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Protection", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarrior2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [2] = { -- Paladin
-        [1] = { name = "Holy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Protection", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Retribution", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIPaladin.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 205, 0, 0.2001953125, 0.68359375, 0.89} },
+        [1] = { name = "Holy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Protection", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Retribution", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPaladin2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [3] = { -- Hunter
-        [1] = { name = "Beast Mastery", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Marksmanship", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Survival", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIHunter.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {210, 210, 0, 0.205078125, 0.6689453125, 0.8740234375} },
+        [1] = { name = "Beast Mastery", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Marksmanship", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Survival", texture = "Interface\\TalentFrame\\TalentsClassBackgroundHunter2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [4] = { -- Rogue
-        [1] = { name = "Assassination", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Outlaw", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Subtlety", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIRogue.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 205, 0, 0.2001953125, 0.6787109375, 0.8837890625} },
+        [1] = { name = "Assassination", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Outlaw", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Subtlety", texture = "Interface\\TalentFrame\\TalentsClassBackgroundRogue2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [5] = { -- Priest
-        [1] = { name = "Discipline", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Holy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Shadow", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIPriest.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {245, 205, 0, 0.2392578125, 0.732421875, 0.9326171875} },
+        [1] = { name = "Discipline", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Holy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Shadow", texture = "Interface\\TalentFrame\\TalentsClassBackgroundPriest2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [6] = { -- Death Knight
-        [1] = { name = "Blood", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Frost", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Unholy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIDeathKnightFrost.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 205, 0, 0.2001953125, 0.732421875, 0.9326171875} },
+        [1] = { name = "Blood", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Frost", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Unholy", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDeathKnight2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [7] = { -- Shaman
-        [1] = { name = "Elemental", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Enhancement", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Restoration", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIShaman.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 210, 0, 0.2001953125, 0.701171875, 0.9033203125} },
+        [1] = { name = "Elemental", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Enhancement", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Restoration", texture = "Interface\\TalentFrame\\TalentsClassBackgroundShaman2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [8] = { -- Mage
-        [1] = { name = "Arcane", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Fire", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Frost", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIMageArcane.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 210, 0, 0.2001953125, 0.7373046875, 0.9423828125}  },
+        [1] = { name = "Arcane", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Fire", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Frost", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMage2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [9] = { -- Warlock
-        [1] = { name = "Affliction", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Demonology", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Destruction", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIWarlock.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 210, 0, 0.2001953125, 0.69140625, 0.896484375}   },
+        [1] = { name = "Affliction", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Demonology", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Destruction", texture = "Interface\\TalentFrame\\TalentsClassBackgroundWarlock2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [10] = { -- Monk
-        [1] = { name = "Brewmaster", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Mistweaver", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Windwalker", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIMonk.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 215, 0.009765625, 0.2099609375, 0.7568359375, 0.966796875}  },
+        [1] = { name = "Brewmaster", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Mistweaver", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Windwalker", texture = "Interface\\TalentFrame\\TalentsClassBackgroundMonk2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [11] = { -- Druid
-        [1] = { name = "Balance", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid1", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Feral", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid1", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Guardian", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid2", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [4] = { name = "Restoration", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid2", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIDruid.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {205, 205, 0.0078125, 0.2080078125, 0.7880859375, 0.98828125}  },
+        [1] = { name = "Balance", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid1", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Feral", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid1", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Guardian", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid2", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [4] = { name = "Restoration", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDruid2", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
     },
+
     [12] = { -- Demon Hunter
-        [1] = { name = "Havoc", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Vengeance", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Devourer", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunterDevourer", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIDemonHunter.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {240, 252, 0.0146484375, 0.2392578125, 0.7421875, 0.98828125}  },
+        [1] = { name = "Havoc", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Vengeance", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Devourer", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunterDevourer", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
+
     [13] = { -- Evoker
-        [1] = { name = "Devastation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
-        [2] = { name = "Preservation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
-        [3] = { name = "Augmentation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker2", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
+        [0] = { name = "Class Crest", texture = "Interface\\Artifacts\\ArtifactUIPriest.BLP", map = {898, 614, 0.0, 0.873058, 0.0, 0.597864}, crestmap = {245, 205, 0, 0.2392578125, 0.732421875, 0.9326171875} },
+        [1] = { name = "Devastation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker", map = {1612,774,0.000488281,0.787598,0.000488281,0.378418} },
+        [2] = { name = "Preservation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker", map = {1612,774,0.000488281,0.787598,0.379395,0.757324} },
+        [3] = { name = "Augmentation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker2", map = {1612,774,0.000488281,0.787598,0.000976562,0.756836} },
     },
 }
 
 CCS.Race_Bg = {
     [1] = { -- Human
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.000488281, 0.499512, 0.650879, 0.975098},
     },
     [2] = { -- Orc
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.500488, 0.999512, 0.650879, 0.975098},
     },
     [3] = { -- Dwarf
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },
     [4] = { -- Night Elf
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.000488281, 0.499512, 0.650879, 0.975098},
     },
     [5] = { -- Undead (Scourge)
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
     },
     [6] = { -- Tauren
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.500488, 0.999512, 0.000488281, 0.324707},
     },
     [7] = { -- Gnome
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.500488, 0.999512, 0.000488281, 0.324707},
     },
     [8] = { -- Troll
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.000488281, 0.499512, 0.325684, 0.649902},
     },
     [9] = { -- Goblin
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.000488281, 0.499512, 0.325684, 0.649902},
     },
     [10] = { -- Blood Elf
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones1",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones1",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },
     [11] = { -- Draenei
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones1",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones1",
         map     = {1022, 664, 0.500488, 0.999512, 0.650879, 0.975098},
     },
     [22] = { -- Worgen
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
         map     = {1022, 664, 0.5, 0.999512, 0.000488281, 0.324707},
     },
     [24] = { -- Pandaren
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },
     [26] = { -- Pandaren
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },    
     [27] = { -- Nightborne
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
     },
     [28] = { -- Highmountain Tauren
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
     },
     [29] = { -- Void Elf
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.000488281, 0.499512, 0.650879, 0.975098},
     },
     [30] = { -- Lightforged Draenei
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },
     [31] = { -- Zandalari Troll
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
         map     = {1022, 664, 0, 0.5, 0.325684, 0.649902},
     },
     [32] = { -- Kul Tiran
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones2",
         map     = {1022, 664, 0.500488, 0.999512, 0.650879, 0.975098},
     },
     [34] = { -- Dark Iron Dwarf
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones1",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones1",
         map     = {1022, 664, 0.500488, 0.999512, 0.000488281, 0.324707},
     },
     [35] = { -- Vulpera
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.500488, 0.999512, 0.650879, 0.975098},
     },
     [36] = { -- Mag'har Orc
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.500488, 0.999512, 0.000488281, 0.324707},
     },
     [37] = { -- Mechagnome
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.000488281, 0.499512, 0.325684, 0.649902},
     },
     [52] = { -- Dracthyr (Alliance) [Placeholder]
-        texture = "Interface\\DRESSUPFRAME\\DressUpBackground-Dracthyr1",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\DressUpBackground-Dracthyr1",
         map     = {512, 512, 0, 1, 0, 1},
     },
     [70] = { -- Dracthyr (Horde) [Placeholder]
-        texture = "Interface\\DRESSUPFRAME\\DressUpBackground-Dracthyr1",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\DressUpBackground-Dracthyr1",
         map     = {512, 512, 0, 1, 0, 1},
     },
+    
     [84] = { -- Earthen (Horde) 
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.5, 0.325684, 0.649902},
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
+        map     = {1022, 664, 0.000488281, 0.5, 0, 0.325684},
     },
     [85] = { -- Earthen (Alliance) 
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.5, 0.325684, 0.649902},
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
+        map     = {1022, 664, 0.000488281, 0.5, 0, 0.325684},
     },
     [86] = { -- Haranir
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
     },    
     [91] = { -- Haranir
-        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
     },        
     [998] = { -- Death Knight
-        texture = "Interface\\Glues\\Models\\UI_DeathKnight\\UI_Deathknight_LowRes",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\UI_Deathknight_LowRes",
         map     = {2048, 2048, 0, 1, 0, 1},
     },
     [999] = { -- Demon Hunter
-        texture = "Interface\\Glues\\Models\\UI_DemonHunter\\UI_DemonHunter_LowRes",
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\UI_DemonHunter_LowRes",
         map     = {2048, 2048, 0, 1, 0, 1},
     },
 }
@@ -1726,8 +1857,8 @@ CCS.Dungeon_Teleports = {
     [247]= { spellID = 467553},        --  The MOTHERLODE!!
     [247]= { spellID = 467555},        --  The MOTHERLODE!!
     [248]= { spellID = 424167},    --  Waycrest Manor
-    [249]= { spellID = 0},        --  Kings' Rest
-    [250]= { spellID = 0},        --  Temple of Sethraliss
+    [249]= { spellID = 1286831},        --  Kings' Rest
+    [250]= { spellID = 1286828},        --  Temple of Sethraliss
     [251]= { spellID = 410074},    --  The Underrot
     [252]= { spellID = 0},        --  Shrine of the Storm
     [353]= { spellID = 445418},    --  Siege of Boralus (Alliance)
@@ -1776,11 +1907,11 @@ CCS.Dungeon_Teleports = {
     [558]= { spellID = 1254572}, -- Magister's Terrace
     [559]= { spellID = 1254563}, -- Nexus Point Xenas
     [560]= { spellID = 1254559}, -- Maisara Caverns
-    --Placeholder for: Den of Nalorakk
-    --Placeholder for:Murder Row
-    --Placeholder for:The Blinding Vale
-    --Placeholder for:Voidscar Arena
-    
+    [584]= { spellID = 1286801}, -- The Blinding Vale
+    [585]= { spellID = 1286804}, -- Voidscar Arena
+    [586]= { spellID = 1286807}, -- Den of Nalorakk
+    [587]= { spellID = 1286809}, -- Murder Row
+    [588]= { spellID = 1286812}, --  Altar of Fangs
 }
 
 CCS.RAID_DIFFICULTY_COLORS ={
@@ -1798,82 +1929,128 @@ CCS.RAID_DIFFICULTY_NAMES = {
 if CCS.GetCurrentVersion() == CCS.RETAIL then
 
 CCS.SRI = { 
-    -- Liberation of Undermine C_Map.GetMapInfo(2406).name
-    [1] = { boss=2639, raid=2406, name = select(1, EJ_GetEncounterInfo(2639)), icon = select(5, EJ_GetCreatureInfo(1, 2639)), normal=41300, heroic=41301, mythic=41302}, -- Vexie and the Geargrinders
-    [2] = { boss=2640, raid=2406, name = select(1, EJ_GetEncounterInfo(2640)), icon = select(5, EJ_GetCreatureInfo(1, 2640)), normal=41304, heroic=41305, mythic=41306}, -- Cauldrons of Carnage
-    [3] = { boss=2641, raid=2406, name = select(1, EJ_GetEncounterInfo(2641)), icon = select(5, EJ_GetCreatureInfo(1, 2641)), normal=41308, heroic=41309, mythic=41310}, -- Rik Reverb
-    [4] = { boss=2642, raid=2406, name = select(1, EJ_GetEncounterInfo(2642)), icon = select(5, EJ_GetCreatureInfo(1, 2642)), normal=41312, heroic=41313, mythic=41314}, -- Stix Bunkjunker
-    [5] = { boss=2643, raid=2406, name = select(1, EJ_GetEncounterInfo(2653)), icon = select(5, EJ_GetCreatureInfo(1, 2653)), normal=41316, heroic=41317, mythic=41318}, -- Sprocketmonger Lockenstock
-    [6] = { boss=2644, raid=2406, name = select(1, EJ_GetEncounterInfo(2644)), icon = select(5, EJ_GetCreatureInfo(1, 2644)), normal=41320, heroic=41321, mythic=41322}, -- The One-Armed Bandit
-    [7] = { boss=2645, raid=2406, name = select(1, EJ_GetEncounterInfo(2645)), icon = select(5, EJ_GetCreatureInfo(1, 2645)), normal=41324, heroic=41325, mythic=41326}, -- Mug'Zee, Heads of Security
-    [8] = { boss=2646, raid=2406, name = select(1, EJ_GetEncounterInfo(2646)), icon = select(5, EJ_GetCreatureInfo(1, 2646)), normal=41328, heroic=41329, mythic=41330}, -- Chrome King Gallywix
+    -- Liberation of Undermine select(1,EJ_GetInstanceInfo(1296))
+    [1] = { boss=2639, raid=1296, name = select(1, EJ_GetEncounterInfo(2639)), icon = select(5, EJ_GetCreatureInfo(1, 2639)), normal=41300, heroic=41301, mythic=41302}, -- Vexie and the Geargrinders
+    [2] = { boss=2640, raid=1296, name = select(1, EJ_GetEncounterInfo(2640)), icon = select(5, EJ_GetCreatureInfo(1, 2640)), normal=41304, heroic=41305, mythic=41306}, -- Cauldrons of Carnage
+    [3] = { boss=2641, raid=1296, name = select(1, EJ_GetEncounterInfo(2641)), icon = select(5, EJ_GetCreatureInfo(1, 2641)), normal=41308, heroic=41309, mythic=41310}, -- Rik Reverb
+    [4] = { boss=2642, raid=1296, name = select(1, EJ_GetEncounterInfo(2642)), icon = select(5, EJ_GetCreatureInfo(1, 2642)), normal=41312, heroic=41313, mythic=41314}, -- Stix Bunkjunker
+    [5] = { boss=2643, raid=1296, name = select(1, EJ_GetEncounterInfo(2653)), icon = select(5, EJ_GetCreatureInfo(1, 2653)), normal=41316, heroic=41317, mythic=41318}, -- Sprocketmonger Lockenstock
+    [6] = { boss=2644, raid=1296, name = select(1, EJ_GetEncounterInfo(2644)), icon = select(5, EJ_GetCreatureInfo(1, 2644)), normal=41320, heroic=41321, mythic=41322}, -- The One-Armed Bandit
+    [7] = { boss=2645, raid=1296, name = select(1, EJ_GetEncounterInfo(2645)), icon = select(5, EJ_GetCreatureInfo(1, 2645)), normal=41324, heroic=41325, mythic=41326}, -- Mug'Zee, Heads of Security
+    [8] = { boss=2646, raid=1296, name = select(1, EJ_GetEncounterInfo(2646)), icon = select(5, EJ_GetCreatureInfo(1, 2646)), normal=41328, heroic=41329, mythic=41330}, -- Chrome King Gallywix
     
-    -- Manaforge Omega C_Map.GetMapInfo(2460).name
-    [11] = { boss=2684, raid=2460, name = select(1, EJ_GetEncounterInfo(2684)), icon = select(5, EJ_GetCreatureInfo(1, 2684)), normal=41634, heroic=41635, mythic=41636}, -- Plexus Sentinel
-    [12] = { boss=2686, raid=2460, name = select(1, EJ_GetEncounterInfo(2686)), icon = select(5, EJ_GetCreatureInfo(1, 2686)), normal=41638, heroic=41639, mythic=41640}, -- Loom'ithar 
-    [13] = { boss=2685, raid=2460, name = select(1, EJ_GetEncounterInfo(2685)), icon = select(5, EJ_GetCreatureInfo(1, 2685)), normal=41642, heroic=41643, mythic=41644}, -- Soulbinder Naazindhri
-    [14] = { boss=2687, raid=2460, name = select(1, EJ_GetEncounterInfo(2687)), icon = select(5, EJ_GetCreatureInfo(1, 2687)), normal=41646, heroic=41647, mythic=41648}, -- Forgeweaver Araz
-    [15] = { boss=2688, raid=2460, name = select(1, EJ_GetEncounterInfo(2688)), icon = select(5, EJ_GetCreatureInfo(1, 2688)), normal=41650, heroic=41651, mythic=41652}, -- The Soul Hunters
-    [16] = { boss=2747, raid=2460, name = select(1, EJ_GetEncounterInfo(2747)), icon = select(5, EJ_GetCreatureInfo(1, 2747)), normal=41654, heroic=41655, mythic=41656}, -- Fractillus
-    [17] = { boss=2690, raid=2460, name = select(1, EJ_GetEncounterInfo(2690)), icon = select(5, EJ_GetCreatureInfo(1, 2690)), normal=41658, heroic=41659, mythic=41660}, -- Nexus-King Salhadaar
-    [18] = { boss=2691, raid=2460, name = select(1, EJ_GetEncounterInfo(2691)), icon = select(5, EJ_GetCreatureInfo(1, 2691)), normal=41662, heroic=41663, mythic=41664}, -- Dimensiue, the All-Devouring
+    -- Manaforge Omega select(1,EJ_GetInstanceInfo(1302))
+    [11] = { boss=2684, raid=1302, name = select(1, EJ_GetEncounterInfo(2684)), icon = select(5, EJ_GetCreatureInfo(1, 2684)), normal=41634, heroic=41635, mythic=41636}, -- Plexus Sentinel
+    [12] = { boss=2686, raid=1302, name = select(1, EJ_GetEncounterInfo(2686)), icon = select(5, EJ_GetCreatureInfo(1, 2686)), normal=41638, heroic=41639, mythic=41640}, -- Loom'ithar 
+    [13] = { boss=2685, raid=1302, name = select(1, EJ_GetEncounterInfo(2685)), icon = select(5, EJ_GetCreatureInfo(1, 2685)), normal=41642, heroic=41643, mythic=41644}, -- Soulbinder Naazindhri
+    [14] = { boss=2687, raid=1302, name = select(1, EJ_GetEncounterInfo(2687)), icon = select(5, EJ_GetCreatureInfo(1, 2687)), normal=41646, heroic=41647, mythic=41648}, -- Forgeweaver Araz
+    [15] = { boss=2688, raid=1302, name = select(1, EJ_GetEncounterInfo(2688)), icon = select(5, EJ_GetCreatureInfo(1, 2688)), normal=41650, heroic=41651, mythic=41652}, -- The Soul Hunters
+    [16] = { boss=2747, raid=1302, name = select(1, EJ_GetEncounterInfo(2747)), icon = select(5, EJ_GetCreatureInfo(1, 2747)), normal=41654, heroic=41655, mythic=41656}, -- Fractillus
+    [17] = { boss=2690, raid=1302, name = select(1, EJ_GetEncounterInfo(2690)), icon = select(5, EJ_GetCreatureInfo(1, 2690)), normal=41658, heroic=41659, mythic=41660}, -- Nexus-King Salhadaar
+    [18] = { boss=2691, raid=1302, name = select(1, EJ_GetEncounterInfo(2691)), icon = select(5, EJ_GetCreatureInfo(1, 2691)), normal=41662, heroic=41663, mythic=41664}, -- Dimensiue, the All-Devouring
 
   -- Midnight Season 1 Raids
-  -- The Dreamrift C_Map.GetMapInfo(2531).name
-    [21] = { boss=2795, raid=2531, name = select(1, EJ_GetEncounterInfo(2795)), icon = select(5, EJ_GetCreatureInfo(1, 2795)), normal=61475, heroic=61476, mythic=61477 }, -- Chimaerus the Undreamt God
-  -- The VoidSpire C_Map.GetMapInfo(2529).name
-    [22] = { boss=2733, raid=2529, name = select(1, EJ_GetEncounterInfo(2733)), icon = select(5, EJ_GetCreatureInfo(1, 2733)), normal=61277, heroic=61278, mythic=61279 }, -- Imperator Averzian
-    [23] = { boss=2734, raid=2529, name = select(1, EJ_GetEncounterInfo(2734)), icon = select(5, EJ_GetCreatureInfo(1, 2734)), normal=61281, heroic=61282, mythic=61283 }, -- Vorasius
-    [24] = { boss=2736, raid=2529, name = select(1, EJ_GetEncounterInfo(2736)), icon = select(5, EJ_GetCreatureInfo(1, 2736)), normal=61285, heroic=61286, mythic=61287 }, -- Fallen-King Salhadaar
-    [25] = { boss=2735, raid=2529, name = select(1, EJ_GetEncounterInfo(2735)), icon = select(5, EJ_GetCreatureInfo(1, 2735)), normal=61289, heroic=61290, mythic=61291 }, -- Vaelgor & Ezzorak
-    [26] = { boss=2737, raid=2529, name = select(1, EJ_GetEncounterInfo(2737)), icon = select(5, EJ_GetCreatureInfo(1, 2737)), normal=61293, heroic=61294, mythic=61295 }, -- Lightblinded Vanguard
-    [27] = { boss=2738, raid=2529, name = select(1, EJ_GetEncounterInfo(2738)), icon = select(5, EJ_GetCreatureInfo(1, 2738)), normal=61297, heroic=61298, mythic=61299 }, -- Crown of the Cosmos
-  -- March on Quel'Danas C_Map.GetMapInfo(2533).name
-    [28] = { boss=2739, raid=2533, name = select(1, EJ_GetEncounterInfo(2739)), icon = select(5, EJ_GetCreatureInfo(1, 2739)), normal=61301, heroic=61302, mythic=61303 }, -- Belo'ren, Child of Al'ar
-    [29] = { boss=2740, raid=2533, name = select(1, EJ_GetEncounterInfo(2740)), icon = select(5, EJ_GetCreatureInfo(1, 2740)), normal=61305, heroic=61306, mythic=61307 }, -- Midnight Falls
-    
+    -- The Dreamrift select(1,EJ_GetInstanceInfo(1314))
+    [21] = { boss=2795, raid=1314, name = select(1, EJ_GetEncounterInfo(2795)), icon = select(5, EJ_GetCreatureInfo(1, 2795)), normal=61475, heroic=61476, mythic=61477 }, -- Chimaerus the Undreamt God
+    -- The VoidSpire select(1,EJ_GetInstanceInfo(1307))
+    [22] = { boss=2733, raid=1307, name = select(1, EJ_GetEncounterInfo(2733)), icon = select(5, EJ_GetCreatureInfo(1, 2733)), normal=61277, heroic=61278, mythic=61279 }, -- Imperator Averzian
+    [23] = { boss=2734, raid=1307, name = select(1, EJ_GetEncounterInfo(2734)), icon = select(5, EJ_GetCreatureInfo(1, 2734)), normal=61281, heroic=61282, mythic=61283 }, -- Vorasius
+    [24] = { boss=2736, raid=1307, name = select(1, EJ_GetEncounterInfo(2736)), icon = select(5, EJ_GetCreatureInfo(1, 2736)), normal=61285, heroic=61286, mythic=61287 }, -- Fallen-King Salhadaar
+    [25] = { boss=2735, raid=1307, name = select(1, EJ_GetEncounterInfo(2735)), icon = select(5, EJ_GetCreatureInfo(1, 2735)), normal=61289, heroic=61290, mythic=61291 }, -- Vaelgor & Ezzorak
+    [26] = { boss=2737, raid=1307, name = select(1, EJ_GetEncounterInfo(2737)), icon = select(5, EJ_GetCreatureInfo(1, 2737)), normal=61293, heroic=61294, mythic=61295 }, -- Lightblinded Vanguard
+    [27] = { boss=2738, raid=1307, name = select(1, EJ_GetEncounterInfo(2738)), icon = select(5, EJ_GetCreatureInfo(1, 2738)), normal=61297, heroic=61298, mythic=61299 }, -- Crown of the Cosmos
+    -- March on Quel'Danas select(1,EJ_GetInstanceInfo(1308))
+    [28] = { boss=2739, raid=1308, name = select(1, EJ_GetEncounterInfo(2739)), icon = select(5, EJ_GetCreatureInfo(1, 2739)), normal=61301, heroic=61302, mythic=61303 }, -- Belo'ren, Child of Al'ar
+    [29] = { boss=2740, raid=1308, name = select(1, EJ_GetEncounterInfo(2740)), icon = select(5, EJ_GetCreatureInfo(1, 2740)), normal=61305, heroic=61306, mythic=61307 }, -- Midnight Falls
+    -- The Sporefall select(1,EJ_GetInstanceInfo(1305))
+    [30] = { boss=2711, raid=1305, name = select(1, EJ_GetEncounterInfo(2711)), icon = select(5, EJ_GetCreatureInfo(1, 2711)), normal=63234, heroic=63235, mythic=63236 }, -- Rotmire
+  -- Midnight Season 2 Raids
+    -- The Venomous Abyss select(1,EJ_GetInstanceInfo(1320))
+    [31] = { boss=2888, raid=1320, name=select(1,EJ_GetEncounterInfo(2888)), icon=select(5,EJ_GetCreatureInfo(1,2888)), normal=63534, heroic=63535, mythic=63536 }, -- Nek'zali
+    [32] = { boss=2874, raid=1320, name=select(1,EJ_GetEncounterInfo(2874)), icon=select(5,EJ_GetCreatureInfo(1,2874)), normal=63538, heroic=63539, mythic=63540 }, -- Entombed Sentinels
+    [33] = { boss=2882, raid=1320, name=select(1,EJ_GetEncounterInfo(2882)), icon=select(5,EJ_GetCreatureInfo(1,2882)), normal=63555, heroic=63556, mythic=63557 }, -- Vashnik the Malignant
+    [34] = { boss=2894, raid=1320, name=select(1,EJ_GetEncounterInfo(2894)), icon=select(5,EJ_GetCreatureInfo(1,2894)), normal=63552, heroic=63553, mythic=63554 }, -- The Lost Explorers
+    [35] = { boss=2871, raid=1320, name=select(1,EJ_GetEncounterInfo(2871)), icon=select(5,EJ_GetCreatureInfo(1,2871)), normal=63558, heroic=63559, mythic=63560 }, -- Sszorak
+    [36] = { boss=2887, raid=1320, name=select(1,EJ_GetEncounterInfo(2887)), icon=select(5,EJ_GetCreatureInfo(1,2887)), normal=63561, heroic=63562, mythic=63563 }, -- The Twin Fangs
+    [37] = { boss=2883, raid=1320, name=select(1,EJ_GetEncounterInfo(2883)), icon=select(5,EJ_GetCreatureInfo(1,2883)), normal=63564, heroic=63565, mythic=63566 }, -- The Coiled Altar
+    [38] = { boss=2895, raid=1320, name=select(1,EJ_GetEncounterInfo(2895)), icon=select(5,EJ_GetCreatureInfo(1,2895)), normal=63567, heroic=63568, mythic=63569 }, -- Ula'tek
+    -- The Tidebound Grotto select(1,EJ_GetInstanceInfo(1317))
+    [39] = { boss=2849, raid=1317, name=select(1,EJ_GetEncounterInfo(2849)), icon=select(5,EJ_GetCreatureInfo(1,2849)), normal=63614, heroic=63615, mythic=63616 }, -- Nymrissa Wavecaller
+  
+
 }
 
 CCS.RaidLayout = {
   {
-    raid = 2406, -- Liberation of Undermine
+    raid = 1296, -- Liberation of Undermine
     num_bosses = 8,
     tocinfo = {110100, 110200},
     shortname = "LoU",
-    title = C_Map.GetMapInfo(2406).name,
+    title = select(1,EJ_GetInstanceInfo(1296)),
     bosses = { 1, 2, 3, 4, 5, 6, 7, 8 }
   },
   {
-    raid = 2460, -- Manaforge Omega
+    raid = 1302, -- Manaforge Omega
     num_bosses = 8,
     tocinfo = {110200, 110300},
     shortname = "MFO",
-    title = C_Map.GetMapInfo(2460).name,
+    title = select(1,EJ_GetInstanceInfo(1302)),
     bosses = { 11, 12, 13, 14, 15, 16, 17, 18 }
   },
+------------------------------
+-- Midnight Season 1
+------------------------------  
   {
-    raid = 2531, -- The Dreamrift C_Map.GetMapInfo(2531).name
+    raid = 1314, -- The Dreamrift 
     num_bosses = 1,
-    tocinfo = {120000, 120100},
+    tocinfo = {120000, 120009},
     shortname = "DR",
-    title = (C_Map.GetMapInfo(2531) and C_Map.GetMapInfo(2531).name) or "Unknown",
+    title = select(1,EJ_GetInstanceInfo(1314)) or "Unknown",
     bosses = { 21 }
   },
   {
-    raid = 2529, -- The VoidSpire C_Map.GetMapInfo(2529).name
+    raid = 1307, -- The VoidSpire
     num_bosses = 6,
-    tocinfo = {120000, 120100},
+    tocinfo = {120000, 120009},
     shortname = "VS",
-    title = (C_Map.GetMapInfo(2529) and C_Map.GetMapInfo(2529).name) or "Unknown",
+    title = select(1,EJ_GetInstanceInfo(1307)) or "Unknown",
     bosses = { 22, 23, 24, 25, 26, 27 }
   },
   {
-    raid = 2533,-- March on Quel'Danas C_Map.GetMapInfo(2533).name
+    raid = 1308,-- March on Quel'Danas
     num_bosses = 2,
-    tocinfo = {120000, 120100},
+    tocinfo = {120000, 120009},
     shortname = "MOQD",    
-    title = (C_Map.GetMapInfo(2533) and C_Map.GetMapInfo(2533).name) or "Unknown",
+    title = select(1,EJ_GetInstanceInfo(1308)) or "Unknown",
     bosses = { 28, 29 }
+  },
+  {
+    raid = 1305, -- The Sporefall
+    num_bosses = 1,
+    tocinfo = {120007, 120009},
+    shortname = "SF",
+    title = select(1,EJ_GetInstanceInfo(1305)) or "",
+    bosses = { 30 }
+  },  
+------------------------------
+-- Midnight Season 2
+------------------------------
+  {
+    raid = 1320, -- The Venomous Abyss
+    num_bosses = 8,
+    tocinfo = {120100, 120109},
+    shortname = "VA",
+    title = select(1,EJ_GetInstanceInfo(1320)) or "",
+    bosses = { 31, 32, 33, 34, 35, 36, 37, 38 }
+  },  
+
+  {
+    raid = 1317, -- The Tidebound Grotto
+    num_bosses = 1,
+    tocinfo = {120100, 120109},
+    shortname = "TG",
+    title = select(1,EJ_GetInstanceInfo(1317)) or "",
+    bosses = { 39 }
   },
 }
 
@@ -1915,6 +2092,32 @@ CCS.rarityHexColors = {
     [8] = "00e6e6", -- WoW Token
 }
 
+CCS.AllSlots = {
+    { id = 1,  name = INVTYPE_HEAD },
+    { id = 2,  name = INVTYPE_NECK },
+    { id = 3,  name = INVTYPE_SHOULDER },
+    { id = 5,  name = INVTYPE_CHEST },
+    { id = 6,  name = INVTYPE_WAIST },
+    { id = 7,  name = INVTYPE_LEGS },
+    { id = 8,  name = INVTYPE_FEET },
+    { id = 9,  name = INVTYPE_WRIST },
+    { id = 10, name = INVTYPE_HAND },
+
+    -- Grouped as Finger
+    { id = 11, name = INVTYPE_FINGER, group = INVTYPE_FINGER },
+    { id = 12, name = INVTYPE_FINGER, group = INVTYPE_FINGER },
+
+    -- Grouped as Trinket
+    { id = 13, name = INVTYPE_TRINKET, group = INVTYPE_TRINKET },
+    { id = 14, name = INVTYPE_TRINKET, group = INVTYPE_TRINKET },
+
+    { id = 15, name = INVTYPE_CLOAK },
+
+    -- Weapon group
+    { id = 16, name = INVTYPE_WEAPONMAINHAND, group = WEAPON },
+    { id = 17, name = INVTYPE_WEAPONOFFHAND,  group = WEAPON },
+}
+
 CCS.slotNames = {
     [1] = "Head",
     [2] = "Neck",
@@ -1933,6 +2136,24 @@ CCS.slotNames = {
     [16] = "MainHand",
     [17] = "SecondaryHand",
 }
+
+CCS.SlotNameToID = {
+    Helm     = 1,
+    Neck     = 2,
+    Shoulder = 3,
+    Chest    = 5,
+    Waist    = 6,
+    Legs     = 7,
+    Feet     = 8,
+    Wrist    = 9,
+    Hands    = 10,
+    Ring1    = 11,
+    Ring2    = 12,
+    Cloak    = 15,
+    Mainhand = 16,
+    Offhand  = 17,
+}
+
 
 CCS.embellishmentBonus = {
     [222868] = { stat = "CRIT_RATING", value = 756 },
@@ -2010,28 +2231,71 @@ CCS.enchantLookup = {
     [8018] = { { stat="STAMINA" , value=186 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
     [8019] = { { stat="STAMINA" , value=232 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
     -- Midnight Rings
-    [7964] = { { stat="MASTERY_RATING" , value=9 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7965] = { { stat="MASTERY_RATING" , value=13 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [7968] = { { stat="MASTERY_RATING" , value=17 } }, --Enchant Ring - Zul'jins Mastery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7969] = { { stat="MASTERY_RATING" , value=22 } }, --Enchant Ring - Zul'jins Mastery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [7994] = { { stat="CRIT_RATING" , value=9 } }, --Enchant Ring - Nature's Wrath |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7995] = { { stat="CRIT_RATING" , value=13 } }, --Enchant Ring - Nature's Wrath |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [7996] = { { stat="CRIT_RATING" , value=17 } }, --Enchant Ring - Nature's Fury |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7997] = { { stat="CRIT_RATING" , value=22 } }, --Enchant Ring - Nature's Fury |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [8020] = { { stat="HASTE_RATING" , value=9 } }, --Enchant Ring - Thalassian Haste |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [8021] = { { stat="HASTE_RATING" , value=13 } }, --Enchant Ring - Thalassian Haste |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [8022] = { { stat="VERSATILITY" , value=9 } }, --Enchant Ring - Thalassian Versatility |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [8023] = { { stat="VERSATILITY" , value=13 } }, --Enchant Ring - Thalassian Versatility |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [8024] = { { stat="HASTE_RATING" , value=17 } }, --Enchant Ring - Silvermoon's Alacrity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [8025] = { { stat="HASTE_RATING" , value=22 } }, --Enchant Ring - Silvermoon's Alacrity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [8026] = { { stat="VERSATILITY" , value=17 } }, --Enchant Ring - Silvermoon's Tenacity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [8027] = { { stat="VERSATILITY" , value=22 } }, --Enchant Ring - Silvermoon's Tenacity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7964] = { { stat="MASTERY_RATING" , value=22 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7965] = { { stat="MASTERY_RATING" , value=24 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7968] = { { stat="MASTERY_RATING" , value=27 } }, --Enchant Ring - Zul'jins Mastery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7969] = { { stat="MASTERY_RATING" , value=29 } }, --Enchant Ring - Zul'jins Mastery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7994] = { { stat="CRIT_RATING" , value=22 } }, --Enchant Ring - Nature's Wrath |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7995] = { { stat="CRIT_RATING" , value=24 } }, --Enchant Ring - Nature's Wrath |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7996] = { { stat="CRIT_RATING" , value=27 } }, --Enchant Ring - Nature's Fury |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7997] = { { stat="CRIT_RATING" , value=29 } }, --Enchant Ring - Nature's Fury |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8020] = { { stat="HASTE_RATING" , value=22 } }, --Enchant Ring - Thalassian Haste |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8021] = { { stat="HASTE_RATING" , value=24 } }, --Enchant Ring - Thalassian Haste |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8022] = { { stat="VERSATILITY" , value=22 } }, --Enchant Ring - Thalassian Versatility |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8023] = { { stat="VERSATILITY" , value=24 } }, --Enchant Ring - Thalassian Versatility |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8024] = { { stat="HASTE_RATING" , value=27 } }, --Enchant Ring - Silvermoon's Alacrity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8025] = { { stat="HASTE_RATING" , value=29 } }, --Enchant Ring - Silvermoon's Alacrity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8026] = { { stat="VERSATILITY" , value=27 } }, --Enchant Ring - Silvermoon's Tenacity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8027] = { { stat="VERSATILITY" , value=29 } }, --Enchant Ring - Silvermoon's Tenacity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
 }
 
 -- /dump UnitClass("player")
 -- /dump PlayerUtil.GetCurrentSpecID()
 -- /dump C_ClassTalents.GetActiveHeroTalentSpec()
 -- /dump C_ClassTalents.GetHeroTalentSpecsForClassSpec()
+--[[  Just to allow faster lookups for the stats
+https://www.wowhead.com/guide/classes/death-knight/blood/stat-priority-pve-tank
+https://www.wowhead.com/guide/classes/death-knight/frost/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/death-knight/unholy/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/demon-hunter/havoc/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/demon-hunter/vengeance/stat-priority-pve-tank
+https://www.wowhead.com/guide/classes/demon-hunter/devourer/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/druid/balance/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/druid/feral/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/druid/guardian/stat-priority-pve-tank
+https://www.wowhead.com/guide/classes/druid/restoration/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/evoker/devastation/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/evoker/preservation/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/evoker/augmentation/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/hunter/beast-mastery/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/hunter/marksmanship/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/hunter/survival/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/mage/arcane/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/mage/fire/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/mage/frost/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/monk/brewmaster/stat-priority-pve-tank
+https://www.wowhead.com/guide/classes/monk/mistweaver/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/monk/windwalker/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/paladin/holy/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/paladin/protection/stat-priority-pve-tank
+https://www.wowhead.com/guide/classes/paladin/retribution/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/priest/discipline/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/priest/holy/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/priest/shadow/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/rogue/assassination/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/rogue/outlaw/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/rogue/subtlety/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/shaman/elemental/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/shaman/enhancement/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/shaman/restoration/stat-priority-pve-healer
+https://www.wowhead.com/guide/classes/warlock/affliction/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/warlock/demonology/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/warlock/destruction/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/warrior/arms/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/warrior/fury/stat-priority-pve-dps
+https://www.wowhead.com/guide/classes/warrior/protection/stat-priority-pve-tank
+
+--]]
 CCS.ClassSpecStatPriority = {
     [6] = { -- Death Knight
         -- Blood {"Mastery","CriticalStrike","Haste","Versatility"}
@@ -2114,8 +2378,8 @@ CCS.ClassSpecStatPriority = {
         -- Preservation
         [2] = {
             [36] = {1,1,1,1}, -- *** Scalecommander
-            [37] = {1,3,2,4}, -- Flameshaper
-            [38] = {1,3,2,4}, -- Chronowarden
+            [37] = {1,2,3,4}, -- Flameshaper
+            [38] = {1,2,3,4}, -- Chronowarden
         },
         -- Augmentation
         [3] = {
@@ -2309,92 +2573,92 @@ CCS.ClassSpecStatPriority = {
 
 CCS.UpgradeTrackNames = {
     enUS = {
-        ["Explorer"]   = {0.62, 0.62, 0.62, 1}, -- Grey
-        ["Adventurer"] = {1.00, 1.00, 1.00, 1}, -- White
-        ["Veteran"]    = {0.12, 1.00, 0.00, 1}, -- Green
-        ["Champion"]   = {0.00, 0.44, 0.87, 1}, -- Blue
-        ["Hero"]       = {1, .3, 1, 1}, -- Purple
-        ["Myth"]       = {1.00, 0.50, 0.00, 1}, -- Orange
+        ["Explorer"]   = CCS.Explorer,
+        ["Adventurer"] = CCS.Adventurer,
+        ["Veteran"]    = CCS.Veteran,
+        ["Champion"]   = CCS.Champion,
+        ["Hero"]       = CCS.Hero,
+        ["Myth"]       = CCS.Myth,
     },
     esES = {
-        ["Expedicionario"] = {0.62, 0.62, 0.62, 1},
-        ["Aventurero"]     = {1.00, 1.00, 1.00, 1},
-        ["Veterano"]       = {0.12, 1.00, 0.00, 1},
-        ["Campeón"]        = {0.00, 0.44, 0.87, 1},
-        ["Héroe"]          = {1, .3, 1, 1},
-        ["Mito"]           = {1.00, 0.50, 0.00, 1},
+        ["Expedicionario"] = CCS.Explorer,
+        ["Aventurero"]     = CCS.Adventurer,
+        ["Veterano"]       = CCS.Veteran,
+        ["Campeón"]        = CCS.Champion,
+        ["Héroe"]          = CCS.Hero,
+        ["Mito"]           = CCS.Myth,
     },
     esMX = {
-        ["Expedicionario"] = {0.62, 0.62, 0.62, 1},
-        ["Aventurero"]     = {1.00, 1.00, 1.00, 1},
-        ["Veterano"]       = {0.12, 1.00, 0.00, 1},
-        ["Campeón"]        = {0.00, 0.44, 0.87, 1},
-        ["Héroe"]          = {1, .3, 1, 1},
-        ["Mito"]           = {1.00, 0.50, 0.00, 1},
-    },    
+        ["Expedicionario"] = CCS.Explorer,
+        ["Aventurero"]     = CCS.Adventurer,
+        ["Veterano"]       = CCS.Veteran,
+        ["Campeón"]        = CCS.Champion,
+        ["Héroe"]          = CCS.Hero,
+        ["Mito"]           = CCS.Myth,
+    },
     deDE = {
-        ["Forscher"]   = {0.62, 0.62, 0.62, 1},
-        ["Abenteurer"] = {1.00, 1.00, 1.00, 1},
-        ["Veteran"]    = {0.12, 1.00, 0.00, 1},
-        ["Champion"]   = {0.00, 0.44, 0.87, 1},
-        ["Held"]       = {1, .3, 1, 1},
-        ["Mythos"]     = {1.00, 0.50, 0.00, 1},
+        ["Forscher"]   = CCS.Explorer,
+        ["Abenteurer"] = CCS.Adventurer,
+        ["Veteran"]    = CCS.Veteran,
+        ["Champion"]   = CCS.Champion,
+        ["Held"]       = CCS.Hero,
+        ["Mythos"]     = CCS.Myth,
     },
     frFR = {
-        ["Explorateur"] = {0.62, 0.62, 0.62, 1},
-        ["Aventurier"]  = {1.00, 1.00, 1.00, 1},
-        ["Vétéran"]     = {0.12, 1.00, 0.00, 1},
-        ["Champion"]    = {0.00, 0.44, 0.87, 1},
-        ["Héros"]       = {1, .3, 1, 1},
-        ["Mythe"]       = {1.00, 0.50, 0.00, 1},
+        ["Explorateur"] = CCS.Explorer,
+        ["Aventurier"]  = CCS.Adventurer,
+        ["Vétéran"]     = CCS.Veteran,
+        ["Champion"]    = CCS.Champion,
+        ["Héros"]       = CCS.Hero,
+        ["Mythe"]       = CCS.Myth,
     },
     itIT = {
-        ["Esploratore"]   = {0.62, 0.62, 0.62, 1},
-        ["Avventuriero"]  = {1.00, 1.00, 1.00, 1},
-        ["Veterano"]      = {0.12, 1.00, 0.00, 1},
-        ["Campione"]      = {0.00, 0.44, 0.87, 1},
-        ["Eroe"]          = {1, .3, 1, 1},
-        ["Mito"]          = {1.00, 0.50, 0.00, 1},
+        ["Esploratore"]   = CCS.Explorer,
+        ["Avventuriero"]  = CCS.Adventurer,
+        ["Veterano"]      = CCS.Veteran,
+        ["Campione"]      = CCS.Champion,
+        ["Eroe"]          = CCS.Hero,
+        ["Mito"]          = CCS.Myth,
     },
     ptBR = {
-        ["Explorador"]  = {0.62, 0.62, 0.62, 1},
-        ["Aventureiro"] = {1.00, 1.00, 1.00, 1},
-        ["Veterano"]    = {0.12, 1.00, 0.00, 1},
-        ["Campeão"]     = {0.00, 0.44, 0.87, 1},
-        ["Herói"]       = {1, .3, 1, 1},
-        ["Mito"]        = {1.00, 0.50, 0.00, 1},
+        ["Explorador"]  = CCS.Explorer,
+        ["Aventureiro"] = CCS.Adventurer,
+        ["Veterano"]    = CCS.Veteran,
+        ["Campeão"]     = CCS.Champion,
+        ["Herói"]       = CCS.Hero,
+        ["Mito"]        = CCS.Myth,
     },
     ruRU = {
-        ["Исследователь"]          = {0.62, 0.62, 0.62, 1},
-        ["Искатель приключений"]   = {1.00, 1.00, 1.00, 1},
-        ["Ветеран"]                = {0.12, 1.00, 0.00, 1},
-        ["Защитник"]               = {0.00, 0.44, 0.87, 1},
-        ["Герой"]                  = {1, .3, 1, 1},
-        ["Легенда"]                = {1.00, 0.50, 0.00, 1},
+        ["Исследователь"]        = CCS.Explorer,
+        ["Искатель приключений"] = CCS.Adventurer,
+        ["Ветеран"]              = CCS.Veteran,
+        ["Защитник"]             = CCS.Champion,
+        ["Герой"]                = CCS.Hero,
+        ["Легенда"]              = CCS.Myth,
     },
     koKR = {
-        ["탐험가"] = {0.62, 0.62, 0.62, 1},
-        ["모험가"] = {1.00, 1.00, 1.00, 1},
-        ["노련가"] = {0.12, 1.00, 0.00, 1},
-        ["챔피언"] = {0.00, 0.44, 0.87, 1},
-        ["영웅"]   = {1, .3, 1, 1},
-        ["신화"]   = {1.00, 0.50, 0.00, 1},
+        ["탐험가"] = CCS.Explorer,
+        ["모험가"] = CCS.Adventurer,
+        ["노련가"] = CCS.Veteran,
+        ["챔피언"] = CCS.Champion,
+        ["영웅"]   = CCS.Hero,
+        ["신화"]   = CCS.Myth,
     },
     zhCN = {
-        ["探索者"] = {0.62, 0.62, 0.62, 1},
-        ["冒险者"] = {1.00, 1.00, 1.00, 1},
-        ["老兵"]   = {0.12, 1.00, 0.00, 1},
-        ["勇士"]   = {0.00, 0.44, 0.87, 1},
-        ["英雄"]   = {1, .3, 1, 1},
-        ["神话"]   = {1.00, 0.50, 0.00, 1},
+        ["探索者"] = CCS.Explorer,
+        ["冒险者"] = CCS.Adventurer,
+        ["老兵"]   = CCS.Veteran,
+        ["勇士"]   = CCS.Champion,
+        ["英雄"]   = CCS.Hero,
+        ["神话"]   = CCS.Myth,
     },
     zhTW = {
-        ["探險者"] = {0.62, 0.62, 0.62, 1},
-        ["冒險者"] = {1.00, 1.00, 1.00, 1},
-        ["精兵"]   = {0.12, 1.00, 0.00, 1},
-        ["勇士"]   = {0.00, 0.44, 0.87, 1},
-        ["英雄"]   = {1, .3, 1, 1},
-        ["神話"]   = {1.00, 0.50, 0.00, 1},
+        ["探險者"] = CCS.Explorer,
+        ["冒險者"] = CCS.Adventurer,
+        ["精兵"]   = CCS.Veteran,
+        ["勇士"]   = CCS.Champion,
+        ["英雄"]   = CCS.Hero,
+        ["神話"]   = CCS.Myth,
     },
 }
 
@@ -2544,4 +2808,398 @@ CCS.tempenchantLookup = {
 
     [8610] = { spellID = 1262121 }, -- Weighted Boomshots (T1)
     [8611] = { spellID = 1262123 }, -- Weighted Boomshots (T2)
+}
+
+CCS.DefaultTrackColors = {
+    [CCS.Explorer]   = {0.62, 0.62, 0.62, 1},
+    [CCS.Adventurer] = {1.00, 1.00, 1.00, 1},
+    [CCS.Veteran]    = {0.12, 1.00, 0.00, 1},
+    [CCS.Champion]   = {0.00, 0.44, 0.87, 1},
+    [CCS.Hero]       = {1, .3, 1, 1},
+    [CCS.Myth]       = {1.00, 0.50, 0.00, 1},
+}
+
+CCS.CustomTrackOptions = {
+    [CCS.Explorer]   = "custom_color_explorer",
+    [CCS.Adventurer] = "custom_color_adventurer",
+    [CCS.Veteran]    = "custom_color_veteran",
+    [CCS.Champion]   = "custom_color_champion",
+    [CCS.Hero]       = "custom_color_hero",
+    [CCS.Myth]       = "custom_color_myth",
+}
+
+CCS.EQUIPLOC_TO_SLOTID = {
+    INVTYPE_HEAD         = 1,
+    INVTYPE_NECK         = 2,
+    INVTYPE_SHOULDER     = 3,
+    INVTYPE_CHEST        = 5,
+    INVTYPE_ROBE         = 5,
+    INVTYPE_WAIST        = 6,
+    INVTYPE_LEGS         = 7,
+    INVTYPE_FEET         = 8,
+    INVTYPE_WRIST        = 9,
+    INVTYPE_HAND         = 10,
+    INVTYPE_FINGER       = 11,
+    INVTYPE_TRINKET      = 13,
+    INVTYPE_CLOAK        = 15,
+    INVTYPE_WEAPON       = 16,
+    INVTYPE_WEAPONMAINHAND = 16,
+    INVTYPE_WEAPONOFFHAND  = 17,
+    INVTYPE_2HWEAPON     = 16,
+    INVTYPE_SHIELD       = 17,
+    INVTYPE_HOLDABLE     = 17,
+    INVTYPE_RANGED       = 18,
+    INVTYPE_RANGEDRIGHT  = 18,
+    INVTYPE_THROWN       = 18,
+    INVTYPE_RELIC        = 18,
+}
+
+CCS.Classes = {
+    --------------------------------------------------------------------
+    -- 1. WARRIOR
+    --------------------------------------------------------------------
+    [1] = {
+        name = "Warrior",
+        file = "WARRIOR",
+        armor = { "Plate" },
+        weapons = {
+            [2] = {  -- WEAPON class
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [7]  = true,  -- 1H Sword
+                [8]  = true,  -- 2H Sword
+                [6]  = true,  -- Polearm
+                [10] = true,  -- Staff
+                [15] = true,  -- Dagger
+                [13] = true,  -- Fist Weapon
+                [2]  = true,  -- Bow
+                [3]  = true,  -- Gun
+                [18] = true,  -- Crossbow
+            },
+            shields  = true,
+            offhands = false,
+        },
+        specs = {
+            { id = 71, name = "Arms",       primary = "STRENGTH", role = "MELEE" },
+            { id = 72, name = "Fury",       primary = "STRENGTH", role = "MELEE" },
+            { id = 73, name = "Protection", primary = "STRENGTH", role = "TANK"  },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 2. PALADIN
+    --------------------------------------------------------------------
+    [2] = {
+        name = "Paladin",
+        file = "PALADIN",
+        armor = { "Plate" },
+        weapons = {
+            [2] = {
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [7]  = true,  -- 1H Sword
+                [8]  = true,  -- 2H Sword
+                [6]  = true,  -- Polearm
+            },
+            shields  = true,
+            offhands = true,
+        },
+        specs = {
+            { id = 65, name = "Holy",       primary = "INTELLECT", role = "HEALER" },
+            { id = 66, name = "Protection", primary = "STRENGTH",  role = "TANK"   },
+            { id = 70, name = "Retribution",primary = "STRENGTH",  role = "MELEE"  },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 3. HUNTER
+    --------------------------------------------------------------------
+    [3] = {
+        name = "Hunter",
+        file = "HUNTER",
+        armor = { "Mail" },
+        weapons = {
+            [2] = {
+                [2]  = true,  -- Bow
+                [3]  = true,  -- Gun
+                [18] = true,  -- Crossbow
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [7]  = true,  -- 1H Sword
+                [8]  = true,  -- 2H Sword
+                [6]  = true,  -- Polearm
+                [10] = true,  -- Staff
+            },
+            shields  = false,
+            offhands = false,
+        },
+        specs = {
+            { id = 253, name = "Beast Mastery", primary = "AGILITY", role = "RANGED" },
+            { id = 254, name = "Marksmanship",  primary = "AGILITY", role = "RANGED" },
+            { id = 255, name = "Survival",      primary = "AGILITY", role = "MELEE"  },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 4. ROGUE
+    --------------------------------------------------------------------
+    [4] = {
+        name = "Rogue",
+        file = "ROGUE",
+        armor = { "Leather" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [7]  = true,  -- 1H Sword
+                [4]  = true,  -- 1H Mace
+                [0]  = true,  -- 1H Axe
+                [13] = true,  -- Fist Weapon
+                [2]  = true,  -- Bow
+                [18] = true,  -- Crossbow
+            },
+            shields  = false,
+            offhands = false,
+        },
+        specs = {
+            { id = 259, name = "Assassination", primary = "AGILITY", role = "MELEE" },
+            { id = 260, name = "Outlaw",        primary = "AGILITY", role = "MELEE" },
+            { id = 261, name = "Subtlety",      primary = "AGILITY", role = "MELEE" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 5. PRIEST
+    --------------------------------------------------------------------
+    [5] = {
+        name = "Priest",
+        file = "PRIEST",
+        armor = { "Cloth" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [4]  = true,  -- 1H Mace
+                [10] = true,  -- Staff
+                [19] = true,  -- Wand
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 256, name = "Discipline", primary = "INTELLECT", role = "HEALER" },
+            { id = 257, name = "Holy",       primary = "INTELLECT", role = "HEALER" },
+            { id = 258, name = "Shadow",     primary = "INTELLECT", role = "RANGED" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 6. DEATH KNIGHT
+    --------------------------------------------------------------------
+    [6] = {
+        name = "Death Knight",
+        file = "DEATHKNIGHT",
+        armor = { "Plate" },
+        weapons = {
+            [2] = {
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [7]  = true,  -- 1H Sword
+                [8]  = true,  -- 2H Sword
+                [6]  = true,  -- Polearm
+            },
+            shields  = false,
+            offhands = false,
+        },
+        specs = {
+            { id = 250, name = "Blood",  primary = "STRENGTH", role = "TANK"  },
+            { id = 251, name = "Frost",  primary = "STRENGTH", role = "MELEE" },
+            { id = 252, name = "Unholy", primary = "STRENGTH", role = "MELEE" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 7. SHAMAN
+    --------------------------------------------------------------------
+    [7] = {
+        name = "Shaman",
+        file = "SHAMAN",
+        armor = { "Mail" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [13] = true,  -- Fist Weapon
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [10] = true,  -- Staff
+            },
+            shields  = true,
+            offhands = true,
+        },
+        specs = {
+            { id = 262, name = "Elemental",   primary = "INTELLECT", role = "RANGED" },
+            { id = 263, name = "Enhancement", primary = "AGILITY",   role = "MELEE"  },
+            { id = 264, name = "Restoration", primary = "INTELLECT", role = "HEALER" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 8. MAGE
+    --------------------------------------------------------------------
+    [8] = {
+        name = "Mage",
+        file = "MAGE",
+        armor = { "Cloth" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [7]  = true,  -- 1H Sword
+                [10] = true,  -- Staff
+                [19] = true,  -- Wand
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 62, name = "Arcane", primary = "INTELLECT", role = "RANGED" },
+            { id = 63, name = "Fire",   primary = "INTELLECT", role = "RANGED" },
+            { id = 64, name = "Frost",  primary = "INTELLECT", role = "RANGED" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 9. WARLOCK
+    --------------------------------------------------------------------
+    [9] = {
+        name = "Warlock",
+        file = "WARLOCK",
+        armor = { "Cloth" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [7]  = true,  -- 1H Sword
+                [10] = true,  -- Staff
+                [19] = true,  -- Wand
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 265, name = "Affliction", primary = "INTELLECT", role = "RANGED" },
+            { id = 266, name = "Demonology", primary = "INTELLECT", role = "RANGED" },
+            { id = 267, name = "Destruction",primary = "INTELLECT", role = "RANGED" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 10. MONK
+    --------------------------------------------------------------------
+    [10] = {
+        name = "Monk",
+        file = "MONK",
+        armor = { "Leather" },
+        weapons = {
+            [2] = {
+                [13] = true,  -- Fist Weapon
+                [10] = true,  -- Staff
+                [7]  = true,  -- 1H Sword
+                [4]  = true,  -- 1H Mace
+                [0]  = true,  -- 1H Axe
+                [6]  = true,  -- Polearm
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 268, name = "Brewmaster", primary = "AGILITY",   role = "TANK"   },
+            { id = 270, name = "Mistweaver", primary = "INTELLECT", role = "HEALER" },
+            { id = 269, name = "Windwalker", primary = "AGILITY",   role = "MELEE"  },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 11. DRUID
+    --------------------------------------------------------------------
+    [11] = {
+        name = "Druid",
+        file = "DRUID",
+        armor = { "Leather" },
+        weapons = {
+            [2] = {
+                [10] = true,  -- Staff
+                [15] = true,  -- Dagger
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [13] = true,  -- Fist Weapon
+                [6]  = true,  -- Polearm
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 102, name = "Balance",     primary = "INTELLECT", role = "RANGED" },
+            { id = 103, name = "Feral",       primary = "AGILITY",   role = "MELEE"  },
+            { id = 104, name = "Guardian",    primary = "AGILITY",   role = "TANK"   },
+            { id = 105, name = "Restoration", primary = "INTELLECT", role = "HEALER" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 12. DEMON HUNTER
+    --------------------------------------------------------------------
+    [12] = {
+        name = "Demon Hunter",
+        file = "DEMONHUNTER",
+        armor = { "Leather" },
+        weapons = {
+            [2] = {
+                [9]  = true,  -- Warglaive
+                [13] = true,  -- Fist Weapon
+                [0]  = true,  -- 1H Axe
+                [7]  = true,  -- 1H Sword
+            },
+            shields  = false,
+            offhands = false,
+        },
+        specs = {
+            { id = 577, name = "Havoc",    primary = "AGILITY",   role = "MELEE"  },
+            { id = 581, name = "Vengeance",primary = "AGILITY",   role = "TANK"   },
+            { id = 1480, name = "Devourer",primary = "INTELLECT", role = "RANGED" },
+        }
+    },
+
+    --------------------------------------------------------------------
+    -- 13. EVOKER
+    --------------------------------------------------------------------
+    [13] = {
+        name = "Evoker",
+        file = "EVOKER",
+        armor = { "Mail" },
+        weapons = {
+            [2] = {
+                [15] = true,  -- Dagger
+                [13] = true,  -- Fist Weapon
+                [4]  = true,  -- 1H Mace
+                [5]  = true,  -- 2H Mace
+                [0]  = true,  -- 1H Axe
+                [1]  = true,  -- 2H Axe
+                [7]  = true,  -- 1H Sword
+                [8]  = true,  -- 2H Sword
+                [10] = true,  -- Staff
+            },
+            shields  = false,
+            offhands = true,
+        },
+        specs = {
+            { id = 1467, name = "Devastation", primary = "INTELLECT", role = "RANGED" },
+            { id = 1468, name = "Preservation",primary = "INTELLECT", role = "HEALER" },
+            { id = 1473, name = "Augmentation",primary = "INTELLECT", role = "RANGED" },
+        }
+    },
 }

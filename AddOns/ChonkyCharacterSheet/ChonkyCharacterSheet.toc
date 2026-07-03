@@ -1,11 +1,11 @@
-## Interface: 120001, 120005, 20505, 50503
-## Title: Chonky Character Sheet
+## Interface: 120007, 120100, 20505, 50503, 50504
+## Title: |cCC33FFFFChonky Character Sheet|r
 ## Author: Cerdia @Area-52
-## Version: 2.2.33
+## Version: 2.3.09
 ## Notes: Chonky Character Sheet. Enhanced character sheet with options and profiles. Track stats, gear, and progress. Discord: https://discord.gg/bSyqqa7RC4
 ## SavedVariables: ChonkyCharacterSheetDB
 ## IconTexture: Interface\AddOns\ChonkyCharacterSheet\Media\Textures\chonky.tga
-## X-License: MIT
+## X-License: All Rights Reserved (This addon may not be redistributed or modified.)
 ## X-Curse-Project-ID: 1393904
 ## X-Wago-ID: 5NReOEG3
 ## Category: Unit Frames
@@ -38,6 +38,7 @@ core\tables.lua
 core\wrappers.lua
 core\utils.lua
 core\styles.lua
+core\gearDB.lua
 
 # -----------------------------
 # Modules for each WoW version
@@ -47,6 +48,7 @@ Retail\characterStats.lua
 Retail\mythicPlusStats.lua
 Retail\raidStats.lua
 Retail\inspectSheet.lua
+Retail\gearFinder.lua
 
 Modules\Classic.lua
 Modules\TBC.lua

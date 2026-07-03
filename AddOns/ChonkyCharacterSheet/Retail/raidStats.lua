@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
-if CCS.GetCurrentVersion() ~= CCS.RETAIL then
+if CCS.CurrentVersion ~= CCS.RETAIL then
     return
 end
 
@@ -274,7 +274,6 @@ local function CreateBossRow(bossData, anchor, parent, rowHeight, rowCount)
 
 end
 
-
 local function updateRaidStatusFrame()
 	local textstring = ""
     if option("showraidprogress") ~= true or _G["ccsrf_sf"] == nil then return end
@@ -311,10 +310,79 @@ local function updateRaidStatusFrame()
 	if _G["ccsr_btnfs1"] then _G["ccsr_btnfs1"]:SetText(textstring) end
 
 end
+
+local function ApplyStyle(self)
+    local f = self.frames
+    if not f then return end
+
+    -------------------------------------------------
+    -- Button 1 font
+    -------------------------------------------------
+    if f.btnfont1 then
+        f.btnfont1:SetFont(option("fontname_raid") or CCS.fontname,
+                           option("fontsize_raid") or 11,
+                           CCS.textoutline)
+
+        if option("showfontshadow") then
+            f.btnfont1:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+            f.btnfont1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+        else
+            f.btnfont1:SetShadowColor(0,0,0,0)
+        end
+    end
+
+    -------------------------------------------------
+    -- Button 2 icon style
+    -------------------------------------------------
+    if f.ccsr_btn2 then
+        if option("showr_altbtn") then
+            CCS:ApplyIconStyle(f.ccsr_btn2, "ightarrow", 20)
+            if f.ccsr_btn2_bg then
+                f.ccsr_btn2_bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
+            end
+        else
+            CCS:ApplyIconStyle(f.ccsr_btn2, "rightarrow", 17)
+            if f.ccsr_btn2_tex then
+                f.ccsr_btn2_tex:Hide()
+            end
+        end
+    end
+
+    -------------------------------------------------
+    -- Raid Frame background colors
+    -------------------------------------------------
+    local bg = option("bgcolor_raid")
+    if f.rf_bg then
+        f.rf_bg:SetColorTexture(bg[1], bg[2], bg[3], bg[4])
+    end
+
+    -------------------------------------------------
+    -- Scale
+    -------------------------------------------------
+    if f.ccsrf_sf then
+        f.ccsrf_sf:SetScale(option("raid_sp_scale"))
+    end
+end
 	
-function module:Initialize()
-    if option("showraidprogress") ~= true then return end
+function module:Initialize(onlyStyle)
+	self.frames = self.frames or {}
+    if CCS.AreSecretsDisabled() then 
+        CCS.initall = true
+        return 
+    end
+
+    if option("showraidprogress") ~= true then 
+		if _G["ccsr_btn1"] then _G["ccsr_btn1"]:Hide() end
+		if _G["ccsr_btn2"] then _G["ccsr_btn2"]:Hide() end
+		return 
+	end
 	if InCombatLockdown() then CCS.incombat = true return end
+--[[
+	if onlyStyle and _G["ccsrf_sf"] ~= nil then
+		ApplyStyle(self)
+		return
+	end
+--]]
     local ccsr_btn = _G["ccsr_btn1"] or CreateFrame("Frame", "ccsr_btn1", CharacterHandsSlot)
     local btnfont1 = _G["ccsr_btnfs1"] or ccsr_btn:CreateFontString("ccsr_btnfs1")
     local textstring = ""
@@ -335,8 +403,7 @@ function module:Initialize()
 	ccsr_btn:SetSize(150, 30)
     ccsr_btn:SetPoint("BOTTOMRIGHT", CharacterHandsSlot, "TOPRIGHT", 8, 20)
     ccsr_btn:SetFrameStrata("HIGH")
-    ccsr_btn:Show()
-    
+    ccsr_btn:SetShown(option("showraidprogress"))
     btnfont1:SetPoint("RIGHT", ccsr_btn, "RIGHT", -3 ,0)
     btnfont1:SetFont(option("fontname_raid") or CCS.fontname, (option("fontsize_raid") or 11), CCS.textoutline)
 	if option("showfontshadow") == true then
@@ -349,9 +416,9 @@ function module:Initialize()
 
 ---- Create the second button
     local ccsr_btn2 = _G["ccsr_btn2"] or CreateFrame("Button", "ccsr_btn2", PaperDollFrame)
-	ccsr_btn2:SetSize(28, 28)
+	ccsr_btn2:SetSize(20, 20)
 	ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
-	ccsr_btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -30)
+	ccsr_btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -22)
 	ccsr_btn2:SetFrameStrata("HIGH")
 
 	ccsr_btn2._ccs_OnEnter = function(self)
@@ -368,11 +435,12 @@ function module:Initialize()
 		local ccsr_btn2_tex = ccsr_btn2.tex or ccsr_btn2:CreateTexture(nil, "ARTWORK")
 		ccsr_btn2.tex = ccsr_btn2_tex
 		CCS:ApplyIconStyle(ccsr_btn2, "ightarrow", 20)
+		ccsr_btn2.bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
 		ccsr_btn2_tex:SetAllPoints()
-		ccsr_btn2_tex:Show()
-		ccsr_btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
+		--ccsr_btn2_tex:Show()
+		--ccsr_btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
 	else
-		CCS:ApplyIconStyle(ccsr_btn2, "rightarrow", 20)
+		CCS:ApplyIconStyle(ccsr_btn2, "rightarrow", 17)
 		if ccsr_btn2 and ccsr_btn2.tex ~= nil then
 			ccsr_btn2.tex:Hide()
 		end
@@ -381,8 +449,13 @@ function module:Initialize()
 	-- Click behavior
 	ccsr_btn2:SetScript("OnClick", function(self, button)
 		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK)
+		if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
+			if ClassCodexPanel and ClassCodexPanel:IsVisible() then ClassCodexPanel:Hide() end
+		end
+
 		if not InCombatLockdown() then
 			if _G["ccsm_sf"] and _G["ccsm_sf"]:IsShown() then _G["ccsm_sf"]:Hide() end
+			if _G["ccsgf_sf"] and _G["ccsgf_sf"]:IsShown() then _G["ccsgf_sf"]:Hide() end
 			
 			if _G["ccsrf_sf"]:IsShown() then
 				_G["ccsrf_sf"]:Hide()
@@ -395,20 +468,14 @@ function module:Initialize()
 		end
 	end)
 
-		ccsr_btn2:Show()
-
+	ccsr_btn2:SetShown(option("showraidprogress"))
     ccsrf_sf:ClearAllPoints()
 	
 	local hpad = option("hpad") or 279
 	local offsetX = (60 + hpad)
 
-    if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX-63, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
-	else
-		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
-	end
+	ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX, 0)
+	ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
 
 	ccsrf_sf:SetPoint("TOPLEFT", ccsrf_af, "TOPRIGHT", 0, 0); 
 	ccsrf_sf:SetSize(660, 640)  
@@ -478,11 +545,12 @@ function module:Initialize()
 
 	local totalSpacing = (totalRows - 1) * rowSpacing
 	local availableHeight = maxHeight - totalSpacing
+	totalRows = math.max(1, totalRows)
 	local rowHeight = math.min(math.floor(availableHeight / totalRows), 50)
 	local anchor = ccsrf_sf
 	local layoutChain = {}  -- Ordered list of frames to anchor
 
-    -- Phase 1: Create all frames
+    -- Create all frames
     for _, raidData in ipairs(visibleGroups) do
             -- Create header row for this raid
             local rowCount = 1      -- For zebra striping
@@ -501,7 +569,7 @@ function module:Initialize()
             end
     end
 
-    -- Phase 2: Anchor all frames
+    -- Anchor all frames
     for i, entry in ipairs(layoutChain) do
         local frame = entry.frame
         if i == 1 and entry.isHeader then
@@ -513,6 +581,19 @@ function module:Initialize()
         end
     end
 
+	self.frames.ccsr_btn = ccsr_btn
+	self.frames.btnfont1 = btnfont1
+
+	self.frames.ccsr_btn2 = ccsr_btn2
+	self.frames.ccsr_btn2_tex = ccsr_btn2.tex
+	self.frames.ccsr_btn2_bg = ccsr_btn2.bg
+
+	self.frames.ccsrf_sf = ccsrf_sf
+	self.frames.rf_bg = rf_bg
+	self.frames.rf_topbar = rf_topbar
+	self.frames.rf_topstreaks = rf_topstreaks
+	self.frames.rf_bottombar = rf_bottombar
+
 	updateRaidStatusFrame()
 
 end
@@ -521,9 +602,18 @@ function CCS.RaidProgressEventHandler(event, ...)
     local arg1, arg2, arg3 = ...
 	if option("showraidprogress") == false then return end
 
-	if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
-    if event == "PLAYER_LEVEL_UP" then
-       C_Timer.After(.2, function() if UnitLevel("player") == CCS.MaxLevel then  _G["ccsr_btn"]:Show() end end)
+	if CCS.CurrentVersion ~= CCS.RETAIL then return end
+   
+	if CCS.initall == true then return end
+
+	if event == "PLAYER_LEVEL_UP" then
+       C_Timer.After(.2, function() 
+				if UnitLevel("player") == CCS.MaxLevel then  
+					if _G["ccsr_btn1"] then _G["ccsr_btn1"]:Show() end
+					if _G["ccsr_btn2"] then _G["ccsr_btn2"]:Show() end
+				end 
+				
+			end)
     end
 
     if event == "CCS_EVENT_OPTIONS" and option("showraidprogress") == false then

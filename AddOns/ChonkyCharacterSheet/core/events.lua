@@ -269,7 +269,7 @@ local eventHandlers = {
     ["ITEM_CHANGED"] = {
         { fn = WrapHandler("ITEM_CHANGED", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },
     },
-    
+   
     ["LIFESTEAL_UPDATE"] = {
         { fn = WrapHandler("LIFESTEAL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
     },
@@ -295,6 +295,21 @@ local eventHandlers = {
     },
 
     ["PLAYER_ENTERING_WORLD"] = {
+
+        { fn = WrapHandler("PLAYER_ENTERING_WORLD", (
+            function () 
+                if CCS.initall == true and not CCS.AreSecretsDisabled() then
+                    CCS.initall = nil
+                    
+                    for _, module in pairs(CCS.Modules) do
+                        if type(module.Initialize) == "function" then
+                            C_Timer.After(0.1, function() module:Initialize() end)
+                        end
+                    end
+                    CCS:FireEvent("CCS_EVENT_OPTIONS")
+                end
+            end
+            ), "Secrets Handler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
@@ -321,27 +336,41 @@ local eventHandlers = {
     },
 
     ["PLAYER_LOGIN"] = WrapHandler("PLAYER_LOGIN", function()
-
         for _, def in ipairs(ns.optionDefs or {}) do
             if def.key then
                 local value = CCS.CurrentProfile[def.key]
             
                 if def.type == "font" then
                     local profileFontpath = CCS.CurrentProfile[def.key]
-                    local fontName = CCS.GetFontKeyByPath(profileFontpath)
-                    local LSM_fontpath = LSM:Fetch("font", fontName)
-                    value = LSM_fontpath
+
+                    -- Check to see if the path exists in Chonky.  If it does, just use it.  If not, let's find it.
+                    if not CCS.FontPathExists(profileFontpath) then
+                        local fontFileName = CCS.GetFileNameFromPath(profileFontpath)
+
+                        -- This allows us to see if the font filename exists (basically if another addon had registered a font we already had)
+                        -- If it does, just use our font path.  If not, we will look within LSM for it.
+                        if CCS.FontFileExists(fontFileName) then
+                            local fontName = CCS.fontFiles[fontFileName]
+                            value = CCS.fonts[fontName]
+                        else
+                            local fontName = CCS.GetFontKeyByPath(profileFontpath)
+                            local LSM_fontpath = nil
+
+                            if fontName then LSM_fontpath = LSM:Fetch("font", fontName, true) end
+                            value = LSM_fontpath or CCS:GetDefaultFontForLocale() or "Fonts\\FRIZQT__.TTF"
+                        end
+                    end
                 end
                 CCS:UpdateOption(def, value)
             end
         end    
-
+        CCS.fontname = CCS:GetOptionValue("default_font") or CCS:GetDefaultFontForLocale() or "Fonts\\FRIZQT__.TTF"
         CCS:Initialize()
         CCS:LoadBlizzardAddOns()
         C_Timer.After(0.1, function()
             CCS.RefreshStyleColors()
             CCS:PrimeFontsAndTextures()
-            CCS.fontname = CCS:GetDefaultFontForLocale() or CCS:GetOptionValue("default_font") or "Fonts\\FRIZQT__.TTF"
+            CCS.fontname = CCS:GetOptionValue("default_font") or CCS:GetDefaultFontForLocale() or "Fonts\\FRIZQT__.TTF"
             if CCS:GetOptionValue("textoutline") == "Thin Outline" then
                 CCS.textoutline = "OUTLINE"
             elseif CCS:GetOptionValue("textoutline") == "Thick Outline" then
@@ -349,9 +378,15 @@ local eventHandlers = {
             else
                 CCS.textoutline = ""
             end
-
+            if CCS:GetOptionValue("font_slug") == true then
+                if CCS.textoutline == "" then
+                    CCS.textoutline = CCS.textoutline .. "SLUG"
+                else
+                    CCS.textoutline = CCS.textoutline .. ", SLUG"
+                end
+            end
+            
         end)
-        CCS.fontname = CCS:GetDefaultFontForLocale() or CCS:GetOptionValue("default_font") or "Fonts\\FRIZQT__.TTF"
 
         if CCS:GetOptionValue("textoutline") == "Thin Outline" then
             CCS.textoutline = "OUTLINE"
@@ -360,14 +395,26 @@ local eventHandlers = {
         else
             CCS.textoutline = ""
         end
-
-        for _, module in pairs(CCS.Modules) do
-            if type(module.Initialize) == "function" then
-                C_Timer.After(0.1, function() module:Initialize() end)
+        
+        if CCS:GetOptionValue("font_slug") == true then
+            if CCS.textoutline == "" then
+                CCS.textoutline = CCS.textoutline .. "SLUG"
+            else
+                CCS.textoutline = CCS.textoutline .. ", SLUG"
             end
         end
-        CCS:FireEvent("CCS_EVENT_OPTIONS")
-        
+        if CCS.AreSecretsDisabled() then
+            CCS.initall = true
+        else
+            CCS.initall = nil
+            for _, module in pairs(CCS.Modules) do
+                if type(module.Initialize) == "function" then
+                    C_Timer.After(0.15, function() module:Initialize() end)
+                end
+            end
+            CCS:FireEvent("CCS_EVENT_OPTIONS")
+        end
+
     end),
 
     ["PLAYER_LOOT_SPEC_UPDATED"] = {
@@ -376,15 +423,16 @@ local eventHandlers = {
 
     ["PLAYER_REGEN_ENABLED"] = WrapHandler("PLAYER_REGEN_ENABLED", function()
 
-
-        if CCS.initall == true then
+        if CCS.initall == true and not CCS.AreSecretsDisabled() then
+            CCS.initall = nil
+            
             for _, module in pairs(CCS.Modules) do
                 if type(module.Initialize) == "function" then
                     C_Timer.After(0.1, function() module:Initialize() end)
                 end
             end
+
             CCS:FireEvent("CCS_EVENT_OPTIONS")
-            CCS.initall = nil
         end
         
         if CCS.GetCurrentVersion() == CCS.RETAIL then 
@@ -482,6 +530,9 @@ local eventHandlers = {
     ["UNIT_MAXPOWER"] = {
         { fn = WrapHandler("UNIT_MAXPOWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
     },
+    ["UNIT_NAME_UPDATE"] = {
+        { fn = WrapHandler("UNIT_NAME_UPDATE", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
+    },
     ["UNIT_RANGED_ATTACK_POWER"] = {
         { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
@@ -492,6 +543,7 @@ local eventHandlers = {
     },
     ["UNIT_RESISTANCES"] = {
         { fn = WrapHandler("UNIT_RESISTANCES", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
+        { fn = WrapHandler("UNIT_RESISTANCES", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
     },
     ["UNIT_SPELL_HASTE"] = {
         { fn = WrapHandler("UNIT_SPELL_HASTE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },

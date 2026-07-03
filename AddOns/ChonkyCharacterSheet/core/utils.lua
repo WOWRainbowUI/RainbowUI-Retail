@@ -15,6 +15,15 @@ end
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
+local modbg_parent = CharacterModelScene or CharacterModelFrame
+local modbg = _G["CharacterModelFramebg"] or CreateFrame("Frame", "CharacterModelFramebg", modbg_parent)
+local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
+local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("CharacterModelFramebgtex2", "ARTWORK")    
+
+local inspectmodbg = _G["InspectModelFramebg"] or CreateFrame("Frame", "InspectModelFramebg")
+local inspectmodtex = _G["InspectModelFramebgtex"] or inspectmodbg:CreateTexture("InspectModelFramebgtex", "BACKGROUND")    
+local inspectmodtex2 = _G["InspectModelFramebgtex2"] or inspectmodbg:CreateTexture("InspectModelFramebgtex2", "ARTWORK")    
+
 function CCS.GetFontKeyByPath(path)
     if not path then return nil end
     for key, fontPath in pairs(LSM.MediaTable.font) do
@@ -77,7 +86,7 @@ end
 CCS.tooltip = CCS:CreateTooltip("ccs_tooltip")
 
 function CCS.RenderSafeTooltip(tooltip, link, unit)
-    if not link then return end
+    if not link or CCS.AreSecretsDisabled() then return end
     unit = unit or "player"
 
     -- Hidden parser
@@ -440,7 +449,9 @@ end
 
 -- Tricking Blizzard into loading the fonts instead of lazy loading them.  That way they are immediately available.
 function CCS:PrimeFontsAndTextures()
-    if CCS.FontsPrimed then return end
+    local buildType = select(6, GetBuildInfo())
+    buildType = strtrim(tostring(buildType or ""))
+    if CCS.FontsPrimed or buildType == "Test" then return end
 
     local preloadFrame = CCS.FontPreloadFrame or CreateFrame("Frame", nil, UIParent)
     CCS.FontPreloadFrame = preloadFrame
@@ -448,14 +459,15 @@ function CCS:PrimeFontsAndTextures()
     preloadFrame:SetSize(1, 1)
     preloadFrame:Show()
     
-    for _, path in pairs(CCS.fonts) do
+    for key, path in pairs(CCS.fonts) do
         local fs = preloadFrame:CreateFontString(nil, "OVERLAY")
-        fs:SetFont(path, 1)
-        fs:SetPoint("CENTER", preloadFrame, "CENTER")
-        fs:SetText(".") -- force render
-        fs:Show()
+        if pcall(fs.SetFont, fs, path, 1) then
+            fs:SetPoint("CENTER", preloadFrame, "CENTER")
+            fs:SetText(".")
+            fs:Show()
+        end
     end
-       -- Optional cleanup
+    
     C_Timer.After(1, function()
         preloadFrame:Hide()
     end)
@@ -483,6 +495,24 @@ function CCS:PrimeFontsAndTextures()
     tex3:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\white_downarrow.png")
     tex3:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")    
     CCS.FontsPrimed = true
+end
+
+function CCS.FontPathExists(path)
+    for _, fontPath in pairs(CCS.fonts) do
+        if fontPath == path then
+            return true
+        end
+    end
+    return false
+end
+
+function CCS.FontFileExists(fileName)
+    return CCS.fontFiles[fileName] ~= nil
+end
+
+function CCS.GetFileNameFromPath(path)
+    if not path then return nil end
+    return path:match("([^\\/:]+)$")
 end
 
 -- Check if an option applies for a given version (or current by default)
@@ -912,7 +942,7 @@ function CCS.testExportImport()
 
         print("|cff9999ffStarting export/import validation test...|r")
 
-        -- Step 1: Export
+        -- Export
         local exportStr = CCS.ExportProfile(originalProfile)
         if type(exportStr) ~= "string" then
             print("|cffff0000Test failed! ExportProfile did not return a string.|r")
@@ -920,7 +950,7 @@ function CCS.testExportImport()
         end
         print("|cff00ff00Export successful.|r")
 
-        -- Step 2: Compression check
+        -- Compression check
         local LibDeflate = LibDeflate
         if LibDeflate then
             local decoded = LibDeflate:DecodeForPrint(exportStr)
@@ -938,7 +968,7 @@ function CCS.testExportImport()
             print("|cffffff00Warning: LibDeflate not found, skipping compression test.|r")
         end
 
-        -- Step 3: Import
+        -- Import
         local success, imported = pcall(CCS.ImportProfile, exportStr)
         if not success then
             print("|cffff0000ImportProfile threw an error:|r " .. tostring(imported))
@@ -949,7 +979,7 @@ function CCS.testExportImport()
             return
         end
 
-        -- Step 4: Schema validation
+        -- Schema validation
         local valid, err = CCS.validateProfileStructure(imported)
         if not valid then
             print("|cffff0000Test failed! Schema invalid:|r " .. err)
@@ -957,7 +987,7 @@ function CCS.testExportImport()
         end
         print("|cff00ff00Profile schema validation passed.|r")
 
-        -- Step 5: Deep equality check
+        -- Deep equality check
         if CCS.deepCompare(originalProfile, imported) then
             print("|cff00ff00Table structure identical after import.|r")
         else
@@ -991,6 +1021,18 @@ function CCS:InitSavedVariables()
     
     local savedProfile = CCS.CurrentProfile
 
+    if not savedProfile.sectionOrder then
+        savedProfile.sectionOrder = {
+            "ATTRIBUTES",
+            "SECONDARY",
+            "ATTACK",
+            "DEFENSE",
+            "GENERAL",
+            "CRESTS",
+            "PVP",
+        }
+    end
+
     for _, def in ipairs(ns.optionDefs or {}) do
         if def.key then
             local saved = savedProfile[def.key]
@@ -1023,11 +1065,64 @@ function CCS:InitSavedVariables()
     end
 end
 
+function CCS:GetOrderedSections(defaultSections)
+    local saved = CCS.CurrentProfile.sectionOrder or {}
+    local defaultKeys = {}
+    local ordered = {}
+
+    -- Build lookup of default keys
+    for _, sec in ipairs(defaultSections) do
+        defaultKeys[sec.key] = true
+    end
+
+    -- Add saved keys that still exist
+    for _, key in ipairs(saved) do
+        if defaultKeys[key] then
+            ordered[#ordered+1] = key
+            defaultKeys[key] = nil
+        end
+    end
+
+    -- Add any new sections not in saved order
+    for _, sec in ipairs(defaultSections) do
+        if defaultKeys[sec.key] then
+            ordered[#ordered+1] = sec.key
+        end
+    end
+
+    return ordered
+end
+
+function CCS:ReorderSections(dragKey, dropKey)
+    local order = CCS.CurrentProfile.sectionOrder
+    if not order then return end
+
+    -- Remove dragKey
+    for i, key in ipairs(order) do
+        if key == dragKey then
+            table.remove(order, i)
+            break
+        end
+    end
+
+    -- Insert before dropKey
+    for i, key in ipairs(order) do
+        if key == dropKey then
+            table.insert(order, i, dragKey)
+            return
+        end
+    end
+
+    -- If dropKey not found, append
+    table.insert(order, dragKey)
+end
+
 ---------------------------
 -- Option Frame Updates
 ---------------------------
 function CCS:UpdateOption(def, newValue)
     if not def or not def.key then return end
+
     CCS.CurrentProfile[def.key] = newValue
     def.value = newValue
 
@@ -1043,6 +1138,7 @@ function CCS:GetOptionValue(key)
     end
     return ChonkyCharacterSheetDB.default[key]
 end
+
 local option = function(key) return CCS:GetOptionValue(key) end
 
 function CCS:GetOptionDefByKey(key)
@@ -1207,10 +1303,18 @@ function CCS:ResetOptionsToDefaults()
                 elseif def.type == "checkbox" and def.frame.SetChecked then
                     def.frame:SetChecked(defaultValue == true or tonumber(defaultValue) == 1)
                 elseif def.type == "dropdown" then 
-                    UIDropDownMenu_SetSelectedValue(def.frame, defaultValue)
+                    if def.frame.isCCSScrollDropdown and def.frame.SetSelectedValue then
+                        def.frame:SetSelectedValue(defaultValue)
+                    else
+                        UIDropDownMenu_SetSelectedValue(def.frame, defaultValue)
+                    end
                 elseif def.type == "font" then
                     local fontname = CCS:GetDefaultFontForLocale()
-                    UIDropDownMenu_SetSelectedValue(def.frame, fontname)
+                    if def.frame.SetSelectedValue then
+                        def.frame:SetSelectedValue(fontname)   -- use custom API
+                    else
+                        UIDropDownMenu_SetSelectedValue(def.frame, fontname)
+                    end
                 elseif def.type == "color" and def.frame.texture then
                     local c = defaultValue
                     if type(c) == "table" and #c >= 3 then
@@ -1407,7 +1511,7 @@ function CCS:ParseItemStats(unit, slot)
         keyword = keyword:gsub("^%s+", ""):gsub("%s+$", "")
         keyword = keyword:gsub("%s+", " ")
 
-        -- 1) Exact match
+        -- Exact match
         local mapped = statKeywords[keyword]
         if mapped then
             statTotals[mapped] = (statTotals[mapped] or 0) + tonumber(value)
@@ -1415,7 +1519,7 @@ function CCS:ParseItemStats(unit, slot)
             return
         end
 
-        -- 2) Case-insensitive substring match, longest keys first
+        -- Case-insensitive substring match, longest keys first
         local normalized = keyword:lower()
         local keys = {}
         for k, v in pairs(statKeywords) do
@@ -1586,11 +1690,12 @@ function CCS:ParseItemStats(unit, slot)
                     -- Multi-stat gem pre-checks
                     local hasTwoPlus = text:match("%+%d+") and text:match("^.*%+%d+.*%+%d+.*$")
                     local hasSlash   = text:find("/", 1, true) or text:find("／", 1, true) or text:find("、", 1, true)
+                    local hasAmp     = text:find("&", 1, true)
                     local hasConj    = andWord and text:find(andWord, 1, true)
 
                     CCS.dprint("[DEBUG] hasTwoPlus:", hasTwoPlus, "hasSlash:", hasSlash, "hasConj:", hasConj, "locale:", locale)
 
-                    if not matched and not enchant and hasTwoPlus and (hasSlash or hasConj) then
+                    if not matched and not enchant and hasTwoPlus and (hasSlash or hasConj or hasAmp) then
                         CCS.dprint("    Gem line detected (multi-stat):", text)
 
                         local token1, token2
@@ -1598,6 +1703,9 @@ function CCS:ParseItemStats(unit, slot)
                         if hasSlash then
                             CCS.dprint("[DEBUG] splitting on slash")
                             token1, token2 = text:match("^(.-%+%d+.-)%s*[/／、]%s*(.-%+%d+.-)$")
+                        elseif text:find("&", 1, true) then
+                            CCS.dprint("[DEBUG] splitting on &")
+                            token1, token2 = text:match("^(.-%+%d+.-)%s*&%s*(.-%+%d+.-)$")
                         elseif locale == "ruRU" then
                             CCS.dprint("[DEBUG] splitting Russian on 'и'")
                             token1, token2 = text:match("^(%+%d+.-)%s+и%s+(%+%d+.-)$")
@@ -1815,6 +1923,14 @@ local function StripEnchantPrefix(raw)
     return text
 end
 
+function CCS.GetTrackColor(quality)
+    local opt = CCS.CustomTrackOptions[quality]
+    if opt then
+        local c = option(opt)
+        if c then return c end
+    end
+    return CCS.DefaultTrackColors[quality] or {1,1,1,1}
+end
 
 function CCS.updateLocationInfo(unit, slotIndex, framename)
     if slotIndex == 18 then return end -- skip ranged slot
@@ -1863,7 +1979,6 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     if _G[slotFrameName].textureSlotBackdrop1 then _G[slotFrameName].textureSlotBackdrop1:Hide() end
     if _G[slotFrameName].textureSlot2 then _G[slotFrameName].textureSlot2:Hide() end
     if _G[slotFrameName].textureSlotBackdrop2 then _G[slotFrameName].textureSlotBackdrop2:Hide() end
-    
 
     -- Create or reuse UI elements
     _G[slotFrameName]:SetFrameStrata("HIGH")
@@ -2110,7 +2225,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                         --Enchant = enchant
                         Enchant = StripEnchantPrefix(enchant)
                     end
-                   
+                  
                     -- Base item level
                     local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
                     if ilvl and (tonumber(ilvl) ~= tonumber(itemiLevel or 0)) then
@@ -2206,35 +2321,62 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 iDivider = ""
             end
             
-            if option("showitemupgrade"..suffix) then 
-                if string.len(ItemUpgradeLevel) > 0 then
-                    local upr, upg, upb, upalpha = option("itemupgradecolor"..suffix)[1], option("itemupgradecolor"..suffix)[2], option("itemupgradecolor"..suffix)[3], option("itemupgradecolor"..suffix)[4];
 
-                    if option("upgradecolorrarity") == true and CCS.UpgradeTrackNames[locale] and CCS.UpgradeTrackNames[locale][ItemUpgradeTrack] then
-                        upr, upg, upb, upalpha = unpack(CCS.UpgradeTrackNames[locale][ItemUpgradeTrack])
-                    end
-                    
-                    ItemUpgradeLevel = WrapTextInColor("(" .. ItemUpgradeLevel .. ")", CreateColor(upr, upg, upb, upalpha))
+        -- Ascendant Voidforged override (likely will use this for other similar upgrades in the future)
+        local ascIcon, ascTier = CCS.GetAscendantVoidforgedTag(link)
+        if ascIcon then
+            local ascIconsize = option("fontsize_iilvl"..suffix) or 10
+            local tex = "|T" .. ascIcon .. ":"..ascIconsize..":"..ascIconsize.."|t"
+            local label = ascTier or ""
+
+            -- Display icon + tier text
+            ItemUpgradeTrack = L[label]
+            ItemUpgradeLevel = L[label] .. " " .. tex
+        end
+
+        if option("showitemupgrade"..suffix) then 
+            if ItemUpgradeLevel and ItemUpgradeLevel ~= "" then
+
+                -- Start with the base upgrade color
+                local upr, upg, upb, upalpha = 
+                    option("itemupgradecolor"..suffix)[1],
+                    option("itemupgradecolor"..suffix)[2],
+                    option("itemupgradecolor"..suffix)[3],
+                    option("itemupgradecolor"..suffix)[4]
+
+                -- Override with rarity/custom colors if enabled
+                if option("customupgradecolor") == true 
+                   and CCS.UpgradeTrackNames[locale] 
+                   and CCS.UpgradeTrackNames[locale][ItemUpgradeTrack] then
+
+                    local trackID = CCS.UpgradeTrackNames[locale][ItemUpgradeTrack]
+                    upr, upg, upb, upalpha = unpack(CCS.GetTrackColor(trackID))
                 end
-            else
-                ItemUpgradeLevel = ""
-            end
 
-            if option("showhighwater") and not CCS.AreSecretsDisabled() and isPlayer and chigh ~= nil and tonumber(chigh) and cilvl ~= nil and tonumber(cilvl) and tonumber(chigh) > tonumber(cilvl) then
-                chigh = iDivider..chigh
-            else
-                chighc = ""
-                chigh = ""
+                -- Wrap the text in color
+                ItemUpgradeLevel = WrapTextInColor(
+                    "(" .. ItemUpgradeLevel .. ")",
+                    CreateColor(upr, upg, upb, upalpha)
+                )
             end
-            
-            if displaytoleft and itemiLevel ~= nil then
-                ilvlTxt:SetText(ItemUpgradeLevel.." "..chighc.. itemiLevel.."|r"..chigh) 
-            elseif itemiLevel ~= nil then
-                ilvlTxt:SetText(chighc..itemiLevel.."|r" ..chigh.." ".. ItemUpgradeLevel) 
-            end
-            ilvlTxt:Show()
+        else
+            ItemUpgradeLevel = ""
+        end
 
+        if option("showhighwater") and not CCS.AreSecretsDisabled() and isPlayer and chigh ~= nil and tonumber(chigh) and cilvl ~= nil and tonumber(cilvl) and tonumber(chigh) > tonumber(cilvl) then
+            chigh = iDivider..chigh
+        else
+            chighc = ""
+            chigh = ""
+        end
         
+        if displaytoleft and itemiLevel ~= nil then
+            ilvlTxt:SetText(ItemUpgradeLevel.." "..chighc.. itemiLevel.."|r"..chigh) 
+        elseif itemiLevel ~= nil then
+            ilvlTxt:SetText(chighc..itemiLevel.."|r" ..chigh.." ".. ItemUpgradeLevel) 
+        end
+        ilvlTxt:Show()
+
         -- Enchant Info [Mint/Red, 10]  (Mint #2afab5)
 		if Enchant == "" and option("showenchantgemerrors"..suffix) == true then
 		
@@ -2580,12 +2722,15 @@ end
 
 
 function CCS.AreSecretsDisabled()
+    if CCS.CurrentVersion ~= CCS.RETAIL then return false end   
+
     local inInstance, instanceType = IsInInstance()
     
     if  InCombatLockdown() or
         C_ChallengeMode.GetActiveChallengeMapID() ~= nil or  -- Mythic+
         C_InstanceEncounter.IsEncounterInProgress() or -- Raid/Boss Encounter
-        (inInstance and (instanceType == "pvp" or instanceType == "arena")) then 
+        (inInstance and (instanceType == "pvp" or instanceType == "arena")) 
+        then 
         return true 
     end
 
@@ -2593,6 +2738,7 @@ function CCS.AreSecretsDisabled()
 end
 
 function CCS:HideAllStatHighlights()
+    --print("HideAllStatHighlights", CCS.activeClickedRow == true)
     for slot = 1, 17 do
         local slotFrameName = CCS.slotNames[slot] and ("Character"..CCS.slotNames[slot].."Slot")
         local slotFrame = slotFrameName and _G[slotFrameName]
@@ -2605,7 +2751,7 @@ end
 function CCS:ShowStatHighlights(statRowData)
     local statKey = CCS.statKeyMap[statRowData.key]
     if not statKey then return end
-
+    --print("Show", statRowData.key)
     -- Loop through all equipment slots
     for slot = 1, 17 do
         local slotFrameName = CCS.slotNames[slot] and ("Character"..CCS.slotNames[slot].."Slot")
@@ -2698,3 +2844,267 @@ function CCS:LoadBlizzardAddOns()
     self.BlizzardLoaded = true
 end
 
+function CCS.clamp(val, min, max)
+    if val < min then return min end
+    if val > max then return max end
+    return val
+end
+
+function CCS.StopBGAnimation(modbg)
+    if modbg and modbg.swirl then
+        modbg.swirl:Hide()
+        modbg.swirl.swirlAnim:Stop()
+        modbg.donut:Hide()
+        modbg.donutFrame.donutAnim:Stop()
+    end
+end
+
+function CCS.ChangeModelBg(isInspect)
+    local unit = "player"
+    local classID,raceID, specID
+    local prefix = isInspect and "Inspect" or "Character"
+    local parent  = isInspect and InspectModelScene or CharacterModelScene
+    local bgtype_lookup = isInspect and "bgtype_inspect" or "bgtype"
+    modbg  = _G[prefix.."ModelFramebg"]  or CreateFrame("Frame", prefix.."ModelFramebg", parent)
+    modtex = _G[prefix.."ModelFramebgtex"]  or modbg:CreateTexture(prefix.."ModelFramebgtex", "BACKGROUND")
+    modtex2 = _G[prefix.."ModelFramebgtex2"] or modbg:CreateTexture(prefix.."ModelFramebgtex2", "ARTWORK")
+    
+    local entry = nil
+
+    -----------------------------------------
+    -- Handle Inspect and Character Backgrounds (for retail, MOP, and TBC)
+    -----------------------------------------
+    if isInspect then
+        if InspectFrame == nil or InspectFrame.unit == nil then return end
+
+        if isInspect and option(bgtype_lookup) and option(bgtype_lookup) == "Hide" then
+            modtex:Hide()
+            CCS.StopBGAnimation(modbg)
+            return
+        end
+        
+        unit = InspectFrame.unit
+        -- MOP and TBC don't have true specs for classes
+        if CCS.CurrentVersion ~= CCS.RETAIL then
+            specID = 1
+        else
+            specID = CCS.GetSpecIndexFromSpecID(GetInspectSpecialization(unit))
+        end
+        
+    else
+        if option(bgtype_lookup) == "Hide" then
+            modtex:Hide()
+            CCS.StopBGAnimation(modbg)
+            return
+        end
+        -- MOP and TBC don't have true specs for classes
+        if CCS.CurrentVersion ~= CCS.RETAIL then
+            specID = 1
+        else
+            specID = GetSpecialization()
+        end
+    end
+
+    classID = select(3, UnitClass(unit))
+    raceID = select(3, UnitRace(unit))
+    --print("ChangeModel", unit, isInspect, classID, raceID, bgtype_lookup, option(bgtype_lookup))    
+    CCS.StopBGAnimation(modbg)
+    modtex:Show()
+    -- Set some basic info
+    local frameWidth, frameHeight = modtex:GetWidth(), modtex:GetHeight()
+
+    if not frameWidth or frameWidth == 0 or not frameHeight or frameHeight == 0 then
+        -- fallback to baseline
+        frameWidth = 569 
+        frameHeight = 520 
+    end
+
+    -- Determine which type of background to display.
+    if option(bgtype_lookup) == "Class Crest" then
+        entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][0]
+        modtex:SetVertexColor(1, 1, 1, 1)
+    elseif option(bgtype_lookup) == "Class" then
+        entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][specID]
+        modtex:SetVertexColor(0.8, 0.8, 0.8, 1)
+    elseif option(bgtype_lookup) == "Race" then
+        if classID == 6 then raceID = 998 -- Death Knight
+        elseif classID == 12 then raceID = 999 -- Demon Hunter
+        end
+        entry = CCS.Race_Bg[raceID]
+        modtex:SetVertexColor(0.7, 0.7, 0.7, 1)
+    end
+    -- Clear and reset the current texture
+    modtex:ClearAllPoints()
+    modtex:SetAllPoints()
+    modtex2:Hide()
+
+    if entry then
+        local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
+
+        modtex:SetTexture(entry.texture)
+        
+        if option(bgtype_lookup) == "Class Crest" then
+            local crestWidth, crestHeight, crestuMin, crestuMax, crestvMin, crestvMax = unpack(entry.crestmap)
+            local visibleWidth = frameWidth / (frameHeight / texHeight)
+            local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
+            left = CCS.clamp(left, uMin, uMax) -- ensure valid range
+            modtex:SetTexCoord(left, uMax, vMin, vMax)
+
+            if (classID ~= 13) then
+                modtex2:SetAlpha(1)
+                modtex2:SetTexture(entry.texture)
+                modtex2:SetTexCoord(crestuMin, crestuMax, crestvMin, crestvMax)
+                modtex2:SetPoint("CENTER", modtex, "CENTER")
+                modtex2:SetSize(crestWidth, crestHeight)
+            else -- Evoker's didn't have artifact weapons/textures. So, we are gonna hack one in.
+                modtex:SetVertexColor(math.min(1, 0.20*1.4), math.min(1, 0.576*1.4), math.min(1, 0.498*1.4), 1)
+                modtex2:SetAlpha(.4)
+                modtex2:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\Evoker_Crest.png") -- From https://warcraft.wiki.gg/wiki/Evoker (plus a little photoshop magic)
+                modtex2:SetPoint("CENTER", modtex, "CENTER")
+                modtex2:SetSize(300, 300)
+            end
+            
+            modtex2:SetScale(math.min(1.7, 1.7*(frameWidth or 569)/569))
+            modtex2:Show()
+       
+        elseif option(bgtype_lookup) == "Class" then
+            -- Class/Specialization: right-aligned
+            local visibleWidth = frameWidth / (frameHeight / texHeight)
+            local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
+            left = CCS.clamp(left, uMin, uMax) -- ensure valid range
+            modtex:SetTexCoord(left, uMax, vMin, vMax)
+      
+        else
+            -- Race: horizontally centered
+            local visibleWidth = frameWidth / (frameHeight / texHeight)
+            local uRange = uMax - uMin
+            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
+
+            local left = CCS.clamp(uMin + uOffset, uMin, uMax)
+            local right = CCS.clamp(uMax - uOffset, uMin, uMax)
+
+            modtex:SetTexCoord(left, right, vMin, vMax)
+        end
+    else
+        if option(bgtype_lookup) ==  "Midnight"  then    
+            local texWidth, texHeight, uMin, uMax, vMin, vMax = 408,374, 0, 1, .35, 1
+            local visibleWidth = frameWidth / (frameHeight / texHeight)
+            local uRange = uMax - uMin
+            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
+            local origW, origH = 569, 520
+            local newW, newH = modbg:GetSize()
+
+            if not newW or newW == 0 then newW = frameWidth end
+            if not newH or newH == 0 then newH = frameHeight end
+
+            local scale = math.max(newH / origH, 0.1)
+--[[
+            if (newW == 0 or newH == 0) and CCS.modbg_retries < 5 then
+                C_Timer.After(0, CCS.ChangeModelBg(isInspect))
+                CCS.modbg_retries = CCS.modbg_retries+1
+                return
+            elseif (newW == 0 or newH == 0) then
+                scale = 1
+            end --]]
+            CCS.modbg_retries = 0
+
+            local offsetY = 80 * scale
+            local left = CCS.clamp(uMin + uOffset, uMin, uMax)
+            local right = CCS.clamp(uMax - uOffset, uMin, uMax)
+            modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\bgmidnight.png")
+            modtex:SetVertexColor(0.1, 0, 0.75, 0.95)            
+            modtex:SetTexCoord(left, right, vMin, vMax)    
+            if option("showbganimations") == true then
+                -- VOID SWIRL LAYER (rotating)
+                local swirl = modbg.swirl or modbg:CreateTexture(nil, "ARTWORK", nil, 1)
+                modbg.swirl = swirl
+                swirl:SetTexture("Interface\\GLUES\\Models\\UI_VoidElf\\7XP_Pandemonium_VoidFXSwirl01")
+                swirl:SetVertexColor(1, 1, 1, 1)
+                swirl:SetScale(scale * 0.85)
+                swirl:ClearAllPoints()
+                swirl:SetPoint("CENTER", modtex, "CENTER", 0, offsetY)
+                swirl:Show()
+
+                local swirlAnim = modbg.swirl.swirlAnim or swirl:CreateAnimationGroup()
+                modbg.swirl.swirlAnim = swirlAnim
+
+                local rotate = modbg.swirl.swirlAnim.rotate or swirlAnim:CreateAnimation("Rotation")
+                modbg.swirl.swirlAnim.rotate = rotate
+                rotate:SetDegrees(360)
+                rotate:SetDuration(120)
+                rotate:SetOrder(1)
+
+                swirlAnim:SetLooping("REPEAT")
+                swirlAnim:Play()
+
+                -- PULSING VOID DONUT MASK (mmm, donuts...)
+                local donutFrame = modbg.donutFrame or CreateFrame("Frame", nil, modbg)
+                modbg.donutFrame = donutFrame
+                donutFrame:ClearAllPoints()
+                donutFrame:SetPoint("CENTER", modtex, "CENTER", 0, offsetY)
+                donutFrame:SetSize(240 * scale, 350 * scale)
+                donutFrame:SetScale(1) -- important: neutral base
+                donutFrame:Show()
+
+                local donut = modbg.donut or donutFrame:CreateTexture(nil, "ARTWORK", nil, 2)
+                modbg.donut = donut
+                donut:SetAllPoints(donutFrame)
+                donut:SetTexture("Interface\\GLUES\\Models\\UI_MAINMENU_MIDNIGHT\\UI_MainMenu_Midnight_DonutMask")
+                donut:SetVertexColor(.292, .457, .902, 1)
+                donut:SetAlpha(1)
+                donut:SetBlendMode("ADD")
+                donut:Show()
+
+                local donutAnim = modbg.donutFrame.donutAnim or donutFrame:CreateAnimationGroup()
+                modbg.donutFrame.donutAnim = donutAnim
+                donutAnim:Stop() -- reset if it already existed
+
+                local alphaUp = donutAnim.alphaUp or donutAnim:CreateAnimation("Alpha")
+                donutAnim.alphaUp = alphaUp
+                alphaUp:SetFromAlpha(0.6)
+                alphaUp:SetToAlpha(1.0)
+                alphaUp:SetDuration(3)
+                alphaUp:SetSmoothing("IN_OUT")
+                alphaUp:SetOrder(1)
+
+                local alphaDown = donutAnim.alphaDown or donutAnim:CreateAnimation("Alpha")
+                donutAnim.alphaDown = alphaDown
+                alphaDown:SetFromAlpha(1.0)
+                alphaDown:SetToAlpha(0.6)
+                alphaDown:SetDuration(3)
+                alphaDown:SetSmoothing("IN_OUT")
+                alphaDown:SetOrder(2)
+
+                local scaleUp = donutAnim.scaleUp or donutAnim:CreateAnimation("Scale")
+                donutAnim.scaleUp = scaleUp
+                scaleUp:SetScale(1.05, 1.05)
+                scaleUp:SetDuration(3)
+                scaleUp:SetSmoothing("IN_OUT")
+                scaleUp:SetOrder(1)
+
+                local scaleDown = donutAnim.scaleDown or donutAnim:CreateAnimation("Scale")
+                donutAnim.scaleDown = scaleDown
+                scaleDown:SetScale(1 / 1.05, 1 / 1.05) -- back to 1.0
+                scaleDown:SetDuration(3)
+                scaleDown:SetSmoothing("IN_OUT")
+                scaleDown:SetOrder(2)
+
+                donutAnim:SetLooping("REPEAT")
+                donutAnim:Play()                
+                
+            end
+        else        
+            -- Default background
+            modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")
+            modtex:SetTexCoord(0, 0.69, 0, 0.87)
+            modtex:SetVertexColor(0.6, 0, 0.6, 0.95)
+        end
+    end
+end
+
+function CCS.UnitHasMana(unit)
+	if ( UnitPowerMax(unit, Enum.PowerType.Mana) > 0 ) then
+		return 1;
+	end
+	return nil;
+end

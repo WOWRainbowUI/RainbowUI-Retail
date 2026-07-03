@@ -29,6 +29,33 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+		["Class Crest"] = "Class Crest", -- enUS / enGB
+	["INSTRUCTIONS"] = "Instructions",  -- enUS / enGB
+	["CLICK_COL_EXP"] = "Click to Collapse or Expand", -- enUS / enGB
+	["CTRL_CLICK_COL_EXP"] = "Control + Click to Save Collapse State", -- enUS / enGB
+	["SHIFT_DRAG"] = "Shift + Drag to Move Section", -- enUS / enGB
+	["Source"] = "Source",  -- enUS/ enGB
+	["SHOW_GEAR_FINDER"] = "Enable Gear Finder Module", -- enUS/ enGB
+	["SCALE"] = "Scale", -- enUS/ enGB
+	["BG_COLOR"] = "Background Color", -- enUS/ enGB
+	["FOOTER_COLOR"] = "Footer Color", -- enUS/ enGB
+	["TITLE_FONT"] = "Title Font", -- enUS/ enGB
+	["HEADER_FONT"] = "Header Font", -- enUS/ enGB
+	["FONT_NAME_GF_ITEMSLOT"] = "Item Slot Font", -- enUS/ enGB
+	["FONT_NAME_GF_DRAID"] = "Dungeon/Raid Name Font", -- enUS/ enGB
+	["FONT_NAME_GF_BOSS"] = "Boss Name Font", -- enUS/ enGB
+	["CATEGORY_GEAR-FINDER"] = "Gear Finder", -- enUS / enGB	["Class Sets"] = "Class Sets", -- enUS/ enGB
+	["Slot"] = "Slot", -- enUS / enGB
+	["Movement"] = "Movement", -- enUS / enGB
+	["Explorer"]             = "Explorer",             -- enUS / enGB
+	["Adventurer"]           = "Adventurer",           -- enUS / enGB
+	["Veteran"]              = "Veteran",              -- enUS / enGB
+	["Champion"]             = "Champion",             -- enUS / enGB
+	["Hero"]                 = "Hero",                 -- enUS / enGB
+	["Myth"]                 = "Myth",                 -- enUS / enGB
+	["Custom Upgrade Color"] = "Custom Upgrade Color", -- enUS / enGB
+	["Slug Rendering"] = "Slug Rendering", -- enUS / enGB
+	["Secret"] = "Secret", -- enUS / enGB	
 	["Sort by"] = "Sort By", -- enUS / enGB
 	["Sort Direction"] = "Sort Direction",  -- enUS / enGB
 	["ALTERNATE_SIDE_BUTTON"] = "Alternate Side Button", -- enUS / enGB
@@ -297,7 +324,7 @@ local defaultStrings = {
 	["crests_champion"] = "Show Champion Crests", -- enUS / enGB
 	["crests_veteran"] = "Show Veteran Crests", -- enUS / enGB
 	["crests_adventurer"] = "Show Adventurer Crests", -- enUS / enGB
-	["Catalyst"] = "Catalyst Charges",  -- enUS / enGB
+	["Catalyst"] = "Catalyst",  -- enUS / enGB
 	["crests_catalyst"] = "Show Catalyst Row",  -- enUS / enGB	
 	["show_pvp"] = "Show PVP Section", -- enUS / enGB
 	["collapse_pvp"] = "Collapse PVP Section", -- enUS / enGB
@@ -412,6 +439,38 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+        ["Class Crest"] = "Klassenwappen", -- deDE
+        ["INSTRUCTIONS"] = "Anweisungen", -- deDE
+        ["CLICK_COL_EXP"] = "Klicken zum Ein- oder Ausklappen", -- deDE
+        ["CTRL_CLICK_COL_EXP"] = "Strg + Klicken, um den Einklappstatus zu speichern", -- deDE
+        ["SHIFT_DRAG"] = "Umschalt + Ziehen, um den Abschnitt zu verschieben", -- deDE
+		["Source"] = "Quelle", -- deDE
+		["SHOW_GEAR_FINDER"]      = "Ausrüstungsfinder-Modul aktivieren", -- deDE
+		["SCALE"]                 = "Skalierung", -- deDE
+		["BG_COLOR"]              = "Hintergrundfarbe", -- deDE
+		["FOOTER_COLOR"]          = "Fußzeilenfarbe", -- deDE
+		["TITLE_FONT"]            = "Titelschriftart", -- deDE
+		["HEADER_FONT"]           = "Kopfzeilenschriftart", -- deDE
+		["FONT_NAME_GF_ITEMSLOT"] = "Schriftart für Ausrüstungsplätze", -- deDE
+		["FONT_NAME_GF_DRAID"]    = "Schriftart für Dungeon/Raid-Namen", -- deDE
+		["FONT_NAME_GF_BOSS"]     = "Schriftart für Boss-Namen", -- deDE
+		["CATEGORY_GEAR-FINDER"]  = "Ausrüstungsfinder", -- deDE
+        ["Class Sets"] = "Klassensets", -- deDE
+        ["Cloth"]   = "Stoff",   -- deDE
+        ["Leather"] = "Leder",   -- deDE
+        ["Mail"]    = "Kette",   -- deDE
+        ["Plate"]   = "Platte",  -- deDE
+        ["Slot"] = "Platz", -- deDE
+        ["Movement"] = "Bewegung",        -- deDE
+		["Explorer"]             = "Forscher",    -- deDE
+		["Adventurer"]           = "Abenteurer",  -- deDE
+		["Veteran"]              = "Veteran",     -- deDE
+		["Champion"]             = "Champion",    -- deDE
+		["Hero"]                 = "Held",        -- deDE
+		["Myth"]                 = "Mythos",      -- deDE
+		["Custom Upgrade Color"] = "Benutzerdefinierte Aufwertungsfarbe", -- deDE
+		["Slug Rendering"] = "Slug-Rendering", -- deDE
+		["Secret"] = "Geheim", -- deDE 
 		["Sort by"] = "Sortieren nach", -- deDE
 		["Sort Direction"] = "Sortierrichtung", -- deDE
         ["ALTERNATE_SIDE_BUTTON"] = "Alternativer Seitenknopf", -- deDE
@@ -437,10 +496,10 @@ elseif locale == "deDE" then
 		["Full Text"] = "Vollständiger Text", -- deDE
 		["Truncate"] = "Abschneiden", -- deDE
 		["Wrap Text"] = "Textumbruch", -- deDE
-		["SHOW_MYTHIC_SP"] = "Mythic+ Seitenleisten‑Modul aktivieren", -- deDE
+		["SHOW_MYTHIC_SP"] = "Mythic+ Seitenleisten-Modul aktivieren", -- deDE
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Mythic+ Seitenleiste beim Öffnen des Charakterfensters anzeigen", -- deDE
 		["Versatility Display"] = "Vielseitigkeitsanzeige", -- deDE
-		["Catalyst"] = "Katalysatorladungen", -- deDE
+		["Catalyst"] = "Katalysator", -- deDE
 		["crests_catalyst"] = "Katalysatorzeile anzeigen", -- deDE
 		["Secondary"] = "Sekundär", -- deDE
 		["Crests"] = "Wappen", -- deDE
@@ -761,6 +820,38 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+        ["Class Crest"] = "Emblème de classe", -- frFR
+        ["INSTRUCTIONS"] = "Instructions", -- frFR
+        ["CLICK_COL_EXP"] = "Cliquez pour réduire ou développer", -- frFR
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Clic pour enregistrer l’état de réduction", -- frFR
+        ["SHIFT_DRAG"] = "Maj + Glisser pour déplacer la section", -- frFR
+		["Source"] = "Source", -- frFR
+		["SHOW_GEAR_FINDER"]      = "Activer le module Chercheur d’équipement", -- frFR
+		["SCALE"]                 = "Échelle", -- frFR
+		["BG_COLOR"]              = "Couleur d’arrière-plan", -- frFR
+		["FOOTER_COLOR"]          = "Couleur du pied de page", -- frFR
+		["TITLE_FONT"]            = "Police du titre", -- frFR
+		["HEADER_FONT"]           = "Police de l’en-tête", -- frFR
+		["FONT_NAME_GF_ITEMSLOT"] = "Police des emplacements d’objet", -- frFR
+		["FONT_NAME_GF_DRAID"]    = "Police des noms de donjons/raids", -- frFR
+		["FONT_NAME_GF_BOSS"]     = "Police des noms de boss", -- frFR
+		["CATEGORY_GEAR-FINDER"]  = "Chercheur d’équipement", -- frFR
+        ["Class Sets"] = "Ensembles de classe", -- frFR
+        ["Cloth"]   = "Tissu",   -- frFR
+        ["Leather"] = "Cuir",    -- frFR
+        ["Mail"]    = "Mailles", -- frFR
+        ["Plate"]   = "Plaques", -- frFR
+        ["Slot"] = "Emplacement", -- frFR
+        ["Movement"] = "Déplacement",     -- frFR
+		["Explorer"]             = "Explorateur", -- frFR
+		["Adventurer"]           = "Aventurier",  -- frFR
+		["Veteran"]              = "Vétéran",     -- frFR
+		["Champion"]             = "Champion",    -- frFR
+		["Hero"]                 = "Héros",       -- frFR
+		["Myth"]                 = "Mythe",       -- frFR
+		["Custom Upgrade Color"] = "Couleur d'amélioration personnalisée", -- frFR
+		["Slug Rendering"] = "Rendu Slug", -- frFR
+		["Secret"] = "Secret", -- frFR
 		["Sort by"] = "Trier par", -- frFR
 		["Sort Direction"] = "Sens du tri", -- frFR
         ["ALTERNATE_SIDE_BUTTON"] = "Bouton latéral alternatif", -- frFR
@@ -789,7 +880,7 @@ elseif locale == "frFR" then
 		["SHOW_MYTHIC_SP"] = "Activer le module du panneau Mythique+", -- frFR
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Afficher le panneau Mythique+ à l’ouverture de la fiche de personnage", -- frFR
 		["Versatility Display"] = "Affichage de la Polyvalence", -- frFR
-		["Catalyst"] = "Charges du Catalyseur", -- frFR
+		["Catalyst"] = "Catalyseur", -- frFR
 		["crests_catalyst"] = "Afficher la ligne du Catalyseur", -- frFR
 		["Secondary"] = "Secondaires", -- frFR
 		["Crests"] = "Armoiries", -- frFR
@@ -1110,6 +1201,38 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+        ["Class Crest"] = "Emblema de clase", -- esES
+        ["INSTRUCTIONS"] = "Instrucciones", -- esES
+        ["CLICK_COL_EXP"] = "Clic para contraer o expandir", -- esES
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Clic para guardar el estado de contracción", -- esES
+        ["SHIFT_DRAG"] = "Mayús + Arrastrar para mover la sección", -- esES
+		["Source"] = "Fuente", -- esES
+		["SHOW_GEAR_FINDER"]      = "Activar el módulo Buscador de equipo", -- esES
+		["SCALE"]                 = "Escala", -- esES
+		["BG_COLOR"]              = "Color de fondo", -- esES
+		["FOOTER_COLOR"]          = "Color del pie", -- esES
+		["TITLE_FONT"]            = "Fuente del título", -- esES
+		["HEADER_FONT"]           = "Fuente del encabezado", -- esES
+		["FONT_NAME_GF_ITEMSLOT"] = "Fuente de los espacios de objeto", -- esES
+		["FONT_NAME_GF_DRAID"]    = "Fuente de nombres de mazmorras/bandas", -- esES
+		["FONT_NAME_GF_BOSS"]     = "Fuente de nombres de jefes", -- esES
+		["CATEGORY_GEAR-FINDER"]  = "Buscador de equipo", -- esES
+        ["Class Sets"] = "Conjuntos de clase", -- esES/esMX
+        ["Cloth"]   = "Tela",    -- esES / esMX
+        ["Leather"] = "Cuero",   -- esES / esMX
+        ["Mail"]    = "Malla",   -- esES / esMX
+        ["Plate"]   = "Placas",  -- esES / esMX
+        ["Slot"] = "Ranura", -- esES
+        ["Movement"] = "Movimiento",      -- esES / esMX
+		["Explorer"]             = "Expedicionario", -- esES
+		["Adventurer"]           = "Aventurero",     -- esES
+		["Veteran"]              = "Veterano",       -- esES
+		["Champion"]             = "Campeón",        -- esES
+		["Hero"]                 = "Héroe",          -- esES
+		["Myth"]                 = "Mito",           -- esES
+		["Custom Upgrade Color"] = "Color de mejora personalizado", -- esES
+		["Slug Rendering"] = "Representación Slug", -- esES
+		["Secret"] = "Oculto", -- esES
 		["Sort by"] = "Ordenar por", -- esES
 		["Sort Direction"] = "Dirección de ordenación", -- esES
         ["ALTERNATE_SIDE_BUTTON"] = "Botón lateral alternativo", -- esES
@@ -1138,7 +1261,7 @@ elseif locale == "esES" then
 		["SHOW_MYTHIC_SP"] = "Activar el módulo del panel lateral de Míticas+", -- esES
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Mostrar el panel lateral de Míticas+ al abrir la hoja de personaje", -- esES
 		["Versatility Display"] = "Versatilidad: Modo de Visualización", -- esES
-		["Catalyst"] = "Cargas del Catalizador", -- esES
+		["Catalyst"] = "Catalizador", -- esES
 		["crests_catalyst"] = "Mostrar fila del Catalizador", -- esES
 		["Secondary"] = "Secundarias", -- esES
 		["Crests"] = "Crestas", -- esES
@@ -1459,6 +1582,38 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+        ["Class Crest"] = "Emblema de clase", -- esMX
+        ["INSTRUCTIONS"] = "Instrucciones", -- esMX
+        ["CLICK_COL_EXP"] = "Clic para contraer o expandir", -- esMX
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Clic para guardar el estado de contracción", -- esMX
+        ["SHIFT_DRAG"] = "Mayús + Arrastrar para mover la sección", -- esMX
+		["Source"] = "Fuente", -- esMX
+		["SHOW_GEAR_FINDER"]      = "Activar el módulo Buscador de equipo", -- esMX
+		["SCALE"]                 = "Escala", -- esMX
+		["BG_COLOR"]              = "Color de fondo", -- esMX
+		["FOOTER_COLOR"]          = "Color del pie", -- esMX
+		["TITLE_FONT"]            = "Fuente del título", -- esMX
+		["HEADER_FONT"]           = "Fuente del encabezado", -- esMX
+		["FONT_NAME_GF_ITEMSLOT"] = "Fuente de los espacios de objeto", -- esMX
+		["FONT_NAME_GF_DRAID"]    = "Fuente de nombres de mazmorras/bandas", -- esMX
+		["FONT_NAME_GF_BOSS"]     = "Fuente de nombres de jefes", -- esMX
+		["CATEGORY_GEAR-FINDER"]  = "Buscador de equipo", -- esMX
+        ["Class Sets"] = "Conjuntos de clase", -- esES/esMX
+        ["Cloth"]   = "Tela",    -- esES / esMX
+        ["Leather"] = "Cuero",   -- esES / esMX
+        ["Mail"]    = "Malla",   -- esES / esMX
+        ["Plate"]   = "Placas",  -- esES / esMX
+        ["Slot"] = "Ranura", -- esMX
+        ["Movement"] = "Movimiento",      -- esES / esMX
+		["Explorer"]             = "Expedicionario", -- esMX
+		["Adventurer"]           = "Aventurero",     -- esMX
+		["Veteran"]              = "Veterano",       -- esMX
+		["Champion"]             = "Campeón",        -- esMX
+		["Hero"]                 = "Héroe",          -- esMX
+		["Myth"]                 = "Mito",           -- esMX
+		["Custom Upgrade Color"] = "Color de mejora personalizado", -- esMX
+		["Slug Rendering"] = "Representación Slug", -- esMX
+		["Secret"] = "Oculto", -- esMX
 		["Sort by"] = "Ordenar por", -- esMX
 		["Sort Direction"] = "Dirección de ordenación", -- esMX
         ["ALTERNATE_SIDE_BUTTON"] = "Botón lateral alternativo", -- esMX
@@ -1487,7 +1642,7 @@ elseif locale == "esMX" then
 		["SHOW_MYTHIC_SP"] = "Activar el módulo del panel lateral de Míticas+", -- esMX
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Mostrar el panel lateral de Míticas+ al abrir la hoja de personaje", -- esMX
 		["Versatility Display"] = "Versatilidad: Modo de Visualización", -- esMX
-		["Catalyst"] = "Cargas del Catalizador", -- esMX
+		["Catalyst"] = "Catalizador", -- esMX
 		["crests_catalyst"] = "Mostrar fila del Catalizador", -- esMX
 		["Secondary"] = "Secundarias", -- esMX
 		["Crests"] = "Crestas", -- esMX
@@ -1808,6 +1963,39 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+        ["Class Crest"] = "Герб класса", -- ruRU
+        ["INSTRUCTIONS"] = "Инструкции", -- ruRU
+        ["CLICK_COL_EXP"] = "Щёлкните, чтобы свернуть или развернуть", -- ruRU
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Щелчок, чтобы сохранить состояние сворачивания", -- ruRU
+        ["SHIFT_DRAG"] = "Shift + Перетащить, чтобы переместить раздел", -- ruRU
+		["Source"] = "Источник", -- ruRU
+		["SHOW_GEAR_FINDER"]      = "Включить модуль Поиска экипировки", -- ruRU
+		["SCALE"]                 = "Масштаб", -- ruRU
+		["BG_COLOR"]              = "Цвет фона", -- ruRU
+		["FOOTER_COLOR"]          = "Цвет нижней панели", -- ruRU
+		["TITLE_FONT"]            = "Шрифт заголовка", -- ruRU
+		["HEADER_FONT"]           = "Шрифт заголовков", -- ruRU
+		["FONT_NAME_GF_ITEMSLOT"] = "Шрифт слотов предметов", -- ruRU
+		["FONT_NAME_GF_DRAID"]    = "Шрифт названий подземелий/рейдов", -- ruRU
+		["FONT_NAME_GF_BOSS"]     = "Шрифт названий боссов", -- ruRU
+		["CATEGORY_GEAR-FINDER"]  = "Поиск экипировки", -- ruRU
+        ["CATEGORY_GEAR-FINDER"] = "Поиск экипировки", -- ruRU
+        ["Class Sets"] = "Комплекты для класса", -- ruRU
+        ["Cloth"]   = "Ткань",   -- ruRU
+        ["Leather"] = "Кожа",    -- ruRU
+        ["Mail"]    = "Кольчуга",-- ruRU
+        ["Plate"]   = "Латы",    -- ruRU
+        ["Slot"] = "Слот", -- ruRU
+        ["Movement"] = "Передвижение",    -- ruRU
+		["Explorer"]             = "Исследователь",        -- ruRU
+		["Adventurer"]           = "Искатель приключений", -- ruRU
+		["Veteran"]              = "Ветеран",              -- ruRU
+		["Champion"]             = "Защитник",             -- ruRU
+		["Hero"]                 = "Герой",                -- ruRU
+		["Myth"]                 = "Легенда",              -- ruRU
+		["Custom Upgrade Color"] = "Пользовательский цвет улучшения", -- ruRU
+		["Slug Rendering"] = "Отрисовка Slug", -- ruRU
+		["Secret"] = "Скрыто", -- ruRU
 		["Sort by"] = "Сортировать по", -- ruRU
 		["Sort Direction"] = "Направление сортировки", -- ruRU
         ["ALTERNATE_SIDE_BUTTON"] = "Альтернативная боковая кнопка", -- ruRU
@@ -1817,10 +2005,10 @@ elseif locale == "ruRU" then
 		["Slot"] = "Ячейка",  -- ruRU
 		["Custom Priority Profiles"] = "Пользовательские профили приоритетов",  -- ruRU
 		["Add Priority Slot"] = "Добавить ячейку приоритета", -- ruRU
-		["1st Priority"] = "1‑й", -- ruRU
-		["2nd Priority"] = "2‑й", -- ruRU
-		["3rd Priority"] = "3‑й", -- ruRU
-		["4th Priority"] = "4‑й", -- ruRU
+		["1st Priority"] = "1-й", -- ruRU
+		["2nd Priority"] = "2-й", -- ruRU
+		["3rd Priority"] = "3-й", -- ruRU
+		["4th Priority"] = "4-й", -- ruRU
 		["SHOW_MISSING_SOCKETS"] = "Показать отсутствующие гнёзда",  -- ruRU
         ["ADDON COLORS"] = "Цвета аддона", -- ruRU
         ["Button Foreground Color"] = "Цвет переднего плана кнопки", -- ruRU
@@ -1836,7 +2024,7 @@ elseif locale == "ruRU" then
 		["SHOW_MYTHIC_SP"] = "Включить модуль боковой панели Mythic+", -- ruRU
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Показывать боковую панель Mythic+ при открытии окна персонажа", -- ruRU
 		["Versatility Display"] = "Отображение универсальности", -- ruRU
-		["Catalyst"] = "Заряды Катализатора", -- ruRU
+		["Catalyst"] = "Катализатор", -- ruRU
 		["crests_catalyst"] = "Показать строку Катализатора", -- ruRU
 		["Secondary"] = "Вторичные", -- ruRU
 		["Crests"] = "Гербы", -- ruRU
@@ -2157,6 +2345,38 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+        ["Class Crest"] = "직업 문장", -- koKR
+        ["INSTRUCTIONS"] = "안내", -- koKR
+        ["CLICK_COL_EXP"] = "클릭하여 접거나 펼치기", -- koKR
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + 클릭으로 접힘 상태 저장", -- koKR
+        ["SHIFT_DRAG"] = "Shift + 드래그하여 섹션 이동", -- koKR
+		["Source"] = "출처", -- koKR
+		["SHOW_GEAR_FINDER"]      = "장비 찾기 모듈 활성화", -- koKR
+		["SCALE"]                 = "크기", -- koKR
+		["BG_COLOR"]              = "배경 색상", -- koKR
+		["FOOTER_COLOR"]          = "하단 색상", -- koKR
+		["TITLE_FONT"]            = "제목 글꼴", -- koKR
+		["HEADER_FONT"]           = "헤더 글꼴", -- koKR
+		["FONT_NAME_GF_ITEMSLOT"] = "아이템 슬롯 글꼴", -- koKR
+		["FONT_NAME_GF_DRAID"]    = "던전/공격대 이름 글꼴", -- koKR
+		["FONT_NAME_GF_BOSS"]     = "보스 이름 글꼴", -- koKR
+		["CATEGORY_GEAR-FINDER"]  = "장비 찾기", -- koKR
+        ["Class Sets"] = "직업 세트", -- koKR
+        ["Cloth"]   = "천",       -- koKR
+        ["Leather"] = "가죽",     -- koKR
+        ["Mail"]    = "사슬",     -- koKR
+        ["Plate"]   = "판금",     -- koKR
+        ["Slot"] = "슬롯", -- koKR
+        ["Movement"] = "이동",            -- koKR
+		["Explorer"]             = "탐험가", -- koKR
+		["Adventurer"]           = "모험가", -- koKR
+		["Veteran"]              = "노련가", -- koKR
+		["Champion"]             = "챔피언", -- koKR
+		["Hero"]                 = "영웅",   -- koKR
+		["Myth"]                 = "신화",   -- koKR
+		["Custom Upgrade Color"] = "사용자 지정 업그레이드 색상", -- koKR
+		["Slug Rendering"] = "렌더링 슬러그", -- koKR
+		["Secret"] = "비공개", -- koKR
 		["Sort by"] = "정렬 기준", -- koKR
 		["Sort Direction"] = "정렬 방향", -- koKR
         ["ALTERNATE_SIDE_BUTTON"] = "대체 측면 버튼", -- koKR
@@ -2185,7 +2405,7 @@ elseif locale == "koKR" then
 		["SHOW_MYTHIC_SP"] = "신화+ 사이드 패널 모듈 활성화", -- koKR
 		["SHOW_MYTHIC_SP_ONOPEN"] = "캐릭터 창을 열 때 신화+ 사이드 패널 표시", -- koKR
 		["Versatility Display"] = "유연성 표시", -- koKR
-		["Catalyst"] = "변환 촉매 충전량", -- koKR
+		["Catalyst"] = "촉매", -- koKR
 		["crests_catalyst"] = "촉매 행 표시", -- koKR
 		["Secondary"] = "보조", -- koKR
 		["Crests"] = "문장", -- koKR
@@ -2506,6 +2726,38 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+        ["Class Crest"] = "职业徽章", -- zhCN
+        ["INSTRUCTIONS"] = "说明", -- zhCN
+        ["CLICK_COL_EXP"] = "点击以折叠或展开", -- zhCN
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + 点击以保存折叠状态", -- zhCN
+        ["SHIFT_DRAG"] = "Shift + 拖动以移动部分", -- zhCN
+		["Source"] = "来源", -- zhCN
+		["SHOW_GEAR_FINDER"]      = "启用装备查找器模块", -- zhCN
+		["SCALE"]                 = "缩放", -- zhCN
+		["BG_COLOR"]              = "背景颜色", -- zhCN
+		["FOOTER_COLOR"]          = "底部颜色", -- zhCN
+		["TITLE_FONT"]            = "标题字体", -- zhCN
+		["HEADER_FONT"]           = "标题栏字体", -- zhCN
+		["FONT_NAME_GF_ITEMSLOT"] = "物品栏字体", -- zhCN
+		["FONT_NAME_GF_DRAID"]    = "地下城/团队字体", -- zhCN
+		["FONT_NAME_GF_BOSS"]     = "首领名称字体", -- zhCN
+		["CATEGORY_GEAR-FINDER"]  = "装备查找器", -- zhCN
+        ["Class Sets"] = "职业套装", -- zhCN
+        ["Cloth"]   = "布甲",     -- zhCN
+        ["Leather"] = "皮甲",     -- zhCN
+        ["Mail"]    = "锁甲",     -- zhCN
+        ["Plate"]   = "板甲",     -- zhCN
+        ["Slot"] = "插槽", -- zhCN
+        ["Movement"] = "移动",            -- zhCN
+		["Explorer"]             = "探索者", -- zhCN
+		["Adventurer"]           = "冒险者", -- zhCN
+		["Veteran"]              = "老兵",   -- zhCN
+		["Champion"]             = "勇士",   -- zhCN
+		["Hero"]                 = "英雄",   -- zhCN
+		["Myth"]                 = "神话",   -- zhCN
+		["Custom Upgrade Color"] = "自定义升级颜色", -- zhCN
+		["Slug Rendering"] = "渲染 Slug", -- zhCN
+		["Secret"] = "隐藏", -- zhCN
 		["Sort by"] = "排序方式", -- zhCN
 		["Sort Direction"] = "排序方向", -- zhCN
         ["ALTERNATE_SIDE_BUTTON"] = "替代侧边按钮", -- zhCN
@@ -2534,7 +2786,7 @@ elseif locale == "zhCN" then
 		["SHOW_MYTHIC_SP"] = "启用史诗钥石地下城侧边面板模块", -- zhCN
 		["SHOW_MYTHIC_SP_ONOPEN"] = "打开角色信息时显示史诗钥石侧边面板", -- zhCN
 		["Versatility Display"] = "多样性显示方式", -- zhCN
-		["Catalyst"] = "转化催化剂充能", -- zhCN
+		["Catalyst"] = "催化器", -- zhCN
 		["crests_catalyst"] = "显示催化剂栏位", -- zhCN
 		["Secondary"] = "次要", -- zhCN
 		["Crests"] = "纹章", -- zhCN
@@ -2855,6 +3107,38 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+        ["Class Crest"] = "職業徽章", -- zhTW
+        ["INSTRUCTIONS"] = "說明", -- zhTW
+        ["CLICK_COL_EXP"] = "點擊以收合或展開", -- zhTW
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + 點擊以儲存收合狀態", -- zhTW
+        ["SHIFT_DRAG"] = "Shift + 拖曳以移動區段", -- zhTW
+		["Source"] = "來源", -- zhTW
+		["SHOW_GEAR_FINDER"]      = "啟用裝備搜尋器模組", -- zhTW
+		["SCALE"]                 = "縮放", -- zhTW
+		["BG_COLOR"]              = "背景顏色", -- zhTW
+		["FOOTER_COLOR"]          = "底部顏色", -- zhTW
+		["TITLE_FONT"]            = "標題字體", -- zhTW
+		["HEADER_FONT"]           = "標頭字體", -- zhTW
+		["FONT_NAME_GF_ITEMSLOT"] = "物品欄位字體", -- zhTW
+		["FONT_NAME_GF_DRAID"]    = "地城/團隊字體", -- zhTW
+		["FONT_NAME_GF_BOSS"]     = "首領名稱字體", -- zhTW
+		["CATEGORY_GEAR-FINDER"]  = "裝備搜尋器", -- zhTW
+        ["Class Sets"] = "職業套裝", -- zhTW
+        ["Cloth"]   = "布甲",     -- zhTW
+        ["Leather"] = "皮甲",     -- zhTW
+        ["Mail"]    = "鎖甲",     -- zhTW
+        ["Plate"]   = "鎧甲",     -- zhTW
+        ["Slot"] = "插槽", -- zhTW
+        ["Movement"] = "移動",            -- zhTW
+		["Explorer"]             = "探險者", -- zhTW
+		["Adventurer"]           = "冒險者", -- zhTW
+		["Veteran"]              = "精兵",   -- zhTW
+		["Champion"]             = "勇士",   -- zhTW
+		["Hero"]                 = "英雄",   -- zhTW
+		["Myth"]                 = "神話",   -- zhTW
+		["Custom Upgrade Color"] = "自訂升級顏色", -- zhTW
+		["Slug Rendering"] = "渲染 Slug", -- zhTW
+		["Secret"] = "隱藏", -- zhTW
 		["Sort by"] = "排序方式", -- zhTW
 		["Sort Direction"] = "排序方向", -- zhTW
         ["ALTERNATE_SIDE_BUTTON"] = "替代側邊按鈕", -- zhTW
@@ -2883,7 +3167,7 @@ elseif locale == "zhTW" then
 		["SHOW_MYTHIC_SP"] = "啟用傳奇+側邊面板模組", -- zhTW
 		["SHOW_MYTHIC_SP_ONOPEN"] = "開啟角色資訊時顯示傳奇+側邊面板", -- zhTW
 		["Versatility Display"] = "多樣性顯示方式", -- zhTW
-		["Catalyst"] = "轉化催化劑充能", -- zhTW
+		["Catalyst"] = "催化器", -- zhTW
 		["crests_catalyst"] = "顯示催化劑列", -- zhTW
 		["Secondary"] = "次要", -- zhTW
 		["Crests"] = "紋章", -- zhTW
@@ -3203,6 +3487,38 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+        ["Class Crest"] = "Brasão da classe", -- ptBR
+        ["INSTRUCTIONS"] = "Instruções", -- ptBR
+        ["CLICK_COL_EXP"] = "Clique para recolher ou expandir", -- ptBR
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Clique para salvar o estado de recolhimento", -- ptBR
+        ["SHIFT_DRAG"] = "Shift + Arrastar para mover a seção", -- ptBR
+		["Source"] = "Fonte", -- ptBR
+		["SHOW_GEAR_FINDER"]      = "Ativar módulo Localizador de Equipamentos", -- ptBR
+		["SCALE"]                 = "Escala", -- ptBR
+		["BG_COLOR"]              = "Cor de fundo", -- ptBR
+		["FOOTER_COLOR"]          = "Cor do rodapé", -- ptBR
+		["TITLE_FONT"]            = "Fonte do título", -- ptBR
+		["HEADER_FONT"]           = "Fonte do cabeçalho", -- ptBR
+		["FONT_NAME_GF_ITEMSLOT"] = "Fonte dos espaços de itens", -- ptBR
+		["FONT_NAME_GF_DRAID"]    = "Fonte de masmorras/raides", -- ptBR
+		["FONT_NAME_GF_BOSS"]     = "Fonte dos chefes", -- ptBR
+		["CATEGORY_GEAR-FINDER"]  = "Localizador de Equipamentos", -- ptBR
+        ["Class Sets"] = "Conjuntos de classe", -- ptBR
+        ["Cloth"]   = "Tecido",  -- ptBR
+        ["Leather"] = "Couro",   -- ptBR
+        ["Mail"]    = "Malha",   -- ptBR
+        ["Plate"]   = "Placas",  -- ptBR
+        ["Slot"] = "Vaga", -- ptBR
+        ["Movement"] = "Movimento",       -- ptBR
+		["Explorer"]             = "Explorador",   -- ptBR
+		["Adventurer"]           = "Aventureiro",  -- ptBR
+		["Veteran"]              = "Veterano",     -- ptBR
+		["Champion"]             = "Campeão",      -- ptBR
+		["Hero"]                 = "Herói",        -- ptBR
+		["Myth"]                 = "Mito",         -- ptBR
+		["Custom Upgrade Color"] = "Cor de melhoria personalizada", -- ptBR
+		["Slug Rendering"] = "Renderização Slug", -- ptBR
+		["Secret"] = "Oculto", -- ptBR
 		["Sort by"] = "Classificar por", -- ptBR
 		["Sort Direction"] = "Direção da classificação", -- ptBR
         ["ALTERNATE_SIDE_BUTTON"] = "Botão lateral alternativo", -- ptBR
@@ -3231,7 +3547,7 @@ elseif locale == "ptBR" then
 		["SHOW_MYTHIC_SP"] = "Ativar módulo do painel lateral de Míticas+", -- ptBR
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Mostrar o painel lateral de Míticas+ ao abrir a ficha do personagem", -- ptBR
 		["Versatility Display"] = "Exibição de Versatilidade", -- ptBR	
-		["Catalyst"] = "Cargas do Catalisador", -- ptBR
+		["Catalyst"] = "Catalisador", -- ptBR
 		["crests_catalyst"] = "Mostrar linha do Catalisador", -- ptBR
 		["Secondary"] = "Secundários", -- ptBR
 		["Crests"] = "Brasões", -- ptBR
@@ -3552,6 +3868,37 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+        ["Class Crest"] = "Stemma di classe", -- itIT
+        ["INSTRUCTIONS"] = "Istruzioni", -- itIT
+        ["CLICK_COL_EXP"] = "Clic per comprimere o espandere", -- itIT
+        ["CTRL_CLICK_COL_EXP"] = "Ctrl + Clic per salvare lo stato di compressione", -- itIT
+        ["SHIFT_DRAG"] = "Maiusc + Trascina per spostare la sezione", -- itIT
+		["Source"] = "Fonte", -- itIT
+		["SHOW_GEAR_FINDER"]      = "Abilita il modulo Ricerca Equipaggiamento", -- itIT
+		["SCALE"]                 = "Scala", -- itIT
+		["BG_COLOR"]              = "Colore di sfondo", -- itIT
+		["FOOTER_COLOR"]          = "Colore del piè di pagina", -- itIT
+		["TITLE_FONT"]            = "Carattere del titolo", -- itIT
+		["HEADER_FONT"]           = "Carattere dell’intestazione", -- itIT
+		["FONT_NAME_GF_ITEMSLOT"] = "Carattere degli slot oggetto", -- itIT
+		["FONT_NAME_GF_DRAID"]    = "Carattere di spedizioni/incursioni", -- itIT
+		["FONT_NAME_GF_BOSS"]     = "Carattere dei boss", -- itIT
+		["CATEGORY_GEAR-FINDER"]  = "Ricerca Equipaggiamento", -- itIT
+        ["Class Sets"] = "Set di classe", -- itIT
+        ["Cloth"]   = "Stoffa",  -- itIT
+        ["Leather"] = "Pelle",   -- itIT
+        ["Mail"]    = "Maglia",  -- itIT
+        ["Plate"]   = "Piastre", -- itIT
+        ["Slot"] = "Slot", -- itIT
+        ["Movement"] = "Movimento",       -- itIT
+		["Explorer"]             = "Esploratore",  -- itIT
+		["Adventurer"]           = "Avventuriero", -- itIT
+		["Veteran"]              = "Veterano",     -- itIT
+		["Champion"]             = "Campione",     -- itIT
+		["Hero"]                 = "Eroe",         -- itIT
+		["Myth"]                 = "Mito",         -- itIT
+		["Custom Upgrade Color"] = "Colore di potenziamento personalizzato", -- itIT		["Slug Rendering"] = "Rendering Slug", -- itIT
+		["Secret"] = "Nascosto", -- itIT
 		["Sort by"] = "Ordina per", -- itIT
 		["Sort Direction"] = "Direzione di ordinamento", -- itIT
         ["ALTERNATE_SIDE_BUTTON"] = "Pulsante laterale alternativo", -- itIT
@@ -3580,7 +3927,7 @@ elseif locale == "itIT" then
 		["SHOW_MYTHIC_SP"] = "Abilita il modulo del pannello laterale Mitiche+", -- itIT
 		["SHOW_MYTHIC_SP_ONOPEN"] = "Mostra il pannello Mitiche+ all’apertura della scheda del personaggio", -- itIT
 		["Versatility Display"] = "Visualizzazione Versatilità", -- itIT	
-		["Catalyst"] = "Cariche del Catalizzatore", -- itIT
+		["Catalyst"] = "Catalizzatore", -- itIT
 		["crests_catalyst"] = "Mostra riga del Catalizzatore", -- itIT
 		["Secondary"] = "Secondarie", -- itIT
 		["Crests"] = "Stemmi", -- itIT	
@@ -3900,6 +4247,58 @@ elseif locale == "itIT" then
 		["FONT_NAME_INSPECT_ITEMNAME"] = "Font per nome oggetto ispezionato",
     }
 end
+
+CCS.PRIMARY_KEYWORDS = {
+    -- English
+    ["Strength"]      = "STR",
+    ["Agility"]       = "AGI",
+    ["Intellect"]     = "INT",
+
+    -- German (deDE)
+    ["Stärke"]        = "STR",
+    ["Beweglichkeit"] = "AGI",
+    ["Intelligenz"]   = "INT",
+
+    -- French (frFR)
+    ["Force"]         = "STR",
+    ["Agilité"]       = "AGI",
+    ["Intelligence"]  = "INT",
+
+    -- Spanish (esES / esMX)
+    ["Fuerza"]        = "STR",
+    ["Agilidad"]      = "AGI",
+    ["Intelecto"]     = "INT",
+
+    -- Italian (itIT)
+    ["Forza"]         = "STR",
+    ["Agilità"]       = "AGI",
+    ["Intelletto"]    = "INT",
+
+    -- Portuguese (ptBR)
+    ["Força"]         = "STR",
+    ["Agilidade"]     = "AGI",
+    ["Intelecto"]     = "INT",
+
+    -- Russian (ruRU)
+    ["Сила"]          = "STR",
+    ["Ловкость"]      = "AGI",
+    ["Интеллект"]     = "INT",
+
+    -- Korean (koKR)
+    ["힘"]            = "STR",
+    ["민첩성"]        = "AGI",
+    ["지능"]          = "INT",
+
+    -- Chinese Simplified (zhCN)
+    ["力量"]          = "STR",
+    ["敏捷"]          = "AGI",
+    ["智力"]          = "INT",
+
+    -- Chinese Traditional (zhTW)
+    ["力量"]          = "STR",
+    ["敏捷"]          = "AGI",
+    ["智力"]          = "INT",
+}
 
 ------------------------------------------------------------
 -- Merge localized strings with defaults

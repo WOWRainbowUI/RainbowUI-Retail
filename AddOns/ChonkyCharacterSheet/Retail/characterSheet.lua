@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
-if CCS.GetCurrentVersion() ~= CCS.RETAIL then
+if CCS.CurrentVersion ~= CCS.RETAIL then
     return
 end
 
@@ -12,15 +12,19 @@ local module = {
     Name = "characterSheet",
     CompatibleVersions = { CCS.RETAIL },
 }
-
 CCS.Modules[module.Name] = module
-local modbg = _G["CharacterModelFramebg"] or CreateFrame("Frame", "CharacterModelFramebg", CharacterModelScene)
-modbg.retries = 0
-local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
-local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
-local bg_texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\bgmidnight.png"
 
+local modbg = _G["CharacterModelFramebg"] or CreateFrame("Frame", "CharacterModelFramebg", CharacterModelScene)
+local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
+local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("CharacterModelFramebgtex2", "ARTWORK")    
+local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
+local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
+local ccs_cshow
 local function hookfix() 
+
+    if C_AddOns.IsAddOnLoaded("ClassCodex") == true and option("showm_sp_onopen") == true then
+        if ClassCodexPanel then ClassCodexPanel:Hide() end
+    end
 
     if not CCS.AreSecretsDisabled() and _G["ccsm_sf"] and (option("showm_sp_onopen") == true) then
             _G["ccsm_sf"]:Show()
@@ -59,8 +63,30 @@ local function hookfix()
         CharacterFrameCloseButton:SetPoint("TOPRIGHT", CharacterFrameBg, "TOPRIGHT", -5, 0)
         CharacterFrameCloseButton:SetSize(32, 32)
         CharacterFrameCloseButton:SetScale(.5)
-    end
+        CharacterFrame.NineSlice:Hide()
+        CharacterFrame.PortraitContainer:Hide()
+        if CharacterFrame.Background ~= nil then
+            CharacterFrame.Background:Hide()
+        end
+        if PaperDollSidebarTabs ~= nil then -- Need to hack around their code.
+        
+            local point, relativeTo, relativePoint, xOfs, yOfs = PaperDollSidebarTabs:GetPoint(1)
 
+            if relativeTo and relativeTo:GetName() ~= "CharacterFrameInsetRight" then
+                print("TEST")
+                PaperDollSidebarTabs:ClearAllPoints()
+                PaperDollSidebarTab1:ClearAllPoints()        
+                PaperDollSidebarTab2:ClearAllPoints()        
+                PaperDollSidebarTab3:ClearAllPoints()        
+                PaperDollSidebarTabs:SetPoint("LEFT", CharacterFrameInsetRight, "LEFT",0,0)
+                PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "TOPRIGHT",0,4)                
+                PaperDollSidebarTab1:SetPoint("RIGHT", PaperDollSidebarTab2, "LEFT",-4,0)        
+                PaperDollSidebarTab2:SetPoint("RIGHT", PaperDollSidebarTab3, "LEFT",-4,0)        
+                PaperDollSidebarTab3:SetPoint("BOTTOMRIGHT", PaperDollSidebarTabs, "BOTTOMRIGHT",-67.5,0)        
+            end
+        end
+    end
+    ccs_cshow()
     if C_AddOns.IsAddOnLoaded("ZygorGuidesVIewer") then
 
 	CharacterFrameInset:Hide()
@@ -124,187 +150,6 @@ local function MoveModelRight()
     _G["CharacterModelFramebg"]:SetAllPoints(CharacterModelScene)    
 end
 
-local function clamp(val, min, max)
-    if val < min then return min end
-    if val > max then return max end
-    return val
-end
-
-local function StopBGAnimation()
-    if modbg.swirl then
-        modbg.swirl:Hide()
-        modbg.swirl.swirlAnim:Stop()
-        modbg.donut:Hide()
-        modbg.donutFrame.donutAnim:Stop()
-    end
-end
-
-local function ChangeModelBg()
-    local _, _, classID = UnitClass("player")
-    local _, _, raceID = UnitRace("player")
-    local specID = GetSpecialization()
-    local entry
-
-    StopBGAnimation()
-
-    if option("bgtype") == "Hide" then
-        modtex:Hide()
-        return
-    end
-    modtex:Show()
-
-    if option("bgtype") == "Class" then
-        entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][specID]
-        modtex:SetVertexColor(0.8, 0.8, 0.8, 1)
-    elseif option("bgtype") == "Race" then
-        if classID == 6 then raceID = 998 -- Death Knight
-        elseif classID == 12 then raceID = 999 -- Demon Hunter
-        end
-        entry = CCS.Race_Bg[raceID]
-        modtex:SetVertexColor(0.7, 0.7, 0.7, 1)
-    end
-
-    modtex:ClearAllPoints()
-    modtex:SetAllPoints()
-
-    if entry then
-        local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
-        local frameWidth, frameHeight = modtex:GetWidth(), modtex:GetHeight()
-
-        modtex:SetTexture(entry.texture)
-
-        if option("bgtype") == "Class" then
-            -- Class/Specialization: right-aligned
-            local visibleWidth = frameWidth / (frameHeight / texHeight)
-            local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
-            left = clamp(left, uMin, uMax) -- ensure valid range
-
-            modtex:SetTexCoord(left, uMax, vMin, vMax)
-        else
-            -- Race: horizontally centered
-            local visibleWidth = frameWidth / (frameHeight / texHeight)
-            local uRange = uMax - uMin
-            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
-
-            local left = clamp(uMin + uOffset, uMin, uMax)
-            local right = clamp(uMax - uOffset, uMin, uMax)
-
-            modtex:SetTexCoord(left, right, vMin, vMax)
-        end
-    else
-        if option("bgtype") ==  "Midnight"  then    
-            local texWidth, texHeight, uMin, uMax, vMin, vMax = 408,374, 0, 1, .35, 1
-            local frameWidth, frameHeight = modtex:GetWidth(), modtex:GetHeight()
-            local visibleWidth = frameWidth / (frameHeight / texHeight)
-            local uRange = uMax - uMin
-            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
-            local origW, origH = 569, 520
-            local newW, newH = modbg:GetSize()
-            local scale = math.max(newH / origH, 0.1)
-            if (newW == 0 or newH == 0) and modbg.retries < 5 then
-                C_Timer.After(0, ChangeModelBg)
-                modbg.retries = modbg.retries+1
-                return
-            elseif (newW == 0 or newH == 0) then
-                scale = 1
-            end
-            modbg.retries = 0
-
-            local offsetY = 80 * scale
-            local left = clamp(uMin + uOffset, uMin, uMax)
-            local right = clamp(uMax - uOffset, uMin, uMax)
-            modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\bgmidnight.png")
-            modtex:SetVertexColor(0.1, 0, 0.75, 0.95)            
-            modtex:SetTexCoord(left, right, vMin, vMax)    
-            if option("showbganimations") == true then
-                -- VOID SWIRL LAYER (rotating)
-                local swirl = modbg.swirl or modbg:CreateTexture(nil, "ARTWORK", nil, 1)
-                modbg.swirl = swirl
-                swirl:SetTexture("Interface\\GLUES\\Models\\UI_VoidElf\\7XP_Pandemonium_VoidFXSwirl01")
-                swirl:SetVertexColor(1, 1, 1, 1)
-                swirl:SetScale(scale * 0.85)
-                swirl:ClearAllPoints()
-                swirl:SetPoint("CENTER", modtex, "CENTER", 0, offsetY)
-                swirl:Show()
-
-                local swirlAnim = modbg.swirl.swirlAnim or swirl:CreateAnimationGroup()
-                modbg.swirl.swirlAnim = swirlAnim
-
-                local rotate = modbg.swirl.swirlAnim.rotate or swirlAnim:CreateAnimation("Rotation")
-                modbg.swirl.swirlAnim.rotate = rotate
-                rotate:SetDegrees(360)
-                rotate:SetDuration(120)
-                rotate:SetOrder(1)
-
-                swirlAnim:SetLooping("REPEAT")
-                swirlAnim:Play()
-
-                -- PULSING VOID DONUT MASK (mmm, donuts...)
-                local donutFrame = modbg.donutFrame or CreateFrame("Frame", nil, modbg)
-                modbg.donutFrame = donutFrame
-                donutFrame:ClearAllPoints()
-                donutFrame:SetPoint("CENTER", modtex, "CENTER", 0, offsetY)
-                donutFrame:SetSize(240 * scale, 350 * scale)
-                donutFrame:SetScale(1) -- important: neutral base
-                donutFrame:Show()
-
-                local donut = modbg.donut or donutFrame:CreateTexture(nil, "ARTWORK", nil, 2)
-                modbg.donut = donut
-                donut:SetAllPoints(donutFrame)
-                donut:SetTexture("Interface\\GLUES\\Models\\UI_MAINMENU_MIDNIGHT\\UI_MainMenu_Midnight_DonutMask")
-                donut:SetVertexColor(.292, .457, .902, 1)
-                donut:SetAlpha(1)
-                donut:SetBlendMode("ADD")
-                donut:Show()
-
-                local donutAnim = modbg.donutFrame.donutAnim or donutFrame:CreateAnimationGroup()
-                modbg.donutFrame.donutAnim = donutAnim
-                donutAnim:Stop() -- reset if it already existed
-
-                local alphaUp = donutAnim.alphaUp or donutAnim:CreateAnimation("Alpha")
-                donutAnim.alphaUp = alphaUp
-                alphaUp:SetFromAlpha(0.6)
-                alphaUp:SetToAlpha(1.0)
-                alphaUp:SetDuration(3)
-                alphaUp:SetSmoothing("IN_OUT")
-                alphaUp:SetOrder(1)
-
-                local alphaDown = donutAnim.alphaDown or donutAnim:CreateAnimation("Alpha")
-                donutAnim.alphaDown = alphaDown
-                alphaDown:SetFromAlpha(1.0)
-                alphaDown:SetToAlpha(0.6)
-                alphaDown:SetDuration(3)
-                alphaDown:SetSmoothing("IN_OUT")
-                alphaDown:SetOrder(2)
-
-                local scaleUp = donutAnim.scaleUp or donutAnim:CreateAnimation("Scale")
-                donutAnim.scaleUp = scaleUp
-                scaleUp:SetScale(1.05, 1.05)
-                scaleUp:SetDuration(3)
-                scaleUp:SetSmoothing("IN_OUT")
-                scaleUp:SetOrder(1)
-
-                local scaleDown = donutAnim.scaleDown or donutAnim:CreateAnimation("Scale")
-                donutAnim.scaleDown = scaleDown
-                scaleDown:SetScale(1 / 1.05, 1 / 1.05) -- back to 1.0
-                scaleDown:SetDuration(3)
-                scaleDown:SetSmoothing("IN_OUT")
-                scaleDown:SetOrder(2)
-
-                donutAnim:SetLooping("REPEAT")
-                donutAnim:Play()                
-                
-            end
-        else        
-            -- Default background
-            modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")
-            modtex:SetTexCoord(0, 0.69, 0, 0.87)
-            modtex:SetVertexColor(0.6, 0, 0.6, 0.95)
-        end
-    end
-end
-
-
 local function Clicky(endstate)
     if _G["CCSf"] then _G["CCSf"]:Hide() end
     if _G["ccs_sf"] then _G["ccs_sf"]:Hide() end
@@ -321,16 +166,17 @@ local function Clicky(endstate)
         MoveModelRight()
     end
 
-    ChangeModelBg()
+    CCS.ChangeModelBg(false)
     PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
 end
 
-local function ccs_cshow()
+ccs_cshow = function()
     MoveModelLeft()
     if C_AddOns.IsAddOnLoaded("Narcissus") then -- Just relocate the mini talent tree so it isn't hidden behind the character frame.
     C_Timer.NewTicker(.1, function() NarciMiniTalentTree:ClearAllPoints(); 
             NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0) end, 1)
     end
+    --if option("hideshowchbtn") == true then modelbtn:Hide() else modelbtn:Show() end
 
     if C_AddOns.IsAddOnLoaded("Leatrix_Plus") then -- relocate the volume slider
             C_Timer.After(0, function()
@@ -340,14 +186,13 @@ local function ccs_cshow()
                     local n=c:GetName(); 
                     if c and not n and c.Thumb then 
                         c:ClearAllPoints()
-                        c:SetPoint("LEFT", CCS_clk_Btn, "RIGHT", 60, 0)
+                        c:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "BOTTOMLEFT", -40, 3)
                     end 
                 end
             end)
     end
 
-
-    ChangeModelBg()
+    CCS.ChangeModelBg(false)
     CharacterModelScene.ControlFrame:Hide()
 end
 
@@ -573,7 +418,7 @@ local function loopitems()
 end
 
 local function TryLoopItems()
-
+    if CCS.initall == true then return end
     local allReady = true
     for slot = 1, 19 do
         local link = GetInventoryItemLink("player", slot)
@@ -981,43 +826,206 @@ local function PrepTransmogTab()
     tab:SetScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
+local function CCS_FilterTitles(search)
+    local filtered = {}
+    search = search and search:lower() or ""
+
+    -- "No Title" sentinel row FIRST
+    local noTitleName = _G.PLAYER_TITLE_NONE or "No Title"
+    if search == "" or noTitleName:lower():find(search, 1, true) then
+        table.insert(filtered, {
+            id = -1,          -- Blizzard's sentinel for "No Title"
+            name = noTitleName,
+            earned = true,    -- Must be true so Blizzard enables the button
+        })
+    end
+
+    -- Add earned titles
+    for titleID = 1, GetNumTitles() do
+        if IsTitleKnown(titleID) then
+            local name = GetTitleName(titleID)
+            if name and name ~= "" then
+                if search == "" or name:lower():find(search, 1, true) then
+                    table.insert(filtered, {
+                        id = titleID,
+                        name = name,
+                        earned = true,
+                    })
+                end
+            end
+        end
+    end
+
+    -- Sort alphabetically, but keep sentinel row at top
+    table.sort(filtered, function(a, b)
+        if a.id == -1 then return true end
+        if b.id == -1 then return false end
+        return a.name:lower() < b.name:lower()
+    end)
+
+    return filtered
+end
+
+local function CCS_UpdateTitleList()
+    local parent = PaperDollFrame.TitleManagerPane
+    if not parent or not parent.ScrollBox then return end
+
+    local search = parent.SearchBox and parent.SearchBox:GetText() or ""
+    search = search:lower()
+
+    local filtered = CCS_FilterTitles(search)
+    local provider = CreateDataProvider()
+
+    -- Blizzard expects this table to exist
+    parent.titles = filtered
+
+    for index, entry in ipairs(filtered) do
+        provider:Insert({
+            index       = index,
+            playerTitle = entry,   -- { id, name, earned }
+        })
+    end
+
+    parent.ScrollBox:SetDataProvider(provider, ScrollBoxConstants.RetainScrollPosition)
+end
+
+local function CreateTitleSearchBox()
+    local parent = PaperDollFrame.TitleManagerPane
+    if not parent or parent.SearchBox then return end
+
+    local box = CreateFrame("EditBox", "CCS_TitleSearchBox", parent, "SearchBoxTemplate")
+    parent.SearchBox = box
+
+    box:SetSize(200, 20)
+    box:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
+    box:SetAutoFocus(false)
+
+    box:SetScript("OnTextChanged", function(self)
+        SearchBoxTemplate_OnTextChanged(self)
+        CCS_UpdateTitleList()
+    end)
+end
+
+
+---------------------------------------------------------
+-- ScrollBox initializer
+---------------------------------------------------------
+local function CCS_TitleButtonInitializer(button, elementData)
+    local info = elementData.playerTitle
+    local index = elementData.index
+
+    local txt = button.text or button.Text
+    if txt then
+        txt:SetText(info.name)
+    end
+
+    button.titleId = info.id
+
+    if button.Check then
+        if info.id == GetCurrentTitle() then
+            button.Check:Show()
+        else
+            button.Check:Hide()
+        end
+    end
+
+    -------------------------------------------------
+    -- SELECTED BAR (Blizzard visual)
+    -------------------------------------------------
+    if button.SelectedBar then
+        if info.id == GetCurrentTitle() then
+            button.SelectedBar:Show()
+        else
+            button.SelectedBar:Hide()
+        end
+    end
+
+    -------------------------------------------------
+    -- ENABLE / DISABLE + TEXT COLOR
+    -------------------------------------------------
+    if info.earned then
+        button:Enable()
+        if txt then txt:SetTextColor(1, 0.82, 0) end
+    else
+        button:Disable()
+        if txt then txt:SetTextColor(0.6, 0.6, 0.6) end
+    end
+
+    -------------------------------------------------
+    -- BACKGROUND TEXTURES (Top / Middle / Bottom)
+    -------------------------------------------------
+    if button.BgTop then
+        if index == 1 then
+            button.BgTop:Show()
+        else
+            button.BgTop:Hide()
+        end
+    end
+
+    if button.BgBottom then
+        if index == #PaperDollFrame.TitleManagerPane.titles then
+            button.BgBottom:Show()
+        else
+            button.BgBottom:Hide()
+        end
+    end
+
+    if button.BgMiddle then
+        button.BgMiddle:Show()
+    end
+
+    -------------------------------------------------
+    -- STRIPE (alternating row background)
+    -------------------------------------------------
+    if button.Stripe then
+        if index % 2 == 0 then
+            button.Stripe:SetColorTexture(0.9, 0.9, 1)
+            button.Stripe:SetAlpha(0.1)
+            button.Stripe:Show()
+        else
+            button.Stripe:Hide()
+        end
+    end
+end
+
+
+---------------------------------------------------------
+-- Attach initializer
+---------------------------------------------------------
+local function CCS_ApplyTitleInitializer()
+    local pane = PaperDollFrame and PaperDollFrame.TitleManagerPane
+    if not pane or not pane.ScrollBox then return end
+
+    local view = pane.ScrollBox:GetView()
+    view:SetElementInitializer("PlayerTitleButtonTemplate", CCS_TitleButtonInitializer)
+end
+
 function CCS.HookSetup()
     if CCS.Hooked then return end
 
         --== Frame Hooks
     CreateTransmogButton()
-
-    -- This is an insane hack to get around the taint issue for Armory
-    if C_AddOns.IsAddOnLoaded("Armory") == true then
-        local EXPANDED_WIDTH  = 540  
-        local COLLAPSED_WIDTH = 384 
-        local CURRENT_STATE   = "collapsed"
-        CharacterFrame:SetWidth(EXPANDED_WIDTH)
-        if PaperDollSidebarTabs then
-        PaperDollSidebarTabs:SetParent(PaperDollFrame)
-        PaperDollSidebarTabs:ClearAllPoints()
-        PaperDollSidebarTabs:SetPoint("LEFT", CharacterHandsSlot, "RIGHT", 15, -35)
-        PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterHandsSlot, "TOPRIGHT", 280, 4)
-        end
+    
+    -- I really like this addon and want its functionality to blend well with Chonky.
+    if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
+        local btn = _G.ClassCodexWidgetButton
         
-        CharacterFrame.Expand = function()
-            if CURRENT_STATE == "expanded" then return end
-            CURRENT_STATE = "expanded"
+        if btn then
+            btn:SetScale(.7)
+            btn:HookScript("OnClick", function(self, button)
 
-            -- show the stats/sidebar pane:
-            if CharacterStatsPane then CharacterStatsPane:Show() end
-            if PaperDollSidebarTabs then PaperDollSidebarTabs:Show() end
+            local sm  = _G.ccsm_sf
+            local rf  = _G.ccsrf_sf
+            local gf  = _G.ccsgf_sf
 
+            -- Hide Chonky Side panels to allow Class Codex to open without anything being in the way.
+            if sm and sm:IsShown() then sm:Hide() end
+            if rf and rf:IsShown() then rf:Hide() end
+            if gf and gf:IsShown() then gf:Hide() end
+
+            end)
         end
-
-        CharacterFrame.Collapse = function()
-            if CURRENT_STATE == "collapsed" then return end
-            CURRENT_STATE = "collapsed"
-
-            -- Hide the stats/sidebar pane:
-            if CharacterStatsPane then CharacterStatsPane:Hide() end
-            if PaperDollSidebarTabs then PaperDollSidebarTabs:Hide() end
-        end
+       
     end
     
     if C_AddOns.IsAddOnLoaded("PrettyReps") == false then
@@ -1036,9 +1044,25 @@ function CCS.HookSetup()
     hooksecurefunc(TokenFrame.ScrollBox, "Update", function() CurrencyFrame_Update() end)
    
     hooksecurefunc(PaperDollFrame, "Show", function() hookfix(); 
-        if C_AddOns.IsAddOnLoaded("Armory") == true then
-            CharacterFrame.Expand() 
-        end
+        C_Timer.After(0, function() CharacterFrameTitleText:SetTextColor(
+        option("fontcolor_nametitle")[1] or 1,
+        option("fontcolor_nametitle")[2] or 1,
+        option("fontcolor_nametitle")[3] or 1,
+        option("fontcolor_nametitle")[4] or 1
+        ) end)
+        C_Timer.After(0, hookfix)
+    end)
+
+    hooksecurefunc("PaperDollTitlesPane_Update", function()
+        CCS_UpdateTitleList()
+    end)
+
+    hooksecurefunc("PaperDollTitlesPane_Update", function()
+        CreateTitleSearchBox()
+    end)
+
+    hooksecurefunc("PaperDollTitlesPane_Update", function()
+        CCS_ApplyTitleInitializer()
     end)
 
     hooksecurefunc(CharacterFrame, "Show", function() 
@@ -1047,7 +1071,7 @@ function CCS.HookSetup()
             _G["ccsm_sf"].currentDir = option("mplus_direction") or "Ascending"
             CCS.updatemplussideframe()
         end
-
+        ccs_cshow()
         InitializeFrameUpdates()
         CCS:FireEvent("CCS_EVENT_CSHOW")
         GameTooltip:Hide()
@@ -1135,62 +1159,62 @@ function CCS.HookSetup()
     end
 
     if not PaperDollSidebarTab2._ccsHooked then
-        local TitleManager = PaperDollFrame.TitleManagerPane.ScrollBox.ScrollTarget; 
-        
-        TitleManager:HookScript("OnUpdate", function() 
-                        for i = 1, TitleManager:GetNumChildren() do 
-                            local child = select(i, TitleManager:GetChildren()) 
-                            if child.BgTop then child.BgTop:Hide() end 
-                            if child.BgMiddle then child.BgMiddle:Hide() end 
-                            if child.BgBottom then child.BgBottom:Hide() end 
-                            if child.text and child.text.GetObjectType and child.text:GetObjectType() == "FontString" then
-                                child.text:SetWordWrap(false)
-                                child.text:SetFont(option("fontname_titles") or CCS.fontname, option("fontsize_titles") or 10, CCS.textoutline or "")
-                            end                             
-                        end
-                        
-                    end)
+        local TitleManager = PaperDollFrame.TitleManagerPane.ScrollBox.ScrollTarget
 
+        -- Font + background styling
+        TitleManager:HookScript("OnUpdate", function()
+            for i = 1, TitleManager:GetNumChildren() do
+                local child = select(i, TitleManager:GetChildren())
+
+                -- Hide Blizzard background textures
+                if child.BgTop then child.BgTop:Hide() end
+                if child.BgMiddle then child.BgMiddle:Hide() end
+                if child.BgBottom then child.BgBottom:Hide() end
+
+                -- Apply font settings
+                if child.text and child.text.GetObjectType and child.text:GetObjectType() == "FontString" then
+                    child.text:SetWordWrap(false)
+                    child.text:SetFont(
+                        option("fontname_titles") or CCS.fontname,
+                        option("fontsize_titles") or 10,
+                        CCS.textoutline or ""
+                    )
+                end
+            end
+        end)
+
+        -- Layout repositioning
         PaperDollSidebarTab2:HookScript("OnClick", function(self, button)
             PaperDollFrame.TitleManagerPane:ClearAllPoints()
             PaperDollFrame.TitleManagerPane:SetPoint("TOPLEFT", CharacterFrameInsetRight, "TOPLEFT", 9, -4)
             PaperDollFrame.TitleManagerPane:SetPoint("BOTTOM", CharacterFrameInsetRight, "BOTTOM", 0, 10)
             PaperDollFrame.TitleManagerPane:SetPoint("RIGHT", CharacterFrameBg, "RIGHT", -50, 0)
+
             PaperDollFrame.TitleManagerPane.ScrollBox:ClearAllPoints()
             PaperDollFrame.TitleManagerPane.ScrollBox:SetPoint("TOPLEFT", CharacterFrameInsetRight, "TOPLEFT", 9, -24)
             PaperDollFrame.TitleManagerPane.ScrollBox:SetPoint("BOTTOM", CharacterFrameInsetRight, "BOTTOM", 0, 10)
             PaperDollFrame.TitleManagerPane.ScrollBox:SetPoint("RIGHT", CharacterFrameBg, "RIGHT", -30, 0)
-                        
+
             TitleManager:SetPoint("RIGHT", CharacterFrameBg, "RIGHT", -24, 0)
-            
-            for i = 1, TitleManager:GetNumChildren() do 
-                local child = select(i, TitleManager:GetChildren()) 
-                if child.BgTop then child.BgTop:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgTop:Hide() end 
-                if child.BgMiddle then child.BgMiddle:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgMiddle:Hide() end 
-                if child.BgBottom then child.BgBottom:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgBottom:Hide() end 
-                
-                if child and not child._ccsHooked and child:GetObjectType() == "Button" then
-                    child:HookScript("OnClick", function()
-                        local lastTitleID = GetCurrentTitle()
-                        C_Timer.NewTicker(0.1, function(ticker)
-                            local currentTitleID = GetCurrentTitle()
-                            if currentTitleID ~= lastTitleID then
-                                PaperDollTitlesPane_Update()
-                                ticker:Cancel()
-                            end
-                        end)
-                    end)
-                    child._ccsHooked = true
-                end
+
+            -- Background repositioning
+            for i = 1, TitleManager:GetNumChildren() do
+                local child = select(i, TitleManager:GetChildren())
+                if child.BgTop then child.BgTop:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgTop:Hide() end
+                if child.BgMiddle then child.BgMiddle:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgMiddle:Hide() end
+                if child.BgBottom then child.BgBottom:SetPoint("RIGHT", TitleManager, "RIGHT") child.BgBottom:Hide() end
             end
-            
-            if C_AddOns.IsAddOnLoaded("Narcissus") then -- Just relocate the mini talent tree so it isn't hidden behind the character frame.
-                NarciMiniTalentTree:ClearAllPoints(); 
+
+            -- Narcissus reposition
+            if C_AddOns.IsAddOnLoaded("Narcissus") then
+                NarciMiniTalentTree:ClearAllPoints()
                 NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0)
-            end                        
+            end
         end)
+
         PaperDollSidebarTab2._ccsHooked = true
     end
+
 
     if not PaperDollSidebarTab3._ccsHooked then
         local EquipmentManager = PaperDollFrame.EquipmentManagerPane.ScrollBox.ScrollTarget; 
@@ -1226,78 +1250,49 @@ function CCS.HookSetup()
     hooksecurefunc(CharacterFrame, "Hide", function() 
         GameTooltip:Hide(); 
         CCS.tooltip:Hide(); 
-        StopBGAnimation();
-
+        CCS.StopBGAnimation(modbg);
+        if _G["ccsgf_sf"] ~= nil and not InCombatLockdown() then
+            _G["ccsgf_sf"]:Hide()
+        end
         if CCS.tempEnchantTicker then
             CCS.tempEnchantTicker:Cancel()
             CCS.tempEnchantTicker = nil
         end
         
         end )
+
     CCS.Hooked = true
 end
 
--- Module Initialization
-function module:Initialize()
-    -- Set up the character sheet for the current player
-
-    if InCombatLockdown() then 
-        CCS.initall = true
-        return 
-    end
-
-    local scaling = option("sheetscale") or 1
-    local Bgoffset = option("hpad")
-
-    --CCS_CreateCharacterFrameProxy() -- Create our new proxy frame
-    LootSpecInit()
-    SpecChangeInit()
-    
-    CharacterFrame:SetHeight(479+(7*option("vpad"))) -- Do not allow the frame to get any smaller than the default bliz frame
-    
+function module:SetupBlizzardFrameOverrides()
+	--------------------------------
+	-- Only process these events once
+	--------------------------------
     CharacterFrameInset.Bg:ClearAllPoints();
     CharacterFrameInset.Bg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 4, -60)
-    CharacterFrameInset.Bg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMLEFT", 330+option("hpad"), 30)
     CharacterFrameInset:Hide();
-    
+   
     CharacterFrameBg:SetVertexColor(0,0,0,0);
-    
     CharacterFrameBg:ClearAllPoints()
     CharacterFrameBg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
 
-    if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT",Bgoffset, 0); 
-        DCS_configButton:SetPoint("BOTTOMRIGHT", CharacterFrameCloseButton, "BOTTOMLEFT", -20, -10)
-        CharacterStatsPane:SetPoint("TOPLEFT", CharacterFrameInsetRight, "TOPLEFT", 13, -3)
-        PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "TOPRIGHT", -70, -1)
-    else
-        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+65, 0); --279  .449
-    end    
-    
     CharacterFrame.Background:ClearAllPoints()
     CharacterFrame.Background:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
-    CharacterFrame.Background:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+50, 0); --275  .449
     CharacterFrame.Background:Hide()
-    
+
     CharacterFrame.TopTileStreaks:Hide()
     ReputationFrame.ReputationDetailFrame:SetFrameStrata("HIGH")
     ReputationFrame.ReputationDetailFrame:SetFrameLevel(1000)
     ReputationFrame.ReputationDetailFrame.Border.Bg:SetColorTexture(0,0,0,1)
-    
+
     local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
     local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
-    local bgr, bgg, bgb, bgalpha = option("bgcolor")[1], option("bgcolor")[2], option("bgcolor")[3], option("bgcolor")[4];
-    
     charbg:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- optional background texture
         edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",        -- thin edge texture
         edgeSize = 16,                                              -- thickness of the border
         insets = { left = 3, right = 3, top = 3, bottom = 3 },      -- inset so content doesn't overlap border
     })
-    local borderColor = CCS.StyleColor.border
-    charbg:SetBackdropBorderColor(unpack(borderColor))   -- purple border    
-    charbg:SetBackdropColor(bgr,bgg,bgb,bgalpha)   -- purple border    
-    
     GearManagerPopupFrame:SetFrameStrata("DIALOG")
     GearManagerPopupFrame.IconSelector:SetFrameStrata("FULLSCREEN")
     
@@ -1308,15 +1303,7 @@ function module:Initialize()
     charbgtex:ClearAllPoints()
     charbgtex:SetAllPoints()
     charbgtex:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    charbgtex:SetVertexColor(bgr,bgg,bgb,bgalpha);
 
-    CharacterFrameCloseButton:ClearAllPoints();
-    CharacterFrameCloseButton:SetPoint("TOPRIGHT", CharacterFrameBg, "TOPRIGHT", -10, -10)
-    CharacterFrameCloseButton:SetSize(32, 32)
-    CharacterFrameCloseButton:SetSize(32, 32)
-    CCS:SkinBlizzardButton(CharacterFrameCloseButton, "x", 26)
-    CharacterFrameCloseButton:SetScale(.5)
-    
     local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
     CCSsetbtn:SetSize(32, 32)
     CCSsetbtn:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "TOPLEFT", -5, 0)
@@ -1339,34 +1326,15 @@ function module:Initialize()
         end
         PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
     end)
-   CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
-    local ttfontsize = option("fontsize_nametitle") or 12
+
     CharacterModelScene.GearEnchantAnimation:ClearAllPoints()
     CharacterFrameTitleText:ClearAllPoints();
-    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -5*ttfontsize/12)
     CharacterFrameTitleText:SetPoint("LEFT", CharacterFrame, "LEFT", 50, 0)
     CharacterFrameTitleText:SetPoint("RIGHT", CharacterFrameInset.Bg, "RIGHT", -40, 0)
-    CharacterFrameTitleText:SetFont( option("fontname_nametitle") or CCS.fontname, ttfontsize , CCS.textoutline)
-    if option("showfontshadow") == true then
-        CharacterFrameTitleText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-        CharacterFrameTitleText:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-    end	                                                
-    
-    CharacterFrameTitleText:SetTextColor(
-        option("fontcolor_nametitle")[1] or 1,
-        option("fontcolor_nametitle")[2] or 1,
-        option("fontcolor_nametitle")[3] or 1,
-        option("fontcolor_nametitle")[4] or 1
-    )
 
     CharacterLevelText:ClearAllPoints()
     CharacterLevelText:SetPoint("TOP", CharacterFrameTitleText, "BOTTOM", 0, 0)
-    CharacterLevelText:SetFont(option("fontname_levelclass") or CCS.fontname, (option("fontsize_levelclass") or 12) , CCS.textoutline)
-    if option("showfontshadow") == true then
-        CharacterLevelText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-        CharacterLevelText:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-    end	                                                
-    
+
     CharacterFrame.NineSlice:Hide()
     CharacterFramePortrait:Hide()
     
@@ -1413,230 +1381,75 @@ function module:Initialize()
     CharacterTrinket1SlotFrame:Hide()
     CharacterWaistSlotFrame:Hide()
     CharacterWristSlotFrame:Hide()
-    -- All slots on the left (under head) are tied back to this slot
-    CharacterHeadSlot:ClearAllPoints()
-    CharacterHeadSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 30, -60)
-    CharacterNeckSlot:ClearAllPoints()
-    CharacterNeckSlot:SetPoint("TOPLEFT", CharacterHeadSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterShoulderSlot:ClearAllPoints()
-    CharacterShoulderSlot:SetPoint("TOPLEFT", CharacterNeckSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterBackSlot:ClearAllPoints()
-    CharacterBackSlot:SetPoint("TOPLEFT", CharacterShoulderSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterChestSlot:ClearAllPoints()
-    CharacterChestSlot:SetPoint("TOPLEFT", CharacterBackSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterShirtSlot:ClearAllPoints()
-    CharacterShirtSlot:SetPoint("TOPLEFT", CharacterChestSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterTabardSlot:ClearAllPoints()
-    CharacterTabardSlot:SetPoint("TOPLEFT", CharacterShirtSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterWristSlot:ClearAllPoints()
-    CharacterWristSlot:SetPoint("TOPLEFT", CharacterTabardSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    -- All slots on the right (under hands) are tied back to this slot
-    CharacterHandsSlot:ClearAllPoints()
-    CharacterHandsSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 283 + option("hpad"), -60)
-    CharacterWaistSlot:ClearAllPoints()
-    CharacterWaistSlot:SetPoint("TOPLEFT", CharacterHandsSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterLegsSlot:ClearAllPoints()
-    CharacterLegsSlot:SetPoint("TOPLEFT", CharacterWaistSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterFeetSlot:ClearAllPoints()
-    CharacterFeetSlot:SetPoint("TOPLEFT", CharacterLegsSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterFinger0Slot:ClearAllPoints()
-    CharacterFinger0Slot:SetPoint("TOPLEFT", CharacterFeetSlot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterFinger1Slot:ClearAllPoints()
-    CharacterFinger1Slot:SetPoint("TOPLEFT", CharacterFinger0Slot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterTrinket0Slot:ClearAllPoints()
-    CharacterTrinket0Slot:SetPoint("TOPLEFT", CharacterFinger1Slot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterTrinket1Slot:ClearAllPoints()
-    CharacterTrinket1Slot:SetPoint("TOPLEFT", CharacterTrinket0Slot, "BOTTOMLEFT", 0, -option("vpad"))
-    CharacterMainHandSlot:ClearAllPoints()
-    CharacterMainHandSlot:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMLEFT", 146 + 89*option("hpad")/262, 60)
-    CharacterSecondaryHandSlot:ClearAllPoints()
-    CharacterSecondaryHandSlot:SetPoint("TOPLEFT", CharacterMainHandSlot, "TOPRIGHT", 60*option("hpad")/262, 0)
+
     select(16, CharacterMainHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
     select(17, CharacterMainHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)    
     select(16, CharacterSecondaryHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-    select(17, CharacterSecondaryHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)    
-    if (option("hideiconborders")) then
-        CharacterBackSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterBackSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterChestSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterFeetSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterFinger0Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterFinger1Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterHandsSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterHeadSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterLegsSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterMainHandSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterNeckSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterSecondaryHandSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterShirtSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterShoulderSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterTabardSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterTrinket0Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterTrinket1Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterWaistSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        CharacterWristSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-        
-        CharacterBackSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterChestSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterFeetSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterFinger0SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterFinger1SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterHandsSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterHeadSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterLegsSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterMainHandSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterNeckSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterSecondaryHandSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterShirtSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterShoulderSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterTabardSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterTrinket0SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterTrinket1SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterWaistSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        CharacterWristSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
-        
-        CharacterBackSlotNormalTexture:Hide()
-        CharacterChestSlotNormalTexture:Hide()
-        CharacterFeetSlotNormalTexture:Hide()
-        CharacterFinger0SlotNormalTexture:Hide()
-        CharacterFinger1SlotNormalTexture:Hide()
-        CharacterHandsSlotNormalTexture:Hide()
-        CharacterHeadSlotNormalTexture:Hide()
-        CharacterLegsSlotNormalTexture:Hide()
-        CharacterMainHandSlotNormalTexture:Hide()
-        CharacterNeckSlotNormalTexture:Hide()
-        CharacterSecondaryHandSlotNormalTexture:Hide()
-        CharacterShirtSlotNormalTexture:Hide()
-        CharacterShoulderSlotNormalTexture:Hide()
-        CharacterTabardSlotNormalTexture:Hide()
-        CharacterTrinket0SlotNormalTexture:Hide()
-        CharacterTrinket1SlotNormalTexture:Hide()
-        CharacterWaistSlotNormalTexture:Hide()
-        CharacterWristSlotNormalTexture:Hide()
-        
-    else
-        CharacterBackSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterBackSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterChestSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterFeetSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterFinger0Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterFinger1Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterHandsSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterHeadSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterLegsSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterMainHandSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterNeckSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterSecondaryHandSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterShirtSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterShoulderSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterTabardSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterTrinket0Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterTrinket1Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterWaistSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        CharacterWristSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-        
-        CharacterBackSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterChestSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterFeetSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterFinger0SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterFinger1SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterHandsSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterHeadSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterLegsSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterMainHandSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterNeckSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterSecondaryHandSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterShirtSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterShoulderSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterTabardSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterTrinket0SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterTrinket1SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterWaistSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        CharacterWristSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
-        
-        CharacterBackSlotNormalTexture:Show()
-        CharacterChestSlotNormalTexture:Show()
-        CharacterFeetSlotNormalTexture:Show()
-        CharacterFinger0SlotNormalTexture:Show()
-        CharacterFinger1SlotNormalTexture:Show()
-        CharacterHandsSlotNormalTexture:Show()
-        CharacterHeadSlotNormalTexture:Show()
-        CharacterLegsSlotNormalTexture:Show()
-        CharacterMainHandSlotNormalTexture:Show()
-        CharacterNeckSlotNormalTexture:Show()
-        CharacterSecondaryHandSlotNormalTexture:Show()
-        CharacterShirtSlotNormalTexture:Show()
-        CharacterShoulderSlotNormalTexture:Show()
-        CharacterTabardSlotNormalTexture:Show()
-        CharacterTrinket0SlotNormalTexture:Show()
-        CharacterTrinket1SlotNormalTexture:Show()
-        CharacterWaistSlotNormalTexture:Show()
-        CharacterWristSlotNormalTexture:Show()
-          
-    end
-        CharacterFrameTab1.Text:SetTextColor(1,1,1,1)
-        CharacterFrameTab2.Text:SetTextColor(1,1,1,1)
-        CharacterFrameTab3.Text:SetTextColor(1,1,1,1)
+    select(17, CharacterSecondaryHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
 
-        CharacterFrameTab1:SetPoint("TOPLEFT", CharacterFrame, "BOTTOMLEFT", 11, 2)
-        CharacterFrameTab1.Left:ClearAllPoints()
-        CharacterFrameTab1.LeftActive:ClearAllPoints()
-        CharacterFrameTab1.LeftHighlight:ClearAllPoints()
-        CharacterFrameTab1.Right:ClearAllPoints()
-        CharacterFrameTab1.RightActive:ClearAllPoints()
-        CharacterFrameTab1.RightHighlight:ClearAllPoints()
-        CharacterFrameTab1.Middle:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPLEFT", 0, 0)
-        CharacterFrameTab1.Middle:SetPoint("TOPRIGHT", CharacterFrameTab1, "TOPRIGHT", 0, 0)
-        CharacterFrameTab1.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab1.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
-        CharacterFrameTab1.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
-        CharacterFrameTab1.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab1.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
-        CharacterFrameTab1.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
-        CharacterFrameTab1.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-        CharacterFrameTab1.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-        CharacterFrameTab1.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab1.Text:SetTextColor(1,1,1,1)
+    CharacterFrameTab2.Text:SetTextColor(1,1,1,1)
+    CharacterFrameTab3.Text:SetTextColor(1,1,1,1)
 
-        CharacterFrameTab2:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPRIGHT", 3, 0)
-        CharacterFrameTab2.Left:ClearAllPoints()
-        CharacterFrameTab2.LeftActive:ClearAllPoints()
-        CharacterFrameTab2.LeftHighlight:ClearAllPoints()
-        CharacterFrameTab2.Right:ClearAllPoints()
-        CharacterFrameTab2.RightActive:ClearAllPoints()
-        CharacterFrameTab2.RightHighlight:ClearAllPoints()
-        CharacterFrameTab2.Middle:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.Middle:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab2.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab2.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-        CharacterFrameTab2.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray        
-        CharacterFrameTab2.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-        CharacterFrameTab2.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab1:SetPoint("TOPLEFT", CharacterFrame, "BOTTOMLEFT", 11, 2)
+    CharacterFrameTab1.Left:ClearAllPoints()
+    CharacterFrameTab1.LeftActive:ClearAllPoints()
+    CharacterFrameTab1.LeftHighlight:ClearAllPoints()
+    CharacterFrameTab1.Right:ClearAllPoints()
+    CharacterFrameTab1.RightActive:ClearAllPoints()
+    CharacterFrameTab1.RightHighlight:ClearAllPoints()
+    CharacterFrameTab1.Middle:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPLEFT", 0, 0)
+    CharacterFrameTab1.Middle:SetPoint("TOPRIGHT", CharacterFrameTab1, "TOPRIGHT", 0, 0)
+    CharacterFrameTab1.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab1.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
+    CharacterFrameTab1.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
+    CharacterFrameTab1.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab1.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
+    CharacterFrameTab1.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
+    CharacterFrameTab1.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab1.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab1.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
 
-        CharacterFrameTab3:SetPoint("TOPLEFT", CharacterFrameTab2, "TOPRIGHT", 3, 0)
-        CharacterFrameTab3.Left:ClearAllPoints()
-        CharacterFrameTab3.LeftActive:ClearAllPoints()
-        CharacterFrameTab3.LeftHighlight:ClearAllPoints()
-        CharacterFrameTab3.Right:ClearAllPoints()
-        CharacterFrameTab3.RightActive:ClearAllPoints()
-        CharacterFrameTab3.RightHighlight:ClearAllPoints()
-        CharacterFrameTab3.Middle:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.Middle:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab3.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-        CharacterFrameTab3.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-        CharacterFrameTab3.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-        CharacterFrameTab3.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-        CharacterFrameTab3.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-     
-        PaperDollFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
-    
+    CharacterFrameTab2:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPRIGHT", 3, 0)
+    CharacterFrameTab2.Left:ClearAllPoints()
+    CharacterFrameTab2.LeftActive:ClearAllPoints()
+    CharacterFrameTab2.LeftHighlight:ClearAllPoints()
+    CharacterFrameTab2.Right:ClearAllPoints()
+    CharacterFrameTab2.RightActive:ClearAllPoints()
+    CharacterFrameTab2.RightHighlight:ClearAllPoints()
+    CharacterFrameTab2.Middle:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.Middle:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab2.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab2.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
+    CharacterFrameTab2.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray        
+    CharacterFrameTab2.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab2.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+
+    CharacterFrameTab3:SetPoint("TOPLEFT", CharacterFrameTab2, "TOPRIGHT", 3, 0)
+    CharacterFrameTab3.Left:ClearAllPoints()
+    CharacterFrameTab3.LeftActive:ClearAllPoints()
+    CharacterFrameTab3.LeftHighlight:ClearAllPoints()
+    CharacterFrameTab3.Right:ClearAllPoints()
+    CharacterFrameTab3.RightActive:ClearAllPoints()
+    CharacterFrameTab3.RightHighlight:ClearAllPoints()
+    CharacterFrameTab3.Middle:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.Middle:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab3.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    CharacterFrameTab3.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
+    CharacterFrameTab3.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab3.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+    CharacterFrameTab3.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+ 
+    PaperDollFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
+
     -- [Toast] Create Base Frame
     local toast = _G["CCS_TOAST"] or CreateFrame("FRAME","CCS_TOAST",UIParent)
     toast:SetPoint("TOP",UIParent,"TOP",0,-160)
@@ -1670,12 +1483,7 @@ function module:Initialize()
     toast.description:SetJustifyH("LEFT")
     toast.description:SetFont(CCS.fontname, 12, CCS.textoutline)
     toast.description:Show()
-    
-    if scaling ~= 1 or (scaling == 1 and CharacterFrame:GetScale() ~= 1) then
-        CharacterFrame:SetScale(scaling); 
-    end
-    
-    ReputationFrame:SetScale(scaling);
+
     ReputationFrame:ClearAllPoints()
     ReputationFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
     ReputationFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 7)
@@ -1684,65 +1492,6 @@ function module:Initialize()
     ReputationFrame.ScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", -30, 7)
     ReputationFrame.filterDropdown:ClearAllPoints()
     ReputationFrame.filterDropdown:SetPoint("TOPRIGHT", ReputationFrame, "TOPRIGHT", -38, -30)    
-    
-    if ccs_sf then ccs_sf:SetScale(.69); end
-    
-    -- Create the character model button
-    modelbtn:SetSize(23, 23)
-    modelbtn:SetPoint("BOTTOMRIGHT", _G["CCS_loot_Btn1"], "BOTTOMRIGHT", 180, 0)    
-    modelbtn:SetFrameStrata("HIGH")
-    
-    if option("hideshowchbtn") == true then
-        modelbtn:Hide()
-    else
-        modelbtn:Show()
-    end
-    
-    local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
-    
-    modelbtnfont1:SetPoint("BOTTOM", modelbtn, "TOP", -3 , 2)
-    modelbtnfont1:SetFont(option("fontname_showchar") or CCS.fontname, (option("fontsize_showchar") or 10), CCS.textoutline)
-    if option("showfontshadow") == true then
-        modelbtnfont1:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-        modelbtnfont1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-    end	                                                
-    
-    modelbtnfont1:SetTextColor(
-        option("fontcolor_showchar")[1] or 1,
-        option("fontcolor_showchar")[2] or 1,
-        option("fontcolor_showchar")[3] or 1,
-        option("fontcolor_showchar")[4] or 1
-    )
-    
-    modelbtnfont1:SetText(MOUNT_JOURNAL_PLAYER)
-    modelbtnfont1:SetWordWrap(true)
-    modelbtn:SetNormalTexture("Interface\\Calendar\\MeetingIcon.blp")
-    modelbtn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    modelbtn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
-    modelbtn:SetScript("OnClick", function()
-            if not InCombatLockdown() then 
-                Clicky() 
-            else
-                PlaySound(8959)
-                RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
-            end 
-    end)
-
-    modbg:ClearAllPoints()
-    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 0)
-    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 0, 0)    
-    modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, 0)        
-    modbg:SetFrameStrata("LOW")
-    modbg:SetFrameLevel(5000)
-    
-    if option("hidemodelbg") then
-        modbg:Hide()
-    else
-        modbg:Show()
-    end
     
     local Height = 520  -- Hard code it for now
     local Left = 120  -- Hard code it for now
@@ -1768,7 +1517,7 @@ function module:Initialize()
     TokenFramePopup:SetFrameStrata("HIGH")
     TokenFramePopup.Border.Bg:SetColorTexture(0, 0, 0, 1)
     CurrencyTransferLog:SetFrameStrata("HIGH")
-    --TokenFrame:SetScale(scaling); 
+
     if not TokenFrame.CCS_Init and not TokenFrame:IsProtected() then
         TokenFrame:ClearAllPoints()
         TokenFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
@@ -1796,8 +1545,6 @@ function module:Initialize()
         CCSf:SetSize(900, 640)
         CCSf:Hide()
         
-        --CharacterFrameCloseButton:SetScale(.7)
-        
         local sf = _G["ccs_sf"] or CreateFrame("Frame", "ccs_sf", CharacterFrame);
         local sf_bg = _G["ccs_sf_bg"] or sf:CreateTexture("ccs_sf_bg", "BACKGROUND", nil, 1)        
         local sf_topbar = _G["ccs_sf_tb"] or sf:CreateTexture("ccs_sf_tb", "BACKGROUND", nil, 2)
@@ -1807,8 +1554,317 @@ function module:Initialize()
         sf:SetScale(.69)
         sf_bg:Show()
     end
-    CCS.HookSetup()
+
+    -- Create the character model button
+    modelbtn:SetSize(23, 23)
+    modelbtn:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "BOTTOMLEFT", -120, 5)    
+    modelbtn:SetFrameStrata("HIGH")
+    modelbtnfont1:SetFont(option("fontname_showchar") or CCS.fontname, (option("fontsize_showchar") or 10), CCS.textoutline)
+    modelbtnfont1:SetPoint("BOTTOM", modelbtn, "TOP", -3 , 2)
+    modelbtnfont1:SetText(MOUNT_JOURNAL_PLAYER)
+    modelbtnfont1:SetWordWrap(true)
+    modelbtn:SetNormalTexture("Interface\\Calendar\\MeetingIcon.blp")
+    modelbtn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
+            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
+            CCS.tooltip:Show()
+    end)
+    modelbtn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
+    modelbtn:SetScript("OnClick", function()
+            if not InCombatLockdown() then 
+                Clicky() 
+            else
+                PlaySound(8959)
+                RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
+            end 
+    end)
     
+    modbg:ClearAllPoints()
+    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 0)
+    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 0, 0)    
+    modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, 0)        
+    modbg:SetFrameStrata("LOW")
+    modbg:SetFrameLevel(5000)
+end
+
+function module:UpdateStyle()
+    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+    local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
+    local bgr, bgg, bgb, bgalpha = option("bgcolor")[1], option("bgcolor")[2], option("bgcolor")[3], option("bgcolor")[4];
+
+    local borderColor = CCS.StyleColor.border
+    charbg:SetBackdropBorderColor(unpack(borderColor))   -- purple border    
+    charbg:SetBackdropColor(bgr,bgg,bgb,bgalpha)   -- purple border    
+    charbgtex:SetVertexColor(bgr,bgg,bgb,bgalpha);
+
+    CCS:SkinBlizzardButton(CharacterFrameCloseButton, "x", 26)
+
+    local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
+   CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
+
+    local ttfontsize = option("fontsize_nametitle") or 12
+    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -5*ttfontsize/12)
+    CharacterFrameTitleText:SetFont( option("fontname_nametitle") or CCS.fontname, ttfontsize , CCS.textoutline)
+    if option("showfontshadow") == true then
+        CharacterFrameTitleText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+        CharacterFrameTitleText:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+    end	                                                
+    
+    CharacterFrameTitleText:SetTextColor(unpack(option("fontcolor_nametitle") or {1,1,1,1}))
+
+    CharacterLevelText:SetFont(option("fontname_levelclass") or CCS.fontname, (option("fontsize_levelclass") or 12) , CCS.textoutline)
+    if option("showfontshadow") == true then
+        CharacterLevelText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+        CharacterLevelText:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+    end	    
+
+    modelbtnfont1:SetFont(option("fontname_showchar") or CCS.fontname, (option("fontsize_showchar") or 10), CCS.textoutline)
+    if option("showfontshadow") == true then
+        modelbtnfont1:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+        modelbtnfont1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+    end	                                                
+    
+    modelbtnfont1:SetTextColor(unpack(option("fontcolor_showchar") or {1,1,1,1}))
+    if option("hidemodelbg") then modbg:Hide() else modbg:Show() end
+end
+
+function module:ApplyDynamicLayout()
+    local scaling = option("sheetscale") or 1
+    local Bgoffset = option("hpad")
+	--------------------------------
+	-- Only process hpad/vpad
+	--------------------------------
+	if CCS.lastChangedOption == nil or CCS.lastChangedOption == "vpad" or CCS.lastChangedOption == "hpad" then
+		CharacterFrame:SetHeight(479+(7*option("vpad"))) -- Do not allow the frame to get any smaller than the default bliz frame
+		CharacterFrameInset.Bg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMLEFT", 330+option("hpad"), 30)
+	
+        if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
+			CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT",Bgoffset, 0); 
+		else
+			CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+65, 0); --279  .449
+		end   
+        
+        CharacterFrame.Background:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+50, 0); --275  .449
+
+		CharacterFrameCloseButton:ClearAllPoints();
+		CharacterFrameCloseButton:SetPoint("TOPRIGHT", CharacterFrameBg, "TOPRIGHT", -10, -10)
+		CharacterFrameCloseButton:SetSize(32, 32)
+		CharacterFrameCloseButton:SetScale(.5)
+		---------------
+		-- All slots on the left (under head) are tied back to this slot
+		---------------
+		CharacterHeadSlot:ClearAllPoints()
+		CharacterHeadSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 30, -60)
+		CharacterNeckSlot:ClearAllPoints()
+		CharacterNeckSlot:SetPoint("TOPLEFT", CharacterHeadSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterShoulderSlot:ClearAllPoints()
+		CharacterShoulderSlot:SetPoint("TOPLEFT", CharacterNeckSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterBackSlot:ClearAllPoints()
+		CharacterBackSlot:SetPoint("TOPLEFT", CharacterShoulderSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterChestSlot:ClearAllPoints()
+		CharacterChestSlot:SetPoint("TOPLEFT", CharacterBackSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterShirtSlot:ClearAllPoints()
+		CharacterShirtSlot:SetPoint("TOPLEFT", CharacterChestSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterTabardSlot:ClearAllPoints()
+		CharacterTabardSlot:SetPoint("TOPLEFT", CharacterShirtSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterWristSlot:ClearAllPoints()
+		CharacterWristSlot:SetPoint("TOPLEFT", CharacterTabardSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		-- All slots on the right (under hands) are tied back to this slot
+		CharacterHandsSlot:ClearAllPoints()
+		CharacterHandsSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 283 + option("hpad"), -60)
+		CharacterWaistSlot:ClearAllPoints()
+		CharacterWaistSlot:SetPoint("TOPLEFT", CharacterHandsSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterLegsSlot:ClearAllPoints()
+		CharacterLegsSlot:SetPoint("TOPLEFT", CharacterWaistSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterFeetSlot:ClearAllPoints()
+		CharacterFeetSlot:SetPoint("TOPLEFT", CharacterLegsSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterFinger0Slot:ClearAllPoints()
+		CharacterFinger0Slot:SetPoint("TOPLEFT", CharacterFeetSlot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterFinger1Slot:ClearAllPoints()
+		CharacterFinger1Slot:SetPoint("TOPLEFT", CharacterFinger0Slot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterTrinket0Slot:ClearAllPoints()
+		CharacterTrinket0Slot:SetPoint("TOPLEFT", CharacterFinger1Slot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterTrinket1Slot:ClearAllPoints()
+		CharacterTrinket1Slot:SetPoint("TOPLEFT", CharacterTrinket0Slot, "BOTTOMLEFT", 0, -option("vpad"))
+		CharacterMainHandSlot:ClearAllPoints()
+		CharacterMainHandSlot:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMLEFT", 146 + 89*option("hpad")/262, 60)
+		CharacterSecondaryHandSlot:ClearAllPoints()
+		CharacterSecondaryHandSlot:SetPoint("TOPLEFT", CharacterMainHandSlot, "TOPRIGHT", 60*option("hpad")/262, 0)	
+	end
+	--------------------------------
+	-- Only process character sheet scale
+	--------------------------------
+    if CCS.lastChangedOption == nil or CCS.lastChangedOption == "sheetscale" then
+		if scaling ~= 1 or (scaling == 1 and CharacterFrame:GetScale() ~= 1) then -- If scaling is 1, then we can let other addons adjust the sheet scale.
+			CharacterFrame:SetScale(scaling); 
+		end
+		if ccs_sf then ccs_sf:SetScale(.69); end
+	end
+    
+    if option("hideshowchbtn") == true then modelbtn:Hide() else modelbtn:Show() end
+    
+	--------------------------------
+	-- Only process hide icon borders
+	--------------------------------
+    if CCS.lastChangedOption == nil or CCS.lastChangedOption == "hideiconborders" then
+        if (option("hideiconborders")) then
+            CharacterBackSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterChestSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterFeetSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterFinger0Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterFinger1Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterHandsSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterHeadSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterLegsSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterMainHandSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterNeckSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterSecondaryHandSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterShirtSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterShoulderSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterTabardSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterTrinket0Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterTrinket1Slot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterWaistSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            CharacterWristSlot.IconBorder:SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
+            
+            CharacterBackSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterChestSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterFeetSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterFinger0SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterFinger1SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterHandsSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterHeadSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterLegsSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterMainHandSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterNeckSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterSecondaryHandSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterShirtSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterShoulderSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterTabardSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterTrinket0SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterTrinket1SlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterWaistSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            CharacterWristSlotIconTexture:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+            
+            CharacterBackSlotNormalTexture:Hide()
+            CharacterChestSlotNormalTexture:Hide()
+            CharacterFeetSlotNormalTexture:Hide()
+            CharacterFinger0SlotNormalTexture:Hide()
+            CharacterFinger1SlotNormalTexture:Hide()
+            CharacterHandsSlotNormalTexture:Hide()
+            CharacterHeadSlotNormalTexture:Hide()
+            CharacterLegsSlotNormalTexture:Hide()
+            CharacterMainHandSlotNormalTexture:Hide()
+            CharacterNeckSlotNormalTexture:Hide()
+            CharacterSecondaryHandSlotNormalTexture:Hide()
+            CharacterShirtSlotNormalTexture:Hide()
+            CharacterShoulderSlotNormalTexture:Hide()
+            CharacterTabardSlotNormalTexture:Hide()
+            CharacterTrinket0SlotNormalTexture:Hide()
+            CharacterTrinket1SlotNormalTexture:Hide()
+            CharacterWaistSlotNormalTexture:Hide()
+            CharacterWristSlotNormalTexture:Hide()
+            
+        else
+            CharacterBackSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterChestSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterFeetSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterFinger0Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterFinger1Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterHandsSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterHeadSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterLegsSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterMainHandSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterNeckSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterSecondaryHandSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterShirtSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterShoulderSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterTabardSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterTrinket0Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterTrinket1Slot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterWaistSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            CharacterWristSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
+            
+            CharacterBackSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterChestSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterFeetSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterFinger0SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterFinger1SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterHandsSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterHeadSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterLegsSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterMainHandSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterNeckSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterSecondaryHandSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterShirtSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterShoulderSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterTabardSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterTrinket0SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterTrinket1SlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterWaistSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            CharacterWristSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
+            
+            CharacterBackSlotNormalTexture:Show()
+            CharacterChestSlotNormalTexture:Show()
+            CharacterFeetSlotNormalTexture:Show()
+            CharacterFinger0SlotNormalTexture:Show()
+            CharacterFinger1SlotNormalTexture:Show()
+            CharacterHandsSlotNormalTexture:Show()
+            CharacterHeadSlotNormalTexture:Show()
+            CharacterLegsSlotNormalTexture:Show()
+            CharacterMainHandSlotNormalTexture:Show()
+            CharacterNeckSlotNormalTexture:Show()
+            CharacterSecondaryHandSlotNormalTexture:Show()
+            CharacterShirtSlotNormalTexture:Show()
+            CharacterShoulderSlotNormalTexture:Show()
+            CharacterTabardSlotNormalTexture:Show()
+            CharacterTrinket0SlotNormalTexture:Show()
+            CharacterTrinket1SlotNormalTexture:Show()
+            CharacterWaistSlotNormalTexture:Show()
+            CharacterWristSlotNormalTexture:Show()
+              
+        end
+    end
+end
+-- Module Initialization
+function module:Initialize(onlyStyle)
+    -- Set up the character sheet for the current player
+
+    if CCS.AreSecretsDisabled() then 
+        CCS.initall = true
+        return 
+    end
+
+    ----------------------------------
+    -- This is for options menu changes. Only process Layout & Styles updates
+    ----------------------------------
+
+    if onlyStyle and self.BlizzardCleanup then
+        self:ApplyDynamicLayout()
+        self:UpdateStyle()
+        return
+    end
+
+    ----------------------------------
+    -- Bliz cleanup, Layout setup, & Styles
+    ----------------------------------
+    if not self.BlizzardCleanup then
+        self:SetupBlizzardFrameOverrides()
+        CCS.HookSetup()
+        self.BlizzardCleanup = true
+    end
+
+    if not self.LayoutSetup then
+        self:ApplyDynamicLayout()
+        self.LayoutSetup = true
+    end
+
+    if not self.StyleSetup then
+        self:UpdateStyle()
+        self.StyleSetup = true
+    end
+
+    LootSpecInit()
+    SpecChangeInit()
 end
 
 -- Show the Paragon Toast if a Paragon Reward Quest is accepted.
@@ -1834,12 +1890,25 @@ local function ShowToast(name, text)
     C_Timer.After(5, function() UIFrameFadeOut(toast, 1, 1, 0) end)
 end
 
+function CCS.RefreshTitleRows()
+    C_Timer.After(0, function()
+        local pane = PaperDollFrame and PaperDollFrame.TitleManagerPane
+        if not pane or not pane.ScrollBox then return end
+
+        pane.ScrollBox:ForEachFrame(function(button, elementData)
+            CCS_TitleButtonInitializer(button, elementData)
+        end)
+    end)
+end
+
 
 -- Define the event handler function for this module
 function CCS.CharacterSheetEventHandler(event, ...)
     local arg1 = ...
 
-    if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
+    if CCS.CurrentVersion ~= CCS.RETAIL then return end
+
+    if CCS.initall == true then return end
    
     if event == "PLAYER_ENTERING_WORLD" then
             for slot = 1, 19 do
@@ -1864,7 +1933,10 @@ function CCS.CharacterSheetEventHandler(event, ...)
     if CharacterFrame and not CharacterFrame:IsVisible() 
         and event ~= "PLAYER_LOOT_SPEC_UPDATED" and event ~= "PLAYER_SPECIALIZATION_CHANGED" and event ~= "QUEST_ACCEPTED" and event ~= "CCS_EVENT_CSHOW"
     then return end
-    
+    if event == "UNIT_NAME_UPDATE" and arg1 == "player" then
+        CCS.RefreshTitleRows()
+        return
+    end
     PaperDollFrame_SetLevel()
     
     if event == "PLAYER_EQUIPMENT_CHANGED" then
@@ -1879,9 +1951,11 @@ function CCS.CharacterSheetEventHandler(event, ...)
         return true
     elseif event == "CCS_EVENT_OPTIONS" then
         TryLoopItems()
-        ChangeModelBg()
+        CCS.ChangeModelBg(false)
         ReputationFrame_Update()
         CurrencyFrame_Update()
+        LootSpecInit()
+        SpecChangeInit()        
         --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")
         return true
     elseif event == "CCS_EVENT_CSHOW" then
@@ -1900,7 +1974,7 @@ function CCS.CharacterSheetEventHandler(event, ...)
     elseif event == "PLAYER_LOOT_SPEC_UPDATED" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         LootSpecInit()
         SpecChangeInit()
-        ChangeModelBg()
+        CCS.ChangeModelBg(false)
     elseif event == "QUEST_ACCEPTED" and arg1 and CCS.Paragon_Factions[arg1] and C_Reputation.GetFactionDataByID(CCS.Paragon_Factions[arg1].factionID) then
         local name = C_Reputation.GetFactionDataByID(CCS.Paragon_Factions[arg1].factionID).name
         local text = GetQuestLogCompletionText(C_QuestLog.GetLogIndexForQuestID(arg1))
