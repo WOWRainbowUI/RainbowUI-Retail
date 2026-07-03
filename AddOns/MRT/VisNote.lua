@@ -1178,12 +1178,16 @@ function module.options:Load()
 		{L.EJInstanceName[369]..": "..L.bossName[1623],{568,0.52,0.52,1}},
 		{L.EJInstanceName[369]..": "..L.bossName[1623],{569,0.50,0.50,1}},
 		{L.EJInstanceName[369]..": "..L.bossName[1623],{570,0.58,0.54,1.5}},
+		{L.S_ZoneT35S..": "..L.bossName[3181],{2427,0.73,0.72,2}},
+
+		--311-320
 	}
 
 
 	local mapsSorted = {
 		1,
 		{L.NoteColor,10,94,95,96,97,98,99},
+		{L.S_ZoneT35S,310},
 		{L.S_ZoneT35KD.."/"..L.S_ZoneT35D.."/"..L.S_ZoneT35A,295,296,297},
 		{L.S_ZoneT34,283,284,285,286,282,281,280,279,278,277,276},
 		{L.S_ZoneT33,271,270,269,268,267,266,265,264},

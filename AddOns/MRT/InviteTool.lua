@@ -628,7 +628,7 @@ do
 		for j=1,GetNumGuildMembers() do
 			local guild_name,_,rankIndex = GetGuildRosterInfo(j)
 			if guild_name then
-				guildmembers[ExRT.F.delUnitNameServer(guild_name)] = rankIndex
+				guildmembers[ExRT.F.delUnitNameServer(guild_name)] = rankIndex + 1
 			end
 		end
 	end
