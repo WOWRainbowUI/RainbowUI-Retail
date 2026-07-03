@@ -18,7 +18,7 @@
 ## Notes-zhCN: 在重建后的银月城（午夜的主城）显示重要地点和服务。
 ## Notes-zhTW: 在重建後的銀月城（Midnight 的主城）顯示重要地點與服務。
 ## Author: Anahkas
-## Version: 1.0.5
+## Version: 1.0.8
 ## IconTexture: Interface\AddOns\HandyNotes_MidnightCapital\HandyNotes_MidnightCapital
 ## RequiredDeps: HandyNotes
 ## SavedVariables: HandyNotes_MidnightCapitalDB
