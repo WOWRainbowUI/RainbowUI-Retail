@@ -85,6 +85,17 @@ GTFO.SpellID["1245919"] = {
 };
 
 
+--- *********************
+--- * Nexus-Point Xenas *
+--- *********************
+
+GTFO.SpellID["1277597"] = {
+  --desc = "Radiant Scar";
+  sound = 1;
+  instance = 2915;
+};
+
+
 --- *****************
 --- * The Voidspire *
 --- *****************
@@ -211,6 +222,17 @@ GTFO.SpellID["1282470"] = {
   sound = 1;
   instance = 2913; 
   --encounter = 3183;
+};
+
+--- *************
+--- * Sporefall *
+--- *************
+
+GTFO.SpellID["1222129"] = {
+  --desc = "Writhing Vines (Rotmire)";
+  sound = 1;
+  instance = 1592; 
+  --encounter = 3159;
 };
 
 --- ***************************

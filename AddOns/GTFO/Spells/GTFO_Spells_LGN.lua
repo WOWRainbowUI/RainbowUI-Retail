@@ -1906,6 +1906,11 @@ GTFO.SpellID["244906"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1263532"] = {
+  --desc = "Void Storm (Viceroy Nezhar)";
+  sound = 1;
+};
+
 GTFO.SpellID["250820"] = {
   --desc = "Growing Pressure";
   applicationOnly = true;

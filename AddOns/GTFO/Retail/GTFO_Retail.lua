@@ -244,7 +244,7 @@ function GTFO_OnEvent(self, event, ...)
 	end
 	if (event == "UNIT_INVENTORY_CHANGED") then
 		local msgUnit = ...;
-		if (UnitIsUnit(msgUnit, "PLAYER")) then
+		if (GTFO.SafeUnitIsUnit(msgUnit, "player")) then
 			--GTFO_DebugPrint("Inventory changed, check tank mode");
 			GTFO.TankMode = GTFO_CheckTankMode();
 		end
@@ -281,6 +281,22 @@ function GTFO_OnEvent(self, event, ...)
 	end
 end
 
+function GTFO.SafeUnitIsUnit(unit1, unit2)
+	if (not unit1 or not unit2) then
+		return false;
+	end
+
+	local success, isSameUnit = pcall(function()
+		return UnitIsUnit(unit1, unit2) == true;
+	end);
+
+	if (success) then
+		return isSameUnit;
+	end
+
+	return false;
+end
+
 function GTFO.IsPlayerAFK()
 	local success, isAFK = pcall(function()
 		return UnitIsAFK("player") == true;
@@ -305,12 +321,10 @@ function GTFO.HandleAFKAlert(event, ...)
 	end
 	if (event == "PLAYER_FLAGS_CHANGED") then
 		local unit = ...;
-		if (unit and UnitIsUnit(unit, "player")) then
-			if (unit and UnitIsUnit(unit, "player")) then
-				C_Timer.After(0, function()
-					GTFO.UpdateAFKStatus();
-				end);
-			end
+		if (GTFO.SafeUnitIsUnit(unit, "player")) then
+			C_Timer.After(0, function()
+				GTFO.UpdateAFKStatus();
+			end);
 		end
 		return;
 	end
