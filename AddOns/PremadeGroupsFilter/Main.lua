@@ -372,6 +372,22 @@ function PGF.DoFilterSearchResults(results)
     return results
 end
 
+function PGF.GetDisplayedSearchResultCount(results, applications)
+    -- total displayed results are the number of regular results
+    -- plus the number of applications but without duplicates
+    local totalResults = #results
+    if applications then
+        local resultSet = PGF.Table_ValuesAsKeys(results)
+        -- add applications, but only if they're not already in the result list
+        for _, app in ipairs(applications) do
+            if not resultSet[app] then
+                totalResults = totalResults + 1
+            end
+        end
+    end
+    return totalResults
+end
+
 function PGF.ColorGroupTexts(self, searchResultInfo)
     if not PremadeGroupsFilterSettings.coloredGroupTexts then return end
     local groupKey = PGF.GetGroupKey(searchResultInfo)
@@ -446,7 +462,8 @@ function PGF.FilterSearchResults()
     local results = PGF.DoFilterSearchResults(copy)
     -- publish
     LFGListFrame.SearchPanel.results = results
-    LFGListFrame.SearchPanel.totalResults = #results
+    LFGListFrame.SearchPanel.totalResults = PGF.GetDisplayedSearchResultCount(
+        results, LFGListFrame.SearchPanel.applications)
     LFGListSearchPanel_UpdateResults(LFGListFrame.SearchPanel)
 end
 
