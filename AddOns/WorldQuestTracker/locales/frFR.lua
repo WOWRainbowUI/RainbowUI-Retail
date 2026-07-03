@@ -202,8 +202,7 @@ L["S_GROUPFINDER_ACTIONS_CANCELING"] = "annulation..."
 L["S_GROUPFINDER_ACTIONS_CREATE"] = "aucun groupe trouvé ? Cliquez pour en créer un"
 L["S_GROUPFINDER_ACTIONS_CREATE_DIRECT"] = "créer un groupe"
 L["S_GROUPFINDER_ACTIONS_LEAVEASK"] = "Quitter le groupe ?"
-L["S_GROUPFINDER_ACTIONS_LEAVINGIN"] = [=[Quitter le groupe (cliquez pour quitter maintenant) :
-]=]
+L["S_GROUPFINDER_ACTIONS_LEAVINGIN"] = "Quitter le groupe (cliquez pour quitter maintenant) :"
 L["S_GROUPFINDER_ACTIONS_RETRYSEARCH"] = "réessayer la recherche"
 L["S_GROUPFINDER_ACTIONS_SEARCH"] = "cliquez pour commencer la recherche de groupes"
 L["S_GROUPFINDER_ACTIONS_SEARCH_RARENPC"] = "chercher un groupe pour tuer ce rare"
@@ -217,8 +216,8 @@ L["S_GROUPFINDER_ACTIONS_UNLISTING"] = "désinscription..."
 L["S_GROUPFINDER_ACTIONS_WAITING"] = "en attente..."
 L["S_GROUPFINDER_AUTOOPEN_RARENPC_TARGETED"] = "Ouverture automatique si cible d'un monstre rare"
 L["S_GROUPFINDER_ENABLED"] = "Ouverture automatique pour chaque nouvelle quête"
-L["S_GROUPFINDER_LEAVEOPTIONS"] = "Option de sortie de groupe"
-L["S_GROUPFINDER_LEAVEOPTIONS_AFTERX"] = "Quitter après x secondes"
+L["S_GROUPFINDER_LEAVEOPTIONS"] = "Options de sortie de groupe"
+L["S_GROUPFINDER_LEAVEOPTIONS_AFTERX"] = "Quitter après X secondes"
 L["S_GROUPFINDER_LEAVEOPTIONS_ASKX"] = "Ne pas quitter automatiquement, demandez après X secondes."
 L["S_GROUPFINDER_LEAVEOPTIONS_DONTLEAVE"] = "Ne pas quitter"
 L["S_GROUPFINDER_LEAVEOPTIONS_IMMEDIATELY"] = "Quittez dès que la quête est terminée"
@@ -228,11 +227,9 @@ L["S_GROUPFINDER_QUEUEBUSY"] = "vous êtes déjà dans une file d'attente."
 L["S_GROUPFINDER_QUEUEBUSY2"] = "impossible d'afficher la fenêtre de recherche de groupe : vous êtes déjà dans un groupe ou dans une file d'attente."
 L["S_GROUPFINDER_RESULTS_APPLYING"] = "Il reste %d groupes, cliquez à nouveau"
 L["S_GROUPFINDER_RESULTS_APPLYING1"] = "Il reste un groupe à rejoindre, cliquez à nouveau"
-L["S_GROUPFINDER_RESULTS_FOUND"] = [=[%d groupes trouvés.
-Cliquez pour commencer à les rejoindre]=]
-L["S_GROUPFINDER_RESULTS_FOUND1"] = [=[1 groupe trouvé.
-Cliquez pour rejoindre]=]
-L["S_GROUPFINDER_RESULTS_UNAPPLY"] = "%d inscriptions restantes..."
+L["S_GROUPFINDER_RESULTS_FOUND"] = "%d groupes trouvés. Cliquez pour commencer à les rejoindre"
+L["S_GROUPFINDER_RESULTS_FOUND1"] = "1 groupe trouvé. Cliquez pour le rejoindre"
+L["S_GROUPFINDER_RESULTS_UNAPPLY"] = "%d candidatures restantes..."
 L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "clic droit pour fermer"
 L["S_GROUPFINDER_SECONDS"] = "Secondes"
 L["S_GROUPFINDER_TUTORIAL1"] = "Accomplissez plus rapidement vos expéditions en rejoignant un groupe effectuant la même quête !"
@@ -260,9 +257,7 @@ L["S_MAPBAR_OPTIONSMENU_UNTRACKQUESTS"] = "Désactiver le suivi de toutes les qu
 L["S_MAPBAR_OPTIONSMENU_WORLDMAPCONFIG"] = "Configuration de la carte du monde"
 L["S_MAPBAR_OPTIONSMENU_YARDSDISTANCE"] = "Distance en yards"
 L["S_MAPBAR_OPTIONSMENU_ZONE_QUESTSUMMARY"] = "Résumé des quêtes"
-L["S_MAPBAR_RESOURCES_TOOLTIP_TRACKALL"] = [=[Cliquez pour suivre toutes les quêtes: |cFFFFFFFF%s|r.
-
-Cliquez pour suivre toutes les quêtes : |cFFFFFFFF%s|r.z]=]
+L["S_MAPBAR_RESOURCES_TOOLTIP_TRACKALL"] = "Cliquez ici pour tout suivre : |cFFFFFFFF%s|r quêtes."
 L["S_MAPBAR_SORTORDER"] = "Ordre de tri"
 L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_FADE"] = "Quêtes transparentes"
 L["S_MAPBAR_SORTORDER_TIMELEFTPRIORITY_OPTION"] = "Moins de %d heures"
@@ -345,11 +340,10 @@ L["S_RAREFINDER_NPC_NOTREGISTERED"] = "rare non présent dans la base de donnée
 L["S_RAREFINDER_OPTIONS_ENGLISHSEARCH"] = "Toujours effectuer une recherche en anglais"
 L["S_RAREFINDER_OPTIONS_SHOWICONS"] = "Afficher les icônes pour les rares actifs"
 L["S_RAREFINDER_SOUND_ALWAYSPLAY"] = "Jouer même lorsque les effets sonores sont désactivés"
-L["S_RAREFINDER_SOUND_ENABLED"] = "Jouer un son si Rare sur la mini-carte"
+L["S_RAREFINDER_SOUND_ENABLED"] = "Jouer un son si un Rare apparait sur la mini-carte"
 L["S_RAREFINDER_SOUNDWARNING"] = "Un son est émis lorsqu'un rare apparaît sur la mini-carte ; vous pouvez désactiver ce son dans le menu Options > élite tracker"
-L["S_RAREFINDER_TITLE"] = "Élite tracker"
-L["S_RAREFINDER_TOOLTIP_REMOVE"] = [=[Supprimer
-]=]
+L["S_RAREFINDER_TITLE"] = "Chercheur d'élite"
+L["S_RAREFINDER_TOOLTIP_REMOVE"] = "Supprimer"
 L["S_RAREFINDER_TOOLTIP_SEACHREALM"] = "Rechercher sur d'autres royaumes"
 L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "Repéré par"
 L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "il y a quelques minutes"
