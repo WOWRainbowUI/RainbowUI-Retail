@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.75 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.77 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -647,6 +647,10 @@ PR.PARAGON_DATA = {
 		[89035] = { -- Hara'ti
 			factionID = 2704,
 			cache = 256055,
+		}, 
+		[95391] = { -- Ritual Site
+			factionID = 2792,
+			cache = 269234,
 		}, 
 		[93811] = { -- Silvermoon Court
 			factionID = 2710,
