@@ -237,32 +237,47 @@ end
         -- Patch ApplyLegacyComboSpacing to use centerChildren
         local orig_ApplyLegacyComboSpacing = ApplyLegacyComboSpacing
         ApplyLegacyComboSpacing = function()
-            local spacing = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboSpacing or 0
-            local scaleVal = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboScale or 1
-            local xOffset = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboXOffset or 0
-            local yOffset = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboYOffset or 0
-            if _G.LegacyComboFrame then
-                centerChildren(_G.LegacyComboFrame, "ComboPoint", 10, scaleVal, spacing)
-                -- Set position
-                _G.LegacyComboFrame:ClearAllPoints()
-                _G.LegacyComboFrame:SetPoint("CENTER", UIParent, "CENTER", xOffset, yOffset)
-                -- centerChildren(_G.LegacyComboFrame, "Rune", 6, scaleVal, spacing) -- Disabled: do not touch Blizzard runes
-            end
-            -- PRD class resource frame (if needed)
-            if _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classResourceFrame then
-                local frame = _G.PersonalResourceDisplayFrame.classResourceFrame
-                if frame.comboPoints then
-                    local x = 0
-                    for i = 1, #frame.comboPoints do
-                        local child = frame.comboPoints[i]
-                        if child and child.SetPoint and child.ClearAllPoints then
-                            child:ClearAllPoints()
-                            child:SetPoint("LEFT", frame, "LEFT", x, 0)
-                            x = x + (child:GetWidth() or 0) + spacing
-                        end
-                    end
+            if InCombatLockdown() or (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then return end
+            local profile = PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+            if not profile then return end
+            local scaleVal = tonumber(profile.legacyComboScale) or 1
+            local spacing = tonumber(profile.legacyComboSpacing) or 0
+            local xOffset = tonumber(profile.legacyComboXOffset) or 0
+            local yOffset = tonumber(profile.legacyComboYOffset) or 0
+
+            -- The live Blizzard combo-point / rune bar on the PRD is a HorizontalLayoutFrame
+            -- whose pooled points live in classResourceButtonTable. In this build the frame is
+            -- created ANONYMOUSLY (the global "prdClassFrame" is nil), so reach it through the
+            -- named container PersonalResourceDisplayFrame.ClassFrameContainer instead.
+            local cf = _G.prdClassFrame
+            if not cf then
+                local prd = _G.PersonalResourceDisplayFrame
+                if prd and prd.ClassFrameContainer and prd.ClassFrameContainer.GetChildren then
+                    cf = (select(1, prd.ClassFrameContainer:GetChildren()))
                 end
-                -- centerChildren(frame, "Rune", 6) -- Disabled: do not touch Blizzard runes
+            end
+            if not cf then return end
+
+            -- If our custom Rogue combo bar is enabled it hides prdClassFrame; don't fight it.
+            if CustomRogueComboBarDB and CustomRogueComboBarDB.enabled then
+                local _, class = UnitClass("player")
+                if class == "ROGUE" then return end
+            end
+
+            -- Scale
+            if cf.SetScale then pcall(cf.SetScale, cf, scaleVal) end
+
+            -- Spacing between points (HorizontalLayoutFrame uses self.spacing + :Layout())
+            if cf.classResourceButtonTable then
+                cf.spacing = spacing
+                if cf.Layout then pcall(cf.Layout, cf) end
+            end
+
+            -- Position offset relative to the frame's parent (ClassFrameContainer) center
+            local parent = cf.GetParent and cf:GetParent()
+            if parent and cf.ClearAllPoints and cf.SetPoint then
+                pcall(cf.ClearAllPoints, cf)
+                pcall(cf.SetPoint, cf, "CENTER", parent, "CENTER", xOffset, yOffset)
             end
         end
         local function GetClassSpecProfileName()
@@ -345,42 +360,13 @@ local defaults = {
         -- Alternate Power Bar gradient colors (defaults: purple to magenta)
         altPowerGradientColor1 = {0.6, 0.2, 1, 1},
         altPowerGradientColor2 = {1, 0.2, 0.8, 1},
-        legacyComboXOffset = {
-            name = "Legacy Combo X Offset",
-            desc = "Set the X offset for each legacy combo/rune child in prdClassFrame.",
-            type = "range",
-            min = -100, max = 100, step = 1,
-            get = function()
-                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.legacyComboXOffset or 0) or 0
-            end,
-            set = function(_, val)
-                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
-                    PersonalResourceReskin.db.profile.legacyComboXOffset = val
-                    ApplyLegacyComboSpacing()
-                end
-            end,
-            order = 0.837,
-        },
-        legacyComboYOffset = {
-            name = "Legacy Combo Y Offset",
-            desc = "Set the Y offset for each legacy combo/rune child in prdClassFrame.",
-            type = "range",
-            min = -100, max = 100, step = 1,
-            get = function()
-                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.legacyComboYOffset or 0) or 0
-            end,
-            set = function(_, val)
-                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
-                    PersonalResourceReskin.db.profile.legacyComboYOffset = val
-                    ApplyLegacyComboSpacing()
-                end
-            end,
-            order = 0.838,
-        },
+        legacyComboXOffset = 0,
+        legacyComboYOffset = 0,
         resourceYOffset = 14,
         resourceXOffset = 0,
         absorbTexture = "White8x8", -- Default absorb bar texture
-        hideOnMount = true -- Hide PRD when mounted
+        hideOnMount = true, -- Hide PRD when mounted
+        hideBarBorders = false -- Hide the Blizzard health/power/alt-power bar borders (12.0.7+)
     }
 }
 
@@ -550,11 +536,26 @@ end
         bgTexKey = profile.healthBgTexture
     end
     local bgTexPath = bgTexKey and LSM:Fetch("statusbar", bgTexKey)
+    -- Background layer: a full-width texture on the bar's OWN background draw layer.
+    -- A BACKGROUND-layer texture is ALWAYS drawn behind the StatusBar fill (which is
+    -- ARTWORK), so it can never end up in front the way a sibling frame can.
+    -- Driven by the bg colour pickers (live, including while in HUD edit mode).
     if not bar.__PRD_BG then
-        local bg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
-        bg:SetAllPoints(bar)
+        local bg = bar:CreateTexture(nil, "BACKGROUND", nil, -8)
         bar.__PRD_BG = bg
     end
+    bar.__PRD_BG:ClearAllPoints()
+    bar.__PRD_BG:SetAllPoints(bar)
+    if bgTexPath then
+        bar.__PRD_BG:SetTexture(bgTexPath)
+        bar.__PRD_BG:SetVertexColor(unpack(bgColor))
+    else
+        bar.__PRD_BG:SetColorTexture(unpack(bgColor))
+    end
+    bar.__PRD_BG:Show()
+
+    -- Remove the old sibling-frame background if a previous version created one.
+    if bar.__PRD_BGBar then bar.__PRD_BGBar:Hide() end
     -- Always re-hide Blizzard's own background textures so ours stays visible.
     -- Cannot iterate regions or call GetDrawLayer/GetSize — all return tainted values
     -- that cannot be compared in addon code.  Target known named keys directly instead.
@@ -564,11 +565,47 @@ end
             pcall(tex.SetAlpha, tex, 0)
         end
     end
-    if bgTexPath then
-        bar.__PRD_BG:SetTexture(bgTexPath)
-        bar.__PRD_BG:SetVertexColor(unpack(bgColor))
-    else
-        bar.__PRD_BG:SetColorTexture(unpack(bgColor))
+
+    -- 1px black border that wraps the STATUS BAR itself (drawn above the bar fill
+    -- so it frames the visible bar, not just the background).
+    if not bar.__PRD_BGBorder then
+        local edges = {}
+        -- OVERLAY layer sits ABOVE the ARTWORK bar fill so the border wraps the bar.
+        for _, side in ipairs({ "T", "B", "L", "R" }) do
+            edges[side] = bar:CreateTexture(nil, "OVERLAY", nil, 7)
+            edges[side]:SetColorTexture(0, 0, 0, 1)
+        end
+        bar.__PRD_BGBorder = edges
+    end
+    do
+        local e = bar.__PRD_BGBorder
+        -- The PRD BarFill texture bleeds ~1px past the StatusBar frame. Each edge's
+        -- INNER side is pinned exactly to the bar's frame edge and the 1px line
+        -- extends OUTWARD over that bleed zone. Because the edges live on the OVERLAY
+        -- layer (above the ARTWORK fill) the line draws on top of any bleed, so the
+        -- border hugs the bar tightly with no gap on any side. The ends are extended
+        -- 1px along their length so the four corners meet cleanly.
+        -- Top: pin bottom to the bar's top edge, grow up 1px.
+        e.T:ClearAllPoints()
+        e.T:SetPoint("BOTTOMLEFT", bar, "TOPLEFT", -1, 0)
+        e.T:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", 1, 0)
+        if PixelUtil then PixelUtil.SetHeight(e.T, 1) else e.T:SetHeight(1) end
+        -- Bottom: pin top to the bar's bottom edge, grow down 1px.
+        e.B:ClearAllPoints()
+        e.B:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", -1, 0)
+        e.B:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 1, 0)
+        if PixelUtil then PixelUtil.SetHeight(e.B, 1) else e.B:SetHeight(1) end
+        -- Left: pin right to the bar's left edge, grow left 1px.
+        e.L:ClearAllPoints()
+        e.L:SetPoint("TOPRIGHT", bar, "TOPLEFT", 0, 1)
+        e.L:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", 0, -1)
+        if PixelUtil then PixelUtil.SetWidth(e.L, 1) else e.L:SetWidth(1) end
+        -- Right: pin left to the bar's right edge, grow right 1px.
+        e.R:ClearAllPoints()
+        e.R:SetPoint("TOPLEFT", bar, "TOPRIGHT", 0, 1)
+        e.R:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", 0, -1)
+        if PixelUtil then PixelUtil.SetWidth(e.R, 1) else e.R:SetWidth(1) end
+        for _, side in ipairs({ "T", "B", "L", "R" }) do e[side]:Show() end
     end
 
     -- Add or update text
@@ -668,40 +705,275 @@ end
     end
 end
 
+-- Hide or show the Blizzard health/power/alternate-power bar borders.
+-- The old PRD borders are decorative child frames (NamePlate*BorderTemplate). Patch 12.0.7
+-- adds a PlayerFrame-style border that may instead be a NineSlice frame and/or atlas/border
+-- texture regions with anonymous names. To cover every case we scan each bar (and its nested
+-- healthBar) for anything that looks like a border and hide it, remembering what we hid so the
+-- toggle can restore it.
+
+-- Returns true if a string looks like it references a border / bar-wrapping art element.
+-- Patch 12.0.7 wraps each PRD bar in the CooldownManager bar-background atlas
+-- (UI-HUD-CoolDownManager-Bar-BG), which has a built-in frame/border look.
+local PRR_BORDER_ATLASES = {
+    ["ui-hud-cooldownmanager-bar-bg"] = true,
+}
+local function PRR_LooksLikeBorder(str)
+    if type(str) ~= "string" then return false end
+    str = str:lower()
+    if str:find("border") ~= nil then return true end
+    if PRR_BORDER_ATLASES[str] then return true end
+    return false
+end
+
+-- Collect the border-like elements (frames + texture regions) belonging to a single bar frame.
+local function PRR_CollectBorderElements(bar, out)
+    if not bar then return end
+
+    -- Known named border children
+    for _, key in ipairs({"border", "Border", "NineSlice", "nineSlice"}) do
+        local el = bar[key]
+        if el and el.Hide then out[#out + 1] = el end
+    end
+
+    -- Child frames: NamePlate border templates (have a .Textures array) or border-named frames
+    if bar.GetChildren then
+        local children = { bar:GetChildren() }
+        for _, child in ipairs(children) do
+            if child and child.Hide then
+                local nm
+                pcall(function() nm = child:GetName() end)
+                if (child.Textures ~= nil) or PRR_LooksLikeBorder(nm) then
+                    out[#out + 1] = child
+                end
+            end
+        end
+    end
+
+    -- Texture regions whose atlas or texture path references a border
+    if bar.GetRegions then
+        local regions = { bar:GetRegions() }
+        for _, region in ipairs(regions) do
+            if region and region.GetObjectType and region:GetObjectType() == "Texture" then
+                local atlas, tex
+                pcall(function() atlas = region:GetAtlas() end)
+                pcall(function() tex = region:GetTexture() end)
+                if PRR_LooksLikeBorder(atlas) or PRR_LooksLikeBorder(tex) then
+                    out[#out + 1] = region
+                end
+            end
+        end
+    end
+end
+
+local function ApplyBarBorders(prd)
+    if not prd then return end
+    local hide = GetProfile().hideBarBorders
+
+    -- Restore anything we previously hid
+    if prd.__PRR_hiddenBorders then
+        for _, el in ipairs(prd.__PRR_hiddenBorders) do
+            if el and el.Show then pcall(el.Show, el) end
+        end
+    end
+    prd.__PRR_hiddenBorders = {}
+
+    if not hide then return end
+
+    local bars = {
+        prd.HealthBarsContainer,
+        prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar,
+        prd.PowerBar,
+        prd.AlternatePowerBar,
+    }
+    local elements = {}
+    for _, bar in ipairs(bars) do
+        PRR_CollectBorderElements(bar, elements)
+    end
+    for _, el in ipairs(elements) do
+        if el and el.Hide then
+            pcall(el.Hide, el)
+            prd.__PRR_hiddenBorders[#prd.__PRR_hiddenBorders + 1] = el
+        end
+    end
+end
+
+-- Copyable popup so the dump text can be selected and pasted back for analysis.
+local function PRR_ShowCopyBox(text)
+    local f = _G.PRR_CopyBox
+    if not f then
+        f = CreateFrame("Frame", "PRR_CopyBox", UIParent, "BackdropTemplate")
+        f:SetSize(560, 420)
+        f:SetPoint("CENTER")
+        f:SetFrameStrata("DIALOG")
+        f:SetMovable(true)
+        f:EnableMouse(true)
+        f:RegisterForDrag("LeftButton")
+        f:SetScript("OnDragStart", f.StartMoving)
+        f:SetScript("OnDragStop", f.StopMovingOrSizing)
+        if f.SetBackdrop then
+            f:SetBackdrop({
+                bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+                edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+                tile = true, tileSize = 32, edgeSize = 32,
+                insets = { left = 8, right = 8, top = 8, bottom = 8 },
+            })
+        end
+        local scroll = CreateFrame("ScrollFrame", "PRR_CopyBoxScroll", f, "UIPanelScrollFrameTemplate")
+        scroll:SetPoint("TOPLEFT", 16, -16)
+        scroll:SetPoint("BOTTOMRIGHT", -36, 40)
+        local edit = CreateFrame("EditBox", "PRR_CopyBoxEdit", scroll)
+        edit:SetMultiLine(true)
+        edit:SetFontObject(ChatFontNormal)
+        edit:SetWidth(500)
+        edit:SetAutoFocus(false)
+        edit:SetScript("OnEscapePressed", function() f:Hide() end)
+        scroll:SetScrollChild(edit)
+        f.edit = edit
+        local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+        close:SetPoint("TOPRIGHT", -6, -6)
+        local hint = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        hint:SetPoint("BOTTOM", 0, 14)
+        hint:SetText("Ctrl+A to select all, Ctrl+C to copy")
+    end
+    f.edit:SetText(text)
+    f.edit:HighlightText()
+    f.edit:SetFocus()
+    f:Show()
+end
+
+-- Diagnostic: dump the PRD bar hierarchy so border elements can be identified on any patch.
+local function PRR_DumpBorders()
+    local prd = _G.PersonalResourceDisplayFrame
+    if not prd then print("|cffff0000[PRR]|r PRD frame not found.") return end
+
+    local lines = {}
+    local function add(s) lines[#lines + 1] = s end
+
+    local function safe(fn, obj)
+        local ok, v = pcall(fn, obj)
+        if ok then return v end
+        return nil
+    end
+
+    local function dumpObj(label, obj, indent)
+        if not obj then add(indent .. label .. ": nil") return end
+        local name = safe(obj.GetName, obj) or "anon"
+        local shown = safe(obj.IsShown, obj)
+        add(indent .. label .. " name=" .. tostring(name) .. " shown=" .. tostring(shown))
+
+        -- Regions (textures) directly owned by this frame
+        if obj.GetRegions then
+            local regions = { obj:GetRegions() }
+            for i, region in ipairs(regions) do
+                local otype = safe(region.GetObjectType, region)
+                if otype == "Texture" then
+                    local atlas = safe(region.GetAtlas, region)
+                    local tex = safe(region.GetTexture, region)
+                    local layer = safe(region.GetDrawLayer, region)
+                    local rshown = safe(region.IsShown, region)
+                    add(indent .. "  tex#" .. i .. " atlas=" .. tostring(atlas)
+                        .. " tex=" .. tostring(tex) .. " layer=" .. tostring(layer)
+                        .. " shown=" .. tostring(rshown))
+                end
+            end
+        end
+
+        -- Child frames (recurse one level)
+        if obj.GetChildren then
+            local children = { obj:GetChildren() }
+            for _, child in ipairs(children) do
+                local cname = safe(child.GetName, child) or "anon"
+                local tag = (child.Textures ~= nil) and " [NamePlateBorder]" or ""
+                dumpObj("  child:" .. tostring(cname) .. tag, child, indent .. "  ")
+            end
+        end
+    end
+
+    dumpObj("PRD", prd, "")
+    dumpObj("HealthBarsContainer", prd.HealthBarsContainer, "")
+    dumpObj("healthBar", prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar, "")
+    dumpObj("PowerBar", prd.PowerBar, "")
+    dumpObj("AlternatePowerBar", prd.AlternatePowerBar, "")
+
+    local text = table.concat(lines, "\n")
+    print("|cff00ff00[PRR]|r Border dump opened in copy box (" .. #lines .. " lines).")
+    PRR_ShowCopyBox(text)
+end
+_G.PRR_DumpBorders = PRR_DumpBorders
+
+-- Width enforcement.
+-- Patch 12.0.7 added a Blizzard edit-mode "Bar Width" setting that re-applies its own width to
+-- the PRD bars, which overrode our single SetWidth call and made our slider appear dead. To keep
+-- our slider authoritative (and allow widths beyond Blizzard's max), we compute our target width,
+-- apply it explicitly to every bar element, and hook SetWidth on the PRD + bars so any Blizzard
+-- width change snaps back to ours. We stay out of the way while Blizzard's edit mode is active.
+local prrWidthGuard = false
+
+local function PRR_GetTargetWidth()
+    local profile = GetProfile()
+    local mode = profile.widthMode or "MANUAL"
+    if mode == "ESSENTIAL" or mode == "UTILITY" then
+        local viewer = _G[(mode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"]
+        if viewer and viewer.GetWidth then
+            local w = viewer:GetWidth()
+            if w and w > 10 then return w, w end
+        end
+    end
+    local frameW = profile.frameWidth or 220
+    local powerW = profile.width or frameW
+    return frameW, powerW
+end
+
+local function PRR_ApplyWidth(prd)
+    prd = prd or _G["PersonalResourceDisplayFrame"]
+    if not prd or prrWidthGuard then return end
+    -- Don't fight Blizzard's resize handles while the user is in edit mode
+    if EditModeManagerFrame and EditModeManagerFrame.editModeActive then return end
+    local frameW, powerW = PRR_GetTargetWidth()
+    prrWidthGuard = true
+    if prd.SetWidth and frameW then prd:SetWidth(frameW) end
+    local hbc = prd.HealthBarsContainer
+    if hbc then
+        if hbc.SetWidth and frameW then hbc:SetWidth(frameW) end
+        local hb = hbc.healthBar
+        if hb then
+            if hb.SetWidth and frameW then hb:SetWidth(frameW) end
+            if hb.healthBar and hb.healthBar.SetWidth and frameW then hb.healthBar:SetWidth(frameW) end
+        end
+    end
+    if prd.PowerBar and prd.PowerBar.SetWidth and powerW then prd.PowerBar:SetWidth(powerW) end
+    if prd.AlternatePowerBar and prd.AlternatePowerBar.SetWidth and frameW then prd.AlternatePowerBar:SetWidth(frameW) end
+    prrWidthGuard = false
+end
+_G.PRR_ApplyWidth = PRR_ApplyWidth
+
+local function PRR_SetupWidthHooks(prd)
+    if not prd or prd.__PRR_WidthHooked then return end
+    prd.__PRR_WidthHooked = true
+    local function reapply()
+        if prrWidthGuard then return end
+        PRR_ApplyWidth(prd)
+    end
+    if prd.SetWidth then hooksecurefunc(prd, "SetWidth", reapply) end
+    if prd.HealthBarsContainer and prd.HealthBarsContainer.SetWidth then
+        hooksecurefunc(prd.HealthBarsContainer, "SetWidth", reapply)
+    end
+    if prd.PowerBar and prd.PowerBar.SetWidth then hooksecurefunc(prd.PowerBar, "SetWidth", reapply) end
+    if prd.AlternatePowerBar and prd.AlternatePowerBar.SetWidth then
+        hooksecurefunc(prd.AlternatePowerBar, "SetWidth", reapply)
+    end
+end
+
 local function ApplyReskinToPRD()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd then return end
     local profile = GetProfile()
 
-    -- Determine effective width based on widthMode
-    local widthMode = profile.widthMode or "MANUAL"
-    local syncWidth = nil
-    if widthMode == "ESSENTIAL" then
-        local viewer = _G["EssentialCooldownViewer"]
-        if viewer and viewer.GetWidth then
-            local w = viewer:GetWidth()
-            if w and w > 10 then syncWidth = w end
-        end
-    elseif widthMode == "UTILITY" then
-        local viewer = _G["UtilityCooldownViewer"]
-        if viewer and viewer.GetWidth then
-            local w = viewer:GetWidth()
-            if w and w > 10 then syncWidth = w end
-        end
-    end
-
-    -- Apply width: sync overrides manual
-    if syncWidth then
-        if prd.SetWidth then prd:SetWidth(syncWidth) end
-        if prd.PowerBar then prd.PowerBar:SetWidth(syncWidth) end
-    else
-        if prd.SetWidth and profile.frameWidth then
-            prd:SetWidth(profile.frameWidth)
-        end
-        if prd.PowerBar and profile.width then
-            prd.PowerBar:SetWidth(profile.width)
-        end
-    end
+    -- Width: enforce our slider over Blizzard's new edit-mode Bar Width setting
+    local syncWidth = PRR_GetTargetWidth()
+    PRR_SetupWidthHooks(prd)
+    PRR_ApplyWidth(prd)
 
     -- Power Bar
     if prd.PowerBar then
@@ -903,6 +1175,7 @@ local function ApplyReskinToPRD()
             end
         end
     end
+    ApplyBarBorders(prd)
     if type(_G.UpdateMoveClassResource) == "function" then _G.UpdateMoveClassResource() end
     if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
 end
@@ -1588,10 +1861,7 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return GetProfile().width end,
             set = function(_, val)
                 GetProfile().width = val
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.PowerBar then
-                    prd.PowerBar:SetWidth(val)
-                end
+                if type(_G.PRR_ApplyWidth) == "function" then _G.PRR_ApplyWidth() end
                 ApplyReskinToPRD()
             end,
             order = 0.81,
@@ -1606,10 +1876,7 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return GetProfile().frameWidth end,
             set = function(_, val)
                 GetProfile().frameWidth = val
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.SetWidth then
-                    prd:SetWidth(val)
-                end
+                if type(_G.PRR_ApplyWidth) == "function" then _G.PRR_ApplyWidth() end
                 ApplyReskinToPRD()
             end,
             order = 0.8,
@@ -1684,76 +1951,7 @@ function PersonalResourceReskin:OnInitialize()
             set = function(_, val)
                 if val and val > 0 and PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
                     PersonalResourceReskin.db.profile.legacyComboScale = val
-                    if type(_G.MoveClassResourceFrames) == "function" then _G.MoveClassResourceFrames() end
-                    local class = select(2, UnitClass("player"))
-                    local found = false
-                    -- Rogue Combo Points Scaling
-                    local function scaleRogueComboPoints()
-                        if _G.LegacyComboFrame and _G.LegacyComboFrame.SetScale then
-                            _G.LegacyComboFrame:SetScale(val)
-                            found = true
-                            for i = 1, 10 do
-                                local child = _G.LegacyComboFrame["ComboPoint" .. i]
-                                if child and child.SetScale then
-                                    child:SetScale(val)
-                                    found = true
-                                end
-                            end
-                        end
-                        for _, name in ipairs({"ComboPointPlayerFrame", "ClassNameplateBarRogueFrame", "ClassNameplateBarDruidFrame", "prdClassFrame"}) do
-                            if _G.prdClassFrame and _G.prdClassFrame.GetChildren then
-                                for _, child in ipairs({ _G.prdClassFrame:GetChildren() }) do
-                                    if child and child.SetScale then
-                                        child:SetScale(val)
-                                        found = true
-                                    end
-                                end
-                            end
-                        end
-                        if _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classResourceFrame and _G.PersonalResourceDisplayFrame.classResourceFrame.SetScale then
-                            local frame = _G.PersonalResourceDisplayFrame.classResourceFrame
-                            frame:SetScale(val)
-                            found = true
-                            if frame.comboPoints then
-                                for i = 1, #frame.comboPoints do
-                                    if frame.comboPoints[i] and frame.comboPoints[i].SetScale then
-                                        frame.comboPoints[i]:SetScale(val)
-                                        found = true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    -- Death Knight Rune Scaling
-                    local function scaleDeathKnightRunes()
-                        local function scaleRunes(frame)
-                            for runeIndex = 1, 6 do
-                                local rune = frame["Rune" .. runeIndex]
-                                if rune then
-                                    for _, subName in ipairs({"BG_Active","BG_Inactive","BG_Shadow","Glow","Glow2","Rune_Active","Rune_Eyes","Rune_Grad","Rune_Inactive","Rune_Lines","Rune_Mid","Smoke"}) do
-                                        local subFrame = rune[subName]
-                                        if subFrame and subFrame.SetScale then
-                                            subFrame:SetScale(val)
-                                            found = true
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                        if _G.LegacyComboFrame then
-                            scaleRunes(_G.LegacyComboFrame)
-                        end
-                        if _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classResourceFrame then
-                            scaleRunes(_G.PersonalResourceDisplayFrame.classResourceFrame)
-                        end
-                    end
-                    -- Apply scaling based on class
-                    if class == "ROGUE" or class == "DRUID" then
-                        scaleRogueComboPoints()
-                    elseif class == "DEATHKNIGHT" then
-                        scaleDeathKnightRunes()
-                    end
-                    if not found then print("No legacy combo/rune frame found to scale.") end
+                    ApplyLegacyComboSpacing()
                 end
             end,
             order = 0.834,
@@ -2051,6 +2249,17 @@ function PersonalResourceReskin:OnInitialize()
             end,
             order = 0.844,
         },
+        hideBarBorders = {
+            name = "Hide Bar Borders",
+            desc = "Hide the borders Blizzard added around the Health, Power and Alternate Power bars (patch 12.0.7+).",
+            type = "toggle",
+            get = function() return GetProfile().hideBarBorders end,
+            set = function(_, val)
+                GetProfile().hideBarBorders = val
+                ApplyBarBorders(_G.PersonalResourceDisplayFrame)
+            end,
+            order = 0.845,
+        },
     }
 }
 -- End of options table
@@ -2227,7 +2436,11 @@ end
 
 -- Slash command to open the PersonalResourceReskin options panel
 SLASH_PRR1 = "/prr"
-SlashCmdList["PRR"] = function()
+SlashCmdList["PRR"] = function(msg)
+    if msg and msg:lower():find("border") then
+        if type(_G.PRR_DumpBorders) == "function" then _G.PRR_DumpBorders() end
+        return
+    end
     local ACD = LibStub and LibStub("AceConfigDialog-3.0", true)
     if ACD and ACD.Open then
         -- Options_Main.lua registers the parent table as "PersonalResourceReskinPlus"

@@ -108,33 +108,68 @@ local function GetPRDAnchorFrame()
     end
 end
 
+local function GetPRDClassFrame()
+    -- In this build the class bar is created anonymously, so the global "prdClassFrame"
+    -- is nil. Reach it through the named container instead.
+    if _G.prdClassFrame then return _G.prdClassFrame end
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.ClassFrameContainer and prd.ClassFrameContainer.GetChildren then
+        return (select(1, prd.ClassFrameContainer:GetChildren()))
+    end
+    return nil
+end
+
 local function HideDefaultComboBar()
     local _, class = UnitClass("player")
     if class ~= "ROGUE" then return end
-    if _G.prdClassFrame then
-        for i, child in ipairs({_G.prdClassFrame:GetChildren()}) do
-            if child and child:IsShown() then
-                local n = child:GetName() or ""
-                if n:find("ComboPoint") or child.ComboPointFill or child.FX or child.Blur or child.DepleteFlipbook then
-                    child:Hide()
-                    child:SetAlpha(0)
-                    if type(child.UnregisterAllEvents) == "function" then child:UnregisterAllEvents() end
-                    if type(child.SetScript) == "function" then child:SetScript("OnEvent", nil) end
+    -- Hide the whole ClassFrameContainer (parent of the combo bar) so nothing leaks through,
+    -- and hook its OnShow so Blizzard's re-show on power/spec/world events is suppressed
+    -- whenever our custom bar is enabled.
+    local prd = _G.PersonalResourceDisplayFrame
+    local container = prd and prd.ClassFrameContainer
+    local cf = GetPRDClassFrame()
+    if cf then
+        cf:Hide()
+        cf:SetAlpha(0)
+        if type(cf.UnregisterAllEvents) == "function" then cf:UnregisterAllEvents() end
+        if not cf.__crcb_hideHook then
+            cf.__crcb_hideHook = true
+            cf:HookScript("OnShow", function(self)
+                if CustomRogueComboBarDB and CustomRogueComboBarDB.enabled then
+                    self:Hide()
+                    self:SetAlpha(0)
                 end
-            end
+            end)
         end
-        _G.prdClassFrame:Hide()
-        _G.prdClassFrame:SetAlpha(0)
-        if type(_G.prdClassFrame.UnregisterAllEvents) == "function" then _G.prdClassFrame:UnregisterAllEvents() end
+    end
+    if container then
+        container:Hide()
+        container:SetAlpha(0)
+        if not container.__crcb_hideHook then
+            container.__crcb_hideHook = true
+            container:HookScript("OnShow", function(self)
+                if CustomRogueComboBarDB and CustomRogueComboBarDB.enabled then
+                    self:Hide()
+                    self:SetAlpha(0)
+                end
+            end)
+        end
     end
 end
 
 local function ShowDefaultComboBar()
     local _, class = UnitClass("player")
     if class ~= "ROGUE" then return end
-    if _G.prdClassFrame then
-        _G.prdClassFrame:Show()
-        _G.prdClassFrame:SetAlpha(1)
+    local prd = _G.PersonalResourceDisplayFrame
+    local container = prd and prd.ClassFrameContainer
+    if container then
+        container:SetAlpha(1)
+        container:Show()
+    end
+    local cf = GetPRDClassFrame()
+    if cf then
+        cf:SetAlpha(1)
+        cf:Show()
     end
 end
 
