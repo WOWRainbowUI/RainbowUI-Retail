@@ -28,6 +28,10 @@ if locale == "enUS" then
 	L["MAILLOGGER_TEXT_TRADE_ENCHANTMENT"] = " Item %s got Enchantment %s."
 	--补全
 	L["MAILLOGGER_TEXT_UNKNOWN"] = "Unknown"
+	-- Gold, Silver, Copper
+	L["g"] = "g"
+	L["s"] = "s"
+	L["c"] = "c"
 
 elseif locale == "zhCN" then
 	--Tips
@@ -42,6 +46,10 @@ elseif locale == "zhCN" then
 	L["MAILLOGGER_TEXT_TRADE_ENCHANTMENT"] = "物品%s获得了附魔<%s>。"
 	--补全
 	L["MAILLOGGER_TEXT_UNKNOWN"] = "未知目标"
+	-- 金、银、铜
+	L["g"] = "金"
+	L["s"] = "银"
+	L["c"] = "铜"
 	--载入提示文字
 	L["|cFFBA55D3MailLogger|r v%s|cFFB0C4DE has been loaded.|r"] = "|cFFBA55D3MailLogger|r v%s已|cFFB0C4DE成功|r加载！"
 	--Config界面文字
@@ -123,6 +131,10 @@ elseif locale == "zhTW" then --Taiwan is a part of China forever
     L["MAILLOGGER_TEXT_TRADE_ENCHANTMENT"] = "物品%s獲得了附魔<%s>。"
     --補全
     L["MAILLOGGER_TEXT_UNKNOWN"] = "未知目標"
+	-- 金、銀、銅
+	L["g"] = "金"
+	L["s"] = "銀"
+	L["c"] = "銅"
     --載入提示文字
     L["|cFFBA55D3MailLogger|r v%s|cFFB0C4DE has been loaded.|r"] = "|cFFBA55D3MailLogger|r v%s已|cFFB0C4DE成功|r載入！"
     --Config介面文字
