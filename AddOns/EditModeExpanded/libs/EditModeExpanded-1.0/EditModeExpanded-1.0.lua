@@ -2,9 +2,33 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 114
+local MAJOR, MINOR = "EditModeExpanded-1.0", 115
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
+
+local L = {
+    ["enUS"] = {
+        ["CLAMP_TO_SCREEN"] = "Clamp to Screen",
+        ["TOGGLE_VISIBILITY_COMBAT"] = "Toggle Visibility in Combat",
+        ["COORDINATES"] = "Coordinates:",
+        ["EXPANDED"] = "Expanded",
+    },
+    ["zhCN"] = {
+        ["CLAMP_TO_SCREEN"] = "Text needed here",
+        ["TOGGLE_VISIBILITY_COMBAT"] = "Text needed here",
+        ["COORDINATES"] = "Coordinates:",
+        ["EXPANDED"] = "Expanded",
+    },
+	["zhTW"] = {
+        ["CLAMP_TO_SCREEN"] = "避免超出畫面",
+        ["TOGGLE_VISIBILITY_COMBAT"] = "戰鬥中顯示",
+        ["COORDINATES"] = "座標:",
+        ["EXPANDED"] = "擴充包 (從設定選項啟用更多功能)",
+    },
+    -- ["frFR"] ptBR etc
+}
+
+L = L[GetLocale()] or L["enUS"]
 
 -- the internal frames provided by Blizzard go up to index 19. They reference Enum.EditModeSystem, which starts from index 0
 local STARTING_INDEX = 0
@@ -269,7 +293,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     table.insert(framesDialogs[frame.system],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_CLAMPED,
-            name = "避免超出畫面",
+            name = L["CLAMP_TO_SCREEN"],
             type = Enum.EditModeSettingDisplayType.Checkbox,
         }
     )
@@ -601,7 +625,7 @@ function lib:RegisterHideable(frame, onEventHandler)
     table.insert(framesDialogs[systemID],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_HIDEABLE,
-            name = "隱藏",
+            name = HIDE,
             type = Enum.EditModeSettingDisplayType.Checkbox,
     })
     
@@ -753,7 +777,7 @@ function lib:RegisterCoordinates(frame)
     coordinatePanel.label = coordinatePanel:CreateFontString(nil, nil, "GameTooltipText")
     local label = coordinatePanel.label
     label.layoutIndex = 1
-    label:SetText("螢幕座標:")
+    label:SetText(L["COORDINATES"])
     
     coordinatePanel.xEditBox = CreateFrame("EditBox", nil, coordinatePanel, "InputBoxTemplate")
     local xEditBox = coordinatePanel.xEditBox
@@ -980,7 +1004,7 @@ hooksecurefunc(f, "OnLoad", function()
     end)
     
     EditModeManagerExpandedFrame.Title = EditModeManagerExpandedFrame.Title or EditModeManagerExpandedFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightLarge")
-    EditModeManagerExpandedFrame.Title:SetText("擴充包 (設定選項中還可啟用更多框架)")
+    EditModeManagerExpandedFrame.Title:SetText(L["EXPANDED"])
     EditModeManagerExpandedFrame.Title.layoutIndex = 1
     EditModeManagerExpandedFrame.Title.align = "center"
     EditModeManagerExpandedFrame.Title.topPadding = 15
@@ -2033,7 +2057,7 @@ function lib:RegisterToggleInCombat(frame, toggleCallback)
     table.insert(framesDialogs[systemID],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT,
-            name = "戰鬥中隱藏",
+            name = L["TOGGLE_VISIBILITY_COMBAT"],
             type = Enum.EditModeSettingDisplayType.Checkbox,
             toggleCallback = toggleCallback,
     })

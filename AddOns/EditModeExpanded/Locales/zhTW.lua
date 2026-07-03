@@ -62,6 +62,33 @@ L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "允許依據隊伍大小自動更改編�
 L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"] = "隱藏，滑鼠指向才顯示"
 L["Resize Target Frame"] = "調整目標框架大小"
 L["RESIZE_TARGET_FRAME_DESCRIPTION"] = "允許玩家框架縮小到比預設介面所允許的更小尺寸。注意：如果同時使用兩個滑桿，可能會出現非預期的結果。"
+L["OPTION_ALLOW_SET_COORDS_NAME"] = "允許自訂座標"
+L["OPTION_ALLOW_SET_COORDS_DESC"] = "允許使用輸入文字欄位的螢幕座標來定位框架"
+L["LAYOUT_SWITCHING"] = "版面配置切換"
+L["VIGOR_BAR"] = "活力條"
+L["VIGOR_BAR_DESC"] = "加入11.2.7版本前的巨龍騎乘活力條"
+L["PERSONAL_RESOURCE_DISPLAY_DESC"] = "將個人資源顯示拆分成3個獨立框架：生命值、能量（法力/精力等）、以及職業能量（神聖能量等）。這樣你就可以個別移動它們，或是把其中一個移出畫面外。"
+L["CHAT_FADE_COMBAT_CHECKBOX"] = "戰鬥中淡出"
+L["FADE_DELAY"] = "淡出延遲"
+L["VIGOR_BAR_APPEARANCE"] = "活力條外觀"
+L["HIDE_GLOW_EFFECT"] = "隱藏發光效果"
+L["Subzone Information"] = "子區域資訊"
+L["LFG_DETATCH_FROM_MENU_BAR_DESC"] = "從選單列中分離"
+L["TALKING_HEAD_DD_OPT_2"] = "僅顯示對話，保留聲音"
+L["TALKING_HEAD_DD_OPT_3"] = "永遠顯示，並靜音"
+L["TALKING_HEAD_DD_OPT_4"] = "戰鬥中顯示，但保留聲音"
+L["TALKING_HEAD_DD_OPT_5"] = "戰鬥中顯示，並靜音"
+L["OPTION_ANCHOR_TO_NAME"] = "對齊到"
+L["OPTION_ANCHOR_TO_DESC"] = "啟用變更所有自訂框架位置的功能"
+
+-- Personal Resource Display
+L["Health Bar"] = "血量條"
+L["Power Bar"] = "能量條"
+L["Class Powers"] = "職業資源"
+
+-- Auto Layout changes
+L["AUTO_LAYOUT_CHANGES_SPECNAME_GROUP_TYPE"] = "%s - "..GROUP..TYPE
+L["AUTO_LAYOUT_CHANGES_RAID_SIZE_OPTION_DESC"] = "不需要為每種人數設定專屬設定檔，若未設定，將會使用最接近的較小人數設定檔！"
 
 
 -- 自行加入

@@ -80,6 +80,7 @@ local defaults = {
             targetFrameResize = false,
             chatFrame = false,
             battlefieldMap = false,
+            anchorToEnabled = false,
         },
         QueueStatusButton = {},
         TotemFrame = {},
@@ -235,13 +236,13 @@ local options = {
                     type = "toggle",
                 },
                 focusFrame = {
-                    name = L["Focus"],
-                    desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], FOCUS),
+                    name = BINDING_NAME_FOCUSTARGET,
+                    desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BINDING_NAME_FOCUSTARGET),
                     type = "toggle",
                 },
                 focusFrameBuffs = {
-                    name = FOCUS.." "..BUFFOPTIONS_LABEL,
-                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], FOCUS.." "..BUFFOPTIONS_LABEL),
+                    name = BINDING_NAME_FOCUSTARGET.." "..BUFFOPTIONS_LABEL,
+                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], BINDING_NAME_FOCUSTARGET.." "..BUFFOPTIONS_LABEL),
                     type = "toggle",
                 },
                 targetFrameResize = {
@@ -313,8 +314,13 @@ local options = {
             type = "toggle",
         },
         allowSetCoordinates = {
-            name = L["Allow custom coordinates"],
-            desc = L["Allows frames to be positioned using screen coordinates entered into text fields"],
+            name = L["OPTION_ALLOW_SET_COORDS_NAME"],
+            desc = L["OPTION_ALLOW_SET_COORDS_DESC"],
+            type = "toggle",
+        },
+        anchorToEnabled = {
+            name = L["OPTION_ANCHOR_TO_NAME"],
+            desc = L["OPTION_ANCHOR_TO_DESC"],
             type = "toggle",
         },
         playerFrame = {
@@ -414,8 +420,8 @@ local options = {
             type = "toggle",
         },
         extraActionButton = {
-            name = BINDING_NAME_EXTRAACTIONBUTTON1,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BINDING_NAME_EXTRAACTIONBUTTON1),
+            name = HUD_EDIT_MODE_EXTRA_ABILITIES_LABEL,
+            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], HUD_EDIT_MODE_EXTRA_ABILITIES_LABEL),
             type = "toggle",
         },
         cooldownManager = {
@@ -429,14 +435,14 @@ local options = {
             type = "toggle",
         },
         raidSizeLayoutSwitching = {
-            name = L["Layout Switching"],
+            name = L["LAYOUT_SWITCHING"],
             type = "group",
             args = addon.GetLayoutChangeOptions(),
         },
         vigorBar = {
-            name = L["Vigor Bar"],
+            name = L["VIGOR_BAR"],
             type = "toggle",
-            desc = L["Add the pre-11.2.7 Dragonriding Vigor bar"]
+            desc = L["VIGOR_BAR_DESC"],
         },
         housingControlsFrame = {
             name = BINDING_HEADER_HOUSING_SYSTEM,
@@ -446,7 +452,7 @@ local options = {
         personalResourceDisplay = {
             name = DISPLAY_PERSONAL_RESOURCE,
             type = "toggle",
-            desc = L["Splits the Personal Resource Display into 3 separate frames: HP, Power (mana/energy/etc), and Class (holy power, etc). That way you can move them separately, or shove one of them off screen if you want."],
+            desc = L["PERSONAL_RESOURCE_DISPLAY_DESC"],
         },
         chatFrame = {
             name = HUD_EDIT_MODE_CHAT_FRAME_LABEL,
