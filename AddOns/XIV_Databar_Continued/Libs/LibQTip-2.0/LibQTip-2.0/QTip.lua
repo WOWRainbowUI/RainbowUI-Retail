@@ -4,7 +4,7 @@
 
 local Version = {
     Major = "LibQTip-2.0",
-    Minor = 1,
+    Minor = 2,
 }
 
 assert(LibStub, ("%s requires LibStub"):format(Version.Major))
@@ -66,18 +66,18 @@ QTip.TooltipManager = QTip.TooltipManager or CreateFrame("Frame")
 
 local TooltipManager = QTip.TooltipManager
 
--- Create or retrieve the Tooltip with the given key.
---
--- If additional arguments are passed, they are passed to :SetColumnLayout for the acquired Tooltip.
+--- Create or retrieve the Tooltip with the given key.
+---
+--- If additional arguments are passed, they are passed to :SetColumnLayout for the acquired Tooltip.
 ---@param key string The Tooltip key. A key unique to this Tooltip should be provided to avoid conflicts.
 ---@param numColumns? number Minimum number of Columns
 ---@param ... JustifyHorizontal Column horizontal justifications ("CENTER", "LEFT" or "RIGHT"). Defaults to "LEFT".
--- ***
--- Example Tooltip with 5 Columns justified as left, center, left, left, left:
--- ``` lua
--- local tooltip = LibStub('LibQTip-2.0'):Acquire('MyFooBarTooltip', 5, "LEFT", "CENTER")
--- ```
--- ***
+--- ***
+--- Example Tooltip with 5 Columns justified as left, center, left, left, left:
+--- ``` lua
+--- local tooltip = LibStub('LibQTip-2.0'):Acquire('MyFooBarTooltip', 5, "LEFT", "CENTER")
+--- ```
+--- ***
 ---@return LibQTip-2.0.Tooltip
 function QTip:AcquireTooltip(key, numColumns, ...)
     if type(key) ~= "string" then
@@ -100,7 +100,7 @@ function QTip:AcquireTooltip(key, numColumns, ...)
     return tooltip
 end
 
--- Return an iterator on the registered CellProviders.
+--- Return an iterator on the registered CellProviders.
 function QTip:CellProviderPairs()
     return pairs(self.CellProviderRegistry)
 end
@@ -121,7 +121,7 @@ do
         return templateCellProvider:GetCellPrototype()
     end
 
-    -- Creates a new CellProvider, using an existing CellProvider or the LibQTip-2.0 default CellProvider as a template.
+    --- Creates a new CellProvider, using an existing CellProvider or the LibQTip-2.0 default CellProvider as a template.
     ---@param templateCellProvider? LibQTip-2.0.CellProvider An existing CellProvider used as a template for the new CellProvider.
     ---@return LibQTip-2.0.CreateCellProviderValues values The new CellProvider, new Cell prototype, and base Cell prototype.
     ---@nodiscard
@@ -146,7 +146,7 @@ do
     end
 end
 
--- Retrieves a registered CellProvider using the provided key.
+--- Retrieves a registered CellProvider using the provided key.
 ---@param key string The CellProvider key.
 ---@return LibQTip-2.0.CellProvider|nil
 function QTip:GetCellProvider(key)
@@ -157,13 +157,13 @@ function QTip:GetCellProvider(key)
     return self.CellProviderRegistry[key]
 end
 
--- Returns an alphabetically-sorted list of all registered CellProvider keys.
----@return LibQTip-2.0.CellProvider[]
+--- Returns an alphabetically-sorted list of all registered CellProvider keys.
+---@return string[]
 function QTip:GetCellProviderKeys()
     return self.CellProviderKeys
 end
 
--- Check if a Tooltip has been acquired with the specified key.
+--- Check if a Tooltip has been acquired with the specified key.
 ---@param key string The Tooltip key.
 ---@return boolean
 function QTip:IsAcquiredTooltip(key)
@@ -174,7 +174,7 @@ function QTip:IsAcquiredTooltip(key)
     return not not TooltipManager.ActiveTooltips[key]
 end
 
--- Registers a CellProvider using the provided key. Registration fails if the key has already been used.
+--- Registers a CellProvider using the provided key. Registration fails if the key has already been used.
 ---@param key string The CellProvider key.
 ---@param cellProvider LibQTip-2.0.CellProvider The CellProvider to register.
 ---@return boolean isSuccess Whether or not the CellProvider was successfully registered.
@@ -206,7 +206,7 @@ function QTip:RegisterCellProvider(key, cellProvider)
     return true
 end
 
--- Return an acquired Tooltip to the heap. The Tooltip is cleared and hidden.
+--- Return an acquired Tooltip to the heap. The Tooltip is cleared and hidden.
 ---@param tooltip LibQTip-2.0.Tooltip The Tooltip to release. Any invalid values are silently ignored.
 function QTip:ReleaseTooltip(tooltip)
     local key = tooltip and tooltip.Key
@@ -218,7 +218,7 @@ function QTip:ReleaseTooltip(tooltip)
     TooltipManager:ReleaseTooltip(tooltip)
 end
 
--- Return an iterator on the acquired Tooltips.
+--- Return an iterator on the acquired Tooltips.
 function QTip:TooltipPairs()
     return pairs(TooltipManager.ActiveTooltips)
 end

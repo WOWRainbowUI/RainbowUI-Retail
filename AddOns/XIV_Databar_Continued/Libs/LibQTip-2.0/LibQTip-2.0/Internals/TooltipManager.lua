@@ -48,10 +48,7 @@ TooltipManager.DefaultBackdrop = TooltipManager.DefaultBackdrop
 
 TooltipManager.DefaultHighlightTexturePath = [[Interface\QuestFrame\UI-QuestTitleHighlight]]
 
----@class TooltipPixelSize
----@field CellPadding 10
----@field HorizontalCellMargin 6
----@field VerticalCellMargin 3
+---@enum TooltipPixelSize
 local PixelSize = {
     CellPadding = 10,
     HorizontalCellMargin = 6,
@@ -64,7 +61,7 @@ TooltipManager.PixelSize = TooltipManager.PixelSize or PixelSize
 ---- Methods
 --------------------------------------------------------------------------------
 
--- Returns a Cell for the given Tooltip from the given CellProvider.
+--- Returns a Cell for the given Tooltip from the given CellProvider.
 ---@param tooltip LibQTip-2.0.Tooltip
 ---@param row LibQTip-2.0.Row The Row containing the Cell.
 ---@param column LibQTip-2.0.Column The Column containing the Cell.
@@ -97,7 +94,7 @@ function TooltipManager:AcquireCell(tooltip, row, column, cellProvider)
     return cell
 end
 
--- Returns a Column at the given index for the given Tooltip.
+--- Returns a Column at the given index for the given Tooltip.
 ---@param tooltip LibQTip-2.0.Tooltip The tooltip for which the Column is being acquired
 ---@param columnIndex integer Column number to set.
 ---@param horizontalJustification JustifyHorizontal The horizontal justification of cells in this column ("CENTER", "LEFT" or "RIGHT"). Defaults to "LEFT".
@@ -138,7 +135,7 @@ function TooltipManager:AcquireColumn(tooltip, columnIndex, horizontalJustificat
     return column
 end
 
--- Returns a Row at the given index for the given Tooltip.
+--- Returns a Row at the given index for the given Tooltip.
 ---@param tooltip LibQTip-2.0.Tooltip
 ---@param rowIndex integer
 ---@return LibQTip-2.0.Row
@@ -176,7 +173,7 @@ function TooltipManager:AcquireRow(tooltip, rowIndex)
     return row
 end
 
--- Returns a Timer for the given Tooltip.
+--- Returns a Timer for the given Tooltip.
 ---@param tooltip LibQTip-2.0.Tooltip
 ---@return LibQTip-2.0.Timer
 function TooltipManager:AcquireTimer(tooltip)
@@ -188,7 +185,7 @@ function TooltipManager:AcquireTimer(tooltip)
     return timer
 end
 
--- Returns a Tooltip.
+--- Returns a Tooltip.
 ---@param key string
 ---@return LibQTip-2.0.Tooltip
 function TooltipManager:AcquireTooltip(key)
@@ -258,7 +255,7 @@ function TooltipManager:AcquireTooltip(key)
     return tooltip
 end
 
--- Sets the widths of Cells and heights of Rows within the Tooltip, based on Cell contents.
+--- Sets the widths of Cells and heights of Rows within the Tooltip, based on Cell contents.
 ---@param tooltip LibQTip-2.0.Tooltip
 function TooltipManager:AdjustCellSizes(tooltip)
     local colSpanWidths = tooltip.ColSpanWidths
@@ -278,10 +275,14 @@ function TooltipManager:AdjustCellSizes(tooltip)
             right = tonumber(right)
 
             for columnIndex = left, right - 1 do
-                width = width - columns[columnIndex].Width - horizontalMargin
+                if columns[columnIndex] then
+                    width = width - columns[columnIndex].Width - horizontalMargin
+                end
             end
 
-            width = width - columns[right].Width
+            if columns[right] then
+                width = width - columns[right].Width
+            end
 
             if width <= 0 then
                 colSpanWidths[columnRange] = nil
@@ -313,7 +314,7 @@ function TooltipManager:AdjustCellSizes(tooltip)
 
     -- Now that the Cell width is set, recalculate the height values of the Rows.
     for _, row in ipairs(rows) do
-        if #row.Cells > 0 then
+        if row and row.Cells and #row.Cells > 0 then
             local rowHeight = 0
 
             for _, cell in ipairs(row.Cells) do
@@ -332,9 +333,9 @@ function TooltipManager:AdjustCellSizes(tooltip)
     end
 end
 
--- Sets the width of the provided Column to the specified value.
---
---  Nothing will be done if the provided value is less than or equal to the current Column width.
+--- Sets the width of the provided Column to the specified value.
+---
+---  Nothing will be done if the provided value is less than or equal to the current Column width.
 ---@param column LibQTip-2.0.Column
 ---@param width number
 function TooltipManager:AdjustColumnWidth(column, width)
@@ -349,7 +350,7 @@ function TooltipManager:AdjustColumnWidth(column, width)
     column:SetWidth(width)
 end
 
--- Add 2 pixels to height so dangling letters (g, y, p, j, etc) are not clipped.
+--- Add 2 pixels to height so dangling letters (g, y, p, j, etc) are not clipped.
 ---@param tooltip LibQTip-2.0.Tooltip
 function TooltipManager:AdjustTooltipSize(tooltip)
     local horizontalMargin = tooltip.HorizontalCellMargin or PixelSize.HorizontalCellMargin
@@ -361,7 +362,7 @@ function TooltipManager:AdjustTooltipSize(tooltip)
     )
 end
 
--- Adjusts Cell sizes for all Tooltips in the LayoutRegistry.
+--- Adjusts Cell sizes for all Tooltips in the LayoutRegistry.
 function TooltipManager:CleanupLayouts()
     self:Hide()
 
@@ -372,16 +373,20 @@ function TooltipManager:CleanupLayouts()
     wipe(self.LayoutRegistry)
 end
 
--- Adds a Tooltip to the LayoutRegistry for cleanup.
+--- Adds a Tooltip to the LayoutRegistry for cleanup.
 ---@param tooltip LibQTip-2.0.Tooltip
 function TooltipManager:RegisterForCleanup(tooltip)
     self.LayoutRegistry[tooltip] = true
     self:Show()
 end
 
--- Releases a Cell to its CellProvider.
----@param cell LibQTip-2.0.Cell
+--- Releases a Cell to its CellProvider.
+---@param cell? LibQTip-2.0.Cell
 function TooltipManager:ReleaseCell(cell)
+    if not cell then
+        return
+    end
+
     cell:Hide()
     cell:SetParent(nil)
     cell:ClearAllPoints()
@@ -393,9 +398,13 @@ function TooltipManager:ReleaseCell(cell)
     cell.CellProvider = nil
 end
 
--- Releases a Column to the TooltipManager's ColumnHeap.
----@param column LibQTip-2.0.Column
+--- Releases a Column to the TooltipManager's ColumnHeap.
+---@param column? LibQTip-2.0.Column
 function TooltipManager:ReleaseColumn(column)
+    if not column then
+        return
+    end
+
     column:Hide()
     column:SetParent(nil)
     column:ClearAllPoints()
@@ -413,9 +422,13 @@ function TooltipManager:ReleaseColumn(column)
     tinsert(self.ColumnHeap, column)
 end
 
--- Releases a Row to the TooltipManager's RowHeap.
----@param row LibQTip-2.0.Row
+--- Releases a Row to the TooltipManager's RowHeap.
+---@param row? LibQTip-2.0.Row
 function TooltipManager:ReleaseRow(row)
+    if not row then
+        return
+    end
+
     row:Hide()
     row:SetParent(nil)
     row:ClearAllPoints()
@@ -438,7 +451,7 @@ function TooltipManager:ReleaseRow(row)
     tinsert(self.RowHeap, row)
 end
 
--- Releases a Timer to the TooltipManager's TimerHeap.
+--- Releases a Timer to the TooltipManager's TimerHeap.
 ---@param timerFrame LibQTip-2.0.Timer
 function TooltipManager:ReleaseTimer(timerFrame)
     timerFrame.AlternateFrame = nil
@@ -451,7 +464,7 @@ function TooltipManager:ReleaseTimer(timerFrame)
     tinsert(self.TimerHeap, timerFrame)
 end
 
--- Releases a Tooltip to the TooltipManager's TooltipHeap.
+--- Releases a Tooltip to the TooltipManager's TooltipHeap.
 ---@param tooltip LibQTip-2.0.Tooltip
 function TooltipManager:ReleaseTooltip(tooltip)
     if self.ActiveReleases[tooltip] then
@@ -495,14 +508,16 @@ function TooltipManager:ReleaseTooltip(tooltip)
         ScriptManager:RawSetScript(tooltip, scriptType, nil)
     end
 
-    wipe(tooltip.Scripts)
+    if tooltip.Scripts then
+        wipe(tooltip.Scripts)
+    end
 
     self.LayoutRegistry[tooltip] = nil
 
     tinsert(self.TooltipHeap, tooltip)
 end
 
--- Sets the Tooltip's width and height.
+--- Sets the Tooltip's width and height.
 ---@param tooltip LibQTip-2.0.Tooltip
 ---@param width number Width, in pixels.
 ---@param height number Height, in pixels.
