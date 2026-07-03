@@ -7,8 +7,7 @@ local TankMD = AceAddon:GetAddon("TankMD")
 
 local _, class = UnitClass("player")
 local spellId = TankMD:GetMisdirectSpellID(class)
-local GetSpellName = GetSpellInfo or C_Spell.GetSpellName
-local spellName = GetSpellName(spellId)
+local spellName = C_Spell.GetSpellName(spellId)
 local roleKey = TankMD:GetMisdirectTargetRole(class)
 
 _G["BINDING_HEADER_TANKMD"] = L.title
