@@ -1,4 +1,4 @@
-## Interface: 11508
+## Interface: 50500
 ## Version: 2.1.4
 ## Title: MailLogger
 ## Author: Aoikaze
