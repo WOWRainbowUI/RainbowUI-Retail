@@ -26,7 +26,7 @@ sink.stickyAddons = sink.stickyAddons or {
 
 local _G = _G
 local format, gsub, wipe, next, select = string.format, string.gsub, table.wipe, next, select
-local IsInRaid, IsInGroup, SendChatMessage = IsInRaid, IsInGroup, SendChatMessage
+local IsInRaid, IsInGroup, SendChatMessage = IsInRaid, IsInGroup, C_ChatInfo.SendChatMessage
 
 -- Make sure FCT is loaded
 local EnableAddOn = C_AddOns.EnableAddOn
