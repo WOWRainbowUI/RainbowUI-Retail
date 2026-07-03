@@ -150,6 +150,24 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [239810] = {
         name = "Alto exarca Turalyon",
     },
+    [239826] = {
+        name = "Alleria Brisaveloz",
+    },
+    [239828] = {
+        name = "Magíster Umbric",
+    },
+    [240255] = {
+        name = "Primera Arcanista Thalyssra",
+    },
+    [240295] = {
+        name = "Vereesa Brisaveloz",
+    },
+    [240302] = {
+        name = "Primera Arcanista Thalyssra",
+    },
+    [240334] = {
+        name = "Shandris Plumaluna",
+    },
     [240403] = {
         name = "Magíster Meledor",
     },
@@ -251,6 +269,12 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [244454] = {
         name = "Belath Hojalba",
+    },
+    [244699] = {
+        name = "Vereesa Brisaveloz",
+    },
+    [244701] = {
+        name = "Gran magíster Rommath",
     },
     [244929] = {
         name = "Décimo",
@@ -417,6 +441,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [250888] = {
         name = "Solwin Brillocostura",
     },
+    [250958] = {
+        name = "Senescal Ulen",
+    },
     [251891] = {
         name = "Espectro persistente",
     },
@@ -471,6 +498,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [254513] = {
         name = "Avizora de fallas Maella",
     },
+    [254654] = {
+        name = "Primera Arcanista Thalyssra",
+    },
     [254665] = {
         name = "Anciana Doru",
     },
@@ -485,6 +515,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [255852] = {
         name = "Exploradora Zel'kanra",
+    },
+    [256046] = {
+        name = "Primera Arcanista Thalyssra",
     },
     [256206] = {
         name = "Abisario consciente",

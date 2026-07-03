@@ -1851,6 +1851,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "La presa de un cazador",
     },
+    [92895] = {
+        name = "La invitación de Hagar",
+    },
+    [92897] = {
+        name = "Han terminado los preparativos",
+    },
+    [92899] = {
+        name = "Clase de historia",
+    },
+    [92900] = {
+        name = "Un favor para Kinduru",
+    },
+    [92901] = {
+        name = "Historia revisionista",
+    },
+    [92904] = {
+        name = "Retorno a Zul'Aman",
+    },
+    [92907] = {
+        name = "Los Amani responden",
+    },
     [92939] = {
         name = "Más da una piedra",
     },
@@ -1862,6 +1883,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Hasta las cejas",
+    },
+    [92951] = {
+        name = "Seguir ahondando",
+    },
+    [92952] = {
+        name = "Misión a Maisara",
+    },
+    [92953] = {
+        name = "Recuerdos de Malacrass",
+    },
+    [92954] = {
+        name = "Cavernas de Maisara: Maestro de las almas",
+    },
+    [92955] = {
+        name = "Las tablillas de Numazon",
+    },
+    [92957] = {
+        name = "Se permite calcar",
+    },
+    [92958] = {
+        name = "Homenaje del drenaje",
+    },
+    [93010] = {
+        name = "El santuario de la sierpe",
+    },
+    [93011] = {
+        name = "El legado de los Amani",
+    },
+    [93012] = {
+        name = "Un callejón sin salida",
     },
     [93047] = {
         name = "Conceptos básicos de la carnicería",

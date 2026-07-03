@@ -1857,6 +1857,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "La proie d’un chasseur",
     },
+    [92895] = {
+        name = "L’invitation d’Hagar",
+    },
+    [92897] = {
+        name = "Les préparatifs sont terminés",
+    },
+    [92899] = {
+        name = "Cours d’histoire",
+    },
+    [92900] = {
+        name = "Un service pour Kinduru",
+    },
+    [92901] = {
+        name = "Révision de l’histoire",
+    },
+    [92904] = {
+        name = "Retour à Zul’Aman",
+    },
+    [92907] = {
+        name = "Réponses amani",
+    },
     [92939] = {
         name = "Ce n’est pas un simple caillou !",
     },
@@ -1868,6 +1889,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Au-delà de l’entendement",
+    },
+    [92951] = {
+        name = "Creuser plus profond",
+    },
+    [92952] = {
+        name = "Mission à Maisara",
+    },
+    [92953] = {
+        name = "Souvenirs de Malacrass",
+    },
+    [92954] = {
+        name = "Cavernes de Maisara : la maîtresse des âmes",
+    },
+    [92955] = {
+        name = "Les tablettes de Numazon",
+    },
+    [92957] = {
+        name = "Ça va frotter",
+    },
+    [92958] = {
+        name = "Drain cérébral",
+    },
+    [93010] = {
+        name = "L’autel du serpent",
+    },
+    [93011] = {
+        name = "L’héritage des Amani",
+    },
+    [93012] = {
+        name = "Une impasse",
     },
     [93047] = {
         name = "Les bases de la boucherie",

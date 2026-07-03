@@ -1854,6 +1854,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "La preda di un cacciatore",
     },
+    [92895] = {
+        name = "L'invito di Hagar",
+    },
+    [92897] = {
+        name = "I preparativi sono terminati",
+    },
+    [92899] = {
+        name = "Lezione di storia",
+    },
+    [92900] = {
+        name = "Un favore per Kinduru",
+    },
+    [92901] = {
+        name = "Revisionismo storico",
+    },
+    [92904] = {
+        name = "Ritorno a Zul'aman",
+    },
+    [92907] = {
+        name = "Risposte degli Amani",
+    },
     [92939] = {
         name = "Non è solo una roccia!",
     },
@@ -1865,6 +1886,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Fuori dalla mia portata",
+    },
+    [92951] = {
+        name = "Scavare più a fondo",
+    },
+    [92952] = {
+        name = "Missione a Maisara",
+    },
+    [92953] = {
+        name = "Ricordi di Malacrass",
+    },
+    [92954] = {
+        name = "Caverne di Maisara: maestra delle anime",
+    },
+    [92955] = {
+        name = "Le tavolette di Numazon",
+    },
+    [92957] = {
+        name = "Ecco l'inghippo",
+    },
+    [92958] = {
+        name = "Prosciugamento mentale",
+    },
+    [93010] = {
+        name = "Il Santuario della Serpe",
+    },
+    [93011] = {
+        name = "Eredità degli Amani",
+    },
+    [93012] = {
+        name = "Vicolo cieco",
     },
     [93047] = {
         name = "Basi della macellazione",

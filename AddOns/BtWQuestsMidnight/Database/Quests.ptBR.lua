@@ -1851,6 +1851,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "A presa de um caçador",
     },
+    [92895] = {
+        name = "Convite de Hagar",
+    },
+    [92897] = {
+        name = "Os preparativos estão completos",
+    },
+    [92899] = {
+        name = "Uma aula de história",
+    },
+    [92900] = {
+        name = "Um favor para Kinduru",
+    },
+    [92901] = {
+        name = "Revisionismo histórico",
+    },
+    [92904] = {
+        name = "Retorno a Zul'Aman",
+    },
+    [92907] = {
+        name = "Respostas dos Amani",
+    },
     [92939] = {
         name = "Não é só uma rocha!",
     },
@@ -1862,6 +1883,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Além da nossa imaginação",
+    },
+    [92951] = {
+        name = "Cavando bem fundo",
+    },
+    [92952] = {
+        name = "Missão em Maisara",
+    },
+    [92953] = {
+        name = "Memórias de Malacrass",
+    },
+    [92954] = {
+        name = "Cavernas de Maisara: Mestre de almas",
+    },
+    [92955] = {
+        name = "As tabuletas de Numazon",
+    },
+    [92957] = {
+        name = "Deixa de decalque",
+    },
+    [92958] = {
+        name = "Drenagem cerebral",
+    },
+    [93010] = {
+        name = "O santuário da serpente",
+    },
+    [93011] = {
+        name = "Legado dos Amani",
+    },
+    [93012] = {
+        name = "Fim da linha",
     },
     [93047] = {
         name = "Básico do açougue",

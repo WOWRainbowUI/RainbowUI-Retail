@@ -1842,6 +1842,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "Ein Jäger und seine Beute",
     },
+    [92895] = {
+        name = "Hagars Einladung",
+    },
+    [92897] = {
+        name = "Die Vorbereitungen sind abgeschlossen",
+    },
+    [92899] = {
+        name = "Geschichtsunterricht",
+    },
+    [92900] = {
+        name = "Ein Gefallen für Kinduru",
+    },
+    [92901] = {
+        name = "Umschreibung der Geschichte",
+    },
+    [92904] = {
+        name = "Rückkehr nach Zul'Aman",
+    },
+    [92907] = {
+        name = "Antworten der Amani",
+    },
     [92939] = {
         name = "Das ist nicht nur ein Stein!",
     },
@@ -1853,6 +1874,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Völlig überfordert",
+    },
+    [92951] = {
+        name = "In die Tiefe gehen",
+    },
+    [92952] = {
+        name = "Mission nach Maisara",
+    },
+    [92953] = {
+        name = "Erinnerungen an Malacrass",
+    },
+    [92954] = {
+        name = "Maisarakavernen: Meisterin der Seelen",
+    },
+    [92955] = {
+        name = "Die Tafeln von Numazon",
+    },
+    [92957] = {
+        name = "Gut Ding will Pause haben",
+    },
+    [92958] = {
+        name = "Geist entgleist",
+    },
+    [93010] = {
+        name = "Der Schlangenschrein",
+    },
+    [93011] = {
+        name = "Vermächtnis der Amani",
+    },
+    [93012] = {
+        name = "Sackgasse",
     },
     [93047] = {
         name = "Grundlagen des Schlachtens",

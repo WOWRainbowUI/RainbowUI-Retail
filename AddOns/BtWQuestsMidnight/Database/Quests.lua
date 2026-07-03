@@ -8566,7 +8566,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "experience",
                 amounts = {
-                    23550, 23800, 24050, 24350, 24350, 19450, 14600, 9750, 4850, 2450, 
+                    47100, 47600, 48100, 48700, 48700, 38900, 29200, 19500, 9700, 4900, 
                 },
                 minLevel = 80,
                 maxLevel = 89,
@@ -15489,6 +15489,100 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [92895] = {
+        name = "Hagar's Invitation",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253640,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92897] = {
+        name = "The Preparations Are Complete",
+        contentTuningID = 5855,
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92899] = {
+        name = "History Lesson",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253654,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [92900] = {
+        name = "A Favor for Kinduru",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253651,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92901] = {
+        name = "Revisionist History",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253675,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92904] = {
+        name = "Return to Zul'Aman",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 255660,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92907] = {
+        name = "Amani Answers",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253788,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
     [92939] = {
         name = "It's Not Just a Rock!",
         contentTuningID = 3084,
@@ -15614,6 +15708,158 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 88,
                 maxLevel = 90,
+            },
+        },
+    },
+    [92951] = {
+        name = "Digging Deeper",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253806,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [92952] = {
+        name = "Mission to Maisara",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253833,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92953] = {
+        name = "Memories of Malacrass",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253805,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [92954] = {
+        name = "Maisara Caverns: Master of Souls",
+        contentTuningID = 5071,
+        source = {
+            type = "npc",
+            id = 253806,
+        },
+        rewards = {
+            {
+                type = "experience",
+                amounts = {
+                    23550, 23800, 24050, 24350, 24600, 24900, 25150, 25400, 25700, 25950, 
+                },
+                minLevel = 80,
+                maxLevel = 89,
+            },
+            {
+                type = "money",
+                amounts = {
+                    1239200, 1251200, 1263600, 1276000, 1288400, 1301200, 1314000, 1326800, 1340000, 1353200, 1366400, 
+                },
+                minLevel = 80,
+                maxLevel = 90,
+            },
+        },
+    },
+    [92955] = {
+        name = "The Tablets of Numazon",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 256363,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92957] = {
+        name = "There's the Rub",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253834,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92958] = {
+        name = "Brain Drain",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253833,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93010] = {
+        name = "The Serpent Shrine",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253806,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [93011] = {
+        name = "Legacy of the Amani",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 253840,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [93012] = {
+        name = "Dead End",
+        contentTuningID = 5855,
+        source = {
+            type = "npc",
+            id = 259778,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
             },
         },
     },
@@ -16340,7 +16586,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "experience",
                 amounts = {
-                    24350, 24600, 24900, 25150, 25400, 25700, 25150, 
+                    48700, 49200, 49800, 50300, 50800, 51400, 50300, 
                 },
                 minLevel = 83,
                 maxLevel = 89,

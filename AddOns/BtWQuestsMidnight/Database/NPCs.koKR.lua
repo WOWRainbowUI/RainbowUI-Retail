@@ -1041,6 +1041,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "기사 아나이스",
     },
+    [253640] = {
+        name = "오르웨냐",
+    },
     [253948] = {
         name = "레오나 다크스트라이더",
     },

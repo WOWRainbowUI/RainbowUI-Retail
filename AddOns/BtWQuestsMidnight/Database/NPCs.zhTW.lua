@@ -1041,6 +1041,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "騎士安娜絲",
     },
+    [253640] = {
+        name = "歐薇娜",
+    },
     [253948] = {
         name = "雷歐娜‧暗行",
     },

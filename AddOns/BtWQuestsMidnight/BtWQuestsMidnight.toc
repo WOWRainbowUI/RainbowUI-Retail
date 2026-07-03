@@ -1,4 +1,4 @@
-## Interface: 120005
+## Interface: 120005, 120007
 ## Title: BtWQuests: Midnight
 ## Version: 2.0
 ## Notes: Midnight quest data for BtWQuests
@@ -73,6 +73,7 @@ Database/Index.ptBR.lua
 Database/Index.ruRU.lua
 Database/Index.zhCN.lua
 Database/Index.zhTW.lua
+Database/Index.12.0.7.lua
 
 General.lua
 EversongWoods.lua
@@ -80,3 +81,4 @@ Zulaman.lua
 Harandar.lua
 Arator.lua
 Voidstorm.lua
+12.0.7.lua

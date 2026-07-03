@@ -1851,6 +1851,27 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92885] = {
         name = "La presa del cazador",
     },
+    [92895] = {
+        name = "La invitación de Hagar",
+    },
+    [92897] = {
+        name = "Preparativos completados",
+    },
+    [92899] = {
+        name = "Clase de historia",
+    },
+    [92900] = {
+        name = "Un favor para Kinduru",
+    },
+    [92901] = {
+        name = "Revisionismo histórico",
+    },
+    [92904] = {
+        name = "Regreso a Zul'Aman",
+    },
+    [92907] = {
+        name = "Respuestas amani",
+    },
     [92939] = {
         name = "¡No es una simple roca!",
     },
@@ -1862,6 +1883,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [92948] = {
         name = "Más de lo que esperaba",
+    },
+    [92951] = {
+        name = "Cavando más profundo",
+    },
+    [92952] = {
+        name = "Misión a Maisara",
+    },
+    [92953] = {
+        name = "Recuerdos de Malacrass",
+    },
+    [92954] = {
+        name = "Cavernas de Maisara: Maestra de almas",
+    },
+    [92955] = {
+        name = "Las tablillas de Numazon",
+    },
+    [92957] = {
+        name = "Calcos recalcados",
+    },
+    [92958] = {
+        name = "Fuga de cerebros",
+    },
+    [93010] = {
+        name = "El santuario de la serpiente",
+    },
+    [93011] = {
+        name = "Legado de los amani",
+    },
+    [93012] = {
+        name = "Callejón sin salida",
     },
     [93047] = {
         name = "Clases de carnicería",
