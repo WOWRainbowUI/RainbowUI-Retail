@@ -82,6 +82,14 @@ GTFO.SpellID["1265152"] = {
   applicationOnly = true;
 };
 
+GTFO.SpellID["1248652"] = {
+  --desc = "Divine Toll (General Amias Bellamy)";
+  sound = 3;
+  instance = 2912; 
+  --encounter = 3180;
+  applicationOnly = true;
+};
+
 GTFO.SpellID["1243753"] = {
   --desc = "Ravenous Abyss (Alleria Windrunner)";
   sound = 3;

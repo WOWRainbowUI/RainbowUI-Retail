@@ -2398,3 +2398,13 @@ Change Log:
 * Updated Retail TOC to 12.0.5
 * Updated Wrath Classic TOC to 3.4.5/3.80.1
 * Added Wrath spells for Pit of Saron
+
+6.6
+* Fixed Retail secret boolean taint crashes caused by UnitIsUnit
+
+6.6.1
+* Updated Retail TOC to 12.0.7
+* Added Midnight spells for Sporefall
+* Added Midnight spells for The Voidspire
+* Added Midnight spells for Nexus-Point Xenas
+* Added Legion spells for Seat of the Triumvirate
