@@ -39,6 +39,7 @@ Database/Objects.zhTW.lua
 Database/Index.enUS.lua
 Database/Index.zhCN.lua
 Database/Index.zhTW.lua
+Database/Index.12.0.7.lua
 
 General.lua
 EversongWoods.lua
@@ -46,3 +47,4 @@ Zulaman.lua
 Harandar.lua
 Arator.lua
 Voidstorm.lua
+12.0.7.lua

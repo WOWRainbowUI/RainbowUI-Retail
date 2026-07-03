@@ -1,3 +1,8 @@
+# v2.63.0
+
+- Added Legacy of the Amani questline
+- Updated for 12.0.7
+
 # v2.62.0
 
 - Added The War of Light and Shadow campaign

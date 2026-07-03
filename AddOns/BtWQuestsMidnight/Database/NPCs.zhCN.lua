@@ -1041,6 +1041,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "骑士阿纳伊斯",
     },
+    [253640] = {
+        name = "奥威娜",
+    },
     [253948] = {
         name = "蕾欧娜·涉暗",
     },

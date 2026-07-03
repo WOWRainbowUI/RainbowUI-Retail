@@ -4003,6 +4003,116 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [253640] = {
+        name = "Orweyna",
+        locations = {
+            [2393] = {
+                {
+                    x = 0.453812,
+                    y = 0.700688,
+                },
+            },
+        },
+    },
+    [253651] = {
+        name = "Loa Speaker Kinduru",
+        locations = {
+            [2576] = {
+                {
+                    x = 0.43507,
+                    y = 0.511252,
+                },
+            },
+        },
+    },
+    [253654] = {
+        name = "Orweyna",
+        locations = {
+            [2576] = {
+                {
+                    x = 0.439313,
+                    y = 0.532025,
+                },
+            },
+        },
+    },
+    [253675] = {
+        name = "Orweyna",
+        locations = {
+            [2413] = {
+                {
+                    x = 0.387343,
+                    y = 0.467627,
+                },
+            },
+        },
+    },
+    [253788] = {
+        name = "Zul'jan",
+        locations = {
+            [2536] = {
+                {
+                    x = 0.164304,
+                    y = 0.203368,
+                },
+            },
+        },
+    },
+    [253805] = {
+        name = "Enchanted Amani Mask",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.445177,
+                    y = 0.367207,
+                },
+            },
+        },
+    },
+    [253806] = {
+        name = "Zul'jan",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.444558,
+                    y = 0.366446,
+                },
+            },
+        },
+    },
+    [253833] = {
+        name = "Befuddled Amani Mask",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.389875,
+                    y = 0.389089,
+                },
+            },
+        },
+    },
+    [253834] = {
+        name = "Zul'jan",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.390006,
+                    y = 0.388386,
+                },
+            },
+        },
+    },
+    [253840] = {
+        name = "Zul'jan",
+        locations = {
+            [2536] = {
+                {
+                    x = 0.677769,
+                    y = 0.472427,
+                },
+            },
+        },
+    },
     [253948] = {
         name = "Leona Darkstrider",
         locations = {
@@ -4245,6 +4355,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [255660] = {
+        name = "Zul'jan",
+        locations = {
+            [2413] = {
+                {
+                    x = 0.348931,
+                    y = 0.440455,
+                },
+            },
+        },
+    },
     [255822] = {
         name = "Orweyna",
         locations = {
@@ -4296,6 +4417,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.528648,
                     y = 0.14196,
+                },
+            },
+        },
+    },
+    [256363] = {
+        name = "Zul'jan",
+        locations = {
+            [2536] = {
+                {
+                    x = 0.168706,
+                    y = 0.20725,
                 },
             },
         },
@@ -4461,6 +4593,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.45054,
                     y = 0.682458,
+                },
+            },
+        },
+    },
+    [259778] = {
+        name = "Orweyna",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.443501,
+                    y = 0.666536,
                 },
             },
         },

@@ -1,6 +1,6 @@
 ## Interface: 120005, 120007
 ## Title: BtWQuests: The War Within
-## Version: 11.1
+## Version: 11.2
 ## Notes: The War Within quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
