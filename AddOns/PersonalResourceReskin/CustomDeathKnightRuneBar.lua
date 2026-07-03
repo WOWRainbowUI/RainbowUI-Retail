@@ -85,24 +85,64 @@ SetDefaultRuneBarDB()
 
 
 
--- Hide the default Rune bar and PRD runes if present
-local function HideDefaultRuneBarAndPRDRunes()
-    -- Classic DK rune bar
-    -- Retail PRD runes (Personal Resource Display)
-    if prdClassFrame and prdClassFrame.Rune1 then
-        for i = 1, 6 do
-            local rune = prdClassFrame["Rune"..i]
-            if rune then
-                rune:Hide()
-                rune:SetAlpha(0)
-                if rune.UnregisterAllEvents then rune:UnregisterAllEvents() end
-                if rune.SetScript then rune:SetScript("OnEvent", nil) end
-            end
+local function GetPRDClassFrame()
+    -- In this build the class bar is anonymous; reach it through the named container.
+    if _G.prdClassFrame then return _G.prdClassFrame end
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.ClassFrameContainer and prd.ClassFrameContainer.GetChildren then
+        return (select(1, prd.ClassFrameContainer:GetChildren()))
+    end
+    return nil
+end
+
+-- Hide the default PRD class bar (rune bar) persistently.
+-- Hooks OnShow on both the class frame and its container so Blizzard re-shows are suppressed.
+local function HideDefaultRuneBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    local container = prd and prd.ClassFrameContainer
+    local cf = GetPRDClassFrame()
+    if cf then
+        cf:Hide()
+        cf:SetAlpha(0)
+        if type(cf.UnregisterAllEvents) == "function" then cf:UnregisterAllEvents() end
+        if not cf.__cdrb_hideHook then
+            cf.__cdrb_hideHook = true
+            cf:HookScript("OnShow", function(self)
+                if CustomDeathKnightRuneBarDB and CustomDeathKnightRuneBarDB.enabled ~= false then
+                    self:Hide()
+                    self:SetAlpha(0)
+                end
+            end)
+        end
+    end
+    if container then
+        container:Hide()
+        container:SetAlpha(0)
+        if not container.__cdrb_hideHook then
+            container.__cdrb_hideHook = true
+            container:HookScript("OnShow", function(self)
+                if CustomDeathKnightRuneBarDB and CustomDeathKnightRuneBarDB.enabled ~= false then
+                    self:Hide()
+                    self:SetAlpha(0)
+                end
+            end)
         end
     end
 end
 
-HideDefaultRuneBarAndPRDRunes()
+local function ShowDefaultRuneBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    local container = prd and prd.ClassFrameContainer
+    if container then
+        container:SetAlpha(1)
+        container:Show()
+    end
+    local cf = GetPRDClassFrame()
+    if cf then
+        cf:SetAlpha(1)
+        cf:Show()
+    end
+end
 
 -- Create the custom rune bar frame
 local runeBar = CreateFrame("Frame", "CustomDeathKnightRuneBar", UIParent)
@@ -308,6 +348,12 @@ runeBar:RegisterEvent("PLAYER_ENTERING_WORLD")
 runeBar:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 runeBar:SetScript("OnEvent", function(self, event, ...)
     UpdateRunes()
+    if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" then
+        UpdateVisibility()
+        if CustomDeathKnightRuneBarDB.enabled ~= false then
+            C_Timer.After(0.3, HideDefaultRuneBar)
+        end
+    end
 end)
 
 -- Only show for Death Knight
@@ -319,35 +365,13 @@ end
 local function UpdateVisibility()
     if CustomDeathKnightRuneBarDB.enabled == false then
         runeBar:Hide()
-        -- Show default PRD runes if present
-        if _G.prdClassFrame and _G.prdClassFrame.Rune1 then
-            for i = 1, 6 do
-                local rune = _G.prdClassFrame["Rune"..i]
-                if rune then
-                    rune:Show()
-                    rune:SetAlpha(1)
-                    if rune.RegisterAllEvents then rune:RegisterAllEvents() end
-                    if rune.SetScript then rune:SetScript("OnEvent", nil) end
-                end
-            end
-        end
+        ShowDefaultRuneBar()
         return
     end
     if ShouldShowRuneBar() then
         runeBar:Show()
         UpdateRunes()
-        -- Hide default PRD runes if present
-        if _G.prdClassFrame and _G.prdClassFrame.Rune1 then
-            for i = 1, 6 do
-                local rune = _G.prdClassFrame["Rune"..i]
-                if rune then
-                    rune:Hide()
-                    rune:SetAlpha(0)
-                    if rune.UnregisterAllEvents then rune:UnregisterAllEvents() end
-                    if rune.SetScript then rune:SetScript("OnEvent", nil) end
-                end
-            end
-        end
+        HideDefaultRuneBar()
     else
         runeBar:Hide()
     end
@@ -704,6 +728,10 @@ local function OnLoginOrReload()
     SetDefaultRuneBarDB()
     ApplyBarSettings()
     UpdateVisibility()
+    -- Explicitly hide default rune bar (prdClassFrame may be anonymous in this build)
+    if CustomDeathKnightRuneBarDB.enabled ~= false then
+        C_Timer.After(0.3, HideDefaultRuneBar)
+    end
 end
 runeBar:RegisterEvent("PLAYER_LOGIN")
 runeBar:HookScript("OnEvent", function(self, event)

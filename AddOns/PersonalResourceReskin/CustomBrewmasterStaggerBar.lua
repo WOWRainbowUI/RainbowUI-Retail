@@ -200,6 +200,30 @@ local function RefreshTextSettings()
 end
 
 ------------------------------------------------------------
+-- PRD anchor helpers
+------------------------------------------------------------
+local function GetPRDHealthBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+        return prd.HealthBarsContainer.healthBar
+    end
+    return nil
+end
+
+local function GetPRDPowerBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.PowerBar then return prd.PowerBar end
+    return nil
+end
+
+local function GetPRDAnchorFrame(db)
+    db = db or GetSavedDB()
+    if not db.anchorToPRD then return nil end
+    local target = db.anchorTarget or "POWER"
+    return (target == "HEALTH") and GetPRDHealthBar() or GetPRDPowerBar()
+end
+
+------------------------------------------------------------
 -- Anchor the custom bar
 ------------------------------------------------------------
 local function AnchorCustomBar()
@@ -229,6 +253,21 @@ local function AnchorCustomBar()
         end
     end
     barFrame:SetSize(w, h)
+
+    -- PRD anchor takes priority over LibEditMode / manual position
+    local anchorFrame = GetPRDAnchorFrame(db)
+    if anchorFrame then
+        local pos    = db.anchorPosition or "BELOW"
+        local offset = db.anchorOffset   or 4
+        barFrame:ClearAllPoints()
+        if pos == "ABOVE" then
+            barFrame:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+        else
+            barFrame:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+        end
+        if bgTexture then bgTexture:SetAllPoints(barFrame) end
+        return
+    end
 
     if editModeRegistered then
         if bgTexture then bgTexture:SetAllPoints(barFrame) end
@@ -719,6 +758,59 @@ local function RegisterEditMode()
                 db.hideWhenMounted = v
                 EvaluateVisibility()
             end,
+        },
+        -- Anchor to PRD
+        {
+            kind = LibEditMode.SettingType.Checkbox,
+            name = "對齊個人資源條",
+            default = false,
+            get = function() return db.anchorToPRD == true end,
+            set = function(_, v)
+                db.anchorToPRD = v
+                AnchorCustomBar()
+            end,
+        },
+        -- Anchor Target
+        {
+            kind = LibEditMode.SettingType.Dropdown,
+            name = "對齊到",
+            default = "POWER",
+            get = function() return db.anchorTarget or "POWER" end,
+            set = function(_, v)
+                db.anchorTarget = v
+                AnchorCustomBar()
+            end,
+            values = {
+                { text = "能量條",  value = "POWER" },
+                { text = "血量條", value = "HEALTH" },
+            },
+        },
+        -- Anchor Position
+        {
+            kind = LibEditMode.SettingType.Dropdown,
+            name = "位置",
+            default = "BELOW",
+            get = function() return db.anchorPosition or "BELOW" end,
+            set = function(_, v)
+                db.anchorPosition = v
+                AnchorCustomBar()
+            end,
+            values = {
+                { text = "下方", value = "BELOW" },
+                { text = "上方", value = "ABOVE" },
+            },
+        },
+        -- Anchor Y Offset
+        {
+            kind = LibEditMode.SettingType.Slider,
+            name = "垂直位移",
+            default = 4,
+            get = function() return db.anchorOffset or 4 end,
+            set = function(_, v)
+                db.anchorOffset = v
+                AnchorCustomBar()
+            end,
+            minValue = -100, maxValue = 100, valueStep = 1,
         },
     })
 end
