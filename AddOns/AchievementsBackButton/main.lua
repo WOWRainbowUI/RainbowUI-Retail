@@ -312,16 +312,31 @@ hooksecurefunc("UIParentLoadAddOn", function(name)
     backButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Disabled")
     backButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
 
+    -- Check if using ElvUI skin (only when ElvUI is loaded)
+    local isElvUISkin = false
     if C_AddOns.IsAddOnLoaded("ElvUI") then
+      local E = unpack(ElvUI or {})
+      if E and E.private and E.private.skins and 
+         E.private.skins.blizzard and 
+         E.private.skins.blizzard.enable and
+         E.private.skins.blizzard.achievement then
+        isElvUISkin = true
+      end
+    end
+
+    -- Position button based on skin and other addons
+    local hasKrowiFilter = C_AddOns.IsAddOnLoaded("Krowi_AchievementFilter")
+    
+    if isElvUISkin then
       backButton:SetSize(25, 25)
-      if C_AddOns.IsAddOnLoaded("Krowi_AchievementFilter") then
+      if hasKrowiFilter then
         backButton:SetPoint("BOTTOMRIGHT", AchievementFrameCategories, "TOPRIGHT", 0, -1)
       else
         backButton:SetPoint("BOTTOMLEFT", AchievementFrameAchievements, "TOPLEFT", -1, -3)
       end
     else
       backButton:SetSize(29, 29)
-      if C_AddOns.IsAddOnLoaded("Krowi_AchievementFilter") then
+      if hasKrowiFilter then
         backButton:SetPoint("BOTTOM", KrowiAF_AchievementFrameBrowsingHistoryPrevAchievementButton, "TOP", 0, -5)
       else
         backButton:SetPoint("LEFT", buttonAnchorFrame, "RIGHT", 10, 1)
