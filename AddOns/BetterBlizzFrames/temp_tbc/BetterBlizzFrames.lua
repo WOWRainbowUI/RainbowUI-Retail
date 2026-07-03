@@ -624,9 +624,8 @@ function BBF.PlayerElite(mode)
             return
         end
     end
-    playerElite:SetSize(233, 102)
-    playerElite:ClearAllPoints()
-    playerElite:SetPoint("CENTER", PlayerFrame, "CENTER", -17, -3)
+    playerElite:SetSize(232, 100)
+    playerElite:SetPoint("CENTER", PlayerFrame, "CENTER", -17, -3.5)
     if mode == 1 then -- Rare (Silver)
         if bigHealthbars then
             if hideMana then
@@ -2366,16 +2365,6 @@ function BBF.FixStupidBlizzPTRShit()
         local a,b,c,d,e = FocusFrameToTPortrait:GetPoint()
         FocusFrameToTPortrait:SetPoint(a,b,c,5,-5)
         FocusFrameToTPortrait:SetSize(36,36)
-
-        if not BBF.tfbFix then
-            hooksecurefunc(TargetFrameBackground, "SetSize", function()
-                TargetFrameBackground:SetHeight(40)
-            end)
-            hooksecurefunc(FocusFrameBackground, "SetSize", function()
-                FocusFrameBackground:SetHeight(40)
-            end)
-            BBF.tfbFix = true
-        end
     else
         -- BBF.hotkeyCancel = true
         -- ChangeHotkeyWidth(28)
@@ -2442,6 +2431,7 @@ function BBF.AddBackgroundTextureToUnitFrames(frame, tot)
             if classification == "minus" then
                 self.bbfBgTexture:SetPoint("TOPLEFT", self.healthbar, "TOPLEFT", 0, 0)
                 self.bbfBgTexture:SetPoint("BOTTOMRIGHT", self.healthbar, "BOTTOMRIGHT", 0, 0)
+                print("fixing minus change")
                 self.bgTextureMinusChange = true
             elseif frame.bgTextureMinusChange then
                 self.bbfBgTexture:SetPoint("TOPLEFT", self.healthbar, "TOPLEFT", 0, 0)
@@ -2727,6 +2717,20 @@ First:SetScript("OnEvent", function(_, event, addonName)
                 end
                 BetterBlizzFramesDB.fontOutlineFix = true
             end
+            if not BetterBlizzFramesDB.fontSizeNumFix then
+                local sizeKeys = {
+                    "unitFrameFontSize", "unitFrameValueFontSize",
+                    "partyFrameFontSize", "partyFrameStatusFontSize",
+                    "actionBarFontSize", "actionBarKeyFontSize", "actionBarChargeFontSize"
+                }
+                for _, key in ipairs(sizeKeys) do
+                    local val = BetterBlizzFramesDB[key]
+                    if type(val) == "string" then
+                        BetterBlizzFramesDB[key] = tonumber(val) or val
+                    end
+                end
+                BetterBlizzFramesDB.fontSizeNumFix = true
+            end
             TurnTestModesOff()
             BBF.FixLegacyComboPointsLocation()
             BBF.AlwaysShowLegacyComboPoints()
@@ -2844,15 +2848,24 @@ if RuneFrame then
     RuneFrame:SetFrameStrata("MEDIUM")
 end
 
-if TargetFrameBackground then
-    hooksecurefunc(TargetFrameBackground, "SetSize", function(self, height)
+local function FixBlizzardHealthBackground(self, unit)
+    if UnitExists(unit) and UnitClassification(unit) == "minus" then
+        local height = BetterBlizzFramesDB.biggerHealthbars and 25 or 14
+        self:SetHeight(height)
+    else
         self:SetHeight(40)
+    end
+end
+
+if TargetFrameBackground then
+    hooksecurefunc(TargetFrameBackground, "SetSize", function(self)
+        FixBlizzardHealthBackground(self, "target")
     end)
 end
 
 if FocusFrameBackground then
-    hooksecurefunc(FocusFrameBackground, "SetSize", function(self, height)
-        self:SetHeight(40)
+    hooksecurefunc(FocusFrameBackground, "SetSize", function(self)
+        FixBlizzardHealthBackground(self, "focus")
     end)
 end
 
