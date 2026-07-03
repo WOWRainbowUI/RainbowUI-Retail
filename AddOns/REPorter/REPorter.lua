@@ -29,7 +29,6 @@ local GetBattlefieldFlagPosition = C_PvP.GetBattlefieldFlagPosition
 local GetNumBattlefieldVehicles = GetNumBattlefieldVehicles
 local GetBattlefieldVehicleInfo = C_PvP.GetBattlefieldVehicleInfo
 local GetClassColor = GetClassColor
-local GetRaidTargetIndex = GetRaidTargetIndex
 local GetDoubleStatusBarWidgetVisualizationInfo = C_UIWidgetManager.GetDoubleStatusBarWidgetVisualizationInfo
 local UnitName = UnitName
 local UnitClass = UnitClass
@@ -61,6 +60,8 @@ local CI = 1335
 local ASH = 1478
 local KR = 1537
 local DR = 2345
+local DD = 519
+local SR = 2397
 
 RE.POIIconSize = 30
 RE.POINumber = 40
@@ -100,7 +101,7 @@ RE.BlinkPOIValue = 0.3
 RE.BlinkPOIUp = true
 
 RE.FoundNewVersion = false
-RE.AddonVersionCheck = 30000
+RE.AddonVersionCheck = 30101
 RE.ScreenHeight, RE.ScreenWidth = UIParent:GetCenter()
 
 RE.MapSettings = {
@@ -114,12 +115,14 @@ RE.MapSettings = {
 	[TOK] = {["PlayerNumber"] = 10},
 	[SM] = {["PlayerNumber"] = 10, ["WidgetID"] = 1687},
 	[DG] = {["PlayerNumber"] = 15, ["WidgetID"] = 2074},
+	[DD] = {["PlayerNumber"] = 15},
 	[TMVS] = {["PlayerNumber"] = 40},
 	[SS] = {["PlayerNumber"] = 10, ["NodeTimer"] = 40},
 	[BFW] = {["PlayerNumber"] = 40},
 	[CI] = {["PlayerNumber"] = 10},
 	[ASH] = {["PlayerNumber"] = 40},
-	[DR] = {["PlayerNumber"] = 10, ["WidgetID"] = 1687}
+	[DR] = {["PlayerNumber"] = 10, ["WidgetID"] = 1687},
+	[SR] = {["PlayerNumber"] = 40}
 }
 RE.POICaptureStatus = {
 	[4] = FACTION_ALLIANCE, -- Graveyard
@@ -144,6 +147,8 @@ RE.POICaptureStatus = {
 	[149] = FACTION_HORDE, -- Dock
 	[152] = FACTION_ALLIANCE, -- Oil
 	[154] = FACTION_HORDE, -- Oil
+	[174] = FACTION_HORDE, -- Bastion
+	[176] = FACTION_ALLIANCE, -- Bastion
 	[208] = FACTION_ALLIANCE, -- Market
 	[209] = FACTION_HORDE, -- Market
 	[213] = FACTION_ALLIANCE, -- Ruins
@@ -199,7 +204,29 @@ RE.AtlasNameToTextureIndex = {
 	["orbs-rightIcon1-state1"] = 45,
 	["orbs-rightIcon2-state1"] = 45,
 	["orbs-rightIcon3-state1"] = 45,
-	["orbs-rightIcon4-state1"] = 45
+	["orbs-rightIcon4-state1"] = 45,
+	["capPTs-bastion-alliance"] = 175,
+	["capPts-bastion-assaulted-alliance"] = 176,
+	["capPts-bastion-assaulted-horde"] = 174,
+	["capPts-bastion-horde"] = 173,
+	["capPts-bastion-neutural"] = 172,
+	["capPts-powerstation-alliance"] = 72,
+	["capPts-powerstation-horde"] = 68,
+	["capPts-powerstation-neutural"] = 65,
+	["capPTs-refinery-alliance"] = 151,
+	["capPts-refinery-assaulted-alliance"] = 152,
+	["capPts-refinery-assaulted-horde"] = 154,
+	["capPts-refinery-horde"] = 153,
+	["capPts-refinery-neutral"] = 150,
+	["capPTs-stadium-alliance"] = 215,
+	["capPts-stadium-assaulted-alliance"] = 218,
+	["capPts-stadium-assaulted-horde"] = 219,
+	["capPts-stadium-horde"] = 216,
+	["capPts-stadium-neutral"] = 217,
+	["capPTs-turret-alliance"] = 167,
+	["capPts-turret-horde"] = 168,
+	["capPts-turret-neutral"] = 169,
+	["capPts-voidpowerup-neutral"] = 194
 }
 RE.BFWWalls = {86, 87, 88, 89, 90, 91, 95, 96, 97, 98, 99, 100}
 
@@ -218,7 +245,6 @@ RE.DefaultConfig = {
 		Locked = false,
 		Opacity = 0.75,
 		HideMinimap = false,
-		DisplayMarks = false,
 		DisplayHealers = false,
 		Map = {
 			[AB] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 325, ["wh"] = 325, ["mx"] = 16, ["my"] = -77, ["ms"] = 1},
@@ -231,12 +257,14 @@ RE.DefaultConfig = {
 			[TOK] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 390, ["wh"] = 250, ["mx"] = 19, ["my"] = -21, ["ms"] = 1},
 			[SM] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 460, ["wh"] = 350, ["mx"] = 7, ["my"] = -43, ["ms"] = 1},
 			[DG] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 555, ["wh"] = 470, ["mx"] = -15, ["my"] = -35, ["ms"] = 1},
+			[DD] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 555, ["wh"] = 460, ["mx"] = -15, ["my"] = -35, ["ms"] = 1},
 			[TMVS] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 220, ["wh"] = 370, ["mx"] = -2, ["my"] = -22, ["ms"] = 1},
 			[SS] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 360, ["wh"] = 385, ["mx"] = 66, ["my"] = -63, ["ms"] = 1},
 			[BFW] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 500, ["wh"] = 320, ["mx"] = -3, ["my"] = -84, ["ms"] = 1},
 			[CI] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 305, ["mx"] = -30, ["my"] = 55, ["ms"] = 1},
 			[ASH] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1},
-			[DR] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1}
+			[DR] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1},
+			[SR] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 605, ["wh"] = 430, ["mx"] = 15, ["my"] = -45, ["ms"] = 1}
 		}
 	}
 }
@@ -270,21 +298,12 @@ RE.AceConfig = {
 					set = function(_, val) RE.Settings.profile.HideMinimap = val; RE:UpdateConfig() end,
 					get = function(_) return RE.Settings.profile.HideMinimap end
 				},
-				DisplayMarks = {
-					name = L["Always display raid markers"],
-					desc = L["When checked player pins will be always replaced with raid markers."],
-					type = "toggle",
-					width = "full",
-					order = 4,
-					set = function(_, val) RE.Settings.profile.DisplayMarks = val; RE:UpdateConfig() end,
-					get = function(_) return RE.Settings.profile.DisplayMarks end
-				},
 				DisplayHealers = {
 					name = L["Always highlight the healers"],
 					desc = L["When checked healers will always be highlighted."],
 					type = "toggle",
 					width = "full",
-					order = 5,
+					order = 4,
 					set = function(_, val) RE.Settings.profile.DisplayHealers = val; RE:UpdateConfig() end,
 					get = function(_) return RE.Settings.profile.DisplayHealers end
 				},
@@ -293,7 +312,7 @@ RE.AceConfig = {
 					desc = L["Map position is saved separately for each battleground."],
 					type = "select",
 					width = "double",
-					order = 6,
+					order = 5,
 					disabled = function(_) if select(2, IsInInstance()) == "pvp" then return true else return false end end,
 					values = {
 						[AB] = GetMapInfo(AB).name,
@@ -306,12 +325,14 @@ RE.AceConfig = {
 						[SM] = GetMapInfo(SM).name,
 						[TOK] = GetMapInfo(TOK).name,
 						[DG] = GetMapInfo(DG).name,
+						[DD] = GetMapInfo(DG).name.." - Legacy/Brawl",
 						[TMVS] = GetMapInfo(TMVS).name,
 						[SS] = GetMapInfo(SS).name,
 						[BFW] = GetMapInfo(BFW).name,
 						[CI] = GetMapInfo(CI).name,
 						[ASH] = GetMapInfo(ASH).name,
-						[DR] = GetMapInfo(DR).name
+						[DR] = GetMapInfo(DR).name,
+						[SR] = GetMapInfo(SR).name
 					},
 					set = function(_, val) RE.LastMap = val; RE:ShowDummyMap(val) end,
 					get = function(_) return RE.LastMap end
@@ -321,7 +342,7 @@ RE.AceConfig = {
 					desc = L["This option control map size."],
 					type = "range",
 					width = "double",
-					order = 7,
+					order = 6,
 					min = 0.5,
 					max = 1.5,
 					step = 0.05,
@@ -333,7 +354,7 @@ RE.AceConfig = {
 					desc = L["This option control map transparency."],
 					type = "range",
 					width = "double",
-					order = 8,
+					order = 7,
 					isPercent = true,
 					min = 0.1,
 					max = 1,
@@ -502,7 +523,7 @@ function RE:OnMouseWheel(delta)
 	newscale = RE:Round(newscale, 2)
 	REPorterFrameCore:SetScale(newscale)
 	if SettingsPanel:IsShown() then
-		RE.ConfigFrame.obj.children[1].children[1].children[7]:SetValue(newscale)
+		RE.ConfigFrame.obj.children[1].children[1].children[6]:SetValue(newscale)
 	end
 end
 
@@ -829,21 +850,14 @@ function RE:OnUpdate(elapsed)
 						texture = "Interface\\Addons\\REPorter\\Textures\\BlipDead"
 						r, g, b = r * 0.35, g * 0.35, b * 0.35
 					end
-					local raidMarker = GetRaidTargetIndex(unit)
 					if IsShiftKeyDown() and IsControlKeyDown() then
 						RE.IsOverlay = true
-						if raidMarker ~= nil then
-							texture = "Interface\\Addons\\REPorter\\Textures\\RaidMarker"..raidMarker
-							REPorterFrameCoreUP:AddUnit(unit, texture, 25, 25, 1, 1, 1, 1, 0, false)
-						elseif UnitGroupRolesAssigned(unit) == "HEALER" then
+						if UnitGroupRolesAssigned(unit) == "HEALER" then
 							REPorterFrameCoreUP:AddUnit(unit, texture.."Healer", 30, 30, r, g, b, 1, 0, false)
 						end
 					else
 						RE.IsOverlay = false
-						if RE.Settings.profile.DisplayMarks and raidMarker ~= nil then
-							texture = "Interface\\Addons\\REPorter\\Textures\\RaidMarker"..raidMarker
-							REPorterFrameCoreUP:AddUnit(unit, texture, 25, 25, 1, 1, 1, 1, 0, false)
-						elseif RE.Settings.profile.DisplayHealers and UnitGroupRolesAssigned(unit) == "HEALER" then
+						if RE.Settings.profile.DisplayHealers and UnitGroupRolesAssigned(unit) == "HEALER" then
 							REPorterFrameCoreUP:AddUnit(unit, texture.."Healer", 30, 30, r, g, b, 1, 0, false)
 						else
 							REPorterFrameCoreUP:AddUnit(unit, texture, 25, 25, r, g, b, 1, 0, false)
@@ -1089,7 +1103,7 @@ end
 function RE:Create()
 	REPorterFrameCore:SetScript("OnUpdate", nil)
 	REPorterFrameEstimator:ClearAllPoints()
-	REPorterFrameEstimator:SetPoint("TOP", UIWidgetTopCenterContainerFrame, "BOTTOM", 0, -10)
+	REPorterFrameEstimator:SetPoint("TOP", UIWidgetTopCenterContainerFrame, "BOTTOM", 0, -15)
 	RE.POINodes = {}
 
 	if RE.CurrentMap == SM or RE.CurrentMap == DR then
@@ -1100,7 +1114,7 @@ function RE:Create()
 		RE.EstimatorData = {0, 0, 0, 0, -1}
 	end
 
-	if tContains({AV, BFG, IOC, AB, DG, SS, EOTS, BFW, CI, ASH, TOK}, RE.CurrentMap) then
+	if tContains({AV, BFG, IOC, AB, DG, SS, EOTS, BFW, CI, ASH, TOK, DD, SR}, RE.CurrentMap) then
 		RE.CareAboutNodes = true
 		if RE.CurrentMap == SS then
 			REPorterFrame:RegisterEvent("VIGNETTES_UPDATED")
@@ -1116,7 +1130,7 @@ function RE:Create()
 	else
 		RE.CareAboutPoints = false
 	end
-	if tContains({WG, TP, EOTS, TOK, CI, DR}, RE.CurrentMap) then
+	if tContains({WG, TP, EOTS, TOK, CI, DR, DD, SR}, RE.CurrentMap) then
 		RE.CareAboutFlags = true
 	else
 		RE.CareAboutFlags = false

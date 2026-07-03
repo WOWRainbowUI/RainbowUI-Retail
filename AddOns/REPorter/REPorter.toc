@@ -1,7 +1,7 @@
-## Interface: 120000
+## Interface: 120005
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
-## Version: 3.0.0
+## Version: 3.1.1
 ## Author: AcidWeb
 ## SavedVariables: REPorterSettings
 ## IconTexture: Interface\AddOns\REPorter\RELogo
