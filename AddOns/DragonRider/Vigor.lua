@@ -1559,7 +1559,7 @@ local function DR_OnAddonLoaded()
 				},
 			};
 
-			DragonRider_API.RegisterVigorTheme(
+			DR.RegisterVigorTheme(
 				"DragonRider_Hexagem",
 				L["VigorTheme_DR_Hexagem"],
 				hexagemDesign
@@ -1692,7 +1692,7 @@ local function Narci_OnAddonLoaded()
 		for _, v in ipairs(variants) do
 			local theme = CreateHexagonTheme(v.texture);
 
-			DragonRider_API.RegisterVigorTheme(
+			DR.RegisterVigorTheme(
 				v.key,
 				L[v.locale],
 				theme
