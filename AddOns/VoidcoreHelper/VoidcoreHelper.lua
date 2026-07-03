@@ -25,6 +25,8 @@ VCH.MR_displayItemIDs = {
 
     [2739] = 268458, -- 贝洛朗，奥的子嗣
     [2740] = 262658, -- 至暗之夜降临
+
+    [2711] = 275228  -- 腐沼
 }
 
 VCH.MR_upper = {
@@ -39,11 +41,13 @@ VCH.MR_upper = {
 
     [268458] = 4, -- 贝洛朗，奥的子嗣
     [262658] = 4, -- 至暗之夜降临
+
+    [275228] = 4, -- 腐沼
 }
 
 VCH.UG_displayItemIDs = {
     268969, -- 地下堡
-    269768 -- 狩猎
+    269768  -- 狩猎
 }
 
 local itemLevelString = "^" .. gsub(ITEM_LEVEL, "%%d", "(%%d+)")
@@ -164,6 +168,12 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         }
         local scr_data = D:ReadDB("scr_data", {})
         tinsert(scr_data, saveData)
+        D:SaveDB("scr_data", scr_data)
+        -- print("spellID:" .. spellID .. ", confirmType:" .. confirmType ..
+        --     ", text:" .. text .. ", duration:" .. duration ..
+        --     ", currencyID:" .. currencyID .. ", currencyCost:" .. currencyCost ..
+        --     ", difficultyID:" .. difficultyID .. ", displayItemID:" .. displayItemID ..
+        --     ", itemContext:" .. itemContext .. ", treasureContextLevel:" .. treasureContextLevel)
         D:SaveDB("scr_data", scr_data)
     end
     if event == "PLAYER_LOGIN" then

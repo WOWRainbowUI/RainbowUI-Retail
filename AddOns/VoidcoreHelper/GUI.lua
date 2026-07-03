@@ -68,6 +68,7 @@ frame.labelFrame:SetScript("OnDragStop", function(self)
     self:GetParent():StopMovingOrSizing()
 end)
 
+-- 小地图按钮图标
 frame.UG = frame.UG or CreateFrame("Frame", "", frame)
 frame.UG.bg = frame.UG.bg or frame:CreateTexture(nil, "BACKGROUND", nil, 2)
 frame.UG.bg:SetAllPoints(frame.UG)
@@ -123,6 +124,8 @@ end)
 frame.UG:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
+
+-- 地下堡按钮
 local delvesFrame = CreateFrame("Frame", "VCH_Delves_Frame", UIParent)
 
 delvesFrame:SetScript("OnEnter", function(self)
@@ -203,6 +206,13 @@ local function InitMinimapButton()
 
     -- 点击事件
     MinimapButton:SetScript("OnMouseUp", function(self, button, down)
+        -- for itemID = 268000, 270000 do
+        --     local name = C_Item.GetItemInfo(itemID)
+        --     if name and name:find("晦暗虚空宝箱") then
+        --         print(itemID, name)
+        --     end
+        -- end
+
         if frame:IsShown() then
             frame:Hide()
         else
@@ -415,6 +425,7 @@ end
 -- end)
 
 local currDisplayItemID = nil
+-- 地下城手册按钮
 local pFrame            = CreateFrame("Frame", "VCH_P_Frame", UIParent)
 
 VCH.add10               = true
@@ -611,8 +622,12 @@ end)
 --         VCH:LoadRaidFrame()
 --     end
 -- end)
-
+-- 狩猎按钮
 local gFrame = CreateFrame("Frame", "VCH_G_Frame", UIParent)
+gFrame.bg = gFrame.bg or gFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
+gFrame.bg:SetAllPoints(gFrame)
+gFrame.bg:SetTexture(7658128)
+
 gFrame:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetItemByID(VCH.UG_displayItemIDs[2], nil, 55, 0)
@@ -623,14 +638,13 @@ gFrame:SetScript("OnLeave", function()
 end)
 hooksecurefunc("Garrison_LoadUI", function()
     if CovenantMissionFrame then
-        CovenantMissionFrame:HookScript("OnShow", function()
-            gFrame.bg = gFrame.bg or gFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
-            gFrame.bg:SetAllPoints(gFrame)
-            gFrame.bg:SetTexture(7658128)
-            local uiScale = UIParent:GetEffectiveScale()
-            gFrame:SetSize(25 / uiScale, 25 / uiScale)
-            gFrame:SetPoint("TOPLEFT", CovenantMissionFrame, "TOPRIGHT", 20, -20)
-            gFrame:Show()
+        CovenantMissionFrame:HookScript("OnShow", function(self)
+            if self.textureKit == "midnight" then
+                local uiScale = UIParent:GetEffectiveScale()
+                gFrame:SetSize(25 / uiScale, 25 / uiScale)
+                gFrame:SetPoint("TOPLEFT", CovenantMissionFrame, "TOPRIGHT", 20, -20)
+                gFrame:Show()
+            end
         end)
         CovenantMissionFrame:HookScript("OnHide", function()
             gFrame:Hide()
@@ -691,6 +705,12 @@ function VCH:LoadLootList()
             if success then
                 local Lootcache = D:ReadDB("Lootcache", {})
 
+                for _, lootFrame in ipairs(lootFrames) do
+                    if lootFrame.VCH_ICON then
+                        lootFrame.VCH_ICON:Hide()
+                    end
+                end
+
                 local displayItemID = VCH.MG_displayItemIDs[EncounterJournal.instanceID] or
                     VCH.MR_displayItemIDs[EncounterJournal.encounterID]
                 if displayItemID then
@@ -698,9 +718,6 @@ function VCH:LoadLootList()
                     local lootData = Lootcache[displayItemID][specIcon] or {}
 
                     for _, lootFrame in ipairs(lootFrames) do
-                        if lootFrame.VCH_ICON then
-                            lootFrame.VCH_ICON:Hide()
-                        end
                         if lootFrame.itemID then
                             local itemName = C_Item.GetItemInfo(lootFrame.itemID)
                             for _, voidCoreLootName in ipairs(lootData) do
