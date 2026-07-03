@@ -8,6 +8,26 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.7.1
+Released 2026-06-16
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.7.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 12.0.7.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.4.1 for Classic Mists of Pandaria
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic MoP Anniversary 5.5.4.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 2.5.5.6 for Classic Burning Crusade
+Version 1.15.8.8 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 12.0.5.1
 Released 2026-04-22
 
