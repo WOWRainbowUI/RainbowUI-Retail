@@ -13,11 +13,13 @@ local _, ns = ...
 -- 預設值
 local DEFAULTS = {
     enabled = true,
+    fontFace = "",          -- "" = 沿用暴雪原本字型
     fontSize = 12,
     outline = true,
     yOffset = 6,
     -- 堆疊層數
     countEnabled = true,
+    countFontFace = "",     -- "" = 沿用暴雪原本字型
     countAnchor = "TOP",
     countXOffset = 0,
     countYOffset = 0,
@@ -36,6 +38,33 @@ local function GetDB()
     end
     db = MiliUI_AuraEnhanceDB
     return db
+end
+
+------------------------------------------------------------
+-- 字型輔助
+------------------------------------------------------------
+-- 安全套用字型：路徑失效（例：LSM 字型被移除）時退回系統預設，避免文字消失
+local function SetFontSafe(fs, path, size, flags)
+    if not path or path == "" then return false end
+    if fs:SetFont(path, size, flags) then return true end
+    return fs:SetFont(STANDARD_TEXT_FONT, size, flags)
+end
+
+-- 時間文字字型路徑："" 代表沿用暴雪原本字型
+local function ResolveDurationFont(dur)
+    local face = db.fontFace
+    if face and face ~= "" then return face end
+    local of = dur.AuraEnhance_origFont
+    if of and of[1] then return of[1] end
+    return dur:GetFont() or STANDARD_TEXT_FONT
+end
+
+-- 套用堆疊層數自訂字型（保留原本大小與旗標，只換字體）
+local function ApplyCountFont(cnt)
+    local face = db.countFontFace
+    if not face or face == "" then return end
+    local _, sz, fl = cnt:GetFont()
+    SetFontSafe(cnt, face, sz or 14, fl or "")
 end
 
 ------------------------------------------------------------
@@ -63,6 +92,9 @@ local function HookDuration(btn)
     local dur = btn.Duration
     if not dur or hookedDurations[dur] then return end
 
+    -- 記下暴雪原本字型，選「預設」時可立即還原字體
+    dur.AuraEnhance_origFont = dur.AuraEnhance_origFont or { dur:GetFont() }
+
     -- Hook SetPoint：Blizzard 每次重設位置時，我們立刻覆寫
     hooksecurefunc(dur, "SetPoint", function(self)
         if overriding then return end
@@ -81,9 +113,7 @@ local function HookDuration(btn)
         if not db.enabled then return end
 
         overriding = true
-        local fontPath = self:GetFont()
-        if not fontPath then fontPath = STANDARD_TEXT_FONT end
-        self:SetFont(fontPath, db.fontSize, db.outline and "OUTLINE" or "")
+        SetFontSafe(self, ResolveDurationFont(self), db.fontSize, db.outline and "OUTLINE" or "")
         if db.outline then
             self:SetShadowOffset(1, -1)
             self:SetShadowColor(0, 0, 0, 0.6)
@@ -101,6 +131,9 @@ local function HookCount(btn)
     local cnt = btn.Count
     if not cnt or hookedCounts[cnt] then return end
 
+    -- 記下暴雪原本字型，停用自訂字型時可還原
+    cnt.AuraEnhance_origFont = cnt.AuraEnhance_origFont or { cnt:GetFont() }
+
     -- SetPoint 與 SetText 做同一件事（確保位置不跑掉）——共用 closure
     local function reapply(self)
         if overriding then return end
@@ -111,11 +144,27 @@ local function HookCount(btn)
         self:SetWidth(0)
         self:ClearAllPoints()
         self:SetPoint(db.countAnchor, btn.Icon, db.countAnchor, db.countXOffset, db.countYOffset)
+        if db.countFontFace and db.countFontFace ~= "" then
+            ApplyCountFont(self)
+            self.AuraEnhance_fontApplied = true
+        end
         overriding = false
     end
 
     hooksecurefunc(cnt, "SetPoint", reapply)
     hooksecurefunc(cnt, "SetText",  reapply)
+
+    -- Blizzard 切換字型物件時，覆寫回自訂字型
+    hooksecurefunc(cnt, "SetFontObject", function(self)
+        if overriding then return end
+        if not db.countEnabled then return end
+        if not (db.countFontFace and db.countFontFace ~= "") then return end
+
+        overriding = true
+        ApplyCountFont(self)
+        self.AuraEnhance_fontApplied = true
+        overriding = false
+    end)
 
     hookedCounts[cnt] = true
 end
@@ -131,9 +180,7 @@ local function ApplyDurationStyle(btn)
 
     dur:SetParent(EnsureOverlay(btn))
 
-    local fontPath = dur:GetFont()
-    if not fontPath then fontPath = STANDARD_TEXT_FONT end
-    dur:SetFont(fontPath, db.fontSize, db.outline and "OUTLINE" or "")
+    SetFontSafe(dur, ResolveDurationFont(dur), db.fontSize, db.outline and "OUTLINE" or "")
 
     if db.outline then
         dur:SetShadowOffset(1, -1)
@@ -181,6 +228,15 @@ local function ApplyCountStyle(btn)
     cnt:SetWidth(0)
     cnt:ClearAllPoints()
     cnt:SetPoint(db.countAnchor, btn.Icon, db.countAnchor, db.countXOffset, db.countYOffset)
+    -- 字型：有自訂就套用，選回「預設」則還原暴雪原本字型
+    if db.countFontFace and db.countFontFace ~= "" then
+        ApplyCountFont(cnt)
+        cnt.AuraEnhance_fontApplied = true
+    elseif cnt.AuraEnhance_fontApplied then
+        local of = cnt.AuraEnhance_origFont
+        if of and of[1] then cnt:SetFont(of[1], of[2] or 14, of[3] or "") end
+        cnt.AuraEnhance_fontApplied = false
+    end
     overriding = false
 end
 
@@ -193,6 +249,12 @@ local function RestoreCountStyle(btn)
     cnt:SetWidth(0)
     cnt:ClearAllPoints()
     cnt:SetPoint("BOTTOMRIGHT", btn.Icon, "BOTTOMRIGHT", -2, 2)
+    -- 還原自訂字型
+    if cnt.AuraEnhance_fontApplied then
+        local of = cnt.AuraEnhance_origFont
+        if of and of[1] then cnt:SetFont(of[1], of[2] or 14, of[3] or "") end
+        cnt.AuraEnhance_fontApplied = false
+    end
     overriding = false
 end
 
@@ -255,6 +317,11 @@ function API.SetEnabled(enabled)
     end
 end
 
+function API.SetFontFace(path)
+    GetDB().fontFace = path or ""
+    if GetDB().enabled then ForEachAuraButton(ApplyDurationStyle) end
+end
+
 function API.SetFontSize(size)
     GetDB().fontSize = math.max(7, math.min(16, size))
     if GetDB().enabled then ForEachAuraButton(ApplyDurationStyle) end
@@ -277,6 +344,11 @@ function API.SetCountEnabled(enabled)
     else
         ForEachAuraButton(RestoreCountStyle)
     end
+end
+
+function API.SetCountFontFace(path)
+    GetDB().countFontFace = path or ""
+    if GetDB().countEnabled then ForEachAuraButton(ApplyCountStyle) end
 end
 
 function API.SetCountAnchor(anchor)

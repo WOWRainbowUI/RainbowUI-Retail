@@ -4,8 +4,61 @@
 ------------------------------------------------------------
 local _, ns = ...
 
+-- 字型清單：偵測到 LibSharedMedia-3.0 就用共享字型，否則退回 WoW 內建字型。
+-- 每次呼叫都重新讀取，下拉選單打開時即時反映 LSM 動態註冊的字型。
+local function GetFontList()
+    local list = { { text = "沿用暴雪字型", value = "" } }
+    local LSM = _G.LibStub and _G.LibStub("LibSharedMedia-3.0", true)
+    if LSM then
+        local hash = LSM:HashTable("font")
+        local names = {}
+        for name in pairs(hash) do names[#names + 1] = name end
+        table.sort(names)
+        for _, name in ipairs(names) do
+            list[#list + 1] = { text = name, value = hash[name] }
+        end
+    else
+        list[#list + 1] = { text = "Friz Quadrata", value = "Fonts\\FRIZQT__.TTF" }
+        list[#list + 1] = { text = "Arial Narrow",  value = "Fonts\\ARIALN.TTF" }
+        list[#list + 1] = { text = "Skurri",        value = "Fonts\\skurri.TTF" }
+        list[#list + 1] = { text = "Morpheus",      value = "Fonts\\MORPHEUS.TTF" }
+    end
+    return list
+end
+
 local function BuildOptions()
     local Style = ns.BuffDurationStyle
+
+    -- 依儲存的字型路徑找回顯示名稱（找不到時直接顯示路徑）
+    local function FontTextOf(value)
+        value = value or ""
+        for _, opt in ipairs(GetFontList()) do
+            if opt.value == value then return opt.text end
+        end
+        return value ~= "" and value or "沿用暴雪字型"
+    end
+
+    -- 建立一個字型下拉選單，選擇時呼叫 setter(path)
+    -- 每次打開選單都重新取得字型清單，即時反映 LSM 動態註冊
+    local function CreateFontDropdown(name, parent, setter)
+        local dd = CreateFrame("Frame", name, parent, "UIDropDownMenuTemplate")
+        UIDropDownMenu_SetWidth(dd, 140)
+        UIDropDownMenu_Initialize(dd, function(self, level)
+            for _, opt in ipairs(GetFontList()) do
+                local value, text = opt.value, opt.text
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = text
+                info.value = value
+                info.func = function()
+                    UIDropDownMenu_SetSelectedValue(dd, value)
+                    UIDropDownMenu_SetText(dd, text)
+                    setter(value)
+                end
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+        return dd
+    end
 
     -- ============================================================
     -- 光環強化 面板
@@ -80,11 +133,21 @@ local function BuildOptions()
     local yOffsetValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     yOffsetValue:SetPoint("LEFT", yOffsetSlider, "RIGHT", 12, 0)
 
+    -- 時間文字字型
+    local durFontLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    durFontLabel:SetPoint("TOPLEFT", yOffsetSlider, "BOTTOMLEFT", 0, -30)
+    durFontLabel:SetText("字型：")
+
+    local durFontDropdown = CreateFontDropdown("AuraEnhance_BuffDurFontDropdown", auraFrame, function(path)
+        if Style then Style.SetFontFace(path) end
+    end)
+    durFontDropdown:SetPoint("LEFT", durFontLabel, "RIGHT", -8, -2)
+
     -- ============================================================
     -- 堆疊層數區塊
     -- ============================================================
     local countLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    countLabel:SetPoint("TOPLEFT", yOffsetSlider, "BOTTOMLEFT", 0, -30)
+    countLabel:SetPoint("TOPLEFT", durFontLabel, "BOTTOMLEFT", 0, -28)
     countLabel:SetText("堆疊層數")
 
     -- 啟用堆疊層數調整
@@ -97,7 +160,7 @@ local function BuildOptions()
     countCBDesc:SetPoint("TOPLEFT", countCB, "BOTTOMLEFT", 26, -2)
     countCBDesc:SetWidth(520)
     countCBDesc:SetJustifyH("LEFT")
-    countCBDesc:SetText("自訂堆疊層數文字的位置。")
+    countCBDesc:SetText("自訂堆疊層數文字的位置與字型。")
     countCBDesc:SetTextColor(0.5, 0.5, 0.5)
 
     -- 錨點下拉選單
@@ -166,16 +229,28 @@ local function BuildOptions()
     local countYValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     countYValue:SetPoint("LEFT", countYSlider, "RIGHT", 12, 0)
 
+    -- 堆疊層數字型
+    local countFontLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    countFontLabel:SetPoint("TOPLEFT", countYSlider, "BOTTOMLEFT", 0, -24)
+    countFontLabel:SetText("字型：")
+
+    local countFontDropdown = CreateFontDropdown("AuraEnhance_CountFontDropdown", auraFrame, function(path)
+        if Style then Style.SetCountFontFace(path) end
+    end)
+    countFontDropdown:SetPoint("LEFT", countFontLabel, "RIGHT", -8, -2)
+
     -- 控制子選項的啟用/反灰狀態
     local function UpdateCountSubControls(enabled)
         if enabled then
             anchorDropdown:SetAlpha(1)
             countXSlider:Enable()
             countYSlider:Enable()
+            UIDropDownMenu_EnableDropDown(countFontDropdown)
         else
             anchorDropdown:SetAlpha(0.5)
             countXSlider:Disable()
             countYSlider:Disable()
+            UIDropDownMenu_DisableDropDown(countFontDropdown)
         end
     end
 
@@ -185,6 +260,7 @@ local function BuildOptions()
             outlineCB.text:SetFontObject("GameFontHighlight")
             fontSizeSlider:Enable()
             yOffsetSlider:Enable()
+            UIDropDownMenu_EnableDropDown(durFontDropdown)
             countCB:Enable()
             countCB.text:SetFontObject("GameFontHighlight")
         else
@@ -192,6 +268,7 @@ local function BuildOptions()
             outlineCB.text:SetFontObject("GameFontDisable")
             fontSizeSlider:Disable()
             yOffsetSlider:Disable()
+            UIDropDownMenu_DisableDropDown(durFontDropdown)
             countCB:Disable()
             countCB.text:SetFontObject("GameFontDisable")
             UpdateCountSubControls(false)
@@ -208,8 +285,12 @@ local function BuildOptions()
         fontSizeValue:SetText(db.fontSize)
         yOffsetSlider:SetValue(db.yOffset)
         yOffsetValue:SetText(db.yOffset)
+        UIDropDownMenu_SetSelectedValue(durFontDropdown, db.fontFace or "")
+        UIDropDownMenu_SetText(durFontDropdown, FontTextOf(db.fontFace))
         -- 堆疊層數
         countCB:SetChecked(db.countEnabled)
+        UIDropDownMenu_SetSelectedValue(countFontDropdown, db.countFontFace or "")
+        UIDropDownMenu_SetText(countFontDropdown, FontTextOf(db.countFontFace))
         UIDropDownMenu_SetSelectedValue(anchorDropdown, db.countAnchor)
         for _, opt in ipairs(anchorOptions) do
             if opt.value == db.countAnchor then
@@ -289,8 +370,9 @@ local function BuildOptions()
 
     -- 註冊為獨立的頂層設定分類
     local category = Settings.RegisterCanvasLayoutCategory(auraFrame, "光環時間")
+
     Settings.RegisterAddOnCategory(category)
-	MiliUI_AuraEnhanceDB.categoryID = category:GetID()
+    MiliUI_AuraEnhanceDB.categoryID = category:GetID()
 end
 
 -- 等 SavedVariables 載入後再建立面板（確保同步顯示正確的值）

@@ -1,5 +1,5 @@
 ## Interface: 120005, 120007
-## Version: 1.0.0
+## Version: 1.1.0
 ## Title: |cff0099FF[介面]|r 光環時間美化
 ## Notes: MiliUI_AuraEnhance|n|n調整增益 / 減益圖示下方時間文字與堆疊層數的位置、大小與描邊。獨立運作，不依賴 MiliUI。|n|n|cffffd200使用方法：|r從Esc > 選項 > 插件 > 光環時間，進行設定。
 ## IconTexture: Interface\Icons\Spell_Holy_WordFortitude
