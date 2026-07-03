@@ -127,7 +127,7 @@ addonTable.AudioTimeline = {
             -- [7] =  "TieBianFangShui.ogg",
             -- [16] = "DuoKaiZhengMian.ogg",
             -- [22] = { file = "MeiYouYinPin.ogg", duration = 3 },
-            [29] = { file = "ZhuanHuoXiaoGuai.ogg", role = {"TANK", "DAMAGER"} },
+            [31] = { file = "ZhuanHuoXiaoGuai.ogg", role = {"TANK", "DAMAGER"} },
             -- [33] = "TieBianFangShui.ogg",
             -- [35] = { file = "ZhuYiJianShang.ogg", role = "TANK" }, 
             -- [36] = { file = "ZhuYiShuaTan.ogg", role = "HEALER" }, 
@@ -269,7 +269,7 @@ addonTable.AudioTimeline = {
         interval = 9999, 
         startOffset = 0, 
         alerts = {
-            [2]  = { file = "DaDuanDuTiao.ogg", role = {"TANK", "DAMAGER"} },
+            [2]  = { file = "DaDuanNvYao.ogg", role = {"TANK", "DAMAGER"} },
         }
     },
     [3058] = {

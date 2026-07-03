@@ -9,7 +9,7 @@ addonTable.PrivateAura.list = {
     -- [154150]  = "ZhuYiJianShang", -- 线炽光耀脉芒炽耀
     [1253541] = "ZhuYiJianShang", -- 线炽射耀烧脉灼芒
     [153954]  = "XiaoGuaiZhuaNi", -- 下坠扔崩碎震裂坠
-    [1253531] = "JiGuangDianNiSanErYiAnQuanAnQuan", -- 光耀眩芒炽脉闪耀
+    [1253531] = "JiGuangDianNiSanErYiAnQuanAnQuan", -- 眩光
     [1261286] = "ShiMaFenSanDuoKaiDaQuan", -- 铁崩邪碎隆震萨裂掷坠投崩
     [1261540] = "QuanZhuShiTou", -- 碎矿猛击
     [1261799] = "JingBao", -- 萨隆邪铁淤泥
@@ -181,19 +181,19 @@ addonTable.PrivateAura.list = {
     [1255453] = "NiBeiYiShang", -- 重力坍缩
 
     -- 贝洛朗，奥的子嗣
-    [1241292] = "MuBiaoShiNi.ogg", -- 圣光俯冲
-    [1241339] = "MuBiaoShiNi.ogg", -- 虚空俯冲
+    -- [1241292] = "MuBiaoShiNi.ogg", -- 圣光俯冲
+    -- [1241339] = "MuBiaoShiNi.ogg", -- 虚空俯冲
     -- [1244348] = ".ogg", -- 圣光灼烧
     -- [1266404] = ".ogg", -- 虚空灼烧
-    [1242803] = "JingBao.ogg", -- 圣光烈焰
-    [1242815] = "JingBao.ogg", -- 虚空烈焰
-    [1241840] = "JingBao.ogg", -- 圣光区域
-    [1241841] = "JingBao.ogg", -- 虚空区域
-    [1241992] = "MuBiaoShiNi.ogg", -- 圣光飞羽
-    [1242091] = "MuBiaoShiNi.ogg", -- 虚空飞羽
+    [1242803] = "JingBao", -- 圣光烈焰
+    [1242815] = "JingBao", -- 虚空烈焰
+    [1241840] = "JingBao", -- 圣光区域
+    [1241841] = "JingBao", -- 虚空区域
+    -- [1241992] = "MuBiaoShiNi.ogg", -- 圣光飞羽
+    -- [1242091] = "MuBiaoShiNi.ogg", -- 虚空飞羽
     -- 至暗之夜降临
-    [1282027] = "JingBao.ogg", -- 黑暗之井
-    [1249609] = "FuWenDianNi.ogg", -- 黑暗符文
+    [1282027] = "JingBao", -- 黑暗之井
+    [1249609] = "FuWenDianNi", -- 黑暗符文
     -- [1249584] = ".ogg", -- 不谐
     -- [1251789] = ".ogg", -- 宇宙裂隙
     -- [1284699] = ".ogg", -- 圣光终末
@@ -204,13 +204,23 @@ addonTable.PrivateAura.list = {
     -- [1253104] = ".ogg", -- 黎明光障
     -- [1282470] = ".ogg", -- 黑暗类星体
     -- [1284984] = ".ogg", -- 黯灭协奏
-    -- [1253031] = ".ogg", -- 闪烁
-    [1279512] = "SheXianDianNi.ogg", -- 星辰裂片
-    [1285510] = "SheXianDianNi.ogg", -- 星辰裂片
+    [1253031] = "HuoDeShuiJing", -- 闪烁
+    -- [1279512] = "SheXianDianNi", -- 星辰裂片
+    -- [1285510] = "SheXianDianNi", -- 星辰裂片
     -- [1282016] = ".ogg", -- 湮灭之虹
-    [1284527] = "MiaoZhunHeiQiu.ogg", -- 充电
+    -- [1284527] = "MiaoZhunHeiQiu", -- 充电
     -- [1284531] = ".ogg", -- 凋零
-    [1263514] = "JingBao.ogg", -- 至暗之夜
+    [1263514] = "JingBao", -- 至暗之夜
     -- [1275429] = ".ogg", -- 断离
     -- [1266946] = ".ogg", -- 断离
+    [1254635] = "JingBao", -- 黑色浪潮
+    -- 腐沼
+    [1221639] = "LvSeLianXian", -- Shroomling
+    [1299508] = "HongSeLianXian", -- Fungling
+    [1222088] = "TieBianFangShui", -- Festering Vines
+    [1222129] = "JingBao", -- Writhing Vines
+    -- 光明众花
+    [1261276] = "LiuXue", -- 荆棘之刃
+    -- 护光者鲁伊亚
+    [1240222] = "MuBiaoShiNi", -- 粉碎打击
 }

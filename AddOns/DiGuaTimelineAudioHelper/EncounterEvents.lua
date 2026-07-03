@@ -30,14 +30,14 @@ addonTable.EventSoundData = {
     [223] = { {"DuoKaiZhengMian.ogg", 1} }, -- 虚空之掌 (1268916)
     [224] = { {"ZhunBeiTiaoRen.ogg", 1} }, -- 残杀 (1263282)
     [225] = { {"ZhunBeiAOE.ogg", 1} }, -- 渗漏猛击 (1263399)
-    [226] = { {"WuMiaoHouTanKeJianCiSanErYi.ogg", 2, {TANK = true, HEALER = true}}, {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}}}, -- 虚空挥砍 (1263440)
+    [226] = { {"WuMiaoHouTanKeJianCiSanErYi.ogg", 2, {TANK = true, HEALER = true}}, {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 虚空挥砍 (1263440)
     -- [238] = { {"XiaoXinJiTui.ogg", 1} }, -- 崩解虚空 (1263304)
     
     -- 萨普瑞什
     [234] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 虚空炸弹 (247175)
     -- [235] = { {".ogg", 1} }, -- 相位冲锋 (1263509)
     [236] = { {"DaDuanDuTiao.ogg", 0, {DAMAGER = true, TANK = true}} }, -- 恐惧尖啸 (248831)
-    [237] = { {"DanShuaLiuXue.ogg", 1, {HEALER = true}} }, -- 暗影突袭 (245738)
+    [237] = { {"DanShuaLiuXue.ogg", 1, {HEALER = true}}, {"ZhunBeiLiuXueSanErYi.ogg", 2, {DAMAGER = true, HEALER = true}} }, -- 暗影突袭 (245738)
     -- [243] = { {".ogg", 1} }, -- 过载 (1263523)
     
     -- 总督奈扎尔
@@ -87,7 +87,7 @@ addonTable.EventSoundData = {
     
     -- 核心守卫奈萨拉 
     [36]  = { {"ZhunBeiXiaoGuaiLiuMiaoXiaoGuaiJiHuo.ogg", 1} }, -- 空无先锋
-    [35]  = { {"TanKeChengShang.ogg", 1, {TANK = true, HEALER = true}} }, -- 幽影鞭笞   
+    [35]  = { {"WuMiaoHouTanKeJianCi.ogg", 2, {TANK = true, HEALER = true}}, {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 幽影鞭笞   
     [34]  = { {"ZhunBeiYiShangJiuMiaoKuaiJinShengGuang.ogg", 0} }, -- 光痕耀斑
     -- [33]  = { {"ZhunBeiDianMing.ogg", 2} }, -- 蚀光步伐    
     
@@ -233,7 +233,7 @@ addonTable.EventSoundData = {
     [497] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 复生 (1241313)
     [134] = { {"TanKeLianJi.ogg", 1, {TANK = true}} }, -- 守护者敕令 (1260763)
     [272] = { {"ZhunBeiJiFei.ogg", 2} }, -- 死亡坠落 (1246709)
-    [138] = { {"ZhuYiDanShua.ogg", 1, {HEALER = true}} }, -- 永恒灼烧 (1244344)
+    [138] = { {"ShuaXiNaiDun.ogg", 1, {HEALER = true}} }, -- 永恒灼烧 (1244344)
     -- [161] = { {"ZhuYiSheXian.ogg", 1, {DAMAGER = true, HEALER = true}} }, -- 注能飞羽 (1242260)
     -- [273] = { {".ogg", 1} }, -- 烈焰孵化 (1242792)
     [218] = { {"KaiShiHuanSe.ogg", 1}, {"ZhunBeiHuanSeSanErYiKaiShiHuanSe.ogg", 2} }, -- 虚光汇流 (包含原表2)
@@ -266,4 +266,38 @@ addonTable.EventSoundData = {
     -- [650] = { {"FuWenDianNi.ogg", 0} }, -- 黑暗符文 (1249609)
     [649] = { {"ZhuYiSheXian.ogg", 1} }, -- 黑暗类星体 (1279420)
     -- [644] = { {".ogg", 1} }, -- 黯灭协奏 (1284980)
+
+    -- 腐沼
+    [424] = { {"ZhunBeiJiTuiLiangMiaoSanErYi.ogg", 1} }, -- 真菌绽放 (1221637)
+    [425] = { {"ZhuYiJiaoXia.ogg", 1} }, -- 唤醒真菌 (1221622)
+    [426] = { {"ZhunBeiAOE.ogg", 1}, {"WuMiaoHouAOE.ogg", 2, {HEALER = true}} }, -- 脓包爆裂 (1221787)
+    [427] = { {"WuMiaoHouTanKeJianCi.ogg", 2, {TANK = true}}, {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 腐烂之拳 (1221781)
+    [428] = { {"ZhunBeiDianMing.ogg", 1, {DAMAGER = true, HEALER = true}} }, -- 溃烂藤蔓 (1222088)
+    -- [808] = { {"HongSeLianXian.ogg", 0} },
+    -- [809] = { {"LvSeLianXian.ogg", 0} },
+    -- 光明众花
+    [177] = { {"ZhunBeiCaiQuan.ogg", 1} }, -- 光明之花射线 (1235564)
+    [173] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 基岩猛击 (1234753)
+    [174] = { {"DuoKaiChongFeng.ogg", 1} }, -- 播光急奔 (1234850)
+    -- [175] = { {"ZhunBeiLiuXue.ogg", 1} }, -- 荆棘之刃 (1235640)
+    -- [176] = { {"ZhunBeiLiuXue.ogg", 1} }, -- 荆棘之刃 (1261276)
+
+    -- 圣光猎手伊库兹
+    [179] = { {"ZhunBeiAOE.ogg", 1} }, -- 唤棘者咆哮 (1236709)
+    [180] = { {"MuBiaoShiNi.ogg", 0} }, -- 嗜血注视 (1237090)
+    [178] = { {"XiaoXinJiTui.ogg", 1} }, -- 青翠践踏 (1236746)
+
+    -- 护光者鲁伊亚
+    [181] = { {"ZhuYiDianMing.ogg", 1}, {"TieBianFangShui.ogg", 0}}, -- 光明之火 (1239824)
+    [182] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 光明坠落 (1240098)
+    [184] = { {"ZhunBeiLiuXue.ogg", 1}, {"WuMiaoHouAOE.ogg", 2, {HEALER = true}} }, -- 凶残痛击 (1241058)
+    [188] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 峡谷之灵 (1241067)
+    [115] = { {"TanKeChengShang.ogg", 1} }, -- 撕裂之爪 (1258136)
+    [183] = { {"ZhuYiDianMing.ogg", 1} }, -- 粉碎打击 (1240210)
+
+    -- 兹欧凯特
+    [192] = { {"ZhunBeiChiQiu.ogg", 1} }, -- 光绽精华 (1246858)
+    [191] = { {"MuBiaoShiNi.ogg", 0} }, -- 凝聚光线 (1246607)
+    [189] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 唤醒光绽 (1246372)
+    [190] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 棘刺 (1247685)
 }
