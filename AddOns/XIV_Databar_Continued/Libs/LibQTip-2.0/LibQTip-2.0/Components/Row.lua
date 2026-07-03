@@ -8,7 +8,7 @@ local ScriptManager = QTip.ScriptManager
 local TooltipManager = QTip.TooltipManager
 
 ---@class LibQTip-2.0.Row: LibQTip-2.0.ScriptFrame
----@field Cells (LibQTip-2.0.Cell|nil)[] Cells indexed by Column.
+---@field Cells LibQTip-2.0.Cell[]|nil Cells indexed by Column.
 ---@field ColSpanCells (true|nil)[] A value of true means the Column index is part of a ColSpan.
 ---@field Height number Height, in pixels.
 ---@field Index integer The Row's index on its Tooltip
@@ -48,7 +48,7 @@ function Row:GetCell(columnIndex, cellProvider)
     )
 end
 
--- Returns the RGBA numbers for the Row.
+--- Returns the RGBA numbers for the Row.
 ---@return number red Red color, from 0 to 1
 ---@return number green Green color, from 0 to 1
 ---@return number blue Blue color, from 0 to 1
@@ -57,20 +57,18 @@ function Row:GetColor()
     return self:GetBackdropColor()
 end
 
--- Sets the background color for the Row.
+--- Sets the background color for the Row.
 ---@param r? number Red color value of the Row. Defaults to the Tooltip's current red value.
 ---@param g? number Green color value of the Row. Defaults to the Tooltip's current green value.
 ---@param b? number Blue color value of the Row. Defaults to the Tooltip's current blue value.
 ---@param a? number Alpha level of the Row. Defaults to 1.
 ---@return LibQTip-2.0.Row
 function Row:SetColor(r, g, b, a)
-    local red, green, blue, alpha
-
-    if r and g and b and a then
-        red, green, blue, alpha = r, g, b, a
-    else
-        red, green, blue, alpha = self.Tooltip:GetBackdropColor()
-    end
+    local tooltipRed, tooltipGreen, tooltipBlue, tooltipAlpha = self.Tooltip:GetBackdropColor()
+    local red = r or tooltipRed
+    local green = g or tooltipGreen
+    local blue = b or tooltipBlue
+    local alpha = a or tooltipAlpha
 
     self:SetBackdrop(TooltipManager.DefaultBackdrop)
     self:SetBackdropColor(red, green, blue, alpha)
@@ -78,7 +76,7 @@ function Row:SetColor(r, g, b, a)
     return self
 end
 
--- Assigns a script to the Row.
+--- Assigns a script to the Row.
 ---@param scriptType LibQTip-2.0.ScriptType The column ScriptType.
 ---@param handler fun(frame: Frame, ...) The function called when the script is run. Parameters conform to the given ScriptType.
 ---@param arg? string Data to be passed to the script handler.
@@ -89,7 +87,7 @@ function Row:SetScript(scriptType, handler, arg)
     return self
 end
 
--- Sets the text color for every Cell in the Row.
+--- Sets the text color for every Cell in the Row.
 ---@param r? number Red color value of the Row's text. Defaults to the red value of the Tooltip's default Font.
 ---@param g? number Green color value of the Row's text. Defaults to the green value of the Tooltip's default Font.
 ---@param b? number Blue color value of the Row's text. Defaults to the blue value of the Tooltip's default Font.
@@ -98,6 +96,10 @@ end
 function Row:SetTextColor(r, g, b, a)
     if not r then
         r, g, b, a = self.Tooltip:GetDefaultFont():GetTextColor()
+    end
+
+    if not self.Cells then
+        return self
     end
 
     for cellIndex = 1, #self.Cells do

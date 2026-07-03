@@ -15,9 +15,9 @@ local CellProvider = QTip.CellProviderPrototype
 ---- Methods
 --------------------------------------------------------------------------------
 
--- Acquire a new cell to be displayed in the Tooltip.
---
--- LibQTip manages parent, framelevel, anchors, visibility and size of the Cell.
+--- Acquire a new cell to be displayed in the Tooltip.
+---
+--- LibQTip manages parent, frame level, anchors, visibility and size of the Cell.
 ---@return LibQTip-2.0.Cell cell The acquired cell.
 function CellProvider:AcquireCell()
     ---@type LibQTip-2.0.Cell|nil
@@ -40,21 +40,21 @@ function CellProvider:AcquireCell()
     return cell
 end
 
--- Return an iterator on currently acquired Cells.
+--- Return an iterator on currently acquired Cells.
 ---@return fun(tooltip: table<LibQTip-2.0.Cell, true|nil>, index?: LibQTip-2.0.Cell): LibQTip-2.0.Cell, true|nil
 ---@return table<LibQTip-2.0.Cell, true|nil>
 function CellProvider:CellPairs()
     return pairs(self.Cells)
 end
 
--- Return the prototype and metatable used to create new Cells.
+--- Return the prototype and metatable used to create new Cells.
 ---@return LibQTip-2.0.Cell cellPrototype The prototype on which Cells are based.
 ---@return table<"__index", LibQTip-2.0.Cell> cellMetatable The metatable used to create a new Cell.
 function CellProvider:GetCellPrototype()
     return self.CellPrototype, self.CellMetatable
 end
 
--- Release a Cell that LibQTip is no longer using. The Cell has already been hidden, unanchored and orphaned by LibQTip.
+--- Release a Cell that LibQTip is no longer using. The Cell has already been hidden, unanchored and orphaned by LibQTip.
 ---@param cell LibQTip-2.0.Cell The Cell to release.
 function CellProvider:ReleaseCell(cell)
     if not self.Cells[cell] then

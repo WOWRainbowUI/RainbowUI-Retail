@@ -26,7 +26,7 @@ function Column:GetCell(rowIndex, cellProvider)
     return self.Tooltip:GetRow(rowIndex):GetCell(self.Index, cellProvider)
 end
 
--- Returns the RGBA numbers for the Column.
+--- Returns the RGBA numbers for the Column.
 ---@return number red Red color, from 0 to 1
 ---@return number green Green color, from 0 to 1
 ---@return number blue Blue color, from 0 to 1
@@ -35,20 +35,18 @@ function Column:GetColor()
     return self:GetBackdropColor()
 end
 
--- Sets the background color for the Column.
+--- Sets the background color for the Column.
 ---@param r? number Red color value of the Column. Defaults to the Tooltip's current red value.
 ---@param g? number Green color value of the Column. Defaults to the Tooltip's current green value.
 ---@param b? number Blue color value of the Column. Defaults to the Tooltip's current blue value.
 ---@param a? number Alpha level of the Column. Defaults to 1.
 ---@return LibQTip-2.0.Column column
 function Column:SetColor(r, g, b, a)
-    local red, green, blue, alpha
-
-    if r and g and b and a then
-        red, green, blue, alpha = r, g, b, a
-    else
-        red, green, blue, alpha = self.Tooltip:GetBackdropColor()
-    end
+    local tooltipRed, tooltipGreen, tooltipBlue, tooltipAlpha = self.Tooltip:GetBackdropColor()
+    local red = r or tooltipRed
+    local green = g or tooltipGreen
+    local blue = b or tooltipBlue
+    local alpha = a or tooltipAlpha
 
     self:SetBackdrop(TooltipManager.DefaultBackdrop)
     self:SetBackdropColor(red, green, blue, alpha)
@@ -66,7 +64,7 @@ function Column:SetScript(scriptType, handler, arg)
     return self
 end
 
--- Sets the text color for every Cell in the Column.
+--- Sets the text color for every Cell in the Column.
 ---@param r? number Red color value of the Cell's text. Defaults to the red value of the Cell's FontString.
 ---@param g? number Green color value of the Cell's text. Defaults to the green value of the Cell's FontString.
 ---@param b? number Blue color value of the Cell's text. Defaults to the blue value of the Cell's FontString.
