@@ -7,7 +7,7 @@ local fonts = SM:List("font")
 local _
 
 Spy = LibStub("AceAddon-3.0"):NewAddon("Spy", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceTimer-3.0")
-Spy.Version = "3.12.0"
+Spy.Version = "3.12.1"
 Spy.DatabaseVersion = "1.1"
 Spy.Signature = "[Spy]"
 Spy.ButtonLimit = 15
@@ -34,6 +34,7 @@ Spy.zName = ""
 Spy.ChnlTime = 0
 Spy.Skull = -1
 Spy.PetGUID = {}
+Spy.CategoryId = 0
 
 -- Localizations for SpyStats
 L_STATS = "Spy "..L["Statistics"]
@@ -1721,13 +1722,21 @@ end
 function Spy:ResetPositions()
 	Spy:ResetPositionAllWindows()
 end
-
+--[[
 function Spy:ShowConfig()
 	-- Opens the profile tab first so the menu expands
 --	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
 	Settings.OpenToCategory('Profiles')
 --	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
 	Settings.OpenToCategory('Spy')
+end ]]--
+
+function Spy:ShowConfig()
+--	if C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel then
+		C_SettingsUtil.OpenSettingsPanel(Spy.CategoryId)
+--	else
+--		Settings.OpenToCategory()
+--	end	
 end
 
 function Spy:OnEnable(first)
@@ -1905,6 +1914,23 @@ function Spy:OnInitialize()
 	if Spy.WoWBuildInfo < 120000 then
 		DEFAULT_CHAT_FRAME:AddMessage(L["VersionCheck"])
 	end
+	
+--	local category, layout = Settings.RegisterCanvasLayoutCategory(panel, "Spy")
+--		Settings.RegisterAddOnCategory(category)
+--	local myCategoryID = category:GetID()  -- This is your CategoryID
+--		print (myCategoryID)
+
+	local categories = SettingsPanel:GetAllCategories()
+		for _, category in ipairs(categories) do
+			local name = category:GetName()
+			local id = category:GetID()
+--		print("Category: " .. name .. " | ID: " .. id)
+		if name == "Spy" then
+			Spy.CategoryId = id
+--		print("SpyCategoryId: " .. Spy.CategoryId)			
+		end	
+	end		
+	
 end
 
 function Spy:ChannelNoticeEvent(_, chStatus, _, _, Channel)
