@@ -6,7 +6,7 @@
 local L = Addon.L
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 
-Addon.DEBUG = Addon.Meta("version") == "13.0.24"
+Addon.DEBUG = Addon.Meta("version") == "13.0.26"
 
 local function toggleDPS()
   if Addon.db.profile.optionRoleDetectionAutomatic then
@@ -24,7 +24,7 @@ local function toggleTANK()
     Addon.Logging.Warning(L["Role toggle not supported because automatic role detection is enabled."])
   else
     Addon.db.char.spec[GetSpecialization()] = true
-		Addon.Logging.Info(L["cff00ff00Tank Plates Enabled|r"])
+		Addon.Logging.Info(L["|cff00ff00Tank Plates Enabled|r"])
 		Addon.Logging.Info(L["Tank switch detected, you are now in your |cff00ff00tanking|r role."])
     Addon:ForceUpdate()
   end
