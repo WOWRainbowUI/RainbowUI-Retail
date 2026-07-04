@@ -499,8 +499,8 @@ Addon.GetDefaultSettingsV1 = function(defaults)
   db.settings.eliteicon.y = 9
   db.settings.skullicon.x = 55
   db.settings.raidicon.y = 27
-  db.threat.dps.HIGH = 1.25
-  db.threat.tank.LOW = 1.25
+  db.threat.dps.scale.HIGH = 1.25
+  db.threat.tank.scale.LOW = 1.25
 
   return new_defaults
 end
@@ -556,7 +556,7 @@ end
 local CurrentVersion = VersionToNumber(Addon.Meta("version"))
 
 function TidyPlatesThreat:VersionIsAtLeast(min_version)
-  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.24")
+  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.26")
 
   local min_version_no, _ = VersionToNumber(min_version)
   return min_version_no > 0 and CurrentVersion >= min_version_no
@@ -1057,6 +1057,21 @@ local function DisableShowBlizzardAurasForClassic(profile_name, profile)
   end
 end
 
+local function MigrateAnchorFrameToNameplateSize(profile_name, profile)
+  if DatabaseEntryExists(profile, { "Appearance", "AnchorFrame" }) then
+    local old_value = profile.Appearance.AnchorFrame
+    if old_value == "UI_PARENT" then
+      profile.Appearance.NameplateSize = "NORMAL"
+    elseif old_value == "PLATE" then
+      -- PLATE rendered "Big" (like WorldFrame) on the old nameplate API, but "Small"
+      -- (like UIParent) on the new one.
+      profile.Appearance.NameplateSize = (Addon.WOW_USES_CLASSIC_NAMEPLATES and "BIG") or "NORMAL"
+    else -- "WORLD_FRAME" or any unrecognized/missing value
+      profile.Appearance.NameplateSize = "BIG"
+    end
+  end
+end
+
 local function MigrateAurasWidgetV2(_, profile)
   local default_profile = Addon.DEFAULT_SETTINGS.profile
 
@@ -1137,6 +1152,7 @@ local function MigrateAurasWidgetV2(_, profile)
     if DatabaseEntryExists(profile, { "AuraWidget", "ModeBar"} ) then
       profile.AuraWidget.Buffs.ModeBar.Enabled = GetValueOrDefault(profile.AuraWidget.ModeBar.Enabled, default_profile.AuraWidget.Buffs.ModeBar.Enabled)
       profile.AuraWidget.Debuffs.ModeBar.Enabled = GetValueOrDefault(profile.AuraWidget.ModeBar.Enabled, default_profile.AuraWidget.Debuffs.ModeBar.Enabled)
+      profile.AuraWidget.CrowdControl.ModeBar.Enabled = GetValueOrDefault(profile.AuraWidget.ModeBar.Enabled, default_profile.AuraWidget.CrowdControl.ModeBar.Enabled)
     end
 
     DatabaseEntryDelete(profile, { "AuraWidget", "x" })
@@ -1426,7 +1442,7 @@ local MIGRATION_FUNCTIONS_BY_VERSION = {
     { Type = "Migrate", Name = "Custom Styles", Function = MigrateCustomStyles, NoDefaultProfile = true },
   },
   ["10.2.1"] = {
-    { Type = "Migrate", Name = "Disable Show Blizzard Auras", Function = DisableShowBlizzardAurasForClassic, Version = WOW_USES_CLASSIC_NAMEPLATES },
+    { Type = "Migrate", Name = "Disable Show Blizzard Auras", Function = DisableShowBlizzardAurasForClassic, Version = Addon.WOW_USES_CLASSIC_NAMEPLATES },
   },
   ["10.3.0-beta2"] = {
     { Type = "Migrate", Name = "Auras Widget V2", Function = MigrateAurasWidgetV2, NoDefaultProfile = true },
@@ -1563,6 +1579,9 @@ local MIGRATION_FUNCTIONS_BY_VERSION = {
     { Type = "Delete", Key = { "settings", "totem" } },
     { Type = "Delete", Key = { "settings", "normal" } },
     { Type = "Delete", Key = { "settings", "threat", "scaleType" } },
+  },
+  ["13.0.25"] = {
+    { Type = "Migrate", Name = "Anchor Frame to Nameplate Size", Function = MigrateAnchorFrameToNameplateSize },
   },
 }
 
