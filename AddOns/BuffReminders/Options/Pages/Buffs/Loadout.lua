@@ -27,6 +27,7 @@ local TEXCOORD_INSET = BR.TEXCOORD_INSET
 
 local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 local COL_PADDING = BR.Options.Constants.COL_PADDING
+local PAGE_TOP_PADDING = BR.Options.Constants.PAGE_TOP_PADDING
 
 local tinsert = table.insert
 local tsort = table.sort
@@ -202,7 +203,7 @@ end
 
 local function Build(content, scrollFrame)
     local contentWidth = scrollFrame:GetContentWidth()
-    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = -16 })
+    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
 
     LayoutSectionHeader(layout, content, L["Category.LoadoutReminders"])
     LayoutSectionNote(layout, content, L["Category.LoadoutNote"])

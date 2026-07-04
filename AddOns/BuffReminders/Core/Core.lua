@@ -73,6 +73,24 @@ BR.DEFAULT_BORDER_SIZE = 2
 BR.DEFAULT_ICON_ZOOM = 0 -- percentage; base crop (TEXCOORD_INSET) is always applied separately
 BR.OPTIONS_BASE_SCALE = 1.2
 
+-- Shared UI palette. Defined here (before Components/Options load) so every layer
+-- references the same tokens instead of copy-pasting raw literals. Callers that
+-- need a non-opaque variant index into [1..3] and pass their own alpha.
+-- Border: the cool-biased neutral hairline used for panel chrome, dialog
+-- separators, and widget borders. The slight blue tint over a flat grey reads as
+-- a chosen ground against the warm gold accent (see CreatePanel).
+-- Accent: the bright brand gold for active/hover/focus cues (active tabs, focused
+-- borders, scale steppers). AccentMuted: the softer gold for "on"/checked fills
+-- (checkmarks, linked toggles) that shouldn't shout as loud as the bright accent.
+-- NOTE: these are chrome tokens only - never point a value persisted into
+-- SavedVariables (e.g. glow color defaults) at them, or a palette tweak would
+-- silently rewrite users' saved data.
+BR.Colors = {
+    Border = { 0.27, 0.27, 0.32, 1 },
+    Accent = { 1, 0.82, 0, 1 },
+    AccentMuted = { 0.9, 0.75, 0.2, 1 },
+}
+
 -- ============================================================================
 -- CALLBACK REGISTRY (Event System)
 -- ============================================================================
@@ -693,7 +711,7 @@ function BR.CreatePanel(name, width, height, options)
     -- Cool-biased neutrals: a slight blue tint over flat grey reads as a chosen
     -- ground against the warm gold accent (a pure mid-grey reads as unconsidered).
     local bgColor = options.bgColor or (isDialog and { 0.098, 0.098, 0.118, 1 } or { 0.09, 0.09, 0.107, 0.97 })
-    local borderColor = options.borderColor or { 0.27, 0.27, 0.32, 1 }
+    local borderColor = options.borderColor or BR.Colors.Border
 
     local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
     panel:SetSize(width, height)
@@ -749,7 +767,7 @@ function BR.CreatePanel(name, width, height, options)
         titleSep:SetPoint("TOPLEFT", 2, -32)
         titleSep:SetPoint("TOPRIGHT", -2, -32)
         titleSep:SetHeight(1)
-        titleSep:SetColorTexture(0.27, 0.27, 0.32, 1)
+        titleSep:SetColorTexture(unpack(BR.Colors.Border))
 
         -- Dialogs are modeless: ESC handled via keyboard input so closing this
         -- dialog doesn't also close the parent options panel (unlike

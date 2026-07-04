@@ -40,6 +40,7 @@ local GetCategoryLabels = BR.Options.GetCategoryLabels
 local TEXCOORD_INSET = BR.TEXCOORD_INSET
 
 local COL_PADDING = BR.Options.Constants.COL_PADDING
+local PAGE_TOP_PADDING = BR.Options.Constants.PAGE_TOP_PADDING
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
 
 local tinsert = table.insert
@@ -252,7 +253,7 @@ local function Build(content, scrollFrame)
     local contentWidth = scrollFrame:GetContentWidth()
     local listWidth = contentWidth - COL_PADDING * 2
 
-    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = -16 })
+    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
 
     LayoutSectionNote(layout, content, L["DetachedIcons.PageNote"])
 

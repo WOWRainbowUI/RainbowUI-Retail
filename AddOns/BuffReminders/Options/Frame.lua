@@ -36,6 +36,9 @@ local BOTTOM_BAR_HEIGHT = C.BOTTOM_BAR_HEIGHT
 local SCROLLBAR_WIDTH = C.SCROLLBAR_WIDTH
 local COL_PADDING = C.COL_PADDING
 
+local BORDER_R, BORDER_G, BORDER_B = unpack(BR.Colors.Border)
+local ACCENT_R, ACCENT_G, ACCENT_B = unpack(BR.Colors.Accent)
+
 local optionsPanel = nil
 
 -- ============================================================================
@@ -178,7 +181,7 @@ local function CreateSidebarButton(parent, text)
     local accent = btn:CreateTexture(nil, "ARTWORK")
     accent:SetSize(2, 18)
     accent:SetPoint("LEFT", 0, 0)
-    accent:SetColorTexture(1, 0.82, 0, 1)
+    accent:SetColorTexture(ACCENT_R, ACCENT_G, ACCENT_B, 1)
     accent:Hide()
     btn.accent = accent
 
@@ -202,7 +205,7 @@ local function CreateSidebarButton(parent, text)
     function btn:SetActive(active)
         self.isActive = active
         if active then
-            self.bg:SetColorTexture(1, 0.82, 0, 0.12)
+            self.bg:SetColorTexture(ACCENT_R, ACCENT_G, ACCENT_B, 0.12)
             self.accent:Show()
             self.label:SetTextColor(1, 1, 1)
         else
@@ -343,7 +346,7 @@ local function CreateOptionsPanel()
     end)
     downBtn:SetScript("OnEnter", function()
         if GetScalePct() > MIN_PCT then
-            scaleDown:SetTextColor(1, 0.82, 0)
+            scaleDown:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
         end
     end)
     downBtn:SetScript("OnLeave", function()
@@ -357,7 +360,7 @@ local function CreateOptionsPanel()
     end)
     upBtn:SetScript("OnEnter", function()
         if GetScalePct() < MAX_PCT then
-            scaleUp:SetTextColor(1, 0.82, 0)
+            scaleUp:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
         end
     end)
     upBtn:SetScript("OnLeave", function()
@@ -377,13 +380,13 @@ local function CreateOptionsPanel()
     headerSep:SetHeight(1)
     headerSep:SetPoint("TOPLEFT", SIDEBAR_X, -CONTENT_TOP_OFFSET + 4)
     headerSep:SetPoint("TOPRIGHT", -COL_PADDING, -CONTENT_TOP_OFFSET + 4)
-    headerSep:SetColorTexture(0.27, 0.27, 0.32, 1)
+    headerSep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
 
     local bottomSep = panel:CreateTexture(nil, "ARTWORK")
     bottomSep:SetHeight(1)
     bottomSep:SetPoint("BOTTOMLEFT", SIDEBAR_X, BOTTOM_BAR_HEIGHT - 5)
     bottomSep:SetPoint("BOTTOMRIGHT", -COL_PADDING, BOTTOM_BAR_HEIGHT - 5)
-    bottomSep:SetColorTexture(0.27, 0.27, 0.32, 1)
+    bottomSep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
 
     -- ====================================================================
     -- SIDEBAR
@@ -401,7 +404,7 @@ local function CreateOptionsPanel()
     sidebarBorder:SetWidth(1)
     sidebarBorder:SetPoint("TOPRIGHT", 0, 0)
     sidebarBorder:SetPoint("BOTTOMRIGHT", 0, 0)
-    sidebarBorder:SetColorTexture(0.27, 0.27, 0.32, 1)
+    sidebarBorder:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
 
     -- ====================================================================
     -- CONTENT AREA
@@ -576,8 +579,8 @@ local function CreateOptionsPanel()
         Components.RefreshAll()
     end, { title = L["Options.LockUnlock"], desc = L["Options.LockUnlock.Desc"] }, {
         border = { 0.7, 0.58, 0, 1 },
-        borderHover = { 1, 0.82, 0, 1 },
-        text = { 1, 0.82, 0, 1 },
+        borderHover = BR.Colors.Accent,
+        text = BR.Colors.Accent,
     })
     lockBtn:SetSize(BTN_WIDTH, 22)
     lockBtn:SetPoint("RIGHT", btnHolder, "CENTER", -4, 0)

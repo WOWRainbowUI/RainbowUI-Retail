@@ -32,6 +32,7 @@ local MakeDefaultsSetter = Helpers.MakeDefaultsSetter
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
 local DROPDOWN_EXTRA = BR.Options.Constants.DROPDOWN_EXTRA
 local COL_PADDING = BR.Options.Constants.COL_PADDING
+local PAGE_TOP_PADDING = BR.Options.Constants.PAGE_TOP_PADDING
 
 local tinsert = table.insert
 local tsort = table.sort
@@ -41,12 +42,12 @@ local rad = math.rad
 -- Color palette for the textured arrow buttons in Display Order. Mirrors the
 -- dropdown chevron (UI/Components.lua) so the page reads as one visual family.
 local ARROW_COLOR = { 0.7, 0.7, 0.7, 1 }
-local ARROW_HOVER_COLOR = { 1, 0.82, 0, 1 }
+local ARROW_HOVER_COLOR = BR.Colors.Accent
 local ARROW_DISABLED_COLOR = { 0.4, 0.4, 0.4, 1 }
 local ARROW_BG = { 0.1, 0.1, 0.1, 0.7 }
 local ARROW_BG_HOVER = { 0.2, 0.2, 0.2, 0.85 }
 local ARROW_BG_DISABLED = { 0.05, 0.05, 0.05, 0.5 }
-local ARROW_BORDER = { 0.3, 0.3, 0.3, 1 }
+local ARROW_BORDER = BR.Colors.Border
 local ARROW_BORDER_DISABLED = { 0.2, 0.2, 0.2, 0.6 }
 
 -- All categories that have a slot in defaults.categorySettings, in canonical
@@ -250,7 +251,7 @@ local function CreateOrderRow(parent, category)
             upBtn:Show()
             downBtn:Show()
             splitBadge:Hide()
-            label:SetTextColor(1, 0.82, 0)
+            label:SetTextColor(unpack(BR.Colors.Accent))
         end
     end
 
@@ -339,7 +340,7 @@ local function BuildDisplayOrderList(parent, contentWidth)
 end
 
 local function Build(content)
-    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = -16 })
+    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
 
     -- Global Defaults
     LayoutSectionHeader(layout, content, L["Options.GlobalDefaults"])

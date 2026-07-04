@@ -28,6 +28,7 @@ BR.Options.Constants = {
     COMPONENT_GAP = 6, -- standard gap between components
     SECTION_GAP = 8, -- gap before/after section boundaries
     DROPDOWN_EXTRA = 8, -- extra clearance after dropdowns (menu overlay space)
+    PAGE_TOP_PADDING = -16, -- y offset where each page's top VerticalLayout cursor starts
 
     -- Dialog shell metrics (see Helpers.CreateDialogShell). Widths bucketed by
     -- content density: NARROW for 1-3 simple controls, MEDIUM for dropdown +
@@ -133,6 +134,7 @@ local COL_PADDING = BR.Options.Constants.COL_PADDING
 -- The first call on a layout skips the before-gap; the page's top margin
 -- (the negative y the caller set when constructing VerticalLayout) provides
 -- enough breathing room above the first section.
+local BORDER_R, BORDER_G, BORDER_B = unpack(BR.Colors.Border)
 local SEP_OFFSET = 4
 local SEP_HEIGHT = 1
 local AFTER_HEADER_GAP = 8 -- between the accent line and the first content row
@@ -485,7 +487,7 @@ end
 function Helpers.LayoutSeparator(layout, parent)
     local sep = parent:CreateTexture(nil, "ARTWORK")
     sep:SetHeight(1)
-    sep:SetColorTexture(0.27, 0.27, 0.32, 0.6)
+    sep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 0.6)
     layout:Add(sep, 1, COMPONENT_GAP)
     sep:SetWidth((parent.GetWidth and parent:GetWidth() or 600) - 40)
 end
