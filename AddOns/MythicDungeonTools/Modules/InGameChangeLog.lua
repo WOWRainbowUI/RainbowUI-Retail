@@ -2,24 +2,24 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.1.16",
-    date = "2026-06-09",
+    tag = "6.1.20",
+    date = "2026-07-03",
     notes = {
-      "Fixed a Shadowguard Champion in Seat of the Triumvirate incorrectly giving enemy forces count",
+      "Added a setting to announce dungeon resets to your group",
     },
   },
   {
-    tag = "6.1.15",
-    date = "2026-06-08",
+    tag = "6.1.19",
+    date = "2026-06-23",
     notes = {
-      "Added two missing Pesty Lashlings to Windrunner Spire",
+      "Focus Marker ready-check announcements now show raid target icons reliably across game languages.",
     },
   },
   {
-    tag = "6.1.14",
-    date = "2026-06-05",
+    tag = "6.1.18",
+    date = "2026-06-17",
     notes = {
-      "MoP Patch 5.0.4 update",
+      "Combat logging now also starts for Mythic - Flexible Raiding",
     },
   },
 }

@@ -1,3 +1,3 @@
-## 6.1.16 (2026-06-09)
+## 6.1.20 (2026-07-03)
 
-- Fixed a Shadowguard Champion in Seat of the Triumvirate incorrectly giving enemy forces count
+- Added a setting to announce dungeon resets to your group

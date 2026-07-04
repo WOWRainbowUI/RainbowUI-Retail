@@ -163,6 +163,7 @@ local defaultSavedVars = {
     useForcesCount = false, -- replaces percent in pull buttons with count
     enemyForcesTooltip = 1,
     muteXalatathVoiceLines = false,
+    announceDungeonReset = false,
     enemyStyle = 1,
     currentDifficulty = 10,
     xoffset = -80,
@@ -187,6 +188,7 @@ local defaultSavedVars = {
     focusMarker = {
       announceReadyCheck = false,
       useMacro = false,
+      preserveExistingTargetMarkers = true,
       suppressNotifications = false,
       assignments = {},
     },
@@ -266,6 +268,7 @@ do
       end
       -- Initialize fade frame for combat transparency
       MDT:InitializeFadeFrame()
+      if db.announceDungeonReset then MDT:EnableDungeonResetAnnounceHook() end
       eventFrame:UnregisterEvent("ADDON_LOADED")
     end
   end
