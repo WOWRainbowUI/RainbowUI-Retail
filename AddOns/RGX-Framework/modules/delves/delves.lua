@@ -135,10 +135,10 @@ end
 function Delves:QueueLivesRefresh(delay)
     if self.pendingLivesRefresh then return end
     self.pendingLivesRefresh = true
-    C_Timer.After(delay or DELVE_LIVES_RECHECK_DELAY_SECONDS, function()
+    RGX:After(delay or DELVE_LIVES_RECHECK_DELAY_SECONDS, function()
         self.pendingLivesRefresh = false
         Delves:RefreshLives()
-    end)
+    end, "RGXDelves:LivesRefresh")
 end
 
 function Delves:Init()

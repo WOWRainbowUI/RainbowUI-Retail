@@ -37,6 +37,8 @@
   <Script file="modules/combat/combat.lua" />
   <Script file="modules/petbattles/petbattles.lua" />
   <Script file="modules/reputation/reputation.lua" />
+  <Script file="modules/auras/auras.lua" />
+  <Script file="modules/tooltip/tooltip.lua" />
   <Script file="modules/databroker/databroker.lua" />
   <Script file="modules/sound/sound.lua" />
   <Script file="modules/achievement/achievement.lua" />

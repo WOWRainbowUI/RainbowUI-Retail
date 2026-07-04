@@ -37,9 +37,15 @@ SM._seenPaths = {}
 -- Scanner state
 SM._pendingScan  = false
 SM._pendingFullScan = false
-SM._kittyHooked  = false
 SM._invokedDBM   = {}
 SM._didGenericScan = false
+
+-- AddOn folders whose sounds must NOT be bridged by the generic scan. A consumer
+-- that manages its own media (registers its bundled/user sounds directly) excludes
+-- its folder so the generic addon-global crawl does not re-discover and duplicate
+-- those paths. Keyed by lowercased folder name. The framework's own folder is
+-- always excluded.
+SM.excludedFolders = SM.excludedFolders or { ["rgx-framework"] = true }
 
 -- ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -361,6 +367,23 @@ end
 -- ── Sound bridge scanner ──────────────────────────────────────────────────────
 
 -- Register a bridge sound path (auto-detected; not persisted)
+-- Register an AddOn folder whose sounds should not be bridged by the generic
+-- scan. Call this before the generic scan runs (e.g. from a consumer's OnReady).
+-- Idempotent. folderName is the AddOn folder name, e.g. "BLU".
+function SM:ExcludeFolder(folderName)
+    if type(folderName) ~= "string" or folderName == "" then return end
+    self.excludedFolders[string.lower(folderName)] = true
+end
+
+function SM:_IsExcludedPath(lowerPath)
+    for folder in pairs(self.excludedFolders) do
+        if string.find(lowerPath, "interface\\addons\\" .. folder .. "\\", 1, true) then
+            return true
+        end
+    end
+    return false
+end
+
 function SM:_BridgePath(path, preferredPackName, preferredDisplayName)
     if not IsAudioPath(path) then return false end
 
@@ -370,6 +393,9 @@ function SM:_BridgePath(path, preferredPackName, preferredDisplayName)
     -- Skip loose user-custom paths (bare Interface\AddOns\file.ogg)
     if string.match(lowerPath, "^interface\\addons\\[^\\]+%.[^\\]+$") then return false end
     if string.match(lowerPath, "^interface\\addons\\sounds\\[^\\]+%.[^\\]+$") then return false end
+
+    -- Skip consumer-owned folders (they manage their own media directly)
+    if self:_IsExcludedPath(lowerPath) then return false end
 
     local packName = preferredPackName or ExtractAddonFolder(normalizedPath)
     local lowerPack = string.lower(packName)
@@ -418,45 +444,6 @@ local function CollectAudioPaths(value, found, visited, state, depth)
         CollectAudioPaths(v, found, visited, state, depth + 1)
         if state.total >= MAX_SOUNDS_PER_SCAN then return false end
     end)
-end
-
-function SM:_ScanKitty()
-    if type(_G.KittyGetSoundPacks) ~= "function" then return 0 end
-    local ok, packs = pcall(_G.KittyGetSoundPacks)
-    if not ok or type(packs) ~= "table" then return 0 end
-
-    local found = {}
-    local state = { total = 0, tables = 0 }
-    CollectAudioPaths(packs, found, {}, state, 0)
-
-    local count = 0
-    for _, p in pairs(found) do
-        if self:_BridgePath(p) then count = count + 1 end
-    end
-    return count
-end
-
-function SM:_HookKitty()
-    if self._kittyHooked then return end
-    local orig = _G.KittyRegisterSoundPack
-    if type(orig) ~= "function" then return end
-
-    self._kittyHooked = true
-    _G.KittyRegisterSoundPack = function(name, opts, ...)
-        local result = { pcall(orig, name, opts, ...) }
-        local ok = table.remove(result, 1)
-        if not ok then error(result[1]) end
-
-        if type(opts) == "table" then
-            local found = {}
-            local state = { total = 0, tables = 0 }
-            CollectAudioPaths(opts, found, {}, state, 0)
-            for _, p in pairs(found) do self:_BridgePath(p) end
-        end
-
-        self:QueueScan(0.05)
-        return SafeUnpack(result)
-    end
 end
 
 function SM:_InvokeDBMRegistrars()
@@ -580,22 +567,25 @@ function SM:Scan(includeGeneric)
         end
     end
 
-    self:_HookKitty()
-
-    local n1 = self:_ScanKitty()
-    local n2 = self:_InvokeDBMRegistrars()
-    local n3 = self:_ScanKnownAddons()
-    local n4 = 0
+    local n1 = self:_InvokeDBMRegistrars()
+    local n2 = self:_ScanKnownAddons()
+    local n3 = 0
 
     if includeGeneric then
-        n4 = self:_ScanAddonGlobals()
+        n3 = self:_ScanAddonGlobals()
         self._didGenericScan = true
     end
 
     RGX:Debug(string.format(
-        "[RGXSharedMedia] Scan complete — Kitty:%d DBM:%d Compat:%d Generic:%d",
-        n1, n2, n3, n4
+        "[RGXSharedMedia] Scan complete — DBM:%d Compat:%d Generic:%d",
+        n1, n2, n3
     ))
+
+    -- Notify consumers that the sound registry changed so they can re-import
+    -- bridge entries and refresh any media pickers. Payload is the media type.
+    if type(RGX.SendMessage) == "function" then
+        RGX:SendMessage("RGX_SHAREDMEDIA_UPDATED", "sound")
+    end
 end
 
 function SM:QueueScan(delay, includeGeneric)
@@ -633,7 +623,6 @@ end
 
 function SM:OnAddonLoaded(name)
     if IsLikelyMediaProvider(name) then
-        self:_HookKitty()
         self:QueueScan(0.25, false)
     end
 end
@@ -647,8 +636,6 @@ end
 -- ── Init ──────────────────────────────────────────────────────────────────────
 
 function SM:Init()
-    self:_HookKitty()
-
     RGX:RegisterEvent("ADDON_LOADED", function(_, name)
         SM:OnAddonLoaded(name)
     end)

@@ -170,6 +170,8 @@ function RGX:GetSharedMedia()  return self:GetModule("sharedmedia")  end
 function RGX:GetDesign()       return self:GetModule("design")       end
 function RGX:GetCombat()       return self:GetModule("combat")       end
 function RGX:GetReputation()   return self:GetModule("reputation")   end
+function RGX:GetAuras()        return self:GetModule("auras")        end
+function RGX:GetTooltip()      return self:GetModule("tooltip")      end
 function RGX:GetDataBroker() return self:GetModule("databroker") end
 function RGX:GetSound()        return self:GetModule("sound")        end
 function RGX:GetCollectibles() return self:GetModule("collectibles") end
@@ -491,4 +493,16 @@ function RGX.Addon(name, opts)
     end, name .. "_RGXAddon")
 
     return addon
+end
+
+-- Global entry point per the Simplicity Contract (docs/DECLARATIVE-DSL.md):
+-- line 1 of a consumer addon is the addon — RequiredDeps guarantees this
+-- global exists. Supports both call forms:
+--   RGXAddon("MyAddon", { ... })
+--   RGXAddon "MyAddon" { ... }     -- curried; plain Lua sugar
+function _G.RGXAddon(name, opts)
+    if opts == nil then
+        return function(tbl) return RGX.Addon(name, tbl) end
+    end
+    return RGX.Addon(name, opts)
 end

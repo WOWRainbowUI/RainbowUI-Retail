@@ -187,7 +187,7 @@ end
 
 function ColorPicker:CreateSVBox(f)
     -- Saturation/Value box - the main gradient square
-    local box = CreateFrame("Frame", nil, f)
+    local box = CreateFrame("Frame", nil, f, "BackdropTemplate")
     box:SetSize(200, 160)
     box:SetPoint("TOPLEFT", f, "TOPLEFT", 20, -45)
     box:SetBackdrop({
@@ -196,11 +196,11 @@ function ColorPicker:CreateSVBox(f)
     })
     box:SetBackdropBorderColor(0.3, 0.3, 0.35, 1)
     
-    -- Create gradient texture
+    -- Saturation gradient: white (left, s=0) -> pure hue color (right, s=1).
+    -- Recolored reactively in UpdateUI() as the selected hue changes.
     box.bg = box:CreateTexture(nil, "BACKGROUND")
     box.bg:SetAllPoints()
-    -- White to transparent gradient (saturation)
-    box.bg:SetColorTexture(1, 1, 1, 1)
+    box.bg:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 1), CreateColor(1, 0, 0, 1))
     
     -- Overlay gradient for value (black gradient)
     box.overlay = box:CreateTexture(nil, "ARTWORK")
@@ -233,7 +233,7 @@ end
 
 function ColorPicker:CreateHueBar(f)
     -- Horizontal hue rainbow bar
-    local bar = CreateFrame("Frame", nil, f)
+    local bar = CreateFrame("Frame", nil, f, "BackdropTemplate")
     bar:SetSize(200, 20)
     bar:SetPoint("TOP", f.svBox, "BOTTOM", 0, -15)
     bar:SetBackdrop({
@@ -242,11 +242,24 @@ function ColorPicker:CreateHueBar(f)
     })
     bar:SetBackdropBorderColor(0.3, 0.3, 0.35, 1)
     
-    -- Create rainbow gradient texture
-    bar.bg = bar:CreateTexture(nil, "BACKGROUND")
-    bar.bg:SetAllPoints()
-    -- We'll update this with the hue gradient
-    bar.bg:SetColorTexture(1, 0, 0, 1)
+    -- Rainbow gradient: SetGradient only does a 2-color linear blend, so a
+    -- true 0-360 hue rainbow needs six segments, one per 60-degree hue stop
+    -- (red->yellow->green->cyan->blue->magenta->red). This is static -- the
+    -- rainbow itself never changes, only the cursor position does.
+    local HUE_STOPS = {
+        {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {1, 0, 1}, {1, 0, 0},
+    }
+    bar.segments = {}
+    for i = 1, 6 do
+        local seg = bar:CreateTexture(nil, "BACKGROUND")
+        seg:SetPoint("TOP", bar, "TOP", 0, 0)
+        seg:SetPoint("BOTTOM", bar, "BOTTOM", 0, 0)
+        seg:SetPoint("LEFT", bar, "LEFT", (i - 1) / 6 * 200, 0)
+        seg:SetWidth(200 / 6)
+        local c1, c2 = HUE_STOPS[i], HUE_STOPS[i + 1]
+        seg:SetGradient("HORIZONTAL", CreateColor(c1[1], c1[2], c1[3], 1), CreateColor(c2[1], c2[2], c2[3], 1))
+        bar.segments[i] = seg
+    end
     
     -- Hue cursor
     bar.cursor = bar:CreateTexture(nil, "OVERLAY")
@@ -279,7 +292,7 @@ function ColorPicker:CreatePreview(f)
     f.preview:SetColorTexture(1, 0, 0, 1)
     
     -- Preview border
-    f.previewBorder = CreateFrame("Frame", nil, f)
+    f.previewBorder = CreateFrame("Frame", nil, f, "BackdropTemplate")
     f.previewBorder:SetPoint("TOPLEFT", f.preview, "TOPLEFT", -2, 2)
     f.previewBorder:SetPoint("BOTTOMRIGHT", f.preview, "BOTTOMRIGHT", 2, -2)
     f.previewBorder:SetBackdrop({
@@ -311,7 +324,7 @@ function ColorPicker:CreatePreview(f)
     hexLabel:SetText("HEX")
     hexLabel:SetTextColor(0.7, 0.7, 0.7)
     
-    f.hexInput = CreateFrame("EditBox", nil, f)
+    f.hexInput = CreateFrame("EditBox", nil, f, "BackdropTemplate")
     f.hexInput:SetSize(70, 22)
     f.hexInput:SetPoint("TOP", hexLabel, "BOTTOM", 0, -5)
     f.hexInput:SetFontObject("GameFontNormal")
@@ -348,7 +361,7 @@ function ColorPicker:CreateRGBInputs(f)
         lbl:SetText(label)
         lbl:SetTextColor(0.7, 0.7, 0.7)
         
-        local input = CreateFrame("EditBox", nil, f)
+        local input = CreateFrame("EditBox", nil, f, "BackdropTemplate")
         input:SetSize(50, 22)
         input:SetPoint("TOPLEFT", lbl, "BOTTOMLEFT", 0, -5)
         input:SetFontObject("GameFontNormal")
@@ -403,7 +416,7 @@ function ColorPicker:CreatePresets(f)
     for paletteIdx, palette in ipairs(self.presets) do
         local row = 0
         for colorIdx, color in ipairs(palette.colors) do
-            local btn = CreateFrame("Button", nil, f)
+            local btn = CreateFrame("Button", nil, f, "BackdropTemplate")
             btn:SetSize(22, 22)
             
             local col = (colorIdx - 1) % 8
@@ -523,12 +536,10 @@ function ColorPicker:UpdateUI()
     local hueX = (c.h or 0) * f.hueBar:GetWidth()
     f.hueBar.cursor:SetPoint("CENTER", f.hueBar, "LEFT", hueX, 0)
     
-    -- Update SV box background (pure hue color)
+    -- Recolor the SV box saturation gradient's right stop (s=1) to the
+    -- currently selected pure hue; white(s=0) -> hue(s=1) stays intact.
     local hr, hg, hb = self:HSVToRGB(c.h or 0, 1, 1)
-    f.svBox.bg:SetColorTexture(hr, hg, hb, 1)
-    
-    -- Update hue bar gradient
-    -- (In WoW we'd need a texture, simplified here)
+    f.svBox.bg:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 1), CreateColor(hr, hg, hb, 1))
 end
 
 --[[============================================================================

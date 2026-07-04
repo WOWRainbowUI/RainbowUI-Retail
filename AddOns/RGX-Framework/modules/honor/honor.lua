@@ -54,10 +54,10 @@ end
 function Honor:QueueCheck(triggerName, delay)
     if self.pendingCheck then return end
     self.pendingCheck = true
-    C_Timer.After(delay or CHECK_DELAY_SECONDS, function()
+    RGX:After(delay or CHECK_DELAY_SECONDS, function()
         self.pendingCheck = false
         Honor:Evaluate(triggerName)
-    end)
+    end, "RGXHonor:Check")
 end
 
 function Honor:Init()

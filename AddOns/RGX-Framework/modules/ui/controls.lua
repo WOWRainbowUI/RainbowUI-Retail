@@ -142,9 +142,13 @@ function UI:CreateColorPicker(parent, options)
     
     -- Reset button
     local reset = self:CreateResetButton(container, function()
-        storage[key] = {unpack(default)}
-        swatch.tex:SetColorTexture(default.r, default.g, default.b, 1)
-        onChange(default.r, default.g, default.b)
+        -- default is a keyed {r,g,b} table, not an array -- unpack(default)
+        -- returns nothing on a keyed table, so this silently reset storage[key]
+        -- to an empty table instead of the default color.
+        currentColor = { r = default.r or 1, g = default.g or 1, b = default.b or 1 }
+        storage[key] = currentColor
+        swatch.tex:SetColorTexture(currentColor.r, currentColor.g, currentColor.b, 1)
+        onChange(currentColor.r, currentColor.g, currentColor.b)
     end)
     reset:SetPoint("LEFT", swatch, "RIGHT", 8, 0)
     
