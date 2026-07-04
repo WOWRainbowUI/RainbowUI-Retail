@@ -9,6 +9,7 @@ local PLAYER_LEVEL = UnitLevel("player")
 local NEXT_PLAYER_LEVEL = PLAYER_LEVEL + 1
 local BOSS_LEVEL = PLAYER_LEVEL + 2
 local UNIT_CAST_TRACKER = {}
+local UNIT_CAST_SUCCEEDED_TRACKER = {}
 local unitCastTracker = {}
 local auraTriggeredCache = {}
 local UNIT_SUCCEEDED_AND_INTERRUPTED_TRACKER = {}
@@ -320,7 +321,7 @@ local function ExecuteClosestLogic(measuredTime, sound1, sound2)
 end
 
 -- 定义全局函数
-function CustomEncounterBar(iconID, duration, name)
+local function CustomEncounterBar(iconID, duration, name)
     -- 兜底处理：防止未传参数导致报错
     iconID = iconID or 132117
     duration = duration or 10
@@ -340,7 +341,7 @@ function CustomEncounterBar(iconID, duration, name)
 end
 --- 连续顺序播放音频函数
 --- 支持传入任意数量的【延迟时间】和【音频文件名】组合
-function PlayAudioSequence(...)
+local function PlayAudioSequence(...)
     local args = {...}
     local totalDelay = 0 -- 累计延迟时间
 
@@ -542,7 +543,7 @@ local function IsMobTargetAndPlayerFingerprintMatch(mobToken)
     return true
 end
 
-function GenerateAllSpecsCodeBlock(unitTarget)
+local function GenerateAllSpecsCodeBlock(unitTarget)
     if not UnitExists(unitTarget) then return end
     
     local spellName, _, _, _, _, _, _, _, spellID = UnitCastingInfo(unitTarget)
@@ -564,6 +565,9 @@ function GenerateAllSpecsCodeBlock(unitTarget)
         local currentMapID = C_Map.GetBestMapForUnit("player") or 0  
         print(" -> 当前地图ID:", currentMapID)
 
+        local subZoneText = GetSubZoneText() or ""
+        print(" -> 当前子区域名字:", subZoneText ~= "" and subZoneText or "无")
+
         local name = UnitName(unitTarget) or "未知"
         print(" -> 怪物名字:", name)
 
@@ -582,6 +586,7 @@ function GenerateAllSpecsCodeBlock(unitTarget)
         local isInside = IsIndoors()
         print(" -> 是否在室内:", isInside)
 
+        -- 严格获取大写英文职业名
         local className = select(2, UnitClass(unitTarget)) or "NONE"
         print(" -> 职业名称:", className)
 
@@ -629,48 +634,69 @@ function GenerateAllSpecsCodeBlock(unitTarget)
 
         print("--------------------------------------------------")
 
-        local activeCriteriaIndex = 0
-        for i = 1, 4 do
-            local info = C_ScenarioInfo.GetCriteriaInfo(i)
-            if info and info.completed == false then
-                activeCriteriaIndex = i
-                break
-            end
+        -- 计算战斗文本注释
+        local combatComment = inCombat and "在战斗中" or "不在战斗中"
+        
+        -- 计算室内文本注释
+        local indoorComment = isInside and "在室内" or "在室外"
+
+        -- 计算性别文本注释
+        local sexComment = "无性别"
+        if sex == 2 then sexComment = "男性" elseif sex == 3 then sexComment = "女性" end
+
+        -- 计算分类注释
+        local classifcationComment = "普通怪"
+        if classification == "elite" then classifcationComment = "精英怪"
+        elseif classification == "rare" then classifcationComment = "稀有怪"
+        elseif classification == "rareelite" then classifcationComment = "稀有精英"
+        elseif classification == "worldboss" then classifcationComment = "世界Boss" end
+
+        -- 动态匹配客户端常量等级字符串
+        local levelCodeStr = tostring(actualLevel)
+        if actualLevel == 90 then
+            levelCodeStr = "PLAYER_LEVEL"
+        elseif actualLevel == 91 then
+            levelCodeStr = "NEXT_PLAYER_LEVEL"
+        elseif actualLevel == 92 then
+            levelCodeStr = "BOSS_LEVEL"
+        elseif actualLevel == -1 then
+            levelCodeStr = "-1"
         end
 
         local spellTargetCodeStr = rawTargetName and "            and UnitSpellTargetName(unitTarget) -- 法术有目标" or "            and not UnitSpellTargetName(unitTarget) -- 法术没目标"
         local hasTargetStr = hasTarget and "UnitExists(unitTarget .. \"target\")" or "not UnitExists(unitTarget .. \"target\")"
         local roleCheckStr = (hasTarget and targetRole ~= "NONE") and (" and UnitGroupRolesAssigned(unitTarget .. \"target\") == \"" .. targetRole .. "\"") or ""
 
+        -- 建立生物家族的判定行
+        local familyCodeStr = familyID and "            and select(2, UnitCreatureFamily(unitTarget)) -- 是生物家族" or "            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族"
+
         -- 纯净版运行代码块生成
-        print("        if UnitCanAttack(\"player\", unitTarget)")
+        print("        if unitTarget and unitTarget:find(\"nameplate\") and UnitCanAttack(\"player\", unitTarget)")
         print("            and select(8, GetInstanceInfo()) == " .. instanceID .. " -- 副本ID (" .. (instName or "未知") .. ")")
         print("            and (C_Map.GetBestMapForUnit(\"player\") or 0) == " .. currentMapID .. " -- 地图ID")
-        print("            and IsIndoors() == " .. tostring(isInside) .. " -- 是否在室内")
-        print("            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL ")
+        if subZoneText ~= "" then
+            print("            and GetSubZoneText() == \"" .. subZoneText .. "\" -- 子区域 (" .. subZoneText .. ")")
+        end
+        print("            and IsIndoors() == " .. tostring(isInside) .. " -- " .. indoorComment)
+        print("            and UnitLevel(unitTarget) == " .. levelCodeStr .. " -- 怪物等级: " .. actualLevel)
         print("            and UnitPowerType(unitTarget) == " .. unitPowerType)
-        print("            and UnitSex(unitTarget) == " .. sex)
-        print("            and UnitClassification(unitTarget) == \"" .. classification .. "\" -- 分类")
-        print("            and UnitAffectingCombat(unitTarget) == " .. tostring(inCombat) .. " -- 是否在战斗中")
+        print("            and UnitSex(unitTarget) == " .. sex .. " -- " .. sexComment)
+        print("            and UnitClassification(unitTarget) == \"" .. classification .. "\" -- " .. classifcationComment)
+        print("            and UnitAffectingCombat(unitTarget) == " .. tostring(inCombat) .. " -- " .. combatComment)
         
+        -- 生成代码块时，严格输出大写英文键，不夹带任何本地化文本
         if className ~= "NONE" then
-            print("            and select(2, UnitClass(unitTarget)) == \"" .. className .. "\" -- 职业")
+            print("            and select(2, UnitClass(unitTarget)) == \"" .. className .. "\"")
         end
 
-        if familyID then
-            print("            and select(2, UnitCreatureFamily(unitTarget)) == " .. familyID .. " -- 生物家族 (" .. creatureFamily .. ")")
-        end
+        -- 动态生成生物家族代码行
+        print(familyCodeStr)
         
         -- 4个Boss击杀状态判定条件生成
         print("            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == " .. tostring(boss1Kill) .. " -- Boss1")
         print("            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == " .. tostring(boss2Kill) .. " -- Boss2")
         print("            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == " .. tostring(boss3Kill) .. " -- Boss3")
         print("            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == " .. tostring(boss4Kill) .. " -- Boss4")
-
-        if activeCriteriaIndex > 0 then
-            print("            and C_ScenarioInfo.GetCriteriaInfo(" .. activeCriteriaIndex .. ") ")
-            print("            and C_ScenarioInfo.GetCriteriaInfo(" .. activeCriteriaIndex .. ").completed == false")
-        end
 
         print(spellTargetCodeStr)
         print("        then")
@@ -682,17 +708,16 @@ function GenerateAllSpecsCodeBlock(unitTarget)
         print("        end")
     end)
 end
-
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("ENCOUNTER_START")
 frame:RegisterEvent("ENCOUNTER_END")
 frame:RegisterEvent("ENCOUNTER_WARNING")
 frame:RegisterEvent("CLEAR_BOSS_EMOTES")
-frame:RegisterEvent("ENCOUNTER_WARNING")
+-- frame:RegisterEvent("ENCOUNTER_WARNING")
 frame:RegisterEvent("ENCOUNTER_TIMELINE_EVENT_ADDED")
 frame:RegisterEvent("ENCOUNTER_TIMELINE_EVENT_BLOCK_STATE_CHANGED")
-frame:RegisterEvent("RAID_BOSS_EMOTE")
+-- frame:RegisterEvent("RAID_BOSS_EMOTE")
 frame:RegisterEvent("RAID_BOSS_WHISPER")
 frame:RegisterEvent("UNIT_SPELLCAST_START")
 frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
@@ -715,14 +740,14 @@ frame:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED")
 frame:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED")
 frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 frame:RegisterEvent("BOSS_KILL")
-frame:RegisterEvent("UNIT_TARGET")
+-- frame:RegisterEvent("UNIT_TARGET")
 frame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 -- frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 -- frame:RegisterEvent("UNIT_FLAGS")
 frame:RegisterEvent("UNIT_COMBAT")
-
+frame:RegisterEvent("UNIT_MODEL_CHANGED")
 -- frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-
+frame:RegisterEvent("UPDATE_UI_WIDGET")
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "ENCOUNTER_START" then
         local encounterID = ...
@@ -1106,8 +1131,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if (subZone == "风行者宝库" or subZone == "風行者寶庫") and keyLevel >= 12 then
                 local currentMapID = C_Map.GetBestMapForUnit("player") or 0        
-                local actualLevel = UnitLevel(unitTarget)
-                local unitPowerType = UnitPowerType(unitTarget)
                 local auraData2 = C_UnitAuras.GetAuraDataByIndex(unitTarget, 2, "HELPFUL") 
                 local auraData3 = C_UnitAuras.GetAuraDataByIndex(unitTarget, 3, "HELPFUL") 
                 local auraCheck = false
@@ -1116,7 +1139,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 else
                     auraCheck = auraData3
                 end
-                if actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 2498 and unitPowerType == 0 and auraCheck then
+                if UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL and currentMapID == 2498 and UnitPowerType(unitTarget) == 0 and auraCheck then
                     if not auraTriggeredCache[unitTarget] then
                         PlaySoundFile(MEDIA_PATH .. "JiNu.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         auraTriggeredCache[unitTarget] = true
@@ -1126,29 +1149,36 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end                
         end
         return
-    elseif event == "UNIT_TARGET" then
+    -- elseif event == "UNIT_TARGET" then
+    --     local unitTarget = ...
+    --     local subZone = GetSubZoneText()
+    elseif event == "UNIT_MODEL_CHANGED" then
         local unitTarget = ...
-        local subZone = GetSubZoneText()
+
+        
+        -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget)
+        -- then print("UNIT_MODEL_CHANGED") end
         -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
-        --     local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
-        --     if instanceID == 2811 then -- 魔导师平台
-        --         local actualLevel = UnitLevel(unitTarget)
-        --         local unitPowerType = UnitPowerType(unitTarget)    
-        --         local sex = UnitSex(unitTarget)
-        --         local scenarioCriteriaInfo = C_ScenarioInfo.GetCriteriaInfo(1)
-        --         if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 and scenarioCriteriaInfo and scenarioCriteriaInfo.completed == true then -- 奥能金刚库斯托斯
-        --             local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
-        --             local PlayerRole = GetPlayerRole()
-        --             UNIT_TARGET_Triggered[unitTarget] = true
-        --             C_Timer.After(1.6, function()
-        --                 UNIT_TARGET_Triggered[unitTarget] = nil
-        --                 return
-        --             end)                    
-        --         end
-        --     end                
+        --     GenerateAllSpecsCodeBlock(unitTarget)
         -- end
-        -- print(unitTarget)
-        -- print(UnitCanAttack("player", unitTarget))
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 熔岩图腾 -- 易爆燃烧
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2513 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL -- 怪物等级: 90
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "normal" -- 普通怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and AudioTriggered == false 
+            then C_Timer.After(6, function() AudioTriggered = false end)
+            PlaySoundFile(MEDIA_PATH .. "ZhuanHuoTuTeng.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            AudioTriggered = true end
+
 
     elseif event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA" then
         local subZone = GetSubZoneText()
@@ -1196,6 +1226,990 @@ frame:SetScript("OnEvent", function(self, event, ...)
         -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
         --     GenerateAllSpecsCodeBlock(unitTarget)
         -- end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 裂地
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "灰烬灵堂" -- 子区域 (灰烬灵堂)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 净化打击
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "荣耀亡者大厅" -- 子区域 (荣耀亡者大厅)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 引导闪电
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "达哈基圣墓" -- 子区域 (达哈基圣墓)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 暗影旋风
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "达哈基圣墓" -- 子区域 (达哈基圣墓)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 50 -- 怪物等级: 50
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 暗影箭雨
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "金光穹殿" -- 子区域 (金光穹殿)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and C_ScenarioInfo.GetCriteriaInfo(1) 
+            and C_ScenarioInfo.GetCriteriaInfo(1).completed == false
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "AnYingJianYu.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 狂风鞭笞
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "金光穹殿" -- 子区域 (金光穹殿)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 50
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "JinZhanXuanFeng.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 压制猛击
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "荣耀亡者大厅" -- 子区域 (荣耀亡者大厅)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 滚雷
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and C_ScenarioInfo.GetCriteriaInfo(2) 
+            and C_ScenarioInfo.GetCriteriaInfo(2).completed == false
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "QuSanMoFa.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 熔火血脉
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 风暴吐息 -- 烈焰吐息
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 雷霆颚咬 -- 火焰之喉（五秒后坦克击退？）
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 闪火
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 闪电风暴 (大引导者莱瓦迪)
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and GetSubZoneText() == "红玉瞭望台" -- 子区域 (红玉瞭望台)
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 3 -- 女性
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 闪电风暴 (暴风引导者)
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 地狱烈火
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 活动炸弹 
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 炽焰冲锋
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
+            and GetSubZoneText() == "注能室" -- 子区域 (注能室)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiChongFeng.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 采掘冲击
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
+            and GetSubZoneText() == "注能室" -- 子区域 (注能室)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 大地裂击
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
+            and GetSubZoneText() == "注能室" -- 子区域 (注能室)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) ~= 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 毁灭猛击
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
+            and GetSubZoneText() == "闪霜侵入点" -- 子区域 (闪霜侵入点)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚空冲击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UNIT_CHANNEL_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚空打击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            and not UNIT_CHANNEL_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 掘地打击 -- 裂隙行走 -- 爆炸球体
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 双重碾压
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and ((C_Map.GetBestMapForUnit("player") or 0) == 2574 or (C_Map.GetBestMapForUnit("player") or 0) == 2572) -- 地图ID
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            then C_Timer.After(0.3, function() if UnitExists(unitTarget) and UnitGroupRolesAssigned(unitTarget .. "target") == "TANK" 
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 天空打击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then C_Timer.After(0.3, function() if UnitExists(unitTarget) and UnitGroupRolesAssigned(unitTarget .. "target") ~= "TANK" 
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiTiaoRen.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            UNIT_CAST_TRACKER[unitTarget] = true end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 腐蚀精华 -- 空中袭击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            UNIT_CAST_TRACKER[unitTarget] = true 
+            C_Timer.After(3, function() UNIT_CAST_TRACKER[unitTarget] = nil end) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 疯狂尖啸
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL -- 怪物等级: 90
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DaDuanKongJu.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 缠网
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL -- 怪物等级: 90
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then StartCircleTimerBySeconds(3, false, PlayerIsSpellTarget(unitTarget, "player"))
+            C_Timer.After(0.2, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "MuBiaoShiNi.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 头槌重击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+
+
+
+
+
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 野性之怒 -- 黄沙冲刷
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL -- 怪物等级: 90
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 粉碎冲锋
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and not UNIT_CHANNEL_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiChongFeng.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 凶残毒素
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget)
+            and UNIT_CHANNEL_TRACKER[unitTarget] -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiYouBu.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚空团块
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(1.1, function() if UnitExists(unitTarget) and UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] == true  
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚无震爆
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(1.1, function() if UnitExists(unitTarget) and UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] == nil 
+            then PlaySoundFile(MEDIA_PATH .. "BaMaFenSan.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 地震术
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2513 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 3
+            and UnitSex(unitTarget) == 3 -- 女性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 原始回响
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2513 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and not UNIT_CAST_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            UNIT_CAST_TRACKER[unitTarget] = true return end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 毒矛乱射
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2513 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UNIT_CAST_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            UNIT_CAST_TRACKER[unitTarget] = nil return end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 粉碎
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and C_ScenarioInfo.GetCriteriaInfo(2) 
+            and C_ScenarioInfo.GetCriteriaInfo(2).completed == false
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            then C_Timer.After(0.2, function() if UnitGroupRolesAssigned(unitTarget .. "target") == "TANK"
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) return end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 穿云术
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then StartCircleTimerBySeconds(3.1, false, PlayerIsSpellTarget(unitTarget, "player"))
+            C_Timer.After(0.2, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 冰川之墓
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and (GetSubZoneText() == "漫长寒冬" or GetSubZoneText() == "恆常凜冬") -- 子区域 (漫长寒冬)
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 静电释放
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and (GetSubZoneText() == "迫近风暴" or GetSubZoneText() == "風暴逼近")
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术无目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 饥荒雕像
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(1.6, function() if UNIT_CHANNEL_TRACKER[unitTarget] == nil and UnitExists(unitTarget)
+            then PlaySoundFile(MEDIA_PATH .. "ZhuanHuoTuTeng.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 穿刺尖叫 -- 挫志咆哮 -- 酷寒之怒
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitCreatureFamily(unitTarget)
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and AudioTriggered == false 
+            then C_Timer.After(6, function() AudioTriggered = false end)
+            PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            AudioTriggered = true end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪火之雨
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then C_Timer.After(1.1, function() if UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] == true 
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+            
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 眼棱
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiSheXian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+        
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪能重击
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪能光束
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1
+            and UnitAffectingCombat(unitTarget) == true
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(0.2, function() if UnitExists(unitTarget .. "target")
+            then PlaySoundFile(MEDIA_PATH .. "JiGuangZhuiNi.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 碾碎
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1
+            and UnitAffectingCombat(unitTarget) == true
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(0.2, function() if not UnitExists(unitTarget .. "target")
+            then PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+                
+                
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 魔火之球
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 3
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then StartCircleTimerBySeconds(5, false, PlayerIsSpellTarget(unitTarget, "player"))
+            C_Timer.After(0.2, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "MuBiaoShiNi.ogg", DiGuaTimelineAudioHelper.audioChannel) end end)
+            C_Timer.After(4.7, function() if UnitExists(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "DuoQiu.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 俯冲轰炸
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1
+            and UnitClassification(unitTarget) == "normal" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(0.1, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiJiaoXia.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+            
+            
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 回去干活!
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2435 -- 地图ID
+            and IsIndoors() == true -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UnitGroupRolesAssigned(unitTarget .. "target") ~= "DAMAGER" 
+            then C_Timer.After(1.6, function() if UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] == nil 
+            then PlayAudioSequence(0, "ZhunBeiJiNu.ogg",1.4 ,"JiNu.ogg") end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 断心药膏（街头扒手）
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            and AudioTriggered == false
+            then C_Timer.After(1.5, function() if UnitExists(unitTarget) 
+            then PlaySoundFile(MEDIA_PATH .. "TanKeZhongDu.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            C_Timer.After(5, function() AudioTriggered = false end)
+            AudioTriggered = true end end) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 断心药膏（赞恩的悍党）
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2435 -- 地图ID
+            and IsIndoors() == true -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UnitGroupRolesAssigned(unitTarget .. "target") ~= "DAMAGER" 
+            then C_Timer.After(1.6, function() if UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] == true 
+            then PlaySoundFile(MEDIA_PATH .. "TanKeChengShang.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 火焰炸弹
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2435 -- 地图ID
+            and IsIndoors() == true -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and UnitSpellTargetName(unitTarget) 
+            then C_Timer.After(0.5, function() if UnitExists(unitTarget) 
+            and UnitExists(unitTarget .. "target")
+            and UnitGroupRolesAssigned(unitTarget .. "target") ~= "TANK" 
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 赤红战刃
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 盾击
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 吐舌攻击
             and UnitCanAttack("player", unitTarget)
@@ -1539,10 +2553,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local unitPowerType = UnitPowerType(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 1 then
                     local targetName = UnitSpellTargetName(unitTarget)
-                    local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
                     if targetName then
                         if GetPlayerRole() ~= "TANK" then
-                            StartCircleTimerBySeconds(2, false, targetsPlayer)
+                            StartCircleTimerBySeconds(2, false, PlayerIsSpellTarget(unitTarget, "player"))
                             C_Timer.After(0.5, function()
                                 if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true then
                                     PlaySoundFile(MEDIA_PATH .. "JiGuangDianNi.ogg", DiGuaTimelineAudioHelper.audioChannel) -- 日光烈焰
@@ -1694,11 +2707,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 if UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL and (currentMapID == 2097 or currentMapID == 2098) and unitPowerType == 1 and sex == 1 and isInside == false and scenarioCriteriaInfo and scenarioCriteriaInfo.completed == true then -- 克罗兹
                     C_Timer.After(0.4, function()
                         local hasTarget = UnitExists(unitTarget .. "target")
-                        local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
                         if hasTarget then
                             PlaySoundFile(MEDIA_PATH .. "ZhunBeiTiaoRen.ogg", DiGuaTimelineAudioHelper.audioChannel) -- 邪恶伏击
                             CustomEncounterBar(132089, 18, "准备跳人")
-                            StartCircleTimerBySeconds(3.1, false, targetsPlayer)
+                            StartCircleTimerBySeconds(3.1, false, PlayerIsSpellTarget(unitTarget, "player"))
                             C_Timer.After(0.8, function()
                                 if addonTable.PlayerSpellStatus.spells[58984] == true and IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true then -- 影遁
                                     PlaySoundFile(MEDIA_PATH .. "YingDun.ogg", DiGuaTimelineAudioHelper.audioChannel)
@@ -1826,10 +2838,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local sex = UnitSex(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 2501 and unitPowerType == 0 and sex == 1 then
                     local targetName = UnitSpellTargetName(unitTarget)
-                    local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
                     if targetName then                        
                         PlaySoundFile(MEDIA_PATH .. "MianJuDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel) -- 岩浆涌动
-                        StartCircleTimerBySeconds(3.5, false, targetsPlayer)
+                        StartCircleTimerBySeconds(3.5, false, PlayerIsSpellTarget(unitTarget, "player"))
                         CustomEncounterBar(451169, 20.5, "面具点名")
                         C_Timer.After(0.6, function()
                             if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true then
@@ -2298,30 +3309,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
         end
 
 
-
-
-        -- if isAttackableNameplate
-        --     and select(8, GetInstanceInfo()) == 2915 -- 副本ID (节点希纳斯)
-        --     and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
-        --     and UnitPowerType(unitTarget) == 0
-        --     and UnitSex(unitTarget) == 2
-        --     and C_ScenarioInfo.GetCriteriaInfo(1) 
-        --     and C_ScenarioInfo.GetCriteriaInfo(1).completed == false -- 拦截未完成步骤
-        --     and not UnitSpellTargetName(unitTarget) 
-        --     and not UnitExists(unitTarget .. "target") then -- 并且【没有】目标
-        --     C_Timer.After(0.5, function()
-        --         if UnitExists(unitTarget) then
-        --             PlaySoundFile(MEDIA_PATH .. "音频文件名.ogg", DiGuaTimelineAudioHelper.audioChannel)
-        --         end
-        --     end)end
-
-
-
-
-
-
-
-
         if isAttackableNameplate and UnitAffectingCombat(unitTarget) then
             if select(8, GetInstanceInfo()) == 2915 then -- 节点希纳斯
                 local actualLevel = UnitLevel(unitTarget)
@@ -2458,23 +3445,383 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local unitTarget = ...
         local subZone = GetSubZoneText()
 
+        -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+        --     GenerateAllSpecsCodeBlock(unitTarget)
+        -- end
 
 
-        -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 喷涌之花 -- 光颚射线
-        --     and UnitChannelInfo(unitTarget)
-        --     and select(8, GetInstanceInfo()) == 2859 -- 副本ID (夺目谷)
-        --     and (C_Map.GetBestMapForUnit("player") or 0) == 2500 -- 地图ID
-        --     and IsIndoors() == false -- 是否在室内
-        --     and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
-        --     and UnitPowerType(unitTarget) == 1
-        --     and UnitSex(unitTarget) == 1
-        --     and UnitClassification(unitTarget) == "elite" -- 分类
-        --     and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
-        --     and not UnitSpellTargetName(unitTarget) -- 法术没目标
-        --     and UNIT_CAST_TRACKER[unitTarget]
-        --     then UNIT_CHANNEL_TRACKER[unitTarget] = true            
-        --     C_Timer.After(0.25, function() UNIT_CHANNEL_TRACKER[unitTarget] = nil end)
-        --     UNIT_CAST_TRACKER[unitTarget] = nil end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 净化光线
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "荣耀亡者大厅" -- 子区域 (荣耀亡者大厅)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiJiGuang.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 剑刃风暴
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "达哈基圣墓" -- 子区域 (达哈基圣墓)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "JianRenFengBao.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 狩猎跃击
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "达哈基圣墓" -- 子区域 (达哈基圣墓)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and select(2, UnitCreatureFamily(unitTarget)) -- 是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiZhengMian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 警戒防卫
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and GetSubZoneText() == "金光穹殿" -- 子区域 (金光穹殿)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == 51 -- 怪物等级: 51
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "BeiMianKuaiDa.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 烈焰之舞
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and GetSubZoneText() == "红玉新生圣地" -- 子区域 (红玉新生圣地)
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and C_ScenarioInfo.GetCriteriaInfo(2) 
+            and C_ScenarioInfo.GetCriteriaInfo(2).completed == false
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 钢铁弹幕
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
+            and GetSubZoneText() == "注能室" -- 子区域 (注能室)
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2 -- 男性
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 奥术飞弹
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术无目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 扭曲心智
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then C_Timer.After(0.2, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "JiGuangDianNi.ogg", DiGuaTimelineAudioHelper.audioChannel) 
+            UNIT_CHANNEL_TRACKER[unitTarget] = true end end) end
+
+        
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚空缰绳
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2573 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == PLAYER_LEVEL -- 怪物等级: 90
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then C_Timer.After(0.2, function() if IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true 
+            then PlaySoundFile(MEDIA_PATH .. "YouBu.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 撕碎切割
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and not UNIT_CAST_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 空中袭击
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UNIT_CAST_TRACKER[unitTarget]
+            then PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 险恶光环
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            UNIT_CHANNEL_TRACKER[unitTarget] = true end
+
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 钉锤风暴
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and ((C_Map.GetBestMapForUnit("player") or 0) == 2574 or (C_Map.GetBestMapForUnit("player") or 0) == 2572) -- 地图ID
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and select(2, UnitClass(unitTarget)) == "WARRIOR"
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "JianRenFengBao.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 冰川弹幕
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术无目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 风雷天坠
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 苦难盛宴
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2825 -- 副本ID (纳洛拉克的洞穴)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2514 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            UNIT_CHANNEL_TRACKER[unitTarget] = true
+            C_Timer.After(0.5, function() UNIT_CHANNEL_TRACKER[unitTarget] = nil end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 生命吸取
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 1
+            and UnitSex(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and AudioTriggered == false then
+            if unitGroupRolesAssigned("player") ~= "HEALER" then
+            PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            else PlaySoundFile(MEDIA_PATH .. "QuSanMoFa.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+            C_Timer.After(6, function() AudioTriggered = false end)     
+            AudioTriggered = true end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 刀扇
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2435 -- 地图ID
+            and IsIndoors() == true -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and UnitSpellTargetName(unitTarget)
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪能飞弹 -- 邪能风暴
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 3
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and AudioTriggered == false 
+            and UnitGroupRolesAssigned("player") ~= "HEALER" 
+            then C_Timer.After(8, function() AudioTriggered = false end)
+            PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)            
+            AudioTriggered = true end
+            
+        
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 召唤浮龙
+            and UnitChannelInfo(unitTarget)
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "WARRIOR" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "HEALER" 
+            then PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 喷射孢子
             and UnitChannelInfo(unitTarget)
@@ -2861,231 +4208,70 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 end
             end
         end
-    elseif event == "RAID_BOSS_EMOTE" or event == "ENCOUNTER_WARNING" then
+    -- elseif event == "RAID_BOSS_EMOTE" or event == "ENCOUNTER_WARNING" then
 
-        local encounterWarningInfo = ...
-        -- if encounterWarningInfo then
-        --     print("|cffffd100[Debug] 捕获到实时事件数据:|r")
-            
-        --     -- 1. 文本类
-        --     print("文本 (text):", encounterWarningInfo.text)
-        --     print("施法者 (casterName):", encounterWarningInfo.casterName)
-        --     print("目标 (targetName):", encounterWarningInfo.targetName)
-            
-        --     -- 2. GUID
-        --     print("施法者GUID:", encounterWarningInfo.casterGUID)
-        --     print("目标GUID:", encounterWarningInfo.targetGUID)
-            
-        --     -- 3. 数字/ID
-        --     print("图标ID (iconFileID):", encounterWarningInfo.iconFileID)
-        --     print("技能ID (tooltipSpellID):", encounterWarningInfo.tooltipSpellID)
-        --     print("持续时间 (duration):", encounterWarningInfo.duration)
-        --     print("严重程度 (severity):", encounterWarningInfo.severity)
-            
-        --     -- 4. 布尔值
-        --     print("是否致命 (isDeadly):", tostring(encounterWarningInfo.isDeadly))
-        --     print("播放声音 (shouldPlaySound):", tostring(encounterWarningInfo.shouldPlaySound))
-        --     print("聊天框消息 (shouldShowChatMessage):", tostring(encounterWarningInfo.shouldShowChatMessage))
-        --     print("显示警告 (shouldShowWarning):", tostring(encounterWarningInfo.shouldShowWarning))
-            
-        --     -- 5. 颜色
-        --     if encounterWarningInfo.color then
-        --         print("颜色 (RGB):", encounterWarningInfo.color.r, encounterWarningInfo.color.g, encounterWarningInfo.color.b)
-        --     else
-        --         print("颜色: nil")
-        --     end
-
-        -- else
-        --     print("|cffff0000[Error] 事件触发但数据为空|r")
-        -- end
-        if currentEncounterID == 3056 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到炽焰腾流")
-            PlaySoundFile(MEDIA_PATH .. "TieBianFangShuiSanMiaoSanErYi.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            StartCircleTimerBySeconds(6)
-            return
-        end
-        if (C_Map.GetBestMapForUnit("player") == 601 or C_Map.GetBestMapForUnit("player") == 602) and currentEncounterID == 0 then
-            PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            StartCircleTimerBySeconds(2.7)
-            return
-        end
-        if C_Map.GetBestMapForUnit("player") == 2501 and currentEncounterID == 0 then
-            PlaySoundFile(MEDIA_PATH .. "ZhuYiJiuRen.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            return
-        end
-        if currentEncounterID == 1701 and encounterWarningInfo.severity and encounterWarningInfo.severity == 2 then
-            -- print("成功：检测到炫光")
-            castStarted = true
-            C_Timer.After(0.6, function()
-                castStarted = false -- 保险
-            end)
-            return
-        end
-        if currentEncounterID == 3056 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到炽焰腾流")
-            PlaySoundFile(MEDIA_PATH .. "TieBianFangShuiSanMiaoSanErYi.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            StartCircleTimerBySeconds(6)
-            return
-        end
-
-        if currentEncounterID == 3200 and encounterWarningInfo.severity and encounterWarningInfo.severity == 2 then
-            -- print("成功：检测到嗜血注视")
-            -- StartCircleTimerBySeconds(10)
-            PlayAudioSequence(11, "DaoShu3.ogg",1 ,"DaoShu2.ogg",1 ,"DaoShu1.ogg",1 ,"AnQuan.ogg")
-            return
-        end
-
-        if currentEncounterID == 3179 and encounterWarningInfo.severity and encounterWarningInfo.severity == 0 then
-            -- print("成功：检测到专制命令")
-            -- PlaySoundFile(MEDIA_PATH .. "TieBianFangShui.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            StartCircleTimerBySeconds(12)
-            return
-        end
-        if currentEncounterID == 2065 and encounterWarningInfo.targetName then
-            -- print("成功：检测到残杀")
-            StartCircleTimerBySeconds(5)
-            return
-        end
-        if currentEncounterID == 2564 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到震耳尖啸")
-            StartCircleTimerBySeconds(2.3, true)
-            return
-        end        
-        if currentEncounterID == 3072 and encounterWarningInfo.severity and encounterWarningInfo.severity == 2 then
-            -- print("成功：检测到静默浪潮")
-            StartCircleTimerBySeconds(4.8)
-            return
-        end
-
-
-        if currentEncounterID == 3057 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到黑暗诅咒和飞溅喷吐")
-            StartCircleTimerBySeconds(4.1)
-            return
-        end        
-        if currentEncounterID == 3073 and encounterWarningInfo.severity and encounterWarningInfo.severity == 2 then
-            -- print("成功：检测到星界束缚")
-            PlayAudioSequence(9, "DaoShu3.ogg",1 ,"DaoShu2.ogg",1 ,"DaoShu1.ogg",1 ,"AnQuan.ogg")
-            return
-        end
-        if currentEncounterID == 3182 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到复生")            
-            C_Timer.After(35, function()
-                if currentEncounterID == 3182 then
-                    PlayAudioSequence(0, "DaoShu5.ogg",1 ,"DaoShu4.ogg",1 ,"DaoShu3.ogg",1 ,"DaoShu2.ogg",1 ,"DaoShu1.ogg")
-                end
-            end)
-            C_Timer.After(44, function()
-                if currentEncounterID == 3182 then
-                    PlayAudioSequence(0, "KaiShiHuanSe.ogg")
-                end
-            end)
-            return
-        end
-        if currentEncounterID == 3214 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 then
-            -- print("成功：检测到粉碎灵魂")
-            StartCircleTimerBySeconds(4.5)
-        end
-        if currentEncounterID == 3181 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 and not encounterWarningInfo.targetName and encounterWarningInfo.duration == 3.5 then
-            -- print("成功：检测到干扰震荡)
-            local preciseTime = GetTime() - startTime
-            if preciseTime >= 3 and preciseTime <= 6 then
-                StartCircleTimerBySeconds(5, true)
-            end
-            if preciseTime >= 24 and preciseTime <= 26 then
-                StartCircleTimerBySeconds(5, true)
-            end
-            if preciseTime >= 40 and preciseTime <= 42 then
-                StartCircleTimerBySeconds(5, true)
+    --     local encounterWarningInfo = ...
+    elseif event == "UPDATE_UI_WIDGET" then
+        if currentEncounterID == 2564 then 
+            -- print(GetWidgetLabelText())
+            if GetWidgetLabelText() == "3/3" then
+                -- print("准备易伤")
+                PlayAudioSequence(0, "DaoShu2.ogg",1 , "DaoShu1.ogg")
             end
         end
-        if currentEncounterID == 3181 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 and encounterWarningInfo.targetName and encounterWarningInfo.duration == 5 then
-            -- print("成功：检测到银峰箭或游侠队长的印记或终末守护")
-            StartCircleTimerBySeconds(6, true)
-        end
-        if currentEncounterID == 3178 and encounterWarningInfo.severity and encounterWarningInfo.severity == 1 and encounterWarningInfo.shouldPlaySound == true then
-            -- print("成功：检测到亡者吐息")
-            local _, _, difficultyID = GetInstanceInfo()            
-            -- 如果是史诗难度（ID 16）
-            if difficultyID == 16 then
-                local preciseTime = GetTime() - startTime
-                if preciseTime >= 4 and preciseTime <= 6 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 69 and preciseTime <= 71 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 131 and preciseTime <= 134 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 190 and preciseTime <= 193 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 315 and preciseTime <= 318 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 359 and preciseTime <= 362 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 359 and preciseTime <= 362 then
-                    StartCircleTimerBySeconds(6)
-                end
-                if preciseTime >= 411 and preciseTime <= 414 then
-                    StartCircleTimerBySeconds(6)
-                end
-            end
-            return
-        end
-        if currentEncounterID == 3183 and encounterWarningInfo.severity == 1 then
-            local _, _, difficultyID = GetInstanceInfo()
-            
-            -- 定义默认时间为 3.9 秒（普通/英雄）
-            local timerDuration = 3.9
-            
-            -- 如果是史诗难度（ID 16），则改为 2.9 秒
-            if difficultyID == 16 then
-                timerDuration = 2.9
-            end
-            StartCircleTimerBySeconds(timerDuration)
-            return 
-        end
-        if currentEncounterID == 3332 and not encounterWarningInfo.targetName and encounterWarningInfo.severity == 2 then
-            -- print("成功：检测到光痕")
-            C_Timer.After(21, function()
-                if currentEncounterID ~= 0 then
-                    PlayAudioSequence(0, "DaoShu5.ogg", 1, "DaoShu4.ogg", 1, "DaoShu3.ogg", 1, "DaoShu2.ogg", 1, "DaoShu1.ogg", 1, "YiShangJieShu.ogg")
-                -- print("易伤结束")
-                end
-            end)
-            return
-        end
-        if startTime ~= 0 or currentEncounterID ~= 0 then 
-            return 
-        end
-
-        local mapID = C_Map.GetBestMapForUnit("player")
-        if not mapID then return end
-
-        
-        -- print("['" .. encounterWarningInfo.duration .. "']")
-        if encounterWarningInfo.duration == 3.5 and mapID == 184 then
-            -- print("成功")
-            local isInside = IsIndoors()
-            if isInside == true then
-                PlaySoundFile(MEDIA_PATH .. "WuMaFenSanSanErYiZhuYiJiaoXia.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                StartCircleTimerBySeconds(5.1)
-                ENCOUNTER_WARNING_Triggered = true
-                C_Timer.After(1, function()
-                    ENCOUNTER_WARNING_Triggered = false
-                end)  
-            end
-            return
-        end
-        return
-
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local unitTarget = ...
         local subZone = GetSubZoneText()
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 虚空团块 -- 虚无震爆
+            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL -- 怪物等级: 91
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 1 -- 无性别
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN"
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = true 
+            C_Timer.After(1, function() UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = nil end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 回去干活! -- 断心药膏
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2435 -- 地图ID
+            and IsIndoors() == true -- 是否在室内
+            and UnitLevel(unitTarget) == NEXT_PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = true 
+            C_Timer.After(0.25, function() UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = nil end) end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪火之雨
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == PLAYER_LEVEL 
+            and UnitPowerType(unitTarget) == 0
+            and UnitSex(unitTarget) == 2
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and select(2, UnitClass(unitTarget)) == "PALADIN" -- 职业
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = true 
+            C_Timer.After(0.25, function() UNIT_CAST_SUCCEEDED_TRACKER[unitTarget] = nil end) end
+            
+        
+
+
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) and UnitAffectingCombat(unitTarget) then
             local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
             if instanceID == 2915 then -- 节点希纳斯
@@ -3406,8 +4592,8 @@ function StartCircleTimerBySeconds(seconds, checkCast, PlayerIsSpellTarget)
     RingFrame:SetAlphaFromBoolean(PlayerIsSpellTarget, 0.85, 0)
 
     -- 🎯 启动抓取信号
-    IsTrackingUtteranceID = true
-    C_VoiceChat.SpeakText(FindBestVoice(), RingFrame:GetAlpha(), 10, 0, true)
+    -- IsTrackingUtteranceID = true
+    -- C_VoiceChat.SpeakText(FindBestVoice(), RingFrame:GetAlpha(), 10, 0, true)
 
     -- 🎯 【重置】如果上一次的任何计时器还在跑，先强行取消
     if activeCircleTimer then activeCircleTimer:Cancel() end
@@ -3640,3 +4826,19 @@ initFrame:SetScript("OnEvent", function(self, event)
         RefreshMediaPath()
     end
 end)
+
+
+-- 导出变量
+function addonTable.GetEncounterID() return currentEncounterID end
+function addonTable.GetStartTime() return startTime end
+function addonTable.GetMediaPath() return MEDIA_PATH end
+function addonTable.SetCastStarted(val) castStarted = val end
+function addonTable.SetWarningTriggered(val) ENCOUNTER_WARNING_Triggered = val end
+
+-- 【新增】把隐身后的安全函数，安全地共享给你的副文件
+addonTable.StartCircleTimerBySeconds = StartCircleTimerBySeconds
+addonTable.PlayAudioSequence = PlayAudioSequence
+
+-- 【新增】将媒体路径与全局声道配置导出给子模块使用
+function addonTable.GetMediaPath() return MEDIA_PATH end
+function addonTable.GetAudioChannel() return DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.audioChannel or "Master" end

@@ -233,7 +233,7 @@ addonTable.EventSoundData = {
     [497] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 复生 (1241313)
     [134] = { {"TanKeLianJi.ogg", 1, {TANK = true}} }, -- 守护者敕令 (1260763)
     [272] = { {"ZhunBeiJiFei.ogg", 2} }, -- 死亡坠落 (1246709)
-    [138] = { {"ShuaXiNaiDun.ogg", 1, {HEALER = true}} }, -- 永恒灼烧 (1244344)
+    [138] = { {"ShuaXiNaiDun.ogg", 1, {HEALER = true}}, {"WuMiaoHouXiNaiDun.ogg", 2, {HEALER = true}} }, -- 永恒灼烧 (1244344)
     -- [161] = { {"ZhuYiSheXian.ogg", 1, {DAMAGER = true, HEALER = true}} }, -- 注能飞羽 (1242260)
     -- [273] = { {".ogg", 1} }, -- 烈焰孵化 (1242792)
     [218] = { {"KaiShiHuanSe.ogg", 1}, {"ZhunBeiHuanSeSanErYiKaiShiHuanSe.ogg", 2} }, -- 虚光汇流 (包含原表2)
@@ -251,7 +251,7 @@ addonTable.EventSoundData = {
     [257] = { {"ZhunBeiHuWeiDaDuanHuWeiZhuanHuoShuiJing.ogg", 1} }, -- 护卫棱镜 (1251386)
     -- [434] = { {".ogg", 1} }, -- 宇宙裂变 (1282249)
     -- [363] = { {".ogg", 1} }, -- 断离 (1276202)
-    [437] = { {"SheXianDianNi.ogg", 0} }, -- 星辰裂片 (1282441)
+    -- [437] = { {"SheXianDianNi.ogg", 0} }, -- 星辰裂片 (1282441)
     [435] = { {"DuoKaiLianXian.ogg", 1}, {"ZhiLiaoYuPu.ogg", 2, {HEALER = true}} }, -- 核心收割 (包含原表2)
     -- [362] = { {".ogg", 1} }, -- 死亡安魂曲 (1273158)    
     [255] = { {"FuWenDianNi.ogg", 0}, {"ZhunBeiFuWenLiangMiaoSanErYi.ogg", 2} }, -- 死亡挽歌 (包含原表2)
@@ -273,8 +273,8 @@ addonTable.EventSoundData = {
     [426] = { {"ZhunBeiAOE.ogg", 1}, {"WuMiaoHouAOE.ogg", 2, {HEALER = true}} }, -- 脓包爆裂 (1221787)
     [427] = { {"WuMiaoHouTanKeJianCi.ogg", 2, {TANK = true}}, {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 腐烂之拳 (1221781)
     [428] = { {"ZhunBeiDianMing.ogg", 1, {DAMAGER = true, HEALER = true}} }, -- 溃烂藤蔓 (1222088)
-    -- [808] = { {"HongSeLianXian.ogg", 0} },
-    -- [809] = { {"LvSeLianXian.ogg", 0} },
+    [808] = { {"HongSeLianXian.ogg", 0} },
+    [809] = { {"LvSeLianXian.ogg", 0} },
     -- 光明众花
     [177] = { {"ZhunBeiCaiQuan.ogg", 1} }, -- 光明之花射线 (1235564)
     [173] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 基岩猛击 (1234753)
@@ -300,4 +300,64 @@ addonTable.EventSoundData = {
     [191] = { {"MuBiaoShiNi.ogg", 0} }, -- 凝聚光线 (1246607)
     [189] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 唤醒光绽 (1246372)
     [190] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 棘刺 (1247685)
+
+    -- 凯斯媞亚·魔力之心
+    [610] = { {"YiShangJieDuan.ogg", 0} }, -- 光明灌注 (1230304)
+    [202] = { {"DuoKaiDaQuan.ogg", 1} }, -- 邪能新星 (474240)
+    [122] = { {"DuoKaiTouQian.ogg", 1} }, -- 邪能飞溅 (1253811)
+    [120] = { {"DaDuanXiaoGuai.ogg", 1} }, -- 镜像 (1264095)
+
+    -- 赞恩·刃悲
+    [124] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 当日送达 (474765)
+    [127] = { {"AOE.ogg", 1}, {"WuMiaoHouAOE.ogg", 2, {HEALER = true}} }, -- 影舞步 (474478)
+    [193] = { {"TanKeJianCi.ogg", 1} }, -- 毒伤 (1222795)
+    [123] = { {"QuanZhuLvTong.ogg", 0} }, -- 火焰炸弹 (1214357)
+    [125] = { {"KuaiZhaoYanTi.ogg", 1} }, -- 绝命凶径 (1218347)
+
+    -- 歼灭者萨祖克斯
+    [30] = { {"TanKeTouQian.ogg", 1} }, -- 军团打击 (473898)
+    [31] = { {"ZhuanHuoXiaoGuai.ogg", 1} }, -- 利斧投掷 (1214637)
+    [32] = { {"YiShangJieDuan.ogg", 1} }, -- 魔化狂怒 (474197)
+
+    -- 利希尔·烬怒
+    [37] = { {"JiHeFenSan.ogg", 1} }, -- 古尔丹之指 (1218203)
+    [38] = { {"ZhuanHuoXiaoGuai.ogg", 1} }, -- 召唤邪犬 (474408)
+    [207] = { {"ZhunBeiDianMen.ogg", 1} }, -- 灾厄浪潮 (1224478)
+
+    -- 囤宝狂人
+    [86] = { {"ZhuYiCaiQuan.ogg", 1} }, -- 腐坏补给 (1234233)
+    [87] = { {"DuoKaiTouQian.ogg", 1} }, -- 裂地强击 (1253268)
+    [88] = { {"ZhunBeiAOE.ogg", 1} }, -- 贪婪咆哮 (1235118)
+
+    -- 寒冬哨兵
+    [67] = { {"QuSanMoFa.ogg", 1, {HEALER = true}} }, -- 冰川折磨 (1235548)
+    [70] = { {"HuDunKuaiDa.ogg", 1} }, -- 永恒寒冬 (1235656)
+    [68] = { {"ZhuYiDuoFeng.ogg", 1} }, -- 狂怒的飑风 (1235623)
+    [69] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 粉碎冰刺 (1235783)
+
+    -- 纳洛拉克
+    [92] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 压制强攻 (1243569)
+    [90] = { {"BaMaFenSan.ogg", 1} }, -- 回响重击 (1242860)
+    [89] = { {"ZhunBeiJiTui.ogg", 1} }, -- 强力咆哮 (1255385)
+    [91] = { {"ZuDangLingHun.ogg", 1} }, -- 战神之怒 (1243011)
+
+    -- 塔兹拉尔
+    [39] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 宇宙尖刺 (1222085)
+    [558] = { {"MuBiaoShiNi.ogg", 0} }, -- 空灵冲刺 (1222098)
+    [40] = { {"ZhunBeiDianMing.ogg", 1} }, -- 聚集暗影 (1262901)
+    [42] = { {"ZhunBeiDangXian.ogg", 1} }, -- 虚灵碎片 (1225011)
+    [41] = { {"ZhunBeiLaRen.ogg", 1} }, -- 黑暗裂缝 (1222274)
+
+    -- 击败阿特洛苏斯
+    [297] = { {"XiaoXinJiTui.ogg", 1} }, -- 巨兽践踏 (1262497)
+    [47] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 巨型爪击 (1222642)
+    [54] = { {"DuoKaiTouQian.ogg", 1} }, -- 毒性吐息 (1222721)
+    [55] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 毒液喷溅 (1226120)
+    [46] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 激怒蠕行者 (1222371)
+
+    -- 击败煞戎努斯
+    [56] = { {"ZhuYiDianMing.ogg", 1} }, -- 不稳定的奇点 (1282770)
+    [57] = { {"XiaoXinJiTui.ogg", 1} }, -- 宇宙冲击 (1227264)
+    [58] = { {"ZhuYiBaoZhu.ogg", 1} }, -- 引力宝珠 (1263982)
+    [171] = { {"DuoKaiTouQian.ogg", 1} }, -- 虚空奔涌 (1222758)
 }
