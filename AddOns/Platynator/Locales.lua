@@ -23,6 +23,7 @@ L["THANKS_FOR_USING_PLATYNATOR_DONATE"] = "Thanks for using Platynator. Consider
 L["PLATYNATOR"] = "Platynator"
 L["DESIGNER"] = "Designer"
 L["BEHAVIOUR"] = "Behaviour"
+L["COMMON"] = "Common"
 L["SIZING"] = "Sizing"
 L["FADING"] = "Fading"
 L["STYLE_SELECT"] = "Style Select"
