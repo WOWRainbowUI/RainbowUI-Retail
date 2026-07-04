@@ -93,6 +93,8 @@ L["Animated Storm"] = "살아난 폭풍"
 L["Animated Weapon"] = "살아 움직이는 무기"
 --[[Translation missing --]]
 L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
+--[[Translation missing --]]
+L["announceDungeonReset"] = "Announce dungeon resets to group"
 L["Anodized Coilbearer"] = "양극산화 코일지기"
 L["Anomalus"] = "아노말루스"
 L["Anub'ar Champion"] = "아눕아르 용사"
@@ -819,6 +821,8 @@ L["Dokigg the Brutalizer"] = "야만전사 도키그"
 L["Domatrax"] = "도마트락스"
 L["Domina Venomblade"] = "도미나 베놈블레이드"
 --[[Translation missing --]]
+L["Don't overwrite existing target markers"] = "Don't overwrite existing target markers"
+--[[Translation missing --]]
 L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
@@ -926,6 +930,8 @@ L["Dul'zak"] = "둘자크"
 L["Dungeon Data Missing"] = "던전 데이터 없음"
 L["Dungeon Entrance"] = "던전 입구"
 L["Dungeon Level"] = "던전 레벨"
+--[[Translation missing --]]
+L["dungeonResetAnnouncement"] = "<Dungeons have been reset!>"
 --[[Translation missing --]]
 L["Duskfright Herald"] = "Duskfright Herald"
 L["Duskwatch Arcanist"] = "황혼감시대 비전술사"
@@ -1164,6 +1170,8 @@ L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after co
 L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerChatAnnouncement"] = "My Focus Marker is {rt%d}"
 --[[Translation missing --]]
 L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
 --[[Translation missing --]]

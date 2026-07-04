@@ -456,6 +456,9 @@ getMacroSettings = function()
   if db.focusMarker.disableTargetMarkerInRaid == nil then
     db.focusMarker.disableTargetMarkerInRaid = false
   end
+  if db.focusMarker.preserveExistingTargetMarkers == nil then
+    db.focusMarker.preserveExistingTargetMarkers = true
+  end
   if db.focusMarker.suppressNotifications == nil then
     db.focusMarker.suppressNotifications = false
   end
@@ -466,11 +469,15 @@ local function buildMacroBody(markerIndex, settings)
   markerIndex = tonumber(markerIndex) or 0
   local body = "/focus "..MACRO_CONDITIONALS
   local targetMarkerConditionals = TARGET_MARKER_CONDITIONALS
+  local targetMarkerIndex = markerIndex
   if settings and settings.disableTargetMarkerInRaid then
     body = body.."\n/stopmacro "..RAID_GROUP_STOP_CONDITIONALS
     targetMarkerConditionals = HOSTILE_TARGET_MARKER_CONDITIONALS
   end
-  return body.."\n/tm "..targetMarkerConditionals.." "..markerIndex
+  if markerIndex > 0 and settings and settings.preserveExistingTargetMarkers then
+    targetMarkerIndex = "~"..markerIndex
+  end
+  return body.."\n/tm "..targetMarkerConditionals.." "..targetMarkerIndex
 end
 
 local function hasAccountMacroSlot()
@@ -511,10 +518,9 @@ local function announceFocusMarker()
   local markerIndex = tonumber(settings.lastMarker)
   if not markerIndex or markerIndex == 0 then return end
 
-  local markerName = markerNames[markerIndex]
-  if not markerName then return end
+  if markerIndex < 1 or markerIndex > 8 then return end
 
-  C_ChatInfo.SendChatMessage(("My Focus Marker is {%s}"):format(markerName), "PARTY")
+  C_ChatInfo.SendChatMessage(string.format(L["focusMarkerChatAnnouncement"], markerIndex), "PARTY")
 end
 
 local eventFrame = CreateFrame("Frame")
@@ -1358,6 +1364,12 @@ function MDT:FocusMarker_OpenAssignments(skipDiscovery)
 
   addCheckbox(frame, L["Don't set target marker while in a raid group"], settings.disableTargetMarkerInRaid, function(value)
     settings.disableTargetMarkerInRaid = value
+    MDT:FocusMarker_RefreshAction()
+    updateMacroPreview()
+  end)
+
+  addCheckbox(frame, L["Don't overwrite existing target markers"], settings.preserveExistingTargetMarkers, function(value)
+    settings.preserveExistingTargetMarkers = value
     MDT:FocusMarker_RefreshAction()
     updateMacroPreview()
   end)

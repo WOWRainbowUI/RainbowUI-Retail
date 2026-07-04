@@ -97,6 +97,8 @@ L["Animated Storm"] = "活化風暴"
 L["Animated Weapon"] = "Animated Weapon"
 --[[Translation missing --]]
 L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
+--[[Translation missing --]]
+L["announceDungeonReset"] = "Announce dungeon resets to group"
 L["Anodized Coilbearer"] = "電鍍線圈機器人"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Anub'ar Champion"
@@ -809,6 +811,8 @@ L["Dokigg the Brutalizer"] = "『殘暴者』多奇格"
 L["Domatrax"] = "多瑪崔斯"
 L["Domina Venomblade"] = "多米娜‧毒刃"
 --[[Translation missing --]]
+L["Don't overwrite existing target markers"] = "Don't overwrite existing target markers"
+--[[Translation missing --]]
 L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
@@ -907,6 +911,8 @@ L["Dul'zak"] = "杜爾札克"
 L["Dungeon Data Missing"] = "缺少地城資料"
 L["Dungeon Entrance"] = "地城入口"
 L["Dungeon Level"] = "地城層數"
+--[[Translation missing --]]
+L["dungeonResetAnnouncement"] = "<Dungeons have been reset!>"
 --[[Translation missing --]]
 L["Duskfright Herald"] = "Duskfright Herald"
 L["Duskwatch Arcanist"] = "暮衛秘法師"
@@ -1117,6 +1123,8 @@ L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after co
 L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerChatAnnouncement"] = "My Focus Marker is {rt%d}"
 --[[Translation missing --]]
 L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
 --[[Translation missing --]]

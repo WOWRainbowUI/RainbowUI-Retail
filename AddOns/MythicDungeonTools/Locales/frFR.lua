@@ -91,6 +91,8 @@ L["Animated Shadow"] = "Ombre animée"
 L["Animated Storm"] = "Tempête animée"
 L["Animated Weapon"] = "Arme animée"
 L["Announce focus marker on ready check"] = "Annoncer mon marqueur de focus lors du ready check."
+--[[Translation missing --]]
+L["announceDungeonReset"] = "Announce dungeon resets to group"
 L["Anodized Coilbearer"] = "Porte-bobine anodisé"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Champion anub'ar"
@@ -794,6 +796,8 @@ L["Dokigg the Brutalizer"] = "Dokigg le Brutalisateur"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Lamevenin"
 --[[Translation missing --]]
+L["Don't overwrite existing target markers"] = "Don't overwrite existing target markers"
+--[[Translation missing --]]
 L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 L["Don't show again"] = "Ne plus afficher"
 --[[Translation missing --]]
@@ -894,6 +898,8 @@ L["Dungeon Data Missing"] = "Données manquantes pour le donjon"
 --[[Translation missing --]]
 L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "Niveau du donjon "
+--[[Translation missing --]]
+L["dungeonResetAnnouncement"] = "<Dungeons have been reset!>"
 L["Duskfright Herald"] = "Héraut crépusculeffroi"
 L["Duskwatch Arcanist"] = "Arcaniste de la Garde crépusculaire"
 L["Duskwatch Guard"] = "Vigile de la Garde crépusculaire"
@@ -1110,6 +1116,8 @@ L["Focused Ritualist"] = "Ritualiste concentré"
 L["focusMarkerAssignmentQueuedToast"] = "Le marqueur de focus sera mis à jour vers %s après le combat depuis %s."
 L["focusMarkerAssignmentsTooltip"] = "Assigne des marqueurs de focus aux membres du groupe et les synchronise avec les utilisateurs de MDT."
 L["focusMarkerAssignmentToast"] = "Marqueur de focus défini sur %s. (Envoyé par %s)"
+--[[Translation missing --]]
+L["focusMarkerChatAnnouncement"] = "My Focus Marker is {rt%d}"
 L["focusMarkerKeybindMissingToast"] = "Aucune touche de raccourci n’est définie. Configurez-en une maintenant ou désactivez ces notifications"
 L["focusMarkerMacroDragTooltip"] = "Faites glisser cette macro dans votre barre d’actions."
 L["focusMarkerMacroQueued"] = "L’action du marqueur de focus sera mise à jour après le combat."

@@ -111,6 +111,8 @@ L["Animated Storm"] = "Tempesta Animata"
 L["Animated Weapon"] = "Arma Animata"
 --[[Translation missing --]]
 L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
+--[[Translation missing --]]
+L["announceDungeonReset"] = "Announce dungeon resets to group"
 L["Anodized Coilbearer"] = "Portabobine Anodizzato"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Campione di Anub'ar"
@@ -979,6 +981,8 @@ L["Dokigg the Brutalizer"] = "Dokigg il Brutalizzatore"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Lamatossica"
 --[[Translation missing --]]
+L["Don't overwrite existing target markers"] = "Don't overwrite existing target markers"
+--[[Translation missing --]]
 L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
@@ -1093,6 +1097,8 @@ L["Dungeon Data Missing"] = "Dungeon Data Missing"
 --[[Translation missing --]]
 L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "Livello della spedizione"
+--[[Translation missing --]]
+L["dungeonResetAnnouncement"] = "<Dungeons have been reset!>"
 --[[Translation missing --]]
 L["Duskfright Herald"] = "Duskfright Herald"
 L["Duskwatch Arcanist"] = "Arcanista della Guardia del Vespro"
@@ -1342,6 +1348,8 @@ L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after co
 L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerChatAnnouncement"] = "My Focus Marker is {rt%d}"
 --[[Translation missing --]]
 L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
 --[[Translation missing --]]

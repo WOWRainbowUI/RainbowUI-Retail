@@ -108,6 +108,8 @@ L["Animated Storm"] = "Tormenta animada"
 L["Animated Weapon"] = "Arma animada"
 --[[Translation missing --]]
 L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
+--[[Translation missing --]]
+L["announceDungeonReset"] = "Announce dungeon resets to group"
 L["Anodized Coilbearer"] = "Portabobina anodizado"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Campeón Anub'ar"
@@ -967,6 +969,8 @@ L["Dokigg the Brutalizer"] = "Dokigg el Brutalizador"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Hojaveneno"
 --[[Translation missing --]]
+L["Don't overwrite existing target markers"] = "Don't overwrite existing target markers"
+--[[Translation missing --]]
 L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
@@ -1079,6 +1083,8 @@ L["Dungeon Data Missing"] = "Faltan datos de la mazmorra"
 --[[Translation missing --]]
 L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "Nivel de Mazmorra"
+--[[Translation missing --]]
+L["dungeonResetAnnouncement"] = "<Dungeons have been reset!>"
 --[[Translation missing --]]
 L["Duskfright Herald"] = "Duskfright Herald"
 L["Duskwatch Arcanist"] = "Arcanista Vigía del ocaso"
@@ -1324,6 +1330,8 @@ L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after co
 L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerChatAnnouncement"] = "My Focus Marker is {rt%d}"
 --[[Translation missing --]]
 L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
 --[[Translation missing --]]
