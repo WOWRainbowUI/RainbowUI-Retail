@@ -15,7 +15,7 @@ local function IsInCombatWith(unit)
 end
 
 -- For clients other than Midnight
-if not C_Secrets then
+if not C_Secrets or not C_Secrets.HasSecretRestrictions() then
   local frame = CreateFrame("Frame")
   frame:SetScript("OnEvent", function()
     local _, subevent, _, playerGUID, _, _, _, destGUID = CombatLogGetCurrentEventInfo()
