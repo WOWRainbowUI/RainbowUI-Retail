@@ -2630,7 +2630,16 @@ local function ResolveOffHandType()
     end
     local offhandItemID = GetInventoryItemID("player", 17) -- INVSLOT_OFFHAND
     if not offhandItemID then
-        cachedOffHandType = "none"
+        -- Only trust an empty off-hand if inventory data is actually loaded. Right
+        -- after a loading screen / equipment swap, slot 17 can transiently read nil
+        -- for a real dual-wielder; caching "none" then would poison the rest of the
+        -- session (dual-wielder read as two-handed -> wrong rune bucket). The main
+        -- hand is always equipped, so a readable MH means inventory is loaded and a
+        -- nil off-hand is genuinely empty. If MH is also nil, leave the cache unset
+        -- so the next refresh retries (mirrors the itemClassID branch below).
+        if GetInventoryItemID("player", 16) then -- INVSLOT_MAINHAND
+            cachedOffHandType = "none"
+        end
         return
     end
     local _, _, _, _, _, itemClassID, itemSubClassID = GetItemInfoInstant(offhandItemID)

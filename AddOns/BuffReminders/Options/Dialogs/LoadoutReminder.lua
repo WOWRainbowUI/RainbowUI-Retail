@@ -12,6 +12,8 @@ local ValidateSpellID = BR.Helpers.ValidateSpellID
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
 local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 
+local BORDER_R, BORDER_G, BORDER_B = unpack(BR.Colors.Border)
+
 local wipe = wipe
 
 local DIALOG_WIDTH = 440
@@ -58,7 +60,7 @@ end
 local function LayoutSeparator(layout, parent)
     local sep = parent:CreateTexture(nil, "ARTWORK")
     sep:SetHeight(1)
-    sep:SetColorTexture(0.3, 0.3, 0.3, 0.6)
+    sep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 0.6)
     layout:Add(sep, 1, COMPONENT_GAP)
     sep:SetWidth(CONTENT_W)
 end

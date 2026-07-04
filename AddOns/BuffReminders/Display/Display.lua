@@ -3587,6 +3587,95 @@ BR.Masque = {
 }
 
 -- Slash command handler
+-- Temporary diagnostic for the DK "Wrong Rune" false-positive reports. Dumps every
+-- value that feeds the dkRuneMH / dkRuneOH checks so a user can paste it into an
+-- issue. Intentionally not localized (throwaway developer command).
+local function PrintRuneDebug()
+    local PREFIX = "|cff00ccffBuffReminders rune debug:|r "
+    local function line(...)
+        print(PREFIX .. table.concat({ ... }, " "))
+    end
+
+    local _, class = UnitClass("player")
+    line("class =", tostring(class))
+
+    local specId = BR.StateHelpers.GetPlayerSpecId()
+    local specName
+    if specId then
+        specName = select(2, GetSpecializationInfoByID(specId))
+    end
+    line("specId =", tostring(specId), "(" .. tostring(specName) .. ")")
+
+    local hasOH = BR.BuffState.HasOffHandWeapon()
+    line("HasOffHandWeapon =", tostring(hasOH), "| HasShield =", tostring(BR.BuffState.HasShield()))
+    line("IsRestricted =", tostring(BR.BuffState.IsRestricted()), "(checks are suppressed when true)")
+
+    -- Refresh so the permanent-enchant accessors reflect the current item links.
+    BR.BuffState.Refresh("full")
+
+    -- Enchant name lookup by enchantID from the runeforge table.
+    local runeByEnchant = {}
+    for _, rune in ipairs(BR.DK_RUNEFORGES) do
+        runeByEnchant[rune.enchantID] = BR.GetSpellName(rune.spellID) or rune.key
+    end
+    local function enchantLabel(id)
+        if not id then
+            return "none"
+        end
+        return tostring(id) .. " (" .. (runeByEnchant[id] or "UNKNOWN - not in DK_RUNEFORGES") .. ")"
+    end
+
+    -- Raw item links + the value the addon actually parses/uses. Escape the pipe
+    -- codes (| -> ||) so the link prints as copyable literal text instead of
+    -- rendering as a clickable [Item Name] (which would drop the enchant payload
+    -- when the user pastes the output to us).
+    local function escapeLink(link)
+        if not link then
+            return "nil"
+        end
+        return (link:gsub("|", "||"))
+    end
+    local mhLink = GetInventoryItemLink("player", 16)
+    local ohLink = GetInventoryItemLink("player", 17)
+    line("MH link =", escapeLink(mhLink))
+    line("OH link =", escapeLink(ohLink))
+    line("MH permanent enchant =", enchantLabel(BR.BuffState.GetPermanentWeaponEnchantID(16)))
+    line("OH permanent enchant =", enchantLabel(BR.BuffState.GetPermanentWeaponEnchantID(17)))
+
+    -- Temporary weapon enchants (oils/imbues) for completeness - not used by rune check.
+    local hasMain, _, _, mainID, hasOff, _, _, offID = GetWeaponEnchantInfo()
+    line("temp enchant MH =", tostring(hasMain), tostring(mainID), "| OH =", tostring(hasOff), tostring(offID))
+
+    -- Configured preference buckets for this spec.
+    local prefs = BR.profile.dkRunePreferences
+    local specPrefs = prefs and specId and prefs[specId]
+    local function dumpBucket(name, bucket)
+        if not bucket or not next(bucket) then
+            line("prefs." .. name, "= (empty)")
+            return
+        end
+        local parts = {}
+        for id in pairs(bucket) do
+            parts[#parts + 1] = enchantLabel(id)
+        end
+        line("prefs." .. name, "=", table.concat(parts, ", "))
+    end
+    if not specPrefs then
+        line("dkRunePreferences[specId] = nil (nothing configured for this spec)")
+    else
+        dumpBucket("mainhand (2H)", specPrefs.mainhand)
+        dumpBucket("dw_mainhand", specPrefs.dw_mainhand)
+        dumpBucket("dw_offhand", specPrefs.dw_offhand)
+    end
+
+    -- Which bucket the MH check resolves to, and the verdict each check would return.
+    line("MH check uses bucket:", hasOH and "dw_mainhand" or "mainhand (2H)")
+    local mhEntry = BR.BuffState.entries and BR.BuffState.entries.dkRuneMH
+    local ohEntry = BR.BuffState.entries and BR.BuffState.entries.dkRuneOH
+    line("dkRuneMH visible =", tostring(mhEntry and mhEntry.visible))
+    line("dkRuneOH visible =", tostring(ohEntry and ohEntry.visible))
+end
+
 local function SlashHandler(msg)
     local cmd = msg:match("^(%S*)") or ""
     cmd = cmd:lower()
@@ -3622,6 +3711,8 @@ local function SlashHandler(msg)
         else
             print("|cff00ccffBuffReminders:|r " .. L["Display.DebugDisabled"])
         end
+    elseif cmd == "runedebug" then
+        PrintRuneDebug()
     else
         BR.Options.Toggle()
     end
