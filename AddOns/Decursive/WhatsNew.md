@@ -1,11 +1,16 @@
-Decursive 2.8.0-RC8
+Decursive 2.8.1-RC1
 ===================
 
+- Disable scanning for debuffs in 12.1
+ Blizzard broke everything again so a lot of work is once more required to make Decursive compatible... Decursive will just do nothing if used in 12.1 instead of reporting Lua errors.
 
-Decursive 2.8.0-RC8 (2026-06-10)
---------------------------------
+
+Decursive 2.8.0 (2026-07-05)
+----------------------------
 
 - Fix for Classic-MOP
+
+- Mark release stable for all classic version of WoW
 
 
 Decursive 2.8.0-RC7 (2026-05-22)
