@@ -1447,7 +1447,9 @@ local function CanUseAutoAttackFallback(now)
 	end
 
 	local mainSpeed, offSpeed = UnitAttackSpeed("player")
-	local swingSpeed = mainSpeed or offSpeed or 2
+        if not pcall(function() return mainSpeed and mainSpeed > 0 end) then mainSpeed = 2 end
+	if not pcall(function() return offSpeed and offSpeed > 0 end) then offSpeed = 2 end
+		local swingSpeed = mainSpeed or offSpeed or 2
 	if offSpeed and offSpeed < swingSpeed then
 		swingSpeed = offSpeed
 	end
