@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC8) add-on for World of Warcraft UI
+    Decursive (v 2.8.1-RC1) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-04-06T21:41:33Z
+    This file was last updated on 2026-07-05T15:38:11Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -410,7 +410,13 @@ do
     local filter = DC.MN and "RAID_PLAYER_DISPELLABLE" or nil
 
     local UnitDebuff        = (not DC.MN and _G.UnitDebuff) or function (unitToken, i)
-        local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, i, filter);
+
+        -- this mechanism is completely disabled in 12.1 so do nothing for now...
+        if DC.TWELVEONE then
+            return nil
+        end
+
+        local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, i, filter); -- forbidden in 12.1...
 
         if not auraData then
 			return nil;
@@ -996,6 +1002,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.8.0-RC8";
+T._LoadedFiles["Decursive.lua"] = "2.8.1-RC1";
 
 -- Sin
