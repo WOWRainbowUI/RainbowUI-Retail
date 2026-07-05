@@ -74,6 +74,16 @@ local function GetOrCreateDurationObject(endTime, duration, modRate)
     return cached
 end
 
+local function PurgeExpiredDurationObjects()
+    local now = GetTime()
+    for endTime, byEnd in pairs(durationObjectCache) do
+        -- endTime is an absolute timestamp; entries past it are expired
+        if endTime <= now then
+            durationObjectCache[endTime] = nil
+        end
+    end
+end
+
 -- =========================================================================
 -- TICKER CONTROL
 -- =========================================================================
@@ -84,6 +94,9 @@ local function StopTicker()
         durationColorTicker = nil
     end
     durationCacheSweepCounter = 0
+    -- The periodic sweep only runs while the ticker is alive; purge here so
+    -- expired entries don't accumulate between tracking phases.
+    PurgeExpiredDurationObjects()
 end
 
 local function AddActiveDurationFrame(cdFrame)
@@ -643,16 +656,6 @@ end
 -- =========================================================================
 -- TICKER
 -- =========================================================================
-
-local function PurgeExpiredDurationObjects()
-    local now = GetTime()
-    for endTime, byEnd in pairs(durationObjectCache) do
-        -- endTime is an absolute timestamp; entries past it are expired
-        if endTime <= now then
-            durationObjectCache[endTime] = nil
-        end
-    end
-end
 
 local function UpdateDurationColors()
     local curve = GetColorCurve()

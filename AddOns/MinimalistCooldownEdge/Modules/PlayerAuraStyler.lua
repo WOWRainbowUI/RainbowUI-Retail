@@ -6,7 +6,7 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local PlayerAuraStyler = MCE:NewModule("PlayerAuraStyler", "AceEvent-3.0")
 
 local type, pcall, tostring = type, pcall, tostring
-local ipairs, pairs = ipairs, pairs
+local ipairs, pairs, select = ipairs, pairs, select
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
@@ -23,10 +23,12 @@ local PLAYER_UNIT = "player"
 local MAX_PARENT_SCAN_DEPTH = 8
 
 local managedButtons = setmetatable({}, addon.weakMeta)
+local managedAuraTypes = setmetatable({}, addon.weakMeta)
 local hookedButtons = setmetatable({}, addon.weakMeta)
 local assignedAuraTypes = setmetatable({}, addon.weakMeta)
 local originalFontStrings = setmetatable({}, addon.weakMeta)
 local elvuiManagedButtons = setmetatable({}, addon.weakMeta)
+local alphaOverrideGuards = setmetatable({}, addon.weakMeta)
 
 local hooksInstalled = false
 local pendingForceUpdate = false
@@ -189,6 +191,25 @@ local function RestoreFontStringState(region)
     end
 end
 
+-- Comparison bodies are predefined (called through pcall against secret/tainted
+-- values) to avoid allocating a closure on every per-frame style pass.
+local function ComparePoint(currentPoint, currentRelativeTo, currentRelativePoint, currentOffsetX, currentOffsetY,
+                            point, relativeTo, relativePoint, offsetX, offsetY)
+    if addon.IsSecretValue(currentPoint)
+        or addon.IsSecretValue(currentRelativeTo)
+        or addon.IsSecretValue(currentRelativePoint)
+        or addon.IsSecretValue(currentOffsetX)
+        or addon.IsSecretValue(currentOffsetY) then
+        return false
+    end
+
+    return currentPoint == point
+        and currentRelativeTo == relativeTo
+        and currentRelativePoint == relativePoint
+        and addon.IsNearlyEqual(currentOffsetX or 0, offsetX or 0)
+        and addon.IsNearlyEqual(currentOffsetY or 0, offsetY or 0)
+end
+
 local function IsSamePoint(region, point, relativeTo, relativePoint, offsetX, offsetY)
     if not region or not region.GetPoint then return false end
 
@@ -196,35 +217,26 @@ local function IsSamePoint(region, point, relativeTo, relativePoint, offsetX, of
         pcall(region.GetPoint, region, 1)
     if not ok then return false end
 
-    local compareOk, same = pcall(function()
-        if addon.IsSecretValue(currentPoint)
-            or addon.IsSecretValue(currentRelativeTo)
-            or addon.IsSecretValue(currentRelativePoint)
-            or addon.IsSecretValue(currentOffsetX)
-            or addon.IsSecretValue(currentOffsetY) then
-            return false
-        end
-
-        return currentPoint == point
-            and currentRelativeTo == relativeTo
-            and currentRelativePoint == relativePoint
-            and addon.IsNearlyEqual(currentOffsetX or 0, offsetX or 0)
-            and addon.IsNearlyEqual(currentOffsetY or 0, offsetY or 0)
-    end)
+    local compareOk, same = pcall(ComparePoint,
+        currentPoint, currentRelativeTo, currentRelativePoint, currentOffsetX, currentOffsetY,
+        point, relativeTo, relativePoint, offsetX, offsetY)
 
     return compareOk and same or false
 end
 
-local function IsSameFont(fontPath, fontSize, fontStyle, desiredFontPath, desiredFontSize, desiredFontStyle)
-    local compareOk, same = pcall(function()
-        if addon.IsSecretValue(fontPath) or addon.IsSecretValue(fontStyle) then
-            return false
-        end
+local function CompareFont(fontPath, fontSize, fontStyle, desiredFontPath, desiredFontSize, desiredFontStyle)
+    if addon.IsSecretValue(fontPath) or addon.IsSecretValue(fontStyle) then
+        return false
+    end
 
-        return fontPath == desiredFontPath
-            and addon.IsNearlyEqual(fontSize, desiredFontSize)
-            and fontStyle == desiredFontStyle
-    end)
+    return fontPath == desiredFontPath
+        and addon.IsNearlyEqual(fontSize, desiredFontSize)
+        and fontStyle == desiredFontStyle
+end
+
+local function IsSameFont(fontPath, fontSize, fontStyle, desiredFontPath, desiredFontSize, desiredFontStyle)
+    local compareOk, same = pcall(CompareFont,
+        fontPath, fontSize, fontStyle, desiredFontPath, desiredFontSize, desiredFontStyle)
 
     return compareOk and same or false
 end
@@ -335,6 +347,19 @@ local function IsFontString(region)
     return ok and objectType == "FontString"
 end
 
+local function HideFontStringRegions(...)
+    for i = 1, select("#", ...) do
+        local region = select(i, ...)
+        if IsFontString(region) then
+            HideFontString(region)
+        end
+    end
+end
+
+local function HideCooldownFontStrings(cooldown)
+    HideFontStringRegions(cooldown:GetRegions())
+end
+
 local function SuppressSwipeCooldownText(cooldown)
     if not cooldown or IsForbidden(cooldown) then
         return
@@ -356,17 +381,7 @@ local function SuppressSwipeCooldownText(cooldown)
     end
 
     if cooldown.GetRegions then
-        local ok, regions = pcall(function()
-            return { cooldown:GetRegions() }
-        end)
-        if ok and type(regions) == "table" then
-            for i = 1, #regions do
-                local region = regions[i]
-                if IsFontString(region) then
-                    HideFontString(region)
-                end
-            end
-        end
+        pcall(HideCooldownFontStrings, cooldown)
     end
 end
 
@@ -507,25 +522,35 @@ local function EnsureSwipeCooldown(button)
     return cooldown
 end
 
+local function BuildSwipeSignature(info)
+    local expirationTime = info.expirationTime or 0
+    local duration = info.duration or 0
+    if type(expirationTime) ~= "number" or type(duration) ~= "number"
+        or expirationTime <= 0 or duration <= 0 then
+        return nil
+    end
+
+    local timeMod = info.timeMod or 1
+    return tostring(info.auraInstanceID or info.ID or "") .. ":" .. expirationTime .. ":" .. duration .. ":" .. timeMod
+end
+
 local function GetSwipeSignature(button)
     local info = button and button.buttonInfo
     if type(info) ~= "table" then
         return nil
     end
 
-    local ok, signature = pcall(function()
-        local expirationTime = info.expirationTime or 0
-        local duration = info.duration or 0
-        if type(expirationTime) ~= "number" or type(duration) ~= "number"
-            or expirationTime <= 0 or duration <= 0 then
-            return nil
-        end
-
-        local timeMod = info.timeMod or 1
-        return tostring(info.auraInstanceID or info.ID or "") .. ":" .. expirationTime .. ":" .. duration .. ":" .. timeMod
-    end)
+    -- buttonInfo fields can be secret values; pcall a predefined builder.
+    local ok, signature = pcall(BuildSwipeSignature, info)
 
     return ok and signature or nil
+end
+
+local function ApplySwipeCooldownFromInfo(cooldown, info)
+    local duration = info.duration
+    local expirationTime = info.expirationTime
+    local startTime = expirationTime - duration
+    cooldown:SetCooldown(startTime, duration, info.timeMod or 1)
 end
 
 local function SyncSwipeCooldown(button, config)
@@ -543,18 +568,20 @@ local function SyncSwipeCooldown(button, config)
 
     local alpha = GetSwipeShadeAlpha(config)
     local reverseSwipe = config.reverseSwipe ~= false
-    local styleSignature = tostring(config.drawSwipe ~= false)
-        .. ":" .. tostring(config.edgeEnabled == true)
-        .. ":" .. tostring(config.edgeScale or "")
-        .. ":" .. tostring(reverseSwipe)
-        .. ":" .. tostring(alpha)
+    local drawSwipe = config.drawSwipe ~= false
+    local edgeEnabled = config.edgeEnabled == true
 
-    if cooldown.MCEPlayerAuraStyleSignature ~= styleSignature then
+    -- Field-by-field change detection keeps aura refreshes cheap.
+    if cooldown.MCELastDrawSwipe ~= drawSwipe
+        or cooldown.MCELastEdgeEnabled ~= edgeEnabled
+        or cooldown.MCELastEdgeScale ~= config.edgeScale
+        or cooldown.MCELastReverse ~= reverseSwipe
+        or cooldown.MCELastSwipeAlpha ~= alpha then
         if cooldown.SetDrawSwipe then
-            pcall(cooldown.SetDrawSwipe, cooldown, config.drawSwipe ~= false)
+            pcall(cooldown.SetDrawSwipe, cooldown, drawSwipe)
         end
         if cooldown.SetDrawEdge then
-            pcall(cooldown.SetDrawEdge, cooldown, config.edgeEnabled == true)
+            pcall(cooldown.SetDrawEdge, cooldown, edgeEnabled)
         end
         if cooldown.SetEdgeScale and config.edgeScale then
             pcall(cooldown.SetEdgeScale, cooldown, config.edgeScale)
@@ -565,7 +592,11 @@ local function SyncSwipeCooldown(button, config)
         if cooldown.SetSwipeColor then
             pcall(cooldown.SetSwipeColor, cooldown, 0, 0, 0, alpha)
         end
-        cooldown.MCEPlayerAuraStyleSignature = styleSignature
+        cooldown.MCELastDrawSwipe = drawSwipe
+        cooldown.MCELastEdgeEnabled = edgeEnabled
+        cooldown.MCELastEdgeScale = config.edgeScale
+        cooldown.MCELastReverse = reverseSwipe
+        cooldown.MCELastSwipeAlpha = alpha
     end
 
     if ApplyAuraDurationObject(cooldown, button) then
@@ -580,14 +611,7 @@ local function SyncSwipeCooldown(button, config)
     end
 
     if cooldown.MCEPlayerAuraSignature ~= signature then
-        local info = button.buttonInfo
-        pcall(function()
-            local duration = info.duration
-            local expirationTime = info.expirationTime
-            local startTime = expirationTime - duration
-            cooldown:SetCooldown(startTime, duration, info.timeMod or 1)
-        end)
-
+        pcall(ApplySwipeCooldownFromInfo, cooldown, button.buttonInfo)
         cooldown.MCEPlayerAuraSignature = signature
     end
 
@@ -644,6 +668,7 @@ local function RestoreButton(button)
 
     button:SetAlpha(1)
     managedButtons[button] = nil
+    managedAuraTypes[button] = nil
 end
 
 local function StyleDuration(button, config)
@@ -708,6 +733,50 @@ local function StyleCount(button, config)
         config.stackOffsetY or 0)
 end
 
+local function RefreshDurationAfterAuraUpdate(button)
+    if not managedButtons[button] then
+        return
+    end
+
+    local auraType = managedAuraTypes[button]
+    local config = GetConfig()
+    if not IsConfigEnabled(config) or not IsAuraTypeEnabled(config, auraType) then
+        return
+    end
+
+    local styleConfig = GetAuraStyleConfig(config, auraType)
+    local duration = button and button.Duration
+    if not duration or IsForbidden(duration) then
+        return
+    end
+
+    if styleConfig.hideCountdownNumbers then
+        duration:SetAlpha(0)
+        duration:Hide()
+        return
+    end
+
+    local color = styleConfig.textColor
+    if color and duration.SetTextColor then
+        duration:SetTextColor(color.r, color.g, color.b, color.a or 1)
+    end
+end
+
+local function EnforceUnfadedAlpha(button, alpha)
+    if alphaOverrideGuards[button] or alpha == 1 or not managedButtons[button] then
+        return
+    end
+
+    local config = GetConfig()
+    if not (config and config.disableFading) then
+        return
+    end
+
+    alphaOverrideGuards[button] = true
+    button:SetAlpha(1)
+    alphaOverrideGuards[button] = nil
+end
+
 function PlayerAuraStyler:StyleAuraButton(button)
     local auraType = GetPlayerAuraButtonType(button)
     if not auraType then
@@ -723,6 +792,7 @@ function PlayerAuraStyler:StyleAuraButton(button)
 
     local styleConfig = GetAuraStyleConfig(config, auraType)
     managedButtons[button] = true
+    managedAuraTypes[button] = auraType
 
     StyleDuration(button, styleConfig)
     StyleCount(button, styleConfig)
@@ -742,9 +812,6 @@ local function HookButton(button)
         button:HookScript("OnShow", function(frame)
             PlayerAuraStyler:StyleAuraButton(frame)
         end)
-        button:HookScript("OnUpdate", function(frame)
-            PlayerAuraStyler:StyleAuraButton(frame)
-        end)
     end
 
     if type(button.Update) == "function" then
@@ -755,8 +822,12 @@ local function HookButton(button)
 
     if type(button.UpdateDuration) == "function" then
         hooksecurefunc(button, "UpdateDuration", function(frame)
-            PlayerAuraStyler:StyleAuraButton(frame)
+            RefreshDurationAfterAuraUpdate(frame)
         end)
+    end
+
+    if type(button.SetAlpha) == "function" then
+        hooksecurefunc(button, "SetAlpha", EnforceUnfadedAlpha)
     end
 
     hookedButtons[button] = true
@@ -1118,20 +1189,6 @@ function PlayerAuraStyler:InstallMixinHooks()
 
     if type(AuraButtonMixin.Update) == "function" then
         hooksecurefunc(AuraButtonMixin, "Update", function(button)
-            HookButton(button)
-            PlayerAuraStyler:StyleAuraButton(button)
-        end)
-    end
-
-    if type(AuraButtonMixin.UpdateDuration) == "function" then
-        hooksecurefunc(AuraButtonMixin, "UpdateDuration", function(button)
-            HookButton(button)
-            PlayerAuraStyler:StyleAuraButton(button)
-        end)
-    end
-
-    if type(AuraButtonMixin.OnUpdate) == "function" then
-        hooksecurefunc(AuraButtonMixin, "OnUpdate", function(button)
             HookButton(button)
             PlayerAuraStyler:StyleAuraButton(button)
         end)

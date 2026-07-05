@@ -106,6 +106,13 @@ end
 local IsNearlyEqual = addon.IsNearlyEqual
 local IsSameSwipeColor = addon.IsSameSwipeColor
 
+-- Shared comparator for enforcement hooks: comparing a tainted incoming value
+-- can error, so callers wrap this in pcall. Predefined to avoid allocating a
+-- closure on every hooked Set* call.
+local function ShouldRestoreValue(saved, incoming)
+    return saved ~= nil and saved ~= incoming
+end
+
 local function IsMasqueManagedCooldown(cooldown)
     if not cooldown
        or IsSecretValue(cooldown)
@@ -596,7 +603,7 @@ function HookBridge:SetupHooks()
             if not fs or fs.suppressHideNums then return end
             -- hide can be a tainted boolean (MiniCE-written value flowing back through Blizzard);
             -- issecretvalue() does not detect taint, so wrap the comparison in pcall instead.
-            local ok, shouldRestore = pcall(function() return fs.hideNums ~= nil and fs.hideNums ~= hide end)
+            local ok, shouldRestore = pcall(ShouldRestoreValue, fs.hideNums, hide)
             if not ok or not shouldRestore then return end
             fs.suppressHideNums = true
             pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
@@ -608,9 +615,7 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetCountdownAbbrevThreshold", function(cooldown, seconds)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressCountdownAbbrevThreshold then return end
-            local ok, shouldRestore = pcall(function()
-                return fs.countdownAbbrevThreshold ~= nil and fs.countdownAbbrevThreshold ~= seconds
-            end)
+            local ok, shouldRestore = pcall(ShouldRestoreValue, fs.countdownAbbrevThreshold, seconds)
             if not ok or not shouldRestore then return end
             fs.suppressCountdownAbbrevThreshold = true
             pcall(cooldown.SetCountdownAbbrevThreshold, cooldown, fs.countdownAbbrevThreshold)
@@ -622,9 +627,7 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetCountdownMillisecondsThreshold", function(cooldown, seconds)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressCountdownMillisecondsThreshold then return end
-            local ok, shouldRestore = pcall(function()
-                return fs.countdownMillisecondsThreshold ~= nil and fs.countdownMillisecondsThreshold ~= seconds
-            end)
+            local ok, shouldRestore = pcall(ShouldRestoreValue, fs.countdownMillisecondsThreshold, seconds)
             if not ok or not shouldRestore then return end
             fs.suppressCountdownMillisecondsThreshold = true
             pcall(cooldown.SetCountdownMillisecondsThreshold, cooldown, fs.countdownMillisecondsThreshold)
@@ -637,7 +640,7 @@ function HookBridge:SetupHooks()
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipeDraw then return end
             -- enabled can be tainted for the same reason as hide above.
-            local ok, shouldRestore = pcall(function() return fs.drawSwipe ~= nil and fs.drawSwipe ~= enabled end)
+            local ok, shouldRestore = pcall(ShouldRestoreValue, fs.drawSwipe, enabled)
             if not ok or not shouldRestore then return end
             fs.suppressSwipeDraw = true
             pcall(cooldown.SetDrawSwipe, cooldown, fs.drawSwipe)
@@ -650,9 +653,7 @@ function HookBridge:SetupHooks()
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressReverseSwipe then return end
             -- reverse can be tainted for the same reason as hide above.
-            local ok, shouldRestore = pcall(function()
-                return fs.reverseSwipe ~= nil and fs.reverseSwipe ~= reverse
-            end)
+            local ok, shouldRestore = pcall(ShouldRestoreValue, fs.reverseSwipe, reverse)
             if not ok or not shouldRestore then return end
             fs.suppressReverseSwipe = true
             pcall(cooldown.SetReverse, cooldown, fs.reverseSwipe)

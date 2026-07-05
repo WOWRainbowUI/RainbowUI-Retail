@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.1.5 - Enhance Player Aura functionality
+- Updated interface support to Retail 12.0.7 only.
+- Reduced Player Aura styling work during active aura updates.
+
+## 4.1.4-beta - Performance Improvements
+- Reduced memory usage in Player Aura styling.
+- Reduced memory usage in cooldown enforcement hooks during combat.
+- Duration color cache now clears when tracking stops.
+
+## 4.1.3 - MidnightDR Compatibility
+- Improved compatibility with MidnightDR addons.
+
 ## 4.1.2
 - Fixed repeated Action Bar errors when a transient numeric label value was inspected as a UI region.
 
