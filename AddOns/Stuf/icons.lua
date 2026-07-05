@@ -275,7 +275,14 @@ do  -- General Icons -----------------------------------------------------------
 		[8] = {0.75, 1,    0.5, 1},    -- Skull
 	}
 	local function SetRaidTargetIcon(icon, index)
-		local c = raidTargetCoords[index]
+                if type(index) ~= "number" then return end
+		
+		local c = nil
+		pcall(function()
+			if raidTargetCoords and raidTargetCoords[index] then
+				c = raidTargetCoords[index]
+			end
+		end)
 		if c then
 			icon:SetTexCoord(c[1], c[2], c[3], c[4])
 			icon:Show()

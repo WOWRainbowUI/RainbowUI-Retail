@@ -75,7 +75,15 @@ local function IsInGroup()
 end
 local function GetUnitName(unit)
 	local name, server = UnitName(unit)
-	if server and server ~= "" then
+        local hasServer = false
+        if server then
+		pcall(function()
+			if type(server) == "string" and server ~= "" then
+				hasServer = true
+			end
+		end)
+	end
+	if hasServer then
 		return name..FOREIGN_SERVER_LABEL
 	else
 		return name
