@@ -50,6 +50,10 @@ function addon:GetOrCreateProxy(frame)
     end
 
     proxy:SetAttribute("useparent-unit", true)
+    -- Pet frames (SecureGroupPetHeader w/ useOwnerUnit) carry unit="raid1"+unitsuffix="pet";
+    -- SecureButton_GetModifiedUnit appends the suffix, so the proxy must inherit it too or
+    -- it casts on the owner instead of the pet.
+    proxy:SetAttribute("useparent-unitsuffix", true)
     -- Proxy is always "up": delegate:Click() sends it no down arg, so a down-mode
     -- proxy would never fire. The firing edge is chosen on the source frame instead.
     proxy:SetAttribute("useOnKeyDown", false)
@@ -81,6 +85,7 @@ function addon:GetOrCreateKeyProxy(frame)
     end
 
     keyProxy:SetAttribute("useparent-unit", true)
+    keyProxy:SetAttribute("useparent-unitsuffix", true)
     keyProxy:SetAttribute("useOnKeyDown", self:UseActionOnKeyDown())
     keyProxy:RegisterForClicks(self:GetButtonDirections())
     if self:IsGamePadEnabled() then

@@ -28,6 +28,13 @@ addon.changelogPinned = {
 -- hasn't seen yet (see ShouldAutoShowChangelog).
 addon.changelog = {
     {
+        version = "5.0.10",
+        date    = "2026-07-04",
+        items = {
+            "Fixed bindings on raid and party pet frames casting on the pet's owner instead of the pet.",
+        },
+    },
+    {
         version = "5.0.9",
         date    = "2026-06-26",
         items = {
