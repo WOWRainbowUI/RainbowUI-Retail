@@ -446,9 +446,6 @@ function addonTable.Display.NameplateMixin:SetupLegacyAuras()
 end
 
 function addonTable.Display.NameplateMixin:OnSizeChanged()
-  if self:ShouldNotSize() then
-    return
-  end
   -- Optimisation to avoid recalculating anchors/sizes while nameplate scales up/down
   self.sizeChangeCount = 0
   self:SetScript("OnUpdate", function()
@@ -575,7 +572,7 @@ function addonTable.Display.NameplateMixin:InitializeModernAuras(designInfo)
 
   if designInfo.debuffs then
     self.DebuffDisplay.Wrapped:ClearAuraFilters()
-    if designInfo.debuffs.fromYou then
+    if designInfo.debuffs.filters.fromYou then
       self.DebuffDisplay.Wrapped:AddAuraFilter("HARMFUL|INCLUDE_NAME_PLATE_ONLY|PLAYER", {maxFrameCount = designInfo.debuffs.limit})
     else
       self.DebuffDisplay.Wrapped:AddAuraFilter("HARMFUL|INCLUDE_NAME_PLATE_ONLY", {maxFrameCount = designInfo.debuffs.limit})
@@ -593,7 +590,7 @@ function addonTable.Display.NameplateMixin:InitializeModernAuras(designInfo)
 
   if designInfo.crowdControl then
     self.CrowdControlDisplay.Wrapped:ClearAuraFilters()
-    if designInfo.crowdControl.fromYou then
+    if designInfo.crowdControl.filters.fromYou then
       self.CrowdControlDisplay.Wrapped:AddAuraFilter("HARMFUL|CROWD_CONTROL|PLAYER", {maxFrameCount = designInfo.crowdControl.limit})
     else
       self.CrowdControlDisplay.Wrapped:AddAuraFilter("HARMFUL|CROWD_CONTROL", {maxFrameCount = designInfo.crowdControl.limit})
@@ -868,7 +865,7 @@ function addonTable.Display.NameplateMixin:OnEvent()
 end
 
 function addonTable.Display.NameplateMixin:UpdateVisual()
-  local scaleMod = addonTable.Constants.IsRetail and 1 or UIParent:GetEffectiveScale()
+  local scaleMod = (addonTable.Constants.IsHitTestPointsAvailable and not addonTable.Constants.IsMists) and 1 or UIParent:GetEffectiveScale()
   if not self.unit then
     self:SetAlpha(1)
     self:SetScale(self.scale * addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE) * scaleMod)

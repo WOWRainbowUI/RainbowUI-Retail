@@ -349,12 +349,6 @@ function addonTable.Display.GetEnergyBar(frame, parent)
   function frame:Init(details)
     InitBar(frame, details)
 
-    if Enum.StatusBarFillStyle then
-      frame.statusBar:SetFillStyle(Enum.StatusBarFillStyle.StandardNoRangeFill)
-    else
-      frame.statusBar:SetFillStyle("STANDARD_NO_RANGE_FILL")
-    end
-
     frame.statusBar:SetFrameLevel(frame:GetFrameLevel() + 3)
     borderHolder:SetFrameLevel(frame:GetFrameLevel() + 5)
 
