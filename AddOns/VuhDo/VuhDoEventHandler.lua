@@ -88,6 +88,8 @@ local VUHDO_handleScaleChange;
 local VUHDO_redrawPanel;
 local VUHDO_redrawAllPanels;
 local VUHDO_unregisterUnitForEvents;
+local VUHDO_isDeferredRefreshActive;
+local VUHDO_isDeferredRedrawActive;
 
 local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
@@ -577,6 +579,8 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
 	VUHDO_clearAllSpellTraces = _G["VUHDO_clearAllSpellTraces"];
 	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
+	VUHDO_isDeferredRefreshActive = _G["VUHDO_isDeferredRefreshActive"];
+	VUHDO_isDeferredRedrawActive = _G["VUHDO_isDeferredRedrawActive"];
 
 	VUHDO_initTaskSystem();
 
@@ -1973,7 +1977,7 @@ end
 local function VUHDO_doReloadRoster(anIsQuick)
 
 	if not VUHDO_isConfigPanelShowing() then
-		if VUHDO_IS_RELOADING then
+		if VUHDO_IS_RELOADING or VUHDO_isDeferredRefreshActive() or VUHDO_isDeferredRedrawActive() then
 			VUHDO_quickRaidReload();
 		else
 			VUHDO_rebuildTargets();

@@ -734,7 +734,15 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		return CheckInteractDistance(aUnit, 4);
 	end
 
-	return false;
+	if tRangeSpell then
+		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
+
+		if tIsSpellInRange ~= nil then
+			return tIsSpellInRange;
+		end
+	end
+
+	return true;
 
 end
 

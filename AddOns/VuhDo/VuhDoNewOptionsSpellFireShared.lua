@@ -25,7 +25,7 @@ function VUHDO_activateLayoutLoadAurasForPanel(aName, aPanelNum)
 		end
 	end
 
-	if aPanelNum == 1 then
+	if aPanelNum == 1 and not VUHDO_SPELL_CONFIG["IS_LOAD_AURAS_ONLY_ANCHORS"] then
 		if tLayout["AURA_GROUPS"] then
 			VUHDO_CONFIG["AURA_GROUPS"] = VUHDO_decompressOrCopy(tLayout["AURA_GROUPS"]);
 		end
