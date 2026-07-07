@@ -1,6 +1,6 @@
 # Auctionator
 
-## [327](https://github.com/TheMouseNest/Auctionator/tree/327) (2026-06-16)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/326...327) 
+## [328](https://github.com/TheMouseNest/Auctionator/tree/328) (2026-07-07)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/327...328) 
 
-- [Fixes #1821] Bugfix for koKR  
+- Classic Anniversary: Update toc for 2.5.6  
