@@ -43,9 +43,16 @@ local VUHDO_hasDispellableAura;
 local VUHDO_hasAnyDispellableAura;
 local VUHDO_getUnitButtons;
 local VUHDO_deferTask;
+local VUHDO_getPanelButtonInitRev;
+local VUHDO_startRefreshButtonInits;
+local VUHDO_enqueueRefreshButtonInit;
+local VUHDO_waitRefreshButtonInits;
 
+local sRefreshUiNoMembers;
 local sShowPanels;
 local sDurationAnchor = { };
+local sDeferredRefreshCount = 0;
+local sStaleButtonIndices = { };
 
 
 
@@ -86,6 +93,16 @@ function VUHDO_panelRefreshInitLocalOverrides()
 	VUHDO_hasAnyDispellableAura = _G["VUHDO_hasAnyDispellableAura"];
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
 	VUHDO_deferTask = _G["VUHDO_deferTask"];
+	VUHDO_getPanelButtonInitRev = _G["VUHDO_getPanelButtonInitRev"];
+	VUHDO_startRefreshButtonInits = _G["VUHDO_startRefreshButtonInits"];
+	VUHDO_enqueueRefreshButtonInit = _G["VUHDO_enqueueRefreshButtonInit"];
+	VUHDO_waitRefreshButtonInits = _G["VUHDO_waitRefreshButtonInits"];
+
+	if VUHDO_CONFIG["USE_DEFERRED_REDRAW"] then
+		sRefreshUiNoMembers = _G["VUHDO_deferRefreshUiNoMembers"];
+	else
+		sRefreshUiNoMembers = _G["VUHDO_refreshUiNoMembers"];
+	end
 
 	sShowPanels = VUHDO_CONFIG["SHOW_PANELS"];
 
@@ -159,8 +176,10 @@ local function VUHDO_refreshPositionAllHealButtons(aPanel, aPanelNum)
 			VUHDO_addUnitButton(tButton, aPanelNum);
 			if not tButton:IsShown() then tButton:Show(); end -- Wg. Secure handlers?
 
-			-- On profile switches the button already exists but has the wrong size
-			VUHDO_initHealButton(tButton, aPanelNum);
+			if tButton["initRevision"] ~= VUHDO_getPanelButtonInitRev(aPanelNum) then
+				VUHDO_initHealButton(tButton, aPanelNum);
+			end
+
 			VUHDO_positionHealButton(tButton, aPanelNum);
 		end
 
@@ -282,7 +301,6 @@ function VUHDO_refreshUiNoMembers()
 	return;
 
 end
-local VUHDO_refreshUiNoMembers = VUHDO_refreshUiNoMembers;
 
 
 
@@ -292,11 +310,137 @@ function VUHDO_refreshUI()
 	VUHDO_IS_RELOADING = true;
 
 	VUHDO_reloadRaidMembers();
-	VUHDO_refreshUiNoMembers();
+
+	sRefreshUiNoMembers();
 
 	VUHDO_IS_RELOADING = false;
 
 	return;
+
+end
+
+
+
+--
+function VUHDO_deferRefreshUiNoMembers()
+
+	VUHDO_resetNameTextCache();
+
+	twipe(VUHDO_UNIT_BUTTONS);
+	twipe(VUHDO_UNIT_BUTTONS_PANEL);
+
+	sDeferredRefreshCount = sDeferredRefreshCount + 1;
+
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PANEL, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tPanelNum);
+	end
+
+	VUHDO_deferTask(VUHDO_DEFER_REFRESH_UI_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_NORMAL);
+
+	return;
+
+end
+
+
+
+--
+local tButtonIdx;
+local tModels;
+local tSortBy;
+local tSetup;
+local tGroupArray;
+local tButton;
+function VUHDO_deferRefreshPanelDelegate(aPanelNum)
+
+	if not VUHDO_isPanelVisible(aPanelNum) then
+		VUHDO_PixelUtil.Hide(VUHDO_getActionPanelOrStub(aPanelNum));
+
+		return;
+	end
+
+	tSetup = VUHDO_PANEL_SETUP[aPanelNum];
+	tModels = VUHDO_getDynamicModelArray(aPanelNum);
+	tSortBy = tSetup["MODEL"]["sort"];
+
+	twipe(sStaleButtonIndices);
+
+	tButtonIdx = 1;
+
+	VUHDO_initLocalVars(aPanelNum);
+
+	for tModelIndex, tModelId in ipairs(tModels) do
+		tGroupArray = VUHDO_getGroupMembersSorted(tModelId, tSortBy, aPanelNum, tModelIndex);
+
+		for tGroupIdx, tUnit in ipairs(tGroupArray) do
+			tButton = VUHDO_getOrCreateHealButton(tButtonIdx, aPanelNum);
+			tButtonIdx = tButtonIdx + 1;
+
+			if tButton["initRevision"] ~= VUHDO_getPanelButtonInitRev(aPanelNum) then
+				sStaleButtonIndices[#sStaleButtonIndices + 1] = tButtonIdx - 1;
+			end
+		end
+	end
+
+	if #sStaleButtonIndices > 0 and VUHDO_startRefreshButtonInits(aPanelNum, #sStaleButtonIndices) then
+		for tStaleCnt = 1, #sStaleButtonIndices do
+			VUHDO_enqueueRefreshButtonInit(aPanelNum, sStaleButtonIndices[tStaleCnt]);
+		end
+	end
+
+	VUHDO_deferTask(VUHDO_DEFER_REFRESH_PANEL_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferRefreshPanelCompleteDelegate(aPanelNum)
+
+	if not VUHDO_waitRefreshButtonInits(aPanelNum, VUHDO_DEFER_REFRESH_PANEL_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum) then
+		return;
+	end
+
+	VUHDO_refreshPanel(aPanelNum);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferRefreshUiCompleteDelegate()
+
+	VUHDO_updateAllRaidBars();
+	VUHDO_updatePanelVisibility();
+	VUHDO_PixelUtil.Hide(VuhDoGcdStatusBar);
+
+	VUHDO_updateAllCustomDebuffs(true);
+
+	VUHDO_refreshAllUnitAuras();
+
+	if VUHDO_INTERNAL_TOGGLES[22] then -- VUHDO_UPDATE_UNIT_TARGET
+		VUHDO_rebuildTargets();
+	end
+
+	VUHDO_initAllEventBouquets();
+
+	if sDeferredRefreshCount > 0 then
+		sDeferredRefreshCount = sDeferredRefreshCount - 1;
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_isDeferredRefreshActive()
+
+	return sDeferredRefreshCount > 0;
 
 end
 

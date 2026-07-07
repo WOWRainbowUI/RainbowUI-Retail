@@ -50,6 +50,7 @@ local sWaitingIndividualRedraws = { };
 local sQueuedAllPanelsRequests = { };
 local sQueuedIndividualRequests = { };
 local sIsManaBouquet = { };
+local sPanelInitRevision = { };
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -133,6 +134,32 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	end
 
 	return;
+
+end
+
+
+
+--
+function VUHDO_invalidatePanelButtonInits(aPanelNum)
+
+	if aPanelNum then
+		sPanelInitRevision[aPanelNum] = (sPanelInitRevision[aPanelNum] or 0) + 1;
+	else
+		for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+			sPanelInitRevision[tPanelNum] = (sPanelInitRevision[tPanelNum] or 0) + 1;
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_getPanelButtonInitRev(aPanelNum)
+
+	return sPanelInitRevision[aPanelNum] or 0;
 
 end
 
@@ -2151,6 +2178,8 @@ do
 			VUHDO_fixFrameLevels(true, aButton, aButton:GetFrameLevel(), aButton:GetChildren());
 		end
 
+		aButton["initRevision"] = sPanelInitRevision[aPanelNum] or 0;
+
 		return;
 
 	end
@@ -2466,6 +2495,60 @@ do
 		return;
 
 	end
+
+
+
+	--
+	local tCycleId;
+	function VUHDO_startRefreshButtonInits(aPanelNum, aMaxCount)
+
+		if not sButtonInitTimeouts[aPanelNum] then
+			VUHDO_calculateSemaphoreTimeouts();
+		end
+
+		tCycleId = VUHDO_generateCycleId();
+		sButtonInitSemaphores[aPanelNum] = VUHDO_createSemaphore("RefreshInitButtons_" .. aPanelNum .. "_" .. tCycleId, 0, aMaxCount, sButtonInitTimeouts[aPanelNum]);
+
+		return sButtonInitSemaphores[aPanelNum];
+
+	end
+
+
+
+	--
+	function VUHDO_enqueueRefreshButtonInit(aPanelNum, aButtonIndex)
+
+		VUHDO_deferTask(VUHDO_DEFER_INIT_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, aButtonIndex);
+
+		if sButtonInitSemaphores[aPanelNum] then
+			sButtonInitSemaphores[aPanelNum]:increment();
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tSemaphores;
+	function VUHDO_waitRefreshButtonInits(aPanelNum, aTaskType, aPriority, ...)
+
+		if not sButtonInitSemaphores[aPanelNum] then
+			return true;
+		end
+
+		tSemaphores = { sButtonInitSemaphores[aPanelNum] };
+
+		if VUHDO_waitForSemaphores(tSemaphores, aTaskType, aPriority, ...) then
+			sButtonInitSemaphores[aPanelNum] = nil;
+
+			return true;
+		end
+
+		return false;
+
+	end
 end
 
 
@@ -2568,6 +2651,8 @@ do
 			elseif not tIsFullRedrawCycle and sRedrawPanelSemaphores[aPanelNum] then
 				sRedrawPanelSemaphores[aPanelNum]:increment();
 			end
+
+			VUHDO_invalidatePanelButtonInits(aPanelNum);
 
 			VUHDO_deferTask(VUHDO_DEFER_REDRAW_PANEL, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, anIsFixAllFrameLevels, tCurrentCycleId);
 		else
@@ -2820,6 +2905,8 @@ do
 	local tPanel;
 	function VUHDO_redrawPanel(aPanelNum, anIsFixAllFrameLevels)
 
+		VUHDO_invalidatePanelButtonInits(aPanelNum);
+
 		if VUHDO_isPanelPopulated(aPanelNum) then
 			tPanel = VUHDO_getOrCreateActionPanel(aPanelNum);
 
@@ -2857,6 +2944,8 @@ do
 	--
 	local tGcdCol;
 	function VUHDO_redrawAllPanels(anIsFixAllFrameLevels)
+
+		VUHDO_invalidatePanelButtonInits();
 
 		VUHDO_resetMacroCaches();
 		VUHDO_resetSizeCalcCaches();
@@ -2915,6 +3004,8 @@ do
 
 		VUHDO_IS_RELOADING = true;
 
+		VUHDO_invalidatePanelButtonInits();
+
 		VUHDO_clearBackdropCache();
 		VUHDO_clearCustomFlagCache();
 		VUHDO_initAllBurstCaches(); -- Wichtig f�r INTERNAL_TOGGLES=>Clusters
@@ -2955,6 +3046,8 @@ do
 		end
 
 		VUHDO_IS_RELOADING = true;
+
+		VUHDO_invalidatePanelButtonInits();
 
 		VUHDO_clearBackdropCache();
 		VUHDO_clearCustomFlagCache();
@@ -3063,6 +3156,8 @@ do
 		end
 
 		tCycleId = VUHDO_generateCycleId();
+
+		VUHDO_invalidatePanelButtonInits();
 
 		VUHDO_resetMacroCaches();
 		VUHDO_resetSizeCalcCaches();
