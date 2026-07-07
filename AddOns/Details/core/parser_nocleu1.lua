@@ -2687,6 +2687,8 @@ function playerAuraParser:StartTicker()
         return
     end
 
+    do return end
+
     self:ResetData()
 
     self.playerAuraTicker = C_Timer.NewTicker(0.1, function()
@@ -2904,7 +2906,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
     elseif (ev == "PVP_MATCH_STATE_CHANGED") then
         pvpLastStateChange[#pvpLastStateChange+1] = GetTime()
-        print("PVP MATCH STATE CHANGED:", GetTime())
+        --print("PVP MATCH STATE CHANGED:", GetTime())
 
     elseif (ev == "PVP_MATCH_ACTIVE") then
         table.wipe(pvpLastStateChange)

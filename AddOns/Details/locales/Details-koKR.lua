@@ -169,9 +169,7 @@ L["STRING_CUSTOM_TARGET_DESC"] = [=[행위자의 대상입니다.
 
 오른쪽에 있는 버튼은 공격대 전투 중 npc들의 목록을 표시합니다.]=]
 L["STRING_CUSTOM_TEMPORARILY"] = " (|cFFFFC000임시|r)"
-L["STRING_CUSTOM_TEXTURE_GUIDE"] = [=[월드 오브 워크래프트 클라이언트에서 텍스쳐 파일을 열기 위해서는 .TGA 형식의 파일이 필요하며, 높이와 너비는 8의 배수여야 합니다.
-
-텍스쳐를 /WoW Install Folder/retail/Interface/ 에 넣으십시요.]=]
+L["STRING_CUSTOM_TEXTURE_GUIDE"] = "월드 오브 워크래프트 클라이언트에서 텍스쳐 파일을 열기 위해서는 .TGA 형식의 파일이 필요하며, 높이와 너비는 8의 배수여야 합니다. 텍스쳐를 /WoW Install Folder/retail/Interface/ 에 넣으십시요."
 L["STRING_DAMAGE"] = "피해"
 L["STRING_DAMAGE_DPS_IN"] = "받은 DPS:"
 L["STRING_DAMAGE_FROM"] = "피해 출처"

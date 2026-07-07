@@ -437,10 +437,8 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "Quanto ativa, a barra de rolagem faz u
 L["STRING_OPTIONS_APPEARANCE"] = "Aparência"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "Configurações de Títulos"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "Essas opções controlam as configurações dos títulos de uma janela."
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter or leave a raid or dungeon."
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Iniciar automaticamente o registro de combate"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Inicia e interrompe automaticamente o registro de combate no arquivo CombatLog.txt ao entrar ou sair de uma raide ou masmorra."
 L["STRING_OPTIONS_AUTO_SWITCH"] = "Todas as Funções |cFFFFAA00(em combate)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(em combate)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "Quando estiver com especialização de dano, esta janela mostra o atributo ou plugin escolhido."
@@ -921,16 +919,11 @@ L["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "Esta opção controla quais info
 L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "Perfis de performance:"
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "Direção dos ícones de plugin"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Muda a direção dos ícones dos plugins que são exibidos na barra de ferramentas."
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
+L["STRING_OPTIONS_PLAYERNAME"] = "Nome do jogador"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Alinhamento automático"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Desative apenas se você tiver problemas de alinhamento do nome do jogador."
+L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Comprimento automático"
+L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Comprimento"
 L["STRING_OPTIONS_PLUGINS"] = "Plugins"
 L["STRING_OPTIONS_PLUGINS_AUTHOR"] = "Autor"
 L["STRING_OPTIONS_PLUGINS_NAME"] = "Nome"
@@ -1102,8 +1095,7 @@ L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = [=[Esta opção controla quantos segment
 Valores altos podem fazer o tempo de logoff do seu personagem demorar mais.
 
 Se você raramente olha os dados da raide do dia anterior, eh muito recomendado deixar esta opção em 1|cFFFFFFFF1|r.]=]
---[[Translation missing --]]
-L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Selecionar modelo"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "Feedback"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "Mostrar Bordas Laterais"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Mostrar ou esconder as barras laterais na esquerda e direita da janela."
@@ -1200,10 +1192,8 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "Contorno do Texto."
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "Texto a Direita:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Quando ativado o texto da direita ganhara um efeito de sombra ao seu redor."
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Ícones:"
---[[Translation missing --]]
-L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
---[[Translation missing --]]
-L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Cor da sombra"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Deslocamento da sombra %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "Tipo do Colchete"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "Tipo de carácter usado para abrir e fechar o bloco do DPS e porcentagem."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "Mostrar Porcentagem"
@@ -1275,10 +1265,8 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "Seleciona a cor usada no fu
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "Muda a cor da borda."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "Muda o tamanho da borda."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "Modifica a textura usada na borda do tooltip."
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Desativar dicas"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Desativa as dicas para a janela selecionada."
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "Cor de texto"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "Muda a cor usada nos textos do tooltip."
 L["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "Fonte de texto"
@@ -1429,8 +1417,7 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Janela: Papel de Parede"
 L["STRING_OPTIONSMENU_WINDOW"] = "Janela: Configurações"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Configurações de janela"
---[[Translation missing --]]
-L["STRING_OR"] = "Or"
+L["STRING_OR"] = "Ou"
 L["STRING_OVERALL"] = "Dados Gerais"
 L["STRING_OVERHEAL"] = "Sobrecura"
 L["STRING_OVERHEALED"] = "Sobrecura"
