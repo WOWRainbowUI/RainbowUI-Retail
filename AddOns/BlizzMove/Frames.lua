@@ -1638,6 +1638,17 @@ BlizzMoveAPI:RegisterAddOnFrames({
             MinVersion = 80000,
         },
     },
+    ["Blizzard_SettingsDefinitions_Frame"] =
+    {
+        ["NamePlatesTutorial"] =
+        {
+            VersionRanges =
+            {
+                { Min = 20506, Max = 30000 },
+                { Min = 120000 },
+            },
+        },
+    },
     ["Blizzard_Soulbinds"] =
     {
         ["SoulbindViewer"] =
