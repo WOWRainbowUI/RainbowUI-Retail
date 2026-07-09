@@ -17,7 +17,7 @@ local type = type
 local wipe = wipe
 local CLASS_SORT_ORDER, LOCALIZED_CLASS_NAMES_MALE = CLASS_SORT_ORDER, LOCALIZED_CLASS_NAMES_MALE
 local InCombatLockdown, IsInInstance, GetInstanceInfo = InCombatLockdown, IsInInstance, GetInstanceInfo
-local GetCVar, GetCVarBool, GetCVarDefault = GetCVar, GetCVarBool, GetCVarDefault
+local GetCVar, GetCVarBool = GetCVar, GetCVarBool
 local UnitName = UnitName
 local GameTooltip = GameTooltip
 local GetSpellInfo = Addon.GetSpellInfo
@@ -9921,7 +9921,6 @@ local function CreateOptionsTable()
   if not options then
     options = {
       name = C_AddOns.GetAddOnMetadata("TidyPlates_ThreatPlates", "title"),
-      handler = TidyPlatesThreat,
       type = "group",
       childGroups = "tab",
       handler = func_handler,
@@ -11477,13 +11476,9 @@ local function CreateOptionsTable()
   options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(Addon.db)
   options.args.profiles.order = 10000
 
-  -- Add dual-spec support, no also available in Classic
-  local LibDualSpec = LibStub:GetLibrary("LibDualSpec-1.0", true)
-  if LibDualSpec then
-    LibDualSpec:EnhanceDatabase(Addon.db, Addon.ADDON_NAME)
-    LibDualSpec:EnhanceOptions(options.args.profiles, Addon.db)
-  else
-    Addon.Logging.Error("LibDualSpec-1.0 cannot be loaded, dual-spec support will not be available.")
+  -- LibDualSpec is loaded and EnhanceDatabase is called for Addon.db in Addon:OnInitialize(), see Addon.lua.
+  if Addon.LibDualSpec then
+    Addon.LibDualSpec:EnhanceOptions(options.args.profiles, Addon.db)
   end
   
   AddImportExportOptions(options.args.profiles)

@@ -9,12 +9,10 @@ local ADDON_NAME, Addon = ...
 
 -- Lua APIs
 
--- WoW APIs
-local UnitIsUnit = UnitIsUnit
-
 -- ThreatPlates APIs
+local UnitIsUnitTP = Addon.UnitIsUnit
 local BackdropTemplate = Addon.BackdropTemplate
-local SubscribeEvent, PublishEvent = Addon.EventService.Subscribe, Addon.EventService.Publish
+local SubscribeEvent = Addon.EventService.Subscribe
 
 local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -136,7 +134,7 @@ end
 local function TargetLost(tp_frame)
   --local plate = Addon.PlatesByUnit["mouseover"]
   --if plate and plate = tp_frame.Parent then
-  if UnitIsUnit("mouseover", tp_frame.unit.unitid) then
+  if UnitIsUnitTP("mouseover", tp_frame.unit.unitid) then
     MouseoverOnEnter(tp_frame)
   end
 end
