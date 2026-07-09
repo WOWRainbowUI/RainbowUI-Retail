@@ -917,7 +917,7 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
 
                 slider:SetValue(initialValue) -- Set the initial value
                 local textValue = initialValue % 1 == 0 and tostring(math.floor(initialValue)) or string.format("%.2f", initialValue)
-                slider.Text:SetText(label .. ": " .. textValue)
+                slider.Text:SetText(label ~= "" and (label .. ": " .. textValue) or textValue)
             end
         else
             C_Timer.After(0.1, SetSliderValue)
@@ -958,6 +958,9 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
             if (axis ~= "X" and axis ~= "Y") and inputValue <= 0 then
                 inputValue = 0.1  -- Set to minimum allowed value for non-axis sliders
             end
+            if slider.integerOnly then
+                inputValue = math.max(1, math.floor(inputValue))
+            end
 
             local currentMin, currentMax = slider:GetMinMaxValues()
             if inputValue < currentMin or inputValue > currentMax then
@@ -994,7 +997,7 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
     slider:SetScript("OnValueChanged", function(self, value)
         if not BetterBlizzFramesDB.wasOnLoadingScreen then
             local textValue = value % 1 == 0 and tostring(math.floor(value)) or string.format("%.2f", value)
-            self.Text:SetText(label .. ": " .. textValue)
+            self.Text:SetText(label ~= "" and (label .. ": " .. textValue) or textValue)
             --if not BBF.checkCombatAndWarn() then
                 -- Update the X or Y position based on the axis
                 if axis == "X" then
@@ -1211,6 +1214,12 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
                     BBF.RefreshAllAuraFrames()
                 elseif element == "maxTargetDebuffs" then
                     BetterBlizzFramesDB.maxTargetDebuffs = value
+                    BBF.RefreshAllAuraFrames()
+                elseif element == "maxTargetFocusBuffs" then
+                    BetterBlizzFramesDB.maxTargetFocusBuffs = value
+                    BBF.RefreshAllAuraFrames()
+                elseif element == "maxTargetFocusDebuffs" then
+                    BetterBlizzFramesDB.maxTargetFocusDebuffs = value
                     BBF.RefreshAllAuraFrames()
                 elseif element == "maxBuffFrameBuffs" then
                     BetterBlizzFramesDB.maxBuffFrameBuffs = value
@@ -7414,30 +7423,39 @@ local function guiFrameLook()
     bgImg:SetAlpha(0.4)
     bgImg:SetVertexColor(0,0,0)
 
-    local mainGuiAnchor = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    mainGuiAnchor:SetPoint("TOPLEFT", 15, -15)
+    local scrollFrame = CreateFrame("ScrollFrame", nil, guiFrameLook, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetSize(700, 612)
+    scrollFrame:SetPoint("CENTER", guiFrameLook, "CENTER", -20, 3)
+
+    local contentFrame = CreateFrame("Frame", nil, scrollFrame)
+    contentFrame.name = guiFrameLook.name
+    contentFrame:SetSize(680, 920)
+    scrollFrame:SetScrollChild(contentFrame)
+
+    local mainGuiAnchor = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    mainGuiAnchor:SetPoint("TOPLEFT", 50, -25)
     mainGuiAnchor:SetText(" ")
 
-    local settingsText = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local settingsText = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     settingsText:SetPoint("TOPLEFT", mainGuiAnchor, "BOTTOMLEFT", 0, 30)
     settingsText:SetText(L["Font_And_Texture_WIP"])
-    local generalSettingsIcon = guiFrameLook:CreateTexture(nil, "ARTWORK")
+    local generalSettingsIcon = contentFrame:CreateTexture(nil, "ARTWORK")
     generalSettingsIcon:SetAtlas("optionsicon-brown")
     generalSettingsIcon:SetSize(22, 22)
     generalSettingsIcon:SetPoint("RIGHT", settingsText, "LEFT", -3, -1)
 
-    local howToImport = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local howToImport = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     howToImport:SetFont(fontLarge, 16)
-    howToImport:SetPoint("CENTER", mainGuiAnchor, "BOTTOMLEFT", 415, -365)
+    howToImport:SetPoint("CENTER", mainGuiAnchor, "BOTTOMLEFT", 415, -355)
     howToImport:SetText(L["How_To_Import"])
 
-    local howStepOne = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local howStepOne = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     howStepOne:SetJustifyH("LEFT")
     howStepOne:SetFont(fontSmall, 12)
     howStepOne:SetPoint("TOPLEFT", howToImport, "BOTTOMLEFT", -20, -10)
     howStepOne:SetText(L["How_Custom_Media"])
 
-    local fontEditBox = CreateFrame("EditBox", nil, guiFrameLook, "InputBoxTemplate")
+    local fontEditBox = CreateFrame("EditBox", nil, contentFrame, "InputBoxTemplate")
     fontEditBox:SetSize(330, 20)
     fontEditBox:SetPoint("TOPLEFT", howStepOne, "BOTTOMLEFT", 5, -5)
     fontEditBox:SetAutoFocus(false)
@@ -7452,13 +7470,13 @@ local function guiFrameLook()
         self:HighlightText()
     end)
 
-    local howStepTwo = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local howStepTwo = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     howStepTwo:SetJustifyH("LEFT")
     howStepTwo:SetFont(fontSmall, 12)
     howStepTwo:SetPoint("TOPLEFT", fontEditBox, "BOTTOMLEFT", -5, -13)
     howStepTwo:SetText(L["How_Custom_Media_2"])
 
-    local textureEditBox = CreateFrame("EditBox", nil, guiFrameLook, "InputBoxTemplate")
+    local textureEditBox = CreateFrame("EditBox", nil, contentFrame, "InputBoxTemplate")
     textureEditBox:SetSize(330, 20)
     textureEditBox:SetPoint("TOPLEFT", howStepTwo, "BOTTOMLEFT", 5, -5)
     textureEditBox:SetAutoFocus(false)
@@ -7473,18 +7491,18 @@ local function guiFrameLook()
         self:HighlightText()
     end)
 
-    local howStepThree = guiFrameLook:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local howStepThree = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     howStepThree:SetJustifyH("LEFT")
     howStepThree:SetFont(fontSmall, 12)
     howStepThree:SetPoint("TOPLEFT", textureEditBox, "BOTTOMLEFT", -5, -13)
     howStepThree:SetText(L["How_Custom_Media_3"])
     howStepThree:SetWidth(330)
 
-    local changeUnitFrameFont = CreateCheckbox("changeUnitFrameFont", L["Tooltip_Change_UnitFrame_Font_Desc"], guiFrameLook)
+    local changeUnitFrameFont = CreateCheckbox("changeUnitFrameFont", L["Tooltip_Change_UnitFrame_Font_Desc"], contentFrame)
     changeUnitFrameFont:SetPoint("TOPLEFT", settingsText, "BOTTOMLEFT", -4, pixelsOnFirstBox)
     CreateTooltipTwo(changeUnitFrameFont, L["Tooltip_Change_UnitFrame_Font_Desc"], L["Tooltip_Change_UnitFrame_Font_Etc_Desc"])
 
-    local unitFrameFontColor = CreateCheckbox("unitFrameFontColor", L["Color"], guiFrameLook)
+    local unitFrameFontColor = CreateCheckbox("unitFrameFontColor", L["Color"], contentFrame)
     unitFrameFontColor:SetPoint("LEFT", changeUnitFrameFont.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(unitFrameFontColor, L["Color"], L["Tooltip_Color_Change_Font_Desc"])
     unitFrameFontColor:HookScript("OnClick", function()
@@ -7496,7 +7514,7 @@ local function guiFrameLook()
         end
     end)
 
-    local unitFrameFontColorLvl = CreateCheckbox("unitFrameFontColorLvl", L["FontTexture_Color_Level"], guiFrameLook)
+    local unitFrameFontColorLvl = CreateCheckbox("unitFrameFontColorLvl", L["FontTexture_Color_Level"], contentFrame)
     unitFrameFontColorLvl:SetPoint("LEFT", unitFrameFontColor.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(unitFrameFontColorLvl, L["FontTexture_Color_Level"], L["Tooltip_Color_Level_Font_Desc"])
     unitFrameFontColorLvl:HookScript("OnClick", function()
@@ -7505,7 +7523,7 @@ local function guiFrameLook()
 
     local unitFrameFont = CreateFontDropdown(
         "unitFrameFont",
-        guiFrameLook,
+        contentFrame,
         L["Select_Font"],
         "unitFrameFont",
         function(arg1)
@@ -7515,7 +7533,7 @@ local function guiFrameLook()
     )
 
     -- For font outline
-    local unitFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, L["Outline_Label"], "unitFrameFontOutline", {
+    local unitFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", contentFrame, L["Outline_Label"], "unitFrameFontOutline", {
         "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
@@ -7527,7 +7545,7 @@ local function guiFrameLook()
         table.insert(fontSizeOptions, tostring(i))
     end
 
-    local unitFrameFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, L["Size"], "unitFrameFontSize", fontSizeOptions, function(selectedSize)
+    local unitFrameFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, L["Size"], "unitFrameFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = unitFrameFontOutline, x = 0, y = -5 }, 155)
 
@@ -7555,11 +7573,11 @@ local function guiFrameLook()
 
 
 
-    local changeUnitFrameValueFont = CreateCheckbox("changeUnitFrameValueFont", L["Tooltip_Change_UnitFrame_Number_Font_Desc"], guiFrameLook)
+    local changeUnitFrameValueFont = CreateCheckbox("changeUnitFrameValueFont", L["Tooltip_Change_UnitFrame_Number_Font_Desc"], contentFrame)
     changeUnitFrameValueFont:SetPoint("TOPLEFT", changeUnitFrameFont, "BOTTOMLEFT", 0, -100)
     CreateTooltipTwo(changeUnitFrameValueFont, L["Tooltip_Change_UnitFrame_Number_Font_Desc"], L["Tooltip_Change_UnitFrame_Number_Font_Etc_Desc"])
 
-    local unitFrameValueFontColor = CreateCheckbox("unitFrameValueFontColor", L["Color"], guiFrameLook)
+    local unitFrameValueFontColor = CreateCheckbox("unitFrameValueFontColor", L["Color"], contentFrame)
     unitFrameValueFontColor:SetPoint("LEFT", changeUnitFrameValueFont.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(unitFrameValueFontColor, L["UnitFrame_Numbers_Font_Color"], L["Tooltip_UnitFrame_Numbers_Font_Color_Desc"])
     unitFrameValueFontColor:HookScript("OnClick", function()
@@ -7573,7 +7591,7 @@ local function guiFrameLook()
 
     local unitFrameValueFont = CreateFontDropdown(
         "unitFrameValueFont",
-        guiFrameLook,
+        contentFrame,
         L["Select_Font"],
         "unitFrameValueFont",
         function(arg1)
@@ -7583,13 +7601,13 @@ local function guiFrameLook()
     )
 
     -- For font outline
-    local unitFrameValueFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, L["Outline_Label"], "unitFrameValueFontOutline", {
+    local unitFrameValueFontOutline = CreateSimpleDropdown("FontOutlineDropdown", contentFrame, L["Outline_Label"], "unitFrameValueFontOutline", {
         "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = unitFrameValueFont, x = 0, y = -5 }, 155)
 
-    local unitFrameValueFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, L["Size"], "unitFrameValueFontSize", fontSizeOptions, function(selectedSize)
+    local unitFrameValueFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, L["Size"], "unitFrameValueFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = unitFrameValueFontOutline, x = 0, y = -5 }, 155)
 
@@ -7617,11 +7635,11 @@ local function guiFrameLook()
 
 
 
-    local changePartyFrameFont = CreateCheckbox("changePartyFrameFont", L["Change_Party_Font"], guiFrameLook)
+    local changePartyFrameFont = CreateCheckbox("changePartyFrameFont", L["Change_Party_Font"], contentFrame)
     changePartyFrameFont:SetPoint("TOPLEFT", changeUnitFrameValueFont, "BOTTOMLEFT", 0, -100)
     CreateTooltipTwo(changePartyFrameFont, L["Change_Party_Font"], L["Tooltip_Change_PartyFrames_Font_Desc"])
 
-    local partyFrameFontColor = CreateCheckbox("partyFrameFontColor", L["Color"], guiFrameLook)
+    local partyFrameFontColor = CreateCheckbox("partyFrameFontColor", L["Color"], contentFrame)
     partyFrameFontColor:SetPoint("LEFT", changePartyFrameFont.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(partyFrameFontColor, L["Color"], L["Tooltip_Change_Party_Font_Color_Desc"])
     partyFrameFontColor:HookScript("OnClick", function()
@@ -7635,7 +7653,7 @@ local function guiFrameLook()
 
     local partyFrameFont = CreateFontDropdown(
         "partyFrameFont",
-        guiFrameLook,
+        contentFrame,
         L["Select_Font"],
         "partyFrameFont",
         function(arg1)
@@ -7645,18 +7663,18 @@ local function guiFrameLook()
     )
 
     -- For font outline
-    local partyFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, L["Outline_Label"], "partyFrameFontOutline", {
+    local partyFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", contentFrame, L["Outline_Label"], "partyFrameFontOutline", {
         "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = partyFrameFont, x = 0, y = -5 }, 155)
 
-    local partyFrameFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, L["Size"], "partyFrameFontSize", fontSizeOptions, function(selectedSize)
+    local partyFrameFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, L["Size"], "partyFrameFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = partyFrameFontOutline, x = 0, y = -5 }, 77.5)
     CreateTooltipTwo(partyFrameFontSize, L["Tooltip_Name_Size"])
 
-    local partyFrameStatusFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, "", "partyFrameStatusFontSize", fontSizeOptions, function(selectedSize)
+    local partyFrameStatusFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, "", "partyFrameStatusFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = partyFrameFontSize, x = 77.5, y = 25 }, 77.5)
     CreateTooltipTwo(partyFrameStatusFontSize, L["Tooltip_Status_Text_Size"])
@@ -7685,11 +7703,11 @@ local function guiFrameLook()
     end
 
 
-    local changeActionBarFont = CreateCheckbox("changeActionBarFont", L["Change_ActionBar_Font"], guiFrameLook)
+    local changeActionBarFont = CreateCheckbox("changeActionBarFont", L["Change_ActionBar_Font"], contentFrame)
     changeActionBarFont:SetPoint("TOPLEFT", changePartyFrameFont, "BOTTOMLEFT", 0, -100)
     CreateTooltipTwo(changeActionBarFont, L["Change_ActionBar_Font"], L["Tooltip_Change_ActionBar_Font_Etc_Desc"])
 
-    local actionBarFontColor = CreateCheckbox("actionBarFontColor", L["Color"], guiFrameLook)
+    local actionBarFontColor = CreateCheckbox("actionBarFontColor", L["Color"], contentFrame)
     actionBarFontColor:SetPoint("LEFT", changeActionBarFont.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(actionBarFontColor, L["Color"], L["Tooltip_Change_ActionBar_Font_Color_Desc"])
     actionBarFontColor:HookScript("OnClick", function()
@@ -7701,13 +7719,13 @@ local function guiFrameLook()
         end
     end)
 
-    local actionBarChangeCharge = CreateCheckbox("actionBarChangeCharge", L["Charges"], guiFrameLook)
+    local actionBarChangeCharge = CreateCheckbox("actionBarChangeCharge", L["Charges"], contentFrame)
     actionBarChangeCharge:SetPoint("LEFT", actionBarFontColor.Text, "RIGHT", 0, 0)
     CreateTooltipTwo(actionBarChangeCharge, L["Charges"], L["Tooltip_Charges_Font_Desc"])
 
     local actionBarFont = CreateFontDropdown(
         "actionBarFont",
-        guiFrameLook,
+        contentFrame,
         L["Select_Font"],
         "actionBarFont",
         function(arg1)
@@ -7717,31 +7735,31 @@ local function guiFrameLook()
     )
 
     -- For font outline
-    local actionBarFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, L["Outline_Label"], "actionBarFontOutline", {
+    local actionBarFontOutline = CreateSimpleDropdown("FontOutlineDropdown", contentFrame, L["Outline_Label"], "actionBarFontOutline", {
         "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFont, x = 0, y = -5 }, 77.5)
     CreateTooltipTwo(actionBarFontOutline, L["Tooltip_Macro_Text_Outline"])
 
-    local actionBarKeyFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "", "actionBarKeyFontOutline", {
+    local actionBarKeyFontOutline = CreateSimpleDropdown("FontOutlineDropdown", contentFrame, "", "actionBarKeyFontOutline", {
         "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFontOutline, x = 77.5, y = 25 }, 77.5)
     CreateTooltipTwo(actionBarKeyFontOutline, L["Tooltip_Keybinding_Text_Outline"])
 
-    local actionBarFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, L["Size"], "actionBarFontSize", fontSizeOptions, function(selectedSize)
+    local actionBarFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, L["Size"], "actionBarFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFontOutline, x = 0, y = -5 }, 77.5)
     CreateTooltipTwo(actionBarFontSize, L["Tooltip_Macro_Text_Size"])
 
-    local actionBarKeyFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, "", "actionBarKeyFontSize", fontSizeOptions, function(selectedSize)
+    local actionBarKeyFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, "", "actionBarKeyFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFontSize, x = 77.5, y = 25 }, 77.5)
     CreateTooltipTwo(actionBarKeyFontSize, L["Tooltip_Keybinding_Text_Size"])
 
-    local actionBarChargeFontSize = CreateSimpleDropdown("FontSizeDropdown", guiFrameLook, "", "actionBarChargeFontSize", fontSizeOptions, function(selectedSize)
+    local actionBarChargeFontSize = CreateSimpleDropdown("FontSizeDropdown", contentFrame, "", "actionBarChargeFontSize", fontSizeOptions, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFontSize, x = 77.5, y = 0 }, 77.5)
     CreateTooltipTwo(actionBarChargeFontSize, L["Tooltip_Charge_Text_Size"])
@@ -7783,13 +7801,13 @@ local function guiFrameLook()
 
 
 
-    local changeAllFontsIngame = CreateCheckbox("changeAllFontsIngame", L["Tooltip_One_Font_All_Text_Desc"], guiFrameLook)
-    changeAllFontsIngame:SetPoint("TOPLEFT", changeActionBarFont, "BOTTOMLEFT", 0, -115)
+    local changeAllFontsIngame = CreateCheckbox("changeAllFontsIngame", L["Tooltip_One_Font_All_Text_Desc"], contentFrame)
+    changeAllFontsIngame:SetPoint("TOPLEFT", changeActionBarFont, "BOTTOMLEFT", 0, -110)
     CreateTooltipTwo(changeAllFontsIngame, L["Tooltip_One_Font_All_Text_Desc"], L["Tooltip_One_Font_All_Text_Desc"], L["Tooltip_One_Font_All_Text_Extra"])
 
     local allIngameFont = CreateFontDropdown(
         "allIngameFont",
-        guiFrameLook,
+        contentFrame,
         L["Select_Font"],
         "allIngameFont",
         function(arg1)
@@ -7813,7 +7831,7 @@ local function guiFrameLook()
 
 
 
-    local changeUnitFrameHealthbarTexture = CreateCheckbox("changeUnitFrameHealthbarTexture", L["Tooltip_Change_UnitFrame_Healthbar_Texture_Desc"], guiFrameLook)
+    local changeUnitFrameHealthbarTexture = CreateCheckbox("changeUnitFrameHealthbarTexture", L["Tooltip_Change_UnitFrame_Healthbar_Texture_Desc"], contentFrame)
     changeUnitFrameHealthbarTexture:SetPoint("TOPLEFT", settingsText, "BOTTOMLEFT", 260, pixelsOnFirstBox)
     if not BetterBlizzFramesDB.classicFrames then
         CreateTooltipTwo(changeUnitFrameHealthbarTexture, L["Tooltip_Change_UnitFrame_Healthbar_Texture_Desc"], L["Tooltip_Change_UnitFrame_Healthbar_Texture_Desc"])
@@ -7838,7 +7856,7 @@ local function guiFrameLook()
     end
 
     if BetterBlizzFramesDB.classicFrames then
-        local text = guiFrameLook:CreateFontString(nil, "OVERLAY")
+        local text = contentFrame:CreateFontString(nil, "OVERLAY")
         text:SetFont(fontSmall, 12)
         text:SetText(L["Classic_Frames_Label"])
         text:SetTextColor(1,0,0)
@@ -7848,7 +7866,7 @@ local function guiFrameLook()
 
     local unitFrameHealthbarTexture = CreateTextureDropdown(
         "unitFrameHealthbarTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "unitFrameHealthbarTexture",
         function(arg1)
@@ -7866,7 +7884,7 @@ local function guiFrameLook()
     end)
     unitFrameHealthbarTexture:SetEnabled(changeUnitFrameHealthbarTexture:GetChecked())
 
-    local changeUnitFrameManabarTexture = CreateCheckbox("changeUnitFrameManabarTexture", L["Tooltip_Change_UnitFrame_Manabar_Texture_Desc"], guiFrameLook)
+    local changeUnitFrameManabarTexture = CreateCheckbox("changeUnitFrameManabarTexture", L["Tooltip_Change_UnitFrame_Manabar_Texture_Desc"], contentFrame)
     changeUnitFrameManabarTexture:SetPoint("TOPLEFT", changeUnitFrameHealthbarTexture, "BOTTOMLEFT", 0, -25)
     CreateTooltipTwo(changeUnitFrameManabarTexture, L["Tooltip_Change_UnitFrame_Manabar_Texture_Desc"], L["Tooltip_Change_UnitFrame_Manabar_Texture_Desc"])
 
@@ -7879,7 +7897,7 @@ local function guiFrameLook()
 
     local unitFrameManabarTexture = CreateTextureDropdown(
         "unitFrameManabarTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "unitFrameManabarTexture",
         function(arg1)
@@ -7899,13 +7917,13 @@ local function guiFrameLook()
 
     if BetterBlizzFramesDB.classicFrames then
 
-        local changeUnitFrameNameBgTexture = CreateCheckbox("changeUnitFrameNameBgTexture", L["Change_Name_Bg_Texture"], guiFrameLook)
+        local changeUnitFrameNameBgTexture = CreateCheckbox("changeUnitFrameNameBgTexture", L["Change_Name_Bg_Texture"], contentFrame)
         changeUnitFrameNameBgTexture:SetPoint("TOPLEFT", settingsText, "BOTTOMLEFT", 465, -23)
         CreateTooltipTwo(changeUnitFrameNameBgTexture, L["Change_Name_Bg_Texture"], L["Tooltip_Change_Name_Bg_Texture_Desc"])
 
         local unitFrameNameBgTexture = CreateTextureDropdown(
             "unitFrameNameBgTexture",
-            guiFrameLook,
+            contentFrame,
             L["Select_Texture"],
             "unitFrameNameBgTexture",
             function(arg1)
@@ -7923,13 +7941,13 @@ local function guiFrameLook()
         unitFrameNameBgTexture:SetEnabled(changeUnitFrameNameBgTexture:GetChecked())
     end
 
-    local changeUnitFrameCastbarTexture = CreateCheckbox("changeUnitFrameCastbarTexture", L["Change_Castbar_Texture"], guiFrameLook)
+    local changeUnitFrameCastbarTexture = CreateCheckbox("changeUnitFrameCastbarTexture", L["Change_Castbar_Texture"], contentFrame)
     changeUnitFrameCastbarTexture:SetPoint("TOPLEFT", changeUnitFrameManabarTexture, "BOTTOMLEFT", 0, -25)
     CreateTooltipTwo(changeUnitFrameCastbarTexture, L["Change_Castbar_Texture"], L["Tooltip_Change_Castbar_Texture_Desc"])
 
     local unitFrameCastbarTexture = CreateTextureDropdown(
         "unitFrameCastbarTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "unitFrameCastbarTexture",
         function(arg1)
@@ -7946,13 +7964,13 @@ local function guiFrameLook()
     end)
     unitFrameCastbarTexture:SetEnabled(changeUnitFrameCastbarTexture:GetChecked())
 
-    local changeUnitFrameBackgroundTexture = CreateCheckbox("addUnitFrameBgTexture", L["Change_UnitFrame_Background_Texture"], guiFrameLook)
+    local changeUnitFrameBackgroundTexture = CreateCheckbox("addUnitFrameBgTexture", L["Change_UnitFrame_Background_Texture"], contentFrame)
     changeUnitFrameBackgroundTexture:SetPoint("TOPLEFT", changeUnitFrameCastbarTexture, "BOTTOMLEFT", 0, -25)
     CreateTooltipTwo(changeUnitFrameBackgroundTexture, L["Change_UnitFrame_Background_Texture"], L["Tooltip_Change_UnitFrame_Background_Texture_Desc"])
 
     local unitFrameBgTexture = CreateTextureDropdown(
         "unitFrameBgTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "unitFrameBgTexture",
         function(arg1)
@@ -7962,11 +7980,11 @@ local function guiFrameLook()
         { anchorFrame = changeUnitFrameBackgroundTexture, x = 5, y = 3, label = "Texture" }
     )
 
-    local unitFrameBgTextureColorFL = CreateColorBox(guiFrameLook, "unitFrameBgTextureColor", "Health BG", function() BBF.UnitFrameBackgroundTexture() end)
+    local unitFrameBgTextureColorFL = CreateColorBox(contentFrame, "unitFrameBgTextureColor", "Health BG", function() BBF.UnitFrameBackgroundTexture() end)
     unitFrameBgTextureColorFL:SetPoint("LEFT", unitFrameBgTexture, "RIGHT", 10, 0)
     CreateTooltipTwo(unitFrameBgTextureColorFL, "Health Bar Background Color", "Left-click to change.\n\n|cff32f795Shift+Right-click to reset to default.|r")
 
-    local unitFrameBgTextureManaColorFL = CreateColorBox(guiFrameLook, "unitFrameBgTextureManaColor", "Mana BG", function() BBF.UnitFrameBackgroundTexture() end)
+    local unitFrameBgTextureManaColorFL = CreateColorBox(contentFrame, "unitFrameBgTextureManaColor", "Mana BG", function() BBF.UnitFrameBackgroundTexture() end)
     unitFrameBgTextureManaColorFL:SetPoint("LEFT", unitFrameBgTextureColorFL.text, "RIGHT", 4, 0)
     CreateTooltipTwo(unitFrameBgTextureManaColorFL, "Mana Bar Background Color", "Left-click to change.\n\n|cff32f795Shift+Right-click to reset to default.|r")
 
@@ -8006,13 +8024,13 @@ local function guiFrameLook()
     unitFrameBgTextureColorFL:SetAlpha(unitFrameBgAlpha)
     unitFrameBgTextureManaColorFL:SetAlpha(unitFrameBgAlpha)
 
-    local changeRaidFrameHealthbarTexture = CreateCheckbox("changeRaidFrameHealthbarTexture", L["Tooltip_Change_RaidFrame_Healthbar_Texture_Desc"], guiFrameLook)
+    local changeRaidFrameHealthbarTexture = CreateCheckbox("changeRaidFrameHealthbarTexture", L["Tooltip_Change_RaidFrame_Healthbar_Texture_Desc"], contentFrame)
     changeRaidFrameHealthbarTexture:SetPoint("TOPLEFT", changeUnitFrameBackgroundTexture, "BOTTOMLEFT", 0, -40)
     CreateTooltipTwo(changeRaidFrameHealthbarTexture, L["Tooltip_Change_RaidFrame_Healthbar_Texture_Desc"], L["Tooltip_Change_RaidFrame_Healthbar_Texture_Etc_Desc"])
 
     local raidFrameHealthbarTexture = CreateTextureDropdown(
         "raidFrameHealthbarTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "raidFrameHealthbarTexture",
         function(arg1)
@@ -8030,13 +8048,13 @@ local function guiFrameLook()
     end)
     raidFrameHealthbarTexture:SetEnabled(changeRaidFrameHealthbarTexture:GetChecked())
 
-    local changeRaidFrameManabarTexture = CreateCheckbox("changeRaidFrameManabarTexture", L["Tooltip_Change_RaidFrame_Manabar_Texture_Desc"], guiFrameLook)
+    local changeRaidFrameManabarTexture = CreateCheckbox("changeRaidFrameManabarTexture", L["Tooltip_Change_RaidFrame_Manabar_Texture_Desc"], contentFrame)
     changeRaidFrameManabarTexture:SetPoint("TOPLEFT", changeRaidFrameHealthbarTexture, "BOTTOMLEFT", 0, -25)
     CreateTooltipTwo(changeRaidFrameManabarTexture, L["Tooltip_Change_RaidFrame_Manabar_Texture_Desc"], L["Tooltip_Change_RaidFrame_Manabar_Texture_Etc_Desc"])
 
     local raidFrameManabarTexture = CreateTextureDropdown(
         "raidFrameManabarTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "raidFrameManabarTexture",
         function(arg1)
@@ -8052,13 +8070,13 @@ local function guiFrameLook()
     raidFrameManabarTexture:SetEnabled(changeRaidFrameManabarTexture:GetChecked())
 
 
-    local changePartyRaidFrameBackgroundColor = CreateCheckbox("changePartyRaidFrameBackgroundColor", L["Change_RaidFrame_Background_Texture"], guiFrameLook)
+    local changePartyRaidFrameBackgroundColor = CreateCheckbox("changePartyRaidFrameBackgroundColor", L["Change_RaidFrame_Background_Texture"], contentFrame)
     changePartyRaidFrameBackgroundColor:SetPoint("TOPLEFT", changeRaidFrameManabarTexture, "BOTTOMLEFT", 0, -25)
     CreateTooltipTwo(changePartyRaidFrameBackgroundColor, L["Change_RaidFrame_Background_Texture"], L["Tooltip_Change_RaidFrame_Background_Texture_Desc"])
 
     local raidFrameBgTexture = CreateTextureDropdown(
         "raidFrameBgTexture",
-        guiFrameLook,
+        contentFrame,
         L["Select_Texture"],
         "raidFrameBgTexture",
         function(arg1)
@@ -8068,11 +8086,11 @@ local function guiFrameLook()
         { anchorFrame = changePartyRaidFrameBackgroundColor, x = 5, y = 3, label = "Texture" }
     )
 
-    local partyRaidFrameBackgroundHealthColorFL = CreateColorBox(guiFrameLook, "partyRaidFrameBackgroundHealthColor", "Health BG", function() BBF.SetCompactUnitFramesBackground() end)
+    local partyRaidFrameBackgroundHealthColorFL = CreateColorBox(contentFrame, "partyRaidFrameBackgroundHealthColor", "Health BG", function() BBF.SetCompactUnitFramesBackground() end)
     partyRaidFrameBackgroundHealthColorFL:SetPoint("LEFT", raidFrameBgTexture, "RIGHT", 10, 0)
     CreateTooltipTwo(partyRaidFrameBackgroundHealthColorFL, "Party/Raid Health Bar Background Color", "Left-click to change.\n\n|cff32f795Shift+Right-click to reset to default.|r")
 
-    local partyRaidFrameBackgroundManaColorFL = CreateColorBox(guiFrameLook, "partyRaidFrameBackgroundManaColor", "Mana BG", function() BBF.SetCompactUnitFramesBackground() end)
+    local partyRaidFrameBackgroundManaColorFL = CreateColorBox(contentFrame, "partyRaidFrameBackgroundManaColor", "Mana BG", function() BBF.SetCompactUnitFramesBackground() end)
     partyRaidFrameBackgroundManaColorFL:SetPoint("LEFT", partyRaidFrameBackgroundHealthColorFL.text, "RIGHT", 4, 0)
     CreateTooltipTwo(partyRaidFrameBackgroundManaColorFL, "Party/Raid Mana Bar Background Color", "Left-click to change.\n\n|cff32f795Shift+Right-click to reset to default.|r")
 
@@ -8113,13 +8131,98 @@ local function guiFrameLook()
     partyRaidFrameBackgroundManaColorFL:SetAlpha(raidFrameBgAlpha)
 
 
+    local prdText = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    prdText:SetPoint("TOPLEFT", changeAllFontsIngame, "BOTTOMLEFT", 0, -35)
+    prdText:SetText("Personal Resource Display")
 
+    local prdLegacyLook = CreateCheckbox("prdLegacyLook", L["PRD_Legacy_Look"], contentFrame)
+    prdLegacyLook:SetPoint("TOPLEFT", prdText, "BOTTOMLEFT", -4, pixelsOnFirstBox)
+    CreateTooltipTwo(prdLegacyLook, L["Tooltip_PRD_Legacy_Look"], L["Tooltip_PRD_Legacy_Look_Desc"])
 
+    local prdSplitLines = CreateCheckbox("prdSplitLines", L["PRD_Split_Lines"], prdLegacyLook, nil, BBF.LegacyPRDLook)
+    prdSplitLines:SetPoint("LEFT", prdLegacyLook.text, "RIGHT", 0, 0)
+    CreateTooltipTwo(prdSplitLines, L["Tooltip_PRD_Split_Lines"], L["Tooltip_PRD_Split_Lines_Desc"])
 
+    prdLegacyLook:HookScript("OnClick", function(self)
+        BBF.LegacyPRDLook()
+        BBF.TexturePRD()
+        if self:GetChecked() then
+            EnableElement(prdSplitLines)
+        else
+            DisableElement(prdSplitLines)
+        end
+    end)
 
+    if not BetterBlizzFramesDB.prdLegacyLook then
+        DisableElement(prdSplitLines)
+    end
 
+    local changePrdTextures = CreateCheckbox("changePrdTextures", L["Tooltip_Change_Personal_Resource_Display_Textures"], contentFrame)
+    changePrdTextures:SetPoint("TOPLEFT", prdLegacyLook, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(changePrdTextures, L["Tooltip_Change_Personal_Resource_Display_Textures"], L["Tooltip_Change_Personal_Resource_Display_Textures_Desc"])
 
+    useCustomTextureForExtraBars = CreateCheckbox("useCustomTextureForExtraBars", L["Tooltip_Change_PRD_Extra_Bars_Texture_Desc"], changePrdTextures)
+    useCustomTextureForExtraBars:SetPoint("LEFT", changePrdTextures.text, "RIGHT", 0, 0)
+    CreateTooltipTwo(useCustomTextureForExtraBars, L["Tooltip_Change_PRD_Extra_Bars_Texture_Desc"], L["Tooltip_Change_PRD_Extra_Bars_Texture_Desc"])
 
+    local useCustomTextureForSelf = CreateCheckbox("useCustomTextureForSelf", L["Tooltip_Change_PRD_Healthbar_Texture_Desc"], changePrdTextures)
+    useCustomTextureForSelf:SetPoint("TOPLEFT", changePrdTextures, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(useCustomTextureForSelf, L["Tooltip_Change_PRD_Healthbar_Texture_Desc"], L["Tooltip_Change_PRD_Healthbar_Texture_Desc"])
+    useCustomTextureForSelf:HookScript("OnClick", function()
+        BBF.TexturePRD()
+    end)
+
+    local prdHealthbarTexture = CreateTextureDropdown(
+        "prdHealthbarTexture",
+        contentFrame,
+        L["Select_Texture"],
+        "customTextureSelf",
+        function(arg1)
+            BBF.TexturePRD()
+        end,
+        { anchorFrame = useCustomTextureForSelf, x = 5, y = 3, label = "Texture" }
+    )
+    useCustomTextureForSelf:HookScript("OnClick", function(self)
+        prdHealthbarTexture:SetEnabled(self:GetChecked() and changePrdTextures:GetChecked())
+        BBF.TexturePRD()
+    end)
+    prdHealthbarTexture:SetEnabled(BetterBlizzFramesDB.changePrdTextures and BetterBlizzFramesDB.useCustomTextureForSelf)
+
+    local useCustomTextureForSelfMana = CreateCheckbox("useCustomTextureForSelfMana", L["Tooltip_Change_PRD_Manabar_Texture_Desc"], changePrdTextures)
+    useCustomTextureForSelfMana:SetPoint("TOPLEFT", useCustomTextureForSelf, "BOTTOMLEFT", 0, -25)
+    CreateTooltipTwo(useCustomTextureForSelfMana, L["Tooltip_Change_PRD_Manabar_Texture_Desc"], L["Tooltip_Change_PRD_Manabar_Texture_Desc"])
+
+    local fancyPrdAltTexture = CreateCheckbox("fancyPrdAltTexture", L["Keep_Fancy_Manabars"], contentFrame)
+    fancyPrdAltTexture:SetPoint("LEFT", useCustomTextureForSelfMana.Text, "RIGHT", 0, 0)
+    CreateTooltipTwo(fancyPrdAltTexture, L["Keep_Fancy_Manabars"], L["Tooltip_Keep_Fancy_PRD_Mana_Desc"])
+    fancyPrdAltTexture:HookScript("OnClick", function()
+        BBF.TexturePRD()
+    end)
+
+    local prdManabarTexture = CreateTextureDropdown(
+        "prdManabarTexture",
+        contentFrame,
+        L["Select_Texture"],
+        "customTextureSelfMana",
+        function(arg1)
+            BBF.TexturePRD()
+        end,
+        { anchorFrame = useCustomTextureForSelfMana, x = 5, y = 3, label = "Texture" }
+    )
+    useCustomTextureForSelfMana:HookScript("OnClick", function(self)
+        local enabled = self:GetChecked() and changePrdTextures:GetChecked()
+        prdManabarTexture:SetEnabled(enabled)
+        BBF.TexturePRD()
+        CheckAndToggleCheckboxes(self)
+    end)
+    prdManabarTexture:SetEnabled(BetterBlizzFramesDB.changePrdTextures and BetterBlizzFramesDB.useCustomTextureForSelfMana)
+    changePrdTextures:HookScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        CheckAndToggleCheckboxes(self)
+        prdHealthbarTexture:SetEnabled(checked and BetterBlizzFramesDB.useCustomTextureForSelf)
+        prdManabarTexture:SetEnabled(checked and BetterBlizzFramesDB.useCustomTextureForSelfMana)
+        BBF.TexturePRD()
+    end)
 
 
 end
@@ -8340,6 +8443,50 @@ local function guiFrameAuras()
     hideFocusDebuffs:HookScript("OnClick", function(self)
         StaticPopup_Show("BBF_CONFIRM_RELOAD")
     end)
+
+    local enableMaxTargetFocusBuffs = CreateCheckbox("enableMaxTargetFocusBuffs", L["Max_Buffs"], playerAuraFiltering)
+    enableMaxTargetFocusBuffs:SetPoint("TOPLEFT", hideFocusDebuffs, "BOTTOMLEFT", 0, 3)
+    CreateTooltip(enableMaxTargetFocusBuffs, L["Max_Buffs"])
+
+    local maxTargetFocusBuffsSlider = CreateSlider(enableMaxTargetFocusBuffs, "", 1, 100, 1, "maxTargetFocusBuffs", nil, 80)
+    maxTargetFocusBuffsSlider:SetPoint("LEFT", enableMaxTargetFocusBuffs.text, "RIGHT", 5, -3)
+    maxTargetFocusBuffsSlider:SetScale(0.9)
+    maxTargetFocusBuffsSlider.integerOnly = true
+
+    enableMaxTargetFocusBuffs:HookScript("OnClick", function(self)
+        if self:GetChecked() then
+            EnableElement(maxTargetFocusBuffsSlider)
+        else
+            DisableElement(maxTargetFocusBuffsSlider)
+        end
+        BBF.RefreshAllAuraFrames()
+    end)
+
+    if not BetterBlizzFramesDB.enableMaxTargetFocusBuffs then
+        DisableElement(maxTargetFocusBuffsSlider)
+    end
+
+    local enableMaxTargetFocusDebuffs = CreateCheckbox("enableMaxTargetFocusDebuffs", L["Max_Debuffs"], playerAuraFiltering)
+    enableMaxTargetFocusDebuffs:SetPoint("TOPLEFT", enableMaxTargetFocusBuffs, "BOTTOMLEFT", 0, 1)
+    CreateTooltip(enableMaxTargetFocusDebuffs, L["Max_Debuffs"])
+
+    local maxTargetFocusDebuffsSlider = CreateSlider(enableMaxTargetFocusDebuffs, "", 1, 100, 1, "maxTargetFocusDebuffs", nil, 80)
+    maxTargetFocusDebuffsSlider:SetPoint("LEFT", enableMaxTargetFocusDebuffs.text, "RIGHT", 5, -3)
+    maxTargetFocusDebuffsSlider:SetScale(0.9)
+    maxTargetFocusDebuffsSlider.integerOnly = true
+
+    enableMaxTargetFocusDebuffs:HookScript("OnClick", function(self)
+        if self:GetChecked() then
+            EnableElement(maxTargetFocusDebuffsSlider)
+        else
+            DisableElement(maxTargetFocusDebuffsSlider)
+        end
+        BBF.RefreshAllAuraFrames()
+    end)
+
+    if not BetterBlizzFramesDB.enableMaxTargetFocusDebuffs then
+        DisableElement(maxTargetFocusDebuffsSlider)
+    end
 
 
     local function OpenColorPicker(entryColors)
@@ -9602,195 +9749,6 @@ local function guiSupport()
     boxTwoTex:SetPoint("BOTTOM", boxTwo, "TOP", 0, 1)
 end
 
-local function guiMidnight()
-    local guiMidnight = CreateFrame("Frame")
-    guiMidnight.name = "|T136221:12:12|t |cffcc66ffWoW: Midnight|r"
-    guiMidnight.parent = BetterBlizzFrames.name
-    --InterfaceOptions_AddCategory(guiMidnight)
-    local guiMidnightCategory = Settings.RegisterCanvasLayoutSubcategory(BBF.category, guiMidnight, guiMidnight.name, guiMidnight.name)
-    guiMidnightCategory.ID = guiMidnight.name;
-    BBF.guiMidnight = guiMidnight.name
-    BBF.category.guiMidnightCategory = guiMidnightCategory.ID
-    CreateTitle(guiMidnight)
-
-    local titleText = guiMidnight:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-    titleText:SetPoint("TOPLEFT", guiMidnight, "TOPLEFT", 20, -10)
-    titleText:SetText(L["Midnight_Title"])
-    local titleIcon = guiMidnight:CreateTexture(nil, "ARTWORK")
-    titleIcon:SetTexture(136221)
-    titleIcon:SetSize(23, 23)
-    titleIcon:SetPoint("RIGHT", titleText, "LEFT", -3, 0.5)
-
-    local midnightInfo = guiMidnight:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    midnightInfo:SetPoint("TOPLEFT", titleIcon, "BOTTOMLEFT", 2, -5)
-    midnightInfo:SetText(L["Midnight_Info"])
-    midnightInfo:SetTextColor(1,1,1,1)
-    midnightInfo:SetJustifyH("LEFT")
-
-    local bgImg = guiMidnight:CreateTexture(nil, "BACKGROUND")
-    bgImg:SetAtlas("professions-recipe-background")
-    bgImg:SetPoint("CENTER", guiMidnight, "CENTER", -8, 4)
-    bgImg:SetSize(680, 610)
-    bgImg:SetAlpha(0.4)
-    bgImg:SetVertexColor(0,0,0)
-
-    local f = CreateFrame("PlayerModel", nil, guiMidnight)
-    f:SetIgnoreParentScale(true)
-    f:SetScale(1)
-    f:SetAllPoints(bgImg)
-    f:SetPortraitZoom(0)
-    f:SetDisplayInfo(121956)
-    f.anim = 69
-    f:SetAnimation(69)
-    f:HookScript("OnAnimFinished", function(self)
-        if self.anim == 3 or self.anim == 15 then return end
-        self:SetAnimation(self.anim)
-    end)
-
-    local DEFAULT_CAM     = 1.35
-    local DEFAULT_VTX     = -35
-    local DEFAULT_VTY     = -30
-
-    local validAnimations = {}
-    for i = 1, 84 do
-        if i ~= 7 and i ~= 11 and i ~= 12 and i ~= 40 and i ~= 56 then
-            table.insert(validAnimations, i)
-        end
-    end
-    local extras = { 102, 103, 105, 106, 107, 108, 109, 110, 111, 112, 113, 144, 164, 185, 186, 195, 196, 225 }
-    for _, v in ipairs(extras) do
-        table.insert(validAnimations, v)
-    end
-
-    local pool = {}
-    local function RefillPool()
-        wipe(pool)
-        for i = 1, #validAnimations do
-            pool[i] = validAnimations[i]
-        end
-        for i = #pool, 2, -1 do
-            local j = math.random(i)
-            pool[i], pool[j] = pool[j], pool[i]
-        end
-    end
-    RefillPool()
-
-    local function PlayRandomAnimation()
-        if #pool == 0 then
-            RefillPool()
-        end
-        local anim = table.remove(pool)
-        f.anim = anim
-        f:SetAnimation(anim)
-    end
-
-    local poke = CreateFrame("Button", nil, guiMidnight, "UIPanelButtonTemplate")
-    poke:SetText(L["Poke"])
-    poke:SetWidth(50)
-    poke:SetPoint("LEFT", f, "LEFT", 65, -55)
-    poke:SetScale(1.5)
-    poke:SetFrameStrata("HIGH")
-    poke:SetScript("OnClick", PlayRandomAnimation)
-    poke.Text:SetVertexColor(1, 1, 1)
-
-
-    local r, g, b = 0.945, 0.769, 1.0
-    for _, region in ipairs({ poke:GetRegions() }) do
-        if region:IsObjectType("Texture") then
-            region:SetDesaturated(true)
-            region:SetVertexColor(r, g, b)
-        end
-    end
-
-    local ROT_SENS   = 0.010 * 0.8
-    local PITCH_SENS = 0.010 * 0.8
-    local DOLLY_SENS = 0.015 * 0.35
-    local WHEEL_PAN  = 0.34
-
-    f:EnableMouse(true)
-    f:EnableMouseWheel(true)
-    f:UseModelCenterToTransform(true)
-
-    local camScale = DEFAULT_CAM
-    f:SetCamDistanceScale(camScale)
-
-    local startX, startY, startYaw, startPitch, startPX, startPY, startPZ
-    local dragMode
-
-    local function Cur()
-        local x, y = GetCursorPosition()
-        local s = UIParent:GetEffectiveScale()
-        return x / s, y / s
-    end
-
-    f:SetScript("OnMouseDown", function(self, button)
-        startX, startY            = Cur()
-        startYaw                  = self:GetFacing() or 0
-        startPitch                = self:GetPitch() or 0
-        startPX, startPY, startPZ = self:GetPosition()
-        if button == "LeftButton" then
-            dragMode = "lmb"
-        elseif button == "RightButton" then
-            dragMode = "rmb"
-        elseif button == "MiddleButton" then
-            camScale = DEFAULT_CAM
-            self:SetCamDistanceScale(camScale)
-            self:SetFacing(0)
-            self:SetPitch(0)
-            self:SetPosition(0, 0, 0)
-            self:SetViewTranslation(DEFAULT_VTX, DEFAULT_VTY)
-            return
-        end
-        self:EnableMouseMotion(true)
-    end)
-
-    f:SetScript("OnMouseUp", function(self)
-        self:EnableMouseMotion(false)
-        dragMode = nil
-    end)
-
-    f:SetScript("OnHide", function(self)
-        self:EnableMouseMotion(false)
-        dragMode = nil
-    end)
-
-    f:SetScript("OnMouseWheel", function(self, delta)
-        local px, py, pz = self:GetPosition()
-        self:SetPosition(px + delta * WHEEL_PAN, py, pz)
-    end)
-
-    f:SetScript("OnUpdate", function(self)
-        if not dragMode then return end
-        local x, y = Cur()
-        local dx, dy = x - startX, y - startY
-        if dragMode == "lmb" then
-            self:SetFacing(startYaw + dx * ROT_SENS)
-            self:SetPitch(startPitch - dy * PITCH_SENS)
-        elseif dragMode == "rmb" then
-            self:SetPosition(startPX, startPY + dx * DOLLY_SENS, startPZ + dy * DOLLY_SENS)
-        end
-    end)
-
-    local function ResetView()
-        camScale = DEFAULT_CAM
-        f:RefreshCamera()
-        f:ZeroCachedCenterXY()
-        f:UseModelCenterToTransform(true)
-        f:SetPortraitZoom(0)
-        f:SetFacing(0)
-        f:SetPitch(0)
-        f:SetRoll(0)
-        f:SetPosition(0, 0, 0)
-        f:SetCamDistanceScale(camScale)
-        f:SetViewTranslation(DEFAULT_VTX, DEFAULT_VTY)
-    end
-    ResetView()
-
-    guiMidnight:HookScript("OnShow", function()
-        ResetView()
-    end)
-end
-
 ------------------------------------------------------------
 -- GUI Setup
 ------------------------------------------------------------
@@ -9862,7 +9820,6 @@ function BBF.LoadGUI()
     --guiChatFrame()
     guiCustomCode()
     guiSupport()
-    guiMidnight()
     BetterBlizzFrames.guiLoaded = true
 
     if SettingsPanel:IsShown() then

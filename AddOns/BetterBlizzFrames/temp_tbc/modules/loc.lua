@@ -444,13 +444,9 @@ local spellList = {
     [14327]   = "Feared",    -- Scare Beast
     [20407]   = "Seduced",    -- Seduction
     [30850]   = "Seduced",    -- Seduction
-    [24131]   = "Asleep",    -- Wyvern Sting
     [24132]   = "Asleep",    -- Wyvern Sting
     [24133]   = "Asleep",    -- Wyvern Sting
-    [24134]   = "Asleep",    -- Wyvern Sting
-    [24135]   = "Asleep",    -- Wyvern Sting
     [27068]   = "Asleep",    -- Wyvern Sting
-    [27069]   = "Asleep",    -- Wyvern Sting
     [18647]   = "Incapacitated",    -- Banish
     [34097]   = "Disarmed",    -- Riposte 2 (TODO: not sure which ID is correct)
 

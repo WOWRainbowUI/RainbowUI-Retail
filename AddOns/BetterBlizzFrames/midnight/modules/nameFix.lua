@@ -93,6 +93,7 @@ local customColorPartyNames
 local function GetRPNameColor(unit)
     if not UnitExists(unit) then return end
     if not TRP3_API.globals.player_realm_id then return end
+    if issecretvalue(UnitGUID(unit)) or issecretvalue(UnitName(unit)) then return end
     local player = AddOn_TotalRP3 and AddOn_TotalRP3.Player and AddOn_TotalRP3.Player.CreateFromUnit(unit)
     if player then
         local color = player:GetCustomColorForDisplay()
@@ -105,11 +106,13 @@ end
 
 local function SetRPName(name, unit)
     if not TRP3_API.globals.player_realm_id then return end
-    local fullName = TRP3_API.r.name(unit) or ""
-    if issecretvalue(fullName) then
-        name:SetText(fullName)
+    local baseName = UnitName(unit)
+    local baseGUID = UnitGUID(unit)
+    if issecretvalue(baseName) or issecretvalue(baseGUID) then
+        name:SetText(baseName or "")
         return
     end
+    local fullName = TRP3_API.r.name(unit) or ""
     local firstRpName, lastRpName = fullName:match("^(%S+)%s*(.*)$")
 
     if rpNamesFirst and rpNamesLast then
@@ -772,6 +775,23 @@ local function InitializeFontString(frame)
 
     -- Hide original
     name:SetAlpha(0)
+    C_Timer.After(1, function()
+        if C_AddOns.IsAddOnLoaded("HealthBarColor") then
+            hooksecurefunc(name, "SetTextColor", function(self)
+                self:SetAlpha(0)
+            end)
+            hooksecurefunc(name, "SetVertexColor", function(self)
+                self:SetAlpha(0)
+            end)
+            hooksecurefunc(name, "SetAlpha", function(self)
+                if self.bbfForcingAlpha then return end
+                self.bbfForcingAlpha = true
+                self:SetAlpha(0)
+                self.bbfForcingAlpha = false
+            end)
+        end
+        name:SetAlpha(0)
+    end)
 end
 
 local frames = {
@@ -1423,13 +1443,15 @@ local function GetArenaUnitName(unit)
     return nil
 end
 
-local function SetArenaNameUnitFrame(frame, unit, textObject)
+local function SetArenaNameUnitFrame(frame, unit, textObject, tot)
     local unitID = GetArenaUnitName(unit)
     local specName = GetSpecName(unit)
     local nameText
 
+    local UnitChecker = tot and UnitIsProbablyUnit or UnitIsUnit
+
     -- Check if the unit is the player or a party member
-    if UnitIsUnit(unit, "player") or not UnitIsPlayer(unit) then
+    if UnitChecker(unit, "player") or not UnitIsPlayer(unit) then
         nameText = UnitName(unit) -- Show default target name
     elseif targetAndFocusArenaNamePartyOverride and unitID and string.match(unitID, "Party") then
         nameText = unitID -- Show "Party 1" or "Party 2"
@@ -1668,9 +1690,9 @@ local function TargetFrameToTNameChanges(frame)
     if not changeUnitFrameFont then
         frame.bbfName:SetFont(frame.name:GetFont())
     end
-    -- if targetAndFocusArenaNames and IsActiveBattlefieldArena() then
-    --     SetArenaNameUnitFrame(frame, unit, frame.bbfName)
-    -- else
+    if targetAndFocusArenaNames and IsActiveBattlefieldArena() then
+        SetArenaNameUnitFrame(frame, unit, frame.bbfName, true)
+    else
         if hideTargetToTName then
             frame.bbfName:SetText("")
             return
@@ -1700,7 +1722,7 @@ local function TargetFrameToTNameChanges(frame)
         if classColorTargetNames or customColorTargetNames then
             ClassColorName(frame.bbfName, unit)
         end
-    --end
+    end
 end
 
 hooksecurefunc(TargetFrame.totFrame.Name, "SetText", function()
@@ -1714,9 +1736,9 @@ local function FocusFrameToTNameChanges(frame)
     if not changeUnitFrameFont then
         frame.bbfName:SetFont(frame.name:GetFont())
     end
-    -- if targetAndFocusArenaNames and IsActiveBattlefieldArena() then
-    --     SetArenaNameUnitFrame(frame, unit, frame.bbfName)
-    -- else
+    if targetAndFocusArenaNames and IsActiveBattlefieldArena() then
+        SetArenaNameUnitFrame(frame, unit, frame.bbfName, true)
+    else
         if hideFocusToTName then
             frame.bbfName:SetText("")
             return
@@ -1746,7 +1768,7 @@ local function FocusFrameToTNameChanges(frame)
         if classColorTargetNames or customColorTargetNames then
             ClassColorName(frame.bbfName, unit)
         end
-    --end
+    end
 end
 
 hooksecurefunc(FocusFrame.totFrame.Name, "SetText", function()
