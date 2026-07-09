@@ -768,6 +768,16 @@ function GF.SyncFrameLayerAbove(child, parent, offset, strata)
     return _G.MSUF_SyncFrameLayerAbove(child, parent, offset, strata or GF.STRATA_EFFECT)
 end
 
+function GF.HighlightBorderStrata(border)
+    local key = border and (border._msufGFHLLogicalKey or border._msufGFHLKey)
+    if key == "target" or key == "focus" then return "LOW" end
+    return nil
+end
+
+function GF.SyncHighlightBorderLayer(border, parent, offset)
+    return GF.SyncFrameLayerAbove(border, parent, offset, GF.HighlightBorderStrata(border))
+end
+
 function GF.SetFrameLayerLevel(frame, owner, layer, fallback)
     if not (frame and frame.SetFrameLevel) then return end
     frame:SetFrameLevel(GF.GetFrameLayerLevel(owner, layer, fallback))
@@ -1084,20 +1094,20 @@ local function BuildFrameHierarchy(f, kind)
     local hlBorder = CreateFrame("Frame", nil, barGroup, "BackdropTemplate")
     hlBorder:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, 0)
     hlBorder:SetPoint("BOTTOMRIGHT", barGroup, "BOTTOMRIGHT", 0, 0)
-    GF.SyncFrameLayerAbove(hlBorder, health, GF.LAYER_HIGHLIGHT_BORDER)
     hlBorder:EnableMouse(false)
     hlBorder:Hide()
     f._msufGFHighlightBorder = hlBorder
     f._msufGFHighlightBorders = { dispel = hlBorder }
     hlBorder._msufGFHLKey = "dispel"
+    GF.SyncHighlightBorderLayer(hlBorder, health, GF.LAYER_HIGHLIGHT_BORDER)
 
     local function CreateHighlightBorderLayer(key)
         local border = CreateFrame("Frame", nil, barGroup, "BackdropTemplate")
         border:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, 0)
         border:SetPoint("BOTTOMRIGHT", barGroup, "BOTTOMRIGHT", 0, 0)
-        GF.SyncFrameLayerAbove(border, health, GF.LAYER_HIGHLIGHT_BORDER)
         border:EnableMouse(false)
         border._msufGFHLKey = key
+        GF.SyncHighlightBorderLayer(border, health, GF.LAYER_HIGHLIGHT_BORDER)
         border:Hide()
         f._msufGFHighlightBorders[key] = border
         return border
@@ -1761,7 +1771,7 @@ local function _SetShownIfChanged(frame, shown)
 end
 
 local function _AnchorTwoPointIfChanged(frame, owner, key, tlx, tly, brx, bry, force)
-    if not frame or not owner then return end
+    if not frame or not owner then return false end
     if not force
         and frame._msufGFScanAnchorOwner == owner
         and frame._msufGFScanAnchorKey == key
@@ -1770,7 +1780,7 @@ local function _AnchorTwoPointIfChanged(frame, owner, key, tlx, tly, brx, bry, f
         and frame._msufGFScanBRX == brx
         and frame._msufGFScanBRY == bry
     then
-        return
+        return false
     end
     frame._msufGFScanAnchorOwner = owner
     frame._msufGFScanAnchorKey = key
@@ -1781,6 +1791,7 @@ local function _AnchorTwoPointIfChanged(frame, owner, key, tlx, tly, brx, bry, f
     frame:ClearAllPoints()
     frame:SetPoint("TOPLEFT", owner, "TOPLEFT", tlx, tly)
     frame:SetPoint("BOTTOMRIGHT", owner, "BOTTOMRIGHT", brx, bry)
+    return true
 end
 
 local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
@@ -1838,6 +1849,7 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
             child._msufGFKind = kind
             child.msufConfigKey = GF.GetConfigDBKey and GF.GetConfigDBKey(kind) or ("gf_" .. tostring(kind))
             local unit = child:GetAttribute("unit") or child.unit
+            local borderGeometryDirty = false
             -- Keep child slot size aligned with configured metrics.
             -- Use SetWidth + SetHeight separately (SetSize can be ignored when
             -- SecureGroupHeader has set conflicting anchor points on children).
@@ -1858,7 +1870,12 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
 
                 -- borderFrame
                 if child._msufGFBorderFrame then
-                    _AnchorTwoPointIfChanged(child._msufGFBorderFrame, child.barGroup or child, "border", 0, 0, 0, 0, force)
+                    local changed = _AnchorTwoPointIfChanged(child._msufGFBorderFrame, child.barGroup or child, "border", 0, 0, 0, 0, force)
+                    if changed or force or child._msufGFBorderFrame._msufGFBorderSize == nil then
+                        child._msufGFBorderFrame._msufGFBorderSize = nil
+                        child._msufGFBorderFrame._msufGFBorderEdge = nil
+                        borderGeometryDirty = true
+                    end
                 end
 
                 -- highlightBorder
@@ -1867,13 +1884,13 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
                         if border then
                             local hofs = border._msufHLOfs or 0
                             _AnchorTwoPointIfChanged(border, child.barGroup or child, "highlight", -hofs, hofs, hofs, -hofs, force)
-                            GF.SyncFrameLayerAbove(border, child.health or child.barGroup or child, border._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
+                            GF.SyncHighlightBorderLayer(border, child.health or child.barGroup or child, border._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
                         end
                     end
                 elseif child._msufGFHighlightBorder then
                     local hofs = child._msufGFHighlightBorder._msufHLOfs or 0
                     _AnchorTwoPointIfChanged(child._msufGFHighlightBorder, child.barGroup or child, "highlight", -hofs, hofs, hofs, -hofs, force)
-                    GF.SyncFrameLayerAbove(child._msufGFHighlightBorder, child.health or child.barGroup or child, child._msufGFHighlightBorder._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
+                    GF.SyncHighlightBorderLayer(child._msufGFHighlightBorder, child.health or child.barGroup or child, child._msufGFHighlightBorder._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
                 end
                 if child._msufGFDispelOverlays then
                     for _, overlay in pairs(child._msufGFDispelOverlays) do
@@ -1950,14 +1967,21 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
                 if p == "party" or unit:sub(1, 4) == "raid" then
                     _G.MSUF_UnitFrames[unit] = child
                 end
+                local visualApplied = false
                 if child._msufGFRegisteredUnit ~= unit then
                     child._msufGFRegisteredUnit = unit
                     if not inCombat and GF.ApplyVisuals then
                         GF.ApplyVisuals(child, GF.DIRTY_ALL or 0x3F)
+                        visualApplied = true
                     end
                     GF.UpdateButton(child, unit)
                     GF.RegisterUnitEvents(child, unit)
                 end
+                if borderGeometryDirty and not visualApplied and not inCombat and GF.ApplyVisuals then
+                    GF.ApplyVisuals(child, GF.DIRTY_BORDER or 0x10)
+                end
+            elseif borderGeometryDirty and not inCombat and GF.ApplyVisuals then
+                GF.ApplyVisuals(child, GF.DIRTY_BORDER or 0x10)
             end
         end
     end
@@ -3995,6 +4019,10 @@ function GF.RefreshPreviewLayout(kind)
                 elseif growth == "LEFT" then
                     f:SetPoint("TOPRIGHT", c, "TOPRIGHT", -row * (w + spacing), -col * (h + spacing))
                 end
+            end
+            if GF.ApplyVisuals then
+                GF.ApplyVisuals(f, (GF.DIRTY_GEOMETRY or 0x01) + (GF.DIRTY_BORDER or 0x10) + (GF.DIRTY_LAYOUT or 0x20))
+                GF.ApplyPreviewData(f, i, kind)
             end
         end
     end
