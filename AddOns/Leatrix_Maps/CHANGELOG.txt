@@ -1,4 +1,7 @@
-﻿12.0.24 - 24th June 2026
+﻿12.0.26 - 9th July 2026
+- For 'Show additional icons', added the Sunstrider Omnium portal to the Silvermoon (Midnight) map.
+
+12.0.24 - 24th June 2026
 - PTR (12.1.0): Updated for game patch 12.1.0.
 
 12.0.23 - 18th June 2026
