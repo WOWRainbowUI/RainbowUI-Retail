@@ -68,6 +68,9 @@ local defaultSettings = {
     cdManagerBlacklist = {},
     cdManagerPriorityList = {},
     kickPopupFontOutline = "OUTLINE",
+    prdSplitLines = true,
+    maxTargetFocusBuffs = 20,
+    maxTargetFocusDebuffs = 20,
 
     rpNames = true,
     rpNamesFirst = true,
@@ -2013,32 +2016,6 @@ end
 
 
 
-
-if not BBF.combatQueue then
-    BBF.combatQueue = {}
-end
-local combatCheck = CreateFrame("Frame")
-function BBF.RunAfterCombat(func)
-    if not InCombatLockdown() then
-        func()
-        return
-    end
-
-    table.insert(BBF.combatQueue, func)
-
-    if not combatCheck:IsEventRegistered("PLAYER_REGEN_ENABLED") then
-        combatCheck:RegisterEvent("PLAYER_REGEN_ENABLED")
-        combatCheck:SetScript("OnEvent", function(self, event)
-            if event == "PLAYER_REGEN_ENABLED" then
-                for _, queuedFunc in ipairs(BBF.combatQueue) do
-                    pcall(queuedFunc)
-                end
-                BBF.combatQueue = {}
-                self:UnregisterEvent(event)
-            end
-        end)
-    end
-end
 
 function BBF.ArenaOptimizer(disable, noPrint)
     local db = BetterBlizzFramesDB
@@ -4704,23 +4681,23 @@ function BBF.FixStupidBlizzPTRShit()
         FocusFrame.bbfName:SetPoint(a,b,c,d,-2)
         BBF.ocdAdjusted = true
     end
-    local lvlYOffset = BetterBlizzFramesDB.symmetricPlayerFrame and -4 or -3
+    local lvlYOffset = BetterBlizzFramesDB.symmetricPlayerFrame and -4 or -4
     --TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetHeight()
     TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetHeight(20)
     local a, b, c, d, e = TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:GetPoint()
-    TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetPoint(a, b, c, d-1.5, lvlYOffset)
+    TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetPoint(a, b, c, d+1.5, lvlYOffset)
 
     local a, b, c, d, e = FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:GetPoint()
     FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetPoint(a, b, c, d, -24)
     FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetHeight(20)
     local a, b, c, d, e = FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText:GetPoint()
-    FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetPoint(a, b, c, d-1.5, lvlYOffset)
+    FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetPoint(a, b, c, d+1.5, lvlYOffset)
 
 
     -- HealthBarColorActive
     --if not BetterBlizzFramesDB.playerFrameOCDTextureBypass then
         local a, b, c, d, e = PlayerLevelText:GetPoint()
-        PlayerLevelText:SetPoint(a,b,c,d,-28)
+        PlayerLevelText:SetPoint(a,b,c,d,-28.5)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBarMask:SetHeight(33)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask:SetPoint("TOPLEFT", PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar, "TOPLEFT", -2, 3)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask:SetHeight(17)
@@ -5311,6 +5288,12 @@ First:SetScript("OnEvent", function(_, event, addonName)
                 AlternatePowerBar:SetParent(hiddenFrame)
             end
         end
+
+        C_Timer.After(0.95, function()
+            BBF.HidePersonalManabarFX()
+            BBF.TexturePRD()
+            BBF.LegacyPRDLook()
+        end)
 
         C_Timer.After(1, function()
             BBF.ActionBarCDNumberSize()

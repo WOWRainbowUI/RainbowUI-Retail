@@ -1,3 +1,11 @@
+-- Blizzard has messed up position of the FocusFrame center healthbar text. Fix it for them.
+if BBF.isTBC then
+    hooksecurefunc(FocusFrame, "SetSmallSize", function(self)
+        local a,b,c,d,e = FocusFrame.textureFrame.HealthBarText:GetPoint()
+        FocusFrame.textureFrame.HealthBarText:SetPoint(a,b,c,-33,-1)
+    end)
+end
+
 local allowedPortraits = {
     ["PlayerFrame"] = true,
     ["PetFrame"] = true,

@@ -1710,6 +1710,11 @@ end
 local minimapStatusChanged
 
 function BBF.MinimapHider()
+    if InCombatLockdown() then
+        BBF.RunAfterCombat(BBF.MinimapHider)
+        return
+    end
+
     local MinimapGroup = Minimap and MinimapCluster
     local QueueStatusEye = QueueStatusButtonIcon
     local ObjectiveTracker = ObjectiveTrackerFrame

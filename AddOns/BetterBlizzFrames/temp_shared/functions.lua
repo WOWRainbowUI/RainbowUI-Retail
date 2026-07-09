@@ -155,7 +155,13 @@ function BBF.FindPartyFrame(i)
     elseif C_AddOns.IsAddOnLoaded("Cell") then
         return _G["CellPartyFrameHeaderUnitButton" .. i]
     elseif C_AddOns.IsAddOnLoaded("Grid2") then
-        return _G["Grid2LayoutHeader1UnitButton" .. i]
+        for h = 1, 8 do
+            local header = _G["Grid2LayoutHeader" .. h]
+            if not header then break end
+            if header:IsShown() then
+                return _G["Grid2LayoutHeader" .. h .. "UnitButton" .. i]
+            end
+        end
     elseif C_AddOns.IsAddOnLoaded("VuhDo") then
         return _G["Vd1H" .. i]
     elseif (C_AddOns.IsAddOnLoaded("ShadowedUnitFrames") and ShadowUF and ShadowUF.db) then
@@ -300,5 +306,29 @@ function BBF.HidePlayerFrame()
 	elseif BBF.hiddenPlayerFrame then
 		PlayerFrame:SetParent(UIParent)
 		BBF.hiddenPlayerFrame = nil
+	end
+end
+
+local combatQueue = {}
+local combatCheck = CreateFrame("Frame")
+function BBF.RunAfterCombat(func)
+	if not InCombatLockdown() then
+		func()
+		return
+	end
+
+	table.insert(combatQueue, func)
+
+	if not combatCheck:IsEventRegistered("PLAYER_REGEN_ENABLED") then
+		combatCheck:RegisterEvent("PLAYER_REGEN_ENABLED")
+		combatCheck:SetScript("OnEvent", function(self, event)
+			if event == "PLAYER_REGEN_ENABLED" then
+				for _, queuedFunc in ipairs(combatQueue) do
+					pcall(queuedFunc)
+				end
+				combatQueue = {}
+				self:UnregisterEvent(event)
+			end
+		end)
 	end
 end

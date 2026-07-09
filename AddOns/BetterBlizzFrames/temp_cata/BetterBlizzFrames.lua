@@ -1238,10 +1238,12 @@ end
 
 function BBF.MoveToTFrames()
     if not InCombatLockdown() then
+        local xVal = BBF.isTBC and 17 or 35
+        local yVal = BBF.isTBC and 15 or 10
         TargetFrameToT:ClearAllPoints()
         if BetterBlizzFramesDB.targetToTAnchor == "BOTTOMRIGHT" then
             --TargetFrameToT:SetPoint(BBF.GetOppositeAnchor(BetterBlizzFramesDB.targetToTAnchor),TargetFrame,BetterBlizzFramesDB.targetToTAnchor,BetterBlizzFramesDB.targetToTXPos - 108,BetterBlizzFramesDB.targetToTYPos + 10)
-            TargetFrameToT:SetPoint(BetterBlizzFramesDB.targetToTAnchor,TargetFrame,BetterBlizzFramesDB.targetToTAnchor,BetterBlizzFramesDB.targetToTXPos - 35,BetterBlizzFramesDB.targetToTYPos - 10)
+            TargetFrameToT:SetPoint(BetterBlizzFramesDB.targetToTAnchor,TargetFrame,BetterBlizzFramesDB.targetToTAnchor,BetterBlizzFramesDB.targetToTXPos - xVal,BetterBlizzFramesDB.targetToTYPos - yVal)
         else
             TargetFrameToT:SetPoint(BBF.GetOppositeAnchor(BetterBlizzFramesDB.targetToTAnchor),TargetFrame,BetterBlizzFramesDB.targetToTAnchor,BetterBlizzFramesDB.targetToTXPos,BetterBlizzFramesDB.targetToTYPos)
         end
@@ -1252,7 +1254,7 @@ function BBF.MoveToTFrames()
         FocusFrameToT:ClearAllPoints()
         if BetterBlizzFramesDB.focusToTAnchor == "BOTTOMRIGHT" then
             --FocusFrameToT:SetPoint(BBF.GetOppositeAnchor(BetterBlizzFramesDB.focusToTAnchor),FocusFrame,BetterBlizzFramesDB.focusToTAnchor,BetterBlizzFramesDB.focusToTXPos - 108,BetterBlizzFramesDB.focusToTYPos + 10)
-            FocusFrameToT:SetPoint(BetterBlizzFramesDB.focusToTAnchor,FocusFrame,BetterBlizzFramesDB.focusToTAnchor,BetterBlizzFramesDB.focusToTXPos - 35,BetterBlizzFramesDB.focusToTYPos - 10)
+            FocusFrameToT:SetPoint(BetterBlizzFramesDB.focusToTAnchor,FocusFrame,BetterBlizzFramesDB.focusToTAnchor,BetterBlizzFramesDB.focusToTXPos - xVal,BetterBlizzFramesDB.focusToTYPos - yVal)
         else
             FocusFrameToT:SetPoint(BBF.GetOppositeAnchor(BetterBlizzFramesDB.focusToTAnchor),FocusFrame,BetterBlizzFramesDB.focusToTAnchor,BetterBlizzFramesDB.focusToTXPos,BetterBlizzFramesDB.focusToTYPos)
         end
@@ -2266,7 +2268,7 @@ local function HookRaidFrameTextures()
     end
 end
 
-if BBF.isMoP then
+if BBF.isMoP or BBF.isTBC then
     function BBF.HookAndUpdatePartyFrameRangeAlpha(toggle)
         if not BetterBlizzFramesDB.changePartyFrameRangeAlpha then return end
         local function UpdateRangeAlpha(frame)
@@ -3225,8 +3227,8 @@ PlayerEnteringWorld:SetScript("OnEvent", function()
     BBF.DarkmodeFrames()
     BBF.ClickthroughFrames()
     BBF.CheckForAuraBorders()
-    if BBF.isMoP then
-        BBF.HookAndUpdatePartyFrameRangeAlpha()
+    if BBF.isMoP or BBF.isTBC then
+        BBF.HookAndUpdatePartyFrameRangeAlpha(true)
     end
     if BBF.RepositionBuffFrame then
         BBF.RepositionBuffFrame()

@@ -2239,10 +2239,12 @@ local function SetRaidFramePetTextures(frame)
         local originalLayer = originalTexture:GetDrawLayer()
         frame.healthBar:SetStatusBarTexture(raidHpTexture)
         originalTexture:SetDrawLayer(originalLayer)
-        frame.horizTopBorder:Hide()
-        frame.horizBottomBorder:Hide()
-        frame.vertLeftBorder:Hide()
-        frame.vertRightBorder:Hide()
+        if frame.horizTopBorder then
+            frame.horizTopBorder:Hide()
+            frame.horizBottomBorder:Hide()
+            frame.vertLeftBorder:Hide()
+            frame.vertRightBorder:Hide()
+        end
     end
 end
 

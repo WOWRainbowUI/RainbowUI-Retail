@@ -1,4 +1,3 @@
-if not BBF.isMidnight then return end
 local function SetXYPoint(frame, xOffset, yOffset)
     local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
     frame:SetPoint(point, relativeTo, relativePoint, xOffset or xOfs, yOffset or yOfs)
@@ -58,6 +57,7 @@ local function MakeClassicFrame(frame)
         local function GetFrameColor()
             local r,g,b = frameContainer.FrameTexture:GetVertexColor()
             frame.ClassicFrame.Texture:SetVertexColor(r,g,b)
+            frameContainer.FrameTexture:SetAlpha(0)
         end
         GetFrameColor()
         hooksecurefunc(frameContainer.FrameTexture, "SetVertexColor", GetFrameColor)
@@ -554,6 +554,7 @@ local function MakeClassicFrame(frame)
                     end
                 end
             end
+            frameContainer.FrameTexture:SetAlpha(0)
         end
 
         GetFrameColor()
@@ -723,7 +724,7 @@ local function MakeClassicFrame(frame)
             hpContainer.HealthBarMask:SetPoint("TOPLEFT", hpContainer.HealthBar, "TOPLEFT", -2, -6)
             hpContainer.HealthBarMask:SetSize(126, 17)
 
-            manaBar.ManaBarMask:SetSize(126, 19)
+            manaBar.ManaBarMask:SetSize(126, 15)
             --AdjustFramePoint(manaBar.ManaBarMask, 0, 2)
             manaBar.ManaBarMask:SetPoint("TOPLEFT", manaBar, "TOPLEFT", -2, 2)
 
@@ -963,7 +964,8 @@ local fancyManas = {
 }
 
 local function AdjustAlternateBars()
-    AlternatePowerBar:SetSize(104, 12)
+    local altBarWidth = 105
+    AlternatePowerBar:SetSize(altBarWidth, 12)
     AlternatePowerBar:ClearAllPoints()
     AlternatePowerBar:SetPoint("BOTTOMLEFT", 95, 16)
 
@@ -1038,7 +1040,7 @@ local function AdjustAlternateBars()
 
 
     if class == "EVOKER" then
-        EvokerEbonMightBar:SetSize(104, 12)
+        EvokerEbonMightBar:SetSize(altBarWidth, 12)
         EvokerEbonMightBar:ClearAllPoints()
         EvokerEbonMightBar:SetPoint("BOTTOMLEFT", 95, 17)
 
@@ -1076,7 +1078,7 @@ local function AdjustAlternateBars()
     end
 
     if class == "DEMONHUNTER" and DemonHunterSoulFragmentsBar then
-        DemonHunterSoulFragmentsBar:SetSize(104, 12)
+        DemonHunterSoulFragmentsBar:SetSize(altBarWidth, 12)
         DemonHunterSoulFragmentsBar:ClearAllPoints()
         DemonHunterSoulFragmentsBar:SetPoint("BOTTOMLEFT", 95, 17)
 
@@ -1113,11 +1115,11 @@ local function AdjustAlternateBars()
         DemonHunterSoulFragmentsBar.RightBorder:SetTexCoord(0.125, 0, 1, 0)
         DemonHunterSoulFragmentsBar.RightBorder:SetPoint("LEFT", DemonHunterSoulFragmentsBar.Border, "RIGHT")
 
-        DemonHunterSoulFragmentsBar.CollapsingStarBackground:SetSize(104, 12)
-        DemonHunterSoulFragmentsBar.Glow:SetSize(104, 12)
-        DemonHunterSoulFragmentsBar.Ready:SetSize(104, 12)
-        DemonHunterSoulFragmentsBar.Deplete:SetSize(104, 12)
-        DemonHunterSoulFragmentsBar.CollapsingStarDepleteFin:SetSize(104, 12)
+        DemonHunterSoulFragmentsBar.CollapsingStarBackground:SetSize(altBarWidth, 12)
+        DemonHunterSoulFragmentsBar.Glow:SetSize(altBarWidth, 12)
+        DemonHunterSoulFragmentsBar.Ready:SetSize(altBarWidth, 12)
+        DemonHunterSoulFragmentsBar.Deplete:SetSize(altBarWidth, 12)
+        DemonHunterSoulFragmentsBar.CollapsingStarDepleteFin:SetSize(altBarWidth, 12)
 
         BBF.ApplyTextureChange("mana", DemonHunterSoulFragmentsBar, nil, true, false, true)
     end
@@ -1268,6 +1270,53 @@ local function MakeClassicPartyFrame()
     end
 end
 
+local function SortLocalizationChanges()
+    -- On Chinese clients the positions change after BBF.ClassicFrames run.
+    -- This would be better solved to run it later but at this point I don't want to mess with the order of things
+    hooksecurefunc("LocalizeFrames", function()
+        for _, f in ipairs({TargetFrame, FocusFrame}) do
+            local contentMain = f.TargetFrameContent.TargetFrameContentMain
+            local hpContainer = contentMain.HealthBarsContainer
+            local manaBar = contentMain.ManaBar
+            local tex = f.ClassicFrame.Texture
+
+            contentMain.LevelText:ClearAllPoints()
+            contentMain.LevelText:SetPoint("CENTER", f, "BOTTOMRIGHT", -34, 25.5)
+
+            hpContainer.HealthBarText:ClearAllPoints()
+            hpContainer.HealthBarText:SetPoint("CENTER", tex, "LEFT", 66, 2.8)
+            hpContainer.LeftText:ClearAllPoints()
+            hpContainer.LeftText:SetPoint("LEFT", tex, "LEFT", 7, 2.8)
+            hpContainer.RightText:ClearAllPoints()
+            hpContainer.RightText:SetPoint("RIGHT", tex, "RIGHT", -108, 2.8)
+            hpContainer.DeadText:ClearAllPoints()
+            hpContainer.DeadText:SetPoint("CENTER", tex, "LEFT", 66, 2.8)
+            hpContainer.UnconsciousText:ClearAllPoints()
+            hpContainer.UnconsciousText:SetPoint("CENTER", tex, "LEFT", 66, 2.8)
+
+            manaBar.ManaBarText:ClearAllPoints()
+            manaBar.ManaBarText:SetPoint("CENTER", tex, "LEFT", 66, -8.5)
+            manaBar.LeftText:ClearAllPoints()
+            manaBar.LeftText:SetPoint("LEFT", tex, "LEFT", 7, -8.5)
+            manaBar.RightText:ClearAllPoints()
+            manaBar.RightText:SetPoint("RIGHT", tex, "RIGHT", -108, -8.5)
+        end
+
+        PetFrameHealthBarText:ClearAllPoints()
+        PetFrameHealthBarText:SetPoint("CENTER", PetFrame, "TOPLEFT", 82, -26)
+        PetFrameHealthBarTextLeft:ClearAllPoints()
+        PetFrameHealthBarTextLeft:SetPoint("LEFT", PetFrame, "TOPLEFT", 46, -26)
+        PetFrameHealthBarTextRight:ClearAllPoints()
+        PetFrameHealthBarTextRight:SetPoint("RIGHT", PetFrame, "TOPLEFT", 113, -26)
+        PetFrameManaBarText:ClearAllPoints()
+        PetFrameManaBarText:SetPoint("CENTER", PetFrame, "TOPLEFT", 82, -35)
+        PetFrameManaBarTextLeft:ClearAllPoints()
+        PetFrameManaBarTextLeft:SetPoint("LEFT", PetFrame, "TOPLEFT", 46, -35)
+        PetFrameManaBarTextRight:ClearAllPoints()
+        PetFrameManaBarTextRight:SetPoint("RIGHT", PetFrame, "TOPLEFT", 113, -35)
+    end)
+end
+
 function BBF.ClassicFrames()
     if not BetterBlizzFramesDB.classicFrames then return end
     MakeClassicFrame(TargetFrame)
@@ -1278,6 +1327,7 @@ function BBF.ClassicFrames()
     MakeClassicPartyFrame()
 
     AdjustAlternateBars()
+    SortLocalizationChanges()
     C_Timer.After(1, function()
         if C_AddOns.IsAddOnLoaded("ClassicFrames") then
             C_AddOns.DisableAddOn("ClassicFrames")

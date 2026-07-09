@@ -94,6 +94,10 @@ local hideFocusDebuffs
 local hideUnitframeAuraTooltips
 local clickthroughPlayerAuras
 local hidePlayerAuraTooltips
+local maxBuffs = 256
+local maxDebuffs = 256
+local purgeTextureColorRGB
+local changePurgeTextureColor
 
 local function UpdateMore()
     increaseAuraStrata = BetterBlizzFramesDB.increaseAuraStrata
@@ -112,6 +116,10 @@ local function UpdateMore()
     hideUnitframeAuraTooltips = BetterBlizzFramesDB.hideUnitframeAuraTooltips
     hidePlayerAuraTooltips = BetterBlizzFramesDB.hidePlayerAuraTooltips
     clickthroughPlayerAuras = BetterBlizzFramesDB.clickthroughPlayerAuras
+    maxBuffs = BetterBlizzFramesDB.enableMaxTargetFocusBuffs and BetterBlizzFramesDB.maxTargetFocusBuffs or 256
+    maxDebuffs = BetterBlizzFramesDB.enableMaxTargetFocusDebuffs and BetterBlizzFramesDB.maxTargetFocusDebuffs or 256
+    purgeTextureColorRGB = BetterBlizzFramesDB.purgeTextureColorRGB
+    changePurgeTextureColor = BetterBlizzFramesDB.changePurgeTextureColor
 
     -- Aura size calculations
     cachedSmallAuraSize = sameSizeAuras and 21 or 17 * targetAndFocusSmallAuraScale
@@ -367,6 +375,10 @@ local function PlaceAuraGroup(self, list, forceNewRowAtStart, rowWidths, rowHeig
             aura.Stealable:ClearAllPoints()
             aura.Stealable:SetPoint("TOPLEFT", aura, "TOPLEFT", -2, 2)
             aura.Stealable:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 1, -1)
+            if changePurgeTextureColor then
+                aura.Stealable:SetDesaturated(true)
+                aura.Stealable:SetVertexColor(unpack(purgeTextureColorRGB))
+            end
         end
         local isLargeAura
         if showAuraCdText and auraCdTextOnlyMine then
@@ -465,6 +477,16 @@ local function AdjustAuras(self, frameType)
             buff:EnableMouse(false)
         end
         buffs = {}
+    else
+        if #buffs > maxBuffs then
+            for i = maxBuffs + 1, #buffs do
+                buffs[i]:SetAlpha(0)
+                buffs[i]:EnableMouse(false)
+            end
+            for i = #buffs, maxBuffs + 1, -1 do
+                buffs[i] = nil
+            end
+        end
     end
 
     if hideDebuffs then
@@ -473,6 +495,16 @@ local function AdjustAuras(self, frameType)
             debuff:EnableMouse(false)
         end
         debuffs = {}
+    else
+        if #debuffs > maxDebuffs then
+            for i = maxDebuffs + 1, #debuffs do
+                debuffs[i]:SetAlpha(0)
+                debuffs[i]:EnableMouse(false)
+            end
+            for i = #debuffs, maxDebuffs + 1, -1 do
+                debuffs[i] = nil
+            end
+        end
     end
 
     local unit = self.unit
