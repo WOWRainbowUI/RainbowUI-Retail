@@ -488,7 +488,7 @@ function addonTable.Display.ManagerMixin:UpdateClickRegion(unit)
     local clickRegion = self.nameplateClickRegions[nameplate:GetName()]
     if not clickRegion then
       clickRegion = self.clickRegionPool:Acquire()
-      if not addonTable.Constants.IsHitTestPointsAvailable or addonTable.Constants.IsMists then
+      if addonTable.Constants.IsMists then
         clickRegion:SetScale(UIParent:GetScale())
       end
       clickRegion:SetParent(nameplate)
@@ -559,7 +559,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
         stackRegion.visual = stackRegion:CreateTexture()
         stackRegion.visual:SetColorTexture(addonTable.Constants.StackRegionColor.r, addonTable.Constants.StackRegionColor.g, addonTable.Constants.StackRegionColor.b, addonTable.Constants.StackRegionColor.a)
         stackRegion.visual:SetPoint("CENTER", stackRegion)
-        if not addonTable.Constants.IsHitTestPointsAvailable or addonTable.Constants.IsMists then
+        if addonTable.Constants.IsMists then
           stackRegion:SetScale(UIParent:GetScale())
         end
         self.nameplateStackRegions[nameplate:GetName()] = stackRegion
@@ -652,7 +652,7 @@ function addonTable.Display.ManagerMixin:UpdateNamePlateSize()
       self.baseOffsetEnemy = self.baseOffsetEnemy + diff
       height = self.baseBlizzHeight
     end
-    if not addonTable.Constants.IsHitTestPointsAvailable or addonTable.Constants.IsMists then
+    if addonTable.Constants.IsMists then
       local uiParentScale = UIParent:GetScale()
       C_NamePlate.SetNamePlateSize(width * uiParentScale, height * uiParentScale)
     else
