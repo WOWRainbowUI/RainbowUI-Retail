@@ -1,6 +1,6 @@
 # Syndicator
 
-## [272](https://github.com/TheMouseNest/Syndicator/tree/272) (2026-06-18)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/271...272) 
+## [273](https://github.com/TheMouseNest/Syndicator/tree/273) (2026-07-08)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/272...273) 
 
-- Add "Sporefused: Myth" to bonus IDs for current season  
+- Classic Anniversary: Update toc to 2.5.6  
