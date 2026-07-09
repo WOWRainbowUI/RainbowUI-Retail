@@ -1,6 +1,6 @@
 # Baganator
 
-## [809](https://github.com/TheMouseNest/Baganator/tree/809) (2026-06-25)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/808...809) 
+## [812](https://github.com/TheMouseNest/Baganator/tree/812) (2026-07-08)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/811...812) 
 
-- Fixes for first import on first open  
+- Classic Anniversary: Update toc to 2.5.6  

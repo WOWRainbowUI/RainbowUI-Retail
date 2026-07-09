@@ -28,7 +28,7 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
   self:InitializeWarband(self.warbandTemplate)
 
   self.currentTab = self.Character
-  if addonTable.Config.Get(addonTable.Config.Options.BANK_CURRENT_TAB) == addonTable.Constants.BankTabType.Warband then
+  if Syndicator.Constants.WarbandBankActive and addonTable.Config.Get(addonTable.Config.Options.BANK_CURRENT_TAB) == addonTable.Constants.BankTabType.Warband then
     self:SetTab(addonTable.Constants.BankTabType.Warband)
   end
 
