@@ -300,6 +300,24 @@ D["BetterBlizzFrames"] = {
 		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
 	},
 };
+D["BliZzi_Interrupts"] = {
+	defaultEnable = 0,
+	tags = { "COMBAT" }, 
+	title = "隊友技能和斷法監控",
+	desc = "為你的隊伍打造的多功能傳奇+工具。查看誰能打斷、誰在冷卻中，一眼掌握隊伍的防禦與爆發技能，一鍵分享鑰石，並在聊天頻道通報狀態。``同時，它還支援自動誤導/嫁禍功能，能與常見隊伍框架插件相容，並以輕量化設計確保不影響遊戲效能。無論是挑戰 M+ 地城還是團隊副本，都能幫助玩家快速掌握隊伍技能狀態，提升協作效率與戰鬥表現。`",
+    {
+        text = "設定選項",
+        callback = function() BIT.SettingsUI:Toggle() end,
+    },
+	{
+		type = "text",
+        text = "點小地圖按鈕的 '隊友技能和斷法監控' 按鈕也可以打開設定選項。\n",
+	},
+	{
+		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
+};
 D["BlizzMove"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" }, 
