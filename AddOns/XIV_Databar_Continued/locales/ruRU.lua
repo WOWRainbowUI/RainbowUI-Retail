@@ -12,6 +12,7 @@ if not L then return end
 -- @Translation Team: If you find a false positive (a string that should stay identical),
 -- add `-- @no-translate` at the end of the line so the locale sync script ignores it.
 -- Translator ZamestoTV
+
 L["MODULES"] = "Модули"
 L["LEFT_CLICK"] = "ЛКМ"
 L["RIGHT_CLICK"] = "ПКМ"
@@ -133,14 +134,21 @@ L["DISABLE_TOOLTIPS_IN_COMBAT"] = "Скрывать подсказки в бою
 L["DURABILITY_WARNING_THRESHOLD"] = "Порог предупреждения о прочности"
 L["SHOW_ITEM_LEVEL"] = "Показывать уровень предметов"
 L["SHOW_COORDINATES"] = "Показывать координаты"
+-- TODO: L["SET_EQUIPMENT_SET"] = "Set Equipment"
+-- TODO: L["NO_EQUIPMENT_SETS"] = "No Equipment Sets"
+-- TODO: L["CURRENT_EQUIPMENT_SET"] = "Current Set"
 
 -- Master Volume
 L["MASTER_VOLUME"] = "Общая громкость"
 L["VOLUME_STEP"] = "Шаг изменения громкости"
 L["ENABLE_MOUSE_WHEEL"] = "Включить колесико мыши"
+-- TODO: L["CURRENT_AUDIO_OUTPUT"] = "Current Output"
+-- TODO: L["SET_AUDIO_OUTPUT"] = "Set Audio Output"
+-- TODO: L["NO_AUDIO_OUTPUT_DEVICES"] = "No Audio Output Devices"
 
 -- Clock
 L["TIME_FORMAT"] = "Формат времени"
+-- TODO: L["CLOCK_DATE_FORMAT"] = "Date Format"
 L["USE_SERVER_TIME"] = "Использовать серверное время"
 L["NEW_EVENT"] = "Новое событие!"
 L["LOCAL_TIME"] = "Местное время"
@@ -148,6 +156,11 @@ L["REALM_TIME"] = "Время игрового мира"
 L["OPEN_CALENDAR"] = "Открыть календарь"
 L["OPEN_CLOCK"] = "Открыть часы"
 L["HIDE_EVENT_TEXT"] = "Скрывать текст события"
+-- TODO: L["CLOCK_SHOW_LOCKOUTS"] = "Show Lockouts in Tooltip"
+-- TODO: L["CLOCK_SHOW_BOSSES_KILLED"] = "Show Bosses Defeated"
+-- TODO: L["CLOCK_LOCKOUTS_HEADER"] = "Lockouts"
+-- TODO: L["CLOCK_DATE_DAY_MONTH"] = "Day/Month (1/7)"
+-- TODO: L["CLOCK_DATE_MONTH_DAY"] = "Month/Day (7/1)"
 L["REST_ICON"] = "Иконка отдыха"
 L["SHOW_REST_ICON"] = "Показывать иконку отдыха"
 L["TEXTURE"] = "Текстура"
@@ -250,6 +263,8 @@ L["ONLY_SHOW_CURRENT_SEASON"] = "Показывать только текущи�
 L["MYTHIC_PLUS_TELEPORTS"] = "Телепорты в эпохальные+ подземелья"
 L["HIDE_M_PLUS_TELEPORTS_TEXT"] = "Скрывать текст телепортов М+"
 L["SHOW_MYTHIC_PLUS_TELEPORTS"] = "Показывать телепорты в эпохальные+ подземелья"
+-- TODO: L["MYTHIC_TELEPORT_SHARED_CD"] = "Shared 8-hour cooldown (resets after completing a Mythic+ dungeon)"
+-- TODO: L["SHOW_MYTHIC_TELEPORT_POPUP"] = "Show Teleport Popup"
 L["USE_RANDOM_HEARTHSTONE"] = "Случайный камень возвращения"
 local retrievingData = "Получение данных..."
 L["RETRIEVING_DATA"] = retrievingData
@@ -311,7 +326,7 @@ L["IMPORT_PROFILE"] = "Импорт профиля"
 L["IMPORT_PROFILE_DESC"] = "Импортировать профиль другого игрока"
 
 -- Changelog
-L["DATE_FORMAT"] = "%day%.%month%.%year%"
+L["CHANGELOG_DATE_FORMAT"] = "%day%.%month%.%year%"
 L["IMPORTANT"] = "Важное"
 L["NEW"] = "Новое"
 L["IMPROVEMENT"] = "Улучшение"
@@ -321,8 +336,6 @@ L["CHANGELOG"] = "Список изменений"
 -- Vault Module
 L["GREAT_VAULT_DISABLED"] = "Великое хранилище сейчас заблокировано до начала следующего сезона."
 L["MAX_LEVEL_DISCLAIMER"] = "Этот модуль будет отображаться только после достижения максимального уровня."
--- TODO: L["GREAT_VAULT_DISABLED"] = "The Great Vault is currently disabled until the next season starts."
--- TODO: L["MAX_LEVEL_DISCLAIMER"] = "This module will only show when you reach max level."
 -- TODO: L["VAULT_ALERT_COLOR"] = "Alert Color"
 -- TODO: L["VAULT_ENABLE_REWARD_ALERT"] = "Enable available reward alert"
 -- TODO: L["VAULT_FLASH_ALERT"] = "Flash pending reward"

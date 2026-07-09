@@ -133,14 +133,21 @@ L["DISABLE_TOOLTIPS_IN_COMBAT"] = "Masquer les infobulles en combat"
 L["DURABILITY_WARNING_THRESHOLD"] = "Seuil d'avertissement de durabilité"
 L["SHOW_ITEM_LEVEL"] = "Afficher le niveau d'équipement"
 L["SHOW_COORDINATES"] = "Afficher les coordonnées"
+L["SET_EQUIPMENT_SET"] = "Choix de l'équipement"
+L["NO_EQUIPMENT_SETS"] = "Aucun ensemble d'équipement"
+L["CURRENT_EQUIPMENT_SET"] = "Ensemble d'équipement actif"
 
 -- Master Volume
 L["MASTER_VOLUME"] = "Volume principal"
 L["VOLUME_STEP"] = "Incrément de volume"
 L["ENABLE_MOUSE_WHEEL"] = "Activer le réglage par molette"
+L["CURRENT_AUDIO_OUTPUT"] = "Sortie actuelle"
+L["SET_AUDIO_OUTPUT"] = "Choisir la sortie audio"
+L["NO_AUDIO_OUTPUT_DEVICES"] = "Aucun périphérique audio"
 
 -- Clock
 L["TIME_FORMAT"] = "Format de l'heure"
+L["CLOCK_DATE_FORMAT"] = "Format de date"
 L["USE_SERVER_TIME"] = "Utiliser l'heure du serveur"
 L["NEW_EVENT"] = "Nouvel événement"
 L["LOCAL_TIME"] = "Heure locale"
@@ -148,6 +155,11 @@ L["REALM_TIME"] = "Heure du royaume"
 L["OPEN_CALENDAR"] = "Ouvrir le calendrier"
 L["OPEN_CLOCK"] = "Ouvrir l'horloge"
 L["HIDE_EVENT_TEXT"] = "Cacher le texte d'événement"
+L["CLOCK_SHOW_LOCKOUTS"] = "Afficher les verrouillages dans l'infobulle"
+L["CLOCK_SHOW_BOSSES_KILLED"] = "Afficher les boss vaincus"
+L["CLOCK_LOCKOUTS_HEADER"] = "Verrouillages"
+L["CLOCK_DATE_DAY_MONTH"] = "Jour/Mois (1/7)"
+L["CLOCK_DATE_MONTH_DAY"] = "Mois/Jour (7/1)"
 L["REST_ICON"] = "Icône de repos"
 L["SHOW_REST_ICON"] = "Afficher l'icône de repos"
 L["TEXTURE"] = "Texture" -- @no-translate
@@ -250,6 +262,8 @@ L["ONLY_SHOW_CURRENT_SEASON"] = "N'afficher que les téléportations de la saiso
 L["MYTHIC_PLUS_TELEPORTS"] = "Téléportations Mythique+"
 L["HIDE_M_PLUS_TELEPORTS_TEXT"] = "Masquer le texte des téléportations M+"
 L["SHOW_MYTHIC_PLUS_TELEPORTS"] = "Montrer les téléportations Mythique+"
+L["MYTHIC_TELEPORT_SHARED_CD"] = "Temps de recharge partagé de 8 h (se réinitialise après avoir terminé un donjon Mythique+)"
+L["SHOW_MYTHIC_TELEPORT_POPUP"] = "Afficher le menu de téléportation"
 L["USE_RANDOM_HEARTHSTONE"] = "Utiliser une pierre de foyer aléatoire"
 local retrievingData = "Retrieving data..."
 L["RETRIEVING_DATA"] = retrievingData -- @no-translate
@@ -311,7 +325,7 @@ L["IMPORT_PROFILE"] = "Importer un profil"
 L["IMPORT_PROFILE_DESC"] = "Importer un profil d'un autre joueur"
 
 -- Changelog
-L["DATE_FORMAT"] = "%day%/%month%/%year%"
+L["CHANGELOG_DATE_FORMAT"] = "%day%/%month%/%year%"
 L["IMPORTANT"] = "Important" -- @no-translate
 L["NEW"] = "Nouveau"
 L["IMPROVEMENT"] = "Améliorations"

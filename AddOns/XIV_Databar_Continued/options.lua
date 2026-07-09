@@ -102,6 +102,21 @@ local function NormalizeAnchor(anchor)
     return "CENTER"
 end
 
+XIVBar.ColumnRow = function(order, left, right, spacerWidth)
+    left.order = 1
+    left.width = left.width or 1.25
+    right.order = 2
+    right.width = right.width or 1.25
+    return {
+        type = "group", inline = true, name = "", order = order,
+        args = {
+            col1 = left,
+            spacer = { name = " ", type = "description", order = 1.5, width = spacerWidth or 0.12 },
+            col2 = right,
+        }
+    }
+end
+
 function XIVBar:SetupOptions()
     local options = {
         name = "XIV Bar Continued",
@@ -123,52 +138,6 @@ function XIVBar:SetupOptions()
         childGroups = "select",
         name = L["CHANGELOG"],
         args = {}
-    }
-
-    local profileSharingOptions = {
-        name = L["PROFILE_SHARING"],
-        type = "group",
-        args = {
-            header = {
-                order = 1,
-                type = "header",
-                name = L["PROFILE_IMPORT_EXPORT"],
-            },
-            desc = {
-                order = 2,
-                type = "description",
-                name = L["IMPORT_EXPORT_PROFILES_DESC"],
-                fontSize = "medium",
-            },
-            export = {
-                order = 3,
-                type = "execute",
-                name = L["EXPORT_PROFILE"],
-                desc = L["EXPORT_PROFILE_DESC"],
-                func = function()
-                    local exportString = XIVBar:ExportProfile()
-                    if exportString then
-                        local dialog = StaticPopup_Show("XIVBAR_EXPORT_PROFILE")
-                        if dialog then
-                            local eb = dialog.editBox or dialog.EditBox
-                            if eb then
-                                eb:SetText(exportString)
-                                eb:HighlightText()
-                            end
-                        end
-                    end
-                end,
-            },
-            import = {
-                order = 4,
-                type = "execute",
-                name = L["IMPORT_PROFILE"],
-                desc = L["IMPORT_PROFILE_DESC"],
-                func = function()
-                    StaticPopup_Show("XIVBAR_IMPORT_PROFILE")
-                end,
-            },
-        }
     }
 
     self.freePlacementModuleOrder = {}
@@ -228,7 +197,7 @@ function XIVBar:SetupOptions()
         local dateTable = {strsplit("/", data.release_date)}
         local dateString = data.release_date
         if #dateTable == 3 then
-            dateString = L["DATE_FORMAT"]
+            dateString = L["CHANGELOG_DATE_FORMAT"]
             dateString = gsub(dateString, "%%year%%", dateTable[1])
             dateString = gsub(dateString, "%%month%%", dateTable[2])
             dateString = gsub(dateString, "%%day%%", dateTable[3])
@@ -405,6 +374,46 @@ function XIVBar:SetupOptions()
 
     -- Get profile options
     local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+    profileOptions.plugins = profileOptions.plugins or {}
+    profileOptions.plugins.XIVBarProfileSharing = {
+        sharingHeader = {
+            order = 90,
+            type = "header",
+            name = L["PROFILE_IMPORT_EXPORT"],
+        },
+        sharingDesc = {
+            order = 91,
+            type = "description",
+            name = L["IMPORT_EXPORT_PROFILES_DESC"],
+            fontSize = "medium",
+        },
+        importExportRow = XIVBar.ColumnRow(93, {
+            type = "execute",
+            name = L["EXPORT_PROFILE"],
+            desc = L["EXPORT_PROFILE_DESC"],
+            func = function()
+                local exportString = XIVBar:ExportProfile()
+                if exportString then
+                    local dialog = StaticPopup_Show("XIVBAR_EXPORT_PROFILE")
+                    if dialog then
+                        local eb = dialog.editBox or dialog.EditBox
+                        if eb then
+                            eb:SetText(exportString)
+                            eb:HighlightText()
+                        end
+                    end
+                end
+            end,
+        },
+        {
+            type = "execute",
+            name = L["IMPORT_PROFILE"],
+            desc = L["IMPORT_PROFILE_DESC"],
+            func = function()
+                StaticPopup_Show("XIVBAR_IMPORT_PROFILE")
+            end,
+        }),
+    }
 
     -- Register all options tables
     AceConfig:RegisterOptionsTable(AddOnName, options)
@@ -412,7 +421,6 @@ function XIVBar:SetupOptions()
     AceConfig:RegisterOptionsTable(AddOnName .. "_ModulesPositioning", modulesPositioningOptions)
     AceConfig:RegisterOptionsTable(AddOnName .. "_Changelog", changelogOptions)
     AceConfig:RegisterOptionsTable(AddOnName .. "_Profiles", profileOptions)
-    AceConfig:RegisterOptionsTable(AddOnName .. "_ProfileSharing", profileSharingOptions)
 
     -- Add to Blizzard options
     local _, mainCategory = AceConfigDialog:AddToBlizOptions(AddOnName, "XIV Bar Continued")
@@ -420,7 +428,6 @@ function XIVBar:SetupOptions()
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_ModulesPositioning", L["MODULES_POSITIONING"], "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_Changelog", L["CHANGELOG"], "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_Profiles", 'Profiles', "XIV Bar Continued")
-    AceConfigDialog:AddToBlizOptions(AddOnName .. "_ProfileSharing", 'Profile Sharing', "XIV Bar Continued")
     self.optionsCategory = mainCategory
 end
 
