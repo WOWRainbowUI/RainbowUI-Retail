@@ -10,7 +10,7 @@ local ipairs, type, insert = ipairs, type, table.insert
 local string, floor = string, floor
 
 -- WoW APIs
-local UnitIsUnit, UnitClass, UnitExists = UnitIsUnit, UnitClass, UnitExists
+local UnitClass = UnitClass
 
 -- ThreatPlates APIs
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
@@ -65,7 +65,8 @@ Addon.GetExpansionLevel = function ()
 	end
 end
 
-Addon.WOW_USES_CLASSIC_NAMEPLATES = Addon.ExpansionIsBetween(LE_EXPANSION_CLASSIC, LE_EXPANSION_WARLORDS_OF_DRAENOR) and not Addon.IS_MISTS_CLASSIC
+Addon.WOW_USES_CLASSIC_NAMEPLATES = Addon.ExpansionIsBetween(LE_EXPANSION_CLASSIC, LE_EXPANSION_WARLORDS_OF_DRAENOR)
+  and not Addon.IS_MISTS_CLASSIC and not Addon.IS_TBC_CLASSIC_ANNIVERSARY
 -- Absorbs bug in Mists: https://github.com/Stanzilla/WoWUIBugs/issues/736
 Addon.WOW_FEATURE_ABSORBS = Addon.ExpansionIsAtLeast(LE_EXPANSION_MISTS_OF_PANDARIA)
 Addon.WOW_FEATURE_BLIZZARD_AURA_FILTER =  not Addon.WOW_USES_CLASSIC_NAMEPLATES

@@ -1,8 +1,7 @@
 
-# 13.0.26 (2026-07-03)
+# 13.0.27 (2026-07-09)
 
-* Fixed settings migration bugs that could silently reset some Aura and Threat display options after updating.
-* Fixed a bug where clicking on nameplates no longer worked correctly after changing certain Blizzard nameplate settings (e.g. Nameplate Size or Style), without needing a UI reload [Comment #8482].
-* Fixed a Lua error that could occur for nameplates shown without a healthbar and name, e.g. totems showing only an icon.
-* Fixed a Lua error on Classic Era when switching from a tank stance to a DPS stance in combat with off-tank detection enabled [GH-711].
-* Fixed the issue of nameplates not stacking or overlapping on Retail and Mists Classic. The parent frame setting has been replaced with a new nameplate size option (Big/Normal) [Comment #8361, GH-706, GH-521, GH-447, GH-620].
+* Fixed a bug where the healthbar border did not reappear after being disabled and re-enabled, without needing a UI reload.
+* Fixed a bug where automatic spec-based profile switching did not work after login/reload until the options window had been opened once [GH-685].
+* Updated TOC version for Patch 2.5.6 for TBC Classic.
+* Fixed an error on TBC Classic where nameplates no longer loaded, caused by a client-side switch to the modern nameplate API also used by Mists Classic and Retail [GH-715].

@@ -12,7 +12,7 @@ local max = math.max
 local select = select
 
 -- WoW APIs
-local GetCVar, IsAddOnLoaded = GetCVar, C_AddOns.IsAddOnLoaded
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local C_NamePlate = C_NamePlate
 local C_Timer_After = C_Timer.After
 local UnitClass = UnitClass
@@ -29,7 +29,6 @@ local L = Addon.L
 local Meta = Addon.Meta
 local CVars = Addon.CVars
 
-local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
 -- List them here for Mikk's FindGlobals script
 -- GLOBALS:
@@ -290,6 +289,16 @@ function TidyPlatesThreat:OnInitialize()
 
   local db = LibStub('AceDB-3.0'):New('ThreatPlatesDB', defaults, 'Default')
   Addon.db = db
+
+  -- Register the database with LibDualSpec right away, so automatic spec-based profile
+  -- switching works immediately after login/reload, instead of only once the options window
+  -- has been opened (which lazily calls EnhanceOptions on this same lib, see Options.lua) [GH-685].
+  Addon.LibDualSpec = LibStub:GetLibrary("LibDualSpec-1.0", true)
+  if Addon.LibDualSpec then
+    Addon.LibDualSpec:EnhanceDatabase(db, Addon.ADDON_NAME)
+  else
+    Addon.Logging.Error("LibDualSpec-1.0 cannot be loaded, dual-spec support will not be available.")
+  end
 
   Addon.LibAceConfigDialog = LibStub("AceConfigDialog-3.0")
   Addon.LibAceConfigRegistry = LibStub("AceConfigRegistry-3.0")

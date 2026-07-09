@@ -19,7 +19,8 @@ local tostring, string_format = tostring, string.format
 
 -- WoW APIs
 local GetTime, tContains = GetTime, tContains
-local UnitCanAttack, UnitIsUnit = UnitCanAttack, UnitIsUnit
+local UnitCanAttack = UnitCanAttack
+local UnitIsUnitTP = Addon.UnitIsUnit
 local UnitPower, UnitPowerMax, GetComboPoints, GetRuneCooldown, GetRuneType = UnitPower, UnitPowerMax, GetComboPoints, GetRuneCooldown, GetRuneType
 local GetUnitChargedPowerPoints, GetPowerRegenForPowerType = GetUnitChargedPowerPoints, GetPowerRegenForPowerType
 local IsSpellUsable = C_Spell and C_Spell.IsSpellUsable
@@ -31,6 +32,7 @@ local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpeci
 local RGB = Addon.RGB
 local FontUpdateText = Addon.Font.UpdateText
 local PlayerClass = Addon.PlayerClass
+local IsPlayerSpellTP = Addon.IsPlayerSpell
 
 local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -343,7 +345,7 @@ local function UpdateComboPointsFunctionForRogues()
 
   -- Check for spell Supercharge: 470398 -- added with 11.0.5
   -- Check for spell Echoing Reprimand: 323547
-  if IsPlayerSpell(470347) or IsSpellUsable(323547) then
+  if IsPlayerSpellTP(470347) or IsSpellUsable(323547) then
     Widget.UpdateUnitResource = Widget.UpdateComboPointsRogueWithAnimacharge
 
     TEXTURE_INFO.Script["ComboPoint.Charged.On"]  = Addon:GetIconTexture("ComboPoint.Charged.On")
@@ -1082,7 +1084,7 @@ end
   --   - the unit is the current soft-enemy target and the current target cannot be attacked
 function Widget:OnTargetUnitAdded(tp_frame, unit)
   local target_unitid = GetCurrentTargetUnitID()
-  if target_unitid and UnitIsUnit(target_unitid, unit.unitid) then 
+  if target_unitid and UnitIsUnitTP(target_unitid, unit.unitid) then 
     PlayerTargetChanged(tp_frame, unit)
   end
 end

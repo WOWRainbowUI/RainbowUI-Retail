@@ -9,16 +9,14 @@ local ADDON_NAME, Addon = ...
 ---------------------------------------------------------------------------------------------------
 
 -- Lua APIs
-local floor, select, unpack, type, min, pairs = floor, select, unpack, type, min, pairs
+local floor, type, pairs = floor, type, pairs
 
 -- WoW APIs
 local GetCVar = GetCVar
 
 -- ThreatPlates APIs
 local L = Addon.L
-local RGB = Addon.RGB
 
-local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
 -- List them here for Mikk's FindGlobals script
 -- GLOBALS:
@@ -556,7 +554,7 @@ end
 local CurrentVersion = VersionToNumber(Addon.Meta("version"))
 
 function TidyPlatesThreat:VersionIsAtLeast(min_version)
-  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.26")
+  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.27")
 
   local min_version_no, _ = VersionToNumber(min_version)
   return min_version_no > 0 and CurrentVersion >= min_version_no

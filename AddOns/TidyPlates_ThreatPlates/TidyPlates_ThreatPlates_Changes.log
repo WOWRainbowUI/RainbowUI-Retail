@@ -1,3 +1,15 @@
+﻿------------------------------------------------------
+13.0.27 (2026-07-09)
+------------------------------------------------------
+* Fixed a bug where the healthbar border did not reappear after being disabled and re-enabled, without needing a UI reload.
+* Fixed a bug where automatic spec-based profile switching did not work after login/reload until the options window had been opened once [GH-685].
+* Updated TOC version for Patch 2.5.6 for TBC Classic.
+* Fixed an error on TBC Classic where nameplates no longer loaded, caused by a client-side switch to the modern nameplate API also used by Mists Classic and Retail [GH-715].^
+
+------------------------------------------------------
+13.0.26 (2026-07-03)
+------------------------------------------------------
+* Re-release of version 13.0.25 due to a bug that occurred when version 13.0.25 was published.
 
 ------------------------------------------------------
 13.0.25 (2026-07-03)
@@ -131,7 +143,7 @@
 13.0.7 (2026-04-07)
 ------------------------------------------------------
 * Fixed a Lua error in WoW Midnight that occurred when nameplates were accessed, which was caused by restrictions on secret values [GH-678, GH-677, GH-676, Comment #8210, #8209, #8205].
-* Fixed a bug that caused the interrupt shield to be displayed even when it was disabled [Comment #8162, #8163, GH-672].
+* Fixed a bug that caused the interrupt shield to be displayed even when it was disabled [Comment #8162, #8163].
 * Fixed a bug where a Evoker's cast bar was not hidden after an empowered cast had finished [Comment #8126].
 * Totems should now be recognized correctly in WoW Midnight again as long as they are not protected with secret values [Comment #8106].
 * Fixed threat colors/scale being stuck in DPS mode after login until the options dialog was opened or a setting was changed. The player role (tank vs. DPS/healer) is now correctly initialized on login [Comment #7947, #8086, #8184, #8187, #8190].

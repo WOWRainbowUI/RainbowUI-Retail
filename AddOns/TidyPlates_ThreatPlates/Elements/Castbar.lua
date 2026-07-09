@@ -13,12 +13,11 @@ local string_format = string.format
 -- WoW APIs
 local CreateFrame = CreateFrame
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or _G.GetSpellTexture -- Retail now uses C_Spell.GetSpellTexture
-local UnitIsUnit = UnitIsUnit
-local GetTimePreciseSec = GetTimePreciseSec
+local UnitIsUnitTP = Addon.UnitIsUnit
 
 -- ThreatPlates APIs
 local FontSetJustify, FontUpdateText, FontUpdateTextSize = Addon.Font.SetJustify, Addon.Font.UpdateText, Addon.Font.UpdateTextSize
-local SubscribeEvent, PublishEvent = Addon.EventService.Subscribe, Addon.EventService.Publish
+local SubscribeEvent = Addon.EventService.Subscribe
 local BackdropTemplate = Addon.BackdropTemplate
 local L = Addon.L
 local EvaluateColorValueFromBoolean = Addon.EvaluateColorValueFromBoolean
@@ -252,7 +251,7 @@ function Element.UpdateStyle(tp_frame, style)
   local db = Addon.db.profile.settings.castbar
 
   local target_offset_x, target_offset_y = 0, 0
-  if UnitIsUnit("target", unit.unitid) then
+  if UnitIsUnitTP("target", unit.unitid) then
     target_offset_x = db.x_target
     target_offset_y = db.y_target
   end
