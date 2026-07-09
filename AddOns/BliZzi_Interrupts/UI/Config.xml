@@ -1,0 +1,23 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <Script file="Config.lua"/>
+
+    <!--
+        BITSliderEditTemplate
+        Native settings slider (with +/- steppers) plus an EditBox on the right
+        for direct pixel-value input.
+    -->
+    <Frame name="BITSliderEditTemplate" inherits="SettingsSliderControlTemplate"
+           mixin="BITSliderEditMixin" virtual="true">
+        <Frames>
+            <EditBox name="$parentEditBox" parentKey="EditBox"
+                     inherits="InputBoxTemplate" autoFocus="false"
+                     numeric="false">
+                <Size x="52" y="20"/>
+            </EditBox>
+        </Frames>
+    </Frame>
+
+
+</Ui>

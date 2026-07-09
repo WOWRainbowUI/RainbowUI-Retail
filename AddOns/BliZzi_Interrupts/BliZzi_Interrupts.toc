@@ -1,0 +1,82 @@
+## Interface: 120000, 120001, 120005, 120007, 120100
+## X-Min-Interface: 120000
+## Title: |cff0091edBliZzi|r |cffffa300Party Tools|r
+## Notes: Multi-feature M+ utility for your group. Track who can interrupt and who's on cooldown, see party defensives & offensives at a glance, share keystones with one click, and announce status to chat.
+## Notes-deDE: Vielseitiges M+-Tool für deine Gruppe. Sieh, wer unterbrechen kann und wer im Cooldown ist, behalte defensive & offensive Cooldowns der Gruppe im Blick, teile Schlüsselsteine mit einem Klick und kündige den Status im Chat an.
+## Notes-frFR: Utilitaire M+ polyvalent pour votre groupe. Voyez qui peut interrompre et qui est en recharge, gardez un œil sur les défensifs et offensifs du groupe, partagez vos clés en un clic et annoncez le statut dans le canal.
+## Notes-esES: Utilidad M+ con varias funciones para tu grupo. Mira quién puede interrumpir y quién está en reutilización, controla los defensivos y ofensivos del grupo de un vistazo, comparte piedras angulares con un clic y anuncia el estado al chat.
+## Notes-esMX: Utilidad M+ con varias funciones para tu grupo. Mira quién puede interrumpir y quién está en reutilización, controla los defensivos y ofensivos del grupo de un vistazo, comparte piedras angulares con un clic y anuncia el estado al chat.
+## Notes-ruRU: Многофункциональный помощник для подземелий М+. Показывает, кто может прервать и у кого идёт перезарядка, отображает защитные и атакующие умения группы, делится ключами в один клик и объявляет статус в чат.
+## Notes-koKR: 그룹을 위한 다기능 신화+ 도구. 누가 차단할 수 있고 누가 재사용 대기 중인지 확인하고, 파티의 방어 및 공격 기술을 한눈에 보고, 쐐기돌을 클릭 한 번으로 공유하며, 상태를 채팅으로 알립니다.
+## Notes-zhCN: 为你的小队打造的多功能大秘境工具。查看谁能打断、谁在冷却，一眼掌握小队的防御与爆发技能，一键分享钥石，并向聊天频道通报状态。
+## Notes-zhTW: 為你的隊伍打造的多功能傳奇+工具。查看誰能打斷、誰在冷卻中，一眼掌握隊伍的防禦與爆發技能，一鍵分享鑰石，並在聊天頻道通報狀態。
+## Author: BliZzi1337
+## Version: 4.1.5
+## X-Wago-ID: BKpgeB6E
+## DefaultState: Enabled
+## Category: Combat
+## IconTexture: Interface\AddOns\BliZzi_Interrupts\Media\icon
+## SavedVariables: BliZziInterruptsSavedVars, BliZziInterruptsMinimapDB
+## SavedVariablesPerCharacter: BliZziInterruptsSavedVarsChar
+## OptionalDeps: LibDBIcon-1.0, LibSpecialization
+
+# ── External libraries ──────────────────────────────────────────────
+Libs/LibStub/LibStub.lua
+Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
+Libs/LibDataBroker-1.1/LibDataBroker-1.1.lua
+Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
+Libs/LibSpecialization/LibSpecialization/LibSpecialization.lua
+Libs/LibButtonGlow/LibButtonGlowcustom.lua
+Libs/LibSerialize/LibSerialize.lua
+Libs/LibDeflate/LibDeflate.lua
+
+# ── Foundation (loaded first — everything below depends on this) ────
+Core/Media.lua
+Core/Data.lua
+Core/Changelog.lua
+
+# ── Localization ────────────────────────────────────────────────────
+Locales/Locales.lua
+Locales/en_US.lua
+Locales/de_DE.lua
+Locales/fr_FR.lua
+Locales/es_ES.lua
+Locales/ru_RU.lua
+Locales/zh_CN.lua
+Locales/zh_TW.lua
+Locales/ko_KR.lua
+Locales/tlh_TLH.lua
+
+# ── Core (BIT namespace) ────────────────────────────────────────────
+# Core/SpellData.lua and Modules/SyncCD.lua were removed in 3.8.0 — see
+# CHANGELOG.md. Party CD tracking is now implemented from scratch in
+# Modules/PartyCooldowns.lua. BIT.SyncCD is still initialised as an
+# empty table in Core/Core.lua because Core's LibSpec callback uses
+# BIT.SyncCD.users as a player-data store; nil-guarded references in
+# legacy code paths remain harmless against an empty table.
+Core/Core.lua
+# Shared unit-frame resolver used by AttachedInterrupts, OffensiveCDAlert
+# and PartyCooldowns. Must load before any feature module that calls
+# BIT.UnitFrames:GetPartyFrame.
+Core/UnitFrames.lua
+
+# ── User-facing UI (bars + settings) ────────────────────────────────
+UI/UI.lua
+
+# ── Feature modules ─────────────────────────────────────────────────
+Modules/SmartMisdirect.lua
+Modules/OffensiveCDAlert.lua
+Modules/KeystoneList.lua
+Modules/PartyCooldowns.lua
+
+# ── Profile system (must load AFTER all modules register defaults) ──
+Profile/Profiles.lua
+Profile/Profile.lua
+Profile/WagoAPI.lua
+
+# ── Developer tools ─────────────────────────────────────────────────
+Tools/DebugReport.lua
+
+# ── Settings panel (must load LAST — references every module) ───────
+UI/Config.xml
+UI/SettingsUI.lua
