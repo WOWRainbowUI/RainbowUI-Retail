@@ -1,6 +1,6 @@
 # Auctionator
 
-## [328](https://github.com/TheMouseNest/Auctionator/tree/328) (2026-07-07)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/327...328) 
+## [329](https://github.com/TheMouseNest/Auctionator/tree/329) (2026-07-08)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/328...329) 
 
-- Classic Anniversary: Update toc for 2.5.6  
+- Bugfix for Blizzard error on TBC  
