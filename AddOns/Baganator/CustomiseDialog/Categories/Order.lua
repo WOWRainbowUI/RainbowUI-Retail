@@ -455,7 +455,7 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
       if text:sub(1, 1) == "{" then
         local status
         status, import = pcall(C_EncodingUtil.DeserializeJSON, text)
-        if not status or type(import) ~= "table" or import.addon ~= "Baganator" then
+        if not status or type(import) ~= "table" then
           addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
           return
         end
