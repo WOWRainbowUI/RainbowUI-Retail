@@ -270,7 +270,7 @@ else
 		elseif skipTypeCheck then
 			include[iid], isQuest = true, true
 		end
-		if CF_WRATH and bag and slot then
+		if bag and slot then
 			local _isQuestItem, startQuestId, isQuestActive = getContainerItemQuestInfo(bag, slot)
 			startsQuest = startQuestId and not isQuestActive and not C_QuestLog.IsQuestFlaggedCompleted(startQuestId) or false
 			isQuest = isQuest or startsQuest

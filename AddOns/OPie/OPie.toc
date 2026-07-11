@@ -1,6 +1,6 @@
-## Interface: 11508, 20505, 50504, 120007
+## Interface: 11508, 20506, 50504, 120007
 ## Title: OPie
-## Version: 8.6.2
+## Version: 8.6.3
 ## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.

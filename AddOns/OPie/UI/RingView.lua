@@ -3,7 +3,7 @@ local PC, EV, XU, GameTooltip, L = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip 
 local api, iapi, configCache, vis = {}, {}, {}, {}
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
 local GetPartialHintRaw = PC.GetPartialHintRaw
-local MODERN = COMPAT > 11e4
+local MODERN, CI_ANNIVERSARY = COMPAT > 11e4, COMPAT > 2e4 and COMPAT < 3e4
 local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 	local ticks = 0
 	local function unlockTick()
@@ -585,7 +585,8 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 		self:SetOverlayIcon("Interface/Buttons/UI-GroupLoot-DE-Up", 20, 20)
 		self:SetOverlayIconVertexColor(1,1,1)
 	else
-		self:SetOverlayIcon(isQuestStartItem and "Interface\\MINIMAP\\TRACKING\\OBJECTICONS", 21, 28, 40/256, 64/256, 32/64, 1)
+		local o = CI_ANNIVERSARY and -32/256 or 0
+		self:SetOverlayIcon(isQuestStartItem and "Interface\\MINIMAP\\TRACKING\\OBJECTICONS", 21, 28, 40/256 + o, 64/256 + o, 32/64, 1)
 		self:SetOverlayIconVertexColor(1,1,1)
 	end
 	if ActiveIndicatorFactory.supportsShortLabels then

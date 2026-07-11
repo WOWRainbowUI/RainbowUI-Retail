@@ -30,6 +30,9 @@ local stringArgCache = {} do
 		return empty
 	end})
 end
+local function prependCountDelta(delta, ...)
+	return delta + select("#", ...), ...
+end
 
 securecall(function() -- zone:Zone/Sub Zone
 	local function onZoneUpdate()
@@ -315,9 +318,6 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 		ownbuff="HELPFUL PLAYER", owndebuff="HARMFUL PLAYER",
 		buff="HELPFUL", debuff="HARMFUL",
 	}
-	local function countSlots(tk, ...)
-		return select("#", ...), tk, ...
-	end
 	local function checkAura(name, args, target)
 		if MODERN and C_Secrets.ShouldAurasBeSecret() then
 			return "lockdown"
@@ -330,7 +330,7 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 		local at, query, filter = stringArgCache[args], C_UnitAuras.GetAuraSlots, conditionalFilter[name]
 		local count, ctok, a,b,c,d,e
 		repeat
-			count, ctok, a,b,c,d,e = countSlots(query(target, filter, 5, ctok))
+			count, ctok, a,b,c,d,e = prependCountDelta(-1, query(target, filter, 5, ctok))
 			for i=1, count do
 				local dat = C_UnitAuras.GetAuraDataBySlot(target, a)
 				local name = dat and dat.name
@@ -442,12 +442,14 @@ securecall(function() -- race:token
 	KR:SetStateConditionalValue("race", map[raceToken] or raceToken)
 end)
 securecall(function() -- professions
+	local MODERN_PROFS = MODERN or CF_MISTS
 	local ct, ot, syncProfInner = {}, {}
-	local map = MODERN and {
+	local map = MODERN_PROFS and {
 		[197]="tail", [165]="lw", [164]="bs",
 		[171]="alch", [202]="engi", [333]="ench", [755]="jc", [773]="scri",
 		[182]="herb", [186]="mine", [393]="skin",
 		[794]="arch", [185]="cook", [356]="fish",
+		[129]="faid",
 		[20219]="nomeng", [20222]="gobeng",
 	}
 	local GetSpellName = C_Spell.GetSpellName
@@ -458,8 +460,10 @@ securecall(function() -- professions
 		[GetSpellName(2259) or ""]="alch",
 		[GetSpellName(4036) or ""]="engi",
 		[GetSpellName(7411) or ""]="ench",
-		[GetSpellName(2366) or ""]="herb",
+		[GetSpellName(2366) or ""]="herb", -- Herb Gathering (skill line is Herbalism, oops)
+		[GetSpellName(2383) or ""]="herb", -- Find Herbs, in spellbook
 		[GetSpellName(2575) or ""]="mine",
+		[GetSpellName(2580) or ""]="mine", -- Find Minerals, in spellbook
 		[GetSpellName(8613) or ""]="skin",
 		[GetSpellName(2550) or ""]="cook",
 		[GetSpellName(3273) or ""]="faid",
@@ -478,7 +482,7 @@ securecall(function() -- professions
 		-- eng8 is in sync code, because factions
 	}
 	map[""]=nil
-	syncProfInner = MODERN and function(id, ...)
+	syncProfInner = MODERN_PROFS and function(n, id, ...)
 		if id then
 			local _1, _2, cur, _cap, ns, sofs, skid, _bonus, specIdx, _ = GetProfessionInfo(id)
 			local et, sid = GetSpellBookItemInfo(ns == 2 and sofs and specIdx > -1 and sofs+2 or 0, "spell")
@@ -486,37 +490,42 @@ securecall(function() -- professions
 			if e1 then ct[e1] = cur end
 			if e2 then ct[e2] = cur end
 		end
-		if select("#", ...) > 0 then
-			return syncProfInner(...)
+		if n > 1 then
+			return syncProfInner(n-1, ...)
 		end
 	end or function()
-		local idx, wasCollapsed
-		for i=1,GetNumSkillLines() do
-			local text, isHeader, isExpanded = GetSkillLineInfo(i)
-			if isHeader and text == TRADE_SKILLS then
-				idx, wasCollapsed = i, not isExpanded
-				ExpandSkillHeader(i)
-				break
+		local idx, nLines0 = 1, GetNumSkillLines()
+		while idx < nLines0 do
+			local hidx, text, isHeader, isExpanded = idx, GetSkillLineInfo(idx)
+			if text and isHeader then
+				ExpandSkillHeader(idx)
+				repeat
+					idx, text, isHeader, _, curSkill = idx + 1, GetSkillLineInfo(idx+1)
+					skey = map[text]
+					if skey and not isHeader then
+						ct[skey] = curSkill
+					end
+				until isHeader or not text
+				idx = idx - 1
+				if not isExpanded or isExpanded == 0 then
+					CollapseSkillHeader(hidx)
+					idx = hidx
+				end
 			end
+			idx = idx + 1
 		end
-		if not idx then return end
-		local j, text, isHeader, _, curSkill = idx+1
-		repeat
-			j, text, isHeader, _, curSkill = j+1, GetSkillLineInfo(j)
-			local skey = map[text]
-			if skey and not isHeader then
-				ct[skey] = curSkill
+		local GetSpellName = C_Spell.GetSpellName
+		for k,v in pairs(map) do
+			if ct[v] == nil and GetSpellName(k) then
+				ct[v] = 1
 			end
-		until isHeader or not text
-		if wasCollapsed then
-			CollapseSkillHeader(idx)
 		end
 	end
 	local function syncProf()
 		ct, ot = ot, ct
 		for k in pairs(ct) do ct[k] = nil end
-		if MODERN then
-			syncProfInner(GetProfessions())
+		if MODERN_PROFS then
+			syncProfInner(prependCountDelta(0, GetProfessions()))
 		else
 			syncProfInner()
 		end

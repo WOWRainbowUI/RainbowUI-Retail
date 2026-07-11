@@ -983,7 +983,7 @@ securecall(function() -- equipmentset: equipment sets by name
 end)
 securecall(function() -- raidmark
 	local map, waitingToClearSelf = {}
-	local SABT_RAIDMARK = MODERN
+	local SABT_RAIDMARK = not CI_ERA
 	local function CanChangeRaidTargets(unit)
 		return not not ((not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and not (unit and UnitIsPlayer(unit) and UnitIsEnemy("player", unit)))
 	end
