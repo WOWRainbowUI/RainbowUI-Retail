@@ -13,6 +13,7 @@ local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.1");
 DR.CurrencyToRaceMap = {}
 
 local defaultsTable = {
+	hasSeenChangelog = false,
 	toggleModels = true,
 	speedometerPosPoint = 1, -- deprecated
 	speedometerPosX = 0, -- deprecated, moved to position
@@ -300,6 +301,10 @@ local function SaveFramePosition(frameName)
 			yOfs = yOfs
 		}
 	end
+
+	if DR.AutoSaveActiveProfile then
+		DR.AutoSaveActiveProfile();
+	end
 end
 
 local function LoadFramePosition(frameName)
@@ -531,6 +536,7 @@ local function Print(...)
 	local prefix = string.format("|cFFFFF569"..L["DragonRider"] .. "|r:");
 	DEFAULT_CHAT_FRAME:AddMessage(string.join(" ", prefix, ...));
 end
+DR.Print = Print;
 
 DR.commands = {
 	[L["COMMAND_journal"]] = function()
@@ -657,7 +663,7 @@ end
 
 
 function DR.EventsList:PLAYER_LOGIN()
-	DR.mainFrame.DoPopulationStuff();
+	DR.mainFrame.UpdatePopulation();
 	local SeasonID = PlayerGetTimerunningSeasonID()
 	if SeasonID then -- needs to fire late to register any data
 		DR.mainFrame.CreateDragonRiderFlipbook()
@@ -794,8 +800,6 @@ function DR.OnAddonLoaded()
 		end
 		if DragonRider_DB.useAccountData == nil then
 			DragonRider_DB.useAccountData = false;
-		else
-			DR.mainFrame.accountAll_Checkbox:SetChecked(DragonRider_DB.useAccountData)
 		end
 		if DragonRider_DB.raceData == nil then
 			DragonRider_DB.raceData = {};
@@ -833,10 +837,15 @@ function DR.OnAddonLoaded()
 			if DR.EvaluateGroundSkimmingVisibility then
 				DR.EvaluateGroundSkimmingVisibility();
 			end
+
+			if DR.AutoSaveActiveProfile then
+				DR.AutoSaveActiveProfile();
+			end
 		end
 
-		local category, layout = Settings.RegisterVerticalLayoutCategory(L["DR_Title"])
-		DR.SettingsCategoryID = category.ID
+		local category, layout = Settings.RegisterVerticalLayoutCategory(L["DR_Title"]);
+		DR.SettingsCategoryID = category.ID;
+		DR.SettingsCategory = category;
 
 		local categorySpeedometer, layoutSpeedometer = Settings.RegisterVerticalLayoutSubcategory(category, L["Speedometer"]);
 
@@ -1843,25 +1852,23 @@ function DR.OnAddonLoaded()
 		end
 
 		function DragonRider_OnAddonCompartmentEnter(addonName, menuButtonFrame)
-			local tooltipData = {
-				[1] = L["DragonRider"],
-				[2] = L["RightClick_TT_Line"],
-				[3] = L["LeftClick_TT_Line"],
-				[4] = L["SlashCommands_TT_Line"]
-			}
-			local concatenatedString
-			for k, v in ipairs(tooltipData) do
-				if concatenatedString == nil then
-					concatenatedString = v
-				else
-					concatenatedString = concatenatedString .. "\n".. v
-				end
-			end
-			DR.tooltip_OnEnter(menuButtonFrame, concatenatedString);
+			GameTooltip:SetOwner(menuButtonFrame, "ANCHOR_LEFT");
+			
+			GameTooltip:SetText(L["DragonRider"], 1, 0.82, 0);
+			GameTooltip:AddDoubleLine(L["RightClick"], L["RightClick_TT_Line"], 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddDoubleLine(L["LeftClick"], L["LeftClick_TT_Line"], 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddLine(" ");
+			GameTooltip:AddLine(L["SlashCommands_TT_Line"], 1, 0.82, 0, true);
+			
+			GameTooltip:Show();
 		end
 
 		function DragonRider_OnAddonCompartmentLeave(addonName, menuButtonFrame)
-			DR.tooltip_OnLeave();
+			GameTooltip:Hide();
+		end
+
+		if DR.InitializeProfileSettingsCanvas then
+			DR.InitializeProfileSettingsCanvas();
 		end
 
 		---------------------------------------------------------------------------------------------------------------------------------

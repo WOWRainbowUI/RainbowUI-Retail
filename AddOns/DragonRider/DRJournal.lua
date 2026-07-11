@@ -8,16 +8,6 @@ local function Print(...)
 	DEFAULT_CHAT_FRAME:AddMessage(string.join(" ", prefix, ...));
 end
 
-function DR.tooltip_OnEnter(frame, tooltip)
-	GameTooltip:SetOwner(frame, "ANCHOR_TOP")
-	GameTooltip_AddNormalLine(GameTooltip, tooltip);
-	GameTooltip:Show();
-end
-
-function DR.tooltip_OnLeave()
-	GameTooltip:Hide();
-end
-
 -- Using Blizz's globally accessible frame fade function causes taint with the map
 -- So just add their own code in locally
 
@@ -43,9 +33,9 @@ local function MergeDeferredEvents()
 end
 
 local function OnEvent(self, event, ...)
-	if event == "PLAYER_STARTED_MOVING" 
-	or event == "PLAYER_STOPPED_MOVING" 
-	or event == "PLAYER_IS_GLIDING_CHANGED" 
+	if event == "PLAYER_STARTED_MOVING"
+	or event == "PLAYER_STOPPED_MOVING"
+	or event == "PLAYER_IS_GLIDING_CHANGED"
 	or event == "PLAYER_IMPULSE_APPLIED" then
 		MergeDeferredEvents();
 	end
@@ -119,11 +109,261 @@ local function CleanupFade(self)
 	PlayerMovementFrameFader.RemoveFrame(self);
 end
 
+function DR.CalculateScore(data)
+	local charKey = UnitName("player") .. " - " .. GetRealmName()
+	local scoreRaw = C_CurrencyInfo.GetCurrencyInfo(data.currencyID).quantity;
+	local scorePersonal = (scoreRaw and scoreRaw > 0) and (scoreRaw / 1000) or nil;
+	local scoreValue = scorePersonal;
+
+	if not DragonRider_DB.raceData then
+		DragonRider_DB.raceData = {};
+	end
+	if not DragonRider_DB.raceData["Account"] then
+		DragonRider_DB.raceData["Account"] = {};
+	end
+
+	if scoreValue then
+		if not DragonRider_DB.raceData["Account"][data.currencyID] then
+			DragonRider_DB.raceData["Account"][data.currencyID] = { score = scoreValue, character = charKey };
+		elseif scoreValue < DragonRider_DB.raceData["Account"][data.currencyID].score then
+			DragonRider_DB.raceData["Account"][data.currencyID].score = scoreValue;
+			DragonRider_DB.raceData["Account"][data.currencyID].character = charKey;
+		end
+	end
+
+	local aBest = "------";
+	local aChar = "------";
+	if DragonRider_DB.raceData["Account"][data.currencyID] then
+		aBest = DragonRider_DB.raceData["Account"][data.currencyID].score;
+		aChar = DragonRider_DB.raceData["Account"][data.currencyID].character;
+		if DragonRider_DB.useAccountData then
+			scoreValue = aBest;
+		end
+	end
+
+	local medalValue = "";
+	if scoreValue then
+		if data.goldTime and scoreValue < data.goldTime then
+			medalValue = "|A:challenges-medal-small-gold:15:15|a";
+		elseif data.silverTime and scoreValue < data.silverTime then
+			medalValue = "|A:challenges-medal-small-silver:15:15|a";
+		else
+			medalValue = "|A:challenges-medal-small-bronze:15:15|a";
+		end
+	end
+
+	local scoreValueF = "------";
+	if scoreValue then
+		scoreValueF = string.format("%.3f", scoreValue);
+		if medalValue ~= "" then
+			scoreValueF = medalValue .. scoreValueF;
+			if DragonRider_DB.useAccountData and aChar ~= charKey then
+				scoreValueF = scoreValueF .. "*";
+			end
+		end
+	end
+
+	local pBestFormat = scorePersonal or "------";
+	if type(pBestFormat) == "number" and data.goldTime and pBestFormat > data.goldTime then
+		pBestFormat = RED_FONT_COLOR:WrapTextInColorCode(tostring(pBestFormat));
+	end
+	
+	local aBestFormat = aBest
+	if type(aBestFormat) == "number" and data.goldTime and aBestFormat > data.goldTime then
+		aBestFormat = RED_FONT_COLOR:WrapTextInColorCode(tostring(aBestFormat));
+	end
+
+	return scoreValueF, pBestFormat, aBestFormat, aChar;
+end
+
+DR.selectedZoneMapID = nil;
+DR.searchQuery = "";
+
+function DR.GetZoneDataList()
+	local dataList = {};
+	local searchLower = string.lower(DR.searchQuery);
+
+	for _, continentData in ipairs(DR.RaceData) do
+		local mapID = continentData.zone;
+		local zoneName = C_Map.GetMapInfo(mapID).name or UNKNOWN;
+		
+		if DR.searchQuery == "" or string.find(string.lower(zoneName), searchLower) then
+			table.insert(dataList, {
+				isHeader = true,
+				text = zoneName,
+				mapID = mapID
+			});
+		end
+	end
+	return dataList;
+end
+
+DR.pendingNameRefresh = false;
+
+function DR.GetRaceDataList()
+	local dataList = {};
+	local searchLower = string.lower(DR.searchQuery);
+	
+	DR.pendingNameRefresh = false;
+	
+	local difficultyOrder = {
+		{key = "normal", name = L["Normal"]},
+		{key = "advanced", name = L["Advanced"]},
+		{key = "reverse", name = L["Reverse"]},
+		{key = "challenge", name = L["Challenge"]},
+		{key = "reversechallenge", name = L["ReverseChallenge"]},
+		{key = "storm", name = L["Storm"]},
+	};
+
+	for _, continentData in ipairs(DR.RaceData) do
+		local mapID = continentData.zone;
+		local zoneName = C_Map.GetMapInfo(mapID).name or UNKNOWN;
+		
+		if (DR.searchQuery ~= "" or mapID == DR.selectedZoneMapID) then
+			for _, raceInfo in ipairs(continentData.races) do
+				
+				local questTitle = DR.QuestTitleFromID[raceInfo.questID];
+				if not questTitle then
+					DR.pendingNameRefresh = true;
+				end
+				
+				local questName = questTitle or "...";
+				local questNameLower = string.lower(questName);
+				local zoneNameLower = string.lower(zoneName);
+				
+				if DR.searchQuery == "" or string.find(questNameLower, searchLower) or string.find(zoneNameLower, searchLower) then
+					
+					table.insert(dataList, {
+						isSubHeader = true,
+						text = questName,
+						mapID = mapID,
+						mapPOI = raceInfo.mapPOI
+					});
+
+					for _, diff in ipairs(difficultyOrder) do
+						local diffData = raceInfo[diff.key];
+						if diffData then
+							table.insert(dataList, {
+								type = "difficulty",
+								name = diff.name,
+								currencyID = diffData.currencyID,
+								silverTime = diffData.silverTime,
+								goldTime = diffData.goldTime
+							});
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return dataList;
+end
+
 DR.mainFrame = CreateFrame("Frame", "DragonRiderMainFrame", UIParent, "PortraitFrameTemplate")
 tinsert(UISpecialFrames, DR.mainFrame:GetName())
 local DRportrait = DR.mainFrame.PortraitContainer.portrait
 DRportrait:SetTexCoord(0.03, 1, 0.03, 1) -- centers the icon a little bit more, since there was a large gap in the top / left
 DRportrait:SetTexture("Interface\\ICONS\\Ability_DragonRiding_Glyph01")
+
+local DragonRiderPortraitMixin = {};
+
+DragonRiderPortraitMixin.SoundFileList = {
+	4621637, 4621639, 4621641, 4621643, 4621645,
+	4621647, 4621649, 4621651, 4621653, 4621655,
+	4621657, 4621659, 4621661, 4621663, 4621665,
+	4621667, 4621669,
+};
+
+function DragonRiderPortraitMixin:OnLoad()
+	self.clickCount = 0;
+	self.clickThreshold = 10;
+	self.timeFrame = 0.2;
+	self.lastClickTime = 0;
+	self:RegisterForClicks("AnyDown", "AnyUp");
+end
+
+function DragonRiderPortraitMixin:OnClick(button, down)
+	if button == "RightButton" then
+		if not down and DR.ToggleChangelog then
+			DR.ToggleChangelog();
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+		end
+	end
+
+	if button then
+		if not down then
+			self.Icon:SetTexCoord(0.03, 1, 0.03, 1);
+		else
+			self.Icon:SetTexCoord(0.05, 0.98, 0.05, 0.98);
+		end
+
+		if down then return; end
+
+		local currentTime = GetTime();
+		if currentTime - self.lastClickTime > self.timeFrame then
+			self:ResetClicks();
+		end
+
+		self.clickCount = self.clickCount + 1;
+		self.lastClickTime = currentTime;
+
+		if self.clickCount >= self.clickThreshold then
+			self:ResetClicks();
+			self:PlaySecretSound();
+		end
+	end
+end
+
+function DragonRiderPortraitMixin:ResetClicks()
+	self.clickCount = 0;
+end
+
+function DragonRiderPortraitMixin:PlaySecretSound()
+	local sound = self.SoundFileList[math.random(1, #self.SoundFileList)];
+	PlaySoundFile(sound, "SFX");
+end
+
+local portraitButton = CreateFrame("Button", nil, DR.mainFrame.PortraitContainer);
+portraitButton:SetAllPoints(DRportrait);
+portraitButton.Icon = DRportrait;
+portraitButton:EnableMouse(true);
+
+DR.mainFrame.portraitButton = portraitButton;
+
+local glowFrame = CreateFrame("Frame", nil, DR.mainFrame.PortraitContainer);
+glowFrame:SetPoint("CENTER", DRportrait, "CENTER");
+glowFrame:SetSize(85, 85);
+glowFrame:SetFrameLevel(800);
+
+glowFrame.Glow = glowFrame:CreateTexture();
+glowFrame.Glow:SetAllPoints(glowFrame);
+glowFrame.Glow:SetTexture(136477); -- interface/minimap/ui-minimap-zoombutton-highlight.blp
+glowFrame.Glow:SetBlendMode("ADD");
+glowFrame.Glow:SetVertexColor(1, 1, 1, 1);
+glowFrame.Glow:Hide();
+
+glowFrame.PulseAnim = glowFrame.Glow:CreateAnimationGroup();
+glowFrame.PulseAnim:SetLooping("BOUNCE");
+local alphaAnim = glowFrame.PulseAnim:CreateAnimation("Alpha");
+alphaAnim:SetFromAlpha(0.2);
+alphaAnim:SetToAlpha(1.0);
+alphaAnim:SetDuration(0.75);
+
+DR.mainFrame.portraitButton.Glow = glowFrame.Glow;
+DR.mainFrame.portraitButton.PulseAnim = glowFrame.PulseAnim;
+
+FrameUtil.SpecializeFrameWithMixins(portraitButton, DragonRiderPortraitMixin);
+portraitButton:OnLoad();
+portraitButton:SetScript("OnClick", portraitButton.OnClick);
+portraitButton:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+	GameTooltip:SetText(ITEM_READABLE, 0.4, 0.8, 1);
+	GameTooltip:Show();
+end);
+portraitButton:SetScript("OnLeave", function()
+	GameTooltip:Hide();
+end);
 
 --DR.mainFrame.PortraitContainer.portrait:SetTexture("Interface\\AddOns\\Languages\\Languages_Icon_Small")
 DR.mainFrame:SetTitle(L["DragonRider"])
@@ -139,9 +379,6 @@ DR.mainFrame:SetScript("OnMouseUp", function(self, button)
 end);
 DR.mainFrame:SetFrameStrata("HIGH")
 DR.mainFrame:Hide()
-DR.mainFrame:SetScript("OnHide", function()
-	PlaySound(74423);
-end);
 
 --[[
 -- cool funni dragon portrait, maybe for something cool some day
@@ -424,7 +661,6 @@ function DR.mainFrame.multiplayerRace_TT()
 	end
 	return activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo;
 end
- 
 DR.mainFrame:SetResizable(true);
 DR.mainFrame:SetResizeBounds(365,424,992,534)
 DR.mainFrame.resizeButton = CreateFrame("Button", nil, DR.mainFrame)
@@ -435,12 +671,10 @@ DR.mainFrame.resizeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-S
 DR.mainFrame.resizeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 DR.mainFrame.resizeButton:SetParent(DR.mainFrame)
 DR.mainFrame.resizeButton:SetFrameLevel(5)
- 
 DR.mainFrame.resizeButton:SetScript("OnMouseDown", function(self, button)
 	DR.mainFrame:StartSizing("BOTTOMRIGHT")
 	--DR.mainFrame:SetUserPlaced(true)
 end)
- 
 DR.mainFrame.resizeButton:SetScript("OnMouseUp", function(self, button)
 	local width, height = DR.mainFrame:GetSize()
 	if DragonRider_DB.mainFrameSize == nil then
@@ -451,75 +685,49 @@ DR.mainFrame.resizeButton:SetScript("OnMouseUp", function(self, button)
 	DR.mainFrame:StopMovingOrSizing()
 end)
 
-DR.mainFrame.ScrollBorder = CreateFrame("Frame", nil, DR.mainFrame, "InsetFrameTemplate3")
-local ScrollBorder = DR.mainFrame.ScrollBorder;
-ScrollBorder:SetWidth(210);
-ScrollBorder:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 2, -85);
-ScrollBorder:SetPoint("BOTTOMRIGHT", DR.mainFrame, "BOTTOMRIGHT", -3, 4);
-
-DR.mainFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DR.mainFrame, "ScrollFrameTemplate")
-DR.mainFrame.ScrollFrame:SetPoint("TOPLEFT", ScrollBorder, "TOPLEFT", 3, -3.5)
-DR.mainFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", ScrollBorder, "BOTTOMRIGHT", -2, 2)
-DR.mainFrame.ScrollFrame.ScrollBar:ClearAllPoints()
-DR.mainFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DR.mainFrame.ScrollFrame, "TOPRIGHT", -12, -18)
-DR.mainFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", DR.mainFrame.ScrollFrame, "BOTTOMRIGHT", -7, 16)
-
-
-DR.mainFrame.ScrollFrame.child = CreateFrame("Frame", nil, DR.mainFrame.ScrollFrame)
-DR.mainFrame.ScrollFrame:SetScrollChild(DR.mainFrame.ScrollFrame.child)
-DR.mainFrame.ScrollFrame.child:SetWidth(DR.mainFrame:GetWidth()-18)
-DR.mainFrame.ScrollFrame.child:SetHeight(1)
-
-
-
 function DR.mainFrame.Tab_OnClick(self)
+	PanelTemplates_SetTab(self:GetParent(), self:GetID());
 
-	PanelTemplates_SetTab(self:GetParent(), self:GetID())
-
-	local scrollChild = DR.mainFrame.ScrollFrame:GetScrollChild()
-	if (scrollChild) then
-		scrollChild:Hide();
+	for i = 1, self:GetParent().numTabs do
+		local tab = _G[self:GetParent():GetName() .. "Tab" .. i];
+		if tab and tab.content then
+			tab.content:Hide();
+		end
 	end
 
-	DR.mainFrame.ScrollFrame:SetScrollChild(self.content)
-	self.content:Show()
-	PlaySound(841)
-
+	if self.content then
+		self.content:Show();
+	end
+	PlaySound(841);
 end
 
-function DR.mainFrame.SetTabs(frame,numTabs, ...)
-	frame.numTabs = numTabs
-
+function DR.mainFrame.SetTabs(frame, numTabs, ...)
+	frame.numTabs = numTabs;
 	local contents = {};
-	local frameName = frame:GetName()
+	local frameName = frame:GetName();
 
 	for i = 1, numTabs do
+		local tab = CreateFrame("Button", frameName .. "Tab" .. i, frame, "PanelTabButtonTemplate");
+		tab:SetID(i);
+		tab:SetText(select(i, ...));
+		tab:SetScript("OnClick", DR.mainFrame.Tab_OnClick);
 
-		DR.mainFrame.TabButtonTest = CreateFrame("Button", frameName .. "Tab" .. i, frame, "PanelTabButtonTemplate")
-		DR.mainFrame.TabButtonTest:SetID(i)
-		DR.mainFrame.TabButtonTest:SetText(select(i, ...))
-		DR.mainFrame.TabButtonTest:SetScript("OnClick", DR.mainFrame.Tab_OnClick)
+		tab.content = CreateFrame("Frame", nil, frame);
+		tab.content:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -65);
+		tab.content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -6, 26);
+		tab.content:Hide();
 
-		DR.mainFrame.TabButtonTest.content = CreateFrame("Frame", nil, DR.mainFrame.ScrollFrame)
-		DR.mainFrame.TabButtonTest.content:SetSize(334, 10)
-		DR.mainFrame.TabButtonTest.content:Hide()
-
-		table.insert(contents, DR.mainFrame.TabButtonTest.content)
+		table.insert(contents, tab.content);
 
 		if (i == 1) then
-			DR.mainFrame.TabButtonTest:SetPoint("TOPLEFT", DR.mainFrame, "BOTTOMLEFT", 11,2);
+			tab:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 11, 2);
 		else
-			DR.mainFrame.TabButtonTest:SetPoint("TOPLEFT", _G[frameName .. "Tab" .. (i-1)] , "TOPRIGHT", 3, 0);
+			tab:SetPoint("TOPLEFT", _G[frameName .. "Tab" .. (i-1)] , "TOPRIGHT", 3, 0);
 		end
-
-		
 	end
 
-
-	DR.mainFrame.Tab_OnClick(_G[frameName .. "Tab1"])
-
+	DR.mainFrame.Tab_OnClick(_G[frameName .. "Tab1"]);
 	return unpack(contents);
-
 end
 
 local content1, content2 = DR.mainFrame.SetTabs(DR.mainFrame, 2, L["Score"], L["Settings"])
@@ -533,6 +741,214 @@ if settingsTabButton then
 		end
 	end)
 end
+
+DR.mainFrame.Bg:Hide();
+
+DR.mainFrame.backgroundTex = DR.mainFrame:CreateTexture(nil, "BACKGROUND", nil, 0);
+DR.mainFrame.backgroundTex:SetPoint("TOPLEFT", 2, -2);
+DR.mainFrame.backgroundTex:SetPoint("BOTTOMRIGHT", -2, 2);
+DR.mainFrame.backgroundTex:SetAtlas("Dragonflight-Landingpage-Background");
+
+local searchBox = CreateFrame("EditBox", "DragonRiderSearchBox", content1, "SearchBoxTemplate");
+searchBox:SetPoint("TOPLEFT", 15, -15);
+searchBox:SetSize(145, 20);
+searchBox:SetAutoFocus(false);
+searchBox:SetScript("OnTextChanged", function(self)
+	SearchBoxTemplate_OnTextChanged(self);
+	DR.searchQuery = self:GetText();
+	DR.mainFrame.UpdatePopulation();
+end);
+
+local zoneScroll = CreateFrame("Frame", nil, content1, "WowScrollBoxList");
+zoneScroll:SetPoint("TOPLEFT", searchBox, "BOTTOMLEFT", -5, -5);
+zoneScroll:SetPoint("BOTTOMRIGHT", content1, "BOTTOMLEFT", 160, 0);
+
+local zoneScrollBar = CreateFrame("EventFrame", nil, content1, "MinimalScrollBar");
+zoneScrollBar:SetPoint("TOPLEFT", zoneScroll, "TOPRIGHT", 10, 0);
+zoneScrollBar:SetPoint("BOTTOMLEFT", zoneScroll, "BOTTOMRIGHT", 10, 0);
+
+local zoneScrollBg = content1:CreateTexture(nil, "BACKGROUND", nil, -2);
+zoneScrollBg:SetPoint("TOPLEFT", zoneScroll, "TOPLEFT", -10, 2);
+zoneScrollBg:SetPoint("BOTTOMRIGHT", zoneScrollBar, "BOTTOMRIGHT", -15, -2);
+zoneScrollBg:SetAtlas("GO-bg-Group");
+zoneScrollBg:SetTextureSliceMargins(10, 10, 10, 10);
+zoneScrollBg:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
+zoneScrollBg:SetAlpha(.5);
+
+local zoneDP = CreateDataProvider();
+local zoneView = CreateScrollBoxListLinearView();
+zoneView:SetElementExtent(30);
+
+zoneView:SetElementInitializer("Button", function(row, data)
+	if not row.isInitialized then
+		row.bg = row:CreateTexture(nil, "BACKGROUND");
+		row.bg:SetAllPoints();
+		row.bg:SetTexCoord(0, 1, 0, 1);
+		row.bg:SetAtlas("QuestLog-tab");
+		
+		row.highlight = row:CreateTexture(nil, "HIGHLIGHT");
+		row.highlight:SetAllPoints();
+		row.highlight:SetColorTexture(1, 1, 1, 0.1);
+
+		row.title = row:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+		row.title:SetPoint("LEFT", row, "LEFT", 10, 0);
+		row.isInitialized = true;
+	end
+
+	row.title:SetText(data.text);
+	
+	if DR.selectedZoneMapID == data.mapID and DR.searchQuery == "" then
+		row.title:SetTextColor(1, 0.82, 0);
+		row.bg:SetVertexColor(1, 1, 1, 1);
+	else
+		row.title:SetTextColor(0.8, 0.8, 0.8);
+		row.bg:SetVertexColor(0.6, 0.6, 0.6, 0.5);
+	end
+
+	row:SetScript("OnClick", function()
+		DR.selectedZoneMapID = data.mapID;
+		DR.searchQuery = "";
+		searchBox:SetText("");
+		DR.mainFrame.UpdatePopulation();
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+	end);
+end);
+
+ScrollUtil.InitScrollBoxListWithScrollBar(zoneScroll, zoneScrollBar, zoneView);
+zoneScroll:SetDataProvider(zoneDP);
+
+local raceScroll = CreateFrame("Frame", nil, content1, "WowScrollBoxList");
+raceScroll:SetPoint("TOPLEFT", zoneScrollBar, "TOPRIGHT", 10, 0);
+raceScroll:SetPoint("BOTTOMRIGHT", content1, "BOTTOMRIGHT", -20, 5);
+
+local raceScrollBar = CreateFrame("EventFrame", nil, content1, "MinimalScrollBar");
+raceScrollBar:SetPoint("TOPLEFT", raceScroll, "TOPRIGHT", 10, 0);
+raceScrollBar:SetPoint("BOTTOMLEFT", raceScroll, "BOTTOMRIGHT", 10, 0);
+
+local raceScrollBg = content1:CreateTexture(nil, "BACKGROUND", nil, -2);
+raceScrollBg:SetPoint("TOPLEFT", raceScroll, "TOPLEFT", -5, 2);
+raceScrollBg:SetPoint("BOTTOMRIGHT", raceScrollBar, "BOTTOMRIGHT", -15, -2);
+raceScrollBg:SetAtlas("GO-bg-Group");
+raceScrollBg:SetTextureSliceMargins(10, 10, 10, 10);
+raceScrollBg:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
+raceScrollBg:SetAlpha(.5);
+
+local raceDP = CreateDataProvider();
+local raceView = CreateScrollBoxListLinearView();
+
+raceView:SetElementExtentCalculator(function(dataIndex, data)
+	if data.isSubHeader then
+		return 28;
+	end
+	return 20;
+end);
+
+raceView:SetElementInitializer("Button", function(row, data)
+	if not row.isInitialized then
+		row.bg = row:CreateTexture(nil, "BACKGROUND");
+		row.bg:SetAllPoints();
+		
+		row.title = row:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+		row.scoreText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall");
+		
+		row.isInitialized = true;
+	end
+
+	row.bg:Hide();
+	row.scoreText:Hide();
+	row:SetScript("OnEnter", nil);
+	row:SetScript("OnLeave", function() GameTooltip:Hide(); end);
+	row:SetScript("OnClick", nil);
+	row:EnableMouse(true);
+
+	if data.isSubHeader then
+		row.title:SetPoint("LEFT", row, "LEFT", 10, 0);
+		row.title:SetText(data.text);
+		row.title:SetFontObject("GameFontNormal");
+		row.title:SetTextColor(0.4, 0.8, 1);
+		
+		row.bg:SetTexCoord(0, 1, 0, 1);
+		row.bg:SetAtlas("CreditsScreen-Highlight");
+		row.bg:Show();
+		
+		row:SetScript("OnClick", function()
+			if not UnitAffectingCombat("player") and data.mapID then
+				C_Map.OpenWorldMap(data.mapID);
+			end
+			if data.mapPOI then
+				C_SuperTrack.SetSuperTrackedMapPin(0, data.mapPOI);
+				PlaySound(170270);
+			end
+		end);
+
+		row:SetScript("OnEnter", function(self)
+			local questName = data.text or "";
+			local trackedTooltip = "|A:Waypoint-MapPin-Tracked:15:15|a " .. (VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS);
+			
+			GameTooltip:SetOwner(self, "ANCHOR_TOP")
+			GameTooltip:SetText(questName, 0.4, 0.8, 1);
+			GameTooltip:AddLine(trackedTooltip, 1, 0.82, 0);
+			GameTooltip:Show();
+		end)
+
+	elseif data.type == "difficulty" then
+		row.title:SetPoint("LEFT", row, "LEFT", 25, 0);
+		row.title:SetText(data.name)
+		row.title:SetFontObject("GameFontHighlightSmall");
+		row.title:SetTextColor(0.8, 0.8, 0.8);
+		
+		row.scoreText:Show();
+		row.scoreText:SetPoint("RIGHT", row, "RIGHT", -10, 0);
+
+		local scoreValueF, pBest, aBest, aChar = DR.CalculateScore(data);
+		row.scoreText:SetText(scoreValueF);
+
+		row:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_TOP");
+			GameTooltip:AddDoubleLine(L["PersonalBest"], pBest, 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddDoubleLine(L["AccountBest"], aBest, 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddDoubleLine(L["BestCharacter"], aChar, 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddDoubleLine(L["GoldTime"], data.goldTime or "------", 1, 1, 1, 1, 1, 1);
+			GameTooltip:AddDoubleLine(L["SilverTime"], data.silverTime or "------", 1, 1, 1, 1, 1, 1);
+			GameTooltip:Show();
+		end);
+	end
+end);
+
+ScrollUtil.InitScrollBoxListWithScrollBar(raceScroll, raceScrollBar, raceView);
+raceScroll:SetDataProvider(raceDP);
+
+function DR.mainFrame.UpdatePopulation()
+	if not DR.selectedZoneMapID and DR.RaceData[1] then
+		DR.selectedZoneMapID = DR.RaceData[1].zone;
+	end
+
+	local zoneData = DR.GetZoneDataList();
+	local currentZoneScroll = zoneScroll:GetScrollPercentage() or 0;
+	zoneDP:Flush();
+	zoneDP:InsertTable(zoneData);
+	zoneScroll:SetScrollPercentage(currentZoneScroll);
+
+	local raceData = DR.GetRaceDataList();
+	local currentRaceScroll = raceScroll:GetScrollPercentage() or 0;
+	raceDP:Flush();
+	raceDP:InsertTable(raceData);
+	raceScroll:SetScrollPercentage(currentRaceScroll);
+	
+	--sometimes names aren't loaded, i don't request them all in 1 go like before
+	if DR.pendingNameRefresh then
+		if not DR.nameRefreshTimer then
+			DR.nameRefreshTimer = C_Timer.NewTimer(0.5, function()
+				DR.nameRefreshTimer = nil;
+				if DR.mainFrame:IsShown() then
+					DR.mainFrame.UpdatePopulation();
+				end
+			end)
+		end
+	end
+end
+
+
 --[[
 -- for now, disable, as this hasn't been accessible for a while. maybe one day
 --local content1, content2, content3 = DR.mainFrame.SetTabs(DR.mainFrame, 3, L["Score"], L["Guide"], L["Settings"])
@@ -554,24 +970,20 @@ end);
 DragonRiderMainFrameTab3:SetScript("OnLeave", DR.tooltip_OnLeave);
 ]]
 
-
-function DR.mainFrame.UpdatePopulation()
-	for i = 1, #DR.RaceData do
-		DR.mainFrame.PopulationData(i);
-	end
-end
-
 DR.mainFrame.accountAll_Checkbox = CreateFrame("CheckButton", nil, DR.mainFrame, "UICheckButtonTemplate");
 DR.mainFrame.accountAll_Checkbox:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 55, -25);
+DR.mainFrame.accountAll_Checkbox:SetScript("OnShow", function(self)
+	self:SetChecked(DragonRider_DB and DragonRider_DB.useAccountData or false);
+end)
 DR.mainFrame.accountAll_Checkbox:SetScript("OnClick", function(self)
 	if self:GetChecked() then
 		PlaySound(856);
 		DragonRider_DB.useAccountData = true;
-		DR.mainFrame.UpdatePopulation()
+		DR.mainFrame.UpdatePopulation();
 	else
 		PlaySound(857);
 		DragonRider_DB.useAccountData = false;
-		DR.mainFrame.UpdatePopulation()
+		DR.mainFrame.UpdatePopulation();
 	end
 end);
 DR.mainFrame.accountAll_Checkbox.text = DR.mainFrame.accountAll_Checkbox:CreateFontString()
@@ -579,17 +991,22 @@ DR.mainFrame.accountAll_Checkbox.text:SetFont(STANDARD_TEXT_FONT, 11)
 DR.mainFrame.accountAll_Checkbox.text:SetPoint("LEFT", DR.mainFrame.accountAll_Checkbox, "RIGHT", 0, 0)
 DR.mainFrame.accountAll_Checkbox.text:SetText(L["UseAccountScores"])
 DR.mainFrame.accountAll_Checkbox.text:SetScript("OnEnter", function(self)
-	DR.tooltip_OnEnter(self, L["UseAccountScoresTT"])
+	GameTooltip:SetOwner(self, "ANCHOR_TOP");
+	GameTooltip_AddNormalLine(GameTooltip, L["UseAccountScoresTT"]);
+	GameTooltip:Show();
 end);
-DR.mainFrame.accountAll_Checkbox.text:SetScript("OnLeave", DR.tooltip_OnLeave);
-DR.mainFrame.accountAll_Checkbox:SetScript("OnEnter", function(self)
-	DR.tooltip_OnEnter(self, L["UseAccountScoresTT"])
-end);
-DR.mainFrame.accountAll_Checkbox:SetScript("OnLeave", DR.tooltip_OnLeave);
+DR.mainFrame.accountAll_Checkbox.text:SetScript("OnLeave", function() GameTooltip:Hide(); end);
 
-DR.mainFrame.backgroundTex = DR.mainFrame.ScrollFrame:CreateTexture()
-DR.mainFrame.backgroundTex:SetAllPoints(DR.mainFrame.ScrollFrame)
-DR.mainFrame.backgroundTex:SetAtlas("Dragonflight-Landingpage-Background")
+DR.mainFrame.accountAll_Checkbox:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP");
+	GameTooltip_AddNormalLine(GameTooltip, L["UseAccountScoresTT"]);
+	GameTooltip:Show();
+end);
+DR.mainFrame.accountAll_Checkbox:SetScript("OnLeave", function() GameTooltip:Hide(); end);
+
+--DR.mainFrame.backgroundTex = DR.mainFrame.ScrollFrame:CreateTexture()
+--DR.mainFrame.backgroundTex:SetAllPoints(DR.mainFrame.ScrollFrame)
+--DR.mainFrame.backgroundTex:SetAtlas("Dragonflight-Landingpage-Background")
 --DR.mainFrame.backgroundTex:SetAtlas("dragonriding-talents-background")
 
 
@@ -632,6 +1049,12 @@ function DR.mainFrame.WorldQuestHandler()
 				DR.mainFrame["WorldQuestList_"..v].texlower:SetSize(35,35);
 				DR.mainFrame["WorldQuestList_"..v].texmiddle = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 1);
 				DR.mainFrame["WorldQuestList_"..v].texmiddle:SetAllPoints(DR.mainFrame["WorldQuestList_"..v]);
+				
+				local mask = DR.mainFrame["WorldQuestList_"..v]:CreateMaskTexture();
+				mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+				mask:SetAllPoints(DR.mainFrame["WorldQuestList_"..v].texmiddle);
+				DR.mainFrame["WorldQuestList_"..v].texmiddle:AddMaskTexture(mask);
+
 				DR.mainFrame["WorldQuestList_"..v].texupper = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 2);
 				DR.mainFrame["WorldQuestList_"..v].texupper:SetPoint("CENTER", DR.mainFrame["WorldQuestList_"..v],"CENTER", 5,-5);
 				DR.mainFrame["WorldQuestList_"..v].texupper:SetSize(16,16);
@@ -690,15 +1113,16 @@ function DR.mainFrame.WorldQuestHandler()
 					if disp_time(C_TaskQuest.GetQuestTimeLeftSeconds(v)) then
 						taskInfo = taskInfo .. "\n" .. disp_time(C_TaskQuest.GetQuestTimeLeftSeconds(v));
 					end
-					DR.tooltip_OnEnter(self, taskInfo);
+					
+					GameTooltip:SetOwner(self, "ANCHOR_TOP");
+					GameTooltip_AddNormalLine(GameTooltip, taskInfo);
+					GameTooltip:Show();
 				end);
 
 			end);
 			DR.mainFrame["WorldQuestList_"..v]:SetScript("OnLeave", function(self)
-				DR.tooltip_OnLeave();
-
-				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnUpdate", nil);
-
+				GameTooltip:Hide();
+				self:SetScript("OnUpdate", nil);
 			end);
 		end
 	end
@@ -707,424 +1131,108 @@ end
 DR.mainFrame:RegisterEvent("QUEST_REMOVED")
 DR.mainFrame:SetScript("OnEvent", DR.mainFrame.WorldQuestHandler)
 
-DR.mainFrame.OpenTalentsButton = CreateFrame("Button", nil, DR.mainFrame, "SharedButtonTemplate")
-DR.mainFrame.OpenTalentsButton:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -5, -25);
-DR.mainFrame.OpenTalentsButton:SetSize(180, 26);
-DR.mainFrame.OpenTalentsButton:SetText(L["DragonridingTalents"]);
+DR.mainFrame.OpenTalentsButton = CreateFrame("Button", nil, DR.mainFrame);
+DR.mainFrame.OpenTalentsButton:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -10, -25);
+DR.mainFrame.OpenTalentsButton:SetSize(30, 30);
+
+DR.mainFrame.OpenTalentsButton.Icon = DR.mainFrame.OpenTalentsButton:CreateTexture(nil, "ARTWORK");
+DR.mainFrame.OpenTalentsButton.Icon:SetAllPoints();
+DR.mainFrame.OpenTalentsButton.Icon:SetTexture("Interface\\ICONS\\Ability_DragonRiding_Glyph01");
+
+DR.mainFrame.OpenTalentsButton:SetNormalAtlas("UI-HUD-ActionBar-IconFrame");
+DR.mainFrame.OpenTalentsButton:SetPushedAtlas("UI-HUD-ActionBar-IconFrame-Down");
+DR.mainFrame.OpenTalentsButton:SetHighlightAtlas("UI-HUD-ActionBar-IconFrame-Mouseover");
+
 DR.mainFrame.OpenTalentsButton:SetScript("OnClick", function(self)
 	GenericTraitUI_LoadUI();
 	GenericTraitFrame:SetConfigIDBySystemID(Constants.MountDynamicFlightConsts.TRAIT_SYSTEM_ID);
 	GenericTraitFrame:SetTreeID(Constants.MountDynamicFlightConsts.TREE_ID);
 	ToggleFrame(GenericTraitFrame);
 end);
+
 DR.mainFrame.OpenTalentsButton:SetScript("OnEnter", function(self)
-	GameTooltip:SetOwner(self, "ANCHOR_TOP");
-	GameTooltip:AddLine(L["OpenDragonridingTalents"], 1, 1, 1);
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:SetText(L["DragonridingTalents"], 1, 1, 1);
+	GameTooltip:AddLine(L["OpenDragonridingTalents"], nil, nil, nil, true);
 	GameTooltip:Show();
-end);
+end)
+
 DR.mainFrame.OpenTalentsButton:SetScript("OnLeave", function()
 	GameTooltip:Hide();
+end)
+
+DR.mainFrame.multiplayerRace = CreateFrame("Button", nil, DR.mainFrame);
+DR.mainFrame.multiplayerRace:SetPoint("RIGHT", DR.mainFrame.OpenTalentsButton, "LEFT", -10, 0);
+DR.mainFrame.multiplayerRace:SetSize(25,25);
+DR.mainFrame.multiplayerRace.tex = DR.mainFrame.multiplayerRace:CreateTexture();
+DR.mainFrame.multiplayerRace.tex:SetAllPoints(DR.mainFrame.multiplayerRace);
+DR.mainFrame.multiplayerRace.tex:SetAtlas("racing");
+
+DR.mainFrame.multiplayerRace:SetScript("OnEnter", function(self)
+	local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT();
+	GameTooltip:SetOwner(self, "ANCHOR_TOP");
+	GameTooltip_AddNormalLine(GameTooltip, tooltipInfo);
+	GameTooltip:Show();
+
+	DR.mainFrame.multiplayerRace:SetScript("OnUpdate", function(self)
+		local _, _, _, _, info = DR.mainFrame.multiplayerRace_TT();
+		GameTooltip:SetOwner(self, "ANCHOR_TOP");
+		GameTooltip_AddNormalLine(GameTooltip, info);
+		GameTooltip:Show();
+	end);
 end);
 
-function DR.mainFrame.PopulationData(continentIndex)
-	local realmKey = GetRealmName()
-	local charKey = UnitName("player") .. " - " .. realmKey
-	DR.mainFrame.WorldQuestHandler()
+DR.mainFrame.multiplayerRace:SetScript("OnLeave", function(self)
+	GameTooltip:Hide();
+	self:SetScript("OnUpdate", nil);
+end);
 
-	local continentData = DR.RaceData[continentIndex]
-	if not continentData or not continentData.races then return end
-	local mapID = continentData.zone
-
-	-- a list of difficulty keys in the order they appear in the UI columns
-	local difficultyOrder = {"normal", "advanced", "reverse", "challenge", "reversechallenge", "storm"}
-
-	for raceIndex, raceInfo in ipairs(continentData.races) do
-		-- handle the race name label and tracker button (the row header)
-		do
-			local questName = DR.QuestTitleFromID[raceInfo.questID]
-			local mapPOI = raceInfo.mapPOI
-			local courseLabelName = "Course"..continentIndex.."_"..raceIndex
-			local courseTrackerName = "CourseTracker"..continentIndex.."_"..raceIndex
-
-			if not DR.mainFrame[courseLabelName] then
-				-- create the race name label
-				DR.mainFrame[courseLabelName] = content1:CreateFontString()
-				DR.mainFrame[courseLabelName]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continentIndex], "TOPLEFT", 10, -15*raceIndex-20)
-				DR.mainFrame[courseLabelName]:SetFont(STANDARD_TEXT_FONT, 11)
-				DR.mainFrame[courseLabelName]:SetParent(DR.mainFrame["backFrame"..continentIndex])
-
-				if mapPOI then
-					local trackedTooltip = (questName or "") .. "\n" .. "|A:Waypoint-MapPin-Tracked:15:15|a" ..VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS
-					DR.mainFrame[courseTrackerName] = CreateFrame("Button", nil, DR.mainFrame["backFrame"..continentIndex])
-					DR.mainFrame[courseTrackerName]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continentIndex], "TOPLEFT", 10, -15*raceIndex-20)
-					DR.mainFrame[courseTrackerName]:SetSize(120, 15)
-					DR.mainFrame[courseTrackerName]:EnableMouse(true)
-					DR.mainFrame[courseTrackerName]:SetFrameLevel(5)
-					DR.mainFrame[courseTrackerName]:SetScript("OnEnter", function(self)
-						self:SetScript("OnClick", function(self, button, down)
-
-							if not UnitAffectingCombat("player") then
-								C_Map.OpenWorldMap(mapID);
-							end
-							C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI)
-							PlaySound(170270)
-						end)
-						DR.tooltip_OnEnter(self, trackedTooltip)
-					end)
-					DR.mainFrame[courseTrackerName]:SetScript("OnLeave", DR.tooltip_OnLeave)
-				end
-
-				-- adjust container height on creation
-				if raceIndex > 1 then
-					DR.mainFrame["backFrame"..continentIndex]:SetHeight(DR.mainFrame["backFrame"..continentIndex]:GetHeight()+15)
-				end
-			end
-			-- update text
-			DR.mainFrame[courseLabelName]:SetText(questName or "[PH] Loading...")
-		end
-
-		-- handle the score cells for each difficulty
-		for colIndex, difficultyKey in ipairs(difficultyOrder) do
-			local difficultyData = raceInfo[difficultyKey]
-			
-			-- generate a unique name for the score font string for this cell
-			local scoreFrameName = "ScoreFrame_"..continentIndex.."_"..raceIndex.."_"..colIndex
-			local scoreFrame = DR.mainFrame[scoreFrameName]
-
-			if not scoreFrame then
-				scoreFrame = content1:CreateFontString(nil, nil, "GameFontNormal")
-				scoreFrame:SetFont(STANDARD_TEXT_FONT, 11)
-				scoreFrame:SetPoint("TOPLEFT", DR.mainFrame.resizeFrames["middleFrame_"..colIndex..continentIndex], "TOPLEFT", 0, -15*raceIndex-20)
-				scoreFrame:SetParent(DR.mainFrame["backFrame"..continentIndex])
-				scoreFrame:SetScript("OnLeave", DR.tooltip_OnLeave)
-				DR.mainFrame[scoreFrameName] = scoreFrame
-			end
-			
-			-- logic for score calculation and display
-			local scoreValueF = ""
-			if difficultyData then
-				scoreValueF = "------"
-			end
-			local medalValue = ""
-
-			if difficultyData then
-				local currencyID = difficultyData.currencyID
-				local silverTime = difficultyData.silverTime
-				local goldTime = difficultyData.goldTime
-
-				local medalBronze = "|A:challenges-medal-small-bronze:15:15|a"
-				local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
-				local medalGold = "|A:challenges-medal-small-gold:15:15|a"
-			
-				-- purge old data from SVs that is now in DRRaceData.lua
-				if silverTime ~= nil then
-					if DragonRider_DB.raceDataCollector and DragonRider_DB.raceDataCollector[currencyID] then
-						DragonRider_DB.raceDataCollector[currencyID] = nil
-					end
-				end
-
-				-- calculate scores
-				local scoreValue, scorePersonal
-				local scoreRaw = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity
-				if scoreRaw and scoreRaw > 0 then
-					scorePersonal = scoreRaw / 1000
-				end
-				scoreValue = scorePersonal
-				
-				-- handle SVs for account-wide bests
-				if DragonRider_DB.raceData == nil then DragonRider_DB.raceData = {} end
-				if DragonRider_DB.raceData["Account"] == nil then DragonRider_DB.raceData["Account"] = {} end
-
-				if scoreValue then
-					if DragonRider_DB.raceData["Account"][currencyID] == nil then
-						DragonRider_DB.raceData["Account"][currencyID] = { score = scoreValue, character = charKey }
-					elseif scoreValue < DragonRider_DB.raceData["Account"][currencyID]["score"] then
-						DragonRider_DB.raceData["Account"][currencyID]["score"] = scoreValue
-						DragonRider_DB.raceData["Account"][currencyID]["character"] = charKey
-					end
-				end
-				
-				if DragonRider_DB.useAccountData and DragonRider_DB.raceData["Account"][currencyID] then
-					scoreValue = DragonRider_DB.raceData["Account"][currencyID].score
-				end
-				
-				-- determine medal
-				if scoreValue and goldTime and scoreValue < goldTime then
-					medalValue = medalGold
-				elseif scoreValue and silverTime and scoreValue < silverTime then
-					medalValue = medalSilver
-				elseif scoreValue then
-					medalValue = medalBronze
-				end
-				
-				-- format display string
-				if scoreValue then
-					scoreValueF = string.format("%.3f", scoreValue)
-					if medalValue ~= "" then
-						scoreValueF = medalValue .. scoreValueF
-						if DragonRider_DB.useAccountData and DragonRider_DB.raceData["Account"][currencyID] and DragonRider_DB.raceData["Account"][currencyID].character ~= charKey then
-							scoreValueF = scoreValueF .. "*"
-						end
-					end
-				end
-
-				-- set tooltip script
-				scoreFrame:SetScript("OnEnter", function(self)
-					local accountBestScore, accountBestChar
-					if DragonRider_DB.raceData["Account"] and DragonRider_DB.raceData["Account"][currencyID] then
-						accountBestScore = DragonRider_DB.raceData["Account"][currencyID].score
-						accountBestChar = DragonRider_DB.raceData["Account"][currencyID].character
-					end
-
-					local pBest = scorePersonal or "------"
-					local aBest = accountBestScore or "------"
-
-					if type(pBest) == "number" and goldTime and pBest > goldTime then
-						pBest = RED_FONT_COLOR:WrapTextInColorCode(tostring(pBest))
-					end
-					if type(aBest) == "number" and goldTime and aBest > goldTime then
-						aBest = RED_FONT_COLOR:WrapTextInColorCode(tostring(aBest))
-					end
-				
-					GameTooltip:SetOwner(self, "ANCHOR_TOP")
-					GameTooltip:AddDoubleLine(L["PersonalBest"], pBest, 1, 1, 1, 1, 1, 1)
-					GameTooltip:AddDoubleLine(L["AccountBest"], aBest, 1, 1, 1, 1, 1, 1)
-					GameTooltip:AddDoubleLine(L["BestCharacter"], accountBestChar or "------", 1, 1, 1, 1, 1, 1)
-					GameTooltip:AddDoubleLine(L["GoldTime"], goldTime or "------", 1, 1, 1, 1, 1, 1)
-					GameTooltip:AddDoubleLine(L["SilverTime"], silverTime or "------", 1, 1, 1, 1, 1, 1)
-					GameTooltip:Show()
-				end)
-			else
-				-- if no difficulty data, ensure tooltip is cleared
-				scoreFrame:SetScript("OnEnter", nil)
-			end
-			
-			scoreFrame:SetText(scoreValueF)
-			scoreFrame:SetTextColor(1,1,1)
-		end
+DR.mainFrame.multiplayerRace:SetScript("OnClick", function(self)
+	local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT();
+	if not UnitAffectingCombat("player") then
+		C_Map.OpenWorldMap(activeMapID);
 	end
-end
+	C_SuperTrack.SetSuperTrackedMapPin(0, activePOI);
+	PlaySound(170270);
+end);
 
-DR.mainFrame.resizeFrames = {}
-
-function DR.mainFrame.DoPopulationStuff()
-	-- loop over the DR.RaceData table
-	for k, zoneData in ipairs(DR.RaceData) do
-		-- get map name from the zoneID in the new data structure
-		local MapName = C_Map.GetMapInfo(zoneData.zone).name
-		local oneLess = k-1
-
-		if k == 1 then
-			DR.mainFrame["backFrame"..k] = CreateFrame("Frame", nil, content1, "BackdropTemplate");
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", content1, "TOPLEFT", 0, -5);
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -18, -5);
-			DR.mainFrame["titleText"..k] = content1:CreateFontString();
-			DR.mainFrame["titleText"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 10, -5);
-			DR.mainFrame["titleText"..k]:SetParent(DR.mainFrame["backFrame"..k])
-		else
-			DR.mainFrame["backFrame"..k] = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..oneLess], "BackdropTemplate");
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..oneLess], "BOTTOMLEFT", 0, -10);
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame["backFrame"..oneLess], "BOTTOMRIGHT", 0, -10);
-			DR.mainFrame["titleText"..k] = content1:CreateFontString();
-			DR.mainFrame["titleText"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 10, -5);
-			DR.mainFrame["titleText"..k]:SetParent(DR.mainFrame["backFrame"..k])
-		end
-
-		DR.mainFrame["backFrame"..k]:SetHeight(65);
-		DR.mainFrame["backFrame"..k]:SetBackdrop(DR.mainFrame.backdropInfo);
-		DR.mainFrame["backFrame"..k]:SetBackdropColor(0,0,0,.5);
-
-		DR.mainFrame["titleText"..k]:SetFont(STANDARD_TEXT_FONT, 11);
-		DR.mainFrame["titleText"..k]:SetText(MapName);
-		DR.mainFrame["titleText"..k]:SetTextColor(YELLOW_FONT_COLOR:GetRGBA());
-
-		local leftFrame = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		leftFrame:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 0, -1);
-		leftFrame:SetPoint("TOPRIGHT", DR.mainFrame["backFrame"..k], "TOPRIGHT", 0, -1);
-		leftFrame:SetHeight(15);
-		leftFrame.tex = leftFrame:CreateTexture()
-		leftFrame.tex:SetAllPoints(leftFrame)
-		--leftFrame.tex:SetColorTexture(1,1,1,.2)
-
-		local middleFrame_1 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_1:SetPoint("TOP", DR.mainFrame["backFrame"..k], "TOP", -85, 0);
-		middleFrame_1:SetWidth(50)
-		middleFrame_1:SetHeight(15)
-		middleFrame_1.tex = middleFrame_1:CreateTexture()
-		middleFrame_1.tex:SetAllPoints(middleFrame_1)
-		--middleFrame_1.tex:SetColorTexture(1,0,0,.2)
-
-		local middleFrame_2 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_2:SetPoint("TOP", DR.mainFrame["backFrame"..k], "TOP", 0, 0);
-		middleFrame_2:SetWidth(50)
-		middleFrame_2:SetHeight(15)
-		middleFrame_2.tex = middleFrame_2:CreateTexture()
-		middleFrame_2.tex:SetAllPoints(middleFrame_2)
-		--middleFrame_2.tex:SetColorTexture(1,0,1,.2)
-
-		local middleFrame_3 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_3:SetPoint("TOP", DR.mainFrame["backFrame"..k], "TOP", 0, 0);
-		middleFrame_3:SetWidth(50)
-		middleFrame_3:SetHeight(15)
-		middleFrame_3.tex = middleFrame_3:CreateTexture()
-		middleFrame_3.tex:SetAllPoints(middleFrame_3)
-		--middleFrame_3.tex:SetColorTexture(0,0,1,.2)
-
-		local middleFrame_4 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_4:SetPoint("TOP", DR.mainFrame["backFrame"..k], "TOP", 0, 0);
-		middleFrame_4:SetWidth(50)
-		middleFrame_4:SetHeight(15)
-		middleFrame_4.tex = middleFrame_4:CreateTexture()
-		middleFrame_4.tex:SetAllPoints(middleFrame_4)
-		--middleFrame_4.tex:SetColorTexture(0,1,1,.2)
-
-		local middleFrame_5 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_5:SetPoint("TOP", DR.mainFrame["backFrame"..k], "TOP", 0, 0);
-		middleFrame_5:SetWidth(50)
-		middleFrame_5:SetHeight(15)
-		middleFrame_5.tex = middleFrame_5:CreateTexture()
-		middleFrame_5.tex:SetAllPoints(middleFrame_5)
-		--middleFrame_5.tex:SetColorTexture(0,0,0,.2)
-
-		local middleFrame_6 = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..k] )
-		middleFrame_6:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOP", 0, -1);
-		middleFrame_6:SetPoint("TOPRIGHT", DR.mainFrame["backFrame"..k], "TOPRIGHT", 0, -1);
-		middleFrame_6:SetHeight(15);
-		middleFrame_6.tex = middleFrame_6:CreateTexture()
-		middleFrame_6.tex:SetAllPoints(middleFrame_6)
-		--middleFrame_6.tex:SetColorTexture(1,1,0,.2)
-
-
-		leftFrame:SetPoint("TOPRIGHT", middleFrame_1, "TOPLEFT", 0, 0);
-		middleFrame_6:SetPoint("TOPLEFT", middleFrame_5, "TOPRIGHT", 0, 0);
-		middleFrame_2:SetPoint("TOPLEFT", middleFrame_1, "TOPRIGHT", 0, 0);
-		middleFrame_3:SetPoint("TOPLEFT", middleFrame_2, "TOPRIGHT", 0, 0);
-		middleFrame_4:SetPoint("TOPLEFT", middleFrame_3, "TOPRIGHT", 0, 0);
-		middleFrame_5:SetPoint("TOPLEFT", middleFrame_4, "TOPRIGHT", 0, 0);
-		middleFrame_6:SetPoint("TOPLEFT", middleFrame_5, "TOPRIGHT", 0, 0);
-
-		DR.mainFrame.resizeFrames["middleFrame_1"..k] = middleFrame_1
-		DR.mainFrame.resizeFrames["middleFrame_2"..k] = middleFrame_2
-		DR.mainFrame.resizeFrames["middleFrame_3"..k] = middleFrame_3
-		DR.mainFrame.resizeFrames["middleFrame_4"..k] = middleFrame_4
-		DR.mainFrame.resizeFrames["middleFrame_5"..k] = middleFrame_5
-		DR.mainFrame.resizeFrames["middleFrame_6"..k] = middleFrame_6
-
-
-
-
-		local normalText = content1:CreateFontString();
-		normalText:SetFont(STANDARD_TEXT_FONT, 11);
-		normalText:SetPoint("TOPLEFT", middleFrame_1, "TOPLEFT", 0, -5);
-		normalText:SetText(L["Normal"]);
-		normalText:SetParent(DR.mainFrame["backFrame"..k]);
-		normalText:SetSize(65,30)
-		normalText:SetJustifyH("LEFT")
-		normalText:SetJustifyV("TOP")
-
-		local advancedText = content1:CreateFontString();
-		advancedText:SetFont(STANDARD_TEXT_FONT, 11);
-		advancedText:SetPoint("TOPLEFT", middleFrame_2, "TOPLEFT", 0, -5);
-		advancedText:SetText(L["Advanced"]);
-		advancedText:SetParent(DR.mainFrame["backFrame"..k]);
-		advancedText:SetSize(65,30)
-		advancedText:SetJustifyH("LEFT")
-		advancedText:SetJustifyV("TOP")
-
-		local reverseText = content1:CreateFontString();
-		reverseText:SetFont(STANDARD_TEXT_FONT, 11);
-		reverseText:SetPoint("TOPLEFT", middleFrame_3, "TOPLEFT", 0, -5);
-		reverseText:SetText(L["Reverse"]);
-		reverseText:SetParent(DR.mainFrame["backFrame"..k]);
-		reverseText:SetSize(65,30)
-		reverseText:SetJustifyH("LEFT")
-		reverseText:SetJustifyV("TOP")
-
-		local challengeText = content1:CreateFontString();
-		challengeText:SetFont(STANDARD_TEXT_FONT, 11);
-		challengeText:SetPoint("TOPLEFT", middleFrame_4, "TOPLEFT", 0, -5);
-		challengeText:SetText(L["Challenge"]);
-		challengeText:SetParent(DR.mainFrame["backFrame"..k]);
-		challengeText:SetSize(65,30)
-		challengeText:SetJustifyH("LEFT")
-		challengeText:SetJustifyV("TOP")
-
-		local reverseChallText = content1:CreateFontString();
-		reverseChallText:SetFont(STANDARD_TEXT_FONT, 11);
-		reverseChallText:SetPoint("TOPLEFT", middleFrame_5, "TOPLEFT", 0, -5);
-		reverseChallText:SetText(L["ReverseChallenge"]);
-		reverseChallText:SetParent(DR.mainFrame["backFrame"..k]);
-		reverseChallText:SetSize(65,30)
-		reverseChallText:SetJustifyH("LEFT")
-		reverseChallText:SetJustifyV("TOP")
-
-		local stormText = content1:CreateFontString();
-		stormText:SetFont(STANDARD_TEXT_FONT, 11);
-		stormText:SetPoint("TOPLEFT", middleFrame_6, "TOPLEFT", 0, -5);
-		stormText:SetText(L["Storm"]);
-		stormText:SetParent(DR.mainFrame["backFrame"..k]);
-		stormText:SetSize(65,30)
-		stormText:SetJustifyH("LEFT")
-		stormText:SetJustifyV("TOP")
-
-		DR.mainFrame.multiplayerRace = CreateFrame("Button", nil, DR.mainFrame)
-		DR.mainFrame.multiplayerRace:SetPoint("RIGHT", DR.mainFrame.OpenTalentsButton, "LEFT", -10, 0);
-		DR.mainFrame.multiplayerRace:SetParent(DR.mainFrame)
-		DR.mainFrame.multiplayerRace:SetSize(25,25)
-		DR.mainFrame.multiplayerRace.tex = DR.mainFrame.multiplayerRace:CreateTexture()
-		DR.mainFrame.multiplayerRace.tex:SetAllPoints(DR.mainFrame.multiplayerRace)
-		DR.mainFrame.multiplayerRace.tex:SetAtlas("racing")
-
-		DR.mainFrame.multiplayerRace:SetScript("OnEnter", function(self)
-			local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT()
-			DR.tooltip_OnEnter(self, tooltipInfo)
-
-			DR.mainFrame.multiplayerRace:SetScript("OnUpdate", function(self)
-				local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT()
-				DR.tooltip_OnEnter(self, tooltipInfo)
-			end);
-
-		end);
-		DR.mainFrame.multiplayerRace:SetScript("OnLeave", function(self)
-			DR.tooltip_OnLeave();
-			DR.mainFrame.multiplayerRace:SetScript("OnUpdate", nil)
-		end);
-
-		DR.mainFrame.multiplayerRace:SetScript("OnClick", function(self)
-			local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT()
-			if not UnitAffectingCombat("player") then
-				C_Map.OpenWorldMap(activeMapID);
-			end
-			C_SuperTrack.SetSuperTrackedMapPin(0, activePOI)
-			PlaySound(170270);
-		end);
-
-
-		DR.mainFrame.PopulationData(k)
-
-	end
-	DR.mainFrame.isPopulated = true;
-
-end
-
-
-function DR.mainFrame.Script_OnSizeChanged()
-	local width = DR.mainFrame:GetWidth()
-	for k, v in pairs(DR.mainFrame.resizeFrames) do
-		DR.mainFrame.resizeFrames[k]:SetWidth(width*.115)
-	end
-end
+DR.mainFrame.resizeFrames = {};
 
 function DR.mainFrame.Script_OnShow()
 	PlaySound(74421);
-	DR.mainFrame.Script_OnSizeChanged()
-	DR.mainFrame.UpdatePopulation()
+	DR.mainFrame.UpdatePopulation();
+	DR.mainFrame.WorldQuestHandler();
 	if DragonRider_DB.mainFrameSize ~= nil then
 		DR.mainFrame:SetSize(DragonRider_DB.mainFrameSize.width, DragonRider_DB.mainFrameSize.height);
 	end
 end
 
-DR.mainFrame:SetScript("OnSizeChanged", DR.mainFrame.Script_OnSizeChanged)
-DR.mainFrame:SetScript("OnShow", DR.mainFrame.Script_OnShow)
-DR.mainFrame:HookScript("OnShow", SetupFade);
+DR.mainFrame:SetScript("OnShow", DR.mainFrame.Script_OnShow);
+DR.mainFrame:HookScript("OnShow", function(self)
+	SetupFade(self);
+	if DragonRider_DB and not DragonRider_DB.hasSeenChangelog then
+		DR.mainFrame.portraitButton.Glow:Show();
+		DR.mainFrame.portraitButton.PulseAnim:Play();
+	else
+		if DR.mainFrame.portraitButton.Glow then
+			DR.mainFrame.portraitButton.Glow:Hide();
+			DR.mainFrame.portraitButton.PulseAnim:Stop();
+		end
+	end
+end);
+DR.mainFrame:SetScript("OnHide", function()
+	PlaySound(74423);
+	if DR.HideChangelog then
+		DR.HideChangelog();
+	end
+end);
 DR.mainFrame:HookScript("OnHide", CleanupFade);
+
+local loader = CreateFrame("Frame");
+loader:RegisterEvent("ADDON_LOADED");
+
+loader:SetScript("OnEvent", function(self, event, addonName)
+	if addonName == "DragonRider" then
+		DR.mainFrame.UpdatePopulation();
+	end
+end);
