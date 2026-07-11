@@ -303,5 +303,9 @@ compat.features = {
     },
     travel = {
         secondaryPorts = compat.isMainline or compat.isMists,
-    }
+    },
+    armor = {
+        -- Equipment sets were added in Mists of Pandaria.
+        equipmentSets = compat.isMainline or compat.isMists,
+    },
 }
