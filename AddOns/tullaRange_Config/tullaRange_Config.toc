@@ -1,4 +1,4 @@
-## Interface: 11508, 50504, 120005, 120007
+## Interface: 120010, 120007, 50504, 20506, 11508
 ## Title: tullaRange Config
 ## Author: Tuller
 ## Notes: tullaRange's configuration interface
