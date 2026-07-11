@@ -4,6 +4,8 @@ local _G = _G
 local xb = XIVBar
 local L = XIVBar.L
 local compat = XIVBar.compat or {}
+local equipmentSetsAvailable = compat.features and compat.features.armor
+    and compat.features.armor.equipmentSets
 local C_EquipmentSet = C_EquipmentSet
 local IsAddOnLoaded = (compat and compat.IsAddOnLoaded) or (C_AddOns and C_AddOns.IsAddOnLoaded) or _G.IsAddOnLoaded
 
@@ -74,7 +76,9 @@ function ArmorModule:OnEnable()
     self:RegisterCoordTicker()
     self:RegisterEvent('UPDATE_INVENTORY_DURABILITY')
     self:RegisterEvent('PLAYER_EQUIPMENT_CHANGED', 'ScheduleEquipmentRefresh')
-    self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
+    if equipmentSetsAvailable then
+        self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
+    end
     self:RegisterEvent('UNIT_INVENTORY_CHANGED')
     self:RegisterEvent('PLAYER_ENTERING_WORLD')
     xb:Refresh()
@@ -83,7 +87,9 @@ end
 function ArmorModule:OnDisable()
     self:UnregisterEvent('UPDATE_INVENTORY_DURABILITY')
     self:UnregisterEvent('PLAYER_EQUIPMENT_CHANGED')
-    self:UnregisterEvent('EQUIPMENT_SWAP_FINISHED')
+    if equipmentSetsAvailable then
+        self:UnregisterEvent('EQUIPMENT_SWAP_FINISHED')
+    end
     self:UnregisterEvent('UNIT_INVENTORY_CHANGED')
     self:UnregisterEvent('PLAYER_ENTERING_WORLD')
     self.equipmentFollowUpToken = (self.equipmentFollowUpToken or 0) + 1
@@ -178,13 +184,14 @@ function ArmorModule:PLAYER_ENTERING_WORLD()
 end
 
 function ArmorModule:GetSlotDurability(slotId)
-    if compat.isMainline then
-        return GetInventoryItemDurability(slotId)
-    end
-    return GetInventoryItemDurability('player', slotId)
+    -- Player inventory durability uses the single-slot form on Retail and Classic.
+    return GetInventoryItemDurability(slotId)
 end
 
 function ArmorModule:GetCurrentEquipmentSet()
+    if not equipmentSetsAvailable then
+        return nil, nil
+    end
     if not C_EquipmentSet or not C_EquipmentSet.GetEquipmentSetIDs or not C_EquipmentSet.GetEquipmentSetInfo then
         return nil, nil
     end
@@ -209,6 +216,10 @@ function ArmorModule:CreateFrames()
     self.armorIcon = self.armorIcon or self.armorButton:CreateTexture(nil, 'OVERLAY')
     self.armorText = self.armorText or self.armorButton:CreateFontString(nil, 'OVERLAY')
     self.coordText = self.coordText or self.armorButton:CreateFontString(nil, 'OVERLAY')
+
+    if not equipmentSetsAvailable then
+        return
+    end
 
     local template = (TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") or
                          (BackdropTemplateMixin and "BackdropTemplate")
@@ -245,7 +256,7 @@ function ArmorModule:RegisterFrameEvents()
             return
         end
         self:SetArmorColor()
-        if not self.equipmentSetPopup:IsVisible() then
+        if not self.equipmentSetPopup or not self.equipmentSetPopup:IsVisible() then
             self:ShowTooltip()
         end
     end)
@@ -265,7 +276,7 @@ function ArmorModule:RegisterFrameEvents()
             return
         end
 
-        if button == 'LeftButton' then
+        if button == 'LeftButton' and equipmentSetsAvailable then
             if not self.equipmentSetPopup:IsVisible() then
                 self:CreateEquipmentSetPopup()
                 xb:ShowPopup(self.equipmentSetPopup)
@@ -294,7 +305,7 @@ function ArmorModule:RegisterFrameEvents()
 end
 
 function ArmorModule:CreateEquipmentSetPopup()
-    if not self.equipmentSetPopup then
+    if not equipmentSetsAvailable or not self.equipmentSetPopup then
         return
     end
 
@@ -499,7 +510,7 @@ function ArmorModule:ShowTooltip()
     end
 
     local currentSetName, currentSetIcon = self:GetCurrentEquipmentSet()
-    if currentSetName then
+    if equipmentSetsAvailable and currentSetName then
         GameTooltip:AddLine(" ")
         local setLabel = "|cFFFFFFFF" .. currentSetName .. "|r"
         if currentSetIcon then
@@ -512,8 +523,10 @@ function ArmorModule:ShowTooltip()
         )
     end
 
-    GameTooltip:AddLine(" ")
-    GameTooltip:AddDoubleLine('<' .. L["LEFT_CLICK"] .. '>', L["SET_EQUIPMENT_SET"], r, g, b, 1, 1, 1)
+    if equipmentSetsAvailable then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine('<' .. L["LEFT_CLICK"] .. '>', L["SET_EQUIPMENT_SET"], r, g, b, 1, 1, 1)
+    end
     GameTooltip:Show()
 end
 
