@@ -75,6 +75,7 @@ If you copy and paste that for me, I can see the same item on my computer, and t
 Pawn plays along with most other addons, but there are a few that break Pawn that there's no workaround for. Typically this is addons that change the way that stats appear on item tooltips, such as changing "+25 Critical Strike" to "Crit +25".
 
 * Class Codex
+	* ...but you can work around this by going into Class Codex's options, scrolling to Tooltips, unchecking Stat Priority Ranks, and reloading.
 * Combat Numbers Separator + Titan Panel Artifact Power
 * FreeUI
 * TipTac
@@ -82,6 +83,10 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 * Undermine Journal
 
 ## Updates
+
+### Version 2.13.13
+
+* Midnight: Additional changes to hide "secret taint" errors.
 
 ### Version 2.13.12
 
