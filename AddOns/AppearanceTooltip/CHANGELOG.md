@@ -1,6 +1,6 @@
 # AppearanceTooltip
 
-## [v82](https://github.com/kemayo/wow-appearancetooltip/tree/v82) (2026-06-19)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v81...v82) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v83](https://github.com/kemayo/wow-appearancetooltip/tree/v83) (2026-07-10)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v82...v83) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- TOC for 12.0.7, 5.5.4  
+- Guard GetCenter with IsRectValid to avoid secret value errors from forced layout  
