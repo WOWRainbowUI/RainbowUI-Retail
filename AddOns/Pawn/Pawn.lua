@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1312
+PawnVersion = 2.1313
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -1776,6 +1776,7 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 				local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 				if LeftLine then
 					local LeftLineText = LeftLine:GetText()
+					if issecretvalue and issecretvalue(LeftLineText) then break end -- If we hit any secrets before we're done, give up on reading.
 					if LeftLineText and LeftLineText ~= "" and (strfind(LeftLineText, ItemLevelSearchPattern1) or strfind(LeftLineText, ItemLevelSearchPattern2)) then
 						-- This is the line.  Add an arrow to the end.
 						AnnotatedItemLevel = true
@@ -2077,7 +2078,7 @@ function PawnFixStupidTooltipFormatting(TooltipName)
 		local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 		local Text = LeftLine:GetText()
 		local Updated = false
-		if Text and strfind(Text, "\n", 1, true) ~= 1 then
+		if (not issecretvalue or not issecretvalue(Text)) and Text and strfind(Text, "\n", 1, true) ~= 1 then
 			-- First, look for a color.
 			if strfind(Text, "|cffffffff", 1, true) == 1 then
 				Text = strsub(Text, 11)
@@ -2208,7 +2209,7 @@ function PawnGetStatsFromTooltip(TooltipName, DebugMessages)
 	for i = ItemNameLineNumber + 1, Tooltip:NumLines() do
 		local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 		local LeftLineText = LeftLine:GetText()
-		if not LeftLineText then break end
+		if (issecretvalue and issecretvalue(LeftLineText)) or not LeftLineText then break end
 
 		-- Look for this line in the "kill lines" list.  If it's there, we're done.
 		local IsKillLine = false
@@ -2238,7 +2239,7 @@ function PawnGetStatsFromTooltip(TooltipName, DebugMessages)
 			else
 				local RightLine = _G[TooltipName .. "TextRight" .. i]
 				CurrentParseText = RightLine:GetText()
-				if (not CurrentParseText) or (CurrentParseText == "") then break end
+				if (issecretvalue and issecretvalue(ItemName)) or (not CurrentParseText) or (CurrentParseText == "") then break end
 				RegexTable = PawnRightHandRegexes
 				CurrentDebugMessages = false
 				IgnoreErrors = true
@@ -2609,14 +2610,16 @@ function PawnGetItemNameFromTooltip(TooltipName)
 	local TooltipTopLine = _G[TooltipName .. "TextLeft1"]
 	if not TooltipTopLine then return end
 	local ItemName = TooltipTopLine:GetText()
-	if not ItemName or (issecretvalue and issecretvalue(ItemName)) or ItemName == "" or ItemName == RETRIEVING_ITEM_INFO then return end
+	if (issecretvalue and issecretvalue(ItemName)) or not ItemName or ItemName == "" or ItemName == RETRIEVING_ITEM_INFO then return end
 
 	-- If this is a Currently Equipped tooltip, skip the first line.
 	if ItemName == CURRENTLY_EQUIPPED then
 		ItemNameLineNumber = 2
 		TooltipTopLine = _G[TooltipName .. "TextLeft2"]
 		if not TooltipTopLine then return end
-		return TooltipTopLine:GetText(), 2
+		local TopLineName = TooltipTopLine:GetText()
+		if (issecretvalue and issecretvalue(TopLineName)) or not TopLineName then return end
+		return TopLineName, 2
 	end
 	return ItemName, 1
 end
@@ -2636,7 +2639,7 @@ function PawnAnnotateTooltipLines(TooltipName, Lines)
 		local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 		if LeftLine then
 			local LeftLineText = LeftLine:GetText()
-			if Lines[LeftLineText] then
+			if (not issecretvalue or not issecretvalue(LeftLineText)) and Lines[LeftLineText] then
 				-- Getting the line text can fail in the following scenario, observable with MobInfo-2:
 				-- 1. Other mod modifies a tooltip to include unrecognized text.
 				-- 2. Pawn reads the tooltip, noting those unrecognized lines and remembering them so that they
@@ -4715,6 +4718,7 @@ function PawnAddRelicUpgradesToTooltip(TooltipName, UpgradeInfo)
 	for i = 1, Lines do
 		local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 		local ArtifactName = LeftLine:GetText()
+		if (issecretvalue and issecretvalue(ArtifactName)) then return end
 
 		local ArtifactUpgradeInfo = UpgradeInfo[ArtifactName]
 		if ArtifactUpgradeInfo then
