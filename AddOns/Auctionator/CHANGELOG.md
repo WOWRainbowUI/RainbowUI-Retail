@@ -1,6 +1,6 @@
 # Auctionator
 
-## [329](https://github.com/TheMouseNest/Auctionator/tree/329) (2026-07-08)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/328...329) 
+## [330](https://github.com/TheMouseNest/Auctionator/tree/330) (2026-07-08)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/329...330) 
 
-- Bugfix for Blizzard error on TBC  
+- Classic Anniversary: Fix tooltip on preview item on buy screen  
