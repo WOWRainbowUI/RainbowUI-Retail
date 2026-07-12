@@ -15,6 +15,8 @@ local CHAMPIONS = {
     "Insecurity",
     "Lisa",
     "HelloImDrew",
+    "Keith C Davis",
+    "willis_1128",
 }
 local SUPPORTER_LIST = {
     "Bxnane",
@@ -27,6 +29,7 @@ local SUPPORTER_LIST = {
     "Joe Zollo",
     "Zalyniela",
     "Kim",
+    "xmousseline",
 }
 
 -------------------------------------------------------------------------------

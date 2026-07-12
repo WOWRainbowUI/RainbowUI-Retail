@@ -84,17 +84,18 @@ function ns:UpdateGearingSections()
         end
     end
 
-    -- Same for Archon gear so items are ready when the user switches source.
-    local archonSpecData = playerClass and playerSpec and ns:GetArchonGearSpecData(playerClass, playerSpec)
-    if archonSpecData and archonSpecData.bisGear then
-        for _, tab in ipairs(archonSpecData.bisGear) do
+    -- Same for u.gg gear so items are ready when the user switches source.
+    local uggSpecData = playerClass and playerSpec and ns:GetUggGearSpecData(playerClass, playerSpec)
+    if uggSpecData and uggSpecData.bisGear then
+        for _, tab in ipairs(uggSpecData.bisGear) do
             for _, g in ipairs(tab.slots) do ns.RequestItemData(g.item.itemId) end
         end
     end
 
     local enchHeight, gemCount, consumCount = ns.Sections.Enhancements.RenderPanel({
-        wowheadEnchants = gearData and gearData.enchants,
-        wowheadGems     = gearData and gearData.gems,
+        -- u.gg enchants render name-only (no spell/item id to resolve an icon).
+        uggEnchants = uggSpecData and uggSpecData.enchants,
+        uggGems     = gearData and gearData.gems,
         consumables     = gearData and gearData.consumables,
         pvpEnchants     = PvP.enchants(),
         pvpGems         = PvP.gems(),
@@ -131,11 +132,10 @@ function ns:UpdateGearingSections()
     local _specKey = ns.GetSpecKey()
     local _spec = _specKey and (_specKey:match("-(.+)") or _specKey)
     local _ivSpec = _classToken and _spec and ns:GetIcyVeinsSpecData(_classToken, _spec)
-    local _archonSpec = _classToken and _spec and ns:GetArchonGearSpecData(_classToken, _spec)
+    local _uggSpec = _classToken and _spec and ns:GetUggGearSpecData(_classToken, _spec)
     lastBisCount = ns.Sections.Gear.RenderPanel({
-        wowheadBis = gearData and gearData.bisGear,
         ivBis      = _ivSpec and _ivSpec.bisGear,
-        archonBis  = _archonSpec and _archonSpec.bisGear,
+        uggBis  = _uggSpec and _uggSpec.bisGear,
         pvpBis     = PvP.bis(),
         onChange   = function()
             ns:UpdateGearingSections()

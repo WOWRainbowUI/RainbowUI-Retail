@@ -27,8 +27,8 @@ ClassCodexBnetPvpTalents["HUNTER"] = {
   ["marksmanship"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZGWyMMLAAAAAAAAAzwYGLzYGzMDGaGDmtltZmxyYGzMWYmlhZGAAwMjZmZmZwMjtFMDwCzMG", heroTalent = "Dark Ranger" }, { exportString = "C4PApei1JmYNvFfEFaN5bWuGKYZZ2GDjhZaYmhlMDzCAAAAAAAAwMMmxixMzMzAjmZmZMbLbzMsZmhZsNGbDzMAAgZGzMzMzAzYbBzAswMjB", heroTalent = "Dark Ranger" } },
-        pvpTalentSets = { { talents = { 5440, 653, 651 } }, { talents = { 653, 651, 659 } } },
+        builds = { { exportString = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZGWyMMLAAAAAAAAAzwYGLGzMzMjxDQzYwstYmZsNzMmZswMLDzMAAgZGzMzMzgZGbLYGgNmZM", heroTalent = "Dark Ranger" }, { exportString = "C4PApei1JmYNvFfEFaN5bWuGKYZZ2GDjZMTjlZGWyMMLAAAAAAAAAzwYGLGzMzMjhRzMDmtltZG2mZGzM2YmlhZGAAwMMzMzMDmZstgZAWYmxA", heroTalent = "Dark Ranger" } },
+        pvpTalentSets = { { talents = { 651, 653, 5440 } }, { talents = { 5533, 653, 651 } } },
       },
       ["pvp-3v3"] = {
         builds = { { exportString = "C4PApei1JmYNvFfEFaN5bWuGKYZZ2GDjZMTjlZG2yMMLAAAAAAAAAzwYGLGzMzMDLDNjZY2W2MMLzMjZGbMz2gBAAYGmZmZmBzM2WwMALMzMD", heroTalent = "Dark Ranger" } },
@@ -51,8 +51,8 @@ ClassCodexBnetPvpTalents["HUNTER"] = {
   ["survival"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGzssMjhZMYGNDAAAADAwy2MzsYmZmZmxMDYmtZYbBzYMjNDA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYxYmZMeglZAAAAAAYGGzssMjhZMYGNDAAAADAwyyMzsYmZmZmxMDYmtZYbBzYMjNDA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMgxMG2ILwMM0gFzMzMzwyAAAAAAgZMzMjtZMmxMYMNDAAAADAMWWmZmFzMzYMmZAzsBAjxMzmBA", heroTalent = "Pack Leader" } },
-        pvpTalentSets = { { talents = { 664, 3607, 665 } }, { talents = { 3607, 664, 3609 } }, { talents = { 665, 3609, 3607 } }, { talents = { 5532, 3607, 661 } } },
+        builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGzssMjhZMYGNzAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjNDA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0ssMMDzMNYzMzMjhlZAAAAAAYGzYYxYMzMDLGNDAAAADAwyyMzsYmZmZGmZAzsNDLLYGjZsYA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzMzMjxDsMDAAAAAAzwYYxYMzMDLzoZAAAAYAAW2mZmFzMzYGmZAzsMDbLYGjZsZA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzMzMjhlZAAAAAAYGGzssMjhZegBzoZAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjFDA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMgxMG2ILwMM0gFzMzMzwyAAAAAAgZMzMjtZMmxMYMNDAAAADAMWWmZmFzMzYMGDYmNAWMGzMbGA", heroTalent = "Pack Leader" } },
+        pvpTalentSets = { { talents = { 3607, 665, 664 } }, { talents = { 661, 3609, 3607 } }, { talents = { 5532, 3607, 661 } } },
       },
       ["pvp-3v3"] = {
         builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzMzMjhlZAAAAAAYGGzssMjhZMsMjmBAAAgBAYZbmZWMzMzMDzMgZ2mhtFMjxM2MA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGmZmllZMMjBzoZAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjNDA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYmxYGLGjZmHYwMaGAAAAGAgltZmZxMzMzMMzAmZbG2WwMGzYzAA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMgxMGWILwMM0gFzMzMzwyAAAAAAgZMzMjtZMmxMYMNDAAAADAMWWmZmFzMzYMmZAzsBAjxMzmBA", heroTalent = "Pack Leader" } },
@@ -63,8 +63,8 @@ ClassCodexBnetPvpTalents["HUNTER"] = {
         pvpTalentSets = { { talents = { 3609, 664, 3607 } }, { talents = { 665, 3609, 3607 } }, { talents = { 3607, 661, 3609 } }, { talents = { 662, 3607, 664 } }, { talents = { 665, 5532, 3607 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYxMzMjxDsMDAAAAAAzwYssMjhZmBzoZAAAAYAAWWmZmFzMzYGmZAzsMDbLYGjZsYA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZbkllhZYmpBLmZmZmhlBAAAAAAzYMzYbGDjZwYaGAAAAGAYssMzMLmZmxMjxAmZbG2wyMGzMMA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYxMzMzMjl5BAAAAAAYGzMzYZGjZMDLjpZAAAAYAAW2mZsZmZmhxYAzsNDLwMGzMbGA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwYGjZjmlthZYGNYxYmZmhlBAAAAAAzMzYGmxYGzgHw0MAAAAMA4BGLLzMziZmZMPwYMgZ2MALzYMzsZA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0ssMMDzMNYzYmZMmlZAAAAAAYGGzssMjHwMjBzoZAAAAYAAW2mZmFzMzYGmZAzYG2WYZGjZsYA", heroTalent = "Sentinel" } },
-        pvpTalentSets = { { talents = { 3609, 3607, 664 } }, { talents = { 664, 3609, 3607 } }, { talents = { 661, 686, 5532 } }, { talents = { 5532, 661, 3607 } }, { talents = { 3607, 3609, 662 } } },
+        builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYxMzMjxDsMDAAAAAAzwYssMjhZmBzoZAAAAYAAWWmZmFzMzYGmZAzsMDbLYGjZsYA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0sYYGmZawiZmZmZYZAAAAAAwMmZmhZMMmBjpZAAAAYAgxyyMzsYmZGzMGDYmFDgZMmZ2MA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwYGjZjmlthZYGNYxMzMzMsMAAAAAAYmZGzwMGzYG8AmmBAAAgBAPwYZZmZWMzMj5BGjBMzmBYZGMzsZA", heroTalent = "Pack Leader" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0ssMMDzMNYzYmZMmlZAAAAAAYGGzssMjHwMjBzoZAAAAYAAW2mZmFzMzYGmZAzYG2WYZGjZsYA", heroTalent = "Sentinel" }, { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0ssMMDmpBbGzMjxDsMDAAAAAAzMGDLGjZmZY5BGNDAAAADAwyyMzsYmZmZGmZAGzw2CmxYGbGA", heroTalent = "Sentinel" } },
+        pvpTalentSets = { { talents = { 3609, 3607, 664 } }, { talents = { 664, 3609, 3607 } }, { talents = { 3607, 665, 3609 } }, { talents = { 661, 665, 662 } }, { talents = { 3607, 3609, 662 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzYmZMeglZAAAAAAYGGzssMjhZMYGNDAAAADAwy2MzsYmZmZmxMDYmtZYbBzYMjNDA", heroTalent = "Sentinel" } },

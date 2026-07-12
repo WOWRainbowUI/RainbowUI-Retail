@@ -15,8 +15,8 @@ ClassCodexBnetPvpTalents["PALADIN"] = {
         pvpTalentSets = { { talents = { 5583, 87, 640 } }, { talents = { 640, 5583, 85 } }, { talents = { 640, 642, 5583 } }, { talents = { 640, 5583, 87 } }, { talents = { 640, 87, 5692 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglZmhZGzMzCjZGPwywMzmZaihxMzwwslBgBgFwGLzYmlZZmZ2aAAzMbbbWmZYBAWMMmxMYAAMzwMGjGA", heroTalent = "Herald of the Sun" }, { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMAAglZmZGzYmZ2YMGzyYbmZxoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A", heroTalent = "Herald of the Sun" }, { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAAsMmhZGzMDjxMzsMDzsx0EzyMmZmxwslBgBgNwmhZGAEAwMz22mlZG2YhHYwmBGbmBAmZAwAaA", heroTalent = "Lightsmith" } },
-        pvpTalentSets = { { talents = { 85, 87, 642 } }, { talents = { 5674, 5663, 5692 } }, { talents = { 86, 640, 5674 } } },
+        builds = { { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAMLAgZAAGsMmZGzsMzMLzwALjtZmFjmYWmhZmxgtMAMAsB2MbzMzsNbzMzWDAYmZZbx2MDLAM2MzwgBDgZGMzgxgGA", heroTalent = "Herald of the Sun" }, { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMAAglxMzYmlZmZjxYYZsNzsYmmYMjZmhhZLDADYYDsxyMmZZ2mZmtGAAAgFAYzwYGzgBAwMDzYMaA", heroTalent = "Herald of the Sun" } },
+        pvpTalentSets = { { talents = { 642, 85, 5692 } }, { talents = { 642, 640, 5618 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzYGDbjtZmFz0EzyMMDGslBgBgNwmZzMDACAYmZZbx2MDbsBGbmhZmtZwAYmBADGNA", heroTalent = "Lightsmith" } },
@@ -39,8 +39,8 @@ ClassCodexBnetPvpTalents["PALADIN"] = {
         pvpTalentSets = { { talents = { 860, 94, 861 } }, { talents = { 5582, 91, 94 } }, { talents = { 5664, 861, 94 } }, { talents = { 92, 94, 861 } }, { talents = { 94, 90, 861 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CIEAVg1HmQqr1Dwlv86ljju8vuNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MzyMjZwws1GAGYAzgNAAwMTbzMLzAEYzMYAwYGGDAwyMAzMgB", heroTalent = "Templar" }, { exportString = "CIEAVg1HmQqr1Dwlv86ljju8vuZGzYWGLzMjZGWGjxMLMjBAYAAAAAAQamZxMmZGjZ2aBADYAD2AAAzMtNzsMzMzy2SLzM2YYGAMmhxAgZmlZAmZAD", heroTalent = "Templar" } },
-        pvpTalentSets = { { talents = { 5677, 90, 844 } }, { talents = { 91, 861, 90 } } },
+        builds = { { exportString = "CIEAVg1HmQqr1Dwlv86ljju8vuZGzYWGLzMjZGWGjxMLMjBAYAAAAAAQamZxMmZGjZ2aBADYAD2AAAzMtNzsMzMzy2SLzM2YYGAMmhxAgZmlZAmZAD", heroTalent = "Templar" }, { exportString = "CIEAVg1HmQqr1Dwlv86ljju8vuZMPAzyYZmZMzMLbDzwsMLzYAAGAAAAAA00MzyMjZGGmtAgBGAYDAAMz02MzyMjZZbpFGbmBDgxYmFjBAzMLzAMDwA", heroTalent = "Templar" } },
+        pvpTalentSets = { { talents = { 91, 861, 90 } }, { talents = { 860, 5677, 90 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CIEAVg1HmQqr1Dwlv86ljju8vuNPwMY2mZZMzMzM2YmhZhhBAYAAAAAAQTzMLzMmZYwWbAYAgZw2AAAzMtNzsNzMz22SLzM2MDGGYMmxYGAglZAmZAD", heroTalent = "Templar" } },
@@ -59,8 +59,8 @@ ClassCodexBnetPvpTalents["PALADIN"] = {
         pvpTalentSets = { { talents = { 752, 5573, 5535 } }, { talents = { 5535, 752, 5584 } }, { talents = { 5535, 752, 81 } }, { talents = { 5573, 5535, 752 } }, { talents = { 5584, 5535, 752 } } },
       },
       ["pvp-blitz"] = {
-        builds = { { exportString = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAMa22mZmlxMmZAAAAAAmpMmhZGbDz2wMbzYMmZYGbsBALjZmRzMTbzMbzAA2AMMAjZYGMjhNsMzMzwYYwA", heroTalent = "Templar" } },
-        pvpTalentSets = { { talents = { 752, 5535, 5573 } }, { talents = { 5584, 5573, 752 } }, { talents = { 752, 5573, 5584 } }, { talents = { 5584, 5535, 752 } }, { talents = { 81, 753, 5666 } } },
+        builds = { { exportString = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzyyMzsMmZGDAAAAAwMlxMMzYbY2GMbz4BmxMDzYjtBAAkZm2mZ2mBAsBYAAzwMYGjZDLzgxMGGM", heroTalent = "Templar" } },
+        pvpTalentSets = { { talents = { 752, 5535, 5573 } }, { talents = { 5584, 5573, 752 } }, { talents = { 5535, 5573, 752 } }, { talents = { 5666, 81, 753 } }, { talents = { 81, 5535, 752 } } },
       },
       ["pvp-rbg"] = {
         builds = { { exportString = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMmZGDAAAAAwMlZZGmZsMYbYmtZ8AGzMMjF2GAmlZZmZ2amZabmZbGAwCgBwYMjZGMjhNsMzMzwYYwA", heroTalent = "Herald of the Sun" } },

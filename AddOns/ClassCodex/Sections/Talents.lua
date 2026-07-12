@@ -6,8 +6,8 @@ local L = ns.L
 -- Talents section — Guide-tab preview only (the top builds for the active
 -- hero, with copy + apply buttons). The standalone "Talents" side tab on
 -- the panel (and the Talents tab in the Compendium) still renders inline
--- because the grouped-by-context / Archon-encounter layout uses its own
--- on-demand row + header pools with archon-section collapse state.
+-- because the grouped-by-context / u.gg-encounter layout uses its own
+-- on-demand row + header pools with ugg-section collapse state.
 local Talents = {}
 ns.Sections.Talents = Talents
 

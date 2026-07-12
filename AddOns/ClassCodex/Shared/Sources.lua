@@ -11,10 +11,8 @@ local TEX = "Interface\\AddOns\\ClassCodex\\Textures\\"
 
 -- `color` is the brand accent (r, g, b 0-1) used by the About-tab source cards.
 ns.SOURCES = {
-    wowhead  = { key = "wowhead",  name = "Wowhead",   homepage = "https://www.wowhead.com",   iconTex = "wowhead",  color = { 0.97, 0.71, 0.13 } },
     icyveins = { key = "icyveins", name = "Icy Veins", homepage = "https://www.icy-veins.com", iconTex = "icyveins", color = { 0.30, 0.62, 0.90 } },
-    archon   = { key = "archon",   name = "Archon",    homepage = "https://www.archon.gg/wow", iconTex = "archon",   color = { 0.55, 0.42, 0.95 } },
-    murlok   = { key = "murlok",   name = "Murlok",    homepage = "https://murlok.io",         iconTex = "murlok",   color = { 0.20, 0.74, 0.69 } },
+    ugg      = { key = "ugg",      name = "u.gg",      homepage = "https://u.gg/wow",          iconTex = "ugg",      color = { 0.36, 0.09, 0.77 } },
     bnet     = { key = "bnet",     name = "Blizzard",  homepage = "https://worldofwarcraft.blizzard.com", iconTex = "bnet", color = { 0.10, 0.58, 0.90 } },
 }
 
@@ -37,14 +35,6 @@ end
 function ns.SourceTexturePath(key)
     local src = ns.SOURCES[key]
     return src and (TEX .. src.iconTex) or nil
-end
-
--- "PvP" is never a real source. Resolve the actual provider by data type:
--- talents come from Blizzard's armory API (bnet); gear / enchants / gems /
--- stats / embellishments come from Murlok.
-function ns.ResolvePvPSource(dataType)
-    if dataType == "talents" then return "bnet" end
-    return "murlok"
 end
 
 -------------------------------------------------------------------------------
@@ -70,10 +60,13 @@ function ns.CreateSourceTag(parent, opts)
     icon:SetPoint("RIGHT", btn, "RIGHT", 0, 1)
     btn.icon = icon
 
+    -- Resting text colour; caller can override (e.g. the Compendium, where the
+    -- default dim grey blends into the lighter inset background).
+    local rc = opts.textColor or { 0.5, 0.5, 0.5 }
     local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     fs:SetPoint("RIGHT", btn, "RIGHT", -(ICON + 3), 0)
     fs:SetJustifyH("RIGHT")
-    fs:SetTextColor(0.5, 0.5, 0.5)
+    fs:SetTextColor(rc[1], rc[2], rc[3])
     btn.text = fs
     btn:Hide()
 
@@ -115,7 +108,7 @@ function ns.CreateSourceTag(parent, opts)
         GameTooltip:Show()
     end)
     btn:SetScript("OnLeave", function(self)
-        self.text:SetTextColor(0.5, 0.5, 0.5)
+        self.text:SetTextColor(rc[1], rc[2], rc[3])
         GameTooltip:Hide()
     end)
     btn:SetScript("OnClick", function(self)
@@ -145,8 +138,7 @@ end
 -- All attribution URLs live in one consolidated table, grouped by source then
 -- page, generated per class (see scraper/generate-sources-lua.ts):
 --   ClassCodexSources[classToken][specSlug] = {
---     wowhead = { guide, bis }, icyveins = { bis, talents, leveling },
---     archon = { build }, murlok = { pvp } }
+--     icyveins = { bis, talents, leveling }, ugg = { build } }
 -- The helpers below just read from it.
 
 -- Player's class token + spec slug, for the no-arg helpers (docked pane / About
@@ -166,14 +158,6 @@ local function srcUrl(class, spec, source, page)
     return pages and pages[page] or nil
 end
 
-local function wowheadGuideUrl(class, spec)
-    return srcUrl(class, spec, "wowhead", "guide") or ns.SOURCES.wowhead.homepage
-end
-
-local function wowheadBisUrl(class, spec)
-    return srcUrl(class, spec, "wowhead", "bis") or wowheadGuideUrl(class, spec)
-end
-
 local function icyVeinsGearUrl(class, spec)
     return srcUrl(class, spec, "icyveins", "bis") or ns.SOURCES.icyveins.homepage
 end
@@ -188,46 +172,45 @@ local function icyVeinsTalentsUrl(class, spec, leveling)
     return srcUrl(class, spec, "icyveins", "talents") or ns.SOURCES.icyveins.homepage
 end
 
-local function archonOverviewUrl(class, spec)
-    return srcUrl(class, spec, "archon", "build")
+-- u.gg spec pages are fully deterministic from class + spec, so we build the
+-- exact page we scrape each surface from (e.g. .../frost/death_knight/gear)
+-- rather than storing per-spec URLs. `page` nil yields the spec root.
+local UGG_CLASS_SLUG = { DEATHKNIGHT = "death_knight", DEMONHUNTER = "demon_hunter" }
+local function uggPageUrl(class, spec, page)
+    if not class or not spec then return ns.SOURCES.ugg.homepage end
+    local classSlug = UGG_CLASS_SLUG[class] or class:lower()
+    local specSlug = spec:gsub("-", "_")
+    local base = string.format("https://u.gg/wow/%s/%s", specSlug, classSlug)
+    return page and (base .. "/" .. page) or base
 end
 
-local function murlokUrl(class, spec)
-    return srcUrl(class, spec, "murlok", "pvp") or ns.SOURCES.murlok.homepage
-end
+local function uggOverviewUrl(class, spec) return uggPageUrl(class, spec, "talents") end
+local function uggTalentsUrl(class, spec)  return uggPageUrl(class, spec, "talents") end
+local function uggGearUrl(class, spec)     return uggPageUrl(class, spec, "gear") end
+local function uggEnchantsUrl(class, spec) return uggPageUrl(class, spec, "gems-and-enchants") end
+local function uggTrinketsUrl(class, spec) return uggPageUrl(class, spec, "trinkets") end
 
 -- URL helpers exposed for surfaces that resolve their own selection state
 -- (e.g. the Compendium, the talent dropdown). Each falls back to the source
 -- homepage when the exact page is unavailable.
 ns.SourceUrls = {
-    wowheadGuide   = wowheadGuideUrl,
-    wowheadBis     = wowheadBisUrl,
     icyVeinsGear   = icyVeinsGearUrl,
     icyVeinsTalents = icyVeinsTalentsUrl,
-    archonOverview = archonOverviewUrl,
-    murlok         = murlokUrl,
+    uggOverview    = uggOverviewUrl,
+    uggTalents     = uggTalentsUrl,
 }
 
--- BiS page URL for a resolved gear-source key. Shared by the docked Gear
--- panel and the Compendium so the per-source link logic lives in one place.
+-- BiS page URL for a resolved gear-source key (u.gg or Icy Veins).
 function ns.BisUrlForKey(key, class, spec)
     if key == "icyveins" then return icyVeinsGearUrl(class, spec) end
-    if key == "archon" then return archonOverviewUrl(class, spec) or ns.SOURCES.archon.homepage end
-    if key == "murlok" then return murlokUrl(class, spec) end
-    return wowheadBisUrl(class, spec)
+    return uggGearUrl(class, spec)
 end
 
--- Map the Gear/Enhancements dropdown string ("Wowhead"/"Icy Veins"/"Archon"/
--- "PvP") to a registry key + URL for the given data type.
+-- Map a Gear/Enhancements dropdown string ("Icy Veins"/"u.gg"/"PvP") to a
+-- registry key + URL. PvP gear comes from u.gg; defaults to u.gg.
 local function fromDropdown(picked, dataType, class, spec)
     if picked == "Icy Veins" then return "icyveins", icyVeinsGearUrl(class, spec) end
-    if picked == "Archon" then return "archon", archonOverviewUrl(class, spec) or ns.SOURCES.archon.homepage end
-    if picked == "PvP" then
-        local key = ns.ResolvePvPSource(dataType)
-        if key == "murlok" then return "murlok", murlokUrl(class, spec) end
-        return "bnet", ns.SOURCES.bnet.homepage
-    end
-    return "wowhead", (dataType == "bis") and wowheadBisUrl(class, spec) or wowheadGuideUrl(class, spec)
+    return "ugg", uggGearUrl(class, spec)
 end
 
 -- surface: the active tab. class: class token ("MAGE"). specKey: the per-spec
@@ -237,41 +220,34 @@ function ns.ResolveAttribution(surface, class, specKey)
     local ps = perSpec(specKey)
     local spec = specKey and (specKey:match("-(.+)") or specKey) or nil
 
-    if surface == "guide" or surface == "trinkets" then
-        return "wowhead", wowheadGuideUrl(class, spec)
+    if surface == "guide" then
+        -- The Guide's stat priority + talent preview are both Icy Veins.
+        return "icyveins", icyVeinsTalentsUrl(class, spec)
+
+    elseif surface == "trinkets" then
+        return "ugg", uggTrinketsUrl(class, spec)
 
     elseif surface == "talents" then
-        -- Tracks the docked Talents tab's source dropdown. PvP talents come
-        -- from Blizzard's armory; the rest from their respective guides.
-        local ts = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "wowhead"
-        if ts == "archon" then return "archon", archonOverviewUrl(class, spec) or ns.SOURCES.archon.homepage end
+        -- PvP talents come from Blizzard's armory (bnet); the rest from u.gg /
+        -- Icy Veins.
+        local ts = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "ugg"
         if ts == "icyveins" then return "icyveins", icyVeinsTalentsUrl(class, spec) end
         if ts == "pvp" then return "bnet", ns.SOURCES.bnet.homepage end
-        return "wowhead", wowheadGuideUrl(class, spec)
+        return "ugg", uggTalentsUrl(class, spec)
 
     elseif surface == "bis" then
-        local picked = (ps and ps.bisSource) or "Wowhead"
+        local picked = (ps and ps.bisSource) or "Icy Veins"
         return fromDropdown(picked, "bis", class, spec)
 
     elseif surface == "enhancements" then
-        local key = ns.Sections and ns.Sections.Enhancements
-            and ns.Sections.Enhancements.GetActiveSourceKey
-            and ns.Sections.Enhancements.GetActiveSourceKey()
-        if key == "murlok" then return "murlok", murlokUrl(class, spec) end
-        return "wowhead", wowheadGuideUrl(class, spec)
+        return "ugg", uggEnchantsUrl(class, spec)
 
     elseif surface == "crafting" then
-        local ctx = ps and ps.craftingContext
-        if ctx == "pvp" then return "murlok", murlokUrl(class, spec) end
-        return "archon", archonOverviewUrl(class, spec) or ns.SOURCES.archon.homepage
+        return "icyveins", icyVeinsGearUrl(class, spec)
 
     elseif surface == "stats" then
-        -- Stat targets come from Archon (Mythic+/Raid) or Murlok (PvP context).
-        local ctx = ns.Sections and ns.Sections.StatTargets
-            and ns.Sections.StatTargets.GetActiveContext
-            and ns.Sections.StatTargets.GetActiveContext()
-        if ctx == "PvP" then return "murlok", murlokUrl(class, spec) end
-        return "archon", archonOverviewUrl(class, spec) or ns.SOURCES.archon.homepage
+        -- Stat targets are summed from u.gg's BiS gear list.
+        return "ugg", uggGearUrl(class, spec)
     end
 
     return nil

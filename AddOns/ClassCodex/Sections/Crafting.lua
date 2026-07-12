@@ -71,7 +71,7 @@ local function SetPerSpecCtx(ctx)
 end
 
 -- Active crafting context ("raid" / "mythicPlus" / "pvp"). Used by attribution
--- to credit Archon (PvE) vs Murlok (PvP) for the crafts/embellishments lists.
+-- to credit u.gg (PvE) vs u.gg (PvP) for the crafts/embellishments lists.
 function Crafting.GetContextKey()
     return GetPerSpecCtx()
 end
@@ -91,7 +91,7 @@ end
 
 -- If filtering would empty the section we keep the original list — a
 -- context with no BiS/popular markers (rare; mostly PvP healers with
--- thin Murlok samples) should still show its rows rather than render
+-- thin u.gg samples) should still show its rows rather than render
 -- as an empty Crafting tab.
 local function FilterTopPicks(entries)
     if not entries or #entries == 0 then return entries end
@@ -124,7 +124,7 @@ end
 -- bonusIDs in our data (same rank/missive/spec stamp combo), both will
 -- light up. Distinguishing them cleanly needs a per-embellishment
 -- effect_bonus_id map (~20 entries per season, sourced from
--- Wowhead/SimC) — tracked as a follow-up.
+-- u.gg/SimC) — tracked as a follow-up.
 --
 -- State (pure event-driven, no TTL):
 --   embBonusIds[itemId]  → numeric set parsed from the embellishment
@@ -135,6 +135,7 @@ end
 
 local embBonusIds = {}  -- itemId -> set of bonus_ids from our crafting data
 local equippedBonusIds  -- nil = needs rebuild; table = union of equipped bonus_ids
+local equippedSpellIds  -- nil = needs rebuild; set of equipped equip-effect spellIDs
 
 -- Older clients lack the modern item-link layout; keep a tooltip text
 -- scanner as a last-resort fallback so detection degrades to "owned in
@@ -247,12 +248,10 @@ end
 -- Equipped-slot effect-spell IDs. GetItemSpell on a carrier returns
 -- the spell ID of its primary equip effect — when an embellishment is
 -- applied, that IS the embellishment's effect spell. Compared against
--- the scraped ClassCodexEmbellishmentEffects.bySpellId map this gives
--- deterministic per-embellishment detection without bonus-id
--- ambiguity. Rebuilt on the same equipping / bag events as the
--- bonus-id state.
-local equippedSpellIds  -- nil = needs rebuild; set of spellID -> true
-
+-- the scraped ClassCodexEmbellishmentEffects.byItemId[id].spellIds this
+-- gives deterministic per-embellishment detection without bonus-id
+-- ambiguity. `equippedSpellIds` is declared up top so
+-- InvalidateEquippedState clears it on equip / bag events.
 local function GetEquippedEffectSpellIds()
     if equippedSpellIds then return equippedSpellIds end
     local ids = {}
@@ -278,7 +277,7 @@ end
 --      doesn't catch it (some clients reorder bonus payloads).
 --   3. Embellishment's own SimC bonusIDs from crafting.lua subset
 --      match — works for embellishments we couldn't resolve via the
---      Wowhead+SimC scrape, falls back gracefully.
+--      u.gg+SimC scrape, falls back gracefully.
 --   4. Tooltip text intersection — last-resort, locale-stable enough.
 local function IsEmbellishmentApplied(entry)
     if not entry or not entry.itemId then return false end
@@ -335,8 +334,8 @@ local function IsItemOwned(entry, isEmbellishment)
 end
 
 -- Vertical stack layout for top-left source-attribution markers.
--- `bis` (Wowhead) stays anchored at the corner. The active popular
--- mark (Archon for PvE, Murlok for PvP) sits at the corner when alone
+-- `bis` (u.gg) stays anchored at the corner. The active popular
+-- mark (u.gg for PvE, u.gg for PvP) sits at the corner when alone
 -- and shifts DOWN by POPULAR_DY when bis is also present, so the pair
 -- reads bis-then-popular top-to-bottom with markers touching but not
 -- overlapping. Markers are 13px and top-left uses dy=+1, so -13 places
@@ -345,17 +344,17 @@ local POPULAR_DY = -13
 
 local function PaintCardIcon(icon, entry, isEmbellishment, ctx)
     icon:SetItem(entry.itemId)
-    local hasPopular = entry.popular == true
-    local hasBiS     = entry.bis == true
-    local isPvp      = ctx == "pvp"
+    -- Embellishment picks are Icy Veins' recommendation (u.gg has none), so
+    -- they carry the IV mark instead of u.gg's BiS/popular marks.
+    local hasPopular = not isEmbellishment and entry.popular == true
+    local hasBiS     = not isEmbellishment and entry.bis == true
     -- Mutually exclusive at the same corner — pick by context so the
     -- icon attributes the popularity signal to its actual source.
     local popularDY = (hasBiS and hasPopular) and POPULAR_DY or 0
-    icon:SetMarkerOffset("popular_archon", 0, popularDY)
-    icon:SetMarkerOffset("popular_murlok", 0, popularDY)
-    icon:ToggleMarker("popular_archon", hasPopular and not isPvp)
-    icon:ToggleMarker("popular_murlok", hasPopular and isPvp)
+    icon:SetMarkerOffset("popular_ugg", 0, popularDY)
+    icon:ToggleMarker("popular_ugg", hasPopular)
     icon:ToggleMarker("bis", hasBiS)
+    icon:ToggleMarker("source_icyveins", isEmbellishment == true)
     icon:ToggleMarker("owned", IsItemOwned(entry, isEmbellishment))
     icon:Show()
 end
@@ -374,9 +373,9 @@ end
 -- resolves it lexically (Lua locals are scoped from declaration
 -- onward; declaring this below MakeCard makes the OnEnter look it up
 -- as a global → nil → "attempt to concatenate" error).
-local BIS_INLINE_ICON            = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12|t"
-local POPULAR_ARCHON_INLINE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12|t"
-local POPULAR_MURLOK_INLINE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12|t"
+local BIS_INLINE_ICON            = "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12|t"
+local POPULAR_UGG_INLINE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12|t"
+local ICYVEINS_INLINE_ICON       = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12|t"
 local function ownedInlineIcon()
     if C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo("common-icon-checkmark") then
         return "|A:common-icon-checkmark:14:14|a"
@@ -387,13 +386,13 @@ end
 -- Right-click context menu. Two actions:
 --   1. Track materials — adds the recipe to the objective tracker on
 --      the right side of the screen. Uses the recipe spell ID scraped
---      from Wowhead and embedded on each entry by the generator
---      (parse-wowhead-craft-recipes + generate-crafting-lua). Falls
+--      from u.gg and embedded on each entry by the generator
+--      (parse-ugg-craft-recipes + generate-crafting-lua). Falls
 --      back to C_TradeSkillUI.GetRecipesForItem only when the entry
 --      doesn't carry a recipeId — but the scraped data covers every
 --      entry currently, so the fallback is mostly dead code.
---   2. Copy Wowhead link — always available; puts
---      https://wowhead.com/item=N in a copy popup. Useful for
+--   2. Copy u.gg link — always available; puts
+--      https://ugg.com/item=N in a copy popup. Useful for
 --      commission/shopping flows when the player doesn't have the
 --      recipe themselves.
 --
@@ -420,11 +419,6 @@ local function OpenCraftMenu(card)
                 end
             end)
         end
-        root:CreateButton(L["crafting.menu.wowhead"], function()
-            if ns.ShowCopyPopup then
-                ns.ShowCopyPopup("https://www.wowhead.com/item=" .. itemId, card)
-            end
-        end)
     end)
 end
 
@@ -453,7 +447,7 @@ local function MakeCard(parent)
         -- items the player has never seen (SetHyperlink silently shows
         -- a blank tooltip until the item is cached).
         C_Item.RequestLoadItemDataByID(self.itemId)
-        -- If we have bonus IDs (a missive pick from Archon), render via
+        -- If we have bonus IDs (a missive pick from u.gg), render via
         -- SetHyperlink so the tooltip shows the item with the missive's
         -- stat bonus applied. SetItemByID drops bonus IDs and shows the
         -- base item. Use the 0-padded canonical link format (item link
@@ -474,21 +468,21 @@ local function MakeCard(parent)
             rendered = pcall(GameTooltip.SetHyperlink, GameTooltip, link)
         end
         if not rendered then GameTooltip:SetItemByID(self.itemId) end
+        if self.isEmbellishment then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(
+                ICYVEINS_INLINE_ICON .. "  " .. L["crafting.tooltip.embellishment_icyveins"],
+                1, 1, 1, true
+            )
+        end
         if self.isBiS or self.isPopular then
             GameTooltip:AddLine(" ")
             if self.isBiS then
                 GameTooltip:AddLine(BIS_INLINE_ICON .. "  " .. L["crafting.tooltip.bis"], 1, 0.82, 0, true)
             end
             if self.isPopular then
-                -- One line per source so each attribution reads as a
-                -- distinct line — Archon for PvE, Murlok for PvP — and
-                -- the user can scan them independently.
                 GameTooltip:AddLine(
-                    POPULAR_ARCHON_INLINE_ICON .. "  " .. L["crafting.tooltip.popular_archon"],
-                    1, 1, 1, true
-                )
-                GameTooltip:AddLine(
-                    POPULAR_MURLOK_INLINE_ICON .. "  " .. L["crafting.tooltip.popular_murlok"],
+                    POPULAR_UGG_INLINE_ICON .. "  " .. L["crafting.tooltip.popular_ugg"],
                     1, 1, 1, true
                 )
             end
@@ -560,7 +554,7 @@ local function PaintHeaderArrow(row, collapsed)
         or "Interface\\Buttons\\UI-MinusButton-Up")
 end
 
--- Cards are dense enough that the Wowhead "W" mark (BiS), flame
+-- Cards are dense enough that the u.gg "W" mark (BiS), flame
 -- (popular), and green check (owned) aren't self-explanatory to a
 -- first-time user. The help icon on the section header carries the
 -- explanation — and inlines the actual marker textures so users see
@@ -578,8 +572,8 @@ local function AttachHelpIcon(titleFrame, insetOverride)
         warning = L["crafting.help.embellishment_limit"],
         lines = {
             BIS_INLINE_ICON .. "  " .. L["crafting.help.star"],
-            POPULAR_ARCHON_INLINE_ICON .. "  " .. L["crafting.help.popular_archon"],
-            POPULAR_MURLOK_INLINE_ICON .. "  " .. L["crafting.help.popular_murlok"],
+            POPULAR_UGG_INLINE_ICON .. "  " .. L["crafting.help.popular_ugg"],
+            ICYVEINS_INLINE_ICON .. "  " .. L["crafting.help.embellishment_icyveins"],
             ownedInlineIcon() .. "  " .. L["crafting.help.check"],
         },
         inset = insetOverride,
@@ -642,7 +636,7 @@ end
 -- Single-card renderer used for both crafts and embellishments. Crafts +
 -- embellishments share the { itemId, name, bis? } shape — there are no
 -- longer pair cards (embellishments are popularity-ranked singles
--- aggregated from Archon's pair data; see generate-crafting-lua.ts).
+-- aggregated from u.gg's pair data; see generate-crafting-lua.ts).
 -- isEmbellishment toggles the "applied to equipped carrier" detection
 -- so we don't tooltip-scan equipment for plain craft items.
 local function ApplyCard(card, entry, isEmbellishment, ctx)
@@ -650,16 +644,13 @@ local function ApplyCard(card, entry, isEmbellishment, ctx)
     card.embItemId = nil
     card.embName = nil
     card.bonusIDs = entry.bonusIDs  -- per-craft missive stack, nil-safe
-    card.recipeId = entry.recipeId  -- scraped Wowhead recipe spell ID
+    card.recipeId = entry.recipeId  -- scraped recipe spell ID
     card.altItemId = nil
     card.isBiS = entry.bis == true       -- surfaced in the hover tooltip
     card.isPopular = entry.popular == true -- surfaced in the hover tooltip
-    -- Popularity attribution by context: PvE → Archon, PvP → Murlok.
-    -- Drives both the corner marker (popular_archon vs popular_murlok)
-    -- and the tooltip line (inline icon + locale string).
-    card.popularSource = (ctx == "pvp") and "murlok" or "archon"
+    card.isEmbellishment = isEmbellishment == true -- IV-recommended (tooltip)
     PaintCardIcon(card.icon, entry, isEmbellishment, ctx)
-    -- BiS is communicated via the Wowhead "W" mark on the icon
+    -- BiS is communicated via the u.gg "W" mark on the icon
     -- (top-left). The redundant gold [BiS] text suffix was removed
     -- per feedback.
     -- Use ns.FormatItem so the label matches the rest of the addon's
@@ -684,6 +675,24 @@ local function LookupData(class, spec, ctxKey)
         and _G.ClassCodexCraftingData[class]
         and _G.ClassCodexCraftingData[class][spec]
     return data and data[ctxKey] or nil
+end
+
+-- u.gg only surfaces crafts for the contexts a spec actually uses, so a spec
+-- can have raid crafts but no PvP ones. These helpers keep the context picker
+-- from landing on (or offering) an empty context.
+local function CtxHasData(class, spec, ctxKey)
+    local d = LookupData(class, spec, ctxKey)
+    return d ~= nil and ((d.crafts and #d.crafts > 0) or (d.embellishments and #d.embellishments > 0))
+end
+
+-- The persisted context if it has data, else the first context that does.
+local function ResolveActiveCtx(class, spec)
+    local ctx = GetPerSpecCtx()
+    if CtxHasData(class, spec, ctx) then return ctx end
+    for _, c in ipairs(CONTEXTS) do
+        if CtxHasData(class, spec, c.key) then return c.key end
+    end
+    return ctx
 end
 
 -- RequestAllItems helper — pre-fetches GetItemInfo for everything the
@@ -715,10 +724,19 @@ end
 
 local panel = {}
 
-local function BuildCtxOptions()
+-- Only offer contexts that have crafts for this spec (with a fallback to the
+-- full list so the picker is never empty).
+local function BuildCtxOptions(class, spec)
     local opts = {}
     for _, c in ipairs(CONTEXTS) do
-        opts[#opts + 1] = { label = c.label(), value = c.key }
+        if CtxHasData(class, spec, c.key) then
+            opts[#opts + 1] = { label = c.label(), value = c.key }
+        end
+    end
+    if #opts == 0 then
+        for _, c in ipairs(CONTEXTS) do
+            opts[#opts + 1] = { label = c.label(), value = c.key }
+        end
     end
     return opts
 end
@@ -777,7 +795,7 @@ function Crafting.RenderPanel(args)
     for _, c in ipairs(panel.craftCards) do c:Hide() end
     for _, c in ipairs(panel.embCards)   do c:Hide() end
 
-    local activeCtx = GetPerSpecCtx()
+    local activeCtx = ResolveActiveCtx(args.class, args.spec)
     local ctxData = LookupData(args.class, args.spec, activeCtx)
     local crafts = FilterTopPicks((ctxData and ctxData.crafts) or {})
     local embellishments = FilterTopPicks((ctxData and ctxData.embellishments) or {})
@@ -791,7 +809,7 @@ function Crafting.RenderPanel(args)
 
     -- Context dropdown
     panel.ctxDropdown:Show()
-    panel.ctxDropdown:SetOptions(BuildCtxOptions(), activeCtx, function(picked)
+    panel.ctxDropdown:SetOptions(BuildCtxOptions(args.class, args.spec), activeCtx, function(picked)
         SetPerSpecCtx(picked)
         if ns.UpdatePanel then ns:UpdatePanel() end
     end)
@@ -914,11 +932,16 @@ function Crafting.RenderCompendium(args)
     for i = 1, #comp.headerRows do comp.headerRows[i]:Hide() end
     comp.fallback:Hide()
 
-    -- Always wire the dropdown so users can pick a different context
-    -- even when the current context has no data.
-    local ctxKey = GetPerSpecCtx()
+    -- Land on a context that has data, and only offer those the spec uses
+    -- (with a fallback to the full list so the picker is never empty).
+    local ctxKey = ResolveActiveCtx(args.class, args.spec)
+    local ctxChoices = {}
+    for _, c in ipairs(CONTEXTS) do
+        if CtxHasData(args.class, args.spec, c.key) then ctxChoices[#ctxChoices + 1] = c end
+    end
+    if #ctxChoices == 0 then ctxChoices = CONTEXTS end
     comp.ctxDropdown:SetupMenu(function(_, rootDescription)
-        for _, c in ipairs(CONTEXTS) do
+        for _, c in ipairs(ctxChoices) do
             rootDescription:CreateRadio(
                 c.label(),
                 function() return ctxKey == c.key end,

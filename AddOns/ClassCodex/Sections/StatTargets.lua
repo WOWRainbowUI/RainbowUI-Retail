@@ -4,9 +4,9 @@ ns.Sections = ns.Sections or {}
 local L = ns.L
 
 -- Live stat-target bars rendered on the panel's "Stats" side tab. Pairs the
--- empirical secondary-stat targets from Archon (M+ / Raid / PvP) with the
--- player's current ratings, showing a Blizzard StatusBar filled toward the
--- target plus a tinted delta arrow (green/blue/red).
+-- secondary-stat targets (summed from the u.gg BiS gear list) with the player's
+-- current ratings, showing a Blizzard StatusBar filled toward the target plus a
+-- tinted delta arrow (green/blue/red). PvE only (M+ / Raid).
 local StatTargets = {}
 ns.Sections.StatTargets = StatTargets
 
@@ -139,10 +139,6 @@ function StatTargets.InitPanel(opts)
         panel.rows[i] = row
     end
 
-    panel.pvpFallback = panel.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    panel.pvpFallback:SetTextColor(0.5, 0.5, 0.5); panel.pvpFallback:SetJustifyH("LEFT"); panel.pvpFallback:SetWordWrap(true)
-    panel.pvpFallback:Hide()
-
     panel.combatFallback = panel.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     panel.combatFallback:SetTextColor(0.5, 0.5, 0.5); panel.combatFallback:SetJustifyH("LEFT"); panel.combatFallback:SetWordWrap(true)
     panel.combatFallback:Hide()
@@ -152,11 +148,11 @@ end
 
 function StatTargets.GetPanelContent() return panel.content end
 
--- Active stat-targets context ("Mythic+" / "Raid" / "PvP"). Used by attribution
--- to credit Archon (PvE) vs Murlok (PvP).
+-- Active stat-targets context ("Mythic+" / "Raid"). Used by attribution to
+-- credit u.gg.
 function StatTargets.GetActiveContext() return panel.currentCtx end
 
--- Layout-pass height (rows + optional 28px dropdown + bottom margin).
+-- Layout-pass height (rows + optional 28px dropdown + optional note + margin).
 function StatTargets.GetPanelHeight()
     local h = 0
     if panel.ctxDropdown:IsShown() then h = h + 28 end
@@ -166,7 +162,7 @@ function StatTargets.GetPanelHeight()
     end
     if n > 0 then
         h = h + n * ROW_HEIGHT + (n - 1) * ROW_GAP + 4
-    elseif panel.pvpFallback:IsShown() or panel.combatFallback:IsShown() then
+    elseif panel.combatFallback:IsShown() then
         h = h + 24
     end
     return h
@@ -183,36 +179,22 @@ function StatTargets.RenderPanel(args)
         return 0
     end
 
-    -- Build context list. M+/Raid only when Archon has data; PvP always
-    -- surfaced for discoverability.
+    -- Contexts (M+ / Raid) surfaced only where u.gg has BiS-derived targets.
     local availableContexts = {}
     for _, ctx in ipairs({ "Mythic+", "Raid" }) do
         if ns.GetStatTargets(classToken, specKey, ctx) then
             availableContexts[#availableContexts + 1] = ctx
         end
     end
-    local pvpTargets = ns.GetPvPStatTargets and ns.GetPvPStatTargets(classToken, specKey) or nil
-    availableContexts[#availableContexts + 1] = "PvP"
 
-    if #availableContexts == 1 and not pvpTargets then
+    if #availableContexts == 0 then
         panel.ctxDropdown:Hide()
-        panel.pvpFallback:Hide()
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
         return 0
     end
 
-    local function resolveCtx(ctx)
-        if ctx == "PvP" then return pvpTargets end
-        return ns.GetStatTargets(classToken, specKey, ctx)
-    end
-
-    local hasNonPvpCtx = false
-    for _, ctx in ipairs(availableContexts) do
-        if ctx ~= "PvP" then hasNonPvpCtx = true; break end
-    end
-    if not panel.currentCtx
-        or (panel.currentCtx ~= "PvP" and not resolveCtx(panel.currentCtx)) then
-        panel.currentCtx = hasNonPvpCtx and availableContexts[1] or "PvP"
+    if not panel.currentCtx or not ns.GetStatTargets(classToken, specKey, panel.currentCtx) then
+        panel.currentCtx = availableContexts[1]
     end
 
     if #availableContexts > 1 then
@@ -225,20 +207,7 @@ function StatTargets.RenderPanel(args)
         panel.ctxDropdown:Hide()
     end
 
-    if panel.currentCtx == "PvP" and not pvpTargets then
-        for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        local yOffset = (#availableContexts > 1) and -28 or -4
-        panel.pvpFallback:SetText(L["pvp.no_stat_targets"]
-            or "No PvP stat targets for this spec yet.")
-        panel.pvpFallback:ClearAllPoints()
-        panel.pvpFallback:SetPoint("TOPLEFT", panel.content, "TOPLEFT", 4, yOffset)
-        panel.pvpFallback:SetPoint("RIGHT", panel.content, "RIGHT", -4, 0)
-        panel.pvpFallback:Show()
-        return 1
-    end
-    panel.pvpFallback:Hide()
-
-    local snapshot = resolveCtx(panel.currentCtx)
+    local snapshot = ns.GetStatTargets(classToken, specKey, panel.currentCtx)
     if not snapshot or not snapshot.targets then
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
         return 0
@@ -257,79 +226,86 @@ function StatTargets.RenderPanel(args)
         return 1
     end
 
-
     local yOffset = (#availableContexts > 1) and -28 or -4
     local visibleCount = 0
 
+    -- Always show all four secondaries; a stat the spec doesn't itemise has a
+    -- 0 target and renders like any other row — exactly met ("0 / 0"), so its
+    -- bar sits right on the target tick.
     for _, statKey in ipairs(DISPLAY_ORDER) do
-        local target = snapshot.targets[statKey]
-        if target and target > 0 then
-            visibleCount = visibleCount + 1
-            local row = panel.rows[visibleCount]
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", panel.content, "TOPLEFT", 0, yOffset)
-            row:SetPoint("TOPRIGHT", panel.content, "TOPRIGHT", 0, yOffset)
-            row:Show()
-            yOffset = yOffset - ROW_HEIGHT - ROW_GAP
+        local target = snapshot.targets[statKey] or 0
+        local hasTarget = target > 0
+        visibleCount = visibleCount + 1
+        local row = panel.rows[visibleCount]
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", panel.content, "TOPLEFT", 0, yOffset)
+        row:SetPoint("TOPRIGHT", panel.content, "TOPRIGHT", 0, yOffset)
+        row:Show()
+        yOffset = yOffset - ROW_HEIGHT - ROW_GAP
 
-            local current = ns.GetPlayerStatRating(statKey)
-            local livePct = ns.GetPlayerStatPercent(statKey)
-            row.statName:SetText(ns.STAT_LABELS[statKey] or statKey)
+        local current = ns.GetPlayerStatRating(statKey)
+        local livePct = ns.GetPlayerStatPercent(statKey)
+        row.statName:SetText(ns.STAT_LABELS[statKey] or statKey)
 
-            local kind = ns.ClassifyStatDelta(current, target) or "below"
-            local status = STATUS_ICONS[kind]
-            row.statusIcon:SetTexture(status.texture)
-            row.statusIcon:SetTexCoord(status.texCoord[1], status.texCoord[2], status.texCoord[3], status.texCoord[4])
-            row.statusIcon:SetVertexColor(status.r, status.g, status.b)
+        -- A 0-target stat (the spec doesn't itemise it) is met by definition -> green.
+        local kind = hasTarget and (ns.ClassifyStatDelta(current, target) or "below") or "at"
+        local status = STATUS_ICONS[kind]
+        row.statusIcon:SetTexture(status.texture)
+        row.statusIcon:SetTexCoord(status.texCoord[1], status.texCoord[2], status.texCoord[3], status.texCoord[4])
+        row.statusIcon:SetVertexColor(status.r, status.g, status.b)
+        row.statusIcon:Show()
 
-            row.rating:SetText(string.format("%.1f%%  |cff9a9a9a%d / %d|r", livePct, current, target))
+        row.rating:SetText(string.format("%.1f%%  |cff9a9a9a%d / %d|r", livePct, current, target))
 
-            local marginal = ns.GetMarginalDR and ns.GetMarginalDR(livePct) or 1
-            if marginal >= 1 then
-                row.rating:SetTextColor(0.85, 0.85, 0.85)
-            elseif marginal >= 0.8 then
-                row.rating:SetTextColor(1, 0.85, 0.4)
-            elseif marginal >= 0.6 then
-                row.rating:SetTextColor(1, 0.65, 0.1)
-            else
-                row.rating:SetTextColor(1, 0.4, 0.2)
-            end
-
-            row:EnableMouse(true)
-            row.statKey = statKey
-            row.snapshot = snapshot
-            if not row._statTooltipBound then
-                row:SetScript("OnEnter", function(self)
-                    if not self.statKey then return end
-                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    if ns.AppendStatExtrasToTooltip then
-                        ns.AppendStatExtrasToTooltip(GameTooltip, self.statKey, self.snapshot, { includeTitle = true })
-                    end
-                    GameTooltip:Show()
-                end)
-                row:SetScript("OnLeave", function() GameTooltip:Hide() end)
-                row._statTooltipBound = true
-            end
-
-            local rawRatio = current / target
-            local progress = math.min(rawRatio, BAR_MAX_RATIO) / BAR_MAX_RATIO
-            row.bar.progress = progress
-            local barW = row.bar:GetWidth()
-            local inner = math.max(0, barW - 4)
-            row.bar.fill:SetWidth(math.max(progress > 0 and 2 or 0, math.min(progress * inner, inner)))
-
-            if row.bar.tick then
-                local tickX = 2 + math.floor((1 / BAR_MAX_RATIO) * inner + 0.5)
-                row.bar.tick:ClearAllPoints()
-                row.bar.tick:SetPoint("TOP", row.bar, "TOPLEFT", tickX, -2)
-                row.bar.tick:SetPoint("BOTTOM", row.bar, "BOTTOMLEFT", tickX, 2)
-            end
-
-            local barColor = BAR_COLORS[kind]
-            row.bar.fill:SetVertexColor(barColor[1], barColor[2], barColor[3], 1)
+        local marginal = ns.GetMarginalDR and ns.GetMarginalDR(livePct) or 1
+        if marginal >= 1 then
+            row.rating:SetTextColor(0.85, 0.85, 0.85)
+        elseif marginal >= 0.8 then
+            row.rating:SetTextColor(1, 0.85, 0.4)
+        elseif marginal >= 0.6 then
+            row.rating:SetTextColor(1, 0.65, 0.1)
+        else
+            row.rating:SetTextColor(1, 0.4, 0.2)
         end
+
+        row:EnableMouse(true)
+        row.statKey = statKey
+        row.snapshot = snapshot
+        if not row._statTooltipBound then
+            row:SetScript("OnEnter", function(self)
+                if not self.statKey then return end
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                if ns.AppendStatExtrasToTooltip then
+                    ns.AppendStatExtrasToTooltip(GameTooltip, self.statKey, self.snapshot, { includeTitle = true })
+                end
+                GameTooltip:Show()
+            end)
+            row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            row._statTooltipBound = true
+        end
+
+        -- Fill is relative to the target. A 0 / 0 stat is exactly met, so its
+        -- ratio is 1 and the bar lands right on the target tick (not empty/full).
+        local ratio = hasTarget and (current / target) or 1
+        local progress = math.min(ratio, BAR_MAX_RATIO) / BAR_MAX_RATIO
+        row.bar.progress = progress
+        local barW = row.bar:GetWidth()
+        local inner = math.max(0, barW - 4)
+        row.bar.fill:SetWidth(math.max(progress > 0 and 2 or 0, math.min(progress * inner, inner)))
+
+        if row.bar.tick then
+            local tickX = 2 + math.floor((1 / BAR_MAX_RATIO) * inner + 0.5)
+            row.bar.tick:ClearAllPoints()
+            row.bar.tick:SetPoint("TOP", row.bar, "TOPLEFT", tickX, -2)
+            row.bar.tick:SetPoint("BOTTOM", row.bar, "BOTTOMLEFT", tickX, 2)
+            row.bar.tick:Show()
+        end
+
+        local barColor = BAR_COLORS[kind]
+        row.bar.fill:SetVertexColor(barColor[1], barColor[2], barColor[3], 1)
     end
 
     for i = visibleCount + 1, MAX_ROWS do panel.rows[i]:Hide() end
+
     return visibleCount
 end

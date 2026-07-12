@@ -3,7 +3,7 @@ ClassCodexBnetPvpTalents["SHAMAN"] = {
   ["elemental"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAmZZZmZmZmZbZZMmxMDAAAAYzMbwAGwsxEysAAzyMzMmZbxEmZMWMzMjxsYxYBzMzAAwYAYGDDfA", heroTalent = "Farseer" } },
+        builds = { { exportString = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAmZZZmZmZmZbZZMmxMDAAAAYzMbwAGwsxEysAAzyMzMmZbxEmZMWMzMjxsYxYBzMzAAYGDgZGDDD", heroTalent = "Farseer" }, { exportString = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAmZZZmxMzMbLLjxMMDAAAAAsYGDbwGMjGasBAzyDMzMzYbx0GzMGLzMzMGWsYsMMmZWAAmxAzMwwwA", heroTalent = "Stormbringer" } },
         pvpTalentSets = { { talents = { 3488, 3620, 5659 } } },
       },
       ["pvp-3v3"] = {
@@ -51,20 +51,20 @@ ClassCodexBnetPvpTalents["SHAMAN"] = {
   ["restoration"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAYMjZZbZmZGzMzMjZGjttZ2sxYGLTjtZ2YyMM2wMDmlxMjmllZmFzYYWMMzDMzY2AAAAmZwMDAzMYA", heroTalent = "Totemic" } },
-        pvpTalentSets = { { talents = { 5723, 5576, 5567 } }, { talents = { 5723, 3755, 715 } }, { talents = { 5576, 5723, 3755 } }, { talents = { 5567, 715, 5723 } }, { talents = { 5704, 3755, 715 } } },
+        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmlxMjmlFzsYGDWmxMjZmtZDAAAYmBzMYmhxgB", heroTalent = "Totemic" } },
+        pvpTalentSets = { { talents = { 3755, 715, 5704 } }, { talents = { 5567, 5576, 715 } }, { talents = { 5567, 715, 714 } }, { talents = { 3755, 5723, 715 } }, { talents = { 5723, 3755, 715 } } },
       },
       ["pvp-3v3"] = {
-        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmlxMjmlFzsYGDWmxMjZmtZDAAAYmBzMYmhxgB", heroTalent = "Totemic" } },
-        pvpTalentSets = { { talents = { 715, 5723, 5567 } } },
+        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmtxY0ssYmFzYwixMzDMzsNbGAAAYmBzMYmhxgB", heroTalent = "Totemic" }, { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYssMWsxYGLasNzCTmhxGzMDmtxMjmlFzsYGDWmxMjZmtZDAAAYmBzMYmhxgB", heroTalent = "Totemic" }, { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMzmNGzYZasNzCTmhxGzMDmlxY0stYmlZGDWMmZMzsNbGAAAYmBzMAMGM", heroTalent = "Totemic" }, { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZmx2yMMzDMzMzMzMGbmZBGwEMLMBGLYmBzyYmZaWWMziZMYzYmxMz2sBAAAMzAgZGmZwA", heroTalent = "Farseer" } },
+        pvpTalentSets = { { talents = { 5704, 715, 3755 } }, { talents = { 3755, 5723, 715 } }, { talents = { 5704, 3755, 715 } }, { talents = { 5567, 715, 5723 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAYMjZZbZMzMmZmZmZGzssMWsxYGLasNzCTmhxGzMDmtxMjmllZmFzYwixMjZmtZDAAAYmBzMYmhxgB", heroTalent = "Totemic" } },
         pvpTalentSets = { { talents = { 715, 3755, 5704 } }, { talents = { 715, 3755, 5567 } }, { talents = { 3755, 715, 5723 } }, { talents = { 708, 3755, 5567 } }, { talents = { 5705, 715, 5437 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZM2WmhZmZmZMzMGLLzsYjxMWmGbzsxkZYsgZGMbjxoZZxMLmZGsZMzYmZb2MAAAYmZwMDmZYmBD", heroTalent = "Farseer" } },
-        pvpTalentSets = { { talents = { 5437, 5723, 715 } } },
+        builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbbDzMmZmZmZGzYZwGMjNN2mZBZGYjxMDz2MjZa2WmxCjZjNzYGzwsNAAAwMzgZGAGDG", heroTalent = "Totemic" } },
+        pvpTalentSets = { { talents = { 5576, 5567, 3755 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMDjtlZ2sxYGLTjtZ2YyMM2YmZwsMGjmllZmlxYwixMjZmtZbGAAAYmBzMAMGM", heroTalent = "Totemic" } },

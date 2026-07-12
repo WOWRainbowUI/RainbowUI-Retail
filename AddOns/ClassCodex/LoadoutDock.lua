@@ -11,7 +11,7 @@ local _, ns = ...
 -- move it (when unlocked); right-click for lock / hide / settings.
 -------------------------------------------------------------------------------
 
-local DOCK_DEFAULT_WIDTH = 240
+local DOCK_DEFAULT_WIDTH = 200
 local DOCK_MIN_WIDTH = 120
 local DOCK_MAX_WIDTH = 400
 local DOCK_HEIGHT = 22
@@ -50,7 +50,7 @@ local function GetActiveLoadoutName()
     return configName(active)
 end
 
--- Find the Wowhead-sourced Class Codex build whose talent bits match the
+-- Find the u.gg-sourced Class Codex build whose talent bits match the
 -- player's current in-game talents.
 local function MatchCodexBuild(specData)
     if not specData or not specData.talents or not ns.GetActiveTalentSignature then return nil end
@@ -65,12 +65,12 @@ local function MatchCodexBuild(specData)
     return nil
 end
 
--- Find the Archon-sourced build whose talent bits match the player's
+-- Find the u.gg-sourced build whose talent bits match the player's
 -- current in-game talents. Returns (build, ctx) or nil.
-local function MatchArchonBuild(classToken, specKey)
+local function MatchUggBuild(classToken, specKey)
     if not classToken or not specKey then return nil end
-    if not ns.GetArchonSpecData or not ns.GetActiveTalentSignature or not ns.ExtractTalentBits then return nil end
-    local sd = ns.GetArchonSpecData(classToken, specKey)
+    if not ns.GetUggSpecData or not ns.GetActiveTalentSignature or not ns.ExtractTalentBits then return nil end
+    local sd = ns.GetUggSpecData(classToken, specKey)
     if not sd or not sd.contexts then return nil end
     local activeBits = ns.GetActiveTalentSignature()
     if not activeBits then return nil end
@@ -188,15 +188,15 @@ local function RefreshLabel()
         labelText = active
     else
         local specData = ns.GetSpecData and ns.GetSpecData()
-        local wowheadMatch = MatchCodexBuild(specData)
-        if wowheadMatch and ns.FormatBuildLabel then
-            labelText = ns.FormatBuildLabel(wowheadMatch)
+        local codexMatch = MatchCodexBuild(specData)
+        if codexMatch and ns.FormatBuildLabel then
+            labelText = ns.FormatBuildLabel(codexMatch)
         else
             local classToken, specSlug
             if ns.GetClassAndSpec then classToken, specSlug = ns.GetClassAndSpec() end
-            local archonBuild, archonCtx = MatchArchonBuild(classToken, specSlug)
-            if archonBuild and archonCtx then
-                labelText = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(archonCtx)) or "Archon"
+            local uggBuild, uggCtx = MatchUggBuild(classToken, specSlug)
+            if uggBuild and uggCtx then
+                labelText = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(uggCtx)) or "u.gg"
             end
         end
     end
@@ -234,7 +234,7 @@ local function BuildLoadoutMenu(_, root)
     local activeID = C_ClassTalents and C_ClassTalents.GetActiveConfigID and C_ClassTalents.GetActiveConfigID() or nil
     local activeExport = activeID and C_Traits and C_Traits.GenerateImportString and C_Traits.GenerateImportString(activeID) or nil
     -- Per-spec memory of the last build applied via the dock. Survives
-    -- the round-trip drift between Archon's published exportString and
+    -- the round-trip drift between u.gg's published exportString and
     -- the one Blizzard's stage/commit emits, which can defeat both the
     -- bit and full-string comparisons below. Validated against the bits
     -- that were active right after the apply settled — if the player
@@ -299,12 +299,12 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
-    -- Section 2: Class Codex - Wowhead recommended builds, grouped by hero
+    -- Section 2: Class Codex - u.gg recommended builds, grouped by hero
     -- talent so a long list doesn't dominate the menu.
-    local hasWowhead = false
-    if db.dockLoadoutShowWowhead ~= false and specData and specData.talents and #specData.talents > 0 and ns.GroupBuildsByHero then
+    local hasCodexBuilds = false
+    if db.dockLoadoutShowCodexBuilds ~= false and specData and specData.talents and #specData.talents > 0 and ns.GroupBuildsByHero then
         if hasBlizzard then root:CreateDivider() end
-        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:14:14:0:0|t  " .. L["settings.value.wowhead"])
+        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
         local heroOrder, heroBuilds = ns.GroupBuildsByHero(specData.talents)
         for _, hero in ipairs(heroOrder) do
             local heroLabel = (ns.FormatHeroHeaderText and ns.FormatHeroHeaderText(hero)) or hero
@@ -354,52 +354,52 @@ local function BuildLoadoutMenu(_, root)
                 end)
             end
         end
-        hasWowhead = true
+        hasCodexBuilds = true
     end
 
-    -- Section 3: Class Codex - Archon (per-encounter recommendations).
-    -- Archon's data table is keyed by the spec slug (e.g. "frost"), which
+    -- Section 3: Class Codex - u.gg (per-encounter recommendations).
+    -- u.gg's data table is keyed by the spec slug (e.g. "frost"), which
     -- is the SECOND return of GetClassAndSpec. Falls back to direct
-    -- _G.ClassCodexArchonData lookup if the namespace helper is missing.
+    -- _G.ClassCodexUggBuilds lookup if the namespace helper is missing.
     local classToken, specSlug
     if ns.GetClassAndSpec then classToken, specSlug = ns.GetClassAndSpec() end
-    local archonSpecData
-    if db.dockLoadoutShowArchon ~= false and classToken and specSlug then
-        if ns.GetArchonSpecData then
-            archonSpecData = ns.GetArchonSpecData(classToken, specSlug)
+    local uggSpecData
+    if db.dockLoadoutShowUgg ~= false and classToken and specSlug then
+        if ns.GetUggSpecData then
+            uggSpecData = ns.GetUggSpecData(classToken, specSlug)
         end
-        if not archonSpecData and _G.ClassCodexArchonData and _G.ClassCodexArchonData[classToken] then
-            archonSpecData = _G.ClassCodexArchonData[classToken][specSlug]
+        if not uggSpecData and _G.ClassCodexUggBuilds and _G.ClassCodexUggBuilds[classToken] then
+            uggSpecData = _G.ClassCodexUggBuilds[classToken][specSlug]
         end
     end
-    local hasArchon = false
-    -- Diagnostic surface: when the Archon lookup fails, render a visible
+    local hasUgg = false
+    -- Diagnostic surface: when the u.gg lookup fails, render a visible
     -- breadcrumb in the menu instead of silently dropping the section so
     -- it's obvious whether the data, the helper, or the lookup itself is
     -- the issue.
-    local archonReason
-    if not classToken then archonReason = "no class detected"
-    elseif not specSlug then archonReason = "no spec slug detected"
-    elseif not _G.ClassCodexArchonData then archonReason = "ClassCodexArchonData global missing"
-    elseif not _G.ClassCodexArchonData[classToken] then archonReason = "no archon data for class " .. classToken
-    elseif not _G.ClassCodexArchonData[classToken][specSlug] then archonReason = "no archon data for " .. classToken .. "/" .. specSlug
-    elseif not archonSpecData then archonReason = "spec data resolution returned nil"
-    elseif not archonSpecData.contexts then archonReason = "spec data has no contexts table"
-    elseif not ns.GroupArchonContexts then archonReason = "GroupArchonContexts helper missing"
+    local uggReason
+    if not classToken then uggReason = "no class detected"
+    elseif not specSlug then uggReason = "no spec slug detected"
+    elseif not _G.ClassCodexUggBuilds then uggReason = "ClassCodexUggBuilds global missing"
+    elseif not _G.ClassCodexUggBuilds[classToken] then uggReason = "no ugg data for class " .. classToken
+    elseif not _G.ClassCodexUggBuilds[classToken][specSlug] then uggReason = "no ugg data for " .. classToken .. "/" .. specSlug
+    elseif not uggSpecData then uggReason = "spec data resolution returned nil"
+    elseif not uggSpecData.contexts then uggReason = "spec data has no contexts table"
+    elseif not ns.GroupUggContexts then uggReason = "GroupUggContexts helper missing"
     end
-    if archonReason then
+    if uggReason then
         if hasBlizzard or (specData and specData.talents and #specData.talents > 0) then
             root:CreateDivider()
         end
-        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["settings.value.archon"])
-        root:CreateButton("|cff999999" .. archonReason .. "|r", function() end)
+        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
+        root:CreateButton("|cff999999" .. uggReason .. "|r", function() end)
     end
-    if archonSpecData and archonSpecData.contexts and ns.GroupArchonContexts then
-        local groups = ns.GroupArchonContexts(archonSpecData)
+    if uggSpecData and uggSpecData.contexts and ns.GroupUggContexts then
+        local groups = ns.GroupUggContexts(uggSpecData)
 
-        local function archonLabel(entry, override)
+        local function uggLabel(entry, override)
             local ctx = entry.ctx
-            local base = override or (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(ctx)) or entry.contextKey
+            local base = override or (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(ctx)) or entry.contextKey
             local build = ctx.builds and ctx.builds[1]
             if build and build.heroTalent and ns.HERO_TALENT_ATLAS then
                 local atlas = ns.HERO_TALENT_ATLAS[build.heroTalent]
@@ -413,8 +413,8 @@ local function BuildLoadoutMenu(_, root)
             return base, build
         end
 
-        local function archonApply(parent, entry, override)
-            local label, build = archonLabel(entry, override)
+        local function uggApply(parent, entry, override)
+            local label, build = uggLabel(entry, override)
             if not build then return end
             parent:CreateButton(label, function()
                 if InCombatLockdown() then
@@ -432,31 +432,31 @@ local function BuildLoadoutMenu(_, root)
         local hasAny = groups.mplusOverview or groups.raidOverviewMythic or groups.raidOverviewHeroic
             or #groups.mplusDungeons > 0 or #groups.raidMythicBosses > 0 or #groups.raidHeroicBosses > 0
         if hasAny then
-            if hasBlizzard or hasWowhead then root:CreateDivider() end
-            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["settings.value.archon"])
+            if hasBlizzard or hasCodexBuilds then root:CreateDivider() end
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
 
             -- M+ Dungeons submenu — overview ("All Dungeons") sits as the
             -- first entry inside the submenu rather than as a separate
             -- top-level item, so the menu surface stays compact.
             if groups.mplusOverview or #groups.mplusDungeons > 0 then
                 local sub = root:CreateButton(L["context.mplus_dungeons"])
-                if groups.mplusOverview then archonApply(sub, groups.mplusOverview) end
-                for _, e in ipairs(groups.mplusDungeons) do archonApply(sub, e) end
+                if groups.mplusOverview then uggApply(sub, groups.mplusOverview) end
+                for _, e in ipairs(groups.mplusDungeons) do uggApply(sub, e) end
             end
             -- Heroic before Mythic — most players gear up through Heroic
             -- first, so the more-likely-to-be-clicked submenu sits closer
             -- to the M+ Dungeons entry above.
             if groups.raidOverviewHeroic or #groups.raidHeroicBosses > 0 then
                 local sub = root:CreateButton(L["context.raid_heroic"])
-                if groups.raidOverviewHeroic then archonApply(sub, groups.raidOverviewHeroic) end
-                for _, e in ipairs(groups.raidHeroicBosses) do archonApply(sub, e) end
+                if groups.raidOverviewHeroic then uggApply(sub, groups.raidOverviewHeroic) end
+                for _, e in ipairs(groups.raidHeroicBosses) do uggApply(sub, e) end
             end
             if groups.raidOverviewMythic or #groups.raidMythicBosses > 0 then
                 local sub = root:CreateButton(L["context.raid_mythic"])
-                if groups.raidOverviewMythic then archonApply(sub, groups.raidOverviewMythic) end
-                for _, e in ipairs(groups.raidMythicBosses) do archonApply(sub, e) end
+                if groups.raidOverviewMythic then uggApply(sub, groups.raidOverviewMythic) end
+                for _, e in ipairs(groups.raidMythicBosses) do uggApply(sub, e) end
             end
-            hasArchon = true
+            hasUgg = true
         end
     end
 
@@ -468,7 +468,7 @@ local function BuildLoadoutMenu(_, root)
     if db.dockLoadoutShowIcyVeins ~= false and classToken and specSlug and ns.GetIcyVeinsTalentSpecData then
         local ivSpecData = ns:GetIcyVeinsTalentSpecData(classToken, specSlug)
         if ivSpecData and ivSpecData.talents and #ivSpecData.talents > 0 then
-            if hasBlizzard or hasWowhead or hasArchon then root:CreateDivider() end
+            if hasBlizzard or hasCodexBuilds or hasUgg then root:CreateDivider() end
             root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:14:14:0:0|t  " .. (L["settings.value.icyveins"] or "Icy Veins"))
             for _, build in ipairs(ivSpecData.talents) do
                 local capturedExport = build.exportString
@@ -493,7 +493,7 @@ local function BuildLoadoutMenu(_, root)
     end
 
     -- Section 4: Class Codex - PvP (per-bracket recommendations from
-    -- Bnet talent_loadout_code + Murlok). Mirrors Archon's submenu
+    -- Bnet talent_loadout_code + u.gg). Mirrors u.gg's submenu
     -- pattern (M+ Dungeons / Raid Heroic / Raid Mythic above): an
     -- "Arena" submenu groups Solo Shuffle / 2v2 / 3v3, and a
     -- "Battleground" submenu groups Blitz / RBG. Clicking a bracket
@@ -596,7 +596,7 @@ local function BuildLoadoutMenu(_, root)
 
                 if #variants <= 1 then
                     -- Stable single-build flow. Hero atlas prefix mirrors
-                    -- the Archon submenu pattern.
+                    -- the u.gg submenu pattern.
                     local label = bracketName
                     local top = variants[1].build
                     if top.heroTalent and ns.HERO_TALENT_ATLAS then
@@ -635,7 +635,7 @@ local function BuildLoadoutMenu(_, root)
             local arenaHas = groupHasAny(ARENA_GROUP)
             local bgHas = groupHasAny(BG_GROUP)
 
-            if hasBlizzard or hasWowhead or hasArchon or hasIcyVeins then root:CreateDivider() end
+            if hasBlizzard or hasCodexBuilds or hasUgg or hasIcyVeins then root:CreateDivider() end
             root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["pvp.label"] or "PvP"))
 
             if not arenaHas and not bgHas then
@@ -662,7 +662,7 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
-    if not hasBlizzard and not hasArchon and not hasIcyVeins and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
+    if not hasBlizzard and not hasUgg and not hasIcyVeins and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
         root:CreateTitle(L["loadout_dock.no_loadouts"])
     end
 end
@@ -765,18 +765,18 @@ local function CreateDock()
         -- which one (and from which source) so power users see at a
         -- glance whether they're on the recommended Mythic+ or Raid.
         local specData = ns.GetSpecData and ns.GetSpecData()
-        local wowheadMatch = MatchCodexBuild(specData)
-        if wowheadMatch and ns.FormatBuildLabel then
-            GameTooltip:AddLine("|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  " ..
-                ns.FormatBuildLabel(wowheadMatch), 0.6, 0.85, 0.6)
+        local codexMatch = MatchCodexBuild(specData)
+        if codexMatch and ns.FormatBuildLabel then
+            GameTooltip:AddLine("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  " ..
+                ns.FormatBuildLabel(codexMatch), 0.6, 0.85, 0.6)
         else
             local classToken, specSlug
             if ns.GetClassAndSpec then classToken, specSlug = ns.GetClassAndSpec() end
-            local archonBuild, archonCtx = MatchArchonBuild(classToken, specSlug)
-            if archonBuild and archonCtx then
-                local archonLabel = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(archonCtx)) or "Archon"
-                GameTooltip:AddLine("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  " ..
-                    archonLabel, 0.6, 0.85, 0.6)
+            local uggBuild, uggCtx = MatchUggBuild(classToken, specSlug)
+            if uggBuild and uggCtx then
+                local uggLabel = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(uggCtx)) or "u.gg"
+                GameTooltip:AddLine("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  " ..
+                    uggLabel, 0.6, 0.85, 0.6)
             end
         end
 

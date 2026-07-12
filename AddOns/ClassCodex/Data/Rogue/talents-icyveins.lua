@@ -17,8 +17,8 @@ ClassCodexIcyVeinsTalentData["ROGUE"] = {
   },
   ["subtlety"] = {
     talents = {
-      { context = "團隊", buildLabel = "單目標", exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYW0CtYDzAmZwMGA" },
-      { context = "通用", buildLabel = "Multi-Target", exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMegZmZGjZbYGbbzMzMzMjBjZWGAAAAGMGwY2MMwAziWoFbYGwMDmxA" },
+      { context = "團隊", buildLabel = "Single-Target", exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYW0CtYDzAmZwMGA" },
+      { context = "General", buildLabel = "Multi-Target", exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMegZmZGjZbYGbbzMzMzMjBjZWGAAAAGMGwY2MMwAziWoFbYGwMDmxA" },
       { context = "升級", buildLabel = "升級", exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMYwMzMzYMbzMzM2mZmxDMzYAzsMAAAAMYMgxwwADYhFiNMDYmBzA", leveling = true },
     },
   },

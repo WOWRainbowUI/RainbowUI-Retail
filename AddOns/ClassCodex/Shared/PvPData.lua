@@ -14,9 +14,9 @@ local _, ns = ...
 --   JSON only; the share floor (≥15%) is applied at scrape time and the
 --   addon just renders the surviving builds in order.
 --
--- Murlok (per spec — stat priorities + BiS gear + enchants + gems + embellishments):
---   Data/{Class}/murlok-pvp.lua
---     -> ClassCodexMurlokPvp[CLASS][spec] = {
+-- u.gg (per spec — stat priorities + BiS gear + enchants + gems + embellishments):
+--   Data/{Class}/ugg-pvp.lua
+--     -> ClassCodexUggPvp[CLASS][spec] = {
 --          statPriority = { { key, rating }, ... },        -- order is the signal; rating stabilized ±1%
 --          bisGear = { [slot] = { { itemId } } },          -- pickrate dropped (daily noise)
 --          embellishments? = { { itemId, name } },
@@ -24,7 +24,7 @@ local _, ns = ...
 --          gems? = { [socket] = { { itemId, name } } },
 --        }
 --
--- Bracket display ordering (mirrors Murlok / Bnet bracket precedence):
+-- Bracket display ordering (mirrors u.gg / Bnet bracket precedence):
 --   pvp-shuffle, pvp-blitz, pvp-2v2, pvp-3v3, pvp-rbg
 -------------------------------------------------------------------------------
 
@@ -125,58 +125,40 @@ function ns.GetPvPBracketName(bracketKey)
 end
 
 -------------------------------------------------------------------------------
--- Murlok — stats, gear, enchants, gems, embellishments per spec
+-- u.gg — stats, gear, enchants, gems, embellishments per spec
 -------------------------------------------------------------------------------
 
-local function GetMurlokSpec(classToken, specKey)
+local function GetUggPvpSpec(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local root = _G.ClassCodexMurlokPvp
+    local root = _G.ClassCodexUggPvp
     if not root then return nil end
     local cls = root[classToken]
     if not cls then return nil end
     return cls[specKey]
 end
 
--- Returns the full Murlok per-spec record, or nil if no data.
+-- Returns the full u.gg per-spec record, or nil if no data.
 -- The slim schema only carries statPriority / bisGear / embellishments
--- / enchants / gems — see the Murlok block comment at the top of the
+-- / enchants / gems — see the u.gg block comment at the top of the
 -- file for the exact shape. Source-attribution metadata (sourceUrl,
 -- sourceBracket, scrapedAt) was dropped from the Lua emit because
 -- nothing on the addon side surfaces it.
 function ns.GetPvPSpecMeta(classToken, specKey)
-    return GetMurlokSpec(classToken, specKey)
+    return GetUggPvpSpec(classToken, specKey)
 end
 
 -- Returns the stat priority array (ordered, first = most important):
 --   { { key = "haste", rating }, ... }
 function ns.GetPvPStats(classToken, specKey)
-    local spec = GetMurlokSpec(classToken, specKey)
+    local spec = GetUggPvpSpec(classToken, specKey)
     if not spec then return nil end
     return spec.statPriority
-end
-
--- Returns a snapshot in the same shape archon-stats.lua exposes:
---   { targets = { crit, haste, mastery, versatility } }
--- so the existing Stats side-tab renderer can plug in a "PvP" context
--- alongside Mythic+ / Raid without bespoke rendering branches. Murlok's
--- stat priority entries carry the empirical mid-pack rating per stat.
-function ns.GetPvPStatTargets(classToken, specKey)
-    local stats = ns.GetPvPStats(classToken, specKey)
-    if not stats then return nil end
-    local targets = {}
-    for _, s in ipairs(stats) do
-        if s.key and s.rating and s.rating > 0 then
-            targets[s.key] = s.rating
-        end
-    end
-    if not next(targets) then return nil end
-    return { targets = targets }
 end
 
 -- Returns BiS gear keyed by slot label:
 --   { ["Head"] = { { itemId, pickrate? } }, ... }
 function ns.GetPvPGear(classToken, specKey)
-    local spec = GetMurlokSpec(classToken, specKey)
+    local spec = GetUggPvpSpec(classToken, specKey)
     if not spec then return nil end
     return spec.bisGear
 end
@@ -184,16 +166,16 @@ end
 -- Returns the embellishment array (top recommended, capped):
 --   { { itemId, name }, ... }
 function ns.GetPvPEmbellishments(classToken, specKey)
-    local spec = GetMurlokSpec(classToken, specKey)
+    local spec = GetUggPvpSpec(classToken, specKey)
     if not spec then return nil end
     return spec.embellishments
 end
 
 -- Returns enchants keyed by slot label:
 --   { ["Head"] = { { itemId = 0, name } }, ... }
--- itemId is 0 for enchants (no Wowhead item-side identifier; addon uses name).
+-- itemId is 0 for enchants (no u.gg item-side identifier; addon uses name).
 function ns.GetPvPEnchants(classToken, specKey)
-    local spec = GetMurlokSpec(classToken, specKey)
+    local spec = GetUggPvpSpec(classToken, specKey)
     if not spec then return nil end
     return spec.enchants
 end
@@ -201,15 +183,15 @@ end
 -- Returns gems keyed by socket type:
 --   { ["Prismatic"] = { { itemId, name } }, ... }
 function ns.GetPvPGems(classToken, specKey)
-    local spec = GetMurlokSpec(classToken, specKey)
+    local spec = GetUggPvpSpec(classToken, specKey)
     if not spec then return nil end
     return spec.gems
 end
 
 -------------------------------------------------------------------------------
--- Synthetic adapters — convert the per-slot Murlok shape into the table
+-- Synthetic adapters — convert the per-slot u.gg shape into the table
 -- shape each rendering surface (Compendium tabs, Loadout Dock, docked
--- character pane) already consumes for Wowhead/Icy Veins. Hoisted here
+-- character pane) already consumes for u.gg/Icy Veins. Hoisted here
 -- so Compendium.lua and GearingSections.lua call the same helpers and
 -- the slot-order constants live in one place.
 -------------------------------------------------------------------------------
@@ -229,7 +211,7 @@ local PVP_ENCHANT_SLOT_ORDER = {
 -- where each slot is `{ slot, item = { itemId }, source = "" }`.
 -- pickrate is no longer emitted to Lua (daily drift was the dominant
 -- noise in PvP data PRs); the "source" column stays empty for PvP rows.
--- Returns nil when no Murlok BiS data exists for the spec.
+-- Returns nil when no u.gg BiS data exists for the spec.
 function ns.BuildPvPBisTabs(classToken, specKey)
     local gear = ns.GetPvPGear(classToken, specKey)
     if not gear then return nil end
@@ -257,9 +239,9 @@ function ns.BuildPvPEnchantsRows(classToken, specKey)
     for _, slot in ipairs(PVP_ENCHANT_SLOT_ORDER) do
         local items = enchants[slot]
         if items and items[1] then
-            local row = { slot = slot, best = { itemId = items[1].itemId, name = items[1].name } }
+            local row = { slot = slot, best = { itemId = items[1].itemId, name = items[1].name, spellId = items[1].spellId } }
             if items[2] then
-                row.alternate = { itemId = items[2].itemId, name = items[2].name }
+                row.alternate = { itemId = items[2].itemId, name = items[2].name, spellId = items[2].spellId }
             end
             out[#out + 1] = row
         end
@@ -269,7 +251,7 @@ function ns.BuildPvPEnchantsRows(classToken, specKey)
 end
 
 -- Returns the docked-panel-shaped gem record `{ secondary = {...} }`.
--- Murlok publishes one gem per socket type; there's no primary/secondary
+-- u.gg publishes one gem per socket type; there's no primary/secondary
 -- distinction in PvP, so primary stays nil and the renderer shows just
 -- the secondary list.
 function ns.BuildPvPGemsRecord(classToken, specKey)
@@ -291,31 +273,29 @@ end
 -- in exactly one place; these aliases stay for existing callers.
 -------------------------------------------------------------------------------
 
-ns.PVP_SOURCE_ICON = ns.SourceIcon("murlok")
-ns.WOWHEAD_SOURCE_ICON = ns.SourceIcon("wowhead")
+ns.PVP_SOURCE_ICON = ns.SourceIcon("ugg")
 ns.ICYVEINS_SOURCE_ICON = ns.SourceIcon("icyveins")
-ns.ARCHON_SOURCE_ICON = ns.SourceIcon("archon")
+ns.UGG_SOURCE_ICON = ns.SourceIcon("ugg")
 
 ns.BIS_SOURCE_LABELS = {
-    ["Wowhead"]   = ns.SourceLabelText("wowhead"),
     ["Icy Veins"] = ns.SourceLabelText("icyveins"),
-    ["Archon"]    = ns.SourceLabelText("archon"),
-    ["PvP"]       = ns.PVP_SOURCE_ICON .. "  Murlok (PvP)",
+    ["u.gg"]    = ns.SourceLabelText("ugg"),
+    ["PvP"]       = ns.PVP_SOURCE_ICON .. "  u.gg (PvP)",
 }
 
 ns.ENH_SOURCE_LABELS = {
-    ["Wowhead"] = ns.SourceLabelText("wowhead"),
-    ["PvP"]     = ns.PVP_SOURCE_ICON .. "  Murlok (PvP)",
+    ["u.gg"] = ns.SourceLabelText("ugg"),
+    ["PvP"]  = ns.PVP_SOURCE_ICON .. "  u.gg (PvP)",
 }
 
 -------------------------------------------------------------------------------
 -- Combined source-availability check used by source-dropdown population.
--- Returns true if EITHER Bnet talents OR Murlok stats/gear exist for the spec.
+-- Returns true if EITHER Bnet talents OR u.gg stats/gear exist for the spec.
 -------------------------------------------------------------------------------
 
 function ns.HasPvPData(classToken, specKey)
     if GetBnetSpec(classToken, specKey) then return true end
-    if GetMurlokSpec(classToken, specKey) then return true end
+    if GetUggPvpSpec(classToken, specKey) then return true end
     return false
 end
 

@@ -31,8 +31,8 @@ ClassCodexBnetPvpTalents["PRIEST"] = {
         pvpTalentSets = { { talents = { 5569, 101, 124 } }, { talents = { 124, 101, 5569 } }, { talents = { 5569, 124, 101 } }, { talents = { 124, 5479, 5569 } }, { talents = { 101, 5569, 124 } } },
       },
       ["pvp-3v3"] = {
-        builds = { { exportString = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAAmZmxsMzMjZYYGmZbmZmBAAAwMzsAzYMWmZGDLLGzUAMzmZbMZ2mZ2GgZmBLMDAaGzYGDGAzMzAfA", heroTalent = "Oracle" } },
-        pvpTalentSets = { { talents = { 124, 5569, 101 } } },
+        builds = { { exportString = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMzMmlZmZMDDzwMbzMzMAAAAmZmFYGjxyMzYMLLGzUAMzmZbMZ2mZ2GgZmBLmZAQzYGGDGAzMzAfA", heroTalent = "Oracle" } },
+        pvpTalentSets = { { talents = { 124, 5479, 5569 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMmxsMzMmZGDzgZbmZmBAAAwYmlZwYMWmZmZYbxYmCgZ2MLjJ2mZ2GgZmBLmZsAoZMDjBjltBzMzAfA", heroTalent = "Oracle" } },
@@ -63,8 +63,8 @@ ClassCodexBnetPvpTalents["PRIEST"] = {
         pvpTalentSets = { { talents = { 5568, 763, 5447 } }, { talents = { 763, 106, 5568 } }, { talents = { 5447, 763, 5568 } }, { talents = { 106, 763, 5447 } }, { talents = { 763, 5568, 5447 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDzyAAAAAAAAAAAAghlZGjlZGzMbzMMzMbmZMmZsgMssYaMDmZmBzsYGNbGMbzySGzswAMGDGzMzYWGjltZmBzgB", heroTalent = "Archon" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDDGAAAAAAAAAAAAGbzDMYZmZmZ2mZMDz2MzYmZGLIDbmpxAzMzgZ2MjmNDmtZbJjZWYAGjBjZmZMLMz2yMzgZwA", heroTalent = "Archon" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYM2mZGzMzYDZYZbmGgZAmZxMa2MAkxYBAzAMmZmxsNmZbZAmBD", heroTalent = "Archon" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yAAAAAAAAAAAAAAAAAAAAAEABAAABAEAAAAAAAAA" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yYYMGAAAAAAAAAAAAjZZmxYZmxMz2MDjZ2mZGzMzYhJDLLmGgZmZwMLmRziBz2sskxMbMAjxgxMjxsMzYbZmZwMYA", heroTalent = "Voidweaver" } },
-        pvpTalentSets = { { talents = { 106, 763, 5447 } }, { talents = { 106, 5447, 763 } }, { talents = { 106, 5568, 763 } } },
+        builds = { { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yYYMGAAAAAAAAAAAAjZZmxYZmxMz2MDjZ2mZGzMzYhJDLLmGgZmZwMLmRziBz2sskxMbMAjxgxMjxsMzYbZmZwMYA", heroTalent = "Voidweaver" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0AMzMDmZxMaWMY2mllMmZjBYMzgxMjxsMmZbbmZwMYA", heroTalent = "Voidweaver" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yAAAAAAAAAAAAAAAAAAAAAEABAAABAEAAAAAAAAA" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMYwAAAAAAAAAAAAMmZxMmZZmxMz2MYmZ2MzYMzYBZYZx0YGMzMDmZxMa2MY2mllMmZhBYMzgxMzMmFGbbzMDmBD", heroTalent = "Archon" }, { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYM2mZGzMzYDZYZbmGgZAmZxMa2MAkxYBAzAMmZmxsNmZbZAmBD", heroTalent = "Archon" } },
+        pvpTalentSets = { { talents = { 106, 763, 5447 } }, { talents = { 5568, 5447, 763 } }, { talents = { 5568, 106, 5447 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0AMzMDmZxMaWMY2mtlMmZjBYMzgxMjxsMmZbZmZwMYA", heroTalent = "Voidweaver" } },

@@ -2,17 +2,16 @@ ClassCodexBnetPvpTalents = ClassCodexBnetPvpTalents or {}
 ClassCodexBnetPvpTalents["DEATHKNIGHT"] = {
   ["blood"] = {
     brackets = {
-      ["pvp-2v2"] = {
-        builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzwMmZmhZbmZmmZzMjxMmBAAAAmhZmZmZMzYAAjZmZGAAgZmtxwYGLLNW2WGmsNMsAYGzAAwMzMDgB", heroTalent = "Deathbringer" }, { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzYmZmZmhZbmZmmhZegZmZAAAAAMjZmZmZGmZGAwMzMzMAAAzMbjhxMW0YZbbYy2A2AMYAAwMzMYwA", heroTalent = "San'layn" } },
-        pvpTalentSets = { { talents = { 841, 608, 5592 } }, { talents = { 204, 608, 3441 } } },
+      ["pvp-3v3"] = {
+        builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLBAAAACAAAAAAAAAAAAAAAAAAIAEAAAAAAAAA" }, { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAgxsNwAWC2GmADLAmhZAAMzAYYA", heroTalent = "Deathbringer" } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxYWmZGGzMzMMLjZmmZbmZMzMAAAAAmZmZGzMDzYMDAjZmZGAAgZmtxwYGbLNW22GmsNMsNAzYGAAwMDYMA", heroTalent = "San'layn" } },
         pvpTalentSets = { { talents = { 5592, 3441, 608 } }, { talents = { 5587, 5592, 3511 } }, { talents = { 608, 5592, 3441 } }, { talents = { 5587, 3441, 5592 } }, { talents = { 5587, 608, 5592 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxYWGzYmZmZMMLzMz0MLzYMmxAAAAAzMmZmZmZYGjBAjZmZGAAgxsNwA2CWGmADLAmxMAAMzAMYA", heroTalent = "Deathbringer" }, { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLhZWmZGMzMjZYzMmmZbMzMzMmBAAAAMMzMzYmxMDAYmZmZGAAgZmlxwYGLLNW2WGmsNMsAYGjZAAmZAYMA", heroTalent = "Deathbringer" }, { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzwMmZmhZbmZmmZzMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWCWGmADLAmxAAgZGAYA", heroTalent = "Deathbringer" } },
-        pvpTalentSets = { { talents = { 608, 3441, 204 } }, { talents = { 608, 3441, 841 } } },
+        builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLBAAAACAAAAAAAAAAAAAAAAAAIAEAAAAAAAAA" }, { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxYWGzYmZmZMMLzMz0MLzYMmxAAAAAzMmZmZmZYGjBAjZmZGAAgxsNwA2CWGmADLAmxMAAMzAMYA", heroTalent = "Deathbringer" } },
+        pvpTalentSets = { { talents = { 5587, 204 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CoPAkXBWxkyfx9CbGaHonEAhLxYWmZGmxMmhZZmZmYbGjZmxMAAAAYmhZmxMzYmZMAYMzMzAAAMzsNGGzYZpx2yywkthhlBYGzAAwMzMDYMA", heroTalent = "Deathbringer" } },
@@ -23,8 +22,8 @@ ClassCodexBnetPvpTalents["DEATHKNIGHT"] = {
   ["frost"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMDDzyMzMDbzMjmZMzMDzYGzMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD", heroTalent = "Deathbringer" }, { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDwMmZMjZY2MzMDLzMjmZmxwMzMjZMgZmZmZAAAAAAAAAYMLzixMM2YYZsNN0MWwMMzMwAwwMDMjZwA", heroTalent = "Deathbringer" } },
-        pvpTalentSets = { { talents = { 5435, 5591, 5429 } }, { talents = { 701, 5586, 5693 } } },
+        builds = { { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzYYWmZmZYbGjmZMzMDzwYmZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD", heroTalent = "Deathbringer" }, { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDwMmZMjZY2MzMDLzMjmZmxwMzMDjBzMzMzMDAAAAAAAAAjZZWMmhxGDLjtphmxCmhZmBGAGmZgZMDG", heroTalent = "Deathbringer" } },
+        pvpTalentSets = { { talents = { 5586, 5591, 5429 } }, { talents = { 701, 5586, 5693 } } },
       },
       ["pvp-3v3"] = {
         builds = { { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmhZMzYY2mZmZmZZmZ0MjxYYMGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmQGLYmxMzADADzMAAD", heroTalent = "Deathbringer" }, { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMjZGzYMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD", heroTalent = "Deathbringer" }, { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLZAmhZmZGDzmZmZmZzMjmZMzMmZM4BmxMzMzMzMDAAAAAAAAAgNzyMMwAzmGaYDzYmZGYAYAYmZAfA", heroTalent = "Rider of the Apocalypse" }, { exportString = "CsPAkXBWxkyfx9CbGaHonEAhLZAmZmZMDDz2MzMzMLmZmMDGmZmxwMmZmZmZmZAAAAAAAAAAsZ2MMwAziGaYDzMzMzAAYAYmZGYA", heroTalent = "Rider of the Apocalypse" } },

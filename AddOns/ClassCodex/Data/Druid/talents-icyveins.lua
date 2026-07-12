@@ -6,14 +6,14 @@ ClassCodexIcyVeinsTalentData["DRUID"] = {
       { context = "傳奇+", buildLabel = "AoE (Elune's Chosen)", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDwsMzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GATAAAAWYmZmBbGGjBAgZGYA" },
       { context = "傳奇+", buildLabel = "AoE (Keeper of the Grove)", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZbmlZWmxM2YZGjZmZsgBADwy2YDTzMLjAAAAsZm5BmZwmxMGDAzMAwA" },
       { context = "探究", buildLabel = "探究", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDwsYmZmZjBMLzsNWmZmxGLzsMGDzCGGgBYZbshpZmtBAAAAbmZmZGsZMjxMAmZAgB" },
-      { context = "通用", buildLabel = "Convoke the Spirits", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmFzMzMADWmZbGzYGbsMjZmZMzGGGgBYZbshpZmlBAAAAbmZmZGsZMMmBwMDAMA" },
+      { context = "General", buildLabel = "Convoke the Spirits", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmFzMzMADWmZbGzYGbsMjZmZMzGGGgBYZbshpZmlBAAAAbmZmZGsZMMmBwMDAMA" },
       { context = "升級", buildLabel = "升級", exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmFmZmBgHYMz2YbGzYbsMjxYMzGGGgBYbDYyMbDAAAA2YmZmBbGDjZAMzAA", leveling = true },
     },
   },
   ["feral"] = {
     talents = {
       { context = "團隊", buildLabel = "團隊 / 單目標", exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAAbBzmhxMjaGzyMzMzYMjBAAAAAgBGAAAAAgZbmlmtZW2Az8AALmBDAgZGAMA" },
-      { context = "傳奇+", buildLabel = "AoE / Mythic+", exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDzMzMjZmNjtZ2mZmZegZGAAAA2CmNDPgZG1MmFzMzMLjZYAAAAAAMwAAAAoZWmtZmZAALwMzAswgBAAwMbYA" },
+      { context = "傳奇+", buildLabel = "AoE / 傳奇+", exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDzMzMjZmNjtZ2mZmZegZGAAAA2CmNDPgZG1MmFzMzMLjZYAAAAAAMwAAAAoZWmtZmZAALwMzAswgBAAwMbYA" },
       { context = "探究", buildLabel = "探究", exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDzMzMjZmNjtZ2mZmZegZGAAAA2CmNDPgZG1MmFzMzMLjZYAAAAAAMwAAAAoZWmtZmZAALgZGgFmhBAAwMbYA" },
       { context = "升級", buildLabel = "升級", exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMYmxMzMzstN2mZbmZm5BmZAAAAYLYYYMzomxsMmZmxYGAAAAAAYgBAAAQGz2YmBAsAmZAWYwAAAYmNA", leveling = true },
     },

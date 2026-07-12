@@ -3,20 +3,16 @@ ClassCodexBnetPvpTalents["MAGE"] = {
   ["arcane"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNssMzyMzMbWegZGaYmBAAwAAmZmmlltZmZmZZbmJWAAYZMzMDWsMzMjZmZMmZmZswMzMMAADAAgZWwMDMzAghB", heroTalent = "Spellslinger" }, { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZDzM0MMDAAgBAMzMNbLLzMzMzyyMTsBAwCMzYsZZGzsMzMjZmZmZswMzMMAADAAwMzGmZgZGA8BM", heroTalent = "Sunfury" } },
-        pvpTalentSets = { { talents = { 637, 5707, 5661 } }, { talents = { 5707, 5661, 637 } } },
-      },
-      ["pvp-3v3"] = {
-        builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGawMAAAGAwMz0sssNzMzMLbzMxCAALjZmZwilZmZMzMjxMzMjFmZmxMAADAAgZWwMDMzAghB", heroTalent = "Spellslinger" } },
-        pvpTalentSets = { { talents = { 637, 5661, 5707 } } },
+        builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNssMzyMzMbWegZGaYmBAAwAAmZmmlltZmZmZZbmJWAAYZMzMDWsMzMjZmZMmZmZswMzMMAADAAgZWwMDMzAghB", heroTalent = "Spellslinger" }, { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzM0MMDAAgBAMzMNbLbzMzMzy2MTsAAwyYmZGsYZmZGzMzYMzMzYhZmZMDAwAAAYmFMzAjBADD", heroTalent = "Spellslinger" } },
+        pvpTalentSets = { { talents = { 637, 5707, 5661 } }, { talents = { 5661, 5707, 637 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNGLzsMzMziFzM0MMDAAgBAMzMNLLLzMzMzyyMTsAAwCmZmhNLzMzsMzYMjZmZsxMzMmBAYAAAmZWwMDMGA8BM", heroTalent = "Spellslinger" } },
         pvpTalentSets = { { talents = { 637, 5707, 5661 } }, { talents = { 5488, 637, 5661 } }, { talents = { 5707, 5488, 637 } }, { talents = { 5488, 5707, 637 } }, { talents = { 5661, 637, 5707 } } },
       },
       ["pvp-shuffle"] = {
-        builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzQDmBAAwAAmZmmlllZmZmZZZmJ2AAYBmZG2sMzMzyMzMmZmZGWYmZGzAAMAAAzMLYmBmZGA+AG", heroTalent = "Sunfury" } },
-        pvpTalentSets = { { talents = { 5707, 5661, 637 } }, { talents = { 637, 5661, 5707 } }, { talents = { 5661, 5707, 637 } }, { talents = { 5661, 637, 5707 } }, { talents = { 637, 5707, 5661 } } },
+        builds = { { exportString = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZziZGaGmBAAwAAmZmmlltZmZmZbbmJWAAYZMzMDWsMzMjZmZMmZmZswMzMMAADAAgZWwMDMGAMM", heroTalent = "Spellslinger" } },
+        pvpTalentSets = { { talents = { 637, 5661, 5707 } }, { talents = { 5707, 5661, 637 } }, { talents = { 5661, 637, 5707 } }, { talents = { 637, 5589, 5707 } }, { talents = { 5707, 637, 5661 } } },
       },
     },
   },
@@ -27,16 +23,12 @@ ClassCodexBnetPvpTalents["MAGE"] = {
         pvpTalentSets = { { talents = { 5588, 644, 5706 } } },
       },
       ["pvp-3v3"] = {
-        builds = { { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGZwMAAAmZZGzMLzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMzAAADjZGGzMLzAzMzMEzMAzwA", heroTalent = "Frostfire" } },
-        pvpTalentSets = { { talents = { 5621, 5706, 5588 } } },
+        builds = { { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzMyMMDAAgZWmxMz2sMzMNbLLzAAsYmxsNmZmxCAAAAAsYmZmBAAGmZmhxMzyMwMzMDZMwwMMA", heroTalent = "Frostfire" }, { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNmtFzyMzML2MzIzwMAAAmZZGzMbzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMDAAYYMzwYmZZGYmZmhMmBYGG", heroTalent = "Frostfire" } },
+        pvpTalentSets = { { talents = { 5489, 5706, 5621 } }, { talents = { 5588, 5621, 5706 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzgBzAAAYmlZMzsNLzMjZbZZGAgFzMmtxMzMzCAAAAAsYmZmBAAGGzMMmZWmBmZmZgZmBYGG", heroTalent = "Frostfire" } },
         pvpTalentSets = { { talents = { 5621, 5706, 5588 } }, { talents = { 5489, 5621, 5706 } }, { talents = { 5588, 5621, 5706 } }, { talents = { 5489, 5706, 5621 } }, { talents = { 5621, 5588, 5706 } } },
-      },
-      ["pvp-rbg"] = {
-        builds = { { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNzwYZmZmFMzIzMGAAAmZZGzMLzyMz0stsMDAwiZmx2YmZGbAAAAAwiZmZmBAAjZYMzMzMLDYmZmhMGjBzwA", heroTalent = "Frostfire" }, { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZzmZGZeAmBAAwMLzYmZZWmZmmlllZAAWMzMz2YmZmHYBAAAAAWMzMzAAADjZGGzMLzAzMzMkxAYGG", heroTalent = "Frostfire" }, { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZzmZGZGmBAAwMLzYmZZWmZmmltlZAA2MzY2mxYmZBAAAAA2MzMDAAYGjZYGmZZGAzMkxwAzwA", heroTalent = "Sunfury" } },
-        pvpTalentSets = { { talents = { 5621, 5706, 5489 } }, { talents = { 5706, 648, 5621 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGMYGAAAzsMjZmlZZmZMbLLzAAsYmxsNmZmZWAAAAAgFzMzMAAwwYmhxMzyMwMzMDYmBYGG", heroTalent = "Frostfire" }, { exportString = "C8DAMhlVtghLZL4RZzExaQoBYNmtFzyMzML2MzIzwMAAAmZZGzMbzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMDAAYYMzwYmZZGYmZmhMmBYGG", heroTalent = "Frostfire" } },

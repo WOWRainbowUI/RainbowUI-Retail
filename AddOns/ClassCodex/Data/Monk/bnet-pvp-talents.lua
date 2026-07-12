@@ -11,8 +11,8 @@ ClassCodexBnetPvpTalents["MONK"] = {
         pvpTalentSets = { { talents = { 672, 666, 667 } }, { talents = { 667, 765, 666 } }, { talents = { 673, 667, 672 } }, { talents = { 666, 1958, 667 } }, { talents = { 667, 1958, 765 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMLbGzwwiZWYmZMAAAAAAALLYEzMwMMzmhxMjZMz2wMmZbYZz22sNMbAAw2sMtMbzsMAAz2s0MzMbmBgZmZGmGDAAYA", heroTalent = "Shado-Pan" }, { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAgZbzYGGzyMzGzMjBAAAAAAYZBjYmBmhxGDmZmZMzGzMmZZYZ7BW2mNMLAAw2sMtMMLDAwsNLNzMzGDLgZMzw0YAAAD", heroTalent = "Shado-Pan" }, { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMLLGzYmxyMwMzYAAAAAAAWWAxMzswMGziZMGzMDz2gHgZbYZz22YGzGAAsMLTbz2MbDAAEgZYBMzA0AYGDAD", heroTalent = "Master of Harmony" }, { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAgZbzYGGzyMPwGzMjBAAAAAAYZBjYmBmxM2AmZmZY2YmxMLDLbzy2shZBAAWmlplZbmlBAY2mlmZmZjhNwMzMDTjBYAgB", heroTalent = "Master of Harmony" } },
-        pvpTalentSets = { { talents = { 666, 1958, 667 } }, { talents = { 5541, 670, 666 } }, { talents = { 666, 667, 765 } }, { talents = { 765, 667, 5541 } } },
+        builds = { { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMLbGzwwiZWYmZMAAAAAAALLYEzMwMMzmhxMjZMz2wMmZbYZz22sNMbAAw2sMtMbzsMAAz2s0MzMbmBgZmZGmGDAAYA", heroTalent = "Shado-Pan" }, { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGz2M2YmZMAAAAAAALLYEzMwMMzmBmZmZY2YmxMLDLbz22sNMLAAwGCAAwsNLNzMzGDbAMzw0YAAAD", heroTalent = "Shado-Pan" }, { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAgZbzYGGzyMPwGzMjBAAAAAAYZBjYmBmxM2AmZmZY2YmxMLDLbzy2shZBAAWmlplZbmlBAY2mlmZmZjhNwMzMDTjBYAgB", heroTalent = "Master of Harmony" } },
+        pvpTalentSets = { { talents = { 666, 1958, 667 } }, { talents = { 673, 1958, 672 } }, { talents = { 765, 667, 5541 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGz2MzGzMjBAAAAAAYZBzEzMwMM2MMmZMjZ2GzMGLPALbzy2shZBAA2QAAAmtZpZmZ2YYBgZGmGAAAD", heroTalent = "Shado-Pan" } },
@@ -23,20 +23,20 @@ ClassCodexBnetPvpTalents["MONK"] = {
   ["mistweaver"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAAmZWGLjZzixMDGLbLzgNzstsNzYjZ0MmBMYWYMbzMzMMbzCY2mJAAAAwsMtMbzsNb2mZZWmZABADGzMDmBAYRGzA", heroTalent = "Master of Harmony" } },
-        pvpTalentSets = { { talents = { 5603, 70, 5395 } }, { talents = { 5603, 5395, 70 } }, { talents = { 5642, 5603, 5395 } }, { talents = { 70, 5603, 5395 } }, { talents = { 70, 5603, 5398 } } },
+        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMWGLjZx2MmZsZsttMjZ2Mz2yyMjFGTzYGwgBMmZmZGzmNGmlZCAAAAMbTbz2MLzitZWmtZGQAAgZGMDYMwiMmBA", heroTalent = "Conduit of the Celestials" } },
+        pvpTalentSets = { { talents = { 5395, 5603, 70 } }, { talents = { 5603, 5395, 70 } }, { talents = { 679, 5603, 5395 } }, { talents = { 70, 5603, 5395 } }, { talents = { 5603, 70, 5395 } } },
       },
       ["pvp-3v3"] = {
-        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAAmZWGLDLWMmZsYmltlZwiZWsNzYhZ0MmBMYWgZbmxMjZzCGz2MBAAAAmlplZZmlZz2Mbz2MDIAYwYmZwMAGGkxMA", heroTalent = "Master of Harmony" } },
-        pvpTalentSets = { { talents = { 5395, 70, 5603 } }, { talents = { 5395, 5603, 679 } }, { talents = { 5395, 5603, 70 } }, { talents = { 1928, 5603, 5395 } }, { talents = { 5603, 70, 5395 } } },
+        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMaGzAGMYMLzMzMMbYGsMTAAAAAEgFbzsMbzMgAgBAYGwYgFZMDA", heroTalent = "Conduit of the Celestials" } },
+        pvpTalentSets = { { talents = { 5395, 70, 5603 } }, { talents = { 5603, 5395, 70 } }, { talents = { 5395, 5603, 70 } }, { talents = { 70, 5395, 5603 } }, { talents = { 679, 5603, 5395 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbY0MmBMYWYMbzMzMMbzCY2mJAAAAwsMtNbzsMb2mZZWmZABADGzMDmBAGkxMA", heroTalent = "Master of Harmony" } },
         pvpTalentSets = { { talents = { 5603, 5395, 70 } }, { talents = { 5395, 5603, 70 } }, { talents = { 70, 5603, 5395 } }, { talents = { 5395, 5603, 5642 } }, { talents = { 5395, 5642, 1928 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbY0MmBMYWMjZbmZmhZbWAz2MBAAAAmlplZbmtZz2MLzyMDIAYwYmZwMAAkxMA", heroTalent = "Master of Harmony" } },
-        pvpTalentSets = { { talents = { 5395, 70, 1928 } }, { talents = { 5395, 5603, 70 } }, { talents = { 1928, 5395, 70 } }, { talents = { 70, 5398, 5395 } }, { talents = { 1928, 70, 5395 } } },
+        builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbM0MmZ2wgZxMsNmZGmlZBjZbEAAAAYWmWmtZ2mNLzsMLzMgAAYMzMYGAYsJjZA", heroTalent = "Master of Harmony" } },
+        pvpTalentSets = { { talents = { 5395, 5603, 1928 } }, { talents = { 5395, 5603, 70 } }, { talents = { 1928, 5395, 70 } }, { talents = { 70, 5398, 5395 } }, { talents = { 1928, 70, 5395 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMb2mxMjNDMjZ2MzmtZGbY0MmBMYWYMbzMGMbzCDz2MBAAAAmlplZbmlZz2MLzyMDIAYw4DmZwMAALyYGA", heroTalent = "Master of Harmony" } },

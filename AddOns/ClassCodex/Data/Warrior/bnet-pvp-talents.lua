@@ -3,16 +3,16 @@ ClassCodexBnetPvpTalents["WARRIOR"] = {
   ["arms"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYjZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZmZGAmxwA", heroTalent = "Colossus" } },
-        pvpTalentSets = { { talents = { 33, 3534, 5625 } }, { talents = { 3534, 5701, 33 } }, { talents = { 33, 5625, 5701 } }, { talents = { 5701, 3534, 33 } }, { talents = { 33, 3534, 5701 } } },
+        builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhZmZGLbmZmBjZmBAAAAwYxMwWmZssNLmZbYzwwMzMtRzMYDYGLmlxwyMbDmZmZAYGDD", heroTalent = "Slayer" } },
+        pvpTalentSets = { { talents = { 33, 3534, 5701 } }, { talents = { 33, 5701, 5625 } }, { talents = { 3534, 5701, 33 } }, { talents = { 33, 3534, 5625 } }, { talents = { 5547, 31, 33 } } },
       },
       ["pvp-3v3"] = {
         builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA", heroTalent = "Colossus" } },
         pvpTalentSets = { { talents = { 33, 5701, 3534 } }, { talents = { 33, 5625, 3534 } }, { talents = { 33, 3534, 31 } }, { talents = { 33, 3534, 5625 } }, { talents = { 33, 5701, 5625 } } },
       },
       ["pvp-blitz"] = {
-        builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYZzMzMYMzMAAAAAGLmB2yMjltZxMbDbGGmZmpNamZYBYGLmlxwyMbDmZAAzYYA", heroTalent = "Colossus" } },
-        pvpTalentSets = { { talents = { 33, 5701, 31 } }, { talents = { 3534, 5625, 33 } }, { talents = { 33, 5701, 5547 } }, { talents = { 33, 5625, 28 } }, { talents = { 5701, 33, 3534 } } },
+        builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhZmZGLmZmZAzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZG2AmxiZZMsMz2AMzAwMGGA", heroTalent = "Slayer" } },
+        pvpTalentSets = { { talents = { 33, 5701, 31 } }, { talents = { 33, 5701, 5625 } }, { talents = { 33, 5679, 3534 } }, { talents = { 3534, 33, 34 } }, { talents = { 31, 33, 5701 } } },
       },
       ["pvp-rbg"] = {
         builds = { { exportString = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA", heroTalent = "Colossus" } },

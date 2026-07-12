@@ -3,7 +3,7 @@ ns.Sections = ns.Sections or {}
 
 local L = ns.L
 
--- "Gear" section — Best in Slot gear from Wowhead / Icy Veins / PvP. The
+-- "Gear" section — Best in Slot gear from u.gg / Icy Veins / PvP. The
 -- displayed title still reads "Best in Slot Gear" (L["tab.best_in_slot"]).
 local Gear = {}
 ns.Sections.Gear = Gear
@@ -14,15 +14,15 @@ ns.Sections.Gear = Gear
 
 local MAX_ROWS = 20
 
--- BiS source dropdown string -> registry key. PvP gear comes from Murlok.
+-- BiS source dropdown string -> registry key. PvP gear comes from u.gg.
 local COMP_SOURCE_KEYS = {
-    ["Wowhead"] = "wowhead", ["Icy Veins"] = "icyveins",
-    ["Archon"] = "archon", ["PvP"] = "murlok",
+    ["Icy Veins"] = "icyveins",
+    ["u.gg"] = "ugg", ["PvP"] = "ugg",
 }
 
 local function LoadBisPrefs()
     local specKey = ns.GetSpecKey and ns.GetSpecKey()
-    local source, tabLabel = "Wowhead", nil
+    local source, tabLabel = "Icy Veins", nil
     if specKey and ClassCodexCharDB and ClassCodexCharDB.perSpec
         and ClassCodexCharDB.perSpec[specKey] then
         local s = ClassCodexCharDB.perSpec[specKey]
@@ -51,34 +51,20 @@ local function FindTabByLabel(tabs, label)
     return nil
 end
 
--- Archon's rows carry only { item, pop, bis } — no slot label and no drop
--- source (Archon ranks by popularity, not acquisition). We recover the slot
--- from the item's equip location and borrow a drop source from the Wowhead
--- set when it lists the same item, falling back to the popularity percent.
-local function BuildWowheadSourceLookup(wowheadBis)
-    local map = {}
-    if not wowheadBis then return map end
-    for _, tab in ipairs(wowheadBis) do
-        for _, g in ipairs(tab.slots) do
-            local id = g.item and g.item.itemId
-            if id and g.source and g.source ~= "" and not map[id] then
-                map[id] = g.source
-            end
-        end
-    end
-    return map
-end
+-- u.gg's rows carry only { item, pop, bis } — no slot label and no drop
+-- source (u.gg ranks by popularity, not acquisition). We recover the slot
+-- from the item's equip location and fall back to the popularity percent.
 
--- Resolve the slot + source columns for one row. Wowhead / Icy Veins rows
--- already carry both; Archon rows derive them. `whLookup` is only built for
--- the Archon source.
+-- Resolve the slot + source columns for one row. u.gg / Icy Veins rows
+-- already carry both; u.gg rows derive them. `whLookup` is only built for
+-- the u.gg source.
 --
--- We deliberately don't surface Archon's raw popularity percent: the rest of
--- the addon attributes Archon popularity with a marker rather than a number,
--- and Archon's raid figures count parses across all bosses so they routinely
+-- We deliberately don't surface u.gg's raw popularity percent: the rest of
+-- the addon attributes u.gg popularity with a marker rather than a number,
+-- and u.gg's raid figures count parses across all bosses so they routinely
 -- exceed 100%. Instead the source column shows the item's drop location
--- (borrowed from the Wowhead set when it lists the same item) and falls back
--- to a "BiS" tag on rows whose popular pick also matches Wowhead's BiS.
+-- (borrowed from the u.gg set when it lists the same item) and falls back
+-- to a "BiS" tag on rows whose popular pick also matches u.gg's BiS.
 local function ResolveRow(entry, whLookup, context)
     local itemId = entry.item and entry.item.itemId
     local slot = entry.slot
@@ -89,7 +75,7 @@ local function ResolveRow(entry, whLookup, context)
             or (itemId and ns:GetTrinketSource(itemId))
         if (not source or source == "") and entry.bis then source = "BiS" end
     end
-    -- Archon rows carry no bonus IDs (its pages don't publish them), so the
+    -- u.gg rows carry no bonus IDs (its pages don't publish them), so the
     -- item would render at base item level. Borrow the real bonus IDs we know
     -- for this item from the other sources, falling back to the content's
     -- typical upgrade track so a raid pick still shows a mythic-raid ilvl.
@@ -101,9 +87,9 @@ local function ResolveRow(entry, whLookup, context)
     return slot or "", source or "", bonusIDs
 end
 
--- Map an Archon tab to the trinket-context key used for bonus-ID defaults.
-local function ArchonTabContext(source, tab)
-    if source ~= "Archon" or not tab then return nil end
+-- Map an u.gg tab to the trinket-context key used for bonus-ID defaults.
+local function UggTabContext(source, tab)
+    if source ~= "u.gg" or not tab then return nil end
     return tab.label == "Raid" and "raid" or "dungeon"
 end
 
@@ -165,12 +151,12 @@ function Gear.InitPanel(parent)
     panel.fallback:Hide()
 
     -- Help "i" on the section title — explains the gear sources, including
-    -- that Archon's data is what top players actually run (popularity-based),
+    -- that u.gg's data is what top players actually run (popularity-based),
     -- not a curated Best in Slot list.
     ns.CreateHelpIcon(panel.title, {
         title = L["tab.bis_gear"],
         intro = L["bis.help.intro"],
-        lines = { L["bis.help.archon"], L["bis.help.archon_mplus"] },
+        lines = { L["bis.help.ugg"], L["bis.help.ugg_mplus"] },
     })
 
     return panel.section
@@ -180,20 +166,19 @@ function Gear.IsPanelSourceDropdownShown() return panel.sourceDropdown:IsShown()
 function Gear.IsPanelTabDropdownShown() return panel.tabDropdown:IsShown() end
 function Gear.IsPanelFallbackShown() return panel.fallback:IsShown() end
 
--- args = { wowheadBis, ivBis, pvpBis, onChange }
+-- args = { uggBis, ivBis, pvpBis, onChange }
 -- Returns the rendered row count (height in ROW_HEIGHT units).
 function Gear.RenderPanel(args)
     for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
     panel.fallback:Hide()
 
-    local wowheadBis, ivBis, archonBis, pvpBis =
-        args.wowheadBis, args.ivBis, args.archonBis, args.pvpBis
-    local hasWH     = wowheadBis and #wowheadBis > 0
+    local ivBis, uggBis, pvpBis =
+        args.ivBis, args.uggBis, args.pvpBis
     local hasIV     = ivBis and #ivBis > 0
-    local hasArchon = archonBis and #archonBis > 0
+    local hasUgg = uggBis and #uggBis > 0
     local hasPvP    = pvpBis ~= nil
 
-    if not (hasWH or hasIV or hasArchon or hasPvP) then
+    if not (hasIV or hasUgg or hasPvP) then
         panel.sourceDropdown:Hide()
         panel.tabDropdown:Hide()
         panel.section:Hide()
@@ -202,28 +187,25 @@ function Gear.RenderPanel(args)
 
     local currentSource, currentTab = LoadBisPrefs()
     local function sourceAvailable(src)
-        if src == "Wowhead" then return hasWH end
         if src == "Icy Veins" then return hasIV end
-        if src == "Archon" then return hasArchon end
+        if src == "u.gg" then return hasUgg end
         return src == "PvP" -- PvP is always selectable (shows its own fallback)
     end
     if not sourceAvailable(currentSource) then
-        currentSource = (hasWH and "Wowhead") or (hasIV and "Icy Veins")
-            or (hasArchon and "Archon") or "PvP"
+        currentSource = (hasIV and "Icy Veins") or (hasUgg and "u.gg") or "PvP"
     end
 
     -- Source dropdown
     local labels = ns.BIS_SOURCE_LABELS or {}
     local availableSources = {}
-    if hasWH then availableSources[#availableSources + 1] = { label = labels["Wowhead"] or "Wowhead", value = "Wowhead" } end
     if hasIV then availableSources[#availableSources + 1] = { label = labels["Icy Veins"] or "Icy Veins", value = "Icy Veins" } end
-    if hasArchon then availableSources[#availableSources + 1] = { label = labels["Archon"] or "Archon", value = "Archon" } end
+    if hasUgg then availableSources[#availableSources + 1] = { label = labels["u.gg"] or "u.gg", value = "u.gg" } end
     availableSources[#availableSources + 1] = { label = labels["PvP"] or "PvP", value = "PvP" }
     if #availableSources > 1 then
         panel.sourceDropdown:Show()
         panel.sourceDropdown:SetOptions(availableSources, currentSource, function(picked)
             -- Don't force a tab here — sources have different tab sets
-            -- (Archon has Mythic+/Raid, not "Overall"). Leave the saved tab
+            -- (u.gg has Mythic+/Raid, not "Overall"). Leave the saved tab
             -- and let the render-time FindTabByLabel guard fall back to the
             -- new source's first tab when the old label doesn't exist.
             SaveBisPrefs(picked, nil)
@@ -248,11 +230,10 @@ function Gear.RenderPanel(args)
     -- Pick the active source's tab list
     local activeBis
     if currentSource == "PvP" then activeBis = pvpBis
-    elseif currentSource == "Archon" then activeBis = archonBis
     elseif currentSource == "Icy Veins" then activeBis = ivBis
-    else activeBis = wowheadBis end
+    else activeBis = uggBis end
     if not activeBis or #activeBis == 0 then
-        activeBis = wowheadBis or ivBis or archonBis or pvpBis
+        activeBis = uggBis or ivBis or pvpBis
     end
     if not activeBis or not activeBis[1] then
         panel.tabDropdown:Hide()
@@ -292,13 +273,13 @@ function Gear.RenderPanel(args)
         yOffset = yOffset - 30
     end
 
-    local whLookup = currentSource == "Archon" and BuildWowheadSourceLookup(wowheadBis) or nil
-    local archonCtx = ArchonTabContext(currentSource, selectedTab)
+    local whLookup = nil
+    local uggCtx = UggTabContext(currentSource, selectedTab)
     local count = selectedSlots and math.min(#selectedSlots, MAX_ROWS) or 0
     for i = 1, count do
         local entry = selectedSlots[i]
         local row = panel.rows[i]
-        local slot, source, bonusIDs = ResolveRow(entry, whLookup, archonCtx)
+        local slot, source, bonusIDs = ResolveRow(entry, whLookup, uggCtx)
         row.slotText:SetText(slot)
         row.itemText:SetText(ns.FormatItem(entry.item))
         row.sourceLabel:SetText(source)
@@ -329,12 +310,12 @@ local comp = {}
 -- Session-scoped state — only this module owns it now. lastSpecKey is the
 -- guard that resets the source/tab when the user picks a different spec in
 -- the Compendium.
-local compSource = "Wowhead"
+local compSource = "u.gg"
 local compTab    = nil
 
 -- Active Compendium BiS source as a registry key.
 function Gear.GetCompendiumSourceKey()
-    return COMP_SOURCE_KEYS[compSource] or "wowhead"
+    return COMP_SOURCE_KEYS[compSource] or "ugg"
 end
 local compLastSpecKey = nil
 
@@ -345,7 +326,7 @@ function Gear.InitCompendium(opts)
     ns.CreateHelpIcon(comp.header, {
         title = L["tab.bis_gear"],
         intro = L["bis.help.intro"],
-        lines = { L["bis.help.archon"], L["bis.help.archon_mplus"] },
+        lines = { L["bis.help.ugg"], L["bis.help.ugg_mplus"] },
         inset = 18,
     })
     comp.content = CreateFrame("Frame", nil, comp.section)
@@ -394,42 +375,38 @@ function Gear.InitCompendium(opts)
     return comp.section, comp.header, comp.content
 end
 
--- args = { wowheadBis, ivBis, pvpBis, specKey, refresh }
+-- args = { uggBis, ivBis, pvpBis, specKey, refresh }
 function Gear.RenderCompendium(args)
     for i = 1, MAX_ROWS do comp.rows[i]:Hide() end
 
     -- Reset source/tab when browsing a different spec
     if args.specKey ~= compLastSpecKey then
-        compSource = "Wowhead"
+        compSource = "Icy Veins"
         compTab = nil
         compLastSpecKey = args.specKey
     end
 
-    local wowheadBis, ivBis, archonBis, pvpBis =
-        args.wowheadBis, args.ivBis, args.archonBis, args.pvpBis
-    local hasWH = wowheadBis and #wowheadBis > 0
+    local ivBis, uggBis, pvpBis =
+        args.ivBis, args.uggBis, args.pvpBis
     local hasIV = ivBis and #ivBis > 0
-    local hasArchon = archonBis and #archonBis > 0
+    local hasUgg = uggBis and #uggBis > 0
     local hasPvP = pvpBis ~= nil
 
     comp.pvpFallback:Hide()
-    if not hasWH and not hasIV and not hasArchon and not hasPvP then return end
+    if not hasIV and not hasUgg and not hasPvP then return end
 
     local function sourceAvailable(src)
-        if src == "Wowhead" then return hasWH end
         if src == "Icy Veins" then return hasIV end
-        if src == "Archon" then return hasArchon end
+        if src == "u.gg" then return hasUgg end
         return src == "PvP"
     end
     if not sourceAvailable(compSource) then
-        compSource = (hasWH and "Wowhead") or (hasIV and "Icy Veins")
-            or (hasArchon and "Archon") or "PvP"
+        compSource = (hasIV and "Icy Veins") or (hasUgg and "u.gg") or "PvP"
     end
 
     local availableSources = {}
-    if hasWH then availableSources[#availableSources + 1] = "Wowhead" end
     if hasIV then availableSources[#availableSources + 1] = "Icy Veins" end
-    if hasArchon then availableSources[#availableSources + 1] = "Archon" end
+    if hasUgg then availableSources[#availableSources + 1] = "u.gg" end
     availableSources[#availableSources + 1] = "PvP"
 
     local showSourceDropdown = #availableSources > 1
@@ -455,11 +432,10 @@ function Gear.RenderCompendium(args)
     local pvpNoData = compSource == "PvP" and not hasPvP
     local activeBis
     if compSource == "PvP" then activeBis = pvpBis
-    elseif compSource == "Archon" then activeBis = archonBis
     elseif compSource == "Icy Veins" then activeBis = ivBis
-    else activeBis = wowheadBis end
+    else activeBis = uggBis end
     if not pvpNoData and (not activeBis or #activeBis == 0) then
-        activeBis = wowheadBis or ivBis or archonBis or pvpBis
+        activeBis = uggBis or ivBis or pvpBis
     end
 
     if pvpNoData then
@@ -508,15 +484,15 @@ function Gear.RenderCompendium(args)
         yOffset = yOffset - 30
     end
 
-    local whLookup = compSource == "Archon" and BuildWowheadSourceLookup(wowheadBis) or nil
-    local archonCtx = ArchonTabContext(compSource, selectedTab)
+    local whLookup = nil
+    local uggCtx = UggTabContext(compSource, selectedTab)
     local idx = 0
     if selectedSlots then
         for _, g in ipairs(selectedSlots) do
             idx = idx + 1
             if idx > MAX_ROWS then break end
             local row = comp.rows[idx]
-            local slot, source, bonusIDs = ResolveRow(g, whLookup, archonCtx)
+            local slot, source, bonusIDs = ResolveRow(g, whLookup, uggCtx)
             row.slot:SetText(slot)
             row.name:SetText(ns.FormatItem(g.item))
             row.source:SetText(source)

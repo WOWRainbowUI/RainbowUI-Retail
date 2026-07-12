@@ -3,7 +3,7 @@ ClassCodexIcyVeinsTalentData["MONK"] = {
   ["brewmaster"] = {
     talents = {
       { context = "團隊", buildLabel = "團隊ing (Defensive)", exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYEmBmhxmZMmZmZMzywMmZZYZzy2sMMLAAwysMtMbzsMAAAAzwGYmBMNGAAwA" },
-      { context = "傳奇+", buildLabel = "Mythic+ (Standard) - Pan", exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMLbGDzwyM2MmZAAAAAAAYZBmYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAgNAAAwsNLNzMzGDbAMzw0YADAYA" },
+      { context = "傳奇+", buildLabel = "傳奇+ (Standard) - Pan", exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMLbGDzwyM2MmZAAAAAAAYZBmYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAgNAAAwsNLNzMzGDbAMzw0YADAYA" },
       { context = "探究", buildLabel = "Delves/Open World", exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZMAAAAAAALLgYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAglZZaZ2mZZAAAAMsBmZATjBMAgB" },
       { context = "升級", buildLabel = "升級", exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZMAAAAAAALLgYmBmhBzgZmZwshZMzywymltZbGzGAAsMLTLz2AAAAADbgZGw0YADAA", leveling = true },
     },

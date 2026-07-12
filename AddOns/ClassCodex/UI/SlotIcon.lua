@@ -64,41 +64,40 @@ local CORNER_LAYOUT = {
 -- client.
 ns.SlotIconMarkers = {
     bis = {
-        -- Wowhead "W" mark — Crafting BiS designations originate on
-        -- Wowhead (Archon surfaces them via a BadgeLabel that links
-        -- to the Wowhead BiS guide; see parse-archon-crafts.ts:113).
-        -- Same wowhead.tga asset reused across the addon for any
-        -- Wowhead-sourced attribution.
+        -- u.gg "W" mark — Crafting BiS designations originate on
+        -- u.gg (u.gg surfaces them via a BadgeLabel that links
+        -- to the u.gg BiS guide; see parse-ugg-crafts.ts:113).
+        -- Same ugg.tga asset reused across the addon for any
+        -- u.gg-sourced attribution.
         --
-        -- All three source-attribution markers (bis, popular_archon,
-        -- popular_murlok) live at top-left. BiS stays anchored to the
+        -- All three source-attribution markers (bis, popular_ugg,
+        -- popular_ugg) live at top-left. BiS stays anchored to the
         -- corner; PaintCardIcon shifts the popular mark DOWN when both
         -- are shown so they stack vertically (bis on top) at the same
         -- corner without overlap.
         corner = "topleft",
         spec = {
-            texture = "Interface\\AddOns\\ClassCodex\\Textures\\wowhead",
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\ugg",
             size = 13,
         },
     },
-    popular_archon = {
-        -- "Most-played" marker attributed to Archon — used in PvE
+    popular_ugg = {
+        -- "Most-played" marker attributed to u.gg — used in PvE
         -- contexts (raid + Mythic+) where the popularity signal comes
-        -- from Archon's top-player gear page.
+        -- from u.gg's top-player gear page.
         corner = "topleft",
         spec = {
-            texture = "Interface\\AddOns\\ClassCodex\\Textures\\archon",
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\ugg",
             size = 13,
         },
     },
-    popular_murlok = {
-        -- "Most-played" marker attributed to Murlok — used in the PvP
-        -- context where popularity is sourced from Murlok's per-spec
-        -- pickrates. Mutually exclusive with popular_archon (the
-        -- active context picks one).
+    source_icyveins = {
+        -- Icy Veins attribution mark — used on crafting embellishment cards,
+        -- whose recommendation comes from Icy Veins (u.gg carries no
+        -- embellishment picks). Shares the icyveins.tga brand asset.
         corner = "topleft",
         spec = {
-            texture = "Interface\\AddOns\\ClassCodex\\Textures\\murlok",
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\icyveins",
             size = 13,
         },
     },
