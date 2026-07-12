@@ -433,13 +433,13 @@ function SM:Initialize()
     ef:RegisterEvent("PLAYER_FOCUS_CHANGED")
     ef:RegisterEvent("GROUP_LEFT")
     ef:RegisterEvent("PLAYER_ROLES_ASSIGNED")  -- role assignments changed
-    ef:SetScript("OnEvent", function(_, event)
+    ef:SetScript("OnEvent", BIT.Prof.Wrap("SMART_MD", function(_, event)
         if event == "GROUP_LEFT" then
             SM:OnGroupLeft()
         else
             SM:QueueUpdate()
         end
-    end)
+    end))
 
     if BIT.db and BIT.db.smartMdEnabled then
         self:CreateButtons()

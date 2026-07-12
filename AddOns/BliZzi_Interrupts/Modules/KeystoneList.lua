@@ -2703,6 +2703,9 @@ local function setupEvents()
         end
     end)
     KL._eventFrame = f
+    -- Bill the event handler to the Keystone List module in the
+    -- settings CPU footer.
+    BIT.Prof.Attach("KEYSTONE_LIST", f)
 
     -- Register the addon message prefix
     if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then
@@ -3121,6 +3124,10 @@ function KL:ToggleTestMode()
     end
     self:RebuildDisplays()
 end
+
+-- CPU-footer attribution for the teleport-cast fill ticker (top-level
+-- anonymous OnUpdate; wrapped after the fact).
+BIT.Prof.Attach("KEYSTONE_LIST", _castTicker, "OnUpdate")
 
 -- Hook into addon init (Core.lua calls BIT:Initialize at PLAYER_LOGIN).
 -- We register a one-shot ADDON_LOADED handler so we don't depend on Core's order.

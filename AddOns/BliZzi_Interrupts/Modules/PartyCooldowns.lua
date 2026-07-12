@@ -138,16 +138,24 @@ local PCD = BIT.PartyCooldowns
 --                       Cold icon, not both. The replacement entry
 --                       itself uses `talent = <id>` to gate its own
 --                       appearance.
---   addsForbearance : true — the spell applies the Forbearance debuff
---                       to the recipient at cast time (Divine Shield /
---                       Blessing of Protection / Blessing of
---                       Spellwarding family). Used by the
+--   assumeReplaced : true — when the caster's loadout is UNKNOWN,
+--                       treat the `replacedBy` talent as picked and
+--                       hide this base entry instead of showing base
+--                       and replacement side by side. For pairs where
+--                       the replacement is the overwhelmingly common
+--                       pick (Ice Block → Ice Cold). A known loadout
+--                       always wins over this assumption.
+--   addsDebuff : true — the spell applies a harmful side-effect aura
+--                       to the recipient at cast time (Forbearance for
+--                       the Divine Shield / Blessing of Protection /
+--                       Blessing of Spellwarding family, Hypothermia
+--                       for Ice Block / Ice Cold). Used by the
 --                       classification fallback to disambiguate spell
 --                       pairs that share Blizzard category flags. When
 --                       a HARMFUL aura is added in the same UNIT_AURA
 --                       event as the buff under inspection, the
---                       `addsForbearance=true` candidate wins over its
---                       non-Forbearance flag-twin.
+--                       `addsDebuff=true` candidate wins over its
+--                       debuff-less flag-twin.
 --   charges   : number — base number of charges. Defaults to 1 if
 --                       omitted. Multi-charge spells (charges > 1)
 --                       recharge serially in WoW: while one charge is
@@ -386,7 +394,20 @@ local SPELL_DEFS = {
 
     -- ── Mage ────────────────────────────────────────────
     { spellId = 365350, cd = 90,  dur = 15,  affects = "self",   class = "MAGE",        cat = "OFF", label = "Arcane Surge",                     spec = SPEC.MAGE_ARCANE },
+    -- Ice Block / Ice Cold both apply the Hypothermia debuff (41425)
+    -- to the mage WHEN CAST — same same-batch harmful-aura side
+    -- channel as the Paladin Forbearance family. Their flag-twin
+    -- Alter Time applies no debuff, so `addsDebuff` splits the BIG
+    -- candidate pool at apply time (live report: the second Ice Cold
+    -- charge glowed as Alter Time until the duration probe swapped).
     { spellId = 45438,  cd = 240, dur = 10,  affects = "self",   class = "MAGE",        cat = "DEF", label = "Ice Block",                        replacedBy = 414659,
+        -- Unknown loadout → show only the Ice Cold entry, not both:
+        -- Frost (the M+ mage spec) virtually always talents Ice Cold,
+        -- and two icons with optimistic 2-charge badges each read as
+        -- four immunity charges. A known loadout restores the exact
+        -- per-talent display either way.
+        assumeReplaced = true,
+        addsDebuff = true,
         cdMods = { [382424]  = -60,            -- Cold as Ice (or similar Ice Block CDR talent): -60s
                    [1265517] = -30 },          -- Secondary Ice Block CDR: -30s
         talentChargeBonus = { [1244110] = 1 } },  -- Ice Block extra-charge talent: +1 (total 2)
@@ -404,6 +425,7 @@ local SPELL_DEFS = {
         -- B bit the aura-classification path (instances, secret spellIDs)
         -- could never match this def.
         big = true,
+        addsDebuff = true,                     -- Hypothermia lands in the same batch (see Ice Block note)
         cdMods = { [382424]  = -60,            -- Same Ice Block CDR talents apply to Ice Cold variant
                    [1265517] = -30 },
         talentChargeBonus = { [1244110] = 1 } },
@@ -523,13 +545,13 @@ local SPELL_DEFS = {
     -- Their flag-twins (Divine Protection, Blessing of Sacrifice)
     -- don't trigger Forbearance. The classification fallback uses
     -- "did a HARMFUL aura appear in the same UNIT_AURA event as
-    -- this buff" to pick `addsForbearance=true` over its twin.
+    -- this buff" to pick `addsDebuff=true` over its twin.
     --
     -- DS gets `important=true` (same as DP) so it shares the
     -- "--I-" flag-key bucket with DP and the Forbearance probe is
     -- what distinguishes them at runtime. BIG bit removed — same
     -- reason as DP, the runtime aura doesn't carry it.
-    { spellId = 642,    cd = 300, dur = 8,   affects = "self",   class = "PALADIN",     cat = "DEF", label = "Divine Shield",                    addsForbearance = true,
+    { spellId = 642,    cd = 300, dur = 8,   affects = "self",   class = "PALADIN",     cat = "DEF", label = "Divine Shield",                    addsDebuff = true,
         important = true,
         -- Both reductions are percentages in-game, so they live in
         -- cdPctMods and sum additively (-45% with both talents = 165s);
@@ -541,14 +563,14 @@ local SPELL_DEFS = {
     -- Spellwarding REPLACES BoP when talented. `replacedBy` hides the
     -- BoP entry once the loadout confirms the pick (unknown loadouts
     -- keep both icons; only the one actually cast ever fires).
-    { spellId = 1022,   cd = 300, dur = 10,  affects = "target", class = "PALADIN",     cat = "DEF", label = "Blessing of Protection",           addsForbearance = true, replacedBy = 204018,
+    { spellId = 1022,   cd = 300, dur = 10,  affects = "target", class = "PALADIN",     cat = "DEF", label = "Blessing of Protection",           addsDebuff = true, replacedBy = 204018,
         cdMods    = { [384909] = -60 },        -- Improved Blessing of Protection: -60s
         cdPctMods = { [378425] = -15 } },      -- Prot talent: extra -15% on DS / Forbearance blessings
     -- Spellwarding is a class-tree pick — any spec can talent it, so
     -- no spec gate (was wrongly Prot-only; a Holy/Ret Spellwarding
     -- went untracked and their BoP entry mis-fired instead).
     { spellId = 204018, cd = 300, dur = 10,  affects = "target", class = "PALADIN",     cat = "DEF", label = "Blessing of Spellwarding",         talent = 204018,
-        addsForbearance = true,
+        addsDebuff = true,
         cdMods    = { [384909] = -60 },        -- Shared BoP/BoSpellwarding CDR: -60s
         cdPctMods = { [378425] = -15 } },      -- Prot talent: extra -15% on DS / Forbearance blessings
     -- Blessing of Freedom (1044) is intentionally NOT tracked. Its buff
@@ -1421,11 +1443,15 @@ end
 -- the percentage operates on the already-reduced CD (matches Blizzard's
 -- own multiplicative-after-additive stacking convention).
 --
--- If LibSpec hasn't delivered the caster's talent map yet, we fall back
--- to the base def.cd — slightly less accurate for the first cast after
--- login, but it self-corrects as soon as the callback fires. A floor
--- of 1s prevents an over-reduction edge case from writing a zero or
--- negative CD.
+-- Unknown loadout (M+ with addon comm blocked, no cache): be OPTIMISTIC
+-- and assume the caster took the cooldown-REDUCTION talents (the ~99%
+-- case), so the displayed CD matches the talented spell instead of the
+-- longer base CD. Only reductions are assumed — a rare CD-INCREASE
+-- talent is never presumed. Trade-off vs. the duration path: there is
+-- no reliable party-member "spell ready" event in M+, so an
+-- over-reduction can't be trimmed afterwards; the exposure is that an
+-- untalented caster's icon may read ready a little early. A floor of 1s
+-- prevents an over-reduction edge case from writing a zero/negative CD.
 local function GetEffectiveCD(def, casterName)
     local cd = def.cd
     -- Spec-level base CD modifier. For spells whose baseline CD differs
@@ -1446,36 +1472,44 @@ local function GetEffectiveCD(def, casterName)
     end
     if casterName and (def.cdMods or def.cdPctMods) then
         local talents = GetKnownTalentsForName(casterName)
-        if talents then
-            if def.cdMods then
-                for talentID, delta in pairs(def.cdMods) do
-                    if talents[talentID] then
-                        -- A delta may be spec-dependent: a table of
-                        -- { default = x, [specID] = y } for talents whose
-                        -- effect differs per spec (e.g. Sacrifice of the
-                        -- Just reduces BoSac far less for Holy than for
-                        -- Prot/Ret). Plain numbers stay the common case.
-                        if type(delta) == "table" then
-                            local spec = GetSpecForName(casterName)
-                            delta = (spec and delta[spec]) or delta.default or 0
-                        end
+        local knownLoadout = (talents ~= nil)
+        local spec  -- resolved on demand for spec-dependent (table) deltas
+        if def.cdMods then
+            for talentID, delta in pairs(def.cdMods) do
+                -- Known loadout → honor the actual pick. Unknown loadout
+                -- → assume it's picked (the reduction filter below keeps
+                -- us from ever assuming a CD-increase talent).
+                local use = (not knownLoadout) or (talents[talentID] ~= nil)
+                if use then
+                    -- A delta may be spec-dependent: a table of
+                    -- { default = x, [specID] = y } for talents whose
+                    -- effect differs per spec (e.g. Sacrifice of the
+                    -- Just reduces BoSac far less for Holy than for
+                    -- Prot/Ret). Plain numbers stay the common case.
+                    if type(delta) == "table" then
+                        if spec == nil then spec = GetSpecForName(casterName) or false end
+                        delta = (spec and delta[spec]) or delta.default or 0
+                    end
+                    -- Unknown loadout only assumes reductions (delta < 0).
+                    if knownLoadout or delta < 0 then
                         cd = cd + delta
                     end
                 end
             end
-            if def.cdPctMods then
-                -- Sum percentages first, then apply once — keeps multiple
-                -- pct talents on the same spell linearly additive (e.g.
-                -- two -10% talents = -20%, not (1 - 0.1) * (1 - 0.1) = -19%).
-                local pctSum = 0
-                for talentID, pct in pairs(def.cdPctMods) do
-                    if talents[talentID] then
-                        pctSum = pctSum + pct
-                    end
+        end
+        if def.cdPctMods then
+            -- Sum percentages first, then apply once — keeps multiple
+            -- pct talents on the same spell linearly additive (e.g.
+            -- two -10% talents = -20%, not (1 - 0.1) * (1 - 0.1) = -19%).
+            local pctSum = 0
+            for talentID, pct in pairs(def.cdPctMods) do
+                local use = (not knownLoadout) or (talents[talentID] ~= nil)
+                if use and (knownLoadout or pct < 0) then
+                    pctSum = pctSum + pct
                 end
-                if pctSum ~= 0 then
-                    cd = cd * (1 + pctSum / 100)
-                end
+            end
+            if pctSum ~= 0 then
+                cd = cd * (1 + pctSum / 100)
             end
         end
     end
@@ -1491,6 +1525,15 @@ end
 -- comparison, so getting it right on a per-caster basis keeps both
 -- accurate. Floor at 1s so a buggy negative entry can't zero out the
 -- glow window.
+--
+-- Unknown loadout (M+ with addon comm blocked, no cache): be OPTIMISTIC
+-- and add every positive duration extension, mirroring the optimistic
+-- charge logic. Under-estimating cuts the glow off while the buff is
+-- still up (live report: a Guardian's talented 14s Barkskin only glowed
+-- 8s, while the unit-frame overlay — which reads the real aura — still
+-- showed 13s). Over-estimating is harmless here: the UNIT_AURA(removed)
+-- early-cleanup hides the glow the moment the buff actually ends, so an
+-- untalented caster's shorter buff still stops the glow on time.
 local function GetEffectiveDuration(def, casterName)
     local d = def.dur or 0
     if casterName and def.durMods then
@@ -1500,6 +1543,13 @@ local function GetEffectiveDuration(def, casterName)
                 if talents[talentID] then
                     d = d + delta
                 end
+            end
+        else
+            -- Loadout unknown — assume every extension is picked (only
+            -- positive deltas; the aura-removed cleanup trims any
+            -- over-estimate back to the real buff length).
+            for _, delta in pairs(def.durMods) do
+                if delta > 0 then d = d + delta end
             end
         end
     end
@@ -1631,13 +1681,22 @@ local function SpellsForMember(name, class, race)
         -- failure mode than wrong-spec icons.
         if not specOk then return end
 
-        -- Talent replacement gate: only hide the base entry when we
-        -- KNOW the caster picked the replacement talent. With talents
-        -- unknown, leave the base visible so something glows on cast
-        -- (the replacement entry is also included via the optimistic
-        -- branch below — both icons appear, but only one will fire).
-        if def.replacedBy and talentsKnown and memberTalents[def.replacedBy] then
-            return
+        -- Talent replacement gate: hide the base entry when we KNOW
+        -- the caster picked the replacement talent. With talents
+        -- unknown the default keeps the base visible so something
+        -- glows on cast (both icons appear, only one ever fires) —
+        -- EXCEPT for defs flagged `assumeReplaced`: there the
+        -- replacement is the standard pick and base + replacement
+        -- side by side reads as double the real charge count (live
+        -- report: a no-LibSpec Frost Mage showed Ice Block 2 charges
+        -- AND Ice Cold 2 charges). Those default to replacement-only
+        -- until a loadout proves the base is the active version.
+        if def.replacedBy then
+            if talentsKnown then
+                if memberTalents[def.replacedBy] then return end
+            elseif def.assumeReplaced then
+                return
+            end
         end
 
         local talentOk
@@ -1673,6 +1732,97 @@ local function GetLBG()
     local ok, lib = pcall(_G.LibStub, "LibButtonGlowcustom", true)
     return ok and lib or nil
 end
+
+local function GetLCG()
+    if not _G.LibStub then return nil end
+    local ok, lib = pcall(_G.LibStub, "LibCustomGlow-1.0", true)
+    return ok and lib or nil
+end
+
+------------------------------------------------------------
+-- Glow style dispatch. Every glow in this module starts/stops
+-- through these two helpers so the user's glow configuration
+-- applies uniformly — including the test-mode preview icons.
+--
+-- partyCooldownsGlowCustom OFF (default): the classic action-
+-- button proc glow via the long-proven bundled lib — untinted,
+-- byte-identical behaviour to pre-4.1.6 builds.
+--
+-- partyCooldownsGlowCustom ON: the picked alternative style in
+-- the picked color:
+--   PIXEL     rotating dashed lines around the icon border.
+--   AUTOCAST  circling sparkle particles (pet-autocast shine).
+--   PROC      modern retail proc animation (burst + pulse loop).
+--
+-- StopGlow tears down EVERY style, not just the active one — the
+-- user can switch styles from the settings while glows are live,
+-- and a stale overlay from the previous style must never linger.
+------------------------------------------------------------
+local function StartGlow(icon)
+    if not icon then return end
+    icon._glowActive = true
+    local db  = BIT.db
+    local lcg = GetLCG()
+
+    if not (db and db.partyCooldownsGlowCustom) or not lcg then
+        local lbg = GetLBG()
+        if lbg and lbg.ShowOverlayGlow then
+            pcall(lbg.ShowOverlayGlow, icon)
+        end
+        return
+    end
+
+    local color = { db.partyCooldownsGlowColorR or 0.95,
+                    db.partyCooldownsGlowColorG or 0.95,
+                    db.partyCooldownsGlowColorB or 0.32, 1 }
+    local style = db.partyCooldownsGlowStyle or "PIXEL"
+    if style == "AUTOCAST" then
+        -- 4 sparkle groups, slightly enlarged for small icons.
+        pcall(lcg.AutoCastGlow_Start, icon, color, 4, 0.125, 1.2)
+    elseif style == "PROC" then
+        pcall(lcg.ProcGlow_Start, icon, { color = color, startAnim = true })
+    else
+        -- "PIXEL" — also the fallback for unknown values from a
+        -- corrupted import: 8 lines, moderate speed, auto length,
+        -- 2px thick.
+        pcall(lcg.PixelGlow_Start, icon, color, 8, 0.25, nil, 2)
+    end
+end
+
+local function StopGlow(icon)
+    if not icon then return end
+    icon._glowActive = nil
+    local lbg = GetLBG()
+    if lbg and lbg.HideOverlayGlow then
+        pcall(lbg.HideOverlayGlow, icon)
+    end
+    local lcg = GetLCG()
+    if lcg then
+        pcall(lcg.ButtonGlow_Stop, icon)
+        pcall(lcg.PixelGlow_Stop, icon)
+        pcall(lcg.AutoCastGlow_Stop, icon)
+        pcall(lcg.ProcGlow_Stop, icon)
+    end
+end
+
+-- Exposed for the settings page: restyle any currently glowing icon
+-- in place when the user changes style/color (stop with the union
+-- teardown, restart with the new style).
+function PCD:RestyleActiveGlows()
+    for _, icons in pairs(_icons) do
+        for _, icon in pairs(icons) do
+            if icon._glowActive then
+                StopGlow(icon)
+                StartGlow(icon)
+            end
+        end
+    end
+end
+
+-- Public glow hooks for the settings page's preview icon — it lives
+-- outside the _icons registry, so RestyleActiveGlows can't reach it.
+function PCD:StartGlowOn(frame) StartGlow(frame) end
+function PCD:StopGlowOn(frame)  StopGlow(frame)  end
 
 -- LibSpecialization registration. Library is loaded by the addon's
 -- existing core (also used by the interrupt tracker for talent data).
@@ -2616,13 +2766,9 @@ local function EnsureIconsFor(unit, name, class)
         for _, def in ipairs(list) do valid[def.spellId] = true end
     end
     if _icons[name] then
-        local lbg
         for spellId, icon in pairs(_icons[name]) do
             if not valid[spellId] then
-                lbg = lbg or GetLBG()
-                if lbg and lbg.HideOverlayGlow then
-                    pcall(lbg.HideOverlayGlow, icon)
-                end
+                StopGlow(icon)
                 icon:Hide()
             end
         end
@@ -2737,7 +2883,6 @@ local function EnsureIconsFor(unit, name, class)
     end
 
     local now = GetTime()
-    local lbg                                 -- lazy-grab LibButtonGlow (shared across buckets)
 
     for _, bucket in ipairs(buckets) do
         if #bucket.list > 0 then
@@ -2853,10 +2998,7 @@ local function EnsureIconsFor(unit, name, class)
             if icon.tex then icon.tex:SetDesaturated(false) end
             icon.text:SetText("")
             if icon.cd then icon.cd:Clear() end
-            lbg = lbg or GetLBG()
-            if lbg and lbg.ShowOverlayGlow then
-                pcall(lbg.ShowOverlayGlow, icon)
-            end
+            StartGlow(icon)
         elseif cdEnd and cdEnd > now then
             -- Multi-charge partial: spell is still castable so we keep
             -- the icon bright while showing the recharge swipe for the
@@ -2872,20 +3014,14 @@ local function EnsureIconsFor(unit, name, class)
                 if icon.tex then icon.tex:SetDesaturated(true) end
             end
             if icon.cd then icon.cd:SetCooldown(now, cdEnd - now) end
-            lbg = lbg or GetLBG()
-            if lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
-            end
+            StopGlow(icon)
             -- text gets filled in by the next Tick
         else
             icon:SetAlpha(1.0)
             if icon.tex then icon.tex:SetDesaturated(false) end
             icon.text:SetText("")
             if icon.cd then icon.cd:Clear() end
-            lbg = lbg or GetLBG()
-            if lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
-            end
+            StopGlow(icon)
         end
 
         -- Charge badge: always show current available-charges count
@@ -3349,20 +3485,17 @@ function PCD:OnAuraAppeared(unit, def, aura)
                 icon:SetAlpha(0.65)
             end
         else
-            local lbg = GetLBG()
-            if lbg and lbg.ShowOverlayGlow then
-                pcall(lbg.ShowOverlayGlow, icon)
-                _glowEnd[name] = _glowEnd[name] or {}
-                -- We use the def's nominal duration (clean game-data)
-                -- rather than the aura's own expirationTime field — the
-                -- latter can be a secret-tainted number for party-member
-                -- auras in 12.0.5 and arithmetic on it would throw.
-                -- GetEffectiveDuration applies talent-driven extensions
-                -- (e.g. Improved Barkskin = +4s) so the glow timing
-                -- matches the actual buff window per-caster.
-                local effectiveDur = GetEffectiveDuration(def, name)
-                _glowEnd[name][def.spellId] = now + effectiveDur
-            end
+            StartGlow(icon)
+            _glowEnd[name] = _glowEnd[name] or {}
+            -- We use the def's nominal duration (clean game-data)
+            -- rather than the aura's own expirationTime field — the
+            -- latter can be a secret-tainted number for party-member
+            -- auras in 12.0.5 and arithmetic on it would throw.
+            -- GetEffectiveDuration applies talent-driven extensions
+            -- (e.g. Improved Barkskin = +4s) so the glow timing
+            -- matches the actual buff window per-caster.
+            local effectiveDur = GetEffectiveDuration(def, name)
+            _glowEnd[name][def.spellId] = now + effectiveDur
         end
     end
 end
@@ -3419,10 +3552,7 @@ local function RefreshGlowOnly(unit, def)
     -- (rare — only happens if the refresh arrives in the same frame
     -- the previous glow expired). Idempotent when the glow is already
     -- showing, so cheap to always call.
-    local lbg = GetLBG()
-    if lbg and lbg.ShowOverlayGlow then
-        pcall(lbg.ShowOverlayGlow, icon)
-    end
+    StartGlow(icon)
     -- Restore the bright-buff visual in case the icon had already
     -- transitioned to the dimmed on-CD state (Tick's expiry branch).
     -- The CD swipe itself is left running — only the alpha/desat
@@ -3628,7 +3758,6 @@ local function Tick(_, elapsed)
     -- cleanup for feigned units so the FD glow keeps pulsing until
     -- the hunter stands back up (OnUnitFlags catches that transition
     -- and ends the glow at the correct moment).
-    local lbg
     for _, u in ipairs(PARTY_UNITS) do
         local feigning = UnitIsFeignDeath and UnitIsFeignDeath(u)
         if UnitExists(u) and UnitIsDeadOrGhost(u) and not feigning then
@@ -3637,10 +3766,7 @@ local function Tick(_, elapsed)
                 for sid in pairs(_glowEnd[n]) do
                     local icon = _icons[n] and _icons[n][sid]
                     if icon then
-                        lbg = lbg or GetLBG()
-                        if lbg and lbg.HideOverlayGlow then
-                            pcall(lbg.HideOverlayGlow, icon)
-                        end
+                        StopGlow(icon)
                     end
                     _glowEnd[n][sid] = nil
                 end
@@ -3658,12 +3784,9 @@ local function Tick(_, elapsed)
     for name, byId in pairs(_glowEnd) do
         for spellId, expireAt in pairs(byId) do
             if expireAt <= now then
-                lbg = lbg or GetLBG()
                 local icon = _icons[name] and _icons[name][spellId]
                 if icon then
-                    if lbg and lbg.HideOverlayGlow then
-                        pcall(lbg.HideOverlayGlow, icon)
-                    end
+                    StopGlow(icon)
                     -- Transition into cooldown visual: start swipe.
                     -- The text gets driven by the countdown loop below
                     -- on the next tick. For multi-charge spells we
@@ -3940,13 +4063,31 @@ end
 local function _reassignAttribution(record, oldDef, newDef)
     local name = record.casterName
     if not name then return end
-    local lbg = GetLBG()
 
     -- Tear down old CD bookkeeping. The tentative attribution turned
-    -- out to be wrong, so clear it completely.
-    if _cdEnd[name] then
-        _cdEnd[name][oldDef.spellId] = nil
+    -- out to be wrong, so clear it completely. For a multi-charge
+    -- oldDef the tentative commit also pushed a serial-recharge queue
+    -- entry — pop the newest one (queue is sorted, newest push is the
+    -- last element) so a genuine recharge from an earlier real cast
+    -- survives the reversal. Only touched when the last commit stamp
+    -- matches this very aura's appearance; otherwise the queue state
+    -- belongs to older casts. The commit stamps themselves are cleared
+    -- too, so the reversed commit can't poison the twin resolver's
+    -- CD-sanity check or the same-instance dedup guard afterwards.
+    if _chargeQueue[name] and _chargeQueue[name][oldDef.spellId] then
+        local lastAt = _lastCommitAt[name] and _lastCommitAt[name][oldDef.spellId]
+        if lastAt and math.abs(lastAt - record.firstSeenAt) <= 2 then
+            local q = _chargeQueue[name][oldDef.spellId]
+            table.remove(q)
+            if #q == 0 then _chargeQueue[name][oldDef.spellId] = nil end
+        end
     end
+    if _cdEnd[name] then
+        local q = _chargeQueue[name] and _chargeQueue[name][oldDef.spellId]
+        _cdEnd[name][oldDef.spellId] = q and q[1] or nil
+    end
+    if _lastCommitAt[name]   then _lastCommitAt[name][oldDef.spellId]   = nil end
+    if _lastCommitInst[name] then _lastCommitInst[name][oldDef.spellId] = nil end
     -- Reset OLD icon to a fully-ready visual: the spell wasn't
     -- actually cast, so anything we'd shown on it (glow, dim, swipe,
     -- countdown, charge badge) needs to go back to the clean "ready"
@@ -3957,9 +4098,7 @@ local function _reassignAttribution(record, oldDef, newDef)
         if icon.tex  then icon.tex:SetDesaturated(false) end
         icon.text:SetText("")
         if icon.cd   then icon.cd:Clear()                end
-        if lbg and lbg.HideOverlayGlow then
-            pcall(lbg.HideOverlayGlow, icon)
-        end
+        StopGlow(icon)
         SetChargeBadgeText(name, icon)
     end
 
@@ -3979,23 +4118,57 @@ local function _reassignAttribution(record, oldDef, newDef)
     end
 
     -- Apply correct CD as if the new def was cast at firstSeenAt.
+    -- Multi-charge defs route through the same serial-recharge queue
+    -- semantics as a live commit (purge expired, push, clamp, cap) —
+    -- a bare _cdEnd write would leave the charge badge one count high
+    -- and desync the recharge model from the queue (live report:
+    -- second Ice Cold charge tentatively attributed to its flag-twin;
+    -- the probe swap then showed 1 charge instead of 0).
     local effectiveCD = GetEffectiveCD(newDef, name)
+    local effectiveCharges = GetEffectiveCharges(newDef, name)
     _cdEnd[name] = _cdEnd[name] or {}
-    _cdEnd[name][newDef.spellId] = record.firstSeenAt + effectiveCD
+    if effectiveCharges > 1 then
+        _chargeQueue[name] = _chargeQueue[name] or {}
+        local queue = _chargeQueue[name][newDef.spellId] or {}
+        local nowQ = GetTime()
+        for i = #queue, 1, -1 do
+            if queue[i] <= nowQ then table.remove(queue, i) end
+        end
+        local latestEnd = 0
+        for _, t in ipairs(queue) do
+            if t > latestEnd then latestEnd = t end
+        end
+        local newEnd = math.max(latestEnd + effectiveCD, record.firstSeenAt + effectiveCD)
+        local maxEnd = record.firstSeenAt + effectiveCD * effectiveCharges
+        if newEnd > maxEnd then newEnd = maxEnd end
+        table.insert(queue, newEnd)
+        table.sort(queue)
+        while #queue > effectiveCharges do
+            table.remove(queue, 1)
+        end
+        _chargeQueue[name][newDef.spellId] = queue
+        _cdEnd[name][newDef.spellId] = queue[1]
+    else
+        _cdEnd[name][newDef.spellId] = record.firstSeenAt + effectiveCD
+    end
+    _lastCommitAt[name] = _lastCommitAt[name] or {}
+    _lastCommitAt[name][newDef.spellId] = record.firstSeenAt
 
     -- Show NEW icon in cooldown state (buff has already ended). Dim
     -- + desaturate only when the user wants on-CD spells grayed out;
-    -- otherwise keep alpha 1.0 with just the swipe + countdown.
+    -- otherwise keep alpha 1.0 with just the swipe + countdown. The
+    -- swipe tracks the next-ready recharge (_cdEnd), which for a
+    -- multi-charge def with an older pending recharge is that OLDER
+    -- entry — not necessarily this cast's own recharge.
     if _icons[name] and _icons[name][newDef.spellId] then
         local icon = _icons[name][newDef.spellId]
         local now = GetTime()
-        local rem = (record.firstSeenAt + effectiveCD) - now
+        local cdEndAt = _cdEnd[name][newDef.spellId]
+        local rem = cdEndAt - now
         if rem > 0 then
             icon:Show()
-            if icon.cd then icon.cd:SetCooldown(record.firstSeenAt, effectiveCD) end
-            if lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
-            end
+            if icon.cd then icon.cd:SetCooldown(cdEndAt - effectiveCD, effectiveCD) end
+            StopGlow(icon)
             if GetCdGrayout() then
                 if icon.tex then icon.tex:SetDesaturated(true) end
                 icon:SetAlpha(0.65)
@@ -5040,22 +5213,23 @@ local function MatchAuraByClassification(unit, aura)
         end
     end
 
-    -- Final disambiguator: Forbearance side-effect detection.
-    -- Divine Shield / Blessing of Protection / BoSpellwarding all
-    -- apply the Forbearance debuff to the recipient at cast time.
-    -- Their flag-twins (Divine Protection / Blessing of Sacrifice)
-    -- don't. We use the per-unit "harmful aura added in same
+    -- Final disambiguator: cast-time debuff side-effect detection.
+    -- Some defensives apply a harmful aura to the recipient at cast
+    -- time (Forbearance for Divine Shield / Blessing of Protection /
+    -- BoSpellwarding, Hypothermia for Ice Block / Ice Cold). Their
+    -- flag-twins (Divine Protection / Blessing of Sacrifice / Alter
+    -- Time) don't. We use the per-unit "harmful aura added in same
     -- UNIT_AURA batch" timestamp set in OnUnitAura — if a harmful
     -- aura just arrived alongside this buff, pick the
-    -- `addsForbearance=true` candidate.
+    -- `addsDebuff=true` candidate.
     if #candidates > 1 then
         local harmfulAt = _lastHarmfulAdded[unit]
         local hadHarmful = harmfulAt and (GetTime() - harmfulAt) <= 0.6
         local narrowed = {}
         for _, def in ipairs(candidates) do
-            if hadHarmful and def.addsForbearance then
+            if hadHarmful and def.addsDebuff then
                 narrowed[#narrowed + 1] = def
-            elseif not hadHarmful and not def.addsForbearance then
+            elseif not hadHarmful and not def.addsDebuff then
                 narrowed[#narrowed + 1] = def
             end
         end
@@ -5562,10 +5736,7 @@ local function OnUnitFlags(unit)
             _glowEnd[name][FD_SPELL_ID] = nil
             local icon = _icons[name] and _icons[name][FD_SPELL_ID]
             if icon then
-                local lbg = GetLBG()
-                if lbg and lbg.HideOverlayGlow then
-                    pcall(lbg.HideOverlayGlow, icon)
-                end
+                StopGlow(icon)
                 local cdEnd = _cdEnd[name] and _cdEnd[name][FD_SPELL_ID]
                 if cdEnd and cdEnd > now then
                     if icon.cd then icon.cd:SetCooldown(now, cdEnd - now) end
@@ -5619,10 +5790,7 @@ local function HideGlowOnAuraEnd(name, spellId)
     _glowEnd[name][spellId] = nil
     local icon = _icons[name] and _icons[name][spellId]
     if not icon then return end
-    local lbg = GetLBG()
-    if lbg and lbg.HideOverlayGlow then
-        pcall(lbg.HideOverlayGlow, icon)
-    end
+    StopGlow(icon)
     -- Transition into the on-CD visual right now (same as Tick's
     -- glow-expire branch): start the swipe for the remaining CD and
     -- dim/desaturate unless the spell still has a usable charge.
@@ -6259,7 +6427,7 @@ end
 local function RegisterAuraObserver()
     if not _auraFrame then
         _auraFrame = CreateFrame("Frame")
-        _auraFrame:SetScript("OnEvent", OnUnitAura)
+        _auraFrame:SetScript("OnEvent", BIT.Prof.Wrap("PARTY_CDS", OnUnitAura))
     end
     -- BROAD RegisterEvent for UNIT_AURA (NOT RegisterUnitEvent). In
     -- 12.0.5 the per-unit filtered registration for party slots
@@ -6538,12 +6706,9 @@ end
 -- still-running cooldown timers intact.
 ------------------------------------------------------------
 local function HideAllIcons()
-    local lbg = GetLBG()
     for _name, byId in pairs(_icons) do
         for _spellId, icon in pairs(byId) do
-            if lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
-            end
+            StopGlow(icon)
             icon:Hide()
         end
     end
@@ -6586,13 +6751,10 @@ local function HideIconsOfDepartedMembers()
         end
     end
 
-    local lbg = GetLBG()
     for name, byId in pairs(_icons) do
         if not present[name] then
             for _spellId, icon in pairs(byId) do
-                if lbg and lbg.HideOverlayGlow then
-                    pcall(lbg.HideOverlayGlow, icon)
-                end
+                StopGlow(icon)
                 icon:Hide()
             end
         end
@@ -6777,7 +6939,7 @@ end
 local function RegisterRosterHandler()
     if not _rosterFrame then
         _rosterFrame = CreateFrame("Frame")
-        _rosterFrame:SetScript("OnEvent", OnRosterOrEditMode)
+        _rosterFrame:SetScript("OnEvent", BIT.Prof.Wrap("PARTY_CDS", OnRosterOrEditMode))
     end
     _rosterFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     _rosterFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -6817,7 +6979,7 @@ function PCD:Enable()
 
     if not _tickFrame then
         _tickFrame = CreateFrame("Frame")
-        _tickFrame:SetScript("OnUpdate", Tick)
+        _tickFrame:SetScript("OnUpdate", BIT.Prof.Wrap("PARTY_CDS", Tick))
     else
         _tickFrame:Show()
     end
@@ -6851,12 +7013,9 @@ function PCD:Disable()
     -- Hide every active icon AND any active LibButtonGlow overlay.
     -- State (_cdEnd / _glowEnd) is kept so re-enabling restores the
     -- running cooldowns without losing data.
-    local lbg = GetLBG()
     for name, byId in pairs(_icons) do
         for spellId, icon in pairs(byId) do
-            if lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
-            end
+            StopGlow(icon)
             icon:Hide()
         end
     end
@@ -6912,7 +7071,6 @@ function PCD:Test()
     _testMode = true
     local now = GetTime()
     local hits = 0
-    local lbg = GetLBG()
     for _, unit in ipairs(PARTY_UNITS) do
         if UnitExists(unit) then
             local name = FullName(unit)
@@ -6938,8 +7096,8 @@ function PCD:Test()
                         -- Fake a buff-active glow on roughly a third of
                         -- the icons so the user sees what the glow
                         -- effect looks like during the layout test.
-                        if lbg and lbg.ShowOverlayGlow and math.random() < 0.33 then
-                            pcall(lbg.ShowOverlayGlow, icon)
+                        if math.random() < 0.33 then
+                            StartGlow(icon)
                             _glowEnd[name][def.spellId] = now + (def.dur or 6)
                         end
                         hits = hits + 1
@@ -6975,15 +7133,14 @@ function PCD:Clear()
             byId[spellId] = nil
         end
     end
-    -- Also hide every active LibButtonGlow overlay so leftover glows
-    -- from a previous Test() or live cast don't keep pulsing on icons
-    -- whose state we just wiped.
-    local lbg = GetLBG()
+    -- Also hide every active glow overlay so leftover glows from a
+    -- previous Test() or live cast don't keep pulsing on icons whose
+    -- state we just wiped.
     for name, byId in pairs(_glowEnd) do
         for spellId in pairs(byId) do
             local icon = _icons[name] and _icons[name][spellId]
-            if icon and lbg and lbg.HideOverlayGlow then
-                pcall(lbg.HideOverlayGlow, icon)
+            if icon then
+                StopGlow(icon)
             end
             byId[spellId] = nil
         end

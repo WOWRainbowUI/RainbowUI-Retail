@@ -900,24 +900,44 @@ function BIT.UI:BuildPreviewBar(parent)
     else
         fillR, fillG, fillB = db.cdBarColorR or 0.8, db.cdBarColorG or 0.2, db.cdBarColorB or 0.2
     end
-    local bgR, bgG, bgB
+    -- Ready-state fill (the live tracker's "off cooldown" look):
+    -- class color, or the user's Ready Bar custom color — mirrors
+    -- FillBarColor in the live renderer.
+    local readyR, readyG, readyB
+    if db.useClassColors then
+        readyR, readyG, readyB = classCol[1], classCol[2], classCol[3]
+    else
+        readyR, readyG, readyB = db.customColorR or 0.4, db.customColorG or 0.8, db.customColorB or 1.0
+    end
+    local bgR, bgG, bgB, bgA
     if db.useCustomBgColor then
         bgR, bgG, bgB = db.customBgColorR or 0.1, db.customBgColorG or 0.1, db.customBgColorB or 0.1
+        bgA = db.customBgColorA or 0.9
     elseif db.useClassColors then
         bgR, bgG, bgB = classCol[1] * 0.25, classCol[2] * 0.25, classCol[3] * 0.25
+        bgA = 0.9
     else
         bgR, bgG, bgB = 0.1, 0.1, 0.1
+        bgA = 0.9
     end
 
     local f = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     f:SetSize(db.frameWidth or 180, barH)
     f:EnableMouse(false)
 
-    -- Icon (sample interrupt spell texture).
+    -- Icon: the player's own resolved interrupt (BIT.Self.spellID is
+    -- spec-aware — Muzzle for Survival, Wind Shear for Resto, pet kicks
+    -- etc.). Falls back to a sample kick texture for specs without an
+    -- interrupt so the preview slot never renders empty.
     local ico = f:CreateTexture(nil, "ARTWORK")
     ico:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    ico:SetTexture((C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(1766))
-                   or "Interface\\Icons\\INV_Misc_QuestionMark")
+    local icoTex
+    if C_Spell and C_Spell.GetSpellTexture then
+        local ownKick = BIT.Self and BIT.Self.spellID
+        if ownKick then icoTex = C_Spell.GetSpellTexture(ownKick) end
+        icoTex = icoTex or C_Spell.GetSpellTexture(1766)
+    end
+    ico:SetTexture(icoTex or "Interface\\Icons\\INV_Misc_QuestionMark")
     f.icon = ico
 
     local iconBg = f:CreateTexture(nil, "BACKGROUND", nil, 0)
@@ -942,7 +962,7 @@ function BIT.UI:BuildPreviewBar(parent)
 
     local barBg = f:CreateTexture(nil, "BACKGROUND", nil, 0)
     m:SetBarTexture(barBg)
-    barBg:SetVertexColor(bgR, bgG, bgB, 0.9)
+    barBg:SetVertexColor(bgR, bgG, bgB, bgA)
     f.barBg = barBg
 
     -- Fill StatusBar — coloured like a cooldown in progress, ~60% full.
@@ -1004,19 +1024,59 @@ function BIT.UI:BuildPreviewBar(parent)
     pcd:SetText("5")
     f.partyCdText = pcd
 
-    -- Looping countdown animation so the preview reads like a live cooldown
-    -- (bar drains / fills + counter ticks down), the way test mode looks.
-    -- Respects the configured Bar Fill Mode. The phase is persisted on the
-    -- parent so a rebuild (live setting change) doesn't restart the count.
+    -- Looping preview cycle: hold the READY state for 3s first (full
+    -- bar in the ready color, no counter — exactly how the live
+    -- tracker renders an off-cooldown kick), then play the countdown
+    -- (bar drains / fills + counter ticks, the way test mode looks).
+    -- Respects the configured Bar Fill Mode. The phase is persisted on
+    -- the parent so a rebuild (live setting change) doesn't restart
+    -- the cycle.
+    local READY_HOLD = 3
     local fillMode = db.barFillMode or "DRAIN"
     f._animTotal   = db.interruptRecordDuration or 15   -- counter starts from the Interrupt history duration slider
     f._animElapsed = (parent and parent._animElapsed) or 0
     f:SetScript("OnUpdate", function(self, e)
-        local t = (self._animElapsed or 0) + e
-        if t >= self._animTotal then t = 0 end
+        local cycle = READY_HOLD + self._animTotal
+        local t = ((self._animElapsed or 0) + e) % cycle
         self._animElapsed = t
         if parent then parent._animElapsed = t end
-        local remain = self._animTotal - t
+
+        if t < READY_HOLD then
+            -- Ready phase: paint once on entry, then idle. Mirrors the
+            -- live renderer's ready state exactly: EMPTY status bar
+            -- over the ready-tinted background, READY text (honoring
+            -- the Show READY Text toggle) in the ready text color.
+            if self._animPhase ~= "ready" then
+                self._animPhase = "ready"
+                if self.cdBar then self.cdBar:SetValue(0) end
+                if self.barBg then
+                    self.barBg:SetVertexColor(readyR, readyG, readyB, 0.85)
+                end
+                if self.partyCdText then
+                    self.partyCdText:SetText(db.showReady and ((BIT.L and BIT.L["READY"]) or "READY") or "")
+                    self.partyCdText:SetTextColor(
+                        db.readyColorR or 0.2,
+                        db.readyColorG or 1.0,
+                        db.readyColorB or 0.2)
+                end
+            end
+            return
+        end
+
+        if self._animPhase ~= "cd" then
+            self._animPhase = "cd"
+            if self.cdBar then
+                self.cdBar:SetStatusBarColor(fillR, fillG, fillB, 0.85)
+            end
+            if self.barBg then
+                self.barBg:SetVertexColor(bgR, bgG, bgB, bgA)
+            end
+            if self.partyCdText then
+                self.partyCdText:SetTextColor(1, 1, 1)
+            end
+        end
+        local tc = t - READY_HOLD
+        local remain = self._animTotal - tc
         if self.cdBar then
             local frac = remain / self._animTotal
             self.cdBar:SetValue(fillMode == "FILL" and (1 - frac) or frac)
@@ -1538,18 +1598,24 @@ function BIT.UI:UpdateDisplay()
     --      (works in both class-color and plain-color modes).
     --   2) Class colors on  → darker shade of the player's class color.
     --   3) Otherwise        → the standard neutral dark default.
+    -- _bg[4] carries the background OPACITY. Only the explicit custom
+    -- color honors the user's alpha slider; the class-shade and neutral
+    -- fallbacks keep the standard 0.9 so their look is unchanged.
     local function FillBgColor(class)
         if db.useCustomBgColor then
             _bg[1] = db.customBgColorR or 0.1
             _bg[2] = db.customBgColorG or 0.1
             _bg[3] = db.customBgColorB or 0.1
+            _bg[4] = db.customBgColorA or 0.9
         elseif db.useClassColors then
             local c = BIT.CLASS_COLORS[class] or { 1, 1, 1 }
             _bg[1] = c[1] * 0.25; _bg[2] = c[2] * 0.25; _bg[3] = c[3] * 0.25
+            _bg[4] = 0.9
         else
             _bg[1] = 0.1
             _bg[2] = 0.1
             _bg[3] = 0.1
+            _bg[4] = 0.9
         end
     end
 
@@ -1701,7 +1767,7 @@ function BIT.UI:UpdateDisplay()
                     end
                 end
                 bar.cdBar:SetStatusBarColor(cdR, cdG, cdB, 0.85)
-                bar.barBg:SetVertexColor(_bg[1], _bg[2], _bg[3], 0.9)
+                bar.barBg:SetVertexColor(_bg[1], _bg[2], _bg[3], _bg[4] or 0.9)
                 if bar.iconBg then bar.iconBg:SetVertexColor(_bg[1]*0.7, _bg[2]*0.7, _bg[3]*0.7, 1) end
                 bar.playerCdWrapper:SetAlpha(1)
             end
@@ -1852,13 +1918,36 @@ function BIT.UI:UpdateDisplay()
             bar.cdBar:SetStatusBarColor(r, g, b, 0.85)
             bar.cdBar:Show()
         end
-        -- Fixed dark backgrounds: r/g/b may be SECRET (from a secret class token),
-        -- and arithmetic on a secret value taints the frame — so never compute a
-        -- shade from them. The class colour is still applied directly (no math) to
-        -- the bar fill and name above.
-        if bar.barBg     then bar.barBg:SetVertexColor(0.1, 0.1, 0.1, 0.9) end
+        -- Background — mirror the live bars:
+        --   * Custom Background on → the user's CLEAN db color (+ alpha).
+        --   * Class Colors on      → a darker shade of the record's class
+        --     color. The shade is only computed when the color value is
+        --     a CLEAN number (test-mode records + non-secret real ones);
+        --     a secret class token (M+ GUID) can't be multiplied without
+        --     tainting the frame, so it falls back to the neutral dark.
+        --   * Otherwise            → the fixed neutral dark.
+        if db.useCustomBgColor then
+            local br, bgc, bb = db.customBgColorR or 0.1, db.customBgColorG or 0.1, db.customBgColorB or 0.1
+            local ba = db.customBgColorA or 0.9
+            if bar.barBg  then bar.barBg:SetVertexColor(br, bgc, bb, ba) end
+            if bar.iconBg then bar.iconBg:SetVertexColor(br * 0.7, bgc * 0.7, bb * 0.7, 1) end
+        else
+            local shaded = false
+            if db.useClassColors then
+                local okS, isSec = pcall(issecretvalue, r)
+                if not (okS and isSec) then
+                    -- r,g,b confirmed non-secret → safe to shade.
+                    if bar.barBg  then bar.barBg:SetVertexColor(r * 0.25, g * 0.25, b * 0.25, 0.9) end
+                    if bar.iconBg then bar.iconBg:SetVertexColor(r * 0.175, g * 0.175, b * 0.175, 1) end
+                    shaded = true
+                end
+            end
+            if not shaded then
+                if bar.barBg  then bar.barBg:SetVertexColor(0.1, 0.1, 0.1, 0.9) end
+                if bar.iconBg then bar.iconBg:SetVertexColor(0.08, 0.08, 0.08, 1) end
+            end
+        end
         if bar.barBgSolid then bar.barBgSolid:Show() end
-        if bar.iconBg    then bar.iconBg:SetVertexColor(0.08, 0.08, 0.08, 1) end
 
         local sec = math.floor(rem + 0.5)
         if bar.playerCdText then bar.playerCdText:Hide() end

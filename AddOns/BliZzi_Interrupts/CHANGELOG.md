@@ -1,3 +1,30 @@
+# BliZzi Party Tools 4.1.8
+
+* **Changed:** with no spec data (Mythic+ comm blocked), party defensives now assume their duration- and cooldown-reduction talents are picked, so glows last the full buff and cooldown timers match the talented spell (fixes a Guardian's extended Barkskin glowing too short)
+* **Changed:** unit frame overlay icons show glow only now, no cooldown swipe or number (the anchored Party CDs icons keep the timer)
+* **Fixed:** unit frame overlay no longer shows Life Cocoon twice (the aura carries both defensive categories and was collected once per category)
+* **Fixed:** custom bar background now also applies to the interrupt history bars (previously only the own bar used it, visible in test mode)
+* **Fixed:** with Class Colors (Bars) on, the interrupt history bars use the darker class-color background too instead of staying pitch black
+* **Added:** opacity slider for the interrupt tracker Background Color (matches the Border Color picker)
+
+---
+
+# BliZzi Party Tools 4.1.7
+
+* **Added:** Unit Frame Overlay (Party CDs settings): the currently active defensive shows as an icon centered on the member's unit frame with duration swipe and glow; works without any spec/talent data
+* **Added:** live CPU usage bar below the settings window (Blizzard's built-in addon profiler, no extra tools needed); hovering shows the cost per module
+* **Changed:** shift-click on the minimap button previews the test mode of every active module (was Interrupt Tracker only); right-click move mode stays the variant with unlocked frames
+* **Fixed:** Mage without spec data no longer shows Ice Block and Ice Cold side by side (read as 4 charges); defaults to Ice Cold until a known loadout says otherwise
+
+---
+
+# BliZzi Party Tools 4.1.6
+
+* **Added:** Party CDs custom glow: pick pixel lines, autocast shine or modern proc with a custom color, live preview included (default stays the classic Blizzard glow)
+* **Fixed:** Frost Mage Ice Cold glowed as Alter Time on the second charge; the cast-time Hypothermia debuff now identifies Ice Block/Ice Cold instantly, and reversed twin attributions also correct charge count and recharge timer
+
+---
+
 # BliZzi Party Tools 4.1.5
 
 * **Changed:** all locales updated, every setting is now translated in every supported language
