@@ -290,7 +290,7 @@ function OCA:Enable()
     if self.FEATURE_DISABLED then return end
     if not _eventFrame then
         _eventFrame = CreateFrame("Frame")
-        _eventFrame:SetScript("OnEvent", OnEvent)
+        _eventFrame:SetScript("OnEvent", BIT.Prof.Wrap("PI_CALLER", OnEvent))
     end
     -- Performance: UNIT_AURA delivery is constrained to player + party1-4
     -- via RegisterUnitEvent. The OnEvent body already early-exits for any

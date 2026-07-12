@@ -16,7 +16,7 @@
 ]]
 
 BIT = BIT or {}
-BIT.VERSION    = "4.1.5"
+BIT.VERSION    = "4.1.8"
 BIT.SyncCD      = BIT.SyncCD      or {}
 BIT.SyncCD.users = BIT.SyncCD.users or {}  -- name → {class, specID} — only HELLO senders, never touched by interrupt system
 BIT.syncCdState = BIT.syncCdState or {}
@@ -28,6 +28,44 @@ BIT.ready      = false
 BIT.inCombat   = false
 BIT.testMode   = false
 BIT.debugMode  = false
+
+------------------------------------------------------------
+-- Lightweight self-profiler (BIT.Prof)
+-- Accumulates wall-clock milliseconds per module label via
+-- debugprofilestop() — always available, needs no CVar and no
+-- external tooling; overhead is two timer reads per wrapped
+-- call. The settings window's CPU footer samples the counters
+-- once per second and renders per-module deltas; nothing here
+-- runs on its own.
+------------------------------------------------------------
+BIT.Prof = { acc = {} }
+do
+    local acc = BIT.Prof.acc
+    local dps = debugprofilestop
+    if type(dps) == "function" then
+        -- Wrap a frame script / ticker callback so its runtime is
+        -- billed to `label`. Return values are dropped on purpose —
+        -- event handlers and ticker callbacks have no callers that
+        -- read them.
+        function BIT.Prof.Wrap(label, fn)
+            acc[label] = acc[label] or 0
+            return function(...)
+                local t0 = dps()
+                fn(...)
+                acc[label] = acc[label] + (dps() - t0)
+            end
+        end
+    else
+        function BIT.Prof.Wrap(_, fn) return fn end
+    end
+    -- Re-wrap a script already set on a frame (for anonymous
+    -- handlers where wrapping at the SetScript site is awkward).
+    function BIT.Prof.Attach(label, frame, script)
+        if not frame or not frame.GetScript then return end
+        local fn = frame:GetScript(script or "OnEvent")
+        if fn then frame:SetScript(script or "OnEvent", BIT.Prof.Wrap(label, fn)) end
+    end
+end
 BIT.devLogMode = false  -- silent log: captures to buffer, no chat output
 
 -- Failed-kick RED feedback: ENABLED. A successful interrupt is detected locally
@@ -2913,10 +2951,10 @@ local _interruptEnabled = true  -- matches the unconditional event registration 
 
 local function StartInterruptUITicker()
     if BIT.updateTicker then BIT.updateTicker:Cancel() end
-    BIT.updateTicker = C_Timer.NewTicker(0.1, function()
+    BIT.updateTicker = C_Timer.NewTicker(0.1, BIT.Prof.Wrap("INTERRUPTS", function()
         BIT.UI:UpdateDisplay()
         if BIT.SyncCD and BIT.SyncCD.UpdateDisplay then BIT.SyncCD:UpdateDisplay() end
-    end)
+    end))
 end
 
 local function StopInterruptUITicker()
@@ -3600,6 +3638,12 @@ ef:SetScript("OnEvent", function(_, event, a1, a2, a3, a4)
     local h = eventHandlers[event]
     if h then h(a1, a2, a3, a4) end
 end)
+
+-- Bill the interrupt engine's event entry points to the Interrupts
+-- module in the settings CPU footer (label = sidebar panel key).
+BIT.Prof.Attach("INTERRUPTS", _interruptFrame)
+BIT.Prof.Attach("INTERRUPTS", _playerFrame)
+BIT.Prof.Attach("INTERRUPTS", ef)
 
 ------------------------------------------------------------
 -- Test Mode

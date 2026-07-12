@@ -376,6 +376,7 @@ BIT.DEFAULTS = {
     customBgColorR    = 0.1,
     customBgColorG    = 0.1,
     customBgColorB    = 0.1,
+    customBgColorA    = 0.9,   -- background opacity (matches the previous hard-coded value)
     -- When true, the customBgColor is used for the bar background regardless
     -- of class-color mode. When false, class-color mode picks a darker
     -- shade of the player's class color and non-class mode uses a fixed
@@ -580,6 +581,26 @@ BIT.DEFAULTS = {
     -- regular cooldown countdown when the buff ends. Same style as
     -- the post-glow CD counter (font, position, color). Default ON.
     partyCooldownsShowGlowCountdown = true,
+    -- Custom glow for the buff-active phase. OFF (default) = the
+    -- classic action-button proc glow, untinted — the pre-4.1.6
+    -- look. ON = the picked alternative style in the picked color:
+    -- "PIXEL" = rotating dashed border lines, "AUTOCAST" = circling
+    -- sparkle particles, "PROC" = the modern retail proc animation.
+    -- The style list deliberately has no "default" entry — custom
+    -- off IS the default glow.
+    partyCooldownsGlowCustom         = false,
+    partyCooldownsGlowStyle          = "PIXEL",
+    partyCooldownsGlowColorR         = 0.95,
+    partyCooldownsGlowColorG         = 0.95,
+    partyCooldownsGlowColorB         = 0.32,
+    -- Unit-frame overlay: mirrors the currently ACTIVE defensive as an
+    -- icon centered on the member's unit frame while the buff runs.
+    -- On by default (26px, centered).
+    defensiveOverlayEnabled          = true,
+    defensiveOverlaySize             = 26,
+    defensiveOverlayOffsetX          = 0,
+    defensiveOverlayOffsetY          = 0,
+    defensiveOverlayGlow             = true,
     -- User-toggled spell filter. Keyed by cast spellID; `true` =
     -- disabled (don't render an icon for this spell). The settings
     -- UI's Spell Filter panel lets users turn off specific spells

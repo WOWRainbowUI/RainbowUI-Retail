@@ -142,6 +142,7 @@ local KEY_PREFIX_CATEGORY = {
     { prefix = "offensiveCDAlert", cat = "PI_CALLER"       },
     { prefix = "piMacro",          cat = "PI_CALLER"       },
     { prefix = "partyCooldowns",   cat = "PARTY_CDS"       },
+    { prefix = "defensiveOverlay", cat = "PARTY_CDS"       },
     { prefix = "smartMd",          cat = "SMART_MISDIRECT" },
     { prefix = "syncCd",           cat = "PARTY_CDS"       },
     { prefix = "interruptAttach",  cat = "INTERRUPTS"      },
@@ -205,7 +206,7 @@ _cat("INTERRUPTS", {
     "customColorR", "customColorG", "customColorB",
     "cdBarColorR",  "cdBarColorG",  "cdBarColorB",
     "useCustomBgColor",
-    "customBgColorR", "customBgColorG", "customBgColorB",
+    "customBgColorR", "customBgColorG", "customBgColorB", "customBgColorA",
     -- Border / title / name / ready colors
     "borderColorR", "borderColorG", "borderColorB", "borderColorA",
     "titleColorR",  "titleColorG",  "titleColorB",

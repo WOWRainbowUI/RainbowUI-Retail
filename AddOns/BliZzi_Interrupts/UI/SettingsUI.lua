@@ -144,6 +144,145 @@ local function LS(key, fb)
     return v or fb
 end
 
+-- ── Custom scrollbar skin ────────────────────────────────
+-- Replaces the default arrow-button scrollbar of a
+-- UIPanelScrollFrameTemplate with a slim, themed, thumb-only
+-- bar. The template's own slider + arrow buttons are neutralised
+-- (alpha 0, mouse off) rather than Hide()'d, so the template's
+-- range-driven show logic can't bring them back. The native
+-- scroll machinery (Get/SetVerticalScroll + range) is untouched —
+-- we only re-skin the visible control and drive SetVerticalScroll
+-- while the thumb (or empty track) is clicked.
+local _themedScrollThumbs = {}   -- list of repaint() closures; ApplyTheme calls each
+
+local function SkinScrollFrame(scrollFrame, opts)
+    opts = opts or {}
+    local rightOffset = opts.rightOffset or 16    -- push into the reserved gutter
+    local topPad      = opts.topPad      or -6
+    local bottomPad   = opts.bottomPad   or 6
+    local width       = opts.width       or 6
+    local minThumb    = opts.minThumb    or 30
+    local baseAlpha   = opts.alpha       or 0.55
+
+    -- Neutralise the template's built-in scrollbar + arrow buttons.
+    local old = scrollFrame.ScrollBar
+    if old then
+        old:SetAlpha(0)
+        old:EnableMouse(false)
+        old:HookScript("OnShow", function(self) self:SetAlpha(0) end)
+        local up, down = old.ScrollUpButton, old.ScrollDownButton
+        if up   then up:SetAlpha(0);   up:EnableMouse(false)   end
+        if down then down:SetAlpha(0); down:EnableMouse(false) end
+    end
+
+    -- Track: sibling of the scroll frame (never clipped by the scroll
+    -- child), pinned down the reserved right-hand gutter.
+    local host  = scrollFrame:GetParent() or scrollFrame
+    local track = CreateFrame("Frame", nil, host)
+    track:SetWidth(width)
+    track:SetPoint("TOPRIGHT",    scrollFrame, "TOPRIGHT",    rightOffset, topPad)
+    track:SetPoint("BOTTOMRIGHT", scrollFrame, "BOTTOMRIGHT", rightOffset, bottomPad)
+    track:SetFrameLevel((scrollFrame:GetFrameLevel() or 0) + 10)
+
+    local trackTex = track:CreateTexture(nil, "BACKGROUND")
+    trackTex:SetAllPoints()
+    trackTex:SetColorTexture(1, 1, 1, 0.04)
+
+    local thumb = CreateFrame("Frame", nil, track)
+    thumb:SetWidth(width)
+    thumb:SetPoint("TOP", track, "TOP", 0, 0)
+    thumb:EnableMouse(true)
+    local thumbTex = thumb:CreateTexture(nil, "ARTWORK")
+    thumbTex:SetAllPoints()
+
+    local function repaint()
+        local a = baseAlpha
+        if thumb._dragging then a = 0.90 elseif thumb._hover then a = 0.78 end
+        local ac = GetThemePalette().accent
+        thumbTex:SetColorTexture(ac[1], ac[2], ac[3], a)
+    end
+    repaint()
+    _themedScrollThumbs[#_themedScrollThumbs + 1] = repaint
+
+    local function UpdateThumb()
+        local range  = scrollFrame:GetVerticalScrollRange() or 0
+        local trackH = track:GetHeight() or 0
+        if range <= 1 or trackH <= 0 then
+            thumb:Hide()
+            trackTex:SetAlpha(0)
+            return
+        end
+        trackTex:SetAlpha(1)
+        thumb:Show()
+        local frameH   = scrollFrame:GetHeight() or 0
+        local contentH = frameH + range
+        local thumbH   = (contentH > 0) and (trackH * frameH / contentH) or trackH
+        if thumbH < minThumb then thumbH = minThumb end
+        if thumbH > trackH   then thumbH = trackH   end
+        local frac = (scrollFrame:GetVerticalScroll() or 0) / range
+        if frac < 0 then frac = 0 elseif frac > 1 then frac = 1 end
+        thumb:SetHeight(thumbH)
+        thumb:ClearAllPoints()
+        thumb:SetPoint("TOP", track, "TOP", 0, -(trackH - thumbH) * frac)
+    end
+
+    thumb:SetScript("OnEnter", function(self) self._hover = true;  repaint() end)
+    thumb:SetScript("OnLeave", function(self) self._hover = false; repaint() end)
+    thumb:SetScript("OnMouseDown", function(self, button)
+        if button ~= "LeftButton" then return end
+        self._dragging   = true
+        local _, cy      = GetCursorPosition()
+        self._grabCursor = cy
+        self._grabScroll = scrollFrame:GetVerticalScroll() or 0
+        repaint()
+    end)
+    thumb:SetScript("OnMouseUp", function(self) self._dragging = false; repaint() end)
+    thumb:SetScript("OnUpdate", function(self)
+        -- Fail-safe: if the mouse-up landed off the thumb we'd miss it.
+        if self._dragging and not IsMouseButtonDown("LeftButton") then
+            self._dragging = false; repaint(); return
+        end
+        if not self._dragging then return end
+        local range  = scrollFrame:GetVerticalScrollRange() or 0
+        local usable = (track:GetHeight() or 0) - (self:GetHeight() or 0)
+        if range <= 0 or usable <= 0 then return end
+        local scale = self:GetEffectiveScale(); if not scale or scale == 0 then scale = 1 end
+        local _, cy = GetCursorPosition()
+        local newScroll = self._grabScroll + ((self._grabCursor - cy) / scale / usable) * range
+        if newScroll < 0 then newScroll = 0 elseif newScroll > range then newScroll = range end
+        scrollFrame:SetVerticalScroll(newScroll)
+    end)
+
+    -- Click the empty track to jump toward the click point.
+    track:EnableMouse(true)
+    track:SetScript("OnMouseDown", function(self)
+        local range = scrollFrame:GetVerticalScrollRange() or 0
+        if range <= 0 then return end
+        local scale = self:GetEffectiveScale(); if not scale or scale == 0 then scale = 1 end
+        local _, cy = GetCursorPosition()
+        local frac  = ((self:GetTop() or 0) - cy / scale) / (self:GetHeight() or 1)
+        if frac < 0 then frac = 0 elseif frac > 1 then frac = 1 end
+        scrollFrame:SetVerticalScroll(frac * range)
+    end)
+
+    scrollFrame:HookScript("OnVerticalScroll",     UpdateThumb)
+    scrollFrame:HookScript("OnScrollRangeChanged", UpdateThumb)
+    scrollFrame:HookScript("OnShow",               UpdateThumb)
+    -- Safety-net poll for content-height changes that don't emit a range
+    -- event; only runs while the (visible) track is shown, throttled to
+    -- ~10 Hz so it costs next to nothing.
+    local acc = 0
+    track:HookScript("OnUpdate", function(_, e)
+        acc = acc + (e or 0)
+        if acc < 0.1 then return end
+        acc = 0
+        UpdateThumb()
+    end)
+
+    UpdateThumb()
+    return track, thumb
+end
+
 --- Build dropdown option list from a BIT.Media:GetAvailable*() list.
 --- Each entry has .name (display string) used as both value and label.
 --- `previewKind` adds a live preview to each option:
@@ -492,6 +631,10 @@ local function CreateDropdown(parent, label, options, getter, setter)
             sf:SetPoint("TOPLEFT", 2, -2)
             sf:SetPoint("BOTTOMRIGHT", -20, 2)
             dropdownPopup.scrollFrame = sf
+            -- Slim themed scrollbar (same skin as the settings window)
+            -- in the reserved 20px right gutter, replacing the
+            -- template's arrow-button bar.
+            SkinScrollFrame(sf, { rightOffset = 13, topPad = -2, bottomPad = 2 })
 
             local child = CreateFrame("Frame", nil, sf)
             child:SetWidth(1) -- set dynamically
@@ -874,6 +1017,8 @@ local function CreateColorSwatch(parent, label, getR, getG, getB, setColor, getA
             Refresh()
         end
         info.opacityFunc = info.swatchFunc
+        -- Skin the shared Blizzard picker to our theme (once), then show.
+        pcall(function() BIT.SettingsUI:SkinColorPicker() end)
         ColorPickerFrame:SetupColorPickerAndShow(info)
     end)
 
@@ -884,6 +1029,197 @@ local function CreateColorSwatch(parent, label, getR, getG, getB, setColor, getA
     f._searchLabel = label
     f._searchKind  = "color"
     return f
+end
+
+------------------------------------------------------------
+-- Blizzard ColorPickerFrame skin
+-- The picker is a shared global frame, so we skin its structure
+-- ONCE and recolor on theme change. Everything is heavily guarded
+-- (pcall / nil checks) because its layout differs across client
+-- versions — a failed skin must never break the picker itself.
+------------------------------------------------------------
+local _cpSkinned = false
+
+local function _cpSkinButton(btn)
+    if not btn or btn._bitSkinned then return end
+    btn._bitSkinned = true
+    -- Strip the default button art (atlas slices differ by version).
+    for _, k in ipairs({ "Left", "Middle", "Right", "TopLeft", "TopRight",
+                         "BottomLeft", "BottomRight", "TopMiddle", "MiddleLeft",
+                         "MiddleRight", "BottomMiddle", "MiddleMiddle" }) do
+        local t = btn[k]
+        if t and t.SetAlpha then t:SetAlpha(0) end
+    end
+    if btn.NineSlice and btn.NineSlice.SetAlpha then btn.NineSlice:SetAlpha(0) end
+    pcall(function() btn:SetNormalTexture("") end)
+    pcall(function() btn:SetPushedTexture("") end)
+    pcall(function() btn:SetDisabledTexture("") end)
+    local hl = btn.GetHighlightTexture and btn:GetHighlightTexture()
+    if hl and hl.SetColorTexture then hl:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.15) end
+
+    local bd = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+    bd:SetPoint("TOPLEFT", 1, -1)
+    bd:SetPoint("BOTTOMRIGHT", -1, 1)
+    bd:SetFrameLevel(math.max(0, (btn:GetFrameLevel() or 1) - 1))
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
+                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    btn._bitBd = bd
+
+    btn:HookScript("OnEnter", function()
+        local p = GetThemePalette()
+        bd:SetBackdropBorderColor(p.accent[1], p.accent[2], p.accent[3], 1)
+    end)
+    btn:HookScript("OnLeave", function()
+        bd:SetBackdropBorderColor(RGB(BORDER))
+    end)
+
+    local fs = btn.GetFontString and btn:GetFontString()
+    if fs and fs.SetTextColor then fs:SetTextColor(RGB(TEXT)) end
+end
+
+-- Find the hex-code EditBox regardless of client-version naming: known
+-- keys first, then a child scan for the first EditBox under Content / cp.
+local function _cpFindHexBox(cp)
+    local content = cp.Content or cp
+    if content.HexBox then return content.HexBox end
+    for _, scope in ipairs({ content, cp }) do
+        if scope.GetChildren then
+            for _, child in ipairs({ scope:GetChildren() }) do
+                if child.GetObjectType and child:GetObjectType() == "EditBox" then
+                    return child
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function _cpSkinEditBox(eb)
+    if not eb or eb._bitSkinned then return end
+    eb._bitSkinned = true
+    -- Strip the InputBoxTemplate border/background art.
+    for _, k in ipairs({ "Left", "Middle", "Right" }) do
+        local t = eb[k]
+        if t and t.SetAlpha then t:SetAlpha(0) end
+    end
+
+    local bd = CreateFrame("Frame", nil, eb, "BackdropTemplate")
+    bd:SetPoint("TOPLEFT", -2, 2)
+    bd:SetPoint("BOTTOMRIGHT", 2, -2)
+    bd:SetFrameLevel(math.max(0, (eb:GetFrameLevel() or 1) - 1))
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
+                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    bd:SetBackdropColor(WIDGET_BG[1], WIDGET_BG[2], WIDGET_BG[3], 1)
+    bd:SetBackdropBorderColor(RGB(BORDER))
+    eb._bitBd = bd
+
+    if eb.SetTextColor then eb:SetTextColor(RGB(TEXT)) end
+    -- Accent border on focus, matching the settings search box.
+    eb:HookScript("OnEditFocusGained", function()
+        local p = GetThemePalette()
+        bd:SetBackdropBorderColor(p.accent[1], p.accent[2], p.accent[3], 1)
+    end)
+    eb:HookScript("OnEditFocusLost", function()
+        bd:SetBackdropBorderColor(RGB(BORDER))
+    end)
+end
+
+function BIT.SettingsUI:ApplyColorPickerTheme()
+    local cp = ColorPickerFrame
+    if not cp or not cp._bitBackdrop then return end
+    local p = GetThemePalette()
+    cp._bitBackdrop:SetBackdropColor(p.bg[1], p.bg[2], p.bg[3], 1)
+    cp._bitBackdrop:SetBackdropBorderColor(
+        p.accent[1] * 0.7, p.accent[2] * 0.7, p.accent[3] * 0.7, 1)
+    if cp._bitBackdrop._glow then
+        cp._bitBackdrop._glow:SetBackdropBorderColor(p.glow[1], p.glow[2], p.glow[3], p.glow[4])
+    end
+    if cp._bitHeaderText and cp._bitHeaderText.SetTextColor then
+        cp._bitHeaderText:SetTextColor(p.accent[1], p.accent[2], p.accent[3])
+    end
+    if cp._bitButtons then
+        for _, btn in ipairs(cp._bitButtons) do
+            if btn._bitBd then
+                btn._bitBd:SetBackdropColor(p.titleBg[1], p.titleBg[2], p.titleBg[3], 1)
+                btn._bitBd:SetBackdropBorderColor(RGB(BORDER))
+            end
+        end
+    end
+end
+
+function BIT.SettingsUI:SkinColorPicker()
+    local cp = ColorPickerFrame
+    if not cp then return end
+    if _cpSkinned then
+        -- Already skinned — just re-assert the theme (the picker may
+        -- open after the user changed the settings theme).
+        self:ApplyColorPickerTheme()
+        return
+    end
+    _cpSkinned = true
+
+    -- Hide Blizzard's frame border / background art.
+    for _, key in ipairs({ "Border", "NineSlice", "Bg", "Background" }) do
+        local r = cp[key]
+        if r and r.SetAlpha then pcall(function() r:SetAlpha(0) end) end
+    end
+
+    -- Header: keep the title text, drop the textured strip.
+    local header = cp.Header
+    if header then
+        for _, k in ipairs({ "Left", "Middle", "Right", "Background" }) do
+            local t = header[k]
+            if t and t.SetAlpha then pcall(function() t:SetAlpha(0) end) end
+        end
+        cp._bitHeaderText = header.Text or (header.GetFontString and header:GetFontString()) or nil
+    end
+
+    -- Our themed backdrop behind the content, with the same outer glow
+    -- line as the settings window.
+    local bd = CreateFrame("Frame", nil, cp, "BackdropTemplate")
+    bd:SetPoint("TOPLEFT", 0, 0)
+    bd:SetPoint("BOTTOMRIGHT", 0, 0)
+    bd:SetFrameLevel(math.max(0, (cp:GetFrameLevel() or 1) - 1))
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
+                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    local glow = CreateFrame("Frame", nil, bd, "BackdropTemplate")
+    glow:SetPoint("TOPLEFT", -1, 1)
+    glow:SetPoint("BOTTOMRIGHT", 1, -1)
+    glow:SetBackdrop({ edgeFile = WHITE8, edgeSize = 2 })
+    bd._glow = glow
+    cp._bitBackdrop = bd
+
+    -- Footer buttons (frame keys differ across client versions).
+    local buttons = {}
+    local candidates = {
+        cp.Footer and cp.Footer.OkayButton,
+        cp.Footer and cp.Footer.CancelButton,
+        _G.ColorPickerOkayButton,
+        _G.ColorPickerCancelButton,
+    }
+    for _, b in ipairs(candidates) do
+        if b and not b._bitSkinned then
+            _cpSkinButton(b)
+            buttons[#buttons + 1] = b
+        end
+    end
+    cp._bitButtons = buttons
+
+    -- Hex-code input box.
+    pcall(function() _cpSkinEditBox(_cpFindHexBox(cp)) end)
+
+    -- Re-hide Blizzard art + re-assert the theme on every open, in case
+    -- a show re-shows the border textures or the theme changed while
+    -- the picker was closed.
+    cp:HookScript("OnShow", function()
+        for _, key in ipairs({ "Border", "NineSlice", "Bg", "Background" }) do
+            local r = cp[key]
+            if r and r.SetAlpha then pcall(function() r:SetAlpha(0) end) end
+        end
+        BIT.SettingsUI:ApplyColorPickerTheme()
+    end)
+
+    self:ApplyColorPickerTheme()
 end
 
 ------------------------------------------------------------
@@ -1043,12 +1379,8 @@ local function CreateSpellFilterPanel(parent, spells, getter, setter, tabs)
     scrollFrame:SetPoint("TOPLEFT", 6, -listTop)
     scrollFrame:SetPoint("BOTTOMRIGHT", -24, BTN_H + 10)
 
-    -- Style the scrollbar
-    local sb = scrollFrame.ScrollBar or _G[scrollFrame:GetName() .. "ScrollBar"]
-    if sb then
-        sb:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, -16)
-        sb:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 2, 16)
-    end
+    -- Custom slim scrollbar (replaces the default arrow-button bar).
+    SkinScrollFrame(scrollFrame, { rightOffset = 16, topPad = -4, bottomPad = 4 })
 
     local listChild = CreateFrame("Frame", nil, scrollFrame)
     listChild:SetWidth(PANEL_W - 32)
@@ -1402,12 +1734,27 @@ local function CreateMainFrame()
     mainFrame:SetBackdropColor(RGB(BG))
     mainFrame:SetBackdropBorderColor(ACCENT[1] * 0.5, ACCENT[2] * 0.5, ACCENT[3] * 0.5, 0.8)
 
-    -- outer glow line
-    local glow = CreateFrame("Frame", nil, mainFrame, "BackdropTemplate")
+    -- Outer glow line, drawn as three per-side textures (top, left,
+    -- right). The BOTTOM side is intentionally missing: the CPU
+    -- footer docks flush below and carries the bottom line itself,
+    -- so window + footer read as one continuous outline with no
+    -- divider across the seam.
+    local glow = CreateFrame("Frame", nil, mainFrame)
     glow:SetPoint("TOPLEFT", -1, 1)
     glow:SetPoint("BOTTOMRIGHT", 1, -1)
-    glow:SetBackdrop({ edgeFile = WHITE8, edgeSize = 2 })
-    glow:SetBackdropBorderColor(ACCENT[1] * 0.25, ACCENT[2] * 0.25, ACCENT[3] * 0.25, 0.5)
+    glow._lines = {}
+    do
+        local gTop = glow:CreateTexture(nil, "BORDER")
+        gTop:SetPoint("TOPLEFT"); gTop:SetPoint("TOPRIGHT"); gTop:SetHeight(2)
+        local gLeft = glow:CreateTexture(nil, "BORDER")
+        gLeft:SetPoint("TOPLEFT"); gLeft:SetPoint("BOTTOMLEFT"); gLeft:SetWidth(2)
+        local gRight = glow:CreateTexture(nil, "BORDER")
+        gRight:SetPoint("TOPRIGHT"); gRight:SetPoint("BOTTOMRIGHT"); gRight:SetWidth(2)
+        glow._lines = { gTop, gLeft, gRight }
+        for _, line in ipairs(glow._lines) do
+            line:SetColorTexture(ACCENT[1] * 0.25, ACCENT[2] * 0.25, ACCENT[3] * 0.25, 0.5)
+        end
+    end
     mainFrame._glow = glow
 
     -- ── Title bar ────────────────────────────────────────
@@ -1585,7 +1932,7 @@ local function CreateMainFrame()
         linkBtn:RegisterForClicks("LeftButtonUp")
 
         local ico = linkBtn:CreateTexture(nil, "ARTWORK")
-        ico:SetSize(16, 16)
+        ico:SetSize(20, 20)
         ico:SetPoint("LEFT", 12, 0)
         ico:SetTexture(iconPath)
 
@@ -1708,9 +2055,9 @@ local function CreateMainFrame()
 
     CreateSocialLink(sidebar, 6,
         "Interface\\AddOns\\BliZzi_Interrupts\\Media\\discord",
-        "discord.gg/4HdQFhpzUn",
+        "discord.gg",
         { 0.35, 0.40, 0.95 },  -- Discord blurple
-        "discord.gg/4HdQFhpzUn")
+        "discord.gg/QDNpjqJFPC")
 
     -- ── Content area ─────────────────────────────────────
     local contentArea = CreateFrame("Frame", nil, mainFrame)
@@ -1758,12 +2105,163 @@ local function CreateMainFrame()
         self:SetVerticalScroll(cur + diff * math.min(1, elapsed * 16))
     end)
 
-    -- style scrollbar
-    local sb = contentScroll.ScrollBar
-    if sb then
-        sb:SetPoint("TOPRIGHT", contentArea, "TOPRIGHT", -4, -18)
-        sb:SetPoint("BOTTOMRIGHT", contentArea, "BOTTOMRIGHT", -4, 18)
+    -- Custom slim scrollbar (replaces the default arrow-button bar).
+    SkinScrollFrame(contentScroll, { rightOffset = 16, topPad = -6, bottomPad = 6 })
+
+    -- ── CPU usage footer ─────────────────────────────────
+    -- Slim themed bar attached below the window. The headline number
+    -- is Blizzard's own per-addon profiler (C_AddOnProfiler, always
+    -- on — no CVar, no external tooling): RecentAverageTime = avg ms
+    -- of CPU per rendered frame; percent = share of the frame budget
+    -- at the current FPS. Hovering breaks the cost down per module
+    -- from the BIT.Prof self-instrumentation counters (wall-clock ms
+    -- billed at each module's event/ticker entry points). The module
+    -- rows measure our wrapped entry points only, so their sum reads
+    -- slightly below the whole-addon total (settings UI, libraries
+    -- and unwrapped glue make up the rest).
+    -- Docked flush: 1px overlap so the footer's top border merges
+    -- with the window's bottom border — reads as one continuous
+    -- frame instead of a floating bar.
+    local cpuFooter = CreateFrame("Frame", nil, mainFrame, "BackdropTemplate")
+    cpuFooter:SetHeight(24)
+    cpuFooter:SetPoint("TOPLEFT",  mainFrame, "BOTTOMLEFT",  0, 1)
+    cpuFooter:SetPoint("TOPRIGHT", mainFrame, "BOTTOMRIGHT", 0, 1)
+    -- Same construction as the main window: 1px accent border +
+    -- the 1px-overhanging outer glow line. Without the glow the
+    -- footer reads one pixel narrower than the window and its
+    -- border looks like a different style.
+    cpuFooter:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
+                            insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    -- Per-side glow lines (bottom, left, right) — no TOP line, the
+    -- seam to the window above stays open so both frames share one
+    -- continuous outline.
+    local cpuGlow = CreateFrame("Frame", nil, cpuFooter)
+    cpuGlow:SetPoint("TOPLEFT", -1, 1)
+    cpuGlow:SetPoint("BOTTOMRIGHT", 1, -1)
+    do
+        local gBottom = cpuGlow:CreateTexture(nil, "BORDER")
+        gBottom:SetPoint("BOTTOMLEFT"); gBottom:SetPoint("BOTTOMRIGHT"); gBottom:SetHeight(2)
+        local gLeft = cpuGlow:CreateTexture(nil, "BORDER")
+        gLeft:SetPoint("TOPLEFT"); gLeft:SetPoint("BOTTOMLEFT"); gLeft:SetWidth(2)
+        local gRight = cpuGlow:CreateTexture(nil, "BORDER")
+        gRight:SetPoint("TOPRIGHT"); gRight:SetPoint("BOTTOMRIGHT"); gRight:SetWidth(2)
+        cpuGlow._lines = { gBottom, gLeft, gRight }
+        for _, line in ipairs(cpuGlow._lines) do
+            line:SetColorTexture(ACCENT[1] * 0.25, ACCENT[2] * 0.25, ACCENT[3] * 0.25, 0.5)
+        end
     end
+    cpuFooter._glow = cpuGlow
+
+    -- Divider at the seam — same subtle grey as the sidebar's
+    -- socials/search separator, full width.
+    local cpuSep = cpuFooter:CreateTexture(nil, "ARTWORK")
+    cpuSep:SetHeight(1)
+    cpuSep:SetPoint("TOPLEFT", 0, 0)
+    cpuSep:SetPoint("TOPRIGHT", 0, 0)
+    cpuSep:SetColorTexture(RGB(BORDER))
+
+    mainFrame._cpuFooter = cpuFooter
+
+    -- Two separate font strings pinned around the frame's CENTER:
+    -- the label ends at center, the value grows rightwards from it.
+    -- Fixed anchors = no horizontal jitter when digits change width.
+    local cpuLabel = cpuFooter:CreateFontString(nil, "OVERLAY")
+    ApplyFont(cpuLabel, 11)
+    cpuLabel:SetPoint("RIGHT", cpuFooter, "CENTER", -2, 0)
+    cpuLabel:SetTextColor(RGB(TEXT_DIM))
+    cpuLabel:SetText(LS("CPU_USAGE", "CPU Usage:"))
+
+    local cpuText = cpuFooter:CreateFontString(nil, "OVERLAY")
+    ApplyFont(cpuText, 11)
+    cpuText:SetPoint("LEFT", cpuFooter, "CENTER", 2, 0)
+    cpuText:SetJustifyH("LEFT")
+    cpuText:SetTextColor(RGB(TEXT))
+
+    local CPU_MODULES = {
+        { key = "INTERRUPTS",    labelKey = "PANEL_INTERRUPTS",    fb = "Interrupts" },
+        { key = "PARTY_CDS",     labelKey = "PANEL_PARTY_CDS",     fb = "Party CDs" },
+        { key = "KEYSTONE_LIST", labelKey = "PANEL_KEYSTONE_LIST", fb = "Keystone List" },
+        { key = "SMART_MD",      labelKey = "PANEL_SMART_MD",      fb = "Smart Misdirect" },
+        { key = "PI_CALLER",     labelKey = "PANEL_PI_CALLER",     fb = "PI Caller" },
+    }
+    local _lastAcc, _rate = {}, {}   -- _rate[key] = ms of CPU per real-time second
+    local _lastT
+
+    local function _totalMsPerFrame()
+        if C_AddOnProfiler and C_AddOnProfiler.GetAddOnMetric
+           and Enum and Enum.AddOnProfilerMetric then
+            local ok, v = pcall(C_AddOnProfiler.GetAddOnMetric, "BliZzi_Interrupts",
+                                Enum.AddOnProfilerMetric.RecentAverageTime)
+            if ok and type(v) == "number" then return v end
+        end
+        return nil
+    end
+
+    local function _fmtPerFrame(msPerFrame)
+        local fps = GetFramerate() or 0
+        local pct = (fps > 0) and (msPerFrame / (1000 / fps) * 100) or 0
+        return string.format("%.3f ms (%.1f%%)", msPerFrame, pct)
+    end
+
+    local function _refreshTooltip()
+        GameTooltip:SetOwner(cpuFooter, "ANCHOR_TOP")
+        GameTooltip:ClearLines()
+        -- Fixed row ORDER (module list order, not sorted by load) and
+        -- a fixed minimum width — the tooltip keeps a constant shape
+        -- instead of resizing/reshuffling with every 1s sample.
+        GameTooltip:SetMinimumWidth(240)
+        GameTooltip:AddLine(LS("CPU_TT_HEADER", "Live CPU by module"), 1, 1, 1)
+        local fps = GetFramerate() or 0
+        for _, m in ipairs(CPU_MODULES) do
+            local perFrame = (fps > 0) and ((_rate[m.key] or 0) / fps) or 0
+            GameTooltip:AddDoubleLine(LS(m.labelKey, m.fb), _fmtPerFrame(perFrame),
+                0.75, 0.75, 0.8, 1, 1, 1)
+        end
+        local total = _totalMsPerFrame()
+        if total then
+            GameTooltip:AddDoubleLine(LS("CPU_TT_TOTAL", "Total (whole addon)"),
+                _fmtPerFrame(total), 1, 1, 1, 1, 1, 1)
+        end
+        GameTooltip:Show()
+    end
+
+    local function _sample()
+        local nowT = GetTime()
+        local acc  = BIT.Prof and BIT.Prof.acc
+        if acc then
+            if _lastT and nowT > _lastT then
+                local dt = nowT - _lastT
+                for _, m in ipairs(CPU_MODULES) do
+                    local cur = acc[m.key] or 0
+                    _rate[m.key] = (cur - (_lastAcc[m.key] or cur)) / dt
+                end
+            end
+            for _, m in ipairs(CPU_MODULES) do
+                _lastAcc[m.key] = acc[m.key] or 0
+            end
+        end
+        _lastT = nowT
+
+        local total = _totalMsPerFrame()
+        cpuText:SetText(total and _fmtPerFrame(total) or "N/A")
+        if GameTooltip:IsOwned(cpuFooter) then _refreshTooltip() end
+    end
+
+    -- Ticker only runs while the settings window is on screen — the
+    -- footer inherits show/hide from mainFrame.
+    local _cpuTicker
+    cpuFooter:SetScript("OnShow", function()
+        _lastT = nil
+        _sample()
+        if not _cpuTicker then _cpuTicker = C_Timer.NewTicker(1, _sample) end
+    end)
+    cpuFooter:SetScript("OnHide", function()
+        if _cpuTicker then _cpuTicker:Cancel(); _cpuTicker = nil end
+    end)
+
+    cpuFooter:EnableMouse(true)
+    cpuFooter:SetScript("OnEnter", _refreshTooltip)
+    cpuFooter:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     -- ESC to close
     tinsert(UISpecialFrames, "BIT_SettingsFrame")
@@ -3271,7 +3769,9 @@ function BuildColors()
         function() return BIT.db.customBgColorR or 0.1 end,
         function() return BIT.db.customBgColorG or 0.1 end,
         function() return BIT.db.customBgColorB or 0.1 end,
-        function(r, g, b) BIT.db.customBgColorR = r; BIT.db.customBgColorG = g; BIT.db.customBgColorB = b end)
+        function(r, g, b) BIT.db.customBgColorR = r; BIT.db.customBgColorG = g; BIT.db.customBgColorB = b end,
+        function() return BIT.db.customBgColorA or 0.9 end,
+        function(a) BIT.db.customBgColorA = a end)
     bgSwatch._dynamic = true
     bgSwatch._update  = _syncBarColorVisibility
     w[#w+1] = bgSwatch
@@ -3423,6 +3923,284 @@ local function BuildPartyCDs()
     w[#w+1] = CreateToggle(p, LS("PCD_SHOW_GLOW_COUNTDOWN", "Show buff countdown during glow"),
         function() return BIT.db.partyCooldownsShowGlowCountdown ~= false end,
         function(v) BIT.db.partyCooldownsShowGlowCountdown = v end)
+
+    -- Custom glow: the toggle gates the style dropdown + color picker
+    -- (`_dynamic` mechanism — hidden widgets collapse without a gap).
+    -- The dropdown deliberately has NO "default" entry: custom OFF is
+    -- the default glow, so picking it while custom is on would be a
+    -- contradiction. The preview icon below always mirrors the live
+    -- configuration (classic glow when custom is off).
+    local glowStyleDD, glowColorSwatch, glowPreviewIcon
+    local _ovlPreviewRefresh   -- forward-declared: assigned by the overlay preview further down
+    local function _restyleGlows()
+        if BIT.PartyCooldowns and BIT.PartyCooldowns.RestyleActiveGlows then
+            BIT.PartyCooldowns:RestyleActiveGlows()
+        end
+        if glowPreviewIcon and BIT.PartyCooldowns
+           and BIT.PartyCooldowns.StopGlowOn and BIT.PartyCooldowns.StartGlowOn then
+            BIT.PartyCooldowns:StopGlowOn(glowPreviewIcon)
+            BIT.PartyCooldowns:StartGlowOn(glowPreviewIcon)
+        end
+        -- The unit-frame overlays share the glow configuration: restyle
+        -- the live overlay icons AND the overlay preview too, so a
+        -- style/color change is visible everywhere immediately.
+        if BIT.DefensiveOverlay and BIT.DefensiveOverlay.RefreshStyle then
+            BIT.DefensiveOverlay:RefreshStyle()
+        end
+        if _ovlPreviewRefresh then _ovlPreviewRefresh() end
+    end
+    local function _syncGlowVisibility()
+        local on = BIT.db.partyCooldownsGlowCustom == true
+        if glowStyleDD then
+            if on then glowStyleDD:Show() else glowStyleDD:Hide() end
+        end
+        if glowColorSwatch then
+            if on then glowColorSwatch:Show() else glowColorSwatch:Hide() end
+        end
+        if pages and pages[activePage] and pages[activePage].layout then
+            pages[activePage].layout()
+        end
+    end
+    w[#w+1] = CreateToggle(p, LS("PCD_GLOW_CUSTOM", "Use custom glow"),
+        function() return BIT.db.partyCooldownsGlowCustom == true end,
+        function(v)
+            BIT.db.partyCooldownsGlowCustom = v
+            _syncGlowVisibility()
+            _restyleGlows()
+        end)
+    glowStyleDD = CreateDropdown(p, LS("PCD_GLOW_STYLE", "Glow style"),
+        { { value = "PIXEL",    label = LS("PCD_GLOW_STYLE_PIXEL",    "Pixel lines") },
+          { value = "AUTOCAST", label = LS("PCD_GLOW_STYLE_AUTOCAST", "Autocast shine") },
+          { value = "PROC",     label = LS("PCD_GLOW_STYLE_PROC",     "Modern proc") } },
+        function() return BIT.db.partyCooldownsGlowStyle or "PIXEL" end,
+        function(v)
+            BIT.db.partyCooldownsGlowStyle = v
+            _restyleGlows()
+        end)
+    glowStyleDD._dynamic = true
+    glowStyleDD._update  = _syncGlowVisibility
+    w[#w+1] = glowStyleDD
+    glowColorSwatch = CreateColorSwatch(p, LS("PCD_GLOW_COLOR", "Glow color"),
+        function() return BIT.db.partyCooldownsGlowColorR or 0.95 end,
+        function() return BIT.db.partyCooldownsGlowColorG or 0.95 end,
+        function() return BIT.db.partyCooldownsGlowColorB or 0.32 end,
+        function(r, g, b)
+            BIT.db.partyCooldownsGlowColorR = r
+            BIT.db.partyCooldownsGlowColorG = g
+            BIT.db.partyCooldownsGlowColorB = b
+            _restyleGlows()
+        end)
+    glowColorSwatch._dynamic = true
+    glowColorSwatch._update  = _syncGlowVisibility
+    w[#w+1] = glowColorSwatch
+
+    -- Glow preview: a single sample icon glowing with the current
+    -- configuration. Restyled on every glow-setting change and
+    -- restarted whenever the page (re-)shows, so it also picks up
+    -- profile switches without a dedicated refresh hook.
+    do
+        local pv = CreateFrame("Frame", nil, p)
+        pv:SetSize(p:GetWidth() - CONTENT_PAD * 2, 54)
+
+        local lbl = pv:CreateFontString(nil, "OVERLAY")
+        ApplyFont(lbl, 11)
+        lbl:SetPoint("LEFT", 0, 0)
+        lbl:SetTextColor(RGB(TEXT_DIM))
+        lbl:SetText(LS("PCD_GLOW_PREVIEW", "Glow preview"))
+
+        local iconF = CreateFrame("Frame", nil, pv)
+        iconF:SetSize(38, 38)
+        iconF:SetPoint("RIGHT", -12, 0)
+        local border = iconF:CreateTexture(nil, "BACKGROUND")
+        border:SetPoint("TOPLEFT", -1, 1)
+        border:SetPoint("BOTTOMRIGHT", 1, -1)
+        border:SetColorTexture(0, 0, 0, 1)
+        local tex = iconF:CreateTexture(nil, "ARTWORK")
+        tex:SetAllPoints()
+        tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        tex:SetTexture((C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(102342))
+                       or "Interface\\Icons\\INV_Misc_QuestionMark")
+        glowPreviewIcon = iconF
+
+        local function _restartPreviewGlow()
+            if BIT.PartyCooldowns and BIT.PartyCooldowns.StopGlowOn
+               and BIT.PartyCooldowns.StartGlowOn then
+                BIT.PartyCooldowns:StopGlowOn(iconF)
+                BIT.PartyCooldowns:StartGlowOn(iconF)
+            end
+        end
+        pv:SetScript("OnShow", _restartPreviewGlow)
+        -- Also start once right here: the frame is born in the shown
+        -- state, so the FIRST page display never produces a
+        -- hidden→shown transition and OnShow stays silent until the
+        -- page is left and revisited.
+        _restartPreviewGlow()
+        w[#w+1] = pv
+    end
+    _syncGlowVisibility()
+
+    -- ── Unit Frame Overlay ──────────────────────────────────────────
+    -- Mirrors the currently ACTIVE defensive as an icon centered on
+    -- the member's unit frame while the buff runs (server-side aura
+    -- category filter — works without any spec/talent data).
+    w[#w+1] = CreateSectionHeader(p, LS("PCD_SEC_OVERLAY", "Unit Frame Overlay"), "sui_pcd_overlay")
+    -- (_ovlPreviewRefresh is forward-declared up in the glow block so
+    -- the glow style/color setters can restyle the overlay preview too.)
+    local function _ovlRefresh()
+        if BIT.DefensiveOverlay and BIT.DefensiveOverlay.RefreshStyle then
+            BIT.DefensiveOverlay:RefreshStyle()
+        end
+        if _ovlPreviewRefresh then _ovlPreviewRefresh() end
+    end
+    w[#w+1] = CreateToggle(p, LS("OVL_ENABLE", "Show active defensive on unit frames"),
+        function() return BIT.db.defensiveOverlayEnabled == true end,
+        function(v)
+            BIT.db.defensiveOverlayEnabled = v
+            if BIT.DefensiveOverlay and BIT.DefensiveOverlay.ApplyEnabled then
+                BIT.DefensiveOverlay:ApplyEnabled()
+            end
+        end)
+    w[#w+1] = CreateSlider(p, LS("OVL_SIZE", "Overlay Icon Size"), 26, 64, 1,
+        function() return BIT.db.defensiveOverlaySize or 32 end,
+        function(v) BIT.db.defensiveOverlaySize = v; _ovlRefresh() end,
+        function(v) return math.floor(v) .. "px" end)
+    w[#w+1] = CreateSlider(p, LS("OVL_OFFSET_X", "Overlay X Offset"), -80, 80, 1,
+        function() return BIT.db.defensiveOverlayOffsetX or 0 end,
+        function(v) BIT.db.defensiveOverlayOffsetX = v; _ovlRefresh() end)
+    w[#w+1] = CreateSlider(p, LS("OVL_OFFSET_Y", "Overlay Y Offset"), -80, 80, 1,
+        function() return BIT.db.defensiveOverlayOffsetY or 0 end,
+        function(v) BIT.db.defensiveOverlayOffsetY = v; _ovlRefresh() end)
+    w[#w+1] = CreateToggle(p, LS("OVL_GLOW", "Glow on overlay icon"),
+        function() return BIT.db.defensiveOverlayGlow ~= false end,
+        function(v) BIT.db.defensiveOverlayGlow = v; _ovlRefresh() end)
+
+    -- Overlay preview: a mock party frame with the REAL unit frame's
+    -- dimensions — resolved through the same provider the overlay
+    -- anchors to (ElvUI / Cell / EllesmereUI / ...), so icon size and
+    -- offsets are judged at true proportions. If the frame is wider
+    -- than the settings column, frame AND icons scale down together
+    -- so the proportions stay honest. Two sample icons demo the
+    -- side-by-side layout; swipe + glow run live.
+    do
+        local OVL_GAP = 2   -- must match the overlay module's icon gap
+
+        local pv = CreateFrame("Frame", nil, p)
+        pv:SetSize(p:GetWidth() - CONTENT_PAD * 2, 84)
+
+        local cap = pv:CreateFontString(nil, "OVERLAY")
+        ApplyFont(cap, 10)
+        cap:SetPoint("TOPLEFT", 0, -2)
+        cap:SetTextColor(RGB(TEXT_DIM))
+        cap:SetText(LS("OVL_PREVIEW", "Preview (your real frame size)"))
+
+        local mock = CreateFrame("Frame", nil, pv, "BackdropTemplate")
+        mock:SetPoint("CENTER", 0, -6)
+        mock:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
+                           insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+        mock:SetBackdropColor(0, 0, 0, 0.9)
+        mock:SetBackdropBorderColor(RGB(BORDER))
+
+        local _, cls = UnitClass("player")
+        local cc = (BIT.CLASS_COLORS and BIT.CLASS_COLORS[cls]) or { 0.2, 0.6, 1 }
+        local hp = mock:CreateTexture(nil, "ARTWORK")
+        hp:SetPoint("TOPLEFT", 1, -1)
+        hp:SetPoint("BOTTOMRIGHT", -1, 1)
+        hp:SetColorTexture(cc[1] * 0.72, cc[2] * 0.72, cc[3] * 0.72, 1)
+
+        local nameFS = mock:CreateFontString(nil, "OVERLAY")
+        ApplyFont(nameFS, 11, "OUTLINE")
+        nameFS:SetPoint("TOP", 0, -3)
+        nameFS:SetTextColor(1, 1, 1)
+        nameFS:SetText(UnitName("player") or "Player")
+
+        -- Two sample overlay icons with the same construction as the
+        -- live overlay (black 1px border, cropped icon, glow only — no
+        -- swipe / countdown).
+        local SAMPLE_SPELLS = { 102342, 33206 }   -- Ironbark, Pain Suppression
+        local icons = {}
+        for i = 1, 2 do
+            local f = CreateFrame("Frame", nil, mock)
+            local border = f:CreateTexture(nil, "BACKGROUND")
+            border:SetPoint("TOPLEFT", -1, 1)
+            border:SetPoint("BOTTOMRIGHT", 1, -1)
+            border:SetColorTexture(0, 0, 0, 1)
+            local tex = f:CreateTexture(nil, "ARTWORK")
+            tex:SetAllPoints()
+            tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            local okT, t = pcall(C_Spell.GetSpellTexture, SAMPLE_SPELLS[i])
+            tex:SetTexture((okT and t) or "Interface\\Icons\\INV_Misc_QuestionMark")
+            icons[i] = f
+        end
+
+        local function layoutPreview()
+            -- Resolve the live frame's dimensions; sane fallback when
+            -- no provider frame is available right now.
+            local fw, fh = 180, 50
+            local hint = (BIT.db and BIT.db.partyCooldownsProvider) or "AUTO"
+            if hint == "AUTO" then hint = nil end
+            if BIT.UnitFrames and BIT.UnitFrames.GetPartyFrame then
+                local ok, fr = pcall(BIT.UnitFrames.GetPartyFrame, BIT.UnitFrames, "player", hint)
+                if ok and fr and fr.GetWidth then
+                    local rw, rh = fr:GetWidth(), fr:GetHeight()
+                    if rw and rw > 10 and rh and rh > 10 then fw, fh = rw, rh end
+                end
+            end
+            local availW = (pv:GetWidth() or 300) - 20
+            local k = (fw > availW) and (availW / fw) or 1
+            local mw, mh = fw * k, fh * k
+            mock:SetSize(mw, mh)
+
+            local size = (((BIT.db and BIT.db.defensiveOverlaySize) or 26)) * k
+            local offX = (((BIT.db and BIT.db.defensiveOverlayOffsetX) or 0)) * k
+            local offY = (((BIT.db and BIT.db.defensiveOverlayOffsetY) or 0)) * k
+            local gap  = OVL_GAP * k
+            local n = #icons
+            local totalW = n * size + (n - 1) * gap
+            local startX = -(totalW / 2) + size / 2 + offX
+            for i, f in ipairs(icons) do
+                f:SetSize(size, size)
+                f:ClearAllPoints()
+                f:SetPoint("CENTER", mock, "CENTER", startX + (i - 1) * (size + gap), offY)
+                f:SetFrameLevel((mock:GetFrameLevel() or 0) + 20)
+                f:Show()
+            end
+
+            -- Grow the widget row with the mock (icons can also hang
+            -- below the frame with a big Y offset) and reflow the page
+            -- when the height actually changed.
+            local wantH = math.max(84, mh + 30)
+            if math.abs((pv:GetHeight() or 0) - wantH) > 0.5 then
+                pv:SetHeight(wantH)
+                if pages and pages[activePage] and pages[activePage].layout then
+                    pages[activePage].layout()
+                end
+            end
+        end
+
+        local function restartGlow()
+            for _, f in ipairs(icons) do
+                if BIT.PartyCooldowns and BIT.PartyCooldowns.StopGlowOn then
+                    BIT.PartyCooldowns:StopGlowOn(f)
+                end
+                if BIT.db and BIT.db.defensiveOverlayGlow ~= false
+                   and BIT.PartyCooldowns and BIT.PartyCooldowns.StartGlowOn then
+                    BIT.PartyCooldowns:StartGlowOn(f)
+                end
+            end
+        end
+
+        local function fullRefresh()
+            layoutPreview()
+            restartGlow()
+        end
+        pv:SetScript("OnShow", fullRefresh)
+        -- Frames are born shown — the first page display fires no
+        -- OnShow (same lesson as the glow preview), so kick once here.
+        fullRefresh()
+
+        _ovlPreviewRefresh = fullRefresh
+        w[#w+1] = pv
+    end
 
     -- ── Anchor & Position ───────────────────────────────────────────
     -- Where the icon row attaches and how it’s nudged. Provider picks
@@ -3852,7 +4630,7 @@ local function BuildPartyCDs()
         end)
     -- Per-icon visual size in pixels. EnsureIconsFor reads this on each
     -- RebuildAnchors so changes apply live (no /reload).
-    w[#w+1] = CreateSlider(p, LS("PCD_ICON_SIZE", "Icon Size"), 12, 64, 1,
+    w[#w+1] = CreateSlider(p, LS("PCD_ICON_SIZE", "Icon Size"), 26, 64, 1,
         function() return BIT.db.partyCooldownsIconSize or 28 end,
         function(v)
             BIT.db.partyCooldownsIconSize = v
@@ -7614,16 +8392,19 @@ end
 function BIT.SettingsUI:ApplyTheme()
     if not mainFrame then return end
     local p = GetThemePalette()
-    -- Main content backdrop + border. Border uses the accent at
-    -- near-full intensity so the window outline reads as the picked
-    -- theme at a glance.
+    -- Main content backdrop. The 1px backdrop border is painted in
+    -- the BACKGROUND color (not removed — the backdrop insets would
+    -- otherwise leave a 1px see-through ring): the visible outline
+    -- is the outer glow halo alone, no colored accent stripe.
     mainFrame:SetBackdropColor(p.bg[1], p.bg[2], p.bg[3], 0.9)  -- slightly transparent (matches the rework popup)
-    mainFrame:SetBackdropBorderColor(p.accent[1] * 0.7, p.accent[2] * 0.7, p.accent[3] * 0.7, 0.9)
+    mainFrame:SetBackdropBorderColor(p.bg[1], p.bg[2], p.bg[3], 0.9)
     -- Outer glow + title-line use explicit RGBA tuples from the
     -- palette so each theme can dial its halo and pinstripe
     -- separately from the main accent.
-    if mainFrame._glow then
-        mainFrame._glow:SetBackdropBorderColor(p.glow[1], p.glow[2], p.glow[3], p.glow[4])
+    if mainFrame._glow and mainFrame._glow._lines then
+        for _, line in ipairs(mainFrame._glow._lines) do
+            line:SetColorTexture(p.glow[1], p.glow[2], p.glow[3], p.glow[4])
+        end
     end
     if mainFrame._titleBg then
         -- Match the sidebar exactly (same colour + alpha) so the title
@@ -7645,6 +8426,24 @@ function BIT.SettingsUI:ApplyTheme()
             mainFrame._factionLogo:Show()
         else
             mainFrame._factionLogo:Hide()
+        end
+    end
+    -- Repaint the custom scrollbar thumbs in the live accent.
+    for _, repaint in ipairs(_themedScrollThumbs) do repaint() end
+    -- Re-theme the color picker if it has already been skinned (no-op
+    -- until the user first opens it).
+    if self.ApplyColorPickerTheme then self:ApplyColorPickerTheme() end
+    -- CPU footer surface matches the TITLE BAR (sidebarBg tint) so
+    -- top and bottom of the window read as the same panel color;
+    -- borderless look (border painted in the same color), glow halo
+    -- shared with the window.
+    if mainFrame._cpuFooter then
+        mainFrame._cpuFooter:SetBackdropColor(p.sidebarBg[1], p.sidebarBg[2], p.sidebarBg[3], 0.9)
+        mainFrame._cpuFooter:SetBackdropBorderColor(p.sidebarBg[1], p.sidebarBg[2], p.sidebarBg[3], 0.9)
+        if mainFrame._cpuFooter._glow and mainFrame._cpuFooter._glow._lines then
+            for _, line in ipairs(mainFrame._cpuFooter._glow._lines) do
+                line:SetColorTexture(p.glow[1], p.glow[2], p.glow[3], p.glow[4])
+            end
         end
     end
 end
@@ -7733,7 +8532,15 @@ end
 -- A second right-click ends the mode everywhere it is running. Each
 -- module only joins when its feature is enabled, and modules the user
 -- toggled individually beforehand are respected (no double-toggles).
-function BIT.SettingsUI:ToggleMoveAllFrames()
+-- Shared "all active modules at once" toggle. Both entry points flip
+-- the same module set — Interrupt test bars, Keystone List test
+-- layout, Party CDs standalone test layout (only when standalone mode
+-- is active). `withUnlock` decides the flavor:
+--   true   right-click move mode: every frame lock is overridden at
+--          runtime so the test frames can be dragged.
+--   false  shift-click preview: pure test mode, locks stay as the
+--          user configured them.
+local function ToggleAllTestModes(withUnlock)
     local klActive  = BIT.KeystoneList and BIT.KeystoneList.IsTestModeActive
                       and BIT.KeystoneList:IsTestModeActive()
     local pcdActive = BIT.PartyCooldowns and BIT.PartyCooldowns.IsTestLayoutActive
@@ -7764,9 +8571,10 @@ function BIT.SettingsUI:ToggleMoveAllFrames()
         return
     end
 
-    -- Start: temporarily unlock everything (runtime only, saved lock
-    -- settings stay untouched) so "movable" actually means movable.
-    BIT._moveAllUnlock = true
+    -- Start. Move mode additionally unlocks everything (runtime only,
+    -- saved lock settings stay untouched) so "movable" actually means
+    -- movable; the preview flavor leaves the locks alone.
+    BIT._moveAllUnlock = withUnlock and true or nil
     if BIT.Interrupts and BIT.Interrupts.IsEnabled and BIT.Interrupts:IsEnabled()
        and BIT.StartTestMode then
         BIT:StartTestMode()
@@ -7781,6 +8589,16 @@ function BIT.SettingsUI:ToggleMoveAllFrames()
         BIT.PartyCooldowns:ToggleTestLayout()
     end
     reapplyLocks()
+end
+
+function BIT.SettingsUI:ToggleMoveAllFrames()
+    ToggleAllTestModes(true)
+end
+
+-- Shift-click on the minimap button: test-mode preview of every
+-- active module, frames stay locked.
+function BIT.SettingsUI:ToggleTestAllModules()
+    ToggleAllTestModes(false)
 end
 
 function BIT.SettingsUI:CreateMinimapButton()
@@ -7799,7 +8617,7 @@ function BIT.SettingsUI:CreateMinimapButton()
         icon = ICON,
         OnClick = function(_, button)
             if IsShiftKeyDown() then
-                BIT:StartTestMode()
+                BIT.SettingsUI:ToggleTestAllModules()
             elseif button == "RightButton" then
                 BIT.SettingsUI:ToggleMoveAllFrames()
             elseif button == "LeftButton" then
