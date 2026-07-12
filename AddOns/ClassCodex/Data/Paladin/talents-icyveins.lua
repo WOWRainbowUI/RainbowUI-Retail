@@ -3,7 +3,7 @@ ClassCodexIcyVeinsTalentData["PALADIN"] = {
   ["holy"] = {
     talents = {
       { context = "團隊", buildLabel = "團隊ing - HeraldoftheSun", exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJmlZMzMMMbZAYAYDsZWmxMLz2Mzs1AAAAsAAbMGDzMAAwMDzYMMA" },
-      { context = "傳奇+", buildLabel = "Mythic+ - HeraldoftheSun", exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAMLAgZAAglxMzMzYmZWgxwyYbmZxMNxsMjZmhhZLDADAbgNWmZmZZ2mZmtGAAAgF2YGsBMMAAAzMMjxwA" },
+      { context = "傳奇+", buildLabel = "傳奇+ - HeraldoftheSun", exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAMLAgZAAglxMzMzYmZWgxwyYbmZxMNxsMjZmhhZLDADAbgNWmZmZZ2mZmtGAAAgF2YGsBMMAAAzMMjxwA" },
       { context = "傳奇+", buildLabel = "傳奇+", exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAMLAgZAAglxMzMzYmZWgxwyYbmZxMNxsMjZmhhZLDADAbgNWmZGAAAYmZbbx2MDbsxMYDYYAAmZAYGjRD" },
       { context = "升級", buildLabel = "升級", exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJmlZMzMMMbZAYAYDsZWmxMLz2MzsEAAAgFAYjxAmBAAGwYMA", leveling = true },
     },

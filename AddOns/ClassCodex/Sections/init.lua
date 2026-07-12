@@ -34,7 +34,7 @@ local _, ns = ...
 -- Extracted:
 --   Sections/Crafting.lua      — Crafts + Embellishments (v2 data)
 --   Sections/Trinkets.lua      — trinket tier list + context dropdown
---   Sections/Gear.lua          — BiS gear (Wowhead / Icy Veins / PvP)
+--   Sections/Gear.lua          — BiS gear (u.gg / Icy Veins / PvP)
 --   Sections/Supporters.lua    — panel-only Supporters + Patreon button
 --   Sections/About.lua         — panel-only About + button factory
 --   Sections/Stats.lua         — stat priority list (both surfaces)
@@ -47,7 +47,7 @@ local _, ns = ...
 --                                The full Talents-tab list and Compendium
 --                                talents-tab render still live in
 --                                ClassCodex.lua / Compendium.lua because of
---                                their on-demand row pools, Archon-section
+--                                their on-demand row pools, u.gg-section
 --                                collapse state, and source-dropdown logic.
 
 ns.Sections = ns.Sections or {}

@@ -435,10 +435,10 @@ local function EvalConditionExpr(expr, currentHeroTalent)
         elseif c == "H" and expr:sub(pos + 1, pos + 1) == '"' then
             -- Hero-tree literal: H"<label>". Both sides are normalized to
             -- English (currentHeroTalent via ATLAS_TO_HERO reverse-lookup
-            -- in GetActiveHeroTalentName; the label here from Wowhead's
+            -- in GetActiveHeroTalentName; the label here from u.gg's
             -- English BBCode), but the addon already case-insensitive-
             -- matches hero options elsewhere (see line ~2714) so we mirror
-            -- that here to absorb Wowhead casing drift like Shado-Pan vs
+            -- that here to absorb u.gg casing drift like Shado-Pan vs
             -- Shado-pan.
             local closing = expr:find('"', pos + 2, true)
             if not closing then return false end
@@ -873,8 +873,6 @@ for _, tab in ipairs(allTabs) do
 end
 
 -- Tab visibility rules: which DB keys must ALL be false to hide a tab.
--- The Stats tab uses the same `Stats` DB key as the Guide tab's stat-priority
--- section — toggling stats off in settings hides both surfaces consistently.
 local TAB_VISIBILITY_RULES = {
     { tab = guideTab,         tabKey = "guide",         keys = { "Stats", "Talents", "Rotation" } },
     { tab = statsTab,         tabKey = "stats",         keys = { "StatTargets" } },
@@ -1101,20 +1099,18 @@ local lastStatRowCount = 0
 -------------------------------------------------------------------------------
 -- Section: Stat Targets (only shown on the Stats tab)
 --
--- Pairs the priority list above with empirical secondary-stat rating
--- targets harvested from Archon (M+ / Raid). Each row carries the live
--- player rating, a Blizzard StatusBar filled toward the target, and a
--- coloured delta arrow. Bars use the standard UI-StatusBar texture so the
--- visual language matches the rest of WoW (cast bars, talent points, etc).
+-- Pairs the priority list with secondary-stat rating targets summed from the
+-- u.gg BiS gear list (M+ / Raid). Each row carries the live player rating, a
+-- Blizzard StatusBar filled toward the target, and a coloured delta arrow. Bars
+-- use the standard UI-StatusBar texture so the visual language matches the rest
+-- of WoW (cast bars, talent points, etc).
+--
+-- Extracted to Sections/StatTargets.lua; the module owns the section frame, row
+-- pool, custom StatusBar textures, context dropdown, and the in-combat / approx
+-- fallback lines. The {section, content} facade below keeps LayoutPanel wiring
+-- unchanged.
 -------------------------------------------------------------------------------
-
--- Stat-targets live bars — extracted to Sections/StatTargets.lua. The
--- module owns the section frame, row pool, custom StatusBar textures,
--- context dropdown, and PvP / in-combat fallback lines.
 local _statTargetsSection = ns.Sections.StatTargets.InitPanel({ parent = contentFrame })
--- Mirror the previous {section, content, ctxDropdown} surface so the
--- LayoutPanel code below (which still references statTargets.section)
--- doesn't need rewiring; the table is now a thin facade.
 local statTargets = {
     section = _statTargetsSection,
     content = ns.Sections.StatTargets.GetPanelContent(),
@@ -1128,7 +1124,7 @@ local statTargets = {
 -- module owns the section frame, button pool, action button factory, and
 -- preview render. The standalone Talents-tab full-builds renderer
 -- (UpdateAllTalents below) still lives here because of its on-demand
--- pools + Archon-section collapse state.
+-- pools + u.gg-section collapse state.
 local talentSection, talentHeader, talentContent = ns.Sections.Talents.InitPanel({
     parent = contentFrame,
     header = CreateSectionHeader,
@@ -1202,31 +1198,31 @@ local TALENT_CONTEXT_HEADER_HEIGHT = 22
 local ALL_TALENT_INDENT = 8
 local ALL_TALENT_TOGGLE_HEIGHT = 32 -- DROPDOWN_HEIGHT (26) + 6 gap before sections
 
--- Header + row pools grow on demand: Wowhead path tops out at ~5
--- hero × ~3 contexts, but Archon adds ~30 encounter rows (M+ overview
+-- Header + row pools grow on demand: u.gg path tops out at ~5
+-- hero × ~3 contexts, but u.gg adds ~30 encounter rows (M+ overview
 -- + dungeons + raid Heroic/Mythic overviews + bosses) plus 3 section
 -- headers, so a fixed pre-allocation isn't enough.
 -- Per-section collapse state, keyed by header text. Stored alongside
 -- the addon's other section-collapse flags so Mythic+ etc. persist
 -- across reloads.
-local function GetArchonSectionCollapsed(name)
+local function GetUggSectionCollapsed(name)
     if not ClassCodexCharDB or not ClassCodexCharDB.collapsed then return false end
-    local s = ClassCodexCharDB.collapsed.archonSections
+    local s = ClassCodexCharDB.collapsed.uggSections
     return s and s[name] or false
 end
 
-local function SetArchonSectionCollapsed(name, collapsed)
+local function SetUggSectionCollapsed(name, collapsed)
     if not ClassCodexCharDB then return end
     ClassCodexCharDB.collapsed = ClassCodexCharDB.collapsed or {}
-    ClassCodexCharDB.collapsed.archonSections = ClassCodexCharDB.collapsed.archonSections or {}
+    ClassCodexCharDB.collapsed.uggSections = ClassCodexCharDB.collapsed.uggSections or {}
     -- Store nil for the default (expanded) so the table doesn't grow
     -- with every section the user has ever seen.
-    ClassCodexCharDB.collapsed.archonSections[name] = collapsed and true or nil
+    ClassCodexCharDB.collapsed.uggSections[name] = collapsed and true or nil
 end
 
 -- Talents-tab section headers reuse the same ns.CreateSectionHeader as
 -- every other section in the panel (BackdropTemplate background +
--- right-side arrow + hover highlight), so the Archon Mythic+ / Raid
+-- right-side arrow + hover highlight), so the u.gg Mythic+ / Raid
 -- Heroic / Raid Mythic rows look identical to Stat Priority, Talents,
 -- Rotation, Enchants, Gems, Consumables.
 local allTalentHeaders = {}
@@ -1296,12 +1292,11 @@ allTalentFallback:SetTextColor(0.5, 0.5, 0.5)
 allTalentFallback:SetText(L["loadout_dock.no_talent_builds"])
 allTalentFallback:Hide()
 
--- Source dropdown (Wowhead | Archon). Persisted via the same per-spec
+-- Source dropdown (u.gg | u.gg). Persisted via the same per-spec
 -- key as the talent pane and Compendium, so flipping one updates all.
 -- Each option is prefixed with the source's brand icon via a |T...|t
 -- texture escape — no extra widget plumbing needed.
-local SOURCE_ICON_WOWHEAD  = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
-local SOURCE_ICON_ARCHON   = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+local SOURCE_ICON_UGG      = "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  u.gg"
 local SOURCE_ICON_ICYVEINS = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins"
 local SOURCE_ICON_PVP      = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
 
@@ -1334,7 +1329,7 @@ local function BindAllTalentApply(row, exportString, loadoutLabel)
     end)
 end
 
-local function RenderAllTalentsWowhead(specData, yPos)
+local function RenderAllTalentsLegacy(specData, yPos)
     local talents = specData.talents
     if not talents or #talents == 0 then
         allTalentFallback:SetText(L["loadout_dock.no_talent_builds"])
@@ -1359,8 +1354,8 @@ local function RenderAllTalentsWowhead(specData, yPos)
         else
             hdr.label:SetTextColor(1, 0.82, 0)
         end
-        -- Wowhead headers aren't collapsible per-hero — hide the
-        -- arrow and clear any leftover OnClick from a prior Archon
+        -- u.gg headers aren't collapsible per-hero — hide the
+        -- arrow and clear any leftover OnClick from a prior u.gg
         -- render. (The shared CreateSectionHeader's hover effect
         -- stays so the visual style matches the rest of the panel.)
         if hdr.arrow then hdr.arrow:Hide() end
@@ -1411,10 +1406,10 @@ local function RenderAllTalentsWowhead(specData, yPos)
     return yPos
 end
 
-local function RenderAllTalentsArchon(class, spec, yPos)
-    local archon = ns.GetArchonSpecData and ns.GetArchonSpecData(class, spec) or nil
-    if not archon or not archon.contexts or not next(archon.contexts) then
-        allTalentFallback:SetText(L["loadout_dock.no_archon_builds"] or "No Archon builds available.")
+local function RenderAllTalentsUgg(class, spec, yPos)
+    local ugg = ns.GetUggSpecData and ns.GetUggSpecData(class, spec) or nil
+    if not ugg or not ugg.contexts or not next(ugg.contexts) then
+        allTalentFallback:SetText(L["loadout_dock.no_ugg_builds"] or "No u.gg builds available.")
         allTalentFallback:ClearAllPoints()
         allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
         allTalentFallback:Show()
@@ -1422,20 +1417,20 @@ local function RenderAllTalentsArchon(class, spec, yPos)
     end
 
     -- ns.BuildMatchesActive (lifted from TalentPaneDropdown.lua) does
-    -- map-based equality so Archon's bit-ordering quirks don't hide the
+    -- map-based equality so u.gg's bit-ordering quirks don't hide the
     -- applied build. Falls back to bit-compare if the helper isn't
     -- loaded yet (toc order makes this unreachable in practice but
     -- the guard is cheap).
     local matchActive = ns.BuildMatchesActive
     local activeTalentBits = (not matchActive) and ns.GetActiveTalentSignature() or nil
-    local groups = ns.GroupArchonContexts(archon)
+    local groups = ns.GroupUggContexts(ugg)
     local hdrIdx, rowIdx = 0, 0
 
     local function emitSection(headerText, entries)
         if not entries or #entries == 0 then return end
         hdrIdx = hdrIdx + 1
         local hdr = EnsureTalentHeader(hdrIdx)
-        local collapsed = GetArchonSectionCollapsed(headerText)
+        local collapsed = GetUggSectionCollapsed(headerText)
 
         hdr.label:SetText(headerText)
         hdr.label:SetTextColor(1, 0.82, 0)
@@ -1446,7 +1441,7 @@ local function RenderAllTalentsArchon(class, spec, yPos)
             hdr.arrow:Show()
         end
         hdr:SetScript("OnClick", function()
-            SetArchonSectionCollapsed(headerText, not GetArchonSectionCollapsed(headerText))
+            SetUggSectionCollapsed(headerText, not GetUggSectionCollapsed(headerText))
             ns:UpdatePanel()
         end)
         hdr:ClearAllPoints()
@@ -1497,7 +1492,7 @@ local function RenderAllTalentsArchon(class, spec, yPos)
                 local labelLeftOffset = heroAtlas and 24 or 8
                 row.label:SetPoint("LEFT", row, "LEFT", labelLeftOffset, 0)
                 row.label:SetPoint("RIGHT", row.copyBtn, "LEFT", -4, 0)
-                local fullLabel = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(ctx))
+                local fullLabel = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(ctx))
                     or ctx.encounterLabel or "Build"
                 row.label:SetText(fullLabel)
 
@@ -1507,7 +1502,7 @@ local function RenderAllTalentsArchon(class, spec, yPos)
 
                 BindAllTalentCopy(row, build.exportString)
                 BindAllTalentApply(row, build.exportString,
-                    (build.heroTalent or "Archon") .. " " .. fullLabel)
+                    (build.heroTalent or "Build") .. " " .. fullLabel)
 
                 row:Show()
                 yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
@@ -1538,7 +1533,7 @@ end
 -- grouped under "Arena" / "Battleground" headers (same split the
 -- LoadoutDock submenu uses) and rendered using the existing talent-row
 -- pool. When no PvP data exists for the spec, writes the talent
--- fallback line — same pattern as RenderAllTalentsArchon.
+-- fallback line — same pattern as RenderAllTalentsUgg.
 local function RenderAllTalentsPvP(class, spec, yPos)
     local brackets = ns.GetPvPBracketsWithData
         and ns.GetPvPBracketsWithData(class, spec)
@@ -1622,10 +1617,10 @@ local function RenderAllTalentsPvP(class, spec, yPos)
 end
 
 -- Render the Icy Veins talent source. IV builds are context-labeled (not
--- hero-grouped like Wowhead). Bucket by context in a sensible order and
+-- hero-grouped like u.gg). Bucket by context in a sensible order and
 -- render in place — a context with several builds gets a section header;
 -- a lone build is shown as a bare row with no header over it. Same row/
--- header pools and active-build highlight as the Archon/PvP renderers.
+-- header pools and active-build highlight as the u.gg/PvP renderers.
 local IV_TALENT_CONTEXT_ORDER = { "Raid", "Mythic+", "Delves", "General", "Leveling" }
 
 local function RenderAllTalentsIcyVeins(class, spec, yPos)
@@ -1716,32 +1711,26 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     for _, r in ipairs(allTalentRows) do r:Hide() end
     allTalentFallback:Hide()
 
-    local archonAvailable = classToken and specKey
-        and ns.GetArchonSpecData and ns.GetArchonSpecData(classToken, specKey) ~= nil
+    local uggAvailable = classToken and specKey
+        and ns.GetUggSpecData and ns.GetUggSpecData(classToken, specKey) ~= nil
 
     local icyVeinsAvailable = classToken and specKey
         and ns.GetIcyVeinsTalentSpecData
         and ns:GetIcyVeinsTalentSpecData(classToken, specKey) ~= nil
 
-    local source = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "wowhead"
-    if source == "archon" and not archonAvailable then source = "wowhead" end
-    if source == "icyveins" and not icyVeinsAvailable then source = "wowhead" end
+    local source = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "ugg"
 
     allTalentSourceDropdown:ClearAllPoints()
     allTalentSourceDropdown:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, 0)
     allTalentSourceDropdown:SetPoint("TOPRIGHT", allTalentContent, "TOPRIGHT", 0, 0)
-    -- PvP always appears for discoverability; RenderAllTalentsPvP shows
-    -- the fallback line when no data exists for the spec.
+    -- u.gg and Icy Veins are always both selectable talent sources (Icy Veins
+    -- is not a fallback). PvP always appears too; each render shows its own
+    -- fallback line when a spec has no data.
     local sourceOpts = {
-        { label = SOURCE_ICON_WOWHEAD, value = "wowhead" },
+        { label = SOURCE_ICON_ICYVEINS, value = "icyveins" },
+        { label = SOURCE_ICON_UGG, value = "ugg" },
+        { label = SOURCE_ICON_PVP, value = "pvp" },
     }
-    if archonAvailable then
-        sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
-    end
-    if icyVeinsAvailable then
-        sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_ICYVEINS, value = "icyveins" }
-    end
-    sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
     allTalentSourceDropdown:SetOptions(sourceOpts, source, function(picked)
         if ns.SetPersistedTalentSource then ns.SetPersistedTalentSource(picked) end
         ns:UpdatePanel()
@@ -1749,14 +1738,12 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     allTalentSourceDropdown:Show()
 
     local yPos = ALL_TALENT_TOGGLE_HEIGHT
-    if source == "archon" then
-        yPos = RenderAllTalentsArchon(classToken, specKey, yPos)
-    elseif source == "icyveins" then
+    if source == "icyveins" then
         yPos = RenderAllTalentsIcyVeins(classToken, specKey, yPos)
     elseif source == "pvp" then
         yPos = RenderAllTalentsPvP(classToken, specKey, yPos)
     else
-        yPos = RenderAllTalentsWowhead(specData, yPos)
+        yPos = RenderAllTalentsUgg(classToken, specKey, yPos)
     end
 
     allTalentContent:SetHeight(yPos)
@@ -2256,7 +2243,12 @@ function ns:LayoutPanel()
     if subheaderFrame:IsShown() then
         subheaderFrame:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
         subheaderFrame:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        y = y - SUBHEADER_HEIGHT - 2
+        -- Only reserve vertical space when the hero dropdown is actually present.
+        -- With a hero-agnostic spec the subheader collapses to height 1, so the
+        -- sections below flow up flush instead of leaving a gap.
+        if subheaderFrame:GetHeight() > 1 then
+            y = y - SUBHEADER_HEIGHT - 2
+        end
     end
 
     -- Helper to layout a section
@@ -3102,17 +3094,17 @@ local function BuildTooltipEntries(itemId)
         end
     end
 
-    -- BiS gear — merged per-spec approach (Wowhead + Icy Veins)
-    local showWH = ClassCodexDB.showWowheadBisTooltip
+    -- BiS gear — merged per-spec approach (u.gg + Icy Veins)
+    local showUgg = ClassCodexDB.showUggBisTooltip
     local showIV = ClassCodexDB.showIcyVeinsBisTooltip
-    local bothEnabled = showWH and showIV
+    local bothEnabled = showUgg and showIV
 
     -- Collect WH entries by spec label
     local bisBySpec = {} -- label → { class, hasWH, hasIV, ivTabs = {} }
     local bisOrder = {}
 
-    if showWH and ns.GetWowheadBisSpecs then
-        local bisSpecs = ns:GetWowheadBisSpecs(itemId)
+    if showUgg and ns.GetUggBisSpecs then
+        local bisSpecs = ns:GetUggBisSpecs(itemId)
         if bisSpecs then
             for _, entry in ipairs(bisSpecs) do
                 if not seen[entry.label] and (not filterSet or filterSet[entry.class]) then
@@ -3162,7 +3154,7 @@ local function BuildTooltipEntries(itemId)
                 local parts = {}
                 if info.hasWH then
                     local s = ""
-                    if showIcon then s = s .. "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t" end
+                    if showIcon then s = s .. "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t" end
                     if showLabel then s = s .. (showIcon and " " or "") .. "|cffff8000WH|r" end
                     parts[#parts + 1] = s
                 end
@@ -3282,7 +3274,7 @@ local function OnTooltipItem(tooltip, tooltipData)
 
     -- Cross-spec BiS + trinket tier info
     local bisScope = ClassCodexDB.tooltipBisScope or "all"
-    if itemId and bisScope ~= "off" and (ClassCodexDB.showWowheadBisTooltip or ClassCodexDB.showIcyVeinsBisTooltip or ClassCodexDB.showTrinketTooltip) then
+    if itemId and bisScope ~= "off" and (ClassCodexDB.showUggBisTooltip or ClassCodexDB.showIcyVeinsBisTooltip or ClassCodexDB.showTrinketTooltip) then
         local entries, source, hasTrinketEntries = BuildTooltipEntries(itemId)
 
         if #entries > 0 then
@@ -3291,9 +3283,9 @@ local function OnTooltipItem(tooltip, tooltipData)
             local showIcon = style == 1 or style == 3
             local showLabel = style == 2 or style == 3
             local headerSources = {}
-            if ClassCodexDB.showWowheadBisTooltip then
+            if ClassCodexDB.showUggBisTooltip then
                 local s = ""
-                if showIcon then s = s .. "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t" end
+                if showIcon then s = s .. "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t" end
                 if showLabel then s = s .. (showIcon and " " or "") .. "|cffff8000WH|r" end
                 headerSources[#headerSources + 1] = s
             end
@@ -3417,23 +3409,24 @@ eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
--- Live stat target updates: refresh bars when ratings change. Throttled
--- via the existing UpdatePanel call path so a flurry of equipment swaps
--- collapses to one re-render.
+-- Live stat-target updates: refresh the bars when ratings change. Throttled
+-- via the existing UpdatePanel path so a flurry of equipment swaps collapses
+-- to one re-render.
 eventFrame:RegisterEvent("COMBAT_RATING_UPDATE")
 eventFrame:RegisterEvent("UNIT_STATS")
+-- Drives the "owned" overlay on BiS/Trinkets/Crafting rows and the live
+-- stat-target bars. Blizzard debounces this event already, so loot/bank/mail
+-- churn collapses to one refresh.
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
--- Drives the "owned" overlay on BiS rows. Blizzard debounces this
--- event already, so loot/bank/mail churn collapses to one refresh.
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
--- Re-render Stat Targets on combat transitions so the in-combat
--- placeholder swaps in/out predictably (GetCombatRating only returns
--- real values to tainted code outside combat).
+-- Re-render Stat Targets on combat transitions so the in-combat placeholder
+-- swaps in/out predictably (GetCombatRating only returns real values to
+-- untainted code outside combat).
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 -- Group composition changes invalidate the tooltip BiS cache when the
 -- scope is set to "group" so the next hover reflects the new roster.
 eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
@@ -3442,7 +3435,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             showTooltipBadges = true,
             tooltipFooterMode = 0, -- 0 off, 1 always, 2 only when different
             craftingTopPicksOnly = true,
-            showWowheadBisTooltip = true,
+            showUggBisTooltip = true,
             showIcyVeinsBisTooltip = true,
             showTrinketTooltip = true,
             tooltipBisScope = "all", -- "all", "group", "self", "off"
@@ -3482,8 +3475,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             dockLoadoutShowSpecIcon = true,
             dockLoadoutShowHeroIcon = true,
             dockLoadoutShowSaved = true,
-            dockLoadoutShowWowhead = true,
-            dockLoadoutShowArchon = true,
+            dockLoadoutShowCodexBuilds = true,
+            dockLoadoutShowUgg = true,
             dockLoadoutShowIcyVeins = true,
             dockLoadoutOpacity = 95,
             dockLoadoutWidth = 200,
@@ -3505,9 +3498,9 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
     }
 
         if not ClassCodexDB then ClassCodexDB = {} end
-        -- Migrate old showBisTooltip → showWowheadBisTooltip
+        -- Migrate old showBisTooltip → showUggBisTooltip
         if ClassCodexDB.showBisTooltip ~= nil then
-            ClassCodexDB.showWowheadBisTooltip = ClassCodexDB.showBisTooltip
+            ClassCodexDB.showUggBisTooltip = ClassCodexDB.showBisTooltip
             ClassCodexDB.showBisTooltip = nil
         end
         -- Migrate old tab keys to new merged tabs
@@ -3681,10 +3674,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             panel:Show()
         end
         -- Re-render the docked panel's Talents tab when zone/encounter
-        -- flips the effective Archon source. Talent pane and Compendium
+        -- flips the effective u.gg source. Talent pane and Compendium
         -- handle this themselves; the docked panel needs the same.
-        if ns.RegisterArchonContextCallback then
-            ns.RegisterArchonContextCallback(function()
+        if ns.RegisterUggContextCallback then
+            ns.RegisterUggContextCallback(function()
                 if panel:IsShown() and ns.getActiveTab and ns.getActiveTab() == "talents" then
                     ns:UpdatePanel()
                 end
@@ -3717,22 +3710,22 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         if panel:IsShown() then ns:UpdatePanel() end
 
     elseif event == "COMBAT_RATING_UPDATE" or event == "UNIT_STATS" then
-        -- Cheap path: only re-render when the Stats tab is visible. Other
-        -- tabs don't display live ratings so they don't need to repaint.
+        -- Cheap path: only re-render when the Stats tab is visible. Other tabs
+        -- don't display live ratings so they don't need to repaint.
         if panel:IsShown() and activeTab == "stats" then
-            ns:UpdatePanel()
-        end
-
-    elseif event == "PLAYER_EQUIPMENT_CHANGED" or event == "BAG_UPDATE_DELAYED" then
-        -- Stats tab needs equipment-driven rating updates; BiS and
-        -- Trinkets tabs need their "owned" row tint refreshed when
-        -- bags/equipped slots change. Other tabs don't reflect either.
-        if panel:IsShown() and (activeTab == "stats" or activeTab == "bis" or activeTab == "trinkets" or activeTab == "crafting") then
             ns:UpdatePanel()
         end
 
     elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
         if panel:IsShown() and activeTab == "stats" then
+            ns:UpdatePanel()
+        end
+
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" or event == "BAG_UPDATE_DELAYED" then
+        -- The Stats tab needs equipment-driven rating updates; BiS, Trinkets,
+        -- and Crafting tabs need their "owned" row tint refreshed when
+        -- bags/equipped slots change. Other tabs don't reflect either.
+        if panel:IsShown() and (activeTab == "stats" or activeTab == "bis" or activeTab == "trinkets" or activeTab == "crafting") then
             ns:UpdatePanel()
         end
 
@@ -3817,6 +3810,18 @@ SlashCmdList["CLASSCODEX"] = function(msg)
             ns.DumpInspectState()
         else
             print("|cff00ccffClass Codex:|r inspect dump unavailable.")
+        end
+    elseif msg == "dumptree" then
+        if ns.DumpTalentTree then
+            ns.DumpTalentTree()
+        else
+            print("|cff00ccffClass Codex:|r tree dump unavailable.")
+        end
+    elseif msg == "selftest" then
+        if ns.RunSelfTest then
+            ns.RunSelfTest()
+        else
+            print("|cff00ccffClass Codex:|r self-test unavailable.")
         end
     elseif msg == "help" then
         local sc = ns.FixSlash("/cc")

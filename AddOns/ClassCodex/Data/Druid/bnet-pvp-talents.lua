@@ -3,8 +3,8 @@ ClassCodexBnetPvpTalents["DRUID"] = {
   ["balance"] = {
     brackets = {
       ["pvp-2v2"] = {
-        builds = { { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZjxwMLjlZMjZYsMjZmZwGGAM2MzstN2Gz0MzyMBAAAYzMzMzgNDjxMAmZwMDMA", heroTalent = "Keeper of the Grove" }, { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlx2MmxGLzYmZGmFMAYAW2GbYamZbEAAAgNmZmZwmxMGzAYmBAGA", heroTalent = "Keeper of the Grove" } },
-        pvpTalentSets = { { talents = { 5407, 5383, 185 } }, { talents = { 185, 834, 5515 } } },
+        builds = { { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlx2MmxGLzYmZGmFMAYAW2GbYamZbEAAAgNmZmZwmxMGzAYmBAGA", heroTalent = "Keeper of the Grove" } },
+        pvpTalentSets = { { talents = { 185, 834, 5515 } } },
       },
       ["pvp-3v3"] = {
         builds = { { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsxMzMbMGegZbsMjZMzYsMjZmZY2wAgx22Mz22MbzyMNzsNTAAAA2MzMzMYzYGjBgZGMzADA", heroTalent = "Keeper of the Grove" }, { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZzMeAmZZsMjZMzwsMjZmZwGGAMW2mx22MbzyMNzsMTAAAA2Mz8AzMYzYGjBgZGAYA", heroTalent = "Keeper of the Grove" }, { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsxMzMLmxgZZsMjZMzYmlZMzMD2wAgx2ix22MbWmpZmlZCAAAwmZmHYmBbGzYMDgZGMzADA", heroTalent = "Keeper of the Grove" }, { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZjxMMLzsMziZmxyYZmlxMD2wAgxy2Mz22MbzyMNzsMTAAAAWYmZmBbGGjBgZGMzADA", heroTalent = "Elune's Chosen" }, { exportString = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNjxMDwsNzMzMLMMjxMLzsYmZmNWmZZMGzsgBAjttZmttZ2mtZamZZmAAAAswMzMD2MMGDAzMYmBGA", heroTalent = "Elune's Chosen" } },
@@ -54,10 +54,6 @@ ClassCodexBnetPvpTalents["DRUID"] = {
         builds = { { exportString = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmFzMjZWMLmxMLLDMbzANRmZWGzMzsMmBAAAAAGMzsZGYZbmBjZZAMFAAAYzYmBYxYYgZxyGgZGAA", heroTalent = "Elune's Chosen" }, { exportString = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmxsMMGY2mZmZsNwwMGNRmZWYmZGzMzAAAAAAYmZZAW2mBGzyAYqZWmlZmZAAsgZGglFDGMzysZAwMbwA", heroTalent = "Druid of the Claw" } },
         pvpTalentSets = { { talents = { 51, 842, 194 } }, { talents = { 5648, 1237, 194 } } },
       },
-      ["pvp-3v3"] = {
-        builds = { { exportString = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmxsYmZMzyMbGPwMLLDMbGGNRmZWGzMzsMmZAAAAAAMsYGYZbmBjZbAM1MLzyMzMAA2wMDwixwgZWssBYmZmNA", heroTalent = "Elune's Chosen" } },
-        pvpTalentSets = { { talents = { 5410, 1237, 194 } } },
-      },
       ["pvp-blitz"] = {
         builds = { { exportString = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmhl5BGzMzyMwMzyyAziZMTTkZmNmZmZZMzDAAAAAAgZxAW2mZwYWGATNzysMGDAgNjZGAGYwMLjNAzMAG", heroTalent = "Elune's Chosen" } },
         pvpTalentSets = { { talents = { 51, 5648, 196 } }, { talents = { 196, 5648, 51 } }, { talents = { 196, 51, 5410 } }, { talents = { 196, 51, 5648 } }, { talents = { 52, 5410, 51 } } },
@@ -87,8 +83,8 @@ ClassCodexBnetPvpTalents["DRUID"] = {
         pvpTalentSets = { { talents = { 1215, 5687, 5668 } }, { talents = { 5687, 5668, 1215 } }, { talents = { 5668, 1215, 5687 } }, { talents = { 5687, 1215, 5668 } }, { talents = { 1215, 5687, 697 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPjxMLz2MGz8Az2wDwMzmxCzAAAAAAAAAAgFDNbmx0MDMmlZmZmhhHAAAAAADAAAAEAAwsNzSz2Mb2YMzMMzsBaGAgZGAGA", heroTalent = "Wildstalker" } },
-        pvpTalentSets = { { talents = { 1215, 5668, 5687 } }, { talents = { 1215, 59, 5687 } }, { talents = { 5687, 838, 5668 } }, { talents = { 1215, 5687, 5668 } }, { talents = { 5687, 1215, 59 } } },
+        builds = { { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPMmZbMjZmxsMMjxsxsYZAAAAAAAAAAglZIbmx0MzMwsNzMzYxgBAAAAgBAMGw22YDTzMLDAgZbmlmtZWswMzMDzAoZAwMzMDAD", heroTalent = "Keeper of the Grove" }, { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPjxMbYMzMzsMmZMmNmNmBAAAAAAAAAALGa2MzMNzAMbMzMzmhZAAAAAYAAMgttxCmmZWGAAgAWwMzMYAjmBAzMAgB", heroTalent = "Keeper of the Grove" }, { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPmZmZBzMmZmlxMMGMbWGAAAAAAAAAAYZQzmZMNzMDMbjZmZWMMAAAAAAAYAstNWw0Mz2AAY2mZpZZmNLMzMDmBMaGAMzMzAwA", heroTalent = "Keeper of the Grove" }, { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMm5BmlxMjxsxsYZGAAAAAAAAAAsMDNbmx0MzMwsZmZmZxwDYAAAAAMAAGw22YBTzMLDAgZZmlmtZWsgZGDzYD0MAYmZmBgB", heroTalent = "Keeper of the Grove" }, { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPMzMbMjxMzsNmhxsxsYZGAAAAAAAAAAsMDNbmx0MzMwsNzMzMLGAAAAAgBAwA22GLYamZZAAMLzs0sNziNMzMDGANDAmZmZAYA", heroTalent = "Wildstalker" } },
+        pvpTalentSets = { { talents = { 5668, 1215, 5687 } }, { talents = { 1215, 59, 5687 } }, { talents = { 5668, 5687, 1215 } }, { talents = { 5514, 1215, 5649 } }, { talents = { 1215, 5668, 5687 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMzsMmZMmFmFmBAAAAAAAAAALzQ2MjpZmZGMbmZmZ2MAAAAAADAgBssMWw0MzyAAYYWa2GLWYmZMYsgRzAgZmZGAGA", heroTalent = "Keeper of the Grove" } },

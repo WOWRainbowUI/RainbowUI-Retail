@@ -13,7 +13,7 @@ local L = ns.L
 
 local IV_DATA = ClassCodexIcyVeinsData or {}
 local IVT_DATA = ClassCodexIcyVeinsTalentData or {}
-local ARCHON_GEAR_DATA = ClassCodexArchonGearData or {}
+local UGG_GEAR_DATA = ClassCodexUggGearData or {}
 
 -------------------------------------------------------------------------------
 -- Constants
@@ -133,7 +133,7 @@ local function RequestAllItems(gearData)
         end
     end
     if gearData.gems then
-        RequestItemData(gearData.gems.primary.itemId)
+        if gearData.gems.primary then RequestItemData(gearData.gems.primary.itemId) end
         if gearData.gems.secondary then
             for _, g in ipairs(gearData.gems.secondary) do RequestItemData(g.itemId) end
         end
@@ -280,17 +280,17 @@ local function GetLocalizedSpecName(classToken, specKey)
 end
 
 local CLASS_SPEC_COUNT = {}
-local wowheadBisLookup = {}
+local uggBisLookup = {}
 local icyVeinsBisLookup = {}
 local trinketLookup = {}
 local trinketSourceLookup = {}
--- itemId -> bonusIDs, harvested from every source that carries them (Wowhead /
--- Icy Veins BiS slots + trinkets). Archon's gear pages don't publish bonus IDs,
--- so the Archon source borrows them here to render the correct item level.
+-- itemId -> bonusIDs, harvested from every source that carries them (u.gg /
+-- Icy Veins BiS slots + trinkets). u.gg's gear pages don't publish bonus IDs,
+-- so the u.gg source borrows them here to render the correct item level.
 local bonusIdLookup = {}
 -- context ("raid" / "dungeon") -> the upgrade-track bonusIDs typical of that
 -- content, taken from the first trinket we see in that context. Used as the
--- fallback for Archon items we can't resolve exactly, so a raid pick still
+-- fallback for u.gg items we can't resolve exactly, so a raid pick still
 -- shows a mythic-raid item level rather than its base.
 local contextBonusDefault = {}
 
@@ -339,8 +339,8 @@ local function BuildBisLookup()
                             local id = entry.item.itemId
                             local slotLower = entry.slot and entry.slot:lower() or ""
                             if not slotLower:find("trinket") and not trinketIds[id] then
-                                if not wowheadBisLookup[id] then wowheadBisLookup[id] = {} end
-                                wowheadBisLookup[id][#wowheadBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey }
+                                if not uggBisLookup[id] then uggBisLookup[id] = {} end
+                                uggBisLookup[id][#uggBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey }
                             end
                         end
                     end
@@ -443,8 +443,8 @@ local function ConsolidateByClass(entries)
     return result
 end
 
-function ns:GetWowheadBisSpecs(itemId)
-    local raw = wowheadBisLookup[itemId]
+function ns:GetUggBisSpecs(itemId)
+    local raw = uggBisLookup[itemId]
     if not raw then return nil end
     return ConsolidateByClass(raw)
 end
@@ -466,16 +466,16 @@ function ns:GetIcyVeinsSpecData(classToken, specKey)
     return classData[specKey]
 end
 
-function ns:GetArchonGearSpecData(classToken, specKey)
+function ns:GetUggGearSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local classData = ARCHON_GEAR_DATA[classToken]
+    local classData = UGG_GEAR_DATA[classToken]
     if not classData then return nil end
     return classData[specKey]
 end
 
--- Archon's Gear Overview lists items in slot order but never names the slot,
+-- u.gg's Gear Overview lists items in slot order but never names the slot,
 -- so we recover a display label from each item's equip location. English
--- labels keep it consistent with the Wowhead / Icy Veins sources, whose slot
+-- labels keep it consistent with the u.gg / Icy Veins sources, whose slot
 -- strings are also raw English from their guides.
 local EQUIPLOC_SLOT = {
     INVTYPE_HEAD = "Head",

@@ -23,8 +23,8 @@ local ROW_HEIGHT = 22
 local SECTION_HEADER_HEIGHT = 24
 -- Initial pool sizes for the Talents section. Pools grow on demand
 -- (EnsureTalentButton / EnsureTalentHeroHeader); these are just the
--- pre-allocations so the common Wowhead-only render hits no cold path.
--- Archon adds ~27 contexts × 2 hero talents per spec, so the dynamic
+-- pre-allocations so the common u.gg-only render hits no cold path.
+-- u.gg adds ~27 contexts × 2 hero talents per spec, so the dynamic
 -- growth path is what makes the Talents tab cover all sources without
 -- truncation.
 local MAX_TALENT_BUTTONS = 16
@@ -327,7 +327,7 @@ local function RequestAllGearItems(gearData)
         end
     end
     if gearData.gems then
-        RequestItemData(gearData.gems.primary.itemId)
+        if gearData.gems.primary then RequestItemData(gearData.gems.primary.itemId) end
         if gearData.gems.secondary then
             for _, g in ipairs(gearData.gems.secondary) do RequestItemData(g.itemId) end
         end
@@ -355,11 +355,11 @@ local function RequestAllGearItems(gearData)
             end
         end
     end
-    -- And Archon gear items for the same class/spec
-    if selectedClass and selectedSpec and ns.GetArchonGearSpecData then
-        local archonData = ns:GetArchonGearSpecData(selectedClass, selectedSpec)
-        if archonData and archonData.bisGear then
-            for _, tab in ipairs(archonData.bisGear) do
+    -- And u.gg gear items for the same class/spec
+    if selectedClass and selectedSpec and ns.GetUggGearSpecData then
+        local uggData = ns:GetUggGearSpecData(selectedClass, selectedSpec)
+        if uggData and uggData.bisGear then
+            for _, tab in ipairs(uggData.bisGear) do
                 for _, g in ipairs(tab.slots) do RequestItemData(g.item.itemId) end
             end
         end
@@ -471,7 +471,7 @@ end
 -- Dropdown setup (forward declared, assigned in InitFrame)
 -------------------------------------------------------------------------------
 
-local SetupClassDropdown, SetupSpecDropdown, SetupHeroDropdown
+local SetupClassDropdown, SetupSpecDropdown
 
 -------------------------------------------------------------------------------
 -- InitFrame — lazily creates all UI (ensures Blizzard templates are loaded)
@@ -585,16 +585,13 @@ local function InitFrame()
     scrollFrame:SetScrollChild(UI.scrollChild)
     scrollFrame:SetScript("OnSizeChanged", function(_, w) UI.scrollChild:SetWidth(w) end)
 
-    -- Dropdowns (attic area) — class / spec / hero left-to-right, anchored from
-    -- the right. The hero dropdown stops SOURCE_SLOT short of the right edge,
-    -- leaving room for the source tag (which is always right-aligned).
-    local SOURCE_SLOT = 96
-    UI.heroDropdown = CreateFrame("DropdownButton", "ClassCodexCompHeroDD", UI.frame, "WowStyle1DropdownTemplate")
-    UI.heroDropdown:SetPoint("TOPRIGHT", UI.frame.Inset, "TOPRIGHT", -SOURCE_SLOT, 28)
-    UI.heroDropdown:SetWidth(135)
-
+    -- Dropdowns (attic area) — class / spec, kept to the left (their original
+    -- positions) so the source tag owns the right edge. (No hero dropdown: the
+    -- guide data is hero-agnostic since the Icy Veins migration; its freed slot
+    -- plus the source slot become the right-hand room for the source tag.)
+    local SOURCE_SLOT = 222
     UI.specDropdown = CreateFrame("DropdownButton", "ClassCodexCompSpecDD", UI.frame, "WowStyle1DropdownTemplate")
-    UI.specDropdown:SetPoint("RIGHT", UI.heroDropdown, "LEFT", -3, 0)
+    UI.specDropdown:SetPoint("TOPRIGHT", UI.frame.Inset, "TOPRIGHT", -SOURCE_SLOT, 28)
     UI.specDropdown:SetWidth(118)
 
     UI.classDropdown = CreateFrame("DropdownButton", "ClassCodexCompClassDD", UI.frame, "WowStyle1DropdownTemplate")
@@ -687,7 +684,7 @@ local function InitFrame()
     -- Lazy factory so the pool can grow past the initial allocation.
     -- Render functions call this with a 1-based index; existing buttons
     -- are reused, missing ones are created on demand. Hero badge support
-    -- (used by the Archon view) hangs off btn.heroIcon.
+    -- (used by the u.gg view) hangs off btn.heroIcon.
     local function CreateTalentButton(i)
         if UI.talentButtons[i] then return UI.talentButtons[i] end
         local btn = CreateFrame("Button", nil, UI.talentContent, "BackdropTemplate")
@@ -732,7 +729,7 @@ local function InitFrame()
     end)
 
     -- Hero/section group headers (Talents tab). Same lazy-grow pattern
-    -- as talentButtons — Archon adds Mythic+/Raid Heroic/Raid Mythic
+    -- as talentButtons — u.gg adds Mythic+/Raid Heroic/Raid Mythic
     -- headers on top of the hero headers.
     UI.talentHeroHeaders = {}
     local function CreateTalentHeroHeader(i)
@@ -750,41 +747,31 @@ local function InitFrame()
     UI._ensureTalentHeroHeader = CreateTalentHeroHeader
     for i = 1, MAX_TALENT_HERO_HEADERS do CreateTalentHeroHeader(i) end
 
-    -- Source dropdown (Wowhead | Archon | PvP) — only shown by the
+    -- Source dropdown (Icy Veins | u.gg | PvP) — only shown by the
     -- Talents tab. Mirrors the docked panel and the addon's other
     -- dropdowns. Each option carries the brand icon via a |T...|t escape.
-    local SOURCE_ICON_WOWHEAD  = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
-    local SOURCE_ICON_ARCHON   = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+    local SOURCE_ICON_UGG      = "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  u.gg"
     local SOURCE_ICON_ICYVEINS = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins"
     local SOURCE_ICON_PVP      = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
     local function SourceLabel(source)
-        if source == "archon" then return SOURCE_ICON_ARCHON end
         if source == "icyveins" then return SOURCE_ICON_ICYVEINS end
         if source == "pvp" then return SOURCE_ICON_PVP end
-        return SOURCE_ICON_WOWHEAD
+        return SOURCE_ICON_UGG -- the remaining source is u.gg
     end
 
-    UI.talentSource = "wowhead" -- per-spec source within the Compendium
+    UI.talentSource = "icyveins" -- per-spec source within the Compendium (Icy Veins default)
     UI.talentSourceDropdown = ns.CreateOptionDropdown("ClassCodexCompendiumTalentSourceDropdown", UI.talentContent, 140)
     UI.talentSourceDropdown:Hide()
 
-    UI._refreshTalentSourceDropdown = function(archonAvailable, icyVeinsAvailable)
-        -- PvP always appears so users discover the feature even on specs
-        -- without scraped data — RenderPvPTalentList surfaces the
-        -- "No PvP builds available." fallback when empty.
-        local opts = { { label = SOURCE_ICON_WOWHEAD, value = "wowhead" } }
-        if archonAvailable then
-            opts[#opts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
-        end
-        if icyVeinsAvailable then
-            opts[#opts + 1] = { label = SOURCE_ICON_ICYVEINS, value = "icyveins" }
-        end
-        opts[#opts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
-        -- Archon and Icy Veins can each vanish on a per-spec coverage gap.
-        local current = UI.talentSource
-        if current == "archon" and not archonAvailable then current = "wowhead" end
-        if current == "icyveins" and not icyVeinsAvailable then current = "wowhead" end
-        if current ~= UI.talentSource then UI.talentSource = current end
+    UI._refreshTalentSourceDropdown = function()
+        -- u.gg and Icy Veins are always both selectable (Icy Veins is not a
+        -- fallback). PvP always appears too; each render surfaces its own
+        -- "no data" line when a spec is uncovered.
+        local opts = {
+            { label = SOURCE_ICON_ICYVEINS, value = "icyveins" },
+            { label = SOURCE_ICON_UGG, value = "ugg" },
+            { label = SOURCE_ICON_PVP, value = "pvp" },
+        }
         UI.talentSourceDropdown:SetOptions(opts, UI.talentSource, function(picked)
             if UI.talentSource ~= picked then
                 UI.talentSource = picked
@@ -855,10 +842,10 @@ local function InitFrame()
     -- Source attribution is the last thing on the top row — always right-
     -- aligned to the inset edge, in the reserved SOURCE_SLOT (vertically lined
     -- up with the dropdowns). Set per render in UpdateCompendiumAttribution.
-    UI.sourceTag = ns.CreateSourceTag(UI.frame, { noPrefix = true })
-    -- Right edge lands at the inset edge (-4); anchoring to the hero dropdown
+    UI.sourceTag = ns.CreateSourceTag(UI.frame, { textColor = { 0.78, 0.80, 0.86 } })
+    -- Right edge lands at the inset edge (-4); anchoring to the spec dropdown
     -- keeps it vertically centered with the dropdown row.
-    UI.sourceTag:SetPoint("RIGHT", UI.heroDropdown, "RIGHT", SOURCE_SLOT - 4, 0)
+    UI.sourceTag:SetPoint("RIGHT", UI.specDropdown, "RIGHT", SOURCE_SLOT - 4, 0)
 
     -- Empty state
     UI.emptyText = UI.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -905,9 +892,7 @@ SetupClassDropdown = function()
                     end
                     SaveCompendiumState()
                     SetupSpecDropdown()
-                    SetupHeroDropdown()
                     UI.specDropdown:GenerateMenu()
-                    UI.heroDropdown:GenerateMenu()
                     ns:UpdateCompendium()
                 end,
                 classToken)
@@ -935,8 +920,6 @@ SetupSpecDropdown = function()
                         selectedHero = nil
                     end
                     SaveCompendiumState()
-                    SetupHeroDropdown()
-                    UI.heroDropdown:GenerateMenu()
                     ns:UpdateCompendium()
                 end,
                 specKey)
@@ -944,28 +927,6 @@ SetupSpecDropdown = function()
     end)
 end
 
-SetupHeroDropdown = function()
-    UI.heroDropdown:SetupMenu(function(_, rootDescription)
-        if not selectedClass or not selectedSpec then return end
-        local specData = DATA[selectedClass] and DATA[selectedClass][selectedSpec]
-        if not specData then return end
-        local options = GetHeroTalentOptions(specData)
-        if #options == 0 then
-            rootDescription:CreateTitle("No hero talents")
-            return
-        end
-        for _, heroName in ipairs(options) do
-            rootDescription:CreateRadio(heroName,
-                function() return selectedHero == heroName end,
-                function()
-                    selectedHero = heroName
-                    SaveCompendiumState()
-                    ns:UpdateCompendium()
-                end,
-                heroName)
-        end
-    end)
-end
 
 -------------------------------------------------------------------------------
 -- Update: populate content based on selections
@@ -981,24 +942,24 @@ local function UpdateCompendiumAttribution(class, spec)
     local U = ns.SourceUrls
     local key, url
 
-    if activeTab == "guide" or activeTab == "trinkets" then
-        key, url = "wowhead", U.wowheadGuide(class, spec)
+    if activeTab == "guide" then
+        -- The guide's stat priority + talents are Icy Veins (matches the panel).
+        key, url = "icyveins", U.icyVeinsTalents(class, spec)
+    elseif activeTab == "trinkets" then
+        key, url = "ugg", U.uggOverview(class, spec) or ns.SOURCES.ugg.homepage
     elseif activeTab == "talents" then
         local ts = UI.talentSource
-        if ts == "archon" then key, url = "archon", U.archonOverview(class, spec) or ns.SOURCES.archon.homepage
-        elseif ts == "icyveins" then key, url = "icyveins", U.icyVeinsTalents(class, spec)
+        if ts == "icyveins" then key, url = "icyveins", U.icyVeinsTalents(class, spec)
         elseif ts == "pvp" then key, url = "bnet", ns.SOURCES.bnet.homepage
-        else key, url = "wowhead", U.wowheadGuide(class, spec) end
+        else key, url = "ugg", U.uggTalents(class, spec) or ns.SOURCES.ugg.homepage end
     elseif activeTab == "bis" then
-        key = ns.Sections.Gear.GetCompendiumSourceKey and ns.Sections.Gear.GetCompendiumSourceKey() or "wowhead"
+        key = ns.Sections.Gear.GetCompendiumSourceKey and ns.Sections.Gear.GetCompendiumSourceKey() or "ugg"
         url = ns.BisUrlForKey(key, class, spec)
     elseif activeTab == "enhancements" then
-        key = ns.Sections.Enhancements.GetCompendiumSourceKey and ns.Sections.Enhancements.GetCompendiumSourceKey() or "wowhead"
-        url = (key == "murlok") and U.murlok(class, spec) or U.wowheadGuide(class, spec)
+        key = ns.Sections.Enhancements.GetCompendiumSourceKey and ns.Sections.Enhancements.GetCompendiumSourceKey() or "ugg"
+        url = U.uggOverview(class, spec) or ns.SOURCES.ugg.homepage
     elseif activeTab == "crafting" then
-        local ctx = ns.Sections.Crafting.GetContextKey and ns.Sections.Crafting.GetContextKey()
-        if ctx == "pvp" then key, url = "murlok", U.murlok(class, spec)
-        else key, url = "archon", U.archonOverview(class, spec) or ns.SOURCES.archon.homepage end
+        key, url = "icyveins", U.icyVeinsGear(class, spec)
     end
 
     tag:SetSource(key, url)
@@ -1072,18 +1033,30 @@ function ns:UpdateCompendium()
     ns:LayoutCompendium()  -- also refreshes the source tag
 end
 
--- Build a synthetic priority record from Murlok's per-spec PvP stat data
--- so the existing rendering loop (which expects priority.stats as an
--- array of stat-label tiers) works without source-specific branches.
+-- u.gg PvP stat keys -> the full stat names the PvE priority uses, so both
+-- surfaces read identically ("Critical Strike", not "crit").
+local PVP_STAT_NAMES = {
+    crit = "Critical Strike",
+    haste = "Haste",
+    mastery = "Mastery",
+    versatility = "Versatility",
+}
+
+-- Build a synthetic priority record from u.gg's per-spec PvP stat data so the
+-- existing rendering loop (which expects priority.stats as an array of
+-- stat-name tiers) works without source-specific branches. u.gg joins tied
+-- stats with "=" (e.g. "haste=crit"), which becomes a shared tier like PvE.
 local function BuildPvPPrioritySynthetic()
     if not selectedClass or not selectedSpec or not ns.GetPvPStats then return nil end
     local stats = ns.GetPvPStats(selectedClass, selectedSpec)
     if not stats or #stats == 0 then return nil end
-    local labels = ns.STAT_LABELS or {}
     local tiers = {}
     for _, s in ipairs(stats) do
-        local label = labels[s.key] or s.key
-        tiers[#tiers + 1] = { label }
+        local tier = {}
+        for key in tostring(s.key):gmatch("[^=]+") do
+            tier[#tier + 1] = PVP_STAT_NAMES[key] or key
+        end
+        if #tier > 0 then tiers[#tiers + 1] = tier end
     end
     return { stats = tiers }
 end
@@ -1120,7 +1093,7 @@ local function RenderStatPrioritySection(specData, heroTalent)
         showPvpFallback  = currentStatContext == "PvP" and not priority,
         labelForContext  = function(ctx)
             if ctx == "PvP" then
-                return "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["pvp.label"]
+                return "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  " .. L["pvp.label"]
             end
             return L[ctx]
         end,
@@ -1134,7 +1107,7 @@ end
 function ns:UpdateCompendiumGuide(specData, heroTalent)
     RenderStatPrioritySection(specData, heroTalent)
 
-    -- Talents — Guide view shows Wowhead-only context-filtered builds.
+    -- Talents — Guide view shows u.gg-only context-filtered builds.
     -- The source dropdown is hidden here; the standalone Talents tab is
     -- the surface for browsing both sources.
     if UI.talentSourceDropdown then UI.talentSourceDropdown:Hide() end
@@ -1210,10 +1183,10 @@ local function BindCopyClick(btn, exportString) -- luacheck: no unused
 end
 
 
--- Wowhead view of the standalone Talents tab: groups builds by hero
+-- u.gg view of the standalone Talents tab: groups builds by hero
 -- talent, one row per (hero × context) combination. Returns the y-cursor
 -- after layout so the caller can size talentContent.
-local function RenderWowheadTalentList(specData, yPos)
+local function RenderTalentListLegacy(specData, yPos)
     local talents = specData.talents
     if not talents or #talents == 0 then
         UI.talentFallback:SetText(L["loadout_dock.no_talent_builds"])
@@ -1257,19 +1230,19 @@ local function RenderWowheadTalentList(specData, yPos)
     return yPos
 end
 
--- Archon view: rows are encounters (hero talent shown as a small icon
+-- u.gg view: rows are encounters (hero talent shown as a small icon
 -- badge on the left). Sectioned: M+, Raid Heroic, Raid Mythic.
-local function RenderArchonTalentList(class, spec, yPos)
-    local archon = ns.GetArchonSpecData and ns.GetArchonSpecData(class, spec) or nil
-    if not archon or not archon.contexts or not next(archon.contexts) then
-        UI.talentFallback:SetText(L["loadout_dock.no_archon_builds"] or "No Archon builds available.")
+local function RenderUggTalentList(class, spec, yPos)
+    local ugg = ns.GetUggSpecData and ns.GetUggSpecData(class, spec) or nil
+    if not ugg or not ugg.contexts or not next(ugg.contexts) then
+        UI.talentFallback:SetText(L["loadout_dock.no_ugg_builds"] or "No u.gg builds available.")
         UI.talentFallback:ClearAllPoints()
         UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
         UI.talentFallback:Show()
         return yPos + 20
     end
 
-    local groups = ns.GroupArchonContexts(archon)
+    local groups = ns.GroupUggContexts(ugg)
     local hdrIdx, rowIdx = 0, 0
 
     local function emitSection(headerText, entries)
@@ -1305,7 +1278,7 @@ local function RenderArchonTalentList(class, spec, yPos)
                 local labelLeftOffset = heroAtlas and 24 or 8
                 btn.label:SetPoint("LEFT", labelLeftOffset, 0)
                 btn.label:SetPoint("RIGHT", -8, 0)
-                local fullLabel = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(ctx))
+                local fullLabel = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(ctx))
                     or ctx.encounterLabel or "Build"
                 btn.label:SetText(fullLabel)
                 local isActive = ns.BuildMatchesActive and ns.BuildMatchesActive(build)
@@ -1513,30 +1486,19 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     for _, h in ipairs(UI.talentHeroHeaders) do h:Hide() end
     UI.talentFallback:Hide()
 
-    -- Reset source on spec change so users land on Wowhead by default
-    -- when browsing a new spec, matching the BiS / Enhancements tabs.
+    -- Reset source on spec change so users land on u.gg by default when
+    -- browsing a new spec.
     local talentSpecKey = (classFile or "") .. "-" .. (specKey or "")
     if talentSpecKey ~= lastTalentSpecKey then
-        UI.talentSource = "wowhead"
+        UI.talentSource = "icyveins"
         lastTalentSpecKey = talentSpecKey
     end
 
-    -- Source dropdown is the first row of talentContent. Archon may not
-    -- cover every spec, so its option drops out when missing. PvP always
-    -- shows so users can discover the feature; RenderPvPTalentList
-    -- handles the "no data" copy inline.
-    local archonAvailable = classFile and specKey
-        and ns.GetArchonSpecData and ns.GetArchonSpecData(classFile, specKey) ~= nil
-    local icyVeinsAvailable = classFile and specKey
-        and ns.GetIcyVeinsTalentSpecData and ns:GetIcyVeinsTalentSpecData(classFile, specKey) ~= nil
-    if not archonAvailable and UI.talentSource == "archon" then
-        UI.talentSource = "wowhead"
-    end
-    if not icyVeinsAvailable and UI.talentSource == "icyveins" then
-        UI.talentSource = "wowhead"
-    end
+    -- Source dropdown: u.gg and Icy Veins are always both selectable (Icy
+    -- Veins is not a fallback); PvP always shows too. Each render handles its
+    -- own "no data" copy inline.
     if UI._refreshTalentSourceDropdown then
-        UI._refreshTalentSourceDropdown(archonAvailable, icyVeinsAvailable)
+        UI._refreshTalentSourceDropdown()
     end
 
     UI.talentSourceDropdown:ClearAllPoints()
@@ -1545,9 +1507,7 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     UI.talentSourceDropdown:Show()
 
     local yPos = 32 -- leave room for the dropdown row (DROPDOWN_HEIGHT 26 + 6 gap)
-    if UI.talentSource == "archon" and archonAvailable then
-        yPos = RenderArchonTalentList(classFile, specKey, yPos)
-    elseif UI.talentSource == "icyveins" and icyVeinsAvailable then
+    if UI.talentSource == "icyveins" and icyVeinsAvailable then
         yPos = RenderIcyVeinsTalentList(classFile, specKey, yPos)
     elseif UI.talentSource == "pvp" then
         -- RenderPvPTalentList itself handles the no-data case and
@@ -1555,7 +1515,7 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
         -- we route through it regardless of whether PvP data exists.
         yPos = RenderPvPTalentList(classFile, specKey, yPos)
     else
-        yPos = RenderWowheadTalentList(specData, yPos)
+        yPos = RenderUggTalentList(classFile, specKey, yPos)
     end
 
     UI.talentContent:SetHeight(yPos)
@@ -1577,11 +1537,11 @@ local function BuildPvPGemsSynthetic()
 end
 
 function ns:UpdateCompendiumEnchants()
-    if not GEAR_DATA then return end
-    local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    local gearData = GEAR_DATA and GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    local uggSpecData = ns.GetUggGearSpecData and ns:GetUggGearSpecData(selectedClass, selectedSpec)
     ns.Sections.Enhancements.RenderCompendiumEnchantsGems({
-        wowheadEnchants = gearData and gearData.enchants,
-        wowheadGems     = gearData and gearData.gems,
+        uggEnchants = uggSpecData and uggSpecData.enchants,
+        uggGems     = gearData and gearData.gems,
         pvpEnchants     = BuildPvPEnchantsSynthetic(),
         pvpGems         = BuildPvPGemsSynthetic(),
         specKey         = (selectedClass or "") .. "-" .. (selectedSpec or ""),
@@ -1627,14 +1587,11 @@ local function BuildPvPBisSyntheticTabs()
 end
 
 function ns:UpdateCompendiumBis()
-    local wowheadBis = GEAR_DATA and GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-        and GEAR_DATA[selectedClass][selectedSpec].bisGear
     local ivSpecData = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(selectedClass, selectedSpec)
-    local archonSpecData = ns.GetArchonGearSpecData and ns:GetArchonGearSpecData(selectedClass, selectedSpec)
+    local uggSpecData = ns.GetUggGearSpecData and ns:GetUggGearSpecData(selectedClass, selectedSpec)
     ns.Sections.Gear.RenderCompendium({
-        wowheadBis = wowheadBis,
         ivBis      = ivSpecData and ivSpecData.bisGear,
-        archonBis  = archonSpecData and archonSpecData.bisGear,
+        uggBis  = uggSpecData and uggSpecData.bisGear,
         pvpBis     = BuildPvPBisSyntheticTabs(),
         specKey    = (selectedClass or "") .. "-" .. (selectedSpec or ""),
         refresh    = function() ns:UpdateCompendium(); ns:LayoutCompendium() end,
@@ -1677,7 +1634,7 @@ function ns:LayoutCompendium()
         )
         local talentH = 0
         -- Iterate the actual pool (which can grow past MAX_TALENT_BUTTONS
-        -- via _ensureTalentButton). The Wowhead-only Guide path doesn't
+        -- via _ensureTalentButton). The u.gg-only Guide path doesn't
         -- usually need extra rows, but this stays consistent with the
         -- Talents-tab path below and protects against silent clipping.
         for i = 1, #UI.talentButtons do if UI.talentButtons[i]:IsShown() then talentH = talentH + TALENT_BTN_HEIGHT + TALENT_BTN_GAP end end
@@ -1690,7 +1647,7 @@ function ns:LayoutCompendium()
     elseif activeTab == "talents" then
         local talentH = 0
         if UI.talentSourceDropdown and UI.talentSourceDropdown:IsShown() then talentH = talentH + 32 end
-        -- Iterate by actual pool length — the Archon view grows the
+        -- Iterate by actual pool length — the u.gg view grows the
         -- pool well past the initial MAX_* allocation.
         for i = 1, #UI.talentHeroHeaders do if UI.talentHeroHeaders[i]:IsShown() then talentH = talentH + TALENT_HERO_HEADER_HEIGHT + 4 end end
         for i = 1, #UI.talentButtons do if UI.talentButtons[i]:IsShown() then talentH = talentH + TALENT_BTN_HEIGHT + TALENT_BTN_GAP end end
@@ -1784,7 +1741,6 @@ function ns:OpenCompendium()
 
     SetupClassDropdown()
     SetupSpecDropdown()
-    SetupHeroDropdown()
 
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
     UI.frame:Show()

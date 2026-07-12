@@ -233,8 +233,9 @@ function About.InitPanel(opts)
         }),
     }
 
-    -- Data Sources — credited once each, linking the source's page for the
-    -- current spec. The precise per-surface links live on their own tabs.
+    -- Sources — credited once each, linking the source's page for the current
+    -- spec. Icy Veins (editorial guides) leads, then u.gg (data-driven meta).
+    -- The precise per-surface links live on their own tabs.
     panel.dataLabel = sectionLabel(L["about.data_sources"])
     local function sourceCard(key, role, urlFn)
         local src = ns.SOURCES[key]
@@ -244,17 +245,11 @@ function About.InitPanel(opts)
         })
     end
     panel.sourceCards = {
-        sourceCard("wowhead", L["about.source_role.wowhead"], function()
-            return ns.SourceUrls.wowheadGuide()
-        end),
         sourceCard("icyveins", L["about.source_role.icyveins"], function()
             local class, spec = classSpec(); return ns.SourceUrls.icyVeinsGear(class, spec)
         end),
-        sourceCard("archon", L["about.source_role.archon"], function()
-            local class, spec = classSpec(); return ns.SourceUrls.archonOverview(class, spec) or ns.SOURCES.archon.homepage
-        end),
-        sourceCard("murlok", L["about.source_role.murlok"], function()
-            local class, spec = classSpec(); return ns.SourceUrls.murlok(class, spec)
+        sourceCard("ugg", L["about.source_role.ugg"], function()
+            local class, spec = classSpec(); return ns.SourceUrls.uggOverview(class, spec) or ns.SOURCES.ugg.homepage
         end),
     }
 

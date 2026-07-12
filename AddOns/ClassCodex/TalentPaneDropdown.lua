@@ -53,8 +53,8 @@ local GLOW_COLOR_CHANGE = { 1.00, 0.75, 0.20 } -- amber
 
 local container
 local iconBtn
-local sourceDropdown -- WowStyle1Dropdown for picking the data source (Wowhead | Archon)
-local scopeDropdown  -- WowStyle1Dropdown for picking the Archon scope (Mythic+ / Raid Heroic / Raid Mythic). Hidden when source = Wowhead.
+local sourceDropdown -- WowStyle1Dropdown for picking the data source (u.gg | u.gg)
+local scopeDropdown  -- WowStyle1Dropdown for picking the u.gg scope (Mythic+ / Raid Heroic / Raid Mythic). Hidden when source = u.gg.
 local buildDropdown  -- WowStyle1Dropdown for picking the build within the selected source/scope
 local applyBtn
 local copyBtn
@@ -69,8 +69,8 @@ local setupDone = false
 
 -- Source state — defaults via ns.GetEffectiveTalentSource() (auto-detect
 -- aware), overridable per-character × per-spec via the source dropdown.
-local selectedSource           -- "wowhead" | "archon" | "pvp"
-local selectedArchonScope      -- "mplus" | "raidHeroic" | "raidMythic"
+local selectedSource           -- "ugg" | "ugg" | "pvp"
+local selectedUggScope      -- "mplus" | "raidHeroic" | "raidMythic"
 local selectedPvpBracket       -- "pvp-shuffle" | "pvp-blitz" | "pvp-2v2" | "pvp-3v3" | "pvp-rbg"
 
 -- WoW retail's Lua 5.1 doesn't support \xHH escapes; the previous
@@ -386,7 +386,7 @@ local function GetMediumWidth()
     local w = CONTAINER_PADDING_X * 2 + ICON_SIZE
         + ICON_GAP + SOURCE_DROPDOWN_WIDTH
         + ICON_GAP + BUILD_DROPDOWN_WIDTH
-    if selectedSource == "archon" then
+    if selectedSource == "ugg" then
         w = w + ICON_GAP + SCOPE_DROPDOWN_WIDTH
     end
     return w
@@ -407,11 +407,11 @@ local function GetTargetWidth()
     return GetMediumWidth()
 end
 
--- Scope dropdown is only visible when source = archon. The other two
+-- Scope dropdown is only visible when source = ugg. The other two
 -- dropdowns track panelExpanded; scope is gated additionally by source.
 local function UpdateScopeDropdownVisibility()
     if not scopeDropdown then return end
-    if selectedSource == "archon" and panelExpanded then
+    if selectedSource == "ugg" and panelExpanded then
         scopeDropdown:Show()
         scopeDropdown:SetAlpha(1)
     else
@@ -491,8 +491,8 @@ local function UpdateRevealAnimation()
         and math.abs(startActionAlpha - actionTarget) < 0.01
 
     -- Scope follows the same alpha as the other dropdowns when source =
-    -- archon, else snaps to 0 and stays hidden.
-    local scopeTarget = (selectedSource == "archon") and dropdownTarget or 0
+    -- ugg, else snaps to 0 and stays hidden.
+    local scopeTarget = (selectedSource == "ugg") and dropdownTarget or 0
 
     if atTarget then
         container:SetWidth(targetWidth)
@@ -518,7 +518,7 @@ local function UpdateRevealAnimation()
         local aAlpha = startActionAlpha + (actionTarget - startActionAlpha) * eased
         if sourceDropdown then sourceDropdown:SetAlpha(dAlpha) end
         if buildDropdown then buildDropdown:SetAlpha(dAlpha) end
-        if scopeDropdown and selectedSource == "archon" then
+        if scopeDropdown and selectedSource == "ugg" then
             scopeDropdown:Show(); scopeDropdown:SetAlpha(dAlpha)
         end
         if applyBtn then applyBtn:SetAlpha(aAlpha) end
@@ -564,8 +564,8 @@ end
 
 -- Compare a build to the player's currently-applied loadout via parsed
 -- node maps rather than raw export bits. Bit-comparison via
--- ExtractTalentBits worked for Wowhead exports but mis-classified
--- Archon's exports — same node allocations, but the export tooling
+-- ExtractTalentBits worked for u.gg exports but mis-classified
+-- u.gg's exports — same node allocations, but the export tooling
 -- can pad / order bits differently around choice nodes and partial
 -- ranks. Map-based comparison ignores those representation
 -- differences and only checks "is the same talent state allocated".
@@ -598,7 +598,7 @@ end
 -- Resolve the active class token + spec key in the same form used as
 -- keys throughout Data\{Class}\* (e.g. "HUNTER", "beast-mastery"). In
 -- inspect mode we return the inspected target's class/spec so all
--- downstream lookups (Wowhead specData, Archon contexts, hero atlas)
+-- downstream lookups (u.gg specData, u.gg contexts, hero atlas)
 -- resolve to the target's data set.
 local function CurrentClassSpec()
     if inspectOverride then
@@ -609,7 +609,7 @@ local function CurrentClassSpec()
     return classToken, specKey
 end
 
--- Wowhead spec data resolution: in inspect mode we look up directly
+-- u.gg spec data resolution: in inspect mode we look up directly
 -- in the global rather than going through ns.GetSpecData (which keys
 -- off the local player). Returns the same shape as ns.GetSpecData.
 local function GetEffectiveSpecData()
@@ -623,11 +623,11 @@ local function GetEffectiveSpecData()
     return ns.GetSpecData and ns.GetSpecData() or nil
 end
 
--- Scan Wowhead first, then Archon. Returns the first build whose
+-- Scan u.gg first, then u.gg. Returns the first build whose
 -- talent-bit signature matches the player's currently-applied loadout.
 local function FindActiveBuild()
     -- Use map-based equality (BuildMatchesActive) rather than raw bit
-    -- comparison so this works for both Wowhead and Archon exports —
+    -- comparison so this works for both u.gg and u.gg exports —
     -- the two sources can produce differently-padded export strings
     -- for the same talent state.
     if not GetActiveMap() then return nil end
@@ -642,10 +642,10 @@ local function FindActiveBuild()
     end
 
     local classFile, specName = CurrentClassSpec()
-    if classFile and specName and ns.GetArchonSpecData then
-        local archon = ns.GetArchonSpecData(classFile, specName)
-        if archon and archon.contexts then
-            for _, ctx in pairs(archon.contexts) do
+    if classFile and specName and ns.GetUggSpecData then
+        local ugg = ns.GetUggSpecData(classFile, specName)
+        if ugg and ugg.contexts then
+            for _, ctx in pairs(ugg.contexts) do
                 if ctx.builds then
                     for _, build in ipairs(ctx.builds) do
                         if BuildMatchesActive(build) then
@@ -748,14 +748,14 @@ local function HookItemBehavior(initializer, build)
     end)
 end
 
--- Builds an Archon-flavoured "build" record matching the shape that
+-- Builds an u.gg-flavoured "build" record matching the shape that
 -- SetPreview / ApplyTalentExportString expect. Adds context/hero/buildLabel
--- fields derived from the Archon metadata so existing helpers (gold-border
+-- fields derived from the u.gg metadata so existing helpers (gold-border
 -- "active" check, Apply loadout naming, etc.) work without source-specific
 -- branches downstream.
-local function ArchonBuildRecord(ctx, build)
+local function UggBuildRecord(ctx, build)
     local hero = build.heroTalent or "All"
-    local context = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(ctx))
+    local context = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(ctx))
         or ctx.encounterLabel or "Build"
     local difficultyLabel = ctx.difficultyLabel
     local buildLabel = nil
@@ -768,8 +768,8 @@ local function ArchonBuildRecord(ctx, build)
         buildLabel = buildLabel,
         exportString = build.exportString,
         recommended = false,
-        _archonSource = true,
-        _archonContextKey = nil, -- filled in by caller
+        _uggSource = true,
+        _uggContextKey = nil, -- filled in by caller
     }
 end
 
@@ -870,53 +870,10 @@ local function PopulatePvpMenu(rootDescription)
     end
 end
 
-local function PopulateWowheadMenu(rootDescription)
-    local specData = GetEffectiveSpecData()
-    if not specData or not specData.talents or #specData.talents == 0 then
-        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_talent_builds"]) or "No talent builds available.")
-        return
-    end
-
-    local heroOrder, heroBuilds = ns.GroupBuildsByHero(specData.talents)
-
-    for _, hero in ipairs(heroOrder) do
-        rootDescription:CreateTitle(ns.FormatHeroHeaderText(hero))
-        for _, build in ipairs(heroBuilds[hero]) do
-            local label = ns.FormatBuildLabel(build)
-            local isActive = BuildMatchesActive(build)
-            if isActive then
-                label = label .. " |cff66ff66(active)|r"
-            end
-            local capturedBuild = build
-            local capturedActive = isActive
-            local item = rootDescription:CreateRadio(
-                label,
-                function()
-                    -- Show the active build's row as selected when the
-                    -- user hasn't picked anything yet, so the closed
-                    -- dropdown displays "...(active)" instead of the
-                    -- placeholder.
-                    if previewedBuild == capturedBuild then return true end
-                    if previewedBuild == nil and capturedActive then return true end
-                    return false
-                end,
-                function()
-                    if previewedBuild == capturedBuild then
-                        SetPreview(nil)
-                    else
-                        SetPreview(capturedBuild)
-                    end
-                end
-            )
-            HookItemBehavior(item, capturedBuild)
-        end
-    end
-end
-
-local function FormatArchonRow(ctx, build, isActive, isAuto)
+local function FormatUggRow(ctx, build, isActive, isAuto)
     local heroAtlas = build.heroTalent and ns.HERO_TALENT_ATLAS and ns.HERO_TALENT_ATLAS[build.heroTalent]
     local heroBadge = heroAtlas and ("|A:" .. heroAtlas .. ":12:12|a ") or ""
-    local label = (ns.GetArchonEncounterLabel and ns.GetArchonEncounterLabel(ctx))
+    local label = (ns.GetUggEncounterLabel and ns.GetUggEncounterLabel(ctx))
         or ctx.encounterLabel or "Build"
     local body = heroBadge .. label
     -- Yellow highlight on the auto-detected row instead of a Unicode
@@ -944,7 +901,7 @@ end
 -- Pick a sensible scope when none is set yet: prefer the auto-detected
 -- context's scope, else the first scope that has any data.
 local function ResolveDefaultScope(groups)
-    local autoKey = ns.GetActiveArchonContext and ns.GetActiveArchonContext() or nil
+    local autoKey = ns.GetActiveUggContext and ns.GetActiveUggContext() or nil
     local autoScope = ScopeForContextKey(autoKey)
     if autoScope then return autoScope end
     if groups.mplusOverview or #groups.mplusDungeons > 0 then return "mplus" end
@@ -953,12 +910,12 @@ local function ResolveDefaultScope(groups)
     return "mplus"
 end
 
--- Default Archon entry for a given scope: the overview row (All
+-- Default u.gg entry for a given scope: the overview row (All
 -- Dungeons / All Bosses) when present, else the first encounter.
--- Used to seed previewedBuild whenever Archon mode opens without a
+-- Used to seed previewedBuild whenever u.gg mode opens without a
 -- specific user pick — so the build dropdown lands on a sensible
 -- starting state instead of "Pick an encounter".
-local function DefaultArchonEntryForScope(groups, scope)
+local function DefaultUggEntryForScope(groups, scope)
     if scope == "mplus" then
         return groups.mplusOverview or groups.mplusDungeons[1]
     elseif scope == "raidHeroic" then
@@ -969,45 +926,45 @@ local function DefaultArchonEntryForScope(groups, scope)
     return nil
 end
 
--- Apply the default Archon build for the current scope/spec to the
--- preview. No-op when no Archon data exists. Used when entering Archon
+-- Apply the default u.gg build for the current scope/spec to the
+-- preview. No-op when no u.gg data exists. Used when entering u.gg
 -- mode (or switching scope) without a specific user pick.
-local function SeedArchonDefaultPreview()
+local function SeedUggDefaultPreview()
     local classFile, specName = CurrentClassSpec()
-    if not classFile or not specName or not ns.GetArchonSpecData then return end
-    local specData = ns.GetArchonSpecData(classFile, specName)
+    if not classFile or not specName or not ns.GetUggSpecData then return end
+    local specData = ns.GetUggSpecData(classFile, specName)
     if not specData or not specData.contexts then return end
-    local groups = ns.GroupArchonContexts(specData)
-    if not selectedArchonScope then
-        selectedArchonScope = ResolveDefaultScope(groups)
+    local groups = ns.GroupUggContexts(specData)
+    if not selectedUggScope then
+        selectedUggScope = ResolveDefaultScope(groups)
     end
-    local entry = DefaultArchonEntryForScope(groups, selectedArchonScope)
+    local entry = DefaultUggEntryForScope(groups, selectedUggScope)
     if not entry or not entry.ctx or not entry.ctx.builds or not entry.ctx.builds[1] then
         return
     end
-    local build = ArchonBuildRecord(entry.ctx, entry.ctx.builds[1])
-    build._archonContextKey = entry.contextKey
+    local build = UggBuildRecord(entry.ctx, entry.ctx.builds[1])
+    build._uggContextKey = entry.contextKey
     SetPreview(build)
 end
 
-local function PopulateArchonMenu(rootDescription)
+local function PopulateUggMenu(rootDescription)
     local classFile, specName = CurrentClassSpec()
-    local specData = classFile and specName and ns.GetArchonSpecData
-        and ns.GetArchonSpecData(classFile, specName) or nil
+    local specData = classFile and specName and ns.GetUggSpecData
+        and ns.GetUggSpecData(classFile, specName) or nil
     if not specData or not specData.contexts or not next(specData.contexts) then
-        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_archon_builds"]) or "No Archon builds available.")
+        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_ugg_builds"]) or "No u.gg builds available.")
         return
     end
 
-    local groups = ns.GroupArchonContexts(specData)
-    if not selectedArchonScope then selectedArchonScope = ResolveDefaultScope(groups) end
+    local groups = ns.GroupUggContexts(specData)
+    if not selectedUggScope then selectedUggScope = ResolveDefaultScope(groups) end
 
-    local autoKey = ns.GetActiveArchonContext and ns.GetActiveArchonContext() or nil
+    local autoKey = ns.GetActiveUggContext and ns.GetActiveUggContext() or nil
 
     -- The current scope's overview is what we fall back to when there's
     -- no preview and no active match — guarantees the closed dropdown
     -- shows "All Dungeons" / "All Bosses" instead of the placeholder.
-    local defaultEntry = DefaultArchonEntryForScope(groups, selectedArchonScope)
+    local defaultEntry = DefaultUggEntryForScope(groups, selectedUggScope)
     local defaultKey = defaultEntry and defaultEntry.contextKey or nil
 
     -- Also need to know whether *any* row will report active when the
@@ -1047,19 +1004,19 @@ local function PopulateArchonMenu(rootDescription)
     local function addContextRow(entry)
         local ctx = entry.ctx
         if not ctx.builds or not ctx.builds[1] then return end
-        local build = ArchonBuildRecord(ctx, ctx.builds[1])
-        build._archonContextKey = entry.contextKey
+        local build = UggBuildRecord(ctx, ctx.builds[1])
+        build._uggContextKey = entry.contextKey
         local isAuto = autoKey == entry.contextKey
-        -- Map-based comparison so Archon's exports are recognised as
+        -- Map-based comparison so u.gg's exports are recognised as
         -- active after Apply (raw-bit comparison gave false negatives).
         local capturedActive = BuildMatchesActive(build)
         local capturedKey = entry.contextKey
         local capturedIsDefault = (defaultKey == capturedKey)
-        local label = FormatArchonRow(ctx, ctx.builds[1], capturedActive, isAuto)
+        local label = FormatUggRow(ctx, ctx.builds[1], capturedActive, isAuto)
         local item = rootDescription:CreateRadio(
             label,
             function()
-                if previewedBuild and previewedBuild._archonContextKey == entry.contextKey then
+                if previewedBuild and previewedBuild._uggContextKey == entry.contextKey then
                     return true
                 end
                 -- Surface the active build as the closed-state label
@@ -1076,12 +1033,12 @@ local function PopulateArchonMenu(rootDescription)
                 return false
             end,
             function()
-                if previewedBuild and previewedBuild._archonContextKey == entry.contextKey then
+                if previewedBuild and previewedBuild._uggContextKey == entry.contextKey then
                     SetPreview(nil)
                 else
                     SetPreview(build)
-                    if ns.SetPersistedArchonContext then
-                        ns.SetPersistedArchonContext(entry.contextKey)
+                    if ns.SetPersistedUggContext then
+                        ns.SetPersistedUggContext(entry.contextKey)
                     end
                 end
             end
@@ -1092,13 +1049,13 @@ local function PopulateArchonMenu(rootDescription)
     -- Render only the selected scope. The scope dropdown sits between
     -- source and build, so the build menu just lists encounters within
     -- the chosen bucket — keeping the menu short and focused.
-    if selectedArchonScope == "mplus" then
+    if selectedUggScope == "mplus" then
         if groups.mplusOverview then addContextRow(groups.mplusOverview) end
         for _, entry in ipairs(groups.mplusDungeons) do addContextRow(entry) end
-    elseif selectedArchonScope == "raidHeroic" then
+    elseif selectedUggScope == "raidHeroic" then
         if groups.raidOverviewHeroic then addContextRow(groups.raidOverviewHeroic) end
         for _, entry in ipairs(groups.raidHeroicBosses) do addContextRow(entry) end
-    elseif selectedArchonScope == "raidMythic" then
+    elseif selectedUggScope == "raidMythic" then
         if groups.raidOverviewMythic then addContextRow(groups.raidOverviewMythic) end
         for _, entry in ipairs(groups.raidMythicBosses) do addContextRow(entry) end
     end
@@ -1108,10 +1065,10 @@ local function PopulateScopeMenu(_, rootDescription)
     local function makeRadio(label, value)
         rootDescription:CreateRadio(
             label,
-            function() return selectedArchonScope == value end,
+            function() return selectedUggScope == value end,
             function()
-                if selectedArchonScope == value then return end
-                selectedArchonScope = value
+                if selectedUggScope == value then return end
+                selectedUggScope = value
                 if scopeDropdown then
                     if scopeDropdown.SetDefaultText then
                         scopeDropdown:SetDefaultText(SCOPE_LABELS[value] or label)
@@ -1123,7 +1080,7 @@ local function PopulateScopeMenu(_, rootDescription)
                 -- previewedBuild via IsSelected. Otherwise the closed
                 -- label keeps showing the old scope's pick until the
                 -- user clicks the dropdown.
-                SeedArchonDefaultPreview()
+                SeedUggDefaultPreview()
                 if buildDropdown and buildDropdown.GenerateMenu then
                     buildDropdown:GenerateMenu()
                 end
@@ -1193,14 +1150,12 @@ local function PopulateIcyVeinsMenu(rootDescription)
 end
 
 local function PopulateMenu(_, rootDescription)
-    if selectedSource == "archon" then
-        PopulateArchonMenu(rootDescription)
+    if selectedSource == "ugg" then
+        PopulateUggMenu(rootDescription)
     elseif selectedSource == "icyveins" then
         PopulateIcyVeinsMenu(rootDescription)
     elseif selectedSource == "pvp" then
         PopulatePvpMenu(rootDescription)
-    else
-        PopulateWowheadMenu(rootDescription)
     end
 end
 
@@ -1209,14 +1164,10 @@ end
 -- the menu is closed, `placeholder` is the build dropdown's placeholder
 -- text when no build has been picked yet.
 local SOURCE_INFO = {
-    wowhead = {
-        label = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:14:14:0:0|t Wowhead",
-        closed = "Wowhead",
-        placeholder = (ns.L and ns.L["loadout_dock.pick_a_build"]) or "Pick a build",
-    },
-    archon = {
-        label = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t Archon",
-        closed = "Archon",
+    -- Internal value "ugg" — the u.gg-backed per-encounter source.
+    ugg = {
+        label = "|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t u.gg",
+        closed = "u.gg",
         placeholder = (ns.L and ns.L["talent_pane.placeholder.encounter"]) or "Pick an encounter",
     },
     icyveins = {
@@ -1257,10 +1208,10 @@ local function PopulateSourceMenu(_, rootDescription)
                 end
                 UpdateScopeDropdownVisibility()
                 if container then container:SetWidth(GetTargetWidth()) end
-                -- Switching INTO Archon or PvP: seed a sensible default
+                -- Switching INTO u.gg or PvP: seed a sensible default
                 -- BEFORE regenerating the build menu so the closed
                 -- dropdown shows the seeded build, not the placeholder.
-                if value == "archon" then SeedArchonDefaultPreview() end
+                if value == "ugg" then SeedUggDefaultPreview() end
                 if value == "icyveins" then SeedIcyVeinsDefaultPreview() end
                 if value == "pvp" then SeedPvpDefaultPreview() end
                 if buildDropdown and buildDropdown.GenerateMenu then
@@ -1269,13 +1220,12 @@ local function PopulateSourceMenu(_, rootDescription)
             end
         )
     end
-    makeRadio(SOURCE_INFO.wowhead.label, "wowhead")
-    makeRadio(SOURCE_INFO.archon.label, "archon")
+    makeRadio(SOURCE_INFO.ugg.label, "ugg")
     -- Icy Veins always appears too; PopulateIcyVeinsMenu surfaces the
     -- "No Icy Veins talent builds available." copy on uncovered specs.
     makeRadio(SOURCE_INFO.icyveins.label, "icyveins")
     -- PvP source always appears so users discover the feature; if a spec
-    -- has no Bnet/Murlok data, PopulatePvpMenu surfaces the "No PvP
+    -- has no Bnet/u.gg data, PopulatePvpMenu surfaces the "No PvP
     -- builds available." copy instead of bracket rows.
     makeRadio(SOURCE_INFO.pvp.label, "pvp")
 end
@@ -1372,15 +1322,15 @@ local function EnsureContainer()
     iconBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
     iconBtn:SetScript("OnClick", OnIconClicked)
 
-    -- Source dropdown — picks the data source (Wowhead | Archon).
+    -- Source dropdown — picks the data source (u.gg | u.gg).
     -- Default resolves via ns.GetEffectiveTalentSource() (auto-detect on
     -- first open, persisted choice on subsequent opens).
-    selectedSource = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "wowhead"
+    selectedSource = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "ugg"
     sourceDropdown = CreateFrame("DropdownButton", "ClassCodexTalentSourceDropdown", container, "WowStyle1DropdownTemplate")
     sourceDropdown:SetSize(SOURCE_DROPDOWN_WIDTH, ICON_SIZE)
     sourceDropdown:SetPoint("LEFT", iconBtn, "RIGHT", ICON_GAP, 0)
     if sourceDropdown.SetDefaultText then
-        local info = SOURCE_INFO[selectedSource] or SOURCE_INFO.wowhead
+        local info = SOURCE_INFO[selectedSource] or SOURCE_INFO.ugg
         sourceDropdown:SetDefaultText(info.closed)
     end
     if sourceDropdown.SetupMenu then
@@ -1389,7 +1339,7 @@ local function EnsureContainer()
     sourceDropdown:Hide()
     sourceDropdown:SetAlpha(0)
 
-    -- Scope dropdown — only visible when source = archon. Filters the
+    -- Scope dropdown — only visible when source = ugg. Filters the
     -- build dropdown to a single bucket: M+ / Raid Heroic / Raid Mythic.
     -- Default scope tracks the auto-detected zone, falls back to the
     -- first scope that has data.
@@ -1401,10 +1351,10 @@ local function EnsureContainer()
     end
     -- Initial label tracks the auto-detected scope when known.
     do
-        local autoScope = ScopeForContextKey(ns.GetActiveArchonContext and ns.GetActiveArchonContext() or nil)
-        selectedArchonScope = autoScope or selectedArchonScope or "mplus"
+        local autoScope = ScopeForContextKey(ns.GetActiveUggContext and ns.GetActiveUggContext() or nil)
+        selectedUggScope = autoScope or selectedUggScope or "mplus"
         if scopeDropdown.SetDefaultText then
-            scopeDropdown:SetDefaultText(SCOPE_LABELS[selectedArchonScope] or SCOPE_LABELS.mplus)
+            scopeDropdown:SetDefaultText(SCOPE_LABELS[selectedUggScope] or SCOPE_LABELS.mplus)
         end
     end
     scopeDropdown:Hide()
@@ -1412,15 +1362,15 @@ local function EnsureContainer()
 
     -- Build dropdown — content depends on selected source + scope. Anchor
     -- behaviour:
-    --   source = wowhead: anchor to source dropdown (scope hidden).
-    --   source = archon : anchor to scope dropdown (sits between).
+    --   source = ugg: anchor to source dropdown (scope hidden).
+    --   source = ugg : anchor to scope dropdown (sits between).
     -- We update the anchor whenever the source changes so the row stays
     -- visually contiguous.
     buildDropdown = CreateFrame("DropdownButton", "ClassCodexTalentBuildDropdown", container, "WowStyle1DropdownTemplate")
     buildDropdown:SetSize(BUILD_DROPDOWN_WIDTH, ICON_SIZE)
     -- (Anchor is set in RelayoutBuildDropdown below.)
     if buildDropdown.SetDefaultText then
-        local info = SOURCE_INFO[selectedSource] or SOURCE_INFO.wowhead
+        local info = SOURCE_INFO[selectedSource] or SOURCE_INFO.ugg
         buildDropdown:SetDefaultText(info.placeholder)
     end
     if buildDropdown.SetupMenu then
@@ -1431,7 +1381,7 @@ local function EnsureContainer()
 
     local function RelayoutBuildDropdown()
         buildDropdown:ClearAllPoints()
-        if selectedSource == "archon" then
+        if selectedSource == "ugg" then
             buildDropdown:SetPoint("LEFT", scopeDropdown, "RIGHT", ICON_GAP, 0)
         else
             buildDropdown:SetPoint("LEFT", sourceDropdown, "RIGHT", ICON_GAP, 0)
@@ -1538,8 +1488,8 @@ local function FindBuildByExportString(exportString)
         end
     end
     local classFile, specName = CurrentClassSpec()
-    if classFile and specName and ns.FindArchonBuildByExportString then
-        local b = ns.FindArchonBuildByExportString(classFile, specName, exportString)
+    if classFile and specName and ns.FindUggBuildByExportString then
+        local b = ns.FindUggBuildByExportString(classFile, specName, exportString)
         if b then return b end
     end
     return nil
@@ -1588,25 +1538,25 @@ local function UpdateVisibility()
             InvalidateActiveMap()
             wipe(buildMapCache)
             -- Re-resolve effective source for the new spec.
-            selectedSource = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "wowhead"
-            selectedArchonScope = nil
+            selectedSource = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "ugg"
+            selectedUggScope = nil
             selectedPvpBracket = nil
             if sourceDropdown then
                 if sourceDropdown.SetDefaultText then
                     local _info = SOURCE_INFO[selectedSource]
-                    sourceDropdown:SetDefaultText((_info and _info.closed) or "Wowhead")
+                    sourceDropdown:SetDefaultText((_info and _info.closed) or "u.gg")
                 end
                 if sourceDropdown.GenerateMenu then sourceDropdown:GenerateMenu() end
             end
             if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
             if buildDropdown and buildDropdown.SetDefaultText then
                 local info = SOURCE_INFO[selectedSource]
-                buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.wowhead.placeholder)
+                buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.ugg.placeholder)
             end
-            -- Seed the Archon overview as the default preview when no
+            -- Seed the u.gg overview as the default preview when no
             -- explicit pick exists yet, so the closed dropdown shows
             -- "All Dungeons" / "All Bosses" instead of the placeholder.
-            if selectedSource == "archon" then SeedArchonDefaultPreview() end
+            if selectedSource == "ugg" then SeedUggDefaultPreview() end
             if buildDropdown and buildDropdown.GenerateMenu then buildDropdown:GenerateMenu() end
         end
         container:Show()
@@ -1614,10 +1564,10 @@ local function UpdateVisibility()
         RestorePanelState()
         -- After RestorePanelState may have left previewedBuild nil
         -- (no saved build, or saved build couldn't be resolved), make
-        -- sure Archon mode lands on its overview default rather than
+        -- sure u.gg mode lands on its overview default rather than
         -- the empty placeholder.
-        if selectedSource == "archon" and not previewedBuild then
-            SeedArchonDefaultPreview()
+        if selectedSource == "ugg" and not previewedBuild then
+            SeedUggDefaultPreview()
             if buildDropdown and buildDropdown.GenerateMenu then buildDropdown:GenerateMenu() end
         end
         UpdateRevealAnimation()
@@ -1767,20 +1717,20 @@ local function Setup()
     end)
 
     -- React to zone/encounter transitions: re-evaluate effective source
-    -- (auto-detect → archon when entering an instance), align the scope
+    -- (auto-detect → ugg when entering an instance), align the scope
     -- dropdown with the new zone, and refresh the build dropdown so the
     -- highlighted auto row tracks the current zone.
-    if ns.RegisterArchonContextCallback then
-        ns.RegisterArchonContextCallback(function(contextKey)
+    if ns.RegisterUggContextCallback then
+        ns.RegisterUggContextCallback(function(contextKey)
             -- Auto-flip the source only if the user hasn't pinned one
             -- for this spec yet.
             if ns.GetPersistedTalentSource and not ns.GetPersistedTalentSource() then
-                local effective = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "wowhead"
+                local effective = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "ugg"
                 if effective ~= selectedSource then
                     selectedSource = effective
                     if sourceDropdown and sourceDropdown.SetDefaultText then
                         local _info = SOURCE_INFO[selectedSource]
-                        sourceDropdown:SetDefaultText((_info and _info.closed) or "Wowhead")
+                        sourceDropdown:SetDefaultText((_info and _info.closed) or "u.gg")
                     end
                     if sourceDropdown and sourceDropdown.GenerateMenu then
                         sourceDropdown:GenerateMenu()
@@ -1788,7 +1738,7 @@ local function Setup()
                     if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
                     if buildDropdown and buildDropdown.SetDefaultText then
                         local info = SOURCE_INFO[selectedSource]
-                        buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.wowhead.placeholder)
+                        buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.ugg.placeholder)
                     end
                     UpdateScopeDropdownVisibility()
                     if container then container:SetWidth(GetTargetWidth()) end
@@ -1797,8 +1747,8 @@ local function Setup()
             -- Always re-align the scope to the new zone when an auto
             -- context exists (cheap; user can override at any time).
             local newScope = ScopeForContextKey(contextKey)
-            if newScope and newScope ~= selectedArchonScope then
-                selectedArchonScope = newScope
+            if newScope and newScope ~= selectedUggScope then
+                selectedUggScope = newScope
                 if scopeDropdown then
                     if scopeDropdown.SetDefaultText then
                         scopeDropdown:SetDefaultText(SCOPE_LABELS[newScope] or "Mythic+")
@@ -1806,12 +1756,12 @@ local function Setup()
                     if scopeDropdown.GenerateMenu then scopeDropdown:GenerateMenu() end
                 end
             end
-            -- If we're in Archon mode but nothing is previewed yet,
+            -- If we're in u.gg mode but nothing is previewed yet,
             -- seed the new scope's overview as the default so the
             -- build dropdown shows "All Dungeons" / "All Bosses"
             -- instead of the placeholder.
-            if selectedSource == "archon" and not previewedBuild then
-                SeedArchonDefaultPreview()
+            if selectedSource == "ugg" and not previewedBuild then
+                SeedUggDefaultPreview()
             end
             if buildDropdown and buildDropdown.GenerateMenu then
                 buildDropdown:GenerateMenu()
@@ -1887,7 +1837,7 @@ function ns.DumpInspectState()
     end
 
     p("panelExpanded:", tostring(panelExpanded))
-    p("previewedBuild:", previewedBuild and ((previewedBuild._archonContextKey or "") .. " " .. (previewedBuild.heroTalent or "")) or "nil")
+    p("previewedBuild:", previewedBuild and ((previewedBuild._uggContextKey or "") .. " " .. (previewedBuild.heroTalent or "")) or "nil")
     if previewedBuild then
         local bm = GetBuildMap(previewedBuild.exportString)
         p("  buildMap:", bm and "ok" or "nil")

@@ -35,8 +35,8 @@ ClassCodexBnetPvpTalents["ROGUE"] = {
         pvpTalentSets = { { talents = { 5699, 145, 3483 } }, { talents = { 145, 3483, 5699 } }, { talents = { 5699, 3483, 3421 } }, { talents = { 145, 5699, 3483 } }, { talents = { 5699, 3483, 145 } } },
       },
       ["pvp-blitz"] = {
-        builds = { { exportString = "CQQAphyM11FofNMFa1K3vFEDUCgZgxYGmZbmZmZGjZZzDMzMbTbzY2mBAAAAAYZZmZwMjZGzMjBAAAwMMwgZb2MzMjmZ2Y2YZbahFzAMzMzMwA", heroTalent = "Fatebound" } },
-        pvpTalentSets = { { talents = { 145, 5699, 3483 } }, { talents = { 145, 3483, 5699 } }, { talents = { 5699, 145, 3483 } }, { talents = { 3619, 5699, 3483 } }, { talents = { 5699, 3421, 145 } } },
+        builds = { { exportString = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbaZGz2MAAAAAgZZZMDmZMzYmZMAAAAmhBGMbziZmZ0MzGzGLbTLsZGgZmZmBG", heroTalent = "Trickster" } },
+        pvpTalentSets = { { talents = { 145, 5699, 3483 } }, { talents = { 5699, 145, 3483 } }, { talents = { 3421, 3483, 145 } }, { talents = { 145, 3483, 5699 } }, { talents = { 3483, 5699, 145 } } },
       },
       ["pvp-rbg"] = {
         builds = { { exportString = "CQQAphyM11FofNMFa1K3vFEDUCgx2MMzMDzsYmZYmZsxMzMLTbD2mBAAAAAMbbzMzwMjZGzMzyAAAAwYADsBzY0Y2AsNhFGAgBG", heroTalent = "Fatebound" } },

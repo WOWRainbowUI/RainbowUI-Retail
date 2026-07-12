@@ -43,11 +43,22 @@ function ns.FormatHeroHeaderText(hero)
 end
 
 -- FormatBuildLabel(build) -> string
--- Returns the display text for a build row: "Context -- BuildLabel (Best)".
+-- Returns the display text for a build row: "Context — BuildLabel (Best)".
+-- The context is only prepended when the build label doesn't already convey it,
+-- so we never get redundant labels like "Raid — Raid" or "Delves — Delves"
+-- (Icy Veins sometimes names a build the same as its context).
 function ns.FormatBuildLabel(build)
-    local label = build.context or "Build"
-    if build.buildLabel and build.buildLabel ~= "" then
-        label = label .. " — " .. build.buildLabel
+    local context = build.context
+    local buildLabel = build.buildLabel
+    local label
+    if buildLabel and buildLabel ~= "" then
+        if not context or context == "" or buildLabel:lower():find(context:lower(), 1, true) then
+            label = buildLabel
+        else
+            label = context .. " — " .. buildLabel
+        end
+    else
+        label = context or "Build"
     end
     if build.recommended then
         label = label .. " |cff00cc00(Best)|r"

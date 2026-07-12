@@ -1,0 +1,55 @@
+ClassCodexIcyVeinsRotation = ClassCodexIcyVeinsRotation or {}
+ClassCodexIcyVeinsRotation["PALADIN"] = {
+  ["protection"] = {
+    rotations = {
+      { heroTalent = "All", context = "單目標", steps = {
+        "{384376}",
+        "{432472} if you do not have {384376} active",
+        "{375576}",
+        "{429826}",
+        "{26573} if you are not standing in it",
+        "{31935} if {1268810} is active",
+        "{53600} when you are between 3 and 5 Holy Power",
+        "{1241288} / {20271}",
+        "{204019}",
+        "{53595}",
+        "{31935}",
+        "{155145}",
+        "{85673} if you have a charge of {321136} and are below 50% Health",
+        "{85673} if you have a charge of {321136}",
+        "{26573} if everything else is on cooldown to refresh the duration",
+      } },
+      { heroTalent = "All", context = "AoE", steps = {
+        "{384376}",
+        "{432472} if you do not have {384376} active",
+        "{375576}",
+        "{429826}",
+        "{26573} if you are not standing in it",
+        "{31935} if {1268810} is active",
+        "{53600} when you are between 3 and 5 Holy Power",
+        "{31935}",
+        "{1241288} / {20271}",
+        "{204019}",
+        "{53595}",
+        "{155145}",
+        "{85673} if you have a charge of {321136} and are below 50% Health",
+        "{85673} if you have a charge of {321136}",
+        "{26573} if everything else is on cooldown to refresh the duration",
+      } },
+    },
+  },
+  ["retribution"] = {
+    rotations = {
+      { heroTalent = "All", context = "Rotation", steps = {
+        "Cast {184575}.",
+        "Cast {384376}.",
+        "Cast {343527}.",
+        "Cast {255937}.",
+        "Cast {429826}.",
+        "Cast {383327}.",
+        "Cast {383327}.",
+        "Cast {375576}.",
+      } },
+    },
+  },
+}

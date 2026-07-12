@@ -1,0 +1,52 @@
+ClassCodexUggTrinkets = ClassCodexUggTrinkets or {}
+ClassCodexUggTrinkets["DEATHKNIGHT"] = {
+  ["blood"] = {
+    label = "Blood Death Knight",
+    trinkets = {
+      { itemId = 249343, source = "奇美魯斯", popularity = 40, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249344, source = "虛無一王", popularity = 32, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249342, source = "虛無二王", popularity = 23.1, tier = "A", contexts = { "傳奇+", "團隊" } },
+      { itemId = 252420, source = "擎天峰", popularity = 12, tier = "B", contexts = { "傳奇+", "團隊" } },
+      { itemId = 268292, source = "孢子之殞", source = "孢子之殞", popularity = 5.1, tier = "B", contexts = { "傳奇+", "團隊" } },
+      { itemId = 250256, source = "風行者塔", popularity = 2.9, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 193701, source = "阿爾蓋薩學院", popularity = 2.1, tier = "C", contexts = { "團隊" } },
+      { itemId = 249339, source = "虛無雙龍", popularity = 1.6, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 252421, popularity = 1.3, tier = "C", contexts = { "傳奇+" } },
+      { itemId = 260235, source = "貝羅倫(鳳凰)", popularity = 1.2, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 250258, source = "梅薩拉洞穴", popularity = 1, tier = "C", contexts = { "團隊" } },
+      { itemId = 252418, popularity = 0.8, tier = "C", contexts = { "傳奇+" } },
+    },
+  },
+  ["frost"] = {
+    label = "Frost Death Knight",
+    trinkets = {
+      { itemId = 249344, source = "虛無一王", popularity = 38, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249343, source = "奇美魯斯", popularity = 32.4, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 193701, source = "阿爾蓋薩學院", popularity = 23.5, tier = "A", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249342, source = "虛無二王", popularity = 6.6, tier = "B", contexts = { "傳奇+", "團隊" } },
+      { itemId = 252420, source = "擎天峰", popularity = 3.2, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 268292, source = "孢子之殞", source = "孢子之殞", popularity = 2.4, tier = "C", contexts = { "團隊" } },
+      { itemId = 250258, source = "梅薩拉洞穴", popularity = 1.3, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249805, popularity = 1, tier = "C", contexts = { "團隊" } },
+      { itemId = 250256, source = "風行者塔", popularity = 1, tier = "C", contexts = { "團隊" } },
+      { itemId = 249806, source = "貝羅倫(鳳凰)", popularity = 0.9, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 260235, source = "貝羅倫(鳳凰)", popularity = 0.5, tier = "C", contexts = { "傳奇+" } },
+    },
+  },
+  ["unholy"] = {
+    label = "Unholy Death Knight",
+    trinkets = {
+      { itemId = 249344, source = "虛無一王", popularity = 58.2, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249343, source = "奇美魯斯", popularity = 37.6, tier = "S", contexts = { "傳奇+", "團隊" } },
+      { itemId = 193701, source = "阿爾蓋薩學院", popularity = 6, tier = "B", contexts = { "傳奇+", "團隊" } },
+      { itemId = 252420, source = "擎天峰", popularity = 4.2, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249342, source = "虛無二王", popularity = 3.3, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 268292, source = "孢子之殞", source = "孢子之殞", popularity = 2.2, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 250256, source = "風行者塔", popularity = 1.4, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 250258, source = "梅薩拉洞穴", popularity = 1.3, tier = "C", contexts = { "團隊" } },
+      { itemId = 249805, popularity = 0.7, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 249806, source = "貝羅倫(鳳凰)", popularity = 0.6, tier = "C", contexts = { "傳奇+", "團隊" } },
+      { itemId = 250226, popularity = 0, tier = "C", contexts = { "傳奇+" } },
+    },
+  },
+}

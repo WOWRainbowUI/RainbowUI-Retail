@@ -141,6 +141,8 @@ function Rotation.RenderPanel(args)
         return math.abs(currentY - yOffset)
     elseif args.hasAnyRotation then
         local yOffset = showCtx and -30 or 0
+        panel.fallback:SetHeight(ns.ROW_HEIGHT)
+        panel.fallbackText:SetJustifyH("LEFT")
         panel.fallbackText:SetText(L["empty.no_rotation_for_details"]:format(hero or ""))
         panel.fallback:ClearAllPoints()
         panel.fallback:SetPoint("TOPLEFT", panel.content, "TOPLEFT", 0, yOffset)
@@ -149,8 +151,19 @@ function Rotation.RenderPanel(args)
         panel.section:Show()
         return ns.ROW_HEIGHT
     else
-        panel.section:Hide()
-        return 0
+        -- No rotation for this spec at all: keep the section visible with a
+        -- centered, two-line "coming soon" note rather than hiding it, so the
+        -- layout stays stable and players know it's on the way.
+        local BLOCK_H = ns.ROW_HEIGHT * 2
+        panel.fallback:SetHeight(BLOCK_H)
+        panel.fallbackText:SetJustifyH("CENTER")
+        panel.fallbackText:SetText(L["empty.no_rotation_available"])
+        panel.fallback:ClearAllPoints()
+        panel.fallback:SetPoint("TOPLEFT", panel.content, "TOPLEFT", 0, -8)
+        panel.fallback:SetPoint("RIGHT", panel.content, "RIGHT", 0, 0)
+        panel.fallback:Show()
+        panel.section:Show()
+        return BLOCK_H + 16
     end
 end
 

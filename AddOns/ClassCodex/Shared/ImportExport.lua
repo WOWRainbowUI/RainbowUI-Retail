@@ -244,19 +244,44 @@ local function ResetAndPurchaseDeferred(configID, treeID, entryInfo, onComplete)
             local nodeID = orderedNodes[i]
             local entry = entryInfo[nodeID]
             if entry then
-                local success = false
+                -- madeProgress: this node bought/selected at least one thing
+                -- this pass (keeps the multi-pass loop alive). complete: the
+                -- node has now reached its target and can be retired.
+                --
+                -- These are deliberately SEPARATE. A gated multi-rank node
+                -- (e.g. a hero-tree apex/capstone) often can't buy all its
+                -- ranks in one pass — its gate isn't satisfied until a later
+                -- node or the hero SubTreeSelection is purchased on a
+                -- subsequent pass. Tying progress to only the LAST
+                -- PurchaseRank result (as before) hid that partial progress,
+                -- so a pass whose only work was a partial multi-rank buy
+                -- reported zero progress and the loop terminated early —
+                -- leaving the apex cluster unpurchased and firing a bogus
+                -- "can't fit the rest" warning even at max level. Retire the
+                -- node only once it's fully ranked so the remainder is
+                -- retried next pass.
+                local madeProgress = false
+                local complete = false
                 if entry.isChoiceNode then
-                    success = C_Traits.SetSelection(configID, entry.nodeID, entry.selectionEntryID)
+                    if C_Traits.SetSelection(configID, entry.nodeID, entry.selectionEntryID) then
+                        madeProgress = true
+                        complete = true
+                    end
                 elseif entry.ranksPurchased then
                     local nodeInfo = C_Traits.GetNodeInfo(configID, nodeID)
-                    for _ = 1, (entry.ranksPurchased - (nodeInfo and nodeInfo.ranksPurchased or 0)) do
-                        success = C_Traits.PurchaseRank(configID, entry.nodeID)
+                    local have = nodeInfo and nodeInfo.ranksPurchased or 0
+                    for _ = have + 1, entry.ranksPurchased do
+                        if C_Traits.PurchaseRank(configID, entry.nodeID) then
+                            madeProgress = true
+                        else
+                            break -- out of currency / gate not met; retry next pass
+                        end
                     end
+                    local afterInfo = C_Traits.GetNodeInfo(configID, nodeID)
+                    complete = (afterInfo and afterInfo.ranksPurchased or have) >= entry.ranksPurchased
                 end
-                if success then
-                    passProgress = passProgress + 1
-                    entryInfo[nodeID] = nil
-                end
+                if madeProgress then passProgress = passProgress + 1 end
+                if complete then entryInfo[nodeID] = nil end
             end
             i = i + 1
             processed = processed + 1

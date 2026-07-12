@@ -1,10 +1,13 @@
 local _, ns = ...
 
 -------------------------------------------------------------------------------
--- StatTargets: empirical stat rating targets from Archon (PvE M+/Raid).
+-- StatTargets: secondary-stat rating targets for PvE (M+/Raid), summed from the
+-- u.gg BiS gear list (item stats resolved at their ilvl). The sum of the
+-- recommended gear is the stat profile a player builds toward.
 --
 -- Data lives in per-class files:
---   Data/{Class}/archon-stats.lua  -> ClassCodexArchonStats[CLASS][spec][context]
+--   Data/{Class}/stat-targets-ugg.lua -> ClassCodexUggStatTargets[CLASS][spec][context]
+--   context = "Mythic+" | "Raid"; entry = { targets = { crit, haste, mastery, versatility } }
 --
 -- This module exposes:
 --   ns.GetStatTargets(classToken, specKey, context) -> snapshot or nil
@@ -16,7 +19,7 @@ local _, ns = ...
 -- Stat keys shared across scraper + addon.
 ns.STAT_KEYS = { "crit", "haste", "mastery", "versatility" }
 
--- Canonical display labels (match Wowhead priority entries exactly).
+-- Canonical display labels (match u.gg priority entries exactly).
 ns.STAT_LABELS = {
     crit = "致命一擊",
     haste = "加速",
@@ -32,7 +35,7 @@ end
 
 -- Universal diminishing-returns rating thresholds in The War Within.
 -- Above these ratings, each point of rating is less effective.
--- Documented on Wowhead's "Secondary Stats and Diminishing Returns" guide.
+-- Documented on u.gg's "Secondary Stats and Diminishing Returns" guide.
 ns.UNIVERSAL_DR = {
     crit = 1380,
     haste = 1320,
@@ -65,7 +68,7 @@ function ns.GetMarginalDR(currentPct)
 end
 
 -------------------------------------------------------------------------------
--- Data lookup (Archon PvE).
+-- Data lookup (u.gg PvE).
 -------------------------------------------------------------------------------
 
 -- Canonicalise a context string to the keys used in data files.
@@ -82,13 +85,13 @@ end
 
 -- Returns the stat-target snapshot for the given (class, spec, context), or nil.
 -- Snapshot shape: { targets = { crit, haste, mastery, versatility } }
--- (the Archon source URL lives in the consolidated ClassCodexSources.)
+-- (the u.gg source URL lives in the consolidated ClassCodexSources.)
 function ns.GetStatTargets(classToken, specKey, context)
     if not classToken or not specKey then return nil end
     local normalized = NormalizeContext(context)
     if not normalized then return nil end
 
-    local root = _G.ClassCodexArchonStats
+    local root = _G.ClassCodexUggStatTargets
     if not root then return nil end
 
     local classData = root[classToken]

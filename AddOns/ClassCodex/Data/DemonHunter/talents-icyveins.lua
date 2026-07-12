@@ -11,7 +11,7 @@ ClassCodexIcyVeinsTalentData["DEMONHUNTER"] = {
   ["havoc"] = {
     talents = {
       { context = "團隊", buildLabel = "團隊 / 單目標", exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMjZMzMzMmJjZGAAAAAAwsZMbzMGDmZsNbzDMzYMGWGYZWMjhZjpxMzYYDAAAAAAAgZGMAAAAM" },
-      { context = "傳奇+", buildLabel = "AoE / Mythic+", exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG" },
+      { context = "傳奇+", buildLabel = "AoE / 傳奇+", exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG" },
       { context = "探究", buildLabel = "探究", exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZMjZmZMmJjZGAAAAAAwsYMbjxMDMjtZbmZGjBWGYb2MjhZhpxMzYGbAAAADAAAgZGMAAAAM" },
       { context = "升級", buildLabel = "升級", exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAY2MGmxYYegZwyMzMbjBWGwsZGY2QjZmxwGAAAwAAAAYmBDAAAAA", leveling = true },
     },

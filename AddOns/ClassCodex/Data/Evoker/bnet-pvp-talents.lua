@@ -7,16 +7,16 @@ ClassCodexBnetPvpTalents["EVOKER"] = {
         pvpTalentSets = { { talents = { 5562 } } },
       },
       ["pvp-3v3"] = {
-        builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZGMYmZZGjhZAAAAAAAAwMz4BMjxYqhZmBAAAAGzMjZmlxMDMz2MGmlZssMLDzsNMDzMNiNMzYmZmBwA", heroTalent = "Scalecommander" } },
-        pvpTalentSets = { { talents = { 5619 } } },
+        builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZGMYmZZGjhZ2AAAAAAAAYmhxMYM1YmZGAAAAMjZMmZ2GzMwMLGYMjFWgBmhhGxCmZMzAAD", heroTalent = "Chronowarden" }, { exportString = "CEcBPJc41CfcseY0baneJ1IHrhZGbzMzMWmxMzsMMzMmZDAAAAADAAYmxMzYMUzYmZAAAAwMzMYmxYGgZxYYWmx2ysMMz2wMMz0I2wYMzMzAYA", heroTalent = "Scalecommander" } },
+        pvpTalentSets = { { talents = { 5560, 5563, 5612 } }, { talents = { 5619 } } },
       },
       ["pvp-blitz"] = {
         builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMMDmZbYmZMDAAAAAAAAmZGzMjZGqxMzMAAAAwMMYmlxMDMzywwsNjtlZZYmthZYmpRshxMYmBGG", heroTalent = "Scalecommander" } },
         pvpTalentSets = { { talents = { 5619, 5562, 5612 } }, { talents = { 5562, 5560, 5558 } }, { talents = { 5561, 5563, 5560 } }, { talents = { 5619, 5560, 5562 } }, { talents = { 5562, 5563, 5619 } } },
       },
       ["pvp-rbg"] = {
-        builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZmxyAzsMjxwMAAAAAAAAwMwMGjpGzMzAAAAAzMzMmZ2GzMwMbGDWglxwYbAMTEbYmZwMDgB", heroTalent = "Scalecommander" }, { exportString = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZGMYmZZGjhZ2AAAAAAAAwMMmHwYM1YmZGAAAAYmZMmZ2GzMwMbGDzywyysMMzywMMz0I2wMzgZGAD", heroTalent = "Scalecommander" } },
-        pvpTalentSets = { { talents = { 5560, 5612, 5557 } }, { talents = { 5561, 5560, 5563 } } },
+        builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzYwCsMGGbDgZiYDzMDmZAM", heroTalent = "Scalecommander" }, { exportString = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzgZYmZZYmZMDAAAAAMAAYmZGmZMzQNmZmBAAAAmZMYmlxMDMzywwsNjtlZZYmthZYmpRshxMYmBwA", heroTalent = "Scalecommander" } },
+        pvpTalentSets = { { talents = { 5619, 5563, 5560 } }, { talents = { 5454, 5560, 5563 } } },
       },
       ["pvp-shuffle"] = {
         builds = { { exportString = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzgZYmZbYmZMzGAAAAAAAAzMjHYmxY8AMmZmBAAAAmxgZmlxMDMzixgFYZMM2GAzAshxAzMwwA", heroTalent = "Scalecommander" } },

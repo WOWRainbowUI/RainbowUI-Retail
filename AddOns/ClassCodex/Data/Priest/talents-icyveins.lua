@@ -17,7 +17,7 @@ ClassCodexIcyVeinsTalentData["PRIEST"] = {
       { context = "團隊", buildLabel = "單目標", exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGyMWMTDwMAzsZGmNDAZMWAwMAjZmZMbjZ2WGgZwA" },
       { context = "傳奇+", buildLabel = "AoE", exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYG2mZGzMzYDZGLmpBYmZGAIAz2stAmNGAYkxMzMmtxMYmBzED" },
       { context = "探究", buildLabel = "探究", exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMDDAAAAAAAAAAAgxYxMGLzMmZWmZYG2mZGzMzMbIzYZjGgZmZAgAMbz2CY2YAmZGYMzMjZjZwMDmBD" },
-      { context = "通用", buildLabel = "SWD Alleria", exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMzyMDAAAAAAAAAAAAjFzYsMzwMbzMMzYbGjZmZshMjFz0AMzMDAEgZb2WCmNGgZAGzMzY2GzgZGMDGA" },
+      { context = "General", buildLabel = "SWD Alleria", exportString = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMzyMDAAAAAAAAAAAAjFzYsMzwMbzMMzYbGjZmZshMjFz0AMzMDAEgZb2WCmNGgZAGzMzY2GzgZGMDGA" },
       { context = "升級", buildLabel = "Leveling (Archon)", exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAAzmBAAAAAAAAAAAwYsYGjlxYmZzMmZYzgxMjNkZsYmGADwMLmhZzAQGjFAMmZmMmZmZmNmBAzEA", leveling = true },
       { context = "升級", buildLabel = "Leveling (Voidweaver)", exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAAzmBAAAAAAAAAAAwYsYGjlxYmZzMmZYzgxMjNkZsYmGAzYAgAMbz2GY2YAGzMTGzMzMzGzAGMTA", leveling = true },
     },
