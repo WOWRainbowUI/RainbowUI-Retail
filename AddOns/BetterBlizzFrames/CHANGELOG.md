@@ -1,3 +1,11 @@
+# BetterBlizzFrames 2.0.0e
+## Midnight
+### New
+- Big Player Healthbar setting in Misc from a PR by Wildu. Thank you for your contribution! At the moment this only works for the "No Portrait" setting specifically. I plan to extend it to the No Portrait pixel and also default frames when I find the time.
+## The Burning Crusade
+### Bugfix
+- Fix OCD Tweaks setting
+
 # BetterBlizzFrames 2.0.0d
 ## The Burning Crusade
 ### Bugfix
