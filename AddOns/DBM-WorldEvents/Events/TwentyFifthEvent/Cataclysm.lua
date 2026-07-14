@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("CataEvent", "DBM-WorldEvents", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(52409, 41376, 43324)
 mod:SetEncounterID(2320)
@@ -191,7 +191,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			warnBurningWound:Show(args.destName, amount)
 		end
 	elseif args.spellId == 82518 then
-		local uId = DBM:GetRaidUnitId(args.destName)
+		local uId = DBM:GetRaidUnitId(args.destName, true)
 		if self:IsTanking(uId) then
 			local amount = args.amount or 1
 			if amount >= 2 then

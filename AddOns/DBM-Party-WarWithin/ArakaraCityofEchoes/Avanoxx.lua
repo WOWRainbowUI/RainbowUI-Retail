@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2583, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:SetCreatureID(213179)
 mod:SetEncounterID(2926)
 --mod:SetUsedIcons(1, 2, 3, 4)
@@ -21,9 +21,9 @@ mod:AddCustomAlertSoundOption(438473, true, 1)--Gossamer Onslaught
 mod:AddCustomTimerOptions(438471, nil, 5, 0)--Voracious Bite
 mod:AddCustomTimerOptions(438476, nil, 1, 0)--Alerting Shrill
 mod:AddCustomTimerOptions(438473, nil, 2, 0)--Gossamer Onslaught
---Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(439070, true, 439070, 1, 1, "justrun", 2)
-mod:AddPrivateAuraSoundOption(434830, true, 434830, 1, 2, "watchfeet", 8)--GTFO
+--Custom Aura Sounds
+mod:AddAuraSoundOption(439070, true, 439070, 1, 1, "justrun", 2)
+mod:AddAuraSoundOption(434830, true, 434830, 1, 2, "watchfeet", 8)--GTFO
 
 function mod:OnLimitedCombatStart()
 	if self:IsTank() then

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2560, "DBM-Party-WarWithin", 1, 1210)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:SetCreatureID(208745)
 mod:SetEncounterID(2787)
 mod:SetUsedIcons(8, 7, 6, 5, 4)
@@ -53,7 +53,7 @@ local timerParanoidMindCD					= mod:NewVarCountTimer("v10.9-15.8", 426145, nil, 
 local timerThrowDarkflameCD					= mod:NewVarCountTimer("v21.9-37.6", 420696, nil, nil, nil, 3)--TODO, refine it with timer correction
 
 mod:AddSetIconOption("SetIconOnAdds", 420659, true, 5, {8, 7, 6, 5, 4})
-mod:AddPrivateAuraSoundOption({420696,453278}, true, 420696, 1, 1, "movetostatue", 17)--Throw Darkflame
+mod:AddAuraSoundOption({420696,453278}, true, 420696, 1, 1, "movetostatue", 17)--Throw Darkflame
 
 mod.vb.addIcon = 8
 mod.vb.statueCount = 0

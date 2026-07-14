@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Emeriss", "DBM-WorldEvents", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(121913)--121913 TW ID, 14889 classic ID
 --mod:SetModelID(17887)
@@ -49,7 +49,7 @@ end
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 243401 then
-		local uId = DBM:GetRaidUnitId(args.destName)
+		local uId = DBM:GetRaidUnitId(args.destName, true)
 		if self:IsTanking(uId) then
 			local amount = args.amount or 1
 			warnNoxiousBreath:Show(args.destName, amount)

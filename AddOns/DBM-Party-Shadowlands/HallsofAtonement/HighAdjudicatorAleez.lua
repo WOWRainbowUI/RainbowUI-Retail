@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2411, "DBM-Party-Shadowlands", 4, 1185)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:SetCreatureID(165410)
 mod:SetEncounterID(2403)
 mod:SetHotfixNoticeRev(20250808000000)
@@ -20,8 +20,8 @@ mod:AddCustomTimerOptions(323538, true, 4, 0)
 mod:AddCustomTimerOptions(323597, true, 1, 0)
 mod:AddCustomTimerOptions(1236513, true, 3, 0)
 mod:AddCustomTimerOptions(329340, true, 3, 0)
---Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(1236513, true, 1236513, 1, 2, "watchfeet", 8)
+--Custom Aura Sounds
+mod:AddAuraSoundOption(1236513, true, 1236513, 1, 2, "watchfeet", 8)
 
 function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(323597, 503, "ghostsoon", 2)

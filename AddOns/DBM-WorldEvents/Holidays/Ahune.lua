@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d286", "DBM-WorldEvents", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260621194314")
+mod:SetRevision("20260629032250")
 mod:SetCreatureID(25740)--25740 Ahune, 25755, 25756 the two types of adds
 mod:SetEncounterID(3317)
 mod:SetModelID(23447)--Frozen Core, ahunes looks pretty bad.
@@ -79,7 +79,8 @@ function mod:UNIT_TARGETABLE_CHANGED(uId)
 end
 
 function mod:GOSSIP_SHOW()
-	if self.Options.AutoGossipEncounter then
-		self:SelectMatchingGossip(true, self:IsRetail() and 135555 or 36888)
+	local gossipOptionID = self:GetGossipID()
+	if self.Options.AutoGossipEncounter and (gossipOptionID == 135555 or gossipOptionID == 36888) then
+		self:SelectGossip(gossipOptionID)
 	end
 end

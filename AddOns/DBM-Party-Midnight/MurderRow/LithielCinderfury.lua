@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2682, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260312052448")
+mod:SetRevision("20260709014625")
 mod:SetCreatureID(237415)
 mod:SetEncounterID(3105)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -26,7 +26,7 @@ mod:AddCustomAlertSoundOption(1224478, true, 2)--Malefic Wave
 mod:AddCustomTimerOptions(1218203, true, 1, 0)--Fingers off Guldan
 mod:AddCustomTimerOptions(474408, true, 1, 0)--Summon Vilefiend
 mod:AddCustomTimerOptions(1224478, true, 2, 0)--Malefic Wave
---Midnight private aura replacements
+--Custom Aura Sounds
 
 function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1218203, 37, "range5", 2, 2)--Or change to mobssoon?

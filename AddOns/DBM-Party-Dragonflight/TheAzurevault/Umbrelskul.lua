@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2508, "DBM-Party-Dragonflight", 6, 1203)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(186738)
 mod:SetEncounterID(2584)
@@ -89,7 +89,7 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 384978 then
-		local uId = DBM:GetRaidUnitId(args.destName)
+		local uId = DBM:GetRaidUnitId(args.destName, true)
 		if self:IsTanking(uId) and self:CheckDispelFilter("magic") then
 			specWarnDragonStrikeDebuff:Show(args.destName)
 			specWarnDragonStrikeDebuff:Play("helpdispel")

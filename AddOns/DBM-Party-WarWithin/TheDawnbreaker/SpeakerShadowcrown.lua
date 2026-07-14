@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2580, "DBM-Party-WarWithin", 5, 1270)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260322094133")
+mod:SetRevision("20260709014625")
 mod:SetCreatureID(211087)
 mod:SetEncounterID(2837)
 mod:SetHotfixNoticeRev(20241005000000)
@@ -24,8 +24,8 @@ mod:AddCustomTimerOptions(453140, nil, 3, 0)--Collapsing Night
 mod:AddCustomTimerOptions(426734, nil, 3, 0)--Burning Shadows
 mod:AddCustomTimerOptions(425264, nil, 3, 0)--Obsidian Blast
 mod:AddCustomTimerOptions(453212, nil, 3, 0)--Obsidian Beam
---Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(426735, true, 426734, 1, 1, "targetyou", 2)--Burning Shadows
+--Custom Aura Sounds
+mod:AddAuraSoundOption(426735, true, 426734, 1, 1, "targetyou", 2)--Burning Shadows
 
 function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(445996, 617, "watchstep", 2)

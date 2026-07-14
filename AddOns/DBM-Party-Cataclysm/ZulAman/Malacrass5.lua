@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260709014625")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(24239)
 mod:SetEncounterID(1193)
@@ -61,7 +61,7 @@ end
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 43501 then
-		local uId = DBM:GetRaidUnitId(args.destName)
+		local uId = DBM:GetRaidUnitId(args.destName, true)
 		local class = select(2, UnitClass(uId)) or "unknown"
 		class = class:sub(0, 1):upper()..class:sub(2):lower()
 		warnSiphon:Show(args.destName)
