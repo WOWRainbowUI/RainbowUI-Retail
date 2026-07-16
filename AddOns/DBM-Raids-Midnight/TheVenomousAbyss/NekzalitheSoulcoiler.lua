@@ -2,7 +2,7 @@ if DBM:GetTOC() < 120100 then return end
 local mod	= DBM:NewMod(2888, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260625203721")
+mod:SetRevision("20260708052956")
 --mod:SetCreatureID(238693)
 mod:SetEncounterID(3470)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -71,7 +71,9 @@ local function setFallback(self, dontSetAlerts)
 		specWarnHungeringPyre:SetAlert(865, "helpsoak", 2, 2)
 		specWarnResidualToll:SetAlert(1298698, "aesoon", 2, 2)
 	end
-	local onlyColor = not DBM.Options.HideDBMBars
+	--If user has DBM bars enabled, we only want to register colors to the blizz api so that the blizz bars are also colorized.
+	--If user has bars disabled, or we are in a bad state, onlyColor is false and we register countdowns as well.
+	local onlyColor = not DBM.Options.HideDBMBars and not badStateDetected
 	timerEssenceRendCD:SetTimeline(675, onlyColor)
 	timerRestlessAmaniCD:SetTimeline(695, onlyColor)
 	timerPossessionBarrageCD:SetTimeline(710, onlyColor)
