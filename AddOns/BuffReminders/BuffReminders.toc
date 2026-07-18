@@ -3,7 +3,7 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.2.1
+## Version: v6.2.2
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
@@ -56,6 +56,7 @@ Data\ConsumableItems.lua
 Data\Pets.lua
 Core\ChatRequest.lua
 Core\ConsumableMemory.lua
+Core\TargetMemory.lua
 Core\Loadouts.lua
 Core\State.lua
 UI\Components.lua

@@ -9,6 +9,9 @@ local min = math.min
 local GetSpellTexture = C_Spell.GetSpellTexture
 local _, playerClass = UnitClass("player")
 
+-- Secret-safe read helper (see Core.lua / docs/SecretValues.md)
+local AuraField = BR.Secret.AuraField
+
 -- ============================================================================
 -- BUFF DATA TABLES
 -- ============================================================================
@@ -234,7 +237,7 @@ end
 local function TargetedClickMacro(buffKey)
     return function(spellID)
         local name = BR.GetSpellName(spellID) or ""
-        local lastTarget = BR.StateHelpers and BR.StateHelpers.GetLastTarget(buffKey)
+        local lastTarget = BR.TargetMemory and BR.TargetMemory.Get(buffKey)
         if lastTarget then
             return "/cast [@" .. lastTarget .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][] " .. name
         end
@@ -317,14 +320,15 @@ local function ScanPoisonCategory(poisons, now)
         if isKnown then
             known = known + 1
         end
-        local auraData
-        pcall(function()
-            auraData = C_UnitAuras.GetUnitAuraBySpellID("player", id)
-        end)
+        local auraData = C_UnitAuras.GetUnitAuraBySpellID("player", id)
         if auraData then
+            -- Truthy means the poison is applied (count it) even if the struct is
+            -- a secret value in a restricted context; AuraField yields the timer
+            -- only when the struct and its field are plain.
             active = active + 1
-            if auraData.expirationTime and auraData.expirationTime > 0 then
-                local rem = auraData.expirationTime - now
+            local exp = AuraField(auraData, "expirationTime")
+            if exp and exp > 0 then
+                local rem = exp - now
                 if not minRem or rem < minRem then
                     minRem = rem
                     expID = id
@@ -542,7 +546,7 @@ BR.BUFF_TABLES = {
             clickMacro = function(spellID)
                 local name = BR.GetSpellName(spellID) or ""
                 -- Priority: sticky last target > first living healer > mouseover > target > self
-                local lastTarget = BR.StateHelpers and BR.StateHelpers.GetLastTarget("soulstone")
+                local lastTarget = BR.TargetMemory and BR.TargetMemory.Get("soulstone")
                 if lastTarget then
                     return "/cast [@"
                         .. lastTarget

@@ -253,6 +253,14 @@ function BR.Profiles.RefreshAfterProfileChange()
         BR.Display.BuildLoadoutRulesArray()
     end
 
+    -- The category-settings memo may still hold the PREVIOUS profile's values
+    -- (nothing has fired a refresh event yet); wipe it before SyncDirectionCache
+    -- reads grow directions through it, or the LayoutRefresh below would see a
+    -- spurious direction change and convert (corrupt) the new profile's positions.
+    if BR.Display and BR.Display.InvalidateCategorySettingsCache then
+        BR.Display.InvalidateCategorySettingsCache()
+    end
+
     -- Sync direction cache before firing LayoutRefresh to prevent spurious position conversions
     if BR.Movers and BR.Movers.SyncDirectionCache then
         BR.Movers.SyncDirectionCache()
