@@ -1,6 +1,6 @@
 ## Interface: 120005, 120007, 50504, 38001, 20506, 11508
 ## Title: Platynator
-## Version: 434
+## Version: 439
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
@@ -45,7 +45,9 @@ Display/DesignForContext.lua
 Display/CVars.lua
 Display/Colors.lua
 Display/Nameplate.lua
-Display/Auras.lua
+Display/Auras/ManagerPrev.lua
+Display/Auras/AurasPrev.lua
+Display/Auras/AurasNext.lua
 Display/HealthBar.lua
 Display/HealthFillTextBar.lua
 Display/CastBar.lua

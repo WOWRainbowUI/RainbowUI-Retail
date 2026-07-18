@@ -476,30 +476,8 @@ function addonTable.CustomiseDialog.GetBehaviour(parent)
   container.Tabs = Tabs
   PanelTemplates_SetNumTabs(container, #container.Tabs)
 
-  local wasDefault = true
   container:SetScript("OnShow", function()
-    local usingDefault = addonTable.CustomiseDialog.IsUsingDefaultStyleSelect()
-    wasDefault = usingDefault
-    Tabs[1]:SetEnabled(usingDefault)
-    Tabs[1]:SetAlpha(usingDefault and 1 or 0.5)
-    if usingDefault then
-      Tabs[1]:Click()
-    else
-      C_Timer.After(0, function()
-        Tabs[1]:SetEnabled(usingDefault)
-      end)
-      Tabs[2]:Click()
-    end
-  end)
-
-  addonTable.CallbackRegistry:RegisterCallback("CustomiseDesignsAssigned", function()
-    local usingDefault = addonTable.CustomiseDialog.IsUsingDefaultStyleSelect()
-    if wasDefault and usingDefault then
-      return
-    end
-    wasDefault = usingDefault
-    Tabs[1]:SetEnabled(usingDefault)
-    Tabs[1]:SetAlpha(usingDefault and 1 or 0.5)
+    Tabs[1]:Click()
   end)
 
   return container
