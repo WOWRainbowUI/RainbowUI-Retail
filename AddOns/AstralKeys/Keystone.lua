@@ -65,7 +65,15 @@ function addon.CreateKeyLink(mapID, keyLevel)
 		mapName = addon.GetMapName(mapID, true)
 	end
 	keyLevel = keyLevel or C_MythicPlus.GetOwnedKeystoneLevel()
-	if not mapName or not keyLevel then return end
+	if not mapName or not keyLevel then 
+		if not mapName then
+			addon.PrintDebug('addon.CreateKeyLink - Could not get mapName for mapID: ' .. mapID)
+		end
+		if not keyLevel then
+			addon.PrintDebug('addon.CreateKeyLink - Could not get keystone level.')
+		end
+		return 
+	end
 	local a1, a2, a3
 	if keyLevel > 3 then
 		a1 = addon.AffixOne()
@@ -243,6 +251,9 @@ function InitKeystoneData()
 	if UnitLevel('player') < addon.EXPANSION_LEVEL then return end
 	AstralEvents:Register('CHALLENGE_MODE_MAPS_UPDATE', UpdateWeekly, 'weeklyCheck')
 	AstralEvents:Register('PLAYER_ENTERING_WORLD', addon.CheckKeystone, 'keystoneCheck')
+	C_Timer.After(3, function() 
+		addon.CheckKeystone()
+	end)
 end
 
 AstralEvents:Register('PLAYER_ENTERING_WORLD', InitKeystoneData, 'initData')
