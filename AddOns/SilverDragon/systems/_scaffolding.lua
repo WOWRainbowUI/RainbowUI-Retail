@@ -6,6 +6,10 @@ local myname, ns = ...
 local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 
 ns.db = setmetatable({}, {__index = function(self, key)
+    if key == "transmog_notable" then
+        local announce = core:GetModule("Announce", true)
+        return announce and announce.db.profile.already_transmog
+    end
 	return core.db.profile[key]
 end})
 
@@ -40,3 +44,9 @@ ns.playerClassMask = ({
     DEMONHUNTER = 0x800,
     EVOKER = 0x1000,
 })[playerClass] or 0
+
+function ns.GetCriteria(achievement, criteriaid)
+    local retOK, criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID, eligible = pcall(criteriaid < 100 and GetAchievementCriteriaInfo or GetAchievementCriteriaInfoByID, achievement, criteriaid, true)
+    if not retOK then return end
+    return criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID, eligible
+end
