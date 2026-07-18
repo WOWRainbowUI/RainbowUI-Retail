@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.26 (9th July 2026)
+-- 	Leatrix Plus 12.0.27 (15th July 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.26"
+	LeaPlusLC["AddonVer"] = "12.0.27"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -186,7 +186,7 @@
 			eFrame.t:SetBackdropColor(1.0, 1.0, 1.0, 0.3)
 			-- Handler
 			eFrame.b:SetScript("OnKeyDown", function(void, key)
-				if key == "C" and IsControlKeyDown() then
+				if key == "C" and (IsControlKeyDown() or IsMetaKeyDown()) then
 					C_Timer.After(0.1, function()
 						eFrame:Hide()
 						LeaPlusLC:DisplayMessage(L["Copied to clipboard."], true)
@@ -3671,8 +3671,14 @@
 				if eb.Text.tiptext == L["Exclusions"] .. "|n" then eb.Text.tiptext = "-" end
 
 				if GameTooltip:IsShown() then
-					if MouseIsOver(eb) or MouseIsOver(eb.Text) then
-						GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
+					if LeaPlusLC.NewPatch then
+						if eb:IsMouseOver() or eb.Text:IsMouseOver() then
+							GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
+						end
+					else
+						if MouseIsOver(eb) or MouseIsOver(eb.Text) then
+							GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
+						end
 					end
 				end
 
@@ -8231,8 +8237,14 @@
 
 			-- Manage focus
 			editBox:HookScript("OnEditFocusLost", function()
-				if MouseIsOver(titleFrame) and IsMouseButtonDown("LeftButton") then
-					editBox:SetFocus()
+				if LeaPlusLC.NewPatch then
+					if titleFrame:IsMouseOver() and IsMouseButtonDown("LeftButton") then
+						editBox:SetFocus()
+					end
+				else
+					if MouseIsOver(titleFrame) and IsMouseButtonDown("LeftButton") then
+						editBox:SetFocus()
+					end
 				end
 			end)
 
@@ -11127,7 +11139,7 @@
 
 				if LeaPlusLC.NewPatch then
 					-- Disable bag automation (enter Stockade, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen)
-					-- LockDF("NoBagAutomation", "This option is not currently available.")
+					LockDF("ManageControl", "You can manage this with Edit Mode now.")
 				end
 
 				-- Run other startup items
@@ -11841,10 +11853,10 @@
 
 			-- Set skinned button textures
 			if not naked then
-				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
+				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\mainline\\Leatrix_Plus.blp")
 				mbtn:GetNormalTexture():SetTexCoord(0.5, 1, 0, 1)
 			end
-			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
+			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\mainline\\Leatrix_Plus.blp")
 			mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 1)
 
 			-- Hide the default textures
@@ -12482,8 +12494,18 @@
 				-- Enumerate frames
 				local frame = EnumerateFrames()
 				while frame do
-					if (frame:IsVisible() and MouseIsOver(frame)) then
-						LeaPlusLC:Print(frame:GetName() or string.format("[Unnamed Frame: %s]", tostring(frame)))
+					if LeaPlusLC.NewPatch then
+						if not frame:IsAnchoringSecret() then
+							if (frame:IsVisible() and frame:IsMouseOver()) then
+								LeaPlusLC:Print(frame:GetName() or string.format("[Unnamed Frame: %s]", tostring(frame)))
+							end
+						else
+							LeaPlusLC:Print(L["[Secret frame: SECRET FRAME]"])
+						end
+					else
+						if (frame:IsVisible() and MouseIsOver(frame)) then
+							LeaPlusLC:Print(frame:GetName() or string.format("[Unnamed Frame: %s]", tostring(frame)))
+						end
 					end
 					frame = EnumerateFrames(frame)
 				end

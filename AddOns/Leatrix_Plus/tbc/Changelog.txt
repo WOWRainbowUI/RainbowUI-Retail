@@ -1,0 +1,70 @@
+﻿2.5.30 - 8th July 2026
+- For 'Show flight times' ('System'), fixed the Lua error with the 'Speak the remaining time' setting when taking a flight.
+
+2.5.29 - 8th July 2026
+- Updated for game patch 2.5.6.
+- For 'Enhance minimap' ('Interface'), the 'Show who pinged' setting has been removed.
+
+2.5.27 - 24th June 2026
+- For 'Enhance minimap' ('Interface'), fixed a Lua error with the reset button.
+
+2.5.26 - 18th June 2026
+- For 'Enhance minimap' ('Interface'), the zone text background and minimap toggle button will now only be hidden if 'Square minimap' is enabled.  Added a new setting to hide the day and night indicator.  The 'Hide the zone text bar' option now requires a UI reload.  Updated the 'Hide the tracking button' setting.
+
+2.5.25 - 11th June 2026
+- For 'Enhance minimap' ('Interface'), fixed an issue which may have caused the square minimap to move slightly.  The zone text background and toggle button are now always hidden.
+
+2.5.24 - 5th June 2026
+- For 'Mute game sounds' ('System'), you can now mute the Piccolo of the Flaming Fire toy.  The mount sounds from this option have been moved into a new option called 'Mute mount sounds'.
+
+2.5.22 - 20th May 2026
+- For 'Enhance professions' ('Interface'), fixed a minor issue with the position of the craft frame and trade skill frame dropdown menus.
+- For 'Show druid power bar' ('Interface'), you can now configure the option when not logged in as a druid.
+- For 'Show durability status' ('Interface'), fixed a situational, minor issue with coloring.
+
+2.5.19 - 29th April 2026
+- For 'Dismount me' ('System'), fixed an issue with the druid and shaman unshift button.
+
+2.5.15 - 1st April 2026
+- For 'Hide chat buttons' ('Chat'), updated chat tab glow.
+- For 'Enhance minimap' ('Interface'), the buttons editor will now show a full list of button names that you can use and you can now copy and paste names from the list into the buttons editor.
+
+2.5.11 - 4th March 2026
+- For 'Easy item destroy' ('System'), fixed an issue with buttons showing outside the delete confirmation window.
+- Updated LibChatAnims, LibDBIcon and LibCandyBar libraries.
+
+2.5.10 - 25th February 2026
+- CurseForge website is now tagging BCC releases correctly.
+
+2.5.09 - 20th February 2026
+- Released again due to another packaging issue with CurseForge (second one now).
+- Recommend you keep the addon updated using CurseForge App as it works perfectly.  Downloading updates from the CurseForge website is still an issue because it is not currently tagging BCC releases correctly.
+
+2.5.07 - 18th February 2026
+- For 'Enhance tooltip' ('Interface'), fixed an issue which caused the game settings tooltips to be scaled incorrectly.
+- For 'Class colored frames' ('Frames'), the target frame setting will now apply to the focus frame too.
+- For 'Hide gryphons' ('Frames'), fixed an issue which may have caused it not to work depending on Edit Mode action bar configuration.
+
+2.5.05 - 8th February 2026
+- For 'Automate quests' ('Automation'), excluded lots of NPCs from automation (escort quests, repeatable quests, etc).
+- For 'Mute game sounds' ('System'), updated the sound file ID for the 'Login' setting.
+
+2.5.04 - 29th January 2026
+- For 'Dismount me' ('System'), fixed an issue which caused a Lua error when shapeshifting as a druid or shaman during combat.
+
+2.5.03 - 28th January 2026
+- For 'Enhance minimap' ('Interface'), the minimap button bag will no longer go off the screen if you have a massive number of minimap buttons.
+- For 'Show cooldowns' ('Interface'), increased the character limit for the spell ID editboxes.
+- For 'Dismount me' ('System'), added a new setting that lets you unshift when interacting with a flight master as a shapeshifted druid or shaman.
+
+2.5.01 - 17th January 2026
+- For 'Automate gossip' ('Automation'), updated the list of vendors that have gossip automatically skipped without needing to hold the alt key.
+- For 'Hide keybind text' ('Text'), fixed an issue which caused it to not apply to some action bars.
+- For 'Hide macro text' ('Text'), fixed an issue which caused it to not apply to some action bars.
+- For 'Show player chain' ('Interface'), fixed a minor issue with the level number position.
+- For 'Show flight times' ('System'), fixed an issue which caused some flight times to not show.
+- For 'Mute game sounds' ('System'), added 'Events', 'Gyrocopters' and 'A'dal'.  Added additional sounds for 'Chimes' and 'Trains'.
+- The 'Filter chat messages' option ('Chat') is now available.  Added a new setting that allows you to block spell links during combat (very useful for blocking spell interrupt spam).
+
+2.5.00 - 14th January 2026
+- Welcome to Burning Crusade Anniversary.
