@@ -19,8 +19,23 @@ local addonName, addonTable = ...
 local M = {}
 _G.FriendGroups_Sync = M
 
-M.PROTOCOL = "P1"           -- bump only on a breaking wire change
+M.PROTOCOL = "P1"           -- bump only on a breaking wire change (INNER payload format)
 M.NICKNAME_MAXLEN = 20      -- characters (codepoints), not bytes
+
+-- LibDeflate (pure Lua, no WoW API) is loaded by the .toc before this file. It powers the
+-- FG2 envelope: deflate-compress the payload, then paste-safe print-encode it. Compression
+-- is what keeps the string small enough (and the decode fast enough) at the 600-friend x
+-- 10-alt ceiling to avoid the client freeze that disconnects the account.
+--
+-- The reference is captured optionally so this module still loads and unit-tests OUTSIDE the
+-- client (a test harness may inject LibDeflate as a global). When absent, Serialize falls back
+-- to the legacy uncompressed FG1 envelope, and Deserialize still reads FG1 but reports a
+-- localized "library missing" reason for FG2. In-game the library is always present.
+local LibDeflate = (_G.LibStub and _G.LibStub("LibDeflate", true)) or _G.LibDeflate
+
+-- Max deflate ratio: smallest paste string and fastest DecompressDeflate on import, at the
+-- cost of a slower one-off CompressDeflate on export (the safe, user-initiated side).
+local COMPRESS_LEVEL = 9
 
 -- ============================================================================
 -- [[ BOOLEAN FIELD LAYOUT ]]
@@ -37,15 +52,34 @@ local BOOL_FIELDS = {
     -- Appended in 12.1.10. APPEND-ONLY: must stay last so existing backup strings keep
     -- their bit positions (older strings simply lack this bit, decoding as false/Narrow).
     "wide_list",
+    -- Appended in 12.2.x. Default-ON display toggles: stored INVERTED (the bit means
+    -- "disabled") so older backups that lack these bits decode as enabled -- their
+    -- correct default -- instead of being turned off. APPEND-ONLY.
+    "show_class_icons", "show_note", "show_status", "eui_skin",
+    -- Normal (midway) width flag; pairs with wide_list to encode Narrow/Normal/Wide.
+    "width_normal",
+    -- Default-ON display toggles, stored inverted (see DEFAULT_ON_INVERTED).
+    "show_game_icon", "show_faction_color",
 }
 
 -- Allowed values for the one numeric scalar we sync.
 local VALID_HEIGHTS = { [0] = true, [190] = true, [380] = true }
 
--- show_known_alts is "on unless explicitly false"; everything else is plain truthy.
+-- Default-ON display toggles: stored inverted (the bit means "disabled") so a
+-- missing bit in an older backup decodes as enabled (the correct default).
+local DEFAULT_ON_INVERTED = {
+    show_class_icons = true, show_note = true, show_status = true, eui_skin = true,
+    show_game_icon = true, show_faction_color = true,
+}
+
+-- show_known_alts is "on unless explicitly false"; DEFAULT_ON_INVERTED keys encode
+-- the disabled state; everything else is plain truthy.
 local function EffectiveBool(sv, key)
     if key == "show_known_alts" then
         return sv[key] ~= false
+    end
+    if DEFAULT_ON_INVERTED[key] then
+        return sv[key] == false
     end
     return sv[key] and true or false
 end
@@ -153,10 +187,20 @@ end
 -- ============================================================================
 -- [[ MAP ENCODE / DECODE ]]
 -- ============================================================================
+-- Stable string sort of a table's keys, so identical data always encodes identically
+-- (deterministic string + checksum). tostring guards against a stray non-string key.
+local function SortedKeys(t)
+    local keys = {}
+    for k in pairs(t) do keys[#keys + 1] = k end
+    table.sort(keys, function(a, b) return tostring(a) < tostring(b) end)
+    return keys
+end
+
 local function EncodeMap(map, valEncoder)
     if type(map) ~= "table" then return "" end
     local out = {}
-    for k, v in pairs(map) do
+    for _, k in ipairs(SortedKeys(map)) do
+        local v = map[k]
         local ev = valEncoder and valEncoder(v) or tostring(v)
         if ev ~= nil and ev ~= false then
             out[#out + 1] = Esc(k) .. "~" .. Esc(ev)
@@ -182,7 +226,7 @@ end
 local function EncodeSet(set)
     if type(set) ~= "table" then return "" end
     local out = {}
-    for k in pairs(set) do out[#out + 1] = Esc(tostring(k)) end
+    for _, k in ipairs(SortedKeys(set)) do out[#out + 1] = Esc(tostring(k)) end
     return table.concat(out, ";")
 end
 
@@ -198,7 +242,8 @@ local ALT_NUM = { level = true, project = true, timestamp = true }
 local function EncodeAltCache(altCache)
     if type(altCache) ~= "table" then return "" end
     local accounts = {}
-    for accountId, altList in pairs(altCache) do
+    for _, accountId in ipairs(SortedKeys(altCache)) do
+        local altList = altCache[accountId]
         if type(altList) == "table" then
             local records = {}
             for _, alt in ipairs(altList) do
@@ -273,7 +318,10 @@ function M.Serialize(sv, timestamp)
 
     local parts = {
         M.PROTOCOL,
-        "t" .. string.format("%d", mask),
+        -- %.0f (not %d): with 32+ bool fields the packed mask exceeds the signed
+        -- 32-bit range that %d coerces to (it errors past 2^31). The double is exact
+        -- to 2^53 and the decoder reads it back with tonumber + arithmetic bit tests.
+        "t" .. string.format("%.0f", mask),
         "h" .. string.format("%d", height),
         -- Raw ranks: they are fractional positions relative to the deterministic
         -- auto-order (identical on every account), so they must NOT be renumbered.
@@ -295,7 +343,20 @@ function M.Serialize(sv, timestamp)
     }
 
     local payload = table.concat(parts, "|")
-    return "FG1:" .. string.format("%d", Checksum(payload)) .. ":" .. Base64Enc(payload)
+    -- Checksum is over the RAW payload, so paste-integrity verification is identical
+    -- regardless of which envelope carries it.
+    local chk = string.format("%d", Checksum(payload))
+
+    -- FG2: deflate-compressed, then LibDeflate's copy/paste-safe print encoding.
+    if LibDeflate then
+        local packed = LibDeflate:CompressDeflate(payload, { level = COMPRESS_LEVEL })
+        if packed and packed ~= "" then
+            return "FG2:" .. chk .. ":" .. LibDeflate:EncodeForPrint(packed)
+        end
+    end
+
+    -- FG1 (legacy fallback): uncompressed Base64. Only reached if LibDeflate is unavailable.
+    return "FG1:" .. chk .. ":" .. Base64Enc(payload)
 end
 
 -- ============================================================================
@@ -306,10 +367,21 @@ end
 function M.Deserialize(str)
     if type(str) ~= "string" then return nil, "FORMAT" end
 
-    local chk, b64 = str:match("^FG1:(%d+):(.+)$")
-    if not chk then return nil, "FORMAT" end
+    -- env 1 = legacy uncompressed Base64 (FG1); env 2 = deflate + print-encode (FG2).
+    -- The checksum digits are unambiguous: (%d+) stops at the mandatory ":" separator, so
+    -- the print-encoded body may itself contain digits or colons without confusing the parse.
+    local env, chk, body = str:match("^FG([12]):(%d+):(.+)$")
+    if not env then return nil, "FORMAT" end
 
-    local payload = Base64Dec(b64)
+    local payload
+    if env == "2" then
+        if not LibDeflate then return nil, "LIBMISSING" end
+        local packed = LibDeflate:DecodeForPrint(body)
+        if not packed or packed == "" then return nil, "FORMAT" end
+        payload = LibDeflate:DecompressDeflate(packed)
+    else
+        payload = Base64Dec(body)
+    end
     if not payload or payload == "" then return nil, "FORMAT" end
     if string.format("%d", Checksum(payload)) ~= chk then return nil, "CHECKSUM" end
 
@@ -396,7 +468,11 @@ function M.Apply(profile)
 
     for i = 1, #BOOL_FIELDS do
         local key = BOOL_FIELDS[i]
-        sv[key] = profile.bools[key] and true or false
+        if DEFAULT_ON_INVERTED[key] then
+            sv[key] = not profile.bools[key]   -- bit set == disabled
+        else
+            sv[key] = profile.bools[key] and true or false
+        end
     end
 
     if profile.extra_height ~= nil then sv.extra_height = profile.extra_height end
