@@ -1,7 +1,15 @@
 -- [[ REALM FLAGS DATABASE ]] --
--- Categorized by RegionID: 1=US/OC, 2=KR, 3=EU/RU, 4=TW, 5=CN
--- Keys must have NO SPACES AND NO PUNCTUATION.
-
+-- GENERATED FILE - regenerate with RealmUpdater\Update-Realms.ps1 (Blizzard Game Data API).
+-- Data pulled: 2026-07-12 UTC. Do not hand-edit except the CN section (no public API for CN).
+--
+-- Tables are region-scoped (picked by gameAccountInfo.regionID via FriendGroups_GetRealmDatabase):
+--   1 = Americas/Oceania, 2 = Korea, 3 = Europe/Russia, 4 = Taiwan, 5 = China.
+-- Keys have ASCII spaces/punctuation stripped (must match FriendGroups_CleanRealmName).
+-- `classic = true` marks Classic-family realms (progression / Era / SoD / HC / Anniversary).
+-- Realm names are unique per game mode within a region (the generator asserts this), which is
+-- what lets the game-icon tint tell retail from Classic friends when the API omits
+-- wowProjectID (Compat.ResolveFriendFlavor). Untagged = retail.
+-- Entries marked "native name of X" are alias keys so non-English clients resolve realms too.
 -- [[ REGION 1: AMERICAS & OCEANIA ]] --
 FriendGroups_RealmData = {
     -- [[ BRAZIL (FlagBR.tga) ]] --
@@ -11,11 +19,16 @@ FriendGroups_RealmData = {
     ["Nemesis"] = {icon = "FlagBR.tga", region = "Brazil"},
     ["TolBarad"] = {icon = "FlagBR.tga", region = "Brazil"},
 
+    -- [[ BRAZIL (FlagBR.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Sulthraze"] = {icon = "FlagBR.tga", region = "Brazil", classic = true},
+
     -- [[ LATIN AMERICA (FlagMX.tga) ]] --
     ["Drakkari"] = {icon = "FlagMX.tga", region = "Latin America"},
     ["QuelThalas"] = {icon = "FlagMX.tga", region = "Latin America"},
     ["Ragnaros"] = {icon = "FlagMX.tga", region = "Latin America"},
-    ["Loatheb"] = {icon = "FlagMX.tga", region = "Latin America"},
+
+    -- [[ LATIN AMERICA (FlagMX.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Loatheb"] = {icon = "FlagMX.tga", region = "Latin America", classic = true},
 
     -- [[ OCEANIA (FlagAU.tga) ]] --
     ["AmanThul"] = {icon = "FlagAU.tga", region = "Oceania"},
@@ -30,15 +43,16 @@ FriendGroups_RealmData = {
     ["Nagrand"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Saurfang"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Thaurissan"] = {icon = "FlagAU.tga", region = "Oceania"},
-    ["Arugal"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Yojamba"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Remulos"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Felstriker"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Shadowstrike"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Penance"] = {icon = "FlagAU.tga", region = "Oceania"}, 
-    ["Maladath"] = {icon = "FlagAU.tga", region = "Oceania"}, 
 
-    -- [[ US / NORTH AMERICA (FlagUS.tga) ]] --
+    -- [[ OCEANIA (FlagAU.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Arugal"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+    ["Felstriker"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+    ["Penance"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+    ["Remulos"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+    ["Shadowstrike"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+    ["Yojamba"] = {icon = "FlagAU.tga", region = "Oceania", classic = true},
+
+    -- [[ US (FlagUS.tga) ]] --
     ["Aegwynn"] = {icon = "FlagUS.tga", region = "US"},
     ["AeriePeak"] = {icon = "FlagUS.tga", region = "US"},
     ["Agamaggan"] = {icon = "FlagUS.tga", region = "US"},
@@ -71,8 +85,8 @@ FriendGroups_RealmData = {
     ["Blackrock"] = {icon = "FlagUS.tga", region = "US"},
     ["BlackwaterRaiders"] = {icon = "FlagUS.tga", region = "US"},
     ["BlackwingLair"] = {icon = "FlagUS.tga", region = "US"},
-    ["BladesEdge"] = {icon = "FlagUS.tga", region = "US"},
     ["Bladefist"] = {icon = "FlagUS.tga", region = "US"},
+    ["BladesEdge"] = {icon = "FlagUS.tga", region = "US"},
     ["BleedingHollow"] = {icon = "FlagUS.tga", region = "US"},
     ["BloodFurnace"] = {icon = "FlagUS.tga", region = "US"},
     ["Bloodhoof"] = {icon = "FlagUS.tga", region = "US"},
@@ -107,8 +121,10 @@ FriendGroups_RealmData = {
     ["Draenor"] = {icon = "FlagUS.tga", region = "US"},
     ["Dragonblight"] = {icon = "FlagUS.tga", region = "US"},
     ["Dragonmaw"] = {icon = "FlagUS.tga", region = "US"},
+    ["Draka"] = {icon = "FlagUS.tga", region = "US"},
+    ["DrakTharon"] = {icon = "FlagUS.tga", region = "US"},
     ["Drakthul"] = {icon = "FlagUS.tga", region = "US"},
-	["Drenden"] = {icon = "FlagUS.tga", region = "US"},
+    ["Drenden"] = {icon = "FlagUS.tga", region = "US"},
     ["Dunemaul"] = {icon = "FlagUS.tga", region = "US"},
     ["Durotan"] = {icon = "FlagUS.tga", region = "US"},
     ["Duskwood"] = {icon = "FlagUS.tga", region = "US"},
@@ -165,16 +181,16 @@ FriendGroups_RealmData = {
     ["LaughingSkull"] = {icon = "FlagUS.tga", region = "US"},
     ["Lethon"] = {icon = "FlagUS.tga", region = "US"},
     ["Lightbringer"] = {icon = "FlagUS.tga", region = "US"},
-    ["LightningsBlade"] = {icon = "FlagUS.tga", region = "US"},
     ["Lightninghoof"] = {icon = "FlagUS.tga", region = "US"},
+    ["LightningsBlade"] = {icon = "FlagUS.tga", region = "US"},
     ["Llane"] = {icon = "FlagUS.tga", region = "US"},
     ["Lothar"] = {icon = "FlagUS.tga", region = "US"},
     ["Madoran"] = {icon = "FlagUS.tga", region = "US"},
     ["Maelstrom"] = {icon = "FlagUS.tga", region = "US"},
     ["Magtheridon"] = {icon = "FlagUS.tga", region = "US"},
     ["Maiev"] = {icon = "FlagUS.tga", region = "US"},
-    ["MalGanis"] = {icon = "FlagUS.tga", region = "US"},
     ["Malfurion"] = {icon = "FlagUS.tga", region = "US"},
+    ["MalGanis"] = {icon = "FlagUS.tga", region = "US"},
     ["Malorne"] = {icon = "FlagUS.tga", region = "US"},
     ["Malygos"] = {icon = "FlagUS.tga", region = "US"},
     ["Mannoroth"] = {icon = "FlagUS.tga", region = "US"},
@@ -244,7 +260,7 @@ FriendGroups_RealmData = {
     ["Trollbane"] = {icon = "FlagUS.tga", region = "US"},
     ["Turalyon"] = {icon = "FlagUS.tga", region = "US"},
     ["TwistingNether"] = {icon = "FlagUS.tga", region = "US"},
-    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"}, 
+    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"},
     ["Uldum"] = {icon = "FlagUS.tga", region = "US"},
     ["Undermine"] = {icon = "FlagUS.tga", region = "US"},
     ["Ursin"] = {icon = "FlagUS.tga", region = "US"},
@@ -264,215 +280,68 @@ FriendGroups_RealmData = {
     ["Zuljin"] = {icon = "FlagUS.tga", region = "US"},
     ["Zuluhed"] = {icon = "FlagUS.tga", region = "US"},
 
-    -- [[ US CLASSIC / SEASONAL / ERA ]] --
-    ["Ashkandi"] = {icon = "FlagUS.tga", region = "US"},
-    ["Atiesh"] = {icon = "FlagUS.tga", region = "US"},
-    ["Benediction"] = {icon = "FlagUS.tga", region = "US"},
-    ["BloodsailBuccaneers"] = {icon = "FlagUS.tga", region = "US"},
-    ["Faerlina"] = {icon = "FlagUS.tga", region = "US"},
-    ["Grobbulus"] = {icon = "FlagUS.tga", region = "US"},
-    ["Mankrik"] = {icon = "FlagUS.tga", region = "US"},
-    ["OldBlanchy"] = {icon = "FlagUS.tga", region = "US"},
-    ["Westfall"] = {icon = "FlagUS.tga", region = "US"},
-    ["Whitemane"] = {icon = "FlagUS.tga", region = "US"},
-    ["ChaosBolt"] = {icon = "FlagUS.tga", region = "US"},
-    ["CrusaderStrike"] = {icon = "FlagUS.tga", region = "US"},
-    ["DefiasPillager"] = {icon = "FlagUS.tga", region = "US"},
-    ["Doomhowl"] = {icon = "FlagUS.tga", region = "US"},
-    ["Dreamscythe"] = {icon = "FlagUS.tga", region = "US"},
-    ["LavaLash"] = {icon = "FlagUS.tga", region = "US"},
-    ["LivingFlame"] = {icon = "FlagUS.tga", region = "US"},
-    ["LoneWolf"] = {icon = "FlagUS.tga", region = "US"},
-    ["Nightslayer"] = {icon = "FlagUS.tga", region = "US"},
-    ["Pagle"] = {icon = "FlagUS.tga", region = "US"},
-    ["SkullRock"] = {icon = "FlagUS.tga", region = "US"},
-    ["WildGrowth"] = {icon = "FlagUS.tga", region = "US"},
-    ["DeviateDelight"] = {icon = "FlagUS.tga", region = "US"},
-    ["Mutanus"] = {icon = "FlagUS.tga", region = "US"},
-    ["JomGabbar"] = {icon = "FlagUS.tga", region = "US"},
-    ["BarmanShanker"] = {icon = "FlagUS.tga", region = "US"},
-    ["Nightfall"] = {icon = "FlagUS.tga", region = "US"},
-    ["ObsidianEdge"] = {icon = "FlagUS.tga", region = "US"},
+    -- [[ US (FlagUS.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Anathema"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Angerforge"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["ArcaniteReaper"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Ashkandi"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Atiesh"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Azuresong"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Benediction"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Bigglesworth"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Blaumeux"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["BloodsailBuccaneers"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["ChaosBolt"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["CrusaderStrike"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["DefiasPillager"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["DeviateDelight"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Doomhowl"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Dreamscythe"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Earthfury"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Eranikus"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Faerlina"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Fairbanks"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Galakras"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Grobbulus"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Heartseeker"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Herod"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Immerseus"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Incendius"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Kirtonos"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Kromcrush"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Kurinnaxx"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["LavaLash"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["LeiShen"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["LivingFlame"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["LoneWolf"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Maladath"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Mankrik"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Myzrael"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Nazgrim"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Netherwind"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Nightslayer"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["OldBlanchy"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Pagle"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Raden"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Rattlegore"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Skeram"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["SkullRock"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Skyfury"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Smolderweb"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Stalagg"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Sulfuras"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Thalnos"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Thunderfury"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Westfall"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Whitemane"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["WildGrowth"] = {icon = "FlagUS.tga", region = "US", classic = true},
+    ["Windseeker"] = {icon = "FlagUS.tga", region = "US", classic = true},
 }
 
 -- [[ REGION 3: EUROPE & RUSSIA ]] --
 FriendGroups_RealmDataEU = {
-    -- [[ GERMAN (FlagDE.tga) ]] --
-    ["Aegwynn"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Alexstrasza"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Alleria"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Ambossar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["AmanThul"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Antonidas"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Anubarak"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Area52"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Arthas"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Arygos"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Azshara"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Baelgun"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blackhand"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blackmoore"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blackrock"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blutkessel"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Dalvengyr"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DasKonsortium"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DasSyndikat"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DerMithrilorden"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DerRatvonDalaran"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Destromath"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Dethecus"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieAldor"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieArguswacht"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieewigeWacht"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieNachtwache"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieSilberneHand"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieTodeskrallen"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DunMorogh"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Echsenkessel"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Eredar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Everlook"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["FestungderStürme"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Forscherliga"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Frostmourne"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Frostwolf"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Garrosh"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Gilneas"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Gorgonnash"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Guldan"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Kargath"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["KelThuzad"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Khazgoroth"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Kiljaeden"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Kragjin"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Lothar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Madmortem"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["MalGanis"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Malfurion"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Malorne"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Malygos"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Mannoroth"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Mugthol"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Nathrezim"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Nazjatar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Nerathor"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Nethersturm"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Norgannon"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Nozdormu"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Onyxia"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Perenolde"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Proudmoore"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Rajaxx"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Rexxar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Senjin"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Shattrath"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Shendralar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["SteamwheedleCartel"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Taerar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Teldrassil"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Terrordar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Theradras"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Thrall"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Tichondrius"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Tirion"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Todeswache"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Ulduar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["UnGoro"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Veklor"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Venoxis"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Wrathbringer"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Ysera"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["ZirkeldesCenarius"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Zuluhed"] = {icon = "FlagDE.tga", region = "Germany"},
-
-    -- [[ FRENCH (FlagFR.tga) ]] --
-    ["Arakarahm"] = {icon = "FlagFR.tga", region = "France"},
-    ["Arathi"] = {icon = "FlagFR.tga", region = "France"},
-    ["Archimonde"] = {icon = "FlagFR.tga", region = "France"},
-    ["Auberdine"] = {icon = "FlagFR.tga", region = "France"},
-    ["Chantséternels"] = {icon = "FlagFR.tga", region = "France"},
-    ["Chogall"] = {icon = "FlagFR.tga", region = "France"},
-    ["Chromaggus"] = {icon = "FlagFR.tga", region = "France"},
-    ["ConfrérieduThorium"] = {icon = "FlagFR.tga", region = "France"},
-    ["ConseildesOmbres"] = {icon = "FlagFR.tga", region = "France"},
-    ["CulteDeLaRiveNoire"] = {icon = "FlagFR.tga", region = "France"},
-    ["Dalaran"] = {icon = "FlagFR.tga", region = "France"},
-    ["DrekThar"] = {icon = "FlagFR.tga", region = "France"},
-    ["Eitrigg"] = {icon = "FlagFR.tga", region = "France"},
-    ["EldreThalas"] = {icon = "FlagFR.tga", region = "France"},
-    ["Elune"] = {icon = "FlagFR.tga", region = "France"},
-    ["Garona"] = {icon = "FlagFR.tga", region = "France"},
-    ["Hyjal"] = {icon = "FlagFR.tga", region = "France"},
-    ["Illidan"] = {icon = "FlagFR.tga", region = "France"},
-    ["Kaelthas"] = {icon = "FlagFR.tga", region = "France"},
-    ["KhazModan"] = {icon = "FlagFR.tga", region = "France"},
-    ["KirinTor"] = {icon = "FlagFR.tga", region = "France"},
-    ["Krasus"] = {icon = "FlagFR.tga", region = "France"},
-    ["LaCroisadeécarlate"] = {icon = "FlagFR.tga", region = "France"},
-    ["LesClairvoyants"] = {icon = "FlagFR.tga", region = "France"},
-    ["LesSentinelles"] = {icon = "FlagFR.tga", region = "France"},
-    ["MarécagedeZangar"] = {icon = "FlagFR.tga", region = "France"},
-    ["Medivh"] = {icon = "FlagFR.tga", region = "France"},
-    ["Naxxramas"] = {icon = "FlagFR.tga", region = "France"},
-    ["Nerzhul"] = {icon = "FlagFR.tga", region = "France"},
-    ["Rashgarroth"] = {icon = "FlagFR.tga", region = "France"},
-    ["Sargeras"] = {icon = "FlagFR.tga", region = "France"},
-    ["Sinstralis"] = {icon = "FlagFR.tga", region = "France"},
-    ["Suramar"] = {icon = "FlagFR.tga", region = "France"},
-    ["Templenoir"] = {icon = "FlagFR.tga", region = "France"},
-    ["ThrokFeroth"] = {icon = "FlagFR.tga", region = "France"},
-    ["Uldaman"] = {icon = "FlagFR.tga", region = "France"}, 
-    ["Varimathras"] = {icon = "FlagFR.tga", region = "France"},
-    ["Voljin"] = {icon = "FlagFR.tga", region = "France"},
-    ["Ysondre"] = {icon = "FlagFR.tga", region = "France"},
-
-    -- [[ SPANISH (FlagES.tga) ]] --
-    ["CThun"] = {icon = "FlagES.tga", region = "Spain"},
-    ["ColinasPardas"] = {icon = "FlagES.tga", region = "Spain"},
-    ["DunModr"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Exodar"] = {icon = "FlagES.tga", region = "Spain"},
-    ["LosErrantes"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Mandokir"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Minahonda"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Sanguino"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Shendralar"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Tyrande"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Uldum"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Zuljin"] = {icon = "FlagES.tga", region = "Spain"},
-
-    -- [[ ITALIAN (FlagIT.tga) ]] --
-    ["Nemesis"] = {icon = "FlagIT.tga", region = "Italy"},
-    ["PozzodellEternità"] = {icon = "FlagIT.tga", region = "Italy"},
-
-    -- [[ PORTUGUESE (FlagPT.tga) ]] --
-    ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
-    ["GrimBatol"] = {icon = "FlagPT.tga", region = "Portugal"}, 
-
-    -- [[ RUSSIAN (FlagRU.tga) ]] --
-    ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Azuregos"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Blackscar"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["BootyBay"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["BoreanTundra"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Chromie"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Deathguard"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Deepholm"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Eversong"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Flamegor"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Fordragon"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Galakrond"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Goldrinn"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Gordunni"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Grommash"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["HowlingFjord"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["LichKing"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["MoltenCore"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Razuvious"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Soulflayer"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Theradras"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Thermaplugg"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Wyrmthalak"] = {icon = "FlagRU.tga", region = "Russia"},
-
-    -- [[ ENGLISH / UK (FlagGB.tga) ]] --
+    -- [[ EU (FlagGB.tga) ]] --
+    ["AeriePeak"] = {icon = "FlagGB.tga", region = "EU"},
     ["Agamaggan"] = {icon = "FlagGB.tga", region = "EU"},
     ["Aggramar"] = {icon = "FlagGB.tga", region = "EU"},
     ["AhnQiraj"] = {icon = "FlagGB.tga", region = "EU"},
@@ -486,8 +355,8 @@ FriendGroups_RealmDataEU = {
     ["AzjolNerub"] = {icon = "FlagGB.tga", region = "EU"},
     ["Azuremyst"] = {icon = "FlagGB.tga", region = "EU"},
     ["Balnazzar"] = {icon = "FlagGB.tga", region = "EU"},
-    ["BladesEdge"] = {icon = "FlagGB.tga", region = "EU"},
     ["Bladefist"] = {icon = "FlagGB.tga", region = "EU"},
+    ["BladesEdge"] = {icon = "FlagGB.tga", region = "EU"},
     ["Bloodfeather"] = {icon = "FlagGB.tga", region = "EU"},
     ["Bloodhoof"] = {icon = "FlagGB.tga", region = "EU"},
     ["Bloodscalp"] = {icon = "FlagGB.tga", region = "EU"},
@@ -558,6 +427,7 @@ FriendGroups_RealmDataEU = {
     ["Skullcrusher"] = {icon = "FlagGB.tga", region = "EU"},
     ["Spinebreaker"] = {icon = "FlagGB.tga", region = "EU"},
     ["Sporeggar"] = {icon = "FlagGB.tga", region = "EU"},
+    ["SteamwheedleCartel"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormrage"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormreaver"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormscale"] = {icon = "FlagGB.tga", region = "EU"},
@@ -581,56 +451,350 @@ FriendGroups_RealmDataEU = {
     ["Xavius"] = {icon = "FlagGB.tga", region = "EU"},
     ["Zenedar"] = {icon = "FlagGB.tga", region = "EU"},
 
-    -- [[ CLASSIC / ERA EU ]] --
-    ["Firemaw"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Gehennas"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Golemagg"] = {icon = "FlagGB.tga", region = "EU"},
-    ["MirageRaceway"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Mograine"] = {icon = "FlagGB.tga", region = "EU"},
-    ["NekRosh"] = {icon = "FlagGB.tga", region = "EU"},
-    ["PyrewoodVillage"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Soulseeker"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Spineshatter"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Stitches"] = {icon = "FlagGB.tga", region = "EU"},
-    ["Thunderstrike"] = {icon = "FlagGB.tga", region = "EU"},
-    ["WildGrowth"] = {icon = "FlagGB.tga", region = "EU"},
-    ["ZandalarTribe"] = {icon = "FlagGB.tga", region = "EU"},
-    ["CrusaderStrike"] = {icon = "FlagGB.tga", region = "EU"},
-    ["LivingFlame"] = {icon = "FlagGB.tga", region = "EU"},
-    ["LoneWolf"] = {icon = "FlagGB.tga", region = "EU"},
-    ["ChaosBolt"] = {icon = "FlagGB.tga", region = "EU"},
-    ["LavaLash"] = {icon = "FlagGB.tga", region = "EU"},
+    -- [[ EU (FlagGB.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Ashbringer"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Bloodfang"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["ChaosBolt"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["CrusaderStrike"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Dragonfang"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Dreadmist"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Earthshaker"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Firemaw"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Flamelash"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Gandling"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Garalon"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Gehennas"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Giantstalker"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Golemagg"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Hoptallus"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["HydraxianWaterlords"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Jindo"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Judgement"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["LavaLash"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["LivingFlame"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["LoneWolf"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["MirageRaceway"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Mograine"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["NekRosh"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["NethergardeKeep"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Noggenfogger"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Norushen"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["PyrewoodVillage"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Razorgore"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Shazzrah"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Shekzeer"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Skullflame"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Soulseeker"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Spineshatter"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Stitches"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Stonespine"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["TenStorms"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Thekal"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["Thunderstrike"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["WildGrowth"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+    ["ZandalarTribe"] = {icon = "FlagGB.tga", region = "EU", classic = true},
+
+    -- [[ FRANCE (FlagFR.tga) ]] --
+    ["Arakarahm"] = {icon = "FlagFR.tga", region = "France"},
+    ["Arathi"] = {icon = "FlagFR.tga", region = "France"},
+    ["Archimonde"] = {icon = "FlagFR.tga", region = "France"},
+    ["Chantséternels"] = {icon = "FlagFR.tga", region = "France"},
+    ["Chogall"] = {icon = "FlagFR.tga", region = "France"},
+    ["ConfrérieduThorium"] = {icon = "FlagFR.tga", region = "France"},
+    ["ConseildesOmbres"] = {icon = "FlagFR.tga", region = "France"},
+    ["CultedelaRivenoire"] = {icon = "FlagFR.tga", region = "France"},
+    ["Dalaran"] = {icon = "FlagFR.tga", region = "France"},
+    ["DrekThar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Eitrigg"] = {icon = "FlagFR.tga", region = "France"},
+    ["EldreThalas"] = {icon = "FlagFR.tga", region = "France"},
+    ["Elune"] = {icon = "FlagFR.tga", region = "France"},
+    ["Garona"] = {icon = "FlagFR.tga", region = "France"},
+    ["Hyjal"] = {icon = "FlagFR.tga", region = "France"},
+    ["Illidan"] = {icon = "FlagFR.tga", region = "France"},
+    ["Kaelthas"] = {icon = "FlagFR.tga", region = "France"},
+    ["KhazModan"] = {icon = "FlagFR.tga", region = "France"},
+    ["KirinTor"] = {icon = "FlagFR.tga", region = "France"},
+    ["Krasus"] = {icon = "FlagFR.tga", region = "France"},
+    ["LaCroisadeécarlate"] = {icon = "FlagFR.tga", region = "France"},
+    ["LesClairvoyants"] = {icon = "FlagFR.tga", region = "France"},
+    ["LesSentinelles"] = {icon = "FlagFR.tga", region = "France"},
+    ["MarécagedeZangar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Medivh"] = {icon = "FlagFR.tga", region = "France"},
+    ["Naxxramas"] = {icon = "FlagFR.tga", region = "France"},
+    ["Nerzhul"] = {icon = "FlagFR.tga", region = "France"},
+    ["Rashgarroth"] = {icon = "FlagFR.tga", region = "France"},
+    ["Sargeras"] = {icon = "FlagFR.tga", region = "France"},
+    ["Sinstralis"] = {icon = "FlagFR.tga", region = "France"},
+    ["Suramar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Templenoir"] = {icon = "FlagFR.tga", region = "France"},
+    ["ThrokFeroth"] = {icon = "FlagFR.tga", region = "France"},
+    ["Uldaman"] = {icon = "FlagFR.tga", region = "France"},
+    ["Varimathras"] = {icon = "FlagFR.tga", region = "France"},
+    ["Voljin"] = {icon = "FlagFR.tga", region = "France"},
+    ["Ysondre"] = {icon = "FlagFR.tga", region = "France"},
+
+    -- [[ FRANCE (FlagFR.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Amnennar"] = {icon = "FlagFR.tga", region = "France", classic = true},
+    ["Auberdine"] = {icon = "FlagFR.tga", region = "France", classic = true},
+    ["Finkle"] = {icon = "FlagFR.tga", region = "France", classic = true},
+    ["Sulfuron"] = {icon = "FlagFR.tga", region = "France", classic = true},
+
+    -- [[ GERMANY (FlagDE.tga) ]] --
+    ["Aegwynn"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Alexstrasza"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Alleria"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["AmanThul"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ambossar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Anetheron"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Antonidas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Anubarak"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Area52"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Arthas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Arygos"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Azshara"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Baelgun"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackhand"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackmoore"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackrock"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blutkessel"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Dalvengyr"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DasKonsortium"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DasSyndikat"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DerabyssischeRat"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DerMithrilorden"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DerRatvonDalaran"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Destromath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Dethecus"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieAldor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieArguswacht"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieewigeWacht"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieNachtwache"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieSilberneHand"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieTodeskrallen"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DunMorogh"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Durotan"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Echsenkessel"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Eredar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["FestungderStürme"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Forscherliga"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Frostmourne"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Frostwolf"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Garrosh"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Gilneas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Gorgonnash"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Guldan"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kargath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["KelThuzad"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Khazgoroth"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kiljaeden"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kragjin"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["KultderVerdammten"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Lordaeron"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Lothar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Madmortem"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malfurion"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["MalGanis"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malorne"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malygos"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Mannoroth"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Mugthol"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nathrezim"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nazjatar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nefarian"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nerathor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nethersturm"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Norgannon"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nozdormu"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Onyxia"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Perenolde"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Proudmoore"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Rajaxx"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Rexxar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Senjin"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Shattrath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Taerar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Teldrassil"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Terrordar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Theradras"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Thrall"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Tichondrius"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Tirion"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Todeswache"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ulduar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["UnGoro"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Veklor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Wrathbringer"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ysera"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["ZirkeldesCenarius"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Zuluhed"] = {icon = "FlagDE.tga", region = "Germany"},
+
+    -- [[ GERMANY (FlagDE.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Celebras"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["DragonsCall"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Everlook"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Heartstriker"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Lakeshire"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Lucifron"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["OokOok"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Patchwerk"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Razorfen"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Transcendence"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+    ["Venoxis"] = {icon = "FlagDE.tga", region = "Germany", classic = true},
+
+    -- [[ ITALY (FlagIT.tga) ]] --
+    ["Nemesis"] = {icon = "FlagIT.tga", region = "Italy"},
+    ["PozzodellEternità"] = {icon = "FlagIT.tga", region = "Italy"},
+
+    -- [[ PORTUGAL (FlagPT.tga) ]] --
+    ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
+
+    -- [[ RUSSIA (FlagRU.tga) ]] --
+    ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Azuregos"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Blackscar"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["BootyBay"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["BoreanTundra"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Deathguard"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Deathweaver"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Deepholm"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Eversong"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Fordragon"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Galakrond"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Goldrinn"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Gordunni"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Greymane"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Grom"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["HowlingFjord"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["LichKing"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Razuvious"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Soulflayer"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Thermaplugg"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Азурегос"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Azuregos
+    ["Борейскаятундра"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Borean Tundra
+    ["ВечнаяПесня"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Eversong
+    ["Галакронд"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Galakrond
+    ["Голдринн"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Goldrinn
+    ["Гордунни"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Gordunni
+    ["Гром"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Grom
+    ["Дракономор"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Fordragon
+    ["Корольлич"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Lich King
+    ["ПиратскаяБухта"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Booty Bay
+    ["Подземье"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Deepholm
+    ["Разувий"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Razuvious
+    ["Ревущийфьорд"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Howling Fjord
+    ["СвежевательДуш"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Soulflayer
+    ["Седогрив"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Greymane
+    ["СтражСмерти"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Deathguard
+    ["Термоштепсель"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Thermaplugg
+    ["ТкачСмерти"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Deathweaver
+    ["ЧерныйШрам"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Blackscar
+    ["Ясеневыйлес"] = {icon = "FlagRU.tga", region = "Russia"}, -- native name of Ashenvale
+
+    -- [[ RUSSIA (FlagRU.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Anniversary"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Chromie"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Flamegor"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["HarbingerofDoom"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Penance"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Rhokdelar"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Shadowstrike"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["Wyrmthalak"] = {icon = "FlagRU.tga", region = "Russia", classic = true},
+    ["ВестникРока"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Harbinger of Doom
+    ["Годовщина"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Anniversary
+    ["Змейталак"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Wyrmthalak
+    ["Исповедь"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Penance
+    ["Пламегор"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Flamegor
+    ["РокДелар"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Rhok'delar
+    ["УдарТьмы"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Shadowstrike
+    ["Хроми"] = {icon = "FlagRU.tga", region = "Russia", classic = true}, -- native name of Chromie
+
+    -- [[ SPAIN (FlagES.tga) ]] --
+    ["ColinasPardas"] = {icon = "FlagES.tga", region = "Spain"},
+    ["CThun"] = {icon = "FlagES.tga", region = "Spain"},
+    ["DunModr"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Exodar"] = {icon = "FlagES.tga", region = "Spain"},
+    ["LosErrantes"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Minahonda"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Sanguino"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Shendralar"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Tyrande"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Uldum"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Zuljin"] = {icon = "FlagES.tga", region = "Spain"},
+
+    -- [[ SPAIN (FlagES.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["Mandokir"] = {icon = "FlagES.tga", region = "Spain", classic = true},
 }
 
--- [[ REGIONS 2, 4, 5: ASIA & CHINA ]] --
-FriendGroups_RealmDataAsia = {
-    -- China (RegionID: 5)
-    ["AbyssalMaw"] = {icon = "FlagCN.tga", region = "China"},
-    ["AeriePeakCN"] = {icon = "FlagCN.tga", region = "China"},
-    ["Akilzon"] = {icon = "FlagCN.tga", region = "China"},
-    ["Algalon"] = {icon = "FlagCN.tga", region = "China"},
-    ["Chronos"] = {icon = "FlagCN.tga", region = "China"},
-    ["Goldshire"] = {icon = "FlagCN.tga", region = "China"},
-    ["LichKing"] = {icon = "FlagCN.tga", region = "China"},
-    ["Onyxia"] = {icon = "FlagCN.tga", region = "China"},
-    ["SilverHand"] = {icon = "FlagCN.tga", region = "China"},
-    ["SilvermoonCN"] = {icon = "FlagCN.tga", region = "China"},
-    ["TitanReforged"] = {icon = "FlagCN.tga", region = "China"},
-
-    -- Korea (RegionID: 2)
+-- [[ REGION 2: KOREA ]] --
+FriendGroups_RealmDataKR = {
+    -- [[ KOREA (FlagKR.tga) ]] --
+    ["Alexstrasza"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Azshara"] = {icon = "FlagKR.tga", region = "Korea"},
     ["BurningLegion"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Cenarius"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Dalaran"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Deathwing"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Durotan"] = {icon = "FlagKR.tga", region = "Korea"},
-    ["Frostmourne"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Garona"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Guldan"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Hellscream"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Hyjal"] = {icon = "FlagKR.tga", region = "Korea"},
-    ["Ragnaros"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Malfurion"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Norgannon"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Rexxar"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Stormrage"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["Wildhammer"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Windrunner"] = {icon = "FlagKR.tga", region = "Korea"},
     ["Zuljin"] = {icon = "FlagKR.tga", region = "Korea"},
+    ["가로나"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Garona
+    ["굴단"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Gul'dan
+    ["노르간논"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Norgannon
+    ["달라란"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Dalaran
+    ["데스윙"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Deathwing
+    ["듀로탄"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Durotan
+    ["렉사르"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Rexxar
+    ["말퓨리온"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Malfurion
+    ["불타는군단"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Burning Legion
+    ["세나리우스"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Cenarius
+    ["스톰레이지"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Stormrage
+    ["아즈샤라"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Azshara
+    ["알렉스트라자"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Alexstrasza
+    ["와일드해머"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Wildhammer
+    ["윈드러너"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Windrunner
+    ["줄진"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Zul'jin
+    ["하이잘"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Hyjal
+    ["헬스크림"] = {icon = "FlagKR.tga", region = "Korea"}, -- native name of Hellscream
 
-    -- Taiwan (RegionID: 4)
+    -- [[ KOREA (FlagKR.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["FengusFerocity"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Frostmourne"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Hillsbrad"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Iceblood"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Lokholar"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["LoneWolf"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Makgora"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["MoldarsMoxie"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["Ragnaros"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["ShimmeringFlats"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["SlipkiksSavvy"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["WildGrowth"] = {icon = "FlagKR.tga", region = "Korea", classic = true},
+    ["고독한늑대"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Lone Wolf
+    ["급속성장"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Wild Growth
+    ["라그나로스"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Ragnaros
+    ["로크홀라"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Lokholar
+    ["막고라"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Mak'gora
+    ["몰다르의투지"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Mol'dar's Moxie
+    ["서리한"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Frostmourne
+    ["소금평원"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Shimmering Flats
+    ["슬립킥의손재주"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Slip'kik's Savvy
+    ["얼음피"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Iceblood
+    ["펜구스의흉포"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Fengus' Ferocity
+    ["힐스브래드"] = {icon = "FlagKR.tga", region = "Korea", classic = true}, -- native name of Hillsbrad
+}
+
+-- [[ REGION 4: TAIWAN ]] --
+FriendGroups_RealmDataTW = {
+    -- [[ TAIWAN (FlagTW.tga) ]] --
     ["Arthas"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Arygos"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["BleedingHollow"] = {icon = "FlagTW.tga", region = "Taiwan"},
@@ -639,7 +803,7 @@ FriendGroups_RealmDataAsia = {
     ["DemonFallCanyon"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Dragonmaw"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Frostmane"] = {icon = "FlagTW.tga", region = "Taiwan"},
-    ["Global"] = {icon = "FlagTW.tga", region = "Taiwan"},
+    ["Hellscream"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Icecrown"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["KrolBlade"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["LightsHope"] = {icon = "FlagTW.tga", region = "Taiwan"},
@@ -649,11 +813,100 @@ FriendGroups_RealmDataAsia = {
     ["OrderoftheCloudSerpent"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Queldorei"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Shadowmoon"] = {icon = "FlagTW.tga", region = "Taiwan"},
+    ["SilverwingHold"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Skywall"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Spirestone"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Stormscale"] = {icon = "FlagTW.tga", region = "Taiwan"},
-    ["WorldTree"] = {icon = "FlagTW.tga", region = "Taiwan"},
+    ["SundownMarsh"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Whisperwind"] = {icon = "FlagTW.tga", region = "Taiwan"},
+    ["WorldTree"] = {icon = "FlagTW.tga", region = "Taiwan"},
     ["Wrathbringer"] = {icon = "FlagTW.tga", region = "Taiwan"},
-    ["ZealotBlade"] = {icon = "FlagTW.tga", region = "Taiwan"}
+    ["ZealotBlade"] = {icon = "FlagTW.tga", region = "Taiwan"},
+    ["世界之樹"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of World Tree
+    ["亞雷戈斯"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Arygos
+    ["克羅之刃"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Krol Blade
+    ["冰霜之刺"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Frostmane
+    ["冰風崗哨"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Chillwind Point
+    ["地獄吼"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Hellscream
+    ["夜空之歌"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Nightsong
+    ["天空之牆"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Skywall
+    ["寒冰皇冠"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Icecrown
+    ["尖石"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Spirestone
+    ["屠魔山谷"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Demon Fall Canyon
+    ["巨龍之喉"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Dragonmaw
+    ["憤怒使者"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Wrathbringer
+    ["日落沼澤"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Sundown Marsh
+    ["暗影之月"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Shadowmoon
+    ["水晶之刺"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Crystalpine Stinger
+    ["狂熱之刃"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Zealot Blade
+    ["眾星之子"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Quel'dorei
+    ["米奈希爾"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Menethil
+    ["老馬布蘭契"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Old Blanchy
+    ["聖光之願"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Light's Hope
+    ["血之谷"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Bleeding Hollow
+    ["語風"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Whisperwind
+    ["銀翼要塞"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Silverwing Hold
+    ["阿薩斯"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Arthas
+    ["雲蛟衛"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Order of the Cloud Serpent
+    ["雷鱗"] = {icon = "FlagTW.tga", region = "Taiwan"}, -- native name of Stormscale
+
+    -- [[ TAIWAN (FlagTW.tga) - CLASSIC (progression / era / seasonal) ]] --
+    ["ArathiBasin"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["CrusaderStrike"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["FengusFerocity"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Golemagg"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Ivus"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["LivingFlame"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["LoneWolf"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Maraudon"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["MoldarsMoxie"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Murloc"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["SlipkiksSavvy"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Teremus"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Voidwalker"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["WildGrowth"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Windseeker"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Wushoolay"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["Zeliek"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true},
+    ["伊弗斯"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Ivus
+    ["十字軍聖擊"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Crusader Strike
+    ["古雷曼格"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Golemagg
+    ["孤狼"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Lone Wolf
+    ["摩爾達的勇氣"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Mol'dar's Moxie
+    ["斯里基克的機智"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Slip'kik's Savvy
+    ["札里克"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Zeliek
+    ["烏蘇雷"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Wushoolay
+    ["特雷姆斯"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Teremus
+    ["瑪拉頓"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Maraudon
+    ["生命烈焰"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Living Flame
+    ["芬古斯的狂暴"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Fengus' Ferocity
+    ["虛無行者"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Voidwalker
+    ["逐風者"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Windseeker
+    ["野性痊癒"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Wild Growth
+    ["阿拉希盆地"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Arathi Basin
+    ["魚人"] = {icon = "FlagTW.tga", region = "Taiwan", classic = true}, -- native name of Murloc
 }
+
+-- [[ REGION 5: CHINA - hand-maintained, no public API ]] --
+FriendGroups_RealmDataCN = {
+    ["AbyssalMaw"] = {icon = "FlagCN.tga", region = "China"},
+    ["AeriePeak"] = {icon = "FlagCN.tga", region = "China"},
+    ["Akilzon"] = {icon = "FlagCN.tga", region = "China"},
+    ["Algalon"] = {icon = "FlagCN.tga", region = "China"},
+    ["Chronos"] = {icon = "FlagCN.tga", region = "China"},
+    ["Goldshire"] = {icon = "FlagCN.tga", region = "China"},
+    ["LichKing"] = {icon = "FlagCN.tga", region = "China"},
+    ["Onyxia"] = {icon = "FlagCN.tga", region = "China"},
+    ["SilverHand"] = {icon = "FlagCN.tga", region = "China"},
+    ["Silvermoon"] = {icon = "FlagCN.tga", region = "China"},
+    ["TitanReforged"] = {icon = "FlagCN.tga", region = "China"},
+}
+
+-- Single source of truth for regionID -> realm table (used by lookup + search paths).
+function FriendGroups_GetRealmDatabase(regionID)
+    if regionID == 3 then return FriendGroups_RealmDataEU end
+    if regionID == 2 then return FriendGroups_RealmDataKR end
+    if regionID == 4 then return FriendGroups_RealmDataTW end
+    if regionID == 5 then return FriendGroups_RealmDataCN end
+    return FriendGroups_RealmData -- default: region 1 (Americas/Oceania)
+end

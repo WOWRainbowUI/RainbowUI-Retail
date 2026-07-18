@@ -1,11 +1,10 @@
-## Interface: 120005, 120007
+## Interface: 50504
 ## Version: 13.0.0
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r
 ## Author: Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
 ## IconTexture: Interface\AddOns\FriendGroups\Textures\fg
 ## SavedVariables: FriendGroups_SavedVars
-## OptionalDeps: EllesmereUI
 ## X-License: GPLv3
 
 ## Category: Chat
@@ -21,9 +20,9 @@
 ## Category-zhCN: 聊天
 ## Category-zhTW: 對話
 
-## Title-zhTW: |cffFF9999[社交]|r 好友群組
-## Notes-zhTW: FriendGroups |n|n增強遊戲內建的好友名單，可以建立多個不同的群組來分類管理好友名單、顯示職業顏色、搜尋好友、還有更多自訂選項。|n|n|cffffd200使用方法: |r在好友名字上點右鍵來新增或加入群組，在群組名稱或[沒有群組]上面點右鍵進入設定選項。
-## Category-zhTW: 聊天
+# Libraries (load before any addon file that uses them)
+Libs\LibStub\LibStub.lua
+Libs\LibDeflate\LibDeflate.lua
 
 Compat.lua
 locales\localizations.xml
@@ -32,5 +31,4 @@ Platform_Render.lua
 Realms.lua
 FriendGroups.lua
 Sync.lua
-EllesmereSkin.lua
 FriendGroups.xml

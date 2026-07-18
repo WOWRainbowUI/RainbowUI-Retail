@@ -1,0 +1,20 @@
+FriendGroups needs the official LibDeflate library in this folder.
+
+DROP THIS FILE HERE:
+    Libs\LibDeflate\LibDeflate.lua
+
+Get it from the official, trusted source (do NOT retype it):
+    Repo:    https://github.com/SafeteeWoW/LibDeflate
+    Raw:     https://raw.githubusercontent.com/SafeteeWoW/LibDeflate/master/LibDeflate.lua
+    CurseForge / WoWInterface: "LibDeflate" (standalone)
+
+Version pinned/tested against: LibDeflate 1.0.2-release (any 1.0.x is fine).
+License: zlib/MIT (keep its header intact).
+
+The .toc already references Libs\LibDeflate\LibDeflate.lua. Until the real file is
+present, FriendGroups still loads and works, but Export falls back to the legacy
+uncompressed FG1 format and importing a new FG2 backup will report the
+"compression library missing" message.
+
+This .txt is only a marker and is not loaded by the game; you can delete it once
+LibDeflate.lua is in place.
