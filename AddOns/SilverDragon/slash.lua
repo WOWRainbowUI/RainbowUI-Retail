@@ -39,7 +39,7 @@ local commands = {
     ignore = function(self, arg)
         local npcid = ns.input_to_mobid(arg)
         if npcid then
-            if not core:SetIgnoreMob(npcid, true) then
+            if not core:SetIgnore(npcid, true) then
                 return self:Printf("%s (%d) 已經在忽略名單中", core:NameForMob(npcid) or UNKNOWN, npcid)
             end
             return self:Printf("已經將 %s (%d) 加入忽略觀察名單", core:NameForMob(npcid) or UNKNOWN, npcid)

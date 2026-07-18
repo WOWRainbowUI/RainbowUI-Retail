@@ -59,6 +59,26 @@ function module:RegisterConfig()
 					end,
 					order = 23,
 				},
+				showSource = {
+					type = "toggle",
+					name = "Show source",
+					desc = "Show how the mob was detected, e.g. mouseover or vignette",
+					set = function(info, v)
+						self.db.profile[info[#info]] = v
+						module:Redraw()
+					end,
+					order = 24,
+				},
+				showStatus = {
+					type = "toggle",
+					name = "Show status",
+					desc = "Show the achievement / completion status line",
+					set = function(info, v)
+						self.db.profile[info[#info]] = v
+						module:Redraw()
+					end,
+					order = 24.5,
+				},
 				anchor = {
 					type = "execute",
 					name = function() return self.anchor:IsShown() and "隱藏對齊位置" or "顯示對齊位置" end,

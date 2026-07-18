@@ -169,7 +169,7 @@ end
 function ns.Loot.HasMounts(id, only_knowable, only_boe, ...)
 	if not ns.Loot.GetLootTable(id, ...) then return false end
 	for _, item in ns.Loot.IterMounts(id, ...) do
-		if ((not only_knowable) or not item:Available() and ((not only_boe) or itemBindOnEquip(item))) then
+		if (not only_knowable) or (item:Available() and ((not only_boe) or itemBindOnEquip(item))) then
 			return true
 		end
 	end
@@ -181,7 +181,7 @@ function ns.Loot.HasInterestingMounts(id, ...)
 end
 function ns.Loot.HasPets(id, only_knowable, ...)
 	if not ns.Loot.GetLootTable(id, ...) then return false end
-	for _, item in ns.Loot.IterPets(id) do
+	for _, item in ns.Loot.IterPets(id, ...) do
 		if (not only_knowable) or item:Available() then
 			return true
 		end
@@ -290,6 +290,8 @@ local function get_tooltip(tooltip, i)
 	return tooltip
 end
 
+local SHARED_HEADER = "Shared loot"
+
 ns.Loot.Details = {}
 
 local showRestrictions = function(tooltip, item)
@@ -350,13 +352,32 @@ end
 
 ns.Loot.Summary = {}
 function ns.Loot.Summary.UpdateTooltip(tooltip, id, only_knowable, ...)
-	local loot = ns.Loot.GetLootTable(id, ...)
-	if not loot then
-		return
+	local function shouldShow(item)
+		return (not only_knowable or item:Obtained() ~= nil)
+			and (not core.db.profile.charloot or item:MightDrop())
 	end
 
-	for _, item in ipairs(loot) do
-		item:AddToTooltip(tooltip)
+	local loot = ns.Loot.GetLootTable(id, ...)
+	if loot then
+		for _, item in ipairs(loot) do
+			if shouldShow(item) then
+				item:AddToTooltip(tooltip)
+			end
+		end
+	end
+
+	local sharedLoot = ns.Loot.GetLootTable(id, ..., true)
+	if sharedLoot then
+		local sharedShown = false
+		for _, item in ipairs(sharedLoot) do
+			if shouldShow(item) then
+				if not sharedShown then
+					tooltip:AddLine(SHARED_HEADER, NORMAL_FONT_COLOR:GetRGB())
+					sharedShown = true
+				end
+				item:AddToTooltip(tooltip)
+			end
+		end
 	end
 end
 
@@ -709,9 +730,24 @@ do
 		core.events:Fire("LootWindowReleased", window)
 	end
 
-	function ns.Loot.Window.ShowForMob(id, independent, treasure, shared)
-		local loot = ns.Loot.GetLootTable(id, treasure)
-		local sharedLoot = shared and ns.Loot.GetLootTable(id, treasure, true)
+	local function lootFilter(filter, loot)
+		if loot then
+			if filter then
+				loot = tFilter(loot, filter, true)
+			end
+			if #loot == 0 then
+				return nil
+			end
+		end
+		return loot
+	end
+	function ns.Loot.Window.ShowForMob(id, independent, treasure, shared, extraFilter)
+		local filter = function(item)
+			if extraFilter and not extraFilter(item) then return false end
+			return not core.db.profile.charloot or item:MightDrop()
+		end
+		local loot = lootFilter(filter, ns.Loot.GetLootTable(id, treasure))
+		local sharedLoot = lootFilter(filter, shared and ns.Loot.GetLootTable(id, treasure, true))
 		if not (loot or sharedLoot) then
 			-- TODO: error message
 			return false

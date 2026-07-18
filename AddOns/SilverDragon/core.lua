@@ -386,8 +386,11 @@ do
 	function addon:BuildLookupTables()
 		wipe(mobdb)
 		wipe(mobsByZone)
+		wipe(mobNamesByZone)
 		wipe(questMobLookup)
 		wipe(vignetteMobLookup)
+		wipe(worldQuestMobLookup)
+		wipe(ns.vignetteTreasureLookup)
 		for source, data in pairs(addon.datasources) do
 			if addon.db.global.datasources[source] then
 				for mobid, mobdata in pairs(data) do
@@ -612,7 +615,7 @@ end
 function addon:GetMobByCoord(zone, coord, include_ignored)
 	if not mobsByZone[zone] then return end
 	for id, locations in pairs(mobsByZone[zone]) do
-		if self:IsMobInPhase(id, zone) and include_ignored or not self:ShouldIgnoreMob(id) then
+		if self:IsMobInPhase(id, zone) and (include_ignored or not self:ShouldIgnoreMob(id)) then
 			for _, mob_coord in ipairs(locations) do
 				if coord == mob_coord then
 					return id, self:GetMobInfo(id)
@@ -635,7 +638,8 @@ end
 
 do
 	local lastseen = {}
-	function addon:NotifyForMob(id, zone, x, y, is_dead, source, unit, silent, force, GUID)
+	local function seenkey(id, zone) return id..':'..(zone or '?') end
+	function addon:NotifyForMob(id, zone, x, y, is_dead, source, unit, silent, force, GUID, vignetteGUID)
 		self.events:Fire("Seen_Raw", id, zone, x, y, is_dead, source, unit)
 
 		if silent then
@@ -647,7 +651,7 @@ do
 			return
 		end
 		if not force and not self:WouldNotifyForMob(id, zone) then
-			Debug("Skipping notification: seen", id, lastseen[id..zone], time() - self.db.profile.delay, source)
+			Debug("Skipping notification: seen", id, lastseen[seenkey(id, zone)], time() - self.db.profile.delay, source)
 			return
 		end
 		if not self:PlayerIsInteractive() then
@@ -656,12 +660,12 @@ do
 		end
 		globaldb.mob_count[id] = globaldb.mob_count[id] + 1
 		globaldb.mob_seen[id] = time()
-		lastseen[id..zone] = time()
-		self.events:Fire("Seen", id, zone, x or 0, y or 0, is_dead, source, unit, GUID)
+		lastseen[seenkey(id, zone)] = time()
+		self.events:Fire("Seen", id, zone, x or 0, y or 0, is_dead, source, unit, GUID, vignetteGUID)
 		return true
 	end
 	function addon:WouldNotifyForMob(id, zone)
-		return not (lastseen[id..zone] and time() < (lastseen[id..zone] + self.db.profile.delay))
+		return not (lastseen[seenkey(id, zone)] and time() < (lastseen[seenkey(id, zone)] + self.db.profile.delay))
 	end
 end
 do
