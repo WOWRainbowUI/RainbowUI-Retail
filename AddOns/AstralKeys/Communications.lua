@@ -299,12 +299,23 @@ function addon.AnnounceKey()
 end
 
 local function ParseGuildChatCommands(text)
-	if UnitLevel('player') ~= addon.EXPANSION_LEVEL then return end -- Don't bother checking anything if the unit is unable to acquire a key
-	if not canaccessvalue(text) then return end
+	addon.PrintDebug('ParseGuildChatCommands')
+	if UnitLevel('player') ~= addon.EXPANSION_LEVEL then 
+		-- Don't bother checking anything if the unit is unable to acquire a key
+		addon.PrintDebug('Player not at max level: ' .. UnitLevel('player') .. ' ' .. addon.EXPANSION_LEVEL)
+		return 
+	end
+	if not canaccessvalue(text) then 
+		addon.PrintDebug('Unable to parse Guild chat command. Addon is currently restricted from reading chat.')
+		return 
+	end
+	local origText = text
 	text = gsub(text, "^%[%a+%] ", "") -- Strip off [SomeName] from message from using Identity-2
+	addon.PrintDebug('Chat parsed: "' .. origText .. '" -> "' .. text .. '"')
 	if text:lower() == addon.KEYS_TEXT_COMMAND then
 		local guild = GetGuildInfo('player')
 		if AstralKeysSettings.general.report_on_message['guild'] or (guild == 'Astral' and addon.PlayerRealm() == 'Area52') then -- Guild leader for Astral desires this setting to be foreced on for members.
+			addon.PrintDebug('Keystone ID: ' .. (addon.keystone.id or 'nil'))
 			if AstralKeysSettings.general.report_on_message['all_characters'] then
 				addon.AnnounceCharacterKeys('GUILD', true)
 			elseif addon.keystone.id then
@@ -317,17 +328,30 @@ local function ParseGuildChatCommands(text)
 					SendChatMessage(strformat('%s: %s', 'Astral Keys', L['NO_KEY']), 'GUILD')
 				end
 			end
+		else
+			addon.PrintDebug('Not reporting key to Guild, setting is disabled.')
 		end
 	end
 end
 AstralEvents:Register('CHAT_MSG_GUILD', ParseGuildChatCommands, 'parseguildchat')
 
 local function ParsePartyChatCommands(text)
-	if UnitLevel('player') ~= addon.EXPANSION_LEVEL then return end -- Don't bother checking anything if the unit is unable to acquire a key
-	if not canaccessvalue(text) then return end
+	addon.PrintDebug('ParsePartyChatCommands')
+	if UnitLevel('player') ~= addon.EXPANSION_LEVEL then 
+		-- Don't bother checking anything if the unit is unable to acquire a key
+		addon.PrintDebug('Player not at max level: ' .. UnitLevel('player') .. ' ' .. addon.EXPANSION_LEVEL)
+		return 
+	end
+	if not canaccessvalue(text) then 
+		addon.PrintDebug('Unable to parse Party chat command. Addon is currently restricted from reading chat.')
+		return 
+	end
+	local origText = text
 	text = gsub(text, "^%[%a+%] ", "") -- Strip off [SomeName] from message from using Identity-2
+	addon.PrintDebug('Chat parsed: "' .. origText .. '" -> "' .. text .. '"')
 	if text:lower() == addon.KEYS_TEXT_COMMAND then
 		if AstralKeysSettings.general.report_on_message['party'] then
+			addon.PrintDebug('Keystone ID: ' ..  (addon.keystone.id or 'nil'))
 			if AstralKeysSettings.general.report_on_message['all_characters'] then
 				addon.AnnounceCharacterKeys('PARTY', true)
 			elseif addon.keystone.id then
@@ -340,6 +364,8 @@ local function ParsePartyChatCommands(text)
 					SendChatMessage(strformat('%s: %s', 'Astral Keys', L['NO_KEY']), 'PARTY')
 				end
 			end
+		else
+			addon.PrintDebug('Not reporting key to Party, setting is disabled.')
 		end
 	end
 end
@@ -366,7 +392,10 @@ end
 
 local function ParseRaidChatCommands(text)
 	if UnitLevel('player') ~= addon.EXPANSION_LEVEL then return end -- Don't bother checking anything if the unit is unable to acquire a key
-	if not canaccessvalue(text) then return end
+	if not canaccessvalue(text) then 
+		addon.PrintDebug('Unable to parse Raid chat command. Addon is currently restricted from reading chat.')
+		return 
+	end
 	text = gsub(text, "^%[%a+%] ", "") -- Strip off [SomeName] from message from using Identity-2
 	if text:lower() == addon.KEYS_TEXT_COMMAND then
 		if AstralKeysSettings.general.report_on_message['raid'] then
@@ -382,6 +411,8 @@ local function ParseRaidChatCommands(text)
 					SendChatMessage(strformat('%s: %s', 'Astral Keys', L['NO_KEY']), 'RAID')
 				end
 			end
+		else
+			addon.PrintDebug('Not reporting key to Raid, setting is disabled.')
 		end
 	end
 end
