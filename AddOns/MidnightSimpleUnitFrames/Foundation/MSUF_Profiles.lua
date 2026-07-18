@@ -66,13 +66,15 @@ local MSUF_ProfileIO_PostProfileRuntimeApply
 local function MSUF_ProfileIO_InCombatLockdown()
     return (_G.InCombatLockdown and _G.InCombatLockdown()) and true or false
 end
-local function MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll)
+local function MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll, refreshStatus)
     if not MSUF_ProfileIO_InCombatLockdown() then
         return false
     end
+    local previous = _G.MSUF_ProfileIO_PendingPostProfileRuntimeApply
     _G.MSUF_ProfileIO_PendingPostProfileRuntimeApply = {
         reason = reason or "PROFILE_APPLY",
         applyAll = applyAll == true,
+        refreshStatus = refreshStatus == true or (previous and previous.refreshStatus == true),
     }
     local f = _G.MSUF_ProfileIO_PostProfileDeferFrame
     if not f and type(_G.CreateFrame) == "function" then
@@ -85,7 +87,11 @@ local function MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll)
             local pending = _G.MSUF_ProfileIO_PendingPostProfileRuntimeApply
             _G.MSUF_ProfileIO_PendingPostProfileRuntimeApply = nil
             if pending and MSUF_ProfileIO_PostProfileRuntimeApply then
-                MSUF_ProfileIO_PostProfileRuntimeApply(pending.reason or "PROFILE_APPLY_AFTER_COMBAT", pending.applyAll == true)
+                MSUF_ProfileIO_PostProfileRuntimeApply(
+                    pending.reason or "PROFILE_APPLY_AFTER_COMBAT",
+                    pending.applyAll == true,
+                    pending.refreshStatus == true
+                )
             end
         end)
     end
@@ -97,9 +103,9 @@ local function MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll)
     end
     return true
 end
-MSUF_ProfileIO_PostProfileRuntimeApply = function(reason, applyAll)
+MSUF_ProfileIO_PostProfileRuntimeApply = function(reason, applyAll, refreshStatus)
     reason = reason or "PROFILE_APPLY"
-    if MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll) then
+    if MSUF_ProfileIO_DeferPostProfileRuntimeApply(reason, applyAll, refreshStatus) then
         return
     end
     if applyAll == true then
@@ -121,6 +127,10 @@ MSUF_ProfileIO_PostProfileRuntimeApply = function(reason, applyAll)
     MSUF_ProfileIO_CallGlobal("MSUF_ApplyPowerBarEmbedLayout_All")
     MSUF_ProfileIO_CallGlobal("MSUF_Portraits_ForceRefresh")
     MSUF_ProfileIO_CallGlobal("MSUF_PortraitDecoration_RefreshAll")
+    MSUF_ProfileIO_CallGlobal("MSUF_RequestClampAllFramesToScreen")
+    if refreshStatus == true then
+        MSUF_ProfileIO_CallGlobal("MSUF_RefreshStatusIndicators")
+    end
 end
 -- Compact codec (backward compatible)
 -- New export format (preferred):
@@ -766,6 +776,69 @@ local function MSUF_DeepCopy(v)
     end
      return out
 end
+
+local UUF_IMPORT_ADDON = "MidnightSimpleUnitFrames_UUFImporter"
+local UUF_ACTIVE_BLOCK_MESSAGE = "UnhaltedUnitFrames is currently loaded. Disable it and reload the UI before importing a UUF profile into the active MSUF profile."
+
+local function MSUF_ProfileIO_IsUUFImportString(value)
+    return type(value) == "string" and value:match("^%s*!UUF_") ~= nil
+end
+
+local function MSUF_ProfileIO_IsUUFLoaded()
+    local addons = rawget(_G, "C_AddOns")
+    local checker = addons and addons.IsAddOnLoaded or rawget(_G, "IsAddOnLoaded")
+    if type(checker) ~= "function" then return false end
+    local ok, loaded = pcall(checker, "UnhaltedUnitFrames")
+    return ok and loaded == true
+end
+
+local function MSUF_ProfileIO_GetLoadedUUFImporter()
+    local namespace = rawget(_G, "MSUF_NS") or ns
+    local importer = namespace and namespace.MSUF_UUFImport
+    if type(importer) ~= "table" then return nil end
+    return importer
+end
+
+local function MSUF_ProfileIO_GetUUFImporter()
+    local importer = MSUF_ProfileIO_GetLoadedUUFImporter()
+    if importer then return importer end
+
+    local addons = rawget(_G, "C_AddOns")
+    local loader = addons and addons.LoadAddOn or rawget(_G, "LoadAddOn")
+    if type(loader) ~= "function" then
+        return nil, "load-on-demand API unavailable"
+    end
+    local ok, loaded, reason = pcall(loader, UUF_IMPORT_ADDON)
+    if not ok then return nil, tostring(loaded) end
+
+    importer = MSUF_ProfileIO_GetLoadedUUFImporter()
+    if importer then return importer end
+    return nil, tostring(reason or loaded or "converter did not register")
+end
+
+local function MSUF_ProfileIO_ConvertUUFString(value, baseProfile)
+    local importer, loadError = MSUF_ProfileIO_GetUUFImporter()
+    if not (importer and type(importer.ConvertString) == "function") then
+        return nil, nil, "UUF converter is unavailable: " .. tostring(loadError or "unknown error")
+    end
+    local ok, converted, reportOrError = pcall(importer.ConvertString, value, baseProfile)
+    if not ok then return nil, nil, tostring(converted) end
+    if type(converted) ~= "table" then
+        return nil, nil, tostring(reportOrError or "UUF conversion failed")
+    end
+    return converted, reportOrError
+end
+
+local function MSUF_ProfileIO_PrintUUFReport(report)
+    local importer = MSUF_ProfileIO_GetLoadedUUFImporter()
+    if importer and type(importer.PrintReport) == "function" then
+        pcall(importer.PrintReport, report)
+    end
+end
+
+_G.MSUF_IsUUFImportString = MSUF_ProfileIO_IsUUFImportString
+_G.MSUF_IsUUFLoaded = MSUF_ProfileIO_IsUUFLoaded
+
 -- Deterministic-ish Lua serializer (good enough for UI copy/paste strings).
 local function MSUF_SerializeLuaTable(root)
     local function valToStr(v)
@@ -1358,7 +1431,7 @@ function MSUF_ExportSelectionToString(kind)
     -- 0-regression fallback
     return MSUF_SerializeLuaTable(snap)
 end
-local function MSUF_ApplyLegacyTableToActiveProfile(tbl)
+local function MSUF_ApplyLegacyTableToActiveProfile(tbl, refreshStatus)
     if type(tbl) ~= "table" then
         print("|cffff0000MSUF:|r Legacy import failed: not a table.")
          return false
@@ -1378,10 +1451,29 @@ local function MSUF_ApplyLegacyTableToActiveProfile(tbl)
     MSUF_ProfileIO_PostImportApply_Auras("all", tbl)
     MSUF_ProfileIO_PostImportApply_GroupFrames("all", tbl)
     MSUF_ProfileIO_PostImportApply_UnitAlphas("all", tbl)
-    MSUF_ProfileIO_PostProfileRuntimeApply("PROFILE_LEGACY_IMPORT", true)
+    MSUF_ProfileIO_PostProfileRuntimeApply("PROFILE_LEGACY_IMPORT", true, refreshStatus)
     print("|cff00ff00MSUF:|r Legacy profile imported into the active profile.")
      return true
 end
+
+local function MSUF_ProfileIO_TryImportUUFIntoActiveProfile(value)
+    if not MSUF_ProfileIO_IsUUFImportString(value) then return nil end
+    if MSUF_ProfileIO_IsUUFLoaded() then
+        print("|cffff0000MSUF:|r UUF import blocked: " .. UUF_ACTIVE_BLOCK_MESSAGE)
+        return false
+    end
+
+    local converted, report, why = MSUF_ProfileIO_ConvertUUFString(value, MSUF_DB or {})
+    if not converted then
+        print("|cffff0000MSUF:|r UUF import failed: " .. tostring(why))
+        return false
+    end
+
+    local imported = MSUF_ApplyLegacyTableToActiveProfile(converted, true)
+    if imported then MSUF_ProfileIO_PrintUUFReport(report) end
+    return imported == true
+end
+
 -- New import: understands snapshots (fmt=2) and applies selection into active profile.
 -- New import: understands MSUF2 compact strings, snapshots (fmt=2), and legacy full dumps.
 function MSUF_ImportFromString(str)
@@ -1389,6 +1481,8 @@ function MSUF_ImportFromString(str)
         print("|cffff0000MSUF:|r Import failed (empty string).")
          return false
     end
+    local uufResult = MSUF_ProfileIO_TryImportUUFIntoActiveProfile(str)
+    if uufResult ~= nil then return uufResult end
     -- NEW: compact path (no loadstring)
     local tryDec = _G.MSUF_TryDecodeCompactString
     if type(tryDec) == "function" then
@@ -1449,6 +1543,8 @@ function MSUF_ImportLegacyFromString(str)
         print("|cffff0000MSUF:|r Legacy import failed (empty string).")
          return false
     end
+    local uufResult = MSUF_ProfileIO_TryImportUUFIntoActiveProfile(str)
+    if uufResult ~= nil then return uufResult end
     local function ImportDecodedLegacyTable(tbl)
         if type(tbl) == "table" and tbl.addon == "MSUF" and tonumber(tbl.fmt) == 2 and type(tbl.payload) == "table" then
             local kind = (tbl.kind == "groupframes") and "groupframe" or tbl.kind
@@ -1520,7 +1616,7 @@ local function MSUF_ProfileIO_GetProfileTable(profileKey)
     MSUF_ProfileIO_EnsureProfilesTable()
     return MSUF_GlobalDB.profiles[profileKey]
 end
-local function MSUF_ProfileIO_OverwriteProfile(profileKey, newTable)
+local function MSUF_ProfileIO_OverwriteProfile(profileKey, newTable, refreshStatus)
     if type(profileKey) ~= "string" or profileKey == "" then
          return false, "invalid profileKey"
     end
@@ -1550,7 +1646,7 @@ local function MSUF_ProfileIO_OverwriteProfile(profileKey, newTable)
         MSUF_ProfileIO_PostImportApply_Auras("all", target)
         MSUF_ProfileIO_PostImportApply_GroupFrames("all", target)
         MSUF_ProfileIO_PostImportApply_UnitAlphas("all", target)
-        MSUF_ProfileIO_PostProfileRuntimeApply("PROFILE_EXTERNAL_IMPORT", true)
+        MSUF_ProfileIO_PostProfileRuntimeApply("PROFILE_EXTERNAL_IMPORT", true, refreshStatus)
          return true
     end
     if type(existing) == "table" then
@@ -1598,6 +1694,21 @@ function MSUF_ImportExternal(profileString, profileKey)
     end
     if type(profileKey) ~= "string" or profileKey == "" then
          return false, "invalid profileKey"
+    end
+    if MSUF_ProfileIO_IsUUFImportString(profileString) then
+        local isActive = profileKey == MSUF_ActiveProfile
+        if isActive and MSUF_ProfileIO_IsUUFLoaded() then
+            return false, "UUF import blocked: " .. UUF_ACTIVE_BLOCK_MESSAGE
+        end
+
+        local profiles = MSUF_GlobalDB and MSUF_GlobalDB.profiles
+        local baseProfile = isActive and MSUF_DB or (profiles and profiles[profileKey])
+        local converted, report, why = MSUF_ProfileIO_ConvertUUFString(profileString, baseProfile or {})
+        if not converted then return false, "UUF import failed: " .. tostring(why) end
+
+        local imported, importError = MSUF_ProfileIO_OverwriteProfile(profileKey, converted, isActive)
+        if imported then MSUF_ProfileIO_PrintUUFReport(report) end
+        return imported, importError
     end
     -- Prefer compact decode (no loadstring).
     local tryDec = _G.MSUF_TryDecodeCompactString

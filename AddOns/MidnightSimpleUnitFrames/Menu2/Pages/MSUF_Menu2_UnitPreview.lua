@@ -1047,7 +1047,11 @@ local function PositionFromAnchor(frame, anchor, x, y, target, size)
 end
 
 local function ResolveRuntimeIconLayoutAnchor(anchor, allowCenter)
-    if allowCenter and anchor == "CENTER" then return "CENTER", "CENTER" end
+    if anchor == "CENTER" then return "CENTER", "CENTER" end
+    if anchor == "TOP" then return "TOP", "TOP" end
+    if anchor == "BOTTOM" then return "BOTTOM", "BOTTOM" end
+    if anchor == "LEFT" then return "LEFT", "LEFT" end
+    if anchor == "RIGHT" then return "RIGHT", "RIGHT" end
     if anchor == "TOPRIGHT" then return "RIGHT", "TOPRIGHT" end
     if anchor == "BOTTOMLEFT" then return "LEFT", "BOTTOMLEFT" end
     if anchor == "BOTTOMRIGHT" then return "RIGHT", "BOTTOMRIGHT" end
@@ -1070,6 +1074,14 @@ local function PositionStatusCornerPreview(frame, anchor, x, y, target, pad)
     pad = tonumber(pad) or 2
     if anchor == "CENTER" then
         frame:SetPoint("CENTER", target, "CENTER", x, y)
+    elseif anchor == "TOP" then
+        frame:SetPoint("TOP", target, "TOP", x, -pad + y)
+    elseif anchor == "BOTTOM" then
+        frame:SetPoint("BOTTOM", target, "BOTTOM", x, pad + y)
+    elseif anchor == "LEFT" then
+        frame:SetPoint("LEFT", target, "LEFT", pad + x, y)
+    elseif anchor == "RIGHT" then
+        frame:SetPoint("RIGHT", target, "RIGHT", -pad + x, y)
     elseif anchor == "TOPRIGHT" then
         frame:SetPoint("TOPRIGHT", target, "TOPRIGHT", -pad + x, -pad + y)
     elseif anchor == "BOTTOMLEFT" then
@@ -1495,6 +1507,38 @@ SelectPreviewHandle = function(handle, skipSectionOpen)
     RefreshHandleSelectionVisuals(box)
 end
 
+local UNIT_PREVIEW_SECTION_IDS = {
+    text = "text",
+    status = "status_icons",
+    portrait = "portrait",
+    power = "power_bar",
+    castbar = "castbar",
+}
+
+local function OpenPreviewHandleSettings(handle)
+    if not handle then return false end
+    local box = handle._preview or Preview.active
+    if not box then return false end
+    SelectPreviewHandle(handle, true)
+
+    local fields = handle._fields or {}
+    if fields.statusRefresh then
+        local menu = _G.MSUF2
+        local unit = box.key or "player"
+        if menu then
+            menu.unitStatusSelection = menu.unitStatusSelection or {}
+            menu.unitStatusSelection[unit] = NormalizeStatusPreviewId(handle._key)
+        end
+    end
+
+    local panel = box._msufPanel
+    local sectionId = UNIT_PREVIEW_SECTION_IDS[fields.section or ""] or "text"
+    if panel and type(panel._msufOpenUnitSection) == "function" then
+        return panel._msufOpenUnitSection(sectionId) ~= false
+    end
+    return false
+end
+
 local function PreviewArrowKeyDown(self, keyName)
     local box = (self and self._preview) or self or Preview.active
     local dx, dy = 0, 0
@@ -1526,7 +1570,8 @@ local function MakeHandle(preview, key, fields, label, color)
     local h = CreateFrame("Button", nil, preview.canvas)
     h:SetFrameLevel((preview.canvas:GetFrameLevel() or 0) + 30)
     h:SetSize(20, 20)
-    h:RegisterForClicks("LeftButtonUp")
+    h:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonUp")
+    if h.RegisterForDrag then h:RegisterForDrag("LeftButton") end
     h:EnableMouse(true)
     h:EnableKeyboard(true)
     if h.SetPropagateKeyboardInput then h:SetPropagateKeyboardInput(true) end
@@ -1570,6 +1615,8 @@ local function MakeHandle(preview, key, fields, label, color)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetText(TR(label), 1, 1, 1)
             GameTooltip:AddLine(TR("Drag this preview element to adjust the same X/Y offsets used by Edit Mode."), 0.82, 0.82, 0.82, true)
+            GameTooltip:AddLine(TR("Double-click to open this element's settings."), 0.50, 0.78, 0.92, true)
+            GameTooltip:AddLine(TR("Right-click opens quick actions."), 0.50, 0.78, 0.92, true)
             GameTooltip:AddLine(TR("Arrow keys nudge the selected element. Shift = 5, Ctrl = 10."), 0.55, 0.62, 0.72, true)
             GameTooltip:Show()
         end
@@ -1579,12 +1626,39 @@ local function MakeHandle(preview, key, fields, label, color)
         RefreshHandleSelectionVisuals(preview)
         if GameTooltip then GameTooltip:Hide() end
     end)
-    h:SetScript("OnClick", function(self)
+    h:SetScript("OnClick", function(self, button)
+        if self._suppressNextClick then
+            self._suppressNextClick = nil
+            return
+        end
+        if button == "RightButton" then
+            SelectPreviewHandle(self, true)
+            if PreviewHelpers.ShowPreviewHandleContext then
+                PreviewHelpers.ShowPreviewHandleContext(self, {
+                    M = M,
+                    T = M.Theme,
+                    Tr = TR,
+                    title = self._label or self._key,
+                    openSettings = OpenPreviewHandleSettings,
+                })
+            end
+            return
+        end
         SelectPreviewHandle(self)
+    end)
+    h:SetScript("OnDoubleClick", function(self, button)
+        if button and button ~= "LeftButton" then return end
+        OpenPreviewHandleSettings(self)
     end)
     local function StartHandleDrag(self, button)
         if button and button ~= "LeftButton" then return end
-        SelectPreviewHandle(self)
+        if self._dragging == true or preview.dragFrame._handle == self then return true end
+        if button == "LeftButton" and IsControlKeyDown and IsControlKeyDown()
+            and preview._startPreviewPan and preview._startPreviewPan(button) then
+            self._suppressNextClick = true
+            return true
+        end
+        SelectPreviewHandle(self, true)
         local x, y = ReadHandleOffsets(self)
         self._startX = x
         self._startY = y
@@ -1595,14 +1669,22 @@ local function MakeHandle(preview, key, fields, label, color)
         local cx, cy = GetCursorPosition()
         self._cursorX, self._cursorY = cx, cy
         preview.dragFrame._handle = self
+        preview.dragFrame:SetAllPoints(preview.canvas)
         preview.dragFrame:SetScript("OnUpdate", preview._onDragUpdate)
+        preview.dragFrame:SetScript("OnMouseUp", function(df, upButton)
+            local active = df and df._handle
+            local stop = active and active.GetScript and active:GetScript("OnMouseUp")
+            if type(stop) == "function" then stop(active, upButton) end
+        end)
         preview.dragFrame:Show()
         RefreshHandleSelectionVisuals(preview)
     end
     local function StopHandleDrag(self, button)
+        if preview._stopPreviewPan then preview._stopPreviewPan() end
         if button and button ~= "LeftButton" then return end
         if preview.dragFrame._handle == self then
             preview.dragFrame:SetScript("OnUpdate", nil)
+            preview.dragFrame:SetScript("OnMouseUp", nil)
             preview.dragFrame._handle = nil
             preview.dragFrame:Hide()
         end
@@ -1617,6 +1699,8 @@ local function MakeHandle(preview, key, fields, label, color)
     end
     h:SetScript("OnMouseDown", StartHandleDrag)
     h:SetScript("OnMouseUp", StopHandleDrag)
+    h:SetScript("OnDragStart", StartHandleDrag)
+    h:SetScript("OnDragStop", StopHandleDrag)
     h:SetScript("OnHide", StopHandleDrag)
     h:SetScript("OnKeyDown", PreviewArrowKeyDown)
     h:Hide()
@@ -2039,10 +2123,16 @@ local function BuildPreview(parent, panel, width, height)
 
     box.handles = {}
     box.dragFrame = CreateFrame("Frame", nil, canvas)
+    box.dragFrame:EnableMouse(true)
     box.dragFrame:Hide()
     box._onDragUpdate = function(df)
         local h = df._handle
         if not h then return end
+        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+            local stop = h.GetScript and h:GetScript("OnMouseUp")
+            if type(stop) == "function" then stop(h, "LeftButton") end
+            return
+        end
         local cx, cy = GetCursorPosition()
         local scale = box._mockScale or 1
         local uiScale = (UIParent and UIParent.GetEffectiveScale and UIParent:GetEffectiveScale()) or 1
@@ -2097,7 +2187,9 @@ local function BuildPreview(parent, panel, width, height)
         RefreshHandleSelectionVisuals(self)
         if Preview.active == self then Preview.active = nil end
         self.dragFrame:SetScript("OnUpdate", nil)
+        self.dragFrame:SetScript("OnMouseUp", nil)
         self.dragFrame._handle = nil
+        if self._stopPreviewPan then self._stopPreviewPan() end
         if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(true) end
     end)
     box:SetScript("OnEvent", function(_, event)
@@ -2108,6 +2200,12 @@ local function BuildPreview(parent, panel, width, height)
             box._refreshQueued = nil
         end
     end)
+
+    if PreviewHelpers.BuildZoomBar then
+        PreviewHelpers.BuildZoomBar(box, canvas, {
+            refresh = function(previewBox, reason) Preview.Refresh(previewBox, reason) end,
+        })
+    end
 
     return box
 end
@@ -2737,13 +2835,18 @@ function Preview.Refresh(box, reason)
     end
     local footprintW = max(wideW, maxX - minX)
     local footprintH = max(h, maxY - minY)
-    local scale = min(1.45, (cw - 60) / max(footprintW, 1), (ch - 42) / max(footprintH, 1))
-    if scale < 0.75 then scale = 0.75 end
+    local autoScale = min(1.45, (cw - 60) / max(footprintW, 1), (ch - 42) / max(footprintH, 1))
+    if autoScale < 0.75 then autoScale = 0.75 end
+    box._mockAutoScale = autoScale
+    local scale = box._manualZoom and ((PreviewHelpers.ClampZoom and PreviewHelpers.ClampZoom(box._manualZoom)) or box._manualZoom) or autoScale
     box._mockScale = scale
+    if PreviewHelpers.UpdateZoomControls then PreviewHelpers.UpdateZoomControls(box) end
     local function S(v) return floor((tonumber(v) or 0) * scale + 0.5) end
     local sw, sh, sp = S(w), S(h), S(pSize)
     local mockOffsetX = -S(((minX + maxX) * 0.5) - (w * 0.5))
     local mockOffsetY = -S(((minY + maxY) * 0.5) - (h * 0.5))
+    local panX, panY = tonumber(box._zoomPanX) or 0, tonumber(box._zoomPanY) or 0
+    box._mockBaseOffsetX, box._mockBaseOffsetY = mockOffsetX, mockOffsetY
 
     local mock = box.mock
     local baseLevel = (canvas.GetFrameLevel and canvas:GetFrameLevel() or 0) + 2
@@ -2762,16 +2865,18 @@ function Preview.Refresh(box, reason)
     if mock.hpLayer and mock.hpLayer.SetFrameLevel then mock.hpLayer:SetFrameLevel(textBase + ClampPreviewLayer(conf.hpTextLayer, 5)) end
     if mock.powerLayer and mock.powerLayer.SetFrameLevel then mock.powerLayer:SetFrameLevel(textBase + ClampPreviewLayer(conf.powerTextLayer, 2)) end
     if mock.bounds and mock.bounds.SetFrameLevel then mock.bounds:SetFrameLevel(baseLevel + 28) end
-    SetTex(mock.hp, type(_G.MSUF_GetBarTexture) == "function" and _G.MSUF_GetBarTexture() or TEX_W8)
-    SetTex(mock.power, type(_G.MSUF_GetBarTexture) == "function" and _G.MSUF_GetBarTexture() or TEX_W8)
-    SetTex(mock.hpBG, type(_G.MSUF_GetBarBackgroundTexture) == "function" and _G.MSUF_GetBarBackgroundTexture() or TEX_W8)
-    SetTex(mock.powerBG, type(_G.MSUF_GetBarBackgroundTexture) == "function" and _G.MSUF_GetBarBackgroundTexture() or TEX_W8)
+    local getBarTexture = _G.MSUF_GetBarTextureForFrame or _G.MSUF_GetBarTexture
+    local getBarBgTexture = _G.MSUF_GetBarBackgroundTextureForFrame or _G.MSUF_GetBarBackgroundTexture
+    SetTex(mock.hp, type(getBarTexture) == "function" and getBarTexture(key) or TEX_W8)
+    SetTex(mock.power, type(getBarTexture) == "function" and getBarTexture(key) or TEX_W8)
+    SetTex(mock.hpBG, type(getBarBgTexture) == "function" and getBarBgTexture(key) or TEX_W8)
+    SetTex(mock.powerBG, type(getBarBgTexture) == "function" and getBarBgTexture(key) or TEX_W8)
     SetTex(mock.detachedPower.fill, type(_G.MSUF_GetBarTexture) == "function" and _G.MSUF_GetBarTexture() or TEX_W8)
     SetTex(mock.cast.fill, type(_G.MSUF_GetCastbarTexture) == "function" and _G.MSUF_GetCastbarTexture() or TEX_W8)
     mock:SetSize(sw, sh)
     if mock.sizeTag then mock.sizeTag:SetText(format("%d x %d", w, h)) end
     mock:ClearAllPoints()
-    mock:SetPoint("CENTER", canvas, "CENTER", mockOffsetX, mockOffsetY)
+    mock:SetPoint("CENTER", canvas, "CENTER", mockOffsetX + panX, mockOffsetY + panY)
 
     local powerOn = D.ReadPowerBarEnabled(conf, key) and not detachedPower
     local powerH = powerOn and S(ReadPowerBarHeight(conf)) or 0
@@ -3133,6 +3238,9 @@ function Preview.Refresh(box, reason)
         box.handlePortrait:Hide()
     end
 
+    box._detachedCastPreview = castPreviewVisible and castDetached or nil
+    box._detachedCastBaseOffsetX = box._detachedCastPreview and S(castOffsetX) or nil
+    box._detachedCastBaseOffsetY = box._detachedCastPreview and S(castOffsetY) or nil
     if castPreviewVisible then
         mock.cast:Show()
         if type(_G.MSUF_GetCastbarBackgroundColor) == "function" then
@@ -3147,7 +3255,7 @@ function Preview.Refresh(box, reason)
         end
         mock.cast:ClearAllPoints()
         if castDetached then
-            mock.cast:SetPoint("CENTER", canvas, "CENTER", S(castOffsetX), S(castOffsetY))
+            mock.cast:SetPoint("CENTER", canvas, "CENTER", S(castOffsetX) + panX, S(castOffsetY) + panY)
         elseif key == "player" then
             mock.cast:SetPoint("BOTTOM", mock, "TOP", S(castOffsetX), S(castOffsetY))
         else

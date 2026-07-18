@@ -4,10 +4,55 @@ local _, ns = ...
 ns = ns or {}
 
 local data = {
-    currentVersion = "5.70",
-    previousVersion = "5.60",
-    rangeLabel = "5.60 -> 5.70",
+    currentVersion = "5.72",
+    previousVersion = "5.71",
+    rangeLabel = "5.71 -> 5.72",
     entries = {
+        {
+            version = "5.72",
+            date = "2026-07-18",
+            sections = {
+                {
+                    title = "Highlights",
+                    bullets = {
+                        "New load-on-demand importer for UnhaltedUnitFrames 12.1 profiles.",
+                        "New Unit and Group preview controls: zoom, pan, quick actions, and direct settings links.",
+                        "Per-unit Blizzard frame ownership for Player, Pet, Target, Target of Target, Focus, Focus Target, and Boss frames.",
+                    },
+                },
+                {
+                    title = "Import & Layout Fidelity",
+                    bullets = {
+                        "Native conversion of supported frame, aura, castbar, indicator, color, texture, alpha, range, text, and position settings.",
+                        "Safer imports with warnings, conversion reports, transactional profiles, and active-profile protection.",
+                        "Improved Target of Target text, per-frame textures, legacy indicator sizes, custom status icons, and matching previews.",
+                        "Automatic on-screen correction for imported and manually moved Unit and Group Frames.",
+                    },
+                },
+                {
+                    title = "Fixes & Polish",
+                    bullets = {
+                        "Fixed range fading for complete Unit Frames.",
+                        "Improved Group previews, aura controls, Edit Mode dragging, change history, font previews, menu scaling, and search.",
+                        "Fixed overlapping Blizzard-frame notices in compact Unit Basics layouts.",
+                    },
+                },
+            },
+        },
+        {
+            version = "5.71",
+            date = "2026-07-11",
+            sections = {
+                {
+                    title = "Hotfix",
+                    bullets = {
+                        "Fixed repeated ADDON_ACTION_FORBIDDEN errors on Warrior login caused by the Whirlwind tracker registering COMBAT_LOG_EVENT_UNFILTERED while Class Resource was disabled.",
+                        "Restored the lightweight 5.6 spellcast-driven Whirlwind generator tracking and removed the global combat-log listener.",
+                        "Bound Whirlwind tracker events only while the Warrior Class Resource is active and cleanly unbound them when the feature is disabled.",
+                    },
+                },
+            },
+        },
         {
             version = "5.70",
             date = "2026-07-08",
@@ -69,49 +114,6 @@ local data = {
                     bullets = {
                         "Fixed compound unit event routing for Target of Target and Focus Target so targettarget and focustarget updates keep health, power, name, and dependent visuals current even when client-specific RegisterUnitEvent filtering falls back to broader unit events.",
                         "Fixed Interrupt Ready box and border repaint caching so secret RGBA values from cooldown color evaluation are never compared in Lua, preventing rare _kickReadyFillR taint errors during target, focus, or boss castbar updates.",
-                    },
-                },
-            },
-        },
-        {
-            version = "5.58",
-            date = "2026-06-08",
-            sections = {
-                {
-                    title = "Fixes",
-                    bullets = {
-                        "Fixed missing-health text formatting for imported profiles with secret health values.",
-                    },
-                },
-            },
-        },
-        {
-            version = "5.57",
-            date = "2026-06-04",
-            sections = {
-                {
-                    title = "Edge Case Fixes",
-                    bullets = {
-                        "Fixed a rare health-bar smoothing edge case where preserved HP color could leave a transparent strip while the bar was shrinking.",
-                        "Improved Blizzard party-frame fallback behavior when MSUF group frames are disabled, including arena and login/zone-change cases where Blizzard frames could be missing or briefly ghosted while solo.",
-                        "Hardened gameplay font application so profiles that reference missing SharedMedia or disabled addon fonts fall back safely instead of producing font asset errors.",
-                        "Refreshed group-frame range fade after instance, roster, and combat transitions so players who join or zone into an instance out of combat no longer stay faded as out of range until combat or /reload.",
-                        "Improved the missing buff scan for rare readable-aura edge cases.",
-                    },
-                },
-                {
-                    title = "Compatibility and Safety",
-                    bullets = {
-                        "Added a clear WoW 12.1 compatibility warning for MSUF 5.x users, with localized popup and chat messaging that points users to the current Alpha/Beta build for WoW 12.1.",
-                        "Kept secret-aura handling conservative while improving missing buff detection.",
-                    },
-                },
-                {
-                    title = "Performance Notes",
-                    bullets = {
-                        "Kept the new range recovery finite and event-driven instead of adding constant polling.",
-                        "Kept the missing buff scan on the existing cached aura path where possible.",
-                        "Kept the new font and Blizzard-frame safeguards on cold apply/login paths.",
                     },
                 },
             },
