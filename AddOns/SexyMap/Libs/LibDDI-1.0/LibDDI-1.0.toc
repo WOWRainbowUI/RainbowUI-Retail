@@ -1,5 +1,5 @@
-## Interface: 11508, 11507, 20505, 30405, 38001, 40402, 50503, 50504, 120001, 120005, 120007
-## Version: v12.0.0
+## Interface: 11508, 11507, 20505, 20506, 30405, 38001, 40402, 50503, 50504, 120100, 120005, 120007
+## Version: v12.0.1
 ## LoadOnDemand: 1
 ## Title: Lib: Dropdown Items
 ## Notes: Simple AceGUI3 dropdown item classes for font/statusbar/sound/etc.
