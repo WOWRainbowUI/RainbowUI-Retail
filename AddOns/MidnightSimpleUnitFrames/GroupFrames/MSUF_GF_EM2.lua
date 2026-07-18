@@ -173,6 +173,7 @@ local function SyncContainer(kind)
     -- configured columns.
     local count = (gf.GetPositionCount and gf.GetPositionCount(kind)) or GetPreviewCount(kind)
     local _, _, totalW, totalH = gf.GetGridMetrics(kind, count)
+    if gf.ClampPositionToScreen then gf.ClampPositionToScreen(kind, count) end
     local cx = conf.offsetX
     local cy = conf.offsetY
     if cx == nil or cy == nil then
@@ -236,6 +237,7 @@ local function NudgePreviewKind(kind, dx, dy)
 
     conf.offsetX = math_floor(((tonumber(conf.offsetX) or defX) + (dx or 0)) + 0.5)
     conf.offsetY = math_floor(((tonumber(conf.offsetY) or defY) + (dy or 0)) + 0.5)
+    if gf.ClampPositionToScreen then gf.ClampPositionToScreen(kind) end
 
     SyncContainer(kind)
     if gf.RefreshPreviewLayout then
@@ -269,7 +271,7 @@ function _G.MSUF_GF_EM2_SetPreviewNudgeTarget(kind, source)
     })
 end
 
-local function BeginPreviewDrag(kind)
+local function BeginPreviewDrag(kind, source)
     if not _em2Active then return false end
     if InCombatLockdown and InCombatLockdown() then return false end
 
@@ -283,6 +285,7 @@ local function BeginPreviewDrag(kind)
     if not mover or not EM2.Ticker then return false end
 
     mover._dragging = true
+    mover._msufGFEM2DragSourceFrame = source
     if mover._coordFS then mover._coordFS:Show() end
     if _G.MSUF_EM_UndoBeforeChange then
         _G.MSUF_EM_UndoBeforeChange("unit", key)
@@ -296,6 +299,7 @@ local function EndPreviewDrag(kind, source)
     local mover = key and EM2.Movers and EM2.Movers.Get and EM2.Movers.Get(key)
     if mover then
         mover._dragging = false
+        mover._msufGFEM2DragSourceFrame = nil
         if mover._coordFS then mover._coordFS:Hide() end
     end
     if EM2.Snap and EM2.Snap.HideGuides then EM2.Snap.HideGuides() end
@@ -320,7 +324,7 @@ local function WirePreviewMouse(kind)
             if f.RegisterForDrag then f:RegisterForDrag("LeftButton") end
             if f.EnableMouse then f:EnableMouse(true) end
             f:SetScript("OnDragStart", function(self)
-                if BeginPreviewDrag(self._msufGFEM2Kind or kind) then
+                if BeginPreviewDrag(self._msufGFEM2Kind or kind, self) then
                     self._msufGFEM2Dragging = true
                 end
             end)

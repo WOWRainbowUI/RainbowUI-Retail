@@ -1004,6 +1004,19 @@ local ECV_ANCHORS = {
     focustarget  = { "TOP",   "RIGHT",   0,  40 },
 }
 
+local function UsesEssentialCooldownAnchor(conf, general)
+    if type(general) == "table" and (
+        general.anchorToCooldown == true
+        or general.anchorName == "EssentialCooldownViewer"
+    ) then
+        return true
+    end
+    return type(conf) == "table" and (
+        conf.anchorFrameName == "EssentialCooldownViewer"
+        or conf.anchorToUnitframe == "EssentialCooldownViewer"
+    )
+end
+
 local function PointXY(fr, p)
     if not fr or not p then return nil, nil end
     if p == "CENTER" then return fr:GetCenter() end
@@ -1033,11 +1046,80 @@ local function ResolveAnchor(key, conf)
     end
     local atv = conf.anchorToUnitframe
     if type(atv) == "string" and atv ~= "" and atv ~= "GLOBAL" and atv ~= "FREE" and atv ~= "global" then
+        if atv == "EssentialCooldownViewer" then
+            local ecvFn = _G.MSUF_GetEffectiveCooldownFrame
+            local ecv = (type(ecvFn) == "function" and ecvFn(atv)) or _G[atv]
+            if ecv and ecv ~= UIParent and ecv ~= WorldFrame then return ecv end
+        end
         local uf = _G.MSUF_UnitFrames or _G.UnitFrames
         local rel = uf and uf[atv] or _G["MSUF_" .. atv]
         if rel and rel ~= UIParent and rel ~= WorldFrame then return rel end
     end
     return anchor
+end
+
+local GROUP_KEY_KIND = {
+    gf_party = "party",
+    gf_raid = "raid",
+    gf_mythicraid = "mythicraid",
+}
+
+local GROUP_VALID_POINTS = {
+    CENTER = true, TOP = true, BOTTOM = true, LEFT = true, RIGHT = true,
+    TOPLEFT = true, TOPRIGHT = true, BOTTOMLEFT = true, BOTTOMRIGHT = true,
+}
+
+local function ResolveGroupDragAnchor(key, conf)
+    local gf = ns and ns.GF
+    local kind = GROUP_KEY_KIND[key]
+    if gf and kind and type(gf.ResolveAnchorFrame) == "function" then
+        local anchor = gf.ResolveAnchorFrame(kind)
+        if anchor then return anchor, kind end
+    end
+    return UIParent, kind
+end
+
+local function GroupDragAnchorPoint(conf)
+    local point = conf and (conf.anchorPoint or conf.point) or "CENTER"
+    if not GROUP_VALID_POINTS[point] then point = "CENTER" end
+    return point
+end
+
+local function ApplyGroupDragPosition(d, centerX, centerY)
+    if not (d and d.conf) then return false end
+    local anchor = d.anchor or UIParent
+    local anchorPoint = d.groupAnchorPoint or "CENTER"
+    local ax, ay = PointXY(anchor, anchorPoint)
+    if not (ax and ay) then
+        anchor, anchorPoint = UIParent, "CENTER"
+        ax, ay = UIParent:GetCenter()
+    end
+    if not (ax and ay) then return false end
+
+    -- Mover centers and GetLeft/GetTop-derived anchor points are both in
+    -- UIParent coordinates, including when the configured anchor is scaled.
+    local nextX = round((centerX or d.startCX or 0) - ax)
+    local nextY = round((centerY or d.startCY or 0) - ay)
+    local previousX, previousY = d.conf.offsetX, d.conf.offsetY
+    d.conf.offsetX, d.conf.offsetY = nextX, nextY
+    -- Current 5.72 Group Frames always consume offsets as grid-center values.
+    -- Imported legacy flags must not switch the drag path back to top-left math.
+    d.conf.positionMode = "GRID_CENTER_V1"
+    local clampGroup = _G.MSUF_GF_ClampPositionToScreen
+    if type(clampGroup) == "function" and d.groupKind then
+        clampGroup(d.groupKind)
+        nextX, nextY = d.conf.offsetX, d.conf.offsetY
+    end
+    local changed = previousX ~= nextX or previousY ~= nextY
+
+    local bar = d.bar
+    if bar and not IsConfigCombatLocked() then
+        bar._msufDragActive = false
+        bar:ClearAllPoints()
+        bar:SetPoint("CENTER", anchor, anchorPoint, nextX, nextY)
+        bar._msufDragActive = true
+    end
+    return changed
 end
 
 local tickerFrame
@@ -1046,6 +1128,16 @@ local idleSyncAcc = 0
 
 local function OnUpdate(self, elapsed)
     if activeDrag then
+        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+            local mover = activeDrag.mover
+            local stop = mover and mover.GetScript and mover:GetScript("OnDragStop")
+            if type(stop) == "function" then
+                stop(mover)
+            elseif Ticker.EndDrag then
+                Ticker.EndDrag()
+            end
+            return
+        end
         local d = activeDrag
         local sc = UIParent:GetEffectiveScale()
         local mx, my = GetCursorPosition()
@@ -1080,8 +1172,8 @@ local function OnUpdate(self, elapsed)
 
         -- ═══════════════════════════════════════════════════════════════
         -- Position bar with CENTER — same code path as PositionUnitFrame.
-        -- Group Frames use a stricter UIParent-center path so mouse release
-        -- matches the exact preview landing spot with no final snap drift.
+        -- Group Frames use their configured anchor contract here so mouse
+        -- release cannot reinterpret the stored offsets and snap back.
         -- ═══════════════════════════════════════════════════════════════
 
         local bar = d.bar
@@ -1090,26 +1182,7 @@ local function OnUpdate(self, elapsed)
             local conf = d.conf
 
             if d.isGroupFrame then
-                local bw = bar:GetWidth() or 0
-                local bh = bar:GetHeight() or 0
-                if conf.positionMode == "TOPLEFT_V2" then
-                    conf.offsetX = round(snapCX - d.screenW * 0.5 - bw * 0.5)
-                    conf.offsetY = round(snapCY - d.screenH * 0.5 + bh * 0.5)
-                    pcall(function()
-                        bar._msufDragActive = false
-                        bar:ClearAllPoints()
-                        bar:SetPoint("TOPLEFT", UIParent, "CENTER", conf.offsetX, conf.offsetY)
-                    end)
-                else
-                    conf.offsetX = round(snapCX - d.screenW * 0.5)
-                    conf.offsetY = round(snapCY - d.screenH * 0.5)
-                    pcall(function()
-                        bar._msufDragActive = false
-                        bar:ClearAllPoints()
-                        bar:SetPoint("CENTER", UIParent, "CENTER", conf.offsetX, conf.offsetY)
-                    end)
-                end
-                bar._msufDragActive = true
+                ApplyGroupDragPosition(d, snapCX, snapCY)
             else
                 -- Compute where bar center IS in screen pixels after hypothetical move
                 -- snapCX/snapCY are in UIParent coords.
@@ -1150,7 +1223,7 @@ local function OnUpdate(self, elapsed)
                         or _G["EssentialCooldownViewer"]
                     local ecvRule = d.ecvRule
 
-                    if _g and (_g.anchorToCooldown or _g.anchorName == "EssentialCooldownViewer") and ecv and anchor == ecv and ecvRule then
+                    if UsesEssentialCooldownAnchor(conf, _g) and ecv and anchor == ecv and ecvRule then
                         -- ECV path: PositionUnitFrame uses point-to-point
                         -- We wrote center-to-center offset above, need to convert for ECV
                         local point, relPoint, baseX, extraY = ecvRule[1], ecvRule[2], ecvRule[3] or 0, ecvRule[4] or 0
@@ -1203,6 +1276,11 @@ local function OnUpdate(self, elapsed)
 end
 
 function Ticker.BeginDrag(mover, key, cfg)
+    if activeDrag then
+        local staleMover = activeDrag.mover
+        local stop = staleMover and staleMover.GetScript and staleMover:GetScript("OnDragStop")
+        if type(stop) == "function" then stop(staleMover) else Ticker.EndDrag() end
+    end
     local bar = cfg.getFrame and cfg.getFrame()
     if bar then bar._msufDragActive = true end
 
@@ -1217,7 +1295,13 @@ function Ticker.BeginDrag(mover, key, cfg)
     local mCX = (mL + mR) * 0.5
     local mCY = (mT + mB) * 0.5
 
-    local anchor = ResolveAnchor(key, conf)
+    local isGroupFrame = GROUP_KEY_KIND[key] ~= nil or (bar and bar._msufIsGroupFrame == true) or false
+    local anchor, groupKind
+    if isGroupFrame then
+        anchor, groupKind = ResolveGroupDragAnchor(key, conf)
+    else
+        anchor = ResolveAnchor(key, conf)
+    end
 
     local bossAdjX, bossAdjY
     if bar and conf and key and key:sub(1,4) == "boss" and bar.unit then
@@ -1256,7 +1340,9 @@ function Ticker.BeginDrag(mover, key, cfg)
         screenH      = UIParent:GetHeight(),
         bossAdjX     = bossAdjX,
         bossAdjY     = bossAdjY,
-        isGroupFrame = (key == "gf_party" or key == "gf_raid" or key == "gf_mythicraid") or (bar and bar._msufIsGroupFrame == true) or false,
+        isGroupFrame = isGroupFrame,
+        groupKind    = groupKind,
+        groupAnchorPoint = isGroupFrame and GroupDragAnchorPoint(conf) or nil,
     }
 end
 
@@ -1266,6 +1352,12 @@ function Ticker.EndDrag()
     activeDrag = nil
 
     if d.bar then d.bar._msufDragActive = false end
+    local sourceFrame = d.mover and d.mover._msufGFEM2DragSourceFrame
+    if sourceFrame then
+        sourceFrame._msufGFEM2Dragging = nil
+        sourceFrame._msufGFEM2LastDragEnd = GetTime and GetTime() or 0
+        d.mover._msufGFEM2DragSourceFrame = nil
+    end
     if EM2.Snap and EM2.Snap.HideGuides then EM2.Snap.HideGuides() end
 
     local mover = d.mover
@@ -1293,16 +1385,8 @@ function Ticker.EndDrag()
             if C_Timer and C_Timer.After then C_Timer.After(0.08, RefreshHomeDashboard) else RefreshHomeDashboard() end
         end
         if d.isGroupFrame and d.conf then
-            d.conf.offsetX = round(cx - d.screenW * 0.5)
-            d.conf.offsetY = round(cy - d.screenH * 0.5)
-            if d.bar and not IsConfigCombatLocked() then
-                pcall(function()
-                    d.bar._msufDragActive = false
-                    d.bar:ClearAllPoints()
-                    d.bar:SetPoint("CENTER", UIParent, "CENTER", d.conf.offsetX, d.conf.offsetY)
-                end)
-                d.bar._msufDragActive = true
-            end
+            ApplyGroupDragPosition(d, cx, cy)
+            if d.bar then d.bar._msufDragActive = false end
         end
         -- Offsets already written by OnUpdate. Just finalize pipeline.
         ApplySettingsForKeySafe(d.key)

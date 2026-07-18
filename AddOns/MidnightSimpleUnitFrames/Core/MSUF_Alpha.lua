@@ -218,7 +218,9 @@ local function _AlphaApplyPreserveTexture(sb, preserve)
         tex = _AlphaResolveUnhaltedTexture()
         if not tex then return end
     else
-        tex = (type(_G.MSUF_GetBarTexture) == "function" and _G.MSUF_GetBarTexture()) or nil
+        local getBarTexture = _G.MSUF_GetBarTextureForFrame or _G.MSUF_GetBarTexture
+        local owner = sb.GetParent and sb:GetParent() or nil
+        tex = (type(getBarTexture) == "function" and getBarTexture(owner)) or nil
         sb._msufAlphaPreserveTexture = nil
     end
     local fill = sb.GetStatusBarTexture and sb:GetStatusBarTexture()
@@ -311,8 +313,9 @@ local function _AlphaEnsureMissingHPBackground(frame)
         if lvl < 0 then lvl = 0 end
         bg:SetFrameLevel(lvl)
     end
+    local getBarBgTexture = _G.MSUF_GetBarBackgroundTextureForFrame or _G.MSUF_GetBarBackgroundTexture
     local tex = _AlphaResolveUnhaltedTexture()
-        or (type(_G.MSUF_GetBarBackgroundTexture) == "function" and _G.MSUF_GetBarBackgroundTexture())
+        or (type(getBarBgTexture) == "function" and getBarBgTexture(frame))
         or "Interface\\Buttons\\WHITE8x8"
     if bg._msufMissingBgTex ~= tex then
         bg:SetStatusBarTexture(tex)
@@ -912,8 +915,9 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
                     return
                 else
                     alphaFG = alphaFG * m
+                    alphaBG = alphaBG * m
                     MSUF_Alpha_ApplyLayered(frame, alphaFG, alphaBG, layerMode, preserveHPColor,
-                        _AlphaShouldRangeFadePortrait() and m or 1, true)
+                        _AlphaShouldRangeFadePortrait() and m or 1)
                     MSUF_Alpha_SetTextAlpha(frame, m)
                     if isEditMode then
                         local curA = frame:GetAlpha()
@@ -978,7 +982,7 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
 
     if rangeMul < 1 and frame._msufAlphaSupportsLayered then
         local rangeA = a * rangeMul
-        MSUF_Alpha_ApplyLayered(frame, rangeA, a, "foreground", false, rangeA, true)
+        MSUF_Alpha_ApplyLayered(frame, rangeA, rangeA, "foreground", false, rangeA)
         MSUF_Alpha_SetTextAlpha(frame, rangeA)
         if isEditMode then
             local curA = frame:GetAlpha()
@@ -1051,8 +1055,8 @@ function _G.MSUF_ApplyRangeFadeAlphaFast(frame, key, mul)
             return true
         end
         if m < 1 then
-            MSUF_Alpha_ApplyLayered(frame, fg * m, bg, mode, preserveHPColor,
-                _AlphaShouldRangeFadePortrait() and m or 1, true)
+            MSUF_Alpha_ApplyLayered(frame, fg * m, bg * m, mode, preserveHPColor,
+                _AlphaShouldRangeFadePortrait() and m or 1)
             MSUF_Alpha_SetTextAlpha(frame, m)
             return true
         end
@@ -1071,7 +1075,7 @@ function _G.MSUF_ApplyRangeFadeAlphaFast(frame, key, mul)
         end
         if m < 1 and frame._msufAlphaSupportsLayered then
             local rangeA = a * m
-            MSUF_Alpha_ApplyLayered(frame, rangeA, a, "foreground", false, rangeA, true)
+            MSUF_Alpha_ApplyLayered(frame, rangeA, rangeA, "foreground", false, rangeA)
             MSUF_Alpha_SetTextAlpha(frame, rangeA)
             return true
         end
