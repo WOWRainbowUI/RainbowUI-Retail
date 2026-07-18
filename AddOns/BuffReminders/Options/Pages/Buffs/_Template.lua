@@ -56,6 +56,17 @@ function Template.Build(content, scrollFrame, category, opts)
         return
     end
 
+    -- Standalone category-specific sections lead the tab, so the controls
+    -- unique to this category sit above the shared backbone. Sub-extensions
+    -- that merely continue a shared section (FreeConsumables under Visibility,
+    -- RaidIcons under Icons) stay nested with their parent below.
+    if category == "pet" then
+        Sections.PetDisplay(ctx, layout)
+    end
+    if category == "consumable" then
+        Sections.ItemDisplay(ctx, layout)
+    end
+
     Sections.Visibility(ctx, layout)
     if category == "consumable" then
         Sections.FreeConsumables(ctx, layout)
@@ -65,12 +76,6 @@ function Template.Build(content, scrollFrame, category, opts)
         Sections.RaidIcons(ctx, layout)
     end
     Sections.ClickToCast(ctx, layout)
-    if category == "pet" then
-        Sections.PetDisplay(ctx, layout)
-    end
-    if category == "consumable" then
-        Sections.ItemDisplay(ctx, layout)
-    end
     -- Pet reminders have no expiration concept (a pet is present or missing),
     -- so the Timing section is skipped there.
     if category ~= "pet" then
