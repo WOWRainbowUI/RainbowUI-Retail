@@ -150,6 +150,7 @@ L["COMBAT"] = "Combat"
 L["FRIENDLY_PLAYER"] = "Friendly Player"
 L["ENEMY_PLAYER"] = "Enemy Player"
 L["SHOW_ON_INTERRUPT"] = "Show on interrupt"
+L["CANNOT_ALTER_AURAS_IN_COMBAT"] = "Cannot alter auras in combat"
 
 L["FOREGROUND"] = "Foreground"
 L["VISUAL"] = "Visual"
@@ -378,6 +379,8 @@ L["SLASH_RESET"] = "reset"
 L["SLASH_RESET_HELP"] = "Reset all Platynator settings, then reload."
 L["SLASH_HELP"] = "Open the Platynator settings."
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
+
+L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select settings didn't include settings for a unit type (either \"Can Attack\" or \"Cannot Attack\")."
 
 local L = Locales.frFR
 L["ABSOLUTE"] = "Absolu"

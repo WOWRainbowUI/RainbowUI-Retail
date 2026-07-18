@@ -24,6 +24,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
   self.pools = {}
   self.clickRegionPool = CreateFramePool("Frame")
 
+  self.preallocatedDisplaysByIndex = {}
+  self.preallocatedDisplays = {}
+
   self.nameplateDisplays = {}
   self.nameplateClickRegions = {}
   self.nameplateStackRegions = {}
@@ -48,6 +51,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
+  if C_Secrets and C_Secrets.HasSecretRestrictions() then
+    self:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
+  end
 
   if not addonTable.Constants.IsMidnightNext then
     C_Timer.NewTicker(0.1, function()
@@ -130,9 +136,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:SetScript("OnUpdate", function()
         local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
         addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
-        self.styleIndex = self.styleIndex + 1
         self:UpdateFriendlyFont()
         self:UpdateNamePlateSize()
+        self:RestylePoolsStaggered()
         self:SetScript("OnUpdate", nil)
         for unit in pairs(self.nameplateDisplays) do
           self:Uninstall(unit)
@@ -152,6 +158,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
     if state[addonTable.Constants.RefreshReason.Scale] or state[addonTable.Constants.RefreshReason.TargetBehaviour] then
       self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
+      self:RestylePoolsStaggered()
 
       for unit in pairs(self.nameplateDisplays) do
         self:Uninstall(unit)
@@ -163,6 +170,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
     if state[addonTable.Constants.RefreshReason.StackingBehaviour] then
       self:UpdateNamePlateSize()
       self:UpdateStacking()
+      self:RestylePoolsStaggered()
       for unit in pairs(self.nameplateDisplays) do
         self:Uninstall(unit)
         self:Install(unit)
@@ -175,6 +183,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateShowState()
     end
     if state[addonTable.Constants.RefreshReason.Simplified] then
+      self:RestylePoolsStaggered()
       local allUnits = GetKeysArray(self.nameplateDisplays)
       for _, unit in ipairs(allUnits) do
         self:Uninstall(unit)
@@ -193,6 +202,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self.styleIndex = self.styleIndex + 1
       local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
       addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+      self:RestylePoolsStaggered()
       self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
       self:UpdateAllClickRegions()
@@ -249,17 +259,87 @@ function addonTable.Display.ManagerMixin:OnLoad()
 end
 
 function addonTable.Display.ManagerMixin:GetPool(index)
-  if self.pools[index] then
-    return self.pools[index]
-  end
+  assert(self.pools[index], "Missing pool")
+  return self.pools[index]
+end
 
+function addonTable.Display.ManagerMixin:GeneratePoolForIndex(index)
+  self.preallocatedDisplaysByIndex[index] = {}
   self.pools[index] = CreateFramePool("Frame", UIParent, nil, nil, false, function(frame)
     Mixin(frame, addonTable.Display.NameplateMixin)
     frame.kind = index
     frame:OnLoad()
-  end)
+    table.insert(self.preallocatedDisplays, frame)
+    table.insert(self.preallocatedDisplaysByIndex[index], frame)
+  end, 40)
+end
 
-  return self.pools[index]
+function addonTable.Display.ManagerMixin:GeneratePools()
+  local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
+
+  for index, settings in ipairs(assignments) do
+    self:GeneratePoolForIndex(index)
+  end
+
+  self:RestylePools()
+end
+
+function addonTable.Display.ManagerMixin:RestylePools()
+  local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
+
+  while #self.pools < #assignments do
+    self:GeneratePoolForIndex(#self.pools + 1)
+  end
+
+  for index, list in pairs(self.preallocatedDisplaysByIndex) do
+    local settings = assignments[index]
+    if settings then
+      local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
+      for _, display in ipairs(list) do
+        if display.styleIndex ~= self.styleIndex then
+          display:InitializeWidgets(design, scaleOffset, scaleMod)
+          display.styleIndex = self.styleIndex
+        end
+      end
+    end
+  end
+end
+
+function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
+  if self.styleTicker then
+    self.styleTicker:Cancel()
+    self.styleTicker = nil
+  end
+  self.styleIndex = self.styleIndex + 1
+
+  if addonTable.Utilities.IsChangesRestricted() then -- Can do the rest lazily as we know it doesn't affect auras
+    return
+  end
+
+  local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
+
+  while #self.pools < #assignments do
+    self:GeneratePoolForIndex(#self.pools + 1)
+  end
+
+  local index = 1
+  self.styleTicker = C_Timer.NewTicker(0.1, function()
+    for i = index, index + 10 - 1 do
+      local display = self.preallocatedDisplays[i]
+      local settings = assignments[display.kind]
+      if settings then
+        local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
+        if display.styleIndex ~= self.styleIndex then
+          display:InitializeWidgets(design, scaleOffset, scaleMod)
+          display.styleIndex = self.styleIndex
+        end
+      end
+    end
+    index = index + 10
+    if index > #self.preallocatedDisplays then
+      self.styleTicker = nil
+    end
+  end, #self.preallocatedDisplays / 10)
 end
 
 function addonTable.Display.ManagerMixin:CombatChangesCheck()
@@ -435,7 +515,7 @@ function addonTable.Display.ManagerMixin:UpdateNamePlatePosition()
 end
 
 function addonTable.Display.ManagerMixin:ListenToBuffs(display, unit)
-  if addonTable.Constants.IsRetail and self.ModifiedUFs[unit] then
+  if addonTable.Constants.IsRetail and not addonTable.Constants.IsMidnightNext and self.ModifiedUFs[unit] then
     local UF = self.ModifiedUFs[unit]
     UF:RegisterUnitEvent("UNIT_AURA", unit)
 
@@ -543,6 +623,12 @@ function addonTable.Display.ManagerMixin:Install(unit)
     addonTable.Cache:AddUnit(unit)
     local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
     local designName, scale, shouldSimplify, index = addonTable.Display.Context:GetAssignedDesign(unit)
+    if index == 0 then
+      addonTable.Cache:RemoveUnit(unit)
+      addonTable.Display.Context:RevokedUnitListeners(unit)
+      addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.BAD_CUSTOM_STYLE_SELECT)
+      return
+    end
     local design = addonTable.Core.GetDesignByName(designName)
     local newDisplay = self:GetPool(index):Acquire()
     if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
@@ -591,6 +677,7 @@ function addonTable.Display.ManagerMixin:Uninstall(unit)
     addonTable.Cache:RemoveUnit(unit)
     addonTable.Display.Context:RevokedUnitListeners(unit)
     display:SetUnit(nil)
+    display:SetParent(UIParent)
     self.pools[display.kind]:Release(display)
     self.nameplateDisplays[unit] = nil
   end
@@ -906,6 +993,13 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     end
   elseif eventName == "PLAYER_REGEN_DISABLED" then
     self:UpdateObscuredAlpha()
+  elseif eventName == "ADDON_RESTRICTION_STATE_CHANGED" then
+    if self.styleTicker then
+      self.styleTicker:Cancel()
+      self.styleTicker = nil
+      -- Necessary, as we can't redo auras in combat (12.1 restrictions)
+      self:RestylePools()
+    end
   elseif eventName == "PLAYER_REGEN_ENABLED" then
     if self.combatChangesPending then
       self.combatChangesPending = false
@@ -940,14 +1034,27 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
 
     addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
     self:UpdateFriendlyFont()
+
+    self:GeneratePools()
   elseif eventName == "VARIABLES_LOADED" then
-    if addonTable.Constants.IsRetail then
+    if addonTable.Constants.IsRetail and not addonTable.Constants.IsMidnightNext then
       C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_NPC_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyNpcAuraDisplay.Debuffs, true)
       C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_NPC_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyNpcAuraDisplay.Buffs, true)
       C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyPlayerAuraDisplay.Debuffs, true)
       C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyPlayerAuraDisplay.Buffs, true)
 
       --C_CVar.SetCVarBitfield(NamePlateConstants.FRIENDLY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateFriendlyPlayerAuraDisplay.Debuffs, true)
+
+    elseif addonTable.Constants.IsClassic and NamePlateConstants then
+      -- Need to disable them to prevent inexplicable taint errors
+
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_NPC_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyNpcAuraDisplay.Debuffs, false)
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_NPC_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyNpcAuraDisplay.Buffs, false)
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_NPC_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyNpcAuraDisplay.CrowdControl, false)
+
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyPlayerAuraDisplay.Debuffs, false)
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyPlayerAuraDisplay.Buffs, false)
+      C_CVar.SetCVarBitfield(NamePlateConstants.ENEMY_PLAYER_AURA_DISPLAY_CVAR, Enum.NamePlateEnemyPlayerAuraDisplay.LossOfControl, false)
     end
     addonTable.Display.SetCVars()
 

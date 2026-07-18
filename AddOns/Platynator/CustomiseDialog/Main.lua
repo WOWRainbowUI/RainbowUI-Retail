@@ -136,6 +136,21 @@ local function SetupGeneral(parent)
       end)
       rootDescription:SetScrollMode(30 * 20)
     end)
+
+    local function UpdateForRestrictions()
+      if not profileDropdown:IsVisible() then
+        return
+      end
+      profileDropdown.DropDown:SetEnabled(not addonTable.Utilities.IsChangesRestricted())
+    end
+    if C_Secrets and C_Secrets.HasSecretRestrictions() then
+      local restrictionsMonitor = CreateFrame("Frame")
+      restrictionsMonitor:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
+      restrictionsMonitor:SetScript("OnEvent", function()
+        C_Timer.After(0, UpdateForRestrictions)
+      end)
+      profileDropdown:SetScript("OnShow", UpdateForRestrictions)
+    end
   end
   table.insert(allFrames, profileDropdown)
 
@@ -491,7 +506,7 @@ end
 local TabSetups = {
   {callback = SetupGeneral, name = addonTable.Locales.GENERAL},
   {callback = addonTable.CustomiseDialog.GetMainDesigner, name = addonTable.Locales.DESIGNER},
-  {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT},
+  {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT, restricted = true},
   {callback = addonTable.CustomiseDialog.GetBehaviour, name = addonTable.Locales.BEHAVIOUR},
   {callback = SetupFont, name = addonTable.Locales.FONT},
 }
@@ -542,6 +557,7 @@ function addonTable.CustomiseDialog.Toggle()
   local containers = {}
   local lastTab
   local Tabs = {}
+  local UpdateForRestrictions
   for _, setup in ipairs(TabSetups) do
     local tabContainer = setup.callback(frame)
     tabContainer:SetPoint("TOPLEFT", addonTable.Constants.ButtonFrameOffset, -65)
@@ -562,6 +578,7 @@ function addonTable.CustomiseDialog.Toggle()
       end
       PanelTemplates_SelectTab(tabButton)
       tabContainer:Show()
+      UpdateForRestrictions()
     end)
     tabContainer:Hide()
 
@@ -570,7 +587,6 @@ function addonTable.CustomiseDialog.Toggle()
   end
   frame.Tabs = Tabs
   PanelTemplates_SetNumTabs(frame, #frame.Tabs)
-  containers[1].button:Click()
 
   frame:SetScript("OnShow", function()
     local tabsWidth = frame.Tabs[#frame.Tabs]:GetRight() - frame.Tabs[1]:GetLeft()
@@ -580,7 +596,56 @@ function addonTable.CustomiseDialog.Toggle()
     if shownContainer then
       PanelTemplates_SetTab(frame, tIndexOf(containers, shownContainer))
     end
+
+    UpdateForRestrictions()
   end)
+
+  UpdateForRestrictions = function()
+    if not frame:IsVisible() then
+      return
+    end
+
+    if addonTable.Utilities.IsChangesRestricted() then
+      for index, tab in ipairs(Tabs) do
+        local details = TabSetups[index]
+        local container = containers[index]
+        if details.restricted then
+          if container:IsShown() then
+            Tabs[1]:Click()
+          end
+          tab:Disable()
+          tab:SetAlpha(0.5)
+        else
+          if not container:IsShown() then
+            tab:Enable()
+          else
+            PanelTemplates_SetTab(frame, index)
+          end
+          tab:SetAlpha(1)
+        end
+      end
+    else
+      for index, tab in ipairs(Tabs) do
+        local container = containers[index]
+        if not container:IsShown() then
+          tab:Enable()
+        else
+          PanelTemplates_SetTab(frame, index)
+        end
+        tab:SetAlpha(1)
+      end
+    end
+  end
+
+  containers[1].button:Click()
+
+  if C_Secrets and C_Secrets.HasSecretRestrictions() then
+    local restrictionsMonitor = CreateFrame("Frame")
+    restrictionsMonitor:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
+    restrictionsMonitor:SetScript("OnEvent", function()
+      C_Timer.After(0, UpdateForRestrictions)
+    end)
+  end
 
   frame:Show()
 
