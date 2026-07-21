@@ -91,6 +91,20 @@ function DR.SaveProfile(profileName)
 	--print("DEBUG Profile '" .. profileName .. "' saved.")
 end
 
+local function DeepCopyInPlace(dest, src)
+	for k, v in pairs(src) do
+		if type(v) == "table" and type(dest[k]) == "table" then
+			DeepCopyInPlace(dest[k], v);
+		else
+			if type(v) == "table" then
+				dest[k] = CopyTable(v);
+			else
+				dest[k] = v;
+			end
+		end
+	end
+end
+
 function DR.LoadProfile(profileName)
 	InitializeProfileDB();
 	if not profileName or not DragonRider_DB.Profiles[profileName] then return; end
@@ -99,7 +113,11 @@ function DR.LoadProfile(profileName)
 
 	for key, value in pairs(loadedProfile) do
 		if key ~= "Profiles" and key ~= "ActiveProfile" and key ~= "AccountProfile" and key ~= "CharSpecLinks" then
-			DragonRider_DB[key] = value;
+			if type(value) == "table" and type(DragonRider_DB[key]) == "table" then
+				DeepCopyInPlace(DragonRider_DB[key], value);
+			else
+				DragonRider_DB[key] = value;
+			end
 		end
 	end
 
@@ -115,6 +133,14 @@ function DR.LoadProfile(profileName)
 	DR.ToggleDecor();
 	DR.UpdateChargeBars();
 	DR.UpdateChargePositions();
+	
+	if DR.UpdateGroundSkimmingColor then
+		DR.UpdateGroundSkimmingColor();
+	end
+	
+	if DR.EvaluateGroundSkimmingVisibility then
+		DR.EvaluateGroundSkimmingVisibility();
+	end
 	
 	if DR.EvaluateVigorVisibility then
 		DR.EvaluateVigorVisibility();
@@ -212,7 +238,11 @@ function DR.ImportSettings(importString, profileName)
 			Print(string.format(L["ProfileImportedAs"], profileName));
 		else
 			for key, value in pairs(cleanedSettings) do
-				DragonRider_DB[key] = value;
+				if type(value) == "table" and type(DragonRider_DB[key]) == "table" then
+					DeepCopyInPlace(DragonRider_DB[key], value);
+				else
+					DragonRider_DB[key] = value;
+				end
 			end
 			Print(L["ActiveSettingsOverwritten"]);
 			
