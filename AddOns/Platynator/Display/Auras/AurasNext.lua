@@ -77,6 +77,7 @@ local function GetAurasInitializerModern(container)
     frame.Icon:SetSize(20, 20)
     frame.Icon:SetPoint("CENTER")
     frame.Cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
+    frame.Cooldown:SetDrawBling(false)
     frame.Cooldown:SetHideCountdownNumbers(false)
     frame.Cooldown:SetDrawEdge(true)
     frame.Cooldown:SetReverse(true)
@@ -171,6 +172,12 @@ local directionMap = {
   RIGHT = "LEFT",
 }
 
+local anchorMap = {
+  LEFT = "TOPRIGHT",
+  CENTER = "TOPLEFT",
+  RIGHT = "TOPLEFT",
+}
+
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails)
   if addonTable.Utilities.IsChangesRestricted() then
     return
@@ -189,8 +196,8 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.crowdControl:SetParent(parent.CrowdControlDisplay)
     self.crowdControl:SetScale(auraDetails.crowdControl.scale)
     self.crowdControl:SetPoint(directionMap[auraDetails.crowdControl.direction])
+    self.crowdControl:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.crowdControl.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.crowdControl.padding, self.crowdControl)
-    self.crowdControl:SetAuraLayoutPadding(padding, padding, 0, 0)
     if auraDetails.crowdControl.filters.fromYou then
       self.crowdControl:SetAuraGroupMaxFrameCount("ALL", 0)
       self.crowdControl:SetAuraGroupMaxFrameCount("PLAYER_ONLY", auraDetails.crowdControl.limit)
@@ -219,8 +226,8 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.debuffs:SetParent(parent.DebuffDisplay)
     self.debuffs:SetScale(auraDetails.debuffs.scale)
     self.debuffs:SetPoint(directionMap[auraDetails.debuffs.direction])
+    self.debuffs:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.debuffs.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.debuffs.padding, self.debuffs)
-    self.debuffs:SetAuraLayoutPadding(padding, padding, 0, 0)
     local setup = {
       ["PLAYER_IMPORTANT"] = 0,
       ["ANY_PLAYER_IMPORTANT"] = 0,
@@ -267,8 +274,8 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.buffs:SetParent(parent.BuffDisplay)
     self.buffs:SetScale(auraDetails.buffs.scale)
     self.buffs:SetPoint(directionMap[auraDetails.buffs.direction])
+    self.buffs:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.buffs.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.buffs.padding, self.buffs)
-    self.buffs:SetAuraLayoutPadding(padding, padding, 0, 0)
     local setup = {
       ["ALL"] = {0, {}},
       ["PLAYER_ASSIST"] = {0, {}},

@@ -34,6 +34,9 @@ function addonTable.Display.CreatureTextMSPMixin:SetUnit(unit)
 
     if self.details.showWhenWowDoes then
       self:SetShown(UnitShouldDisplayName(self.unit))
+      addonTable.Cache:RegisterCallback(unit, "target", function()
+        self:SetShown(UnitIsUnit(self.unit, "target") or UnitShouldDisplayName(self.unit))
+      end)
     end
 
     addonTable.Display.RegisterForColorEvents(self, self.details.autoColors)
@@ -94,7 +97,6 @@ end
 
 function addonTable.Display.CreatureTextMSPMixin:Strip()
   self:StripInternal()
-  self.ApplyTarget = nil
 end
 
 function addonTable.Display.CreatureTextMSPMixin:OnEvent(eventName, ...)
@@ -107,10 +109,4 @@ function addonTable.Display.CreatureTextMSPMixin:OnEvent(eventName, ...)
   end
 
   self:ColorEventHandler(eventName)
-end
-
-function addonTable.Display.CreatureTextMSPMixin:ApplyTarget()
-  if self.details.showWhenWowDoes then
-    self:SetShown(UnitIsUnit(self.unit, "target") or UnitShouldDisplayName(self.unit))
-  end
 end

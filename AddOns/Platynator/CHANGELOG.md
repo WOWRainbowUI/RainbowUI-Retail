@@ -1,6 +1,7 @@
 # Platynator
 
-## [439](https://github.com/TheMouseNest/Platynator/tree/439) (2026-07-17)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/438...439) 
+## [444](https://github.com/TheMouseNest/Platynator/tree/444) (2026-07-19)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/443...444) 
 
-- Show error dialog when a "Custom" style select settings is missing a unit  
+- Fix power bars not working  
+- Cleanup  

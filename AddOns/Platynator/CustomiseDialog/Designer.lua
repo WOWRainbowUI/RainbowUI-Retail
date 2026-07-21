@@ -1194,6 +1194,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
     end
     local design = addonTable.CustomiseDialog.GetCurrentDesign()
     widgets = addonTable.Display.GetWidgets(design, preview, true)
+    addonTable.Display.LayerWidgets(widgets)
     for _, w in ipairs(widgets) do
       w:SetClampedToScreen(true)
       if w.kind == "bars" then

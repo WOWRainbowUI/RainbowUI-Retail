@@ -61,6 +61,10 @@ function addonTable.Display.NameplateMixin:ShouldNotSize()
   return scale == self.lastScale or scale < self.offsetScale
 end
 
+function addonTable.Display.NameplateMixin:LayerWidgets()
+  addonTable.Display.LayerWidgets(self.widgets)
+end
+
 function addonTable.Display.NameplateMixin:ApplyPixelPerfectSizing()
   if self:ShouldNotSize() then
     return
@@ -117,6 +121,9 @@ function addonTable.Display.NameplateMixin:Install(nameplate, offsetY)
 
   -- We force a sizing immediately to avoid 0 size widgets breaking the textures from the Blizz animations
   self:ApplyPixelPerfectSizing()
+  if self.widgets then
+    addonTable.Display.LayerWidgets(self.widgets)
+  end
   self:SetScript("OnUpdate", nil)
 end
 
@@ -155,49 +162,25 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
       w:SetUnit(self.unit)
     end
 
-    local isTarget = addonTable.Cache:Get(unit, "target")
-    local isSoftTarget = addonTable.Cache:Get(unit, "softTarget")
-    local isMouseover = addonTable.Cache:Get(unit, "mouseover")
-    local isFocus = addonTable.Cache:Get(unit, "focus")
-
-    if isTarget or isSoftTarget then
-      for _, w in ipairs(self.widgets) do
-        if w.ApplyTarget then
-          w:ApplyTarget()
-        end
-      end
-    end
-
-    if isMouseover then
-      for _, w in ipairs(self.widgets) do
-        if w.ApplyMouseover then
-          w:ApplyMouseover()
-        end
-      end
-    end
-
-    if isFocus then
-      for _, w in ipairs(self.widgets) do
-        if w.ApplyFocus then
-          w:ApplyFocus()
-        end
-      end
-    end
+    addonTable.Cache:Get(unit, "target")
+    addonTable.Cache:Get(unit, "softTarget")
+    addonTable.Cache:Get(unit, "mouseover")
+    addonTable.Cache:Get(unit, "focus")
 
     addonTable.Cache:RegisterCallback(unit, "target", function()
-      self:UpdateForTarget()
+      self:UpdateVisual()
     end)
 
     addonTable.Cache:RegisterCallback(unit, "softTarget", function()
-      self:UpdateForTarget()
+      self:UpdateVisual()
     end)
 
     addonTable.Cache:RegisterCallback(unit, "mouseover", function()
-      self:UpdateForMouseover()
+      self:UpdateVisual()
     end)
 
     addonTable.Cache:RegisterCallback(unit, "focus", function()
-      self:UpdateForFocus()
+      self:UpdateVisual()
     end)
 
     if not addonTable.Constants.IsMidnightNext then
@@ -282,42 +265,6 @@ end
 
 function addonTable.Display.NameplateMixin:UpdateCastingState(state)
   self.casting = state.cast[1] ~= nil or state.channel[1] ~= nil
-end
-
-function addonTable.Display.NameplateMixin:UpdateForTarget()
-  if self.unit then
-    for _, w in ipairs(self.widgets) do
-      if w.ApplyTarget then
-        w:ApplyTarget()
-      end
-    end
-  end
-
-  self:UpdateVisual()
-end
-
-function addonTable.Display.NameplateMixin:UpdateForMouseover()
-  if self.unit then
-    for _, w in ipairs(self.widgets) do
-      if w.ApplyMouseover then
-        w:ApplyMouseover()
-      end
-    end
-  end
-
-  self:UpdateVisual()
-end
-
-function addonTable.Display.NameplateMixin:UpdateForFocus()
-  if self.unit then
-    for _, w in ipairs(self.widgets) do
-      if w.ApplyFocus then
-        w:ApplyFocus()
-      end
-    end
-  end
-
-  self:UpdateVisual()
 end
 
 function addonTable.Display.NameplateMixin:OnEvent()

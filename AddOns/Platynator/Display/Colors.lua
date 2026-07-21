@@ -512,7 +512,6 @@ function addonTable.Display.GetColor(settings, state, unit)
 
   local defaultColor = state.defaultColor
   if C_CurveUtil then
-    local start = debugprofilestop()
     local r, g, b, a = defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a or 1
     for index = #colorQueue, 1, -1 do
       local details = colorQueue[index]
