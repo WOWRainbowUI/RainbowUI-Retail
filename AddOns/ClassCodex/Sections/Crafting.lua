@@ -248,7 +248,7 @@ end
 -- Equipped-slot effect-spell IDs. GetItemSpell on a carrier returns
 -- the spell ID of its primary equip effect — when an embellishment is
 -- applied, that IS the embellishment's effect spell. Compared against
--- the scraped ClassCodexEmbellishmentEffects.byItemId[id].spellIds this
+-- the scraped ClassCodexReference.embellishmentEffects[id].spellIds this
 -- gives deterministic per-embellishment detection without bonus-id
 -- ambiguity. `equippedSpellIds` is declared up top so
 -- InvalidateEquippedState clears it on equip / bag events.
@@ -281,8 +281,8 @@ end
 --   4. Tooltip text intersection — last-resort, locale-stable enough.
 local function IsEmbellishmentApplied(entry)
     if not entry or not entry.itemId then return false end
-    local effects = _G.ClassCodexEmbellishmentEffects
-    local effectEntry = effects and effects.byItemId and effects.byItemId[entry.itemId]
+    local effects = ClassCodexReference and ClassCodexReference.embellishmentEffects
+    local effectEntry = effects and effects[entry.itemId]
 
     if effectEntry then
         -- Path 1: bonus_id match.
@@ -670,11 +670,27 @@ local function ApplyCard(card, entry, isEmbellishment, ctx)
     card.itemText:SetPoint("RIGHT", card, "RIGHT", -4, 0)
 end
 
+-- Crafts come from u.gg (raid / mythicPlus); embellishments are Icy Veins'
+-- editorial pick (applies to raid + mythicPlus). Built per context from the seam.
 local function LookupData(class, spec, ctxKey)
-    local data = _G.ClassCodexCraftingData
-        and _G.ClassCodexCraftingData[class]
-        and _G.ClassCodexCraftingData[class][spec]
-    return data and data[ctxKey] or nil
+    local ugg = ns.SourceSpec and ns.SourceSpec("ugg", class, spec)
+    local iv = ns.SourceSpec and ns.SourceSpec("icyveins", class, spec)
+    local uggCtx = (ctxKey == "raid" and "raid") or (ctxKey == "mythicPlus" and "mplus") or (ctxKey == "pvp" and "pvp:3v3") or nil
+    local crafts, embellishments = {}, {}
+    if ugg and uggCtx then
+        local c = ugg.crafting and ugg.crafting["all"] and ugg.crafting["all"][uggCtx]
+        if c and c.crafts then
+            for _, id in ipairs(c.crafts) do crafts[#crafts + 1] = { itemId = id } end
+        end
+    end
+    if iv and (ctxKey == "raid" or ctxKey == "mythicPlus") then
+        local e = iv.crafting and iv.crafting["all"] and iv.crafting["all"]["all"]
+        if e and e.embellishments then
+            for _, id in ipairs(e.embellishments) do embellishments[#embellishments + 1] = { itemId = id } end
+        end
+    end
+    if #crafts == 0 and #embellishments == 0 then return nil end
+    return { crafts = crafts, embellishments = embellishments }
 end
 
 -- u.gg only surfaces crafts for the contexts a spec actually uses, so a spec
@@ -701,10 +717,8 @@ end
 -- icons + tooltips are warm by the time the section renders.
 function Crafting.RequestItems(class, spec, requestItem)
     if not class or not spec or not requestItem then return end
-    local entry = _G.ClassCodexCraftingData and _G.ClassCodexCraftingData[class] and _G.ClassCodexCraftingData[class][spec]
-    if not entry then return end
     for _, ctxName in ipairs({ "raid", "mythicPlus", "pvp" }) do
-        local section = entry[ctxName]
+        local section = LookupData(class, spec, ctxName)
         if section then
             if section.crafts then
                 for _, c in ipairs(section.crafts) do requestItem(c.itemId) end

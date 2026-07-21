@@ -17,18 +17,30 @@ local BTN_GAP    = 4
 local ACTION_SIZE = 18
 local ACTION_GAP  = 2
 
-local function makeActionButton(parent, icon, tooltip)
+-- `iconInset` shrinks the icon (and its hover highlight) within the
+-- button without changing the button's footprint, so a glyph that fills
+-- its texture edge-to-edge (e.g. Character-Plus) reads at the same visual
+-- weight as the padded Blizzard icons next to it.
+local function makeActionButton(parent, icon, tooltip, iconInset)
     local b = CreateFrame("Button", nil, parent)
     b:SetSize(ACTION_SIZE, ACTION_SIZE)
     b:RegisterForClicks("LeftButtonUp")
     local tex = b:CreateTexture(nil, "ARTWORK")
-    tex:SetAllPoints()
+    local hl = b:CreateTexture(nil, "HIGHLIGHT")
+    if iconInset then
+        tex:SetPoint("TOPLEFT", iconInset, -iconInset)
+        tex:SetPoint("BOTTOMRIGHT", -iconInset, iconInset)
+        hl:SetPoint("TOPLEFT", iconInset, -iconInset)
+        hl:SetPoint("BOTTOMRIGHT", -iconInset, iconInset)
+    else
+        tex:SetAllPoints()
+        hl:SetAllPoints()
+    end
     tex:SetTexture(icon)
     tex:SetDesaturated(true)
     tex:SetVertexColor(0.7, 0.7, 0.7)
     b.icon = tex
-    local hl = b:CreateTexture(nil, "HIGHLIGHT")
-    hl:SetAllPoints(); hl:SetTexture(icon); hl:SetAlpha(0.3)
+    hl:SetTexture(icon); hl:SetAlpha(0.3)
     b:SetScript("OnEnter", function(self)
         self.icon:SetDesaturated(false)
         self.icon:SetVertexColor(1, 1, 1)
@@ -77,13 +89,19 @@ function Talents.InitPanel(opts)
         row:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
 
         local applyBtn = makeActionButton(row,
-            "Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up", "Apply talents")
+            "Interface\\Buttons\\UI-CheckBox-Check", "Apply talents")
         applyBtn:SetPoint("RIGHT", row, "RIGHT", -4, 0)
         row.applyBtn = applyBtn
 
+        local saveAsNewBtn = makeActionButton(row,
+            "Interface\\PaperDollInfoFrame\\Character-Plus",
+            (L and L["talent_pane.save_as.tooltip"]) or "Save as new loadout", 2)
+        saveAsNewBtn:SetPoint("RIGHT", applyBtn, "LEFT", -ACTION_GAP, 0)
+        row.saveAsNewBtn = saveAsNewBtn
+
         local copyBtn = makeActionButton(row,
             "Interface\\Buttons\\UI-GuildButton-PublicNote-Up", "Copy talent string")
-        copyBtn:SetPoint("RIGHT", applyBtn, "LEFT", -ACTION_GAP, 0)
+        copyBtn:SetPoint("RIGHT", saveAsNewBtn, "LEFT", -ACTION_GAP, 0)
         row.copyBtn = copyBtn
 
         local text = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -126,6 +144,7 @@ function Talents.GetPanelMax() return MAX_BUTTONS end
 --   fallbackNoneText    -- shown when builds is empty but the spec has talents
 --   onCopy(build)       -- click handler for the copy button (passes build)
 --   onApply(self, build)
+--   onSaveAsNew(build)  -- click handler for the "+" save-as-new button
 -- }
 -- Returns content height for the layout pass.
 function Talents.RenderPanel(args)
@@ -181,6 +200,9 @@ function Talents.RenderPanel(args)
         end
         if args.onApply then
             btn.applyBtn:SetScript("OnClick", function(self) args.onApply(self, t) end)
+        end
+        if args.onSaveAsNew then
+            btn.saveAsNewBtn:SetScript("OnClick", function() args.onSaveAsNew(t) end)
         end
         btn:Show()
     end

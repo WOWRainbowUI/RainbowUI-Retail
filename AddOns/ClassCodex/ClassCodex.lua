@@ -631,6 +631,15 @@ panel:SetClampedToScreen(true)
 panel:EnableMouse(true)
 panel:Hide()
 
+-- The save-as popup is parented to UIParent at DIALOG strata, so it would
+-- linger over an empty screen if the panel closes while it's open (the "+"
+-- on the Guide preview and docked all-talents list live inside this panel).
+-- One hook here covers every panel:Hide() path. The talent-pane dropdown's
+-- own "+" dismisses the popup separately in its visibility handlers.
+panel:HookScript("OnHide", function()
+    if ns.HideSaveAsLoadoutPopup then ns.HideSaveAsLoadoutPopup() end
+end)
+
 -------------------------------------------------------------------------------
 -- Title Bar
 -------------------------------------------------------------------------------
@@ -1179,6 +1188,115 @@ local function ShowCopyPopup(text, anchor, yOffset)
 end
 ns.ShowCopyPopup = ShowCopyPopup
 
+-- Shared "Save as New Loadout" name prompt. Used by every surface that
+-- offers a "+" (talent-pane dropdown, guide preview, docked all-talents,
+-- compendium) so the widget + Save/Cancel wiring lives in one place,
+-- mirroring ShowCopyPopup above. Lazily created on first use.
+local saveAsPopup, saveAsEdit, saveAsConfirm, saveAsError
+local function EnsureSaveAsPopup()
+    if saveAsPopup then return end
+    saveAsPopup = CreateFrame("Frame", "ClassCodexSaveAsLoadoutPopup", UIParent, "BackdropTemplate")
+    saveAsPopup:SetSize(320, 108)
+    saveAsPopup:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 16, edgeSize = 12,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 },
+    })
+    saveAsPopup:SetFrameStrata("DIALOG")
+    saveAsPopup:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    saveAsPopup:EnableMouse(true)
+    saveAsPopup:Hide()
+
+    local label = saveAsPopup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    label:SetPoint("TOP", saveAsPopup, "TOP", 0, -10)
+    label:SetText((ns.L and ns.L["talent_pane.save_as.prompt"]) or "Loadout name:")
+
+    saveAsEdit = CreateFrame("EditBox", nil, saveAsPopup, "InputBoxTemplate")
+    saveAsEdit:SetSize(260, 18)
+    saveAsEdit:SetPoint("TOP", label, "BOTTOM", 0, -10)
+    saveAsEdit:SetAutoFocus(true)
+    saveAsEdit:SetMaxLetters(32) -- Blizzard's loadout name input caps here
+
+    -- Inline validation line: reserved-name / combat / no-free-slots /
+    -- unsaved-changes errors show here and keep the popup open, instead of
+    -- closing it and printing to chat where the user won't see why nothing
+    -- was saved.
+    saveAsError = saveAsPopup:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    saveAsError:SetPoint("TOPLEFT", saveAsEdit, "BOTTOMLEFT", 0, -6)
+    saveAsError:SetPoint("TOPRIGHT", saveAsEdit, "BOTTOMRIGHT", 0, -6)
+    saveAsError:SetJustifyH("LEFT")
+    saveAsError:SetTextColor(1, 0.3, 0.3)
+    saveAsError:SetText("")
+
+    saveAsConfirm = CreateFrame("Button", nil, saveAsPopup, "UIPanelButtonTemplate")
+    saveAsConfirm:SetSize(80, 22)
+    saveAsConfirm:SetPoint("BOTTOMRIGHT", saveAsPopup, "BOTTOMRIGHT", -10, 8)
+    saveAsConfirm:SetText((ns.L and ns.L["talent_pane.save_as.confirm"]) or "Save")
+
+    local cancelBtn = CreateFrame("Button", nil, saveAsPopup, "UIPanelButtonTemplate")
+    cancelBtn:SetSize(80, 22)
+    cancelBtn:SetPoint("RIGHT", saveAsConfirm, "LEFT", -6, 0)
+    cancelBtn:SetText(CANCEL or "Cancel")
+    cancelBtn:SetScript("OnClick", function() saveAsPopup:Hide() end)
+
+    saveAsEdit:SetScript("OnEscapePressed", function() saveAsPopup:Hide() end)
+    saveAsEdit:SetScript("OnEnterPressed", function()
+        if saveAsConfirm.onConfirm then saveAsConfirm.onConfirm() end
+    end)
+end
+
+-- `onConfirm(name)` returns nil on success (popup closes) or an error
+-- string to display inline while keeping the popup open, so the user can
+-- correct the name without re-opening the prompt.
+function ns.ShowSaveAsLoadoutPopup(defaultName, onConfirm)
+    EnsureSaveAsPopup()
+    saveAsEdit:SetText(defaultName or "")
+    saveAsEdit:HighlightText()
+    saveAsError:SetText("")
+    saveAsPopup:SetHeight(84)
+    saveAsConfirm.onConfirm = function()
+        local name = (saveAsEdit:GetText() or ""):match("^%s*(.-)%s*$")
+        -- Pass the trimmed name straight through — the save path already
+        -- rejects an empty name with a message, which we surface inline.
+        local err = onConfirm(name)
+        if err then
+            saveAsError:SetText(err)
+            -- Grow to fit the message (the unsaved-changes note wraps to
+            -- several lines) so it isn't clipped by a fixed height.
+            saveAsPopup:SetHeight(84 + math.ceil(saveAsError:GetStringHeight()) + 4)
+            saveAsEdit:SetFocus()
+            return
+        end
+        saveAsPopup:Hide()
+    end
+    saveAsConfirm:SetScript("OnClick", saveAsConfirm.onConfirm)
+    saveAsPopup:Show()
+    saveAsEdit:SetFocus()
+end
+
+-- Hide the prompt if it's open — called when a surface that owns a "+"
+-- closes, so the DIALOG-strata popup (parented to UIParent) doesn't
+-- linger orphaned over the rest of the UI.
+function ns.HideSaveAsLoadoutPopup()
+    if saveAsPopup then saveAsPopup:Hide() end
+end
+
+-- One-call helper for every "+" button: prompt for a name (defaulting to
+-- the build's label) then hand off to the loadout-creation path.
+function ns.PromptAndSaveTalentBuild(exportString, defaultLabel)
+    if not exportString or not ns.SaveTalentBuildAsNewLoadout then return end
+    ns.ShowSaveAsLoadoutPopup(defaultLabel, function(name)
+        local ok, err = ns.SaveTalentBuildAsNewLoadout(exportString, defaultLabel, name)
+        -- Return the error string (nil on success) so the popup shows it
+        -- inline and stays open; async failures after this point still fall
+        -- back to a chat message from the apply path.
+        if not ok then
+            return err or "Failed to save loadout"
+        end
+    end)
+end
+
 local talentSectionCollapsed = false
 
 -------------------------------------------------------------------------------
@@ -1249,13 +1367,19 @@ local function EnsureTalentRow(i)
     row:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
 
     local applyBtn = CreateTalentActionButton(row,
-        "Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up", "Apply talents")
+        "Interface\\Buttons\\UI-CheckBox-Check", "Apply talents")
     applyBtn:SetPoint("RIGHT", row, "RIGHT", -4, 0)
     row.applyBtn = applyBtn
 
+    local saveAsNewBtn = CreateTalentActionButton(row,
+        "Interface\\PaperDollInfoFrame\\Character-Plus",
+        (ns.L and ns.L["talent_pane.save_as.tooltip"]) or "Save as new loadout", 2)
+    saveAsNewBtn:SetPoint("RIGHT", applyBtn, "LEFT", -TALENT_ACTION_GAP, 0)
+    row.saveAsNewBtn = saveAsNewBtn
+
     local copyBtn = CreateTalentActionButton(row,
         "Interface\\Buttons\\UI-GuildButton-PublicNote-Up", "Copy talent string")
-    copyBtn:SetPoint("RIGHT", applyBtn, "LEFT", -TALENT_ACTION_GAP, 0)
+    copyBtn:SetPoint("RIGHT", saveAsNewBtn, "LEFT", -TALENT_ACTION_GAP, 0)
     row.copyBtn = copyBtn
 
     local heroIcon = row:CreateTexture(nil, "ARTWORK")
@@ -1308,6 +1432,14 @@ allTalentSourceDropdown:Hide()
 local function BindAllTalentCopy(row, exportString)
     row.copyBtn:SetScript("OnClick", function()
         ShowCopyPopup(exportString, row)
+    end)
+end
+
+local function BindAllTalentSaveAsNew(row, exportString, loadoutLabel)
+    row.saveAsNewBtn:SetScript("OnClick", function()
+        if ns.PromptAndSaveTalentBuild then
+            ns.PromptAndSaveTalentBuild(exportString, loadoutLabel)
+        end
     end)
 end
 
@@ -1397,6 +1529,7 @@ local function RenderAllTalentsLegacy(specData, yPos)
 
             BindAllTalentCopy(row, build.exportString)
             BindAllTalentApply(row, build.exportString, hero .. " " .. (build.context or ""))
+            BindAllTalentSaveAsNew(row, build.exportString, hero .. " " .. (build.context or ""))
 
             row:Show()
             yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
@@ -1503,6 +1636,8 @@ local function RenderAllTalentsUgg(class, spec, yPos)
                 BindAllTalentCopy(row, build.exportString)
                 BindAllTalentApply(row, build.exportString,
                     (build.heroTalent or "Build") .. " " .. fullLabel)
+                BindAllTalentSaveAsNew(row, build.exportString,
+                    "u.gg - " .. (build.heroTalent or "Build") .. " " .. fullLabel)
 
                 row:Show()
                 yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
@@ -1603,6 +1738,10 @@ local function RenderAllTalentsPvP(class, spec, yPos)
                     row:SetPoint("RIGHT", allTalentContent, "RIGHT", 0, 0)
                     BindAllTalentCopy(row, build.exportString)
                     BindAllTalentApply(row, build.exportString, "PvP " .. bracketLabel)
+                    -- Save-as-new uses the plain bracket name (no low-confidence
+                    -- colour codes, which shouldn't end up in a loadout name).
+                    BindAllTalentSaveAsNew(row, build.exportString,
+                        "PvP - " .. ((ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey))
                     row:Show()
                     yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
                 end
@@ -2114,6 +2253,20 @@ function ns:UpdatePanel()
                     self.icon:SetVertexColor(0.7, 0.7, 0.7)
                 end
             end)
+        end,
+        onSaveAsNew = function(t)
+            -- The guide preview is fed by specData.talents, which is Icy Veins
+            -- data (see SourceAdapter), so name the default "Icy Veins - ...".
+            -- Dedupe buildLabel when it just repeats context ("Delves"/"Delves").
+            local rawLabel = t.context or "Build"
+            if t.buildLabel and t.buildLabel ~= "" and t.buildLabel ~= t.context then
+                rawLabel = rawLabel .. " — " .. t.buildLabel
+            end
+            local name = currentHeroTalent and currentHeroTalent ~= "All"
+                and (currentHeroTalent .. " " .. rawLabel) or rawLabel
+            if ns.PromptAndSaveTalentBuild then
+                ns.PromptAndSaveTalentBuild(t.exportString, "Icy Veins - " .. name)
+            end
         end,
     })
 
@@ -3439,6 +3592,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             showIcyVeinsBisTooltip = true,
             showTrinketTooltip = true,
             tooltipBisScope = "all", -- "all", "group", "self", "off"
+            pinTalentSource = false, -- when true, lock the talent source to the manual pick instead of following content context
             panelWidth = PANEL_WIDTH, -- numeric px; slider clamped 260..500
             highlightOwnedGear = true,
             tooltipSourceStyle = 1,
@@ -3475,9 +3629,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             dockLoadoutShowSpecIcon = true,
             dockLoadoutShowHeroIcon = true,
             dockLoadoutShowSaved = true,
-            dockLoadoutShowCodexBuilds = true,
-            dockLoadoutShowUgg = true,
             dockLoadoutShowIcyVeins = true,
+            dockLoadoutShowUgg = true,
             dockLoadoutOpacity = 95,
             dockLoadoutWidth = 200,
             dockLoadoutAutoWidth = false,

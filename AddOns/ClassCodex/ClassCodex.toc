@@ -2,12 +2,12 @@
 ## Title: Class Codex
 ## Notes: Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.
 ## Author: jfstn
-## Version: 0.38.8
+## Version: 0.40.0
 ## SavedVariables: ClassCodexDB
 ## SavedVariablesPerCharacter: ClassCodexCharDB
 ## X-Curse-Project-ID: 1480030
 ## X-Wago-ID: rNkynwKa
-## X-Website: https://addons.wago.io/addons/class-codex
+## X-Website: https://addons.wago.io/addons/classcodex
 ## IconTexture: Interface\AddOns\ClassCodex\icon
 ## AddonCompartmentFunc: ClassCodex_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: ClassCodex_OnAddonCompartmentEnter
@@ -20,183 +20,20 @@ Libs\embeds.xml
 
 Data\Generated.lua
 
-Data\DeathKnight\sources.lua
-Data\DeathKnight\gear-icyveins.lua
-Data\DeathKnight\consumables-icyveins.lua
-Data\DeathKnight\gear-ugg.lua
-Data\DeathKnight\pvp-ugg.lua
-Data\DeathKnight\talents-icyveins.lua
-Data\DeathKnight\rotation-icyveins.lua
-Data\DeathKnight\stats-ugg.lua
-Data\DeathKnight\stat-targets-ugg.lua
-Data\DeathKnight\talents-ugg.lua
-Data\DeathKnight\crafting-ugg.lua
-Data\DeathKnight\trinkets-ugg.lua
-Data\DeathKnight\gems-ugg.lua
-Data\DemonHunter\sources.lua
-Data\DemonHunter\gear-icyveins.lua
-Data\DemonHunter\consumables-icyveins.lua
-Data\DemonHunter\gear-ugg.lua
-Data\DemonHunter\pvp-ugg.lua
-Data\DemonHunter\talents-icyveins.lua
-Data\DemonHunter\rotation-icyveins.lua
-Data\DemonHunter\stats-ugg.lua
-Data\DemonHunter\stat-targets-ugg.lua
-Data\DemonHunter\talents-ugg.lua
-Data\DemonHunter\crafting-ugg.lua
-Data\DemonHunter\trinkets-ugg.lua
-Data\DemonHunter\gems-ugg.lua
-Data\Druid\sources.lua
-Data\Druid\gear-icyveins.lua
-Data\Druid\consumables-icyveins.lua
-Data\Druid\gear-ugg.lua
-Data\Druid\pvp-ugg.lua
-Data\Druid\talents-icyveins.lua
-Data\Druid\rotation-icyveins.lua
-Data\Druid\stats-ugg.lua
-Data\Druid\stat-targets-ugg.lua
-Data\Druid\talents-ugg.lua
-Data\Druid\crafting-ugg.lua
-Data\Druid\trinkets-ugg.lua
-Data\Druid\gems-ugg.lua
-Data\Evoker\sources.lua
-Data\Evoker\gear-icyveins.lua
-Data\Evoker\consumables-icyveins.lua
-Data\Evoker\gear-ugg.lua
-Data\Evoker\pvp-ugg.lua
-Data\Evoker\talents-icyveins.lua
-Data\Evoker\rotation-icyveins.lua
-Data\Evoker\stats-ugg.lua
-Data\Evoker\stat-targets-ugg.lua
-Data\Evoker\talents-ugg.lua
-Data\Evoker\crafting-ugg.lua
-Data\Evoker\trinkets-ugg.lua
-Data\Evoker\gems-ugg.lua
-Data\Hunter\sources.lua
-Data\Hunter\gear-icyveins.lua
-Data\Hunter\consumables-icyveins.lua
-Data\Hunter\gear-ugg.lua
-Data\Hunter\pvp-ugg.lua
-Data\Hunter\talents-icyveins.lua
-Data\Hunter\rotation-icyveins.lua
-Data\Hunter\stats-ugg.lua
-Data\Hunter\stat-targets-ugg.lua
-Data\Hunter\talents-ugg.lua
-Data\Hunter\crafting-ugg.lua
-Data\Hunter\trinkets-ugg.lua
-Data\Hunter\gems-ugg.lua
-Data\Mage\sources.lua
-Data\Mage\gear-icyveins.lua
-Data\Mage\consumables-icyveins.lua
-Data\Mage\gear-ugg.lua
-Data\Mage\pvp-ugg.lua
-Data\Mage\talents-icyveins.lua
-Data\Mage\rotation-icyveins.lua
-Data\Mage\stats-ugg.lua
-Data\Mage\stat-targets-ugg.lua
-Data\Mage\talents-ugg.lua
-Data\Mage\crafting-ugg.lua
-Data\Mage\trinkets-ugg.lua
-Data\Mage\gems-ugg.lua
-Data\Monk\sources.lua
-Data\Monk\gear-icyveins.lua
-Data\Monk\consumables-icyveins.lua
-Data\Monk\gear-ugg.lua
-Data\Monk\pvp-ugg.lua
-Data\Monk\talents-icyveins.lua
-Data\Monk\rotation-icyveins.lua
-Data\Monk\stats-ugg.lua
-Data\Monk\stat-targets-ugg.lua
-Data\Monk\talents-ugg.lua
-Data\Monk\crafting-ugg.lua
-Data\Monk\trinkets-ugg.lua
-Data\Monk\gems-ugg.lua
-Data\Paladin\sources.lua
-Data\Paladin\gear-icyveins.lua
-Data\Paladin\consumables-icyveins.lua
-Data\Paladin\gear-ugg.lua
-Data\Paladin\pvp-ugg.lua
-Data\Paladin\talents-icyveins.lua
-Data\Paladin\rotation-icyveins.lua
-Data\Paladin\stats-ugg.lua
-Data\Paladin\stat-targets-ugg.lua
-Data\Paladin\talents-ugg.lua
-Data\Paladin\crafting-ugg.lua
-Data\Paladin\trinkets-ugg.lua
-Data\Paladin\gems-ugg.lua
-Data\Priest\sources.lua
-Data\Priest\gear-icyveins.lua
-Data\Priest\consumables-icyveins.lua
-Data\Priest\gear-ugg.lua
-Data\Priest\pvp-ugg.lua
-Data\Priest\talents-icyveins.lua
-Data\Priest\rotation-icyveins.lua
-Data\Priest\stats-ugg.lua
-Data\Priest\stat-targets-ugg.lua
-Data\Priest\talents-ugg.lua
-Data\Priest\crafting-ugg.lua
-Data\Priest\trinkets-ugg.lua
-Data\Priest\gems-ugg.lua
-Data\Rogue\sources.lua
-Data\Rogue\gear-icyveins.lua
-Data\Rogue\consumables-icyveins.lua
-Data\Rogue\gear-ugg.lua
-Data\Rogue\pvp-ugg.lua
-Data\Rogue\talents-icyveins.lua
-Data\Rogue\rotation-icyveins.lua
-Data\Rogue\stats-ugg.lua
-Data\Rogue\stat-targets-ugg.lua
-Data\Rogue\talents-ugg.lua
-Data\Rogue\crafting-ugg.lua
-Data\Rogue\trinkets-ugg.lua
-Data\Rogue\gems-ugg.lua
-Data\Shaman\sources.lua
-Data\Shaman\gear-icyveins.lua
-Data\Shaman\consumables-icyveins.lua
-Data\Shaman\gear-ugg.lua
-Data\Shaman\pvp-ugg.lua
-Data\Shaman\talents-icyveins.lua
-Data\Shaman\rotation-icyveins.lua
-Data\Shaman\stats-ugg.lua
-Data\Shaman\stat-targets-ugg.lua
-Data\Shaman\talents-ugg.lua
-Data\Shaman\crafting-ugg.lua
-Data\Shaman\trinkets-ugg.lua
-Data\Shaman\gems-ugg.lua
-Data\Warlock\sources.lua
-Data\Warlock\gear-icyveins.lua
-Data\Warlock\consumables-icyveins.lua
-Data\Warlock\gear-ugg.lua
-Data\Warlock\pvp-ugg.lua
-Data\Warlock\talents-icyveins.lua
-Data\Warlock\rotation-icyveins.lua
-Data\Warlock\stats-ugg.lua
-Data\Warlock\stat-targets-ugg.lua
-Data\Warlock\talents-ugg.lua
-Data\Warlock\crafting-ugg.lua
-Data\Warlock\trinkets-ugg.lua
-Data\Warlock\gems-ugg.lua
-Data\Warrior\sources.lua
-Data\Warrior\gear-icyveins.lua
-Data\Warrior\consumables-icyveins.lua
-Data\Warrior\gear-ugg.lua
-Data\Warrior\pvp-ugg.lua
-Data\Warrior\talents-icyveins.lua
-Data\Warrior\rotation-icyveins.lua
-Data\Warrior\stats-ugg.lua
-Data\Warrior\stat-targets-ugg.lua
-Data\Warrior\talents-ugg.lua
-Data\Warrior\crafting-ugg.lua
-Data\Warrior\trinkets-ugg.lua
-Data\Warrior\gems-ugg.lua
-Data\embellishment-effects.lua
-Data\ugg-encounters.lua
-Data\SourceAdapter.lua
+# Normalized per-source data (Class Codex Service). The UI accessors read these
+# directly through the SourceData seam; SourceReader builds only the two globals
+# that are read inline (ClassCodexData) or need in-game encoding (ClassCodexUggBuilds).
+Data\db_ugg.lua
+Data\db_icyveins.lua
+Data\db_blizzard.lua
+Data\db_reference.lua
+
 
 Locales.lua
 Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
+Shared\SourceData.lua
 Shared\Sources.lua
 Shared\SelfTest.lua
 Shared\ItemLabel.lua
@@ -207,12 +44,8 @@ Shared\PvPData.lua
 Shared\StatTargets.lua
 Shared\TalentBuildList.lua
 Shared\UggContext.lua
-Data\UggTalentAdapter.lua
-Data\UggGearAdapter.lua
-Data\UggTrinketAdapter.lua
-Data\UggGemAdapter.lua
-Data\ConsumablesAdapter.lua
-Data\UggPvpTalentAdapter.lua
+# SourceReader loads after the seam + talent-encode helpers it depends on.
+Data\SourceReader.lua
 Shared\GearingUtils.lua
 UI\SectionTitle.lua
 UI\HelpIcon.lua

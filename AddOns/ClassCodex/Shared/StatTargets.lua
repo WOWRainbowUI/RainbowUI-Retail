@@ -5,9 +5,9 @@ local _, ns = ...
 -- u.gg BiS gear list (item stats resolved at their ilvl). The sum of the
 -- recommended gear is the stat profile a player builds toward.
 --
--- Data lives in per-class files:
---   Data/{Class}/stat-targets-ugg.lua -> ClassCodexUggStatTargets[CLASS][spec][context]
---   context = "Mythic+" | "Raid"; entry = { targets = { crit, haste, mastery, versatility } }
+-- Data is read through the SourceData seam off the normalized db_ugg file:
+--   ns.ResolveAny(class, spec, "statTargets", "all", ctx) -> { crit, haste, mastery, versatility }
+--   ctx = "mplus" | "raid"
 --
 -- This module exposes:
 --   ns.GetStatTargets(classToken, specKey, context) -> snapshot or nil
@@ -76,29 +76,27 @@ end
 local function NormalizeContext(ctx)
     if not ctx then return nil end
     local lc = ctx:lower()
-    if lc:find("raid") then return "團隊" end
+    if lc:find("raid") then return "Raid" end
     if lc:find("mythic+") or lc:find("m+") or lc:find("dungeon") then
-        return "傳奇+"
+        return "Mythic+"
     end
     return nil
 end
 
 -- Returns the stat-target snapshot for the given (class, spec, context), or nil.
 -- Snapshot shape: { targets = { crit, haste, mastery, versatility } }
--- (the u.gg source URL lives in the consolidated ClassCodexSources.)
+-- (the u.gg source URL is resolved separately via ns.SourceSpec(...).links.)
 function ns.GetStatTargets(classToken, specKey, context)
     if not classToken or not specKey then return nil end
     local normalized = NormalizeContext(context)
     if not normalized then return nil end
 
-    local root = _G.ClassCodexUggStatTargets
-    if not root then return nil end
-
-    local classData = root[classToken]
-    if not classData then return nil end
-    local specData = classData[specKey]
-    if not specData then return nil end
-    return specData[normalized]
+    -- Reads the normalized structure via the source-generic seam: statTargets is
+    -- keyed [hero=all][mplus|raid]; whichever source provides it wins.
+    local ctx = (normalized == "Mythic+") and "mplus" or "raid"
+    local targets = ns.ResolveAny and ns.ResolveAny(classToken, specKey, "statTargets", "all", ctx)
+    if not targets then return nil end
+    return { targets = targets }
 end
 
 -------------------------------------------------------------------------------

@@ -86,6 +86,10 @@ function ns.RegisterSettings()
             L["settings.tooltip.talent_pane_show"], true,
             function(val) if ns.SetTalentPaneEnabled then ns.SetTalentPaneEnabled(val) end end)
 
+        check("pinTalentSource", L["settings.label.pin_talent_source"],
+            L["settings.tooltip.pin_talent_source"], false,
+            function() if ns.OnPinTalentSourceToggled then ns.OnPinTalentSourceToggled() end end)
+
         header(L["settings.header.unit_menus"])
         check("unitMenuEnabled", L["settings.label.unit_menu_enabled"],
             L["settings.tooltip.unit_menu_enabled"], true)
@@ -189,12 +193,10 @@ function ns.RegisterSettings()
             L["settings.tooltip.dock_show_hero_icon"], true, refreshDock, dockOn)
         check("dockLoadoutShowSaved", L["settings.label.dock_show_saved"],
             L["settings.tooltip.dock_show_saved"], true, nil, dockOn)
-        check("dockLoadoutShowCodexBuilds", L["settings.label.dock_show_codexbuilds"],
-            L["settings.tooltip.dock_show_codexbuilds"], true, nil, dockOn)
+        check("dockLoadoutShowIcyVeins", L["settings.label.dock_show_icyveins"],
+            L["settings.tooltip.dock_show_icyveins"], true, nil, dockOn)
         check("dockLoadoutShowUgg", L["settings.label.dock_show_ugg"],
             L["settings.tooltip.dock_show_ugg"], true, nil, dockOn)
-        check("dockLoadoutShowIcyVeins", L["settings.label.dock_show_icyveins"],
-            L["settings.tooltip.dock_show_icyveins"], true, refreshDock, dockOn)
         slider("dockLoadoutOpacity", L["settings.label.dock_opacity"],
             L["settings.tooltip.dock_opacity"], 95, 0, 100, 5, fmtPercent,
             function() if ns.ApplyLoadoutDockOpacity then ns.ApplyLoadoutDockOpacity() end end, dockOn)

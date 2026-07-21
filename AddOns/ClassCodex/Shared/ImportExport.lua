@@ -236,6 +236,15 @@ local function ResetAndPurchaseDeferred(configID, treeID, entryInfo, onComplete)
 
     local i = 1
     local passProgress = 0
+    -- Consecutive no-progress passes. Talent gate/currency updates from a
+    -- pass's purchases can lag a frame or two, so a pass can momentarily make
+    -- no progress while nodes are still about to unlock. Retry a bounded
+    -- number of no-progress passes (each a frame apart) before giving up, so
+    -- valid max-level builds don't drop nodes that were about to become
+    -- purchasable — this is why staging into a fresh loadout used to land only
+    -- 64/72. Genuinely unaffordable (levelling) nodes still terminate quickly.
+    local zeroPasses = 0
+    local MAX_ZERO_PASSES = 8
 
     local function step()
         if myToken ~= applyToken then return end -- superseded by a newer apply
@@ -294,9 +303,17 @@ local function ResetAndPurchaseDeferred(configID, treeID, entryInfo, onComplete)
             -- Pass made progress; start another pass.
             i = 1
             passProgress = 0
+            zeroPasses = 0
+            C_Timer.After(0, step)
+        elseif next(entryInfo) ~= nil and zeroPasses < MAX_ZERO_PASSES then
+            -- No progress but nodes remain: give lagging gate/currency updates
+            -- a few more frames to settle before concluding they can't fit.
+            zeroPasses = zeroPasses + 1
+            i = 1
+            passProgress = 0
             C_Timer.After(0, step)
         else
-            -- Done.
+            -- Done (all staged, or the remainder genuinely can't be afforded).
             if onComplete then onComplete() end
         end
     end
@@ -331,9 +348,15 @@ local function SetPendingApply(pa)
     local mySeq = pendingApplySeq
     pendingApply = pa
     C_Timer.After(PENDING_APPLY_WATCHDOG_SECS, function()
-        if pendingApplySeq == mySeq then
-            pendingApply = nil
-        end
+        if pendingApplySeq ~= mySeq then return end
+        -- An expected TRAIT_CONFIG_* event never arrived. Tear the apply
+        -- down cleanly: drop the guard and clear the in-progress flag so the
+        -- talent UI unfreezes and the player can try again without /reload.
+        -- (A stale TRAIT_CONFIG_CREATED registration is harmless — its
+        -- handler bails on the now-nil pendingApply.)
+        pendingApply = nil
+        ns._talentApplyInProgress = false
+        if ns._refreshTalentDiff then ns._refreshTalentDiff() end
     end)
 end
 
@@ -347,6 +370,30 @@ local function ClearStoredConfigID(specID)
     if specID then ClassCodexCharDB.ccLoadout[specID] = nil end
 end
 
+-- A slot belongs to CC if its name is either the bare CC_NAME (freshly
+-- created, never applied) or starts with "CC_NAME: " (renamed by us
+-- after a successful apply at lines 387/497/581). Anything else means
+-- the user renamed our slot — we must NOT keep treating it as ours, or
+-- the next Apply would overwrite their loadout.
+local function IsCCSlotName(name)
+    if type(name) ~= "string" then return false end
+    if name == CC_NAME then return true end
+    return name:sub(1, #CC_NAME + 2) == CC_NAME .. ": "
+end
+-- Exposed for the native loadout-dropdown tint (TalentPaneDropdown.lua):
+-- it scans the live config names to find our slot without re-deriving the
+-- naming convention.
+ns.IsCCSlotName = IsCCSlotName
+
+-- Brand colour for the Class Codex loadout wherever it shows in a loadout
+-- list (native talent dropdown + the loadout dock). Class Codex brand blue
+-- (the same cyan as the "Class Codex:" chat prefix), so our slot stands out
+-- from the player's white loadouts at a glance.
+ns.CC_LOADOUT_COLOR = CreateColor(0, 0.8, 1)
+function ns.WrapCCName(name)
+    return ns.CC_LOADOUT_COLOR:WrapTextInColorCode(name)
+end
+
 local function GetStoredConfigID()
     local specID = GetSpecID()
     if not specID or not ClassCodexCharDB then return nil end
@@ -356,21 +403,34 @@ local function GetStoredConfigID()
     -- Validate against the live loadout list — GetConfigInfo can still return
     -- a stale table for a deleted configID, which would later make
     -- LoadConfig fail with Enum.LoadConfigResult.Error.
+    local liveIDs
     if C_ClassTalents.GetConfigIDsBySpecID then
-        local validIDs = C_ClassTalents.GetConfigIDsBySpecID(specID)
-        if validIDs then
-            for _, id in ipairs(validIDs) do
-                if id == stored then return stored end
-            end
+        liveIDs = C_ClassTalents.GetConfigIDsBySpecID(specID)
+    end
+    if liveIDs then
+        local found = false
+        for _, id in ipairs(liveIDs) do
+            if id == stored then found = true; break end
+        end
+        if not found then
             ClearStoredConfigID(specID)
             return nil
         end
     end
 
+    -- Slot name guard: if the user renamed our slot, treat it as no
+    -- longer ours so the next Apply creates a fresh CC slot instead of
+    -- writing into the player's renamed loadout.
     local ok, info = pcall(C_Traits.GetConfigInfo, stored)
-    if ok and info then return stored end
-    ClearStoredConfigID(specID)
-    return nil
+    if not ok or not info then
+        ClearStoredConfigID(specID)
+        return nil
+    end
+    if not IsCCSlotName(info.name) then
+        ClearStoredConfigID(specID)
+        return nil
+    end
+    return stored
 end
 
 local function StoreConfigID(configID)
@@ -380,21 +440,37 @@ local function StoreConfigID(configID)
     ClassCodexCharDB.ccLoadout[specID] = configID
 end
 
+-- Look for an existing CC-named slot on the current spec without
+-- relying on ClassCodexCharDB. Lets us adopt an orphan slot left over
+-- from a previous character DB wipe or a manual SavedVariables edit
+-- instead of creating a second "Class Codex" slot alongside it. Returns
+-- the first matching configID we find, or nil.
+local function FindExistingCCSlot()
+    local specID = GetSpecID()
+    if not specID or not C_ClassTalents.GetConfigIDsBySpecID then return nil end
+    local liveIDs = C_ClassTalents.GetConfigIDsBySpecID(specID)
+    if not liveIDs then return nil end
+    for _, id in ipairs(liveIDs) do
+        local ok, info = pcall(C_Traits.GetConfigInfo, id)
+        if ok and info and IsCCSlotName(info.name) then
+            return id
+        end
+    end
+    return nil
+end
+
 local eventFrame = CreateFrame("Frame")
 eventFrame:SetScript("OnEvent", function(self, event, arg1)
     if event == "TRAIT_CONFIG_CREATED" then
         if type(arg1) ~= "table" then return end
         if not pendingApply then return end
         if arg1.type ~= Enum.TraitConfigType.Combat then return end
+        -- Only adopt the Class Codex slot we asked for by name.
         if arg1.name ~= CC_NAME then return end
         self:UnregisterEvent("TRAIT_CONFIG_CREATED")
         StoreConfigID(arg1.ID)
-        -- pendingApply intentionally kept set — the spam-click guard
-        -- needs it across the brief window between this handler and
-        -- the next-frame re-apply. The re-apply bypasses the guard
-        -- via _isContinuation; its own SetPendingApply at the
-        -- LoadConfig site overwrites this slot's data with phase-2
-        -- data.
+        -- pendingApply intentionally kept set — the spam-click guard needs it
+        -- across the window between this handler and the next-frame re-entry.
         local pa = pendingApply
         RunNextFrame(function()
             ns.ApplyTalentExportString(pa.exportString, pa.buildLabel, true)
@@ -405,35 +481,128 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         self:UnregisterEvent("TRAIT_CONFIG_UPDATED")
         local pa = pendingApply
         if pa.renameOnly then
-            -- Terminal success: commit cast finished, rename + notify.
-            local ccConfigID = GetStoredConfigID()
-            if ccConfigID then
-                local loadoutName = CC_NAME .. ": " .. (pa.buildLabel or "Build")
-                C_ClassTalents.RenameConfig(ccConfigID, loadoutName)
+            -- Terminal success: commit cast finished, rename to reflect the
+            -- picked recommendation, notify.
+            if pa.target and pa.finalName and C_ClassTalents.RenameConfig then
+                C_ClassTalents.RenameConfig(pa.target, pa.finalName)
             end
+            if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
             Msg("Talents applied: " .. (pa.buildLabel or "build"))
             ClearPendingApply()
-            -- Defer the flag clear by one frame so any TRAIT_*_UPDATED
-            -- events still pending in this dispatch cycle remain
-            -- suppressed. Then explicitly refresh the talent dropdown
-            -- so the (active) tag updates and the glow re-computes
-            -- against the new active state (will be empty since the
-            -- build matches).
+            -- Defer the flag clear by one frame so any TRAIT_*_UPDATED events
+            -- still pending in this dispatch cycle remain suppressed, then
+            -- refresh the talent dropdown/glow against the new active state.
             RunNextFrame(function()
                 ns._talentApplyInProgress = false
                 if ns._refreshTalentDiff then ns._refreshTalentDiff() end
             end)
         else
-            -- LoadConfig cast finished — continuation to stage + commit.
-            -- Same as the TRAIT_CONFIG_CREATED branch: keep pendingApply
-            -- set across the next-frame window, let the re-apply
-            -- overwrite via its own SetPendingApply.
+            -- LoadConfig cast finished — re-enter to stage + commit.
             RunNextFrame(function()
                 ns.ApplyTalentExportString(pa.exportString, pa.buildLabel, true)
             end)
         end
     end
 end)
+
+-------------------------------------------------------------------------------
+-- Shared staging+commit helper used by both the CC-slot apply path and
+-- the user-named save-as-new path. Caller has already ensured
+-- `targetConfigID` is loaded as the active scratch (LoadConfig done) —
+-- this function only stages purchases, commits, and arms the
+-- post-commit rename if `finalName` is set.
+--
+-- `finalName` controls the rename after CommitConfig's cast finishes:
+--   - Apply path passes "Class Codex: <buildLabel>" so the loadout
+--     label reflects the picked recommendation.
+--   - Save-as-new passes nil so the user's chosen name stays intact.
+-------------------------------------------------------------------------------
+
+local function StageAndCommit(targetConfigID, activeConfigID, entryInfo, treeID, buildLabel, finalName)
+    -- Snapshot for the partial-apply path (B): ResetAndPurchaseDeferred
+    -- nils out entries from entryInfo as it successfully purchases
+    -- them, so the leftover count after staging tells us how many
+    -- nodes we couldn't afford at the player's current level.
+    local originalNodeCount = 0
+    for _ in pairs(entryInfo) do originalNodeCount = originalNodeCount + 1 end
+
+    -- Reset + purchase: deferred across frames so the UI doesn't
+    -- freeze on a ~50-node tree. Commit happens in the onComplete
+    -- callback once all nodes are staged.
+    --
+    -- Set a global flag covering the WHOLE apply: deferred purchase
+    -- loop AND the commit cast that follows. Observers (e.g. our own
+    -- talent dropdown's TRAIT_TREE_CURRENCY_INFO_UPDATED handler) skip
+    -- their per-event re-renders while the flag is set, so the diff
+    -- glow doesn't flicker as the staged state shifts node-by-node
+    -- and during the commit cast the player is watching.
+    --
+    -- Cleared on failure inside the onComplete callback; on success
+    -- the flag stays true until the commit cast completes
+    -- (TRAIT_CONFIG_UPDATED in renameOnly branch).
+    ns._talentApplyInProgress = true
+    ResetAndPurchaseDeferred(activeConfigID, treeID, entryInfo, function()
+        if not C_Traits.ConfigHasStagedChanges(activeConfigID) then
+            ns._talentApplyInProgress = false
+            -- No staged changes means the loadout already has these
+            -- exact talents. If we own the slot (CC apply path), rename
+            -- to reflect what the user picked; otherwise just say so.
+            if finalName and C_ClassTalents.RenameConfig and targetConfigID then
+                C_ClassTalents.RenameConfig(targetConfigID, finalName)
+                if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
+                Msg("Renamed loadout to " .. (buildLabel or "Build"))
+            else
+                Msg("Already using this build.")
+            end
+            ClearPendingApply()
+            return
+        end
+
+        -- (B) Partial-apply warning. The staging loop is already
+        -- robust to "ran out of currency" — failed PurchaseRank calls
+        -- leave the node in entryInfo and a pass that makes zero
+        -- progress terminates the loop. So if any nodes remain in
+        -- entryInfo, it's because the player's current level couldn't
+        -- afford or unlock them (typical levelling-vs-max-level-build
+        -- case). Surface that as a single info line before committing
+        -- so the user knows why their loadout looks shorter than the
+        -- build description.
+        local remainingNodes = 0
+        for _ in pairs(entryInfo) do remainingNodes = remainingNodes + 1 end
+        if remainingNodes > 0 then
+            local applied = originalNodeCount - remainingNodes
+            Msg(string.format(
+                "Applying %d of %d nodes — your current level can't fit the rest. Level up and re-apply to fill in the remaining %d.",
+                applied, originalNodeCount, remainingNodes))
+        end
+
+        if not C_ClassTalents.CommitConfig(targetConfigID) then
+            ns._talentApplyInProgress = false
+            Msg("|cffff0000Commit failed.|r Open talent frame and click Apply Changes.")
+            ClearPendingApply()
+            return
+        end
+
+        -- CommitConfig triggers a cast bar — defer rename to after cast.
+        -- The apply-in-progress flag stays true until that fires.
+        SetPendingApply({
+            buildLabel = buildLabel,
+            renameOnly = true,
+            target = targetConfigID,
+            finalName = finalName,
+        })
+        eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+
+        if C_ClassTalents.UpdateLastSelectedSavedConfigID then
+            local specID = GetSpecID()
+            if specID then
+                C_ClassTalents.UpdateLastSelectedSavedConfigID(specID, targetConfigID)
+            end
+        end
+    end)
+
+    return true
+end
 
 -------------------------------------------------------------------------------
 -- ns.ApplyTalentExportString(exportString, buildLabel)
@@ -520,6 +689,7 @@ function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
             local newBits = ns.ExtractTalentBits(exportString)
             if activeBits and newBits and activeBits == newBits then
                 C_ClassTalents.RenameConfig(ccConfigID, CC_NAME .. ": " .. (buildLabel or "Build"))
+                if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
                 Msg("Renamed loadout to " .. (buildLabel or "Build"))
                 ClearPendingApply()
                 return true
@@ -534,8 +704,16 @@ function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
     local entryInfo, parseErr = ParseExportString(exportString, treeID)
     if not entryInfo then return Fail(parseErr) end
 
-    -- Ensure we have a dedicated loadout slot
+    -- Ensure we have a dedicated loadout slot. Adopt an existing
+    -- CC-named slot before creating a new one so the user always ends
+    -- up with a SINGLE Class Codex loadout per spec, even after a
+    -- character-DB wipe or manual SavedVariables edit cleared the
+    -- stored mapping.
     local ccConfigID = GetStoredConfigID()
+    if not ccConfigID then
+        ccConfigID = FindExistingCCSlot()
+        if ccConfigID then StoreConfigID(ccConfigID) end
+    end
     if not ccConfigID then
         if C_ClassTalents.CanCreateNewConfig and not C_ClassTalents.CanCreateNewConfig() then
             return Fail("No free loadout slots — delete one to use Class Codex builds")
@@ -547,7 +725,8 @@ function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
         return true
     end
 
-    -- Switch to CC loadout if not on it (TLM does this before staging)
+    -- Switch to the CC loadout if not on it (TLM does this before staging) so
+    -- the scratch reflects it and gating computes correctly.
     local specID = GetSpecID()
     local currentLoadoutID = C_ClassTalents.GetLastSelectedSavedConfigID(specID)
     if currentLoadoutID ~= ccConfigID then
@@ -557,14 +736,9 @@ function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
             eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
             return true
         elseif result == Enum.LoadConfigResult.Error then
-            -- LoadConfig failed even though GetStoredConfigID validated the
-            -- ID against GetConfigIDsBySpecID up the stack. Clear the
-            -- stored ID so a subsequent click runs the fresh path
-            -- (RequestNewConfig branch), then surface the error. Do NOT
-            -- recurse: a persistent LoadConfig failure (talent UI in a
-            -- transient state, pending unstaged changes) would otherwise
-            -- drive an unbounded create-slot / LoadConfig-fail loop and
-            -- exhaust the player's loadout slots.
+            -- LoadConfig failed even though GetStoredConfigID validated the ID.
+            -- Clear the stored ID so a subsequent click runs the fresh path,
+            -- then surface the error. Do NOT recurse.
             ClearStoredConfigID(specID)
             return Fail("Could not load Class Codex loadout. Open the talents pane and click Apply Changes, then try again.")
         end
@@ -573,82 +747,185 @@ function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
     -- Re-fetch activeConfigID after LoadConfig may have changed it
     activeConfigID = C_ClassTalents.GetActiveConfigID()
 
-    -- Snapshot for the partial-apply path (B): ResetAndPurchaseDeferred
-    -- nils out entries from entryInfo as it successfully purchases
-    -- them, so the leftover count after staging tells us how many
-    -- nodes we couldn't afford at the player's current level.
-    local originalNodeCount = 0
-    for _ in pairs(entryInfo) do originalNodeCount = originalNodeCount + 1 end
+    return StageAndCommit(ccConfigID, activeConfigID, entryInfo, treeID, buildLabel,
+        CC_NAME .. ": " .. (buildLabel or "Build"))
+end
 
-    -- Reset + purchase: deferred across frames so the UI doesn't
-    -- freeze on a ~50-node tree. Commit happens in the onComplete
-    -- callback once all nodes are staged.
-    --
-    -- Set a global flag covering the WHOLE apply: deferred purchase
-    -- loop AND the commit cast that follows. Observers (e.g. our own
-    -- talent dropdown's TRAIT_TREE_CURRENCY_INFO_UPDATED handler) skip
-    -- their per-event re-renders while the flag is set, so the diff
-    -- glow doesn't flicker as the staged state shifts node-by-node
-    -- and during the commit cast the player is watching.
-    --
-    -- Cleared on failure inside the onComplete callback; on success
-    -- the flag stays true until the commit cast completes
-    -- (TRAIT_CONFIG_UPDATED in renameOnly branch).
-    ns._talentApplyInProgress = true
-    ResetAndPurchaseDeferred(activeConfigID, treeID, entryInfo, function()
-        if not C_Traits.ConfigHasStagedChanges(activeConfigID) then
-            ns._talentApplyInProgress = false
-            -- No staged changes means the CC loadout's talents already
-            -- match. The user clicked a build by a different name
-            -- (e.g. "Maisara Caverns" vs "All Dungeons") — rename so
-            -- the loadout label reflects what they picked.
-            if C_ClassTalents.RenameConfig and ccConfigID then
-                C_ClassTalents.RenameConfig(ccConfigID, CC_NAME .. ": " .. (buildLabel or "Build"))
-                Msg("Renamed loadout to " .. (buildLabel or "Build"))
-            else
-                Msg("Already using this build.")
+-------------------------------------------------------------------------------
+-- ns.SaveTalentBuildAsNewLoadout(exportString, buildLabel, userName)
+--
+-- Creates a brand-new loadout named `userName` containing the build, using
+-- Blizzard's native C_ClassTalents.ImportLoadout — the exact call the game's
+-- own "Import Loadout" dialog uses. It builds the full loadout (hero talents,
+-- gated/tiered nodes, granted ranks) in one server call, with none of the
+-- manual staging that dropped nodes when writing into a fresh slot. Does not
+-- touch ClassCodexCharDB, and the name is kept verbatim.
+--
+-- Parsing below mirrors Blizzard_ClassTalentImportExport: read the header,
+-- read the per-node content bitstream, and convert to the ImportLoadoutEntryInfo
+-- array (nodeID, ranksGranted, ranksPurchased, selectionEntryID) the API wants.
+-------------------------------------------------------------------------------
+
+local BIT_WIDTH_HEADER_VERSION = 8
+local BIT_WIDTH_SPEC_ID = 16
+local BIT_WIDTH_RANKS_PURCHASED = 6
+
+local function ReadImportHeader(stream)
+    local headerBits = BIT_WIDTH_HEADER_VERSION + BIT_WIDTH_SPEC_ID + 128
+    if stream:GetNumberOfBits() < headerBits then return false end
+    local version = stream:ExtractValue(BIT_WIDTH_HEADER_VERSION)
+    local specID = stream:ExtractValue(BIT_WIDTH_SPEC_ID)
+    for _ = 1, 16 do stream:ExtractValue(8) end -- skip the 128-bit tree hash
+    return true, version, specID
+end
+
+local function ReadImportContent(stream, treeID)
+    local results = {}
+    local treeNodes = C_Traits.GetTreeNodes(treeID)
+    for i = 1, #treeNodes do
+        local r = { isNodeSelected = false, isNodeGranted = false,
+                    isPartiallyRanked = false, partialRanksPurchased = 0,
+                    isChoiceNode = false, choiceNodeSelection = 1 }
+        if stream:ExtractValue(1) == 1 then
+            r.isNodeSelected = true
+            local isPurchased = stream:ExtractValue(1) == 1
+            r.isNodeGranted = not isPurchased
+            if isPurchased then
+                r.isPartiallyRanked = stream:ExtractValue(1) == 1
+                if r.isPartiallyRanked then
+                    r.partialRanksPurchased = stream:ExtractValue(BIT_WIDTH_RANKS_PURCHASED)
+                end
+                r.isChoiceNode = stream:ExtractValue(1) == 1
+                if r.isChoiceNode then
+                    r.choiceNodeSelection = stream:ExtractValue(2) + 1
+                end
             end
-            ClearPendingApply()
-            return
         end
+        results[i] = r
+    end
+    return results
+end
 
-        -- (B) Partial-apply warning. The staging loop is already
-        -- robust to "ran out of currency" — failed PurchaseRank calls
-        -- leave the node in entryInfo and a pass that makes zero
-        -- progress terminates the loop. So if any nodes remain in
-        -- entryInfo, it's because the player's current level couldn't
-        -- afford or unlock them (typical levelling-vs-max-level-build
-        -- case). Surface that as a single info line before committing
-        -- so the user knows why their loadout looks shorter than the
-        -- build description. We still call CommitConfig normally —
-        -- if Blizzard rejects the partial state (e.g. leftover
-        -- currency from multi-point nodes) the existing commit-fail
-        -- branch directs them to the talent UI.
-        local remainingNodes = 0
-        for _ in pairs(entryInfo) do remainingNodes = remainingNodes + 1 end
-        if remainingNodes > 0 then
-            local applied = originalNodeCount - remainingNodes
-            Msg(string.format(
-                "Applying %d of %d nodes — your current level can't fit the rest. Level up and re-apply to fill in the remaining %d.",
-                applied, originalNodeCount, remainingNodes))
+local function ImportEntryFromSingleNode(results, nodeInfo, idx)
+    if not nodeInfo or not idx or not idx.isNodeSelected then return end
+    local r = { nodeID = nodeInfo.ID, ranksGranted = idx.isNodeGranted and 1 or 0 }
+    if idx.isNodeSelected and not idx.isNodeGranted then
+        r.ranksPurchased = idx.isPartiallyRanked and idx.partialRanksPurchased or nodeInfo.maxRanks
+    else
+        r.ranksPurchased = 0
+    end
+    if idx.isChoiceNode and idx.choiceNodeSelection and nodeInfo.entryIDs then
+        r.selectionEntryID = nodeInfo.entryIDs[idx.choiceNodeSelection]
+    elseif nodeInfo.activeEntry then
+        r.selectionEntryID = nodeInfo.activeEntry.entryID
+    end
+    if not r.selectionEntryID and nodeInfo.entryIDs then
+        r.selectionEntryID = nodeInfo.entryIDs[1]
+    end
+    if r.selectionEntryID ~= nil then results[#results + 1] = r end
+end
+
+local function ImportEntryFromTieredNode(results, configID, nodeInfo, idx)
+    if not nodeInfo or not idx or not idx.isNodeSelected then return end
+    local total = 0
+    if not idx.isNodeGranted then
+        total = idx.isPartiallyRanked and idx.partialRanksPurchased or nodeInfo.maxRanks
+    end
+    local remaining = total
+    for index, entryID in ipairs(nodeInfo.entryIDs or {}) do
+        local ei = C_Traits.GetEntryInfo(configID, entryID)
+        if ei then
+            local ranks = math.min(remaining, ei.maxRanks or 0)
+            local isGranted = idx.isNodeGranted and index == 1
+            if ranks > 0 or isGranted then
+                results[#results + 1] = {
+                    nodeID = nodeInfo.ID,
+                    ranksGranted = isGranted and 1 or 0,
+                    ranksPurchased = ranks,
+                    selectionEntryID = entryID,
+                }
+            end
+            remaining = remaining - ranks
         end
+    end
+end
 
-        if not C_ClassTalents.CommitConfig(ccConfigID) then
-            ns._talentApplyInProgress = false
-            Msg("|cffff0000Commit failed.|r Open talent frame and click Apply Changes.")
-            ClearPendingApply()
-            return
+local function ParseImportEntries(exportString, configID, treeID)
+    if not ExportUtil or not ExportUtil.MakeImportDataStream then
+        return nil, "Import not supported by this client."
+    end
+    local ok, stream = pcall(ExportUtil.MakeImportDataStream, exportString)
+    if not ok or not stream then return nil, "Failed to decode export string" end
+    local hok, version = ReadImportHeader(stream)
+    if not hok then return nil, "Bad export string" end
+    if C_Traits.GetLoadoutSerializationVersion
+        and version ~= C_Traits.GetLoadoutSerializationVersion() then
+        return nil, "Build string is from a different game version — re-copy it."
+    end
+    local content = ReadImportContent(stream, treeID)
+    local results = {}
+    local treeNodes = C_Traits.GetTreeNodes(treeID)
+    for index = 1, #treeNodes do
+        local nodeInfo = C_Traits.GetNodeInfo(configID, treeNodes[index])
+        if nodeInfo then
+            if nodeInfo.type == Enum.TraitNodeType.Tiered then
+                ImportEntryFromTieredNode(results, configID, nodeInfo, content[index])
+            else
+                ImportEntryFromSingleNode(results, nodeInfo, content[index])
+            end
         end
+    end
+    return results
+end
 
-        -- CommitConfig triggers a cast bar — defer rename to after cast.
-        -- The apply-in-progress flag stays true until that fires.
-        SetPendingApply({ buildLabel = buildLabel, renameOnly = true })
-        eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+function ns.SaveTalentBuildAsNewLoadout(exportString, buildLabel, userName)
+    if not exportString or exportString == "" then return nil, "Empty export string" end
+    if not userName or userName == "" then return nil, "Loadout name is required" end
+    -- Reject CC-looking names so the slot can't later be adopted/overwritten
+    -- by the apply path's FindExistingCCSlot.
+    if IsCCSlotName(userName) then
+        return nil, '"' .. CC_NAME .. '" is reserved for Class Codex — pick a different name.'
+    end
+    if InCombatLockdown and InCombatLockdown() then return nil, "Cannot change talents in combat." end
+    if not C_ClassTalents.ImportLoadout then
+        return nil, "This game version doesn't support saving loadouts."
+    end
+    if C_ClassTalents.CanCreateNewConfig and not C_ClassTalents.CanCreateNewConfig() then
+        return nil, "No free loadout slots — delete one to save a new build."
+    end
+    local configID = C_ClassTalents.GetActiveConfigID()
+    if not configID then return nil, "No active talent configuration" end
 
-        if C_ClassTalents.UpdateLastSelectedSavedConfigID then
-            C_ClassTalents.UpdateLastSelectedSavedConfigID(specID, ccConfigID)
+    -- When the talent tree is open, import through the frame's own ImportLoadout
+    -- rather than the bare C_ClassTalents API. The frame arms its
+    -- "wait until the new config is populated" check and repopulates the tree;
+    -- the bare API doesn't, so the frame auto-switches to the not-yet-populated
+    -- new config and the tree shows blank ("resets to nothing"). Only takes the
+    -- frame path when the tree is actually shown — otherwise there's no open
+    -- tree to blank and the direct API is simpler.
+    local tf = PlayerSpellsFrame and PlayerSpellsFrame.TalentsFrame
+    if tf and tf.ImportLoadout and tf.IsShown and tf:IsShown() then
+        local ok, res = pcall(tf.ImportLoadout, tf, exportString, userName)
+        if ok and res ~= false then
+            if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
+            return true
         end
-    end)
+        if ok and res == false then
+            -- The frame validated and rejected the string (it shows its own
+            -- error); surface a short inline message too.
+            return nil, "Couldn't save the loadout — check the build string."
+        end
+        -- pcall errored (frame not ready) → fall through to the direct API.
+    end
 
+    -- Direct fallback (talent tree not open): parse + native import.
+    local treeID = GetTreeID()
+    if not treeID then return nil, "Cannot determine talent tree" end
+    local entries, parseErr = ParseImportEntries(exportString, configID, treeID)
+    if not entries then return nil, parseErr end
+    local ok, importErr = C_ClassTalents.ImportLoadout(configID, entries, userName, exportString)
+    if not ok then return nil, importErr or "Import failed" end
+    Msg("Saved loadout '" .. userName .. "'.")
+    if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
     return true
 end
