@@ -1,7 +1,6 @@
 local addonName, ns = ...
 
 local DATA = ClassCodexData
-local GEAR_DATA = ClassCodexGearData
 if not DATA then
     -- Ensure OpenCompendium exists even if data failed to load
     function ns:OpenCompendium()
@@ -574,6 +573,34 @@ local function InitFrame()
     PanelTemplates_SetNumTabs(UI.frame, #TAB_DATA)
     PanelTemplates_SetTab(UI.frame, 1)
 
+    -- Long localized labels (German "Beste Ausrüstung", "Schmuckstücke",
+    -- "Verbesserungen", …) widen the 6-tab row past the frame's right edge.
+    -- Size each tab to its text, then shrink the tab font uniformly (to a
+    -- readable floor) until the whole row fits FRAME_WIDTH, whatever the locale.
+    local function FitTabsToFrame()
+        local OVERLAP, EDGES = 14, 15 + 12 -- inter-tab overlap; left start + right margin
+        local function rowWidth()
+            local w = EDGES
+            for _, tab in ipairs(tabs) do
+                PanelTemplates_TabResize(tab, 0)
+                w = w + tab:GetWidth() - OVERLAP
+            end
+            return w + OVERLAP
+        end
+        local steps = 0
+        while rowWidth() > FRAME_WIDTH and steps < 5 do
+            steps = steps + 1
+            for _, tab in ipairs(tabs) do
+                local fs = tab.Text or _G[(tab:GetName() or "") .. "Text"]
+                if fs then
+                    local file, size, flags = fs:GetFont()
+                    if file and size then fs:SetFont(file, size - 1, flags) end
+                end
+            end
+        end
+    end
+    FitTabsToFrame()
+
     -- Scroll frame inside Inset
     local scrollFrame = CreateFrame("ScrollFrame", "ClassCodexCompendiumScroll", UI.frame.Inset, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT", UI.frame.Inset, "TOPLEFT", 4, -8)
@@ -1008,8 +1035,8 @@ function ns:UpdateCompendium()
     UI.frame:SetTitle(L["Class Codex Compendium"] ..  " · " .. GetSpecDisplayName(selectedClass, selectedSpec) .. " " .. GetClassDisplayName(selectedClass))
 
     -- Request item data for gearing tabs
-    if activeTab ~= "guide" and activeTab ~= "talents" and GEAR_DATA then
-        local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    if activeTab ~= "guide" and activeTab ~= "talents" then
+        local gearData = ns.GetSpecGearData(selectedClass, selectedSpec)
         RequestAllGearItems(gearData)
     end
 
@@ -1537,7 +1564,7 @@ local function BuildPvPGemsSynthetic()
 end
 
 function ns:UpdateCompendiumEnchants()
-    local gearData = GEAR_DATA and GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    local gearData = ns.GetSpecGearData(selectedClass, selectedSpec)
     local uggSpecData = ns.GetUggGearSpecData and ns:GetUggGearSpecData(selectedClass, selectedSpec)
     ns.Sections.Enhancements.RenderCompendiumEnchantsGems({
         uggEnchants = uggSpecData and uggSpecData.enchants,
@@ -1555,16 +1582,14 @@ function ns:UpdateCompendiumEnchants()
 end
 
 function ns:UpdateCompendiumConsumables()
-    if not GEAR_DATA then return end
-    local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    local gearData = ns.GetSpecGearData(selectedClass, selectedSpec)
     ns.Sections.Enhancements.RenderCompendiumConsumables({
         consumables = gearData and gearData.consumables,
     })
 end
 
 function ns:UpdateCompendiumTrinkets()
-    if not GEAR_DATA then return end
-    local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
+    local gearData = ns.GetSpecGearData(selectedClass, selectedSpec)
     ns.Sections.Trinkets.RenderCompendium({
         trinkets = gearData and gearData.trinkets,
         refresh  = function() ns:UpdateCompendium() end,

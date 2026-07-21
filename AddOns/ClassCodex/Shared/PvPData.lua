@@ -1,28 +1,17 @@
 local _, ns = ...
 
 -------------------------------------------------------------------------------
--- PvPData: accessors for the two PvP data sources.
+-- PvPData: accessors for the two PvP data sources. Both read through the
+-- SourceData seam (ns.SourceSpec) off the normalized db_blizzard / db_ugg files.
 --
--- Bnet (per spec, per bracket — talent loadouts + honor talents):
---   Data/{Class}/bnet-pvp-talents.lua
---     -> ClassCodexBnetPvpTalents[CLASS][spec].brackets[bracketKey] = {
---          builds = { { exportString, heroTalent? }, ... }, -- already share-floor-filtered upstream
---          pvpTalentSets = { { talents = {id1,id2,id3} } } -- pre-sorted; first = canonical
---        }
---   Bracket display name lives in PVP_BRACKET_NAMES below. sampleSize,
---   share, and the lowConfidence convergence flag live in the scraper
---   JSON only; the share floor (≥15%) is applied at scrape time and the
---   addon just renders the surviving builds in order.
+-- Blizzard (per spec, per bracket — talent loadouts + honor talents):
+--   ns.SourceSpec("blizzard", CLASS, spec).talents[hero]["pvp:<bracket>"] builds,
+--   with honor-talent sets alongside. The share floor (≥15%) is applied at scrape
+--   time; the addon renders the surviving builds in order. Bracket display name
+--   lives in PVP_BRACKET_NAMES below.
 --
--- u.gg (per spec — stat priorities + BiS gear + enchants + gems + embellishments):
---   Data/{Class}/ugg-pvp.lua
---     -> ClassCodexUggPvp[CLASS][spec] = {
---          statPriority = { { key, rating }, ... },        -- order is the signal; rating stabilized ±1%
---          bisGear = { [slot] = { { itemId } } },          -- pickrate dropped (daily noise)
---          embellishments? = { { itemId, name } },
---          enchants? = { [slot] = { { itemId, name } } },              -- itemId = 0 for enchants (no item-side ID)
---          gems? = { [socket] = { { itemId, name } } },
---        }
+-- u.gg (per spec — stat priorities + BiS gear + enchants under pvp:3v3):
+--   ns.SourceSpec("ugg", CLASS, spec).{gear,statPriority,enchants}["all"]["pvp:3v3"].
 --
 -- Bracket display ordering (mirrors u.gg / Bnet bracket precedence):
 --   pvp-shuffle, pvp-blitz, pvp-2v2, pvp-3v3, pvp-rbg
@@ -48,13 +37,29 @@ ns.PVP_BRACKET_NAMES = {
 -- Bnet — talent loadouts + honor talents per (spec, bracket)
 -------------------------------------------------------------------------------
 
+local BNET_BRACKET = { ["pvp:2v2"] = "pvp-2v2", ["pvp:3v3"] = "pvp-3v3", ["pvp:shuffle"] = "pvp-shuffle", ["pvp:blitz"] = "pvp-blitz", ["pvp:rbg"] = "pvp-rbg" }
 local function GetBnetSpec(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local root = _G.ClassCodexBnetPvpTalents
-    if not root then return nil end
-    local cls = root[classToken]
-    if not cls then return nil end
-    return cls[specKey]
+    local sd = ns.SourceSpec and ns.SourceSpec("blizzard", classToken, specKey)
+    if not sd or not sd.talents then return nil end
+    local heroNames = (ClassCodexReference and ClassCodexReference.heroNames) or {}
+    local brackets = {}
+    for heroSlug, byContext in pairs(sd.talents) do
+        local heroDisplay = heroSlug ~= "all" and (heroNames[heroSlug] or heroSlug) or nil
+        for context, builds in pairs(byContext) do
+            local bracket = BNET_BRACKET[context]
+            if bracket then
+                local b = brackets[bracket] or { builds = {}, pvpTalentSets = {} }
+                brackets[bracket] = b
+                for _, build in ipairs(builds) do
+                    b.builds[#b.builds + 1] = { exportString = build.export, heroTalent = heroDisplay }
+                    if build.honor then b.pvpTalentSets[#b.pvpTalentSets + 1] = { talents = build.honor } end
+                end
+            end
+        end
+    end
+    if not next(brackets) then return nil end
+    return { brackets = brackets }
 end
 
 -- Returns the bracket data for one (spec, bracket): { sampleSize, builds, pvpTalentSets?, lowConfidence? }
@@ -124,17 +129,78 @@ function ns.GetPvPBracketName(bracketKey)
     return ns.PVP_BRACKET_NAMES[bracketKey] or bracketKey
 end
 
+-- True when the player is inside an arena or battleground instance.
+-- IsInInstance() instanceType is "arena" for arenas, "pvp" for BGs.
+function ns.IsInPvPInstance()
+    if not IsInInstance then return false end
+    local _, instanceType = IsInInstance()
+    return instanceType == "arena" or instanceType == "pvp"
+end
+
+-- Returns the player's current PvP bracket only when it can be detected
+-- reliably, else nil. Solo Shuffle, Blitz, and RBG each have a dedicated
+-- predicate (all confirmed in current retail PvpInfoDocumentation). For a
+-- standard arena, party size discriminates 2v2 from 3v3 — Solo Shuffle
+-- (also 3v3) is already filtered out above, so a 2- or 3-player group maps
+-- cleanly. A mid-match disconnect could shrink the count, so we only trust
+-- those two sizes and otherwise return nil (caller falls back to the
+-- spec's first available bracket).
+function ns.GetActivePvPBracket()
+    if not IsInInstance then return nil end
+    local _, instanceType = IsInInstance()
+    if instanceType == "arena" then
+        if C_PvP and C_PvP.IsSoloShuffle and C_PvP.IsSoloShuffle() then
+            return "pvp-shuffle"
+        end
+        local size = GetNumGroupMembers and GetNumGroupMembers() or 0
+        if size == 2 then return "pvp-2v2" end
+        if size == 3 then return "pvp-3v3" end
+        return nil
+    elseif instanceType == "pvp" then
+        if C_PvP and C_PvP.IsSoloRBG and C_PvP.IsSoloRBG() then
+            return "pvp-blitz"
+        end
+        if C_PvP and C_PvP.IsRatedBattleground and C_PvP.IsRatedBattleground() then
+            return "pvp-rbg"
+        end
+        return nil
+    end
+    return nil
+end
+
 -------------------------------------------------------------------------------
 -- u.gg — stats, gear, enchants, gems, embellishments per spec
 -------------------------------------------------------------------------------
 
 local function GetUggPvpSpec(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local root = _G.ClassCodexUggPvp
-    if not root then return nil end
-    local cls = root[classToken]
-    if not cls then return nil end
-    return cls[specKey]
+    local sd = ns.SourceSpec and ns.SourceSpec("ugg", classToken, specKey)
+    if not sd then return nil end
+    local gear = sd.gear and sd.gear["all"] and sd.gear["all"]["pvp:3v3"]
+    local sp = sd.statPriority and sd.statPriority["all"] and sd.statPriority["all"]["pvp:3v3"]
+    local ench = sd.enchants and sd.enchants["all"] and sd.enchants["all"]["pvp:3v3"]
+    if not (gear or sp or ench) then return nil end
+    local rec = {}
+    if gear then
+        local bisGear = {}
+        for _, g in ipairs(gear) do bisGear[g.slot] = { { itemId = g.itemId } } end
+        rec.bisGear = bisGear
+    end
+    if sp and sp.secondary then
+        local out, n = {}, #sp.secondary
+        for i, tier in ipairs(sp.secondary) do out[#out + 1] = { key = table.concat(tier, "="), rating = n - i + 1 } end
+        rec.statPriority = out
+    end
+    if ench then
+        local enchants = {}
+        for slot, list in pairs(ench) do
+            local e = list[1]
+            -- pvp enchant.id carries the spellId (resolved at normalize time)
+            if e then enchants[slot] = { { itemId = 0, name = e.id and C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(e.id) or nil } } end
+        end
+        rec.enchants = enchants
+    end
+    return rec
 end
 
 -- Returns the full u.gg per-spec record, or nil if no data.

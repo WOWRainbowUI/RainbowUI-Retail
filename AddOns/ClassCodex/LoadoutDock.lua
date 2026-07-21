@@ -22,15 +22,24 @@ local LABEL_GAP = 6
 
 local dock = nil
 
+-- Per-spec cache of the configID Blizzard most recently loaded. Updated
+-- from C_ClassTalents.LoadConfig (hooked at module init) so the dock
+-- mirrors whichever loadout the player picked in Blizzard's dropdown —
+-- and, for free, whichever one CC's apply path loaded.
+--
+-- This sidesteps the two single-API workarounds we tried earlier:
+--   - GetLastSelectedSavedConfigID stays stuck on the last saved one the
+--     player explicitly clicked, ignoring programmatic LoadConfig.
+--   - GetActiveConfigID returns the scratch buffer (spec-named) whenever
+--     the player is on a saved loadout via Blizzard's dropdown.
+-- Hooking LoadConfig is what Blizzard's own dropdown effectively reacts
+-- to, so the dock now shows the same name the dropdown does.
+local lastLoadedConfigBySpec = {}
+
 local function GetCharDB()
     return ClassCodexCharDB
 end
 
--- Resolve the active Blizzard talent loadout's display name. Prefers the
--- spec's last-selected SAVED loadout over the live "active" config —
--- when no saved loadout is loaded, GetActiveConfigID returns a scratch
--- buffer that Blizzard auto-names with the spec name ("Devourer",
--- "Frost", etc.), which is not a useful loadout label.
 local function configName(id)
     if not id or not C_Traits or not C_Traits.GetConfigInfo then return nil end
     local info = C_Traits.GetConfigInfo(id)
@@ -38,29 +47,114 @@ local function configName(id)
     return nil
 end
 
+local function GetCurrentSpecID()
+    return PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID() or nil
+end
+
+-- Is `id` still one of the spec's live saved loadouts? C_Traits.GetConfigInfo
+-- can return a stale non-nil table for a since-deleted config (the same hazard
+-- ImportExport.GetStoredConfigID guards against), so a cached ID must be
+-- re-validated against the live list before we trust its name. Returns true
+-- when we can't validate (missing API) so we never hide a real name.
+local function IsLiveSavedConfig(specID, id)
+    if not id or not specID or not C_ClassTalents.GetConfigIDsBySpecID then return true end
+    local ids = C_ClassTalents.GetConfigIDsBySpecID(specID)
+    if not ids then return true end
+    for _, cid in ipairs(ids) do
+        if cid == id then return true end
+    end
+    return false
+end
+
 local function GetActiveLoadoutName()
     if not C_ClassTalents then return nil end
-    local specID = PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID()
-    if specID and C_ClassTalents.GetLastSelectedSavedConfigID then
-        local savedID = C_ClassTalents.GetLastSelectedSavedConfigID(specID)
-        local name = configName(savedID)
+    local specID = GetCurrentSpecID()
+
+    -- Cached: whichever configID was loaded most recently for this spec.
+    -- Evict it first if the player deleted that loadout in Blizzard's UI —
+    -- otherwise the stale GetConfigInfo table keeps the dock showing a
+    -- loadout that no longer exists.
+    if specID then
+        local cached = lastLoadedConfigBySpec[specID]
+        if cached and not IsLiveSavedConfig(specID, cached) then
+            lastLoadedConfigBySpec[specID] = nil
+            cached = nil
+        end
+        local name = configName(cached)
         if name then return name end
     end
+
+    -- Cold-start fallback before any LoadConfig has fired this session.
+    if specID and C_ClassTalents.GetLastSelectedSavedConfigID then
+        local savedID = C_ClassTalents.GetLastSelectedSavedConfigID(specID)
+        if savedID then
+            lastLoadedConfigBySpec[specID] = savedID
+            local name = configName(savedID)
+            if name then return name end
+        end
+    end
+
+    -- Last-resort fallback: the scratch buffer (typically spec-named).
     local active = C_ClassTalents.GetActiveConfigID and C_ClassTalents.GetActiveConfigID()
     return configName(active)
 end
 
 -- Find the u.gg-sourced Class Codex build whose talent bits match the
 -- player's current in-game talents.
-local function MatchCodexBuild(specData)
-    if not specData or not specData.talents or not ns.GetActiveTalentSignature then return nil end
-    local activeBits = ns.GetActiveTalentSignature()
-    if not activeBits then return nil end
-    for _, build in ipairs(specData.talents) do
-        if build.exportString and ns.ExtractTalentBits then
-            local buildBits = ns.ExtractTalentBits(build.exportString)
-            if buildBits == activeBits then return build end
+-- Talent bits for the build the player is currently running. Prefer the
+-- actually-selected saved loadout's committed talents: those resolve
+-- correctly right after login, whereas ns.GetActiveTalentSignature reads the
+-- scratch/active config which can stay stale until the first spec change
+-- (the cause of "checkmarks only appear after changing spec"). Fall back to
+-- the live signature (covers unsaved in-progress edits and cold start).
+local function GetCurrentLoadoutBits()
+    if not (C_Traits and C_Traits.GenerateImportString and ns.ExtractTalentBits) then
+        return ns.GetActiveTalentSignature and ns.GetActiveTalentSignature() or nil
+    end
+    local specID = GetCurrentSpecID()
+    local id = specID and lastLoadedConfigBySpec[specID]
+    if id and not IsLiveSavedConfig(specID, id) then id = nil end
+    if not id and specID and C_ClassTalents and C_ClassTalents.GetLastSelectedSavedConfigID then
+        id = C_ClassTalents.GetLastSelectedSavedConfigID(specID)
+    end
+    if id then
+        local ok, str = pcall(C_Traits.GenerateImportString, id)
+        if ok and str then
+            local bits = ns.ExtractTalentBits(str)
+            if bits then return bits end
         end
+    end
+    return ns.GetActiveTalentSignature and ns.GetActiveTalentSignature() or nil
+end
+
+-- The set of talent signatures representing what the player is running: the
+-- live scratch (ns.GetActiveTalentSignature) AND the selected saved loadout
+-- (GetCurrentLoadoutBits). A build counts as "current" if it matches EITHER —
+-- the scratch resolves an applied build reliably, and the saved-loadout bits
+-- cover the just-after-login case; and a build applied from one source can
+-- differ in encoding from the "same" build published by another, so matching
+-- either is what makes the marker appear consistently.
+local function CurrentTalentSignatures()
+    local sigs = {}
+    local scratch = ns.GetActiveTalentSignature and ns.GetActiveTalentSignature()
+    if scratch then sigs[scratch] = true end
+    local loadout = GetCurrentLoadoutBits()
+    if loadout then sigs[loadout] = true end
+    return sigs
+end
+
+local function BuildBitsMatch(exportString, sigs)
+    if not exportString or not ns.ExtractTalentBits then return false end
+    local b = ns.ExtractTalentBits(exportString)
+    return b ~= nil and sigs[b] == true
+end
+
+local function MatchCodexBuild(specData)
+    if not specData or not specData.talents then return nil end
+    local sigs = CurrentTalentSignatures()
+    if not next(sigs) then return nil end
+    for _, build in ipairs(specData.talents) do
+        if BuildBitsMatch(build.exportString, sigs) then return build end
     end
     return nil
 end
@@ -69,18 +163,15 @@ end
 -- current in-game talents. Returns (build, ctx) or nil.
 local function MatchUggBuild(classToken, specKey)
     if not classToken or not specKey then return nil end
-    if not ns.GetUggSpecData or not ns.GetActiveTalentSignature or not ns.ExtractTalentBits then return nil end
+    if not ns.GetUggSpecData or not ns.ExtractTalentBits then return nil end
     local sd = ns.GetUggSpecData(classToken, specKey)
     if not sd or not sd.contexts then return nil end
-    local activeBits = ns.GetActiveTalentSignature()
-    if not activeBits then return nil end
+    local sigs = CurrentTalentSignatures()
+    if not next(sigs) then return nil end
     for _, ctx in pairs(sd.contexts) do
         if ctx.builds then
             for _, build in ipairs(ctx.builds) do
-                if build.exportString then
-                    local buildBits = ns.ExtractTalentBits(build.exportString)
-                    if buildBits == activeBits then return build, ctx end
-                end
+                if BuildBitsMatch(build.exportString, sigs) then return build, ctx end
             end
         end
     end
@@ -200,7 +291,10 @@ local function RefreshLabel()
             end
         end
     end
-    if not labelText then labelText = "|cff808080" .. L["loadout_dock.custom_build"] .. "|r" end
+    -- Nothing matched (an unsaved scratch build): show the muted fallback.
+    if not labelText or labelText == "" then
+        labelText = "|cff808080" .. L["loadout_dock.custom_build"] .. "|r"
+    end
     dock.label:SetText(labelText)
 
     -- Auto-width before layout so the dock is the right size when we
@@ -226,11 +320,33 @@ local function RefreshLabel()
 end
 
 -- Build the loadout-switch menu (left-click).
+-- Inline status marker appended to a Saved Loadouts entry's label. Inline
+-- markup (not a frame texture) because the menu runs its initializers in a
+-- secure/restricted context where creating textures on the button frame is
+-- unreliable. `kind`:
+--   "current" — the selected loadout (gold checkmark)
+--   "match"   — a DIFFERENT loadout whose talents equal the build you're
+--               currently running (muted grey dot, distinct from the check)
+-- Gold check = the loadout you're actively on (the selected saved loadout).
+-- Green dot = any other entry whose talents match your current build (an
+-- identical saved loadout, or a u.gg/Icy Veins/PvP recommendation you're
+-- currently running) — a distinct shape from the checkmark. Inline markup —
+-- the menu's secure initializer context rejects creating frame textures, so
+-- these can't be arrow-column aligned.
+local MARKER_CURRENT = "  |TInterface\\Buttons\\UI-CheckBox-Check:16:16:0:0|t"
+local MARKER_MATCH   = "  |TInterface\\COMMON\\Indicator-Green:12:12:0:0|t"
+local function LoadoutMarker(kind)
+    if kind == "current" then return MARKER_CURRENT
+    elseif kind == "match" then return MARKER_MATCH end
+    return ""
+end
+
 local function BuildLoadoutMenu(_, root)
     local L = ns.L or setmetatable({}, { __index = function(_, k) return k end })
     local specID = PlayerUtil and PlayerUtil.GetCurrentSpecID and PlayerUtil.GetCurrentSpecID()
     local specData = ns.GetSpecData and ns.GetSpecData()
-    local activeBits = ns.GetActiveTalentSignature and ns.GetActiveTalentSignature()
+    -- Both signatures of what's currently running (scratch + selected loadout).
+    local sigs = CurrentTalentSignatures()
     local activeID = C_ClassTalents and C_ClassTalents.GetActiveConfigID and C_ClassTalents.GetActiveConfigID() or nil
     local activeExport = activeID and C_Traits and C_Traits.GenerateImportString and C_Traits.GenerateImportString(activeID) or nil
     -- Per-spec memory of the last build applied via the dock. Survives
@@ -244,7 +360,7 @@ local function BuildLoadoutMenu(_, root)
     local perSpec = (ns.GetPerSpecState and ns.GetPerSpecState()) or nil
     local lastAppliedExport = perSpec and perSpec.lastAppliedBuildExport or nil
     local lastAppliedBits = perSpec and perSpec.lastAppliedBuildBits or nil
-    if lastAppliedExport and lastAppliedBits and activeBits and lastAppliedBits ~= activeBits then
+    if lastAppliedExport and lastAppliedBits and next(sigs) and not sigs[lastAppliedBits] then
         if perSpec then
             perSpec.lastAppliedBuildExport = nil
             perSpec.lastAppliedBuildBits = nil
@@ -255,16 +371,12 @@ local function BuildLoadoutMenu(_, root)
 
     local function activeMatches(exportString)
         if not exportString then return false end
-        if lastAppliedExport and lastAppliedBits and activeBits
-           and lastAppliedBits == activeBits and lastAppliedExport == exportString then
+        if lastAppliedExport and lastAppliedBits and lastAppliedExport == exportString
+           and sigs[lastAppliedBits] then
             return true
         end
         if activeExport and activeExport == exportString then return true end
-        if activeBits and ns.ExtractTalentBits then
-            local b = ns.ExtractTalentBits(exportString)
-            if b and b == activeBits then return true end
-        end
-        return false
+        return BuildBitsMatch(exportString, sigs)
     end
 
     local function rememberApplied(exportString)
@@ -279,19 +391,58 @@ local function BuildLoadoutMenu(_, root)
     if db.dockLoadoutShowSaved ~= false and specID and C_ClassTalents and C_ClassTalents.GetConfigIDsBySpecID then
         local configs = C_ClassTalents.GetConfigIDsBySpecID(specID)
         if configs and #configs > 0 then
+            -- Which saved loadout is actually selected. GetActiveConfigID
+            -- returns the scratch buffer (spec-named), not the saved loadout,
+            -- so resolve the selection the same way the dock label does:
+            -- most-recently-loaded (validated) first, then Blizzard's pointer.
+            local activeSavedID = specID and lastLoadedConfigBySpec[specID]
+            if activeSavedID and not IsLiveSavedConfig(specID, activeSavedID) then
+                activeSavedID = nil
+            end
+            if not activeSavedID and specID and C_ClassTalents.GetLastSelectedSavedConfigID then
+                activeSavedID = C_ClassTalents.GetLastSelectedSavedConfigID(specID)
+            end
             root:CreateTitle(L["loadout_dock.saved_loadouts"])
             for _, configID in ipairs(configs) do
                 local info = C_Traits and C_Traits.GetConfigInfo and C_Traits.GetConfigInfo(configID)
                 local name = info and info.name or ("Loadout " .. configID)
-                if configID == activeID then
-                    name = "|cff00cc00" .. name .. "|r"
+                -- Brand-tint the Class Codex slot blue so it reads the same
+                -- here as in the native talent dropdown and stands out from
+                -- the player's own (white) loadouts.
+                if ns.IsCCSlotName and ns.IsCCSlotName(name) and ns.WrapCCName then
+                    name = ns.WrapCCName(name)
                 end
+                -- Marker: gold check on the selected loadout, muted grey dot on
+                -- any OTHER loadout whose talents equal the build you're
+                -- currently running.
+                local kind
+                if activeSavedID and configID == activeSavedID then
+                    kind = "current"
+                elseif C_Traits and C_Traits.GenerateImportString then
+                    local ok, str = pcall(C_Traits.GenerateImportString, configID)
+                    if ok and str and activeMatches(str) then kind = "match" end
+                end
+                name = name .. LoadoutMarker(kind)
                 root:CreateButton(name, function()
                     if InCombatLockdown() then
                         UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                         return
                     end
-                    C_ClassTalents.LoadConfig(configID, true)
+                    -- Switching to a non-CC saved loadout: mirror the proven
+                    -- apply-path sequence in ImportExport.lua. A bare
+                    -- LoadConfig silently no-ops when it returns Error, and
+                    -- without UpdateLastSelectedSavedConfigID the spec's
+                    -- "last selected" pointer (which the dock label and the
+                    -- talent UI both read) doesn't follow the switch — so the
+                    -- loadout doesn't truly become active.
+                    local result = C_ClassTalents.LoadConfig(configID, true)
+                    if result == Enum.LoadConfigResult.Error then
+                        UIErrorsFrame:AddMessage(L["loadout_dock.switch_failed"], 1, 0.3, 0.3)
+                        return
+                    end
+                    if specID and C_ClassTalents.UpdateLastSelectedSavedConfigID then
+                        C_ClassTalents.UpdateLastSelectedSavedConfigID(specID, configID)
+                    end
                     -- Refresh fires on TRAIT_CONFIG_UPDATED.
                 end)
             end
@@ -299,70 +450,55 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
-    -- Section 2: Class Codex - u.gg recommended builds, grouped by hero
-    -- talent so a long list doesn't dominate the menu.
-    local hasCodexBuilds = false
-    if db.dockLoadoutShowCodexBuilds ~= false and specData and specData.talents and #specData.talents > 0 and ns.GroupBuildsByHero then
-        if hasBlizzard then root:CreateDivider() end
-        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
-        local heroOrder, heroBuilds = ns.GroupBuildsByHero(specData.talents)
-        for _, hero in ipairs(heroOrder) do
-            local heroLabel = (ns.FormatHeroHeaderText and ns.FormatHeroHeaderText(hero)) or hero
-            -- Tag the hero submenu when any of its builds is the
-            -- recommended pick — surfaces the (Best) marker even before
-            -- the user expands the submenu.
-            for _, b in ipairs(heroBuilds[hero]) do
-                if b.recommended then
-                    heroLabel = heroLabel .. " |cff00cc00★|r"
-                    break
+    -- (Removed) A former "u.gg builds grouped by hero" section read
+    -- ns.GetSpecData().talents, but SourceAdapter populates that field from
+    -- Icy Veins talent data (it feeds the Guide preview) — so it rendered the
+    -- Icy Veins builds a second time under a wrong "u.gg" header, duplicating
+    -- the real Icy Veins section below. The genuine u.gg builds are the
+    -- per-encounter recommendations in the section that follows.
+
+    -- Shared spec identity for the Icy Veins, u.gg, and PvP sections below.
+    -- u.gg's data table is keyed by the spec slug (e.g. "frost"), the SECOND
+    -- return of GetClassAndSpec.
+    local classToken, specSlug
+    if ns.GetClassAndSpec then classToken, specSlug = ns.GetClassAndSpec() end
+
+    -- Section 2: Class Codex - Icy Veins talent builds. Ordered first to match
+    -- the docked panel's source order (Icy Veins, u.gg, PvP). IV builds are
+    -- context-labeled (not hero-grouped), and there are only a handful per
+    -- spec, so they render as a flat list under the source title rather than
+    -- nested submenus. Leveling builds are included inline.
+    local hasIcyVeins = false
+    if db.dockLoadoutShowIcyVeins ~= false and classToken and specSlug and ns.GetIcyVeinsTalentSpecData then
+        local ivSpecData = ns:GetIcyVeinsTalentSpecData(classToken, specSlug)
+        if ivSpecData and ivSpecData.talents and #ivSpecData.talents > 0 then
+            if hasBlizzard then root:CreateDivider() end
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:14:14:0:0|t  " .. (L["settings.value.icyveins"] or "Icy Veins"))
+            for _, build in ipairs(ivSpecData.talents) do
+                local capturedExport = build.exportString
+                local capturedLabel = build.buildLabel or build.context or "Build"
+                local label = capturedLabel
+                if activeMatches(capturedExport) then
+                    label = label .. MARKER_MATCH
                 end
-            end
-            local heroSubmenu = root:CreateButton(heroLabel)
-            -- Recommended builds first so the (Best) entry is always at
-            -- the top of the hero submenu. Stable sort: keep original
-            -- order within each group.
-            local sortedBuilds = {}
-            for i, b in ipairs(heroBuilds[hero]) do
-                sortedBuilds[i] = { build = b, ord = i }
-            end
-            table.sort(sortedBuilds, function(a, b)
-                local ra = a.build.recommended and 0 or 1
-                local rb = b.build.recommended and 0 or 1
-                if ra ~= rb then return ra < rb end
-                return a.ord < b.ord
-            end)
-            for _, entry in ipairs(sortedBuilds) do
-                local build = entry.build
-                local label = ns.FormatBuildLabel and ns.FormatBuildLabel(build) or build.context or "Build"
-                if activeMatches(build.exportString) then
-                    label = "|cff00cc00" .. label .. "|r"
-                end
-                heroSubmenu:CreateButton(label, function()
+                root:CreateButton(label, function()
                     if InCombatLockdown() then
                         UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                         return
                     end
-                    local rawLabel = build.context or "Build"
-                    if build.buildLabel and build.buildLabel ~= "" then
-                        rawLabel = rawLabel .. " — " .. build.buildLabel
-                    end
-                    local loadoutLabel = (hero and hero ~= "All") and (hero .. " " .. rawLabel) or rawLabel
-                    rememberApplied(build.exportString)
+                    rememberApplied(capturedExport)
                     if ns.ApplyTalentExportString then
-                        ns.ApplyTalentExportString(build.exportString, loadoutLabel)
+                        ns.ApplyTalentExportString(capturedExport, "Icy Veins " .. capturedLabel)
                     end
                 end)
             end
+            hasIcyVeins = true
         end
-        hasCodexBuilds = true
     end
 
     -- Section 3: Class Codex - u.gg (per-encounter recommendations).
-    -- u.gg's data table is keyed by the spec slug (e.g. "frost"), which
-    -- is the SECOND return of GetClassAndSpec. Falls back to direct
-    -- _G.ClassCodexUggBuilds lookup if the namespace helper is missing.
-    local classToken, specSlug
-    if ns.GetClassAndSpec then classToken, specSlug = ns.GetClassAndSpec() end
+    -- Falls back to direct _G.ClassCodexUggBuilds lookup if the namespace
+    -- helper is missing.
     local uggSpecData
     if db.dockLoadoutShowUgg ~= false and classToken and specSlug then
         if ns.GetUggSpecData then
@@ -388,7 +524,7 @@ local function BuildLoadoutMenu(_, root)
     elseif not ns.GroupUggContexts then uggReason = "GroupUggContexts helper missing"
     end
     if uggReason then
-        if hasBlizzard or (specData and specData.talents and #specData.talents > 0) then
+        if hasBlizzard or hasIcyVeins then
             root:CreateDivider()
         end
         root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
@@ -408,7 +544,7 @@ local function BuildLoadoutMenu(_, root)
                 end
             end
             if build and activeMatches(build.exportString) then
-                base = "|cff00cc00" .. base .. "|r"
+                base = base .. MARKER_MATCH
             end
             return base, build
         end
@@ -432,7 +568,7 @@ local function BuildLoadoutMenu(_, root)
         local hasAny = groups.mplusOverview or groups.raidOverviewMythic or groups.raidOverviewHeroic
             or #groups.mplusDungeons > 0 or #groups.raidMythicBosses > 0 or #groups.raidHeroicBosses > 0
         if hasAny then
-            if hasBlizzard or hasCodexBuilds then root:CreateDivider() end
+            if hasBlizzard or hasIcyVeins then root:CreateDivider() end
             root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:14:14:0:0|t  " .. L["settings.value.ugg"])
 
             -- M+ Dungeons submenu — overview ("All Dungeons") sits as the
@@ -457,38 +593,6 @@ local function BuildLoadoutMenu(_, root)
                 for _, e in ipairs(groups.raidMythicBosses) do uggApply(sub, e) end
             end
             hasUgg = true
-        end
-    end
-
-    -- Section 3.5: Class Codex - Icy Veins talent builds. IV builds are
-    -- context-labeled (not hero-grouped), and there are only a handful per
-    -- spec, so they render as a flat list under the source title rather
-    -- than nested submenus. Leveling builds are included inline.
-    local hasIcyVeins = false
-    if db.dockLoadoutShowIcyVeins ~= false and classToken and specSlug and ns.GetIcyVeinsTalentSpecData then
-        local ivSpecData = ns:GetIcyVeinsTalentSpecData(classToken, specSlug)
-        if ivSpecData and ivSpecData.talents and #ivSpecData.talents > 0 then
-            if hasBlizzard or hasCodexBuilds or hasUgg then root:CreateDivider() end
-            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:14:14:0:0|t  " .. (L["settings.value.icyveins"] or "Icy Veins"))
-            for _, build in ipairs(ivSpecData.talents) do
-                local capturedExport = build.exportString
-                local capturedLabel = build.buildLabel or build.context or "Build"
-                local label = capturedLabel
-                if activeMatches(capturedExport) then
-                    label = "|cff00cc00" .. label .. "|r"
-                end
-                root:CreateButton(label, function()
-                    if InCombatLockdown() then
-                        UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
-                        return
-                    end
-                    rememberApplied(capturedExport)
-                    if ns.ApplyTalentExportString then
-                        ns.ApplyTalentExportString(capturedExport, "Icy Veins " .. capturedLabel)
-                    end
-                end)
-            end
-            hasIcyVeins = true
         end
     end
 
@@ -531,7 +635,7 @@ local function BuildLoadoutMenu(_, root)
                     if icons ~= "" then label = label .. "  " .. icons end
                 end
                 if activeMatches(build.exportString) then
-                    label = "|cff00cc00" .. label .. "|r"
+                    label = label .. MARKER_MATCH
                 end
                 local capturedHero = build.heroTalent
                 local entry = parent:CreateButton(label, function()
@@ -635,7 +739,7 @@ local function BuildLoadoutMenu(_, root)
             local arenaHas = groupHasAny(ARENA_GROUP)
             local bgHas = groupHasAny(BG_GROUP)
 
-            if hasBlizzard or hasCodexBuilds or hasUgg or hasIcyVeins then root:CreateDivider() end
+            if hasBlizzard or hasUgg or hasIcyVeins then root:CreateDivider() end
             root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["pvp.label"] or "PvP"))
 
             if not arenaHas and not bgHas then
@@ -761,9 +865,14 @@ local function CreateDock()
             GameTooltip:AddLine(L["Class Codex"], 1, 0.82, 0)
         end
 
-        -- If the active build matches a Codex recommendation, surface
-        -- which one (and from which source) so power users see at a
-        -- glance whether they're on the recommended Mythic+ or Raid.
+        -- On a NON-Class-Codex loadout, surface which Codex recommendation the
+        -- player's talents match (if any), so they see "your custom loadout is
+        -- the recommended Mythic+ build". Skipped for a Class Codex loadout —
+        -- its name already states the build, and several recommendations can
+        -- share the same talents, so a second line would just pick an arbitrary
+        -- (often contradictory) context.
+        local isCCLoadout = fullName and ns.IsCCSlotName and ns.IsCCSlotName(fullName)
+        if not isCCLoadout then
         local specData = ns.GetSpecData and ns.GetSpecData()
         local codexMatch = MatchCodexBuild(specData)
         if codexMatch and ns.FormatBuildLabel then
@@ -778,6 +887,7 @@ local function CreateDock()
                 GameTooltip:AddLine("|TInterface\\AddOns\\ClassCodex\\Textures\\ugg:12:12:0:0|t  " ..
                     uggLabel, 0.6, 0.85, 0.6)
             end
+        end
         end
 
         GameTooltip:AddLine(" ")
@@ -915,6 +1025,28 @@ function ns.UpdateLoadoutDockVisibility()
         return
     end
     ns.ShowLoadoutDock()
+end
+
+-------------------------------------------------------------------------------
+-- LoadConfig hook
+--
+-- Every loadout switch — Blizzard's dropdown click, CC's apply, any
+-- third-party addon — flows through C_ClassTalents.LoadConfig. Hooking
+-- it captures the configID the moment the load is requested, which is
+-- the same signal Blizzard's own dropdown updates from. We re-resolve
+-- the name on TRAIT_CONFIG_UPDATED (post-CommitConfig and post-rename)
+-- so the dock always reflects the latest displayed name.
+-------------------------------------------------------------------------------
+
+if C_ClassTalents and C_ClassTalents.LoadConfig then
+    hooksecurefunc(C_ClassTalents, "LoadConfig", function(configID, _autoApply)
+        if not configID then return end
+        local specID = GetCurrentSpecID()
+        if specID then
+            lastLoadedConfigBySpec[specID] = configID
+        end
+        if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
+    end)
 end
 
 -------------------------------------------------------------------------------

@@ -8,12 +8,7 @@ local _, ns = ...
 -- Pure utility layer: this file creates no widgets and registers no event
 -- handlers other than ITEM_DATA_LOAD_RESULT for cache invalidation.
 
-local GEAR_DATA = ClassCodexGearData
 local L = ns.L
-
-local IV_DATA = ClassCodexIcyVeinsData or {}
-local IVT_DATA = ClassCodexIcyVeinsTalentData or {}
-local UGG_GEAR_DATA = ClassCodexUggGearData or {}
 
 -------------------------------------------------------------------------------
 -- Constants
@@ -161,13 +156,39 @@ end
 -- Gear Data Lookup
 -------------------------------------------------------------------------------
 
-local function GetSpecGearData()
-    if not GEAR_DATA then return nil end
-    local classToken, specKey = ns.GetClassAndSpec()
+local function GetSpecGearData(classToken, specKey)
+    if not (classToken and specKey) then classToken, specKey = ns.GetClassAndSpec() end
     if not classToken or not specKey then return nil end
-    local classData = GEAR_DATA[classToken]
-    if not classData then return nil end
-    return classData[specKey]
+    local out = {}
+    -- trinkets + gems from u.gg
+    local usd = ns.SourceSpec and ns.SourceSpec("ugg", classToken, specKey)
+    if usd then
+        local tr = usd.trinkets and usd.trinkets["all"] and usd.trinkets["all"]["all"]
+        if tr then
+            local list = {}
+            for _, t in ipairs(tr) do list[#list + 1] = { itemId = t.itemId, tier = t.tier, popularity = t.pop } end
+            out.trinkets = list
+        end
+        local gm = usd.gems and usd.gems["all"] and usd.gems["all"]["all"]
+        if gm and gm[1] then
+            local secondary = {}
+            for _, id in ipairs(gm[1].secondary or {}) do secondary[#secondary + 1] = { itemId = id } end
+            out.gems = { primary = gm[1].primary and { itemId = gm[1].primary } or nil, secondary = secondary }
+        end
+    end
+    -- consumables from Icy Veins; BiS gear reuses the (already-converted) IV accessor
+    local ivsd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)
+    if ivsd then
+        local c = ivsd.consumables and ivsd.consumables["all"] and ivsd.consumables["all"]["all"]
+        if c then
+            local function top(l) return l and l[1] and { itemId = l[1] } or nil end
+            out.consumables = { flask = top(c.flask), combatPotion = top(c.potions), food = top(c.food), augmentRune = top(c.augmentRune) }
+        end
+    end
+    local iv = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(classToken, specKey)
+    if iv then out.bisGear = iv.bisGear end
+    if not next(out) then return nil end
+    return out
 end
 
 -- Resolve the (classToken, spec-without-class-prefix) pair the docked
@@ -306,98 +327,20 @@ function ns:GetContextBonusDefault(context)
     return context and contextBonusDefault[context]
 end
 
-local function BuildBisLookup()
-    if not GEAR_DATA then return end
-    for classToken, specs in pairs(GEAR_DATA) do
-        local count = 0
-        for _ in pairs(specs) do count = count + 1 end
-        CLASS_SPEC_COUNT[classToken] = count
-    end
-
-    for classToken, specs in pairs(GEAR_DATA) do
-        local className = GetLocalizedClassName(classToken)
-        for specKey, specData in pairs(specs) do
-            local label = GetLocalizedSpecName(classToken, specKey) .. " " .. className
-
-            local trinketIds = {}
-            if specData.trinkets then
-                for _, t in ipairs(specData.trinkets) do
-                    trinketIds[t.itemId] = true
-                end
-            end
-
-            if specData.bisGear then
-                for _, tab in ipairs(specData.bisGear) do
-                    for _, entry in ipairs(tab.slots) do
-                        local id = entry.item.itemId
-                        if entry.item.bonusIDs and not bonusIdLookup[id] then
-                            bonusIdLookup[id] = entry.item.bonusIDs
-                        end
-                    end
-                    if tab.label == "Overall" then
-                        for _, entry in ipairs(tab.slots) do
-                            local id = entry.item.itemId
-                            local slotLower = entry.slot and entry.slot:lower() or ""
-                            if not slotLower:find("trinket") and not trinketIds[id] then
-                                if not uggBisLookup[id] then uggBisLookup[id] = {} end
-                                uggBisLookup[id][#uggBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey }
-                            end
-                        end
-                    end
-                end
-            end
-
-            if specData.trinkets then
-                for _, t in ipairs(specData.trinkets) do
-                    local id = t.itemId
-                    if not trinketLookup[id] then trinketLookup[id] = {} end
-                    trinketLookup[id][#trinketLookup[id] + 1] = { label = label, class = classToken, spec = specKey, tier = t.tier }
-                    if t.source and not trinketSourceLookup[id] then
-                        trinketSourceLookup[id] = t.source
-                    end
-                    if t.bonusIDs then
-                        if not bonusIdLookup[id] then bonusIdLookup[id] = t.bonusIDs end
-                        for _, ctx in ipairs(t.contexts or {}) do
-                            if not contextBonusDefault[ctx] then contextBonusDefault[ctx] = t.bonusIDs end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    -- Icy Veins BiS lookup (all tabs — items differ between M+ / Raid / Overall).
-    for classToken, specs in pairs(IV_DATA) do
-        local className = GetLocalizedClassName(classToken)
-        if not CLASS_SPEC_COUNT[classToken] then
-            local count = 0
-            for _ in pairs(specs) do count = count + 1 end
-            CLASS_SPEC_COUNT[classToken] = count
-        end
-        for specKey, specData in pairs(specs) do
-            local label = GetLocalizedSpecName(classToken, specKey) .. " " .. className
-            if specData.bisGear then
-                for _, tab in ipairs(specData.bisGear) do
-                    for _, entry in ipairs(tab.slots) do
-                        local id = entry.item.itemId
-                        if entry.item.bonusIDs and not bonusIdLookup[id] then
-                            bonusIdLookup[id] = entry.item.bonusIDs
-                        end
-                        if not icyVeinsBisLookup[id] then icyVeinsBisLookup[id] = {} end
-                        local found = false
-                        for _, existing in ipairs(icyVeinsBisLookup[id]) do
-                            if existing.label == label then
-                                existing.tabs[#existing.tabs + 1] = tab.label
-                                found = true
-                                break
-                            end
-                        end
-                        if not found then
-                            icyVeinsBisLookup[id][#icyVeinsBisLookup[id] + 1] = {
-                                label = label, class = classToken, spec = specKey,
-                                tabs = { tab.label },
-                            }
-                        end
+-- Iterate every spec that has data in any source (union), once.
+local function eachSourceSpec(fn)
+    local src = ClassCodexSource
+    if not src then return end
+    local seen = {}
+    for _, source in ipairs({ "icyveins", "ugg" }) do
+        local data = src[source] and src[source].data
+        if data then
+            for classToken, specs in pairs(data) do
+                for specKey in pairs(specs) do
+                    local key = classToken .. "/" .. specKey
+                    if not seen[key] then
+                        seen[key] = true
+                        fn(classToken, specKey)
                     end
                 end
             end
@@ -405,7 +348,66 @@ local function BuildBisLookup()
     end
 end
 
-BuildBisLookup()
+local function BuildBisLookup()
+    eachSourceSpec(function(classToken, specKey)
+        CLASS_SPEC_COUNT[classToken] = (CLASS_SPEC_COUNT[classToken] or 0) + 1
+        local label = GetLocalizedSpecName(classToken, specKey) .. " " .. GetLocalizedClassName(classToken)
+
+        -- Trinket reverse lookup (u.gg): itemId + popularity tier.
+        local usd = ns.SourceSpec and ns.SourceSpec("ugg", classToken, specKey)
+        local tr = usd and usd.trinkets and usd.trinkets["all"] and usd.trinkets["all"]["all"]
+        if tr then
+            for _, t in ipairs(tr) do
+                local id = t.itemId
+                trinketLookup[id] = trinketLookup[id] or {}
+                trinketLookup[id][#trinketLookup[id] + 1] = { label = label, class = classToken, spec = specKey, tier = t.tier }
+            end
+        end
+
+        -- u.gg BiS reverse lookup: non-trinket gear slots across both content tabs
+        -- (deduped per spec). Trinkets are excluded — they have their own lookup.
+        local trinketIds = {}
+        if tr then for _, t in ipairs(tr) do trinketIds[t.itemId] = true end end
+        local uggGear = ns.GetUggGearSpecData and ns:GetUggGearSpecData(classToken, specKey)
+        if uggGear and uggGear.bisGear then
+            local addedForSpec = {}
+            for _, tab in ipairs(uggGear.bisGear) do
+                for _, entry in ipairs(tab.slots) do
+                    local id = entry.item.itemId
+                    local slotLower = entry.slot and entry.slot:lower() or ""
+                    if id and not slotLower:find("trinket") and not trinketIds[id] and not addedForSpec[id] then
+                        addedForSpec[id] = true
+                        uggBisLookup[id] = uggBisLookup[id] or {}
+                        uggBisLookup[id][#uggBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey }
+                    end
+                end
+            end
+        end
+
+        -- Icy Veins BiS reverse lookup (all tabs) + bonus IDs for item-level rendering.
+        local ivGear = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(classToken, specKey)
+        if ivGear and ivGear.bisGear then
+            for _, tab in ipairs(ivGear.bisGear) do
+                for _, entry in ipairs(tab.slots) do
+                    local id = entry.item.itemId
+                    if entry.item.bonusIDs and not bonusIdLookup[id] then bonusIdLookup[id] = entry.item.bonusIDs end
+                    icyVeinsBisLookup[id] = icyVeinsBisLookup[id] or {}
+                    local found = false
+                    for _, existing in ipairs(icyVeinsBisLookup[id]) do
+                        if existing.label == label then existing.tabs[#existing.tabs + 1] = tab.label; found = true; break end
+                    end
+                    if not found then
+                        icyVeinsBisLookup[id][#icyVeinsBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey, tabs = { tab.label } }
+                    end
+                end
+            end
+        end
+    end)
+    -- trinketSourceLookup / contextBonusDefault stay empty: u.gg trinkets carry no
+    -- source or bonusIDs (they were nil on the legacy path too).
+end
+-- Called at end of file, once the accessors it uses (GetUggGearSpecData /
+-- GetIcyVeinsSpecData) are defined.
 
 -- Consolidate entries: if all specs of a class share the same entry, show
 -- just the class name.
@@ -455,22 +457,58 @@ function ns:GetIcyVeinsBisSpecs(itemId)
     return ConsolidateByClass(raw)
 end
 
-function ns:GetIcyVeinsData()
-    return IV_DATA
-end
-
+local IV_GEAR_TAB = { all = "Overall", raid = "Raid", mplus = "Mythic+" }
 function ns:GetIcyVeinsSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local classData = IV_DATA[classToken]
-    if not classData then return nil end
-    return classData[specKey]
+    local sd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)
+    local gearByHero = sd and sd.gear and sd.gear["all"] -- IV is hero-agnostic
+    if not gearByHero then return nil end
+    -- Direct per-context access (not the fallback resolver) so a missing Raid/M+
+    -- tab doesn't inherit the Overall gear.
+    local bisGear = {}
+    for _, ctx in ipairs({ "all", "raid", "mplus" }) do
+        local slots = gearByHero[ctx]
+        if slots then
+            local out = {}
+            for _, g in ipairs(slots) do
+                out[#out + 1] = { slot = g.slot, item = { itemId = g.itemId, bonusIDs = g.bonusIDs }, source = g.source }
+            end
+            bisGear[#bisGear + 1] = { label = IV_GEAR_TAB[ctx], slots = out }
+        end
+    end
+    if #bisGear == 0 then return nil end
+    return { bisGear = bisGear }
 end
 
 function ns:GetUggGearSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local classData = UGG_GEAR_DATA[classToken]
-    if not classData then return nil end
-    return classData[specKey]
+    -- Read the normalized structure via the seam and shape it into the
+    -- { bisGear = { {label, slots={{slot, item={itemId}}}} }, enchants = { {slot, best} } }
+    -- the UI expects.
+    local sd = ns.SourceSpec and ns.SourceSpec("ugg", classToken, specKey)
+    if not sd then return nil end
+    local bisGear = {}
+    for _, ctx in ipairs({ "mplus", "raid" }) do
+        local slots = ns.ResolveCategory(sd.gear, "all", ctx)
+        if slots then
+            local out = {}
+            for _, g in ipairs(slots) do out[#out + 1] = { slot = g.slot, item = { itemId = g.itemId } } end
+            bisGear[#bisGear + 1] = { label = (ctx == "mplus") and "Mythic+" or "Raid", slots = out }
+        end
+    end
+    local enchants = {}
+    local ench = ns.ResolveCategory(sd.enchants, "all", "all")
+    if ench then
+        for slot, list in pairs(ench) do
+            local e = list[1]
+            if e then
+                local name = e.spellId and C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(e.spellId) or nil
+                enchants[#enchants + 1] = { slot = slot, best = { enchantId = e.id, spellId = e.spellId, name = name } }
+            end
+        end
+    end
+    if #bisGear == 0 and #enchants == 0 then return nil end
+    return { bisGear = bisGear, enchants = enchants }
 end
 
 -- u.gg's Gear Overview lists items in slot order but never names the slot,
@@ -507,11 +545,29 @@ function ns.GearSlotName(itemId)
     return (equipLoc and EQUIPLOC_SLOT[equipLoc]) or ""
 end
 
+local IV_TALENT_CTX = { raid = "Raid", mplus = "Mythic+", delve = "Delves", leveling = "Leveling", all = "General" }
 function ns:GetIcyVeinsTalentSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
-    local classData = IVT_DATA[classToken]
-    if not classData then return nil end
-    return classData[specKey]
+    local sd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)
+    local byContext = sd and sd.talents and sd.talents["all"] -- IV is hero-agnostic
+    if not byContext then return nil end
+    -- Fixed context order so talents[1] is a sensible default (single-target first).
+    local talents = {}
+    for _, ctx in ipairs({ "raid", "mplus", "delve", "all", "leveling" }) do
+        local builds = byContext[ctx]
+        if builds then
+            for _, b in ipairs(builds) do
+                talents[#talents + 1] = {
+                    buildLabel = b.label,
+                    exportString = b.export,
+                    context = IV_TALENT_CTX[ctx] or ctx,
+                    leveling = (ctx == "leveling") or nil,
+                }
+            end
+        end
+    end
+    if #talents == 0 then return nil end
+    return { talents = talents }
 end
 
 function ns:GetTrinketSpecs(itemId)
@@ -671,3 +727,6 @@ end
 ns.MAX_ENCHANT_ROWS = MAX_ENCHANT_ROWS
 ns.MAX_GEM_ROWS = MAX_GEM_ROWS
 ns.MAX_CONSUMABLE_ROWS = MAX_CONSUMABLE_ROWS
+
+-- Build the item -> specs reverse lookups now that the source accessors above exist.
+BuildBisLookup()

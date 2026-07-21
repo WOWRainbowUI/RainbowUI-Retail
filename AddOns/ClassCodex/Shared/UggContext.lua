@@ -270,7 +270,6 @@ end
 local activeContextKey  -- cached "where is the player right now" key
 local lastEncounterID   -- remembered between ENCOUNTER_START and ENCOUNTER_END
 local lastEncounterName -- boss name from ENCOUNTER_START, for name-match
-local lastDifficulty    -- "heroic" | "mythic" | nil
 local callbacks = {}
 
 -- The lookups are built at file load, but toc order means the data
@@ -341,6 +340,15 @@ local function ComputeActiveContext()
         return "raid:" .. uggDiff .. ":all-bosses"
     end
 
+    -- PvP instances surface a "pvp:<bracket>" key so the same callback
+    -- chain fires on zone entry; consumers branch on the prefix. The
+    -- bracket is "any" only when detection comes up empty — consumers
+    -- then fall back to the spec's first available bracket.
+    if ns.IsInPvPInstance and ns.IsInPvPInstance() then
+        local bracket = (ns.GetActivePvPBracket and ns.GetActivePvPBracket()) or "any"
+        return "pvp:" .. bracket
+    end
+
     return nil
 end
 
@@ -380,17 +388,39 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 f:RegisterEvent("ENCOUNTER_START")
 f:RegisterEvent("ENCOUNTER_END")
+f:RegisterEvent("PLAYER_LEVEL_UP")
+-- Re-resolve when the group forms/changes: if the player zoned into a PvP
+-- instance before the roster was ready, the bracket started as "any" and
+-- RefreshContext now upgrades it to the real 2v2/3v3 once the group fills.
+-- Cheap: RefreshContext no-ops unless the resolved context key changes.
+f:RegisterEvent("GROUP_ROSTER_UPDATE")
 -- ENCOUNTER_START args: encounterID, encounterName, difficultyID, groupSize.
 f:SetScript("OnEvent", function(_, event, encounterID, encounterName, difficultyID)
     if event == "ENCOUNTER_START" then
         lastEncounterID = encounterID
         lastEncounterName = encounterName
-        lastDifficulty = DIFFICULTY_TO_UGG[difficultyID]
-    elseif event == "ENCOUNTER_END" then
-        -- Keep lastEncounterID so the post-pull state still surfaces the
-        -- right boss in the picker (TTL-style by relying on next zone
-        -- change or pull to overwrite). Reset only on zone change.
+    elseif event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_ENTERING_WORLD" then
+        -- Honour the "reset on the next zone change" contract: forget the
+        -- remembered boss so re-entering a raid shows the all-bosses
+        -- overview until the next pull, instead of resolving a stale boss
+        -- whose name still matches this raid's dataset.
+        lastEncounterID = nil
+        lastEncounterName = nil
+    elseif event == "PLAYER_LEVEL_UP" then
+        -- The effective source depends on max-level state (below max it
+        -- shows the Icy Veins levelling build). The zone/context key doesn't
+        -- change on ding, so RefreshContext would no-op — re-fire listeners
+        -- directly so the source flips to u.gg/PvP the moment the player
+        -- hits max. Deferred a frame because UnitLevel() (used by
+        -- IsAtMaxLevel) may still read the old level during PLAYER_LEVEL_UP.
+        C_Timer.After(0, function()
+            if activeContextKey == nil then activeContextKey = ComputeActiveContext() end
+            FireCallbacks()
+        end)
+        return
     end
+    -- ENCOUNTER_END keeps lastEncounter* so the picker still shows the boss
+    -- until you move (zone change) or re-enter.
     RefreshContext()
 end)
 
@@ -438,10 +468,39 @@ function ns.SetPersistedUggContext(contextKey)
     ClassCodexCharDB.uggContext[specID] = contextKey
 end
 
--- Default-source resolver. Icy Veins is the baseline (curated editorial builds);
--- honours whatever the player explicitly picked (u.gg / Icy Veins / PvP).
+-- True when the player is at their expansion's max level. Below it, the
+-- max-level u.gg/PvP data doesn't apply, so we prefer Icy Veins. When we can't
+-- determine max level, assume max (don't force leveling).
+function ns.IsAtMaxLevel()
+    local max = (GetMaxLevelForPlayerExpansion and GetMaxLevelForPlayerExpansion())
+        or (GetMaxPlayerLevel and GetMaxPlayerLevel())
+    if not max then return true end
+    return (UnitLevel("player") or max) >= max
+end
+
+-- Default-source resolver. Unless the player has pinned a source (then their
+-- saved per-spec choice wins), the source follows the current content context:
+-- Icy Veins while leveling, u.gg in dungeons/raids, PvP in arenas/BGs (when the
+-- spec has PvP data), else Icy Veins.
 function ns.GetEffectiveTalentSource()
-    local persisted = ns.GetPersistedTalentSource()
-    if persisted == "ugg" or persisted == "icyveins" or persisted == "pvp" then return persisted end
+    if ClassCodexDB and ClassCodexDB.pinTalentSource then
+        local persisted = ns.GetPersistedTalentSource()
+        if persisted then return persisted end
+    end
+    -- While leveling, the max-level data doesn't apply — prefer Icy Veins.
+    if not ns.IsAtMaxLevel() then
+        return "icyveins"
+    end
+    local activeKey = ns.GetActiveUggContext()
+    if activeKey then
+        if activeKey:find("^pvp:") then
+            if ns.HasPvPData and ns.GetClassAndSpec then
+                local class, spec = ns.GetClassAndSpec()
+                if class and spec and ns.HasPvPData(class, spec) then return "pvp" end
+            end
+            return "icyveins"
+        end
+        return "ugg"
+    end
     return "icyveins"
 end

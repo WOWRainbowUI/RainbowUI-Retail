@@ -135,11 +135,10 @@ local function perSpec(specKey)
     return nil
 end
 
--- All attribution URLs live in one consolidated table, grouped by source then
--- page, generated per class (see scraper/generate-sources-lua.ts):
---   ClassCodexSources[classToken][specSlug] = {
---     icyveins = { bis, talents, leveling }, ugg = { build } }
--- The helpers below just read from it.
+-- Attribution URLs live at the spec level in the normalized data, read through
+-- the SourceData seam: ns.SourceSpec(source, class, spec).links[page]
+--   e.g. links = { bis, talents, leveling } (Icy Veins). The helpers below wrap
+-- that lookup and fall back to each source's homepage.
 
 -- Player's class token + spec slug, for the no-arg helpers (docked pane / About
 -- tab), which always credit the active spec.
@@ -152,10 +151,11 @@ end
 
 local function srcUrl(class, spec, source, page)
     if not (class and spec) then class, spec = playerClassSpec() end
-    local s = _G.ClassCodexSources
-    local rec = class and spec and s and s[class] and s[class][spec]
-    local pages = rec and rec[source]
-    return pages and pages[page] or nil
+    -- Guide links live at the spec level in the normalized data (Icy Veins only,
+    -- as before — u.gg had no per-spec URLs and falls back to its homepage).
+    local sd = class and spec and ns.SourceSpec and ns.SourceSpec(source, class, spec)
+    local links = sd and sd.links
+    return links and links[page] or nil
 end
 
 local function icyVeinsGearUrl(class, spec)

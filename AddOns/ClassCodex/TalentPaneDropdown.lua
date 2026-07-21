@@ -58,6 +58,7 @@ local scopeDropdown  -- WowStyle1Dropdown for picking the u.gg scope (Mythic+ / 
 local buildDropdown  -- WowStyle1Dropdown for picking the build within the selected source/scope
 local applyBtn
 local copyBtn
+local saveAsNewBtn
 local panelExpanded = false -- sticky reveal toggle (click icon to expand)
 -- copyBox / copyEdit live in ClassCodex.lua now (ns.ShowCopyPopup);
 -- this file just calls into the shared widget.
@@ -393,8 +394,8 @@ local function GetMediumWidth()
 end
 
 local function GetExpandedWidth()
-    -- Build picked: + Export + Apply icons.
-    return GetMediumWidth() + (ICON_GAP + ACTION_ICON_SIZE) * 2
+    -- Build picked: + Export + Apply + Save-as-new icons.
+    return GetMediumWidth() + (ICON_GAP + ACTION_ICON_SIZE) * 3
 end
 
 local function GetTargetWidth()
@@ -435,11 +436,13 @@ end
 local function ShowActionIcons()
     if applyBtn then applyBtn:Show() end
     if copyBtn then copyBtn:Show() end
+    if saveAsNewBtn then saveAsNewBtn:Show() end
 end
 
 local function HideActionIcons()
     if applyBtn then applyBtn:Hide() end
     if copyBtn then copyBtn:Hide() end
+    if saveAsNewBtn then saveAsNewBtn:Hide() end
 end
 
 local function CloseBuildMenu()
@@ -500,6 +503,7 @@ local function UpdateRevealAnimation()
         if buildDropdown then buildDropdown:SetAlpha(dropdownTarget) end
         if applyBtn then applyBtn:SetAlpha(actionTarget) end
         if copyBtn then copyBtn:SetAlpha(actionTarget) end
+        if saveAsNewBtn then saveAsNewBtn:SetAlpha(actionTarget) end
         UpdateScopeDropdownVisibility()
         if dropdownTarget == 0 then HideDropdown() end
         if actionTarget == 0 then HideActionIcons() end
@@ -523,6 +527,7 @@ local function UpdateRevealAnimation()
         end
         if applyBtn then applyBtn:SetAlpha(aAlpha) end
         if copyBtn then copyBtn:SetAlpha(aAlpha) end
+        if saveAsNewBtn then saveAsNewBtn:SetAlpha(aAlpha) end
 
         if t >= 1 then
             self:SetScript("OnUpdate", nil)
@@ -683,14 +688,30 @@ end
 -- Apply
 -------------------------------------------------------------------------------
 
+-- Default name for the "Save as new loadout" prompt: "{Source} - {name}"
+-- (e.g. "Icy Veins - Delves"). Dedupes the build's buildLabel when it merely
+-- repeats the context or the source name — some Icy Veins builds carry
+-- context=="Delves"/buildLabel=="Delves" (which used to render "Delves
+-- Delves"), and PvP builds carry buildLabel=="PvP".
 local function BuildLoadoutLabel(build)
-    local hero = build.heroTalent or "All"
-    local label = build.context or "Build"
-    if hero ~= "All" then label = hero .. " " .. label end
-    if build.buildLabel and build.buildLabel ~= "" then
-        label = label .. " " .. build.buildLabel
+    local source
+    if build._ivSource then source = "Icy Veins"
+    elseif build._uggSource then source = "u.gg"
+    elseif build._pvpSource then source = "PvP"
     end
-    return label
+
+    local hero = build.heroTalent or "All"
+    local name = build.context or "Build"
+    if hero ~= "All" then name = hero .. " " .. name end
+    local bl = build.buildLabel
+    if bl and bl ~= "" and bl ~= build.context and bl ~= source and bl ~= name then
+        name = name .. " " .. bl
+    end
+
+    if source and source ~= "" then
+        return source .. " - " .. name
+    end
+    return name
 end
 
 local function OnApplyClicked()
@@ -722,6 +743,19 @@ local function OnApplyClicked()
         ns.ApplyPvpHonorTalents(build._pvpHonorTalents)
     end
     -- Successful apply: keep the panel open and the build remembered.
+end
+
+local function OnSaveAsNewClicked()
+    if not previewedBuild then return end
+    -- Inspect mode: same guard as Apply (foreign-character writes aren't
+    -- legal). Button is hidden via GetTargetAlphas; this is belt-and-braces.
+    if inspectOverride then return end
+    -- Shared prompt + creation path lives in ClassCodex.lua so every
+    -- "+" surface uses one widget. Available by click time regardless of
+    -- file load order.
+    if ns.PromptAndSaveTalentBuild then
+        ns.PromptAndSaveTalentBuild(previewedBuild.exportString, BuildLoadoutLabel(previewedBuild))
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -810,6 +844,14 @@ local function DefaultPvpBracketForSpec(classFile, specName)
             if key == selectedPvpBracket then return selectedPvpBracket end
         end
     end
+    -- Otherwise prefer the bracket the player is currently queued into,
+    -- when that bracket has data for the spec.
+    local activeBracket = ns.GetActivePvPBracket and ns.GetActivePvPBracket()
+    if activeBracket then
+        for _, key in ipairs(available) do
+            if key == activeBracket then return activeBracket end
+        end
+    end
     return available[1]
 end
 
@@ -847,7 +889,7 @@ local function PopulatePvpMenu(rootDescription)
             local capturedRecord = PvpBuildRecord(bracketKey, bracketData, topBuild)
             local isActive = BuildMatchesActive({ exportString = topBuild.exportString })
             if isActive then
-                label = label .. " |cff66ff66(active)|r"
+                label = label .. "  |TInterface\\COMMON\\Indicator-Green:12:12:0:0|t"
             end
             local item = rootDescription:CreateRadio(
                 label,
@@ -881,7 +923,7 @@ local function FormatUggRow(ctx, build, isActive, isAuto)
     -- unreliable in WoW retail).
     if isAuto then body = "|cffffd100" .. body .. "|r" end
     if isActive then
-        body = body .. " |cff66ff66(active)|r"
+        body = body .. "  |TInterface\\COMMON\\Indicator-Green:12:12:0:0|t"
     end
     return body
 end
@@ -1111,7 +1153,14 @@ local function SeedIcyVeinsDefaultPreview()
     if not classFile or not specName or not ns.GetIcyVeinsTalentSpecData then return end
     local ivData = ns:GetIcyVeinsTalentSpecData(classFile, specName)
     if not ivData or not ivData.talents or not ivData.talents[1] then return end
-    SetPreview(IcyVeinsBuildRecord(ivData.talents[1]))
+    -- While leveling, open on the leveling build if the spec has one.
+    local chosen = ivData.talents[1]
+    if ns.IsAtMaxLevel and not ns.IsAtMaxLevel() then
+        for i = 1, #ivData.talents do
+            if ivData.talents[i].leveling then chosen = ivData.talents[i]; break end
+        end
+    end
+    SetPreview(IcyVeinsBuildRecord(chosen))
 end
 
 local function PopulateIcyVeinsMenu(rootDescription)
@@ -1126,7 +1175,7 @@ local function PopulateIcyVeinsMenu(rootDescription)
     for _, build in ipairs(ivData.talents) do
         local label = build.buildLabel or build.context or "Build"
         local isActive = BuildMatchesActive({ exportString = build.exportString })
-        if isActive then label = label .. " |cff66ff66(active)|r" end
+        if isActive then label = label .. "  |TInterface\\COMMON\\Indicator-Green:12:12:0:0|t" end
         local capturedRecord = IcyVeinsBuildRecord(build)
         local capturedExport = build.exportString
         local capturedActive = isActive
@@ -1191,7 +1240,11 @@ local function PopulateSourceMenu(_, rootDescription)
                 if selectedSource == value then return end
                 selectedSource = value
                 SetPreview(nil)
-                if ns.SetPersistedTalentSource then
+                -- Only remember the pick as the pinned source while Pin is
+                -- on. An unpinned pick is a temporary override that context
+                -- auto-flip is free to replace, so it shouldn't silently
+                -- become the source a later Pin locks onto.
+                if ClassCodexDB and ClassCodexDB.pinTalentSource and ns.SetPersistedTalentSource then
                     ns.SetPersistedTalentSource(value)
                 end
                 if sourceDropdown then
@@ -1220,10 +1273,11 @@ local function PopulateSourceMenu(_, rootDescription)
             end
         )
     end
-    makeRadio(SOURCE_INFO.ugg.label, "ugg")
-    -- Icy Veins always appears too; PopulateIcyVeinsMenu surfaces the
-    -- "No Icy Veins talent builds available." copy on uncovered specs.
+    -- Source order matches the docked panel's Talents tab: Icy Veins, u.gg,
+    -- then PvP. PopulateIcyVeinsMenu surfaces the "No Icy Veins talent builds
+    -- available." copy on uncovered specs.
     makeRadio(SOURCE_INFO.icyveins.label, "icyveins")
+    makeRadio(SOURCE_INFO.ugg.label, "ugg")
     -- PvP source always appears so users discover the feature; if a spec
     -- has no Bnet/u.gg data, PopulatePvpMenu surfaces the "No PvP
     -- builds available." copy instead of bracket rows.
@@ -1410,11 +1464,20 @@ local function EnsureContainer()
         end
         GameTooltip:Hide()
     end
-    local function MakeActionIcon(name, parent, texture, tooltip, onClick)
+    -- `iconInset` shrinks the glyph within the button footprint so an
+    -- edge-to-edge icon (Character-Plus) matches the visual weight of the
+    -- padded Blizzard icons beside it; button size stays constant so the
+    -- reveal-width math (GetExpandedWidth) is unaffected.
+    local function MakeActionIcon(name, parent, texture, tooltip, onClick, iconInset)
         local b = CreateFrame("Button", name, parent)
         b:SetSize(ACTION_ICON_SIZE, ACTION_ICON_SIZE)
         local tex = b:CreateTexture(nil, "ARTWORK")
-        tex:SetAllPoints()
+        if iconInset then
+            tex:SetPoint("TOPLEFT", iconInset, -iconInset)
+            tex:SetPoint("BOTTOMRIGHT", -iconInset, iconInset)
+        else
+            tex:SetAllPoints()
+        end
         tex:SetTexture(texture)
         tex:SetDesaturated(true)
         tex:SetVertexColor(0.85, 0.85, 0.85)
@@ -1444,13 +1507,25 @@ local function EnsureContainer()
     )
     copyBtn:SetPoint("LEFT", buildDropdown, "RIGHT", ICON_GAP, 0)
 
+    -- Save-as-new: power-user secondary that creates a fresh loadout
+    -- slot from the previewed build instead of writing into the CC
+    -- slot. Sits between Export and Apply so Apply stays rightmost as
+    -- the primary action; the "+" icon reads as "create another".
+    saveAsNewBtn = MakeActionIcon(
+        "ClassCodexTalentSaveAsNewButton", container,
+        "Interface\\PaperDollInfoFrame\\Character-Plus",
+        (ns.L and ns.L["talent_pane.save_as.tooltip"]) or "Save as new loadout",
+        OnSaveAsNewClicked, 3
+    )
+    saveAsNewBtn:SetPoint("LEFT", copyBtn, "RIGHT", ICON_GAP, 0)
+
     applyBtn = MakeActionIcon(
         "ClassCodexTalentApplyButton", container,
         "Interface\\Buttons\\UI-CheckBox-Check",
         "Apply previewed build",
         OnApplyClicked
     )
-    applyBtn:SetPoint("LEFT", copyBtn, "RIGHT", ICON_GAP, 0)
+    applyBtn:SetPoint("LEFT", saveAsNewBtn, "RIGHT", ICON_GAP, 0)
     -- Dynamic tooltip — reads previewedBuild state at hover time.
     applyBtn:SetScript("OnEnter", function(self)
         if self.iconTex then
@@ -1579,6 +1654,8 @@ local function UpdateVisibility()
         panelExpanded = false
         if applyBtn then applyBtn:Hide(); applyBtn:SetAlpha(0) end
         if copyBtn then copyBtn:Hide(); copyBtn:SetAlpha(0) end
+        if saveAsNewBtn then saveAsNewBtn:Hide(); saveAsNewBtn:SetAlpha(0) end
+        if ns.HideSaveAsLoadoutPopup then ns.HideSaveAsLoadoutPopup() end
         if sourceDropdown then sourceDropdown:Hide(); sourceDropdown:SetAlpha(0) end
         if scopeDropdown then scopeDropdown:Hide(); scopeDropdown:SetAlpha(0) end
         if buildDropdown then buildDropdown:Hide(); buildDropdown:SetAlpha(0) end
@@ -1720,53 +1797,103 @@ local function Setup()
     -- (auto-detect → ugg when entering an instance), align the scope
     -- dropdown with the new zone, and refresh the build dropdown so the
     -- highlighted auto row tracks the current zone.
+    -- Re-resolve the effective source + scope from the player's context and
+    -- update the dropdowns to match. Shared by the UggContext callback and
+    -- the Pin Talent Source toggle so both paths behave identically.
+    local function OnUggContext(contextKey)
+        -- GetEffectiveTalentSource already honours pinTalentSource (it
+        -- returns the pinned pick when set), so we don't re-gate here — when
+        -- pinned it simply resolves back to the locked source and nothing
+        -- flips.
+        local effective = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "ugg"
+        if effective ~= selectedSource then
+            selectedSource = effective
+            -- Clear the previous source's previewed build so its diff glow
+            -- doesn't linger on the tree under the new source's label. The
+            -- seed below repopulates the new source's default.
+            SetPreview(nil)
+            if sourceDropdown and sourceDropdown.SetDefaultText then
+                local _info = SOURCE_INFO[selectedSource]
+                sourceDropdown:SetDefaultText((_info and _info.closed) or "u.gg")
+            end
+            if sourceDropdown and sourceDropdown.GenerateMenu then
+                sourceDropdown:GenerateMenu()
+            end
+            if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
+            if buildDropdown and buildDropdown.SetDefaultText then
+                local info = SOURCE_INFO[selectedSource]
+                buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.ugg.placeholder)
+            end
+            UpdateScopeDropdownVisibility()
+            if container then container:SetWidth(GetTargetWidth()) end
+        end
+        -- Always re-align the scope to the new zone when an auto
+        -- context exists (cheap; user can override at any time).
+        local newScope = ScopeForContextKey(contextKey)
+        if newScope and newScope ~= selectedUggScope then
+            selectedUggScope = newScope
+            if scopeDropdown then
+                if scopeDropdown.SetDefaultText then
+                    scopeDropdown:SetDefaultText(SCOPE_LABELS[newScope] or "Mythic+")
+                end
+                if scopeDropdown.GenerateMenu then scopeDropdown:GenerateMenu() end
+            end
+        end
+        -- Nothing previewed yet (fresh open, or just cleared by a source
+        -- flip): seed the new source's default so the build dropdown shows a
+        -- real build ("All Dungeons" / "All Bosses" / a bracket) instead of
+        -- the placeholder.
+        if not previewedBuild then
+            if selectedSource == "ugg" then SeedUggDefaultPreview()
+            elseif selectedSource == "icyveins" then SeedIcyVeinsDefaultPreview()
+            elseif selectedSource == "pvp" then SeedPvpDefaultPreview() end
+        end
+        if buildDropdown and buildDropdown.GenerateMenu then
+            buildDropdown:GenerateMenu()
+        end
+    end
     if ns.RegisterUggContextCallback then
-        ns.RegisterUggContextCallback(function(contextKey)
-            -- Auto-flip the source only if the user hasn't pinned one
-            -- for this spec yet.
-            if ns.GetPersistedTalentSource and not ns.GetPersistedTalentSource() then
-                local effective = ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource() or "ugg"
-                if effective ~= selectedSource then
-                    selectedSource = effective
-                    if sourceDropdown and sourceDropdown.SetDefaultText then
-                        local _info = SOURCE_INFO[selectedSource]
-                        sourceDropdown:SetDefaultText((_info and _info.closed) or "u.gg")
-                    end
-                    if sourceDropdown and sourceDropdown.GenerateMenu then
-                        sourceDropdown:GenerateMenu()
-                    end
-                    if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
-                    if buildDropdown and buildDropdown.SetDefaultText then
-                        local info = SOURCE_INFO[selectedSource]
-                        buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.ugg.placeholder)
-                    end
-                    UpdateScopeDropdownVisibility()
-                    if container then container:SetWidth(GetTargetWidth()) end
+        ns.RegisterUggContextCallback(OnUggContext)
+    end
+    -- Let the Pin Talent Source setting re-resolve the dropdowns the instant
+    -- it's toggled instead of waiting for the next zone/spec change. Enabling
+    -- captures the on-screen source as the pinned pick so Pin locks to what
+    -- the user is actually looking at; disabling re-flips to the live context.
+    ns.OnPinTalentSourceToggled = function()
+        if ClassCodexDB and ClassCodexDB.pinTalentSource and selectedSource
+            and ns.SetPersistedTalentSource then
+            ns.SetPersistedTalentSource(selectedSource)
+        end
+        OnUggContext(ns.GetActiveUggContext and ns.GetActiveUggContext() or nil)
+    end
+
+    -- Tint the Class Codex loadout in Blizzard's native loadout selector
+    -- so it stands out among the player's own saved loadouts.
+    -- RefreshLoadoutOptions rebuilds talentsFrame.configIDToName from the
+    -- plain config names; the menu reads that table live on each open
+    -- (LoadSystemTemplates.UpdateSelectionOptions), and an inline |cff..|r
+    -- escape in the name overrides the menu's SetTextColor — exactly how
+    -- Blizzard renders the blue "Starter Build" entry. We post-hook and
+    -- re-wrap our slot's DISPLAY name only; the real saved name, export
+    -- string, and IsCCSlotName matching stay untouched. hooksecurefunc is
+    -- taint-safe, and loadout selection is keyed on configID, not the name.
+    local talentsFrame = PlayerSpellsFrame.TalentsFrame
+    if talentsFrame.RefreshLoadoutOptions then
+        local function TintCCLoadout()
+            local names = talentsFrame.configIDToName
+            if type(names) ~= "table" or not ns.IsCCSlotName or not ns.WrapCCName then return end
+            for configID, name in pairs(names) do
+                -- A wrapped name no longer matches IsCCSlotName, so this is
+                -- self-guarding against double-wrapping.
+                if ns.IsCCSlotName(name) then
+                    names[configID] = ns.WrapCCName(name)
                 end
             end
-            -- Always re-align the scope to the new zone when an auto
-            -- context exists (cheap; user can override at any time).
-            local newScope = ScopeForContextKey(contextKey)
-            if newScope and newScope ~= selectedUggScope then
-                selectedUggScope = newScope
-                if scopeDropdown then
-                    if scopeDropdown.SetDefaultText then
-                        scopeDropdown:SetDefaultText(SCOPE_LABELS[newScope] or "Mythic+")
-                    end
-                    if scopeDropdown.GenerateMenu then scopeDropdown:GenerateMenu() end
-                end
-            end
-            -- If we're in u.gg mode but nothing is previewed yet,
-            -- seed the new scope's overview as the default so the
-            -- build dropdown shows "All Dungeons" / "All Bosses"
-            -- instead of the placeholder.
-            if selectedSource == "ugg" and not previewedBuild then
-                SeedUggDefaultPreview()
-            end
-            if buildDropdown and buildDropdown.GenerateMenu then
-                buildDropdown:GenerateMenu()
-            end
-        end)
+        end
+        pcall(hooksecurefunc, talentsFrame, "RefreshLoadoutOptions", TintCCLoadout)
+        -- Options may already be built (pane opened before this hook ran);
+        -- colour the live table now so the next open reflects it.
+        TintCCLoadout()
     end
 
     UpdateVisibility()
@@ -1894,6 +2021,8 @@ function ns.SetTalentPaneEnabled(enabled)
             if buildDropdown then buildDropdown:Hide(); buildDropdown:SetAlpha(0) end
             if applyBtn then applyBtn:Hide(); applyBtn:SetAlpha(0) end
             if copyBtn then copyBtn:Hide(); copyBtn:SetAlpha(0) end
+            if saveAsNewBtn then saveAsNewBtn:Hide(); saveAsNewBtn:SetAlpha(0) end
+            if ns.HideSaveAsLoadoutPopup then ns.HideSaveAsLoadoutPopup() end
             container:Hide()
         end
     end
