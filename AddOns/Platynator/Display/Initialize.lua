@@ -44,11 +44,6 @@ function addonTable.Display.ManagerMixin:OnLoad()
 
   self:RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED")
 
-  self:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
-  self:RegisterEvent("RUNE_POWER_UPDATE")
-  if addonTable.Constants.IsRetail then
-    self:RegisterEvent("UNIT_POWER_POINT_CHARGE")
-  end
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_REGEN_ENABLED")
   if C_Secrets and C_Secrets.HasSecretRestrictions() then
@@ -86,33 +81,17 @@ function addonTable.Display.ManagerMixin:OnLoad()
       return
     end
     local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-    if nameplate and unit and (addonTable.Constants.IsRetail or not UnitIsUnit("player", unit)) then
-      if addonTable.Constants.IsRetail and not addonTable.Constants.IsMidnightNext then
-        if not self.HookedUFs[nameplate.UnitFrame] then
-          self.HookedUFs[nameplate.UnitFrame] = true
-          hooksecurefunc(nameplate.UnitFrame.AurasFrame, "RefreshAuras", function(af, data)
-            if not af:IsForbidden() then
-              local display = self.nameplateDisplays[af:GetParent().unit]
-              if display and display.unit then
-                display.AurasManager:OnEvent("", "", data or {isFullUpdate = true})
-              end
+    if nameplate and unit and (addonTable.Constants.IsRetail and not addonTable.Constants.IsMidnightNext) then
+      if not self.HookedUFs[nameplate.UnitFrame] then
+        self.HookedUFs[nameplate.UnitFrame] = true
+        hooksecurefunc(nameplate.UnitFrame.AurasFrame, "RefreshAuras", function(af, data)
+          if not af:IsForbidden() then
+            local display = self.nameplateDisplays[af:GetParent().unit]
+            if display and display.unit then
+              display.AurasManager:OnEvent("", "", data or {isFullUpdate = true})
             end
-          end)
-        end
-      end
-
-      nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
-      nameplate.UnitFrame:UnregisterAllEvents()
-
-      if nameplate.UnitFrame.castBar then
-        nameplate.UnitFrame.castBar:UnregisterAllEvents()
-      elseif nameplate.UnitFrame.CastBarContainer then
-        nameplate.UnitFrame.CastBarContainer.castBar:UnregisterAllEvents()
-      end
-
-      if nameplate.UnitFrame.WidgetContainer then
-        nameplate.UnitFrame.WidgetContainer:SetParent(nameplate)
-        nameplate.UnitFrame.WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
+          end
+        end)
       end
       self.ModifiedUFs[unit] = nameplate.UnitFrame
     end
@@ -122,10 +101,6 @@ function addonTable.Display.ManagerMixin:OnLoad()
       local UF = self.ModifiedUFs[unit]
       if addonTable.Constants.IsRetail and not addonTable.Constants.IsMidnightNext then
         UF:UnregisterEvent("UNIT_AURA")
-      end
-      if UF.WidgetContainer then
-        UF.WidgetContainer:SetParent(UF)
-        UF.WidgetContainer:SetScale(1)
       end
       self.ModifiedUFs[unit] = nil
     end
@@ -228,7 +203,8 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateObscuredAlpha()
     elseif settingName == addonTable.Config.Options.BLIZZARD_WIDGET_SCALE then
       for unit in pairs(self.nameplateDisplays) do
-        local WidgetContainer = self.ModifiedUFs[unit].WidgetContainer
+        local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+        local WidgetContainer = nameplate.UnitFrame.WidgetContainer
         if WidgetContainer then
           WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
         end
@@ -663,6 +639,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
       local scaleOffset, scaleMod = addonTable.Core.GetDesignScale(shouldSimplify), scale
       newDisplay.styleIndex = self.styleIndex
       newDisplay:InitializeWidgets(design, scaleOffset, scaleMod)
+      newDisplay:LayerWidgets()
     end
     if not addonTable.Constants.IsMidnightNext then
       self:ListenToBuffs(newDisplay, unit)
@@ -677,6 +654,8 @@ function addonTable.Display.ManagerMixin:Uninstall(unit)
     addonTable.Cache:RemoveUnit(unit)
     addonTable.Display.Context:RevokedUnitListeners(unit)
     display:SetUnit(nil)
+    display:ClearAllPoints()
+    display:Hide()
     display:SetParent(UIParent)
     self.pools[display.kind]:Release(display)
     self.nameplateDisplays[unit] = nil
@@ -961,6 +940,20 @@ end
 function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
   if eventName == "NAME_PLATE_UNIT_ADDED" then
     local unit = ...
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+    nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
+    nameplate.UnitFrame:UnregisterAllEvents()
+
+    if nameplate.UnitFrame.castBar then
+      nameplate.UnitFrame.castBar:UnregisterAllEvents()
+    elseif nameplate.UnitFrame.CastBarsContainer then
+      nameplate.UnitFrame.CastBarsContainer.castBar:UnregisterAllEvents()
+    end
+
+    if nameplate.UnitFrame.WidgetContainer then
+      nameplate.UnitFrame.WidgetContainer:SetParent(nameplate)
+      nameplate.UnitFrame.WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
+    end
     self:Install(unit)
   elseif  eventName == "NAME_PLATE_UNIT_REMOVED" then
     local unit = ...
@@ -983,13 +976,6 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
       self.lastInteract:UpdateSoftInteract()
     else
       self.lastInteract = nil
-    end
-  elseif eventName == "UNIT_POWER_UPDATE" or eventName == "RUNE_POWER_UPDATE" or eventName == "UNIT_POWER_POINT_CHARGE" then
-    for unit, display in pairs(self.nameplateDisplays) do
-      if addonTable.Cache:Get(unit, "target") then
-        display:UpdateForTarget()
-        break
-      end
     end
   elseif eventName == "PLAYER_REGEN_DISABLED" then
     self:UpdateObscuredAlpha()

@@ -416,6 +416,8 @@ local function GetCustomOptions(container)
       frame.shiftUp:SetShown(index > 1)
       frame.shiftDown:SetShown(index < #assignments)
 
+      frame.removeEntryButton:SetShown(#assignments > 1)
+
       frame.simplifiedCheckbox:SetValue(frame.entry.simplified)
       frame.scaleSlider:SetValue(frame.entry.scale * 100)
       frame:Show()

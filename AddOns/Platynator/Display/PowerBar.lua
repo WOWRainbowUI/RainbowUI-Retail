@@ -114,11 +114,24 @@ end
 
 function addonTable.Display.PowerBarMixin:SetUnit(unit)
   self.unit = unit
-  self:Hide()
+  if unit then
+    self:ApplyTarget()
+    addonTable.Cache:RegisterCallback(unit, "target", function()
+      self:ApplyTarget()
+    end)
+  else
+    self:UnregisterAllEvents()
+  end
 end
 
 function addonTable.Display.PowerBarMixin:ApplyTarget()
-  if powerKind and UnitIsUnit("target", self.unit) and UnitCanAttack("player", self.unit) then
+  if powerKind and addonTable.Cache:Get(self.unit, "target") and addonTable.Cache:Get(self.unit, "canAttack") then
+    self:RegisterEvent("UNIT_POWER_UPDATE")
+    self:RegisterEvent("RUNE_POWER_UPDATE")
+    if addonTable.Constants.IsRetail then
+      self:RegisterEvent("UNIT_POWER_POINT_CHARGE")
+    end
+
     local maxPower
     local currentPower = 0
     if powerKind == Enum.PowerType.Runes then
@@ -163,6 +176,11 @@ function addonTable.Display.PowerBarMixin:ApplyTarget()
 
     self:SetValue(points)
   else
+    self:UnregisterAllEvents()
     self:Hide()
   end
+end
+
+function addonTable.Display.PowerBarMixin:OnEvent()
+  self:ApplyTarget()
 end
