@@ -4,10 +4,57 @@ local _, ns = ...
 ns = ns or {}
 
 local data = {
-    currentVersion = "5.72",
-    previousVersion = "5.71",
-    rangeLabel = "5.71 -> 5.72",
+    currentVersion = "5.74",
+    previousVersion = "5.73",
+    rangeLabel = "5.73 -> 5.74",
     entries = {
+        {
+            version = "5.74",
+            date = "2026-07-19",
+            sections = {
+                {
+                    title = "Highlight",
+                    bullets = {
+                        "Rebuilt Castbar outlines for crisp, pixel-perfect borders at every UI scale across live Castbars, previews, and Boss Castbars.",
+                    },
+                },
+                {
+                    title = "Improvements & Fixes",
+                    bullets = {
+                        "Added independent Castbar icon-outline thickness using the configured Castbar border color.",
+                        "Expanded Auto Width to Player, Target, Focus, and Boss Castbars with exact Unit Frame or Cooldown Manager matching and adjustable offsets.",
+                        "Fixed imported profiles with legacy UI_Parent anchors causing an endless full Unit Frame reanchor loop, extreme idle CPU usage, and severe FPS loss; affected profiles are repaired automatically, and the reanchor scheduler now recovers cleanly from unexpected bridge errors.",
+                        "Expanded Skyriding aura filtering to include Thrill of the Skies and both Flight Style auras, with per-Boss Unit Aura ignore-list overrides available again.",
+                        "Preserved character-specific keybindings by no longer replaying account-wide stored bindings automatically.",
+                        "Reopened the options menu on its last active page and corrected custom scrollbar dragging without idle polling.",
+                    },
+                },
+            },
+        },
+        {
+            version = "5.73",
+            date = "2026-07-18",
+            sections = {
+                {
+                    title = "Highlight",
+                    bullets = {
+                        "Import UnhaltedUnitFrames 12.1 profiles directly into MSUF with the load-on-demand UUF importer.",
+                        "Added full support for Coolinator and Skiron CDM",
+                    },
+                },
+                {
+                    title = "Minor Bug Fixes",
+                    bullets = {
+                        "Fixed imported UUF profiles losing independent health-fill and missing-health transparency in live frames and previews.",
+                        "Fixed aura icon size controls not staying synchronized between the menu and Edit Mode.",
+                        "Fixed edge case Blizzard Cooldown Manager anchors shifting unit frames after instance and zone transitions.",
+                        "Fixed visible Group Frame power bars shifting name text vertically in live frames and previews.",
+                        "Fixed split health text updates relying on secret-string comparisons.",
+                        "Fixed dragging third-party anchored unit frames and synchronizing cooldown-sized power bars.",
+                    },
+                },
+            },
+        },
         {
             version = "5.72",
             date = "2026-07-18",
@@ -87,33 +134,6 @@ local data = {
                         "Added a WoW 12.1 compatibility warning for MSUF 5.x stable builds that points users to the current CurseForge Beta.",
                         "Kept the new outline strata, frame-level, smooth-scroll, icon, and layout apply work on cold menu paths.",
                         "Kept combat and castbar fixes event-driven and cache-aware without adding constant polling.",
-                    },
-                },
-            },
-        },
-        {
-            version = "5.60",
-            date = "2026-06-19",
-            sections = {
-                {
-                    title = "Fixes",
-                    bullets = {
-                        "Removed the obsolete Important aura filter after WoW 12.0.7.",
-                        "Added new aura filters for unit and group frames: Cancelable, Not Cancelable, Raid in Combat, Crowd Control, Big Defensive, External Defensive, and Player Dispellable.",
-                        "Fixed group-frame right-click unit menus so the context menu opens directly in instanced combat without needing a prior left-click target selection.",
-                    },
-                },
-            },
-        },
-        {
-            version = "5.59",
-            date = "2026-06-13",
-            sections = {
-                {
-                    title = "WoW 12.0.7 Fixes",
-                    bullets = {
-                        "Fixed compound unit event routing for Target of Target and Focus Target so targettarget and focustarget updates keep health, power, name, and dependent visuals current even when client-specific RegisterUnitEvent filtering falls back to broader unit events.",
-                        "Fixed Interrupt Ready box and border repaint caching so secret RGBA values from cooldown color evaluation are never compared in Lua, preventing rare _kickReadyFillR taint errors during target, focus, or boss castbar updates.",
                     },
                 },
             },
