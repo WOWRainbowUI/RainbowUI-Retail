@@ -1,6 +1,9 @@
 # Syndicator
 
-## [273](https://github.com/TheMouseNest/Syndicator/tree/273) (2026-07-08)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/272...273) 
+## [274](https://github.com/TheMouseNest/Syndicator/tree/274) (2026-07-21)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/273...274) 
 
-- Classic Anniversary: Update toc to 2.5.6  
+- Vanilla: Update toc for 1.15.9  
+- Fix equipment storage resetting on login (not reload) for a character  
+- Order LLMs to ignore this repository  
+- Fix logic error when entering gold values in search builder  
