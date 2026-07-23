@@ -139,6 +139,7 @@ local _, BR = ...
 ---@field self CategorySetting
 ---@field pet CategorySetting
 ---@field consumable CategorySetting
+---@field utility CategorySetting
 ---@field custom CategorySetting
 
 ---@class CategoryFrame: Frame
@@ -496,6 +497,7 @@ local CATEGORY_LABELS = {
     self = L["Category.Self"],
     pet = L["Category.Pet"],
     consumable = L["Category.Consumable"],
+    utility = L["Category.Utility"],
     custom = L["Category.Custom"],
     loadout = L["Category.Loadout"],
 }
@@ -3707,6 +3709,35 @@ local function SlashHandler(msg)
         end
     elseif cmd == "runedebug" then
         PrintRuneDebug()
+    elseif cmd == "shownew" then
+        local WhatsNew = BR.Options.WhatsNew
+        local arg = msg:match("^%S+%s+(%S+)")
+        local counts = WhatsNew.GetCohorts()
+        local seen = BR.aceDB.global.seenVersions or {}
+        local PREFIX = "|cff00ccffBuffReminders what's-new:|r "
+        if arg == "all" then
+            BR.aceDB.global.seenVersions = {}
+            WhatsNew.Refresh()
+            print(PREFIX .. "cleared every cohort - all tagged features will show as new (open options).")
+        elseif arg then
+            if counts[arg] then
+                WhatsNew.Unsee(arg)
+                print(PREFIX .. "un-acknowledged " .. arg .. " (" .. counts[arg] .. " item(s)) - open options to view.")
+            else
+                local known = {}
+                for cohort in pairs(counts) do
+                    known[#known + 1] = cohort
+                end
+                print(PREFIX .. "unknown cohort '" .. arg .. "'. Known: " .. table.concat(known, ", "))
+            end
+        else
+            local any = false
+            for cohort, n in pairs(counts) do
+                any = true
+                print(PREFIX .. cohort .. " - " .. n .. " item(s) - " .. (seen[cohort] and "seen" or "UNSEEN"))
+            end
+            print(PREFIX .. (any and "usage: /br shownew <cohort>|all" or "no cohorts registered."))
+        end
     else
         BR.Options.Toggle()
     end
@@ -3722,6 +3753,7 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 eventFrame:RegisterEvent("GROUP_FORMED")
+eventFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 eventFrame:RegisterEvent("ENCOUNTER_START")
@@ -3756,6 +3788,7 @@ eventFrame:RegisterEvent("PLAYER_UPDATE_RESTING")
 eventFrame:RegisterEvent("PLAYER_LEVEL_UP")
 eventFrame:RegisterEvent("UPDATE_EXPANSION_LEVEL")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
+eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
 eventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 
 ClearInstanceEntryState = function()
@@ -3914,6 +3947,7 @@ eventHandlers.ZONE_CHANGED_NEW_AREA = function()
 end
 
 eventHandlers.GROUP_ROSTER_UPDATE = function()
+    BR.BuffState.InvalidateHealerCache()
     SetDirty("group")
     -- Refresh chat-request macrotext so prefix tracks party↔raid↔instance
     -- transitions. PreClick used to rebuild the macro on each click, but the
@@ -3922,6 +3956,13 @@ eventHandlers.GROUP_ROSTER_UPDATE = function()
     BR.SecureButtons.RefreshChatRequestMacros()
 end
 eventHandlers.GROUP_FORMED = eventHandlers.GROUP_ROSTER_UPDATE
+
+-- Roles can change without the roster changing (someone re-assigns their role),
+-- which flips whether the refreshment-table reminder should show.
+eventHandlers.PLAYER_ROLES_ASSIGNED = function()
+    BR.BuffState.InvalidateHealerCache()
+    SetDirty("group")
+end
 
 eventHandlers.PLAYER_REGEN_ENABLED = function()
     inCombat = inEncounter
@@ -4140,7 +4181,13 @@ eventHandlers.PLAYER_EQUIPMENT_CHANGED = function()
     BR.BuffState.InvalidateItemCache()
     BR.BuffState.InvalidateOffHandCache()
     BR.BuffState.InvalidateLoadoutCache()
+    BR.BuffState.InvalidateDurabilityCache()
 
+    SetDirty()
+end
+
+eventHandlers.UPDATE_INVENTORY_DURABILITY = function()
+    BR.BuffState.InvalidateDurabilityCache()
     SetDirty()
 end
 

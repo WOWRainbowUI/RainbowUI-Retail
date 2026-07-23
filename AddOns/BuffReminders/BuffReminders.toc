@@ -3,7 +3,7 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.2.2
+## Version: v6.3.0
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
@@ -56,6 +56,7 @@ Display\Movers.lua
 Display\SecureButtons.lua
 Core\Bootstrap.lua
 Options\Context.lua
+Options\WhatsNew.lua
 Options\Dialogs\Glow.lua
 Options\Dialogs\CustomBuff.lua
 Options\Dialogs\LoadoutReminder.lua
