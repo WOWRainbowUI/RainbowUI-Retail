@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.1-RC1) add-on for World of Warcraft UI
+    Decursive (v 2.8.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-06-05T09:33:33Z
+    This file was last updated on 2026-07-19T16:40:48Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -612,7 +612,7 @@ do
                 self:checkForDebuff(UnitID)
             end
 
-            if o_auraUpdateInfo.addedAuras then
+            if o_auraUpdateInfo.addedAuras and canaccessvalue(o_auraUpdateInfo.addedAuras) then
                 for _, aura in pairs(o_auraUpdateInfo.addedAuras) do
 
                     local secretedName = canaccessvalue(aura.name) and aura.name or "*secret*"
@@ -1284,6 +1284,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.8.1-RC1";
+T._LoadedFiles["Dcr_Events.lua"] = "2.8.1";
 
 -- The Great Below
