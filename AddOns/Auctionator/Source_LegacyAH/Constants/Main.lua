@@ -15,3 +15,8 @@ Auctionator.Constants.AuctionItemInfo = {
 
 Auctionator.Constants.PriceIncreaseWarningDuration = 5
 Auctionator.Constants.PriceIncreaseWarningThreshold = 40
+
+--FIXME: Added to correct Blizzard error
+if CASTING_BAR_ALPHA_STEP == nil then
+  CASTING_BAR_ALPHA_STEP = 0.05
+end

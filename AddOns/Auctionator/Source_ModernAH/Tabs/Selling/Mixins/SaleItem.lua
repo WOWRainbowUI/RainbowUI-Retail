@@ -303,8 +303,10 @@ function AuctionatorSaleItemMixin:UpdateVisuals()
     -- Fade the (optionally visible) bid price if posting a commodity
     if self.itemInfo.isCommodity then
       self.BidPrice:SetAlpha(0.5)
+      self.Price.MoneyInput:SetNextEditBox(nil)
     else
       self.BidPrice:SetAlpha(1)
+      self.Price.MoneyInput:SetNextEditBox(self.BidPrice.MoneyInput.GoldBox)
     end
 
   else
