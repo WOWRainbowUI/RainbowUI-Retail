@@ -23,7 +23,7 @@ local max = math.max
 
 BR.Migrations = {}
 
-BR.Migrations.DB_VERSION = 47
+BR.Migrations.DB_VERSION = 48
 
 -- Run pending migrations against the profile `db`, using code `defaults` for
 -- fallbacks. `ctx` carries the few Display.lua file-scope deps the
@@ -1023,6 +1023,11 @@ function BR.Migrations.Run(db, defaults, ctx)
                 end
             end
         end,
+
+        -- [48] (no-op, retired: repairGear/mageFood now ship off-by-default via the
+        -- buff def's `defaultEnabled = false`, resolved at read time by
+        -- StateHelpers.IsBuffEnabled - no per-profile seeding needed)
+        [48] = function() end,
     }
 
     -- Run pending migrations

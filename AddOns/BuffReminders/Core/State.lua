@@ -105,6 +105,7 @@ local TargetedBuffs = BUFF_TABLES.targeted
 local SelfBuffs = BUFF_TABLES.self
 local PetBuffs = BUFF_TABLES.pet
 local Consumables = BUFF_TABLES.consumable
+local UtilityBuffs = BUFF_TABLES.utility
 local CustomBuffs = BUFF_TABLES.custom
 local LoadoutRules = BUFF_TABLES.loadout
 
@@ -237,6 +238,13 @@ local cachedOffHandType = nil -- nil = not yet checked, "weapon" | "shield" | "n
 ---@type table<number, boolean>
 local cachedItemOwnership = {}
 
+-- Lowest equipped-item durability ratio (0-1). The 18-slot scan is a read-only
+-- lookup whose answer only changes on durability / equipment events, so it's
+-- memoized and reused on the fallback ticker instead of re-scanned every refresh.
+-- Invalidated on UPDATE_INVENTORY_DURABILITY, PLAYER_EQUIPMENT_CHANGED.
+---@type number|nil
+local cachedLowestDurability = nil
+
 -- Loadout state cache: rule.key -> { satisfied, icon }. The detection calls
 -- (IsSatisfied / GetRuleIcon) are read-only WoW lookups whose answers only change
 -- on spec / talent / equipment / equipment-set events, so they're cached here and
@@ -295,21 +303,23 @@ local DRUID_TRAVEL_FORM_IDS = {
     [27] = true, -- Flight Form
 }
 
--- Wrong-warrior-stance cache + derived values (all invalidated together on
--- UPDATE_SHAPESHIFT_FORM(S), PLAYER_SPECIALIZATION_CHANGED, TRAIT_CONFIG_UPDATED,
--- SPELLS_CHANGED, PLAYER_ENTERING_WORLD).
----@type boolean|nil
-local cachedWrongStanceStatus = nil
----@type number|false|nil  -- false = computed and absent (non-warrior)
-local cachedExpectedStanceID = nil
----@type number|string|false|nil  -- false = computed and absent (unstanced)
-local cachedCurrentStanceIcon = nil
----@type boolean|nil
-local cachedShadowFormActive = nil
----@type boolean|nil
-local cachedWrongDruidFormStatus = nil
----@type number|false|nil  -- false = computed and absent (non-druid or non-feral/balance)
-local cachedExpectedDruidFormID = nil
+-- Shapeshift/stance cache: warrior wrong-stance + priest shadowform + druid
+-- wrong-form derived values, all read off the same active-stance source and all
+-- invalidated together (InvalidateStanceCache) on UPDATE_SHAPESHIFT_FORM(S),
+-- PLAYER_SPECIALIZATION_CHANGED, TRAIT_CONFIG_UPDATED, SPELLS_CHANGED,
+-- PLAYER_ENTERING_WORLD. `false` on a field = computed and absent; nil = not yet
+-- computed. `activeSpellID` memoizes GetActiveStanceSpellID so a warrior/druid
+-- refresh resolves the active stance once, not per derived value.
+---@class StanceCache
+---@field wrongStance boolean|nil
+---@field expectedStanceID number|false|nil     -- false = non-warrior
+---@field currentStanceIcon number|string|false|nil  -- false = unstanced
+---@field shadowFormActive boolean|nil
+---@field wrongDruidForm boolean|nil
+---@field expectedDruidFormID number|false|nil  -- false = non-druid or non-feral/balance
+---@field activeSpellID number|false|nil        -- false = unstanced; nil = not computed / transient
+---@type StanceCache
+local stanceCache = {}
 
 -- Weapon enchant info for current refresh cycle (set once per BuffState.Refresh())
 local currentWeaponEnchants = {
@@ -336,6 +346,9 @@ local currentValidUnits = {}
 -- scenario solo such as rituals (reports 1 with only the player as the lone member).
 -- Real groups (>= 2 members) set this to false.
 local cachedIsAlone = true
+-- Whether any group member is assigned HEALER (nil = not computed this session yet).
+-- Invalidated on GROUP_ROSTER_UPDATE / PLAYER_ROLES_ASSIGNED (see Display.lua).
+local cachedHealerInGroup = nil
 
 -- Spec cache: playerName -> specId (populated by LibSpecialization callbacks for allies,
 -- and by BuildValidUnitCache for the local player via GetPlayerSpecId())
@@ -918,12 +931,39 @@ local function GetBuffSettingKey(buff)
     return buff.groupId or buff.key
 end
 
----Check if a buff is enabled (defaults to true if not explicitly set to false)
----@param key string
+-- Ship defaults for opt-in buffs. Built lazily from the buff definitions'
+-- `defaultEnabled = false` field, keyed by setting key (groupId or key). A buff
+-- absent here ships enabled. Resolving the default at read time (rather than
+-- seeding `false` into every profile) keeps the buff def the single source of
+-- truth and covers profiles created after install, which never run migrations.
+---@type table<string, boolean>|nil
+local defaultEnabledByKey = nil
+local function GetDefaultEnabledLookup()
+    local lookup = defaultEnabledByKey
+    if not lookup then
+        lookup = {}
+        for _, category in pairs(BUFF_TABLES) do
+            for _, buff in ipairs(category) do
+                if buff.defaultEnabled == false then
+                    lookup[buff.groupId or buff.key] = false
+                end
+            end
+        end
+        defaultEnabledByKey = lookup
+    end
+    return lookup
+end
+
+---Check if a buff is enabled. An explicit user choice wins; otherwise the buff's
+---declared ship default applies (enabled unless the def sets defaultEnabled=false).
+---@param key string setting key (groupId or individual key)
 ---@return boolean
 local function IsBuffEnabled(key)
-    local db = BR.profile
-    return db.enabledBuffs[key] ~= false
+    local stored = BR.profile.enabledBuffs[key]
+    if stored ~= nil then
+        return stored
+    end
+    return GetDefaultEnabledLookup()[key] ~= false
 end
 
 ---Get the current content type based on instance/zone (cached)
@@ -2141,7 +2181,7 @@ function BuffState.Refresh(refreshMode)
             local settingKey = buff.groupId or buff.key
 
             if buff.showOnInstanceEntry then
-                -- Instance entry only buff (e.g., soulwell reminder) - no normal buff checks
+                -- Self buff shown only briefly on zone-in - no normal buff checks.
                 -- Gate on cheap checks first; customCheck (API call) only when everything else passes
                 if
                     inInstanceEntry
@@ -2204,6 +2244,33 @@ function BuffState.Refresh(refreshMode)
                         end
                     end
                 end
+            end
+        end
+    end
+
+    -- Process utility reminders (chores like drop-a-table / repair, not auras):
+    -- class-gated + customCheck-driven (cooldown / durability). showOnInstanceEntry
+    -- ones surface only briefly on zone-in; others show whenever customCheck says so.
+    -- Not group-dependent, so full-refresh only.
+    if not groupOnly then
+        local utilityVisible = IsCategoryVisibleForContent("utility")
+        local _, utilityMissGlow = GetCategoryGlowSettings("utility")
+        local repairHiddenInCombat = inCombat and db.defaults and db.defaults.repairHideInCombat ~= false
+        for i, buff in ipairs(UtilityBuffs) do
+            local entry = GetOrCreateEntry(buff.key, "utility", i)
+            local settingKey = buff.groupId or buff.key
+            local entryOk = not buff.showOnInstanceEntry or inInstanceEntry
+            if
+                entryOk
+                and not (repairHiddenInCombat and buff.key == "repairGear")
+                and utilityVisible
+                and (not buff.class or buff.class == playerClass)
+                and IsBuffEnabled(settingKey)
+                and PassesPreChecks(buff, nil, db, trackingMode)
+                and (not buff.customCheck or buff.customCheck(isAuraRestricted))
+            then
+                SetEntryText(entry, buff.overlayText, utilityMissGlow)
+                BR.Helpers.ApplyDynamicIcon(entry, buff)
             end
         end
     end
@@ -2392,6 +2459,8 @@ function BuffState.Refresh(refreshMode)
     -- Process consumable buffs
     if not groupOnly then
         local consumableVisible = IsCategoryVisibleForContent("consumable")
+        -- Delve food ignores the consumable ready-check-only filter (still respects content gates)
+        local consumableVisibleNoReadyCheck = IsCategoryVisibleForContent("consumable", true)
         local consExGlow, consMissGlow, consThreshold = GetCategoryGlowSettings("consumable")
         local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
         local freeMode = db.defaults and db.defaults.freeConsumableMode or "override"
@@ -2402,6 +2471,7 @@ function BuffState.Refresh(refreshMode)
         -- Dismiss overrides all consumable visibility (transient, resets on instance change)
         if consumablesDismissed then
             consumableVisible = false
+            consumableVisibleNoReadyCheck = false
             freeVisible = false
             consumableContentVisible = false
         end
@@ -2410,13 +2480,14 @@ function BuffState.Refresh(refreshMode)
         for i, buff in ipairs(Consumables) do
             local entry = GetOrCreateEntry(buff.key, "consumable", i)
             local settingKey = buff.groupId or buff.key
+            local catVisible = buff.ignoresReadyCheckFilter and consumableVisibleNoReadyCheck or consumableVisible
 
             if buff.showOnInstanceEntry and (db.defaults and db.defaults.delveFoodTimer) then
                 -- Instance entry only consumable (e.g., delve food) - show for 30s on entry then auto-hide
                 -- Combat safety handled by Display layer clearing entry state on PLAYER_REGEN_DISABLED
                 if
                     inDelveEntry
-                    and consumableVisible
+                    and catVisible
                     and IsBuffEnabled(settingKey)
                     and PassesPreChecks(buff, nil, db, trackingMode)
                 then
@@ -2441,7 +2512,7 @@ function BuffState.Refresh(refreshMode)
                 -- Gate on cheap boolean checks first; defer IsAuraTrackable and PassesPreChecks
                 if
                     IsBuffEnabled(settingKey)
-                    and (consumableVisible or isFreeConsumable or (buff.freeConsumable and consumableContentVisible))
+                    and (catVisible or isFreeConsumable or (buff.freeConsumable and consumableContentVisible))
                     and not (competitivePvP and buff.disabledInCompetitivePvP)
                     and freeReadyCheckOk
                     and hasCaster
@@ -2781,6 +2852,32 @@ function BuffState.IsAlone()
     return GetNumGroupMembers() <= 1
 end
 
+---Whether any group member is assigned the HEALER role (cached; invalidated on
+---roster / role-assignment events). The sole caller is the refreshment-table
+---reminder's customCheck, which returns on its isRestricted guard before reaching
+---here, so the UnitGroupRolesAssigned scan only ever runs out of restricted
+---contexts where roles are plain - caching adds no secret-value exposure.
+---@return boolean
+function BuffState.HasHealerInGroup()
+    if cachedHealerInGroup ~= nil then
+        return cachedHealerInGroup
+    end
+    local result = false
+    local num = GetNumGroupMembers()
+    if num > 1 then
+        local inRaid = IsInRaid()
+        for i = 1, num do
+            local unit = inRaid and ("raid" .. i) or (i == 1 and "player" or "party" .. (i - 1))
+            if UnitExists(unit) and UnitGroupRolesAssigned(unit) == "HEALER" then
+                result = true
+                break
+            end
+        end
+    end
+    cachedHealerInGroup = result
+    return result
+end
+
 ---Whether an added aura is one the addon tracks on group members. A secret
 ---spellId (non-whitelisted aura in a restricted context) reads as nil and is
 ---treated as not-tracked - fail-closed (a secret spellId cannot be a whitelisted
@@ -2867,6 +2964,11 @@ end
 function BuffState.InvalidateSpecCache()
     cachedSpecId = nil
     cachedPlayerRole = nil
+end
+
+---Invalidate group-healer cache (call on GROUP_ROSTER_UPDATE, PLAYER_ROLES_ASSIGNED)
+function BuffState.InvalidateHealerCache()
+    cachedHealerInGroup = nil
 end
 
 ---Get the player's current role (cached, invalidated on spec change)
@@ -2956,6 +3058,32 @@ function BuffState.InvalidateItemCache()
     cachedItemCounts = {}
 end
 
+---Lowest equipped-item durability ratio (0-1; 1 when nothing is damaged), cached.
+---Slots without durability (neck/rings/trinkets/shirt/tabard) return nil and are skipped.
+---@return number
+function BuffState.GetLowestDurability()
+    if cachedLowestDurability ~= nil then
+        return cachedLowestDurability
+    end
+    local lowest = 1
+    for slot = 1, 18 do
+        local cur, max = GetInventoryItemDurability(slot)
+        if cur and max and max > 0 then
+            local pct = cur / max
+            if pct < lowest then
+                lowest = pct
+            end
+        end
+    end
+    cachedLowestDurability = lowest
+    return lowest
+end
+
+---Invalidate the durability cache (call on UPDATE_INVENTORY_DURABILITY, PLAYER_EQUIPMENT_CHANGED)
+function BuffState.InvalidateDurabilityCache()
+    cachedLowestDurability = nil
+end
+
 ---Invalidate loadout state cache (call on PLAYER_SPECIALIZATION_CHANGED,
 ---TRAIT_CONFIG_UPDATED, SPELLS_CHANGED, PLAYER_EQUIPMENT_CHANGED, EQUIPMENT_SETS_CHANGED)
 function BuffState.InvalidateLoadoutCache()
@@ -2998,15 +3126,25 @@ function BuffState.InvalidatePetCache()
     cachedWrongPetStatus = nil
 end
 
----Resolve the active stance's spell ID, or nil if unstanced/unresolved.
+---Resolve the active stance's spell ID, or nil if unstanced/unresolved (cached).
+---Unstanced (form 0) is a stable result and cached as `false`; a form set but
+---with unresolved spell data is a transient load state left uncached to retry.
 ---@return number?
 local function GetActiveStanceSpellID()
+    if stanceCache.activeSpellID ~= nil then
+        return stanceCache.activeSpellID or nil
+    end
     local active = GetShapeshiftForm()
     if not active or active == 0 then
+        stanceCache.activeSpellID = false
         return nil
     end
     local _, _, _, spellID = GetShapeshiftFormInfo(active)
-    return type(spellID) == "number" and spellID or nil
+    if type(spellID) == "number" then
+        stanceCache.activeSpellID = spellID
+        return spellID
+    end
+    return nil
 end
 
 ---Check whether a warrior's active stance does not match their spec's
@@ -3014,29 +3152,29 @@ end
 ---or in a stance that doesn't fit the current spec.
 ---@return boolean
 function BuffState.IsWrongWarriorStance()
-    if cachedWrongStanceStatus ~= nil then
-        return cachedWrongStanceStatus
+    if stanceCache.wrongStance ~= nil then
+        return stanceCache.wrongStance
     end
     if playerClass ~= "WARRIOR" then
-        cachedWrongStanceStatus = false
+        stanceCache.wrongStance = false
         return false
     end
     local expected = WARRIOR_EXPECTED_STANCES[GetPlayerSpecId()]
     if not expected then
-        cachedWrongStanceStatus = false
+        stanceCache.wrongStance = false
         return false
     end
     local activeSpellID = GetActiveStanceSpellID()
     if not activeSpellID then
         -- Unstanced (form 0) is wrong; unresolved form data leaves cache nil to retry.
         if GetShapeshiftForm() == 0 then
-            cachedWrongStanceStatus = true
+            stanceCache.wrongStance = true
             return true
         end
         return false
     end
-    cachedWrongStanceStatus = not expected[activeSpellID]
-    return cachedWrongStanceStatus
+    stanceCache.wrongStance = not expected[activeSpellID]
+    return stanceCache.wrongStance
 end
 
 ---Preferred stance spell ID for the current warrior spec (Defensive for Protection,
@@ -3044,37 +3182,37 @@ end
 ---fallback icon when unstanced. Returns nil for non-warriors. Cached.
 ---@return number?
 function BuffState.GetExpectedWarriorStanceID()
-    if cachedExpectedStanceID ~= nil then
-        return cachedExpectedStanceID or nil
+    if stanceCache.expectedStanceID ~= nil then
+        return stanceCache.expectedStanceID or nil
     end
     if playerClass ~= "WARRIOR" then
-        cachedExpectedStanceID = false
+        stanceCache.expectedStanceID = false
         return nil
     end
     local specId = GetPlayerSpecId()
     if specId == 73 then
-        cachedExpectedStanceID = STANCE_DEFENSIVE
+        stanceCache.expectedStanceID = STANCE_DEFENSIVE
     elseif specId == 72 and IsPlayerSpell(STANCE_BERSERKER) then
-        cachedExpectedStanceID = STANCE_BERSERKER
+        stanceCache.expectedStanceID = STANCE_BERSERKER
     else
-        cachedExpectedStanceID = STANCE_BATTLE
+        stanceCache.expectedStanceID = STANCE_BATTLE
     end
-    return cachedExpectedStanceID
+    return stanceCache.expectedStanceID or nil
 end
 
 ---Texture for the warrior's currently active stance, or nil if unstanced. Cached.
 ---@return number|string|nil
 function BuffState.GetCurrentWarriorStanceIcon()
-    if cachedCurrentStanceIcon ~= nil then
-        return cachedCurrentStanceIcon or nil
+    if stanceCache.currentStanceIcon ~= nil then
+        return stanceCache.currentStanceIcon or nil
     end
     local activeSpellID = GetActiveStanceSpellID()
     if not activeSpellID then
-        cachedCurrentStanceIcon = false
+        stanceCache.currentStanceIcon = false
         return nil
     end
-    cachedCurrentStanceIcon = C_Spell.GetSpellTexture(activeSpellID) or false
-    return cachedCurrentStanceIcon or nil
+    stanceCache.currentStanceIcon = C_Spell.GetSpellTexture(activeSpellID) or false
+    return stanceCache.currentStanceIcon or nil
 end
 
 ---Whether the priest is currently in Shadowform (or Voidform, which lives in
@@ -3082,11 +3220,11 @@ end
 ---the stance API is unaffected by combat/encounter/M+ aura restrictions.
 ---@return boolean
 function BuffState.IsShadowFormActive()
-    if cachedShadowFormActive ~= nil then
-        return cachedShadowFormActive
+    if stanceCache.shadowFormActive ~= nil then
+        return stanceCache.shadowFormActive
     end
     if playerClass ~= "PRIEST" then
-        cachedShadowFormActive = false
+        stanceCache.shadowFormActive = false
         return false
     end
     local activeSpellID = GetActiveStanceSpellID()
@@ -3094,13 +3232,13 @@ function BuffState.IsShadowFormActive()
         -- Form 0 = no shadowform (cache); non-zero with unresolved spell data
         -- happens transiently on load - return safe default and retry next call.
         if GetShapeshiftForm() == 0 then
-            cachedShadowFormActive = false
+            stanceCache.shadowFormActive = false
             return false
         end
         return true
     end
-    cachedShadowFormActive = activeSpellID == SHADOWFORM or activeSpellID == VOIDFORM
-    return cachedShadowFormActive
+    stanceCache.shadowFormActive = activeSpellID == SHADOWFORM or activeSpellID == VOIDFORM
+    return stanceCache.shadowFormActive
 end
 
 ---Whether a Feral or Balance druid is in any form other than their spec's
@@ -3111,7 +3249,7 @@ end
 ---@return boolean
 function BuffState.IsWrongDruidForm()
     if playerClass ~= "DRUID" then
-        cachedWrongDruidFormStatus = false
+        stanceCache.wrongDruidForm = false
         return false
     end
     -- Suppress while intentionally traveling: any travel-family form
@@ -3121,12 +3259,12 @@ function BuffState.IsWrongDruidForm()
     if BR.profile.druidIgnoreTravelForm ~= false and (DRUID_TRAVEL_FORM_IDS[GetShapeshiftFormID()] or IsMounted()) then
         return false
     end
-    if cachedWrongDruidFormStatus ~= nil then
-        return cachedWrongDruidFormStatus
+    if stanceCache.wrongDruidForm ~= nil then
+        return stanceCache.wrongDruidForm
     end
     local expected = DRUID_EXPECTED_FORMS[GetPlayerSpecId()]
     if not expected then
-        cachedWrongDruidFormStatus = false
+        stanceCache.wrongDruidForm = false
         return false
     end
     local activeSpellID = GetActiveStanceSpellID()
@@ -3134,28 +3272,28 @@ function BuffState.IsWrongDruidForm()
         -- Unshifted (form 0) is wrong; non-zero with unresolved spell data is
         -- a transient load state - return safe default and retry next call.
         if GetShapeshiftForm() == 0 then
-            cachedWrongDruidFormStatus = true
+            stanceCache.wrongDruidForm = true
             return true
         end
         return false
     end
-    cachedWrongDruidFormStatus = activeSpellID ~= expected
-    return cachedWrongDruidFormStatus
+    stanceCache.wrongDruidForm = activeSpellID ~= expected
+    return stanceCache.wrongDruidForm
 end
 
 ---Expected form spell ID for the current druid spec (Cat Form for Feral,
 ---Moonkin Form for Balance). Returns nil for non-druids and other specs. Cached.
 ---@return number?
 function BuffState.GetExpectedDruidFormID()
-    if cachedExpectedDruidFormID ~= nil then
-        return cachedExpectedDruidFormID or nil
+    if stanceCache.expectedDruidFormID ~= nil then
+        return stanceCache.expectedDruidFormID or nil
     end
     if playerClass ~= "DRUID" then
-        cachedExpectedDruidFormID = false
+        stanceCache.expectedDruidFormID = false
         return nil
     end
-    cachedExpectedDruidFormID = DRUID_EXPECTED_FORMS[GetPlayerSpecId()] or false
-    return cachedExpectedDruidFormID or nil
+    stanceCache.expectedDruidFormID = DRUID_EXPECTED_FORMS[GetPlayerSpecId()] or false
+    return stanceCache.expectedDruidFormID or nil
 end
 
 ---Invalidate all stance caches (warrior wrong-stance + priest shadowform +
@@ -3163,12 +3301,7 @@ end
 ---PLAYER_SPECIALIZATION_CHANGED, TRAIT_CONFIG_UPDATED, SPELLS_CHANGED,
 ---PLAYER_ENTERING_WORLD.
 function BuffState.InvalidateStanceCache()
-    cachedWrongStanceStatus = nil
-    cachedExpectedStanceID = nil
-    cachedCurrentStanceIcon = nil
-    cachedShadowFormActive = nil
-    cachedWrongDruidFormStatus = nil
-    cachedExpectedDruidFormID = nil
+    wipe(stanceCache)
 end
 
 -- ============================================================================

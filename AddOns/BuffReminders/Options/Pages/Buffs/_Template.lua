@@ -76,9 +76,9 @@ function Template.Build(content, scrollFrame, category, opts)
         Sections.RaidIcons(ctx, layout)
     end
     Sections.ClickToCast(ctx, layout)
-    -- Pet reminders have no expiration concept (a pet is present or missing),
-    -- so the Timing section is skipped there.
-    if category ~= "pet" then
+    -- Pet and utility reminders have no expiration concept (a pet is present or
+    -- missing; utility items are chores, not auras), so Timing is skipped there.
+    if category ~= "pet" and category ~= "utility" then
         Sections.Timing(ctx, layout)
     end
     Sections.Layout(ctx, layout)

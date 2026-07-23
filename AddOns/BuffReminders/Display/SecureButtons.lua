@@ -158,7 +158,8 @@ local lastTargetTooltip
 ---@param anchor table Frame to anchor to
 ---@param name string Character name
 ---@param class? string English class token
-local function ShowLastTargetTooltip(anchor, name, class)
+---@param hint? string Gray auxiliary text appended after the name (e.g. "(not in group)")
+local function ShowLastTargetTooltip(anchor, name, class, hint)
     if not lastTargetTooltip then
         local fontPath = BR.Display.GetFontPath()
         local outlineFlag = BR.Display.GetOutline()
@@ -185,7 +186,8 @@ local function ShowLastTargetTooltip(anchor, name, class)
             r, g, b = c.r, c.g, c.b
         end
     end
-    tip.name:SetText(name)
+    -- Color escapes in the hint override SetTextColor for just that portion
+    tip.name:SetText(hint and (name .. " |cff888888" .. hint .. "|r") or name)
     tip.name:SetTextColor(r, g, b)
     -- Size to fit text
     local textWidth = tip.name:GetStringWidth()
@@ -395,8 +397,24 @@ local function CreateClickOverlay(frame)
                 return
             end
             local name, class = BR.TargetMemory.Get(frame.buffDef.key)
+            -- A user-pinned target overrides the automatic memory (class color
+            -- is only known when the pin matches the remembered player). If the
+            -- pinned player isn't in the group, say so - the click macro will be
+            -- a no-op and the tooltip should explain why.
+            local hint
+            local pinned = frame.buffDef.pinnedTarget and frame.buffDef.pinnedTarget()
+            if pinned then
+                if pinned ~= name then
+                    class = nil
+                end
+                name = pinned
+                local ok, inGroup = pcall(UnitExists, pinned)
+                if not (ok and inGroup) then
+                    hint = L["Tooltip.PinNotInGroup"]
+                end
+            end
             if name then
-                ShowLastTargetTooltip(overlay, name, class)
+                ShowLastTargetTooltip(overlay, name, class, hint)
             end
             return
         end
