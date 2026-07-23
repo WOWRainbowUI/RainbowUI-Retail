@@ -3178,15 +3178,6 @@ end)
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
-LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
-LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
-LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
-LSM:Register("statusbar", "Blizzard Retail Bar Crop", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop]])
-LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop2]])
-LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\smooth]])
-LSM:Register("sound", "Lossa Countered", [[Interface\AddOns\BetterBlizzFrames\media\LossaCountered.ogg]])
-
-
 local texture = "Interface\\Addons\\BetterBlizzPlates\\media\\DragonflightTextureHD"
 local manaTexture = "Interface\\Addons\\BetterBlizzPlates\\media\\blizzTex\\BlizzardRetailBarCrop2"
 BBF.manaTexture = manaTexture

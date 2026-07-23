@@ -936,16 +936,6 @@ function BBF.ChangeCastbarSizes()
     adjustCastBarBorder(CastingBarFrame, CastingBarFrame.Flash, 15, nil, nil, nil, 11)
     adjustCastBarBorder(CastingBarFrame, CastingBarFrame.BorderShield, 12, true)
 
-    if BBF.isEra then
-        BBF.MoveRegion(CastingBarFrame, "CENTER", UIParent, "BOTTOM", BetterBlizzFramesDB.playerCastBarXPos, BetterBlizzFramesDB.playerCastBarYPos + 157)
-        if CastingBarFrame.ignoreFramePositionManager and not bugNotify then
-            bugNotify = true
-            C_Timer.After(3, function() 
-                BBF.Print("\n" .. L["Print_Cast_Bar_Underneath_Warning"])
-            end)
-        end
-    end
-
     --
     CastingBarFrameMiscAdjustments()
 

@@ -321,24 +321,27 @@ function BBF.DarkmodeFrames(bypass)
     UpdateUnitFrameDarkModeBorderColors(vertexColor)
 
     if BetterBlizzFramesDB.darkModeUi then
-        local function DarkModeBuffBarCDM(c)
-            if not c.Bar then
-                return
-            end
+        local function DarkModeCDMBuffBars()
+            if not BuffBarCooldownViewer then return end
 
-            local bar = c.Bar
-
-            for _, r in ipairs({ bar:GetRegions() }) do
-                if r.GetAtlas and r:GetAtlas() == "UI-HUD-CoolDownManager-Bar-BG" then
-                    r:SetDesaturated(true)
-                    r:SetVertexColor(vertexColor, vertexColor, vertexColor)
+            if not BBF.DarkModeCDMBuffBar then
+                local function ColorBuffBars()
+                    for itemFrame in BuffBarCooldownViewer.itemFramePool:EnumerateActive() do
+                        itemFrame.Bar.BarBG:SetDesaturated(true)
+                        itemFrame.Bar.BarBG:SetVertexColor(vertexColor, vertexColor, vertexColor)
+                    end
                 end
+                hooksecurefunc(BuffBarCooldownViewer, "OnAcquireItemFrame", function(self, itemFrame)
+                    if itemFrame.darkModeBar then return end
+                    itemFrame.Bar.BarBG:SetDesaturated(true)
+                    itemFrame.Bar.BarBG:SetVertexColor(vertexColor, vertexColor, vertexColor)
+                    itemFrame.darkModeBar = true
+                end)
+                ColorBuffBars()
+                BBF.DarkModeCDMBuffBar = true
             end
         end
-
-        for _, child in ipairs({ BuffBarCooldownViewer:GetChildren() }) do
-            DarkModeBuffBarCDM(child)
-        end
+        DarkModeCDMBuffBars()
     end
 
     if (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeGameTooltip) or BBF.darkModeTooltips then

@@ -276,6 +276,16 @@ BBF.LSM = setmetatable({}, {
 
 BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
 
+LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
+LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
+LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
+LSM:Register("statusbar", "Blizzard Retail Bar Crop", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop]])
+LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop2]])
+LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\smooth]])
+LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\Minimalist]])
+LSM:Register("sound", "Lossa Countered", [[Interface\AddOns\BetterBlizzFrames\media\LossaCountered.ogg]])
+LSM:Register("font", "PT Sans Narrow Bold", "Interface\\AddOns\\BetterBlizzFrames\\media\\PTSansNarrow-Bold.ttf", BBF.allLocales)
+
 function BBF.AddFont(name)
 	if type(name) ~= "string" then
 		C_Timer.After(4, function()
