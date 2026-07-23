@@ -74,6 +74,7 @@ L.Statistic_Kills					= "Victories:"
 L.Statistic_Wipes					= "Wipes:"
 L.Statistic_Incompletes				= "Incompletes:"--For scenarios, TODO, figure out a clean way to replace any Statistic_Wipes with Statistic_Incompletes for scenario mods
 L.Statistic_BestKill				= "Best Victory:"
+L.Statistic_BestClear			    = "Best Clear:"
 L.Statistic_BestRank				= "Best Rank:"--Maybe not get used, not sure yet, localize anyways
 
 -- Tab: General Options
@@ -690,6 +691,10 @@ L.NPIconAnchorPoint		 			= "Icon Anchor Point"
 L.NPDemo							= "Test (Be near nameplates)"
 L.FontTypeTimer						= "Select timer font"
 L.FontTypeText						= "Select text font"
+L.AuraDurationFontSize				= "Aura duration font size: %d"
+L.AuraStackFontSize					= "Aura stack font size: %d"
+L.AuraShowStacks					= "Show stack text"
+L.AuraShowDispelBorder				= "Show dispel border"
 
 L.Area_NPGlow						= "Glow (Note: Only configures glow when not using Plater.)"
 L.NPIcon_GlowBehavior				= "Cooldown Icon Glow Behavior"

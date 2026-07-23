@@ -17,7 +17,15 @@ spamSpecAnnounceFeat:CreateCheckButton(L.SpamBlockNoSpecWarnSound, true, nil, "D
 
 if DBM:IsPostMidnight() then
 	local spamPrivateAuras = spamPanel:CreateArea(L.Area_Private_Aura_Features)
-	spamPrivateAuras:CreateCheckButton(L.SpamBlockNoPrivateAuraFrame, true, nil, "DontShowPrivateAuraFrame")
+	local disableAuraFrames = spamPrivateAuras:CreateCheckButton(L.SpamBlockNoPrivateAuraFrame, true, nil, "DontShowPrivateAuraFrame")
+	disableAuraFrames:SetScript("OnClick", function()
+		DBM.Options.DontShowPrivateAuraFrame = not DBM.Options.DontShowPrivateAuraFrame
+		local auraHandler = DBM.Auras
+		local updateMethod = auraHandler and (auraHandler.UpdateAuraAnchors or auraHandler.UpdatePrivateAuraAnchors)
+		if updateMethod and not updateMethod(auraHandler) then
+			DBM:QueueAuraAnchorUpdate()
+		end
+	end)
 	spamPrivateAuras:CreateCheckButton(L.SpamBlockNoPrivateAuraSound, true, nil, "DontPlayPrivateAuraSound")
 end
 

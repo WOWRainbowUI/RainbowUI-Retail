@@ -72,6 +72,7 @@ L.Statistic_Kills					= "승리:"
 L.Statistic_Wipes					= "전멸:"
 L.Statistic_Incompletes				= "미완료:"
 L.Statistic_BestKill				= "최고 승리 기록:"
+L.Statistic_BestClear			    = "최고 완료 기록:"
 L.Statistic_BestRank				= "최고 등급:"--Maybe not get used, not sure yet, localize anyways
 
 -- Tab: General Options
@@ -677,6 +678,10 @@ L.NPIconAnchorPoint		 			= "아이콘 기준점"
 L.NPDemo							= "테스트 (이름표 보이는데서만 작동)"
 L.FontTypeTimer						= "타이머 글꼴 선택"
 L.FontTypeText						= "텍스트 글꼴 선택"
+L.AuraDurationFontSize				= "Aura duration font size: %d"
+L.AuraStackFontSize					= "Aura stack font size: %d"
+L.AuraShowStacks						= "Show stack text"
+L.AuraShowDispelBorder				= "Show dispel border"
 
 L.Area_NPGlow						= "반짝임 (참고: Plater를 사용하지 않을 때만 반짝임 설정이 가능합니다)"
 L.NPIcon_GlowBehavior				= "쿨타임 아이콘 반짝임 작동 방식"
