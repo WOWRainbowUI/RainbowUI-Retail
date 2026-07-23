@@ -231,8 +231,9 @@ local function onEditModeChanged(_, layoutInfo)
 			securecallfunction(callback, layoutNames[activeLayout], activeLayout)
 		end
 
-		-- update dialog
-		if internal.dialog and internal.dialog.selection then
+		-- update dialog (only while actually in Edit Mode, so spec swaps
+		-- outside of Edit Mode don't pop the settings panel open)
+		if lib.isEditing and internal.dialog and internal.dialog.selection then
 			internal.dialog:Update(internal.dialog.selection)
 		end
 
@@ -358,6 +359,7 @@ function lib:AddFrame(frame, callback, default, name)
 				hookManager()
 			end
 		elseif not lib._deferredDialogInit then
+			-- EditModeManagerFrame:CreateDialog() not ready yet; defer until it is
 			lib._deferredDialogInit = true
 			local initFrame = CreateFrame("Frame")
 			initFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -667,10 +669,16 @@ function lib:SetFrameEditModeHidden(frameName, hidden)
 			if hidden or not lib.isEditing then
 				selection:Hide()
 				selection.isSelected = false
-				frame:Hide()
+				-- Protect against taint - don't touch secure frames during combat
+				if not InCombatLockdown() then
+					frame:Hide()
+				end
 				resetDialogs()
 			else
-				frame:Show()
+				-- Protect against taint - don't touch secure frames during combat
+				if not InCombatLockdown() then
+					frame:Show()
+				end
 				selection:ShowHighlighted()
 			end
 			break

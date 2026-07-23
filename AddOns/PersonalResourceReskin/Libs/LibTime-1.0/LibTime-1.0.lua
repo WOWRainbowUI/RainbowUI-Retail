@@ -1,14 +1,14 @@
 
 --[[
 Name: LibTime-1.0
-Revision: $Revision: r63 $
+Revision: $Revision: r64 $
 Author: Hizuro (hizuro@gmx.net)
 Description: A little library around date, time and GetGameTime and more...
 Dependencies: LibStub
 License: GPL v3
 ]]
 
-local MAJOR, MINOR = "LibTime-1.0", tonumber((gsub("r63","r",""))) or 999;
+local MAJOR, MINOR = "LibTime-1.0", tonumber((gsub("r64","r",""))) or 999;
 local lib = LibStub:NewLibrary(MAJOR, MINOR);
 
 if not lib then return; end

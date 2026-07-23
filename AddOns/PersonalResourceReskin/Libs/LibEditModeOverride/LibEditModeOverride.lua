@@ -18,9 +18,6 @@ local reconciledLayouts = false
 
 local function GetSystemByID(systemID, systemIndex)
   -- Get the system by checking each one for the right system id
-  if not layoutInfo or not layoutInfo.layouts or not layoutInfo.activeLayout then
-    return nil
-  end
   for _, system in pairs(layoutInfo.layouts[layoutInfo.activeLayout].systems) do
     if system.system == systemID and system.systemIndex == systemIndex then
       return system

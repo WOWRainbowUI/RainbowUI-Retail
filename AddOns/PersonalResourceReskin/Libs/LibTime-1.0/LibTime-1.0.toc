@@ -1,9 +1,9 @@
-## Interface: 120001, 110207, 50503, 38000, 20505, 11508
+## Interface: 120001, 120000, 50503, 38000, 20505, 11508
 ## Title: Lib: LibTime-1.0
 ## Notes: A little library around date, time and GetGameTime and more...
 ## Author: Hizuro
 ## IconTexture: 986485
-## Version: r63
+## Version: r64
 
 ## Category-enUS: Libraries
 ## Category-deDE: Bibliotheken

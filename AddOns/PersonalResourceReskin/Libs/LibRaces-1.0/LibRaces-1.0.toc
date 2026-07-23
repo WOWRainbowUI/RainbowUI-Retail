@@ -1,9 +1,9 @@
-## Interface: 120001, 110207, 50503, 38000, 20505, 11508
+## Interface: 120001, 120000, 50503, 38000, 20505, 11508
 ## Title: Lib: LibRaces-1.0
 ## Notes: A library to easy translate localized race names to generic token like strings
 ## Author: Hizuro
 ## IconTexture: 986485
-## Version: r70
+## Version: r71
 
 ## Category-enUS: Libraries
 ## Category-deDE: Bibliotheken

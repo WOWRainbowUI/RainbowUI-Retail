@@ -1,0 +1,15 @@
+## Interface: 120000,120001
+## Author: Silverbrit
+## Version: 1
+## Title: Lib: LibEditModeDrawer
+## Notes: Reusable Edit Mode checkbox drawer helper
+
+## X-Date: 2026-02-09T20:11:37Z
+## X-License: MIT
+
+## X-Curse-Project-ID: 1458502
+## X-Wago-ID: b6mvdDKP
+
+## OptionalDeps: LibStub
+
+LibEditModeDrawer.lua
