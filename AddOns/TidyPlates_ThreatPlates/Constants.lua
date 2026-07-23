@@ -686,7 +686,7 @@ Addon.DEFAULT_SETTINGS = {
       ForceFriendlyInCombat = "NONE",
     },
     Visibility = {
-      FriendlyPlayer = { Show = (Addon.WOW_USES_SHOW_FRIENDLY_PLAYERS_CVAR and "nameplateShowFriendlyPlayers") or true, UseHeadlineView = true },
+      FriendlyPlayer = { Show = "nameplateShowFriendlyPlayers", UseHeadlineView = true },
       FriendlyNPC = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyNpcs") or "nameplateShowFriendlyNPCs", UseHeadlineView = true },
       FriendlyMinion = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerMinions") or "nameplateShowFriendlyMinions", UseHeadlineView = true },
       FriendlyPet = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerPets") or "nameplateShowFriendlyPets", UseHeadlineView = true },
