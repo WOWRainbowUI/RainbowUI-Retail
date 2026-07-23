@@ -571,7 +571,7 @@ GenerateOptions = function(parent, yOffset, xOffset, entries)
       local oldValue = e.getter(parent.details)
       e.setter(parent.details, value)
       if type(oldValue) == "table" then
-        if not tCompare(oldValue, e.getter(parent.details)) then
+        if not tCompare(oldValue, e.getter(parent.details), 5) then
           Announce()
         end
       elseif oldValue ~= e.getter(parent.details) then
@@ -1370,6 +1370,9 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         end
       elseif w.kind == "highlights" then
         w:Show()
+        if w.details.kind == "animatedBorder" then
+          w.Animation:Play()
+        end
       end
 
       w:SetScript("OnEnter", function()

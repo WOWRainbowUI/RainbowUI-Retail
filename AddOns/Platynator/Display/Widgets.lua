@@ -568,7 +568,6 @@ function addonTable.Display.GetAnimatedBorderHighlight(frame, parent)
     frame.RightFlipBook = frame.Animation:CreateAnimation("Flipbook")
     frame.RightFlipBook:SetTarget(frame.Right)
     frame.Animation:SetLooping("REPEAT")
-    frame.Animation:Play()
   end
 
   function frame:Init(details)
