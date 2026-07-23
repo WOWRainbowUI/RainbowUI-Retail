@@ -548,6 +548,7 @@ local function VUHDO_resetParentToHidden(aFrame, aParent)
 		else
 			sIsUnregistering = true;
 
+			aFrame:Hide();
 			aFrame:SetParent(sFrameHideParents[aFrame]);
 
 			sIsUnregistering = false;
@@ -565,6 +566,7 @@ local function VUHDO_onReparentManagerEvent()
 
 	for tFrame in next, sPendingReparentFrames do
 		if sParentBlocked[tFrame] and sFrameHideParents[tFrame] then
+			tFrame:Hide();
 			tFrame:SetParent(sFrameHideParents[tFrame]);
 		end
 	end
@@ -626,6 +628,8 @@ local function VUHDO_hideFrame(aFrame)
 
 	if not sFrameOrigParents[aFrame] then
 		sFrameOrigParents[aFrame] = aFrame:GetParent();
+
+		aFrame:Hide();
 		aFrame:SetParent(sFrameHideParents[aFrame]);
 	end
 
