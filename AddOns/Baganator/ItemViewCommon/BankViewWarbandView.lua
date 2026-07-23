@@ -532,10 +532,8 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:ShowTab(tabIndex, isLiv
     end
   end
 
-  local searchText = self:GetParent().SearchWidget.SearchBox:GetText()
-
-  self.IncludeReagentsCheckbox:SetShown(self.isLive and not self.isLocked)
-  self.DepositItemsButton:SetShown(self.isLive and not self.isLocked)
+  self.IncludeReagentsCheckbox:SetShown(self.isLive and not self.isLocked and isWarbandData)
+  self.DepositItemsButton:SetShown(self.isLive and not self.isLocked and isWarbandData)
 
   self.DepositMoneyButton:SetShown(self.isLive and not self.isLocked)
   self.WithdrawMoneyButton:SetShown(self.isLive and not self.isLocked)
