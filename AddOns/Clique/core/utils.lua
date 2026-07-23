@@ -377,6 +377,34 @@ function addon:GetMouseButtonNumber(binding)
     return binding.key:match("BUTTON(%d+)$")
 end
 
+-- The frame->proxy transport: "click" or "macrotext" (opt-in). See BUGS.md B12.
+function addon:GetDispatchMode()
+    return self.settings.dispatchMode
+end
+
+-- True when the frame->proxy transport should use type=macro/macrotext (/click)
+-- instead of the type=click action.
+function addon:IsMacrotextDispatch()
+    return self:GetDispatchMode() == "macrotext"
+end
+
+-- The raw (non-localized) WoW click-button token for a mouse button number, used
+-- to build "/click <proxy> <button>" macrotext. These must be the English tokens
+-- SecureActionButton_OnClick resolves, NOT the L[] display names in convertMap.
+-- MiddleButton is button 3 (what a physical middle-click resolves to as type3).
+function addon:GetMouseButtonName(number)
+    number = tonumber(number)
+    if number == 1 then
+        return "LeftButton"
+    elseif number == 2 then
+        return "RightButton"
+    elseif number == 3 then
+        return "MiddleButton"
+    else
+        return "Button" .. tostring(number)
+    end
+end
+
 -- Build a (possibly modified) secure attribute name from its parts, e.g.
 -- "shift-type2" or "type1". prefix is the modifier prefix ("shift", ""), suffix the
 -- button suffix ("2", ""). The separators mirror attributes.lua's snippet builders.
