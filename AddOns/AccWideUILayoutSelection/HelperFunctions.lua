@@ -8,6 +8,11 @@ function AccWideUIAceAddon:ToBoolean(str)
 	return bool
 end
 
+function AccWideUIAceAddon:GetInterfaceVersion()
+	local thisInterface, _, _ = select(4, GetBuildInfo())
+	return thisInterface
+end
+
 function AccWideUIAceAddon:IsMainline()
 	return (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or false
 end
@@ -36,16 +41,24 @@ function AccWideUIAceAddon:IsClassicEra()
 	return (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) or false
 end
 
+
+-- China WoW Specific
+function AccWideUIAceAddon:IsClassicTitan()
+	return (self:GetInterfaceVersion() >= 30800 and self:GetInterfaceVersion() < 40000) or false
+end
+
+function AccWideUIAceAddon:IsClassicWrathChina()
+	return (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and self:GetInterfaceVersion() < 30800) or false
+end
+-- EO China WoW Specific
+
+
 function AccWideUIAceAddon:SupportsGameFunction(functionName)
 	-- Should return True if the game supports a particular function and therefore can be synced. 
 	-- Only things that are not in all clients (e.g. Arena) should be listed here.
 	
 	if (functionName == "editModeLayout") then -- Edit Mode (C_EditMode)
-		return (not self:IsClassicEra())
-	elseif (functionName == "lossOfControl") then -- Loss of Control Banners (C_LossOfControl)
-		return (not self:IsClassicEra())
-	elseif (functionName == "mouseoverCast") then -- Mouseover Cast
-		return (not self:IsClassicEra())
+		return (C_AddOns.DoesAddOnExist("Blizzard_EditMode"))
 	elseif (functionName == "arenaFrames") then -- Arena Frames
 		return (not self:IsClassicEra())
 	elseif (functionName == "spellOverlay") then -- Spell Overlay (C_SpellActivationOverlay)
@@ -65,6 +78,8 @@ function AccWideUIAceAddon:SupportsGameFunction(functionName)
 	elseif (functionName == "cooldownViewer") then -- Cooldown Manager (C_CooldownViewer)
 		return (self:IsMainline())
 	elseif (functionName == "externalDefensives") then -- External Defensives
+		return (self:IsMainline())
+	elseif (functionName == "encounterTimeline") then -- Encounter Timeline
 		return (self:IsMainline())
 	else
 		return true

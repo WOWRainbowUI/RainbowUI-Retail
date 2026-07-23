@@ -1,6 +1,6 @@
-## Interface: 120005, 120007, 50504, 38001, 30405, 20506, 11508
+## Interface: 120005, 120007, 50504, 38001, 30405, 20506, 11509
 ## Title: Account Wide Interface Settings
-## Version: v2.4.4
+## Version: v2.4.5
 ## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi
 ## Notes-frFR: Synchronise divers paramètres d'interface spécifiques aux personnages pour l'ensemble du compte. /awi
 ## Notes-zhCN: 将角色专属界面设置同步至账号内其他角色。命令 /awi
