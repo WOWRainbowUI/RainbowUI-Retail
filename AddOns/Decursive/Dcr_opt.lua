@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.1-RC1) add-on for World of Warcraft UI
+    Decursive (v 2.8.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-02-24T01:12:48Z
+    This file was last updated on 2026-07-22T09:05:00Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1966,7 +1966,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.8.1-RC1", "John Wellesz", ("2026-07-05T15:38:11Z"):sub(1,10),
+                                    "2.8.1", "John Wellesz", ("2026-07-22T09:28:35Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2060,9 +2060,10 @@ end
 function D:ExportOptions ()
     -- Export the option table to Blizz option UI and to Ace3 option UI
 
+    local prev_CatchAllErrors = T._CatchAllErrors
     T._CatchAllErrors = "ExportOptions";
     LibStub("AceConfig-3.0"):RegisterOptionsTable(D.name,  GetOptions, 'dcr');
-    T._CatchAllErrors = false;
+    T._CatchAllErrors = prev_CatchAllErrors;
 
 
     -- Don't feed the interface option panel until Blizz fixes the taint issue...
@@ -3822,6 +3823,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.8.1-RC1";
+T._LoadedFiles["Dcr_opt.lua"] = "2.8.1";
 
 -- Closer
