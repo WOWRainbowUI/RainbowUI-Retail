@@ -17,6 +17,12 @@ local function REMATTR(prefix, attr, suffix)
     return ([[button:SetAttribute("%s", nil)]]):format(addon:AttributeName(prefix, attr, suffix))
 end
 
+-- Like ATTR, but the value is a raw Lua expression evaluated in the restricted
+-- environment when the snippet runs, rather than a baked-in literal.
+local function ATTREXPR(prefix, attr, suffix, expr)
+    return ([[button:SetAttribute("%s", %s)]]):format(addon:AttributeName(prefix, attr, suffix), expr)
+end
+
 local B_SET = [[self:SetBindingClick(true, %q, clickableButton, %q);]]
 local B_CLR = [[self:ClearBinding(%q);]]
 
@@ -79,6 +85,9 @@ function addon:GetClickRoutingCombos()
                 combos[#combos + 1] = {
                     type = typeName,
                     click = self:AttributeFromEntry(entry, "clickbutton"),
+                    -- Macrotext-dispatch fields (unused by click mode):
+                    macro = self:AttributeFromEntry(entry, "macrotext"),
+                    button = self:GetMouseButtonName(self:GetMouseButtonNumber(entry)),
                 }
             end
         end
@@ -205,7 +214,14 @@ function addon:GetClickAttributes(global)
                 emitSet(ATTR("", prefix, "type", suffix, "target"))
                 emitRem(REMATTR(prefix, "type", suffix))
             elseif entry.type == "menu" then
-                emitSet(ATTR("", prefix, "type", suffix, "togglemenu"))
+                if self:ProjectIsClassic() then
+                    -- Classic Era resolves "menu" via SecureActionButton_OnClick's
+                    -- rawget(self, "menu") fallback; use it when forwarded, else togglemenu.
+                    emitSet(ATTREXPR(prefix, "type", suffix,
+                        [[button:GetAttribute("clique-has-menu-attribute") and "menu" or "togglemenu"]]))
+                else
+                    emitSet(ATTR("", prefix, "type", suffix, "togglemenu"))
+                end
                 emitRem(REMATTR(prefix, "type", suffix))
             elseif entry.type == "spell" and self.settings.stopcastingfix then
                 -- Implement the 'stop casting' fix

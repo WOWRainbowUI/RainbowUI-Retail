@@ -139,13 +139,47 @@ local staticRouting = {
     ["*clickbutton2"] = PROXY,
 }
 
+-- The static routing pairs for the current dispatch mode, keyed by attribute name.
+-- Click mode routes via the type=click action + clickbutton family. Macrotext mode
+-- routes unmodified left/right-click via type=macro + a per-button "/click <proxy>
+-- <button>" macrotext -- a workaround for Blizzard's broken "click" action. There is
+-- no single macrotext valid for every button, so macrotext mode claims only type1/
+-- type2 statically (mirroring the native actions click mode pre-empts); buttons >=3
+-- and modified combos are routed per-binding in writeRouting.
+local function staticRoutingPairs(proxy)
+    if not addon:IsMacrotextDispatch() then
+        local pairs_ = {}
+        for attr, value in pairs(staticRouting) do
+            pairs_[attr] = value == PROXY and proxy or value
+        end
+        return pairs_
+    end
+
+    local name = proxy:GetName()
+    local left  = "/click " .. name .. " LeftButton"
+    local right = "/click " .. name .. " RightButton"
+    return {
+        ["*type1"]      = "macro",
+        ["*type2"]      = "macro",
+        ["type1"]       = "macro",
+        ["type2"]       = "macro",
+        ["*macrotext1"] = left,
+        ["*macrotext2"] = right,
+        ["macrotext1"]  = left,
+        ["macrotext2"]  = right,
+    }
+end
+
 -- Centralized writer for the register-time and reassert paths, so they can't drift.
 -- Stamps the static set, reconciles the per-binding modified-click combos (writing
 -- the bound ones, restoring any we previously wrote that are no longer bound), and
 -- leaves clique_proxyname -- which Clique owns outright -- in place.
 local function writeRouting(frame, proxy)
-    for attr, value in pairs(staticRouting) do
-        setRouting(frame, attr, value == PROXY and proxy or value)
+    local macrotext = addon:IsMacrotextDispatch()
+
+    local staticOwned = staticRoutingPairs(proxy)
+    for attr, value in pairs(staticOwned) do
+        setRouting(frame, attr, value)
     end
     frame:SetAttribute("clique_proxyname", proxy:GetName())
 
@@ -154,20 +188,41 @@ local function writeRouting(frame, proxy)
         frame:SetAttribute("clique_keyproxyname", keyProxy:GetName())
     end
 
-    -- A frame's own shift-type2="togglemenu" outranks our *type* wildcard, so stamp
-    -- the specific attribute for every modified click we bind.
-    local desired = {}
-    for _, combo in ipairs(addon:GetClickRoutingCombos()) do
-        desired[combo.type] = true
-        desired[combo.click] = true
-        setRouting(frame, combo.type, "click")
-        setRouting(frame, combo.click, proxy)
+    -- Classic Era resolves "menu" via a plain `.menu` field (rawget fallback in
+    -- SecureActionButton_OnClick), not a secure attribute.
+    if addon:ProjectIsClassic() then
+        proxy.menu = frame.menu
+        proxy:SetAttribute("clique-has-menu-attribute", frame.menu and true or nil)
+        if keyProxy then
+            keyProxy.menu = frame.menu
+            keyProxy:SetAttribute("clique-has-menu-attribute", frame.menu and true or nil)
+        end
     end
 
-    -- Hand back any non-static combo attribute we previously wrote but no longer
-    -- bind, so unbinding a modified click restores the frame's original action.
+    -- A frame's own shift-type2="togglemenu" outranks our *type* wildcard, so stamp
+    -- the specific attribute for every modified click we bind. In macrotext mode this
+    -- is also where buttons >=3 and unmodified BUTTON1/BUTTON2 get their per-button
+    -- "/click <proxy> <button>" routing.
+    local desired = {}
+    for _, combo in ipairs(addon:GetClickRoutingCombos()) do
+        if macrotext then
+            desired[combo.type] = true
+            desired[combo.macro] = true
+            setRouting(frame, combo.type, "macro")
+            setRouting(frame, combo.macro, "/click " .. proxy:GetName() .. " " .. combo.button)
+        else
+            desired[combo.type] = true
+            desired[combo.click] = true
+            setRouting(frame, combo.type, "click")
+            setRouting(frame, combo.click, proxy)
+        end
+    end
+
+    -- Hand back any attribute we previously wrote but no longer own -- combos that
+    -- unbound, and (on a dispatch-mode switch) the other mode's static attributes --
+    -- so the frame's original action is restored.
     for attr in pairs(addon.proxyBackup[frame]) do
-        if not staticRouting[attr] and not desired[attr] then
+        if not staticOwned[attr] and not desired[attr] then
             clearRouting(frame, attr)
         end
     end

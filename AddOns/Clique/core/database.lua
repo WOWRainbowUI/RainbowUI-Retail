@@ -35,6 +35,8 @@ addon.databaseDefaults = {
         stopcastingfix = false,
         -- Fires bindings on the "down", "up", or "both" edge of a click/keypress.
         clickDirection = "down",
+        -- Frame->proxy transport: "click" or "macrotext". See docs/attributes.md.
+        dispatchMode = "click",
         enableGamePad = false,
 
         -- Removed in 5.0.0; kept reserved so the keys are never reused.
