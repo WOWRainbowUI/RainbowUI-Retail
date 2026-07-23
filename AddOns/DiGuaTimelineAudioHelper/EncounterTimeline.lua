@@ -529,4 +529,164 @@ addonTable.AudioTimeline = {
             -- [58] = "YiShangJieShu.ogg",
         }
     },
+
+
+    [3159] = { -- 腐沼
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            [131] = "DaoShu5.ogg",
+            [132] = "DaoShu4.ogg",
+            [133] = "DaoShu3.ogg",
+            [134] = "DaoShu2.ogg",
+            [135] = "DaoShu1.ogg",
+
+            [267] = "DaoShu5.ogg",
+            [268] = "DaoShu4.ogg",
+            [269] = "DaoShu3.ogg",
+            [270] = "DaoShu2.ogg",
+            [271] = "DaoShu1.ogg",
+
+            [403] = "DaoShu5.ogg",
+            [404] = "DaoShu4.ogg",
+            [405] = "DaoShu3.ogg",
+            [406] = "DaoShu2.ogg",
+            [407] = "DaoShu1.ogg",
+        }
+    },
+
+
+
+
+    [3456] = { -- 拉维
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            [0]  = "ZhunBeiAOE.ogg",
+            [3]  = "ZhuYiDuoQuan.ogg",
+            [28] = "ZhuYiJieQuan.ogg",
+        }
+    },
+
+    [2126] = { -- 加瓦兹特
+        interval = 27, 
+        startOffset = 0, 
+        alerts = {
+            [18] = "DaoShu3.ogg",
+            [19] = "DaoShu2.ogg",
+            [20] = "DaoShu1.ogg",
+            [21] = "AnQuan.ogg",
+            [25] = "DaoShu2.ogg",
+            [26] = "DaoShu1.ogg",
+        }
+    },
+
+    -- [2142] = { -- 殓尸者姆沁巴
+    --     interval = 27, 
+    --     startOffset = 0, 
+    --     alerts = {
+    --         [18] = "DaoShu3.ogg",
+
+    --     }
+    -- },
+
+
+    [3457] = { -- 扭缠盘蛇
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            -- [24]  = "LaDuanLianXian.ogg",
+            -- [30]  = "XiaoGuaiDingNi.ogg",
+            -- [52]  = "DuoKaiChongFeng.ogg",
+            -- [57]  = "DuoKaiTouQian.ogg",
+        }
+    },
+
+    [3458] = { -- 祖尔加
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            [0]  = "ZhuYiDangXian.ogg",
+            [8]  = "DaoShu5.ogg",
+            [9]  = "DaoShu4.ogg",
+            [10]  = "DaoShu3.ogg",
+            [11]  = "DaoShu2.ogg",
+            [12]  = "DaoShu1.ogg",
+        }
+    },
+
+    [2609] = { -- 梅莉杜莎·寒妆
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            -- [0]  = "ZhuYiDangXian.ogg",
+            -- [8]  = "DaoShu5.ogg",
+            -- [9]  = "DaoShu4.ogg",
+            -- [10]  = "DaoShu3.ogg",
+            -- [11]  = "DaoShu2.ogg",
+            -- [12]  = "DaoShu1.ogg",
+        }
+    },
+    [2606] = { -- 柯姬雅·焰蹄
+        interval = 40, 
+        startOffset = 0, 
+        alerts = {
+            [13]  = "ZhuanHuoDaGuai.ogg",
+            -- [8]  = "DaoShu5.ogg",
+            -- [9]  = "DaoShu4.ogg",
+            -- [10]  = "DaoShu3.ogg",
+            -- [11]  = "DaoShu2.ogg",
+            -- [12]  = "DaoShu1.ogg",
+        }
+    },
+    [2623] = { -- 基拉卡与厄克哈特·风脉
+        interval = 999, 
+        startOffset = 0, 
+        alerts = {
+            [8]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
+            [33]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
+            [57]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
+            -- [10]  = "DaoShu3.ogg",
+            -- [11]  = "DaoShu2.ogg",
+            -- [12]  = "DaoShu1.ogg",
+        }
+    },
+    
+    [3200] = { -- 圣光猎手伊库兹
+        interval = 64, 
+        startOffset = 0, 
+        alerts = {
+            [9]  = "JiHeFangQuan.ogg",
+        }
+    },
+
+
+    [3209] = { -- 纳洛拉克
+        interval = 65, 
+        startOffset = 0, 
+        alerts = {
+            [24]  = "TanKeChengShang.ogg",
+            [48]  = "TanKeChengShang.ogg",
+        }
+    },
+
+    [3286] = { -- 阿特洛苏斯
+        interval = 50, 
+        startOffset = 0, 
+        alerts = {
+            [41]  = "ZhuanHuoDaGuai.ogg",
+        }
+    },
+
+    [3287] = { -- 煞戎努斯
+        interval = 50, 
+        startOffset = 0, 
+        alerts = {
+            [20]  = { file = "KuaiKaiJianShang.ogg", role = {"HEALER", "DAMAGER"} },
+        }
+    },
+
+
+
+
 }

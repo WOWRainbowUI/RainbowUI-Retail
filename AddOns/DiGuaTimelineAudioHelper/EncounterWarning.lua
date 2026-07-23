@@ -70,6 +70,13 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
     -- ------------------------------------------
     -- 1. 纯地图 / 环境判定
     -- ------------------------------------------
+
+    -- 技能：翻捡
+    if currentMap == 2514 and currentEncounterID == 0 and severity == 2 then
+        PlaySoundFile(MEDIA_PATH .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        return
+    end
+
     -- 技能：恐惧之风
     if (currentMap == 601 or currentMap == 602) and currentEncounterID == 0 then
         PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel)
@@ -102,12 +109,85 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
     local duration = encounterWarningInfo.duration or 0
     local targetName = encounterWarningInfo.targetName
 
+
+    -- 技能：黑暗绽放
+    if currentEncounterID == 3285 and severity == 2 then 
+        C_Timer.After(4, function()
+            PlaySoundFile(MEDIA_PATH .. "DuoQiu.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)  
+        return
+    end
+
+
+
+    -- 技能：阻断暴雨
+    if currentEncounterID == 2623 and severity == 1 and not targetName then 
+        -- addonTable.StartCircleTimerBySeconds(5, true)
+        C_Timer.After(2, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu3.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)  
+        C_Timer.After(3, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu2.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)  
+        C_Timer.After(4, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu1.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)  
+        C_Timer.After(5, function()
+            PlaySoundFile(MEDIA_PATH .. "AnQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)
+        return
+    end
+
+    -- 技能：烈焰喷吐
+    if currentEncounterID == 2623 and severity == 1 and targetName then 
+        addonTable.StartCircleTimerBySeconds(6)
+        return
+    end
+
+    -- -- 技能：荆棘之韧
+    -- if currentEncounterID == 3199 and severity == 0 then
+    --     C_Timer.After(2, function()
+    --         PlaySoundFile(MEDIA_PATH .. "KuaiKaiJianShang.ogg", DiGuaTimelineAudioHelper.audioChannel)
+    --     end) 
+    --     return
+    -- end
+
+    -- 技能：空灵冲刺
+    if currentEncounterID == 2923 and severity == 0 then
+        addonTable.StartCircleTimerBySeconds(6)
+        C_Timer.After(4, function()
+            PlaySoundFile(MEDIA_PATH .. "KuaiKaiJianShang.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)        
+        return
+    end
+
+    -- 技能：霜风
+    if currentEncounterID == 2609 and severity == 1 then
+        addonTable.StartCircleTimerBySeconds(4.4)
+        C_Timer.After(1.5, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu3.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)
+        C_Timer.After(2.5, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu2.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)
+        C_Timer.After(3.5, function()
+            PlaySoundFile(MEDIA_PATH .. "DaoShu1.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)
+        return
+    end
+
+
+
     -- 技能：强风
     if currentMap == 2514 and currentEncounterID == 0 and severity == 2 and duration == 5 and not targetName 
     and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
-    and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2    
+    and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2   
+    and (GetSubZoneText() == "漫长寒冬" or GetSubZoneText() == "恆常凜冬") -- 子区域 (漫长寒冬)
     then 
         PlaySoundFile(MEDIA_PATH .. "KuaiZhaoYanTi.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        C_Timer.After(13, function()
+            PlaySoundFile(MEDIA_PATH .. "AnQuanAnQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        end)
         return
     end
 
@@ -128,19 +208,168 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
         return
     end
 
+
+
+    -- 技能：吐金
+    if currentEncounterID == 2139 and severity == 1 then
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 2139 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
+            end
+        end
+        C_Timer.After(5, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+        C_Timer.After(6, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+        C_Timer.After(7, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+        addonTable.StartCircleTimerBySeconds(8)
+        return
+    end
+
+    -- 技能：镀金毁灭
+    if currentEncounterID == 2143 and severity == 1 and not targetName then
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 2143 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
+            end
+        end
+        C_Timer.After(3, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+        C_Timer.After(4, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+        C_Timer.After(5, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+        return
+    end
+
+    -- 技能：寒冰暴雨
+    if currentEncounterID == 3208 and severity == 2 then
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 3208 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
+            end
+        end
+
+        C_Timer.After(9, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+
+        C_Timer.After(10, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+
+        C_Timer.After(11, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+        
+        C_Timer.After(12, function()
+            SafePlay("AnQuan.ogg")
+        end)
+        return
+    end
+
+
+    -- 技能：魔化狂怒
+    if currentEncounterID == 3103 and severity == 2 then
+        -- 核心防御局部函数：只有当前依然在3103号Boss战斗中，才允许播放指定音频
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 3103 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
+            end
+        end
+        -- 18秒后开始进入 3、2、1 倒计时序列
+        C_Timer.After(16, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+
+        C_Timer.After(17, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+
+        C_Timer.After(18, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+        
+        C_Timer.After(19, function()
+            SafePlay("YiShangJieShu.ogg")
+        end)
+        return
+    end
+
+
     -- 技能：光明灌注
     if currentEncounterID == 3101 and severity == 1 then
-        C_Timer.After(14, function()
-            if addonTable.GetEncounterID() == 3101 then 
-                addonTable.PlayAudioSequence(0, "DaoShu3.ogg", 1, "DaoShu2.ogg", 1, "DaoShu1.ogg", 1, "YiShangJieShu.ogg")
+        -- 核心防御局部函数：只有当前依然在3101号Boss战斗中，才允许播放指定音频
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 3101 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
             end
-        end)            
+        end
+
+        -- 18秒后开始进入 3、2、1 倒计时序列
+        C_Timer.After(18, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+
+        C_Timer.After(19, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+
+        C_Timer.After(20, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+
+        C_Timer.After(21, function()
+            SafePlay("YiShangJieShu.ogg")
+        end)
+        
+        C_Timer.After(24, function()
+            SafePlay("ZhuanHuoXiaoGuai.ogg")
+        end)
         return
     end
 
     -- 技能：嗜血注视
     if currentEncounterID == 3200 and severity == 2 then
-        addonTable.PlayAudioSequence(11, "DaoShu3.ogg", 1, "DaoShu2.ogg", 1, "DaoShu1.ogg", 1, "AnQuan.ogg")
+        -- 核心防御局部函数：只有当前依然在3200号Boss战斗中，才允许播放指定音频
+        local function SafePlay(soundFile)
+            if addonTable.GetEncounterID() == 3200 then
+                PlaySoundFile(MEDIA_PATH .. soundFile, audioChannel or DiGuaTimelineAudioHelper.audioChannel)
+            end
+        end
+
+        -- 从第 9 秒开始进入 5、4、3、2、1 倒计时序列
+        C_Timer.After(9, function()
+            SafePlay("DaoShu5.ogg")
+        end)
+
+        C_Timer.After(10, function()
+            SafePlay("DaoShu4.ogg")
+        end)
+
+        C_Timer.After(11, function()
+            SafePlay("DaoShu3.ogg")
+        end)
+
+        C_Timer.After(12, function()
+            SafePlay("DaoShu2.ogg")
+        end)
+
+        C_Timer.After(13, function()
+            SafePlay("DaoShu1.ogg")
+        end)
+
+        C_Timer.After(14, function()
+            SafePlay("AnQuan.ogg")
+        end)
+        
         return
     end
 
@@ -214,7 +443,7 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
 
     -- 技能：银峰箭/游侠印记/终末守护
     if currentEncounterID == 3181 and severity == 1 and targetName and duration == 5 then
-        addonTable.StartCircleTimerBySeconds(6, true)
+        addonTable.StartCircleTimerBySeconds(6)
         return
     end
 

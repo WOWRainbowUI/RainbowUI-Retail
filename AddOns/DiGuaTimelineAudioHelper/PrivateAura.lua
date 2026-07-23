@@ -217,12 +217,12 @@ addonTable.PrivateAura.list = {
     [1254635] = "JingBao", -- 黑色浪潮
     [1266587] = "JingBao", -- 黑暗星座
     -- 腐沼
-    -- [1221639] = "LvSeLianXian", -- Shroomling
-    -- [1299508] = "HongSeLianXian", -- Fungling
+    [1221639] = "LvSeLianXian", -- Shroomling
+    [1299508] = "HongSeLianXian", -- Fungling
     [1222088] = "TieBianFangShui", -- Festering Vines
     [1222129] = "JingBao", -- Writhing Vines
     -- 光明众花
-    [1261276] = "LiuXue", -- 荆棘之刃
+    [1261276] = "ZhunBeiLiuXue", -- 荆棘之刃
     -- 护光者鲁伊亚
     [1240222] = "MuBiaoShiNi", -- 粉碎打击
 }
