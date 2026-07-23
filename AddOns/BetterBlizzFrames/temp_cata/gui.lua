@@ -9,7 +9,7 @@ local pixelsOnFirstBox = -1
 local sliderUnderBoxX = 12
 local sliderUnderBoxY = -10
 local sliderUnderBox = "12, -10"
-local editModeIntroduced = BBF.isMoP or BBF.isTBC
+local editModeIntroduced = BBF.isMoP or BBF.isTBC or BBF.isEra
 
 -- Font configuration for localization support
 -- Custom fonts (arialn.TTF, Expressway_Free.ttf) support Latin alphabet only
@@ -995,7 +995,7 @@ local function notWorking(element, re)
     if element.Text then
         element.Text:SetTextColor(1,0,0)
     end
-    CreateTooltipTwo(element, L["Tooltip_Not_Working_Title"], string.format(L["Tooltip_Not_Working_Desc"], (BBF.isMoP and "MoP" or BBF.isTBC and "TBC" or "Cata")), string.format(L["Tooltip_Not_Working_Extra"], (BBF.isMoP and "Beta" or "Alpha")))
+    CreateTooltipTwo(element, L["Tooltip_Not_Working_Title"], string.format(L["Tooltip_Not_Working_Desc"], (BBF.isMoP and "MoP" or BBF.isTBC and "TBC" or BBF.isEra and "Era" or "Cata")), string.format(L["Tooltip_Not_Working_Extra"], (BBF.isMoP and "Beta" or "Alpha")))
 
     if re then
         C_Timer.After(4, function()
@@ -2641,7 +2641,7 @@ local function guiGeneralTab()
 
     local alpha2 = BetterBlizzFrames:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     alpha2:SetPoint("BOTTOM", SettingsPanel, "TOP", 0, 0)
-    alpha2:SetText(string.format(L["Beta_Warning_Text"], (BBF.isMoP and "MoP" or BBF.isTBC and "TBC" or "Cata")))
+    alpha2:SetText(string.format(L["Beta_Warning_Text"], (BBF.isMoP and "MoP" or BBF.isTBC and "TBC" or BBF.isEra and "Era" or "Cata")))
     alpha2:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")
     alpha2:Hide()
     BetterBlizzFrames:HookScript("OnShow",function()
@@ -3256,7 +3256,7 @@ local function guiGeneralTab()
     hideRaidFrameContainerBorder:SetPoint("TOPLEFT", hideRaidFrameManager, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(hideRaidFrameContainerBorder, L["Hide_CompactRaidFrame_Container_Border"], L["Hide_CompactRaidFrame_Container_Border"])
 
-    if BBF.isMoP or BBF.isTBC then
+    if BBF.isMoP or BBF.isTBC or BBF.isEra then
         local changePartyFrameRangeAlpha = CreateCheckbox("changePartyFrameRangeAlpha", "", BetterBlizzFrames)
 
         local partyFrameRangeAlpha = CreateSlider(changePartyFrameRangeAlpha, L["Party_Frame_Range_Alpha"], 0, 1, 0.01, "partyFrameRangeAlpha", nil, 120)
@@ -4710,7 +4710,7 @@ local function guiCastbars()
 
     local playerCastBarXPos, playerCastBarYPos
 
-    if not BBF.isTBC and not BBF.isMoP then --handled by edit mode in tbc
+    if not BBF.isTBC and not BBF.isMoP and not BBF.isEra then --handled by edit mode in tbc
         playerCastBarXPos = CreateSlider(contentFrame, "x offset", -200, 200, 1, "playerCastBarXPos", "X")
         playerCastBarXPos:SetPoint("TOP", playerCastBarScale, "BOTTOM", 0, -15)
 
@@ -6531,7 +6531,7 @@ local function guiFrameAuras()
     personalAuraSettings:SetPoint("TOP", PlayerAuraBorder, "BOTTOM", 0, -5)
     personalAuraSettings:SetText(L["Label_Player_Aura_Settings"])
 
-    if not BBF.isTBC and not BBF.isMoP then
+    if not BBF.isTBC and not BBF.isMoP and not BBF.isEra then
         local repositionBuffFrame = CreateCheckbox("repositionBuffFrame", L["Move_Auras"], contentFrame)
         repositionBuffFrame:SetPoint("LEFT", personalAuraSettings, "RIGHT", 2, 0)
         repositionBuffFrame:HookScript("OnClick", function(self)
@@ -6646,7 +6646,7 @@ local function guiFrameAuras()
     local playerAuraBuffScale = CreateSlider(contentFrame, "Aura Size", 0.5, 2, 0.01, "playerAuraBuffScale")
     playerAuraBuffScale:SetPoint("TOP", PlayerAuraBorder, "BOTTOM", 0, -35)
 
-    if not BBF.isTBC and not BBF.isMoP then
+    if not BBF.isTBC and not BBF.isMoP and not BBF.isEra then
         contentFrame.playerAuraXOffset = CreateSlider(contentFrame, "PlayerAura x offset", -200, 100, 1, "playerAuraXOffset", "X")
         contentFrame.playerAuraXOffset:SetPoint("TOP", playerAuraBuffScale, "BOTTOM", 0, -15)
 
@@ -6655,7 +6655,7 @@ local function guiFrameAuras()
     end
 
     local playerAuraSpacingX = CreateSlider(playerAuraFiltering, "Horizontal Padding", -2, 10, 1, "playerAuraSpacingX", "X")
-    playerAuraSpacingX:SetPoint("TOP", (BBF.isTBC or BBF.isMoP) and playerAuraBuffScale or contentFrame.playerAuraYOffset, "BOTTOM", 0, -15)
+    playerAuraSpacingX:SetPoint("TOP", (BBF.isTBC or BBF.isMoP or BBF.isEra) and playerAuraBuffScale or contentFrame.playerAuraYOffset, "BOTTOM", 0, -15)
     CreateTooltip(playerAuraSpacingX, L["Tooltip_Horizontal_Aura_Padding"], "ANCHOR_LEFT")
 
     local playerAuraSpacingY = CreateSlider(playerAuraFiltering, "Vertical Padding", -10, 10, 1, "playerAuraSpacingY", "Y")
@@ -6869,7 +6869,7 @@ local function guiMisc()
         BBF.MinimapHider()
     end)
 
-    if BBF.isTBC or BBF.isMoP then
+    if BBF.isTBC or BBF.isMoP or BBF.isEra then
         guiMisc.removeAddonListCategories = CreateCheckbox("removeAddonListCategories", L["Improved_AddonList"], guiMisc, nil, BBF.RemoveAddonCategories)
         guiMisc.removeAddonListCategories:SetPoint("TOPLEFT", hideObjectiveTracker, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
         CreateTooltipTwo(guiMisc.removeAddonListCategories, L["Improved_AddonList"], L["Tooltip_Improved_AddonList_Desc"])

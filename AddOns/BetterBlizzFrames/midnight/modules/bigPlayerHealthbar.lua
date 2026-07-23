@@ -19,7 +19,8 @@ local function IsEnabled()
 end
 
 local function GrowBar()
-    local _, healthBar, mask = GetHealthBits()
+    local hpContainer, healthBar, mask = GetHealthBits()
+    hpContainer:SetHeight(HEALTHBAR_HEIGHT_GROWN)
     healthBar:SetHeight(HEALTHBAR_HEIGHT_GROWN)
     mask:SetHeight(MASK_HEIGHT_GROWN)
 end

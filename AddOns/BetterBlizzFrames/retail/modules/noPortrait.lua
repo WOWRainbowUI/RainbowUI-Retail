@@ -114,7 +114,7 @@ local function GetPlayerBackgroundYOffset()
     local db = BetterBlizzFramesDB
     if not db then return -11 end
 
-    if (db.hideUnitFramePlayerMana) and db.hideUnitFramePlayerSecondResource then
+    if (db.hideUnitFramePlayerMana) and db.hideUnitFramePlayerSecondResource or db.bigPlayerHealthbar then
         return 0  -- Both hidden
     elseif db.hideUnitFramePlayerSecondResource then
         return -11  -- Only 2nd resource hidden
@@ -2499,7 +2499,7 @@ function BBF.UpdateNoPortraitManaVisibility()
     UpdateTextureVariables()
 
     -- Hide PlayerFrame Mana
-    if db.hideUnitFramePlayerMana or db.bigPlayerHealthbar then
+    if db.hideUnitFramePlayerMana then
         local manaBarArea = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea
         local petMana = PetFrameManaBar
         if manaBarArea then
@@ -2519,6 +2519,11 @@ function BBF.UpdateNoPortraitManaVisibility()
             PetFrame.Background:ClearAllPoints()
             PetFrame.Background:SetPoint("TOPLEFT", PetFrameHealthBar, "TOPLEFT", 1, -1)
             PetFrame.Background:SetPoint("BOTTOMRIGHT", PetFrameHealthBar, "BOTTOMRIGHT", -1, 1)
+        end
+    elseif db.bigPlayerHealthbar then
+        local manaBarArea = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea
+        if manaBarArea then
+            manaBarArea:SetAlpha(0)
         end
     else
         local manaBarArea = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea
