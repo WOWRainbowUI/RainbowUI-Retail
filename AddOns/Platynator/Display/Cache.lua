@@ -8,9 +8,9 @@ local GetRangeChecker = addonTable.Display.Utilities.GetRangeSpell
 local function IsInCombatWith(unit)
   return UnitAffectingCombat(unit) and
     (
-      UnitIsFriend("player", unit) and (UnitInParty(unit) == true or UnitInRaid(unit)== true) or
+      UnitIsFriend("player", unit) and UnitInParty(unit) == true or
       addonTable.Cache:Get(unit, "threat").situation ~= nil or
-      UnitInParty(unit .. "target") == true or UnitInRaid(unit .. "target") == true
+      UnitInParty(unit .. "target") == true
     )
 end
 

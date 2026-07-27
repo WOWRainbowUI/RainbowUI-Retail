@@ -1493,8 +1493,6 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
     UpdateHiding()
   end
 
-  GenerateWidgets()
-
   local previousDesign = addonTable.Config.Get(addonTable.Config.Options.STYLE)
 
   addonTable.CallbackRegistry:RegisterCallback("RefreshStateChange", function(_, state)
@@ -1710,8 +1708,6 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
     end
   end
 
-  Generate()
-
   if C_Secrets and C_Secrets.HasSecretRestrictions() then
     local noAurasInCombat = CreateFrame("Frame")
     noAurasInCombat:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
@@ -1815,6 +1811,11 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
 
     selectionIndexes = {}
     SetPreviewMaximised(false)
+
+    GenerateWidgets()
+    if not next(settingsFrames) then
+      Generate()
+    end
   end)
   container:SetScript("OnHide", function()
     shouldShowRegions = false

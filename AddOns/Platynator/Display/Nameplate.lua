@@ -184,7 +184,7 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
     end)
 
     if not addonTable.Constants.IsMidnightNext then
-      addonTable.Display.SetUnitUpdateLegacyAuras(self, unit)
+      addonTable.Display.SetUnitUpdateLegacyAuras(self, self.unit)
     end
     self.AurasManager:SetUnit(self.unit)
 
@@ -215,6 +215,9 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
       w:Hide()
     end
 
+    if not addonTable.Constants.IsMidnightNext then
+      addonTable.Display.SetUnitUpdateLegacyAuras(self, nil)
+    end
     self.AurasManager:SetUnit(nil)
 
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
