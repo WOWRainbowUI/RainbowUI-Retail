@@ -247,3 +247,10 @@ Change Log:
 
 1.31
 * Fixed migration problems
+
+1.31.1
+* Updated TOC to 12.0.7
+* Updated TOC for Classic 1.15.9
+* Updated TOC for TBC 2.5.6
+* Updated TOC for Wrath 3.80.1
+* Updated TOC for Mists 5.5.4
