@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.27 (15th July 2026)
+-- 	Leatrix Plus 12.0.28 (23rd July 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.27"
+	LeaPlusLC["AddonVer"] = "12.0.28"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -828,14 +828,12 @@
 			local function DeclineReqs()
 				if LeaPlusLC["NoFriendRequests"] == "On" then
 					for i = BNGetNumFriendInvites(), 1, -1 do
-
-
 						if LeaPlusLC.NewPatch then
-							local id, player = C_BattleNet.GetFriendInviteInfo(i)
-							if id and player then
-								BNDeclineFriendInvite(id)
+							local inviteInfo = C_BattleNet.GetFriendInviteInfo(i)
+							if inviteInfo.inviteID and inviteInfo.accountName then
+								BNDeclineFriendInvite(inviteInfo.inviteID)
 								C_Timer.After(0.1, function()
-									LeaPlusLC:Print(L["A friend request from"] .. " " .. player .. " " .. L["was automatically declined."])
+									LeaPlusLC:Print(L["A friend request from"] .. " " .. inviteInfo.accountName .. " " .. L["was automatically declined."])
 								end)
 							end
 						else
@@ -10177,8 +10175,13 @@
 					willPlay, musicHandle = PlaySoundFile(soundID, "Master", false, true)
 				else
 					-- Sound kit without track time
-					file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
-					willPlay, musicHandle = PlaySound(soundID, "Master", false, true)
+					if LeaPlusLC.NewPatch then
+						file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
+						willPlay, musicHandle = C_Sound.PlaySound(soundID, "Master", false, true)
+					else
+						file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
+						willPlay, musicHandle = PlaySound(soundID, "Master", false, true)
+					end
 				end
 				-- Cancel existing music timer for a sound file
 				if LeaPlusLC.TrackTimer then LeaPlusLC.TrackTimer:Cancel() end
@@ -11856,10 +11859,10 @@
 
 			-- Set skinned button textures
 			if not naked then
-				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\mainline\\Leatrix_Plus.blp")
+				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
 				mbtn:GetNormalTexture():SetTexCoord(0.5, 1, 0, 1)
 			end
-			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\mainline\\Leatrix_Plus.blp")
+			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
 			mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 1)
 
 			-- Hide the default textures
@@ -12405,7 +12408,11 @@
 					GameTooltip:HookScript("OnUpdate", function()
 						local a = _G["GameTooltipTextLeft1"]:GetText() or ""
 						if a == "Dark Soil" or a == "Jelly Deposit" or a == "Gersahl Shrub" then
-							PlaySound(8959, "Master")
+							if LeaPlusLC.NewPatch then
+								C_Sound.PlaySound(8959, "Master")
+							else
+								PlaySound(8959, "Master")
+							end
 						end
 					end)
 					-- Add Friendly Alpaca spawn locations to Uldum map
@@ -12572,7 +12579,11 @@
 							StopSound(LeaPlusLC.SNDcanitHandle)
 						end
 						-- Play sound ID
-						LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = PlaySound(arg1, "Master", false, false)
+						if LeaPlusLC.NewPatch then
+							LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = C_Sound.PlaySound(arg1, "Master", false, false)
+						else
+							LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = PlaySound(arg1, "Master", false, false)
+						end
 						if not LeaPlusLC.SNDcanitPlay then LeaPlusLC:Print(L["Invalid sound ID"] .. ": |cffffffff" .. arg1) end
 					else
 						LeaPlusLC:Print(L["Invalid sound ID"] .. ": |cffffffff" .. arg1)
@@ -12701,7 +12712,11 @@
 				return
 			elseif str == "skit" then
 				-- Play a test sound kit
-				PlaySound("1020", "Master", false, true)
+				if LeaPlusLC.NewPatch then
+					C_Sound.PlaySound("1020", "Master", false, true)
+				else
+					PlaySound("1020", "Master", false, true)
+				end
 				return
 			elseif str == "dup" then
 				-- Print music track duplicates
@@ -12717,14 +12732,26 @@
 										if not v:match("([^,]+)%#([^,]+)%#([^,]+)") then
 											local temFile, temSoundID = v:match("([^,]+)%#([^,]+)")
 											if temSoundID then
-												local temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
-												if temHandle then StopSound(temHandle) end
-												temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
-												if not temPlay and not temHandle then
-													print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
-													badidfound = true
-												else
+												if LeaPlusLC.NewPatch then
+													local temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
 													if temHandle then StopSound(temHandle) end
+													temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
+													if not temPlay and not temHandle then
+														print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
+														badidfound = true
+													else
+														if temHandle then StopSound(temHandle) end
+													end
+												else
+													local temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
+													if temHandle then StopSound(temHandle) end
+													temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
+													if not temPlay and not temHandle then
+														print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
+														badidfound = true
+													else
+														if temHandle then StopSound(temHandle) end
+													end
 												end
 											end
 										end
@@ -12862,7 +12889,11 @@
 								-- Select current button
 								bt[eBtn].line:Show()
 								selectedBtn = b
-								PlaySound(115, "Master", false, true)
+								if LeaPlusLC.NewPatch then
+									C_Sound.PlaySound(115, "Master", false, true)
+								else
+									PlaySound(115, "Master", false, true)
+								end
 								-- Print button data
 								eFrame.f:SetText(L["Enigma"] .. " " .. eBtn .. ": |cffffffff" .. eData[eBtn][#eData[eBtn]])
 							end
@@ -13192,7 +13223,11 @@
 				end
 				LeaPlusLC.BlanchyFrame:SetScript("OnEvent", function(self, event, void, pname)
 					if pname == L["Dead Blanchy"] then
-						C_Timer.NewTicker(1, function()	PlaySound(8959, "Master") end, 20)
+						if LeaPlusLC.NewPatch then
+							C_Timer.NewTicker(1, function()	C_Sound.PlaySound(8959, "Master") end, 20)
+						else
+							C_Timer.NewTicker(1, function()	PlaySound(8959, "Master") end, 20)
+						end
 					end
 				end)
 				return
