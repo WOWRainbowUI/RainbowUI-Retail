@@ -8,6 +8,37 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.7.2
+Released 2026-07-26
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+All Versions
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- In the options window, fixed the position of the large, dimmed, layer number shown on the background near the right side of the window.
+- Improved the changelog text parsing algorithm.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.7.2 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No additional changes.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.4.2 for Classic Mists of Pandaria
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Set an icon for CursorTrail in the TOC file (displayed in the game's "AddOn List" window).
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 2.5.6.1 for Classic Burning Crusade
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic TBC 2.5.6.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 1.15.9.1 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic WoW 1.15.9.
+- Set an icon for CursorTrail in the TOC file (displayed in the game's "AddOn List" window).
+
+=======================================
 RELEASE 12.0.7.1
 Released 2026-06-16
 
