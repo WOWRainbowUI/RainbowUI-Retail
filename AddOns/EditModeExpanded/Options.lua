@@ -325,8 +325,8 @@ local options = {
             type = "toggle",
         },
         reparentEnabled = {
-            name = "Reparent Frame",
-            desc = "Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used.",
+            name = L["Reparent Frame"],
+            desc = L["Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used."],
             type = "toggle",
         },
         playerFrame = {

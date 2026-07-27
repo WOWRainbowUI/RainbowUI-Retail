@@ -129,3 +129,5 @@ L["Group Size"] = true
 L["You do not need to set a profile for every size, the next-smallest size will be used if nothing is set!"] = true
 L["Selected Layout"] = true
 L["Name Scale"] = true
+L["Reparent Frame"] = true
+L["Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used."] = true
