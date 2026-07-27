@@ -1,9 +1,8 @@
 ## Interface: 30405, 38001
-## X-Min-Interface-Wrath: 30400
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 6.6.1
+## Version: 6.6.2
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 ## Category: Combat

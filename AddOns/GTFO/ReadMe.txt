@@ -2408,3 +2408,8 @@ Change Log:
 * Added Midnight spells for The Voidspire
 * Added Midnight spells for Nexus-Point Xenas
 * Added Legion spells for Seat of the Triumvirate
+
+6.6.2
+* Updated TOC for Classic 1.15.9
+* Updated TOC for TBC 2.5.6
+* Updated TOC for Mists 5.5.4

@@ -1,8 +1,8 @@
-## Interface: 50503
+## Interface: 50504
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 6.6.1
+## Version: 6.6.2
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 ## Category: Combat
