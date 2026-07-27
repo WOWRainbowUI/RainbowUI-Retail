@@ -50,6 +50,7 @@ addonTable.Constants.Events = {
 
   "RoleChange",
   "EncounterUpdate",
+  "PowerChange",
 
   "CustomiseDesignsAssigned",
   "UnitDesignChange",

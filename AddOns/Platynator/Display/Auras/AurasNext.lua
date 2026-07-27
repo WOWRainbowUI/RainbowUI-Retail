@@ -124,19 +124,15 @@ function addonTable.Display.AurasManagerNextMixin:OnLoad()
   self.debuffs = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
   self.crowdControl = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
 
+  self.buffs:SetEnabled(false)
+  self.debuffs:SetEnabled(false)
+  self.crowdControl:SetEnabled(false)
+
+  self.addedGroups = false
+
   self.crowdControl.frames = {}
-  self.crowdControl:AddAuraGroup("ALL", "HARMFUL|CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
-  self.crowdControl:AddAuraGroup("PLAYER_ONLY", "HARMFUL|CROWD_CONTROL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
 
   self.buffs.frames = {}
-  self.buffs:AddAuraGroup("ALL", "HELPFUL|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("PLAYER_ASSIST", "HELPFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("IMPORTANT", "HELPFUL|IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("ENRAGE", "HELPFUL|!IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("STEALABLE", "HELPFUL|!IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("DEFENSIVE1", "HELPFUL|BIG_DEFENSIVE|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("DEFENSIVE2", "HELPFUL|EXTERNAL_DEFENSIVE|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
-  self.buffs:AddAuraGroup("DEFENSIVE3", "HELPFUL|RAID_IN_COMBAT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
 
   self.buffs.candidateIMPORTANTDefault = {}
   self.buffs.candidateIMPORTANTNoEnrage = {
@@ -154,16 +150,6 @@ function addonTable.Display.AurasManagerNextMixin:OnLoad()
   }
 
   self.debuffs.frames = {}
-  self.debuffs:AddAuraGroup("PLAYER_IMPORTANT", "HARMFUL|IMPORTANT|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
-  self.debuffs:AddAuraGroup("ANY_PLAYER_IMPORTANT", "HARMFUL|IMPORTANT|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
-  self.debuffs:AddAuraGroup("PLAYER_PERSONAL", "HARMFUL|!IMPORTANT|INCLUDE_NAME_PLATE_ONLY|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs), candidateFilters = {
-    nameplateShowPersonal = true,
-  }})
-  self.debuffs:AddAuraGroup("ANY_PLAYER_PERSONAL", "HARMFUL|!IMPORTANT|INCLUDE_NAME_PLATE_ONLY|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs), candidateFilters = {
-    nameplateShowPersonal = true,
-  }})
-  self.debuffs:AddAuraGroup("ALL_PLAYER", "HARMFUL|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
-  self.debuffs:AddAuraGroup("ALL", "HARMFUL|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
 end
 
 local directionMap = {
@@ -179,10 +165,6 @@ local anchorMap = {
 }
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails)
-  if addonTable.Utilities.IsChangesRestricted() then
-    return
-  end
-
   self.buffs:ClearAllPoints()
   self.debuffs:ClearAllPoints()
   self.crowdControl:ClearAllPoints()
@@ -191,12 +173,39 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   self.debuffs.details = auraDetails.debuffs
   self.crowdControl.details = auraDetails.crowdControl
 
+  if not self.addedGroups then
+    self.addedGroups = true
+
+    self.crowdControl:AddAuraGroup("ALL", "HARMFUL|CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
+    self.crowdControl:AddAuraGroup("PLAYER_ONLY", "HARMFUL|CROWD_CONTROL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
+
+    self.buffs:AddAuraGroup("ALL", "HELPFUL|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("PLAYER_ASSIST", "HELPFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("IMPORTANT", "HELPFUL|IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("ENRAGE", "HELPFUL|!IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("STEALABLE", "HELPFUL|!IMPORTANT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("DEFENSIVE1", "HELPFUL|BIG_DEFENSIVE|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("DEFENSIVE2", "HELPFUL|EXTERNAL_DEFENSIVE|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.buffs:AddAuraGroup("DEFENSIVE3", "HELPFUL|RAID_IN_COMBAT|!PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+
+    self.debuffs:AddAuraGroup("PLAYER_IMPORTANT", "HARMFUL|IMPORTANT|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+    self.debuffs:AddAuraGroup("ANY_PLAYER_IMPORTANT", "HARMFUL|IMPORTANT|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+    self.debuffs:AddAuraGroup("PLAYER_PERSONAL", "HARMFUL|!IMPORTANT|INCLUDE_NAME_PLATE_ONLY|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs), candidateFilters = {
+      nameplateShowPersonal = true,
+    }})
+    self.debuffs:AddAuraGroup("ANY_PLAYER_PERSONAL", "HARMFUL|!IMPORTANT|INCLUDE_NAME_PLATE_ONLY|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs), candidateFilters = {
+      nameplateShowPersonal = true,
+    }})
+    self.debuffs:AddAuraGroup("ALL_PLAYER", "HARMFUL|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+    self.debuffs:AddAuraGroup("ALL", "HARMFUL|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+  end
+
 
   if auraDetails.crowdControl then
     self.crowdControl:SetParent(parent.CrowdControlDisplay)
     self.crowdControl:SetScale(auraDetails.crowdControl.scale)
     self.crowdControl:SetPoint(directionMap[auraDetails.crowdControl.direction])
-    self.crowdControl:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.crowdControl.direction])
+    self.crowdControl:SetFlowLayoutAnchorPoint(anchorMap[auraDetails.crowdControl.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.crowdControl.padding, self.crowdControl)
     if auraDetails.crowdControl.filters.fromYou then
       self.crowdControl:SetAuraGroupMaxFrameCount("ALL", 0)
@@ -207,14 +216,16 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     end
     self.crowdControl:SetAuraGroupLayout("ALL", {elementSpacingX = padding, elementSpacingY = padding})
     self.crowdControl:SetAuraGroupLayout("PLAYER_ONLY", {elementSpacingX = padding, elementSpacingY = padding})
-    for _, f in ipairs(self.crowdControl.frames) do
-      addonTable.Display.StyleAura(f, auraDetails.crowdControl)
+    if not addonTable.Utilities.IsChangesRestricted() then
+      for _, f in ipairs(self.crowdControl.frames) do
+        addonTable.Display.StyleAura(f, auraDetails.crowdControl)
+      end
     end
 
     if auraDetails.crowdControl.direction == "LEFT" then
-      self.crowdControl:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
+      self.crowdControl:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
     else
-      self.crowdControl:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
+      self.crowdControl:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
     end
 
     self.crowdControl:Show()
@@ -226,7 +237,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.debuffs:SetParent(parent.DebuffDisplay)
     self.debuffs:SetScale(auraDetails.debuffs.scale)
     self.debuffs:SetPoint(directionMap[auraDetails.debuffs.direction])
-    self.debuffs:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.debuffs.direction])
+    self.debuffs:SetFlowLayoutAnchorPoint(anchorMap[auraDetails.debuffs.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.debuffs.padding, self.debuffs)
     local setup = {
       ["PLAYER_IMPORTANT"] = 0,
@@ -255,14 +266,16 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self.debuffs:SetAuraGroupMaxFrameCount(key, count)
       self.debuffs:SetAuraGroupLayout(key, {elementSpacingX = padding, elementSpacingY = padding})
     end
-    for _, f in ipairs(self.debuffs.frames) do
-      addonTable.Display.StyleAura(f, auraDetails.debuffs)
+    if not addonTable.Utilities.IsChangesRestricted() then
+      for _, f in ipairs(self.debuffs.frames) do
+        addonTable.Display.StyleAura(f, auraDetails.debuffs)
+      end
     end
 
     if auraDetails.debuffs.direction == "LEFT" then
-      self.debuffs:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
+      self.debuffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
     else
-      self.debuffs:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
+      self.debuffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
     end
 
     self.debuffs:Show()
@@ -274,7 +287,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.buffs:SetParent(parent.BuffDisplay)
     self.buffs:SetScale(auraDetails.buffs.scale)
     self.buffs:SetPoint(directionMap[auraDetails.buffs.direction])
-    self.buffs:SetAuraLayoutAnchorPoint(anchorMap[auraDetails.buffs.direction])
+    self.buffs:SetFlowLayoutAnchorPoint(anchorMap[auraDetails.buffs.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.buffs.padding, self.buffs)
     local setup = {
       ["ALL"] = {0, {}},
@@ -317,14 +330,16 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self.buffs:SetAuraGroupCandidateFilters(key, info[2])
       self.buffs:SetAuraGroupLayout(key, {elementSpacingX = padding, elementSpacingY = padding})
     end
-    for _, f in ipairs(self.buffs.frames) do
-      addonTable.Display.StyleAura(f, auraDetails.buffs)
+    if not addonTable.Utilities.IsChangesRestricted() then
+      for _, f in ipairs(self.buffs.frames) do
+        addonTable.Display.StyleAura(f, auraDetails.buffs)
+      end
     end
 
     if auraDetails.buffs.direction == "LEFT" then
-      self.buffs:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
+      self.buffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
     else
-      self.buffs:SetAuraLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
+      self.buffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
     end
 
     self.buffs:Show()
@@ -335,8 +350,15 @@ end
 
 function addonTable.Display.AurasManagerNextMixin:SetUnit(unit, parent, auraDetails)
   if not unit then
+    self.buffs:SetEnabled(false)
+    self.debuffs:SetEnabled(false)
+    self.crowdControl:SetEnabled(false)
     return
   end
+
+  self.buffs:SetEnabled(true)
+  self.debuffs:SetEnabled(true)
+  self.crowdControl:SetEnabled(true)
 
   self.auraDetails = auraDetails
 

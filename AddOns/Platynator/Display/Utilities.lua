@@ -410,6 +410,7 @@ function addonTable.Display.Utilities.TintAutoColors(autoColors, mod)
         for class, c in pairs(RAID_CLASS_COLORS) do
           s.colors[class] = {r = mod.r * c.r, g = mod.g * c.g, b = mod.b * c.b, a = mod.a}
         end
+        s.colors.class = CopyTable(mod)
       end
     end
 

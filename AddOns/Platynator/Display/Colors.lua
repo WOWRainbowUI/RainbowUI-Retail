@@ -267,7 +267,13 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "classColors" then
       if state.isPlayer then
         local _, class = UnitClass(unit)
-        table.insert(colorQueue, {color = s.colors[class] or RAID_CLASS_COLORS[class]})
+        if issecretvalue(class) then
+          local color = C_ClassColor.GetClassColor(class)
+          color.a = s.colors.class.a
+          table.insert(colorQueue, {color = color})
+        else
+          table.insert(colorQueue, {color = s.colors[class] or RAID_CLASS_COLORS[class]})
+        end
         break
       end
     elseif s.kind == "reaction" then
