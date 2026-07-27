@@ -1120,9 +1120,9 @@ function OptionsFrame_Create()
     OptionsFrame.BlockerFrame:SetPoint("RIGHT", OptionsFrame, "RIGHT", -kFrameMargin, 0)
 
     -- VERTICAL LINES --
-    local lineLen = bottomPos - firstDividerY
-    OptionsFrame.LeftLine = OptionsFrame_CreateDividerLine( kFrameMargin, bottomPos, 1, lineLen )
-    OptionsFrame.RightLine = OptionsFrame_CreateDividerLine( kFrameWidth-kFrameMargin, bottomPos, 1, lineLen )
+    local lineLen = firstDividerY - bottomPos + 1
+    OptionsFrame.LeftLine = OptionsFrame_CreateDividerLine( kFrameMargin-1, firstDividerY, 1, lineLen )
+    OptionsFrame.RightLine = OptionsFrame_CreateDividerLine( kFrameWidth-kFrameMargin, firstDividerY, 1, lineLen )
 
     -- TIP --
     OptionsFrame.TipText = OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")

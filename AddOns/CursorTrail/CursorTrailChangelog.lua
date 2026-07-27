@@ -38,10 +38,16 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
-function CursorTrail_ShowChangelog(parent)
+function CursorTrail_ShowChangelog(parent, width, height, isAutoShow)
+    if isAutoShow and kChangelogText:sub(1,6) == "SILENT" then
+        return -- Don't automatically show this changelog.  (For simple updates that would unnecessarily nag the user.)
+    end
+
     if not ChangelogFrame then
         ----Globals.assert(not kChangelogText:find("\t"))  -- For debugging.
-        ChangelogFrame = private.UDControls.CreateTextScrollFrame(parent, "*** "..kAddonFolderName.." "..kAddonVersion.." Changelog ***", 750)
+        ChangelogFrame = private.UDControls.CreateTextScrollFrame(parent,
+                                "*** "..kAddonFolderName.." "..kAddonVersion.." Changelog ***",
+                                width or 750, height or 750)
         ChangelogFrame:Hide()
         ChangelogFrame:SetMouseWheelStepSpeed(30, 2.5, 4, 16)
         ----ChangelogFrame:SetMouseWheelDefault()
@@ -69,14 +75,40 @@ function CursorTrail_ShowChangelog(parent)
         local font
         local dx = 0
         local dy = topMargin
+        local bInVersionBlock = false
+        ----local bReleaseHeading = false
+        ----local bReleaseDate = false
+
         for line in kChangelogText:gmatch("([^\n]*)\n?") do -- Parses each line (even empty ones).
+            local trimmedLine = line:trim()
             font = smallFont
             dx = 0
 
             -- Colorize key words.
-            if line == "" then
+            if line == "SILENT" then
+                -- Skip keyword used to prevent automatically showing new changelogs.
+                line = nil
+            elseif line == "" then
                 line = " "
                 dy = 0
+            elseif strStartsWith(line, ":") and strEndsWith(line, ":") then  -- Topic heading?
+                line = YELLOW .. line:sub(2)
+                dx = indent * 0.75
+                bReleaseHeading = false
+                bReleaseDate = false
+            ----elseif strStartsWith(line, "NEW FEATURES:")
+            ----    or strStartsWith(line, "CHANGES:")
+            ----    or strStartsWith(line, "BUG FIXES:")
+            ----    or strStartsWith(line, "IMPORTANT")
+            ----  then
+            ----    line = YELLOW .. line
+            ----    dx = indent * 0.75
+            elseif line:sub(1,5) == "- - -" then  -- Version block?
+                line = BLUE .. line
+                bInVersionBlock = not bInVersionBlock
+            elseif bInVersionBlock then
+                line = BLUE .. line
+                dx = 2
             elseif line:sub(1,5) == "=====" then  -- Divider?
                 line = ORANGE .. divider
                 dy = 0
@@ -86,7 +118,7 @@ function CursorTrail_ShowChangelog(parent)
                     line = DARKGRAY .. divider
                     ChangelogFrame:AddText(line, dx, dy, font)  -- Add the divider now.
 
-                    line = "|cff606060" .. "Old Releases ..."
+                    line = "|cff606060" .. "Old Releases ..."  -- Localize this if you localize the changelog.
                     font = bigFont
                     dx = 1
                     dy = lineSpacing * 0.8
@@ -97,36 +129,31 @@ function CursorTrail_ShowChangelog(parent)
                     dx = 0
                     dy = -lineSpacing * 0.8
                 end
-            elseif strStartsWith(line, "RELEASE ") then  -- Release Heading?
+                bReleaseHeading = true -- Next line will be the release heading.
+            elseif bReleaseHeading or strStartsWith(line, "RELEASE ") then  -- Release Heading?
+                bReleaseHeading = false
                 line = ORANGE .. line
                 font = bigFont
                 dy = dy + (lineSpacing * 0.5)
                 releaseCount = releaseCount + 1
-            elseif strStartsWith(line, "Released ") then  -- Release date?
+                bReleaseDate = true -- Next line will be the release date.
+            elseif bReleaseDate or strStartsWith(line, "Released ") then  -- Release date?
+                bReleaseDate = false
                 line = YELLOW .. line
                 dx = 1
-            elseif strStartsWith(line, "NEW FEATURES:")
-                or strStartsWith(line, "CHANGES:")
-                or strStartsWith(line, "BUG FIXES:")
-              then
-                line = YELLOW .. line
-                dx = indent * 0.75
-            elseif line:sub(1,5) == "- - -" then  -- Version block?
-                line = BLUE .. line
-            elseif strStartsWith(line, "Version ") then  -- Version #?
-                line = BLUE .. line
-                dx = 2
-            elseif strStartsWith(line, "- ") then  -- Bullet item?
-                line = YELLOW .. "- |r" .. line:sub(3)
+            elseif strStartsWith(trimmedLine, "-----") and strEndsWith(trimmedLine, "-----") then  -- Sub heading?
+                line = GRAY .. trimmedLine
                 dx = indent * 2
-            elseif strStartsWith(line, "Note:") then  -- Note?
+            elseif strStartsWith(trimmedLine, "- ") then  -- Bullet item?
+                line = line:gsub("- ", YELLOW .. "- |r", 1)
                 dx = indent * 2
-            elseif line:trim():sub(1,1) == "/" then  -- Starts with a slash?
+            elseif strStartsWith(trimmedLine, "Note:") then  -- Localize this if you localize the changelog.
+                dx = indent * 2
+                -- NOTE: Only indent is changed here.  Text color is changed below.
+            elseif trimmedLine:sub(1,1) == "/" then  -- Starts with a slash?
                 line = line:gsub("<", GRAY.."<")
                 line = line:gsub(">", ">|r")
                 dx = indent * 3
-            ----elseif line:sub(-1) == ":" and line:upper() == line then  -- Section Heading?
-            ----    line = DARKGREEN .. line
             else
                 dx = indent
             end
@@ -135,7 +162,7 @@ function CursorTrail_ShowChangelog(parent)
             if line then
                 line = line:gsub("TBD", CYAN .. "<<< TBD >>>|r")  -- Emphasize TBD's.
                 line = line:gsub("TODO", CYAN .. "<<< TODO >>>|r")  -- Emphasize TODO's.
-                line = line:gsub("Note:", YELLOW .. "Note:|r")  -- Emphasize Notes.
+                line = line:gsub("Note:", YELLOW .. "Note:|r")  -- Emphasize "Note:" found anywhere within the line.
 
                 ChangelogFrame:AddText(line, dx, dy, font)
                 dy = lineSpacing
@@ -164,6 +191,9 @@ function CursorTrail_ShowChangelog(parent)
                 Globals.PlaySound(830)  -- IG_SPELLBOOK_CLOSE
             end)
     end
+
+    if width then ChangelogFrame:SetWidth(width) end
+    if height then ChangelogFrame:SetHeight(height) end
 
     if HelpFrame and HelpFrame:IsShown() then
         HelpFrame:ClearAllPoints()

@@ -363,10 +363,10 @@ function strStartsWith(str, start)  -- Based on kgriffs/string_util.lua on GitHu
     return str:sub(1, #start) == start
 end
 
---~ -------------------------------------------------------------------------------
---~ function strEndsWith(str, ending)  -- Based on kgriffs/string_util.lua on GitHub.
---~     return ending == "" or str:sub(-#ending) == ending
---~ end
+-------------------------------------------------------------------------------
+function strEndsWith(str, ending)  -- Based on kgriffs/string_util.lua on GitHub.
+    return ending == "" or str:sub(-#ending) == ending
+end
 
 --~ -------------------------------------------------------------------------------
 --~ function strInsert(str, pos, text)  -- Based on kgriffs/string_util.lua on GitHub.
