@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.0.27 (15th July 2026)
+	-- 	Leatrix Maps 12.0.28 (23rd July 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.0.27"
+	LeaMapsLC["AddonVer"] = "12.0.28"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -77,7 +77,7 @@
 		-- Load Battlefield addon
 		if LeaMapsLC.NewPatch then
 			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
-				C_AddOns.LoadAddOn("Blizzard_BattlefieldMap")
+				LoadAddOnWithErrorHandling("Blizzard_BattlefieldMap")
 			end
 		else
 			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then

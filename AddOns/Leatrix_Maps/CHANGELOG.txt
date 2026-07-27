@@ -1,4 +1,7 @@
-﻿12.0.27 - 15th July 2026
+﻿12.0.28 - 23rd July 2026
+- PTR (12.1.0): Updated deprecated functions.
+
+12.0.27 - 15th July 2026
 - For 'Show unexplored areas', added map reveal data for The Coiled Isle.
 
 12.0.26 - 9th July 2026
