@@ -28,6 +28,14 @@ addon.changelogPinned = {
 -- hasn't seen yet (see ShouldAutoShowChangelog).
 addon.changelog = {
     {
+        version  = "5.0.13",
+        date     = "2026-07-23",
+        autoShow = false,
+        items = {
+            "Update TOC for Classic Era 1.15.9.",
+        },
+    },
+    {
         version  = "5.0.12",
         date     = "2026-07-22",
         autoShow = false,
