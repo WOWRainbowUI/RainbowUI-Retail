@@ -33,6 +33,11 @@ local Boss_UnregisterBestDriver
 local MSUF_BOSS_INTERRUPT_FEEDBACK_DURATION = 0.5
 
 local function MSUF_GetInterruptFeedbackGrace()
+    local resolve = _G.MSUF_GetInterruptFeedbackDuration
+    if type(resolve) == "function" then
+        return resolve()
+    end
+
     -- Preferred global: shared with the main castbar driver.
     local g = _G.MSUF_INTERRUPT_FEEDBACK_DURATION
     if type(g) == "number" and g > 0 then
@@ -1083,7 +1088,17 @@ BossCastbar_OnUpdate = function(self, elapsed)
         self.MSUF_durationObj = newObj
         if self._msufCastState then self._msufCastState.durationObj = newObj end
         if self.statusBar and self.statusBar.SetTimerDuration then
-            SafeCall(self.statusBar.SetTimerDuration, self.statusBar, newObj)
+            -- Direction-aware rebind: channels honor unified direction (fill
+            -- like a cast) via the shared helper instead of the client default.
+            if type(_G.MSUF_ApplyTimerAndFill) == "function" then
+                local rev
+                if type(_G.MSUF_GetCastbarReverseFillForFrame) == "function" then
+                    rev = SafeCall(_G.MSUF_GetCastbarReverseFillForFrame, self, chanName and true or false)
+                end
+                _G.MSUF_ApplyTimerAndFill(self.statusBar, newObj, rev == true, chanName and true or false)
+            else
+                SafeCall(self.statusBar.SetTimerDuration, self.statusBar, newObj)
+            end
         end
         -- Re-snapshot for future ticks.
         Boss_SnapshotPlainTimes(self, newObj)
@@ -1331,10 +1346,20 @@ BossCastbar_Start = function(frame)
         end
 
         if frame.statusBar and frame.statusBar.SetTimerDuration then
-            SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj)
+            -- Direction-aware bind: boss channels honor unified direction
+            -- (fill like a cast) via the shared helper.
+            if type(_G.MSUF_ApplyTimerAndFill) == "function" then
+                local chanRev
+                if type(_G.MSUF_GetCastbarReverseFillForFrame) == "function" then
+                    chanRev = SafeCall(_G.MSUF_GetCastbarReverseFillForFrame, frame, true)
+                end
+                _G.MSUF_ApplyTimerAndFill(frame.statusBar, durObj, chanRev == true, true)
+            else
+                SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj)
+            end
         end
         Boss_SnapshotPlainTimes(frame, durObj)
-	    
+
 
         -- Apply fill direction immediately for this cast type.
         if frame.statusBar and frame.statusBar.SetReverseFill and type(_G.MSUF_GetCastbarReverseFillForFrame) == "function" then

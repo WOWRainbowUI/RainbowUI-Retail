@@ -828,7 +828,7 @@ self._msufStripeReverseFill = __msuf_rf
 MSUF__UpdatePlayerChannelHasteStripes(self, true)
 
 -- Phase 1B: Use shared timer-direction application (replaces 30-line fallback chain).
-okTimer = _G.MSUF_ApplyTimerAndFill(self.statusBar, durationObj, __msuf_rf)
+okTimer = _G.MSUF_ApplyTimerAndFill(self.statusBar, durationObj, __msuf_rf, isChanneled)
 self.MSUF_timerDriven = okTimer and true or false
 
             if self.UpdateColorForInterruptible then
@@ -904,10 +904,8 @@ self.MSUF_timerDriven = okTimer and true or false
             self.timer = nil
         end
 
-        local grace = (_G.MSUF_INTERRUPT_FEEDBACK_DURATION or 0.5)
-
-        if type(grace) ~= "number" then grace = 0.5 end
-        if grace < 0 then grace = 0 end
+        local getFeedbackDuration = _G.MSUF_GetInterruptFeedbackDuration
+        local grace = type(getFeedbackDuration) == "function" and getFeedbackDuration() or 0.5
 
         self.timer = C_Timer.NewTimer(grace, function()
             if self.interrupted then
@@ -955,10 +953,8 @@ function frame:SetInterrupted()
             label = "Interrupted",
         })
 
-        local grace = (_G.MSUF_INTERRUPT_FEEDBACK_DURATION or 0.5)
-
-        if type(grace) ~= "number" then grace = 0.5 end
-        if grace < 0 then grace = 0 end
+        local getFeedbackDuration = _G.MSUF_GetInterruptFeedbackDuration
+        local grace = type(getFeedbackDuration) == "function" and getFeedbackDuration() or 0.5
         if self._msufCastState then
             local __t = (type(GetTime) == "function") and GetTime() or 0
             local __st = self._msufCastState
