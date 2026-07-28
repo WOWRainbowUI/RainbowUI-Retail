@@ -384,16 +384,10 @@ function MSUF_GetCastbarReverseFill(isChanneled)
          return cached
     end
     local reverseNormal = (dir == "RTL")
-    local reverse
-    if uni then
-        reverse = reverseNormal
-    else
-        if isChanneled then
-            reverse = not reverseNormal
-        else
-            reverse = reverseNormal
-    end
-    end
+    -- Channels keep the cast's anchor: unified direction switches the native
+    -- timer between drain (RemainingTime) and fill (ElapsedTime) instead of
+    -- flipping the anchor, so the anchor is direction-only for every cast type.
+    local reverse = reverseNormal
     cache[ck] = reverse and true or false
     return cache[ck]
 end
@@ -612,6 +606,7 @@ _G.MSUF_ResolveStatusbarTextureKey = MSUF_ResolveStatusbarTextureKey
 _G.MSUF_BUILTIN_BAR_TEXTURES = _G.MSUF_BUILTIN_BAR_TEXTURES or {
     Blizzard   = "Interface\\TargetingFrame\\UI-StatusBar",
     Flat       = "Interface\\Buttons\\WHITE8x8",
+    ["MSUF Lucent"] = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Bars\\MSUF_Lucent_v2.tga",
     RaidHP     = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill",
     RaidPower  = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill",
     Skills     = "Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar",

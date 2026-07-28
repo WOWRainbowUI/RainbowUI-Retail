@@ -502,7 +502,7 @@ local function BuildCastbars(ctx)
         preview.spark = spark
 
         preview.ticks = {}
-        for i = 1, 4 do
+        for i = 1, 5 do
             local tick = castbar:CreateTexture(nil, "OVERLAY")
             tick:SetTexture(WHITE8)
             tick:SetWidth(1)
@@ -549,7 +549,10 @@ local function BuildCastbars(ctx)
             self.shakeStrength = max(0, tonumber(strength) or tonumber(ReadG("castbarShakeStrength", 8)) or 8)
             self.shakeStart = GetTime and GetTime() or 0
             self.shakeUntil = self.shakeStart + 0.36
-            if interrupted then self.interruptUntil = self.shakeStart + 0.58 end
+            if interrupted then
+                local duration = max(0, min(5, tonumber(ReadG("castbarInterruptFeedbackDuration", 0.5)) or 0.5))
+                self.interruptUntil = self.shakeStart + duration
+            end
             if self.Refresh then self:Refresh() end
         end
 
@@ -620,10 +623,13 @@ local function BuildCastbars(ctx)
             if unit == "target" and ((g and g.castbarOpositeDirectionTarget == true) or ReadGBool("castbarOpositeDirectionTarget", false)) then
                 reverse = not reverse
             end
-            if isChanneled and not ((g and g.castbarUnifiedDirection == true) or ReadGBool("castbarUnifiedDirection", false)) then
-                reverse = not reverse
+            local unified = (g and g.castbarUnifiedDirection == true) or ReadGBool("castbarUnifiedDirection", false)
+            if kind == "empowered" then
+                -- The empower preview fills, so the legacy flip applies.
+                if not unified then reverse = not reverse end
             end
-
+            -- Channels keep the cast's anchor; unified direction instead makes
+            -- them fill like a cast (see the visual progress computation).
             return reverse
         end
 
@@ -799,7 +805,8 @@ local function BuildCastbars(ctx)
             local duration = CastDuration(kind)
             local progress = self.progress or 0
             local reverse = ResolvePreviewReverse(self, unit, kind, g)
-            local visual = (kind == "channel") and (1 - progress) or progress
+            local unifiedFill = (g and g.castbarUnifiedDirection == true) or ReadGBool("castbarUnifiedDirection", false)
+            local visual = (kind == "channel" and not unifiedFill) and (1 - progress) or progress
             visual = max(0.01, min(1, visual))
             local fillW = max(1, floor(barWLocal * visual + 0.5))
 
@@ -1001,10 +1008,10 @@ local function BuildCastbars(ctx)
             for i = 1, #self.ticks do self.ticks[i]:Hide() end
             if kind == "channel" and ReadGBool("castbarShowChannelTicks", false) then
                 local count = 5
-                for i = 1, count - 1 do
+                for i = 1, count do
                     local tick = self.ticks[i]
                     if tick then
-                        local x = floor(barWLocal * (i / count) + 0.5)
+                        local x = floor(barWLocal * (i / (count + 1)) + 0.5)
                         tick:ClearAllPoints()
                         tick:SetPoint("TOPLEFT", self.bar, "TOPLEFT", statusX + x, -1)
                         tick:SetHeight(barHLocal)
@@ -1121,6 +1128,11 @@ local function BuildCastbars(ctx)
     local function ShakeCastPreview(strength)
         if castPreview and castPreview.PlayShake then castPreview:PlayShake(strength, false) end
     end
+    local function InterruptCastPreview()
+        if castPreview and castPreview.PlayShake then
+            castPreview:PlayShake(tonumber(ReadG("castbarShakeStrength", 8)) or 8, true)
+        end
+    end
     local function ShowEmpoweredPreview()
         if not castPreview then return end
         castPreview.castType = "empowered"
@@ -1158,6 +1170,16 @@ local function BuildCastbars(ctx)
             ShakeCastPreview(nextValue)
         end)
 
+    local interruptDuration = W.Slider(behavior, "Interrupt display duration (sec)", 0, 5, 0.1, 300)
+    W.MoveWidget(interruptDuration, behavior, leftX, -126, 320)
+    M.BindSlider(ctx, interruptDuration,
+        function() return tonumber(ReadG("castbarInterruptFeedbackDuration", 0.5)) or 0.5 end,
+        function(v)
+            local nextValue = floor((max(0, min(5, tonumber(v) or 0.5)) * 10) + 0.5) / 10
+            SetG("castbarInterruptFeedbackDuration", nextValue, "MSUF2_CASTBAR_INTERRUPT_DURATION", { preview = true })
+            InterruptCastPreview()
+        end)
+
     local unified = W.Toggle(behavior, "Always use fill direction for all casts")
     MoveToggle(unified, behavior, rightX, -42, 360)
     M.BindToggle(ctx, unified,
@@ -1179,11 +1201,31 @@ local function BuildCastbars(ctx)
         function() return ReadGBool("castbarOpositeDirectionTarget", false) end,
         function(v) SetGBool("castbarOpositeDirectionTarget", v, "MSUF2_CASTBAR_TARGET_DIRECTION", { castbar = true, preview = true }); ApplyCastbars("MSUF2_CASTBAR_TARGET_DIRECTION"); RefreshCastPreview() end)
 
-    local ticks = W.Toggle(behavior, "Show channel tick lines (5)")
+    local ticks = W.Toggle(behavior, "Spell-specific channel tick markers")
     MoveToggle(ticks, behavior, rightX, -150, 360)
     M.BindToggle(ctx, ticks,
         function() return ReadGBool("castbarShowChannelTicks", false) end,
         function(v) SetGBool("castbarShowChannelTicks", v, "MSUF2_CASTBAR_TICKS", { castbar = true, preview = true }); ApplyCastbars("MSUF2_CASTBAR_TICKS"); RefreshCastPreview() end)
+
+    local tickTooltip = "Shows tick separators on the Player castbar while channeling.\n\nSupported spells use their actual tick count, including supported talent and channel-duration changes. Unsupported channels keep five evenly spaced fallback lines. Custom channel tick settings override the automatic layout.\n\nThe markers are event-driven and add no recurring channel polling."
+    local function ShowTickTooltip(self)
+        if not GameTooltip then return end
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine(M.Tr("Spell-specific channel tick markers"), 1, 1, 1)
+        GameTooltip:AddLine(M.Tr(tickTooltip), 0.72, 0.76, 0.86, true)
+        GameTooltip:Show()
+    end
+    local function HideTickTooltip()
+        if GameTooltip then GameTooltip:Hide() end
+    end
+    if ticks and ticks.HookScript then
+        ticks:HookScript("OnEnter", ShowTickTooltip)
+        ticks:HookScript("OnLeave", HideTickTooltip)
+    end
+    if ticks and ticks._msuf2LabelHit and ticks._msuf2LabelHit.HookScript then
+        ticks._msuf2LabelHit:HookScript("OnEnter", ShowTickTooltip)
+        ticks._msuf2LabelHit:HookScript("OnLeave", HideTickTooltip)
+    end
 
     local gcd = b:CollapsibleSection("castbar_gcd", "GCD Bar", 150, false)
     local syncGCDSubs
