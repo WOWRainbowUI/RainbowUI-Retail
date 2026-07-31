@@ -145,9 +145,19 @@ L["VOLUME_STEP"] = "每點一下調整的值"
 -- TODO: L["SET_AUDIO_OUTPUT"] = "Set Audio Output"
 -- TODO: L["NO_AUDIO_OUTPUT_DEVICES"] = "No Audio Output Devices"
 
+-- DataBrokers
+-- TODO: L["DATABROKERS"] = "DataBrokers"
+-- TODO: L["DATABROKERS_PLUGINS"] = "DataBroker Plugins"
+-- TODO: L["DATABROKERS_NONE_AVAILABLE"] = "No DataBroker plugins detected. Enable a LibDataBroker plugin addon to list it here."
+-- TODO: L["DATABROKERS_SHOW_ICON"] = "Show Icon"
+-- TODO: L["DATABROKERS_ICON_SIZE"] = "Icon Size"
+-- TODO: L["DATABROKERS_SHOW_TEXT"] = "Show Text"
+-- TODO: L["DATABROKERS_SHOW_DATA_SOURCES"] = "Show Data Sources"
+-- TODO: L["DATABROKERS_SHOW_LAUNCHERS"] = "Show Launchers"
+-- TODO: L["DATABROKERS_OTHER"] = "Other"
+
 -- Clock
 L["TIME_FORMAT"] = "時間格式"
--- TODO: L["CLOCK_DATE_FORMAT"] = "Date Format"
 L["USE_SERVER_TIME"] = "使用伺服器時間"
 L["NEW_EVENT"] = "新活動!"
 L["LOCAL_TIME"] = "本地時間"
@@ -158,8 +168,6 @@ L["HIDE_EVENT_TEXT"] = "隱藏活動文字"
 -- TODO: L["CLOCK_SHOW_LOCKOUTS"] = "Show Lockouts in Tooltip"
 -- TODO: L["CLOCK_SHOW_BOSSES_KILLED"] = "Show Bosses Defeated"
 -- TODO: L["CLOCK_LOCKOUTS_HEADER"] = "Lockouts"
--- TODO: L["CLOCK_DATE_DAY_MONTH"] = "Day/Month (1/7)"
--- TODO: L["CLOCK_DATE_MONTH_DAY"] = "Month/Day (7/1)"
 -- TODO: L["REST_ICON"] = "Rest Icon"
 -- TODO: L["SHOW_REST_ICON"] = "Show Rest Icon"
 -- TODO: L["TEXTURE"] = "Texture"
@@ -261,6 +269,9 @@ L["HEARTHSTONE"] = "爐石戰記"
 -- TODO: L["ONLY_SHOW_CURRENT_SEASON"] = "Only show current season"
 -- TODO: L["MYTHIC_PLUS_TELEPORTS"] = "Mythic+ Teleports"
 -- TODO: L["HIDE_M_PLUS_TELEPORTS_TEXT"] = "Hide M+ Teleports text"
+-- TODO: L["SHOW_SEASON_DATES"] = "Show season dates"
+-- TODO: L["SEASON_DATE_RANGE"] = "From %s to %s"
+-- TODO: L["SEASON_DATE_FROM"] = "From %s"
 -- TODO: L["SHOW_MYTHIC_PLUS_TELEPORTS"] = "Show Mythic+ Teleports"
 -- TODO: L["MYTHIC_TELEPORT_SHARED_CD"] = "Shared 8-hour cooldown (resets after completing a Mythic+ dungeon)"
 -- TODO: L["SHOW_MYTHIC_TELEPORT_POPUP"] = "Show Teleport Popup"
@@ -304,6 +315,7 @@ L["Dragonflight"] = true
 L["The War Within"] = true
 L["Midnight"] = true
 L["CURRENT_SEASON"] = true
+-- TODO: L["NEXT_SEASON"] = "Next season"
 
 -- Profile Import/Export
 -- TODO: L["PROFILE_SHARING"] = "Profile Sharing"
@@ -324,8 +336,22 @@ L["CURRENT_SEASON"] = true
 -- TODO: L["IMPORT_PROFILE"] = "Import Profile"
 -- TODO: L["IMPORT_PROFILE_DESC"] = "Import a profile from another player"
 
+-- TODO: L["PROFILE_SETUP_HEADER"] = "XIV_Databar Continued"
+-- TODO: L["PROFILE_SETUP_TEXT"] = "The profile system has been migrated: this character is still using the legacy shared Default profile.\n\nChoose how this character should continue:\n- |cffffd100Keep current profile:|r stay on the shared Default profile (recommended)\n- |cffffd100Copy shared profile:|r personal profile based on your current shared settings\n- |cffffd100Create blank profile:|r personal profile with default settings (resets this character)\n\nYou can also manage profiles later in the Profiles settings."
+-- TODO: L["PROFILE_SETUP_CURRENT"] = "Current profile: %s"
+-- TODO: L["PROFILE_SETUP_NEW_BLANK"] = "Create blank profile"
+-- TODO: L["PROFILE_SETUP_NEW_FROM_SHARED"] = "Copy shared profile"
+-- TODO: L["PROFILE_SETUP_KEEP_CURRENT"] = "Keep current profile"
+-- TODO: L["PROFILE_NEWCHAR_TEXT"] = "This character starts with a blank personal profile.\n\n- |cffffd100Keep current profile:|r keep this character's blank personal profile\n- |cffffd100Use shared profile:|r join the shared Default profile (settings stay in sync)\n\nYou can change this later in the Profiles settings."
+-- TODO: L["PROFILE_NEWCHAR_USE_SHARED"] = "Use shared profile"
+
+-- TODO: L["DISABLE_LOGIN_MESSAGE"] = "Disable login message"
+-- TODO: L["ADDON_LOADED_MSG"] = "loaded, type /xivc to open settings."
+-- TODO: L["UPDATE_ANNOUNCE"] = "got updated to %s,"
+-- TODO: L["OPEN_CHANGELOG"] = "Open Changelog"
+-- TODO: L["CHANGELOG_AFTER_COMBAT"] = "Changelog will open after combat ends"
+
 -- Changelog
-L["CHANGELOG_DATE_FORMAT"] = "%year%年%month%月%day%日"
 L["IMPORTANT"] = "重要"
 L["NEW"] = "新增"
 L["IMPROVEMENT"] = "改善"

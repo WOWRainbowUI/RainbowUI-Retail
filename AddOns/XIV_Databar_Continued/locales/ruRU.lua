@@ -146,9 +146,19 @@ L["ENABLE_MOUSE_WHEEL"] = "Включить колесико мыши"
 -- TODO: L["SET_AUDIO_OUTPUT"] = "Set Audio Output"
 -- TODO: L["NO_AUDIO_OUTPUT_DEVICES"] = "No Audio Output Devices"
 
+-- DataBrokers
+-- TODO: L["DATABROKERS"] = "DataBrokers"
+-- TODO: L["DATABROKERS_PLUGINS"] = "DataBroker Plugins"
+-- TODO: L["DATABROKERS_NONE_AVAILABLE"] = "No DataBroker plugins detected. Enable a LibDataBroker plugin addon to list it here."
+-- TODO: L["DATABROKERS_SHOW_ICON"] = "Show Icon"
+-- TODO: L["DATABROKERS_ICON_SIZE"] = "Icon Size"
+-- TODO: L["DATABROKERS_SHOW_TEXT"] = "Show Text"
+-- TODO: L["DATABROKERS_SHOW_DATA_SOURCES"] = "Show Data Sources"
+-- TODO: L["DATABROKERS_SHOW_LAUNCHERS"] = "Show Launchers"
+-- TODO: L["DATABROKERS_OTHER"] = "Other"
+
 -- Clock
 L["TIME_FORMAT"] = "Формат времени"
--- TODO: L["CLOCK_DATE_FORMAT"] = "Date Format"
 L["USE_SERVER_TIME"] = "Использовать серверное время"
 L["NEW_EVENT"] = "Новое событие!"
 L["LOCAL_TIME"] = "Местное время"
@@ -159,8 +169,6 @@ L["HIDE_EVENT_TEXT"] = "Скрывать текст события"
 -- TODO: L["CLOCK_SHOW_LOCKOUTS"] = "Show Lockouts in Tooltip"
 -- TODO: L["CLOCK_SHOW_BOSSES_KILLED"] = "Show Bosses Defeated"
 -- TODO: L["CLOCK_LOCKOUTS_HEADER"] = "Lockouts"
--- TODO: L["CLOCK_DATE_DAY_MONTH"] = "Day/Month (1/7)"
--- TODO: L["CLOCK_DATE_MONTH_DAY"] = "Month/Day (7/1)"
 L["REST_ICON"] = "Иконка отдыха"
 L["SHOW_REST_ICON"] = "Показывать иконку отдыха"
 L["TEXTURE"] = "Текстура"
@@ -262,6 +270,9 @@ L["M_PLUS_TELEPORTS"] = "Телепорты М+"
 L["ONLY_SHOW_CURRENT_SEASON"] = "Показывать только текущий сезон"
 L["MYTHIC_PLUS_TELEPORTS"] = "Телепорты в эпохальные+ подземелья"
 L["HIDE_M_PLUS_TELEPORTS_TEXT"] = "Скрывать текст телепортов М+"
+-- TODO: L["SHOW_SEASON_DATES"] = "Show season dates"
+-- TODO: L["SEASON_DATE_RANGE"] = "From %s to %s"
+-- TODO: L["SEASON_DATE_FROM"] = "From %s"
 L["SHOW_MYTHIC_PLUS_TELEPORTS"] = "Показывать телепорты в эпохальные+ подземелья"
 -- TODO: L["MYTHIC_TELEPORT_SHARED_CD"] = "Shared 8-hour cooldown (resets after completing a Mythic+ dungeon)"
 -- TODO: L["SHOW_MYTHIC_TELEPORT_POPUP"] = "Show Teleport Popup"
@@ -305,6 +316,7 @@ L["Dragonflight"] = true
 L["The War Within"] = true
 L["Midnight"] = true
 L["CURRENT_SEASON"] = "Текущий сезон"
+-- TODO: L["NEXT_SEASON"] = "Next season"
 
 -- Profile Import/Export
 L["PROFILE_SHARING"] = "Обмен профилями"
@@ -325,8 +337,22 @@ L["EXPORT_PROFILE_DESC"] = "Экспортировать настройки ва
 L["IMPORT_PROFILE"] = "Импорт профиля"
 L["IMPORT_PROFILE_DESC"] = "Импортировать профиль другого игрока"
 
+-- TODO: L["PROFILE_SETUP_HEADER"] = "XIV_Databar Continued"
+-- TODO: L["PROFILE_SETUP_TEXT"] = "The profile system has been migrated: this character is still using the legacy shared Default profile.\n\nChoose how this character should continue:\n- |cffffd100Keep current profile:|r stay on the shared Default profile (recommended)\n- |cffffd100Copy shared profile:|r personal profile based on your current shared settings\n- |cffffd100Create blank profile:|r personal profile with default settings (resets this character)\n\nYou can also manage profiles later in the Profiles settings."
+-- TODO: L["PROFILE_SETUP_CURRENT"] = "Current profile: %s"
+-- TODO: L["PROFILE_SETUP_NEW_BLANK"] = "Create blank profile"
+-- TODO: L["PROFILE_SETUP_NEW_FROM_SHARED"] = "Copy shared profile"
+-- TODO: L["PROFILE_SETUP_KEEP_CURRENT"] = "Keep current profile"
+-- TODO: L["PROFILE_NEWCHAR_TEXT"] = "This character starts with a blank personal profile.\n\n- |cffffd100Keep current profile:|r keep this character's blank personal profile\n- |cffffd100Use shared profile:|r join the shared Default profile (settings stay in sync)\n\nYou can change this later in the Profiles settings."
+-- TODO: L["PROFILE_NEWCHAR_USE_SHARED"] = "Use shared profile"
+
+-- TODO: L["DISABLE_LOGIN_MESSAGE"] = "Disable login message"
+-- TODO: L["ADDON_LOADED_MSG"] = "loaded, type /xivc to open settings."
+-- TODO: L["UPDATE_ANNOUNCE"] = "got updated to %s,"
+-- TODO: L["OPEN_CHANGELOG"] = "Open Changelog"
+-- TODO: L["CHANGELOG_AFTER_COMBAT"] = "Changelog will open after combat ends"
+
 -- Changelog
-L["CHANGELOG_DATE_FORMAT"] = "%day%.%month%.%year%"
 L["IMPORTANT"] = "Важное"
 L["NEW"] = "Новое"
 L["IMPROVEMENT"] = "Улучшение"
