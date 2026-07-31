@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.0.28 (23rd July 2026)
+	-- 	Leatrix Maps 12.0.29 (29th July 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.0.28"
+	LeaMapsLC["AddonVer"] = "12.0.29"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -502,7 +502,13 @@
 		-- Show coordinates
 		----------------------------------------------------------------------
 
-		do
+		if LeaMapsLC["ShowCoords"] == "On" then
+
+			if LeaMapsLC.NewPatch then
+				-- Disable built-in coordinates
+				SetCVar("worldMapShowPlayerCoords", "0")
+				SetCVar("worldMapShowCursorCoords", "0")
+			end
 
 			-- Create background frame
 			local cFrame = CreateFrame("FRAME", nil, WorldMapFrame.ScrollContainer)
@@ -582,14 +588,6 @@
 				end
 				cPlayerTime = cPlayerTime + elapsed
 			end)
-
-			-- Function to show or hide coordinates frames
-			local function SetupCoords()
-				if LeaMapsLC["ShowCoords"] == "On" then	cFrame:Show() else cFrame:Hide() end
-			end
-
-			LeaMapsCB["ShowCoords"]:HookScript("OnClick", SetupCoords)
-			SetupCoords()
 
 			-- Create configuration panel
 			local cPanel = LeaMapsLC:CreatePanel("Show coordinates", "cPanel")
@@ -1709,7 +1707,7 @@
 		LeaMapsLC:LockOption("ScaleWorldMap", "ScaleWorldMapBtn", true) 		-- Scale the map
 		LeaMapsLC:LockOption("RevealMap", "RevTintBtn", true)					-- Shiw unexplored areas
 		LeaMapsLC:LockOption("UnlockMap", "UnlockMapBtn", true)					-- Unlock map frame
-		LeaMapsLC:LockOption("ShowCoords", "ShowCoordsBtn", false)				-- Show coordinates
+		LeaMapsLC:LockOption("ShowCoords", "ShowCoordsBtn", true)				-- Show coordinates
 		LeaMapsLC:LockOption("EnhanceBattleMap", "EnhanceBattleMapBtn", true) 	-- Enhance battlefield map
 		-- Ensure locked but enabled options remain locked
 		if LeaMapsLC["UseDefaultMap"] == "On" then
@@ -1761,6 +1759,7 @@
 		or	(LeaMapsLC["UseDefaultMap"] ~= LeaMapsDB["UseDefaultMap"])				-- Use default map
 		or	(LeaMapsLC["ScaleWorldMap"] ~= LeaMapsDB["ScaleWorldMap"])				-- Scale the map
 		or	(LeaMapsLC["RevealMap"] ~= LeaMapsDB["RevealMap"])						-- Show unexplored areas
+		or	(LeaMapsLC["ShowCoords"] ~= LeaMapsDB["ShowCoords"])					-- Show coordinates
 		or	(LeaMapsLC["ShowIcons"] ~= LeaMapsDB["ShowIcons"])						-- Show additional icons
 		or	(LeaMapsLC["HideTownCity"] ~= LeaMapsDB["HideTownCity"])				-- Hide town and city icons
 		or	(LeaMapsLC["EnhanceBattleMap"] ~= LeaMapsDB["EnhanceBattleMap"])		-- Enhance battlefield map
@@ -2348,7 +2347,7 @@
 
 	LeaMapsLC:MakeTx(PageF, "Elements", 225, -72)
 	LeaMapsLC:MakeCB(PageF, "RevealMap", "Show unexplored areas", 225, -92, true, "If checked, unexplored areas of the map will be shown on the world map and the battlefield map.")
-	LeaMapsLC:MakeCB(PageF, "ShowCoords", "Show coordinates", 225, -112, false, "If checked, coordinates will be shown.")
+	LeaMapsLC:MakeCB(PageF, "ShowCoords", "Show coordinates", 225, -112, true, "If checked, coordinates will be shown.")
 	LeaMapsLC:MakeCB(PageF, "ShowIcons", "Show additional icons", 225, -132, true, "If checked, additional icons (such as portals) will be shown.")
 	LeaMapsLC:MakeCB(PageF, "HideTownCity", "Hide town and city icons", 225, -152, true, "If checked, town and city icons will not be shown on the continent maps.")
 
