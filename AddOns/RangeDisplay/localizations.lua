@@ -20,7 +20,7 @@ L["RangeDisplay: "] = "RangeDisplay: "
 
 L = AL:NewLocale(AppName, "zhCN")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+点击|r锁定所有框架"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+点击|r锁定所有框架"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55f拖拽|r 移动位置"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55f点击|r锁定/解锁框架"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55f右击|r打开设置窗口"
@@ -29,7 +29,6 @@ L["focus"] = "焦点"
 L["mouseover"] = "鼠标悬停"
 L["pet"] = "宠物"
 L["playertarget"] = "目标"
-
 end
 
 L = AL:NewLocale(AppName, "zhTW")

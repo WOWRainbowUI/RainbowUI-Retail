@@ -77,8 +77,7 @@ L["Range Display"] = "RangeDisplay"
 
 L = AL:NewLocale(AppName, "zhCN")
 if L then
--- opt
-L["Anchor to Mouse"] = "锚点定位到鼠标"
+--L["Anchor to Mouse"] = "锚点定位到鼠标"
 L["Auto hide"] = "自动隐藏"
 L["Background Color"] = "背景颜色"
 L["Background Options"] = "背景选项"
@@ -144,13 +143,11 @@ L["Use warning sound for enemy targets only"] = "仅对敌对目标使用警告�
 L["Warning Sound"] = "报警音效"
 L["Warning Sound Name"] = "报警音效名字"
 L["Width"] = "宽度"
-
 end
 
 L = AL:NewLocale(AppName, "zhTW")
 if L then
--- opt
-L["Anchor to Mouse"] = "跟隨滑鼠移動"
+--L["Anchor to Mouse"] = "跟隨滑鼠移動"
 L["Auto hide"] = "自動隱藏"
 L["Background Color"] = "背景顏色"
 L["Background Options"] = "背景選項"
@@ -203,10 +200,8 @@ L["Text"] = "文字"
 L["Texture to use for the frame's background"] = "框架背景的材質"
 L["Texture to use for the frame's border"] = "框架邊框的材質"
 L["The size used to tile the background texture"] = "背景材質的網格大小"
-L["The text to display for this section"] = [=[這個距離範圍所顯示的文字
-(%d, %d 為 最小, 最大距離)]=]
-L["The text to display when you are further than range limit"] = [=[超出距離限制範圍所顯示的文字
-(%d 為最小距離值)]=]
+L["The text to display for this section"] = "這個距離範圍所顯示的文字\n(%d, %d 為 最小, 最大距離)"
+L["The text to display when you are further than range limit"] = "超出距離限制範圍所顯示的文字\n(%d 為最小距離值)"
 L["The thickness of the border"] = "邊框粗細"
 L["Thick"] = "粗"
 L["Tile Background"] = "背景網格"
