@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.28 (23rd July 2026)
+-- 	Leatrix Plus 12.0.29 (29th July 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.28"
+	LeaPlusLC["AddonVer"] = "12.0.29"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -6024,7 +6024,7 @@
 			SideMinimap.r.tiptext = SideMinimap.r.tiptext .. "|n|n" .. L["Note that this will not reset settings that require a UI reload."]
 			SideMinimap.r:HookScript("OnClick", function()
 				LeaPlusLC["HideMiniAddonButtons"] = "On"; if LeaPlusLC.SetHideButtons then LeaPlusLC:SetHideButtons() end
-				LeaPlusLC["MiniClusterScale"] = 1; LeaPlusLC["MinimapNoScale"] = "Off"; SetClusterScale()
+				LeaPlusLC["MiniClusterScale"] = 1; SetClusterScale()
 				LeaPlusLC["MinimapBorderWidth"] = 3
 				-- Refresh panel
 				SideMinimap:Hide(); SideMinimap:Show()
@@ -6039,7 +6039,7 @@
 						-- Preset profile
 						LeaPlusLC["HideMiniAddonButtons"] = "On"; if LeaPlusLC.SetHideButtons then LeaPlusLC:SetHideButtons() end
 						LeaPlusLC["HideMiniAddonMenu"] = "On"
-						LeaPlusLC["MiniClusterScale"] = 1; LeaPlusLC["MinimapNoScale"] = "Off"; SetClusterScale()
+						LeaPlusLC["MiniClusterScale"] = 1; SetClusterScale()
 						LeaPlusLC["UnclampMinimap"] = "On"
 						LeaPlusLC["MinimapBorderWidth"] = 3
 						LeaPlusLC:ReloadCheck() -- Special reload check
@@ -8954,7 +8954,6 @@
 				LeaPlusLC["TipShowRank"] = "On"
 				LeaPlusLC["TipShowOtherRank"] = "Off"
 				LeaPlusLC["TipShowTarget"] = "On"
-				--LeaPlusLC["TipShowMythic"] = "Off"
 				LeaPlusLC["TipBackSimple"] = "Off"
 				LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
 				LeaPlusLC["TipHideShiftOverride"] = "On"
@@ -8974,7 +8973,6 @@
 					LeaPlusLC["TipShowRank"] = "On"
 					LeaPlusLC["TipShowOtherRank"] = "Off"
 					LeaPlusLC["TipShowTarget"] = "On"
-					--LeaPlusLC["TipShowMythic"] = "On"
 					LeaPlusLC["TipBackSimple"] = "On"
 					LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
 					LeaPlusLC["TipHideShiftOverride"] = "On"
@@ -10900,16 +10898,10 @@
 				LeaPlusLC:LoadVarChk("HideMiniAddonButtons", "On")			-- Hide addon buttons
 				LeaPlusLC:LoadVarNum("MinimapBorderWidth", 3, 1, 10)		-- Minimap border width
 				LeaPlusLC:LoadVarNum("MiniClusterScale", 1, 0.5, 2)			-- Minimap cluster scale
-				LeaPlusLC:LoadVarChk("MinimapNoScale", "Off")				-- Minimap not minimap
-				LeaPlusLC:LoadVarAnc("MinimapA", "TOPRIGHT")				-- Minimap anchor
-				LeaPlusLC:LoadVarAnc("MinimapR", "TOPRIGHT")				-- Minimap relative
-				LeaPlusLC:LoadVarNum("MinimapX", -17, -5000, 5000)			-- Minimap X
-				LeaPlusLC:LoadVarNum("MinimapY", -22, -5000, 5000)			-- Minimap Y
 				LeaPlusLC:LoadVarChk("TipModEnable", "Off")					-- Enhance tooltip
 				LeaPlusLC:LoadVarChk("TipShowRank", "On")					-- Show rank for your guild
 				LeaPlusLC:LoadVarChk("TipShowOtherRank", "Off")				-- Show rank for other guilds
 				LeaPlusLC:LoadVarChk("TipShowTarget", "On")					-- Show target
-				--LeaPlusLC:LoadVarChk("TipShowMythic", "Off")				-- Show mythic score
 				LeaPlusLC:LoadVarChk("TipBackSimple", "Off")				-- Color backdrops
 				LeaPlusLC:LoadVarChk("TipHideInCombat", "Off")				-- Hide tooltips during combat
 				LeaPlusLC:LoadVarChk("TipHideShiftOverride", "On")			-- Hide tooltips shift override
@@ -11261,17 +11253,11 @@
 			LeaPlusDB["HideMiniAddonButtons"]	= LeaPlusLC["HideMiniAddonButtons"]
 			LeaPlusDB["MinimapBorderWidth"]		= LeaPlusLC["MinimapBorderWidth"]
 			LeaPlusDB["MiniClusterScale"]		= LeaPlusLC["MiniClusterScale"]
-			LeaPlusDB["MinimapNoScale"]			= LeaPlusLC["MinimapNoScale"]
-			LeaPlusDB["MinimapA"]				= LeaPlusLC["MinimapA"]
-			LeaPlusDB["MinimapR"]				= LeaPlusLC["MinimapR"]
-			LeaPlusDB["MinimapX"]				= LeaPlusLC["MinimapX"]
-			LeaPlusDB["MinimapY"]				= LeaPlusLC["MinimapY"]
 
 			LeaPlusDB["TipModEnable"]			= LeaPlusLC["TipModEnable"]
 			LeaPlusDB["TipShowRank"]			= LeaPlusLC["TipShowRank"]
 			LeaPlusDB["TipShowOtherRank"]		= LeaPlusLC["TipShowOtherRank"]
 			LeaPlusDB["TipShowTarget"]			= LeaPlusLC["TipShowTarget"]
-			--LeaPlusDB["TipShowMythic"]		= LeaPlusLC["TipShowMythic"]
 			LeaPlusDB["TipBackSimple"]			= LeaPlusLC["TipBackSimple"]
 			LeaPlusDB["TipHideInCombat"]		= LeaPlusLC["TipHideInCombat"]
 			LeaPlusDB["TipHideShiftOverride"]	= LeaPlusLC["TipHideShiftOverride"]
@@ -13996,11 +13982,6 @@
 				LeaPlusDB["MiniExcludeList"] = "BugSack, Leatrix_Plus" -- Excluded addon list
 				LeaPlusDB["MinimapBorderWidth"] = 3				-- Minimap border width
 				LeaPlusDB["MiniClusterScale"] = 1				-- Minimap cluster scale
-				LeaPlusDB["MinimapNoScale"] = "Off"				-- Minimap not minimap
-				LeaPlusDB["MinimapA"] = "TOPRIGHT"				-- Minimap anchor
-				LeaPlusDB["MinimapR"] = "TOPRIGHT"				-- Minimap relative
-				LeaPlusDB["MinimapX"] = 0						-- Minimap X
-				LeaPlusDB["MinimapY"] = 0						-- Minimap Y
 
 				LeaPlusDB["TipModEnable"] = "On"				-- Enhance tooltip
 				LeaPlusDB["TipBackSimple"] = "On"				-- Color backdrops

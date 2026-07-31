@@ -1,4 +1,7 @@
-﻿12.0.28 - 23rd July 2026
+﻿12.0.29 - 29th July 2026
+- Updated deprecated functions.
+
+12.0.28 - 23rd July 2026
 - PTR (12.1.0): Updated deprecated functions.
 - You may need to restart your game client completely after installing this update.
 
