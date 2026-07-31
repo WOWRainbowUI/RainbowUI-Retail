@@ -1021,11 +1021,15 @@ function Components.Checkbox(parent, config)
     if tooltipData then
         local infoIcon = holder:CreateTexture(nil, "ARTWORK")
         infoIcon:SetSize(14, 14)
-        infoIcon:SetPoint("LEFT", label, "RIGHT", 4, 0)
         if config.warningTooltip then
             infoIcon:SetAtlas("services-icon-warning")
+            infoIcon:SetPoint("LEFT", label, "RIGHT", 4, 0)
         else
-            infoIcon:SetAtlas("QuestNormal")
+            -- Custom atlases center differently than QuestNormal's "!"; nudge them
+            -- down a touch so the glyph sits on the label's text row.
+            local customAtlas = tooltipData.atlas
+            infoIcon:SetAtlas(customAtlas or "QuestNormal")
+            infoIcon:SetPoint("LEFT", label, "RIGHT", 4, customAtlas and -1 or 0)
         end
 
         local infoBtn = CreateFrame("Button", nil, holder)
