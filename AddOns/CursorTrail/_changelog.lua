@@ -8,6 +8,18 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.7.3
+Released 2026-07-27
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.7.3 for Retail WoW
+Version 5.5.4.3 for Classic Mists of Pandaria
+Version 2.5.6.2 for Classic Burning Crusade
+Version 1.15.9.2 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Fixed a scaling problem that occurred when using the ElvUI addon.
+
+=======================================
 RELEASE 12.0.7.2
 Released 2026-07-26
 
