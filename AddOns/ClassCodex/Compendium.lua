@@ -573,33 +573,85 @@ local function InitFrame()
     PanelTemplates_SetNumTabs(UI.frame, #TAB_DATA)
     PanelTemplates_SetTab(UI.frame, 1)
 
-    -- Long localized labels (German "Beste Ausrüstung", "Schmuckstücke",
-    -- "Verbesserungen", …) widen the 6-tab row past the frame's right edge.
-    -- Size each tab to its text, then shrink the tab font uniformly (to a
-    -- readable floor) until the whole row fits FRAME_WIDTH, whatever the locale.
+    -- Long localized labels (German "Beste Ausrüstung", Italian
+    -- "Equipaggiamento migliore", Russian "Лучшая экипировка", …) push the
+    -- 6-tab row past the frame's right edge. Shrink the tab font uniformly (to
+    -- a readable floor) until the row fits, whatever the locale.
+    --
+    -- Two things this has to respect, both learned the hard way:
+    --  * Tab geometry (GetStringWidth / GetLeft / GetRight) is only valid after
+    --    the frame's first paint — before that widths read 0. The caller polls
+    --    on the timer until this returns true.
+    --  * The gap between adjacent tabs is NOT the -14 anchor offset: the tab
+    --    cap-art cancels most of it, leaving a small positive gap. So the row's
+    --    width can't be computed from tab widths + a guessed overlap. Measure
+    --    the fixed chrome (gaps + caps) once from the real layout — it's
+    --    font-independent — then drive the fit off summed tab widths.
+    local MIN_TAB_FONT = 8      -- readability floor; never shrink past this
+    local TAB_LEFT_INSET = 15   -- first tab's BOTTOMLEFT x offset (see anchor)
+    local TAB_RIGHT_MARGIN = 12 -- keep the last tab this far from the frame edge
     local function FitTabsToFrame()
-        local OVERLAP, EDGES = 14, 15 + 12 -- inter-tab overlap; left start + right margin
-        local function rowWidth()
-            local w = EDGES
-            for _, tab in ipairs(tabs) do
-                PanelTemplates_TabResize(tab, 0)
-                w = w + tab:GetWidth() - OVERLAP
-            end
-            return w + OVERLAP
+        local function tabFont(tab)
+            return tab.Text or _G[(tab:GetName() or "") .. "Text"]
         end
-        local steps = 0
-        while rowWidth() > FRAME_WIDTH and steps < 5 do
-            steps = steps + 1
+        local function resizeAll()
+            for _, tab in ipairs(tabs) do PanelTemplates_TabResize(tab, 0) end
+        end
+        local function sumTabWidths()
+            local w = 0
+            for _, tab in ipairs(tabs) do w = w + (tab:GetWidth() or 0) end
+            return w
+        end
+
+        -- Pre-paint the fontstrings report zero width; wait for real metrics.
+        local ready = false
+        for _, tab in ipairs(tabs) do
+            local fs = tabFont(tab)
+            if fs and fs:GetStringWidth() > 0 then ready = true break end
+        end
+        if not ready then return false end
+
+        resizeAll()
+        local firstLeft = tabs[1]:GetLeft()
+        local lastRight = tabs[#tabs]:GetRight()
+        if not (firstLeft and lastRight) then return false end
+
+        -- Fixed pixels between the summed tab widths and the strip's true
+        -- extent (anchor gaps + cap art). Font-independent, so measure once.
+        local chrome = (lastRight - firstLeft) - sumTabWidths()
+        local available = FRAME_WIDTH - TAB_LEFT_INSET - TAB_RIGHT_MARGIN
+
+        while sumTabWidths() + chrome > available do
+            local shrunk = false
             for _, tab in ipairs(tabs) do
-                local fs = tab.Text or _G[(tab:GetName() or "") .. "Text"]
+                local fs = tabFont(tab)
                 if fs then
                     local file, size, flags = fs:GetFont()
-                    if file and size then fs:SetFont(file, size - 1, flags) end
+                    if file and size and size - 1 >= MIN_TAB_FONT then
+                        fs:SetFont(file, size - 1, flags)
+                        shrunk = true
+                    end
                 end
             end
+            if not shrunk then break end -- hit the readability floor; stop
+            resizeAll() -- re-tighten to the smaller font before re-measuring
         end
+        return true
     end
-    FitTabsToFrame()
+    UI.frame:HookScript("OnShow", function()
+        if UI.tabsFitted then return end
+        -- Poll on the timer (post-paint) until GetStringWidth is non-zero, then
+        -- fit once. Give up after ~0.5s of frames as a safety valve.
+        local function attemptFit(tries)
+            if UI.tabsFitted then return end
+            if FitTabsToFrame() then
+                UI.tabsFitted = true
+            elseif tries < 30 then
+                C_Timer.After(0, function() attemptFit(tries + 1) end)
+            end
+        end
+        attemptFit(0)
+    end)
 
     -- Scroll frame inside Inset
     local scrollFrame = CreateFrame("ScrollFrame", "ClassCodexCompendiumScroll", UI.frame.Inset, "UIPanelScrollFrameTemplate")
@@ -1063,10 +1115,10 @@ end
 -- u.gg PvP stat keys -> the full stat names the PvE priority uses, so both
 -- surfaces read identically ("Critical Strike", not "crit").
 local PVP_STAT_NAMES = {
-    crit = "Critical Strike",
-    haste = "Haste",
-    mastery = "Mastery",
-    versatility = "Versatility",
+    crit = "致命一擊",
+    haste = "加速",
+    mastery = "精通",
+    versatility = "臨機應變",
 }
 
 -- Build a synthetic priority record from u.gg's per-spec PvP stat data so the

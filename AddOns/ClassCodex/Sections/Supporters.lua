@@ -21,7 +21,6 @@ local CHAMPIONS = {
 local SUPPORTER_LIST = {
     "Bxnane",
     "Rod",
-    "Alida Bell",
     "Furkan Yünkül",
     "Mudrc",
     "Fabian Goertz",
@@ -30,6 +29,10 @@ local SUPPORTER_LIST = {
     "Zalyniela",
     "Kim",
     "xmousseline",
+    "Chris Bobek",
+    "Юрий Минкин",
+    "Sabuha",
+    "André Milde",
 }
 
 -------------------------------------------------------------------------------

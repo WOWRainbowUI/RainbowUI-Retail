@@ -4,50 +4,21 @@ ClassCodexSource["blizzard"] = {
     DEATHKNIGHT = {
       blood = {
         talents = {
-          all = {
-            ["pvp:3v3"] = { { export = "CoPAkXBWxkyfx9CbGaHonEAhLBAAAACAAAAAAAAAAAAAAAAAAIAEAAAAAAAAA", honor = { 608, 5587 } } },
-          },
-          deathbringer = {
-            ["pvp:2v2"] = {
-              {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzwMmxgZbmZmmZZmZMzMAAAAAGMzMzMjZmZMAYmZmZGAAgZmtxwYGLLNW2WGmsMMsAYGDAAmZAGjB",
-                honor = { 204, 608, 3441 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyYmxMmZmhZZmZmmZxYMzMGAAAAwMMzMzMDzMjBAzMzMzAAAMzsNGGzYZpxyy2wkthhFAzYAAwMzMDMMA",
-                honor = { 608, 5587 },
-              },
-              {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAgxsNwAWC2GmADLAmhZAAMzAYYA",
-                honor = { 608, 5587 },
-              },
-            },
+          sanlayn = {
             ["pvp:blitz"] = {
               {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxMzyMzwMmxMYZmZmmZbmZMzMAAAAADMzMzMjZmZMDAjZmZmBAAMzsNGGzYZpx22ywkthhlBYGAAwMDAjB",
+                export = "CoPAkXBWxkyfx9CbGaHonEAhLhZWmZGmxMzMMbjZmmZzYMzMmBAAAAMMzMzMjZmZMDAzMzMzAAAYgBmxiGLbgsNgtBYGAAAmZAMA",
                 honor = { 608, 5592, 3441 },
               },
-            },
-            ["pvp:rbg"] = {
               {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxYWGzYmZmZMMLzMz0MLzYMmxAAAAAzMmZmZmZYGjBAjZmZGAAgxsNwA2CWGmADLAmxMAAMzAMYA",
-                honor = { 5587, 204 },
+                export = "CoPAkXBWxkyfx9CbGaHonEAhLxYWmZGGzMzMMLjZmmZbmZMzMAAAAAmZmZGzMDzYMDAjZmZGAAgZmtxwYGbLNW22GmsNMsNAzYGAAwMDYMA",
+                honor = { 608, 5592, 3441 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxYWmZGmxMmhZZmZmYbGjZmxMAAAAYmhZmxMzYmZMAYMzMzAAAMzsNGGzYZpx2yywkthhlBYGzAAwMzMDYMA",
-                honor = { 5592, 608, 3441 },
-              },
-            },
-          },
-          sanlayn = {
-            ["pvp:2v2"] = {
-              {
-                export = "CoPAkXBWxkyfx9CbGaHonEAhLxYMmxMjZmZY2MzMNziZGzMjBAAAAMDzMmZmZmZmZAwYmZmBAAYmZZMMmxyWjlllhJbDDbAmxAAgZmZGYYA",
-                honor = { 204, 608, 3441 },
+                export = "CoPAkXBWxkyfx9CbGaHonEAhLxYWmZGGzMzMMLjZmmZbmZMzMAAAAAmZmZGzMDzYMDAjZmZGAAgZmtxwYGbLNW22GmsNMsNAzYGAAwMDYMA",
+                honor = { 5592, 3441, 608 },
               },
             },
           },
@@ -59,51 +30,59 @@ ClassCodexSource["blizzard"] = {
             ["pvp:2v2"] = {
               {
                 export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzYYWmZmZYbGjmZMzMDzwYmZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
-                honor = { 5586, 5591, 5429 },
-              },
-              {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMDzYGzMzgZmZMDAAAAAAAAAjZbWMbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
-                honor = { 5586, 5591, 5429 },
+                honor = { 5429, 701, 5591 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmhZMzYY2mZmZmZZmZ0MjxYYMGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmQGLYmxMzADADzMAAD",
-                honor = { 702, 5429, 3512 },
-              },
-              {
                 export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMjZGzYMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
-                honor = { 702, 5429, 3512 },
+                honor = { 702, 5429, 5586 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMDzwYmZGMzMzMDAAAAAAAAAjZbWMbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
-                honor = { 5586, 701, 5429 },
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGDzMmZmhZYMzMDmZmZmBAAAAAAAAgxsNLmtZYswwyMbjBzYxYmhZGwAYYmBzMMYA",
+                honor = { 5591, 5586, 5429 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyMzMDbmZ0MjZmZYGDzMzgZmZmZAAAAAAAAAYMbzmZbGGLMsMz20QzYxYmhZGwAYYmBzMAD",
+                honor = { 5591, 5586, 5429 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmBjZmZYWmZmZYbGjmZMzMDzwYmZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
-                honor = { 702, 5429, 701 },
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzYYWGzMzMbzYkZMzMjZGGjZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMAMYA",
+                honor = { 5586, 5429, 702 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZMzMzYYWGzMDbzMjMjZmZMzMYMDMzMzMDAAAAAAAAAjZbWMbzwYhhlZ2mGaGLGzMMzAzAYYmBzMAD",
+                honor = { 5586, 5429, 702 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmBjZmZYWGzMDbzYmmZMzMDzYYmZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
+                honor = { 5586, 5429, 702 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNAzMDjZmZYWmZmZYzMjmZMzYMzMYMzMzMzMjZAAAAAAAAAYMbzGbzwYBsMz20QzYxYmhZGYAYYmBmBYA",
+                honor = { 5586, 5429, 702 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMjZGzYMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
+                honor = { 5586, 5429, 702 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmBjZmZYWGzMDbzYmmZMzMDzYGzMzgZmZMDAAAAAAAAAjZbgBsAWGmQGLGzMMzAGADzMAMYA",
-                honor = { 702, 5429, 5591 },
-              },
-            },
-          },
-          ["rider-of-the-apocalypse"] = {
-            ["pvp:3v3"] = {
-              {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLZAmhZmZGDzmZmZmZzMjmZMzMmZM4BmxMzMzMzMDAAAAAAAAAgNzyMMwAzmGaYDzYmZGYAYAYmZAfA",
-                honor = { 702, 5429, 3512 },
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmBjZmZYWGzMzYbGjmZMzMjZGzYMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
+                honor = { 5586, 5591, 5429 },
               },
               {
-                export = "CsPAkXBWxkyfx9CbGaHonEAhLZAmZmZMDDz2MzMzMLmZmMDGmZmxwMmZmZmZmZAAAAAAAAAAsZ2MMwAziGaYDzMzMzAAYAYmZGYA",
-                honor = { 702, 5429, 3512 },
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzMDzyYmZYbGjmZMzMjZGzYMzgZmZMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
+                honor = { 5586, 5591, 5429 },
+              },
+              {
+                export = "CsPAkXBWxkyfx9CbGaHonEAhLNDYmZYMzYYWmZmZYbGjmZMzMDzwYmZGMzMzMDAAAAAAAAAjZb2MbzwYhhlZ2mGaGLGzMMzAGADzMYmhBD",
+                honor = { 5586, 5591, 5429 },
               },
             },
           },
@@ -114,32 +93,44 @@ ClassCodexSource["blizzard"] = {
           ["rider-of-the-apocalypse"] = {
             ["pvp:2v2"] = {
               {
-                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBMzMDzyYmZa2mxYmZMDAAAAAAAgZGmZAwyMmZYmZmZGD2mZzMzsoZWWY2Y2mGLMAzAwYmZMDwMzYGD",
-                honor = { 5590, 5430, 149 },
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZGDzyYmZa2mxYmhZAAAAAAAAMzwMDAWmxMjZmxMzYw2MbmZmNNz2CzGz20YhBYGAGzMjZwMzMzYGD",
+                honor = { 149, 5430, 5590 },
+              },
+              {
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZmZYWGzMTjZMmZYGAAAAAAAAzMMzAglZMzYmZMzMGsNzmZmZRzsswsxsNNWYAmBgxMzYGMzMzMmxA",
+                honor = { 149, 5430, 5590 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMLGGyAzGDNWwAmBgxMzYGgZmZMG",
-                honor = { 5590, 149, 5430 },
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZMDzyYmZa2mxYmhZAAAAAAAAMzYmZAwyMmZYmxMzYw2MbmZmFNzyCzGz20YhBYGAGzMjZwMzMzYGD",
+                honor = { 41, 149, 5590 },
+              },
+              {
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZmZYWGzMTz2MGjhZAAAAAAAAMzYmZAwyMmZYmxMzYw2MbmxsoZgZjZbaswAMDAjZmxMYmZmZMjB",
+                honor = { 41, 149, 5590 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmhZMjZY2mZmZa2MGzMjBAAAAAAAgZGzYAwyMmZ2MzYMjBLzsZmZW0MLLMbMLTjFMgZAYMzMmBzMzMzYMA",
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZMDzyYmZa2mxYmhZAAAAAAAAMzYmZAwyMmZYmxMzYw2MbmZmFNz2CzGz20YhBYGAGzMjZwMzMzYGD",
                 honor = { 5430, 5590, 149 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmZYMzYYWGzMTz2MGjhZAAAAAAAAMzwMDAWmxMDzMmZGwiZzwQGY2YoxCDwMAMmZGzAMzMmxA",
-                honor = { 5430, 5590, 149 },
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZmZMzyYmZa2MGjZMDAAAAAAAgZGzMDAWmxMDzMGzYw2MbmZmFNzyCzGz20YhZAzAwYmZMDwMzwYA",
+                honor = { 5436, 149, 5590 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBPgZGjZWGzMTz2MGjZMDAAAAAAAgZGmZAwyMmZMzMmZGD2mZzMzspZ2WY2Y2mGLMAzAwYmZMDmZmZGzYA",
-                honor = { 5590, 149, 5430 },
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZMDzyYmZa2mxYmhZAAAAAAAAMzYmZAwyMmZYmxMzYw2MbmZmFNzyCzGz20YhBYGAGzMjZwMzMzYGD",
+                honor = { 41, 149, 5590 },
+              },
+              {
+                export = "CwPAkXBWxkyfx9CbGaHonEAhLBYmBjZmZYWGzMTz2MGjhZAAAAAAAAMzYmZAwyMmZYmxMzYw2MbmxsoZgZjZbaswAMDAjZmxMYmZmZMjB",
+                honor = { 41, 149, 5590 },
               },
             },
           },
@@ -153,51 +144,51 @@ ClassCodexSource["blizzard"] = {
             ["pvp:2v2"] = {
               {
                 export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZbMzMAAAAAAAAMjZYGzMzYmZmZmZxMGLaZhZmZmt2mZmBwMGACMDDMfA",
-                honor = { 5735, 5730, 5728 },
+                honor = { 5734, 5738, 5735 },
               },
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZZMzMAAAAAAAAMjZYGzMzYmZmZmZxMGLaZhZmZmt2mZmBwMGACMDDMfA",
-                honor = { 5735, 5730, 5728 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAYmxMzMmZMMDAAAAAAgZMGjZAAAAAAAAYGzwMmZmxMzMzMziZMW0yCzMzMbtNzMDgZMzMLzMTzyMLzwAzHA",
+                honor = { 5734, 5738, 5735 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAQgZMYMD",
-                honor = { 5729, 5734, 5735 },
-              },
-            },
-            ["pvp:blitz"] = {
-              {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZbMzMAAAAAAAAMjZYGzMzYmZmZmZxMGLaZhZmZmt2mZmBwMGACMDDMfA",
-                honor = { 5735, 5729, 5734 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAWmZmZmZGzMwAAAAAAAgxsNegZGAAAAAAAAmxMMjZmZMzMzMzsMzYsolFmZmZ2abmZGAzYAIwMAmPA",
+                honor = { 5734, 5738, 5735 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAWmxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwMzsMzMNbzsNMDjZA",
-                honor = { 5735, 5733, 5734 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmhZMMDAAAAAAwixsNGzAAAAAAAAwMmhZMzMzMzMjZmFzYsolFmZmZ2abmZGAzYAIwMMM8BA",
+                honor = { 5730, 5735, 5728 },
+              },
+            },
+            ["pvp:shuffle"] = {
+              {
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZZMzMAAAAAAAAMjZYGzMzYmZmZmZxMGLaZhZmZmt2mZmBwMGACMDDMfA",
+                honor = { 5734, 5735, 5738 },
               },
             },
           },
           ["void-scarred"] = {
             ["pvp:2v2"] = {
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZbMzMAAAAAAAAMjZYGzMzYmZwMbzMGbabhZmZmt2mZmZAmxMzsMzMNLzsMzww4DA",
-                honor = { 5735, 5730, 5728 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBA2mZmZmZGzMGGAAAAAAAMmlhZGAAAAAAAAmxMMPgZmZMzMGzsNzYsptFmZmZ2abmZmBYGzMz2Mz0sNzyMDzYcBA",
+                honor = { 5734, 5738, 5735 },
               },
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhZAAAAAAAYMGzMDAAAAAAAAzYGmxMzMmZGMz2Mjxm2WYmZmZrtZmZGgZMzMLzMTzyMLzMMM+AA",
-                honor = { 5735, 5730, 5728 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMjZmZmxMjhBAAAAAAAjZbMzMAAAAAAAAMjZYeAzMzYmZMmZbmxYTbLMzMzs12MzMDwMmZmlZmpZZmlZGGGfA",
+                honor = { 5734, 5738, 5735 },
               },
               {
                 export = "CgcBG5bbocFKcv+yIq8fPd6ORBAYMzMzMmZMMDAAAAAAAjZZMzMAAAAAAAAMjZYGzMzYmZwMbzMGbabhZmZmt2mZmZAmxMzsMzMNbzsMzww4DA",
-                honor = { 5735, 5730, 5728 },
+                honor = { 5734, 5738, 5735 },
               },
             },
-            ["pvp:shuffle"] = {
+            ["pvp:blitz"] = {
               {
-                export = "CgcBG5bbocFKcv+yIq8fPd6ORBAMzMzMjxMjhBAAAAAAAjZbMzMAAAAAAAAMjZYeAzMzYmZMmZbmxYTbLAIgBYGzMz2Mz0sNzyMDzYcBA",
-                honor = { 5738, 5735, 5734 },
+                export = "CgcBG5bbocFKcv+yIq8fPd6ORBA2mZmZmZGzMGGAAAAAAAMmlhZGAAAAAAAAmxMMPgZmZMzMGzsNzYsptFmZmZ2abmZmBYGzMz2Mz0sNzyMDzYcBA",
+                honor = { 5735, 5734, 5738 },
               },
             },
           },
@@ -208,34 +199,38 @@ ClassCodexSource["blizzard"] = {
           ["aldrachi-reaver"] = {
             ["pvp:2v2"] = {
               {
-                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMjZMmZMzMZYGAAAAAAwsYMbjZmZmtZmZWmt5BmxygZsNzyMLzyMzMLbzy00MmZMjFAAAAAAEgZmZGMAEAAYA",
-                honor = { 811, 5433, 813 },
+                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMDjxMjZmJDzAAAAAAAmlZMGzMzMbzMzsMbzDMjlBzYbmlZWmlZmZW2mlppZMzYGLAAAAAAIAzMzMYAIAAwA",
+                honor = { 5433, 813, 5691 },
               },
             },
             ["pvp:3v3"] = {
               {
                 export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMjZMmZMmJDzAAAAAAAmFjZbmZmZmtZmZWmt5BmxygZsNzyMLzyMzMLbzy00MmZMjFAAAAAAEgZmZGMAEAAYA",
-                honor = { 806, 813, 5433 },
+                honor = { 813, 5433, 812 },
+              },
+              {
+                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMjZMmZMzMZYGAAAAAAwsYMbjZmZmtZmZWmt5BmxygZsNzyMLzyMzMLbzy00MmZMjFAAAAAAEgZmZGMAEAAYA",
+                honor = { 813, 5433, 812 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMDjxMjZmJDzAAAAAAAmlZMGzMzMbzYmlZbegZmtBzYbmlZWmtxMW2mlJNjZGzYBAAAAAABYmZmBDABAAG",
-                honor = { 5433, 806, 813 },
+                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMzmZmZmxMzkhBAAAAAAYWMmtZMzMz2MzMLz2YGLDmx2MLzsMLzMzssNLTTzMzMmxCAAAAAACwMzMDGACAAM",
+                honor = { 813, 806, 5433 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CEkAG5bbocFKcv+yIq8fPd6ORZgZmZMzMmZMmJDDAAAAAAwsYMLzMzMzsNzMzysNzMWGMjtZWmZZWmZmZZbWmmmxMjZsAAAAAAgAMzMzgBgAAAD",
-                honor = { 813, 5433, 806 },
+                export = "CEkAG5bbocFKcv+yIq8fPd6ORZGMzMjZMmZMmJDzAAAAAAAmFjZbmZmZmtZmZWmtxMWGMjtZWmBDjlNmkZmZMjFAAAAAAEgZGgBgAAAD",
+                honor = { 813, 5433, 812 },
               },
             },
           },
           ["fel-scarred"] = {
             ["pvp:rbg"] = {
               {
-                export = "CEkAG5bbocFKcv+yIq8fPd6ORZmZmZmZ2mZmxMzMzkxYAAAAAAAzCzsNjZmBmx2sNzMz2YglZ2mZb2mZmZbb2mmmxYmhNAAAgBAgAMzMzgBgAAAD",
-                honor = { 811, 5433, 813 },
+                export = "CEkAG5bbocFKcv+yIq8fPd6ORZmZYmZMjZmZMmpZGzAAAAAAAmFjZbGmZGzMD2mxwMzMsNzyMbzyMzMLbzy00MzMjZsBAAAAAgAgZGMAEAAYA",
+                honor = { 5433, 813, 5523 },
               },
             },
           },
@@ -244,38 +239,20 @@ ClassCodexSource["blizzard"] = {
       vengeance = {
         talents = {
           ["aldrachi-reaver"] = {
-            ["pvp:rbg"] = {
-              {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAMjZmZMzMz0MzMYYmZmZYGzwMzMmZGMbzMWMGDmBAAAgZZGMMWWYCDzYmFAAAAMYmZmZmt2mZmxMDAAAAAfA",
-                honor = { 819, 5716, 5521 },
-              },
-              {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAMjxMjxMzkZmZG2mxAMjhZmZGzMzYmtZGbmZMGDAAAAmtZwwYbjJMMzMWAAAAwgZAEgZGgBAAAwA",
-                honor = { 819, 5716, 5521 },
-              },
-            },
-          },
-          annihilator = {
             ["pvp:blitz"] = {
               {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAMzMzMMzMzkxMzYWmZmZmhZmZghhZwsNzYZY2GjZAAAAYWmBDjtFmwwMMbAAAAYwMzMzMLtNzMjZGwAAAAwA",
-                honor = { 3430, 5716, 1948 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAgxMjZmZmmZmxYWmZmZmZmZMjZMzAjxsNzYZmZwwAAAAwsMDGGLbMhhZG2AAAAwgZmZmZWabmZGzMgBAAAgHA",
-                honor = { 819, 5716, 5521 },
+                export = "CUkAG5bbocFKcv+yIq8fPd6ORBA2mxMzMmZmZyYGjZZmZmxMzMmhZmZMzAz2MjlhxgZAAAAYWmBDjlFmwwMmZBAAAADmZmZmZplZmZMzAGAAAAA",
+                honor = { 3430, 5522, 819 },
               },
               {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBA2MmZmxYmRmZGYxMmBzMmZMzDMzMjhZ2mZsZmZbMMAAAAMbzghxyCTYYmZsBAAAgBmZmZmt2mZmBAGAAAAD",
-                honor = { 819, 5716, 5521 },
+                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAMjxMjxMDmZGjhZGmZmhZmZmZMYmxsNzYZmZ2GDDAAAAzyMYYssxADzMsAAAAgBzMzMzsYbmZGzMAAAAAMA",
+                honor = { 3430, 5522, 819 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CUkAG5bbocFKcv+yIq8fPd6ORBA2mxMzMGzMYmZMsMzMzgZYmxMPwYmxgZbmx2DMzsNGGAAAAmtZwwYZhBGmZGbAAAAAMzMzMb2mZmBAAAAAYA",
-                honor = { 5716, 3430, 1948 },
+                export = "CUkAG5bbocFKcv+yIq8fPd6ORBAYmZmZMmZGmZGMLAmZmxMjZmZmZmZGz2MjFMGjZAAAAYWmBDjtNGYYGzsAAAAgBzAAgZGgBAAAwA",
+                honor = { 1220, 1948, 5716 },
               },
             },
           },
@@ -285,59 +262,43 @@ ClassCodexSource["blizzard"] = {
     DRUID = {
       balance = {
         talents = {
-          ["elunes-chosen"] = {
-            ["pvp:3v3"] = {
-              {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZjxMMLzsMziZmxyYZmlxMD2wAgxy2Mz22MbzyMNzsMTAAAAWYmZmBbGGjBgZGMzADA",
-                honor = { 185, 5407, 5383 },
-              },
-              {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNjxMDwsNzMzMLMMjxMLzsYmZmNWmZZMGzsgBAjttZmttZ2mtZamZZmAAAAswMzMD2MMGDAzMYmBGA",
-                honor = { 185, 5407, 5383 },
-              },
-            },
-          },
           ["keeper-of-the-grove"] = {
             ["pvp:2v2"] = {
               {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZjxwMLjlZMjZYsMjZmZwGGAM2MzstN2Gz0MzyMBAAAYzMzMzgNDjxMAmZwMDMA",
-                honor = { 5407, 5383, 185 },
-              },
-              {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlx2MmxGLzYmZGmFMAYAW2GbYamZbEAAAgNmZmZwmxMGzAYmBAGA",
-                honor = { 5407, 5383, 185 },
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYGjZWGbzYGbsMzyYmZMLYYAGgltxGmmZWGBAAAYjZmZGsZgxMAmZAgB",
+                honor = { 185, 3731, 5407 },
               },
             },
             ["pvp:3v3"] = {
               {
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMD8AmtxMzMLwwMLjlZMjZwsMjZmZwGGAM22mx22MbzyMNzsMTAAAA2MzMzMYzwYMDgZGYGYA",
+                honor = { 185, 5407, 5383 },
+              },
+              {
                 export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsxMzMbMGegZbsMjZMzYsMjZmZY2wAgx22Mz22MbzyMNzsNTAAAA2MzMzMYzYGjBgZGMzADA",
-                honor = { 185, 5407, 5383 },
-              },
-              {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZzMeAmZZsMjZMzwsMjZmZwGGAMW2mx22MbzyMNzsMTAAAA2Mz8AzMYzYGjBgZGAYA",
-                honor = { 185, 5407, 5383 },
-              },
-              {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsxMzMLmxgZZsMjZMzYmlZMzMD2wAgx2ix22MbWmpZmlZCAAAwmZmHYmBbGzYMDgZGMzADA",
                 honor = { 185, 5407, 5383 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWGlZpZMmZAmtZmZmZDYMLzsMWmxMjxyMmZmhZDDAGLbzMbbzsNLz0MzyMBAAAYzMzMGsZYMGAmZAwyA",
-                honor = { 185, 5407, 5383 },
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWGlZpZMmZgHwsZmZmZBeAjZZmlxyMzMMWmZZmZGmNMAYssNzstNz2sMTzMbzEAAAgNzMzYwmBGDAzMAwA",
+                honor = { 3728, 185, 5646 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWGlZpZmZmZgxsxMzMLMwMbjlxywDMziZZmlZmZG2wAgBYbbsgpZmtRAAAA2MmZGgxwYAYmBAGA",
-                honor = { 185, 3058, 822 },
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWGlZpZMmZAmtZmZmZjBMLjlxyYmZ2GLzsMzMDWwAgxy2M22mZb2mpZmtZCAAAwmZmZmBbGDjBgZGAYA",
+                honor = { 185, 3058, 5646 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsZmZmZjxwMGLzYGzMGLzYmZGshBAjltZstNz2sMTzMLzEAAAgNzMzMD2MMGzAYmBAGA",
-                honor = { 185, 5383, 5407 },
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsNmZmZhxwMLjlZMjZYsMjZmZwGGAM22mZ22mZbWmpZmlZCAAAwmZmZmBbGGjZAMzgZGYA",
+                honor = { 185, 5407, 5383 },
+              },
+              {
+                export = "CYGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAAAAAAWoMLNjxMDwsxMzMbMGegZbsMjZMzYsMjZmZY2wAgx22Mz22MbzyMNzsNTAAAA2MzMzMYzYGjBgZGMzADA",
+                honor = { 185, 5407, 5383 },
               },
             },
           },
@@ -345,55 +306,39 @@ ClassCodexSource["blizzard"] = {
       },
       feral = {
         talents = {
-          ["druid-of-the-claw"] = {
-            ["pvp:rbg"] = {
-              {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYJY2M8AmZUzYWMzMzsMmhBAAAAAwADAAAgmZZ2mZmBEYBmZGgFGMAAAmZDD",
-                honor = { 620, 201, 611 },
-              },
-            },
-          },
           wildstalker = {
             ["pvp:2v2"] = {
               {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAgZMzCjZmZGz2CLzsMjZmHYmBAAAglgZxgZmZqZMbmZmZWGmxAAAAAAAMAAAAamlZbmZmZbmtmtZW2AzMALMYAAMzADMA",
-                honor = { 620, 3053, 5384 },
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZ2YGzMzY2WYZmlZMzMzMAAAAsEMLGYmZqZMbmZmZ2Gz8AGAAAAAAgBAAAQAwsNzWz2MLbwMzAswgBAwMDAG",
+                honor = { 5647, 5384, 620 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZwMzMzMmtlxyMLzYGzMDAAAALBzmBmZmaGzmZmZmlxMMAAAAAAADAAAgmZZWGjZWmZpZbmlNYmZAWYGGAAzMAYA",
-                honor = { 620, 3053, 820 },
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZWYmZmZGz2CLzsMjZMzMAAAAsEMbGYmZqZMbMzMzyYmxAAAAAAAMAAAAamlZbmZmZbmlmtZW2gZmBYhBDAgZGMzGG",
+                honor = { 611, 620, 3053 },
+              },
+              {
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZwMzMzMmtlxyMLzYGzMDAAAALBzmBmZmaGzmZmZmlxMMAAAAAAADAAAgmZZ2mZmZ2mZpZbmlNYmZAWYGGAAzMAYA",
+                honor = { 611, 620, 3053 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZWYmZmZGz2CLzsMjZMzMAAAAsEMbGYmZqZMbmZmZWGzMGAAAAAAgBAAAQzsMbzMzMLzs0sNzyGYmBYhBDAgZGMzGG",
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjxCzMzMzY2WGLzsMjZmZmBAAAglgZzgZmZqZMbmZmZ2GmxAAAAAAAAAAAQAwsNzWz2MLbgZGgFGMAAmZAwA",
                 honor = { 5647, 3751, 620 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAgZMzCjZmZGz2CLzsMjZmHYmBAAAglgZzAzMTNjZzMzMzyYmxAAAAAAAMAAAAamlZbmZmZZmlmtZW2AzMALMYAAMzgZ2wA",
-                honor = { 620, 201, 611 },
-              },
-              {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAgZMzCjZmZGz2CLzsMjZmHYmBAAAglgZxgZmZqZMbmZmZWGmxAAAAAAAMAAAAamlZbmZmZbmtmtZW2AzMALMYAAMzADMA",
-                honor = { 620, 201, 611 },
-              },
-              {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZ2YmZmZGz2CLzsMjZMzMAAAAsEMLGYmZqZMbmZmZ2Gz8AGAAAAAAgBAAAQzsMLzMzMbzs1sNz2GYmBYxMYAAMzAgB",
-                honor = { 620, 201, 611 },
-              },
-              {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAgZMDGzMjxstMWmZZmZm5BmZAAAAYJY2MGzMzUzY2MzMzsMm5BAAAAAAAYAAAAEAMbzs0sNzyGYmBYhBDAgZGAMA",
-                honor = { 620, 201, 611 },
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZWYMzMzY2WYZmlZMzMzMAAAAsEMbGYmZqZMbmZmZWGzwAAAAAAAMAAAAyY2mxMz2MLNbzssBzMDwCzwAAYmBzshB",
+                honor = { 620, 5384, 5647 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAwYMzGjZmZGz2CLzsMjZMzMAAAAsEMbGYmZqZMbmZmZWGzMGAAAAAAgBAAAQGz2MmZ2mZpZbmlNwMDwCDGAAzMYmFMA",
-                honor = { 5384, 5647, 620 },
+                export = "CcGA8cL7tpvige+kkmGM9zUPWDAAAAAAjZwMzMzMmtlxyMLzYGzMDAAAALBzmBmZmaGzmZmZmlxMjBAAAAAAYAAAAkxsNjZmtZWa2mZZDMzAswgBAwMDmZBD",
+                honor = { 620, 5384, 5647 },
               },
             },
           },
@@ -401,36 +346,28 @@ ClassCodexSource["blizzard"] = {
       },
       guardian = {
         talents = {
-          ["druid-of-the-claw"] = {
-            ["pvp:2v2"] = {
-              {
-                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmxsMMGY2mZmZsNwwMGNRmZWYmZGzMzAAAAAAYmZZAW2mBGzyAYqZWmlZmZAAsgZGglFDGMzysZAwMbwA",
-                honor = { 51, 842, 194 },
-              },
-            },
-          },
           ["elunes-chosen"] = {
             ["pvp:2v2"] = {
               {
-                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmFzMjZWMLmxMLLDMbzANRmZWGzMzsMmBAAAAAGMzsZGYZbmBjZZAMFAAAYzYmBYxYYgZxyGgZGAA",
-                honor = { 51, 842, 194 },
+                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmlZGDWMLeg5BmZZZgZzwoJamZWMzMzsMmhBAAAAAMsMDYZbmBjZZAMFAAAYzYmHAYxMYwgltBYmBwA",
+                honor = { 5410, 5648, 197 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmhl5BGzMzyMwMzyyAziZMTTkZmNmZmZZMzDAAAAAAgZxAW2mZwYWGATNzysMGDAgNjZGAGYwMLjNAzMAG",
-                honor = { 51, 5648, 196 },
+                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmFzYmZWmBzYWWAziZMaiMzsxMzMLmZGAAAAAAYZGwy2MDGzyAYqZWmlZmZAAshZGgtlxwgB2AMzY2gB",
+                honor = { 196, 51, 5648 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmFzYMzyMYGzyCY2GMaiMzsxMzMLmZGAAAAAMwMLzAW2mZwYWGATNzysMGDAgNzMzAADDwstAYmBwA",
-                honor = { 51, 5648, 52 },
+                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmZmFzMjZWmZzMzMLLDMbmxoJyY2mZmZmlxMDAAAAAAmFDYZbmBjZZAM1MLzyYMAA2wMDADMYswGgZGAPA",
+                honor = { 5410, 5648, 197 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmxsMzgZ2MLzYmxyA2YMay0MzsZmZmZZMDDAAAAAYGLGw22MDGzyAYqZWmlZmZAAsZMzDAsYGMglZBgZmZ2gB",
+                export = "CgGA8cL7tpvige+kkmGM9zUPWDAAAAAAAAAAAgZmxsYGMzyMLGzMWGwGjRTz0MzsZmZmZZMDDAAAAAYGLzAW2mZwYWGATNzysMzMDAgNjZAsYGMglZBgZmZ2gB",
                 honor = { 49, 51, 196 },
               },
             },
@@ -442,34 +379,32 @@ ClassCodexSource["blizzard"] = {
           ["keeper-of-the-grove"] = {
             ["pvp:2v2"] = {
               {
-                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMmlxMjxsxsYbAAAAAAAAAAglZIbmx0MzMwsZmZmZxgZAAAAAMAgxA22GLYamZZAAMbzs0sNziFYmZYGbgmBAzMzMAMA",
-                honor = { 5668, 5687, 1215 },
+                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMmlxMjxsxsYbAAAAAAAAAAglZIbmx0MzMwsZmZmZxwDYAAAAAMAgxA22GLYamZZAAMbzs0sNziFYmZYGbgmBAzMzMAMA",
+                honor = { 1215, 5668, 5687 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMmlxMjxsxsYbGAAAAAAAAAAsMDNbmx0MzMDmNzMzMLGAAAAAgBAwA22GLYamZZAAMLzs1sNziFYmZYGbgmBAzMAgB",
+                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZDjxMzsMmZMmNmFbzAAAAAAAAAAglZIbmx0MzMDmNzMzMLGMDAAAAgBAwA22GLYamZZAAMbzs0sNziFYmHYYGbgmBAzMzMAMA",
                 honor = { 5668, 5687, 1215 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMm5BmlxMjxsxsYbGAAAAAAAAAAsMDNbmx0MzMDmtZmZmZBAAAAAgBAwA22GLYamZZAAMLzs1sNzmFYmZYGbgmBAzMAgB",
+                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMmlxMjxsxsYbAAAAAAAAAAglZIbmx0MzMDmNzMzMLGAAAAAgBAMGw22YBTzMLDAgZbmlmtZWsAzMDzYDjmBAzMzMAMA",
                 honor = { 1215, 5687, 5668 },
+              },
+            },
+            ["pvp:rbg"] = {
+              {
+                export = "CkGA8cL7tpvige+kkmGM9zUPWPjxMbMjxMmlxMjxsxsYbAAAAAAAAAAglZILMmmZmZwsZmZmZxgBAAAAgBAMGw22YBTzMLDAgZbmlmtZWsgZmHYYGbY0MAYmZmBgB",
+                honor = { 5668, 5687, 1215 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMzsMmZMmFmFmBAAAAAAAAAALzQ2MjpZmZGMbmZmZ2MAAAAAADAgBssMWw0MzyAAYYWa2GLWYmZMYsgRzAgZmZGAGA",
-                honor = { 5668, 1215, 5687 },
-              },
-            },
-          },
-          wildstalker = {
-            ["pvp:rbg"] = {
-              {
-                export = "CkGA8cL7tpvige+kkmGM9zUPWPjxMLz2MmZGz2wDYmZYswMAAAAAAAAAAYbQDzYamxwYWmZmZGGmBAAAAAAAAAQAAAz2MLNbzsZjxMDmZgRzAAMzAwA",
-                honor = { 59, 5687, 1215 },
+                export = "CkGA8cL7tpvige+kkmGM9zUPWPMmZjZMzMmlxMjxsxsYbAAAAAAAAAAglZIbmx0MzMwsZmZmZzwDMDAAAAgBAMGw22YBTzMLDAgZZmlmtZWsAz8ADzYD0MAYmZmBgB",
+                honor = { 5668, 5687, 1215 },
               },
             },
           },
@@ -480,50 +415,52 @@ ClassCodexSource["blizzard"] = {
       augmentation = {
         talents = {
           chronowarden = {
-            ["pvp:2v2"] = {
+            ["pvp:blitz"] = {
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrhZGbzMzM2mxMzsMMzMmZDAAAAADAAMzMMzYMUzYmZAAAAwMzMYmZbMDwsYMMbzYbbWGmZbYGmZaELYMmZAgB",
-                honor = { 5612, 5563, 5561 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZGMYmZZGjhZ2AAAAAAAAYmhxMYM1YmZGAAAAMjZMmZ2GzMwMLGYMjFWgBmhhGxCmZMzAAD",
-                honor = { 5619 },
+                export = "CEcBPJc41CfcseY0baneJ1IHrhZGbzMzM2mxMzsMMzMmZDAAAAADAAMzMMzYMwMmZGAAAAMzMDmZ2GzAMLGDz2M22mlhZ2GmhZGDsgxYmBAG",
+                honor = { 5619, 5561, 5560 },
               },
             },
           },
           scalecommander = {
             ["pvp:2v2"] = {
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrhZmZbMzgZYmZZGzMjZ2AAAAAAAAYmhxMYM1YmZGAAAAYmZMmZ2GzMwMbzYwCsMGGLDgZiYDjBmZAM",
-                honor = { 5612, 5563, 5561 },
+                export = "CEcBPJc41CfcseY0baneJ1IHrhZmZbMzgZYmZZGzMjZ2AAAAAgBAAmhHYGYM1YmZGAAAAMzMjxMzyYmBmZbGDWglxwYZAMTEbYMDmZAM",
+                honor = { 5563, 5560, 5454 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMMDmZbYmZMDAAAAAAAAmZGzMjZGqxMzMAAAAwMMYmlxMDMzywwsNjtlZZYmthZYmpRshxMYmBGG",
-                honor = { 5619, 5562, 5612 },
+                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMWmxMzYYmZMDAAAAAAAAmZYmhxYqZMzMAAAAwMzMMzsMmBYWMGmtZstMLDzsNMDzMNiNMGzMzMAG",
+                honor = { 5619, 5561, 5560 },
+              },
+              {
+                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMWmBzsNMzMmBAAAAAAAAmZMzMmZM1MzMzAAAAAzAMzyYmBmZBDWglxwYbAMTEbYMwMDMM",
+                honor = { 5619, 5561, 5560 },
+              },
+              {
+                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbjZmhZwMbzYmZMzGAAAAAGAAwMDzMGD1YmZGAAAAYmZGmZWGzMwMLGDz2M2WmlhZ2GmhZmGxGGDMzADD",
+                honor = { 5619, 5561, 5560 },
+              },
+              {
+                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMWmBzsNMzMmBAAAAAGAAwMDzMGjpGzMzAAAAAzYwMzyYmBmZxYYWmxyysMMz2wMMz0I2wYgZGYYA",
+                honor = { 5619, 5561, 5560 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrxMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AGjpGzMzAAAAAzMjxMzyYmBmZbGDzywyysMMzywMMz0I2wMzgZGAD",
+                export = "CEcBPJc41CfcseY0baneJ1IHrhZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMGzYM1YmZGAAAAYmZMmZWGzMwMbzYYWmxy2sNMzywMMz0I2wYmZmZGAD",
                 honor = { 5561, 5560, 5563 },
               },
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrNmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzYwCsMGGbDgZiYDzMDmZAM",
-                honor = { 5561, 5560, 5563 },
-              },
-              {
-                export = "CEcBPJc41CfcseY0baneJ1IHrhZmZbMzgZYmZZGzMjZ2AAAAAgBAAmhxAjpGzMzAAAAgZmZMmZWGzMwMbzYwCsMGGLDgZiYDjZwMDgB",
+                export = "CEcBPJc41CfcseY0baneJ1IHrhZmZbmZGMDzMLDzMjZ2AAAAAgBAgZmZYmxYoGzMzAAAAgZmxgZWGzMwMLDDz2M2WmlhZ2GmhZmGxGGzgZGAD",
                 honor = { 5561, 5560, 5563 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzgZYmZbYmZMzGAAAAAAAAzMjHYmxY8AMmZmBAAAAmxgZmlxMDMzixgFYZMM2GAzAshxAzMwwA",
-                honor = { 5563, 5561, 5560 },
+                export = "CEcBPJc41CfcseY0baneJ1IHrNMzMbzMzMWmxMzYYmZMDAAAAAAAAmZYmhxYqZMzMAAAAwMzMMzsMmBYWMGmtZstMLDzsNMDzMNiNMGzMzMAG",
+                honor = { 5563, 5619, 5560 },
               },
             },
           },
@@ -531,58 +468,46 @@ ClassCodexSource["blizzard"] = {
       },
       devastation = {
         talents = {
-          flameshaper = {
-            ["pvp:2v2"] = {
-              {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAAz8AjZmZmZGzMwMYMTGzMZM2GMzwYmZGAzMmHYmZZmZwMwMmB2ALBzwEyGYZYGgZmhB",
-                honor = { 5469, 5464, 5460 },
-              },
-            },
-          },
           scalecommander = {
             ["pvp:2v2"] = {
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwYmZGMDzwMjHYmxYYaMzMNDWmhZmZmZmZGwMzMYmZZMDMwYwGsMGN2GQmJAbYgZGgB",
-                honor = { 5469, 5464, 5460 },
-              },
-              {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGzMzYmBDMMzMTmZmpZmZWGzMzMzgZGAzYYmZZmZwMgZmxGbWGzSjtZGmMT2AbDzgZGMDA",
-                honor = { 5469, 5464, 5460 },
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGMDzwMMz8AYMTjZmJDWmZmZGzMzMzAMjZYmZZMDMwYwGsMGN2GQmJAbYgZGYMA",
+                honor = { 5462, 5469, 5460 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwYmZgZYGmhZGmZMTjZmpZM2mxMzMz8AzMzAMzMYmZZMDMwMzM2YxyY2asNzwkZyCYbYgZGgB",
-                honor = { 5460, 5464, 5469 },
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGmZYGmhZmHAjZaMzMZwyYmZGzMzMzAMjZYmZZMDMwYwGsMGN2GQmJAbYgZGYMA",
+                honor = { 5464, 5462, 5469 },
               },
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZgZwYmBmxYmZaYmJzMzyMzMzYmHYmZGwMzMGzMLjZgBMzM2YxyY2asMzwkZyCYbYgZGgB",
-                honor = { 5460, 5464, 5469 },
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZgZYGMMzMYYaMzMNzMWmhZmZmHYmZGwMzYMzMLjZgBYwGsMGN2GQmJAbYgZGYMA",
+                honor = { 5464, 5462, 5469 },
               },
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwYmZGmZYGmhZGGjHYamZmJDWGzMzYmZmZGwMzMYmZZMDMwMzM2YzyY2asNzwkZyCYbYgZGgB",
-                honor = { 5460, 5464, 5469 },
-              },
-              {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwMzMDMjHYmhBzwMjZaYmpZmxyMmxMzYmZGwMGmZmxMzADYmZswmlxs1YbmhJzkNw2wAzMzMDD",
-                honor = { 5460, 5464, 5469 },
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwMzMDMDzYmZ8AzMGDTjZmpZMzyMmZmZGzMzAmZGDmZZMDMAD2glxox2AyMBYDDMzAMA",
+                honor = { 5464, 5462, 5469 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAAzMzgZYGzMMzwYMjZMzwglZmZmxMzMzMAzMzwMzyYGYgxgNYZMM2GAzAwGGYmBYA",
-                honor = { 5469, 5464, 5460 },
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAwYmZGMDzMzMDzMGDTjZmpZmxyMMzMzYmZGgZGDmZZmZgBMzwGsMmtGbzMMZmAsNMwMDGG",
+                honor = { 5469, 5462, 5460 },
               },
             },
             ["pvp:rbg"] = {
               {
                 export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAAzMzgZYGmZMzMGDTjZmpZmxyMMzMzYmZGwMzYwMLzMDMAD2glxox2AyMBYDDMzghB",
-                honor = { 5460, 5469, 5462 },
+                honor = { 5462, 5460, 5469 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGMDzwMMz8AYMTjZmJjxyYmZGzMzMzAMjZYmZZMDMwMzM2YxyY2asNzwkZyGYbYgZGYMA",
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGMDzwMMz8AYMTjZmJDWmZmZGzMzMzAMjZYmZZMDMwYwGsMGN2GQmJAbYgZGYMA",
+                honor = { 5462, 5464, 5469 },
+              },
+              {
+                export = "CsbBPJc41CfcseY0baneJ1IHrBAAAAAAAAAAgZmZGmZYGmhZmHAjZaMzMZwyYmZGzMzMzAMjZYmZZMDMwYwGsMGN2GQmJAbYgZGYMA",
                 honor = { 5462, 5464, 5469 },
               },
             },
@@ -594,28 +519,20 @@ ClassCodexSource["blizzard"] = {
           chronowarden = {
             ["pvp:2v2"] = {
               {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAmZmZ22GYYmZYmBsNMAAYmZMzMGDzEjZAAAgtZmZaGjZmZZMDAMmZMzyGLWYYmZmGa2MjFDjZGMzwA",
-                honor = { 5468, 5459, 5718 },
-              },
-              {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAmZmZ22GYYmZYmxgthBAAmhZmxYYmYmZAAAgtZmZaGjZmZZMDAMmZMzyGLWYYmZmGa2gFDjZGMzwA",
-                honor = { 5468, 5459, 5718 },
+                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAmZmZ22GYYmZYmBsNMAAwMMzMGjZmwMDAAAsNzMTzgZmZZMDAMmZMzyGLWYYmZmGa2MjFDjZGMzwA",
+                honor = { 5463, 5718, 5468 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAegZmZ22GYYmZYmxYsNMAAwMMzMzYYmwMDAAAsNzMTzYMzMLjZAAYMjNWgBmRDNgFYMzAwA",
-                honor = { 5461, 5468, 5718 },
-              },
-              {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAYmZ22GYYmZYmxYsNjBAAzMjZmZGDzEMDAAAsNzMTzYMzMLjZAgxMjZW2YxGDzMz0QzmhFDjZGMzwA",
+                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAmZmZ22GYYmZYGGjthBAAzMMzMGDzEmZAAAgtZmZaGjZmZZMDAMmZMzyGLWYYmZmGa2gFDjZGMzwA",
                 honor = { 5461, 5468, 5718 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAegZmZ22GYYmZYmxYsNMAAwMjZmxYYmwMDAAAsNzMTzYMzMLjZAgxMjZW2YxCDzMz0QzGsYYMzgZGGA",
-                honor = { 5470, 5718, 5468 },
+                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAegZmZ22GYYmZYmxYsNMAAwMjZmxYmZmgBAAAsNzMTzYMzMLjZAghZMjNWswwMzMN0sBLGGzMwMMA",
+                honor = { 5470, 5468, 5718 },
               },
             },
             ["pvp:rbg"] = {
@@ -626,8 +543,8 @@ ClassCodexSource["blizzard"] = {
             },
             ["pvp:shuffle"] = {
               {
-                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAmZmZ22GYYmZYGGjthBAAzMMzMzYYmwMDAAAsNzMTGmZmZZMDAMmZMzyGLWYYmZmGa2gFDjZGMzwA",
-                honor = { 5468, 5718, 5470 },
+                export = "CwbBPJc41CfcseY0baneJ1IHrBAAAAAegZmZ22GYYmZYmxYsNMAAwMMzMGDzEzMDAAAsNzMTzYMzMLjZAgxMjZW2YxCDzMz0QzGsYYMzgZGGA",
+                honor = { 5461, 5468, 5718 },
               },
             },
           },
@@ -640,44 +557,26 @@ ClassCodexSource["blizzard"] = {
           ["pack-leader"] = {
             ["pvp:2v2"] = {
               {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYxsMjZmhFDbwMM0M2AAwMmtxMLmhZMzw4BmZMMjZmZMmxiZGzMzYY0MAAAAAmBAAgZYmBMzGyCmZBsNA",
+                export = "C0PApei1JmYNvFfEFaN5bWuGKAMmxwCsAzwQDbAAYGz2YmFzwMmZY8AzMGmxMzMGzYxMjZmHYwMaGAAAAAzAAAwMMzAmZDZBzsA2GA",
                 honor = { 3599, 5444, 3604 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYzsNjZmhNDLMzMbGaGbAAYGzyMzsZGmxMzYmZMmxMMzYGzwMzYGzgx0MAAAAAAAAgxYmhZmZ2QYWMLgtBA",
-                honor = { 5444, 3604, 3599 },
               },
             },
             ["pvp:blitz"] = {
               {
                 export = "C0PApei1JmYNvFfEFaN5bWuGKAMmxwCsAzwQDbAAYGz2YmFzwMmZY8AzMGmxMzMGzYxMjZmZMMaGAAAAAzAAAwMMzAmZDZBzsAWGA",
-                honor = { 3599, 3604, 5444 },
+                honor = { 3604, 3599, 5444 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYzsMjZmhFDLMzMbGaGbAAYGz2YmFzwMmZY8AzMGmxMzMmZGLzMDzYwMaGAAAAAzAAAwMMzwMzMbILYmFwyAA",
-                honor = { 693, 3604, 3599 },
-              },
-              {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYxsNjZmhFDLwMM0M2AAwMjtZmZzMMzMzwMmZMMDzMzMzMYmxMmZYMNDAAAAgZAAAwMGDYmFEYmFgBA",
-                honor = { 693, 3604, 3599 },
-              },
-              {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYzYGzMDbwCmZ2M0M2AAwMegtxMLzMjZMzwwMjxMjZmxwYZZmZMjHYwQzAAAAAYGAAAmZMzwMzMLIYZmFw2FAA",
-                honor = { 693, 3604, 3599 },
-              },
-              {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYzsNjZmhFDLMzMbGaGbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZYMDLjpZAAAAAAAAAjxMDzMzshAmFw2AA",
-                honor = { 693, 3604, 3599 },
+                export = "C0PApei1JmYNvFfEFaN5bWuGKYzsMjZmhFDLMzMbGaGbAAYGz2YmFzwMmZY8AzMGmxMzMmZGLzMDzYwMaGAAAAAzAAAwMMzwMzMbILYmFw2AA",
+                honor = { 5444, 3604, 3599 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "C0PApei1JmYNvFfEFaN5bWuGKYzsNjZmhFDbMzMbGaGbAAYGz2YmFzwMmZY8AzMGmxMzMGzYxMjZmZwDMaGAAAAAzAAAwMMzwMzMbILYmFw2AA",
-                honor = { 3599, 3604, 5444 },
+                export = "C0PApei1JmYNvFfEFaN5bWuGKAMmxwCsBzwQDbAAYGz2YmFzwMmZY8AzMGmxMzMGzYxMjZmZMMaGAAAAAzAAAwMMzAmZDZBzsA2GA",
+                honor = { 3599, 5444, 3604 },
               },
             },
           },
@@ -688,36 +587,32 @@ ClassCodexSource["blizzard"] = {
           ["dark-ranger"] = {
             ["pvp:2v2"] = {
               {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZGWyMMLAAAAAAAAAzwYGLGzMzMjxDQzYwstYmZsNzMmZswMLDzMAAgZGzMzMzgZGbLYGgNmZM",
-                honor = { 651, 653, 5440 },
-              },
-              {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYZZ2GDjZMTjlZGWyMMLAAAAAAAAAzwYGLGzMzMjhRzMDmtltZG2mZGzM2YmlhZGAAwMMzMzMDmZstgZAWYmxA",
+                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZWGDjZMTjtZGWyMMLAAAAAAAAAzwYmllZMjZmxwoZMDzGzMjlZmxMjNmZbwAAAMDzMzMzgZGbLYGgFmZmB",
                 honor = { 651, 653, 5440 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYZZ2GDjZMTjlZG2yMMLAAAAAAAAAzwYGLGzMzMDLDNjZY2W2MMLzMjZGbMz2gBAAYGmZmZmBzM2WwMALMzMD",
-                honor = { 651, 659, 5533 },
+                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZG2yMMLAAAAAAAAAzwYGLeAzMz8ADLzoZMY2W2mZMLzMjZGbMz2wMAAAzMmZmZmBzM2WwMAbMzYA",
+                honor = { 653, 651, 659 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZWGDjZMTjlZGWyMMLAAAAAAAAAGzYGLGzMzMDQzYwsstNzMz2MzYmxGjlBzAAAmZmZMzMDmZstwyMALMmZA",
+                export = "C4PApei1JmYNvFfEFaN5bWuGKYbbWGDjZMTjlZGWyMMLAAAAAAAAAGzYGLGzMzMDQzYwsstNzMz2MzYmxGjlBzAAAmZmZMzMDmZstwyMALMmZA",
                 honor = { 651, 653, 660 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZWGDjZMTjlZG2yMMLAAAAAAAAAzwYGLGzMzMjZxoZMY2W2mZGLjZMzYjZWGmZAAAzwMzMzMYmx2CmBYjZGD",
-                honor = { 5440, 653, 651 },
+                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZWGDjZMTjlZGWyMMLAAAAAAAAAzwYGLGzMzMDMamZwstsNzMMzMmZsxMLDzMAAgZYmZmZGMzYbhlZA2YmxA",
+                honor = { 659, 653, 651 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZG2yMMLAAAAAAAAAzwYGLGzMz8ADmRzYwstsNzYWmZGzM2YmthZAAAmZMzMzMDmZstgZA2YmxA",
-                honor = { 651, 653, 5533 },
+                export = "C4PApei1JmYNvFfEFaN5bWuGKYbZ2GDjZMTjlZG2yMMLAAAAAAAAAzwYmllZMjZmBPwoZMY2W2mZGLjZMzYjZ2GmZAAAzwMzMzMYmx2CmBYhZGD",
+                honor = { 653, 651, 5533 },
               },
             },
           },
@@ -725,87 +620,37 @@ ClassCodexSource["blizzard"] = {
       },
       survival = {
         talents = {
-          ["pack-leader"] = {
-            ["pvp:2v2"] = {
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMgxMG2ILwMM0gFzMzMzwyAAAAAAgZMzMjtZMmxMYMNDAAAADAMWWmZmFzMzYMGDYmNAWMGzMbGA",
-                honor = { 3607, 665, 664 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMgxMGWILwMM0gFzMzMzwyAAAAAAgZMzMjtZMmxMYMNDAAAADAMWWmZmFzMzYMmZAzsBAjxMzmBA",
-                honor = { 3607, 665, 3609 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYGbjmFYGmZawiZmZmZ8ALDAAAAAAmZMGW8AGzMzwyMaGAAAAGAgllZmZxMzMmhZGwMLzw2CmxYmZzAA",
-                honor = { 3609, 3607, 686 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0sYYGmZawiZmZmZYZAAAAAAwMmZmhZMMmBjpZAAAAYAgxyyMzsYmZGzMGDYmFDgZMmZ2MA",
-                honor = { 3609, 3607, 686 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwYGjZjmlthZYGNYxMzMzMsMAAAAAAYmZGzwMGzYG8AmmBAAAgBAPwYZZmZWMzMj5BGjBMzmBYZGMzsZA",
-                honor = { 3609, 3607, 686 },
-              },
-            },
-          },
           sentinel = {
             ["pvp:2v2"] = {
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGzssMjhZMYGNzAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjNDA",
-                honor = { 3607, 665, 664 },
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGjllZMMzMYGNDAAAADAwy2MzsYmZmZGmZAzsNDbLYGjZsYA",
+                honor = { 3607, 3609, 665 },
               },
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0ssMMDzMNYzMzMjhlZAAAAAAYGzYYxYMzMDLGNDAAAADAwyyMzsYmZmZGmZAzsNDLLYGjZsYA",
-                honor = { 3607, 665, 664 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzMzMjxDsMDAAAAAAzwYYxYMzMDLzoZAAAAYAAW2mZmFzMzYGmZAzsMDbLYGjZsZA",
-                honor = { 3607, 665, 664 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzMzMjhlZAAAAAAYGGzssMjhZegBzoZAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjFDA",
-                honor = { 3607, 665, 664 },
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGzssMjxMjBzoZAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjNDA",
+                honor = { 3607, 3609, 665 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzMzMjhlZAAAAAAYGGzssMjhZMsMjmBAAAgBAYZbmZWMzMzMDzMgZ2mhtFMjxM2MA",
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzMzMjhlZAAAAAAYGGzYxYMzYwMamBAAAwAAssNzMLmZmZmhZGwMbzw2CLzYMjNDA",
                 honor = { 3607, 665, 3609 },
               },
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGmZmllZMMjBzoZAAAAYAAW2mZmFzMzMzwMDYmtZYbBzYMjNDA",
-                honor = { 3607, 665, 3609 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYmxYGLGjZmHYwMaGAAAAGAgltZmZxMzMzMMzAmZbG2WwMGzYzAA",
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZZ0stMMDzMNYzYmZMeglZAAAAAAYmxYGLGjZmZwDMaGAAAAGAgltZmZxMzMzMMzAmZZG2WwMGzYzAA",
                 honor = { 3607, 665, 3609 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGjllZMmZMYGNDAAAADAwy2MzsYmZmZGmZAzsNDbLsMjxM2MA",
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMDzMLDz2ywMYGD2MmZGjHYZGAAAAAAmxMGbLDDzYwMjZGAAAADAw22MzsZmZmZGmZAzYG2wyMGzYxAA",
                 honor = { 3609, 664, 3607 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGzYxYMz8ADLzoZAAAAYAA22mZegFzMzMzwMDYmtZYZBzYMzsZA",
-                honor = { 3609, 3607, 686 },
-              },
-              {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0ssMMDzMNYzYmZMeglZAAAAAAYGGjllZMMzMYGNDAAAADAwy2MzsYmZmZGmZAzsMDbLYGjZsYA",
-                honor = { 3609, 3607, 686 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzYmZMeglZAAAAAAYGGzssMjhZMYGNDAAAADAwy2MzsYmZmZmxMDYmtZYbBzYMjNDA",
-                honor = { 664, 3607, 3609 },
+                export = "C8PApei1JmYNvFfEFaN5bWuGKMWwMzYmZb0stMMDzMNYzMzMjhlZAAAAAAYGGjllZMMzMYGNDAAAADAwy2MzsYmZmZGmZAzsNDbLYGjZsZA",
+                honor = { 664, 3607, 665 },
               },
             },
           },
@@ -816,30 +661,34 @@ ClassCodexSource["blizzard"] = {
       arcane = {
         talents = {
           spellslinger = {
-            ["pvp:3v3"] = {
-              {
-                export = "C4DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2mZGaYmBAAwAAmZmmlltZmZmZZbmJWAAYZMzMDWsMzMjZmZMmZmZswMzMMAADAAgZWwMDMGAMM",
-                honor = { 5661, 5707, 637 },
-              },
-            },
             ["pvp:blitz"] = {
               {
-                export = "C4DAMhlVtghLZL4RZzExaQoBYNGLzsMzMziFzM0MMDAAgBAMzMNLLLzMzMzyyMTsAAwCmZmhNLzMzsMzYMjZmZsxMzMmBAYAAAmZWwMDMGA8BM",
-                honor = { 637, 5707, 5661 },
-              },
-            },
-            ["pvp:shuffle"] = {
-              {
-                export = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZziZGaGmBAAwAAmZmmlltZmZmZbbmJWAAYZMzMDWsMzMjZmZMmZmZswMzMMAADAAgZWwMDMGAMM",
-                honor = { 637, 5661, 5707 },
+                export = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZziZGMDzAAAYAAzMjZZZbmZmZW2mZwCAALjZmZwilZmZMzMjxMzMjFmZmhBAYAAAMzCmZgxAghB",
+                honor = { 5661, 5707, 637 },
               },
             },
           },
           sunfury = {
-            ["pvp:3v3"] = {
+            ["pvp:2v2"] = {
               {
-                export = "C4DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzQDmBAAwAAmZmmlllZmZmZZZmJ2AAYBmZG2sMzMzyMzMmZmZGWYmZGzAAMAAAzMLYmBmZGA+AG",
-                honor = { 5661, 5707, 637 },
+                export = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZzmZGaeAmBAAwAAmZmmlllZmZmZZZmJ2AAYBmZG2sMzMzyMzMmZmZGWYmZGzAAMAAAzMbYmBGDA+AG",
+                honor = { 5661, 5488, 5707 },
+              },
+            },
+            ["pvp:rbg"] = {
+              {
+                export = "C4DAMhlVtghLZL4RZzExaQoBYNmtFzyMzMbYmhmZMDAAgBAMzMNLLLzMzMzy2MTsBAwCjZGsZZGzsMzMjZmZmZswMzMmBAYAAAmZ2wMDMGA8BM",
+                honor = { 637, 5661, 5488 },
+              },
+              {
+                export = "C4DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzQzwMAAAGAwMz0sssMzMzMLLzMxGAALwMzwmlZmZWmZmxMzMzwCzMzYGAgBAAYmZDzMwYAwHwA",
+                honor = { 637, 5661, 5488 },
+              },
+            },
+            ["pvp:shuffle"] = {
+              {
+                export = "C4DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZDzM0MMDAAgBAMzMNbLLzMzMzyyMTsBAwCMzYsZZmZmlZmZMPwMzMjFmZmhBAYAAAmZ2wMDMzAgPgB",
+                honor = { 637, 5661, 5707 },
               },
             },
           },
@@ -853,53 +702,65 @@ ClassCodexSource["blizzard"] = {
                 export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzIDmBAAwMLzYmZZWmZmmtllZAAWMzY2GzMzYBAAAAAWMzMzAAADzMzwYmZZGYmZmhMzMYYGG",
                 honor = { 5706, 5588, 5621 },
               },
-              {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNzshlZGzysZmRmZmZAAAMz2MmZWmlZmpZZZZGAgFzMmtZGzMDAAAAAYzMjZGAAMzgZMzMzsAMzAyYMDMYA",
-                honor = { 5706, 5588, 5621 },
-              },
             },
             ["pvp:3v3"] = {
               {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzMyMMDAAgZWmxMz2sMzMNbLLzAAsYmxsNmZmxCAAAAAsYmZmBAAGmZmhxMzyMwMzMDZMwwMMA",
-                honor = { 5489, 5706, 5621 },
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGZwMAAAmZZGzMLzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMzAAADjZGGzMLzAzMzMEzMAzwA",
+                honor = { 5706, 5588, 5621 },
               },
               {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtFzyMzML2MzIzwMAAAmZZGzMbzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMDAAYYMzwYmZZGYmZmhMmBYGG",
-                honor = { 5489, 5706, 5621 },
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZxmZGZGmBAAwMLzYmZbWmZmmtllZAAWMzY2GzMzYBAAAAAWMzMDAAYYmZGGzMLzAzMzMkxADzwA",
+                honor = { 5706, 5588, 5621 },
+              },
+              {
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZzmZGZeAmBAAwMLzYmZZWmZmmtllZAAWMzY2GzMzMLAAAAAwiZmZGAAYYMzwYmZZGYmZmhwMAzwA",
+                honor = { 5706, 5588, 5621 },
               },
             },
             ["pvp:blitz"] = {
               {
                 export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzgBzAAAYmlZMzsNLzMjZbZZGAgFzMmtxMzMzCAAAAAsYmZmBAAGGzMMmZWmBmZmZgZmBYGG",
-                honor = { 5621, 5706, 5588 },
+                honor = { 5489, 5706, 5621 },
+              },
+              {
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzgBzAAAYmlZMzsMLzMjZbZZGAgFzMmtxMzMzCAAAAAsYmZmBAAGGzMMmZWmBmZmZgZmBYGG",
+                honor = { 5489, 5706, 5621 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNzwYZmZmFMzIzMGAAAmZZGzMLzyMz0stsMDAwiZmx2YmZGbAAAAAwiZmZmBAAjZYMzMzMLDYmZmhMGjBzwA",
-                honor = { 5621, 5706, 5588 },
-              },
-              {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZzmZGZeAmBAAwMLzYmZZWmZmmlllZAAWMzMz2YmZmHYBAAAAAWMzMzAAADjZGGzMLzAzMzMkxAYGG",
-                honor = { 5621, 5706, 5588 },
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzIDmBAAwMLzYmZbWmZmmtllZAAWMzY2GzMzMLAAAAAwiZmZGAAYYMzwYmZZGYmZmhMzMAzwA",
+                honor = { 5621, 5588, 5489 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGMYGAAAzsMjZmlZZmZMbLLzAAsYmxsNmZmZWAAAAAgFzMzMAAwwYmhxMzyMwMzMDYmBYGG",
-                honor = { 5621, 5706, 5489 },
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2egZGZwMAAAmZZGzMLzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMzAAADjZGGzMLzAzMzMEzMAzwA",
+                honor = { 5621, 5706, 5588 },
               },
               {
-                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtFzyMzML2MzIzwMAAAmZZGzMbzyMz0stsMDAwiZGz2YmZmZBAAAAAWMzMDAAYYMzwYmZZGYmZmhMmBYGG",
-                honor = { 5621, 5706, 5489 },
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNstMzyMzMb2MzgBzAAAYmlZMzsMLzMjZbZZGAgFzMmtxMzMzCAAAAAsYmZmBAAGGzMMmZWmBmZmZgZmBYGG",
+                honor = { 5621, 5706, 5588 },
               },
             },
           },
           sunfury = {
+            ["pvp:2v2"] = {
+              {
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzMyMMDAAgZWmxMz2sMzMNbLLzAAsZmxsNmZm5BWAAAAAgFzMzMAAwwYmhxMzyMwMzMDZMGwMMA",
+                honor = { 5706, 5588, 5621 },
+              },
+            },
+            ["pvp:3v3"] = {
+              {
+                export = "C8DAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzMyMMDAAgZWmxMz2sMzMNbLLzAAsZmxsNmZm5BWAAAAAgFzMzMAAwwYmhxMzyMwMzMDZMGwMMA",
+                honor = { 5706, 5588, 5621 },
+              },
+            },
             ["pvp:rbg"] = {
               {
                 export = "C8DAMhlVtghLZL4RZzExaQoBYNmtFzyMzMb2MzIzwMAAAGAwMz0sssNDAwmZGz2wYmZBAAAAAWMzMzAAADzMjxwMLzAYmhMGDDzwA",
-                honor = { 5621, 5706, 5588 },
+                honor = { 5621, 5588, 5489 },
               },
             },
           },
@@ -910,35 +771,39 @@ ClassCodexSource["blizzard"] = {
           spellslinger = {
             ["pvp:2v2"] = {
               {
-                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZZYmJmhZmZmZmFzMzYGzMLz0Mz2sAAmZmZZZmpNAAYBAAAYDgtlxMzAWmHwYmxCAAAzsMzgZYMADGA",
-                honor = { 5622, 5708, 5497 },
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZBzMxMMzMzYmFzMzYGzMLz0Mz2sAAmZmZZZmpNAAYBAAAYDgtlxMzMwyMGzMWAAAYmlZGMDjBYwA",
+                honor = { 5708, 5622, 5390 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CAEAMhlVtghLZL4RZzExaQoBYNzwYZmZmlhZmYmZGzMzMziZmhZMDEAAYmZmllZm2AAgNAAAgFA2WGzMzgZbYMzYDAAgZ2AmhxAmBD",
-                honor = { 5622, 5581, 5708 },
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZZYmJmhZmZmZmFzMzYGzMLz0Mz2sAAmZmZZZmpNAAYBAAAYDgtlxMzAWmHwYmxCAAAzsMzgZYMADGA",
+                honor = { 5581, 5708, 5622 },
               },
               {
                 export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZDzMxMMzMzMzsYmZGzYmZZmmZ2mFAwMzMLLzMtBAALAAAAbAstMmZGwy8AGzMWAAAYmFgZYMDYwA",
-                honor = { 5622, 5581, 5708 },
+                honor = { 5581, 5708, 5622 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CAEAMhlVtghLZL4RZzExaQoBYNstMzyMzMbDzMYMmZmZmZWMzMmZMzsMjZmtZBAMzMzyyMjNAAYBAAAYDgtlxMzMwixYmxCAAAzsAMDjZADGA",
-                honor = { 5622, 5708, 5581 },
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZDzMxMMzMzMzsYmZGzYmZZmmZ2mFAwMzMLLzMtBAALAAAAbAstMmZmBWMGzMWAAAYmFgZYMADGA",
+                honor = { 5497, 5390, 5622 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CAEAMhlVtghLZL4RZzExaQoBYZGGLzMzsMegZmYmZGzMzMziZmZMjZgAAAzMzssMz0GAAsBAAAsBw2yYmZGMbjhZYBAAgZ2AmhxAmBD",
-                honor = { 5622, 5497, 5390 },
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlxyMjZb2MzEzMmZmZmZ2MzMzMjZmlZamZbWAAzMzssMz0GAAsAAAAsAw22YmZmHgZDjZGLAAAMz2MDmBGwAD",
+                honor = { 5622, 5708, 5390 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CAEAMhlVtghLZL4RZzExaQoBYNstMzyMzMbziZmYwMzMzMziZmZMjZmlZamZbWAAzMzssMz0GAAsAAAAsBw2yYmZALzDYMzYBAAgZWAmhZmBMYA",
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNstMzyMzMbziZmYwMzMzMziZmZMjZmlZamZbWAAzMzssMz0GAAsAAAAsBw2yYmZGYZeAjZGLAAAMzCwMMmBMYA",
+                honor = { 5581, 5708, 5622 },
+              },
+              {
+                export = "CAEAMhlVtghLZL4RZzExaQoBYNmtlZWmZmZDzMxMMzMzMzsYmZGzYmZZmmZ2mFAwMzMLLzMtBAALAAAAbAstMmZGwy8AGzMWAAAYmFgZYMDYwA",
                 honor = { 5581, 5708, 5622 },
               },
             },
@@ -949,41 +814,23 @@ ClassCodexSource["blizzard"] = {
     MONK = {
       brewmaster = {
         talents = {
-          ["master-of-harmony"] = {
-            ["pvp:rbg"] = {
-              {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAgZbzYGGzyMPwGzMjBAAAAAAYZBjYmBmxM2AmZmZY2YmxMLDLbzy2shZBAAWmlplZbmlBAY2mlmZmZjhNwMzMDTjBYAgB",
-                honor = { 666, 1958, 667 },
-              },
-            },
-          },
           ["shado-pan"] = {
-            ["pvp:2v2"] = {
-              {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDzYWmxGmZMAAAAAAALLYEzMwMjxGDmZmZMzCmxYZYZz22sNjZBAA2QAAAmtZpZmZ2YYDgZGmGDYAAD",
-                honor = { 666, 667, 765 },
-              },
-            },
             ["pvp:blitz"] = {
               {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGzyMzGzMjBAAAAAAYZBDMzAzwMbMYmZmhZjZGzsMss9ALbzGmFAAYDAAAMbziZmZ2YYDgZGGjBAAMA",
-                honor = { 765, 667, 666 },
+                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDmZWmxGzMjBAAAAAAYZBDMzAzwMbMYmZmhZjZGzsMssZbb2mxsAAAbAAAgZbWMzMzGDbAMzwYMAAgB",
+                honor = { 765, 666, 667 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMLbGzwwiZWYmZMAAAAAAALLYEzMwMMzmhxMjZMz2wMmZbYZz22sNMbAAw2sMtMbzsMAAz2s0MzMbmBgZmZGmGDAAYA",
-                honor = { 666, 1958, 667 },
-              },
-              {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGz2M2YmZMAAAAAAALLYEzMwMMzmBmZmZY2YmxMLDLbz22sNMLAAwGCAAwsNLNzMzGDbAMzw0YAAAD",
+                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMLbGzwwiZWYmZAAAAAAAYZDjYmxGzwMMMmZmZMzCMmZbYZz22sMMbAAw2sMtMbzsMAAz2s0MzMbmhFwMzMDTjBMAgB",
                 honor = { 666, 1958, 667 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGz2MzGzMjBAAAAAAYZBzEzMwMM2MMmZMjZ2GzMGLPALbzy2shZBAA2QAAAmtZpZmZ2YYBgZGmGAAAD",
-                honor = { 672, 667, 843 },
+                export = "CwQAi6cZM+HWADeySjzG9Lwx8DAAAwMbbGDGz2MzGzMjBAAAAAAYZBzEzMwMmxmhxMjZMz2YMGLPALbzy2shZBAA2QAAAmtZpZmZ2YYBgZGmGAAAD",
+                honor = { 667, 672, 843 },
               },
             },
           },
@@ -992,36 +839,36 @@ ClassCodexSource["blizzard"] = {
       mistweaver = {
         talents = {
           ["conduit-of-the-celestials"] = {
-            ["pvp:2v2"] = {
+            ["pvp:shuffle"] = {
               {
-                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMWGLjZx2MmZsZsttMjZ2Mz2yyMjFGTzYGwgBMmZmZGzmNGmlZCAAAAMbTbz2MLzitZWmtZGQAAgZGMDYMwiMmBA",
-                honor = { 5395, 5603, 70 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMaGzAGMYMLzMzMMbYGsMTAAAAAEgFbzsMbzMgAgBAYGwYgFZMDA",
-                honor = { 5395, 70, 5603 },
+                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAAmZWGLjZzmxMDmZZbZGsZmNbzMWYGNjZADmFzYWmZmZY2mFwsNTAAAAgZZab2mZZWsNzysMzACAGMmZGMDAAZMDA",
+                honor = { 70, 5603, 5395 },
               },
             },
           },
           ["master-of-harmony"] = {
+            ["pvp:2v2"] = {
+              {
+                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbY0MmBMYWgZbmxMjZbWAz2MBAAAAmlptZbmlZz2MLzyMDIAYwYmZwMAGYRGzA",
+                honor = { 70, 5603, 5395 },
+              },
+            },
+            ["pvp:3v3"] = {
+              {
+                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwMLbLzgNzsZbmxGzoZMDYwsAz2MjZGzmFwsNTAAAAgZZab2mZZ2sNzysNzACAGMmZGMDghBZMDA",
+                honor = { 5395, 5603, 70 },
+              },
+            },
             ["pvp:blitz"] = {
               {
-                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbY0MmBMYWYMbzMzMMbzCY2mJAAAAwsMtNbzsMb2mZZWmZABADGzMDmBAGkxMA",
-                honor = { 5603, 5395, 70 },
+                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGLY0MmBMYWMjZbmZmhZZWAz2MBAAAAmlptZbmlZz2MLzyMDIAYwYmZwMAAkxMA",
+                honor = { 5395, 70, 5603 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMbWMmZwYZbZGsZmtltZGbM0MmZ2wgZxMsNmZGmlZBjZbEAAAAYWmWmtZ2mNLzsMLzMgAAYMzMYGAYsJjZA",
-                honor = { 5395, 5603, 1928 },
-              },
-            },
-            ["pvp:shuffle"] = {
-              {
-                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAgxMzyYZMb2mxMjNDMjZ2MzmtZGbY0MmBMYWYMbzMGMbzCDz2MBAAAAmlplZbmlZz2MLzyMDIAYw4DmZwMAALyYGA",
-                honor = { 5395, 5603, 70 },
+                export = "C4QAi6cZM+HWADeySjzG9Lwx8DAAAAAAAghZWGLjZzixMjFjltlZwmZ2W2mZswMaYmZDDGGmtZmZGmlZBMbzEAAAAYWm2mtZWmNLzsMLzMgAAYMzMYGwAQGzA",
+                honor = { 5395, 70, 5603 },
               },
             },
           },
@@ -1032,17 +879,37 @@ ClassCodexSource["blizzard"] = {
           ["shado-pan"] = {
             ["pvp:2v2"] = {
               {
-                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBMYbmx2MGAAAAAAAAAAAYZYEmZ2wAGGmZmZYWmFeAmlZCAYzMLzMMmZGIA2MzysMmmtZpZmZWAGzAzMzAMWGwYmZWM",
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wYwwMmZmZYWmFGmlZCAYzMLzMMmZGIA2MzysMmmtZpZmZWAGGYmZGAMAmZmNfA",
                 honor = { 3745, 77, 3052 },
               },
             },
             ["pvp:3v3"] = {
               {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMzGGYZMDzMzMMLzCDzyMBAsZmlxYGzMDEAbmZZWGTz2s0MzMLADDMzMDALDgZmZzHA",
+                honor = { 3052, 3745, 77 },
+              },
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMzGGAzMmZmZGzmFGmlZCAYzMLjxMmZGIA2MzysMmmtZpZmZWAGGYmZGAWYwYmZ28B",
+                honor = { 3052, 3745, 77 },
+              },
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wAGmxMzMzY2swwsMTAAbmZZMmxMzABwmZWmlx0sNLNzMzCwwAzMzAwyAYmZ28B",
+                honor = { 3052, 3745, 77 },
+              },
+              {
                 export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wAwMmZMzYWmFGmlZCAYzMLjxMmZGIA2MzysMmmtZpZmZWAGGYmZGAWYMYmZ28B",
-                honor = { 3745, 77, 3052 },
+                honor = { 3052, 3745, 77 },
+              },
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wAYGmZmZGzmFGmlZCAYzMLjxMmZGIA2MzysMmmtZpZmZWAGGYmZGAWYwYmZ28B",
+                honor = { 3052, 3745, 77 },
               },
             },
             ["pvp:blitz"] = {
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBMYbmZ2mxAAAAAAAAAAAALDjwMzGGwwMmZmZYWmFGmlZCAYzMLzMMmZGIA2MzysMmmtZpZmZWAGGYmZGAWGwYmZ28B",
+                honor = { 3745, 77, 3052 },
+              },
               {
                 export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wAwMmZMzYWmFGmlZCAYzMLjxMmZGIA2MzysMmmtZpZmZWAGGYmZGAWYMYmZ28B",
                 honor = { 3745, 77, 3052 },
@@ -1050,14 +917,22 @@ ClassCodexSource["blizzard"] = {
             },
             ["pvp:rbg"] = {
               {
-                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzYMYMYbmZ2mxAAAAAAAAAAAALDzEmhhBMjhZmZGmNMDzyMBAsYmtxwYmZgAYDANLzSzMzsAMmBmZAglxAGwA",
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMz2wAGmxMzMDzyswwsMTAAbmZZMmxMzABwmZWmlx0sNLNzMzCwwAzMzAwyAYmZ28B",
+                honor = { 3745, 77, 3052 },
+              },
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAAbDjwMz2wAGmxMzMDzyswwsMTAAbmZZMmxMzABwmZWmlx0sNLNzMzCwwAzMzAwyAYmZ28B",
+                honor = { 3745, 77, 3052 },
+              },
+              {
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBMYbmZ2mBAAAAAAAAAAAYZYEmZ2wALjZYmZmZMLWYYWmJAgNzsMGzYmZgAYzMLzCTz2s0MzMLADDMzYAYZAMzYzA",
                 honor = { 3745, 77, 3052 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBMYbmx2MGAAAAAAAAAAAYZYEmZ2wALDDzMmZMLzCDzyMBAsZmlZGGzMDEAbmZZWGTz2s0MzMLADDMzMDwYZAMzMLG",
-                honor = { 77, 3745, 3052 },
+                export = "C0QAi6cZM+HWADeySjzG9Lwx8PzMjBjBbzMz2MAAAAAAAAAAAALDjwMzGGwYGmZmZYWmFGmlZCAYzMLjxMmZGIA2MzysMmmtZpZmZWAGGYmZGAWGwYmZ28B",
+                honor = { 3745, 77, 3052 },
               },
             },
           },
@@ -1068,36 +943,62 @@ ClassCodexSource["blizzard"] = {
       holy = {
         talents = {
           ["herald-of-the-sun"] = {
-            ["pvp:blitz"] = {
-              {
-                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMAAglxMzYmlZGLGGDLjtZmFz0EzyMmZGGmtMAMghNwmZbmZmlZbmZ2aAAzMLbLWmZYBgxGMzMMDDgZGMzgBjGA",
-                honor = { 5583, 87, 640 },
-              },
-            },
             ["pvp:rbg"] = {
               {
                 export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMAAglxMzYmlZGLGGDLjtZmFz0EzyMmZGGmtMAMghNwmZbmZmlZbmZ2aAAzMLbLWmZYBgxGMzMMDDgZGMzgBjGA",
-                honor = { 640, 5583, 85 },
+                honor = { 5618, 640, 642 },
               },
             },
           },
           lightsmith = {
             ["pvp:2v2"] = {
               {
-                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzYZGzYGbjtZmFz0EzyMMzwgtMAMAsB2MbmZmlZZmZWaAAzMLbL2mZYjNeAGbmhZGzgBwMDAgRD",
-                honor = { 5583, 640, 87 },
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhhZmlZmZZGGDbjtZmFz0EzyMmZwgtMAMAsB2MbmZmlZZmZWaAAzMLbL2mZYjNwYjZMzYmhBwMDAGMaA",
+                honor = { 640, 5692, 5618 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzYGDbjtZmFz0EzyMMDGslBgBgNwmZzMDACAYmZZbx2MDbsBGbmhZmtZwAYmBADGNA",
-                honor = { 5692, 640, 642 },
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzYGzYbsZmFz0EzyMMDGslBgBgNwGbmZAQAAzMLbLWmZYjNGGbmhZGmxAwMDgxAaA",
+                honor = { 640, 642, 87 },
+              },
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAMLAgZAAGsMMYmlZmZZGzMDbjtZmFz0EzyMMzwgtMAMAsB2MbmZAQAAzMLbL2mZYjNwYzMMzYGAwMDAGQD",
+                honor = { 640, 642, 87 },
+              },
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzYGDbjtZmFz0EzyMMDGslBgBgNwmZzMDACAYmZZbx2MDbsxDwYzMMzYGGAmZAwgRD",
+                honor = { 640, 642, 87 },
+              },
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYDAMDAwglhBzsMzMLzwYYbsNzsYmmYWmhZGGslBgBgNwmZzMzsMbzMzWDAYmZZbx2MDbsNeAGbmhZGmhBwMDmZwAaA",
+                honor = { 640, 642, 87 },
+              },
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYDAMDAwglhBzsMzMLzwYYbsNzsYmmYWmhZGGslBgBgNwmZzMDACAYmZZbx2MDbsNeAGbmhZGGMAmZAwgRD",
+                honor = { 640, 642, 87 },
+              },
+            },
+            ["pvp:blitz"] = {
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLGzYGbjtZmFz0EzyMMzwgtMAMAsB2MbmZmlZbmZ2aAAzMLbL2mZYjNGGbmhZGGMAmZwMDGQD",
+                honor = { 640, 5583, 85 },
+              },
+            },
+            ["pvp:rbg"] = {
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzwYYbsNzsYmmYWmhZGGslBgBgNwmZzMDACAYmZZbxyMDbsNwYjhZmtZwAYmBwYwoB",
+                honor = { 5618, 640, 642 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLzYGDbjtZmFz0EzyMMDGslBgBgNwmZzMDACAYmZZbx2MDbsBGbmhZmtZwAYmBADGNA",
-                honor = { 640, 5692, 87 },
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAMLAgZAAGsMMYmlZmZZGzMDbjtZmFz0EzyMMzwgtMAMAsB2MbmZAQAAzMLbL2mZYjNwYzMMzYGAwMDAGQD",
+                honor = { 640, 87, 5692 },
+              },
+              {
+                export = "CEEAVg1HmQqr1Dwlv86ljju8vCAAAYBAMDAwglhBzsMzMLGzYYbsNzsYmmYWmhZGGslBgBgNwGbmZmlZbmZ2aAAzMLbLWmZYjtxwYzMjZYGMAmZAwAaA",
+                honor = { 640, 87, 5692 },
               },
             },
           },
@@ -1108,50 +1009,28 @@ ClassCodexSource["blizzard"] = {
           lightsmith = {
             ["pvp:2v2"] = {
               {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuZMYWGLzMjZmZZbMGzsMLDDAwAAAAAAgmmZWmZMDGmt2AwADwgNAAwMTbzMbzMzsst0yMjFGmBwYMDjBAzMbzAMzAG",
-                honor = { 90, 91, 92 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuZYYWGLjZMzMLbjxYmlZZYAAGAAAAAA00MjZGzgxMbtAgBGwAbDAAgAMzsst02MjFGmBwgZYMAYmBgZmBMA",
-                honor = { 91, 94, 861 },
-              },
-              {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuZ4BYWGbjZMzMLbjZGzsMLzYAAGAAAAAA00MDzwMMjZrFAMwAGYbAAgZm2mZ2mZmZbbrlZGLmhBgBzwMDAmZAYmZAD",
-                honor = { 91, 94, 861 },
+                export = "CIEAVg1HmQqr1Dwlv86ljju8vuNjBz2YZMzMzMLLMzwsYZYAAGAAAAAA00MzyMjZGmhtWAwAAzgtBAAmZabmZZmZmltlWmZsYGMMwgZMmBAzMLzAMzAG",
+                honor = { 94, 92, 3474 },
               },
             },
           },
           templar = {
             ["pvp:2v2"] = {
               {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuNmZwyMLmZmxMWwMmZxywAAMAAAAAAINzYmhZYMzWAwAAzgNAAwMTbzMbzMzsts02MjNzwMwCzYGMDAgtZAzMDYA",
-                honor = { 90, 91, 92 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
                 export = "CIEAVg1HmQqr1Dwlv86ljju8vuNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MziZMzwws1GAGYAzgNAAwMTbzMLzAEYzMYAwYGGDAwyMAzMgB",
-                honor = { 91, 94, 861 },
+                honor = { 94, 92, 3474 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuNjBzyYZMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZwws1CAGYADsBAAmZabmZZGgAbmhZAAzwYAAWmBMzMgB",
-                honor = { 860, 94, 861 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuZmZYWGbzMjZGLLjxYmFmxAAMAAAAAAINzwMMzYMzWAwAzAGsBAAmZabmZZmZmltlWmZsxwMAMjZYMAYmZZGgZGwA",
-                honor = { 91, 861, 90 },
+                export = "CIEAVg1HmQqr1Dwlv86ljju8vuNMmxyMLjZMzM2YmZMLWGGAgBAAAAAANNzsNzYmZM8AbtBgBAGYbAAgZm2mZWmZmZbbplZGbmBDDMMDmZAAWmBGzAMA",
+                honor = { 91, 5582, 90 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CIEAVg1HmQqr1Dwlv86ljju8vuNPwMY2mZZMzMzM2YmhZhhBAYAAAAAAQTzMLzMmZYwWbAYAgZw2AAAzMtNzsNzMz22SLzM2MDGGYMmxYGAglZAmZAD",
-                honor = { 860, 861, 94 },
+                export = "CIEAVg1HmQqr1Dwlv86ljju8vu5BmBz2MLzMzMzMWYmhZhhBAYAAAAAAQTzMLzMmBDzWbAYADMwGAAYmptZmlZmZW2WabG2YwwADmxMzAghtZAmZAD",
+                honor = { 861, 94, 860 },
               },
             },
           },
@@ -1162,33 +1041,43 @@ ClassCodexSource["blizzard"] = {
           ["herald-of-the-sun"] = {
             ["pvp:2v2"] = {
               {
-                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMmZGAAAAAAmpMLzwMjlBbDzsNjHwYmhZsw2AwsMbzMzWzMTbzMbzAAWAMAGjZMzgZMmNsMzMzwYYwA",
-                honor = { 752, 5535, 5584 },
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMmZGDAAAAAwMlZZGmhlBbDzsNjHwYmhZsw2wAmlZZmZ2amZabmZbGAwCgBwMjZ2GwMGWwyMzMDjhBD",
+                honor = { 5573, 5535, 752 },
+              },
+              {
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMzMzYAAAAAAmpMLDmhthZbYmlZ8AGzMMjF2GGwsMbzMzSzMTbzMbzAAWAMMwYMDDMjxshlZmZGGDDuA",
+                honor = { 5573, 5535, 752 },
+              },
+              {
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQz22MzsMmZGAAAAAAmpMLzwMjlBbDzsNjHwYmhZsw2AwsMbzMzWzMTbzMbzAAWAMAGjZMzgZMmNsMzMzwYYwA",
+                honor = { 5573, 5535, 752 },
+              },
+              {
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMMzYAAAAAAmpYZGmZsMYbYmtZMGzMMjF2GAmlZZmZ2amZabmZbGAwCghBmxMDzgZMshlZmZGGDDG",
+                honor = { 5573, 5535, 752 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMjZGAAAAAAmpMLzwMsMYbwsNjxYmhZsw2AwsMbzMzWDCAAYBwAYmxMbjBzYMLAzMDjhBD",
-                honor = { 752, 5573, 5535 },
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMmZGDAAAAAwMlZZGmZsMYbYmtZ8AGzMMjF2GAmlZbmZ2amZabmZbGAwCgBwMjZ2GwMG2wyMzMDjhBD",
+                honor = { 752, 81, 5535 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzyyMzsMmZmZAAAAAAmpMLzwMjtBbDzsNjxYmhZswGAmlZZmZWamZabmZbGAwCghBmxMYGMjhNsMzMzwYYwA",
-                honor = { 752, 5535, 5573 },
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQz22MzsMmZGDAAAAAwMlZZGmZsM8AbDzsNjHwYmhZsw2AwsMLzMzWzMTbzMbzAAWAMAGjZMGMjhNsMzMzwYYwA",
+                honor = { 5584, 752, 5573 },
+              },
+            },
+            ["pvp:rbg"] = {
+              {
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMmZGDAAAAAwMlZZGmhlBbDzsNjHwYmhZsw2AwsMLzMzWzMTbzMbzAAWAMAmZMjZGMjhNsMzMzwYYwA",
+                honor = { 5573, 5535, 752 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMMzYAAAAAAmpYZGmZsMYbYmtZMGzMMjF2GGwsMLzMzWzMTLzMLzAAWAMAmZMz2AmxwCWmZmZYMMYA",
-                honor = { 5573, 5535, 752 },
-              },
-            },
-          },
-          templar = {
-            ["pvp:rbg"] = {
-              {
-                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQz22MzsNmZGDAAAAAwMlZZGmhthZbwsMjHwYmhZsx2AwsMbjZWyMTbzMbzAA2AMAGjZYGMjxshlZGzwYYwA",
+                export = "CYEAVg1HmQqr1Dwlv86ljju8vCAAAAAQzy2MzsMMzYAAAAAAmpMLzwMsMYbYmtZMGzMMjF2GGwsMLzMzWzMTbzMbzAAWAMAmZMjxgZMshlZmZGGDDG",
                 honor = { 752, 5535, 5573 },
               },
             },
@@ -1200,34 +1089,48 @@ ClassCodexSource["blizzard"] = {
       discipline = {
         talents = {
           oracle = {
-            ["pvp:2v2"] = {
-              {
-                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjZmBMbzYmZGjZGAAAAAAAAAAzMzyMYMGLzYmhtFTzEDwMbYIMmlBYMYBAAGzwYYGAzMzEM",
-                honor = { 114, 123, 126 },
-              },
-            },
             ["pvp:3v3"] = {
               {
-                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzDwyMjxMzgZbmtZmxMmZAAAAAAAAAAMMLzgZmZYGmxgpZiBYmFMEGzyAMGsAAAjZmZMMzAMzMCG",
-                honor = { 114, 5570, 123 },
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjZmBMbzYmZGjZGAAAAAAAAAAzMzyMYMGLzMzMssYamYwYmZDDhxsNWstYMGLGAAGzwYwAzMzMzEM",
+                honor = { 123, 114, 5570 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjZmBMbzYmZGjZGAAAAAAAAAAzMzyMYMzYZGzMstYamYwMzMbYIMmlZWmtFjxYxAAwYGGDGYmZmZmgB",
-                honor = { 5570, 114, 123 },
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjZmBMbzYmZGjZGAAAAAAAAAAjZWmZMzMzYBjhlFTz0YwMzMbYIMmlZWmtFjxYxAAwYmxYwAzMzMjgB",
+                honor = { 5570, 123, 114 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMGWmZMzMzwMbzYmZgZGAAAAAAAAAAzMWmBjxYxYmxstYamYAmZDDhxsMAjBLAAwYGzYYGAzMzEM",
-                honor = { 114, 123, 126 },
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjxMzgZbGzMzYMzAAAAAAAAAAYmZWmBjxYZGzMssYamYAmZDDhxsMAjBLAAwYGGDzAYmZmgB",
+                honor = { 114, 109, 5570 },
+              },
+              {
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzDwyMjZmZGMbzYmZGMzAAAAAAAAAAYmZWmBzMzwMzMDWMNTMYMzshhwYWmZZwYMWMAAMm5BMGMwMzMjJYA",
+                honor = { 114, 109, 5570 },
               },
             },
             ["pvp:shuffle"] = {
               {
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMj5BmZGMbzYmZYMzAAAAAAAAAAYMzyAzMzYZGzMmNmmJGMzMzGGCjZbmlZbxYMWMAAMmZMGMgZmZMBD",
+                honor = { 123, 5570, 114 },
+              },
+              {
                 export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzDwyMjZmBMbzYmZmZMzAAAAAAAAAAYmZWGYMzYZmZmhlFTzEDmZmZDDhxsMzystYMGLGAAGzwYwAzMzMzEM",
-                honor = { 114, 123, 5570 },
+                honor = { 123, 5570, 114 },
+              },
+              {
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsMzwyMjZmBMbzYmZGjZGAAAAAAAAAAzMzyMYMGLzMzMssYamYwYmZDDhxsNWstYMGLGAAGzwYwAzMzMzEM",
+                honor = { 123, 5570, 114 },
+              },
+            },
+          },
+          voidweaver = {
+            ["pvp:2v2"] = {
+              {
+                export = "CAQA4VPTJ8eQb8/qEm8PyGu4yADsYY2YMzMzMjZDmZGjZGAAAAAAAAAAzMz2MYmZGLGzMsx0MxgZmZ2wQYYZmtZbxgxmBAgxMPgxgBmZMzMNDD",
+                honor = { 114, 123, 126 },
               },
             },
           },
@@ -1235,43 +1138,47 @@ ClassCodexSource["blizzard"] = {
       },
       holy = {
         talents = {
-          archon = {
-            ["pvp:3v3"] = {
-              {
-                export = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAgZzwYWGMmZmZMzMjlZmBAAAADzyMMzMzwMmZMgZKAwMLmJzmBAGD2MmZDQzYmxYwMbLDwAG",
-                honor = { 5479, 124, 5569 },
-              },
-            },
-          },
           oracle = {
             ["pvp:2v2"] = {
               {
-                export = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAAmZmxsNzMjZGYGmZbmZmBAAAwMzsMDmZMWMzYMLLGzUAMz2MbzMZ2mZ2GgZmBLMDAaGGGDGLbDmZmB+A",
-                honor = { 5569, 101, 124 },
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMzMmlZmxMzYYGMbzMzMAAAAmZmFYGzMWmxMDLMmpAYmtZWmZysMzsNAzMDWMzAgmxMmxgxy2gZmZgPA",
+                honor = { 124, 101, 5569 },
               },
             },
             ["pvp:3v3"] = {
               {
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAAmZmxsMzMjZYYGmZbmZmBAAAwMzsAzYMWmZGDLLGzUAMzmZbMZ2mZ2GgZmBLMDAaGzYGDGAzMzAfA",
+                honor = { 124, 5569, 101 },
+              },
+              {
                 export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMzMmlZmZmZYwwMbzMzMAAAAmZsMDGjxiZGDLLGzUAMz2MbzMZ2mZ2GgZmBLMjFANjZMjhZssNYmZG4DA",
-                honor = { 5479, 124, 5569 },
+                honor = { 124, 5569, 101 },
+              },
+              {
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMzMmlZmxMDDzwMbzMzMAAAAmZsAzYMWmZmZYZxYmCgZ2MbjJz2Mz2AMzMYxMDAaGzwYYGAzMzAfA",
+                honor = { 124, 5569, 101 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwMmxsMzMmZGDzgZbmZmBAAAwYmlZwYMWmZmZYbxYmCgZ2MLjJ2mZ2GgZmBLmZsAoZMDjBjltBzMzAfA",
-                honor = { 5569, 124, 101 },
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwYmxsMzMzMDDzwMbzMzMAAAAmZmlZYmZMWmZmZYZxYmCgZ2mZZmJzyMz2AMzMYxMDAaGwYwAYmxAfA",
+                honor = { 108, 5569, 124 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAAMMzsNmZmZGYGMbzMzMAAAAGzwMmZmZsNMzYsYMTBwMLzsNzkZbmZbAmZGsYmxCgmxMmxgZ2WGMzMgB",
-                honor = { 5479, 108, 124 },
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwYMzsMzMmZGDzwMbzMzMAAAAmZmlZwMzMWMGjZZxYmCgZ2mZZmJz2Mz2AMzMYxMDAaGGGDGbLDmZmB+A",
+                honor = { 124, 5479, 108 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwYmxsMzMmZGDzgZbmZmBAAAwMzsYGzYMWmZGDLLGzUAMz2MbzMZ2mZ2GgZmBLmZGAaGGGDGLbDmZmB+A",
-                honor = { 101, 124, 5569 },
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4yADAAAAAAwYmxsMzMmZGDzwMbzMzMAAAAmZmFYGjxyMzMDLLGzUAMzmZbMZ2mZ2GgZmBLmZAQzYGGDGAzMzAfA",
+                honor = { 124, 101, 5569 },
+              },
+              {
+                export = "CEQA4VPTJ8eQb8/qEm8PyGu4ywYAAAAAAAmZmxsNzMmZGDzgZbmZmBAAAwMjlZwMzMWMGDLLGzUAMzyMbzMZ2mZWGgZmBLGDAaGz8AGDGLbDmZmB+A",
+                honor = { 124, 101, 5569 },
               },
             },
           },
@@ -1279,72 +1186,59 @@ ClassCodexSource["blizzard"] = {
       },
       shadow = {
         talents = {
-          all = {
-            ["pvp:rbg"] = { { export = "CIQA4VPTJ8eQb8/qEm8PyGu4yAAAAAAAAAAAAAAAAAAAAAEABAAABAEAAAAAAAAA", honor = { 106, 763, 5447 } } },
-          },
           archon = {
-            ["pvp:2v2"] = {
-              {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDZGLmpBYGgZ2MjmNDAZMWAwMAjZmZMbjZ2WGgZwA",
-                honor = { 763, 106, 5568 },
-              },
-              {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMjZAAAAAAAAAAAAMmZxMGLzMMzyMDzMzmxYGzMbmJzYbx0AMzMDmZzMa2MY2mllMmZhBYGgxMmZmlxYbbAmBD",
-                honor = { 763, 106, 5568 },
-              },
-            },
             ["pvp:rbg"] = {
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMYwAAAAAAAAAAAAMmZxMmZZmxMz2MYmZ2MzYMzYBZYZx0YGMzMDmZxMa2MY2mllMmZhBYMzgxMzMmFGbbzMDmBD",
-                honor = { 106, 763, 5447 },
-              },
-              {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYM2mZGzMzYDZYZbmGgZAmZxMa2MAkxYBAzAMmZmxsNmZbZAmBD",
-                honor = { 106, 763, 5447 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMMDDAAAAAAAAAAAAYxMmZZmxMz2MzYM2mZGzMzYBZYbx0AMzMDmZxMaWMY2mttMmZhBYMzgxMzMmFzMbbzMDmBD",
+                honor = { 106, 5568, 763 },
               },
             },
           },
           voidweaver = {
             ["pvp:2v2"] = {
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0AMzMDmZxMaWMY2mtlMmZjBYMzgxMjxsMmZbZmZwMYA",
-                honor = { 763, 106, 5568 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLIDLLmGDMzMDMLMa2MY2mtlMmZjBYMzgxMjxsMmBzMYGMA",
+                honor = { 106, 763, 5568 },
               },
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjxAAAAAAAAAAAAYMLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0YgZmZAgAMbzySwsxAgZwYmxYWGDMzgZwA",
-                honor = { 763, 106, 5568 },
-              },
-              {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yAziBAAAAAAAAAAAwYgZmhZmZmlZmxMzsNmxwMM0MYbmmZgZmZwMLmRzmBz2stlxMbMgZGzAzMzMzsxMWmZGYwA",
-                honor = { 763, 106, 5568 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGQmhtZaMwMzMYmFzoZzgZb22yYmNGAYwYmZGz2YmtlZmBzgB",
+                honor = { 106, 763, 5568 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZGbIzYxMNAzMzgZ2MjmNDmtZbLjZ2YAgBjZmZMbjZ2WmZGMDGA",
-                honor = { 763, 5568, 106 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjxAAAAAAAAAAAAYMmZMWmZMzsNzwYmtxMmZmxyYywyipBYmZGMziZ0sZwsNbLZMzGDwYMYMzYMLzM2WmZGMDGA",
+                honor = { 106, 763, 5568 },
+              },
+              {
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzM2mxYmZGbIzYxMNAzMzgZ2MjmNDmtZbLjZ2YAgBjZmZMbjZ2WmZGMDGA",
+                honor = { 106, 763, 5568 },
+              },
+              {
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2YGzMzYZMZYZx0AMzMDmZxMa2MY2mtlMmZjBYMzgxMjxsMzYbZmZwMYA",
+                honor = { 106, 763, 5568 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYhpxAzMzAzCjmNDmtZbJjZ2YAGzMYMzYMLjZwMDmBD",
-                honor = { 5568, 763, 5447 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjxAAAAAAAAAAAAYMLzMGLzMmZ2mZYmZ2mZGzYGLIDbLmGDMzMDmZxMa2MY2mtlMmZjBAzgxMjZmlxMYmBzgB",
+                honor = { 763, 5568, 106 },
               },
             },
             ["pvp:rbg"] = {
               {
                 export = "CIQA4VPTJ8eQb8/qEm8PyGu4yYYMGAAAAAAAAAAAAjZZmxYZmxMz2MDjZ2mZGzMzYhJDLLmGgZmZwMLmRziBz2sskxMbMAjxgxMjxsMzYbZmZwMYA",
-                honor = { 106, 763, 5447 },
+                honor = { 106, 5568, 763 },
               },
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0AMzMDmZxMaWMY2mllMmZjBYMzgxMjxsMmZbbmZwMYA",
-                honor = { 106, 763, 5447 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYGzmZGzMzYhJDbLmGDMzMDmZxMa2MY2mtlMmZjBYMzgxMzMmlxYbZmZwMYA",
+                honor = { 106, 5568, 763 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2MzYmZGLMZYZx0AMzMDmZxMaWMY2mtlMmZjBYMzgxMjxsMmZbZmZwMYA",
-                honor = { 763, 106, 5568 },
+                export = "CIQA4VPTJ8eQb8/qEm8PyGu4yMDjBAAAAAAAAAAAADLzMGLzMmZ2mZYMz2YGzMzYZMZYZx0AMzMDmZxMa2MY2mtlMmZjBYMzgxMjxsMzAzMYGMA",
+                honor = { 5447, 106, 5568 },
               },
             },
           },
@@ -1354,51 +1248,39 @@ ClassCodexSource["blizzard"] = {
     ROGUE = {
       assassination = {
         talents = {
-          deathstalker = {
-            ["pvp:3v3"] = {
-              {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAzyMmtZAAAAAAtsMzMDzMGzMzMGmZGzMjZMmZMmxwglZ2GLMmxs0YW2GmsNMsMYbmBzMDGA",
-                honor = { 3480, 5405, 5697 },
-              },
-            },
-          },
           fatebound = {
             ["pvp:2v2"] = {
               {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAzyMmtZAAAAAAtsMmBzMGzMzMGmZGmZMzMmZMmZGGYgFYGjGzGIbDYbG2AmZGMA",
-                honor = { 5697, 5408, 5405 },
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAz2MmtZAAAAAAtsMMYmxYmZmZZmlZGMzMzgZMDzMAbzsMWYMjZpxssMMZbYYbGLbzMYmZGGA",
+                honor = { 5408, 5697, 3480 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmNzAAAAAAYWmxsNDAAAAAollxMDzMGzMzMLzsMzgZmZGMjZmZMMwALwMGNmNQ2Gw2MsBMzAD",
-                honor = { 3480, 5405, 5697 },
-              },
-              {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAz2MmtZAAAAAAtsMmBzMGzMzMGmZGmZMzMmZMmxwgtZ2GLMmxs0YW2GmsNMsNDbzMYmZMGA",
-                honor = { 3480, 5405, 5697 },
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAz2MmtZAAAAAAtsMMYmxYmZmZZmlZGMzMzgZMDzMAbzsMWYMjZpxssMMZbYYbGLbzMYmZGGA",
+                honor = { 5697, 3480, 5408 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmtZGAAAAAAzyMmtZAAAAAAtsMmZYmxYmZmx8AmZGmZMjxMjxMGgtZ2GbMmxs0YW2GmsNMsNDbAzMzwA",
-                honor = { 5697, 3480, 5405 },
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmNzAAAAAAY2mxsNDAAAAAollhBzMGzMzMLzsMzgZmZGMjZmZMMYbmlxCjZMLNmlthJbDDbzw2MDmZmhB",
+                honor = { 3480, 830, 3479 },
+              },
+              {
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAz2MmlZAAAAAAtsMMYmxYmZmxwMzwMjZmxMjxMzwgtZ2GLMmxs0Y22GmsNMsNDbzMYmZGGA",
+                honor = { 3480, 830, 3479 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmNzAAAAAAY2mxsNDAAAAAollhZYmxYmZmZbmlZGMzMzgZMzMjhBGYBmxoxsBy2A2mhNgZmBD",
-                honor = { 5405, 3480, 830 },
-              },
-              {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmtZGAAAAAAz2MmtZAAAAAAtsMmZYmxYmZmx8AmZGmZMjxMjxMGgtZ2GbMmxs0Y22GmsNMsNDbAzMzwA",
-                honor = { 5405, 3480, 830 },
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmNzAAAAAAY2mxsNDAAAAAollxMDzMGzMzMmZZmZYmZmBzYGzYYgBWgZMaMLgsNgtZYDYmZwA",
+                honor = { 5697, 3480, 5405 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMmNzAAAAAAYWmxsNDAAAAAollhZYmxYmZmZZmlZGMzMzgZMzMjhBGYBmxoxsBy2A2mhNgZmBD",
-                honor = { 5405, 3480, 5697 },
+                export = "CMQAphyM11FofNMFa1K3vFEDUOzsMzsZGAAAAAAz2MmtZAAAAAAtsMMDzMGzMzMLzsMzgZmZGMjZGzMMwALwMGNmFQ2Gw2gNgZmBD",
+                honor = { 5405, 5697, 3480 },
               },
             },
           },
@@ -1409,13 +1291,21 @@ ClassCodexSource["blizzard"] = {
           fatebound = {
             ["pvp:blitz"] = {
               {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgZgxYGmZbmZmZGjZZxDMzMbTbzY2mBAAAAAYZZmZwMjZGzMjBAAAwMMwgZb2MzMjmZ2Y2YZbahFzAMzMzMwA",
-                honor = { 145, 5699, 3483 },
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZ2mBzMDzsNzMzMjxss5BmZmtptBbzAAAAAAssMzMYmxMjZmxAAAAwwADmtZxMzMamZjZjltpFWYAmZmZmBD",
+                honor = { 145, 3483, 5699 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgx2MMzMDzsYmZYmZsxMzMLTbD2mBAAAAAMbbzMzwMjZGzMzyAAAAwYADsBzY0Y2AsNhFGAgBG",
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZYMGzwMbzMzMzYMLbegZmZbabGz2MAAAAAALLzMjZmZMDMjBAAAwMMwgZbWMzMjmZ2Y2YZbahFzAMzMzMwA",
+                honor = { 145, 5699, 3483 },
+              },
+              {
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLLmZmZbabGz2MAAAAAALLzMDmZMzYmZMAAAAmBwgZbWMzMjmZ2Y2YZbahFzAMzMzMDG",
+                honor = { 145, 5699, 3483 },
+              },
+              {
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZMjxYGmZbmZmZGPgZZxMzMbTbzYWmBAAAAAYZZmZAjZGzMjBAAAwMAGMbzmZmZ0MzGzGLbTbsYGgZmZmZwA",
                 honor = { 145, 5699, 3483 },
               },
             },
@@ -1423,27 +1313,27 @@ ClassCodexSource["blizzard"] = {
           trickster = {
             ["pvp:2v2"] = {
               {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLLmZmZbabGz2MAAAAAALLzMzwMjZGzMjBAAAwMAGMbziZmZ0MzGzGLbTLsZGgZmZmBG",
-                honor = { 3483, 1208, 3421 },
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLLmZmZbaZGz2MAAAAAALLjZwMjZGzMjBAAAwMMwgZbWMzMjmZ2Y2YZbahNzAMzMzMDG",
+                honor = { 5699, 3483, 1208 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYmZZzDMzMbTbzY2mBAAAAAMLLjZwMjZGzMjBAAAwMMwgZbWMzMjmZ2Y2YZbahNzAMzMzMwA",
-                honor = { 5699, 145, 3483 },
-              },
-              {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbabGz2MAAAAAgZZZMDmZMzYmZMAAAAmhBGMbziZmZ0MzGzGLbTLsZGgZmZmBG",
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbaZGz2MAAAAAALLjZwMjZGzMjBAAAwMMwgZbWMzMjmZ2Y2YZbahNzAMzMzMDG",
                 honor = { 5699, 145, 3483 },
               },
               {
                 export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbaZGz2MAAAAAALLzMDmZMzYmZMAAAAmhBGMbziZmZ0MzGzGLbTLsZGgZmZmBG",
                 honor = { 5699, 145, 3483 },
               },
+              {
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZ2mBjZYmtZmZmZMmlNzMzsNtMYbGAAAAAgllZmBzMmZMzMGAAAAzYGYwsNLmZmRzMbMbssNtwGDwMzMzAfA",
+                honor = { 5699, 145, 3483 },
+              },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbabGz2MAAAAAALLjZwMjZGzMjBAAAwMMwgZbWMzMjmZ2Y2YZbahNzAMzMzMDG",
+                export = "CQQAphyM11FofNMFa1K3vFEDUCgZAGzwMbzMzMzYMLbmZmZbaZGz2MAAAAAALLjZwMjZGzMjBAAAwMMwgZbWMzMjmZ2Y2YZbahNzAMzMzMDG",
                 honor = { 145, 3483, 5699 },
               },
             },
@@ -1455,36 +1345,32 @@ ClassCodexSource["blizzard"] = {
           trickster = {
             ["pvp:2v2"] = {
               {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAGmhFzyMmlZYsww2MbTL0ysxMDzMzMYmZA",
-                honor = { 5406, 5698, 1209 },
+                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmZmZMDMzMzsMmlhZssMmBzMGwMGAAAAzwMsYWmxsMDjFGMz20CtMbMzAzMDmxA",
+                honor = { 5698, 1209, 5406 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmxMjZgZmZmlxsMmZmllhBzMGwMGAAAAzwMsYWmxsMDjFGMz20CtMbMzAzMDmxA",
-                honor = { 5406, 1209, 5698 },
-              },
-              {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmlZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAGmhFzyMmlZYsww2MbTL0ysxMDzMzMYmZA",
+                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmlZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzwMsYWmxsMDjFG2mZbahWmNmZYmZmBzYA",
                 honor = { 5406, 1209, 5698 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmlZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzghFz2MmlZYsww2MbTL0ysxMDzMzMYmZA",
+                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzghFz2MmlZYsww2MbTL0ysxMDzMzMYmZA",
                 honor = { 5406, 5698, 1209 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgx2MAAAAAwsMGLTMbLjxMMjxDMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMGmlZMbzwADLzsoFaZ2wMMzMzgZMA",
+                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzwMsZ2mxsNDjFGWmZbahWmNmZAzMYGDA",
                 honor = { 5406, 1209, 5698 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmlZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzghFz2MmlZYsww2MbTL0ysxMDzMzMYmZA",
-                honor = { 5406, 1209, 5698 },
+                export = "CUQAphyM11FofNMFa1K3vFEDUCgZ2mBAAAAAmtZmZZiZZbmxMjZgZmZmlxsNmZmllhBzMGwMGAAAAzghFz2MmlZYsww2MbTL0ysxMDzMzMYmZA",
+                honor = { 5698, 5406, 1209 },
               },
             },
           },
@@ -1495,58 +1381,44 @@ ClassCodexSource["blizzard"] = {
       elemental = {
         talents = {
           farseer = {
-            ["pvp:2v2"] = {
-              {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAmZZZmZmZmZbZZMmxMDAAAAYzMbwAGwsxEysAAzyMzMmZbxEmZMWMzMjxsYxYBzMzAAYGDgZGDDD",
-                honor = { 3488, 3620, 5659 },
-              },
-            },
             ["pvp:3v3"] = {
               {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbwAGwsxEysAA2GzMzMbLmWYmxYxYmxMz2sZmlZwMzyAAzMAYmxwM+A",
+                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLLzMGjZZZhxMMDAAAAYxMbwAGwsxEysAA2GzMmZbx0iZmxYxYmxMz2sZmlZwMzyAAzMAYmxwM+A",
                 honor = { 3620, 5574, 5660 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLLzMGjZZbhxMMDAAAAYxMbwAGwsxEysAAz2YmxMbLz0CzMbsYMzYmZb2GzyMYmZbAgZAgZGDz4DA",
-                honor = { 5574, 5660, 3620 },
+                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzwYYZZhxMjZAAAAALmZbzMzwmhFmtZmGamFAY2mZmxMbLmWYmxYxYmxMzmNmlZGzYWGAYmxAYmxwM+A",
+                honor = { 5724, 727, 5574 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLLzMGjZZZhxMMDAAAAYxMbLmZGWMswsNz0QzsAA2mZmxMbLz0CzMbsYMzDYmZz2YWmBzMLDAMzYgZmZGDz4DA",
-                honor = { 3488, 727, 5660 },
-              },
-              {
                 export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbwAGwsxEysAAMzMjZ2WMtMmZMWMmZMzsNbMLzgZmlBAmZMAmZMMjPA",
-                honor = { 3488, 727, 5660 },
+                honor = { 5660, 3620, 5574 },
               },
               {
                 export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbwAGwsxEysAAz2YmxMbLmWmZmxYxYmxMzmNzsMDmZWGAwMAYmxwM+A",
-                honor = { 3488, 727, 5660 },
+                honor = { 5660, 3620, 5574 },
+              },
+              {
+                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbbmZG2MswsNz0QzsAAz2YmxMbLmWGzMGLGzMmZ2mNmlZwMzyAAzMAYmxwM+A",
+                honor = { 5660, 3620, 5574 },
               },
               {
                 export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbwAGwsxEysAAz2MzMmZbx0CzMGLGzMmZ2mNmlZwMzyAAzMAYmxwM+A",
-                honor = { 3488, 727, 5660 },
+                honor = { 5660, 3620, 5574 },
               },
               {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLLzMGjZZZjxMMDAAAAYxMbwAGwsxEysAAz2MzMGbLmWYMGLmZmxMzmNzsMzwMzyAAmxsAMzAGfA",
-                honor = { 3488, 727, 5660 },
+                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLLzMGjZZZjxMMDAAAAYxMbwAGwsxEysAAz2MzMmZbx0yYMGLGzMmZ2sZmlZGmZWGAwMmFgZGw4DA",
+                honor = { 5660, 3620, 5574 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZjxMMDAAAAYxMbwAGwsxEysAAz2YmxMbLmWGzMGLGzMmZ2sZmlZwMzyAAzMAYmxwM+A",
-                honor = { 5660, 3620, 5574 },
-              },
-            },
-          },
-          stormbringer = {
-            ["pvp:2v2"] = {
-              {
-                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAmZZZmxMzMbLLjxMMDAAAAAsYGDbwGMjGasBAzyDMzMzYbx0GzMGLzMzMGWsYsMMmZWAAmxAzMwwwA",
-                honor = { 3488, 3620, 5659 },
+                export = "CYQARUG2fGwHkLP0T7/MoTNl/AAAAAzMLbzMGjZZZhxMMDAAAAYxMbwAGwsxEysAAz2YmxMbLmYmZMWMmZMzsNbmZZGMzsMAwMDAmZMMjPA",
+                honor = { 3620, 5574, 5660 },
               },
             },
           },
@@ -1555,58 +1427,62 @@ ClassCodexSource["blizzard"] = {
       enhancement = {
         talents = {
           stormbringer = {
-            ["pvp:2v2"] = {
-              {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAz2gxYbZGLMmtxiZmZGjtxMAAzwMzMmZiZmZGMYMA",
-                honor = { 5575, 722, 3622 },
-              },
-              {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzwMzMzMzMMzMDAAAAAAAAgNsgFzYGLkNYGmRDWAY2mxMmZbZGMzMmZzMzMPgxGAAMDjZwoZBzMYwYA",
-                honor = { 5575, 722, 3622 },
-              },
-              {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzwMzMzMzMMzYAAAAAAAAAshNssMjZmlFNLbDzwMTDWAY2eghxMbLGLMzsNWMPwMzDYmtxMAAzwMzMmZCMzgBjPA",
-                honor = { 5575, 722, 3622 },
-              },
-            },
             ["pvp:3v3"] = {
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAz2gZGbLzYhZmNWMzMDzsNmBAYGmZmxMTMzMzgBjB",
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAzygxMbLzYxMmNzi5BmZYmtxMAAzwMzMmZiZmZGMYMA",
+                honor = { 3622, 5575, 722 },
+              },
+              {
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAzygxMbLzYxMmtZWMmZYmtxMAAzwMzMmZiZmZGMYMA",
+                honor = { 3622, 5575, 722 },
+              },
+              {
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAz2gxYZZGLjZGsYmZmHwMbjZAAmhZmZMzEzMzMYwYA",
+                honor = { 3622, 5575, 722 },
+              },
+              {
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZZbYGmZawCAz2gxYZZGLjxsxiZmZeAzsNmBAYGmZmxMTMzMzgBjB",
                 honor = { 3622, 5575, 722 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2ILwMM0gFAmtBjx2yMWYMLjFzMzMmxYGAgZYmZGzMBmZAMGA",
-                honor = { 722, 5575, 3622 },
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstoZbbYGmZawCAz2wMGbLzYhxsNWmZmZYmtxMAAzwMzMmRYmZGMYMA",
+                honor = { 3622, 5575, 722 },
               },
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2ILwMM0gFAmtZmZMWWmBmZMWmZmZYsYZGAgZYMzwMBmZwgxA",
-                honor = { 722, 5575, 3622 },
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzgZmZmZmhZmZAAAAAAAAAsBYbbGjZZRzy2wMMz0gFAmlZYMzyyMWYmBLmHYmZMzCGAgZYMzYGNLmZmBDGD",
+                honor = { 3622, 5575, 722 },
               },
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzgZmZmZmhZmZAAAAAAAAAshFstMjZmtNNLbDzwMTDWAY2mxMmZZZGbMzsNWm5BmZYswMAAzwYmhZCMzgBjB",
-                honor = { 722, 5575, 3622 },
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNAbmxwGZBmhhGsAwsNYM2WmxyYMbsYmZmxMGzAAMDzMzYmJwMDGMGA",
+                honor = { 3622, 5575, 722 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMDMzMzMzMMzMDAAAAAAAAgNsgtlZMzstILGmhZmGsAwsNYMz2yMWmZMbsYmZGmZjZAAmhZmZMzEmZmBDGD",
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMzgZmZmZmhZmZAAAAAAAAAshFsZGzMbLaW2GmhZ0gFAmtBjZ2WmxiZMbjFzMjHwMbjZAAmhZmZMzEzMzMAGD",
                 honor = { 3622, 5575, 722 },
               },
             },
           },
           totemic = {
-            ["pvp:blitz"] = {
+            ["pvp:2v2"] = {
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMjZmZmZmZmxYGzAAAAAAAAAALYbZGzMbLaW2GmhZmGsBwsNYMzyyMWYmZjFzMzwMbjZAAMMjZMzEzMzMYw4DA",
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMjZmZmZmZmxYGzAAAAAAAAAALYbZGzMbLaW2GmhZmGsBwsMYMWWmxCzMbmNzMzwMbjZAAMMjZMzEzMzMYw4DA",
+                honor = { 3622, 722, 3487 },
+              },
+            },
+            ["pvp:3v3"] = {
+              {
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMjZmZmZmZmxYGzAAAAAAAAAALYbZGzMbLaW2GmhZmGsBwsMYMzyyMWMzMbmFzDMzwYbMDAghZMjZmYmZmBDGfA",
                 honor = { 3622, 5575, 722 },
               },
             },
-            ["pvp:rbg"] = {
+            ["pvp:blitz"] = {
               {
-                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMjZMzMzMzMmZGzAAAAAAAAAALYbZGzMbLa22GmhZmGsBwsNMjx2yMWYMbjlZmZGmZbMDAghZMjZEzMzMYw4DA",
-                honor = { 722, 5575, 3622 },
+                export = "CcQARUG2fGwHkLP0T7/MoTNl/MzMjZmZmZmZmxYGzAAAAAAAAAALYbxYmZbRjthZYmpBbAMbDGjllZsMmZ2YxMzMMz2YGAADzYGzMxMjZwgxHA",
+                honor = { 3622, 5575, 722 },
               },
             },
           },
@@ -1614,55 +1490,55 @@ ClassCodexSource["blizzard"] = {
       },
       restoration = {
         talents = {
-          farseer = {
-            ["pvp:3v3"] = {
-              {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZmx2yMMzDMzMzMzMGbmZBGwEMLMBGLYmBzyYmZaWWMziZMYzYmxMz2sBAAAMzAgZGmZwA",
-                honor = { 5704, 715, 3755 },
-              },
-            },
-          },
           totemic = {
             ["pvp:2v2"] = {
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmlxMjmlFzsYGDWmxMjZmtZDAAAYmBzMYmhxgB",
-                honor = { 3755, 715, 5704 },
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAYMjZZbZMzMmZmZmZGzstMziNGzYZasNzCTmhxGzMDmtxY0ssYmFzYwmxMzDMzsNbGAAAYmBzMYmhxgB",
+                honor = { 5723, 715, 5704 },
+              },
+              {
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYssMWsxYGLasNzCTmhxGzMDmlHwY0stYmFzYYWMmZegZmtZzAAAAzMYmBzMMGM",
+                honor = { 5723, 715, 5704 },
+              },
+              {
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLzYmZmZmxYYYB2gZsox2AyMwmHYMDmNzY0YZmZZMGsYMzMzMbzmBAgBwMjxMDAzMYA",
+                honor = { 5723, 715, 5704 },
+              },
+              {
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmtBz0stYGzMGsZMzMzMbDDAAAMzgZGMzwYwA",
+                honor = { 5723, 715, 5704 },
+              },
+              {
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZM2WGzMjZmZmZmxMLLzsYjxMWmGbzswkZYsxMzAbjxoZZxMLmxwsZegZGzMbzmBAAAmZwMDmZYMYA",
+                honor = { 5723, 715, 5704 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMziNGzYZasNzCTmhxGzMDmtxY0ssYmFzYwixMzDMzsNbGAAAYmBzMYmhxgB",
-                honor = { 5704, 715, 3755 },
-              },
-              {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYssMWsxYGLasNzCTmhxGzMDmtxMjmlFzsYGDWmxMjZmtZDAAAYmBzMYmhxgB",
-                honor = { 5704, 715, 3755 },
-              },
-              {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYstMzmNGzYZasNzCTmhxGzMDmlxY0stYmlZGDWMmZMzsNbGAAAYmBzMAMGM",
-                honor = { 5704, 715, 3755 },
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAwMzMLbLzMzMzMDmZGjllZ2sxYGLTjtZ2YyMM2YmZwsNmZ0ssYmFzYwyMmZMzsNbAAAAzMYmBzMMGM",
+                honor = { 5704, 3755, 715 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAYMjZZbZMzMmZmZmZGzssMWsxYGLasNzCTmhxGzMDmtxMjmllZmFzYwixMjZmtZDAAAYmBzMYmhxgB",
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMzYssMziNGzYZasNzCTmhxGzMDmtxMjmtlZmFzYwixMjZmtZDAAAYmBzMYmhxgB",
                 honor = { 715, 3755, 5704 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmZmZmxMzYstMzmNGzYZasNzGTmhxGmZwsMGjmlFzwMGmNzDMzYmZb2MAAAwMDmZwMDjBD",
-                honor = { 5723, 3755, 715 },
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZmZZbZMzMPwMzMmZYstMzmNGzYZasNzGTmhxGmZwsMGz0ssMzsYGzmZzYmxMMbDAAAYmBzMYmhxgB",
+                honor = { 715, 3755, 5704 },
               },
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbbDzMmZmZmZGzYZwGMjNN2mZBZGYjxMDz2MjZa2WmxCjZjNzYGzwsNAAAwMzgZGAGDG",
-                honor = { 5723, 3755, 715 },
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAzMjZZbZYmxMzMmZYGLwGMjNN2GQmB28AjZgtZmZ0stMzgxwsZmZGzMLz2AAgBgZwMDAjBD",
+                honor = { 715, 3755, 5704 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAgBAAAAjZMLbLjZmxMzMzMDjtlZ2sxYGLTjtZ2YyMM2YmZwsMGjmllZmlxYwixMjZmtZbGAAAYmBzMAMGM",
-                honor = { 3755, 715, 5723 },
+                export = "CgQARUG2fGwHkLP0T7/MoTNl/AAAAAAAAAYMjZZbZMzMmZmZmZGzssMziNGzYZasNzCTmhxGzMDmtxMjmllZmFGDWMmZegZmtZDAAAYmBzMYmhxgB",
+                honor = { 715, 5567, 3755 },
               },
             },
           },
@@ -1672,39 +1548,37 @@ ClassCodexSource["blizzard"] = {
     WARLOCK = {
       affliction = {
         talents = {
+          hellcaller = {
+            ["pvp:blitz"] = {
+              {
+                export = "CkQAMrNP5kak+EBqLfUa3dMm+uw4BmZ0sxYZmZmZZAAAmZ2sZmZxMAwstsMGGziZaMzMslZjhlBAAgZAAgZmZmZmxMjZmhZMzMzMYmZGAgBMA",
+                honor = { 18, 5386, 15 },
+              },
+            },
+          },
           ["soul-harvester"] = {
             ["pvp:2v2"] = {
               {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMGmZmmlZGLMzMLDAAwMziNzMLmBAmlllxwYWMTjZmhtMLMsNAAAMDAAMzMzMzMmZMzMMjZmZmBzYGAgBMA",
+                export = "CkQAMrNP5kak+EBqLfUa3dMm+yMjZGNbmZ2mZGzyAAAmZmlZzMziZAgZbbZMMmFz0YmZYLzCDbDAAAzAAAzMzMjZMjtxYGjZmxYYmZGAgBMA",
                 honor = { 15, 5579, 5386 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+iZGzoZZMMzMzsAAAMzMLziZmNzAAjltBGwEMDLBG2GAAAmBAAwMzMzMzMmZAzMzMzDgZmxAAmBG",
-                honor = { 16, 18, 5386 },
-              },
-              {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLDAAwMziNzMLmBAmlllxwYWMTjZmhtMbMsNAAAMDAAMzMzMzMzMjZmhZMzMzMYGDAgBMA",
-                honor = { 16, 18, 5386 },
-              },
-            },
-            ["pvp:blitz"] = {
-              {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+yMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgZbbZMMmFz0YmZYLzCDbDAAAzAAAzMzMjZMjtxYGzMzMGDzMzAAMgB",
-                honor = { 18, 15, 5386 },
+                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sNzYhZmZZAAAmZWsZmZxMAwsssMGGziZaMzMslZhhtBAAgZAAgZmZmZmZmZMzMMjZmZmBzYGAgBMA",
+                honor = { 5579, 15, 5386 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMmxMjmNzYhZmZZAAAmZWsZmZzMAwsstMGGziZaMzMslZhhtBAAgZAAgZmZmZmZmZMzMMjZmZmBzYGAgBMA",
-                honor = { 5579, 5392, 5662 },
+                export = "CkQAMrNP5kak+EBqLfUa3dMm+yMjZGNbmZ2mZGzyAAAmZmlZzMziZAgZbbZMMmFz0YmZYLzCDbDAAAzAAAzMzMjZMjtxYGjZmxYYmZGAgBMA",
+                honor = { 5386, 18, 5579 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLDAAwMziNzMLmBAmlllxwYWMTjZmhtMbMsNAAAMDAAMzMzMzMzMjZmhZMzMzMYGDAgBMA",
-                honor = { 5386, 15, 5579 },
+                export = "CkQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sNzYhZmZZAAAmZWsZmZxMAwsstMGGziZaMzMslZhhtBAAgZAAgZmZmZmZmZMzMMjZmZmBzYGAgBMA",
+                honor = { 5386, 18, 5579 },
               },
             },
           },
@@ -1712,55 +1586,39 @@ ClassCodexSource["blizzard"] = {
       },
       demonology = {
         talents = {
-          diabolist = {
-            ["pvp:3v3"] = {
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+uNmZMz0YM2YmZ2GAAAAAAgxy2MmZGWMMMzys0CNjFjZmZbMjZMDAMzMDzMzgZmhZGzGAAYmZmZGmZYGD4DA",
-                honor = { 3624, 5577, 3506 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+uNmZMz0YM2YmZ2GAAAAAAgxy2MmZGWMMMzys0CNjFjZmZbMjZMDAMzMDzMzgZmhZGzGAAYmZmZGmZYGD4DA",
-                honor = { 5577, 162, 5545 },
-              },
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+yMegZGNbmZ2mZGzyAAAAAAAAGzYYBGYb0CNsYMzYZ2mZmxMAwMjZmZmZAGzYGbAAgxMzMGwyMGwA",
-                honor = { 5577, 162, 5545 },
-              },
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+aMzMzMNLMWMzYWGAAAAAAgx2yMmZG2MMMz2s0CNjFMzYZ2mZmxMAwMjZmZmZwMzMzMMLAAgxMzYGDMjBMA",
-                honor = { 5577, 162, 5545 },
-              },
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+yMzMzoZjZ2mZGzyAAAAAAAAGzYYBGYb0CNsYMzYZ2mZmxMAwMjZGzMDwYGzYDAAYmZGmBWmxAGA",
-                honor = { 5577, 162, 5545 },
-              },
-            },
-            ["pvp:shuffle"] = {
-              {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMm5BmhmlZGLMzMLDAAAAAAwYZZGzMDbGGmZb2ahmxiZGjtZbmZGzAAzMMjZmBzMmZmxsBAAYGzYMzMLDDYA",
-                honor = { 5606, 3506, 5577 },
-              },
-            },
-          },
           ["soul-harvester"] = {
             ["pvp:2v2"] = {
               {
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sNzYhZmZZAAAAAAAGLLzYmZYzwwMbzWL0M2MzYsNLzMzwAAmxMzMzMYmZmZmZGAAgxMmxYGWmxAGA",
+                honor = { 5606, 5577, 3506 },
+              },
+              {
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmlZGLMzMLDAAAAAAwYbZGzMDbGGmZZ2ahmxmZGjtZZmZGGAwMmZmZmBzMzMjxAAAMmZmxYGWmxAGA",
+                honor = { 5606, 5577, 3506 },
+              },
+              {
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGmZmmlZGLMzMbDAAAAAAwYZZGzMDbGGmZb2ahmxmZGjtZZmZmxAAmZmZmZmBzMzMzMGAAgxMmxYGzyMDAA",
+                honor = { 5606, 5577, 3506 },
+              },
+              {
                 export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sMzYhZmZZAAAAAAAGLLzYmZYzwwMLzWL0M2MzMjtZZmZmxAAmZmZmZmBzMzMjZGAAgxMzMGzwyMDAA",
+                honor = { 5606, 5577, 3506 },
+              },
+              {
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmNzYhZmZZAAAAAAAGLLzYmZYzwwMbzWL0M2MzMjtZZmZGGAwMmZmZmBzMzMzMzAAAMmxMGzwyMAGA",
                 honor = { 5606, 5577, 3506 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGmZY2MjtZmZmlBAAAAAAYssMDzMsYAzsMbWwM2MGjtZbmZGzAAzMmZmxMYmZmZMzAAAMmxMGD2mxAGA",
-                honor = { 3624, 3506, 162 },
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+aMzDMzoZzMWmZmZ2GAAAAAAgxyyMmZG2MMMz2s1CNjNjxYb2mZmxMAgZMzMzMDmZmZGjBAAYMjZMmhlZMgB",
+                honor = { 162, 5394, 3624 },
               },
             },
-            ["pvp:rbg"] = {
+            ["pvp:shuffle"] = {
               {
-                export = "CoQAMrNP5kak+EBqLfUa3dMm+amZMzoZjx2MzYWGAAAAAAgx2yADYAzwSIjNjZGLjZmxMDAMzMzYGgZmZmZMDAAwYGzMjBLzMAD",
-                honor = { 5577, 162, 5545 },
+                export = "CoQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLDAAAAAAwYZZGmZYzAmZZ2ahmxmZGjlZbmZGGAwMmZmxMYmZmZmxAAAMmxMGzwyMGwA",
+                honor = { 5606, 3506, 5577 },
               },
             },
           },
@@ -1771,56 +1629,64 @@ ClassCodexSource["blizzard"] = {
           diabolist = {
             ["pvp:rbg"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+aMmZGNbzM2mZGzyswMzsYmZbxMAAYmZMzMLWwMzYmllRzMDbDLzWjFGAAYMwMbAYmZmBzMjxAAAwMmBAgZGA",
-                honor = { 5580, 5607, 5393 },
-              },
-              {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+uNmhhmFzYbmZMbzyMzMzCmllZGAAMmxMzsBGzYYhMw2wGNWAAAMAmFAMzAMzMzYWAAAMzMzAAYMM",
-                honor = { 5580, 5607, 5393 },
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+aMmZGNbzM2mZGzyswMzsYmZbxMAAYmZMzMLWwMzYmllRzMDLDLzWjFGAAYMwMbAYmZmBzMjxAAAwMmBAgZGA",
+                honor = { 3508, 157, 5382 },
               },
             },
           },
           hellcaller = {
             ["pvp:2v2"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+amhZGNbzMWYmZWmFmxsNjZbxMAAYmZMzML2wMzYmllRzMDbDLzWjNGAAYAmZDAYmBzMzMzAAAwMmBAgxwA",
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+amhZGNbzMWYmZWGMjZbGz2iZAAwMzYmZWshZmxMLLjmZG2GWmtGbMAAwAY2AAmZwMzMzMAAAMjZAAYmhB",
                 honor = { 5382, 3508, 5580 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzMjmtZGbMzMLzCzYWmxstYGAAwMmZmFbYmZMzyyoZmhlhlZrxGDAAMAzsBgZmZGMzMGDAAAzYGAAmZYA",
-                honor = { 5580, 5382, 3508 },
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMmxMjmtZGLMzMLDmxsMjZbxMAAYmZMzMLWwMzYmllRzMDbDLzWjNGAAYAGbAAzMYmZmxAAAwMmBAgZGG",
+                honor = { 5580, 3508, 5382 },
+              },
+              {
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLzCzYWmxstYGAAwMmZmFbYmZMzyyoZmhlhlZrxGDAAMAzsBgZmZGMzMzYAAAYGzAAwMDD",
+                honor = { 5580, 3508, 5382 },
+              },
+              {
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMmxMjmtZGLMzMLDmxsMjZbxMAAYmZMzMLWwMzYmltRzMDbDLzWjNGAAYAGbAYmZmBzMzMzAAAwMGAAMzwA",
+                honor = { 5580, 3508, 5382 },
               },
               {
                 export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLzCzYWmxstYGAAwMmZmFbwAziRjZAMbxGDAAMAzsBAMzgZmZGDAAAzYGAAmZYA",
-                honor = { 5580, 5382, 3508 },
+                honor = { 5580, 3508, 5382 },
+              },
+              {
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzMjmtZGLMjZZwMmlZMbLmBAAzMjZmZxCmZGzssMamZYZYZ2asxAAADgZDAYmBzMzwAAAwMzMAAMzwA",
+                honor = { 5580, 3508, 5382 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGmZY2mZsNzMzsMLYMbzYWWMDAAGzYmZWsADMLGGzAY2wGDAAMAzsBAMzgZmxYAAAYGzAAwMDD",
-                honor = { 5382, 3508, 5393 },
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sNzYZmZmZZWwY2mxssYGAAMmxMzsYBGYWMaMDgZL2YAAgBYmNAgZGMzMGDAAAzYGAAmZYA",
+                honor = { 5382, 3508, 157 },
+              },
+              {
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGmZ0sMzYZmZmZZMmxsMjZZxMAAYmZMzMLWgBmFjGzAY2iNGAAYAGbAAzMYmZMGAAAmxMAAMPwwA",
+                honor = { 5382, 3508, 157 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzMjmtZGbMzMLzCzYWmxstYGAAwMmZmFbYmZMzy2oZmhlhlZrxGDAAMAzsBgZmZGMzMGDAAAzYGAAmZYA",
-                honor = { 5580, 5607, 5393 },
-              },
-              {
                 export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzM0sYGbMzMLzCzY2mZmlFzAAgZmxMzsYDzMjZWWGNzMsNsNbN2YAAgBYsBAMzgZmxMDAAAzMzAAwYYA",
-                honor = { 5580, 5607, 5393 },
+                honor = { 3508, 157, 5382 },
               },
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+aMzYGNbjx2MzYWmFzMzsYYZxMAAYmZMzMLWgBmFjGzAY2iNAAAjBGbAAzMYMzMGAAAmZmZAAMGG",
-                honor = { 5580, 5607, 5393 },
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzM0sYGbzMzMLzCzY2mxssYGAAMzMmZmFLwAziRjZAMbxGDAAMAzsBAMzgZmxYAAAYGzAAwYYA",
+                honor = { 3508, 157, 5382 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGzMjmtZGbMzMLzCzYWmxstYGAAwMmZmFbYmZMzyyoZmhlhlZrxGDAAMAzsBgZmZGMzMGDAAAzYGAAmZYA",
-                honor = { 5580, 157, 5382 },
+                export = "CsQAMrNP5kak+EBqLfUa3dMm+uMGPwMjmtZGLMzMLzCzYWmxstYGAAwMmZmFbYmZMzyyoZmhlhlZrxGDAAMAzsBgZmZGMzMzYAAAYGzAAwMDD",
+                honor = { 5580, 3508, 5382 },
               },
             },
           },
@@ -1833,34 +1699,64 @@ ClassCodexSource["blizzard"] = {
           colossus = {
             ["pvp:2v2"] = {
               {
-                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMNMmxYbzMzMMjZmBAAAAwYxMwWmZssNLmZbYzwwMzMtRzMDLAzYxsMGWmZbwMzMDADDD",
-                honor = { 33, 5625, 3534 },
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYZzMzMMjZmBAAAAwYxMwWmZssNLmZbYzwwMzMtRzMDLAzYxsMGWmZbwMzMDADDD",
+                honor = { 33, 3534, 5701 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA",
-                honor = { 33, 5701, 3534 },
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA",
+                honor = { 5625, 33, 3534 },
+              },
+            },
+            ["pvp:blitz"] = {
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMzywmhhZmZajmZGWAmxiZZMsMz2gZmZGAmxwA",
+                honor = { 33, 5701, 31 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA",
-                honor = { 3534, 31, 33 },
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMNMzMzYhZmZYGzMDAAAAgxyMDslxYZbWMzywmhhZmZajmZwCwMWMLjBzsNYmZmBghhB",
+                honor = { 5701, 33, 31 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYbZWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA",
+                honor = { 5701, 33, 31 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYbzMzMMjZmBAAAAwYxMwWmZssNLmZbYzwwMzMtRzMDLAzYxsMGWmZbwMDAYYYA",
+                honor = { 5701, 33, 31 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMhxMzYhZmZYGzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZGWAmxiZZMsMz2gZGAwMGGA",
+                honor = { 5701, 33, 31 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzMDAAAghJMzMzYhxMDzYmZAAAAAMWMDslZGLLziZWG2MMMzMTb0MzwCwMWMLjBzsNYmZmBgZMMA",
+                honor = { 5701, 33, 31 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzMDAAAghBGzMjFmZmhZMzMAAAAAGLmB2YGwiZMsBDMDbYMDLAzYxsMGMz2gZGAwMGGA",
-                honor = { 33, 3534, 5625 },
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzYAAAAMMNMmxYhZmZYGzMDAAAAgxiZgtMDYxMG2gBmRb0YGWAmxiZZmBzsNYmBAMjhB",
+                honor = { 3534, 5701, 33 },
               },
             },
           },
           slayer = {
-            ["pvp:blitz"] = {
+            ["pvp:2v2"] = {
               {
-                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMhZmZGLmZmZAzMDAAAAgxiZgtMzYZbWMz2wmhhZmZajmZG2AmxiZZMsMz2AMzAwMGGA",
-                honor = { 33, 5701, 31 },
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMmZAAAAMMNMmxYZzMzMYMzMAAAAAYZmB2yMjltZxMbDbGGmZmpNamZYDYGLmlxwyYbwMzMDAzYYA",
+                honor = { 33, 3534, 5701 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzMDAAAghphxMzYhZmZYGzMDAAAAAzyMDIjxy2sYmthNDDzMz0GNzgNgZsYWGDmZbwMzMDAzYYA",
+                honor = { 33, 3534, 5701 },
+              },
+              {
+                export = "CcEAjLzRlq54bI5v+r8Sr9Xw4DzMzsMzMzMDAAAghphZmxYhZmZwYmZAAAAAYWmZAZMW2mFzsNsZYYmZm2oZmhNgZsYWGDmZbwMzMDAzYYA",
+                honor = { 33, 3534, 5701 },
               },
             },
           },
@@ -1871,52 +1767,48 @@ ClassCodexSource["blizzard"] = {
           ["mountain-thane"] = {
             ["pvp:2v2"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMzM22MzMjxYmZMjZmZWmZGjxsMmZGAAImZZbsxmlFjGzMDTmNYsAYmFjlBAzMwMzwYmBDG",
-                honor = { 3735, 177, 3533 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjxGzMzYMmZGzYmZmlZmxYmZZMzMAAQMzy2YjNLLmpxMzwkZjZGLAmZhZZAwMDghxMzghB",
+                honor = { 3533, 177, 3735 },
               },
             },
             ["pvp:3v3"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDjZmxCzMzMDmZGzYmZmtZmZGjZZMzMAAQMz22YhNLLmpxMzwkZjZGLAmZhZZAwMDwMMMzwgB",
-                honor = { 3735, 3533, 5702 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjxCzMzYMmZGzYmZmlZmxYmZZMzMAAQYgNYZxoxMgMbYGLAmZhZZAwMDghxMzghB",
+                honor = { 3735, 3533, 177 },
               },
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDjZMW2MzMzMwMjZMzMz2MzMjxsMmZGAAImZbbswmlFz0YmZYysxMjFgZmFmlBAzMAzwwMDDG",
-                honor = { 3735, 3533, 5702 },
-              },
-              {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjZsMjZGzMjZGzYmZmlZmxYMLjZmBAAiZ2WGbsYZzMNmZGmMLMzYBwMYWGAMzgZGDzMzgBD",
-                honor = { 3735, 3533, 5702 },
-              },
-              {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGYMzMzCzMzYmhZGzYmZmlZmxYMLjZmBAAiZ22GbsZZzMNmZGmMbMzYBwMLmZZAwMDghxMGmhB",
-                honor = { 3735, 3533, 5702 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDjZMW2mZmZMYmZMjZmZ2mZGjZmlxMzAAAxMLbjNWssYmGzMDTmNmZsAYmFmlBAzMAGGzMDGG",
+                honor = { 3735, 3533, 177 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDMzMzCzMzYmxMzMzYmZmtZMzMzMLGzMAAQY22GbsZZxMNmZGmMLMzYBwMLGLDAmZADDjxwgB",
-                honor = { 177, 3533, 3735 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMzMzCzMzYwMzYGzMzsMzMGzMLjZmBAAiZ22GbsZZxMNmZGmMLMzYBwMLGLDAmZAMwMGmhB",
+                honor = { 177, 179, 3735 },
               },
             },
             ["pvp:rbg"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjZWYmZGPgxMzYGzMzsNzMGjZZMzMAAQYgNYZxoxMgMbYGLAmZxMLDAmZAMMzMGGM",
-                honor = { 3735, 177, 3533 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjZWYmZGjxMzYGzMzsMzMGzMLj5BmBAAiZWWGbsZZxMNmZGmMbMzYBwMLGLDAmZwMjhZmxwgB",
+                honor = { 3735, 5624, 5678 },
+              },
+              {
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMzMzCzMzMPAmZmZGzMjlZMGzMLjZmBAACDsBLLGNmBkZBzYBYmhxyAgZGgZYGjhZYA",
+                honor = { 3735, 5624, 5678 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjxGzMzYMmZGzYmZmlZmxYmZZMzMAAQYgNYZzoxMgMbYGLAmZhZZAwMDghxMzghB",
-                honor = { 3735, 177, 3533 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMjxGzMzYMmZGzYmZmlZmxYmZZMzMAAQMzy2YjNLLmpxMzwkZjZGLAmZhZZAwMDghxMzghB",
+                honor = { 3735, 5702, 3533 },
               },
             },
           },
           slayer = {
             ["pvp:3v3"] = {
               {
-                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDjZMz2yMzMjZmxMjZmZMzyMzYmZmtxYGAAImZbZswilFzEzMDTmFmhNAzgxAgZGMzMDjZmhBD",
-                honor = { 3735, 3533, 5702 },
+                export = "CgEAjLzRlq54bI5v+r8Sr9Xw4DAAAAAAgGDzMMziZmZmZMzMzMzYmZmlhxMzMbmZmBAAiZW2GbsZZxMNmZGmMbMDbAmZxYBAmZwMDjxwwMM",
+                honor = { 3735, 3533, 177 },
               },
             },
           },
@@ -1924,77 +1816,23 @@ ClassCodexSource["blizzard"] = {
       },
       protection = {
         talents = {
-          colossus = {
-            ["pvp:2v2"] = {
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43yAAAzMjZmZmxYWYmlhxY0MzMzsZmZmZYGDAAAAYZmBYGDwgltZMLbLjmZGmhlZphZBmxMwsNAYmZmBAMDYA",
-                honor = { 171, 175, 173 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43yAAAzMjZmZmxYWYmlhxY0MzMzsZmZmZYGDAAAAYZmBYGDwgltZMLbLjmZGmhlZphZBmxMwsNAgZmBAMDYA",
-                honor = { 171, 175, 173 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw432AAAzMzYmZGzMjxYZGjxMNzMzMbmZMzYmxMDAAAAWmZAmZbAgNzYYhMwMsQjZWAYgZDAwMDAYAG",
-                honor = { 175, 845 },
-              },
-            },
-          },
           ["mountain-thane"] = {
             ["pvp:2v2"] = {
               {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43CAAYMzYmZmZGzmZGDjxMNmZmZZxMzMMjxMAAAAYZGAzYAGssNjZZZb0MzwMsMLNmZjxMDDzsMAYmBAgBYA",
-                honor = { 171, 175, 173 },
-              },
-            },
-            ["pvp:3v3"] = {
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAmZmxMzMmxsZmZZYMGNjZmxyMzMzgxYAAAAwyYAmZbAGYDWWMaMDgZLmZDmxMDjtBAzMAAYAD",
-                honor = { 175, 845 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzYmZmZmxsYmZZGjxoZmxYjZmZGzYmZAAAAwyMDwMGgBWglFjGzAYWiZ2wMzMDMGAMzAAwMgHA",
-                honor = { 175, 845 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzwMzMzMmNzMLDjxoZmxYbxMzMDDzMAAAAYZMAzYAGssNjZZZZ0MzwMsNLNMbYmZmZwsMAYmZmBAMDYA",
-                honor = { 175, 845 },
+                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43yAAAzMDzMzMzY2MzYYMmpZmxYhZmZwYmZAAAAwyMAmxAMYZbGzyy2oZmhZYZ2aMzGmZYGMLDAmZmZAAzAG",
+                honor = { 168, 171, 5627 },
               },
             },
             ["pvp:blitz"] = {
               {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43yAAAjZGmZmZGzGzsMwYmmZmZswMzMYMzMAAAAYZmBYGDwgttZMbLLjmZGmhlZrxMbYmxMDjlBAzMAAMDYA",
-                honor = { 5626, 175, 831 },
-              },
-            },
-            ["pvp:rbg"] = {
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzwMzMzMmtZmZZYMGNmZmxyMzMzwwMDAAAAWGAmxAMwCssY0YGAzSMzGmZmZgZbAwMDAADwA",
-                honor = { 5626, 5627, 5715 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzYmZmZmxsZmZZGjxoxMGWmxMzYGmZAAAAwyMDwMGgB2glFjGzAYWiZ2wMzMzgZbAwMDAAzAeA",
-                honor = { 5626, 5627, 5715 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzwMzMzMmNzMLzYMGNmxwyMmZGzwMDAAAAWmZAmxAMwGssY0YGAzSMzGMmZGGbDAmZAAYGwA",
-                honor = { 5626, 5627, 5715 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzwMzMzMmNzMLzYMGNmxw2MmZGzwMDAAAAWmZAmxAMwGssY0YGAzSMzGYmZGMbDAmZAAYGwA",
-                honor = { 5626, 5627, 5715 },
-              },
-              {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw432AAAzMDzMzMzMz2MGDjxohZGLLzMzMDDzMAAAAYZAYGDwgltZMLLbjmZGmhlZrxMbMmxMDGDAmZmZAAzAG",
-                honor = { 5626, 5627, 5715 },
+                export = "CkEAjLzRlq54bI5v+r8Sr9Xw43yAAAjZGmZmZGzGzsM8AGz0MzYsxMzMYMzMAAAAYZmBYGDwgllZMLLbjmZGmhlZpxMbYmxMDjlBAzMAAMDYA",
+                honor = { 831, 175, 5715 },
               },
             },
             ["pvp:shuffle"] = {
               {
-                export = "CkEAjLzRlq54bI5v+r8Sr9Xw4nBAAGzMmZmZmxsZmZZYMGZmxYbxMzMDDzMAAAAYZMAzYAGYDWWMaMDgZLmZDzMmZwsMAYmBAgZAD",
-                honor = { 171, 173, 5626 },
+                export = "CkEAjLzRlq54bI5v+r8Sr9Xw432AAAzMzYmZGzY2MmlhxYmmZmZmlFzMzAMzAAAAAjBYGDwgltZMLbbjmZGmhlZrxMbMzMjZYmlBAzMAAA4DA",
+                honor = { 168, 5626, 171 },
               },
             },
           },
@@ -2002,5 +1840,5 @@ ClassCodexSource["blizzard"] = {
       },
     },
   },
-  meta = { generatedAt = "2026-07-18T09:21:34.354Z", schemaVersion = 1, source = "blizzard" },
+  meta = { generatedAt = "2026-07-28T06:28:37.737Z", schemaVersion = 1, source = "blizzard" },
 }

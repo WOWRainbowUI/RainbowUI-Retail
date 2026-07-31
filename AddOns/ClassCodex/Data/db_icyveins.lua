@@ -1529,23 +1529,23 @@ ClassCodexSource["icyveins"] = {
               },
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsNjxwMAAAAAAAAwMMzAjpGzMzAAAAAzMjxMzyYmBmZzYwCsMGGbDgZQshZmBzMYwA",
-                label = "Leveling (Scalecommander)",
+                label = "升級 (Scalecommander)",
               },
             },
             mplus = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsNjxwMAAAAAAAAwM8AzwYM1YmZGAAAAYmZMmZ2GzMwMbGDWglxwYbAMDiNMzMYmBDG",
-                label = "Weekly 傳奇+",
+                label = "保底層 傳奇+",
               },
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAwM8AzwYM1YmZGAAAAYmZMmZ2GzMwMbGDWglxwYbAMDiNMzMYmBDG",
-                label = "High Key 傳奇+",
+                label = "高層 傳奇+",
               },
             },
             raid = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsNjxwMAAAAAAAAYmhZGYM1YmZGAAAAYMjxMzyYmBmZzYwCsMGGbDgZQshZmBzMYwA",
-                label = "團隊ing",
+                label = "團隊副本",
               },
             },
           },
@@ -1731,11 +1731,11 @@ ClassCodexSource["icyveins"] = {
             raid = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHAzYmxsZMzMzyAAAMzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMM0AWgxMDwYA",
-                label = "團隊ing (Chronowarden)",
+                label = "團隊 (Chronowarden)",
               },
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHAzYmxsZYmZWGAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwMmBWALgZYCsZYzwAYmZmB",
-                label = "團隊ing (Flameshaper)",
+                label = "團隊 (Flameshaper)",
               },
             },
           },
@@ -1898,7 +1898,7 @@ ClassCodexSource["icyveins"] = {
             mplus = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwGsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZMjZYZoZAAAAAAAAAegZGDYmNAYWAbDA",
-                label = "傳奇+ and Raid AoE",
+                label = "傳奇+ 以及團隊AoE",
               },
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsFYsAAgZGLzMDzwMzMYGzMzwMmZGzMDbzMjZMDLjpZAAAAAMDAAAMzYYmBIwMLgtBA",
@@ -2005,12 +2005,12 @@ ClassCodexSource["icyveins"] = {
                 "Cast {212431} as a filler.",
                 "Cast {56641} as a filler.",
                 "Cast {19434} if it is near 2 charges. Ensure {257621} is up before casting. We never want to charge cap our {19434}.",
-                "Cast {466930} if you have {260240}.",
+                "Cast {466932} if you have {260240}.",
                 "Cast {257620} after every {19434} to spend {260240}. You should also use it to activate {257621} if you do not have it up.",
                 "Cast {288613} if {473370} isn't up.",
                 "Cast {257044} as a filler. Ensure {257621} is up before casting. Always follow it with {466932}.",
                 "Cast {257044} to apply and maintain the {389019} buff.",
-                "Cast {392060} if you have no {466930} available. You can do this once during every {288613}.",
+                "Cast {392060} if you have no {466932} available. You can do this once during every {288613}.",
                 "Cast {260243} if {473370} isn't up.",
                 "Cast {19434} on cooldown. Ensure {257621} is up before casting.",
                 "Cast {2643} as a filler with {260240}.",
@@ -2033,11 +2033,11 @@ ClassCodexSource["icyveins"] = {
                 "Cast {257044} as a filler.",
                 "Cast {212431} as a filler.",
                 "Cast {56641} as a filler.",
-                "Cast {466930} if you have {260240}.",
-                "Cast {19434} during {288613}, if you have a {466930} available, or simply cast Aimed if it is about to reach 2 charges.",
+                "Cast {466932} if you have {260240}.",
+                "Cast {19434} during {288613}, if you have a {466932} available, or simply cast Aimed if it is about to reach 2 charges.",
                 "Cast {288613} if {473370} isn't up. Always hold your final Trueshot of the fight for 30 stacks of {204089}, which stacks up below 20% HP.",
                 "Cast {257044} on cooldown. Always follow it with {466932}.",
-                "Cast {392060} if you have no {466930} available. You can do this once during every {288613}.",
+                "Cast {392060} if you have no {466932} available. You can do this once during every {288613}.",
                 "Cast {185358} after {19434} to spend {260240}.",
                 "Cast {260243} if {473370} isn't up.",
                 "Cast {19434} on cooldown.",
@@ -2239,7 +2239,7 @@ ClassCodexSource["icyveins"] = {
             mplus = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAYGjZmNDA",
-                label = "傳奇+ and Raid AoE",
+                label = "傳奇+ 以及 團隊AoE",
               },
             },
             raid = {
@@ -2650,7 +2650,7 @@ ClassCodexSource["icyveins"] = {
             mplus = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA22GzMzgZbYMDLAAAMzGwMwAmBD",
-                label = "Light Cleave/Raid",
+                label = "輕度順劈/團隊",
               },
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmxMzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAAWAYbbMzMDmthxMsAAAwMbAzADYGMA",
@@ -2828,7 +2828,7 @@ ClassCodexSource["icyveins"] = {
             delve = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZMAAAAAAALLgYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAglZZaZ2mZZAAAAMsBmZATjBMAgB",
-                label = "Delves/Open World",
+                label = "探究/開放世界",
               },
             },
             leveling = {
@@ -2846,7 +2846,7 @@ ClassCodexSource["icyveins"] = {
             raid = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYEmBmhxmZMmZmZMzywMmZZYZzy2sMMLAAwysMtMbzsMAAAAzwGYmBMNGAAwA",
-                label = "團隊ing (Defensive)",
+                label = "團隊 (Defensive)",
               },
             },
           },
@@ -3177,7 +3177,7 @@ ClassCodexSource["icyveins"] = {
             raid = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJmlZMzMMMbZAYAYDsZWmxMLz2Mzs1AAAAsAAbMGDzMAAwMDzYMMA",
-                label = "團隊ing - HeraldoftheSun",
+                label = "團隊 - HeraldoftheSun",
               },
             },
           },
@@ -3347,11 +3347,11 @@ ClassCodexSource["icyveins"] = {
             mplus = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZMMzyYZmZMzMLLjxwsMLzYAAAAAAAAgmmZWMjZGGmt2AwAGwgtBAAmZabmZZGAgNGMAYMDjBAYZGwMzAG",
-                label = "AoE / 傳奇+ (Weekly Keys)",
+                label = "AoE / 傳奇+ (保底層)",
               },
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNj5BYWmHYZMjZmZZZMzwsYZGDAAAAAAAA00MziZMzwwsFAMgBMYbAAgZm2mZWmBAYzMYAwYGGDAwyMgZmBMA",
-                label = "AoE / 傳奇+ (High Keys)",
+                label = "AoE / 傳奇+ (高層)",
               },
             },
             raid = {
@@ -3457,7 +3457,9 @@ ClassCodexSource["icyveins"] = {
     },
     PRIEST = {
       discipline = {
-        consumables = { all = { all = { augmentRune = { 259085 }, flask = { 241325 }, potions = { 241288, 241294, 241301, 241305 } } } },
+        consumables = {
+          all = { all = { augmentRune = { 259085 }, flask = { 241325, 241322 }, potions = { 241308, 241294, 241301, 241305 } } },
+        },
         crafting = { all = { all = { crafts = {}, embellishments = { 240167 } } } },
         gear = {
           all = {
@@ -3522,7 +3524,7 @@ ClassCodexSource["icyveins"] = {
           leveling = "https://www.icy-veins.com/wow/discipline-priest-leveling-guide",
           talents = "https://www.icy-veins.com/wow/discipline-priest-pve-healing-spec-builds-talents",
         },
-        statPriority = { all = { all = { secondary = { { "haste" }, { "crit" }, { "mastery" }, { "versatility" } } } } },
+        statPriority = { all = { all = { secondary = { { "haste" }, { "mastery" }, { "crit" }, { "versatility" } } } } },
         talents = {
           all = {
             leveling = {
@@ -3749,11 +3751,11 @@ ClassCodexSource["icyveins"] = {
             leveling = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAAzmBAAAAAAAAAAAwYsYGjlxYmZzMmZYzgxMjNkZsYmGADwMLmhZzAQGjFAMmZmMmZmZmNmBAzEA",
-                label = "Leveling (Archon)",
+                label = "升級 (Archon)",
               },
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAAzmBAAAAAAAAAAAwYsYGjlxYmZzMmZYzgxMjNkZsYmGAzYAgAMbz2GY2YAGzMTGzMzMzGzAGMTA",
-                label = "Leveling (Voidweaver)",
+                label = "升級 (Voidweaver)",
               },
             },
             mplus = {
@@ -4445,7 +4447,7 @@ ClassCodexSource["icyveins"] = {
               },
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzYMzMzMzMzMzMzAAAAAAAAAsBYzMG2gFYGGawCAzyMmxYZZGYmZbsMzMzMGLMDAghxMYEYmBDGXA",
-                label = "High 傳奇+ Keys",
+                label = "高傳奇+鑰石",
               },
             },
             raid = {
@@ -5331,5 +5333,5 @@ ClassCodexSource["icyveins"] = {
       },
     },
   },
-  meta = { generatedAt = "2026-07-18T09:21:33.412Z", schemaVersion = 1, source = "icyveins" },
+  meta = { generatedAt = "2026-07-23T06:39:05.570Z", schemaVersion = 1, source = "icyveins" },
 }

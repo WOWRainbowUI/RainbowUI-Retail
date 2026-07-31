@@ -195,7 +195,7 @@ function ns.AppendStatExtrasToTooltip(tooltip, statKey, snapshot, opts)
         local sign = (diff >= 0) and "+" or "−"
         local stateLabels = {
             above = "高於目標",
-            at    = "達到目標",
+            at    = "達標",
             below = "低於目標",
         }
         local c = STATE_COLORS[kind]
