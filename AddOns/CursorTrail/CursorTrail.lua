@@ -931,7 +931,9 @@ end
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function       EventFrame:LOADING_SCREEN_DISABLED()
-    updateScreenVars()
+    if updateScreenVars() and gLayers[1] then
+        CursorTrail_Load()  -- Reload the cursor models to apply the new display size.
+    end
 end
 
 -----------------------------------------------------------------------------------
