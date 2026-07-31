@@ -164,8 +164,8 @@ L["Label.LowPrimary"] = "低主屬"
 L["Label.LowSecondary"] = "低次屬"
 L["Label.RevivePet"] = "復活寵物"
 L["Label.Felguard"] = "惡魔守衛"
-L["Badge.Hearty"] = "H"
-L["Badge.Fleeting"] = "F"
+L["Badge.Hearty"] = "澎"
+L["Badge.Fleeting"] = "普"
 
 -- ============================================================================
 -- BUFF NAMES (used in Options panel checkboxes and sound notification list)
@@ -560,6 +560,11 @@ L["Options.PetLabels.SizePct"] = "尺寸占比 %"
 L["Options.ConsumableTextScale"] = "文字縮放"
 L["Options.ConsumableTextScale.Title"] = "消耗品文字大小"
 L["Options.ConsumableTextScale.Desc"] = "物品數量和品質標簽相對於圖示大小的字體縮放比例。"
+L["Options.ConsumableBadgeOnSubIcons"] = "在子圖示上顯示品質標記"
+L["Options.ConsumableBadgeOnSubIcons.Title"] = "品質標記在子圖示上"
+L["Options.ConsumableBadgeOnSubIcons.Desc"] =
+    '在每個子圖示顯示食物品質字母 (例如 "澎"為澎湃，"普"為普通的)，而非只在主圖示。'
+L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "只適用於子圖示顯示模式。"
 L["Options.HideConsumableLabels"] = "隱藏屬性標籤"
 L["Options.HideConsumableLabels.Title"] = "隱藏消耗品屬性標籤"
 L["Options.HideConsumableLabels.Desc"] =

@@ -572,6 +572,11 @@ english["Options.ConsumableTextScale"] = "Text scale"
 english["Options.ConsumableTextScale.Title"] = "Consumable text scale"
 english["Options.ConsumableTextScale.Desc"] =
     "Font size for item counts and quality (R1/R2/R3) labels as a percentage of icon size."
+english["Options.ConsumableBadgeOnSubIcons"] = "Show quality badge on sub-icons"
+english["Options.ConsumableBadgeOnSubIcons.Title"] = "Quality badge on sub-icons"
+english["Options.ConsumableBadgeOnSubIcons.Desc"] =
+    'Show the food quality letter (e.g. "H" for Hearty, "F" for Fleeting) on each sub-icon, not just the main icon.'
+english["Options.ConsumableBadgeOnSubIcons.Disabled"] = "Only available in the Sub-icons display mode."
 english["Options.HideConsumableLabels"] = "Hide stat labels"
 english["Options.HideConsumableLabels.Title"] = "Hide consumable stat labels"
 english["Options.HideConsumableLabels.Desc"] =

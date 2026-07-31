@@ -180,6 +180,7 @@ local _, BR = ...
 ---@field _br_pet_spell? string             -- Localized spell name for pet click-to-cast
 ---@field _br_pet_spec_icon? number        -- Pet spec ability icon texture for hover swap
 ---@field _br_pet_label_key? string        -- Cache key for pet label updates
+---@field _br_count_scale? number          -- Font scale the count text was last written with
 ---@field _br_pet_name_text? FontString    -- Pet name label below icon
 ---@field _br_pet_family_text? FontString  -- Pet spec label below name
 ---@field _br_pet_extra_text? FontString   -- Spirit Beast label below spec
@@ -224,7 +225,8 @@ local fontProbe = UIParent:CreateFontString(nil, "BACKGROUND")
 fontProbe:Hide()
 local fontPathValidCache = {}
 
----Check whether a font file path is loadable by the WoW client
+---Check whether a font file path is loadable by the WoW client (BR.Helpers
+---export; the options font picker filters the LSM list through this)
 ---@param path string? LSM-resolved font file path
 ---@return boolean valid true if path is non-nil and SetFont succeeds
 local function IsFontPathValid(path)
@@ -385,6 +387,7 @@ local defaults = BR.defaults
 -- Constants
 local CODE_DEFAULTS = defaults.defaults
 local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
+local COUNT_TEXT_SCALE = 1 -- scale for group counts and countdowns
 
 -- Locals
 local mainFrame
@@ -709,17 +712,20 @@ end
 ---Apply the shared font (fontPath/outlineFlag) to a fontstring only when
 ---something actually changed. SetFont forces a full fontstring re-layout, and
 ---render paths re-apply fonts up to twice per second with unchanged values.
----@param fs BRFontString|FontString
+---@param fs BRFontString|FontString|EditBox any FontInstance (edit boxes included)
 ---@param size number
-local function SetFontCached(fs, size)
-    if fs._br_font_size == size and fs._br_font_path == fontPath and fs._br_font_outline == outlineFlag then
+---@param outline? string overrides the shared outlineFlag (e.g. "" for edit boxes)
+local function SetFontCached(fs, size, outline)
+    outline = outline or outlineFlag
+    if fs._br_font_size == size and fs._br_font_path == fontPath and fs._br_font_outline == outline then
         return
     end
     fs._br_font_size = size
     fs._br_font_path = fontPath
-    fs._br_font_outline = outlineFlag
-    fs:SetFont(fontPath, size, outlineFlag)
+    fs._br_font_outline = outline
+    fs:SetFont(fontPath, size, outline)
 end
+BR.Display.SetFontCached = SetFontCached
 
 ---Get effective icon width (falls back to iconSize for square icons)
 ---@param iconWidth? number Explicit width setting
@@ -737,6 +743,20 @@ local function GetFrameFontSize(frame, scale)
     local effectiveCat = GetEffectiveCategory(frame)
     local catSettings = GetCategorySettings(effectiveCat)
     return GetFontSize(scale, catSettings.textSize)
+end
+
+---Write the count overlay's text and the font size that text calls for in one
+---step. The scale belongs to the content - labels render smaller than counts -
+---so setting them together is what stops the two from drifting apart, and
+---recording it on the frame lets UpdateVisuals re-apply the right scale without
+---having to know what is currently on screen.
+---@param frame BuffFrame
+---@param text string
+---@param scale number OVERLAY_TEXT_SCALE for labels, COUNT_TEXT_SCALE for numbers
+local function SetCountText(frame, text, scale)
+    frame._br_count_scale = scale
+    SetFontCached(frame.count, GetFrameFontSize(frame, scale))
+    frame.count:SetText(text)
 end
 
 -- Use functions from State.lua
@@ -964,8 +984,7 @@ local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlo
         frame.qualityIcon:Hide()
     end
     if overlayText then
-        SetFontCached(frame.count, GetFrameFontSize(frame, OVERLAY_TEXT_SCALE))
-        frame.count:SetText(overlayText)
+        SetCountText(frame, overlayText, OVERLAY_TEXT_SCALE)
         frame.count:Show()
     else
         frame.count:Hide()
@@ -1275,11 +1294,7 @@ local function CreateBuffFrame(buff, category)
         local raidCs = db.categorySettings and db.categorySettings.raid
         local bz, bx, by = BR.TextPositions.Get("buffReminder")
         BR.TextPositions.Apply(frame.buffText, frame, bz, bx, by)
-        frame.buffText:SetFont(
-            fontPath,
-            (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize),
-            outlineFlag
-        )
+        SetFontCached(frame.buffText, (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize))
         frame.buffText:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
         frame.buffText:SetText(L["Overlay.Buff"])
         if raidCs and raidCs.showBuffReminder == false then
@@ -1297,7 +1312,7 @@ local function CreateBuffFrame(buff, category)
         frame.subLabel:SetWidth(iconWidth * SUBLABEL_WIDTH_FACTOR)
         local lz, lx, ly = BR.TextPositions.Get("buffReminder")
         BR.TextPositions.Apply(frame.subLabel, frame, lz, lx, ly)
-        frame.subLabel:SetFont(fontPath, GetFontSize(SUBLABEL_FONT_SCALE, catSettings.textSize), outlineFlag)
+        SetFontCached(frame.subLabel, GetFontSize(SUBLABEL_FONT_SCALE, catSettings.textSize))
         frame.subLabel:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
         frame.subLabel:Hide()
     end
@@ -2163,8 +2178,7 @@ local function RenderVisibleEntry(frame, entry)
             -- Seed initial text, then hand off to per-frame OnUpdate for smooth countdown
             local remaining = entry.eatingExpirationTime - GetTime()
             if remaining > 0 then
-                SetFontCached(frame.count, GetFrameFontSize(frame))
-                frame.count:SetText(FormatEatingTime(remaining))
+                SetCountText(frame, FormatEatingTime(remaining), COUNT_TEXT_SCALE)
                 frame.count:Show()
             else
                 frame.count:Hide()
@@ -2218,8 +2232,7 @@ local function RenderVisibleEntry(frame, entry)
         if frame.buffCategory == "consumable" then
             SetIconDesaturated(frame.icon, false)
         end
-        SetFontCached(frame.count, GetFrameFontSize(frame))
-        frame.count:SetText(entry.countText or "")
+        SetCountText(frame, entry.countText or "", COUNT_TEXT_SCALE)
         frame.count:Show()
         frame:Show()
         SetExpirationGlow(frame, entry.shouldGlow, entry.category, cachedGlow)
@@ -2438,19 +2451,24 @@ local function UpdatePetLabels(frame, petAction)
         return
     end
 
-    -- Early out if nothing changed since last call. Zone + offsets are part
-    -- of the key so live position edits re-anchor on the next display update.
+    -- Early out if nothing changed since last call. Every input the labels
+    -- derive from is part of the key: zone + offsets so live position edits
+    -- re-anchor, frame width because the sizes scale off it, and the shared
+    -- font/outline because SetFontCached reads those.
     local scale = defs.petLabelScale or 100
     local zone, offX, offY = BR.TextPositions.Get("petLabel")
     local cacheKey = format(
-        "%s:%s:%s:%d:%s:%s:%s",
+        "%s:%s:%s:%d:%s:%s:%s:%d:%s:%s",
         petAction.key,
         petAction.label or "",
         petAction.petFamily or "",
         scale,
         zone,
         tostring(offX),
-        tostring(offY)
+        tostring(offY),
+        frame:GetWidth(),
+        fontPath,
+        outlineFlag
     )
     if frame._br_pet_label_key == cacheKey then
         return
@@ -2466,7 +2484,7 @@ local function UpdatePetLabels(frame, petAction)
     local ratio = scale / 100
     local nameSize = max(7, floor(frame:GetWidth() * 0.18 * ratio))
     local familySize = max(7, floor(nameSize * 0.85))
-    frame._br_pet_name_text:SetFont(fontPath, nameSize, outlineFlag)
+    SetFontCached(frame._br_pet_name_text, nameSize)
     BR.TextPositions.Apply(frame._br_pet_name_text, frame, zone, offX, offY)
     frame._br_pet_name_text:SetText(petAction.label or "")
     frame._br_pet_name_text:SetTextColor(1, 1, 1)
@@ -2474,7 +2492,7 @@ local function UpdatePetLabels(frame, petAction)
 
     local family = petAction.petFamily
     if family and family ~= "" then
-        frame._br_pet_family_text:SetFont(fontPath, familySize, outlineFlag)
+        SetFontCached(frame._br_pet_family_text, familySize)
         frame._br_pet_family_text:ClearAllPoints()
         frame._br_pet_family_text:SetPoint("TOP", frame._br_pet_name_text, "BOTTOM", 0, -1)
         frame._br_pet_family_text:SetText(family)
@@ -2486,7 +2504,7 @@ local function UpdatePetLabels(frame, petAction)
 
     if petAction.petSpiritBeast then
         local anchor = (family and family ~= "") and frame._br_pet_family_text or frame._br_pet_name_text
-        frame._br_pet_extra_text:SetFont(fontPath, familySize, outlineFlag)
+        SetFontCached(frame._br_pet_extra_text, familySize)
         frame._br_pet_extra_text:ClearAllPoints()
         frame._br_pet_extra_text:SetPoint("TOP", anchor, "BOTTOM", 0, -1)
         frame._br_pet_extra_text:SetText(L["Pet.SpiritBeast"])
@@ -3312,7 +3330,9 @@ local function UpdateVisuals()
         local size = catSettings.iconSize or 64
         local width = GetEffectiveWidth(catSettings.iconWidth, size)
         frame:SetSize(width, size)
-        SetFontCached(frame.count, GetFrameFontSize(frame, 1))
+        -- Re-apply at the scale the current text was written with, not a guess:
+        -- a frame showing a "NO X" label must not be resized to count scale.
+        SetFontCached(frame.count, GetFrameFontSize(frame, frame._br_count_scale or COUNT_TEXT_SCALE))
 
         -- Re-anchor text overlays on every VisualsRefresh so config changes
         -- take effect immediately.
@@ -3357,11 +3377,7 @@ local function UpdateVisuals()
         if frame.buffText then
             -- Raid BUFF! text
             local raidCs = BR.profile.categorySettings and BR.profile.categorySettings.raid
-            frame.buffText:SetFont(
-                fontPath,
-                (raidCs and raidCs.buffTextSize) or GetFrameFontSize(frame, 0.8),
-                outlineFlag
-            )
+            SetFontCached(frame.buffText, (raidCs and raidCs.buffTextSize) or GetFrameFontSize(frame, 0.8))
             frame.buffText:SetTextColor(tc[1], tc[2], tc[3], ta)
             local bz, bx, by = BR.TextPositions.Get("buffReminder")
             BR.TextPositions.Apply(frame.buffText, frame, bz, bx, by)
@@ -3374,7 +3390,7 @@ local function UpdateVisuals()
         end
         if frame.subLabel then
             -- Loadout name label: same treatment as buffText (font / color / zone).
-            frame.subLabel:SetFont(fontPath, GetFrameFontSize(frame, SUBLABEL_FONT_SCALE), outlineFlag)
+            SetFontCached(frame.subLabel, GetFrameFontSize(frame, SUBLABEL_FONT_SCALE))
             frame.subLabel:SetTextColor(tc[1], tc[2], tc[3], ta)
             frame.subLabel:SetWidth(width * SUBLABEL_WIDTH_FACTOR)
             local lz, lx, ly = BR.TextPositions.Get("buffReminder")
@@ -3526,16 +3542,26 @@ BR.Helpers = {
     end,
 }
 
--- Toggle lock state: when unlocked, show mover frames for dragging
-local function ToggleLock()
-    local db = BR.profile
-    db.locked = not db.locked
-    if db.locked then
+-- Lock state is session-only: frames start locked on every login/reload and the
+-- unlocked state is never persisted, so a user can't accidentally leave anchor
+-- handles showing across sessions.
+local frameLocked = true
+local function IsFrameLocked()
+    return frameLocked
+end
+local function SetFrameLocked(locked)
+    frameLocked = locked
+    if locked then
         BR.Movers.HideAll()
     else
         BR.Movers.UpdateAnchor()
     end
-    return db.locked
+end
+
+-- Toggle lock state: when unlocked, show mover frames for dragging
+local function ToggleLock()
+    SetFrameLocked(not frameLocked)
+    return frameLocked
 end
 
 -- Export display functions for Options.lua
@@ -3549,6 +3575,8 @@ BR.Display.SetPlayerClass = function(class)
     playerClass = class
 end
 BR.Display.ToggleLock = ToggleLock
+BR.Display.IsFrameLocked = IsFrameLocked
+BR.Display.SetFrameLocked = SetFrameLocked
 BR.Display.UpdateVisuals = UpdateVisuals
 BR.Display.UpdateActionButtons = function(category)
     return BR.SecureButtons.UpdateActionButtons(category)
@@ -3679,13 +3707,11 @@ local function SlashHandler(msg)
     elseif cmd == "snooze" then
         BR.SnoozeConsumables()
     elseif cmd == "lock" then
-        BR.profile.locked = true
-        BR.Movers.HideAll()
+        SetFrameLocked(true)
         BR.Components.RefreshAll()
         print("|cff00ccffBuffReminders:|r " .. L["Display.FramesLocked"])
     elseif cmd == "unlock" then
-        BR.profile.locked = false
-        BR.Movers.UpdateAnchor()
+        SetFrameLocked(false)
         BR.Components.RefreshAll()
         print("|cff00ccffBuffReminders:|r " .. L["Display.FramesUnlocked"])
     elseif cmd == "minimap" then

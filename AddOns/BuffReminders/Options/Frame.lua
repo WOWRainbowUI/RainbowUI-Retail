@@ -695,7 +695,7 @@ local function CreateOptionsPanel()
     lockToggle:SetWidth(FOOTER_WIDTH)
     lockToggle:SetPoint("BOTTOM", testToggle, "TOP", 0, 6)
     function lockToggle:Refresh()
-        local locked = BR.profile.locked
+        local locked = BR.Display.IsFrameLocked()
         self:SetLabel(locked and L["Options.Unlock"] or L["Options.Lock"])
         self:SetActive(not locked)
     end
@@ -715,7 +715,7 @@ local function CreateOptionsPanel()
         icon = "services-icon-warning",
         bgAlpha = 0.95,
         visible = function()
-            return not BR.profile.locked
+            return not BR.Display.IsFrameLocked()
         end,
     })
     unlockBanner:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", 0, 0)

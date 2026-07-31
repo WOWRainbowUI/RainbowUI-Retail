@@ -231,7 +231,6 @@ BR.Config.DebugMode = false
 -- Root-level settings (path = key directly)
 local RootSettings = {
     splitCategories = "FramesReparent",
-    frameLocked = false, -- No refresh needed
     position = false, -- Table with x, y
     buffTrackingMode = false, -- No auto-refresh, manually calls UpdateDisplay
     outsideInstancesMode = "DisplayRefresh",
@@ -389,6 +388,7 @@ local DefaultSettingKeys = {
 
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
+    consumableBadgeOnSubIcons = "DisplayRefresh",
     consumableTextScale = "VisualsRefresh",
     hideConsumableLabels = "VisualsRefresh",
     showConsumableTooltips = false, -- No refresh needed, read at tooltip time

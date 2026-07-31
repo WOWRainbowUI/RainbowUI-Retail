@@ -65,9 +65,6 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
 
     local db = BR.profile
 
-    -- Retired one-time notice flags: clear stale globals from earlier versions.
-    BR.aceDB.global.glowDefaultNoticeCount = nil
-
     -- ====================================================================
     -- Versioned migrations - each runs exactly once, tracked by dbVersion.
     -- Migration functions live in Core/Migrations.lua (append-only; never

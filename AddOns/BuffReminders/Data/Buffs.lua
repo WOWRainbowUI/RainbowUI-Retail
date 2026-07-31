@@ -1379,6 +1379,7 @@ BR.BUFF_TABLES = {
             infoTooltip = {
                 title = L["Tooltip.InstanceEntryReminder"],
                 desc = L["Tooltip.InstanceEntryReminder.Desc"],
+                atlas = "auctionhouse-icon-clock", -- clock reads "timed reminder", not the generic "!" info icon
             },
             customCheck = function(isRestricted)
                 -- Cooldown API returns tainted values during combat/encounters/M+
@@ -1407,6 +1408,7 @@ BR.BUFF_TABLES = {
             infoTooltip = {
                 title = L["Tooltip.InstanceEntryReminder"],
                 desc = L["Tooltip.InstanceEntryReminder.Desc"],
+                atlas = "auctionhouse-icon-clock", -- clock reads "timed reminder", not the generic "!" info icon
             },
             customCheck = function(isRestricted)
                 -- Cooldown API returns tainted values during combat/encounters/M+
