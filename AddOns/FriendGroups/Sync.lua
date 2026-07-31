@@ -57,6 +57,11 @@ local BOOL_FIELDS = {
     -- correct default -- instead of being turned off. APPEND-ONLY.
     "show_class_icons", "show_note", "show_status", "eui_skin",
     -- Normal (midway) width flag; pairs with wide_list to encode Narrow/Normal/Wide.
+    -- Both width bits cross flavors on purpose. They are STORED everywhere so a profile
+    -- that round-trips through a Classic character still carries a retail user's width
+    -- choice back out, and are CONSUMED only where the client can actually resize
+    -- (Compat.CAN_RESIZE_WIDTH -> FriendGroups_GetExtraWidth). Filtering them out of the
+    -- mask here would make every Classic re-export silently reset width on retail.
     "width_normal",
     -- Default-ON display toggles, stored inverted (see DEFAULT_ON_INVERTED).
     "show_game_icon", "show_faction_color",
@@ -466,6 +471,9 @@ function M.Apply(profile)
     local sv = _G.FriendGroups_SavedVars
     if type(sv) ~= "table" or type(profile) ~= "table" then return false end
 
+    -- Deliberately unfiltered by flavor: a setting the running client cannot use is
+    -- still mirrored, so it survives a later re-export from this client. Applicability
+    -- is enforced where a setting is READ, not here (see the width bits in BOOL_FIELDS).
     for i = 1, #BOOL_FIELDS do
         local key = BOOL_FIELDS[i]
         if DEFAULT_ON_INVERTED[key] then
@@ -483,6 +491,20 @@ function M.Apply(profile)
     sv.nicknames     = profile.nicknames     or {}
     sv.manual_mains  = profile.manual_mains  or {}
     sv.main_guild    = profile.main_guild    or {}
+
+    -- Since 13.0.1 a nickname lives in the friend's Battle.net note, and sv.nicknames is
+    -- only a cache of what the notes say. Restoring nicknames straight into that cache
+    -- would therefore appear to work and then silently undo itself on the next reconcile
+    -- pass. Reverting the schema stamp instead routes them through the same one-time,
+    -- user-confirmed push that the 13.0.1 upgrade uses, so a restore actually writes the
+    -- tags back into the notes. Reconcile stays disabled until that completes.
+    if next(sv.nicknames) ~= nil then
+        sv.nickname_schema = nil
+        _G.FriendGroups_NicknameSyncReady = false
+        if _G.FriendGroups_InitNicknameSchema then
+            _G.FriendGroups_InitNicknameSchema()
+        end
+    end
 
     -- Only replace the alt database / known guilds when the backup actually carried
     -- them (newer format). Older backups leave the local data intact.

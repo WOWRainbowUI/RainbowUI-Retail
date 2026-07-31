@@ -52,6 +52,21 @@ Compat.HAS_SCROLLBOX = (FriendsListFrame ~= nil and FriendsListFrame.ScrollBox ~
 -- that lacks the API.
 Compat.HAS_MENU_API = (Menu ~= nil and type(Menu.ModifyMenu) == "function")
 
+-- Contact-list WIDTH resizing (Narrow / Normal / Wide). Retail's FriendsFrame and
+-- FriendsListFrame redraw cleanly when grown horizontally; MoP Classic, BC Anniversary
+-- and Era draw the friends frame from fixed-size art with a HybridScroll button
+-- template sized to it, where the same SetWidth leaves border and rows misaligned.
+-- No API reports "does this frame's art scale", so this is the one capability derived
+-- from the documented flavor identity above (WOW_PROJECT_ID) rather than from a
+-- presence probe -- it is a layout fact, not a missing function.
+--
+-- The width saved variables (wide_list / width_normal) are still STORED on every
+-- flavor: settings profiles travel between flavors as Sync.lua strings, and a profile
+-- that passes through a Classic character must carry a retail user's width choice back
+-- out intact. They are simply never CONSUMED where this is false -- see
+-- FriendGroups_GetExtraWidth / FriendGroups_IsWideList in FriendGroups.lua.
+Compat.CAN_RESIZE_WIDTH = Compat.IS_MAINLINE
+
 -- ============================================================================
 -- [[ PLATFORM PRIMITIVES ]]
 -- Small, universally-needed wrappers. Heavier render/menu adapters live in
@@ -70,6 +85,110 @@ function Compat.InviteUnit(name)
 	elseif type(InviteUnit) == "function" then
 		InviteUnit(name)
 	end
+end
+
+-- ============================================================================
+-- [[ FRIEND NOTE PRIMITIVES ]]
+-- The Battle.net friend note is the addon's persistent store for the note DSL
+-- (see FriendGroups.lua "NOTE GRAMMAR"). It lives on the Battle.net account, so
+-- it is shared by every flavor and is visible in the Battle.net desktop/mobile
+-- client -- which is precisely why nicknames are stored there.
+-- ============================================================================
+
+-- Blizzard's own SET_BNFRIENDNOTE dialog caps the edit box at 127 letters with
+-- countInvisibleLetters = true (FrameXML StaticPopup.lua). The SERVER-side limit is
+-- not documented anywhere, so 127 is treated as the ceiling, and it is measured in
+-- BYTES rather than codepoints: a 20-character Cyrillic or CJK nickname is up to 80
+-- bytes, and a server-side truncation that lands mid-UTF-8 would corrupt the tag and
+-- then be read back as garbage. Refusing slightly early is cosmetic; writing a note
+-- that gets truncated is not.
+Compat.BNET_NOTE_MAXBYTES = 127
+
+-- Nickname length cap, in codepoints (matches the Set Nickname edit box maxLetters
+-- and Sync.lua's envelope sanitiser).
+Compat.NICKNAME_MAXLEN = 20
+
+-- Note writer, resolved ONCE at load. C_BattleNet.SetFriendNote is the modern entry
+-- point; BNSetFriendNote is the legacy global (documented since 3.3.5 / 1.13.2) and is
+-- the path the Classic clients take. Neither is assumed to exist: if the running client
+-- exposes no writer at all, Compat.CanSetBNetNote() reports false and every caller
+-- degrades to a localized message instead of erroring at click time.
+local FG_SetNoteFunc
+if C_BattleNet and type(C_BattleNet.SetFriendNote) == "function" then
+	FG_SetNoteFunc = C_BattleNet.SetFriendNote
+elseif type(BNSetFriendNote) == "function" then
+	FG_SetNoteFunc = BNSetFriendNote
+end
+
+-- True when this client can write Battle.net friend notes at all.
+function Compat.CanSetBNetNote()
+	return FG_SetNoteFunc ~= nil
+end
+
+-- Write a Battle.net friend note. Returns true when the write was actually issued.
+-- Length is the CALLER's responsibility (see Compat.BNET_NOTE_MAXBYTES) so it can
+-- report a meaningful refusal; this only guards the types.
+function Compat.SetBNetNote(bnetIDAccount, note)
+	if not FG_SetNoteFunc then return false end
+	if type(bnetIDAccount) ~= "number" or type(note) ~= "string" then return false end
+	FG_SetNoteFunc(bnetIDAccount, note)
+	return true
+end
+
+-- Total number of Battle.net friends.
+--
+-- BNGetNumFriends is the DOCUMENTED entry point (added 3.3.5 / 1.13.2) and is present
+-- on every shipping flavor: retail 12.x, MoP Classic 5.5.4, BC Anniversary 2.5.6 and
+-- Classic Era 1.15.x. C_BattleNet.GetFriendNum is NOT documented and does not exist on
+-- the live clients -- every call site in this addon that appears to use it actually
+-- runs its BNGetNumFriends fallback. Probing the namespace first costs nothing and
+-- picks up a future addition automatically; the fallback is what does the work today.
+--
+-- BNGetNumFriends returns four values (total, online, favorite, favoriteOnline); only
+-- the first is taken here.
+function Compat.GetBNetFriendNum()
+	local total
+	if C_BattleNet and type(C_BattleNet.GetFriendNum) == "function" then
+		total = C_BattleNet.GetFriendNum()
+	end
+	if type(total) ~= "number" and type(BNGetNumFriends) == "function" then
+		total = BNGetNumFriends()
+	end
+	return (type(total) == "number") and total or 0
+end
+
+-- Truncate to a codepoint count without ever splitting a UTF-8 sequence.
+function Compat.Utf8Trunc(s, maxChars)
+	if type(s) ~= "string" then return "" end
+	local i, chars, len = 1, 0, #s
+	while i <= len and chars < maxChars do
+		local b = s:byte(i)
+		local step = (b < 0x80) and 1 or (b < 0xE0) and 2 or (b < 0xF0) and 3 or 4
+		i = i + step
+		chars = chars + 1
+	end
+	return s:sub(1, i - 1)
+end
+
+-- Make an arbitrary string safe to live inside an @[...] tag in a friend note.
+-- Every character stripped here would otherwise break a DIFFERENT part of the note
+-- grammar, so none of these bans are cosmetic:
+--   #     -- FriendGroups_GetPlayerGroups treats everything from the first '#' as
+--            groups, regardless of nesting, so a '#' inside the tag invents a group.
+--   < >   -- the guild scanner is a bare gmatch("<([^>]+)>") over the whole note, so
+--            "@[Bob <the> Builder]" would invent a guild called "the".
+--   [ ] @ -- tag delimiters; banning them keeps "does this note already carry a tag"
+--            trivially decidable and the writer idempotent.
+--   |     -- UI escape sequences; the note is rendered verbatim into a FontString.
+--   %c    -- control characters.
+-- Applied on READ as well as on write: since 13.0.1 a nickname can be typed by hand
+-- into the note from the Battle.net app, so untrusted text reaches the parser.
+function Compat.SanitizeNickname(s)
+	if type(s) ~= "string" then return "" end
+	s = s:gsub("[#<>@%[%]|%c]", "")
+	s = s:gsub("%s+", " ")
+	s = s:match("^%s*(.-)%s*$") or ""
+	return Compat.Utf8Trunc(s, Compat.NICKNAME_MAXLEN)
 end
 
 -- Register a list of events on a frame, skipping any the running client does not

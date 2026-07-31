@@ -193,11 +193,13 @@ local settingsMenuItems = {
         end
     },
     -- Horizontal divider separating list length (above) from list width (below).
-    -- Width resizing is retail-only: MoP's fixed-width friends frame can't widen cleanly.
-    { text = "", isTitle = true, condition = function() return Compat.IS_MAINLINE end },
+    -- Width resizing is retail-only: MoP's fixed-width friends frame can't widen cleanly
+    -- (Compat.CAN_RESIZE_WIDTH). Where these items are hidden the saved width flags are
+    -- also never applied, so an imported retail profile cannot strand the list wide.
+    { text = "", isTitle = true, condition = function() return Compat.CAN_RESIZE_WIDTH end },
     {
         text = L["SET_WIDTH_NARROW"],
-        condition = function() return Compat.IS_MAINLINE end,
+        condition = function() return Compat.CAN_RESIZE_WIDTH end,
         checked = function() return not FriendGroups_SavedVars.wide_list and not FriendGroups_SavedVars.width_normal end,
         func = function()
             FriendGroups_SavedVars.wide_list = false
@@ -208,7 +210,7 @@ local settingsMenuItems = {
     },
     {
         text = L["SET_WIDTH_NORMAL"],
-        condition = function() return Compat.IS_MAINLINE end,
+        condition = function() return Compat.CAN_RESIZE_WIDTH end,
         checked = function() return FriendGroups_SavedVars.width_normal and not FriendGroups_SavedVars.wide_list end,
         func = function()
             FriendGroups_SavedVars.wide_list = false
@@ -219,7 +221,7 @@ local settingsMenuItems = {
     },
     {
         text = L["SET_WIDTH_WIDE"],
-        condition = function() return Compat.IS_MAINLINE end,
+        condition = function() return Compat.CAN_RESIZE_WIDTH end,
         checked = function() return FriendGroups_SavedVars.wide_list end,
         func = function()
             FriendGroups_SavedVars.wide_list = true
@@ -468,6 +470,11 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
+    -- The countdown toast is always shown for the two automations above, and
+    -- ownership is always ceded to GLogger when it is running with the matching
+    -- automation enabled. Neither is exposed as a setting: the toast is the
+    -- safety mechanism that makes auto-accept interruptible, and a "do not defer"
+    -- override could not silence GLogger, only stack a second prompt on top.
     { text = L["SET_SPIRIT_HEADER"], notCheckable = true, isTitle = true },
     {
         text = L["SET_SPIRIT_RES"],
@@ -753,6 +760,35 @@ local FriendGroupsList_OriginalWidth = nil
 -- Sized to comfortably fit a full "aka [MainName]" suffix that the standard width clips.
 FriendGroups_WideListExtra = 150
 
+-- [[ WIDTH MODE READERS ]]
+-- Every consumer of wide_list / width_normal goes through these two functions, so a
+-- client that cannot resize (Compat.CAN_RESIZE_WIDTH false -- Classic's fixed-width
+-- frame art) reports "no extra width" regardless of what the saved variables hold.
+-- That is what keeps an imported retail profile inert on Classic, where the width menu
+-- is hidden and the user would otherwise have no way back to the default width. It also
+-- heals an install already carrying the flags from an earlier build: nothing is
+-- rewritten, the values are just never read, so they survive a re-export.
+-- FriendGroups_SavedVars is guarded because these are called from the row renderer,
+-- which can run before the ADDON_LOADED handler seeds the table on a fresh profile.
+
+-- True only where the full-width mode is both selected AND supported.
+function FriendGroups_IsWideList()
+    if not Compat.CAN_RESIZE_WIDTH then return false end
+    local sv = FriendGroups_SavedVars
+    return (sv ~= nil and sv.wide_list) and true or false
+end
+
+-- Extra horizontal pixels for the current width mode: Wide = full, Normal = half,
+-- Narrow (and every non-resizable client) = 0.
+function FriendGroups_GetExtraWidth()
+    if not Compat.CAN_RESIZE_WIDTH then return 0 end
+    local sv = FriendGroups_SavedVars
+    if sv == nil then return 0 end
+    if sv.wide_list then return FriendGroups_WideListExtra end
+    if sv.width_normal then return math.floor(FriendGroups_WideListExtra / 2) end
+    return 0
+end
+
 function FriendGroups_UpdateSize()
     -- 1. Store the original Blizzard defaults the very first time we run
     if not FriendGroups_OriginalHeight then
@@ -766,14 +802,11 @@ function FriendGroups_UpdateSize()
 
     -- 2. Determine target height/width based on saved variables
     local extra = FriendGroups_SavedVars.extra_height or 0
-    -- Width: Narrow (0) / Normal (half) / Wide (full). Two booleans encode the
-    -- three states; wide_list takes priority over width_normal.
-    local extraWidth = 0
-    if FriendGroups_SavedVars.wide_list then
-        extraWidth = FriendGroups_WideListExtra
-    elseif FriendGroups_SavedVars.width_normal then
-        extraWidth = math.floor(FriendGroups_WideListExtra / 2)
-    end
+    -- Width: Narrow (0) / Normal (half) / Wide (full). Two booleans encode the three
+    -- states (wide_list takes priority over width_normal); the reader returns 0 on any
+    -- client that cannot resize, making the SetWidth below a no-op back to the captured
+    -- Blizzard default there. Height is unconditional -- every flavor resizes vertically.
+    local extraWidth = FriendGroups_GetExtraWidth()
 
     -- 3. Apply
     FriendsFrame:SetHeight(FriendGroups_OriginalHeight + extra)
@@ -972,6 +1005,156 @@ function FriendGroups_RemoveGuildTag(note, guildName)
 		s, e = note:find(tag, 1, true)
 	end
 	return note
+end
+
+-- ============================================================================
+-- [[ NOTE GRAMMAR ]]
+-- The friend note is the addon's persistent store. Three token types, disjoint
+-- delimiters, one terminator:
+--
+--     @[Nickname]  <GuildName>  free text  #Group1#Group2
+--
+--   #Group     -- group membership. Everything from the FIRST '#' to the end of
+--                 the note is groups (FriendGroups_GetPlayerGroups).
+--   <Guild>    -- manual guild-group membership (FriendGroups_AddGuildTag).
+--   @[Nick]    -- custom nickname (below).
+--
+-- The note is the SINGLE SOURCE OF TRUTH for all three. Nothing about membership
+-- or nicknames is persisted anywhere else -- FriendGroups_SavedVars.nicknames is a
+-- derived cache, rebuilt from notes (see NICKNAME RECONCILE). Editing the note by
+-- hand, including from the Battle.net desktop or mobile app, is therefore a fully
+-- supported way to set any of them.
+--
+-- The delimiters are WIRE FORMAT and are never localized. (Contrast the auto guild
+-- group, whose *label* is localized: a localized delimiter would break every note
+-- the moment the player switched client language or flavor.)
+--
+-- Square brackets rather than a bare "@Nick" are load-bearing. The reconcile pass
+-- reads notes the addon did not write, and real notes contain incidental '@'
+-- characters ("met @ Blackrock", "ping me @ 8pm"); a bare-'@' grammar would adopt
+-- those as nicknames. "@[" is a sequence essentially nobody types by accident, and
+-- the closing bracket lets a nickname contain spaces ("@[Osiris the Kiwi]") without
+-- swallowing whatever the user wrote after it.
+-- ============================================================================
+
+local FG_NICKNAME_PATTERN = "@%[([^%]]*)%]"
+
+-- Nickname parses are memoized per note string, mirroring FriendGroups_NoteCache:
+-- FriendGroups_SetGroups runs this for every friend on every rebuild. Kept as a
+-- separate table rather than widening NoteCache's value shape, which four call
+-- sites depend on. Same bounded-growth flush rule.
+local FriendGroups_NickCache = {}
+local FriendGroups_NickCacheCount = 0
+
+-- Read the nickname tag out of a note. Returns "" when absent.
+-- Sanitizes on read: hand-authored tags are untrusted input.
+function FriendGroups_GetNicknameTag(note)
+	if type(note) ~= "string" or note == "" then return "" end
+
+	local cached = FriendGroups_NickCache[note]
+	if cached ~= nil then return cached end
+
+	if FriendGroups_NickCacheCount > 1500 then
+		wipe(FriendGroups_NickCache)
+		FriendGroups_NickCacheCount = 0
+	end
+
+	-- First match wins if a hand-edited note somehow carries several tags; our own
+	-- writer collapses them to one on the next explicit Set Nickname.
+	local nick = Compat.SanitizeNickname(note:match(FG_NICKNAME_PATTERN) or "")
+
+	FriendGroups_NickCache[note] = nick
+	FriendGroups_NickCacheCount = FriendGroups_NickCacheCount + 1
+	return nick
+end
+
+-- Strip every @[...] tag from a note, consuming one adjacent space per removal so
+-- the remaining text does not accumulate gaps. Mirrors FriendGroups_RemoveGuildTag.
+function FriendGroups_StripNicknameTag(note)
+	if type(note) ~= "string" or note == "" then return "" end
+	local s, e = note:find(FG_NICKNAME_PATTERN)
+	while s do
+		if note:sub(e + 1, e + 1) == " " then
+			e = e + 1
+		elseif note:sub(s - 1, s - 1) == " " then
+			s = s - 1
+		end
+		note = note:sub(1, s - 1) .. note:sub(e + 1)
+		s, e = note:find(FG_NICKNAME_PATTERN)
+	end
+	return note
+end
+
+-- Return `note` with its nickname tag replaced by `nick` (or removed when `nick` is
+-- empty). Replace-not-append, so repeated writes are idempotent.
+--
+-- The tag is placed FIRST. The Battle.net desktop and mobile clients render the note
+-- in a narrow column and truncate it, and leading position is the only position that
+-- survives that truncation -- which is the entire point of storing it there. This also
+-- matches FriendGroups_AddGuildTag, which likewise prepends.
+--
+-- Callers must check the result against Compat.BNET_NOTE_MAXBYTES before writing.
+function FriendGroups_SetNicknameTag(note, nick)
+	local rest = FriendGroups_StripNicknameTag(note)
+	rest = rest:match("^%s*(.-)%s*$") or ""
+
+	nick = Compat.SanitizeNickname(nick)
+	if nick == "" then return rest end
+
+	local tag = "@[" .. nick .. "]"
+	if rest == "" then return tag end
+	return tag .. " " .. rest
+end
+
+-- Strip the nickname tag for DISPLAY. The row already renders the nickname as the
+-- friend's bold name, so leaving the tag in the appended note text duplicates it.
+function FriendGroups_NoteForDisplay(note)
+	if type(note) ~= "string" then return "" end
+	return strtrim(FriendGroups_StripNicknameTag(note))
+end
+
+-- ============================================================================
+-- [[ NICKNAME RECONCILE ]]
+-- FriendGroups_SavedVars.nicknames is a CACHE of what the notes say, not a store.
+-- It exists only so the four read sites (the name-text builder and the sort-key
+-- builder) keep their current signatures -- neither has a note in scope.
+--
+-- Reconcile is deliberately DESTRUCTIVE: a note with no @[...] tag clears the cache
+-- entry, which is what makes deleting the tag from the Battle.net app remove the
+-- nickname in game. That power is why the guards below are not optional:
+--
+--   * Only accounts actually ENUMERATED in a pass are ever touched. The cache is
+--     never iterated and diffed against the roster, so a short or empty friend list
+--     (during login, or before BN_CONNECTED) cannot wipe anything -- the loop simply
+--     does not run for absent friends.
+--   * A note that is not a readable string means UNKNOWN, not "no tag". Under 12.0.7
+--     presence reduction a field can read as absent; that must never delete.
+--   * Nothing reconciles until FriendGroups_NicknameSyncReady is set, which happens
+--     only after the one-time migration has completed (or was never needed).
+--
+-- Entries for removed friends are left alone rather than pruned: pruning would mean
+-- diffing against the roster, reintroducing the wipe hazard, and the entry self-heals
+-- anyway (re-add that friend with a tagless note and this clears it).
+-- ============================================================================
+
+FriendGroups_NicknameSyncReady = false
+
+function FriendGroups_ReconcileNickname(accountInfo)
+	if not FriendGroups_NicknameSyncReady then return end
+	if not accountInfo or not FriendGroups_SavedVars then return end
+
+	local note = accountInfo.note
+	if type(note) ~= "string" then return end
+
+	local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+	if type(accountIdentifier) ~= "string" or accountIdentifier == "" then return end
+
+	if not FriendGroups_SavedVars.nicknames then
+		FriendGroups_SavedVars.nicknames = {}
+	end
+
+	local nick = FriendGroups_GetNicknameTag(note)
+	FriendGroups_SavedVars.nicknames[accountIdentifier] = (nick ~= "") and nick or nil
 end
 
 function FriendGroups_Create(self, data)
@@ -2266,9 +2449,14 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     local accountIdentifier = accountInfo and (accountInfo.battleTag or accountInfo.accountName)
 
     if accountIdentifier then
-        rootDescription:CreateButton(L["DROP_SET_NICKNAME"], function(data)
-            StaticPopup_Show("FRIENDGROUPS_SET_NICKNAME", nil, nil, { accountIdentifier = data.accountIdentifier })
-        end, { accountIdentifier = accountIdentifier })
+        -- Battle.net friends only: the nickname is stored in the Battle.net note, which
+        -- WoW character friends do not have. Their note is a different field capped at
+        -- 48 characters and truncated silently by the API, so it is not a viable store.
+        if bnetfriend and bnetIDAccount then
+            rootDescription:CreateButton(L["DROP_SET_NICKNAME"], function(data)
+                StaticPopup_Show("FRIENDGROUPS_SET_NICKNAME", nil, nil, { id = data.id })
+            end, { id = bnetIDAccount })
+        end
 
         if FriendGroups_SavedVars and FriendGroups_SavedVars.show_known_alts ~= false then
             local mainSubMenu = rootDescription:CreateButton(L["DROP_SELECT_MAIN"])
@@ -2713,6 +2901,60 @@ StaticPopupDialogs["FRIENDGROUPS_RENAME"] = {
 	hideOnEscape = 1
 }
 
+-- Resolve the edit box of a StaticPopup across both accessor styles used by this
+-- addon's dialogs (.EditBox on the newer template, :GetEditBox() on the older one).
+local function FriendGroups_PopupEditBox(dialog)
+	if not dialog then return nil end
+	if dialog.EditBox then return dialog.EditBox end
+	if dialog.GetEditBox then return dialog:GetEditBox() end
+	return nil
+end
+
+-- Write a nickname to the friend's Battle.net note -- the only place a nickname is
+-- stored. An empty input removes the tag. The cache is updated straight away rather
+-- than waiting for the next reconcile so the row repaints immediately.
+--
+-- A nickname that will not fit the note is REFUSED, not stored locally: note-is-truth
+-- has no exceptions, and a nickname the Battle.net app could never show is exactly
+-- the divergence this design exists to eliminate.
+function FriendGroups_ApplyNickname(data, input)
+	if not data or type(data.id) ~= "number" then return end
+	if not Compat.CanSetBNetNote() then
+		print(L["MSG_NICKNAME_NO_API"])
+		return
+	end
+
+	local accountInfo = C_BattleNet.GetAccountInfoByID(data.id)
+	if not accountInfo then return end
+
+	-- Read the note LIVE. A note captured when the menu was built may already be
+	-- stale (another client, or the Battle.net app, may have rewritten it since).
+	local note = (type(accountInfo.note) == "string") and accountInfo.note or ""
+	local nick = Compat.SanitizeNickname(input)
+	local newNote = FriendGroups_SetNicknameTag(note, nick)
+
+	if #newNote > Compat.BNET_NOTE_MAXBYTES then
+		local label = accountInfo.accountName or accountInfo.battleTag or UNKNOWN
+		print(string.format(L["MSG_NICKNAME_NOTE_TOO_LONG"], label))
+		return
+	end
+
+	-- Prefer the account id reported by the API over the one captured when the menu was
+	-- built, matching how FRIENDGROUPS_CREATE resolves its note setter.
+	local writeID = (type(accountInfo.bnetAccountID) == "number") and accountInfo.bnetAccountID or data.id
+	if not Compat.SetBNetNote(writeID, newNote) then return end
+
+	local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+	if type(accountIdentifier) == "string" and accountIdentifier ~= "" then
+		if not FriendGroups_SavedVars.nicknames then
+			FriendGroups_SavedVars.nicknames = {}
+		end
+		FriendGroups_SavedVars.nicknames[accountIdentifier] = (nick ~= "") and nick or nil
+	end
+
+	FriendGroups_FriendsListUpdate(true)
+end
+
 -- [[ NEW POPUP: COPY TEXT ]] --
 StaticPopupDialogs["FRIENDGROUPS_SET_NICKNAME"] = {
 	text = L["POPUP_ENTER_NICKNAME"],
@@ -2720,31 +2962,36 @@ StaticPopupDialogs["FRIENDGROUPS_SET_NICKNAME"] = {
 	button2 = CANCEL,
 	hasEditBox = 1,
 	maxLetters = 20,
+	OnShow = function(self, data)
+		-- Prefill from the NOTE, not the cache, so what is edited is what is actually
+		-- stored -- including a tag typed by hand from the Battle.net app.
+		local editBox = FriendGroups_PopupEditBox(self)
+		if not editBox then return end
+		local current = ""
+		if data and type(data.id) == "number" then
+			local accountInfo = C_BattleNet.GetAccountInfoByID(data.id)
+			if accountInfo and type(accountInfo.note) == "string" then
+				current = FriendGroups_GetNicknameTag(accountInfo.note)
+			end
+		end
+		editBox:SetText(current)
+		editBox:HighlightText()
+		editBox:SetFocus()
+	end,
 	OnAccept = function(self, data)
-		local input = self:GetEditBox():GetText()
-		if not FriendGroups_SavedVars.nicknames then
-			FriendGroups_SavedVars.nicknames = {}
+		local editBox = FriendGroups_PopupEditBox(self)
+		if editBox then
+			FriendGroups_ApplyNickname(data, editBox:GetText())
 		end
-		if input == "" then
-			FriendGroups_SavedVars.nicknames[data.accountIdentifier] = nil
-		else
-			FriendGroups_SavedVars.nicknames[data.accountIdentifier] = input
-		end
-		FriendGroups_FriendsListUpdate(true)
 	end,
 	EditBoxOnEnterPressed = function(self)
 		local parent = self:GetParent()
-		local input = self:GetText()
-		if not FriendGroups_SavedVars.nicknames then
-			FriendGroups_SavedVars.nicknames = {}
-		end
-		if input == "" then
-			FriendGroups_SavedVars.nicknames[parent.data.accountIdentifier] = nil
-		else
-			FriendGroups_SavedVars.nicknames[parent.data.accountIdentifier] = input
-		end
-		FriendGroups_FriendsListUpdate(true)
-		parent:Hide()
+		FriendGroups_ApplyNickname(parent and parent.data, self:GetText())
+		if parent then parent:Hide() end
+	end,
+	EditBoxOnEscapePressed = function(self)
+		local parent = self:GetParent()
+		if parent then parent:Hide() end
 	end,
 	timeout = 0,
 	whileDead = 1,
@@ -2858,6 +3105,219 @@ function FriendGroups_IsManualMain(accountIdentifier, alt)
     return computedKey == mainKey
 end
 
+-- ============================================================================
+-- [[ NICKNAME MIGRATION (SCHEMA 2) ]]
+-- Before 13.0.1 nicknames lived only in FriendGroups_SavedVars.nicknames and were
+-- never written to a note. Under the note-is-truth model that table is a cache, and
+-- the reconcile pass would read every friend's tagless note and dutifully clear the
+-- lot. So reconcile stays DISABLED until each existing nickname has been pushed into
+-- its friend's note.
+--
+-- The push is user-initiated, never automatic: it writes to real, server-side,
+-- cross-game data, and nicknames that do not fit are dropped (the note-is-truth
+-- invariant holds with no exceptions -- there is no such thing as a nickname that
+-- exists only locally). Declining simply leaves the old data untouched and re-prompts
+-- next session; nothing is lost by saying no.
+--
+-- Writes are spread over timers rather than issued in a burst: this is the one code
+-- path that can touch hundreds of notes, and hammering the server is not acceptable.
+-- ============================================================================
+
+local FG_NICKNAME_SCHEMA = 2
+local FG_MIGRATE_WRITE_INTERVAL = 0.2
+
+FriendGroups_NicknameMigrationRunning = false
+
+-- Map every currently-visible Battle.net friend's account identifier to the numeric
+-- account id and current note.
+--
+-- Returns map, trustworthy. Migration is DESTRUCTIVE -- a nickname whose account is
+-- absent from this map is dropped -- so the map must be complete or not used at all.
+-- `trustworthy` is false whenever any enumerated friend could not be fully resolved:
+-- dropping someone's nickname because a field read as unavailable would be data loss
+-- caused by an API quirk rather than by the note-is-truth rule. The caller stands the
+-- whole migration down in that case, which loses nothing and re-prompts next session.
+local function FriendGroups_BuildBNetNoteMap()
+    if not (C_BattleNet and C_BattleNet.GetFriendAccountInfo) then return nil, false end
+    local total = Compat.GetBNetFriendNum()
+    if total <= 0 then return nil, false end
+
+    local map, trustworthy = {}, true
+    for i = 1, total do
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        local accountIdentifier = accountInfo and (accountInfo.battleTag or accountInfo.accountName)
+        if type(accountIdentifier) ~= "string" or accountIdentifier == ""
+            or type(accountInfo.bnetAccountID) ~= "number" then
+            -- Enumerated but unresolvable, or resolvable but unwritable.
+            trustworthy = false
+        else
+            map[accountIdentifier] = {
+                id = accountInfo.bnetAccountID,
+                note = (type(accountInfo.note) == "string") and accountInfo.note or "",
+            }
+        end
+    end
+    return map, trustworthy
+end
+
+-- Decide what the migration would actually do, without doing any of it.
+-- Returns the queue of writes, how many nicknames would be dropped, and how many are
+-- ALREADY correct in their note. That last count is the whole reason this is a separate
+-- function: because the note lives on the Battle.net account, a nickname migrated on one
+-- client is already present on every other one, so "nothing to write" is the normal,
+-- successful outcome rather than a failure -- and restoring a backup on an account that
+-- has already migrated is the case where EVERY nickname lands there.
+-- Shared by the pre-check and the run itself so the two can never disagree.
+local function FriendGroups_PlanNicknameMigration(noteMap, apply)
+    local queue, dropped, skipped = {}, 0, 0
+    for accountIdentifier, nick in pairs(FriendGroups_SavedVars.nicknames or {}) do
+        local clean = Compat.SanitizeNickname(nick)
+        local entry = noteMap[accountIdentifier]
+        if clean == "" or not entry then
+            -- No longer a friend, or an unusable nickname: it cannot live in a note,
+            -- so under note-is-truth it does not exist.
+            dropped = dropped + 1
+            if apply then FriendGroups_SavedVars.nicknames[accountIdentifier] = nil end
+        else
+            local newNote = FriendGroups_SetNicknameTag(entry.note, clean)
+            if #newNote > Compat.BNET_NOTE_MAXBYTES then
+                dropped = dropped + 1
+                if apply then FriendGroups_SavedVars.nicknames[accountIdentifier] = nil end
+            elseif newNote == entry.note then
+                skipped = skipped + 1
+            else
+                queue[#queue + 1] = { id = entry.id, note = newNote }
+            end
+        end
+    end
+    return queue, dropped, skipped
+end
+
+-- Mark the migration complete and hand control to the reconcile pass.
+local function FriendGroups_FinishNicknameMigration(written, dropped, skipped)
+    FriendGroups_NicknameMigrationRunning = false
+    FriendGroups_SavedVars.nickname_schema = FG_NICKNAME_SCHEMA
+    FriendGroups_NicknameSyncReady = true
+
+    -- "0 written" reads as a failure, but when the notes already carry every tag it is
+    -- success -- so report that state as its own outcome rather than a bare zero.
+    if written == 0 and dropped == 0 and skipped > 0 then
+        print(string.format(L["MSG_NICKNAME_MIGRATE_UPTODATE"], skipped))
+    else
+        print(string.format(L["MSG_NICKNAME_MIGRATE_DONE"], written))
+        if dropped > 0 then
+            print(string.format(L["MSG_NICKNAME_MIGRATE_DROPPED"], dropped))
+        end
+    end
+    FriendGroups_FriendsListUpdate(true)
+end
+
+function FriendGroups_RunNicknameMigration()
+    if FriendGroups_NicknameMigrationRunning then return end
+    if not Compat.CanSetBNetNote() then
+        print(L["MSG_NICKNAME_NO_API"])
+        return
+    end
+
+    local noteMap, trustworthy = FriendGroups_BuildBNetNoteMap()
+    if not noteMap or not trustworthy then
+        -- Roster not populated, or not fully resolvable. Abort without stamping the
+        -- schema and without dropping anything, so the prompt comes back next session
+        -- with the friend list actually loaded.
+        print(L["MSG_NICKNAME_MIGRATE_ABORT"])
+        return
+    end
+
+    -- Re-planned against the LIVE roster rather than reusing the pre-check's plan: the
+    -- note may have changed between the prompt appearing and the user accepting it.
+    local queue, dropped, skipped = FriendGroups_PlanNicknameMigration(noteMap, true)
+
+    if #queue == 0 then
+        FriendGroups_FinishNicknameMigration(0, dropped, skipped)
+        return
+    end
+
+    FriendGroups_NicknameMigrationRunning = true
+
+    local index, written = 0, 0
+    local function step()
+        index = index + 1
+        local item = queue[index]
+        if not item then
+            FriendGroups_FinishNicknameMigration(written, dropped, skipped)
+            return
+        end
+        if Compat.SetBNetNote(item.id, item.note) then
+            written = written + 1
+        end
+        C_Timer.After(FG_MIGRATE_WRITE_INTERVAL, step)
+    end
+    step()
+end
+
+StaticPopupDialogs["FRIENDGROUPS_NICKNAME_MIGRATE"] = {
+    text = L["POPUP_NICKNAME_MIGRATE"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    OnAccept = function()
+        FriendGroups_RunNicknameMigration()
+    end,
+    timeout = 0,
+    whileDead = 1,
+    hideOnEscape = 1,
+    preferredIndex = 3,
+}
+
+-- Decide, once per session, whether reconcile may run. Called after SavedVars exist.
+function FriendGroups_InitNicknameSchema()
+    if not FriendGroups_SavedVars then return end
+    if not FriendGroups_SavedVars.nicknames then
+        FriendGroups_SavedVars.nicknames = {}
+    end
+
+    if FriendGroups_SavedVars.nickname_schema == FG_NICKNAME_SCHEMA then
+        FriendGroups_NicknameSyncReady = true
+        return
+    end
+
+    -- Legacy schema. With nothing to migrate there is no decision to put to the
+    -- user: stamp it and go.
+    if next(FriendGroups_SavedVars.nicknames) == nil then
+        FriendGroups_SavedVars.nickname_schema = FG_NICKNAME_SCHEMA
+        FriendGroups_NicknameSyncReady = true
+        return
+    end
+
+    -- Deferred so the prompt does not land in the middle of the loading screen, and so
+    -- the Battle.net friend list has had a chance to populate.
+    C_Timer.After(10, function()
+        if FriendGroups_NicknameSyncReady or FriendGroups_NicknameMigrationRunning then return end
+
+        -- Pre-check: only ask when there is something to decide. Restoring a backup on an
+        -- account that has already migrated leaves every tag already in place (the notes
+        -- live on the Battle.net account, so they came along for free), and prompting to
+        -- "move" nicknames that are already there -- then reporting zero -- reads as a
+        -- failure. Nothing is destructive in that case, so adopt it silently.
+        local noteMap, trustworthy = FriendGroups_BuildBNetNoteMap()
+        if noteMap and trustworthy then
+            local queue, dropped = FriendGroups_PlanNicknameMigration(noteMap, false)
+            if #queue == 0 and dropped == 0 then
+                FriendGroups_SavedVars.nickname_schema = FG_NICKNAME_SCHEMA
+                FriendGroups_NicknameSyncReady = true
+                return
+            end
+            -- Count only what actually needs moving, so the prompt does not overstate.
+            StaticPopup_Show("FRIENDGROUPS_NICKNAME_MIGRATE", #queue + dropped)
+            return
+        end
+
+        -- Roster unusable: fall back to the raw count and let the run itself re-check.
+        local pending = 0
+        for _ in pairs(FriendGroups_SavedVars.nicknames) do pending = pending + 1 end
+        StaticPopup_Show("FRIENDGROUPS_NICKNAME_MIGRATE", pending)
+    end)
+end
+
 -- [[ CORE ACTIVATOR ]] --
 EnableFriendGroups = function()
     if FriendGroups_Loaded then return end
@@ -2930,6 +3390,10 @@ EnableFriendGroups = function()
     if FriendGroups_SavedVars.main_guild == nil then
         FriendGroups_SavedVars.main_guild = {}
     end
+
+    -- Nicknames moved into the friend note in 13.0.1. Decides whether the reconcile
+    -- pass may run, or whether the one-time migration must be offered first.
+    FriendGroups_InitNicknameSchema()
 
 -- 1. Create Search Box
     FriendGroups_SearchBox = CreateFrame("EditBox", "FriendGroupsGlobalSearch", FriendsListFrame, "SearchBoxTemplate")
@@ -3784,7 +4248,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 			if nw and nw > 0 then button.fgOrigNameWidth = nw end
 		end
 		if button.fgOrigNameWidth then
-			if FriendGroups_SavedVars.wide_list then
+			if FriendGroups_IsWideList() then
 				button.name:SetWidth(button.fgOrigNameWidth + FriendGroups_WideListExtra)
 			else
 				button.name:SetWidth(button.fgOrigNameWidth)
@@ -3792,8 +4256,10 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		end
 
 		if FriendGroups_SavedVars.show_note ~= false and type(button.fgNote) == "string" and button.fgNote ~= "" then
-			-- Show the entire note field verbatim (includes any FG group/guild tags).
-			local fgNoteClean = strtrim(button.fgNote)
+			-- Show the note field (includes any FG group/guild tags). The nickname tag is
+			-- stripped: the row already renders the nickname as this friend's name, so
+			-- leaving @[...] here would print it twice.
+			local fgNoteClean = FriendGroups_NoteForDisplay(button.fgNote)
 			if fgNoteClean and fgNoteClean ~= "" then
 				infoText = (infoText and infoText ~= "") and (infoText .. "  " .. fgNoteClean) or fgNoteClean
 			end
@@ -3963,6 +4429,11 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
     for i = 1, numBNetTotal do
         local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
         if accountInfo then
+            -- This loop is the one guaranteed COMPLETE enumeration of Battle.net
+            -- friends, so it is where the nickname cache is refreshed from the notes.
+            -- Must run BEFORE FriendGroups_SetGroups, which reads the cache to build
+            -- this friend's hasNickname flag and sort key.
+            FriendGroups_ReconcileNickname(accountInfo)
             FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_BNET, accountInfo)
         end
     end
@@ -4774,7 +5245,7 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
                 add_mobile_text = true, 
                 show_search = true, 
                 open_one_group = false,
-                auto_accept_invite = false, 
+                auto_accept_invite = false,
                 auto_accept_sync = false,
                 offline_tracker = true,
                 show_guildmates = true
@@ -4821,121 +5292,10 @@ end)
 
 -- ============================================================================
 -- [[ AUTOMATION LOGIC ]]
+-- Moved to Automation.lua, which fronts the interactive automations with the
+-- countdown toast and arbitrates ownership with GLogger when both are running.
 -- ============================================================================
 
-local function FG_IsPlayerBusy()
-    if InCombatLockdown() then return true end
-    
-    local inInstance, instanceType = IsInInstance()
-    if inInstance then
-        if instanceType == "pvp" or instanceType == "arena" then return true end
-        if instanceType == "party" and C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive() then return true end
-        if IsEncounterInProgress() then return true end
-    end
-    
-    return false
-end
-
-local FriendGroups_Automation = CreateFrame("Frame")
--- QUEST_SESSION_CREATED (Party Sync) is retail-era and absent on some clients; the
--- validated registration skips it there in place of the previous ad-hoc pcall guard.
-Compat.RegisterEvents(FriendGroups_Automation, {
-    "PARTY_INVITE_REQUEST",
-    "RESURRECT_REQUEST",
-    "PLAYER_DEAD",
-    "QUEST_SESSION_CREATED",
-})
-
-FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
-    -- 1. Auto Accept Group Invites
-    if event == "PARTY_INVITE_REQUEST" then
-        if FG_IsPlayerBusy() then return end 
-        
-        local inviterName = ...
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
-            if L["MSG_AUTO_INVITE"] then
-                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_INVITE"], inviterName or "Unknown"))
-            end
-            
-            -- Removed Timer wrapper to preserve secure hardware event payload
-            -- 12.2.2 TAINT FIX: no StaticPopup_Hide here -- Blizzard's own secure handlers
-            -- dismiss the invite popups once the invite resolves; hiding them from addon
-            -- code manipulated secure dialog state from a tainted path.
-            local success = pcall(AcceptGroup)
-            if not success then
-                if L["MSG_AUTO_ACCEPT_FAILED"] then
-                    DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
-                end
-            end
-        end
-
-    -- 2. Auto Accept Resurrection
-    elseif event == "RESURRECT_REQUEST" then
-        local inviterName = ...
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_res then
-            if L["MSG_AUTO_RES"] then
-                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_RES"], inviterName or "Unknown"))
-            end
-            
-            -- Removed Timer wrapper to preserve secure hardware event payload
-            -- 12.2.2 TAINT FIX: no StaticPopup_Hide here -- the resurrect dialog dismisses
-            -- itself through Blizzard's secure handlers once the resurrect is accepted.
-            local success = pcall(AcceptResurrect)
-            if not success then
-                if L["MSG_AUTO_ACCEPT_FAILED"] then
-                    DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
-                end
-            end
-        end
-        
-    -- 3. Auto Release Spirit
-    elseif event == "PLAYER_DEAD" then
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_release then
-            if L["MSG_AUTO_RELEASE"] then
-                DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE"])
-            end
-
-            -- Guarded: confirmed present on retail/MoP/BC Anniversary, but a client
-            -- without it must not error on every death with auto-release enabled.
-            local selfResOptions = C_DeathInfo and C_DeathInfo.GetSelfResurrectOptions
-                and C_DeathInfo.GetSelfResurrectOptions()
-            if not selfResOptions or #selfResOptions == 0 then 
-                local success = pcall(RepopMe)
-                if not success then
-                    if L["MSG_AUTO_RELEASE_FAILED"] then
-                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE_FAILED"])
-                    end
-                end
-            end
-        end
-        
-    -- 4. Auto Accept Party Sync
-    elseif event == "QUEST_SESSION_CREATED" then
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
-            if UnitIsGroupLeader("player") then return end
-            if InCombatLockdown() then return end
-            
-            local leaderName = "Party Leader"
-            if IsInGroup() then
-                for i = 1, 4 do
-                    local unit = "party"..i
-                    if UnitIsGroupLeader(unit) then
-                        leaderName = UnitName(unit) or leaderName
-                        break
-                    end
-                end
-            end
-
-            if L["MSG_AUTO_SYNC"] then
-                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_SYNC"], leaderName))
-            end
-
-            if C_QuestSession and C_QuestSession.SendSessionBeginResponse then
-                C_QuestSession.SendSessionBeginResponse(true)
-            end
-        end
-    end
-end)
 
 -- ============================================================================
 -- [[ KNOWN ALTS SPYGLASS ENGINE & STATIC PANEL ]]
@@ -5270,25 +5630,108 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
 		FriendGroupsAltTooltip:ClearLines()
         FriendGroupsAltTooltip:AddLine(displayTitle, 1, 0.82, 0)
 
-        -- Note (directly below the header, gold). Always shown here when present.
-        -- Fall back to the stashed hover note so timer refreshes / the native
-        -- FriendsTooltip:Show redraw (both call us without a note) don't drop it.
-        local showNote = noteText or FriendGroups_CurrentHoverNote
-        if showNote and showNote ~= "" then
-            FriendGroupsAltTooltip:AddLine(showNote, 1, 0.82, 0, true)
+        -- ====================================================================
+        -- [[ IDENTITY BLOCK ]]
+        -- Fixed order, broadest identifier first: BattleTag (the account), nickname
+        -- (what you call them), guild (auto before manual), then custom groups.
+        -- Every line carries a localized prefix, and the note's raw DSL -- @[...],
+        -- <...>, #... -- is decoded rather than printed: the panel shows what the
+        -- note MEANS, the note field itself shows the syntax.
+        -- ====================================================================
+
+        -- Fall back to the stashed hover note so timer refreshes and the native
+        -- FriendsTooltip:Show redraw (both call us without a note) don't drop the block.
+        --
+        -- Normalised HERE rather than at the call sites. This function is reached from
+        -- seven of them across three surfaces (friends list, guild roster, communities)
+        -- and they do not agree on what they pass: the friends list hands over an
+        -- already-cleaned note, while the guild and communities paths read the raw note
+        -- straight from the account. Stripping per-caller meant the guild panel leaked
+        -- the raw @[...] tag as free text while the friends panel did not. Doing it once
+        -- at the point of use makes every surface an exact mirror by construction --
+        -- FriendGroups_NoteForDisplay is idempotent and nil-safe, so the already-clean
+        -- callers are unaffected and no future caller can reintroduce the divergence.
+        local showNote = FriendGroups_NoteForDisplay(noteText or FriendGroups_CurrentHoverNote)
+
+        local idOK = accountIdentifier
+            and type(accountIdentifier) == "string"
+            and not (issecretvalue and issecretvalue(accountIdentifier))
+
+        -- 1. BATTLETAG, in the familiar BNet blue. accountIdentifier is the BattleTag
+        -- (Name#1234) when one exists; the '#' test keeps legacy accountName values
+        -- from rendering as a junk line.
+        if idOK and accountIdentifier:find("#") then
+            local btagColor = FRIENDS_BNET_NAME_COLOR or BATTLENET_FONT_COLOR or CreateColor(0.510, 0.773, 1.0)
+            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_BATTLETAG"], accountIdentifier),
+                btagColor.r, btagColor.g, btagColor.b)
         end
 
-        -- [[ BNET SUBTITLE ]] Show the owning Battle.net BattleTag in the familiar BNet blue.
-        -- accountIdentifier is the BattleTag (Name#1234) when one exists; the '#' test keeps
-        -- legacy accountName values from rendering as a junk subtitle.
-        if accountIdentifier
-           and not (issecretvalue and issecretvalue(accountIdentifier))
-           and type(accountIdentifier) == "string"
-           and accountIdentifier:find("#") then
-            local btagColor = FRIENDS_BNET_NAME_COLOR or BATTLENET_FONT_COLOR or CreateColor(0.510, 0.773, 1.0)
-            FriendGroupsAltTooltip:AddLine(accountIdentifier, btagColor.r, btagColor.g, btagColor.b)
+        -- 2. NICKNAME, in its friendly form. Green matches the list row.
+        if idOK and FriendGroups_SavedVars.nicknames then
+            local nick = FriendGroups_SavedVars.nicknames[accountIdentifier]
+            if type(nick) == "string" and nick ~= "" then
+                FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_NICKNAME"], nick), 0, 1, 0)
+            end
         end
-		
+
+        -- 3/4. GUILDS. Manual guilds are the <Name> tags the user typed into the note.
+        -- The auto guild is whichever guild group the friend actually resolved into that
+        -- ISN'T one of those -- read back from the assignment cache rather than
+        -- re-derived here, so this line can never disagree with the group the friend is
+        -- really filed under (that resolution blends live roster state, the selected
+        -- main's guild and the alt cache, and duplicating it would drift).
+        local manualGuilds, manualSet = {}, {}
+        for gname in string.gmatch(showNote, "<([^>]+)>") do
+            gname = strtrim(gname)
+            if gname ~= "" and not manualSet[gname] then
+                manualSet[gname] = true
+                manualGuilds[#manualGuilds + 1] = gname
+            end
+        end
+
+        local autoGuilds = {}
+        if idOK then
+            local cached = FriendGroups_AssignmentCache[FRIENDS_BUTTON_TYPE_BNET .. "_" .. accountIdentifier]
+            if cached and cached.groups then
+                for _, g in ipairs(cached.groups) do
+                    if string.find(g, L["GROUP_GUILDMATES"], 1, true) then
+                        local gname = g:match("<(.-)>")
+                        if gname and gname ~= "" and not manualSet[gname] then
+                            autoGuilds[#autoGuilds + 1] = gname
+                        end
+                    end
+                end
+            end
+        end
+
+        if #autoGuilds > 0 then
+            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GUILD_AUTO"],
+                table.concat(autoGuilds, ", ")), 1, 0.82, 0)
+        end
+        if #manualGuilds > 0 then
+            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GUILD_MANUAL"],
+                table.concat(manualGuilds, ", ")), 1, 0.82, 0)
+        end
+
+        -- 5. CUSTOM GROUPS -- the #Tags in the note. Parsed from the note rather than the
+        -- resolved list so the system groups (Favorites, No Group, the Offline tiers) and
+        -- the guild groups already shown above are excluded without special-casing each.
+        local noteGroups = FriendGroups_GetPlayerGroups(showNote)
+        if noteGroups and #noteGroups > 0 then
+            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GROUP"],
+                table.concat(noteGroups, ", ")), 1, 0.82, 0)
+        end
+
+        -- Anything the user typed that ISN'T a token still belongs to them, so it is kept
+        -- rather than silently dropped by the decode above. Unlabelled: it is free text,
+        -- not a field.
+        local residual = showNote:gsub("<[^>]*>", "")
+        residual = residual:gsub("#.*$", "")
+        residual = strtrim(residual)
+        if residual ~= "" then
+            FriendGroupsAltTooltip:AddLine(residual, 1, 0.82, 0, true)
+        end
+	
         local sortedAlts = {}
         for _, alt in ipairs(alts) do table.insert(sortedAlts, alt) end
         
@@ -5537,7 +5980,9 @@ function FriendGroups_ShowButtonAltTooltip(button)
 
         local fgNoteClean = nil
         if type(accountInfo.note) == "string" and accountInfo.note ~= "" then
-            fgNoteClean = strtrim(accountInfo.note)
+            -- Nickname tag stripped: the tooltip header already carries the nickname.
+            fgNoteClean = FriendGroups_NoteForDisplay(accountInfo.note)
+            if fgNoteClean == "" then fgNoteClean = nil end
         end
         FriendGroups_CurrentHoverNote = fgNoteClean
         FriendGroups_DrawAltTooltip(FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData, fgNoteClean)
@@ -5862,7 +6307,9 @@ SlashCmdList["FRIENDGROUPSDEBUG"] = function(msg)
         local favAtlas = (C_Texture and C_Texture.GetAtlasInfo
             and C_Texture.GetAtlasInfo("friendslist-favorite") ~= nil) or false
         local favCount = 0
-        local numB = (C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum()) or 0
+        -- Was `C_BattleNet.GetFriendNum ... or 0` with no BNGetNumFriends fallback, so
+        -- this loop never ran and the favorite count always reported 0.
+        local numB = Compat.GetBNetFriendNum()
         for i = 1, numB do
             local a = C_BattleNet.GetFriendAccountInfo(i)
             if a and a.isFavorite then favCount = favCount + 1 end
@@ -5913,6 +6360,12 @@ SlashCmdList["FRIENDGROUPSDEBUG"] = function(msg)
                     n, P(g.wowProjectID), P(g.realmName), P(g.regionID), P(g.richPresence), verdict, tostring(source)))
             end
         end
+    elseif command == "automation" then
+        -- Which addon owns each automation right now, and why nothing fired.
+        if FriendGroups_ReportAutomation then FriendGroups_ReportAutomation() end
+    elseif command == "toast" then
+        -- Drives both countdown toasts without performing the game action.
+        if FriendGroups_TestAutomationToast then FriendGroups_TestAutomationToast() end
     elseif command == "export" then
         FriendGroups_ShowExport()
     elseif command == "import" then

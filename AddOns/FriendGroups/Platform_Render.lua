@@ -606,7 +606,8 @@ RenderFriendButton = function(button, elementData)
 
 		-- Append the friend's note to the info line when Show Note is enabled.
 		if FriendGroups_SavedVars.show_note ~= false and type(button.fgNote) == "string" and button.fgNote ~= "" then
-			local noteClean = strtrim(button.fgNote)
+			-- Nickname tag stripped: the row already shows it as the friend's name.
+			local noteClean = FriendGroups_NoteForDisplay(button.fgNote)
 			if noteClean ~= "" then
 				infoText = (infoText and infoText ~= "") and (infoText .. "  " .. noteClean) or noteClean
 			end
