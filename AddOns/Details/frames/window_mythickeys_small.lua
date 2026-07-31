@@ -32,6 +32,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                 castOverlay:Show()
                 castTimeBar:SetTimer(10, true)
+                castTimeBar:PlayCastFlash()
             end
 
         elseif event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_SUCCEEDED" or event == "UNIT_SPELLCAST_FAILED" then
@@ -109,6 +110,25 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
     castTimeBar:SetPoint("left", castOverlay, "left", 4, 0)
     castTimeBar:SetPoint("right", castOverlay, "right", -4, 0)
     castTimeBar:ShowTimer(true)
+
+    --white overlay that flashes for 0.2s when a cast starts. the alpha animation
+    --fades it from a partial white back to invisible; PlayCastFlash re-triggers it.
+    local castFlash = castTimeBar:CreateTexture(nil, "overlay")
+    castFlash:SetAllPoints(castTimeBar.widget or castTimeBar)
+    castFlash:SetColorTexture(1, 1, 1, 1)
+    castFlash:SetAlpha(0)
+
+    local castFlashAnim = castFlash:CreateAnimationGroup()
+    local castFlashFade = castFlashAnim:CreateAnimation("Alpha")
+    castFlashFade:SetDuration(0.2)
+    castFlashFade:SetFromAlpha(0.6)
+    castFlashFade:SetToAlpha(0)
+    castFlashAnim:SetScript("OnFinished", function() castFlash:SetAlpha(0) end)
+
+    function castTimeBar:PlayCastFlash()
+        castFlashAnim:Stop()
+        castFlashAnim:Play()
+    end
 
     --use_default_scripts = false: the DF default OnMouseDown calls parent:StartSizing,
     --which snaps the resized corner to the cursor position on click. Since the grip is
@@ -286,20 +306,29 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
         smallKeysTeleportButtons[i] = button
     end
 
-    --pre-create one secure button per dungeon entry for the Teleports tab.
-    --spell attributes are stamped at creation time and never change after that.
-    local dungeonTeleportButtons = {}
-    if LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO then
-        for challengeMapId, mapInfo in pairs(LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO) do
-            local spellId = mapInfo[7]
-            if spellId and spellId > 0 then
-                local button = CreateFrame("button", nil, mainPanel, "InsecureActionButtonTemplate, BackdropTemplate")
-                button:SetAttribute("type", "spell")
-                button:SetAttribute("spell", spellId)
-                button:RegisterForClicks("AnyDown")
-                button:Hide()
-                dungeonTeleportButtons[challengeMapId] = button
+    --pre-create one secure button per Teleports-tab row, indexed by physical line (not by
+    --dungeon). each button is parented to its line once and never reparented on scroll; the
+    --spell attribute is stamped per-refresh out of combat, mirroring the Keys tab. keying by
+    --dungeon and reparenting on every refresh left the scrolled-off dungeon's button shown at
+    --its old line, so stale buttons piled up and overlapped the visible rows at the same frame
+    --level, which is why only one row stayed clickable and had a hover highlight.
+    local smallTeleportLineButtons = {}
+    do
+        local teleportDungeonCount = 0
+        if LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO then
+            for _, mapInfo in pairs(LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO) do
+                if mapInfo[7] and mapInfo[7] > 0 then
+                    teleportDungeonCount = teleportDungeonCount + 1
+                end
             end
+        end
+        --+5 margin so the pool never runs short of the physical line count.
+        for i = 1, math.max(teleportDungeonCount, 1) + 5 do
+            local button = CreateFrame("button", nil, mainPanel, "InsecureActionButtonTemplate, BackdropTemplate")
+            button:SetAttribute("type", "spell")
+            button:RegisterForClicks("AnyDown")
+            button:Hide()
+            smallTeleportLineButtons[i] = button
         end
     end
 
@@ -314,8 +343,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 --constants
                 local LINE_AMOUNT = 50
                 local SCROLL_WIDTH = WINDOW_WIDTH - 8  --342px, 4px margin each side
-                --40 = tab buttons (16) + 2px gap + header (18) + 2px gap + 2 top margin
-                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 40) / KEYS_LINE_HEIGHT)
+                --77 = search box top (28) + search box (26) + 5 gap + header (16) + 2 gap
+                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 77) / KEYS_LINE_HEIGHT)
 
                 --toggle this to true during development to display fake party data without needing
                 --a real group or LibOpenRaid. Set to false before shipping.
@@ -550,10 +579,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     KEYS_LINE_HEIGHT
                 )
                 --scrollBox at x=1 + line internal x=1 → line left edge sits 2px inside the panel.
-                --right side at -2 keeps the scrollbar 2px inside the right border. Top is -40 so
-                --the sortable header (anchored at y=-18, height 18) fits between the tab buttons
-                --and the first row.
-                scrollBox:SetPoint("topleft", tabFrame, "topleft", 1, -40)
+                --right side at -2 keeps the scrollbar 2px inside the right border. Top is -77 so
+                --the search box (y=-28..-54) and the sortable header (y=-59, height 16) both fit
+                --between the tab buttons and the first row, keeping a 2px gap under the header.
+                scrollBox:SetPoint("topleft", tabFrame, "topleft", 1, -77)
                 scrollBox:SetPoint("bottomright", tabFrame, "bottomright", -2, 20)
                 scrollBox:SetBackdropBorderColor(0, 0, 0, 0)
 
@@ -632,6 +661,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                 --forward-declared so the header click callback can close over it; assigned below.
                 local refreshData
+                --current search-box text (lowercased); filters the list inside refreshData.
+                local keysSearchText = ""
 
                 --sortable column header positioned just under the tab buttons. clicking a column
                 --header toggles its sort order (ASC/DESC) and re-invokes refreshData, which reads
@@ -648,10 +679,23 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         end
                     end,
                 }
-                --anchor at x=46 so the Name header lines up exactly with the player-name
-                --data column (X_PLAYER_NAME = 46). y=-18 = tab buttons (16) + 2px gap.
+                --anchor at x=2 so the Name header lines up with the player-name data column.
+                --the search box frame spans y=-28 to y=-54 (26px tall); y=-59 puts a 5px gap
+                --between the bottom of the search box and the top of the header.
                 tabFrame.KeysHeader = detailsFramework:CreateHeader(tabFrame, keysHeaderTable, keysHeaderOptions, "DetailsKeystoneSmallKeysHeader")
-                tabFrame.KeysHeader:SetPoint("topleft", tabFrame, "topleft", 2, -22)
+                tabFrame.KeysHeader:SetPoint("topleft", tabFrame, "topleft", 2, -59)
+
+                --search box: filters the Keys list by player name, key level, or dungeon name.
+                --keysSearchText is read by refreshData below; declared forward next to refreshData.
+                local keysSearchBox
+                keysSearchBox = detailsFramework:CreateSearchBox(tabFrame, function()
+                    keysSearchText = keysSearchBox.text and keysSearchBox.text:lower() or ""
+                    if (refreshData) then
+                        refreshData()
+                    end
+                end)
+                keysSearchBox:SetWidth(SCROLL_WIDTH - 8)
+                keysSearchBox:SetPoint("topleft", tabFrame, "topleft", 8, -28)
 
                 --build party-member-only data and push it into the scrollbox.
                 --scrollbar sync happens automatically inside scrollBox:Refresh() via the hook
@@ -904,6 +948,25 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         end
                     end
 
+                    --apply the search filter: keep rows whose player name, key level, or dungeon
+                    --name contains the search text. keysSearchText is already lowercased. done
+                    --before the sort so the filtered set is what gets ordered and displayed.
+                    if (keysSearchText ~= "") then
+                        local filtered = {}
+                        for i = 1, #newData do
+                            local row = newData[i]
+                            local nameNoRealm = detailsFramework:RemoveRealmName(row[1] or ""):lower()
+                            local levelStr = tostring(row[2] or "")
+                            local dungeonName = (row[10] or ""):lower()
+                            if (nameNoRealm:find(keysSearchText, 1, true)
+                                or levelStr:find(keysSearchText, 1, true)
+                                or dungeonName:find(keysSearchText, 1, true)) then
+                                filtered[#filtered + 1] = row
+                            end
+                        end
+                        newData = filtered
+                    end
+
                     --sort by whichever header column the user selected. The player (sortGroup 0)
                     --always stays pinned at the top regardless of column sort.
                     --columnIndex maps to unitTable slots: 1=Name→[1], 2=Level→[2], 3=Map→[10], 4=Rating→[6].
@@ -970,7 +1033,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 --constants
                 local LINE_HEIGHT = 30
                 local SCROLL_WIDTH = WINDOW_WIDTH - 8
-                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 26) / LINE_HEIGHT)
+                --59 = search box top (28) + search box (26) + 5 gap before the first line
+                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 59) / LINE_HEIGHT)
 
                 --current-season dungeon names. Used to push these dungeons to the top of the list.
                 local currentSeasonDungeons = {}
@@ -1133,42 +1197,27 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 line.dungeonNameText:SetAlpha(0.5)
                             end
 
-                            if not InCombatLockdown() then
-                                if line.button then
-                                    line.button:ClearAllPoints()
-                                end
-
-                                local challengeMapId = mapInfo[2]
-                                --teleport button covers the whole line, spell attribute was stamped at load time
-                                if challengeMapId then
-                                    local button = dungeonTeleportButtons[challengeMapId]
-                                    if button then
-                                        button:SetParent(line)
-                                        button:ClearAllPoints()
-                                        button:SetAllPoints(line)
-                                        button:SetFrameLevel(line:GetFrameLevel() + 1)
-                                        --hover highlight: the button covers the whole line and captures mouse events,
-                                        --so anchoring the highlight texture to it lets Blizzard auto-toggle it on hover.
-                                        if (not button.hoverHighlight) then
-                                            local hoverHighlight = button:CreateTexture(nil, "highlight")
-                                            hoverHighlight:SetAllPoints()
-                                            hoverHighlight:SetColorTexture(1, 1, 1, 0.10)
-                                            button.hoverHighlight = hoverHighlight
-                                        end
-                                        button:Show()
-                                        line.button = button
-                                    end
+                            --each line owns a dedicated secure button (parented in createLineFunc and
+                            --never reparented), so scrolling only restamps the spell for the row's
+                            --current dungeon. mapInfo[7] is the teleport spell id. done out of combat
+                            --because SetAttribute on a secure button is blocked in combat.
+                            if (line.button and not InCombatLockdown()) then
+                                local spellId = mapInfo[7]
+                                if (spellId and spellId > 0) then
+                                    line.button:SetAttribute("spell", spellId)
+                                    line.button.spellId = spellId
+                                    line.button:Show()
+                                else
+                                    line.button:Hide()
                                 end
                             end
                         end
                     end
                 end
 
-                --called once per line; the teleport button is parented here using the sorted data index
+                --called once per line; each line gets its own secure teleport button, parented here
+                --by physical line index and never reparented afterwards.
                 local createLineFunc = function(self, index)
-                    local mapInfo = teleportData[index]
-                    local challengeMapId = mapInfo and mapInfo[2]
-
                     local line = CreateFrame("frame", "$parentTeleportLine" .. index, self, "BackdropTemplate")
                     line:SetPoint("topleft", self, "topleft", 1, -((index - 1) * (LINE_HEIGHT + 1)) - 1)
                     --width leaves a 22px gutter on the right so the scroll bar sits over empty
@@ -1176,6 +1225,26 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     line:SetSize(SCROLL_WIDTH - 22, LINE_HEIGHT)
                     line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
                     line:SetBackdropColor(.12, .12, .12, 0.6)
+
+                    --dedicated secure teleport button covering the whole row. the refresh only
+                    --restamps its spell attribute, so it never moves or overlaps another line.
+                    local button = smallTeleportLineButtons[index]
+                    if (button) then
+                        button:SetParent(line)
+                        button:ClearAllPoints()
+                        button:SetAllPoints(line)
+                        button:SetFrameLevel(line:GetFrameLevel() + 1)
+                        --hover highlight: the button covers the whole line and captures mouse events,
+                        --so anchoring the highlight texture to it lets Blizzard auto-toggle it on hover.
+                        if (not button.hoverHighlight) then
+                            local hoverHighlight = button:CreateTexture(nil, "highlight")
+                            hoverHighlight:SetAllPoints()
+                            hoverHighlight:SetColorTexture(1, 1, 1, 0.10)
+                            button.hoverHighlight = hoverHighlight
+                        end
+                        button:Hide()
+                        line.button = button
+                    end
 
                     local notLearnedBg = line:CreateTexture(nil, "background")
                     notLearnedBg:SetAllPoints(line)
@@ -1220,7 +1289,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 --scrollbox is offset 50px from the top to leave room for the search box (26px) + margin.
                 --bottomright is pulled in 2px so the scroll bar (reskinned ~6px right of the box)
                 --stays visually inside the panel edge.
-                scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -50)
+                --the search box frame spans y=-28 to y=-54 (26px tall); y=-59 puts a 5px gap
+                --between the bottom of the search box and the first line of the scrollbox.
+                scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -59)
                 scrollBox:SetPoint("bottomright", tabFrame, "bottomright", -2, 20)
                 scrollBox:SetBackdropBorderColor(0, 0, 0, 0)
 
@@ -1275,6 +1346,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
             text = "History",
             createOnDemandFunc = function(tabFrame, tabContainer, parent)
                 --build History tab content here
+                --disable mouse on the tab frame so it doesn't swallow the title-bar drag
+                --(matches the Keys and Teleports tabs); otherwise the panel can't be moved.
+                tabFrame:EnableMouse(false)
                 tabFrame.titleText:Hide()
 
                 --gather mythic+ saved segments. read from savedsegmentheader to avoid
@@ -1331,8 +1405,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                 local HISTORY_LINE_HEIGHT = 30
                 local SCROLL_WIDTH = WINDOW_WIDTH - 8
-                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 22) / (HISTORY_LINE_HEIGHT + 1))
+                --59 = search box top (28) + search box (26) + 5 gap before the first line
+                local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 59) / (HISTORY_LINE_HEIGHT + 1))
                 local LINE_AMOUNT = 50
+
+                --current search-box text (lowercased); filters the list inside refreshHistoryData.
+                local historySearchText = ""
 
                 --column anchors. icon spans the full row height on the left;
                 --text columns split into a top row and a bottom row.
@@ -1442,7 +1520,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     LINES_VISIBLE,
                     HISTORY_LINE_HEIGHT
                 )
-                scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -22)
+                --the search box frame spans y=-28 to y=-54 (26px tall); y=-59 puts a 5px gap
+                --between the bottom of the search box and the first line of the scrollbox.
+                scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -59)
                 scrollBox:SetPoint("bottomright", tabFrame, "bottomright", -2, 20)
                 scrollBox:SetBackdropBorderColor(0, 0, 0, 0)
                 scrollBox:CreateScrollBar2()
@@ -1451,14 +1531,40 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     scrollBox:CreateLine(createLineFunc)
                 end
 
-                scrollBox:SetData(mythicPlusHistory)
-                scrollBox:Refresh()
-
-                tabFrame.ScrollBox = scrollBox
-                tabFrame.RefreshOptions = function()
-                    scrollBox:SetData(mythicPlusHistory)
+                --filters mythicPlusHistory by the search text (dungeon name or key level) and
+                --pushes the result into the scrollbox. empty search shows the full list.
+                local refreshHistoryData = function()
+                    if (historySearchText == "") then
+                        scrollBox:SetData(mythicPlusHistory)
+                    else
+                        local filtered = {}
+                        for i = 1, #mythicPlusHistory do
+                            local run = mythicPlusHistory[i]
+                            local dungeonName = (run.mythicPlusZoneName or run.name or ""):lower()
+                            local levelStr = tostring(run.mythicPlusLevel or "")
+                            if (dungeonName:find(historySearchText, 1, true)
+                                or levelStr:find(historySearchText, 1, true)) then
+                                filtered[#filtered + 1] = run
+                            end
+                        end
+                        scrollBox:SetData(filtered)
+                    end
                     scrollBox:Refresh()
                 end
+
+                --search box: filters the History list by dungeon name or key level.
+                local historySearchBox
+                historySearchBox = detailsFramework:CreateSearchBox(tabFrame, function()
+                    historySearchText = historySearchBox.text and historySearchBox.text:lower() or ""
+                    refreshHistoryData()
+                end)
+                historySearchBox:SetWidth(SCROLL_WIDTH - 8)
+                historySearchBox:SetPoint("topleft", tabFrame, "topleft", 8, -28)
+
+                refreshHistoryData()
+
+                tabFrame.ScrollBox = scrollBox
+                tabFrame.RefreshOptions = refreshHistoryData
             end,
         },
     }
