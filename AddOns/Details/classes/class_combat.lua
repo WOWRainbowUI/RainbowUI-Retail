@@ -691,7 +691,7 @@ local segmentTypeToString = {
 			end
 		end
 		local segmentId = self:GetSegmentSlotId()
-		return Loc["STRING_FIGHTNUMBER"] .. segmentId
+		return Loc["STRING_FIGHTNUMBER"] .. segmentId --Fight #-1 --did not find any type
 	end
 
 	---debug function to print the combat name
