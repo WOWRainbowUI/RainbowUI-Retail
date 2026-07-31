@@ -457,7 +457,7 @@ function ns:GetIcyVeinsBisSpecs(itemId)
     return ConsolidateByClass(raw)
 end
 
-local IV_GEAR_TAB = { all = "Overall", raid = "Raid", mplus = "Mythic+" }
+local IV_GEAR_TAB = { all = "綜合", raid = "團隊副本", mplus = "傳奇+" }
 function ns:GetIcyVeinsSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
     local sd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)

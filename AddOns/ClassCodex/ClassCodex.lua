@@ -3746,7 +3746,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         if LDB and LDBIcon then
             local dataObj = LDB:NewDataObject("ClassCodex", {
                 type = "launcher",
-                icon = "Interface\\AddOns\\ClassCodex\\icon",
+                -- Dedicated minimap art: the Codex sword on a leather medallion.
+                -- 32px uncompressed TGA (Textures/minimap-crest.tga) — matches
+                -- LibDBIcon's ~17px frame closely so it stays crisp.
+                icon = "Interface\\AddOns\\ClassCodex\\Textures\\minimap-crest",
                 OnClick = function(_, button)
                     if button == "LeftButton" then
                         if ns.OpenCompendium then
