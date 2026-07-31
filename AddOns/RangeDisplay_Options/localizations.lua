@@ -73,8 +73,7 @@ L["Width"] = "Width"
 
 L = AL:NewLocale(AppName, "deDE")
 if L then
--- opt
-L["Anchor to Mouse"] = "An der Maus verankern"
+--L["Anchor to Mouse"] = "An der Maus verankern"
 L["Auto hide"] = "Autom. ausblenden"
 L["Background Color"] = "Hintergrundfarbe"
 L["Background Options"] = "Hintergrund-Optionen"
@@ -125,10 +124,8 @@ L["Text"] = "Text"
 L["Texture to use for the frame's background"] = "Zu verwendende Textur für den Hintergrund des Rahmens"
 L["Texture to use for the frame's border"] = "Zu verwendende Textur für die Umrandung des Rahmens"
 L["The size used to tile the background texture"] = "Die verwendete Größe, um die Hintergrundtextur zu kacheln"
-L["The text to display for this section"] = [=[Der darzustellende Text für diesen Abschnitt.
-(%d, %d ist minimale, maximale Reichweite)]=]
-L["The text to display when you are further than range limit"] = [=[Der anzuzeigende Text, wenn du weiter als dein Reichweitenlimit bist.
-(%d ist der minimale Reichweitenwert)]=]
+L["The text to display for this section"] = "Der darzustellende Text für diesen Abschnitt.\n(%d, %d ist minimale, maximale Reichweite)"
+L["The text to display when you are further than range limit"] = "Der anzuzeigende Text, wenn du weiter als dein Reichweitenlimit bist.\n(%d ist der minimale Reichweitenwert)"
 L["The thickness of the border"] = "Die Dicke der Umrandung"
 L["Thick"] = "Fett"
 L["Tile Background"] = "Kachel-Hintergrund"
@@ -140,13 +137,11 @@ L["Use warning sound for enemy targets only"] = "Warntonsignal nur für gegneris
 L["Warning Sound"] = "Warntonsignal"
 L["Warning Sound Name"] = "Name des Warnsignals"
 L["Width"] = "Breite"
-
 end
 
 L = AL:NewLocale(AppName, "esES")
 if L then
--- opt
-L["Anchor to Mouse"] = "Desplazar al raton"
+--L["Anchor to Mouse"] = "Desplazar al raton"
 L["Auto hide"] = "Auto Ocultar"
 L["Background Color"] = "Color de Fondo"
 L["Background Options"] = "Opciones de Fondo"
@@ -197,8 +192,7 @@ L["Text"] = "Texto"
 L["Texture to use for the frame's background"] = "Textura a usar para el fondo del marco"
 L["Texture to use for the frame's border"] = "Textura a usar para el borde del marco"
 L["The size used to tile the background texture"] = "El tamaño usado para la textura de fondo"
-L["The text to display for this section"] = [=[El texto a mostrar para esta seccion
-(%d, %d es min, max rango)]=]
+L["The text to display for this section"] = "El texto a mostrar para esta seccion\n(%d, %d es min, max rango)"
 L["The text to display when you are further than range limit"] = "Texto a mostrar cuando estas fuera del limite de rango"
 L["The thickness of the border"] = "El grosor del borde"
 L["Thick"] = "Espesor"
@@ -211,19 +205,16 @@ L["Use warning sound for enemy targets only"] = "Usa el sonido de peligro solo e
 L["Warning Sound"] = "Sonido de peligro"
 L["Warning Sound Name"] = "Nombre del sonido de peligro"
 L["Width"] = "Ancho"
-
 end
 
 L = AL:NewLocale(AppName, "esMX")
 if L then
--- opt
-
+--@localization(locale="esMX", format="lua_additive_table", handle-subnamespaces="none", namespace="opt", handle-unlocalized="ignore")@
 end
 
 L = AL:NewLocale(AppName, "frFR")
 if L then
--- opt
-L["Anchor to Mouse"] = "Accrocher à la souris"
+--L["Anchor to Mouse"] = "Accrocher à la souris"
 L["Auto hide"] = "Cacher auto."
 L["Background Color"] = "Couleur du fond"
 L["Background Options"] = "Options d'arrière-plan"
@@ -274,8 +265,7 @@ L["Text"] = "Texte"
 L["Texture to use for the frame's background"] = "Texture à utiliser pour l'arrière-plan de la fenêtre"
 L["Texture to use for the frame's border"] = "Texture à utiliser pour la bordure de la fenêtre"
 L["The size used to tile the background texture"] = "Cette taille utilisera le carrelage de la texture de fond"
-L["The text to display for this section"] = [=[Le texte à afficher lorsque vous êtes dans ce rayon
-(%d, %d, correspond au minimum et maximum)]=]
+L["The text to display for this section"] = "Le texte à afficher lorsque vous êtes dans ce rayon\n(%d, %d, correspond au minimum et maximum)"
 L["The text to display when you are further than range limit"] = "Le texte à afficher lorsque vous êtes à plus loin que la distance limite (%d est la distance minimum)"
 L["The thickness of the border"] = "L'épaisseur de la bordure"
 L["Thick"] = "Epais"
@@ -288,13 +278,11 @@ L["Use warning sound for enemy targets only"] = "Utiliser le son d'alerte seulem
 L["Warning Sound"] = "Son d'alerte"
 L["Warning Sound Name"] = "Nom du son d'alerte"
 L["Width"] = "Largeur"
-
 end
 
 L = AL:NewLocale(AppName, "koKR")
 if L then
--- opt
-L["Anchor to Mouse"] = "마우스에 고정"
+--L["Anchor to Mouse"] = "마우스에 고정"
 L["Auto hide"] = "자동 숨기기"
 L["Background Color"] = "배경 색상"
 L["Background Options"] = "배경 옵션"
@@ -346,10 +334,8 @@ L["Text"] = "글자"
 L["Texture to use for the frame's background"] = "프레임 배경에 사용할 무늬"
 L["Texture to use for the frame's border"] = "프레임 테두리에 사용할 무늬"
 L["The size used to tile the background texture"] = "배경 무늬 바둑판 배열에 사용할 크기"
-L["The text to display for this section"] = [=[이 범위에 표시할 문자
-(%d, %d는 최소, 최대 거리)]=]
-L["The text to display when you are further than range limit"] = [=[거리 제한보다 멀 때 표시할 문자
-(%d는 최소 거리 값)]=]
+L["The text to display for this section"] = "이 범위에 표시할 문자\n(%d, %d는 최소, 최대 거리)"
+L["The text to display when you are further than range limit"] = "거리 제한보다 멀 때 표시할 문자\n(%d는 최소 거리 값)"
 L["The thickness of the border"] = "테두리 두께"
 L["Thick"] = "굵게"
 L["Tile Background"] = "배경 바둑판 배열"
@@ -361,13 +347,11 @@ L["Use warning sound for enemy targets only"] = "적대적 대상만 경고음�
 L["Warning Sound"] = "경고음"
 L["Warning Sound Name"] = "경고음 이름"
 L["Width"] = "너비"
-
 end
 
 L = AL:NewLocale(AppName, "ruRU")
 if L then
--- opt
-L["Anchor to Mouse"] = "Привязать к курсору"
+--L["Anchor to Mouse"] = "Привязать к курсору"
 L["Auto hide"] = "Автоскрытие"
 L["Background Color"] = "Цвет фона"
 L["Background Options"] = "Настройки фона"
@@ -420,10 +404,8 @@ L["Text"] = "Текст"
 L["Texture to use for the frame's background"] = "Текстура для фона фрейма"
 L["Texture to use for the frame's border"] = "Текстура для границы фрейма"
 L["The size used to tile the background texture"] = "Размер, используемый для заполнения фона плиткой"
-L["The text to display for this section"] = [=[Текст для этого диапазона
-(%d, %d — мин. и макс. дистанция)]=]
-L["The text to display when you are further than range limit"] = [=[Текст при превышении лимита дистанции
-(%d — минимальное значение)]=]
+L["The text to display for this section"] = "Текст для этого диапазона\r\n(%d, %d — мин. и макс. дистанция)"
+L["The text to display when you are further than range limit"] = "Текст при превышении лимита дистанции\r\n(%d — минимальное значение)"
 L["The thickness of the border"] = "Толщина границы"
 L["Thick"] = "Толстая"
 L["Tile Background"] = "Замостить фон"
@@ -435,13 +417,11 @@ L["Use warning sound for enemy targets only"] = "Звук предупрежде
 L["Warning Sound"] = "Звук предупреждения"
 L["Warning Sound Name"] = "Название звука"
 L["Width"] = "Ширина"
-
 end
 
 L = AL:NewLocale(AppName, "zhCN")
 if L then
--- opt
-L["Anchor to Mouse"] = "锚点定位到鼠标"
+--L["Anchor to Mouse"] = "锚点定位到鼠标"
 L["Auto hide"] = "自动隐藏"
 L["Background Color"] = "背景颜色"
 L["Background Options"] = "背景选项"
@@ -507,13 +487,11 @@ L["Use warning sound for enemy targets only"] = "仅对敌对目标使用警告�
 L["Warning Sound"] = "报警音效"
 L["Warning Sound Name"] = "报警音效名字"
 L["Width"] = "宽度"
-
 end
 
 L = AL:NewLocale(AppName, "zhTW")
 if L then
--- opt
-L["Anchor to Mouse"] = "跟隨滑鼠移動"
+--L["Anchor to Mouse"] = "跟隨滑鼠移動"
 L["Auto hide"] = "自動隱藏"
 L["Background Color"] = "背景顏色"
 L["Background Options"] = "背景選項"
@@ -566,10 +544,8 @@ L["Text"] = "文字"
 L["Texture to use for the frame's background"] = "框架背景的材質"
 L["Texture to use for the frame's border"] = "框架邊框的材質"
 L["The size used to tile the background texture"] = "背景材質的網格大小"
-L["The text to display for this section"] = [=[這個距離範圍所顯示的文字
-(%d, %d 為 最小, 最大距離)]=]
-L["The text to display when you are further than range limit"] = [=[超出距離限制範圍所顯示的文字
-(%d 為最小距離值)]=]
+L["The text to display for this section"] = "這個距離範圍所顯示的文字\n(%d, %d 為 最小, 最大距離)"
+L["The text to display when you are further than range limit"] = "超出距離限制範圍所顯示的文字\n(%d 為最小距離值)"
 L["The thickness of the border"] = "邊框粗細"
 L["Thick"] = "粗"
 L["Tile Background"] = "背景網格"
@@ -581,6 +557,5 @@ L["Use warning sound for enemy targets only"] = "只有目標是敵對時才播�
 L["Warning Sound"] = "警告音效"
 L["Warning Sound Name"] = "警告音效名稱"
 L["Width"] = "寬度"
-
 end
 

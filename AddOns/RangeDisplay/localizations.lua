@@ -17,7 +17,7 @@ L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55fRight
 
 L = AL:NewLocale(AppName, "deDE")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fStrg + Linksklick|r, um die Rahmen zu sperren"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fStrg + Linksklick|r, um die Rahmen zu sperren"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55fZiehen|r, um den Rahmen zu verschieben"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55fLinksklick|r, um die Rahmen fest- und freizusetzen"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55fRechtsklick|r, um das Konfigurationsfenster zu öffnen"
@@ -26,12 +26,11 @@ L["focus"] = "Fokus"
 L["mouseover"] = "Mouseover"
 L["pet"] = "Begleiter"
 L["playertarget"] = "Ziel"
-
 end
 
 L = AL:NewLocale(AppName, "esES")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = " |cffeda55fControl + Clic Izquierdo|r para bloquear los marcos"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = " |cffeda55fControl + Clic Izquierdo|r para bloquear los marcos"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55fArrastrar|r para mover el marco"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = " |cffeda55fClic Izquierdo|r para bloquear/desbloquear los marcos"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55fClic Derecho|r para abrir la ventana de configuración"
@@ -40,17 +39,16 @@ L["focus"] = "Foco"
 L["mouseover"] = "Sobre el raton"
 L["pet"] = "Mascota"
 L["playertarget"] = "Objetivo"
-
 end
 
 L = AL:NewLocale(AppName, "esMX")
 if L then
-
+--@localization(locale="esMX", format="lua_additive_table", handle-subnamespaces="none", namespace="", handle-unlocalized="ignore")@
 end
 
 L = AL:NewLocale(AppName, "frFR")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = " |cffeda55fCtrl + Clic gauche|r pour verrouiller"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = " |cffeda55fCtrl + Clic gauche|r pour verrouiller"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55fDrag|r pour déplacer"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = " |cffeda55fClic gauche|r pour verrouiller/déverrouiller les frames"
 L["|cffeda55fRight Click|r to open the configuration window"] = " |cffeda55fClic droit|r pour ouvrir la fenêtre de configuration"
@@ -59,12 +57,11 @@ L["focus"] = "Focus"
 L["mouseover"] = "Mouseover"
 L["pet"] = "Familier"
 L["playertarget"] = "Cible"
-
 end
 
 L = AL:NewLocale(AppName, "koKR")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl + 클릭|r 창 잠그기"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl + 클릭|r 창 잠그기"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55f끌기|r 프레임 이동"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55f클릭|r 창 잠금/해제"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55f오른쪽 클릭|r 설정 창 열기"
@@ -73,12 +70,11 @@ L["focus"] = "주시 대상"
 L["mouseover"] = "마우스오버"
 L["pet"] = "소환수"
 L["playertarget"] = "대상"
-
 end
 
 L = AL:NewLocale(AppName, "ruRU")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl + ЛКМ|r: закрепить фреймы"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl + ЛКМ|r: закрепить фреймы"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55fПеретащите|r, чтобы переместить фрейм"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55fЛКМ|r: закрепить/разблокировать фреймы"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55fПКМ|r: открыть настройки"
@@ -87,12 +83,11 @@ L["focus"] = "Фокус"
 L["mouseover"] = "Наведение"
 L["pet"] = "Питомец"
 L["playertarget"] = "Цель"
-
 end
 
 L = AL:NewLocale(AppName, "zhCN")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+点击|r锁定所有框架"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+点击|r锁定所有框架"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55f拖拽|r 移动位置"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55f点击|r锁定/解锁框架"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55f右击|r打开设置窗口"
@@ -101,12 +96,11 @@ L["focus"] = "焦点"
 L["mouseover"] = "鼠标悬停"
 L["pet"] = "宠物"
 L["playertarget"] = "目标"
-
 end
 
 L = AL:NewLocale(AppName, "zhTW")
 if L then
-L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+左鍵|r 鎖定所有框架"
+--L["|cffeda55fControl + Left Click|r to lock frames"] = "|cffeda55fCtrl+左鍵|r 鎖定所有框架"
 L["|cffeda55fDrag|r to move the frame"] = "|cffeda55f拖拽|r 移動位置"
 L["|cffeda55fLeft Click|r to lock/unlock frames"] = "|cffeda55f左鍵|r 鎖定/解鎖框架"
 L["|cffeda55fRight Click|r to open the configuration window"] = "|cffeda55f右鍵|r 開啟設定視窗"
@@ -115,6 +109,5 @@ L["focus"] = "專注目標"
 L["mouseover"] = "滑鼠目標"
 L["pet"] = "寵物"
 L["playertarget"] = "目標"
-
 end
 
