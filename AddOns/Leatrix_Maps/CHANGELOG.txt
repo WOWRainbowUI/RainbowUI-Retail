@@ -1,4 +1,7 @@
-﻿12.0.28 - 23rd July 2026
+﻿12.0.29 - 29th July 2026
+- PTR (12.1.0): The 'Show coordinates' option now requires a UI reload.  Enabling the option will now disable the default UI coordinates.
+
+12.0.28 - 23rd July 2026
 - PTR (12.1.0): Updated deprecated functions.
 
 12.0.27 - 15th July 2026
