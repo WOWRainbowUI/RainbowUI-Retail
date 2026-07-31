@@ -1,5 +1,5 @@
 ## Interface: 120005, 120007
-## Version: 13.0.0
+## Version: 13.0.1
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r
 ## Author: Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
@@ -32,5 +32,6 @@ Platform_Render.lua
 Realms.lua
 FriendGroups.lua
 Sync.lua
+Automation.lua
 EllesmereSkin.lua
 FriendGroups.xml
