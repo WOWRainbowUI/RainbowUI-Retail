@@ -1,8 +1,4 @@
-### Changes in 120000.145-Release:
+### Changes in 120000.146-Release:
 
-- Changed: Update Interface versions for retail
-- Changed: Update Interface versions for classic
-- Changed: Updated retail data
-- Changed: Updated classic data
-- Changed: Updated wrath data
+- Changed: Update Interface versions for wrath
 
