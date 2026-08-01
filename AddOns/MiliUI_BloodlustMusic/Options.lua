@@ -43,7 +43,7 @@ local function CreateSD(parent)
 end
 
 ----------------------------------------------------------------------
--- Preview helpers (Delegated back to BloodlustMusic.lua)
+-- Preview helpers (Delegated back to Music.lua)
 ----------------------------------------------------------------------
 
 
@@ -229,7 +229,7 @@ mainInfo:SetText("|cffffd100" .. L["SELECT_SUBCATEGORY"] .. "|r")
 
 local item1 = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 item1:SetPoint("TOPLEFT", mainInfo, "BOTTOMLEFT", 0, -12)
-item1:SetText("|cff00ff00" .. L["SETTINGS_MUSIC"] .. "|r")
+item1:SetText("• |cff00ff00" .. L["SETTINGS_MUSIC"] .. "|r")
 
 local item1Desc = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 item1Desc:SetPoint("LEFT", item1, "RIGHT", 8, 0)
@@ -237,7 +237,7 @@ item1Desc:SetText("- " .. L["MUSIC_DESC"])
 
 local item2 = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 item2:SetPoint("TOPLEFT", item1, "BOTTOMLEFT", 0, -8)
-item2:SetText("|cff00ff00" .. L["SETTINGS_BAR"] .. "|r")
+item2:SetText("• |cff00ff00" .. L["SETTINGS_BAR"] .. "|r")
 
 local item2Desc = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 item2Desc:SetPoint("LEFT", item1Desc, "LEFT", 0, 0)
@@ -246,7 +246,7 @@ item2Desc:SetText("- " .. L["BAR_DESC"])
 
 local item3 = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 item3:SetPoint("TOPLEFT", item2, "BOTTOMLEFT", 0, -8)
-item3:SetText("|cff00ff00" .. L["SETTINGS_REMINDER"] .. "|r")
+item3:SetText("• |cff00ff00" .. L["SETTINGS_REMINDER"] .. "|r")
 
 local item3Desc = mainPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 item3Desc:SetPoint("LEFT", item1Desc, "LEFT", 0, 0)
@@ -279,6 +279,14 @@ musicTitle:SetText(L["MUSIC_SETTINGS_TITLE"])
 local musicDesc = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 musicDesc:SetPoint("TOPLEFT", musicTitle, "BOTTOMLEFT", 0, -8)
 musicDesc:SetText(L["MUSIC_SETTINGS_DESC"])
+
+-- Forward declarations for track management
+local trackChecks = {}
+local trackPreviews = {}
+local trackEditBtns = {}
+local trackDelBtns = {}
+local RefreshTrackList
+local OpenTrackEditor
 
 -- Enable Music Checkbox
 local enableMusicCheck = CreateFrame("CheckButton", nil, musicPanel, "UICheckButtonTemplate")
@@ -336,8 +344,53 @@ local channelDesc = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlig
 channelDesc:SetPoint("LEFT", channelBtn, "RIGHT", 10, 0)
 channelDesc:SetText("- " .. L["CHANNEL_DESC"])
 
+-- Channel Volume Slider
+local CHANNEL_CVAR_MAP = {
+    Master = "Sound_MasterVolume",
+    SFX    = "Sound_SFXVolume",
+    Dialog = "Sound_DialogVolume",
+}
+
+local channelVolSlider = CreateFrame("Slider", "MiliUI_BLM_ChannelVolSlider", musicPanel, "OptionsSliderTemplate")
+channelVolSlider:SetPoint("TOPLEFT", channelBtn, "BOTTOMLEFT", 0, -20)
+channelVolSlider:SetWidth(200)
+channelVolSlider:SetMinMaxValues(0, 100)
+channelVolSlider:SetValueStep(1)
+channelVolSlider:SetObeyStepOnDrag(true)
+channelVolSlider.Low:SetText("0%")
+channelVolSlider.High:SetText("100%")
+channelVolSlider.Text:SetText("")
+channelVolSlider:SetValue(100)
+
+local channelVolUpdating = false  -- prevent feedback loop
+
+local function GetChannelCVar()
+    local d = GetDB()
+    local ch = (d and d.channel) or DEFAULT_CHANNEL
+    return CHANNEL_CVAR_MAP[ch] or "Sound_MasterVolume", ch
+end
+
+local function UpdateChannelVolSlider()
+    local cvar, ch = GetChannelCVar()
+    local vol = tonumber(GetCVar(cvar)) or 1
+    local pct = math.floor(vol * 100 + 0.5)
+    channelVolUpdating = true
+    channelVolSlider:SetValue(pct)
+    channelVolSlider.Text:SetText(ch .. " " .. (L["CHANNEL"] or "Volume") .. ": " .. pct .. "%")
+    channelVolUpdating = false
+end
+
+channelVolSlider:SetScript("OnValueChanged", function(self, value)
+    if channelVolUpdating then return end
+    local pct = math.floor(value)
+    local cvar, ch = GetChannelCVar()
+    SetCVar(cvar, pct / 100)
+    self.Text:SetText(ch .. " " .. (L["CHANNEL"] or "Volume") .. ": " .. pct .. "%")
+end)
+channelVolSlider:SetScript("OnShow", function() UpdateChannelVolSlider() end)
+
 local channelExplain = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-channelExplain:SetPoint("TOPLEFT", channelBtn, "BOTTOMLEFT", 2, -4)
+channelExplain:SetPoint("TOPLEFT", channelVolSlider, "BOTTOMLEFT", 2, -8)
 channelExplain:SetWidth(400)
 channelExplain:SetJustifyH("LEFT")
 channelExplain:SetText("|cff888888" .. L["CHANNEL_MASTER_DESC"] .. "|r")
@@ -353,6 +406,7 @@ local function UpdateChannelButton()
     else
         channelExplain:SetText("|cff888888" .. L["CHANNEL_SFX_DESC"] .. "|r")
     end
+    UpdateChannelVolSlider()
 end
 
 channelBtn:SetScript("OnShow", function() UpdateChannelButton() end)
@@ -368,76 +422,407 @@ channelBtn:SetScript("OnClick", function()
     UpdateChannelButton()
 end)
 
+-- Set DBM Voice to Dialog Button (soft-removed)
+-- local dbmVoiceBtn = CreateFrame("Button", nil, musicPanel, "UIPanelButtonTemplate")
+-- dbmVoiceBtn:SetSize(220, 28)
+-- dbmVoiceBtn:SetPoint("TOPLEFT", channelExplain, "BOTTOMLEFT", -2, -10)
+-- dbmVoiceBtn:SetText(L["SET_DBM_VOICE_DIALOG"])
+--
+-- local dbmVoiceBtnDesc = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+-- dbmVoiceBtnDesc:SetPoint("LEFT", dbmVoiceBtn, "RIGHT", 10, 0)
+-- dbmVoiceBtnDesc:SetText("")
+--
+-- local function UpdateDBMVoiceButton()
+--     if DBM and DBM.Options then
+--         local ch = DBM.Options.UseSoundChannel or "Master"
+--         if ch == "Dialog" then
+--             dbmVoiceBtn:SetEnabled(false)
+--             dbmVoiceBtnDesc:SetText("|cff00ff00" .. (L["SET_DBM_VOICE_DIALOG_DESC"] or "") .. "|r")
+--         else
+--             dbmVoiceBtn:SetEnabled(true)
+--             dbmVoiceBtnDesc:SetText("- " .. (L["SET_DBM_VOICE_DIALOG_DESC"] or ""))
+--         end
+--     else
+--         dbmVoiceBtn:SetEnabled(false)
+--         dbmVoiceBtnDesc:SetText("|cff888888DBM " .. (L["MSG_DBM_NOT_LOADED"] or "not loaded") .. "|r")
+--     end
+-- end
+--
+-- dbmVoiceBtn:SetScript("OnShow", function() UpdateDBMVoiceButton() end)
+-- dbmVoiceBtn:SetScript("OnClick", function()
+--     if not DBM or not DBM.Options then
+--         print(L["MSG_DBM_NOT_LOADED"])
+--         return
+--     end
+--     DBM.Options.UseSoundChannel = "Dialog"
+--     UpdateDBMVoiceButton()
+--     print(L["MSG_DBM_VOICE_DIALOG_SET"])
+-- end)
+
 -- Track List Header
 local trackHeader = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 trackHeader:SetPoint("TOPLEFT", channelExplain, "BOTTOMLEFT", -2, -12)
 trackHeader:SetText("|cffffd100" .. L["TRACK_ENABLED"] .. "|r")
 
--- Track List (checkboxes + preview buttons)
-local trackChecks = {}
-local trackPreviews = {}
+-- Track scrollable area (manual clip + scrollbar to avoid nested ScrollFrame issues)
+local TRACK_SCROLL_HEIGHT = 250
+local TRACK_CONTENT_WIDTH = 400
 
-local function RefreshTrackList()
+local trackScrollArea = CreateFrame("Frame", nil, musicPanel)
+trackScrollArea:SetPoint("TOPLEFT", trackHeader, "BOTTOMLEFT", 0, -2)
+trackScrollArea:SetSize(TRACK_CONTENT_WIDTH, TRACK_SCROLL_HEIGHT)
+trackScrollArea:SetClipsChildren(true)
+
+local trackScrollChild = CreateFrame("Frame", nil, trackScrollArea)
+trackScrollChild:SetPoint("TOPLEFT")
+trackScrollChild:SetWidth(TRACK_CONTENT_WIDTH)
+trackScrollChild:SetHeight(1)
+
+local trackScrollBar = CreateFrame("Slider", "MiliUI_BLM_TrackScrollBar", musicPanel)
+trackScrollBar:SetPoint("TOPLEFT", trackScrollArea, "TOPRIGHT", 10, 0)
+trackScrollBar:SetPoint("BOTTOMLEFT", trackScrollArea, "BOTTOMRIGHT", 10, 0)
+trackScrollBar:SetWidth(16)
+trackScrollBar:SetObeyStepOnDrag(true)
+
+local sbBg = trackScrollBar:CreateTexture(nil, "BACKGROUND")
+sbBg:SetAllPoints()
+sbBg:SetColorTexture(0, 0, 0, 0.3)
+
+local sbThumb = trackScrollBar:CreateTexture(nil, "OVERLAY")
+sbThumb:SetSize(16, 40)
+sbThumb:SetColorTexture(0.6, 0.6, 0.6, 0.6)
+trackScrollBar:SetThumbTexture(sbThumb)
+
+trackScrollBar:SetScript("OnValueChanged", function(self, value)
+    trackScrollChild:ClearAllPoints()
+    trackScrollChild:SetPoint("TOPLEFT", 0, value)
+end)
+trackScrollBar:SetMinMaxValues(0, 1)
+trackScrollBar:SetValueStep(1)
+trackScrollBar:SetValue(0)
+trackScrollBar:Hide()
+
+-- Add track button — right-aligned to scrollbar so it won't shift with locale/font
+local addTrackHint = musicPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+addTrackHint:SetPoint("RIGHT", trackScrollBar, "RIGHT", 0, 0)
+addTrackHint:SetPoint("TOP", trackHeader, "TOP", 0, 0)
+addTrackHint:SetText("|cffffd100" .. (L["ADD_TRACK_HINT"] or "Add custom track") .. "|r")
+
+local addTrackBtn = CreateFrame("Button", nil, musicPanel, "UIPanelButtonTemplate")
+addTrackBtn:SetSize(28, 22)
+addTrackBtn:SetPoint("RIGHT", addTrackHint, "LEFT", -4, 0)
+addTrackBtn:SetText("+")
+addTrackBtn:SetScript("OnClick", function() OpenTrackEditor(nil) end)
+
+trackScrollArea:EnableMouseWheel(true)
+trackScrollArea:SetScript("OnMouseWheel", function(self, delta)
+    local min, max = trackScrollBar:GetMinMaxValues()
+    local current = trackScrollBar:GetValue()
+    local step = 28
+    trackScrollBar:SetValue(math.max(min, math.min(max, current - delta * step)))
+end)
+
+local function UpdateTrackScroll()
+    local contentH = trackScrollChild:GetHeight()
+    local maxScroll = math.max(0, contentH - TRACK_SCROLL_HEIGHT)
+    trackScrollBar:SetMinMaxValues(0, maxScroll)
+    if maxScroll <= 0 then
+        trackScrollBar:Hide()
+        trackScrollBar:SetValue(0)
+    else
+        trackScrollBar:Show()
+        if trackScrollBar:GetValue() > maxScroll then
+            trackScrollBar:SetValue(maxScroll)
+        end
+    end
+end
+
+----------------------------------------------------------------------
+-- Track Editor Dialog (add / edit a custom track)
+----------------------------------------------------------------------
+local trackEditor
+
+local function EnsureTrackEditor()
+    if trackEditor then return trackEditor end
+    local f = CreateFrame("Frame", "MiliUI_BLM_TrackEditor", UIParent, "BackdropTemplate")
+    f:SetSize(560, 280)
+    f:SetPoint("CENTER")
+    f:SetFrameStrata("DIALOG")
+    f:SetToplevel(true)
+    f:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    f:EnableMouse(true)
+    f:SetMovable(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", f.StopMovingOrSizing)
+    f:SetScript("OnHide", function(self)
+        if self.nameBox then self.nameBox:ClearFocus() end
+        if self.fileBox then self.fileBox:ClearFocus() end
+    end)
+    f:Hide()
+
+    f.title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    f.title:SetPoint("TOP", 0, -14)
+
+    local nameLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    nameLabel:SetPoint("TOPLEFT", 20, -50)
+    nameLabel:SetText(L["TRACK_NAME"] or "Name")
+    nameLabel:SetWidth(80)
+    nameLabel:SetJustifyH("LEFT")
+
+    f.nameBox = CreateFrame("EditBox", "$parentNameBox", f, "InputBoxTemplate")
+    f.nameBox:SetSize(420, 22)
+    f.nameBox:SetPoint("LEFT", nameLabel, "RIGHT", 14, 0)
+    f.nameBox:SetAutoFocus(false)
+    f.nameBox:SetMaxLetters(80)
+
+    local fileLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    fileLabel:SetPoint("TOPLEFT", nameLabel, "BOTTOMLEFT", 0, -24)
+    fileLabel:SetText(L["TRACK_FILENAME"] or "Filename")
+    fileLabel:SetWidth(80)
+    fileLabel:SetJustifyH("LEFT")
+
+    f.fileBox = CreateFrame("EditBox", "$parentFileBox", f, "InputBoxTemplate")
+    f.fileBox:SetSize(420, 22)
+    f.fileBox:SetPoint("LEFT", fileLabel, "RIGHT", 14, 0)
+    f.fileBox:SetAutoFocus(false)
+    f.fileBox:SetMaxLetters(200)
+
+    local hint = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    hint:SetPoint("TOPLEFT", fileLabel, "BOTTOMLEFT", 0, -18)
+    hint:SetPoint("RIGHT", f, "RIGHT", -20, 0)
+    hint:SetJustifyH("LEFT")
+    hint:SetSpacing(2)
+    hint:SetWordWrap(true)
+    hint:SetNonSpaceWrap(true)
+    hint:SetText(L["TRACK_FILENAME_HINT"] or ("Place files in " .. ns.MUSIC_MEDIA_PREFIX))
+    hint:SetTextColor(1, 0.82, 0)
+
+    f.okBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    f.okBtn:SetSize(90, 24)
+    f.okBtn:SetPoint("BOTTOMRIGHT", -110, 14)
+    f.okBtn:SetText(OKAY)
+
+    f.cancelBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    f.cancelBtn:SetSize(90, 24)
+    f.cancelBtn:SetPoint("BOTTOMRIGHT", -14, 14)
+    f.cancelBtn:SetText(CANCEL)
+    f.cancelBtn:SetScript("OnClick", function() f:Hide() end)
+
+    -- Tab between fields
+    f.nameBox:SetScript("OnTabPressed", function() f.fileBox:SetFocus() end)
+    f.fileBox:SetScript("OnTabPressed", function() f.nameBox:SetFocus() end)
+    f.nameBox:SetScript("OnEnterPressed", function() f.fileBox:SetFocus() end)
+    f.fileBox:SetScript("OnEnterPressed", function() f.okBtn:Click() end)
+    f.nameBox:SetScript("OnEscapePressed", function() f:Hide() end)
+    f.fileBox:SetScript("OnEscapePressed", function() f:Hide() end)
+
+    trackEditor = f
+    return f
+end
+
+OpenTrackEditor = function(editIndex)
+    local f = EnsureTrackEditor()
     local d = GetDB()
-    local lastAnchor = trackHeader
+    d.customTracks = d.customTracks or {}
 
-    for i, track in ipairs(MUSIC_FILES) do
+    if editIndex then
+        local t = d.customTracks[editIndex]
+        f.title:SetText(L["TRACK_EDIT"] or "Edit Track")
+        f.nameBox:SetText((t and t.name) or "")
+        f.fileBox:SetText((t and t.filename) or "")
+    else
+        f.title:SetText(L["TRACK_ADD"] or "Add Track")
+        f.nameBox:SetText("")
+        f.fileBox:SetText("")
+    end
+
+    f.okBtn:SetScript("OnClick", function()
+        local nameStr = strtrim(f.nameBox:GetText() or "")
+        local fileStr = strtrim(f.fileBox:GetText() or "")
+        if fileStr == "" then
+            print(L["MSG_TRACK_NEED_FILENAME"] or "|cffff0000BloodlustMusic:|r Please enter a filename.")
+            return
+        end
+        if nameStr == "" then nameStr = fileStr end
+        local dd = GetDB()
+        dd.customTracks = dd.customTracks or {}
+        if editIndex then
+            local t = dd.customTracks[editIndex]
+            if t then
+                t.name = nameStr
+                t.filename = fileStr
+                if t.enabled == nil then t.enabled = true end
+            end
+        else
+            table.insert(dd.customTracks, { name = nameStr, filename = fileStr, enabled = true })
+        end
+        f:Hide()
+        if RefreshTrackList then RefreshTrackList() end
+    end)
+
+    f:Show()
+    f:Raise()
+    f.nameBox:SetFocus()
+end
+
+----------------------------------------------------------------------
+-- Delete Confirmation
+----------------------------------------------------------------------
+StaticPopupDialogs["MILIUI_BLM_DEL_TRACK"] = {
+    text = L["TRACK_DELETE_CONFIRM"] or "Delete track \"%s\"?",
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function(self, data)
+        if not data or not data.index then return end
+        local dd = GetDB()
+        if dd and dd.customTracks and dd.customTracks[data.index] then
+            table.remove(dd.customTracks, data.index)
+            if RefreshTrackList then RefreshTrackList() end
+        end
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+----------------------------------------------------------------------
+-- Build unified row list (built-in + custom)
+----------------------------------------------------------------------
+local function GetTrackRows()
+    local rows = {}
+    for i, t in ipairs(MUSIC_FILES) do
+        rows[#rows + 1] = { source = "builtin", index = i, name = t.name }
+    end
+    local d = GetDB()
+    if d and d.customTracks then
+        for i, t in ipairs(d.customTracks) do
+            local displayName = (t.name ~= nil and t.name ~= "") and t.name or (t.filename or "?")
+            rows[#rows + 1] = { source = "custom", index = i, name = displayName }
+        end
+    end
+    return rows
+end
+
+RefreshTrackList = function()
+    local d = GetDB()
+    local rows = GetTrackRows()
+    local y = 0
+    local ROW_HEIGHT = 28
+
+    for i, row in ipairs(rows) do
         local ck = trackChecks[i]
         if not ck then
-            ck = CreateFrame("CheckButton", nil, musicPanel, "UICheckButtonTemplate")
+            ck = CreateFrame("CheckButton", nil, trackScrollChild, "UICheckButtonTemplate")
             ck.Text = ck:CreateFontString(nil, "OVERLAY", "GameFontNormal")
             ck.Text:SetPoint("LEFT", ck, "RIGHT", 5, 0)
             trackChecks[i] = ck
         end
 
         ck:ClearAllPoints()
-        ck:SetPoint("TOPLEFT", lastAnchor, "BOTTOMLEFT", 0, -5)
-        ck.Text:SetText(track.name)
+        ck:SetPoint("TOPLEFT", trackScrollChild, "TOPLEFT", 0, -y)
+        ck.Text:SetText(row.name or "")
 
-        if d then
-            ck:SetChecked(d.trackEnabled[i] ~= false)
+        local isEnabled
+        if row.source == "builtin" then
+            isEnabled = d and d.trackEnabled[row.index] ~= false
+        else
+            local t = d and d.customTracks and d.customTracks[row.index]
+            isEnabled = t and t.enabled ~= false
         end
+        ck:SetChecked(isEnabled and true or false)
 
+        local rowSource, rowIndex = row.source, row.index
         ck:SetScript("OnClick", function(self)
-            local dd = GetDB()
-            if dd then dd.trackEnabled[i] = self:GetChecked() and true or false end
+            local dd = GetDB(); if not dd then return end
+            local on = self:GetChecked() and true or false
+            if rowSource == "builtin" then
+                dd.trackEnabled[rowIndex] = on
+            elseif dd.customTracks and dd.customTracks[rowIndex] then
+                dd.customTracks[rowIndex].enabled = on
+            end
         end)
         ck:Show()
 
         -- Preview button
         local pvBtn = trackPreviews[i]
         if not pvBtn then
-            pvBtn = CreateFrame("Button", nil, musicPanel, "UIPanelButtonTemplate")
+            pvBtn = CreateFrame("Button", nil, trackScrollChild, "UIPanelButtonTemplate")
             pvBtn:SetSize(60, 20)
             trackPreviews[i] = pvBtn
         end
-
         pvBtn:ClearAllPoints()
         pvBtn:SetPoint("LEFT", ck.Text, "RIGHT", 10, 0)
         pvBtn:SetText(L["PREVIEW"])
-
         pvBtn:SetScript("OnClick", function(self)
             if ns.IsPreviewPlaying() then
                 ns.StopPreview()
                 self:SetText(L["PREVIEW"])
-            else
-                ns.PreviewTrack(i)
+                return
+            end
+            local ok = ns.PreviewTrack(rowSource, rowIndex)
+            if ok then
                 self:SetText(L["STOP_PREVIEW"])
                 C_Timer.After(41, function()
                     if not ns.IsPreviewPlaying() then self:SetText(L["PREVIEW"]) end
                 end)
+            else
+                print(L["MSG_PREVIEW_FAIL"] or "|cffff0000BloodlustMusic:|r Failed to play file — check filename in Media folder.")
             end
         end)
         pvBtn:Show()
 
-        lastAnchor = ck
+        -- Edit & Delete buttons (custom only)
+        local editBtn = trackEditBtns[i]
+        local delBtn = trackDelBtns[i]
+        if row.source == "custom" then
+            if not editBtn then
+                editBtn = CreateFrame("Button", nil, trackScrollChild, "UIPanelButtonTemplate")
+                editBtn:SetSize(50, 20)
+                trackEditBtns[i] = editBtn
+            end
+            editBtn:ClearAllPoints()
+            editBtn:SetPoint("LEFT", pvBtn, "RIGHT", 4, 0)
+            editBtn:SetText(L["TRACK_EDIT_SHORT"] or "Edit")
+            editBtn:SetScript("OnClick", function() OpenTrackEditor(rowIndex) end)
+            editBtn:Show()
+
+            if not delBtn then
+                delBtn = CreateFrame("Button", nil, trackScrollChild, "UIPanelButtonTemplate")
+                delBtn:SetSize(24, 20)
+                trackDelBtns[i] = delBtn
+            end
+            delBtn:ClearAllPoints()
+            delBtn:SetPoint("LEFT", editBtn, "RIGHT", 4, 0)
+            delBtn:SetText("x")
+            delBtn:SetScript("OnClick", function()
+                StaticPopup_Show("MILIUI_BLM_DEL_TRACK", row.name or "", nil, { index = rowIndex })
+            end)
+            delBtn:Show()
+        else
+            if editBtn then editBtn:Hide() end
+            if delBtn then delBtn:Hide() end
+        end
+
+        y = y + ROW_HEIGHT
     end
 
-    -- Hide extra
-    for i = #MUSIC_FILES + 1, #trackChecks do
-        trackChecks[i]:Hide()
+    -- Hide extras
+    for i = #rows + 1, #trackChecks do
+        if trackChecks[i] then trackChecks[i]:Hide() end
         if trackPreviews[i] then trackPreviews[i]:Hide() end
+        if trackEditBtns[i] then trackEditBtns[i]:Hide() end
+        if trackDelBtns[i] then trackDelBtns[i]:Hide() end
     end
+
+    trackScrollChild:SetHeight(math.max(y, 1))
+    UpdateTrackScroll()
 end
 
 local function ForceShowTrackList()
@@ -450,6 +835,7 @@ musicPanel:SetScript("OnShow", function()
     RefreshTrackList()
     UpdatePlayModeButton()
     UpdateChannelButton()
+    -- UpdateDBMVoiceButton()  -- soft-removed
     if db then enableMusicCheck:SetChecked(db.musicEnabled) end
     ForceShowTrackList()
 
@@ -459,6 +845,7 @@ musicPanel:SetScript("OnShow", function()
             RefreshTrackList()
             UpdatePlayModeButton()
             UpdateChannelButton()
+            -- UpdateDBMVoiceButton()  -- soft-removed
             if db then enableMusicCheck:SetChecked(db.musicEnabled) end
             ForceShowTrackList()
         end

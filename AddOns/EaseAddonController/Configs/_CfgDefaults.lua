@@ -1254,11 +1254,7 @@ D["MiliUI_BloodlustMusic"] = {
     },
 	{
 		type = "text",
-		text = "更換音樂: 將自己的 mp3 檔案放到 AddOns > MiliUI_BloodlustMusic > Media 資料夾內，改名為 music.mp3 替換掉原有的檔案。",
-	},
-	{
-		type = "text",
-		text = "多首音樂: 將多個 mp3 檔案放到和上述相同的 Media 資料夾內，用記事本編輯 AddOns > MiliUI_BloodlustMusic > BloodlustMusic.lua，將第 40 行複製貼上多次，修改每一個 .mp3 的檔案名稱，符合你放入的檔案名稱即可。",
+		text = "更換音樂: 將自己的 mp3 檔案放到 AddOns > MiliUI_BloodlustMusic > Media 資料夾內。|n|n然後回到遊戲內，打開米利嗜血音樂的設定選項 > 音樂設定 > 新增自訂曲目，可以新增多首音樂。",
 	},
 	{
 		type = "text",
