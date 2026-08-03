@@ -1,8 +1,8 @@
-## Interface: 38001, 30405
+## Interface: 38002
 
 ## Title: Clique
 ## Author: Cladhaire
-## Version: v5.0.13-release
+## Version: v5.0.14-release
 ## Notes: Simply powerful click-casting interface
 ## Notes-ruRU: Простой и мощный интерфейс для привязки заклинаний к щелчку мыши.
 ## IconTexture: Interface\AddOns\Clique\images\icon_square_64.tga
