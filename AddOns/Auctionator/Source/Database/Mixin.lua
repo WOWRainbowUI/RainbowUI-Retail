@@ -97,33 +97,50 @@ function Auctionator.DatabaseMixin:GetFirstPrice(dbKeys)
   return nil
 end
 
+local PROCESS_STEP = 350
+
 --Takes all the items with a list of their prices, and determines the minimum
 --price.
-function Auctionator.DatabaseMixin:ProcessScan(itemIndexes)
+function Auctionator.DatabaseMixin:ProcessScan(itemIndexes, callback)
+  if self.ticker then
+    self.ticker:Cancel()
+  end
+
   Auctionator.Debug.Message("Auctionator.DatabaseMixin.ProcessScan")
   local startTime = debugprofilestop()
 
   local count = 0
+  local keys = GetKeysArray(itemIndexes)
+  local index = 1
 
-  local summarised = {}
-  for dbKey, info in pairs(itemIndexes) do
-    count = count + 1
+  self.ticker = C_Timer.NewTicker(0, function()
+    for i = index, math.min(index + PROCESS_STEP, #keys) do
+      local dbKey = keys[i]
+      local info = itemIndexes[dbKey]
+      count = count + 1
 
-    local minPrice = info[1].price
-    local available = 0
+      local minPrice = info[1].price
+      local available = 0
 
-    for i = 1, #info do
-      available = available + info[i].available
-      if info[i].price < minPrice then
-        minPrice = info[i].price
+      for j = 1, #info do
+        available = available + info[j].available
+        if info[j].price < minPrice then
+          minPrice = info[j].price
+        end
       end
+
+      self:SetPrice(dbKey, minPrice, available)
     end
 
-    self:SetPrice(dbKey, minPrice, available)
-  end
-
-  Auctionator.Debug.Message("Auctionator.DatabaseMixin: Processing time: " .. tostring(debugprofilestop() - startTime))
-  return count
+    index = index + PROCESS_STEP
+    if index > #keys then
+      self.ticker:Cancel()
+      if callback then
+        callback(count)
+      end
+      Auctionator.Debug.Message("Auctionator.DatabaseMixin: Processing time: " .. tostring(debugprofilestop() - startTime))
+    end
+  end)
 end
 
 function Auctionator.DatabaseMixin:GetItemCount()
