@@ -776,25 +776,21 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
         else
           local prefix = text:match("^BGR!1!")
           if not prefix then
-            print("2")
             addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
             return
           end
           local status, decoded = pcall(C_EncodingUtil.DecodeBase64, text:sub(7))
           if not status then
-            print("3")
             addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
             return
           end
           local status, decompressed = pcall(C_EncodingUtil.DecompressString, decoded)
           if not status then
-            print("4")
             addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
             return
           end
           status, import = pcall(C_EncodingUtil.DeserializeCBOR, decompressed)
           if not status or type(import) ~= "table" or import.addon ~= "Baganator" then
-            print("5")
             addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
             return
           end
