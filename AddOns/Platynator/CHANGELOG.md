@@ -1,8 +1,8 @@
 # Platynator
 
-## [448](https://github.com/TheMouseNest/Platynator/tree/448) (2026-07-24)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/447...448) 
+## [449](https://github.com/TheMouseNest/Platynator/tree/449) (2026-07-31)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/448...449) 
 
-- Retail: Fix auras persisting on interact-only nameplates  
-- Fix auras initialization skipping settings if aura restricted on startup  
-- 12.1 PTR: Fixes for API renames  
+- Fix typo for detecting specialisation changes  
+- Fix wrong candidate filters due to them getting overwritten  
+- 12.1 PTR ONLY: Add spell ID filters for debuffs, buffs and cc  

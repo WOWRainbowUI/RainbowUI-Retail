@@ -504,12 +504,15 @@ function addonTable.CustomiseDialog.GetCurrentDesign()
 end
 
 local TabSetups = {
-  {callback = SetupGeneral, name = addonTable.Locales.GENERAL},
-  {callback = addonTable.CustomiseDialog.GetMainDesigner, name = addonTable.Locales.DESIGNER},
-  {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT, restricted = true},
-  {callback = addonTable.CustomiseDialog.GetBehaviour, name = addonTable.Locales.BEHAVIOUR},
-  {callback = SetupFont, name = addonTable.Locales.FONT},
+  {callback = SetupGeneral, name = addonTable.Locales.GENERAL, include = true},
+  {callback = addonTable.CustomiseDialog.GetMainDesigner, name = addonTable.Locales.DESIGNER, include = true},
+  {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT, restricted = true, include = true},
+  {callback = addonTable.CustomiseDialog.GetBehaviour, name = addonTable.Locales.BEHAVIOUR, include = true},
+  {callback = addonTable.CustomiseDialog.GetAuraFilters, name = addonTable.Locales.AURAS, include = addonTable.Constants.IsMidnightNext},
+  {callback = SetupFont, name = addonTable.Locales.FONT, include = true},
 }
+
+TabSetups = tFilter(TabSetups, function(a) return a.include end,  true)
 
 function addonTable.CustomiseDialog.Toggle()
   if customisers[addonTable.Config.Get(addonTable.Config.Options.CURRENT_SKIN)] then
