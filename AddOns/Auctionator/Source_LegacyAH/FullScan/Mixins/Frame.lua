@@ -83,7 +83,7 @@ function AuctionatorFullScanFrameMixin:CacheScanData()
 
   self:ProcessBatch(
     0,
-    250,
+    150,
     self.waitingForData
   )
 end
@@ -102,7 +102,7 @@ function AuctionatorFullScanFrameMixin:ProcessBatch(startIndex, stepSize, limit)
   -- 20-100% complete when 0-100% through caching the scan
   Auctionator.EventBus:Fire(self,
     Auctionator.FullScan.Events.ScanProgress,
-    0.2 + startIndex/limit*0.8
+    math.floor((0.2 + startIndex/limit*0.8) * 100) / 100
   )
 
   Auctionator.Debug.Message("AuctionatorFullScanFrameMixin:ProcessBatch (links)", startIndex, stepSize, limit)
@@ -197,42 +197,54 @@ local function GetInfo(auctionInfo)
   return math.ceil(effectivePrice), available
 end
 
+local PROCESS_STEP = 500
 
-local function MergeInfo(scanData, dbKeysMapping)
+local function MergeInfo(scanData, dbKeysMapping, callback)
   local allInfo = {}
-  local index = 0
 
-  for index = 1, #scanData do
-    local effectivePrice, available = GetInfo(scanData[index].auctionInfo)
+  local index = 1
+  local ticker
+  ticker = C_Timer.NewTicker(0, function()
+    for i = index, math.min(index + PROCESS_STEP, #scanData) do
+      local effectivePrice, available = GetInfo(scanData[i].auctionInfo)
 
-    -- available > 0 check just in case Blizzard returns 0 available it
-    -- occasionally does on retail and breaking the effectivePrice from GetInfo
-    if available > 0 and effectivePrice ~= 0 then
-      for _, dbKey in ipairs(dbKeysMapping[index]) do
-        if allInfo[dbKey] == nil then
-          allInfo[dbKey] = {}
+      -- available > 0 check just in case Blizzard returns 0 available it
+      -- occasionally does on retail and breaking the effectivePrice from GetInfo
+      if available > 0 and effectivePrice ~= 0 then
+        for _, dbKey in ipairs(dbKeysMapping[i]) do
+          if allInfo[dbKey] == nil then
+            allInfo[dbKey] = {}
+          end
+
+          table.insert(allInfo[dbKey],
+            { price = effectivePrice, available = available }
+          )
         end
-
-        table.insert(allInfo[dbKey],
-          { price = effectivePrice, available = available }
-        )
       end
     end
-  end
 
-  return allInfo
+    index = index + PROCESS_STEP
+
+    if index > #scanData then
+      ticker:Cancel()
+      callback(allInfo)
+    end
+  end)
 end
 
 function AuctionatorFullScanFrameMixin:EndProcessing()
   local rawFullScan = self.scanData
 
-  local count = Auctionator.Database:ProcessScan(MergeInfo(self.scanData, self.dbKeysMapping))
-  Auctionator.Utilities.Message(AUCTIONATOR_L_FINISHED_PROCESSING:format(count))
+  MergeInfo(self.scanData, self.dbKeysMapping, function(allInfo)
+    Auctionator.EventBus:Fire(self, Auctionator.FullScan.Events.ScanProgress, 0.99)
+    Auctionator.Database:ProcessScan(allInfo, function(count)
+      Auctionator.EventBus:Fire(self, Auctionator.FullScan.Events.ScanComplete, rawFullScan)
+      Auctionator.Utilities.Message(AUCTIONATOR_L_FINISHED_PROCESSING:format(count))
+    end)
+  end)
 
   self.inProgress = false
   self:ResetData()
 
   self:UnregisterForEvents()
-
-  Auctionator.EventBus:Fire(self, Auctionator.FullScan.Events.ScanComplete, rawFullScan)
 end

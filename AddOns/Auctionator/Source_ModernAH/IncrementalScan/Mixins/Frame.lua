@@ -132,18 +132,23 @@ function AuctionatorIncrementalScanFrameMixin:NextStep()
   if self.doingFullScan and not Auctionator.AH.HasFullBrowseResults() then
     Auctionator.AH.RequestMoreBrowseResults()
   else
-    local count = Auctionator.Database:ProcessScan(self.info)
     local rawScan = self.rawScan
+    local info = self.info
+    local doingFullScan = self.doingFullScan
 
-    self.info = {} --Already processed, so clear
+    self.info = {}
     self.rawScan = {}
+    self.doingFullScan = false
 
-    if self.doingFullScan then
-      Auctionator.Utilities.Message(AUCTIONATOR_L_FINISHED_PROCESSING:format(count))
-      self.doingFullScan = false
-
-      Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.ScanComplete, rawScan)
+    if doingFullScan then
+      Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.ScanProgress, 0.99)
     end
-    Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.PricesProcessed)
+    Auctionator.Database:ProcessScan(info, function(count)
+      if doingFullScan then
+        Auctionator.Utilities.Message(AUCTIONATOR_L_FINISHED_PROCESSING:format(count))
+        Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.ScanComplete, rawScan)
+      end
+      Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.PricesProcessed)
+    end)
   end
 end
