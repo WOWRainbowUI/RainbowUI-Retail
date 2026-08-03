@@ -130,6 +130,8 @@ kDefaultShapeSize = math.floor( (kDefaultShadowSize*0.74) + 0.5 )
 kScreenTopFourthMult = 1.015
 kScreenBottomFourthMult = 1.077
 
+kScreenScaleDoubleCheckDelay = 0.5 -- seconds
+
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
@@ -179,19 +181,6 @@ kNewModels =  -- For flagging new models in the dropdown list.
 --~     [166054]=1, [166594]=1, [166453]=1, [166316]=1, [166334]=1, [166338]=1,
 --~     [166543]=1, [166566]=1,
 }
-
---:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
---[[                       Switches                                          ]]
---:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-----kEditBaseValues = true  -- Set to true so arrow keys change base offsets and step size while UI is up.  (Developers only!)
-                        -- Arrow keys (no modifier key) change BaseOfsX and BaseOfsY.
-                        -- Alt causes arrow keys to change BaseStepX and BaseStepY.
-                        -- Shift decrease the amount of change each arrow key press.
-                        -- Ctrl increase the amount of change each arrow key press.
-                        -- When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
-----kShadowStrataMatchesMain = true  -- Set to true if you want shadow at same level as the trail effect.
-----kShowColorPickerOpacity = true  -- Set to true to show the opacity slider in the color picker window.
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Variables                                         ]]
@@ -421,8 +410,9 @@ gLayers =
 -------------------------------------------------------------------------------
 kGameFrame = UIParent
 function getScreenScaledSize()
+    ----assert(kGameFrame == Globals.UIParent)
     local uiScale = kGameFrame:GetEffectiveScale()  -- i.e. getScreenScale()
-    ----print("uiScale:", round(uiScale,4), "  GetCVar(uiScale):", round(GetCVar("uiScale"),4))
+    ----print("gsss> uiScale:", round(uiScale,4), "  GetCVar(uiScale):", round(GetCVar("uiScale"),4))
     --uiScale = GetCVar("uiScale"); kGameFrame:SetScale(uiScale) --<<< Fixes problems with UIScale.  Safe to do?
 
     local w, h = kGameFrame:GetSize()  -- i.e. getScreenSize()
@@ -441,11 +431,20 @@ function updateScreenVars()
     local oldW, oldH, oldScale = ScreenW, ScreenH, ScreenScale
     ScreenW, ScreenH, ScreenMidX, ScreenMidY, ScreenScale, ScreenHypotenuse = getScreenScaledSize()
     ScreenFourthH = ScreenH * 0.25  -- 1/4th screen height.
-    ----print("ScreenScale:", round(ScreenScale,4), " GetCVar(uiScale):", GetCVar("uiScale"), " ScreenW:", round(ScreenW,1), " ScreenH:", round(ScreenH,1))
+    ----print("usv> ScreenScale:", round(ScreenScale,4), " GetCVar(uiScale):", GetCVar("uiScale"), " ScreenW:", round(ScreenW,1), " ScreenH:", round(ScreenH,1))
     if ScreenW == oldW and ScreenH == oldH and ScreenScale == oldScale then
         return false  -- Variables did not change.
     end
     return true  -- Screen size and/or scale changed.
+end
+
+-------------------------------------------------------------------------------
+function updateScreenVarsAndReload()
+    local bChanged = updateScreenVars()
+    if bChanged and gLayers[1] then
+        CursorTrail_Load()  -- Reload the cursor models to apply the new display size.
+    end
+    return bChanged
 end
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -852,15 +851,15 @@ end)
 --~     end
 --~ end
 
---~ -------------------------------------------------------------------------------
---~ EventFrame:RegisterEvent("CVAR_UPDATE")
---~ function       EventFrame:CVAR_UPDATE(varName, varValue)
---~     ----dbg("CVAR_UPDATE("..(varName or "nil")..", "..(varValue or "nil")..")")
---~     if (varName and varName == "uiScale") then
---~         ----dbg("*** Calling updateScreenVars() ***")
---~         updateScreenVars()
---~     end
---~ end
+-------------------------------------------------------------------------------
+EventFrame:RegisterEvent("CVAR_UPDATE")
+function       EventFrame:CVAR_UPDATE(varName, varValue)
+    ----dbg("CVAR_UPDATE("..(varName or "nil")..", "..(varValue or "nil")..")")
+    if (varName and varName == "uiScale") then
+        ----dbg("CVar 'uiScale' changed.  Calling updateScreenVarsAndReload().")
+        C_Timer.After(kScreenScaleDoubleCheckDelay, updateScreenVarsAndReload)  -- Fixes problems caused by other addons changing screen scale after we used it.
+    end
+end
 
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
@@ -910,11 +909,8 @@ end
 EventFrame:RegisterEvent("UI_SCALE_CHANGED")
 function       EventFrame:UI_SCALE_CHANGED()
     ----dbg("UI_SCALE_CHANGED")
-    updateScreenVars()
-    if gLayers[1] then
-        CursorTrail_Load()  -- Reload the cursor models to apply the new UI scale.
-    end
-    if centerFrame then  -- This is a development tool for sizing shapes and models.
+    updateScreenVarsAndReload()
+    if centerFrame then  -- This frame is a development tool for sizing shapes and models.
         centerFrame:updateSize()
     end
 end
@@ -923,17 +919,14 @@ end
 EventFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
 function       EventFrame:DISPLAY_SIZE_CHANGED()
     ----dbg("DISPLAY_SIZE_CHANGED")
-    if updateScreenVars() and gLayers[1] then
-        CursorTrail_Load()  -- Reload the cursor models to apply the new display size.
-    end
+    updateScreenVarsAndReload()
 end
 
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function       EventFrame:LOADING_SCREEN_DISABLED()
-    if updateScreenVars() and gLayers[1] then
-        CursorTrail_Load()  -- Reload the cursor models to apply the new display size.
-    end
+    updateScreenVarsAndReload()
+    C_Timer.After(kScreenScaleDoubleCheckDelay, updateScreenVarsAndReload)  -- Fixes problems caused by other addons changing screen scale after we used it.
 end
 
 -----------------------------------------------------------------------------------
@@ -1174,7 +1167,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             -- Follow mouse cursor.
             --_________________________________________________
             if bMouseMoved then
-                -- Cursor position changed.  Keep model position in sync with it.
+                -- Cursor position changed.  Keep FX position in sync with it.
 
                 -- Is mouse over options window or color picker?
                 if bOptionsShown then

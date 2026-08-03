@@ -8,6 +8,21 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.7.4
+Released 2026-07-31
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.7.4 for Retail WoW
+Version 5.5.4.4 for Classic Mists of Pandaria
+Version 2.5.6.3 for Classic Burning Crusade
+Version 1.15.9.3 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Fixed FX not following the mouse cursor correctly when using addons that change the game's UI scale below the normal minimum (65%).  (Tested using the "UIScale" addon.)
+- In the help text, updated a troubleshooting tip about other addons changing UI scale.
+- Minor change to how internal development switches are defined (for slightly better performance).
+- Changed profile menu item text from "Undo" to "Undo Changes".
+
+=======================================
 RELEASE 12.0.7.3
 Released 2026-07-27
 

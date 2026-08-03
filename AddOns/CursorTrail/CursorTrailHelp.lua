@@ -127,7 +127,7 @@ kHelpText_Troubleshooting = [[
 
 - If the cursor FX unexpectedly disappear, you can quickly get them back by typing "/ct reload".
 
-- If shapes and shadows do not follow the mouse cursor properly, and you are using an addon to change the game's UI scale below the normal minimum (64%), type "/ct reload" (or do a normal game reload) so CursorTrail uses the new scale value.
+- If shapes and shadows do not follow the mouse cursor properly and you are using an addon to change the game's UI scale below the normal minimum (65%), type "/ct reload" so CursorTrail uses the new scale value.
 
 - If you use the CTMod addon, it has the same slash command (/ct) and only one addon will open.
 If CTMod always opens when you type /ct, use /cursortrail to open CursorTrail.

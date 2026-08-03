@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2025-10-10"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2026-07-31"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -177,6 +177,9 @@ local PROFILESUI_VERSION = "2025-10-10"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Jul 31, 2026
+        - Changed profile menu item text for "Undo" to "Undo Changes".
+
     Oct 10, 2025
         - Increased the editbox width in the Save and Rename popup windows.
 
