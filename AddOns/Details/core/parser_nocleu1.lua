@@ -312,12 +312,14 @@ local getArenaPlayers = function(damageContainer)
         local actor = damageContainer[i]
         if (not actor.specIconID) then
             local className = actor.classFilename
-            --convert the first two letters of the class name to numbers in the ascii
-            local classNumber = 0
-            for j = 1, 2 do
-                classNumber = classNumber + string.byte(className, j)
+            if className and type(className) == "string" and className ~= "" then
+                local classNumber = 0
+                --convert the first two letters of the class name to numbers in the ascii
+                for j = 1, 2 do
+                    classNumber = classNumber + string.byte(className, j)
+                end
+                detailsFramework.table.addunique(theseArenaPlayers, classNumber)
             end
-            detailsFramework.table.addunique(theseArenaPlayers, classNumber)
         else
             detailsFramework.table.addunique(theseArenaPlayers, actor.specIconID)
         end
