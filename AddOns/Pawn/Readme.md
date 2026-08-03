@@ -84,6 +84,10 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 
 ## Updates
 
+### Version 2.13.14
+
+* Fixed a rare bug in 2.13.12 that might have caused an error to occur when hovering over an item with no stats. (Possibly only when using Bagnon?)
+
 ### Version 2.13.13
 
 * Midnight: Additional changes to hide "secret taint" errors.

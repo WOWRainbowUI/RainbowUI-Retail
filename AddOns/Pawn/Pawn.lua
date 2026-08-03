@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1313
+PawnVersion = 2.1314
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -1402,7 +1402,7 @@ function PawnGetItemData(ItemLink)
 			end
 		end
 
-		if Item.Stats.ItemLevel then
+		if Item.Stats and Item.Stats.ItemLevel then
 			-- Tons of versions of the game 6.x+ have various bugs in the item info APIs relating to item levels, but tooltips are always right. So if we read the item level from the tooltip, always prefer that.
 			if Item.Level ~= Item.Stats.ItemLevel then
 				PawnDebugMessage(format(ITEM_LEVEL, Item.Level) .. " -> " .. Item.Stats.ItemLevel)
