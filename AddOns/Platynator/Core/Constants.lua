@@ -49,6 +49,7 @@ addonTable.Constants.Events = {
   "MouseoverUpdate",
 
   "RoleChange",
+  "SpecializationChanged",
   "EncounterUpdate",
   "PowerChange",
 

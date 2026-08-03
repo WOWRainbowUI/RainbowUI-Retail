@@ -434,7 +434,8 @@ do
   local role = roleType.Damage
   local isTank = false
   local rangeLimit = 0
-  local lastSpecialization = 0
+  local lastSpecializationIndex = 0
+  local specializationID = 0
   local harmChecker
   local _, playerClass = UnitClass("player")
 
@@ -462,8 +463,7 @@ do
         return roleType.Tank
       end
     else
-      local specIndex = C_SpecializationInfo.GetSpecialization()
-      local _, _, _, _, role = C_SpecializationInfo.GetSpecializationInfo(specIndex)
+      local _, _, _, _, role = C_SpecializationInfo.GetSpecializationInfo(lastSpecializationIndex)
 
       return roleMap[role]
     end
@@ -474,10 +474,7 @@ do
     if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath then
       rangeLimit = addonTable.Constants.DefaultRange[playerClass]
     else
-      local specIndex = C_SpecializationInfo.GetSpecialization() or lastSpecialization
-      lastSpecialization = specIndex
-      local specID = C_SpecializationInfo.GetSpecializationInfo(specIndex)
-      rangeLimit = addonTable.Constants.DefaultRange[specID]
+      rangeLimit = addonTable.Constants.DefaultRange[specializationID]
       for spellID, range in pairs(addonTable.Constants.RangeModifier) do
         if C_SpellBook.IsSpellKnown(spellID) then
           rangeLimit = range
@@ -486,6 +483,17 @@ do
       end
     end
     harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange)
+  end
+
+  local function UpdateAuraFilters()
+    local allFilters = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)
+    if not allFilters[specializationID] then
+      allFilters[specializationID] = {
+        buffs = { include = {}, exclude = {} },
+        debuffs = { include = {}, exclude = {} },
+        crowdControl = { include = {}, exclude = {} },
+      }
+    end
   end
 
   do
@@ -504,7 +512,19 @@ do
     specializationMonitor:RegisterEvent("SPELLS_CHANGED")
 
     specializationMonitor:SetScript("OnEvent", function(_, e)
+      if not (addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath) then
+        local specIndex = C_SpecializationInfo.GetSpecialization() or lastSpecializationIndex
+        local hasChanged = specIndex ~= lastSpecializationIndex
+        lastSpecializationIndex = specIndex
+        specializationID = C_SpecializationInfo.GetSpecializationInfo(specIndex)
+        if hasChanged then
+          addonTable.CallbackRegistry:TriggerEvent("SpecializationChanged")
+        end
+      end
+
       AssignRange()
+      UpdateAuraFilters()
+
       if e ~= "SPELLS_CHANGED" then
         local newRole = GetPlayerRole()
         if newRole ~= role then
@@ -526,6 +546,19 @@ do
 
   function addonTable.Display.Utilities.GetRangeChecker()
     return harmChecker
+  end
+
+  function addonTable.Display.Utilities.GetSpecializationID()
+    if specializationID == 0 then
+      local specIndex = C_SpecializationInfo.GetSpecialization() or lastSpecializationIndex
+      lastSpecializationIndex = specIndex
+      specializationID = C_SpecializationInfo.GetSpecializationInfo(specIndex)
+      UpdateAuraFilters()
+
+      return specializationID
+    else
+      return specializationID
+    end
   end
 end
 

@@ -164,6 +164,27 @@ local anchorMap = {
   RIGHT = "TOPLEFT",
 }
 
+local function ProcessSpells(kind)
+  local settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+
+  local include = {}
+  local exclude = {}
+
+  for spellID, priority in pairs(settings.include) do
+    exclude[spellID] = true
+    if not include[priority] then
+      include[priority] = {}
+    end
+    include[priority][spellID] = true
+  end
+
+  for spellID in pairs(settings.exclude) do
+    exclude[spellID] = true
+  end
+
+  return include, exclude
+end
+
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails)
   self.buffs:ClearAllPoints()
   self.debuffs:ClearAllPoints()
@@ -176,6 +197,11 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   if not self.addedGroups then
     self.addedGroups = true
 
+    for i = 1, 2 do
+      self.crowdControl:AddAuraGroup(tostring(i), "HARMFUL", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
+      self.buffs:AddAuraGroup(tostring(i), "HELPFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+      self.debuffs:AddAuraGroup(tostring(i), "HARMFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+    end
     self.crowdControl:AddAuraGroup("ALL", "HARMFUL|CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
     self.crowdControl:AddAuraGroup("PLAYER_ONLY", "HARMFUL|CROWD_CONTROL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
 
@@ -198,6 +224,10 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     }})
     self.debuffs:AddAuraGroup("ALL_PLAYER", "HARMFUL|PLAYER|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
     self.debuffs:AddAuraGroup("ALL", "HARMFUL|!CROWD_CONTROL", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
+
+    self.crowdControl:AddAuraGroup("3", "HARMFUL", {initializeFrame = GetAurasInitializerModern(self.crowdControl)})
+    self.buffs:AddAuraGroup("3", "HELPFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.buffs)})
+    self.debuffs:AddAuraGroup("3", "HARMFUL|PLAYER", {initializeFrame = GetAurasInitializerModern(self.debuffs)})
   end
 
 
@@ -207,6 +237,9 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self.crowdControl:SetPoint(directionMap[auraDetails.crowdControl.direction])
     self.crowdControl:SetFlowLayoutAnchorPoint(anchorMap[auraDetails.crowdControl.direction])
     local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * auraDetails.crowdControl.padding, self.crowdControl)
+
+    local include, exclude = ProcessSpells("buffs")
+
     if auraDetails.crowdControl.filters.fromYou then
       self.crowdControl:SetAuraGroupMaxFrameCount("ALL", 0)
       self.crowdControl:SetAuraGroupMaxFrameCount("PLAYER_ONLY", auraDetails.crowdControl.limit)
@@ -216,6 +249,14 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     end
     self.crowdControl:SetAuraGroupLayout("ALL", {elementSpacingX = padding, elementSpacingY = padding})
     self.crowdControl:SetAuraGroupLayout("PLAYER_ONLY", {elementSpacingX = padding, elementSpacingY = padding})
+    self.crowdControl:SetAuraGroupCandidateFilters("ALL", {excludeSpellIDs = exclude})
+    self.crowdControl:SetAuraGroupCandidateFilters("PLAYER_ONLY", {excludeSpellIDs = exclude})
+
+    for i = 1, 3 do
+      self.crowdControl:SetAuraGroupCandidateFilters(tostring(i), {includeSpellIDs = include[i] or {}})
+    end
+
+
     if not addonTable.Utilities.IsChangesRestricted() then
       for _, f in ipairs(self.crowdControl.frames) do
         addonTable.Display.StyleAura(f, auraDetails.crowdControl)
@@ -262,10 +303,18 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
         setup.ALL = auraDetails.debuffs.limit
       end
     end
+
+    local include, exclude = ProcessSpells("debuffs")
     for key, count in pairs(setup) do
       self.debuffs:SetAuraGroupMaxFrameCount(key, count)
       self.debuffs:SetAuraGroupLayout(key, {elementSpacingX = padding, elementSpacingY = padding})
+      self.debuffs:SetAuraGroupCandidateFilters(key, {excludeSpellIDs = exclude, nameplateShowPersonal = key:match("PERSONAL") and true or nil})
     end
+
+    for i = 1, 3 do
+      self.debuffs:SetAuraGroupCandidateFilters(tostring(i), {includeSpellIDs = include[i] or {}})
+    end
+
     if not addonTable.Utilities.IsChangesRestricted() then
       for _, f in ipairs(self.debuffs.frames) do
         addonTable.Display.StyleAura(f, auraDetails.debuffs)
@@ -292,9 +341,9 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     local setup = {
       ["ALL"] = {0, {}},
       ["PLAYER_ASSIST"] = {0, {}},
-      ["IMPORTANT"] = {0, {self.buffs.candidateIMPORTANTDefault}},
-      ["ENRAGE"] = {0, {self.buffs.candidateENRAGEDefault}},
-      ["STEALABLE"] = {0, {self.buffs.candidateSTEALABLEDefault}},
+      ["IMPORTANT"] = {0, self.buffs.candidateIMPORTANTDefault},
+      ["ENRAGE"] = {0, self.buffs.candidateENRAGEDefault},
+      ["STEALABLE"] = {0, self.buffs.candidateSTEALABLEDefault},
       ["DEFENSIVE1"] = {0, {}},
       ["DEFENSIVE2"] = {0, {}},
       ["DEFENSIVE3"] = {0, {}},
@@ -325,11 +374,18 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
         setup.ALL[1] = auraDetails.buffs.limit
       end
     end
+    local include, exclude = ProcessSpells("buffs")
     for key, info in pairs(setup) do
       self.buffs:SetAuraGroupMaxFrameCount(key, info[1])
+      info[2].excludeSpellIDs = exclude
       self.buffs:SetAuraGroupCandidateFilters(key, info[2])
       self.buffs:SetAuraGroupLayout(key, {elementSpacingX = padding, elementSpacingY = padding})
     end
+
+    for i = 1, 3 do
+      self.buffs:SetAuraGroupCandidateFilters(tostring(i), {includeSpellIDs = include[i] or {}})
+    end
+
     if not addonTable.Utilities.IsChangesRestricted() then
       for _, f in ipairs(self.buffs.frames) do
         addonTable.Display.StyleAura(f, auraDetails.buffs)
