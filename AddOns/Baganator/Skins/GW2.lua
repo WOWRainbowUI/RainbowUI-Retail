@@ -428,5 +428,5 @@ local function LoadSkin()
 end
 
 if addonTable.Skins.IsAddOnLoading("GW2_UI") then
-  addonTable.Skins.RegisterSkin(addonTable.Locales.GW2_UI, "gw2_ui", LoadSkin, SkinFrame, SetConstants, {}, true)
+  addonTable.Skins.RegisterSkin(addonTable.Locales.GW2_UI, "gw2_ui", LoadSkin, SkinFrame, SetConstants, {}, true, addonTable.Skins.PlayerLoginLoadingTrigger)
 end
