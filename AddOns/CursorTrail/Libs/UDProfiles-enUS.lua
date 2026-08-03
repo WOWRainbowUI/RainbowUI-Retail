@@ -5,6 +5,9 @@ private.L = {}
 local L = private.L
 --[[===========================================================================
 CHANGE HISTORY:
+    Jul 31, 2026
+        - Changed L.mUndo from "Undo" to "Undo Changes".
+
     Jun 17, 2025
         - Changed text for L.AccountProfileIconDesc .
 
@@ -25,12 +28,12 @@ L.mCopyTo = "Copy To ..."
 L.mCopyFrom = "Copy From ..."
 L.mDelete = DELETE .." ..."
 ----L.mBackups = "Backups ..."
-L.mBackup     = "Backup"
-L.mRestore     = "Restore ..."
+L.mBackup = "Backup"
+L.mRestore = "Restore ..."
 L.mExport = "Export ..."
 L.mImport = "Import"
 L.mOptions = "Profile Options"
-L.mUndo = "Undo"
+L.mUndo = "Undo Changes"
 
 --''''''''''''''
 -- Misc Strings
