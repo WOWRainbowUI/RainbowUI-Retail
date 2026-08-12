@@ -12,7 +12,7 @@ local tconcat = table.concat
 local strtrim = strtrim
 
 -- Retrieve version dynamically from TOC
-local addonVersion = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version"))
+local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version")
     or C.Addon.VersionFallback
 
 local function GetLibSharedMedia()

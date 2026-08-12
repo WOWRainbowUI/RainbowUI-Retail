@@ -11,7 +11,11 @@ local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
 local C_Timer_After = C_Timer.After
+local GetTime = GetTime
 local _G = _G
+
+local IsSecretValue = addon.IsSecretValue
+local CanAccessAllValues = addon.CanAccessAllValues
 
 local CATEGORY = C.Categories.PlayerAura
 local AURA_TYPE = C.PlayerAuraTypes
@@ -20,7 +24,9 @@ local AURA_TYPE_DEBUFF = AURA_TYPE.Debuff
 local AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS = AURA_TYPE.ExternalDefensiveBuffs
 local STYLER = C.Styler
 local PLAYER_UNIT = "player"
+local VEHICLE_UNIT = "vehicle"
 local MAX_PARENT_SCAN_DEPTH = 8
+local SECRET_AURA_REFRESH_INTERVAL = STYLER.SecretAuraRefreshInterval or 0.25
 
 local managedButtons = setmetatable({}, addon.weakMeta)
 local managedAuraTypes = setmetatable({}, addon.weakMeta)
@@ -32,6 +38,7 @@ local alphaOverrideGuards = setmetatable({}, addon.weakMeta)
 
 local hooksInstalled = false
 local pendingForceUpdate = false
+local lastSecretAuraRefresh = 0
 local elvuiAurasHooked = false
 
 local function IsTrackedAuraRoot(frame)
@@ -195,11 +202,11 @@ end
 -- values) to avoid allocating a closure on every per-frame style pass.
 local function ComparePoint(currentPoint, currentRelativeTo, currentRelativePoint, currentOffsetX, currentOffsetY,
                             point, relativeTo, relativePoint, offsetX, offsetY)
-    if addon.IsSecretValue(currentPoint)
-        or addon.IsSecretValue(currentRelativeTo)
-        or addon.IsSecretValue(currentRelativePoint)
-        or addon.IsSecretValue(currentOffsetX)
-        or addon.IsSecretValue(currentOffsetY) then
+    if IsSecretValue(currentPoint)
+        or IsSecretValue(currentRelativeTo)
+        or IsSecretValue(currentRelativePoint)
+        or IsSecretValue(currentOffsetX)
+        or IsSecretValue(currentOffsetY) then
         return false
     end
 
@@ -225,7 +232,7 @@ local function IsSamePoint(region, point, relativeTo, relativePoint, offsetX, of
 end
 
 local function CompareFont(fontPath, fontSize, fontStyle, desiredFontPath, desiredFontSize, desiredFontStyle)
-    if addon.IsSecretValue(fontPath) or addon.IsSecretValue(fontStyle) then
+    if IsSecretValue(fontPath) or IsSecretValue(fontStyle) then
         return false
     end
 
@@ -272,16 +279,24 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     end
 end
 
+--- PlayerFrame swaps its unit to "vehicle" while the player is in a vehicle.
+--- Returns nil when the token is missing, empty, or secret.
+local function GetPlayerFrameUnit()
+    local unit = PlayerFrame and PlayerFrame.unit
+    if type(unit) ~= "string" or unit == "" or IsSecretValue(unit) then
+        return nil
+    end
+
+    return unit
+end
+
 local function GetButtonUnit(button)
-    if button and type(button.unit) == "string" and button.unit ~= "" then
-        return button.unit
+    local unit = button and button.unit
+    if type(unit) == "string" and unit ~= "" and not IsSecretValue(unit) then
+        return unit
     end
 
-    if PlayerFrame and type(PlayerFrame.unit) == "string" and PlayerFrame.unit ~= "" then
-        return PlayerFrame.unit
-    end
-
-    return PLAYER_UNIT
+    return GetPlayerFrameUnit() or PLAYER_UNIT
 end
 
 local function GetAuraInstanceID(button)
@@ -291,7 +306,7 @@ local function GetAuraInstanceID(button)
         return auraInstanceID
     end
 
-    if not (info and info.index and C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then
+    if not (info and info.index) then
         return nil
     end
 
@@ -300,9 +315,13 @@ local function GetAuraInstanceID(button)
         return nil
     end
 
+    -- WoW 12.1: every UnitAura API returns a full secret or nil while auras are
+    -- secret, so the returned table may not be indexable. SafeTableGet pcalls
+    -- the field read; the instance ID itself stays usable (secret or not) since
+    -- it is only ever handed straight back to C_UnitAuras, never inspected.
     local ok, auraData = pcall(C_UnitAuras.GetAuraDataByIndex, GetButtonUnit(button), info.index, filter)
     if ok and type(auraData) == "table" then
-        return auraData.auraInstanceID
+        return MCE:SafeTableGet(auraData, "auraInstanceID")
     end
 
     return nil
@@ -310,7 +329,7 @@ end
 
 local function GetAuraDurationObject(button)
     local auraInstanceID = GetAuraInstanceID(button)
-    if not auraInstanceID or not (C_UnitAuras and C_UnitAuras.GetAuraDuration) then
+    if not auraInstanceID then
         return nil
     end
 
@@ -621,7 +640,7 @@ end
 
 local function GetVisibleAuraCount(button, countRegion)
     local count = button.buttonInfo and button.buttonInfo.count
-    if type(count) == "number" and addon.CanAccessAllValues(count) then
+    if type(count) == "number" and CanAccessAllValues(count) then
         return count
     end
 
@@ -763,6 +782,10 @@ local function RefreshDurationAfterAuraUpdate(button)
 end
 
 local function EnforceUnfadedAlpha(button, alpha)
+    if IsSecretValue(alpha) or not CanAccessAllValues(alpha) then
+        return
+    end
+
     if alphaOverrideGuards[button] or alpha == 1 or not managedButtons[button] then
         return
     end
@@ -1241,7 +1264,24 @@ function PlayerAuraStyler:PLAYER_ENTERING_WORLD()
 end
 
 function PlayerAuraStyler:UNIT_AURA(unit)
-    if unit == PLAYER_UNIT or unit == "vehicle" or (PlayerFrame and unit == PlayerFrame.unit) then
+    -- WoW 12.1: UNIT_AURA delivers a fully secret payload while auras are
+    -- secret (combat, encounters, M+, PvP). A secret token matches none of the
+    -- comparisons below, so filtering on it would silently stop the refresh in
+    -- exactly the contexts where it matters. Fall back to refreshing on any
+    -- unreadable token -- throttled, because those payloads also fire for every
+    -- group member and nameplate, not just the player.
+    if type(unit) ~= "string" or IsSecretValue(unit) then
+        local now = GetTime()
+        if now - lastSecretAuraRefresh < SECRET_AURA_REFRESH_INTERVAL then
+            return
+        end
+
+        lastSecretAuraRefresh = now
+        self:ScheduleForceUpdate()
+        return
+    end
+
+    if unit == PLAYER_UNIT or unit == VEHICLE_UNIT or unit == GetPlayerFrameUnit() then
         self:ScheduleForceUpdate()
     end
 end

@@ -13,8 +13,8 @@ local pairs, type, pcall, wipe = pairs, type, pcall, wipe
 local setmetatable = setmetatable
 local strfind, strlower = string.find, string.lower
 local GetTime = GetTime
-local C_Timer_After = C_Timer.After
-local issecretvalue = issecretvalue or function() return false end
+
+local issecretvalue = issecretvalue
 
 local CATEGORY = C.Categories
 local VIEWER_TYPE = C.CooldownManagerViewers
@@ -64,7 +64,6 @@ local function GetOrCreateDurationObject(endTime, duration, modRate)
 
     local cached = byDur[modRate]
     if not cached then
-        if not (C_DurationUtil and C_DurationUtil.CreateDuration) then return nil end
         cached = C_DurationUtil.CreateDuration()
         byDur[modRate] = cached
     end
@@ -251,18 +250,17 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
     local actionButton = fs.actionButton ~= false and fs.actionButton or parent
     local actionID = fs.actionID ~= false and fs.actionID or StyleEngine:GetActionIDFromButton(actionButton)
 
-    if actionID and C_ActionBar then
-        if StyleEngine:IsChargeCooldownFrame(cdFrame, actionButton) and C_ActionBar.GetActionChargeDuration then
+    if actionID then
+        if StyleEngine:IsChargeCooldownFrame(cdFrame, actionButton) then
             local ok, obj = pcall(C_ActionBar.GetActionChargeDuration, actionID)
             obj = ok and NormalizeDurationObject(obj) or nil
             if obj then return obj end
             return nil
         end
-        if C_ActionBar.GetActionCooldownDuration then
-            local ok, obj = pcall(C_ActionBar.GetActionCooldownDuration, actionID, true)
-            obj = ok and NormalizeDurationObject(obj) or nil
-            if obj then return obj end
-        end
+
+        local ok, obj = pcall(C_ActionBar.GetActionCooldownDuration, actionID, true)
+        obj = ok and NormalizeDurationObject(obj) or nil
+        if obj then return obj end
     end
 
     local shouldUseAura = self:ShouldUseAuraDurationFallback(cdFrame, category)
@@ -276,7 +274,7 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
         if not unitToken and category == CATEGORY.CooldownManager then
             unitToken = "player"
         end
-        if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
+        if auraInstanceID and unitToken then
             local ok, obj = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
             obj = ok and NormalizeDurationObject(obj) or nil
             if obj then return obj end
@@ -292,7 +290,7 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
 
     local spellOwner = (fs.spellOwner ~= false and fs.spellOwner) or actionButton or parent
     local spellID = StyleEngine:GetCooldownSpellID(spellOwner)
-    if spellID and C_Spell then
+    if spellID then
         local useChargeDuration = StyleEngine:IsChargeCooldownFrame(cdFrame, spellOwner or parent)
         if issecretvalue(useChargeDuration) then useChargeDuration = false end
         if not useChargeDuration and category == CATEGORY.CooldownManager then
@@ -300,17 +298,16 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
             if issecretvalue(useChargeDuration) then useChargeDuration = false end
         end
 
-        if useChargeDuration and C_Spell.GetSpellChargeDuration then
+        if useChargeDuration then
             local ok, obj = pcall(C_Spell.GetSpellChargeDuration, spellID)
             obj = ok and NormalizeDurationObject(obj) or nil
             if obj then return obj end
             return nil
         end
-        if C_Spell.GetSpellCooldownDuration then
-            local ok, obj = pcall(C_Spell.GetSpellCooldownDuration, spellID, true)
-            obj = ok and NormalizeDurationObject(obj) or nil
-            if obj then return obj end
-        end
+
+        local ok, obj = pcall(C_Spell.GetSpellCooldownDuration, spellID, true)
+        obj = ok and NormalizeDurationObject(obj) or nil
+        if obj then return obj end
     end
 
     return nil

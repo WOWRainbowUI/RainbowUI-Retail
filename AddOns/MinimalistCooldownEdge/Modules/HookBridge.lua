@@ -582,14 +582,15 @@ function HookBridge:SetupHooks()
             if not fs or fs.suppressSwipe then return end
             if IsMUIStyledCooldown(cooldown) then return end
             if IsMasqueManagedCooldown(cooldown) then return end
-            -- Let BT4 cast VFX hide the swipe without triggering a revert loop.
-            if fs.bt4Supported and type(a) == "number" and a == 0 then return end
             if IsSecretValue(r)
                or IsSecretValue(g)
                or IsSecretValue(b)
-               or IsSecretValue(a) then
+               or IsSecretValue(a)
+               or not CanAccessAllValues(r, g, b, a) then
                 return
             end
+            -- Let BT4 cast VFX hide the swipe without triggering a revert loop.
+            if fs.bt4Supported and type(a) == "number" and a == 0 then return end
             if not fs.swipeColor or IsSameSwipeColor(fs.swipeColor, r, g, b, a) then return end
             fs.suppressSwipe = true
             pcall(cooldown.SetSwipeColor, cooldown, fs.swipeColor.r, fs.swipeColor.g, fs.swipeColor.b, fs.swipeColor.a)

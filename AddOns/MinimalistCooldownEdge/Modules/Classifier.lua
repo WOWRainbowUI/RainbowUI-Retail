@@ -10,7 +10,6 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Classifier = MCE:NewModule("Classifier")
 
-local pcall = pcall
 local strfind, ipairs = string.find, ipairs
 
 local CLASSIFIER_CONSTANTS = C.Classifier
