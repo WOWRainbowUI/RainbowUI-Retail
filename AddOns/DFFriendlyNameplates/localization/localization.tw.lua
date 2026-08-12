@@ -55,3 +55,4 @@ L.EX_OPEN_BLIZZ_SETTINGS = "開啟暴雪名條設定"
 
 L.UI_LANGUAGE = "語言"
 L.UI_RELOAD_LANG = "重新載入介面以套用語言變更"
+L.customFontConflict = "字型衝突警告|n您已啟用 Plater 鉑金血條的「暴雪名條字型」選項，此選項因採用類似的字型變更方式，與本插件產生衝突。|n若您想使用本插件提供的字型，請至 /plater -> 進階 -> 取消勾選「暴雪名條字型」選項"

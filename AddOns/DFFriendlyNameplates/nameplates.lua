@@ -44,15 +44,16 @@ function module:OnLoad()
     showOnlyNameNpcCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
         DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] = checked
+        DFFNamePlates:overrideConflicts("npcOnlyName", checked)
         DFFNamePlates:reloadNP()
         DFFNamePlates:SetNpcTypeEnabled(checked)
     end)
 
     local npcType = {
-        { text = L("NP_NPC_ALWAYS"),         value = "always" },
-        { text = L("NP_NPC_DUNGEON"),        value = "dungeon" },
-        { text = L("NP_NPC_RAIDS"),          value = "raids" },
-        { text = L("NP_NPC_DUNGEON_RAIDS"),  value = "dungeon_raids" }
+        { text = L("NP_NPC_ALWAYS"),        value = "always" },
+        { text = L("NP_NPC_DUNGEON"),       value = "dungeon" },
+        { text = L("NP_NPC_RAIDS"),         value = "raids" },
+        { text = L("NP_NPC_DUNGEON_RAIDS"), value = "dungeon_raids" }
     }
 
     local showOnlyNameNpcDropdown = HttpsxLib:CreateDropDown(content, 110, npcType, "LEFT", showOnlyNameNpcCB.text, 145,
@@ -124,6 +125,28 @@ function module:OnLoad()
         10, -270, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
+    if DFFNamePlates.isPlaterLoaded then
+        if Plater and Plater.db and Plater.db.profile then
+            if Plater.db.profile.blizzard_nameplate_font_override_enabled then
+                local warningWorldText = HttpsxLib:CreateButton(content, "!", 20, 20, "LEFT", customFontCB.text, "RIGHT",
+                    5,
+                    0)
+                warningWorldText:SetFrameStrata("DIALOG")
+                warningWorldText:SetFrameLevel(customFontCB:GetFrameLevel() + 10)
+                warningWorldText.text:SetTextColor(1, 0.31, 0.31, 1.0) 
+                warningWorldText:SetScript("OnEnter", function(self)
+                    local tipText = L("customFontConflict")
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(tipText, 1, 1, 1)
+                    GameTooltip:Show()
+                end)
+                warningWorldText:SetScript("OnLeave", function(self)
+                    GameTooltip_Hide()
+                end)
+            end
+        end
+    end
+
     local fonts = {
         { text = L("NP_FONT_DEFAULT_GAME"), value = DFFNamePlates.defaultFont.name },
     }
@@ -158,10 +181,10 @@ function module:OnLoad()
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local styles = {
-        { text = L("NP_STYLE_NONE"),          value = "" },
-        { text = L("NP_STYLE_OUTLINE"),       value = "OUTLINE" },
-        { text = L("NP_STYLE_SLUG"),          value = "SLUG" },
-        { text = L("NP_STYLE_OUTLINE_SLUG"),  value = "OUTLINE, SLUG" },
+        { text = L("NP_STYLE_NONE"),         value = "" },
+        { text = L("NP_STYLE_OUTLINE"),      value = "OUTLINE" },
+        { text = L("NP_STYLE_SLUG"),         value = "SLUG" },
+        { text = L("NP_STYLE_OUTLINE_SLUG"), value = "OUTLINE, SLUG" },
     }
 
     local fontStyleDropdown = HttpsxLib:CreateDropDown(content, 140, styles, "LEFT", fontStyleTitle, 50, 0,
@@ -189,7 +212,6 @@ function module:OnLoad()
         showOnlyNameCB:SetEnabled(checked)
         showClassColorCB:SetEnabled(checked)
         hideCastBarCB:SetEnabled(checked)
-
     end
 
     function DFFNamePlates:SetFontSettingsEnabled(checked)
@@ -239,5 +261,4 @@ function module:OnLoad()
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpc"] = showOnlyNameNpcCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"] = showOnlyNameNpcDropdown
     DFFNamePlates.settings.NamePlatesSettings["showColorBySelection"] = showColorBySelectionCB
-    
 end
