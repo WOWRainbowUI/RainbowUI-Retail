@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.29 (29th July 2026)
+-- 	Leatrix Plus 12.0.30 (5th August 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.29"
+	LeaPlusLC["AddonVer"] = "12.0.30"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -6446,9 +6446,9 @@
 			spellFrame:SetScript("OnEvent", function(self, event, unit, updatedAuras)
 				if event == "UNIT_AURA" then
 					if updatedAuras then
-						if updatedAuras.isFullUpdate then
+						if canaccessvalue(updatedAuras.isFullUpdate) and updatedAuras.isFullUpdate then
 							eventFunc()
-						elseif updatedAuras.addedAuras then
+						elseif canaccessvalue(updatedAuras.addedAuras) and updatedAuras.addedAuras then
 							for void, aura in ipairs(updatedAuras.addedAuras) do
 								if aura.spellId and canaccessvalue(aura.spellId) and cTable[aura.spellId] then
 									eventFunc()
@@ -8385,7 +8385,7 @@
 		-- Show cooldowns
 		----------------------------------------------------------------------
 
-		if LeaPlusLC["ShowCooldowns"] == "On" then
+		if LeaPlusLC["ShowCooldowns"] == "On" and not LeaLockList["ShowCooldowns"] then
 
 			-- Create main table structure in saved variables if it doesn't exist
 			if LeaPlusDB["Cooldowns"] == nil then
@@ -9341,7 +9341,8 @@
 						end
 					end
 					-- Lower information and specialisation lines if unit is charmed
-					if UnitIsCharmed(LT["Unit"]) then
+					LT["CharmCheck"] = UnitIsCharmed(LT["Unit"])
+					if canaccessvalue(LT["CharmCheck"]) and LT["CharmCheck"] then
 						LT["InfoLine"] = LT["InfoLine"] + 1
 						LT["SpecLine"] = LT["SpecLine"] + 1
 					end
@@ -11138,6 +11139,7 @@
 				if LeaPlusLC.NewPatch then
 					-- Disable bag automation (enter Stockade, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen)
 					LockDF("ManageControl", "You can manage this with Edit Mode now.")
+					LockDF("ShowCooldowns", "Not available.")
 				end
 
 				-- Run other startup items

@@ -1,4 +1,7 @@
-﻿12.0.29 - 29th July 2026
+﻿12.0.30 - 5th August 2026
+- PTR (12.1.0): More PTR updates.
+
+12.0.29 - 29th July 2026
 - Updated deprecated functions.
 
 12.0.28 - 23rd July 2026
