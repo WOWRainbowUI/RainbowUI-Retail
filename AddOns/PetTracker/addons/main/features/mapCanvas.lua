@@ -135,17 +135,14 @@ function MapCanvas:Scale(frame)
 	end
 end
 
+function MapCanvas:Validate(frame)
+	if frame == WorldMapFrame or (LE_EXPANSION_LEVEL_CURRENT >= LE_EXPANSION_DRAGONFLIGHT and frame == BattlefieldMapFrame) then
+		return true
+	end
 
---[[ Client-Specific ]]--
-
-if LE_EXPANSION_LEVEL_CURRENT >= LE_EXPANSION_DRAGONFLIGHT then
-	function MapCanvas:Validate(frame)
-		for provider in pairs(frame.dataProviders) do
-			if provider.RefreshAllData == PetTamerDataProviderMixin.RefreshAllData then
-				return true
-			end
+	for provider in pairs(frame.dataProviders) do
+		if provider.RefreshAllData == PetTamerDataProviderMixin.RefreshAllData then
+			return true
 		end
 	end
-else
-	function MapCanvas:Validate(frame) return frame == WorldMapFrame end
 end
