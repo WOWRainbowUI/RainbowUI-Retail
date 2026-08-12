@@ -2,7 +2,7 @@
 -- Masque Blizzard Bars
 -- Enables Masque to skin the built-in WoW action bars
 --
--- Copyright 2022 - 2024 SimGuy
+-- Copyright 2022 - 2026 SimGuy
 --
 -- Use of this source code is governed by an MIT-style
 -- license that can be found in the LICENSE file or at
@@ -47,50 +47,44 @@ Metadata.Groups = {
 	},
 	MultiBarBottomLeft = {
 		Title = "Action Bar 2",
-		Versions = { 10300, nil },
 		Buttons = {
 			MultiBarBottomLeftButton = NUM_MULTIBAR_BUTTONS
 		}
 	},
 	MultiBarBottomRight = {
 		Title = "Action Bar 3",
-		Versions = { 10300, nil },
 		Buttons = {
 			MultiBarBottomRightButton = NUM_MULTIBAR_BUTTONS
 		}
 	},
 	MultiBarLeft = {
 		Title = "Action Bar 4",
-		Versions = { 10300, nil },
 		Buttons = {
 			MultiBarLeftButton = NUM_MULTIBAR_BUTTONS
 		}
 	},
 	MultiBarRight = {
 		Title = "Action Bar 5",
-		Versions = { 10300, nil },
 		Buttons = {
 			MultiBarRightButton = NUM_MULTIBAR_BUTTONS
 		}
 	},
-	-- Three new bars for 10.0.0, also added in 2.5.5 and 5.5.4
+	-- Three new bars for 10.0.0, also added in 1.15.9, 2.5.5, and 5.5.4
+	-- These now exist in ALL supported versions of the game, so no version check is needed
 	MultiBar5 = {
 		Title = "Action Bar 6",
-		Versions = { 20505, 30000, 50504, nil },
 		Buttons = {
 			MultiBar5Button = NUM_MULTIBAR_BUTTONS
 		}
 	},
 	MultiBar6 = {
 		Title = "Action Bar 7",
-		Versions = { 20505, 30000, 50504, nil },
 		Buttons = {
 			MultiBar6Button = NUM_MULTIBAR_BUTTONS
 		}
 	},
 	MultiBar7 = {
 		Title = "Action Bar 8",
-		Versions = { 20505, 30000, 50504, nil },
 		Buttons = {
 			MultiBar7Button = NUM_MULTIBAR_BUTTONS
 		}
@@ -219,14 +213,12 @@ local BuffIconViewerMap = {
 	Icon = "Icon",
 	Cooldown = "Cooldown",
 	Count = "Count",
-	DebuffBorder = "DebuffBorderMBB"
 }
 
 -- The BuffBarCooldownViewer Cooldown is on the bar, not the icon
 local BuffBarViewerMap = {
 	Icon = "Icon",
 	Count = "Count",
-	DebuffBorder = "DebuffBorderMBB"
 }
 
 Metadata.Types = {
