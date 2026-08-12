@@ -338,11 +338,18 @@ local function IsMountCollected(itemID)
   end
 end
 
+local function IsDecorCollected(itemID)
+  local catalogInfo = C_HousingCatalog.GetCatalogEntryInfoByItem(itemID)
+  local possessed = catalogInfo.totalNumPlaced + catalogInfo.remainingRedeemable + catalogInfo.totalNumStored
+  return possessed ~= 0
+end
+
 local function CollectedCheck(details)
   if not C_Item.IsItemDataCachedByID(details.itemID) then
     C_Item.RequestLoadItemDataByID(details.itemID)
     return nil
   end
+  GetClassSubClass(details)
 
   local result = nil
 
@@ -361,6 +368,9 @@ local function CollectedCheck(details)
   end
   if C_MountJournal and C_MountJournal.GetMountFromItem(details.itemID) then
     result = IsMountCollected(details.itemID)
+  end
+  if C_HousingCatalog and details.classID == Enum.ItemClass.Housing and details.subClassID == Enum.ItemHousingSubclass.Decor then
+    result = IsDecorCollected(details.itemID)
   end
 
   return result or false, result == false
@@ -371,6 +381,7 @@ local function UncollectedCheck(details)
     C_Item.RequestLoadItemDataByID(details.itemID)
     return nil
   end
+  GetClassSubClass(details)
 
   local result = nil
 
@@ -389,6 +400,9 @@ local function UncollectedCheck(details)
   end
   if C_MountJournal and C_MountJournal.GetMountFromItem(details.itemID) then
     result = IsMountCollected(details.itemID)
+  end
+  if C_HousingCatalog and details.classID == Enum.ItemClass.Housing and details.subClassID == Enum.ItemHousingSubclass.Decor then
+    result = IsDecorCollected(details.itemID)
   end
 
   if result ~= nil then
@@ -2407,6 +2421,34 @@ function addonTable.Search.InitializeSearchEngine()
           GetClassSubClass(details)
           return details.classID == 20 and details.subClassID == subClass
         end, addonTable.Locales.GROUP_HOUSING)
+      end
+    end
+  end
+
+  if addonTable.Constants.IsRetail then
+    local professionToolsToCheck = {
+      [0] = "blacksmithing",
+      "leatherworking",
+      "alchemy",
+      "herbalism",
+      "cooking",
+      "mining",
+      "tailoring",
+      "engineering",
+      "enchanting",
+      "fishing",
+      "skinning",
+      "jewelcrafting",
+      "inscription",
+      "archaeology",
+    }
+    for subClass, english in pairs(professionToolsToCheck) do
+      local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Profession, subClass)
+      if keyword ~= nil then
+        AddKeywordManual(keyword:lower(), english, function(details)
+          GetClassSubClass(details)
+          return details.classID == Enum.ItemClass.Profession and details.subClassID == subClass
+        end, addonTable.Locales.GROUP_PROFESSION_TOOL)
       end
     end
   end
