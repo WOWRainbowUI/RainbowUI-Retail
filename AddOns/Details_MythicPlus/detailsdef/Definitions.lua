@@ -727,7 +727,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field last_interaction number?
 ---@field auto_current boolean?
 ---@field tempId number
----@field apocalypseSourceType number
+---@field source_type number
 ---@field overallByUser boolean
 ---@field sessionType_user number
 ---@field sessionId_user number
@@ -740,6 +740,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IsShowingDeathLog fun(instance: instance) : boolean
 ---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)
+---@field ClearRestoredSavedSegment fun(instance: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor
 ---@field GetSize fun(instance: instance) : width, height
 ---@field GetInstanceGroup fun() : table
@@ -759,7 +760,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field UnFreeze fun(instance: instance)
 ---@field DoAutomation fun(instance: instance, event:string)
 ---@field GetAttributeType fun(instance: instance) : number
----@field GetSources fun(instance: instance) : damagemeter_combat_source[]
+---@field GetSources fun(instance: instance, attributeId: attributeid?) : damagemeter_combat_source[]
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
 ---@field SetDisplay fun(instance: instance, segmentId: segmentid?, attributeId: attributeid?, subAttributeId: attributeid?, modeId: modeid?, quickMode:boolean?)
 ---@field GetDisplay fun(instance: instance) : attributeid, attributeid
@@ -771,7 +772,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field SetNewSegmentId fun(instance: instance, sessionId: number, bForceRefresh: boolean?, bByUser: boolean?)
 ---@field GetSegmentType fun(instance: instance) : number
 ---@field SetSegmentType fun(instance: instance, sessionType: number, bForceRefresh: boolean?, bByUser: boolean?)
----@field GetSegmentObject fun(instance: instance) : damagemeter_combat_session
+---@field GetSegmentObject fun(instance: instance, attributeId: attributeid?) : damagemeter_combat_session
 ---@field GetSourceActorFromName fun(instance: instance, name: string) : actor
 
 ---@class sessioncache : table
