@@ -10,19 +10,18 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local StyleEngine = MCE:NewModule("StyleEngine")
 
-local pairs, type, pcall, wipe = pairs, type, pcall, wipe
+local type, pcall, wipe = type, pcall, wipe
 local strfind = string.find
 local select = select
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
-local issecretvalue = issecretvalue or function() return false end
-local canaccessallvalues = canaccessallvalues
+local issecretvalue = issecretvalue
 
 local CATEGORY = C.Categories
 local VIEWER_TYPE = C.CooldownManagerViewers
 local MINICC_FRAME_TYPE = C.MiniCCFrameTypes
 local SARENA_FRAME_TYPE = C.SArenaFrameTypes
-local STYLE_CONSTANTS = C.Style
+
 local STYLER_CONSTANTS = C.Styler
 local LARGE_AURA_WIDTH_THRESHOLD = 20
 
@@ -290,7 +289,7 @@ function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
     end
 
     local spellID = self:GetCooldownSpellID(parent)
-    if type(spellID) ~= "number" or not (C_Spell and C_Spell.GetSpellCharges) then
+    if type(spellID) ~= "number" then
         return false
     end
 

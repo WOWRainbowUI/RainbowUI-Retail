@@ -12,7 +12,6 @@ local Styler = MCE:NewModule("Styler")
 local wipe = wipe
 local C_Timer_After = C_Timer.After
 
-local CATEGORY = C.Categories
 
 local Registry, BatchProcessor, StyleEngine, DurationColor, Classifier
 

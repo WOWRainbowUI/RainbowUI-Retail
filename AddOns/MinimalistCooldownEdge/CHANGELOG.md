@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.1.8 - Patch 12.1 Stable Release
+- Promoted the WoW Patch 12.1 build from beta to a stable release.
+
+## 4.1.7 - WoW 12.1 Support
+- Updated interface support to Retail 12.1 only.
+- Player Aura styling now refreshes during combat, dungeons, and PvP matches.
+- Fixed Player Aura duration text errors when WoW hides aura data in combat.
+
+## 4.1.6 - Profile Import Validation
+- Added validation and size limits for imported profile settings.
+- Added secret/access guards
+- ACE3 Lib Update
+
 ## 4.1.5 - Enhance Player Aura functionality
 - Updated interface support to Retail 12.0.7 only.
 - Reduced Player Aura styling work during active aura updates.

@@ -5,7 +5,7 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Adapter = MCE:NewModule("SArenaAdapter")
 
-local ipairs, type = ipairs, type
+local type = type
 local strmatch = string.match
 
 local CATEGORY = C.Categories

@@ -21,7 +21,7 @@ local OPTION_SLIDER_DEBOUNCE_DELAY = C.Options.SliderDebounceDelay
 local StaticPopup_Show = StaticPopup_Show
 local StaticPopupDialogs = StaticPopupDialogs
 local hooksecurefunc = hooksecurefunc
-local issecretvalue = issecretvalue or function() return false end
+local issecretvalue = issecretvalue
 local canaccessallvalues = canaccessallvalues
 
 local RELOAD_PROMPT_POPUP_ID = "MCE_ReloadPrompt"
@@ -36,14 +36,13 @@ addon.fontState = setmetatable({}, weakMeta)
 
 -- Shared safe-value helpers (used by StyleEngine, HookBridge, Classifier, etc.)
 -- Exposed on addon namespace so each module can upvalue them without duplication.
+-- pcall is still required: both builtins throw when handed a tainted value.
 function addon.IsSecretValue(value)
-    if not issecretvalue then return false end
     local ok, result = pcall(issecretvalue, value)
     return ok and result or false
 end
 
 function addon.CanAccessAllValues(...)
-    if not canaccessallvalues then return true end
     local ok, result = pcall(canaccessallvalues, ...)
     return ok and result or false
 end
@@ -81,16 +80,7 @@ local function QueryAddonLoaded(addonName)
         return false
     end
 
-    if C_AddOns and type(C_AddOns.IsAddOnLoaded) == "function" then
-        return C_AddOns.IsAddOnLoaded(addonName) == true
-    end
-
-    if type(IsAddOnLoaded) == "function" then
-        local loaded = IsAddOnLoaded(addonName)
-        return loaded == true or loaded == 1
-    end
-
-    return false
+    return C_AddOns.IsAddOnLoaded(addonName) == true
 end
 
 -- =========================================================================
@@ -169,11 +159,9 @@ function MCE:CanUseFrameAsTableKey(frame)
         return false
     end
 
-    if canaccessallvalues then
-        local accessOk, canAccess = pcall(canaccessallvalues, frame)
-        if not accessOk or not canAccess then
-            return false
-        end
+    local accessOk, canAccess = pcall(canaccessallvalues, frame)
+    if not accessOk or not canAccess then
+        return false
     end
 
     return not self:IsForbidden(frame)

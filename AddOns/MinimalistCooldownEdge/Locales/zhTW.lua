@@ -177,6 +177,9 @@ L["Invalid import string format."] = "匯入字串格式無效。"
 L["Failed to decode import string."] = "匯入字串解碼失敗。"
 L["Failed to decompress import string."] = "匯入字串解壓失敗。"
 L["Failed to deserialize import string."] = "匯入字串反序列化失敗。"
+L["Import string is too large."] = "匯入字串過大。"
+L["Import profile contains invalid data."] = "匯入的設定檔包含無效資料。"
+L["Failed to apply imported profile."] = "套用匯入的設定檔失敗。"
 
 -- Banner
 L["BANNER_DESC"] = "為你的冷卻提供精簡設定。選擇左側的分類即可開始。"

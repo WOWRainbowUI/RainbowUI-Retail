@@ -1,6 +1,8 @@
-# Minimalist Cooldown Edge
+# Minimalist Cooldown Edge (MiniCE)
 
-Minimalist Cooldown Edge is a World of Warcraft addon that restyles cooldown text and edge visuals across multiple UI surfaces while keeping the runtime model explicit and predictable.
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+Minimalist Cooldown Edge is a World of Warcraft Retail addon that restyles cooldown text and edge visuals across action bars, nameplates, unit frames, and cooldown viewers, so cooldown countdowns stay clean and readable at a glance.
 
 The addon is built around an adapter-driven registry. Cooldowns are discovered by source-specific adapters, routed into categories and subtypes, then styled through a shared pipeline. Dynamic updates are handled by hooks on Blizzard's `Cooldown` widget API rather than by a global frame scan.
 
@@ -10,11 +12,16 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 - Nameplate auras.
 - Blizzard and third-party unit frames.
 - CooldownManager viewers.
+- Player Aura styling.
 - MiniCC overlays.
 - sArena_Reloaded cooldown timers.
 - TellMeWhen cooldown and charge sweeps.
 
 Party / Raid Frames are no longer supported. The options menu keeps a retired notice for this category because Blizzard Patch 12.0.5 changed the compact party and raid frame surface MiniCE previously styled.
+
+### Optional integrations
+
+MiniCE detects and styles cooldowns from these addons when they are installed, without requiring them: LibSharedMedia-3.0, Bartender4, Dominos (and Dominos_Cast / Dominos_Config), ElvUI, HealerCC, MiniCC, sArena_Reloaded, TellMeWhen, ShinyAuras, CooldownManagerCentered, mUI, and BetterBlizzFrames.
 
 ## Main features
 
@@ -24,13 +31,22 @@ Party / Raid Frames are no longer supported. The options menu keeps a retired no
 - Embedded Ace3 configuration UI with profile support.
 - Optional LibSharedMedia font integration when it is installed.
 
-## Commands
+## Compatibility
+
+Targets WoW Retail, interface `120100` (Patch 12.1).
+
+## Installation
+
+- **CurseForge** (recommended): install and keep up to date via the [MiniCE CurseForge page](https://www.curseforge.com/wow/addons/minice-cooldown-styler).
+- **Manual**: download or clone this repository into `Interface/AddOns/MinimalistCooldownEdge` in your WoW installation folder.
+
+## Quick start
 
 - `/mce`
 - `/minice`
 - `/minimalistcooldownedge`
 
-All commands toggle the AceConfig options window.
+All three commands toggle the AceConfig options window.
 
 ## Project layout
 
@@ -63,8 +79,6 @@ Assets/
   Textures/
 Locales/
 Libs/
-docs/
-  ARCHITECTURE.md
 ```
 
 ## Load-order note
@@ -87,4 +101,12 @@ That sequence reduces startup ambiguity and keeps `Registry:TryClaim()` useful a
 - `Styler` is the orchestration layer; `StyleEngine` is the styling layer.
 - `HookBridge` keeps Blizzard from silently reverting edge, swipe, or countdown state between style passes.
 
-For the full startup sequence, data flow, and extension points, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+## Support and community
+
+- **Bug reports and feature requests**: [Discord](https://discord.gg/n4udv5AhFp)
+- **Downloads and release notes**: [CurseForge](https://www.curseforge.com/wow/addons/minice-cooldown-styler)
+- **Source**: this repository
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).

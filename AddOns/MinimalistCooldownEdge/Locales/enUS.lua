@@ -177,6 +177,9 @@ L["Invalid import string format."] = true
 L["Failed to decode import string."] = true
 L["Failed to decompress import string."] = true
 L["Failed to deserialize import string."] = true
+L["Import string is too large."] = true
+L["Import profile contains invalid data."] = true
+L["Failed to apply imported profile."] = true
 
 -- Banner
 L["BANNER_DESC"] = "Minimalist configuration for your cooldowns. Select a category on the left to begin."

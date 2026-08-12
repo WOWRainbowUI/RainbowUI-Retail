@@ -260,19 +260,12 @@ C.Urls = {
 
 C.ImportExport = {
     Prefix = "MCE1",
-    Base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
     ImportPattern = "^(%w+):([CN]):(.+)$",
     CompressionMode = {
         Compressed = "C",
         None = "N",
     },
 }
-
-C.ImportExport.Base64Lookup = {}
-for i = 1, #C.ImportExport.Base64Alphabet do
-    local character = C.ImportExport.Base64Alphabet:sub(i, i)
-    C.ImportExport.Base64Lookup[character] = i - 1
-end
 
 C.Classifier = {
     ScanDepth = 10,
@@ -550,6 +543,11 @@ C.Styler = {
     DurationCacheSweepThreshold = 10,
     DurationColorTickerInterval = 0.5,
     AuraRetryMinInterval = 0.25,
+    -- Minimum delay between full player-aura refreshes triggered by a
+    -- UNIT_AURA payload whose unit token is secret (WoW 12.1). Such payloads
+    -- fire for every group member and nameplate, so the refresh is throttled
+    -- rather than coalesced per frame.
+    SecretAuraRefreshInterval = 0.25,
     CooldownTextLayer = C.Style.Layers.Overlay,
     CooldownTextSubLevel = 7,
     ActionbarTextFrameLevelOffset = 1,

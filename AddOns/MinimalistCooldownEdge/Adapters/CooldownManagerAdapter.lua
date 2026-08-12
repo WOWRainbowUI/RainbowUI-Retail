@@ -18,6 +18,7 @@ local setmetatable = setmetatable
 
 local weakMeta = addon.weakMeta
 local frameState = addon.frameState
+local CanAccessAllValues = addon.CanAccessAllValues
 
 local Registry, HookBridge, DurationColor, BatchProcessor
 
@@ -222,6 +223,7 @@ local function HookCooldownInstance(cooldown, viewerType)
         hooksecurefunc(cooldown, "SetCooldownDuration", function(self, duration, modRate)
             local durationObject
             if DurationColor
+               and CanAccessAllValues(duration, modRate)
                and type(duration) == "number"
                and duration > 0 then
                 durationObject = DurationColor:CreateDurationFromEndTime(GetTime() + duration, duration, modRate or 1)
