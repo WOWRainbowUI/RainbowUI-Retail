@@ -11,6 +11,8 @@ local LAI = LibStub("LibAppropriateItems-1.0")
 
 -- minor compat:
 local IsDressableItem = _G.IsDressableItem or C_Item.IsDressableItemByID
+-- the bare global only survives behind the loadDeprecationFallbacks cvar
+local GetInventorySlotInfo = C_PaperDollInfo and C_PaperDollInfo.GetInventorySlotInfo or _G.GetInventorySlotInfo
 local issecretvalue = _G.issecretvalue or function() return false end
 local isanyvaluesecret = function(...)
     for i=1, select("#", ...) do
@@ -132,6 +134,7 @@ do
     scrolldown:SetScript("OnClick", function(self, button, down)
         scrollActiveModel(-0.3)
     end)
+    scrolldown:RegisterForClicks("AnyDown", "AnyUp")
 
     local function ClearBindings()
         if InCombatLockdown() then return end
@@ -253,6 +256,10 @@ positioner:SetScript("OnUpdate", function(self, elapsed)
     if self.elapsed < TOOLTIP_UPDATE_TIME then
         return
     end
+    if not tooltip.owner:IsRectValid() then
+        -- The owner isn't laid out yet, so we can't anchor to it
+        return
+    end
     self.elapsed = 0
 
     local anchor, owner, our_point, owner_point = ns:ComputeTooltipAnchors(tooltip.owner, db.anchor)
@@ -322,10 +329,6 @@ do
         -- Logic here: our tooltip should trend towards the center of the screen, unless something is stopping it.
         -- If comparison tooltips are shown, we shouldn't overlap them
         local originalOwner = owner
-        if not owner:IsRectValid() then
-            -- see safecenterscale; retry on the positioner's next update instead
-            return
-        end
         local x, y = owner:GetCenter()
         if not (x and y) or issecretvalue(x) or issecretframe(owner) then
             return
@@ -425,6 +428,14 @@ spinner:SetScript("OnUpdate", function(self, elapsed)
     end
 end)
 
+-- Callers that want the preview to stay cached for the current item leave
+-- tooltip.item alone; clear it to make the next ShowItem rebuild from scratch.
+local function hidePreview()
+    spinner:Hide()
+    positioner:Hide()
+    tooltip:Hide()
+end
+
 local hider = CreateFrame("Frame")
 hider:Hide()
 local shouldHide = function(owner)
@@ -444,9 +455,7 @@ local shouldHide = function(owner)
 end
 hider:SetScript("OnUpdate", function(self)
     if shouldHide(tooltip.owner) then
-        spinner:Hide()
-        positioner:Hide()
-        tooltip:Hide()
+        hidePreview()
         tooltip.item = nil
     end
     self:Hide()
@@ -515,19 +524,32 @@ function ns:ShowItem(link, for_tooltip)
         end
         if found then
             local _, maybelink = C_Item.GetItemInfo(found)
-            if maybelink then
+            -- found is a bare link when the token has difficulty variants, but
+            -- the model and journal calls below all want a plain itemID
+            local foundID = C_Item.GetItemInfoInstant(found)
+            if maybelink and foundID then
                 link = maybelink
-                id = found
+                id = foundID
             end
             for_tooltip:Show()
         end
     end
 
-    if tooltip.item == id or (db.modifier and not self.modifiers[db.modifier]()) then
+    -- Checked ahead of the cache so releasing the modifier over the item we're
+    -- already previewing hides it, rather than leaving the model on a tooltip
+    -- that's since moved on to something else.
+    if db.modifier and not self.modifiers[db.modifier]() then
+        hidePreview()
+        tooltip.item = nil
+        return
+    end
+    -- Keyed on the link, not the id: the same item can have different
+    -- appearances depending on its bonuses, e.g. mythic Drape of Iron Sutures
+    if tooltip.item == link then
         return
     end
     local slot, _, _, classID, subclassID, _, _, setID = select(9, C_Item.GetItemInfo(id))
-    tooltip.item = id
+    tooltip.item = link
 
     local appropriateItem = LAI:IsAppropriate(id)
 
@@ -537,6 +559,10 @@ function ns:ShowItem(link, for_tooltip)
         model:Hide()
     end
 
+    -- Each branch below can still bail out partway if the model data isn't
+    -- there, so track whether anything actually got shown rather than only
+    -- hiding in the final else.
+    local previewed
     if self.slot_facings[slot] and IsDressableItem(id) and (not db.currentClass or appropriateItem) then
         local model, cameraID
         local isHeld = self.slot_held[slot]
@@ -578,7 +604,7 @@ function ns:ShowItem(link, for_tooltip)
             model:SetFacing(self.slot_facings[slot] - (db.rotate and 0.5 or 0))
         end
 
-        self:ShowTooltip(for_tooltip)
+        previewed = self:ShowTooltip(for_tooltip)
 
         if ns.slot_removals[slot] and (ns.always_remove[slot] or db.uncover) then
             -- 1. If this is a weapon, force-remove the item in the main-hand slot! Otherwise it'll get dressed into the
@@ -625,7 +651,7 @@ function ns:ShowItem(link, for_tooltip)
 
             tooltip.activeModel = modelScene
 
-            self:ShowTooltip(for_tooltip)
+            previewed = self:ShowTooltip(for_tooltip)
         end
     elseif C_MountJournal and C_MountJournal.GetMountFromItem and classID == Enum.ItemClass.Miscellaneous and subclassID == Enum.ItemMiscellaneousSubclass.Mount then
         -- see: DressUpFrames.lua
@@ -655,7 +681,7 @@ function ns:ShowItem(link, for_tooltip)
 
                 tooltip.activeModel = modelScene
 
-                self:ShowTooltip(for_tooltip)
+                previewed = self:ShowTooltip(for_tooltip)
             end
         end
     elseif C_PetJournal and C_PetJournal.GetPetInfoByItemID and classID == Enum.ItemClass.Miscellaneous and subclassID == Enum.ItemMiscellaneousSubclass.CompanionPet then
@@ -677,10 +703,14 @@ function ns:ShowItem(link, for_tooltip)
             tooltip.activeModel = modelScene
 
             modelScene:Show()
-            self:ShowTooltip(for_tooltip)
+            previewed = self:ShowTooltip(for_tooltip)
         end
-    else
-        tooltip:Hide()
+    end
+
+    if not previewed then
+        -- Nothing to preview for this item, but keep tooltip.item set so we
+        -- don't redo all of the above on every tooltip refresh.
+        hidePreview()
     end
 
     classwarning:Hide()
@@ -726,6 +756,8 @@ function ns:ShowTooltip(for_tooltip)
 
     positioner:Show()
     spinner:SetShown(db.spin)
+
+    return true
 end
 
 function ns:HideItem()
@@ -964,7 +996,6 @@ function ns.PlayerHasAppearance(itemLinkOrID)
     -- Warbands were added in 11.0.0 this is now possible.
     local sources = C_TransmogCollection.GetAllAppearanceSources(appearanceID)
     if sources then
-        local known_any = false
         for _, sourceID2 in pairs(sources) do
             if C_TransmogCollection.PlayerHasTransmogItemModifiedAppearance(sourceID2) then
                 -- We know it, and it must be from a different source because of the above check
