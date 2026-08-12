@@ -91,7 +91,7 @@ L.LEAVING_COMBAT			= "Saliendo del combate"
 L.RAID_DIFFICULTY_CHANGED		= "La dificultad de la banda se ha establecido en %s."
 L.DUNGEON_DIFFICULTY_CHANGED	= "La dificultad de la mazmorra se ha establecido en %s."
 
-L.PROFILE_NOT_FOUND				= "<" .. L.DBM .. "> Tu perfil actual está corrupto. " .. L.DBM .. " cargará el perfil 'Predeterminado'."
+L.PROFILE_NOT_FOUND				= "<" .. L.DBM .. "> Tu perfil actual está corrupto. " .. L.DBM .. " cargará el perfil '%s'."
 L.PROFILE_CREATED				= "Se ha creado el perfil '%s'."
 L.PROFILE_CREATE_ERROR			= "No se ha podido crear el perfil. El nombre del perfil no es válido."
 L.PROFILE_CREATE_ERROR_D		= "No se ha podido crear el perfil. Ya existe un perfil llamado '%s'."
@@ -100,9 +100,9 @@ L.PROFILE_APPLY_ERROR			= "No se ha podido cambiar de perfil. El perfil '%s' no 
 L.PROFILE_COPIED				= "Se ha copiado el perfil '%s'."
 L.PROFILE_COPY_ERROR			= "No se ha podido copiar el perfil. El perfil '%s' no existe."
 L.PROFILE_COPY_ERROR_SELF		= "No se puede copiar un perfil a sí mismo."
-L.PROFILE_DELETED				= "Se ha borrado el perfil '%s'. " .. L.DBM .. " cambiará ahora al perfil 'Predeterminado'."
+L.PROFILE_DELETED				= "Se ha borrado el perfil '%s'. " .. L.DBM .. " cambiará ahora al perfil '%s'."
 L.PROFILE_DELETE_ERROR			= "No se ha podido borrar el perfil. El perfil '%s' no existe."
-L.PROFILE_CANNOT_DELETE			= "No se puede borrar el perfil 'Predeterminado'."
+L.PROFILE_CANNOT_DELETE			= "No se puede borrar el perfil '%s'."
 L.MPROFILE_COPY_SUCCESS			= "Se ha copiado la configuración de módulo de %s (especialización %d)."
 L.MPROFILE_COPY_SELF_ERROR		= "No se puede copiar una configuración de personaje a sí misma."
 L.MPROFILE_COPY_S_ERROR			= "La configuración de origen está corrupta. Es posible que la configuración se haya copiado a medias o haya fallado por completo."
@@ -127,7 +127,7 @@ L.NOTESHAREERRORGROUPFINDER	= "No se puede compartir notas en campos de batalla,
 L.NOTESHAREERRORALREADYOPEN	= "No se puede abrir notas compartidas con el editor de notas ya abierto."
 
 L.ALLMOD_DEFAULT_LOADED		= "Se han cargado las opciones predeterminadas de todos los módulos de esta estancia."
-L.ALLMOD_STATS_RESETED		= "Se han restablecido todas las estadísticas de este módulo."
+L.ALLMOD_STATS_RESETED		= "Se han restablecido todas las estadísticas de módulos."
 L.MOD_DEFAULT_LOADED		= "Se han cargado las opciones predeterminadas de este encuentro."
 
 L.WORLDBOSS_ENGAGED			= "Es posible que el encuentro de %s se haya iniciado en tu reino a %s de su salud máxima. (Enviado por %s.)"
@@ -291,8 +291,13 @@ L.SLASHCMD_HELP2						= {--AI translated (check me)
 	"/range <número> o /distance <número>: Muestra el marco de rango. /rrange o /rdistance para invertir colores.",
 	"/hudar <número>: Muestra un buscador de rango basado en HUD.",
 	"/dbm arrow: Muestra la flecha de " .. L.DBM .. ", consulta '/dbm arrow help' para más detalles.",
-	"/dbm hud: Muestra el HUD de " .. L.DBM .. ", consulta '/dbm hud' para más detalles."
+	"/dbm hud: Muestra el HUD de " .. L.DBM .. ", consulta '/dbm hud' para más detalles.",
+	"/dbm dbtdebug: Muestra diagnósticos de barras de tiempo depurados para informes de errores."
 }
+L.DBT_DEBUG_HEADER			= "Diagnósticos de DBT (depurados; sin texto de encuentro ni secreto)"
+L.DBT_DEBUG_EMPTY			= "No se han capturado actualizaciones de estilo de DBT desde que se recargó la interfaz."
+L.DBT_DEBUG_DISABLED			= "La captura está desactivada. Activa el modo de depuración de DBM antes de reproducir el problema."
+L.DBT_DEBUG_NOTICE			= "Incluye esta salida del chat en tu informe de error."
 L.TIMER_USAGE	= {
 	L.DBM .. " Comandos de temporizador:",
 	"-----------------",
@@ -337,6 +342,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount	= "%s perjuicio entrante (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends 			= "%s ha terminado"
 L.AUTO_ANNOUNCE_TEXTS.endtarget		= "%s ha terminado: >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades			= "%s se ha desvanecido"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon		= "%s se desvanece en breve"
 L.AUTO_ANNOUNCE_TEXTS.addsleft		= "%s restantes: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast			= "Lanzando %s en %.1f s"
 L.AUTO_ANNOUNCE_TEXTS.soon			= "%s en breve"
@@ -364,6 +370,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount	= "Mostrar anuncio cuando $spell:%s tiene 
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "Mostrar anuncio cuando $spell:%s termine"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget		= "Mostrar anuncio cuando $spell:%s termine"
 L.AUTO_ANNOUNCE_OPTIONS.fades			= "Mostrar anuncio cuando $spell:%s se desvanezca"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon		= "Mostrar anuncio anticipado para cuando $spell:%s se desvanezca"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "Mostrar anuncio para el número de $spell:%s restantes"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "Mostrar anuncio cuando $spell:%s comience a lanzarse"
 L.AUTO_ANNOUNCE_OPTIONS.soon			= prewarnOption
@@ -400,6 +407,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou		= "%s (%%s) en ti"
 L.AUTO_SPEC_WARN_TEXTS.link			= "%s vinculado con >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.defensive	= "%s - ¡Facultad defensiva ahora!"
 L.AUTO_SPEC_WARN_TEXTS.taunt		= "%s en >%%s< - ¡Provoca ahora!"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s en %%s - ¡Provoca ahora!"
 L.AUTO_SPEC_WARN_TEXTS.close		= "%s en >%%s< cerca de ti"
 L.AUTO_SPEC_WARN_TEXTS.move			= "%s - ¡Sal de ahí!"
 L.AUTO_SPEC_WARN_TEXTS.keepmove		= "%s - ¡No dejes de moverte!"

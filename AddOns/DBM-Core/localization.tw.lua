@@ -93,7 +93,7 @@ L.LEAVING_COMBAT				= "離開戰鬥"
 L.RAID_DIFFICULTY_CHANGED		= "團隊難度已設定為%s。"
 L.DUNGEON_DIFFICULTY_CHANGED	= "地下城難度已設定為%s。"
 
-L.PROFILE_NOT_FOUND				= "<"..L.DBM..">你目前的配置檔已經損毀。"..L.DBM.."會載入'Default'配置檔。"
+L.PROFILE_NOT_FOUND				= "<"..L.DBM..">你目前的配置檔已經損毀。"..L.DBM.."會載入'%s'配置檔。"
 L.PROFILE_CREATED				= "配置檔'%s'已建立。"
 L.PROFILE_CREATE_ERROR			= "建立配置檔失敗，無效的配置檔名稱。"
 L.PROFILE_CREATE_ERROR_D		= "建立配置檔失敗，配置檔'%s'已存在。"
@@ -102,9 +102,9 @@ L.PROFILE_APPLY_ERROR			= "套用配置檔失敗，配置檔'%s'不存在。"
 L.PROFILE_COPIED				= "配置檔'%s'已複製。"
 L.PROFILE_COPY_ERROR			= "複製配置檔失敗，配置檔'%s'不存在。"
 L.PROFILE_COPY_ERROR_SELF		= "不能複製配置檔到本身來源。"
-L.PROFILE_DELETED				= "配置檔'%s'已刪除。配置檔'Default'會被套用。"
+L.PROFILE_DELETED				= "配置檔'%s'已刪除。配置檔'%s'會被套用。"
 L.PROFILE_DELETE_ERROR			= "刪除配置檔失敗，配置檔'%s'不存在。"
-L.PROFILE_CANNOT_DELETE			= "不能刪除'Default'配置檔。"
+L.PROFILE_CANNOT_DELETE			= "不能刪除'%s'配置檔。"
 L.MPROFILE_COPY_SUCCESS			= "%s's (%d專精)模組設定已被複製。"
 L.MPROFILE_COPY_SELF_ERROR		= "不能複製角色設定到本身來源"
 L.MPROFILE_COPY_S_ERROR			= "配置檔來源已經損毀，設定不能被複製或是部分複製，複製已失敗。"
@@ -293,8 +293,13 @@ L.SLASHCMD_HELP2						= {--AI translated (check me)
 	"/range <number> 或 /distance <number>: 顯示範圍框架。/rrange 或 /rdistance 反轉顏色。",
 	"/hudar <number>: 顯示基於 HUD 的範圍查找器。",
 	"/dbm arrow: 顯示 " .. L.DBM .. " 箭頭，詳情請參見 '/dbm arrow help'。",
-	"/dbm hud: 顯示 " .. L.DBM .. " hud，詳情請參見 '/dbm hud'。"
+	"/dbm hud: 顯示 " .. L.DBM .. " hud，詳情請參見 '/dbm hud'。",
+	"/dbm dbtdebug: 顯示已清理的狀態條計時器診斷資訊以供錯誤回報。"
 }
+L.DBT_DEBUG_HEADER			= "DBT 診斷資訊（已清理；不含首領戰或保密文字）"
+L.DBT_DEBUG_EMPTY			= "自重新載入介面後，未擷取到 DBT 樣式更新。"
+L.DBT_DEBUG_DISABLED			= "擷取已停用。請在重現問題前啟用 DBM 偵錯模式。"
+L.DBT_DEBUG_NOTICE			= "請將此聊天輸出附在錯誤回報中。"
 L.TIMER_USAGE	= {
 	L.DBM .. "計時器指令：",
 	"-----------------",
@@ -338,6 +343,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount			= "%s 即將到來的減益 (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends 					= "%s結束"
 L.AUTO_ANNOUNCE_TEXTS.endtarget				= "%s結束:>%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades					= "%s消退"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon				= "%s 即將消退"
 L.AUTO_ANNOUNCE_TEXTS.addsleft				= "%s還剩下:%%d"
 L.AUTO_ANNOUNCE_TEXTS.cast					= "施放%s:%.1f秒"
 L.AUTO_ANNOUNCE_TEXTS.soon					= "%s即將到來"
@@ -364,6 +370,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount		= "提示：$spell:%s 的減益即將到�
 L.AUTO_ANNOUNCE_OPTIONS.ends				= "提示：當$spell:%s結束"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget			= "提示：當$spell:%s結束(包含目標)"
 L.AUTO_ANNOUNCE_OPTIONS.fades				= "提示：當$spell:%s消退"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon			= "提示：當$spell:%s即將消退"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft			= "提示：$spell:%s剩餘數量"
 L.AUTO_ANNOUNCE_OPTIONS.cast				= "提示：當$spell:%s開始施放"
 L.AUTO_ANNOUNCE_OPTIONS.soon				= prewarnOption
@@ -400,6 +407,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou				= "你中了%s (%%s)"
 L.AUTO_SPEC_WARN_TEXTS.link					= "%s 與 >%%s< 連結"
 L.AUTO_SPEC_WARN_TEXTS.defensive			= "%s - 使用防禦技能"
 L.AUTO_SPEC_WARN_TEXTS.taunt				= ">%%s<中了%s - 快嘲諷"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret			= "%%s中了%s - 快嘲諷"
 L.AUTO_SPEC_WARN_TEXTS.close				= "你附近的>%%s<中了%s"
 L.AUTO_SPEC_WARN_TEXTS.move					= "%s - 快移動"
 L.AUTO_SPEC_WARN_TEXTS.keepmove				= "%s - 保持移動"

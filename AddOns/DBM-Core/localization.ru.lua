@@ -95,7 +95,7 @@ L.LEAVING_COMBAT					= "Выход из боя"
 L.RAID_DIFFICULTY_CHANGED			= "Уровень сложности рейда установлен на %s."
 L.DUNGEON_DIFFICULTY_CHANGED		= "Уровень сложности подземелья установлен на %s."
 
-L.PROFILE_NOT_FOUND					= "<" .. L.DBM .. "> Ваш текущий профиль повреждён. " .. L.DBM .. " загрузит профиль 'По умолчанию'."
+L.PROFILE_NOT_FOUND					= "<" .. L.DBM .. "> Ваш текущий профиль повреждён. " .. L.DBM .. " загрузит профиль '%s'."
 L.PROFILE_CREATED					= "Профиль '%s' создан."
 L.PROFILE_CREATE_ERROR				= "Не удалось создать профиль. Некорректное название профиля."
 L.PROFILE_CREATE_ERROR_D			= "Не удалось создать профиль. Профиль '%s' уже существует."
@@ -104,9 +104,9 @@ L.PROFILE_APPLY_ERROR				= "Не удалось применить профил�
 L.PROFILE_COPIED					= "Профиль '%s' скопирован."
 L.PROFILE_COPY_ERROR				= "Не удалось скопировать профиль. Профиль '%s' не существует."
 L.PROFILE_COPY_ERROR_SELF			= "Невозможно скопировать профиль себе."
-L.PROFILE_DELETED					= "Профиль '%s' удалён. Будет применён профиль 'По умолчанию'."
+L.PROFILE_DELETED					= "Профиль '%s' удалён. Будет применён профиль '%s'."
 L.PROFILE_DELETE_ERROR				= "Не удалось удалить профиль. Профиль '%s' не существует."
-L.PROFILE_CANNOT_DELETE				= "Невозможно удалить профиль 'По умолчанию'."
+L.PROFILE_CANNOT_DELETE				= "Невозможно удалить профиль '%s'."
 L.MPROFILE_COPY_SUCCESS				= "Настройки модуля от %s (специализация %d) были скопированы."
 L.MPROFILE_COPY_SELF_ERROR			= "Невозможно скопировать настройки персонажа сами в себя."
 L.MPROFILE_COPY_S_ERROR				= "Источник повреждён. Настройки не скопированы или скопированы частично. Скопировать не удалось."
@@ -296,8 +296,13 @@ L.SLASHCMD_HELP2						= {--AI translated (it's fine)
 	"/range <number> или /distance <number>: Показывает фрейм диапазона. /rrange или /rdistance для изменения цветов.",
 	"/hudar <number>: Показывает HUD для определения расстояния.",
 	"/dbm arrow: Показывает стрелку " .. L.DBM .. ", подробности в разделе '/dbm arrow help'.",
-	"/dbm hud: Показывает HUD " .. L.DBM .. ", подробности в разделе '/dbm hud'."
+	"/dbm hud: Показывает HUD " .. L.DBM .. ", подробности в разделе '/dbm hud'.",
+	"/dbm dbtdebug: Показывает очищенную диагностику таймеров строк состояния для отчётов об ошибках."
 }
+L.DBT_DEBUG_HEADER					= "Диагностика DBT (очищено; без текста боя или секретного текста)"
+L.DBT_DEBUG_EMPTY					= "С момента перезагрузки интерфейса не было зафиксировано обновлений стиля DBT."
+L.DBT_DEBUG_DISABLED				= "Сбор данных отключён. Включите режим отладки DBM перед воспроизведением проблемы."
+L.DBT_DEBUG_NOTICE					= "Пожалуйста, приложите это сообщение в чате к отчёту об ошибке."
 L.TIMER_USAGE = {
 	L.DBM .. " команды таймера:",
 	"-----------------",
@@ -343,6 +348,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount	= "%s получает дебафф (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends			= "%s заканчивается"
 L.AUTO_ANNOUNCE_TEXTS.endtarget		= "%s заканчивается: >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades			= "%s спадает"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon		= "%s скоро спадёт"
 L.AUTO_ANNOUNCE_TEXTS.addsleft		= "Осталось %s: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast 			= "Применение заклинания %s: %.1f сек."
 L.AUTO_ANNOUNCE_TEXTS.soon 			= "Скоро %s"
@@ -370,6 +376,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount	= "Объявлять (со счётчик
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "Предупреждать об окончании $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget		= "Предупреждать об окончании $spell:%s (с целью)"
 L.AUTO_ANNOUNCE_OPTIONS.fades			= "Предупреждать о спадении $spell:%s"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon		= "Заранее предупреждать, когда $spell:%s исчезнет"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "Объявлять, сколько осталось $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.cast 			= "Предупреждать о применении заклинания $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.soon 			= prewarnOption
@@ -406,6 +413,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou			= "%s (%%s) на Вас"
 L.AUTO_SPEC_WARN_TEXTS.link				= "%s связан с >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.defensive		= "%s - защититесь"
 L.AUTO_SPEC_WARN_TEXTS.taunt			= "%s на >%%s< - затаунти"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s на %%s - затаунти"
 L.AUTO_SPEC_WARN_TEXTS.close 			= "%s на >%%s< около Вас"
 L.AUTO_SPEC_WARN_TEXTS.move 			= "%s - отбегите"
 L.AUTO_SPEC_WARN_TEXTS.keepmove			= "%s - продолжайте двигаться"

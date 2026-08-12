@@ -86,12 +86,10 @@ moveme:SetScript("OnClick", function()
 	DBM_GUI:CollapseForPreview(DBT:ShowMovableBar())
 end)
 
-local latencySlider = generaloptions:CreateSlider(L.Latency_Text, 50, 750, 5, 210)
-latencySlider:SetPoint("TOPLEFT", bminfo, "BOTTOMLEFT", 4, -20)
-latencySlider:SetValue(DBM.Options.LatencyThreshold)
-latencySlider:HookScript("OnValueChanged", function(self)
-	DBM.Options.LatencyThreshold = self:GetValue()
+local latencySlider = generaloptions:CreateSlider(L.Latency_Text, 50, 750, 5, 210, DBM.Options.LatencyThreshold, function(value)
+	DBM.Options.LatencyThreshold = value
 end)
+latencySlider:SetPoint("TOPLEFT", bminfo, "BOTTOMLEFT", 4, -20)
 
 local resetbutton = generaloptions:CreateButton(L.Button_ResetInfoRange, 120, 16)
 resetbutton:SetPoint("BOTTOMRIGHT", generaloptions.frame, "BOTTOMRIGHT", -5, 5)
@@ -172,7 +170,7 @@ end)
 
 local resizeHeight = resizeOptions:CreateEditBox(L.Editbox_WindowHeight, math.floor(DBM.Options.GUIHeight * 10 ^ 2 + 0.5) / 10 ^ 2)
 resizeHeight.myheight = 10
-resizeHeight:SetPoint("LEFT", resizeWidth, "RIGHT", 40, 0)
+resizeHeight:SetPoint("LEFT", resizeWidth, "RIGHT", 60, 0)
 resizeHeight:SetScript("OnChar", function(self)
 	self:SetText(self:GetText():gsub("[^%.%d]", ""))
 end)

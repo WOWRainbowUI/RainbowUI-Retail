@@ -92,7 +92,7 @@ L.LEAVING_COMBAT					= "Saindo de combate"
 L.RAID_DIFFICULTY_CHANGED			= "Dificuldade da raide foi definida como %s."
 L.DUNGEON_DIFFICULTY_CHANGED		= "Dificuldade da masmorra foi definida como %s."
 
-L.PROFILE_NOT_FOUND					= "<" .. L.DBM .. "> Seu perfil atual está corrompido. " .. L.DBM .. " carregara o perfil 'Padrão'."
+L.PROFILE_NOT_FOUND					= "<" .. L.DBM .. "> Seu perfil atual está corrompido. " .. L.DBM .. " carregara o perfil '%s'."
 L.PROFILE_CREATED					= "'%s' perfil criado."
 L.PROFILE_CREATE_ERROR				= "Falha ao criar perfil. Nome de perfil inválido."
 L.PROFILE_CREATE_ERROR_D			= "Falha ao criar perfil. '%s' perfil já existe."
@@ -101,9 +101,9 @@ L.PROFILE_APPLY_ERROR				= "Falha ao aplicar perfil. '%s' perfil não existe."
 L.PROFILE_COPIED					= "'%s' perfil copiado."
 L.PROFILE_COPY_ERROR				= "Falha ao copiar perfil. '%s' perfil não existe."
 L.PROFILE_COPY_ERROR_SELF			= "Falha ao copiar perfil, não é possível copiar a si mesmo."
-L.PROFILE_DELETED					= "'%s' perfil deletado. Perfil 'Padrão' será aplicado."
+L.PROFILE_DELETED					= "'%s' perfil deletado. Perfil '%s' será aplicado."
 L.PROFILE_DELETE_ERROR				= "Falha ao deletar perfil. '%s' perfil não existe."
-L.PROFILE_CANNOT_DELETE				= "Não é possível deletar o perfil 'Padrão'."
+L.PROFILE_CANNOT_DELETE				= "Não é possível deletar o perfil '%s'."
 L.MPROFILE_COPY_SUCCESS				= "%s's (%d spec) preferencias do módulo foram copiadas."
 L.MPROFILE_COPY_SELF_ERROR			= "Não é possível copiar às preferencias do char para ele mesmo"
 L.MPROFILE_COPY_S_ERROR				= "Origem esta corrompida. Preferencias não foram copias ou foram copiadas parcialmente. Falha ao copiar."
@@ -290,7 +290,12 @@ L.SLASHCMD_HELP2					= {
 	"/hudar <número>: Mostra o buscador de distância baseado em HUD.",
 	"/dbm arrow: Mostra a seta do " .. L.DBM .. ", veja /dbm arrow help para detalhes.",
 	"/dbm hud: Mostra o HUD do " .. L.DBM .. ", veja '/dbm hud' para detalhes.",
+	"/dbm dbtdebug: Mostra diagnósticos sanitizados de barras de tempo para relatórios de erro."
 }
+L.DBT_DEBUG_HEADER					= "Diagnósticos DBT (sanitizados; sem texto de encontro ou secreto)"
+L.DBT_DEBUG_EMPTY					= "Nenhuma atualização de estilo do DBT foi capturada desde que a interface foi recarregada."
+L.DBT_DEBUG_DISABLED					= "A captura está desativada. Ative o Modo de Depuração do DBM antes de reproduzir o problema."
+L.DBT_DEBUG_NOTICE					= "Inclua esta saída do chat no seu relatório de erro."
 --Translate all of these
 L.TIMER_USAGE						= {
 	"Comandos de cronômetro do DBM:",
@@ -336,6 +341,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount 	= "Penalidade %s se aproximando (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends 				= "%s terminado"
 L.AUTO_ANNOUNCE_TEXTS.endtarget 		= "%s terminado: >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades 			= "%s desvaneceu-se"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon			= "%s desvanece em breve"
 L.AUTO_ANNOUNCE_TEXTS.addsleft			= "%s restantes: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast				= "Lançando %s: %.1f seg"
 L.AUTO_ANNOUNCE_TEXTS.soon				= "%s em breve"
@@ -365,6 +371,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount 	= "Exibir anúncio quando $spell:%s tiver
 L.AUTO_ANNOUNCE_OPTIONS.ends 			= "Exibir anúncio quando $spell:%s tiver terminado"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget 		= "Exibir anúncio quando $spell:%s tiver terminado (com alvo)"
 L.AUTO_ANNOUNCE_OPTIONS.fades 			= "Exibir anúncio quando $spell:%s tiver desvanecido"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon		= "Exibir anúncio antecipado quando $spell:%s se desvanece"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft 		= "Exibir anúncio para quantos $spell:%s ainda restam"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "Exibir anúncio quando $spell:%s está sendo lançado"
 L.AUTO_ANNOUNCE_OPTIONS.soon			= prewarnOption
@@ -401,6 +408,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou			= "%s (%%s) em você"
 L.AUTO_SPEC_WARN_TEXTS.link 			= "%s ligado a >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.defensive 		= "%s - Defensivo"
 L.AUTO_SPEC_WARN_TEXTS.taunt 			= "%s em >%%s< - Provoque agora"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s em %%s - Provoque agora"
 L.AUTO_SPEC_WARN_TEXTS.close			= "%s em >%%s< perto de você"
 L.AUTO_SPEC_WARN_TEXTS.move				= "%s - Saia de perto"
 L.AUTO_SPEC_WARN_TEXTS.keepmove 		= "%s - Continue se movendo"

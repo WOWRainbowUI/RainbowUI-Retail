@@ -91,7 +91,7 @@ L.LEAVING_COMBAT			= "Sortie du combat"
 L.RAID_DIFFICULTY_CHANGED		= "Le niveau de difficulté du raid a été défini sur %s."
 L.DUNGEON_DIFFICULTY_CHANGED	= "Le niveau de difficulté du donjon a été défini sur %s."
 
-L.PROFILE_NOT_FOUND				= "<" .. L.DBM .. "> Votre profile actuel est corrompu. " .. L.DBM .. " va charger le profil par défaut."
+L.PROFILE_NOT_FOUND				= "<" .. L.DBM .. "> Votre profile actuel est corrompu. " .. L.DBM .. " va charger le profil '%s'."
 L.PROFILE_CREATED				= "'%s' profil créé."
 L.PROFILE_CREATE_ERROR			= "Echec de la création de profil. Nom du profil invalide."
 L.PROFILE_CREATE_ERROR_D		= "Echec de la création de profil. Le profil '%s' existe déjà."
@@ -100,9 +100,9 @@ L.PROFILE_APPLY_ERROR			= "Echec séletion de profil. Le profil '%s' n'existe pa
 L.PROFILE_COPIED				= "Profil '%s' copié."
 L.PROFILE_COPY_ERROR			= "Echec de la copie de profil. Le profil '%s' n'existe pas."
 L.PROFILE_COPY_ERROR_SELF		= "Impossible de copier le profil sur lui-même."
-L.PROFILE_DELETED				= "Profil '%s' effacé. Le profil par défaut sera utilisé."
+L.PROFILE_DELETED				= "Profil '%s' effacé. Le profil '%s' sera utilisé."
 L.PROFILE_DELETE_ERROR			= "Echec de la suppression de profil. Le profil '%s' n'existe pas."
-L.PROFILE_CANNOT_DELETE			= "Impossible de supprimer le profil par défaut."
+L.PROFILE_CANNOT_DELETE			= "Impossible de supprimer le profil '%s'."
 L.MPROFILE_COPY_SUCCESS			= "Les paramètres du mod %s (%d spec) ont été copiés."
 L.MPROFILE_COPY_SELF_ERROR		= "Impossible de copier les paramètres du personnage sur eux-mêmes"
 L.MPROFILE_COPY_S_ERROR			= "La source est corrompue. Les paramètres n'ont pas été copiés ou copiés partiellement. Echec de la copie."
@@ -289,8 +289,13 @@ L.SLASHCMD_HELP2						= {--AI translated (check me)
 	"/range <nombre> ou /distance <nombre> : Affiche la fenêtre de portée. /rrange ou /rdistance pour inverser les couleurs.",
 	"/hudar <nombre> : Affiche le détecteur de portée HUD.",
 	"/dbm arrow : Affiche la flèche " .. L.DBM .. ", voir '/dbm arrow help' pour plus de détails.",
-	"/dbm hud : Affiche le HUD " .. L.DBM .. ", voir '/dbm hud' pour plus de détails."
+	"/dbm hud : Affiche le HUD " .. L.DBM .. ", voir '/dbm hud' pour plus de détails.",
+	"/dbm dbtdebug : Affiche des diagnostics de barres de temps nettoyés pour les rapports d'erreur."
 }
+L.DBT_DEBUG_HEADER			= "Diagnostics DBT (nettoyés ; aucun texte de rencontre ou secret)"
+L.DBT_DEBUG_EMPTY			= "Aucune actualisation de style DBT n'a été capturée depuis le rechargement de l'interface."
+L.DBT_DEBUG_DISABLED			= "La capture est désactivée. Activez le mode débogage de DBM avant de reproduire le problème."
+L.DBT_DEBUG_NOTICE			= "Veuillez inclure cette sortie de discussion dans votre rapport d'erreur."
 L.TIMER_USAGE	= {
 	"Commandes " .. L.DBM .. " des chronomètres:",
 	"-----------------",
@@ -335,6 +340,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount		= "Affaiblissement de %s imminent (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends				= "%s s'est terminé"
 L.AUTO_ANNOUNCE_TEXTS.endtarget			= "%s s'est terminé : >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades				= "%s s'est dissipé"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon			= "%s se dissipe bientôt"
 L.AUTO_ANNOUNCE_TEXTS.addsleft			= "%s restant: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast				= "Incantation %s: %.1f sec"
 L.AUTO_ANNOUNCE_TEXTS.soon				= "%s imminent"
@@ -362,6 +368,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount 	= "Afficher une annonce lorsque $spell:%s
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "Afficher une annonce pour lorsque $spell:%s se termine"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget   	= "Afficher une annonce pour lorsque $spell:%s se termine (avec cible)"
 L.AUTO_ANNOUNCE_OPTIONS.fades			= "Afficher une annonce pour lorsque $spell:%s se dissipe"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon		= "Afficher une pré-annonce lorsque $spell:%s se dissipe"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "Afficher une annonce pour le nombre restant de : $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "Afficher une annonce pour lorsque $spell:%s est incanté"
 L.AUTO_ANNOUNCE_OPTIONS.soon			= prewarnOption
@@ -398,6 +405,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou			= "%s (%%s) sur vous"
 L.AUTO_SPEC_WARN_TEXTS.link				= "%s lié avec >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.defensive		= "%s - Défensif !"
 L.AUTO_SPEC_WARN_TEXTS.taunt		   	= "%s sur >%%s< - Provoquez maintenant !"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret		= "%s sur %%s - Provoquez maintenant !"
 L.AUTO_SPEC_WARN_TEXTS.close			= "%s sur >%%s< près de vous"
 L.AUTO_SPEC_WARN_TEXTS.move				= "%s - Écartez-vous !"
 L.AUTO_SPEC_WARN_TEXTS.keepmove 		= "%s - Continuez à écarter !"
@@ -434,7 +442,7 @@ L.AUTO_SPEC_WARN_OPTIONS.soon			= "Afficher une pré-annonce spéciale pour $spe
 L.AUTO_SPEC_WARN_OPTIONS.sooncount		= "Afficher une pré-annonce spéciale (avec compte) pour $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.bait			= "Afficher une annonce pré-spéciale (pour appâter) pour $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.prewarn		= "Afficher une pré-annonce spéciale %s seconds avant $spell:%s"
-L.AUTO_SPEC_WARN_OPTIONS.dispel 		= "Afficher une annonce spéciale lorsque $spell:%s doit être dissipé/volé"
+L.AUTO_SPEC_WARN_OPTIONS.dispel 		= "Afficher une annonce spéciale lorsque $spell:%s doit être dissipé"
 L.AUTO_SPEC_WARN_OPTIONS.interrupt		= "Afficher une annonce spéciale lorsque $spell:%s doit être interrompu"
 L.AUTO_SPEC_WARN_OPTIONS.interruptcount	= "Afficher une annonce spéciale (avec compte) d'interrompre $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.you 			= "Afficher une annonce spéciale lorsque vous subissez $spell:%s"

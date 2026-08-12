@@ -199,8 +199,10 @@ DBT.DefaultOptions = {
 ---@field varianceDuration number
 ---@field hasVariance boolean
 local barPrototype = {}
-local unusedBarObjects, barIsAnimating = {}, false
+local unusedBarObjects = {}
 local smallBars, largeBars, hiddenBars = {}, {}, {}
+local debugHistory, debugHistoryIndex, debugHistoryCount = {}, 0, 0
+local debugHistorySize = 10
 
 local dbtFontResetNotified = false
 
@@ -290,13 +292,22 @@ do
 
 
 	local function onUpdate(self)
-		if self.obj then
-			self.obj.curTime = GetTime()
-			self.obj.delta = self.obj.curTime - self.obj.lastUpdate
-			--Frequent updates when any bar is moving or large bars so they don't look janky. More efficient bars when non animating small bars
-			if ((barIsAnimating or self.obj.enlarged) and self.obj.delta >= 0.01) or self.obj.delta >= 0.04 then
-				self.obj.lastUpdate = self.obj.curTime
-				self.obj:Update(self.obj.delta)
+		local obj = self.obj
+		if obj then
+			local currentTime = GetTime()
+			local delta = currentTime - obj.lastUpdate
+			local updateInterval
+			if obj.isHidden and not obj.callback then
+				-- Hidden bars only need periodic expiry/visibility checks. Preserve the existing cadence for callback users.
+				updateInterval = 0.25
+			elseif obj.enlarged or obj.moving == "move" or obj.moving == "enlarge" then
+				updateInterval = 0.01
+			else
+				updateInterval = 0.04
+			end
+			if delta >= updateInterval then
+				obj.lastUpdate = currentTime
+				obj:Update(delta)
 			end
 		end
 	end
@@ -852,6 +863,52 @@ function DBT:GetBarIterator()
 	return pairs(self.bars)
 end
 
+function DBT:RecordDebugState(bar, operation)
+	if not DBM.Options.DebugMode then
+		return
+	end
+	debugHistoryIndex = debugHistoryIndex % debugHistorySize + 1
+	debugHistoryCount = math.min(debugHistoryCount + 1, debugHistorySize)
+	debugHistory[debugHistoryIndex] = {
+		time = GetTime(),
+		operation = operation,
+		frame = tonumber(bar.frame:GetName():match("_(%d+)$")) or 0,
+		secret = bar.isSecret and true or false,
+		timer = bar.timer or 0,
+		totalTime = bar.totalTime or 0,
+		enlarged = bar.enlarged and true or false,
+		hidden = bar.isHidden and true or false,
+		paused = bar.paused and true or false,
+		moving = bar.moving or "none",
+		bars = self.numBars
+	}
+end
+
+function DBT:ShowDebugReport()
+	local options = self.Options
+	DBM:AddMsg(DBM_CORE_L.DBT_DEBUG_HEADER)
+	DBM:AddMsg(("style=%s texture=%s font=%s/%s/%s spark=%s icons=%s huge=%s dynamicColor=%s"):format(
+		tostring(options.BarStyle), tostring(options.Texture), tostring(options.Font), tostring(options.FontSize), tostring(options.FontFlag),
+		tostring(options.Spark), tostring(options.JournalIcons), tostring(options.HugeBarsEnabled), tostring(options.DynamicColor)
+	), false)
+	if debugHistoryCount == 0 then
+		DBM:AddMsg(DBM_CORE_L.DBT_DEBUG_EMPTY)
+	else
+		for i = 1, debugHistoryCount do
+			local index = (debugHistoryIndex - debugHistoryCount + i - 1) % debugHistorySize + 1
+			local entry = debugHistory[index]
+			DBM:AddMsg(("%s t=%.2f frame=%d secret=%s timer=%.2f/%.2f large=%s hidden=%s paused=%s moving=%s bars=%d"):format(
+				entry.operation, entry.time, entry.frame, tostring(entry.secret), entry.timer, entry.totalTime,
+				tostring(entry.enlarged), tostring(entry.hidden), tostring(entry.paused), entry.moving, entry.bars
+			), false)
+		end
+	end
+	if not DBM.Options.DebugMode then
+		DBM:AddMsg(DBM_CORE_L.DBT_DEBUG_DISABLED)
+	end
+	DBM:AddMsg(DBM_CORE_L.DBT_DEBUG_NOTICE)
+end
+
 ---@return DBTBar?
 function DBT:GetBar(id)
 	return barIDIndex[id]
@@ -877,29 +934,39 @@ function DBT:ResetBarVariance(bar)
 		bar.minTimer = nil
 		bar.varianceDuration = 0
 		bar.hasVariance = false
-		bar:ApplyStyle() -- Running this here since this is skipped if bar was already enlarged. REVIEW! Will run twice otherwise
+		return true
 	end
 end
 
 function DBT:UpdateBar(id, elapsed, totalTime)
-	for bar in self:GetBarIterator() do
-		if id == bar.id then
-			if type(totalTime) == "number" then
-				DBT:ResetBarVariance(bar)
-			elseif type(totalTime) == "string" then -- found string (variance)
-				local varianceMinTimer, varianceDuration, hasVariance
-				totalTime, varianceMinTimer, varianceDuration, hasVariance = DBT.parseAndApplyVariance(totalTime)
-				bar.minTimer = varianceMinTimer
-				bar.varianceDuration = varianceDuration
-				bar.hasVariance = hasVariance
-				bar:ApplyStyle()
-			end
-			bar:SetTimer(totalTime or bar.totalTime)
-			bar:SetElapsed(elapsed or bar.totalTime - bar.timer)
-			return true
-		end
+	local bar = barIDIndex[id]
+	if not bar then
+		return false
 	end
-	return false
+	local styleChanged
+	if type(totalTime) == "number" then
+		styleChanged = DBT:ResetBarVariance(bar)
+	elseif type(totalTime) == "string" then -- found string (variance)
+		local varianceMinTimer, varianceDuration, hasVariance
+		totalTime, varianceMinTimer, varianceDuration, hasVariance = DBT.parseAndApplyVariance(totalTime)
+		bar.minTimer = varianceMinTimer
+		bar.varianceDuration = varianceDuration
+		bar.hasVariance = hasVariance
+		styleChanged = true
+	end
+	bar.totalTime = totalTime or bar.totalTime
+	local layoutChanged = bar:SetElapsed(elapsed or bar.totalTime - bar.timer, true)
+	if bar.dead then
+		return true
+	end
+	if styleChanged or layoutChanged then
+		bar:ApplyStyle(true)
+	end
+	bar:Update(0)
+	if not bar.dead then
+		DBT:UpdateBars(true)
+	end
+	return true
 end
 
 function DBT:SetAnnounceHook(f)
@@ -967,7 +1034,7 @@ function barPrototype:SetTimer(timer)
 	self:Update(0)
 end
 
-function barPrototype:ResetAnimations(makeBig)
+function barPrototype:ResetAnimations(makeBig, deferStyle)
 	self:RemoveFromList()
 	self.moving = nil
 	-- Hidden bars that shouldn't be animated or shown yet
@@ -981,7 +1048,10 @@ function barPrototype:ResetAnimations(makeBig)
 		self.enlarged = nil
 		tinsert(smallBars, self)
 	end
-	self:ApplyStyle()
+	if not deferStyle then
+		self:ApplyStyle()
+	end
+	return true
 end
 
 function barPrototype:Pause()
@@ -998,22 +1068,26 @@ function barPrototype:Resume()
 	DBT:UpdateBars(true)
 end
 
-function barPrototype:SetElapsed(elapsed)
+function barPrototype:SetElapsed(elapsed, deferRefresh)
 	self.timer = self.totalTime - elapsed
+	local layoutChanged
 	if not self.isHidden then
 		local enlargeTime = DBT.Options.EnlargeBarTime or 11
 		-- Bar was large, or moving (animating from the small to large bar anchor) at time this was called
 		-- Force reset animation and move it back to the small anchor since time was added to bar
 		if (self.enlarged or self.moving == "enlarge") and self.timer > enlargeTime then
-			self:ResetAnimations()
+			layoutChanged = self:ResetAnimations(nil, deferRefresh)
 		-- Bar was small, or moving from small to large when time was removed
 		-- Also force reset animation but this time move it from small anchor into large one
 		elseif not self.paused and (not self.enlarged or self.moving == "enlarge") and self.timer <= enlargeTime then
-			self:ResetAnimations(true)
+			layoutChanged = self:ResetAnimations(true, deferRefresh)
 		end
 	end
-	self:Update(0)
-	DBT:UpdateBars(true)
+	if not deferRefresh then
+		self:Update(0)
+		DBT:UpdateBars(true)
+	end
+	return layoutChanged
 end
 
 function barPrototype:SetText(text, inlineIcon, isSecret)
@@ -1249,10 +1323,10 @@ function barPrototype:Update(elapsed)
 					bar:SetValue(timerValue/totaltimeValue)
 				end
 			end
-			if self.isCooldown then--inprecise CD bar, signify it with ~ in timer
-				timer:SetText("~" .. stringFromTimer(timerCorrectedNegative))
-			else
-				timer:SetText(stringFromTimer(timerCorrectedNegative))
+			local timerText = self.isCooldown and "~" .. stringFromTimer(timerCorrectedNegative) or stringFromTimer(timerCorrectedNegative)
+			if timerText ~= self.lastTimerText then
+				timer:SetText(timerText)
+				self.lastTimerText = timerText
 			end
 		end
 	end
@@ -1278,7 +1352,11 @@ function barPrototype:Update(elapsed)
 		end
 		if sparkEnabled then
 			spark:ClearAllPoints()
-			spark:SetSize(12, barOptions[isEnlarged and 'HugeHeight' or 'Height'] * 3)
+			local sparkHeight = barOptions[isEnlarged and "HugeHeight" or "Height"] * 3
+			if sparkHeight ~= self.sparkHeight then
+				spark:SetSize(12, sparkHeight)
+				self.sparkHeight = sparkHeight
+			end
 			spark:SetPoint("CENTER", bar, "LEFT", bar:GetValue() * bar:GetWidth(), -1)
 		else
 			spark:SetAlpha(0)
@@ -1305,7 +1383,6 @@ function barPrototype:Update(elapsed)
 		end
 		local melapsed = self.moveElapsed
 		if isMoving == "move" and melapsed <= 0.5 then
-			barIsAnimating = true
 			self.moveElapsed = melapsed + elapsed
 			local newX = self.moveOffsetX + (barOptions[isEnlarged and "HugeBarXOffset" or "BarXOffset"] - self.moveOffsetX) * (melapsed / 0.5)
 			local newY
@@ -1318,16 +1395,13 @@ function barPrototype:Update(elapsed)
 			frame:SetPoint(self.movePoint, self.moveAnchor, self.movePoint, newX, newY)
 			updateNeeded = true
 		elseif isMoving == "move" then
-			barIsAnimating = false
 			self.moving = nil
 			isMoving = nil
 			updateNeeded = true
 		elseif isMoving == "enlarge" and melapsed <= 1 then
-			barIsAnimating = true
 			self:AnimateEnlarge(elapsed)
 			updateNeeded = true
 		elseif isMoving == "enlarge" then
-			barIsAnimating = false
 			self.moving = nil
 			isMoving = nil
 			self.enlarged = true
@@ -1337,7 +1411,6 @@ function barPrototype:Update(elapsed)
 			sortingNeeded = true
 			updateNeeded = true
 		elseif isMoving == "nextEnlarge" then
-			barIsAnimating = false
 			self.moving = nil
 			isMoving = nil
 			self.enlarged = true
@@ -1399,7 +1472,7 @@ function barPrototype:Cancel()
 	DBT:UpdateBars(true)
 end
 
-function barPrototype:ApplyStyle()
+function barPrototype:ApplyStyle(deferUpdate)
 	local frame = self.frame
 	local frame_name = frame:GetName()
 	local isSecret = self.isSecret
@@ -1625,7 +1698,23 @@ function barPrototype:ApplyStyle()
 		name:SetShadowOffset(0, 0)
 		timer:SetShadowOffset(0, 0)
 	end
+	if deferUpdate then
+		return
+	end
+	if self.styleRefreshInProgress then
+		--We can ask a user to enable debug mode for this to work
+		--Don't want this runing for everyone since debug in a hot path is not ideal
+		if DBM.Options.DebugMode then
+			DBT:RecordDebugState(self, "NestedStyleRefreshSkipped")
+		end
+		return
+	end
+	if DBM.Options.DebugMode then
+		DBT:RecordDebugState(self, "StyleRefresh")
+	end
+	self.styleRefreshInProgress = true
 	self:Update(0)
+	self.styleRefreshInProgress = nil
 end
 
 do

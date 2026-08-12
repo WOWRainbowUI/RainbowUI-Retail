@@ -82,7 +82,7 @@ L.AFK_WARNING				= "Du bist \"AFK\" und im Kampf (%d Prozent Gesundheit verbleib
 L.RAID_DIFFICULTY_CHANGED	= "Der Schlachtzugschwierigkeitsgrad wurde auf %s gesetzt."
 L.DUNGEON_DIFFICULTY_CHANGED= "Der Dungeon-Schwierigkeitsgrad wurde auf %s gesetzt."
 
-L.PROFILE_NOT_FOUND			= "<"..L.DBM.."> Dein derzeitiges Profil ist korrupt. "..L.DBM.." wird das Profil 'Default' laden."
+L.PROFILE_NOT_FOUND			= "<"..L.DBM.."> Dein derzeitiges Profil ist korrupt. "..L.DBM.." wird das Profil '%s' laden."
 L.PROFILE_CREATED			= "Profil '%s' erzeugt."
 L.PROFILE_CREATE_ERROR		= "Erzeugen des Profils fehlgeschlagen. Ungültiger Profilname."
 L.PROFILE_CREATE_ERROR_D	= "Erzeugen des Profils fehlgeschlagen. Profil '%s' existiert bereits."
@@ -91,9 +91,9 @@ L.PROFILE_APPLY_ERROR		= "Anwenden des Profils fehlgeschlagen. Profil '%s' exist
 L.PROFILE_COPIED			= "Profil '%s' kopiert."
 L.PROFILE_COPY_ERROR		= "Kopieren des Profils fehlgeschlagen. Profil '%s' existiert nicht."
 L.PROFILE_COPY_ERROR_SELF	= "Das Profil kann nicht auf sich selbst kopiert werden."
-L.PROFILE_DELETED			= "Profil '%s' gelöscht. Profil 'Default' wird angewendet."
+L.PROFILE_DELETED			= "Profil '%s' gelöscht. Profil '%s' wird angewendet."
 L.PROFILE_DELETE_ERROR		= "Löschen des Profils fehlgeschlagen. Profil '%s' existiert nicht."
-L.PROFILE_CANNOT_DELETE		= "Das Profil 'Default' kann nicht gelöscht werden."
+L.PROFILE_CANNOT_DELETE		= "Das Profil '%s' kann nicht gelöscht werden."
 L.MPROFILE_COPY_SUCCESS		= "Mod-Einstellungen von %s (Spez. %d) wurden kopiert."
 L.MPROFILE_COPY_SELF_ERROR	= "Die Charaktereinstellungen können nicht auf sich selbst kopiert werden."
 L.MPROFILE_COPY_S_ERROR		= "Quelle korrupt. Die Einstellungen wurden nicht oder unvollständig kopiert. Kopieren fehlgeschlagen."
@@ -277,9 +277,14 @@ L.SLASHCMD_HELP2				= {
 	"/range <number> oder /distance <number>: Zeige Abstandsfenster. /rrange oder /rdistance um die Farben zu invertieren.",
 	"/hudar <number>: Zeige HudMap-basierenden Abstandssucher.",
 	"/dbm arrow: Zeigt den DBM-Pfeil, siehe '/dbm arrow help' für Details.",
-	"/dbm hud: Zeige die DBM-HudMap, siehe '/dbm hud' für Details."
+	"/dbm hud: Zeige die DBM-HudMap, siehe '/dbm hud' für Details.",
+	"/dbm dbtdebug: Zeigt bereinigte Statusleisten-Diagnosen für Fehlerberichte."
 
 }
+L.DBT_DEBUG_HEADER			= "DBT-Diagnosen (bereinigt; keine Begegnungs- oder Geheimtexte)"
+L.DBT_DEBUG_EMPTY			= "Seit dem Neuladen des Interfaces wurden keine DBT-Stilaktualisierungen erfasst."
+L.DBT_DEBUG_DISABLED			= "Die Erfassung ist deaktiviert. Aktiviere den DBM-Debug-Modus, bevor du das Problem reproduzierst."
+L.DBT_DEBUG_NOTICE			= "Bitte füge diese Chat-Ausgabe deinem Fehlerbericht bei."
 L.TIMER_USAGE	= {
 	L.DBM .. "-Timer Kommandos:",
 	"-----------------",
@@ -323,6 +328,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount	= "%s eingehender Debuff (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends 			= "%s ist beendet"
 L.AUTO_ANNOUNCE_TEXTS.endtarget		= "%s ist beendet: >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades			= "%s ist beendet"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon		= "%s endet in Kürze"
 L.AUTO_ANNOUNCE_TEXTS.addsleft		= "%s verbleibend: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast			= "Wirkt %s: %.1f Sek"
 L.AUTO_ANNOUNCE_TEXTS.soon			= "%s bald"
@@ -349,6 +355,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount	= "Zeige Warnung (mit Zähler), wenn $spel
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "Zeige Warnung, wenn $spell:%s beendet ist"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget		= "Zeige Warnung, wenn $spell:%s beendet ist"
 L.AUTO_ANNOUNCE_OPTIONS.fades			= "Zeige Warnung, wenn $spell:%s beendet ist"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon		= "Zeige Vorwarnung für das Ende von $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "Verkünde die Anzahl der verbleibenden $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "Zeige Warnung, wenn $spell:%s gewirkt wird"
 L.AUTO_ANNOUNCE_OPTIONS.soon			= prewarnOption
@@ -384,6 +391,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizztarget		= "%s (%%s) auf >%%s< "
 L.AUTO_SPEC_WARN_TEXTS.blizzyou			= "%s (%%s) auf dir"
 L.AUTO_SPEC_WARN_TEXTS.defensive		= "%s - Defensivfähigkeiten"
 L.AUTO_SPEC_WARN_TEXTS.taunt			= "%s auf >%%s< - jetzt spotten"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s auf %%s - jetzt spotten"
 L.AUTO_SPEC_WARN_TEXTS.close			= "%s auf >%%s< in deiner Nähe"
 L.AUTO_SPEC_WARN_TEXTS.move				= "%s - geh weg"
 L.AUTO_SPEC_WARN_TEXTS.keepmove			= "%s - lauf weiter"

@@ -93,7 +93,7 @@ L.LEAVING_COMBAT						= "전투 종료"
 L.RAID_DIFFICULTY_CHANGED				= "공격대 난이도가 %s|1으로;로; 설정되었습니다."
 L.DUNGEON_DIFFICULTY_CHANGED			= "던전 난이도가 %s|1으로;로; 설정되었습니다."
 
-L.PROFILE_NOT_FOUND			= "<" .. L.DBM .. "> 현재 설정된 프로필이 손상되었습니다. " .. L.DBM .. "이 'Default' 프로필을 로딩할 것입니다."
+L.PROFILE_NOT_FOUND			= "<" .. L.DBM .. "> 현재 설정된 프로필이 손상되었습니다. " .. L.DBM .. "이 '%s' 프로필을 로딩할 것입니다."
 L.PROFILE_CREATED			= "'%s' 프로필을 생성했습니다."
 L.PROFILE_CREATE_ERROR		= "프로필 생성 실패. 프로필 이름이 올바르지 않습니다."
 L.PROFILE_CREATE_ERROR_D		= "프로필 생성 실패. '%s' 프로필이 이미 존재합니다."
@@ -102,9 +102,9 @@ L.PROFILE_APPLY_ERROR		= "프로필 적용 실패. %s 프로필이 존재하지 
 L.PROFILE_COPIED				= "'%s' 프로필을 복사했습니다."
 L.PROFILE_COPY_ERROR			= "프로필 복사 실패. %s 프로필이 존재하지 않습니다."
 L.PROFILE_COPY_ERROR_SELF	= "동일한 프로필로는 복사할 수 없습니다."
-L.PROFILE_DELETED			= "'%s' 프로필을 삭제했습니다. 'Default' 프로필이 적용됩니다."
+L.PROFILE_DELETED			= "'%s' 프로필을 삭제했습니다. '%s' 프로필이 적용됩니다."
 L.PROFILE_DELETE_ERROR		= "프로필 삭제 실패. '%s' 프로필이 존재하지 않습니다."
-L.PROFILE_CANNOT_DELETE		= "'Default' 프로필은 삭제할 수 없습니다."
+L.PROFILE_CANNOT_DELETE		= "'%s' 프로필은 삭제할 수 없습니다."
 L.MPROFILE_COPY_SUCCESS		= "%s의 (%d 전문화) 모드 설정이 복사됐습니다."
 L.MPROFILE_COPY_SELF_ERROR	= "캐릭터 설정은 자기 자신에게 복사할 수 없습니다."
 L.MPROFILE_COPY_S_ERROR		= "원본이 손상되었습니다. 설정이 복사되지 않거나 일부만 복사됐습니다. 복사에 실패했습니다."
@@ -248,47 +248,52 @@ L.RANGERADAR_IN_RANGE_TEXT	= "거리 내 %d명 (%0.1fm)"
 L.RANGECHECK_IN_RANGE_TEXT	= "거리 내 %d명"--Text based doesn't need (%dyd), especially since it's not very accurate to the specific yard anyways
 L.RANGERADAR_IN_RANGE_TEXTONE	= "%s (%0.1fm)"--One target
 
-L.INFOFRAME_TITLE			= "DBM 정보 창"
-L.INFOFRAME_SHOW_SELF		= "내 자원 항상 보기"		-- Always show your own power value even if you are below the threshold
-L.INFOFRAME_SETLINES			= "최대 줄 갯수 지정"
-L.INFOFRAME_SETCOLS		= "최대 열 갯수 지정"
-L.INFOFRAME_SETSTRATA		= "프레임 레이어 지정"
+L.INFOFRAME_TITLE				= "DBM 정보 창"
+L.INFOFRAME_SHOW_SELF			= "항상 내 자원 표시"		-- Always show your own power value even if you are below the threshold
+L.INFOFRAME_SETLINES			= "최대 줄 설정"
+L.INFOFRAME_SETCOLS				= "최대 열 설정"
+L.INFOFRAME_SETSTRATA			= "프레임 층 설정"
 L.INFOFRAME_LINESDEFAULT		= "보스 모듈이 자동 설정"
 L.INFOFRAME_LINES_TO			= "줄 %d개"
-L.INFOFRAME_COLS_TO			= "열 %d개"
-L.INFOFRAME_POWER			= "기력"
-L.INFOFRAME_AGGRO			= "어그로"
-L.INFOFRAME_MAIN			= "주 자원:"--Main power
-L.INFOFRAME_ALT				= "보조 자원:"--Alternate Power
+L.INFOFRAME_COLS_TO				= "열 %d개"
+L.INFOFRAME_POWER				= "자원"
+L.INFOFRAME_AGGRO				= "어그로"
+L.INFOFRAME_MAIN				= "주 자원:"--Main power
+L.INFOFRAME_ALT					= "보조 자원:"--Alternate Power
 
 L.LFG_INVITE						= "파티찾기 입장"
 
 --Common slash commands
-L.SLASHCMD_HELP							= {--AI translated (check me)
+L.SLASHCMD_HELP							= {
 	"사용 가능한 슬래시 명령어:",
 	"-----------------",
-	"/dbm unlock: 이동 가능한 상태 바 타이머를 표시합니다 (별칭: move).",
-	"/dbm pull <sec>: <sec> 초 동안의 풀링 타이머를 공격대에 전송합니다. (승급자 필요. 별칭: pull)",
-	"/dbm break <min>: <min> 분 동안의 쉬는 타이머를 공격대에 전송합니다. (승급자 필요. 별칭: break)",
+	"/dbm unlock: 위치를 옮길 수 있는 상태 바 타이머를 표시합니다. (다른 명령어: move)",
+	"/dbm pull <초>: <초> 만큼의 풀링 타이머를 공격대에 전송합니다. (승급 권한이 필요함. 다른 명령어: pull)",
+	"/dbm break <분>: <분> 만큼의 휴식 타이머를 공격대에 전송합니다. (승급 권한이 필요함. 다른 명령어: break)",
 	"/dbm midwizard: 한밤용 설정 마법사를 다시 표시합니다. (본섭 전용)",
 	"/dbm timer: 사용자 정의 " .. L.DBM .. " 타이머를 시작합니다. 자세한 내용은 '/dbm timer'를 참조하세요.",
-	"/dbm key: 파티/길드의 신화+ 쐐기돌 및 평점 확인과 던전 순간이동 스킬 모음을 사용합니다. (별칭: key, keys, keystone)",
-	"/dbm lag: 공격대 전체의 지연 시간을 확인합니다.",
-	"/dbm durability: 공격대 전체의 내구도를 확인합니다.",
+	"/dbm key: 파티/길드의 신화+ 쐐기돌 및 평점 확인과 던전 순간이동 스킬 모음 창을 엽니다. (다른 명령어: key, keys, keystone)",
+	"/dbm lag: 공격대 전원의 지연 시간을 확인합니다.",
+	"/dbm durability: 공격대 전원의 내구도를 확인합니다.",
 	"/dbm brez: 전투 부활 타이머 창을 표시해서 위치를 조정합니다.",
 	"/dbm help2: 추가 슬래시 명령어를 표시합니다"
 }
---덜 사용되는 슬래시 명령어
-L.SLASHCMD_HELP2						= {--AI translated (check me)
+--Less used slash commands
+L.SLASHCMD_HELP2						= {
 	"사용 가능한 슬래시 명령어:",
 	"-----------------",
-	"/dbm version: 보스 모드 버전 확인을 수행합니다 (별칭: ver).",
-	"/dbm version2: 보스 모드 버전 확인을 수행하며 구버전 사용자에게 귓속말을 보냅니다 (별칭: ver2).",
-	"/range <number> 또는 /distance <number>: 범위 프레임을 표시합니다. /rrange 또는 /rdistance로 색상을 반전시킵니다.",
-	"/hudar <number>: HUD 기반 범위 탐지기를 표시합니다.",
+	"/dbm version: 보스 모드 버전을 확인합니다 (다른 명령어: ver).",
+	"/dbm version2: 보스 모드 버전 확인하고 구버전 사용자에게 귓속말을 보냅니다 (다른 명령어: ver2).",
+	"/range <숫자> 또는 /distance <숫자>: 거리 창을 표시합니다. /rrange 또는 /rdistance로 색상을 반전시킵니다.",
+	"/hudar <숫자>: HUD 기반 거리 탐지기를 표시합니다.",
 	"/dbm arrow: " .. L.DBM .. " 화살표를 표시합니다. 자세한 내용은 '/dbm arrow help'를 참조하세요.",
-	"/dbm hud: " .. L.DBM .. " HUD를 표시합니다. 자세한 내용은 '/dbm hud'를 참조하세요."
+	"/dbm hud: " .. L.DBM .. " HUD를 표시합니다. 자세한 내용은 '/dbm hud'를 참조하세요.",
+	"/dbm dbtdebug: 버그 보고서 용으로 정제된 상태 바 타이머 진단 내역을 표시합니다."
 }
+L.DBT_DEBUG_HEADER			= "DBT 진단 내역 (정제 작업을 거쳐 보스전이나 비밀 텍스트 없음)"
+L.DBT_DEBUG_EMPTY			= "UI 재시작으로 인해 DBT 스타일 새로 고침이 캡처되지 않았습니다."
+L.DBT_DEBUG_DISABLED			= "캡처가 비활성화 상태입니다. 문제를 재현하기 전에 먼저 DBM 디버그 모드를 활성화하세요."
+L.DBT_DEBUG_NOTICE			= "버그 보고서에 이 대화창의 출력 내용을 포함해 주세요."
 L.TIMER_USAGE	= {
 	L.DBM .. " 타이머 명령어:",
 	"--------------",
@@ -333,6 +338,7 @@ L.AUTO_ANNOUNCE_TEXTS.incomingcount	= "%s 디버프 걸림 (%%s)"
 L.AUTO_ANNOUNCE_TEXTS.ends			= "%s 종료"
 L.AUTO_ANNOUNCE_TEXTS.endtarget		= "%s 종료: >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.fades			= "%s 사라짐"
+L.AUTO_ANNOUNCE_TEXTS.fadesoon		= "%s 곧 사라짐"
 L.AUTO_ANNOUNCE_TEXTS.addsleft		= "%s 남은 수: %%d"
 L.AUTO_ANNOUNCE_TEXTS.cast			= "%s 시전: %.1f초"
 L.AUTO_ANNOUNCE_TEXTS.soon			= "곧 %s"
@@ -359,6 +365,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incomingcount	= "$spell:%s 주문이 디버프를 걸 �
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "$spell:%s 지속 시간 종료시 알림"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget	= "$spell:%s 지속 시간 종료시 알림 (대상 포함)"
 L.AUTO_ANNOUNCE_OPTIONS.fades		= "$spell:%s|1이;가; 사라졌을 때 알림"
+L.AUTO_ANNOUNCE_OPTIONS.fadesoon	= "$spell:%s|1이;가; 곧 사라질 때 알림"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "$spell:%s의 남은 수 알림"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "$spell:%s 시전 시작 알림"
 L.AUTO_ANNOUNCE_OPTIONS.soon		= prewarnOption
@@ -394,6 +401,7 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou		= "%s (%%s): 당신"
 L.AUTO_SPEC_WARN_TEXTS.link		= "%s|1이;가; >%%s<랑 연결됨"
 L.AUTO_SPEC_WARN_TEXTS.defensive		= "%s - 생존기 켜세요"
 L.AUTO_SPEC_WARN_TEXTS.taunt		= "%s: >%%s< - 지금 도발"
+L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s: %%s - 지금 도발"
 L.AUTO_SPEC_WARN_TEXTS.close		= "근처의 >%%2$s<에게 %1$s"
 L.AUTO_SPEC_WARN_TEXTS.move		= "%s - 피하세요"
 L.AUTO_SPEC_WARN_TEXTS.keepmove		= "%s - 계속 이동"
@@ -481,16 +489,8 @@ L.AUTO_TIMER_TEXTS.active				= "%s 종료"--Buff/Debuff/event on boss
 L.AUTO_TIMER_TEXTS.fades				= "%s 사라짐"--Buff/Debuff on players
 L.AUTO_TIMER_TEXTS.ai					= "%s AI 예상"
 
-L.AUTO_TIMER_TEXTS.cd					= "%s"
-L.AUTO_TIMER_TEXTS.cdcount				= "%s (%%s)"
-L.AUTO_TIMER_TEXTS.cdsource				= "%s: >%%s<"
 L.AUTO_TIMER_TEXTS.cdspecial			= "특수 스킬"
-
-L.AUTO_TIMER_TEXTS.next					= "%s"
-L.AUTO_TIMER_TEXTS.nextcount			= "%s (%%s)"
-L.AUTO_TIMER_TEXTS.nextsource			= "%s: %%s"
 L.AUTO_TIMER_TEXTS.nextspecial			= "특수 스킬"
-
 L.AUTO_TIMER_TEXTS.varspecial			= "특수 스킬"--Now same as next, as the ~ was moved to timer number
 
 L.AUTO_TIMER_TEXTS.stage				= "단계"

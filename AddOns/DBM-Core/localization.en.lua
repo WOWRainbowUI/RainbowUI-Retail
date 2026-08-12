@@ -96,7 +96,7 @@ L.LEAVING_COMBAT						= "Leaving combat"
 L.RAID_DIFFICULTY_CHANGED				= "Raid difficulty has been set to %s."
 L.DUNGEON_DIFFICULTY_CHANGED			= "Dungeon difficulty has been set to %s."
 
-L.PROFILE_NOT_FOUND						= "<" .. L.DBM .. "> Your current profile is corrupted. " .. L.DBM .. " will load 'Default' profile."
+L.PROFILE_NOT_FOUND						= "<" .. L.DBM .. "> Your current profile is corrupted. " .. L.DBM .. " will load '%s' profile."
 L.PROFILE_CREATED						= "'%s' profile created."
 L.PROFILE_CREATE_ERROR					= "Create profile failed. Invalid profile name."
 L.PROFILE_CREATE_ERROR_D				= "Create profile failed. '%s' profile already exists."
@@ -105,9 +105,9 @@ L.PROFILE_APPLY_ERROR					= "Apply profile failed. '%s' profile does not exist."
 L.PROFILE_COPIED						= "'%s' profile copied."
 L.PROFILE_COPY_ERROR					= "Copy profile failed. '%s' profile does not exist."
 L.PROFILE_COPY_ERROR_SELF				= "Cannot copy profile to itself."
-L.PROFILE_DELETED						= "'%s' profile deleted. 'Default' profile will be applied."
+L.PROFILE_DELETED						= "'%s' profile deleted. '%s' profile will be applied."
 L.PROFILE_DELETE_ERROR					= "Delete profile failed. '%s' profile does not exist."
-L.PROFILE_CANNOT_DELETE					= "Cannot delete 'Default' profile."
+L.PROFILE_CANNOT_DELETE					= "Cannot delete '%s' profile."
 L.MPROFILE_COPY_SUCCESS					= "%s's (%d spec) mod settings have been copied."
 L.MPROFILE_COPY_SELF_ERROR				= "Cannot copy character settings to itself"
 L.MPROFILE_COPY_S_ERROR					= "Source is corrupted. Settings not copied or partly copied. Copy failed."
@@ -297,8 +297,13 @@ L.SLASHCMD_HELP2						= {
 	"/range <number> or /distance <number>: Shows range frame. /rrange or /rdistance to reverse colors.",
 	"/hudar <number>: Shows HUD based range finder.",
 	"/dbm arrow: Shows the " .. L.DBM .. " arrow, see '/dbm arrow help' for details.",
-	"/dbm hud: Shows the " .. L.DBM .. " hud, see '/dbm hud' for details."
+	"/dbm hud: Shows the " .. L.DBM .. " hud, see '/dbm hud' for details.",
+	"/dbm dbtdebug: Shows sanitized status bar timer diagnostics for bug reports."
 }
+L.DBT_DEBUG_HEADER						= "DBT diagnostics (sanitized; no encounter or secret text)"
+L.DBT_DEBUG_EMPTY						= "No DBT style refreshes have been captured since this UI reload."
+L.DBT_DEBUG_DISABLED					= "Capture is disabled. Enable DBM Debug Mode before reproducing the problem."
+L.DBT_DEBUG_NOTICE						= "Please include this chat output with your bug report."
 L.TIMER_USAGE							= {
 	L.DBM .. " timer commands:",
 	"-----------------",
@@ -345,6 +350,7 @@ L.AUTO_ANNOUNCE_TEXTS = {
 	ends 								= "%s ended",
 	endtarget							= "%s ended: >%%s<",
 	fades								= "%s faded",
+	fadesoon							= "%s fading soon",
 	addsleft							= "%s remaining: %%d",
 	cast								= "Casting %s: %.1f sec",
 	soon								= "%s soon",
@@ -374,6 +380,7 @@ L.AUTO_ANNOUNCE_OPTIONS = {
 	ends								= "Announce when $spell:%s has ended",
 	endtarget							= "Announce when $spell:%s has ended (with target)",
 	fades								= "Announce when $spell:%s has faded",
+	fadesoon							= "Announce when $spell:%s is fading soon",
 	addsleft							= "Announce how many $spell:%s remain",
 	cast								= "Announce when $spell:%s begins casting",
 	soon								= prewarnOption,
@@ -412,6 +419,7 @@ L.AUTO_SPEC_WARN_TEXTS = {
 	link								= "%s linked with >%%s<",
 	defensive							= "%s - defensive",
 	taunt								= "%s on >%%s< - taunt now",
+	tauntsecret							= "%s on %%s - taunt now",
 	close								= "%s on >%%s< near you",
 	move								= "%s - move away",
 	keepmove							= "%s - keep moving",
