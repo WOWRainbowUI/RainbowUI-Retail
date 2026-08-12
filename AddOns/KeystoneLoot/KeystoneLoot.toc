@@ -1,10 +1,10 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: |cff9d5db8KeystoneLoot|r
 ## Notes: Shows the items from the mythic plus instances in a compact overview
 ## Notes-ruRU: Компактный аддон, который показывает уровни предметов из подземелий М+
 ## Author: Selina Ruesch
 ## X-Email: selina.ruesch@gmail.com
-## Version: 2.10.2
+## Version: 2.11.0
 ## IconTexture: Interface\Icons\INV_Relics_Hourglass_02
 ## Category-enUS: Dungeons & Raids
 ## Category-deDE: Dungeons & Schlachtzüge
@@ -25,6 +25,21 @@
 ## Notes-zhTW: |cff9d5db8Keystone Loot|r |n|n方便尋找在 M+ 地城、團隊和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備。|n|n|cffffd200使用方法: |r點小地圖按鈕。
 ## Category-zhTW: 物品
 ## DefaultState: disabled
+
+# Libs
+libs/menu/MenuConstants.lua
+libs/menu/Mainline/MenuConstants.lua
+libs/menu/MenuVariants.lua
+libs/menu/Mainline/MenuVariants.lua
+libs/menu/Compositor.lua
+libs/menu/Menu.lua
+libs/menu/Menu.xml
+libs/menu/DropdownButton.lua
+libs/menu/MenuTemplates.lua
+libs/menu/MenuTemplates.xml
+libs/menu/Mainline/MenuTemplates.lua
+libs/menu/Mainline/MenuTemplates.xml
+libs/menu/MenuUtil.lua
 
 # Initialization
 config.lua
@@ -53,6 +68,7 @@ modules/favorites.lua
 modules/upgrade.lua
 modules/keystone.lua
 modules/voidcore.lua
+modules/api.lua
 
 # UI
 ui/keystone_tooltip.lua
@@ -62,9 +78,6 @@ ui/templates/mixins/icon_button.lua
 ui/templates/mixins/entry_frame.lua
 ui/templates/mixins/teleport_button.lua
 ui/templates/templates.xml
-
-ui/context_menu/mixins/context_menu.lua
-ui/context_menu/context_menu.xml
 
 ui/dungeons_frame/mixins/dungeons_frame.lua
 ui/dungeons_frame/dungeons_frame.xml
