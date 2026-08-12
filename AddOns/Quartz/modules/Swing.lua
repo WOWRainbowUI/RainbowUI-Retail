@@ -25,6 +25,7 @@ local Player = Quartz3:GetModule("Player")
 
 local media = LibStub("LibSharedMedia-3.0")
 local lsmlist = AceGUIWidgetLSMlists
+local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
 
 ----------------------------
 -- Upvalues
@@ -296,9 +297,7 @@ function Swing:ApplySettings()
 		else
 			durationtext:Hide()
 		end
-		durationtext:SetFont(media:Fetch("font", Player.db.profile.font), 9)
-		durationtext:SetShadowColor( 0, 0, 0, 1)
-		durationtext:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(durationtext, media:Fetch("font", Player.db.profile.font), 9, "SHADOW", {0, 0, 0, 1}, 0.8, -0.8)
 		durationtext:SetTextColor(1,1,1)
 		durationtext:SetNonSpaceWrap(false)
 		durationtext:SetWidth(swingbar_width)
@@ -311,9 +310,7 @@ function Swing:ApplySettings()
 		else
 			remainingtext:Hide()
 		end
-		remainingtext:SetFont(media:Fetch("font", Player.db.profile.font), 9)
-		remainingtext:SetShadowColor( 0, 0, 0, 1)
-		remainingtext:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(remainingtext, media:Fetch("font", Player.db.profile.font), 9, "SHADOW", {0, 0, 0, 1}, 0.8, -0.8)
 		remainingtext:SetTextColor(1,1,1)
 		remainingtext:SetNonSpaceWrap(false)
 		remainingtext:SetWidth(swingbar_width)

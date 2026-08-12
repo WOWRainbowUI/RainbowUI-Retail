@@ -61,11 +61,16 @@ end
 -- Cancel native timer animation and reclaim bar control
 local function CancelTimerAnimation(self)
 	if self.hasSecretTiming then
-		-- Reclaim value control via SetMinMaxValues.
+		-- Reclaim value control and rebind the fill texture the native timer reset.
 		self.Bar:SetMinMaxValues(0, 1)
+		self.Bar:SetStatusBarTexture(media:Fetch("statusbar", self.config.texture))
 	end
 	self.hasSecretTiming = nil
 	self.durationObject = nil
+end
+
+function CastBarTemplate:CancelTimerAnimation()
+	CancelTimerAnimation(self)
 end
 
 -- Apply backdrop settings
@@ -249,7 +254,6 @@ function CastBarTemplate:SetNameText(name)
 end
 
 local function ToggleCastNotInterruptible(self, notInterruptible, init)
-	if self.unit == "player" and not init then return end
 	local db = self.config
 
 	-- use overlay with SetAlphaFromBoolean
@@ -776,7 +780,7 @@ function CastBarTemplate:RegisterEvents()
 		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-		if self.unit ~= "player" and WoWRetail then
+		if WoWRetail then
 			self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
 			self:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 		end
@@ -823,6 +827,51 @@ do
 		self:SetAlpha(self.config.alpha or 1.0)
 	end
 
+	-- Unlock demo: a fake cast cycle illustrating the configured colors, driven by a separate frame because the bars' own OnUpdate is permanent.
+	local demoBars = {}
+	local demoDriver = CreateFrame("Frame")
+	demoDriver:Hide()
+	demoDriver:SetScript("OnUpdate", function()
+		local gdb = Quartz3.db.profile
+		local now = GetTime()
+		for bar in pairs(demoBars) do
+			if not (bar.casting or bar.channeling) then
+				local db = bar.config
+				local hasNoInterrupt = db.noInterruptChangeColor or db.noInterruptChangeBorder or db.noInterruptShield
+				local t = (now - bar.demoStart) % (hasNoInterrupt and 6.6 or 4.6)
+				local value, color, timeText, text
+				if t < 2.0 then
+					value, color = t / 2.0, gdb.castingcolor
+					timeText = ("%.1f"):format(2.0 - t)
+				elseif t < 2.6 then
+					value, color, timeText = 1, gdb.completecolor, "0.0"
+				elseif t < 3.8 then
+					value, color = (t - 2.6) / 2.0, gdb.castingcolor
+					timeText = ("%.1f"):format(2.0 - (t - 2.6))
+				elseif t < 4.6 then
+					value, color, timeText = 0.6, gdb.failcolor, ""
+					text = L["INTERRUPTED (%s)"]:format(bar.unit)
+				else
+					value = (t - 4.6) / 2.0
+					color = db.noInterruptChangeColor and db.noInterruptColor or gdb.castingcolor
+					timeText = ("%.1f"):format(2.0 - (t - 4.6))
+				end
+
+				local inNoInterrupt = (hasNoInterrupt and t >= 4.6) and true or false
+				if inNoInterrupt ~= bar.demoNoInterrupt then
+					bar.demoNoInterrupt = inNoInterrupt
+					ToggleCastNotInterruptible(bar, inNoInterrupt)
+				end
+
+				bar.Bar:SetMinMaxValues(0, 1)
+				bar.Bar:SetValue(value)
+				bar.Bar:SetStatusBarColor(unpack(color))
+				bar.TimeText:SetText(timeText)
+				bar.Text:SetText(text or bar.unit)
+			end
+		end
+	end)
+
 	function CastBarTemplate:Unlock()
 		self:Show()
 		self:EnableMouse(true)
@@ -832,6 +881,9 @@ do
 		self.Hide = nothing
 		self.Icon:SetTexture("Interface\\Icons\\Temp")
 		self.Text:SetText(self.unit)
+		self.demoStart = GetTime()
+		demoBars[self] = true
+		demoDriver:Show()
 	end
 
 	function CastBarTemplate:Lock()
@@ -839,6 +891,15 @@ do
 		self:EnableMouse(false)
 		self:SetScript("OnDragStart", nil)
 		self:SetScript("OnDragStop", nil)
+		demoBars[self] = nil
+		if not next(demoBars) then
+			demoDriver:Hide()
+		end
+		if self.demoNoInterrupt then
+			self.demoNoInterrupt = nil
+			ToggleCastNotInterruptible(self, false)
+		end
+		self.Bar:SetStatusBarColor(unpack(Quartz3.db.profile.castingcolor))
 		if not (self.channeling or self.casting) then
 			self:Hide()
 		end
@@ -1379,7 +1440,7 @@ Quartz3.CastBarTemplate.defaults = {
 	noInterruptBorder = "Tooltip enlarged",
 	noInterruptBorderColor = {0.71, 0.73, 0.71},
 	noInterruptBorderAlpha = 1,
-	noInterruptColorChange = false,
+	noInterruptChangeColor = false,
 	noInterruptColor = {1.0, 0.49, 0},
 	noInterruptShield = true,
 }
@@ -1417,7 +1478,7 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 	bar.TimeText = bar.TextFrame:CreateFontString(nil, "OVERLAY")
 	bar.Icon     = bar.Bar:CreateTexture(nil, "ARTWORK")
 	bar.Spark    = bar.Bar:CreateTexture(nil, "OVERLAY")
-	if unit ~= "player" then
+	do
 		bar.Shield = CreateFrame("Frame", nil, bar.Bar)
 		bar.Shield:SetFrameLevel(bar.Bar:GetFrameLevel() + 2)
 		

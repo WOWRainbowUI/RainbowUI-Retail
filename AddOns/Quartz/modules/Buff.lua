@@ -20,12 +20,11 @@ local Quartz3 = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
 local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
 
 local MODNAME = "Buff"
-local Buff = Quartz3:NewModule(MODNAME, "AceEvent-3.0", "AceBucket-3.0", "AceTimer-3.0")
+local Buff = Quartz3:NewModule(MODNAME, "AceEvent-3.0")
 local Player = Quartz3:GetModule("Player")
 local Focus = Quartz3:GetModule("Focus", true)
 local Target = Quartz3:GetModule("Target", true)
 
-local TimeFmt = Quartz3.Util.TimeFormat
 local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
 
 local media = LibStub("LibSharedMedia-3.0")
@@ -33,30 +32,35 @@ local lsmlist = AceGUIWidgetLSMlists
 
 ----------------------------
 -- Upvalues
--- GLOBALS:
-local CreateFrame, GetTime, UIParent = CreateFrame, GetTime, UIParent
-local unpack, pairs, next, sort = unpack, pairs, next, sort
+-- GLOBALS: AuraContainerSortMethod AuraContainerSortDirection AnchorUtil Enum CreateColor
+-- GLOBALS: UnitCanAssist UnitCanAttack UnitIsFriend UnitIsEnemy issecretvalue
+local CreateFrame, UIParent = CreateFrame, UIParent
+local unpack, pairs, ipairs, pcall = unpack, pairs, ipairs, pcall
 
-local targetlocked = true
-local focuslocked = true
+-- The AuraContainer widget family only exists on retail clients, the module stays dormant on older ones.
+local hasAuraContainers = (AuraContainerSortMethod ~= nil)
 
-local OnUpdate
-local showicons = false
+-- Matches CustomAuraContainerConstants.FrameCreationBatchSize so a group's buttons are created in one batch on first use.
+local MAX_AURAS = 10
+
+local lockstate = { target = true, focus = true, player = true }
 
 local db
+
+local containers = {} -- unit token -> AuraContainer
+local movers = {}     -- unit token -> drag handle used by the free anchor
+local buttons = {}    -- registry of dressed AuraButtons, for restyling on ApplySettings
+local appliedFilters = {} -- unit token -> group key -> last applied filter token
+
+local UNIT_LIST = { "target", "focus", "player" }
 
 local defaults = {
 	profile = {
 		target = true,
-		targetbuffs = true,
-		targetdebuffs = true,
-		targetfixedduration = 0,
 		targeticons = true,
 		targeticonside = "right",
 
 		targetanchor = "player",--L["Free"], L["Target"], L["Focus"]
-		targetx = 500,
-		targety = 350,
 		targetgrowdirection = "up", --L["Down"]
 		targetposition = "topright",
 
@@ -68,24 +72,34 @@ local defaults = {
 		targetheight = 12,
 
 		focus = true,
-		focusbuffs = true,
-		focusdebuffs = true,
-		focusfixedduration = 0,
 		focusicons = true,
 		focusiconside = "left",
 
 		focusanchor = "player",--L["Free"], L["Target"], L["Focus"]
-		focusx = 400,
-		focusy = 350,
 		focusgrowdirection = "up", --L["Down"]
 		focusposition = "bottomleft",
 
-		focusgap = 1,
+		focusgap = 15,
 		focusspacing = 1,
 		focusoffset = 3,
 
 		focuswidth = 120,
 		focusheight = 12,
+
+		player = true,
+		playericons = true,
+		playericonside = "left",
+
+		playeranchor = "player",--L["Free"], L["Target"], L["Focus"]
+		playergrowdirection = "up", --L["Down"]
+		playerposition = "topleft",
+
+		playergap = 1,
+		playerspacing = 1,
+		playeroffset = 3,
+
+		playerwidth = 120,
+		playerheight = 12,
 
 		buffnametext = true,
 		bufftimetext = true,
@@ -99,7 +113,11 @@ local defaults = {
 		bufffontShadowOffsetY = -0.8,
 		buffalpha = 1,
 
+		pandemic = true,
+		pandemiccolor = {1, 1, 1, 0.5},
+
 		buffcolor = {0,0.49, 1},
+		stealcolor = {1, 1, 1},
 
 		debuffsbytype = true,
 		debuffcolor = {1.0, 0.7, 0},
@@ -114,66 +132,570 @@ local defaults = {
 	}
 }
 
+----------------------------
+-- AuraButton dressing
+--
+-- The container creates the buttons and their Forbidden Aspects block addon script handlers, so every dynamic element goes through the native Set* bindings.
 
+local styleButton
 
-local function OnShow(frame)
-	frame:SetScript("OnUpdate", OnUpdate)
+local function initButton(button, unit, isBuff, gen)
+	local entry = { button = button, unit = unit, isBuff = isBuff, gen = gen }
+
+	-- Historical click-through, pcall'd because the calls are input-restricted on some builds.
+	pcall(button.SetMouseMotionEnabled, button, false)
+	pcall(button.SetMouseClickEnabled, button, false)
+
+	local bar = CreateFrame("StatusBar", nil, button)
+	bar:SetMinMaxValues(0, 1)
+	bar:SetReverseFill(true)
+	entry.bar = bar
+
+	-- Inverse fill: a black statusbar mask grows over the colored LSM background as the aura elapses.
+	entry.bg = bar:CreateTexture(nil, "BACKGROUND", nil, 0)
+	entry.bg:SetAllPoints(bar)
+	entry.dispel = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
+	entry.dispel:SetAllPoints(bar)
+	entry.steal = bar:CreateTexture(nil, "BACKGROUND", nil, 2)
+	entry.steal:SetAllPoints(bar)
+
+	entry.icon = button:CreateTexture(nil, "ARTWORK")
+	entry.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+
+	entry.name = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	entry.time = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	entry.stacks = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+
+	-- No addon OnUpdate runs on button children, so the pandemic pulse is a native looping animation.
+	entry.pandemic = bar:CreateTexture(nil, "OVERLAY")
+	entry.pandemic:SetAllPoints(bar)
+	entry.pandemic:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+	local pulseGroup = entry.pandemic:CreateAnimationGroup()
+	pulseGroup:SetLooping("BOUNCE")
+	entry.pulse = pulseGroup:CreateAnimation("Alpha")
+	entry.pulse:SetFromAlpha(0)
+	entry.pulse:SetDuration(0.5)
+	pulseGroup:Play()
+
+	button:SetDurationBar(bar, { interpolation = Enum.StatusBarInterpolation.Immediate, direction = Enum.StatusBarTimerDirection.ElapsedTime })
+	button:SetApplicationCount(entry.stacks, {})
+
+	buttons[#buttons + 1] = entry
+	styleButton(entry)
 end
 
-local function OnHide(frame)
-	frame:SetScript("OnUpdate", nil)
-end
+function styleButton(entry)
+	local unit, button, bar = entry.unit, entry.button, entry.bar
+	local width = db[unit .. "width"]
+	local height = db[unit .. "height"]
+	local icons = db[unit .. "icons"]
+	local iconside = db[unit .. "iconside"]
 
-local framefactory = {
-	__index = function(t,k)
-		local bar = Quartz3:CreateStatusBar(nil, UIParent)
-		t[k] = bar
-		bar:SetFrameStrata("MEDIUM")
-		bar:Hide()
-		bar:SetScript("OnShow", OnShow)
-		bar:SetScript("OnHide", OnHide)
-		bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
-		bar:SetBackdropColor(0,0,0,0) -- Transparent backdrop
-		
-		-- Name Text
-		bar.text = bar:CreateFontString(nil, "OVERLAY")
+	local totalWidth = width + (icons and (height + 1) or 0)
+	button:SetSize(totalWidth, height)
 
-		-- Background texture for "Inverse Fill" - this shows the BUFF COLOR
-		bar.bg = bar:CreateTexture(nil, "BACKGROUND")
-		bar.bg:SetAllPoints(bar)
+	bar:ClearAllPoints()
+	if icons and iconside == "left" then
+		bar:SetPoint("TOPLEFT", button, "TOPLEFT", height + 1, 0)
+		bar:SetPoint("BOTTOMRIGHT", button)
+	elseif icons then
+		bar:SetPoint("TOPLEFT", button)
+		bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -(height + 1), 0)
+	else
+		bar:SetAllPoints(button)
+	end
 
-		-- Cooldown frame for secret values (timer display only)
-		bar.cd = CreateFrame("Cooldown", nil, bar, "CooldownFrameTemplate")
-		bar.cd:SetAllPoints(bar)
-		bar.cd:SetReverse(true)
-		bar.cd:SetDrawEdge(false)
-		bar.cd:SetDrawSwipe(false)
-		bar.cd:SetHideCountdownNumbers(false)
-		bar.cd:Hide()
-		
-		bar:SetReverseFill(true)
+	bar:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+	bar:GetStatusBarTexture():SetVertexColor(0, 0, 0, 1)
 
-		for _, region in pairs({bar.cd:GetRegions()}) do
-			if region:GetObjectType() == "FontString" then
-				bar.cd.timerText = region
-				bar.cd.timerText:ClearAllPoints()
-				bar.cd.timerText:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
-				break
-			end
+	local tex = media:Fetch("statusbar", db.bufftexture)
+	entry.bg:SetTexture(tex)
+	entry.dispel:SetTexture(tex)
+	entry.steal:SetTexture(tex)
+	if entry.isBuff then
+		entry.bg:SetVertexColor(unpack(db.buffcolor))
+	else
+		entry.bg:SetVertexColor(unpack(db.debuffcolor))
+	end
+
+	-- The overlays only show natively for stealable buffs / dispellable debuffs, everything else falls through to the bg.
+	button:ClearDispelTypeTextures()
+	entry.dispel:Hide()
+	entry.steal:Hide()
+	if entry.isBuff then
+		local stealColor = CreateColor(unpack(db.stealcolor))
+		button:AddDispelTypeTexture(entry.steal, {
+			showWhenHelpful = true,
+			showWhenHarmful = false,
+			showWithoutDispelType = true,
+			stealableFilter = Enum.CustomAuraButtonDispelTypeStealableFilter.Stealable,
+			style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+			customDispelColorMap = {
+				None = stealColor,
+				Magic = stealColor,
+				Curse = stealColor,
+				Disease = stealColor,
+				Poison = stealColor,
+				Enrage = stealColor,
+			},
+		})
+	elseif db.debuffsbytype then
+		button:AddDispelTypeTexture(entry.dispel, {
+			showWhenHarmful = true,
+			showWhenHelpful = false,
+			style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+			customDispelColorMap = {
+				Magic = CreateColor(unpack(db.Magic)),
+				Curse = CreateColor(unpack(db.Curse)),
+				Disease = CreateColor(unpack(db.Disease)),
+				Poison = CreateColor(unpack(db.Poison)),
+			},
+		})
+	end
+
+	local pr, pg, pb, pa = unpack(db.pandemiccolor)
+	entry.pandemic:SetVertexColor(pr, pg, pb)
+	entry.pulse:SetToAlpha(pa or 0.5)
+	button:ClearPandemicRegions()
+	if db.pandemic then
+		button:AddPandemicRegion(entry.pandemic)
+	else
+		entry.pandemic:Hide()
+	end
+
+	local font = media:Fetch("font", db.bufffont)
+	for _, fontString in ipairs({ entry.name, entry.time, entry.stacks }) do
+		ApplyFontStyle(fontString, font, db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
+		fontString:SetTextColor(unpack(db.bufftextcolor))
+	end
+
+	local timerWidth = db.bufftimetext and 30 or 0
+
+	entry.name:ClearAllPoints()
+	entry.name:SetPoint("LEFT", bar, "LEFT", 2, 0)
+	entry.name:SetJustifyH("LEFT")
+	entry.name:SetNonSpaceWrap(false)
+	entry.name:SetHeight(height)
+	entry.name:SetWidth(width - timerWidth)
+	if db.buffnametext then
+		button:SetSpellName(entry.name)
+		entry.name:Show()
+	else
+		button:ClearSpellName()
+		entry.name:Hide()
+	end
+
+	entry.time:ClearAllPoints()
+	entry.time:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
+	entry.time:SetJustifyH("RIGHT")
+	if db.bufftimetext then
+		button:SetDurationText(entry.time, {})
+		entry.time:Show()
+	else
+		button:ClearDurationText()
+		entry.time:Hide()
+	end
+
+	entry.stacks:ClearAllPoints()
+	if icons then
+		entry.stacks:SetPoint("BOTTOMRIGHT", entry.icon, "BOTTOMRIGHT", 1, 0)
+	else
+		entry.stacks:SetPoint("RIGHT", bar, "RIGHT", -(timerWidth + 2), 0)
+	end
+	entry.stacks:SetJustifyH("RIGHT")
+
+	entry.icon:ClearAllPoints()
+	if icons then
+		entry.icon:SetSize(height - 1, height - 1)
+		if iconside == "left" then
+			entry.icon:SetPoint("LEFT", button, "LEFT", 0, 0)
+		else
+			entry.icon:SetPoint("RIGHT", button, "RIGHT", 0, 0)
 		end
+		button:SetIcon(entry.icon)
+		entry.icon:Show()
+	else
+		button:ClearIcon()
+		entry.icon:Hide()
+	end
+end
 
-		bar.icon = bar:CreateTexture(nil, "ARTWORK")
-		if k == 1 then
-			bar:SetMovable(true)
-			bar:RegisterForDrag("LeftButton")
-			bar:SetClampedToScreen(true)
+----------------------------
+-- Containers and movers
+
+local PLACEHOLDER_BUFFS, PLACEHOLDER_DEBUFFS = 3, 2
+
+-- Center-relative free coordinates, kept out of the defaults so stored legacy bottom-left values can be migrated once.
+local FREE_DEFAULTS = {
+	targetx = 200, targety = 0,
+	focusx = -200, focusy = 0,
+	playerx = 0, playery = -150,
+}
+
+local function freeCoord(key)
+	local value = db[key]
+	if value == nil then
+		value = FREE_DEFAULTS[key]
+	end
+	return value
+end
+
+local POSITION_GROWS_UP = { top = true, topright = true, topleft = true, leftup = true, rightup = true }
+
+local function unitGrowUp(unit)
+	if db[unit .. "anchor"] == "free" then
+		return db[unit .. "growdirection"] == "up"
+	end
+	return POSITION_GROWS_UP[db[unit .. "position"]] or false
+end
+
+-- The mover is a box of placeholder bars, real AuraButtons are access-restricted and cannot be dragged.
+local function ensureMover(unit)
+	local mover = movers[unit]
+	if mover then return mover end
+
+	mover = CreateFrame("Frame", nil, UIParent)
+	mover:SetFrameStrata("MEDIUM")
+	mover:SetMovable(true)
+	mover:SetClampedToScreen(true)
+	mover:EnableMouse(false)
+	mover:RegisterForDrag("LeftButton")
+	mover:Hide()
+
+	mover.bg = mover:CreateTexture(nil, "BACKGROUND")
+	mover.bg:SetAllPoints(mover)
+	mover.bg:SetColorTexture(0, 0.5, 1, 0.25)
+
+	mover.rows = {}
+	for i = 1, PLACEHOLDER_BUFFS + PLACEHOLDER_DEBUFFS do
+		local row = CreateFrame("StatusBar", nil, mover)
+		row:SetMinMaxValues(0, 1)
+		row:SetReverseFill(true)
+		row.bg = row:CreateTexture(nil, "BACKGROUND")
+		row.bg:SetAllPoints(row)
+		row.icon = row:CreateTexture(nil, "ARTWORK")
+		row.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		row.name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.time = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		mover.rows[i] = row
+	end
+
+	mover:SetScript("OnDragStart", mover.StartMoving)
+	mover:SetScript("OnDragStop", function(frame)
+		frame:StopMovingOrSizing()
+		local scale = frame:GetScale()
+		local cx = UIParent:GetWidth() / 2 / scale
+		local cy = UIParent:GetHeight() / 2 / scale
+		db[unit .. "x"] = frame:GetLeft() - cx
+		if db[unit .. "growdirection"] == "up" then
+			db[unit .. "y"] = frame:GetBottom() - cy
+		else
+			db[unit .. "y"] = frame:GetTop() - cy - db[unit .. "height"]
 		end
 		Buff:ApplySettings()
-		return bar
+	end)
+
+	movers[unit] = mover
+	return mover
+end
+
+local function positionMover(unit)
+	local mover = movers[unit]
+	if not mover then return end
+
+	local width = db[unit .. "width"]
+	local height = db[unit .. "height"]
+	local icons = db[unit .. "icons"]
+	local iconside = db[unit .. "iconside"]
+	local spacing = db[unit .. "spacing"]
+	local growUp = unitGrowUp(unit)
+	local rows = #mover.rows
+	local totalWidth = width + (icons and (height + 1) or 0)
+	local unitLabel = unit == "target" and L["Target"] or unit == "focus" and L["Focus"] or L["Player"]
+
+	mover:SetScale(Player.db.profile.scale)
+	mover:SetSize(totalWidth, rows * height + (rows - 1) * spacing)
+	mover:ClearAllPoints()
+	if db[unit .. "anchor"] == "free" then
+		local x = freeCoord(unit .. "x")
+		local y = freeCoord(unit .. "y")
+		if growUp then
+			mover:SetPoint("BOTTOMLEFT", UIParent, "CENTER", x, y)
+		else
+			mover:SetPoint("TOPLEFT", UIParent, "CENTER", x, y + height)
+		end
+	else
+		local qpdb = Player.db.profile
+		local anchor = db[unit .. "anchor"]
+		local position = db[unit .. "position"]
+		local gap = db[unit .. "gap"]
+		local offset = db[unit .. "offset"]
+		local anchorframe
+		if anchor == "focus" and Focus and Focus.Bar then
+			anchorframe = Focus.Bar
+		elseif anchor == "target" and Target and Target.Bar then
+			anchorframe = Target.Bar
+		else -- L["Player"]
+			anchorframe = Player.Bar
+		end
+
+		if position == "top" then
+			mover:SetPoint("BOTTOM", anchorframe, "TOP", 0, gap)
+		elseif position == "bottom" then
+			mover:SetPoint("TOP", anchorframe, "BOTTOM", 0, -1 * gap)
+		elseif position == "topright" then
+			mover:SetPoint("BOTTOMRIGHT", anchorframe, "TOPRIGHT", -1 * offset, gap)
+		elseif position == "bottomright" then
+			mover:SetPoint("TOPRIGHT", anchorframe, "BOTTOMRIGHT", -1 * offset, -1 * gap)
+		elseif position == "topleft" then
+			mover:SetPoint("BOTTOMLEFT", anchorframe, "TOPLEFT", offset, gap)
+		elseif position == "bottomleft" then
+			mover:SetPoint("TOPLEFT", anchorframe, "BOTTOMLEFT", offset, -1 * gap)
+		elseif position == "leftup" then
+			if qpdb.iconposition == "left" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("BOTTOMRIGHT", anchorframe, "BOTTOMLEFT", -1 * offset, gap)
+		elseif position == "leftdown" then
+			if qpdb.iconposition == "left" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("TOPRIGHT", anchorframe, "TOPLEFT", -3 * offset, -1 * gap)
+		elseif position == "rightup" then
+			if qpdb.iconposition == "right" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("BOTTOMLEFT", anchorframe, "BOTTOMRIGHT", offset, gap)
+		elseif position == "rightdown" then
+			if qpdb.iconposition == "right" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("TOPLEFT", anchorframe, "TOPRIGHT", offset, -1 * gap)
+		end
 	end
-}
-local targetbars = setmetatable({}, framefactory)
-local focusbars = setmetatable({}, framefactory)
+	local tex = media:Fetch("statusbar", db.bufftexture)
+	local font = media:Fetch("font", db.bufffont)
+	local barX = (icons and iconside == "left") and (height + 1) or 0
+	for i, row in ipairs(mover.rows) do
+		row:SetSize(width, height)
+		row:ClearAllPoints()
+		local offset = (i - 1) * (height + spacing)
+		if growUp then
+			row:SetPoint("BOTTOMLEFT", mover, "BOTTOMLEFT", barX, offset)
+		else
+			row:SetPoint("TOPLEFT", mover, "TOPLEFT", barX, -offset)
+		end
+		row:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+		row:GetStatusBarTexture():SetVertexColor(0, 0, 0, 1)
+		row:SetValue(i / (rows + 1))
+		row.bg:SetTexture(tex)
+		if i <= PLACEHOLDER_BUFFS then
+			row.bg:SetVertexColor(unpack(db.buffcolor))
+		elseif db.debuffsbytype and i == PLACEHOLDER_BUFFS + 1 then
+			row.bg:SetVertexColor(unpack(db.Magic))
+		else
+			row.bg:SetVertexColor(unpack(db.debuffcolor))
+		end
+		if icons then
+			row.icon:SetSize(height - 1, height - 1)
+			row.icon:SetTexture("Interface\\Icons\\Temp")
+			row.icon:ClearAllPoints()
+			if iconside == "left" then
+				row.icon:SetPoint("RIGHT", row, "LEFT", -1, 0)
+			else
+				row.icon:SetPoint("LEFT", row, "RIGHT", 1, 0)
+			end
+			row.icon:Show()
+		else
+			row.icon:Hide()
+		end
+		for _, fontString in ipairs({ row.name, row.time }) do
+			ApplyFontStyle(fontString, font, db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
+			fontString:SetTextColor(unpack(db.bufftextcolor))
+		end
+		row.name:ClearAllPoints()
+		row.name:SetPoint("LEFT", row, "LEFT", 2, 0)
+		row.name:SetJustifyH("LEFT")
+		local topIndex = growUp and rows or 1
+		row.name:SetText(i == topIndex and (L["Buff"] .. ": " .. unitLabel) or unitLabel)
+		row.name:SetShown(db.buffnametext)
+		row.time:ClearAllPoints()
+		row.time:SetPoint("RIGHT", row, "RIGHT", -2, 0)
+		row.time:SetJustifyH("RIGHT")
+		row.time:SetText("12.3")
+		row.time:SetShown(db.bufftimetext)
+	end
+end
+
+function Buff:SetMoverLocked(unit, locked)
+	local mover = movers[unit]
+	if not mover then return end
+	lockstate[unit] = locked
+	mover:EnableMouse(not locked and db[unit .. "anchor"] == "free")
+	mover:SetShown((not locked and db[unit] and self:IsEnabled()) and true or false)
+	local container = containers[unit]
+	if container then
+		container:SetShown((db[unit] and locked and self:IsEnabled()) and true or false)
+	end
+end
+
+function Buff:Unlock()
+	for unit in pairs(movers) do
+		self:SetMoverLocked(unit, false)
+	end
+end
+
+function Buff:Lock()
+	for unit in pairs(movers) do
+		self:SetMoverLocked(unit, true)
+	end
+end
+
+local function sectionsFor(unit)
+	local AF = Quartz3:GetModule("AuraFilters", true)
+	if AF then
+		return AF:GetUnitSections(unit), AF:GetRevision()
+	end
+	return {
+		{ key = "MINE_HELPFUL", filterString = "HELPFUL|PLAYER", isHelpful = true },
+		{ key = "MINE_HARMFUL", filterString = "HARMFUL|PLAYER", isHelpful = false },
+	}, 0
+end
+
+-- Groups can neither be removed nor change polarity, so a polarity-sequence change requires a new container.
+local function structuralSignature(sections)
+	local signature = {}
+	for i, section in ipairs(sections) do
+		signature[i] = section.isHelpful and "h" or "d"
+	end
+	return table.concat(signature)
+end
+
+-- The reaction APIs can return secret booleans on restricted maps, hence the fallbacks.
+local function unitReaction(unit)
+	if unit == "player" then return "assist" end
+	local ok, value = pcall(UnitCanAssist, "player", unit)
+	if ok and not issecretvalue(value) then
+		if value then return "assist" end
+		local okAttack, attack = pcall(UnitCanAttack, "player", unit)
+		if okAttack and not issecretvalue(attack) then
+			return attack and "attack" or "none"
+		end
+	end
+	local okFriend, friend = pcall(UnitIsFriend, unit, "player")
+	local okEnemy, enemy = pcall(UnitIsEnemy, unit, "player")
+	local isEnemy = okEnemy and enemy and true or false
+	if okFriend and friend and not isEnemy then
+		return "assist"
+	end
+	return isEnemy and "attack" or "none"
+end
+
+-- The identity gate ignores spell-ID filters for helpful auras on non-assistable units and harmful ones on assistable units, custom sections are muted there.
+local function sectionMuted(section, state)
+	if not section.custom then return false end
+	if section.isHelpful then
+		return state ~= "assist"
+	end
+	return state == "assist"
+end
+
+local reaction = {}
+local generation = {}
+
+local function createContainer(unit, sections)
+	local container = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate")
+	container:SetFrameStrata("MEDIUM")
+	container:SetUnit(unit)
+
+	generation[unit] = (generation[unit] or 0) + 1
+	local gen = generation[unit]
+	local sortMethod = db.timesort and AuraContainerSortMethod.ExpirationOnly or AuraContainerSortMethod.NameOnly
+	-- maxDuration hides permanent auras, matching the old "duration > 0" rule.
+	for i, section in ipairs(sections) do
+		local isHelpful = section.isHelpful
+		pcall(container.AddAuraGroup, container, "section" .. i, section.filterString, {
+			maxFrameCount = MAX_AURAS,
+			initializeFrame = function(button) initButton(button, unit, isHelpful, gen) end,
+			candidateFilters = { maxDuration = math.huge },
+			sortMethod = sortMethod,
+		})
+	end
+	container.structural = structuralSignature(sections)
+
+	containers[unit] = container
+	return container
+end
+
+local function configureContainer(unit)
+	local sections, revision = sectionsFor(unit)
+	local structural = structuralSignature(sections)
+	local container = containers[unit]
+
+	if container and container.structural ~= structural then
+		container:SetEnabled(false)
+		container:Hide()
+		containers[unit] = nil
+		appliedFilters[unit] = nil
+		container = nil
+	end
+	if not container then
+		container = createContainer(unit, sections)
+	end
+	container.sections = sections
+
+	local enabled = db[unit] and true or false
+	container:SetEnabled(enabled)
+	container:SetShown((enabled and lockstate[unit]) and true or false)
+	if not enabled then return end
+
+	local spacing = db[unit .. "spacing"]
+
+	container:SetScale(Player.db.profile.scale)
+	container:SetAlpha(db.buffalpha)
+
+	local sortMethod = db.timesort and AuraContainerSortMethod.ExpirationOnly or AuraContainerSortMethod.NameOnly
+	local state = unitReaction(unit)
+	reaction[unit] = state
+
+	-- SetAuraGroupCandidateFilters triggers a full aura rebuild on every call, so it is only re-applied on change.
+	local applied = appliedFilters[unit]
+	if not applied then
+		applied = {}
+		appliedFilters[unit] = applied
+	end
+
+	-- Vertical axis: one column of groups separated by groupSpacing (forceNewLine would start a side column).
+	container:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
+
+	for i, section in ipairs(sections) do
+		local key = "section" .. i
+		pcall(container.SetAuraGroupFilterString, container, key, section.filterString)
+		pcall(container.SetAuraGroupSortMethod, container, key, sortMethod, AuraContainerSortDirection.Normal)
+		pcall(container.SetAuraGroupMaxFrameCount, container, key, sectionMuted(section, state) and 0 or MAX_AURAS)
+		pcall(container.SetAuraGroupLayout, container, key, { elementSpacing = spacing, groupSpacing = section.glued and 0 or spacing })
+		local token = revision .. "#" .. section.key .. "#" .. tostring(section.glued)
+		if applied[key] ~= token then
+			applied[key] = token
+			pcall(container.SetAuraGroupCandidateFilters, container, key, {
+				maxDuration = math.huge,
+				includeSpellIDs = section.include,
+				excludeSpellIDs = section.exclude,
+			})
+		end
+	end
+
+	local growUp = unitGrowUp(unit)
+	local point = growUp and "BOTTOMLEFT" or "TOPLEFT"
+	container:ClearAllPoints()
+	container:SetPoint(point, movers[unit], point)
+
+	container:SetFlowLayoutAnchorPoint(point)
+	container:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, growUp and AnchorUtil.FlowDirection.Up or AnchorUtil.FlowDirection.Down)
+end
+
+----------------------------
+-- Options
 
 local getOptions
 do
@@ -194,10 +716,6 @@ do
 		return not db.debuffsbytype
 	end
 
-	local function hidedebuffsnottype()
-		return db.debuffsbytype
-	end
-
 	local function gettargetfreeoptionshidden()
 		return db.targetanchor ~= "free"
 	end
@@ -206,34 +724,12 @@ do
 		return db.targetanchor == "free"
 	end
 
-	local function targetdragstart()
-		targetbars[1]:StartMoving()
-	end
-
-	local function targetdragstop()
-		db.targetx = targetbars[1]:GetLeft()
-		db.targety = targetbars[1]:GetBottom()
-		targetbars[1]:StopMovingOrSizing()
-	end
-	local function targetnothing()
-		targetbars[1]:SetAlpha(db.buffalpha)
-	end
 	local function getfocusfreeoptionshidden()
 		return db.focusanchor ~= "free"
 	end
+
 	local function getfocusnotfreeoptionshidden()
 		return db.focusanchor == "free"
-	end
-	local function focusdragstart()
-		focusbars[1]:StartMoving()
-	end
-	local function focusdragstop()
-		db.focusx = focusbars[1]:GetLeft()
-		db.focusy = focusbars[1]:GetBottom()
-		focusbars[1]:StopMovingOrSizing()
-	end
-	local function focusnothing()
-		focusbars[1]:SetAlpha(db.buffalpha)
 	end
 
 	local function setOpt(info, value)
@@ -263,6 +759,23 @@ do
 		return db[info.arg or ("target"..info[#info])]
 	end
 
+	local function setOptPlayer(info, value)
+		db[info.arg or ("player"..info[#info])] = value
+		Buff:ApplySettings()
+	end
+
+	local function getOptPlayer(info)
+		return db[info.arg or ("player"..info[#info])]
+	end
+
+	local function getplayerfreeoptionshidden()
+		return db.playeranchor ~= "free"
+	end
+
+	local function getplayernotfreeoptionshidden()
+		return db.playeranchor == "free"
+	end
+
 	local function getColor(info)
 		return unpack(getOpt(info))
 	end
@@ -277,7 +790,7 @@ do
 			options = {
 				type = "group",
 				name = L["Buff"],
-				order = 600,
+				order = 590,
 				get = getOpt,
 				set = setOpt,
 				childGroups = "tab",
@@ -293,6 +806,11 @@ do
 							Quartz3:SetModuleEnabled(MODNAME, v)
 						end,
 						order = 100,
+					},
+					filtersnote = {
+						type = "description",
+						name = L["Which auras are displayed on each unit is configured in the Aura Filters module."],
+						order = 100.5,
 					},
 					focus = {
 						type = "group",
@@ -310,25 +828,6 @@ do
 								order = 90,
 								width = "full",
 								disabled = false,
-							},
-							buffs = {
-								type = "toggle",
-								name = L["Enable Buffs"],
-								desc = L["Show buffs for your %s"]:format(L["Focus"]),
-								order = 91,
-							},
-							debuffs = {
-								type = "toggle",
-								name = L["Enable Debuffs"],
-								desc = L["Show debuffs for your %s"]:format(L["Focus"]),
-								order = 92,
-							},
-							fixedduration = {
-								type = "range",
-								name = L["Fixed Duration"],
-								desc = L["Fix bars to a specified duration"],
-								min = 0, max = 60, step = 1,
-								order = 93,
 							},
 							nlf = {
 								type = "description",
@@ -362,26 +861,10 @@ do
 								name = L["Lock"],
 								desc = L["Toggle %s bar lock"]:format(L["Focus"]),
 								get = function()
-									return focuslocked
+									return lockstate.focus
 								end,
 								set = function(info, v)
-									local bar = focusbars[1]
-									if v then
-										bar.Hide = nil
-										bar:EnableMouse(false)
-										bar:SetScript("OnDragStart", nil)
-										bar:SetScript("OnDragStop", nil)
-										Buff:UpdateBars()
-									else
-										bar:Show()
-										bar:EnableMouse(true)
-										bar:SetScript("OnDragStart", focusdragstart)
-										bar:SetScript("OnDragStop", focusdragstop)
-										bar:SetAlpha(1)
-										bar.endTime = bar.endTime or 0
-										bar.Hide = focusnothing
-									end
-									focuslocked = v
+									Buff:SetMoverLocked("focus", v)
 								end,
 								hidden = getfocusfreeoptionshidden,
 								order = 103,
@@ -390,7 +873,8 @@ do
 								type = "range",
 								name = L["X"],
 								desc = L["Set an exact X value for this bar's position."],
-								min = 0, max = 2560, step = 1,
+								min = -2560, max = 2560, step = 1,
+								get = function() return freeCoord("focusx") end,
 								hidden = getfocusfreeoptionshidden,
 								order = 104,
 							},
@@ -398,7 +882,8 @@ do
 								type = "range",
 								name = L["Y"],
 								desc = L["Set an exact Y value for this bar's position."],
-								min = 0, max = 1600, step = 1,
+								min = -1600, max = 1600, step = 1,
+								get = function() return freeCoord("focusy") end,
 								hidden = getfocusfreeoptionshidden,
 								order = 104,
 							},
@@ -479,25 +964,6 @@ do
 								width = "full",
 								order = 90,
 							},
-							buffs = {
-								type = "toggle",
-								name = L["Enable Buffs"],
-								desc = L["Show buffs for your %s"]:format(L["Target"]),
-								order = 91,
-							},
-							debuffs = {
-								type = "toggle",
-								name = L["Enable Debuffs"],
-								desc = L["Show debuffs for your %s"]:format(L["Target"]),
-								order = 92,
-							},
-							fixedduration = {
-								type = "range",
-								name = L["Fixed Duration"],
-								desc = L["Fix bars to a specified duration"],
-								min = 0, max = 60, step = 1,
-								order = 93,
-							},
 							nlf = {
 								type = "description",
 								name = "",
@@ -530,26 +996,10 @@ do
 								name = L["Lock"],
 								desc = L["Toggle %s bar lock"]:format(L["Target"]),
 								get = function()
-									return targetlocked
+									return lockstate.target
 								end,
 								set = function(info, v)
-									local bar = targetbars[1]
-									if v then
-										bar.Hide = nil
-										bar:EnableMouse(false)
-										bar:SetScript("OnDragStart", nil)
-										bar:SetScript("OnDragStop", nil)
-										Buff:UpdateBars()
-									else
-										bar:Show()
-										bar:EnableMouse(true)
-										bar:SetScript("OnDragStart", targetdragstart)
-										bar:SetScript("OnDragStop", targetdragstop)
-										bar:SetAlpha(1)
-										bar.endTime = bar.endTime or 0
-										bar.Hide = targetnothing
-									end
-									targetlocked = v
+									Buff:SetMoverLocked("target", v)
 								end,
 								hidden = gettargetfreeoptionshidden,
 								order = 103,
@@ -558,7 +1008,8 @@ do
 								type = "range",
 								name = L["X"],
 								desc = L["Set an exact X value for this bar's position."],
-								min = 0, max = 2560, bigStep = 1,
+								min = -2560, max = 2560, bigStep = 1,
+								get = function() return freeCoord("targetx") end,
 								hidden = gettargetfreeoptionshidden,
 								order = 104,
 							},
@@ -566,7 +1017,8 @@ do
 								type = "range",
 								name = L["Y"],
 								desc = L["Set an exact Y value for this bar's position."],
-								min = 0, max = 1600, bigStep = 1,
+								min = -1600, max = 1600, bigStep = 1,
+								get = function() return freeCoord("targety") end,
 								hidden = gettargetfreeoptionshidden,
 								order = 104,
 							},
@@ -619,6 +1071,141 @@ do
 								type = "toggle",
 								name = L["Show Icons"],
 								desc = L["Show icons on buffs and debuffs for your %s"]:format(L["Target"]),
+								order = 109,
+							},
+							iconside = {
+								type = "select",
+								name = L["Icon Position"],
+								desc = L["Set the side of the buff bar that the icon appears on"],
+								values = {["left"] = L["Left"], ["right"] = L["Right"]},
+								order = 110,
+							},
+						},
+					},
+					player = {
+						type = "group",
+						name = L["Player"],
+						desc = L["Player"],
+						order = 103,
+						get = getOptPlayer,
+						set = setOptPlayer,
+						args = {
+							show = {
+								type = "toggle",
+								name = L["Enable %s"]:format(L["Player"]),
+								desc = L["Show buffs/debuffs for your %s"]:format(L["Player"]),
+								arg = "player",
+								disabled = false,
+								width = "full",
+								order = 90,
+							},
+							nlf = {
+								type = "description",
+								name = "",
+								order = 100,
+							},
+							width = {
+								type = "range",
+								name = L["Buff Bar Width"],
+								desc = L["Set the width of the buff bars"],
+								min = 50, max = 300, step = 1,
+								order = 101,
+							},
+							height = {
+								type = "range",
+								name = L["Buff Bar Height"],
+								desc = L["Set the height of the buff bars"],
+								min = 4, max = 25, step = 1,
+								order = 101,
+							},
+							anchor = {
+								type = "select",
+								name = L["Anchor Frame"],
+								desc = L["Select where to anchor the %s bars"]:format(L["Player"]),
+								values = {["player"] = L["Player"], ["free"] = L["Free"], ["target"] = L["Target"], ["focus"] = L["Focus"]},
+								order = 102,
+							},
+							-- free
+							playerlock = {
+								type = "toggle",
+								name = L["Lock"],
+								desc = L["Toggle %s bar lock"]:format(L["Player"]),
+								get = function()
+									return lockstate.player
+								end,
+								set = function(info, v)
+									Buff:SetMoverLocked("player", v)
+								end,
+								hidden = getplayerfreeoptionshidden,
+								order = 103,
+							},
+							x = {
+								type = "range",
+								name = L["X"],
+								desc = L["Set an exact X value for this bar's position."],
+								min = -2560, max = 2560, bigStep = 1,
+								get = function() return freeCoord("playerx") end,
+								hidden = getplayerfreeoptionshidden,
+								order = 104,
+							},
+							y = {
+								type = "range",
+								name = L["Y"],
+								desc = L["Set an exact Y value for this bar's position."],
+								min = -1600, max = 1600, bigStep = 1,
+								get = function() return freeCoord("playery") end,
+								hidden = getplayerfreeoptionshidden,
+								order = 104,
+							},
+							growdirection = {
+								type = "select",
+								name = L["Grow Direction"],
+								desc = L["Set the grow direction of the %s bars"]:format(L["Player"]),
+								values = {["up"] = L["Up"], ["down"] = L["Down"]},
+								hidden = getplayerfreeoptionshidden,
+								order = 105,
+							},
+							-- anchored to a cast bar
+							position = {
+								type = "select",
+								name = L["Position"],
+								desc = L["Position the bars for your %s"]:format(L["Player"]),
+								values = positions,
+								hidden = getplayernotfreeoptionshidden,
+								order = 103,
+							},
+							gap = {
+								type = "range",
+								name = L["Gap"],
+								desc = L["Tweak the vertical position of the bars for your %s"]:format(L["Player"]),
+								min = -35, max = 35, step = 1,
+								hidden = getplayernotfreeoptionshidden,
+								order = 104,
+							},
+							offset = {
+								type = "range",
+								name = L["Offset"],
+								desc = L["Tweak the horizontal position of the bars for your %s"]:format(L["Player"]),
+								min = -35, max = 35, step = 1,
+								hidden = getplayernotfreeoptionshidden,
+								order = 106,
+							},
+							spacing = {
+								type = "range",
+								name = L["Spacing"],
+								desc = L["Tweak the space between bars for your %s"]:format(L["Player"]),
+								min = -35, max = 35, step = 1,
+								order = 107,
+							},
+							nli = {
+								type = "description",
+								name = "",
+								order = 108,
+							},
+							icons = {
+								type = "toggle",
+								name = L["Show Icons"],
+								desc = L["Show icons on buffs and debuffs for your %s"]:format(L["Player"]),
 								order = 109,
 							},
 							iconside = {
@@ -727,6 +1314,22 @@ do
 								isPercent = true,
 								order = 116,
 							},
+							pandemic = {
+								type = "toggle",
+								name = L["Pandemic Highlight"],
+								desc = L["Pulse an overlay on the bar while the aura is in its pandemic refresh window"],
+								order = 117,
+							},
+							pandemiccolor = {
+								type = "color",
+								name = L["Pandemic Color"],
+								desc = L["Set the color and maximum opacity of the pandemic overlay"],
+								hasAlpha = true,
+								get = getColor,
+								set = setColor,
+								disabled = function() return not db.pandemic end,
+								order = 118,
+							},
 						},
 					},
 					colors = {
@@ -742,6 +1345,14 @@ do
 								get = getColor,
 								set = setColor,
 							},
+							stealcolor = {
+								type = "color",
+								name = L["Stealable Color"],
+								desc = L["Set the color of the bars for stealable buffs"],
+								get = getColor,
+								set = setColor,
+								order = 100,
+							},
 							debuffsbytype = {
 								type = "toggle",
 								name = L["Debuffs by Type"],
@@ -754,17 +1365,6 @@ do
 								desc = L["Set the color of the bars for debuffs"],
 								get = getColor,
 								set = setColor,
-								disabled = hidedebuffsnottype,
-								order = 102,
-							},
-							physcolor = {
-								type = "color",
-								name = L["Undispellable Color"],
-								desc = L["Set the color of the bars for undispellable debuffs"],
-								get = getColor,
-								set = setColor,
-								arg = "debuffcolor",
-								disabled = hidedebuffsbytype,
 								order = 102,
 							},
 							Curse = {
@@ -812,6 +1412,9 @@ do
 	end
 end
 
+----------------------------
+-- Module lifecycle
+
 function Buff:OnInitialize()
 	self.db = Quartz3.db:RegisterNamespace(MODNAME, defaults)
 	db = self.db.profile
@@ -826,534 +1429,140 @@ function Buff:OnInitialize()
 end
 
 function Buff:OnEnable()
-	self:RegisterBucketEvent("UNIT_AURA", 0.5)
-	self:RegisterEvent("PLAYER_TARGET_CHANGED", "UpdateBars")
-	self:RegisterEvent("PLAYER_FOCUS_CHANGED", "UpdateBars")
+	if not hasAuraContainers then
+		return
+	end
+
+	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	self:RegisterEvent("UNIT_FACTION")
+
+	local function retexture(tex)
+		for _, entry in ipairs(buttons) do
+			if entry.gen == generation[entry.unit] and (not entry.button.CanBeAccessedInContext or entry.button:CanBeAccessedInContext()) then
+				entry.bg:SetTexture(tex)
+				entry.dispel:SetTexture(tex)
+				entry.steal:SetTexture(tex)
+			end
+		end
+	end
+
 	media.RegisterCallback(self, "LibSharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
-			for i, v in pairs(targetbars) do
-				v:SetStatusBarTexture(media:Fetch("statusbar", override))
-			end
-			for i, v in pairs(focusbars) do
-				v:SetStatusBarTexture(media:Fetch("statusbar", override))
-			end
+			retexture(media:Fetch("statusbar", override))
 		end
 	end)
 
 	media.RegisterCallback(self, "LibSharedMedia_Registered", function(mtype, key)
-		if mtype == "statusbar" and key == self.config.bufftexture then
-			for i, v in pairs(targetbars) do
-				v:SetStatusBarTexture(media:Fetch("statusbar", self.config.bufftexture))
-			end
-			for i, v in pairs(focusbars) do
-				v:SetStatusBarTexture(media:Fetch("statusbar", self.config.bufftexture))
-			end
+		if mtype == "statusbar" and key == db.bufftexture then
+			retexture(media:Fetch("statusbar", key))
 		end
 	end)
 
-	self:ApplySettings()
+	self:Setup()
 end
 
 function Buff:OnDisable()
-	targetbars[1].Hide = nil
-	targetbars[1]:EnableMouse(false)
-	targetbars[1]:SetScript("OnDragStart", nil)
-	targetbars[1]:SetScript("OnDragStop", nil)
-	for _, v in pairs(targetbars) do
-		v:Hide()
-	end
-
-	focusbars[1].Hide = nil
-	focusbars[1]:EnableMouse(false)
-	focusbars[1]:SetScript("OnDragStart", nil)
-	focusbars[1]:SetScript("OnDragStop", nil)
-	for _, v in pairs(focusbars) do
-		v:Hide()
-	end
-
 	media.UnregisterCallback(self, "LibSharedMedia_SetGlobal")
 	media.UnregisterCallback(self, "LibSharedMedia_Registered")
-end
 
-function Buff:UNIT_AURA(units)
-	for unit in pairs(units) do
-		if unit == "target" then
-			self:UpdateTargetBars()
-		end
-		if unit == "focus" then
-			self:UpdateFocusBars()
-		end
+	for _, container in pairs(containers) do
+		container:SetEnabled(false)
+		container:Hide()
+	end
+	for unit, mover in pairs(movers) do
+		lockstate[unit] = true
+		mover:EnableMouse(false)
+		mover:Hide()
 	end
 end
 
-
-
-function Buff:GetDispelColorCurve(isBuff)
-	local cacheKey = isBuff and "_buffCurve" or "_debuffCurve"
-	
-	if( self[cacheKey] ) then return self[cacheKey] end
-	if( not C_CurveUtil or not C_CurveUtil.CreateColorCurve ) then return nil end
-
-	local curve = C_CurveUtil.CreateColorCurve()
-	-- Use Enum values if available to ensure correct mapping
-	local E = Enum and Enum.AuraDispelType
-	local noneID = (E and E.None) or 0
-	local magicID = (E and E.Magic) or 1
-	local curseID = (E and E.Curse) or 2
-	local diseaseID = (E and E.Disease) or 3
-	local poisonID = (E and E.Poison) or 4
-	
-	if( curve.SetType and Enum and Enum.LuaCurveType and Enum.LuaCurveType.Step ) then
-		curve:SetType(Enum.LuaCurveType.Step)
+function Buff:Setup()
+	if not movers.target then
+		ensureMover("target")
+		ensureMover("focus")
+		ensureMover("player")
 	end
-
-	-- Hardcode standard colors
-	local baseR, baseG, baseB
-	if( isBuff ) then
-		baseR, baseG, baseB = unpack(db.buffcolor)
-	else
-		baseR, baseG, baseB = unpack(db.debuffcolor)
-	end
-	
-	-- Add points using the resolved IDs
-	curve:AddPoint(noneID, CreateColor(baseR, baseG, baseB))
-	curve:AddPoint(magicID, CreateColor(unpack(db.Magic or {0.2, 0.6, 1})))
-	curve:AddPoint(curseID, CreateColor(unpack(db.Curse or {0.6, 0, 1})))
-	curve:AddPoint(diseaseID, CreateColor(unpack(db.Disease or {0.6, 0.4, 0})))
-	curve:AddPoint(poisonID, CreateColor(unpack(db.Poison or {0, 0.6, 0})))
-	
-	-- Add a "Cap" point to catch any IDs higher than Poison
-	local capID = math.max(noneID, magicID, curseID, diseaseID, poisonID) + 1
-	curve:AddPoint(capID, CreateColor(baseR, baseG, baseB))
-	curve:AddPoint(255, CreateColor(baseR, baseG, baseB)) -- Safety max
-	
-    -- Ensure the curve covers the range
-    if( curve.SetMinMaxValues ) then
-	    curve:SetMinMaxValues(0, 255)
-    end
-	
-	self[cacheKey] = curve
-	return curve
+	self:ApplySettings()
 end
 
-function Buff:CheckForUpdate()
-	if targetbars[1]:IsShown() then
-		self:UpdateTargetBars()
-	end
-	if focusbars[1]:IsShown() then
-		self:UpdateFocusBars()
-	end
+function Buff:PLAYER_REGEN_ENABLED()
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	self:ApplySettings()
 end
 
-function Buff:UpdateBars()
-	self:UpdateTargetBars()
-	self:UpdateFocusBars()
-end
-
-do
-	local tblCache = setmetatable({}, {__mode="k"})
-	local function new()
-		local entry = next(tblCache)
-		if entry then tblCache[entry] = nil else entry = {} end
-		return entry
-	end
-	local function del(tbl)
-		tbl.isbuff, tbl.dispeltype, tbl.isSecret, tbl.auraInstanceID = nil, nil, nil, nil
-		tblCache[tbl] = true
-	end
-
-	-- Helper: Scan auras for a unit and populate tmp table
-	local function scanAuras(unit, isBuffScan, tmp, currentTime)
-		local maxIndex = isBuffScan and 40 or 40
-		local getAuraFunc = isBuffScan and C_UnitAuras.GetBuffDataByIndex or C_UnitAuras.GetDebuffDataByIndex
-		local filter = isBuffScan and "HELPFUL|PLAYER" or "HARMFUL|PLAYER"
-		
-		for i = 1, maxIndex do
-			local auraData = getAuraFunc(unit, i)
-			if (not auraData) or (not auraData.name) then break end
-			
-			local isSecret = issecretvalue(auraData.expirationTime)
-			local remaining = nil
-			if not isSecret then
-				remaining = auraData.expirationTime and (auraData.expirationTime - currentTime) or nil
-			end
-			
-			local isPlayerAura = not C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, auraData.auraInstanceID, filter)
-			
-			if isPlayerAura and (isSecret or auraData.duration > 0) then
-				local t = new()
-				tmp[#tmp+1] = t
-				t.name = auraData.name
-				t.texture = auraData.icon
-				t.duration = auraData.duration
-				t.remaining = remaining
-				t.isbuff = isBuffScan
-				t.applications = auraData.applications
-				t.isSecret = isSecret
-				t.auraInstanceID = auraData.auraInstanceID
-				if not isBuffScan then
-					t.dispeltype = auraData.dispelName
-				end
+-- The container does not refresh itself on target/focus switches, same as Blizzard's TargetFrame.
+local function refreshUnit(unit)
+	local container = containers[unit]
+	if not container then return end
+	local state = unitReaction(unit)
+	if state ~= reaction[unit] then
+		reaction[unit] = state
+		if container.sections then
+			for i, section in ipairs(container.sections) do
+				pcall(container.SetAuraGroupMaxFrameCount, container, "section" .. i, sectionMuted(section, state) and 0 or MAX_AURAS)
 			end
 		end
 	end
-	
-	-- Helper: Configure bar with duration and cooldown
-	local function configureBar(bar, unit, auraInstanceID)
-		local durationInfo = C_UnitAuras.GetAuraDuration(unit, auraInstanceID)
-		if durationInfo then
-			bar:SetTimerDuration(durationInfo)
-			if bar.cd then
-				bar.cd:SetCooldownFromDurationObject(durationInfo)
-				bar.cd:Show()
-				if bar.cd.timerText then
-					ApplyFontStyle(bar.cd.timerText, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
-					bar.cd.timerText:SetTextColor(unpack(db.bufftextcolor))
-				end
+	pcall(container.UpdateAllAuras, container)
+end
+
+function Buff:PLAYER_TARGET_CHANGED()
+	refreshUnit("target")
+end
+
+function Buff:PLAYER_FOCUS_CHANGED()
+	refreshUnit("focus")
+end
+
+function Buff:UNIT_FACTION(event, unit)
+	if unit == "target" or unit == "focus" then
+		refreshUnit(unit)
+	end
+end
+
+function Buff:ApplySettings()
+	db = self.db.profile
+
+	-- One-shot conversion of stored bottom-left free positions to the center-relative system.
+	if not db.centerpos then
+		db.centerpos = true
+		local cx, cy = UIParent:GetWidth() / 2, UIParent:GetHeight() / 2
+		for _, unit in ipairs({ "target", "focus", "player" }) do
+			if db[unit .. "x"] ~= nil then
+				db[unit .. "x"] = db[unit .. "x"] - cx
+			end
+			if db[unit .. "y"] ~= nil then
+				db[unit .. "y"] = db[unit .. "y"] - cy
 			end
 		end
-		bar:SetScript("OnUpdate", nil)
-		if bar.timetext then bar.timetext:Hide() end
 	end
-	
-	-- Helper: Apply color to bar based on buff/debuff type
-	local function applyBarColor(selfRef, bar, unit, auraData)
-		local r, g, b = 1, 1, 1
-		if auraData.isbuff then
-			r, g, b = unpack(db.buffcolor)
+
+	if not hasAuraContainers or not self:IsEnabled() or not movers.target then
+		return
+	end
+
+	for _, unit in ipairs(UNIT_LIST) do
+		positionMover(unit)
+		configureContainer(unit)
+		self:SetMoverLocked(unit, lockstate[unit])
+	end
+	-- Buttons deny tainted native calls while auras are secret (retry after combat), stale generations are dropped along the way.
+	local deferred
+	for i = #buttons, 1, -1 do
+		local entry = buttons[i]
+		if entry.gen ~= generation[entry.unit] then
+			table.remove(buttons, i)
+		elseif not entry.button.CanBeAccessedInContext or entry.button:CanBeAccessedInContext() then
+			styleButton(entry)
 		else
-			local colorSet = false
-			if db.debuffsbytype then
-				if C_UnitAuras.GetAuraDispelTypeColor and C_CurveUtil then
-					local curve = selfRef:GetDispelColorCurve(false)
-					if curve then
-						local color = C_UnitAuras.GetAuraDispelTypeColor(unit, auraData.auraInstanceID, curve)
-						if color then
-							r, g, b = color:GetRGB()
-							colorSet = true
-						end
-					end
-				end
-				if not colorSet then
-					local dispeltype = auraData.dispeltype
-					if dispeltype and not issecretvalue(dispeltype) then
-						r, g, b = unpack(db[dispeltype])
-					else
-						r, g, b = unpack(db.debuffcolor)
-					end
-				end
-			else
-				r, g, b = unpack(db.debuffcolor)
-			end
-		end
-		if bar.bg then
-			bar.bg:SetVertexColor(r, g, b, 1)
+			deferred = true
 		end
 	end
-	
-	-- Helper: Disable bar interactions
-	local function disableBars(bars)
-		bars[1].Hide = nil
-		bars[1]:EnableMouse(false)
-		bars[1]:SetScript("OnDragStart", nil)
-		bars[1]:SetScript("OnDragStop", nil)
-		for i = 1, #bars do
-			bars[i]:Hide()
-		end
+	if deferred then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
-
-	local tmp = {}
-	local called = false
-	
-	-- Generic update function for both target and focus
-	local function updateBarsForUnit(selfRef, unit, bars, otherBars, enabledKey, buffsKey, debuffsKey)
-		if called then return end
-		called = true
-		
-		if db[enabledKey] then
-			local currentTime = GetTime()
-			for k in pairs(tmp) do
-				tmp[k] = del(tmp[k])
-			end
-			
-			if db[buffsKey] then
-				scanAuras(unit, true, tmp, currentTime)
-			end
-			if db[debuffsKey] then
-				scanAuras(unit, false, tmp, currentTime)
-			end
-			
-			local maxindex = 0
-			for k = 1, #tmp do
-				local v = tmp[k]
-				maxindex = k
-				local bar = bars[k]
-				
-				if (not issecretvalue(v.applications)) and (v.applications > 1) then
-					bar.text:SetFormattedText("%s (%s)", v.name, v.applications)
-				else
-					bar.text:SetText(v.name)
-				end
-				bar.icon:SetTexture(v.texture)
-				
-				configureBar(bar, unit, v.auraInstanceID)
-				bar:Show()
-				applyBarColor(selfRef, bar, unit, v)
-			end
-			
-			for i = maxindex + 1, #bars do
-				bars[i]:Hide()
-			end
-		else
-			disableBars(bars)
-		end
-		
-		-- Auto update timer management
-		if bars[1]:IsShown() then
-			if not selfRef.autoUpdateTimer then
-				selfRef.autoUpdateTimer = selfRef:ScheduleRepeatingTimer("CheckForUpdate", 3)
-			end
-		elseif not otherBars[1]:IsShown() then
-			if selfRef.autoUpdateTimer then
-				selfRef:CancelTimer(selfRef.autoUpdateTimer)
-				selfRef.autoUpdateTimer = nil
-			end
-		end
-		
-		called = false
-	end
-	
-	function Buff:UpdateTargetBars()
-		updateBarsForUnit(self, "target", targetbars, focusbars, "target", "targetbuffs", "targetdebuffs")
-	end
-	
-	function Buff:UpdateFocusBars()
-		updateBarsForUnit(self, "focus", focusbars, targetbars, "focus", "focusbuffs", "focusdebuffs")
+	for _, container in pairs(containers) do
+		pcall(container.UpdateAllAuras, container)
 	end
 end
-do
-	local function apply(unit, i, bar, direction)
-		local bars, position, icons, iconside, gap, spacing, offset, anchor, x, y, grow, height, width
-		local qpdb = Player.db.profile
-		if unit == "target" then
-			bars = targetbars
-			position = db.targetposition
-			icons = db.targeticons
-			iconside = db.targeticonside
-			gap = db.targetgap
-			spacing = db.targetspacing
-			offset = db.targetoffset
-			anchor = db.targetanchor
-			x = db.targetx
-			y = db.targety
-			grow = db.targetgrowdirection
-			width = db.targetwidth
-			height = db.targetheight
-		else
-			bars = focusbars
-			position = db.focusposition
-			icons = db.focusicons
-			iconside = db.focusiconside
-			gap = db.focusgap
-			spacing = db.focusspacing
-			offset = db.focusoffset
-			anchor = db.focusanchor
-			x = db.focusx
-			y = db.focusy
-			grow = db.focusgrowdirection
-			width = db.focuswidth
-			height = db.focusheight
-		end
-
-		bar:ClearAllPoints()
-		
-		-- Inverse Fill
-		-- bar.bg = User Texture
-		-- StatusBar = Black mask that grows to cover it
-		local tex = media:Fetch("statusbar", db.bufftexture)
-		if bar.bg then
-			bar.bg:SetTexture(tex)
-		end
-		
-		bar:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
-		bar:GetStatusBarTexture():SetVertexColor(0, 0, 0, 1)
-		
-		bar:SetWidth(width)
-		bar:SetHeight(height)
-		bar:SetScale(qpdb.scale)
-		bar:SetAlpha(db.buffalpha)
-
-		if anchor == "free" then
-			if i == 1 then
-				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x, y)
-				if grow == "up" then
-					direction = 1
-				else --L["Down"]
-					direction = -1
-				end
-			else
-				if direction == 1 then
-					bar:SetPoint("BOTTOMRIGHT", bars[i-1], "TOPRIGHT", 0, spacing)
-				else -- -1
-					bar:SetPoint("TOPRIGHT", bars[i-1], "BOTTOMRIGHT", 0, -1 * spacing)
-				end
-			end
-		else
-			if i == 1 then
-				local anchorframe
-				if anchor == "focus" and Focus and Focus.Bar then
-					anchorframe = Focus.Bar
-				elseif anchor == "target" and Target and Target.Bar then
-					anchorframe = Target.Bar
-				else -- L["Player"]
-					anchorframe = Player.Bar
-				end
-
-				if position == "top" then
-					direction = 1
-					bar:SetPoint("BOTTOM", anchorframe, "TOP", 0, gap)
-				elseif position == "bottom" then
-					direction = -1
-					bar:SetPoint("TOP", anchorframe, "BOTTOM", 0, -1 * gap)
-				elseif position == "topright" then
-					direction = 1
-					bar:SetPoint("BOTTOMRIGHT", anchorframe, "TOPRIGHT", -1 * offset, gap)
-				elseif position == "bottomright" then
-					direction = -1
-					bar:SetPoint("TOPRIGHT", anchorframe, "BOTTOMRIGHT", -1 * offset, -1 * gap)
-				elseif position == "topleft" then
-					direction = 1
-					bar:SetPoint("BOTTOMLEFT", anchorframe, "TOPLEFT", offset, gap)
-				elseif position == "bottomleft" then
-					direction = -1
-					bar:SetPoint("TOPLEFT", anchorframe, "BOTTOMLEFT", offset, -1 * gap)
-				elseif position == "leftup" then
-					if iconside == "right" and showicons then
-						offset = offset + height
-					end
-					if qpdb.iconposition == "left" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = 1
-					bar:SetPoint("BOTTOMRIGHT", anchorframe, "BOTTOMLEFT", -1 * offset, gap)
-				elseif position == "leftdown" then
-					if iconside == "right" and showicons then
-						offset = offset + height
-					end
-					if qpdb.iconposition == "left" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = -1
-					bar:SetPoint("TOPRIGHT", anchorframe, "TOPLEFT", -3 * offset, -1 * gap)
-				elseif position == "rightup" then
-					if iconside == "left" and showicons then
-						offset = offset + height
-					end
-					if qpdb.iconposition == "right" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = 1
-					bar:SetPoint("BOTTOMLEFT", anchorframe, "BOTTOMRIGHT", offset, gap)
-				elseif position == "rightdown" then
-					if iconside == "left" and showicons then
-						offset = offset + height
-					end
-					if qpdb.iconposition == "right" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = -1
-					bar:SetPoint("TOPLEFT", anchorframe, "TOPRIGHT", offset, -1 * gap)
-				end
-			else
-				if direction == 1 then
-					bar:SetPoint("BOTTOMRIGHT", bars[i-1], "TOPRIGHT", 0, spacing)
-				else -- -1
-					bar:SetPoint("TOPRIGHT", bars[i-1], "BOTTOMRIGHT", 0, -1 * spacing)
-				end
-			end
-		end
-
-
-		local timerText = bar.cd and bar.cd.timerText
-		if timerText then
-			if db.bufftimetext then
-				timerText:Show()
-				timerText:ClearAllPoints()
-				timerText:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
-				timerText:SetJustifyH("RIGHT")
-				
-				ApplyFontStyle(timerText, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
-				timerText:SetTextColor(unpack(db.bufftextcolor))
-			else
-				timerText:Hide()
-			end
-		end
-
-		local timerWidth = db.bufftimetext and 30 or 0
-
-
-		local text = bar.text
-		if db.buffnametext then
-			text:Show()
-			text:ClearAllPoints()
-			text:SetPoint("LEFT", bar, "LEFT", 2, 0)
-			text:SetJustifyH("LEFT")
-			if db.bufftimetext then
-				text:SetWidth(width - timerWidth)
-			else
-				text:SetWidth(width)
-			end
-		else
-			text:Hide()
-		end
-		ApplyFontStyle(text, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
-		text:SetTextColor(unpack(db.bufftextcolor))
-		text:SetNonSpaceWrap(false)
-		text:SetHeight(height)
-
-		local icon = bar.icon
-		if icons then
-			icon:Show()
-			icon:SetWidth(height-1)
-			icon:SetHeight(height-1)
-			icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-			icon:ClearAllPoints()
-			if iconside == "left" then
-				icon:SetPoint("RIGHT", bar, "LEFT", -1, 0)
-			else
-				icon:SetPoint("LEFT", bar, "RIGHT", 1, 0)
-			end
-		else
-			icon:Hide()
-		end
-
-		return direction
-	end
-	function Buff:ApplySettings()
-		db = self.db.profile
-		if self:IsEnabled() then
-			local direction
-			if db.targetanchor ~= "free" then
-				targetbars[1].Hide = nil
-				targetbars[1]:EnableMouse(false)
-				targetbars[1]:SetScript("OnDragStart", nil)
-				targetbars[1]:SetScript("OnDragStop", nil)
-			end
-			if db.focusanchor ~= "free" then
-				focusbars[1].Hide = nil
-				focusbars[1]:EnableMouse(false)
-				focusbars[1]:SetScript("OnDragStart", nil)
-				focusbars[1]:SetScript("OnDragStop", nil)
-			end
-			for i, v in pairs(targetbars) do
-				direction = apply("target", i, v, direction)
-			end
-			direction = nil
-			for i, v in pairs(focusbars) do
-				direction = apply("focus", i, v, direction)
-			end
-			self:UpdateBars()
-		end
-	end
-end
-
