@@ -607,37 +607,34 @@ do -- keystone
             ---@param thisPlayerData scoreboard_playerdata
             local looperCallback = function(thisPlayerData)
                 local playerName = thisPlayerData.name
-                if (UnitExists(playerName)) then
-                    local kInfo = private.GetKeystoneInfo(playerName)
-                    if kInfo.keystoneLevel > 0 then
-                        local unitKeystoneInfo = {
-                            keystoneLevel = kInfo.keystoneLevel,
-                            keystoneIcon = kInfo.keystoneIcon
-                        }
+                if (not UnitExists(playerName)) then
+                	return
+                end
 
-                        if (unitKeystoneInfo) then
-                            keystoneTexture:SetTexCoord(36/512, 375/512, 50/512, 290/512)
-                            keystoneTexture:SetAlpha(1)
-                            keystoneTexture:SetDesaturated(false)
-                            keystoneTexture:SetTexture(playerData.keystoneIcon)
-                            keystoneLevel:SetAlpha(1)
-                            keystoneLevelBackground:SetAlpha(1)
-                            keystoneLevel:SetText(playerData.keystoneLevel)
+                local kInfo = private.GetKeystoneInfo(playerName)
+                if kInfo.keystoneLevel <= 0 then
+                	return
+                end
 
-                            --log (debug)
-                            if (not didPrintLog) then
-                                private.log("Keystone Update Okay, Name:", playerName or "ERROR", "keystoneLevel:", playerData.keystoneLevel or "ERROR", "keystoneIcon:", playerData.keystoneIcon or "ERROR")
-                                didPrintLog = true
-                            end
-                        end
-                    end
+                keystoneTexture:SetTexCoord(36/512, 375/512, 50/512, 290/512)
+                keystoneTexture:SetAlpha(1)
+                keystoneTexture:SetDesaturated(false)
+                keystoneTexture:SetTexture(kInfo.keystoneIcon)
+                keystoneLevel:SetAlpha(1)
+                keystoneLevelBackground:SetAlpha(1)
+                keystoneLevel:SetText(kInfo.keystoneLevel)
+
+                --log (debug)
+                if (not didPrintLog) then
+                    private.log("Keystone Update Okay, Name:", playerName or "ERROR", "keystoneLevel:", playerData.keystoneLevel or "ERROR", "keystoneIcon:", playerData.keystoneIcon or "ERROR")
+                    didPrintLog = true
                 end
             end
 
-            local loopAmount = 30
-            local looperEndCallback = function()end
+            local loopAmount = 10
+            local looperEndCallback = function() end
             local checkPointCallback = function() return addon.IsScoreboardOpen() end --if the scoreboard is hidden, interrupt the loop
-            local keystoneUpdateSchedule = DetailsFramework.Schedules.NewLooper(1, looperCallback, loopAmount, looperEndCallback, checkPointCallback, playerData)
+            local keystoneUpdateSchedule = DetailsFramework.Schedules.NewLooper(3, looperCallback, loopAmount, looperEndCallback, checkPointCallback, playerData)
             --add to the timer list to be stopped when a scoreboard update is triggered
             addon.temporaryTimers[#addon.temporaryTimers + 1] = keystoneUpdateSchedule
         end)

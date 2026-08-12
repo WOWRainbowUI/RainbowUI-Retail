@@ -117,8 +117,9 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
 
         table.insert(profile.logs, 1, str)
 
-        --limit to 50 entries, removing the oldest
-        table.remove(profile.logs, CONST_MAX_LOGLINES+1)
+        while #profile.logs > CONST_MAX_LOGLINES do
+        	table.remove(profile.logs, CONST_MAX_LOGLINES+1)
+        end
     end
 
     --register details! events
@@ -274,5 +275,12 @@ end
 
 
 function addon.ShowLogs()
-    dumpt(addon.profile.logs)
+	if (dumpt) then
+	    dumpt(addon.profile.logs)
+	    return
+	end
+
+	for _, message in pairs(addon.profile.logs) do
+		print(message)
+	end
 end
