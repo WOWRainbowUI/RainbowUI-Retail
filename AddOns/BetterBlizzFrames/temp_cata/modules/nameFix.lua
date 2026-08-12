@@ -253,19 +253,24 @@ local function PartyFrameNameChange(frame)
         frame.bbfName:SetText("")
         return
     end
-    if not changeUnitFrameFont and not changePartyFrameFont then
-        frame.bbfName:SetFont(frame.name:GetFont())
-    end
-    frame.bbfName:ClearAllPoints()
-    frame.bbfName:SetPoint("LEFT", frame.name, "LEFT")
 
-    local _, fontSize = frame.bbfName:GetFont()
-    local baseWidth = frame.name:GetWidth()
-    local extraWidth = 0
-    if fontSize and fontSize > 10 then
-        extraWidth = math.floor((fontSize - 10) / 2) * 15
+    if not (BetterBlizzFramesDB.biggerHealthbars or BetterBlizzFramesDB.betterDefaultPartyFrames) then
+        if not changeUnitFrameFont and not changePartyFrameFont then
+            frame.bbfName:SetFont(frame.name:GetFont())
+        end
+        frame.bbfName:ClearAllPoints()
+        frame.bbfName:SetPoint("LEFT", frame.name, "LEFT")
+
+        local _, fontSize = frame.bbfName:GetFont()
+        local baseWidth = frame.name:GetWidth()
+        local extraWidth = 0
+        if fontSize and fontSize > 10 then
+            extraWidth = math.floor((fontSize - 10) / 2) * 15
+        end
+        frame.bbfName:SetWidth(baseWidth + extraWidth)
+    else
+        frame.bbfName:SetWidth(frame.HealthBar:GetWidth())
     end
-    frame.bbfName:SetWidth(baseWidth + extraWidth)
 
     if partyArenaNames and IsActiveBattlefieldArena() then
         SetArenaName(frame, frame.unit, frame.bbfName)

@@ -1,6 +1,7 @@
 local L = BBF.L
 local interruptSpells = {
     [1766] = 5,       -- Kick (Rogue)
+    [38768]= 5,       -- Kick (Rogue)
     [2139] = 8,       -- Counterspell (Mage)
     [6552] = 4,       -- Pummel (Warrior)
     [72] = 6,         -- Shield Bash (Warrior)
