@@ -4,7 +4,7 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,mythic"
 mod.soloChallenge = true
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260810190825")
 --mod:SetCreatureID(244752)--Not known which 2 are nemesis boss yet and which 2 are random spawns
 mod:SetEncounterID(3372, 3430)
 mod:SetHotfixNoticeRev(20250220000000)
@@ -28,7 +28,7 @@ local specWarnEmptinessOfTheVoid			= mod:NewSpecialWarningInterruptCount(1256351
 
 local timerDevouringEssenceCD				= mod:NewCDCountTimer(20.5, 1256358, nil, nil, nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)
 local timerImplodingStrikeCD				= mod:NewCDCountTimer(20.5, 1256355, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
-local timerEmptinessOfTheVoidCD				= mod:NewVarCountTimer("v19.5-23.3", 1256351, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
+local timerEmptinessOfTheVoidCD				= mod:NewVarCountTimer("v18.2-23.3", 1256351, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 local timerPhase							= mod:NewStageTimer(42)
 
 mod:AddAuraSoundOption({1287014, 1256045}, true, 1287014, 1, 2, "watchfeet", 8)--Null Zone
@@ -38,33 +38,21 @@ mod.vb.implodingStrikeCount = 0
 mod.vb.voidCount = 0
 local badStateDetected = false
 local workaroundblizzardincompitence = {}--In case we have to fall back to blizz timers, this will prevent us from trying to use encounter timeline events which are also used by blizz timers and will cause false positives that break timers
---local tankFound = false
 
-local function setFallback(self)
+---@param self DBMMod
+---@param dontSetAlerts boolean? Called on engage when we only want to set timeline parameters and not touch encounter alerts
+local function setFallback(self, dontSetAlerts)
 	--Blizz API fallbacks
-	warnDevouringEssence:SetAlert({390, 395}, "incomingdebuff", 15, 2)
-	timerDevouringEssenceCD:SetTimeline({390, 395})
-	specWarnImplodingStrike:SetAlert({391, 394}, "defensive", 19, 2)
-	timerImplodingStrikeCD:SetTimeline({391, 394})
-	specWarnEmptinessOfTheVoid:SetAlert({392, 393}, "kickcast", 19, 2)
-	timerEmptinessOfTheVoidCD:SetTimeline({392, 393})
-end
-
---[[
-local function isTankInGroup()
-	if not IsInGroup() then
-		tankFound = UnitGroupRolesAssigned("player") == "TANK"
-	else
-		local groupType = IsInRaid() and "raid" or "party"
-		for i = 1, GetNumGroupMembers() do
-			if UnitIsGroupLeader(groupType..i) then
-				tankFound = UnitGroupRolesAssigned(groupType..i) == "TANK"
-				return
-			end
-		end
+	if not dontSetAlerts then
+		warnDevouringEssence:SetAlert({390, 395}, "incomingdebuff", 15, 2)
+		specWarnImplodingStrike:SetAlert({391, 394}, "defensive", 19, 2)
+		specWarnEmptinessOfTheVoid:SetAlert({392, 393}, "kickcast", 19, 2)
 	end
+	local onlyColor = not DBM.Options.HideDBMBars and not badStateDetected
+	timerDevouringEssenceCD:SetTimeline({390, 395}, onlyColor)
+	timerImplodingStrikeCD:SetTimeline({391, 394}, onlyColor)
+	timerEmptinessOfTheVoidCD:SetTimeline({392, 393}, onlyColor)
 end
---]]
 
 function mod:OnLimitedCombatStart()
 	self:TLCountReset()
@@ -72,21 +60,21 @@ function mod:OnLimitedCombatStart()
 	self.vb.implodingStrikeCount = 1
 	self.vb.voidCount = 1
 	workaroundblizzardincompitence = {}
---	isTankInGroup()
 	if DBM.Options.HardcodedTimer and not badStateDetected then
 		self:IgnoreBlizzardAPI()
 		self:RegisterShortTermEvents(
 			"ENCOUNTER_TIMELINE_EVENT_ADDED",
 			"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED"
 		)
+		setFallback(self, true)
 	else
 		setFallback(self)
 	end
-	--if self:IsMythic() then
-	--	self:SetCreatureID(252892)
-	--else
-	--	self:SetCreatureID(244752)
-	--end
+	if self:IsMythic() then
+		self:SetCreatureID(252892)
+	else
+		self:SetCreatureID(244752)
+	end
 end
 
 function mod:OnCombatEnd()
@@ -110,7 +98,7 @@ do
 				workaroundblizzardincompitence["void"] = false
 			end
 			local count = self:TLCountStart(eventID, "void", "voidCount")
-			timerEmptinessOfTheVoidCD:TLStart(timer == 21 and "v19.5-23.3" or 7, eventID, count)
+			timerEmptinessOfTheVoidCD:TLStart(timer == 21 and "v18.3-23.3" or 7, eventID, count)
 		--Devouring is opener 16.0 and recurring 18.5 (rounded to 19)
 		elseif timer == 16 or self:IsRoundedTimer(timer, 19, 0.5) then--Is rounded covers 18.5-19.5
 			if workaroundblizzardincompitence["devouring"] then

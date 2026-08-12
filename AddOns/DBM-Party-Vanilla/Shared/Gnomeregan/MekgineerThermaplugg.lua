@@ -7,7 +7,7 @@ local isCata = (tempTOC >= 40400) and (tempTOC < 50000)
 local mod	= DBM:NewMod(422, "DBM-Party-Vanilla", (isCata or isRetail) and 4 or 7, 231)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260730211220")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7800)
 mod:SetEncounterID(mod:IsClassic() and 2772 or 382)
@@ -50,7 +50,7 @@ end
 --Only vanilla and tbc have this
 local warningActivateBomb
 if isClassic or isBCC then
-	warningActivateBomb			= mod:NewSpellAnnounce(11518, 2)
+	warningActivateBomb			= mod:NewSpellAnnounce(11518, 2, "133709")
 end
 
 function mod:OnCombatStart(delay)

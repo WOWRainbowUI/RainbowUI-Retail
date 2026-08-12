@@ -1,21 +1,52 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r255](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r255) (2026-07-14)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r254...r255) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r257](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r257) (2026-08-11)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r255...r257) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Missed a toc bump for TBC  
-- no actual bug fixes really, just try to silence debug from blizzard timeline bugs  
-- re-enable all the de-privated auras in 12.1 for midnight dungeons  
-    Add new encounter event Ids for 12.1 dungeon pool encounters  
-- Add preliminary altar of fangs support  
-- Missed one  
-- Optimize GetRaidUnitId  
-    Replace private aura apis with aura apis  
-- Fix bug causing fallback countdowns not to work  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/605  
-    Also fix some bugs not reported in ticket with arcanotron where boss can start some extremely erratic timer data that we just need to ignore.  
-    also, while at it, restore Runic Mark alert using special warning with the precision of runic mark corrected.  
-- Upgrade Reflux Charge, Eclipsing Step, and Brilliant Dispersion from Private auras to full special warning personal objects now that someone other than me (a tank) gave logs for nexus point (tanks don't get targeted by any mechanics)  
-    Finally hardcode Nyrsarra  
-- tweak ahune gossip. apparently it can be EITHER on retail  
-- Add preliminary aztarec skeleton for stats and better debug logging. unfortunately blizzard hasn't actually added TL api to it yet  
+- wasn't just RU. Shame, Shame  
+- Update koKR (#613)  
+- Update RU locale (#612)  
+- Fix regression that caused russian to overrwrite all languages for dungeon boss names  
+- tweak  
+- Fix accidentally commenting out cids on torments rise  
+- Expand timers to monk specs  
+- Add several more trash ability auras from Tactyks important debuffs list  
+- readd a note  
+- Verified new logs and loosened rounding buckets a little  
+- toc cleanup  
+- Add stubs for the two new delve zones in 12.1  
+- triple shot needs longer arm time if you're 3rd target  
+- mean to comment these lines  
+- Push Aztarec mod now that blizzard has hotfixed in API  
+- Add some more trash alerts  
+- Finish Kings rest Hardcode  
+- Push the Temple of Sethraliss 12.1 hardcode updates  
+- solve pointless nitpick by adding pointless nil check  
+- Council of tribes alone took a lot of work to hardcode, but it's done. will do rest of kings reset tomorrow.  
+- complete rudy life pools hardcoded routing  
+- Improve some tank scope warnings in hardcodes  
+- Finish altar of fangs hardcodes  
+- template some trash modules  
+- Blinding Vale 12.1 hardcode  
+- Voidscar arena hardcode for 12.1  
+- Add murder row hardcodes for all bosses  
+    Add another important debuff to murder row trash.  
+- Upgrade Den of Nalorakk to hardcode for 12.1  
+- quick fix  
+- fill in new encounterIDs for mage tower.  
+    add support for healer challenge spells since only 2 so it's a quicky.  
+- prep mage tower modules for midnight updates  
+- and even add preliminary trash aura warnings to ruby life pools  
+- add debuff aura support while at it  
+- Finish Ruby life Pools fallback api support  
+- Update MekgineerThermaplugg.lua (#610)  
+- Update koKR (#609)  
+- Update localization.ru.lua (#603)  
+- improve last  
+- Season 2 scaffolding  
+- wrath toc bumps  
+- add or update spells on 3 midnight dungeons in 12.1  
+- add first trash aura warning for the deadly tank poison Heartstop Poison in murder row  
+- remove bad addition and comment out unused  
+- upgrade ravi to hardcode  
+- do vanilla toc as well  
