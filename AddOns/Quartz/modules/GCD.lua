@@ -56,11 +56,129 @@ local defaults = {
 		iconposition = "left",       -- "left" | "right" | "free"
 		icongap      = 4,
 
-		-- Position libre (commun aux deux modes)
-		x = 500,
-		y = 300,
 	}
 }
+
+local locked = true
+local mover
+
+-- Center-relative free coordinates, kept out of the defaults so stored legacy bottom-left values can be migrated once.
+local FREE_DEFAULT_X, FREE_DEFAULT_Y = 0, -250
+
+local function freeX()
+	local x = db.x
+	if x == nil then x = FREE_DEFAULT_X end
+	return x
+end
+
+local function freeY()
+	local y = db.y
+	if y == nil then y = FREE_DEFAULT_Y end
+	return y
+end
+
+local function isFreePosition()
+	if not Player:IsEnabled() then return true end
+	if db.displayMode == "bar" then return db.gcdposition == "free" end
+	return db.iconposition == "free"
+end
+
+local function ensureMover()
+	if mover then return mover end
+
+	mover = CreateFrame("Frame", nil, UIParent)
+	mover:SetFrameStrata("MEDIUM")
+	mover:SetMovable(true)
+	mover:SetClampedToScreen(true)
+	mover:EnableMouse(false)
+	mover:RegisterForDrag("LeftButton")
+	mover:Hide()
+
+	mover.bg = mover:CreateTexture(nil, "BACKGROUND")
+	mover.bg:SetAllPoints(mover)
+	mover.bg:SetColorTexture(0, 0.5, 1, 0.25)
+
+	mover.bar = CreateFrame("StatusBar", nil, mover)
+	mover.bar:SetAllPoints(mover)
+	mover.bar:SetMinMaxValues(0, 1)
+	mover.bar:SetValue(0.5)
+
+	mover.overlay = CreateFrame("Frame", nil, mover)
+	mover.overlay:SetAllPoints(mover)
+	mover.overlay:SetFrameLevel(mover:GetFrameLevel() + 5)
+	mover.label = mover.overlay:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	mover.label:SetPoint("CENTER")
+	mover.label:SetText(L["Global Cooldown"])
+
+	mover:SetScript("OnDragStart", mover.StartMoving)
+	mover:SetScript("OnDragStop", function(frame)
+		frame:StopMovingOrSizing()
+		local scale = frame:GetScale()
+		db.x = frame:GetLeft() - UIParent:GetWidth() / 2 / scale
+		db.y = frame:GetBottom() - UIParent:GetHeight() / 2 / scale
+		GCD:ApplySettings()
+	end)
+
+	local demoTime = 0
+	mover:SetScript("OnUpdate", function(self, elapsed)
+		demoTime = demoTime + elapsed
+		self.bar:SetValue((demoTime % 1.5) / 1.5)
+	end)
+
+	return mover
+end
+
+local function positionMover()
+	if not mover then return end
+
+	local playerEnabled = Player:IsEnabled()
+	local width, height
+	if db.displayMode == "bar" then
+		local pw = Player.Bar and Player.Bar:GetWidth() or 0
+		if not pw or pw < 1 then pw = Player.db.profile.w + 10 end
+		width, height = pw - 8, db.gcdheight
+	else
+		width, height = db.gcdsize, db.gcdsize
+	end
+
+	mover:SetScale(Player.db.profile.scale)
+	mover:SetSize(width, height)
+	mover:ClearAllPoints()
+	if db.displayMode == "bar" and db.gcdposition == "bottom" and playerEnabled then
+		mover:SetPoint("TOP", Player.Bar, "BOTTOM", 0, db.gcdgap)
+	elseif db.displayMode == "bar" and db.gcdposition == "top" and playerEnabled then
+		mover:SetPoint("BOTTOM", Player.Bar, "TOP", 0, -db.gcdgap)
+	elseif db.displayMode == "icon" and db.iconposition == "left" and playerEnabled then
+		mover:SetPoint("RIGHT", Player.Bar, "LEFT", -db.icongap, 0)
+	elseif db.displayMode == "icon" and db.iconposition == "right" and playerEnabled then
+		mover:SetPoint("LEFT", Player.Bar, "RIGHT", db.icongap, 0)
+	else
+		mover:SetPoint("BOTTOMLEFT", UIParent, "CENTER", freeX(), freeY())
+	end
+
+	mover.bar:SetStatusBarTexture(media:Fetch("statusbar", db.bartexture))
+	mover.bar:SetStatusBarColor(unpack(db.barcolor))
+end
+
+function GCD:SetMoverLocked(lock)
+	locked = lock
+	ensureMover()
+	mover:EnableMouse(not lock and isFreePosition())
+	mover:SetShown(not lock)
+	if not lock then
+		positionMover()
+	end
+end
+
+function GCD:Unlock()
+	if not self:IsEnabled() then return end
+	self:SetMoverLocked(false)
+end
+
+function GCD:Lock()
+	if not self:IsEnabled() then return end
+	self:SetMoverLocked(true)
+end
 
 -- OnUpdate : repositionne le spark et met à jour le fill (mode barre uniquement)
 -- Utilise starttime = GetTime() enregistré par nous → toujours non-secret
@@ -94,8 +212,6 @@ function GCD:OnEnable()
 	if not gcdbar then
 		gcdbar = CreateFrame("Frame", "Quartz3GCDBar", UIParent, "BackdropTemplate")
 		gcdbar:SetFrameStrata("MEDIUM")
-		gcdbar:SetMovable(true)
-		gcdbar:RegisterForDrag("LeftButton")
 		gcdbar:SetClampedToScreen(true)
 		gcdbar:Hide()
 	end
@@ -106,6 +222,11 @@ function GCD:OnDisable()
 	starttime = nil
 	gcdbar:SetScript("OnUpdate", nil)
 	gcdbar:Hide()
+	if mover then
+		locked = true
+		mover:EnableMouse(false)
+		mover:Hide()
+	end
 end
 
 function GCD:CheckGCD(event, unit)
@@ -145,7 +266,24 @@ end
 
 function GCD:ApplySettings()
 	db = self.db.profile
+
+	-- One-shot conversion of stored bottom-left free positions to the center-relative system.
+	if not db.centerpos then
+		db.centerpos = true
+		if db.x ~= nil then db.x = db.x - UIParent:GetWidth() / 2 end
+		if db.y ~= nil then db.y = db.y - UIParent:GetHeight() / 2 end
+	end
+
 	if not (gcdbar and self:IsEnabled()) then return end
+
+	if isFreePosition() then
+		ensureMover()
+	end
+	if mover then
+		positionMover()
+		mover:SetShown(not locked)
+		mover:EnableMouse(not locked and isFreePosition())
+	end
 
 	-- Réinitialise l'état lors du changement de mode
 	gcdbar:SetScript("OnUpdate", nil)
@@ -176,7 +314,7 @@ function GCD:ApplySettings()
 		elseif db.gcdposition == "top" and playerEnabled then
 			gcdbar:SetPoint("BOTTOM", Player.Bar, "TOP", 0, -db.gcdgap)
 		else -- free ou Player désactivé
-			gcdbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.x, db.y)
+			gcdbar:SetPoint("BOTTOMLEFT", ensureMover(), "BOTTOMLEFT")
 		end
 
 		-- StatusBar (fill)
@@ -226,7 +364,7 @@ function GCD:ApplySettings()
 		elseif db.iconposition == "right" and playerEnabled then
 			gcdbar:SetPoint("LEFT", Player.Bar, "RIGHT", db.icongap, 0)
 		else -- free ou Player désactivé
-			gcdbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.x, db.y)
+			gcdbar:SetPoint("BOTTOMLEFT", ensureMover(), "BOTTOMLEFT")
 		end
 
 		-- Icône de classe
@@ -269,15 +407,6 @@ function GCD:ApplySettings()
 end
 
 do
-	local locked = true
-	local function nothing() end
-	local function dragstart() gcdbar:StartMoving() end
-	local function dragstop()
-		db.x = gcdbar:GetLeft()
-		db.y = gcdbar:GetBottom()
-		gcdbar:StopMovingOrSizing()
-	end
-
 	-- Fonctions hidden/disabled pour Ace3
 	local function inIconMode()  return db.displayMode == "icon" end
 	local function inBarMode()   return db.displayMode == "bar"  end
@@ -479,21 +608,7 @@ do
 						desc = L["Toggle Cast Bar lock"],
 						get = function() return locked end,
 						set = function(info, v)
-							if v then
-								gcdbar.Hide = nil
-								gcdbar:EnableMouse(false)
-								gcdbar:SetScript("OnDragStart", nil)
-								gcdbar:SetScript("OnDragStop", nil)
-								gcdbar:Hide()
-							else
-								gcdbar:Show()
-								gcdbar:EnableMouse(true)
-								gcdbar:SetScript("OnDragStart", dragstart)
-								gcdbar:SetScript("OnDragStop", dragstop)
-								gcdbar:SetAlpha(1)
-								gcdbar.Hide = nothing
-							end
-							locked = v
+							GCD:SetMoverLocked(v)
 						end,
 						hidden = notFree,
 						order = 401,
@@ -502,7 +617,8 @@ do
 						type = "range",
 						name = L["X"],
 						desc = L["Set an exact X value for this bar's position."],
-						min = 0, max = 2560, step = 1,
+						min = -2560, max = 2560, step = 1,
+						get = function() return freeX() end,
 						order = 402,
 						hidden = notFree,
 					},
@@ -510,7 +626,8 @@ do
 						type = "range",
 						name = L["Y"],
 						desc = L["Set an exact Y value for this bar's position."],
-						min = 0, max = 1600, step = 1,
+						min = -1600, max = 1600, step = 1,
+						get = function() return freeY() end,
 						order = 403,
 						hidden = notFree,
 					},

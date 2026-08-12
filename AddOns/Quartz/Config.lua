@@ -23,7 +23,7 @@ local LibDualSpec = LibStub("LibDualSpec-1.0", true)
 
 ----------------------------
 -- Upvalues
--- GLOBALS: LibStub, InterfaceOptionsFrame_OpenToCategory
+-- GLOBALS: LibStub, InCombatLockdown, SettingsPanel, HideUIPanel
 local pairs, unpack, type = pairs, unpack, type
 
 local getOpt, setOpt, getColor, setColor
@@ -54,7 +54,7 @@ local function getOptions()
 		 options = {
 			type = "group",
 			args = {
-				general = {
+				unlockBar = {
 					type = "group",
 					inline = true,
 					name = "",
@@ -73,6 +73,13 @@ local function getOptions()
 							name = "",
 							order = 51,
 						},
+					},
+				},
+				general = {
+					type = "group",
+					name = L["General"],
+					order = 10,
+					args = {
 						hidesamwise = {
 							type = "toggle",
 							name = L["Hide Samwise Icon"],
@@ -194,26 +201,61 @@ end
 
 function Quartz3:ChatCommand(input)
 	if not input or input:trim() == "" then
-		if InterfaceOptionsFrame_OpenToCategory then
-			InterfaceOptionsFrame_OpenToCategory(Quartz3.optFrames.Profiles)
-			InterfaceOptionsFrame_OpenToCategory(Quartz3.optFrames.Quartz3)
+		if InCombatLockdown() then
+			self:Print("|cffff0000Cannot open options in combat.|r")
+			return
+		end
+		local ACD = LibStub("AceConfigDialog-3.0")
+		if ACD.OpenFrames["Quartz3"] then
+			ACD:Close("Quartz3")
 		else
-			-- 12.0.0+: Use the category object, not the string name
-			if InCombatLockdown() then
-				print("|cffff0000Quartz: Cannot open options in combat.|r")
-			else
-				Settings.OpenToCategory(Quartz3.optFrames.Quartz3.name)
-			end
+			ACD:Open("Quartz3")
 		end
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(Quartz3, "quartz", "Quartz3", input)
 	end
 end
 
+local launcherOptions = {
+	type = "group",
+	name = "Quartz 3",
+	args = {
+		desc = {
+			type = "description",
+			order = 1,
+			fontSize = "medium",
+			name = L["Quartz 3 uses a detached configuration window."]
+				.. "\n\n" .. L["Type |cffffd700/quartz|r or click below to open it."],
+		},
+		open = {
+			type = "execute",
+			order = 2,
+			name = L["Open configuration - /quartz"],
+			func = function()
+				if InCombatLockdown() then return end
+				LibStub("AceConfigDialog-3.0"):Open("Quartz3")
+				if SettingsPanel and SettingsPanel:IsShown() then
+					HideUIPanel(SettingsPanel)
+				end
+			end,
+		},
+	},
+}
+
 function Quartz3:SetupOptions()
-	self.optFrames = {}
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("Quartz3", getOptions)
-	self.optFrames.Quartz3 = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Quartz3", "Quartz 3", nil, "general")
+	local ACR = LibStub("AceConfigRegistry-3.0")
+	local ACD = LibStub("AceConfigDialog-3.0")
+
+	ACR:RegisterOptionsTable("Quartz3", getOptions)
+
+	ACD.Status["Quartz3"] = self.db.global.configDialog
+	ACD.Status["Quartz3"].status   = ACD.Status["Quartz3"].status   or {}
+	ACD.Status["Quartz3"].children = ACD.Status["Quartz3"].children or {}
+	ACD:SetDefaultSize("Quartz3", 800, 600)
+
+	ACR:RegisterOptionsTable("Quartz3_Launcher", launcherOptions)
+	ACD:AddToBlizOptions("Quartz3_Launcher", "Quartz 3")
+
 	self:RegisterChatCommand("quartz", "ChatCommand")
 	self:RegisterChatCommand("q3", "ChatCommand")
 
@@ -228,5 +270,4 @@ end
 
 function Quartz3:RegisterModuleOptions(name, optTable, displayName)
 	moduleOptions[name] = optTable
-	self.optFrames[name] = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Quartz3", displayName or name, "Quartz 3", name)
 end

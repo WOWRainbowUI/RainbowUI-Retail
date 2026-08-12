@@ -115,7 +115,8 @@ function Tradeskill:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 		return self.hooks[object].UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	end
 	local spell, displayName, icon, startTime, endTime, isTradeskill = UnitCastingInfo(unit)
-	if isTradeskill then
+	if isTradeskill and not (issecretvalue(startTime) or issecretvalue(endTime)) then
+		Player.Bar:CancelTimerAnimation()
 		repeattimes = repeattimes or 1
 		duration = (endTime - startTime) / 1000
 		totaltime = duration * repeattimes

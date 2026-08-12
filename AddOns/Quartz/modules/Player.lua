@@ -46,8 +46,7 @@ local defaults = {
 	{
 		hideblizz = true,
 		showticks = true,
-		-- no interrupt is pointless for player, disable all options
-		noInterruptColorChange = false,
+		noInterruptChangeColor = false,
 		noInterruptShield = false,
 		targetnamestyle = "default"
 	})
@@ -96,7 +95,6 @@ do
 				disabled = function() return not db.targetname or db.hidenametext end,
 				order = 409,
 			}
-			options.args.noInterruptGroup = nil
 		end
 		return options
 	end

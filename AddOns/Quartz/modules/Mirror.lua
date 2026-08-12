@@ -59,14 +59,11 @@ local defaults = {
 		mirroriconside = "left",
 
 		mirroranchor = "player",--L["Free"], L["Target"], L["Focus"]
-
-		mirrorx = 500,
-		mirrory = 700,
 		mirrorgrowdirection = "up", --L["Down"]
 
-		mirrorposition = "topleft",
+		mirrorposition = "bottomright",
 
-		mirrorgap = 1,
+		mirrorgap = 15,
 		mirrorspacing = 1,
 		mirroroffset = 3,
 
@@ -211,15 +208,226 @@ local mirrorbars = setmetatable({}, {
 		bar.Text = bar:CreateFontString(nil, "OVERLAY")
 		bar.TimeText = bar:CreateFontString(nil, "OVERLAY")
 		bar.Icon = bar:CreateTexture(nil, "ARTWORK")
-		if k == 1 then
-			bar:SetMovable(true)
-			bar:RegisterForDrag("LeftButton")
-			bar:SetClampedToScreen(true)
-		end
 		Mirror:ApplySettings()
 		return bar
 	end
 })
+
+local mover
+local PLACEHOLDER_TIMERS = { "BREATH", "EXHAUSTION", "FEIGNDEATH" }
+local PLACEHOLDER_LABELS = { L["Breath"], L["Exhaustion"], L["Feign Death"] }
+
+-- Center-relative free coordinates, kept out of the defaults so stored legacy bottom-left values can be migrated once.
+local FREE_DEFAULT_X, FREE_DEFAULT_Y = 0, 250
+
+local function freeX()
+	local x = db.mirrorx
+	if x == nil then x = FREE_DEFAULT_X end
+	return x
+end
+
+local function freeY()
+	local y = db.mirrory
+	if y == nil then y = FREE_DEFAULT_Y end
+	return y
+end
+
+local POSITION_GROWS_UP = { top = true, topright = true, topleft = true, leftup = true, rightup = true }
+
+local function growsUp()
+	if db.mirroranchor == "free" then
+		return db.mirrorgrowdirection == "up"
+	end
+	return POSITION_GROWS_UP[db.mirrorposition] or false
+end
+
+local function ensureMover()
+	if mover then return mover end
+
+	mover = CreateFrame("Frame", nil, UIParent)
+	mover:SetFrameStrata("MEDIUM")
+	mover:SetMovable(true)
+	mover:SetClampedToScreen(true)
+	mover:EnableMouse(false)
+	mover:RegisterForDrag("LeftButton")
+	mover:Hide()
+
+	mover.bg = mover:CreateTexture(nil, "BACKGROUND")
+	mover.bg:SetAllPoints(mover)
+	mover.bg:SetColorTexture(0, 0.5, 1, 0.25)
+
+	mover.rows = {}
+	for i = 1, #PLACEHOLDER_TIMERS do
+		local row = CreateFrame("StatusBar", nil, mover)
+		row:SetMinMaxValues(0, 1)
+		row.bg = row:CreateTexture(nil, "BACKGROUND")
+		row.bg:SetAllPoints(row)
+		row.bg:SetColorTexture(0, 0, 0, 1)
+		row.icon = row:CreateTexture(nil, "ARTWORK")
+		row.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		row.name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.time = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		mover.rows[i] = row
+	end
+
+	mover:SetScript("OnDragStart", mover.StartMoving)
+	mover:SetScript("OnDragStop", function(frame)
+		frame:StopMovingOrSizing()
+		local scale = frame:GetScale()
+		local cx = UIParent:GetWidth() / 2 / scale
+		local cy = UIParent:GetHeight() / 2 / scale
+		db.mirrorx = frame:GetLeft() - cx
+		if db.mirrorgrowdirection == "up" then
+			db.mirrory = frame:GetBottom() - cy
+		else
+			db.mirrory = frame:GetTop() - cy - db.mirrorheight
+		end
+		Mirror:ApplySettings()
+	end)
+
+	return mover
+end
+
+local function positionMover()
+	if not mover then return end
+
+	local width, height, spacing = db.mirrorwidth, db.mirrorheight, db.mirrorspacing
+	local growUp = growsUp()
+	local rows = #mover.rows
+
+	mover:SetScale(Player.db.profile.scale)
+	mover:SetSize(width, rows * height + (rows - 1) * spacing)
+	mover:ClearAllPoints()
+	if db.mirroranchor == "free" then
+		local x, y = freeX(), freeY()
+		if growUp then
+			mover:SetPoint("BOTTOMLEFT", UIParent, "CENTER", x, y)
+		else
+			mover:SetPoint("TOPLEFT", UIParent, "CENTER", x, y + height)
+		end
+	else
+		local qpdb = Player.db.profile
+		local position, gap, offset = db.mirrorposition, db.mirrorgap, db.mirroroffset
+		local showicons, iconside = db.mirroricons, db.mirroriconside
+		local anchorframe
+		if db.mirroranchor == "focus" and Focus and Focus.Bar then
+			anchorframe = Focus.Bar
+		elseif db.mirroranchor == "target" and Target and Target.Bar then
+			anchorframe = Target.Bar
+		else -- L["Player"]
+			anchorframe = Player.Bar
+		end
+
+		if position == "top" then
+			mover:SetPoint("BOTTOM", anchorframe, "TOP", 0, gap)
+		elseif position == "bottom" then
+			mover:SetPoint("TOP", anchorframe, "BOTTOM", 0, -1 * gap)
+		elseif position == "topright" then
+			mover:SetPoint("BOTTOMRIGHT", anchorframe, "TOPRIGHT", -1 * offset, gap)
+		elseif position == "bottomright" then
+			mover:SetPoint("TOPRIGHT", anchorframe, "BOTTOMRIGHT", -1 * offset, -1 * gap)
+		elseif position == "topleft" then
+			mover:SetPoint("BOTTOMLEFT", anchorframe, "TOPLEFT", offset, gap)
+		elseif position == "bottomleft" then
+			mover:SetPoint("TOPLEFT", anchorframe, "BOTTOMLEFT", offset, -1 * gap)
+		elseif position == "leftup" then
+			if iconside == "right" and showicons then
+				offset = offset + db.mirrorheight
+			end
+			if qpdb.iconposition == "left" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("BOTTOMRIGHT", anchorframe, "BOTTOMLEFT", -1 * offset, gap)
+		elseif position == "leftdown" then
+			if iconside == "right" and showicons then
+				offset = offset + db.mirrorheight
+			end
+			if qpdb.iconposition == "left" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("TOPRIGHT", anchorframe, "TOPLEFT", -3 * offset, -1 * gap)
+		elseif position == "rightup" then
+			if iconside == "left" and showicons then
+				offset = offset + db.mirrorheight
+			end
+			if qpdb.iconposition == "right" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("BOTTOMLEFT", anchorframe, "BOTTOMRIGHT", offset, gap)
+		elseif position == "rightdown" then
+			if iconside == "left" and showicons then
+				offset = offset + db.mirrorheight
+			end
+			if qpdb.iconposition == "right" and not qpdb.hideicon then
+				offset = offset + qpdb.h
+			end
+			mover:SetPoint("TOPLEFT", anchorframe, "TOPRIGHT", offset, -1 * gap)
+		end
+	end
+
+	local tex = media:Fetch("statusbar", db.mirrortexture)
+	local font = media:Fetch("font", db.mirrorfont)
+	for i, row in ipairs(mover.rows) do
+		local timer = PLACEHOLDER_TIMERS[i]
+		row:SetSize(width, height)
+		row:ClearAllPoints()
+		local offset = (i - 1) * (height + spacing)
+		if growUp then
+			row:SetPoint("BOTTOMLEFT", mover, "BOTTOMLEFT", 0, offset)
+		else
+			row:SetPoint("TOPLEFT", mover, "TOPLEFT", 0, -offset)
+		end
+		row:SetStatusBarTexture(tex)
+		row:SetStatusBarColor(unpack(db[timer]))
+		row:SetValue(0.5)
+		if db.mirroricons then
+			row.icon:SetSize(height - 1, height - 1)
+			row.icon:SetTexture(icons[timer])
+			row.icon:ClearAllPoints()
+			if db.mirroriconside == "left" then
+				row.icon:SetPoint("RIGHT", row, "LEFT", -1, 0)
+			else
+				row.icon:SetPoint("LEFT", row, "RIGHT", 1, 0)
+			end
+			row.icon:Show()
+		else
+			row.icon:Hide()
+		end
+		for _, fontString in ipairs({ row.name, row.time }) do
+			ApplyFontStyle(fontString, font, db.mirrorfontsize, db.mirrorfontOutline, db.mirrorfontShadowColor, db.mirrorfontShadowOffsetX, db.mirrorfontShadowOffsetY)
+			fontString:SetTextColor(unpack(db.mirrortextcolor))
+		end
+		row.name:ClearAllPoints()
+		row.name:SetPoint("LEFT", row, "LEFT", 2, 0)
+		row.name:SetJustifyH("LEFT")
+		local topIndex = growUp and rows or 1
+		row.name:SetText(i == topIndex and (L["Mirror"] .. ": " .. PLACEHOLDER_LABELS[i]) or PLACEHOLDER_LABELS[i])
+		row.time:ClearAllPoints()
+		row.time:SetPoint("RIGHT", row, "RIGHT", -2, 0)
+		row.time:SetJustifyH("RIGHT")
+		row.time:SetText("42.0")
+	end
+end
+
+function Mirror:SetMoverLocked(lock)
+	locked = lock
+	ensureMover()
+	mover:EnableMouse(not lock and db.mirroranchor == "free")
+	mover:SetShown(not lock)
+	if not lock then
+		positionMover()
+	end
+end
+
+function Mirror:Unlock()
+	if not self:IsEnabled() then return end
+	self:SetMoverLocked(false)
+end
+
+function Mirror:Lock()
+	if not self:IsEnabled() then return end
+	self:SetMoverLocked(true)
+end
 
 function Mirror:OnInitialize()
 	self.db = Quartz3.db:RegisterNamespace(MODNAME, defaults)
@@ -264,10 +472,11 @@ function Mirror:OnEnable()
 end
 
 function Mirror:OnDisable()
-	mirrorbars[1].Hide = nil
-	mirrorbars[1]:EnableMouse(false)
-	mirrorbars[1]:SetScript("OnDragStart", nil)
-	mirrorbars[1]:SetScript("OnDragStop", nil)
+	if mover then
+		locked = true
+		mover:EnableMouse(false)
+		mover:Hide()
+	end
 
 	for _, v in pairs(mirrorbars) do
 		v:Hide()
@@ -550,94 +759,20 @@ do
 		bar:SetScale(qpdb.scale)
 		bar:SetAlpha(db.mirroralpha)
 
-		if db.mirroranchor == "free" then
-			if i == 1 then
-				bar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.mirrorx, db.mirrory)
-				if db.mirrorgrowdirection == "up" then
-					direction = 1
-				else --L["Down"]
-					direction = -1
-				end
+		if i == 1 then
+			local m = ensureMover()
+			if growsUp() then
+				bar:SetPoint("BOTTOMLEFT", m, "BOTTOMLEFT")
+				direction = 1
 			else
-				if direction == 1 then
-					bar:SetPoint("BOTTOMRIGHT", mirrorbars[i-1], "TOPRIGHT", 0, spacing)
-				else -- -1
-					bar:SetPoint("TOPRIGHT", mirrorbars[i-1], "BOTTOMRIGHT", 0, -1 * spacing)
-				end
+				bar:SetPoint("TOPLEFT", m, "TOPLEFT")
+				direction = -1
 			end
 		else
-			if i == 1 then
-				local anchorframe
-				local anchor = db.mirroranchor
-				if anchor == "focus" and Focus and Focus.Bar then
-					anchorframe = Focus.Bar
-				elseif anchor == "target" and Target and Target.Bar then
-					anchorframe = Target.Bar
-				else -- L["Player"]
-					anchorframe = Player.Bar
-				end
-
-				if position == "top" then
-					direction = 1
-					bar:SetPoint("BOTTOM", anchorframe, "TOP", 0, gap)
-				elseif position == "bottom" then
-					direction = -1
-					bar:SetPoint("TOP", anchorframe, "BOTTOM", 0, -1 * gap)
-				elseif position == "topright" then
-					direction = 1
-					bar:SetPoint("BOTTOMRIGHT", anchorframe, "TOPRIGHT", -1 * offset, gap)
-				elseif position == "bottomright" then
-					direction = -1
-					bar:SetPoint("TOPRIGHT", anchorframe, "BOTTOMRIGHT", -1 * offset, -1 * gap)
-				elseif position == "topleft" then
-					direction = 1
-					bar:SetPoint("BOTTOMLEFT", anchorframe, "TOPLEFT", offset, gap)
-				elseif position == "bottomleft" then
-					direction = -1
-					bar:SetPoint("TOPLEFT", anchorframe, "BOTTOMLEFT", offset, -1 * gap)
-				elseif position == "leftup" then
-					if iconside == "right" and showicons then
-						offset = offset + db.mirrorheight
-					end
-					if qpdb.iconposition == "left" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = 1
-					bar:SetPoint("BOTTOMRIGHT", anchorframe, "BOTTOMLEFT", -1 * offset, gap)
-				elseif position == "leftdown" then
-					if iconside == "right" and showicons then
-						offset = offset + db.mirrorheight
-					end
-					if qpdb.iconposition == "left" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = -1
-					bar:SetPoint("TOPRIGHT", anchorframe, "TOPLEFT", -3 * offset, -1 * gap)
-				elseif position == "rightup" then
-					if iconside == "left" and showicons then
-						offset = offset + db.mirrorheight
-					end
-					if qpdb.iconposition == "right" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = 1
-					bar:SetPoint("BOTTOMLEFT", anchorframe, "BOTTOMRIGHT", offset, gap)
-				elseif position == "rightdown" then
-					if iconside == "left" and showicons then
-						offset = offset + db.mirrorheight
-					end
-					if qpdb.iconposition == "right" and not qpdb.hideicon then
-						offset = offset + qpdb.h
-					end
-					direction = -1
-					bar:SetPoint("TOPLEFT", anchorframe, "TOPRIGHT", offset, -1 * gap)
-				end
-			else
-				if direction == 1 then
-					bar:SetPoint("BOTTOMRIGHT", mirrorbars[i-1], "TOPRIGHT", 0, spacing)
-				else -- -1
-					bar:SetPoint("TOPRIGHT", mirrorbars[i-1], "BOTTOMRIGHT", 0, -1 * spacing)
-				end
+			if direction == 1 then
+				bar:SetPoint("BOTTOMRIGHT", mirrorbars[i-1], "TOPRIGHT", 0, spacing)
+			else -- -1
+				bar:SetPoint("TOPRIGHT", mirrorbars[i-1], "BOTTOMRIGHT", 0, -1 * spacing)
 			end
 		end
 
@@ -706,14 +841,20 @@ do
 
 	function Mirror:ApplySettings()
 		db = self.db.profile
+
+		-- One-shot conversion of stored bottom-left free positions to the center-relative system.
+		if not db.centerpos then
+			db.centerpos = true
+			if db.mirrorx ~= nil then db.mirrorx = db.mirrorx - UIParent:GetWidth() / 2 end
+			if db.mirrory ~= nil then db.mirrory = db.mirrory - UIParent:GetHeight() / 2 end
+		end
+
 		if self:IsEnabled() then
 			local direction
-			if db.mirroranchor ~= "free" then
-				mirrorbars[1].Hide = nil
-				mirrorbars[1]:EnableMouse(false)
-				mirrorbars[1]:SetScript("OnDragStart", nil)
-				mirrorbars[1]:SetScript("OnDragStop", nil)
-			end
+			ensureMover()
+			positionMover()
+			mover:SetShown(not locked)
+			mover:EnableMouse(not locked and db.mirroranchor == "free")
 			for i, v in pairs(mirrorbars) do
 				direction = apply(i, v, direction)
 			end
@@ -771,20 +912,6 @@ do
 
 	local function getnotfreeoptionshidden()
 		return db.mirroranchor == "free"
-	end
-
-	local function dragstart()
-		mirrorbars[1]:StartMoving()
-	end
-
-	local function dragstop()
-		db.mirrorx = mirrorbars[1]:GetLeft()
-		db.mirrory = mirrorbars[1]:GetBottom()
-		mirrorbars[1]:StopMovingOrSizing()
-	end
-
-	local function nothing()
-		mirrorbars[1]:SetAlpha(db.mirroralpha)
 	end
 
 	local positions = {
@@ -860,21 +987,7 @@ do
 									return locked
 								end,
 								set = function(info, v)
-									if v then
-										mirrorbars[1].Hide = nil
-										mirrorbars[1]:EnableMouse(false)
-										mirrorbars[1]:SetScript("OnDragStart", nil)
-										mirrorbars[1]:SetScript("OnDragStop", nil)
-										Mirror:UpdateBars()
-									else
-										mirrorbars[1]:Show()
-										mirrorbars[1]:EnableMouse(true)
-										mirrorbars[1]:SetScript("OnDragStart", dragstart)
-										mirrorbars[1]:SetScript("OnDragStop", dragstop)
-										mirrorbars[1]:SetAlpha(1)
-										mirrorbars[1].Hide = nothing
-									end
-									locked = v
+									Mirror:SetMoverLocked(v)
 								end,
 								hidden = getfreeoptionshidden,
 								order = 98,
@@ -891,7 +1004,8 @@ do
 								type = "range",
 								name = L["X"],
 								desc = L["Set an exact X value for this bar's position."],
-								min = 0, max = 2560, bigStep = 1,
+								min = -2560, max = 2560, bigStep = 1,
+								get = function() return freeX() end,
 								order = 103,
 								hidden = getfreeoptionshidden,
 							},
@@ -899,7 +1013,8 @@ do
 								type = "range",
 								name = L["Y"],
 								desc = L["Set an exact Y value for this bar's position."],
-								min = 0, max = 1600, bigStep = 1,
+								min = -1600, max = 1600, bigStep = 1,
+								get = function() return freeY() end,
 								order = 103,
 								hidden = getfreeoptionshidden,
 							},
