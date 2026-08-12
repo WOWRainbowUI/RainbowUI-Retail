@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: Personal Resource Display Reskin
 ## Notes: Reskins the Personal Resource Display bar using LibSharedMedia
 ## Author: Ckraigfriend

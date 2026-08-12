@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50504, 120005, 120007
+## Interface: 11508, 20205, 50504, 120100, 120007
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy

@@ -1,4 +1,4 @@
-## Interface: 11509, 20506, 50504, 120005, 120007
+## Interface: 11509, 20506, 50504, 120100, 120007
 ## Title: RangeDisplay Options
 ## Author: mitch0
 ## Version: v6.3.4

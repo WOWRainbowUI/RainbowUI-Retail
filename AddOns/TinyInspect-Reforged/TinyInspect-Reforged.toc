@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 
 ## Title: TinyInspect-Reforged |cFF69CCF0by Beezer|r
 ## Description: |cff4488ffTinyInspect (Reforged)|r|n Show ItemLevel For Inspect - Party / Raid / Mouse / Bag / Bank

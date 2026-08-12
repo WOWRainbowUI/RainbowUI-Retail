@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: PlsFixMe_Midnight_Tooltips
 ## Version: 1.0.1
 ## Notes: Fixing missing tooltips when hovering over world quest icons and comparing items

@@ -1,4 +1,4 @@
-## Interface: 120005, 120007, 20505
+## Interface: 120100, 120007, 20505
 ## Author: p3lim
 ## Version: aadb7e9
 ## Title: Lib: EditMode

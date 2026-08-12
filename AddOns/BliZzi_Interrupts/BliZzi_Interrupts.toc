@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## X-Min-Interface: 120000
 ## Title: |cff0091edBliZzi|r |cffffa300Party Tools|r
 ## Notes: Multi-feature M+ utility for your group. Track who can interrupt and who's on cooldown, see party defensives & offensives at a glance, share keystones with one click, and announce status to chat.

@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: HandyNotes: The War Within
 ## Version: 147
 ## Notes: The War Within Notes

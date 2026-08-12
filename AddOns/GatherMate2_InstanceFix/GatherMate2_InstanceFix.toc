@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: GatherMate2_InstanceFix
 ## Notes: Resolves a Lua error in Delves, Instances by intercepting secret values before GatherMate2 processes them.
 ## Dependencies: GatherMate2

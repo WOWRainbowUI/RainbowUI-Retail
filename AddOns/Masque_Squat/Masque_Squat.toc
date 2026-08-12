@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50503, 120005, 120007
+## Interface: 11508, 20205, 50503, 120100, 120007
 
 ## Author: StormFX, dlecina, ricgingell
 ## Title: Masque: Squat

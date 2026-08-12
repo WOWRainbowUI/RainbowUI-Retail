@@ -1,5 +1,5 @@
-## Interface: 11509, 20206, 38001, 40402, 50504, 120005, 120007
-## X-Min-Interface: 120005, 120007
+## Interface: 11509, 20206, 38001, 40402, 50504, 120100, 120007
+## X-Min-Interface: 120100, 120007
 ## X-Min-Interface-Classic: 11507
 ## X-Min-Interface-BCC: 20504
 ## X-Min-Interface-Wrath: 30403

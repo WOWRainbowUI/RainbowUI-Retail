@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Version: 13.0.1
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r

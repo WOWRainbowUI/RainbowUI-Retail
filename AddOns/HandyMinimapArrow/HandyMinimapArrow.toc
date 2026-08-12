@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50504, 120005, 120007
+## Interface: 11508, 20205, 50504, 120100, 120007
 ## Title: Handy Minimap Arrow
 ## Author: Kemayo
 ## Notes: Put an arrow higher up on the minimap, so other addons won't overlap it

@@ -1,4 +1,4 @@
-## Interface: 120000, 120005, 120007
+## Interface: 120000, 120100, 120007
 ## Title: Lib: ButtonGlow-1.0
 ## Notes: Replacement for ActionButton_Show/HideOverlayGlow APIs
 ## Author: Nevcairiel

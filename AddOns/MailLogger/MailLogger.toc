@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 38001, 50504, 120005, 120007
+## Interface: 11508, 20205, 38001, 50504, 120100, 120007
 ## Version: 2.1.4
 ## Title: MailLogger
 ## Author: Aoikaze

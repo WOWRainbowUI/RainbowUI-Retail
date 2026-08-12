@@ -11,7 +11,7 @@
 ## OptionalDeps: WoWUnit
 ## SavedVariablesPerCharacter: PetTracker_State
 ## SavedVariables: PetTracker_Sets
-## Interface: 121000, 120007
+## Interface: 120100, 120007
 ## Version: 12.0.14
 
 ## Title-zhTW: |cff96FF73[戰寵]|r 助手

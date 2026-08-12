@@ -1,4 +1,4 @@
-﻿## Interface: 120005, 120007, 50504
+﻿## Interface: 120100, 120007, 50504
 ## Version: 1.6.10
 ## Title: Achievements Back Button
 ## IconAtlas: questlog-questtypeicon-story

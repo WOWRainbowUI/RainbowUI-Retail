@@ -1,4 +1,4 @@
-## Interface: 120005, 120007, 50504, 38001, 20505, 11508
+## Interface: 120100, 120007, 50504, 38001, 20505, 11508
 
 ## Title: NiceDamage (Reloaded)
 ## Notes: NiceDamage font for your combat text.

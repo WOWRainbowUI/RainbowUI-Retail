@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## X-Max-Interface: 120007
 ## X-Min-Interface: 11509
 ## X-Mid-Interface: 50504

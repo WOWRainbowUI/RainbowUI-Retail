@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 
 ## Title: Myu's Knowledge Points Tracker
 ## Title-zhCN: Myu的知识点追踪

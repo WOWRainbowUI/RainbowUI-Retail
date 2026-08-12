@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Title: HandyNotes: Dornogal
 ## Title-zhCN: HandyNotes：多恩诺嘉尔
 ## Title-ruRU: HandyNotes: Дорногал

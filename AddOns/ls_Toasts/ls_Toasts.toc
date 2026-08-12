@@ -1,4 +1,4 @@
-## Interface: 120005, 120007
+## Interface: 120100, 120007
 ## Author: lightspark
 ## Version: 120007.01
 ## Title: LS: |cff1cd3a2Toasts|r
