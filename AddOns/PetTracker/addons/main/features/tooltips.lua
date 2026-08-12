@@ -12,21 +12,23 @@ function Tooltips:OnLoad()
 end
 
 function Tooltips.OnUnit(tip)
-	local name = TooltipUtil.GetDisplayedUnit(tip)
-	local success, specie = pcall(C_PetJournal.FindPetIDByName, name)
-	if success and specie then
-		local owned = Addon.Specie(specie):GetOwnedText()
-		if owned then
-			local owned = DIM_GREEN_FONT_COLOR:WrapTextInColorCode(owned)
+	local name = Tooltips.GetName(tip)
+	if name then
+		local ok, specie = pcall(C_PetJournal.FindPetIDByName, name)
+		if ok and specie then
+			local owned = Addon.Specie(specie):GetOwnedText()
+			if owned then
+				local owned = DIM_GREEN_FONT_COLOR:WrapTextInColorCode(owned)
 
-			for i = 1, tip:NumLines() do
-				local line, text = Tooltips.GetLine(tip, i)
-				if text:find('^' .. COLLECTED) then
-					return line:SetText(owned)
+				for i = 1, tip:NumLines() do
+					local line, text = Tooltips.GetLine(tip, i)
+					if text:find('^' .. COLLECTED) then
+						return line:SetText(owned)
+					end
 				end
-			end
 
-			tip:AddLine(owned)
+				tip:AddLine(owned)
+			end
 		end
 	end
 end
@@ -55,6 +57,15 @@ function Tooltips.OnBattlePet(tip, data)
 
 		tip.data = nil
 	end)
+end
+
+function Tooltips.GetName(tip)
+	if TooltipUtil and TooltipUtil.GetDisplayedUnit then
+		local ok, name = pcall(TooltipUtil.GetDisplayedUnit, tip)
+		return ok and name
+	else
+		return select(2, Tooltips.GetLine(tip, 1))
+	end
 end
 
 function Tooltips.GetLine(tip, index)
