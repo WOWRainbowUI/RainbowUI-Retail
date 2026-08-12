@@ -19,6 +19,20 @@ function SQP:RefreshOptionsPreview(activatePreviewFn)
     end
 end
 
+function SQP:RefreshFontDisplays(activatePreviewFn)
+    if type(activatePreviewFn) == "function" then
+        activatePreviewFn()
+    end
+
+    if self.previewFrame and type(self.previewFrame.UpdatePreview) == "function" then
+        self.previewFrame:UpdatePreview()
+    end
+
+    if type(self.RefreshAllNameplates) == "function" then
+        self:RefreshAllNameplates()
+    end
+end
+
 function SQP:CreateGlobalOptions(content)
     if not self.optionControls then self.optionControls = {} end
     local rgxFonts = _G.RGXFonts
@@ -62,14 +76,16 @@ function SQP:CreateGlobalOptions(content)
             local function SetSelected(fontName)
                 local resolvedName = rgxFonts:ResolveName(fontName, defaultFontName) or defaultFontName
                 local fontPath = rgxFonts:GetPath(resolvedName)
+                if type(fontPath) == "string" then
+                    fontPath = fontPath:gsub("/", "\\")
+                end
                 currentFontName = resolvedName
                 SQP:SetSetting("fontFamily", fontPath)
                 SQP:SetSetting("killFontFamily", fontPath)
                 SQP:SetSetting("lootFontFamily", fontPath)
                 SQP:SetSetting("percentFontFamily", fontPath)
                 UIDropDownMenu_SetText(dropdown, rgxFonts:GetDropdownFontLabel(resolvedName))
-                SQP:RefreshOptionsPreview()
-                SQP:RefreshAllNameplates()
+                SQP:RefreshFontDisplays()
             end
 
             local function AddItems(items, level)
@@ -192,8 +208,7 @@ function SQP:CreateGlobalOptions(content)
 			SQP:SetSetting("killFontSize", val)
 			SQP:SetSetting("lootFontSize", val)
 			SQP:SetSetting("percentFontSize", val)
-			SQP:RefreshOptionsPreview()
-			SQP:RefreshAllNameplates()
+			SQP:RefreshFontDisplays()
 		end,
 	})
 	sizeSlider:SetPoint("TOPLEFT", 20, y)

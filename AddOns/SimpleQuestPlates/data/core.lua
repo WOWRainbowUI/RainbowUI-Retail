@@ -9,6 +9,14 @@ local addonName, SQP = ...
 
 local RGX = assert(_G.RGXFramework, "SQP: RGX-Framework not loaded")
 
+-- Initialize RGX Database for settings
+SQP.db = RGX:NewDatabase("SQPSettings", SQP.DEFAULTS, {
+	profileIsGlobal = true,
+})
+
+-- Backward-compat global alias (code can still use SQPSettings table)
+SQPSettings = SQP.db.global
+
 -- Cache frequently used globals
 local pcall = pcall
 local tonumber = tonumber
@@ -318,7 +326,7 @@ function SQP:ApplyDefaults(settings)
 end
 
 -- Current settings (initialized later)
-SQPSettings = SQPSettings or {}
+-- SQPSettings = SQPSettings or {}  -- Now managed by RGX:NewDatabase
 
 -- Store frames for quest plates
 SQP.QuestPlates = {}
@@ -379,188 +387,66 @@ function SQP:PrintMessage(msg, level)
     end
 end
 
--- Initialize default settings
+-- Initialize default settings (now handled by RGX:NewDatabase)
 function SQP:InitializeSettings()
-    SQPSettings = self:GetSavedSettings()
+	-- Database is auto-initialized by RGX:NewDatabase
+	-- SQPSettings global already points to db.global
 end
 
 -- Backwards-compatible alias used by events.lua
 function SQP:LoadSettings()
-    self:InitializeSettings()
+	self:InitializeSettings()
 end
 
--- Get saved settings or defaults
+-- Get settings table (database proxy)
 function SQP:GetSavedSettings()
-    if SQPSettings == nil then
-        SQPSettings = {}
-    end
-
-    -- Migrate global font settings to per-type (must run before ApplyDefaults)
-    local function migrateFont(tk, sizeDefault)
-        if SQPSettings[tk.."FontSize"]    == nil then SQPSettings[tk.."FontSize"]    = SQPSettings.fontSize    or sizeDefault end
-        if SQPSettings[tk.."FontFamily"]  == nil then SQPSettings[tk.."FontFamily"]  = SQPSettings.fontFamily  or "Fonts\\FRIZQT__.TTF" end
-        if SQPSettings[tk.."FontOutline"] == nil then SQPSettings[tk.."FontOutline"] = SQPSettings.fontOutline or "" end
-        if SQPSettings[tk.."OutlineWidth"]== nil then SQPSettings[tk.."OutlineWidth"]= SQPSettings.outlineWidth or 0 end
-        if SQPSettings[tk.."OutlineAlpha"]== nil then SQPSettings[tk.."OutlineAlpha"]= SQPSettings.outlineAlpha or 0 end
-        if SQPSettings[tk.."OutlineColor"]== nil then
-            local oc = SQPSettings.outlineColor
-            SQPSettings[tk.."OutlineColor"] = oc and {oc[1], oc[2], oc[3]} or {0, 0, 0}
-        end
-    end
-    migrateFont("kill",    12)
-    migrateFont("loot",    12)
-    migrateFont("percent",  8)
-    -- percentIconSize -> percentFontSize migration
-    if SQPSettings.percentFontSize == nil and SQPSettings.percentIconSize then
-        SQPSettings.percentFontSize = SQPSettings.percentIconSize
-    end
-
-    -- Migrate shared display style to per-type display styles
-    -- 1.9.3 behavior: default to Icon mode per tab (do not inherit old shared Text mode)
-    local legacyShowIconBackground = SQPSettings.showIconBackground
-    if SQPSettings.killShowIconBackground == nil then
-        SQPSettings.killShowIconBackground = true
-    end
-    if SQPSettings.lootShowIconBackground == nil then
-        SQPSettings.lootShowIconBackground = true
-    end
-    if SQPSettings.percentShowIconBackground == nil then
-        SQPSettings.percentShowIconBackground = true
-    end
-
-    -- One-time normalization for installs that inherited old shared style/toggles.
-    -- If everything is uniformly off, treat it as migrated legacy state and reset to defaults.
-    if not SQPSettings.migratedDefaults193 then
-        local allStyleOff =
-            SQPSettings.killShowIconBackground == false and
-            SQPSettings.lootShowIconBackground == false and
-            SQPSettings.percentShowIconBackground == false
-        local allShowOff =
-            SQPSettings.showKillIcon == false and
-            SQPSettings.showLootIcon == false and
-            SQPSettings.showPercentIcon == false
-
-        if allStyleOff or legacyShowIconBackground == false then
-            SQPSettings.killShowIconBackground = true
-            SQPSettings.lootShowIconBackground = true
-            SQPSettings.percentShowIconBackground = true
-        end
-        if allShowOff then
-            SQPSettings.showKillIcon = true
-            SQPSettings.showLootIcon = true
-            SQPSettings.showPercentIcon = true
-        end
-        SQPSettings.migratedDefaults193 = true
-    end
-
-    -- Copy defaults if new or missing
-    self:ApplyDefaults(SQPSettings)
-
-    -- Normalize animation combat mode
-    local animationMode = SQPSettings.animationCombatMode
-    if animationMode ~= "always" and animationMode ~= "combat" and animationMode ~= "outofcombat" then
-        SQPSettings.animationCombatMode = "always"
-    end
-
-    -- Normalize boolean settings (older clients/checkbuttons may store 1/nil or strings)
-    for key, defaultValue in pairs(self.DEFAULTS) do
-        if type(defaultValue) == "boolean" then
-            local currentValue = SQPSettings[key]
-            if currentValue == nil then
-                SQPSettings[key] = defaultValue
-            elseif type(currentValue) ~= "boolean" then
-                if type(currentValue) == "number" then
-                    SQPSettings[key] = currentValue ~= 0
-                elseif type(currentValue) == "string" then
-                    local lowered = string.lower(currentValue)
-                    if lowered == "true" or lowered == "1" then
-                        SQPSettings[key] = true
-                    elseif lowered == "false" or lowered == "0" or lowered == "" then
-                        SQPSettings[key] = false
-                    else
-                        SQPSettings[key] = defaultValue
-                    end
-                else
-                    SQPSettings[key] = currentValue and true or false
-                end
-            end
-        end
-    end
-
-    -- Migrate legacy tint settings
-    if SQPSettings.iconTint ~= nil then
-        if SQPSettings.iconTintMain == nil then
-            SQPSettings.iconTintMain = SQPSettings.iconTint
-        end
-        if SQPSettings.iconTintQuest == nil then
-            SQPSettings.iconTintQuest = SQPSettings.iconTint
-        end
-    end
-    if type(SQPSettings.iconTintColor) == "table" then
-        if SQPSettings.iconTintMainColor == nil then
-            SQPSettings.iconTintMainColor = CloneValue(SQPSettings.iconTintColor)
-        end
-        if SQPSettings.iconTintQuestColor == nil then
-            SQPSettings.iconTintQuestColor = CloneValue(SQPSettings.iconTintColor)
-        end
-    end
-    
-    -- Legacy alias for older code paths
-    SQPSavedSettings = SQPSettings
-    
-    return SQPSettings
+	return SQPSettings
 end
 
--- Save settings
+-- Save settings (RGX handles persistence automatically)
 function SQP:SaveSettings()
-    if SQPSettings == nil then
-        SQPSettings = {}
-    end
-    self:ApplyDefaults(SQPSettings)
-    SQPSavedSettings = SQPSettings
+	-- RGX:NewDatabase handles persistence; no-op for manual save
 end
 
 -- Set a single setting and persist it
 function SQP:SetSetting(key, value)
-    if not key then return end
-    if SQPSettings == nil then
-        self:InitializeSettings()
-    end
+	if not key then return end
 
-    -- Persist booleans as explicit true/false (never nil), so unchecked checkboxes
-    -- cannot silently revert to a default true on SaveSettings().
-    local defaultValue = self.DEFAULTS and self.DEFAULTS[key]
-    if type(defaultValue) == "boolean" then
-        value = value and true or false
-    end
+	-- Persist booleans as explicit true/false (never nil)
+	local defaultValue = self.DEFAULTS and self.DEFAULTS[key]
+	if type(defaultValue) == "boolean" then
+		value = value and true or false
+	end
 
-    SQPSettings[key] = value
-    self:SaveSettings()
+	SQPSettings[key] = value
+	-- RGX handles persistence automatically
 end
 
 -- Reset settings to default
 function SQP:ResetSettings()
-    SQPSettings = {}
-    self:ApplyDefaults(SQPSettings)
-    SQPSavedSettings = SQPSettings
-    self:PrintMessage(self.L["SETTINGS_RESET"] or "|cff58be81All settings have been reset to defaults|r")
-    self:RefreshAllNameplates()
+	-- Reset to defaults via database
+	for k in pairs(SQPSettings) do
+		SQPSettings[k] = nil
+	end
+	for k, v in pairs(self.DEFAULTS) do
+		SQPSettings[k] = v
+	end
+	self:PrintMessage(self.L["SETTINGS_RESET"] or "|cff58be81All settings have been reset to defaults|r")
+	self:RefreshAllNameplates()
 end
 
 -- Enable addon
 function SQP:EnableAddon()
-    SQPSettings.enabled = true
-    self:SaveSettings()
-    self:PrintMessage(self.L["ADDON_ENABLED"])
-    self:RefreshAllNameplates()
+	SQPSettings.enabled = true
+	self:PrintMessage(self.L["ADDON_ENABLED"])
+	self:RefreshAllNameplates()
 end
 
 -- Disable addon
 function SQP:DisableAddon()
-    SQPSettings.enabled = false
-    self:SaveSettings()
-    self:PrintMessage(self.L["ADDON_DISABLED"])
-    self:RefreshAllNameplates()
+	SQPSettings.enabled = false
+	self:PrintMessage(self.L["ADDON_DISABLED"])
+	self:RefreshAllNameplates()
 end
 
 function SQP:SetupMinimapButton()
@@ -572,7 +458,7 @@ function SQP:SetupMinimapButton()
         name         = "SQP_MinimapButton",
         icon         = self.ICON_TEXTURE or "",
         defaultAngle = self.defaultMinimapAngle,
-        storage      = SQPSettings,
+        storage      = SQPSettings,  -- Uses database proxy
         angleKey     = "minimapAngle",
         enabledKey   = "minimapIconEnabled",
         tooltip = {
@@ -587,13 +473,7 @@ function SQP:SetupMinimapButton()
             local function openOptions()
                 SQP:OpenOptions()
             end
-            if C_Timer and type(C_Timer.After) == "function" then
-                C_Timer.After(0, openOptions)
-            elseif RGX and type(RGX.After) == "function" then
-                RGX:After(0, openOptions)
-            else
-                openOptions()
-            end
+            RGX:After(0, openOptions)
         end,
         onCtrlRight = function() SQP:ToggleMinimapIcon(false) end,
     })

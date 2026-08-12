@@ -42,6 +42,28 @@ local function reportSlowPath(label, started)
     end
 end
 
+local function normalizeFontPath(path)
+    if type(path) ~= "string" or path == "" then
+        return "Fonts\\FRIZQT__.TTF"
+    end
+    return path:gsub("/", "\\")
+end
+
+local function setFontSafe(fontString, fontPath, fontSize, fontFlags)
+    if not fontString or type(fontString.SetFont) ~= "function" then
+        return false
+    end
+
+    fontPath = normalizeFontPath(fontPath)
+    local ok, applied = pcall(fontString.SetFont, fontString, fontPath, fontSize, fontFlags or "")
+    if ok and applied ~= false then
+        return true
+    end
+
+    pcall(fontString.SetFont, fontString, "Fonts\\FRIZQT__.TTF", fontSize, fontFlags or "")
+    return false
+end
+
 -- Nameplate storage
 SQP.Nameplates = {} -- [plate] = frame
 SQP.ActiveNameplates = {} -- [plate] = frame (visible only)
@@ -280,11 +302,7 @@ function SQP:OnPlateShow(nameplate, unitID)
         end
     end
 
-    if C_Timer and type(C_Timer.After) == "function" then
-        C_Timer.After(0.15, delayedRecheck)
-    elseif RGX and type(RGX.After) == "function" then
-        RGX:After(0.15, delayedRecheck, "SQP nameplate recheck")
-    end
+    RGX:After(0.15, delayedRecheck, "SQP nameplate recheck")
 
     reportSlowPath("OnPlateShow", started)
 end
@@ -331,9 +349,10 @@ function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, p
         if Fonts and type(Fonts.ResolvePath) == "function" then
             fontName = Fonts:ResolvePath(requestedFont, S.fontFamily or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF")
         end
+        fontName = normalizeFontPath(fontName)
 
         local mainFlag = outline and "" or (noOutline and "" or fontOutline)
-        main:SetFont(fontName, fontSize, mainFlag)
+        setFontSafe(main, fontName, fontSize, mainFlag)
         main:SetShadowOffset(1, -1)
         if outlineWidth <= 0 then
             main:SetShadowColor(0, 0, 0, 1)
@@ -347,7 +366,7 @@ function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, p
             else
                 local flag = outlineWidth >= 3 and "THICKOUTLINE" or "OUTLINE"
                 -- Use same fontSize as main so the border aligns correctly
-                outline:SetFont(fontName, fontSize, flag)
+                setFontSafe(outline, fontName, fontSize, flag)
                 local r, g, b = unpack(outlineColor)
                 outline:SetTextColor(r, g, b, outlineAlpha)
                 outline:SetShadowOffset(0, 0)

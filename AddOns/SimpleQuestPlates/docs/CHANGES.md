@@ -1,4 +1,22 @@
-﻿# v2.1.1 - 2026-06-30
+﻿# v2.1.4 - 2026-08-08
+
+## Changes
+- **RGX-Framework DB migration**: `SQPSettings` → `RGX:NewDatabase("SQPSettings", ...)` with `profileIsGlobal = true`
+- **Timer migration**: Replaced manual `C_Timer` throttling with `RGX:After` / `RGX:Every`
+- **Backward-compat**: `SQPSettings` global remains as proxy to `SQP.db.global`
+- Removed manual `C_Timer` fallback in nameplates (RGX-Framework is RequiredDeps)
+
+# v2.1.3 - 2026-08-07
+
+## Changes
+- Add Category/Group RGX for addon menu section.
+
+# v2.1.2 - 2026-08-07
+
+## Changes
+- TOC bump: Now retail-only (Interface 120007). Removed Classic/Cata/MoP interface entries.
+
+# v2.1.1 - 2026-06-30
 
 ## Changes
 
