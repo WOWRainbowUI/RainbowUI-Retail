@@ -41,7 +41,9 @@ if Locale == "enGB" or Locale == "enUS" then
 --elseif Locale == "frFR" then
 --elseif Locale == "itIT" then
 --elseif Locale == "koKR" then
---elseif Locale == "ptBR" then
+elseif Locale == "ptBR" then
+	L["A fusion of Caith and Entropy, resulting in a larger, metallic frame."] = "Uma fusão de Caith e Entropy, resultando em um quadro metálico maior."
+	L["An alternate version of Fusion with an inverted metallic effect."] = "Uma versão alternativa da Fusion com um efeito metálico invertido."
 elseif Locale == "ruRU" then
 	L["A fusion of Caith and Entropy, resulting in a larger, metallic frame."] = "Слияние Caith и Entropy, в результате которого получился более крупный металлический каркас."
 	L["An alternate version of Fusion with an inverted metallic effect."] = "Альтернативная версия Fusion с инвертированным металлическим эффектом."

@@ -1,8 +1,8 @@
-## Interface: 11508, 20205, 50503, 120005, 120007
+## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100, 120007
 
 ## Author: StormFX
 ## Title: Masque: Fusion
-## Version: 11.2.8
+## Version: 12.0.7
 
 ## Category: Masque
 ## Dependencies: Masque
@@ -14,8 +14,9 @@
 ## Notes-esES: Skin Fusion para Masque.
 ## Notes-frFR: Skin de Fusion pour Masque.
 ## Notes-itIT: Skin Fusion per Masque.
-## Notes-ruRU: Скин Fusion для Masque.
-## Notes-zhTW: Masque的Fusion皮膚。
+## Notes-ptBR: Aparências Fusion para o Masque.
+## Notes-ruRU: Fusion скин для Masque.
+## Notes-zhTW: Masque的Fusion外觀。
 
 ## X-Category: Interface Enhancements
 ## X-Credits: Zeal, Caith
