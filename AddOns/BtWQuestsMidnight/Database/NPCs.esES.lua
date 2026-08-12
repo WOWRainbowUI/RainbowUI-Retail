@@ -393,6 +393,15 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "Caballera Anais",
     },
+    [253651] = {
+        name = "Portavoz de loa Kinduru",
+    },
+    [253805] = {
+        name = "Máscara Amani encantada",
+    },
+    [253833] = {
+        name = "Máscara Amani confundida",
+    },
     [253948] = {
         name = "Leona Zancadaoscura",
     },
@@ -435,11 +444,29 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [257092] = {
         name = "Teo'zan el Viejo",
     },
+    [257298] = {
+        name = "Portavoz de loa Yl'mul",
+    },
     [257384] = {
         name = "Magistrix abatida",
     },
     [257393] = {
         name = "Helecho Sombrestrella",
+    },
+    [258755] = {
+        name = "Capitán Tokka",
+    },
+    [263327] = {
+        name = "Ofi la Astuta",
+    },
+    [263618] = {
+        name = "Exploradora Oma'ema",
+    },
+    [265173] = {
+        name = "Kul'amara la Fiera",
+    },
+    [271885] = {
+        name = "Mok'sa la Piedra",
     },
 })
 ]])()

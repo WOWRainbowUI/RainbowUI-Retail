@@ -1875,6 +1875,63 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92907] = {
         name = "Risposte degli Amani",
     },
+    [92916] = {
+        name = "Una richiesta d'aiuto",
+    },
+    [92917] = {
+        name = "In soccorso degli avvinghiati",
+    },
+    [92919] = {
+        name = "Caccia ai serpenti",
+    },
+    [92920] = {
+        name = "Abbasso il cielo",
+    },
+    [92921] = {
+        name = "Verso il Ponte Celeste",
+    },
+    [92924] = {
+        name = "Cosa si nasconde oltre la nebbia",
+    },
+    [92925] = {
+        name = "Il bagliore della storia",
+    },
+    [92927] = {
+        name = "Passi echeggianti",
+    },
+    [92928] = {
+        name = "Ciò che è stato sepolto",
+    },
+    [92929] = {
+        name = "Nascosti nell'oscurità",
+    },
+    [92930] = {
+        name = "Scritta dai vincitori",
+    },
+    [92931] = {
+        name = "Ritardare il veleno",
+    },
+    [92932] = {
+        name = "Ripulire la palude",
+    },
+    [92933] = {
+        name = "Sponde infestate",
+    },
+    [92934] = {
+        name = "Alimentare l'invocazione",
+    },
+    [92935] = {
+        name = "Fino al limite",
+    },
+    [92936] = {
+        name = "L'invocazione di Ula'tek",
+    },
+    [92937] = {
+        name = "Male risvegliato",
+    },
+    [92938] = {
+        name = "Luogo di terrore",
+    },
     [92939] = {
         name = "Non è solo una roccia!",
     },
@@ -1917,6 +1974,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93012] = {
         name = "Vicolo cieco",
     },
+    [93018] = {
+        name = "Coloro che furono perduti",
+    },
+    [93019] = {
+        name = "Situazione serpeggiante",
+    },
+    [93022] = {
+        name = "Il fuoco è la soluzione di tutto",
+    },
+    [93023] = {
+        name = "Morte ai furiosi",
+    },
+    [93024] = {
+        name = "Vieni con me",
+    },
     [93047] = {
         name = "Basi della macellazione",
     },
@@ -1931,6 +2003,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [93051] = {
         name = "L'esame finale",
+    },
+    [93063] = {
+        name = "Lance spezzate",
+    },
+    [93064] = {
+        name = "Riverenza sacra",
     },
     [93093] = {
         name = "Trofei dei Galladin",
@@ -1959,6 +2037,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93182] = {
         name = "Ritorno a casa curativo",
     },
+    [93199] = {
+        name = "Serpeggiando nella palude",
+    },
+    [93229] = {
+        name = "Uova fritte",
+    },
+    [93233] = {
+        name = "Brutalità tra le rovine",
+    },
+    [93239] = {
+        name = "Esploratori nella palude",
+    },
     [93257] = {
         name = "Zannatorta a rischio",
     },
@@ -1974,8 +2064,56 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93261] = {
         name = "Un granchio di dimensioni insolite",
     },
+    [93263] = {
+        name = "Doveva andare così...",
+    },
+    [93265] = {
+        name = "Tagliare la testa del serpente",
+    },
+    [93266] = {
+        name = "Radunare le truppe",
+    },
+    [93339] = {
+        name = "Scambio di monili",
+    },
+    [93340] = {
+        name = "La Scheggia dell'Ombra",
+    },
+    [93387] = {
+        name = "Occuparsi dei parassiti",
+    },
+    [93388] = {
+        name = "Alchimia insolita",
+    },
+    [93389] = {
+        name = "Sanguipietra",
+    },
+    [93390] = {
+        name = "Apprendista accettabile",
+    },
+    [93391] = {
+        name = "Rendiamolo puzzolente",
+    },
+    [93392] = {
+        name = "Ricordi ritrovati",
+    },
+    [93393] = {
+        name = "Un po' di gentilezza",
+    },
     [93396] = {
         name = "Punto di rottura",
+    },
+    [93417] = {
+        name = "Le Segrete di Atal'utek: Altare delle Zanne",
+    },
+    [93418] = {
+        name = "Abissi Velenosi",
+    },
+    [93419] = {
+        name = "Origine delle sue ferite",
+    },
+    [93420] = {
+        name = "Giudizio di Lor'themar",
     },
     [93432] = {
         name = "Lame come aratri",
@@ -1995,8 +2133,17 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93440] = {
         name = "Trascorso personale",
     },
+    [93449] = {
+        name = "Guai nella palude",
+    },
+    [93454] = {
+        name = "Parole da ascoltare",
+    },
     [93566] = {
         name = "Popolare con la Tribù Amani",
+    },
+    [93576] = {
+        name = "Alla ricerca di Wa'kani",
     },
     [93651] = {
         name = "Valle Accecante: radici della Fioritura di Luce",
@@ -2013,6 +2160,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93811] = {
         name = "Popolare con la Corte di Lunargenta",
     },
+    [93841] = {
+        name = "Fantasmi dell'Anello",
+    },
+    [93842] = {
+        name = "Fiorire e svanire",
+    },
+    [93843] = {
+        name = "Estrazioni ectoplasmatiche",
+    },
+    [93849] = {
+        name = "Emporio ectoplasmatico",
+    },
+    [93851] = {
+        name = "Comunione con i fantasmi",
+    },
+    [93906] = {
+        name = "Sciogliere il legame tra i due",
+    },
+    [94031] = {
+        name = "Ossa della mia anima",
+    },
+    [94035] = {
+        name = "Carne per le ossa",
+    },
+    [94036] = {
+        name = "Un ultimo prigioniero",
+    },
+    [94040] = {
+        name = "Carne, ossa e anima",
+    },
     [94370] = {
         name = "Serpi in avvicinamento",
     },
@@ -2027,6 +2204,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [94396] = {
         name = "Anche meno",
+    },
+    [94447] = {
+        name = "Ofidia la Madre della Stirpe",
     },
     [94677] = {
         name = "Il Guardaradici scomparso",
@@ -2052,6 +2232,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [94871] = {
         name = "Cantoeterno",
     },
+    [94936] = {
+        name = "Legame fraterno",
+    },
+    [94937] = {
+        name = "Niente di nuovo sul fronte settentrionale",
+    },
+    [94941] = {
+        name = "Salvare la recluta Jabat",
+    },
     [94993] = {
         name = "All'avventura in Midnight",
     },
@@ -2060,6 +2249,138 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [95276] = {
         name = "L'ultimo sforzo",
+    },
+    [95521] = {
+        name = "Il medaglione dei Med'jai",
+    },
+    [95522] = {
+        name = "Guardiani della morte, guardiani nella pietra",
+    },
+    [95523] = {
+        name = "All'altezza del passato",
+    },
+    [95524] = {
+        name = "Coloro che nessuno ricorda",
+    },
+    [95525] = {
+        name = "Una veglia degna",
+    },
+    [95564] = {
+        name = "La Coda del Serpente",
+    },
+    [95804] = {
+        name = "I Figli di Ula'tek",
+    },
+    [95954] = {
+        name = "Un antico nemico",
+    },
+    [96089] = {
+        name = "Qualcosa che non va",
+    },
+    [96090] = {
+        name = "Velemetico",
+    },
+    [96091] = {
+        name = "Il giusto equilibrio",
+    },
+    [96092] = {
+        name = "Quello sciocco di Ruma",
+    },
+    [96093] = {
+        name = "È una bisaccia, non una sacca",
+    },
+    [96094] = {
+        name = "Verso il foro",
+    },
+    [96095] = {
+        name = "Campionare la fauna locale",
+    },
+    [96096] = {
+        name = "Squadra d'esplorazione sette",
+    },
+    [96097] = {
+        name = "Il rapporto degli esploratori",
+    },
+    [96098] = {
+        name = "I reagenti finali",
+    },
+    [96099] = {
+        name = "Il destino di La'una",
+    },
+    [96110] = {
+        name = "Pesca di Veleno: La prova è nella melma",
+    },
+    [96111] = {
+        name = "Pesca di Veleno: Solo il guscio",
+    },
+    [96439] = {
+        name = "Sparita nel nulla",
+    },
+    [96450] = {
+        name = "Na brutta piega",
+    },
+    [96451] = {
+        name = "Un figlio di Ula'tek",
+    },
+    [96457] = {
+        name = "Che non rimanga nulla",
+    },
+    [96458] = {
+        name = "Un'ultima promessa",
+    },
+    [96467] = {
+        name = "Sete di conoscenza",
+    },
+    [96469] = {
+        name = "La Cripta dei Disonorati",
+    },
+    [96471] = {
+        name = "Cadute e macerie",
+    },
+    [96523] = {
+        name = "Leggenda vivente",
+    },
+    [96539] = {
+        name = "Ultima speranza",
+    },
+    [96540] = {
+        name = "Mani Forti",
+    },
+    [96541] = {
+        name = "Mente Forte",
+    },
+    [96543] = {
+        name = "La radice della sopravvivenza",
+    },
+    [96544] = {
+        name = "Fiamme coraggiose",
+    },
+    [96545] = {
+        name = "Voce Forte",
+    },
+    [96546] = {
+        name = "Cuore forte",
+    },
+    [97640] = {
+        name = "Segrete di Atal'utek: Una moneta di troppo",
+    },
+    [98218] = {
+        name = "Torna ad Amani'zar",
+    },
+    [98343] = {
+        name = "Pesca di Veleno: Al secondo posto",
+    },
+    [98388] = {
+        name = "Nelle Segrete di Atal'utek",
+    },
+    [98414] = {
+        name = "Una richiesta dal capitano",
+    },
+    [98428] = {
+        name = "Segrete di Atal'utek: L'Altare della Corrosione",
+    },
+    [98515] = {
+        name = "Segrete di Atal'utek: Tour tossico",
     },
 })
 ]])()

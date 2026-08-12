@@ -516,6 +516,18 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "Chevalière Anaïs",
     },
+    [253651] = {
+        name = "Parle-loa Kinduru",
+    },
+    [253805] = {
+        name = "Masque amani enchanté",
+    },
+    [253827] = {
+        name = "Dame Liadrin",
+    },
+    [253833] = {
+        name = "Masque amani embrouillé",
+    },
     [253948] = {
         name = "Léona Marchobscure",
     },
@@ -564,6 +576,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [257092] = {
         name = "Vieux Teo'zan",
     },
+    [257298] = {
+        name = "Parle-loa Yl'mul",
+    },
     [257384] = {
         name = "Magistrice découragée",
     },
@@ -572,6 +587,24 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [257426] = {
         name = "Instructeur Antheol",
+    },
+    [258755] = {
+        name = "Capitaine Tokka",
+    },
+    [263327] = {
+        name = "Ofi la Sournoise",
+    },
+    [263331] = {
+        name = "Dame Liadrin",
+    },
+    [263618] = {
+        name = "Eclaireuse Oma'ema",
+    },
+    [265173] = {
+        name = "Kul'amara la Féroce",
+    },
+    [271885] = {
+        name = "Mok'sa la Pierre",
     },
 })
 ]])()

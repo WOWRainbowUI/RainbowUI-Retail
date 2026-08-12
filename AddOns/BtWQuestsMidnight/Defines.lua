@@ -13,6 +13,7 @@ BtWQuests.Constant.Category.Midnight = {
     Harandar = 1203,
     Voidstorm = 1204,
     Arator = 1205,
+    CurseOfUlatek = 1206,
 }
 BtWQuests.Constant.Chain.Midnight = {
     EversongWoods = {},
@@ -43,6 +44,7 @@ BtWQuests.Constant.Chain.Midnight = {
         OtherBoth = 120499,
     },
     Arator = {},
+    CurseOfUlatek = {},
 }
 
 Database:AddExpansion(BtWQuests.Constant.Expansions.Midnight, {

@@ -474,6 +474,18 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "Cavaliera Anais",
     },
+    [253651] = {
+        name = "Oratore dei Loa Kinduru",
+    },
+    [253805] = {
+        name = "Maschera degli Amani Incantata",
+    },
+    [253827] = {
+        name = "Dama Liadrin",
+    },
+    [253833] = {
+        name = "Maschera degli Amani Sconcertata",
+    },
     [253948] = {
         name = "Leona Calcabuio",
     },
@@ -516,6 +528,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [257092] = {
         name = "Vecchio Teo'zan",
     },
+    [257298] = {
+        name = "Oratore dei Loa Yl'mul",
+    },
     [257384] = {
         name = "Magistra Avvilita",
     },
@@ -524,6 +539,24 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [257426] = {
         name = "Istruttore Antheol",
+    },
+    [258755] = {
+        name = "Capitano Tokka",
+    },
+    [263327] = {
+        name = "Ofi la Furba",
+    },
+    [263331] = {
+        name = "Dama Liadrin",
+    },
+    [263618] = {
+        name = "Esploratrice Oma'ema",
+    },
+    [265173] = {
+        name = "Kul'amara l'Implacabile",
+    },
+    [271885] = {
+        name = "Mok'sa la Pietra",
     },
 })
 ]])()

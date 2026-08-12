@@ -1863,6 +1863,63 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92907] = {
         name = "Antworten der Amani",
     },
+    [92916] = {
+        name = "Ein Hilferuf",
+    },
+    [92917] = {
+        name = "Die Rettung der Gefesselten",
+    },
+    [92919] = {
+        name = "Beißender Baum",
+    },
+    [92920] = {
+        name = "Den Himmel zum Einsturz bringen",
+    },
+    [92921] = {
+        name = "Zur Himmelsbrücke",
+    },
+    [92924] = {
+        name = "Was hinter dem Nebel liegt",
+    },
+    [92925] = {
+        name = "Der Schimmer der Geschichte",
+    },
+    [92927] = {
+        name = "Der Spur nach",
+    },
+    [92928] = {
+        name = "Was vergraben war",
+    },
+    [92929] = {
+        name = "Lauern im Dunkeln",
+    },
+    [92930] = {
+        name = "Von den Siegern geschrieben",
+    },
+    [92931] = {
+        name = "Das Gift aufhalten",
+    },
+    [92932] = {
+        name = "Räumt den Sumpf",
+    },
+    [92933] = {
+        name = "Heimgesuchte Küste",
+    },
+    [92934] = {
+        name = "Den Ruf verstärken",
+    },
+    [92935] = {
+        name = "Am Rande des Wahnsinns",
+    },
+    [92936] = {
+        name = "Die Beschwörung von Ula'tek",
+    },
+    [92937] = {
+        name = "Erwecktes Übel",
+    },
+    [92938] = {
+        name = "Ort des Schreckens",
+    },
     [92939] = {
         name = "Das ist nicht nur ein Stein!",
     },
@@ -1905,6 +1962,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93012] = {
         name = "Sackgasse",
     },
+    [93018] = {
+        name = "Die ehemals Verlorenen",
+    },
+    [93019] = {
+        name = "Alles ganz normal, Schlangen überall",
+    },
+    [93022] = {
+        name = "Feuer ist der einzig sichere Weg",
+    },
+    [93023] = {
+        name = "Tod der Furien",
+    },
+    [93024] = {
+        name = "Kommt mit mir",
+    },
     [93047] = {
         name = "Grundlagen des Schlachtens",
     },
@@ -1919,6 +1991,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [93051] = {
         name = "Die letzte Prüfung",
+    },
+    [93063] = {
+        name = "Gebrochene Speere",
+    },
+    [93064] = {
+        name = "Ehrfurcht der Göttin",
     },
     [93093] = {
         name = "Knardintrophäen",
@@ -1947,6 +2025,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93182] = {
         name = "Heilend heimwärts",
     },
+    [93199] = {
+        name = "Schlängeln durch den Sumpf",
+    },
+    [93229] = {
+        name = "Gebratene Eier",
+    },
+    [93233] = {
+        name = "Wilde in den Ruinen",
+    },
+    [93239] = {
+        name = "Späher im Sumpf",
+    },
     [93257] = {
         name = "Bruchhauer bedroht",
     },
@@ -1962,8 +2052,56 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93261] = {
         name = "Eine ungewöhnlich große Krabbe",
     },
+    [93263] = {
+        name = "Es war vorherbestimmt...",
+    },
+    [93265] = {
+        name = "Die Schlange köpfen",
+    },
+    [93266] = {
+        name = "Die Truppen zusammentrommeln",
+    },
+    [93339] = {
+        name = "Schmucke Stücke",
+    },
+    [93340] = {
+        name = "Der Schattensplitter",
+    },
+    [93387] = {
+        name = "Umgang mit Ungeziefer",
+    },
+    [93388] = {
+        name = "Ungewöhnliche Alchemie",
+    },
+    [93389] = {
+        name = "Felsblut",
+    },
+    [93390] = {
+        name = "Annehmbarer Lehrling",
+    },
+    [93391] = {
+        name = "Lasst es stinken",
+    },
+    [93392] = {
+        name = "Bergen der Erinnerungen",
+    },
+    [93393] = {
+        name = "Ein wenig Güte",
+    },
     [93396] = {
         name = "An den Nähten geplatzt",
+    },
+    [93417] = {
+        name = "Die Kammern von Atal'Utek: Altar der Fänge",
+    },
+    [93418] = {
+        name = "Der Giftige Abgrund",
+    },
+    [93419] = {
+        name = "Die Art der Wunden",
+    },
+    [93420] = {
+        name = "Urteil des Lor'themar",
     },
     [93432] = {
         name = "Von Schwertern zu Pflugscharen",
@@ -1983,8 +2121,17 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93440] = {
         name = "Persönliche Geschichte",
     },
+    [93449] = {
+        name = "Ärger im Sumpf",
+    },
+    [93454] = {
+        name = "Wichtige Worte",
+    },
     [93566] = {
         name = "Angesehen beim Amanistamm",
+    },
+    [93576] = {
+        name = "Die Suche nach Wa'kani",
     },
     [93651] = {
         name = "Das blendende Tal: Lichtblütenwurzeln",
@@ -2001,6 +2148,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93811] = {
         name = "Angesehen beim Hof in Silbermond",
     },
+    [93841] = {
+        name = "Geister des Rings",
+    },
+    [93842] = {
+        name = "Erblühen und vergehen",
+    },
+    [93843] = {
+        name = "Ektoplasmatische Extraktionen",
+    },
+    [93849] = {
+        name = "Ektoplasma-Emporium",
+    },
+    [93851] = {
+        name = "Zwiesprache mit Geistern",
+    },
+    [93906] = {
+        name = "Das Lösen der Bande",
+    },
+    [94031] = {
+        name = "Knochen meiner Seele",
+    },
+    [94035] = {
+        name = "Fleisch für die Knochen",
+    },
+    [94036] = {
+        name = "Ein letzter Gefangener",
+    },
+    [94040] = {
+        name = "Fleisch und Knochen und Seele",
+    },
     [94370] = {
         name = "Näherschlängeln",
     },
@@ -2015,6 +2192,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [94396] = {
         name = "Einen Dämpfer verpassen",
+    },
+    [94447] = {
+        name = "Ophidia die Brutmutter",
     },
     [94677] = {
         name = "Der verschwundene Wurzelhüter",
@@ -2040,6 +2220,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [94871] = {
         name = "Immersang",
     },
+    [94936] = {
+        name = "Ein Band unter Brüdern",
+    },
+    [94937] = {
+        name = "Zu friedlich an der Nordfront",
+    },
+    [94941] = {
+        name = "Die Rettung des Rekruten Jabat",
+    },
     [94993] = {
         name = "Abenteuer in Midnight",
     },
@@ -2048,6 +2237,138 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [95276] = {
         name = "Der letzte Vorstoß",
+    },
+    [95521] = {
+        name = "Das Medaillon der Med'jai",
+    },
+    [95522] = {
+        name = "Hüter des Todes, Hüter im Stein",
+    },
+    [95523] = {
+        name = "Der Vergangenheit würdig",
+    },
+    [95524] = {
+        name = "Die Unerinnerten",
+    },
+    [95525] = {
+        name = "Eine würdige Wacht",
+    },
+    [95564] = {
+        name = "Der Schlangenschwanz",
+    },
+    [95804] = {
+        name = "Die Kinder von Ula'tek",
+    },
+    [95954] = {
+        name = "Ein uralter Feind",
+    },
+    [96089] = {
+        name = "Etwas stimmt nicht",
+    },
+    [96090] = {
+        name = "Giftbrechmittel",
+    },
+    [96091] = {
+        name = "Haltet die Balance",
+    },
+    [96092] = {
+        name = "Ruma, der Narr",
+    },
+    [96093] = {
+        name = "Es ist ein Beutel, keine Tasche",
+    },
+    [96094] = {
+        name = "Zum Forum",
+    },
+    [96095] = {
+        name = "Proben der örtlichen Tierwelt",
+    },
+    [96096] = {
+        name = "Spähertrupp Sieben",
+    },
+    [96097] = {
+        name = "Was die Späher erspähten",
+    },
+    [96098] = {
+        name = "Die letzten Reagenzien",
+    },
+    [96099] = {
+        name = "La'unas Schicksal",
+    },
+    [96110] = {
+        name = "Giftfischen: Der Beweis liegt im Schleim",
+    },
+    [96111] = {
+        name = "Giftfischen: Eine Hülle Eurer Selbst",
+    },
+    [96439] = {
+        name = "Funkstille",
+    },
+    [96450] = {
+        name = "Dinge gehen schief",
+    },
+    [96451] = {
+        name = "Ein Kind von Ula'tek",
+    },
+    [96457] = {
+        name = "Nichts darf übrig bleiben",
+    },
+    [96458] = {
+        name = "Letztes Versprechen",
+    },
+    [96467] = {
+        name = "Wissensdurst",
+    },
+    [96469] = {
+        name = "Die Gruft der Entehrten",
+    },
+    [96471] = {
+        name = "Poltern und Stolpern",
+    },
+    [96523] = {
+        name = "Lebende Legende",
+    },
+    [96539] = {
+        name = "Verzweiflungstat",
+    },
+    [96540] = {
+        name = "Starke Hände",
+    },
+    [96541] = {
+        name = "Wacher Verstand",
+    },
+    [96543] = {
+        name = "Die Wurzel des Überlebens",
+    },
+    [96544] = {
+        name = "Tapfer durchs Feuer",
+    },
+    [96545] = {
+        name = "Starke Stimme",
+    },
+    [96546] = {
+        name = "Starkes Herz",
+    },
+    [97640] = {
+        name = "Kammern von Atal'Utek: Eine Münze zu viel",
+    },
+    [98218] = {
+        name = "Rückkehr nach Amani'zar",
+    },
+    [98343] = {
+        name = "Giftfischen: Meine rechte Hand",
+    },
+    [98388] = {
+        name = "In die Kammern von Atal'Utek",
+    },
+    [98414] = {
+        name = "Ein Anliegen vom Käpt'n",
+    },
+    [98428] = {
+        name = "Kammern von Atal'Utek: Der Altar der Korrosion",
+    },
+    [98515] = {
+        name = "Kammern von Atal'Utek: Eine toxische Tour",
     },
 })
 ]])()

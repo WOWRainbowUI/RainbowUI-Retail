@@ -3981,6 +3981,39 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [253476] = {
+        name = "Lady Liadrin",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.369981,
+                    y = 0.23162,
+                },
+            },
+        },
+    },
+    [253493] = {
+        name = "Orweyna",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.369736,
+                    y = 0.233538,
+                },
+            },
+        },
+    },
+    [253514] = {
+        name = "Orweyna",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.584473,
+                    y = 0.455717,
+                },
+            },
+        },
+    },
     [253523] = {
         name = "Knight Anais",
         locations = {
@@ -3988,6 +4021,28 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.440614,
                     y = 0.871367,
+                },
+            },
+        },
+    },
+    [253528] = {
+        name = "Zul'jarra",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.578109,
+                    y = 0.473276,
+                },
+            },
+        },
+    },
+    [253557] = {
+        name = "Strongblood Jak'mo",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.692393,
+                    y = 0.642027,
                 },
             },
         },
@@ -4080,6 +4135,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [253827] = {
+        name = "Lady Liadrin",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.574791,
+                    y = 0.491259,
+                },
+            },
+        },
+    },
+    [253829] = {
+        name = "Dak'zor",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.640148,
+                    y = 0.566112,
+                },
+            },
+        },
+    },
     [253833] = {
         name = "Befuddled Amani Mask",
         locations = {
@@ -4098,6 +4175,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.390006,
                     y = 0.388386,
+                },
+            },
+        },
+    },
+    [253837] = {
+        name = "Apothecary Dezi",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.571951,
+                    y = 0.484573,
                 },
             },
         },
@@ -4157,6 +4245,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [254020] = {
+        name = "Summoner Jawae",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.692922,
+                    y = 0.640794,
+                },
+            },
+        },
+    },
     [254142] = {
         name = "Iklani",
         locations = {
@@ -4186,6 +4285,28 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.434819,
                     y = 0.688822,
+                },
+            },
+        },
+    },
+    [254372] = {
+        name = "Zawadi",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.63,
+                    y = 0.444878,
+                },
+            },
+        },
+    },
+    [254376] = {
+        name = "Zawadi",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.660244,
+                    y = 0.389817,
                 },
             },
         },
@@ -4252,6 +4373,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.311937,
                     y = 0.681972,
+                },
+            },
+        },
+    },
+    [254605] = {
+        name = "Jelvik",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.609384,
+                    y = 0.326251,
                 },
             },
         },
@@ -4344,6 +4476,61 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [255226] = {
+        name = "Wa'kani",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.660079,
+                    y = 0.390204,
+                },
+            },
+        },
+    },
+    [255269] = {
+        name = "Zul'jarra",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.374562,
+                    y = 0.238659,
+                },
+            },
+        },
+    },
+    [255270] = {
+        name = "Orweyna",
+        locations = {
+            [2639] = {
+                {
+                    x = 0.505619,
+                    y = 0.531828,
+                },
+            },
+        },
+    },
+    [255282] = {
+        name = "Zul'jarra",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.374451,
+                    y = 0.238492,
+                },
+            },
+        },
+    },
+    [255327] = {
+        name = "Zul'jarra",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.510692,
+                    y = 0.544793,
+                },
+            },
+        },
+    },
     [255406] = {
         name = "Recruit Dar'rak",
         locations = {
@@ -4355,6 +4542,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [255553] = {
+        name = "Wa'kani",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.688621,
+                    y = 0.371953,
+                },
+            },
+        },
+    },
     [255660] = {
         name = "Zul'jan",
         locations = {
@@ -4362,6 +4560,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.348931,
                     y = 0.440455,
+                },
+            },
+        },
+    },
+    [255758] = {
+        name = "Orweyna",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.440721,
+                    y = 0.544941,
                 },
             },
         },
@@ -4384,6 +4593,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.44177,
                     y = 0.336077,
+                },
+            },
+        },
+    },
+    [255978] = {
+        name = "Wa'kani",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.646585,
+                    y = 0.378841,
                 },
             },
         },
@@ -4432,6 +4652,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [256674] = {
+        name = "Ja'bonu",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.661341,
+                    y = 0.533232,
+                },
+            },
+        },
+    },
     [256796] = {
         name = "Ziadan",
         locations = {
@@ -4476,6 +4707,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [256874] = {
+        name = "Ja'bonu",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.694146,
+                    y = 0.533598,
+                },
+            },
+        },
+    },
     [256901] = {
         name = "Ziadan",
         locations = {
@@ -4498,6 +4740,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [257078] = {
+        name = "Zul'jarra",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.440708,
+                    y = 0.54419,
+                },
+            },
+        },
+    },
+    [257091] = {
+        name = "Ra'kamu",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.575013,
+                    y = 0.474121,
+                },
+            },
+        },
+    },
     [257092] = {
         name = "Old Teo'zan",
         locations = {
@@ -4505,6 +4769,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.460242,
                     y = 0.650645,
+                },
+            },
+        },
+    },
+    [257298] = {
+        name = "Loa Speaker Yl'mul",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.591061,
+                    y = 0.680303,
                 },
             },
         },
@@ -4564,6 +4839,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [257598] = {
+        name = "Second Mate Sluggs",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.516341,
+                    y = 0.497744,
+                },
+            },
+        },
+    },
     [258014] = {
         name = "Kanza",
         locations = {
@@ -4571,6 +4857,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.514465,
                     y = 0.306266,
+                },
+            },
+        },
+    },
+    [258068] = {
+        name = "Olawu",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.585244,
+                    y = 0.471951,
                 },
             },
         },
@@ -4586,6 +4883,39 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [258717] = {
+        name = "Aol'ggin",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.56486,
+                    y = 0.430889,
+                },
+            },
+        },
+    },
+    [258755] = {
+        name = "Captain Tokka",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.571829,
+                    y = 0.485488,
+                },
+            },
+        },
+    },
+    [258859] = {
+        name = "Zul'jarra",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.583614,
+                    y = 0.460613,
+                },
+            },
+        },
+    },
     [258950] = {
         name = "Vakala",
         locations = {
@@ -4597,6 +4927,83 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [258992] = {
+        name = "Zul'jarra",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.500819,
+                    y = 0.544358,
+                },
+            },
+        },
+    },
+    [259218] = {
+        name = "Tak'lejo",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.578682,
+                    y = 0.472541,
+                },
+            },
+        },
+    },
+    [259226] = {
+        name = "Lady Liadrin",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.572683,
+                    y = 0.486037,
+                },
+            },
+        },
+    },
+    [259295] = {
+        name = "Tekkan",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.532385,
+                    y = 0.351642,
+                },
+            },
+        },
+    },
+    [259297] = {
+        name = "Aol'ggin",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.534008,
+                    y = 0.334702,
+                },
+            },
+        },
+    },
+    [259319] = {
+        name = "Zul'jarra",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.572683,
+                    y = 0.486585,
+                },
+            },
+        },
+    },
+    [259417] = {
+        name = "Lady Liadrin",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.21678,
+                    y = 0.649113,
+                },
+            },
+        },
+    },
     [259778] = {
         name = "Orweyna",
         locations = {
@@ -4604,6 +5011,303 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.443501,
                     y = 0.666536,
+                },
+            },
+        },
+    },
+    [260226] = {
+        name = "Ofi the Sly",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.603902,
+                    y = 0.329634,
+                },
+            },
+        },
+    },
+    [260710] = {
+        name = "Jelvik",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.610039,
+                    y = 0.328872,
+                },
+            },
+        },
+    },
+    [261659] = {
+        name = "Me'si",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.489221,
+                    y = 0.641982,
+                },
+            },
+        },
+    },
+    [261895] = {
+        name = "Thaze'ala",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.383798,
+                    y = 0.343345,
+                },
+            },
+        },
+    },
+    [262281] = {
+        name = "Thaze'ala",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.39487,
+                    y = 0.49653,
+                },
+            },
+        },
+    },
+    [262798] = {
+        name = "Warleader Abdumati",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.472344,
+                    y = 0.607642,
+                },
+            },
+        },
+    },
+    [262880] = {
+        name = "Er'inye",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.51165,
+                    y = 0.627978,
+                },
+            },
+        },
+    },
+    [263327] = {
+        name = "Ofi the Sly",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.612806,
+                    y = 0.328273,
+                },
+            },
+        },
+    },
+    [263331] = {
+        name = "Lady Liadrin",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.437021,
+                    y = 0.683296,
+                },
+            },
+        },
+    },
+    [263557] = {
+        name = "Thaze'ala",
+        locations = {
+            [2636] = {
+                {
+                    x = 0.831041,
+                    y = 0.454861,
+                },
+            },
+        },
+    },
+    [263618] = {
+        name = "Scout Oma'ema",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.56985,
+                    y = 0.480362,
+                },
+            },
+        },
+    },
+    [263663] = {
+        name = "Scrollmaster Ruma",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.645366,
+                    y = 0.774329,
+                },
+            },
+        },
+    },
+    [263674] = {
+        name = "Scrollmaster Ruma",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.238415,
+                    y = 0.644817,
+                },
+            },
+        },
+    },
+    [263675] = {
+        name = "Scout Oma'ema",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.238347,
+                    y = 0.645323,
+                },
+            },
+        },
+    },
+    [265173] = {
+        name = "Kul'amara the Fierce",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.578735,
+                    y = 0.466849,
+                },
+            },
+        },
+    },
+    [265194] = {
+        name = "Ulantu",
+        locations = {
+            [2640] = {
+                {
+                    x = 0.806849,
+                    y = 0.466634,
+                },
+            },
+        },
+    },
+    [265229] = {
+        name = "Ulantu",
+        locations = {
+            [2640] = {
+                {
+                    x = 0.201442,
+                    y = 0.36353,
+                },
+            },
+        },
+    },
+    [265278] = {
+        name = "Ulantu",
+        locations = {
+            [2640] = {
+                {
+                    x = 0.40439,
+                    y = 0.721789,
+                },
+            },
+        },
+    },
+    [265329] = {
+        name = "Zei'ka",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.75,
+                    y = 0.626341,
+                },
+            },
+        },
+    },
+    [265330] = {
+        name = "Zei'ka",
+        locations = {
+            [2644] = {
+                {
+                    x = 0.611147,
+                    y = 0.595965,
+                },
+            },
+        },
+    },
+    [265476] = {
+        name = "Kehiah",
+        locations = {
+            [2512] = {
+                {
+                    x = 0.593797,
+                    y = 0.509239,
+                },
+            },
+        },
+    },
+    [265660] = {
+        name = "Kehiah",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.455679,
+                    y = 0.483459,
+                },
+            },
+        },
+    },
+    [265661] = {
+        name = "Kehiah",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.444095,
+                    y = 0.480816,
+                },
+            },
+        },
+    },
+    [265662] = {
+        name = "Kehiah",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.436275,
+                    y = 0.479372,
+                },
+            },
+        },
+    },
+    [265666] = {
+        name = "Kehiah",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.457021,
+                    y = 0.490056,
+                },
+            },
+        },
+    },
+    [265668] = {
+        name = "Kehiah",
+        locations = {
+            [2437] = {
+                {
+                    x = 0.452775,
+                    y = 0.487039,
+                },
+            },
+        },
+    },
+    [271885] = {
+        name = "Mok'sa the Stone",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.539045,
+                    y = 0.39558,
                 },
             },
         },

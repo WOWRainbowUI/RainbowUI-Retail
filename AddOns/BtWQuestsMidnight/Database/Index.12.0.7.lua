@@ -1,5 +1,9 @@
 ----- AUTO GENERATED - DO NOT EDIT
 
+if select(4, GetBuildInfo()) ~= 120007 then
+    return
+end
+
 if GetLocale() == "enUS" then
     loadstring([[
 local BtWQuests = BtWQuests

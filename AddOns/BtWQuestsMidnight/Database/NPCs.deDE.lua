@@ -372,6 +372,15 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "Ritter Anais",
     },
+    [253651] = {
+        name = "Loasprecher Kinduru",
+    },
+    [253805] = {
+        name = "Verzauberte Amanimaske",
+    },
+    [253833] = {
+        name = "Amanimaske der Benebelung",
+    },
     [253948] = {
         name = "Leona Dunkelstreifer",
     },
@@ -414,6 +423,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [257092] = {
         name = "Der alte Teo'zan",
     },
+    [257298] = {
+        name = "Loasprecher Yl'mul",
+    },
     [257384] = {
         name = "Verzweifelte Magistrix",
     },
@@ -422,6 +434,21 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [257426] = {
         name = "Instrukteur Antheol",
+    },
+    [258755] = {
+        name = "Käpt'n Tokka",
+    },
+    [263327] = {
+        name = "Ofi die Gewiefte",
+    },
+    [263618] = {
+        name = "Späherin Oma'ema",
+    },
+    [265173] = {
+        name = "Kul'amara die Grimmige",
+    },
+    [271885] = {
+        name = "Mok'sa der Stein",
     },
 })
 ]])()

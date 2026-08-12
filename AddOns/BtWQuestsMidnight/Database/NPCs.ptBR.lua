@@ -513,6 +513,15 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [253523] = {
         name = "Cavaleira Anísia",
     },
+    [253651] = {
+        name = "Voz-dos-loas Kinduru",
+    },
+    [253805] = {
+        name = "Máscara Amani Encantada",
+    },
+    [253833] = {
+        name = "Máscara Amani Confusa",
+    },
     [253948] = {
         name = "Leona Passombrio",
     },
@@ -558,6 +567,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [257092] = {
         name = "Velho Teo'zan",
     },
+    [257298] = {
+        name = "Voz-dos-loas Yl'mul",
+    },
     [257384] = {
         name = "Magistra Desanimada",
     },
@@ -566,6 +578,21 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [257426] = {
         name = "Instrutor Antheol",
+    },
+    [258755] = {
+        name = "Capitão Tokka",
+    },
+    [263327] = {
+        name = "Oufi, a Astuta",
+    },
+    [263618] = {
+        name = "Batedora Oma'ema",
+    },
+    [265173] = {
+        name = "Kul'amara, a Feroz",
+    },
+    [271885] = {
+        name = "Mok'sa, a Pedra",
     },
 })
 ]])()

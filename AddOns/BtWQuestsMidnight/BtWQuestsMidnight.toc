@@ -1,6 +1,6 @@
-## Interface: 120005, 120007
+## Interface: 120007, 120100
 ## Title: BtWQuests: Midnight
-## Version: 2.0
+## Version: 3.0
 ## Notes: Midnight quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
@@ -74,6 +74,7 @@ Database/Index.ruRU.lua
 Database/Index.zhCN.lua
 Database/Index.zhTW.lua
 Database/Index.12.0.7.lua
+Database/Index.12.1.0.lua
 
 General.lua
 EversongWoods.lua
@@ -82,3 +83,4 @@ Harandar.lua
 Arator.lua
 Voidstorm.lua
 12.0.7.lua
+12.1.0.lua

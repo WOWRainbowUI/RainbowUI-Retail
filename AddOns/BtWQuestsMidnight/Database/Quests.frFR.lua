@@ -1878,6 +1878,63 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [92907] = {
         name = "Réponses amani",
     },
+    [92916] = {
+        name = "Un appel au secours",
+    },
+    [92917] = {
+        name = "Au secours des victimes enserrées",
+    },
+    [92919] = {
+        name = "Autant de bruit que de mal",
+    },
+    [92920] = {
+        name = "À bas les cieux",
+    },
+    [92921] = {
+        name = "Vers le pont Céleste",
+    },
+    [92924] = {
+        name = "Au-delà du brouillard",
+    },
+    [92925] = {
+        name = "Le reflet de l’histoire",
+    },
+    [92927] = {
+        name = "Pas répétés",
+    },
+    [92928] = {
+        name = "Ce qui fut enfoui",
+    },
+    [92929] = {
+        name = "Ce qui se cache dans l’ombre",
+    },
+    [92930] = {
+        name = "Qui écrit l’histoire",
+    },
+    [92931] = {
+        name = "Retarder l’effet du venin",
+    },
+    [92932] = {
+        name = "Nettoyage des marécages",
+    },
+    [92933] = {
+        name = "Le rivage hanté",
+    },
+    [92934] = {
+        name = "L’essence d’invocation",
+    },
+    [92935] = {
+        name = "Un peuple au bord du gouffre",
+    },
+    [92936] = {
+        name = "L’invocation d’Ula’tek",
+    },
+    [92937] = {
+        name = "Le mal éveillé",
+    },
+    [92938] = {
+        name = "Site de terreur",
+    },
     [92939] = {
         name = "Ce n’est pas un simple caillou !",
     },
@@ -1920,6 +1977,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93012] = {
         name = "Une impasse",
     },
+    [93018] = {
+        name = "Les victimes disparues",
+    },
+    [93019] = {
+        name = "C’est le serpent qui se mord la queue",
+    },
+    [93022] = {
+        name = "Le feu, le moyen le plus sûr",
+    },
+    [93023] = {
+        name = "La mort des fureurs",
+    },
+    [93024] = {
+        name = "Venez avec moi",
+    },
     [93047] = {
         name = "Les bases de la boucherie",
     },
@@ -1934,6 +2006,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [93051] = {
         name = "L’examen final",
+    },
+    [93063] = {
+        name = "Lances brisées",
+    },
+    [93064] = {
+        name = "Terreur et admiration",
     },
     [93093] = {
         name = "Trophées torsadins",
@@ -1962,6 +2040,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93182] = {
         name = "Retour salvateur",
     },
+    [93199] = {
+        name = "Des serpents dans les marais",
+    },
+    [93229] = {
+        name = "Une belle omelette",
+    },
+    [93233] = {
+        name = "Sauvagerie parmi les ruines",
+    },
+    [93239] = {
+        name = "Mission de reconnaissance dans le marécage",
+    },
     [93257] = {
         name = "Vengebroches en péril",
     },
@@ -1977,8 +2067,56 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93261] = {
         name = "Un crabe hors norme",
     },
+    [93263] = {
+        name = "Fallait que ce soit…",
+    },
+    [93265] = {
+        name = "Couper la tête du serpent",
+    },
+    [93266] = {
+        name = "L’appel des tambours",
+    },
+    [93339] = {
+        name = "Échange de bijoux",
+    },
+    [93340] = {
+        name = "L’éclat d’ombre",
+    },
+    [93387] = {
+        name = "Élimination de la vermine",
+    },
+    [93388] = {
+        name = "Alchimie insolite",
+    },
+    [93389] = {
+        name = "Rochesang",
+    },
+    [93390] = {
+        name = "Apprentissage acceptable",
+    },
+    [93391] = {
+        name = "Faut que ça fouette",
+    },
+    [93392] = {
+        name = "Travail de mémoire",
+    },
+    [93393] = {
+        name = "Une petite attention",
+    },
     [93396] = {
         name = "Trop-plein d’émotions",
+    },
+    [93417] = {
+        name = "Les caveaux d’Atal’Utek : Autel des crochets",
+    },
+    [93418] = {
+        name = "L’abîme Venimeux",
+    },
+    [93419] = {
+        name = "La nature de ses blessures",
+    },
+    [93420] = {
+        name = "Le jugement de Lor’themar",
     },
     [93432] = {
         name = "De l’épée à la charrue",
@@ -1998,8 +2136,17 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93440] = {
         name = "Histoire personnelle",
     },
+    [93449] = {
+        name = "Des problèmes dans le marécage",
+    },
+    [93454] = {
+        name = "Des paroles précieuses",
+    },
     [93566] = {
         name = "Renommée auprès de la tribu des Amani",
+    },
+    [93576] = {
+        name = "À la recherche de Wa’kani",
     },
     [93651] = {
         name = "Le val Aveuglant : racines de luméclat",
@@ -2016,6 +2163,36 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [93811] = {
         name = "Renommée auprès de la cour de Lune-d’Argent",
     },
+    [93841] = {
+        name = "Les fantômes de l’arène",
+    },
+    [93842] = {
+        name = "Bouquet d’adieu",
+    },
+    [93843] = {
+        name = "Extractions ectoplasmiques",
+    },
+    [93849] = {
+        name = "Marché ectoplasmique",
+    },
+    [93851] = {
+        name = "Communion avec les fantômes",
+    },
+    [93906] = {
+        name = "Délivrance spectrale",
+    },
+    [94031] = {
+        name = "Les arêtes de mon âme",
+    },
+    [94035] = {
+        name = "De la viande pour les os",
+    },
+    [94036] = {
+        name = "Un dernier prisonnier",
+    },
+    [94040] = {
+        name = "La chair, les os et l’âme",
+    },
     [94370] = {
         name = "Invasion rampante",
     },
@@ -2030,6 +2207,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [94396] = {
         name = "Qui fait le malin…",
+    },
+    [94447] = {
+        name = "Ophidia la Mère des couvées",
     },
     [94677] = {
         name = "Le garde-racines disparu",
@@ -2055,6 +2235,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [94871] = {
         name = "Chants éternels",
     },
+    [94936] = {
+        name = "Un lien fraternel",
+    },
+    [94937] = {
+        name = "Au nord rien de nouveau ?",
+    },
+    [94941] = {
+        name = "Il faut sauver le soldat Jabat",
+    },
     [94993] = {
         name = "Aventure de Midnight",
     },
@@ -2063,6 +2252,138 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [95276] = {
         name = "Ultime effort",
+    },
+    [95521] = {
+        name = "Le médaillon des Med’jai",
+    },
+    [95522] = {
+        name = "Gardes de la mort, gardes de pierre",
+    },
+    [95523] = {
+        name = "Digne du passé",
+    },
+    [95524] = {
+        name = "Les âmes oubliées",
+    },
+    [95525] = {
+        name = "Une veille honorable",
+    },
+    [95564] = {
+        name = "La Serpentine",
+    },
+    [95804] = {
+        name = "Les enfants d’Ula’tek",
+    },
+    [95954] = {
+        name = "Un ennemi de longue date",
+    },
+    [96089] = {
+        name = "Quelque chose cloche",
+    },
+    [96090] = {
+        name = "Vénémétique",
+    },
+    [96091] = {
+        name = "Un équilibre délicat",
+    },
+    [96092] = {
+        name = "Ruma l’imbriaque",
+    },
+    [96093] = {
+        name = "C’est pas un sac, c’est une sacoche",
+    },
+    [96094] = {
+        name = "Vers le forum",
+    },
+    [96095] = {
+        name = "Échantillonnage de la faune locale",
+    },
+    [96096] = {
+        name = "L’équipe de reconnaissance 7",
+    },
+    [96097] = {
+        name = "Rapports de reconnaissance",
+    },
+    [96098] = {
+        name = "Les derniers composants",
+    },
+    [96099] = {
+        name = "Le sort de La’una",
+    },
+    [96110] = {
+        name = "Pêche venimeuse : la preuve par l’œuf",
+    },
+    [96111] = {
+        name = "Pêche venimeuse : coquille vide",
+    },
+    [96439] = {
+        name = "Sans nouvelles",
+    },
+    [96450] = {
+        name = "Mission compromise",
+    },
+    [96451] = {
+        name = "L’enfant d’Ula’tek",
+    },
+    [96457] = {
+        name = "Rien ne doit rester",
+    },
+    [96458] = {
+        name = "Dernière promesse",
+    },
+    [96467] = {
+        name = "Soif de connaissances",
+    },
+    [96469] = {
+        name = "La crypte de la Disgrâce",
+    },
+    [96471] = {
+        name = "Entre éboulis et gravats",
+    },
+    [96523] = {
+        name = "Légende vivante",
+    },
+    [96539] = {
+        name = "Dernier recours",
+    },
+    [96540] = {
+        name = "Mains fortes",
+    },
+    [96541] = {
+        name = "Esprit fort",
+    },
+    [96543] = {
+        name = "Racine de la survie",
+    },
+    [96544] = {
+        name = "Bravoure brûlante",
+    },
+    [96545] = {
+        name = "Voix forte",
+    },
+    [96546] = {
+        name = "Cœur robuste",
+    },
+    [97640] = {
+        name = "Caveaux d’Atal’Utek : une pièce de trop",
+    },
+    [98218] = {
+        name = "Retour à Amani’Zar",
+    },
+    [98343] = {
+        name = "Pêche venimeuse : top 2",
+    },
+    [98388] = {
+        name = "Dans les caveaux d’Atal’Utek",
+    },
+    [98414] = {
+        name = "Une demande du capitaine",
+    },
+    [98428] = {
+        name = "Caveaux d’Atal’Utek : l’autel de la corrosion",
+    },
+    [98515] = {
+        name = "Caveaux d’Atal’Utek : une visite toxique",
     },
 })
 ]])()
