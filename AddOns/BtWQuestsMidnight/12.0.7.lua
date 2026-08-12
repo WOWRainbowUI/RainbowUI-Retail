@@ -1,4 +1,4 @@
-if select(4, GetBuildInfo()) < 120007 then
+if select(4, GetBuildInfo()) ~= 120007 then
     return
 end
 

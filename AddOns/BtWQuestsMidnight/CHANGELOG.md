@@ -1,3 +1,7 @@
+# v3.0
+
+- Added The Curse of Ula'tek questlines
+
 # v2.0
 
 - Added Legacy of the Amani questline

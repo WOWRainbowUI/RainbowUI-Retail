@@ -420,6 +420,7 @@ Database:AddCategory(CATEGORY_ID, {
         id = 89193,
     },
     expansion = EXPANSION_ID,
+    buttonImage = 7644022,
     items = {
         {
             type = "chain",

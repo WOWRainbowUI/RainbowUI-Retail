@@ -15583,6 +15583,320 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [92916] = {
+        name = "A Call for Aid",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263331,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92917] = {
+        name = "Saving Those Bound",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253476,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92919] = {
+        name = "All Bark, All Bite",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253493,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92920] = {
+        name = "Down With the Skies",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258992,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [92921] = {
+        name = "To the Skybridge",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255282,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92924] = {
+        name = "What Lies Beyond the Fog",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255327,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [92925] = {
+        name = "The Glint of History",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [92927] = {
+        name = "Echoed Steps",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.474577,
+                        y = 0.735109,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92928] = {
+        name = "What Was Buried",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2639] = {
+                    {
+                        x = 0.699335,
+                        y = 0.136676,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92929] = {
+        name = "Lurking in the Dark",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2639] = {
+                    {
+                        x = 0.699335,
+                        y = 0.136676,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92930] = {
+        name = "Written by the Victors",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255270,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [92931] = {
+        name = "Delay the Venom",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253827,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 256200,
+            },
+        },
+    },
+    [92932] = {
+        name = "Clear the Swamp",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.640024,
+                        y = 0.566394,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92933] = {
+        name = "Haunted Shore",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253829,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92934] = {
+        name = "Fuel the Calling",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254020,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92935] = {
+        name = "Pushed to the Brink",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253557,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [92936] = {
+        name = "The Summoning of Ula'tek",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253557,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 256200,
+            },
+        },
+    },
+    [92937] = {
+        name = "Awakened Evil",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253829,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.703065,
+                        y = 0.657037,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [92938] = {
+        name = "Site of Terror",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.674668,
+                        y = 0.622548,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
     [92939] = {
         name = "It's Not Just a Rock!",
         contentTuningID = 3084,
@@ -15863,6 +16177,108 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [93018] = {
+        name = "Them That Were Lost",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253528,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.47002,
+                        y = 0.313406,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93019] = {
+        name = "Situation Normal, All Snaked Up",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253528,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93022] = {
+        name = "Fire, the Only Way to Be Sure",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259218,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.470482,
+                        y = 0.313059,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93023] = {
+        name = "Death of Furies",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253528,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.458943,
+                        y = 0.293559,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [93024] = {
+        name = "Come With Me",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253528,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.448198,
+                        y = 0.278892,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
     [93047] = {
         name = "Butchery Basics",
         contentTuningID = 3086,
@@ -15990,6 +16406,50 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 83,
                 maxLevel = 88,
+            },
+        },
+    },
+    [93063] = {
+        name = "Broken Spears",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253829,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.67462,
+                        y = 0.623046,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93064] = {
+        name = "Awe of She",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253514,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.702505,
+                        y = 0.65846,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
             },
         },
     },
@@ -16227,6 +16687,62 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [93199] = {
+        name = "Slithering in the Mire",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254372,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93229] = {
+        name = "Fried Eggs",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254372,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93233] = {
+        name = "Savagery Among the Ruins",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254376,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93239] = {
+        name = "Scouts in the Swamp",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254376,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
     [93257] = {
         name = "Revantusk at Risk",
         contentTuningID = 3086,
@@ -16365,6 +16881,182 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [93263] = {
+        name = "It Just Had to Be...",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255758,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93265] = {
+        name = "Severing the Serpent's Head",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255269,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [93266] = {
+        name = "Drumming Up the Troops",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257078,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93339] = {
+        name = "Trinket Trading",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255226,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93340] = {
+        name = "The Shadow Shard",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255553,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [93387] = {
+        name = "Dealing with Pests",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263327,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [93388] = {
+        name = "Unusual Alchemy",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263327,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93389] = {
+        name = "Rocksblood",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 260710,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93390] = {
+        name = "Acceptable Apprentice",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 260226,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [93391] = {
+        name = "Make it Stinky",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 260226,
+            locations = {
+                [2512] = {
+                    {
+                        x = 0.603283,
+                        y = 0.331236,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93392] = {
+        name = "Recovering Memories",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254605,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [93393] = {
+        name = "A Little Kindness",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254605,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
     [93396] = {
         name = "Bursting at the Seams",
         contentTuningID = 3084,
@@ -16396,6 +17088,62 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 88,
                 maxLevel = 90,
+            },
+        },
+    },
+    [93417] = {
+        name = "The Vaults of Atal'Utek: Altar of Fangs",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253827,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 1366400,
+            },
+        },
+    },
+    [93418] = {
+        name = "The Venomous Abyss",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259319,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 1366400,
+            },
+        },
+    },
+    [93419] = {
+        name = "Nature of Her Wounds",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259226,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [93420] = {
+        name = "Lor'themar's Judgement",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259417,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
             },
         },
     },
@@ -16571,9 +17319,51 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [93449] = {
+        name = "Trouble in the Swamp",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257091,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [93454] = {
+        name = "Words to Hear",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258859,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
     [93566] = {
         name = "Renowned with the Amani Tribe",
         contentTuningID = 3322,
+    },
+    [93576] = {
+        name = "The Search for Wa'kani",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 254376,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
     },
     [93651] = {
         name = "The Blinding Vale: Lightbloom Roots",
@@ -16682,6 +17472,146 @@ BtWQuestsDatabase:AddQuestsTable({
     [93811] = {
         name = "Renowned with the Silvermoon Court",
         contentTuningID = 3322,
+    },
+    [93841] = {
+        name = "Ghosts of the Ring",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258068,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [93842] = {
+        name = "Bloom and Fade",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 256674,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93843] = {
+        name = "Ectoplasmic Extractions",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 256674,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93849] = {
+        name = "Ectoplasmic Emporium",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 256874,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [93851] = {
+        name = "Communing with Ghosts",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 256874,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [93906] = {
+        name = "Untethering the Two",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 256874,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [94031] = {
+        name = "Bones of My Soul",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257298,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [94035] = {
+        name = "Meat for the Bones",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257298,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [94036] = {
+        name = "One Final Prisoner",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257298,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [94040] = {
+        name = "Meat and Bone and Soul",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257298,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
     },
     [94370] = {
         name = "Slithering Closer",
@@ -16810,6 +17740,20 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 80,
                 maxLevel = 83,
+            },
+        },
+    },
+    [94447] = {
+        name = "Ophidia the Broodmother",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 255978,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
             },
         },
     },
@@ -17021,6 +17965,48 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [94936] = {
+        name = "A Bond of Brothers",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258717,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [94937] = {
+        name = "Too Quiet on the Northern Front",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259295,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [94941] = {
+        name = "Saving Recruit Jabat",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259297,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
     [94993] = {
         name = "Adventuring in Midnight",
         contentTuningID = 3322,
@@ -17084,6 +18070,631 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 88,
                 maxLevel = 90,
+            },
+        },
+    },
+    [95521] = {
+        name = "The Med'jai Medallion",
+        contentTuningID = 6146,
+        source = {
+            type = "object",
+            id = 641565,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [95522] = {
+        name = "Guardians of Death, Guardians in Stone",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 261659,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [95523] = {
+        name = "Worthy of the Past",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 261895,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [95524] = {
+        name = "The Unremembered",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 261895,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [95525] = {
+        name = "A Worthy Vigil",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 263557,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [95564] = {
+        name = "The Serpent's Tail",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 259218,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [95804] = {
+        name = "The Children of Ula'tek",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253528,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [95954] = {
+        name = "An Ancient Foe",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 262281,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [96089] = {
+        name = "Somethin's Not Right",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263618,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96090] = {
+        name = "Venemetic",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253837,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96091] = {
+        name = "Get the Balance Right",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253837,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96092] = {
+        name = "That Fool, Ruma",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 253837,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96093] = {
+        name = "It's a Satchel, Not a Bag",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263663,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [96094] = {
+        name = "To the Forum",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263663,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [96095] = {
+        name = "Sampling the Local Wildlife",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263674,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96096] = {
+        name = "Scout Team Seven",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263675,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96097] = {
+        name = "What the Scouts Saw",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263674,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96098] = {
+        name = "The Final Reagents",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263675,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [96099] = {
+        name = "La'una's Fate",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 263674,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96110] = {
+        name = "Venom Fishing: Proof is in the Ooze",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258755,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96111] = {
+        name = "Venom Fishing: Shell of Yourself",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258755,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [96439] = {
+        name = "Gone Dark",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265173,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [96450] = {
+        name = "Sideways",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265194,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96451] = {
+        name = "A Child of Ula'tek",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265229,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [96457] = {
+        name = "Nothing Must Remain",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265278,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96458] = {
+        name = "Last Promise",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265278,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [96467] = {
+        name = "Thirst for Knowledge",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265173,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [96469] = {
+        name = "The Crypt of the Disgraced",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265329,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96471] = {
+        name = "Crumble and Tumble",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265330,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96523] = {
+        name = "Living Legend",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265476,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [96539] = {
+        name = "Last Resort",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265660,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96540] = {
+        name = "Strong Hands",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265661,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [96541] = {
+        name = "Strong Mind",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265662,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 85400,
+            },
+        },
+    },
+    [96543] = {
+        name = "Root of Survival",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265660,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96544] = {
+        name = "Bravely Burning",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265660,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96545] = {
+        name = "Strong Voice",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265666,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [96546] = {
+        name = "Strong Heart",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 265668,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 683200,
+            },
+        },
+    },
+    [97640] = {
+        name = "Vaults of Atal'Utek: One Coin Too Many",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 262798,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+            {
+                type = "currency",
+                id = 3448,
+                amount = 1000,
+            },
+        },
+    },
+    [98218] = {
+        name = "Return to Amani'Zar",
+        contentTuningID = 5381,
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [98343] = {
+        name = "Venom Fishing: My Second-Best",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 258755,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [98388] = {
+        name = "Into the Vaults of Atal'Utek",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 262798,
+            locations = {
+                [2509] = {
+                    {
+                        x = 0.539045,
+                        y = 0.39558,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
+            },
+        },
+    },
+    [98414] = {
+        name = "A Request from the Captain",
+        contentTuningID = 5381,
+        source = {
+            type = "npc",
+            id = 257598,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 34100,
+            },
+        },
+    },
+    [98428] = {
+        name = "Vaults of Atal'Utek: The Altar of Corrosion",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 262880,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 170800,
+            },
+        },
+    },
+    [98515] = {
+        name = "Vaults of Atal'Utek: A Toxic Tour",
+        contentTuningID = 6146,
+        source = {
+            type = "npc",
+            id = 262798,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 341600,
             },
         },
     },

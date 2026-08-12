@@ -23,4 +23,15 @@ BtWQuestsDatabase:AddObjectsTable({
             },
         },
     },
+    [641565] = {
+        name = "Faintly Glowing Gem",
+        locations = {
+            [2509] = {
+                {
+                    x = 0.479672,
+                    y = 0.518076,
+                },
+            },
+        },
+    },
 })
