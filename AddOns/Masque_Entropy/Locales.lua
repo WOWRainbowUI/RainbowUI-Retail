@@ -41,7 +41,8 @@ elseif Locale == "esES" or Locale == "esMX" then
 --elseif Locale == "frFR" then
 --elseif Locale == "itIT" then
 --elseif Locale == "koKR" then
---elseif Locale == "ptBR" then
+elseif Locale == "ptBR" then
+	L["A metallic version of Apathy in the color of %s ore."] = "Uma versão metálica da Apathy na cor de minério de %s."
 elseif Locale == "ruRU" then
 	L["A metallic version of Apathy in the color of %s ore."] = "Металлическая версия Apathy цвета %s руды."
 --elseif Locale == "zhCN" then
