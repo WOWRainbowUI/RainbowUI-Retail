@@ -7,6 +7,8 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 	local IsAddOnEnabled = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 	if IsAddOnEnabled("HideButtonGlow") then return end
 
+	local issecretvalue = issecretvalue or function() return false end
+
 	local function CreateGoldenBorder(button)
 
 		if button.HideActionbarAnimations_SpellActivationAlert then return end
@@ -163,21 +165,25 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
         end
 	end
 
-	if ActionButton_ShowOverlayGlow and type(ActionButton_ShowOverlayGlow) == "function" then
-		hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
+	if ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.ShowAlert and type(ActionButtonSpellAlertManager.ShowAlert) == "function" then
+		hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button)
+			if issecretvalue(button) then return end
 			ShowSpellActivationAlert(button)
 		end)
-	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.ShowAlert and type(ActionButtonSpellAlertManager.ShowAlert) == "function" then
-		hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button)
+	elseif ActionButton_ShowOverlayGlow and type(ActionButton_ShowOverlayGlow) == "function" then
+		hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
+			if issecretvalue(button) then return end
 			ShowSpellActivationAlert(button)
 		end)
 	end
-	if ActionButton_HideOverlayGlow and type(ActionButton_HideOverlayGlow) == "function" then
-		hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
+	if ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
+		hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button)
+			if issecretvalue(button) then return end
 			HideSpellActivationAlert(button)
 		end)
-	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
-		hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button)
+	elseif ActionButton_HideOverlayGlow and type(ActionButton_HideOverlayGlow) == "function" then
+		hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
+			if issecretvalue(button) then return end
 			HideSpellActivationAlert(button)
 		end)
 	end
