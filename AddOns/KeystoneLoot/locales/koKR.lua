@@ -54,7 +54,7 @@ L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, 
 L["Shows a notification when another player loots an item you have marked as a favorite."] = "다른 플레이어가 즐겨찾기로 표시한 아이템을 획득하면 알림을 표시합니다.";
 L["Whisper message..."] = "귓속말 메시지...";
 L["Whisper message\n{item} will be replaced with the item link."] = "귓속말 메시지\n{item}은(는) 아이템 링크로 대체됩니다.";
---L["Multiple slot filtering"] = "";
+L["Multiple slot filtering"] = "다중 슬롯 필터링";
 L["Auto Keystone response"] = "쐐기돌 자동 응답";
 L["Enable party chat"] = "파티 채팅에서 활성화";
 L["Enable guild chat"] = "길드 채팅에서 활성화";

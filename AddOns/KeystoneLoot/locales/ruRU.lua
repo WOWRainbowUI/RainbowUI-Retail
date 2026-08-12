@@ -58,7 +58,7 @@ L["Multiple slot filtering"] = "Фильтрация нескольких сло
 L["Auto Keystone response"] = "Автоответ с ключом";
 L["Enable party chat"] = "Включить в чате группы";
 L["Enable guild chat"] = "Включить в чате гильдии";
-L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."] = "Автоматически отправляет ваш текущий ключ Эпохального+, когда кто-то пишет \"!keys\" в выбранных каналах чата. Работает только если у других участников группы тоже установлен этот аддон.";
+L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."] = "Автоматически отправляет Ваш текущий М+ ключ, когда кто-то пишет \"!keys\" в выбранных каналах чата. Работает только если у других участников группы тоже установлен этот аддон.";
 
 -- custom_item_icon.lua
 L["Custom Items"] = "Пользовательские предметы";
