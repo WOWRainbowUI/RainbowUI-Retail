@@ -1,9 +1,9 @@
-## Interface: 120005, 120007, 50504, 30405, 20505, 11508
+## Interface: 120100, 120007, 50504, 30405, 20506, 11508
 ## Title: AppearanceTooltip
 ## Author: Kemayo
 ## Notes: Show the item your mouse is over on your character in a tooltip
 ## IconAtlas: poi-transmogrifier
-## Version: v83
+## Version: v84
 ## LoadOnDemand: 0
 ## OptionalDeps: tekDebug, LibStub, LibArmorToken-1.0, LibAppropriateItems-1.0
 ## X-Embeds: LibStub, LibArmorToken-1.0, LibAppropriateItems-1.0
