@@ -43,12 +43,16 @@ if Locale == "enGB" or Locale == "enUS" then
 --elseif Locale == "frFR" then
 --elseif Locale == "itIT" then
 --elseif Locale == "koKR" then
---elseif Locale == "ptBR" then
+elseif Locale == "ptBR" then
+	L["A port of the original Serenity skin by Sairen."] = "Uma adaptação da aparência original Serenity de Sairen."
+	L["A port of the original Serenity Square skin by Sairen."] = "Uma adaptação da aparência original Serenity Square de Sairen."
+	L["An alternate version of Serenity Square with modified Checked and Equipped textures."] = "Uma versão alternativa da Serenity Square com texturas de Marcado e Equipado modificadas."
+	L["An alternate version of Serenity with modified Checked and Equipped textures."] = "Uma versão alternativa da Serenity com texturas de Marcado e Equipado modificadas."
 elseif Locale == "ruRU" then
 	L["A port of the original Serenity skin by Sairen."] = "Порт оригинального скина Serenity от Sairen."
 	L["A port of the original Serenity Square skin by Sairen."] = "Порт оригинального скина Serenity Square от Sairen."
-	L["An alternate version of Serenity with modified Checked and Equipped textures."] = "Альтернативная версия Serenity с измененными текстурами Checked и Equipped."
 	L["An alternate version of Serenity Square with modified Checked and Equipped textures."] = "Альтернативная версия Serenity Square с измененными текстурами Checked и Equipped."
+	L["An alternate version of Serenity with modified Checked and Equipped textures."] = "Альтернативная версия Serenity с измененными текстурами Checked и Equipped."
 --elseif Locale == "zhCN" then
 elseif Locale == "zhTW" then
 	L["A port of the original Serenity skin by Sairen."] = "這是 Sairen 原版 Serenity 外觀的移植版。"
