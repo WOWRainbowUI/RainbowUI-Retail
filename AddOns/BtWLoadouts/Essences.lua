@@ -5,6 +5,7 @@ local GetMilestoneEssence = C_AzeriteEssence.GetMilestoneEssence;
 
 local HelpTipBox_Anchor = Internal.HelpTipBox_Anchor;
 local HelpTipBox_SetText = Internal.HelpTipBox_SetText;
+local MAX_ACCOUNT_MACROS = MAX_ACCOUNT_MACROS or 120
 
 local AddSet = Internal.AddSet
 
@@ -164,7 +165,7 @@ local function EssenceSetRequirements(set)
 			if spellID then
 				spellID = FindSpellOverrideByID(spellID)
 				local start, duration = GetSpellCooldown(spellID)
-				if start ~= 0 then -- Milestone spell on cooldown, we need to wait before switching
+				if canaccessvalue(start) and start ~= 0 then -- Milestone spell on cooldown, we need to wait before switching
 					Internal.DirtyAfter((start + duration) - GetTime() + 1)
 					waitForCooldown = true
 					break
@@ -264,7 +265,7 @@ local function EssenceSetDelay(set)
 		if spellID and essenceID ~= C_AzeriteEssence.GetMilestoneEssence(milestoneID) then
 			spellID = FindSpellOverrideByID(spellID)
 			local start, duration = GetSpellCooldown(spellID)
-			if start ~= 0 then -- Milestone spell on cooldown, we need to wait before switching
+			if canaccessvalue(start) and start ~= 0 then -- Milestone spell on cooldown, we need to wait before switching
 				Internal.DirtyAfter((start + duration) - GetTime() + 1)
 				return true
 			end
