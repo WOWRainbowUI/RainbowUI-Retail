@@ -1,8 +1,15 @@
--- MSUF_CP_Constants.lua
--- Phase 1 ClassPower split: shared constants/data extracted from the core file.
--- Loaded before Core/MSUF_ClassPower.lua.
+--- MSUF_CP_Constants.lua
+--- Phase 1 ClassPower split: shared constants/data extracted from the core file.
+--- Loaded before the ClassPower controller.
 
-_G.MSUF_CP_CONST = _G.MSUF_CP_CONST or {}
+local _, MSUF = ...
+MSUF = MSUF or _G.MSUF_NS or _G.MSUF or {}
+local ExportPublic = MSUF.ExportPublic or function(name, value)
+    _G[name] = value
+    return value
+end
+
+ExportPublic("MSUF_CP_CONST", _G.MSUF_CP_CONST or {})
 local K = _G.MSUF_CP_CONST
 
 K.CPK = {
@@ -16,6 +23,7 @@ K.CPK = {
         CONTINUOUS     = 6,
         TIMER_BAR      = 8,
         STAGGER        = 9,
+        IRONFUR        = 10,
     },
     SPEC = {
         DH_DEVOURER          = _G.SPEC_DEMONHUNTER_DEVOURER or 3,
@@ -31,6 +39,7 @@ K.CPK = {
         HUNTER_SURVIVAL      = 3,
         EVOKER_AUG           = 3,
         PRIEST_SHADOW        = 3,
+        DRUID_GUARDIAN       = 3,
     },
     SPELL = {
         DARK_HEART             = (Constants and Constants.UnitPowerSpellIDs and Constants.UnitPowerSpellIDs.DARK_HEART_SPELL_ID) or 1225789,
@@ -111,7 +120,6 @@ K.TIP = {
 
 K.EBON = {
     SPELL_ID = 395296,
-    MAX_DURATION = 20,
 }
 
 K.STAGGER = {
@@ -139,6 +147,7 @@ K.PT = {
     Energy        = (E and E.Energy) or 3,
     Insanity      = (E and E.Insanity) or 13,
     Maelstrom     = (E and E.Maelstrom) or 11,
+    Rage          = (E and E.Rage) or 1,
 }
 K.PT_STAGGER = -1
 
@@ -160,10 +169,37 @@ K.POWER_TYPE_TOKENS = {
     ["STAGGER"]             = "STAGGER",
     ["WHIRLWIND"]           = "WHIRLWIND",
     ["TIP_OF_THE_SPEAR"]    = "TIP_OF_THE_SPEAR",
+    ["ICICLES"]             = "ICICLES",
     ["EBON_MIGHT"]          = "EBON_MIGHT",
+    ["IRONFUR"]             = "IRONFUR",
 }
 
 K.MAX_CLASS_POWER = 10
+
+--- Devourer Demon Hunter segment count.
+--- Blizzard's own bar (DemonHunterSoulFragmentsBar:GetCurrentMinMaxPower) reads
+--- an integer maximum: the collapsing star cost inside Void Metamorphosis, Dark
+--- Heart's max cumulative applications outside it. Returning 1 means "not
+--- usable as a segment count" and keeps the caller on the normalized
+--- single-bar rendering, which is what older clients and secret-value states
+--- get. The meta state is passed in because every caller already knows it.
+function K.ResolveDevourerSegments(inMeta, notSecret)
+    local raw
+    if inMeta then
+        local cost = _G.GetCollapsingStarCost
+        raw = (type(cost) == "function") and cost() or nil
+    else
+        local C_Spell = _G.C_Spell
+        local spellMax = C_Spell and C_Spell.GetSpellMaxCumulativeAuraApplications
+        raw = (type(spellMax) == "function") and spellMax(K.CPK.SPELL.DARK_HEART) or nil
+    end
+    if type(notSecret) == "function" and not notSecret(raw) then return 1 end
+    raw = math.floor((tonumber(raw) or 0) + 0.5)
+    if raw < 2 then return 1 end
+    if raw > K.MAX_CLASS_POWER then return K.MAX_CLASS_POWER end
+    return raw
+end
+
 K.CDM_FRAMES = {
     cooldown      = "EssentialCooldownViewer",
     utility       = "UtilityCooldownViewer",
@@ -175,16 +211,16 @@ K.CDM_HOOK_DEFS = {
     { name = "BuffIconCooldownViewer", flag = "_bicvHooked", mode = "tracked_buffs" },
 }
 
--- Profiles (from MSUF_CP_Profiles.lua)
--- MSUF_CP_Profiles.lua
--- Phase 1 ClassPower split: data-only event profiles for active render modes.
--- Loaded before Core/MSUF_ClassPower.lua.
+--- Profiles (from MSUF_CP_Profiles.lua)
+--- MSUF_CP_Profiles.lua
+--- Phase 1 ClassPower split: data-only event profiles for active render modes.
+--- Loaded before the ClassPower controller.
 
 local K = _G.MSUF_CP_CONST or {}
 local CPK = K.CPK or {}
 local MODE = CPK.MODE or {}
 
-_G.MSUF_CP_MODE_EVENT_PROFILE = {
+ExportPublic("MSUF_CP_MODE_EVENT_PROFILE", {
     [MODE.NONE]           = { power = false, maxPower = false, aura = false, rune = false, health = false, pointCharge = false, warlockPred = false },
     [MODE.SEGMENTED]      = { power = true,  maxPower = true,  aura = false, rune = false, health = false, pointCharge = true,  warlockPred = false },
     [MODE.FRACTIONAL]     = { power = true,  maxPower = true,  aura = false, rune = false, health = false, pointCharge = false, warlockPred = true  },
@@ -192,6 +228,7 @@ _G.MSUF_CP_MODE_EVENT_PROFILE = {
     [MODE.AURA_SEGMENTED] = { power = false, maxPower = false, aura = true,  rune = false, health = false, pointCharge = false, warlockPred = false },
     [MODE.AURA_SINGLE]    = { power = false, maxPower = false, aura = true,  rune = false, health = false, pointCharge = false, warlockPred = false },
     [MODE.CONTINUOUS]     = { power = true,  maxPower = false, aura = false, rune = false, health = false, pointCharge = false, warlockPred = false },
-    [MODE.TIMER_BAR]      = { power = false, maxPower = false, aura = true,  rune = false, health = false, pointCharge = false, warlockPred = false },
+    [MODE.TIMER_BAR]      = { power = false, maxPower = false, aura = false, rune = false, health = false, pointCharge = false, warlockPred = false },
     [MODE.STAGGER]        = { power = false, maxPower = false, aura = true,  rune = false, health = true,  pointCharge = false, warlockPred = false },
-}
+    [MODE.IRONFUR]        = { power = false, maxPower = false, aura = false, rune = false, health = false, pointCharge = false, warlockPred = false },
+})

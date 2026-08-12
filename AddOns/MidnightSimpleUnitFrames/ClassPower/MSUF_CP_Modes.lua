@@ -1,61 +1,388 @@
--- MSUF_CP_Modes.lua — All ClassPower mode builders (consolidated)
+--- ClassPower/MSUF_CP_Modes.lua - class power render modes
 
--- MSUF_CP_Mode_Segmented.lua
+--- MSUF_CP_Mode_Segmented.lua
+--- Phase 2 ClassPower split: segmented base mode extracted from the core file.
+--- Includes smooth Essence recharge animation (Evoker pip fill).
 
--- MSUF_CP_Mode_Segmented.lua
--- Phase 2 ClassPower split: segmented base mode extracted from the core file.
--- Includes smooth Essence recharge animation (Evoker pip fill).
+local _, MSUF = ...
+MSUF = MSUF or _G.MSUF_NS or _G.MSUF or {}
+local ExportPublic = MSUF.ExportPublic or function(name, value)
+    _G[name] = value
+    return value
+end
 
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
+local modeBuilders = _G.MSUF_CP_MODE_BUILDERS or {}
+ExportPublic("MSUF_CP_MODE_BUILDERS", modeBuilders)
 
-_G.MSUF_CP_MODE_BUILDERS.SEGMENTED = function(E)
+local _issecretvalue = _G.issecretvalue
+
+local function CP_GetVisual(E)
+    local getVisual = E and E.GetVisual
+    return getVisual and getVisual() or nil
+end
+
+local function CP_StampAlpha(region, alpha)
+    if not (region and alpha ~= nil) then return end
+    if region._msufCPAlpha ~= alpha then
+        region:SetAlpha(alpha)
+        region._msufCPAlpha = alpha
+    end
+end
+
+local function CP_StampShown(region, shown)
+    if not region then return end
+    shown = shown == true
+    if region._msufCPShown == shown then return end
+    region:SetShown(shown)
+    region._msufCPShown = shown
+end
+
+local function CP_StampStatusBarColor(bar, r, g, b, a)
+    if not bar then return end
+    a = a or 1
+    if bar._msufCPR ~= r or bar._msufCPG ~= g or bar._msufCPB ~= b or bar._msufCPA ~= a then
+        bar:SetStatusBarColor(r, g, b, a)
+        bar._msufCPR, bar._msufCPG, bar._msufCPB, bar._msufCPA = r, g, b, a
+    end
+end
+
+--- StatusBar accepts secret power values directly, and they keep the
+--- configured native interpolation: SetValue takes a secret value with an
+--- interpolation mode (only the enum itself must stay plain). Forcing secret
+--- writes immediate turned smoothing off exactly in combat.
+--- Plain values are deduplicated Lua-side: aura/power events repaint every
+--- pip, and an unchanged pip must not pay a native call. Secret values bypass
+--- the cache (they cannot be compared) and clear it, so a later plain write
+--- can never be skipped against a stale entry. Every path that writes a bar
+--- value outside this helper must clear _msufCPValue for the same reason.
+local function CP_SetPowerValue(bar, value, smoothInterp, valueIsSecret)
+    if valueIsSecret == true or (_issecretvalue and _issecretvalue(value) == true) then
+        if bar._msufCPValue ~= nil then bar._msufCPValue = nil end
+        if smoothInterp then
+            bar:SetValue(value, smoothInterp)
+        else
+            bar:SetValue(value)
+        end
+        return
+    end
+    if bar._msufCPValue == value then return end
+    bar._msufCPValue = value
+    if smoothInterp then
+        bar:SetValue(value, smoothInterp)
+    else
+        bar:SetValue(value)
+    end
+end
+
+local function CP_StampText(txt, value)
+    if not txt then return end
+    if txt._msufCPText == value then return end
+    txt:SetText(value)
+    txt._msufCPText = value
+end
+
+-- FontString:SetText/SetFormattedText explicitly accept secret text arguments
+-- on 12.1. Pass restricted resource values straight to the native widget; never
+-- compare, format, concatenate, or cache them in Lua.
+local function CP_SetPassthroughText(txt, value)
+    if not txt then return end
+    txt:SetText(value)
+    if txt._msufCPText ~= nil then txt._msufCPText = nil end
+end
+
+local function CP_SetPassthroughFormattedText(txt, format, ...)
+    if not txt then return end
+    txt:SetFormattedText(format, ...)
+    if txt._msufCPText ~= nil then txt._msufCPText = nil end
+end
+
+local function CP_StampTextColor(txt, r, g, b, a)
+    if not txt then return end
+    a = a or 1
+    if txt._msufCPTextColorR == r and txt._msufCPTextColorG == g
+        and txt._msufCPTextColorB == b and txt._msufCPTextColorA == a then
+        return
+    end
+    txt._msufCPTextColorR, txt._msufCPTextColorG = r, g
+    txt._msufCPTextColorB, txt._msufCPTextColorA = b, a
+    txt:SetTextColor(r, g, b, a)
+end
+
+local function CP_StampVertexColor(tex, r, g, b, a)
+    if not tex then return end
+    a = a or 1
+    if tex._msufCPR ~= r or tex._msufCPG ~= g or tex._msufCPB ~= b or tex._msufCPA ~= a then
+        tex:SetVertexColor(r, g, b, a)
+        tex._msufCPR, tex._msufCPG, tex._msufCPB, tex._msufCPA = r, g, b, a
+    end
+end
+
+local function CP_StampMinMax(bar, minValue, maxValue)
+    if not bar then return end
+    if type(minValue) == "number" and type(maxValue) == "number" then
+        if bar._msufCPMin == minValue and bar._msufCPMax == maxValue then return end
+        bar._msufCPMin, bar._msufCPMax = minValue, maxValue
+    else
+        bar._msufCPMin, bar._msufCPMax = nil, nil
+    end
+    bar:SetMinMaxValues(minValue, maxValue)
+end
+
+--- Native 12.1 duration plumbing shared by the timer-backed modes. Objects are
+--- created only when a timer actually becomes active and then reused by their
+--- owning bar. The legacy Lua ticks remain available only as a degraded path
+--- for incomplete API environments (notably standalone smoke harnesses).
+local nativeTimerSupportCache = setmetatable({}, { __mode = "k" })
+--- Direct calls per the 12.1 C_DurationUtil contract (args
+--- AllowedWhenUntainted, no documented rejection). Secret aura state comes
+--- back as secret RETURNS, handled by NotSecret/PlainNumber value checks; API
+--- absence on the 120007 client is covered by the type guards.
+local function CreateNativeTimerSupport(E)
+    local durationUtil = E.C_DurationUtil or _G.C_DurationUtil
+    local stringUtil = E.C_StringUtil or _G.C_StringUtil
+    local enum = E.Enum or _G.Enum
+    local cached = durationUtil and nativeTimerSupportCache[durationUtil]
+    if cached and cached.stringUtil == stringUtil and cached.enum == enum then
+        return cached.support
+    end
+    local interpolation = enum and enum.StatusBarInterpolation
+    local directions = enum and enum.StatusBarTimerDirection
+    local properties = enum and enum.DurationTextBindingProperty
+    local rounding = enum and enum.NumericRuleFormatRounding
+    local immediate = interpolation and interpolation.Immediate
+    local elapsedDirection = directions and directions.ElapsedTime
+    local remainingDirection = directions and directions.RemainingTime
+    local createDuration = durationUtil and durationUtil.CreateDuration
+    local createBinding = durationUtil and durationUtil.CreateDurationTextBinding
+    local createFormatter = stringUtil and stringUtil.CreateNumericRuleFormatter
+    local remainingComponents
+
+    local function EnsureDuration(owner, key)
+        if not (owner and type(createDuration) == "function") then return nil end
+        local duration = owner[key]
+        if duration then return duration end
+        duration = createDuration()
+        if not duration then return nil end
+        owner[key] = duration
+        return duration
+    end
+
+    local function ApplyTimer(bar, duration, direction)
+        if not (bar and duration and immediate ~= nil and direction ~= nil
+            and type(bar.SetTimerDuration) == "function") then return false end
+        bar:SetTimerDuration(duration, immediate, direction)
+        bar._msufCPMin, bar._msufCPMax = nil, nil
+        bar._msufCPValue = nil
+        return true
+    end
+
+    local function ResetDuration(duration)
+        if duration and type(duration.Reset) == "function" then duration:Reset() end
+    end
+
+    local function SetTimeFromStart(duration, startTime, total)
+        if not (duration and type(duration.SetTimeFromStart) == "function") then return false end
+        duration:SetTimeFromStart(startTime, total)
+        return true
+    end
+
+    local function SetTimeFromEnd(duration, endTime, total)
+        if not (duration and type(duration.SetTimeFromEnd) == "function") then return false end
+        duration:SetTimeFromEnd(endTime, total)
+        return true
+    end
+
+    local function DisableBinding(owner, key, fontString)
+        local binding = owner and owner[key]
+        local activeKey = key .. "Active"
+        if binding then
+            if owner[activeKey] == true then
+                if type(binding.Disable) == "function" then binding:Disable()
+                elseif type(binding.SetEnabled) == "function" then binding:SetEnabled(false) end
+            end
+            if owner[activeKey] ~= false then owner[activeKey] = false end
+        end
+        if fontString then
+            fontString:SetText("")
+            fontString:Hide()
+            fontString._msufCPShown = false
+        end
+    end
+
+    local function EnsureFormatter()
+        if remainingComponents then return remainingComponents end
+        if type(createFormatter) ~= "function" or not properties or not rounding then return nil end
+        local candidate = createFormatter()
+        if not (candidate and type(candidate.SetBreakpoints) == "function") then return nil end
+        candidate:SetBreakpoints({
+            { threshold = 0, step = 0.1, rounding = rounding.Nearest, format = "%.1f" },
+        })
+        remainingComponents = {
+            { property = properties.RemainingDuration, formatter = candidate },
+        }
+        return remainingComponents
+    end
+
+    local function BindRemainingText(owner, key, fontString, duration, format)
+        if not (owner and fontString and duration and type(createBinding) == "function") then return false end
+        local components = EnsureFormatter()
+        if not components then return false end
+        local activeKey = key .. "Active"
+        local formatKey = key .. "Format"
+        local durationKey = key .. "Duration"
+        if owner[activeKey] == true and owner[formatKey] == format and owner[durationKey] == duration then
+            return true
+        end
+        local binding = owner[key]
+        if not binding then
+            binding = createBinding()
+            if not binding
+                or type(binding.SetFontString) ~= "function"
+                or type(binding.SetUpdateInterval) ~= "function"
+                or type(binding.SetTextFormat) ~= "function"
+                or type(binding.SetDuration) ~= "function"
+            then return false end
+            binding:SetFontString(fontString)
+            binding:SetUpdateInterval(0.10)
+            if type(binding.SetExpiredText) == "function" then binding:SetExpiredText("") end
+            if type(binding.SetZeroDurationText) == "function" then binding:SetZeroDurationText("") end
+            owner[key] = binding
+        end
+        if owner[formatKey] ~= format then
+            binding:SetTextFormat(format, components)
+            owner[formatKey] = format
+        end
+        binding:SetDuration(duration)
+        if type(binding.Enable) == "function" then
+            binding:Enable()
+        elseif type(binding.SetEnabled) == "function" then
+            binding:SetEnabled(true)
+        else
+            return false
+        end
+        if type(binding.UpdateFontString) == "function" then binding:UpdateFontString() end
+        fontString:Show()
+        fontString._msufCPShown = true
+        owner[durationKey] = duration
+        owner[activeKey] = true
+        return true
+    end
+
+    local support = {
+        EnsureDuration = EnsureDuration,
+        ApplyElapsed = function(bar, duration) return ApplyTimer(bar, duration, elapsedDirection) end,
+        ApplyRemaining = function(bar, duration) return ApplyTimer(bar, duration, remainingDirection) end,
+        ResetDuration = ResetDuration,
+        SetTimeFromStart = SetTimeFromStart,
+        SetTimeFromEnd = SetTimeFromEnd,
+        BindRemainingText = BindRemainingText,
+        DisableBinding = DisableBinding,
+    }
+    if durationUtil then
+        nativeTimerSupportCache[durationUtil] = { stringUtil = stringUtil, enum = enum, support = support }
+    end
+    return support
+end
+
+modeBuilders.SEGMENTED = function(E)
     local tonumber = tonumber
     local PLAYER_CLASS = E.PLAYER_CLASS
     local PT = E.PT
     local CPConst = E.CPConst
     local CP = E.CP
-    local _cpDB = E._cpDB
     local UnitPower = E.UnitPower
+    local UnitPartialPower = E.UnitPartialPower
     local NotSecret = E.NotSecret
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
-    local ResolveChargedColor = E.ResolveChargedColor
-    local ResolveComboPointSlotColor = E.ResolveComboPointSlotColor
-    local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
     local GetSpec = E.GetSpec
     local GetTime = E.GetTime
     local GetPowerRegenForPowerType = E.GetPowerRegenForPowerType
+    local nativeTimer = CreateNativeTimerSupport(E)
 
-    --  Essence smooth recharge (Evoker only)
+    --- Essence smooth recharge (Evoker only)
     local _essPrevCur    = nil
     local _essRechargeAt = 0
     local _essRate       = 0
     local _essActiveBar  = nil
+    local _essNativeBar  = nil
+    local _essRestricted = false
+    local SetEssenceOnUpdate
 
-    -- Essence smooth recharge — tick logic (called from central controller tick).
+    local function StopNativeEssence(bar)
+        if not (bar and bar._essNativeActive) then return end
+        nativeTimer.ResetDuration(bar._msufCPEssenceDuration)
+        bar._essNativeActive = nil
+        bar._essNativeStart = nil
+        bar._essNativeRate = nil
+        bar._msufEssenceValue = nil
+        bar._msufEssenceValueVersion = nil
+        if _essNativeBar == bar then _essNativeBar = nil end
+        CP.essenceNativeAny = false
+    end
+
+    local function ApplyNativeEssence(bar, startTime, rate, now, partialProgress)
+        if not (bar and startTime and rate and rate > 0) then return false end
+        local duration = nativeTimer.EnsureDuration(bar, "_msufCPEssenceDuration")
+        if not duration then return false end
+
+        local needsResync = bar._essNativeActive ~= true or bar._essNativeRate ~= rate
+        if not needsResync and partialProgress ~= nil then
+            local predicted = (now - (bar._essNativeStart or startTime)) * rate
+            needsResync = math.abs(predicted - partialProgress) > 0.10
+        end
+        if needsResync then
+            if not nativeTimer.SetTimeFromStart(duration, startTime, 1 / rate) then return false end
+            if not nativeTimer.ApplyElapsed(bar, duration) then return false end
+            bar._essNativeStart = startTime
+            bar._essNativeRate = rate
+            bar._essNativeActive = true
+            bar._msufEssenceValue = nil
+            bar._msufEssenceValueVersion = nil
+        end
+        if _essNativeBar and _essNativeBar ~= bar then StopNativeEssence(_essNativeBar) end
+        _essNativeBar = bar
+        CP.essenceNativeAny = true
+        return true
+    end
+
+    local function SetEssenceValue(bar, value)
+        local visualVersion = CP.visual and CP.visual.version or 0
+        if bar._msufEssenceValue == value and bar._msufEssenceValueVersion == visualVersion then return end
+        bar:SetValue(value)
+        bar._msufCPValue = nil
+        bar._msufEssenceValue = value
+        bar._msufEssenceValueVersion = visualVersion
+    end
+
+    --- Degraded Essence tick used only if native duration APIs are unavailable.
     local function EssenceBarOnUpdate(bar)
         local start = bar._essStart
         local rate  = bar._essRate
         if not start or not rate or rate <= 0 then
-            bar:SetValue(0)
-            return
+            SetEssenceValue(bar, 0)
+            return false
         end
         local elapsed = GetTime() - start
         local progress = elapsed * rate
         if progress < 0 then progress = 0 end
         if progress > 1 then progress = 1 end
-        bar:SetValue(progress)
+        SetEssenceValue(bar, progress)
+        return progress < 1
     end
 
-    -- Central RuntimeTick: called by controller's single OnUpdate frame.
+    --- Central RuntimeTick: called by controller's single OnUpdate frame.
     local function RuntimeTick(elapsed)
         if _essActiveBar and _essActiveBar._essOUA then
-            EssenceBarOnUpdate(_essActiveBar)
+            if EssenceBarOnUpdate(_essActiveBar) then return true end
+            SetEssenceOnUpdate(_essActiveBar, false)
+            _essActiveBar = nil
+            CP.essenceOUAAny = false
         end
+        return false
     end
 
-    -- Flag-only management (no SetScript — controller owns the tick).
-    local function SetEssenceOnUpdate(bar, on)
+    --- Flag-only management (no SetScript ? controller owns the tick).
+    SetEssenceOnUpdate = function(bar, on)
         if not bar then return end
         if on then
             bar._essOUA = true
@@ -71,84 +398,187 @@ _G.MSUF_CP_MODE_BUILDERS.SEGMENTED = function(E)
             SetEssenceOnUpdate(_essActiveBar, false)
             _essActiveBar = nil
         end
+        if _essNativeBar then StopNativeEssence(_essNativeBar) end
         CP.essenceOUAAny = false
+        CP.essenceNativeAny = false
         _essPrevCur    = nil
         _essRechargeAt = 0
         _essRate       = 0
+        _essRestricted = false
     end
 
     local function UpdateEssence(powerType, maxPower)
         if maxPower <= 0 then return end
         local cur = UnitPower("player", powerType)
         if not NotSecret(cur) then
+            local visual = CP_GetVisual(E)
+            local smoothInterp = visual and visual.smoothInterp
+            local baseR = visual and visual.baseR or 1
+            local baseG = visual and visual.baseG or 1
+            local baseB = visual and visual.baseB or 1
+            local useSlotColors = visual and visual.useSlotColors == true
+            local bgR = visual and visual.bgR or 0
+            local bgG = visual and visual.bgG or 0
+            local bgB = visual and visual.bgB or 0
+            local bgA = visual and visual.bgAlpha or 0.3
+            local filledAlpha = visual and visual.filledAlpha or E.GetFilledAlpha()
+            local visualVersion = visual and visual.version or 0
+
+            -- A restricted player-power value cannot be inspected in Lua, but
+            -- StatusBar:SetValue accepts it natively. Give every pip its own
+            -- [i-1, i] range so the client clamps the same secret Essence value
+            -- into the correct full/empty layout instead of showing every pip
+            -- as full. Partial recharge selection cannot be derived from a
+            -- secret value, so retire any formerly known timer before writing
+            -- the authoritative native whole-point state.
+            local enteredRestricted = not _essRestricted
+            if enteredRestricted then
+                StopEssenceOnUpdates()
+                _essRestricted = true
+            end
             for i = 1, maxPower do
                 local bar = CP.bars[i]
-                if bar then bar:SetValue(1) end
-            end
-            if CP.text then CP.text:Hide() end
-            StopEssenceOnUpdates()
-            return
-        end
-        cur = tonumber(cur) or 0
-
-        if _essPrevCur ~= cur then
-            _essPrevCur = cur
-            if cur < maxPower then
-                _essRechargeAt = GetTime()
-                if GetPowerRegenForPowerType then
-                    local rate = GetPowerRegenForPowerType(powerType)
-                    if rate and NotSecret(rate) then
-                        _essRate = tonumber(rate) or 0
+                if bar then
+                    CP_StampMinMax(bar, i - 1, i)
+                    CP_SetPowerValue(bar, cur, smoothInterp, true)
+                    if enteredRestricted then
+                        bar._msufEssenceValue = nil
+                        bar._msufEssenceValueVersion = nil
+                    end
+                    CP_StampAlpha(bar, filledAlpha)
+                    if enteredRestricted or bar._msufCPVisualVersion ~= visualVersion
+                        or bar._msufCPFullColor ~= nil then
+                        local slotR = useSlotColors and visual.slotR and visual.slotR[i]
+                        CP_StampStatusBarColor(bar, slotR or baseR,
+                            slotR and visual.slotG[i] or baseG,
+                            slotR and visual.slotB[i] or baseB, 1)
+                        CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+                        bar._msufCPVisualVersion = visualVersion
+                        bar._msufCPFullColor = nil
                     end
                 end
-            else
-                _essRechargeAt = 0
-                _essRate = 0
+            end
+            local txt = CP.text
+            if txt then
+                if visual and visual.showText == true then
+                    CP_SetPassthroughText(txt, cur)
+                    CP_StampShown(txt, true)
+                    CP_StampTextColor(txt, 1, 1, 1, 1)
+                else
+                    CP_StampShown(txt, false)
+                end
+            end
+            --- A secret power value only blocks the full/empty rules; the combat
+            --- rule still has to run, so pass nil instead of dropping the check.
+            CP_CheckAutoHide(nil, maxPower)
+            return
+        end
+        _essRestricted = false
+        cur = tonumber(cur) or 0
+        local previousCur = _essPrevCur
+
+        local now = GetTime()
+        local partialProgress
+        if cur < maxPower then
+            local rate
+            if GetPowerRegenForPowerType then
+                local rawRate = GetPowerRegenForPowerType(powerType)
+                if NotSecret(rawRate) then rate = tonumber(rawRate) end
+            end
+            --- Blizzard uses 0.2 as the safe Essence fallback (5s recharge).
+            if not rate or rate <= 0 then rate = 0.2 end
+            _essRate = rate
+
+            if UnitPartialPower then
+                local rawPartial = UnitPartialPower("player", powerType)
+                if NotSecret(rawPartial) then
+                    partialProgress = (tonumber(rawPartial) or 0) / 1000
+                    if partialProgress < 0 then partialProgress = 0
+                    elseif partialProgress > 1 then partialProgress = 1 end
+                end
+            end
+            if partialProgress ~= nil then
+                _essRechargeAt = now - (partialProgress / rate)
+            elseif _essPrevCur ~= cur or _essRechargeAt <= 0 then
+                _essRechargeAt = now
+            end
+        else
+            _essRechargeAt = 0
+            _essRate = 0
+        end
+        _essPrevCur = cur
+
+        local visual = CP_GetVisual(E)
+        local rechargingIdx = (cur < maxPower) and (cur + 1) or 0
+        local visualVersion = visual and visual.version or 0
+
+        --- UNIT_POWER_FREQUENT remains the correction signal for dynamic regen,
+        --- but a stable native timer does not need a full five/six-bar repaint.
+        local nativeBar = rechargingIdx > 0 and CP.bars[rechargingIdx] or nil
+        if previousCur == cur and partialProgress ~= nil
+            and nativeBar and nativeBar == _essNativeBar
+            and nativeBar._essNativeActive == true
+            and nativeBar._essNativeRate == _essRate
+            and nativeBar._msufCPVisualVersion == visualVersion then
+            local predicted = (now - (nativeBar._essNativeStart or _essRechargeAt)) * _essRate
+            if math.abs(predicted - partialProgress) <= 0.10 then
+                CP_CheckAutoHide(cur, maxPower)
+                return
             end
         end
 
-        local colorByType = true
-        if _cpDB.bars then colorByType = (_cpDB.colorByType ~= false) end
-        local baseR, baseG, baseB
-        if colorByType then
-            baseR, baseG, baseB = ResolveClassPowerColor(powerType)
-        else
-            baseR, baseG, baseB = 1, 1, 1
-        end
-        local bgA = _cpDB.bars and tonumber(_cpDB.bgAlpha) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
-        local filledAlpha = E.GetFilledAlpha()
-        local emptyAlpha  = E.GetEmptyAlpha()
-
-        local rechargingIdx = (cur < maxPower) and (cur + 1) or 0
+        local baseR, baseG, baseB = visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1
+        local useSlotColors = visual and visual.useSlotColors == true
+        local useFullColor = visual and visual.useFullColor == true
+        local bgR, bgG, bgB = visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0
+        local bgA = visual and visual.bgAlpha or 0.3
+        local filledAlpha = visual and visual.filledAlpha or E.GetFilledAlpha()
+        local emptyAlpha  = visual and visual.emptyAlpha or E.GetEmptyAlpha()
+        local isFull = useFullColor and cur >= maxPower
         local needOnUpdate = false
 
         for i = 1, maxPower do
             local bar = CP.bars[i]
             if bar then
                 if i <= cur then
-                    bar:SetValue(1)
-                    bar:SetAlpha(filledAlpha)
+                    StopNativeEssence(bar)
+                    CP_StampMinMax(bar, 0, 1)
+                    SetEssenceValue(bar, 1)
+                    CP_StampAlpha(bar, filledAlpha)
                     SetEssenceOnUpdate(bar, false)
                 elseif i == rechargingIdx and _essRate > 0 and _essRechargeAt > 0 then
-                    local elapsed = GetTime() - _essRechargeAt
+                    local elapsed = now - _essRechargeAt
                     local progress = elapsed * _essRate
                     if progress < 0 then progress = 0 end
                     if progress > 1 then progress = 1 end
-                    bar:SetValue(progress)
-                    bar:SetAlpha(filledAlpha)
-                    bar._essStart = _essRechargeAt
-                    bar._essRate  = _essRate
-                    SetEssenceOnUpdate(bar, true)
-                    _essActiveBar = bar
-                    needOnUpdate = true
+                    CP_StampAlpha(bar, filledAlpha)
+                    if ApplyNativeEssence(bar, _essRechargeAt, _essRate, now, partialProgress) then
+                        SetEssenceOnUpdate(bar, false)
+                    else
+                        CP_StampMinMax(bar, 0, 1)
+                        SetEssenceValue(bar, progress)
+                        bar._essStart = _essRechargeAt
+                        bar._essRate  = _essRate
+                        SetEssenceOnUpdate(bar, true)
+                        _essActiveBar = bar
+                        needOnUpdate = true
+                    end
                 else
-                    bar:SetValue(0)
-                    bar:SetAlpha(emptyAlpha)
+                    StopNativeEssence(bar)
+                    CP_StampMinMax(bar, 0, 1)
+                    SetEssenceValue(bar, 0)
+                    CP_StampAlpha(bar, emptyAlpha)
                     SetEssenceOnUpdate(bar, false)
                 end
-                bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                if bar._msufCPVisualVersion ~= visualVersion or bar._msufCPFullColor ~= isFull then
+                    local slotR = useSlotColors and visual.slotR and visual.slotR[i]
+                    CP_StampStatusBarColor(bar, isFull and visual.fullR or (slotR or baseR),
+                        isFull and visual.fullG or (slotR and visual.slotG[i] or baseG),
+                        isFull and visual.fullB or (slotR and visual.slotB[i] or baseB), 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+                    bar._msufCPVisualVersion = visualVersion
+                    bar._msufCPFullColor = isFull
+                end
             end
         end
 
@@ -160,19 +590,19 @@ _G.MSUF_CP_MODE_BUILDERS.SEGMENTED = function(E)
 
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
+            local showText = visual and visual.showText == true
             if showText then
-                txt:SetText(cur)
-                txt:Show()
-                txt:SetTextColor(1, 1, 1, 1)
+                CP_StampText(txt, cur)
+                CP_StampShown(txt, true)
+                CP_StampTextColor(txt, 1, 1, 1, 1)
             else
-                txt:Hide()
+                CP_StampShown(txt, false)
             end
         end
         CP_CheckAutoHide(cur, maxPower)
     end
 
-    --  Main dispatcher
+    --- Main dispatcher
     local function Update(powerType, maxPower)
         if powerType == PT.Essence then
             UpdateEssence(powerType, maxPower)
@@ -182,95 +612,121 @@ _G.MSUF_CP_MODE_BUILDERS.SEGMENTED = function(E)
         if maxPower <= 0 then return end
         local cur = UnitPower("player", powerType)
         if not NotSecret(cur) then
-            for i = 1, maxPower do local bar = CP.bars[i]; if bar then bar:SetValue(1) end end
-            if CP.text then CP.text:Hide() end
+            local visual = CP_GetVisual(E)
+            local smoothInterp = visual and visual.smoothInterp
+            local filledAlpha = visual and visual.filledAlpha or E.GetFilledAlpha()
+            for i = 1, maxPower do
+                local bar = CP.bars[i]
+                if bar then
+                    CP_StampMinMax(bar, i - 1, i)
+                    CP_SetPowerValue(bar, cur, smoothInterp, true)
+                    CP_StampAlpha(bar, filledAlpha)
+                end
+            end
+            local txt = CP.text
+            if txt then
+                if visual and visual.showText == true then
+                    local predictionActive = PLAYER_CLASS == "WARLOCK"
+                        and visual.showPrediction ~= false
+                        and CP.wlPredDelta ~= 0
+                    if predictionActive then
+                        CP_SetPassthroughFormattedText(txt, "%s*", cur)
+                    else
+                        CP_SetPassthroughText(txt, cur)
+                    end
+                    CP_StampShown(txt, true)
+                    CP_StampTextColor(txt, 1, 1, 1, 1)
+                else
+                    CP_StampShown(txt, false)
+                end
+            end
+            --- A secret power value only blocks the full/empty rules; the combat
+            --- rule still has to run, so pass nil instead of dropping the check.
+            CP_CheckAutoHide(nil, maxPower)
             return
         end
         cur = tonumber(cur) or 0
-        local colorByType = true
-        if _cpDB.bars then colorByType = (_cpDB.colorByType ~= false) end
-        local baseR, baseG, baseB
-        if colorByType then baseR, baseG, baseB = ResolveClassPowerColor(powerType) else baseR, baseG, baseB = 1,1,1 end
+        local visual = CP_GetVisual(E)
+        local smoothInterp = visual and visual.smoothInterp
+        local baseR, baseG, baseB = visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1
         local chargedMap = E.GetChargedMap()
-        local showCharged = _cpDB.bars and (_cpDB.showCharged ~= false) and powerType == PT.ComboPoints
+        local showCharged = visual and visual.showCharged == true and powerType == PT.ComboPoints
         local chargedR, chargedG, chargedB
-        if showCharged and chargedMap then chargedR, chargedG, chargedB = ResolveChargedColor() end
-        local cpSlotMode = _cpDB.comboPointColorMode
-        local useSlotColors = (powerType == PT.ComboPoints and (cpSlotMode == "ramp" or cpSlotMode == "custom") and type(ResolveComboPointSlotColor) == "function")
-        local bgA = _cpDB.bars and tonumber(_cpDB.bgAlpha) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
-        local filledAlpha, emptyAlpha = E.GetFilledAlpha(), E.GetEmptyAlpha()
+        if showCharged and chargedMap then chargedR, chargedG, chargedB = visual.chargedR, visual.chargedG, visual.chargedB end
+        local useSlotColors = visual and visual.useSlotColors == true
+        local isFull = visual and visual.useFullColor == true and cur >= maxPower
+        local bgA = visual and visual.bgAlpha or 0.3
+        local bgR, bgG, bgB = visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0
+        local filledAlpha, emptyAlpha = visual and visual.filledAlpha or E.GetFilledAlpha(), visual and visual.emptyAlpha or E.GetEmptyAlpha()
         for i = 1, maxPower do
             local bar = CP.bars[i]
             if bar then
                 local isFilled = (i <= cur)
-                bar:SetValue(isFilled and 1 or 0)
-                bar:SetAlpha(isFilled and filledAlpha or emptyAlpha)
+                CP_StampMinMax(bar, 0, 1)
+                CP_SetPowerValue(bar, isFilled and 1 or 0, smoothInterp)
+                CP_StampAlpha(bar, isFilled and filledAlpha or emptyAlpha)
                 local isCharged = showCharged and chargedMap and chargedMap[i]
-                if isCharged then
-                    bar:SetStatusBarColor(chargedR, chargedG, chargedB, 1)
+                if isFull then
+                    CP_StampStatusBarColor(bar, visual.fullR, visual.fullG, visual.fullB, 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+                elseif isCharged then
+                    CP_StampStatusBarColor(bar, chargedR, chargedG, chargedB, 1)
                     if isFilled then
-                        bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                        CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
                     else
                         local dR = chargedR * 0.45; if dR < 0.05 then dR = 0.05 end
                         local dG = chargedG * 0.45; if dG < 0.05 then dG = 0.05 end
                         local dB = chargedB * 0.45; if dB < 0.05 then dB = 0.05 end
-                        bar._bg:SetVertexColor(dR, dG, dB, 1)
+                        CP_StampVertexColor(bar._bg, dR, dG, dB, 1)
                     end
                 elseif useSlotColors then
-                    local slotR, slotG, slotB = ResolveComboPointSlotColor(i)
+                    local slotR, slotG, slotB = visual.slotR and visual.slotR[i], visual.slotG and visual.slotG[i], visual.slotB and visual.slotB[i]
                     if slotR then
-                        bar:SetStatusBarColor(slotR, slotG, slotB, 1)
+                        CP_StampStatusBarColor(bar, slotR, slotG, slotB, 1)
                     else
-                        bar:SetStatusBarColor(baseR, baseG, baseB, 1)
+                        CP_StampStatusBarColor(bar, baseR, baseG, baseB, 1)
                     end
-                    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
                 else
-                    bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                    CP_StampStatusBarColor(bar, baseR, baseG, baseB, 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
                 end
             end
         end
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
+            local showText = visual and visual.showText == true
             if showText then
-                local predOn = _cpDB.showPrediction ~= false
+                local predOn = visual.showPrediction ~= false
                 local predDelta = CP.wlPredDelta
-                if predDelta ~= 0 and PLAYER_CLASS == "WARLOCK" then txt:SetText(cur .. "*") else txt:SetText(cur) end
-                txt:Show()
+                if predOn and predDelta ~= 0 and PLAYER_CLASS == "WARLOCK" then CP_StampText(txt, cur .. "*") else CP_StampText(txt, cur) end
+                CP_StampShown(txt, true)
                 if PLAYER_CLASS == "WARLOCK" and predOn then
                     local spec = GetSpec and GetSpec()
                     local threshold = spec and CPConst.WL_LOW_SHARD_THRESHOLD[spec]
-                    if threshold and cur < threshold then txt:SetTextColor(1,0.1,0.1,1) else txt:SetTextColor(1,1,1,1) end
+                    if threshold and cur < threshold then CP_StampTextColor(txt, 1, 0.1, 0.1, 1)
+                    else CP_StampTextColor(txt, 1, 1, 1, 1) end
                 else
-                    txt:SetTextColor(1,1,1,1)
+                    CP_StampTextColor(txt, 1, 1, 1, 1)
                 end
-            else txt:Hide() end
+            else CP_StampShown(txt, false) end
         end
         CP_CheckAutoHide(cur, maxPower)
     end
     return { Update = Update, StopEssenceOnUpdates = StopEssenceOnUpdates, RuntimeTick = RuntimeTick }
 end
 
--- MSUF_CP_Mode_Fractional.lua
+--- MSUF_CP_Mode_Fractional.lua
+--- Phase 2 ClassPower split: fractional mode extracted from the core file.
 
--- MSUF_CP_Mode_Fractional.lua
--- Phase 2 ClassPower split: fractional mode extracted from the core file.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.FRACTIONAL = function(E)
+modeBuilders.FRACTIONAL = function(E)
     local tonumber = tonumber
     local string_format = string.format
     local math_floor = math.floor
     local CP = E.CP
-    local _cpDB = E._cpDB
     local UnitPower = E.UnitPower
     local UnitPowerDisplayMod = E.UnitPowerDisplayMod
     local NotSecret = E.NotSecret
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
-    local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
     local CPConst = E.CPConst
     local CPK = E.CPK
@@ -278,66 +734,108 @@ _G.MSUF_CP_MODE_BUILDERS.FRACTIONAL = function(E)
     local function Update(powerType, maxPower)
         if maxPower <= 0 then return end
         local rawCur = UnitPower("player", powerType, true)
+        local mod = UnitPowerDisplayMod and UnitPowerDisplayMod(powerType) or 1
+        local modSafe = NotSecret(mod) and mod ~= nil and mod > 0
         if not NotSecret(rawCur) then
-            for i = 1, maxPower do local bar = CP.bars[i]; if bar then bar:SetValue(1) end end
-            if CP.text then CP.text:Hide() end
+            local visual = CP_GetVisual(E)
+            local smoothInterp = visual and visual.smoothInterp
+            local filledAlpha = visual and visual.filledAlpha or E.GetFilledAlpha()
+            for i = 1, maxPower do
+                local bar = CP.bars[i]
+                if bar then
+                    if modSafe then
+                        CP_StampMinMax(bar, (i - 1) * mod, i * mod)
+                        CP_SetPowerValue(bar, rawCur, smoothInterp, true)
+                    else
+                        CP_StampMinMax(bar, 0, 1)
+                        CP_SetPowerValue(bar, 1, smoothInterp)
+                    end
+                    CP_StampAlpha(bar, filledAlpha)
+                end
+            end
+            local txt = CP.text
+            if txt then
+                if visual and visual.showText == true then
+                    -- The unmodified value drives fractional fill natively; the
+                    -- regular UnitPower result is the user-facing shard count.
+                    local displayPower = UnitPower("player", powerType)
+                    local predictionActive = visual.showPrediction ~= false and CP.wlPredDelta ~= 0
+                    if predictionActive then
+                        CP_SetPassthroughFormattedText(txt, "%s*", displayPower)
+                    else
+                        CP_SetPassthroughText(txt, displayPower)
+                    end
+                    CP_StampShown(txt, true)
+                    CP_StampTextColor(txt, 1, 1, 1, 1)
+                else
+                    CP_StampShown(txt, false)
+                end
+            end
+            --- A secret power value only blocks the full/empty rules; the combat
+            --- rule still has to run, so pass nil instead of dropping the check.
+            CP_CheckAutoHide(nil, maxPower)
             return
         end
         rawCur = tonumber(rawCur) or 0
-        local mod = UnitPowerDisplayMod and UnitPowerDisplayMod(powerType) or 1
-        if not NotSecret(mod) or mod == nil or mod <= 0 then mod = 100 end
+        if not modSafe then mod = 100 end
         local fractional = rawCur / mod
-        local colorByType = true
-        if _cpDB.bars then colorByType = (_cpDB.colorByType ~= false) end
-        local baseR, baseG, baseB
-        if colorByType then baseR, baseG, baseB = ResolveClassPowerColor(powerType) else baseR, baseG, baseB = 1,1,1 end
-        local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
+        local visual = CP_GetVisual(E)
+        local smoothInterp = visual and visual.smoothInterp
+        local baseR, baseG, baseB = visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1
+        local useSlotColors = visual and visual.useSlotColors == true
+        local bgA = visual and visual.bgAlpha or 0.3
+        local bgR, bgG, bgB = visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0
         local fullBars = math_floor(fractional)
         local partial = fractional - fullBars
-        local filledAlpha, emptyAlpha = E.GetFilledAlpha(), E.GetEmptyAlpha()
+        local isFull = visual and visual.useFullColor == true and fractional >= maxPower
+        local filledAlpha, emptyAlpha = visual and visual.filledAlpha or E.GetFilledAlpha(), visual and visual.emptyAlpha or E.GetEmptyAlpha()
+        local visualVersion = visual and visual.version or 0
         for i = 1, maxPower do
             local bar = CP.bars[i]
             if bar then
-                if i <= fullBars then bar:SetValue(1); bar:SetAlpha(filledAlpha)
-                elseif i == fullBars + 1 and partial > 0.001 then bar:SetValue(partial); bar:SetAlpha(filledAlpha)
-                else bar:SetValue(0); bar:SetAlpha(emptyAlpha) end
-                bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                CP_StampMinMax(bar, 0, 1)
+                if i <= fullBars then CP_SetPowerValue(bar, 1, smoothInterp); CP_StampAlpha(bar, filledAlpha)
+                elseif i == fullBars + 1 and partial > 0.001 then CP_SetPowerValue(bar, partial, smoothInterp); CP_StampAlpha(bar, filledAlpha)
+                else CP_SetPowerValue(bar, 0, smoothInterp); CP_StampAlpha(bar, emptyAlpha) end
+                if bar._msufCPVisualVersion ~= visualVersion or bar._msufCPFullColor ~= isFull then
+                    local slotR = useSlotColors and visual.slotR and visual.slotR[i]
+                    CP_StampStatusBarColor(bar, isFull and visual.fullR or (slotR or baseR),
+                        isFull and visual.fullG or (slotR and visual.slotG[i] or baseG),
+                        isFull and visual.fullB or (slotR and visual.slotB[i] or baseB), 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+                    bar._msufCPVisualVersion = visualVersion
+                    bar._msufCPFullColor = isFull
+                end
             end
         end
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
+            local showText = visual and visual.showText == true
             if showText then
-                local predOn = _cpDB.showPrediction ~= false
+                local predOn = visual.showPrediction ~= false
                 local predDelta = CP.wlPredDelta
-                if predDelta ~= 0 then
-                    if partial > 0.001 then txt:SetText(string_format("%.1f*", fractional)) else txt:SetText(fullBars .. "*") end
+                if predOn and predDelta ~= 0 then
+                    if partial > 0.001 then CP_StampText(txt, string_format("%.1f*", fractional)) else CP_StampText(txt, fullBars .. "*") end
                 else
-                    if partial > 0.001 then txt:SetText(string_format("%.1f", fractional)) else txt:SetText(fullBars) end
+                    if partial > 0.001 then CP_StampText(txt, string_format("%.1f", fractional)) else CP_StampText(txt, fullBars) end
                 end
-                txt:Show()
+                CP_StampShown(txt, true)
                 if predOn then
                     local threshold = CPConst.WL_LOW_SHARD_THRESHOLD[CPK.SPEC.WARLOCK_DESTRUCTION]
-                    if threshold and fullBars < threshold then txt:SetTextColor(1,0.1,0.1,1) else txt:SetTextColor(1,1,1,1) end
-                else txt:SetTextColor(1,1,1,1) end
-            else txt:Hide() end
+                    if threshold and fullBars < threshold then CP_StampTextColor(txt, 1, 0.1, 0.1, 1)
+                    else CP_StampTextColor(txt, 1, 1, 1, 1) end
+                else CP_StampTextColor(txt, 1, 1, 1, 1) end
+            else CP_StampShown(txt, false) end
         end
         CP_CheckAutoHide(fullBars, maxPower)
     end
     return { Update = Update }
 end
 
--- MSUF_CP_Mode_Rune.lua
+--- MSUF_CP_Mode_Rune.lua
+--- DK rune mode. Native durations drive fill/text; RuntimeTick is degraded-only.
 
--- MSUF_CP_Mode_Rune.lua
--- DK rune mode. Unified CP tick: exports RuntimeTick for central controller.
--- No per-bar OnUpdate scripts — controller drives a single OnUpdate frame.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
+modeBuilders.RUNE = function(E)
     local math_floor = math.floor
     local string_format = string.format
     local CP = E.CP
@@ -345,13 +843,16 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
     local GetTime = E.GetTime
     local GetRuneCooldown = E.GetRuneCooldown
     local UnitHasVehicleUI = E.UnitHasVehicleUI
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
     local CP_ApplyRuneSortOrder = E.CP_ApplyRuneSortOrder
     local GetRuneMap = E.GetRuneMap
     local GetFilledAlpha = E.GetFilledAlpha
     local GetEmptyAlpha = E.GetEmptyAlpha
+    local EnsureRuneText = E.EnsureRuneText
+    local ApplyFont = E.ApplyFont
+    local nativeTimer = CreateNativeTimerSupport(E)
     local _runeTimeTextCache = {}
+    local runeTextPresentationDirty = false
 
     local function GetRuneTimeText(q)
         local s = _runeTimeTextCache[q]
@@ -365,12 +866,52 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
     local function ClearRuneText(bar)
         if not bar then return end
         local rfs = bar and bar._runeText
-        if rfs then
-            if bar._runeTextQ ~= -1 then rfs:SetText("") end
-            if bar._runeTextVisible ~= false then rfs:Hide() end
-        end
+        nativeTimer.DisableBinding(bar, "_msufCPRuneBinding", rfs)
         bar._runeTextQ = -1
         bar._runeTextVisible = false
+    end
+
+    local function StopNativeRune(bar)
+        if not (bar and bar._runeNativeActive) then return end
+        nativeTimer.ResetDuration(bar._msufCPRuneDuration)
+        nativeTimer.DisableBinding(bar, "_msufCPRuneBinding", bar._runeText)
+        bar._msufCPValue = nil
+        bar._runeNativeActive = nil
+        bar._runeNativeStart = nil
+        bar._runeNativeTotal = nil
+    end
+
+    local function EnsureRuneTimeText(bar)
+        if not (bar and EnsureRuneText) then return nil end
+        local rfs, created = EnsureRuneText(bar)
+        if created then runeTextPresentationDirty = true end
+        return rfs
+    end
+
+    local function ApplyNativeRune(bar, startTime, total, showTime)
+        local duration = nativeTimer.EnsureDuration(bar, "_msufCPRuneDuration")
+        if not duration then return false end
+        if bar._runeNativeActive ~= true
+            or bar._runeNativeStart ~= startTime
+            or bar._runeNativeTotal ~= total then
+            if not nativeTimer.SetTimeFromStart(duration, startTime, total) then return false end
+            if not nativeTimer.ApplyElapsed(bar, duration) then return false end
+            bar._runeNativeActive = true
+            bar._runeNativeStart = startTime
+            bar._runeNativeTotal = total
+        end
+
+        if showTime then
+            local rfs = bar._runeText or EnsureRuneTimeText(bar)
+            if not nativeTimer.BindRemainingText(bar, "_msufCPRuneBinding", rfs, duration, "{}") then
+                StopNativeRune(bar)
+                return false
+            end
+            bar._runeTextVisible = true
+        else
+            ClearRuneText(bar)
+        end
+        return true
     end
 
     local function ApplyRuneText(bar, remaining)
@@ -396,7 +937,7 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
         end
     end
 
-    -- Per-bar tick logic (called from central RuntimeTick, not per-bar OnUpdate).
+    --- Degraded per-bar tick logic; retail 12.1 uses native durations above.
     local function RuneBarTick(bar, elapsed)
         local start = bar._runeStart
         local dur = start and (GetTime() - start) or ((bar._runeDuration or 0) + elapsed)
@@ -405,40 +946,46 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
         if dur < 0 then dur = 0 end
         bar._runeDuration = dur
         bar:SetValue(dur)
+        bar._msufCPValue = nil
 
         if total and total > 0 then
             ApplyRuneText(bar, total - dur)
         elseif bar._runeText then
             ClearRuneText(bar)
         end
+        return not (total and dur >= total)
     end
 
-    -- Central RuntimeTick: called by controller's single OnUpdate frame.
-    -- Iterates all active rune bars in one pass.
+    --- Degraded RuntimeTick iterates fallback Rune bars in one pass.
     local function RuntimeTick(elapsed)
-        for i = 1, CP.maxBars do
-            local bar = CP.bars[i]
-            if bar and bar._runeOUA then
-                RuneBarTick(bar, elapsed)
+        local activeBars = CP.activeRuneBars
+        if not activeBars then return false end
+        local count = #activeBars
+        local activeCount = 0
+        for i = 1, count do
+            local bar = activeBars[i]
+            if bar and bar._runeOUA == true then
+                if RuneBarTick(bar, elapsed) then
+                    activeCount = activeCount + 1
+                    activeBars[activeCount] = bar
+                else
+                    bar._runeOUA = false
+                    bar._runeStart = nil
+                    bar._runeTotalDuration = nil
+                end
             end
         end
-    end
-
-    -- Flag-only management (no SetScript — controller owns the tick).
-    local function SetRuneBarActive(bar, on)
-        if not bar then return end
-        if on then
-            bar._runeOUA = true
-        else
-            bar._runeOUA = false
-        end
+        for i = activeCount + 1, count do activeBars[i] = nil end
+        CP.runeOUAAny = activeCount > 0
+        return CP.runeOUAAny
     end
 
     local function StopOnUpdates(clearText)
-        if not CP.runeOUAAny and not clearText then return end
+        if not CP.runeOUAAny and not CP.runeNativeAny and not clearText then return end
         for i = 1, CP.maxBars do
             local bar = CP.bars[i]
             if bar then
+                StopNativeRune(bar)
                 bar._runeOUA = false
                 bar._runeDuration = nil
                 bar._runeStart = nil
@@ -446,7 +993,13 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
                 if clearText then ClearRuneText(bar) end
             end
         end
+        if CP.activeRuneBars then
+            for i = 1, #CP.activeRuneBars do
+                CP.activeRuneBars[i] = nil
+            end
+        end
         CP.runeOUAAny = false
+        CP.runeNativeAny = false
     end
 
     local function Update(powerType, maxPower)
@@ -455,41 +1008,48 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
         local b = _cpDB.bars or {}
         CP_ApplyRuneSortOrder(b.runeSortOrder)
 
-        local colorByType = true
-        if b then colorByType = (b.classPowerColorByType ~= false) end
-        local baseR, baseG, baseB
-        if colorByType then
-            baseR, baseG, baseB = ResolveClassPowerColor(powerType)
-        else
-            baseR, baseG, baseB = 1, 1, 1
-        end
-        local bgA = tonumber(b.classPowerBgAlpha) or 0.3
-        local showRuneTime = (b.runeShowTime ~= false)
-        local filledAlpha = GetFilledAlpha()
-        local emptyAlpha = GetEmptyAlpha()
+        local visual = CP_GetVisual(E)
+        local baseR, baseG, baseB = visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1
+        local useSlotColors = visual and visual.useSlotColors == true
+        local bgA = visual and visual.bgAlpha or 0.3
+        local showRuneTime = not visual or visual.runeShowTime ~= false
+        local filledAlpha = visual and visual.filledAlpha or GetFilledAlpha()
+        local emptyAlpha = visual and visual.emptyAlpha or GetEmptyAlpha()
 
-        local now = GetTime()
+        local hasVehicleUI = UnitHasVehicleUI and UnitHasVehicleUI("player")
+        local now = hasVehicleUI and 0 or GetTime()
         local readyCount = 0
         local activeRuneOUA = 0
+        local hasNativeRune = false
         local runeMap = GetRuneMap()
+        local activeBars = CP.activeRuneBars
+        local visualVersion = visual and visual.version or 0
+        if not activeBars then
+            activeBars = {}
+            CP.activeRuneBars = activeBars
+        end
 
         for displayIdx = 1, maxPower do
             local runeID = runeMap[displayIdx]
             local bar = CP.bars[displayIdx]
             if not bar then break end
 
-            if UnitHasVehicleUI and UnitHasVehicleUI("player") then
-                bar:Hide()
+            if hasVehicleUI then
+                StopNativeRune(bar)
+                bar._runeOUA = false
+                ClearRuneText(bar)
+                CP_StampShown(bar, false)
             else
                 local start, duration, runeReady = GetRuneCooldown(runeID)
 
                 if runeReady then
-                    bar:SetMinMaxValues(0, 1)
-                    bar:SetValue(1)
-                    SetRuneBarActive(bar, false)
+                    StopNativeRune(bar)
+                    CP_StampMinMax(bar, 0, 1)
+                    CP_SetPowerValue(bar, 1)
+                    bar._runeOUA = false
                     bar._runeDuration = nil
                     bar._runeStart = nil
-                    bar:SetAlpha(filledAlpha)
+                    CP_StampAlpha(bar, filledAlpha)
                     bar._runeTotalDuration = nil
                     bar._runeShowTime = showRuneTime
                     ClearRuneText(bar)
@@ -503,43 +1063,91 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
                     bar._runeStart = start
                     bar._runeTotalDuration = duration
                     bar._runeShowTime = showRuneTime
-                    bar:SetMinMaxValues(0, duration)
-                    bar:SetValue(runeDuration)
-                    SetRuneBarActive(bar, true)
-                    activeRuneOUA = activeRuneOUA + 1
-                    bar:SetAlpha(filledAlpha)
-                    if wasShowingTime ~= showRuneTime then
-                        bar._runeTextQ = -1
+                    CP_StampAlpha(bar, filledAlpha)
+                    if ApplyNativeRune(bar, start, duration, showRuneTime) then
+                        bar._runeOUA = false
+                        hasNativeRune = true
+                    else
+                        CP_StampMinMax(bar, 0, duration)
+                        bar:SetValue(runeDuration)
+                        bar._msufCPValue = nil
+                        bar._runeOUA = true
+                        activeRuneOUA = activeRuneOUA + 1
+                        activeBars[activeRuneOUA] = bar
+                        if wasShowingTime ~= showRuneTime then
+                            bar._runeTextQ = -1
+                        end
+                        if showRuneTime and not bar._runeText then EnsureRuneTimeText(bar) end
+                        ApplyRuneText(bar, duration - runeDuration)
                     end
-                    ApplyRuneText(bar, duration - runeDuration)
                 else
-                    bar:SetMinMaxValues(0, 1)
-                    bar:SetValue(0)
-                    SetRuneBarActive(bar, false)
+                    StopNativeRune(bar)
+                    CP_StampMinMax(bar, 0, 1)
+                    CP_SetPowerValue(bar, 0)
+                    bar._runeOUA = false
                     bar._runeDuration = nil
                     bar._runeStart = nil
                     bar._runeTotalDuration = nil
                     bar._runeShowTime = showRuneTime
                     ClearRuneText(bar)
-                    bar:SetAlpha(emptyAlpha)
+                    CP_StampAlpha(bar, emptyAlpha)
                 end
 
-                bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                if bar._bg then bar._bg:SetVertexColor(0, 0, 0, bgA) end
-                bar:Show()
+                CP_StampShown(bar, true)
             end
+        end
+        -- Rune text lives on the shared elevated text frame, not below the
+        -- individual status bar. Retire stale bindings explicitly when a
+        -- future spec/client rule lowers maxPower; hiding the bar alone would
+        -- no longer hide its independently parented FontString.
+        for i = maxPower + 1, CP.maxBars do
+            local bar = CP.bars[i]
+            if bar then
+                StopNativeRune(bar)
+                bar._runeOUA = false
+                bar._runeDuration = nil
+                bar._runeStart = nil
+                bar._runeTotalDuration = nil
+                ClearRuneText(bar)
+            end
+        end
+        for i = activeRuneOUA + 1, #activeBars do
+            activeBars[i] = nil
+        end
+
+        if runeTextPresentationDirty then
+            runeTextPresentationDirty = false
+            if ApplyFont then ApplyFont() end
         end
 
         CP.runeOUAAny = activeRuneOUA > 0
+        CP.runeNativeAny = hasNativeRune
+
+        local isFull = visual and visual.useFullColor == true and readyCount >= maxPower
+        if CP._runeColorVersion ~= visualVersion or CP._runeFullColor ~= isFull then
+            for displayIdx = 1, maxPower do
+                local bar = CP.bars[displayIdx]
+                if not bar then break end
+                local slotR = useSlotColors and visual.slotR and visual.slotR[displayIdx]
+                CP_StampStatusBarColor(bar, isFull and visual.fullR or (slotR or baseR),
+                    isFull and visual.fullG or (slotR and visual.slotG[displayIdx] or baseG),
+                    isFull and visual.fullB or (slotR and visual.slotB[displayIdx] or baseB), 1)
+                CP_StampVertexColor(bar._bg, 0, 0, 0, bgA)
+                bar._msufCPVisualVersion = visualVersion
+                bar._msufCPFullColor = isFull
+            end
+            CP._runeColorVersion = visualVersion
+            CP._runeFullColor = isFull
+        end
 
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
-            if showText and readyCount > 0 then
-                txt:SetText(readyCount)
-                txt:Show()
+            local showText = visual and visual.showText == true
+            if showText then
+                CP_StampText(txt, readyCount)
+                CP_StampShown(txt, true)
             else
-                txt:Hide()
+                CP_StampShown(txt, false)
             end
         end
 
@@ -553,30 +1161,41 @@ _G.MSUF_CP_MODE_BUILDERS.RUNE = function(E)
     }
 end
 
--- MSUF_CP_Mode_Aura.lua
+--- MSUF_CP_Mode_Aura.lua
+--- Phase 2 ClassPower split: aura-driven modes extracted from the core file.
+--- Secret-safe: C_UnitAuras fields (applications) and C_Spell returns can be
+--- secret in Midnight/12.1. All Lua-side comparisons/arithmetic guarded with NotSecret.
 
--- MSUF_CP_Mode_Aura.lua
--- Phase 2 ClassPower split: aura-driven modes extracted from the core file.
--- Secret-safe: C_UnitAuras fields (applications) and C_Spell returns can be
--- secret in 12.0. All Lua-side comparisons/arithmetic guarded with NotSecret.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.AURA = function(E)
+modeBuilders.AURA = function(E)
     local type = type
     local tonumber = tonumber
     local GetTime = E.GetTime
     local CP = E.CP
     local _cpDB = E._cpDB
     local C_UnitAuras = E.C_UnitAuras
+    local GetTrackedPlayerAura = E.GetTrackedPlayerAura
     local C_Spell = E.C_Spell
     local CPK = E.CPK
     local WW = E.WW
     local NotSecret = E.NotSecret
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
     local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local ResolveMWAbove5Color = E.ResolveMWAbove5Color
     local CP_CheckAutoHide = E.CP_CheckAutoHide
+
+    local function GetPlayerAura(spellID)
+        if type(GetTrackedPlayerAura) == "function" then
+            return GetTrackedPlayerAura(spellID)
+        end
+        return C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and C_UnitAuras.GetPlayerAuraBySpellID(spellID) or nil
+    end
+
+    local function GetTrackedTipStacks()
+        if CP.spExpires and GetTime and GetTime() >= CP.spExpires then
+            CP.spStacks = 0
+            CP.spExpires = nil
+        end
+        return tonumber(CP.spStacks) or 0
+    end
 
     local function ResolveDHColor(isVoidMeta)
         local ov = _cpDB.colorOverrides
@@ -594,93 +1213,132 @@ _G.MSUF_CP_MODE_BUILDERS.AURA = function(E)
 
     local function UpdateSegmented(powerType, maxPower)
         if maxPower <= 0 then return end
-        local colorByType = true
-        local b = _cpDB.bars or {}
-        if b then colorByType = (b.classPowerColorByType ~= false) end
-        local baseR, baseG, baseB
-        if colorByType then baseR, baseG, baseB = ResolveClassPowerColor(powerType) else baseR, baseG, baseB = 1,1,1 end
-        local bgA = tonumber(b.classPowerBgAlpha) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
-        local filledAlpha, emptyAlpha = E.GetFilledAlpha(), E.GetEmptyAlpha()
+        local visual = CP_GetVisual(E)
+        local smoothInterp = visual and visual.smoothInterp
+        local baseR, baseG, baseB = visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1
+        local useSlotColors = visual and visual.useSlotColors == true
+        local bgA = visual and visual.bgAlpha or 0.3
+        local bgR, bgG, bgB = visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0
+        local filledAlpha, emptyAlpha = visual and visual.filledAlpha or E.GetFilledAlpha(), visual and visual.emptyAlpha or E.GetEmptyAlpha()
         if powerType == "SOUL_FRAGMENTS_VENG" then
-            local getCastCount = C_Spell and C_Spell.GetSpellCastCount
-            local rawCur = getCastCount and getCastCount(CPK.SPELL.SOUL_CLEAVE)
-            if rawCur == nil then rawCur = 0 end
+            local rawCur = C_Spell.GetSpellCastCount(CPK.SPELL.SOUL_CLEAVE)
+            local curSafe = NotSecret(rawCur)
+            local rawCurSecret = not curSafe
+            if curSafe and rawCur == nil then rawCur = 0 end
+            local isFull = visual and visual.useFullColor == true and curSafe and (tonumber(rawCur) or 0) >= maxPower
             for i = 1, maxPower do
                 local bar = CP.bars[i]
                 if bar then
-                    bar:SetMinMaxValues(i - 1, i)
-                    bar:SetValue(rawCur)
-                    bar:SetAlpha(filledAlpha)
-                    bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                    CP_StampMinMax(bar, i - 1, i)
+                    CP_SetPowerValue(bar, rawCur, smoothInterp, rawCurSecret)
+                    CP_StampAlpha(bar, filledAlpha)
+                    local slotR = useSlotColors and visual.slotR and visual.slotR[i]
+                    CP_StampStatusBarColor(bar, isFull and visual.fullR or (slotR or baseR),
+                        isFull and visual.fullG or (slotR and visual.slotG[i] or baseG),
+                        isFull and visual.fullB or (slotR and visual.slotB[i] or baseB), 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
                 end
             end
             local txt = CP.text
             if txt then
-                local showText = b.classPowerShowText == true
+                local showText = visual and visual.showText == true
                 if showText then
                     if NotSecret(rawCur) then
-                        txt:SetFormattedText("%d / %d", tonumber(rawCur) or 0, maxPower)
+                        CP_SetPassthroughFormattedText(txt, "%d / %d", tonumber(rawCur) or 0, maxPower)
                     else
-                        txt:SetText(rawCur)
+                        CP_SetPassthroughFormattedText(txt, "%s / %d", rawCur, maxPower)
                     end
-                    txt:Show()
+                    CP_StampShown(txt, true)
                 else
-                    txt:Hide()
+                    CP_StampShown(txt, false)
                 end
             end
+            CP_CheckAutoHide(curSafe and tonumber(rawCur) or nil, maxPower)
         else
             local cur = 0
+            local textValue = 0
             if powerType == "MAELSTROM_WEAPON" then
-                if C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
-                    local info = C_UnitAuras.GetPlayerAuraBySpellID(CPK.SPELL.MAELSTROM_WEAPON)
-                    if info then
-                        local apps = info.applications
-                        if apps ~= nil and NotSecret(apps) then cur = tonumber(apps) or 0 end
-                    end
+                local info = GetPlayerAura(CPK.SPELL.MAELSTROM_WEAPON)
+                if info then
+                    local apps = info.applications
+                    textValue = apps
+                    if NotSecret(apps) and apps ~= nil then cur = tonumber(apps) or 0 end
                 end
             elseif powerType == "WHIRLWIND" then
                 cur = WW.GetStacks()
+                textValue = cur
             elseif powerType == "TIP_OF_THE_SPEAR" then
                 local tipAuraID = E.TIP and E.TIP.AURA_ID
-                if tipAuraID and C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
-                    local info = C_UnitAuras.GetPlayerAuraBySpellID(tipAuraID)
+                local useLocal = CP.spLocalUntil and GetTime and GetTime() < CP.spLocalUntil
+                if tipAuraID then
+                    local info = not useLocal and GetPlayerAura(tipAuraID) or nil
                     if info then
                         local apps = info.applications
-                        if apps ~= nil and NotSecret(apps) then cur = tonumber(apps) or 0 end
+                        textValue = apps
+                        if NotSecret(apps) and apps ~= nil then
+                            cur = tonumber(apps) or 0
+                            CP.spStacks = cur
+                            local expirationTime = info.expirationTime
+                            if NotSecret(expirationTime) and expirationTime ~= nil then
+                                CP.spExpires = tonumber(expirationTime)
+                            end
+                        else
+                            cur = GetTrackedTipStacks()
+                        end
+                    else
+                        cur = GetTrackedTipStacks()
+                        textValue = cur
                     end
                 end
             elseif powerType == "ICICLES" then
                 local icicleID = CPK.SPELL and CPK.SPELL.ICICLES
-                if icicleID and C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
-                    local info = C_UnitAuras.GetPlayerAuraBySpellID(icicleID)
+                if icicleID then
+                    local info = GetPlayerAura(icicleID)
                     if info then
                         local apps = info.applications
-                        if apps ~= nil and NotSecret(apps) then cur = tonumber(apps) or 0 end
+                        textValue = apps
+                        if NotSecret(apps) and apps ~= nil then cur = tonumber(apps) or 0 end
                     end
                 end
             end
             local mwAbove5 = (powerType == "MAELSTROM_WEAPON" and cur > CPK.THRESH.MW_SPEND)
+            local isFull = visual and visual.useFullColor == true and cur >= maxPower
             local abR, abG, abB
             if mwAbove5 then abR, abG, abB = ResolveMWAbove5Color() end
             for i = 1, maxPower do
                 local bar = CP.bars[i]
                 if bar then
                     local isFilled = (i <= cur)
-                    bar:SetMinMaxValues(0, 1)
-                    bar:SetValue(isFilled and 1 or 0)
-                    bar:SetAlpha(isFilled and filledAlpha or emptyAlpha)
-                    if mwAbove5 and isFilled and i > CPK.THRESH.MW_SPEND then bar:SetStatusBarColor(abR,abG,abB,1) else bar:SetStatusBarColor(baseR,baseG,baseB,1) end
-                    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
+                    CP_StampMinMax(bar, 0, 1)
+                    CP_SetPowerValue(bar, isFilled and 1 or 0, smoothInterp)
+                    CP_StampAlpha(bar, isFilled and filledAlpha or emptyAlpha)
+                    if isFull then
+                        CP_StampStatusBarColor(bar, visual.fullR, visual.fullG, visual.fullB, 1)
+                    elseif mwAbove5 and isFilled and i > CPK.THRESH.MW_SPEND then
+                        CP_StampStatusBarColor(bar, abR, abG, abB, 1)
+                    else
+                        local slotR = useSlotColors and visual.slotR and visual.slotR[i]
+                        CP_StampStatusBarColor(bar, slotR or baseR,
+                            slotR and visual.slotG[i] or baseG, slotR and visual.slotB[i] or baseB, 1)
+                    end
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
                 end
             end
+            if CP.icicleNativeText and CP.icicleNativeText.Hide then CP.icicleNativeText:Hide() end
             local txt = CP.text
             if txt then
-                local showText = b.classPowerShowText == true
-                if showText and cur > 0 then txt:SetText(cur); txt:Show() else txt:Hide() end
+                local showText = visual and visual.showText == true
+                if showText then
+                    if NotSecret(textValue) then CP_StampText(txt, tonumber(textValue) or 0)
+                    else CP_SetPassthroughText(txt, textValue) end
+                    CP_StampShown(txt, true)
+                else
+                    CP_StampShown(txt, false)
+                end
             end
-            CP_CheckAutoHide(cur, maxPower)
+            local autoHideCur = cur
+            if powerType == "ICICLES" and CP.icicleNativeText then autoHideCur = nil end
+            CP_CheckAutoHide(autoHideCur, maxPower)
         end
     end
 
@@ -691,211 +1349,175 @@ _G.MSUF_CP_MODE_BUILDERS.AURA = function(E)
     end
 
     local function UpdateSingle(powerType, maxPower)
+        --- Devourer renders as pips whenever the layout resolved an integer
+        --- segment count (Blizzard exposes one: collapsing star cost in Void
+        --- Metamorphosis, Dark Heart max applications outside it). maxPower == 1
+        --- means the count was secret or unavailable, and the bar stays on the
+        --- normalized single-bar path.
+        local segCount = tonumber(maxPower) or 1
+        local segmented = segCount > 1
         local cur, displayCur, inMeta = 0, 0, false
-        if C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
-            inMeta = not not C_UnitAuras.GetPlayerAuraBySpellID(CPK.SPELL.VOID_METAMORPHOSIS)
-            if inMeta then
-                local whispers = C_UnitAuras.GetPlayerAuraBySpellID(CPK.SPELL.SILENCE_THE_WHISPERS)
-                if whispers then
-                    local apps = whispers.applications
-                    if apps ~= nil and NotSecret(apps) then
-                        displayCur = tonumber(apps) or 0
+        local textValue = 0
+        inMeta = not not GetPlayerAura(CPK.SPELL.VOID_METAMORPHOSIS)
+        --- Published for the segment-count resolver: outside meta this aura is
+        --- absent, so re-reading it there costs a real aura query per event.
+        CP.dhInMeta = inMeta
+        if inMeta then
+            local whispers = GetPlayerAura(CPK.SPELL.SILENCE_THE_WHISPERS)
+            if whispers then
+                local apps = whispers.applications
+                textValue = apps
+                if NotSecret(apps) and apps ~= nil then
+                    displayCur = tonumber(apps) or 0
+                    --- The normalization divisor is only needed for the single
+                    --- bar; segmented rendering already has it as maxPower.
+                    if not segmented then
                         local cost = 1
                         if type(GetCollapsingStarCost) == "function" then
                             local rawCost = GetCollapsingStarCost()
-                            if rawCost ~= nil and NotSecret(rawCost) then cost = tonumber(rawCost) or 1 end
+                            if NotSecret(rawCost) and rawCost ~= nil then cost = tonumber(rawCost) or 1 end
                         end
                         if cost > 0 then cur = displayCur / cost end
                     end
                 end
-            else
-                local darkHeart = C_UnitAuras.GetPlayerAuraBySpellID(CPK.SPELL.DARK_HEART)
-                if darkHeart then
-                    local apps = darkHeart.applications
-                    if apps ~= nil and NotSecret(apps) then
-                        displayCur = tonumber(apps) or 0
+            end
+        else
+            local darkHeart = GetPlayerAura(CPK.SPELL.DARK_HEART)
+            if darkHeart then
+                local apps = darkHeart.applications
+                textValue = apps
+                if NotSecret(apps) and apps ~= nil then
+                    displayCur = tonumber(apps) or 0
+                    if not segmented then
                         local maxApp = 1
-                        if C_Spell and C_Spell.GetSpellMaxCumulativeAuraApplications then
-                            local rawMax = C_Spell.GetSpellMaxCumulativeAuraApplications(CPK.SPELL.DARK_HEART)
-                            if rawMax ~= nil and NotSecret(rawMax) then maxApp = tonumber(rawMax) or 1 end
-                        end
+                        local rawMax = C_Spell.GetSpellMaxCumulativeAuraApplications(CPK.SPELL.DARK_HEART)
+                        if NotSecret(rawMax) and rawMax ~= nil then maxApp = tonumber(rawMax) or 1 end
                         if maxApp > 0 then cur = displayCur / maxApp end
                     end
                 end
             end
         end
         if cur > 1 then cur = 1 end
-        local colorByType = true
-        local b = _cpDB.bars or {}
-        if b then colorByType = (b.classPowerColorByType ~= false) end
+        local visual = CP_GetVisual(E)
+        local smoothInterp = visual and visual.smoothInterp
+        local colorByType = not visual or visual.colorByType ~= false
         local r, g, bl
         if colorByType then r, g, bl = ResolveDHColor(inMeta) else r, g, bl = 1,1,1 end
-        local bgA = tonumber(b.classPowerBgAlpha) or 0.3
+        local bgA = visual and visual.bgAlpha or 0.3
         local bgR, bgG, bgB = ResolveClassPowerBgColor(inMeta and "SOUL_FRAGMENTS_META" or "SOUL_FRAGMENTS")
-        local filledAlpha, emptyAlpha = E.GetFilledAlpha(), E.GetEmptyAlpha()
-        local bar = CP.bars[1]
-        if bar then
-            bar:SetMinMaxValues(0, 1)
-            bar:SetValue(cur)
-            bar:SetAlpha(cur > 0.01 and filledAlpha or emptyAlpha)
-            bar:SetStatusBarColor(r, g, bl, 1)
-            if bar._bg then bar._bg:SetVertexColor(bgR, bgG, bgB, bgA) end
+        local filledAlpha, emptyAlpha = visual and visual.filledAlpha or E.GetFilledAlpha(), visual and visual.emptyAlpha or E.GetEmptyAlpha()
+        if segmented then
+            --- Layout owns hiding the unused bars and trailing ticks, exactly as
+            --- for the other segmented aura resources.
+            for i = 1, segCount do
+                local bar = CP.bars[i]
+                if bar then
+                    local isFilled = (i <= displayCur)
+                    CP_StampMinMax(bar, 0, 1)
+                    CP_SetPowerValue(bar, isFilled and 1 or 0, smoothInterp)
+                    CP_StampAlpha(bar, isFilled and filledAlpha or emptyAlpha)
+                    CP_StampStatusBarColor(bar, r, g, bl, 1)
+                    CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+                end
+            end
+            CP._singleVisualVersion = nil
+            CP._singleVisualMode = nil
+        else
+            local bar = CP.bars[1]
+            if bar then
+                CP_StampMinMax(bar, 0, 1)
+                CP_SetPowerValue(bar, cur, smoothInterp)
+                CP_StampAlpha(bar, cur > 0.01 and filledAlpha or emptyAlpha)
+                CP_StampStatusBarColor(bar, r, g, bl, 1)
+                CP_StampVertexColor(bar._bg, bgR, bgG, bgB, bgA)
+            end
+            local visualVersion = visual and visual.version or 0
+            if CP._singleVisualVersion ~= visualVersion or CP._singleVisualMode ~= CP.renderMode then
+                for i = 2, CP.maxBars do if CP.bars[i] then CP_StampShown(CP.bars[i], false) end end
+                for i = 1, #CP.ticks do if CP.ticks[i] then CP_StampShown(CP.ticks[i], false) end end
+                CP._singleVisualVersion = visualVersion
+                CP._singleVisualMode = CP.renderMode
+            end
         end
-        for i = 2, CP.maxBars do if CP.bars[i] then CP.bars[i]:Hide() end end
-        for i = 1, #CP.ticks do if CP.ticks[i] then CP.ticks[i]:Hide() end end
         local txt = CP.text
         if txt then
-            local showText = b.classPowerShowText == true
-            if showText and displayCur > 0 then txt:SetText(displayCur); txt:Show() else txt:Hide() end
+            local showText = visual and visual.showText == true
+            if showText then
+                if NotSecret(textValue) then CP_StampText(txt, tonumber(textValue) or 0)
+                else CP_SetPassthroughText(txt, textValue) end
+                CP_StampShown(txt, true)
+            else
+                CP_StampShown(txt, false)
+            end
         end
-        local intCur = (cur > 0.01) and 1 or 0
-        CP_CheckAutoHide(intCur, 1)
+        if segmented then
+            CP_CheckAutoHide(displayCur, segCount)
+        else
+            local intCur = (cur > 0.01) and 1 or 0
+            CP_CheckAutoHide(intCur, 1)
+        end
     end
 
     return { UpdateSegmented = UpdateSegmented, UpdateSingle = UpdateSingle, BuildWWRender = BuildWWRender }
 end
 
--- MSUF_CP_Mode_Timer.lua
-
--- MSUF_CP_Mode_Timer.lua
--- Phase 3 ClassPower split: timer-bar mode extracted from the core file.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.TIMER = function(E)
-    local string_format = string.format
-    local math_floor = math.floor
+--- 12.1 Ebon presentation host. Aura discovery and the countdown are owned by
+--- MSUF_CP_EbonMight's native CustomAuraContainer; Lua never reads or ticks the
+--- aura duration here.
+modeBuilders.TIMER = function(E)
     local CP = E.CP
-    local _cpDB = E._cpDB
-    local C_UnitAuras = E.C_UnitAuras
-    local GetTime = E.GetTime
-    local EBON = E.EBON
-    local CPK = E.CPK
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
-    local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
-    local GetFilledAlpha = E.GetFilledAlpha
     local GetEmptyAlpha = E.GetEmptyAlpha
 
-    local _tbElapsed = 0
-    local Update
-    local SetOnUpdate
-
-    Update = function(powerType, maxPower)
-        local getAura = C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID
-        local aura = getAura and getAura(EBON.SPELL_ID)
-        local remaining = aura and (aura.expirationTime - GetTime()) or 0
-        if remaining < 0 then remaining = 0 end
-        local active = remaining > 0.05
-        local mx = EBON.MAX_DURATION
-
-        local qPct = math_floor(remaining * 10 + 0.5)
-        if qPct == CP.tbCachedQ then return active end
-        CP.tbCachedQ = qPct
-
-        local pct = remaining / mx
-        if pct > 1 then pct = 1 end
-
+    local function Update()
         local bar = CP.bars[1]
-        if not bar then return active end
-
-        local colorByType = true
-        local b = _cpDB.bars or {}
-        if b then colorByType = (b.classPowerColorByType ~= false) end
-        local r, g, bl
-        if colorByType then
-            r, g, bl = ResolveClassPowerColor(powerType)
-        else
-            r, g, bl = 1, 1, 1
-        end
-        local bgA = tonumber(b.classPowerBgAlpha) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
-        local filledAlpha = GetFilledAlpha()
-        local emptyAlpha = GetEmptyAlpha()
-
-        bar:SetStatusBarColor(r, g, bl, 1)
-        bar:SetMinMaxValues(0, 1)
-        bar:SetValue(pct)
-        bar:SetAlpha(remaining > 0 and filledAlpha or emptyAlpha)
-        bar:Show()
-        bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
-
-        for i = 2, CP.maxBars do
-            local b2 = CP.bars[i]
-            if b2 then b2:Hide() end
-        end
-        for i = 1, #CP.ticks do
-            if CP.ticks[i] then CP.ticks[i]:Hide() end
-        end
-
-        local txt = CP.text
-        if txt then
-            local showText = b.classPowerShowText == true
-            if showText then
-                txt:SetText(string_format("%.1fs", remaining))
-                txt:Show()
-            else
-                txt:Hide()
+        local visual = CP_GetVisual(E)
+        if bar then
+            local visualVersion = visual and visual.version or 0
+            if CP._timerVisualVersion ~= visualVersion then
+                CP_StampMinMax(bar, 0, 1)
+                CP_StampStatusBarColor(bar,
+                    visual and visual.baseR or 1,
+                    visual and visual.baseG or 1,
+                    visual and visual.baseB or 1, 1)
+                CP_StampVertexColor(bar._bg,
+                    visual and visual.bgR or 0,
+                    visual and visual.bgG or 0,
+                    visual and visual.bgB or 0,
+                    visual and visual.bgAlpha or 0.3)
+                CP_StampShown(bar, true)
+                for i = 2, CP.maxBars do
+                    if CP.bars[i] then CP_StampShown(CP.bars[i], false) end
+                end
+                for i = 1, #CP.ticks do
+                    if CP.ticks[i] then CP_StampShown(CP.ticks[i], false) end
+                end
+                CP._timerVisualVersion = visualVersion
             end
+            CP_SetPowerValue(bar, 0)
+            CP_StampAlpha(bar, visual and visual.emptyAlpha or GetEmptyAlpha())
         end
-
-        local intCur = remaining > 0.1 and 1 or 0
-        CP_CheckAutoHide(intCur, 1)
-        return active
+        if CP.text then CP_StampShown(CP.text, false) end
+        if CP.container then CP.container:SetAlpha(1) end
+        CP_CheckAutoHide(nil, nil)
+        return false
     end
 
-    -- Central RuntimeTick: called by controller's single OnUpdate frame.
-    -- Throttled to ~20fps (0.05s) to avoid unnecessary timer text churn.
-    local function RuntimeTick(elapsed)
-        if not CP.visible or CP.renderMode ~= CPK.MODE.TIMER_BAR then return end
-        _tbElapsed = _tbElapsed + elapsed
-        if _tbElapsed < 0.05 then return end
-        _tbElapsed = 0
-        if not Update(CP.powerType, CP.currentMax) then
-            -- Timer expired — flag cleared; controller will stop tick next sync.
-            CP.tbOUA = false
-        end
-    end
-
-    -- Flag-only management (no SetScript — controller owns the tick).
-    SetOnUpdate = function(on)
-        if on and CP.renderMode ~= CPK.MODE.TIMER_BAR then
-            on = false
-        end
-        if on then
-            CP.tbOUA = true
-            _tbElapsed = 0
-        else
-            CP.tbOUA = false
-        end
-    end
-
-    return {
-        Update = Update,
-        SetOnUpdate = SetOnUpdate,
-        RuntimeTick = RuntimeTick,
-    }
+    return { Update = Update }
 end
 
--- MSUF_CP_Mode_Continuous.lua
+--- MSUF_CP_Mode_Continuous.lua
+--- Phase 4 ClassPower split: continuous single-bar mode extracted from the core
+--- file (e.g. Elemental Maelstrom).
+--- Secret-safe: UnitPower/UnitPowerMax return secret values in 12.0.
+--- C API (SetMinMaxValues, SetValue) accepts secrets natively for bar fill.
 
--- MSUF_CP_Mode_Continuous.lua
--- Phase 4 ClassPower split: continuous single-bar mode extracted from the core
--- file (e.g. Elemental Maelstrom).
--- Secret-safe: UnitPower/UnitPowerMax return secret values in 12.0.
--- C API (SetMinMaxValues, SetValue) accepts secrets natively for bar fill.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.CONTINUOUS = function(E)
+modeBuilders.CONTINUOUS = function(E)
     local tonumber = tonumber
     local CP = E.CP
-    local _cpDB = E._cpDB
     local UnitPower = E.UnitPower
     local UnitPowerMax = E.UnitPowerMax
     local NotSecret = E.NotSecret
-    local ResolveClassPowerColor = E.ResolveClassPowerColor
-    local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
     local GetFilledAlpha = E.GetFilledAlpha
 
@@ -913,52 +1535,51 @@ _G.MSUF_CP_MODE_BUILDERS.CONTINUOUS = function(E)
         if mxSafe then
             mx = tonumber(rawMx) or 100
             if mx <= 0 then mx = 100 end
-            bar:SetMinMaxValues(0, mx)
+            CP_StampMinMax(bar, 0, mx)
         else
-            bar:SetMinMaxValues(0, rawMx)
+            CP_StampMinMax(bar, 0, rawMx)
             mx = nil
         end
+        local visual = CP_GetVisual(E)
+        local smoothInterp = visual and visual.smoothInterp
         if curSafe then
             cur = tonumber(rawCur) or 0
-            bar:SetValue(cur)
+            CP_SetPowerValue(bar, cur, smoothInterp)
         else
-            bar:SetValue(rawCur)
+            CP_SetPowerValue(bar, rawCur, smoothInterp, true)
             cur = nil
         end
 
-        bar:SetAlpha(GetFilledAlpha())
-        bar:Show()
+        CP_StampAlpha(bar, visual and visual.filledAlpha or GetFilledAlpha())
+        CP_StampShown(bar, true)
 
-        local colorByType = true
-        local b = _cpDB.bars or {}
-        if b then colorByType = (b.classPowerColorByType ~= false) end
-        if colorByType then
-            local r, g, bl = ResolveClassPowerColor(powerType)
-            bar:SetStatusBarColor(r, g, bl, 1)
-        else
-            bar:SetStatusBarColor(1, 1, 1, 1)
-        end
-
-        local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
-        if bar._bg then bar._bg:SetVertexColor(bgR, bgG, bgB, bgA) end
-
-        for i = 2, CP.maxBars do
-            local b2 = CP.bars[i]
-            if b2 then b2:Hide() end
-        end
-        for i = 1, #CP.ticks do
-            if CP.ticks[i] then CP.ticks[i]:Hide() end
+        local visualVersion = visual and visual.version or 0
+        if CP._singleVisualVersion ~= visualVersion or CP._singleVisualMode ~= CP.renderMode then
+            CP_StampStatusBarColor(bar, visual and visual.baseR or 1, visual and visual.baseG or 1, visual and visual.baseB or 1, 1)
+            CP_StampVertexColor(bar._bg, visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0, visual and visual.bgAlpha or 0.3)
+            for i = 2, CP.maxBars do
+                local b2 = CP.bars[i]
+                if b2 then CP_StampShown(b2, false) end
+            end
+            for i = 1, #CP.ticks do
+                if CP.ticks[i] then CP_StampShown(CP.ticks[i], false) end
+            end
+            CP._singleVisualVersion = visualVersion
+            CP._singleVisualMode = CP.renderMode
         end
 
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
-            if showText and cur and mx then
-                txt:SetFormattedText("%d / %d", cur, mx)
-                txt:Show()
+            local showText = visual and visual.showText == true
+            if showText then
+                if curSafe and mxSafe then
+                    CP_SetPassthroughFormattedText(txt, "%d / %d", cur, mx)
+                else
+                    CP_SetPassthroughFormattedText(txt, "%d / %d", rawCur, rawMx)
+                end
+                CP_StampShown(txt, true)
             else
-                txt:Hide()
+                CP_StampShown(txt, false)
             end
         end
 
@@ -970,23 +1591,19 @@ _G.MSUF_CP_MODE_BUILDERS.CONTINUOUS = function(E)
     }
 end
 
--- MSUF_CP_Mode_Stagger.lua
+--- MSUF_CP_Mode_Stagger.lua
+--- Phase 4 ClassPower split: Brewmaster stagger mode extracted from the core
+--- file.
 
--- MSUF_CP_Mode_Stagger.lua
--- Phase 4 ClassPower split: Brewmaster stagger mode extracted from the core
--- file.
-
-_G.MSUF_CP_MODE_BUILDERS = _G.MSUF_CP_MODE_BUILDERS or {}
-
-_G.MSUF_CP_MODE_BUILDERS.STAGGER = function(E)
+modeBuilders.STAGGER = function(E)
     local type = type
     local tonumber = tonumber
     local CP = E.CP
+    local CPK = E.CPK
     local _cpDB = E._cpDB
     local NotSecret = E.NotSecret
     local UnitStagger = E.UnitStagger
     local UnitHealthMax = E.UnitHealthMax
-    local ResolveClassPowerBgColor = E.ResolveClassPowerBgColor
     local CP_CheckAutoHide = E.CP_CheckAutoHide
     local STAGGER_CONST = E.STAGGER_CONST or {}
     local GetFilledAlpha = E.GetFilledAlpha
@@ -1015,68 +1632,98 @@ _G.MSUF_CP_MODE_BUILDERS.STAGGER = function(E)
     end
 
     local function Update(powerType, maxPower)
-        local cur = UnitStagger and UnitStagger("player") or 0
-        local mx = UnitHealthMax("player") or 1
-        if cur == nil then cur = 0 end
-        if mx == nil then mx = 1 end
+        local rawCur
+        if UnitStagger then
+            rawCur = UnitStagger("player")
+        end
+        local rawMx = UnitHealthMax("player")
 
         local bar = CP.bars[1]
         if not bar then return end
 
-        bar:SetMinMaxValues(0, mx)
-        bar:SetValue(cur)
-        bar:SetAlpha(GetFilledAlpha())
-        bar:Show()
+        local curSafe = NotSecret(rawCur)
+        local mxSafe = NotSecret(rawMx)
+        local cur, mx
+        local active = false
 
-        if NotSecret(cur) and NotSecret(mx) then
+        if mxSafe then
+            mx = tonumber(rawMx) or 1
             if mx <= 0 then mx = 1 end
+            CP_StampMinMax(bar, 0, mx)
+        else
+            CP_StampMinMax(bar, 0, rawMx)
+        end
+
+        if curSafe then
+            cur = tonumber(rawCur) or 0
+            CP_SetPowerValue(bar, cur)
+            active = cur > 0
+        else
+            CP_SetPowerValue(bar, rawCur, nil, true)
+        end
+
+        local visual = CP_GetVisual(E)
+        CP_StampAlpha(bar, visual and visual.filledAlpha or GetFilledAlpha())
+        CP_StampShown(bar, true)
+
+        if curSafe and mxSafe then
             local perc = cur / mx
             local tier
             if perc >= (STAGGER_CONST.RED_TRANSITION or 0.6) then tier = 3
-            elseif perc > (STAGGER_CONST.YELLOW_TRANSITION or 0.3) then tier = 2
+            elseif perc >= (STAGGER_CONST.YELLOW_TRANSITION or 0.3) then tier = 2
             else tier = 1 end
 
             if tier ~= staggerCachedTier then
                 staggerCachedTier = tier
                 local r, g, b = ResolveStaggerColor(tier)
-                bar:SetStatusBarColor(r, g, b, 1)
+                CP_StampStatusBarColor(bar, r, g, b, 1)
             end
         end
 
-        local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
-        local bgR, bgG, bgB = ResolveClassPowerBgColor("STAGGER")
-        if bar._bg then bar._bg:SetVertexColor(bgR, bgG, bgB, bgA) end
-
-        for i = 2, CP.maxBars do
-            local b2 = CP.bars[i]
-            if b2 then b2:Hide() end
-        end
-        for i = 1, #CP.ticks do
-            if CP.ticks[i] then CP.ticks[i]:Hide() end
+        local visualVersion = visual and visual.version or 0
+        if CP._singleVisualVersion ~= visualVersion or CP._singleVisualMode ~= CP.renderMode then
+            CP_StampVertexColor(bar._bg, visual and visual.bgR or 0, visual and visual.bgG or 0, visual and visual.bgB or 0, visual and visual.bgAlpha or 0.3)
+            for i = 2, CP.maxBars do
+                local b2 = CP.bars[i]
+                if b2 then CP_StampShown(b2, false) end
+            end
+            for i = 1, #CP.ticks do
+                if CP.ticks[i] then CP_StampShown(CP.ticks[i], false) end
+            end
+            CP._singleVisualVersion = visualVersion
+            CP._singleVisualMode = CP.renderMode
         end
 
         local txt = CP.text
         if txt then
-            local showText = _cpDB.bars and (_cpDB.showText == true)
-            if showText and NotSecret(cur) then
+            local showText = visual and visual.showText == true
+            if showText and curSafe then
                 if cur >= 1000 then
                     txt:SetFormattedText("%.1fK", cur / 1000)
                 else
                     txt:SetFormattedText("%d", cur)
                 end
-                txt:Show()
+                txt._msufCPText = nil
+                CP_StampShown(txt, true)
             elseif showText then
-                txt:SetText("")
-                txt:Hide()
+                CP_SetPassthroughText(txt, rawCur)
+                CP_StampShown(txt, true)
             else
-                txt:Hide()
+                CP_StampShown(txt, false)
             end
         end
 
         CP_CheckAutoHide(cur, mx)
+        return active
+    end
+
+    local function RuntimeTick()
+        if not CP.visible or CP.renderMode ~= CPK.MODE.STAGGER then return false end
+        return Update(CP.powerType, CP.currentMax)
     end
 
     return {
         Update = Update,
+        RuntimeTick = RuntimeTick,
     }
 end

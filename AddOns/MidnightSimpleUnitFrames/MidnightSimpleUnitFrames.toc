@@ -1,220 +1,190 @@
-## Interface: 120000, 120001, 120005, 120007
+## Interface: 120007, 120100
 ## Title: |cff38c7f0Midnight|r |cffcce0ffSimple Unit Frames|r
 ## Notes: Lightweight unitframes with MSUF Edit Mode.
 ## Author: Mapko
 ## Category: Combat
-## Version: 5.77
+## Version: 6.02
 ## SavedVariables: MSUF_DB, MSUF_GlobalDB
 ## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
-## OptionalDeps: Masque, LibSharedMedia-3.0, Clique, WagoAnalytics
+## OptionalDeps: LibSharedMedia-3.0, Clique, WagoAnalytics, Blizzard_AuraContainer, Blizzard_PingUI, EllesmereUI, Grid2, Details
 ## X-Curse-Project-ID: 1384660
 ## X-Wago-ID: XKq9aoKy
 ## X-Website: https://discord.gg/2Gf9b2Wprz
 ## X-MSUF-StatusIconPack: 1
 ## X-MSUF-IconPack-Name: UX Pro
-## X-MSUF-IconFolder: Icons\UXPro
+## X-MSUF-IconFolder: Media\Icons\UXPro
 ## X-MSUF-HasMidnightSuffix: 1
+## X-MSUF-UFCore: MidnightSimpleUnitFrames
+## X-MSUF-UnitFrames: MidnightSimpleUnitFramesUF
+## X-MSUF-UnitFrames-Prefix: MSUF
+## X-MSUF-UnitFrames-LegacyGlobals: 1
 ## X-Localizations: enUS, deDE, zhCN, zhTW, frFR, esES, esMX, itIT, koKR, ptBR, ruRU, enGB
 ## AddonCompartmentFunc: MSUF_AddonCompartment_OnClick
 ## AddonCompartmentFuncOnEnter: MSUF_AddonCompartment_OnEnter
 ## AddonCompartmentFuncOnLeave: MSUF_AddonCompartment_OnLeave
 
 
-# ═══════════════════════════════════════════════════════════════
-# LIBS
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
+# BOOTSTRAP / VENDOR LIBS
+# ---------------------------------------------------------------
 Libs\LibStub\LibStub.lua
 Libs\WagoAnalyticsShim\Shim.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
-Libs\LibCustomGlow-1.0\LibCustomGlow-1.0.lua
-Foundation\MSUF_Libs.lua
+Kernel\MSUF_Bootstrap.lua
+State\MSUF_FirstLoad.lua
+State\MSUF_UpgradeHighlights.lua
+State\MSUF_GuidedTour.lua
+Kernel\MSUF_Libs.lua
 
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
 # LOCALES
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
 Locales\MSUF_Localization.lua
 Locales\enUS.lua
 Locales\enGB.lua
-Locales\zhCN.lua
-Locales\zhTW.lua
 Locales\deDE.lua
-Locales\frFR.lua
 Locales\esES.lua
 Locales\esMX.lua
+Locales\frFR.lua
 Locales\itIT.lua
 Locales\koKR.lua
 Locales\ptBR.lua
 Locales\ruRU.lua
-Locales\MSUF_RuntimeLocalization.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Locales\MSUF_PriorityFrames_FAQ.lua
 
-# ═══════════════════════════════════════════════════════════════
-# FOUNDATION
-# ═══════════════════════════════════════════════════════════════
-Foundation\MSUF_Util.lua
-Foundation\MSUF_Changelog.lua
-Foundation\MSUF_Transitions.lua
-Foundation\MSUF_Defaults.lua
-Foundation\MSUF_Profiles.lua
-Foundation\MSUF_Style.lua
-Foundation\MSUF_Modules.lua
-Foundation\MSUF_EventBus.lua
-Foundation\MSUF_Scheduler.lua
-Foundation\MSUF_Widgets.lua
+# ---------------------------------------------------------------
+# KERNEL / STATE / UI PRIMITIVES
+# ---------------------------------------------------------------
+Kernel\MSUF_Util.lua
+State\MSUF_Changelog.lua
+State\MSUF_Defaults.lua
+Runtime\MSUF_NumberFormat.lua
+State\MSUF_Profiles.lua
+Shell\UI\MSUF_Style.lua
+Kernel\MSUF_Modules.lua
+Kernel\MSUF_EventBus.lua
+Kernel\MSUF_Scheduler.lua
+Shell\UI\MSUF_Widgets.lua
+Shell\UI\MSUF_AnchorPicker.lua
+Shell\UI\MSUF_EditPopupUI.lua
+Shell\UI\EditMode\MSUF_EditMode_Layout.lua
+Shell\UI\EditMode\MSUF_EditMode_HUD.lua
 
-# ═══════════════════════════════════════════════════════════════
-# EDIT MODE 2
-# ═══════════════════════════════════════════════════════════════
-EditMode2\MSUF_EM2_Core.lua
-EditMode2\MSUF_EM2_Layout.lua
-EditMode2\MSUF_EM2_Movers.lua
-EditMode2\MSUF_EM2_Popups.lua
-EditMode2\MSUF_EM2_HUD.lua
+# ---------------------------------------------------------------
+# SHELL
+# ---------------------------------------------------------------
+Shell\EditMode\MSUF_EditMode.xml
 
-# ═══════════════════════════════════════════════════════════════
-# CORE (pre-main)
-# ═══════════════════════════════════════════════════════════════
-Core\MSUF_Castbars_LoDStub.lua
-UI\MidnightSimpleUnitFrames_MinimapButton.lua
-UI\MSUF_AddonCompartment.lua
+# ---------------------------------------------------------------
+# RUNTIME SERVICES (pre-unitframe engine)
+# ---------------------------------------------------------------
+Castbars\MSUF_Castbars_Backend.lua
+Castbars\MSUF_Castbars_Bridge.lua
+Shell\MSUF_MinimapButton.lua
+Shell\MSUF_AddonCompartment.lua
+Shell\MSUF_GameMenu.lua
 Media\MSUF_Media.lua
-Core\MSUF_ProfileIO.lua
-Core\MSUF_ChatAndTooltips.lua
-Core\MSUF_StatusIndicators.lua
-Core\MSUF_FocusTargetRuntime.lua
-Core\MSUF_UFCore_ToTInline.lua
-Core\MSUF_UnitframeCore.lua
-Core\MSUF_RangeFade.lua
-Core\MSUF_ColorsCore.lua
-Foundation\MSUF_BlizzKill.lua
+Runtime\MSUF_BorderStyles.lua
+Runtime\MSUF_PortraitMedia.lua
+State\MSUF_ProfileIO.lua
+Runtime\MSUF_SlashCommands.lua
+Runtime\MSUF_UnitTooltips.lua
+Runtime\MSUF_BlizzEditModeBridge.lua
+Libs\MSUFUnitFrames\MSUFUnitFrames.xml
+UnitFrames\Engine\MSUF_UF_Config.lua
+UnitFrames\Engine\MSUF_UF_PreviewAnimation.lua
+Runtime\MSUF_Colors.lua
+Kernel\MSUF_BlizzardFrames.lua
 
-# ═══════════════════════════════════════════════════════════════
-# AURAS 2.0
-# ═══════════════════════════════════════════════════════════════
-Auras2\MSUF_A2_DB.lua
-Auras2\MSUF_A2_Core.lua
-Auras2\MSUF_A2_Cache.lua
-Auras2\MSUF_A2_Collect.lua
-Auras2\MSUF_A2_Icons.lua
-Auras2\MSUF_A2_Layout.lua
-Auras2\MSUF_A2_Reminder.lua
-Auras2\MSUF_A2_Render.lua
-Auras2\MSUF_A2_Masque.lua
-Auras2\MSUF_A2_CooldownText.lua
-Auras2\MSUF_A2_Events.lua
-Auras2\MSUF_A2_EditMode.lua
+# ---------------------------------------------------------------
+# AURAS
+# ---------------------------------------------------------------
 
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
 # FEATURES
-# ═══════════════════════════════════════════════════════════════
-Features\MidnightSimpleUnitFrames_Gameplay.lua
-Features\MSUF_Gameplay_TotemPreview.lua
-Features\MSUF_Analytics.lua
-Features\MSUF_VersionCheck.lua
+# ---------------------------------------------------------------
+Features\Gameplay\MSUF_Feature_GameplayHelpers.lua
+Features\Gameplay\MSUF_Feature_GameplayConfig.lua
+Features\Gameplay\MSUF_Feature_GameplayRuntime.lua
+Features\Gameplay\MSUF_Feature_TargetSound.lua
+Features\Gameplay\MSUF_Feature_TotemPreview.lua
+Features\Telemetry\MSUF_Analytics.lua
+Features\Diagnostics\MSUF_Feature_GroupPulse.lua
+Features\Diagnostics\MSUF_Feature_AuraLayerProbe.lua
+Features\Versioning\MSUF_VersionCheck.lua
+Features\Versioning\MSUF_ClientVersionWarning.lua
 
-# ═══════════════════════════════════════════════════════════════
-# ★ BACKBONE
-# ═══════════════════════════════════════════════════════════════
-Core\MSUF_BarBackgroundRuntime.lua
-Core\MSUF_IconLayoutRuntime.lua
-Core\MSUF_FontRegistry.lua
-MidnightSimpleUnitFrames.lua
+# ---------------------------------------------------------------
+# UNITFRAME BACKBONE
+# ---------------------------------------------------------------
+Runtime\MSUF_BarBackgroundRuntime.lua
+Runtime\MSUF_IconLayoutRuntime.lua
+Runtime\MSUF_FontRegistry.lua
+UnitFrames\Embeds\MSUF_UFCore\MSUF_UFCore_Elements.xml
+Integrations\MSUF_Integration_NicknameProviders.lua
+Integrations\MSUF_Integration_NSRTNicknames.lua
 Integrations\MSUF_Integration_ThirdPartyAnchors.lua
-Core\MSUF_FramePreview.lua
-Core\MSUF_SwapRecolor.lua
-Core\MSUF_FontRuntime.lua
-Core\MSUF_TextureRuntime.lua
-Features\MidnightSimpleUnitFrames_DebugPos.lua
+UnitFrames\Embeds\MSUF_UFCore\MSUF_UFCore_Factory.xml
+Runtime\MSUF_FontRuntime.lua
+Runtime\MSUF_TextureRuntime.lua
 
-# ═══════════════════════════════════════════════════════════════
-# CORE (post-main)
-# ═══════════════════════════════════════════════════════════════
-Core\MSUF_Text.lua
-Core\MSUF_Bars.lua
-Core\MSUF_Castbars.lua
-Core\MSUF_PortraitMedia.lua
-Core\MSUF_Portraits.lua
-Core\MSUF_Alpha.lua
-Core\MSUF_LoadConditions.lua
-Core\MSUF_Borders.lua
-Core\MSUF_EliteIcon.lua
+# ---------------------------------------------------------------
+# CASTBARS / CLASS POWER
+# ---------------------------------------------------------------
+Castbars\MSUF_CastbarNativeTimer.lua
+Castbars\MSUF_Castbars_Core.lua
+Castbars\MSUF_CastbarStyle.lua
+Castbars\MSUF_CastbarUtils.lua
+Castbars\MSUF_CastbarRuntime.lua
+Castbars\MSUF_CastbarEmpower.lua
+Castbars\MSUF_CastbarChannelTicks.lua
+Castbars\MSUF_CastbarFrames.lua
+Castbars\MSUF_CastbarAnchors.lua
+Castbars\MSUF_PlayerCastbarRuntime.lua
+Castbars\MSUF_CastbarPreviewEdit.lua
+Castbars\MSUF_CastbarPreviews.lua
+Castbars\MSUF_CastbarVisuals.lua
+Castbars\MSUF_CastbarEngine.lua
+Castbars\MSUF_CastbarDriver.lua
+Castbars\MSUF_FocusKick_StateDriver.lua
+Castbars\MSUF_BossCastbars.lua
+Castbars\MSUF_BossCastbars_Preview.lua
+Castbars\MSUF_Castbars.lua
+Castbars\MSUF_CastbarGCD.lua
 ClassPower\MSUF_CP_Constants.lua
 ClassPower\MSUF_CP_Modes.lua
 ClassPower\MSUF_CP_Core.lua
 ClassPower\MSUF_CP_AltMana.lua
+ClassPower\MSUF_CP_PlayerHP.lua
 ClassPower\MSUF_CP_BalanceDruid.lua
+ClassPower\MSUF_CP_Ironfur.lua
+ClassPower\MSUF_CP_EbonMight.lua
 ClassPower\MSUF_CP_Controller.lua
-Core\MSUF_ClassPower.lua
 
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
 # GROUP FRAMES
-# ═══════════════════════════════════════════════════════════════
-Auras2\MSUF_AuraNative.lua
-GroupFrames\MSUF_GF_DB.lua
-GroupFrames\MSUF_GF_Core.lua
-GroupFrames\MSUF_GF_StatusIcons.lua
-GroupFrames\MSUF_GF_Text.lua
-GroupFrames\MSUF_GF_Highlight.lua
-GroupFrames\MSUF_GF_StatusOffline.lua
-GroupFrames\MSUF_GF_AuraEffects.lua
-GroupFrames\MSUF_GF_RangeThreat.lua
-GroupFrames\MSUF_GF_Effects.lua
-GroupFrames\MSUF_GF_FrameCache.lua
-GroupFrames\MSUF_GF_TooltipMouseover.lua
-GroupFrames\MSUF_GF_Cleanup.lua
-GroupFrames\MSUF_GF_Events.lua
-GroupFrames\MSUF_GF_Render.lua
-GroupFrames\MSUF_GF_GroupNumber.lua
-GroupFrames\MSUF_GF_SpellIndicators_Data.lua
-GroupFrames\MSUF_GF_SpellIndicators.lua
-GroupFrames\MSUF_GF_PrivateAuras.lua
-GroupFrames\MSUF_GF_AuraFilter.lua
-GroupFrames\MSUF_GF_Auras.lua
-GroupFrames\MSUF_GF_CornerIndicators.lua
-GroupFrames\MSUF_GF_HealerBuffs.lua
-GroupFrames\MSUF_GF_HealerBuffs_Editor.lua
-GroupFrames\MSUF_GF_EM2.lua
-GroupFrames\MSUF_GF_AuraPreview.lua
-GroupFrames\MSUF_GF_Masque.lua
+# ---------------------------------------------------------------
+UnitFrames\Embeds\MSUF_UFCore\MSUF_UFCore_Group.xml
+Integrations\MSUF_Integration_EllesmereUnlock.lua
 
-# ═══════════════════════════════════════════════════════════════
+# ---------------------------------------------------------------
 # OPTIONS
-# ═══════════════════════════════════════════════════════════════
-# MENU2
-Menu2\MSUF_Menu2_Support.lua
-Menu2\MSUF_Menu2_Theme.lua
-Menu2\MSUF_Menu2_Widgets.lua
-Menu2\MSUF_Menu2_PreviewHelpers.lua
-Menu2\MSUF_Menu2_Dropdowns.lua
-Menu2\MSUF_Menu2_Bindings.lua
-Menu2\MSUF_Menu2_Core.lua
-Menu2\MSUF_Menu2_Dashboard.lua
-Menu2\MSUF_Menu2_SearchData.lua
-Menu2\MSUF_Menu2_Search.lua
-Menu2\Pages\MSUF_Menu2_Unit.lua
-Menu2\Pages\MSUF_Menu2_UnitPreview.lua
-Menu2\Pages\MSUF_Menu2_UnitSections.lua
-Menu2\Pages\MSUF_Menu2_Global.lua
-Menu2\Pages\MSUF_Menu2_GlobalFonts.lua
-Menu2\Pages\MSUF_Menu2_GlobalBars.lua
-Menu2\Pages\MSUF_Menu2_GlobalCastbars.lua
-Menu2\Pages\MSUF_Menu2_GlobalMisc.lua
-Menu2\Pages\MSUF_Menu2_GroupPreview.lua
-Menu2\Pages\MSUF_Menu2_Group.lua
-Menu2\Pages\MSUF_Menu2_GroupLayout.lua
-Menu2\Pages\MSUF_Menu2_GroupBars.lua
-Menu2\Pages\MSUF_Menu2_GroupAuras.lua
-Menu2\Pages\MSUF_Menu2_GroupIndicators.lua
-Menu2\Pages\MSUF_Menu2_Advanced.lua
-Menu2\Pages\MSUF_Menu2_AdvancedColors.lua
-Menu2\Pages\MSUF_Menu2_AdvancedGameplay.lua
-Menu2\Pages\MSUF_Menu2_AdvancedClassPower.lua
-Menu2\Pages\MSUF_Menu2_AdvancedProfiles.lua
+# ---------------------------------------------------------------
+# The 5 MB Menu2 implementation lives in MidnightSimpleUnitFrames_Options and
+# is loaded synchronously on first configuration demand. Only runtime contracts
+# that already apply before the menu opens stay in the main addon.
+Runtime\MSUF_UIScaleRuntime.lua
+Runtime\MSUF_WelcomeMessage.lua
+Kernel\MSUF_OptionsLoader.lua
 
-# ═══════════════════════════════════════════════════════════════
-# MODULES
-# ═══════════════════════════════════════════════════════════════
-Modules\MSUF_InterruptReady.lua
-Modules\MidnightSimpleUnitFrames_FocusKickIcon.lua
-Modules\MSUF_RoundedUnitframes.lua
-Modules\MSUF_PortraitDecoration.lua
+# ---------------------------------------------------------------
+# OPTIONAL VISUAL / CASTBAR FEATURES
+# ---------------------------------------------------------------
+Castbars\MSUF_InterruptReady.lua
+Castbars\MSUF_FocusKickIcon.lua
+UnitFrames\Effects\MSUF_UF_RoundedFrames.lua
+Castbars\MSUF_CastbarRounded.lua
+UnitFrames\Effects\MSUF_UF_TextureLayer.lua
