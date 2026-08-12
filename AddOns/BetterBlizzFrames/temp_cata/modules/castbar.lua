@@ -8,6 +8,9 @@ local UnitChannelInfo = UnitChannelInfo
 local classicCastbarTexture = 137012
 function BBF.UpdateClassicCastbarTexture(texture)
     classicCastbarTexture = BetterBlizzFramesDB.changeUnitFrameCastbarTexture and texture or 137012
+    for _, spellbar in pairs(spellBars) do
+        spellbar:SetStatusBarTexture(classicCastbarTexture)
+    end
 end
 
 local CastingBarFrame = CastingBarFrame or PlayerCastingBarFrame
@@ -305,6 +308,10 @@ function BBF.CreateCastbars()
                     UpdateCastTimer(self, elapsed)
                 end)
             end
+
+            spellbar:HookScript("OnEvent", function(self)
+                self:SetStatusBarTexture(classicCastbarTexture)
+            end)
 
             spellBars[i] = spellbar
         end
@@ -1090,4 +1097,150 @@ function BBF.HookCastbarsForEvoker()
     --     end)
     --     evokerCastbarsHooked = true
     -- end
+end
+
+local CastStartEvents = {
+    UNIT_SPELLCAST_START            = true,
+    UNIT_SPELLCAST_CHANNEL_START    = true,
+    PLAYER_TARGET_CHANGED           = true,
+    PLAYER_FOCUS_CHANGED            = true,
+}
+
+local function GetCastbarTargetName(unit)
+    local name = UnitSpellTargetName(unit)
+    if not name then return end
+
+    local class = UnitSpellTargetClass(unit)
+    if not class then
+        _, class = UnitClass(unit .. "target")
+    end
+    return name, class
+end
+
+local function GetColoredTargetString(name, class)
+    if not name then return end
+    if class then
+        local color = C_ClassColor and C_ClassColor.GetClassColor(class) or RAID_CLASS_COLORS[class]
+        if color then
+            if color.WrapTextInColorCode then
+                return color:WrapTextInColorCode(name)
+            elseif color.colorStr then
+                return "|c" .. color.colorStr .. name .. "|r"
+            end
+        end
+    end
+    return name
+end
+
+local TARGET_TEXT_ANCHORS = {
+    BOTTOM = { "TOP", "BOTTOM" },
+    TOP    = { "BOTTOM", "TOP" },
+    LEFT   = { "RIGHT", "LEFT" },
+    RIGHT  = { "LEFT", "RIGHT" },
+    CENTER = { "CENTER", "CENTER" },
+}
+
+local function ApplyTargetTextSettings(castBar)
+    local text = castBar and castBar.bbfTargetText
+    if not text then return end
+
+    local db = BetterBlizzFramesDB
+    local placement = TARGET_TEXT_ANCHORS[db.castBarTargetTextOutsideAnchor or "BOTTOM"]
+        or TARGET_TEXT_ANCHORS.BOTTOM
+
+    text:ClearAllPoints()
+    text:SetPoint(placement[1], castBar, placement[2],
+        db.castBarTargetTextOutsideXPos or 0, db.castBarTargetTextOutsideYPos or 0)
+
+    local font, _, flags = text:GetFont()
+    if font then
+        text:SetFont(font, db.castBarTargetTextOutsideSize or 10, flags)
+    end
+end
+
+local function GetOutsideTargetText(castBar)
+    if not castBar.bbfTargetText then
+        castBar.bbfTargetText = castBar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        ApplyTargetTextSettings(castBar)
+    end
+    return castBar.bbfTargetText
+end
+
+local function TargetTextHiddenForUnit(unit)
+    return BetterBlizzFramesDB.castBarTargetTextHideOnNpcs and unit and not UnitIsPlayer(unit)
+end
+
+function BBF.CastbarTargetTextCaller()
+    local db = BetterBlizzFramesDB
+
+    for _, castBar in ipairs({ TargetFrameSpellBar, FocusFrameSpellBar }) do
+        if db.castBarTargetText and db.castBarTargetTextOutside then
+            GetOutsideTargetText(castBar)
+            ApplyTargetTextSettings(castBar)
+            if TargetTextHiddenForUnit(castBar.unit) then
+                castBar.bbfTargetText:SetText("")
+            end
+        elseif castBar.bbfTargetText then
+            castBar.bbfTargetText:SetText("")
+        end
+    end
+end
+
+function BBF.CastbarTargetText(castBar)
+    if BetterBlizzFramesDB.castBarTargetTextOutside then
+        GetOutsideTargetText(castBar)
+    end
+
+    castBar:HookScript("OnEvent", function(self, event)
+        if not CastStartEvents[event] then return end
+
+        local outside = BetterBlizzFramesDB.castBarTargetTextOutside
+        local spell = UnitCastingInfo(self.unit) or UnitChannelInfo(self.unit)
+        if not spell then
+            if outside and self.bbfTargetText then
+                self.bbfTargetText:SetText("")
+            end
+            return
+        end
+
+        local name, class = GetCastbarTargetName(self.unit)
+        local coloredName = GetColoredTargetString(name, class)
+        if TargetTextHiddenForUnit(self.unit) then
+            coloredName = nil
+        end
+
+        if outside then
+            GetOutsideTargetText(self):SetText(coloredName or "")
+        elseif coloredName then
+            self.Text:SetText(spell .. ": " .. coloredName)
+        end
+    end)
+end
+
+function BBF.CastbarTargetHighlight(castBar)
+    castBar.castOnMeHighlight = castBar:CreateTexture(nil, "OVERLAY", nil, 7)
+    castBar.castOnMeHighlight:SetAtlas("ui-hud-nameplates-targetedbyenemy")
+    castBar.castOnMeHighlight:SetPoint("TOPLEFT", -2.5, 2)
+    castBar.castOnMeHighlight:SetPoint("BOTTOMRIGHT", 2.5, -2)
+    castBar.castOnMeHighlight:SetAlpha(0)
+
+    castBar:HookScript("OnEvent", function(self)
+        self.castOnMeHighlight:SetAlpha(PlayerIsSpellTarget(self.unit) and 1 or 0)
+    end)
+end
+
+function BBF.HookCastbars()
+    if BetterBlizzFramesDB.castBarTargetText then
+        BBF.CastbarTargetText(TargetFrameSpellBar)
+        if FocusFrameSpellBar then
+            BBF.CastbarTargetText(FocusFrameSpellBar)
+        end
+    end
+
+    if BetterBlizzFramesDB.castBarTargetHighlight then
+        BBF.CastbarTargetHighlight(TargetFrameSpellBar)
+        if FocusFrameSpellBar then
+            BBF.CastbarTargetHighlight(FocusFrameSpellBar)
+        end
+    end
 end
