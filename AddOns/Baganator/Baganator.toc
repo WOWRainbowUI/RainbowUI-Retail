@@ -1,6 +1,6 @@
-## Interface: 120007, 50504, 38001, 20506, 11508, 11509
+## Interface: 120100, 120007, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 815
+## Version: 816
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA

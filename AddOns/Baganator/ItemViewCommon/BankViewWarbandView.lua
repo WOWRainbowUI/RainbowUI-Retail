@@ -27,6 +27,8 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:OnLoad()
   self.currentTab = addonTable.Config.Get(addonTable.Config.Options.WARBAND_CURRENT_TAB)
   self.updateTabs = true
 
+  self.bankType = Enum.BankType.Account
+
   addonTable.Utilities.AddBagSortManager(self) -- self.sortManager
   addonTable.Utilities.AddBagTransferManager(self) -- self.transferManager
 
@@ -305,15 +307,6 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:SetupBlizzardFramesForT
   if self.isLive then
     local tabInfo = Syndicator.API.GetWarband(1).bank[self.currentTab]
     local bagID = Syndicator.Constants.AllWarbandIndexes[self.currentTab];
-
-    -- Ensure right-clicking a bag item puts the item into this bank
-    (AccountBankPanel or BankPanel).selectedTabID = bagID;
-    if Syndicator.Constants.CharacterBankTabsActive then
-      BankFrame.BankPanel:SetBankType(Enum.BankType.Account)
-    else
-      BankFrame.activeTabIndex = addonTable.Constants.BlizzardBankTabConstants.Warband
-      BankFrame.selectedTab = 1
-    end
 
     -- Workaround so that the tab edit UI shows the details for the current tab
     self.TabSettingsMenu.GetBankFrame = function()
