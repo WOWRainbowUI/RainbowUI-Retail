@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 115
+local MAJOR, MINOR = "EditModeExpanded-1.0", 117
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -139,6 +139,20 @@ setmetatable(framesDialogsKeys, {
     end,
 })
 
+-- archived from EditModeSystemTemplates.lua
+local EditModeSystemSelectionLayout =
+{
+	["TopRightCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=8, y=8 },
+	["TopLeftCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=-8, y=8 },
+	["BottomLeftCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=-8, y=-8 },
+	["BottomRightCorner"] = { atlas = "%s-NineSlice-Corner",  mirrorLayout = true, x=8, y=-8 },
+	["TopEdge"] = { atlas = "_%s-NineSlice-EdgeTop" },
+	["BottomEdge"] = { atlas = "_%s-NineSlice-EdgeBottom" },
+	["LeftEdge"] = { atlas = "!%s-NineSlice-EdgeLeft" },
+	["RightEdge"] = { atlas = "!%s-NineSlice-EdgeRight" },
+	["Center"] = { atlas = "%s-NineSlice-Center", x = -8, y = 8, x1 = 8, y1 = -8, },
+};
+
 --
 -- Public API
 --
@@ -253,6 +267,19 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     frame.BreakFrameSnap = function() end
     frame.SnapToFrame = function() end
     
+    function frame:HighlightSystem()
+    	if self.isDragging then
+    		self:OnDragStop();
+    	end
+
+    	self:SetMovable(false);
+    	--self:AnchorSelectionFrame();
+    	self.Selection:ShowHighlighted();
+    	self.isHighlighted = true;
+    	self.isSelected = false;
+    	--self:UpdateMagnetismRegistration();
+    end
+    
     frame.system = nextSystemIDIndex
     nextSystemIDIndex = nextSystemIDIndex + 1
     baseFramesDB[frame.system] = baseDB 
@@ -269,9 +296,31 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     end
 
     frame.Selection = CreateFrame("Frame", nil, frame, "EditModeSystemSelectionTemplate")
+    frame.Selection.CheckShowInstructionalTooltip = nop
     frame.Selection:SetAllPoints(frame)
     frame.defaultHideSelection = true
     frame.Selection:Hide()
+    
+    function frame.Selection:ShowHighlighted()
+    	if self.textureShown ~= "highlight" then
+    		NineSliceUtil.ApplyLayout(self, EditModeSystemSelectionLayout, self.highlightTextureKit);
+    		self.textureShown = "highlight";
+    	end
+    	self.isSelected = false;
+    	--self:UpdateLabelVisibility();
+    	self:Show();
+    end
+
+    function frame.Selection:ShowSelected()
+    	if self.textureShown ~= "selected" then
+    		NineSliceUtil.ApplyLayout(self, EditModeSystemSelectionLayout, self.selectedTextureKit);
+    		self.textureShown = "selected";
+    	end
+    	self.isSelected = true;
+    	--self:UpdateLabelVisibility();
+    	--self:CheckShowInstructionalTooltip();
+    	self:Show();
+    end
     
     frame.systemNameString = name
     
@@ -298,7 +347,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
         }
     )
     
-    function frame.UpdateMagnetismRegistration() end
+    frame.UpdateMagnetismRegistration = nop
 
     frame.Selection:SetScript("OnMouseDown", function()
         frame:SelectSystem()
@@ -316,6 +365,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
                 EditModeExpandedSystemSettingsDialog:Hide()
             end
         end
+        
         for _, frame2 in ipairs(frames) do
             if frame2 ~= frame then
                 frame2:HighlightSystem()
@@ -1924,6 +1974,10 @@ end
 -- Handle frame being based on a frame other than UIParent
 --
 function getOffsetXY(frame, x, y)
+    if issecretvalue(x) or issecretvalue(y) then
+        return x, y
+    end
+    
     local scale = frame:GetEffectiveScale()
     local parentscale = frame.EMEanchorTo:GetEffectiveScale()
 
