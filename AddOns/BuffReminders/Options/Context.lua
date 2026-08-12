@@ -65,8 +65,11 @@ BR.Options.Constants = {
 BR.Options.Groups = {
     {
         id = "buffs",
-        titleKey = "Sidebar.BuffsReminders",
-        pages = { "allBuffs", "custom", "loadout" },
+        titleKey = "Sidebar.Buffs",
+        -- Externals last: the three pages before it configure reminders (what's
+        -- MISSING), and it is the inverse (what you RECEIVE). Keeping the reminder
+        -- pages contiguous is what makes the two functionalities read as distinct.
+        pages = { "allBuffs", "custom", "loadout", "externals" },
     },
     {
         id = "appearance",
@@ -290,6 +293,7 @@ end
 ---@param config table {
 ---  header?     string   - section header text (omit for no header)
 ---  note?       string   - section note text (omit for none)
+---  warning?    string   - caution note (amber) under the note (omit for none)
 ---  addLabel    string   - Add button label
 ---  addWidth?   number   - Add button width (default 160)
 ---  onAdd       function(render) - opens the editor dialog; pass render as its refresh cb
@@ -310,6 +314,9 @@ function Helpers.ListEditor(content, scrollFrame, config)
     end
     if config.note then
         Helpers.LayoutSectionNote(layout, content, config.note)
+    end
+    if config.warning then
+        Helpers.LayoutSectionNote(layout, content, "|cffe0b34d" .. config.warning .. "|r")
     end
 
     local rowHeight = config.rowHeight

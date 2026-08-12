@@ -114,6 +114,7 @@ english["Overlay.NoFamiliar"] = "NO\nFAMILIAR"
 english["Overlay.DropWell"] = "DROP\nWELL"
 english["Overlay.DropTable"] = "DROP\nTABLE"
 english["Overlay.Repair"] = "REPAIR\nGEAR"
+english["Overlay.RepairLabel"] = "REPAIR"
 english["Overlay.NoGrim"] = "NO\nGRIM"
 english["Overlay.BurningRush"] = "RUSH"
 english["Overlay.NoRite"] = "NO\nRITE"
@@ -266,7 +267,7 @@ english["Tooltip.InstanceEntryReminder"] = "Instance Entry Reminder"
 english["Tooltip.InstanceEntryReminder.Desc"] =
     "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds."
 english["Tooltip.MageFood"] = "Healers Only"
-english["Tooltip.MageFood.Desc"] = "Only shown while you're playing a healer, since conjured mage food restores mana."
+english["Tooltip.MageFood.Desc"] = "Only shown while you're playing a healer"
 english["BuffTooltip.ProvidedBy"] = "Provided by %s"
 
 -- ============================================================================
@@ -321,6 +322,8 @@ english["Display.LoginFirstInstall"] =
     "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
 english["Display.LoginSnooze"] =
     "The consumable dismiss button is now a right-click: right-click a consumable to snooze its reminders, or type |cFFFFD100/br snooze|r."
+english["Display.LoginExternals"] =
+    "New: |cFFFFD100External Buffs|r shows Power Infusion, Bloodlust, externals and Augmentation buffs while they are on you - and keeps working in combat. Turn it on under |cFFFFD100/br|r > Buffs > External Buffs."
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -329,10 +332,29 @@ english["Tab.DisplayBehavior"] = "Display/Behavior"
 
 -- Sidebar groups
 english["Sidebar.AddonSettings"] = "Addon Settings"
-english["Sidebar.BuffsReminders"] = "Buffs & Reminders"
+english["Sidebar.Buffs"] = "Buffs"
 english["Sidebar.Appearance"] = "Appearance"
 english["Sidebar.Display"] = "Display"
 english["Sidebar.Alerts"] = "Alerts"
+-- Externals (present-based display)
+english["Externals.Title"] = "External Buffs"
+english["Externals.PageNote"] =
+    "The game marks these buffs secret and draws the icons itself, so the addon never sees their data. That is why they stay visible in combat - and why only buffs on you can be shown, with nothing to customize beyond size and spacing."
+english["Externals.Enable"] = "Enable external buffs"
+english["Externals.EnableTooltip"] = "Show a row of icons for the buffs selected below while they are active on you."
+english["Externals.DisabledReason"] = "Enable external buffs first."
+english["Externals.EnableElsewhere"] = "Enable external buffs on the Buffs > External Buffs page first."
+english["Externals.Defensives"] = "External Defensives"
+english["Externals.GroupBuffs"] = "Group Buffs"
+english["Externals.Augmentation"] = "Augmentation"
+-- Groups Bloodlust/Heroism/Time Warp/Fury of the Aspects/Primal Rage/Ancient Hysteria
+english["Externals.Bloodlust"] = "Bloodlust"
+english["Externals.MoverTooltip"] = "Drag to reposition"
+english["Externals.DurationSize"] = "Countdown size"
+english["Externals.Appearance"] = "Appearance"
+english["Externals.AppearanceNote"] =
+    "While these buffs are secret the game forbids restyling their icons, so changes made in combat apply as soon as you leave it. Unlock the frames to drag the row."
+english["Externals.MasqueNote"] = "Masque cannot skin these icons: their size reads back as a secret value."
 
 -- Page titles
 english["Page.General"] = "General"
@@ -342,7 +364,7 @@ english["Page.ChatRequests"] = "Chat Requests"
 english["Page.Layout"] = "Layout"
 english["Page.Categories"] = "Categories"
 english["Page.Profiles"] = "Profiles"
-english["Page.AllBuffs"] = "All Buffs"
+english["Page.Reminders"] = "Reminders"
 
 -- Per-category page section headers
 english["Section.Tracking"] = "Tracking"
@@ -366,6 +388,9 @@ english["Options.Preview"] = "Preview"
 english["Options.GlobalDefaults"] = "Global Defaults"
 english["Options.GlobalDefaults.Note"] = "(All categories inherit these unless overridden with a custom appearance)"
 english["Options.Default"] = "Default"
+english["Options.Text"] = "Text"
+english["Options.Text.Note"] =
+    "(Size and color can be overridden per category; font, outline and position always apply everywhere)"
 english["Options.Font"] = "Font"
 english["Options.TextOutline"] = "Outline"
 english["Options.TextOutline.None"] = "None"
@@ -484,6 +509,9 @@ english["Options.TextPositions"] = "Text"
 english["Options.TextPositions.Zone"] = "Position"
 english["Options.TextPositions.OffsetX.Short"] = "X"
 english["Options.TextPositions.OffsetY.Short"] = "Y"
+english["Options.TextPositions.MainText"] = "Main text"
+english["Options.TextPositions.MainText.Note"] =
+    "Position of the big text on the icon - group counts like 17/20, countdowns, and labels like NO FLASK."
 english["Options.TextPositions.StackCount"] = "Stack count"
 english["Options.TextPositions.StatLabel"] = "Stat label"
 english["Options.TextPositions.Badge"] = "Badge (H / F)"
@@ -650,11 +678,9 @@ english["Options.Layout"] = "Layout"
 english["Options.SplitFrame"] = "Split into separate frame"
 english["Options.SplitFrame.Desc"] = "Display this category's buffs in a separate, independently movable frame"
 
--- Display Order section (Defaults page) - drives the same priority field the
--- old per-category slider wrote, but as a single ordered list across all
--- non-split categories.
+-- Stacking Order section (Layout page): one ordered list across all non-split
+-- categories, driving each category's priority field.
 english["Options.DisplayOrder"] = "Stacking Order"
-english["Options.DisplayOrder.Moved"] = "Looking for Display Order? It moved to the Layout page."
 
 -- Layout page
 english["Layout.PositionFrames"] = "Position Frames"
@@ -666,7 +692,7 @@ english["Layout.SplitFrames.Note"] =
 english["Layout.NoSplitFrames"] = "No categories are split into their own frame."
 english["Layout.DetachedIcons"] = "Detached Icons"
 english["Layout.NoDetached"] =
-    'No detached icons. Detach a buff from its settings panel on the All Buffs page ("Own frame").'
+    'No detached icons. Detach a buff from its settings panel on the Reminders page ("Own frame").'
 english["Layout.AnchorTargets"] = "Anchor Targets"
 english["Layout.AnchorFrame.Desc"] = "Attach this frame to another frame instead of a fixed screen position."
 english["Layout.AnchorPoint.Desc"] = "Which corner or edge of the anchor frame to attach to."
@@ -893,6 +919,8 @@ english["CustomBuff.EditShort"] = "Edit"
 english["CustomBuff.Add"] = "Add Custom Buff"
 english["CustomBuff.AddButton"] = "+ Add Custom Buff"
 english["CustomBuff.Empty"] = "No custom buffs yet. Add one below."
+english["CustomBuff.RestrictedNote"] =
+    "Hidden in combat, boss encounters and Mythic+ - WoW blocks aura reads there. Bar glow detection works in combat."
 english["CustomBuff.SpellIDs"] = "Spell IDs:"
 english["CustomBuff.Lookup"] = "Lookup"
 english["CustomBuff.AddSpellID"] = "+ Add Spell ID"
@@ -1027,7 +1055,7 @@ english["Appearance.Zoom"] = "Zoom"
 english["Appearance.Border"] = "Border"
 english["Appearance.Spacing"] = "Spacing"
 english["Appearance.Alpha"] = "Alpha"
-english["Appearance.Text"] = "Text"
+english["Appearance.Text"] = "Text size"
 
 -- Slider tooltip
 english["Component.AdjustValue"] = "Adjust value"
