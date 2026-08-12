@@ -60,7 +60,8 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				chatWindowPosition = true,
 				chatChannels = true,
 				systemGraphics = false,
-				systemAudio = false
+				systemAudio = false,
+				systemModifierKeys = false
 			},
 			syncData = {
 				editModeLayoutID = "unset",
@@ -172,6 +173,9 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				},
 				systemAudio = {
 					cvars = {}
+				},
+				systemModifierKeys = {
+					special = {}
 				},
 				chat = {
 					windows = {
@@ -323,10 +327,10 @@ function AccWideUIAceAddon:GenerateOptions()
 									},
 									autoLoot = {
 										type = "toggle",
-										name = L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT"],
+										name = (self:IsMainline() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT"]),
 										order = 50,
 										width = thisCheckboxWidth,
-										desc = L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_DESC"],
+										desc = (self:IsMainline() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE_DESC"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_DESC"]),
 										hidden = (not self:SupportsGameFunction("autoLoot"))
 									},
 									empowerTap = {
@@ -619,6 +623,13 @@ function AccWideUIAceAddon:GenerateOptions()
 										order = 11,
 										width = thisCheckboxWidth,
 										desc = L["ACCWUI_OPT_MODULES_CHK_SYSAUDIO_DESC"],
+									},
+									systemModifierKeys = {
+										type = "toggle",
+										name = L["ACCWUI_OPT_MODULES_CHK_SYSMODKEYS"],
+										order = 12,
+										width = thisCheckboxWidth,
+										desc = L["ACCWUI_OPT_MODULES_CHK_SYSMODKEYS_DESC"],
 									},
 								}
 							},

@@ -74,7 +74,13 @@ AccWideUIAceAddon.CVars = {
 		"showVKeyCastbarOnlyOnTarget",
 		"nameplateShowCastBars",
 		"nameplateSimplifiedScale",
-		"nameplateUseClassColorForFriendlyPlayerUnitNames"
+		"nameplateUseClassColorForFriendlyPlayerUnitNames",
+		"nameplateShowFriends",
+		"nameplateShowAllPersonalAuras",
+		"nameplatePlayRemovalAnimation",
+		"nameplateNotSelectedAlpha",
+		"nameplateForceShowUnitName",
+		"nameplateCheckDistanceForTarget"
 	},
 
 	RaidFrames = {
@@ -105,6 +111,7 @@ AccWideUIAceAddon.CVars = {
 		"threatWarning",
 		"noBuffDebuffFilterOnTarget",
 		"raidFramesCenterBigDefensive",
+		"raidFramesDispelIndicatorOverlayAnimation",
 		"raidFramesDispelIndicatorOverlay",
 		"raidFramesDispelIndicatorType",
 		"raidFramesDisplayLargerRoleSpecificDebuffs",
@@ -274,12 +281,7 @@ AccWideUIAceAddon.CVars = {
 	ExternalDefensives = {
 		"externalDefensivesEnabled"
 	},
-	
-	EncounterTimeline = {
-		"encounterTimelineHideForOtherRoles",
-		"encounterWarningsHideIfNotTargetingPlayer"
-	},
-	
+		
 	CombatMisc = {
 		"assistAttack",
 		"autoRangedCombat",
@@ -676,6 +678,24 @@ AccWideUIAceAddon.CVars = {
 		"VoiceSelfMuted",
 		"VoiceVADSensitivity"
 	},
+	
+	System_ModifierKeys = {
+		"AUTOLOOTTOGGLE",
+		"CHATLINK",
+		"COMPAREITEMS",
+		"DRESSUP",
+		"FOCUSCAST",
+		"OPENALLBAGS",
+		"PICKUPACTION",
+		"QUESTWATCHTOGGLE",
+		"SELFCAST",
+		"SHOWITEMFLYOUT",
+		"SOCKETITEM",
+		"SPLITSTACK",
+		"STICKYCAMERA",
+		"TOKENWATCHTOGGLE",
+		"SHOWMULTICASTFLYOUT"
+	},
 
 	-- https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_ChatFrameBase/Shared/ChatTypeInfoConstants.lua
 	ChatTypes = {
@@ -767,7 +787,8 @@ AccWideUIAceAddon.CVars = {
 		"GUILD_ITEM_LOOTED",
 		"COMMUNITIES_CHANNEL",
 		"VOICE_TEXT",
-		"PING"
+		"PING",
+		"GUILD_DISCORD"
 	}
 	
 }
