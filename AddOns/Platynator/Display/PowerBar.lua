@@ -110,6 +110,14 @@ end)
 
 addonTable.Display.PowerBarMixin = {}
 
+function addonTable.Display.PowerBarMixin:PostInit()
+  if not self.details.useSpecColors then
+    self.fixedColor = self.details.fixedColor
+  else
+    self.fixedColor = nil
+  end
+end
+
 function addonTable.Display.PowerBarMixin:Strip()
   self.asset = nil
   self.registered = nil
@@ -180,8 +188,9 @@ function addonTable.Display.PowerBarMixin:ApplyTarget()
     self:Show()
 
     local points = {}
+    local color = self.fixedColor or powerColor
     for i = 1, maxPower do
-      table.insert(points, {set = i <= currentPower, color = powerColor})
+      table.insert(points, {set = i <= currentPower, color = color})
     end
 
     if addonTable.Constants.IsRetail then

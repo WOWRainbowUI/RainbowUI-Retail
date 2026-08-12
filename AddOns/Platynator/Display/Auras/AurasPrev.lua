@@ -1,6 +1,8 @@
 ---@class addonTablePlatynator
 local addonTable = select(2, ...)
 
+local auraFormatter, _auraPlainFormatter = addonTable.Display.Utilities.GetAuraNumericFormatter()
+
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local pandemicCurve
@@ -144,6 +146,67 @@ local function GetAurasPoolLegacy(self)
   end)
 end
 
+local function StyleAura(auraFrame, details)
+  auraFrame.kind = details.kind
+
+  auraFrame:EnableMouseMotion(details.showTooltips)
+
+  auraFrame.CountFrame.Count:SetFontObject(addonTable.CurrentFont)
+  auraFrame.CountFrame.Count:ClearAllPoints()
+  addonTable.Display.ApplyAnchor(auraFrame.CountFrame.Count, details.texts.stacks.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.stacks.scale or 1)
+  if addonTable.CurrentFontUsesSmoothing then
+    auraFrame.CountFrame.Count:SetTextScale(1)
+    auraFrame.CountFrame.Count:SetScale(details.texts.stacks.scale)
+  else
+    auraFrame.CountFrame.Count:SetTextScale(details.texts.stacks.scale)
+    auraFrame.CountFrame.Count:SetScale(1)
+  end
+  local c1 = details.texts.stacks.color
+  auraFrame.CountFrame.Count:SetTextColor(c1.r, c1.g, c1.b)
+  auraFrame.CountFrame.Count:SetShown(details.texts.stacks.visible);
+
+  auraFrame.Cooldown:SetHideCountdownNumbers(not details.texts.countdown.visible)
+
+  if details.texts.countdown.visible then
+    auraFrame.Cooldown.Text:SetFontObject(addonTable.CurrentFont)
+    auraFrame.Cooldown.Text:ClearAllPoints()
+    addonTable.Display.ApplyAnchor(auraFrame.Cooldown.Text, details.texts.countdown.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.countdown.scale or 1)
+    if addonTable.CurrentFontUsesSmoothing then
+      auraFrame.Cooldown.Text:SetTextScale(1)
+      auraFrame.Cooldown.Text:SetScale(details.texts.countdown.scale)
+    else
+      auraFrame.Cooldown.Text:SetTextScale(details.texts.countdown.scale)
+      auraFrame.Cooldown.Text:SetScale(1)
+    end
+    local c2 = details.texts.countdown.color
+    auraFrame.Cooldown.Text:SetTextColor(c2.r, c2.g, c2.b)
+    if addonTable.Constants.IsCooldownFormattingAvailable then
+      if details.texts.countdown.showFractions then
+        auraFrame.Cooldown:SetCountdownFormatter(auraFormatter)
+      else
+        auraFrame.Cooldown:SetCountdownFormatter(nil)
+        auraFrame.Cooldown:SetCountdownAbbrevThreshold(20)
+      end
+    end
+  end
+
+  if auraFrame.CountFrame.Count.SetSmoothScaling then
+    auraFrame.CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+    auraFrame.Cooldown.Text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+  end
+
+  auraFrame.Cooldown:SetDrawEdge(details.showSwipe)
+  auraFrame.Cooldown:SetDrawSwipe(details.showSwipe)
+
+  PixelUtil.SetSize(auraFrame, 20, 20 * details.height)
+  PixelUtil.SetSize(auraFrame.Border, 20, 20 * details.height)
+  PixelUtil.SetSize(auraFrame.Icon, 20, 20 * details.height)
+  local texBase = 0.95 * (1 - details.height) / 2
+  auraFrame.Icon:SetTexCoord(0.05, 0.95, 0.05 + texBase, 0.95 - texBase)
+
+  auraFrame.Dispel:SetShown(details.showType)
+end
+
 function addonTable.Display.SetupLegacyAuras(self)
   self.AurasPools = {
     buffs = GetAurasPoolLegacy(self),
@@ -213,7 +276,7 @@ function addonTable.Display.SetupLegacyAuras(self)
 
         if auraFrame.styleIndex ~= self.styleIndex then
           auraFrame.styleIndex = self.styleIndex
-          addonTable.Display.StyleAura(auraFrame, details)
+          StyleAura(auraFrame, details)
           if details.showStealable then
             auraFrame.Pandemic:SetVertexColor(1, 171/255, 26/255)
           elseif details.showPandemic then

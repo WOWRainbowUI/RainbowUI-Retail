@@ -496,6 +496,12 @@ do
     end
   end
 
+  function addonTable.Display.Utilities.MigrateAuraFilters()
+    if specializationID then
+      UpdateAuraFilters()
+    end
+  end
+
   do
     local specializationMonitor = CreateFrame("Frame")
 
@@ -741,34 +747,50 @@ do
 end
 
 do
-  local auraFormatter
-  if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
-    auraFormatter = C_StringUtil.CreateNumericRuleFormatter()
-    auraFormatter:SetBreakpoints({
-      {
-        threshold = 0,
-        step = 0.1,
-        format = "%.1f",
-      },
-      {
-        threshold = 3,
-        step = 1,
-        format = "%d",
-      },
-      {
-        threshold = 60,
-        format = COOLDOWN_DURATION_MIN,
-        components = {
-          {
-            div = 60,
-            step = 1,
-          }
+  local auraFormatter = C_StringUtil.CreateNumericRuleFormatter()
+  auraFormatter:SetBreakpoints({
+    {
+      threshold = 0,
+      step = 0.1,
+      format = "%.1f",
+    },
+    {
+      threshold = 3,
+      step = 1,
+      format = "%d",
+    },
+    {
+      threshold = 60,
+      format = COOLDOWN_DURATION_MIN,
+      components = {
+        {
+          div = 60,
+          step = 1,
         }
       }
-    })
-  end
+    }
+  })
+
+  local auraPlainFormatter = C_StringUtil.CreateNumericRuleFormatter()
+  auraPlainFormatter:SetBreakpoints({
+    {
+      threshold = 0,
+      step = 1,
+      format = "%d",
+    },
+    {
+      threshold = 60,
+      format = COOLDOWN_DURATION_MIN,
+      components = {
+        {
+          div = 60,
+          step = 1,
+        }
+      }
+    }
+  })
 
   function addonTable.Display.Utilities.GetAuraNumericFormatter()
-    return auraFormatter
+    return auraFormatter, auraPlainFormatter
   end
 end
