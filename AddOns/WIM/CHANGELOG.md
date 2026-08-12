@@ -1,10 +1,10 @@
 # WIM
 
-## [3.16.15](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.16.15) (2026-07-24)
-[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.16.14...3.16.15) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
+## [3.17.3](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.17.3) (2026-08-07)
+[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.17.2...3.17.3) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
 
-- Merge pull request #264 from Gogo1951/patch-8  
-    Update WIM.toc  
-- Update WIM.toc  
-    Update for current game clients.  
-    There are some other bugs but they existed before; good to just get the ToC updated.  
+- Merge pull request #270 from Gogo1951/patch-10  
+    Enhance ShortcutBar button handling  
+- Enhance ShortcutBar button handling  
+    Add parentWindow property to buttons and update friend button logic.  
+    Getting some lua errors in Classic Era.  
