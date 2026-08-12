@@ -12,6 +12,8 @@ DFFNamePlates.tabs = {}
 DFFNamePlates.settings = {}
 DFFNamePlates.gameFonts = { SystemFont_NamePlate_Outlined, SystemFont_NamePlate }
 DFFNamePlates.instanceType = "none"
+DFFNamePlates.encounterBlock = false
+DFFNamePlates.isPlaterLoaded = C_AddOns.IsAddOnLoaded("Plater")
 
 DFFN.DFFNamePlates = DFFNamePlates
 
@@ -29,7 +31,7 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.9"
+local ADDON_VERSION = "2.10"
 local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
@@ -342,6 +344,7 @@ end
 function DFFNamePlates:IsShowOnlyNameNPC()
     local mode = DFFriendlyNamePlates.NamePlatesSettings.showOnlyNameNpcType
     local it = DFFNamePlates.instanceType
+    local isEncounterBlock = DFFNamePlates.encounterBlock
 
     if mode == "dungeon" and it ~= "party" then
         return false
@@ -352,13 +355,28 @@ function DFFNamePlates:IsShowOnlyNameNPC()
     if mode == "dungeon_raids" and it ~= "party" and it ~= "raid" then
         return false
     end
+    if isEncounterBlock then
+        return false
+    end
 
     return true
 end
 
+function DFFNamePlates:overrideConflicts(type, need)
+    if type == "npcOnlyName" then
+        if DFFNamePlates.isPlaterLoaded then
+            if Plater and Plater.db and Plater.db.profile then
+                Plater.db.profile.hide_friendly_npc_healthbar = need
+            end
+        end
+    end
+end
+
 httpsxFriendlyNamePlates:RegisterEvent("PLAYER_LOGIN")
 httpsxFriendlyNamePlates:RegisterEvent("PLAYER_ENTERING_WORLD")
-httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
+httpsxFriendlyNamePlates:RegisterEvent("ENCOUNTER_START")
+httpsxFriendlyNamePlates:RegisterEvent("ENCOUNTER_END")
+httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event, data)
     --UIParentLoadAddOn("Blizzard_DebugTools")
 
     if event == "PLAYER_LOGIN" then
@@ -378,8 +396,10 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
 
         local default_np_colors = false
+        DFFNamePlates.isPlaterLoaded = C_AddOns.IsAddOnLoaded("Plater")
+
         if C_AddOns.IsAddOnLoaded("Plater") or C_AddOns.IsAddOnLoaded("Platynator") or
-            C_AddOns.IsAddOnLoaded("ElvUI") then
+            C_AddOns.IsAddOnLoaded("ElvUI") or C_AddOns.IsAddOnLoaded("EllesmereUI") then
             default_np_colors = true
         end
 
@@ -504,6 +524,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             DFFNamePlates:SetFontSettingsEnabled(false)
         end
 
+        DFFNamePlates:overrideConflicts("npcOnlyName", DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"])
+
         hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateSize", function(self)
             if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
             DFFNamePlates:forceUpdateFont(true)
@@ -533,8 +555,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 if DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] then
                     if ((self:IsPlayer() and not DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"]) or (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
                             DFFNamePlates:IsShowOnlyNameNPC())) then
-                        TableUtil.TrySet(self.castBar, "showOnlyName")
-                        TableUtil.TrySet(self.castBar, "widgetsOnly")
+                        TableUtil.TrySet(self.CastBarsContainer.castBar, "showOnlyName")
+                        TableUtil.TrySet(self.CastBarsContainer.castBar, "widgetsOnly")
                     end
                 end
 
@@ -617,6 +639,25 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             end
         end
         C_Timer.After(0.5, function() DFFNamePlates:reloadNP() end)
+    elseif event == "ENCOUNTER_START" then
+        local encounterID = data
+        local blockEncounters = {
+            [3591] = true, -- Lura
+        }
+        if blockEncounters[encounterID] then
+            if DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
+                DFFNamePlates.encounterBlock = true
+                DFFNamePlates:overrideConflicts("npcOnlyName", false)
+            end
+        end
+    elseif event == "ENCOUNTER_END" then
+        --local encounterID = data
+        if DFFNamePlates.encounterBlock then
+            if DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
+                DFFNamePlates.encounterBlock = false
+                DFFNamePlates:overrideConflicts("npcOnlyName", true)
+            end
+        end
     end
 end)
 
@@ -626,9 +667,9 @@ httpsxFriendlyNamePlates.hideCastBar:SetScript("OnEvent", function()
 
     for _, frame in pairs(C_NamePlate.GetNamePlates(true)) do
         if frame.unitFrameTemplate == "ForbiddenNamePlateUnitFrameTemplate" then
-            TableUtil.TrySet(frame.UnitFrame.castBar, "showOnlyName")
+            TableUtil.TrySet(frame.UnitFrame.CastBarsContainer.castBar, "showOnlyName")
         else
-            frame.UnitFrame.castBar:SetShowOnlyName(false)
+            frame.UnitFrame.CastBarsContainer.castBar:SetShowOnlyName(false)
         end
     end
 end)

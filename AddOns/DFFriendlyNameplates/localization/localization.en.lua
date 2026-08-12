@@ -56,3 +56,5 @@ L.EX_OPEN_BLIZZ_SETTINGS = "Open Blizzard Nameplate settings"
 
 L.UI_LANGUAGE = "Language"
 L.UI_RELOAD_LANG = "Reload to apply language change"
+
+L.customFontConflict = "Font Conflict Warning|nYou have Plater 'Blizzard nameplate fonts' option enabled, which conflicts with this addon due to a similar font-changing approach.|nDisable the checkbox in /plater -> Advanced -> 'Blizzard nameplate fonts' if you want to use fonts from this addon"
