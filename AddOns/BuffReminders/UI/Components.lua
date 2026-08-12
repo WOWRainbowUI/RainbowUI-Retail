@@ -1936,10 +1936,16 @@ function Components.ZonePicker(parent, config)
     local LW = config.labelWidth or 70
     local V_W = config.verticalWidth or 110
     local A_W = config.alignWidth or 85
+    -- The label -> visible-box distance has to come out at 5 to match
+    -- Slider/Dropdown/NumericStepper, or a ZonePicker stacked with them breaks
+    -- the column's vertical line. The nested Dropdown holders already inset
+    -- their own box by that 5 (empty label, then button at label RIGHT + 5), so
+    -- this anchors flush to the label and lets the inner inset supply the gap.
+    local LABEL_GAP = 0
     local GAP = 8
 
     local holder = CreateFrame("Frame", nil, parent)
-    holder:SetSize(LW + GAP + (V_W + ZONE_PICKER_DD_PADDING) + GAP + (A_W + ZONE_PICKER_DD_PADDING), 26)
+    holder:SetSize(LW + LABEL_GAP + (V_W + ZONE_PICKER_DD_PADDING) + GAP + (A_W + ZONE_PICKER_DD_PADDING), 26)
 
     local itemLabel = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     itemLabel:SetPoint("LEFT", 0, 0)
@@ -1970,7 +1976,7 @@ function Components.ZonePicker(parent, config)
             end
         end,
     })
-    verticalDD:SetPoint("LEFT", itemLabel, "RIGHT", GAP, 0)
+    verticalDD:SetPoint("LEFT", itemLabel, "RIGHT", LABEL_GAP, 0)
 
     local alignDD = Components.Dropdown(holder, {
         label = "",
@@ -3578,15 +3584,60 @@ end
 ---@field enabled? fun(): boolean                   Wraps all controls (nil = always enabled)
 ---@field masqueCheck? fun(): boolean               Returns true when Masque is active (disables zoom/border)
 
+---Text size stepper + color swatch on one row. Extracted from AppearanceGrid so
+---the Defaults page and the per-category override section render the identical
+---pair of controls without duplicating the textColor/textAlpha write pairing.
+---@param parent Frame
+---@param config AppearanceGridConfig Same get/set/setMulti/enabled contract as AppearanceGrid
+---@param labelWidth number?
+---@return Frame holder The size stepper; the swatch is anchored to its right
+function Components.TextStyleRow(parent, config, labelWidth)
+    local enabled = config.enabled
+
+    local sizeHolder = Components.NumericStepper(parent, {
+        label = L["Appearance.Text"],
+        labelWidth = labelWidth,
+        min = 6,
+        max = 32,
+        get = function()
+            return config.get("textSize", BR.defaults.defaults.textSize)
+        end,
+        enabled = enabled,
+        onChange = function(val)
+            config.set("textSize", val)
+        end,
+    })
+
+    local colorHolder = Components.ColorSwatch(parent, {
+        hasOpacity = true,
+        get = function()
+            local tc = config.get("textColor", { 1, 1, 1 })
+            local ta = config.get("textAlpha", 1)
+            return tc[1], tc[2], tc[3], ta
+        end,
+        enabled = enabled,
+        onChange = function(r, g, b, a)
+            config.setMulti({
+                textColor = { r, g, b },
+                textAlpha = a or 1,
+            })
+        end,
+    })
+    colorHolder:SetPoint("LEFT", sizeHolder, "RIGHT", 12, 0)
+
+    sizeHolder.colorSwatch = colorHolder
+    return sizeHolder
+end
+
 ---Create a 2-column appearance grid with standard layout
 ---@param parent Frame
 ---@param config AppearanceGridConfig
 ---@return {frame: Frame, height: number, holders: table}
 function Components.AppearanceGrid(parent, config)
-    -- Compute label width from the longest of all 7 row labels so columns align
-    -- regardless of locale or font replacement. Text offset X/Y rows moved to
-    -- the dedicated TextPositions section (per-text-item zone + nudge), so the
-    -- grid stays focused on size/zoom/border/spacing/alpha/text size/color.
+    -- Compute label width from the longest row label so columns align
+    -- regardless of locale or font replacement. The grid is icon geometry only;
+    -- text size/color live with the other text controls (Components.TextStyleRow)
+    -- because users look for them under "Text", not under icon dimensions.
     local labels = {
         L["Appearance.Width"],
         L["Appearance.Height"],
@@ -3594,7 +3645,6 @@ function Components.AppearanceGrid(parent, config)
         L["Appearance.Border"],
         L["Appearance.Spacing"],
         L["Appearance.Alpha"],
-        L["Appearance.Text"],
     }
     local LW = 50
     for _, t in ipairs(labels) do
@@ -3614,7 +3664,7 @@ function Components.AppearanceGrid(parent, config)
     local COL2 = LINK_X + LINK_BTN_W + 8
     local ROW_H = max(24, MeasureTextHeight("Wg", "GameFontHighlightSmall") + 8)
     local FRAME_W = COL2 + LW + 5 + SLIDER_W + 6 + VALUE_W + 12
-    local GRID_HEIGHT = ROW_H * 4
+    local GRID_HEIGHT = ROW_H * 3
 
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetPoint("TOPLEFT")
@@ -3750,39 +3800,6 @@ function Components.AppearanceGrid(parent, config)
     })
     alphaHolder:SetPoint("TOPLEFT", COL2, -ROW_H * 2)
 
-    -- Row 4: Text size stepper + color swatch
-    local textSizeHolder = Components.NumericStepper(frame, {
-        label = L["Appearance.Text"],
-        labelWidth = LW,
-        min = 6,
-        max = 32,
-        get = function()
-            return config.get("textSize", BR.defaults.defaults.textSize)
-        end,
-        enabled = enabled and baseEnabled or nil,
-        onChange = function(val)
-            config.set("textSize", val)
-        end,
-    })
-    textSizeHolder:SetPoint("TOPLEFT", 0, -ROW_H * 3)
-
-    local textColorHolder = Components.ColorSwatch(frame, {
-        hasOpacity = true,
-        get = function()
-            local tc = config.get("textColor", { 1, 1, 1 })
-            local ta = config.get("textAlpha", 1)
-            return tc[1], tc[2], tc[3], ta
-        end,
-        enabled = enabled and baseEnabled or nil,
-        onChange = function(r, g, b, a)
-            config.setMulti({
-                textColor = { r, g, b },
-                textAlpha = a or 1,
-            })
-        end,
-    })
-    textColorHolder:SetPoint("LEFT", textSizeHolder, "RIGHT", 12, 0)
-
     frame:SetSize(FRAME_W, GRID_HEIGHT)
 
     return {
@@ -3796,8 +3813,6 @@ function Components.AppearanceGrid(parent, config)
             border = borderHolder,
             spacing = spacingHolder,
             alpha = alphaHolder,
-            textSize = textSizeHolder,
-            textColor = textColorHolder,
         },
     }
 end

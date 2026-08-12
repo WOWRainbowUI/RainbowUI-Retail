@@ -1550,6 +1550,41 @@ local function UpdateActionButtons(category)
                     if overlay.highlight then
                         overlay.highlight:SetShown(frameHighlight)
                     end
+                elseif frame.key == "repairGear" then
+                    -- Repair: summon the vendor mount outdoors, use the repair item
+                    -- where mounting is blocked. The conditionals are mutually
+                    -- exclusive so one click never spends both.
+                    local sources = BR.BuffState.GetRepairSources()
+                    local mountName = sources.mountSpellID and BR.GetSpellName(sources.mountSpellID)
+                    local itemID = sources.itemID
+                    if mountName or itemID then
+                        if not frame.clickOverlay then
+                            CreateClickOverlay(frame)
+                        end
+                        local overlay = frame.clickOverlay
+                        overlay._br_has_action = true
+                        overlay._br_clickMacroFn = nil
+                        overlay._br_clickMacroSpellID = nil
+                        overlay.itemID = nil
+                        ClearChatRequestState(overlay)
+                        local macro
+                        if mountName and itemID then
+                            macro = "/use [indoors] item:" .. itemID .. "\n/cast [outdoors] " .. mountName
+                        elseif mountName then
+                            macro = "/cast " .. mountName
+                        else
+                            macro = "/use item:" .. itemID
+                        end
+                        ApplyMacroAction(overlay, "repair", macro)
+                        overlay:EnableMouse(true)
+                        if overlay.highlight then
+                            overlay.highlight:SetShown(frameHighlight)
+                        end
+                    elseif frame.clickOverlay then
+                        -- Nothing owned to repair with: leave the icon inert rather
+                        -- than arming a click that does nothing.
+                        DisableOverlay(frame.clickOverlay)
+                    end
                 else
                     -- Spells / Custom: check castability before creating overlay
                     local castableID

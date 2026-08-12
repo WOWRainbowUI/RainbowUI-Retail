@@ -1,24 +1,18 @@
 # BuffReminders
 
-## [v6.3.1](https://github.com/zerbiniandrea/BuffReminders/tree/v6.3.1) (2026-07-27)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.3.0...v6.3.1) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.4.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.4.0) (2026-08-11)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.3.1...v6.4.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### New Features ✨
 
-- **Consumables:** optionally show quality badge on sub-icons
-- **Layout:** always start with frames locked after reload
-- **Reminders:** show a clock icon for instance-entry reminders
+- **Externals:** add in-combat externals tracking (PI, Innervate, etc...)
 
 ### Bug Fixes 🐛
 
-- **Fonts:** apply font changes everywhere without a reload
-- **Reminders:** keep missing-buff labels at their smaller text size
-
-### Localization 🌐
-
-- Updated translations: zhTW
+- **Combat:** prevent errors and false buff reminders on 12.1
 
 ### Other Changes 🔧
 
-- **Libs:** update embedded libs (LibDualSpec-1.0)
+- **Toc:** bump toc to 12.1
+- Add External Buffs section to README and CurseForge pages
 

@@ -104,6 +104,7 @@ L["Overlay.NoFamiliar"] = "沒有\n魔寵"
 L["Overlay.DropWell"] = "置放\n靈魂井"
 L["Overlay.DropTable"] = "置放\n餐桌"
 L["Overlay.Repair"] = "修理\n裝備"
+L["Overlay.RepairLabel"] = "修理"
 L["Overlay.NoGrim"] = "沒有\n魔典"
 L["Overlay.BurningRush"] = "燃燒狂奔"
 L["Overlay.NoRite"] = "沒有\n儀式"
@@ -255,8 +256,8 @@ L["Tooltip.MayShowExtraIcon.Desc"] =
 L["Tooltip.InstanceEntryReminder"] = "副本進本提示"
 L["Tooltip.InstanceEntryReminder.Desc"] =
     "進入地下城時會短暫顯示放置靈魂井的提示。施放法術或30秒後將消失。"
-L["Tooltip.Repair"] = "修理提醒"
-L["Tooltip.Repair.Desc"] = "當裝備的物品耐久度低於閾值時顯示。拜訪一個商店來修理。"
+L["Tooltip.MageFood"] = "僅限治療者"
+L["Tooltip.MageFood.Desc"] = "只有當你玩捕時才顯示"
 L["BuffTooltip.ProvidedBy"] = "由 %s 提供"
 
 -- ============================================================================
@@ -356,6 +357,9 @@ L["Options.Preview"] = "預覽"
 L["Options.GlobalDefaults"] = "全局預設值"
 L["Options.GlobalDefaults.Note"] = "（套用於所有類別，除非被自定義外觀覆蓋）"
 L["Options.Default"] = "預設"
+L["Options.Text"] = "文字"
+L["Options.Text.Note"] =
+    "(每個類別都可以覆蓋大小和顏色；字體、外框樣式和位置始終適用於任何地方)"
 L["Options.Font"] = "字體"
 L["Options.TextOutline"] = "外框樣式"
 L["Options.TextOutline.None"] = "無"
@@ -474,6 +478,9 @@ L["Options.TextPositions"] = "文字"
 L["Options.TextPositions.Zone"] = "位置"
 L["Options.TextPositions.OffsetX.Short"] = "X"
 L["Options.TextPositions.OffsetY.Short"] = "Y"
+L["Options.TextPositions.MainText"] = "主文字"
+L["Options.TextPositions.MainText.Note"] =
+    "圖示上大文字的位置 - 群組計數，例如 17/20、倒數計時和標籤，例如無精煉。"
 L["Options.TextPositions.StackCount"] = "堆疊計數"
 L["Options.TextPositions.StatLabel"] = "屬性標籤"
 L["Options.TextPositions.Badge"] = "標誌 (H / F)"
@@ -639,11 +646,9 @@ L["Options.Layout"] = "佈局"
 L["Options.SplitFrame"] = "分離為獨立框架"
 L["Options.SplitFrame.Desc"] = "將此類別中的增益顯示在可獨立移動的單獨框架中。"
 
--- Display Order section (Defaults page) - drives the same priority field the
--- old per-category slider wrote, but as a single ordered list across all
--- non-split categories.
-L["Options.DisplayOrder"] = "顯示順序"
-L["Options.DisplayOrder.Moved"] = "正在尋找顯示順序？它移至佈局頁面。"
+-- Stacking Order section (Layout page): one ordered list across all non-split
+-- categories, driving each category's priority field.
+L["Options.DisplayOrder"] = "堆疊順序"
 
 -- Layout page
 L["Layout.PositionFrames"] = "定位框架"
@@ -674,6 +679,7 @@ L["BuffRow.Caption.PoisonsUnset"] = "選擇您使用的毒藥"
 L["BuffRow.Caption.Runeforge"] = "符文鎔鑄: %s"
 L["BuffRow.Caption.RuneforgeUnset"] = "設定您每個專精的符文鎔鑄"
 L["BuffRow.Caption.Healthstone"] = "庫存不足警報: 低於 %d"
+L["BuffRow.Caption.Repair"] = "當低於 %d%% 耐久度時提醒"
 L["BuffRow.Caption.HealthstoneOff"] = "庫存不足警報: 關閉"
 L["BuffRow.Caption.SoulstoneHidden"] = "冷卻時隱藏"
 L["BuffRow.Caption.SoulstoneShown"] = "冷卻時顯示"
@@ -688,6 +694,9 @@ L["BuffRow.Caption.FelOn"] = "使用惡魔支配"
 L["BuffRow.Caption.FelOff"] = "惡魔支配關閉"
 L["BuffRow.Caption.FoodTimerOn"] = "顯示到期計時器"
 L["BuffRow.Caption.FoodTimerOff"] = "沒有到期定時器"
+L["BuffRow.Caption.MageFoodAll"] = "在所有副本顯示"
+L["BuffRow.Caption.MageFoodDungeon"] = "僅限地下城"
+L["BuffRow.Caption.MageFoodRaid"] = "僅限團隊副本"
 -- Trailing link on the All Buffs row: a gold "Extras" for any buff with its own
 -- options (vs the gray "Settings" for the rest); the specific option is named
 -- inside the drawer. The two rich editors keep their name for the drawer's
@@ -700,9 +709,15 @@ L["BuffRow.Glyph.Sound"] = "聲音警報"
 L["BuffRow.Glyph.Detached"] = "獨立的圖示"
 L["BuffRow.Glyph.Detached.Desc"] =
     "該圖示可以自由放置在螢幕上。在增益的設定或佈局頁面上進行管理。"
+L["BuffRow.Glyph.New"] = "新增益"
+L["BuffRow.Glyph.New.Desc"] = "在最後更新加入。"
 -- Drawer door to a buff's focused editor (poison/runeforge). %s = option name.
 L["BuffPanel.EditOption"] = "編輯 %s"
 L["BuffPanel.Show"] = "顯示"
+L["BuffPanel.MageFoodContent"] = "何處"
+L["BuffPanel.MageFoodContent.All"] = "所有副本"
+L["BuffPanel.MageFoodContent.Dungeon"] = "僅限地下城"
+L["BuffPanel.MageFoodContent.Raid"] = "僅限團隊副本"
 L["BuffPanel.Sound"] = "聲音"
 L["BuffPanel.Sound.None"] = "無"
 L["BuffPanel.Detached"] = "自己的框架 (獨立的)"
@@ -866,6 +881,8 @@ L["CustomBuff.EditShort"] = "編輯"
 L["CustomBuff.Add"] = "添加自定義增益"
 L["CustomBuff.AddButton"] = "+ 添加自定義增益"
 L["CustomBuff.Empty"] = "尚未有自定義增益。下面新增一個。"
+L["CustomBuff.RestrictedNote"] =
+    "當與首領以及傳奇+戰鬥時隱藏 - WoW阻止在那裡讀取光環。條形發光檢測在戰鬥中有效。"
 L["CustomBuff.SpellIDs"] = "法術ID:"
 L["CustomBuff.Lookup"] = "查找"
 L["CustomBuff.AddSpellID"] = "+ 添加法術ID"

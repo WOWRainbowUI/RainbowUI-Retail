@@ -102,6 +102,8 @@ L["Overlay.NoAttune"] = "조율\n없음"
 L["Overlay.NoFamiliar"] = "전령\n없음"
 L["Overlay.DropWell"] = "영혼샘\n깔기"
 L["Overlay.DropTable"] = "밥상\n깔기"
+L["Overlay.Repair"] = "장비\n수리"
+L["Overlay.RepairLabel"] = "수리"
 L["Overlay.NoGrim"] = "흑마법서\n없음"
 L["Overlay.BurningRush"] = "불돌"
 L["Overlay.NoRite"] = "의식\n없음"
@@ -193,6 +195,7 @@ L["Buff.ArcaneFamiliar"] = "비전 전령"
 L["Buff.Attunement"] = "조율"
 L["Buff.CreateSoulwell"] = "영혼의 샘 창조"
 L["Buff.RefreshmentTable"] = "원기 회복의 식탁"
+L["Buff.RepairGear"] = "장비 수리"
 L["Buff.DruidForm"] = "드루이드 변신"
 L["Buff.GrimoireOfSacrifice"] = "흑마법서: 희생"
 L["Buff.BurningRush"] = "불타는 돌진"
@@ -252,6 +255,8 @@ L["Tooltip.MayShowExtraIcon.Desc"] =
 L["Tooltip.InstanceEntryReminder"] = "인스턴스 입장 알림"
 L["Tooltip.InstanceEntryReminder.Desc"] =
     "던전 입장 시 영혼의 샘을 깔라는 알림이 잠시 표시됩니다. 시전하거나 30초가 지나면 사라집니다."
+L["Tooltip.MageFood"] = "힐러일 때만"
+L["Tooltip.MageFood.Desc"] = "힐러로 플레이 할때만 표시됩니다"
 L["BuffTooltip.ProvidedBy"] = "%s|1이;가; 걸어줌"
 
 -- ============================================================================
@@ -428,6 +433,12 @@ L["Options.Healthstone.LowStock.Desc"] =
 L["Options.Healthstone.Threshold"] = "경고 기준 수량"
 L["Options.Healthstone.Threshold.Desc"] =
     "생명석이 이 수량 이하일 때 부족 경고를 표시합니다.\n\n|cffffcc001:|r 정확히 1개일 때 경고.\n|cffffcc002:|r 1개나 2개일 때 경고합니다."
+L["Options.Repair.Threshold"] = "경고 내구도 기준"
+L["Options.Repair.Threshold.Desc"] =
+    "착용한 아이템 중에 내구도가 이 백분율보다 내려간 것이 있으면 수리 리마인더를 표시합니다."
+L["Options.RepairHideInCombat"] = "전투 중 숨김"
+L["Options.RepairHideInCombat.Desc"] =
+    "전투 중에는 수리 리마인더를 숨깁니다. 전투 중에는 상인에게 갈 수 없기 때문에 비전투 때만 작동되도록 하는 것입니다."
 
 -- ============================================================================
 -- OPTIONS: SOULSTONE
@@ -557,6 +568,11 @@ L["Options.ConsumableTextScale"] = "텍스트 크기"
 L["Options.ConsumableTextScale.Title"] = "소모품 텍스트 크기"
 L["Options.ConsumableTextScale.Desc"] =
     "아이콘 크기 대비 아이템 수량 및 등급(R1/R2/R3) 라벨의 폰트 크기 비율입니다."
+L["Options.ConsumableBadgeOnSubIcons"] = "하위 아이콘에 등급 표시"
+L["Options.ConsumableBadgeOnSubIcons.Title"] = "하위 아이콘 등급 표시"
+L["Options.ConsumableBadgeOnSubIcons.Desc"] =
+    '주 아이콘을 제외하고 각 하위 아이콘에 음식 품질 글자를 표시합니다. (예시: 든든한에 "든", 덧없는에 "덧")'
+L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "하위 아이콘 표시 모드에서만 사용 가능합니다."
 L["Options.HideConsumableLabels"] = "능력치 라벨 숨기기"
 L["Options.HideConsumableLabels.Title"] = "소모품 능력치 라벨 숨기기"
 L["Options.HideConsumableLabels.Desc"] =
@@ -636,8 +652,6 @@ L["Options.SplitFrame.Desc"] =
 -- old per-category slider wrote, but as a single ordered list across all
 -- non-split categories.
 L["Options.DisplayOrder"] = "쌓이는 순서"
-L["Options.DisplayOrder.Moved"] =
-    "표시 순서 설정을 찾고 있나요? 레이아웃 페이지로 옮겨졌습니다."
 
 -- Layout page
 L["Layout.PositionFrames"] = "프레임 위치"
@@ -670,6 +684,7 @@ L["BuffRow.Caption.PoisonsUnset"] = "사용할 독을 선택하세요"
 L["BuffRow.Caption.Runeforge"] = "룬벼리기: %s"
 L["BuffRow.Caption.RuneforgeUnset"] = "각 전문화에 룬벼리기를 설정하세요"
 L["BuffRow.Caption.Healthstone"] = "수량 부족 알림: %d개 미만"
+L["BuffRow.Caption.Repair"] = "내구도 %d%% 아래일 때 알림"
 L["BuffRow.Caption.HealthstoneOff"] = "수량 부족 알림: 끄기"
 L["BuffRow.Caption.SoulstoneHidden"] = "쿨타임일 때 숨김"
 L["BuffRow.Caption.SoulstoneShown"] = "쿨타임일 때 표시"
@@ -684,6 +699,9 @@ L["BuffRow.Caption.FelOn"] = "지옥 지배 사용"
 L["BuffRow.Caption.FelOff"] = "지옥 지배 끄기"
 L["BuffRow.Caption.FoodTimerOn"] = "만료 타이머 표시"
 L["BuffRow.Caption.FoodTimerOff"] = "만료 타이머 없음"
+L["BuffRow.Caption.MageFoodAll"] = "모든 인스턴스에서 표시"
+L["BuffRow.Caption.MageFoodDungeon"] = "던전만"
+L["BuffRow.Caption.MageFoodRaid"] = "공격대만"
 -- Trailing link on the All Buffs row: a gold "Extras" for any buff with its own
 -- options (vs the gray "Settings" for the rest); the specific option is named
 -- inside the drawer. The two rich editors keep their name for the drawer's
@@ -696,9 +714,15 @@ L["BuffRow.Glyph.Sound"] = "소리 알림"
 L["BuffRow.Glyph.Detached"] = "분리된 아이콘"
 L["BuffRow.Glyph.Detached.Desc"] =
     "이 아이콘은 화면에 자유롭게 배치됩니다. 버프 설정 또는 레이아웃 페이지에서 관리하세요."
+L["BuffRow.Glyph.New"] = "새 버프"
+L["BuffRow.Glyph.New.Desc"] = "최신 업데이트에 추가됐습니다."
 -- Drawer door to a buff's focused editor (poison/runeforge). %s = option name.
 L["BuffPanel.EditOption"] = "%s 수정"
 L["BuffPanel.Show"] = "표시"
+L["BuffPanel.MageFoodContent"] = "위치"
+L["BuffPanel.MageFoodContent.All"] = "모든 인스턴스"
+L["BuffPanel.MageFoodContent.Dungeon"] = "던전만"
+L["BuffPanel.MageFoodContent.Raid"] = "공격대만"
 L["BuffPanel.Sound"] = "소리"
 L["BuffPanel.Sound.None"] = "없음"
 L["BuffPanel.Detached"] = "자체 프레임 (분리됨)"
@@ -707,10 +731,8 @@ L["BuffPanel.Detached.Desc"] =
 L["BuffPanel.CasterAlways"] = "흑마법사일땐 항상 표시"
 L["BuffPanel.CasterAlways.Desc"] =
     "흑마법사(제공자)는 항상 리마인더를 볼 수 있으며, 다른 사람은 전투 준비 검사때만 볼 수 있습니다."
-L["DisabledReason.NotDetached"] =
-    "이 버프는 분리되지 않았습니다 - 카테고리 프레임 안에 있습니다."
-L["DisabledReason.CasterAlways"] =
-    '전투 준비 검사 모드에서만 적용됩니다. 먼저 "표시"를 전투 준비 검사로 전환하세요.'
+L["DisabledReason.NotDetached"] = "이 버프는 분리되지 않았습니다 - 카테고리 프레임 안에 있습니다."
+L["DisabledReason.CasterAlways"] = '전투 준비 검사 모드에서만 적용됩니다. 먼저 "표시"를 전투 준비 검사로 전환하세요.'
 L["Options.DisplayOrder.Note"] =
     "조합된 프레임 내에서 카테고리들이 위에서 아래로 쌓이는 순서를 설정합니다. 분리한 카테고리는 별도의 프레임에 있으므로 여기엔 나오지 않습니다."
 
@@ -838,8 +860,7 @@ L["Dialog.DeleteLoadout"] = '구성 알림 "%s"|1을;를; 삭제할까요?'
 L["Dialog.ResetProfile"] =
     "활성 프로필을 기본값으로 초기화할까요?\n\n현재 프로필의 모든 사용자 지정\n설정이 삭제되고 UI가 재시작됩니다."
 L["Dialog.Reset"] = "초기화"
-L["Dialog.ReloadPrompt"] =
-    "설정을 성공적으로 가져왔습니다!\nUI를 재시작해서 변경 사항을 적용할까요?"
+L["Dialog.ReloadPrompt"] = "설정을 성공적으로 가져왔습니다!\nUI를 재시작해서 변경 사항을 적용할까요?"
 L["Dialog.Reload"] = "재시작"
 L["Dialog.NewProfilePrompt"] = "새 프로필의 이름을 입력하세요:"
 L["Dialog.Create"] = "생성"
@@ -851,8 +872,7 @@ L["Dialog.Close"] = "닫기"
 -- OPTIONS: TEST / LOCK
 -- ============================================================================
 L["Options.LockUnlock"] = "잠금 / 해제"
-L["Options.LockUnlock.Desc"] =
-    "잠금을 해제하면 버프 프레임 위치를 조정할 수 있는 앵커 핸들이 표시됩니다."
+L["Options.LockUnlock.Desc"] = "잠금을 해제하면 버프 프레임 위치를 조정할 수 있는 앵커 핸들이 표시됩니다."
 L["Options.TestAppearance"] = "아이콘 외형 테스트"
 L["Options.TestAppearance.Desc"] =
     "가짜 값으로 선택한 버프를 표시해서 외형을 미리 볼 수 있습니다."
@@ -870,6 +890,8 @@ L["CustomBuff.EditShort"] = "편집"
 L["CustomBuff.Add"] = "사용자 지정 버프 추가"
 L["CustomBuff.AddButton"] = "+ 사용자 지정 버프 추가"
 L["CustomBuff.Empty"] = "사용자 지정 버프가 없습니다. 아래에서 하나 추가하세요."
+L["CustomBuff.RestrictedNote"] =
+    "전투 중, 보스전과 신화+에선 표시되지 않습니다 - WoW가 이 때 오라를 읽지 못하게 막습니다. 액션 바 반짝임 감지는 전투 중에도 작동합니다."
 L["CustomBuff.SpellIDs"] = "주문 ID:"
 L["CustomBuff.Lookup"] = "검색"
 L["CustomBuff.AddSpellID"] = "+ 주문 ID 추가"
@@ -1005,7 +1027,6 @@ L["Appearance.Zoom"] = "확대"
 L["Appearance.Border"] = "테두리"
 L["Appearance.Spacing"] = "간격"
 L["Appearance.Alpha"] = "불투명도"
-L["Appearance.Text"] = "텍스트"
 
 -- Slider tooltip
 L["Component.AdjustValue"] = "값 조정"

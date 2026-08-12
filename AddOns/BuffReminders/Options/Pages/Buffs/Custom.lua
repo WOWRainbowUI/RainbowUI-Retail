@@ -140,6 +140,7 @@ local function Build(content, scrollFrame)
     ListEditor(content, scrollFrame, {
         header = L["Category.CustomBuffs"],
         note = L["Category.CustomNote"],
+        warning = L["CustomBuff.RestrictedNote"],
         addLabel = L["CustomBuff.AddButton"],
         addWidth = 160,
         onAdd = function(render)
