@@ -1,16 +1,23 @@
--- MSUF_CP_AltMana.lua
--- Alt Mana class-power builder. Loaded before the controller so the controller
--- can bind the builder without carrying AltMana implementation details inline.
+--- MSUF_CP_AltMana.lua
+--- Alt Mana class-power builder. Loaded before the controller so the controller
+--- can bind the builder without carrying AltMana implementation details inline.
 do
--- MSUF_CP_AltMana.lua
--- MSUF_CP_AltMana.lua
--- Phase 7B: move AltMana helpers out of MSUF_ClassPower.lua with minimal risk.
--- No CP value/layout/build flow moved here beyond the isolated AltMana block.
+--- MSUF_CP_AltMana.lua
+--- MSUF_CP_AltMana.lua
+--- Phase 7B: move AltMana helpers out of MSUF_ClassPower.lua with minimal risk.
+--- No CP value/layout/build flow moved here beyond the isolated AltMana block.
+
+local _, MSUF = ...
+MSUF = MSUF or _G.MSUF_NS or _G.MSUF or {}
+local ExportPublic = MSUF.ExportPublic or function(name, value)
+    _G[name] = value
+    return value
+end
 
 local builders = _G.MSUF_CP_CORE_BUILDERS
 if type(builders) ~= "table" then
     builders = {}
-    _G.MSUF_CP_CORE_BUILDERS = builders
+    ExportPublic("MSUF_CP_CORE_BUILDERS", builders)
 end
 
 builders.ALT_MANA = function(E)
@@ -24,6 +31,8 @@ builders.ALT_MANA = function(E)
     local UnitPower = E.UnitPower
     local UnitPowerMax = E.UnitPowerMax
     local Enum = E.Enum
+    local StatusBarInterpolation = Enum and Enum.StatusBarInterpolation
+    local SMOOTH_INTERP = StatusBarInterpolation and StatusBarInterpolation.ExponentialEaseOut or nil
     local tonumber = E.tonumber or tonumber
     local CreateFrame = E.CreateFrame
     local ResolveClassPowerColor = E.ResolveClassPowerColor
@@ -61,7 +70,10 @@ builders.ALT_MANA = function(E)
         if AM.container then return end
 
         local c = CreateFrame("Frame", "MSUF_AltManaContainer", playerFrame)
-        c:SetFrameLevel(playerFrame:GetFrameLevel() + 2)
+        local layers = MSUF.UF and MSUF.UF.Layers
+        local layer = _cpDB.bars and _cpDB.bars.classPowerFrameLevelOffset
+        c:SetFrameLevel(layers and layers.ElementLevel and layers.ElementLevel(layer, 5, 0)
+            or (playerFrame:GetFrameLevel() + 2))
         c:Hide()
         AM.container = c
 
@@ -96,11 +108,34 @@ builders.ALT_MANA = function(E)
 
         local h = tonumber(b.altManaHeight) or 4
         if h < 2 then h = 2 elseif h > 30 then h = 30 end
+        local oX = tonumber(b.altManaOffsetX) or 0
+        if oX < -1000 then oX = -1000 elseif oX > 1000 then oX = 1000 end
         local oY = tonumber(b.altManaOffsetY) or -2
+        local customW
+        if b.altManaWidthMode == "custom" then
+            customW = tonumber(b.altManaWidth)
+            if customW and customW < 20 then customW = nil end
+            if customW and customW > 1200 then customW = 1200 end
+        end
+        local layers = MSUF.UF and MSUF.UF.Layers
+        if AM.container.SetFrameLevel then
+            local level = layers and layers.ElementLevel and layers.ElementLevel(b.classPowerFrameLevelOffset, 5, 0)
+                or ((playerFrame:GetFrameLevel() or 0) + 2)
+            AM.container:SetFrameLevel(level)
+            if AM.bar then AM.bar:SetFrameLevel(level + 1) end
+            if AM._border then AM._border:SetFrameLevel(level + 2) end
+        end
 
         AM.container:ClearAllPoints()
-        AM.container:SetPoint("TOPLEFT",  playerFrame, "BOTTOMLEFT",   2, oY)
-        AM.container:SetPoint("TOPRIGHT", playerFrame, "BOTTOMRIGHT", -2, oY)
+        if customW then
+            AM.container:SetPoint("TOP", playerFrame, "BOTTOM", oX, oY)
+            AM.container:SetWidth(customW)
+        else
+            --- Legacy/default mode remains live-linked to Player width. Applying
+            --- the same X delta to both edge anchors moves without resizing.
+            AM.container:SetPoint("TOPLEFT",  playerFrame, "BOTTOMLEFT",   2 + oX, oY)
+            AM.container:SetPoint("TOPRIGHT", playerFrame, "BOTTOMRIGHT", -2 + oX, oY)
+        end
         AM.container:SetHeight(h)
     end
 
@@ -122,18 +157,20 @@ builders.ALT_MANA = function(E)
 
         local cur = UnitPower("player", PT.Mana)
         local mx  = UnitPowerMax("player", PT.Mana)
-        if cur == nil then cur = 0 end
-        if mx  == nil then mx  = 100 end
+        local curSecret = not NotSecret(cur)
+        local maxSecret = not NotSecret(mx)
+        if not curSecret and cur == nil then cur = 0 end
+        if not maxSecret and mx == nil then mx = 100 end
 
-        local smoothOn = _cpDB.smooth
-        local interp = smoothOn and Enum and Enum.StatusBarInterpolation
-            and Enum.StatusBarInterpolation.ExponentialEaseOut or nil
-        if interp then
-            AM.bar:SetMinMaxValues(0, mx, interp)
-            AM.bar:SetValue(cur, interp)
-        else
-            AM.bar:SetMinMaxValues(0, mx)
-            AM.bar:SetValue(cur)
+        local rangeInterp = _cpDB.altManaSmooth and SMOOTH_INTERP or nil
+        local valueInterp = rangeInterp
+        if maxSecret or AM._maxValue ~= mx then
+            if rangeInterp then AM.bar:SetMinMaxValues(0, mx, rangeInterp) else AM.bar:SetMinMaxValues(0, mx) end
+            if maxSecret then AM._maxValue = nil else AM._maxValue = mx end
+        end
+        if curSecret or AM._currentValue ~= cur then
+            if valueInterp then AM.bar:SetValue(cur, valueInterp) else AM.bar:SetValue(cur) end
+            if curSecret then AM._currentValue = nil else AM._currentValue = cur end
         end
     end
 
