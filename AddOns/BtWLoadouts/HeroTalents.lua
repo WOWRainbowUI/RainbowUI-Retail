@@ -65,6 +65,8 @@ local GetSpellCooldown = C_Spell and C_Spell.GetSpellCooldown and function (spel
     end
 end or GetSpellCooldown;
 
+local MAX_ACCOUNT_MACROS = MAX_ACCOUNT_MACROS or 120
+
 local function CompareSets(a, b)
     if a.treeID ~= b.treeID then
         return false
@@ -308,7 +310,7 @@ local function IsNodeEntryOnCooldown(nodeEntryID)
     if spellID then
         spellID = FindSpellOverrideByID(spellID);
         local start, duration = GetSpellCooldown(spellID);
-        if start ~= 0 then -- Talent spell on cooldown, we need to wait before switching
+        if canaccessvalue(start) and start ~= 0 then -- Talent spell on cooldown, we need to wait before switching
             Internal.DirtyAfter((start + duration) - GetTime() + 1);
             return true;
         end
