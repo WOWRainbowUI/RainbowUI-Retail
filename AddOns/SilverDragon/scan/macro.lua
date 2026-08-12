@@ -70,7 +70,7 @@ function module:OnInitialize()
 					skipcomplete = {
 						type = "toggle",
 						name = "Skip completed mobs",
-						desc = "Don't even try to target mobs that you have completed",
+						desc = "Don't even try to target mobs with nothing left on them for you. This asks the same question the announcement filter does, so \"What's notable?\" decides what counts",
 						order = 35,
 					},
 					skipvignette = {
@@ -133,7 +133,8 @@ function module:Update()
 		-- 1023 for macrotext on a button, but...
 		local macroicon, macrotext = self:GetMacroArguments(255)
 		if lastmacrotext ~= macrotext then
-			EditMacro(GetMacroIndexByName("SilverDragon"), nil, macroicon, macrotext)
+			local _, currenticon = GetMacroInfo("SilverDragon")
+			EditMacro(GetMacroIndexByName("SilverDragon"), nil, currenticon or macroicon, macrotext)
 			lastmacrotext = macrotext
 			DebugF("Updated macro: %d characters", #macrotext)
 		end
@@ -157,7 +158,9 @@ function module:BuildTargetMacro(limit)
 			((not self.vignettesExist) or (not self.db.profile.skipvignette) or (ns.mobdb[id] and not ns.mobdb[id].vignette)) and
 			not core:ShouldIgnoreMob(id, zone) and
 			core:IsMobInPhase(id, zone) and
-			not (self.db.profile.skipcomplete and ns:CompletionStatus(id))
+			-- only a definite "nothing left for you" gives up a macro slot; nil
+			-- means we couldn't tell, and the slot is cheaper than the miss
+			not (self.db.profile.skipcomplete and ns.MobIsNotable(id) == false)
 		then
 			local distance = hasCoords and select(4, core:GetClosestLocationForMob(id)) or 0
 			distances[id] = distance
