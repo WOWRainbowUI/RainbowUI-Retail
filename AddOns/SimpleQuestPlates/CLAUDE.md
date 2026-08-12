@@ -6,6 +6,12 @@ Guidance for AI assistants working in this repository.
 
 SimpleQuestPlates is a WoW addon that overlays quest objective progress on enemy nameplates.
 
+## RGX-Framework Dependency
+
+SQP declares `## RequiredDeps: RGX-Framework` and uses the shared `_G.RGXFramework` instance for events, timers, minimap, slash commands, and design tokens (~75% integrated). Do not add manual event frames, raw `C_Timer`, or raw `SLASH_X` registration — route through `RGX:RegisterEvent`, `RGX:After`/`RGX:Every`, and `RGX:RegisterSlashCommand`. See `../RGX-Framework/CLAUDE.md` for framework rules and roadmap.
+
+Known issue shared with BLU: hand-rolled option sliders do not restore their values on reload. The fix is planned at the framework level (db-bound grid controls, framework roadmap Tier 4) — do not patch sliders locally with new one-off implementations.
+
 ## Runtime Structure
 
 - `SimpleQuestPlates.toc` - Addon metadata and loader entry

@@ -93,8 +93,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
 		storage = SQPSettings,
 		width = 160,
 		onChange = function(val)
-			if activatePreviewFn then activatePreviewFn() end
-			SQP:RefreshAllNameplates()
+			SQP:RefreshFontDisplays(activatePreviewFn)
 		end,
 	})
 	sizeSlider:SetPoint("TOPLEFT", 20, yOffset)
@@ -122,9 +121,11 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
         defaultName = defaultName,
         defaultPath = defaultPath,
         onChange = function(_, _, fontPath)
+            if type(fontPath) == "string" then
+                fontPath = fontPath:gsub("/", "\\")
+            end
             SQP:SetSetting(typeKey .. "FontFamily", fontPath)
-            SQP:RefreshOptionsPreview(activatePreviewFn)
-            SQP:RefreshAllNameplates()
+            SQP:RefreshFontDisplays(activatePreviewFn)
         end,
     })
     fontControl:SetPoint("TOPLEFT", 20, yOffset)

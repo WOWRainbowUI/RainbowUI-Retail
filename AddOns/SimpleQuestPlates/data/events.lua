@@ -103,28 +103,25 @@ function SQP:UPDATE_MOUSEOVER_UNIT()
     end
 end
 
--- Quest events with throttling
-local questUpdateThrottle = 0
-local QUEST_UPDATE_THROTTLE = 0.3  -- 300ms throttle
+-- Quest events with throttling (using RGX:After for debounce)
+local questUpdatePending = false
 
 function SQP:UNIT_QUEST_LOG_CHANGED(unitID)
-    -- Only process player quest changes, ignore group members
-    if unitID == "player" then
-        self:CacheQuestIndexes()
-    end
-    -- Removed unnecessary full refresh for non-player units
+	-- Only process player quest changes, ignore group members
+	if unitID == "player" then
+		self:CacheQuestIndexes()
+	end
 end
 
 function SQP:QUEST_LOG_UPDATE()
-    -- Throttle this spammy event
-    local currentTime = GetTime()
-    if currentTime - questUpdateThrottle < QUEST_UPDATE_THROTTLE then
-        return
-    end
-    questUpdateThrottle = currentTime
-    
-    self:CacheQuestIndexes()
-    self:RefreshAllNameplates()
+	-- Debounce this spammy event using RGX:After
+	if questUpdatePending then return end
+	questUpdatePending = true
+	RGX:After(0.3, function()
+		questUpdatePending = false
+		self:CacheQuestIndexes()
+		self:RefreshAllNameplates()
+	end)
 end
 
 function SQP:QUEST_ACCEPTED(questLogIndex, questID)
