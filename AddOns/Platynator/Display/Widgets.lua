@@ -253,6 +253,7 @@ function addonTable.Display.GetCastBar(frame, parent)
       self.interruptMarkerPoint:SetPoint("RIGHT", frame.interruptMarker:GetStatusBarTexture(), "LEFT")
     else
       self.interruptMarker:SetFillStyle(Enum.StatusBarFillStyle.Standard)
+      self.interruptPositioner:SetFillStyle(Enum.StatusBarFillStyle.Standard)
       self.interruptMarker:ClearAllPoints()
       self.interruptMarkerPoint:ClearAllPoints()
       self.interruptMarker:SetPoint("LEFT", frame.interruptPositioner:GetStatusBarTexture(), "RIGHT")
@@ -398,6 +399,10 @@ function addonTable.Display.GetPower(frame, parent)
 
     for _, t in ipairs(self.powerTextures) do
       t:SetTexture(self.asset.file)
+    end
+
+    if frame.PostInit then
+      frame:PostInit()
     end
   end
 
@@ -736,7 +741,7 @@ function addonTable.Display.GetText(frame, parent)
     elseif details.kind == "damageAbsorb" then
       Mixin(frame, addonTable.Display.AbsorbTextMixin)
     elseif details.kind == "creatureName" then
-      Mixin(frame, addonTable.Display.CreatureTextMSPMixin or addonTable.Display.CreatureTextMixin)
+      Mixin(frame, addonTable.Display.CreatureTextMixin)
     elseif details.kind == "guild" then
       Mixin(frame, addonTable.Display.GuildTextMixin)
     elseif details.kind == "castSpellName" then
