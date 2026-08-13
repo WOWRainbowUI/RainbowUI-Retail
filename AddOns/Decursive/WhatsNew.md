@@ -1,8 +1,30 @@
-Decursive 2.8.1-RC1
-===================
+Decursive 2.8.2
+===============
+
+Decursive 2.8.2 (2026-08-12)
+----------------------------
+
+
+WoW 12.1 status:
+
+Decursive is currently not compatible with WoW 12.1. It will display a message
+to that effect and will not initialize (preventing Lua errors). The message is
+shown only once.
+
+An update might come in the following weeks if I can find some time to work on
+it (tens of hours of work involved with uncertain results...)
+You can keep Decursive enabled as it won't use any CPU and hopefully, one day it'll work again once it is updated.
+
+
+Decursive 2.8.1 (2026-07-22)
+----------------------------
+
+- Fix for WoW classic
 
 - Disable scanning for debuffs in 12.1
- Blizzard broke everything again so a lot of work is once more required to make Decursive compatible... Decursive will just do nothing if used in 12.1 instead of reporting Lua errors.
+
+  Blizzard broke everything again so a lot of work is once more required to make Decursive compatible...
+  So until then, this version of Decursive will just not report debuffs if used in 12.1.
 
 
 Decursive 2.8.0 (2026-07-05)
