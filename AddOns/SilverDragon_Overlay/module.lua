@@ -42,7 +42,7 @@ function module:OnInitialize()
                 edge = module.const.EDGE_FOCUS
             },
             icon_theme = 'skulls', -- circles / skulls
-            icon_color = 'distinct', -- completion / distinct
+            icon_color = 'completion', -- completion / distinct
             achieved = true,
             questcomplete = false,
             achievementless = true,
@@ -99,6 +99,9 @@ function module:OnEnable()
     WorldMapFrame:RegisterCallback("WorldMapOnHide", self.OnWorldMapHide, self)
     HBD.RegisterCallback(self, "PlayerZoneChanged", "UpdateMinimapIcons")
     core.RegisterCallback(self, "Ready", "Update")
+    -- the notability options and the loot ones live on the core profile, and both
+    -- decide what our icons look like
+    core.RegisterCallback(self, "OptionsChanged", "Update")
     core.RegisterCallback(self, "BrokerMobClick")
     core.RegisterCallback(self, "BrokerMobEnter")
     core.RegisterCallback(self, "BrokerMobLeave")
@@ -197,7 +200,7 @@ end
 
 -- /script SilverDragon:GetModule("Overlay"):Update()
 function module:Update()
-    ns.ClearRunCaches()
+    -- no clear needed: each pass takes its own hold, which starts one
     self:UpdateMinimapIcons()
     self:UpdateWorldMapIcons()
 end

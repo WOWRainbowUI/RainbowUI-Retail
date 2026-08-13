@@ -46,10 +46,15 @@ local commands = {
         end
         self:Print("無法根據你所輸入的 ID 找到稀有怪")
     end,
+    browse = function(self)
+        core:GetModule("Browser"):Toggle()
+    end,
     debug = function(self, args)
         core:ShowDebugWindow()
     end,
 }
+commands.mobs = commands.browse
+commands.list = commands.browse
 
 function module:OnChatCommand(input)
     local command, arg = self:GetArgs(input, 2)

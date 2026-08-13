@@ -14,9 +14,17 @@ function module:OnInitialize()
 			targets = true,
 			nameplate = true,
 			rare_only = true,
-			dead = true,
 		},
 	})
+	-- "Dead rares" used to live here as well as on Announce, two switches with the
+	-- same name in different sections. Core's covers both now. It defaulted on, so
+	-- a stored value here only ever means it was turned off.
+	if self.db.profile.dead ~= nil then
+		if not self.db.profile.dead then
+			core.db.profile.dead = false
+		end
+		self.db.profile.dead = nil
+	end
 
 	local config = core:GetModule("Config", true)
 	if config then
@@ -27,11 +35,10 @@ function module:OnInitialize()
 				get = function(info) return self.db.profile[info[#info]] end,
 				set = function(info, v) self.db.profile[info[#info]] = v end,
 				args = {
-					mouseover = config.toggle("滑鼠指向", "檢查滑鼠指向的怪獸", 10),
-					targets = config.toggle("目標", "檢查隊友的目標", 20),
-					nameplate = config.toggle("血條", "檢查有血條的單位", 30),
-					rare_only = config.toggle("只有稀有怪", "只尋找仍被標示為稀有的怪獸", 40),
-					dead = config.toggle("死的稀有怪", "選取已死亡的稀有怪為目標也算數", 50),
+					mouseover = config.toggle("Mouseover", "Check mobs that you mouse over.", 10),
+					targets = config.toggle("Targets", "Check the targets of people in your group.", 20),
+					nameplate = config.toggle("Nameplates", "Check units whose nameplates appear.", 30),
+					rare_only = config.toggle("Rare only", "Only look for mobs that are still flagged as rare", 40),
 				},
 			},
 		}
@@ -93,7 +100,7 @@ function module:ProcessUnit(unit, source)
 	local unittype = UnitClassification(unit)
 	local is_rare = (id and rare_nonflags[id]) or (unittype == 'rare' or unittype == 'rareelite')
 	local is_dead = UnitIsDead(unit)
-	if is_dead and not self.db.profile.dead then return end
+	if is_dead and not core.db.profile.dead then return end
 	local should_process = false
 
 	if core:IsCustom(id, zone) then

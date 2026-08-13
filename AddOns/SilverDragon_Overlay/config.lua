@@ -24,8 +24,8 @@ function module:RegisterConfig()
                 args = {
                     achieved = {
                         type = "toggle",
-                        name = "顯示已打過的",
-                        desc = "是否要顯示你已經擊殺過的稀有怪圖示 (依據成就進度來偵測)",
+                        name = "Show achieved",
+                        desc = "Whether to show icons for mobs you're done with: ones you've got the achievement progress for, or that have nothing left on them you want (which is set up under Announcements, in \"What's notable?\")",
                         order = 10,
                     },
                     questcomplete = {
@@ -77,11 +77,11 @@ function module:RegisterConfig()
                     },
                     icon_color = {
                         type = "select",
-                        name = "顏色",
-                        desc = "圖示要如何上色",
+                        name = "Color",
+                        desc = "How to color the icons.\n\n\"What's left on it\" asks what the announcement filter asks, and has four answers: a mount you'd want, something else you'd want, nothing you want, or nothing left at all.",
                         values = {
-                            ["distinct"] = "每個都不同顏色",
-                            ["completion"] = "依據完成狀態",
+                            ["distinct"] = "Unique per-mob",
+                            ["completion"] = "What's left on it",
                         },
                         order = 50,
                     },

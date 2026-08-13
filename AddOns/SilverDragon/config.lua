@@ -27,7 +27,12 @@ local options = {
 	type = "group",
 	name = "稀有怪獸與牠們的產地",
 	get = function(info) return core.db.profile[info[#info]] end,
-	set = function(info, v) core.db.profile[info[#info]] = v end,
+	set = function(info, v)
+		core.db.profile[info[#info]] = v
+		-- anything drawing from these has to be told; the map in particular keeps
+		-- its pins up until something asks it to think again
+		core.events:Fire("OptionsChanged", info[#info], v)
+	end,
 	args = {
 		about = {
 			type = "group",
@@ -58,11 +63,16 @@ local options = {
 					type = "group",
 					name = "戰利品",
 					inline = true,
-					order = 5,
+					-- last: both of these are fine-tuning, and everything the
+					-- modules add to this section matters more than they do
+					order = 110,
 					args = {
-						about = desc("稀有怪獸與牠們的產地如何處理稀有怪掉落物品的一些選項", 0),
-						charloot = toggle("只有當前角色", "只顯示當前角色會掉落的物品。", 10),
-						transmog_specific = toggle("來自同一件物品的塑形外觀", "對於塑形外觀，只有從完全相同的物品收藏，而不是從具有相同外觀的另一件物品中收藏時，才將視為已收藏。", 20),
+						about = desc("Some options for how SilverDragon will treat loot drops from mobs", 0),
+						charloot = toggle("Current character only", "Only show loot that should drop for your current character, and only count that loot towards a rare being worth announcing.", 10),
+						sharedloot = toggle("Count shared loot", "Some rares draw on a loot table shared with others nearby. Count what's in it towards them being worth announcing, the same as their own loot.", 15),
+						sharedloot_alerts = toggle("...for alerts?", "A shared mount you haven't got will earn the mount sound, flash and map icon as well, rather than just being notable.", 16, nil, function() return not core.db.profile.sharedloot end),
+						boeloot = toggle("Count sellable duplicates", "A mount, pet or toy you already have still counts as notable if it's bind-on-equip, since you can sell it.", 20),
+						transmog_specific = toggle("Transmog exact items", "For transmog appearances, only count them as known if you know them from that exact item, rather than from another sharing the same appearance", 25),
 					}
 				},
 			},
@@ -88,8 +98,9 @@ local options = {
 					min = 30, max = (60 * 60), step = 10,
 					order = 20,
 				},
-				instances = toggle("副本中要掃描", "副本實際上沒有什麼稀有怪，況且這時候通常會想要盡可能的提高效能，而掃描可能會讓速度變慢。", 50),
-				taxi = toggle("搭乘鳥點飛行時要掃描", "搭乘鳥點飛行或飛龍競速時也要持續掃描，希望當你回來找它時還在那裏...", 55),
+				dead = toggle("Dead rares", "Count a rare that's already dead when we spot it, and tell you about it. Not every way of spotting them can tell whether one is dead.", 45),
+				instances = toggle("Scan in instances", "Look for rares while you're in an instance, and tell you about the ones we find. There aren't that many actual rares in instances, and scanning might slow things down at a time when you'd like the most performance possible.", 50),
+				taxi = toggle("Scan on taxis", "Keep scanning for rares while flying on a taxi or in a dragon race. Just hope that it'll still be there after you land and make your way back...", 55),
 			},
 			plugins = {},
 		},

@@ -132,7 +132,7 @@ function module:RegisterConfig()
 					name = "聊天通報",
 					order = 50,
 				},
-				announceDesc = config.desc("按住 Shift 點一下可點擊的目標框架會嘗試傳送稀有怪的訊息。如果你將牠選為目標了，或是靠的夠近能夠看到血條，便會包括血量。\n如果你打開了文字輸入框，會把訊息貼到裡面方便你傳送。如果沒有打開文字輸入框，會使用下面的設定:", 41),
+				announceDesc = config.desc("Shift-clicking the target popup will try to send a message about the rare. If you've got it targeted or are near enough to see its nameplate, health will be included.\nIf you have an editbox open, it'll paste the message into that for you to send. If you don't, it'll do whatever these settings say:", 51),
 				announce = {
 					type = "select",
 					name = "通報到聊天視窗",

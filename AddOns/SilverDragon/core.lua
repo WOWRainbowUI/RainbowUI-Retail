@@ -54,8 +54,9 @@ do
 end
 
 BINDING_HEADER_SILVERDRAGON = "SilverDragon"
-_G["BINDING_NAME_CLICK SilverDragonPopupButton:LeftButton"] = "選取剛發現的稀有怪"
-_G["BINDING_NAME_CLICK SilverDragonMacroButton:LeftButton"] = "掃描附近的稀有怪"
+_G["BINDING_NAME_CLICK SilverDragonPopupButton:LeftButton"] = "Target last found mob"
+_G["BINDING_NAME_CLICK SilverDragonMacroButton:LeftButton"] = "Scan for nearby mobs"
+BINDING_NAME_SILVERDRAGON_TOGGLE_BROWSER = "Browse rares"
 
 addon.escapes = {
 	-- |TTexturePath:size1:size2:xoffset:yoffset:dimx:dimy:coordx1:coordx2:coordy1:coordy2|t
@@ -71,66 +72,6 @@ if ns.CLASSIC then
 	addon.escapes.rightClick = [[|TInterface\TUTORIALFRAME\UI-TUTORIAL-FRAME:20:12:0:-1:512:512:9:66:332:411|t]]
 end
 
-local upgradeloot
-do
-	local available = {}
-	local function upgradelootitem(item)
-		if ns.IsObject(item) then
-			return item
-		end
-		if type(item) == "number" then
-			return ns.rewards.Item(item)
-		end
-		local upgrade
-		if item.toy then
-			upgrade = ns.rewards.Toy(item[1])
-		elseif item.mount then
-			upgrade = ns.rewards.Mount(item[1], type(item.mount) == "number" and item.mount)
-		elseif item.pet then
-			upgrade = ns.rewards.Pet(item[1], type(item.pet) == "number" and item.pet)
-		elseif item.set then
-			upgrade = ns.rewards.Set(item[1], item.set)
-		elseif item.decor then
-			upgrade = ns.rewards.Decor(item[1])
-		else
-			upgrade = ns.rewards.Item(item[1])
-		end
-		upgrade.quest = item.quest
-		upgrade.questComplete = item.questComplete
-		upgrade.warband = item.warband
-		upgrade.spell = item.spell
-		upgrade.note = item.note
-		if item.class then
-			upgrade.class = item.class -- for icon display in the loot popup
-			table.insert(available, ns.conditions.Class(item.class))
-		end
-		if item.covenant then
-			upgrade.covenant = item.covenant -- for icon display in the loot popup
-			table.insert(available, ns.conditions.Covenant(item.covenant))
-		end
-		if item.requires then
-			if ns.IsObject(item.requires) then
-				table.insert(available, item.requires)
-			else
-				for i,v in ipairs(item.requires) do
-					table.insert(available, v)
-				end
-			end
-		end
-		if #available > 0 then
-			upgrade.requires = available
-			available = {}
-		end
-		return upgrade
-	end
-	function upgradeloot(loot)
-		if not loot then return loot end
-		for i, item in ipairs(loot) do
-			loot[i] = upgradelootitem(item)
-		end
-		return loot
-	end
-end
 
 
 addon.datasources = {
@@ -209,8 +150,8 @@ function addon:RegisterMobData(source, data, updated)
 			ns.achievements[mobdata.achievement][mobid] = mobdata.criteria
 			ns:RegisterMobAchievement(mobid, mobdata.achievement)
 		end
-		mobdata.loot = upgradeloot(mobdata.loot)
-		mobdata.loot_shared = upgradeloot(mobdata.loot_shared)
+		mobdata.loot = ns.upgradeloot(mobdata.loot)
+		mobdata.loot_shared = ns.upgradeloot(mobdata.loot_shared)
 	end
 end
 function addon:RegisterTreasureData(source, data, updated)
@@ -218,30 +159,35 @@ function addon:RegisterTreasureData(source, data, updated)
 	if not addon.treasuresources[source] then addon.treasuresources[source] = {} end
 	MergeTable(addon.treasuresources[source], data)
 	for vignetteid, vignettedata in pairs(data) do
-		vignettedata.loot = upgradeloot(vignettedata.loot)
-		vignettedata.loot_shared = upgradeloot(vignettedata.loot_shared)
+		vignettedata.loot = ns.upgradeloot(vignettedata.loot)
+		vignettedata.loot_shared = ns.upgradeloot(vignettedata.loot_shared)
 	end
 end
 do
+	-- a treasure can have several vignettes, the same as a mob can
+	local function addTreasureVignettes(treasures, data, ...)
+		for i=1, select("#", ...) do
+			local vignetteID = select(i, ...)
+			treasures[vignetteID] = data
+		end
+	end
 	function addon:RegisterHandyNotesData(source, uiMapID, points, defaults)
 		-- convenience for me, really...
 		addon.datasources[source] = addon.datasources[source] or {}
 		addon.treasuresources[source] = addon.treasuresources[source] or {}
-		for coord, point in pairs(points) do
-			if defaults then
-				for k,v in pairs(defaults) do
-					if k == "note" and point[k] then
-						point[k] = v .. "\n" .. point[k]
-					end
-					point[k] = point[k] or v
-				end
+		if defaults then
+			local nodeType = ns.nodeMaker(defaults)
+			for coord, point in pairs(points) do
+			    points[coord] = nodeType(point)
 			end
+		end
+		for coord, point in pairs(points) do
 			if point.npc or point.vignette then
 				local data = {
 					name=point.label,
 					locations={[uiMapID]={coord}},
-					loot=upgradeloot(point.loot),
-					loot_shared=upgradeloot(point.loot_shared),
+					loot=ns.upgradeloot(point.loot),
+					loot_shared=ns.upgradeloot(point.loot_shared),
 					notes=point.note,
 					active=point.active,
 					requires=point.requires or point.hide_before,
@@ -249,6 +195,7 @@ do
 					quest=point.quest,
 					hidden=point.hidden,
 					worldquest=point.worldquest,
+					achievement=point.achievement, criteria=point.criteria,
 				}
 				-- variations on "also register this elsewhere":
 				if point.translate or point.parent or point.levels then
@@ -300,9 +247,6 @@ do
 						table.insert(data.locations[uiMapID], acoord)
 					end
 				end
-				if point.route and ns.xtype(point.route) == "table" then
-					data.routes = {[uiMapID] = {point.route}}
-				end
 				if point.routes then
 					data.routes = {[uiMapID] = point.routes}
 				end
@@ -326,7 +270,7 @@ do
 						ns:RegisterMobAchievement(point.npc, point.achievement)
 					end
 				else
-					addon.treasuresources[source][point.vignette] = data
+					addTreasureVignettes(addon.treasuresources[source], data, ns.safe_unpack(point.vignette))
 				end
 			end
 		end
@@ -335,9 +279,6 @@ end
 do
 	local function addQuestMobLookup(lookup, mobid, quest)
 		if ns.xtype(quest) == "table" then
-			if quest.alliance then
-				return addQuestMobLookup(lookup, mobid, faction == "Alliance" and quest.alliance or quest.horde)
-			end
 			for _, questid in ipairs(quest) do
 				if not lookup[questid] then
 					lookup[questid] = {}
@@ -445,26 +386,54 @@ function addon:OnInitialize()
 		profile = {
 			scan = 1, -- scan interval, 0 for never
 			delay = 1200, -- number of seconds to wait between recording the same mob
+			dead = true,
 			instances = false,
 			taxi = true,
 			charloot = false,
+			sharedloot = true,
+			sharedloot_alerts = false, -- core because it affects the map and announcements
+			boeloot = true,
 			transmog_specific = false,
+			-- What counts as "notable"? These are read by the shared rewards
+			-- system via ns.db, so the key names have to match the ones my
+			-- HandyNotes plugins use.
+			achievement_notable = true,
+			mount_notable = true,
+			toy_notable = true,
+			pet_notable = true,
+			transmog_notable = true,
+			quest_notable = true,
+			decor_notable = true,
+			alts_achievements_count = false,
 		},
 	}, true)
 	globaldb = self.db.global
+	self.db.RegisterCallback(self, "OnProfileChanged", "MigrateProfileOptions")
+	self.db.RegisterCallback(self, "OnProfileCopied", "MigrateProfileOptions")
+	self.db.RegisterCallback(self, "OnProfileReset", "MigrateProfileOptions")
 
 	if self.db.locale and self.db.locale.mob_name then
 		self.db.locale.mob_name = nil
 		self.db.locale.quest_name = nil
 	end
 
-	if self.db.profile.lootappearances ~= nil then
-		self.db.profile.transmog_specific = not self.db.profile.lootappearances
-	end
+	self:MigrateProfileOptions()
 
 	if globaldb.always then
 		MergeTable(globaldb.custom.any, globaldb.always)
 		globaldb.always = nil
+	end
+end
+
+-- Profile-scoped option migrations, so they also run when a profile is switched
+-- to, copied over or reset, long after OnInitialize. (The locale and global ones
+-- above don't need that: neither scope follows the profile.)
+function addon:MigrateProfileOptions()
+	if self.db.profile.lootappearances ~= nil then
+		self.db.profile.transmog_specific = not self.db.profile.lootappearances
+		-- has to be cleared, or this re-derives transmog_specific on every login
+		-- and the option can never be changed
+		self.db.profile.lootappearances = nil
 	end
 end
 

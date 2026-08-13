@@ -779,6 +779,9 @@ local achievements = {
 	[62881] = {}, -- Showdown Slugger: Val
 	[62883] = {}, -- Showdown Slugger: Naigtal
 	[63348] = {}, -- Heroic Slugger
+	[63358] = {}, -- Coiled To Strike
+	[63390] = {}, -- Turn the Surge
+	[62601] = {}, -- Soft Underbelly
 }
 ns.achievements = achievements
 local mobs_to_achievement = {
@@ -786,6 +789,9 @@ local mobs_to_achievement = {
 }
 ns.mobs_to_achievement = mobs_to_achievement
 local achievements_loaded = false
+local achievements_scanned = {
+	-- [achievementid] = true, once we've actually read criteria out of it
+}
 
 function ns:RegisterMobAchievement(mobid, achievementid)
 	if type(achievementid) ~= "number" or type(mobid) ~= "number" then return end
@@ -827,55 +833,13 @@ do
 	end
 end
 
-local allQuestsComplete
-do
-	local faction = UnitFactionGroup("player")
-	local function doTestAll(test, input, ...)
-		for _, value in ipairs(input) do
-			if not test(value, ...) then
-				return false
-			end
-		end
-		return true
-	end
-	local function doTestAny(test, input, ...)
-		for _, value in ipairs(input) do
-			if test(value, ...) then
-				return true
-			end
-		end
-		return false
-	end
-	local function doTest(test, input, ...)
-		if ns.xtype(input) == "table" then
-			if input.alliance then
-				return doTest(test, faction == "Alliance" and input.alliance or input.horde, ...)
-			end
-			if input.any then
-				return doTestAny(test, input, ...)
-			end
-			return doTestAll(test, input, ...)
-		else
-			return test(input, ...)
-		end
-	end
-	local function testMaker(test, override)
-		return function(...)
-			return (override or doTest)(test, ...)
-		end
-	end
-	-- local itemInBags = testMaker(function(item) return GetItemCount(item, true) > 0 end)
-	allQuestsComplete = testMaker(function(quest) return C_QuestLog.IsQuestFlaggedCompleted(quest) end)
-	ns.doTest = doTest
-end
-
 -- return quest_complete, all_criteria_complete, any_achievement_completed_by_alt
 -- `nil` if completion not knowable, true/false if knowable
 function ns:CompletionStatus(id)
 	if not ns.mobdb[id] then return end
 	local quest_complete
 	if ns.mobdb[id].quest then
-		quest_complete = allQuestsComplete(ns.mobdb[id].quest)
+		quest_complete = ns.allQuestsComplete(ns.mobdb[id].quest)
 	end
 	local all_criteria_complete, any_achievement_completed_by_alt
 	for _, _, _, criteria_complete, achievement_completed_by_alt in ns:AchievementMobStatus(id) do
@@ -895,39 +859,54 @@ function ns:LoadAllAchievementMobs()
 	end
 	local known = {}
 	for achievement in pairs(achievements) do
-		local missing = 0
-		for k,v in pairs(achievements[achievement]) do
-			known[v] = k
-		end
-		local num_criteria = GetAchievementNumCriteria(achievement) or 0
-		for i = 1, num_criteria do
-			local description, ctype, completed, _, _, _, _, id, _, criteriaid = GetAchievementCriteriaInfo(achievement, i)
-			if not known[criteriaid] then
-				if ctype == 0 and id and id ~= 0 then
-					-- "kill a mob"
-					achievements[achievement][id] = criteriaid
-				-- elseif ctype == 27 then
-					-- "complete a quest"
-				else
-					if missing == 0 then
-						local _, name = GetAchievementInfo(achievement)
-						Debug('Missing mobs from achievement')
-						DebugF('[%s] = { -- %s', achievement, name)
+		-- GetAchievementNumCriteria comes back empty until the client actually
+		-- has the achievement data, so track the ones we managed to read and
+		-- leave anything that wasn't ready yet for a later pass
+		local num_criteria = achievements_scanned[achievement] and 0 or (GetAchievementNumCriteria(achievement) or 0)
+		if num_criteria > 0 then
+			achievements_scanned[achievement] = true
+			local missing = 0
+			for k,v in pairs(achievements[achievement]) do
+				known[v] = k
+			end
+			for i = 1, num_criteria do
+				local description, ctype, completed, _, _, _, _, id, _, criteriaid = GetAchievementCriteriaInfo(achievement, i)
+				if not known[criteriaid] then
+					if ctype == 0 and id and id ~= 0 then
+						-- "kill a mob"
+						achievements[achievement][id] = criteriaid
+					-- elseif ctype == 27 then
+						-- "complete a quest"
+					else
+						if missing == 0 then
+							local _, name = GetAchievementInfo(achievement)
+							Debug('Missing mobs from achievement')
+							DebugF('[%s] = { -- %s', achievement, name)
+						end
+						DebugF('	[] = %d, -- %s', criteriaid, description)
+						missing = missing + 1
 					end
-					DebugF('	[] = %d, -- %s', criteriaid, description)
-					missing = missing + 1
 				end
 			end
-			achievements_loaded = true
+			for mobid, criteriaid in pairs(achievements[achievement]) do
+				ns:RegisterMobAchievement(mobid, achievement)
+			end
+			if missing > 0 then
+				DebugF('} -- Got %d of %d', num_criteria - missing, num_criteria)
+			end
+			wipe(known)
 		end
-		for mobid, criteriaid in pairs(achievements[achievement]) do
-			ns:RegisterMobAchievement(mobid, achievement)
-		end
-		if missing > 0 then
-			DebugF('} -- Got %d of %d', num_criteria - missing, num_criteria)
-		end
-		wipe(known)
 	end
+	-- a full pass is done, so stop scanning on every lookup; if the client
+	-- hadn't handed over everything yet, RECEIVED_ACHIEVEMENT_LIST sends us
+	-- back around, and the achievements_scanned check keeps that pass cheap
+	achievements_loaded = true
+end
+
+if C_EventUtils.IsEventValid("RECEIVED_ACHIEVEMENT_LIST") then
+	core:RegisterEvent("RECEIVED_ACHIEVEMENT_LIST", function()
+		achievements_loaded = false
+	end)
 end
 
 function ns:UpdateTooltipWithCompletion(tooltip, id)
@@ -944,7 +923,7 @@ function ns:UpdateTooltipWithCompletion(tooltip, id)
 		)
 	end
 	if ns.mobdb[id] and ns.mobdb[id].quest then
-		local completed = allQuestsComplete(ns.mobdb[id].quest)
+		local completed = ns.allQuestsComplete(ns.mobdb[id].quest)
 		tooltip:AddDoubleLine(
 			QUESTS_COLON:gsub(":", ""),
 			completed and COMPLETE or INCOMPLETE,
