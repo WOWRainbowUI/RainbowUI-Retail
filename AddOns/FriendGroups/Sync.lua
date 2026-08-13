@@ -46,8 +46,13 @@ local BOOL_FIELDS = {
     "hide_high_level", "add_favorite_group", "gray_faction", "show_mobile_afk",
     "add_mobile_text", "ingame_only", "ingame_retail", "show_btag",
     "show_retail", "show_search", "hide_empty_groups", "hide_afk",
-    "open_one_group", "auto_accept_invite", "auto_accept_sync", "auto_accept_res",
-    "auto_release", "offline_tracker", "show_flags", "show_contact_cap",
+    -- Bits 20 and 21 were auto_accept_res / auto_release, removed in 13.0.2 with the rest
+    -- of the spirit automation. They are RESERVED, not deleted: thirteen fields sit after
+    -- them, so removing the entries would shift every one of those down two bits and every
+    -- backup string already in a user's hands would decode into the wrong settings --
+    -- silently, since a mask carries no field names to disagree with. See RESERVED_FIELDS.
+    "open_one_group", "auto_accept_invite", "auto_accept_sync", "__reserved_20",
+    "__reserved_21", "offline_tracker", "show_flags", "show_contact_cap",
     "show_guildmates", "show_known_alts",
     -- Appended in 12.1.10. APPEND-ONLY: must stay last so existing backup strings keep
     -- their bit positions (older strings simply lack this bit, decoding as false/Narrow).
@@ -70,6 +75,13 @@ local BOOL_FIELDS = {
 -- Allowed values for the one numeric scalar we sync.
 local VALID_HEIGHTS = { [0] = true, [190] = true, [380] = true }
 
+-- Row font scale: 1 Small, 2 Medium (the default), 3 Large. A scalar rather than a pair of
+-- booleans in the mask, because unlike the Narrow/Normal/Wide width -- which predates this
+-- and cannot be changed without breaking existing backups -- there is nothing here to stay
+-- compatible with, and three states in one field cannot encode a contradiction the way two
+-- independent flags can.
+local VALID_FONT_SIZES = { [1] = true, [2] = true, [3] = true }
+
 -- Default-ON display toggles: stored inverted (the bit means "disabled") so a
 -- missing bit in an older backup decodes as enabled (the correct default).
 local DEFAULT_ON_INVERTED = {
@@ -77,9 +89,24 @@ local DEFAULT_ON_INVERTED = {
     show_game_icon = true, show_faction_color = true,
 }
 
+-- Retired bit positions. They still occupy their slot in BOOL_FIELDS so the layout of every
+-- existing backup string is preserved, but they are never read from or written to
+-- SavedVars: exports always emit 0 and imports skip them entirely.
+--
+-- The compatibility works out in the useful direction. An OLD client importing a NEW profile
+-- reads these bits as 0, which sets auto_accept_res / auto_release to false -- exactly right
+-- for a feature that no longer exists. A NEW client importing an OLD profile ignores them.
+local RESERVED_FIELDS = {
+    __reserved_20 = true,   -- was auto_accept_res
+    __reserved_21 = true,   -- was auto_release
+}
+
 -- show_known_alts is "on unless explicitly false"; DEFAULT_ON_INVERTED keys encode
 -- the disabled state; everything else is plain truthy.
 local function EffectiveBool(sv, key)
+    -- Stated rather than left to fall through the truthy branch, so a SavedVars that still
+    -- carries the old key from before the removal cannot resurrect the bit on re-export.
+    if RESERVED_FIELDS[key] then return false end
     if key == "show_known_alts" then
         return sv[key] ~= false
     end
@@ -328,12 +355,24 @@ function M.Serialize(sv, timestamp)
         -- to 2^53 and the decoder reads it back with tonumber + arithmetic bit tests.
         "t" .. string.format("%.0f", mask),
         "h" .. string.format("%d", height),
+        -- Row font scale. A NEW TAG, for the same reason the font colours took one: the
+        -- decoder dispatches on tag, so an older client reading a newer profile falls
+        -- through and ignores this, and a newer client reading an older profile simply
+        -- finds no scale and keeps its own. 0 means "never set" and imports as untouched.
+        "z" .. string.format("%d", tonumber(sv.font_size) or 0),
         -- Raw ranks: they are fractional positions relative to the deterministic
         -- auto-order (identical on every account), so they must NOT be renumbered.
         "o" .. EncodeMap(sv.group_order, function(v)
             return type(v) == "number" and string.format("%.14g", v) or nil
         end),
         "c" .. EncodeMap(sv.banner_colors),
+        -- Header label colours. A NEW TAG rather than a protocol bump: the decoder dispatches
+
+        -- on tag, so an older client reading a newer profile falls through and ignores this,
+
+        -- and a newer client reading an older profile simply finds no font colours.
+
+        "F" .. EncodeMap(sv.font_colors),
         "n" .. EncodeMap(sv.nicknames, function(v) return SanitizeLabel(v) end),
         "m" .. EncodeMap(sv.manual_mains),
         -- main_guild: the selected main's guild per friend, so the guild group
@@ -396,8 +435,10 @@ function M.Deserialize(str)
     local profile = {
         bools = {},
         extra_height = nil,
+        font_size = nil,
         group_order = {},
         banner_colors = {},
+        font_colors = {},
         nicknames = {},
         manual_mains = {},
         main_guild = {},
@@ -420,6 +461,9 @@ function M.Deserialize(str)
         elseif tag == "h" then
             local n = tonumber(body)
             if n and VALID_HEIGHTS[n] then profile.extra_height = n end
+        elseif tag == "z" then
+            local n = tonumber(body)
+            if n and VALID_FONT_SIZES[n] then profile.font_size = n end
         elseif tag == "o" then
             DecodeMap(body, function(name, val)
                 local r = tonumber(val)
@@ -428,6 +472,13 @@ function M.Deserialize(str)
         elseif tag == "c" then
             DecodeMap(body, function(name, val)
                 if val:match("^%x%x%x%x%x%x$") then profile.banner_colors[name] = val end
+            end)
+        elseif tag == "F" then
+
+            DecodeMap(body, function(name, val)
+
+                if val:match("^%x%x%x%x%x%x$") then profile.font_colors[name] = val end
+
             end)
         elseif tag == "n" then
             DecodeMap(body, function(id, val)
@@ -476,7 +527,11 @@ function M.Apply(profile)
     -- is enforced where a setting is READ, not here (see the width bits in BOOL_FIELDS).
     for i = 1, #BOOL_FIELDS do
         local key = BOOL_FIELDS[i]
-        if DEFAULT_ON_INVERTED[key] then
+        -- Retired bit: consumed on decode to keep the positions aligned, but never written
+        -- back, so importing cannot seed a dead key into a clean SavedVars.
+        if RESERVED_FIELDS[key] then
+            -- nothing to apply
+        elseif DEFAULT_ON_INVERTED[key] then
             sv[key] = not profile.bools[key]   -- bit set == disabled
         else
             sv[key] = profile.bools[key] and true or false
@@ -484,10 +539,12 @@ function M.Apply(profile)
     end
 
     if profile.extra_height ~= nil then sv.extra_height = profile.extra_height end
+    if profile.font_size ~= nil then sv.font_size = profile.font_size end
 
     -- Full-mirror: replace the customisation tables wholesale.
     sv.group_order   = profile.group_order   or {}
     sv.banner_colors = profile.banner_colors or {}
+    sv.font_colors = profile.font_colors or {}
     sv.nicknames     = profile.nicknames     or {}
     sv.manual_mains  = profile.manual_mains  or {}
     sv.main_guild    = profile.main_guild    or {}
@@ -515,6 +572,15 @@ function M.Apply(profile)
     if not sv.show_known_alts and _G.wipe then
         if type(sv.alt_cache) == "table" then _G.wipe(sv.alt_cache) end
         if type(sv.guid_index) == "table" then _G.wipe(sv.guid_index) end
+    end
+
+    -- An imported font scale changes the ROW HEIGHT as well as the text, and the Social UI
+    -- caches template extents -- so the cache has to be dropped before the rebuild below,
+    -- or the restored size would render inside rows still sized for the old one.
+    -- Reached through the addon table rather than a global: Compat is addon-private.
+    local compat = addonTable and addonTable.Compat
+    if compat and type(compat.OnFontScaleChanged) == "function" then
+        compat.OnFontScaleChanged()
     end
 
     if _G.FriendGroups_UpdateSize then _G.FriendGroups_UpdateSize() end

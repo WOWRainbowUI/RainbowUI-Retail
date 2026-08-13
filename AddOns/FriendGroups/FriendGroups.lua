@@ -86,6 +86,107 @@ local function Print(...)
 end
 
 -- ============================================================================
+-- [[ HOUSE ACCENT ]]
+-- FriendGroups draws its own chrome in Blizzard gold (1, 0.82, 0): tooltip headers,
+-- the contact counter, group lines, the drag indicator, menu section titles. That gold
+-- is now resolved through here instead of being written literally, so the whole addon
+-- retints together when the EllesmereUI skin is on.
+--
+-- Applies on EVERY platform, not just 12.1 -- the skin toggle is era-independent, and a
+-- half-themed addon looks worse than an unthemed one.
+--
+-- Resolved LIVE on each call rather than cached: EllesmereUI's accent is user-editable at
+-- runtime and the skin publishes a live value. These are tooltip and menu build paths,
+-- both of which already do far more work than one table lookup.
+--
+-- Looked up by global name because EllesmereSkin.lua loads AFTER this file. It is a real
+-- global there (_G.FriendGroupsEUISkin), and returns nil on any client where the skin is
+-- absent or switched off -- which is the gold path, unchanged.
+local FG_GOLD_R, FG_GOLD_G, FG_GOLD_B = 1, 0.82, 0
+
+-- Floor width for the contact tooltip, in pixels.
+--
+-- GameTooltip decides where a WRAPPED line breaks from the tooltip's width AT THE MOMENT THE
+-- LINE IS ADDED, and this tooltip adds its prose before the numeric AddDoubleLine rows that
+-- set its real width. The prose was therefore wrapping against a narrow tooltip and then
+-- being stretched by the rows underneath it, leaving one orphaned word per paragraph well
+-- short of the right edge. Claiming the final width up front makes the wrap points honest.
+--
+-- Roughly the width the finished tooltip already had, so nothing that fitted before moves.
+local FG_CONTACT_TOOLTIP_MIN_WIDTH = 300
+
+function FriendGroups_AccentRGB()
+    local skin = _G.FriendGroupsEUISkin
+    if type(skin) == "table" and type(skin.GetAccentRGB) == "function" then
+        -- Live, not from the cached theme: EllesmereUI's accent swatch is editable at
+        -- runtime and mutates its colour table in place, so a copy taken at first paint
+        -- would be wrong from the moment the user drags the picker.
+        local r, g, b = skin.GetAccentRGB()
+        if r then return r, g, b end
+    end
+    return FG_GOLD_R, FG_GOLD_G, FG_GOLD_B
+end
+
+-- The same accent as a |cff escape, for strings that carry their own colour (menu titles,
+-- concatenated tooltip text). Built from the live RGB so the two can never disagree.
+function FriendGroups_AccentColorCode()
+    local r, g, b = FriendGroups_AccentRGB()
+    -- Rounded to integers before formatting. %x against a float is tolerated by this Lua
+    -- but truncates, and 0.824 * 255 = 210.1 losing its fraction is a visibly different
+    -- teal from the one every other surface is using.
+    return string.format("|cff%02x%02x%02x",
+        math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5))
+end
+
+-- ============================================================================
+-- [[ ROW FONT SCALE ]]
+-- 1 Small, 2 Medium, 3 Large. Medium is the default and reproduces the historical
+-- behaviour exactly, so an existing user who never touches this sees no change.
+--
+-- Stored as a scalar rather than a pair of booleans: three states in one field cannot
+-- encode a contradiction the way two independent flags can. (The Narrow/Normal/Wide width
+-- uses two flags only because it predates this and its wire format is fixed.)
+--
+-- Anything unrecognised -- nil, 0 from an older profile, a corrupted value -- reads as
+-- Medium, so there is no state in which the list renders at an unusable size.
+function FriendGroups_GetFontScale()
+    local n = FriendGroups_SavedVars and tonumber(FriendGroups_SavedVars.font_size)
+    if n == 1 or n == 3 then return n end
+    return 2
+end
+
+function FriendGroups_SetFontScale(scale)
+    scale = tonumber(scale)
+    if scale ~= 1 and scale ~= 2 and scale ~= 3 then return end
+    if type(FriendGroups_SavedVars) ~= "table" then return end
+    if FriendGroups_GetFontScale() == scale then return end
+
+    FriendGroups_SavedVars.font_size = scale
+
+    -- Row HEIGHT is derived from the scale as well as the font, and the Social UI caches
+    -- template extents. Without dropping that cache the text would resize inside rows that
+    -- kept their old height, clipping the larger sizes.
+    if type(Compat.OnFontScaleChanged) == "function" then
+        Compat.OnFontScaleChanged()
+    end
+
+    -- Forced: the roster has not changed, only what should be drawn of it -- which is
+    -- exactly the case the non-forcing path discards.
+    FriendGroups_FriendsListUpdate(true)
+end
+
+-- Wrap a string in the house accent. Returns the string untouched when nothing is themed,
+-- so the gold Blizzard font colour of a menu title is left to stand on its own.
+function FriendGroups_AccentText(text)
+    if type(text) ~= "string" or text == "" then return text end
+
+    local r, g, b = FriendGroups_AccentRGB()
+    if r == FG_GOLD_R and g == FG_GOLD_G and b == FG_GOLD_B then return text end
+
+    return FriendGroups_AccentColorCode() .. text .. "|r"
+end
+
+-- ============================================================================
 -- [[ ONLINE COUNTER PLACEMENT ]]
 -- ============================================================================
 -- The counter beside the search box is right-aligned onto the same column the group
@@ -162,12 +263,39 @@ local FriendGroups_Menu, FriendGroupsFrame, searchOpened
 local searchValue = ""
 local FriendGroups_SearchBox
 
+-- Published for the platform renderers. On 12.1 the search box belongs to Blizzard's filter
+-- bar, so the text arrives from outside this file and cannot touch the file-local directly.
+--
+-- searchValue and searchLowerValue must move TOGETHER: the per-friend filter compares against
+-- the lowercase cache, so setting one without the other silently filters on a stale key.
+-- (searchLowerValue is an implicit global in this file, assigned in the search box handler and
+-- read by the filter; it is set here rather than from another file so the pairing stays local
+-- to the one place that owns the meaning.)
+--
+-- Returns true only when the value actually changed, so a caller can skip the rebuild on
+-- keystrokes that leave the text identical.
+addonTable.State.SetSearchText = function(text)
+    text = (type(text) == "string") and text or ""
+    if text == searchValue then return false end
+    searchValue = text
+    searchLowerValue = text:lower()
+    return true
+end
+
+-- The current term, so a caller that temporarily overrides it can put it back. Reads the
+-- file-local rather than any widget's text: the two list platforms own different search
+-- boxes, and this is the value the filter actually runs on.
+addonTable.State.GetSearchText = function()
+    return searchValue or ""
+end
+
 -- Data for the Custom Menu
 local FriendGroups_ClickedData = {}
 
 local settingsMenuItems = {
     -- SECTION 0: SIZE
     { text = L["SETTINGS_SIZE"], notCheckable = true, isTitle = true, submenu = true },
+    { text = L["SETTINGS_SIZE_HEIGHT"], isSubTitle = true },
     {
         text = L["SET_SIZE_SMALL"],
         checked = function() return (FriendGroups_SavedVars.extra_height or 0) == 0 end,
@@ -197,6 +325,8 @@ local settingsMenuItems = {
     -- (Compat.CAN_RESIZE_WIDTH). Where these items are hidden the saved width flags are
     -- also never applied, so an imported retail profile cannot strand the list wide.
     { text = "", isTitle = true, condition = function() return Compat.CAN_RESIZE_WIDTH end },
+    { text = L["SETTINGS_SIZE_WIDTH"], isSubTitle = true,
+      condition = function() return Compat.CAN_RESIZE_WIDTH end },
     {
         text = L["SET_WIDTH_NARROW"],
         condition = function() return Compat.CAN_RESIZE_WIDTH end,
@@ -231,7 +361,55 @@ local settingsMenuItems = {
         end
     },
 
-    -- SECTION 1: FILTERS
+    -- [[ ROW FONT SCALE ]]
+    -- Gated on the Social UI. The row fonts it scales are the ones Platform_SocialUI writes
+    -- through FG_ShrinkFont; on 12.0.7 and Classic the rows take their size from Blizzard's
+    -- own templates and nothing here would reach them. Showing the control where it cannot
+    -- work is the same defect the EllesmereUI toggle had on 12.1, so it is hidden instead --
+    -- exactly as the width items are hidden behind Compat.CAN_RESIZE_WIDTH.
+    --
+    -- The value is still STORED and still travels in a profile on every flavor, so a
+    -- Classic round-trip cannot strip a retail user's choice.
+    { text = "", isTitle = true, condition = function() return Compat.IsSocialUIActive() end },
+    { text = L["SETTINGS_SIZE_FONT"], isSubTitle = true,
+      condition = function() return Compat.IsSocialUIActive() end },
+    {
+        text = L["SET_FONT_SMALL"],
+        condition = function() return Compat.IsSocialUIActive() end,
+        checked = function() return FriendGroups_GetFontScale() == 1 end,
+        func = function() FriendGroups_SetFontScale(1) end
+    },
+    {
+        text = L["SET_FONT_MEDIUM"],
+        condition = function() return Compat.IsSocialUIActive() end,
+        checked = function() return FriendGroups_GetFontScale() == 2 end,
+        func = function() FriendGroups_SetFontScale(2) end
+    },
+    {
+        text = L["SET_FONT_LARGE"],
+        condition = function() return Compat.IsSocialUIActive() end,
+        checked = function() return FriendGroups_GetFontScale() == 3 end,
+        func = function() FriendGroups_SetFontScale(3) end
+    },
+
+    -- SECTION 1: PRIVACY
+    -- First section after the size controls, and deliberately ABOVE the Advanced split.
+    -- This is flipped immediately before going live and immediately after coming off, so it
+    -- has to be the first thing under the pointer when the menu opens -- a panic switch you
+    -- have to hunt for is the same as not having one.
+    { text = L["SETTINGS_PRIVACY"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_STREAMER_MODE"],
+        tooltip = { L["SET_STREAMER_MODE_TT_1"], L["SET_STREAMER_MODE_TT_2"] },
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.streamer_mode end,
+        func = function()
+            FriendGroups_SavedVars.streamer_mode = not FriendGroups_SavedVars.streamer_mode
+            FriendGroups_ApplyStreamerMode()
+        end
+    },
+
+    -- SECTION 2: FILTERS
     { text = L["SETTINGS_FILTER"],    notCheckable = true, isTitle = true },
 	{
         text = L["SET_HIDE_OFFLINE"],
@@ -446,7 +624,7 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
-	
+
     -- [[ Everything below moves into the "Advanced" submenu (back-end config). ]]
     { isAdvancedStart = true },
 
@@ -470,39 +648,16 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
-    -- The countdown toast is always shown for the two automations above, and
-    -- ownership is always ceded to GLogger when it is running with the matching
-    -- automation enabled. Neither is exposed as a setting: the toast is the
-    -- safety mechanism that makes auto-accept interruptible, and a "do not defer"
-    -- override could not silence GLogger, only stack a second prompt on top.
-    { text = L["SET_SPIRIT_HEADER"], notCheckable = true, isTitle = true },
-    {
-        text = L["SET_SPIRIT_RES"],
-        leftPadding = 16,
-        keepShownOnClick = true,
-        checked = function() return FriendGroups_SavedVars.auto_accept_res end,
-        func = function()
-            FriendGroups_SavedVars.auto_accept_res = not FriendGroups_SavedVars.auto_accept_res
-            if FriendGroups_SavedVars.auto_accept_res then
-                FriendGroups_SavedVars.auto_release = false -- Prevent conflicts
-            end
-            FriendGroups_FriendsListUpdate()
-        end
-    },
-    {
-        text = L["SET_SPIRIT_RELEASE"],
-        leftPadding = 16,
-        keepShownOnClick = true,
-        checked = function() return FriendGroups_SavedVars.auto_release end,
-        func = function()
-            FriendGroups_SavedVars.auto_release = not FriendGroups_SavedVars.auto_release
-            if FriendGroups_SavedVars.auto_release then
-                FriendGroups_SavedVars.auto_accept_res = false -- Prevent conflicts
-            end
-            FriendGroups_FriendsListUpdate()
-        end
-    },
-    
+    -- The countdown toast is always shown for both automations above, and ownership is
+    -- always ceded to GLogger when it is running with the matching automation enabled.
+    -- Neither is exposed as a setting: the toast is the safety mechanism that makes
+    -- auto-accept interruptible, and a "do not defer" override could not silence GLogger,
+    -- only stack a second prompt on top.
+    --
+    -- Auto-accept resurrection and auto-release spirit lived here until 13.0.2. See the
+    -- feature registry in Automation.lua for why they went, and BOOL_FIELDS in Sync.lua for
+    -- why their two sync bits had to stay behind.
+
     -- SECTION 5: ALT CHARACTERS & CACHE
     { text = L["SETTINGS_ALT_CHARS"], notCheckable = true, isTitle = true },
     {
@@ -536,6 +691,13 @@ local settingsMenuItems = {
             if FriendGroups_SavedVars.alt_cache then
                 wipe(FriendGroups_SavedVars.alt_cache)
             end
+
+            -- Last-known WoW-friend names. Wiped with the rest, and refills by itself the
+            -- next time each friend is seen online -- until then those rows are searchable
+            -- by note and group only, exactly as a fresh install behaves.
+            if FriendGroups_SavedVars.wow_friend_names then
+                wipe(FriendGroups_SavedVars.wow_friend_names)
+            end
             
             -- 2. Purge Auto-Guild Caches & Known Guilds Memory
             if FriendGroups_SavedVars.alt_guild_rosters then
@@ -564,6 +726,10 @@ local settingsMenuItems = {
 
     -- SECTION: PROFILE SYNC
     { text = L["SETTINGS_PROFILE"], notCheckable = true, isTitle = true },
+    -- Timestamp of the last export, rendered as a subtitle under the section heading so it
+    -- sits with the backup actions it describes. Skipped entirely when nothing was ever
+    -- exported, which is why it is a marker the builder resolves rather than a static entry.
+    { isBackupStamp = true },
     {
         text = L["SETTINGS_EXPORT"],
         notCheckable = true,
@@ -603,6 +769,11 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.show_faction_color = true
             FriendGroups_SavedVars.show_game_icon = true
             FriendGroups_SavedVars.show_realm = true
+            -- Was the ONE key present in the fresh-install defaults and absent here, so a
+            -- reset silently left realm flags at whatever they already were instead of
+            -- restoring them. Found by diffing the two lists rather than by reading; that
+            -- diff is the check to repeat whenever a setting is added.
+            FriendGroups_SavedVars.show_flags = true
             FriendGroups_SavedVars.hide_high_level = true
             FriendGroups_SavedVars.add_favorite_group = true
             FriendGroups_SavedVars.show_guildmates = true
@@ -619,16 +790,22 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.open_one_group = false
             FriendGroups_SavedVars.auto_accept_invite = true
             FriendGroups_SavedVars.auto_accept_sync = true
-            FriendGroups_SavedVars.auto_accept_res = false
-            FriendGroups_SavedVars.auto_release = false
             FriendGroups_SavedVars.offline_tracker = true
+            FriendGroups_SavedVars.streamer_mode = false
             FriendGroups_SavedVars.show_known_alts = true
-            FriendGroups_SavedVars.extra_height = 380
-            FriendGroups_SavedVars.wide_list = false
+            -- The three size axes at their defaults: Medium height, Wide panel, Small text.
+            -- Written EXPLICITLY, never left nil, so the reset state is byte-identical to a
+            -- fresh install rather than relying on what a missing value happens to read as.
+            FriendGroups_SavedVars.extra_height = 190
+            FriendGroups_SavedVars.wide_list = true
             FriendGroups_SavedVars.width_normal = false
+            FriendGroups_SavedVars.font_size = 1
             FriendGroups_SavedVars.collapsed = {}
             FriendGroups_SavedVars.group_order = {}
-            
+
+            if type(Compat.OnFontScaleChanged) == "function" then
+                Compat.OnFontScaleChanged()
+            end
             FriendGroups_UpdateSize()
             FriendGroups_UpdateContactCap()
             FriendGroups_FriendsListUpdate()
@@ -648,6 +825,12 @@ local settingsMenuItems = {
 local FriendGroups_GuildCacheDirty = true
 local FriendGroups_PlayerGuildName = ""
 local FriendGroups_LiveGuildSessionDict = {} -- [[ NEW: Fast O(1) Memory-Safe Lookup ]]
+
+-- Live accessor for the platform renderers. addonTable.State shares tables by reference,
+-- but a string cannot be, so the guild name is published as a closure over the upvalue
+-- instead -- declared here rather than beside the State table above, which is built long
+-- before this local exists and would capture a global lookup instead.
+addonTable.State.GetPlayerGuildName = function() return FriendGroups_PlayerGuildName end
 
 local fgGuildEventFrame = CreateFrame("Frame")
 Compat.RegisterEvents(fgGuildEventFrame, {
@@ -1137,6 +1320,61 @@ end
 -- anyway (re-add that friend with a tagless note and this clears it).
 -- ============================================================================
 
+-- The single identity a Battle.net contact is filed under: nicknames, the alt cache, manual
+-- mains, assignment caches -- all of them key by this.
+--
+-- The obvious `battleTag or accountName` is WRONG on 12.1 and was the cause of two separate
+-- bugs. A title friend ("WoW Friend") reports battleTag as an EMPTY STRING rather than nil,
+-- and "" is truthy in Lua -- so that expression collapsed every title friend onto the single
+-- shared key "". ReconcileNickname bails on an empty identifier, so their nicknames were never
+-- cached and never rendered; ShowButtonAltTooltip does not bail, so every title friend's alts
+-- were filed together and unrelated players appeared in each other's panels.
+--
+-- Treating empty as absent fixes both, and is harmless on every earlier client, where the
+-- field is either a real BattleTag or nil.
+-- Colour a group header's label should be drawn in, or nil to leave it alone.
+--
+--   explicit font_colors override  -> that colour
+--   banner colour set, no override -> white, because the default grey label is close to
+--                                     unreadable once a saturated banner sits behind it
+--   no banner                      -> nil, so the header keeps its normal appearance
+--
+-- Shared by both renderers so the two platforms cannot drift.
+function FriendGroups_HeaderFontRGB(groupName)
+	if type(groupName) ~= "string" or groupName == "" then return nil end
+	if type(FriendGroups_SavedVars) ~= "table" then return nil end
+
+	local override = FriendGroups_SavedVars.font_colors and FriendGroups_SavedVars.font_colors[groupName]
+	if type(override) == "string" and #override >= 6 then
+		return (tonumber(override:sub(1, 2), 16) or 255) / 255,
+			(tonumber(override:sub(3, 4), 16) or 255) / 255,
+			(tonumber(override:sub(5, 6), 16) or 255) / 255
+	end
+
+	local banner = FriendGroups_SavedVars.banner_colors and FriendGroups_SavedVars.banner_colors[groupName]
+	if type(banner) == "string" and #banner >= 6 then
+		return 1, 1, 1
+	end
+
+	return nil
+end
+
+addonTable.State.HeaderFontRGB = FriendGroups_HeaderFontRGB
+
+function FriendGroups_AccountIdentifier(accountInfo)
+	if type(accountInfo) ~= "table" then return nil end
+
+	local tag = accountInfo.battleTag
+	if type(tag) == "string" and tag ~= "" then return tag end
+
+	local name = accountInfo.accountName
+	if type(name) == "string" and name ~= "" then return name end
+
+	return nil
+end
+
+addonTable.State.AccountIdentifier = FriendGroups_AccountIdentifier
+
 FriendGroups_NicknameSyncReady = false
 
 function FriendGroups_ReconcileNickname(accountInfo)
@@ -1146,7 +1384,7 @@ function FriendGroups_ReconcileNickname(accountInfo)
 	local note = accountInfo.note
 	if type(note) ~= "string" then return end
 
-	local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+	local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
 	if type(accountIdentifier) ~= "string" or accountIdentifier == "" then return end
 
 	if not FriendGroups_SavedVars.nicknames then
@@ -1154,6 +1392,17 @@ function FriendGroups_ReconcileNickname(accountInfo)
 	end
 
 	local nick = FriendGroups_GetNicknameTag(note)
+
+	-- FriendGroups nicknames and 12.1's native "Edit Name" are deliberately SEPARATE stores.
+	-- They look similar but do different jobs: the nickname is this addon's, lives in the
+	-- Battle.net note, covers both friend tiers, shows in the Battle.net app and travels in a
+	-- Sync profile. Edit Name is Blizzard's per-title custom name and is theirs alone.
+	--
+	-- An earlier build mirrored one onto the other. It could not work: with the note treated
+	-- as authoritative, the first edit ADOPTED the native name, and every edit after was
+	-- overwritten back from the note on the next roster pass -- two stores fighting over one
+	-- value, which is what "it writes both, then stops updating" looked like from outside.
+
 	FriendGroups_SavedVars.nicknames[accountIdentifier] = (nick ~= "") and nick or nil
 end
 
@@ -1277,6 +1526,207 @@ end
 
 FriendGroups_ActiveAKA = {}
 
+-- ============================================================================
+-- [[ STREAMER MODE ]]
+-- Reveals the first three characters of a name and replaces the rest, so a contact list
+-- left on screen during a broadcast stays readable to its owner without publishing who is
+-- on it. Display only, in every sense that matters:
+--
+--   * nothing masked is ever written back -- not to the alt cache, not to a note, not to
+--     an export. Masking happens at the point a string is handed to a fontstring, so the
+--     saved variables cannot be poisoned by having the mode switched on;
+--   * search still matches on the REAL values. Typing a name finds the contact and then
+--     shows them masked, which is the only behaviour that is not maddening to use;
+--   * whisper, invite and copy paths never come through here, so they keep the real name.
+--
+-- Three CHARACTERS, not three bytes. Slicing UTF-8 by byte count would cut a Cyrillic or
+-- CJK name mid-sequence and render replacement boxes.
+--
+-- [[ AND NEVER MORE THAN HALF THE NAME ]]
+-- Three is a ceiling, not a quota. A fixed three reveals a proportion of the name that
+-- depends entirely on how long the name is, and CJK is where that falls apart: a four-
+-- character Chinese name is a whole name, so "拾贰国记" -> "拾贰国***" published three
+-- quarters of it and read as unmasked, while the same three letters off "Backhawksleg"
+-- give away almost nothing. Latin names run long and CJK names do not, so counting
+-- codepoints alone does not make the locales equivalent -- capping at half the name does.
+--
+--   Backhawksleg (12)  -> Bac***      three, the ceiling
+--   拾贰国记      (4)   -> 拾贰***      half
+--   Kiwi         (4)   -> Ki***       half
+--   Kiw          (3)   -> K***        half, rounded down, floored at one
+-- ============================================================================
+
+-- Byte offset just past the first `maxChars` UTF-8 characters, and how many were found.
+-- A malformed lead byte is treated as one character so this can never loop or overrun.
+local function FG_Utf8Walk(s, maxChars)
+	local i, n, len = 1, 0, #s
+	while i <= len and n < maxChars do
+		local b = s:byte(i)
+		i = i + ((b >= 240 and 4) or (b >= 224 and 3) or (b >= 192 and 2) or 1)
+		n = n + 1
+	end
+	if i > len + 1 then i = len + 1 end
+	return i, n
+end
+
+-- Characters to reveal from a name of `total` characters: at most three, never more than
+-- half, never fewer than one.
+local FG_MASK_MAX_REVEAL = 3
+local function FG_RevealCount(total)
+	local half = math.floor(total / 2)
+	if half > FG_MASK_MAX_REVEAL then half = FG_MASK_MAX_REVEAL end
+	if half < 1 then half = 1 end
+	return half
+end
+
+-- Mask a single plain-text name. Returns the mask suffix ALONE whenever there is nothing
+-- safe to reveal, which is the honest answer for the cases below rather than a guess.
+function FriendGroups_MaskName(name)
+	if type(name) ~= "string" or name == "" then
+		return L["STREAMER_MASK_SUFFIX"]
+	end
+
+	-- A 12.1 title friend's accountName is a |K escape -- "|Kj2|k", six bytes the client
+	-- resolves from its own name cache at draw time. Taking three characters off it yields
+	-- "|Kj", a broken escape that renders as literal junk. There is no prefix of this value
+	-- that means anything, so it is never sliced. FriendGroups_StreamerName below reaches
+	-- for the remembered plain-text name first, and only lands here when there is none.
+	if name:find("|K", 1, true) then
+		return L["STREAMER_MASK_SUFFIX"]
+	end
+	if issecretvalue and issecretvalue(name) then
+		return L["STREAMER_MASK_SUFFIX"]
+	end
+
+	-- The realm half and the BattleTag discriminator are dropped rather than masked: they
+	-- are not part of the name, and "Kiw***-Nobundo" narrows the field far more than the
+	-- three revealed letters do.
+	local clean = name:match("^(.-)%-") or name
+	clean = clean:match("^(.-)#") or clean
+	if clean == "" then
+		return L["STREAMER_MASK_SUFFIX"]
+	end
+
+	-- Walked to the ceiling's worth plus one, which is all the length information the reveal
+	-- rule needs: anything longer than 2 * FG_MASK_MAX_REVEAL reveals the ceiling either way,
+	-- so a 40-character name costs the same walk as a four-character one.
+	local _, total = FG_Utf8Walk(clean, FG_MASK_MAX_REVEAL * 2)
+	local stop = select(1, FG_Utf8Walk(clean, FG_RevealCount(total)))
+	return clean:sub(1, stop - 1) .. L["STREAMER_MASK_SUFFIX"]
+end
+
+-- ============================================================================
+-- [[ SESSION NAME MAP ]]
+-- Plain-text names observed THIS SESSION, keyed by bnetAccountID. A file-local, so it is
+-- empty at every login by construction -- which is the entire point.
+--
+-- FriendGroups_SavedVars.wow_friend_names records the same fact permanently, and this is
+-- PREFERRED over it rather than a replacement for it: a name captured this session is known
+-- to belong to the contact it is filed under, whereas the persisted copy is keyed on
+-- bnetAccountID, which the API documents as a TEMPORARY SESSION ID.
+--
+-- Reading the session map ALONE was tried and was worse. It is correct, but for an offline
+-- title friend never seen online this session there is nothing to read, so most of the list
+-- collapsed to a row of indistinguishable "[***]" -- which defeats the point of revealing
+-- any characters at all. The persisted name remains the fallback: a stale one costs a few
+-- misleading characters, a missing one costs the feature.
+--
+-- Note the two can legitimately disagree even when nothing is stale. The persisted name is
+-- the character the contact was last seen PLAYING, while the row displays their canonical
+-- title-friend name; a contact whose main is Monkbeemix but who last logged in on an alt
+-- will mask from the alt. There is no fix for that while the displayed name is a Kstring
+-- the addon cannot read -- see [[wow-121-kstring-friend-names]].
+-- ============================================================================
+local FriendGroups_SessionNames = {}
+
+function FriendGroups_RememberSessionName(bnetAccountID, name)
+	if type(bnetAccountID) ~= "number" then return end
+	if type(name) ~= "string" or name == "" then return end
+	FriendGroups_SessionNames[bnetAccountID] = name
+end
+
+-- Session name first, persisted name second. Both are plain text captured while the contact
+-- was online; the first is guaranteed to be theirs, the second only very probably.
+local function FG_RememberedName(bnetAccountID)
+	if type(bnetAccountID) ~= "number" then return nil end
+
+	local session = FriendGroups_SessionNames[bnetAccountID]
+	if type(session) == "string" and session ~= "" then return session end
+
+	if type(FriendGroups_SavedVars) == "table"
+		and type(FriendGroups_SavedVars.wow_friend_names) == "table" then
+		local entry = FriendGroups_SavedVars.wow_friend_names[bnetAccountID]
+		if entry and type(entry.name) == "string" and entry.name ~= "" then
+			return entry.name
+		end
+	end
+
+	return nil
+end
+
+-- True when a value can actually be sliced -- real text, not a |K escape and not a secret.
+local function FG_IsMaskable(value)
+	if type(value) ~= "string" or value == "" then return false end
+	if value:find("|K", 1, true) then return false end
+	if issecretvalue and issecretvalue(value) then return false end
+	return true
+end
+
+-- [[ WHY THIS EXISTS: ON 12.1 THE ACCOUNT NAME IS NEVER TEXT ]]
+-- accountName is documented as a Kstring for the WHOLE Battle.net friend list on 12.1, not
+-- just for the title tier -- the client resolves it from its own name cache at draw time.
+-- So masking accountName directly gave a bare "*** " for every single contact, which is
+-- what a first pass at this did.
+--
+-- The fix is to mask the first candidate that is REAL TEXT, in preference order, rather
+-- than the first candidate that exists:
+--   battleTag           plain on 12.1 (FriendGroups_SplitBattleTag has always sliced it),
+--                       and its name half is the closest thing to a stable identity;
+--   characterName       plain, but only while the friend is online;
+--   a remembered name   captured while its owner was online, this session for preference and
+--                       from the saved cache otherwise -- see FG_RememberedName above.
+-- Falls through to the suffix alone only when every candidate is an escape.
+function FriendGroups_MaskFirstPlain(...)
+	for i = 1, select("#", ...) do
+		local candidate = select(i, ...)
+		if FG_IsMaskable(candidate) then
+			return FriendGroups_MaskName(candidate)
+		end
+	end
+	return L["STREAMER_MASK_SUFFIX"]
+end
+
+-- Mask for display, resolving the |K case through a remembered plain-text name.
+function FriendGroups_StreamerName(name, accountInfo)
+	local gameInfo = accountInfo and accountInfo.gameAccountInfo
+	return FriendGroups_MaskFirstPlain(
+		name,
+		accountInfo and accountInfo.battleTag,
+		gameInfo and gameInfo.characterName,
+		accountInfo and FG_RememberedName(accountInfo.bnetAccountID))
+end
+
+-- The one place the setting is read. Every call site asks this rather than testing the
+-- saved variable itself, so the mode cannot end up half-applied by a site that checked a
+-- differently-spelled flag.
+function FriendGroups_IsStreamerMode()
+	return type(FriendGroups_SavedVars) == "table" and FriendGroups_SavedVars.streamer_mode == true
+end
+
+-- Repaint everything the mode touches. Toggling it changes only what is DRAWN -- no group
+-- membership, no note, no cached value -- so the assignment cache is deliberately left
+-- alone and this is a pure re-render.
+--
+-- The rebuild is FORCED. A settings change never dirties the roster, so the throttled path
+-- would take its rosterUnchanged shortcut and return without drawing anything, and the mode
+-- would appear not to work until some unrelated friend event happened to come along.
+function FriendGroups_ApplyStreamerMode()
+	FriendGroups_FriendsListUpdate(true)
+	if Compat and type(Compat.RefreshOwnBattleTag) == "function" then
+		Compat.RefreshOwnBattleTag()
+	end
+end
+
 -- gameInfo (the friend's gameAccountInfo) resolves WHICH game's level cap applies
 -- for the hide-max-level rule; nil-safe (Compat.IsMaxLevel fails open and shows
 -- the level when the friend's game cannot be determined).
@@ -1284,11 +1734,23 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 	local nameText
 
 	-- set up player name and character name
-	local accountIdentifier = battleTag or accountName
+	-- Empty-string battleTags (12.1 title friends) must resolve to the account name, not to "".
+	local accountIdentifier = (type(battleTag) == "string" and battleTag ~= "") and battleTag or accountName
+	local streamerMode = FriendGroups_IsStreamerMode()
+
+	-- Nicknames are deliberately NOT masked. They are the user's own words for someone, not
+	-- that person's identity, and a nicknamed contact never renders an account name at all
+	-- (this branch replaces it), so those rows are already private.
 	if FriendGroups_SavedVars and FriendGroups_SavedVars.nicknames and accountIdentifier and FriendGroups_SavedVars.nicknames[accountIdentifier] then
 		nameText = "|cFF00FF00" .. FriendGroups_SavedVars.nicknames[accountIdentifier] .. "|r"
 	elseif accountName then
-		if FriendGroups_SavedVars.show_btag and battleTag then
+		if streamerMode then
+			-- battleTag FIRST, whichever display setting is on: on 12.1 accountName is a
+			-- Kstring for every contact, so masking it directly would print "***" for the
+			-- whole list. The tag's name half is real text and survives the friend going
+			-- offline, which characterName does not.
+			nameText = FriendGroups_MaskFirstPlain(battleTag, accountName, characterName)
+		elseif FriendGroups_SavedVars.show_btag and battleTag then
 			nameText = FriendGroups_SplitBattleTag(battleTag)
 		else
 			nameText = accountName
@@ -1299,8 +1761,20 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 
 	-- append character name
 	if characterName then
+		-- [[ RAW FOR COMPARISON, MASKED FOR DISPLAY ]]
+		-- characterName itself stays untouched below because the "aka" test compares against
+		-- it, and a masked or icon-prefixed value would never match the remembered main.
+		--
+		-- That separation also repairs a latent bug: AddSmallIcon used to overwrite
+		-- characterName with "|T...|t Name" BEFORE the aka comparison ran, so a timerunning
+		-- friend could never match their own main and the aka tag showed while they were
+		-- standing on it.
+		local displayCharacterName = characterName
+		if streamerMode then
+			displayCharacterName = FriendGroups_MaskName(displayCharacterName)
+		end
 		if timerunningSeasonID then
-			characterName = TimerunningUtil.AddSmallIcon(characterName)
+			displayCharacterName = TimerunningUtil.AddSmallIcon(displayCharacterName)
 		end
 
 		local levelSuffix
@@ -1312,7 +1786,8 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 
         -- [[ NEW: Separate AKA string generation (Outside of Suffix Brackets) ]]
         local akaText = ""
-        local accountIdentifier = battleTag or accountName
+        -- Empty-string battleTags (12.1 title friends) must resolve to the account name, not to "".
+        local accountIdentifier = (type(battleTag) == "string" and battleTag ~= "") and battleTag or accountName
         if accountIdentifier and FriendGroups_ActiveAKA and FriendGroups_ActiveAKA[accountIdentifier] then
             local akaInfo = FriendGroups_ActiveAKA[accountIdentifier]
             -- Only render the AKA if they are not actively logged into the main character.
@@ -1324,8 +1799,12 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
                 onMainCharacter = (FriendGroups_CleanRealmName(akaInfo.realm) == FriendGroups_CleanRealmName(realmName))
             end
             if akaInfo.name and not onMainCharacter then
-                local akaFormattedName = "[" .. akaInfo.name .. "]"
-                
+                local akaDisplayName = akaInfo.name
+                if streamerMode then
+                    akaDisplayName = FriendGroups_MaskName(akaDisplayName)
+                end
+                local akaFormattedName = "[" .. akaDisplayName .. "]"
+
                 -- Apply class or faction colors strictly to the name inside the AKA brackets
                 if FriendGroups_SavedVars.colour_classes and akaInfo.class then
                     akaFormattedName = FriendGroups_GetClassColorCode(akaInfo.class) .. akaFormattedName .. FONT_COLOR_CODE_CLOSE
@@ -1342,19 +1821,16 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 		if client == BNET_CLIENT_WOW then
 			if characterName ~= "" and level ~= 0 then
 				if not canCoop and FriendGroups_SavedVars.gray_faction then
-					nameText = "|CFF949694" .. nameText .. " [" .. characterName .. "]" .. levelSuffix .. "|r"
+					nameText = "|CFF949694" .. nameText .. " [" .. displayCharacterName .. "]" .. levelSuffix .. "|r"
 				elseif FriendGroups_SavedVars.colour_classes then
 					local nameColor = FriendGroups_GetClassColorCode(class)
-					nameText = nameText .. " " .. nameColor .. "[" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
+					nameText = nameText .. " " .. nameColor .. "[" .. displayCharacterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 				else
-					nameText = nameText .. " [" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
+					nameText = nameText .. " [" .. displayCharacterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 				end
 			end
 		else
-			if ENABLE_COLORBLIND_MODE == "1" then
-				characterName = characterName
-			end
-			nameText = nameText .. " " .. FRIENDS_OTHER_NAME_COLOR_CODE .. "[" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
+			nameText = nameText .. " " .. FRIENDS_OTHER_NAME_COLOR_CODE .. "[" .. displayCharacterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 		end
         
         -- [[ Append the newly formatted AKA text outside the main brackets ]]
@@ -1618,9 +2094,21 @@ function FriendGroups_SortTableByStatus(playerA, playerB)
 		return nickA < nickB
 	end
 
-	-- 3. Battle.net friends before WoW (in-game) friends within the same tier
-	local typeA = (playerA.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
-	local typeB = (playerB.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
+	-- 3. Battle.net account friends before WoW-character friends within the same tier.
+	--
+	-- buttonType alone stopped answering this on 12.1. Both tiers now arrive through the one
+	-- C_BattleNet enumeration, so the roster pass labels every row _BNET, this test compared
+	-- 2 == 2 for every pair, and the whole tier silently fell through to alphabetical -- a
+	-- Battle.net friend sorting below two WoW friends purely on spelling.
+	--
+	-- The real tier is Compat.IsTitleFriend, resolved during the roster pass and carried here
+	-- on playerData. Compat.RenderSocialUIList derives exactly the same thing for the card,
+	-- but that runs AFTER sorting, so it could never inform this.
+	--
+	-- Both signals are read so one comparator serves every flavor: 12.0.7 and Classic fill
+	-- buttonType from separate enumerations, 12.1 fills isTitleFriend.
+	local typeA = (not playerA.isTitleFriend and playerA.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
+	local typeB = (not playerB.isTitleFriend and playerB.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
 	if typeA ~= typeB then
 		return typeA < typeB
 	end
@@ -1634,6 +2122,50 @@ function FriendGroups_SortTableByStatus(playerA, playerB)
 
 	-- 5. Deterministic backstop (unique per friend within the same tier/type)
 	return (playerA.id or 0) < (playerB.id or 0)
+end
+
+-- ============================================================================
+-- [[ OFFLINE TRACKER GROUPS ]]
+-- The four buckets an offline contact is filed into, ordered shortest absence first.
+--
+-- Rank 1 (GROUP_OFFLINE_0) is the CATCH-ALL, and it is what makes the set a partition of
+-- "offline" rather than three special cases. It holds everyone the dated tiers cannot
+-- claim: gone less than a month, and -- more importantly -- everyone whose absence is not
+-- datable at all. A 12.1 title friend has no Battle.net account behind it, so
+-- accountInfo.lastOnlineTime reads 0 for that whole tier, and a legacy C_FriendList friend
+-- has no such field in the first place. Before this bucket existed both of those fell
+-- through the tracker entirely and were left scattered through the custom groups.
+--
+-- Built ONCE from L rather than compared inline. These three names were hand-written into
+-- eight separate three-way comparisons across two files, so a fourth bucket would have had
+-- to be added to every one of them -- and a missed site does not error, it merely reads as
+-- a cosmetic oddity (a header printing "0/13" instead of "13", or a system group that
+-- suddenly answers to drag-and-drop). One table, one predicate, one rank.
+--
+-- Safe to resolve at file scope: the TOC loads locales\localizations.xml before this file,
+-- so L is fully populated here and never changes afterwards. Missing keys are skipped
+-- rather than indexed, so a locale that has not been updated degrades to "that bucket does
+-- not exist" instead of erroring on a nil table key.
+-- ============================================================================
+local FriendGroups_OfflineGroupRankMap = {}
+do
+	local orderedKeys = { "GROUP_OFFLINE_0", "GROUP_OFFLINE_1", "GROUP_OFFLINE_2", "GROUP_OFFLINE_3" }
+	for i = 1, #orderedKeys do
+		local groupName = L[orderedKeys[i]]
+		if type(groupName) == "string" and groupName ~= "" then
+			FriendGroups_OfflineGroupRankMap[groupName] = i
+		end
+	end
+end
+
+-- 1..4 for an offline-tracker group, nil for anything else. Global because the Social UI
+-- renderer needs the same answer for its header text, and a file-local cannot be shared.
+function FriendGroups_OfflineGroupRank(groupName)
+	return FriendGroups_OfflineGroupRankMap[groupName]
+end
+
+function FriendGroups_IsOfflineGroup(groupName)
+	return FriendGroups_OfflineGroupRankMap[groupName] ~= nil
 end
 
 -- ============================================================================
@@ -1652,9 +2184,7 @@ local function FriendGroups_IsFixedAnchor(groupName)
 	return groupName == L["GROUP_NONE"]
 		or groupName == L["GROUP_EMPTY"]
 		or groupName == ""
-		or groupName == L["GROUP_OFFLINE_1"]
-		or groupName == L["GROUP_OFFLINE_2"]
-		or groupName == L["GROUP_OFFLINE_3"]
+		or FriendGroups_IsOfflineGroup(groupName)
 end
 
 local function FriendGroups_GetEffectiveRank(groupName)
@@ -1721,6 +2251,55 @@ local function FriendGroups_MoveGroup(groupName, direction)
 	FG_RefreshOrderNow()
 end
 
+-- Absolute-destination counterpart to FriendGroups_MoveGroup, for drag and drop: a pointer
+-- names a place to land rather than a direction to step. Same dense-rank rewrite, same
+-- refusal to move a fixed anchor, so both input methods leave group_order in one shape.
+--
+-- targetSlot is an INSERTION SLOT in the movable order as it looks right now, meaning "put
+-- this group before whatever currently sits at this slot"; #MovableOrder + 1 means last.
+-- Removing the group first shifts everything after it up by one, so a downward move has to
+-- compensate -- the classic off-by-one in list reordering, handled explicitly below.
+local function FriendGroups_MoveGroupToIndex(groupName, targetSlot)
+	if not groupName or FriendGroups_IsFixedAnchor(groupName) then return end
+	if type(targetSlot) ~= "number" then return end
+	if not FriendGroups_SavedVars.group_order then
+		FriendGroups_SavedVars.group_order = {}
+	end
+
+	local arr = {}
+	for i = 1, #FriendGroups_MovableOrder do arr[i] = FriendGroups_MovableOrder[i] end
+
+	local idx
+	for i = 1, #arr do if arr[i] == groupName then idx = i break end end
+	if not idx then return end
+
+	targetSlot = math.floor(targetSlot)
+	if targetSlot < 1 then targetSlot = 1 end
+	if targetSlot > #arr + 1 then targetSlot = #arr + 1 end
+
+	-- Dropping onto its own slot, or the one immediately after, is a no-op.
+	if targetSlot == idx or targetSlot == idx + 1 then return end
+
+	table.remove(arr, idx)
+	if targetSlot > idx then targetSlot = targetSlot - 1 end
+	if targetSlot < 1 then targetSlot = 1 end
+	if targetSlot > #arr + 1 then targetSlot = #arr + 1 end
+	table.insert(arr, targetSlot, groupName)
+
+	local order = FriendGroups_SavedVars.group_order
+	for i = 1, #arr do order[arr[i]] = i end
+
+	FG_RefreshOrderNow()
+end
+
+-- Published for the platform renderers: all three are file-locals, and the Social UI's
+-- drag-and-drop needs to ask whether a group may move, where it currently sits, and to place
+-- it somewhere new.
+addonTable.State.MoveGroupToIndex = FriendGroups_MoveGroupToIndex
+addonTable.State.IsFixedAnchor = FriendGroups_IsFixedAnchor
+addonTable.State.GetMovableIndex = function(groupName) return FriendGroups_MovableIndex[groupName] end
+addonTable.State.GetMovableCount = function() return #FriendGroups_MovableOrder end
+
 local function FriendGroups_ResetGroupPosition(groupName)
 	if groupName and FriendGroups_SavedVars.group_order then
 		FriendGroups_SavedVars.group_order[groupName] = nil
@@ -1746,6 +2325,36 @@ function FriendGroups_SortGroupsCustom(groupA, groupB)
         return false
     end
 
+	-- [[ OFFLINE BLOCK ]]
+	-- Pinned as a contiguous block at the very BOTTOM of the list, below [No Group], in
+	-- absence order. Tested before the [No Group] rule below precisely so it outranks it:
+	-- [No Group] is a list of people who are around and simply untagged, which is far more
+	-- useful to have in reach than a bucket of people who are not here at all.
+	--
+	-- These groups previously had NO rule here at all and fell through to the plain string
+	-- compare below, which put them wherever their localized name happened to sort. Two
+	-- things came out of that, both invisible until you look for them:
+	--
+	--   * The block landed in the MIDDLE of the custom groups. "[" is byte 91, so
+	--     "[Offline 1 Month]" sorted after a group named "Raiders" but before one named
+	--     "alts" -- and because these are fixed anchors, they could not be dragged out of
+	--     wherever that put them.
+	--   * A plain "[Offline]" sorts LAST of the four in every locale checked, because a
+	--     space (32) beats "]" (93) at the point the names diverge. The catch-all would
+	--     have appeared BELOW "[Offline 3+ Months]", inverting the reading order.
+	--
+	-- Ranking on the key rather than on the translation makes the order identical in all
+	-- twelve locales instead of an artefact of how each one worded the string.
+	local offlineRankA = FriendGroups_OfflineGroupRank(groupA)
+	local offlineRankB = FriendGroups_OfflineGroupRank(groupB)
+	if offlineRankA and offlineRankB then
+		return offlineRankA < offlineRankB
+	end
+	if offlineRankA then return false end
+	if offlineRankB then return true end
+
+	-- [No Group] is last of everything that is left -- i.e. last except for the offline
+	-- block resolved above.
 	if groupA == L["GROUP_NONE"] then
 		return false
 	end
@@ -1795,6 +2404,11 @@ local FriendGroups_OnlineByGroup = {}   -- [groupName] = { [identityKey] = true 
 local FriendGroups_OnlineGuidKeys = {}  -- [playerGuid] = identityKey, online BNet characters
 local FriendGroups_OnlineTotal = 0
 
+-- Published for the platform renderers. On 12.1 the online-contact counter has no fontstring
+-- of its own -- the legacy one is parented to the hidden FriendsListFrame -- so the Social UI
+-- renders this number into the panel title instead, and needs to read it from outside.
+addonTable.State.GetOnlineTotal = function() return FriendGroups_OnlineTotal end
+
 -- Visibility rules for an ONLINE friend, shared by the roster build and the online
 -- counter so the tooltip's per-group numbers can never drift from the group headers.
 -- Offline friends are handled separately by the caller.
@@ -1838,6 +2452,15 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
     local favorite = false
     local charName, client, isOnline, isRetail, isSameProject, accountIdentifier = "", "", false, false, false, nil
     local altCacheCount = 0
+    -- Readable alphabetical key for a 12.1 WoW-friend row. Their accountIdentifier is the
+    -- |K escape, which sorts by an opaque client id instead of by anything the player can
+    -- see; this carries a real name out of the Battle.net branch for the sort key below.
+    local titleSortName = nil
+    -- True for a 12.1 "WoW Friend" (title tier). These arrive through the SAME Battle.net
+    -- enumeration as real account friends, so buttonType cannot tell them apart -- this is
+    -- what carries the real tier to the sort. Always false on 12.0.7 and Classic, where the
+    -- two tiers still come from separate enumerations and buttonType is already correct.
+    local isTitleFriend = false
     -- GUID of the character this friend is logged into; links the BNet and WoW friend
     -- lists together for the unique online counter. Nil when offline or not in WoW.
     local playerGuid = nil
@@ -1848,7 +2471,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
         if friendAccountInfo then
             noteText = friendAccountInfo.note or ""
             favorite = friendAccountInfo.isFavorite
-            accountIdentifier = friendAccountInfo.battleTag or friendAccountInfo.accountName
+            accountIdentifier = FriendGroups_AccountIdentifier(friendAccountInfo)
 
             local gameAccountInfo = friendAccountInfo.gameAccountInfo
             if gameAccountInfo then
@@ -1859,6 +2482,50 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
                 -- retail-identical (self == mainline) and correct on Classic (self == Classic).
                 isSameProject = Compat.IsSameProject(gameAccountInfo)
                 charName = (type(gameAccountInfo.characterName) == "string") and gameAccountInfo.characterName or ""
+
+                -- [[ LAST-KNOWN NAME CAPTURE ]]
+                -- A 12.1 WoW-friend's accountName is a |K escape the client resolves at draw
+                -- time (measured: #accountName == 6 for a row reading "Backhawksleg-Nobundo"),
+                -- so it can be displayed but never compared. The ONE moment their name exists
+                -- as plain text is while they are online, in gameAccountInfo -- so it is
+                -- recorded then and used to answer searches after they log off.
+                --
+                -- Keyed on bnetAccountID, NEVER on the |K escape. That escape is "|Kj<n>|k",
+                -- an index into the client's own name cache, which there is every reason to
+                -- believe is session-scoped -- persisting data under it would file one friend's
+                -- name against another after a reload.
+                --
+                -- [[ NOT GATED ON THE TITLE TIER ]]
+                -- This used to require Compat.IsTitleFriend, on the reasoning that the title
+                -- ("WoW Friend") tier was the one whose accountName is a Kstring. Two things
+                -- make that gate wrong:
+                --
+                --   accountName is documented as a Kstring for the WHOLE 12.1 Battle.net
+                --   friend list, not just that tier (see FriendGroups_MaskFirstPlain), so
+                --   every contact benefits from a plain-text name being on file;
+                --
+                --   and the tier can be ABSENT. IsTitleFriend resolves through
+                --   FriendsListUtil.IsTitleFriend / Enum.BattleNetFriendLevel.Title, and on a
+                --   12.1 client where the Social UI was walked back neither need exist -- so
+                --   the gate answered false for every friend, nothing was ever recorded, and
+                --   the offline-name recovery in FriendGroups_Search had an empty table to
+                --   read. Search by name then failed for exactly the contacts it was built
+                --   for, with no error to say why.
+                --
+                -- FG_IsMaskable replaces it as the real precondition: is this value plain text
+                -- we can compare and store, rather than an escape or a secret value.
+                if FG_IsMaskable(charName) then
+                    local key = friendAccountInfo.bnetAccountID
+                    if type(key) == "number" and type(FriendGroups_SavedVars.wow_friend_names) == "table" then
+                        local realmValue = gameAccountInfo.realmName
+                        local realm = FG_IsMaskable(realmValue) and realmValue or ""
+                        FriendGroups_SavedVars.wow_friend_names[key] = { name = charName, realm = realm }
+                        -- Same fact, recorded again in a table that does NOT survive the
+                        -- session. See FriendGroups_SessionNames for why the persisted copy
+                        -- cannot be trusted to name the right person.
+                        FriendGroups_RememberSessionName(key, charName)
+                    end
+                end
                 playerGuid = (type(gameAccountInfo.playerGuid) == "string") and gameAccountInfo.playerGuid or nil
 
                 if friendAccountInfo.isAFK and isOnline then statusText = "AFK"
@@ -1874,6 +2541,22 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             
             if accountIdentifier and FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table" and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
                 altCacheCount = #FriendGroups_SavedVars.alt_cache[accountIdentifier]
+            end
+
+            -- [[ READABLE SORT KEY FOR WoW-FRIEND ROWS ]]
+            -- Resolved OUTSIDE the gameAccountInfo block above, because the remembered name
+            -- has to be reachable when there is no session at all -- which is the case this
+            -- exists for. Live name first, remembered name second.
+            isTitleFriend = Compat.IsTitleFriend(friendAccountInfo)
+            if isTitleFriend then
+                if charName ~= "" then
+                    titleSortName = charName
+                elseif type(FriendGroups_SavedVars.wow_friend_names) == "table" then
+                    local remembered = FriendGroups_SavedVars.wow_friend_names[friendAccountInfo.bnetAccountID]
+                    if remembered and remembered.name and remembered.name ~= "" then
+                        titleSortName = remembered.name
+                    end
+                end
             end
         end
     elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
@@ -1923,6 +2606,15 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
     if not isCacheValid then
         if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
             local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+            -- 12.1 title friends arrive through the Battle.net enumeration but are NOT
+            -- Battle.net account friends: they have no BattleTag, so accountIdentifier falls
+            -- back to a character name and the alt cache -- which exists to collect the
+            -- characters behind ONE Battle.net account -- has nothing meaningful to key by.
+            -- Caching them files unrelated players against each other. Compat.IsTitleFriend
+            -- answers false on every pre-12.1 client, so this changes nothing there.
+            if friendAccountInfo and Compat.IsTitleFriend(friendAccountInfo) then
+                friendAccountInfo = nil
+            end
             if friendAccountInfo and friendAccountInfo.gameAccountInfo then
                 FriendGroups_SaveToAltCache(accountIdentifier, friendAccountInfo.gameAccountInfo)
                 if C_BattleNet.GetFriendNumGameAccounts then
@@ -2060,16 +2752,68 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             end
         end
 
-        if FriendGroups_SavedVars.offline_tracker and buttonType == FRIENDS_BUTTON_TYPE_BNET and statusText == "Offline" then
-            local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
-            if friendAccountInfo and friendAccountInfo.lastOnlineTime and friendAccountInfo.lastOnlineTime > 0 then
-                local daysOffline = (time() - friendAccountInfo.lastOnlineTime) / 86400
-                if daysOffline >= 90 then table.insert(resolvedGroups, L["GROUP_OFFLINE_3"])
-                elseif daysOffline >= 60 then table.insert(resolvedGroups, L["GROUP_OFFLINE_2"])
-                elseif daysOffline >= 30 then table.insert(resolvedGroups, L["GROUP_OFFLINE_1"]) end
+        -- ================================================================
+        -- [[ OFFLINE TRACKER ]]
+        -- With the tracker on, an offline contact is filed into EXACTLY ONE offline bucket
+        -- and is removed from every other group, so the custom and guild groups above become
+        -- "who is actually around" and the absent are parked below them. Previously these
+        -- buckets were additive, which was tolerable while only a 30-day absence qualified
+        -- (a handful of rows) but is not once the catch-all claims everyone offline: on a
+        -- 200-contact roster every absent friend would be drawn twice.
+        --
+        -- [Favorites] is the one exemption. It is a pin rather than a group -- the whole
+        -- point of it is that those contacts stay at the top where you put them -- so an
+        -- offline favourite keeps its pin AND gains its offline bucket.
+        --
+        -- Both friend tiers qualify, not just Battle.net accounts. On 12.1 that is academic
+        -- (both arrive through the Battle.net enumeration), but on 12.0.7 and Classic a
+        -- C_FriendList character friend is a separate _WOW row, and leaving those out would
+        -- half-sort the list: Battle.net friends would move to the offline block while
+        -- character friends stayed scattered through the custom groups. They can never
+        -- resolve a dated tier -- there is no lastOnlineTime on that API -- so they land in
+        -- the catch-all, which is exactly what it is for.
+        -- ================================================================
+        -- Everything the contact resolved to BEFORE exclusive filing discards it. The alt
+        -- tooltip reports the guild FriendGroups worked out for this person and reads it back
+        -- out of the assignment cache, so without this an offline contact would silently lose
+        -- their guild line: the LIST is exclusive, but the description of the person is not.
+        local fullGroups = nil
+
+        if FriendGroups_SavedVars.offline_tracker and statusText == "Offline" then
+            local offlineGroup = L["GROUP_OFFLINE_0"]
+
+            if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+                local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+                -- Typed explicitly. 12.1 publishes 0 for the entire title-friend tier rather
+                -- than omitting the field, and the census confirmed it, so "> 0" is the real
+                -- test for "datable" and nil is only the older shape.
+                if friendAccountInfo and type(friendAccountInfo.lastOnlineTime) == "number"
+                    and friendAccountInfo.lastOnlineTime > 0 then
+                    local daysOffline = (time() - friendAccountInfo.lastOnlineTime) / 86400
+                    if daysOffline >= 90 then offlineGroup = L["GROUP_OFFLINE_3"]
+                    elseif daysOffline >= 60 then offlineGroup = L["GROUP_OFFLINE_2"]
+                    elseif daysOffline >= 30 then offlineGroup = L["GROUP_OFFLINE_1"] end
+                end
             end
+
+            -- Rebuilt in place rather than replaced: this table is handed to the assignment
+            -- cache below, so its identity is kept.
+            local keepFavorite = false
+            fullGroups = {}
+            for _, g in ipairs(resolvedGroups) do
+                fullGroups[#fullGroups + 1] = g
+                if g == L["GROUP_FAVORITES"] then keepFavorite = true end
+            end
+
+            wipe(resolvedGroups)
+            if keepFavorite then table.insert(resolvedGroups, L["GROUP_FAVORITES"]) end
+            table.insert(resolvedGroups, offlineGroup)
         end
 
+        -- Unreachable for an offline contact while the tracker is on -- the block above
+        -- always leaves at least one group behind -- so [No Group] becomes an online-only
+        -- bucket in that mode. That is the intended consequence of exclusive filing, not an
+        -- oversight: an ungrouped absent friend is now described by their absence.
         if #resolvedGroups == 0 then table.insert(resolvedGroups, L["GROUP_NONE"]) end
         
         FriendGroups_AssignmentCache[cacheKey] = {
@@ -2084,6 +2828,10 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             favSetting = FriendGroups_SavedVars.add_favorite_group,
             manualMain = manualMain,
             groups = resolvedGroups,
+            -- Identical to `groups` unless exclusive offline filing dropped something; the
+            -- alt tooltip reads this one so it can still describe a contact the list has
+            -- moved into an offline bucket.
+            allGroups = fullGroups or resolvedGroups,
             akaName = akaName,
             akaClass = akaClass,
             akaRealm = akaRealm
@@ -2179,14 +2927,26 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             -- Offline (neither flag) -> bottom tier.
             playerData.isOnline = isOnline
             playerData.isInGame = isOnline and (client == BNET_CLIENT_WOW)
+            -- The account/character tier, resolved here because buttonType no longer carries
+            -- it on 12.1. Consumed by tier 3 of FriendGroups_SortTableByStatus.
+            playerData.isTitleFriend = isTitleFriend
 
             -- [[ ALPHABETICAL SORT KEY ]]
             -- BNet -> account identifier (BattleTag; its name prefix is the displayed bold name).
             -- WoW  -> character name. Lowercased for case-insensitive ordering. Consumed by the
             -- secondary sort in FriendGroups_SortTableByStatus.
+            --
+            -- titleSortName takes precedence and is set ONLY for 12.1 WoW-friend rows, whose
+            -- accountIdentifier is a |K escape. Sorting on that escape ordered them by an
+            -- opaque client id and, because "|" outranks every letter, parked the whole tier
+            -- below everyone else -- an order with no relationship to what is on screen.
+            --
+            -- A WoW-friend never seen online has no readable name anywhere, so it still falls
+            -- through to the escape. That is the honest floor, not an oversight: those rows
+            -- keep today's behaviour until the friend logs in once.
             local sortName = charName
             if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
-                sortName = accountIdentifier
+                sortName = titleSortName or accountIdentifier
             end
 
             -- [[ NICKNAME ELEVATION ]]
@@ -2208,8 +2968,102 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
     end
 end
 
+-- Set by /fg match only. When true the matcher reports the values it actually compared,
+-- which is the one thing reading the source cannot tell you.
+local FriendGroups_SearchDebug = false
+
+-- ============================================================================
+-- [[ NAME MATCHING FOR 12.1 WoW-FRIEND ROWS ]]
+-- accountName for a 12.1 title friend is NOT text. It is a |K name escape -- six or seven
+-- bytes like "|Kq2|k" that the CLIENT resolves when it draws them. SetText renders the real
+-- name, tostring hands the escape to the chat frame which also renders it, and every string
+-- comparison in Lua correctly fails against the six bytes actually present. Measured: a row
+-- displaying "Backhawksleg-Nobundo" has #accountName == 6.
+--
+-- So the name cannot be matched in Lua at all, by us or by anyone. What CAN match it is
+-- Blizzard's own C_BattleNet.SearchFriends, which resolves the escapes internally -- the same
+-- call the Filter checkboxes already use, returning a plain array of friend indices in the
+-- same index space as the friend index we iterate.
+--
+-- The result is UNIONED with our own matcher, never intersected: theirs sees names we cannot
+-- read, ours sees notes, groups, nicknames, realms, classes and the alt cache that the server
+-- knows nothing about. Either one is sufficient for a row to show.
+--
+-- Built ONCE per roster rebuild, never per friend and never per keystroke -- the standing
+-- rule for this API. Rebuilds are already debounced behind the search box's 0.3s timer.
+local FriendGroups_NameMatchSet = nil
+
+-- Reported by /fg match so a failure says WHICH shape was tried.
+local FriendGroups_NameMatchSource = "none"
+
+local function FriendGroups_RebuildNameMatchSet()
+    FriendGroups_NameMatchSet = nil
+    FriendGroups_NameMatchSource = "none"
+    if searchValue == "" then return end
+
+    -- [[ SEARCH-INFO SHAPE, AND WHY THERE IS NO LONGER A FALLBACK ]]
+    -- A bare { searchText = ... } returns nothing on 12.1 (measured), so the table is built
+    -- the way Blizzard builds it. Their OnSearchEnterPressed reads:
+    --
+    --     local activeSearchInfo = self:BuildActiveSearchInfo()
+    --     activeSearchInfo.searchText = text or ""
+    --     local friendsData = C_BattleNet.SearchFriends(activeSearchInfo)
+    --
+    -- so the view's own builder is the ONLY accepted source. It carries every field this
+    -- patch expects, including any added later, and it reflects the Status/Tags boxes exactly
+    -- as Blizzard's search does.
+    --
+    -- A hand-composed table used to stand in when there was no view, on the theory that the
+    -- shape was all that mattered. It was wrong twice over. It never returned a match when it
+    -- was measured, and "no view" turned out to mean something quite different from what it
+    -- was written for: on a live 12.1 client with the Social UI switched off there IS no view
+    -- and the call is FORBIDDEN, so that branch existed only to produce an error report on
+    -- every keystroke. Blizzard's own search on that client is the legacy list's, which never
+    -- called this API at all.
+    --
+    -- Requiring the view therefore does double duty -- it is the only shape that works, and
+    -- it is exactly the condition under which the call is allowed. Compat.SearchFriends still
+    -- latches the forbidden case underneath, because "allowed" is the client's call and not
+    -- ours to assume.
+    local view = Compat.GetSocialUIFriendsView and Compat.GetSocialUIFriendsView()
+    if not view or type(view.BuildActiveSearchInfo) ~= "function" then
+        -- Not an error. The matcher's own comparisons still run; what is lost is Blizzard's
+        -- verdict on names we cannot read, which on this client is only the |K accountName --
+        -- and FriendGroups_SavedVars.wow_friend_names covers that from the other side.
+        FriendGroups_NameMatchSource = "noview"
+        return
+    end
+
+    local built, searchInfo = pcall(view.BuildActiveSearchInfo, view)
+    if not built or type(searchInfo) ~= "table" then
+        FriendGroups_NameMatchSource = "view:buildfailed"
+        return
+    end
+
+    searchInfo.searchText = searchValue
+
+    local result, reason = Compat.SearchFriends(searchInfo)
+    if not result then
+        FriendGroups_NameMatchSource = "view:" .. tostring(reason)
+        return
+    end
+    FriendGroups_NameMatchSource = "view"
+
+    local set = nil
+    for _, friendIndex in ipairs(result) do
+        set = set or {}
+        set[friendIndex] = true
+    end
+    FriendGroups_NameMatchSet = set
+end
+
 function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
-    if searchValue == "" then return true end
+    if searchValue == "" then
+        if FriendGroups_SearchDebug then
+            DEFAULT_CHAT_FRAME:AddMessage(string.format("  #%s EARLY-TRUE (searchValue empty)", tostring(playerId)))
+        end
+        return true
+    end
 
     local characterName, bnetAccountName, battleTag, noteText, realmName, className, richPresence, regionSearchText, factionSearchText = "", "", "", "", "", "", "", "", ""
     local classMatch = false
@@ -2219,31 +3073,74 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
     local searchLower = searchLowerValue
     local searchLen = #searchLower
 
+    -- Blizzard's verdict on the NAME, which is the only thing that can read a |K escape.
+    -- Tested first and short-circuits: when the server has already matched this friend there
+    -- is nothing our own comparisons could add.
+    if FriendGroups_NameMatchSet and playerButtonType == FRIENDS_BUTTON_TYPE_BNET
+        and FriendGroups_NameMatchSet[playerId] then
+        if FriendGroups_SearchDebug then
+            DEFAULT_CHAT_FRAME:AddMessage(string.format("  #%s NAME-MATCH (native)", tostring(playerId)))
+        end
+        return true
+    end
+
     if playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
         -- Fast Path: Use passed memory reference instead of querying the API
         local accountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(playerId)
-        if accountInfo and accountInfo.gameAccountInfo then
+        if accountInfo then
+            -- [[ ACCOUNT-LEVEL FIELDS ]]
+            -- These three live on accountInfo, NOT on gameAccountInfo, and they used to be
+            -- read INSIDE the session guard below. A friend with no game session -- every
+            -- offline 12.1 title friend -- therefore had its name, BattleTag and note left
+            -- as "" and could not be matched by any search string, while the row on screen
+            -- was displaying that exact name. For the title tier accountName IS the
+            -- character name (see the title-friend branch in Platform_SocialUI), so this is
+            -- the field that makes "Backhawksleg-Nobundo" searchable.
+            --
+            -- RULE: if it is on screen it has to be matchable. Anything read here must come
+            -- from the same place the renderer reads it, and must not be gated on state the
+            -- renderer does not require.
             bnetAccountName = (type(accountInfo.accountName) == "string") and accountInfo.accountName or ""
             battleTag = (type(accountInfo.battleTag) == "string") and accountInfo.battleTag or ""
             noteText = (type(accountInfo.note) == "string") and accountInfo.note or ""
-            characterName = (type(accountInfo.gameAccountInfo.characterName) == "string") and accountInfo.gameAccountInfo.characterName or ""
-            realmName = (type(accountInfo.gameAccountInfo.realmName) == "string") and accountInfo.gameAccountInfo.realmName or ""
-            className = (type(accountInfo.gameAccountInfo.className) == "string") and accountInfo.gameAccountInfo.className or ""
-            richPresence = (type(accountInfo.gameAccountInfo.richPresence) == "string") and accountInfo.gameAccountInfo.richPresence or ""
-            factionSearchText = (type(accountInfo.gameAccountInfo.factionName) == "string") and accountInfo.gameAccountInfo.factionName or ""
 
-            local rid = accountInfo.gameAccountInfo.regionID
-            local database = FriendGroups_GetRealmDatabase(rid)
-            
-            if realmName ~= "" then
-                local cleanRealm = FriendGroups_CleanRealmName(realmName)
-                local data = database[cleanRealm]
-                if data and data.region then
-                    regionSearchText = data.region
+            -- [[ SESSION-ONLY FIELDS ]]
+            -- Absent whenever the friend is offline, and largely absent even when online
+            -- since the 12.0.7 presence reduction, so the whole block is optional.
+            local gameInfo = accountInfo.gameAccountInfo
+            if gameInfo then
+                characterName = (type(gameInfo.characterName) == "string") and gameInfo.characterName or ""
+                realmName = (type(gameInfo.realmName) == "string") and gameInfo.realmName or ""
+                className = (type(gameInfo.className) == "string") and gameInfo.className or ""
+                richPresence = (type(gameInfo.richPresence) == "string") and gameInfo.richPresence or ""
+                factionSearchText = (type(gameInfo.factionName) == "string") and gameInfo.factionName or ""
+
+                local database = FriendGroups_GetRealmDatabase(gameInfo.regionID)
+
+                if realmName ~= "" then
+                    local cleanRealm = FriendGroups_CleanRealmName(realmName)
+                    local data = database[cleanRealm]
+                    if data and data.region then
+                        regionSearchText = data.region
+                    end
                 end
             end
             
-            local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+            -- [[ OFFLINE NAME RECOVERY ]]
+            -- The live session is the only place a WoW-friend's name is plain text, so when it
+            -- is gone fall back to what was recorded the last time they were online. This is
+            -- what makes an OFFLINE 12.1 WoW friend findable by name at all -- accountName is
+            -- a |K escape and matches nothing, which is the whole bug.
+            if characterName == "" and type(FriendGroups_SavedVars.wow_friend_names) == "table" then
+                local remembered = FriendGroups_SavedVars.wow_friend_names[accountInfo.bnetAccountID]
+                if remembered then
+                    characterName = remembered.name or ""
+                    -- Only fills a gap; a live realm always wins over a remembered one.
+                    if realmName == "" then realmName = remembered.realm or "" end
+                end
+            end
+
+            local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
             if accountIdentifier and FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table" then
                 local alts = FriendGroups_SavedVars.alt_cache[accountIdentifier]
                 if alts then
@@ -2278,7 +3175,10 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
                 end
                 
                 if not hasManualGuild then
-                    if accountInfo.gameAccountInfo.isOnline and accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW and Compat.IsSameProject(accountInfo.gameAccountInfo) then
+                    -- gameInfo is now optional (this block used to sit inside a guard that
+                    -- proved it), so the nil check is load-bearing: an offline friend would
+                    -- otherwise index a nil table here on every search keystroke.
+                    if gameInfo and gameInfo.isOnline and gameInfo.clientProgram == BNET_CLIENT_WOW and Compat.IsSameProject(gameInfo) then
                         local cName = characterName
                         local rName = realmName
                         if cName ~= "" then
@@ -2324,10 +3224,51 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
         end
     end
 
+    if FriendGroups_SearchDebug then
+        -- Every value the comparison below actually sees. If the branch above never ran,
+        -- these are all empty and the button-type line says why.
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "  #%s btype=%s(bnet=%s wow=%s) term=%q acct=%q char=%q realm=%q note=%q",
+            tostring(playerId), tostring(playerButtonType),
+            tostring(FRIENDS_BUTTON_TYPE_BNET), tostring(FRIENDS_BUTTON_TYPE_WOW),
+            -- Pipes DOUBLED so the chat frame cannot resolve an escape while printing it.
+            -- Without this the probe renders the name the client draws instead of the bytes
+            -- the matcher compares -- which is precisely how this bug hid for three rounds.
+            -- gsub returns TWO values, so each call is parenthesised: unparenthesised it
+            -- would spill its match count into the next placeholder.
+            tostring(searchLower), (tostring(bnetAccountName):gsub("|", "||")),
+            (tostring(characterName):gsub("|", "||")),
+            tostring(realmName), tostring(noteText)))
+
+        -- The line above proves what the values LOOK like. This one proves what they DO.
+        -- They can disagree: a 12.x secret value renders through tostring and SetText but
+        -- reads as absent to string operations, which would make a name that is plainly on
+        -- screen fail every comparison below while printing perfectly here.
+        local okFind, findRes = pcall(function()
+            return bnetAccountName:lower():find(searchLower, 1, true)
+        end)
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "     find=%s%s | len=%d/%d | eq=%s | issecretvalue=%s secret=%s",
+            okFind and "" or "THREW:", tostring(findRes),
+            #bnetAccountName, #searchLower,
+            tostring(bnetAccountName:lower() == searchLower),
+            tostring(type(issecretvalue)),
+            tostring(type(issecretvalue) == "function" and issecretvalue(bnetAccountName) or "n/a")))
+    end
+
     if className ~= "" and className:lower():sub(1, searchLen) == searchLower then classMatch = true end
 
-    if (bnetAccountName:lower():find(searchLower, 1, true)) or 
-       (battleTag:lower():find(searchLower, 1, true)) or 
+    -- "Name-Realm" as one term, which is how these rows are LABELLED and therefore how people
+    -- type them. Matching the two halves separately can never satisfy a search that spans the
+    -- hyphen, so the joined form is tested as well.
+    local fullName = ""
+    if characterName ~= "" and realmName ~= "" then
+        fullName = characterName .. "-" .. realmName
+    end
+
+    if (bnetAccountName:lower():find(searchLower, 1, true)) or
+       (fullName ~= "" and fullName:lower():find(searchLower, 1, true)) or
+       (battleTag:lower():find(searchLower, 1, true)) or
        (characterName:lower():find(searchLower, 1, true)) or
        (noteText:lower():find(searchLower, 1, true)) or
        (realmName:lower():find(searchLower, 1, true)) or
@@ -2343,8 +3284,14 @@ end
 
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not contextData then return end
-    if not FriendsListFrame or not FriendsListFrame:IsMouseOver() then
-        return 
+    -- Scope the injection to the contact list: these MENU_UNIT_*_FRIEND tags also fire from
+    -- chat lines, unit frames and the glue screen, and FriendGroups' entries belong on the
+    -- friends list only. Routed through Compat because on 12.1 the list the player is
+    -- actually pointing at is SocialUIFrame.FriendsList -- FriendsListFrame is still present
+    -- but permanently hidden, so testing it directly is false forever and the whole menu
+    -- section silently disappears.
+    if not Compat.IsContactListMouseOver() then
+        return
     end
 
     local bnetfriend = false
@@ -2446,7 +3393,7 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
         end, { id = bnetIDAccount })
     end
 
-    local accountIdentifier = accountInfo and (accountInfo.battleTag or accountInfo.accountName)
+    local accountIdentifier = accountInfo and (FriendGroups_AccountIdentifier(accountInfo))
 
     if accountIdentifier then
         -- Battle.net friends only: the nickname is stored in the Battle.net note, which
@@ -2523,8 +3470,8 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 
 	for _, group in ipairs(groupsSorted) do
         local isGuildGroup = string.find(group, L["GROUP_GUILDMATES"], 1, true)
-        if not FriendGroups_HasValue(groups, group) and group ~= "" and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_EMPTY"] and group ~= L["GROUP_NONE"] 
-           and group ~= L["GROUP_OFFLINE_1"] and group ~= L["GROUP_OFFLINE_2"] and group ~= L["GROUP_OFFLINE_3"] and not isGuildGroup then
+        if not FriendGroups_HasValue(groups, group) and group ~= "" and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_EMPTY"] and group ~= L["GROUP_NONE"]
+           and not FriendGroups_IsOfflineGroup(group) and not isGuildGroup then
 		   add:CreateButton(group, function(data)
                 local newNote = FriendGroups_AddGroup(data.note, data.group)
                 if data.bnetfriend then
@@ -2607,7 +3554,7 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     for _, group in ipairs(groupsSorted) do
         local isGuildGroup = string.find(group, L["GROUP_GUILDMATES"], 1, true)
         if FriendGroups_HasValue(groups, group)
-           and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_OFFLINE_1"] and group ~= L["GROUP_OFFLINE_2"] and group ~= L["GROUP_OFFLINE_3"] and not isGuildGroup then
+           and group ~= L["GROUP_FAVORITES"] and not FriendGroups_IsOfflineGroup(group) and not isGuildGroup then
             removableGroups[#removableGroups + 1] = group
         end
     end
@@ -2651,7 +3598,7 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                 rootDescription:CreateTitle(displayTitle)
                 
                 local isGuildGroup = string.find(groupName, L["GROUP_GUILDMATES"], 1, true)
-                local isSystemGroup = (groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" or groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"])
+                local isSystemGroup = (groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" or FriendGroups_IsOfflineGroup(groupName))
 
                 -- [[ ORDERING: movable groups can be reordered manually ]]
                 if not FriendGroups_IsFixedAnchor(groupName) then
@@ -2708,14 +3655,12 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                             FriendGroups_SavedVars.banner_colors[groupName] = hexColor
                             
                             -- Instant live refresh for visible frames while dragging the color picker
-                            if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
-                                FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                            Compat.ForEachContactListFrame(function(f)
                                     if f.rawGroupName == groupName and f.solidBannerTexture then
                                         f.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
                                         f.solidBannerTexture:Show()
                                     end
                                 end)
-                            end
                         end
                         
                         local function OnColorColorPickerCancelled()
@@ -2724,25 +3669,21 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                                 local r = tonumber(string.sub(originalHex, 1, 2), 16) / 255
                                 local g = tonumber(string.sub(originalHex, 3, 4), 16) / 255
                                 local b = tonumber(string.sub(originalHex, 5, 6), 16) / 255
-                                if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
-                                    FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                Compat.ForEachContactListFrame(function(f)
                                         if f.rawGroupName == groupName and f.solidBannerTexture then
                                             f.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
                                             f.solidBannerTexture:Show()
                                         end
                                     end)
-                                end
                             else
                                 if FriendGroups_SavedVars.banner_colors then
                                     FriendGroups_SavedVars.banner_colors[groupName] = nil
                                 end
-                                if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
-                                    FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                Compat.ForEachContactListFrame(function(f)
                                         if f.rawGroupName == groupName and f.solidBannerTexture then
                                             f.solidBannerTexture:Hide()
                                         end
                                     end)
-                                end
                             end
                             FriendGroups_FriendsListUpdate(true)
                         end
@@ -2763,19 +3704,85 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                         })
                     end)
                     
+                    -- [[ HEADER FONT COLOUR ]]
+                    -- A banner colour darkens the strip the label sits on, and the default
+                    -- grey label can disappear against it. FriendGroups_HeaderFontRGB resolves
+                    -- the rule: an explicit override wins, otherwise a banner implies white,
+                    -- otherwise the header keeps whatever colour it had. Setting a banner
+                    -- therefore fixes legibility without the user doing anything, and this
+                    -- entry only exists for when they want a different colour.
+                    rootDescription:CreateButton(L["MENU_SET_FONT_COLOR"], function()
+                        local originalHex = FriendGroups_SavedVars.font_colors
+                            and FriendGroups_SavedVars.font_colors[groupName] or nil
+
+                        local function ApplyFontColor(r, g, b)
+                            if not FriendGroups_SavedVars.font_colors then
+                                FriendGroups_SavedVars.font_colors = {}
+                            end
+                            FriendGroups_SavedVars.font_colors[groupName] =
+                                string.format("%02x%02x%02x", r * 255, g * 255, b * 255)
+                            -- Live preview, same walker the banner picker uses.
+                            Compat.ForEachContactListFrame(function(f)
+                                if f.rawGroupName == groupName and f.name then
+                                    f.name:SetTextColor(r, g, b)
+                                end
+                            end)
+                        end
+
+                        local initR, initG, initB = 1, 1, 1
+                        if originalHex and #originalHex >= 6 then
+                            initR = (tonumber(originalHex:sub(1, 2), 16) or 255) / 255
+                            initG = (tonumber(originalHex:sub(3, 4), 16) or 255) / 255
+                            initB = (tonumber(originalHex:sub(5, 6), 16) or 255) / 255
+                        end
+
+                        ColorPickerFrame:SetupColorPickerAndShow({
+                            swatchFunc = function()
+                                ApplyFontColor(ColorPickerFrame:GetColorRGB())
+                            end,
+                            cancelFunc = function()
+                                if FriendGroups_SavedVars.font_colors then
+                                    FriendGroups_SavedVars.font_colors[groupName] = originalHex
+                                end
+                                FriendGroups_FriendsListUpdate(true)
+                            end,
+                            opacityFunc = nil,
+                            hasOpacity = false,
+                            r = initR, g = initG, b = initB
+                        })
+                    end)
+
+                    if FriendGroups_SavedVars.font_colors and FriendGroups_SavedVars.font_colors[groupName] then
+                        rootDescription:CreateButton(L["MENU_CLEAR_FONT_COLOR"], function()
+                            FriendGroups_SavedVars.font_colors[groupName] = nil
+                            FriendGroups_FriendsListUpdate(true)
+                        end)
+                    end
+
                     if FriendGroups_SavedVars.banner_colors and FriendGroups_SavedVars.banner_colors[groupName] then
                         rootDescription:CreateButton(L["MENU_CLEAR_BANNER_COLOR"], function()
                             FriendGroups_SavedVars.banner_colors[groupName] = nil
                             
-                            -- Instant live refresh for visible frames
-                            if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
-                                FriendsListFrame.ScrollBox:ForEachFrame(function(f)
-                                    if f.rawGroupName == groupName and f.solidBannerTexture then
-                                        f.solidBannerTexture:Hide()
+                            -- Instant live refresh for visible frames. The label is put back
+                            -- here as well as in the renderer: FriendGroups_FriendsListUpdate
+                            -- QUEUES rather than runs while in combat, and without this the
+                            -- banner would vanish while its white label stayed behind until
+                            -- the fight ended. Skipped when a font override is set, which
+                            -- outlives the banner and still owns the colour.
+                            local keepsOverride = FriendGroups_SavedVars.font_colors
+                                and FriendGroups_SavedVars.font_colors[groupName]
+                            Compat.ForEachContactListFrame(function(f)
+                                    if f.rawGroupName == groupName then
+                                        if f.solidBannerTexture then
+                                            f.solidBannerTexture:Hide()
+                                        end
+                                        if f.name and f.fgDefaultNameColor and not keepsOverride then
+                                            local d = f.fgDefaultNameColor
+                                            f.name:SetTextColor(d[1], d[2], d[3], d[4])
+                                        end
                                     end
                                 end)
-                            end
-                            
+
                             FriendGroups_FriendsListUpdate(true)
                         end)
                     end
@@ -2944,7 +3951,7 @@ function FriendGroups_ApplyNickname(data, input)
 	local writeID = (type(accountInfo.bnetAccountID) == "number") and accountInfo.bnetAccountID or data.id
 	if not Compat.SetBNetNote(writeID, newNote) then return end
 
-	local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+	local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
 	if type(accountIdentifier) == "string" and accountIdentifier ~= "" then
 		if not FriendGroups_SavedVars.nicknames then
 			FriendGroups_SavedVars.nicknames = {}
@@ -3145,7 +4152,7 @@ local function FriendGroups_BuildBNetNoteMap()
     local map, trustworthy = {}, true
     for i = 1, total do
         local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
-        local accountIdentifier = accountInfo and (accountInfo.battleTag or accountInfo.accountName)
+        local accountIdentifier = accountInfo and (FriendGroups_AccountIdentifier(accountInfo))
         if type(accountIdentifier) ~= "string" or accountIdentifier == ""
             or type(accountInfo.bnetAccountID) ~= "number" then
             -- Enumerated but unresolvable, or resolvable but unwritable.
@@ -3350,15 +4357,51 @@ EnableFriendGroups = function()
             open_one_group = false,
             auto_accept_invite = true,
             auto_accept_sync = true,
-            auto_accept_res = false,
             show_flags = true,
             offline_tracker = true,
-            wide_list = false,
-            width_normal = false
+            -- Off on a fresh install: a privacy mode that hides data by default would read as
+            -- the addon being broken to everyone who is not streaming.
+            streamer_mode = false,
+            -- [[ FRESH-INSTALL SIZE DEFAULTS ]]
+            -- Medium height, Wide panel, Small text.
+            --
+            -- Wide and Small pull the same way: the widest panel and the smallest rows show
+            -- the most contacts at once and make the size controls obviously present, so a
+            -- new user discovers them and dials back to taste rather than never finding them.
+            --
+            -- HEIGHT is the one axis that does NOT sit at its extreme. Width and font scale
+            -- what the list can hold; height scales the panel whether or not there is
+            -- anything to put in it, so Large on a small friends list opens a mostly empty
+            -- window -- which reads as a broken addon rather than as a setting to adjust.
+            --
+            -- This table is the FRESH-INSTALL branch only. Existing users never reach it,
+            -- so changing these cannot resize a list somebody has already set up.
+            extra_height = 190,
+            wide_list = true,
+            width_normal = false,
+            font_size = 1,
         }
     end
 	
     -- [[ DEFAULTS MIGRATION FOR EXISTING USERS ]] --
+    -- Row font scale. A FRESH install is seeded with 1 (Small) in the table above and so
+    -- never reaches this line; only an UPGRADE arrives here with nil, and it is pinned to
+    -- 2 (Medium) because that reproduces exactly how their rows have always looked. The
+    -- new Small default is for new installs -- it is not a reason to shrink the text of
+    -- somebody who never asked for it.
+    --
+    -- Width needs no equivalent: wide_list/width_normal have been written explicitly since
+    -- they were introduced, so an existing user already carries their own choice.
+    if FriendGroups_SavedVars.font_size == nil then
+        FriendGroups_SavedVars.font_size = 2
+    end
+    -- Last-known names for 12.1 WoW-friend rows, keyed by bnetAccountID. Created here rather
+    -- than only in the fresh-install table so an EXISTING profile gets it on upgrade too --
+    -- without it every write site would need its own nil guard, and one missed guard would
+    -- silently disable offline name search again.
+    if type(FriendGroups_SavedVars.wow_friend_names) ~= "table" then
+        FriendGroups_SavedVars.wow_friend_names = {}
+    end
     if FriendGroups_SavedVars.show_flags == nil then
         FriendGroups_SavedVars.show_flags = true
     end
@@ -3383,6 +4426,9 @@ EnableFriendGroups = function()
     end
     if FriendGroups_SavedVars.offline_tracker == nil then
         FriendGroups_SavedVars.offline_tracker = true
+    end
+    if FriendGroups_SavedVars.streamer_mode == nil then
+        FriendGroups_SavedVars.streamer_mode = false
     end
     if FriendGroups_SavedVars.group_order == nil then
         FriendGroups_SavedVars.group_order = {}
@@ -3453,34 +4499,65 @@ end)
     FriendGroupsGlobalSettings:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
     FriendGroupsGlobalSettings:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
 	
-    FriendGroupsGlobalSettings:SetScript("OnClick", function(self)
-        Compat.OpenContextMenu(self, function(ownerRegion, rootDescription)
+    -- Published as a global so the same settings menu can be raised from more than one
+    -- owner. The gear below is the legacy frame's entry point; on 12.1 the gear lives on
+    -- a frame the player can no longer open, so Platform_SocialUI.lua nests this same
+    -- generator under the Social UI's Battle.net bar menu instead.
+    -- Signature is the standard menu generator contract: (ownerRegion, rootDescription).
+    -- rootDescription may be a submenu description rather than a true root -- the two
+    -- expose the same Create* API, so nesting the whole menu one level down just works.
+    FriendGroups_BuildSettingsMenu = function(ownerRegion, rootDescription)
             -- Sections flagged submenu=true become flyouts (Size, Group Behaviour);
             -- Filter/Appearance stay flat in the root for live tweaking; everything
             -- past the isAdvancedStart marker collects into one "Advanced" flyout.
             -- Dividers separate root sections and the sub-sections inside Advanced.
+            -- Addon identity first, at the ROOT. On 12.1 this menu is reached through the
+            -- Social UI's hamburger, where nothing else says whose settings these are, so the
+            -- version has to be the first thing visible rather than buried in Advanced.
+            local fgVersion = C_AddOns and C_AddOns.GetAddOnMetadata
+                and C_AddOns.GetAddOnMetadata(addonName, "Version")
+            -- Menu titles render in Blizzard's gold font colour, which the Menu API gives no
+            -- way to set. An embedded |cff escape overrides the font colour for the span it
+            -- wraps, so the section headers retint with the rest of the addon. Returns the
+            -- string untouched when nothing is themed, leaving Blizzard's gold to stand.
+            rootDescription:CreateTitle(FriendGroups_AccentText(string.format(L["SETTINGS_VERSION"], fgVersion or "")))
+            rootDescription:CreateDivider()
+
             local target = rootDescription
             local inAdvanced = false
             local firstRoot = true
+            -- Sub-sections inside Advanced are separated by a rule, but the FIRST one must
+            -- not carry a leading one: it used to sit under the version/backup block and read
+            -- as a separator, and became an orphan at the top once the version moved to root.
+            local firstAdvanced = true
             for _, item in ipairs(settingsMenuItems) do
                 if item.condition and not item.condition() then
                     -- Item hidden this session (e.g. EllesmereUI not detected).
                 elseif item.isAdvancedStart then
                     if not firstRoot then rootDescription:CreateDivider() end
                     target = rootDescription:CreateButton(L["SETTINGS_ADVANCED"])
-                    local ver = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version")
-                    target:CreateTitle(string.format(L["SETTINGS_VERSION"], ver or ""))
-                    local lastTs = FriendGroups_SavedVars and FriendGroups_SavedVars.last_export_time
-                    if lastTs and lastTs > 0 then
-                        target:CreateTitle(string.format(L["SETTINGS_LAST_BACKUP"], date("%Y-%m-%d %H:%M", lastTs)))
-                    end
                     inAdvanced = true
                     firstRoot = false
+                elseif item.isBackupStamp then
+                    -- Sits with the Export/Import buttons in the Profile Sync section rather
+                    -- than at the top of Advanced, where it read as a stray line above the
+                    -- unrelated Automation block.
+                    local lastTs = FriendGroups_SavedVars and FriendGroups_SavedVars.last_export_time
+                    if lastTs and lastTs > 0 then
+                        target:CreateTitle(FriendGroups_AccentText(string.format(L["SETTINGS_LAST_BACKUP"], date("%Y-%m-%d %H:%M", lastTs))))
+                    end
+                elseif item.isSubTitle then
+                    -- A heading INSIDE the current submenu. Distinct from isTitle, which
+                    -- resets `target` back to the root: using isTitle here would silently
+                    -- send every following item to the top level instead of into the
+                    -- flyout it was written for.
+                    target:CreateTitle(FriendGroups_AccentText(item.text))
                 elseif item.isTitle and item.text ~= "" then
                     if inAdvanced then
                         -- sub-section header inside the Advanced flyout
-                        target:CreateDivider()
-                        target:CreateTitle(item.text)
+                        if not firstAdvanced then target:CreateDivider() end
+                        target:CreateTitle(FriendGroups_AccentText(item.text))
+                        firstAdvanced = false
                     elseif item.submenu then
                         if not firstRoot then rootDescription:CreateDivider() end
                         target = rootDescription:CreateButton(item.text)
@@ -3488,7 +4565,7 @@ end)
                     else
                         if not firstRoot then rootDescription:CreateDivider() end
                         target = rootDescription
-                        target:CreateTitle(item.text)
+                        target:CreateTitle(FriendGroups_AccentText(item.text))
                         firstRoot = false
                     end
                 elseif item.isTitle then
@@ -3524,10 +4601,13 @@ end)
                     end
                 end
             end
-        end)
+    end
+
+    FriendGroupsGlobalSettings:SetScript("OnClick", function(self)
+        Compat.OpenContextMenu(self, FriendGroups_BuildSettingsMenu)
     end)
-    
-    FriendGroupsGlobalSettings:SetScript("OnEnter", function(self) 
+
+    FriendGroupsGlobalSettings:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(L["SETTINGS_TITLE"], 1, 1, 1)
         GameTooltip:Show()
@@ -3594,9 +4674,15 @@ end)
     -- 4. Setup Scroll View
     SetupGroupedView()
     
-	-- [[ UPDATED DEFAULT: Set to 380 (Large) ]] --
+	-- [[ HEIGHT DEFAULT: 190 (Medium) ]] --
+    -- A fresh install is already seeded with 190 in the SavedVars table, so this line is
+    -- reached only by an UPGRADE from a build old enough never to have written the field.
+    -- Those users have expressed no preference, so they get the same default a new install
+    -- gets; anyone who ever picked a height carries it explicitly and never lands here.
+    -- Tested with `not`, not `== nil`, deliberately: 0 is Small and is truthy in Lua, so a
+    -- user who chose Small is not silently resized on every login.
     if not FriendGroups_SavedVars.extra_height then
-        FriendGroups_SavedVars.extra_height = 380
+        FriendGroups_SavedVars.extra_height = 190
     end
     FriendGroups_UpdateSize()
 
@@ -3604,17 +4690,24 @@ end)
     FriendGroups_FriendsListUpdate(true)
 end
 
+-- Both anti-flicker guards ask Compat for the panel rather than naming FriendsFrame, because
+-- on 12.1 that frame is present but permanently hidden: IsMouseOver() is false forever, the
+-- guard never holds, and the alt tooltip is torn down the instant the native one repaints.
+-- Compat.GetContactListAnchor returns FriendsFrame on every other client, so retail and
+-- Classic evaluate the identical expression.
 hooksecurefunc(FriendsTooltip, "Hide", function(self)
     -- [[ ANTI-FLICKER FIX: Ignore hide command if mouse is still on the Friends List ]]
-    if FriendsFrame and FriendsFrame:IsMouseOver() then return end
-    
+    local contactPanel = Compat.GetContactListAnchor()
+    if contactPanel and contactPanel:IsMouseOver() then return end
+
     if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
     FriendGroups_CurrentHoverAnchor = nil
 end)
 
 hooksecurefunc(GameTooltip, "Hide", function(self)
     -- [[ ANTI-FLICKER FIX: Protect against GameTooltip native hide collisions ]]
-    if FriendsFrame and FriendsFrame:IsMouseOver() then return end
+    local contactPanel = Compat.GetContactListAnchor()
+    if contactPanel and contactPanel:IsMouseOver() then return end
     if CommunitiesFrame and CommunitiesFrame:IsMouseOver() then return end
     
     if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
@@ -3706,6 +4799,10 @@ local function FriendGroups_ResolveClassToken(name)
     return nil
 end
 
+-- Published for the platform renderers (file-local, so invisible to Platform_*.lua as a
+-- global). The Social UI row builds its class icon from the token this resolves.
+addonTable.State.ResolveClassToken = FriendGroups_ResolveClassToken
+
 -- Best-effort class for a friend's account row when the live API reports none
 -- (12.0.7 presence reduction: className/characterName are nil for most friends'
 -- sessions). Tiers: exact alt-cache match on the current character when its name
@@ -3713,9 +4810,47 @@ end
 -- which is also the "aka [main]" the row displays) -> the most recently seen
 -- cached alt. Returns a class name/token for FriendGroups_ResolveClassToken, or
 -- nil. Display-only: invite gating and flavor detection never read this.
+-- ============================================================================
+-- [[ SELECTED MAIN'S CLASS ]]
+-- The class of the character the user explicitly picked as this contact's main, or nil.
+--
+-- Exists so an OFFLINE contact can still show a class icon -- desaturated, to say plainly
+-- that it describes their main rather than what they are playing right now -- instead of a
+-- blank column. An offline row has no live class, so before this the icon slot sat empty
+-- for exactly the contacts the user had gone to the trouble of identifying.
+--
+-- Read straight from manual_mains + alt_cache rather than through FriendGroups_ActiveAKA,
+-- which is only populated inside the show_guildmates branch of FriendGroups_SetGroups: the
+-- icon has nothing to do with guild grouping and must not vanish when that setting is off.
+--
+-- Deliberately NOT a general "best guess" -- the newest cached alt is not offered here. An
+-- icon for a character the user never nominated would be a guess presented as a fact.
+-- ============================================================================
+function FriendGroups_LookupMainClass(accountIdentifier)
+    if type(accountIdentifier) ~= "string" or accountIdentifier == "" then return nil end
+    if type(FriendGroups_SavedVars) ~= "table" then return nil end
+
+    local mains = FriendGroups_SavedVars.manual_mains
+    local mainKey = (type(mains) == "table") and mains[accountIdentifier] or nil
+    if not mainKey then return nil end
+
+    local alts = (type(FriendGroups_SavedVars.alt_cache) == "table")
+        and FriendGroups_SavedVars.alt_cache[accountIdentifier] or nil
+    if type(alts) ~= "table" then return nil end
+
+    for _, alt in ipairs(alts) do
+        local currentKey = (alt.charName or "") .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
+        if currentKey == mainKey or alt.key == mainKey then
+            if type(alt.class) == "string" and alt.class ~= "" then return alt.class end
+            return nil
+        end
+    end
+    return nil
+end
+
 function FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
     if not accountInfo then return nil end
-    local key = accountInfo.battleTag or accountInfo.accountName
+    local key = FriendGroups_AccountIdentifier(accountInfo)
     if not key then return nil end
 
     local alts = FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table"
@@ -3978,7 +5113,9 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 
 			-- Bracketed, class-coloured character name -- the same treatment the
 			-- character portion of a BNet row gets (class conveyed by colour, not text).
-			local displayName = "[" .. (charName or info.name) .. "]"
+			local shownName = charName or info.name
+			if FriendGroups_IsStreamerMode() then shownName = FriendGroups_MaskName(shownName) end
+			local displayName = "[" .. shownName .. "]"
 			if FriendGroups_SavedVars.colour_classes and info.className then
 				displayName = FriendGroups_GetClassColorCode(info.className) .. displayName .. FONT_COLOR_CODE_CLOSE
 			end
@@ -4056,6 +5193,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 			button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g, FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
 			button.status:SetTexture(FRIENDS_TEXTURE_OFFLINE);
 			nameText = charName or info.name;
+			if FriendGroups_IsStreamerMode() then nameText = FriendGroups_MaskName(nameText) end
 			nameColor = FRIENDS_GRAY_COLOR;
 			infoText = FRIENDS_LIST_OFFLINE;
 			-- Keep the realm visible for offline cross-realm friends (character names
@@ -4373,13 +5511,31 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
         return
     end
 
-    if (not FriendsListFrame:IsShown() and not forceUpdate) then return end
+    -- Visibility guard routed through Compat: on 12.1 FriendsListFrame still exists but is
+    -- permanently hidden, so testing it directly would block every update on that client.
+    if (not Compat.IsContactListShown() and not forceUpdate) then return end
 
     -- Default to forcing an update if called from internal menus, clicks, or settings
     if forceUpdate == nil then forceUpdate = true end
 
+    local socialUI = Compat.IsSocialUIActive()
+
     -- [[ MASSIVE OPTIMIZATION: IDLE GC CHURN PREVENTER ]]
-    if not forceUpdate and not FriendGroups_RosterDirty then
+    -- The shortcut below is only valid once there is something on screen to keep. On the
+    -- Social UI path that means a grouped provider must already have been installed: the
+    -- FIRST build can be deferred (opening the list in combat queues it to
+    -- PLAYER_REGEN_ENABLED, which arrives with a clean roster), and taking the shortcut
+    -- then would leave Blizzard's ungrouped provider in place with nothing to re-assert.
+    local rosterUnchanged = (not forceUpdate) and (not FriendGroups_RosterDirty)
+    if socialUI and not Compat.HasSocialUIProvider() then
+        rosterUnchanged = false
+    end
+
+    if rosterUnchanged then
+        -- Social UI: the rows are Blizzard's own cards, which refresh themselves from their
+        -- own events, and the grouped provider is already installed -- nothing of ours to
+        -- repaint in place. The legacy per-button pass below would walk a hidden frame.
+        if socialUI then return end
         -- The roster structure hasn't changed. Just refresh the visible buttons (AFK timers, etc.)
         if FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
             FriendsListFrame.ScrollBox:ForEachFrame(function(frame)
@@ -4423,6 +5579,10 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
     wipe(FriendGroups_OnlineKeys)
     wipe(FriendGroups_OnlineGuidKeys)
     FriendGroups_OnlineTotal = 0
+
+    -- Ask Blizzard which friends match the search term BY NAME, before the pass that tests
+    -- every friend. Once per rebuild: FriendGroups_Search then reads the answer per friend.
+    FriendGroups_RebuildNameMatchSet()
 
     -- Parse natively in a single linear pass & pass refs down
     local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
@@ -4486,8 +5646,14 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 
     for _, groupName in ipairs(groupsSorted) do
         if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+            -- First sight of a group seeds its collapse state. Offline buckets start
+            -- COLLAPSED: with exclusive filing the catch-all holds every absent contact,
+            -- which on a typical roster is most of it, and opening the list onto a wall of
+            -- people who are not there buries the ones who are. Every other group starts
+            -- open, as before. Seeded rather than forced, so the value is written once and
+            -- the user's own toggle owns it from then on.
             if FriendGroups_SavedVars.collapsed[groupName] == nil then
-                FriendGroups_SavedVars.collapsed[groupName] = false
+                FriendGroups_SavedVars.collapsed[groupName] = FriendGroups_IsOfflineGroup(groupName) and true or false
             end
 
             local div = FG_GetLayoutTable()
@@ -4495,7 +5661,11 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
             div.groupName = groupName
             table.insert(targetLayout, div)
 
-            if not FriendGroups_SavedVars.collapsed[groupName] then
+            -- Social UI: collapse is a property of the tree node, not of the layout, so
+            -- members are ALWAYS emitted there and the renderer seeds each header node's
+            -- collapsed state from the same saved variable. Withholding them here would
+            -- leave Blizzard's own collapse chevron toggling an empty subtree.
+            if socialUI or not FriendGroups_SavedVars.collapsed[groupName] then
                 table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
                 for _, playerData in ipairs(groupsTotal[groupName]) do
                     if playerData.buttonType and playerData.id then
@@ -4516,7 +5686,14 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
         table.insert(targetLayout, empty)
     end
 
-    if not Compat.HAS_SCROLLBOX then
+    if socialUI then
+        -- Retail 12.1 path: the reachable contact list is SocialUIFrame.FriendsList, whose
+        -- ScrollBox is driven by a TreeDataProvider. Checked BEFORE HAS_SCROLLBOX because
+        -- that capability is still true on 12.1 -- the legacy FriendsListFrame and its
+        -- ScrollBox both still exist, they are simply no longer reachable by the player.
+        Compat.RenderSocialUIList(targetLayout)
+        for _, element in ipairs(targetLayout) do FG_ReleaseLayoutTable(element) end
+    elseif not Compat.HAS_SCROLLBOX then
         -- MoP Classic path: drive the native HybridScrollFrame directly from the
         -- freshly built layout, then return the pooled elements.
         Compat.RenderClassicList(targetLayout)
@@ -4716,11 +5893,48 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
         end
         frame.name:SetText(displayGroupName)
 
+        -- [[ HEADER LABEL COLOUR, INCLUDING THE WAY BACK ]]
+        -- An explicit override wins; a banner colour implies white, because the default is
+        -- close to unreadable against a saturated strip. HeaderFontRGB returns nil for
+        -- neither -- and nil has to mean "put it back", not "leave it alone".
+        --
+        -- Leaving it alone is what it used to mean, and clearing a banner colour therefore
+        -- left the label white forever: this fontstring is on a POOLED frame, so "whatever
+        -- the template drew" is only true the first time it is used. After one pass over a
+        -- banner-tinted group it holds white, and skipping the call preserves that.
+        --
+        -- The default is CAPTURED rather than assumed, on the first pass over each frame --
+        -- which is necessarily before any write of ours, since the capture sits above it. So
+        -- the label returns to precisely the colour Blizzard's own template gave it, on any
+        -- client, with no constant here to drift out of step with theirs.
+        --
+        -- Blizzard's own label never shows this bug because its template re-applies a font
+        -- object on every recycle and a font object carries its colour. Ours has no template
+        -- to recover from, so it must be written on every pass -- the same reasoning
+        -- FG_ApplyHeaderCount records for the count fontstring beside it.
+        if not frame.fgDefaultNameColor then
+            local defR, defG, defB, defA = frame.name:GetTextColor()
+            frame.fgDefaultNameColor = { defR or 1, defG or 0.82, defB or 0, defA or 1 }
+        end
+
+        local fontR, fontG, fontB = FriendGroups_HeaderFontRGB(groupName)
+        if fontR then
+            frame.name:SetTextColor(fontR, fontG, fontB)
+        else
+            local default = frame.fgDefaultNameColor
+            frame.name:SetTextColor(default[1], default[2], default[3], default[4])
+        end
+
         -- Left-align the group title to the same column where friend names begin
         -- (class-icon gutter factored in), instead of the template's centered width.
         frame.name:SetJustifyH("LEFT")
         frame.name:ClearAllPoints()
-        frame.name:SetPoint("TOPLEFT", frame, "TOPLEFT", fgRowNameGutter, -4)
+        -- LEFT, not TOPLEFT: paired with the RIGHT anchor below, both points now put the
+        -- string's centre on the header's centre, so the label is centred in the banner at
+        -- whatever height the header is. TOPLEFT here was also over-constraining the vertical
+        -- axis against that RIGHT anchor -- top AND centre both pinned -- which is the kind of
+        -- thing that resolves differently on a fontstring than on a frame.
+        frame.name:SetPoint("LEFT", frame, "LEFT", fgRowNameGutter, 0)
         -- Extend to nearly the full usable width, reserving room only for the
         -- right-aligned online/total count. (Anchoring to frame.info is wrong:
         -- its fontstring box is ~226px wide, which squeezed the title to ellipses.)
@@ -4733,7 +5947,7 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
             local groupInfo = string.format("%d/%d", groupOnline, groupTotal)
             
             -- [[ NEW: Hide the "0/" for Offline Virtual Groups ]]
-            if groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"] then
+            if FriendGroups_IsOfflineGroup(groupName) then
                 groupInfo = tostring(groupTotal)
             end
             
@@ -4774,22 +5988,28 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
                 if not hGroupName then return end
                 
                 local isGuildGroup = string.find(hGroupName, L["GROUP_GUILDMATES"], 1, true)
-                local isSystemGroup = (hGroupName == L["GROUP_NONE"] or hGroupName == L["GROUP_FAVORITES"] or hGroupName == L["GROUP_EMPTY"] or hGroupName == "" or hGroupName == L["GROUP_OFFLINE_1"] or hGroupName == L["GROUP_OFFLINE_2"] or hGroupName == L["GROUP_OFFLINE_3"])
+                local isSystemGroup = (hGroupName == L["GROUP_NONE"] or hGroupName == L["GROUP_FAVORITES"] or hGroupName == L["GROUP_EMPTY"] or hGroupName == "" or FriendGroups_IsOfflineGroup(hGroupName))
+
+                -- Captured into locals, not called inline: a Lua call only expands to
+                -- multiple values in the LAST argument position, so an inline
+                -- FriendGroups_AccentRGB() anywhere before a trailing `true` would
+                -- silently collapse to the red channel alone.
+                local aR, aG, aB = FriendGroups_AccentRGB()
 
                 if isGuildGroup then
                     local guildNameMatch = string.match(hGroupName, "<(.-)>")
                     if guildNameMatch then
                         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                        GameTooltip:SetText(L["TOOLTIP_GUILD_GROUP_TITLE"], 1, 0.82, 0)
+                        GameTooltip:SetText(L["TOOLTIP_GUILD_GROUP_TITLE"], aR, aG, aB)
                         GameTooltip:AddLine(L["TOOLTIP_GUILD_GROUP_DESC_1"], 1, 1, 1, true)
-                        GameTooltip:AddLine(string.format(L["TOOLTIP_GUILD_GROUP_DESC_2"], "<" .. guildNameMatch .. ">"), 1, 0.82, 0, true)
+                        GameTooltip:AddLine(string.format(L["TOOLTIP_GUILD_GROUP_DESC_2"], "<" .. guildNameMatch .. ">"), aR, aG, aB, true)
                         GameTooltip:AddLine(" ")
                         GameTooltip:AddLine(L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"], 0, 1, 0, true)
                         GameTooltip:Show()
                     end
                 elseif not isSystemGroup then
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    GameTooltip:SetText(L["TOOLTIP_CUSTOM_GROUP_TITLE"], 1, 0.82, 0)
+                    GameTooltip:SetText(L["TOOLTIP_CUSTOM_GROUP_TITLE"], aR, aG, aB)
                     GameTooltip:AddLine(string.format(L["TOOLTIP_CUSTOM_GROUP_DESC_1"], hGroupName), 1, 1, 1, true)
                     GameTooltip:AddLine(" ")
                     GameTooltip:AddLine(L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"], 0, 1, 0, true)
@@ -4817,7 +6037,8 @@ local function FriendGroups_GetGroupBannerRGB(groupName)
             return r / 255, g / 255, b / 255, true
         end
     end
-    return 1, 0.82, 0, false
+    local r, g, b = FriendGroups_AccentRGB()
+    return r, g, b, false
 end
 
 -- ============================================================================
@@ -4914,7 +6135,7 @@ function FriendGroups_UpdateContactCap()
     -- every other number in the UI. The cap warning lives in the tooltip now that this
     -- number no longer tracks the BNet limit.
     FriendGroups_ContactText:SetText(string.format(L["TEXT_ONLINE_COUNT"], FriendGroups_OnlineTotal))
-    FriendGroups_ContactText:SetTextColor(1, 0.82, 0)
+    FriendGroups_ContactText:SetTextColor(FriendGroups_AccentRGB())
 
     FriendGroups_ContactText:Show()
 
@@ -4924,15 +6145,38 @@ function FriendGroups_UpdateContactCap()
         FriendGroups_ContactHoverFrame:SetPoint("TOPLEFT", FriendGroups_ContactText, "TOPLEFT", 0, 0)
         FriendGroups_ContactHoverFrame:SetPoint("BOTTOMRIGHT", FriendGroups_ContactText, "BOTTOMRIGHT", 0, 0)
 
-        FriendGroups_ContactHoverFrame:SetScript("OnEnter", function(self)
+        -- Published as a global so both contact-list platforms raise the SAME tooltip. The
+        -- legacy hover frame below is one caller; on 12.1 the counter lives on the Social
+        -- UI's filter bar and calls this directly. Everything it reads -- groupsSorted,
+        -- FriendGroups_OnlineByGroup, the guild name, the tooltip styling helpers -- is a
+        -- file-local here, which is why it cannot simply be rebuilt on the other side.
+        -- GameTooltip is shared with the entire game, so the minimum width set below has to
+        -- be given back or every item and spell tooltip shown afterwards inherits it. Reset
+        -- on OnHide rather than in our own OnLeave handlers: there are two callers already
+        -- (the legacy hover frame and the Social UI counter) and a third would silently
+        -- forget. Installed here, inside the one-time hover-frame construction.
+        GameTooltip:HookScript("OnHide", function(tooltip)
+            tooltip:SetMinimumWidth(0)
+        end)
+
+        FriendGroups_ShowContactTooltip = function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetMinimumWidth(FG_CONTACT_TOOLTIP_MIN_WIDTH)
+
+            -- House accent for this whole tooltip. Captured into locals because a Lua
+            -- call only expands to multiple values in the LAST argument position, so an
+            -- inline call before a trailing `true` would collapse to the red channel.
+            local aR, aG, aB = FriendGroups_AccentRGB()
 
             -- [[ TOTAL ONLINE FRIENDS ]]
             -- Colour scheme for this whole tooltip, kept deliberately narrow: every header,
             -- row label and number is gold; only explanatory prose is white; and red is
             -- reserved for the at-cap warning so it still means something.
-            GameTooltip:SetText(L["TOOLTIP_ONLINE_TITLE"], 1, 0.82, 0)
-            GameTooltip:AddLine(L["TOOLTIP_ONLINE_FILTER_NOTE"], 1, 1, 1, true)
+            GameTooltip:SetText(L["TOOLTIP_ONLINE_TITLE"], aR, aG, aB)
+            -- Unwrapped: a single short sentence in every locale (the longest, frFR, is 66
+            -- characters). Left to wrap it broke for one trailing word, which reads as a
+            -- mistake rather than as a paragraph.
+            GameTooltip:AddLine(L["TOOLTIP_ONLINE_FILTER_NOTE"], 1, 1, 1, false)
             GameTooltip:AddLine(" ")
 
             -- Pass 1: emit the rows and remember which line each banner belongs to. Group
@@ -4955,7 +6199,7 @@ function FriendGroups_UpdateContactCap()
                     -- Gold name and count on a tinted strip, exactly like the list's
                     -- headers: the custom colour drives the background only.
                     local r, g, b, hasBanner = FriendGroups_GetGroupBannerRGB(groupName)
-                    GameTooltip:AddDoubleLine(displayGroupName, string.format(L["TEXT_ONLINE_COUNT"], count), 1, 0.82, 0, 1, 0.82, 0)
+                    GameTooltip:AddDoubleLine(displayGroupName, string.format(L["TEXT_ONLINE_COUNT"], count), aR, aG, aB, aR, aG, aB)
                     if hasBanner then
                         pendingBanners = pendingBanners or {}
                         pendingBanners[#pendingBanners + 1] = { line = GameTooltip:NumLines(), r = r, g = g, b = b }
@@ -4970,16 +6214,21 @@ function FriendGroups_UpdateContactCap()
                 -- Sum row: sits directly under the groups it totals, so the breakdown
                 -- reads as arithmetic. The note explains why the parts can exceed it.
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddDoubleLine(L["TOOLTIP_ONLINE_TOTAL_ROW"], string.format(L["TEXT_ONLINE_COUNT"], FriendGroups_OnlineTotal), 1, 0.82, 0, 1, 0.82, 0)
+                GameTooltip:AddDoubleLine(L["TOOLTIP_ONLINE_TOTAL_ROW"], string.format(L["TEXT_ONLINE_COUNT"], FriendGroups_OnlineTotal), aR, aG, aB, aR, aG, aB)
                 GameTooltip:AddLine(L["TOOLTIP_ONLINE_UNIQUE_NOTE"], 1, 1, 1, true)
             end
 
             GameTooltip:AddLine(" ")
 
             -- [[ CONTACT LIMITS ]]
-            GameTooltip:AddLine(L["TOOLTIP_CONTACT_TITLE"], 1, 0.82, 0)
-            FriendGroups_PromoteTooltipHeaderLine(GameTooltip:NumLines(), 1, 0.82, 0)
-            GameTooltip:AddLine(L["TOOLTIP_CONTACT_DESC"], 1, 1, 1, true)
+            GameTooltip:AddLine(L["TOOLTIP_CONTACT_TITLE"], aR, aG, aB)
+            FriendGroups_PromoteTooltipHeaderLine(GameTooltip:NumLines(), aR, aG, aB)
+            -- Unwrapped because this string carries its OWN break: every locale writes it as
+            -- two sentences separated by \n, one per limit. Wrapping on top of an authored
+            -- break turned two lines into four, each with a single word stranded on the
+            -- second. If a translation ever outgrows the tooltip, the fix is another \n in
+            -- the locale file, not re-enabling the wrap.
+            GameTooltip:AddLine(L["TOOLTIP_CONTACT_DESC"], 1, 1, 1, false)
             GameTooltip:AddLine(" ")
 
             -- Dynamic values inside tooltip
@@ -4992,14 +6241,14 @@ function FriendGroups_UpdateContactCap()
             local atCap = (bnetConsumed >= BNET_MAX_FRIENDS)
             -- Values are gold like every other number here; the cap is the one case that
             -- overrides to red, which is the whole point of reserving the colour.
-            local capR, capG, capB = 1, 0.82, 0
+            local capR, capG, capB = aR, aG, aB
             if atCap then capR, capG, capB = 1, 0, 0 end
 
-            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_BNET"], string.format(L["FORMAT_COUNT_OF_MAX"], bTotal, BNET_MAX_FRIENDS), 1, 0.82, 0, capR, capG, capB)
-            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_INVITES"], string.format(L["FORMAT_NUMBER"], bInvites), 1, 0.82, 0, 1, 0.82, 0)
-            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_WOW"], string.format(L["FORMAT_COUNT_OF_MAX"], wTotal, WOW_MAX_FRIENDS), 1, 0.82, 0, 1, 0.82, 0)
+            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_BNET"], string.format(L["FORMAT_COUNT_OF_MAX"], bTotal, BNET_MAX_FRIENDS), aR, aG, aB, capR, capG, capB)
+            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_INVITES"], string.format(L["FORMAT_NUMBER"], bInvites), aR, aG, aB, aR, aG, aB)
+            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_WOW"], string.format(L["FORMAT_COUNT_OF_MAX"], wTotal, WOW_MAX_FRIENDS), aR, aG, aB, aR, aG, aB)
             GameTooltip:AddLine(" ")
-            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_TOTAL"], string.format(L["FORMAT_NUMBER"], bTotal + wTotal), 1, 0.82, 0, 1, 0.82, 0)
+            GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_TOTAL"], string.format(L["FORMAT_NUMBER"], bTotal + wTotal), aR, aG, aB, aR, aG, aB)
 
             if atCap then
                 GameTooltip:AddLine(" ")
@@ -5016,7 +6265,9 @@ function FriendGroups_UpdateContactCap()
                     FriendGroups_ShowTooltipBanner(banner.line, banner.r, banner.g, banner.b)
                 end
             end
-        end)
+        end
+
+        FriendGroups_ContactHoverFrame:SetScript("OnEnter", FriendGroups_ShowContactTooltip)
 
         FriendGroups_ContactHoverFrame:SetScript("OnLeave", function(self)
             GameTooltip:Hide()
@@ -5248,6 +6499,7 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
                 auto_accept_invite = false,
                 auto_accept_sync = false,
                 offline_tracker = true,
+                streamer_mode = false,
                 show_guildmates = true
             }
         end
@@ -5467,7 +6719,7 @@ FriendGroups_AltTracker:SetScript("OnEvent", function(self, event, ...)
     end
     if not accountInfo then return end
     
-    local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+    local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
     if not accountIdentifier then return end
 
     -- Secure Path: Save only the verified primary game account attached to this strict ID.
@@ -5489,6 +6741,20 @@ local FriendGroups_CurrentHoverAnchor = nil
 -- Note for the currently hovered account, so tooltip refreshes/redraws (which
 -- call DrawAltTooltip without a note) keep showing it instead of flickering off.
 local FriendGroups_CurrentHoverNote = nil
+
+-- Published because these are FILE-LOCALS and a Platform_* file assigning the name directly
+-- would silently create a global instead, leaving the real hover state set forever.
+--
+-- Clearing matters more on 12.1 than it ever did before. The GameTooltip Show hook below
+-- skips FriendsFrame, so on the legacy list a stale anchor was harmless; on 12.1 the anchor
+-- is SocialUIFrame, which is NOT skipped, so an uncleared hover re-anchors every unrelated
+-- tooltip in the game -- spells, items, units -- for the rest of the session.
+addonTable.State.ClearHoverAnchor = function()
+    FriendGroups_CurrentHoverAnchor = nil
+    FriendGroups_CurrentHoverBNetID = nil
+    FriendGroups_CurrentHoverCharKey = nil
+    FriendGroups_CurrentHoverNote = nil
+end
 
 -- Raw BNet note (verbatim) for an account identifier (battleTag / accountName), so
 -- the guild + communities alt tooltip shows the SAME note as the contact-list one.
@@ -5521,6 +6787,11 @@ local function FriendGroups_FindBNetIDByCharKey(charKey)
 end
 
 local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charKey, baselineData, noteText)
+    -- House accent for this panel. Captured into locals because a Lua call only
+    -- expands to multiple values in the LAST argument position -- an inline call before
+    -- a trailing `true` would collapse to the red channel alone.
+    local aR, aG, aB = FriendGroups_AccentRGB()
+
     if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then
         FriendGroupsAltTooltip:Hide()
         return
@@ -5599,9 +6870,14 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
             end
         end
 
-        local displayTitle = string.format(L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"], hoverName)
+        -- Masked at the point of formatting, never at the point of resolution: hoverName is
+        -- still the real name above (it keys the merge dictionary lookup), and every
+        -- comparison in this panel continues to run against real values.
+        local titleName = FriendGroups_IsStreamerMode() and FriendGroups_MaskName(hoverName) or hoverName
+
+        local displayTitle = string.format(L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"], titleName)
         if #alts >= 10 and L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] then
-            displayTitle = string.format(L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"], hoverName)
+            displayTitle = string.format(L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"], titleName)
         end
 
         FriendGroupsAltTooltip:SetOwner(anchorFrame, "ANCHOR_NONE")
@@ -5628,7 +6904,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         end
 
 		FriendGroupsAltTooltip:ClearLines()
-        FriendGroupsAltTooltip:AddLine(displayTitle, 1, 0.82, 0)
+        FriendGroupsAltTooltip:AddLine(displayTitle, aR, aG, aB)
 
         -- ====================================================================
         -- [[ IDENTITY BLOCK ]]
@@ -5662,7 +6938,11 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         -- from rendering as a junk line.
         if idOK and accountIdentifier:find("#") then
             local btagColor = FRIENDS_BNET_NAME_COLOR or BATTLENET_FONT_COLOR or CreateColor(0.510, 0.773, 1.0)
-            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_BATTLETAG"], accountIdentifier),
+            -- A BattleTag is the single most identifying string this panel carries, so it is
+            -- masked like a name -- the discriminator is dropped by the masker along with
+            -- the realm half, leaving three characters of the tag's name portion.
+            local shownTag = FriendGroups_IsStreamerMode() and FriendGroups_MaskName(accountIdentifier) or accountIdentifier
+            FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_BATTLETAG"], shownTag),
                 btagColor.r, btagColor.g, btagColor.b)
         end
 
@@ -5691,9 +6971,13 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
 
         local autoGuilds = {}
         if idOK then
+            -- allGroups, not groups: an offline contact has been filed exclusively into an
+            -- offline bucket by now, and reading the filtered list would drop the guild line
+            -- for exactly the people whose guild is hardest to remember.
             local cached = FriendGroups_AssignmentCache[FRIENDS_BUTTON_TYPE_BNET .. "_" .. accountIdentifier]
-            if cached and cached.groups then
-                for _, g in ipairs(cached.groups) do
+            local cachedGroups = cached and (cached.allGroups or cached.groups)
+            if cachedGroups then
+                for _, g in ipairs(cachedGroups) do
                     if string.find(g, L["GROUP_GUILDMATES"], 1, true) then
                         local gname = g:match("<(.-)>")
                         if gname and gname ~= "" and not manualSet[gname] then
@@ -5706,11 +6990,11 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
 
         if #autoGuilds > 0 then
             FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GUILD_AUTO"],
-                table.concat(autoGuilds, ", ")), 1, 0.82, 0)
+                table.concat(autoGuilds, ", ")), aR, aG, aB)
         end
         if #manualGuilds > 0 then
             FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GUILD_MANUAL"],
-                table.concat(manualGuilds, ", ")), 1, 0.82, 0)
+                table.concat(manualGuilds, ", ")), aR, aG, aB)
         end
 
         -- 5. CUSTOM GROUPS -- the #Tags in the note. Parsed from the note rather than the
@@ -5719,7 +7003,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         local noteGroups = FriendGroups_GetPlayerGroups(showNote)
         if noteGroups and #noteGroups > 0 then
             FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_GROUP"],
-                table.concat(noteGroups, ", ")), 1, 0.82, 0)
+                table.concat(noteGroups, ", ")), aR, aG, aB)
         end
 
         -- Anything the user typed that ISN'T a token still belongs to them, so it is kept
@@ -5729,7 +7013,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         residual = residual:gsub("#.*$", "")
         residual = strtrim(residual)
         if residual ~= "" then
-            FriendGroupsAltTooltip:AddLine(residual, 1, 0.82, 0, true)
+            FriendGroupsAltTooltip:AddLine(residual, aR, aG, aB, true)
         end
 	
         local sortedAlts = {}
@@ -5782,7 +7066,15 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
             local classIconStr = Compat.ClassIconMarkup(engClass, 16)
             
             local nameColor = FriendGroups_GetClassColorCode(engClass ~= "" and engClass or alt.class)
-            local coloredName = nameColor .. alt.charName .. (alt.realm ~= "" and ("-" .. alt.realm) or "") .. "|r"
+            -- The alt roster is the densest identity block in the addon -- one contact's
+            -- whole character list, each with a realm. Masking drops the realm with the
+            -- name, so an entry reads "Kiw***" rather than "Kiw***-Nobundo".
+            local coloredName
+            if FriendGroups_IsStreamerMode() then
+                coloredName = nameColor .. FriendGroups_MaskName(alt.charName) .. "|r"
+            else
+                coloredName = nameColor .. alt.charName .. (alt.realm ~= "" and ("-" .. alt.realm) or "") .. "|r"
+            end
 
             local factionPath = FriendGroups_GetFactionIcon(alt.faction)
             local factionIconStr = factionPath ~= "" and ("|T" .. factionPath .. ":16|t") or ""
@@ -5915,6 +7207,18 @@ hooksecurefunc(GameTooltip, "Show", function(self)
     local anchor = FriendGroups_CurrentHoverAnchor
     if not anchor or anchor == FriendsFrame then return end
 
+    -- [[ STALE-HOVER GUARD ]]
+    -- Relying on every hover path to clear the anchor is what broke this: one that did not
+    -- (the 12.1 card's HideTooltip) left the dock applying to every tooltip in the game.
+    -- The anchor is now re-validated against reality on each Show, so a missed clear can
+    -- never again leak past the frame it belongs to.
+    --
+    -- Both tests matter. IsShown alone still docks after the pointer has moved to an action
+    -- bar with the list left open; IsMouseOver alone still docks when the list is hidden but
+    -- the pointer happens to sit where it used to be.
+    if type(anchor.IsShown) ~= "function" or not anchor:IsShown() then return end
+    if type(anchor.IsMouseOver) == "function" and not anchor:IsMouseOver() then return end
+
     -- Keep the roster's native tooltip anchored to the panel's slot whether the panel is
     -- shown (BNet friend -> dock beneath) or suppressed (plain guildmate -> park on the
     -- right). Re-applied after every Show because Blizzard / Raider.IO re-anchor the
@@ -5926,9 +7230,27 @@ end)
 function FriendGroups_ShowButtonAltTooltip(button)
     if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then FriendGroupsAltTooltip:Hide() return end
 
+    -- [[ STREAMER MODE ]] Blizzard's own hover panel is suppressed, and only Blizzard's. It
+    -- prints the account name, character, realm and note in full, and is built by a local
+    -- function that cannot be reached to mask.
+    --
+    -- The FriendGroups panel below carries on: every name in it goes through the masker, and
+    -- it is the whole reason to hover a row. Stated here as well as in the Social UI card
+    -- hook so the legacy list and Classic suppress the same thing -- this is the one function
+    -- every contact-row hover reaches.
+    if FriendGroups_IsStreamerMode() then
+        if GameTooltip then GameTooltip:Hide() end
+        if FriendsTooltip then FriendsTooltip:Hide() end
+    end
+
     if not button or not button.id then return end
 
-    FriendGroups_CurrentHoverAnchor = FriendsFrame
+    -- The panel the alt tooltip parks against, and the value FriendGroups_DockNativeTooltip-
+    -- BelowPanel reads to decide which native tooltip is in play. On 12.1 this resolves to
+    -- SocialUIFrame, which is what makes that function select the shared GameTooltip (the
+    -- one the new card draws into) instead of the legacy FriendsTooltip. Everywhere else it
+    -- returns FriendsFrame, so the existing behaviour is unchanged.
+    FriendGroups_CurrentHoverAnchor = Compat.GetContactListAnchor()
     FriendGroups_CurrentHoverBNetID = nil
     FriendGroups_CurrentHoverCharKey = nil
 
@@ -5938,7 +7260,7 @@ function FriendGroups_ShowButtonAltTooltip(button)
         local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
 
-        local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+        local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
         if not accountIdentifier then return end
 
         FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
@@ -5985,7 +7307,7 @@ function FriendGroups_ShowButtonAltTooltip(button)
             if fgNoteClean == "" then fgNoteClean = nil end
         end
         FriendGroups_CurrentHoverNote = fgNoteClean
-        FriendGroups_DrawAltTooltip(FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData, fgNoteClean)
+        FriendGroups_DrawAltTooltip(FriendGroups_CurrentHoverAnchor or FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData, fgNoteClean)
     end
 end
 
@@ -6005,7 +7327,7 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
         local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
 
-        local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+        local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
         if not accountIdentifier then return end
 
         FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
@@ -6045,7 +7367,7 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
             end
         end
 
-        FriendGroups_DrawAltTooltip(FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData)
+        FriendGroups_DrawAltTooltip(FriendGroups_CurrentHoverAnchor or FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData)
     end
 end)
 
@@ -6360,6 +7682,390 @@ SlashCmdList["FRIENDGROUPSDEBUG"] = function(msg)
                     n, P(g.wowProjectID), P(g.realmName), P(g.regionID), P(g.richPresence), verdict, tostring(source)))
             end
         end
+    elseif command == "titles" then
+        -- [[ TITLE-FRIEND FIELD CENSUS ]] Why a name that is plainly on screen does not
+        -- match a search. Prints, per 12.1 title friend, every field the row could have
+        -- been drawn from and every field the matcher reads, marking each as a plain
+        -- value, nil, or a SECRET (which renders through SetText but reads as absent to
+        -- any addon inspecting it -- see FG_Plain in Compat.lua).
+        --
+        -- Lives here rather than in a /run one-liner because the chat editbox truncates
+        -- at 255 characters, which silently cut the equivalent script mid-statement.
+        --
+        -- The legacy columns matter: BNGetFriendInfo sometimes returns a plain copy of a
+        -- field the modern table publishes as secret, and if it does, that is the fix.
+        local function P(v)
+            if v == nil then return "nil" end
+            if issecretvalue and issecretvalue(v) then return "SECRET" end
+            return type(v) .. "=" .. tostring(v)
+        end
+        local num = (BNGetNumFriends and BNGetNumFriends()) or 0
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "FriendGroups title-friend census -- %d BNet friends, IsTitleFriend=%s",
+            num,
+            (type(FriendsListUtil) == "table" and type(FriendsListUtil.IsTitleFriend) == "function")
+                and "available" or "MISSING"))
+        local shown = 0
+        for i = 1, num do
+            local a = C_BattleNet.GetFriendAccountInfo(i)
+            -- Compat.IsTitleFriend already falls back to the friendLevel enum when
+            -- FriendsListUtil is absent, so this reports on every client.
+            if a and Compat.IsTitleFriend(a) then
+                local g = a.gameAccountInfo
+                local lAcct, lChar
+                if type(BNGetFriendInfo) == "function" then
+                    local ok, _, n2, _, _, c2 = pcall(BNGetFriendInfo, i)
+                    if ok then lAcct, lChar = n2, c2 end
+                end
+                shown = shown + 1
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                    "#%d acct=%s tag=%s gi=%s char=%s realm=%s | legacyAcct=%s legacyChar=%s",
+                    i, P(a.accountName), P(a.battleTag), g and "table" or "nil",
+                    P(g and g.characterName), P(g and g.realmName), P(lAcct), P(lChar)))
+            end
+        end
+        DEFAULT_CHAT_FRAME:AddMessage(string.format("%d title friends reported.", shown))
+    elseif command == "titlenames" then
+        -- [[ CUSTOM TITLE-FRIEND NAME PROBE ]]
+        -- 12.1 added C_BattleNet.GetCustomTitleFriendName / SetCustomTitleFriendName /
+        -- AreTitleFriendCustomNamesEnabled. If the getter returns PLAIN TEXT it is the only
+        -- readable name a title friend has while OFFLINE, and it closes two open problems at
+        -- once: Streamer Mode masking them to a bare "***", and the roster sorting them by
+        -- the opaque |K escape because there is no name to sort on.
+        --
+        -- Printed RAW with the pipe doubled. A |K escape renders as the friend's real name
+        -- through AddMessage, so an unescaped probe makes an unreadable value look like text
+        -- and answers the exact question being asked with a lie. Byte length is printed for
+        -- the same reason: a six-byte "name" is an escape whatever it looks like.
+        local function RAW(v)
+            if v == nil then return "nil" end
+            if issecretvalue and issecretvalue(v) then return "SECRET" end
+            return (tostring(v):gsub("|", "||"))
+        end
+
+        local haveGetter = type(C_BattleNet) == "table"
+            and type(C_BattleNet.GetCustomTitleFriendName) == "function"
+        local enabled = "n/a"
+        if type(C_BattleNet) == "table" and type(C_BattleNet.AreTitleFriendCustomNamesEnabled) == "function" then
+            local ok, v = pcall(C_BattleNet.AreTitleFriendCustomNamesEnabled)
+            enabled = ok and tostring(v) or "error"
+        end
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "FriendGroups custom title names -- getter=%s, enabled=%s",
+            haveGetter and "present" or "MISSING", enabled))
+
+        local num = (BNGetNumFriends and BNGetNumFriends()) or 0
+        local reported, usable = 0, 0
+        for i = 1, num do
+            local a = C_BattleNet.GetFriendAccountInfo(i)
+            if a and Compat.IsTitleFriend(a) then
+                reported = reported + 1
+                -- Tried with BOTH keys: the signature is undocumented, and the friend index
+                -- and the bnetAccountID are both plausible arguments for it.
+                local okID, byID = false, nil
+                local okIndex, byIndex = false, nil
+                if haveGetter then
+                    okID, byID = pcall(C_BattleNet.GetCustomTitleFriendName, a.bnetAccountID)
+                    okIndex, byIndex = pcall(C_BattleNet.GetCustomTitleFriendName, i)
+                end
+
+                -- "Usable" means what the masker needs: real text, sliceable, not an escape.
+                local candidate = (okID and byID) or (okIndex and byIndex) or nil
+                if type(candidate) == "string" and candidate ~= ""
+                    and not candidate:find("|K", 1, true)
+                    and not (issecretvalue and issecretvalue(candidate)) then
+                    usable = usable + 1
+                end
+
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                    "  #%d id=%s byID=%s(%d) byIndex=%s(%d) acctBytes=%d",
+                    i, tostring(a.bnetAccountID),
+                    RAW(okID and byID or nil), #tostring(okID and byID or ""),
+                    RAW(okIndex and byIndex or nil), #tostring(okIndex and byIndex or ""),
+                    #tostring(a.accountName or "")))
+            end
+        end
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "%d title friends, %d with a usable plain-text custom name.", reported, usable))
+    elseif command == "font" then
+        -- [[ ROW FONT PROBE ]] Why CJK and Cyrillic names render as tofu boxes in the list
+        -- while Blizzard's own mouseover shows them correctly.
+        --
+        -- The suspicion is FG_ShrinkFont: it captures GetFont() once per region and re-applies
+        -- the raw PATH. A path is a single file with no fallback list, so any glyph that file
+        -- lacks becomes a box -- whereas a font OBJECT keeps Blizzard's fallback chain, which
+        -- is exactly what FriendGroups_DrawAltTooltip already restores by hand with
+        -- SetFontObject for "Cyrillic/Asian characters".
+        --
+        -- What settles it is the pair of columns below: `obj` versus `path`. A row showing
+        -- boxes with obj=nil and a Latin-only path confirms the mechanism; boxes with an
+        -- object still attached means the font is not the culprit and the search moves on.
+        -- `high` marks the rows that actually contain non-ASCII, which are the only ones the
+        -- question is about.
+        local function Describe(fs)
+            if not fs then return "none" end
+            local obj = (type(fs.GetFontObject) == "function") and fs:GetFontObject() or nil
+            local objName = obj and type(obj.GetName) == "function" and obj:GetName() or nil
+            local path, size, flags = fs:GetFont()
+            local file = type(path) == "string" and path:match("[^\\/]+$") or path
+            return string.format("obj=%s file=%s size=%s flags=%s",
+                tostring(objName or "nil"), tostring(file or "nil"),
+                tostring(size and math.floor(size + 0.5) or "nil"), tostring(flags or ""))
+        end
+
+        -- Raw, with the pipe doubled: a |K escape renders as a real name through AddMessage,
+        -- so an unescaped probe would make an unreadable value look like text.
+        local function Sample(fs)
+            if not fs or type(fs.GetText) ~= "function" then return "nil", false end
+            local text = fs:GetText()
+            if type(text) ~= "string" then return "nil", false end
+            local high = text:find("[\128-\255]") ~= nil
+            return (text:sub(1, 24):gsub("|", "||")), high
+        end
+
+        DEFAULT_CHAT_FRAME:AddMessage("FriendGroups row font probe:")
+        local reference = _G["GameTooltipText"]
+        if reference then
+            DEFAULT_CHAT_FRAME:AddMessage("  reference GameTooltipText -> " .. Describe(reference))
+        end
+
+        local rows, highRows = 0, 0
+        Compat.ForEachContactListFrame(function(frame)
+            if type(frame) ~= "table" then return end
+            -- Social UI cards expose FriendName; the legacy rows expose name.
+            local nameString = frame.FriendName or frame.name
+            if not nameString then return end
+            if rows >= 12 then return end
+            rows = rows + 1
+
+            local sample, high = Sample(nameString)
+            if high then highRows = highRows + 1 end
+
+            DEFAULT_CHAT_FRAME:AddMessage(string.format("  [%s] %s", high and "high" or "ascii", sample))
+            DEFAULT_CHAT_FRAME:AddMessage("      live    " .. Describe(nameString))
+
+            -- The captured baseline FG_ShrinkFont re-applies on every recycle. If this holds a
+            -- path rather than an object, every later pass re-states that path and the
+            -- fallback chain never comes back, however the region started out.
+            local base = frame.fgBaseFont and frame.fgBaseFont["FriendName"]
+            if base then
+                local file = type(base.font) == "string" and base.font:match("[^\\/]+$") or base.font
+                DEFAULT_CHAT_FRAME:AddMessage(string.format("      capture file=%s size=%s flags=%s",
+                    tostring(file or "nil"), tostring(base.size or "nil"), tostring(base.flags or "")))
+            else
+                DEFAULT_CHAT_FRAME:AddMessage("      capture none (FG_ShrinkFont has not run on this row)")
+            end
+        end)
+
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "%d rows reported, %d containing non-ASCII.", rows, highRows))
+    elseif command == "bar" then
+        -- [[ BATTLE.NET BAR TREE ]] Names the frames on the bar so the copy button beside the
+        -- BattleTag can be addressed by its real parentKey instead of guessed at by position.
+        -- Anonymous frames are the norm here, so the parentKey is recovered by scanning the
+        -- parent's own fields for the child -- that is what actually identifies it.
+        local bar = SocialUIFrame and SocialUIFrame.BattleNetBar
+        if not bar then
+            DEFAULT_CHAT_FRAME:AddMessage("FriendGroups: no SocialUIFrame.BattleNetBar on this client.")
+            return
+        end
+
+        local function KeyOf(parent, child)
+            for k, v in pairs(parent) do
+                if v == child and type(k) == "string" then return k end
+            end
+            return "?"
+        end
+
+        local function Walk(frame, depth)
+            if depth > 3 then return end
+            for _, child in ipairs({ frame:GetChildren() }) do
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                    "%s%s .%s %s shown=%s",
+                    string.rep("  ", depth), child:GetObjectType(), KeyOf(frame, child),
+                    child:GetName() or "(anon)", tostring(child:IsShown())))
+                Walk(child, depth + 1)
+            end
+        end
+
+        DEFAULT_CHAT_FRAME:AddMessage("FriendGroups Battle.net bar tree:")
+        Walk(bar, 0)
+    elseif command == "offline" then
+        -- [[ OFFLINE-TRACKER CENSUS ]] Which bucket each offline contact lands in, and why.
+        --
+        -- Originally written to answer "why did no [Offline N Month] group appear", which it
+        -- did: the tracker was switched off, nobody on the roster had been gone more than
+        -- 1.5 days, and a third of the offline contacts reported lastOnlineTime=0. That last
+        -- group is the title-friend tier -- no Battle.net account behind the row, so no
+        -- account-level timestamp -- and it is now reported per row, because "0" and "not
+        -- yet a month" produce the same catch-all bucket for entirely different reasons.
+        --
+        -- Every row now resolves to a real group name rather than a shorthand, so this
+        -- reports what the list will actually show instead of a parallel description of it.
+        local num = (BNGetNumFriends and BNGetNumFriends()) or 0
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "FriendGroups offline tracker -- setting=%s, %d BNet friends, now=%d",
+            tostring(FriendGroups_SavedVars.offline_tracker), num, time()))
+
+        local offlineSeen, withStamp, dated, titleTier = 0, 0, 0, 0
+        for i = 1, num do
+            local a = C_BattleNet.GetFriendAccountInfo(i)
+            local g = a and a.gameAccountInfo
+            if a and not (g and g.isOnline) then
+                offlineSeen = offlineSeen + 1
+                local lot = a.lastOnlineTime
+                local shown
+                if lot == nil then
+                    shown = "nil"
+                elseif issecretvalue and issecretvalue(lot) then
+                    shown = "SECRET"
+                else
+                    shown = type(lot) .. "=" .. tostring(lot)
+                end
+
+                local isTitle = Compat.IsTitleFriend(a)
+                if isTitle then titleTier = titleTier + 1 end
+
+                -- Mirrors the resolution in FriendGroups_SetGroups exactly, including the
+                -- catch-all, so the bucket printed here is the group the row is filed into.
+                local days, bucket = nil, L["GROUP_OFFLINE_0"]
+                if type(lot) == "number" and lot > 0 then
+                    withStamp = withStamp + 1
+                    days = (time() - lot) / 86400
+                    if days >= 90 then bucket = L["GROUP_OFFLINE_3"]
+                    elseif days >= 60 then bucket = L["GROUP_OFFLINE_2"]
+                    elseif days >= 30 then bucket = L["GROUP_OFFLINE_1"] end
+                    if days >= 30 then dated = dated + 1 end
+                end
+
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                    "  #%d %s lastOnlineTime=%s days=%s -> %s",
+                    i, isTitle and "title" or "acct", shown,
+                    days and string.format("%.1f", days) or "n/a", bucket))
+            end
+        end
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(
+            "%d offline (%d title tier), %d with a usable timestamp, %d in a dated bucket, %d in %s.",
+            offlineSeen, titleTier, withStamp, dated, offlineSeen - dated, L["GROUP_OFFLINE_0"]))
+    elseif command == "streamer" then
+        -- The settings menu is itself a list of the player's own preferences drawn over the
+        -- contact list, so reaching for it is the one moment you would rather not be on
+        -- camera. This is the same toggle, reachable without opening anything.
+        FriendGroups_SavedVars.streamer_mode = not FriendGroups_SavedVars.streamer_mode
+        FriendGroups_ApplyStreamerMode()
+        print(FriendGroups_SavedVars.streamer_mode and L["MSG_STREAMER_ON"] or L["MSG_STREAMER_OFF"])
+    elseif command == "match" then
+        -- [[ MATCHER PROBE ]] /fg match <text>
+        -- Calls FriendGroups_Search directly against every Battle.net friend with <text> as
+        -- the live search term, and prints the verdict next to the account name the row is
+        -- drawn from. This exists to separate the two halves of "a visible name will not
+        -- match", which no amount of reading the source can tell apart:
+        --
+        --   verdict YES but the row is missing from the list  -> the PREDICATE is fine and
+        --      something downstream (native search provider, renderer, bucketing) drops it.
+        --   verdict NO                                        -> the predicate is at fault
+        --      and the printed fields say which comparison failed.
+        --
+        -- Restores the previous search text before returning, so running it cannot leave the
+        -- list filtered behind an empty search box.
+        local probe = msg:match("^%s*%w+%s+(.+)$")
+        probe = probe and probe:match("^%s*(.-)%s*$")
+        if not probe or probe == "" then
+            DEFAULT_CHAT_FRAME:AddMessage("Usage: /fg match <text>")
+        else
+            local State = addonTable.State
+            local restore = State and State.GetSearchText and State.GetSearchText() or nil
+            if State and State.SetSearchText then State.SetSearchText(probe) end
+
+            -- Two chat lines per reported row, so this is the point past which the header
+            -- lines -- the ones carrying the verdict -- start scrolling away.
+            local FG_MATCH_PROBE_CAP = 15
+            local num = (BNGetNumFriends and BNGetNumFriends()) or 0
+            DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                "FriendGroups matcher probe -- term=%q searchValue=%q over %d BNet friends",
+                probe, tostring(addonTable.State.GetSearchText and addonTable.State.GetSearchText()), num))
+
+            -- The native name set is normally built by the roster pass, which this probe does
+            -- not run -- so without this it stays nil and the one path under test is skipped.
+            FriendGroups_RebuildNameMatchSet()
+            local nativeCount, nativeList = 0, {}
+            if FriendGroups_NameMatchSet then
+                for idx in pairs(FriendGroups_NameMatchSet) do
+                    nativeCount = nativeCount + 1
+                    nativeList[#nativeList + 1] = tostring(idx)
+                end
+            end
+            DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                "  SearchFriends: api=%s shape=%s set=%s matches=%d forbidden=%s [%s]",
+                tostring(type(C_BattleNet) == "table" and type(C_BattleNet.SearchFriends)),
+                tostring(FriendGroups_NameMatchSource),
+                FriendGroups_NameMatchSet and "built" or "nil",
+                nativeCount, tostring(Compat.IsSearchFriendsForbidden()),
+                table.concat(nativeList, ",")))
+
+            -- [[ WHICH ROWS TO REPORT ]]
+            -- Title friends are the rows in question, and 12 unfiltered lines of detail would
+            -- scroll the useful ones off the chat frame -- so they are preferred when the tier
+            -- exists. It does NOT always exist: on a 12.1 client where the Social UI was
+            -- walked back, Compat.IsTitleFriend answers false for everyone and this probe
+            -- printed a header, no rows, and "complete" -- reading as "nothing is wrong" at
+            -- the exact moment it was being asked what was wrong.
+            --
+            -- So the tier is COUNTED first and reported, and when there is none the whole list
+            -- is walked instead under the same output cap. The count is the answer to "does
+            -- this client have WoW Friends at all", which is worth a line of its own.
+            local titleTierSeen = 0
+            for i = 1, num do
+                local a = C_BattleNet.GetFriendAccountInfo(i)
+                if a and Compat.IsTitleFriend(a) then titleTierSeen = titleTierSeen + 1 end
+            end
+            local titleOnly = titleTierSeen > 0
+            local cachedNames = 0
+            if type(FriendGroups_SavedVars.wow_friend_names) == "table" then
+                for _ in pairs(FriendGroups_SavedVars.wow_friend_names) do
+                    cachedNames = cachedNames + 1
+                end
+            end
+            DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                "  socialUI=%s titleTier=%d rememberedNames=%d -- reporting %s (cap %d)",
+                tostring(Compat.IsSocialUIActive()), titleTierSeen, cachedNames,
+                titleOnly and "title friends" or "ALL friends", FG_MATCH_PROBE_CAP))
+
+            local reported = 0
+            FriendGroups_SearchDebug = true
+            for i = 1, num do
+                local a = C_BattleNet.GetFriendAccountInfo(i)
+                if a and reported < FG_MATCH_PROBE_CAP and ((not titleOnly) or Compat.IsTitleFriend(a)) then
+                    reported = reported + 1
+                    local ok, hit = pcall(FriendGroups_Search, i, FRIENDS_BUTTON_TYPE_BNET, a)
+                    -- bnetAccountID is reported because the |K escape is very likely a
+                    -- SESSION-SCOPED index into the client's name cache, which would make it
+                    -- unsafe as a persistent key -- the same shape of bug as keying on a chat
+                    -- lineID. If a last-known-name cache is needed, it keys on this instead.
+                    DEFAULT_CHAT_FRAME:AddMessage(string.format("#%d -> %s (bnetAccountID=%s online=%s)",
+                        i, (not ok) and ("ERROR " .. tostring(hit)) or (hit and "YES" or "no"),
+                        tostring(a.bnetAccountID),
+                        tostring(a.gameAccountInfo and a.gameAccountInfo.isOnline)))
+                end
+            end
+            FriendGroups_SearchDebug = false
+            DEFAULT_CHAT_FRAME:AddMessage("Matcher probe complete.")
+
+            if State and State.SetSearchText then State.SetSearchText(restore or "") end
+        end
+    elseif command == "portrait" then
+        -- Every signal the legacy panel's portrait decision reads, printed rather than inferred.
+        if Compat.ReportLegacyPortrait then
+            Compat.ReportLegacyPortrait()
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("FriendGroups: portrait probe is retail-only.")
+        end
+    elseif command == "mark" then
+        -- Moves the Contacts-page mark in place and prints the offsets, so the ElvUI
+        -- position can be dialled in without a reload per nudge. See ContactsMark.lua.
+        if FriendGroupsContactsMark and FriendGroupsContactsMark.Command then
+            FriendGroupsContactsMark.Command(msg)
+        end
     elseif command == "automation" then
         -- Which addon owns each automation right now, and why nothing fired.
         if FriendGroups_ReportAutomation then FriendGroups_ReportAutomation() end
@@ -6399,9 +8105,20 @@ function FriendGroups_ReassertGroupedProvider()
     FriendsListFrame.ScrollBox:SetDataProvider(FriendGroups_ActiveProvider, true)
 end
 
+-- Published for the platform renderers. FriendGroups_FriendsListUpdate is a FILE-LOCAL
+-- (forward-declared at the top of this file), so Platform_*.lua cannot see it -- a plain
+-- global lookup there silently yields nil, which is exactly how the Social UI renderer's
+-- deferred first build was lost. Exposed through State like GetPlayerGuildName rather than
+-- promoted to a global, so the file's own encapsulation is unchanged.
+addonTable.State.FriendsListUpdate = function(forceUpdate)
+    return FriendGroups_FriendsListUpdate(forceUpdate)
+end
+
 local FriendGroups_UpdateThrottleTimer = nil
 function FriendGroups_RequestListUpdate()
-    if not (FriendsListFrame and FriendsListFrame:IsShown()) then return end
+    -- Same reason as the guard in FriendGroups_FriendsListUpdate: on 12.1 the list the
+    -- player is looking at is not FriendsListFrame, which is present but never shown.
+    if not Compat.IsContactListShown() then return end
     if FriendGroups_UpdateThrottleTimer then return end
     FriendGroups_UpdateThrottleTimer = C_Timer.NewTimer(0.1, function()
         FriendGroups_UpdateThrottleTimer = nil
