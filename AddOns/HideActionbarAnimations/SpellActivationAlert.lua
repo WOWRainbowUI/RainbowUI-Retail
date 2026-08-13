@@ -1,4 +1,6 @@
 
+	local addonName, addonNameSpace = ...
+
 -- Ensure we have the correct button size by waiting on login
 local ApplyActionBarSkinOnLogin = CreateFrame("Frame")
 ApplyActionBarSkinOnLogin:RegisterEvent("PLAYER_LOGIN")
@@ -7,7 +9,20 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 	local IsAddOnEnabled = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 	if IsAddOnEnabled("HideButtonGlow") then return end
 
+	local MediaPath = "Interface\\AddOns\\" .. addonName .. "\\"
+
 	local issecretvalue = issecretvalue or function() return false end
+
+	local AntsCoordinates = {}
+	local framesPerRow = 5
+	for frame = 1, 22 do
+		local index0 = frame - 1
+		local left = (math.fmod(index0, framesPerRow) * 48) / 256
+		local right = left + (48 / 256)
+		local top = (math.floor(index0 / framesPerRow) * 48) / 256
+		local bottom = top + (48 / 256)
+		AntsCoordinates[frame] = {left, right, top, bottom}
+	end
 
 	local function CreateGoldenBorder(button)
 
@@ -19,42 +34,60 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 		overlay.Spark = overlay:CreateTexture(nil, "BACKGROUND")
 		overlay.Spark:SetPoint("CENTER")
 		overlay.Spark:SetAlpha(0)
-		overlay.Spark:SetTexture("Interface\\SpellActivationOverlay\\IconAlert")
+		overlay.Spark:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
 		overlay.Spark:SetTexCoord(0.00781250, 0.61718750, 0.00390625, 0.26953125)
 
 		overlay.InnerGlow = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.InnerGlow:SetPoint("CENTER")
 		overlay.InnerGlow:SetAlpha(0)
-		overlay.InnerGlow:SetTexture("Interface\\SpellActivationOverlay\\IconAlert")
+		overlay.InnerGlow:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
 		overlay.InnerGlow:SetTexCoord(0.00781250, 0.50781250, 0.27734375, 0.52734375)
 
 		overlay.InnerGlowOver = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.InnerGlowOver:SetPoint("TOPLEFT", overlay.InnerGlow, "TOPLEFT")
 		overlay.InnerGlowOver:SetPoint("BOTTOMRIGHT", overlay.InnerGlow, "BOTTOMRIGHT")
 		overlay.InnerGlowOver:SetAlpha(0)
-		overlay.InnerGlowOver:SetTexture("Interface\\SpellActivationOverlay\\IconAlert")
+		overlay.InnerGlowOver:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
 		overlay.InnerGlowOver:SetTexCoord(0.00781250, 0.50781250, 0.53515625, 0.78515625)
 
 		overlay.OuterGlow = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.OuterGlow:SetPoint("CENTER")
 		overlay.OuterGlow:SetAlpha(0)
-		overlay.OuterGlow:SetTexture("Interface\\SpellActivationOverlay\\IconAlert")
+		overlay.OuterGlow:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
 		overlay.OuterGlow:SetTexCoord(0.00781250, 0.50781250, 0.27734375, 0.52734375)
 
 		overlay.OuterGlowOver = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.OuterGlowOver:SetPoint("TOPLEFT", overlay.OuterGlow, "TOPLEFT")
 		overlay.OuterGlowOver:SetPoint("BOTTOMRIGHT", overlay.OuterGlow, "BOTTOMRIGHT")
 		overlay.OuterGlowOver:SetAlpha(0)
-		overlay.OuterGlowOver:SetTexture("Interface\\SpellActivationOverlay\\IconAlert")
+		overlay.OuterGlowOver:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
 		overlay.OuterGlowOver:SetTexCoord(0.00781250, 0.50781250, 0.53515625, 0.78515625)
 
 		overlay.Ants = overlay:CreateTexture(nil, "OVERLAY")
 		overlay.Ants:SetPoint("CENTER")
 		overlay.Ants:SetAlpha(0)
-		overlay.Ants:SetTexture("Interface\\SpellActivationOverlay\\IconAlertAnts")
+		overlay.Ants:SetTexture(MediaPath .. "IconAlertAnts.png") -- "Interface\\SpellActivationOverlay\\IconAlertAnts"
 
+		overlay.frame = 1
+		overlay.throttle = 0.02 -- match the previous 0.01 look, higher = slower, lower = faster
 		overlay:SetScript("OnUpdate", function(button, elapsed)
-			AnimateTexCoords(button.Ants, 256, 256, 48, 48, 22, elapsed, 0.01)
+
+			--AnimateTexCoords(button.Ants, 256, 256, 48, 48, 22, elapsed, 0.01) -- (texture, textureWidth, textureHeight, frameWidth, frameHeight, numFrames, elapsed, throttle)
+
+			button.throttle = button.throttle - elapsed
+
+			if (button.throttle <= 0) then
+				button.throttle = button.throttle + 0.02 -- or button.throttle = 0.02 for animations depending on FPS
+				
+				button.frame = button.frame + 1
+				if button.frame > 22 then
+					button.frame = 1
+				end
+
+				local coords = AntsCoordinates[button.frame]
+				button.Ants:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+			end
+
 			--[[ Opting to just disable this as I don't like it being different alpha in combat vs out of combat, maybe revisit in future
 			local cooldown = button:GetParent().cooldown
 			-- we need some threshold to avoid dimming the glow during the gdc

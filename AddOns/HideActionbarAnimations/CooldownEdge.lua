@@ -1,12 +1,16 @@
 
+	local addonName, addonNameSpace = ...
+
 if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+
+	local MediaPath = "Interface\\AddOns\\" .. addonName .. "\\"
 
 	local function ApplyEdgeTexture(frame)
 		if frame and issecretvalue(frame) then return end
 		if frame and not frame:IsForbidden() then
 			if frame:GetObjectType() == "Cooldown" then
 				if frame.SetEdgeTexture then
-					frame:SetEdgeTexture("Interface\\Cooldown\\edge")
+					frame:SetEdgeTexture(MediaPath .. "edge.png") -- "Interface\\Cooldown\\edge"
 				end
 			end
 		end
