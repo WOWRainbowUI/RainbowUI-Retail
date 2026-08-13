@@ -55,8 +55,13 @@ function Reward:Obtained(ignore_notable)
 	return result
 end
 function Reward:Notable()
-	-- Is it knowable and not obtained?
-	return self:MightDrop() and (self:Obtained() == false)
+	-- Is it knowable and not obtained? Whether loot that can't drop for you counts
+	-- is the same question the loot lists ask, so it takes the same answer rather
+	-- than quietly being stricter than they are.
+	if ns.db.charloot and not self:MightDrop() then
+		return false
+	end
+	return self:Obtained() == false
 end
 function Reward:Available()
 	if self.requires and not ns.conditions.check(self.requires) then
@@ -71,7 +76,7 @@ function Reward:AddToTooltip(tooltip)
 	local r, g, b = self:TooltipNameColor():GetRGB()
 	local lr, lg, lb = self:TooltipLabelColor():GetRGB()
 	tooltip:AddDoubleLine(
-		self:TooltipLabel(),
+		self:TooltipLabel() or " ",
 		self:TooltipName(),
 		lr, lg, lb,
 		r, g, b
@@ -86,8 +91,9 @@ function Reward:TooltipName()
 	if not name then
 		name = SEARCH_LOADING_TEXT
 	end
-	if self.requires then
-		name = TEXT_MODE_A_STRING_VALUE_TYPE:format(name, ns.conditions.summarize(self.requires, true))
+	local requires = self.requires and ns.conditions.summarize(self.requires, true)
+	if requires then
+		name = TEXT_MODE_A_STRING_VALUE_TYPE:format(name, requires)
 	end
 	if self.note then
 		name = TEXT_MODE_A_STRING_VALUE_TYPE:format(name, self.note)
@@ -182,9 +188,10 @@ function ns.rewards.Currency:AddToItemButton(button, ...)
 end
 
 ns.rewards.Achievement = Reward:extends{classname="Achievement"}
-function ns.rewards.Achievement:init(id, criteria, ...)
+function ns.rewards.Achievement:init(id, criteria, currentCharacter, ...)
 	self:super("init", id, ...)
 	self.criteria = criteria
+	self.currentCharacter = currentCharacter
 
 	self.name = string.format("{achievementname:%d%s%s}", id, criteria and "." or "", criteria or "")
 end
@@ -196,7 +203,12 @@ function ns.rewards.Achievement:Icon()
 end
 function ns.rewards.Achievement:Obtained(...)
 	if self:super("Obtained", ...) == false then return false end
-	return (select(4, GetAchievementInfo(self.id))) -- 13 is for this character
+	if self.criteria then
+		local _, _, completed, _, _, completedBy = ns.GetCriteria(self.id, self.criteria)
+		if self.currentCharacter then return completedBy == ns.playerName end
+		return completed
+	end
+	return (select(self.currentCharacter and 13 or 4, GetAchievementInfo(self.id)))
 end
 function ns.rewards.Achievement:TooltipLabel()
 	return BATTLE_PET_SOURCE_6 -- "Achievement"

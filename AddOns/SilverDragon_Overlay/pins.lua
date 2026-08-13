@@ -136,7 +136,7 @@ function SilverDragonOverlayPinMixinBase:ApplyFocusState()
         self.emphasis:Show()
         self.emphasis:SetVertexColor(0, 1, 1, 1)
     else
-        if not MouseIsOver(self) then
+        if not self:IsMouseOver() then
             self.emphasis:Hide()
         end
         self.emphasis:SetVertexColor(1, 1, 1, 1)
@@ -204,7 +204,12 @@ do
     end
 
     local function showAchievement(achievement)
-        OpenAchievementFrameToAchievement(achievement)
+        -- 12.1 renamed this; keep the old name while some regions are on 12.0
+        if ShowAchievementFrameForAchievement then
+            ShowAchievementFrameForAchievement(achievement)
+        else
+            OpenAchievementFrameToAchievement(achievement)
+        end
     end
 
     local function sendToChat(mobid, uiMapID, coord)
