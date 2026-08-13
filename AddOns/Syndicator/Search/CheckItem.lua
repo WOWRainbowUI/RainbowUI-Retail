@@ -340,6 +340,9 @@ end
 
 local function IsDecorCollected(itemID)
   local catalogInfo = C_HousingCatalog.GetCatalogEntryInfoByItem(itemID)
+  if catalogInfo == nil then
+    return nil
+  end
   local possessed = catalogInfo.totalNumPlaced + catalogInfo.remainingRedeemable + catalogInfo.totalNumStored
   return possessed ~= 0
 end
