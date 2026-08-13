@@ -33,6 +33,10 @@ FriendGroups_RealmData = {
     -- [[ OCEANIA (FlagAU.tga) ]] --
     ["AmanThul"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Barthilas"] = {icon = "FlagAU.tga", region = "Oceania"},
+    -- PTR-only test realm: not present in the live Blizzard realm API, so RealmUpdater
+    -- cannot generate it. Added by hand to exercise realm flags on 12.1; remove (or let a
+    -- regeneration drop it) once the PTR realm list is no longer needed.
+    ["Benedictus"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Caelestrasz"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["DathRemar"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Dreadmaul"] = {icon = "FlagAU.tga", region = "Oceania"},

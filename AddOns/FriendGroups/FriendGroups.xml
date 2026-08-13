@@ -4,17 +4,22 @@
 		<Size x="298" y="16"/>
 		<Layers>
 			<Layer level="ARTWORK">
+				<!-- Anchored by vertical CENTRE, never from the top. A 12-tall string hung 4
+				     below the top of a 16-tall header ends flush with its bottom edge, which
+				     is 2px below centre and puts the descenders on the next row's doorstep.
+				     LEFT/RIGHT centres the contents whatever height the header ends up, and
+				     matches what Platform_Render already does on Classic. -->
 				<FontString inherits="FriendsFont_Normal" justifyH="CENTER" parentKey="name">
 					<Size x="226" y="12"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="-4"/>
+						<Anchor point="LEFT" x="0" y="0"/>
 					</Anchors>
 					<Color color="NORMAL_FONT_COLOR"/>
 				</FontString>
 				<FontString inherits="FriendsFont_Normal" justifyH="RIGHT" parentKey="info">
 					<Size x="226" y="12"/>
 					<Anchors>
-						<Anchor point="TOPRIGHT" x="-20" y="-4"/>
+						<Anchor point="RIGHT" x="-20" y="0"/>
 					</Anchors>
 					<Color color="NORMAL_FONT_COLOR"/>
 				</FontString>
@@ -24,12 +29,16 @@
 			<Button parentKey="collapseButton" registerForClicks="LeftButtonUp" virtual="true">
 				<Size x="16" y="16"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" x="0" y="1"/>
+					<Anchor point="LEFT" x="0" y="0"/>
 				</Anchors>
+				<!-- Same centring as the labels. The old TOPLEFT pair put a 16-tall glyph 2px
+				     below a 16-tall header, so it overhung the banner's bottom edge. The x=4
+				     inset is unchanged: the icon has always been drawn inset from its own hit
+				     box, and the whole header is clickable anyway. -->
 				<NormalTexture file="Interface\\Buttons\\UI-PlusButton-UP" parentKey="status">
 					<Size x="16" y="16"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" x="4" y="-3"/>
+						<Anchor point="LEFT" x="4" y="0"/>
 					</Anchors>
 				</NormalTexture>
 				<Scripts>
@@ -37,10 +46,14 @@
 						FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
 					</OnClick>
 				</Scripts>
+				<!-- Mirrors the glyph's anchor and size exactly, so the glow sits ON the icon
+				     instead of near it. The old TOPLEFT/BOTTOMRIGHT pair spanned a 16x11 box
+				     hung 5 below the button's top: hand-tuned against the pre-centring glyph
+				     position, and left behind when that moved. -->
 				<HighlightTexture file="Interface\QuestFrame\UI-QuestLogTitleHighlight" alphaMode="ADD" parentKey="highlight">
+					<Size x="16" y="16"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" x="5" y="-5"/>
-						<Anchor point="BOTTOMRIGHT" x="5" y="0"/>
+						<Anchor point="LEFT" x="4" y="0"/>
 					</Anchors>
 				</HighlightTexture>
 			</Button>

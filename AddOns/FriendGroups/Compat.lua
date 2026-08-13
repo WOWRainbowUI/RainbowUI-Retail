@@ -67,6 +67,139 @@ Compat.HAS_MENU_API = (Menu ~= nil and type(Menu.ModifyMenu) == "function")
 -- FriendGroups_GetExtraWidth / FriendGroups_IsWideList in FriendGroups.lua.
 Compat.CAN_RESIZE_WIDTH = Compat.IS_MAINLINE
 
+-- Retail 12.1 replaced the contact list with the Social UI. Blizzard_FriendList was
+-- split into Blizzard_SocialUI (the SocialUIFrame shell and its tab rail),
+-- Blizzard_SocialUIShared (SocialUIControl / C_SocialUI) and Blizzard_FriendsFrame,
+-- which carries BOTH the legacy FriendsFrame and the new FriendsListSocialViewTemplate.
+--
+-- Every legacy global this addon hooks still exists on 12.1 -- FriendsFrame,
+-- FriendsListFrame, FriendsTooltip, FriendsList_Update, FriendsFrame_UpdateFriendButton,
+-- FriendsListButtonMixin are all still defined by Blizzard_FriendsFrame -- so a presence
+-- probe cannot tell the two eras apart, and HAS_SCROLLBOX above is TRUE on 12.1 even
+-- though that ScrollBox is no longer reachable by the player.
+--
+-- The only authority is Blizzard's own switch. ToggleFriendsFrame tests
+-- SocialUIControl.IsEnabled() before redirecting away from the legacy frame, and
+-- FriendsFrame_UpdateTabs hides the Friends/Raid/Quick Join tabs on the same condition.
+-- SocialUIControl.IsEnabled() wraps C_SocialUI.IsSystemEnabled(), which is server-driven
+-- and can change mid-session (SOCIAL_UI_SYSTEM_STATUS_UPDATED fires when it does), so it
+-- is evaluated LIVE on every call here and never cached at load time.
+--
+-- The friends list itself is an ANONYMOUS frame: SocialUIFrame creates one content frame
+-- per tab via CreateFrame("Frame", nil, socialUIFrame, template) and reaches it by
+-- parentKey. There is no global to probe, so the reference is taken off SocialUIFrame.
+function Compat.IsSocialUIActive()
+	if not Compat.IS_MAINLINE then return false end
+	if type(SocialUIControl) ~= "table" or type(SocialUIControl.IsEnabled) ~= "function" then
+		return false
+	end
+	if not SocialUIControl.IsEnabled() then return false end
+	return SocialUIFrame ~= nil and SocialUIFrame.FriendsList ~= nil
+end
+
+-- The Social UI friends list content frame (FriendsListSocialViewTemplate), or nil when
+-- this client is not running the Social UI. Never cached: SocialUIFrame builds its content
+-- frames once at OnLoad, but the ENABLED state above can change under us.
+function Compat.GetSocialUIFriendsView()
+	if not Compat.IsSocialUIActive() then return nil end
+	return SocialUIFrame.FriendsList
+end
+
+-- "Is the contact list the player is actually looking at on screen right now?"
+-- Every visibility guard in the addon asks this instead of testing FriendsListFrame
+-- directly, because on 12.1 FriendsListFrame still exists and is permanently hidden.
+-- IsVisible() rather than IsShown() on the Social UI path: the friends view is only one
+-- of six sibling content frames and SocialUIFrame shows exactly one at a time, so the
+-- parent chain is part of the answer.
+function Compat.IsContactListShown()
+	local view = Compat.GetSocialUIFriendsView()
+	if view then
+		return view:IsVisible()
+	end
+	return FriendsListFrame ~= nil and FriendsListFrame:IsShown()
+end
+
+-- "Is the pointer over the contact list right now?"
+--
+-- This is the SCOPING test for FriendGroups' unit-menu injection. The MENU_UNIT_*_FRIEND
+-- tags fire from several places -- chat lines, unit frames, the glue screen -- and the
+-- addon only wants its entries on the contact list, so the menu builder confirms the click
+-- originated there. On 12.1 the legacy FriendsListFrame is present but permanently hidden,
+-- so a direct IsMouseOver() on it is false forever and the injection silently adds nothing.
+--
+-- The Classic/retail-12.0.7 branch is deliberately the exact expression the menu builder
+-- used before, so nothing changes on those clients.
+function Compat.IsContactListMouseOver()
+	local view = Compat.GetSocialUIFriendsView()
+	if view then
+		return view:IsVisible() and view:IsMouseOver()
+	end
+	return FriendsListFrame ~= nil and FriendsListFrame:IsMouseOver()
+end
+
+-- True when this friend is a 12.1 TITLE friend -- the "WoW Friend" tier added in that patch,
+-- created by "Add WoW Friend" rather than by BattleTag.
+--
+-- These are the successor to C_FriendList character friends, and the addon must treat them as
+-- such: FRIENDS_BUTTON_TYPE_WOW, not _BNET. That distinction drives real behaviour --
+-- FriendGroups_ShowButtonAltTooltip only raises the known-alts panel for BNET rows, because
+-- the alt cache is a BATTLE.NET ACCOUNT concept and a title friend has no BattleTag to key it
+-- by (confirmed on 12.1: accountInfo.battleTag is nil for the whole tier).
+--
+-- Enum.BattleNetFriendLevel.Title is the documented marker, and FriendsListUtil.IsTitleFriend
+-- is Blizzard's own test for it; both are 12.1-only, so every earlier client answers false and
+-- keeps its existing behaviour untouched.
+function Compat.IsTitleFriend(accountInfo)
+	if not accountInfo then return false end
+	if type(FriendsListUtil) == "table" and type(FriendsListUtil.IsTitleFriend) == "function" then
+		return FriendsListUtil.IsTitleFriend(accountInfo) and true or false
+	end
+	if type(Enum) == "table" and type(Enum.BattleNetFriendLevel) == "table"
+		and Enum.BattleNetFriendLevel.Title ~= nil then
+		return accountInfo.friendLevel == Enum.BattleNetFriendLevel.Title
+	end
+	return false
+end
+
+-- Walk the frames the contact list is CURRENTLY rendering, whichever list that is.
+--
+-- The group banner colour picker refreshes visible headers live while the user drags, by
+-- iterating the ScrollBox and matching on rawGroupName. Hard-coding FriendsListFrame.ScrollBox
+-- there means that on 12.1 it iterates the hidden legacy box, finds nothing, and the preview
+-- silently does nothing -- the colour only appears after some unrelated rebuild.
+--
+-- Resolves to exactly FriendsListFrame.ScrollBox on every non-Social-UI client, so the retail
+-- and Classic behaviour is unchanged.
+function Compat.ForEachContactListFrame(callback)
+	if type(callback) ~= "function" then return end
+
+	local view = Compat.GetSocialUIFriendsView()
+	local scrollBox = view and view.ScrollBox
+	if not scrollBox then
+		scrollBox = FriendsListFrame and FriendsListFrame.ScrollBox
+	end
+	if not scrollBox or type(scrollBox.ForEachFrame) ~= "function" then return end
+
+	scrollBox:ForEachFrame(callback)
+end
+
+-- The PANEL that hosts the contact list -- the outer window, not the list subframe.
+--
+-- Two things key off this. The alt-tooltip parks itself against the panel's right edge, and
+-- FriendGroups_DockNativeTooltipBelowPanel decides WHICH native tooltip is in play from it:
+-- the legacy friends list draws into the dedicated FriendsTooltip, while the 12.1 card draws
+-- into the shared GameTooltip. Returning SocialUIFrame there is what makes the docking code
+-- select GameTooltip and the Show hook stop early-returning, with no change to either.
+--
+-- Returns FriendsFrame on every client that is not running the Social UI, so the retail and
+-- Classic paths evaluate exactly the frame they always did.
+function Compat.GetContactListAnchor()
+	if Compat.IsSocialUIActive() then
+		return SocialUIFrame
+	end
+	return FriendsFrame
+end
+
 -- ============================================================================
 -- [[ PLATFORM PRIMITIVES ]]
 -- Small, universally-needed wrappers. Heavier render/menu adapters live in
@@ -213,6 +346,70 @@ function Compat.RegisterEvents(frame, events)
 			end
 		end
 	end
+end
+
+-- ============================================================================
+-- [[ C_BattleNet.SearchFriends -- THE ONE CALL THAT CAN BE FORBIDDEN ]]
+-- SearchFriends is the only Blizzard API this addon asks about names it cannot read
+-- itself: on 12.1 accountName is a |K escape the client resolves at draw time, and this
+-- call resolves it server-side. Two call sites use it -- the search matcher's name set
+-- (FriendGroups.lua) and the native Filter checkboxes (Platform_SocialUI.lua).
+--
+-- On a live 12.1 client with the Social UI switched off it is PROTECTED, and calling it
+-- from addon code raises ADDON_ACTION_FORBIDDEN attributed to FriendGroups.
+--
+-- [[ WHY THE EXISTING pcall WAS NOT ENOUGH ]]
+-- ADDON_ACTION_FORBIDDEN is an EVENT the client fires from C, synchronously, from inside
+-- the blocked call. pcall catches Lua errors; it cannot intercept an event. The report
+-- proved it -- BugGrabber's handler appeared ABOVE `[C]: in function 'pcall'` in the
+-- traceback, because its OnEvent ran nested inside our own pcall frame. So the call
+-- returned quietly, the addon carried on, and the user collected one error per rebuild
+-- for as long as the search box had text in it.
+--
+-- The fix is to notice the event and stop calling. The in-flight flag is what makes the
+-- attribution exact: ADDON_ACTION_FORBIDDEN names the addon but not the function, so
+-- latching on the event alone would blame this call for any other blocked action of ours.
+--
+-- Session-scoped, not persisted. Protection is a property of the client build, and a
+-- reload is cheap; a saved latch would need invalidating on patch day and would hide the
+-- day Blizzard unprotects it.
+-- ============================================================================
+local searchFriendsForbidden = false
+local searchFriendsInFlight = false
+
+local searchFriendsWatcher = CreateFrame("Frame")
+Compat.RegisterEvents(searchFriendsWatcher, { "ADDON_ACTION_FORBIDDEN" })
+searchFriendsWatcher:SetScript("OnEvent", function(_, _, blamedAddon)
+	if blamedAddon ~= addonName then return end
+	if not searchFriendsInFlight then return end
+	searchFriendsForbidden = true
+end)
+
+-- Reported by /fg match, so "the name set is empty" can be told apart from "we are not
+-- allowed to ask".
+function Compat.IsSearchFriendsForbidden()
+	return searchFriendsForbidden
+end
+
+-- Returns the friend-index array on success, or nil plus a short reason for /fg match.
+-- Every caller must route through here: a direct call anywhere else re-opens the error.
+function Compat.SearchFriends(searchInfo)
+	if searchFriendsForbidden then return nil, "forbidden" end
+	if type(searchInfo) ~= "table" then return nil, "noinfo" end
+	if type(C_BattleNet) ~= "table" or type(C_BattleNet.SearchFriends) ~= "function" then
+		return nil, "noapi"
+	end
+
+	searchFriendsInFlight = true
+	local ok, result = pcall(C_BattleNet.SearchFriends, searchInfo)
+	searchFriendsInFlight = false
+
+	-- Tested BEFORE the result: a forbidden call returns quietly, so the flag set by the
+	-- handler above is the only thing that distinguishes it from an empty match.
+	if searchFriendsForbidden then return nil, "forbidden" end
+	if not ok then return nil, "threw" end
+	if type(result) ~= "table" then return nil, "badresult" end
+	return result, "ok"
 end
 
 -- 12.0 secret values read as absent -- never inspect their contents.

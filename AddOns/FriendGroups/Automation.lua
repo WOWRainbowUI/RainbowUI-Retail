@@ -94,26 +94,29 @@ local FG_GetAddOnMetadata = (C_AddOns and type(C_AddOns.GetAddOnMetadata) == "fu
 
 -- ============================================================================
 -- [[ FEATURE REGISTRY ]]
--- The four automations that a companion addon might also implement. Everything
+-- The automations that a companion addon might also implement. Everything
 -- downstream -- arbitration, the published claim, the diagnostic -- keys off
--- this one table so a fifth feature is a single entry, not a sweep.
+-- this one table so a third feature is a single entry, not a sweep.
+--
+-- Auto-accept resurrection and auto-release spirit were removed in 13.0.2. They
+-- were never contested in practice -- GLogger implements both and wins every
+-- arbitration for them -- and death automation carries a failure mode the other
+-- two do not: releasing at the wrong moment costs a body recovery that cannot be
+-- undone. GLogger owns them outright now. The retired sync bits are documented in
+-- Sync.lua's BOOL_FIELDS.
 -- ============================================================================
 
 local FG_FEATURE_SAVEDVAR = {
 	invite  = "auto_accept_invite",
 	sync    = "auto_accept_sync",
-	res     = "auto_accept_res",
-	release = "auto_release",
 }
 
 -- Display order for the /fg automation report, and the localized label each
 -- feature reports under (reusing the settings-menu labels the user already sees).
-local FG_FEATURE_ORDER = { "invite", "sync", "res", "release" }
+local FG_FEATURE_ORDER = { "invite", "sync" }
 local FG_FEATURE_LABEL = {
 	invite  = "SET_AUTO_ACCEPT",
 	sync    = "SET_AUTO_PARTY_SYNC",
-	res     = "SET_SPIRIT_RES",
-	release = "SET_SPIRIT_RELEASE",
 }
 
 local function FG_FeatureEnabled(feature)
@@ -124,7 +127,7 @@ end
 
 -- ============================================================================
 -- [[ CROSS-ADDON ARBITRATION ]]
--- GLogger implements the same four automations. Run side by side both would
+-- GLogger implements the same automations. Run side by side both would
 -- answer the same invite, so exactly one has to own each feature.
 --
 -- FriendGroups is always the one that yields: it can read GLogger's state but
@@ -148,11 +151,11 @@ end
 
 local GLOGGER_ADDON  = "GLogger"
 local GLOGGER_MODULE = "AutoInvite"
+-- Only the features FriendGroups still implements need arbitrating. GLogger's res
+-- and release settings are no longer anyone's business but its own.
 local GLOGGER_STATE_KEY = {
 	invite  = "UIAutoAcceptInvites",
 	sync    = "UIAutoAcceptSync",
-	res     = "UIAutoAcceptRes",
-	release = "UIAutoRelease",
 }
 
 -- Named frames belonging to a companion addon's own countdown toast. Checked
@@ -275,7 +278,10 @@ _G.FriendGroups_Automation_Claim = {
 	addon    = addonName,
 	version  = FG_GetAddOnMetadata and FG_GetAddOnMetadata(addonName, "Version") or nil,
 	priority = 50,
-	features = { invite = true, sync = true, res = true, release = true },
+	-- res and release are stated as FALSE rather than dropped. A companion addon reading
+	-- this table gets an explicit "FriendGroups will never handle this" instead of a nil
+	-- it has to interpret, and the contract keeps the same shape it published before.
+	features = { invite = true, sync = true, res = false, release = false },
 	IsActive = function(feature)
 		return FG_ShouldHandle(feature)
 	end,
@@ -745,8 +751,6 @@ Compat.RegisterEvents(FriendGroups_Automation, {
 	"PARTY_INVITE_REQUEST",
 	"PARTY_INVITE_CANCEL",
 	"GROUP_JOINED",
-	"RESURRECT_REQUEST",
-	"PLAYER_DEAD",
 	"QUEST_SESSION_CREATED",
 	"QUEST_SESSION_JOINED",
 	"QUEST_SESSION_DESTROYED",
@@ -767,41 +771,7 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
 	elseif event == "PARTY_INVITE_CANCEL" or event == "GROUP_JOINED" then
 		InviteToast:Dismiss()
 
-	-- 2. Auto Accept Resurrection
-	elseif event == "RESURRECT_REQUEST" then
-		if not FG_ShouldHandle("res") then return end
-
-		local rezzer = FG_PlainName(...)
-		FG_Announce(string.format(L["MSG_AUTO_RES"], rezzer or L["UNKNOWN"]))
-
-		-- Not wrapped in a timer, to preserve the secure hardware event payload.
-		-- The resurrect dialog is dismissed by its own button in exactly the same
-		-- way PARTY_INVITE is, so a programmatic accept strands it too.
-		if type(AcceptResurrect) == "function" then
-			if pcall(AcceptResurrect) then
-				FG_HideBlizzardPopup("RESURRECT")
-			else
-				FG_Announce(L["MSG_AUTO_ACCEPT_FAILED"])
-			end
-		end
-
-	-- 3. Auto Release Spirit
-	elseif event == "PLAYER_DEAD" then
-		if not FG_ShouldHandle("release") then return end
-
-		FG_Announce(L["MSG_AUTO_RELEASE"])
-
-		-- Guarded: confirmed present on retail/MoP/BC Anniversary, but a client
-		-- without it must not error on every death with auto-release enabled.
-		local selfResOptions = C_DeathInfo and type(C_DeathInfo.GetSelfResurrectOptions) == "function"
-			and C_DeathInfo.GetSelfResurrectOptions()
-		if not selfResOptions or #selfResOptions == 0 then
-			if type(RepopMe) == "function" and not pcall(RepopMe) then
-				FG_Announce(L["MSG_AUTO_RELEASE_FAILED"])
-			end
-		end
-
-	-- 4. Auto Accept Party Sync
+	-- 2. Auto Accept Party Sync
 	elseif event == "QUEST_SESSION_CREATED" then
 		if not FG_ShouldHandle("sync") then return end
 		if UnitIsGroupLeader("player") then return end
