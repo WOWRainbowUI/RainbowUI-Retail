@@ -1,18 +1,17 @@
 # BuffReminders
 
-## [v6.4.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.4.0) (2026-08-11)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.3.1...v6.4.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.5.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.5.0) (2026-08-12)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.4.2...v6.5.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### New Features ✨
 
-- **Externals:** add in-combat externals tracking (PI, Innervate, etc...)
+- **Externals:** add width/height sizing and growth direction
+- **Externals:** preview your current buffs in test mode
+- **Externals:** inherit appearance from defaults unless overridden
+- **Externals:** track movement, threat redirects and more buffs
 
 ### Bug Fixes 🐛
 
-- **Combat:** prevent errors and false buff reminders on 12.1
-
-### Other Changes 🔧
-
-- **Toc:** bump toc to 12.1
-- Add External Buffs section to README and CurseForge pages
+- **Externals:** stop a stray aura showing when nothing is selected
+- **Externals:** ensure the display reacts to aura changes
 
