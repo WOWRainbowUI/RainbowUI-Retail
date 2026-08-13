@@ -1,4 +1,4 @@
-## Interface: 11508, 20505, 38000, 50503, 120100, 120007
+## Interface: 11509, 20506, 38002, 40402, 50504, 120100, 120007
 
 ## Title: Lib: Ace3
 ## Notes: AddOn development framework
@@ -6,7 +6,7 @@
 ## X-Website: http://www.wowace.com
 ## X-Category: Library
 ## X-License: Limited BSD
-## Version: r1401
+## Version: Release-r1403
 ## IconTexture: 135453
 
 ## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
