@@ -788,7 +788,10 @@ end
 local function BuildBasics(ctx, builder, unit, label)
     -- Default-open so the page greets users with real settings instead of a
     -- stack of closed headers; saved accordion state still wins afterwards.
-    local sec = builder:CollapsibleSection("frame_basics", "Frame Basics", 202, true)
+    -- Leave a full footer gutter below the disabled-frame notice. The next
+    -- accordion header is created later and can otherwise cover the notice's
+    -- lower edge at some UI scales.
+    local sec = builder:CollapsibleSection("frame_basics", "Frame Basics", 216, true)
     if W.AttachContextColorReferences then
         local function EffectiveHealthMode()
             return NormalizeHealthColorMode(GetConf(unit).healthColorMode) or GlobalHealthColorMode()
@@ -1131,7 +1134,7 @@ local function BuildLayout(ctx, builder, unit)
     RegisterControl(customAnchor.pick, ctx, "anchoring.custom.pick", "Pick", "button", "action", {
         actionKey = "start_unit_custom_anchor_picker", actionFixedArgs = { unit = unit },
     })
-    local cooldownAnchor = W.SwitchAt(sec, "Follow Main Cooldowns", anchorLeftX, -184, anchorInnerW)
+    local cooldownAnchor = W.SwitchAt(sec, "Follow Blizzard's Essential Cooldowns", anchorLeftX, -184, anchorInnerW)
     M.BindBoolWidget(ctx, cooldownAnchor,
         CooldownAnchorEnabled,
         function(enabled)
@@ -1149,7 +1152,7 @@ local function BuildLayout(ctx, builder, unit)
     local function RefreshLayoutState()
         local _, automaticProviderLabel = AutomaticCooldownProvider()
         local cooldownAnchorEnabled = CooldownAnchorEnabled()
-        local cooldownAnchorLabel = automaticProviderLabel and (automaticProviderLabel .. " Anchor") or M.Tr("Follow Main Cooldowns")
+        local cooldownAnchorLabel = automaticProviderLabel and (automaticProviderLabel .. " Anchor") or M.Tr("Follow Blizzard's Essential Cooldowns")
         if cooldownAnchor._msuf2Label and cooldownAnchor._msuf2Label.SetText then
             cooldownAnchor._msuf2Label:SetText(cooldownAnchorLabel)
         end
@@ -1591,7 +1594,7 @@ local function BuildUnitPage(info)
         end, {
             sectionId = "frame_basics",
             title = "Frame Basics",
-            height = 170,
+            height = 216,
             prepareShell = function(lazyCtx, sec, lazyUnit)
                 local refresh = AttachBasicsHeaderStatus(sec, lazyUnit)
                 if refresh then
