@@ -1,11 +1,11 @@
-## Interface: 120007,120100, 120007,120100, 50504, 40402, 30403, 20506, 11508,11509
+## Interface: 120100, 120100, 50504, 40402, 30403, 20506, 11509
 ## Title: BlizzMove
 ## Notes: Makes blizzard frames movable
 ## Author: Kiatra, zaCade, Numy - github.com/Kiatra/BlizzMove/
 ## IconTexture: interface/cursor/ui-cursor-move.blp
 ## X-WoWI-ID: 23875
 ## X-Curse-Project-ID: 17809
-## Version: v3.7.40
+## Version: v3.7.41
 ## OptionalDeps: Ace3
 ## SavedVariables: BlizzMoveDB
 ## Category-enUS: User Interface
