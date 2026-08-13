@@ -199,6 +199,7 @@ local L = BR.L
 local DEFAULT_BORDER_SIZE = BR.DEFAULT_BORDER_SIZE
 local DEFAULT_ICON_ZOOM = BR.DEFAULT_ICON_ZOOM
 local TEXCOORD_INSET = BR.TEXCOORD_INSET
+local GetAspectCropInsets = BR.GetAspectCropInsets
 
 -- WoW API locals
 local PlaySoundFile = PlaySoundFile
@@ -1135,20 +1136,9 @@ local function UpdateIconStyling(frame, catSettings)
     -- Always apply base inset to crop texture edge artifacts; zoom adds on top
     local additionalZoom = (catSettings.iconZoom or DEFAULT_ICON_ZOOM) / 100
     local inset = TEXCOORD_INSET + additionalZoom
-    -- Aspect-ratio-aware crop: when width ≠ height, crop the longer texture axis
-    -- more so the icon isn't stretched/distorted (shows a centered slice instead)
     local iconHeight = catSettings.iconSize or 64
     local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconHeight)
-    local aspectRatio = iconWidth / iconHeight
-    local xInset = inset
-    local yInset = inset
-    if aspectRatio > 1 then
-        -- Wider than tall: crop top/bottom more
-        yInset = inset + (1 - 1 / aspectRatio) * (0.5 - inset)
-    elseif aspectRatio < 1 then
-        -- Taller than wide: crop left/right more
-        xInset = inset + (1 - aspectRatio) * (0.5 - inset)
-    end
+    local xInset, yInset = GetAspectCropInsets(inset, iconWidth, iconHeight)
     frame.icon:SetTexCoord(xInset, 1 - xInset, yInset, 1 - yInset)
     local borderSize = catSettings.borderSize or DEFAULT_BORDER_SIZE
     if borderSize > 0 then
@@ -1852,6 +1842,9 @@ ToggleTestMode = function()
         -- Reset layout signatures so positioning runs fresh
         lastMainSignature = ""
         wipe(lastSplitSignatures)
+        if BR.AuraTracker then
+            BR.AuraTracker.SetTestMode(false)
+        end
         UpdateDisplay()
         return false
     else
@@ -1873,6 +1866,9 @@ ToggleTestMode = function()
         BR.SecureButtons.HideAllSecureFrames()
         lastMainSignature = ""
         wipe(lastSplitSignatures)
+        if BR.AuraTracker then
+            BR.AuraTracker.SetTestMode(true)
+        end
         UpdateDisplay()
         return true
     end
