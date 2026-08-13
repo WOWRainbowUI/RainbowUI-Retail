@@ -127,7 +127,9 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
                 local breedNum, quality, resultslist = internal.CalculateBreedID(speciesID, rarity, level, maxHealth, power, speed, false, false)
 
                 local breed = internal.RetrieveBreedName(breedNum)
-                table.insert(collectedPets, ITEM_QUALITY_COLORS[quality-1].hex .. "L" .. level .. " (" .. breed .. ")"  .. "|r")
+                if quality and level and breed then
+                    table.insert(collectedPets, ITEM_QUALITY_COLORS[quality-1].hex .. "L" .. level .. " (" .. breed .. ")"  .. "|r")
+                end
             end
         end
         if (#collectedPets > 0) then

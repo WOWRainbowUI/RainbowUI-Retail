@@ -1,10 +1,10 @@
-## Interface: 50504, 120100, 120007
+## Interface: 120100, 120007, 50504
 ## Title: Battle Pet BreedID
 ## Author: Simca@Malfurion
 ## Notes: Displays the BreedID of pets in your journal, in battle, in chat links, and in AH tooltips.
-## Version: v1.41.0
+## Version: v1.42.0
 ## X-Category: Pet Battles
-## X-Date: 2026-06-17T04:57:32Z
+## X-Date: 2026-08-13T03:22:19Z
 ## X-License: BSD
 ## X-Localizations: enUS
 ## X-Curse-Project-ID: 45935
