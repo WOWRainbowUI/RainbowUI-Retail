@@ -91,9 +91,10 @@ end
 
 local function CategoryNeedsFullScan(key)
     return key == C.Categories.HealerCC
-        or key == C.Categories.MiniCC
+        or key == C.Categories.MiniAuras
         or key == C.Categories.SArena
         or key == C.Categories.TellMeWhen
+        or key == C.Categories.Unitframe
 end
 
 --- Returns a setter function that writes and refreshes.
@@ -845,7 +846,7 @@ local function CreateCategoryOptions(order, name, key, desc)
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == C.Categories.CooldownManager)
     local isHealerCC = (key == C.Categories.HealerCC)
-    local isMiniCC = (key == C.Categories.MiniCC)
+    local isMiniAuras = (key == C.Categories.MiniAuras)
     local isSArena = (key == C.Categories.SArena)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
     local isUnitframe = (key == C.Categories.Unitframe)
@@ -859,7 +860,7 @@ local function CreateCategoryOptions(order, name, key, desc)
         type = "group",
         hidden = function()
             return (isHealerCC and not MCE:IsHealerCCAvailable())
-                or (isMiniCC and not MCE:IsMiniCCAvailable())
+                or (isMiniAuras and not MCE:IsMiniAurasAvailable())
                 or (isSArena and not MCE:IsSArenaAvailable())
                 or (isTellMeWhen and not MCE:IsTellMeWhenAvailable())
         end,
@@ -886,19 +887,21 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "enabled"),
                         set = SetCategoryEnabled(key),
                     },
-                    miniCCTestToggle = isMiniCC and {
+                    miniAurasTestToggle = isMiniAuras and {
                         type = "execute", order = 2, width = "1",
                         name = L["Toggle Test Icons"],
-                        desc = L["Toggle MiniCC's built-in test icons using /minicc test."],
-                        hidden = function() return not MCE:IsMiniCCAvailable() end,
+                        desc = L["Toggle MiniAuras' built-in test icons using /miniauras test."],
+                        hidden = function() return not MCE:IsMiniAurasAvailable() end,
                         func = function()
-                            local handler = SlashCmdList and SlashCmdList.MINICC
+                            local handler = SlashCmdList and SlashCmdList.MINIAURAS
                             if handler then
                                 pcall(handler, "test")
                             else
-                                MCE:Print(L["MiniCC test command is unavailable."])
+                                MCE:Print(L["MiniAuras test command is unavailable."])
                             end
-                            MCE:ForceUpdateAll(true)
+                            C_Timer.After(0, function()
+                                MCE:ForceUpdateAll(true)
+                            end)
                         end,
                     } or nil,
                     sArenaTestToggle = isSArena and {
@@ -945,6 +948,10 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "description", order = 0.1, fontSize = "medium", width = "full",
                         name = BuildCategoryDescription(desc),
                     },
+                    unitframe121Compatibility = isUnitframe and {
+                        type = "description", order = 0.11, fontSize = "small", width = "full",
+                        name = "|cff88bbdd" .. L["UNITFRAME_121_COMPAT_DESC"] .. "|r",
+                    } or nil,
                     bottomSpacing = SectionSpacer(0.12),
                 },
             } or nil,
@@ -1018,7 +1025,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 2, width = 0.7,
                         name = L["Size"], min = 6, max = 36, step = 1,
                         get = CatGet(key, "fontSize"), set = CatRangeSet(key, "fontSize"),
-                        hidden = function() return isCooldownManager or isHealerCC or isMiniCC or isSArena end,
+                        hidden = function() return isCooldownManager or isHealerCC or isMiniAuras or isSArena end,
                     },
                     fontStyle = {
                         type = "select", order = 3, width = 0.8,
@@ -1045,13 +1052,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
-                        hidden = function() return isMiniCC or isSArena end,
+                        hidden = function() return isMiniAuras or isSArena end,
                     },
                     auraCdTextOnlyMine = isUnitframe and {
                         type = "toggle", order = 5.005, width = "1",
                         name = L["Only Mine"],
-                        desc = L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."],
-                        get = CatGet(key, "auraCdTextOnlyMine", false),
+                        desc = L["UNITFRAME_ONLY_MINE_DESC"],
+                        get = CatGet(key, "auraCdTextOnlyMine", true),
                         set = CatSet(key, "auraCdTextOnlyMine"),
                         disabled = function()
                             return MCE.db.profile.categories[key].hideCountdownNumbers == true
@@ -1154,159 +1161,128 @@ local function CreateCategoryOptions(order, name, key, desc)
                             return MCE.db.profile.categories[key].auraColorEnabled == false
                         end,
                     } or nil,
-                    miniCCHeaderTopSpacing = isMiniCC and SectionSpacer(5.05) or nil,
-                    miniCCHeader = isMiniCC and {
-                        type = "header", name = L["MiniCC Frame Groups"], order = 5.1,
+                    miniAurasHeaderTopSpacing = isMiniAuras and SectionSpacer(5.05) or nil,
+                    miniAurasHeader = isMiniAuras and {
+                        type = "header", name = L["MiniAuras Module Groups"], order = 5.1,
                     } or nil,
-                    miniCCHeaderBottomSpacing = isMiniCC and SectionSpacer(5.15) or nil,
-                    miniCCGroupsDesc = isMiniCC and {
+                    miniAurasHeaderBottomSpacing = isMiniAuras and SectionSpacer(5.15) or nil,
+                    miniAurasGroupsDesc = isMiniAuras and {
                         type = "description", order = 5.18, width = "full", fontSize = "small",
-                        name = "|cff88bbdd" .. L["MiniCC text settings are grouped by module family so similar widgets share the same countdown size."] .. "|r",
+                        name = "|cff88bbdd" .. L["MiniAuras text settings are grouped by module family so similar widgets share the same countdown size."] .. "|r",
                     } or nil,
-                    ccFontSize = isMiniCC and {
+                    ccFontSize = isMiniAuras and {
                         type = "range", order = 5.2, width = 1.2,
                         name = L["CC Frames Text Size"],
-                        desc = L["Applies to MiniCC CC module (enemy crowd controls)."],
+                        desc = L["Applies to MiniAuras CC module (enemy crowd controls)."],
                         min = 6, max = 36, step = 1,
                         get = CatGet(key, "ccFontSize", 18),
                         set = CatRangeSet(key, "ccFontSize"),
                     } or nil,
-                    ccHideCountdownNumbers = isMiniCC and {
+                    ccHideCountdownNumbers = isMiniAuras and {
                         type = "toggle", order = 5.25, width = 0.8,
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "ccHideCountdownNumbers", false),
                         set = CatSet(key, "ccHideCountdownNumbers"),
                     } or nil,
-                    ccHideSwipe = isMiniCC and {
+                    ccHideSwipe = isMiniAuras and {
                         type = "toggle", order = 5.27, width = 0.8,
                         name = L["Hide Swipe"],
                         desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
                         get = CatGet(key, "ccHideSwipe", false),
                         set = CatSet(key, "ccHideSwipe"),
                     } or nil,
-                    ccRowBreak = isMiniCC and RowBreak(5.29) or nil,
-                    enemyCdFontSize = isMiniCC and {
+                    ccRowBreak = isMiniAuras and RowBreak(5.29) or nil,
+                    raidFrameAuraFontSize = isMiniAuras and {
                         type = "range", order = 5.291, width = 1.2,
-                        name = L["Enemy CDs Text Size"],
-                        desc = L["Applies to MiniCC Enemy CDs in both Arena Frames and Linear Bar layouts."],
+                        name = L["Raid Frame Auras Text Size"],
+                        desc = L["Applies to the MiniAuras Raid Frame Auras module."],
                         min = 6, max = 36, step = 1,
-                        get = CatGet(key, "enemyCdFontSize", 18),
-                        set = CatRangeSet(key, "enemyCdFontSize"),
+                        get = CatGet(key, "raidFrameAuraFontSize", 18),
+                        set = CatRangeSet(key, "raidFrameAuraFontSize"),
                     } or nil,
-                    enemyCdHideCountdownNumbers = isMiniCC and {
+                    raidFrameAuraHideCountdownNumbers = isMiniAuras and {
                         type = "toggle", order = 5.292, width = 0.8,
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
-                        get = CatGet(key, "enemyCdHideCountdownNumbers", false),
-                        set = CatSet(key, "enemyCdHideCountdownNumbers"),
+                        get = CatGet(key, "raidFrameAuraHideCountdownNumbers", false),
+                        set = CatSet(key, "raidFrameAuraHideCountdownNumbers"),
                     } or nil,
-                    enemyCdHideSwipe = isMiniCC and {
+                    raidFrameAuraHideSwipe = isMiniAuras and {
                         type = "toggle", order = 5.2925, width = 0.8,
                         name = L["Hide Swipe"],
                         desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
-                        get = CatGet(key, "enemyCdHideSwipe", false),
-                        set = CatSet(key, "enemyCdHideSwipe"),
+                        get = CatGet(key, "raidFrameAuraHideSwipe", false),
+                        set = CatSet(key, "raidFrameAuraHideSwipe"),
                     } or nil,
-                    enemyCdRowBreak = isMiniCC and RowBreak(5.293) or nil,
-                    friendlyCdFontSize = isMiniCC and {
-                        type = "range", order = 5.294, width = 1.2,
-                        name = L["Friendly CDs Text Size"],
-                        desc = L["Applies to MiniCC Friendly CDs and Friendly Indicators modules."],
-                        min = 6, max = 36, step = 1,
-                        get = CatGet(key, "friendlyCdFontSize", 18),
-                        set = CatRangeSet(key, "friendlyCdFontSize"),
-                    } or nil,
-                    friendlyCdHideCountdownNumbers = isMiniCC and {
-                        type = "toggle", order = 5.295, width = 0.8,
-                        name = L["Hide Numbers"],
-                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
-                        get = CatGet(key, "friendlyCdHideCountdownNumbers", false),
-                        set = CatSet(key, "friendlyCdHideCountdownNumbers"),
-                    } or nil,
-                    friendlyCdHideSwipe = isMiniCC and {
-                        type = "toggle", order = 5.296, width = 0.8,
-                        name = L["Hide Swipe"],
-                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
-                        get = CatGet(key, "friendlyCdHideSwipe", false),
-                        set = CatSet(key, "friendlyCdHideSwipe"),
-                    } or nil,
-                    friendlyCdRowBreak = isMiniCC and RowBreak(5.297) or nil,
-                    nameplateFontSize = isMiniCC and {
+                    raidFrameAuraRowBreak = isMiniAuras and RowBreak(5.293) or nil,
+                    nameplateFontSize = isMiniAuras and {
                         type = "range", order = 5.3, width = 1.2,
                         name = L["Nameplates Text Size"],
-                        desc = L["Applies to MiniCC Nameplates modules."],
+                        desc = L["Applies to the MiniAuras Nameplates module."],
                         min = 6, max = 36, step = 1,
                         get = CatGet(key, "nameplateFontSize", 12),
                         set = CatRangeSet(key, "nameplateFontSize"),
                     } or nil,
-                    nameplateHideCountdownNumbers = isMiniCC and {
+                    nameplateHideCountdownNumbers = isMiniAuras and {
                         type = "toggle", order = 5.35, width = 0.8,
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "nameplateHideCountdownNumbers", false),
                         set = CatSet(key, "nameplateHideCountdownNumbers"),
                     } or nil,
-                    nameplateHideSwipe = isMiniCC and {
+                    nameplateHideSwipe = isMiniAuras and {
                         type = "toggle", order = 5.37, width = 0.8,
                         name = L["Hide Swipe"],
                         desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
                         get = CatGet(key, "nameplateHideSwipe", false),
                         set = CatSet(key, "nameplateHideSwipe"),
                     } or nil,
-                    nameplateRowBreak = isMiniCC and RowBreak(5.39) or nil,
-                    portraitFontSize = isMiniCC and {
+                    nameplateRowBreak = isMiniAuras and RowBreak(5.39) or nil,
+                    portraitFontSize = isMiniAuras and {
                         type = "range", order = 5.4, width = 1.2,
                         name = L["Portraits Text Size"],
-                        desc = L["Applies to MiniCC portrait icons."],
+                        desc = L["Applies to MiniAuras portrait icons."],
                         min = 6, max = 36, step = 1,
                         get = CatGet(key, "portraitFontSize", 18),
                         set = CatRangeSet(key, "portraitFontSize"),
                     } or nil,
-                    portraitHideCountdownNumbers = isMiniCC and {
+                    portraitHideCountdownNumbers = isMiniAuras and {
                         type = "toggle", order = 5.45, width = 0.8,
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "portraitHideCountdownNumbers", false),
                         set = CatSet(key, "portraitHideCountdownNumbers"),
                     } or nil,
-                    portraitHideSwipe = isMiniCC and {
+                    portraitHideSwipe = isMiniAuras and {
                         type = "toggle", order = 5.47, width = 0.8,
                         name = L["Hide Swipe"],
                         desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
                         get = CatGet(key, "portraitHideSwipe", false),
                         set = CatSet(key, "portraitHideSwipe"),
                     } or nil,
-                    portraitRowBreak = isMiniCC and RowBreak(5.49) or nil,
-                    overlayFontSize = isMiniCC and {
+                    portraitRowBreak = isMiniAuras and RowBreak(5.49) or nil,
+                    overlayFontSize = isMiniAuras and {
                         type = "range", order = 5.5, width = 1.2,
-                        name = L["Alerts / Healer / Timers Text Size"],
-                        desc = L["Applies to MiniCC Alerts, Healer CC, Kick Timer, and Precognition modules."],
+                        name = L["Alerts / Trackers / Custom Auras Text Size"],
+                        desc = L["Applies to MiniAuras Alerts, Healer CC, Kick Timer, Precognition, Trinkets, and Custom Auras modules."],
                         min = 6, max = 36, step = 1,
                         get = CatGet(key, "overlayFontSize", 18),
                         set = CatRangeSet(key, "overlayFontSize"),
                     } or nil,
-                    overlayHideCountdownNumbers = isMiniCC and {
+                    overlayHideCountdownNumbers = isMiniAuras and {
                         type = "toggle", order = 5.55, width = 0.8,
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "overlayHideCountdownNumbers", false),
                         set = CatSet(key, "overlayHideCountdownNumbers"),
                     } or nil,
-                    overlayHideSwipe = isMiniCC and {
+                    overlayHideSwipe = isMiniAuras and {
                         type = "toggle", order = 5.57, width = 0.8,
                         name = L["Hide Swipe"],
                         desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
                         get = CatGet(key, "overlayHideSwipe", false),
                         set = CatSet(key, "overlayHideSwipe"),
-                    } or nil,
-                    healerWarningTextColor = isMiniCC and {
-                        type = "color", order = 5.58, width = 1,
-                        hasAlpha = true,
-                        name = L["Healer Warning Color"],
-                        desc = L["Changes the MiniCC 'Healer in CC!' warning text color."],
-                        get = CatColorGet(key, "healerWarningTextColor"),
-                        set = CatColorSet(key, "healerWarningTextColor"),
                     } or nil,
                     sArenaHeaderTopSpacing = isSArena and SectionSpacer(5.05) or nil,
                     sArenaHeader = isSArena and {
@@ -1615,12 +1591,12 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.HealerCC].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.HealerCC),
                             },
-                            toggleMiniCC = {
+                            toggleMiniAuras = {
                                 type = "toggle", order = 7, width = 0.6,
-                                name = "|cffffd100" .. L["MiniCC"] .. "|r",
-                                hidden = function() return not MCE:IsMiniCCAvailable() end,
-                                get = function() return MCE.db.profile.categories[C.Categories.MiniCC].enabled end,
-                                set = SetDashboardCategoryEnabled(C.Categories.MiniCC),
+                                name = "|cffffd100" .. L["MiniAuras"] .. "|r",
+                                hidden = function() return not MCE:IsMiniAurasAvailable() end,
+                                get = function() return MCE.db.profile.categories[C.Categories.MiniAuras].enabled end,
+                                set = SetDashboardCategoryEnabled(C.Categories.MiniAuras),
                             },
                             toggleSArena = {
                                 type = "toggle", order = 8, width = 0.6,
@@ -1878,8 +1854,8 @@ function MCE:GetOptions()
                 L["COOLDOWNMANAGER_DESC"]),
             [C.Categories.HealerCC] = CreateCategoryOptions(8, L["HealerCC"], C.Categories.HealerCC,
                 L["HEALERCC_DESC"]),
-            [C.Categories.MiniCC] = CreateCategoryOptions(9, L["MiniCC"], C.Categories.MiniCC,
-                L["MINICC_DESC"]),
+            [C.Categories.MiniAuras] = CreateCategoryOptions(9, L["MiniAuras"], C.Categories.MiniAuras,
+                L["MINIAURAS_DESC"]),
             [C.Categories.SArena] = CreateCategoryOptions(10, L["sArena"], C.Categories.SArena,
                 L["SARENA_DESC"]),
             [C.Categories.TellMeWhen] = CreateCategoryOptions(11, L["TellMeWhen"], C.Categories.TellMeWhen,
@@ -1935,18 +1911,18 @@ function MCE:GetOptions()
                                 type = "description", order = 0, fontSize = "small", width = "full",
                                 name = "|cff88bbdd" .. L["HELP_COMPANION_DESC"] .. "|r\n",
                             },
-                            miniCCDesc = {
+                            miniAurasDesc = {
                                 type = "description", order = 1, fontSize = "small", width = "full",
-                                name = "|cff33ff99MiniCC|r\n|cffbbbbbb" .. L["HELP_MINICC_DESC"] .. "|r",
+                                name = "|cff33ff99MiniAuras|r\n|cffbbbbbb" .. L["HELP_MINIAURAS_DESC"] .. "|r",
                             },
-                            miniCCUrl = {
+                            miniAurasUrl = {
                                 type = "input", order = 2, width = "full",
                                 name = "",
-                                desc = L["Copy this link to open the MiniCC CurseForge page in your browser."],
-                                get = function() return C.Urls.MiniCC end,
+                                desc = L["Copy this link to open the MiniAuras CurseForge page in your browser."],
+                                get = function() return C.Urls.MiniAuras end,
                                 set = function() end,
                             },
-                            miniCCSpacer = SectionSpacer(2.1),
+                            miniAurasSpacer = SectionSpacer(2.1),
                             pvpTabDesc = {
                                 type = "description", order = 3, fontSize = "small", width = "full",
                                 name = "|cff33ff99Smart PvP Tab Targeting|r\n|cffbbbbbb" .. L["HELP_PVPTAB_DESC"] .. "|r",

@@ -1,5 +1,26 @@
 # Changelog
 
+## 4.3.1 - Aura Timer Text Layering
+- Aura timer text now draws above debuff borders and glows on unit frames and nameplates.
+- Fixed timer text being covered by debuff borders while using BetterBlizzFrames.
+
+## 4.3.0 - Target and Focus Aura Styling for WoW 12.1
+- Added Unit Frame cooldown styling for target and focus frame auras using WoW 12.1's aura container API.
+- Added BetterBlizzFrames compatibility for target and focus aura cooldowns.
+- Only Mine now defaults to on for Unit Frame cooldown timer text.
+- Fixed protected-frame errors when styling target and focus frame auras in combat.
+- Updated the Unit Frame category description and added a WoW 12.1 compatibility note.
+
+## 4.2.0 - MiniAuras Integration
+- Replaced the MiniCC integration, dependency, settings, and help references with MiniAuras.
+- Added support for MiniAuras legacy icons and 12.1 AuraContainer icons.
+- Added styling for MiniAuras icons created before login and during play.
+- Added MiniAuras settings for Raid Frame Auras, Custom Auras, Trinkets, and current tracker modules.
+- Migrated existing MiniCC category settings to MiniAuras.
+- Removed the obsolete Healer Warning Text Color setting.
+- Fixed protected-frame errors on nameplate and unit-frame aura icons.
+- Fixed large-aura detection when frame dimensions are protected.
+
 ## 4.1.8 - Patch 12.1 Stable Release
 - Promoted the WoW Patch 12.1 build from beta to a stable release.
 
