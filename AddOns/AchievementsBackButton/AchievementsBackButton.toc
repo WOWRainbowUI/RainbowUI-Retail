@@ -1,5 +1,5 @@
-﻿## Interface: 120100, 120007, 50504
-## Version: 1.6.10
+﻿## Interface: 120100, 120007
+## Version: 1.7.0
 ## Title: Achievements Back Button
 ## IconAtlas: questlog-questtypeicon-story
 ## Author: LudiusMaximus
@@ -10,11 +10,12 @@
 ## X-Wago-ID: ZKxq4yGk
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
 ## X-License: The MIT License (MIT)
+## SavedVariables: ABB_config
 
 ## Title-zhTW: |cffFFCC99[成就]|r 回上一頁
 ## Notes-zhTW: Achievements Back Button |n在成就視窗上方、成就點數右側新增返回上一頁的按鈕，方便瀏覽。
 ## IconTexture: interface\icons\misc_arrowleft
 ## Category-zhTW: 收藏
 
+options.lua
 main.lua
-
