@@ -1,0 +1,16 @@
+﻿## Interface: 120100
+## Version: 1.7.0
+## Title: Achievements Back Button
+## IconAtlas: questlog-questtypeicon-story
+## Author: LudiusMaximus
+## Notes: Adds a back button to the achievements frame that works like a browser history.
+## OptionalDeps: ElvUI, Krowi_AchievementFilter
+## X-Curse-Project-ID: 1007342
+## X-WoWI-ID: 26723
+## X-Wago-ID: ZKxq4yGk
+## X-Donate: PayPal:ludiusmaximus@gmail.com
+## X-License: The MIT License (MIT)
+## SavedVariables: ABB_config
+
+options.lua
+main.lua
