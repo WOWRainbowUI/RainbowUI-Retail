@@ -1,5 +1,5 @@
 ## Interface: 120100, 120007
-## Version: 4.6.3
+## Version: 4.6.4
 ## Title: RaidFrameSettings Options
 ## LoadOnDemand: 1
 ## Dependencies: RaidFrameSettings
