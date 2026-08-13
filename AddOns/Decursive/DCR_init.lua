@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.1) add-on for World of Warcraft UI
+    Decursive (v 2.8.2) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-07-22T09:28:35Z
+    This file was last updated on 2026-08-12T11:19:22Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ local function RegisterDecursive_Once() -- {{{
     --@end-debug@]==]
 
     D.name = "Decursive";
-    D.version = "2.8.1";
+    D.version = "2.8.2";
     D.author = "John Wellesz";
 
     D.DcrFullyInitialized = false;
@@ -918,12 +918,12 @@ local function InitVariables_Once() -- {{{
     -- A table UnitID=>IsDebuffed (boolean)
     D.UnitDebuffed = {};
 
-    D.Revision = "6ecc2a3"; -- not used here but some other add-on may request it from outside
-    D.date = "2026-07-22T09:28:35Z";
-    D.version = "2.8.1";
+    D.Revision = "4a55838"; -- not used here but some other add-on may request it from outside
+    D.date = "2026-08-12T11:19:22Z";
+    D.version = "2.8.2";
 
     if D.date ~= "@project".."-date-iso@" then
-        -- 1784712515 doesn't work
+        -- 1786533562 doesn't work
 
         --local example =  "2008-05-01T12:34:56Z";
 
@@ -989,7 +989,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
 
             if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay or debug then
 
-                T._ShowNotice ("|cff00ff00Decursive version: 2.8.1|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
+                T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
 
                 self.db.global.LastExpirationAlert = time();
             end
@@ -998,7 +998,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         self.db.global.TocExpiredDetection = false;
     end
 
-    if (("2.8.1"):lower()):find("beta") or ("2.8.1"):find("RC") or ("2.8.1"):find("Candidate") or alpha then
+    if (("2.8.2"):lower()):find("beta") or ("2.8.2"):find("RC") or ("2.8.2"):find("Candidate") or alpha then
 
         D.RunningADevVersion = true;
 
@@ -1011,7 +1011,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
                 DC.DevVersionExpired = true;
                 -- Display the expiration notice only once evry 48 hours
                 if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay then
-                    T._ShowNotice ("|cff00ff00Decursive version: 2.8.1|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
+                    T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
 
                     self.db.global.LastExpirationAlert = time();
                 end
@@ -1022,16 +1022,16 @@ function D:VersionWarnings(forceDisplay) -- {{{
         end
 
         -- display a warning if this is a developpment version (avoid insults from people who don't know what they're doing)
-        if self.db.global.NonRelease ~= "2.8.1" then
-            self.db.global.NonRelease = "2.8.1";
-            T._ShowNotice ("|cff00ff00Decursive version: 2.8.1|r\n\n" .. "|cFFFFAA66" .. (("2.8.1"):find("RC") and L["ER_VERSION_NOTICE"] or L["DEV_VERSION_ALERT"]) .. "|r");
+        if self.db.global.NonRelease ~= "2.8.2" then
+            self.db.global.NonRelease = "2.8.2";
+            T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. (("2.8.2"):find("RC") and L["ER_VERSION_NOTICE"] or L["DEV_VERSION_ALERT"]) .. "|r");
         end
     end
 
     --[==[@debug@
     fromCheckOut = true;
     if time() - self.db.global.LastUnpackagedAlert > 24 * 3600  then
-        T._ShowNotice ("|cff00ff00Decursive version: 2.8.1|r\n\n" .. "|cFFFFAA66" ..
+        T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" ..
         [[
         |cFFFF0000You're using an unpackaged version of Decursive.|r
         Decursive is not meant to be used this way.
@@ -1069,7 +1069,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         if D.db.global.NewerVersionDetected > D.VersionTimeStamp and D.db.global.NewerVersionName ~= D.version then -- it's still newer than this one
             if time() - D.db.global.NewerVersionAlert > 3600 * 24 * 4 then -- it's been more than 4 days since the new version alert was shown
                 if not D.db.global.NewVersionsBugMeNot then -- the user did not disable new version alerts
-                    T._ShowNotice ("|cff55ff55Decursive version: 2.8.1|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
+                    T._ShowNotice ("|cff55ff55Decursive version: 2.8.2|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
                     D.db.global.NewerVersionAlert = time();
                 end
             end
@@ -1106,17 +1106,20 @@ function D:OnInitialize() -- Called on ADDON_LOADED by AceAddon -- {{{
 
     -- Register slashes command {{{
     self:RegisterChatCommand("dcrdiag"      ,function() T._SelfDiagnostic(true, true)               end         );
-    self:RegisterChatCommand("decursive"    ,function() LibStub("AceConfigDialog-3.0"):Open(D.name) end         );
-    self:RegisterChatCommand("dcrpradd"     ,function() D:AddTargetToPriorityList()                 end, false  );
-    self:RegisterChatCommand("dcrprclear"   ,function() D:ClearPriorityList()                       end, false  );
-    self:RegisterChatCommand("dcrprshow"    ,function() D:ShowHidePriorityListUI()                  end, false  );
-    self:RegisterChatCommand("dcrskadd"     ,function() D:AddTargetToSkipList()                     end, false  );
-    self:RegisterChatCommand("dcrskclear"   ,function() D:ClearSkipList()                           end, false  );
-    self:RegisterChatCommand("dcrskshow"    ,function() D:ShowHideSkipListUI()                      end, false  );
-    self:RegisterChatCommand("dcrreset"     ,function() D:ResetWindow()                             end, false  );
-    self:RegisterChatCommand("dcrshow"      ,function() D:HideBar(0)                                end, false  );
-    self:RegisterChatCommand("dcrhide"      ,function() D:HideBar(1)                                end, false  );
-    self:RegisterChatCommand("dcrshoworder" ,function() D:Show_Cure_Order()                         end, false  );
+
+    if not DC.TWELVEONE then
+        self:RegisterChatCommand("decursive"    ,function() LibStub("AceConfigDialog-3.0"):Open(D.name) end         );
+        self:RegisterChatCommand("dcrpradd"     ,function() D:AddTargetToPriorityList()                 end, false  );
+        self:RegisterChatCommand("dcrprclear"   ,function() D:ClearPriorityList()                       end, false  );
+        self:RegisterChatCommand("dcrprshow"    ,function() D:ShowHidePriorityListUI()                  end, false  );
+        self:RegisterChatCommand("dcrskadd"     ,function() D:AddTargetToSkipList()                     end, false  );
+        self:RegisterChatCommand("dcrskclear"   ,function() D:ClearSkipList()                           end, false  );
+        self:RegisterChatCommand("dcrskshow"    ,function() D:ShowHideSkipListUI()                      end, false  );
+        self:RegisterChatCommand("dcrreset"     ,function() D:ResetWindow()                             end, false  );
+        self:RegisterChatCommand("dcrshow"      ,function() D:HideBar(0)                                end, false  );
+        self:RegisterChatCommand("dcrhide"      ,function() D:HideBar(1)                                end, false  );
+        self:RegisterChatCommand("dcrshoworder" ,function() D:Show_Cure_Order()                         end, false  );
+    end
     self:RegisterChatCommand("dcrreport"    ,function() T._ShowDebugReport()                         end, false  );
     -- }}}
 
@@ -1155,6 +1158,18 @@ D.debug = true
 function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
 
     if T._SelfDiagnostic() == 2 then
+        return false;
+    end
+
+
+    if DC.TWELVEONE then
+        if not self.db.global.TwelveOneIncompatibleMessageWasShown  then
+            T._ShowNotice("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66"
+            .. "This version of Decursive is not compatible with WoW 12.1.x.\nDecursive will now stay hidden until it is updated with a compatible version.\n\n|cffffff00Check the release notes for more details.|r\n\n|cffff0000This message will not be shown again|r."
+            .. "|r")
+
+            self.db.global.TwelveOneIncompatibleMessageWasShown = true;
+        end
         return false;
     end
 
@@ -2365,7 +2380,7 @@ end -- }}}
 
 
 
-T._LoadedFiles["DCR_init.lua"] = "2.8.1";
+T._LoadedFiles["DCR_init.lua"] = "2.8.2";
 
 -------------------------------------------------------------------------------
 
@@ -2374,42 +2389,42 @@ TEST to see what keyword substitutions are actually working....
 
 Simple replacements
 
-1238
+1240
     Turns into the current revision of the file in integer form. e.g. 1234
     Note: does not work for git
-1238
+1240
     Turns into the highest revision of the entire project in integer form. e.g. 1234
     Note: does not work for git
-6ecc2a3dab8311885143b1d9d874c045009a7cc7
+4a55838b77b6e6d26267d2cb026ebf16f983b476
     Turns into the hash of the file in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-6ecc2a3dab8311885143b1d9d874c045009a7cc7
+4a55838b77b6e6d26267d2cb026ebf16f983b476
     Turns into the hash of the entire project in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-6ecc2a3
+4a55838
     Turns into the abbreviated hash of the file in hex form. e.g. 106c63 Note: does not work for svn
-6ecc2a3
+4a55838
     Turns into the abbreviated hash of the entire project in hex form. e.g. 106c63
     Note: does not work for svn
 Archarodim
     Turns into the last author of the file. e.g. ckknight
 Archarodim
     Turns into the last author of the entire project. e.g. ckknight
-2026-07-22T09:28:35Z
+2026-08-12T11:19:22Z
     Turns into the last changed date (by UTC) of the file in ISO 8601. e.g. 2008-05-01T12:34:56Z
-2026-07-22T09:28:35Z
+2026-08-12T11:19:22Z
     Turns into the last changed date (by UTC) of the entire project in ISO 8601. e.g. 2008-05-01T12:34:56Z
-20260722092835
+20260812111922
     Turns into the last changed date (by UTC) of the file in a readable integer fashion. e.g. 20080501123456
-20260722092835
+20260812111922
     Turns into the last changed date (by UTC) of the entire project in a readable integer fashion. e.g. 2008050123456
-1784712515
+1786533562
     Turns into the last changed date (by UTC) of the file in POSIX timestamp. e.g. 1209663296
     Note: does not work for git
-1784712515
+1786533562
     Turns into the last changed date (by UTC) of the entire project in POSIX timestamp. e.g. 1209663296
     Note: does not work for git
-2.8.1
+2.8.2
     Turns into an approximate version of the project. The tag name if on a tag, otherwise it's up to the repo.
     :SVN returns something like "r1234"
     :Git returns something like "v0.1-873fc1"
