@@ -309,6 +309,7 @@ end
 
 local function ApplyRestingFlipbook(tex, play)
   if not (tex and tex.SetAtlas and tex.CreateAnimationGroup) then return false end
+  if not AtlasAvailable(tex, RESTING_FLIPBOOK_ATLAS) then return false end
   if tex._msufRestingFlipbookAtlas ~= true then
     tex:SetAtlas(RESTING_FLIPBOOK_ATLAS)
     tex._msufRestingFlipbookAtlas = true
@@ -1515,10 +1516,14 @@ local function UpdateRaidGroup(frame, status)
 end
 
 local function EliteAtlas(state)
-  if state == "BOSS" then
-    return "nameplates-icon-elite-gold"
+  -- Mirror Blizzard_NamePlateClassificationFrame exactly: elite/worldboss use
+  -- gold, rare elite uses silver, and rare uses the standalone rare star.
+  if state == "RARE" then
+    return "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Star"
+  elseif state == "RAREELITE" then
+    return "nameplates-icon-elite-silver"
   end
-  return "nameplates-icon-elite-silver"
+  return "nameplates-icon-elite-gold"
 end
 
 local function EliteState(frame, unit, unitState)
