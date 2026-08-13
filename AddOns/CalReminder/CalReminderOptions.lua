@@ -90,7 +90,7 @@ local function sorTableByNames(inputTable, firstValue)
 
     -- Sort the temporary table by the 'name' field
     table.sort(sortedTable, function(a, b)
-        return a.name < b.name
+        return not issecretvalue(a.name) and a.name < b.name
     end)
 
     -- Create the final table with numeric indices

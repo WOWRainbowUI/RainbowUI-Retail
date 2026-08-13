@@ -1,6 +1,6 @@
-## Interface: 120001,120005
+## Interface: 120100
 ## Title: CalReminder
-## Version: 1.4.11
+## Version: 1.4.13
 ## Notes: This file exists only to support packaging systems.
 ## LoadOnDemand: 1
 
