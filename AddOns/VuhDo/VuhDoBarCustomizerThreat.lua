@@ -93,7 +93,7 @@ function VUHDO_threatBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, a
 
 			if anIsActive then
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate);
+					VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate, "THREAT_BAR", aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tBar, aColor);
 				end
@@ -291,6 +291,8 @@ end
 --
 local tUnitInfo;
 local tIsCharmed;
+local tUnitCharmed;
+local tUnitCanAttack;
 function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 
 	if not VUHDO_RAID then
@@ -311,10 +313,34 @@ function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 		VUHDO_updateUnitRange(aUnit);
 	end
 
-	tIsCharmed = UnitIsCharmed(aUnit) and UnitCanAttack("player", aUnit) and not tUnitInfo["dead"];
+	tUnitCharmed = UnitIsCharmed(aUnit);
+
+	if sSecretsEnabled and issecretvalue(tUnitCharmed) then
+		tUnitCanAttack = UnitCanAttack("player", aUnit);
+
+		if not tUnitInfo["dead"] and tUnitCanAttack then
+			tUnitInfo["hasSecretCharmed"] = true;
+			tUnitInfo["secretCharmed"] = tUnitCharmed;
+		else
+			tUnitInfo["hasSecretCharmed"] = false;
+			tUnitInfo["secretCharmed"] = nil;
+		end
+
+		VUHDO_updateHealthBarsFor(aUnit, 4);
+		VUHDO_updateBouquetsForEvent(aUnit, 4);
+
+		return;
+	end
+
+	tUnitInfo["hasSecretCharmed"] = false;
+	tUnitInfo["secretCharmed"] = nil;
+
+	tUnitCanAttack = UnitCanAttack("player", aUnit);
+	tIsCharmed = tUnitCharmed and tUnitCanAttack and not tUnitInfo["dead"];
 
 	if tUnitInfo["charmed"] ~= tIsCharmed then
 		tUnitInfo["charmed"] = tIsCharmed;
+		tUnitInfo["canAttack"] = tUnitCanAttack;
 
 		VUHDO_updateHealthBarsFor(aUnit, 4);
 	end

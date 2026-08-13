@@ -254,7 +254,8 @@ local VUHDO_RAID_SORTERS = {
 					return true;
 				elseif sIsPlayerFirst and anotherUnitId == "player" then
 					return false;
-				elseif VUHDO_RAID[aUnitId]["class"] and VUHDO_RAID[anotherUnitId]["class"] then
+				elseif VUHDO_RAID[aUnitId]["class"] and VUHDO_RAID[anotherUnitId]["class"]
+					and not VUHDO_RAID[aUnitId]["hasSecretClass"] and not VUHDO_RAID[anotherUnitId]["hasSecretClass"] then
 					if (VUHDO_PANEL_SETUP[sPanelNum]["MODEL"]["isReverse"]) then
 						aUnitId, anotherUnitId = anotherUnitId, aUnitId;
 					end

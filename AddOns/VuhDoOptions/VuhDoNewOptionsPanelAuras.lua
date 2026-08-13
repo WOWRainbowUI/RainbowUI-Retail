@@ -206,7 +206,10 @@ end
 --
 function VUHDO_panelAurasGroupIdChanged(aCombo, aValue)
 
+	VUHDO_panelAurasUpdateFixedSlotsEnabled();
+
 	VUHDO_rebuildCanColorBarGroupsCache();
+
 	VUHDO_reloadUI(false);
 
 	return;
@@ -453,6 +456,59 @@ function VUHDO_panelAurasUpdateStyleControlsEnabled(aParent, aStyleValue)
 	end
 
 	sLastAuraAnchorStyle = aStyleValue;
+
+	return;
+
+end
+
+
+
+--
+local tFixedSlotsContentPanel;
+local tFixedSlotsAnchorKey;
+local tFixedSlotsAnchorData;
+local tFixedSlotsGroupId;
+local tFixedSlotsGroup;
+local tIsListGroupType;
+local tFixedSlotsCheckButton;
+function VUHDO_panelAurasUpdateFixedSlotsEnabled()
+
+	tFixedSlotsContentPanel = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanel"];
+
+	if not tFixedSlotsContentPanel then
+		return;
+	end
+
+	tFixedSlotsCheckButton = _G[tFixedSlotsContentPanel:GetName() .. "TriStateRow4FixedSlotsCheck"];
+
+	if not tFixedSlotsCheckButton then
+		return;
+	end
+
+	tIsListGroupType = false;
+
+	if VUHDO_PANEL_AURAS_SELECTED_ANCHOR and DESIGN_MISC_PANEL_NUM then
+		tFixedSlotsAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
+		tFixedSlotsAnchorData = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"];
+		tFixedSlotsAnchorData = tFixedSlotsAnchorData and tFixedSlotsAnchorData[tFixedSlotsAnchorKey];
+
+		if tFixedSlotsAnchorData then
+			tFixedSlotsGroupId = tFixedSlotsAnchorData["groupId"];
+			tFixedSlotsGroup = VUHDO_getAuraGroup(tFixedSlotsGroupId);
+
+			if tFixedSlotsGroup and (tFixedSlotsGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
+				tIsListGroupType = true;
+			end
+		end
+	end
+
+	VUHDO_setControlEnabled(tFixedSlotsCheckButton:GetParent(), "FixedSlotsCheck", tIsListGroupType);
+
+	if tIsListGroupType then
+		tFixedSlotsCheckButton:Enable();
+	else
+		tFixedSlotsCheckButton:Disable();
+	end
 
 	return;
 
@@ -977,8 +1033,11 @@ function VUHDO_panelAurasRebindContentPanel()
 
 	if tFixedSlotsCheck then
 		tModel = format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.fixedSlots", tAnchorKey);
+
 		VUHDO_lnfSetModel(tFixedSlotsCheck, tModel);
 		VUHDO_lnfCheckButtonInitFromModel(tFixedSlotsCheck);
+
+		VUHDO_panelAurasUpdateFixedSlotsEnabled();
 	end
 
 	tTriStateNames = {

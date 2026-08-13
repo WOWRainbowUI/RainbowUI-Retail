@@ -12,6 +12,7 @@
 	<Script file="VuhDoToolbox.lua" />
 	<Script file="VuhDoToolboxUtil.lua" />
 	<Script file="VuhDoAuras.lua" />
+	<Script file="VuhDoAuraMode.lua" />
 	<Script file="VuhDoAuraInference.lua" />
 	<Script file="VuhDoAuraSounds.lua" />
 	<Script file="VuhDoTask.lua" />

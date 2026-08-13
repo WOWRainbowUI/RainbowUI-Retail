@@ -225,14 +225,14 @@ end
 --
 local tWidth;
 local tFrameScale;
-function tPixelUtil.SetWidth(aFrame, aWidth)
+function tPixelUtil.SetWidth(aFrame, aWidth, aMinPixels)
 
 	if not aFrame then
 		return;
 	end
 
 	tFrameScale = aFrame:GetEffectiveScale();
-	tWidth = aWidth and VUHDO_roundToPixel(aWidth, tFrameScale) or aFrame:GetWidth();
+	tWidth = aWidth and VUHDO_roundToPixel(aWidth, tFrameScale, aMinPixels) or aFrame:GetWidth();
 
 	if not InCombatLockdown() or (aFrame.IsProtected and not aFrame:IsProtected()) then
 		aFrame:SetWidth(tWidth);
@@ -249,14 +249,14 @@ end
 --
 local tHeight;
 local tFrameScale;
-function tPixelUtil.SetHeight(aFrame, aHeight)
+function tPixelUtil.SetHeight(aFrame, aHeight, aMinPixels)
 
 	if not aFrame then
 		return;
 	end
 
 	tFrameScale = aFrame:GetEffectiveScale();
-	tHeight = aHeight and VUHDO_roundToPixel(aHeight, tFrameScale) or aFrame:GetHeight();
+	tHeight = aHeight and VUHDO_roundToPixel(aHeight, tFrameScale, aMinPixels) or aFrame:GetHeight();
 
 	if not InCombatLockdown() or (aFrame.IsProtected and not aFrame:IsProtected()) then
 		aFrame:SetHeight(tHeight);
@@ -520,9 +520,9 @@ end
 
 
 --
-function tPixelUtil.RoundToPixel(aValue)
+function tPixelUtil.RoundToPixel(aValue, aMinPixels)
 
-	return VUHDO_roundToPixel(aValue);
+	return VUHDO_roundToPixel(aValue, nil, aMinPixels);
 
 end
 

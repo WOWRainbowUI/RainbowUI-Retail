@@ -7,6 +7,7 @@
 	<Script file="UTF8\utf8data.lua" />
 	<Include file="LibCompress\lib.xml" />
 	<Script file="LibBase64-1.0\LibBase64-1.0.lua" />
+	<Include file="LibOrbitGlow-1.0\LibOrbitGlow-1.0.xml" />
 	<Include file="NickTag-1.0\NickTag-1.0.xml" />
 	<Script file="LibSpecialization\LibSpecialization.lua" />
 

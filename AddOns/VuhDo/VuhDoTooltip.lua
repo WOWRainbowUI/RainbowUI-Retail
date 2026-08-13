@@ -26,6 +26,7 @@ local twipe = table.wipe;
 local format = format;
 local issecretvalue = issecretvalue;
 local AbbreviateNumbers = AbbreviateNumbers;
+local GetClassColor = C_ClassColor and C_ClassColor.GetClassColor;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sEmpty = { };
@@ -69,7 +70,13 @@ local function VUHDO_setTooltipLine(aText, anIsLeft, aLineNum, aColor, aTextSize
 	tLabel = _G[format("VuhDoTooltipText%s%d", anIsLeft and "L" or "R", aLineNum)];
 	tLabel:SetText(aText);
 
-	if aColor then tLabel:SetTextColor(VUHDO_textColor(aColor)); end
+	if aColor then
+		if aColor.GetRGBA then
+			tLabel:SetTextColor(aColor:GetRGBA());
+		else
+			tLabel:SetTextColor(VUHDO_textColor(aColor));
+		end
+	end
 
 	if (aTextSize or 0) ~= 0 then
 		tLabel:SetFont(GameFontNormal:GetFont(), aTextSize, "");
@@ -275,6 +282,7 @@ local tModifier;
 local tGuildName, tGuildRank;
 local tBinding;
 local tClassName, tClassNameLoc;
+local tClassDisplayName;
 function VUHDO_updateTooltip()
 
 	if not UnitExists(VUHDO_TT_UNIT) then
@@ -300,7 +308,14 @@ function VUHDO_updateTooltip()
 
 	-- Name, Role
 	tClassNameLoc, tClassName = UnitClass(tUnit);
-	tClassColor = VUHDO_getClassColorByModelId(VUHDO_CLASS_IDS[tClassName] or "*");
+
+	if tInfo["classId"] then
+		tClassColor = VUHDO_getClassColorByModelId(tInfo["classId"]);
+	elseif not (sSecretsEnabled and issecretvalue(tClassName)) and tClassName then
+		tClassColor = VUHDO_getClassColorByModelId(VUHDO_CLASS_IDS[tClassName]);
+	elseif tClassName then
+		tClassColor = GetClassColor(tClassName);
+	end
 
 	if not tClassColor then
 		-- FIXME: bar text color is not per panel
@@ -311,7 +326,13 @@ function VUHDO_updateTooltip()
 	VUHDO_addTooltipLineRight(tInfo["role"] ~= nil and format("(%s)", VUHDO_HEADER_TEXTS[tInfo["role"]]) or "", tClassColor, 8);
 
 	-- Level, Klasse, Rasse
-	VUHDO_addTooltipLineLeft(format("%s%d %s", VUHDO_I18N_TT_LEVEL, UnitLevel(tUnit) or "", tClassNameLoc or "?"), tClassColor, 9);
+	if sSecretsEnabled and issecretvalue(tClassNameLoc) then
+		tClassDisplayName = "?";
+	else
+		tClassDisplayName = tClassNameLoc or "?";
+	end
+
+	VUHDO_addTooltipLineLeft(format("%s%d %s", VUHDO_I18N_TT_LEVEL, UnitLevel(tUnit) or "", tClassDisplayName), tClassColor, 9);
 	VUHDO_addTooltipLineRight(UnitRace(tUnit) or UnitCreatureType(tUnit) or " ", tClassColor, 9);
 
 	-- Guild

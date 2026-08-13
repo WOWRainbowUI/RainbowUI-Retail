@@ -2226,6 +2226,8 @@ do
 
 				VUHDO_clearUnitAuraFrames(tHealButton);
 
+				VUHDO_clearAuraContainersForButton(tHealButton);
+
 				VUHDO_PixelUtil.ClearAllPoints(tHealButton);
 				VUHDO_PixelUtil.Hide(tHealButton);
 			else
@@ -2845,6 +2847,8 @@ do
 				end
 
 				VUHDO_clearUnitAuraFrames(tHealButton);
+
+				VUHDO_clearAuraContainersForButton(tHealButton);
 
 				VUHDO_PixelUtil.ClearAllPoints(tHealButton);
 				VUHDO_PixelUtil.Hide(tHealButton);

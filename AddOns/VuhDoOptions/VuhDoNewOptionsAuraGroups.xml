@@ -723,10 +723,13 @@
 					</Button>
 
 					<CheckButton name="$parentCanColorBarCheckButton" text="VUHDO_I18N_AURA_COLOR_BAR" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="88" y="30" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentColorTypeCombo" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-4" />
+									<AbsDimension x="0" y="-6" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -741,10 +744,13 @@
 					</CheckButton>
 
 					<CheckButton name="$parentCanColorTextCheckButton" text="VUHDO_I18N_AURA_COLOR_TEXT" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="92" y="30" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentCanColorBarCheckButton" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="0" />
+									<AbsDimension x="0" y="0" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -765,7 +771,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentCanColorTextCheckButton" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="-2" />
+									<AbsDimension x="2" y="-2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -776,39 +782,50 @@
 						</Scripts>
 					</Frame>
 
-					<CheckButton name="$parentCanGlowBarCheckButton" text="VUHDO_I18N_AURA_GLOW_BAR" inherits="VuhDoCheckButtonTemplate">
+					<Button name="$parentGlowBarStyleCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="110" y="24" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentCustomColorTexture" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="2" />
+									<AbsDimension x="10" y="-2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_CAN_GLOW_BAR");
-								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_GLOW_BAR_STYLE", VUHDO_GLOW_STYLE_COMBO_MODEL, VUHDO_I18N_AURA_GLOW_BAR);
+								self["isGlow"] = true;
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsGlowBarStyleChanged);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K779);
-
-								self:SetAttribute("custom_function_post", VUHDO_auraGroupsCanGlowBarChanged);
 							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_initGlowStyleComboModel();
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
 						</Scripts>
-					</CheckButton>
+					</Button>
 
 					<Frame name="$parentGlowBarColorTexture" inherits="VuhDoColorSwatchTexture">
 						<Size>
 							<AbsDimension x="88" y="32" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentCanGlowBarCheckButton" relativePoint="TOPRIGHT">
+							<Anchor point="TOPLEFT" relativeTo="$parentGlowBarStyleCombo" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="-2" />
+									<AbsDimension x="10" y="2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnMouseDown>
+								VUHDO_lnfColorSwatchShowColorPicker(self, button);
+							</OnMouseDown>
 							<OnLoad>
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K780);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_AURA_GROUPS_GLOW_BAR_STYLE", "none");
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -1200,7 +1217,7 @@
 
 							<Frame name="$parentColorLabel" inherits="VuhDoLabelFrameTemplate">
 								<Size>
-									<AbsDimension x="26" y="18" />
+									<AbsDimension x="62" y="18" />
 								</Size>
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeTo="$parentFullDurationCheckButton" relativePoint="BOTTOMLEFT">
@@ -1211,59 +1228,10 @@
 								</Anchors>
 								<Layers>
 									<Layer>
-										<FontString name="$parentLabel" text="VUHDO_I18N_COLOR" inherits="VuDoDefaultFontTemplate">
+										<FontString name="$parentLabel" text="VUHDO_I18N_COLOR_GLOW" inherits="VuDoDefaultFontTemplate">
 										</FontString>
 									</Layer>
 								</Layers>
-							</Frame>
-
-							<CheckButton name="$parentGlowIconCheckButton" text="VUHDO_I18N_GLOW_ICON" inherits="VuhDoCheckButtonTemplate">
-								<Size>
-									<AbsDimension x="100" y="32" />
-								</Size>
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentColorLabel" relativePoint="BOTTOMLEFT">
-										<Offset>
-											<AbsDimension x="0" y="-4" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_GLOW_ICON");
-										VUHDO_lnfCheckButtonOnLoad(self);
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K765);
-
-										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
-							<Frame name="$parentGlowColorTexture" inherits="VuhDoColorSwatchTexture">
-								<Size>
-									<AbsDimension x="80" y="28" />
-								</Size>
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentGlowIconCheckButton" relativePoint="TOPRIGHT">
-										<Offset>
-											<AbsDimension x="8" y="-2" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, button);
-									</OnMouseDown>
-									<OnLoad>
-										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_SETTINGS.GLOW_COLOR");
-										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_GLOW_ICON, VUHDO_I18N_GLOW_ICON);
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K766);
-										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_GLOW_ICON", false);
-
-										self:SetAttribute("forceShowColors", true);
-										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
-									</OnLoad>
-								</Scripts>
 							</Frame>
 
 							<CheckButton name="$parentColorIconCheckButton" text="VUHDO_I18N_COLOR_ICON" inherits="VuhDoCheckButtonTemplate">
@@ -1271,9 +1239,9 @@
 									<AbsDimension x="100" y="32" />
 								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentGlowColorTexture" relativePoint="TOPRIGHT">
+									<Anchor point="TOPLEFT" relativeTo="$parentColorLabel" relativePoint="BOTTOMLEFT">
 										<Offset>
-											<AbsDimension x="16" y="0" />
+											<AbsDimension x="0" y="-4" />
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -1315,12 +1283,65 @@
 								</Scripts>
 							</Frame>
 
-							<Frame name="$parentOverridesLabel" inherits="VuhDoLabelFrameTemplate">
+							<Button name="$parentGlowStyleCombo" inherits="VuhDoComboBoxTemplate">
 								<Size>
-									<AbsDimension x="88" y="18" />
+									<AbsDimension x="120" y="24" />
 								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentGlowIconCheckButton" relativePoint="BOTTOMLEFT">
+									<Anchor point="TOPLEFT" relativeTo="$parentColorIconTexture" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="16" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_setComboModel(self, "VUHDO_SPELL_ENTRY_GLOW_STYLE", VUHDO_GLOW_STYLE_COMBO_MODEL, VUHDO_I18N_GLOW_ICON);
+										self["isGlow"] = true;
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K765);
+									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_initGlowStyleComboModel();
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
+								</Scripts>
+							</Button>
+
+							<Frame name="$parentGlowColorTexture" inherits="VuhDoColorSwatchTexture">
+								<Size>
+									<AbsDimension x="80" y="28" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentGlowStyleCombo" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="16" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnMouseDown>
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
+									</OnMouseDown>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_SETTINGS.GLOW_COLOR");
+										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_GLOW_ICON, VUHDO_I18N_GLOW_ICON);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K766);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_GLOW_STYLE", "none");
+
+										self:SetAttribute("forceShowColors", true);
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<Frame name="$parentOverridesLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="84" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentColorIconCheckButton" relativePoint="BOTTOMLEFT">
 										<Offset>
 											<AbsDimension x="0" y="-8" />
 										</Offset>

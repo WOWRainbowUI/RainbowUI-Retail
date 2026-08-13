@@ -31,6 +31,7 @@ local VUHDO_generateSetupClicksCode;
 local VUHDO_generateRemoveClicksCode;
 local VUHDO_getBindingAttributeRequirements;
 local VUHDO_isBossUnit;
+local VUHDO_syncAuraContainersForButton;
 
 local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
@@ -79,6 +80,7 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_generateRemoveClicksCode = _G["VUHDO_generateRemoveClicksCode"];
 	VUHDO_getBindingAttributeRequirements = _G["VUHDO_getBindingAttributeRequirements"];
 	VUHDO_isBossUnit = _G["VUHDO_isBossUnit"];
+	VUHDO_syncAuraContainersForButton = _G["VUHDO_syncAuraContainersForButton"];
 
 	sIsCliqueCompat = VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"];
 
@@ -617,6 +619,8 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 	if aUnit and not anIsIcButton then
 		VUHDO_safeSetAttribute(aButton, "unit", aUnit);
 		aButton["raidid"] = aUnit;
+
+		VUHDO_syncAuraContainersForButton(aButton, aUnit);
 
 		if not anIsTgButton then
 			for tCnt = 40, VUHDO_CONFIG["CUSTOM_DEBUFF"]["max_num"] + 39 do

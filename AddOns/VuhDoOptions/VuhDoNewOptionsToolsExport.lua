@@ -1308,6 +1308,8 @@ do
 		VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP." .. tIgnorePanel .. ".HOTS"] = true;
 		VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP." .. tIgnorePanel .. ".SCALING.isTarClassColBack"] = true;
 		VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP." .. tIgnorePanel .. ".SCALING.isTarClassColText"] = true;
+		VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP." .. tIgnorePanel .. ".PRIVATE_AURA.showDispelOverlay"] = true;
+		VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP." .. tIgnorePanel .. ".PRIVATE_AURA.dispelIndicatorType"] = true;
 	end
 
 	VUHDO_SYNC_COVERAGE_IGNORE["PANEL_SETUP.BAR_COLORS.HOTS"] = true;

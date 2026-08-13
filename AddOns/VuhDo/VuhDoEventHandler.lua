@@ -90,6 +90,12 @@ local VUHDO_redrawAllPanels;
 local VUHDO_unregisterUnitForEvents;
 local VUHDO_isDeferredRefreshActive;
 local VUHDO_isDeferredRedrawActive;
+local VUHDO_processPendingAuraContainerBuilds;
+local VUHDO_flushPendingOverlayRebuild;
+local VUHDO_flushPendingOverlayAcquires;
+local VUHDO_checkAuraDataRestrictedState;
+local VUHDO_syncAuraContainersForUnit;
+local VUHDO_syncOverlaysForUnit;
 
 local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
@@ -533,6 +539,8 @@ local sAoeRefreshSecs = 1.3;
 local sBuffsRefreshSecs;
 local sLastShapeshiftTime = 0;
 local sIsKeyboardMacroRebuildPending = false;
+local sSpellbookRefreshScheduled = false;
+local sSpellbookRefreshNeedsBuffRetry = false;
 
 local VuhDoGcdStatusBar;
 local VuhDoDirectionFrame;
@@ -581,10 +589,17 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
 	VUHDO_isDeferredRefreshActive = _G["VUHDO_isDeferredRefreshActive"];
 	VUHDO_isDeferredRedrawActive = _G["VUHDO_isDeferredRedrawActive"];
+	VUHDO_processPendingAuraContainerBuilds = _G["VUHDO_processPendingAuraContainerBuilds"];
+	VUHDO_flushPendingOverlayRebuild = _G["VUHDO_flushPendingOverlayRebuild"];
+	VUHDO_flushPendingOverlayAcquires = _G["VUHDO_flushPendingOverlayAcquires"];
+	VUHDO_checkAuraDataRestrictedState = _G["VUHDO_checkAuraDataRestrictedState"];
+	VUHDO_syncAuraContainersForUnit = _G["VUHDO_syncAuraContainersForUnit"];
+	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
 
 	VUHDO_initTaskSystem();
 
-	-- override the base functions with their deferred counterparts
+	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
+	VUHDO_flushPendingOverlayRebuild = _G["VUHDO_deferFlushPendingOverlayRebuild"];
 	VUHDO_updateHealth = _G["VUHDO_deferUpdateHealth"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
 	VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
@@ -666,6 +681,7 @@ local VUHDO_RELOAD_PANEL_NUM = nil;
 
 VUHDO_TIMERS = {
 	["RELOAD_UI"] = 0,
+	["REGISTER_BOUQUETS"] = 0,
 	["RELOAD_PANEL"] = 0,
 	["CUSTOMIZE"] = 0,
 	["CHECK_PROFILES"] = 6.2,
@@ -746,6 +762,11 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_modelToolsInitLocalOverrides();
 	VUHDO_toolboxInitLocalOverrides();
 	VUHDO_aurasInitLocalOverrides();
+	VUHDO_auraModeInitLocalOverrides();
+	VUHDO_auraContainerFiltersInitLocalOverrides();
+	VUHDO_auraContainerGlowInitLocalOverrides();
+	VUHDO_auraContainerInitLocalOverrides();
+	VUHDO_auraContainerStaticInitLocalOverrides();
 	VUHDO_auraInferenceInitLocalOverrides();
 	VUHDO_auraSoundsInitLocalOverrides();
 	VUHDO_guiToolboxInitLocalOverrides();
@@ -947,6 +968,7 @@ local function VUHDO_init()
 	VUHDO_loadCurrentKeyLayout();
 
 	VUHDO_loadVariables(); -- 2. umgekehrt undefiniertes Verhalten (VUHDO_CONFIG ist nil etc.)
+	VUHDO_initAuraModeSelection();
 	VUHDO_initAllBurstCaches();
 	VUHDO_resolveAllAuraGroupFilters();
 	VUHDO_initDefaultProfiles();
@@ -967,6 +989,7 @@ local function VUHDO_init()
 	VUHDO_initSpecialUnitAuraSlots();
 	VUHDO_initUnitEventHandler();
 	VUHDO_reloadUI(false);
+	VUHDO_initAuraMode();
 	VUHDO_startAuraPoolPrewarm();
 	VUHDO_getAutoProfile();
 	VUHDO_initCliqueSupport();
@@ -994,6 +1017,53 @@ local function VUHDO_init()
 		VUHDO_loadDefaultProfile();
 		VUHDO_loadDefaultLayout();
 	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_processSpellbookRefresh()
+
+	sSpellbookRefreshScheduled = false;
+
+	if not VUHDO_VARIABLES_LOADED then
+		return;
+	end
+
+	VUHDO_initFromSpellbook();
+	VUHDO_registerAllBouquets(false);
+	VUHDO_initBuffs();
+	VUHDO_initDebuffs();
+
+	VUHDO_timeReloadUI(1);
+
+	VUHDO_rebuildKeyboardMacros();
+
+	if sSpellbookRefreshNeedsBuffRetry then
+		sSpellbookRefreshNeedsBuffRetry = false;
+
+		C_Timer.After(3, VUHDO_initBuffs);
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_scheduleSpellbookRefresh()
+
+	if sSpellbookRefreshScheduled then
+		return;
+	end
+
+	sSpellbookRefreshScheduled = true;
+
+	C_Timer.After(0.5, VUHDO_processSpellbookRefresh);
 
 	return;
 
@@ -1058,6 +1128,14 @@ do
 
 				VUHDO_updateBouquetsForEvent("target", 13); -- VUHDO_UPDATE_MANA
 				VUHDO_updateBouquetsForEvent("focus",  13); -- VUHDO_UPDATE_MANA
+
+				VUHDO_updateAuraDataRestrictedState(false);
+
+				VUHDO_processPendingAuraContainerBuilds();
+
+				VUHDO_flushPendingOverlayRebuild();
+
+				VUHDO_flushPendingOverlayAcquires();
 			end
 
 			if VUHDO_OPTIONS_SHOW_AFTER_BATTLE and VuhDoNewOptionsTabbedFrame and not VuhDoNewOptionsTabbedFrame:IsShown() then
@@ -1077,6 +1155,8 @@ do
 		elseif "PLAYER_REGEN_DISABLED" == anEvent then
 			if VUHDO_VARIABLES_LOADED then
 				VUHDO_stopMovingAllPanels();
+
+				VUHDO_updateAuraDataRestrictedState(false);
 			end
 
 			if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
@@ -1105,6 +1185,10 @@ do
 
 			if "INSTANCE_ENCOUNTER_ENGAGE_UNIT" == anEvent then
 				VUHDO_updateToggledUnitEvents();
+
+				for tCnt = 1, 8 do
+					VUHDO_syncAuraContainersForUnit("boss" .. tCnt);
+				end
 			end
 
 		elseif "PLAYER_FOCUS_CHANGED" == anEvent then
@@ -1163,6 +1247,9 @@ do
 				VUHDO_updateBouquetsForEvent("player", 23); -- VUHDO_UPDATE_PLAYER_FOCUS
 				VUHDO_updateBouquetsForEvent("focus", 23); -- VUHDO_UPDATE_PLAYER_FOCUS
 
+				VUHDO_syncAuraContainersForUnit("focus");
+				VUHDO_syncOverlaysForUnit("focus");
+
 				VUHDO_updatePanelVisibility();
 
 			end
@@ -1187,19 +1274,11 @@ do
 					return;
 				end
 
-				VUHDO_initFromSpellbook();
-				VUHDO_registerAllBouquets(false);
-				VUHDO_initBuffs();
-				VUHDO_initDebuffs();
-
-				VUHDO_timeReloadUI(1);
-
-				VUHDO_rebuildKeyboardMacros();
-
 				if "SPELLS_CHANGED" == anEvent then
-					-- workaround slow clients where partial spellbook is available on SPELLS_CHANGED
-					C_Timer.After(3, VUHDO_initBuffs);
+					sSpellbookRefreshNeedsBuffRetry = true;
 				end
+
+				VUHDO_scheduleSpellbookRefresh();
 			end
 
 		elseif "VARIABLES_LOADED" == anEvent then
@@ -1219,12 +1298,18 @@ do
 				VUHDO_updateHealth("player", 1);
 				VUHDO_updateBouquetsForEvent("player", 22); -- VUHDO_UPDATE_UNIT_TARGET
 
-				VUHDO_updateHealth("target", 1);
+				if UnitExists("target") then
+					VUHDO_updateHealth("target", 1);
+				end
+
 				VUHDO_updateBouquetsForEvent("target", 22); -- VUHDO_UPDATE_UNIT_TARGET
 
 				if VUHDO_needsRoleInspect("target") then
 					VUHDO_requestTargetFocusInspect("target");
 				end
+
+				VUHDO_syncAuraContainersForUnit("target");
+				VUHDO_syncOverlaysForUnit("target");
 
 				VUHDO_updatePanelVisibility();
 			end
@@ -1387,6 +1472,7 @@ do
 	local tName;
 	local tUnit;
 	local tSubCommand;
+	local tArgument;
 	local tPanelNum;
 	local tHelpText;
 	local tCurrentValue;
@@ -1707,6 +1793,37 @@ do
 
 			if strfind(tSubCommand, "mig") then
 				VUHDO_resetAndRemigrateAuras();
+			elseif strfind(tSubCommand, "level") then
+				VUHDO_dumpAuraContainerLevels(tParsedTexts[3] or "player");
+			elseif strfind(tSubCommand, "dump") then
+				VUHDO_dumpAuraDiagnostics(tParsedTexts[3] or "player");
+			elseif strfind(tSubCommand, "test") then
+				VUHDO_createAuraContainerSmokeTest(tParsedTexts[3] or "player");
+			elseif strfind(tSubCommand, "res") then
+				tArgument = strlower(tParsedTexts[3] or "");
+
+				if tArgument == "on" then
+					VUHDO_setForceAuraMode(1);
+
+					VUHDO_Msg("Aura mode ON (AuraContainers) - reloading UI...");
+					ReloadUI();
+				elseif tArgument == "off" then
+					VUHDO_setForceAuraMode(0);
+
+					VUHDO_Msg("Aura mode OFF (UNIT_AURA) - reloading UI...");
+					ReloadUI();
+				elseif tArgument == "auto" then
+					VUHDO_setForceAuraMode(nil);
+
+					VUHDO_Msg("Aura mode auto - reloading UI...");
+					ReloadUI();
+				else
+					VUHDO_Msg("Aura mode: " .. (VUHDO_isAuraModeContainers() and "on" or "off"));
+					VUHDO_Msg("Aura data restricted: " .. (VUHDO_isAuraDataRestricted() and "yes" or "no"));
+					VUHDO_Msg("Force aura mode: " .. (VUHDO_FORCE_AURA_MODE == nil and "auto" or tostring(VUHDO_FORCE_AURA_MODE)));
+				end
+			elseif strfind(tSubCommand, "aud") then
+				VUHDO_auditAuraConfiguration();
 			else
 				VUHDO_auraHelp();
 			end
@@ -1928,6 +2045,17 @@ function VUHDO_timeReloadUI(aNumSecs, anIsLnf)
 
 	VUHDO_TIMERS["RELOAD_UI"] = aNumSecs;
 	VUHDO_RELOAD_UI_IS_LNF = anIsLnf;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_timeRegisterBouquets(aNumSecs)
+
+	VUHDO_TIMERS["REGISTER_BOUQUETS"] = aNumSecs;
 
 	return;
 
@@ -2176,6 +2304,18 @@ do
 				end
 
 				VUHDO_PROHIBIT_REPOS = false;
+			end
+		end
+
+		if VUHDO_checkTimer("REGISTER_BOUQUETS") then
+			tIsDeferredActive = VUHDO_CONFIG and VUHDO_CONFIG["USE_DEFERRED_REDRAW"] and VUHDO_isDeferredRedrawActive();
+
+			if VUHDO_IS_RELOADING or InCombatLockdown() or tIsDeferredActive then
+				VUHDO_TIMERS["REGISTER_BOUQUETS"] = 0.3;
+			else
+				VUHDO_wipeAuraContainerPool();
+				VUHDO_registerAllBouquets(false);
+				VUHDO_initAllEventBouquets();
 			end
 		end
 
@@ -2629,6 +2769,10 @@ do
 
 		-- automatic profiles, shield cleanup, hide generic blizz party
 		if VUHDO_checkResetTimer("CHECK_PROFILES", 3.1) then
+			if sSecretsEnabled then
+				VUHDO_checkAuraDataRestrictedState(false);
+			end
+
 			-- Segment 2G: Auto profile detection
 
 			VUHDO_profileSegment("segment2G", tSegmentCallbacks["segment2G"], aTimeDelta);
@@ -2739,8 +2883,6 @@ do
 		SLASH_RELOADUI1 = "/rl";
 
 		SlashCmdList["RELOADUI"] = ReloadUI;
-
-
 
 		anInstance:SetScript("OnEvent", VUHDO_OnEvent);
 		anInstance:SetScript("OnUpdate", VUHDO_OnUpdate);

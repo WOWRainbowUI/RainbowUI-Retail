@@ -117,6 +117,8 @@ local function VUHDO_healthBelowValidator(anInfo, aSomeCustom, aSecretContext)
 
 		if aSecretContext["healthCurve"] then
 			tSecretColor = UnitHealthPercent(anInfo["unit"], true, aSecretContext["healthCurve"]);
+		elseif aSecretContext["blizzardClassColor"] then
+			tSecretColor = aSecretContext["blizzardClassColor"];
 		end
 
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, nil, tSecretColor;
@@ -155,6 +157,8 @@ local function VUHDO_healthAboveValidator(anInfo, aSomeCustom, aSecretContext)
 
 		if aSecretContext["healthCurve"] then
 			tSecretColor = UnitHealthPercent(anInfo["unit"], true, aSecretContext["healthCurve"]);
+		elseif aSecretContext["blizzardClassColor"] then
+			tSecretColor = aSecretContext["blizzardClassColor"];
 		end
 
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, nil, tSecretColor;
@@ -250,7 +254,7 @@ local function VUHDO_threatAboveValidator(anInfo, aSomeCustom)
 		return (anInfo["threat"] or 0) >= 2, nil, -1, -1, -1;
 	end
 
-	return anInfo["threatPerc"] > aSomeCustom["custom"][1], nil, -1, -1, -1;
+	return (anInfo["threatPerc"] or 0) > aSomeCustom["custom"][1], nil, -1, -1, -1;
 
 end
 
@@ -505,6 +509,70 @@ end
 
 
 --
+local function VUHDO_statusManaGate(anInfo)
+
+	if not anInfo then
+		return false;
+	end
+
+	if anInfo["powertype"] ~= 0 then
+		return false;
+	end
+
+	return anInfo["hasSecretPower"] or (anInfo["powermax"] or 0) > 0;
+
+end
+
+
+
+--
+local function VUHDO_statusManaHealerOnlyGate(anInfo)
+
+	if not anInfo then
+		return false;
+	end
+
+	if anInfo["powertype"] ~= 0 or anInfo["role"] ~= VUHDO_ID_RANGED_HEAL then
+		return false;
+	end
+
+	return anInfo["hasSecretPower"] or (anInfo["powermax"] or 0) > 0;
+
+end
+
+
+
+--
+local function VUHDO_statusPowerTankOnlyGate(anInfo)
+
+	if not anInfo then
+		return false;
+	end
+
+	if anInfo["powertype"] == 0 or anInfo["role"] ~= VUHDO_ID_MELEE_TANK then
+		return false;
+	end
+
+	return true;
+
+end
+
+
+
+--
+local function VUHDO_statusOtherPowersGate(anInfo)
+
+	if not anInfo then
+		return false;
+	end
+
+	return anInfo["powertype"] ~= 0;
+
+end
+
+
+
+--
 local function VUHDO_statusHealthValidator(anInfo, _, aSecretContext)
 
 	if not anInfo["unit"] then
@@ -516,6 +584,8 @@ local function VUHDO_statusHealthValidator(anInfo, _, aSecretContext)
 
 		if aSecretContext["healthCurve"] then
 			tSecretColor = UnitHealthPercent(anInfo["unit"], true, aSecretContext["healthCurve"]);
+		elseif aSecretContext["blizzardClassColor"] then
+			tSecretColor = aSecretContext["blizzardClassColor"];
 		end
 
 		return true, nil, anInfo["health"], -1, anInfo["healthmax"], nil, UnitHealthMissing(anInfo["unit"]), nil, nil, nil, nil, nil, tSecretColor;
@@ -531,6 +601,10 @@ end
 local function VUHDO_statusManaValidator(anInfo, _, aSecretContext)
 
 	if anInfo["powertype"] ~= 0 then
+		return false, nil, -1, -1, -1;
+	end
+
+	if not anInfo["hasSecretPower"] and (anInfo["powermax"] or 0) <= 0 then
 		return false, nil, -1, -1, -1;
 	end
 
@@ -560,6 +634,10 @@ end
 local function VUHDO_statusManaHealerOnlyValidator(anInfo, _, aSecretContext)
 
 	if anInfo["powertype"] ~= 0 or anInfo["role"] ~= VUHDO_ID_RANGED_HEAL then
+		return false, nil, -1, -1, -1;
+	end
+
+	if not anInfo["hasSecretPower"] and (anInfo["powermax"] or 0) <= 0 then
 		return false, nil, -1, -1, -1;
 	end
 
@@ -766,7 +844,7 @@ end
 
 --
 local function VUHDO_statusThreatValidator(anInfo, _)
-	return true, nil, anInfo["threatPerc"], -1, 100;
+	return true, nil, anInfo["threatPerc"] or 0, -1, 100;
 end
 
 
@@ -1181,7 +1259,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_INC, VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_HEALTH_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_HEALTH,
 		["isGlobal"] = false,
 	},
 
@@ -1192,7 +1271,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_MANA,
+		["gateValidator"] = VUHDO_statusManaGate,
 		["isGlobal"] = false,
 	},
 
@@ -1203,7 +1284,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_MANA,
+		["gateValidator"] = VUHDO_statusManaHealerOnlyGate,
 		["isGlobal"] = false,
 	},
 
@@ -1214,7 +1297,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC },
 		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_POWER,
+		["gateValidator"] = VUHDO_statusPowerTankOnlyGate,
 		["isGlobal"] = false,
 	},
 
@@ -1225,7 +1310,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC },
 		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_POWER,
+		["gateValidator"] = VUHDO_statusOtherPowersGate,
 		["isGlobal"] = false,
 	},
 
@@ -1235,7 +1322,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_ALT_POWER, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_ALTPOWER,
+		["isSecretInactive"] = true,
 		["isGlobal"] = false,
 	},
 
@@ -1245,7 +1334,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_INC },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_INCOMING,
 		["isGlobal"] = false,
 	},
 
@@ -1255,7 +1345,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_NONE,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_ABSORB,
+		["isSecretInactive"] = true,
 		["isGlobal"] = false,
 	},
 
@@ -1265,7 +1357,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_ABSORB,
 		["isGlobal"] = false,
 	},
 
@@ -1275,7 +1368,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_THREAT_PERC },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_THREAT,
 		["isGlobal"] = false,
 	},
 
@@ -1285,7 +1379,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { },
 		["secretType"] = VUHDO_SECRET_TYPE_NONE,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_FULL,
 		["isGlobal"] = false,
 	},
 
@@ -1296,7 +1391,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { },
 		["secretType"] = VUHDO_SECRET_TYPE_NONE,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["isActiveOnly"] = true,
 		["isGlobal"] = false,
 	},
 
@@ -1307,7 +1403,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_INC, VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_HEALTH_PERCENT,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_HEALTH,
+		["isActiveOnly"] = true,
 		["isGlobal"] = false,
 	},
 
@@ -1345,7 +1443,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_ABSORB,
 		["isGlobal"] = false,
 	},
 
@@ -1355,7 +1454,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_ABSORB,
 		["isGlobal"] = false,
 	},
 
@@ -1374,7 +1474,8 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_SHIELD },
 		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
-		["hasValue"] = true,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_HEAL_ABSORB,
 		["isGlobal"] = false,
 	},
 };

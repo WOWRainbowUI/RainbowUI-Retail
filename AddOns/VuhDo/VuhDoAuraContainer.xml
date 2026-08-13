@@ -1,0 +1,164 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<ScopedModifier useForbiddenObjectTable="true">
+
+		<AuraContainer name="VuhDoAuraContainerTemplate" inherits="CustomAuraContainerTemplate" virtual="true" />
+
+		<AuraContainer name="VuhDoFillChainAuraContainerTemplate" inherits="VuhDoAuraContainerTemplate" virtual="true">
+			<Frames>
+
+				<Frame parentKey="ChainBaselineFrame" inherits="DisableUntrustedLayoutScriptsTemplate" hidden="true">
+					<Layers>
+						<Layer level="ARTWORK">
+							<Texture parentKey="ChainBaselineTexture" file="Interface\Buttons\WHITE8X8" setAllPoints="true" />
+							<MaskTexture parentKey="ChainBaselineMask" file="Interface\Buttons\WHITE8X8" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+								<MaskedTextures>
+									<MaskedTexture childKey="ChainBaselineTexture" />
+								</MaskedTextures>
+							</MaskTexture>
+						</Layer>
+					</Layers>
+				</Frame>
+
+			</Frames>
+		</AuraContainer>
+
+		<AuraButton name="VuhDoAuraButtonIconTemplate" inherits="CustomAuraButtonTemplate" virtual="true">
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture parentKey="BorderTexture" setAllPoints="true" hidden="true" />
+				</Layer>
+				<Layer level="BORDER">
+					<Texture parentKey="IconTexture" setAllPoints="true" />
+				</Layer>
+				<Layer level="ARTWORK">
+					<Texture parentKey="IconColorOverlay" file="Interface\Buttons\WHITE8X8" setAllPoints="true" alphaMode="MOD" hidden="true" />
+				</Layer>
+				<Layer level="OVERLAY">
+					<FontString parentKey="SymbolText" inherits="NumberFontNormalSmall">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+					</FontString>
+					<FontString parentKey="TimerText" inherits="NumberFontNormalSmall">
+						<Anchors>
+							<Anchor point="CENTER" />
+						</Anchors>
+					</FontString>
+					<FontString parentKey="CountText" inherits="NumberFontNormalSmall">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" />
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Frames>
+
+				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" setAllPoints="true" />
+
+			</Frames>
+		</AuraButton>
+
+		<AuraButton name="VuhDoAuraButtonBarTemplate" inherits="CustomAuraButtonTemplate" virtual="true">
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture parentKey="BorderTexture" setAllPoints="true" hidden="true" />
+				</Layer>
+				<Layer level="BORDER">
+					<Texture parentKey="IconTexture" setAllPoints="true" />
+				</Layer>
+				<Layer level="ARTWORK">
+					<Texture parentKey="IconColorOverlay" file="Interface\Buttons\WHITE8X8" setAllPoints="true" alphaMode="MOD" hidden="true" />
+				</Layer>
+			</Layers>
+			<Frames>
+
+				<Frame parentKey="IconFrame" enableMouse="false">
+					<Anchors>
+						<Anchor point="LEFT" />
+					</Anchors>
+				</Frame>
+
+				<StatusBar parentKey="DurationBar" setAllPoints="true" enableMouse="false">
+					<BarTexture file="Interface\TargetingFrame\UI-StatusBar" />
+				</StatusBar>
+
+				<Frame parentKey="TextOverlayFrame" setAllPoints="true" enableMouse="false">
+					<Layers>
+						<Layer level="OVERLAY">
+							<FontString parentKey="SymbolText" inherits="NumberFontNormalSmall">
+								<Anchors>
+									<Anchor point="CENTER" />
+								</Anchors>
+							</FontString>
+							<FontString parentKey="TimerText" inherits="NumberFontNormalSmall">
+								<Anchors>
+									<Anchor point="CENTER" />
+								</Anchors>
+							</FontString>
+							<FontString parentKey="CountText" inherits="NumberFontNormalSmall">
+								<Anchors>
+									<Anchor point="CENTER" />
+								</Anchors>
+							</FontString>
+						</Layer>
+					</Layers>
+				</Frame>
+
+				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" hidden="true" />
+
+			</Frames>
+		</AuraButton>
+
+		<AuraButton name="VuhDoAuraButtonOverlayTemplate" inherits="CustomAuraButtonTemplate" virtual="true">
+			<Layers>
+				<Layer level="BORDER">
+					<Texture parentKey="FillTexture" setAllPoints="true" hidden="true" />
+				</Layer>
+				<Layer level="OVERLAY">
+					<Texture parentKey="BorderTexture" setAllPoints="true" hidden="true" />
+					<Texture parentKey="BorderEdgeTop" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+				</Layer>
+			</Layers>
+			<Frames>
+
+				<StatusBar parentKey="ShadowBar" setAllPoints="true" enableMouse="false" hidden="true">
+					<Layers>
+						<Layer level="ARTWORK" textureSubLevel="1">
+							<Texture parentKey="ShadowBackground" setAllPoints="true" hidden="true" />
+						</Layer>
+					</Layers>
+					<BarTexture file="Interface\TargetingFrame\UI-StatusBar" />
+				</StatusBar>
+
+			</Frames>
+		</AuraButton>
+
+		<AuraButton name="VuhDoAuraButtonDispelOverlayTemplate" inherits="CustomAuraButtonTemplate" virtual="true">
+			<Layers>
+				<Layer level="ARTWORK" textureSubLevel="-6">
+					<Texture parentKey="FillTexture" atlas="RaidFrame-Dispel-Fill" hWrapMode="REPEAT" vWrapMode="REPEAT" setAllPoints="true" alpha="0.2" />
+				</Layer>
+				<Layer level="ARTWORK" textureSubLevel="-5">
+					<Texture parentKey="GradientTexture" setAllPoints="true" />
+					<Texture parentKey="BorderTexture" atlas="RaidFrame-DispelHighlight" setAllPoints="true" />
+				</Layer>
+				<Layer level="ARTWORK" textureSubLevel="-4">
+					<Texture parentKey="DispelIconTexture">
+						<Size>
+							<AbsDimension x="14" y="14" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPRIGHT" />
+						</Anchors>
+					</Texture>
+				</Layer>
+			</Layers>
+		</AuraButton>
+
+	</ScopedModifier>
+
+</Ui>

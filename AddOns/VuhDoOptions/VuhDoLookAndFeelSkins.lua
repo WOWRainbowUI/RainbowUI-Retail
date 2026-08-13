@@ -23,9 +23,14 @@ local sClassicSkin = {
 	["displayName"] = VUHDO_I18N_SKIN_CLASSIC,
 	["sliderStyle"] = "classic",
 	["tabStyle"] = "pill",
+	["textures"] = {
+		["combo_glow_icon_base"] = sImagesPath .. "blue_dk_square_16_16",
+	},
 	["textureTints"] = {
 		["icon_tree_expand"] = { 0.30, 0.47, 0.80, 1 },
 	},
+	["comboGlowPreviewColorBoost"] = 1.3,
+	["comboGlowPreviewBlend"] = "BLEND",
 };
 
 local sDarkSkin = {
@@ -60,6 +65,7 @@ local sDarkSkin = {
 		["icon_check_2"] = { 0.75, 0.78, 0.82, 1 },
 		["bar_example"] = { 0.25, 0.27, 0.31, 1 },
 		["icon_tree_expand"] = { 1, 1, 1, 1 },
+		["combo_glow_icon_base"] = { 0.45, 0.45, 0.45, 1 },
 	},
 	["backdropColors"] = {
 		["slider"] = {
@@ -171,6 +177,7 @@ local sDefaultTextures = {
 	["slider_thumb_v"] = sImagesPath .. "slider_thumb_v",
 	["tabstop_active"] = sImagesPath .. "tabstop_active",
 	["tabstop_inactive"] = sImagesPath .. "tabstop_inactive",
+	["combo_glow_icon_base"] = "Interface\\AddOns\\VuhDo\\Images\\white_square_16_16",
 };
 
 local sBackdropGlobals = {
@@ -258,6 +265,8 @@ local sKnownSkinKeys = {
 	["tabLabelColors"] = true,
 	["radioSwatchOffsetY"] = true,
 	["font"] = true,
+	["comboGlowPreviewColorBoost"] = true,
+	["comboGlowPreviewBlend"] = true,
 };
 
 local sValidComboItemColorKeys = {
@@ -401,6 +410,24 @@ function VUHDO_lnfSkinGetIndicatorPlateColor()
 	end
 
 	return;
+
+end
+
+
+
+--
+function VUHDO_lnfSkinGetComboGlowPreviewColorBoost()
+
+	return VUHDO_lnfSkinGetActiveEntry()["comboGlowPreviewColorBoost"];
+
+end
+
+
+
+--
+function VUHDO_lnfSkinGetComboGlowPreviewBlend()
+
+	return VUHDO_lnfSkinGetActiveEntry()["comboGlowPreviewBlend"];
 
 end
 
@@ -709,6 +736,22 @@ local function VUHDO_lnfSkinSetTextureByKey(aTexture, aKey)
 	end
 
 	VUHDO_lnfSkinApplyTint(aTexture, aKey);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfSkinApplyComboGlowIconBase(aTexture)
+
+	if not aTexture then
+		return;
+	end
+
+	VUHDO_lnfSkinSetTextureByKey(aTexture, "combo_glow_icon_base");
+	aTexture:SetTexCoord(0, 1, 0, 1);
 
 	return;
 
@@ -1825,6 +1868,10 @@ local function VUHDO_lnfSkinApplyComboItemBackdrop(aComboItem)
 
 	VUHDO_lnfSkinStyleComboItemCheck(aComboItem);
 
+	if tComboParent["isGlow"] then
+		VUHDO_lnfSkinApplyComboGlowIconBase(_G[aComboItem:GetName() .. "IconTexture"]);
+	end
+
 	if tComboParent["isScrollable"] then
 		aComboItem:SetBackdropColor(0, 0, 0, 0);
 
@@ -1868,6 +1915,10 @@ local function VUHDO_lnfSkinOnComboInitItems(aComboBox)
 		VUHDO_lnfSkinApplyToFrameTree(_G[tComboName .. "ScrollPanel"]);
 	else
 		VUHDO_lnfSkinApplyToFrameTree(_G[tComboName .. "SelectPanel"]);
+	end
+
+	if aComboBox["isGlow"] and aComboBox["itemsBuilt"] then
+		VUHDO_lnfRefreshComboGlowItems(aComboBox);
 	end
 
 	return;
@@ -3292,6 +3343,10 @@ function VUHDO_lnfSkinApplyToComponent(aComponent, aLabelName)
 	tObjectType = aComponent:GetObjectType();
 
 	if tObjectType == "Button" then
+		if aComponent["isGlow"] and aComponent["itemsBuilt"] then
+			VUHDO_lnfRefreshComboGlowItems(aComponent);
+		end
+
 		tSliderParent = aComponent:GetParent();
 		tName = tSliderParent and tSliderParent.GetName and tSliderParent:GetName();
 
@@ -3629,6 +3684,18 @@ local function VUHDO_lnfSkinValidate(aName, aSkinData)
 		if not VUHDO_lnfSkinValidateColorArray(aSkinData["indicatorPlate"], format("\"%s\".indicatorPlate", aName)) then
 			return false;
 		end
+	end
+
+	if aSkinData["comboGlowPreviewColorBoost"] and type(aSkinData["comboGlowPreviewColorBoost"]) ~= "number" then
+		VUHDO_Msg(format("Skin \"%s\": comboGlowPreviewColorBoost must be numeric", aName), 1, 0.4, 0.4);
+
+		return false;
+	end
+
+	if aSkinData["comboGlowPreviewBlend"] and type(aSkinData["comboGlowPreviewBlend"]) ~= "string" then
+		VUHDO_Msg(format("Skin \"%s\": comboGlowPreviewBlend must be a string", aName), 1, 0.4, 0.4);
+
+		return false;
 	end
 
 	if aSkinData["checkGroupPlate"] then

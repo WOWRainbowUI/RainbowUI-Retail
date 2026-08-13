@@ -16,6 +16,8 @@ local CreateFrame = CreateFrame;
 local tinsert = table.insert;
 local twipe = table.wipe;
 local pcall = pcall;
+local GetClassColor = C_ClassColor and C_ClassColor.GetClassColor;
+local CreateColor = CreateColor;
 
 local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5;
 
@@ -245,6 +247,34 @@ end
 
 
 --
+local tColorMixin;
+function VUHDO_getBlizzardClassColorMixin(aClassFile)
+
+	if not aClassFile or not GetClassColor then
+		return nil;
+	end
+
+	tColorMixin = GetClassColor(aClassFile);
+
+	if not tColorMixin then
+		return nil;
+	end
+
+	if tColorMixin.GetRGBA then
+		return tColorMixin;
+	end
+
+	if tColorMixin["r"] and tColorMixin["g"] and tColorMixin["b"] then
+		return CreateColor(tColorMixin["r"], tColorMixin["g"], tColorMixin["b"], tColorMixin["a"] or 1);
+	end
+
+	return nil;
+
+end
+
+
+
+--
 function VUHDO_getClassColor(anInfo)
 
 	if not VUHDO_USER_CLASS_COLORS then
@@ -253,6 +283,8 @@ function VUHDO_getClassColor(anInfo)
 
 	if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]] then
 		return VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
+	elseif anInfo["hasSecretClass"] then
+		return VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
 	else
 		return nil;
 	end
@@ -1274,11 +1306,29 @@ end
 
 
 --
+local tSourceTexture;
+function VUHDO_copyStatusBarFillTexture(aDestTexture, aSourceBar)
+
+	tSourceTexture = aSourceBar:GetStatusBarTexture();
+	aDestTexture:SetTexture(tSourceTexture:GetTexture());
+
+	VUHDO_PixelUtil.ApplySettings(aDestTexture);
+
+	return;
+
+end
+
+
+
+--
 local tOurLevel;
 function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
+
 	local tCnt = 1;
 	local tChild = select(tCnt, ...);
+
 	VUHDO_PixelUtil.SetFrameLevel(aFrame, aBaseLevel);
+
 	while tChild do -- Layer components seem to have no name, important for HoT icons.
 		if tChild.IsForbidden and not tChild:IsForbidden() then
 			if tChild.GetName and tChild:GetName() then
@@ -1288,17 +1338,24 @@ function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
 					if not VUHDO_isConfigPanelShowing() then
 						VUHDO_PixelUtil.SetFrameStrata(tChild, aFrame:GetFrameStrata());
 					end
+
 					VUHDO_PixelUtil.SetFrameLevel(tChild, tOurLevel);
+
 					tChild["vfl"] = true;
+
 					VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
 				elseif(anIsForceUpdateChildren) then
 					VUHDO_fixFrameLevels(true, tChild, tOurLevel, tChild:GetChildren());
 				end
 			end
 		end
+
 		tCnt = tCnt + 1;
 		tChild = select(tCnt, ...);
 	end
+
+	return;
+
 end
 
 
@@ -1605,5 +1662,18 @@ function VUHDO_getOrCreateCachedColor(aR, aG, aB, aO)
 
 		return tColor;
 	end
+
+end
+
+
+
+--
+function VUHDO_getManaAdjustedYOffset(aButton, aRelPoint, aYOff)
+
+	if aRelPoint and aButton then
+		return (aYOff or 0) + (aButton["manaBarLayoutHeight"] or 0) * (VUHDO_REL_POINT_MANA_FACTOR[aRelPoint] or 0);
+	end
+
+	return aYOff or 0;
 
 end

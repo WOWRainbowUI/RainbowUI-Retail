@@ -7,6 +7,13 @@
 	<Script file="VuhDoBarCustomizerHealthText.lua" />
 	<Script file="VuhDoBarCustomizerHots.lua" />
 	<Script file="VuhDoBarCustomizerAuras.lua" />
+	<Include file="VuhDoAuraContainer.xml" />
+	<Script file="VuhDoAuraContainerFilters.lua" />
+	<Script file="VuhDoAuraContainerGlows.lua" />
+	<Script file="VuhDoAuraContainer.lua" />
+	<Script file="VuhDoAuraContainerStatic.lua" />
+	<Script file="VuhDoAuraContainerOverlays.lua" />
+	<Script file="VuhDoAuraContainerTest.lua" />
 	<Script file="VuhDoBarCustomizerMana.lua" />
 	<Script file="VuhDoBarCustomizerTarget.lua" />
 	<Script file="VuhDoBarCustomizerThreat.lua" />
@@ -122,7 +129,7 @@
 				</Layers>
 				<Scripts>
 					<OnLoad>
-						self.addLevel = 2;
+						self.addLevel = 3;
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -683,14 +690,6 @@
 
 				</Frames>
 			</StatusBar>
-
-			<Frame name="$parentDsOl" setAllPoints="true" enableMouse="false" hidden="true">
-				<Scripts>
-					<OnLoad>
-						self.addLevel = 8;
-					</OnLoad>
-				</Scripts>
-			</Frame>
 
 			<Button name="$parentTg" inherits="VuhDoButtonSecureTargetTemplate"> </Button>
 			<Button name="$parentTot" inherits="VuhDoButtonSecureTargetTemplate"> </Button>

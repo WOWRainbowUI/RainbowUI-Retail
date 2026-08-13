@@ -2,12 +2,21 @@ local GetItemInfo = C_Item.GetItemInfo;
 local GetSpellName = C_Spell.GetSpellName;
 local ipairs = ipairs;
 
+VUHDO_SPELL_NAME_TO_ID = { };
+local VUHDO_SPELL_NAME_TO_ID = VUHDO_SPELL_NAME_TO_ID;
+
 --
 local tSpellName;
 local function VUHDO_getSpellInfoSafe(aSpellID)
+
 	tSpellName = GetSpellName(aSpellID);
 
+	if tSpellName then
+		VUHDO_SPELL_NAME_TO_ID[tSpellName] = VUHDO_SPELL_NAME_TO_ID[tSpellName] or aSpellID;
+	end
+
 	return tSpellName or "!";
+
 end
 
 --------------------

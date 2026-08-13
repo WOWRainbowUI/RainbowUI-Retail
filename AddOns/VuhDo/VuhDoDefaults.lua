@@ -18,6 +18,9 @@ VUHDO_AURA_IGNORE_LIST_DEFAULTS = {
 	[95809] = true, -- Insanity (Drums variant)
 	[160455] = true, -- Fatigued (Drums of Fury)
 	[390435] = true, -- Exhaustion (alternate)
+	[206151] = true, -- Challenger's Burden
+	[308312] = true, -- Time Trial Practice
+	[1254550] = true, -- Arcane Empowerment
 	[1227806] = true, -- Lifebloom (hidden player aura)
 	[404464] = true, -- Flight Style: Skyriding
 	[404468] = true, -- Flight Style: Steady
@@ -3240,8 +3243,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["ALL_DISPELLABLE"] = {
 		["type"] = 1,
 		["filter"] = "HARMFUL|VUHDO_ALL_DISPELLABLE",
-		["resolvedFilter"] = "HARMFUL",
-		["dispellableOnly"] = true,
+		["resolvedFilter"] = "HARMFUL|DISPELLABLE",
 		["excludeFilter"] = nil,
 		["priority"] = 1,
 		["colorType"] = VUHDO_AURA_GROUP_COLOR_ALL_DISPEL,
@@ -4299,10 +4301,9 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["maxColumns"] = 3,
 		["maxRows"] = 2,
 		["showTooltip"] = false,
-		["showDispelOverlay"] = true,
-		["dispelIndicatorType"] = 1,
+		["showDispelIcon"] = true,
 		["textScale"] = 100,
-		["VERSION"] = 8,
+		["VERSION"] = 9,
 	},
 
 	["RAID_ICON"] = {
@@ -4492,6 +4493,17 @@ function VUHDO_loadDefaultPanelSetup()
 				tPrivateAura["yAdjust"] = 0;
 
 				tPrivateAura["VERSION"] = 8;
+			end
+
+			if (tPrivateAura["VERSION"] or 0) < 9 then
+				if tPrivateAura["showDispelIcon"] == nil then
+					tPrivateAura["showDispelIcon"] = (tPrivateAura["dispelIndicatorType"] or 0) > 0;
+				end
+
+				tPrivateAura["showDispelOverlay"] = nil;
+				tPrivateAura["dispelIndicatorType"] = nil;
+
+				tPrivateAura["VERSION"] = 9;
 			end
 		end
 
@@ -4705,8 +4717,16 @@ VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = {
 
 
 
+local sClassColorsInitialized = false;
+
+
+
 --
 function VUHDO_initClassColors()
+
+	if sClassColorsInitialized and VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_GRADIENT_COLORS then
+		return;
+	end
 
 	if not VUHDO_USER_CLASS_COLORS then
 		VUHDO_USER_CLASS_COLORS = VUHDO_decompressOrCopy(VUHDO_DEFAULT_USER_CLASS_COLORS);
@@ -4721,6 +4741,10 @@ function VUHDO_initClassColors()
 
 	VUHDO_USER_CLASS_GRADIENT_COLORS = VUHDO_ensureSanity("VUHDO_USER_CLASS_GRADIENT_COLORS", VUHDO_USER_CLASS_GRADIENT_COLORS, VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS);
 	VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = VUHDO_compressAndPackTable(VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS);
+
+	sClassColorsInitialized = true;
+
+	return;
 
 end
 

@@ -69,20 +69,3 @@ function VUHDO_privateAuraWrapDirComboOnLoad(aComboBox)
 	return;
 
 end
-
-
-
---
-function VUHDO_privateAuraDispelIndicatorComboOnLoad(aComboBox)
-
-	VUHDO_setComboModel(aComboBox, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.dispelIndicatorType", VUHDO_PRIVATE_AURA_DISPEL_COMBO_MODEL);
-
-	VUHDO_lnfSetTooltip(aComboBox, VUHDO_I18N_TT.K823);
-
-	VUHDO_lnfAddConstraint(aComboBox, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
-
-	VUHDO_lnfAddConstraint(aComboBox, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDispelOverlay", false);
-
-	return;
-
-end

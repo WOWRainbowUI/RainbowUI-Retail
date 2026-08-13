@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Script file="LibOrbitGlow-1.0.lua"/>
+    <!-- Optional self-contained showcase (LCG.Showcase / /orbitglow). Remove this line to embed the engine only. -->
+    <Script file="GlowShowcase.lua"/>
+</Ui>
