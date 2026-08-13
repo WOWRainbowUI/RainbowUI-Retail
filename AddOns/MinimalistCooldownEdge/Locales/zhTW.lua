@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "戰鬥中無法開啟選項。"
-L["MiniCC test command is unavailable."] = "MiniCC 測試指令不可用。"
+L["MiniAuras test command is unavailable."] = "MiniAuras 測試指令不可用。"
 
 -- Category Names
 L["Action Bars"] = "動作列"
@@ -12,7 +12,7 @@ L["Nameplates"] = "名條"
 L["Unit Frames"] = "單位框架"
 L["Party / Raid Frames"] = "小隊/團隊框架"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "其他"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "危險區域"
 L["Style"] = "樣式"
 L["Positioning"] = "定位"
 L["CooldownManager Viewers"] = "CooldownManager 檢視器"
-L["MiniCC Frame Types"] = "MiniCC 框架類型"
+L["MiniAuras Frame Types"] = "MiniAuras 框架類型"
 
 -- Toggles & Settings
 L["Enable %s"] = "啟用 %s"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "自訂層數文字"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "接管充能計數器（例如：2 層燃燒）。"
 L["Reset %s"] = "重設 %s"
 L["Revert this category to default settings."] = "將此分類恢復為預設設定。"
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "使用 /minicc test 切換 MiniCC 內建測試圖示。"
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "使用 /miniauras test 切換 MiniAuras 內建測試圖示。"
 
 -- Outline Values
 L["None"] = "無"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "支援與回饋"
 L["MCE_HELP_INTRO"] = "這裡有專案的快速連結，以及幾個值得一試的插件。"
 L["HELP_SUPPORT_DESC"] = "歡迎隨時提供建議與回饋。\n\n如果你發現 bug 或有功能點子，歡迎在 CurseForge 留言或私訊。"
 L["HELP_COMPANION_DESC"] = "幾款與 MiniCE 搭配很合適的精簡插件。"
-L["HELP_MINICC_DESC"] = "精簡的控場追蹤器。MiniCE 也能美化它的文字。"
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "複製此連結即可在瀏覽器中開啟 MiniCC 的 CurseForge 頁面。"
+L["HELP_MINIAURAS_DESC"] = "自訂光環、控場、冷卻與 PvP 顯示套件。MiniCE 也能美化其冷卻文字。"
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "複製此連結即可在瀏覽器中開啟 MiniAuras 的 CurseForge 頁面。"
 L["HELP_PVPTAB_DESC"] = "讓 TAB 在 PvP 中只選中玩家。非常適合競技場和戰場。"
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "複製此連結即可開啟 Smart PvP Tab Targeting 的 CurseForge 頁面。"
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "自訂主動作列上的冷卻，包括 Bartender4 和 Do
 L["NAMEPLATE_DESC"] = "設定敵對與友方名條上顯示的冷卻樣式（Plater、KuiNameplates 等）。"
 L["UNITFRAME_DESC"] = "調整玩家、目標與焦點單位框架上的冷卻樣式。"
 L["COOLDOWNMANAGER_DESC"] = "為 CooldownManager 檢視器提供統一的圖示樣式。倒數文字大小可分別為 Essential、Utility 和增益圖示檢視器單獨設定。"
-L["MINICC_DESC"] = "MiniCC 冷卻圖示的專用樣式。載入 MiniCC 時，可支援其控場圖示、名條、頭像與覆蓋式模組。"
+L["MINIAURAS_DESC"] = "MiniAuras 冷卻圖示的專用樣式。載入 MiniAuras 時，可支援其控場圖示、名條、頭像與覆蓋式模組。"
 L["OTHERS_DESC"] = "用於不屬於其他分類的冷卻的整合分類（背包、選單、雜項插件）。"
 
 -- Dynamic Text Colors

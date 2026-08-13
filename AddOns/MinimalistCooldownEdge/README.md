@@ -13,7 +13,7 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 - Blizzard and third-party unit frames.
 - CooldownManager viewers.
 - Player Aura styling.
-- MiniCC overlays.
+- MiniAuras overlays.
 - sArena_Reloaded cooldown timers.
 - TellMeWhen cooldown and charge sweeps.
 
@@ -21,7 +21,7 @@ Party / Raid Frames are no longer supported. The options menu keeps a retired no
 
 ### Optional integrations
 
-MiniCE detects and styles cooldowns from these addons when they are installed, without requiring them: LibSharedMedia-3.0, Bartender4, Dominos (and Dominos_Cast / Dominos_Config), ElvUI, HealerCC, MiniCC, sArena_Reloaded, TellMeWhen, ShinyAuras, CooldownManagerCentered, mUI, and BetterBlizzFrames.
+MiniCE detects and styles cooldowns from these addons when they are installed, without requiring them: LibSharedMedia-3.0, Bartender4, Dominos (and Dominos_Cast / Dominos_Config), ElvUI, HealerCC, MiniAuras, sArena_Reloaded, TellMeWhen, ShinyAuras, CooldownManagerCentered, mUI, and BetterBlizzFrames.
 
 ## Main features
 
@@ -68,7 +68,7 @@ Adapters/
   NameplateAdapter.lua
   UnitFrameAdapter.lua
   CooldownManagerAdapter.lua
-  MiniCCAdapter.lua
+  MiniAurasAdapter.lua
   SArenaAdapter.lua
   TellMeWhenAdapter.lua
 UI/

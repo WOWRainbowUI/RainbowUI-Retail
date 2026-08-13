@@ -11,7 +11,7 @@ C.Addon = {
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
     CooldownManagerCenteredName = "CooldownManagerCentered",
     HealerCCName = "HealerCC",
-    MiniCCName = "MiniCC",
+    MiniAurasName = "MiniAuras",
     DominosName = "Dominos",
     DominosCastName = "Dominos_Cast",
     DominosConfigName = "Dominos_Config",
@@ -37,7 +37,7 @@ C.Categories = {
     PlayerAura = "playeraura",
     CooldownManager = "cooldownmanager",
     HealerCC = "healercc",
-    MiniCC = "minicc",
+    MiniAuras = "miniauras",
     SArena = "sarena",
     TellMeWhen = "tellmewhen",
     PartyRaidRetired = "partyRaidRetired",
@@ -55,13 +55,15 @@ C.PlayerAuraTypes = {
     ExternalDefensiveBuffs = "externalDefensiveBuffs",
 }
 
-C.MiniCCFrameTypes = {
+C.MiniAurasFrameTypes = {
     CC = "cc",
-    EnemyCD = "enemycd",
-    FriendlyCD = "friendlycd",
+    RaidFrameAura = "raidframeaura",
     Nameplate = "nameplate",
     Portrait = "portrait",
     Overlay = "overlay",
+    -- MiniAuras retains these displays only on its pre-12.1 backend.
+    LegacyEnemyCD = "enemycd",
+    LegacyFriendlyCD = "friendlycd",
 }
 
 C.SArenaFrameTypes = {
@@ -145,7 +147,7 @@ C.Defaults = {
         [C.Categories.PlayerAura] = false,
         [C.Categories.CooldownManager] = false,
         [C.Categories.HealerCC] = false,
-        [C.Categories.MiniCC] = false,
+        [C.Categories.MiniAuras] = false,
         [C.Categories.SArena] = false,
         [C.Categories.TellMeWhen] = false,
     },
@@ -207,16 +209,13 @@ C.Defaults = {
         AuraColorEnabled = true,
         AuraColor = C.Colors.Highlight,
     },
-    MiniCC = {
+    MiniAuras = {
         CCFontSize = 18,
         CCHideCountdownNumbers = false,
         CCHideSwipe = false,
-        EnemyCDFontSize = 18,
-        EnemyCDHideCountdownNumbers = false,
-        EnemyCDHideSwipe = false,
-        FriendlyCDFontSize = 18,
-        FriendlyCDHideCountdownNumbers = false,
-        FriendlyCDHideSwipe = false,
+        RaidFrameAuraFontSize = 18,
+        RaidFrameAuraHideCountdownNumbers = false,
+        RaidFrameAuraHideSwipe = false,
         NameplateFontSize = 12,
         NameplateHideCountdownNumbers = false,
         NameplateHideSwipe = false,
@@ -226,7 +225,6 @@ C.Defaults = {
         OverlayFontSize = 18,
         OverlayHideCountdownNumbers = false,
         OverlayHideSwipe = false,
-        HealerWarningTextColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
     },
     SArena = {
         ClassIconFontSize = 18,
@@ -251,7 +249,7 @@ C.Defaults = {
 C.Urls = {
     CurseForge = "https://www.curseforge.com/wow/addons/minice-cooldown-styler",
     Developer = "https://www.curseforge.com/members/anahkas/projects",
-    MiniCC = "https://www.curseforge.com/wow/addons/minicc",
+    MiniAuras = "https://www.curseforge.com/wow/addons/minicc",
     RaidFrameAuras = "https://www.curseforge.com/wow/addons/raid-party-frame-auras",
     ArenaDRNameplates = "https://www.curseforge.com/wow/addons/arena-dr-nameplates",
     TellMeWhen = "https://www.curseforge.com/wow/addons/tellmewhen",
@@ -270,7 +268,7 @@ C.ImportExport = {
 C.Classifier = {
     ScanDepth = 10,
     NameplateObjectType = "NamePlate",
-    MiniCCNamePrefix = "MiniCC_",
+    MiniAurasNamePrefix = "MiniAuras_",
     TellMeWhenNamePrefix = "TellMeWhen_",
     IgnoreActionbarPattern = "Aura",
     BlacklistNameContains = {
@@ -510,9 +508,11 @@ C.Adapter = {
         FriendlyCooldownPattern = "^HealerCCIcon%d+Cooldown$",
         EnemyCooldownPattern = "^HealerCCEnemyIcon%d+Cooldown$",
     },
-    MiniCC = {
-        -- Hierarchy depth is fixed at 3 hops (Cooldown→Layer→Slot→Container)
-        -- and resolved directly; no depth constants are needed here.
+    MiniAuras = {
+        -- MiniAuras uses both IconSlotContainer and AuraContainerDisplay
+        -- hierarchies; the adapter resolves their named container ancestors.
+        MaxNamedFrameID = 20000,
+        TrailingNamedFrameMissLimit = 128,
     },
     SArena = {
         MaxArenaOpponents = 5,

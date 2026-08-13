@@ -19,11 +19,32 @@ local issecretvalue = issecretvalue
 
 local CATEGORY = C.Categories
 local VIEWER_TYPE = C.CooldownManagerViewers
-local MINICC_FRAME_TYPE = C.MiniCCFrameTypes
+local MINIAURAS_FRAME_TYPE = C.MiniAurasFrameTypes
 local SARENA_FRAME_TYPE = C.SArenaFrameTypes
 
 local STYLER_CONSTANTS = C.Styler
 local LARGE_AURA_WIDTH_THRESHOLD = 20
+local AURA_INSTANCE_ID_KEYS = {
+    "auraInstanceID",
+    "auraDataInstanceID",
+    "auraInstanceId",
+    "auraDataInstanceId",
+}
+local UNIT_TOKEN_KEYS = {
+    "unitToken",
+    "unit",
+    "displayedUnit",
+    "memberUnit",
+    "auraDataUnit",
+}
+local NESTED_UNIT_TOKEN_KEYS = {
+    "unitid",
+    "unitID",
+    "unitToken",
+    "displayedUnit",
+    "memberUnit",
+    "unit",
+}
 
 -- Shared state from addon namespace
 local frameState = addon.frameState
@@ -35,6 +56,7 @@ local actionbarTextOriginalParents = setmetatable({}, addon.weakMeta)
 -- Lazy module references (resolved on first use in OnEnable)
 local Registry, DurationColor, Classifier
 local RestoreActionbarCooldownText
+local GetParentSafe
 
 -- Pre-computed style keys to avoid per-call string concatenation.
 -- category x subtype combinations are a small fixed set.
@@ -72,26 +94,39 @@ StyleEngine.CanAccessAllValues = addon.CanAccessAllValues
 local IsSecretValue = addon.IsSecretValue
 local CanAccessAllValues = addon.CanAccessAllValues
 
+local function GetAccessibleNumber(value)
+    if IsSecretValue(value)
+       or not CanAccessAllValues(value)
+       or type(value) ~= "number" then
+        return nil
+    end
+    return value
+end
+
 local function IsInspectableUIObject(value)
     local valueType = type(value)
     if valueType ~= "table" and valueType ~= "userdata" then
         return false
     end
-    if IsSecretValue(value) and not CanAccessAllValues(value) then
+    if IsSecretValue(value) or not CanAccessAllValues(value) then
         return false
     end
     return true
 end
 
 local function GetObjectTypeSafe(region)
-    if not IsInspectableUIObject(region) or type(region.GetObjectType) ~= "function" then
+    if not IsInspectableUIObject(region) then
         return nil
     end
-    local ok, objectType = pcall(region.GetObjectType, region)
+    local getObjectType = MCE:SafeTableGet(region, "GetObjectType")
+    if type(getObjectType) ~= "function" then
+        return nil
+    end
+    local ok, objectType = pcall(getObjectType, region)
     if not ok then
         return nil
     end
-    return objectType
+    return MCE:GetNonSecretString(objectType)
 end
 
 local function IsUsableFontString(region)
@@ -188,40 +223,56 @@ end
 -- =========================================================================
 
 local function ExtractUnitToken(unit)
-    if type(unit) == "string" then
-        return unit ~= "" and unit or nil
+    local directToken = MCE:GetNonSecretString(unit)
+    if directToken then
+        return directToken
     end
-    if type(unit) ~= "table" then return nil end
-    local token = unit.unitid or unit.unitID or unit.unitToken
-        or unit.displayedUnit or unit.memberUnit or unit.unit
-    if type(token) == "string" and token ~= "" then return token end
+    if type(unit) ~= "table"
+       or IsSecretValue(unit)
+       or not CanAccessAllValues(unit) then
+        return nil
+    end
+    for i = 1, #NESTED_UNIT_TOKEN_KEYS do
+        local token = MCE:GetNonSecretString(
+            MCE:SafeTableGet(unit, NESTED_UNIT_TOKEN_KEYS[i]))
+        if token then return token end
+    end
     return nil
 end
 
 function StyleEngine:GetFrameUnitToken(frame)
     if not frame then return nil end
-    return ExtractUnitToken(frame.unitToken)
-        or ExtractUnitToken(frame.unit)
-        or ExtractUnitToken(frame.displayedUnit)
-        or ExtractUnitToken(frame.memberUnit)
-        or ExtractUnitToken(frame.auraDataUnit)
+    for i = 1, #UNIT_TOKEN_KEYS do
+        local token = ExtractUnitToken(MCE:SafeTableGet(frame, UNIT_TOKEN_KEYS[i]))
+        if token then return token end
+    end
+    return nil
 end
 
 function StyleEngine:GetFrameAuraInstanceID(frame)
     if not frame then return nil end
-    return frame.auraInstanceID
-        or frame.auraDataInstanceID
-        or frame.auraInstanceId
-        or frame.auraDataInstanceId
+    for i = 1, #AURA_INSTANCE_ID_KEYS do
+        local value = MCE:SafeTableGet(frame, AURA_INSTANCE_ID_KEYS[i])
+        value = GetAccessibleNumber(value)
+        if value then return value end
+    end
+    return nil
 end
 
 local function GetCooldownInfoSafe(owner)
-    if not owner or type(owner.GetCooldownInfo) ~= "function" then
+    if not owner then
+        return nil
+    end
+    local getCooldownInfo = MCE:SafeTableGet(owner, "GetCooldownInfo")
+    if type(getCooldownInfo) ~= "function" then
         return nil
     end
 
-    local ok, info = pcall(owner.GetCooldownInfo, owner)
-    if ok and type(info) == "table" then
+    local ok, info = pcall(getCooldownInfo, owner)
+    if ok
+       and not IsSecretValue(info)
+       and CanAccessAllValues(info)
+       and type(info) == "table" then
         return info
     end
 
@@ -229,33 +280,31 @@ local function GetCooldownInfoSafe(owner)
 end
 
 local function GetAccessibleBoolean(value)
-    if type(value) == "boolean" then
-        local ok, normalized = pcall(function()
-            if value then
-                return true
-            end
-            return false
-        end)
-        if ok then
-            return normalized
-        end
+    if IsSecretValue(value)
+       or not CanAccessAllValues(value)
+       or type(value) ~= "boolean" then
+        return nil
     end
-
-    return nil
+    return value == true
 end
 
 function StyleEngine:GetCooldownSpellID(owner)
     if not owner then return nil end
     local info = GetCooldownInfoSafe(owner)
     if info then
-        local spellID = info.overrideSpellID or info.spellID
-        if type(spellID) == "number" then return spellID end
+        local spellID = GetAccessibleNumber(MCE:SafeTableGet(info, "overrideSpellID"))
+        if not spellID then
+            spellID = GetAccessibleNumber(MCE:SafeTableGet(info, "spellID"))
+        end
+        if spellID then return spellID end
     end
-    if type(owner.GetSpellID) == "function" then
-        local ok, spellID = pcall(owner.GetSpellID, owner)
-        if ok and spellID then return spellID end
+    local getSpellID = MCE:SafeTableGet(owner, "GetSpellID")
+    if type(getSpellID) == "function" then
+        local ok, spellID = pcall(getSpellID, owner)
+        spellID = ok and GetAccessibleNumber(spellID) or nil
+        if spellID then return spellID end
     end
-    return owner.spellID
+    return GetAccessibleNumber(MCE:SafeTableGet(owner, "spellID"))
 end
 
 function StyleEngine:IsCooldownManagerAuraDisplay(cdFrame)
@@ -264,12 +313,12 @@ function StyleEngine:IsCooldownManagerAuraDisplay(cdFrame)
         return false
     end
 
-    local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
+    local parent = GetParentSafe(cdFrame)
     if not parent or MCE:IsForbiddenCached(parent) then
         return false
     end
 
-    return GetAccessibleBoolean(parent.wasSetFromAura) == true
+    return GetAccessibleBoolean(MCE:SafeTableGet(parent, "wasSetFromAura")) == true
 end
 
 function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
@@ -278,12 +327,15 @@ function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
         return false
     end
 
-    parent = parent or (cdFrame.GetParent and cdFrame:GetParent() or nil)
+    if not IsInspectableUIObject(parent) then
+        parent = GetParentSafe(cdFrame)
+    end
     if not parent or MCE:IsForbiddenCached(parent) then
         return false
     end
 
-    local chargesShown = GetAccessibleBoolean(parent.cooldownChargesShown)
+    local chargesShown = GetAccessibleBoolean(
+        MCE:SafeTableGet(parent, "cooldownChargesShown"))
     if chargesShown ~= nil then
         return chargesShown
     end
@@ -301,12 +353,8 @@ function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
         return false
     end
 
-    local maxCharges = charges.maxCharges
-    if IsSecretValue(maxCharges) and not CanAccessAllValues(maxCharges) then
-        return false
-    end
-
-    return type(maxCharges) == "number" and maxCharges > 1 or false
+    local maxCharges = GetAccessibleNumber(MCE:SafeTableGet(charges, "maxCharges"))
+    return maxCharges and maxCharges > 1 or false
 end
 
 -- =========================================================================
@@ -315,35 +363,45 @@ end
 
 function StyleEngine:GetActionIDFromButton(parent)
     if not parent then return nil end
-    if type(parent.CalculateAction) == "function" then
-        local ok, actionID = pcall(parent.CalculateAction, parent)
-        if ok and type(actionID) == "number" then return actionID end
+    local calculateAction = MCE:SafeTableGet(parent, "CalculateAction")
+    if type(calculateAction) == "function" then
+        local ok, actionID = pcall(calculateAction, parent)
+        actionID = ok and GetAccessibleNumber(actionID) or nil
+        if actionID then return actionID end
     end
-    local actionID = parent.action
-    if type(actionID) == "number" then return actionID end
-    if parent.GetAttribute then
-        local ok, attr = pcall(parent.GetAttribute, parent, "action")
-        if ok and type(attr) == "number" then return attr end
+    local actionID = GetAccessibleNumber(MCE:SafeTableGet(parent, "action"))
+    if actionID then return actionID end
+    local getAttribute = MCE:SafeTableGet(parent, "GetAttribute")
+    if type(getAttribute) == "function" then
+        local ok, attr = pcall(getAttribute, parent, "action")
+        attr = ok and GetAccessibleNumber(attr) or nil
+        if attr then return attr end
     end
     return nil
 end
 
 function StyleEngine:IsChargeCooldownFrame(cooldown, parent)
     if not cooldown or not parent then return false end
-    return parent.chargeCooldown == cooldown or parent.ChargeCooldown == cooldown
+    return MCE:SafeTableGet(parent, "chargeCooldown") == cooldown
+        or MCE:SafeTableGet(parent, "ChargeCooldown") == cooldown
 end
 
 function StyleEngine:IsMainCooldownWithActiveChargeCooldown(cdFrame)
-    local parent = cdFrame:GetParent()
+    local parent = GetParentSafe(cdFrame)
     if not parent then return false end
-    local mainCD = parent.cooldown or parent.Cooldown
+    local mainCD = MCE:SafeTableGet(parent, "cooldown")
+        or MCE:SafeTableGet(parent, "Cooldown")
     if mainCD ~= cdFrame then return false end
-    local chargeCD = parent.chargeCooldown or parent.ChargeCooldown
-    if chargeCD and chargeCD ~= cdFrame and not MCE:IsForbiddenCached(chargeCD)
-       and chargeCD.IsShown and chargeCD:IsShown() then
-        return true
+    local chargeCD = MCE:SafeTableGet(parent, "chargeCooldown")
+        or MCE:SafeTableGet(parent, "ChargeCooldown")
+    if not chargeCD or chargeCD == cdFrame or MCE:IsForbiddenCached(chargeCD) then
+        return false
     end
-    return false
+
+    local isShown = MCE:SafeTableGet(chargeCD, "IsShown")
+    if type(isShown) ~= "function" then return false end
+    local ok, shown = pcall(isShown, chargeCD)
+    return ok and GetAccessibleBoolean(shown) == true
 end
 
 function StyleEngine:IsAssistedCombatActionCooldown(cdFrame)
@@ -352,7 +410,7 @@ function StyleEngine:IsAssistedCombatActionCooldown(cdFrame)
     end
 
     local fs = self:GetFrameState(cdFrame)
-    local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
+    local parent = GetParentSafe(cdFrame)
     if not parent or MCE:IsForbiddenCached(parent) then return false end
 
     local actionID = self:GetActionIDFromButton(parent)
@@ -413,7 +471,7 @@ function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
         return fs
     end
 
-    local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+    local current = GetParentSafe(cdFrame)
     local actionButton, actionID
     local spellOwner, auraInstanceOwner, auraUnitOwner
     local compactPartyCenterDefensiveBuff = false
@@ -443,8 +501,10 @@ function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
         end
 
         if not compactPartyCenterDefensiveBuff then
-            local parent = current.GetParent and current:GetParent()
-            if parent and parent.CenterDefensiveBuff == current then
+            local parent = GetParentSafe(current)
+            local centerDefensiveBuff = MCE:SafeTableGet(parent, "CenterDefensiveBuff")
+            if MCE:CanUseFrameAsTableKey(centerDefensiveBuff)
+               and centerDefensiveBuff == current then
                 compactPartyCenterDefensiveBuff = true
                 hasAuraNamedAncestor = true
             end
@@ -457,7 +517,7 @@ function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
             hasAuraNamedAncestor = true
         end
 
-        current = current.GetParent and current:GetParent() or nil
+        current = GetParentSafe(current)
     end
 
     fs.contextResolved = true
@@ -521,7 +581,7 @@ function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
         RestoreActionbarCooldownText(self, cdFrame)
     end
 
-    if category == CATEGORY.MiniCC or category == CATEGORY.SArena then
+    if category == CATEGORY.MiniAuras or category == CATEGORY.SArena then
         local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
         for i = 1, textRegionCount do
             fontState[textRegions[i]] = nil
@@ -560,18 +620,21 @@ local ACTION_BUTTON_TEXT_REGION_KEYS = {
     "Count", "count",
 }
 
-local function GetParentSafe(region)
+GetParentSafe = function(region)
     local getParent = MCE:SafeTableGet(region, "GetParent")
     if type(getParent) ~= "function" then return nil end
     local ok, parent = pcall(getParent, region)
-    return ok and parent or nil
+    if not ok or not MCE:CanUseFrameAsTableKey(parent) then
+        return nil
+    end
+    return parent
 end
 
 local function GetFrameLevelSafe(frame)
     local getFrameLevel = MCE:SafeTableGet(frame, "GetFrameLevel")
     if type(getFrameLevel) ~= "function" then return nil end
     local ok, level = pcall(getFrameLevel, frame)
-    return ok and type(level) == "number" and level or nil
+    return ok and GetAccessibleNumber(level) or nil
 end
 
 local function IncludeFrameLevel(maxLevel, frame)
@@ -685,34 +748,68 @@ local function FilterFontStringRegions(count, firstRegion, ...)
     return count
 end
 
+local function FilterFontStringRegionsFromCall(count, firstRegion, ok, ...)
+    if not ok then return count end
+    return FilterFontStringRegions(count, firstRegion, ...)
+end
+
 function StyleEngine:GetCooldownTextRegions(cdFrame)
     local count = 0
     local firstRegion = nil
 
-    -- MiniCC caches its countdown FontString on the cooldown frame after the
-    -- first size update. Reuse that reference so repeated MiniCC style passes
+    local state = frameState[cdFrame]
+    if state and state.unitFrameCustomAura == true then
+        local countdownText = state.unitFrameCountdownText
+        if not IsUsableFontString(countdownText) then
+            local trackedRegions = state.textRegions
+            if trackedRegions and (trackedRegions.count or 0) > 0 then
+                countdownText = trackedRegions[1]
+            end
+        end
+
+        -- CustomAuraContainer applies access restrictions after its public
+        -- initialize callback. The retained output FontString stays usable,
+        -- while querying the cooldown for it later can be forbidden in combat.
+        if IsUsableFontString(countdownText) then
+            textRegionScratch[1] = countdownText
+            for i = 2, #textRegionScratch do
+                textRegionScratch[i] = nil
+            end
+            return textRegionScratch, 1
+        end
+
+        for i = 1, #textRegionScratch do
+            textRegionScratch[i] = nil
+        end
+        return textRegionScratch, 0
+    end
+
+    -- MiniAuras caches its countdown FontString on the cooldown frame after the
+    -- first size update. Reuse that reference so repeated MiniAuras style passes
     -- do not rescan every region on the frame.
-    local miniCCCountdownText = cdFrame.MiniCCFontString
-    if IsUsableFontString(miniCCCountdownText) then
-        textRegionScratch[1] = miniCCCountdownText
+    local miniAurasCountdownText = MCE:SafeTableGet(cdFrame, "MiniAurasFontString")
+    if IsUsableFontString(miniAurasCountdownText) then
+        textRegionScratch[1] = miniAurasCountdownText
         for i = 2, #textRegionScratch do
             textRegionScratch[i] = nil
         end
         return textRegionScratch, 1
     end
 
-    local countdownText = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
-    if countdownText and not MCE:IsForbiddenCached(countdownText) then
-        count = 1
-        textRegionScratch[1] = countdownText
-        firstRegion = countdownText
+    local getCountdownFontString = MCE:SafeTableGet(cdFrame, "GetCountdownFontString")
+    if type(getCountdownFontString) == "function" then
+        local ok, countdownText = pcall(getCountdownFontString, cdFrame)
+        if ok and IsUsableFontString(countdownText) then
+            count = 1
+            textRegionScratch[1] = countdownText
+            firstRegion = countdownText
+        end
     end
 
-    if cdFrame.GetRegions then
-        local numRegions = cdFrame.GetNumRegions and cdFrame:GetNumRegions() or 0
-        if numRegions > 0 then
-            count = FilterFontStringRegions(count, firstRegion, cdFrame:GetRegions())
-        end
+    local getRegions = MCE:SafeTableGet(cdFrame, "GetRegions")
+    if type(getRegions) == "function" then
+        count = FilterFontStringRegionsFromCall(
+            count, firstRegion, pcall(getRegions, cdFrame))
     end
 
     for i = count + 1, #textRegionScratch do
@@ -914,9 +1011,12 @@ function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontS
 
     if drawLayer and region.SetDrawLayer then
         if state.drawLayer ~= drawLayer or state.drawLayerSubLevel ~= drawLayerSubLevel then
-            region:SetDrawLayer(drawLayer, drawLayerSubLevel)
-            state.drawLayer = drawLayer
-            state.drawLayerSubLevel = drawLayerSubLevel
+            -- Restricted aura output regions can refuse layer changes. Keep
+            -- the cached state untouched so a later pass retries.
+            if pcall(region.SetDrawLayer, region, drawLayer, drawLayerSubLevel) then
+                state.drawLayer = drawLayer
+                state.drawLayerSubLevel = drawLayerSubLevel
+            end
         end
     end
 end
@@ -928,10 +1028,10 @@ end
 local function ResolveCountRegion(container)
     if not container or MCE:IsForbiddenCached(container) then return nil end
 
-    local region = container.Count
-        or container.count
-        or container.StackCount
-        or container.stackCount
+    local region = MCE:SafeTableGet(container, "Count")
+        or MCE:SafeTableGet(container, "count")
+        or MCE:SafeTableGet(container, "StackCount")
+        or MCE:SafeTableGet(container, "stackCount")
     if IsUsableFontString(region) then
         return region
     end
@@ -948,7 +1048,16 @@ local function ResolveCountRegion(container)
 end
 
 local function GetStackCountRegion(cdFrame, category)
-    local parent = cdFrame:GetParent()
+    local state = frameState[cdFrame]
+    if category == CATEGORY.Unitframe
+       and state and IsUsableFontString(state.unitFrameCount) then
+        -- WoW 12.1 custom AuraButtons become inaccessible while auras are
+        -- secret. Their public count FontString is captured at initialization,
+        -- so style it without inspecting the restricted parent button.
+        return state.unitFrameCount, cdFrame
+    end
+
+    local parent = GetParentSafe(cdFrame)
     if not parent then return nil, nil end
     local countRegion
 
@@ -956,17 +1065,18 @@ local function GetStackCountRegion(cdFrame, category)
         countRegion = ResolveCountRegion(parent)
     elseif category == CATEGORY.Nameplate
            or category == CATEGORY.Unitframe then
-        local countFrame = parent.CountFrame or parent.countFrame
+        local countFrame = MCE:SafeTableGet(parent, "CountFrame")
+            or MCE:SafeTableGet(parent, "countFrame")
         countRegion = ResolveCountRegion(countFrame) or ResolveCountRegion(parent)
     elseif category == CATEGORY.CooldownManager then
-        local chargeCount = parent.ChargeCount
-        if chargeCount and chargeCount.Current then
-            countRegion = chargeCount.Current
+        local chargeCount = MCE:SafeTableGet(parent, "ChargeCount")
+        if chargeCount then
+            countRegion = MCE:SafeTableGet(chargeCount, "Current")
         end
         if not countRegion then
-            local applications = parent.Applications
-            if applications and applications.Applications then
-                countRegion = applications.Applications
+            local applications = MCE:SafeTableGet(parent, "Applications")
+            if applications then
+                countRegion = MCE:SafeTableGet(applications, "Applications")
             end
         end
     end
@@ -995,11 +1105,17 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
     if not countRegion or not parent then return end
 
     local fs = self:GetFrameState(cdFrame)
+    local isCustomUnitFrameAura = category == CATEGORY.Unitframe
+        and fs.unitFrameCustomAura == true
 
     if config.hideStackText then
         if not fs.stackCountHidden then
             countRegion:SetAlpha(0)
-            countRegion:Hide()
+            -- SetApplicationCount owns the Shown aspect on 12.1 custom aura
+            -- buttons. Alpha remains addon-controlled; Show/Hide does not.
+            if not isCustomUnitFrameAura then
+                countRegion:Hide()
+            end
             fs.stackCountHidden = true
         end
         return
@@ -1007,11 +1123,21 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
 
     if fs.stackCountHidden then
         countRegion:SetAlpha(1)
-        countRegion:Show()
+        if not isCustomUnitFrameAura then
+            countRegion:Show()
+        end
         fs.stackCountHidden = nil
+    elseif isCustomUnitFrameAura then
+        -- WipeState deliberately discards transient style flags. Explicitly
+        -- restore alpha when Hide Stack Text is turned off after a refresh.
+        countRegion:SetAlpha(1)
     end
 
     if not config.stackEnabled then return end
+
+    if isCustomUnitFrameAura and type(countRegion.SetScale) == "function" then
+        pcall(countRegion.SetScale, countRegion, 1)
+    end
 
     if category ~= CATEGORY.Nameplate
        and category ~= CATEGORY.Unitframe then
@@ -1036,14 +1162,15 @@ end
 -- =========================================================================
 
 function StyleEngine:GetCooldownFontSize(cdFrame, category, config, subtype)
-    if category == CATEGORY.MiniCC then
+    if category == CATEGORY.MiniAuras then
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
-        if subtype == MINICC_FRAME_TYPE.CC then return config.ccFontSize or config.fontSize end
-        if subtype == MINICC_FRAME_TYPE.EnemyCD then return config.enemyCdFontSize or config.fontSize end
-        if subtype == MINICC_FRAME_TYPE.FriendlyCD then return config.friendlyCdFontSize or config.fontSize end
-        if subtype == MINICC_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
-        if subtype == MINICC_FRAME_TYPE.Portrait then return config.portraitFontSize or config.fontSize end
-        if subtype == MINICC_FRAME_TYPE.Overlay then return config.overlayFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.CC then return config.ccFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura then return config.raidFrameAuraFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD then return config.enemyCdFontSize or config.overlayFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then return config.friendlyCdFontSize or config.raidFrameAuraFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.Portrait then return config.portraitFontSize or config.fontSize end
+        if subtype == MINIAURAS_FRAME_TYPE.Overlay then return config.overlayFontSize or config.fontSize end
         return config.fontSize
     end
 
@@ -1075,24 +1202,27 @@ end
 function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
     local hideNums = config.hideCountdownNumbers
 
-    if category == CATEGORY.MiniCC then
+    if category == CATEGORY.MiniAuras then
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
-        if subtype == MINICC_FRAME_TYPE.CC then
+        if subtype == MINIAURAS_FRAME_TYPE.CC then
             return config.ccHideCountdownNumbers ~= nil and config.ccHideCountdownNumbers or hideNums
         end
-        if subtype == MINICC_FRAME_TYPE.EnemyCD then
+        if subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura then
+            return config.raidFrameAuraHideCountdownNumbers ~= nil and config.raidFrameAuraHideCountdownNumbers or hideNums
+        end
+        if subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD then
             return config.enemyCdHideCountdownNumbers ~= nil and config.enemyCdHideCountdownNumbers or hideNums
         end
-        if subtype == MINICC_FRAME_TYPE.FriendlyCD then
+        if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then
             return config.friendlyCdHideCountdownNumbers ~= nil and config.friendlyCdHideCountdownNumbers or hideNums
         end
-        if subtype == MINICC_FRAME_TYPE.Nameplate then
+        if subtype == MINIAURAS_FRAME_TYPE.Nameplate then
             return config.nameplateHideCountdownNumbers ~= nil and config.nameplateHideCountdownNumbers or hideNums
         end
-        if subtype == MINICC_FRAME_TYPE.Portrait then
+        if subtype == MINIAURAS_FRAME_TYPE.Portrait then
             return config.portraitHideCountdownNumbers ~= nil and config.portraitHideCountdownNumbers or hideNums
         end
-        if subtype == MINICC_FRAME_TYPE.Overlay then
+        if subtype == MINIAURAS_FRAME_TYPE.Overlay then
             return config.overlayHideCountdownNumbers ~= nil and config.overlayHideCountdownNumbers or hideNums
         end
         return hideNums
@@ -1127,23 +1257,26 @@ end
 -- DRAW SWIPE RESOLUTION
 -- =========================================================================
 
-local function GetMiniCCHideSwipeSetting(config, subtype)
-    if subtype == MINICC_FRAME_TYPE.CC then
+local function GetMiniAurasHideSwipeSetting(config, subtype)
+    if subtype == MINIAURAS_FRAME_TYPE.CC then
         return config.ccHideSwipe
     end
-    if subtype == MINICC_FRAME_TYPE.EnemyCD then
+    if subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura then
+        return config.raidFrameAuraHideSwipe
+    end
+    if subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD then
         return config.enemyCdHideSwipe
     end
-    if subtype == MINICC_FRAME_TYPE.FriendlyCD then
+    if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then
         return config.friendlyCdHideSwipe
     end
-    if subtype == MINICC_FRAME_TYPE.Nameplate then
+    if subtype == MINIAURAS_FRAME_TYPE.Nameplate then
         return config.nameplateHideSwipe
     end
-    if subtype == MINICC_FRAME_TYPE.Portrait then
+    if subtype == MINIAURAS_FRAME_TYPE.Portrait then
         return config.portraitHideSwipe
     end
-    if subtype == MINICC_FRAME_TYPE.Overlay then
+    if subtype == MINIAURAS_FRAME_TYPE.Overlay then
         return config.overlayHideSwipe
     end
     return nil
@@ -1152,9 +1285,9 @@ end
 function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
     local baseWant = config.drawSwipe ~= false
 
-    if baseWant and category == CATEGORY.MiniCC then
+    if baseWant and category == CATEGORY.MiniAuras then
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
-        if GetMiniCCHideSwipeSetting(config, subtype) then
+        if GetMiniAurasHideSwipeSetting(config, subtype) then
             baseWant = false
         end
     end
@@ -1174,9 +1307,9 @@ function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config, subtype)
 
     if not config.edgeEnabled then return false end
 
-    if category == CATEGORY.MiniCC then
+    if category == CATEGORY.MiniAuras then
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
-        if GetMiniCCHideSwipeSetting(config, subtype) then return false end
+        if GetMiniAurasHideSwipeSetting(config, subtype) then return false end
     end
 
     return true
@@ -1187,6 +1320,11 @@ end
 -- =========================================================================
 
 function StyleEngine:IsUnitFrameLargeAura(cdFrame)
+    local trackedState = frameState[cdFrame]
+    if trackedState and trackedState.unitFrameAuraIsMine ~= nil then
+        return trackedState.unitFrameAuraIsMine == true
+    end
+
     local fs = self:ResolveCooldownContext(cdFrame)
     -- Preserve pre-refactor behavior: once a cooldown is already classified as a
     -- unit-frame aura, the "Only Mine" heuristic should still run even if the
@@ -1200,7 +1338,7 @@ function StyleEngine:IsUnitFrameLargeAura(cdFrame)
 
     local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
     if not auraOwner then
-        local parent = cdFrame.GetParent and cdFrame:GetParent()
+        local parent = GetParentSafe(cdFrame)
         if parent and not MCE:IsForbiddenCached(parent) then
             auraOwner = parent
         else
@@ -1210,18 +1348,23 @@ function StyleEngine:IsUnitFrameLargeAura(cdFrame)
 
     local auraInstanceID = self:GetFrameAuraInstanceID(auraOwner)
     if auraInstanceID
-       and auraOwner.mceAuraTextOnlyMineInstanceID == auraInstanceID
-       and auraOwner.mceIsLargeAura ~= nil then
-        return auraOwner.mceIsLargeAura == true
+       and fs.auraTextOnlyMineInstanceID == auraInstanceID
+       and fs.isLargeAura ~= nil then
+        return fs.isLargeAura == true
     end
 
-    local width = auraOwner.GetWidth and auraOwner:GetWidth() or nil
-    if type(width) ~= "number" or width <= 0 then return nil end
+    local getWidth = MCE:SafeTableGet(auraOwner, "GetWidth")
+    if type(getWidth) ~= "function" then return nil end
+
+    local ok, width = pcall(getWidth, auraOwner)
+    width = ok and GetAccessibleNumber(width) or nil
+    if not width then return nil end
+    if width <= 0 then return nil end
 
     local isLargeAura = width > LARGE_AURA_WIDTH_THRESHOLD
     if auraInstanceID then
-        auraOwner.mceAuraTextOnlyMineInstanceID = auraInstanceID
-        auraOwner.mceIsLargeAura = isLargeAura
+        fs.auraTextOnlyMineInstanceID = auraInstanceID
+        fs.isLargeAura = isLargeAura
     end
     return isLargeAura
 end
@@ -1234,7 +1377,11 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     if MCE:IsForbiddenCached(cdFrame) then return end
 
     -- Check blacklist
-    if Classifier and Classifier:IsBlacklisted(cdFrame) then return end
+    local trackedState = frameState[cdFrame]
+    if not (trackedState and trackedState.allowBlacklisted == true)
+       and Classifier and Classifier:IsBlacklisted(cdFrame) then
+        return
+    end
 
     -- Get category from registry
     local category = forcedCategory
@@ -1243,13 +1390,15 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
     if not category then return end
 
-    -- Override: MiniCC takes precedence when detected
+    -- Override: MiniAuras takes precedence when detected
     local subtype = Registry and Registry:GetSubtype(cdFrame) or nil
     if forcedCategory == CATEGORY.Nameplate and subtype then
-        if subtype == MINICC_FRAME_TYPE.CC or subtype == MINICC_FRAME_TYPE.EnemyCD
-           or subtype == MINICC_FRAME_TYPE.FriendlyCD or subtype == MINICC_FRAME_TYPE.Nameplate
-           or subtype == MINICC_FRAME_TYPE.Portrait or subtype == MINICC_FRAME_TYPE.Overlay then
-            category = CATEGORY.MiniCC
+        if subtype == MINIAURAS_FRAME_TYPE.CC or subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura
+           or subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD
+           or subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD
+           or subtype == MINIAURAS_FRAME_TYPE.Nameplate
+           or subtype == MINIAURAS_FRAME_TYPE.Portrait or subtype == MINIAURAS_FRAME_TYPE.Overlay then
+            category = CATEGORY.MiniAuras
         end
     end
 
@@ -1268,7 +1417,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     local fs = self:GetFrameState(cdFrame)
-    local parent = cdFrame.GetParent and cdFrame:GetParent()
+    local parent = GetParentSafe(cdFrame)
 
     local isChargeCooldown = self:IsChargeCooldownFrame(cdFrame, parent)
     local hasActiveCharge = isChargeCooldown and self:IsMainCooldownWithActiveChargeCooldown(cdFrame)
@@ -1368,7 +1517,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Style key for change detection (cached to avoid per-call string concat)
     local styleKey
     if category == CATEGORY.CooldownManager
-       or category == CATEGORY.MiniCC
+       or category == CATEGORY.MiniAuras
        or category == CATEGORY.SArena then
         styleKey = GetStyleKey(category, subtype or "default")
     else
@@ -1421,16 +1570,31 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         local resolvedFont = MCE.ResolveFontPath(config.font)
         local fontSize = self:GetCooldownFontSize(cdFrame, category, config, subtype)
         local preserveFontSize = (category == CATEGORY.HealerCC)
-        local textLayer = category == CATEGORY.Actionbar and STYLER_CONSTANTS.CooldownTextLayer or nil
-        local textSubLevel = category == CATEGORY.Actionbar and STYLER_CONSTANTS.CooldownTextSubLevel or nil
+        -- Aura buttons draw dispel borders and third-party glows (Better-
+        -- BlizzFrames) in OVERLAY on the button itself, and their cooldowns
+        -- inherit the button frame level, so corner-anchored countdown text
+        -- is covered unless it is raised to a higher sublevel.
+        local raiseText = category == CATEGORY.Actionbar
+            or category == CATEGORY.Unitframe
+            or category == CATEGORY.Nameplate
+        local textLayer = raiseText and STYLER_CONSTANTS.CooldownTextLayer or nil
+        local textSubLevel = raiseText and STYLER_CONSTANTS.CooldownTextSubLevel or nil
 
         -- Some third-party addons recalculate cooldown font size after MiniCE
         -- applies styling. Enforce our chosen font for those integrations so
         -- the configured text size remains stable.
-        local enforceFont = (category == CATEGORY.SArena or category == CATEGORY.MiniCC or category == CATEGORY.HealerCC)
+        local enforceFont = (category == CATEGORY.SArena
+            or category == CATEGORY.MiniAuras
+            or category == CATEGORY.HealerCC
+            or (category == CATEGORY.Unitframe and fs.unitFrameCustomAura == true))
 
         for i = 1, textRegionCount do
             local region = textRegions[i]
+            if category == CATEGORY.Unitframe
+               and fs.unitFrameCustomAura == true
+               and type(region.SetScale) == "function" then
+                pcall(region.SetScale, region, 1)
+            end
             local regionFontSize = preserveFontSize and GetCurrentFontSize(region, fontSize) or fontSize
             self:ApplyFontStringStyle(
                 region, cdFrame,
@@ -1476,6 +1640,35 @@ end
 -- =========================================================================
 
 function StyleEngine:WipeState()
+    local preservedUnitFrameState = {}
+    for cooldown, state in pairs(frameState) do
+        if state and state.unitFrameCustomAura == true then
+            preservedUnitFrameState[#preservedUnitFrameState + 1] = {
+                cooldown = cooldown,
+                isMine = state.unitFrameAuraIsMine,
+                count = state.unitFrameCount,
+                countdownText = state.unitFrameCountdownText,
+                textRegions = state.textRegions,
+                durationObject = state.durationObject,
+            }
+        end
+    end
+
     wipe(frameState)
     wipe(fontState)
+
+    -- Adapter metadata describes stable public output widgets, not styling
+    -- cache. Preserve it across ordinary (non-discovery) option refreshes.
+    for i = 1, #preservedUnitFrameState do
+        local preserved = preservedUnitFrameState[i]
+        frameState[preserved.cooldown] = {
+            allowBlacklisted = true,
+            unitFrameCustomAura = true,
+            unitFrameAuraIsMine = preserved.isMine,
+            unitFrameCount = preserved.count,
+            unitFrameCountdownText = preserved.countdownText,
+            textRegions = preserved.textRegions,
+            durationObject = preserved.durationObject,
+        }
+    end
 end

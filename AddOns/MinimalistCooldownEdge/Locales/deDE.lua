@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "Optionen können im Kampf nicht geöffnet werden."
-L["MiniCC test command is unavailable."] = "Der MiniCC-Testbefehl ist nicht verfügbar."
+L["MiniAuras test command is unavailable."] = "Der MiniAuras-Testbefehl ist nicht verfügbar."
 
 -- Category Names
 L["Action Bars"] = "Aktionsleisten"
@@ -12,7 +12,7 @@ L["Nameplates"] = "Namensplaketten"
 L["Unit Frames"] = "Einheitenfenster"
 L["Party / Raid Frames"] = "Gruppen-/Schlachtzugsfenster"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "Sonstiges"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "Gefahrenzone"
 L["Style"] = "Stil"
 L["Positioning"] = "Positionierung"
 L["CooldownManager Viewers"] = "CooldownManager-Anzeigen"
-L["MiniCC Frame Types"] = "MiniCC-Rahmentypen"
+L["MiniAuras Frame Types"] = "MiniAuras-Rahmentypen"
 
 -- Toggles & Settings
 L["Enable %s"] = "%s aktivieren"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "Stapeltext anpassen"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "Übernimm die Kontrolle über den Aufladungszähler (z. B. 2 Aufladungen von Feuersbrunst)."
 L["Reset %s"] = "%s zurücksetzen"
 L["Revert this category to default settings."] = "Setzt diese Kategorie auf die Standardeinstellungen zurück."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "Schalte die eingebauten Testsymbole von MiniCC mit /minicc test ein oder aus."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "Schalte die eingebauten Testsymbole von MiniAuras mit /miniauras test ein oder aus."
 
 -- Outline Values
 L["None"] = "Keine"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "Support & Feedback"
 L["MCE_HELP_INTRO"] = "Schnelle Projektlinks und ein paar Addons, die einen Blick wert sind."
 L["HELP_SUPPORT_DESC"] = "Vorschläge und Feedback sind jederzeit willkommen.\n\nWenn du einen Fehler findest oder eine Funktionsidee hast, kannst du gerne einen Kommentar oder eine private Nachricht auf CurseForge hinterlassen."
 L["HELP_COMPANION_DESC"] = "Saubere Begleit-Addons, die gut zu MiniCE passen."
-L["HELP_MINICC_DESC"] = "Kompakter CC-Tracker. MiniCE kann auch dessen Text gestalten."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "Kopiere diesen Link, um die MiniCC-Seite auf CurseForge in deinem Browser zu öffnen."
+L["HELP_MINIAURAS_DESC"] = "Anpassbare Aura-, Kontroll-, Abklingzeit- und PvP-Anzeigen. MiniCE kann auch die Abklingzeittexte gestalten."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "Kopiere diesen Link, um die MiniAuras-Seite auf CurseForge in deinem Browser zu öffnen."
 L["HELP_PVPTAB_DESC"] = "Sorgt dafür, dass TAB im PvP nur Spieler anvisiert. Ideal für Arenen und Schlachtfelder."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "Kopiere diesen Link, um Smart PvP Tab Targeting auf CurseForge zu öffnen."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Passe Abklingzeiten auf deinen Hauptaktionsleisten an, ei
 L["NAMEPLATE_DESC"] = "Stilisiere Abklingzeiten auf feindlichen und freundlichen Namensplaketten (Plater, KuiNameplates usw.)."
 L["UNITFRAME_DESC"] = "Passe das Abklingzeit-Styling auf Spieler-, Ziel- und Fokus-Einheitenfenstern an."
 L["COOLDOWNMANAGER_DESC"] = "Gemeinsames Symbol-Styling für CooldownManager-Anzeigen. Die Größe des Countdown-Texts kann für Essential-, Utility- und Buffsymbol-Anzeigen separat festgelegt werden."
-L["MINICC_DESC"] = "Eigenständiges Styling für MiniCC-Abklingzeitsymbole. Unterstützt bei geladenem MiniCC dessen CC-Symbole, Namensplaketten, Porträts und Overlay-Module."
+L["MINIAURAS_DESC"] = "Eigenständiges Styling für MiniAuras-Abklingzeitsymbole. Unterstützt bei geladenem MiniAuras dessen CC-Symbole, Namensplaketten, Porträts und Overlay-Module."
 L["OTHERS_DESC"] = "Auffangkategorie für Abklingzeiten, die zu keiner anderen Kategorie gehören (Taschen, Menüs, sonstige Addons)."
 
 -- Dynamic Text Colors

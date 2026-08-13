@@ -102,10 +102,6 @@ local function getParentKey(frame)
     return frame:GetParentKey()
 end
 
-local function getFrameName(frame)
-    return frame:GetName()
-end
-
 local function getTableValue(tbl, key)
     return tbl[key]
 end
@@ -139,7 +135,11 @@ function MCE:GetNonSecretString(value)
         return nil
     end
 
-    if self:IsSecretValue(value) or value == "" then
+    if self:IsSecretValue(value) or not addon.CanAccessAllValues(value) then
+        return nil
+    end
+
+    if value == "" then
         return nil
     end
 
@@ -186,11 +186,16 @@ function MCE:GetNonSecretParentKey(frame)
 end
 
 function MCE:GetFrameName(frame)
-    if not frame or self:IsForbiddenCached(frame) or not frame.GetName then
+    if not frame or self:IsForbiddenCached(frame) then
         return nil
     end
 
-    local ok, name = pcall(getFrameName, frame)
+    local getName = self:SafeTableGet(frame, "GetName")
+    if type(getName) ~= "function" then
+        return nil
+    end
+
+    local ok, name = pcall(getName, frame)
     if not ok then
         return nil
     end
@@ -291,8 +296,8 @@ function MCE:IsAddonLoadedCached(addonName)
     return self:SetAddonLoadState(addonName, QueryAddonLoaded(addonName))
 end
 
-function MCE:IsMiniCCAvailable()
-    return self:IsAddonLoadedCached(C.Addon.MiniCCName)
+function MCE:IsMiniAurasAvailable()
+    return self:IsAddonLoadedCached(C.Addon.MiniAurasName)
 end
 
 function MCE:IsHealerCCAvailable()
@@ -671,6 +676,7 @@ unitframeDefaults.stackSize = C.Defaults.Unitframe.StackSize
 unitframeDefaults.stackAnchor = C.Defaults.Unitframe.StackAnchor
 unitframeDefaults.stackOffsetX = C.Defaults.Unitframe.StackOffsetX
 unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
+unitframeDefaults.auraCdTextOnlyMine = true
 
 local playerAuraStyleDefaults = CategoryDefaults(C.Categories.PlayerAura, true, 12)
 playerAuraStyleDefaults.reverseSwipe = C.Defaults.PlayerAura.ReverseSwipe
@@ -895,50 +901,50 @@ local function EnsureCooldownManagerConfig(config)
     return config
 end
 
-local miniCCDefaults = CategoryDefaults(C.Categories.MiniCC, false, 18)
-miniCCDefaults.ccFontSize = C.Defaults.MiniCC.CCFontSize
-miniCCDefaults.ccHideCountdownNumbers = C.Defaults.MiniCC.CCHideCountdownNumbers
-miniCCDefaults.ccHideSwipe = C.Defaults.MiniCC.CCHideSwipe
-miniCCDefaults.enemyCdFontSize = C.Defaults.MiniCC.EnemyCDFontSize
-miniCCDefaults.enemyCdHideCountdownNumbers = C.Defaults.MiniCC.EnemyCDHideCountdownNumbers
-miniCCDefaults.enemyCdHideSwipe = C.Defaults.MiniCC.EnemyCDHideSwipe
-miniCCDefaults.friendlyCdFontSize = C.Defaults.MiniCC.FriendlyCDFontSize
-miniCCDefaults.friendlyCdHideCountdownNumbers = C.Defaults.MiniCC.FriendlyCDHideCountdownNumbers
-miniCCDefaults.friendlyCdHideSwipe = C.Defaults.MiniCC.FriendlyCDHideSwipe
-miniCCDefaults.nameplateFontSize = C.Defaults.MiniCC.NameplateFontSize
-miniCCDefaults.nameplateHideCountdownNumbers = C.Defaults.MiniCC.NameplateHideCountdownNumbers
-miniCCDefaults.nameplateHideSwipe = C.Defaults.MiniCC.NameplateHideSwipe
-miniCCDefaults.portraitFontSize = C.Defaults.MiniCC.PortraitFontSize
-miniCCDefaults.portraitHideCountdownNumbers = C.Defaults.MiniCC.PortraitHideCountdownNumbers
-miniCCDefaults.portraitHideSwipe = C.Defaults.MiniCC.PortraitHideSwipe
-miniCCDefaults.overlayFontSize = C.Defaults.MiniCC.OverlayFontSize
-miniCCDefaults.overlayHideCountdownNumbers = C.Defaults.MiniCC.OverlayHideCountdownNumbers
-miniCCDefaults.overlayHideSwipe = C.Defaults.MiniCC.OverlayHideSwipe
-miniCCDefaults.healerWarningTextColor = CopyTable(C.Defaults.MiniCC.HealerWarningTextColor)
+local miniAurasDefaults = CategoryDefaults(C.Categories.MiniAuras, false, 18)
+miniAurasDefaults.ccFontSize = C.Defaults.MiniAuras.CCFontSize
+miniAurasDefaults.ccHideCountdownNumbers = C.Defaults.MiniAuras.CCHideCountdownNumbers
+miniAurasDefaults.ccHideSwipe = C.Defaults.MiniAuras.CCHideSwipe
+miniAurasDefaults.raidFrameAuraFontSize = C.Defaults.MiniAuras.RaidFrameAuraFontSize
+miniAurasDefaults.raidFrameAuraHideCountdownNumbers = C.Defaults.MiniAuras.RaidFrameAuraHideCountdownNumbers
+miniAurasDefaults.raidFrameAuraHideSwipe = C.Defaults.MiniAuras.RaidFrameAuraHideSwipe
+miniAurasDefaults.nameplateFontSize = C.Defaults.MiniAuras.NameplateFontSize
+miniAurasDefaults.nameplateHideCountdownNumbers = C.Defaults.MiniAuras.NameplateHideCountdownNumbers
+miniAurasDefaults.nameplateHideSwipe = C.Defaults.MiniAuras.NameplateHideSwipe
+miniAurasDefaults.portraitFontSize = C.Defaults.MiniAuras.PortraitFontSize
+miniAurasDefaults.portraitHideCountdownNumbers = C.Defaults.MiniAuras.PortraitHideCountdownNumbers
+miniAurasDefaults.portraitHideSwipe = C.Defaults.MiniAuras.PortraitHideSwipe
+miniAurasDefaults.overlayFontSize = C.Defaults.MiniAuras.OverlayFontSize
+miniAurasDefaults.overlayHideCountdownNumbers = C.Defaults.MiniAuras.OverlayHideCountdownNumbers
+miniAurasDefaults.overlayHideSwipe = C.Defaults.MiniAuras.OverlayHideSwipe
 
-local function EnsureMiniCCConfig(config)
+local function EnsureMiniAurasConfig(config)
     if type(config) ~= "table" then
-        return CopyTable(miniCCDefaults)
+        return CopyTable(miniAurasDefaults)
     end
 
-    if type(config.enemyCdFontSize) ~= "number" then
-        config.enemyCdFontSize = C.Defaults.MiniCC.EnemyCDFontSize
+    if type(config.raidFrameAuraFontSize) ~= "number" then
+        config.raidFrameAuraFontSize = type(config.friendlyCdFontSize) == "number"
+            and config.friendlyCdFontSize or C.Defaults.MiniAuras.RaidFrameAuraFontSize
     end
-    if config.enemyCdHideCountdownNumbers == nil then
-        config.enemyCdHideCountdownNumbers = C.Defaults.MiniCC.EnemyCDHideCountdownNumbers
+    if config.raidFrameAuraHideCountdownNumbers == nil then
+        if config.friendlyCdHideCountdownNumbers ~= nil then
+            config.raidFrameAuraHideCountdownNumbers = config.friendlyCdHideCountdownNumbers
+        else
+            config.raidFrameAuraHideCountdownNumbers = C.Defaults.MiniAuras.RaidFrameAuraHideCountdownNumbers
+        end
     end
-    if config.enemyCdHideSwipe == nil then
-        config.enemyCdHideSwipe = C.Defaults.MiniCC.EnemyCDHideSwipe
+    if config.raidFrameAuraHideSwipe == nil then
+        if config.friendlyCdHideSwipe ~= nil then
+            config.raidFrameAuraHideSwipe = config.friendlyCdHideSwipe
+        else
+            config.raidFrameAuraHideSwipe = C.Defaults.MiniAuras.RaidFrameAuraHideSwipe
+        end
     end
-    if type(config.healerWarningTextColor) ~= "table" then
-        config.healerWarningTextColor = CopyTable(C.Defaults.MiniCC.HealerWarningTextColor)
-    else
-        local defaultColor = C.Defaults.MiniCC.HealerWarningTextColor
-        if config.healerWarningTextColor.r == nil then config.healerWarningTextColor.r = defaultColor.r end
-        if config.healerWarningTextColor.g == nil then config.healerWarningTextColor.g = defaultColor.g end
-        if config.healerWarningTextColor.b == nil then config.healerWarningTextColor.b = defaultColor.b end
-        if config.healerWarningTextColor.a == nil then config.healerWarningTextColor.a = defaultColor.a end
-    end
+
+    -- MiniAuras 12.1 renders this label inside restricted AuraButtons, so the
+    -- former MiniCC warning-text override is no longer a safe integration.
+    config.healerWarningTextColor = nil
 
     return config
 end
@@ -966,7 +972,7 @@ MCE.defaults = {
             [C.Categories.PlayerAura] = playerAuraDefaults,
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
             [C.Categories.HealerCC] = healerCCDefaults,
-            [C.Categories.MiniCC] = miniCCDefaults,
+            [C.Categories.MiniAuras] = miniAurasDefaults,
             [C.Categories.SArena] = sArenaDefaults,
             [C.Categories.TellMeWhen] = tellMeWhenDefaults,
         },
@@ -1007,6 +1013,16 @@ function MCE:UpgradeProfile()
         profile.categories = CopyTable(self.defaults.profile.categories)
     end
 
+    -- Preserve existing MiniCC integration settings after the addon/category
+    -- rename. rawget avoids mistaking AceDB's default-backed MiniAuras table for
+    -- an explicitly saved profile value.
+    local legacyMiniCCConfig = rawget(profile.categories, "minicc")
+    if type(legacyMiniCCConfig) == "table"
+        and rawget(profile.categories, C.Categories.MiniAuras) == nil then
+        profile.categories[C.Categories.MiniAuras] = CopyTable(legacyMiniCCConfig)
+    end
+    profile.categories.minicc = nil
+
     if type(profile.categories[C.Categories.HealerCC]) ~= "table" then
         profile.categories[C.Categories.HealerCC] = CopyTable(healerCCDefaults)
     end
@@ -1021,8 +1037,8 @@ function MCE:UpgradeProfile()
 
     profile.categories[C.Categories.CooldownManager] =
         EnsureCooldownManagerConfig(profile.categories[C.Categories.CooldownManager])
-    profile.categories[C.Categories.MiniCC] =
-        EnsureMiniCCConfig(profile.categories[C.Categories.MiniCC])
+    profile.categories[C.Categories.MiniAuras] =
+        EnsureMiniAurasConfig(profile.categories[C.Categories.MiniAuras])
     profile.categories[C.Categories.PlayerAura] =
         EnsurePlayerAuraConfig(profile.categories[C.Categories.PlayerAura])
 
@@ -1083,7 +1099,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.PartyRaidRetired))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["HealerCC"], C.Addon.ShortName, C.Categories.HealerCC))
-    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniAuras"], C.Addon.ShortName, C.Categories.MiniAuras))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))

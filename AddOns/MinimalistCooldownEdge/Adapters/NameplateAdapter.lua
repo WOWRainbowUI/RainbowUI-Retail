@@ -5,21 +5,49 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Adapter = MCE:NewModule("NameplateAdapter", "AceEvent-3.0")
 
-local type, ipairs, pairs = type, ipairs, pairs
+local type, ipairs, pcall = type, ipairs, pcall
 local strfind, strlower = string.find, string.lower
 
 local CATEGORY = C.Categories
 local MAX_DEPTH = C.Adapter.Nameplates.MaxAncestorDepth or 4
 local NP_PATTERNS = C.Classifier.NameplatePatterns
-local MINICC_PREFIX = C.Classifier.MiniCCNamePrefix
+local MINIAURAS_PREFIX = C.Classifier.MiniAurasNamePrefix
 
 local Registry
 
--- MiniCC creates cooldowns at a fixed depth inside containers that are parented
--- to nameplates.  Skip them here so MiniCCAdapter retains ownership.
-local function IsMiniCCFrame(frame)
+local function IsObjectTypeSafe(frame, objectType)
+    local isObjectType = MCE:SafeTableGet(frame, "IsObjectType")
+    if type(isObjectType) ~= "function" then
+        return false
+    end
+
+    local ok, result = pcall(isObjectType, frame, objectType)
+    if not ok or MCE:IsSecretValue(result) or not addon.CanAccessAllValues(result) then
+        return false
+    end
+
+    return result == true
+end
+
+local function GetParentSafe(frame)
+    local getParent = MCE:SafeTableGet(frame, "GetParent")
+    if type(getParent) ~= "function" then
+        return nil
+    end
+
+    local ok, parent = pcall(getParent, frame)
+    if not ok or not MCE:CanUseFrameAsTableKey(parent) then
+        return nil
+    end
+
+    return parent
+end
+
+-- MiniAuras creates named cooldowns inside containers associated with nameplates.
+-- Skip them here so MiniAurasAdapter retains ownership of both display backends.
+local function IsMiniAurasFrame(frame)
     local name = MCE:GetFrameName(frame)
-    return type(name) == "string" and strfind(name, MINICC_PREFIX, 1, true) == 1
+    return type(name) == "string" and strfind(name, MINIAURAS_PREFIX, 1, true) == 1
 end
 
 function Adapter:OnEnable()
@@ -36,31 +64,40 @@ end
 
 -- Scan a nameplate subtree for Cooldown children (limited depth)
 local function ScanChildren(frame, depth)
-    if not frame or depth > MAX_DEPTH or MCE:IsForbidden(frame) then return end
-    -- Bail out of any MiniCC-managed subtree; MiniCCAdapter owns these.
-    if IsMiniCCFrame(frame) then return end
+    if depth > MAX_DEPTH or not MCE:CanUseFrameAsTableKey(frame) then return end
+    -- Bail out of any MiniAuras-managed subtree; MiniAurasAdapter owns these.
+    if IsMiniAurasFrame(frame) then return end
 
-    if frame.IsObjectType and frame:IsObjectType("Cooldown") then
+    if IsObjectTypeSafe(frame, "Cooldown") then
         Registry:Register(frame, CATEGORY.Nameplate)
         return
     end
 
-    local cd = frame.cooldown or frame.Cooldown
-    if cd and not MCE:IsForbidden(cd) then
+    local cd = MCE:SafeTableGet(frame, "cooldown")
+    if not MCE:CanUseFrameAsTableKey(cd) then
+        cd = MCE:SafeTableGet(frame, "Cooldown")
+    end
+    if MCE:CanUseFrameAsTableKey(cd) then
         Registry:Register(cd, CATEGORY.Nameplate)
     end
 
-    if frame.GetChildren then
-        local children = { frame:GetChildren() }
-        for i = 1, #children do
-            ScanChildren(children[i], depth + 1)
-        end
+    local getChildren = MCE:SafeTableGet(frame, "GetChildren")
+    if type(getChildren) ~= "function" then return end
+
+    local children = { pcall(getChildren, frame) }
+    if not children[1] then return end
+
+    for i = 2, #children do
+        ScanChildren(children[i], depth + 1)
     end
 end
 
 local function RegisterNameplate(np)
-    if not np then return end
-    local unitFrame = np.UnitFrame or np
+    if not MCE:CanUseFrameAsTableKey(np) then return end
+    local unitFrame = MCE:SafeTableGet(np, "UnitFrame")
+    if not MCE:CanUseFrameAsTableKey(unitFrame) then
+        unitFrame = np
+    end
     ScanChildren(unitFrame, 0)
 end
 
@@ -83,17 +120,18 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
-    if not cooldown then return nil end
-    -- MiniCC cooldowns carry the MiniCC_ prefix; skip them entirely.
-    if IsMiniCCFrame(cooldown) then return nil end
-    local current = cooldown.GetParent and cooldown:GetParent()
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
+    -- MiniAuras cooldowns carry the MiniAuras_ prefix; skip them entirely.
+    if IsMiniAurasFrame(cooldown) then return nil end
+    local current = GetParentSafe(cooldown)
     for _ = 1, MAX_DEPTH do
         if not current then break end
-        if current.GetObjectType and current:GetObjectType() == "NamePlate" then
+        if IsObjectTypeSafe(current, "NamePlate") then
             return CATEGORY.Nameplate
         end
-        local unit = current.unitToken or current.unit
-        if type(unit) == "string" and strfind(strlower(unit), "nameplate", 1, true) then
+        local unit = MCE:GetNonSecretString(MCE:SafeTableGet(current, "unitToken"))
+            or MCE:GetNonSecretString(MCE:SafeTableGet(current, "unit"))
+        if unit and strfind(strlower(unit), "nameplate", 1, true) then
             return CATEGORY.Nameplate
         end
         local name = MCE:GetFrameName(current)
@@ -105,7 +143,7 @@ function Adapter:TryClaim(cooldown)
                 end
             end
         end
-        current = current.GetParent and current:GetParent()
+        current = GetParentSafe(current)
     end
     return nil
 end

@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "No se pueden abrir las opciones en combate."
-L["MiniCC test command is unavailable."] = "El comando de prueba de MiniCC no está disponible."
+L["MiniAuras test command is unavailable."] = "El comando de prueba de MiniAuras no está disponible."
 
 -- Category Names
 L["Action Bars"] = "Barras de acción"
@@ -12,7 +12,7 @@ L["Nameplates"] = "Placas de nombre"
 L["Unit Frames"] = "Marcos de unidad"
 L["Party / Raid Frames"] = "Marcos de grupo/banda"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "Otros"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "Zona de peligro"
 L["Style"] = "Estilo"
 L["Positioning"] = "Posicionamiento"
 L["CooldownManager Viewers"] = "Visores de CooldownManager"
-L["MiniCC Frame Types"] = "Tipos de marcos de MiniCC"
+L["MiniAuras Frame Types"] = "Tipos de marcos de MiniAuras"
 
 -- Toggles & Settings
 L["Enable %s"] = "Activar %s"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "Personalizar texto de acumulación"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "Toma el control del contador de cargas (por ejemplo, 2 cargas de Conflagrar)."
 L["Reset %s"] = "Restablecer %s"
 L["Revert this category to default settings."] = "Devuelve esta categoría a su configuración predeterminada."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "Activa o desactiva los iconos de prueba integrados de MiniCC con /minicc test."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "Activa o desactiva los iconos de prueba integrados de MiniAuras con /miniauras test."
 
 -- Outline Values
 L["None"] = "Ninguno"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "Soporte y comentarios"
 L["MCE_HELP_INTRO"] = "Enlaces rápidos del proyecto y un par de addons que merece la pena probar."
 L["HELP_SUPPORT_DESC"] = "Las sugerencias y los comentarios siempre son bienvenidos.\n\nSi encuentras un error o tienes una idea para una función, no dudes en dejar un comentario o un mensaje privado en CurseForge."
 L["HELP_COMPANION_DESC"] = "Opciones limpias que encajan bien con MiniCE."
-L["HELP_MINICC_DESC"] = "Seguimiento compacto de CC. MiniCE también puede dar estilo a su texto."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "Copia este enlace para abrir la página de MiniCC en CurseForge en tu navegador."
+L["HELP_MINIAURAS_DESC"] = "Conjunto de auras personalizadas, control de masas, reutilizaciones y herramientas JcJ. MiniCE también puede personalizar los textos de reutilización."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "Copia este enlace para abrir la página de MiniAuras en CurseForge en tu navegador."
 L["HELP_PVPTAB_DESC"] = "Hace que TAB seleccione solo jugadores en JcJ. Ideal para arenas y campos de batalla."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "Copia este enlace para abrir Smart PvP Tab Targeting en CurseForge."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Personaliza las reutilizaciones de tus barras de acción 
 L["NAMEPLATE_DESC"] = "Da estilo a las reutilizaciones que se muestran en placas de nombre enemigas y aliadas (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Ajusta el estilo de reutilización en los marcos de jugador, objetivo y foco."
 L["COOLDOWNMANAGER_DESC"] = "Estilo compartido de iconos para los visores de CooldownManager. El tamaño del texto de la cuenta atrás puede ajustarse por separado para los visores Essential, Utility y de iconos de beneficios."
-L["MINICC_DESC"] = "Estilo dedicado para los iconos de reutilización de MiniCC. Admite los iconos de control de masas de MiniCC, placas de nombre, retratos y módulos de tipo superposición cuando MiniCC está cargado."
+L["MINIAURAS_DESC"] = "Estilo dedicado para los iconos de reutilización de MiniAuras. Admite los iconos de control de masas de MiniAuras, placas de nombre, retratos y módulos de tipo superposición cuando MiniAuras está cargado."
 L["OTHERS_DESC"] = "Categoría comodín para las reutilizaciones que no pertenecen a otras categorías (bolsas, menús, otros addons)."
 
 -- Dynamic Text Colors

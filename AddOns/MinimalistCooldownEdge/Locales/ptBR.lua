@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "Não é possível abrir as opções em combate."
-L["MiniCC test command is unavailable."] = "O comando de teste do MiniCC não está disponível."
+L["MiniAuras test command is unavailable."] = "O comando de teste do MiniAuras não está disponível."
 
 -- Category Names
 L["Action Bars"] = "Barras de Ação"
@@ -12,7 +12,7 @@ L["Nameplates"] = "Placas de Nome"
 L["Unit Frames"] = "Quadros de Unidade"
 L["Party / Raid Frames"] = "Quadros de Grupo/Raide"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "Outros"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "Zona de Perigo"
 L["Style"] = "Estilo"
 L["Positioning"] = "Posicionamento"
 L["CooldownManager Viewers"] = "Visualizadores do CooldownManager"
-L["MiniCC Frame Types"] = "Tipos de Quadro do MiniCC"
+L["MiniAuras Frame Types"] = "Tipos de Quadro do MiniAuras"
 
 -- Toggles & Settings
 L["Enable %s"] = "Ativar %s"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "Personalizar Texto de Acúmulo"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "Assuma o controle do contador de cargas (por exemplo, 2 cargas de Conflagrar)."
 L["Reset %s"] = "Redefinir %s"
 L["Revert this category to default settings."] = "Reverte esta categoria para as configurações padrão."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "Ativa ou desativa os ícones de teste internos do MiniCC com /minicc test."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "Ativa ou desativa os ícones de teste internos do MiniAuras com /miniauras test."
 
 -- Outline Values
 L["None"] = "Nenhum"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "Suporte e Feedback"
 L["MCE_HELP_INTRO"] = "Links rápidos do projeto e alguns addons que valem a pena testar."
 L["HELP_SUPPORT_DESC"] = "Sugestões e feedback são sempre bem-vindos.\n\nSe você encontrar um bug ou tiver uma ideia de recurso, fique à vontade para deixar um comentário ou mensagem privada no CurseForge."
 L["HELP_COMPANION_DESC"] = "Boas combinações que funcionam bem com o MiniCE."
-L["HELP_MINICC_DESC"] = "Rastreador compacto de CC. O MiniCE também pode estilizar o texto dele."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "Copie este link para abrir a página do MiniCC no CurseForge no seu navegador."
+L["HELP_MINIAURAS_DESC"] = "Conjunto de exibições de auras personalizadas, controle coletivo, recargas e JxJ. O MiniCE também pode estilizar os textos de recarga."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "Copie este link para abrir a página do MiniAuras no CurseForge no seu navegador."
 L["HELP_PVPTAB_DESC"] = "Faz com que TAB selecione apenas jogadores no PvP. Ótimo para arenas e campos de batalha."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "Copie este link para abrir Smart PvP Tab Targeting no CurseForge."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Personalize as recargas nas suas barras de ação princip
 L["NAMEPLATE_DESC"] = "Estilize as recargas exibidas em placas de nome inimigas e aliadas (Plater, KuiNameplates etc.)."
 L["UNITFRAME_DESC"] = "Ajuste o estilo de recarga nos quadros de jogador, alvo e foco."
 L["COOLDOWNMANAGER_DESC"] = "Estilo de ícone compartilhado para os visualizadores do CooldownManager. O tamanho do texto de contagem regressiva pode ser ajustado separadamente para os visualizadores Essential, Utility e de ícones de bônus."
-L["MINICC_DESC"] = "Estilo dedicado para os ícones de recarga do MiniCC. Suporta os ícones de controle do MiniCC, placas de nome, retratos e módulos em estilo de sobreposição quando o MiniCC estiver carregado."
+L["MINIAURAS_DESC"] = "Estilo dedicado para os ícones de recarga do MiniAuras. Suporta os ícones de controle do MiniAuras, placas de nome, retratos e módulos em estilo de sobreposição quando o MiniAuras estiver carregado."
 L["OTHERS_DESC"] = "Categoria coringa para recargas que não pertencem a outras categorias (bolsas, menus, outros addons)."
 
 -- Dynamic Text Colors

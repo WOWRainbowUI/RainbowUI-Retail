@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "Невозможно открыть настройки в бою."
-L["MiniCC test command is unavailable."] = "Команда теста MiniCC недоступна."
+L["MiniAuras test command is unavailable."] = "Команда теста MiniAuras недоступна."
 
 -- Category Names
 L["Action Bars"] = "Панели действий"
@@ -12,7 +12,7 @@ L["Nameplates"] = "Таблички имен"
 L["Unit Frames"] = "Фреймы юнитов"
 L["Party / Raid Frames"] = "Фреймы группы/рейда"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "Прочее"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "Опасная зона"
 L["Style"] = "Стиль"
 L["Positioning"] = "Положение"
 L["CooldownManager Viewers"] = "Просмотрщики CooldownManager"
-L["MiniCC Frame Types"] = "Типы рамок MiniCC"
+L["MiniAuras Frame Types"] = "Типы рамок MiniAuras"
 
 -- Toggles & Settings
 L["Enable %s"] = "Включить %s"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "Настроить текст стаков"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "Управляйте счётчиком зарядов (например, 2 заряда Поджигания)."
 L["Reset %s"] = "Сбросить %s"
 L["Revert this category to default settings."] = "Возвращает эту категорию к настройкам по умолчанию."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "Включает или выключает встроенные тестовые иконки MiniCC через /minicc test."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "Включает или выключает встроенные тестовые иконки MiniAuras через /miniauras test."
 
 -- Outline Values
 L["None"] = "Нет"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "Поддержка и отзывы"
 L["MCE_HELP_INTRO"] = "Быстрые ссылки по проекту и пара аддонов, которые стоит попробовать."
 L["HELP_SUPPORT_DESC"] = "Предложения и отзывы всегда приветствуются.\n\nЕсли вы нашли ошибку или у вас есть идея функции, не стесняйтесь оставить комментарий или личное сообщение на CurseForge."
 L["HELP_COMPANION_DESC"] = "Аккуратные аддоны, которые хорошо сочетаются с MiniCE."
-L["HELP_MINICC_DESC"] = "Компактный трекер контроля. MiniCE тоже умеет оформлять его текст."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "Скопируйте эту ссылку, чтобы открыть страницу MiniCC на CurseForge в браузере."
+L["HELP_MINIAURAS_DESC"] = "Набор настраиваемых индикаторов аур, контроля, перезарядок и PvP. MiniCE также может оформлять текст перезарядки."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "Скопируйте эту ссылку, чтобы открыть страницу MiniAuras на CurseForge в браузере."
 L["HELP_PVPTAB_DESC"] = "Заставляет TAB выбирать в PvP только игроков. Отлично подходит для арен и полей боя."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "Скопируйте эту ссылку, чтобы открыть Smart PvP Tab Targeting на CurseForge."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Настраивайте перезарядки на ос
 L["NAMEPLATE_DESC"] = "Оформляйте перезарядки, отображаемые на вражеских и союзных табличках имен (Plater, KuiNameplates и т. д.)."
 L["UNITFRAME_DESC"] = "Настраивайте оформление перезарядок на рамках игрока, цели и фокуса."
 L["COOLDOWNMANAGER_DESC"] = "Общее оформление иконок для просмотрщиков CooldownManager. Размер текста обратного отсчёта можно задавать отдельно для просмотрщиков Essential, Utility и иконок баффов."
-L["MINICC_DESC"] = "Отдельный стиль для иконок перезарядки MiniCC. Поддерживает иконки контроля MiniCC, таблички имен, портреты и модули в стиле наложения, если MiniCC загружен."
+L["MINIAURAS_DESC"] = "Отдельный стиль для иконок перезарядки MiniAuras. Поддерживает иконки контроля MiniAuras, таблички имен, портреты и модули в стиле наложения, если MiniAuras загружен."
 L["OTHERS_DESC"] = "Категория для всех перезарядок, которые не относятся к другим разделам (сумки, меню, прочие аддоны)."
 
 -- Dynamic Text Colors

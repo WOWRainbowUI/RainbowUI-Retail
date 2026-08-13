@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "Impossibile aprire le opzioni in combattimento."
-L["MiniCC test command is unavailable."] = "Il comando di test di MiniCC non è disponibile."
+L["MiniAuras test command is unavailable."] = "Il comando di test di MiniAuras non è disponibile."
 
 -- Category Names
 L["Action Bars"] = "Barre d'azione"
@@ -12,7 +12,7 @@ L["Nameplates"] = "Targhette dei nomi"
 L["Unit Frames"] = "Riquadri unità"
 L["Party / Raid Frames"] = "Riquadri gruppo/incursione"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "Altro"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "Zona di pericolo"
 L["Style"] = "Stile"
 L["Positioning"] = "Posizionamento"
 L["CooldownManager Viewers"] = "Visualizzatori di CooldownManager"
-L["MiniCC Frame Types"] = "Tipi di riquadro di MiniCC"
+L["MiniAuras Frame Types"] = "Tipi di riquadro di MiniAuras"
 
 -- Toggles & Settings
 L["Enable %s"] = "Abilita %s"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "Personalizza testo accumuli"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "Prendi il controllo del contatore cariche (ad es. 2 cariche di Conflagrazione)."
 L["Reset %s"] = "Reimposta %s"
 L["Revert this category to default settings."] = "Ripristina questa categoria alle impostazioni predefinite."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "Attiva o disattiva le icone di test integrate di MiniCC con /minicc test."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "Attiva o disattiva le icone di test integrate di MiniAuras con /miniauras test."
 
 -- Outline Values
 L["None"] = "Nessuno"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "Supporto e feedback"
 L["MCE_HELP_INTRO"] = "Link rapidi al progetto e un paio di addon che vale la pena provare."
 L["HELP_SUPPORT_DESC"] = "Suggerimenti e feedback sono sempre benvenuti.\n\nSe trovi un bug o hai un'idea per una funzione, sentiti libero di lasciare un commento o un messaggio privato su CurseForge."
 L["HELP_COMPANION_DESC"] = "Addon essenziali che si abbinano bene a MiniCE."
-L["HELP_MINICC_DESC"] = "Tracciatore CC compatto. MiniCE può stilizzare anche il suo testo."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "Copia questo link per aprire la pagina di MiniCC su CurseForge nel tuo browser."
+L["HELP_MINIAURAS_DESC"] = "Suite di visualizzazione per aure personalizzate, controlli, tempi di recupero e PvP. MiniCE può anche personalizzarne il testo."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "Copia questo link per aprire la pagina di MiniAuras su CurseForge nel tuo browser."
 L["HELP_PVPTAB_DESC"] = "Fa sì che TAB selezioni solo i giocatori in PvP. Ottimo per arene e campi di battaglia."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "Copia questo link per aprire Smart PvP Tab Targeting su CurseForge."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Personalizza i cooldown sulle tue barre d'azione principa
 L["NAMEPLATE_DESC"] = "Stilizza i cooldown mostrati sulle targhette nemiche e alleate (Plater, KuiNameplates, ecc.)."
 L["UNITFRAME_DESC"] = "Regola lo stile dei cooldown sui riquadri di giocatore, bersaglio e focus."
 L["COOLDOWNMANAGER_DESC"] = "Stile icone condiviso per i visualizzatori di CooldownManager. La dimensione del testo del conto alla rovescia può essere impostata separatamente per i visualizzatori Essential, Utility e delle icone benefici."
-L["MINICC_DESC"] = "Stile dedicato per le icone di cooldown di MiniCC. Supporta le icone di controllo di MiniCC, le targhette, i ritratti e i moduli in stile overlay quando MiniCC è caricato."
+L["MINIAURAS_DESC"] = "Stile dedicato per le icone di cooldown di MiniAuras. Supporta le icone di controllo di MiniAuras, le targhette, i ritratti e i moduli in stile overlay quando MiniAuras è caricato."
 L["OTHERS_DESC"] = "Categoria jolly per i cooldown che non appartengono ad altre categorie (borse, menu, addon vari)."
 
 -- Dynamic Text Colors

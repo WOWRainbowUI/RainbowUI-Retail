@@ -4,7 +4,7 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "전투 중에는 옵션을 열 수 없습니다."
-L["MiniCC test command is unavailable."] = "MiniCC 테스트 명령을 사용할 수 없습니다."
+L["MiniAuras test command is unavailable."] = "MiniAuras 테스트 명령을 사용할 수 없습니다."
 
 -- Category Names
 L["Action Bars"] = "행동 단축바"
@@ -12,7 +12,7 @@ L["Nameplates"] = "이름표"
 L["Unit Frames"] = "유닛 프레임"
 L["Party / Raid Frames"] = "파티/공격대 프레임"
 L["CooldownManager"] = "CooldownManager"
-L["MiniCC"] = "MiniCC"
+L["MiniAuras"] = "MiniAuras"
 L["Others"] = "기타"
 
 -- Group Headers
@@ -25,7 +25,7 @@ L["Danger Zone"] = "위험 구역"
 L["Style"] = "스타일"
 L["Positioning"] = "위치"
 L["CooldownManager Viewers"] = "CooldownManager 뷰어"
-L["MiniCC Frame Types"] = "MiniCC 프레임 유형"
+L["MiniAuras Frame Types"] = "MiniAuras 프레임 유형"
 
 -- Toggles & Settings
 L["Enable %s"] = "%s 활성화"
@@ -64,7 +64,7 @@ L["Customize Stack Text"] = "중첩 텍스트 사용자 지정"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "충전 카운터를 직접 제어합니다 (예: 점화 2충전)."
 L["Reset %s"] = "%s 초기화"
 L["Revert this category to default settings."] = "이 카테고리를 기본 설정으로 되돌립니다."
-L["Toggle MiniCC's built-in test icons using /minicc test."] = "/minicc test로 MiniCC 기본 테스트 아이콘을 켜거나 끕니다."
+L["Toggle MiniAuras' built-in test icons using /miniauras test."] = "/miniauras test로 MiniAuras 기본 테스트 아이콘을 켜거나 끕니다."
 
 -- Outline Values
 L["None"] = "없음"
@@ -139,8 +139,8 @@ L["Support & Feedback"] = "지원 및 의견"
 L["MCE_HELP_INTRO"] = "빠른 프로젝트 링크와 함께 써볼 만한 애드온 몇 가지입니다."
 L["HELP_SUPPORT_DESC"] = "제안과 피드백은 언제나 환영합니다.\n\n버그를 발견했거나 기능 아이디어가 있다면 CurseForge에 댓글이나 개인 메시지를 남겨 주세요."
 L["HELP_COMPANION_DESC"] = "MiniCE와 잘 어울리는 깔끔한 추천 애드온입니다."
-L["HELP_MINICC_DESC"] = "간결한 군중 제어 추적기입니다. MiniCE는 이 텍스트도 꾸밀 수 있습니다."
-L["Copy this link to open the MiniCC CurseForge page in your browser."] = "이 링크를 복사해 브라우저에서 MiniCC CurseForge 페이지를 여세요."
+L["HELP_MINIAURAS_DESC"] = "사용자 설정 오라, 군중 제어, 재사용 대기시간 및 PvP 표시 모음입니다. MiniCE로 재사용 대기시간 텍스트도 꾸밀 수 있습니다."
+L["Copy this link to open the MiniAuras CurseForge page in your browser."] = "이 링크를 복사해 브라우저에서 MiniAuras CurseForge 페이지를 여세요."
 L["HELP_PVPTAB_DESC"] = "PvP에서 TAB이 플레이어만 대상으로 잡게 해 줍니다. 투기장과 전장에 특히 좋습니다."
 L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "이 링크를 복사해 CurseForge에서 Smart PvP Tab Targeting을 여세요."
 
@@ -156,7 +156,7 @@ L["ACTIONBAR_DESC"] = "Bartender4 및 Dominos를 포함한 주요 행동 단축�
 L["NAMEPLATE_DESC"] = "적과 아군 이름표에 표시되는 쿨다운을 꾸밉니다 (Plater, KuiNameplates 등)."
 L["UNITFRAME_DESC"] = "플레이어, 대상, 주시 대상 유닛 프레임의 쿨다운 스타일을 조정합니다."
 L["COOLDOWNMANAGER_DESC"] = "CooldownManager 뷰어에 공통으로 적용되는 아이콘 스타일입니다. 카운트다운 텍스트 크기는 Essential, Utility, 버프 아이콘 뷰어별로 따로 설정할 수 있습니다."
-L["MINICC_DESC"] = "MiniCC 쿨다운 아이콘 전용 스타일입니다. MiniCC가 로드되어 있으면 군중 제어 아이콘, 이름표, 초상화, 오버레이형 모듈까지 지원합니다."
+L["MINIAURAS_DESC"] = "MiniAuras 쿨다운 아이콘 전용 스타일입니다. MiniAuras가 로드되어 있으면 군중 제어 아이콘, 이름표, 초상화, 오버레이형 모듈까지 지원합니다."
 L["OTHERS_DESC"] = "다른 카테고리에 속하지 않는 쿨다운을 위한 묶음 카테고리입니다 (가방, 메뉴, 기타 애드온)."
 
 -- Dynamic Text Colors
