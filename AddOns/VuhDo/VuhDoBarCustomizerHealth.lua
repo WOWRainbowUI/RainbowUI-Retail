@@ -49,8 +49,13 @@ local VUHDO_getStatusbarOrientationString;
 local VUHDO_getPixelScale;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_getAuraGroupGlowInfo;
+local VUHDO_isAuraModeContainers;
+local VUHDO_isAuraDataRestricted;
+local VUHDO_startUnitButtonAuraGroupGlow;
+local VUHDO_stopUnitButtonAuraGroupGlow;
 local VUHDO_refreshPrivateAuras;
 local VUHDO_getRealParent;
+local VUHDO_setOverlayChainBaselineColor;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_BUTTON_CACHE;
@@ -59,6 +64,8 @@ local VUHDO_CONFIG;
 local VUHDO_INDICATOR_CONFIG;
 local VUHDO_IN_RAID_TARGET_BUTTONS;
 local VUHDO_INTERNAL_TOGGLES;
+local VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY;
+local VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY;
 
 VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
 local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
@@ -82,23 +89,30 @@ local sConfigShieldColor;
 local sConfigOvershieldColor;
 local sConfigHealAbsorbColor;
 local sConfigHealthLossColor;
+
+local sTransparentColor = {
+	["R"] = 0,
+	["G"] = 0,
+	["B"] = 0,
+	["O"] = 0,
+};
+
 local sConfigIncColor;
 
 
 
 --
-function VUHDO_customHealthInitLocalOverrides()
+function VUHDO_customHealthInitBurstCache()
 
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_BUTTON_CACHE = _G["VUHDO_BUTTON_CACHE"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
- 	VUHDO_BAR_COLOR = VUHDO_PANEL_SETUP["BAR_COLORS"];
- 	VUHDO_THREAT_CFG = VUHDO_CONFIG["THREAT"];
  	VUHDO_IN_RAID_TARGET_BUTTONS = _G["VUHDO_IN_RAID_TARGET_BUTTONS"];
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
-	VUHDO_KILO_OPTIONS = _G["VUHDO_KILO_OPTIONS"];
+	VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY = _G["VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY"];
+	VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY = _G["VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY"];
 
 	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
 
@@ -112,32 +126,39 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_updateManaBars = _G["VUHDO_updateManaBars"];
 	VUHDO_removeAllHots = _G["VUHDO_removeAllHots"];
 	VUHDO_updateAllHoTs = _G["VUHDO_updateAllHoTs"];
-	VUHDO_getUnitHealthPercent = _G["VUHDO_getUnitHealthPercent"];
 	VUHDO_getPanelButtons = _G["VUHDO_getPanelButtons"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
-	VUHDO_utf8Cut = _G["VUHDO_utf8Cut"];
 	VUHDO_resolveVehicleUnit = _G["VUHDO_resolveVehicleUnit"];
 	VUHDO_getOverhealPanel = _G["VUHDO_getOverhealPanel"];
 	VUHDO_getOverhealText = _G["VUHDO_getOverhealText"];
 	VUHDO_getBarRoleIcon = _G["VUHDO_getBarRoleIcon"];
-	VUHDO_getBarIconFrame = _G["VUHDO_getBarIconFrame"];
 	VUHDO_updateClusterHighlights = _G["VUHDO_updateClusterHighlights"];
 	VUHDO_customizeTargetBar = _G["VUHDO_customizeTargetBar"];
-	VUHDO_getColoredString = _G["VUHDO_getColoredString"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
 	VUHDO_getResolvedTextProvider = _G["VUHDO_getResolvedTextProvider"];
 	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
 	VUHDO_getHealAbsorbBar = _G["VUHDO_getHealAbsorbBar"];
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
-	VUHDO_getStatusBarColor = _G["VUHDO_getStatusBarColor"];
-	VUHDO_calculateDerivedOrientation = _G["VUHDO_calculateDerivedOrientation"];
-	VUHDO_setStatusBarOrientation = _G["VUHDO_setStatusBarOrientation"];
 	VUHDO_getStatusbarOrientationString = _G["VUHDO_getStatusbarOrientationString"];
 	VUHDO_getPixelScale = _G["VUHDO_getPixelScale"];
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_getAuraGroupGlowInfo = _G["VUHDO_getAuraGroupGlowInfo"];
+	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
+	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
+	VUHDO_startUnitButtonAuraGroupGlow = _G["VUHDO_startUnitButtonAuraGroupGlow"];
+	VUHDO_stopUnitButtonAuraGroupGlow = _G["VUHDO_stopUnitButtonAuraGroupGlow"];
 	VUHDO_refreshPrivateAuras = _G["VUHDO_refreshPrivateAuras"];
 	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
+	VUHDO_setOverlayChainBaselineColor = _G["VUHDO_setOverlayChainBaselineColor"];
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_customHealthInitShared()
 
 	sShieldCalculator = nil;
 	sTotalShieldCalculator = nil;
@@ -198,6 +219,18 @@ function VUHDO_customHealthInitLocalOverrides()
 	sHideWhenFullHealthCurve = VUHDO_buildHideWhenFullHealthCurve();
 
 	twipe(VUHDO_NAME_TEXTS);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_customHealthInitLocalOverrides()
+
+	VUHDO_customHealthInitBurstCache();
+	VUHDO_customHealthInitShared();
 
 	return;
 
@@ -1156,10 +1189,20 @@ do
 	local tBackgroundBouquet;
 	local tCanGlow;
 	local tGlowColor;
+	local tGlowStyle;
 	local tWasGlowActive;
+	local tUseLegacyAuraGroupGlow;
 	local function VUHDO_updateHealthBarValueForUnit(aUnit, aCurrValue, aMaxValue, aColor, aMaxColor, aBouquetName, aLayerTemplate, aCurrValue2)
 
-		tCanGlow, tGlowColor = VUHDO_getAuraGroupGlowInfo(aUnit);
+		tCanGlow = false;
+		tGlowColor = nil;
+		tGlowStyle = nil;
+
+		tUseLegacyAuraGroupGlow = not VUHDO_isAuraModeContainers() and not VUHDO_isAuraDataRestricted();
+
+		if tUseLegacyAuraGroupGlow then
+			tCanGlow, tGlowColor, tGlowStyle = VUHDO_getAuraGroupGlowInfo(aUnit);
+		end
 
 		for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 			tPanelNum = VUHDO_BUTTON_CACHE[tButton];
@@ -1167,18 +1210,23 @@ do
 			if VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["HEALTH_BAR"] == aBouquetName then
 				tHealthBar = VUHDO_getHealthBar(tButton, 1);
 
-				tHealthBar:SetMinMaxValues(0, aMaxValue);
-
-				if tHealthBar["isInverted"] then
-					tQuota = sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue);
+				if not VUHDO_RAID[aUnit] then
+					tHealthBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
+					tHealthBar:SetValue(tHealthBar["isInverted"] and 1 or 0, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealthInterpolation[tPanelNum]);
 				else
-					tQuota = aCurrValue;
+					tHealthBar:SetMinMaxValues(0, aMaxValue);
+
+					if tHealthBar["isInverted"] then
+						tQuota = sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue);
+					else
+						tQuota = aCurrValue;
+					end
+
+					tHealthBar:SetValue(tQuota, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealthInterpolation[tPanelNum]);
 				end
 
-				tHealthBar:SetValue(tQuota, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealthInterpolation[tPanelNum]);
-
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tHealthBar, aLayerTemplate);
+					VUHDO_applyAllLayersToBar(tButton, tHealthBar, aLayerTemplate, "HEALTH_BAR", aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tHealthBar, aColor, aMaxColor);
 
@@ -1189,17 +1237,15 @@ do
 					end
 				end
 
-				tWasGlowActive = tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY];
+				if tUseLegacyAuraGroupGlow then
+					tWasGlowActive = tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY];
 
-				if tCanGlow and tGlowColor then
-					if not tWasGlowActive then
-						VUHDO_LibCustomGlow.PixelGlow_Start(tButton, tGlowColor, 14, 0.3, 8, 2, 0, 0, false, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+					if tCanGlow and tGlowColor and tGlowStyle then
+						VUHDO_startUnitButtonAuraGroupGlow(tButton, tGlowStyle, tGlowColor, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 
 						tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
-					end
-				else
-					if tWasGlowActive then
-						VUHDO_LibCustomGlow.PixelGlow_Stop(tButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+					elseif tWasGlowActive then
+						VUHDO_stopUnitButtonAuraGroupGlow(tButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 
 						tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = nil;
 					end
@@ -1274,7 +1320,7 @@ do
 					tAggroBar:SetValue(1);
 
 					if aLayerTemplate then
-						VUHDO_applyAllLayersToBar(tButton, tAggroBar, aLayerTemplate);
+						VUHDO_applyAllLayersToBar(tButton, tAggroBar, aLayerTemplate, "AGGRO_BAR", aBouquetName);
 					elseif aColor then
 						VUHDO_setStatusBarVuhDoColor(tAggroBar, aColor);
 					end
@@ -1282,6 +1328,7 @@ do
 					tAggroBar:Show();
 				else
 					tAggroBar:SetValue(0);
+
 					tAggroBar:Hide();
 				end
 
@@ -1310,10 +1357,18 @@ do
 
 				if anIsActive then
 					if aLayerTemplate then
-						VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate);
+						VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate, "BACKGROUND_BAR", aBouquetName);
 					elseif aColor then
 						VUHDO_setStatusBarVuhDoColor(tBar, aColor);
 					end
+
+					if aColor then
+						VUHDO_setOverlayChainBaselineColor(tButton, aColor);
+					end
+				else
+					tBar:SetStatusBarColor(0, 0, 0, 0);
+
+					VUHDO_setOverlayChainBaselineColor(tButton, sTransparentColor);
 				end
 
 				if sSecretsEnabled then

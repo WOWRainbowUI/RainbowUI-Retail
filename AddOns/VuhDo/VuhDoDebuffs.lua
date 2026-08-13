@@ -259,7 +259,7 @@ do
 	--
 	local function _VUHDO_getDebuffColor(anInfo)
 
-		if anInfo["charmed"] then
+		if not anInfo["hasSecretCharmed"] and anInfo["charmed"] then
 			return VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		end
 
@@ -1745,6 +1745,9 @@ function VUHDO_initDebuffs()
 
 	VUHDO_PLAYER_HAS_DISPEL = next(VUHDO_PLAYER_DISPEL_ABILITIES) ~= nil;
 	VUHDO_PLAYER_HAS_PURGE = next(VUHDO_PLAYER_PURGE_ABILITIES) ~= nil;
+
+	VUHDO_rebuildDispelTypeNameMaps();
+	VUHDO_releaseAllOverlays();
 
 	if not VUHDO_CONFIG then
 		VUHDO_CONFIG = _G["VUHDO_CONFIG"];

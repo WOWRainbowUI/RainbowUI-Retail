@@ -28,6 +28,10 @@ local VUHDO_normalRaidReload;
 local VUHDO_isAnyoneInterestedIn;
 local VUHDO_updateHandlerOnEventMetrics;
 local VUHDO_onUnitInRangeUpdate;
+local VUHDO_needsUnitAuraEvent;
+local VUHDO_syncNativeAuraSoundsForUnit;
+local VUHDO_isAuraModeContainers;
+local VUHDO_syncAuraContainersForUnit;
 
 local VUHDO_RAID;
 local VUHDO_CONFIG;
@@ -108,6 +112,10 @@ function VUHDO_unitEventHandlerInitLocalOverrides()
 	VUHDO_isAnyoneInterestedIn = _G["VUHDO_isAnyoneInterestedIn"];
 	VUHDO_updateHandlerOnEventMetrics = _G["VUHDO_updateHandlerOnEventMetrics"];
 	VUHDO_onUnitInRangeUpdate = _G["VUHDO_onUnitInRangeUpdate"];
+	VUHDO_needsUnitAuraEvent = _G["VUHDO_needsUnitAuraEvent"];
+	VUHDO_syncNativeAuraSoundsForUnit = _G["VUHDO_syncNativeAuraSoundsForUnit"];
+	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
+	VUHDO_syncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
 
 	VUHDO_updateHealth = _G["VUHDO_deferUpdateHealth"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
@@ -281,6 +289,10 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		VUHDO_normalRaidReload();
 
+		if VUHDO_RAID and VUHDO_RAID[anArg1] ~= nil then
+			VUHDO_syncAuraContainersForUnit(anArg1);
+		end
+
 	elseif "PLAYER_FLAGS_CHANGED" == anEvent then
 		if not VUHDO_RAID then
 			return;
@@ -308,6 +320,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		if VUHDO_RAID[anArg1] then
 			VUHDO_updateHealth(anArg1, VUHDO_UPDATE_DC);
+
+			VUHDO_syncAuraContainersForUnit(anArg1);
 		end
 
 	elseif "UNIT_NAME_UPDATE" == anEvent then
@@ -355,6 +369,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		if VUHDO_RAID[anArg1] ~= nil then
 			VUHDO_updateBouquetsForEvent(anArg1, 39);
+
+			VUHDO_syncAuraContainersForUnit(anArg1);
 		end
 
 	end
@@ -475,7 +491,10 @@ end
 --
 local function VUHDO_applyCoreUnitRegistrations(aFrame, aUnit)
 
-	aFrame:RegisterUnitEvent("UNIT_AURA", aUnit);
+	if VUHDO_needsUnitAuraEvent() then
+		aFrame:RegisterUnitEvent("UNIT_AURA", aUnit);
+	end
+
 	aFrame:RegisterUnitEvent("UNIT_HEALTH", aUnit);
 	aFrame:RegisterUnitEvent("UNIT_MAXHEALTH", aUnit);
 	aFrame:RegisterUnitEvent("UNIT_CONNECTION", aUnit);
@@ -568,6 +587,10 @@ function VUHDO_registerUnitForEvents(aUnit)
 
 	VUHDO_unregisterKnownUnitEventsFromFrame(tUnitEventFrame);
 	VUHDO_applyCoreUnitRegistrations(tUnitEventFrame, aUnit);
+
+	if VUHDO_isAuraModeContainers() then
+		VUHDO_syncNativeAuraSoundsForUnit(aUnit);
+	end
 
 	tUnitEventFrame:SetScript("OnEvent", VUHDO_onUnitEvent);
 

@@ -114,6 +114,7 @@ local VUHDO_isUnitInPanel;
 local VUHDO_initDynamicPanelModels;
 local VUHDO_updateBuffRaidGroup;
 local VUHDO_cleanupSpellTraceForUnit;
+local VUHDO_syncAuraContainersForUnit;
 
 local VUHDO_unregisterUnitForEvents;
 local VUHDO_unregisterAllUnitEventFrames;
@@ -196,6 +197,7 @@ function VUHDO_vuhdoInitLocalOverrides()
 	VUHDO_resetClusterCoordDeltas = _G["VUHDO_resetClusterCoordDeltas"];
 	VUHDO_getUnitZoneName = _G["VUHDO_getUnitZoneName"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
+	VUHDO_syncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
 	VUHDO_initUnitAuraSlots = _G["VUHDO_initUnitAuraSlots"];
 	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
 	VUHDO_unregisterAllUnitEventFrames = _G["VUHDO_unregisterAllUnitEventFrames"];
@@ -241,7 +243,7 @@ end
 --
 local function VUHDO_isValidEmergency(anInfo)
 
-	if anInfo["isPet"] or anInfo["dead"] or not anInfo["connected"] or anInfo["charmed"] then
+	if anInfo["isPet"] or anInfo["dead"] or not anInfo["connected"] or (not anInfo["hasSecretCharmed"] and anInfo["charmed"]) then
 		return false;
 	end
 
@@ -375,9 +377,14 @@ local tNewHealth;
 local tName, tRealm;
 local tIsDcChange;
 local tOwner;
+local tUnitCharmed;
 function VUHDO_setHealth(aUnit, aMode)
 
 	tInfo = VUHDO_RAID[aUnit];
+
+	if VUHDO_isSpecialUnit(aUnit) and not UnitExists(aUnit) then
+		return;
+	end
 
 	tUnitId = VUHDO_getUnitIds();
 	tOwner = VUHDO_PET_2_OWNER[aUnit];
@@ -418,8 +425,16 @@ function VUHDO_setHealth(aUnit, aMode)
 				else
 					tClassId = VUHDO_ID_PETS;
 				end
+
+				tInfo["hasSecretClass"] = false;
+			elseif sSecretsEnabled and issecretvalue(tClassName) then
+				tClassId = nil;
+
+				tInfo["hasSecretClass"] = true;
 			else
 				tClassId = VUHDO_CLASS_IDS[tClassName];
+
+				tInfo["hasSecretClass"] = false;
 			end
 
 			tName, tRealm = UnitName(aUnit);
@@ -466,7 +481,25 @@ function VUHDO_setHealth(aUnit, aMode)
 			end
 
 			tInfo["canAttack"] = UnitCanAttack("player", aUnit);
-			tInfo["charmed"] = UnitIsCharmed(aUnit) and tInfo["canAttack"];
+
+			tUnitCharmed = UnitIsCharmed(aUnit);
+
+			if sSecretsEnabled and issecretvalue(tUnitCharmed) then
+				if not tIsDead and tInfo["canAttack"] then
+					tInfo["hasSecretCharmed"] = true;
+					tInfo["secretCharmed"] = tUnitCharmed;
+					tInfo["charmed"] = false;
+				else
+					tInfo["hasSecretCharmed"] = false;
+					tInfo["secretCharmed"] = nil;
+					tInfo["charmed"] = false;
+				end
+			else
+				tInfo["hasSecretCharmed"] = false;
+				tInfo["secretCharmed"] = nil;
+				tInfo["charmed"] = tUnitCharmed and tInfo["canAttack"];
+			end
+
 			tInfo["aggro"] = false;
 			tInfo["group"] = VUHDO_getUnitGroup(aUnit, tIsPet);
 			tInfo["dead"] = tIsDead;
@@ -510,7 +543,9 @@ function VUHDO_setHealth(aUnit, aMode)
 			tInfo["mibucateg"] = nil;
 			tInfo["mibuvariants"] = nil;]]
 
-			if tInfo["hasSecretName"] then
+			if tInfo["hasSecretName"] or tInfo["hasSecretClass"] then
+				tInfo["className"] = "";
+			elseif sSecretsEnabled and issecretvalue(tLocalClass) then
 				tInfo["className"] = "";
 			elseif tLocalClass == tName then
 				tInfo["className"] = UnitCreatureType(aUnit) or "";
@@ -562,6 +597,8 @@ function VUHDO_setHealth(aUnit, aMode)
 
 					VUHDO_updateHealthBarsFor(aUnit, 10); -- VUHDO_UPDATE_ALIVE
 					VUHDO_updateBouquetsForEvent(aUnit, 10); -- VUHDO_UPDATE_ALIVE
+
+					VUHDO_syncAuraContainersForUnit(aUnit);
 				end
 
 			elseif 3 == aMode then -- VUHDO_UPDATE_HEALTH_MAX

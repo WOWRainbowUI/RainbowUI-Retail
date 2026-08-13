@@ -12,6 +12,7 @@ local strlower = strlower;
 local strfind = strfind;
 local pairs = pairs;
 local GameTooltip = GameTooltip;
+local issecretvalue = issecretvalue;
 
 local sMouseoverUnit = nil;
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
@@ -146,6 +147,20 @@ function VUHDO_getUnitGroupPrivileges(aUnit)
 		tIsLeader = UnitIsGroupLeader(aUnit);
 	end
 
+	if sSecretsEnabled then
+		if issecretvalue(tIsLeader) then
+			tIsLeader = false;
+		end
+
+		if issecretvalue(tIsAssist) then
+			tIsAssist = false;
+		end
+
+		if issecretvalue(tIsMasterLooter) then
+			tIsMasterLooter = false;
+		end
+	end
+
 	return tIsLeader, tIsAssist, tIsMasterLooter;
 end
 
@@ -153,6 +168,8 @@ end
 
 --
 local tIcon;
+local tIsPvp;
+local tFactionGroup;
 local function VUHDO_showPlayerIcons(aButton, aPanelNum)
 	local tUnit = aButton:GetAttribute("unit");
 	local tInfo = VUHDO_RAID[tUnit];
@@ -171,14 +188,20 @@ local function VUHDO_showPlayerIcons(aButton, aPanelNum)
 			VUHDO_displayPlayerIcon(aButton, 2, "Interface\\groupframe\\ui-group-masterlooter", nil, 16, 16, 1);
 		end
 
-		if UnitIsPVP(tUnit) and VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barWidth"] > 54 then
-			VUHDO_displayPlayerIcon(aButton, 3,
-				"Interface\\groupframe\\ui-group-pvp-"
-					.. ("Alliance" == (UnitFactionGroup(tUnit)) and "alliance" or "horde"),
-				nil, 32, 32, 2);
+		tIsPvp = UnitIsPVP(tUnit);
+
+		if not issecretvalue(tIsPvp) and tIsPvp and VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barWidth"] > 54 then
+			tFactionGroup = UnitFactionGroup(tUnit);
+
+			if not issecretvalue(tFactionGroup) then
+				VUHDO_displayPlayerIcon(aButton, 3,
+					"Interface\\groupframe\\ui-group-pvp-"
+						.. ("Alliance" == tFactionGroup and "alliance" or "horde"),
+					nil, 32, 32, 2);
+			end
 		end
 
-		if tInfo["class"] then
+		if not tInfo["hasSecretClass"] and tInfo["class"] then
 			VUHDO_displayPlayerIcon(aButton, 4, "Interface\\TargetingFrame\\UI-Classes-Circles",
 				CLASS_ICON_TCOORDS[tInfo["class"]], 16, 16, 3);
 		end
@@ -439,7 +462,7 @@ function VUHDO_highlighterBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue,
 
 			if anIsActive then
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tHighlightBar, aLayerTemplate);
+					VUHDO_applyAllLayersToBar(tButton, tHighlightBar, aLayerTemplate, "MOUSEOVER_HIGHLIGHT", aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tHighlightBar, aColor);
 				end

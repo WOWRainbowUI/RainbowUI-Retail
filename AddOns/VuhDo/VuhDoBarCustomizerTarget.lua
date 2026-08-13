@@ -181,16 +181,20 @@ local function VUHDO_fillCustomInfo(aUnit)
 	if sSecretsEnabled then
 		tInfo["hasSecretPower"] = issecretvalue(tInfo["power"]) or issecretvalue(tInfo["powermax"]);
 		tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
+		tInfo["hasSecretClass"] = issecretvalue(tClassName);
 	else
 		tInfo["hasSecretPower"] = false;
 		tInfo["hasSecretHealth"] = false;
 		tInfo["hasSecretHealthMax"] = false;
+		tInfo["hasSecretClass"] = false;
 	end
 
 	tInfo["dead"] = VUHDO_safeCall(UnitIsDeadOrGhost, aUnit, false);
 	tInfo["connected"] = VUHDO_safeCall(UnitIsConnected, aUnit, false);
 
-	if tInfo["hasSecretName"] then
+	if tInfo["hasSecretName"] or tInfo["hasSecretClass"] then
+		tInfo["className"] = "";
+	elseif sSecretsEnabled and issecretvalue(tLocalClass) then
 		tInfo["className"] = "";
 	elseif tLocalClass == tName then
 		tInfo["className"] = VUHDO_safeCall(UnitCreatureType, aUnit, nil) or "";
@@ -198,7 +202,12 @@ local function VUHDO_fillCustomInfo(aUnit)
 		tInfo["className"] = tLocalClass or "";
 	end
 
-	tInfo["classId"] = VUHDO_CLASS_IDS[tClassName];
+	if sSecretsEnabled and issecretvalue(tClassName) then
+		tInfo["classId"] = nil;
+	else
+		tInfo["classId"] = VUHDO_CLASS_IDS[tClassName];
+	end
+
 	tInfo["fullName"] = tName;
 	tInfo["zone"], tInfo["map"] = (VUHDO_RAID["player"] or { })["zone"], (VUHDO_RAID["player"] or { })["map"];
 	tInfo["fixResolveId"] = nil;

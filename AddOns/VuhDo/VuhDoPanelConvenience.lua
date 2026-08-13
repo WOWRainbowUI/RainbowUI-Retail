@@ -767,8 +767,8 @@ end
 
 --
 local tSetBarTexture;
-local tSetBarMinO;
-local tSetBarMaxO;
+local tSetBarMinOpacity;
+local tSetBarMaxOpacity;
 function VUHDO_setStatusBarVuhDoColor(aBar, aColor, aMaxColor)
 
 	if not aColor then
@@ -781,23 +781,32 @@ function VUHDO_setStatusBarVuhDoColor(aBar, aColor, aMaxColor)
 		return;
 	end
 
-	tSetBarMinO = aColor["O"] or 1;
+	tSetBarMinOpacity = aColor["O"];
+
+	if tSetBarMinOpacity == nil then
+		tSetBarMinOpacity = 1;
+	end
 
 	if aMaxColor and
 		aColor["R"] and aColor["G"] and aColor["B"] and
 		aMaxColor["R"] and aMaxColor["G"] and aMaxColor["B"] then
-		tSetBarMaxO = aMaxColor["O"] or 1;
+		tSetBarMaxOpacity = aMaxColor["O"];
+
+		if tSetBarMaxOpacity == nil then
+			tSetBarMaxOpacity = 1;
+		end
+
 		tSetBarTexture = aBar:GetStatusBarTexture();
 
 		tSetBarTexture:SetGradient(
 			"HORIZONTAL",
-			VUHDO_getOrCreateCachedColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinO),
-			VUHDO_getOrCreateCachedColor(aMaxColor["R"], aMaxColor["G"], aMaxColor["B"], tSetBarMaxO)
+			VUHDO_getOrCreateCachedColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinOpacity),
+			VUHDO_getOrCreateCachedColor(aMaxColor["R"], aMaxColor["G"], aMaxColor["B"], tSetBarMaxOpacity)
 		);
 	elseif aColor["R"] and aColor["G"] and aColor["B"] then
 		tSetBarTexture = aBar:GetStatusBarTexture();
 
-		tSetBarTexture:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinO);
+		tSetBarTexture:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinOpacity);
 	end
 
 	return;
@@ -982,14 +991,5 @@ end
 function VUHDO_getPrivateAuraDuration(aButton, anIconNumber)
 
 	return _G[format("%sBgBarPaCnPa%dDurFr", aButton:GetName(), anIconNumber)];
-
-end
-
-
-
---
-function VUHDO_getPrivateAuraDispelOverlayContainer(aButton)
-
-	return _G[format("%sDsOl", aButton:GetName())];
 
 end

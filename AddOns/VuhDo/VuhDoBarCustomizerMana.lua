@@ -24,6 +24,7 @@ local VUHDO_indicatorTextCallback;
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_updateHealthLossBar;
+local VUHDO_syncOverlaysForUnit;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sIsInverted;
@@ -52,6 +53,9 @@ function VUHDO_customManaInitLocalOverrides()
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_updateHealthLossBar = _G["VUHDO_updateHealthLossBar"];
+	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
+
+	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 
 	sIsInverted = { };
 	sIsHealthBarVertical = { };
@@ -84,12 +88,18 @@ function VUHDO_updateManaBars(aUnit, aChange)
 		return;
 	end
 
-	if (tInfo["isVehicle"]) then
+	if tInfo["isVehicle"] then
 		aUnit = tInfo["petUnit"];
-		if not aUnit then return; end
-	
+
+		if not aUnit then
+			return;
+		end
+
 		tInfo = VUHDO_RAID[aUnit];
-		if not tInfo then return; end
+
+		if not tInfo then
+			return;
+		end
 	end
 
 	if not VUHDO_isConfigDemoUsers() then
@@ -99,6 +109,7 @@ function VUHDO_updateManaBars(aUnit, aChange)
 			tInfo["powermax"] = UnitPowerMax(aUnit);
 		elseif 3 == aChange then
 			tPowerType, _ = UnitPowerType(aUnit);
+
 			tInfo["powertype"] = tonumber(tPowerType);
 			tInfo["powermax"] = UnitPowerMax(aUnit);
 			tInfo["power"] = UnitPower(aUnit);
@@ -124,6 +135,12 @@ function VUHDO_updateManaBars(aUnit, aChange)
 			VUHDO_updateBouquetsForEvent(aUnit, 13); -- VUHDO_UPDATE_MANA
 		end
 	end
+
+	if 2 == aChange or 3 == aChange then
+		VUHDO_syncOverlaysForUnit(aUnit);
+	end
+
+	return;
 
 end
 
@@ -166,7 +183,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				end
 
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tManaBar, aLayerTemplate);
+					VUHDO_applyAllLayersToBar(tButton, tManaBar, aLayerTemplate, "MANA_BAR", aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tManaBar, aColor);
 				end
@@ -249,7 +266,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				end
 
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tManaBar, aLayerTemplate);
+					VUHDO_applyAllLayersToBar(tButton, tManaBar, aLayerTemplate, "MANA_BAR", aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tManaBar, aColor);
 				end
@@ -334,15 +351,21 @@ local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, 
 
 			tBar:SetMinMaxValues(0, aMaxValue);
 
-			if tBar["isInverted"] then
-				tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
+			if not anIsActive and not VUHDO_RAID[aUnit] then
+				tQuota = 0;
+			elseif tBar["isInverted"] then
+				tQuota = sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue);
 			else
-				tBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
+				tQuota = aCurrValue;
 			end
+
+			tBar:SetValue(tQuota, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
 
 			if anIsActive then
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate);
+					tIndicatorName = (aBarNum == 17) and "SIDE_LEFT" or "SIDE_RIGHT";
+
+					VUHDO_applyAllLayersToBar(tButton, tBar, aLayerTemplate, tIndicatorName, aBouquetName);
 				elseif aColor then
 					VUHDO_setStatusBarVuhDoColor(tBar, aColor);
 				end

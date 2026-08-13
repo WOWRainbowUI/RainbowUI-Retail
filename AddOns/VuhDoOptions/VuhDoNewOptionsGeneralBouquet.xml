@@ -2,6 +2,51 @@
 
 	<Script file="VuhDoNewOptionsGeneralBouquet.lua" />
 
+	<Frame name="VuhDoBouquetDemoTexture" virtual="true">
+		<Size>
+			<AbsDimension x="32" y="32" />
+		</Size>
+		<Anchors>
+			<Anchor point="RIGHT" relativePoint="RIGHT">
+				<Offset>
+					<AbsDimension x="-5" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentBar" setAllPoints="true" file="Interface\AddOns\VuhDo\Images\bar15">
+					<TexCoords left="0" right="1" top="0" bottom="1" />
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture name="$parentIcon" file="Interface\AddOns\VuhDo\Images\bar15">
+					<Size>
+						<AbsDimension x="16" y="16" />
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parentLabel" text="" justifyH="CENTER" inherits="VuDoBigWhiteFontShadedTemplate">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER">
+							<Offset>
+								<AbsDimension x="3" y="-3" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+
 	<Button name="VuhDoBouquetIconTemplate" virtual="true" inherits="VuhDoPanelTemplate">
 		<Size>
 			<AbsDimension x="180" y="40" />
@@ -46,50 +91,7 @@
 				</Layers>
 			</Frame>
 
-			<Frame name="$parentDemoTexture" virtual="true">
-				<Size>
-					<AbsDimension x="32" y="32" />
-				</Size>
-				<Anchors>
-					<Anchor point="RIGHT" relativePoint="RIGHT">
-						<Offset>
-							<AbsDimension x="-5" y="0" />
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="$parentBar" setAllPoints="true" file="Interface\AddOns\VuhDo\Images\bar15">
-							<TexCoords left="0" right="1" top="0" bottom="1" />
-						</Texture>
-					</Layer>
-					<Layer level="ARTWORK">
-						<Texture name="$parentIcon" file="Interface\AddOns\VuhDo\Images\bar15">
-							<Size>
-								<AbsDimension x="16" y="16" />
-							</Size>
-							<Anchors>
-								<Anchor point="CENTER" relativePoint="CENTER">
-									<Offset>
-										<AbsDimension x="0" y="0" />
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</Texture>
-					</Layer>
-					<Layer level="OVERLAY">
-						<FontString name="$parentLabel" text="" justifyH="CENTER" inherits="VuDoBigWhiteFontShadedTemplate">
-							<Anchors>
-								<Anchor point="CENTER" relativePoint="CENTER">
-									<Offset>
-										<AbsDimension x="3" y="-3" />
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
+			<Frame name="$parentDemoTexture" inherits="VuhDoBouquetDemoTexture" />
 
 		</Frames>
 		<Scripts>
@@ -599,8 +601,8 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ITEM, VUHDO_I18N_ITEM);
@@ -1006,8 +1008,8 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ITEM, VUHDO_I18N_ITEM);
@@ -1130,8 +1132,8 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_GOOD, VUHDO_I18N_GOOD);
@@ -1166,8 +1168,8 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAX_COLOR, VUHDO_I18N_MAX_COLOR);

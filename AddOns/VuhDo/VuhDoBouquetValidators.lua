@@ -11,6 +11,7 @@ local UnitIsPlayer = UnitIsPlayer;
 local UnitIsTapDenied = UnitIsTapDenied;
 local GetTime = GetTime;
 local floor = floor;
+local issecretvalue = issecretvalue;
 local _;
 
 local VUHDO_RAID = { };
@@ -49,6 +50,7 @@ local VUHDO_getDispelTypeCurve;
 local VUHDO_getDispelTypeTextCurve;
 local VUHDO_getOrBuildBrightnessCurve;
 local VUHDO_getOrBuildTextBrightnessCurve;
+local VUHDO_isAuraDataRestricted;
 
 local sBarColors;
 local sIsDistance;
@@ -149,6 +151,7 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getDispelTypeTextCurve = _G["VUHDO_getDispelTypeTextCurve"];
 	VUHDO_getOrBuildBrightnessCurve = _G["VUHDO_getOrBuildBrightnessCurve"];
 	VUHDO_getOrBuildTextBrightnessCurve = _G["VUHDO_getOrBuildTextBrightnessCurve"];
+	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sIsDistance = VUHDO_CONFIG["DIRECTION"]["isDistanceText"];
@@ -433,6 +436,10 @@ local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffMagicValidator(anInfo, _, aSecretContext)
 
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
@@ -465,6 +472,10 @@ end
 local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffDiseaseValidator(anInfo, _, aSecretContext)
+
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
@@ -499,6 +510,10 @@ local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffPoisonValidator(anInfo, _, aSecretContext)
 
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
@@ -531,6 +546,10 @@ end
 local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffCurseValidator(anInfo, _, aSecretContext)
+
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
@@ -565,6 +584,10 @@ local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffBleedValidator(anInfo, _, aSecretContext)
 
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
@@ -597,6 +620,10 @@ end
 local tDebuffInfo;
 local tAuraInstanceId;
 local function VUHDO_debuffEnrageValidator(anInfo, _, aSecretContext)
+
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
@@ -635,12 +662,17 @@ local tCanColorBar;
 local tCanColorText;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
+	-- FIXME: debuffBarColorValidator disabled in full container mode
+	if VUHDO_isAuraDataRestricted() then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
 
 	if not sSecretsEnabled or VUHDO_isConfigDemoUsers() then
-		if anInfo["charmed"] then
+		if not anInfo["hasSecretCharmed"] and anInfo["charmed"] then
 			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
 			if VUHDO_isConfigDemoUsers() then
@@ -691,6 +723,10 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 					sMergedAuraColorBuffer["useText"] = nil;
 				end
 
+				-- master omits useOpacity so aura/debuff colors always solid-assign alpha
+				-- bouquet item Opacity checkbox can modulate multiplicatively
+				sMergedAuraColorBuffer["useOpacity"] = (tBarColor and tBarColor["useOpacity"]) or (tTextColor and tTextColor["useOpacity"]) or nil;
+
 				return true, nil, -1, -1, -1, sMergedAuraColorBuffer;
 			end
 
@@ -703,7 +739,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 	end
 
 	if not aSecretContext then
-		if anInfo["charmed"] then
+		if not anInfo["hasSecretCharmed"] and anInfo["charmed"] then
 			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
 			return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["debuff"];
@@ -712,7 +748,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 		end
 	end
 
-	if anInfo["charmed"] then
+	if not anInfo["hasSecretCharmed"] and anInfo["charmed"] then
 		return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 	elseif anInfo["debuff"] then
 		tCurve = aSecretContext["dispelCurve"];
@@ -756,6 +792,9 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 				sMergedAuraColorBuffer["useText"] = nil;
 			end
 
+			-- Master omitted useOpacity so aura/debuff colors always solid-assigned alpha; carry it so the bouquet item Opacity checkbox can modulate via the merge AND gate.
+			sMergedAuraColorBuffer["useOpacity"] = (tBarColor and tBarColor["useOpacity"]) or (tTextColor and tTextColor["useOpacity"]) or nil;
+
 			return true, nil, -1, -1, -1, sMergedAuraColorBuffer, nil, nil, nil, nil, nil, nil, nil;
 		end
 
@@ -770,7 +809,13 @@ end
 
 --
 local function VUHDO_debuffCharmedValidator(anInfo, _)
+
+	if anInfo["hasSecretCharmed"] then
+		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["secretCharmed"];
+	end
+
 	return anInfo["charmed"], nil, -1, -1, -1;
+
 end
 
 
@@ -1019,11 +1064,17 @@ end
 
 --
 local function VUHDO_classIconValidator(anInfo, _)
-	if CLASS_ICON_TCOORDS[anInfo["class"]] then
-		return true, "Interface\\TargetingFrame\\UI-Classes-Circles", -1, -1, -1, nil, nil, unpack(CLASS_ICON_TCOORDS[anInfo["class"]]);
-	else
+
+	if anInfo["hasSecretClass"] or not anInfo["class"] then
 		return false, nil, -1, -1, -1;
 	end
+
+	if CLASS_ICON_TCOORDS[anInfo["class"]] then
+		return true, "Interface\\TargetingFrame\\UI-Classes-Circles", -1, -1, -1, nil, nil, unpack(CLASS_ICON_TCOORDS[anInfo["class"]]);
+	end
+
+	return false, nil, -1, -1, -1;
+
 end
 
 
@@ -1263,14 +1314,28 @@ end
 
 
 --
+local tIsPvp;
+local tFactionGroup;
 local function VUHDO_pvpIconValidator(anInfo, _)
 
 	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
 
-	if UnitIsPVP(anInfo["unit"]) then
-		if "Alliance" == (UnitFactionGroup(anInfo["unit"])) then
+	tIsPvp = UnitIsPVP(anInfo["unit"]);
+
+	if sSecretsEnabled and issecretvalue(tIsPvp) then
+		return false, nil, -1, -1, -1;
+	end
+
+	if tIsPvp then
+		tFactionGroup = UnitFactionGroup(anInfo["unit"]);
+
+		if sSecretsEnabled and issecretvalue(tFactionGroup) then
+			return false, nil, -1, -1, -1;
+		end
+
+		if "Alliance" == tFactionGroup then
 			return true, "Interface\\groupframe\\ui-group-pvp-alliance", -1, -1, -1;
 		else
 			return true, "Interface\\groupframe\\ui-group-pvp-horde", -1, -1, -1;
@@ -1362,6 +1427,9 @@ local function VUHDO_classColorIfActiveValidator(anInfo, _)
 		if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]] then
 			return true, nil, -1, -1, -1,
 				VUHDO_copyColor(VUHDO_USER_CLASS_COLORS[anInfo["classId"]]);
+		elseif anInfo["hasSecretClass"] then
+			return true, nil, -1, -1, -1,
+				VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
 		else
 			return true, nil, -1, -1, -1, nil;
 		end
@@ -1383,6 +1451,9 @@ local function VUHDO_classColorValidator(anInfo, _)
 	if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]] then
 		return true, nil, -1, -1, -1,
 			VUHDO_copyColor(VUHDO_USER_CLASS_COLORS[anInfo["classId"]]);
+	elseif anInfo["hasSecretClass"] then
+		return true, nil, -1, -1, -1,
+			VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
 	else
 		return true, nil, -1, -1, -1, nil;
 	end
@@ -1789,7 +1860,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_MAGIC,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1803,7 +1874,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_DISEASE,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1817,7 +1888,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_POISON,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1831,7 +1902,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_CURSE,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1845,7 +1916,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_BLEED,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1859,7 +1930,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
 		["debuffType"] = VUHDO_DEBUFF_TYPE_ENRAGE,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_AURA,
 		["isGlobal"] = false,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
@@ -1870,7 +1941,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["displayName"] = VUHDO_I18N_BOUQUET_CHARMED,
 		["validator"] = VUHDO_debuffCharmedValidator,
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
-		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["secretType"] = VUHDO_SECRET_TYPE_BOOLEAN,
 		["hasValue"] = false,
 		["isGlobal"] = true,
 	},
@@ -1881,7 +1952,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP,
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_NONE,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_NONE,
 		["isGlobal"] = false,
 		["updateCyclic"] = true,
 	},
@@ -1893,7 +1964,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["no_color"] = true,
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 		["secretType"] = VUHDO_SECRET_TYPE_DISPEL,
-		["hasValue"] = false,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_NONE,
 		["isGlobal"] = false,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
 		["getCurve"] = VUHDO_getDispelBrightnessCurve,

@@ -390,6 +390,10 @@ local function VUHDO_determineDfToolRole(anInfo)
 	tOldRole = VUHDO_DF_TOOL_ROLES[tName];
 	tDfRole = UnitGroupRolesAssigned(anInfo["unit"]);
 
+	if sSecretsEnabled and issecretvalue(tDfRole) then
+		return nil;
+	end
+
 	if "NONE" == tDfRole then
 		VUHDO_DF_TOOL_ROLES[tName] = nil;
 		tReturnRole = nil;
@@ -471,6 +475,10 @@ function VUHDO_determineRole(aUnit)
 
 	if tInfo["hasSecretName"] then
 		tDfRole = UnitGroupRolesAssigned(tInfo["unit"]);
+
+		if sSecretsEnabled and issecretvalue(tDfRole) then
+			return nil;
+		end
 
 		if "TANK" == tDfRole then
 			return 60;
@@ -561,6 +569,10 @@ function VUHDO_determineRole(aUnit)
 
 	if sSecretsEnabled and tInfo["hasSecretPower"] then
 		tDfRole = UnitGroupRolesAssigned(aUnit);
+
+		if issecretvalue(tDfRole) then
+			return nil;
+		end
 
 		if "TANK" == tDfRole then
 			return 60;

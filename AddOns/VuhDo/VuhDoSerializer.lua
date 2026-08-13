@@ -5,6 +5,8 @@ local strsub = strsub;
 local strfind = strfind;
 local strbyte = strbyte;
 local format = format;
+local tinsert = table.insert;
+local tconcat = table.concat;
 
 -- Sabc=S5+abcde
 -- Sabc=N3+1.3
@@ -65,28 +67,34 @@ local VUHDO_ABBREV_TO_KEY = {
 
 
 --
-local tStrValue; -- Mustn't be reused after recursion finished
+local tStrValue;
+local tNewString;
 function VUHDO_serializeTable(aTable)
-	local tString = "";
+
+	local tParts = { };
 
 	for tKey, tValue in pairs(aTable) do
-		tString = "number" == type(tKey)
-			and format("%sN%d=", tString, tKey) or format("%sS%s=", tString, VUHDO_KEY_TO_ABBREV[tKey] or tKey);
+		if "number" == type(tKey) then
+			tinsert(tParts, format("N%d=", tKey));
+		else
+			tinsert(tParts, format("S%s=", VUHDO_KEY_TO_ABBREV[tKey] or tKey));
+		end
 
 		if "string" == type(tValue) then
-			tString = format("%sS%d+%s", tString, #tValue, tValue);
+			tinsert(tParts, format("S%d+%s", #tValue, tValue));
 		elseif "number" == type(tValue) then
 			tStrValue = format("%0.4f", tValue);
-			tString = format("%sN%d+%s", tString, #tStrValue, tStrValue);
+			tinsert(tParts, format("N%d+%s", #tStrValue, tStrValue));
 		elseif "boolean" == type(tValue) then
-			tString = tString .. (tValue and "1" or "0");
+			tinsert(tParts, tValue and "1" or "0");
 		elseif "table" == type(tValue) then
-			local tNewString = VUHDO_serializeTable(tValue);
-			tString = format("%sT%d+%s", tString, #tNewString, tNewString);
+			tNewString = VUHDO_serializeTable(tValue);
+			tinsert(tParts, format("T%d+%s", #tNewString, tNewString));
 		end
 	end
 
-	return tString;
+	return tconcat(tParts);
+
 end
 
 

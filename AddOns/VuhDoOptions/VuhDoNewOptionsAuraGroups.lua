@@ -35,6 +35,7 @@ VUHDO_AURA_GROUPS_CUSTOM_COLOR = {
 VUHDO_AURA_GROUPS_CAN_COLOR_BAR = false;
 VUHDO_AURA_GROUPS_CAN_COLOR_TEXT = false;
 VUHDO_AURA_GROUPS_CAN_GLOW_BAR = false;
+VUHDO_AURA_GROUPS_GLOW_BAR_STYLE = "none";
 VUHDO_AURA_GROUPS_SOUND = nil;
 VUHDO_AURA_GROUPS_ENABLED = true;
 VUHDO_AURA_GROUPS_IGNORE_COMBO_MODEL = { };
@@ -46,7 +47,29 @@ VUHDO_SPELL_ENTRY_MINE = true;
 VUHDO_SPELL_ENTRY_OTHERS = false;
 VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = 10;
-VUHDO_SPELL_ENTRY_GLOW_ICON = false;
+VUHDO_SPELL_ENTRY_GLOW_STYLE = "none";
+
+VUHDO_GLOW_STYLE_COMBO_MODEL = { };
+local VUHDO_GLOW_STYLE_COMBO_MODEL = VUHDO_GLOW_STYLE_COMBO_MODEL;
+
+VUHDO_AURA_GLOW_STYLE_DISPLAY_NAMES = {
+	["blizzard"] = VUHDO_I18N_GLOW_STYLE_BLIZZARD,
+	["blizzardants"] = VUHDO_I18N_GLOW_STYLE_BLIZZARD_ANTS,
+	["blizzardblue"] = VUHDO_I18N_GLOW_STYLE_BLIZZARD_BLUE,
+	["vuhdopixel"] = VUHDO_I18N_GLOW_STYLE_PIXEL,
+	["vuhdohalo"] = VUHDO_I18N_GLOW_STYLE_HALO,
+	["vuhdoants"] = VUHDO_I18N_GLOW_STYLE_ANTS,
+	["vuhdospark"] = VUHDO_I18N_GLOW_STYLE_SPARK,
+	["vuhdocomet"] = VUHDO_I18N_GLOW_STYLE_COMET,
+	["vuhdopulse"] = VUHDO_I18N_GLOW_STYLE_PULSE,
+	["vuhdowave"] = VUHDO_I18N_GLOW_STYLE_WAVE,
+	["vuhdoswirl"] = VUHDO_I18N_GLOW_STYLE_SWIRL,
+	["vuhdorays"] = VUHDO_I18N_GLOW_STYLE_RAYS,
+	["vuhdoreticle"] = VUHDO_I18N_GLOW_STYLE_RETICLE,
+	["vuhdoripple"] = VUHDO_I18N_GLOW_STYLE_RIPPLE,
+	["vuhdoembers"] = VUHDO_I18N_GLOW_STYLE_EMBERS,
+};
+local VUHDO_AURA_GLOW_STYLE_DISPLAY_NAMES = VUHDO_AURA_GLOW_STYLE_DISPLAY_NAMES;
 
 VUHDO_SPELL_ENTRY_SETTINGS = { };
 local VUHDO_SPELL_ENTRY_SETTINGS = VUHDO_SPELL_ENTRY_SETTINGS;
@@ -221,6 +244,32 @@ end
 
 
 --
+local tGlowName;
+local tGlowDef;
+local tDisplayName;
+function VUHDO_initGlowStyleComboModel()
+
+	twipe(VUHDO_GLOW_STYLE_COMBO_MODEL);
+
+	tinsert(VUHDO_GLOW_STYLE_COMBO_MODEL, { "none", VUHDO_I18N_NONE });
+
+	for _, tGlowName in ipairs(VUHDO_LibOrbitGlow:GetGlowList()) do
+		tGlowDef = VUHDO_LibOrbitGlow:GetGlowInfo(tGlowName);
+
+		if tGlowDef and not tGlowDef["engine"] and (tGlowDef["atlas"] or tGlowDef["path"] or tGlowDef["resolve"]) then
+			tDisplayName = VUHDO_AURA_GLOW_STYLE_DISPLAY_NAMES[tGlowName] or tGlowName;
+
+			tinsert(VUHDO_GLOW_STYLE_COMBO_MODEL, { tGlowName, tDisplayName });
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
 local tAllGroups;
 local tDisplayName;
 local tSortTable;
@@ -262,7 +311,6 @@ end
 local tSpellId;
 local tSpellIds;
 local tDisplayName;
-local tSecrecy;
 local tSortTable;
 function VUHDO_initAuraGroupsAddSpellComboModel()
 
@@ -293,12 +341,6 @@ function VUHDO_initAuraGroupsAddSpellComboModel()
 			tDisplayName = "[" .. tSpellId .. "] " .. tDisplayName;
 		else
 			tDisplayName = tostring(tSpellId);
-		end
-
-		tSecrecy = VUHDO_getSpellAuraSecrecy(tSpellId);
-
-		if tSecrecy >= 1 then
-			tDisplayName = "|cFFFF4444" .. tDisplayName .. "|r";
 		end
 
 		tinsert(tSortTable, { tSpellId, tDisplayName, VUHDO_resolveSpellId(tSpellId) });
@@ -430,7 +472,7 @@ local tCanColorTextCheck;
 local tCustomColorSwatch;
 local tCanUseCustomColor;
 local tCanUseGlow;
-local tCanGlowBarCheck;
+local tGlowBarStyleCombo;
 local tGlowBarColorSwatch;
 local tEnabledCheck;
 local tDeleteButton;
@@ -469,7 +511,7 @@ function VUHDO_auraGroupsRefreshRightPanel()
 	tCanColorBarCheck = _G["VuhDoNewOptionsAuraGroupsStorePanelCanColorBarCheckButton"];
 	tCanColorTextCheck = _G["VuhDoNewOptionsAuraGroupsStorePanelCanColorTextCheckButton"];
 	tCustomColorSwatch = _G["VuhDoNewOptionsAuraGroupsStorePanelCustomColorTexture"];
-	tCanGlowBarCheck = _G["VuhDoNewOptionsAuraGroupsStorePanelCanGlowBarCheckButton"];
+	tGlowBarStyleCombo = _G["VuhDoNewOptionsAuraGroupsStorePanelGlowBarStyleCombo"];
 	tGlowBarColorSwatch = _G["VuhDoNewOptionsAuraGroupsStorePanelGlowBarColorTexture"];
 	tDeleteButton = _G["VuhDoNewOptionsAuraGroupsStorePanelDeleteButton"];
 	tEnabledCheck = _G["VuhDoNewOptionsAuraGroupsStorePanelEnabledCheckButton"];
@@ -888,62 +930,60 @@ function VUHDO_auraGroupsRefreshRightPanel()
 	end
 
 	if tCustomColorSwatch and tGroup then
-		if VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_ALL_DISPEL then
-			tCustomColorSwatch:SetShown(false);
-		else
-			tCustomColorSwatch:SetShown(true);
+		tCustomColorSwatch:SetShown(true);
 
-			if not tIsBuiltIn then
-				VUHDO_CONFIG["AURA_GROUPS"] = VUHDO_CONFIG["AURA_GROUPS"] or { };
+		if not tIsBuiltIn then
+			VUHDO_CONFIG["AURA_GROUPS"] = VUHDO_CONFIG["AURA_GROUPS"] or { };
 
-				if not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
-					VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] = { };
-				end
-
-				if not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["customColor"] then
-					VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["customColor"] = tGroup["customColor"] and VUHDO_deepCopyTable(tGroup["customColor"]) or {
-						["R"] = 0.6, ["G"] = 0.3, ["B"] = 0, ["O"] = 1,
-						["TR"] = 0.8, ["TG"] = 0.5, ["TB"] = 0, ["TO"] = 1,
-						["useBackground"] = true, ["useText"] = true, ["useOpacity"] = true,
-					};
-				end
-
-				VUHDO_lnfSetModel(tCustomColorSwatch, "VUHDO_CONFIG.AURA_GROUPS." .. sSelectedGroupId .. ".customColor");
-				tCustomColorSwatch:SetAttribute("custom_function_post", VUHDO_auraGroupsCustomColorChanged);
-
-				tCanUseCustomColor = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and (VUHDO_AURA_GROUPS_CAN_COLOR_BAR or VUHDO_AURA_GROUPS_CAN_COLOR_TEXT);
-
-				tCustomColorSwatch:SetAttribute("disabled", not tCanUseCustomColor);
-				tCustomColorSwatch:SetAlpha(tCanUseCustomColor and 1 or 0.5);
-			else
-				VUHDO_lnfSetModel(tCustomColorSwatch, "VUHDO_DEFAULT_AURA_GROUPS." .. sSelectedGroupId .. ".customColor");
-
-				tCustomColorSwatch:SetAttribute("disabled", true);
-				tCustomColorSwatch:SetAlpha(0.5);
+			if not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
+				VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] = { };
 			end
 
-			VUHDO_lnfInitColorSwatch(tCustomColorSwatch, VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR, VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR);
-			VUHDO_lnfSetTooltip(tCustomColorSwatch, VUHDO_I18N_TT.K616);
-			VUHDO_lnfColorSwatchInitFromModel(tCustomColorSwatch);
+			if not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["customColor"] then
+				VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["customColor"] = tGroup["customColor"] and VUHDO_deepCopyTable(tGroup["customColor"]) or {
+					["R"] = 0.6, ["G"] = 0.3, ["B"] = 0, ["O"] = 1,
+					["TR"] = 0.8, ["TG"] = 0.5, ["TB"] = 0, ["TO"] = 1,
+					["useBackground"] = true, ["useText"] = true, ["useOpacity"] = true,
+				};
+			end
+
+			VUHDO_lnfSetModel(tCustomColorSwatch, "VUHDO_CONFIG.AURA_GROUPS." .. sSelectedGroupId .. ".customColor");
+			tCustomColorSwatch:SetAttribute("custom_function_post", VUHDO_auraGroupsCustomColorChanged);
+
+			tCanUseCustomColor = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and (VUHDO_AURA_GROUPS_CAN_COLOR_BAR or VUHDO_AURA_GROUPS_CAN_COLOR_TEXT);
+
+			tCustomColorSwatch:SetAttribute("disabled", not tCanUseCustomColor);
+			tCustomColorSwatch:SetAlpha(tCanUseCustomColor and 1 or 0.5);
+		else
+			VUHDO_lnfSetModel(tCustomColorSwatch, "VUHDO_DEFAULT_AURA_GROUPS." .. sSelectedGroupId .. ".customColor");
+
+			tCustomColorSwatch:SetAttribute("disabled", true);
+			tCustomColorSwatch:SetAlpha(0.5);
 		end
+
+		VUHDO_lnfInitColorSwatch(tCustomColorSwatch, VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR, VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR);
+		VUHDO_lnfSetTooltip(tCustomColorSwatch, VUHDO_I18N_TT.K616);
+		VUHDO_lnfColorSwatchInitFromModel(tCustomColorSwatch);
 	end
 
-	if tCanGlowBarCheck and tGroup then
-		tCanGlowBarCheck:SetShown(true);
+	if tGlowBarStyleCombo and tGroup then
+		tGlowBarStyleCombo:SetShown(true);
 
-		VUHDO_AURA_GROUPS_CAN_GLOW_BAR = tGroup["canGlowBar"];
+		VUHDO_AURA_GROUPS_GLOW_BAR_STYLE = tGroup["glowBarStyle"] or (tGroup["canGlowBar"] == true and VUHDO_DEFAULT_AURA_GLOW_STYLE or "none");
+		VUHDO_AURA_GROUPS_CAN_GLOW_BAR = "none" ~= VUHDO_AURA_GROUPS_GLOW_BAR_STYLE;
 
-		VUHDO_lnfCheckButtonInitFromModel(tCanGlowBarCheck);
+		VUHDO_initGlowStyleComboModel();
+		VUHDO_lnfComboBoxInitFromModel(tGlowBarStyleCombo);
 
 		if VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_OFF then
-			tCanGlowBarCheck:Disable();
-			tCanGlowBarCheck:SetAlpha(0.5);
+			tGlowBarStyleCombo:Disable();
+			tGlowBarStyleCombo:SetAlpha(0.5);
 		elseif tIsBuiltIn then
-			tCanGlowBarCheck:Disable();
-			tCanGlowBarCheck:SetAlpha(0.5);
+			tGlowBarStyleCombo:Disable();
+			tGlowBarStyleCombo:SetAlpha(0.5);
 		else
-			tCanGlowBarCheck:Enable();
-			tCanGlowBarCheck:SetAlpha(1);
+			tGlowBarStyleCombo:Enable();
+			tGlowBarStyleCombo:SetAlpha(1);
 		end
 	end
 
@@ -965,7 +1005,7 @@ function VUHDO_auraGroupsRefreshRightPanel()
 
 			tGlowBarColorSwatch:SetAttribute("custom_function_post", VUHDO_auraGroupsGlowColorChanged);
 
-			tCanUseGlow = VUHDO_AURA_GROUPS_COLOR_TYPE ~= VUHDO_AURA_GROUP_COLOR_OFF and VUHDO_AURA_GROUPS_CAN_GLOW_BAR;
+			tCanUseGlow = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and "none" ~= VUHDO_AURA_GROUPS_GLOW_BAR_STYLE;
 
 			tGlowBarColorSwatch:SetAttribute("disabled", not tCanUseGlow);
 			tGlowBarColorSwatch:SetAlpha(tCanUseGlow and 1 or 0.5);
@@ -979,6 +1019,7 @@ function VUHDO_auraGroupsRefreshRightPanel()
 		VUHDO_lnfInitColorSwatch(tGlowBarColorSwatch, VUHDO_I18N_AURA_GLOW_BAR, VUHDO_I18N_AURA_GLOW_BAR);
 		VUHDO_lnfSetTooltip(tGlowBarColorSwatch, VUHDO_I18N_TT.K780);
 		VUHDO_lnfColorSwatchInitFromModel(tGlowBarColorSwatch);
+		VUHDO_lnfUpdateComponentsByConstraints(tGlowBarColorSwatch);
 	end
 
 	if tEnabledCheck and tGroup then
@@ -1091,12 +1132,12 @@ function VUHDO_auraGroupsRefreshRightPanel()
 			tCustomColorSwatch:SetAlpha(0.5);
 		end
 
-		if tCanGlowBarCheck then
-			tCanGlowBarCheck:Show();
-			tCanGlowBarCheck:Disable();
-			tCanGlowBarCheck:SetAlpha(0.5);
+		if tGlowBarStyleCombo then
+			tGlowBarStyleCombo:Show();
+			tGlowBarStyleCombo:Disable();
+			tGlowBarStyleCombo:SetAlpha(0.5);
 
-			VUHDO_lnfCheckButtonInitFromModel(tCanGlowBarCheck);
+			VUHDO_lnfComboBoxInitFromModel(tGlowBarStyleCombo);
 		end
 
 		if tGlowBarColorSwatch then
@@ -1134,6 +1175,7 @@ function VUHDO_auraGroupsOnNewGroup()
 		["canColorBar"] = true,
 		["canColorText"] = true,
 		["canGlowBar"] = false,
+		["glowBarStyle"] = nil,
 		["glowBarColor"] = nil,
 		["enabled"] = true,
 		["displayName"] = VUHDO_ensureUniqueAuraGroupDisplayName(VUHDO_I18N_NEW .. " " .. VUHDO_I18N_GROUP),
@@ -1310,7 +1352,6 @@ local tGroup;
 local tIgnoreList;
 local tSpellNameById;
 local tDisplayName;
-local tSecrecy;
 local tFrame;
 function VUHDO_auraGroupsRefreshIgnorePanel()
 
@@ -1341,12 +1382,6 @@ function VUHDO_auraGroupsRefreshIgnorePanel()
 			tDisplayName = "[" .. tName .. "] " .. tSpellNameById;
 		else
 			tDisplayName = tName;
-		end
-
-		tSecrecy = VUHDO_getSpellAuraSecrecy(tName);
-
-		if tSecrecy >= 1 then
-			tDisplayName = "|cFFFF4444" .. tDisplayName .. "|r";
 		end
 
 		tinsert(VUHDO_AURA_GROUPS_IGNORE_COMBO_MODEL, { tName, tDisplayName });
@@ -1414,10 +1449,6 @@ function VUHDO_auraGroupsIgnoreAdd()
 	tText = strtrim(tText);
 
 	if tText == "" then
-		return;
-	end
-
-	if VUHDO_checkSpellSecrecy(tText) == 1 then
 		return;
 	end
 
@@ -1601,11 +1632,14 @@ end
 
 
 --
-function VUHDO_auraGroupsCanGlowBarChanged(aParent, aValue)
+function VUHDO_auraGroupsGlowBarStyleChanged(aParent, aValue)
 
 	if sSelectedGroupId and VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
-		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["canGlowBar"] = aValue;
+		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["canGlowBar"] = "none" ~= aValue;
+		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["glowBarStyle"] = "none" ~= aValue and aValue or nil;
 	end
+
+	VUHDO_AURA_GROUPS_CAN_GLOW_BAR = "none" ~= aValue;
 
 	VUHDO_rebuildCanColorBarGroupsCache();
 
@@ -1688,7 +1722,6 @@ local tSpellButton;
 local tRemoveButton;
 local tUpButton;
 local tDownButton;
-local tSecrecy;
 local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEntry, anIsBuiltIn)
 
 	anItemPanel["vuhdo_entryIdx"] = anIndex;
@@ -1717,17 +1750,7 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 			tValueLabel:SetText(VUHDO_formatAuraSpellDisplayName(tostring(anEntry["value"] or "")));
 		end
 
-		if anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-			tSecrecy = VUHDO_getSpellAuraSecrecy(anEntry["value"]);
-
-			if tSecrecy == 1 or tSecrecy == 2 then
-				tValueLabel:SetTextColor(1, 0.3, 0.3, 1);
-			else
-				tValueLabel:SetTextColor(0.4, 0.4, 1, 1);
-			end
-		else
-			tValueLabel:SetTextColor(0.4, 0.4, 1, 1);
-		end
+		tValueLabel:SetTextColor(0.4, 0.4, 1, 1);
 	end
 
 	tTypeLabel = _G[tRowName .. "TypeLabelLabel"];
@@ -1890,6 +1913,8 @@ function VUHDO_auraGroupsRefreshListEntries()
 
 	VUHDO_initEntrySettingsCache();
 
+	VUHDO_invalidateAuraContainerTemplateCache();
+
 	return;
 
 end
@@ -1937,10 +1962,6 @@ function VUHDO_auraGroupsListAddSpell()
 		tValue = tonumber(tSpellIdFromMatch) or tSpellIdFromMatch;
 	else
 		tValue = tonumber(tText) or tText;
-	end
-
-	if VUHDO_checkSpellSecrecy(tValue) == 1 then
-		return;
 	end
 
 	if not tGroup["entries"] then
@@ -2195,7 +2216,7 @@ function VUHDO_spellEntrySettingsInitFromEntry(anEntry)
 	VUHDO_SPELL_ENTRY_OTHERS = tEntry["others"] == true;
 	VUHDO_SPELL_ENTRY_DURATION_MODE = tEntry["durationMode"] or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 	VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = tEntry["timerThreshold"] or 10;
-	VUHDO_SPELL_ENTRY_GLOW_ICON = tEntry["glowIcon"] == true;
+	VUHDO_SPELL_ENTRY_GLOW_STYLE = tEntry["glowIconStyle"] or (tEntry["glowIcon"] == true and VUHDO_DEFAULT_AURA_GLOW_STYLE or "none");
 
 	VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"] = tEntry["glowIconColor"] and VUHDO_deepCopyTable(tEntry["glowIconColor"])
 		or VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]);
@@ -2247,7 +2268,8 @@ function VUHDO_spellEntrySettingsSaveToEntry()
 	tEntry["others"] = VUHDO_SPELL_ENTRY_OTHERS;
 	tEntry["durationMode"] = VUHDO_SPELL_ENTRY_DURATION_MODE;
 	tEntry["timerThreshold"] = VUHDO_SPELL_ENTRY_TIMER_THRESHOLD;
-	tEntry["glowIcon"] = VUHDO_SPELL_ENTRY_GLOW_ICON;
+	tEntry["glowIcon"] = "none" ~= VUHDO_SPELL_ENTRY_GLOW_STYLE;
+	tEntry["glowIconStyle"] = "none" ~= VUHDO_SPELL_ENTRY_GLOW_STYLE and VUHDO_SPELL_ENTRY_GLOW_STYLE or nil;
 	tEntry["glowIconColor"] = VUHDO_deepCopyTable(VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]);
 	tEntry["colorIcon"] = VUHDO_SPELL_ENTRY_COLOR_ICON;
 	tEntry["colorIconColor"] = VUHDO_deepCopyTable(VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]);
@@ -2260,6 +2282,8 @@ function VUHDO_spellEntrySettingsSaveToEntry()
 	tEntry["flashThreshold"] = VUHDO_SPELL_ENTRY_FLASH_THRESHOLD;
 
 	VUHDO_initEntrySettingsCache();
+
+	VUHDO_invalidateAuraContainerTemplateCache();
 
 	return;
 
@@ -2371,25 +2395,31 @@ function VUHDO_spellEntrySettingsRefreshFromModel(aFrame)
 	end
 
 	tControl = _G[tRootPane:GetName() .. "MineCheckButton"];
+
 	if tControl then
 		VUHDO_lnfCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "OthersCheckButton"];
+
 	if tControl then
 		VUHDO_lnfCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FullDurationCheckButton"];
+
 	if tControl then
 		tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+
 		tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_FULL);
 		VUHDO_lnfCheckButtonClicked(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "AliveTimeCheckButton"];
+
 	if tControl then
 		tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+
 		tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_ALIVE);
 		VUHDO_lnfCheckButtonClicked(tControl);
 	end
@@ -2397,65 +2427,78 @@ function VUHDO_spellEntrySettingsRefreshFromModel(aFrame)
 	VUHDO_spellEntrySettingsUpdateTimerSliderEnabled(tRootPane);
 
 	tControl = _G[tRootPane:GetName() .. "TimerThresholdSliderSlider"];
+
 	if tControl then
 		VUHDO_lnfSliderInitFromModel(tControl);
 	end
 
-	tControl = _G[tRootPane:GetName() .. "GlowIconCheckButton"];
+	tControl = _G[tRootPane:GetName() .. "GlowStyleCombo"];
+
 	if tControl then
-		VUHDO_lnfCheckButtonInitFromModel(tControl);
+		VUHDO_initGlowStyleComboModel();
+		VUHDO_lnfComboBoxInitFromModel(tControl);
 		VUHDO_lnfUpdateComponentsByConstraints(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "GlowColorTexture"];
+
 	if tControl then
 		VUHDO_lnfColorSwatchInitFromModel(tControl);
 		VUHDO_lnfUpdateComponentsByConstraints(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "ColorIconCheckButton"];
+
 	if tControl then
 		VUHDO_lnfCheckButtonInitFromModel(tControl);
 		VUHDO_lnfUpdateComponentsByConstraints(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "ColorIconTexture"];
+
 	if tControl then
 		VUHDO_lnfColorSwatchInitFromModel(tControl);
 		VUHDO_lnfUpdateComponentsByConstraints(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "ShowTimerTriState"];
+
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "ShowStacksTriState"];
+
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "ShowClockTriState"];
+
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FadeOnLowTriState"];
+
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FlashOnLowTriState"];
+
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FadeThresholdSliderSlider"];
+
 	if tControl then
 		VUHDO_lnfSliderInitFromModel(tControl);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FlashThresholdSliderSlider"];
+
 	if tControl then
 		VUHDO_lnfSliderInitFromModel(tControl);
 	end
@@ -2468,13 +2511,23 @@ end
 
 --
 local tFrame;
+local tRootPane;
+local tControl;
 function VUHDO_spellEntrySettingsChanged()
 
 	VUHDO_spellEntrySettingsSaveToEntry();
 
 	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+
 	if tFrame and tFrame:IsShown() then
 		VUHDO_updateSpellEntryIconPreview(tFrame);
+
+		tRootPane = _G[tFrame:GetName() .. "RootPane"];
+		tControl = tRootPane and _G[tRootPane:GetName() .. "GlowStyleCombo"];
+
+		if tControl then
+			VUHDO_lnfRefreshComboGlowItems(tControl);
+		end
 	end
 
 	return;
@@ -2489,6 +2542,7 @@ function VUHDO_spellEntrySettingsOkayClicked(aButton)
 	VUHDO_spellEntrySettingsSaveToEntry();
 
 	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+
 	if tFrame then
 		tFrame:Hide();
 	end
@@ -2516,6 +2570,10 @@ local tG;
 local tB;
 local tO;
 local sSpellEntryPreviewGlowKey = "VUHDO_SPELL_ENTRY_PREVIEW_GLOW";
+local sLastPreviewGlowStyle;
+local sGlowPreviewOptions = { };
+local sGlowPreviewColorArray = { 1, 1, 1, 1 };
+local tStyle;
 function VUHDO_updateSpellEntryIconPreview(aFrame)
 
 	if not aFrame then
@@ -2541,6 +2599,10 @@ function VUHDO_updateSpellEntryIconPreview(aFrame)
 		return;
 	end
 
+	if tTimerText then
+		tTimerText:SetDrawLayer("OVERLAY", 3);
+	end
+
 	tSpellValue = nil;
 
 	if sSpellEntrySettingsGroupId and sSpellEntrySettingsEntryIdx then
@@ -2563,7 +2625,11 @@ function VUHDO_updateSpellEntryIconPreview(aFrame)
 			tTimerText:Hide();
 		end
 
-		VUHDO_LibCustomGlow.PixelGlow_Stop(tPreviewPanel, sSpellEntryPreviewGlowKey);
+		sGlowPreviewOptions["key"] = sSpellEntryPreviewGlowKey;
+
+		VUHDO_LibOrbitGlow.Proc:Clear(tPreviewPanel, sGlowPreviewOptions);
+
+		sLastPreviewGlowStyle = nil;
 
 		return;
 	end
@@ -2581,19 +2647,36 @@ function VUHDO_updateSpellEntryIconPreview(aFrame)
 		tIconTexture:SetVertexColor(1, 1, 1, 1);
 	end
 
-	if VUHDO_SPELL_ENTRY_GLOW_ICON and VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"] then
-		VUHDO_LibCustomGlow.PixelGlow_Start(
-			tPreviewPanel,
-			{
-				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["R"] or 1,
-				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["G"] or 1,
-				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["B"] or 0,
-				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["O"] or 1,
-			},
-			8, 0.3, 6, 2, 0, 0, false, sSpellEntryPreviewGlowKey
-		);
-	else
-		VUHDO_LibCustomGlow.PixelGlow_Stop(tPreviewPanel, sSpellEntryPreviewGlowKey);
+	tStyle = VUHDO_SPELL_ENTRY_GLOW_STYLE;
+
+	if sLastPreviewGlowStyle and (not tStyle or "none" == tStyle or sLastPreviewGlowStyle ~= tStyle) then
+		sGlowPreviewOptions["key"] = sSpellEntryPreviewGlowKey;
+
+		VUHDO_LibOrbitGlow.Proc:Clear(tPreviewPanel, sGlowPreviewOptions);
+
+		sLastPreviewGlowStyle = nil;
+	end
+
+	if tStyle and "none" ~= tStyle and VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"] then
+		sGlowPreviewColorArray[1] = VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["R"] or 1;
+		sGlowPreviewColorArray[2] = VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["G"] or 1;
+		sGlowPreviewColorArray[3] = VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["B"] or 0;
+		sGlowPreviewColorArray[4] = VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["O"] or 1;
+
+		sGlowPreviewOptions["glow"] = tStyle;
+		sGlowPreviewOptions["key"] = sSpellEntryPreviewGlowKey;
+		sGlowPreviewOptions["color"] = sGlowPreviewColorArray;
+		sGlowPreviewOptions["frameLevel"] = 1;
+
+		VUHDO_LibOrbitGlow.Proc:Loop(tPreviewPanel, sGlowPreviewOptions);
+
+		sLastPreviewGlowStyle = tStyle;
+	elseif sLastPreviewGlowStyle then
+		sGlowPreviewOptions["key"] = sSpellEntryPreviewGlowKey;
+
+		VUHDO_LibOrbitGlow.Proc:Clear(tPreviewPanel, sGlowPreviewOptions);
+
+		sLastPreviewGlowStyle = nil;
 	end
 
 	if tTimerText then

@@ -12,13 +12,12 @@ local ipairs = ipairs;
 local tinsert = table.insert;
 local twipe = table.wipe;
 local max = math.max;
+local min = math.min;
 local CreateFrame = CreateFrame;
 local hooksecurefunc = hooksecurefunc;
 
 local GetSpellName = C_Spell.GetSpellName;
 local GetMouseFocus = GetMouseFocus or VUHDO_getMouseFocus;
-local GetSpellIDForSpellIdentifier = C_Spell and C_Spell.GetSpellIDForSpellIdentifier;
-local GetSpellAuraSecrecy = C_Secrets and C_Secrets.GetSpellAuraSecrecy;
 
 
 local VUHDO_ACTIVE_LABEL_COLOR = {
@@ -35,6 +34,9 @@ local VUHDO_NORMAL_LABEL_COLOR = {
 local VUHDO_NORMAL_LABEL_COLOR_DISA = {
 	["TR"] = 0.2,	["TG"] = 0.2,	["TB"] = 0.6,	["TO"] = 1,
 };
+
+local sComboGlowOptions = { };
+local sComboGlowColorArray = { 0.95, 0.95, 0.32, 1 };
 
 
 
@@ -117,59 +119,6 @@ BACKDROP_VUHDO_PANEL_APPEND_BOTTOM_16_16_1111 = {
 };
 
 local tIsInCustomFunction = false;
-
-
-
---
-local tSpellId;
-local tSecrecy;
-function VUHDO_getSpellAuraSecrecy(aSpellText)
-
-	if not aSpellText then
-		return 0;
-	end
-
-	if not GetSpellAuraSecrecy then
-		return 0;
-	end
-
-	tSpellId = tonumber(aSpellText) or GetSpellIDForSpellIdentifier(aSpellText);
-
-	if not tSpellId then
-		return 0;
-	end
-
-	tSecrecy = GetSpellAuraSecrecy(tSpellId);
-
-	return tSecrecy or 0;
-
-end
-
-
-
---
-local tSecrecy;
-function VUHDO_checkSpellSecrecy(aSpellText)
-
-	if not aSpellText then
-		return 0;
-	end
-
-	tSecrecy = VUHDO_getSpellAuraSecrecy(aSpellText);
-
-	if tSecrecy == 1 then
-		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_ALWAYS_SECRET, 1, 0.3, 0.3);
-
-		return 1;
-	end
-
-	if tSecrecy == 2 then
-		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_CONTEXT_SECRET, 1, 0.3, 0.3);
-	end
-
-	return 0;
-
-end
 
 
 
@@ -436,8 +385,90 @@ end
 
 
 --
+local tPreviewBoost;
+local tPreviewR;
+local tPreviewG;
+local tPreviewB;
+local tPreviewO;
+local function VUHDO_getComboGlowPreviewColor(aGlowColor)
+
+	if aGlowColor then
+		tPreviewR = aGlowColor["R"] or 1;
+		tPreviewG = aGlowColor["G"] or 1;
+		tPreviewB = aGlowColor["B"] or 0;
+		tPreviewO = aGlowColor["O"] or 1;
+	else
+		tPreviewR = 0.95;
+		tPreviewG = 0.95;
+		tPreviewB = 0.32;
+		tPreviewO = 1;
+	end
+
+	tPreviewBoost = VUHDO_lnfSkinGetComboGlowPreviewColorBoost();
+
+	if tPreviewBoost then
+		tPreviewR = min(1, tPreviewR * tPreviewBoost);
+		tPreviewG = min(1, tPreviewG * tPreviewBoost);
+		tPreviewB = min(1, tPreviewB * tPreviewBoost);
+	end
+
+	return tPreviewR, tPreviewG, tPreviewB, tPreviewO;
+
+end
+
+
+
+--
+local tPreviewGlowFrame;
+local tPreviewGlowColor;
+local tComboGlowDef;
+local function VUHDO_showComboGlowPreview(aItemPanel, aGlowStyleName, anIsStatic)
+
+	tPreviewGlowFrame = _G[aItemPanel:GetName() .. "Icon"];
+	tPreviewGlowColor = VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"];
+
+	sComboGlowColorArray[1], sComboGlowColorArray[2], sComboGlowColorArray[3], sComboGlowColorArray[4] = VUHDO_getComboGlowPreviewColor(tPreviewGlowColor);
+
+	sComboGlowOptions["key"] = "VdCombo";
+
+	VUHDO_LibOrbitGlow.Proc:Clear(tPreviewGlowFrame, sComboGlowOptions);
+
+	sComboGlowOptions["glow"] = aGlowStyleName;
+	sComboGlowOptions["color"] = sComboGlowColorArray;
+	sComboGlowOptions["frameLevel"] = 1;
+	sComboGlowOptions["blendMode"] = VUHDO_lnfSkinGetComboGlowPreviewBlend();
+	sComboGlowOptions["static"] = anIsStatic and true or nil;
+
+	tComboGlowDef = VUHDO_LibOrbitGlow:GetGlowInfo(aGlowStyleName);
+	sComboGlowOptions["loopDuration"] = (tComboGlowDef and tComboGlowDef["duration"]) or 1.0;
+
+	VUHDO_LibOrbitGlow.Proc:Loop(tPreviewGlowFrame, sComboGlowOptions);
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_hideComboGlowPreview(aItemPanel)
+
+	tPreviewGlowFrame = _G[aItemPanel:GetName() .. "Icon"];
+
+	sComboGlowOptions["key"] = "VdCombo";
+
+	VUHDO_LibOrbitGlow.Proc:Clear(tPreviewGlowFrame, sComboGlowOptions);
+
+	return;
+
+end
+
+
+
+--
 local tComboBox;
 local tTooltip;
+local tValue;
 function VUHDO_lnfComboItemOnEnter(aComboItem)
 
 	tComboBox = aComboItem["parentCombo"];
@@ -452,6 +483,16 @@ function VUHDO_lnfComboItemOnEnter(aComboItem)
 		_G[aComboItem:GetName() .. "Icon"]:SetScale(2);
 
 		VUHDO_PixelUtil.SetPoint(_G[aComboItem:GetName() .. "Icon"], "RIGHT", aComboItem:GetName(), "RIGHT", -10, 0);
+	end
+
+	if tComboBox["isGlow"] and not tComboBox["isMulti"] then
+		tValue = aComboItem:GetAttribute("value");
+
+		if tValue and "none" ~= tValue then
+			VUHDO_showComboGlowPreview(aComboItem, tValue, false);
+
+			aComboItem["vuhdoGlowStyle"] = tValue;
+		end
 	end
 
 	tTooltip = aComboItem:GetAttribute("tooltip");
@@ -474,6 +515,7 @@ end
 
 --
 local tComboBox;
+local tGlowStyle;
 function VUHDO_lnfComboItemOnLeave(aComboItem)
 
 	if aComboItem["parentCombo"]["isScrollable"] then
@@ -486,6 +528,14 @@ function VUHDO_lnfComboItemOnLeave(aComboItem)
 	if not tComboBox["isMulti"] then
 		_G[aComboItem:GetName() .. "Icon"]:SetScale(1);
 		VUHDO_PixelUtil.SetPoint(_G[aComboItem:GetName() .. "Icon"], "RIGHT", aComboItem:GetName(), "RIGHT", -6, 0);
+	end
+
+	if aComboItem["vuhdoGlowStyle"] then
+		tGlowStyle = aComboItem["vuhdoGlowStyle"];
+
+		VUHDO_showComboGlowPreview(aComboItem, tGlowStyle, true);
+
+		aComboItem["vuhdoGlowStyle"] = nil;
 	end
 
 	VuhDoOptionsTooltip:Hide();
@@ -550,6 +600,7 @@ function VUHDO_lnfComboButtonClicked(aButton)
 			VUHDO_lnfComboSetSelectedValue(tComboBox, VUHDO_lnfGetValueFromModel(tComboBox));
 		end
 
+		tSelectPanel:SetFrameLevel(tComboBox:GetFrameLevel() + 5);
 		tSelectPanel:Show();
 	end
 end
@@ -664,12 +715,13 @@ do
 			if not InCombatLockdown() then
 				if VUHDO_RESET_SIZES then VUHDO_resetSizeCalcCaches(); end
 
-				if strfind(aModel, "AURA_ANCHORS", 1, true) then
-					VUHDO_incrementAuraAnchorConfigVersion();
+				if strfind(aModel, "AURA_ANCHORS", 1, true) or strfind(aModel, "AURA_DEFAULTS", 1, true) then
+					VUHDO_invalidateAuraContainerTemplateCache();
 				end
 
 				if strfind(aModel, "VUHDO_OPTIONS_SETTINGS.", 1, true)
-					or strfind(aModel, "INTERNAL_MODEL_", 1, true) then
+					or strfind(aModel, "INTERNAL_MODEL_", 1, true)
+					or strfind(aModel, "VUHDO_BOUQUETS", 1, true) then
 
 				elseif tPanelNum then
 					if (strfind(aModel, "TOOLTIP", 1, true) ~= nil) then
@@ -688,6 +740,10 @@ do
 				else
 					if strfind(aModel, "VUHDO_CONFIG.", 1, true) then
 						VUHDO_demoSetupResetUsers();
+					end
+
+					if strfind(aModel, "BAR_COLORS", 1, true) then
+						VUHDO_timeRegisterBouquets(0.3);
 					end
 
 					VUHDO_initDebuffs();
@@ -767,7 +823,7 @@ do
 			tGlobal = _G[tTableIndices[1]];
 			tLastField = tGlobal;
 
-			if not tGlobal then
+			if tGlobal == nil then
 				return nil;
 			end
 
@@ -783,7 +839,7 @@ do
 
 				tLastField = tLastField[tIndex];
 
-				if not tLastField then
+				if tLastField == nil then
 					return nil;
 				end
 			end
@@ -1054,6 +1110,78 @@ end
 
 
 
+--
+local tIconFrame;
+local tIconTexture;
+local tMaskTexture;
+local function VUHDO_setupComboGlowItemIconMask(aItemPanel)
+
+	tIconFrame = _G[aItemPanel:GetName() .. "Icon"];
+	tIconTexture = _G[aItemPanel:GetName() .. "IconTexture"];
+
+	if not aItemPanel["vuhdoIconMask"] then
+		tMaskTexture = tIconFrame:CreateMaskTexture(nil, "OVERLAY");
+
+		tMaskTexture:SetAtlas("UI-HUD-CoolDownManager-Mask");
+		tMaskTexture:SetAllPoints(tIconTexture);
+
+		tIconTexture:AddMaskTexture(tMaskTexture);
+
+		aItemPanel["vuhdoIconMask"] = tMaskTexture;
+	else
+		tMaskTexture = aItemPanel["vuhdoIconMask"];
+	end
+
+	return;
+
+end
+
+
+
+--
+local tTable;
+local tItemName;
+local tItemPanel;
+function VUHDO_lnfRefreshComboGlowItems(aComboBox)
+
+	if not aComboBox["isGlow"] or not aComboBox["itemsBuilt"] then
+		return;
+	end
+
+	tTable = aComboBox:GetAttribute("combo_table");
+
+	if not tTable then
+		return;
+	end
+
+	for tIndex, tInfo in ipairs(tTable) do
+		if aComboBox["isScrollable"] then
+			tItemName = aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex;
+		else
+			tItemName = aComboBox:GetName() .. "SelectPanelItem" .. tIndex;
+		end
+
+		tItemPanel = _G[tItemName];
+
+		if not tItemPanel then
+			break;
+		end
+
+		if tItemPanel["vuhdoGlowStyle"] then
+			VUHDO_showComboGlowPreview(tItemPanel, tItemPanel["vuhdoGlowStyle"], false);
+		elseif tInfo[1] and "none" ~= tInfo[1] then
+			VUHDO_showComboGlowPreview(tItemPanel, tInfo[1], true);
+		else
+			VUHDO_hideComboGlowPreview(tItemPanel);
+		end
+	end
+
+	return;
+
+end
+
+
+
 -- ComboBox
 --
 -- combo_table entry position meanings:
@@ -1077,6 +1205,7 @@ local tMaxY;
 local tHeight;
 local tSpellId;
 local tIconSource;
+local tIconTexture;
 function VUHDO_lnfComboInitItems(aComboBox)
 
 	tTable = aComboBox:GetAttribute("combo_table");
@@ -1124,15 +1253,30 @@ function VUHDO_lnfComboInitItems(aComboBox)
 		tItemPanel:ClearAllPoints();
 
 		if (type(tInfo[2]) == "string") then
-			tIconSource = tInfo[4] or tInfo[2];
-			tSpellId = VUHDO_getNumbersFromString(tIconSource, 1)[1];
+			if aComboBox["isGlow"] then
+				tIconTexture = _G[tItemPanel:GetName() .. "IconTexture"];
 
-			if tSpellId then
-				tSpellId = tostring(tSpellId);
+				VUHDO_lnfSkinApplyComboGlowIconBase(tIconTexture);
+
+				VUHDO_setupComboGlowItemIconMask(tItemPanel);
+
+				if tInfo[1] and "none" ~= tInfo[1] then
+					VUHDO_showComboGlowPreview(tItemPanel, tInfo[1], true);
+				else
+					VUHDO_hideComboGlowPreview(tItemPanel);
+				end
+			else
+				tIconSource = tInfo[4] or tInfo[2];
+				tSpellId = VUHDO_getNumbersFromString(tIconSource, 1)[1];
+
+				if tSpellId then
+					tSpellId = tostring(tSpellId);
+				end
+
+				_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(VUHDO_getGlobalIcon(tSpellId or tIconSource));
+				_G[tItemPanel:GetName() .. "IconTexture"]:SetTexCoord(0, 1, 0, 1);
 			end
 
-			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(VUHDO_getGlobalIcon(tSpellId or tIconSource));
-			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexCoord(0, 1, 0, 1);
 			_G[tItemPanel:GetName() .. "LabelLabel"]:SetText(tInfo[2]);
 
 			VUHDO_COMBO_ITEM_HEIGHT = 16;
@@ -1226,7 +1370,7 @@ function VUHDO_lnfComboInitItems(aComboBox)
 			VUHDO_PixelUtil.SetWidth(tDropdownBox, aComboBox:GetWidth());
 		end
 
-		VUHDO_PixelUtil.SetWidth(tItemContainer, math.max(100, tDropdownBox:GetWidth() - 24));
+		VUHDO_PixelUtil.SetWidth(tItemContainer, max(100, tDropdownBox:GetWidth() - 24));
 
 		tHeight = tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6;
 
@@ -1238,6 +1382,8 @@ function VUHDO_lnfComboInitItems(aComboBox)
 
 		tItemContainer:SetBackdropColor(0, 0, 0, 0);
 	end
+
+	aComboBox["itemsBuilt"] = true;
 
 	return;
 

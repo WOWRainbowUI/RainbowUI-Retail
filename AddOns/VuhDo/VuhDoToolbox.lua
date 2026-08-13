@@ -455,6 +455,7 @@ local VUHDO_RAID;
 local VUHDO_UNIT_BUTTONS;
 local VUHDO_CONFIG;
 local VUHDO_BOSS_UNITS;
+local VUHDO_isAuraDataRestricted;
 local sRangeSpell;
 local sIsHelpfulGuessRange = true;
 local sIsHarmfulGuessRange = true;
@@ -476,6 +477,7 @@ function VUHDO_toolboxInitLocalOverrides()
 	VUHDO_UNIT_BUTTONS = _G["VUHDO_UNIT_BUTTONS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_BOSS_UNITS = _G["VUHDO_BOSS_UNITS"];
+	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
 
 	sScanRange = tonumber(VUHDO_CONFIG["SCAN_RANGE"]);
 
@@ -840,13 +842,27 @@ end
 -- returns the units rank in a raid which is 0 = raid member, 1 = assist, 2 = leader
 -- returns 2 if not in raid
 local tRank, tIsMl, tGroupType;
+local tIsGroupLeader;
 function VUHDO_getUnitRank(aUnit)
+
 	tGroupType = VUHDO_getCurrentGroupType();
+
 	if VUHDO_GROUP_TYPE_RAID == tGroupType then
 		_, tRank, _, _, _, _, _, _, _, _, tIsMl = GetRaidRosterInfo(VUHDO_getUnitNo(aUnit));
+
 		return tRank, tIsMl;
-	elseif VUHDO_GROUP_TYPE_PARTY == tGroupType then return  UnitIsGroupLeader(aUnit) and 2 or 0, true;
-	else return 2, true; end
+	elseif VUHDO_GROUP_TYPE_PARTY == tGroupType then
+		tIsGroupLeader = UnitIsGroupLeader(aUnit);
+
+		if sSecretsEnabled and issecretvalue(tIsGroupLeader) then
+			return 0, true;
+		end
+
+		return tIsGroupLeader and 2 or 0, true;
+	else
+		return 2, true;
+	end
+
 end
 
 
@@ -1693,6 +1709,10 @@ local tSpellId;
 local tAuraData;
 function VUHDO_unitAura(aUnit, aSpell, aFilter, anAllowSecret)
 
+	if not anAllowSecret and VUHDO_isAuraDataRestricted() then
+		return nil;
+	end
+
 	if not anAllowSecret and ShouldSpellAuraBeSecret(aSpell) then
 		return nil;
 	end
@@ -1831,6 +1851,10 @@ end
 local tContinuationToken;
 local tDone;
 function VUHDO_forEachAura(aUnit, aFilter, aMaxCnt, aPredicate, aUsePackedAura)
+
+		if VUHDO_isAuraDataRestricted() then
+			return;
+		end
 
 		if aMaxCnt and aMaxCnt <= 0 then
 			return;

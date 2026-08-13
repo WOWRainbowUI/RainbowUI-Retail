@@ -257,8 +257,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["showBorder"] = false,
 					["iconSize"] = 40,
 					["frameLevel"] = 13,
-					["showDispelOverlay"] = true,
-					["dispelIndicatorType"] = 1,
+					["showDispelIcon"] = true,
 					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
@@ -1022,8 +1021,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["showBorder"] = false,
 					["iconSize"] = 40,
 					["frameLevel"] = 13,
-					["showDispelOverlay"] = true,
-					["dispelIndicatorType"] = 1,
+					["showDispelIcon"] = true,
 					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
@@ -1214,8 +1212,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["showBorder"] = false,
 					["iconSize"] = 40,
 					["frameLevel"] = 13,
-					["showDispelOverlay"] = true,
-					["dispelIndicatorType"] = 1,
+					["showDispelIcon"] = true,
 					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
@@ -1398,8 +1395,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["showBorder"] = false,
 					["iconSize"] = 40,
 					["frameLevel"] = 13,
-					["showDispelOverlay"] = true,
-					["dispelIndicatorType"] = 1,
+					["showDispelIcon"] = true,
 					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
@@ -1582,8 +1578,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["showBorder"] = false,
 					["iconSize"] = 40,
 					["frameLevel"] = 13,
-					["showDispelOverlay"] = true,
-					["dispelIndicatorType"] = 1,
+					["showDispelIcon"] = true,
 					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {

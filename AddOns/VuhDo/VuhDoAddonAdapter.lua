@@ -16,6 +16,7 @@ VUHDO_LibCompressEncode = VUHDO_LibCompress:GetAddonEncodeTable();
 
 VUHDO_LibBase64 = LibStub:GetLibrary("LibBase64-1.0");
 VUHDO_LibCustomGlow = LibStub("LibCustomGlow-1.0");
+VUHDO_LibOrbitGlow = LibStub("LibOrbitGlow-1.0");
 VUHDO_LibNickTag = LibStub("NickTag-1.0");
 VUHDO_LibSpec = LibStub("LibSpecialization", true);
 

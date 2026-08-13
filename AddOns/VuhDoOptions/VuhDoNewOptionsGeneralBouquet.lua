@@ -249,7 +249,6 @@ end
 
 --
 local tName, tTexture;
-local tSecrecy;
 local tPreviewColorTable;
 local tColor;
 local tTR;
@@ -263,19 +262,13 @@ local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIn
 	_G[anItemPanel:GetName() .. "TitleLabelLabel"]:SetText("" .. aBuffIndex);
 	_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetText(tName);
 
-	tSecrecy = not VUHDO_BOUQUET_BUFFS_SPECIAL[aBuffInfo["name"]] and VUHDO_getSpellAuraSecrecy(aBuffInfo["name"]);
+	tTR, tTG, tTB, tTO = VUHDO_lnfSkinGetFontColor("normal");
 
-	if tSecrecy == 1 or tSecrecy == 2 then
-		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(1, 0.3, 0.3, 1);
-	else
-		tTR, tTG, tTB, tTO = VUHDO_lnfSkinGetFontColor("normal");
-
-		if not tTR then
-			tTR, tTG, tTB, tTO = 0.4, 0.4, 1, 1;
-		end
-
-		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(tTR, tTG, tTB, tTO);
+	if not tTR then
+		tTR, tTG, tTB, tTO = 0.4, 0.4, 1, 1;
 	end
+
+	_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(tTR, tTG, tTB, tTO);
 
 	if (aBuffInfo["icon"] == 1) then
 		tTexture = VUHDO_getGlobalIcon(tName);
@@ -345,6 +338,7 @@ local tPanel, tSubPanel, tSlider;
 local tIndex, tSpecialName;
 local tBouquetName, tBouquet, tInfo, tCurrentItem;
 local tInnerPanel, tRadioButton;
+local tDefaultColor, tColorKey, tColorValue;
 function VUHDO_rebuildBouquetContextEditors(anIndex)
 
 	if (anIndex ~= nil) then
@@ -387,9 +381,15 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 	tCurrentItem = VUHDO_getCurrentBouquetItem();
 	if (tCurrentItem ~= nil and not tIsTempModel and not tCurrentItem["color"]["isManuallySet"]) then
 		if (VUHDO_BOUQUET_BUFFS_SPECIAL[tCurrentItem["name"]] ~= nil and VUHDO_BOUQUET_BUFFS_SPECIAL[tCurrentItem["name"]]["defaultColor"] ~= nil) then
-			tCurrentItem["color"] = VUHDO_deepCopyTable(VUHDO_BOUQUET_BUFFS_SPECIAL[tCurrentItem["name"]]["defaultColor"]);
+			tDefaultColor = VUHDO_deepCopyTable(VUHDO_BOUQUET_BUFFS_SPECIAL[tCurrentItem["name"]]["defaultColor"]);
 		else
-			tCurrentItem["color"] = VUHDO_deepCopyTable(VUHDO_SANE_BOUQUET_ITEM["color"]);
+			tDefaultColor = VUHDO_deepCopyTable(VUHDO_SANE_BOUQUET_ITEM["color"]);
+		end
+
+		table.wipe(tCurrentItem["color"]);
+
+		for tColorKey, tColorValue in pairs(tDefaultColor) do
+			tCurrentItem["color"][tColorKey] = tColorValue;
 		end
 	end
 
@@ -880,66 +880,6 @@ function VUHDO_bouquetItemsOnShow(aParent)
 end
 
 
---
-local tComboForName;
-local tValueForName;
-function VUHDO_bouquetNameEditBoxCheckSecrecy(anEditBox)
-
-	tValueForName = anEditBox:GetText();
-
-	if not tValueForName or tValueForName == "" then
-		return;
-	end
-
-	tValueForName = strtrim(tValueForName);
-
-	if tValueForName == "" or VUHDO_BOUQUET_BUFFS_SPECIAL[tValueForName] then
-		return;
-	end
-
-	if VUHDO_checkSpellSecrecy(tValueForName) == 1 then
-		VUHDO_lnfUpdateVarFromModel(anEditBox, "");
-		anEditBox:SetText("");
-
-		tComboForName = _G[anEditBox:GetParent():GetName() .. "NameComboBox"];
-
-		if tComboForName then
-			VUHDO_lnfComboBoxInitFromModel(tComboForName);
-		end
-	end
-
-	return;
-
-end
-
-
-
---
-local tSpellText;
-function VUHDO_bouquetSpellTraceEditBoxCheckSecrecy(anEditBox)
-
-	tSpellText = anEditBox:GetText();
-
-	if not tSpellText or tSpellText == "" then
-		return;
-	end
-
-	tSpellText = strtrim(tSpellText);
-
-	if tSpellText == "" then
-		return;
-	end
-
-	if VUHDO_checkSpellSecrecy(tSpellText) == 1 then
-		VUHDO_lnfUpdateVarFromModel(anEditBox, "");
-		anEditBox:SetText("");
-	end
-
-	return;
-
-end
-
-
 
 --
 function VUHDO_bouquetsBuffComboValueChanged(aComboBox, aValue)
@@ -957,30 +897,39 @@ local tName;
 local tEditBox;
 local tEditText;
 function VUHDO_bouquetSaveButtonClicked(aPanel)
-	tName = VUHDO_getCurrentBouquetName();
-	tEditBox = _G[aPanel:GetName() .. "BouquetNameEditBox"];
-	tEditText = tEditBox:GetText();
-	if tEditText and #tEditText > 0 and tName then
-		if (VUHDO_CURRENT_BOUQUET_CHOICE and VUHDO_BOUQUETS["STORED"][VUHDO_CURRENT_BOUQUET_CHOICE]) then
 
+	tName = VUHDO_getCurrentBouquetName();
+
+	tEditBox = _G[aPanel:GetName() .. "BouquetNameEditBox"];
+	tEditText = VUHDO_getModelSafeName(tEditBox:GetText());
+
+	if not VUHDO_strempty(tEditText) and tName then
+		if (VUHDO_CURRENT_BOUQUET_CHOICE and VUHDO_BOUQUETS["STORED"][VUHDO_CURRENT_BOUQUET_CHOICE]) then
 			if (tEditText ~= VUHDO_CURRENT_BOUQUET_CHOICE) then
 				VUHDO_BOUQUETS["STORED"][tEditText] = VUHDO_deepCopyTable(VUHDO_BOUQUETS["STORED"][VUHDO_CURRENT_BOUQUET_CHOICE]);
+
 				VUHDO_Msg(VUHDO_I18N_COPIED_BOUQUET .. VUHDO_CURRENT_BOUQUET_CHOICE .. " => " .. tEditText);
+
 				VUHDO_BOUQUETS["SELECTED"] = tEditText;
 			else
 				VUHDO_Msg(tEditText .. VUHDO_I18N_BOUQUET_ALREADY_EXISTS);
 			end
 		else
 			VUHDO_BOUQUETS["STORED"][tEditText] = { };
+
 			VUHDO_Msg(VUHDO_I18N_CREATED_NEW_BOUQUET .. tEditText);
 		end
 
 		VUHDO_initBouquetComboModel();
+
 		aPanel:Hide();
 		aPanel:Show();
 	else
 		VUHDO_Msg(VUHDO_CURRENT_BOUQUET_CHOICE .. VUHDO_I18N_BOUQUET_NOT_FOUND);
 	end
+
+	return;
+
 end
 
 
@@ -1313,9 +1262,25 @@ end
 
 
 --
+local tBouquetName;
+local tBouquet;
+local tBuffInfo;
+local tItemPanel;
 function VUHDO_bouquetsBuffColorChanged()
 
-	VUHDO_refreshAllBouquets();
+	tBouquetName = VUHDO_getCurrentBouquetName();
+	tBouquet = VUHDO_getCurrentBouquet();
+
+	if tBouquetName and tBouquet and VUHDO_CURR_SELECTED_ITEM_INDEX > 0 and tParent then
+		tBuffInfo = tBouquet[VUHDO_CURR_SELECTED_ITEM_INDEX];
+
+		if tBuffInfo then
+			tItemPanel = VUHDO_getOrCreateBouqetItem(VUHDO_CURR_SELECTED_ITEM_INDEX, tParent);
+			VUHDO_initBouquetItem(tParent, tItemPanel, tBouquetName, VUHDO_CURR_SELECTED_ITEM_INDEX, tBuffInfo);
+		end
+	end
+
+	VUHDO_timeRegisterBouquets(0.3);
 
 	return;
 

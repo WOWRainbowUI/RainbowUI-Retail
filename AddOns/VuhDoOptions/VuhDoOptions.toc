@@ -1,8 +1,8 @@
-## Interface: 120007
+## Interface: 120100
 
 ## Title: VuhDo ['vu:du:] - Options
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.212
+## Version: 3.213
 ## Notes: VuhDo Options
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 

@@ -7,7 +7,6 @@ local InCombatLockdown = InCombatLockdown;
 
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
 local AddPrivateAuraAnchor = C_UnitAuras and C_UnitAuras.AddPrivateAuraAnchor;
-local TriggerPrivateAuraShowDispelType = C_UnitAuras and C_UnitAuras.TriggerPrivateAuraShowDispelType;
 
 local VUHDO_CONFIG;
 local VUHDO_PANEL_SETUP;
@@ -35,12 +34,8 @@ local VUHDO_isPanelVisible;
 local VUHDO_positionHealButton;
 local VUHDO_positionTableHeaders;
 local VUHDO_refreshAllUnitAuras;
-local VUHDO_getPrivateAuraDispelOverlayContainer;
-local VUHDO_getCurrentGroupType;
 local VUHDO_isSpecialUnit;
 local VUHDO_getPrivateAuraIcon;
-local VUHDO_hasDispellableAura;
-local VUHDO_hasAnyDispellableAura;
 local VUHDO_getUnitButtons;
 local VUHDO_deferTask;
 local VUHDO_getPanelButtonInitRev;
@@ -85,12 +80,8 @@ function VUHDO_panelRefreshInitLocalOverrides()
 	VUHDO_positionHealButton = _G["VUHDO_positionHealButton"];
 	VUHDO_positionTableHeaders = _G["VUHDO_positionTableHeaders"];
 	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
-	VUHDO_getPrivateAuraDispelOverlayContainer = _G["VUHDO_getPrivateAuraDispelOverlayContainer"];
-	VUHDO_getCurrentGroupType = _G["VUHDO_getCurrentGroupType"];
 	VUHDO_isSpecialUnit = _G["VUHDO_isSpecialUnit"];
 	VUHDO_getPrivateAuraIcon = _G["VUHDO_getPrivateAuraIcon"];
-	VUHDO_hasDispellableAura = _G["VUHDO_hasDispellableAura"];
-	VUHDO_hasAnyDispellableAura = _G["VUHDO_hasAnyDispellableAura"];
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
 	VUHDO_deferTask = _G["VUHDO_deferTask"];
 	VUHDO_getPanelButtonInitRev = _G["VUHDO_getPanelButtonInitRev"];
@@ -206,6 +197,8 @@ local function VUHDO_refreshPositionAllHealButtons(aPanel, aPanelNum)
 		end
 
 		VUHDO_clearUnitAuraFrames(tButton);
+
+		VUHDO_clearAuraContainersForButton(tButton);
 
 		VUHDO_PixelUtil.Hide(tButton);
 		tButtonIdx = tButtonIdx + 1;
@@ -471,197 +464,8 @@ end
 
 
 --
-local function VUHDO_clearPrivateAuraDispelContainerCache(aButton)
-
-	aButton["privateAuraDispelContainerConfigured"] = nil;
-	aButton["privateAuraDispelContainerType"] = nil;
-	aButton["privateAuraDispelContainerGroupType"] = nil;
-	aButton["privateAuraDispelContainerActiveType"] = nil;
-
-	return;
-
-end
-
-
-
---
-local function VUHDO_removePrivateAuraDispelContainer(aButton)
-
-	if aButton["privateAuraDispelContainerAnchorId"] then
-		RemovePrivateAuraAnchor(aButton["privateAuraDispelContainerAnchorId"]);
-
-		aButton["privateAuraDispelContainerAnchorId"] = nil;
-	end
-
-	return;
-
-end
-
-
-
---
-local tContainerAnchor;
-local tToggleLevel;
-local function VUHDO_addPrivateAuraDispelContainerAnchor(aButton, aUnit, aDispelOverlayContainer)
-
-	if aButton["privateAuraDispelContainerAnchorId"] or not aDispelOverlayContainer then
-		return;
-	end
-
-	tContainerAnchor = {
-		["unitToken"] = aUnit,
-		["auraIndex"] = 1,
-		["parent"] = aDispelOverlayContainer,
-		["showCountdownFrame"] = false,
-		["showCountdownNumbers"] = false,
-		["isContainer"] = true,
-	};
-
-	aButton["privateAuraDispelContainerAnchorId"] = AddPrivateAuraAnchor(tContainerAnchor);
-
-	tToggleLevel = aDispelOverlayContainer:GetFrameLevel();
-
-	VUHDO_PixelUtil.SetFrameLevel(aDispelOverlayContainer, 0);
-	VUHDO_PixelUtil.SetFrameLevel(aDispelOverlayContainer, tToggleLevel);
-
-	return;
-
-end
-
-
-
---
-local tHasRegular;
-local tDesiredAlpha;
-local tDesiredType;
-local tCachedType;
-local function VUHDO_updatePrivateAuraDispelOverlayVisibility(aUnit, aButton, aDispelOverlayContainer, aPrivateDispelOverlay, aPrivateDispelIndicatorType, aDispelOverlay, aDispelIndicatorType)
-
-	if not aDispelOverlayContainer then
-		return;
-	end
-
-	if aDispelOverlay and aDispelIndicatorType == 2 then
-		tHasRegular = VUHDO_hasAnyDispellableAura(aUnit);
-	else
-		tHasRegular = VUHDO_hasDispellableAura(aUnit);
-	end
-
-	if tHasRegular then
-		tDesiredAlpha = aDispelOverlay and 1 or 0;
-		tDesiredType = aDispelIndicatorType > 0 and aDispelIndicatorType or aPrivateDispelIndicatorType;
-	else
-		tDesiredAlpha = aPrivateDispelOverlay and 1 or 0;
-		tDesiredType = aPrivateDispelIndicatorType > 0 and aPrivateDispelIndicatorType or aDispelIndicatorType;
-	end
-
-	tCachedType = aButton["privateAuraDispelContainerActiveType"];
-
-	if tCachedType ~= tDesiredType and tDesiredType > 0 then
-		aDispelOverlayContainer:SetAttribute("dispel-indicator-option", tDesiredType);
-		aDispelOverlayContainer:SetAttribute("update-settings", true);
-		aButton["privateAuraDispelContainerActiveType"] = tDesiredType;
-	end
-
-	if tDesiredAlpha == 0 then
-		aDispelOverlayContainer:SetAlpha(0);
-	else
-		VUHDO_deferTask(VUHDO_DEFER_SHOW_PRIVATE_AURA_DISPEL_OVERLAY,
-			VUHDO_DEFERRED_TASK_PRIORITY_CRITICAL, aButton, aUnit);
-	end
-
-	return;
-
-end
-
-
-
---
-local tShowDispelOverlayContainer;
-local tShowPanelNum;
-local tShowPanelSetup;
-local tShowPrivateAuraSetup;
-local tShowBarColors;
-local tShowPrivateDispelOverlay;
-local tShowPrivateDispelIndicatorType;
-local tShowActivePrivateDispelIndicatorType;
-local tShowDispelOverlayFlag;
-local tShowDispelIndicatorTypeNum;
-local tShowActiveDispelIndicatorType;
-local tShowHasRegularNow;
-local tShowStillWantReveal;
-function VUHDO_showPrivateAuraDispelOverlay(aButton, aUnit)
-
-	if not aButton or not aUnit then
-		return;
-	end
-
-	tShowDispelOverlayContainer = VUHDO_getPrivateAuraDispelOverlayContainer(aButton);
-
-	if not tShowDispelOverlayContainer or not tShowDispelOverlayContainer:IsShown()
-		or not aButton["privateAuraDispelContainerAnchorId"] then
-		return;
-	end
-
-	tShowPanelNum = VUHDO_BUTTON_CACHE[aButton];
-	tShowPanelSetup = tShowPanelNum and VUHDO_PANEL_SETUP[tShowPanelNum];
-	tShowPrivateAuraSetup = tShowPanelSetup and tShowPanelSetup["PRIVATE_AURA"];
-
-	if not tShowPrivateAuraSetup or not tShowPrivateAuraSetup["show"] then
-		return;
-	end
-
-	tShowBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
-	tShowDispelOverlayFlag = tShowBarColors and tShowBarColors["showDispelOverlay"];
-	tShowDispelIndicatorTypeNum = (tShowBarColors and tShowBarColors["dispelIndicatorType"]) or 0;
-	tShowActiveDispelIndicatorType = (tShowDispelOverlayFlag and tShowDispelIndicatorTypeNum > 0) and tShowDispelIndicatorTypeNum or 0;
-
-	tShowPrivateDispelOverlay = tShowPrivateAuraSetup["showDispelOverlay"];
-
-	if tShowPrivateDispelOverlay == nil then
-		tShowPrivateDispelOverlay = (VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] ~= false);
-	end
-
-	tShowPrivateDispelIndicatorType = tShowPrivateAuraSetup["dispelIndicatorType"] or 0;
-	tShowActivePrivateDispelIndicatorType = (tShowPrivateDispelOverlay and tShowPrivateDispelIndicatorType > 0) and tShowPrivateDispelIndicatorType or 0;
-
-	if tShowActiveDispelIndicatorType == 2 then
-		tShowHasRegularNow = VUHDO_hasAnyDispellableAura(aUnit);
-	else
-		tShowHasRegularNow = VUHDO_hasDispellableAura(aUnit);
-	end
-
-	if tShowHasRegularNow then
-		tShowStillWantReveal = tShowActiveDispelIndicatorType > 0;
-	else
-		tShowStillWantReveal = tShowActivePrivateDispelIndicatorType > 0;
-	end
-
-	if tShowStillWantReveal then
-		tShowDispelOverlayContainer:SetAlpha(1);
-	end
-
-	return;
-
-end
-
-
-
---
-local tButtonsForUnit;
 local tPanelSetup;
 local tPrivateAuraSetup;
-local tDispelOverlayContainer;
-local tPrivateDispelIndicatorType;
-local tPrivateDispelOverlay;
-local tBarColors;
-local tDispelOverlayFlag;
-local tDispelIndicatorTypeNum;
-local tActivePrivateDispelIndicatorType;
-local tActiveDispelIndicatorType;
-local tInitialDispelIndicatorType;
-local tAnyOverlayWanted;
-local tGroupType;
 local tNumAuras;
 local tDurationPos;
 local tPoint;
@@ -672,57 +476,7 @@ local tPrivateAuraAnchor;
 local tDurationFrame;
 local tToggleLevel;
 local tTextScale;
-function VUHDO_refreshPrivateAuraDispelOverlay(aUnit)
-
-	if not aUnit then
-		return;
-	end
-
-	tButtonsForUnit = VUHDO_getUnitButtons(aUnit);
-
-	if not tButtonsForUnit then
-		return;
-	end
-
-	tBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
-	tDispelOverlayFlag = tBarColors and tBarColors["showDispelOverlay"];
-	tDispelIndicatorTypeNum = (tBarColors and tBarColors["dispelIndicatorType"]) or 0;
-	tActiveDispelIndicatorType = (tDispelOverlayFlag and tDispelIndicatorTypeNum > 0) and tDispelIndicatorTypeNum or 0;
-
-	for _, tButton in pairs(tButtonsForUnit) do
-		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
-		tPanelSetup = tPanelNum and VUHDO_PANEL_SETUP[tPanelNum];
-
-		if tPanelSetup then
-			tPrivateAuraSetup = tPanelSetup["PRIVATE_AURA"];
-
-			if tPrivateAuraSetup and tPrivateAuraSetup["show"]
-				and tButton["privateAuraDispelContainerAnchorId"] then
-
-				tPrivateDispelOverlay = tPrivateAuraSetup["showDispelOverlay"];
-
-				if tPrivateDispelOverlay == nil then
-					tPrivateDispelOverlay = (VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] ~= false);
-				end
-
-				tPrivateDispelIndicatorType = tPrivateAuraSetup["dispelIndicatorType"] or 0;
-				tActivePrivateDispelIndicatorType = (tPrivateDispelOverlay and tPrivateDispelIndicatorType > 0) and tPrivateDispelIndicatorType or 0;
-
-				tDispelOverlayContainer = VUHDO_getPrivateAuraDispelOverlayContainer(tButton);
-
-				VUHDO_updatePrivateAuraDispelOverlayVisibility(aUnit, tButton, tDispelOverlayContainer,
-					tPrivateDispelOverlay, tActivePrivateDispelIndicatorType, tDispelOverlayFlag, tActiveDispelIndicatorType);
-			end
-		end
-	end
-
-	return;
-
-end
-
-
-
---
+local tShowDispelIcon;
 function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 
 	if not aPanelNum or not aButton or not aUnit then
@@ -744,107 +498,15 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 	tPrivateAuraSetup = tPanelSetup["PRIVATE_AURA"];
 
 	if not tPrivateAuraSetup or not tPrivateAuraSetup["show"] then
-		VUHDO_removePrivateAuraDispelContainer(aButton);
-
-		VUHDO_clearPrivateAuraDispelContainerCache(aButton);
-
-		tDispelOverlayContainer = VUHDO_getPrivateAuraDispelOverlayContainer(aButton);
-
-		if tDispelOverlayContainer and not InCombatLockdown() then
-			tDispelOverlayContainer:Hide();
-		end
-
-		if tPrivateAuraSetup and not tPrivateAuraSetup["show"] then
-			TriggerPrivateAuraShowDispelType(false);
-		end
+		VUHDO_removePrivateAuras(aButton);
 
 		return;
 	end
 
-	tPrivateDispelIndicatorType = tPrivateAuraSetup["dispelIndicatorType"];
+	tShowDispelIcon = tPrivateAuraSetup["showDispelIcon"];
 
-	if tPrivateDispelIndicatorType == nil then
-		tPrivateDispelIndicatorType = (VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] ~= false) and 1 or 0;
-	end
-
-	tPrivateDispelOverlay = tPrivateAuraSetup["showDispelOverlay"];
-
-	if tPrivateDispelOverlay == nil then
-		tPrivateDispelOverlay = (VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] ~= false);
-	end
-
-	tBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
-	tDispelOverlayFlag = tBarColors and tBarColors["showDispelOverlay"];
-	tDispelIndicatorTypeNum = (tBarColors and tBarColors["dispelIndicatorType"]) or 0;
-
-	tActivePrivateDispelIndicatorType = (tPrivateDispelOverlay and tPrivateDispelIndicatorType > 0) and tPrivateDispelIndicatorType or 0;
-	tActiveDispelIndicatorType = (tDispelOverlayFlag and tDispelIndicatorTypeNum > 0) and tDispelIndicatorTypeNum or 0;
-
-	tInitialDispelIndicatorType = tActivePrivateDispelIndicatorType > 0 and tActivePrivateDispelIndicatorType or tActiveDispelIndicatorType;
-
-	tAnyOverlayWanted = tInitialDispelIndicatorType > 0;
-
-	tGroupType = VUHDO_GROUP_TYPE_RAID == VUHDO_getCurrentGroupType() and 5 or 4;
-
-	tDispelOverlayContainer = VUHDO_getPrivateAuraDispelOverlayContainer(aButton);
-
-	TriggerPrivateAuraShowDispelType(tAnyOverlayWanted);
-
-	if InCombatLockdown() then
-		if tAnyOverlayWanted and tDispelOverlayContainer
-			and aButton["privateAuraDispelContainerConfigured"] and aButton["privateAuraDispelContainerType"] == tInitialDispelIndicatorType
-			and aButton["privateAuraDispelContainerGroupType"] == tGroupType then
-			tDispelOverlayContainer:SetAlpha(1);
-			VUHDO_addPrivateAuraDispelContainerAnchor(aButton, aUnit, tDispelOverlayContainer);
-			VUHDO_updatePrivateAuraDispelOverlayVisibility(aUnit, aButton, tDispelOverlayContainer,
-				tPrivateDispelOverlay, tActivePrivateDispelIndicatorType, tDispelOverlayFlag, tActiveDispelIndicatorType);
-		else
-			VUHDO_removePrivateAuraDispelContainer(aButton);
-		end
-
-		if (not tAnyOverlayWanted) or (not tDispelOverlayContainer)
-			or (not aButton["privateAuraDispelContainerConfigured"]) or aButton["privateAuraDispelContainerType"] ~= tInitialDispelIndicatorType
-			or aButton["privateAuraDispelContainerGroupType"] ~= tGroupType then
-			VUHDO_deferTask(VUHDO_DEFER_REFRESH_PRIVATE_AURAS, VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aPanelNum, aButton, aUnit);
-		end
-	else
-		VUHDO_removePrivateAuraDispelContainer(aButton);
-
-		if tAnyOverlayWanted and tDispelOverlayContainer then
-			tDispelOverlayContainer:SetAttribute("max-buffs", 0);
-			tDispelOverlayContainer:SetAttribute("max-debuffs", 0);
-			tDispelOverlayContainer:SetAttribute("max-dispel-debuffs", 1);
-			tDispelOverlayContainer:SetAttribute("ignore-buffs", true);
-			tDispelOverlayContainer:SetAttribute("ignore-debuffs", true);
-			tDispelOverlayContainer:SetAttribute("show-dispel-indicator-overlay", true);
-			tDispelOverlayContainer:SetAttribute("suppress-dispel-border-icons", true);
-			tDispelOverlayContainer:SetAttribute("dispel-indicator-option", tInitialDispelIndicatorType);
-			tDispelOverlayContainer:SetAttribute("aura-organization-type", 0);
-			tDispelOverlayContainer:SetAttribute("group-type", tGroupType);
-			tDispelOverlayContainer:SetAttribute("power-bar-used-height", 0);
-			tDispelOverlayContainer:SetAttribute("set-aura-size-to-icon-size", false);
-
-			aButton["privateAuraDispelContainerConfigured"] = true;
-			aButton["privateAuraDispelContainerType"] = tInitialDispelIndicatorType;
-			aButton["privateAuraDispelContainerGroupType"] = tGroupType;
-
-			aButton["privateAuraDispelContainerActiveType"] = tInitialDispelIndicatorType;
-
-			tDispelOverlayContainer:Show();
-
-			tDispelOverlayContainer:SetAlpha(1);
-
-			VUHDO_addPrivateAuraDispelContainerAnchor(aButton, aUnit, tDispelOverlayContainer);
-
-			VUHDO_updatePrivateAuraDispelOverlayVisibility(aUnit, aButton, tDispelOverlayContainer,
-				tPrivateDispelOverlay, tActivePrivateDispelIndicatorType, tDispelOverlayFlag, tActiveDispelIndicatorType);
-		else
-			VUHDO_clearPrivateAuraDispelContainerCache(aButton);
-
-			if tDispelOverlayContainer then
-				tDispelOverlayContainer:Hide();
-			end
-		end
+	if tShowDispelIcon == nil then
+		tShowDispelIcon = false;
 	end
 
 	tNumAuras = tPrivateAuraSetup["numAuras"] or 3;
@@ -900,6 +562,7 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 			parent = tPrivateAura,
 			showCountdownFrame = tPrivateAuraSetup["showCooldown"] ~= false,
 			showCountdownNumbers = tPrivateAuraSetup["showCooldownNumbers"] ~= false,
+			showDispelIcon = tShowDispelIcon,
 			isContainer = false,
 			iconInfo = {
 				iconWidth = 32 / tTextScale,
@@ -951,21 +614,8 @@ end
 
 
 --
-local tDispelOverlayContainer;
 local tPrivateAura;
 function VUHDO_removePrivateAuras(aButton)
-
-	VUHDO_removePrivateAuraDispelContainer(aButton);
-
-	VUHDO_clearPrivateAuraDispelContainerCache(aButton);
-
-	if not InCombatLockdown() then
-		tDispelOverlayContainer = VUHDO_getPrivateAuraDispelOverlayContainer(aButton);
-
-		if tDispelOverlayContainer then
-			tDispelOverlayContainer:Hide();
-		end
-	end
 
 	for tAuraIndex = 1, VUHDO_MAX_PRIVATE_AURAS do
 		tPrivateAura = VUHDO_getPrivateAuraIcon(aButton, tAuraIndex);

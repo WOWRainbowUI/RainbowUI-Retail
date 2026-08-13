@@ -13,7 +13,6 @@ VUHDO_AURA_IGNORE_SHARE_VERSION = 1;
 --
 local tSpellNameById;
 local tDisplayName;
-local tSecrecy;
 function VUHDO_initAuraIgnoreComboModel()
 
 	table.wipe(VUHDO_AURA_IGNORE_SORTABLE);
@@ -39,12 +38,6 @@ function VUHDO_initAuraIgnoreComboModel()
 			tDisplayName = tName;
 		end
 
-		tSecrecy = VUHDO_getSpellAuraSecrecy(tName);
-
-		if tSecrecy >= 1 then
-			tDisplayName = "|cFFFF4444" .. tDisplayName .. "|r";
-		end
-
 		tinsert(VUHDO_AURA_IGNORE_COMBO_MODEL, { tName, tDisplayName });
 	end
 
@@ -67,11 +60,6 @@ function VUHDO_saveAuraIgnoreClicked(aButton)
 		tText = strtrim(tText);
 
 		if tText ~= "" then
-			if VUHDO_checkSpellSecrecy(tText) == 1 then
-
-				return;
-			end
-
 			tKey = tonumber(tText);
 
 			if tKey then
@@ -84,6 +72,8 @@ function VUHDO_saveAuraIgnoreClicked(aButton)
 			VUHDO_Msg(string.format(VUHDO_I18N_AURA_ADDED_TO_IGNORE_LIST, tDisplayName));
 
 			VUHDO_initAuraIgnoreComboModel();
+
+			VUHDO_invalidateAuraGroupFilterCache();
 
 			tCombo = _G[aButton:GetParent():GetName() .. "IgnoreComboBox"];
 
@@ -148,6 +138,8 @@ function VUHDO_deleteAuraIgnoreClicked(aButton)
 		end
 
 		VUHDO_initAuraIgnoreComboModel();
+
+		VUHDO_invalidateAuraGroupFilterCache();
 
 		tCombo = _G[aButton:GetParent():GetName() .. "IgnoreComboBox"];
 
@@ -275,6 +267,8 @@ function VUHDO_auraIgnoreImport(anEditBoxName)
 
 		VUHDO_AURA_IGNORE_LIST[tKey or tAuraIgnoreSpell] = true;
 	end
+
+	VUHDO_invalidateAuraGroupFilterCache();
 
 	VUHDO_Msg(VUHDO_I18N_AURA_IGNORE_IMPORTED);
 
