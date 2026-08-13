@@ -1,8 +1,8 @@
-## Interface: 120007, 120100
+## Interface: 120100
 ## Title: [神秘地瓜] 副本语音助手
-## Notes: 根据战斗时间轴播放自定义音频
+## Notes: 副本怪物技能语音播报插件，帮助新手快速熟悉副本机制。
 ## Author: 神秘地瓜
-## Version: 1.6.1
+## Version: 1.6.5
 ## SavedVariables: DiGuaTimelineAudioHelper
 
 ## Title-zhTW: |cffFF7F00[副本]|r 神秘地瓜副本語音助手
@@ -11,17 +11,24 @@
 ## IconTexture: Interface\Icons\inv_cooking_80_brownpotato
 ## DefaultState: disabled
 
+Utils.lua
 PlayerSpellCooldown.lua
 CoTankPrivateAuras.lua
-PrivateAura.lua
-EncounterEvents.lua
+NormalAuraSound.lua
 EncounterTimeline.lua
 Core.lua
+EncounterEvents.lua
 Countdown.lua
-SimpleCCAlert.lua
 EncounterWarning.lua
 BloodlustDetector.lua
 UNIT_SPELLCAST_START.lua
-UNIT_SPELLCAST_CHANNEL_START.lua
+UNIT_SPELLCAST_CHANNEL.lua
 UNIT_SPELLCAST_SUCCEEDED.lua
-UNIT_MODEL_CHANGED.lua
+ENCOUNTER_TIMELINE_EVENT.lua
+MythicPlusProgressTracker.lua
+INSTANCE_ENCOUNTER_ENGAGE_UNIT.lua
+FeastEmoteSound.lua
+NAME_PLATE_UNIT_ADDED.lua
+AutoGossip.lua
+BOSS_KILL.lua
+NAME_PLATE_UNIT_REMOVED.lua

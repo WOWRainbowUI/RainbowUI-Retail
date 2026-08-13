@@ -80,7 +80,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if freshInstanceType == "raid" then return end
                     
                     -- 【精准播报】只有当 当前副本ID 与 开启时的副本ID 完全一致时，才播放声音
-                    if savedInstanceID == freshInstanceID and C_ChallengeMode.GetActiveKeystoneInfo() >= 2 then
+                    if savedInstanceID == freshInstanceID and C_ChallengeMode.GetActiveKeystoneInfo() and C_ChallengeMode.GetActiveKeystoneInfo() >= 2 then
                         PlaySoundFile(MEDIA_PATH .. "ShiXueHaoLe.ogg", audioChannel)
                     end
                     
