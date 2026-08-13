@@ -108,7 +108,7 @@ local function GetAurasInitializerModern(container)
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})
     frame:SetIcon(frame.Icon)
     frame:SetDurationCooldown(frame.Cooldown)
-    frame:SetAuraBorder(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = 1})
+    frame:SetAuraBorder(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
 
     if container.details then
       StyleAura(frame, container.details)
@@ -260,7 +260,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
 
     if not self[kind].groupsCount or self[kind].groupsCount < #groups then
       for i = self[kind].groupsCount and self[kind].groupsCount + 1 or 1, #groups do
-        self[kind]:AddAuraGroup(tostring(i), "HELPFUL|HARMFUL", {initializeFrame = GetAurasInitializerModern(self[kind])})
+        self[kind]:AddAuraGroup(tostring(i), "", {initializeFrame = GetAurasInitializerModern(self[kind])})
       end
       self[kind].groupsCount = #groups
     end
@@ -273,8 +273,8 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
 
     for index, group in ipairs(groups) do
       local key = tostring(index)
-      self[kind]:SetAuraGroupLayout(key, {elementSpacingX = padding, elementSpacingY = padding})
       self[kind]:SetAuraGroupFilterString(key, group[1])
+      self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
       self[kind]:SetAuraGroupCandidateFilters(key, group[2])
       self[kind]:SetAuraGroupMaxFrameCount(key, details.limit)
     end
@@ -309,7 +309,7 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit, parent, auraDeta
     return
   end
 
-  self.buffs:SetEnabled(true)
+  self.buffs:SetEnabled(not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true}))
   self.debuffs:SetEnabled(true)
   self.crowdControl:SetEnabled(true)
 

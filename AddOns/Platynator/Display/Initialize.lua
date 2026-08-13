@@ -299,8 +299,9 @@ function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
   end
 
   local index = 1
-  self.styleTicker = C_Timer.NewTicker(0.1, function()
-    for i = index, index + 10 - 1 do
+  local step = 5
+  self.styleTicker = C_Timer.NewTicker(0, function()
+    for i = index, index + step - 1 do
       local display = self.preallocatedDisplays[i]
       local settings = assignments[display.kind]
       if settings then
@@ -311,11 +312,11 @@ function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
         end
       end
     end
-    index = index + 10
+    index = index + step
     if index > #self.preallocatedDisplays then
       self.styleTicker = nil
     end
-  end, #self.preallocatedDisplays / 10)
+  end, #self.preallocatedDisplays / step)
 end
 
 function addonTable.Display.ManagerMixin:CombatChangesCheck()
@@ -1044,10 +1045,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     end
     addonTable.Display.SetCVars()
 
-    -- Remove realm name from friendly plates in instances
-    if not addonTable.Constants.IsMidnightNext and addonTable.Constants.IsRetail then
-      addonTable.Utilities.PurgeKey(NamePlateFriendlyFrameOptions, "updateNameUsesGetUnitName")
-    end
+    addonTable.Utilities.PurgeKey(NamePlateFriendlyFrameOptions, "updateNameUsesGetUnitName")
 
     self:UpdateInstanceShowState()
     self:UpdateFriendlyFont()

@@ -686,7 +686,8 @@ do
         local playerUnit = "raid" .. i
         if not UnitIsUnit(playerUnit, "player") then
           local role = UnitGroupRolesAssigned(playerUnit)
-          knownTanksAndPetsMap[playerUnit] = role == "TANK" or nil
+          local isAssigned = GetPartyAssignment("MAINTANK", playerUnit) or GetPartyAssignment("MAINASSIST", playerUnit)
+          knownTanksAndPetsMap[playerUnit] = isAssigned or role == "TANK" or nil
           local petUnit = "raidpet" .. i
           knownTanksAndPetsMap[petUnit] = UnitExists(petUnit) or nil
         end
@@ -696,7 +697,8 @@ do
       for i = 1, 4 do
         local playerUnit = "party" .. i
         local role = UnitGroupRolesAssigned(playerUnit)
-        knownTanksAndPetsMap[playerUnit] = role == "TANK" or nil
+        local isAssigned = GetPartyAssignment("MAINTANK", playerUnit) or GetPartyAssignment("MAINASSIST", playerUnit)
+        knownTanksAndPetsMap[playerUnit] = isAssigned or role == "TANK" or nil
         local petUnit = "partypet" .. i
         knownTanksAndPetsMap[petUnit] = UnitExists(petUnit) or nil
       end
