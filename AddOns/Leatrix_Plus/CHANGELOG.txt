@@ -1,4 +1,9 @@
-﻿12.0.30 - 5th August 2026
+﻿12.1.00 - 12th August 2026
+- Updated for game patch 12.1.0.
+- The 'Show cooldowns' option ('Interface') and 'Manage control' option ('Frames') have been removed.  The latter is now included with Edit Mode.
+- Fixed various secrets issues.
+
+12.0.30 - 5th August 2026
 - PTR (12.1.0): More PTR updates.
 
 12.0.29 - 29th July 2026

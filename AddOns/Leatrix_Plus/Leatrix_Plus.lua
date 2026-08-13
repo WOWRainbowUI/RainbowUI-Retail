@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.30 (5th August 2026)
+-- 	Leatrix Plus 12.1.00 (12th August 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.30"
+	LeaPlusLC["AddonVer"] = "12.1.00"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -581,12 +581,10 @@
 		LeaPlusLC:LockOption("MinimapModder", "ModMinimapBtn", true)				-- Enhance minimap
 		LeaPlusLC:LockOption("TipModEnable", "MoveTooltipButton", true)				-- Enhance tooltip
 		LeaPlusLC:LockOption("EnhanceDressup", "EnhanceDressupBtn", true)			-- Enhance dressup
-		LeaPlusLC:LockOption("ShowCooldowns", "CooldownsButton", true)				-- Show cooldowns
 		LeaPlusLC:LockOption("ShowBorders", "ModBordersBtn", true)					-- Show borders
 		LeaPlusLC:LockOption("ShowPlayerChain", "ModPlayerChain", true)				-- Show player chain
 		LeaPlusLC:LockOption("ShowWowheadLinks", "ShowWowheadLinksBtn", true)		-- Show Wowhead links
 		LeaPlusLC:LockOption("ManageWidgetTop", "ManageWidgetTopButton", true)		-- Manage widget top
-		LeaPlusLC:LockOption("ManageControl", "ManageControlButton", true)			-- Manage control
 		LeaPlusLC:LockOption("ClassColFrames", "ClassColFramesBtn", true)			-- Class colored frames
 		LeaPlusLC:LockOption("SetWeatherDensity", "SetWeatherDensityBtn", false)	-- Set weather density
 		LeaPlusLC:LockOption("MuteGameSounds", "MuteGameSoundsBtn", false)			-- Mute game sounds
@@ -644,7 +642,6 @@
 		or	(LeaPlusLC["EnhanceDressup"]		~= LeaPlusDB["EnhanceDressup"])			-- Enhance dressup
 		or	(LeaPlusLC["DressupMoreZoomOut"]	~= LeaPlusDB["DressupMoreZoomOut"])		-- Enhance dressup increase zoom out distance
 		or	(LeaPlusLC["ShowVolume"]			~= LeaPlusDB["ShowVolume"])				-- Show volume slider
-		or	(LeaPlusLC["ShowCooldowns"]			~= LeaPlusDB["ShowCooldowns"])			-- Show cooldowns
 		or	(LeaPlusLC["DurabilityStatus"]		~= LeaPlusDB["DurabilityStatus"])		-- Show durability status
 		or	(LeaPlusLC["ShowPetSaveBtn"]		~= LeaPlusDB["ShowPetSaveBtn"])			-- Show pet save button
 		or	(LeaPlusLC["ShowRaidToggle"]		~= LeaPlusDB["ShowRaidToggle"])			-- Show raid button
@@ -656,7 +653,6 @@
 
 		-- Frames
 		or	(LeaPlusLC["ManageWidgetTop"]		~= LeaPlusDB["ManageWidgetTop"])		-- Manage widget top
-		or	(LeaPlusLC["ManageControl"]			~= LeaPlusDB["ManageControl"])			-- Manage control
 		or	(LeaPlusLC["ClassColFrames"]		~= LeaPlusDB["ClassColFrames"])			-- Class colored frames
 
 		or	(LeaPlusLC["NoAlerts"]				~= LeaPlusDB["NoAlerts"])				-- Hide alerts
@@ -4079,12 +4075,18 @@
 			-- Create color function for target and focus frames
 			local function TargetFrameCol()
 				if UnitIsPlayer("target") then
-					local c = LeaPlusLC["RaidColors"][select(2, UnitClass("target"))]
-					if c then TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+					local void, target = UnitClass("target")
+					if canaccessvalue(target) then
+						local c = LeaPlusLC["RaidColors"][target]
+						if c then TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+					end
 				end
 				if UnitIsPlayer("focus") then
-					local c = LeaPlusLC["RaidColors"][select(2, UnitClass("focus"))]
-					if c then FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+					local void, focus = UnitClass("focus")
+					if canaccessvalue(focus) then
+						local c = LeaPlusLC["RaidColors"][focus]
+						if c then FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+					end
 				end
 			end
 
@@ -6408,12 +6410,14 @@
 			fishEvent:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
 			fishEvent:SetScript("OnEvent", function(self, event, unit, void, spellID)
 				if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and canaccessvalue(spellID) and spellID == 131476 then -- Fishing
-					for i = 1, 40 do
-						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-						if BuffData then
-							local spellID = BuffData.spellId
-							if spellID and canaccessvalue(spellID) and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
-								CancelUnitBuff("player", i)
+					if not C_Secrets.ShouldAurasBeSecret() then
+						for i = 1, 40 do
+							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+							if BuffData then
+								local spellID = BuffData.spellId
+								if spellID and canaccessvalue(spellID) and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
@@ -6429,13 +6433,15 @@
 
 			-- Function to cancel buffs
 			local function eventFunc()
-				for i = 1, 40 do
-					local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-					if BuffData then
-						local spellID = BuffData.spellId
-						if spellID and canaccessvalue(spellID) and cTable[spellID] then
-							if not UnitAffectingCombat("player") then
-								CancelUnitBuff("player", i)
+				if not C_Secrets.ShouldAurasBeSecret() then
+					for i = 1, 40 do
+						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+						if BuffData then
+							local spellID = BuffData.spellId
+							if spellID and canaccessvalue(spellID) and cTable[spellID] then
+								if not UnitAffectingCombat("player") then
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
@@ -6459,16 +6465,17 @@
 				elseif event == "PLAYER_REGEN_ENABLED" then
 
 					-- Traverse buffs (will only run spell was found in cTable previously)
-					for i = 1, 40 do
-						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-						if BuffData then
-							local spellID = BuffData.spellId
-							if spellID and canaccessvalue(spellID) and cTable[spellID] then
-								CancelUnitBuff("player", i)
+					if not C_Secrets.ShouldAurasBeSecret() then
+						for i = 1, 40 do
+							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+							if BuffData then
+								local spellID = BuffData.spellId
+								if spellID and canaccessvalue(spellID) and cTable[spellID] then
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
-
 				end
 			end)
 
@@ -7759,180 +7766,6 @@
 		end
 
 		----------------------------------------------------------------------
-		-- L45: Manage control
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["ManageControl"] == "On" and not LeaLockList["ManageControl"] then
-
-			-- Allow control frame to be moved
-			LossOfControlFrame:SetMovable(true)
-			LossOfControlFrame:SetUserPlaced(true)
-			LossOfControlFrame:SetDontSavePosition(true)
-			LossOfControlFrame:SetClampedToScreen(true)
-
-			-- Set control frame position at startup
-			LossOfControlFrame:ClearAllPoints()
-			LossOfControlFrame:SetPoint(LeaPlusLC["ControlA"], UIParent, LeaPlusLC["ControlR"], LeaPlusLC["ControlX"], LeaPlusLC["ControlY"])
-			LossOfControlFrame:SetScale(LeaPlusLC["ControlScale"])
-
-			-- Create drag frame
-			local dragframe = CreateFrame("FRAME", nil, nil, "BackdropTemplate")
-			dragframe:SetBackdropColor(0.0, 0.5, 1.0)
-			dragframe:SetBackdrop({edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = false, tileSize = 0, edgeSize = 16, insets = { left = 0, right = 0, top = 0, bottom = 0}})
-			dragframe:SetToplevel(true)
-			dragframe:Hide()
-			dragframe:SetScale(LeaPlusLC["ControlScale"])
-			dragframe:SetFrameStrata("HIGH") -- Exception for LossOfControlFrame
-
-			dragframe.t = dragframe:CreateTexture()
-			dragframe.t:SetAllPoints()
-			dragframe.t:SetColorTexture(0.0, 1.0, 0.0, 0.5)
-			dragframe.t:SetAlpha(0.5)
-
-			dragframe.f = dragframe:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
-			dragframe.f:SetPoint('CENTER', 0, 0)
-			dragframe.f:SetText(L["Control"])
-
-			-- Click handler
-			dragframe:SetScript("OnMouseDown", function(self, btn)
-				-- Start dragging if left clicked
-				if btn == "LeftButton" then
-					LossOfControlFrame:StartMoving()
-				end
-			end)
-
-			dragframe:SetScript("OnMouseUp", function()
-				-- Save frame positions
-				LossOfControlFrame:StopMovingOrSizing()
-				LeaPlusLC["ControlA"], void, LeaPlusLC["ControlR"], LeaPlusLC["ControlX"], LeaPlusLC["ControlY"] = LossOfControlFrame:GetPoint()
-				LossOfControlFrame:SetMovable(true)
-				LossOfControlFrame:ClearAllPoints()
-				LossOfControlFrame:SetPoint(LeaPlusLC["ControlA"], UIParent, LeaPlusLC["ControlR"], LeaPlusLC["ControlX"], LeaPlusLC["ControlY"])
-			end)
-
-			-- Snap-to-grid
-			do
-				local frame, grid = dragframe, 10
-				local w, h = 230, 56
-				local xpos, ypos, scale, uiscale
-				frame:RegisterForDrag("RightButton")
-				frame:HookScript("OnDragStart", function()
-					frame:SetScript("OnUpdate", function()
-						scale, uiscale = frame:GetScale(), UIParent:GetScale()
-						xpos, ypos = GetCursorPosition()
-						xpos = floor((xpos / scale / uiscale) / grid) * grid - w / 2
-						ypos = ceil((ypos / scale / uiscale) / grid) * grid + h / 2
-						LossOfControlFrame:ClearAllPoints()
-						LossOfControlFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", xpos, ypos)
-					end)
-				end)
-				frame:HookScript("OnDragStop", function()
-					frame:SetScript("OnUpdate", nil)
-					frame:GetScript("OnMouseUp")()
-				end)
-			end
-
-			-- Create configuration panel
-			local ControlPanel = LeaPlusLC:CreatePanel("Manage control", "ControlPanel")
-			LeaPlusLC:MakeTx(ControlPanel, "Scale", 16, -72)
-			LeaPlusLC:MakeSL(ControlPanel, "ControlScale", "Drag to set the control frame scale.", 0.5, 2, 0.05, 16, -92, "%.2f")
-
-			-- Set scale when slider is changed
-			LeaPlusCB["ControlScale"]:HookScript("OnValueChanged", function()
-				LossOfControlFrame:SetScale(LeaPlusLC["ControlScale"])
-				dragframe:SetScale(LeaPlusLC["ControlScale"])
-				-- Show formatted slider value
-				LeaPlusCB["ControlScale"].f:SetFormattedText("%.0f%%", LeaPlusLC["ControlScale"] * 100)
-			end)
-
-			-- Hide frame alignment grid with panel
-			ControlPanel:HookScript("OnHide", function()
-				LeaPlusLC.grid:Hide()
-			end)
-
-			-- Toggle grid button
-			local ControlToggleGridButton = LeaPlusLC:CreateButton("ControlToggleGridButton", ControlPanel, "Toggle Grid", "TOPLEFT", 16, -72, 0, 25, true, "Click to toggle the frame alignment grid.")
-			LeaPlusCB["ControlToggleGridButton"]:ClearAllPoints()
-			LeaPlusCB["ControlToggleGridButton"]:SetPoint("LEFT", ControlPanel.h, "RIGHT", 10, 0)
-			LeaPlusCB["ControlToggleGridButton"]:SetScript("OnClick", function()
-				if LeaPlusLC.grid:IsShown() then LeaPlusLC.grid:Hide() else LeaPlusLC.grid:Show() end
-			end)
-			ControlPanel:HookScript("OnHide", function()
-				if LeaPlusLC.grid then LeaPlusLC.grid:Hide() end
-			end)
-
-			-- Help button tooltip
-			ControlPanel.h.tiptext = L["Drag the frame overlay with the left button to position it freely or with the right button to position it using snap-to-grid."]
-
-			-- Back button handler
-			ControlPanel.b:SetScript("OnClick", function()
-				ControlPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page6"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			ControlPanel.r:SetScript("OnClick", function()
-
-				-- Reset position and scale
-				LeaPlusLC["ControlA"] = "CENTER"
-				LeaPlusLC["ControlR"] = "CENTER"
-				LeaPlusLC["ControlX"] = 0
-				LeaPlusLC["ControlY"] = 0
-				LeaPlusLC["ControlScale"] = 1
-				LossOfControlFrame:ClearAllPoints()
-				LossOfControlFrame:SetPoint(LeaPlusLC["ControlA"], UIParent, LeaPlusLC["ControlR"], LeaPlusLC["ControlX"], LeaPlusLC["ControlY"])
-
-				-- Refresh configuration panel
-				ControlPanel:Hide(); ControlPanel:Show()
-				dragframe:Show()
-
-				-- Show frame alignment grid
-				LeaPlusLC.grid:Show()
-
-			end)
-
-			-- Show configuration panel when options panel button is clicked
-			LeaPlusCB["ManageControlButton"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaPlusLC["ControlA"] = "CENTER"
-					LeaPlusLC["ControlR"] = "CENTER"
-					LeaPlusLC["ControlX"] = 0
-					LeaPlusLC["ControlY"] = 0
-					LeaPlusLC["ControlScale"] = 1
-					LossOfControlFrame:ClearAllPoints()
-					LossOfControlFrame:SetPoint(LeaPlusLC["ControlA"], UIParent, LeaPlusLC["ControlR"], LeaPlusLC["ControlX"], LeaPlusLC["ControlY"])
-					LossOfControlFrame:SetScale(LeaPlusLC["ControlScale"])
-				else
-					-- Find out if the UI has a non-standard scale
-					if GetCVar("useuiscale") == "1" then
-						LeaPlusLC["gscale"] = GetCVar("uiscale")
-					else
-						LeaPlusLC["gscale"] = 1
-					end
-
-					-- Set drag frame size and position according to UI scale
-					dragframe:SetWidth(196 * LeaPlusLC["gscale"])
-					dragframe:SetHeight(76 * LeaPlusLC["gscale"])
-					dragframe:ClearAllPoints()
-					dragframe:SetPoint("CENTER", LossOfControlFrame, "CENTER", -2 * LeaPlusLC["gscale"], 0 * LeaPlusLC["gscale"])
-
-					-- Show configuration panel
-					ControlPanel:Show()
-					LeaPlusLC:HideFrames()
-					dragframe:Show()
-
-					-- Show frame alignment grid
-					LeaPlusLC.grid:Show()
-				end
-			end)
-
-			-- Hide drag frame when configuration panel is closed
-			ControlPanel:HookScript("OnHide", function() dragframe:Hide() end)
-
-		end
-
-		----------------------------------------------------------------------
 		-- Hide chat buttons
 		----------------------------------------------------------------------
 
@@ -8379,416 +8212,6 @@
 				AlertFrame:UnregisterEvent(event)
 			end)
 			AlertFrame:UnregisterAllEvents()
-		end
-
-		----------------------------------------------------------------------
-		-- Show cooldowns
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["ShowCooldowns"] == "On" and not LeaLockList["ShowCooldowns"] then
-
-			-- Create main table structure in saved variables if it doesn't exist
-			if LeaPlusDB["Cooldowns"] == nil then
-				LeaPlusDB["Cooldowns"] = {}
-			end
-
-			-- Create class tables if they don't exist
-			for index = 1, GetNumClasses() do
-				local classDisplayName, classTag, classID = GetClassInfo(index)
-				if LeaPlusDB["Cooldowns"][classTag] == nil then
-					LeaPlusDB["Cooldowns"][classTag] = {}
-				end
-			end
-
-			-- Get current class and spec
-			local PlayerClass = select(2, UnitClass("player"))
-			local activeSpec = C_SpecializationInfo.GetSpecialization() or 1
-
-			-- Create local tables to store cooldown frames and editboxes
-			local icon = {} -- Used to store cooldown frames
-			local SpellEB = {} -- Used to store editbox values
-			local iCount = 5 -- Number of cooldowns
-
-			-- Create cooldown frames
-			for i = 1, iCount do
-
-				-- Create cooldown frame
-				icon[i] = CreateFrame("Frame", nil, UIParent)
-				icon[i]:SetFrameStrata("MEDIUM")
-				icon[i]:SetWidth(21)
-				icon[i]:SetHeight(21)
-
-				-- Create cooldown icon
-				icon[i].c = CreateFrame("Cooldown", nil, icon[i], "CooldownFrameTemplate")
-				icon[i].c:SetAllPoints()
-				icon[i].c:SetReverse(true)
-
-				-- Create blank texture (will be assigned a cooldown texture later)
-				icon[i].t = icon[i]:CreateTexture(nil,"BACKGROUND")
-				icon[i].t:SetAllPoints()
-
-				-- Show icon above target frame and set initial scale
-				icon[i]:ClearAllPoints()
-				icon[i]:SetPoint("TOPLEFT", TargetFrame, "TOPLEFT", 6 + (22 * (i - 1)), 5)
-				icon[i]:SetScale(TargetFrame:GetScale())
-
-				-- Show tooltip
-				icon[i]:SetScript("OnEnter", function(self)
-					GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25)
-					local spellInfo = C_Spell.GetSpellInfo(LeaPlusCB["Spell" .. i]:GetText())
-					if spellInfo then
-						GameTooltip:SetText(C_Spell.GetSpellInfo(LeaPlusCB["Spell" .. i]:GetText()).name)
-					end
-				end)
-
-				-- Hide tooltip
-				icon[i]:SetScript("OnLeave", GameTooltip_Hide)
-
-			end
-
-			-- Change cooldown icon scale when player frame scale changes
-			PlayerFrame:HookScript("OnSizeChanged", function()
-				if LeaPlusLC["CooldownsOnPlayer"] == "On" then
-					for i = 1, iCount do
-						icon[i]:SetScale(PlayerFrame:GetScale())
-					end
-				end
-			end)
-
-			-- Change cooldown icon scale when target frame scale changes
-			TargetFrame:HookScript("OnSizeChanged", function()
-				if LeaPlusLC["CooldownsOnPlayer"] == "Off" then
-					for i = 1, iCount do
-						icon[i]:SetScale(TargetFrame:GetScale())
-					end
-				end
-			end)
-
-			-- Function to show cooldown textures in the cooldown frames (run when icons are loaded or changed)
-			local function ShowIcon(i, id, owner)
-
-				local void
-
-				-- Get spell information
-				if not id then return end
-				local spellInfo = C_Spell.GetSpellInfo(id)
-				if not spellInfo then
-					-- Spell does not exist so stop watching it
-					icon[i]:SetScript("OnEvent", nil)
-					icon[i]:Hide()
-					return
-				end
-				local spell = spellInfo.spellID
-				local path = spellInfo.iconID
-				if spell and path then
-
-					-- Set icon texture to the spell texture
-					icon[i].t:SetTexture(path)
-
-					-- Handle events
-					icon[i]:RegisterUnitEvent("UNIT_AURA", owner)
-					icon[i]:RegisterUnitEvent("UNIT_PET", "player")
-					icon[i]:SetScript("OnEvent", function(self, event, arg1, updatedAuras)
-
-						-- If pet was dismissed (or otherwise disappears such as when flying), hide pet cooldowns
-						if event == "UNIT_PET" then
-							if not UnitExists("pet") then
-								if LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] then
-									icon[i]:Hide()
-								end
-							end
-
-						-- Ensure cooldown belongs to the owner we are watching (player or pet)
-						elseif arg1 == owner then
-
-							-- Hide the cooldown frame (required for cooldowns to disappear after the duration)
-							icon[i]:Hide()
-
-							-- If buff matches cooldown we want, start the cooldown
-							AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
-								if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == id and aura.expirationTime and aura.duration then
-									icon[i]:Show()
-									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-								end
-							end, true)
-
-						end
-					end)
-
-				else
-
-					-- Spell does not exist so stop watching it
-					icon[i]:SetScript("OnEvent", nil)
-					icon[i]:Hide()
-
-				end
-
-			end
-
-			-- Create configuration panel
-			local CooldownPanel = LeaPlusLC:CreatePanel("Show cooldowns", "CooldownPanel")
-
-			-- Function to refresh the editbox tooltip with the spell name
-			local function RefSpellTip(self,elapsed)
-				local spellInfo = C_Spell.GetSpellInfo(self:GetText())
-				if not spellInfo then GameTooltip:Hide(); return end
-				local spellinfo = spellInfo.name
-				local icon = spellInfo.iconID
-				if spellinfo and spellinfo ~= "" and icon and icon ~= "" then
-					GameTooltip:SetOwner(self, "ANCHOR_NONE")
-					GameTooltip:ClearAllPoints()
-					GameTooltip:SetPoint("RIGHT", self, "LEFT", -10, 0)
-					GameTooltip:SetText("|T" .. icon .. ":0|t " .. spellinfo, nil, nil, nil, nil, true)
-				else
-					GameTooltip:Hide()
-				end
-			end
-
-			-- Function to create spell ID editboxes and pet checkboxes
-			local function MakeSpellEB(num, x, y, tab, shifttab)
-
-				-- Create editbox for spell ID
-                SpellEB[num] = LeaPlusLC:CreateEditBox("Spell" .. num, CooldownPanel, 80, 8, "TOPLEFT", x, y - 20, "Spell" .. tab, "Spell" .. shifttab)
-				SpellEB[num]:SetNumeric(true)
-
-				-- Set initial value (for current spec)
-				SpellEB[num]:SetText(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. num .. "Idn"] or "")
-
-				-- Refresh tooltip when mouse is hovering over the editbox
-				SpellEB[num]:SetScript("OnEnter", function()
-					SpellEB[num]:SetScript("OnUpdate", RefSpellTip)
-				end)
-				SpellEB[num]:SetScript("OnLeave", function()
-					SpellEB[num]:SetScript("OnUpdate", nil)
-					GameTooltip:Hide()
-				end)
-
-				-- Create checkbox for pet cooldown
-				LeaPlusLC:MakeCB(CooldownPanel, "Spell" .. num .."Pet", "", 472, y - 20, false, "")
-				LeaPlusCB["Spell" .. num .."Pet"]:SetHitRectInsets(0, 0, 0, 0)
-
-			end
-
-			-- Add titles
-			LeaPlusLC:MakeTx(CooldownPanel, "Spell ID", 384, -92)
-			LeaPlusLC:MakeTx(CooldownPanel, "Pet", 472, -92)
-
-			-- Add editboxes and checkboxes
-			MakeSpellEB(1, 386, -92, "2", "5")
-			MakeSpellEB(2, 386, -122, "3", "1")
-			MakeSpellEB(3, 386, -152, "4", "2")
-			MakeSpellEB(4, 386, -182, "5", "3")
-			MakeSpellEB(5, 386, -212, "1", "4")
-
-			-- Add checkboxes
-			local settingsButton = LeaPlusLC:MakeTx(CooldownPanel, "Settings", 16, -72)
-			LeaPlusLC:MakeCB(CooldownPanel, "ShowCooldownID", "Show the spell ID in buff icon tooltips", 16, -92, false, "If checked, spell IDs will be shown in buff icon tooltips located in the buff frame and under the target frame.");
-			LeaPlusLC:MakeCB(CooldownPanel, "NoCooldownDuration", "Hide cooldown duration numbers (if enabled)", 16, -112, false, "If checked, cooldown duration numbers will not be shown over the cooldowns.|n|nIf unchecked, cooldown duration numbers will be shown over the cooldowns if they are enabled in the game options panel ('ActionBars' menu).")
-			LeaPlusLC:MakeCB(CooldownPanel, "CooldownsOnPlayer", "Show cooldowns above the player frame", 16, -132, false, "If checked, cooldown icons will be shown above the player frame.|n|nIf unchecked, cooldown icons will be shown above the target frame.")
-
-			LeaPlusLC:CreateHelpButton("ShowCooldownsMidnightButton", CooldownPanel, settingsButton, "Note that during instanced combat encounters, cooldown icons will not show and any active timers will be reset.")
-
-			-- Function to save the panel control settings and refresh the cooldown icons
-			local function SavePanelControls()
-				for i = 1, iCount do
-
-					-- Refresh the cooldown texture
-					icon[i].c:SetCooldown(0,0)
-
-					-- Show icons above target or player frame
-					icon[i]:ClearAllPoints()
-					if LeaPlusLC["CooldownsOnPlayer"] == "On" then
-						icon[i]:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 90 + (24 * (i - 1)), -2)
-						icon[i]:SetScale(PlayerFrame:GetScale())
-					else
-						icon[i]:SetPoint("TOPLEFT", TargetFrame, "TOPLEFT", 25 + (24 * (i - 1)), -2)
-						icon[i]:SetScale(TargetFrame:GetScale())
-					end
-
-					-- Save control states to globals
-					LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Idn"] = SpellEB[i]:GetText()
-					LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] = LeaPlusCB["Spell" .. i .."Pet"]:GetChecked()
-
-					-- Set cooldowns
-					if LeaPlusCB["Spell" .. i .."Pet"]:GetChecked() then
-						ShowIcon(i, tonumber(SpellEB[i]:GetText()), "pet")
-					else
-						ShowIcon(i, tonumber(SpellEB[i]:GetText()), "player")
-					end
-
-					-- Show or hide cooldown duration
-					if LeaPlusLC["NoCooldownDuration"] == "On" then
-						icon[i].c:SetHideCountdownNumbers(true)
-					else
-						icon[i].c:SetHideCountdownNumbers(false)
-					end
-
-					-- Show or hide cooldown icons depending on current buffs
-					local newowner
-					local newspell = tonumber(SpellEB[i]:GetText())
-
-					if newspell then
-						if LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] then
-							newowner = "pet"
-						else
-							newowner = "player"
-						end
-						-- Hide cooldown icon
-						icon[i]:Hide()
-
-						-- If buff matches spell we want, show cooldown icon
-						AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
-							if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == newspell and aura.expirationTime and aura.duration then
-								icon[i]:Show()
-								CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-							end
-						end, true)
-
-					end
-
-				end
-
-			end
-
-			-- Update cooldown icons when checkboxes are clicked
-			LeaPlusCB["NoCooldownDuration"]:HookScript("OnClick", SavePanelControls)
-			LeaPlusCB["CooldownsOnPlayer"]:HookScript("OnClick", SavePanelControls)
-
-			-- Help button hidden
-			CooldownPanel.h:Hide()
-
-			-- Back button handler
-			CooldownPanel.b:SetScript("OnClick", function()
-				CooldownPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page5"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			CooldownPanel.r:SetScript("OnClick", function()
-				-- Reset the checkboxes
-				LeaPlusLC["ShowCooldownID"] = "On"
-				LeaPlusLC["NoCooldownDuration"] = "On"
-				LeaPlusLC["CooldownsOnPlayer"] = "Off"
-				for i = 1, iCount do
-					-- Reset the panel controls
-					SpellEB[i]:SetText("");
-					LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] = false
-					-- Hide cooldowns and clear scripts
-					icon[i]:Hide()
-					icon[i]:SetScript("OnEvent", nil)
-				end
-				CooldownPanel:Hide(); CooldownPanel:Show()
-			end)
-
-			-- Save settings when changed
-			for i = 1, iCount do
-				-- Set initial checkbox states
-				LeaPlusCB["Spell" .. i .."Pet"]:SetChecked(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"])
-				-- Set checkbox states when shown
-				LeaPlusCB["Spell" .. i .."Pet"]:SetScript("OnShow", function()
-					LeaPlusCB["Spell" .. i .."Pet"]:SetChecked(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"])
-				end)
-				-- Set states when changed
-				SpellEB[i]:SetScript("OnTextChanged", SavePanelControls)
-				LeaPlusCB["Spell" .. i .."Pet"]:SetScript("OnClick", SavePanelControls)
-			end
-
-			-- Show cooldowns on startup
-			SavePanelControls()
-
-			-- Show panel when configuration button is clicked
-			LeaPlusCB["CooldownsButton"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- No preset profile
-				else
-					-- Show panel
-					CooldownPanel:Show()
-					LeaPlusLC:HideFrames()
-				end
-			end)
-
-			-- Create spec tag banner fontstring
-			local specTagSpecID = C_SpecializationInfo.GetSpecialization()
-			local specTagSpecInfoID, specTagName = C_SpecializationInfo.GetSpecializationInfo(specTagSpecID)
-			local specTagBanner = CooldownPanel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-			specTagBanner:SetPoint("TOPLEFT", 384, -72)
-			specTagBanner:SetText(specTagName)
-
-			-- Add help button
-			LeaPlusLC:CreateHelpButton("ShowCooldownsHelpButton", CooldownPanel, specTagBanner, "Enter the spell IDs for the cooldown icons that you want to see.|n|nIf a cooldown icon normally appears under the pet frame, check the pet checkbox.|n|nCooldown icons are saved to your class and specialisation.")
-
-            -- Set controls when spec changes
-            local swapFrame = CreateFrame("FRAME")
-            swapFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-            swapFrame:SetScript("OnEvent", function()
-				-- Store new spec
-				activeSpec = C_SpecializationInfo.GetSpecialization()
-				-- Update controls for new spec
-				for i = 1, iCount do
-					SpellEB[i]:SetText(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Idn"] or "")
-					LeaPlusCB["Spell" .. i .. "Pet"]:SetChecked(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] or false)
-				end
-				-- Update spec tag banner with new spec
-				local specTagSpecInfoID, specTagName = C_SpecializationInfo.GetSpecializationInfo(activeSpec)
-				specTagBanner:SetText(specTagName)
-				-- Refresh configuration panel
-				if CooldownPanel:IsShown() then
-					CooldownPanel:Hide(); CooldownPanel:Show()
-				end
-				-- Save settings
-				SavePanelControls()
-            end)
-
-			-- Function to show spell ID in tooltips
-			local function CooldownIDFunc(unit, target, index, auratype)
-				if LeaPlusLC["ShowCooldownID"] == "On" and auratype ~= "HARMFUL" then
-					local AuraData = C_UnitAuras.GetAuraDataByIndex(target, index)
-					if AuraData then
-						local spellid = AuraData.spellId
-						if spellid then
-							GameTooltip:AddLine(L["Spell ID"] .. ": " .. spellid)
-							GameTooltip:Show()
-						end
-					end
-				end
-			end
-
-			-- Add spell ID to tooltip when buff frame buffs are hovered
-			hooksecurefunc(GameTooltip, 'SetUnitAura', CooldownIDFunc)
-
-			-- Add spell ID to tooltip when target frame buffs are hovered
-			hooksecurefunc(GameTooltip, 'SetUnitBuff', CooldownIDFunc)
-
-			-- Move player and target frame party leader icon
-			local void, playerParent = PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:GetPoint()
-			local void, targetParent = TargetFrame.TargetFrameContent.TargetFrameContentContextual.LeaderIcon:GetPoint()
-
-			local function SetPartyLeaderIcon()
-				if LeaPlusLC["CooldownsOnPlayer"] == "On" then
-					if LeaPlusLC["ShowPlayerChain"] == "On" then
-						PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:ClearAllPoints()
-						PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:SetPoint("TOPLEFT", playerParent, "TOPLEFT", 70, 0)
-					else
-						PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:ClearAllPoints()
-						PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:SetPoint("TOPLEFT", playerParent, "TOPLEFT", 70, -6)
-					end
-				else
-					PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:ClearAllPoints()
-					PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.LeaderIcon:SetPoint("TOPLEFT", playerParent, "TOPLEFT", 86, -10)
-				end
-
-				if LeaPlusLC["CooldownsOnPlayer"] == "On" then
-					TargetFrame.TargetFrameContent.TargetFrameContentContextual.LeaderIcon:ClearAllPoints()
-					TargetFrame.TargetFrameContent.TargetFrameContentContextual.LeaderIcon:SetPoint("TOPRIGHT", targetParent, "TOPRIGHT", -85, -8)
-				else
-					TargetFrame.TargetFrameContent.TargetFrameContentContextual.LeaderIcon:ClearAllPoints()
-					TargetFrame.TargetFrameContent.TargetFrameContentContextual.LeaderIcon:SetPoint("TOPRIGHT", targetParent, "TOPRIGHT", -70, -5)
-				end
-			end
-
-			LeaPlusCB["CooldownsOnPlayer"]:HookScript("OnClick", SetPartyLeaderIcon)
-			SetPartyLeaderIcon()
-
 		end
 
 		----------------------------------------------------------------------
@@ -10921,10 +10344,6 @@
 				LeaPlusLC:LoadVarChk("ShowVolume", "Off")					-- Show volume slider
 				LeaPlusLC:LoadVarChk("ShowVolumeInFrame", "Off")			-- Volume slider dual layout
 
-				LeaPlusLC:LoadVarChk("ShowCooldowns", "Off")				-- Show cooldowns
-				LeaPlusLC:LoadVarChk("ShowCooldownID", "On")				-- Show cooldown ID in tips
-				LeaPlusLC:LoadVarChk("NoCooldownDuration", "On")			-- Hide cooldown duration
-				LeaPlusLC:LoadVarChk("CooldownsOnPlayer", "Off")			-- Anchor to player
 				LeaPlusLC:LoadVarChk("DurabilityStatus", "On")				-- Show durability status
 				LeaPlusLC:LoadVarChk("ShowPetSaveBtn", "Off")				-- Show pet save button
 				LeaPlusLC:LoadVarChk("ShowRaidToggle", "Off")				-- Show raid button
@@ -10948,13 +10367,6 @@
 				LeaPlusLC:LoadVarNum("WidgetTopX", 0, -5000, 5000)			-- Manage widget top position X
 				LeaPlusLC:LoadVarNum("WidgetTopY", -15, -5000, 5000)		-- Manage widget top position Y
 				LeaPlusLC:LoadVarNum("WidgetTopScale", 1, 0.5, 2)			-- Manage widget top scale
-
-				LeaPlusLC:LoadVarChk("ManageControl", "Off")				-- Manage control
-				LeaPlusLC:LoadVarAnc("ControlA", "CENTER")					-- Manage control anchor
-				LeaPlusLC:LoadVarAnc("ControlR", "CENTER")					-- Manage control relative
-				LeaPlusLC:LoadVarNum("ControlX", 0, -5000, 5000)			-- Manage control position X
-				LeaPlusLC:LoadVarNum("ControlY", 0, -5000, 5000)			-- Manage control position Y
-				LeaPlusLC:LoadVarNum("ControlScale", 1, 0.5, 2)				-- Manage control scale
 
 				LeaPlusLC:LoadVarChk("ClassColFrames", "Off")				-- Class colored frames
 				LeaPlusLC:LoadVarChk("ClassColPlayer", "On")				-- Class colored player frame
@@ -11116,7 +10528,6 @@
 							-- Base
 							do
 								Lock("ManageWidgetTop", reason) -- Manage widget top
-								Lock("ManageControl", reason) -- Manage control
 							end
 
 						end
@@ -11138,8 +10549,7 @@
 
 				if LeaPlusLC.NewPatch then
 					-- Disable bag automation (enter Stockade, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen)
-					LockDF("ManageControl", "You can manage this with Edit Mode now.")
-					LockDF("ShowCooldowns", "Not available.")
+					-- LockDF("ManageControl", "You can manage this with Edit Mode now.")
 				end
 
 				-- Run other startup items
@@ -11278,10 +10688,6 @@
 			LeaPlusDB["ShowVolume"] 			= LeaPlusLC["ShowVolume"]
 			LeaPlusDB["ShowVolumeInFrame"] 		= LeaPlusLC["ShowVolumeInFrame"]
 
-			LeaPlusDB["ShowCooldowns"]			= LeaPlusLC["ShowCooldowns"]
-			LeaPlusDB["ShowCooldownID"]			= LeaPlusLC["ShowCooldownID"]
-			LeaPlusDB["NoCooldownDuration"]		= LeaPlusLC["NoCooldownDuration"]
-			LeaPlusDB["CooldownsOnPlayer"]		= LeaPlusLC["CooldownsOnPlayer"]
 			LeaPlusDB["DurabilityStatus"]		= LeaPlusLC["DurabilityStatus"]
 			LeaPlusDB["ShowPetSaveBtn"]			= LeaPlusLC["ShowPetSaveBtn"]
 			LeaPlusDB["ShowRaidToggle"]			= LeaPlusLC["ShowRaidToggle"]
@@ -11305,13 +10711,6 @@
 			LeaPlusDB["WidgetTopX"]				= LeaPlusLC["WidgetTopX"]
 			LeaPlusDB["WidgetTopY"]				= LeaPlusLC["WidgetTopY"]
 			LeaPlusDB["WidgetTopScale"]			= LeaPlusLC["WidgetTopScale"]
-
-			LeaPlusDB["ManageControl"]			= LeaPlusLC["ManageControl"]
-			LeaPlusDB["ControlA"]				= LeaPlusLC["ControlA"]
-			LeaPlusDB["ControlR"]				= LeaPlusLC["ControlR"]
-			LeaPlusDB["ControlX"]				= LeaPlusLC["ControlX"]
-			LeaPlusDB["ControlY"]				= LeaPlusLC["ControlY"]
-			LeaPlusDB["ControlScale"]			= LeaPlusLC["ControlScale"]
 
 			LeaPlusDB["ClassColFrames"]			= LeaPlusLC["ClassColFrames"]
 			LeaPlusDB["ClassColPlayer"]			= LeaPlusLC["ClassColPlayer"]
@@ -13057,7 +12456,7 @@
 				-- Help panel
 				if not LeaPlusLC.HelpFrame then
 					local frame = CreateFrame("FRAME", nil, UIParent)
-					frame:SetSize(570, 380); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
+					frame:SetSize(570, 360); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
 					frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); frame.tex:SetColorTexture(0.05, 0.05, 0.05, 0.9)
 					frame.close = LeaPlusLC:CreateCloseButton(frame, 30, 30, "TOPRIGHT", 0, 0)
 					frame.close:SetScript("OnClick", function() frame:Hide() end)
@@ -13070,7 +12469,7 @@
 					frame:SetScript("OnDragStart", frame.StartMoving)
 					frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() frame:SetUserPlaced(false) end)
 					frame:Hide()
-					LeaPlusLC:CreateBar("HelpPanelMainTexture", frame, 570, 380, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+					LeaPlusLC:CreateBar("HelpPanelMainTexture", frame, 570, 360, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
 					-- Panel contents
 					local col1, col2, color1 = 10, 120, "|cffffffaa"
 					LeaPlusLC:MakeTx(frame, "Leatrix Plus Help", col1, -10)
@@ -13102,12 +12501,10 @@
 					LeaPlusLC:MakeWD(frame, "Toggle the Enigmatic quest solver.", col2, -270)
 					LeaPlusLC:MakeWD(frame, color1 .. "/ltp rsnd", col1, -290)
 					LeaPlusLC:MakeWD(frame, "Restart the sound system.", col2, -290)
-					LeaPlusLC:MakeWD(frame, color1 .. "/ltp ra", col1, -310)
-					LeaPlusLC:MakeWD(frame, "Announce target in General chat channel (useful for rares).", col2, -310)
-					LeaPlusLC:MakeWD(frame, color1 .. "/ltp con", col1, -330)
-					LeaPlusLC:MakeWD(frame, "Launch the developer console with a large font.", col2, -330)
-					LeaPlusLC:MakeWD(frame, color1 .. "/rl", col1, -350)
-					LeaPlusLC:MakeWD(frame, "Reload the UI.", col2, -350)
+					LeaPlusLC:MakeWD(frame, color1 .. "/ltp con", col1, -310)
+					LeaPlusLC:MakeWD(frame, "Launch the developer console with a large font.", col2, -310)
+					LeaPlusLC:MakeWD(frame, color1 .. "/rl", col1, -330)
+					LeaPlusLC:MakeWD(frame, "Reload the UI.", col2, -330)
 					LeaPlusLC.HelpFrame = frame
 					_G["LeaPlusGlobalHelpPanel"] = frame
 					table.insert(UISpecialFrames, "LeaPlusGlobalHelpPanel")
@@ -13122,69 +12519,6 @@
 					local p = C_FriendList.GetWhoInfo(i)
 					if not string.find(p.fullName, "-") then
 						print("https://worldofwarcraft.com/en-gb/character/eu/" .. realmName .. "/" .. p.fullName .. "/collections/pets")
-					end
-				end
-				return
-			elseif str == "ra" then
-				-- Announce target name, health percentage, coordinates and map pin link in General chat channel
-				local genChannel
-				if GameLocale == "deDE" 	then genChannel = "Allgemein"
-				elseif GameLocale == "esMX" then genChannel = "General"
-				elseif GameLocale == "esES" then genChannel = "General"
-				elseif GameLocale == "frFR" then genChannel = "Général"
-				elseif GameLocale == "itIT" then genChannel = "Generale"
-				elseif GameLocale == "ptBR" then genChannel = "Geral"
-				elseif GameLocale == "ruRU" then genChannel = "Общий"
-				elseif GameLocale == "koKR" then genChannel = "공개"
-				elseif GameLocale == "zhCN" then genChannel = "综合"
-				elseif GameLocale == "zhTW" then genChannel = "綜合"
-				else							 genChannel = "General"
-				end
-				if genChannel then
-					local index = GetChannelName(genChannel)
-					if index and index > 0 then
-						local mapID = C_Map.GetBestMapForUnit("player")
-						if C_Map.CanSetUserWaypointOnMap(mapID) then
-							local pos = C_Map.GetPlayerMapPosition(mapID, "player")
-							if pos.x and pos.x ~= "0" and pos.y and pos.y ~= "0" then
-								local mapPoint = UiMapPoint.CreateFromVector2D(mapID, pos)
-								if mapPoint then
-									-- Store original pin if there is one
-									local currentPin = C_Map.GetUserWaypointHyperlink()
-									-- Set map pin and get the link
-									C_Map.SetUserWaypoint(mapPoint)
-									local myPin = C_Map.GetUserWaypointHyperlink()
-									-- Put original pin back if there was one
-									if currentPin then
-										C_Timer.After(0.1, function()
-											local oldPin = C_Map.GetUserWaypointFromHyperlink(currentPin)
-											C_Map.SetUserWaypoint(oldPin)
-										end)
-									end
-									-- Announce in chat
-									if myPin then
-										-- Get unit classification (elite, rare, rare elite or boss)
-										local unitType, unitTag = UnitClassification("target"), ""
-										if unitType then
-											if unitType == "rare" or unitType == "rareelite" then unitTag = "(" .. L["Rare"] .. ") " elseif unitType == "worldboss" then unitTag = "(" .. L["Boss"] .. ") " end
-										end
-										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "CHANNEL", nil, index)
---										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
-										C_Map.ClearUserWaypoint()
-									else
-										LeaPlusLC:Print("Invalid target.")
-									end
-								else
-									LeaPlusLC:Print("Cannot announce in this zone.")
-								end
-							else
-								LeaPlusLC:Print("Cannot announce in this zone.")
-							end
-						else
-							LeaPlusLC:Print("Cannot announce in this zone.")
-						end
-					else
-						LeaPlusLC:Print("Cannot find General chat channel.")
 					end
 				end
 				return
@@ -13661,37 +12995,39 @@
 				end
 				-- Myza's Oasis
 				local target
-				for i = 1, 40 do
-					local DebuffData = C_UnitAuras.GetDebuffDataByIndex("player", i)
-					if DebuffData then
-						local spellID = DebuffData.spellId
-						if spellID then
-							if spellID == 352125 or spellID == 358911 or spellID == 358912 then
-								target = "Xy'ghana"
-							elseif spellID == 352127 or spellID == 358905 or spellID == 358906 then
-								target = "Xy'aqida"
-							elseif spellID == 352128 or spellID == 358907 or spellID == 358908 then
-								target = "Xy'tadir"
-							elseif spellID == 352129 or spellID == 358915 or spellID == 358916 then
-								target = "Xy'nara"
-							elseif spellID == 352130 or spellID == 358900 or spellID == 358901 then
-								target = "Xy'mal"
-							elseif spellID == 352131 or spellID == 358917 or spellID == 358918 then
-								target = "Xy'jahid"
-							elseif spellID == 352132 or spellID == 358903 or spellID == 358904 then
-								target = "Xy'kitaab"
-							elseif spellID == 352133 or spellID == 358913 or spellID == 358914 then
-								target = "Xy'har"
-							elseif spellID == 352134 or spellID == 358909 or spellID == 358910 then
-								target = "Xy'zaro"
-							-- elseif spellID == 15007 then target = "Ghost" -- Resurrection sickness (debug)
+				if not C_Secrets.ShouldAurasBeSecret() then
+					for i = 1, 40 do
+						local DebuffData = C_UnitAuras.GetDebuffDataByIndex("player", i)
+						if DebuffData then
+							local spellID = DebuffData.spellId
+							if spellID then
+								if spellID == 352125 or spellID == 358911 or spellID == 358912 then
+									target = "Xy'ghana"
+								elseif spellID == 352127 or spellID == 358905 or spellID == 358906 then
+									target = "Xy'aqida"
+								elseif spellID == 352128 or spellID == 358907 or spellID == 358908 then
+									target = "Xy'tadir"
+								elseif spellID == 352129 or spellID == 358915 or spellID == 358916 then
+									target = "Xy'nara"
+								elseif spellID == 352130 or spellID == 358900 or spellID == 358901 then
+									target = "Xy'mal"
+								elseif spellID == 352131 or spellID == 358917 or spellID == 358918 then
+									target = "Xy'jahid"
+								elseif spellID == 352132 or spellID == 358903 or spellID == 358904 then
+									target = "Xy'kitaab"
+								elseif spellID == 352133 or spellID == 358913 or spellID == 358914 then
+									target = "Xy'har"
+								elseif spellID == 352134 or spellID == 358909 or spellID == 358910 then
+									target = "Xy'zaro"
+								-- elseif spellID == 15007 then target = "Ghost" -- Resurrection sickness (debug)
+								end
 							end
 						end
 					end
-				end
-				if target and target ~= "" then
-					LeaPlusLC:ShowSystemEditBox("/tar" .. " " .. target, true)
-					LeaPlusLC.FactoryEditBox.f:SetText(L["Myza's Oasis"] .. ": " .. target)
+					if target and target ~= "" then
+						LeaPlusLC:ShowSystemEditBox("/tar" .. " " .. target, true)
+						LeaPlusLC.FactoryEditBox.f:SetText(L["Myza's Oasis"] .. ": " .. target)
+					end
 				end
 				return
 			elseif str == "mem" or str == "m" then
@@ -13768,7 +13104,7 @@
 				return
 			elseif str == "talents" or str == "tal" then
 				-- Ensure the talents window is loaded
-				if not ClassTalentFrame then
+				if not PlayerSpellsFrame then
 					LeaPlusLC:Print("Open the talents window first.")
 					return
 				end
@@ -13795,23 +13131,23 @@
 					end
 				end
 				-- Create a new loadout called Mine
-				local headerValid, serializationVersion, specID, treeHash = ClassTalentFrame.TalentsTab:ReadLoadoutHeader(importStream)
+				local headerValid, serializationVersion, specID, treeHash = PlayerSpellsFrame.TalentsFrame:ReadLoadoutHeader(importStream)
 
-				local treeInfo = ClassTalentFrame.TalentsTab:GetTreeInfo()
-				local configID = ClassTalentFrame.TalentsTab:GetConfigID()
+				local treeInfo = PlayerSpellsFrame.TalentsFrame:GetTreeInfo()
+				local configID = PlayerSpellsFrame.TalentsFrame:GetConfigID()
 
-				local loadoutContent = ClassTalentFrame.TalentsTab:ReadLoadoutContent(importStream, treeInfo.ID)
-				local loadoutEntryInfo = ClassTalentFrame.TalentsTab:ConvertToImportLoadoutEntryInfo(configID, treeInfo.ID, loadoutContent)
+				local loadoutContent = PlayerSpellsFrame.TalentsFrame:ReadLoadoutContent(importStream, treeInfo.ID)
+				local loadoutEntryInfo = PlayerSpellsFrame.TalentsFrame:ConvertToImportLoadoutEntryInfo(configID, treeInfo.ID, loadoutContent)
 
 				local newConfigHasPurchasedRanks = #loadoutEntryInfo > 0
 				local configInfo = C_Traits.GetConfigInfo(configID)
 				local success, errorString = C_ClassTalents.ImportLoadout(configID, loadoutEntryInfo, "Mine")
-				ClassTalentFrame.TalentsTab:OnTraitConfigCreateStarted(newConfigHasPurchasedRanks)
+				PlayerSpellsFrame.TalentsFrame:OnTraitConfigCreateStarted(newConfigHasPurchasedRanks)
 				-- Add reload button
 				if not LeaPlusLC.TalentsReloadButton then
-					local reloadButton = LeaPlusLC:CreateButton("TalentsReloadButton", ClassTalentFrame.TalentsTab, ">>> RELOAD <<<", "BOTTOM", 0, 10, 200, 45, true, "")
+					local reloadButton = LeaPlusLC:CreateButton("TalentsReloadButton", PlayerSpellsFrame.TalentsFrame, ">>> RELOAD <<<", "BOTTOM", 0, 10, 200, 45, true, "")
 					reloadButton:ClearAllPoints()
-					reloadButton:SetPoint("LEFT", ClassTalentFrame.TalentsTab.ResetButton, "RIGHT", 60, -4)
+					reloadButton:SetPoint("LEFT", PlayerSpellsFrame.TalentsFrame.ResetButton, "RIGHT", 60, -4)
 					reloadButton:SetScript("OnClick", ReloadUI)
 					reloadButton:Hide(); reloadButton:Show()
 					LeaPlusLC.TalentsReloadButton = reloadButton
@@ -13996,7 +13332,6 @@
 				LeaPlusDB["DressupTransmogAnim"] = "Off"		-- Enhance dressup transmogrify animation control
 				LeaPlusDB["DressupFasterZoom"] = 3				-- Dressup zoom speed
 				LeaPlusDB["ShowVolume"] = "On"					-- Show volume slider
-				LeaPlusDB["ShowCooldowns"] = "On"				-- Show cooldowns
 				LeaPlusDB["DurabilityStatus"] = "On"			-- Show durability status
 				LeaPlusDB["ShowPetSaveBtn"] = "On"				-- Show pet save button
 				LeaPlusDB["ShowRaidToggle"] = "On"				-- Show raid toggle button
@@ -14015,13 +13350,6 @@
 				LeaPlusDB["WidgetTopX"] = 0						-- Manage widget top position X
 				LeaPlusDB["WidgetTopY"] = -432					-- Manage widget top position Y
 				LeaPlusDB["WidgetTopScale"] = 1.25				-- Manage widget top scale
-
-				LeaPlusDB["ManageControl"] = "On"				-- Manage control
-				LeaPlusDB["ControlA"] = "CENTER"				-- Manage control anchor
-				LeaPlusDB["ControlR"] = "CENTER"				-- Manage control relative
-				LeaPlusDB["ControlX"] = 0						-- Manage control position X
-				LeaPlusDB["ControlY"] = 0						-- Manage control position Y
-				LeaPlusDB["ControlScale"] = 1.00				-- Manage control scale
 
 				LeaPlusDB["ClassColFrames"] = "On"				-- Class colored frames
 
@@ -14420,20 +13748,18 @@
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Extras"					, 	340, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowVolume"				, 	"Show volume slider"			, 	340, -92, 	true,	"If checked, a master volume slider will be shown in the character frame.|n|nThe volume slider can be placed in either of two locations in the character frame.  To toggle between them, hold the shift key down and right-click the slider.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowCooldowns"				, 	"Show cooldowns"				, 	340, -112, 	true,	"If checked, you will be able to place up to five beneficial cooldown icons above the target frame.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "DurabilityStatus"			, 	"Show durability status"		, 	340, -132, 	true,	"If checked, a button will be added to the character frame which will show your equipped item durability when you hover the pointer over it.|n|nIn addition, an overall percentage will be shown in the chat frame when you die.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowPetSaveBtn"			, 	"Show pet save button"			, 	340, -152, 	true,	"If checked, you will be able to save your current battle pet team (including abilities) to a single command.|n|nA button will be added to the Pet Journal.  Clicking the button will toggle showing the assignment command for your current team.  Pressing CTRL/C will copy the command to memory.|n|nYou can then paste the command (with CTRL/V) into the chat window or a macro to instantly assign your team.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowRaidToggle"			, 	"Show raid button"				,	340, -172, 	true,	"If checked, the button to toggle the raid container frame will be shown just above the raid management frame (left side of the screen) instead of in the raid management frame itself.|n|nThis allows you to toggle the raid container frame without needing to open the raid management frame.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowTrainAllButton"		, 	"Show train all button"			,	340, -192, 	true,	"If checked, a button will be added to the skill trainer frame which will allow you to train all available skills instantly.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowBorders"				,	"Show borders"					,	340, -212, 	true,	"If checked, you will be able to show customisable borders around the edges of the screen.|n|nThe borders are placed on top of the game world but under the UI so you can place UI elements over them.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowPlayerChain"			, 	"Show player chain"				,	340, -232, 	true,	"If checked, you will be able to show a rare, elite or rare elite chain around the player frame.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowReadyTimer"			, 	"Show ready timer"				,	340, -252, 	true,	"If checked, a timer will be shown under the dungeon ready frame and the PvP encounter ready frame so that you know how long you have left to click the enter button.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowWowheadLinks"			, 	"Show Wowhead links"			, 	340, -272, 	true,	"If checked, Wowhead links will be shown in the world map frame and the achievements frame.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "DurabilityStatus"			, 	"Show durability status"		, 	340, -112, 	true,	"If checked, a button will be added to the character frame which will show your equipped item durability when you hover the pointer over it.|n|nIn addition, an overall percentage will be shown in the chat frame when you die.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowPetSaveBtn"			, 	"Show pet save button"			, 	340, -132, 	true,	"If checked, you will be able to save your current battle pet team (including abilities) to a single command.|n|nA button will be added to the Pet Journal.  Clicking the button will toggle showing the assignment command for your current team.  Pressing CTRL/C will copy the command to memory.|n|nYou can then paste the command (with CTRL/V) into the chat window or a macro to instantly assign your team.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowRaidToggle"			, 	"Show raid button"				,	340, -152, 	true,	"If checked, the button to toggle the raid container frame will be shown just above the raid management frame (left side of the screen) instead of in the raid management frame itself.|n|nThis allows you to toggle the raid container frame without needing to open the raid management frame.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowTrainAllButton"		, 	"Show train all button"			,	340, -172, 	true,	"If checked, a button will be added to the skill trainer frame which will allow you to train all available skills instantly.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowBorders"				,	"Show borders"					,	340, -192, 	true,	"If checked, you will be able to show customisable borders around the edges of the screen.|n|nThe borders are placed on top of the game world but under the UI so you can place UI elements over them.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowPlayerChain"			, 	"Show player chain"				,	340, -212, 	true,	"If checked, you will be able to show a rare, elite or rare elite chain around the player frame.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowReadyTimer"			, 	"Show ready timer"				,	340, -232, 	true,	"If checked, a timer will be shown under the dungeon ready frame and the PvP encounter ready frame so that you know how long you have left to click the enter button.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowWowheadLinks"			, 	"Show Wowhead links"			, 	340, -252, 	true,	"If checked, Wowhead links will be shown in the world map frame and the achievements frame.")
 
 	LeaPlusLC:CfgBtn("ModMinimapBtn", LeaPlusCB["MinimapModder"])
 	LeaPlusLC:CfgBtn("MoveTooltipButton", LeaPlusCB["TipModEnable"])
 	LeaPlusLC:CfgBtn("EnhanceDressupBtn", LeaPlusCB["EnhanceDressup"])
-	LeaPlusLC:CfgBtn("CooldownsButton", LeaPlusCB["ShowCooldowns"])
 	LeaPlusLC:CfgBtn("ModBordersBtn", LeaPlusCB["ShowBorders"])
 	LeaPlusLC:CfgBtn("ModPlayerChain", LeaPlusCB["ShowPlayerChain"])
 	LeaPlusLC:CfgBtn("ShowWowheadLinksBtn", LeaPlusCB["ShowWowheadLinks"])
@@ -14446,8 +13772,7 @@
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Features"					, 	146, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ManageWidgetTop"			,	"Manage widget top"				, 	146, -92, 	true,	"If checked, you will be able to change the position and scale of the widget top frame.|n|nThe widget top frame is commonly used for showing PvP scores and tracking objectives.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ManageControl"				,	"Manage control"				, 	146, -112, 	true,	"If checked, you will be able to change the position and scale of the loss of control frame.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ClassColFrames"			, 	"Class colored frames"			,	146, -132, 	true,	"If checked, class coloring will be used in the player frame, target frame and focus frame.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ClassColFrames"			, 	"Class colored frames"			,	146, -112, 	true,	"If checked, class coloring will be used in the player frame, target frame and focus frame.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Visibility"				, 	340, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoAlerts"					,	"Hide alerts"					, 	340, -92, 	true,	"If checked, alert frames will not be shown.|n|nAlert frames are toast frames used for things like achievement earned, loot won, new recipe learned, new mount collected, etc.")
@@ -14460,7 +13785,6 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoRestedSleep"				,	"Hide rested sleep"				, 	340, -232, 	true,	"If checked, the player frame rested sleep animation will not be shown.")
 
 	LeaPlusLC:CfgBtn("ManageWidgetTopButton", LeaPlusCB["ManageWidgetTop"])
-	LeaPlusLC:CfgBtn("ManageControlButton", LeaPlusCB["ManageControl"])
 	LeaPlusLC:CfgBtn("ClassColFramesBtn", LeaPlusCB["ClassColFrames"])
 
 ----------------------------------------------------------------------
