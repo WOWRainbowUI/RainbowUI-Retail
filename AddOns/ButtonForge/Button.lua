@@ -40,6 +40,10 @@ local CustomAction = BFCustomAction;
 local KeyBinder = BFKeyBinder;
 Button.__index = Button;
 
+local MacroConsts = _G.Constants and _G.Constants.MacroConsts;
+local MAX_ACCOUNT_MACROS = MacroConsts and MacroConsts.MAX_ACCOUNT_MACROS
+	or _G.MAX_ACCOUNT_MACROS or Const.MAX_ACCOUNT_MACROS;
+
 local IsUsableSpell = IsUsableSpell;
 local checkForVisibleButton = false;	-- Used with C_AssistedCombat.GetNextCastSpell() should always be false for ButtonForge usage
 local SecureClickWrapperFrame = CreateFrame("FRAME", nil, nil, "SecureHandlerBaseTemplate");
