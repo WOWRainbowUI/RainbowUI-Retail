@@ -3,4 +3,5 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/refs/heads/live/Interface/
     <Script file="enUS.lua"/>
     <Script file="zhTW.lua"/>
     <Script file="zhCN.lua"/>
+    <Script file="loadLocale.lua"/>
 </Ui>
