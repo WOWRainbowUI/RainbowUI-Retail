@@ -747,7 +747,7 @@ function CalReminder:ReloadData()
 		end
 
 		if ( not C_AddOns.IsAddOnLoaded("Blizzard_Calendar") ) then
-			UIParentLoadAddOn("Blizzard_Calendar")
+			LoadAddOnWithErrorHandling("Blizzard_Calendar")
 		end
 		if ( Calendar_Toggle ) then
 			Calendar_Toggle()
@@ -799,7 +799,7 @@ end
 
 function CalReminderShowCalendar(monthOffset, day, id)
 	if ( not C_AddOns.IsAddOnLoaded("Blizzard_Calendar") ) then
-		UIParentLoadAddOn("Blizzard_Calendar")
+		LoadAddOnWithErrorHandling("Blizzard_Calendar")
 	end
 	if ( Calendar_Toggle ) then
 		if CalReminderOptionsData.soundHandler.soundHandle then

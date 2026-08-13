@@ -1,3 +1,8 @@
+- v1.4.13
+	- TOC for 12.1.0.
+	- Deprecated function replaced: UIParentLoadAddOn.
+- v1.4.12
+	- Secret values management.
 - v1.4.11
 	- Secret values management.
 - v1.4.10
