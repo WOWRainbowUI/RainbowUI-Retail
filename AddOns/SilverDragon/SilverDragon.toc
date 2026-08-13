@@ -1,10 +1,10 @@
-## Interface: 120100, 120007, 50504, 30405, 20506, 11508
+## Interface: 120007, 50504, 30405, 20506, 11508
 ## Title: SilverDragon
 ## Notes: Remember where rares were
 ## Title-zhTW: SilverDragon
 ## Notes-zhTW: 協助記錄稀有怪位置,以及MouseOver時提示你.
 ## Notes-zhCN: 记录稀有怪物位置。
-## Version: v2026.25
+## Version: v2026.22
 ## Author: Kemayo
 ## eMail: kemayo at gmail dot com
 ## IconTexture: Interface\Icons\INV_Misc_Head_Dragon_01
@@ -40,18 +40,14 @@ core.lua
 # systems
 systems\_scaffolding.lua
 systems\class.lua
-systems\formatting.lua
 systems\conditions.lua
 systems\rewards\base.lua
 systems\rewards\item.lua
-systems\rewards\upgradeloot.lua
-systems\notable.lua
 systems\_glue.lua
 
 shards.lua
 achievements.lua
 loot.lua
-notable.lua
 slash.lua
 config.lua
 util.lua
@@ -76,7 +72,6 @@ targets\config.lua
 targets\looks\looks.xml
 
 mobs.lua
-Browser\module.xml
 
 # working with other addons
 integration\tomtom.lua

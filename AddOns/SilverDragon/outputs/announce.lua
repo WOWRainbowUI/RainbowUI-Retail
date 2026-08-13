@@ -82,20 +82,20 @@ function module:OnInitialize()
 			vibrate_loot = true,
 			vibrate_type_loot = "High",
 			vibrate_intensity_loot = 0.8,
-			filter = "notable", -- none | notable | everything
-			filter_loot = "everything", -- none | notable | everything
-			-- the already* keys this replaced are deliberately absent: they only
-			-- exist now as migration input, and giving them defaults would make
-			-- an un-migrated profile indistinguishable from a fresh one
+			instances = false,
+			dead = true,
+			already = false,
+			already_drop = true,
+			already_transmog = false,
+			already_alt = true,
 			sink_opts = {sink20OutputSink="UIErrorsFrame"},
 			channel = "Master",
 			unmute = false,
 			background = false,
+			loot = true,
+			known_mounts = true,
 		},
 	})
-	self.db.RegisterCallback(self, "OnProfileChanged", "MigrateFilterOptions")
-	self.db.RegisterCallback(self, "OnProfileCopied", "MigrateFilterOptions")
-	self.db.RegisterCallback(self, "OnProfileReset", "MigrateFilterOptions")
 
 	self:SetSinkStorage(self.db.profile.sink_opts)
 
@@ -119,8 +119,6 @@ function module:OnInitialize()
 		end
 	end
 
-	self:MigrateFilterOptions()
-
 	core.RegisterCallback(self, "Seen")
 	core.RegisterCallback(self, "SeenLoot")
 
@@ -129,11 +127,6 @@ function module:OnInitialize()
 		local toggle = config.toggle
 		local get = function(info) return self.db.profile[info[#info]] end
 		local set = function(info, v) self.db.profile[info[#info]] = v end
-
-		-- Singling a mount out asks the same question the filter does, so say so
-		-- wherever that happens -- it's not obvious from here that a checkbox in
-		-- another section can switch these off.
-		local mountNote = "\n\nWhich mounts count comes from the Mount option under \"What's notable?\": one you already know only counts if it's BoE, and with that unticked this stops happening at all."
 
 		local sink_config = self:GetSinkAce3OptionsDataTable()
 		local sink_args = {}
@@ -226,60 +219,20 @@ function module:OnInitialize()
 			}
 		end
 
-		local filter_values = {
-			none = "None",
-			notable = "Notable ones",
-			everything = "All of them",
-		}
-		-- least noisy first, so the list reads as a scale
-		local filter_sorting = {"none", "notable", "everything"}
-
 		local options = {
 			general = {
 				type = "group", name = "Announcements", inline = true,
 				order = 10,
 				get = get, set = set,
 				args = {
-					filter = {
-						type = "select", name = "Which rares?",
-						desc = "\"Notable ones\" leaves out a rare once it has nothing left for you. What counts as worth having is up to you, below.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Rares we know nothing about are always announced.",
-						values = filter_values, sorting = filter_sorting,
-						order = 0, width = "double",
-					},
-					filter_loot = {
-						type = "select", name = "Which treasures?",
-						desc = "\"Notable ones\" leaves out a treasure once it has nothing left for you. What counts as worth having is up to you, below.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Treasures we know nothing about are always announced.",
-						values = filter_values, sorting = filter_sorting,
-						order = 1, width = "double",
-					},
-				},
-			},
-			notable = {
-				type = "group", name = "What's notable?", inline = true,
-				desc = "Define exactly what counts as being \"notable\"",
-				order = 12,
-				-- these live on the core profile, because the shared rewards
-				-- system reads them and other parts of SilverDragon can use them
-				get = function(info) return core.db.profile[info[#info]] end,
-				set = function(info, v)
-					core.db.profile[info[#info]] = v
-					core.events:Fire("OptionsChanged", info[#info], v)
-				end,
-				-- Deliberately not disabled when neither filter is "notable": Mount
-				-- still decides which sightings earn the mount sound and flash, and
-				-- greying out something that's still doing work is worse than
-				-- leaving it alone.
-				args = {
-					-- these globals don't all exist in the classic clients, hence
-					-- the fallbacks
-					achievement_notable = toggle(_G.TRANSMOG_SOURCE_5 or ACHIEVEMENTS or "Achievement", "Count unearned achievement-progress as notable", 10),
-					mount_notable = toggle(MOUNT or "Mount", "Count unlearned mounts as notable loot. This also picks which sightings get the mount sound and flash, whatever the filters above say", 20),
-					toy_notable = toggle(TOY or "Toy", "Count unlearned toys as notable loot", 30),
-					pet_notable = toggle(TOOLTIP_BATTLE_PET or "Battle Pet", "Count uncaught pets as notable loot", 40),
-					transmog_notable = toggle("Transmog", "Count unlearned transmogrification appearances as notable loot.\n\nWhether an appearance you know from some other item counts as known here is up to \"Transmog exact items\", over in General's Loot options", 50),
-					decor_notable = toggle(_G.BINDING_TAG_DECOR or "Decor", "Count unfound decor as notable loot", 60, nil, not _G.BINDING_TAG_DECOR),
-					quest_notable = toggle("Quest-attached", "Count items with attached uncompleted quests as notable loot (this includes a lot of \"learnable\" items, weekly reputation drops, etc)", 70),
-					alts_achievements_count = toggle("An alt counts", "Treat an achievement one of your other characters has completed as done, rather than as something still to earn", 80),
+					already = toggle("Already found", "Announce when we see rares we've already killed / achieved (if known)", 0),
+					already_drop = toggle("Got the loot", "Still announce when we see rares which drop a mount / toy / pet you already have", 10),
+					already_transmog = toggle("...include transmog as loot", "Count transmog appearances as knowable loot", 11),
+					already_alt = toggle("Completed by an alt", "Announce when we see rares for an achievement that the current character doesn't have, but an alt has completed already", 20),
+					known_mounts = toggle("Known mounts are boring", "Treat mount-dropping rares whose mount you already know as if they're regular rares (unless the mount is BoE)", 25),
+					dead = toggle("Dead rares", "Announce when we see dead rares, if known. Not all scanning methods know whether a rare is dead or not", 30),
+					instances = toggle("Instances", "Show announcements while in an instance", 50),
+					loot = toggle("Treasures", "Show announcements when treasure appears on the minimap", 60),
 				},
 			},
 			message = {
@@ -337,7 +290,7 @@ function module:OnInitialize()
 					soundfile = soundfile("sound", 22),
 					sound_loop = soundrange(23),
 					mount = {type="header", name="", order=25,},
-					sound_mount = toggle("Mount sounds", "Play a sound for mobs that drop a mount" .. mountNote, 26),
+					sound_mount = toggle("Mount sounds", "Play a sound for mobs that drop a mount", 26),
 					soundfile_mount = soundfile("sound_mount", 27),
 					sound_mount_loop = soundrange(28),
 					boss = {type="header", name="", order=30,},
@@ -383,7 +336,7 @@ function module:OnInitialize()
 						order = 4,
 					},
 					mount = {type="header", name="", order=10,},
-					flash_mount = toggle("Mount flash", "Flash the screen differently when we see a mob with a mount?" .. mountNote, 11),
+					flash_mount = toggle("Mount flash", "Flash the screen differently when we see a mob with a mount?", 11),
 					flash_color_mount = {
 						name = COLOR,
 						type = "color",
@@ -449,12 +402,12 @@ function module:OnInitialize()
 			},
 		}
 
-		local function vibrate_section(t, key, order, heading, description)
+		local function vibrate_section(t, key, order, heading)
 			key = key and ("_"..key) or ""
 			if heading then
 				t["vibrate_heading" .. key] = {type="header", name="", order=order,}
 			end
-			t["vibrate" .. key] = toggle(heading or "Vibrate", description or "Vibrate the controller?", order + 1)
+			t["vibrate" .. key] = toggle(heading or "Vibrate", "Vibrate the controller?", order + 1)
 			t["vibrate_type" .. key] = {
 				type = "select", name = "Type",
 				desc = "What type of vibration to use",
@@ -483,7 +436,7 @@ function module:OnInitialize()
 		end
 		local order = 1
 		order = vibrate_section(options.controller.args, nil, 1)
-		order = vibrate_section(options.controller.args, "mount", order, "Vibrate for mounts", "Vibrate the controller?" .. mountNote)
+		order = vibrate_section(options.controller.args, "mount", order, "Vibrate for mounts")
 		order = vibrate_section(options.controller.args, "boss", order, "Vibrate for bosses")
 		order = vibrate_section(options.controller.args, "loot", order, "Vibrate for loot")
 
@@ -491,80 +444,17 @@ function module:OnInitialize()
 	end
 end
 
--- Move a profile's old announcement options onto the two filters.
---
--- Each group keys off whether its old options are stored at all, because AceDB
--- doesn't store a value matching its default: someone who only changed
--- already_transmog has no stored `already`, and someone who left the Treasures
--- toggle alone has no stored `loot`. Hence `== false` for the ones that used to
--- default to true. Clearing the old keys is what stops this running twice, as
--- none of them have defaults any more.
---
--- This runs on profile change as well as at load: profiles are switched long
--- after OnInitialize, and an old one would otherwise keep its old keys and
--- silently fall back to the default filters.
-function module:MigrateFilterOptions()
-	local p = self.db.profile
-	if p.already ~= nil or p.already_drop ~= nil or p.already_transmog ~= nil or p.already_alt ~= nil then
-		-- `already` meant "don't filter on completion at all", so it's the only one
-		-- that maps to anything other than the default. already_drop asked for loot
-		-- you own to silence a rare, which is what the notable filter does anyway,
-		-- so it needs nothing beyond being cleared away here.
-		p.filter = p.already and "everything" or "notable"
-		-- already_transmog deliberately doesn't carry over. It read as "count
-		-- appearances when working out whether you already have everything", so
-		-- off meant a transmog-only rare could never be called finished and kept
-		-- announcing. transmog_notable off does the reverse: appearances stop
-		-- being a reason, but hasKnowableLoot still sees them, so the rare reads
-		-- as knowably-not-wanted and goes quiet. Mapping one to the other turns
-		-- the old default upside down, so leave everyone on the new one.
-
-		-- already_alt was "tell me anyway", the inverse of counting an alt's as done
-		core.db.profile.alts_achievements_count = p.already_alt == false
-
-		p.already, p.already_drop, p.already_transmog, p.already_alt = nil, nil, nil, nil
+function module:HasInterestingMounts(id, isloot)
+	if not module.db.profile.known_mounts then
+		return ns.Loot.HasMounts(id, nil, nil, isloot)
 	end
-
-	-- The "Treasures" toggle is the "None" end of the treasure filter now. It
-	-- defaulted to on, so a stored value only ever means it was turned off.
-	if p.loot ~= nil then
-		if not p.loot then
-			p.filter_loot = "none"
-		end
-		p.loot = nil
-	end
-
-	-- known_mounts is gone; the Mount notability option covers it. Turning it off
-	-- used to mean "a mount I already know still counts", which has no equivalent
-	-- and nothing to migrate to, so it just goes.
-	p.known_mounts = nil
-
-	-- There were two switches for instances, this one and core's "Scan in
-	-- instances", both off to start with and in different panels -- so turning
-	-- that one on by itself changed nothing you could hear. Core's covers both
-	-- now. It defaulted off, so a stored value here only ever means it was on.
-	if p.instances ~= nil then
-		if p.instances then
-			core.db.profile.instances = true
-		end
-		p.instances = nil
-	end
-
-	-- Same story for dead rares: this and the Targets scanner each had a switch
-	-- called "Dead rares". Core's covers both. It defaulted on, so a stored value
-	-- here only ever means it was turned off.
-	if p.dead ~= nil then
-		if not p.dead then
-			core.db.profile.dead = false
-		end
-		p.dead = nil
-	end
+	return ns.Loot.HasInterestingMounts(id, isloot)
 end
 
 function module:Seen(callback, id, zone, x, y, is_dead, source, ...)
 	Debug("Announce:Seen", id, zone, x, y, is_dead, source, ...)
 
-	if not core.db.profile.instances and IsInInstance() then
+	if not self.db.profile.instances and IsInInstance() then
 		return
 	end
 
@@ -578,18 +468,11 @@ end
 function module:SeenLoot(callback, name, id, zone, x, y, ...)
 	Debug("Announce:SeenLoot", name, id, zone, x, y, ...)
 
-	if not core.db.profile.instances and IsInInstance() then
+	if not self.db.profile.instances and IsInInstance() then
 		return
 	end
 
-	local filter = self.db.profile.filter_loot
-	if filter == "none" then
-		Debug("Announce:SeenLoot", false, "treasures off")
-		return
-	end
-	-- as in ShouldAnnounce, only a definite "nothing here is wanted" silences it
-	if filter == "notable" and ns.MobIsNotable(id, true) == false then
-		Debug("Announce:SeenLoot", false, "not notable")
+	if not self.db.profile.loot then
 		return
 	end
 
@@ -597,12 +480,7 @@ function module:SeenLoot(callback, name, id, zone, x, y, ...)
 end
 
 function module:ShouldAnnounce(id, zone, x, y, is_dead, source, ...)
-	-- an off switch, so it comes before the always-announce cases
-	if self.db.profile.filter == "none" then
-		Debug("ShouldAnnounce", false, "rares off")
-		return false
-	end
-	if is_dead and not core.db.profile.dead then
+	if is_dead and not self.db.profile.dead then
 		Debug("ShouldAnnounce", false, "dead")
 		return false
 	end
@@ -611,29 +489,54 @@ function module:ShouldAnnounce(id, zone, x, y, is_dead, source, ...)
 		Debug("ShouldAnnounce", true, "always")
 		return true
 	end
+	if not self.db.profile.already_drop and ns.Loot.Status(id, self.db.profile.already_transmog) == true and not ns.Loot.HasMounts(id, true, true) then
+		-- hide mobs which have a mount/pet/toy which you already own... apart from BoE mounts
+		-- this means there's knowable loot, and it's all known
+		Debug("ShouldAnnounce", false, "already got loot")
+		return false
+	end
 	if ns.mobdb[id] and (
 		(ns.mobdb[id].requires and not ns.conditions.check(ns.mobdb[id].requires)) or
 		(ns.mobdb[id].active and not ns.conditions.check(ns.mobdb[id].active))
 	) then
-		-- not a completion question, so it applies whatever the filter is
 		Debug("ShouldAnnounce", false, "requirements not met")
 		return false
 	end
+	if not self.db.profile.already then
+		-- hide already-completed mobs
+		local quest, achievement, by_alt = ns:CompletionStatus(id)
+		if by_alt and not self.db.profile.already_alt then
+			-- an alt has completed the achievement, and we don't want to know about that
+			Debug("ShouldAnnounce", false, "alt got achievement")
+			return false
+		end
+		if source == "vignette" or source == "point-of-interest" then
+			-- Blizzard generally won't show a vignette if there's nothing left to
+			-- get from the mob, so trust it over our own completion data
+			Debug("ShouldAnnounce", true, "vignette implies available")
+			return true
+		end
+		if quest ~= nil then
+			-- a completed quest gates the loot off entirely, so completion decides it
+			Debug("ShouldAnnounce", not quest, "quest")
+			return not quest
+		end
+		if achievement ~= nil then
+			if achievement then
+				-- achievements don't gate loot: the mob stays farmable, so keep
+				-- announcing a completed one while there's still uncollected loot,
+				-- or a BoE mount that's sellable even when already owned
+				local wants_loot = ns.Loot.Status(id, self.db.profile.already_transmog) == false
+					or ns.Loot.HasMounts(id, true, true)
+				Debug("ShouldAnnounce", wants_loot, "achievement complete, loot wanted?")
+				return wants_loot
+			end
+			Debug("ShouldAnnounce", true, "achievement incomplete")
+			return true
+		end
+	end
 
-	if self.db.profile.filter ~= "notable" then
-		Debug("ShouldAnnounce", true, "not filtering")
-		return true
-	end
-	-- Being on a vignette says the mob still has something to give, whatever our
-	-- own quest data thinks -- but it says nothing about whether you want it, so
-	-- it's an argument to the check rather than a way around it.
-	local fromVignette = source == "vignette" or source == "point-of-interest"
-	-- nil means we can't tell, which is no reason to keep quiet
-	if ns.MobIsNotable(id, false, fromVignette) == false then
-		Debug("ShouldAnnounce", false, "not notable")
-		return false
-	end
-	Debug("ShouldAnnounce", true, "notable")
+	Debug("ShouldAnnounce", true, "fallback")
 	return true
 end
 
@@ -764,7 +667,7 @@ core.RegisterCallback("SD Announce Sound", "Announce", function(callback, id, zo
 		if channel == "GUILD" and not module.db.profile.soundguild or (channel == "PARTY" or channel == "RAID") and not module.db.profile.soundgroup then return end
 	end
 	local soundfile, loops
-	if ns.HasNotableMounts(id) then
+	if module:HasInterestingMounts(id) then
 		if not module.db.profile.sound_mount then return end
 		soundfile = module.db.profile.soundfile_mount
 		loops = module.db.profile.sound_mount_loop
@@ -785,7 +688,7 @@ core.RegisterCallback("SD AnnounceLoot Sound", "AnnounceLoot", function(callback
 	end
 	if nowplaying then return end
 	local soundfile, loops
-	if ns.HasNotableMounts(id, true) then
+	if module:HasInterestingMounts(id, true) then
 		if not module.db.profile.sound_mount then return end
 		soundfile = module.db.profile.soundfile_mount
 		loops = module.db.profile.sound_mount_loop
@@ -838,12 +741,11 @@ do
 			flashframe:SetScript("OnShow", function(self)
 				local background = module.db.profile.flash_texture
 				local color = module.db.profile.flash_color
-				local data = self.id and (self.isloot and ns.vignetteTreasureLookup or ns.mobdb)[self.id]
-				if data then
-					if module.db.profile.flash_mount and ns.HasNotableMounts(self.id, self.isloot) then
+				if self.id and ns.mobdb[self.id] then
+					if module.db.profile.flash_mount and module:HasInterestingMounts(self.id, isloot) then
 						background = module.db.profile.flash_texture_mount
 						color = module.db.profile.flash_color_mount
-					elseif data.boss and module.db.profile.flash_boss then
+					elseif ns.mobdb[self.id].boss and module.db.profile.flash_boss then
 						background = module.db.profile.flash_texture_boss
 						color = module.db.profile.flash_color_boss
 					end
@@ -857,7 +759,6 @@ do
 
 		Debug("Flashing")
 		flashframe.id = id
-		flashframe.isloot = isloot
 		flashframe:Hide()
 		flashframe:Show()
 	end
@@ -872,7 +773,7 @@ end
 
 core.RegisterCallback("SD Announce Controller", "Announce", function(callback, id, zone, x, y, dead, source)
 	local vibrate_type, vibrate_intensity
-	if ns.HasNotableMounts(id) then
+	if module:HasInterestingMounts(id) then
 		if not module.db.profile.vibrate_mount then return end
 		vibrate_type = module.db.profile.vibrate_type_mount
 		vibrate_intensity = module.db.profile.vibrate_intensity_mount

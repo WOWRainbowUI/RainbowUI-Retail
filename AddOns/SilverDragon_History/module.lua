@@ -56,6 +56,7 @@ function module:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
 
 	self.data = {}
+	self.rares = {}
 	self.removed = {}
 	self.dataProvider = self:CreateDataProvider()
 
@@ -93,7 +94,7 @@ function module:OnEnable()
 	if not self.window then
 		self.window = self:CreateWindow()
 	end
-	core.RegisterCallback("History", "Seen", function(callback, id, zone, x, y, dead, source, unit, guid, vignetteGUID)
+	core.RegisterCallback("History", "Seen", function(callback, id, zone, x, y, dead, source, unit, guid)
 		if source:match("^sync") then
 			local channel, player = source:match("sync:(.+):(.+)")
 			if channel == "GUILD" then
@@ -113,10 +114,10 @@ function module:OnEnable()
 			source = source,
 			when = time(),
 			guid = guid,
-			vignetteGUID = vignetteGUID,
 			mob = true,
 			type = "mob",
 		}
+		table.insert(self.rares, data)
 		self:AddData(data)
 	end)
 	core.RegisterCallback("History", "SeenLoot", function(callback, name, id, zone, x, y, guid)
@@ -131,8 +132,6 @@ function module:OnEnable()
 			when = time(),
 			atlas = vignetteInfo and vignetteInfo.atlasName,
 			guid = guid,
-			-- for treasures the guid we're handed *is* the vignette's
-			vignetteGUID = guid,
 			loot = true,
 			type = "loot",
 		}
@@ -180,27 +179,14 @@ function module:AddData(data)
 end
 
 function module:OnDisable()
-	-- these are registered against the "History" string, not self, so they have
-	-- to be unregistered the same way or they'll keep firing while disabled
-	core.UnregisterCallback("History", "Seen")
-	core.UnregisterCallback("History", "SeenLoot")
-	core.UnregisterCallback("History", "ShardChanged")
+	core.UnregisterCallback(self, "Seen")
+	core.UnregisterCallback(self, "SeenLoot")
 
 	self.window:Hide()
 end
 
-local rares = {}
 function module:GetRares()
-	-- Derived rather than accumulated alongside self.data, so that clearing the
-	-- window or dismissing a line also takes it out of the broker's
-	-- "seen this session" list
-	wipe(rares)
-	for _, data in ipairs(self.data) do
-		if data.type == "mob" and not self.removed[data] then
-			table.insert(rares, data)
-		end
-	end
-	return rares
+	return self.rares
 end
 
 function module:CreateDataProvider()
@@ -210,14 +196,6 @@ function module:CreateDataProvider()
 		return lhs.when > rhs.when
 	end)
 	return dataProvider
-end
-
-function module:ClearAll()
-	-- Mark everything as removed, so a later rebuild won't bring it all back
-	for _, data in ipairs(self.data) do
-		self.removed[data] = true
-	end
-	self:RebuildDataProvider()
 end
 
 function module:RebuildDataProvider()
@@ -366,7 +344,10 @@ function module:CreateWindow()
 	clear:SetButtonMode("Delete")
 	clear:SetPoint("RIGHT", collapse, "LEFT", -2, 0)
 	clear:SetScript("OnMouseUp", function(button)
-		self:ClearAll()
+		for _, data in ipairs(self.data) do
+			self.removed[data] = true
+		end
+		self:RebuildDataProvider()
 	end)
 	frame.clearButton = clear
 
@@ -501,7 +482,7 @@ function module:ShowConfigMenu(frame)
 
 		rootDescription:CreateDivider()
 		rootDescription:CreateButton(CLEAR_ALL, function()
-			module:ClearAll()
+			module.dataProvider:Flush()
 			return MenuResponse.CloseAll
 		end)
 		rootDescription:CreateButton("Open options...", openConfig)
@@ -510,8 +491,8 @@ end
 
 function module:GetPositionFromData(data, allowFallback)
 	local x, y, uiMapID = data.x, data.y, data.zone
-	if uiMapID and data.vignetteGUID then
-		local position = C_VignetteInfo.GetVignettePosition(data.vignetteGUID, uiMapID)
+	if uiMapID and data.GUID and data.source == "vignette" then
+		local position = C_VignetteInfo.GetVignettePosition(data.GUID, uiMapID)
 		if position then
 			x, y = position:GetXY()
 		end
@@ -647,8 +628,8 @@ LineMixin = {
 					GameTooltip:AddLine(core:RenderString(ns.vignetteTreasureLookup[data.id].notes), 1, 1, 1, true)
 				end
 			end
-			if data.vignetteGUID then
-				local _, vignetteID = core:GUIDShard(data.vignetteGUID)
+			if data.source == "vignette" and data.guid then
+				local _, vignetteID = core:GUIDShard(data.guid)
 				GameTooltip:AddDoubleLine("Vignette ID",  vignetteID, 0, 1, 1, 0, 1, 1)
 			end
 			local uiMapID, x, y = module:GetPositionFromData(data, false)

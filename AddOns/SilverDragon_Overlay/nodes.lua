@@ -12,16 +12,73 @@ local HBDPins = LibStub("HereBeDragons-Pins-2.0")
 -- The following is largely unmodified from the handynotes integration
 
 do
-    -- Six states, and every theme wants all six:
-    --   mount        there's a mount on it you'd want
-    --   achievement  you haven't finished its achievement
-    --   something    something else on it you'd want
-    --   nothing      you can still kill it, but there's nothing on it for you
-    --   done         it has nothing left to give at all
-    --   unknown      no quest, no achievement, no loot -- nothing to go on
-    -- The themes themselves are in core, next to ns.MobState which decides
-    -- between them, because the mob browser draws the same six.
-    local icons = ns.MobStateIcons
+    local function tex(atlas, r, g, b, scale)
+        return {
+            atlas = atlas,
+            r = r, g = g, b = b, a = 0.9,
+            scale = scale or 1,
+        }
+    end
+    -- DungeonSkull = skull
+    -- VignetteKillElite = Skull with star around it
+    -- Islands-AzeriteBoss = more detailed skull
+    -- nazjatar-nagaevent = more detailed skull, glowing
+    -- WhiteCircle-RaidBlips / PlayerPartyBlip = white circle
+    -- WhiteDotCircle-RaidBlips / PlayerRaidBlip = white circle with dot
+    -- PlayerDeadBlip = black circle with white X
+    -- QuestSkull = gold glowy circle
+    -- Warfront-NeutralHero-Silver = silver dragon on gold circle
+    local icons = {
+        circles = {
+            default = tex("PlayerPartyBlip", 1, 0.33, 0.33, 1.3),
+            partial = tex("PlayerPartyBlip", 1, 1, 0.33, 1.3),
+            done = tex("PlayerDeadBlip", 0.33, 1, 0.33, 1),
+            loot = tex("Warfront-NeutralHero-Silver", 1, 0.33, 0.33, 1.3),
+            loot_partial = tex("Warfront-NeutralHero-Silver", 1, 1, 0.33, 1.3),
+            loot_done = tex("Warfront-NeutralHero-Silver", 0.33, 1, 0.33, 1),
+            mount = tex("PlayerRaidBlip", 1, 0.33, 0.33, 1.3),
+            mount_partial = tex("PlayerRaidBlip", 1, 1, 0.33, 1.3),
+            mount_done = tex("PlayerDeadBlip", 0.33, 1, 0.33, 1),
+        },
+        skulls = {
+            default = tex("Islands-AzeriteBoss", 1, 0.33, 0.33, 1.8), -- red skull
+            partial = tex("Islands-AzeriteBoss", 1, 1, 0.33, 1.8), -- yellow skull
+            done = tex("Islands-AzeriteBoss", 0.33, 1, 0.33, 1.5), -- green skull
+            loot = tex("nazjatar-nagaevent", 1, 0.33, 0.33, 1.8), -- red glowing skull
+            loot_partial = tex("nazjatar-nagaevent", 1, 1, 0.33, 1.8), -- yellow glowing skull
+            loot_done = tex("nazjatar-nagaevent", 0.33, 1, 0.33, 1.5), -- green glowing skull
+            mount = tex("VignetteKillElite", 1, 0.33, 0.33, 1.8), -- red shiny skull
+            mount_partial = tex("VignetteKillElite", 1, 1, 0.33, 1.8), -- yellow shiny skull
+            mount_done = tex("VignetteKillElite", 0.33, 1, 0.33, 1.4), -- green shiny skull
+        },
+        stars = {
+            default = tex("VignetteKill", 1, 0.33, 1, 1.6), -- red star
+            partial = tex("VignetteKill", 1, 1, 1, 1.6), -- gold star
+            done = tex("VignetteKill", 0, 1, 1, 1.3), -- green star
+            loot = tex("VignetteLootElite", 1, 0.33, 1, 1.6), -- red shiny skull
+            loot_partial = tex("VignetteLootElite", 0, 1, 1, 1.6), -- yellow shiny skull
+            loot_done = tex("VignetteLootElite", 0, 1, 0, 1.3), -- green shiny skull
+            mount = tex("VignetteKillElite", 1, 0.33, 1, 1.8), -- red shiny skull
+            mount_partial = tex("VignetteKillElite", 0, 1, 1, 1.8), -- yellow shiny skull
+            mount_done = tex("VignetteKillElite", 0, 1, 0, 1.4), -- green shiny skull
+        }
+    }
+    if ns.CLASSIC then
+        icons.circles.loot = tex("WhiteDotCircle-RaidBlips", 1, 0.33, 0.33, 1.3)
+        icons.circles.loot_partial = tex("WhiteDotCircle-RaidBlips", 1, 1, 0.33, 1.3)
+        icons.circles.loot_done = tex("WhiteDotCircle-RaidBlips", 0.33, 1, 0.33, 1)
+        icons.skulls = {
+            default = tex("DungeonSkull", 1, 0.33, 0.33, 1.3), -- red skull
+            partial = tex("DungeonSkull", 1, 1, 0.33, 1.3), -- yellow skull
+            done = tex("DungeonSkull", 0.33, 1, 0.33, 1), -- green skull
+            loot = tex("VignetteKillElite", 1, 0.33, 0.33, 1.3), -- red glowing skull
+            loot_partial = tex("VignetteKillElite", 1, 1, 0.33, 1.3), -- yellow glowing skull
+            loot_done = tex("VignetteKillElite", 0.33, 1, 0.33, 1), -- green glowing skull
+            mount = tex("VignetteKillElite", 1, 0.33, 0.33, 1.8), -- red shiny skull
+            mount_partial = tex("VignetteKillElite", 1, 1, 0.33, 1.8), -- yellow shiny skull
+            mount_done = tex("VignetteKillElite", 0.33, 1, 0.33, 1), -- green shiny skull
+        }
+    end
     local function should_show_mob(id, uiMapID)
         if module.db.profile.hidden[id] or core:ShouldIgnoreMob(id, uiMapID) then
             return false
@@ -33,17 +90,6 @@ do
             return false
         end
         local quest, achievement, achievement_completed_by_alt = ns:CompletionStatus(id)
-        if achievement_completed_by_alt and core.db.profile.alts_achievements_count then
-            -- you've said an alt's credit counts, so treat it as earned here too
-            achievement = true
-        end
-        if not module.db.profile.achieved and ns.MobIsNotable(id) == false then
-            -- Having nothing left on it you want is as good as having its
-            -- achievement: without this a mob whose loot you've collected stays
-            -- at full strength on the map forever. Only asked when the toggle is
-            -- off, since MobIsNotable drops the reward caches to answer.
-            return false
-        end
         if achievement ~= nil then
             if quest ~= nil then
                 -- we have a quest *and* an achievement; we're going to treat "show achieved" as "show achieved if I can still loot them"
@@ -59,12 +105,39 @@ do
         return false
     end
     module.should_show_mob = should_show_mob
+    local function key_for_mob(id)
+        -- TODO: when I overhaul completion it needs to affect this
+        local quest, achievement = ns:CompletionStatus(id)
+        local prefix, suffix
+        if ns.Loot.HasInterestingMounts(id) then
+            -- an unknown mount or a BoE mount
+            prefix = 'mount'
+        elseif ns.Loot.Status.Toy(id) == false or ns.Loot.Status.Pet(id) == false then
+            -- but toys and pets are only special until you loot them
+            prefix = 'loot'
+        end
+        if quest ~= nil then
+            -- if there's a quest, it controls because loot is irrelevant
+            -- (and I don't think there's any way of having the quest
+            -- done without getting achievement-credit)
+            suffix = quest and 'done' or (achievement and 'partial')
+        elseif achievement ~= nil then
+            -- if there's an achievement, loot-status controls whether
+            -- we're partial or complete, because achievement-only mobs
+            -- can generally be farmed
+            suffix = achievement and (prefix and 'partial' or 'done')
+        end
+        if prefix and suffix then
+            return prefix .. '_' .. suffix
+        end
+        return prefix or suffix
+    end
     local function icon_for_mob(id)
         local set = icons[module.db.profile.icon_theme]
-        -- ns.MobState works the states out; the broker's tooltip colours its rows
-        -- from the same six, so they stay in step. A mob that isn't in the data at
-        -- all comes back "unknown" from there, so it needs no case of its own.
-        return set[ns.MobState(id)] or set.unknown
+        if not ns.mobdb[id] then
+            return set.default
+        end
+        return set[key_for_mob(id)] or set.default
     end
     local icon_cache = {}
     local function distinct_icon_for_mob(id)
@@ -81,15 +154,9 @@ do
         icon_cache[id].b = b
         return icon_cache[id]
     end
-    -- Work the whole zone out under one hold, then hand the mobs over. MobState
-    -- drops the reward caches on each call, so one mob at a time makes every one
-    -- of them redo the item lookups the last had just paid for. Two passes also
-    -- keep the hold clear of the yields, which a caller could stop early.
     local function mobsForZone(uiMapID)
         if not ns.mobsByZone[uiMapID] then return end
-        local ids, mobIcons, alphas = {}, {}, {}
-        ns.HoldRunCaches()
-        for id in pairs(ns.mobsByZone[uiMapID]) do
+        for id, coords in pairs(ns.mobsByZone[uiMapID]) do
             if should_show_mob(id, uiMapID) then
                 local icon
                 if module.db.profile.icon_color == 'distinct' then
@@ -101,16 +168,9 @@ do
                 if ns.mobdb[id] and ns.mobdb[id].active and not ns.conditions.check(ns.mobdb[id].active) then
                     alpha = alpha and (alpha * 0.6) or 0.6
                 end
-                table.insert(ids, id)
-                mobIcons[id] = icon
-                alphas[id] = alpha
-            end
-        end
-        ns.ReleaseRunCaches()
-        for _, id in ipairs(ids) do
-            local icon = mobIcons[id]
-            for _, coord in ipairs(ns.mobsByZone[uiMapID][id]) do
-                coroutine.yield(coord, id, icon, icon.scale, alphas[id])
+                for _, coord in ipairs(coords) do
+                    coroutine.yield(coord, id, icon, icon.scale, alpha)
+                end
             end
         end
     end
