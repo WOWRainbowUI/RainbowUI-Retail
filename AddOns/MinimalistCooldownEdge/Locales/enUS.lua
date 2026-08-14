@@ -2,6 +2,8 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "enUS", true)
 if not L then return end
 
+L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras owns countdown threshold colours. Configure them in MiniAuras > Misc > Countdown Colours."
+
 -- Core
 L["Cannot open options in combat."] = true
 L["MiniAuras test command is unavailable."] = true
@@ -28,6 +30,7 @@ L["ElvUI"] = true
 L["General"] = true
 L["Typography (Cooldown Numbers)"] = true
 L["Swipe Animation"] = true
+L["Swipe Edge"] = true
 L["Stack Counters / Charges"] = true
 L["Maintenance"] = true
 L["Danger Zone"] = true
@@ -243,7 +246,9 @@ L["COOLDOWNMANAGER_DESC"] = "Shared icon styling for CooldownManager viewers. Co
 L["HEALERCC_DESC"] = "Dedicated styling for HealerCC alert cooldowns. Supports both friendly and enemy HealerCC icon stacks when HealerCC is loaded."
 L["MINIAURAS_DESC"] = "Dedicated styling for MiniAuras cooldown icons, including its 12.1 AuraContainer displays and current module families."
 L["SARENA_DESC"] = "Dedicated styling for sArena_Reloaded cooldown timers. Supports class icon, DR, and trinket/racial cooldown text when sArena_Reloaded is loaded."
-L["TELLMEWHEN_DESC"] = "Dedicated styling for TellMeWhen cooldown sweeps. Supports TellMeWhen icon cooldown and charge cooldown frames when TellMeWhen is loaded."
+L["TELLMEWHEN_DESC"] = "Styles TellMeWhen cooldown text and swipe edges while TellMeWhen remains in control of Timer Sweep behavior."
+L["TELLMEWHEN_TIMER_OPTIONS_NOTICE"] = "Timer visibility, timer text, shading direction, and GCD display remain controlled by TellMeWhen. Swipe edge visibility and thickness are controlled here."
+L["TELLMEWHEN_EDGE_SCALE_DESC"] = "Scales the TellMeWhen swipe edge when MiniCE has enabled it."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = true

@@ -562,8 +562,49 @@ function StyleEngine:ResetSwipeColor(cdFrame)
     fs.swipeColor = nil
 end
 
+local function SetMiniAurasDurationTextAlpha(fs, alpha)
+    local durationText = fs and fs.miniAurasDurationText
+    local setAlpha = durationText and MCE:SafeTableGet(durationText, "SetAlpha") or nil
+    if type(setAlpha) ~= "function" then return false end
+
+    fs.miniAurasSuppressDurationTextAlpha = true
+    local ok = pcall(setAlpha, durationText, alpha)
+    fs.miniAurasSuppressDurationTextAlpha = nil
+    return ok
+end
+
+local function ReleaseMiniAurasNativeDurationText(cdFrame, fs)
+    if not (fs and fs.miniAurasNativeDurationText == true) then return end
+
+    fs.miniAurasNativeDurationTextActive = nil
+    local requestedAlpha = fs.miniAurasRequestedDurationTextAlpha
+    if type(requestedAlpha) == "number" then
+        SetMiniAurasDurationTextAlpha(fs, requestedAlpha)
+    end
+
+    local requestedHide = fs.miniAurasRequestedHideCountdownNumbers
+    if requestedHide ~= nil and type(MCE:SafeTableGet(cdFrame, "SetHideCountdownNumbers")) == "function" then
+        fs.suppressHideNums = true
+        pcall(cdFrame.SetHideCountdownNumbers, cdFrame, requestedHide == true)
+        fs.suppressHideNums = nil
+    end
+
+    fs.miniAurasDurationTextHidden = nil
+end
+
 function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     local fs = self:GetFrameState(cdFrame)
+    if fs.unitFrameNativeDurationText == true then
+        local holder = fs.unitFrameDurationTextHolder
+        local setAlpha = holder and MCE:SafeTableGet(holder, "SetAlpha") or nil
+        if type(setAlpha) == "function" then
+            pcall(setAlpha, holder, 0)
+        end
+        fs.unitFrameDurationTextHidden = true
+    end
+    if category == CATEGORY.MiniAuras then
+        ReleaseMiniAurasNativeDurationText(cdFrame, fs)
+    end
     RestoreCountdownThresholdState(cdFrame, fs)
     fs.edgeScale = nil
     fs.edgeColor = nil
@@ -758,6 +799,17 @@ function StyleEngine:GetCooldownTextRegions(cdFrame)
     local firstRegion = nil
 
     local state = frameState[cdFrame]
+    if state and state.miniAurasNativeDurationText == true then
+        local durationText = state.miniAurasDurationText
+        if IsUsableFontString(durationText) then
+            textRegionScratch[1] = durationText
+            for i = 2, #textRegionScratch do
+                textRegionScratch[i] = nil
+            end
+            return textRegionScratch, 1
+        end
+    end
+
     if state and state.unitFrameCustomAura == true then
         local countdownText = state.unitFrameCountdownText
         if not IsUsableFontString(countdownText) then
@@ -1199,7 +1251,23 @@ end
 -- HIDE COUNTDOWN NUMBERS RESOLUTION
 -- =========================================================================
 
+local function GetTellMeWhenTimerOption(cdFrame, optionKey)
+    local adapter = Registry and Registry:GetAdapter(CATEGORY.TellMeWhen) or nil
+    local getter = adapter and adapter.GetTimerOption or nil
+    if type(getter) ~= "function" then return nil end
+
+    local ok, value = pcall(getter, adapter, cdFrame, optionKey)
+    if ok and type(value) == "boolean" then
+        return value
+    end
+    return nil
+end
+
 function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
+    if category == CATEGORY.TellMeWhen then
+        return GetTellMeWhenTimerOption(cdFrame, "hideCountdownNumbers")
+    end
+
     local hideNums = config.hideCountdownNumbers
 
     if category == CATEGORY.MiniAuras then
@@ -1283,6 +1351,10 @@ local function GetMiniAurasHideSwipeSetting(config, subtype)
 end
 
 function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
+    if category == CATEGORY.TellMeWhen then
+        return GetTellMeWhenTimerOption(cdFrame, "drawSwipe")
+    end
+
     local baseWant = config.drawSwipe ~= false
 
     if baseWant and category == CATEGORY.MiniAuras then
@@ -1424,13 +1496,15 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
 
     -- Draw Swipe
     local wantSwipe = self:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
-    if cdFrame.SetDrawSwipe then
+    if wantSwipe ~= nil and cdFrame.SetDrawSwipe then
         if fs.drawSwipe ~= wantSwipe then
             fs.suppressSwipeDraw = true
             pcall(cdFrame.SetDrawSwipe, cdFrame, wantSwipe)
             fs.suppressSwipeDraw = nil
             fs.drawSwipe = wantSwipe
         end
+    elseif category == CATEGORY.TellMeWhen then
+        fs.drawSwipe = nil
     end
 
     -- Reverse Swipe
@@ -1446,7 +1520,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
 
     -- Draw Edge
     local wantEdge = self:GetDesiredEdgeEnabled(cdFrame, category, config, subtype)
-    if cdFrame.SetDrawEdge then
+    if wantEdge ~= nil and cdFrame.SetDrawEdge then
         if fs.edge ~= wantEdge then
             fs.suppressEdge = true
             pcall(cdFrame.SetDrawEdge, cdFrame, wantEdge)
@@ -1463,6 +1537,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         else
             fs.edgeScale = nil
         end
+    elseif category == CATEGORY.TellMeWhen then
+        fs.edge = nil
+        fs.edgeScale = nil
     end
 
     if wantEdge and cdFrame.SetEdgeColor then
@@ -1505,12 +1582,42 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Hide countdown numbers
     local hideNums
     if cdFrame.SetHideCountdownNumbers then
-        hideNums = self:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
-        if fs.hideNums ~= hideNums then
+        local requestedHideNums = self:GetDesiredHideCountdownNumbers(
+            cdFrame, category, config, isAssistedCombat, subtype)
+        if requestedHideNums == nil and category == CATEGORY.TellMeWhen then
+            hideNums = nil
+        elseif category == CATEGORY.Unitframe and fs.unitFrameNativeDurationText == true then
+            local holder = fs.unitFrameDurationTextHolder
+            local setAlpha = holder and MCE:SafeTableGet(holder, "SetAlpha") or nil
+            if type(setAlpha) == "function"
+               and fs.unitFrameDurationTextHidden ~= requestedHideNums then
+                pcall(setAlpha, holder, requestedHideNums and 0 or 1)
+                fs.unitFrameDurationTextHidden = requestedHideNums
+            end
+            -- The secure duration FontString replaces the cooldown widget's
+            -- own numbers; keeping both enabled draws duplicate countdowns.
+            hideNums = true
+        elseif category == CATEGORY.MiniAuras
+               and fs.miniAurasNativeDurationText == true
+               and fs.miniAurasNativeDurationTextReady == true then
+            fs.miniAurasNativeDurationTextActive = true
+            if fs.miniAurasDurationTextHidden ~= requestedHideNums then
+                SetMiniAurasDurationTextAlpha(fs, requestedHideNums and 0 or 1)
+                fs.miniAurasDurationTextHidden = requestedHideNums
+            end
+            -- AuraContainer owns the secret remaining time. Its bound
+            -- FontString replaces the cooldown widget's own numbers.
+            hideNums = true
+        else
+            hideNums = requestedHideNums
+        end
+        if hideNums ~= nil and fs.hideNums ~= hideNums then
             fs.suppressHideNums = true
             pcall(cdFrame.SetHideCountdownNumbers, cdFrame, hideNums)
             fs.suppressHideNums = nil
             fs.hideNums = hideNums
+        elseif hideNums == nil and category == CATEGORY.TellMeWhen then
+            fs.hideNums = nil
         end
     end
 
@@ -1587,6 +1694,10 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             or category == CATEGORY.MiniAuras
             or category == CATEGORY.HealerCC
             or (category == CATEGORY.Unitframe and fs.unitFrameCustomAura == true))
+        local cooldownTextColor = (fs.unitFrameNativeDurationText == true
+            or fs.miniAurasNativeDurationText == true
+            or fs.unitFrameThresholdColorsDisabled == true)
+            and nil or config.textColor
 
         for i = 1, textRegionCount do
             local region = textRegions[i]
@@ -1599,7 +1710,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             self:ApplyFontStringStyle(
                 region, cdFrame,
                 resolvedFont, regionFontSize, fontStyle,
-                config.textColor,
+                cooldownTextColor,
                 config.textAnchor, config.textAnchor,
                 config.textOffsetX, config.textOffsetY,
                 textLayer, textSubLevel, enforceFont, preserveFontSize)
@@ -1641,6 +1752,7 @@ end
 
 function StyleEngine:WipeState()
     local preservedUnitFrameState = {}
+    local preservedMiniAurasState = {}
     for cooldown, state in pairs(frameState) do
         if state and state.unitFrameCustomAura == true then
             preservedUnitFrameState[#preservedUnitFrameState + 1] = {
@@ -1648,8 +1760,23 @@ function StyleEngine:WipeState()
                 isMine = state.unitFrameAuraIsMine,
                 count = state.unitFrameCount,
                 countdownText = state.unitFrameCountdownText,
+                auraButton = state.unitFrameAuraButton,
+                durationTextHolder = state.unitFrameDurationTextHolder,
+                nativeDurationText = state.unitFrameNativeDurationText,
+                nativeDurationTextReady = state.unitFrameNativeDurationTextReady,
+                thresholdColorsDisabled = state.unitFrameThresholdColorsDisabled,
                 textRegions = state.textRegions,
                 durationObject = state.durationObject,
+            }
+        end
+        if state and state.miniAurasNativeDurationText == true then
+            preservedMiniAurasState[#preservedMiniAurasState + 1] = {
+                cooldown = cooldown,
+                durationText = state.miniAurasDurationText,
+                requestedDurationTextAlpha = state.miniAurasRequestedDurationTextAlpha,
+                requestedHideCountdownNumbers = state.miniAurasRequestedHideCountdownNumbers,
+                nativeDurationTextReady = state.miniAurasNativeDurationTextReady,
+                textRegions = state.textRegions,
             }
         end
     end
@@ -1667,8 +1794,25 @@ function StyleEngine:WipeState()
             unitFrameAuraIsMine = preserved.isMine,
             unitFrameCount = preserved.count,
             unitFrameCountdownText = preserved.countdownText,
+            unitFrameAuraButton = preserved.auraButton,
+            unitFrameDurationTextHolder = preserved.durationTextHolder,
+            unitFrameNativeDurationText = preserved.nativeDurationText == true,
+            unitFrameNativeDurationTextReady = preserved.nativeDurationTextReady == true,
+            unitFrameThresholdColorsDisabled = preserved.thresholdColorsDisabled == true,
             textRegions = preserved.textRegions,
             durationObject = preserved.durationObject,
+        }
+    end
+    for i = 1, #preservedMiniAurasState do
+        local preserved = preservedMiniAurasState[i]
+        frameState[preserved.cooldown] = {
+            allowBlacklisted = true,
+            miniAurasDurationText = preserved.durationText,
+            miniAurasRequestedDurationTextAlpha = preserved.requestedDurationTextAlpha,
+            miniAurasRequestedHideCountdownNumbers = preserved.requestedHideCountdownNumbers,
+            miniAurasNativeDurationText = true,
+            miniAurasNativeDurationTextReady = preserved.nativeDurationTextReady == true,
+            textRegions = preserved.textRegions,
         }
     end
 end

@@ -12,6 +12,7 @@ local DurationColor = MCE:NewModule("DurationColorController")
 local pairs, type, pcall, wipe = pairs, type, pcall, wipe
 local setmetatable = setmetatable
 local strfind, strlower = string.find, string.lower
+local floor, max = math.floor, math.max
 local GetTime = GetTime
 
 local issecretvalue = issecretvalue
@@ -43,6 +44,8 @@ local durationCacheSweepCounter = 0
 local durationColorTicker = nil
 local durationColorCurve = nil
 local clearListScratch = {}  -- reusable scratch table for ticker clear passes
+local nativeDurationFormatters = {}
+local nativeFlatColorCurves = {}
 
 local durationObjectCache = {}
 
@@ -466,7 +469,7 @@ end
 
 local function IsThresholdColorAllowedForSource(sourceKey, config)
     if not config then return false end
-    if sourceKey == CATEGORY.HealerCC then
+    if sourceKey == CATEGORY.HealerCC or sourceKey == CATEGORY.MiniAuras then
         return false
     end
     if config.allowThresholdColors ~= nil then
@@ -587,6 +590,145 @@ local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
     return config.enabled == true and IsThresholdColorAllowedForSource(sourceKey, config)
 end
 
+local function GetNativeDurationFormatter()
+    local profile = MCE.db and MCE.db.profile
+    local abbrevThreshold = profile and profile.abbrevThreshold
+        or C.Options.DefaultAbbrevThreshold
+    local millisecondsThreshold = profile and profile.countdownMillisecondsThreshold
+        or C.Options.DefaultMillisecondsThreshold
+
+    abbrevThreshold = max(0, type(abbrevThreshold) == "number" and abbrevThreshold or 0)
+    millisecondsThreshold = max(
+        0, type(millisecondsThreshold) == "number" and millisecondsThreshold or 0)
+
+    local key = abbrevThreshold .. ":" .. millisecondsThreshold
+    local formatter = nativeDurationFormatters[key]
+    if formatter then return formatter end
+
+    local ok, created = pcall(function()
+        local fmt = C_StringUtil.CreateNumericRuleFormatter()
+        local down = Enum.NumericRuleFormatRounding.Down
+        local up = Enum.NumericRuleFormatRounding.Up
+        local minuteAt = max(abbrevThreshold + 1, millisecondsThreshold)
+        local hourAt = max((abbrevThreshold * 60) + 1, minuteAt + 1)
+
+        if millisecondsThreshold > 0 then
+            fmt:AddBreakpoint({ threshold = 0, step = 0.1, format = "%.1f" })
+            if minuteAt > millisecondsThreshold then
+                fmt:AddBreakpoint({
+                    threshold = millisecondsThreshold,
+                    step = 1,
+                    rounding = down,
+                    min = 1,
+                    format = "%d",
+                })
+            end
+        else
+            fmt:AddBreakpoint({
+                threshold = 0,
+                step = 1,
+                rounding = down,
+                min = 1,
+                format = "%d",
+            })
+        end
+
+        fmt:AddBreakpoint({
+            threshold = minuteAt,
+            step = 1,
+            rounding = down,
+            min = 1,
+            format = "%dm",
+            components = { { div = 60, rounding = up } },
+        })
+        fmt:AddBreakpoint({
+            threshold = hourAt,
+            step = 1,
+            rounding = down,
+            min = 1,
+            format = "%dh",
+            components = { { div = 3600, rounding = up } },
+        })
+        return fmt
+    end)
+
+    if not ok or not created then return nil end
+    nativeDurationFormatters[key] = created
+    return created
+end
+
+local function GetNativeFlatColorCurve(color)
+    color = color or C.Colors.White
+    local r, g, b, a = color.r or 1, color.g or 1, color.b or 1, color.a or 1
+    local key = floor(r * 1000 + 0.5) .. ":"
+        .. floor(g * 1000 + 0.5) .. ":"
+        .. floor(b * 1000 + 0.5) .. ":"
+        .. floor(a * 1000 + 0.5)
+    local curve = nativeFlatColorCurves[key]
+    if curve then return curve end
+
+    curve = C_CurveUtil.CreateColorCurve()
+    curve:SetType(Enum.LuaCurveType.Step)
+    curve:AddPoint(0, CreateColor(r, g, b, a))
+    curve:AddPoint(1, CreateColor(r, g, b, a))
+    nativeFlatColorCurves[key] = curve
+    return curve
+end
+
+local function GetNativeDurationTextCurve(sourceKey, config)
+    local durationConfig = GetDurationTextColorsConfig()
+    if durationConfig and durationConfig.enabled
+       and config and config.enabled == true
+       and IsThresholdColorAllowedForSource(sourceKey, config) then
+        local curve = GetColorCurve()
+        if curve then return curve end
+    end
+    return GetNativeFlatColorCurve(config and config.textColor)
+end
+
+function DurationColor:RefreshNativeUnitFrameDurationText(cdFrame, sourceKey, config)
+    local fs = frameState[cdFrame]
+    if not (fs and fs.unitFrameNativeDurationText == true
+       and fs.unitFrameNativeDurationTextReady == true) then
+        return false
+    end
+
+    local button = fs.unitFrameAuraButton
+    local durationText = fs.unitFrameCountdownText
+    local setDurationText = button and MCE:SafeTableGet(button, "SetDurationText") or nil
+    if type(setDurationText) ~= "function" or not durationText then
+        return false
+    end
+
+    local curve = GetNativeDurationTextCurve(sourceKey, config)
+    local formatter = GetNativeDurationFormatter()
+    if not curve then return false end
+
+    if fs.unitFrameBoundDurationCurve == curve
+       and fs.unitFrameBoundDurationFormatter == formatter
+       and fs.unitFrameBoundDurationText == durationText then
+        return true
+    end
+
+    local options = {
+        textColor = {
+            curve = curve,
+            property = Enum.DurationTextBindingProperty.RemainingDuration,
+        },
+    }
+    if formatter then
+        options.textFormatter = formatter
+    end
+
+    local ok = pcall(setDurationText, button, durationText, options)
+    if not ok then return false end
+
+    fs.unitFrameBoundDurationCurve = curve
+    fs.unitFrameBoundDurationFormatter = formatter
+    fs.unitFrameBoundDurationText = durationText
+    return true
+end
+
 -- =========================================================================
 -- COLOR APPLICATION
 -- =========================================================================
@@ -650,6 +792,21 @@ function DurationColor:ClearTrackedDurationColor(cdFrame)
 end
 
 function DurationColor:RefreshTrackedDurationColor(cdFrame, sourceKey, config)
+    local fs = frameState[cdFrame]
+    if fs and fs.unitFrameThresholdColorsDisabled == true then
+        self:ClearTrackedDurationColor(cdFrame)
+        return false
+    end
+    -- MiniAuras owns both its native duration binding and countdown colors.
+    if fs and fs.miniAurasNativeDurationText == true then
+        self:ClearTrackedDurationColor(cdFrame)
+        return false
+    end
+    if fs and fs.unitFrameNativeDurationText == true then
+        self:ClearTrackedDurationColor(cdFrame)
+        return self:RefreshNativeUnitFrameDurationText(cdFrame, sourceKey, config)
+    end
+
     local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
     if overrideColor then
         self:ClearTrackedDurationColor(cdFrame)
@@ -761,6 +918,12 @@ function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
 
     -- Action bars re-fetch live duration data, so avoid extra validation work.
     local category = Registry and Registry:GetCategory(cooldown)
+    local trackedState = frameState[cooldown]
+    if trackedState and (trackedState.unitFrameNativeDurationText == true
+       or trackedState.miniAurasNativeDurationText == true
+       or trackedState.unitFrameThresholdColorsDisabled == true) then
+        return
+    end
     if category == CATEGORY.Actionbar then
         local sourceKey = durationColoredFrames[cooldown]
         if not sourceKey then return end
@@ -813,5 +976,7 @@ function DurationColor:Reset()
     wipe(activeDurationFrames)
     activeDurationFrameCount = 0
     wipe(durationObjectCache)
+    wipe(nativeDurationFormatters)
+    wipe(nativeFlatColorCurves)
     self:InvalidateColorCurve()
 end

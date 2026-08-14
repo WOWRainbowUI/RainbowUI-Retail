@@ -147,7 +147,6 @@ C.Defaults = {
         [C.Categories.PlayerAura] = false,
         [C.Categories.CooldownManager] = false,
         [C.Categories.HealerCC] = false,
-        [C.Categories.MiniAuras] = false,
         [C.Categories.SArena] = false,
         [C.Categories.TellMeWhen] = false,
     },
