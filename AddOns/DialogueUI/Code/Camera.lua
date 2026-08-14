@@ -669,7 +669,6 @@ local function ShowUIParent(state)
 
     if state then
         if ShouldShowUIParent() then
-            UIParent:Show();
             SetGameUIShown(true);
         else
             MovieFrame.uiParentShown = true;

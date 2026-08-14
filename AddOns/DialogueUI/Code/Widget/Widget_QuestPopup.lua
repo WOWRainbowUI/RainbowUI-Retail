@@ -106,7 +106,7 @@ do
 
         if button == "RightButton" and self.allowRightClickClose and isFocused then
             --Accepted quest popup closes on RightClick
-            self:Close();
+            self:Close(true);
             return
         end
 
@@ -144,6 +144,16 @@ do
     function QuestPopupFrameMixin:OnHide()
         --QuestAlert is child of UIParent, but we don't want to trigger anything is the Frame becomes hidden due to UIParent
         self.Highlight:Hide();
+        self.questChanged = true;
+    end
+
+    function QuestPopupFrameMixin:OnEvent(event, ...)
+        if event == "QUEST_FINISHED" then
+            local questID = GetQuestID();
+            if self.isReroutedQuest and ((not questID) or questID ~= self.questID) then
+               self:Close();
+            end
+        end
     end
 
     function QuestPopupFrameMixin:SetTitle(title)
@@ -161,6 +171,10 @@ do
     end
 
     function QuestPopupFrameMixin:SetQuestDataByID(questID)
+        if questID ~= self.questID then
+            self.questChanged = true;
+        end
+
         self.questID = questID;
 
         if not QuestWidgets[questID] then
@@ -220,7 +234,7 @@ do
         end
     end
 
-    function QuestPopupFrameMixin:Close()
+    function QuestPopupFrameMixin:Close(fromRightClick)
         self.isActive = false;
         self:Hide();
         WidgetManager:ChainRemove(self);
@@ -230,6 +244,17 @@ do
             if QuestWidgets[self.questID] == self then
                 QuestWidgets[self.questID] = nil;
             end
+
+            if self.isReroutedQuest then
+                self.isReroutedQuest = nil;
+                if GetQuestID() == self.questID and fromRightClick then
+                    addon.FlagQuestDeclined();
+                    CloseQuest();
+                end
+            end
+
+            self.questID = nil;
+            self:UnregisterEvent("QUEST_FINISHED");
         end
     end
 
@@ -259,21 +284,35 @@ do
     end
 
     --For different Quest Types
-    function QuestPopupFrameMixin:SetQuestOffer(questID, questStartItemID)
+    function QuestPopupFrameMixin:SetQuestOffer(questID, questStartItemID, isReroutedQuest)
         self.method = "SetQuestOffer";
+        self.isReroutedQuest = isReroutedQuest;
+
         self:SetLayout("offer");
         if self:SetQuestDataByID(questID) then
             ThemeUtil:SetFontColor(self.Header, "DarkModeGrey70");
             ThemeUtil:SetFontColor(self.Title, "DarkModeGold");
             self.Header:SetText(L["New Quest Available"]);
             self.QuestIcon.AnimBounce:Play();
-            self:ShowCloseButton(false);
-            self.allowRightClickClose = false;
-            self:FadeIn();
+
+            local canBeClosed = isReroutedQuest or false;
+            self:ShowCloseButton(canBeClosed);
+            self.allowRightClickClose = canBeClosed;
+
+            if self.questChanged then
+                self.questChanged = nil;
+                self:FadeIn();
+            end
+
+            if isReroutedQuest then
+                self:RegisterEvent("QUEST_FINISHED");
+            else
+                self:UnregisterEvent("QUEST_FINISHED");
+            end
 
             if API.IsControllerMode() then
                 After(1, function()
-                    if not API.IsPlayerOnQuest(questID) then
+                    if (not API.IsPlayerOnQuest(questID)) and GetQuestID() == questID then
                         AcceptQuest();
                     end
                 end);
@@ -286,6 +325,7 @@ do
     function QuestPopupFrameMixin:SetAcceptedQuest(questID, questStartItemID)
         self.method = "SetAcceptedQuest";
         self:SetLayout("accepted");
+        self:UnregisterEvent("QUEST_FINISHED");
         if self:SetQuestDataByID(questID) then
             ThemeUtil:SetFontColor(self.Header, "DarkModeGrey70");
             ThemeUtil:SetFontColor(self.Title, "DarkModeGrey90");
@@ -312,6 +352,7 @@ do
         f:SetScript("OnLeave", f.OnLeave);
         f:SetScript("OnShow", f.OnShow);
         f:SetScript("OnHide", f.OnHide);
+        f:SetScript("OnEvent", f.OnEvent);
         f.widgetName = L["Auto Quest Popup"];
         return f
     end
@@ -344,12 +385,16 @@ do  --Create Popup
         return f
     end
 
-    function WidgetManager:AddAutoQuestPopUp(questStartItemID)
+    ---Add reroute the current Quest Detail to a popup, left click to view in DUI
+    ---@param questStartItemID number? payload from QUEST_DETAIL
+    ---@param isReroutedQuest boolean? Some quest are repeatedly pushed to the player unless they accept it (Uniting the Isles).
+    ---In such case, we add the quest to our popup but don't use Blizzard's popup API, otherwise the player will see another one in Objective Tracker
+    function WidgetManager:AddAutoQuestPopUp(questStartItemID, isReroutedQuest)
         --This method is called in Core.lua
         local questID = GetQuestID();
         if questID and questID ~= 0 then
             local popUpType = "OFFER";
-            if AddAutoQuestPopUp(questID, popUpType) then
+            if isReroutedQuest or AddAutoQuestPopUp(questID, popUpType) then
                 local f = QuestWidgets[questID];
                 if not f then
                     f = self:AcquireQuestPopup();
@@ -359,7 +404,7 @@ do  --Create Popup
                     f:SetAcceptedQuest(questID, questStartItemID);
                     self:UnregisterEvent("QUEST_ACCEPTED");
                 else
-                    f:SetQuestOffer(questID, questStartItemID);
+                    f:SetQuestOffer(questID, questStartItemID, isReroutedQuest);
                     self:RegisterEvent("QUEST_ACCEPTED");   --TO-DO: Unregister if player turns down the offer
                 end
 

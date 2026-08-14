@@ -57,6 +57,36 @@ if not addon.IsToCVersionEqualOrNewerThan(50000) then
     end
 end
 
+local DeclinedQuests = {};
+
+local function FlagQuestDeclined()
+    local questID = GetQuestID();
+    if questID and questID ~= 0 then
+        if DeclinedQuests[questID] then
+            DeclinedQuests[questID] = DeclinedQuests[questID] + 1;
+        else
+            DeclinedQuests[questID] = 1;
+        end
+    end
+end
+addon.FlagQuestDeclined = FlagQuestDeclined;
+
+API.AddCustomLinkType("UnblockQuest", function(questID)
+    questID = questID and tonumber(questID);
+    if questID and DeclinedQuests[questID] then
+        DeclinedQuests[questID] = nil;
+        API.PrintMessage(addon.L["Quest Unblocked Alert"]);
+    end
+end);
+
+local function GetQuestDeclinedTimes()
+    -- Only affect area triggered quests
+    local questID = GetQuestID();
+    if questID and questID ~= 0 then
+        return DeclinedQuests[questID]
+    end
+end
+
 local function ShouldMuteQuest()
     local questID = GetQuestID();
     return ShouldMuteQuestDetail(questID)
@@ -111,6 +141,8 @@ function EL:OnEvent(event, ...)
     if HANDLE_EVENT_EXTERNALLY then
         return
     end
+
+    --print(event, GetTimePreciseSec(), ...);    --debug
 
     if event == "GOSSIP_SHOW" then
         self.lastEvent = event;
@@ -169,14 +201,30 @@ function EL:OnEvent(event, ...)
             return
 		end
 
-        if USE_AUTO_QUEST_POPUP and QuestIsFromAreaTrigger() and (QuestGetAutoAccept() or InCombatLockdown()) then
-            --"QuestIsFromAreaTrigger" and "QuestGetAutoAccept" Doesn't work in Classic
-            --Some quests that triggered upon login aren't "QuestIsFromAreaTrigger"
-            addon.WidgetManager:AddAutoQuestPopUp();
-            CloseQuest();
-        else
-            MainFrame:ShowUI(event, questStartItemID);
+        if QuestIsFromAreaTrigger() then
+            local declinedTimes = GetQuestDeclinedTimes();
+            if declinedTimes then
+                if declinedTimes == 1 then
+                    local isReroutedQuest = true;
+                    addon.WidgetManager:AddAutoQuestPopUp(nil, isReroutedQuest);
+                else
+                    FlagQuestDeclined();
+                    if declinedTimes < 3 then
+                        API.ShowBlockedQuestMessage(GetQuestID());
+                    end
+                    CloseQuest();
+                end
+                return
+            elseif USE_AUTO_QUEST_POPUP and (QuestGetAutoAccept() or InCombatLockdown()) then
+                --"QuestIsFromAreaTrigger" and "QuestGetAutoAccept" Doesn't work in Classic
+                --Some quests that triggered upon login aren't "QuestIsFromAreaTrigger"
+                addon.WidgetManager:AddAutoQuestPopUp();
+                CloseQuest();
+                return
+            end
         end
+
+        MainFrame:ShowUI(event, questStartItemID);
 
     elseif event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE" or event == "QUEST_GREETING" then
         --Sometimes QUEST_FINISHED fires before QUEST_COMPLETE
@@ -193,8 +241,6 @@ function EL:OnEvent(event, ...)
             Muter:UpdateForInstance();
         end
     end
-
-    --print(event, GetTimePreciseSec(), ...);    --debug
 end
 
 function EL:ListenEvents(state)

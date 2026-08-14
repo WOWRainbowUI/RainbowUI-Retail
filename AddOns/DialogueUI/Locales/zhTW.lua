@@ -318,6 +318,11 @@ L["BookUI TTS Voice Desc"] = "可閱讀的物件使用這個語音:";
 L["BookUI TTS Click To Read"] = "點一下段落唸出";
 L["BookUI TTS Click To Read Desc"] = "點一下段落將它唸出來。\n\n點一下已經在唸的段落來停止唸出。";
 
+--Quest Popups
+L["Block Auto Pushed Quest Alert Format"] = "由於你在本次遊戲中已拒絕兩次，任務對話插件已封鎖自動推送的任務 %s。";
+L["Quest Unblocked Alert"] = "任務已解除封鎖。下次遊戲自動提供此任務時，任務視窗將會出現。";
+L["Click To Unblock Quest"] = "點擊以解除封鎖";   --Will be used in a clickable link []
+
 --Keybinding Action
 L["Bound To"] = "綁定到: ";
 L["Hotkey Colon"] = "快速鍵: ";
