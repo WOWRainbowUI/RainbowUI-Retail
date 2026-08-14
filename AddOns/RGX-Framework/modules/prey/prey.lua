@@ -17,7 +17,7 @@ local Prey = {
     knownVignettes = {},
 }
 
-local PREY_WIDGET_TYPE = (Enum and Enum.UIWidgetVisualizationType and Enum.UIWidgetVisualizationType.PreyHuntProgress) or 31
+local PREY_WIDGET_TYPE = Enum and Enum.UIWidgetVisualizationType and Enum.UIWidgetVisualizationType.PreyHuntProgress
 
 local function AddCb(list, fn)
     if type(fn) ~= "function" then return nil end
@@ -40,7 +40,9 @@ local function Fire(list, ...)
 end
 
 local function HasAPI()
-    return C_UIWidgetManager and C_UIWidgetManager.GetPreyHuntProgressWidgetVisualizationInfo
+    return PREY_WIDGET_TYPE ~= nil
+        and C_UIWidgetManager
+        and type(C_UIWidgetManager.GetPreyHuntProgressWidgetVisualizationInfo) == "function"
 end
 
 function Prey:OnHuntStarted(fn) return AddCb(self._onHuntStarted, fn) end
@@ -112,6 +114,7 @@ end
 function Prey:Init()
     if self._eventsInit then return end
     self._eventsInit = true
+    if not RGX:HasCapability("prey") or not HasAPI() then return end
 
     RGX:RegisterEvent("UPDATE_UI_WIDGET", function(_, widgetInfo) Prey:OnWidgetUpdate(widgetInfo) end, "RGXPrey_Widget")
     RGX:RegisterEvent("VIGNETTES_UPDATED", function() Prey:OnVignettesUpdated() end, "RGXPrey_Vignettes")

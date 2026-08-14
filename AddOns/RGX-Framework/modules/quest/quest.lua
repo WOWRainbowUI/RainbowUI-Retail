@@ -50,8 +50,8 @@ local function ResolveQuestID(questRef)
         if type(watched) == "number" and watched > 0 then return watched end
     end
 
-    if C_QuestLog and C_QuestLog.GetInfo then
-        local info = C_QuestLog.GetInfo(questRef)
+    if RGX.API and RGX.API.GetQuestLogInfo then
+        local info = RGX.API.GetQuestLogInfo(questRef)
         if info and type(info.questID) == "number" and info.questID > 0 then return info.questID end
     end
 
@@ -60,9 +60,7 @@ end
 
 local function BuildObjectiveSnapshot(questID)
     if type(questID) ~= "number" or questID <= 0 then return nil end
-    if not (C_QuestLog and C_QuestLog.GetQuestObjectives) then return nil end
-
-    local objectives = C_QuestLog.GetQuestObjectives(questID)
+    local objectives = RGX.API and RGX.API.GetQuestObjectives and RGX.API.GetQuestObjectives(questID)
     if type(objectives) ~= "table" then return nil end
 
     local snapshot, hasEntries = {}, false
@@ -99,11 +97,10 @@ local function DidProgressIncrease(previous, current)
 end
 
 function Quest:RefreshObjectiveCache()
-    if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then return end
-
     local refreshed = {}
-    for index = 1, C_QuestLog.GetNumQuestLogEntries() do
-        local info = C_QuestLog.GetInfo(index)
+    local count = RGX.API and RGX.API.GetNumQuestLogEntries and RGX.API.GetNumQuestLogEntries() or 0
+    for index = 1, count do
+        local info = RGX.API.GetQuestLogInfo(index)
         local questID = info and info.questID
         if type(questID) == "number" and questID > 0 then
             refreshed[questID] = BuildObjectiveSnapshot(questID)
@@ -159,9 +156,9 @@ function Quest:Init()
     end, "RGXQuest_WatchUpdate")
 
     RGX:RegisterEvent("QUEST_LOG_UPDATE", function()
-        if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then return end
-        for index = 1, C_QuestLog.GetNumQuestLogEntries() do
-            local info = C_QuestLog.GetInfo(index)
+        local count = RGX.API and RGX.API.GetNumQuestLogEntries and RGX.API.GetNumQuestLogEntries() or 0
+        for index = 1, count do
+            local info = RGX.API.GetQuestLogInfo(index)
             local questID = info and info.questID
             if type(questID) == "number" and questID > 0 then
                 local current = BuildObjectiveSnapshot(questID)

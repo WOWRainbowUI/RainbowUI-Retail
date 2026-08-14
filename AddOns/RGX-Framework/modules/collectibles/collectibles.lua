@@ -68,21 +68,29 @@ function Collectibles:Init()
     if self._eventsInit then return end
     self._eventsInit = true
 
-    RGX:RegisterEvent("NEW_MOUNT_ADDED", function()
-        Fire(Collectibles._onMount)
-    end)
+    if RGX:HasEvent("NEW_MOUNT_ADDED") then
+        RGX:RegisterEvent("NEW_MOUNT_ADDED", function()
+            Fire(Collectibles._onMount)
+        end)
+    end
 
-    RGX:RegisterEvent("NEW_TOY_ADDED", function()
-        Fire(Collectibles._onToy)
-    end)
+    if RGX:HasEvent("NEW_TOY_ADDED") then
+        RGX:RegisterEvent("NEW_TOY_ADDED", function()
+            Fire(Collectibles._onToy)
+        end)
+    end
 
-    RGX:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED", function()
-        Fire(Collectibles._onTransmog)
-    end)
+    if RGX:HasEvent("TRANSMOG_COLLECTION_SOURCE_ADDED") then
+        RGX:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED", function()
+            Fire(Collectibles._onTransmog)
+        end)
+    end
 
-    RGX:RegisterEvent("HEIRLOOMS_UPDATED", function()
-        Fire(Collectibles._onHeirloom)
-    end)
+    if RGX:HasEvent("HEIRLOOMS_UPDATED") then
+        RGX:RegisterEvent("HEIRLOOMS_UPDATED", function()
+            Fire(Collectibles._onHeirloom)
+        end)
+    end
 end
 
 -- ── Wire into framework ───────────────────────────────────────────────────────

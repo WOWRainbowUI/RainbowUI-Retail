@@ -100,7 +100,11 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         -- Initialize modules that need post-load startup.
         -- TryInit is a no-op when a module's global is nil, so optional modules
         -- can be removed from the XML without requiring a matching change here.
-        local function TryInit(global)
+        local function TryInit(name, global)
+            if type(RGX.IsModuleAvailable) == "function" and not RGX:IsModuleAvailable(name) then
+                RGX:Debug("Module " .. name .. " unavailable on " .. tostring(RGX.wowVersion))
+                return
+            end
             local mod = _G[global]
             if mod and type(mod.Init) == "function" then
                 local ok, err = pcall(mod.Init, mod)
@@ -110,23 +114,23 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
             end
         end
 
-        TryInit("RGXFonts")
-        TryInit("RGXSharedMedia")
-        TryInit("RGXCombat")
-        TryInit("RGXPetBattles")
-        TryInit("RGXReputation")
-        TryInit("RGXAuras")
-        TryInit("RGXTooltip")
-        TryInit("RGXAchievement")
-        TryInit("RGXLevelUp")
-        TryInit("RGXQuest")
-        TryInit("RGXHonor")
-        TryInit("RGXDelves")
-        TryInit("RGXHousing")
-        TryInit("RGXTradingPost")
-        TryInit("RGXPrey")
-        TryInit("RGXCollectibles")
-        TryInit("RGXLoot")
+        TryInit("fonts", "RGXFonts")
+        TryInit("sharedmedia", "RGXSharedMedia")
+        TryInit("combat", "RGXCombat")
+        TryInit("petbattles", "RGXPetBattles")
+        TryInit("reputation", "RGXReputation")
+        TryInit("auras", "RGXAuras")
+        TryInit("tooltip", "RGXTooltip")
+        TryInit("achievement", "RGXAchievement")
+        TryInit("levelup", "RGXLevelUp")
+        TryInit("quest", "RGXQuest")
+        TryInit("honor", "RGXHonor")
+        TryInit("delves", "RGXDelves")
+        TryInit("housing", "RGXHousing")
+        TryInit("tradingpost", "RGXTradingPost")
+        TryInit("prey", "RGXPrey")
+        TryInit("collectibles", "RGXCollectibles")
+        TryInit("loot", "RGXLoot")
 
         -- Mark ready and fire queued callbacks
         RGX._ready = true

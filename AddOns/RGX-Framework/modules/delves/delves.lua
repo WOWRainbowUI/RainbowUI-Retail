@@ -39,11 +39,6 @@ local function Fire(list, ...)
     end
 end
 
-local function IsRetailClient()
-    local _, _, _, interfaceVersion = GetBuildInfo()
-    return interfaceVersion and interfaceVersion >= 100000
-end
-
 local function GetAuraStackCount(aura)
     if type(aura) ~= "table" then return nil end
     if type(aura.applications) == "number" then return aura.applications end
@@ -144,7 +139,7 @@ end
 function Delves:Init()
     if self._eventsInit then return end
     self._eventsInit = true
-    if not IsRetailClient() then return end
+    if not RGX:HasCapability("delves") then return end
 
     RGX:RegisterEvent("FACTION_STANDING_CHANGED", function(_, factionID)
         Delves:CheckCompanionLevel(factionID)

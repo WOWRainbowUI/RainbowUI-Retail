@@ -157,7 +157,7 @@ function Fonts:CreateTestFrame()
 		return self.testFrame
 	end
 
-	local frame = CreateFrame("Frame", "RGXFontTestFrame", UIParent, "BasicFrameTemplateWithInset")
+	local frame, hasBasicFrame = RGX:CreateCompatibleFrame("Frame", "RGXFontTestFrame", UIParent, "BasicFrameTemplateWithInset", "BackdropTemplate")
 	frame:SetSize(860, 560)
 	frame:SetPoint("CENTER")
 	frame:SetFrameStrata("DIALOG")
@@ -169,7 +169,14 @@ function Fonts:CreateTestFrame()
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame:Hide()
 
-	frame.TitleText:SetText("RGX Font Test")
+	if hasBasicFrame and frame.TitleText then
+		frame.TitleText:SetText("RGX Font Test")
+	else
+		RGX:GetDesign():ApplyBackdrop(frame, "panel", 0.98)
+		frame.TitleText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+		frame.TitleText:SetPoint("TOPLEFT", 16, -12)
+		frame.TitleText:SetText("RGX Font Test")
+	end
 
 	frame.subtitle = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	frame.subtitle:SetPoint("TOPLEFT", 16, -34)

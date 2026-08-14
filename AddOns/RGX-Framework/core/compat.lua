@@ -28,65 +28,60 @@ RGX.isWrath = (RGX.wowVersion == "wrath")
 RGX.isCata = (RGX.wowVersion == "cata")
 RGX.isMists = (RGX.wowVersion == "mists")
 
+local function HasFunction(namespace, name)
+    return type(namespace) == "table" and type(namespace[name]) == "function"
+end
+
+local function HasEvent(name)
+    if HasFunction(C_EventUtils, "IsEventValid") then
+        return C_EventUtils.IsEventValid(name) == true
+    end
+    return true
+end
+
+RGX.Capabilities = {
+    events = HasFunction(C_EventUtils, "IsEventValid"),
+    modernAuras = HasFunction(C_UnitAuras, "GetAuraDataByIndex"),
+    playerAuraBySpell = HasFunction(C_UnitAuras, "GetPlayerAuraBySpellID"),
+    modernQuestLog = HasFunction(C_QuestLog, "GetNumQuestLogEntries") and HasFunction(C_QuestLog, "GetInfo"),
+    legacyQuestLog = type(GetNumQuestLogEntries) == "function" and type(GetQuestLogTitle) == "function",
+    modernReputation = HasFunction(C_Reputation, "GetNumFactions") and HasFunction(C_Reputation, "GetFactionDataByIndex"),
+    legacyReputation = type(GetNumFactions) == "function" and type(GetFactionInfo) == "function",
+    achievements = HasEvent("ACHIEVEMENT_EARNED"),
+    petBattles = HasFunction(C_PetBattles, "GetHealth") and HasEvent("PET_BATTLE_OPENING_START"),
+    modernHonor = type(UnitHonorLevel) == "function" and HasEvent("HONOR_LEVEL_UPDATE"),
+    legacyHonor = HasEvent("HONOR_XP_UPDATE") or HasEvent("PLAYER_PVP_RANK_CHANGED"),
+    renown = HasFunction(C_MajorFactions, "GetMajorFactionIDs") and HasFunction(C_MajorFactions, "GetMajorFactionData") and HasEvent("MAJOR_FACTION_RENOWN_LEVEL_CHANGED"),
+    delves = HasFunction(C_DelvesUI, "GetFactionForCompanion") or HasFunction(C_DelvesUI, "GetDelvesFactionForSeason"),
+    housing = HasEvent("CURRENT_HOUSE_INFO_RECIEVED") and (type(C_Housing) == "table" or type(C_HousingDecor) == "table"),
+    tradingPost = HasFunction(C_PerksProgram, "GetCurrencyAmount") and HasEvent("PERKS_PROGRAM_CURRENCY_REFRESH"),
+    prey = HasFunction(C_QuestLog, "GetActivePreyQuest") and HasEvent("UPDATE_UI_WIDGET"),
+    settings = HasFunction(Settings, "RegisterCanvasLayoutCategory") and HasFunction(Settings, "RegisterAddOnCategory") and HasFunction(Settings, "OpenToCategory"),
+    menuUtil = HasFunction(MenuUtil, "CreateContextMenu"),
+}
+
+function RGX:HasCapability(name)
+    return self.Capabilities[name] == true
+end
+
+function RGX:HasEvent(name)
+    return HasEvent(name)
+end
+
+function RGX:CreateCompatibleFrame(frameType, name, parent, preferredTemplate, fallbackTemplate)
+    if preferredTemplate then
+        local ok, frame = pcall(CreateFrame, frameType, name, parent, preferredTemplate)
+        if ok and frame then return frame, true end
+    end
+    return CreateFrame(frameType, name, parent, fallbackTemplate), false
+end
+
 -- API shims for Classic (Retail APIs that don't exist on Classic)
 if not C_AddOns then
     C_AddOns = {}
     C_AddOns.GetAddOnMetadata = GetAddOnMetadata
     C_AddOns.LoadAddOn = LoadAddOn
     C_AddOns.IsAddOnLoaded = IsAddOnLoaded
-end
-
-if not C_QuestLog then
-    C_QuestLog = {}
-    -- Classic uses GetQuestLogTitle, GetNumQuestLogEntries, etc.
-end
-
-if not C_TaskQuest then
-    C_TaskQuest = {}
-    -- Classic doesn't have C_TaskQuest
-end
-
-if not C_NamePlate then
-    C_NamePlate = {}
-    -- Classic has NamePlate API but different
-end
-
-if not C_UnitAuras then
-    C_UnitAuras = {}
-    -- Classic uses UnitAura
-end
-
-if not C_Spell then
-    C_Spell = {}
-    -- Classic uses GetSpellInfo
-end
-
-if not C_Item then
-    C_Item = {}
-    -- Classic uses GetItemInfo
-end
-
-if not C_GossipInfo then
-    C_GossipInfo = {}
-    -- Classic uses GetGossipOptions
-end
-
-if not C_PerksProgram then
-    C_PerksProgram = {}
-    -- Classic doesn't have Trading Post
-end
-
-if not C_PlayerInfo then
-    C_PlayerInfo = {}
-    -- Classic may not have IsTravelersLogAvailable
-end
-
-if not C_CurrencyInfo then
-    C_CurrencyInfo = {}
-end
-
-if not C_SpellBook then
-    C_SpellBook = {}
 end
 
 -- Safe API wrappers (return nil if API doesn't exist)
@@ -179,7 +174,27 @@ function RGX.API.UnitAura(unit, index, filter)
     if C_UnitAuras and C_UnitAuras.GetAuraDataByIndex then
         return C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
     end
-    return UnitAura(unit, index, filter)
+    if type(UnitAura) ~= "function" then return nil end
+    local name, icon, applications, dispelName, duration, expirationTime,
+        sourceUnit, isStealable, _, spellId, canApplyAura, isBossAura,
+        castByPlayer, nameplateShowAll, timeMod = UnitAura(unit, index, filter)
+    if not name then return nil end
+    return {
+        name = name,
+        icon = icon,
+        applications = applications,
+        dispelName = dispelName,
+        duration = duration,
+        expirationTime = expirationTime,
+        sourceUnit = sourceUnit,
+        isStealable = isStealable,
+        spellId = spellId,
+        canApplyAura = canApplyAura,
+        isBossAura = isBossAura,
+        isFromPlayerOrPlayerPet = castByPlayer,
+        nameplateShowAll = nameplateShowAll,
+        timeMod = timeMod,
+    }
 end
 
 function RGX.API.GetPlayerAuraBySpellID(spellID)
@@ -188,10 +203,9 @@ function RGX.API.GetPlayerAuraBySpellID(spellID)
     end
     -- Fallback: scan manually
     for i = 1, 40 do
-        local name, _, _, _, _, _, _, _, _, spellId = UnitAura("player", i, "HELPFUL")
-        if spellId == spellID then
-            return { spellId = spellId, name = name, index = i }
-        end
+        local aura = RGX.API.UnitAura("player", i, "HELPFUL")
+        if not aura then break end
+        if aura.spellId == spellID then return aura end
     end
     return nil
 end
@@ -203,7 +217,7 @@ function RGX.API.GetSpellInfo(spellID)
             return info.name, info.rank, info.iconID, info.castTime, info.minRange, info.maxRange, info.spellID, info.originalIconID
         end
     end
-    return GetSpellInfo(spellID)
+    return type(GetSpellInfo) == "function" and GetSpellInfo(spellID) or nil
 end
 
 function RGX.API.GetSpellCooldown(spellID)
@@ -213,7 +227,7 @@ function RGX.API.GetSpellCooldown(spellID)
             return info.startTime or 0, info.duration or 0, info.isEnabled and 1 or 0, info.modRate or 1
         end
     end
-    return GetSpellCooldown(spellID)
+    return type(GetSpellCooldown) == "function" and GetSpellCooldown(spellID) or nil
 end
 
 function RGX.API.IsUsableSpell(spellID)
@@ -224,7 +238,7 @@ function RGX.API.IsUsableSpell(spellID)
         end
         return usable, noMana
     end
-    return IsUsableSpell(spellID)
+    return type(IsUsableSpell) == "function" and IsUsableSpell(spellID) or nil
 end
 
 function RGX.API.GetItemInfo(item)
@@ -234,21 +248,21 @@ function RGX.API.GetItemInfo(item)
             return info.itemName, info.itemLink, info.itemQuality, info.itemLevel, info.itemMinLevel, info.itemType, info.itemSubType, info.itemStackCount, info.itemEquipLoc, info.iconFileID, info.itemSellPrice
         end
     end
-    return GetItemInfo(item)
+    return type(GetItemInfo) == "function" and GetItemInfo(item) or nil
 end
 
 function RGX.API.GetItemCount(itemID, includeBank)
     if C_Item and C_Item.GetItemCount then
         return C_Item.GetItemCount(itemID, includeBank)
     end
-    return GetItemCount(itemID, includeBank)
+    return type(GetItemCount) == "function" and GetItemCount(itemID, includeBank) or 0
 end
 
 function RGX.API.GetItemIcon(itemID)
     if C_Item and C_Item.GetItemIconByID then
         return C_Item.GetItemIconByID(itemID)
     end
-    return GetItemIcon(itemID)
+    return type(GetItemIcon) == "function" and GetItemIcon(itemID) or nil
 end
 
 function RGX.API.GetGossipOptions()
@@ -273,49 +287,81 @@ function RGX.API.IsTravelersLogAvailable()
 end
 
 -- Module loading conditionals
-RGX.ModuleAvailability = {}
+RGX.ModuleAvailability = {
+    achievement = "achievements",
+    petbattles = "petBattles",
+    honor = function(self) return self:HasCapability("modernHonor") or self:HasCapability("legacyHonor") end,
+    delves = "delves",
+    housing = "housing",
+    tradingpost = "tradingPost",
+    prey = "prey",
+}
 
 function RGX:IsModuleAvailable(moduleName)
-    local version = self.wowVersion
-    
-    -- Modules only available on Retail
-    local retailOnly = {
-        "tradingpost", "housing", "delves", "collectibles",
-        "databroker", "sound", "sharedmedia"
-    }
-    
-    -- Modules available on Wrath+
-    local wrathPlus = {
-        "achievement", "levelup", "honor"
-    }
-    
-    -- Modules available on Cata+
-    local cataPlus = {
-        "reputation", "petbattles"
-    }
-    
-    if not self.isRetail then
-        for _, mod in ipairs(retailOnly) do
-            if mod == moduleName then return false end
-        end
-    end
-    
-    if self.isClassicEra or self.isTBC then
-        for _, mod in ipairs(wrathPlus) do
-            if mod == moduleName then return false end
-        end
-        for _, mod in ipairs(cataPlus) do
-            if mod == moduleName then return false end
-        end
-    end
-    
-    if self.isClassicEra then
-        for _, mod in ipairs(cataPlus) do
-            if mod == moduleName then return false end
-        end
-    end
-    
+    local rule = self.ModuleAvailability[moduleName]
+    if type(rule) == "string" then return self:HasCapability(rule) end
+    if type(rule) == "function" then return rule(self) == true end
     return true
+end
+
+for moduleName, module in pairs(RGX.modules or {}) do
+    module.available = RGX:IsModuleAvailable(moduleName)
+end
+
+function RGX.API.GetQuestLogInfo(index)
+    if C_QuestLog and type(C_QuestLog.GetInfo) == "function" then
+        return C_QuestLog.GetInfo(index)
+    end
+    if type(GetQuestLogTitle) ~= "function" then return nil end
+    local title, level, suggestedGroup, isHeader, isCollapsed, isComplete,
+        frequency, questID = GetQuestLogTitle(index)
+    return {
+        title = title,
+        level = level,
+        suggestedGroup = suggestedGroup,
+        isHeader = isHeader == true,
+        isCollapsed = isCollapsed == true,
+        isComplete = isComplete,
+        frequency = frequency,
+        questID = questID,
+        questLogIndex = index,
+    }
+end
+
+function RGX.API.GetFactionCount()
+    if C_Reputation and type(C_Reputation.GetNumFactions) == "function" then
+        return C_Reputation.GetNumFactions()
+    end
+    return type(GetNumFactions) == "function" and GetNumFactions() or 0
+end
+
+function RGX.API.GetFactionDataByIndex(index)
+    if C_Reputation and type(C_Reputation.GetFactionDataByIndex) == "function" then
+        return C_Reputation.GetFactionDataByIndex(index)
+    end
+    if type(GetFactionInfo) ~= "function" then return nil end
+    local name, description, standingID, barMin, barMax, barValue,
+        atWarWith, canToggleAtWar, isHeader, isCollapsed, hasRep,
+        isWatched, isChild, factionID, hasBonusRepGain, canSetInactive = GetFactionInfo(index)
+    if not name then return nil end
+    return {
+        factionID = factionID,
+        name = name,
+        description = description,
+        reaction = standingID,
+        currentReactionThreshold = barMin,
+        nextReactionThreshold = barMax,
+        currentStanding = barValue,
+        atWarWith = atWarWith,
+        canToggleAtWar = canToggleAtWar,
+        isHeader = isHeader,
+        isHeaderWithRep = hasRep,
+        isCollapsed = isCollapsed,
+        isWatched = isWatched,
+        isChild = isChild,
+        hasBonusRepGain = hasBonusRepGain,
+        canSetInactive = canSetInactive,
+    }
 end
 
 -- Conditional module loader

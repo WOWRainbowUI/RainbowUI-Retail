@@ -98,17 +98,17 @@ function Rep:OnRenownUp(fn) return AddCb(self._onRenownUp, fn) end
 
 -- ── Scan helpers ──────────────────────────────────────────────────────────────
 
-local function GetFactionDataRetail(index)
-    if C_Reputation and C_Reputation.GetFactionDataByIndex then
-        local ok, d = pcall(C_Reputation.GetFactionDataByIndex, index)
+local function GetFactionData(index)
+    if RGX.API and RGX.API.GetFactionDataByIndex then
+        local ok, d = pcall(RGX.API.GetFactionDataByIndex, index)
         if ok and d then return d end
     end
     return nil
 end
 
 local function GetFactionCount()
-    if C_Reputation and C_Reputation.GetNumFactions then
-        local ok, n = pcall(C_Reputation.GetNumFactions)
+    if RGX.API and RGX.API.GetFactionCount then
+        local ok, n = pcall(RGX.API.GetFactionCount)
         return ok and n or 0
     end
     return 0
@@ -118,7 +118,7 @@ end
 function Rep:Scan()
     local count = GetFactionCount()
     for i = 1, count do
-        local d = GetFactionDataRetail(i)
+        local d = GetFactionData(i)
         if d and d.name and d.reaction then
             local id   = d.factionID or 0
             local name = d.name
@@ -143,7 +143,7 @@ function Rep:Scan()
 
     -- Renown (retail TWW/DF major factions)
     if C_MajorFactions and C_MajorFactions.GetMajorFactionIDs then
-        local ok, ids = pcall(C_MajorFactions.GetMajorFactionIDs, LE_EXPANSION_LEVEL_CURRENT or 9)
+        local ok, ids = pcall(C_MajorFactions.GetMajorFactionIDs)
         if ok and ids then
             for _, fid in ipairs(ids) do
                 local ok2, data = pcall(C_MajorFactions.GetMajorFactionData, fid)
@@ -164,7 +164,7 @@ function Rep:CheckChanges()
     local count = GetFactionCount()
 
     for i = 1, count do
-        local d = GetFactionDataRetail(i)
+        local d = GetFactionData(i)
         if d and d.name and d.reaction then
             local id   = d.factionID or 0
             local name = d.name
@@ -208,7 +208,7 @@ function Rep:CheckChanges()
 
     -- Renown changes
     if C_MajorFactions and C_MajorFactions.GetMajorFactionIDs then
-        local ok, ids = pcall(C_MajorFactions.GetMajorFactionIDs, LE_EXPANSION_LEVEL_CURRENT or 9)
+        local ok, ids = pcall(C_MajorFactions.GetMajorFactionIDs)
         if ok and ids then
             for _, fid in ipairs(ids) do
                 local ok2, data = pcall(C_MajorFactions.GetMajorFactionData, fid)
@@ -302,19 +302,23 @@ function Rep:Init()
         Rep:Scan()
     end)
 
-    RGX:RegisterEvent("MAJOR_FACTION_RENOWN_LEVEL_CHANGED", function()
-        Rep:_QueueCheck()
-    end)
+    if RGX:HasCapability("renown") then
+        RGX:RegisterEvent("MAJOR_FACTION_RENOWN_LEVEL_CHANGED", function()
+            Rep:_QueueCheck()
+        end)
 
-    RGX:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED", function(_, newLevel, oldLevel)
-        local covenantID = C_Covenants and C_Covenants.GetActiveCovenantID and C_Covenants.GetActiveCovenantID() or 0
-        local key = "covenant_" .. tostring(covenantID or 0)
-        local name = "Covenant"
-        if type(newLevel) == "number" and type(oldLevel) == "number" and newLevel > oldLevel then
-            Rep._covenantRenown[key] = { level = newLevel, name = name }
-            Fire(Rep._onRenownUp, name, key, oldLevel, newLevel)
+        if RGX:HasEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED") then
+            RGX:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED", function(_, newLevel, oldLevel)
+                local covenantID = C_Covenants and C_Covenants.GetActiveCovenantID and C_Covenants.GetActiveCovenantID() or 0
+                local key = "covenant_" .. tostring(covenantID or 0)
+                local name = "Covenant"
+                if type(newLevel) == "number" and type(oldLevel) == "number" and newLevel > oldLevel then
+                    Rep._covenantRenown[key] = { level = newLevel, name = name }
+                    Fire(Rep._onRenownUp, name, key, oldLevel, newLevel)
+                end
+            end)
         end
-    end)
+    end
 end
 
 -- ── Wire into framework ───────────────────────────────────────────────────────

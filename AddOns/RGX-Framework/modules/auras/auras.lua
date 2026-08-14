@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX-Framework | RGXAuras
--- Taint-safe aura scanning and watching for any RGX-Framework addon.
+-- Aura scanning and watching with a guaranteed player spell-ID fast path.
 -- Generalizes the PlayerHasAuraSpellID pattern proven in BattlePetUtility and is
 -- the core aura-trigger primitive for rgx-mod.
 --
@@ -18,7 +18,7 @@
 --   if Auras:HasPlayerAura(33264) then ... end
 --   local data = Auras:GetPlayerAura(160599)
 --
---   -- Any unit (PvE-safe; on secret-restricted units returns nil/false)
+--   -- Unrestricted units only; arbitrary auraData is not a secrecy boundary.
 --   if Auras:HasAura(spellId, "target") then ... end
 --   Auras:IterateAuras("target", "HARMFUL", function(aura) ... end)
 --
@@ -68,19 +68,17 @@ end
 
 local function SafeGetPlayerAuraBySpellID(spellId)
     if type(spellId) ~= "number" then return nil end
-    if not C_UnitAuras or type(C_UnitAuras.GetPlayerAuraBySpellID) ~= "function" then
-        return nil
-    end
-    local ok, auraData = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+    local getter = RGX.API and RGX.API.GetPlayerAuraBySpellID
+    if type(getter) ~= "function" then return nil end
+    local ok, auraData = pcall(getter, spellId)
     if not ok then return nil end
     return auraData
 end
 
 local function SafeGetAuraDataByIndex(unit, index, filter)
-    if not C_UnitAuras or type(C_UnitAuras.GetAuraDataByIndex) ~= "function" then
-        return nil
-    end
-    local ok, auraData = pcall(C_UnitAuras.GetAuraDataByIndex, unit, index, filter)
+    local getter = RGX.API and RGX.API.UnitAura
+    if type(getter) ~= "function" then return nil end
+    local ok, auraData = pcall(getter, unit, index, filter)
     if not ok then return nil end
     return auraData
 end
@@ -94,10 +92,8 @@ local function SafeGetAuraDataByInstanceID(unit, auraInstanceID)
     return auraData
 end
 
--- Compare a (possibly secret) aura field to a wanted value entirely inside a
--- pcall boundary. On secret-restricted units the comparison itself errors or
--- taints-and-errors; pcall converts that to "no match" so callers stay safe
--- and simply see nil/false for restricted units.
+-- Best-effort spell comparison for unrestricted units. pcall isolates errors,
+-- but it does not prevent or undo taint from restricted-value access.
 local function AuraMatchesSpellID(auraData, spellId)
     local ok, matches = pcall(function()
         return auraData ~= nil and auraData.spellId == spellId
@@ -143,9 +139,8 @@ function Auras:IterateAuras(unit, filter, callback)
     return visited
 end
 
--- Find an aura by spellId on any unit. Uses the player fast path when possible,
--- otherwise scans. On secret-restricted units this returns nil by design —
--- the module never leaks a taint-triggering comparison to the caller.
+-- Find an aura by spellId. The player path is the guaranteed primitive; scans
+-- for other units are best-effort and must not be treated as a secrecy boundary.
 function Auras:GetAura(spellId, unit)
     if type(spellId) ~= "number" then return nil end
     unit = unit or "player"

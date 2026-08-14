@@ -64,9 +64,9 @@ local function safeRegisterFrameEvent(frame, event)
         return false
     end
 
-    if RGX.allFrameEventsRegistered then
-        RGX.registeredFrameEvents[event] = true
-        return true
+    if C_EventUtils and type(C_EventUtils.IsEventValid) == "function"
+        and C_EventUtils.IsEventValid(event) ~= true then
+        return false
     end
 
     if RGX.registeredFrameEvents[event] then
@@ -292,23 +292,7 @@ local function registerWakeFrameEvents(frame)
     end
 end
 
-local function registerAllFrameEvents(frame)
-    if not frame or RGX.allFrameEventsRegistered then
-        return RGX.allFrameEventsRegistered == true
-    end
-
-    local ok = pcall(frame.RegisterAllEvents, frame)
-    if ok then
-        RGX.allFrameEventsRegistered = true
-        return true
-    end
-
-    return false
-end
-
-if not registerAllFrameEvents(RGX.eventFrame) then
-    registerWakeFrameEvents(RGX.eventFrame)
-end
+registerWakeFrameEvents(RGX.eventFrame)
 
 RGX.eventFrame:SetScript("OnEvent", function(_, event, ...)
     RGX:FireEvent(event, ...)

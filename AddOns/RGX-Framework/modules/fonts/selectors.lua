@@ -196,7 +196,7 @@ function Fonts:CreateStyleEditorFrame(opts)
 	end
 
 	local parent = opts.parent or UIParent
-	local frame = CreateFrame("Frame", opts.name, parent, "BasicFrameTemplateWithInset")
+	local frame, hasBasicFrame = RGX:CreateCompatibleFrame("Frame", opts.name, parent, "BasicFrameTemplateWithInset", "BackdropTemplate")
 	frame:SetSize(opts.width or 420, opts.height or 520)
 	frame:SetPoint(unpack(opts.point or { "CENTER" }))
 	frame:SetFrameStrata(opts.frameStrata or "DIALOG")
@@ -208,7 +208,14 @@ function Fonts:CreateStyleEditorFrame(opts)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame:Hide()
 
-	frame.TitleText:SetText(opts.title or "Text Styles")
+	if hasBasicFrame and frame.TitleText then
+		frame.TitleText:SetText(opts.title or "Text Styles")
+	else
+		RGX:GetDesign():ApplyBackdrop(frame, "panel", 0.98)
+		frame.TitleText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+		frame.TitleText:SetPoint("TOPLEFT", 16, -12)
+		frame.TitleText:SetText(opts.title or "Text Styles")
+	end
 
 	if type(opts.subtitle) == "string" and opts.subtitle ~= "" then
 		frame.subtitle = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
