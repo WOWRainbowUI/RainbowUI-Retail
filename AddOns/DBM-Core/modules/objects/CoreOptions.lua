@@ -384,11 +384,9 @@ DBM.DefaultOptions = {
 	DisableSWSound = false,
 	--Aura Frame Options
 	--Player
-	PrivateAurasPlayerEnabled = true,
+	PrivateAurasPlayerEnabled2 = true,
 	PrivateAurasPlayerHideBorder = false,
 	PrivateAurasPlayerHideTooltip = false,
-	PrivateAurasPlayerUpscaleDuration = true,
-	PrivateAurasPlayerScale = 3,
 	PrivateAurasPlayerSpacing2 = 1,
 	PrivateAurasPlayerLimit = 5,
 	PrivateAurasPlayerGrowDirection = "RIGHT",
@@ -397,7 +395,9 @@ DBM.DefaultOptions = {
 	PrivateAurasPlayerHeight = 65,
 	PrivateAurasPlayerTextFont = "standardFont",
 	PrivateAurasPlayerTextFontStyle = "OUTLINE",
-	PrivateAurasPlayerDurationFontSize = 22,
+	PrivateAurasPlayerDurationFontSize = 32,
+	PrivateAurasPlayerShowDecimalSeconds = true,
+	PrivateAurasPlayerDecimalThreshold = 3,
 	PrivateAurasPlayerStackFontSize = 25,
 	PrivateAurasPlayerStackColor = {r = 1, g = 1, b = 1},
 	PrivateAurasPlayerStackXOffset = -1,
@@ -409,11 +409,9 @@ DBM.DefaultOptions = {
 	PrivateAurasPlayerXOffset = 185,--Partial (drag and drop only, no UI slider/editbox)
 	PrivateAurasPlayerYOffset = 154,--Partial (drag and drop only, no UI slider/editbox)
 	--Co-Tank
-	PrivateAurasCoTankEnabled = false,
+	PrivateAurasCoTankEnabled3 = "Auto",
 	PrivateAurasCoTankHideBorder = false,
 	PrivateAurasCoTankHideTooltip = false,
-	PrivateAurasCoTankUpscaleDuration = true,
-	PrivateAurasCoTankScale = 3,
 	PrivateAurasCoTankSpacing2 = 1,
 	PrivateAurasCoTankLimit = 5,
 	PrivateAurasCoTankGrowDirection = "LEFT",
@@ -422,7 +420,9 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankHeight = 65,
 	PrivateAurasCoTankTextFont = "standardFont",
 	PrivateAurasCoTankTextFontStyle = "OUTLINE",
-	PrivateAurasCoTankDurationFontSize = 22,
+	PrivateAurasCoTankDurationFontSize = 32,
+	PrivateAurasCoTankShowDecimalSeconds = false,
+	PrivateAurasCoTankDecimalThreshold = 3,
 	PrivateAurasCoTankStackFontSize = 25,
 	PrivateAurasCoTankStackColor = {r = 1, g = 1, b = 1},
 	PrivateAurasCoTankStackXOffset = -1,
@@ -441,13 +441,8 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankUseHealerInFiveMan = true,
 	PrivateAurasCoTankSlot1Player = "",
 	PrivateAurasCoTankSlot2Player = "",
-	--Player Text Anchor
-	PrivateAurasTextAnchorScale = 1.8,
-	PrivateAurasTextAnchorXOffset = 0,--Partial (drag and drop only, no UI slider/editbox)
-	PrivateAurasTextAnchorYOffset = -200,--Partial (drag and drop only, no UI slider/editbox)
-	PrivateAurasTextAnchorEnabled = true,
-	PrivateAurasTextAnchorAnchor = "TOP",--NYI
-	PrivateAurasTextAnchorRelativeTo = "TOP",--NYI
+	AurasMaxDuration = 120,
+	AlwaysShowPlayerAuras = false,
 }
 
 
@@ -1079,10 +1074,10 @@ do
 		DBM_UsedProfile = usedProfile
 		self.Options = DBM_AllSavedOptions[usedProfile] or {}
 		self:Enable()
-		local coTankDefault = self:GetRoleFlagValue("Tank")
-		self.DefaultOptions.PrivateAurasCoTankEnabled = coTankDefault
-		self.DefaultOptions.PrivateAurasCoTankShowSecond = coTankDefault
+		self:SetCurrentSpecInfo()
 		self:AddDefaultOptions(self.Options, self.DefaultOptions)
+		-- Reset the old load-time role-derived setting so the new live Auto setting is used instead.
+		self.Options.PrivateAurasCoTankEnabled2 = nil
 		if not self.Options.GUIResizeMigrated_1000x700 then
 			if self.Options.GUIWidth == 800 and self.Options.GUIHeight == 600 then
 				self.Options.GUIWidth = 1000

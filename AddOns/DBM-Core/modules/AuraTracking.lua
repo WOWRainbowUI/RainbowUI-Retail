@@ -1,4 +1,3 @@
-if DBM:GetTOC() < 120100 then return end -- 12.1+ aura container implementation
 ---@class DBM
 local DBM = DBM
 
@@ -47,7 +46,6 @@ local RAID_CLASS_COLORS = _G["CUSTOM_CLASS_COLORS"] or RAID_CLASS_COLORS
 ---@field optionPrefix string
 ---@field HideBorder boolean
 ---@field HideTooltip boolean
----@field Scale number
 ---@field Spacing number
 ---@field Limit number
 ---@field GrowDirection string
@@ -62,6 +60,8 @@ local RAID_CLASS_COLORS = _G["CUSTOM_CLASS_COLORS"] or RAID_CLASS_COLORS
 ---@field TextFont string
 ---@field TextFontStyle string
 ---@field DurationFontSize number
+---@field ShowDecimalSeconds boolean
+---@field DecimalThreshold number
 ---@field StackFontSize number
 ---@field StackColor { r: number, g: number, b: number }
 ---@field StackXOffset number
@@ -87,7 +87,7 @@ DBM.Auras = AuraTracking
 ---@field NameLabel FontString?
 
 local AuraTrackingFilters = {
-	"HARMFUL|!PLAYER",
+	"HARMFUL",
 }
 
 local AuraSortMethod = rawget(_G, "AuraContainerSortMethod") or { Default = 1, ExpirationOnly = 2 }
@@ -115,8 +115,9 @@ local AuraTrackingPreviewDurations = {
 	55,
 	20,
 	30,
-	5,
+	2.7,
 }
+local AuraTrackingDurationFormatterCache = {}
 
 local auraAnchorsRegistered = false
 local auraTextFontResetNotified = false
@@ -129,12 +130,11 @@ local function GetAuraSettings(prefix)
 		optionPrefix = prefix,
 		HideBorder = DBM.Options[prefix .. "HideBorder"],
 		HideTooltip = DBM.Options[prefix .. "HideTooltip"],
-		Scale = DBM.Options[prefix .. "Scale"],
 		Spacing = DBM.Options[prefix .. "Spacing2"],
 		Limit = DBM.Options[prefix .. "Limit"],
 		GrowDirection = DBM.Options[prefix .. "GrowDirection"],
 		SortMode = DBM.Options[prefix .. "SortMode"] or DBM.DefaultOptions[prefix .. "SortMode"],
-		enabled = DBM.Options[prefix .. "Enabled"],
+		enabled = DBM.Options[prefix .. "Enabled2"],
 		Width = DBM.Options[prefix .. "Width"],
 		Height = DBM.Options[prefix .. "Height"],
 		Anchor = DBM.Options[prefix .. "Anchor"],
@@ -144,6 +144,8 @@ local function GetAuraSettings(prefix)
 		TextFont = DBM.Options[prefix .. "TextFont"],
 		TextFontStyle = DBM.Options[prefix .. "TextFontStyle"],
 		DurationFontSize = DBM.Options[prefix .. "DurationFontSize"],
+		ShowDecimalSeconds = DBM.Options[prefix .. "ShowDecimalSeconds"],
+		DecimalThreshold = DBM.Options[prefix .. "DecimalThreshold"] or DBM.DefaultOptions[prefix .. "DecimalThreshold"],
 		StackFontSize = DBM.Options[prefix .. "StackFontSize"],
 		StackColor = stackColor,
 		StackXOffset = DBM.Options[prefix .. "StackXOffset"] or DBM.DefaultOptions[prefix .. "StackXOffset"],
@@ -182,6 +184,85 @@ local function GetAuraTextFontSettings(settings)
 	return font, fontStyle
 end
 
+---@param settings DBMAuraSettings
+local function GetAuraDurationFormatter(settings)
+	local decimalEnabled = settings.ShowDecimalSeconds == true
+	local decimalThreshold = decimalEnabled and math.min(math.max(tonumber(settings.DecimalThreshold) or 3, 0.1), 59.9) or 0
+	local cache = AuraTrackingDurationFormatterCache[settings.optionPrefix]
+	if cache and cache.decimalEnabled == decimalEnabled and cache.decimalThreshold == decimalThreshold then
+		return cache.formatter
+	end
+	local formatter = C_StringUtil.CreateNumericRuleFormatter()
+	if decimalEnabled then
+		formatter:SetBreakpoints({
+			{
+				threshold = 60,
+				rounding = Enum.NumericRuleFormatRounding.Down,
+				format = "%dm",
+				components = {
+					{
+						div = 60,
+						step = 1,
+						rounding = Enum.NumericRuleFormatRounding.Down,
+					},
+				},
+			},
+			{
+				threshold = decimalThreshold,
+				step = 1,
+				rounding = Enum.NumericRuleFormatRounding.Up,
+				format = "%d",
+			},
+			{
+				threshold = 0,
+				step = 0.1,
+				rounding = Enum.NumericRuleFormatRounding.Up,
+				format = "%.1f",
+			},
+		})
+	else
+		formatter:SetBreakpoints({
+			{
+				threshold = 60,
+				rounding = Enum.NumericRuleFormatRounding.Down,
+				format = "%dm",
+				components = {
+					{
+						div = 60,
+						step = 1,
+						rounding = Enum.NumericRuleFormatRounding.Down,
+					},
+				},
+			},
+			{
+				threshold = 0,
+				step = 1,
+				rounding = Enum.NumericRuleFormatRounding.Up,
+				format = "%d",
+			},
+		})
+	end
+	AuraTrackingDurationFormatterCache[settings.optionPrefix] = {
+		decimalEnabled = decimalEnabled,
+		decimalThreshold = decimalThreshold,
+		formatter = formatter,
+	}
+	return formatter
+end
+
+---@param duration number
+---@param settings DBMAuraSettings
+---@return string
+local function FormatAuraPreviewDuration(duration, settings)
+	if duration >= 60 then
+		return math.floor(duration / 60) .. "m"
+	end
+	if settings.ShowDecimalSeconds and duration < (tonumber(settings.DecimalThreshold) or 3) then
+		return string.format("%.1f", math.ceil(duration * 10) / 10)
+	end
+	return tostring(math.ceil(duration))
+end
+
 ---@param settings table
 ---@return number
 local function GetCoTankRowYOffset(settings)
@@ -196,6 +277,9 @@ end
 ---@return table
 local function GetCoTankSettings(index)
 	local settings = GetAuraSettings("PrivateAurasCoTank")
+	local visibility = DBM.Options.PrivateAurasCoTankEnabled3
+	---@diagnostic disable-next-line: undefined-field
+	settings.enabled = visibility == "Always" or (visibility == "Auto" and DBM:IsTank())
 	if index and index > 1 then
 		settings.yOffset = settings.yOffset - GetCoTankRowYOffset(settings) * (index - 1)
 	end
@@ -321,7 +405,7 @@ local function ConfigurePreviewSlot(frame, settings, index, texture, dispelType,
 	durationText:SetPoint("CENTER", icon, "CENTER", 0, 0)
 	durationText:SetFont(fontPath, settings.DurationFontSize, fontFlags)
 	local duration = AuraTrackingPreviewDurations[durationIndex]
-	durationText:SetText(duration >= 60 and math.floor(duration / 60) .. "m" or tostring(duration))
+	durationText:SetText(FormatAuraPreviewDuration(duration, settings))
 	durationText:Show()
 
 	if not frame.StackTexts[index] then
@@ -411,7 +495,9 @@ local function ConfigureButton(state, button, settings, unit)
 	regions.durationText:SetPoint("CENTER", button, "CENTER", 0, 0)
 	regions.durationText:SetFont(fontPath, durationFontSize, fontFlags)
 	regions.durationText:Show()
-	button:SetDurationText(regions.durationText, nil)
+	button:SetDurationText(regions.durationText, {
+		textFormatter = GetAuraDurationFormatter(settings),
+	})
 
 	if not regions.countText then
 		regions.countText = regions.textOverlay:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -524,7 +610,22 @@ local function InitContainerState(state, settings, unit)
 		initializeFrame = function(button)
 			ConfigureButton(state, button, state.settings, state.unit)
 		end,
-		candidateFilters = {},
+		candidateFilters = {
+			isFromPlayerOrPlayerPet = false,
+			maxDuration = DBM.Options.AurasMaxDuration,
+			excludeSpellIDs = {
+				[57723] = true,--Exhaustion
+				[80354] = true,--Temporal Displacement
+				[57724] = true,--Sated
+				[390435] = true,--Exhaustion
+				[264689] = true,--Fatigued
+				[160455] = true,--Fatigued
+				[95809] = true,--Insanity
+				[124255] = true,--Stagger
+				[71041] = true,--Dungeon Deserter
+				[206151] = true,--Challenger's Burden
+			}
+		},
 		layout = {
 			elementWidth = settings.Width,
 			elementHeight = settings.Height,
@@ -810,6 +911,9 @@ function AuraTracking:UnregisterAuras(unit)
 end
 
 local function IsInValidInstance()
+	if DBM.Options.AlwaysShowPlayerAuras then
+		return true
+	end
 	local inInstance, instanceType = IsInInstance()
 	return inInstance and instanceType ~= "pvp" and instanceType ~= "arena"
 end

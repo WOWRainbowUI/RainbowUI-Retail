@@ -1,8 +1,7 @@
-if DBM:GetTOC() < 120100 then return end
 local mod	= DBM:NewMod(2894, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260709230721")
+mod:SetRevision("20260812010924")
 --mod:SetCreatureID(238693)
 mod:SetEncounterID(3497)
 --mod:SetHotfixNoticeRev(20250823000000)

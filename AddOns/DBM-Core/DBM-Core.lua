@@ -76,16 +76,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260810190749")
+DBM.Revision = parseCurseDate("20260813223013")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 416, "1888a1e"--416.0
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.1"--Core version
+DBM.DisplayVersion = "12.1.3"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 8, 10) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 8, 13) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -2095,11 +2095,9 @@ do
 					"ENCOUNTER_TIMELINE_EVENT_ADDED",
 					--"ENCOUNTER_TIMELINE_EVENT_REMOVED",
 					"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
+					"ENCOUNTER_TIMELINE_EVENT_COLOR_CHANGED",
 					"ENCOUNTER_WARNING"
 				)
-				if self:GetTOC() >= 120007 then
-					self:RegisterEvents("ENCOUNTER_TIMELINE_EVENT_COLOR_CHANGED")
-				end
 			end
 			if not private.isClassic then -- Retail, WoTLKC, and BCC
 				self:RegisterEvents(
@@ -3637,36 +3635,22 @@ function DBM:EJ_GetSectionInfo(sectionID)--Should be number, but accepts string 
 	return info.title, info.description, info.headerType, info.abilityIcon, info.creatureDisplayID, info.siblingSectionID, info.firstChildSectionID, info.filteredByDifficulty, info.link, info.startsOpen, flag1, flag2, flag3, flag4
 end
 
-do
-	local _, _, _, wowTOC = GetBuildInfo()
-	local newAPI = wowTOC >= 120007
-	---Wrapper for C_EncounterEvents.SetEventColor to future proof against API changes and make it easier to update if needed.
-	function DBM:EE_SetEventColor(eventID, startRed, startGreen, startBlue, endRed, endGreen, endBlue)
-		if newAPI then
-			--Set standard color
-			---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
-			C_EncounterEvents.SetEventColor(eventID, 1, {r = startRed, g = startGreen, b = startBlue, a = 1})
-			--Set highlight color
-			---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
-			C_EncounterEvents.SetEventColor(eventID, 2, {r = endRed, g = endGreen, b = endBlue, a = 1})
-		else
-			--Pre 12.0.7 api that only accepts single RGB value that applies to all warnings and timers
-			C_EncounterEvents.SetEventColor(eventID, {r = startRed, g = startGreen, b = startBlue})
-		end
-	end
-
-	function DBM:EE_UnsetEventColor(eventID)
-		if newAPI then
-			--Unset standard color
-			---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
-			C_EncounterEvents.SetEventColor(eventID, 1, nil)
-			--Unset highlight color
-			---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
-			C_EncounterEvents.SetEventColor(eventID, 2, nil)
-		else
-			C_EncounterEvents.SetEventColor(eventID, nil)
-		end
-	end
+---Wrapper for C_EncounterEvents.SetEventColor to future proof against API changes and make it easier to update if needed.
+function DBM:EE_SetEventColor(eventID, startRed, startGreen, startBlue, endRed, endGreen, endBlue)
+	--Set standard color
+	---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
+	C_EncounterEvents.SetEventColor(eventID, 1, {r = startRed, g = startGreen, b = startBlue, a = 1})
+	--Set highlight color
+	---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
+	C_EncounterEvents.SetEventColor(eventID, 2, {r = endRed, g = endGreen, b = endBlue, a = 1})
+end
+function DBM:EE_UnsetEventColor(eventID)
+	--Unset standard color
+	---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
+	C_EncounterEvents.SetEventColor(eventID, 1, nil)
+	--Unset highlight color
+	---@diagnostic disable-next-line: redundant-parameter, param-type-mismatch
+	C_EncounterEvents.SetEventColor(eventID, 2, nil)
 end
 
 function DBM:GetDungeonInfo(id)
@@ -4554,7 +4538,8 @@ do
 		[2238] = 2519,--Fyrakk in Amirdrassil
 		[2529] = 3181,--Crown of the Cosmos
 		[1049] = 3181,--Crown of the Cosmos
-		[1050] = 3183--Midnight Falls
+		[1050] = 3183,--Midnight Falls
+		[2590] = 2880--Altar of Fangs
 	}
 	---@param self DBM
 	local function checkOptions(self, id, mapID)
@@ -4831,7 +4816,8 @@ do
 	-- if we catch someone in a tank stance keep sending them warnings, classic only
 	local playerIsTank = false
 
-	function bossModPrototype:IsTank()
+	---@param self DBMModOrDBM
+	function DBM:IsTank()
 		--IsTanking already handles external calls, no need here.
 		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
@@ -4854,6 +4840,7 @@ do
 		local _, _, _, _, role = GetSpecializationInfoByID(currentSpecID)
 		return role == "TANK"
 	end
+	bossModPrototype.IsTank = DBM.IsTank
 end
 
 ---@param uId playerUUIDs? Used for querying external unit. If nil, queries "player"
@@ -5264,7 +5251,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260810190749" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260813223013" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
