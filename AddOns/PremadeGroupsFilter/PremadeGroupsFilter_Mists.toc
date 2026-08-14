@@ -1,6 +1,6 @@
 ## Interface: 50503, 50504
 ## Title: Premade Groups Filter
-## Version: 7.5.1
+## Version: 7.5.2
 ## IconTexture: 397907
 ## X-Flavor: Mists
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
