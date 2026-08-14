@@ -27,7 +27,7 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 -- -----
 --   FONT
 -- -----
-LSM:Register(MediaType_FONT, " 昭源黑體改123",					[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 昭源黑體123",					[[Interface\Addons\SharedMedia_BNS\font\vivoSansTC+昭源黑體.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 月星楷123",					    [[Interface\Addons\SharedMedia_BNS\font\MoonStarsKai-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 朱雀仿宋123",					[[Interface\Addons\SharedMedia_BNS\font\ZhuqueFangsong-Semibold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 漢儀碑刻黑123",					[[Interface\Addons\SharedMedia_BNS\font\漢儀碑刻黑+文楷.ttf]], zhCN + zhTW + western)
@@ -66,6 +66,10 @@ LSM:Register("sound", "!|cff00c0ff音效：瑪利歐變大|r", [[Interface\Addon
 LSM:Register("sound", "!|cff00c0ff音效：死咧！|r", [[Interface\Addons\SharedMedia_BNS\sound\Touch of Death_1.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：那泥？|r", [[Interface\Addons\SharedMedia_BNS\sound\hurt_5.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：Tuturu|r", [[Interface\Addons\SharedMedia_BNS\sound\Tuturu.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：拳擊鈴聲|r", [[Interface\Addons\SharedMedia_BNS\sound\BoxingArenaSound.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：喵～|r", [[Interface\Addons\SharedMedia_BNS\sound\CatMeow2.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：Tada|r", [[Interface\Addons\SharedMedia_BNS\sound\TadaFanfare.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：聲納|r", [[Interface\Addons\SharedMedia_BNS\sound\sonar.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：快跑位|r", [[Interface\Addons\SharedMedia_BNS\sound\movesoon.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：快躲開|r", [[Interface\Addons\SharedMedia_BNS\sound\runaway.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：注意踩圈|r", [[Interface\Addons\SharedMedia_BNS\sound\stepring.ogg]]) 
