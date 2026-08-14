@@ -1,6 +1,20 @@
 ---@type KT
 local _, KT = ...
 
+local function KT_IsPlayerAtEffectiveMaxLevel()
+	if IsPlayerAtEffectiveMaxLevel then
+		return IsPlayerAtEffectiveMaxLevel();
+	end
+
+	local level = UnitLevel("player");
+	local maxLevel;
+	if MAX_PLAYER_LEVEL_TABLE and GetExpansionLevel then
+		maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()];
+	end
+
+	return maxLevel and level >= maxLevel or false;
+end
+
 -- *****************************************************************************************************
 -- ***** EMBER COURT TUTORIAL
 -- *****************************************************************************************************
@@ -107,8 +121,13 @@ end
 
 function KT_ScenarioObjectiveTrackerMixin:OnEvent(event, ...)
 	if event == "UNIT_AURA" then
-		local isShowingMawBuffs = self:IsShown() and self.MawBuffsBlock:IsShown();
-		if ShouldShowMawBuffs() ~= isShowingMawBuffs then
+		-- Do not call Blizzard's ShouldShowMawBuffs() here. It reads secret aura data
+		-- and this addon is tainted on the UNIT_AURA path in WoW 12.1.
+		-- The Blizzard MawBuffs container already processes UNIT_AURA and exposes
+		-- its visibility safely through the frame state.
+		local isShowingMawBuffs = self:IsShown() and self.MawBuffsBlock.Container:IsShown();
+		if isShowingMawBuffs ~= self._lastMawBuffsShown then
+			self._lastMawBuffsShown = isShowingMawBuffs;
 			self:MarkDirty();
 		end
 	elseif event == "SPELL_UPDATE_COOLDOWN" then
@@ -121,10 +140,10 @@ function KT_ScenarioObjectiveTrackerMixin:OnEvent(event, ...)
 		self:MarkDirty();
 	elseif event == "SCENARIO_CRITERIA_SHOW_STATE_UPDATE" then
 		local shouldShow = ...;  -- FIXME: wrong variable name
-		self:SetShouldShowCriteria(show);
+		self:SetShouldShowCriteria(shouldShow);
 	elseif event == "SCENARIO_COMPLETED" then
 		local rewardQuestID, xp, money = ...;
-		if (xp and xp > 0 and not IsPlayerAtEffectiveMaxLevel()) or (money and money > 0) then
+		if (xp and xp > 0 and not KT_IsPlayerAtEffectiveMaxLevel()) or (money and money > 0) then
 			KT_ScenarioRewardsFrame:DisplayRewards(xp, money);
 		end
 	elseif event == "ACTIVE_DELVE_DATA_UPDATE" then
@@ -187,7 +206,10 @@ function KT_ScenarioObjectiveTrackerMixin:LayoutContents()
 	textureKit = textureKit or "evergreen-scenario"
 
 	local isInScenario = numStages > 0;
-	local shouldShowMawBuffs = ShouldShowMawBuffs();
+	-- Do not call Blizzard's ShouldShowMawBuffs() from tainted addon code.
+	-- MawBuffsContainer:IsShown() reflects Blizzard's own aura processing without
+	-- exposing secret aura data to this addon.
+	local shouldShowMawBuffs = self.MawBuffsBlock.Container:IsShown();
 	if not isInScenario and (not shouldShowMawBuffs or IsOnGroundFloorInJailersTower()) then
 		-- clear out data
 		self.currentStage = nil;
@@ -472,7 +494,7 @@ function KT_ScenarioObjectiveTrackerStageMixin:OnEnter()
 		GameTooltip_AddNormalLine(GameTooltip, description);
 
 		local blankLineAdded = false;
-		if xp > 0 and not IsPlayerAtEffectiveMaxLevel() then
+		if xp > 0 and not KT_IsPlayerAtEffectiveMaxLevel() then
 			GameTooltip_AddBlankLineToTooltip(GameTooltip);
 			KT.GameTooltip_AddXP(GameTooltip, xp)  -- MSA
 			blankLineAdded = true;
@@ -997,7 +1019,7 @@ function KT_ScenarioRewardsFrameMixin:DisplayRewards(xp, money)
 	self.framePool:ReleaseAll();
 	self.lastFrame = nil;
 
-	if xp > 0 and not IsPlayerAtEffectiveMaxLevel() then
+	if xp > 0 and not KT_IsPlayerAtEffectiveMaxLevel() then
 		self:AddReward(xp, "Interface\\Icons\\XP_Icon", "NumberFontNormal");
 	end	
 	if money > 0 then
@@ -1052,7 +1074,7 @@ function KT_ScenarioTrackerProgressBarMixin:OnGet(isNew, criteriaIndex)
 				texture = "Interface\\Icons\\inv_misc_coin_02";
 			end
 			-- xp
-			if not texture and GetQuestLogRewardXP(rewardQuestID) > 0 and not IsPlayerAtEffectiveMaxLevel() then
+			if not texture and GetQuestLogRewardXP(rewardQuestID) > 0 and not KT_IsPlayerAtEffectiveMaxLevel() then
 				texture = "Interface\\Icons\\xp_icon";
 			end
 			if texture then
