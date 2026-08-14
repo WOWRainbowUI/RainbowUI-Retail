@@ -1,5 +1,5 @@
 ## Interface: 40402
-## Version: v12.0.10
+## Version: v12.1.0
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -29,6 +29,8 @@
 ## Category-zhTW: 地圖
 ## IconTexture: Interface\Icons\inv_misc_celestialmap
 
+Init_Cata.lua
+
 embeds.xml
 
 localization\enUS.lua
@@ -39,7 +41,7 @@ SexyMap_Wrath.lua
 
 Shapes_Classic.lua
 
-Buttons_Wrath.lua
+Buttons_Classic.lua
 BorderPresets.lua
 Borders_Classic.lua
 Clock.lua
