@@ -23,8 +23,8 @@ function addonTable.Display.Utilities.IsTappedUnit(unit)
   return not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)
 end
 
-function addonTable.Display.Utilities.GetUnitDifficulty(unit)
-  if addonTable.Constants.IsRetail then
+if addonTable.Constants.IsRetail then
+  function addonTable.Display.Utilities.GetUnitDifficulty(unit)
     local rawDifficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)
     if rawDifficulty == Enum.RelativeContentDifficulty.Trivial then
       return  "trivial"
@@ -39,9 +39,12 @@ function addonTable.Display.Utilities.GetUnitDifficulty(unit)
     else
       return "difficult"
     end
-  else
-    local levelDiff = UnitLevel(unit) - UnitEffectiveLevel("player");
-    if levelDiff >= 5 then
+  end
+else
+  function addonTable.Display.Utilities.GetUnitDifficulty(unit)
+    local level = UnitLevel(unit)
+    local levelDiff = level - UnitEffectiveLevel("player");
+    if levelDiff >= 5 or level == -1 then
       return "impossible"
     elseif levelDiff >= 3 then
       return "verydifficult"
