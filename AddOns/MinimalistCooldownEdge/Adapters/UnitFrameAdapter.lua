@@ -48,6 +48,7 @@ local hookedCustomAuraButtons = setmetatable({}, addon.weakMeta)
 local pendingRootSync = {}
 local betterBlizzHooked = false
 local betterBlizzRefreshPending = false
+local betterBlizzAuraStyleWrapped = false
 local HookCustomAuraButtonBindings
 
 local FALLBACK_UNIT_TOKENS = {
@@ -124,6 +125,71 @@ local function GetCooldownCountdownText(cooldown)
     return countdownText
 end
 
+local function SupportsNativeDurationText()
+    return C_AuraContainerUtil ~= nil
+       and type(C_AuraContainerUtil.ProcessCustomAuraButtonDurationTextOptions) == "function"
+       and C_CurveUtil ~= nil
+       and type(C_CurveUtil.CreateColorCurve) == "function"
+       and C_StringUtil ~= nil
+       and type(C_StringUtil.CreateNumericRuleFormatter) == "function"
+       and Enum ~= nil
+       and Enum.DurationTextBindingProperty ~= nil
+       and Enum.NumericRuleFormatRounding ~= nil
+end
+
+local function EnsureNativeDurationText(button, cooldown, meta)
+    if not SupportsNativeDurationText()
+       or not MCE:CanUseFrameAsTableKey(button)
+       or not MCE:CanUseFrameAsTableKey(cooldown) then
+        return false
+    end
+
+    meta = meta or trackedCooldownMeta[cooldown] or {}
+    local holder = meta.durationTextHolder
+        or MCE:SafeTableGet(button, "MCEUnitFrameDurationTextHolder")
+    local durationText = meta.durationText
+        or MCE:SafeTableGet(button, "MCEUnitFrameDurationText")
+
+    if not MCE:CanUseFrameAsTableKey(holder) then
+        local createOk, createdHolder = pcall(CreateFrame, "Frame", nil, button)
+        if not createOk or not MCE:CanUseFrameAsTableKey(createdHolder) then
+            return false
+        end
+        holder = createdHolder
+        holder:SetAllPoints(button)
+
+        local getFrameLevel = MCE:SafeTableGet(cooldown, "GetFrameLevel")
+        local levelOk, level = false, nil
+        if type(getFrameLevel) == "function" then
+            levelOk, level = pcall(getFrameLevel, cooldown)
+        end
+        holder:SetFrameLevel(levelOk and type(level) == "number" and (level + 5) or 5)
+        button.MCEUnitFrameDurationTextHolder = holder
+    end
+
+    if not IsObjectTypeSafe(durationText, "FontString") then
+        local createFontString = MCE:SafeTableGet(holder, "CreateFontString")
+        if type(createFontString) ~= "function" then return false end
+        local textOk, createdText = pcall(
+            createFontString, holder, nil, "OVERLAY", "NumberFontNormalSmall")
+        if not textOk or not IsObjectTypeSafe(createdText, "FontString") then
+            return false
+        end
+        durationText = createdText
+        durationText:SetJustifyH("CENTER")
+        durationText:SetPoint("CENTER", cooldown, "CENTER", 0, 0)
+        button.MCEUnitFrameDurationText = durationText
+    end
+
+    meta.button = button
+    meta.durationTextHolder = holder
+    meta.durationText = durationText
+    meta.countdownText = durationText
+    meta.nativeDurationText = true
+    trackedCooldownMeta[cooldown] = meta
+    return true
+end
+
 local function IsCompactGroupFrameName(name)
     name = MCE:GetNonSecretString(name)
     if not name then
@@ -145,12 +211,34 @@ local function IsUnitFrameCategoryEnabled()
     return config and config.enabled == true or false
 end
 
+local function RefreshNativeDurationText(cooldown)
+    local config = GetUnitFrameConfig()
+    if not (config and config.enabled == true) then return false end
+
+    local durationColor = MCE:GetModule("DurationColorController", true)
+    if not durationColor or not durationColor.RefreshNativeUnitFrameDurationText then
+        return false
+    end
+    return durationColor:RefreshNativeUnitFrameDurationText(
+        cooldown, CATEGORY.Unitframe, config)
+end
+
 local function MarkTrackedCooldown(cooldown, meta)
     if not MCE:CanUseFrameAsTableKey(cooldown) then
         return false
     end
 
-    meta = meta or trackedCooldownMeta[cooldown] or {}
+    local existingMeta = trackedCooldownMeta[cooldown]
+    if existingMeta and meta and existingMeta ~= meta then
+        for key, value in pairs(meta) do
+            if value ~= nil then
+                existingMeta[key] = value
+            end
+        end
+        meta = existingMeta
+    else
+        meta = meta or existingMeta or {}
+    end
     if meta.countdownText == nil then
         meta.countdownText = GetCooldownCountdownText(cooldown)
     end
@@ -170,6 +258,11 @@ local function MarkTrackedCooldown(cooldown, meta)
     state.unitFrameAuraIsMine = meta.isMine
     state.unitFrameCount = meta.count
     state.unitFrameCountdownText = meta.countdownText
+    state.unitFrameAuraButton = meta.button
+    state.unitFrameDurationTextHolder = meta.durationTextHolder
+    state.unitFrameNativeDurationText = meta.nativeDurationText == true
+    state.unitFrameNativeDurationTextReady = meta.nativeDurationTextReady == true
+    state.unitFrameThresholdColorsDisabled = meta.thresholdColorsDisabled == true
 
     if Registry then
         Registry:Register(cooldown, CATEGORY.Unitframe)
@@ -183,8 +276,11 @@ local function RegisterKnownTrackedCooldowns()
     end
 end
 
-local function RegisterLegacyCooldown(cooldown)
-    if MCE:CanUseFrameAsTableKey(cooldown) then
+local function RegisterLegacyCooldown(cooldown, thresholdColorsDisabled)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
+    if thresholdColorsDisabled then
+        MarkTrackedCooldown(cooldown, { thresholdColorsDisabled = true })
+    elseif Registry then
         Registry:Register(cooldown, CATEGORY.Unitframe)
     end
 end
@@ -252,7 +348,7 @@ local function GetButtonLargeAuraState(button, style)
     return nil
 end
 
-local function RegisterAuraButton(button, style)
+local function RegisterAuraButton(button, style, thresholdColorsDisabled)
     if not MCE:CanUseFrameAsTableKey(button) then return end
     local cooldown = GetButtonCooldown(button)
     if not cooldown then return end
@@ -260,12 +356,14 @@ local function RegisterAuraButton(button, style)
     MarkTrackedCooldown(cooldown, {
         isMine = GetButtonLargeAuraState(button, style),
         count = GetButtonCount(button),
+        button = button,
+        thresholdColorsDisabled = thresholdColorsDisabled == true and true or nil,
     })
 end
 
 -- Scan an aura container for cooldown children. This covers legacy unit-frame
 -- layouts and public 12.1 CustomAuraContainers created by other addons.
-local function ScanAuraContainer(container)
+local function ScanAuraContainer(container, thresholdColorsDisabled)
     if not MCE:CanUseFrameAsTableKey(container) then return end
 
     local getChildren = MCE:SafeTableGet(container, "GetChildren")
@@ -279,13 +377,13 @@ local function ScanAuraContainer(container)
         if MCE:CanUseFrameAsTableKey(child) then
             local cooldown = GetButtonCooldown(child)
             if cooldown then
-                RegisterLegacyCooldown(cooldown)
+                RegisterLegacyCooldown(cooldown, thresholdColorsDisabled)
             end
         end
     end
 end
 
-local function ScanCustomAuraContainer(container)
+local function ScanCustomAuraContainer(container, thresholdColorsDisabled)
     if not MCE:CanUseFrameAsTableKey(container) then return end
 
     local styles = MCE:SafeTableGet(container, "bbfStyles")
@@ -300,14 +398,14 @@ local function ScanCustomAuraContainer(container)
                 for index = 1, count do
                     local frameOk, button = pcall(getFrame, container, groupKey, index)
                     if frameOk then
-                        RegisterAuraButton(button, style)
+                        RegisterAuraButton(button, style, thresholdColorsDisabled)
                     end
                 end
             end
         end
     end
 
-    ScanAuraContainer(container)
+    ScanAuraContainer(container, thresholdColorsDisabled)
 end
 
 local function ScanUnitFrame(frame)
@@ -356,7 +454,7 @@ local function ScanBetterBlizzFrames()
             for _, containerKey in ipairs(BETTERBLIZZ_CONTAINER_KEYS) do
                 local container = MCE:SafeTableGet(host, containerKey)
                 if MCE:CanUseFrameAsTableKey(container) then
-                    ScanCustomAuraContainer(container)
+                    ScanCustomAuraContainer(container, true)
                 end
             end
         end
@@ -461,7 +559,8 @@ local function InitializeCustomAuraButton(host, button, group)
     count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 1, 0)
     button.MCEUnitFrameCount = count
 
-    local meta = { isMine = group.isMine, count = count }
+    local meta = { isMine = group.isMine, count = count, button = button }
+    EnsureNativeDurationText(button, cooldown, meta)
     trackedCooldownMeta[cooldown] = meta
     host.cooldowns[#host.cooldowns + 1] = cooldown
     -- Register before binding the Duration. SetDurationCooldown immediately
@@ -471,16 +570,21 @@ local function InitializeCustomAuraButton(host, button, group)
 
     InitializeAuraBorder(button, icon, not group.helpful, group.size)
 
-    -- The custom frame provider applies its secret-access restriction after
-    -- this callback. Apply static visual settings before the count/cooldown
-    -- bindings add their secret Text, Shown, and Cooldown aspects.
+    button:SetApplicationCount(count)
+    button:SetDurationCooldown(cooldown)
+    meta.nativeDurationTextReady = meta.nativeDurationText == true
+    MarkTrackedCooldown(cooldown, meta)
+
+    -- The provider applies its access restriction after this callback. Bind
+    -- the secure duration text and apply all static styling while its public
+    -- output regions are still configurable.
     local styleEngine = MCE:GetModule("StyleEngine", true)
     if styleEngine then
         styleEngine:ApplyStyle(cooldown, CATEGORY.Unitframe)
+    else
+        RefreshNativeDurationText(cooldown)
     end
 
-    button:SetApplicationCount(count)
-    button:SetDurationCooldown(cooldown)
     button:SetTooltipAnchorPoint("ANCHOR_BOTTOMLEFT", 0, 0)
 end
 
@@ -736,6 +840,138 @@ local function BetterBlizzOwnsHost(rootInfo)
     return false
 end
 
+local function IsBetterBlizzTargetOrFocusContainer(container)
+    local bbf = _G.BBF
+    local hosts = type(bbf) == "table" and MCE:SafeTableGet(bbf, "auraHosts") or nil
+    if type(hosts) ~= "table" or not MCE:CanUseFrameAsTableKey(container) then
+        return false
+    end
+
+    for _, hostKey in ipairs(BETTERBLIZZ_HOST_KEYS) do
+        local host = MCE:SafeTableGet(hosts, hostKey)
+        if type(host) == "table" then
+            for _, containerKey in ipairs(BETTERBLIZZ_CONTAINER_KEYS) do
+                if container == MCE:SafeTableGet(host, containerKey) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+local function IsBetterBlizzTargetOrFocusButton(button)
+    if not MCE:CanUseFrameAsTableKey(button) then
+        return false
+    end
+
+    local current = button
+    for _ = 1, UF.MaxAncestorDepth do
+        if IsBetterBlizzTargetOrFocusContainer(current) then
+            return true
+        end
+        current = GetParentSafe(current)
+        if not current then break end
+    end
+    return false
+end
+
+local function FinalizeBetterBlizzAuraButtonStyle(button)
+    if not IsBetterBlizzTargetOrFocusButton(button) then return end
+
+    local cooldown = GetButtonCooldown(button)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
+
+    local meta = trackedCooldownMeta[cooldown] or {
+        button = button,
+        count = GetButtonCount(button),
+        isMine = GetButtonLargeAuraState(button),
+    }
+    meta.button = button
+    if meta.count == nil then
+        meta.count = GetButtonCount(button)
+    end
+    if meta.isMine == nil then
+        meta.isMine = GetButtonLargeAuraState(button)
+    end
+
+    -- If an earlier generic hook provisionally created MiniCE duration text,
+    -- hide it now. BBF's own cooldown timer is the sole visible color owner.
+    if meta.nativeDurationText == true and meta.durationTextHolder then
+        local setAlpha = MCE:SafeTableGet(meta.durationTextHolder, "SetAlpha")
+        if type(setAlpha) == "function" then
+            pcall(setAlpha, meta.durationTextHolder, 0)
+        end
+    end
+
+    -- BBF creates its timer at the end of InitAuraButton. Retain the public
+    -- FontString for MiniCE's font/placement styling, but leave all duration
+    -- color decisions to BBF's own threshold system.
+    local countdownText = MCE:SafeTableGet(button, "bbfTimer")
+    if not IsObjectTypeSafe(countdownText, "FontString") then
+        countdownText = GetCooldownCountdownText(cooldown)
+    end
+    meta.countdownText = countdownText
+    meta.durationText = nil
+    meta.durationTextHolder = nil
+    meta.nativeDurationText = false
+    meta.nativeDurationTextReady = false
+    meta.thresholdColorsDisabled = true
+    MarkTrackedCooldown(cooldown, meta)
+
+    local state = frameState[cooldown]
+    if state then
+        state.textRegions = nil
+        state.unitFrameBoundDurationCurve = nil
+        state.unitFrameBoundDurationFormatter = nil
+        state.unitFrameBoundDurationText = nil
+    end
+
+    local styleEngine = MCE:GetModule("StyleEngine", true)
+    if styleEngine then
+        styleEngine:ApplyStyle(cooldown, CATEGORY.Unitframe)
+    end
+end
+
+local function InstallBetterBlizzAuraStyleWrapper()
+    if betterBlizzAuraStyleWrapped then return true end
+
+    local mixin = _G.CustomAuraContainerSharedMixin
+    local originalAddAuraGroup = type(mixin) == "table"
+        and MCE:SafeTableGet(mixin, "AddAuraGroup") or nil
+    if type(originalAddAuraGroup) ~= "function" then
+        return false
+    end
+
+    local wrappedAddAuraGroup
+    wrappedAddAuraGroup = function(container, groupKey, filter, options)
+        local initializeFrame = type(options) == "table"
+            and MCE:SafeTableGet(options, "initializeFrame") or nil
+        if not IsBetterBlizzTargetOrFocusContainer(container)
+           or type(initializeFrame) ~= "function" then
+            return originalAddAuraGroup(container, groupKey, filter, options)
+        end
+
+        -- Capture BBF's public text and stack regions after its initializer has
+        -- created them, but before the provider applies access restrictions.
+        local wrappedOptions = {}
+        for key, value in pairs(options) do
+            wrappedOptions[key] = value
+        end
+        wrappedOptions.initializeFrame = function(button, ...)
+            initializeFrame(button, ...)
+            FinalizeBetterBlizzAuraButtonStyle(button)
+        end
+        return originalAddAuraGroup(container, groupKey, filter, wrappedOptions)
+    end
+
+    local ok = pcall(function()
+        mixin.AddAuraGroup = wrappedAddAuraGroup
+    end)
+    betterBlizzAuraStyleWrapped = ok and mixin.AddAuraGroup == wrappedAddAuraGroup
+    return betterBlizzAuraStyleWrapped
+end
+
 local function SyncCustomHost(rootInfo)
     local host = customHosts[rootInfo.name]
 
@@ -813,6 +1049,7 @@ local function ScheduleBetterBlizzRefresh()
 end
 
 local function HookBetterBlizzFrames()
+    InstallBetterBlizzAuraStyleWrapper()
     if betterBlizzHooked then return end
 
     local bbf = _G.BBF
@@ -822,6 +1059,16 @@ local function HookBetterBlizzFrames()
     end
 
     betterBlizzHooked = true
+
+    if type(MCE:SafeTableGet(bbf, "UpdateUserAuraSettings")) == "function" then
+        hooksecurefunc(bbf, "UpdateUserAuraSettings", function()
+            -- BBF refreshes these settings immediately before it creates the
+            -- Target/Focus AuraContainers. Retry the Blizzard AuraButton hook
+            -- here so every pooled button is captured while it is still public.
+            HookCustomAuraButtonBindings()
+        end)
+    end
+
     hooksecurefunc(bbf, "HookPlayerAndTargetAuras", function()
         -- BBF may have just taken ownership of the native aura slots and
         -- created a new pool of public cooldowns. Rebuild once after its setup
@@ -953,9 +1200,12 @@ function Adapter:TryClaim(cooldown)
     local foundCustomTargetContainer = false
     local function ClaimUnitFrame()
         if foundCustomTargetContainer then
+            local isBetterBlizzButton = IsBetterBlizzTargetOrFocusButton(customAuraButton)
             MarkTrackedCooldown(cooldown, {
                 isMine = GetButtonLargeAuraState(customAuraButton),
                 count = GetButtonCount(customAuraButton),
+                button = customAuraButton,
+                thresholdColorsDisabled = isBetterBlizzButton,
             })
         end
         return CATEGORY.Unitframe
@@ -1024,12 +1274,9 @@ do
     local countHooked = false
     local customAuraButtonAPI
     local customAuraButtonProbe
+    local customAuraContainerLoadAttempted = false
 
-    local function GetCustomAuraButtonAPI()
-        if customAuraButtonAPI then
-            return customAuraButtonAPI
-        end
-
+    local function CreateCustomAuraButtonProbe()
         local createOk, probe = pcall(
             CreateFrame, "AuraButton", nil, UIParent, "CustomAuraButtonTemplate")
         if not createOk or not probe then
@@ -1044,6 +1291,24 @@ do
         end
 
         customAuraButtonProbe = probe
+        return api
+    end
+
+    local function GetCustomAuraButtonAPI()
+        if customAuraButtonAPI then
+            return customAuraButtonAPI
+        end
+
+        local api = CreateCustomAuraButtonProbe()
+        if not api and not customAuraContainerLoadAttempted then
+            customAuraContainerLoadAttempted = true
+            if C_AddOns and type(C_AddOns.LoadAddOn) == "function" then
+                pcall(C_AddOns.LoadAddOn, "Blizzard_AuraContainer")
+                api = CreateCustomAuraButtonProbe()
+            end
+        end
+
+        if not api then return nil end
         customAuraButtonAPI = api
         return customAuraButtonAPI
     end
@@ -1055,17 +1320,43 @@ do
         if not durationHooked
            and type(MCE:SafeTableGet(api, "SetDurationCooldown")) == "function" then
             local hookOk = pcall(hooksecurefunc, api, "SetDurationCooldown", function(button, cooldown)
+                local category
+                local isBetterBlizzButton = false
                 if MCE:CanUseFrameAsTableKey(cooldown) then
-                    Adapter:TryClaim(cooldown)
+                    isBetterBlizzButton = IsBetterBlizzTargetOrFocusButton(button)
+                    category = isBetterBlizzButton and CATEGORY.Unitframe
+                        or Adapter:TryClaim(cooldown)
                 end
 
                 local meta = cooldown and trackedCooldownMeta[cooldown] or nil
+                if not meta and category == CATEGORY.Unitframe
+                   and MCE:CanUseFrameAsTableKey(button) then
+                    meta = {
+                        button = button,
+                        count = GetButtonCount(button),
+                        isMine = GetButtonLargeAuraState(button),
+                        thresholdColorsDisabled = isBetterBlizzButton,
+                    }
+                    MarkTrackedCooldown(cooldown, meta)
+                end
                 if not meta or not MCE:CanUseFrameAsTableKey(button) then return end
+
+                if isBetterBlizzButton then
+                    -- BBF has not created bbfTimer yet. Its wrapped initializer
+                    -- captures the FontString for styling without binding a
+                    -- MiniCE duration-color curve to it.
+                    meta.thresholdColorsDisabled = true
+                    meta.nativeDurationText = false
+                    meta.nativeDurationTextReady = false
+                else
+                    EnsureNativeDurationText(button, cooldown, meta)
+                    meta.nativeDurationTextReady = meta.nativeDurationText == true
+                end
 
                 if meta.isMine == nil then
                     meta.isMine = GetButtonLargeAuraState(button)
-                    MarkTrackedCooldown(cooldown, meta)
                 end
+                MarkTrackedCooldown(cooldown, meta)
 
                 -- BBF applies its tier size later in the same initialize
                 -- callback. Capture that public layout choice before the
@@ -1087,6 +1378,17 @@ do
                     end)
                     if hookOk then
                         hookedCustomAuraButtons[button] = true
+                    end
+                end
+
+                if not isBetterBlizzButton
+                   and (category == CATEGORY.Unitframe or (Registry
+                   and Registry:GetCategory(cooldown) == CATEGORY.Unitframe)) then
+                    local styleEngine = MCE:GetModule("StyleEngine", true)
+                    if styleEngine then
+                        styleEngine:ApplyStyle(cooldown, CATEGORY.Unitframe)
+                    else
+                        RefreshNativeDurationText(cooldown)
                     end
                 end
             end)
@@ -1116,3 +1418,5 @@ end
 -- OnEnable retries for load-order variants. This captures public output
 -- widgets inside third-party initialize callbacks before 12.1 restricts them.
 HookCustomAuraButtonBindings()
+InstallBetterBlizzAuraStyleWrapper()
+HookBetterBlizzFrames()

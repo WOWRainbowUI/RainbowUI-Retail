@@ -853,8 +853,10 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isPlayerAura = (key == C.Categories.PlayerAura)
     local isActionbar = (key == C.Categories.Actionbar)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe or isPlayerAura)
-    local allowThresholdColorsGet = CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key))
-    local allowThresholdColorsSet = CatSet(key, "allowThresholdColors")
+    local allowThresholdColorsGet = not isMiniAuras
+        and CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key)) or nil
+    local allowThresholdColorsSet = not isMiniAuras
+        and CatSet(key, "allowThresholdColors") or nil
 
     return {
         type = "group",
@@ -952,6 +954,10 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "description", order = 0.11, fontSize = "small", width = "full",
                         name = "|cff88bbdd" .. L["UNITFRAME_121_COMPAT_DESC"] .. "|r",
                     } or nil,
+                    tellMeWhenTimerOwnership = isTellMeWhen and {
+                        type = "description", order = 0.11, fontSize = "small", width = "full",
+                        name = "|cff88bbdd" .. L["TELLMEWHEN_TIMER_OPTIONS_NOTICE"] .. "|r",
+                    } or nil,
                     bottomSpacing = SectionSpacer(0.12),
                 },
             } or nil,
@@ -1038,21 +1044,25 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatColorGet(key, "textColor"),
                         set = CatColorSet(key, "textColor"),
                     },
-                    allowThresholdColors = {
+                    allowThresholdColors = not isMiniAuras and {
                         type = "toggle", order = 4.5, width = "full",
                         name = L["Allow Threshold Colors"],
                         desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
                         get = allowThresholdColorsGet,
                         set = allowThresholdColorsSet,
                         hidden = function() return isHealerCC or isSArena or isPlayerAura end,
-                    },
+                    } or nil,
+                    miniAurasCountdownColorsNotice = isMiniAuras and {
+                        type = "description", order = 4.5, width = "full", fontSize = "small",
+                        name = "|cffffd100" .. L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] .. "|r",
+                    } or nil,
                     hideCountdownNumbers = {
                         type = "toggle", order = 5, width = "1",
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
-                        hidden = function() return isMiniAuras or isSArena end,
+                        hidden = function() return isMiniAuras or isSArena or isTellMeWhen end,
                     },
                     auraCdTextOnlyMine = isUnitframe and {
                         type = "toggle", order = 5.005, width = "1",
@@ -1334,16 +1344,17 @@ local function CreateCategoryOptions(order, name, key, desc)
             } or nil,
             -- ── 3. Swipe Edge ───────────────────────────────────────────
             swipeEdge = (not isPlayerAura) and {
-                type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
+                type = "group", name = "|cffffd100"
+                    .. (isTellMeWhen and L["Swipe Edge"] or L["Swipe Animation"]) .. "|r",
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
-                    drawSwipe = {
+                    drawSwipe = (not isTellMeWhen) and {
                         type = "toggle", order = 0, width = 1.20,
                         name = L["Show Swipe Animation"],
                         desc = L["Shows the dark overlay that sweeps during a cooldown."],
                         get = CatGet(key, "drawSwipe", true),
                         set = CatSet(key, "drawSwipe"),
-                    },
+                    } or nil,
                     swipeAlpha = (isActionbar or isPlayerAura) and {
                         type = "range", order = 1, width = 1,
                         name = L["Swipe Shade Alpha"],
@@ -1352,7 +1363,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "swipeAlpha", 80),
                         set = CatRangeSet(key, "swipeAlpha"),
                     } or nil,
-                    swipeEdgeRowBreak1 = RowBreak(1.1),
+                    swipeEdgeRowBreak1 = (not isTellMeWhen) and RowBreak(1.1) or nil,
                     edgeEnabled = {
                         type = "toggle", order = 2, width = "1",
                         name = L["Show Swipe Edge"],
@@ -1363,7 +1374,8 @@ local function CreateCategoryOptions(order, name, key, desc)
                     edgeScale = {
                         type = "range", order = 3, width = "2",
                         name = L["Edge Thickness"],
-                        desc = L["Scale of the swipe line (1.0 = Default)."],
+                        desc = isTellMeWhen and L["TELLMEWHEN_EDGE_SCALE_DESC"]
+                            or L["Scale of the swipe line (1.0 = Default)."],
                         min = 0.5, max = 2.0, step = 0.1,
                         get = CatGet(key, "edgeScale"),
                         set = CatRangeSet(key, "edgeScale"),
@@ -1519,7 +1531,7 @@ end
 
 function MCE:GetOptions()
     local profileOpts = LibStub("AceDBOptions-3.0"):GetOptionsTable(MCE.db)
-    profileOpts.order = 10 -- ensure profiles tab is last
+    profileOpts.order = 12 -- keep Profiles immediately before Help & Support
     profileOpts.args = profileOpts.args or {}
     profileOpts.args.importExport = BuildProfileImportExportOptions(50)
 
@@ -1862,7 +1874,7 @@ function MCE:GetOptions()
                 L["TELLMEWHEN_DESC"]),
 
             help = {
-                type = "group", name = L["Help & Support"], order = 12,
+                type = "group", name = L["Help & Support"], order = 13,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",
@@ -1951,7 +1963,7 @@ function MCE:GetOptions()
                 },
             },
 
-            -- ── Profiles (always last) ──────────────────────────────────
+            -- ── Profiles (penultimate; Help & Support stays last) ───────
             profiles = profileOpts,
         },
     }

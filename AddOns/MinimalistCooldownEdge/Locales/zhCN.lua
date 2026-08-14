@@ -2,6 +2,8 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "zhCN")
 if not L then return end
 
+L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras 自行管理倒计时阈值颜色。请在 MiniAuras > Misc > Countdown Colours 中配置。"
+
 -- Core
 L["Cannot open options in combat."] = "战斗中无法打开选项。"
 L["MiniAuras test command is unavailable."] = "MiniAuras 测试命令不可用。"

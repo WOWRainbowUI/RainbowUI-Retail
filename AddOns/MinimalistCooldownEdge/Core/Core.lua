@@ -902,6 +902,7 @@ local function EnsureCooldownManagerConfig(config)
 end
 
 local miniAurasDefaults = CategoryDefaults(C.Categories.MiniAuras, false, 18)
+miniAurasDefaults.allowThresholdColors = nil
 miniAurasDefaults.ccFontSize = C.Defaults.MiniAuras.CCFontSize
 miniAurasDefaults.ccHideCountdownNumbers = C.Defaults.MiniAuras.CCHideCountdownNumbers
 miniAurasDefaults.ccHideSwipe = C.Defaults.MiniAuras.CCHideSwipe
@@ -922,6 +923,10 @@ local function EnsureMiniAurasConfig(config)
     if type(config) ~= "table" then
         return CopyTable(miniAurasDefaults)
     end
+
+    -- MiniAuras owns countdown threshold colors through its Misc settings.
+    -- Remove the former MiniCE override from existing profiles.
+    config.allowThresholdColors = nil
 
     if type(config.raidFrameAuraFontSize) ~= "number" then
         config.raidFrameAuraFontSize = type(config.friendlyCdFontSize) == "number"
@@ -1102,8 +1107,8 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniAuras"], C.Addon.ShortName, C.Categories.MiniAuras))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))
-    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles"))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))
 
     for i = 1, #C.Addon.SlashCommands do
         self:RegisterChatCommand(C.Addon.SlashCommands[i], "SlashCommand")

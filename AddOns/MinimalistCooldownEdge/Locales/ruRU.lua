@@ -2,6 +2,8 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "ruRU")
 if not L then return end
 
+L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "Цветами порогов таймера управляет MiniAuras. Настройте их в MiniAuras > Misc > Countdown Colours."
+
 -- Core
 L["Cannot open options in combat."] = "Невозможно открыть настройки в бою."
 L["MiniAuras test command is unavailable."] = "Команда теста MiniAuras недоступна."

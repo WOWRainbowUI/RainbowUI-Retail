@@ -2,6 +2,8 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "esES")
 if not L then return end
 
+L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras gestiona los colores de umbral de la cuenta atrás. Configúralos en MiniAuras > Misc > Countdown Colours."
+
 -- Core
 L["Cannot open options in combat."] = "No se pueden abrir las opciones en combate."
 L["MiniAuras test command is unavailable."] = "El comando de prueba de MiniAuras no está disponible."

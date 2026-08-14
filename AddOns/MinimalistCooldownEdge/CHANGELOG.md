@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.3.4 - TellMeWhen Combat-Ready Aura Timers
+- Fixed cooldown timer styling for TellMeWhen Buff/Debuff (combat ready) icons.
+
+## 4.3.3 - MiniAuras Nameplate Timer Fixes
+- Fixed cooldown timer fonts and number visibility on MiniAuras nameplate aura and crowd-control icons.
+- Removed MiniCE threshold color overrides from MiniAuras timers; configure them under MiniAuras > Misc > Countdown Colours.
+- Updated options menu order.
+
+## 4.3.2 - Unit Frame Threshold Colors
+- Fixed Unit Frame timer threshold colors.
+
 ## 4.3.1 - Aura Timer Text Layering
 - Aura timer text now draws above debuff borders and glows on unit frames and nameplates.
 - Fixed timer text being covered by debuff borders while using BetterBlizzFrames.
