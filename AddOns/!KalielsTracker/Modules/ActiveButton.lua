@@ -273,7 +273,7 @@ function M:Update(id)
 
 	local closestQuestID = id
 	if not closestQuestID then
-		if not KT:IsCollapsed() then
+		if not KT:Tracker_IsCollapsed() then
 			local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
 			for questID in pairs(buttons) do
 				if questID == superTrackedQuestID then

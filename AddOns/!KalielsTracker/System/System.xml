@@ -2,6 +2,7 @@
 ..\..\FrameXML\UI.xsd">
     <Script file="Constants.lua"/>
     <Script file="Utils.lua"/>
+    <Script file="Safe.lua"/>
     <Script file="Media.lua"/>
     <Script file="Config.lua"/>
     <Script file="Storage.lua"/>

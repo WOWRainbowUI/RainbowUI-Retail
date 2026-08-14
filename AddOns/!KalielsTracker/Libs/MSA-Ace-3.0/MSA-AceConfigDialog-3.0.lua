@@ -7,7 +7,7 @@ local LibStub = LibStub
 local gui = LibStub("AceGUI-3.0")
 local reg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 90  -- MSA
+local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 92  -- MSA
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigDialog then return end
@@ -1045,6 +1045,11 @@ local function InjectInfo(control, options, option, path, rootframe, appName)
 	control:SetCallback("OnRelease", CleanUserData)
 	control:SetCallback("OnLeave", OptionOnMouseLeave)
 	control:SetCallback("OnEnter", OptionOnMouseOver)
+
+	-- forward custom arg data directly
+	if control.SetCustomData and option.arg then
+		safecall(control.SetCustomData, control, option.arg)
+	end
 end
 
 local function CreateControl(userControlType, fallbackControlType)
@@ -1418,6 +1423,7 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 				if control then
 					if control.width ~= "fill" then
 						local width = GetOptionsMemberValue("width",v,options,path,appName)
+						local relWidth = GetOptionsMemberValue("relWidth",v,options,path,appName)
 						if width == "double" then
 							control:SetWidth(width_multiplier * 2)
 						elseif width == "normal+half" then  -- MSA
@@ -1426,6 +1432,8 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 							control:SetWidth(width_multiplier / 2)
 						elseif (type(width) == "number") then
 							control:SetWidth(width_multiplier * width)
+						elseif width == "relative" and relWidth then
+							control:SetRelativeWidth(relWidth)
 						elseif width == "full" then
 							control.width = "fill"
 						else

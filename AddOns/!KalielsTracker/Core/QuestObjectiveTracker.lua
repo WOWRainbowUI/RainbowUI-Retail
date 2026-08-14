@@ -312,8 +312,8 @@ function KT_QuestObjectiveTrackerMixin:UpdateSingle(quest)
 					local forceCompletedToUseFullHeight = true;
 					block:AddObjective("QuestComplete", completionText, nil, forceCompletedToUseFullHeight, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Complete"]);  -- MSA
 				else
-					-- If there isn't completion text and it's safe, always prefer waypoint to "Ready for turn-in".
-					local waypointText = shouldShowWaypoint and C_QuestLog.GetNextWaypointText(questID);
+					-- If there isn't completion text, always prefer waypoint to "Ready for turn-in".
+					local waypointText = C_QuestLog.GetNextWaypointText(questID);
 					if waypointText then
 						block:AddObjective("Waypoint", waypointText, nil, useFullHeight);
 					else
@@ -382,7 +382,11 @@ function KT_QuestObjectiveTrackerMixin:ShouldDisplayQuest(quest)
 		return false;
 	end
 
-	return quest:GetQuestClassification() ~= Enum.QuestClassification.Campaign;
+	-- MSA (fix Blizz bug)
+	local classification = quest:GetQuestClassification()
+	return classification ~= Enum.QuestClassification.Campaign and
+			classification ~= Enum.QuestClassification.BonusObjective and
+			classification ~= Enum.QuestClassification.WorldQuest
 end
 
 -- *****************************************************************************************************

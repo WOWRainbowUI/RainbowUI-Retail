@@ -11,7 +11,7 @@ local SS = KT:NewSubsystem("AddonCompartment")
 
 local function Compartment_OnClick(data, menuInputData, menu)
     if menuInputData.buttonName == "LeftButton" then
-        KT:SetHidden()
+        KT:Tracker_SetHidden()
     elseif menuInputData.buttonName == "RightButton" then
         KT:OpenOptions()
     end

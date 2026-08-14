@@ -53,19 +53,19 @@ end
 
 local function ApplyAction(action)
     if action == "show" then
-        KT:SetHidden(false, true)
+        KT:Tracker_SetHidden(false, true)
     elseif action == "hide" then
-        KT:SetHidden(true, true)
+        KT:Tracker_SetHidden(true, true)
     elseif action == "collapse" then
         if KT.hidden then
-            KT:SetHidden(false, true)
+            KT:Tracker_SetHidden(false, true)
         end
-        KT:SetCollapsed(true)
+        KT:Tracker_SetCollapsed(true)
     elseif action == "expand" then
         if KT.hidden then
-            KT:SetHidden(false, true)
+            KT:Tracker_SetHidden(false, true)
         end
-        KT:SetCollapsed(false)
+        KT:Tracker_SetCollapsed(false)
     end
 end
 

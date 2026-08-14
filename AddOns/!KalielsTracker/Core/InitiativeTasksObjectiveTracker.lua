@@ -3,7 +3,7 @@ local _, KT = ...
 
 local settings = {
 	headerText = TRACKER_HEADER_INITIATIVE_TASKS,
-	events = { "INITIATIVE_TASKS_TRACKED_UPDATED", "INITIATIVE_TASKS_TRACKED_LIST_CHANGED" },
+	events = { "INITIATIVE_TASKS_TRACKED_UPDATED", "INITIATIVE_TASKS_TRACKED_LIST_CHANGED", "NEIGHBORHOOD_INITIATIVE_UPDATED", "PLAYER_ENTERING_WORLD", "ZONE_CHANGED_NEW_AREA" },
 	blockTemplate = "KT_ObjectiveTrackerAnimBlockTemplate",
 	lineTemplate = "KT_ObjectiveTrackerAnimLineTemplate",
 };
@@ -14,18 +14,21 @@ local settings = {
 
 KT_InitiativeTasksObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings);
 
--- MSA
-function KT_InitiativeTasksObjectiveTrackerMixin:InitModule()
-	-- fix Blizz bug
-	local numTasks = #C_NeighborhoodInitiative.GetTrackedInitiativeTasks().trackedIDs
-	if numTasks > 0 then
-		HousingFramesUtil.ToggleHousingDashboard()
-		HousingFramesUtil.ToggleHousingDashboard()
+function KT_InitiativeTasksObjectiveTrackerMixin:RequestInitiativeInfoIfTracking()
+	local trackedTasks = C_NeighborhoodInitiative.GetTrackedInitiativeTasks();
+	if #trackedTasks.trackedIDs > 0 then
+		C_NeighborhoodInitiative.RequestNeighborhoodInitiativeInfo();
 	end
 end
 
+function KT_InitiativeTasksObjectiveTrackerMixin:InitModule()
+	self:RequestInitiativeInfoIfTracking();
+end
+
 function KT_InitiativeTasksObjectiveTrackerMixin:OnEvent(event, ...)
-	if event == "INITIATIVE_TASKS_TRACKED_UPDATED" or event == "INITIATIVE_TASKS_TRACKED_LIST_CHANGED" then
+	if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
+		self:RequestInitiativeInfoIfTracking();
+	elseif event == "INITIATIVE_TASKS_TRACKED_UPDATED" or event == "INITIATIVE_TASKS_TRACKED_LIST_CHANGED" or event == "NEIGHBORHOOD_INITIATIVE_UPDATED" then
 		self:MarkDirty();
 	end
 end

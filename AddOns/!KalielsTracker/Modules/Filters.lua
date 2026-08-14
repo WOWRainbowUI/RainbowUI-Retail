@@ -108,6 +108,18 @@ local function SanitizeFavorites()
 	end
 end
 
+local function ContextMenu_Extend(_, info, type, id)
+	if (type == "quest" and not info.isTask) or type == "achievement" then
+		local favoriteType = type.."s"
+
+		KT.Menu_AddSeparator()
+		info.notCheckable = false
+
+		info.colorCode = "|cff009bff"
+		KT.Menu_AddCheck("Favorite", IsFavorite(favoriteType, id), ToggleFavorite, favoriteType, id)
+	end
+end
+
 local function SetHooks()
 	local bck_KT_ObjectiveTracker_OnEvent = OTF:GetScript("OnEvent")
 	OTF:SetScript("OnEvent", function(self, event, ...)
@@ -129,17 +141,6 @@ local function SetHooks()
 	end
 	KT_CampaignQuestObjectiveTracker.UntrackQuest = KT_QuestObjectiveTracker.UntrackQuest
 	
-	hooksecurefunc("KT_QuestObjectiveTracker_OnOpenDropDown", function(self)
-		local block = self.activeFrame
-
-		local info = KT.Menu_CreateInfo()
-		KT.Menu_AddSeparator()
-		info.notCheckable = false
-
-		info.colorCode = "|cff009bff"
-		KT.Menu_AddCheck("Favorite", IsFavorite("quests", block.id), ToggleFavorite, "quests", block.id)
-	end)
-
     function KT.CompareQuestWatchInfos(info1, info2)  -- R
         local quest1, quest2 = info1.quest, info2.quest
 
@@ -200,17 +201,6 @@ local function SetHooks()
 			bck_KT_AchievementObjectiveTracker_UntrackAchievement(self, achievementID)
 		end
 	end
-
-	hooksecurefunc("KT_AchievementObjectiveTracker_OnOpenDropDown", function(self)
-		local block = self.activeFrame
-
-		local info = KT.Menu_CreateInfo()
-		KT.Menu_AddSeparator()
-		info.notCheckable = false
-
-		info.colorCode = "|cff009bff"
-		KT.Menu_AddCheck("Favorite", IsFavorite("achievements", block.id), ToggleFavorite, "achievements", block.id)
-	end)
 
     -- POI
     local bck_KT_POIButtonMixin_OnClick = KT_POIButtonMixin.OnClick
@@ -979,23 +969,6 @@ local function DropDown_Initialize(self, level)
 
 		KT.Menu_AddCheck("|cff00ff00Auto|r Zone", { dbChar.filterAuto, 1, "zone" }, Filter_Menu_AutoTrack, 1, "zone")
 
-		-- Events
-		if C_EventScheduler.CanShowEvents() then
-			KT.Menu_AddSeparator()
-
-			KT.Menu_AddTitle(EVENTS_LABEL)
-			info.notCheckable = false
-
-			KT.Menu_AddCheck("Track Events", { dbChar.filter.events, "track" }, function()
-				dbChar.filter.events.track = not dbChar.filter.events.track
-				KT_EventObjectiveTracker:MarkDirty()
-			end)
-			KT.Menu_AddCheck("Show Long Events", { dbChar.filter.events, "showLong" }, function()
-				dbChar.filter.events.showLong = not dbChar.filter.events.showLong
-				KT_EventObjectiveTracker:MarkDirty()
-			end)
-		end
-
 		KT.Menu_AddSeparator()
 
 		-- Achievements
@@ -1088,7 +1061,7 @@ local function DropDown_Initialize(self, level)
 			info.isNotRadio = false
 			info.func = function(obj, arg)
 				dbChar.filter.quests.sort = arg
-				KT:Update()
+				KT:Tracker_Update()
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end
 
@@ -1103,12 +1076,12 @@ local function DropDown_Initialize(self, level)
 
 			KT.Menu_AddCheck("Top Meta quests", { dbChar.filter.quests, "sortTopOverride" }, function(obj)
 				dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
-				KT:Update()
+				KT:Tracker_Update()
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end)
 			KT.Menu_AddCheck("Bottom Completed quests", { dbChar.filter.quests, "sortBottomCompleted" }, function(obj)
 				dbChar.filter.quests.sortBottomCompleted = not dbChar.filter.quests.sortBottomCompleted
-				KT:Update()
+				KT:Tracker_Update()
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end)
 		end
@@ -1204,7 +1177,7 @@ local function SetFrames()
 		GameTooltip:Hide()
 	end)
 	KTF.FilterButton = button
-	KT:SetHeaderButtons(1)
+	KT:Tracker_SetHeaderButtons(1)
 
 	-- Move other buttons
 	if db.hdrOtherButtons then
@@ -1233,10 +1206,6 @@ function M:OnInitialize()
                     },
                     achievements = {
                         showContinent = true
-                    },
-                    events = {
-                        track = true,
-                        showLong = true
                     }
                 },
                 filterAuto = {
@@ -1275,6 +1244,7 @@ function M:OnEnable()
 	SetHooks()
 	SetFrames()
 
+	KT:RegSignal("CONTEXT_MENU_UPDATE:50", ContextMenu_Extend, self)
     KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, isInitialLogin, isReloadingUI)
         if not isInitialLogin and isReloadingUI then
             if not KT.IsInBetween() then

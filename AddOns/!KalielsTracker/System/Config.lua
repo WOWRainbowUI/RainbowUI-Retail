@@ -97,6 +97,7 @@ local defaults = {
     },
     char = {
         collapsed = false,
+        collapsedModules = {},
         quests = {
             num = 0,
             numOver = 0,
@@ -114,6 +115,10 @@ local defaults = {
         }
     }
 }
+
+for _, module in pairs(KT.MODULES) do
+    defaults.char.collapsedModules[module] = false
+end
 
 for cmd, int in pairs(KT.KEYBINDINGS) do
     if int then

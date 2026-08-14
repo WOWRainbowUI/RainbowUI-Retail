@@ -67,6 +67,7 @@ function KT:Tracker_RegisterModule(name, isDisabled)
     module.disabled = isDisabled
 
     tinsert(self.MODULES, name)
+    self.db.defaults.char.collapsedModules[name] = false
     self.db:RegisterDefaults(self.db.defaults)
 
     hooksecurefunc(self.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self2, isInitialLogin, isReloadingUI)

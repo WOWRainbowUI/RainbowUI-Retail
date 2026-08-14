@@ -23,7 +23,6 @@ local settings = {
     blockTemplate = "KT_ObjectiveTrackerQuestPOIBlockTemplate",
     lineTemplate = "KT_ObjectiveTrackerAnimLineTemplate",
 }
-
 KT_EventObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings)
 
 -- Internal ------------------------------------------------------------------------------------------------------------
@@ -58,6 +57,28 @@ local function ShouldShowTimeLeft(poiInfo)
         return false
     end
     return true
+end
+
+local function FilterMenu_Extend(self, info, level)
+    if not C_EventScheduler.CanShowEvents() then return end
+
+    if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
+        KT.Menu_AddSeparator()
+
+        KT.Menu_AddTitle(EVENTS_LABEL)
+        info.notCheckable = false
+
+        KT.Menu_AddCheck("Track Events", { dbChar.filter.events, "track" }, function()
+            dbChar.filter.events.track = not dbChar.filter.events.track
+            KT_EventObjectiveTracker:MarkDirty()
+            KT:Module_Expand(KT_EventObjectiveTracker)
+        end)
+        KT.Menu_AddCheck("Show Long Events", { dbChar.filter.events, "showLong" }, function()
+            dbChar.filter.events.showLong = not dbChar.filter.events.showLong
+            KT_EventObjectiveTracker:MarkDirty()
+            KT:Module_Expand(KT_EventObjectiveTracker)
+        end)
+    end
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
@@ -250,6 +271,18 @@ function M:OnInitialize()
     self.isAvailable = true
 
     if self.isAvailable then
+        local defaults = KT:MergeTables({
+            char = {
+                filter = {
+                    events = {
+                        track = true,
+                        showLong = true
+                    }
+                }
+            }
+        }, KT.db.defaults)
+        KT.db:RegisterDefaults(defaults)
+
         KT:Tracker_RegisterModule("KT_EventObjectiveTracker", not self.isAvailable)
     end
 end
@@ -257,4 +290,6 @@ end
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     SetHooks()
+
+    KT:RegSignal("FILTER_MENU_UPDATE", FilterMenu_Extend, self)
 end

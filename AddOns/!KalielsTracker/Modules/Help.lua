@@ -350,7 +350,7 @@ local function SetupTutorials()
 		},
 		{	-- 14
 			image = HELP_PATH.."help_addon-battlepetcompletionist",
-			heading = "Support addon Battle Pet Completionist "..KT.TEXT.OPTION_BETA,
+			heading = "Support addon Battle Pet Completionist",
 			text = "Battle Pet Completionist support adds zone pet tracking to "..KT.TITLE.." with\na custom layout "..
 					"and improved visual presentation.\n\n"..
 					"Features:\n"..
@@ -382,27 +382,22 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.6.1|r\n"..
-					"- FIXED (Help) - addon info error\n"..
-					"\n")..
-
-					(cTitle.."Version 8.6.0|r\n"..
-					"- ADDED - addon support - Battle Pet Completionist (zone pet tracking inside the tracker), see Help page 14\n"..
-					"- ADDED - small Eye button for finding groups for difficult quests/world quests\n"..
-					"- ADDED (Quests) - extra quest count in module header, see Help page 3\n"..
-					"- ADDED (Quests) - separate quest level and quest tags visibility options\n"..
-					"- CHANGED - addon support - TomTom 4.3.1\n"..
-					"- CHANGED - addon support - RareScanner 12.0.5.2\n"..
-					"- CHANGED - addon support - Narcissus 1.8.5d\n"..
-					"- CHANGED - addon support - ElvUI 15.13\n"..
-					"- CHANGED - addon support - BtWQuests 2.62.0\n"..
-					"- CHANGED - addon support - Auctionator 321\n"..
+					(cTitle.."Version 8.7.0|r\n"..
+					"- ADDED - auto expand tracker modules when tracking an item\n"..
+					"- ADDED - support for WoW 12.1.0.69273\n"..
+					"- ADDED - support for WoW 12.0.7.68235\n"..
+					"- ADDED - remember collapsed state of tracker modules\n"..
 					"- CHANGED (Help) - Active Patrons\n"..
-					"- CHANGED (Help) - refresh images\n"..
-					"- CHANGED (Achievements) - improve scenario achievements filtering (Ritual Sites)\n"..
-					"- CHANGED - Options - reorganize Modules and Supported addons settings (2)\n"..
-					offs3.."- Some settings were renamed and reset to defaults.\n"..
-					"- FIXED - taint errors (5)\n"..
+					"- CHANGED - addon support - TomTom 4.3.8\n"..
+					"- CHANGED - addon support - RareScanner 12.1.0.1\n"..
+					"- CHANGED - addon support - Battle Pet Completionist 12.1.0-20260812-1\n"..
+					"- CHANGED - addon support - Narcissus 1.8.6\n"..
+					"- CHANGED - addon support - Masque 12.0.8\n"..
+					"- CHANGED - addon support - BtWQuests 2.63.1\n"..
+					"- CHANGED - addon support - Auctionator 334\n"..
+					"- CHANGED - addon support - ElvUI 15.21\n"..
+					"- CHANGED - Libs\n"..
+					"- CHANGED - Battle Pet Completionist - pet details click improvement\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -430,9 +425,7 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		onShow = function(self, i)
-			if KT:IsCollapsed() then
-				KT:MinimizeButton_OnClick()
-			end
+			KT:Tracker_Expand()
 			if i == 2 then
 				if KTF.FilterButton then
 					self[i].shineLeft = db.hdrOtherButtons and -74 or -34
@@ -481,16 +474,14 @@ local function SetupTutorials()
 					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
-					SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "David Blanchard")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
-					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Rare", "Spence")..
+					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
 					SetFormatedPatronName("Uncommon", "Camalus")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
-					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
-					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Naturegurl")..
@@ -503,8 +494,7 @@ local function SetupTutorials()
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
-					SetFormatedPlayerName("Asimeria", "Drak'thul")..
-					SetFormatedPlayerName("Torresman", "Drak'thul"),
+					SetFormatedPlayerName("Asimeria", "Drak'thul"),
 			editbox = {
 				{
 					icon = ICON_URL,

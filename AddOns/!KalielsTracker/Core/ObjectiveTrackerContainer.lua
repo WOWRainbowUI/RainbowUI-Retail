@@ -29,6 +29,7 @@ function KT_ObjectiveTrackerContainerMixin:OnSizeChanged()
 end
 
 function KT_ObjectiveTrackerContainerMixin:OnShow()
+	--ManagedFrameMixin.OnShow(self);  -- MSA
 	self:UpdateHeight();
 end
 
@@ -121,7 +122,7 @@ function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 
 	-- MSA
 	--[[if self:IsInDefaultPosition() then
-		UIParent_ManageFramePositions();
+		ManageFramePositions();
 	end]]
 end
 

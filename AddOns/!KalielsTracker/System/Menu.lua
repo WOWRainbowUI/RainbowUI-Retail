@@ -12,7 +12,7 @@ local SS = KT:NewSubsystem("Menu")
 local _info
 local db
 
-local function ExtendContextMenu(_, info, arg1, arg2, arg3)
+local function ContextMenu_Extend(_, info, arg1, arg2, arg3)
     if not db then return end
 
     if db.menuWowheadURL then
@@ -186,5 +186,5 @@ end
 function SS:Init()
     db = KT.db.profile
 
-    KT:RegSignal("CONTEXT_MENU_UPDATE", ExtendContextMenu, self)
+    KT:RegSignal("CONTEXT_MENU_UPDATE", ContextMenu_Extend, self)
 end

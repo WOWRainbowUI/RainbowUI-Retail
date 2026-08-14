@@ -38,7 +38,7 @@ local texts = {
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
-local function SetPetsHeaderText()
+local function SetHeaderText()
 	local suffix
 	if db.pettrackerHeaderSuffix then
 		local _, numPetsOwned = C_PetJournal.GetNumPets()
@@ -66,7 +66,7 @@ local function SetupOptions()
 						width = "normal+half",
 						set = function()
 							db.pettrackerHeaderSuffix = not db.pettrackerHeaderSuffix
-							SetPetsHeaderText()
+							SetHeaderText()
 						end,
 						order = 1,
 					},
@@ -177,8 +177,8 @@ local function SetHooks_PetTracker_Journal()
 		end)
 	else
 		PetTrackerTrackToggle:HookScript("OnClick", function()
-			if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
-				KT:MinimizeButton_OnClick()
+			if PetTracker.sets.zoneTracker then
+				KT:Tracker_Expand()
 			end
 		end)
 	end
@@ -231,7 +231,7 @@ local function SetFrames()
 	objectives.Bar.Overlay.Text:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
 end
 
-local function FilterMenuUpdate(self, info, level)
+local function FilterMenu_Extend(self, info, level)
 	if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
 		KT.Menu_AddSeparator()
 
@@ -240,8 +240,9 @@ local function FilterMenuUpdate(self, info, level)
 
 		KT.Menu_AddCheck(texts.TrackPets, { PetTracker.sets, "zoneTracker" }, function()
 			PetTracker.ToggleOption("zoneTracker")
-			if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
-				KT:MinimizeButton_OnClick()
+			if PetTracker.sets.zoneTracker then
+				KT:Tracker_Expand()
+				KT:Module_Expand(KT_PetTrackerObjectiveTracker)
 			end
 		end)
 
@@ -249,6 +250,7 @@ local function FilterMenuUpdate(self, info, level)
 
 		KT.Menu_AddCheck(texts.CapturedPets, { PetTracker.sets, "capturedPets" }, function()
 			PetTracker.ToggleOption("capturedPets")
+			KT:Module_Expand(KT_PetTrackerObjectiveTracker)
 		end)
 
 		info.notCheckable = true
@@ -278,7 +280,7 @@ end
 
 function KT_PetTrackerObjectiveTrackerMixin:OnEvent(event, ...)
 	if event == "PET_JOURNAL_LIST_UPDATE" then
-		SetPetsHeaderText()
+		SetHeaderText()
 	end
 end
 
@@ -361,11 +363,5 @@ function M:OnEnable()
 	SetHooks()
 
 	KT:RegSignal("OPTIONS_CHANGED", "Update", self)
-	KT:RegSignal("FILTER_MENU_UPDATE", FilterMenuUpdate, self)
-end
-
-function M:IsShown()
-	return (self.isAvailable and
-			(PetTracker.sets and PetTracker.sets.zoneTracker) and
-			PetTracker.Objectives:IsShown())
+	KT:RegSignal("FILTER_MENU_UPDATE", FilterMenu_Extend, self)
 end

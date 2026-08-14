@@ -4,7 +4,7 @@
 --- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-Event-1.0", 3
+local name, version = "MSA-Event-1.0", 4
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -12,10 +12,14 @@ if not lib then return end
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 -- Lua API
+local ipairs = ipairs
 local pairs = pairs
+local select = select
 local strmatch = string.match
 local tinsert = table.insert
 local tonumber = tonumber
+local tremove = table.remove
+local tsort = table.sort
 local type = type
 
 -- Registry Blizzard Events
@@ -88,17 +92,76 @@ function lib:UnregAllEvents()
 end
 
 -- Registry Signal Handlers
+lib.signalHandlers = lib.signalHandlers or {}
+
+local function handleSignal(signal, ...)
+    local list = lib.signalHandlers[signal]
+    if list then
+        for _, handler in ipairs(list) do
+            if handler.isClosure then
+                handler.func(...)
+            else
+                handler.func(handler.owner, ...)
+            end
+        end
+    end
+end
 
 function lib:RegSignal(event, call, object, ...)
     local owner = object or self
     --print("|cff00ff00REG Signal|r ...", event, "...", owner.moduleName or owner.name or owner, "...", ...)
-    EventRegistry:RegisterCallback(self.name.."."..event, owner[call or event] or call, owner, ...)
+
+    local order = 0
+    local eventName, eventOrder = strmatch(event, "^(%S+):(%d+)$")
+    if eventName then
+        event = eventName
+        order = tonumber(eventOrder)
+    end
+
+    local signal = self.name.."."..event
+    local list = lib.signalHandlers[signal]
+    if not list then
+        list = {}
+        lib.signalHandlers[signal] = list
+
+        EventRegistry:RegisterCallback(signal, function(_, ...)
+            handleSignal(signal, ...)
+        end, self)
+    end
+
+    local func = owner[call or event] or call
+    local count = select("#", ...)
+    if count > 0 then
+        func = GenerateClosure(func, owner, ...)
+    end
+    tinsert(list, {
+        func = func,
+        owner = owner,
+        isClosure = count > 0,
+        order = order
+    })
+    tsort(list, function(a, b)
+        return a.order < b.order
+    end)
 end
 
 function lib:UnregSignal(event, object)
     local owner = object or self
     --print("|cffff0000UNREG Signal|r ...", event, "...", owner.moduleName or owner.name or owner)
-    EventRegistry:UnregisterCallback(self.name.."."..event, owner)
+
+    local signal = self.name.."."..event
+    local list = lib.signalHandlers[signal]
+    if list then
+        for i = #list, 1, -1 do
+            if list[i].owner == owner then
+                tremove(list, i)
+            end
+        end
+        if #list == 0 then
+            EventRegistry:UnregisterCallback(signal, self)
+            lib.signalHandlers[signal] = nil
+        end
+    end
 end
 
 function lib:SendSignal(event, ...)
