@@ -188,6 +188,7 @@ local function OnClickFunc_DeclineQuest(exitButton)
 end
 
 local function OnClickFunc_CloseQuest(exitButton)
+    addon.FlagQuestDeclined();
     CloseQuest();
     exitButton.owner:HideUI();
 end

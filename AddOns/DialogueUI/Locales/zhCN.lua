@@ -305,6 +305,11 @@ L["BookUI TTS Voice Desc"] = "使用此声音朗读书籍：";
 L["BookUI TTS Click To Read"] = "点击以朗读段落";
 L["BookUI TTS Click To Read Desc"] = "左键点击某个段落来朗读它。\n\n左键点击正在被朗读的段落即可停止。";
 
+--Quest Popups
+L["Block Auto Pushed Quest Alert Format"] = "Dialogue UI 拦截了一个自动推送给你的任务 %s ，因为你最近已拒绝了它两次。";
+L["Quest Unblocked Alert"] = "已取消拦截此任务。任务界面将在下次游戏自动给你推送任务时显示。";
+L["Click To Unblock Quest"] = "点击以解除拦截";   --Will be used in a clickable link []
+
 --Keybinding Action
 L["Bound To"] = "绑定到：";
 L["Hotkey Colon"] = "快捷键：";

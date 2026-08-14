@@ -2314,6 +2314,71 @@ do  -- Chat Message
         end
         print(ADDON_ICON.." |cffffd100"..msg.."|r");
     end
+
+    function API.GenerateQuestLink(questID)
+        if questID and questID ~= 0 then
+            local questName = questID and API.GetQuestName(questID);
+            if questName then
+                return string.format("|cffffff00|Hquest:%s:0|h[%s]|h|r", questID, questName);
+            end
+        end
+    end
+
+
+	local CustomLinkUtil = {};
+
+	function API.AddCustomLinkType(typeName, callback, colorCode)
+		CustomLinkUtil[typeName] = {
+			callback = callback,
+			colorCode = colorCode,
+		};
+	end
+
+	function API.GenerateCustomLink(typeName, displayedText, ...)
+		if CustomLinkUtil[typeName] then
+			if not CustomLinkUtil.registered then
+				CustomLinkUtil.registered = true;
+				EventRegistry:RegisterCallback("SetItemRef", function(_, link, text, button, chatFrame)
+					if link then
+						local _typeName, subText = string.match(link, "dialogueui:([^:]+):([^|]+)");
+						if _typeName and CustomLinkUtil[_typeName] then
+							local args = {};
+							for arg in string.gmatch(subText, "[^:]+") do
+								table.insert(args, arg);
+							end
+							CustomLinkUtil[_typeName].callback(unpack(args));
+						end
+					end
+				end);
+			end
+
+			--|cffxxxxxx|Htype:payload|h[text]|h|r
+			local args = {...};
+			local link = "|Haddon:dialogueui:"..typeName;
+
+			if #args == 0 then
+				-- There must be at least 1 arg
+				args = {0};
+			end
+
+			for i, v in ipairs(args) do
+				link = link..":"..v;
+			end
+
+			link = string.format("|cff%s%s|h[%s]|h|r", CustomLinkUtil[typeName].colorCode or "ffd100", link, displayedText);
+
+			return link
+		end
+	end
+
+    function API.ShowBlockedQuestMessage(questID)
+        local questLink = API.GenerateQuestLink(questID);
+        if questLink then
+            local addonActionLink = API.GenerateCustomLink("UnblockQuest", L["Click To Unblock Quest"], questID);
+            local msg = string.format(L["Block Auto Pushed Quest Alert Format"], questLink).." "..addonActionLink;
+            print(ADDON_ICON.."|cffffffff"..msg.."|r");
+        end
+    end
 end
 
 do  -- Tooltip

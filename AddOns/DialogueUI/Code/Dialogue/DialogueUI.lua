@@ -2380,6 +2380,8 @@ function DUIDialogBaseMixin:HideUI(cancelPopupFirst, fromPressingKey)
         return
     end
 
+    addon.FlagQuestDeclined();
+
     self:Hide();
 end
 
@@ -2512,6 +2514,7 @@ end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
+        addon.FlagQuestDeclined();
         self:Hide();
     end
 end

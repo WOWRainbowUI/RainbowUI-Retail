@@ -307,6 +307,11 @@ L["BookUI TTS Voice Desc"] = "Use this voice for readable objects:";
 L["BookUI TTS Click To Read"] = "Click Paragraph To Read";
 L["BookUI TTS Click To Read Desc"] = "Click on a paragraph to read it.\n\nClick on a paragraph currently being read to stop reading.";
 
+--Quest Popups
+L["Block Auto Pushed Quest Alert Format"] = "Dialogue UI blocked an auto-pushed quest %s because you declined it twice this session.";
+L["Quest Unblocked Alert"] = "Quest unblocked. The quest window will appear the next time the game automatically offers you this quest.";
+L["Click To Unblock Quest"] = "Click to unblock";   --Will be used in a clickable link []
+
 --Keybinding Action
 L["Bound To"] = "Bound to: ";
 L["Hotkey Colon"] = "Hotkey: ";
