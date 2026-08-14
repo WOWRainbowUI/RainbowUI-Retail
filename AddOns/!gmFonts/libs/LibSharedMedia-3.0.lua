@@ -138,7 +138,7 @@ elseif locale == "zhCN" then
 --
 	SML_MT_font["伤害数字"]		= [[Interface\Addons\SharedMedia_Rainbow\fonts\YaHei\YaHei.ttf]] -- [[Fonts\ARKai_C.ttf]]
 	SML_MT_font["默认"]			= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\ARKai_T.ttf]]
-	SML_MT_font["聊天"]			= [[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]]  -- [[Fonts\ARHei.ttf]]
+	SML_MT_font["聊天"]			= [[Interface\Addons\SharedMedia_BNS\font\vivoSansTC+昭源黑體.ttf]]  -- [[Fonts\ARHei.ttf]]
 --
     lib.DefaultMedia["font"] = "默认" -- someone from zhCN please adjust if needed
 --
