@@ -67,6 +67,7 @@ local FrameScriptHandler = {
 
 ---@param frame LibQTip-2.0.ScriptFrame
 ---@param scriptType LibQTip-2.0.ScriptType
+---@param ... unknown
 function ScriptManager:CallScriptHandler(frame, scriptType, ...)
     local scriptMetadata = ScriptManager.FrameScriptMetadata[frame][scriptType]
 

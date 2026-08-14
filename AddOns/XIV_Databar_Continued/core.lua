@@ -850,7 +850,7 @@ function XIVBar:UpdateMouseoverScripts()
     if not bar then return end
 
     local function IsMouseOverBar()
-        if MouseIsOver(bar) then
+        if bar:IsMouseOver() then
             return true
         end
 
@@ -860,7 +860,7 @@ function XIVBar:UpdateMouseoverScripts()
                     local isShown = frame.IsShown and frame:IsShown()
                     local isVisible = frame.IsVisible and frame:IsVisible()
                     if isShown and isVisible then
-                        if MouseIsOver(frame) or frame._xivKeepVisibleWhileShown then
+                        if frame:IsMouseOver() or frame._xivKeepVisibleWhileShown then
                             return true
                         end
                     end
