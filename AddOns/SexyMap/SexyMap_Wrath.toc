@@ -1,5 +1,5 @@
-## Interface: 30405, 38001
-## Version: v12.0.10
+## Interface: 30405, 38002
+## Version: v12.1.0
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -44,7 +44,7 @@ SexyMap_Wrath.lua
 
 Shapes_Classic.lua
 
-Buttons_Wrath.lua
+Buttons_Classic.lua
 BorderPresets.lua
 Borders_Classic.lua
 Clock.lua
