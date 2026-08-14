@@ -31,6 +31,9 @@ local sgp = Map({id = 2506, settings = false}) -- Shadowguard Point
 
 -- local tor = Map({id = 2507, settings = false}) -- Torment's Rise ?
 
+local rog = Map({id = 2633, settings = false}) -- The Ring of Glory
+local gni = Map({id = 2635, settings = false}) -- Gnarldor Isle
+
 -------------------------------------------------------------------------------
 
 local SturdyChestCriteria = {
@@ -277,6 +280,50 @@ sgp.nodes[58264151] = SturdyChest({
 })
 
 -------------------------------------------------------------------------------
+------------------------------ THE RING OF GLORY ------------------------------
+-------------------------------------------------------------------------------
+
+rog.nodes[44162260] = SturdyChest({
+    achievementID = 63171,
+    quest = 96807,
+    rlabel = ns.status.Gray('#1')
+})
+
+rog.nodes[25197374] = SturdyChest({
+    achievementID = 63171,
+    quest = 96803,
+    rlabel = ns.status.Gray('#2')
+})
+
+rog.nodes[48569484] = SturdyChest({
+    achievementID = 63171,
+    quest = 96806,
+    rlabel = ns.status.Gray('#3')
+})
+
+-------------------------------------------------------------------------------
+-------------------------------- GNARLDOR ISLE --------------------------------
+-------------------------------------------------------------------------------
+
+gni.nodes[60446812] = SturdyChest({
+    achievementID = 63170,
+    quest = 96802,
+    rlabel = ns.status.Gray('#1')
+}) -- [Delver's Arcane Golem] mount drop random or fixed?
+
+gni.nodes[52414084] = SturdyChest({
+    achievementID = 63170,
+    quest = 96804,
+    rlabel = ns.status.Gray('#2')
+})
+
+gni.nodes[28674169] = SturdyChest({
+    achievementID = 63170,
+    quest = 96805,
+    rlabel = ns.status.Gray('#3')
+})
+
+-------------------------------------------------------------------------------
 -------------------------------- DELVE REWARDS --------------------------------
 -------------------------------------------------------------------------------
 local maps = {
@@ -287,7 +334,8 @@ local maps = {
     ns.maps[2405], -- Voidstorm
     ns.maps[2444], -- Slayer's Rise
     ns.maps[2437], -- Zul'Aman
-    ns.maps[2536] -- Atal'Aman
+    ns.maps[2536], -- Atal'Aman
+    ns.maps[2512] -- The Coiled Isle
 }
 
 for _, m in pairs(maps) do
@@ -299,7 +347,7 @@ local DELVE_REWARDS = {
 
     ['the_grudge_pit'] = {
         Achievement({id = 61897, criteria = SturdyChestCriteria}), -- The Grudge Pit Discoveries
-        Achievement({id = 61724, criteria = {110982, 110983, 110984}}), -- The Grudge Pit Stories
+        Achievement({id = 61724, criteria = {110982, 110983, 110984, 116109}}), -- The Grudge Pit Stories
         Achievement({id = 61713, oneline = true, criteria = {110909}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110939}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110969}}) -- Midnight Delver Tank III
@@ -313,42 +361,42 @@ local DELVE_REWARDS = {
     },
     ['collegiate_calamity'] = {
         Achievement({id = 61894, criteria = SturdyChestCriteria}), -- Collegiate Calamity Discoveries
-        Achievement({id = 61726, criteria = {110994, 110995, 110996}}), -- Collegiate Calamity Stories
+        Achievement({id = 61726, criteria = {110994, 110995, 110996, 116104}}), -- Collegiate Calamity Stories
         Achievement({id = 61713, oneline = true, criteria = {110912}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110942}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110972}}) -- Midnight Delver Tank III
     },
     ['parhelion_plaza'] = {
         Achievement({id = 61893, criteria = SturdyChestCriteria}), -- Parhelion Plaza Discoveries
-        Achievement({id = 61725, criteria = {110985, 110986, 110987}}), -- Parhelion Plaza Stories
+        Achievement({id = 61725, criteria = {110985, 110986, 110987, 116106}}), -- Parhelion Plaza Stories
         Achievement({id = 61713, oneline = true, criteria = {110910}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110940}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110970}}) -- Midnight Delver Tank III
     },
     ['the_shadow_enclave'] = {
         Achievement({id = 61892, criteria = SturdyChestCriteria}), -- The Shadow Enclave Discoveries
-        Achievement({id = 61727, criteria = {111003, 111004, 111005}}), -- The Shadow Enclave Stories
+        Achievement({id = 61727, criteria = {111003, 111004, 111005, 116105}}), -- The Shadow Enclave Stories
         Achievement({id = 61713, oneline = true, criteria = {110906}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110937}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110967}}) -- Midnight Delver Tank III
     },
     ['twilight_crypts'] = {
         Achievement({id = 61896, criteria = SturdyChestCriteria}), -- Twilight Crypts Discoveries
-        Achievement({id = 61730, criteria = {111006, 111007, 111008}}), -- Twilight Crypts Stories
+        Achievement({id = 61730, criteria = {111006, 111007, 111008, 116108}}), -- Twilight Crypts Stories
         Achievement({id = 61713, oneline = true, criteria = {110915}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110945}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110975}}) -- Midnight Delver Tank III
     },
     ['atalaman'] = {
         Achievement({id = 61863, criteria = SturdyChestCriteria}), -- Atal'aman Discoveries
-        Achievement({id = 61729, criteria = {111000, 111001, 111002}}), -- Atal'aman Stories
+        Achievement({id = 61729, criteria = {111000, 111001, 111002, 116107}}), -- Atal'aman Stories
         Achievement({id = 61713, oneline = true, criteria = {110908}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110938}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110968}}) -- Midnight Delver Tank III
     },
     ['shadowguard_point'] = {
         Achievement({id = 61900, criteria = SturdyChestCriteria}), -- Shadowguard Point Discoveries
-        Achievement({id = 61733, criteria = {110991, 110992, 110993}}), -- Shadowguard Point Stories
+        Achievement({id = 61733, criteria = {110991, 110992, 110993, 116110}}), -- Shadowguard Point Stories
         Achievement({id = 61713, oneline = true, criteria = {110905}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110936}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110966}}) -- Midnight Delver Tank III
@@ -366,6 +414,14 @@ local DELVE_REWARDS = {
         Achievement({id = 61713, oneline = true, criteria = {110914}}), -- Midnight Delver Damage Dealer III
         Achievement({id = 61716, oneline = true, criteria = {110944}}), -- Midnight Delver Healer III
         Achievement({id = 61719, oneline = true, criteria = {110974}}) -- Midnight Delver Tank III
+    },
+    ['the_ring_of_glory'] = {
+        Achievement({id = 63171, criteria = SturdyChestCriteria}), -- The Ring of Glory Discoveries
+        Achievement({id = 63436, criteria = {115865, 115866, 115867}}) -- The Ring of Glory Stories
+    },
+    ['gnarldor_isle'] = {
+        Achievement({id = 63170, criteria = SturdyChestCriteria}), -- Gnarldor Isle Discoveries
+        Achievement({id = 63437, criteria = {115862, 115863, 115864}}) -- Gnarldor Isle Stories
     },
     ['torments_rise'] = {
         Achievement({id = 61797, criteria = {111080, 111081}}) -- My Shady Nemesis
@@ -398,7 +454,15 @@ local DELVE_AREA_POIS = {
     [8436] = DELVE_REWARDS['the_gulf_of_memory'],
 
     -- NEMESIS DELVES -----------------------------------------------------------
-    [8445] = DELVE_REWARDS['torments_rise']
+    [8445] = DELVE_REWARDS['torments_rise'],
+
+    -- 12.1 DELVES -------------------------------------------------------------
+    [8761] = DELVE_REWARDS['gnarldor_isle'],
+    [8759] = DELVE_REWARDS['gnarldor_isle'],
+    [8760] = DELVE_REWARDS['gnarldor_isle'],
+    [8764] = DELVE_REWARDS['the_ring_of_glory'],
+    [8762] = DELVE_REWARDS['the_ring_of_glory'],
+    [8763] = DELVE_REWARDS['the_ring_of_glory']
 
 }
 
