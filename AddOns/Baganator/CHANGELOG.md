@@ -1,7 +1,6 @@
 # Baganator
 
-## [816](https://github.com/TheMouseNest/Baganator/tree/816) (2026-08-09)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/815...816) 
+## [820](https://github.com/TheMouseNest/Baganator/tree/820) (2026-08-13)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/819...820) 
 
-- Update toc for 12.1.0  
-- Remove remnants of code referring to BankFrame:GetActiveBankType  
+- Workaround Blizzard bootstrap change instantly closing guild bank  
