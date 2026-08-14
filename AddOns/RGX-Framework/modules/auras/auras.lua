@@ -185,21 +185,41 @@ local function HandleUnitAura(unit, updateInfo)
     local cache = Auras._cache[unit]
     if not cache then return end
 
-    if not updateInfo or updateInfo.isFullUpdate then
+    if not updateInfo then
+        RebuildUnitCache(unit)
+        return
+    end
+
+    -- isFullUpdate may be a secret boolean under addon taint. Inaccessible or
+    -- true → full rebuild (same as Blizzard secure UI when isFullUpdate).
+    local isFullUpdate = updateInfo.isFullUpdate
+    if not RGX.API.CanAccessValue(isFullUpdate) then
+        RebuildUnitCache(unit)
+        return
+    end
+    if isFullUpdate then
         RebuildUnitCache(unit)
         return
     end
 
     -- removedAuraInstanceIDs / updatedAuraInstanceIDs are NeverSecretContents.
-    if updateInfo.removedAuraInstanceIDs then
-        for _, id in ipairs(updateInfo.removedAuraInstanceIDs) do
+    local removed = updateInfo.removedAuraInstanceIDs
+    if removed and RGX.API.CanAccessTable(removed) then
+        for _, id in ipairs(removed) do
             cache.byInstance[id] = nil
             Fire(Auras._onRemoved, unit, id)
         end
     end
 
-    if updateInfo.addedAuras then
-        for _, auraData in ipairs(updateInfo.addedAuras) do
+    -- addedAuras is ConditionalSecretContents — the table itself can be secret.
+    local added = updateInfo.addedAuras
+    if added ~= nil then
+        if not RGX.API.CanAccessTable(added) then
+            -- Cannot read incremental adds; rebuild so we do not drop applications.
+            RebuildUnitCache(unit)
+            return
+        end
+        for _, auraData in ipairs(added) do
             local ok, id = pcall(function() return auraData.auraInstanceID end)
             if ok and type(id) == "number" then
                 cache.byInstance[id] = auraData
@@ -208,8 +228,9 @@ local function HandleUnitAura(unit, updateInfo)
         end
     end
 
-    if updateInfo.updatedAuraInstanceIDs then
-        for _, id in ipairs(updateInfo.updatedAuraInstanceIDs) do
+    local updated = updateInfo.updatedAuraInstanceIDs
+    if updated and RGX.API.CanAccessTable(updated) then
+        for _, id in ipairs(updated) do
             local auraData = SafeGetAuraDataByInstanceID(unit, id)
             if auraData then
                 cache.byInstance[id] = auraData

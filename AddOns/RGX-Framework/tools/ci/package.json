@@ -1,0 +1,17 @@
+{
+  "name": "rgx-ci",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CI helper scripts for RGX-Framework: Lua syntax gate and schema validation",
+  "type": "module",
+  "scripts": {
+    "lua-check": "node lua-syntax-check.mjs ../..",
+    "schema-check": "node schema-check.mjs ../../schemas/rgx-addon.schema.json"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "^8.17.0",
+    "luaparse": "^0.3.1"
+  }
+}

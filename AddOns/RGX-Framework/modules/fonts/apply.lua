@@ -55,6 +55,38 @@ function Fonts:ApplyChildren(frame, name, size, flags)
 	end
 end
 
+function Fonts:ChangeFontFamily(frame, name)
+	if not frame then return end
+
+	local path = self:GetPath(name)
+	if not path or path == "" then return end
+
+	-- If the frame itself has a font (e.g. EditBox, MessageFrame)
+	if frame.IsObjectType and (frame:IsObjectType("EditBox") or frame:IsObjectType("MessageFrame") or frame:IsObjectType("SimpleHTML")) then
+		local _, s, f = frame:GetFont()
+		if s and s > 0 then
+			frame:SetFont(path, s, f or "")
+		end
+	end
+
+	local regions = {frame:GetRegions()}
+	for _, region in ipairs(regions) do
+		if region.IsObjectType and region:IsObjectType("FontString") then
+			local _, s, f = region:GetFont()
+			if s and s > 0 then
+				region:SetFont(path, s, f or "")
+				-- Force a redraw/re-layout in WoW
+				local txt = region:GetText()
+				if txt then region:SetText(txt) end
+			end
+		end
+	end
+
+	for _, child in ipairs({frame:GetChildren()}) do
+		self:ChangeFontFamily(child, name)
+	end
+end
+
 function Fonts:CreateString(parent, fontName, size, flags, layer)
 	parent = parent or UIParent
 	layer = layer or "OVERLAY"

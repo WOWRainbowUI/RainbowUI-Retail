@@ -477,6 +477,41 @@ local function CreateOptionsPanel(UI, opts)
     tabArea:HookScript("OnShow",        RepositionTabs)
     RepositionTabs()
 
+    function panel:AddTab(tabInfo)
+        local i = #self.tabs + 1
+        local row = math.ceil(i / maxPerRow)
+        local col = ((i - 1) % maxPerRow) + 1
+
+        local tabBtn = CreateTabButton(
+            tabArea, tabInfo.text, i, row, col, panel, tabInfo.icon, addonKey
+        )
+        self.tabs[i] = tabBtn
+        self.tabs[i]._tabInfo = tabInfo
+
+        local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
+        content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -8)
+        content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",      -7,  8)
+        content:SetBackdrop({
+            bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Buttons\\WHITE8x8",
+            tile = true, tileSize = 16, edgeSize = 1,
+            insets = {left=1, right=1, top=1, bottom=1},
+        })
+        content:SetBackdropColor(br, bg, bb, 0.95)
+        content:SetBackdropBorderColor(D:Unpack("border"))
+        content:Hide()
+        self.contents[i] = content
+
+        rowGroups[row] = rowGroups[row] or {}
+        table.insert(rowGroups[row], tabBtn)
+
+        local rowCount = GetRowCount(self.tabs, maxPerRow)
+        tabArea:SetHeight(GetTabContainerHeight(rowCount))
+
+        RepositionTabs()
+        return i
+    end
+
 local function RunSoon(delay, fn)
   -- Prefer RGX timer API for framework budget/diagnostics
   if RGX and type(RGX.After) == "function" then

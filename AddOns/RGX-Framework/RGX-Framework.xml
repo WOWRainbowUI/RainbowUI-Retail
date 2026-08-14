@@ -9,6 +9,7 @@
 <Script file="core/systems/events.lua" />
 <Script file="core/systems/runtime.lua" />
 <Script file="core/systems/utils.lua" />
+<Script file="core/compat.lua" />
 
 <!-- Modules -->
 <Script file="modules/dropdowns/dropdowns.lua" />

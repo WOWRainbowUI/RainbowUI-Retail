@@ -1,0 +1,18 @@
+{
+  "name": "rgx-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for RGX-Framework addon development — validate, audit, and generate declarative RGX addons against the frozen Simplicity Contract",
+  "type": "module",
+  "bin": { "rgx-mcp": "src/server.js" },
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT",
+  "repository": "github:DonnieDice/rgx-mcp",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "ajv": "^8.17.0",
+    "zod": "^3.23.0"
+  }
+}

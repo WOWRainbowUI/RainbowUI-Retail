@@ -592,35 +592,48 @@ function Dropdowns:CreateNestedDropdown_MenuUtil(parent, opts)
             end
         end
 
-        local function addItems(items, parentDesc)
-            for _, item in ipairs(items or {}) do
-                if item.isSeparator then
-                    parentDesc:CreateDivider()
-                elseif item.isHeader then
-                    parentDesc:CreateTitle(holder:GetItemText(item))
-                elseif type(item.children) == "table" and #item.children > 0 then
-                    -- Submenu: a button whose own description we add children to.
-                    local sub = parentDesc:CreateButton(holder:GetItemText(item))
-                    addItems(item.children, sub)
-                else
-                    -- Leaf. Selectable items (with a value, not flagged
-                    -- notCheckable) become radios; everything else becomes a
-                    -- plain button that fires onChange like the legacy path.
-                    if item.value ~= nil and item.notCheckable ~= true then
-                        parentDesc:CreateRadio(holder:GetItemText(item), isSelected, setSelected, item.value)
+            local function addItems(items, parentDesc)
+                for _, item in ipairs(items or {}) do
+                    local element
+                    if item.isSeparator then
+                        parentDesc:CreateDivider()
+                    elseif item.isHeader then
+                        element = parentDesc:CreateTitle(holder:GetItemText(item))
+                    elseif type(item.children) == "table" and #item.children > 0 then
+                        -- Submenu: a button whose own description we add children to.
+                        element = parentDesc:CreateButton(holder:GetItemText(item))
+                        addItems(item.children, element)
                     else
-                        local label = holder:GetItemText(item)
-                        parentDesc:CreateButton(label, function()
-                            if type(opts.onChange) == "function" then
-                                opts.onChange(item.value, item, holder)
-                            end
+                        -- Leaf. Selectable items (with a value, not flagged
+                        -- notCheckable) become radios; everything else becomes a
+                        -- plain button that fires onChange like the legacy path.
+                        if item.value ~= nil and item.notCheckable ~= true then
+                            element = parentDesc:CreateRadio(holder:GetItemText(item), isSelected, setSelected, item.value)
+                        else
+                            local label = holder:GetItemText(item)
+                            element = parentDesc:CreateButton(label, function()
+                                if type(opts.onChange) == "function" then
+                                    opts.onChange(item.value, item, holder)
+                                end
+                            end)
+                        end
+                    end
+                    if element and type(opts.onButtonCreated) == "function" and type(element.AddInitializer) == "function" then
+                        element:AddInitializer(function(button, description, menu)
+                            opts.onButtonCreated(button, item)
                         end)
                     end
                 end
             end
-        end
 
         addItems(holder:GetItems(), rootDescription)
+        
+        if type(opts.menuHeight) == "number" and type(rootDescription.SetScrollMode) == "function" then
+            rootDescription:SetScrollMode(opts.menuHeight)
+        end
+        if type(opts.menuWidth) == "number" and type(rootDescription.SetMinimumWidth) == "function" then
+            rootDescription:SetMinimumWidth(opts.menuWidth)
+        end
     end
 
     holder.dropdown:SetupMenu(generator)
@@ -862,6 +875,153 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
 	end
 	RGX:Debug("RGXDropdown: dispatching to Legacy path")
 	return self:CreateNestedDropdown_Legacy(parent, opts)
+end
+
+--[[============================================================================
+    CONTEXT MENU WIDGET
+============================================================================]]
+
+function Dropdowns:CreateContextMenu(opts)
+    opts = opts or {}
+    
+    if HasModernDropdownTemplate() and HasMenuUtil() then
+        local generator = function(owner, rootDescription)
+            local items = type(opts.items) == "function" and opts.items() or opts.items
+            items = Dropdowns:NormalizeItems(items)
+            
+            local function addItems(items, parentDesc)
+                for _, item in ipairs(items or {}) do
+                    local element
+                    if item.isSeparator then
+                        parentDesc:CreateDivider()
+                    elseif item.isHeader then
+                        element = parentDesc:CreateTitle(item.text or item.label or tostring(item.value or ""))
+                    elseif type(item.children) == "table" and #item.children > 0 then
+                        element = parentDesc:CreateButton(item.text or item.label or tostring(item.value or ""))
+                        addItems(item.children, element)
+                    else
+                        local label = item.text or item.label or tostring(item.value or "")
+                        if type(item.checked) == "function" or item.isNotRadio then
+                            local isSelected = item.checked or function() return false end
+                            local setSelected = item.func or function() end
+                            if item.isNotRadio then
+                                element = parentDesc:CreateCheckbox(label, isSelected, setSelected)
+                            else
+                                element = parentDesc:CreateRadio(label, isSelected, setSelected)
+                            end
+                        else
+                            element = parentDesc:CreateButton(label, function()
+                                if type(item.func) == "function" then item.func(item) end
+                            end)
+                        end
+                    end
+                    if element and type(opts.onButtonCreated) == "function" and type(element.AddInitializer) == "function" then
+                        element:AddInitializer(function(button, description, menu)
+                            opts.onButtonCreated(button, item)
+                        end)
+                    end
+                end
+            end
+            addItems(items, rootDescription)
+        end
+        
+        local parentRegion = opts.parentFrame or UIParent
+        local menu = MenuUtil.CreateContextMenu(parentRegion, generator)
+        if opts.anchor == "cursor" and menu then
+            local x, y = GetCursorPosition()
+            local s = UIParent:GetEffectiveScale()
+            menu:ClearAllPoints()
+            menu:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x/s, y/s)
+        end
+        return menu
+    else
+        -- Legacy path
+        if not EnsureDropDownAPI() then return nil end
+        if not self._contextMenuFrame then
+            self._contextMenuFrame = CreateFrame("Frame", "RGXContextMenuFrame", UIParent, "UIDropDownMenuTemplate")
+            self._contextMenuFrame.displayMode = "MENU"
+        end
+        
+        local items = type(opts.items) == "function" and opts.items() or opts.items
+        items = Dropdowns:NormalizeItems(items)
+        
+        self._contextMenuFrame._menuData = {}
+        local menuKeyCounter = 0
+        
+        local function addItems(items, level)
+            for _, item in ipairs(items or {}) do
+                local info = UIDropDownMenu_CreateInfo()
+                if item.isSeparator then
+                    info.isSeparator = true
+                    info.notCheckable = true
+                    info.disabled = true
+                    UIDropDownMenu_AddButton(info, level)
+                elseif item.isHeader then
+                    info.isTitle = true
+                    info.text = item.text or item.label or tostring(item.value or "")
+                    info.notCheckable = true
+                    info.disabled = true
+                    UIDropDownMenu_AddButton(info, level)
+                elseif type(item.children) == "table" and #item.children > 0 then
+                    info.text = item.text or item.label or tostring(item.value or "")
+                    info.notCheckable = item.notCheckable ~= false
+                    info.hasArrow = true
+                    info.disabled = item.disabled
+                    menuKeyCounter = menuKeyCounter + 1
+                    local key = "cm" .. menuKeyCounter
+                    self._contextMenuFrame._menuData[key] = item.children
+                    info.menuList = key
+                    UIDropDownMenu_AddButton(info, level)
+                else
+                    info.text = item.text or item.label or tostring(item.value or "")
+                    info.notCheckable = item.notCheckable
+                    if info.notCheckable == nil then info.notCheckable = type(item.checked) ~= "function" end
+                    if not info.notCheckable and type(item.checked) == "function" then
+                        info.checked = item.checked()
+                    end
+                    info.isNotRadio = item.isNotRadio
+                    info.disabled = item.disabled
+                    info.keepShownOnClick = item.keepShownOnClick or item.keepOpen
+                    info.func = function()
+                        if type(item.func) == "function" then item.func(item) end
+                    end
+                    UIDropDownMenu_AddButton(info, level)
+                    
+                    if type(opts.onButtonCreated) == "function" then
+                        local listFrame = Dropdowns:GetListFrame(level)
+                        if listFrame then
+                            local maxBtns = UIDROPDOWNMENU_MAXBUTTONS or 32
+                            for i = maxBtns, 1, -1 do
+                                local btn = _G[listFrame:GetName().."Button"..i]
+                                if btn and btn:IsShown() then
+                                    opts.onButtonCreated(btn, item)
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        InitializeDropdown(self._contextMenuFrame, function(_, level, menuList)
+            level = level or 1
+            if level == 1 then
+                self._contextMenuFrame._menuData = {}
+                menuKeyCounter = 0
+                addItems(items, level)
+            else
+                local children = self._contextMenuFrame._menuData[menuList]
+                if children then addItems(children, level) end
+            end
+        end, "MENU")
+        
+        local x = opts.x or 0
+        local y = opts.y or 0
+        local anchor = opts.anchor or "cursor"
+        ToggleDropDownMenu(1, nil, self._contextMenuFrame, anchor, x, y, items)
+        return self._contextMenuFrame
+    end
 end
 
 --[[============================================================================

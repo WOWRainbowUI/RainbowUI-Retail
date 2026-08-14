@@ -78,6 +78,19 @@ function RGX:ColorPicker(parent, opts) local UI = self:GetUI(); if UI then retur
 function RGX:Section(parent, opts)     local UI = self:GetUI(); if UI then return UI:CreateSection(parent, opts)     end end
 function RGX:Label(parent, opts)       local UI = self:GetUI(); if UI then return UI:CreateLabel(parent, opts)       end end
 
+-- One-call font application. RGX:Font(fontString) uses the framework default
+-- font/size/flags entirely; any of name/size/flags can be overridden without
+-- needing the other two. Wraps Fonts:Quick, which already resolves omitted
+-- size/flags to the framework defaults -- this shortcut just makes that the
+-- obvious top-level call instead of a two-step GetFonts()+Quick() dance.
+--   RGX:Font(myText)                          -- full defaults
+--   RGX:Font(myText, "Inter-Regular")          -- named font, default size/flags
+--   RGX:Font(myText, "Inter-Regular", 16, "OUTLINE")
+function RGX:Font(fontString, name, size, flags)
+    local Fonts = self:GetFonts()
+    if Fonts then return Fonts:Quick(fontString, name, size, flags) end
+end
+
 RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
     if addon == addonName then
         -- Initialize database silently

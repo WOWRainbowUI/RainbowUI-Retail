@@ -1,0 +1,56 @@
+{
+  "//": "Source of truth for the docs -> GitHub wiki mapping. docs/ is canonical; the wiki is generated from it by build-wiki.mjs. Each entry maps a docs/ file to a wiki page name; sections drive the generated _Sidebar. HOME.md becomes the wiki Home page. To publish a new doc, add it here.",
+  "home": "HOME.md",
+  "sections": [
+    {
+      "title": "Getting Started",
+      "pages": [
+        { "doc": "QUICK-START.md",     "wiki": "Quick-Start" },
+        { "doc": "SUPER-SIMPLE.md",    "wiki": "Super-Simple" },
+        { "doc": "DECLARATIVE-API.md", "wiki": "Declarative-API" },
+        { "doc": "FOUNDATION.md",      "wiki": "Foundation" }
+      ]
+    },
+    {
+      "title": "Modules",
+      "pages": [
+        { "doc": "UI-CONTROLS.md", "wiki": "UI-Controls" },
+        { "doc": "COLORPICKER.md", "wiki": "ColorPicker" },
+        { "doc": "COLORS.md",      "wiki": "Colors" },
+        { "doc": "DROPDOWNS.md",   "wiki": "Dropdowns" },
+        { "doc": "FONTS.md",       "wiki": "Fonts" },
+        { "doc": "TEXTURES.md",    "wiki": "Textures" },
+        { "doc": "SOUND.md",       "wiki": "Sound" },
+        { "doc": "MINIMAP.md",     "wiki": "Minimap" },
+        { "doc": "AURAS.md",       "wiki": "Auras" },
+        { "doc": "TOOLTIP.md",     "wiki": "Tooltip" },
+        { "doc": "THEMING.md",     "wiki": "Theming" }
+      ]
+    },
+    {
+      "title": "Reference",
+      "pages": [
+        { "doc": "API.md",          "wiki": "API-Reference" },
+        { "doc": "ARCHITECTURE.md", "wiki": "Architecture" }
+      ]
+    },
+    {
+      "title": "Tooling",
+      "pages": [
+        { "doc": "RGX-MCP.md", "wiki": "RGX-MCP" },
+        { "doc": "TESTING.md", "wiki": "Testing" }
+      ]
+    },
+    {
+      "title": "Project",
+      "pages": [
+        { "doc": "ROADMAP.md",         "wiki": "Roadmap" },
+        { "doc": "MIGRATION.md",       "wiki": "Migration" },
+        { "doc": "ACE3-ANALYSIS.md",   "wiki": "Ace3-Analysis" },
+        { "doc": "FONT-SOURCES.md",    "wiki": "Font-Sources" },
+        { "doc": "TROUBLESHOOTING.md", "wiki": "Troubleshooting" },
+        { "doc": "CHANGES.md",         "wiki": "Changelog" }
+      ]
+    }
+  ]
+}

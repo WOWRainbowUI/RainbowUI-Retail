@@ -185,6 +185,36 @@ function RGX:GetHousing()      return self:GetModule("housing")      end
 function RGX:GetTradingPost()  return self:GetModule("tradingpost")  end
 function RGX:GetPrey()         return self:GetModule("prey")         end
 
+-- Addon registry -- every RGX.Addon is recorded here so other files (or the
+-- same addon's advanced-pattern files) can reach its object and panel by name.
+RGX._addons = RGX._addons or {}
+function RGX:GetAddon(name) return self._addons and self._addons[name] end
+
+-- Extra options tabs registered against an addon *by name*, before its panel is
+-- built. The declarative panel builder in RGX.Addon appends these after the
+-- addon's own `options` tabs, so a second file (e.g. a bundled dev/test suite)
+-- can extend the same panel instead of standing up a separate window.
+--   RGX:AddOptionsTab("RGX-Hello", "Colors", function(frame) ... end,
+--                     { maxPerRow = 5, width = 820, height = 640 })
+-- The optional 4th arg carries panel-geometry hints; the largest hint across
+-- all registrations wins, so the host addon's minimal example need not know the
+-- suite exists. Must be called before the addon's ADDON_LOADED (i.e. at file
+-- parse time) to be picked up -- panels are not rebuilt after creation.
+RGX._pendingTabs = RGX._pendingTabs or {}
+RGX._pendingPanelOpts = RGX._pendingPanelOpts or {}
+function RGX:AddOptionsTab(addonName, text, builder, geom)
+    if type(addonName) ~= "string" or type(text) ~= "string" or type(builder) ~= "function" then return end
+    self._pendingTabs[addonName] = self._pendingTabs[addonName] or {}
+    table.insert(self._pendingTabs[addonName], { text = text, content = builder })
+    if type(geom) == "table" then
+        local g = self._pendingPanelOpts[addonName] or {}
+        g.width     = math.max(g.width     or 0, geom.width     or 0)
+        g.height    = math.max(g.height    or 0, geom.height    or 0)
+        g.maxPerRow = math.max(g.maxPerRow or 0, geom.maxPerRow or 0)
+        self._pendingPanelOpts[addonName] = g
+    end
+end
+
 function RGX:SetTheme(config)
     local Design = self:GetDesign()
     if Design and type(Design.SetTheme) == "function" then
@@ -286,6 +316,8 @@ function RGX.Addon(name, opts)
 
     local addon = opts.table or {}
     addon.name = name
+    RGX._addons = RGX._addons or {}
+    RGX._addons[name] = addon
     addon._rgxEventIds = addon._rgxEventIds or {}
     addon._rgxUnitEventIds = addon._rgxUnitEventIds or {}
     addon._rgxMessageIds = addon._rgxMessageIds or {}
@@ -425,32 +457,54 @@ function RGX.Addon(name, opts)
     end
 
     -- Slash — register at file scope, no ADDON_LOADED needed
+    -- Slash — bare: string or array of aliases, default handler opens the
+    -- options panel. Advanced: same table with a `handler` key
+    -- (handler(addon, msg)) when opening the panel isn't the right default.
     if opts.slash then
         local cmds = type(opts.slash) == "table" and opts.slash or { opts.slash }
-        for _, cmd in ipairs(cmds) do
-            RGX:RegisterSlashCommand(cmd, function(msg)
-                if addon.panel then addon.panel:Open() return end
-                addon:Print(cmd .. " v?" )
-            end, name:upper())
-        end
+        local customHandler = type(opts.slash) == "table" and type(opts.slash.handler) == "function"
+            and opts.slash.handler or nil
+        RGX:RegisterSlashCommand(cmds, function(msg)
+            if customHandler then customHandler(addon, msg) return end
+            if addon.panel then addon.panel:Open() return end
+            addon:Print((cmds[1] or "?") .. " v?")
+        end, name:upper())
     end
 
-    -- Minimap — true uses default icon, string uses custom path
-    if opts.minimap then
-        local icon = type(opts.minimap) == "string" and opts.minimap or "Interface\\Icons\\inv_misc_questionmark"
-        local MM = RGX:GetMinimap()
-        if MM then MM:Create({ name = name, icon = icon }) end
-    end
-
-    -- Database + options deferred to ADDON_LOADED
+    -- Database + options + minimap deferred to ADDON_LOADED
     RGX:RegisterEvent("ADDON_LOADED", function(_, loaded)
         if loaded ~= name then return end
 
         if opts.db ~= nil then
             local defaults = type(opts.db) == "table" and opts.db or {}
-            local dbName = opts.dbName or (name .. "DB")
+            -- Auto-derived SavedVariables name strips non-identifier characters
+            -- ("RGX-Hello" -> RGXHelloDB, matching what rgx_generate_addon
+            -- emits); pass dbName to use something else.
+            local dbName = opts.dbName or (name:gsub("[^%w_]", "") .. "DB")
             if not addon.db then
                 addon.db = RGX:NewDatabase(dbName, defaults, { global = opts.global, onSwitch = opts.onSwitch })
+            end
+        end
+
+        -- Minimap — bare: true (default icon) or an icon path string. Advanced:
+        -- a full MM:Create opts table (tooltip, onRightClick, defaultAngle, ...).
+        -- Runs after db creation so the dragged angle persists to addon.db by
+        -- default -- creating it earlier silently lost the position on reload.
+        if opts.minimap then
+            local MM = RGX:GetMinimap()
+            if MM then
+                local mmOpts = type(opts.minimap) == "table" and opts.minimap or {}
+                mmOpts.name = mmOpts.name or name
+                mmOpts.icon = mmOpts.icon
+                    or (type(opts.minimap) == "string" and opts.minimap)
+                    or "Interface\\Icons\\inv_misc_questionmark"
+                mmOpts.storage = mmOpts.storage or addon.db
+                if not mmOpts.onLeftClick then
+                    mmOpts.onLeftClick = function()
+                        if addon.panel then addon.panel:Open() end
+                    end
+                end
+                addon.minimapButton = MM:Create(mmOpts)
             end
         end
 
@@ -468,11 +522,16 @@ function RGX.Addon(name, opts)
                                     if type(ctrl.toggle) == "string" then
                                         UI:CreateToggle(frame, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
                                     elseif type(ctrl.slider) == "string" then
-                                        UI:CreateSlider(frame, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1 })
+                                        UI:CreateSlider(frame, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress })
+                                    elseif type(ctrl.color) == "string" then
+                                        UI:CreateColorPicker(frame, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
                                     elseif type(ctrl.dropdown) == "string" and Drops then
                                         local items = {}
                                         for _, v in ipairs(ctrl.items or {}) do items[#items+1] = { text = tostring(v), value = v } end
-                                        Drops:CreateNestedDropdown(frame, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, onChange = function(v) addon.db[ctrl.dropdown] = v end })
+                                        -- value restores the saved selection visually; without it the
+                                        -- dropdown saved but always reopened blank -- the exact
+                                        -- save-without-restore bug class this framework exists to kill.
+                                        Drops:CreateNestedDropdown(frame, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
                                     elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
                                         UI:CreateButton(frame, ctrl.button, ctrl.width or 120, ctrl.height or 22, ctrl.action)
                                     elseif type(ctrl.section) == "string" then
@@ -483,7 +542,29 @@ function RGX.Addon(name, opts)
                         end,
                     }
                 end
-                addon.panel = UI:CreateOptionsPanel({ addonName = name, title = opts.title or name, tabs = tabs })
+                -- Append any tabs a second file registered via RGX:AddOptionsTab
+                -- (e.g. RGX-Hello's bundled visual-test suite) so they share this
+                -- one panel instead of opening a separate window.
+                local pend = RGX._pendingTabs and RGX._pendingTabs[name]
+                if pend then
+                    for _, t in ipairs(pend) do
+                        tabs[#tabs + 1] = { text = t.text, content = t.content }
+                    end
+                end
+                local geom = (RGX._pendingPanelOpts and RGX._pendingPanelOpts[name]) or {}
+                local function pick(explicit, hint)
+                    if explicit then return explicit end
+                    if hint and hint > 0 then return hint end
+                    return nil
+                end
+                addon.panel = UI:CreateOptionsPanel({
+                    addonName = name,
+                    title     = opts.title or name,
+                    tabs      = tabs,
+                    width     = pick(opts.panelWidth,  geom.width),
+                    height    = pick(opts.panelHeight, geom.height),
+                    maxPerRow = pick(opts.maxPerRow,   geom.maxPerRow),
+                })
             end -- UI check
         end -- addon.db check
 

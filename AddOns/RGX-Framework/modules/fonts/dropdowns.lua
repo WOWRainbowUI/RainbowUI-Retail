@@ -40,6 +40,8 @@ function Fonts:CreateFontDropdown(parent, opts)
 		height = opts.height or 56,
 		label = opts.label or "Font",
 		buttonWidth = opts.buttonWidth or 180,
+		menuHeight = opts.menuHeight or 300,
+		menuWidth = opts.menuWidth,
 		value = initialValue,
 		items = buildItems,
 		getValueText = function(value)

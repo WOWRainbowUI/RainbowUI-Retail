@@ -69,6 +69,18 @@ UI.CreateTextureDropdown = UI.CreateStatusBarDropdown
     COLOR PICKER CONTROL
 ============================================================================]]
 
+-- Embeddable color-picker card: the full SV-box + hue-bar picker inline in an
+-- options tab (not the popup swatch), bound to storage[key] = {r,g,b}. Returns
+-- the widget frame (with :SetColor/:GetColor), or a label if the module is
+-- missing. See ColorPicker:CreateEmbedded for opts.
+function UI:CreateColorPickerCard(parent, options)
+    local CP = RGX:GetColorPicker()
+    if not CP or not CP.CreateEmbedded then
+        return self:CreateLabel(parent, { text = "RGX ColorPicker not loaded", color = "red" })
+    end
+    return CP:CreateEmbedded(parent, options or {})
+end
+
 function UI:CreateColorPicker(parent, options)
     options = options or {}
     local key = options.key or "color"
@@ -176,6 +188,7 @@ Usage:
 		suffix = "%",
 		onChange = function(value) end,
 		width = 200,
+		progress = true,   -- optional; false hides the fill behind the thumb
 	})
 ============================================================================]]
 
@@ -191,6 +204,11 @@ function UI:CreateSlider(parent, options)
 	local suffix = options.suffix or ""
 	local onChange = options.onChange or function() end
 	local sliderWidth = options.width or 200
+	-- progress: show the brand-colored fill behind the thumb. Defaults on so
+	-- existing sliders are unchanged; pass progress = false for a bare track
+	-- (some panels want the thumb without a running fill).
+	local showProgress = options.progress
+	if showProgress == nil then showProgress = true end
 
 	local D = RGX:GetDesign()
 
@@ -238,6 +256,7 @@ function UI:CreateSlider(parent, options)
 	fill:SetHeight(4)
 	fill:SetPoint("LEFT", track, "LEFT", 0, 0)
 	fill:SetColorTexture(D:Unpack("primary"))
+	if not showProgress then fill:Hide() end
 
 	local thumb = trackFrame:CreateTexture(nil, "ARTWORK")
 	thumb:SetSize(8, 8)
@@ -255,34 +274,38 @@ function UI:CreateSlider(parent, options)
 		return math.max(min, math.min(max, snapped))
 	end
 
-	local updating = false
+	-- Position the fill/thumb from the current stored value. Returns false when
+	-- the track has no width yet (frame not laid out, or built while hidden) so
+	-- the caller can retry once geometry resolves.
+	local function positionThumb()
+		local trackWidth = track:GetWidth()
+		if trackWidth < 1 then return false end
+		local pct = valueToPercent(storage[key] or default)
+		local fillW = math.max(4, trackWidth * pct)
+		if showProgress then fill:SetWidth(fillW) end
+		thumb:ClearAllPoints()
+		thumb:SetPoint("CENTER", track, "LEFT", fillW, 0)
+		return true
+	end
+
+	-- Retry positioning until the track has a real width. OnUpdate never fires
+	-- while a frame is hidden, so a slider built on a not-yet-shown panel would
+	-- otherwise stay at the wrong spot until its value changed -- the "default
+	-- position wrong on login until set/reset/reload" bug. OnShow re-arms this.
+	local function positionThumbDeferred()
+		if positionThumb() then return end
+		trackFrame:SetScript("OnUpdate", function()
+			if positionThumb() then trackFrame:SetScript("OnUpdate", nil) end
+		end)
+	end
+
 	local function apply(value)
-		updating = true
 		value = math.floor(value / step + 0.5) * step
 		value = math.max(min, math.min(max, value))
 		storage[key] = value
 		container.valueLabel:SetText(value .. suffix)
 		valueLabel:SetText(value .. suffix)
-
-		local function updateVisuals()
-			local trackWidth = track:GetWidth()
-			if trackWidth < 1 then return false end
-			local pct = valueToPercent(value)
-			local fillW = math.max(4, trackWidth * pct)
-			fill:SetWidth(fillW)
-			thumb:ClearAllPoints()
-			thumb:SetPoint("CENTER", track, "LEFT", fillW, 0)
-			return true
-		end
-
-		if not updateVisuals() then
-			trackFrame:SetScript("OnUpdate", function()
-				if updateVisuals() then
-					trackFrame:SetScript("OnUpdate", nil)
-				end
-			end)
-		end
-		updating = false
+		positionThumbDeferred()
 		onChange(value)
 	end
 
@@ -328,6 +351,11 @@ function UI:CreateSlider(parent, options)
 		apply(default)
 	end)
 	reset:SetPoint("RIGHT", container, "RIGHT", 0, -10)
+
+	-- Re-place the thumb every time the slider is shown: the first apply() below
+	-- runs while the panel is usually still hidden (login/load), so this is what
+	-- makes the initial position correct without needing a set/reset/reload.
+	container:SetScript("OnShow", positionThumbDeferred)
 
 	apply(storage[key] or default)
 
@@ -562,6 +590,18 @@ function UI:CreateLabel(parent, options)
     end
     
     label:SetText(text)
+
+    -- Long text (descriptions, help text) needs an explicit width to wrap at
+    -- -- a FontString with no width auto-sizes to fit everything on one line
+    -- and silently overflows the parent frame's edge instead of breaking.
+    -- Short labels ("Enable Addon", "R"/"G"/"B") should keep their natural
+    -- single-line width, so wrapping is opt-in via options.width.
+    if options.width then
+        label:SetWidth(options.width)
+        label:SetWordWrap(true)
+        label:SetJustifyH(options.justify or "LEFT")
+    end
+
     return label
 end
 

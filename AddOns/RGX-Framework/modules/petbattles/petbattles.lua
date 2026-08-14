@@ -132,6 +132,32 @@ function PetBattles:IsInBattle()
     return self._inBattle
 end
 
+--[[============================================================================
+    BATTLE APIs
+    Thin wrappers over C_PetBattles.* for active battle queries.
+    Returns nil/0 when the underlying API is unavailable.
+============================================================================]]
+
+function PetBattles:GetNumPets(team)
+    if type(C_PetBattles.GetNumPets) ~= "function" then return 0 end
+    return C_PetBattles.GetNumPets(team) or 0
+end
+
+function PetBattles:GetHealth(team, battleIndex)
+    if type(C_PetBattles.GetHealth) ~= "function" then return 0 end
+    return C_PetBattles.GetHealth(team, battleIndex) or 0
+end
+
+function PetBattles:GetMaxHealth(team, battleIndex)
+    if type(C_PetBattles.GetMaxHealth) ~= "function" then return 0 end
+    return C_PetBattles.GetMaxHealth(team, battleIndex) or 0
+end
+
+function PetBattles:GetActivePet(team)
+    if type(C_PetBattles.GetActivePet) ~= "function" then return nil end
+    return C_PetBattles.GetActivePet(team)
+end
+
 -- Scan all owned pets and cache their current levels.
 function PetBattles:ScanPetLevels()
     if not self:IsAvailable() then return end
