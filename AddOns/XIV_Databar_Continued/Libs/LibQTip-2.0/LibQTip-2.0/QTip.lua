@@ -101,6 +101,7 @@ function QTip:AcquireTooltip(key, numColumns, ...)
 end
 
 --- Return an iterator on the registered CellProviders.
+---@return fun(table: table<string, LibQTip-2.0.CellProvider?>, index?: string): string, LibQTip-2.0.CellProvider?
 function QTip:CellProviderPairs()
     return pairs(self.CellProviderRegistry)
 end
@@ -131,15 +132,16 @@ do
         ---@type LibQTip-2.0.Cell
         local newCellPrototype = setmetatable({}, baseCellMetatable)
 
+        ---@type LibQTip-2.0.CellProvider
+        local newCellProvider = setmetatable({
+            CellHeap = {},
+            Cells = {},
+            CellPrototype = newCellPrototype,
+            CellMetatable = { __index = newCellPrototype },
+        }, self.CellProviderMetatable)
+
         return {
-            newCellProvider =
-                ---@type LibQTip-2.0.CellProvider
-                setmetatable({
-                    CellHeap = {},
-                    Cells = {},
-                    CellPrototype = newCellPrototype,
-                    CellMetatable = { __index = newCellPrototype },
-                }, self.CellProviderMetatable),
+            newCellProvider = newCellProvider,
             newCellPrototype = newCellPrototype,
             baseCellPrototype = baseCellPrototype,
         }
@@ -219,6 +221,7 @@ function QTip:ReleaseTooltip(tooltip)
 end
 
 --- Return an iterator on the acquired Tooltips.
+---@return fun(table: table<string, LibQTip-2.0.Tooltip>, index?: string): string, LibQTip-2.0.Tooltip?
 function QTip:TooltipPairs()
     return pairs(TooltipManager.ActiveTooltips)
 end

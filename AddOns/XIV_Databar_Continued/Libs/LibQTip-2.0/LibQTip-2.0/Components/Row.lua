@@ -64,14 +64,15 @@ end
 ---@param a? number Alpha level of the Row. Defaults to 1.
 ---@return LibQTip-2.0.Row
 function Row:SetColor(r, g, b, a)
-    local tooltipRed, tooltipGreen, tooltipBlue, tooltipAlpha = self.Tooltip:GetBackdropColor()
-    local red = r or tooltipRed
-    local green = g or tooltipGreen
-    local blue = b or tooltipBlue
-    local alpha = a or tooltipAlpha
+    local tooltipRed ---@type number
+    local tooltipGreen ---@type number
+    local tooltipBlue ---@type number
+    local tooltipAlpha ---@type number
+
+    tooltipRed, tooltipGreen, tooltipBlue, tooltipAlpha = self.Tooltip:GetBackdropColor()
 
     self:SetBackdrop(TooltipManager.DefaultBackdrop)
-    self:SetBackdropColor(red, green, blue, alpha)
+    self:SetBackdropColor(r or tooltipRed, g or tooltipGreen, b or tooltipBlue, a or tooltipAlpha)
 
     return self
 end

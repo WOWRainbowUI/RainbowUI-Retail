@@ -60,12 +60,16 @@ local SliderBackdrop = BACKDROP_SLIDER_8_8
 ---- Validators
 --------------------------------------------------------------------------------
 
+---@param font Font|string
+---@param level integer
+---@param silent? boolean
 local function ValidateFont(font, level, silent)
     local bad = false
 
     if not font then
         bad = true
     elseif type(font) == "string" then
+        ---@type Font
         local ref = _G[font]
 
         if not ref or type(ref) ~= "table" or type(ref.IsObjectType) ~= "function" or not ref:IsObjectType("Font") then
@@ -142,6 +146,7 @@ local function BaseAddRow(tooltip, isHeading, ...)
     row.IsHeading = isHeading
 
     for columnIndex = 1, #tooltip.Columns do
+        ---@type string|nil
         local value = select(columnIndex, ...)
 
         if value ~= nil then
@@ -365,6 +370,7 @@ function Tooltip:GetHighlightTexCoord()
 end
 
 --- Returns the Tooltip's highlight Texture.
+---@return string? textureFile
 function Tooltip:GetHighlightTexture()
     return self.HighlightTexture:GetTexture()
 end
