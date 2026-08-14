@@ -13,20 +13,17 @@ KT.Options = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
-local LSM = LibStub("LibSharedMedia-3.0")
 local WidgetLists = AceGUIWidgetLSMlists
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- Lua API
 local abs = math.abs
 local floor = math.floor
-local fmod = math.fmod
 local format = string.format
 local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
 local round = function(n) return floor(n + 0.5) end
-local strlen = string.len
 local strsplit = string.split
 local strsub = string.sub
 
@@ -135,11 +132,11 @@ end
 local function Mover_SetScale()
 	if db.pixelPerfectScale then
 		db.frameScale = KT.GetPixelPerfectScale(KTF)
-		KT:SetScale(db.frameScale)
+		KT:Tracker_SetScale(db.frameScale)
 	end
 	Mover_UpdateOptions(true, true)
-	KT:MoveTracker()
-	KT:Update()
+	KT:Tracker_Move()
+	KT:Tracker_Update()
 	mover:Update()
 end
 
@@ -169,9 +166,9 @@ function mover:Anchor_OnClick()
 	db.anchorPoint = self.value
 	Mover_SetPositionVars(self.obj.mover)
 	Mover_UpdateOptions(true)
-	KT:MoveTracker()
+	KT:Tracker_Move()
 	KTF.height = 0  -- force update
-	KT:Update()
+	KT:Tracker_Update()
 end
 
 function mover:OnDragStart(frame)
@@ -189,8 +186,8 @@ function mover:OnDragStop(frame)
 	end
 	Mover_SetPositionVars(self.mover)
 	Mover_UpdateOptions(true)
-	KT:MoveTracker()
-	KT:SetSize(true)
+	KT:Tracker_Move()
+	KT:Tracker_SetSize(true)
 end
 
 function mover:OnMouseUp(frame, button)
@@ -201,9 +198,9 @@ function mover:OnMouseUp(frame, button)
 		db.maxHeight = defaults.profile.maxHeight
 
 		Mover_UpdateOptions(true)
-		KT:MoveTracker()
+		KT:Tracker_Move()
 		KTF.height = 0  -- force update
-		KT:Update()
+		KT:Tracker_Update()
 	end
 end
 
@@ -247,7 +244,7 @@ moverOptions = {
 					step = 1,
 					set = function(_, value)
 						db.xOffset = value
-						KT:MoveTracker()
+						KT:Tracker_Move()
 						mover:Update()
 					end,
 					order = 1,
@@ -264,8 +261,8 @@ moverOptions = {
 					set = function(_, value)
 						db.yOffset = value
 						Mover_UpdateOptions(true, true)
-						KT:MoveTracker()
-						KT:SetSize(true)
+						KT:Tracker_Move()
+						KT:Tracker_SetSize(true)
 						mover:Update()
 					end,
 					order = 2,
@@ -282,7 +279,7 @@ moverOptions = {
 					disabled = true,
 					set = function(_, value)
 						db.width = value
-						KT:SetSize()
+						KT:Tracker_SetSize()
 						mover:Update()
 					end,
 					order = 3,
@@ -298,7 +295,7 @@ moverOptions = {
 					step = 1,
 					set = function(_, value)
 						db.maxHeight = value
-						KT:SetSize(true)
+						KT:Tracker_SetSize(true)
 						mover:Update()
 					end,
 					order = 4,
@@ -326,11 +323,11 @@ moverOptions = {
 					end,
 					set = function(_, value)
 						db.frameScale = value
-						KT:SetScale(db.frameScale)
+						KT:Tracker_SetScale(db.frameScale)
 						Mover_UpdateOptions(true, true)
-						KT:MoveTracker()
+						KT:Tracker_Move()
 						KTF.height = 0  -- force update
-						KT:Update()
+						KT:Tracker_Update()
 						mover:Update()
 					end,
 					order = 6,
@@ -361,7 +358,7 @@ moverOptions = {
 					end,
 					set = function(_, value)
 						db.frameStrata = strata[value]
-						KT:SetFrameStrata(db.frameStrata)
+						KT:Tracker_SetFrameStrata(db.frameStrata)
 					end,
 					order = 8,
 				},
@@ -371,7 +368,7 @@ moverOptions = {
 }
 KT.EditMode = KT:EditMode_Create(addonName, moverOptions, "tracker", 440, 420)
 KT.EditMode.OnOpen = function()
-    KT:SetHidden(false)
+    KT:Tracker_SetHidden(false)
 end
 
 -- Options
@@ -500,7 +497,7 @@ local options = {
 							values = WidgetLists.background,
 							set = function(_, value)
 								db.bgr = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 1,
 						},
@@ -516,7 +513,7 @@ local options = {
 								db.bgrColor.g = g
 								db.bgrColor.b = b
 								db.bgrColor.a = a
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 2,
 						},
@@ -533,7 +530,7 @@ local options = {
 							values = WidgetLists.border,
 							set = function(_, value)
 								db.border = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 								KT.QuestButtons_Move()
 							end,
 							order = 3,
@@ -554,8 +551,8 @@ local options = {
 								db.borderColor.r = r
 								db.borderColor.g = g
 								db.borderColor.b = b
-								KT:SetBackground()
-								KT:SetText()
+								KT:Tracker_SetBackground()
+								KT:Tracker_SetText()
 								SetSharedColor(db.borderColor)
 							end,
 							order = 4,
@@ -571,8 +568,8 @@ local options = {
 							end,
 							set = function()
 								db.classBorder = not db.classBorder
-								KT:SetBackground()
-								KT:SetText()
+								KT:Tracker_SetBackground()
+								KT:Tracker_SetText()
 							end,
 							order = 5,
 						},
@@ -587,7 +584,7 @@ local options = {
 							step = 0.05,
 							set = function(_, value)
 								db.borderAlpha = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 6,
 						},
@@ -602,7 +599,7 @@ local options = {
 							step = 0.5,
 							set = function(_, value)
 								db.borderThickness = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 7,
 						},
@@ -617,7 +614,7 @@ local options = {
 							step = 0.5,
 							set = function(_, value)
 								db.bgrInset = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 								KT.QuestButtons_Move()
 							end,
 							order = 8,
@@ -648,7 +645,7 @@ local options = {
 							values = WidgetLists.font,
 							set = function(_, value)
 								db.font = value
-								KT:SetText(true)
+								KT:Tracker_SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 1,
@@ -661,7 +658,7 @@ local options = {
 							step = 1,
 							set = function(_, value)
 								db.fontSize = value
-								KT:SetText(true)
+								KT:Tracker_SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 2,
@@ -679,7 +676,7 @@ local options = {
 							end,
 							set = function(_, value)
 								db.fontFlag = value
-								KT:SetText(true)
+								KT:Tracker_SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3,
@@ -705,7 +702,7 @@ local options = {
 							type = "toggle",
 							set = function()
 								db.textWordWrap = not db.textWordWrap
-								KT:Update(true)
+								KT:Tracker_Update(true)
 							end,
 							order = 5,
 						},
@@ -737,7 +734,7 @@ local options = {
 							end,
 							set = function(_, value)
 								db.hdrBgr = value
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 1.1,
 						},
@@ -756,7 +753,7 @@ local options = {
 								db.hdrBgrColor.r = r
 								db.hdrBgrColor.g = g
 								db.hdrBgrColor.b = b
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 1.2,
 						},
@@ -769,7 +766,7 @@ local options = {
 							end,
 							set = function()
 								db.hdrBgrColorShare = not db.hdrBgrColorShare
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 1.3,
 						},
@@ -788,7 +785,7 @@ local options = {
 							end,
 							set = function()
 								db.hdrTrackerBgrShow = not db.hdrTrackerBgrShow
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 1.5,
 						},
@@ -820,7 +817,7 @@ local options = {
 								db.hdrTxtColor.r = r
 								db.hdrTxtColor.g = g
 								db.hdrTxtColor.b = b
-								KT:SetText()
+								KT:Tracker_SetText()
 							end,
 							order = 2.1,
 						},
@@ -830,7 +827,7 @@ local options = {
 							type = "toggle",
 							set = function()
 								db.hdrTxtColorShare = not db.hdrTxtColorShare
-								KT:SetText()
+								KT:Tracker_SetText()
 							end,
 							order = 2.2,
 						},
@@ -862,7 +859,7 @@ local options = {
 								db.hdrBtnColor.r = r
 								db.hdrBtnColor.g = g
 								db.hdrBtnColor.b = b
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 3.2,
 						},
@@ -872,7 +869,7 @@ local options = {
 							type = "toggle",
 							set = function()
 								db.hdrBtnColorShare = not db.hdrBtnColorShare
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 							end,
 							order = 3.3,
 						},
@@ -933,7 +930,7 @@ local options = {
 							set = function()
 								db.hdrOtherButtons = not db.hdrOtherButtons
 								KT:SetOtherButtons()
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
                                 KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 7,
@@ -952,7 +949,7 @@ local options = {
 							width = "double",
 							set = function()
 								db.qiBgrBorder = not db.qiBgrBorder
-								KT:SetBackground()
+								KT:Tracker_SetBackground()
 								KT.QuestButtons_Move()
 							end,
 							order = 1,
@@ -1498,7 +1495,7 @@ local options = {
 									width = "normal+half",
 									set = function()
 										db.questsHeaderSuffix = not db.questsHeaderSuffix
-										KT:SetQuestsHeaderText()
+										KT.Quests:SetHeaderText()
 									end,
 									order = 1,
 								},
@@ -1674,7 +1671,7 @@ local options = {
 									width = "normal+half",
 									set = function()
 										db.achievsHeaderSuffix = not db.achievsHeaderSuffix
-										KT:SetAchievsHeaderText()
+										KT.Achievements:SetHeaderText()
 									end,
 									order = 1,
 								},
@@ -1801,7 +1798,7 @@ local options = {
 									order = 2.1,
 								},
 								addonBattlePetCompletionistDesc = {
-									name = KT.TEXT.OPTION_BETA.." 在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
+									name = "在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
 									type = "description",
 									width = "double",
 									order = 2.2,
@@ -2004,12 +2001,12 @@ function KT:CheckAddOn(addon, version, isUI)
 		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
 		self.T_Set(addon, actualVersion, "supportedAddons")
 		ver = isUI and "  -  " or ""
-		ver = (ver.."|cff%s"..actualVersion.."|r"):format(actualVersion == version and "00d200" or "ff0000")
+		ver = ver..format("|cff%s%s|r", actualVersion == version and "00d200" or "ff0000", actualVersion)
 		result = true
 	end
 	if not isUI then
 		opt =  addons.args.general.args.sec1.args["addon"..name]
-		opt.desc = opt.desc:format(ver)
+		opt.desc = format(opt.desc, ver)
 	else
 		opt =  addons.args.general.args.sec2.args[strlower(name)]
 		opt.name = opt.name..ver
@@ -2186,7 +2183,7 @@ local function Setup()
 	KT.options = options
 
 	local opt = general.args.sec2.args
-	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
+	opt.classBorder.name = format(opt.classBorder.name, KT.RgbToHex(KT.classColor))
 
 	Visibility_CreateContextOptions(controls.args.sec3.args)
 

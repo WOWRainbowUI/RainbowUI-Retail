@@ -482,13 +482,13 @@ function KT.QuestButtons_Reanchor()
             KTF.Buttons.num = idx
             KTF.Buttons.reanchor = false
         end
-        if KT:IsCollapsed() or KTF.Buttons.num == 0 then
+        if KT:Tracker_IsCollapsed() or KTF.Buttons.num == 0 then
             KTF.Buttons:Hide()
         else
             KTF.Buttons:SetShown(not KT.locked)
         end
     end
-    if KT:IsCollapsed() or KTF.Buttons.num == 0 then
+    if KT:Tracker_IsCollapsed() or KTF.Buttons.num == 0 then
         KTF.Buttons:SetAlpha(0)
     else
         KTF.Buttons:SetAlpha(1)

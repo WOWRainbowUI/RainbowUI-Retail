@@ -11,7 +11,6 @@ local addonName, KT = ...
 local M = KT:NewModule("AddonTomTom")
 KT.AddonTomTom = M
 
-local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- Lua API
@@ -862,7 +861,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.3.1-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.3.8-release") and db.addonTomTom)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")

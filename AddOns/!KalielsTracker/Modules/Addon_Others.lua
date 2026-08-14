@@ -17,7 +17,6 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 local _G = _G
 
 local db
-local OTF = KT_ObjectiveTrackerFrame
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +39,7 @@ local function Masque_Callback(self, option, value)
 end
 
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.2.10") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "12.0.8") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup[1] = MSQ:Group(KT.TITLE, "任務物品按鈕")
@@ -51,7 +50,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "321") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "334") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -64,9 +63,9 @@ end
 
 -- BtWQuests
 local function BtWQuests_SetSupport()
-    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.62.0") and db.addonBtWQuests)
+    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.63.1") and db.addonBtWQuests)
     if isLoaded then
-        local function MenuUpdate(_, info, type, questID)
+        local function ContextMenu_Extend(_, info, type, questID)
             if type ~= "quest" then return end
             local item = BtWQuestsDatabase:GetQuestItem(questID, BtWQuestsCharacters:GetPlayer())
             if item then
@@ -82,13 +81,13 @@ local function BtWQuests_SetSupport()
                 end)
             end
         end
-        KT:RegSignal("CONTEXT_MENU_UPDATE", MenuUpdate, BtWQuests)
+        KT:RegSignal("CONTEXT_MENU_UPDATE", ContextMenu_Extend, BtWQuests)
     end
 end
 
 -- Narcissus
 local function Narcissus_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Narcissus", "1.8.5d") and db.addonNarcissus)
+    local isLoaded = (KT:CheckAddOn("Narcissus", "1.8.6") and db.addonNarcissus)
     if isLoaded then
         local function ToggleAchievementFrame()
             if Narci_AchievementFrame then
@@ -125,7 +124,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v15.13", true) then
+    if KT:CheckAddOn("ElvUI", "v15.21", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive

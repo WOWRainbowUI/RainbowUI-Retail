@@ -101,6 +101,9 @@ KT.EXCLUDED_QUEST_ITEMS = {
 
 -- Locations
 local MAP_CONTINENT_OVERRIDES = {
+    [2509] = { mapID = 2512 },        -- Vaults of Atal'Utek
+    [2600] = { mapID = 2405 },        -- Naigtal
+    [2599] = { mapID = 2405 },        -- Val
     [2444] = { mapID = 2405 },        -- Slayer's Rise
     [2405] = { mapID = 2405 },        -- Voidstorm
     [2413] = { mapID = 2413 },        -- Harandar

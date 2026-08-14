@@ -1,4 +1,20 @@
 # Kaliel's Tracker changelog
+### 8.7.0
+- ADDED - auto expand tracker modules when tracking an item
+- ADDED - support for WoW 12.1.0.69273
+- ADDED - support for WoW 12.0.7.68235
+- ADDED - remember collapsed state of tracker modules
+- CHANGED (Help) - Active Patrons
+- CHANGED - addon support - TomTom 4.3.8
+- CHANGED - addon support - RareScanner 12.1.0.1
+- CHANGED - addon support - Battle Pet Completionist 12.1.0-20260812-1
+- CHANGED - addon support - Narcissus 1.8.6
+- CHANGED - addon support - Masque 12.0.8
+- CHANGED - addon support - BtWQuests 2.63.1
+- CHANGED - addon support - Auctionator 334
+- CHANGED - addon support - ElvUI 15.21
+- CHANGED - Libs
+- CHANGED - Battle Pet Completionist - pet details click improvement
 ### 8.6.1
 - FIXED (Help) - addon info error
 ### 8.6.0
@@ -18,13 +34,3 @@
 - CHANGED - Options - reorganize Modules and Supported addons settings (2)
   - Some settings were renamed and reset to defaults.
 - FIXED - taint errors (5)
-### 8.5.0
-- ADDED - TomTom - waypoint support for Vignettes (e.g. War Supply Crate)
-- ADDED (Scenario) - Mythic+ - configurable Enemy Forces progress formats
-- ADDED - support for WoW 12.0.5.67088
-- ADDED - support for WoW 12.0.1.66384
-- ADDED - support for WoW 12.0.1.66192
-- CHANGED (Help) - Active Patrons
-- CHANGED - Options - reorganize Modules and Supported addons settings
-  - Some settings were renamed and reset to defaults.
-- FIXED (Achievements) - some Delve achievements not filtered by zone

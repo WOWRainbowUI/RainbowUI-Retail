@@ -347,7 +347,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("RareScanner", "12.0.5.2") and db.addonRareScanner)
+    self.isAvailable = (KT:CheckAddOn("RareScanner", "12.1.0.1") and db.addonRareScanner)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("RareScanner", "11.2.0.11")

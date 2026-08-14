@@ -346,13 +346,14 @@ local function SetupTutorials()
 		},
 		{	-- 14
 			image = HELP_PATH.."help_addon-battlepetcompletionist",
-			heading = "支援插件 Battle Pet Completionist "..KT.TEXT.OPTION_BETA,
-			text = "Battle Pet Completionist 支援功能為 "..KT.TITLE.." 新增區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。\n\n"..
+			heading = "支援插件 Battle Pet Completionist",
+			text = "支援 Battle Pet Completionist 後，將為 "..KT.TITLE.." 加入區域寵物追蹤功能，\n"..
+					"並提供自訂版面配置與更佳的視覺呈現方式。\n\n"..
 					"功能特色：\n"..
-					"- 每列寵物項目均可點擊，並將在寵物日誌中開啟所選寵物。\n\n"..
+					"- 每一列寵物皆可點擊，點擊後會在寵物圖鑑中開啟該寵物。\n\n"..
 					"篩選 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t 選單選項：\n"..
 					"- "..cBold.."追蹤寵物|r – 啟用或停用追蹤器中的寵物模組。\n"..
-					"- "..cBold.."顯示已捕獲|r – 顯示或隱藏已捕獲的區域寵物。\n"..
+					"- "..cBold.."顯示已捕捉|r – 顯示或隱藏已捕捉的區域寵物。\n"..
 					AddonInfo("BattlePetCompletionist", "Battle Pet Completionist"),
 			editbox = {
 				{
@@ -377,30 +378,23 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.6.1|r\n"..
-					"- 修正 (說明) - 插件資訊錯誤\n"..
+					(cTitle.."版本 8.7.0|r\n"..
+					"- 新增 - 追蹤特定項目時自動展開追蹤器模組\n"..
+					"- 新增 - 支援 WoW 12.1.0.69273\n"..
+					"- 新增 - 支援 WoW 12.0.7.68235\n"..
+					"- 新增 - 記憶追蹤器模組的收合狀態\n"..
+					"- 變更（說明）- 贊助者名單\n"..
+					"- 變更 - 插件支援 - TomTom 4.3.8\n"..
+					"- 變更 - 插件支援 - RareScanner 12.1.0.1\n"..
+					"- 變更 - 插件支援 - Battle Pet Completionist 12.1.0-20260812-1\n"..
+					"- 變更 - 插件支援 - Narcissus 1.8.6\n"..
+					"- 變更 - 插件支援 - Masque 12.0.8\n"..
+					"- 變更 - 插件支援 - BtWQuests 2.63.1\n"..
+					"- 變更 - 插件支援 - Auctionator 334\n"..
+					"- 變更 - 插件支援 - ElvUI 15.21\n"..
+					"- 變更 - 函式庫（Libs）\n"..
+					"- 變更 - Battle Pet Completionist - 寵物詳情點擊功能改善\n"..
 					"\n")..
-					(cTitle.."版本 8.6.0|r\n"..
-					"- 新增 - 插件支援 - Battle Pet Completionist（追蹤器內的區域寵物追蹤），詳見說明第 14 頁\n"..
-					"- 新增 - 小型「眼睛」按鈕，用於為困難任務／世界任務尋找隊伍\n"..
-					"- 新增 (任務) - 模組標題中的額外任務計數，詳見說明第 3 頁\n"..
-					"- 新增 (任務) - 獨立的任務等級與任務標籤顯示選項\n"..
-					"- 變更 - 插件支援 - TomTom 4.3.1\n"..
-					"- 變更 - 插件支援 - RareScanner 12.0.5.2\n"..
-					"- 變更 - 插件支援 - Narcissus 1.8.5d\n"..
-					"- 變更 - 插件支援 - ElvUI 15.13\n"..
-					"- 變更 - 插件支援 - BtWQuests 2.62.0\n"..
-					"- 變更 - 插件支援 - Auctionator 321\n"..
-					"- 變更 (說明) - 贊助名單\n"..
-					"- 變更 (說明) - 更新圖片\n"..
-					"- 變更 (成就) - 改善事件成就篩選（儀式遺址）\n"..
-					"- 變更 - 選項 - 重新整理模組與支援插件設定 (2)\n"..
-					offs3.."- 部分設定已重新命名並重設為預設值。\n"..
-					"- 修正 - 污染錯誤 (5)\n"..
-					"\n")..
-
-					cTitle.."問題回報|r\n"..
-					"若要回報問題，請至 CurseForge 使用 "..cBold.."Tickets (回報單)|r，而不要使用 Comments (留言)。\n"..ebSpace.."\n"..
 
 					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r",
 			editbox = {
@@ -414,7 +408,7 @@ local function SetupTutorials()
 					icon = ICON_URL,
 					text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
 					width = 510,
-					bottom = 20,
+					bottom = 10,
 				}
 			},
 			shine = KTF.Background,
@@ -424,9 +418,7 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		onShow = function(self, i)
-			if KT:IsCollapsed() then
-				KT:MinimizeButton_OnClick()
-			end
+			KT:Tracker_Expand()
 			if i == 2 then
 				if KTF.FilterButton then
 					self[i].shineLeft = db.hdrOtherButtons and -74 or -34
@@ -475,16 +467,14 @@ local function SetupTutorials()
 					"非常感謝所有協助維持本專案運作的支持者們 "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
-					SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "David Blanchard")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
-					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Rare", "Spence")..
+					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
 					SetFormatedPatronName("Uncommon", "Camalus")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
-					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
-					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Naturegurl")..
@@ -497,8 +487,7 @@ local function SetupTutorials()
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
-					SetFormatedPlayerName("Asimeria", "Drak'thul")..
-					SetFormatedPlayerName("Torresman", "Drak'thul"),
+					SetFormatedPlayerName("Asimeria", "Drak'thul"),
 			editbox = {
 				{
 					icon = ICON_URL,

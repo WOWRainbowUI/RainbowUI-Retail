@@ -169,7 +169,7 @@ function KT_BonusObjectiveTrackerMixin:ShowRewardsToast(block, questID)
 	local rewards = { };
 	-- xp
 	local xp = GetQuestLogRewardXP(questID);
-	if xp > 0 and not IsPlayerAtEffectiveMaxLevel() then
+	if xp > 0 and not GameRulesUtil.IsPlayerAtEffectiveMaxLevel() then
 		local t = { };
 		t.label = xp;
 		t.texture = "Interface\\Icons\\XP_Icon";
@@ -610,7 +610,7 @@ function KT_BonusObjectiveTrackerProgressBarMixin:UpdateReward()
 			texture = "Interface\\Icons\\inv_misc_coin_02";
 		end
 		-- xp
-		if not texture and GetQuestLogRewardXP(questID) > 0 and not IsPlayerAtEffectiveMaxLevel() then
+		if not texture and GetQuestLogRewardXP(questID) > 0 and not GameRulesUtil.IsPlayerAtEffectiveMaxLevel() then
 			texture = "Interface\\Icons\\xp_icon";
 		end
 		self.needsReward = nil;

@@ -37,7 +37,7 @@ local function SetupBPC()
     BPC_Profile = BattlePetCompletionist:GetModule("DBModule"):GetProfile()
 end
 
-local function SetPetsHeaderText()
+local function SetHeaderText()
     local suffix
     if db.bpcHeaderSuffix then
         local _, numPetsOwned = C_PetJournal.GetNumPets()
@@ -72,7 +72,7 @@ local function SetupOptions()
                         width = "normal+half",
                         set = function()
                             db.bpcHeaderSuffix = not db.bpcHeaderSuffix
-                            SetPetsHeaderText()
+                            SetHeaderText()
                         end,
                         order = 1,
                     },
@@ -82,7 +82,7 @@ local function SetupOptions()
     }
 end
 
-local function FilterMenuUpdate(self, info, level)
+local function FilterMenu_Extend(self, info, level)
     if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
         KT.Menu_AddSeparator()
 
@@ -92,8 +92,9 @@ local function FilterMenuUpdate(self, info, level)
         KT.Menu_AddCheck(texts.TrackPets, { BPC_Profile, "objectiveTrackerEnabled" }, function()
             BPC_Profile.objectiveTrackerEnabled = not BPC_Profile.objectiveTrackerEnabled
             KT_BattlePetCompletionistObjectiveTracker:MarkDirty()
-            if KT:IsCollapsed() and BPC_Profile.objectiveTrackerEnabled then
-                KT:MinimizeButton_OnClick()
+            if BPC_Profile.objectiveTrackerEnabled then
+                KT:Tracker_Expand()
+                KT:Module_Expand(KT_BattlePetCompletionistObjectiveTracker)
             end
         end)
 
@@ -102,6 +103,7 @@ local function FilterMenuUpdate(self, info, level)
         KT.Menu_AddCheck(texts.CapturedPets, { BPC_Profile, "objectiveTrackerFilter", _BattlePetCompletionist.Enums.MapPinFilter.ALL }, function(_, _, _, _, value)
             BPC_Profile.objectiveTrackerFilter = value and _BattlePetCompletionist.Enums.MapPinFilter.ALL or _BattlePetCompletionist.Enums.MapPinFilter.MISSING
             KT_BattlePetCompletionistObjectiveTracker:MarkDirty()
+            KT:Module_Expand(KT_BattlePetCompletionistObjectiveTracker)
         end)
     end
 end
@@ -110,7 +112,7 @@ end
 
 function KT_BattlePetCompletionistObjectiveTrackerMixin:OnEvent(event, ...)
     if event == "PET_JOURNAL_LIST_UPDATE" then
-        SetPetsHeaderText()
+        SetHeaderText()
     end
 
     self:MarkDirty()
@@ -125,12 +127,17 @@ function KT_BattlePetCompletionistObjectiveTrackerMixin:OnLineClick(line, mouseB
         end
         CollectionsJournal_SetTab(CollectionsJournal, COLLECTIONS_JOURNAL_TAB_INDEX_PETS)
 
-        PetJournal_SelectSpecies(PetJournal, line.speciesId)
+        local speciesID, petID = C_PetJournal.FindPetIDByName(line.name)
+        if petID then
+            PetJournal_SelectPet(PetJournal, petID)
+        else
+            PetJournal_SelectSpecies(PetJournal, speciesID)
+        end
     end
 end
 
 function KT_BattlePetCompletionistObjectiveTrackerMixin:OnLineFree(line)
-    line.speciesId = nil
+    line.name = nil
 end
 
 function KT_BattlePetCompletionistObjectiveTrackerMixin:LayoutContents()
@@ -162,14 +169,14 @@ function KT_BattlePetCompletionistObjectiveTrackerMixin:AddBattlePet(block, petI
 
     local line = block:AddObjective(objectiveKey, petInfo.speciesName, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE_AND_COLLAPSE, colorStyle, nil, 16)
     line:SetIcon(icon)
-    line.speciesId = petInfo.speciesId
+    line.name = petInfo.speciesName
 end
 
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
     dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("BattlePetCompletionist", "12.0.5-20260508-1") and db.addonBattlePetCompletionist)
+    self.isAvailable = (KT:CheckAddOn("BattlePetCompletionist", "12.1.0-20260812-1") and db.addonBattlePetCompletionist)
 
     if self.isAvailable then
         local defaults = KT:MergeTables({
@@ -188,5 +195,5 @@ function M:OnEnable()
     SetupBPC()
     SetupOptions()
 
-    KT:RegSignal("FILTER_MENU_UPDATE", FilterMenuUpdate, self)
+    KT:RegSignal("FILTER_MENU_UPDATE", FilterMenu_Extend, self)
 end
