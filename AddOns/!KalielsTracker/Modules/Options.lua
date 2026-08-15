@@ -1475,6 +1475,23 @@ local options = {
 								},
 							},
 						},
+						popups = {
+							name = "Popups",
+							type = "group",
+							inline = true,
+							order = 3,
+							args = {
+								popupCloseOnCopy = {
+									name = "Close popup after copy",
+									desc = "After using Ctrl+C.",
+									type = "toggle",
+									set = function()
+										db.popupCloseOnCopy = not db.popupCloseOnCopy
+									end,
+									order = 1,
+								},
+							},
+						},
 					},
 				},
 				sec3 = {

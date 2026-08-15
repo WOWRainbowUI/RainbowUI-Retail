@@ -246,6 +246,11 @@ local function GetTaskTimeLeftData(questID)
 	return timeString, timeColor
 end
 
+local function Quests_UpdateCount()
+	dbChar.quests.num, dbChar.quests.numOver = KT.GetNumQuests()
+	KT.Quests:SetHeaderText()
+end
+
 local function InitMainFrame()
 	KTF.Child:SetParent(KTF.Scroll)
 	KTF.Scroll:SetScrollChild(KTF.Child)
@@ -299,18 +304,9 @@ local function SetFrames()
 
 	KTF:SetScript("OnEvent", function(self, event, ...)
 		_DBG("Event - "..event)
-		if event == "PLAYER_ENTERING_WORLD" then
-			local isInitialLogin, isReloadingUI = ...
-			if isInitialLogin then
-				self:RegisterEvent("QUEST_POI_UPDATE")
-			elseif isReloadingUI then
-				self:RegisterEvent("QUEST_LOG_UPDATE")
-			end
-
-			if not KT.stopUpdate then
-				KT.inWorld = true
-				KT.inInstance = IsInInstance()
-			end
+		if event == "PLAYER_ENTERING_WORLD" and not KT.stopUpdate then
+			KT.inWorld = true
+			KT.inInstance = IsInInstance()
 		elseif event == "PLAYER_LEAVING_WORLD" then
 			KT.inWorld = false
 		elseif event == "SCENARIO_UPDATE" then
@@ -389,9 +385,8 @@ local function SetFrames()
 				KT.QuestsCache_Update()
 				KT:Tracker_Update()
 			end)
-		elseif event == "QUEST_POI_UPDATE" or event == "QUEST_LOG_UPDATE" then
-			dbChar.quests.num, dbChar.quests.numOver = KT.GetNumQuests()
-			KT.Quests:SetHeaderText()
+		elseif event == "QUEST_POI_UPDATE" then
+			Quests_UpdateCount()
 			self:UnregisterEvent(event)
 		end
 	end)
@@ -1566,6 +1561,7 @@ function KT:OnEnable()
 	SetFrames()
 	SetHooks()
 
+	self:RegSignal("QUESTS_READY:10", Quests_UpdateCount)
 	self:RegSignal("OPTIONS_CHANGED", "Tracker_Update")
 	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)
 		KT.ObjectiveTrackerManager:OnPlayerEnteringWorld(...)

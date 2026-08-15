@@ -73,6 +73,7 @@ local defaults = {
         menuWowheadURLModifier = "",
         menuYouTubeURL = true,
         menuYouTubeURLModifier = "",
+        popupCloseOnCopy = true,
 
         questsHeaderSuffix = true,
         questsObjectiveNumAtStart = false,

@@ -11,12 +11,10 @@ local SS = KT:NewSubsystem("Quests")
 
 local questsCache = {}
 
-local function QuestsCache_Init(eventID)
-    local numEntries = C_QuestLog.GetNumQuestLogEntries()
-    if numEntries > 1 then
-        KT.QuestsCache_Update(true)
-        KT:UnregEvent(eventID)
-    end
+local function Quests_Ready(eventID)
+    KT.QuestsCache_Update(true)
+    KT:SendSignal("QUESTS_READY")
+    KT:UnregEvent(eventID)
 end
 
 function KT.QuestsCache_Update(force)
@@ -102,9 +100,9 @@ function SS:Init(storage)
 
     KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, isInitialLogin, isReloadingUI)
         if isInitialLogin then
-            KT:RegEvent("QUEST_POI_UPDATE", QuestsCache_Init, self)
+            KT:RegEvent("QUEST_POI_UPDATE", Quests_Ready, self)
         elseif isReloadingUI then
-            KT:RegEvent("QUEST_LOG_UPDATE", QuestsCache_Init, self)
+            KT:RegEvent("QUEST_LOG_UPDATE", Quests_Ready, self)
         end
         KT:UnregEvent(eventID)
     end, self)

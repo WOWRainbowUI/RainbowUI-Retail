@@ -1,4 +1,7 @@
 # Kaliel's Tracker changelog
+### 8.7.1
+- ADDED - auto-close Wowhead and YouTube popups after URL copy (see Options &gt; Modules &gt; General)
+- ADDED - remove invalid tracked achievements on start
 ### 8.7.0
 - ADDED - auto expand tracker modules when tracking an item
 - ADDED - support for WoW 12.1.0.69273

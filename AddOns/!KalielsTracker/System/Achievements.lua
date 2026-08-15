@@ -12,6 +12,16 @@ local SS = KT:NewSubsystem("Achievements")
 local BUILD_VERSION = select(1, KT.GAME_VERSION)
 local achievsCache = {}
 
+local function Achievements_SanitizeTracked()
+    local trackedAchievements = KT.GetTrackedAchievements()
+    for _, achievementID in ipairs(trackedAchievements) do
+        local id, _, _, completed = GetAchievementInfo(achievementID)
+        if not id or completed then
+            KT.RemoveTrackedAchievement(achievementID)
+        end
+    end
+end
+
 function KT.AchievementsCache_Build()
     local cache = {}
 
@@ -74,6 +84,7 @@ function SS:Init(storage)
                 achievsCache.locale == KT.LOCALE) then
             KT.AchievementsCache_Build()
         end
+        Achievements_SanitizeTracked()
         KT:UnregEvent(eventID)
     end, self)
 end
