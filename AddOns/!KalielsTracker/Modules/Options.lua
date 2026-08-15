@@ -1475,6 +1475,23 @@ local options = {
 								},
 							},
 						},
+						popups = {
+							name = "彈出視窗",
+							type = "group",
+							inline = true,
+							order = 3,
+							args = {
+								popupCloseOnCopy = {
+									name = "複製後關閉彈出視窗",
+									desc = "使用 Ctrl+C 之後。",
+									type = "toggle",
+									set = function()
+										db.popupCloseOnCopy = not db.popupCloseOnCopy
+									end,
+									order = 1,
+								},
+							},
+						},
 					},
 				},
 				sec3 = {

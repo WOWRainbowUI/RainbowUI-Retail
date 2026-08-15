@@ -1244,7 +1244,13 @@ function M:OnEnable()
 	SetHooks()
 	SetFrames()
 
+	KT:RegSignal("QUESTS_READY:20", SanitizeFavorites, self)
 	KT:RegSignal("CONTEXT_MENU_UPDATE:50", ContextMenu_Extend, self)
+	KT:RegSignal("QUEST_DATA_CHANGED", function()
+		if dbChar.filterAuto[1] == "zone" then
+			Filter_Quests("zone")
+		end
+	end, self)
     KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, isInitialLogin, isReloadingUI)
         if not isInitialLogin and isReloadingUI then
             if not KT.IsInBetween() then
@@ -1256,18 +1262,6 @@ function M:OnEnable()
                 end
             end
             KT:UnregEvent(eventID)
-        end
-    end, self)
-	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
-		local numEntries = C_QuestLog.GetNumQuestLogEntries()
-		if numEntries > 1 then
-			SanitizeFavorites()
-			KT:UnregEvent(eventID)
-		end
-	end, self)
-    KT:RegSignal("QUEST_DATA_CHANGED", function()
-        if dbChar.filterAuto[1] == "zone" then
-            Filter_Quests("zone")
         end
     end, self)
 end

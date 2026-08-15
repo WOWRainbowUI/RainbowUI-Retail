@@ -77,7 +77,7 @@ local format = string.format
 local strfind = string.find
 local round = function(n) return floor(n + 0.5) end
 
-local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 17)
+local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 18)
 if Lib then
 	Lib.NewFrame, Lib.NewButton, Lib.UpdateFrame = nil
 	Lib.numFrames = Lib.numFrames or 1
@@ -154,7 +154,7 @@ local function NewEditbox(frame)
 		editbox.icon = icon
 		local hint = editbox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 		hint:SetPoint("LEFT", editbox, "RIGHT", 4, -1)
-		hint:SetText("CTRL+C to copy")
+		hint:SetText("Ctrl+C to copy")
 		hint:SetTextColor(0.93, 0.76, 0)
 		hint:Hide()
 		editbox.hint = hint

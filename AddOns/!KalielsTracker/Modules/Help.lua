@@ -378,6 +378,11 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.7.1|r\n"..
+					"- 新增 - 複製 URL 後自動關閉 Wowhead 與 YouTube 彈出視窗（見 選項 > 模組 > 一般）\n"..
+					"- 新增 - 啟動時移除無效的已追蹤成就\n"..
+					"\n")..
+					
 					(cTitle.."版本 8.7.0|r\n"..
 					"- 新增 - 追蹤特定項目時自動展開追蹤器模組\n"..
 					"- 新增 - 支援 WoW 12.1.0.69273\n"..
