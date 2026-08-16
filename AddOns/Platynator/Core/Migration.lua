@@ -842,7 +842,7 @@ local function MigrateSettingsv5()
 end
 
 local function MigrateSettingsv6()
-  addonTable.Display.Utilities.MigrateAuraFilters()
+  -- Removed as this was the wrong place
 end
 
 local settingUpgrades = {
@@ -862,6 +862,8 @@ function addonTable.Core.MigrateSettings()
 
     addonTable.Config.Set(addonTable.Config.Options.MIGRATION, #settingUpgrades + 1)
   end
+
+  addonTable.Display.Utilities.MigrateAuraFilters()
 
   for _, design in pairs(addonTable.Config.Get(addonTable.Config.Options.DESIGNS)) do
     addonTable.Core.UpgradeDesign(design)
