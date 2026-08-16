@@ -23,6 +23,7 @@ local MINIAURAS_FRAME_TYPE = C.MiniAurasFrameTypes
 local SARENA_FRAME_TYPE = C.SArenaFrameTypes
 
 local STYLER_CONSTANTS = C.Styler
+local MINIAURAS_NATIVE_SWIPE_ALPHA = C.Adapter.MiniAuras.NativeSwipeAlpha
 local LARGE_AURA_WIDTH_THRESHOLD = 20
 local AURA_INSTANCE_ID_KEYS = {
     "auraInstanceID",
@@ -562,6 +563,19 @@ function StyleEngine:ResetSwipeColor(cdFrame)
     fs.swipeColor = nil
 end
 
+-- MiniAuras paints its swipe once, when it creates the cooldown, and never
+-- re-applies it. The generic reset above would hand back Blizzard's opaque
+-- default and visibly darken frames MiniCE no longer manages, so release
+-- MiniAuras cooldowns to the provider's own value instead.
+local function RestoreMiniAurasSwipeColor(cdFrame, fs)
+    if not fs or not fs.swipeColor then return end
+    local setSwipeColor = MCE:SafeTableGet(cdFrame, "SetSwipeColor")
+    if type(setSwipeColor) ~= "function" then return end
+    fs.suppressSwipe = true
+    pcall(setSwipeColor, cdFrame, 0, 0, 0, MINIAURAS_NATIVE_SWIPE_ALPHA)
+    fs.suppressSwipe = nil
+end
+
 local function SetMiniAurasDurationTextAlpha(fs, alpha)
     local durationText = fs and fs.miniAurasDurationText
     local setAlpha = durationText and MCE:SafeTableGet(durationText, "SetAlpha") or nil
@@ -594,6 +608,13 @@ end
 
 function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     local fs = self:GetFrameState(cdFrame)
+    if fs.betterBlizzPlatesAura == true then
+        local adapter = MCE:GetModule("BetterBlizzPlatesAdapter", true)
+        if adapter and adapter.RestoreNativeStyle then
+            adapter:RestoreNativeStyle(cdFrame)
+        end
+        fs.styledCat = nil
+    end
     if fs.unitFrameNativeDurationText == true then
         local holder = fs.unitFrameDurationTextHolder
         local setAlpha = holder and MCE:SafeTableGet(holder, "SetAlpha") or nil
@@ -604,6 +625,7 @@ function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     end
     if category == CATEGORY.MiniAuras then
         ReleaseMiniAurasNativeDurationText(cdFrame, fs)
+        RestoreMiniAurasSwipeColor(cdFrame, fs)
     end
     RestoreCountdownThresholdState(cdFrame, fs)
     fs.edgeScale = nil
@@ -799,6 +821,43 @@ function StyleEngine:GetCooldownTextRegions(cdFrame)
     local firstRegion = nil
 
     local state = frameState[cdFrame]
+    if state and state.betterBlizzPlatesAura == true then
+        local durationText = state.betterBlizzPlatesDurationText
+        local countdownText = state.betterBlizzPlatesCountdownText
+        local count = 0
+
+        if not IsUsableFontString(countdownText) then
+            local getCountdownFontString =
+                MCE:SafeTableGet(cdFrame, "GetCountdownFontString")
+            if type(getCountdownFontString) == "function" then
+                local ok, discovered = pcall(getCountdownFontString, cdFrame)
+                if ok and IsUsableFontString(discovered) then
+                    countdownText = discovered
+                    state.betterBlizzPlatesCountdownText = discovered
+                    local adapter = MCE:GetModule(
+                        "BetterBlizzPlatesAdapter", true)
+                    if adapter and adapter.CaptureTextOriginal then
+                        adapter:CaptureTextOriginal(cdFrame, discovered)
+                    end
+                end
+            end
+        end
+
+        if IsUsableFontString(durationText) then
+            count = 1
+            textRegionScratch[count] = durationText
+        end
+        if IsUsableFontString(countdownText) and countdownText ~= durationText then
+            count = count + 1
+            textRegionScratch[count] = countdownText
+        end
+
+        for i = count + 1, #textRegionScratch do
+            textRegionScratch[i] = nil
+        end
+        return textRegionScratch, count
+    end
+
     if state and state.miniAurasNativeDurationText == true then
         local durationText = state.miniAurasDurationText
         if IsUsableFontString(durationText) then
@@ -828,6 +887,28 @@ function StyleEngine:GetCooldownTextRegions(cdFrame)
                 textRegionScratch[i] = nil
             end
             return textRegionScratch, 1
+        end
+
+        for i = 1, #textRegionScratch do
+            textRegionScratch[i] = nil
+        end
+        return textRegionScratch, 0
+    end
+
+    -- MyDRs parents its DR state label ("50%" / "IMM") to the cooldown itself.
+    -- Restrict styling to the countdown FontString so that label keeps MyDRs'
+    -- own font, anchor, and text.
+    if Registry and Registry:GetCategory(cdFrame) == CATEGORY.MyDRs then
+        local getMyDRsCountdown = MCE:SafeTableGet(cdFrame, "GetCountdownFontString")
+        if type(getMyDRsCountdown) == "function" then
+            local ok, countdownText = pcall(getMyDRsCountdown, cdFrame)
+            if ok and IsUsableFontString(countdownText) then
+                textRegionScratch[1] = countdownText
+                for i = 2, #textRegionScratch do
+                    textRegionScratch[i] = nil
+                end
+                return textRegionScratch, 1
+            end
         end
 
         for i = 1, #textRegionScratch do
@@ -997,6 +1078,26 @@ local function EnsureFontStringSetFontHook(region)
         s.suppressSetFont = nil
     end)
 
+    if type(region.SetTextColor) == "function" then
+        hooksecurefunc(region, "SetTextColor", function(self, r, g, b, a)
+            if issecretvalue(self) or issecretvalue(r) or issecretvalue(g)
+               or issecretvalue(b) or issecretvalue(a) then
+                return
+            end
+            local s = fontState[self]
+            if not s or s.suppressSetTextColor or not s.enforceColor then return end
+            if IsNearlyEqual(r, s.colorR) and IsNearlyEqual(g, s.colorG)
+               and IsNearlyEqual(b, s.colorB) and IsNearlyEqual(a, s.colorA) then
+                return
+            end
+
+            s.suppressSetTextColor = true
+            pcall(self.SetTextColor, self,
+                s.colorR, s.colorG, s.colorB, s.colorA)
+            s.suppressSetTextColor = nil
+        end)
+    end
+
     hookedFontStrings[region] = true
 end
 
@@ -1015,7 +1116,8 @@ end
 
 function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, fontStyle,
                                           color, point, relativePoint, offsetX, offsetY,
-                                      drawLayer, drawLayerSubLevel, enforceFont, preserveFontSize)
+                                      drawLayer, drawLayerSubLevel, enforceFont, preserveFontSize,
+                                      enforceColor)
     if not region or MCE:IsForbiddenCached(region) then return end
 
     relativePoint = relativePoint or point
@@ -1023,8 +1125,9 @@ function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontS
 
     local state = self:GetFontState(region)
     state.enforceFont = enforceFont or false
+    state.enforceColor = enforceColor or false
     state.preserveFontSize = preserveFontSize or false
-    if state.enforceFont then
+    if state.enforceFont or state.enforceColor then
         EnsureFontStringSetFontHook(region)
     end
 
@@ -1042,7 +1145,9 @@ function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontS
     if color then
         if state.colorR ~= color.r or state.colorG ~= color.g
            or state.colorB ~= color.b or state.colorA ~= color.a then
+            state.suppressSetTextColor = true
             region:SetTextColor(color.r, color.g, color.b, color.a)
+            state.suppressSetTextColor = nil
             state.colorR, state.colorG, state.colorB, state.colorA = color.r, color.g, color.b, color.a
         end
     end
@@ -1296,6 +1401,19 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
         return hideNums
     end
 
+    -- MyDRs owns whether its DR icons show countdown numbers at all, so its
+    -- own "Show countdown text" toggle stays authoritative when it is off.
+    if category == CATEGORY.MyDRs and not hideNums then
+        local adapter = Registry and Registry:GetAdapter(CATEGORY.MyDRs) or nil
+        local getter = adapter and adapter.IsCountdownTextEnabled or nil
+        if type(getter) == "function" then
+            local ok, enabled = pcall(getter, adapter)
+            if ok and enabled == false then
+                return true
+            end
+        end
+    end
+
     if category == CATEGORY.Actionbar and isAssistedCombat then
         return true
     end
@@ -1445,6 +1563,92 @@ end
 -- MAIN STYLE APPLICATION
 -- =========================================================================
 
+function StyleEngine:ApplyBetterBlizzPlatesStyle(cdFrame, config)
+    local fs = self:GetFrameState(cdFrame)
+    if not MCE:IsBetterBlizzPlatesAuraCustomizationActive() then
+        if DurationColor then DurationColor:ClearTrackedDurationColor(cdFrame) end
+        self:ReleaseManagedVisualState(cdFrame, CATEGORY.BetterBlizzPlates)
+        return
+    end
+
+    -- BBP remains authoritative for the base swipe, its texture/color,
+    -- cooldown-number visibility, formatter, milliseconds, long-timer hiding,
+    -- stacks, borders, geometry, and aura layout. MiniCE owns only the final
+    -- countdown font/position/color and optional swipe-edge presentation.
+    -- MiniCE's global duration curve replaces BBP's color threshold when the
+    -- category allows threshold colors.
+    fs.drawSwipe = nil
+    fs.hideNums = nil
+    fs.swipeColor = nil
+    fs.edgeColor = nil
+    fs.countdownAbbrevThreshold = nil
+    fs.countdownMillisecondsThreshold = nil
+
+    local adapter = MCE:GetModule("BetterBlizzPlatesAdapter", true)
+    local nativeDrawEdge = adapter and adapter.GetNativeDrawEdge
+        and adapter:GetNativeDrawEdge(cdFrame)
+    local wantEdge = nativeDrawEdge ~= false and config.edgeEnabled ~= false
+    if type(MCE:SafeTableGet(cdFrame, "SetDrawEdge")) == "function"
+       and fs.edge ~= wantEdge then
+        fs.suppressEdge = true
+        pcall(cdFrame.SetDrawEdge, cdFrame, wantEdge)
+        fs.suppressEdge = nil
+        fs.edge = wantEdge
+    end
+
+    if wantEdge and type(MCE:SafeTableGet(cdFrame, "SetEdgeScale")) == "function" then
+        if fs.edgeScale ~= config.edgeScale then
+            fs.suppressEdgeScale = true
+            pcall(cdFrame.SetEdgeScale, cdFrame, config.edgeScale)
+            fs.suppressEdgeScale = nil
+            fs.edgeScale = config.edgeScale
+        end
+    else
+        fs.edgeScale = nil
+    end
+
+    if DurationColor then DurationColor:ClearTrackedDurationColor(cdFrame) end
+
+    local styleKey = CATEGORY.BetterBlizzPlates
+    local needsFullRestyle = fs.styledCat ~= styleKey
+    local needsTextRefresh = fs.forceTextRegionRefresh == true
+    local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
+    local textRegionsChanged = HaveCooldownTextRegionsChanged(
+        fs, textRegions, textRegionCount)
+    fs.forceTextRegionRefresh = nil
+    if needsFullRestyle then fs.styledCat = styleKey end
+
+    local useMiniCEThresholdColors = DurationColor
+        and DurationColor:UsesThresholdColorsForSource(
+            CATEGORY.BetterBlizzPlates, config) or false
+    local desiredTextColor = useMiniCEThresholdColors and nil or config.textColor
+
+    if needsFullRestyle or needsTextRefresh or textRegionsChanged then
+        local fontStyle = MCE.NormalizeFontStyle(config.fontStyle)
+        local resolvedFont = MCE.ResolveFontPath(config.font)
+        local fontSize = self:GetCooldownFontSize(
+            cdFrame, CATEGORY.BetterBlizzPlates, config)
+
+        for i = 1, textRegionCount do
+            local region = textRegions[i]
+            if adapter and adapter.CaptureTextOriginal then
+                adapter:CaptureTextOriginal(cdFrame, region)
+            end
+            self:ApplyFontStringStyle(
+                region, cdFrame,
+                resolvedFont, fontSize, fontStyle,
+                desiredTextColor,
+                config.textAnchor, config.textAnchor,
+                config.textOffsetX, config.textOffsetY,
+                nil, nil, true, false, not useMiniCEThresholdColors)
+        end
+    end
+    if adapter and adapter.ApplyDurationColorBinding then
+        adapter:ApplyDurationColorBinding(cdFrame, config)
+    end
+    fs.betterBlizzPlatesMiniCEStyled = true
+end
+
 function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     if MCE:IsForbiddenCached(cdFrame) then return end
 
@@ -1488,6 +1692,11 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         return
     end
 
+    if category == CATEGORY.BetterBlizzPlates then
+        self:ApplyBetterBlizzPlatesStyle(cdFrame, config)
+        return
+    end
+
     local fs = self:GetFrameState(cdFrame)
     local parent = GetParentSafe(cdFrame)
 
@@ -1508,7 +1717,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     -- Reverse Swipe
-    if category == CATEGORY.Actionbar and cdFrame.SetReverse then
+    if (category == CATEGORY.Actionbar or category == CATEGORY.MyDRs) and cdFrame.SetReverse then
         local wantReverse = config.reverseSwipe == true
         if fs.reverseSwipe ~= wantReverse then
             fs.suppressReverseSwipe = true
@@ -1562,7 +1771,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     local isMasqueManaged = IsMasqueManagedCooldown(cdFrame)
     local isMUIManaged = IsMUIStyledCooldown(cdFrame)
     if cdFrame.SetSwipeColor and not isMasqueManaged and not isMUIManaged then
-        if category == CATEGORY.Actionbar then
+        if category == CATEGORY.Actionbar
+           or category == CATEGORY.MiniAuras
+           or category == CATEGORY.MyDRs then
             local r, g, b, a = 0, 0, 0, self:GetSwipeShadeAlpha(config)
             if not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
                 fs.suppressSwipe = true
@@ -1753,6 +1964,7 @@ end
 function StyleEngine:WipeState()
     local preservedUnitFrameState = {}
     local preservedMiniAurasState = {}
+    local preservedBetterBlizzPlatesState = {}
     for cooldown, state in pairs(frameState) do
         if state and state.unitFrameCustomAura == true then
             preservedUnitFrameState[#preservedUnitFrameState + 1] = {
@@ -1776,6 +1988,22 @@ function StyleEngine:WipeState()
                 requestedDurationTextAlpha = state.miniAurasRequestedDurationTextAlpha,
                 requestedHideCountdownNumbers = state.miniAurasRequestedHideCountdownNumbers,
                 nativeDurationTextReady = state.miniAurasNativeDurationTextReady,
+                textRegions = state.textRegions,
+            }
+        end
+        if state and state.betterBlizzPlatesAura == true then
+            preservedBetterBlizzPlatesState[#preservedBetterBlizzPlatesState + 1] = {
+                cooldown = cooldown,
+                auraButton = state.betterBlizzPlatesAuraButton,
+                durationText = state.betterBlizzPlatesDurationText,
+                countdownText = state.betterBlizzPlatesCountdownText,
+                milliseconds = state.betterBlizzPlatesMilliseconds,
+                originalDurationOptions = state.betterBlizzPlatesOriginalDurationOptions,
+                ownsTimerColors = state.betterBlizzPlatesOwnsTimerColors,
+                textOriginals = state.betterBlizzPlatesTextOriginals,
+                drawEdge = state.betterBlizzPlatesDrawEdge,
+                edgeScale = state.betterBlizzPlatesEdgeScale,
+                miniCEStyled = state.betterBlizzPlatesMiniCEStyled,
                 textRegions = state.textRegions,
             }
         end
@@ -1812,6 +2040,24 @@ function StyleEngine:WipeState()
             miniAurasRequestedHideCountdownNumbers = preserved.requestedHideCountdownNumbers,
             miniAurasNativeDurationText = true,
             miniAurasNativeDurationTextReady = preserved.nativeDurationTextReady == true,
+            textRegions = preserved.textRegions,
+        }
+    end
+    for i = 1, #preservedBetterBlizzPlatesState do
+        local preserved = preservedBetterBlizzPlatesState[i]
+        frameState[preserved.cooldown] = {
+            allowBlacklisted = true,
+            betterBlizzPlatesAura = true,
+            betterBlizzPlatesAuraButton = preserved.auraButton,
+            betterBlizzPlatesDurationText = preserved.durationText,
+            betterBlizzPlatesCountdownText = preserved.countdownText,
+            betterBlizzPlatesMilliseconds = preserved.milliseconds == true,
+            betterBlizzPlatesOriginalDurationOptions = preserved.originalDurationOptions,
+            betterBlizzPlatesOwnsTimerColors = preserved.ownsTimerColors == true,
+            betterBlizzPlatesTextOriginals = preserved.textOriginals,
+            betterBlizzPlatesDrawEdge = preserved.drawEdge,
+            betterBlizzPlatesEdgeScale = preserved.edgeScale,
+            betterBlizzPlatesMiniCEStyled = preserved.miniCEStyled == true,
             textRegions = preserved.textRegions,
         }
     end

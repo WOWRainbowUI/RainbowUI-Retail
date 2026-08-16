@@ -1,14 +1,15 @@
 -- BatchProcessor.lua – Coalesces rapid cooldown updates into a single style pass
 --
 -- When hooks fire rapidly (e.g., Blizzard touching the same button multiple
--- times in one tick), this batches them into one C_Timer.After(0) pass.
+-- times in one tick), this batches them into a single pass driven by MiniCE's
+-- own work driver frame (see Core.lua) so the cost is attributed to MiniCE.
 
 local _, addon = ...
 local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local BatchProcessor = MCE:NewModule("BatchProcessor")
 
-local C_Timer_After = C_Timer.After
+local RunNextFrame = addon.RunNextFrame
 local wipe = wipe
 
 local dirtyFrames = {}
@@ -51,7 +52,7 @@ function BatchProcessor:QueueUpdate(frame, forcedCategory)
 
     if not batchScheduled then
         batchScheduled = true
-        C_Timer_After(0, ProcessDirtyFrames)
+        RunNextFrame(ProcessDirtyFrames)
     end
 end
 

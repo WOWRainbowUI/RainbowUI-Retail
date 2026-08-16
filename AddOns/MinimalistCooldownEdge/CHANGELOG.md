@@ -1,5 +1,34 @@
 # Changelog
 
+## 4.4.0 - Unit Frame Aura Visibility and MiniAuras Performance
+- Added Only My Buffs and Only My Debuffs options for target and focus frames.
+- Improved MiniAuras cooldown discovery performance with resumable scanning.
+
+## 4.3.9 - MyDRs Support
+- Added a MyDRs adapter for diminishing-returns icon cooldowns.
+- Added a MyDRs category with typography, positioning, and swipe controls.
+- Added a Swipe Shade Alpha slider for MyDRs cooldown icons.
+
+## 4.3.8 - AddOn Profiler
+- Adding support to AddOn Profiler and similar tools.
+- Reduced timer overhead by consolidating scheduled update passes.
+
+## 4.3.7 - MiniAuras Swipe Opacity Control
+- Added a Swipe Shade Alpha slider for MiniAuras cooldown icons.
+
+## 4.3.6 - BetterBlizzPlates Blizzard Numbers Compatibility
+- Replaced the BetterBlizzPlates "Use BBP Aura Threshold Colors" toggle with the standard Allow Threshold Colors option.
+- BetterBlizzPlates aura color styling now also applies when "Use Blizzard Numbers" is enabled.
+- Added a compatibility notice recommending disabling BetterBlizzPlates' "Use Blizzard Numbers" and "Expiry Colour" options.
+- Fixed possible protected-frame errors when detecting aura button support for BetterBlizzPlates, MiniAuras, TellMeWhen, and Unit Frame auras.
+
+## 4.3.5 - BetterBlizzPlates Aura Styling
+- Added an optional BetterBlizzPlates 12.1 nameplate aura styling category.
+- Added font, color, position, and swipe-edge controls for BetterBlizzPlates aura countdowns.
+- Added a toggle for BetterBlizzPlates normal, low, and threshold timer colors.
+- Fixed BetterBlizzPlates aura colors when Blizzard countdown numbers are enabled.
+- Shortened category descriptions.
+
 ## 4.3.4 - TellMeWhen Combat-Ready Aura Timers
 - Fixed cooldown timer styling for TellMeWhen Buff/Debuff (combat ready) icons.
 

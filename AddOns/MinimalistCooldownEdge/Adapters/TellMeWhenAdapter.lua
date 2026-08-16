@@ -29,8 +29,8 @@ local initializationStyling = setmetatable({}, addon.weakMeta)
 local cooldownOptionHooksInstalled = {}
 local durationCooldownHookInstalled = false
 local cooldownProbe
-local customAuraButtonProbe
-local customAuraContainerLoadAttempted = false
+local customAuraButtonAPI
+local InstallNativeAuraButtonHook
 
 local function EnsureRegistry()
     if not Registry then
@@ -53,11 +53,21 @@ local function IsTellMeWhenCooldownName(name)
         and strfind(name, TMW.CooldownNameFragment, 1, true) ~= nil
 end
 
+local function GetParentSafe(frame)
+    local getParent = MCE:SafeTableGet(frame, "GetParent")
+    if type(getParent) ~= "function" then return nil end
+
+    local ok, parent = pcall(getParent, frame)
+    if not ok or not MCE:CanUseFrameAsTableKey(parent) then return nil end
+
+    return parent
+end
+
 local function GetTellMeWhenAuraButton(cooldown)
     if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
 
-    local owner = cooldown.GetParent and cooldown:GetParent() or nil
-    if not MCE:CanUseFrameAsTableKey(owner) then return nil end
+    local owner = GetParentSafe(cooldown)
+    if not owner then return nil end
 
     return MCE:SafeTableGet(owner, "tmwCooldown") == cooldown and owner or nil
 end
@@ -75,10 +85,8 @@ local function IsTellMeWhenCooldown(cooldown)
         return true
     end
 
-    local owner = cooldown.GetParent and cooldown:GetParent() or nil
-    if not owner or MCE:IsForbidden(owner) then
-        return false
-    end
+    local owner = GetParentSafe(cooldown)
+    if not owner then return false end
 
     return IsTellMeWhenIconFrame(owner)
         or MCE:SafeTableGet(owner, "tmwCooldown") == cooldown
@@ -121,6 +129,10 @@ end
 
 local function RegisterCooldown(cooldown)
     if IsTellMeWhenCooldown(cooldown) then
+        local auraButton = GetTellMeWhenAuraButton(cooldown)
+        if auraButton then
+            InstallNativeAuraButtonHook(auraButton)
+        end
         CaptureCurrentTimerOptions(cooldown)
         local registry = EnsureRegistry()
         if registry then
@@ -234,38 +246,26 @@ local function InstallTimerOptionHooks()
     end
 end
 
-local function CreateCustomAuraButtonProbe()
-    local createOk, probe = pcall(
-        CreateFrame, "AuraButton", nil, UIParent, "CustomAuraButtonTemplate")
-    if not createOk or not probe then return nil end
+local function GetCustomAuraButtonAPI(button)
+    if customAuraButtonAPI then return customAuraButtonAPI end
+    if not MCE:CanUseFrameAsTableKey(button) then return nil end
 
-    pcall(probe.Hide, probe)
-    local meta = getmetatable(probe)
-    local api = meta and meta.__index or nil
-    if type(api) ~= "table" then return nil end
-
-    customAuraButtonProbe = probe
-    return api
-end
-
-local function GetCustomAuraButtonAPI()
-    local api = CreateCustomAuraButtonProbe()
-    if not api and not customAuraContainerLoadAttempted then
-        customAuraContainerLoadAttempted = true
-        if C_AddOns and type(C_AddOns.LoadAddOn) == "function" then
-            pcall(C_AddOns.LoadAddOn, "Blizzard_AuraContainer")
-            api = CreateCustomAuraButtonProbe()
-        end
-    end
-    return api
-end
-
-local function InstallNativeAuraButtonHook()
-    if durationCooldownHookInstalled or type(CreateFrame) ~= "function" then
-        return
+    local metaOk, meta = pcall(getmetatable, button)
+    if not metaOk or type(meta) ~= "table" then return nil end
+    local api = MCE:SafeTableGet(meta, "__index")
+    if type(api) ~= "table"
+       or type(MCE:SafeTableGet(api, "SetDurationCooldown")) ~= "function" then
+        return nil
     end
 
-    local api = GetCustomAuraButtonAPI()
+    customAuraButtonAPI = api
+    return customAuraButtonAPI
+end
+
+InstallNativeAuraButtonHook = function(button)
+    if durationCooldownHookInstalled then return end
+
+    local api = GetCustomAuraButtonAPI(button)
     local setDurationCooldown = api and MCE:SafeTableGet(api, "SetDurationCooldown") or nil
     if type(setDurationCooldown) ~= "function" then return end
 
@@ -294,7 +294,6 @@ function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.TellMeWhen, self)
     InstallTimerOptionHooks()
-    InstallNativeAuraButtonHook()
 end
 
 function Adapter:Rebuild()
@@ -328,8 +327,7 @@ function Adapter:GetTimerOption(cooldown, optionKey)
     return nil
 end
 
--- TellMeWhen is an optional dependency and may already have created its aura
--- buttons before MiniCE enables. Rebuild discovers those; this hook captures
--- buttons allocated or rebound by TMW later, including during combat.
+-- The ordinary Cooldown option hooks and Rebuild discover TMW's public output
+-- cooldowns. Their genuine owner buttons then bootstrap the shared AuraButton
+-- hook without creating a restricted Blizzard template.
 InstallTimerOptionHooks()
-InstallNativeAuraButtonHook()

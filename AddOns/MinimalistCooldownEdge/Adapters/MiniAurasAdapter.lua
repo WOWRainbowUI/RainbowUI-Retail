@@ -15,6 +15,7 @@ local type = type
 local strfind, strlower = string.find, string.lower
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
+local RunNextFrame = addon.RunNextFrame
 local _G = _G
 
 local CATEGORY = C.Categories
@@ -58,8 +59,8 @@ local initializationStyling = setmetatable({}, addon.weakMeta)
 local initializationHookInstalled = false
 local durationCooldownHookInstalled = false
 local durationTextHookInstalled = false
-local customAuraButtonProbe
-local customAuraContainerLoadAttempted = false
+local customAuraButtonAPI
+local InstallNativeDurationTextHooks
 
 -- =========================================================================
 -- FRAME IDENTITY HELPERS
@@ -243,10 +244,11 @@ local function MarkTrackedCooldown(cooldown, frameType, button)
     end
     state.allowBlacklisted = true
     if MCE:CanUseFrameAsTableKey(button) then
+        InstallNativeDurationTextHooks(button)
         trackedAuraButtons[button] = cooldown
     end
 
-    trackedCooldowns[cooldown] = true
+    trackedCooldowns[cooldown] = frameType or true
     if Registry then
         Registry:Register(cooldown, CATEGORY.MiniAuras, frameType)
     end
@@ -403,11 +405,115 @@ end
 -- ADAPTER API
 -- =========================================================================
 
+-- Both MiniAuras display backends expose stable, globally named Cooldown
+-- frames. Targeted lookup registers buttons that MiniAuras created before
+-- MiniCE's lifetime hooks were installed without using EnumerateFrames().
+--
+-- MiniAuras keeps thousands of pooled cooldowns alive at once, so the scan is
+-- a resumable job with two limits:
+--
+--   * Each pass claims a bounded number of unknown frames and continues on the
+--     next frame instead of walking the whole name space in one script call.
+--   * A rebuild resumes just past the highest ID that existed on the previous
+--     scan. MiniAuras numbers its pools upwards, so only that tail can hold
+--     new frames; re-probing the thousands of names below it found nothing but
+--     cooldowns MiniCE already tracks.
+--
+-- Anything the tail scan still misses is picked up by MiniAuras' own API hooks
+-- the moment the pooled cooldown is handed an aura, so no display is lost.
+local COOLDOWN_PREFIXES = { LEGACY_COOLDOWN_PREFIX, AURA_COOLDOWN_PREFIX }
+local discoveryResumeID = { 0, 0 }
+local discoveryPrefixIndex, discoveryFrameID, discoveryMisses = 1, 1, 0
+local discoveryScheduled = false
+local RunDiscoveryPass
+
+local function ScheduleDiscoveryPass()
+    if discoveryScheduled then return end
+    discoveryScheduled = true
+
+    RunNextFrame(function()
+        discoveryScheduled = false
+        if MCE:IsMiniAurasAvailable() then
+            RunDiscoveryPass(true)
+        end
+    end)
+end
+
+local function ResumeDiscoveryAt(prefixIndex)
+    discoveryPrefixIndex = prefixIndex
+    discoveryFrameID = (discoveryResumeID[prefixIndex] or 0) + 1
+    discoveryMisses = 0
+end
+
+local function ClaimNamedCooldown(cooldown, queueStyle)
+    local frameType = ResolveMiniAurasFrameType(cooldown)
+    if not frameType then return end
+
+    local button = cooldown.GetParent and cooldown:GetParent() or nil
+    MarkTrackedCooldown(cooldown, frameType, button)
+    RecoverExistingNativeDurationText(cooldown, button)
+
+    -- Deferred passes run after Styler queued its restyle sweep, so a late
+    -- discovery has to queue itself.
+    if queueStyle then
+        local batchProcessor = MCE:GetModule("BatchProcessor", true)
+        if batchProcessor then
+            batchProcessor:QueueUpdate(cooldown)
+        end
+    end
+end
+
+RunDiscoveryPass = function(deferred)
+    local claimBudget = ADAPTER_CONSTANTS.DiscoveryClaimsPerPass
+    local probeBudget = ADAPTER_CONSTANTS.DiscoveryProbesPerPass
+
+    while discoveryPrefixIndex <= #COOLDOWN_PREFIXES do
+        local prefix = COOLDOWN_PREFIXES[discoveryPrefixIndex]
+
+        while discoveryFrameID <= ADAPTER_CONSTANTS.MaxNamedFrameID do
+            if probeBudget <= 0 or claimBudget <= 0 then
+                ScheduleDiscoveryPass()
+                return
+            end
+            probeBudget = probeBudget - 1
+
+            local frameID = discoveryFrameID
+            discoveryFrameID = frameID + 1
+
+            local cooldown = MCE:SafeTableGet(_G, prefix .. frameID)
+            if cooldown then
+                discoveryMisses = 0
+                -- The cursor tracks the last ID that existed; the next rebuild
+                -- resumes from there instead of re-walking the pool below it.
+                if frameID > discoveryResumeID[discoveryPrefixIndex] then
+                    discoveryResumeID[discoveryPrefixIndex] = frameID
+                end
+                if MCE:CanUseFrameAsTableKey(cooldown) and not trackedCooldowns[cooldown] then
+                    claimBudget = claimBudget - 1
+                    ClaimNamedCooldown(cooldown, deferred)
+                end
+            else
+                discoveryMisses = discoveryMisses + 1
+                if discoveryMisses >= ADAPTER_CONSTANTS.TrailingNamedFrameMissLimit then
+                    break
+                end
+            end
+        end
+
+        ResumeDiscoveryAt(discoveryPrefixIndex + 1)
+    end
+end
+
 function Adapter:Rebuild()
-    for cooldown in pairs(trackedCooldowns) do
+    for cooldown, claimedFrameType in pairs(trackedCooldowns) do
         if cooldown and not MCE:IsForbidden(cooldown) then
-            local frameType = ResolveMiniAurasFrameType(cooldown)
+            -- The type recorded at claim time stays valid while the cooldown
+            -- lives in its container; MiniAuras' creation and duration hooks
+            -- re-resolve it whenever the frame is handed to another aura.
+            local frameType = claimedFrameType ~= true and claimedFrameType
+                or ResolveMiniAurasFrameType(cooldown)
             if frameType then
+                trackedCooldowns[cooldown] = frameType
                 Registry:Register(cooldown, CATEGORY.MiniAuras, frameType)
             else
                 trackedCooldowns[cooldown] = nil
@@ -417,34 +523,8 @@ function Adapter:Rebuild()
 
     if not MCE:IsMiniAurasAvailable() then return end
 
-    -- Both MiniAuras display backends expose stable, globally named Cooldown
-    -- frames. Targeted lookup registers buttons that MiniAuras created before
-    -- MiniCE's lifetime hooks were installed without using EnumerateFrames().
-    local function DiscoverNamedCooldowns(prefix)
-        local trailingMisses = 0
-        for frameID = 1, ADAPTER_CONSTANTS.MaxNamedFrameID do
-            local cooldown = MCE:SafeTableGet(_G, prefix .. frameID)
-            if cooldown then
-                trailingMisses = 0
-                if MCE:CanUseFrameAsTableKey(cooldown) then
-                    local frameType = ResolveMiniAurasFrameType(cooldown)
-                    if frameType then
-                        local button = cooldown.GetParent and cooldown:GetParent() or nil
-                        MarkTrackedCooldown(cooldown, frameType, button)
-                        RecoverExistingNativeDurationText(cooldown, button)
-                    end
-                end
-            else
-                trailingMisses = trailingMisses + 1
-                if trailingMisses >= ADAPTER_CONSTANTS.TrailingNamedFrameMissLimit then
-                    break
-                end
-            end
-        end
-    end
-
-    DiscoverNamedCooldowns(LEGACY_COOLDOWN_PREFIX)
-    DiscoverNamedCooldowns(AURA_COOLDOWN_PREFIX)
+    ResumeDiscoveryAt(1)
+    RunDiscoveryPass(false)
 end
 
 function Adapter:TryClaim(cooldown)
@@ -489,39 +569,29 @@ local function TryStyleDuringInitialization(cooldown, requestedHide)
     initializationStyling[cooldown] = nil
 end
 
-local function CreateCustomAuraButtonProbe()
-    local createOk, probe = pcall(
-        CreateFrame, "AuraButton", nil, UIParent, "CustomAuraButtonTemplate")
-    if not createOk or not probe then return nil end
+local function GetCustomAuraButtonAPI(button)
+    if customAuraButtonAPI then return customAuraButtonAPI end
+    if not MCE:CanUseFrameAsTableKey(button) then return nil end
 
-    pcall(probe.Hide, probe)
-    local meta = getmetatable(probe)
-    local api = meta and meta.__index or nil
-    if type(api) ~= "table" then return nil end
-
-    customAuraButtonProbe = probe
-    return api
-end
-
-local function GetCustomAuraButtonAPI()
-    local api = CreateCustomAuraButtonProbe()
-    if not api and not customAuraContainerLoadAttempted then
-        customAuraContainerLoadAttempted = true
-        if C_AddOns and type(C_AddOns.LoadAddOn) == "function" then
-            pcall(C_AddOns.LoadAddOn, "Blizzard_AuraContainer")
-            api = CreateCustomAuraButtonProbe()
-        end
+    local metaOk, meta = pcall(getmetatable, button)
+    if not metaOk or type(meta) ~= "table" then return nil end
+    local api = MCE:SafeTableGet(meta, "__index")
+    if type(api) ~= "table"
+       or type(MCE:SafeTableGet(api, "SetDurationCooldown")) ~= "function"
+       or type(MCE:SafeTableGet(api, "SetDurationText")) ~= "function" then
+        return nil
     end
-    return api
+
+    customAuraButtonAPI = api
+    return customAuraButtonAPI
 end
 
-local function InstallNativeDurationTextHooks()
-    if (durationCooldownHookInstalled and durationTextHookInstalled)
-       or type(CreateFrame) ~= "function" then
+InstallNativeDurationTextHooks = function(button)
+    if durationCooldownHookInstalled and durationTextHookInstalled then
         return
     end
 
-    local api = GetCustomAuraButtonAPI()
+    local api = GetCustomAuraButtonAPI(button)
     if not api then return end
 
     if not durationCooldownHookInstalled
@@ -563,14 +633,11 @@ end
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.MiniAuras, self)
-    InstallNativeDurationTextHooks()
     self:Rebuild()
     InstallInitializationHook()
 end
 
--- MiniAuras is an optional dependency, so its ADDON_LOADED initialization can
--- create buttons before this file runs; Rebuild recovers those above. Install
--- hooks now as well so buttons created by later refreshes are captured on their
--- first bind. OnEnable repeats these calls as a harmless load-order retry.
-InstallNativeDurationTextHooks()
+-- A normal Cooldown hook safely discovers MiniAuras initialization. Rebuild
+-- recovers older named buttons; either path installs AuraButton hooks from the
+-- genuine provider-created button without instantiating Blizzard's template.
 InstallInitializationHook()
