@@ -16,6 +16,8 @@ local Node = ns.node.Node
 
 local HonoredDead = ns.node.HonoredDead
 
+local MysteriousMixing = ns.node.MysteriousMixing
+
 local Achievement = ns.reward.Achievement
 local Toy = ns.reward.Toy
 local Reputation = ns.reward.Reputation
@@ -32,6 +34,7 @@ local POI = ns.poi.POI
 local map = Map({id = 2512, settings = true})
 local vault_map = Map({id = 2509, settings = true, parent = 2512})
 local vault_map2 = Map({id = 2613, settings = true, parent = 2509})
+local lost_priest = Map({id = 2642, settings = true, parent = 2512}) -- Tomb of the Lost Priest
 
 -------------------------------------------------------------------------------
 ------------------------------------ RARES ------------------------------------
@@ -43,6 +46,7 @@ map.nodes[53777204] = Rare({
     rewards = {
         Achievement({id = 63358, criteria = 115279}),
         Reputation({id = 2772, gain = 50, quest = 98344}),
+        Transmog({item = 276028, type = L['plate']}), -- Stonehide Girdle
         Transmog({item = 280692, type = L['1h_mace']}), -- Plunderer's Pummeler
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
@@ -56,6 +60,7 @@ map.nodes[50006907] = Rare({
         Achievement({id = 63358, criteria = 115280}),
         Reputation({id = 2772, gain = 50, quest = 98345}),
         Transmog({item = 280704, type = L['leather']}), -- Siltmouth's Venom Waders
+        Transmog({item = 280718, type = L['cloak']}), -- Unflappable Flapping Cape
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -67,8 +72,8 @@ map.nodes[24897354] = Rare({
     rewards = {
         Achievement({id = 63358, criteria = 115784}),
         Reputation({id = 2772, gain = 50, quest = 98346}),
-        Transmog({item = 280694, type = L['1h_sword']}), -- Blade of the Forgotten
         Transmog({item = 280711, type = L['mail']}), -- Pitted Specter Shackles
+        Transmog({item = 280694, type = L['1h_sword']}), -- Blade of the Forgotten
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -81,6 +86,7 @@ map.nodes[31665672] = Rare({
         Achievement({id = 63358, criteria = 115284}),
         Reputation({id = 2772, gain = 50, quest = 98347}),
         Transmog({item = 280708, type = L['leather']}), -- Venom-Shelled Sash
+        Transmog({item = 280690, type = L['bow']}), -- Bow of the Snapper
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -92,7 +98,9 @@ map.nodes[43855086] = Rare({
     rewards = {
         Achievement({id = 63358, criteria = 115281}),
         Reputation({id = 2772, gain = 50, quest = 98348}),
+        Transmog({item = 276026, type = L['leather']}), -- Shadowclaw Legguards
         Transmog({item = 280702, type = L['cloth']}), -- Mantle of the Riser
+        Transmog({item = 280691, type = L['dagger']}), -- Dagger of the Slithering Ritual
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -104,8 +112,10 @@ vault_map2.nodes[38401769] = Rare({
     rewards = {
         Achievement({id = 63358, criteria = 115282}),
         Achievement({id = 62601, criteria = 113661}),
-        Reputation({id = 2772, gain = 50, quest = 98349}), Spacer(),
-        Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
+        Reputation({id = 2772, gain = 50, quest = 98349}),
+        Transmog({item = 280701, type = L['cloth']}), -- Waistwrap of the Fanged
+        Transmog({item = 280698, type = L['2h_sword']}), -- Szarith's Underbelly Slicer
+        Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
 }) -- Szarith the Fanged
@@ -116,23 +126,26 @@ map.nodes[70174529] = Rare({
     rewards = {
         Achievement({id = 63358, criteria = 110172}),
         Reputation({id = 2772, gain = 50, quest = 98350}),
-        Transmog({item = 280710, type = L['mail']}), -- Garsecg's Barnacled Girdle
         Transmog({item = 280714, type = L['plate']}), -- Hull Render Hauberk
+        Transmog({item = 280710, type = L['mail']}), -- Garsecg's Barnacled Girdle
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
 }) -- Garsecg
 
-map.nodes[52064479] = Rare({
+lost_priest.nodes[63226229] = Rare({
     id = 258920,
     quest = 94860,
+    location = L['in_building'],
+    parent = map.id,
     rewards = {
         Achievement({id = 63358, criteria = 115283}),
         Reputation({id = 2772, gain = 50, quest = 98351}),
         Transmog({item = 280693, type = L['staff']}), -- Staff of All-Knowing
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
-    }
+    },
+    pois = {POI({points = {52304310}, label = L['poi_entrance_label']})}
 }) -- Nar'zira
 
 map.nodes[57216417] = Rare({
@@ -140,8 +153,9 @@ map.nodes[57216417] = Rare({
     quest = 94619,
     rewards = {
         Achievement({id = 63358, criteria = 115285}),
-        Reputation({id = 2772, gain = 50, quest = 98352}), Spacer(),
-        Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
+        Reputation({id = 2772, gain = 50, quest = 98352}),
+        Transmog({item = 280695, type = L['1h_axe']}), -- Skully's Skullcleaver
+        Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
 }) -- Coin-Eye Skully
@@ -153,6 +167,7 @@ map.nodes[70036344] = Rare({
         Achievement({id = 63358, criteria = 115286}),
         Reputation({id = 2772, gain = 50, quest = 98353}),
         Transmog({item = 280689, type = L['polearm']}), -- Big Mon's Big Spear
+        Transmog({item = 280713, type = L['plate']}), -- Big Mon's Buckle
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -165,6 +180,7 @@ map.nodes[58534006] = Rare({
         Achievement({id = 63358, criteria = 115287}),
         Reputation({id = 2772, gain = 50, quest = 98354}),
         Transmog({item = 280706, type = L['leather']}), -- Sss'alik's Rotting Claws
+        Transmog({item = 280700, type = L['cloth']}), -- Armbands of the Rotten Claw
         Transmog({item = 276052, type = L['bow']}), -- Venomshot Greatbow
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
@@ -178,6 +194,7 @@ map.nodes[52053229] = Rare({
         Achievement({id = 63358, criteria = 115288}),
         Reputation({id = 2772, gain = 50, quest = 98355}),
         Transmog({item = 280712, type = L['plate']}), -- Bracers of the Sleeping Hydra
+        Transmog({item = 280709, type = L['mail']}), -- Triple Threat Pauldrons
         Spacer(), Section(L['shared_drops']), Mount({item = 276803, id = 3061}), -- Ruby Writhe
         Mount({item = 276549, id = 3051}) -- Topaz Skyfang
     }
@@ -593,6 +610,38 @@ vault_map2.nodes[40006793] = SoftUnderbelly({
     rewards = {Achievement({id = 62601, criteria = 113662})}
 }) -- Vserix the Sneaky (placeholder location/quest) also 47340609
 ]] --
+-------------------------------------------------------------------------------
+------------------------------ MYSTERIOUS MIXING ------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[57404870] = MysteriousMixing({
+    id = 254599,
+    quest = 97016,
+    questDeps = 97026,
+    requires = ns.requirement.Reputation(2772, 3, true),
+    note = L['mysterious_mixing_note'],
+    rewards = {
+        Achievement({
+            id = 63432,
+            criteria = {
+                {id = 115810, note = '3x {item:276117}'},
+                {id = 115811, note = '1x {item:276126} + 2x {item:276117}'},
+                {id = 115812, note = '1x {item:276124} + 2x {item:276117}'},
+                {id = 115815, note = '3x {item:276126}'},
+                {id = 115814, note = '2x {item:276126} + 1x {item:276117}'},
+                {id = 115816, note = '1x {item:276124} + 2x {item:276126}'},
+                {id = 115819, note = '3x {item:276124}'},
+                {id = 115817, note = '2x {item:276124} + 1x {item:276117}'},
+                {id = 115818, note = '2x {item:276124} + 1x {item:276126}'},
+                {
+                    id = 115813,
+                    note = '1x {item:276124} + 1x {item:276126} + 1x {item:276117}'
+                }
+            }
+        })
+    }
+}) -- Ofi the Sly (Tokka's Landing)
+
 -------------------------------------------------------------------------------
 ------------------------------- THE HONORED DEAD ------------------------------
 -------------------------------------------------------------------------------
