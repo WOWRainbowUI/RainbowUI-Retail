@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "koKR")
 if not L then return end
 
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras가 카운트다운 임계값 색상을 관리합니다. MiniAuras > Misc > Countdown Colours에서 설정하세요."
+L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = 투명, 100% = 완전히 어둡게. 모든 MiniAuras 모듈 그룹에 적용됩니다. 80%는 MiniAuras가 직접 그리는 쿨다운 효과와 같습니다."
 
 -- Core
 L["Cannot open options in combat."] = "전투 중에는 옵션을 열 수 없습니다."

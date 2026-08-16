@@ -11,7 +11,7 @@ local CM = C.Adapter.CooldownManager
 local VIEWER_PATTERNS = C.Classifier.CooldownManagerViewerPatterns
 
 local hooksecurefunc = hooksecurefunc
-local C_Timer_After = C_Timer.After
+local RunNextFrame = addon.RunNextFrame
 local GetTime = GetTime
 local pairs = pairs
 local setmetatable = setmetatable
@@ -143,7 +143,7 @@ local function QueueBuffIconOwnerResync(owner)
 
     queuedBuffIconOwners[owner] = true
 
-    C_Timer_After(0, function()
+    RunNextFrame(function()
         queuedBuffIconOwners[owner] = nil
 
         if not owner or MCE:IsForbidden(owner) then
@@ -226,7 +226,7 @@ local function HookCooldownInstance(cooldown, viewerType)
                and CanAccessAllValues(duration, modRate)
                and type(duration) == "number"
                and duration > 0 then
-                durationObject = DurationColor:CreateDurationFromEndTime(GetTime() + duration, duration, modRate or 1)
+                durationObject = DurationColor:CreateTransientDuration(GetTime() + duration, duration, modRate or 1)
             end
             ForwardCooldownUpdate(self, durationObject)
         end)
@@ -320,7 +320,7 @@ local function HookViewerRefresh(viewerFrame, viewerType)
 
             queuedViewerRefreshes[self] = true
 
-            C_Timer_After(0, function()
+            RunNextFrame(function()
                 queuedViewerRefreshes[self] = nil
 
                 if not self or MCE:IsForbidden(self) then

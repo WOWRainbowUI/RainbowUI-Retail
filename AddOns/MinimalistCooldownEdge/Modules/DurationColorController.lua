@@ -14,6 +14,7 @@ local setmetatable = setmetatable
 local strfind, strlower = string.find, string.lower
 local floor, max = math.floor, math.max
 local GetTime = GetTime
+local NewTicker = addon.NewTicker
 
 local issecretvalue = issecretvalue
 
@@ -48,6 +49,34 @@ local nativeDurationFormatters = {}
 local nativeFlatColorCurves = {}
 
 local durationObjectCache = {}
+local durationObjectCacheCount = 0
+
+-- The cache is fed by hooks on the global Cooldown metatable, so every cooldown
+-- in the UI contributes an entry whether or not MiniCE manages it. Purging must
+-- therefore be self-driven: hanging it off the duration color ticker leaks for
+-- the whole session whenever that feature is disabled.
+local function PurgeExpiredDurationObjects()
+    local now = GetTime()
+    local remaining = 0
+    for endTime in pairs(durationObjectCache) do
+        -- endTime is an absolute timestamp; entries past it are expired
+        if endTime <= now then
+            durationObjectCache[endTime] = nil
+        else
+            remaining = remaining + 1
+        end
+    end
+
+    -- Still saturated means the buckets are mostly future end times, which no
+    -- sweep can reclaim. Drop them wholesale: the cache only deduplicates, and
+    -- objects already bound to a cooldown stay referenced by that cooldown.
+    if remaining >= STYLER_CONSTANTS.DurationCacheMaxEntries then
+        wipe(durationObjectCache)
+        remaining = 0
+    end
+
+    durationObjectCacheCount = remaining
+end
 
 local function GetOrCreateDurationObject(endTime, duration, modRate)
     if type(endTime) ~= "number" or type(duration) ~= "number" or duration <= 0 then return nil end
@@ -55,8 +84,15 @@ local function GetOrCreateDurationObject(endTime, duration, modRate)
 
     local byEnd = durationObjectCache[endTime]
     if not byEnd then
-        byEnd = {}
-        durationObjectCache[endTime] = byEnd
+        if durationObjectCacheCount >= STYLER_CONSTANTS.DurationCacheMaxEntries then
+            PurgeExpiredDurationObjects()
+            byEnd = durationObjectCache[endTime]
+        end
+        if not byEnd then
+            byEnd = {}
+            durationObjectCache[endTime] = byEnd
+            durationObjectCacheCount = durationObjectCacheCount + 1
+        end
     end
 
     local byDur = byEnd[duration]
@@ -76,14 +112,16 @@ local function GetOrCreateDurationObject(endTime, duration, modRate)
     return cached
 end
 
-local function PurgeExpiredDurationObjects()
-    local now = GetTime()
-    for endTime, byEnd in pairs(durationObjectCache) do
-        -- endTime is an absolute timestamp; entries past it are expired
-        if endTime <= now then
-            durationObjectCache[endTime] = nil
-        end
-    end
+-- GetTime()-derived end times are unique per call, so caching them can never
+-- hit. Hand back a plain object the garbage collector can reclaim instead.
+local function CreateUncachedDurationObject(endTime, duration, modRate)
+    if type(endTime) ~= "number" or type(duration) ~= "number" or duration <= 0 then return nil end
+
+    local object = C_DurationUtil.CreateDuration()
+    if not (object and object.SetTimeFromEnd) then return nil end
+
+    object:SetTimeFromEnd(endTime, duration, modRate or 1)
+    return object
 end
 
 -- =========================================================================
@@ -166,6 +204,16 @@ end
 
 function DurationColor:CreateDurationFromEndTime(endTime, duration, modRate)
     return GetOrCreateDurationObject(endTime, duration, modRate or 1)
+end
+
+-- For end times derived from GetTime(): unique per call, so never cached.
+function DurationColor:CreateTransientDuration(endTime, duration, modRate)
+    return CreateUncachedDurationObject(endTime, duration, modRate or 1)
+end
+
+-- Diagnostics: lets /run inspect cache growth without a debug UI.
+function DurationColor:GetDurationCacheSize()
+    return durationObjectCacheCount
 end
 
 function DurationColor:CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
@@ -675,15 +723,28 @@ local function GetNativeFlatColorCurve(color)
     return curve
 end
 
-local function GetNativeDurationTextCurve(sourceKey, config)
+local function UsesThresholdColorsForSource(sourceKey, config)
     local durationConfig = GetDurationTextColorsConfig()
-    if durationConfig and durationConfig.enabled
-       and config and config.enabled == true
-       and IsThresholdColorAllowedForSource(sourceKey, config) then
+    return durationConfig and durationConfig.enabled == true
+        and config and config.enabled == true
+        and IsThresholdColorAllowedForSource(sourceKey, config)
+        or false
+end
+
+local function GetNativeDurationTextCurve(sourceKey, config)
+    if UsesThresholdColorsForSource(sourceKey, config) then
         local curve = GetColorCurve()
         if curve then return curve end
     end
     return GetNativeFlatColorCurve(config and config.textColor)
+end
+
+function DurationColor:UsesThresholdColorsForSource(sourceKey, config)
+    return UsesThresholdColorsForSource(sourceKey, config)
+end
+
+function DurationColor:GetDurationTextCurve(sourceKey, config)
+    return GetNativeDurationTextCurve(sourceKey, config)
 end
 
 function DurationColor:RefreshNativeUnitFrameDurationText(cdFrame, sourceKey, config)
@@ -793,6 +854,10 @@ end
 
 function DurationColor:RefreshTrackedDurationColor(cdFrame, sourceKey, config)
     local fs = frameState[cdFrame]
+    if fs and fs.betterBlizzPlatesOwnsTimerColors == true then
+        self:ClearTrackedDurationColor(cdFrame)
+        return false
+    end
     if fs and fs.unitFrameThresholdColorsDisabled == true then
         self:ClearTrackedDurationColor(cdFrame)
         return false
@@ -906,7 +971,7 @@ end
 
 StartTicker = function()
     if durationColorTicker then return end
-    durationColorTicker = C_Timer.NewTicker(STYLER_CONSTANTS.DurationColorTickerInterval, UpdateDurationColors)
+    durationColorTicker = NewTicker(STYLER_CONSTANTS.DurationColorTickerInterval, UpdateDurationColors)
 end
 
 -- =========================================================================
@@ -919,7 +984,8 @@ function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
     -- Action bars re-fetch live duration data, so avoid extra validation work.
     local category = Registry and Registry:GetCategory(cooldown)
     local trackedState = frameState[cooldown]
-    if trackedState and (trackedState.unitFrameNativeDurationText == true
+    if trackedState and (trackedState.betterBlizzPlatesOwnsTimerColors == true
+       or trackedState.unitFrameNativeDurationText == true
        or trackedState.miniAurasNativeDurationText == true
        or trackedState.unitFrameThresholdColorsDisabled == true) then
         return
@@ -976,6 +1042,7 @@ function DurationColor:Reset()
     wipe(activeDurationFrames)
     activeDurationFrameCount = 0
     wipe(durationObjectCache)
+    durationObjectCacheCount = 0
     wipe(nativeDurationFormatters)
     wipe(nativeFlatColorCurves)
     self:InvalidateColorCurve()

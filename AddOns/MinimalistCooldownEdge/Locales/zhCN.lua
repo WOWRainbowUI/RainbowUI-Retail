@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "zhCN")
 if not L then return end
 
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras 自行管理倒计时阈值颜色。请在 MiniAuras > Misc > Countdown Colours 中配置。"
+L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = 完全透明，100% = 完全变暗。适用于所有 MiniAuras 模块分组；80% 与 MiniAuras 自身绘制的冷却遮罩一致。"
 
 -- Core
 L["Cannot open options in combat."] = "战斗中无法打开选项。"

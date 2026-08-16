@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "itIT")
 if not L then return end
 
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras gestisce i colori di soglia del conto alla rovescia. Configurali in MiniAuras > Misc > Countdown Colours."
+L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = trasparente, 100% = completamente scuro. Si applica a tutti i gruppi di moduli di MiniAuras; l'80% corrisponde allo swipe disegnato da MiniAuras."
 
 -- Core
 L["Cannot open options in combat."] = "Impossibile aprire le opzioni in combattimento."

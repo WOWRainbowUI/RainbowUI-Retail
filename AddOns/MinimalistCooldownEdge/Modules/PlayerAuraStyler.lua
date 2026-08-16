@@ -10,7 +10,8 @@ local ipairs, pairs, select = ipairs, pairs, select
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
-local C_Timer_After = C_Timer.After
+local RunNextFrame = addon.RunNextFrame
+local RunAfter = addon.RunAfter
 local GetTime = GetTime
 local _G = _G
 
@@ -1137,7 +1138,7 @@ local function StyleElvUIAuraButtonSoon(button)
     if not StyleElvUIAuraButton(button) then
         -- ElvUI sets the cooldown a frame before the native countdown
         -- FontString exists, so retry once on the next tick.
-        C_Timer_After(0.05, function()
+        RunAfter(0.05, function()
             StyleElvUIAuraButton(button)
         end)
     end
@@ -1227,7 +1228,7 @@ function PlayerAuraStyler:ScheduleForceUpdate()
     end
 
     pendingForceUpdate = true
-    C_Timer_After(0, function()
+    RunNextFrame(function()
         pendingForceUpdate = false
         self:ForceUpdateAll()
     end)

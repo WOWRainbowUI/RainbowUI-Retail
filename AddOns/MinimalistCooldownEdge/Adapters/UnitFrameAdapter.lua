@@ -10,7 +10,7 @@ local strfind = string.find
 local unpack = unpack
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
-local C_Timer_After = C_Timer.After
+local RunNextFrame = addon.RunNextFrame
 
 local CATEGORY = C.Categories
 local UF = C.Adapter.UnitFrames
@@ -32,6 +32,11 @@ local CUSTOM_ROOTS = {
 local CUSTOM_ROOT_BY_NAME = {}
 for _, rootInfo in ipairs(CUSTOM_ROOTS) do
     CUSTOM_ROOT_BY_NAME[rootInfo.name] = rootInfo
+end
+
+local CUSTOM_GROUP_BY_KEY = {}
+for _, group in ipairs(CUSTOM_GROUPS) do
+    CUSTOM_GROUP_BY_KEY[group.key] = group
 end
 
 local BETTERBLIZZ_HOST_KEYS = { "target", "focus" }
@@ -350,6 +355,7 @@ end
 
 local function RegisterAuraButton(button, style, thresholdColorsDisabled)
     if not MCE:CanUseFrameAsTableKey(button) then return end
+    HookCustomAuraButtonBindings(button)
     local cooldown = GetButtonCooldown(button)
     if not cooldown then return end
 
@@ -532,6 +538,8 @@ end
 local function InitializeCustomAuraButton(host, button, group)
     if not button then return end
 
+    HookCustomAuraButtonBindings(button)
+
     -- CustomAuraContainer reserves the configured cell size but does not
     -- resize the AuraButton itself (unlike Blizzard's native target layout).
     button:SetSize(group.size, group.size)
@@ -618,6 +626,31 @@ local function GetConfiguredMaxCount(root, field, fallback)
     return fallback
 end
 
+-- MiniCE owns the target/focus aura container on 12.1, so Blizzard's own
+-- "only my debuffs" filter no longer reaches these auras. Zeroing a group's
+-- frame count is the supported way to hide it without rebuilding the
+-- container, and it re-applies on every host sync.
+local function GetGroupMaxCount(root, group)
+    if not group.isMine then
+        local config = GetUnitFrameConfig()
+        local onlyMine
+        if config then
+            -- Explicit branch: an and/or chain would fall through to the debuff
+            -- setting whenever onlyMineBuffs is false.
+            if group.helpful then
+                onlyMine = config.onlyMineBuffs
+            else
+                onlyMine = config.onlyMineDebuffs
+            end
+        end
+        if onlyMine == true then return 0 end
+    end
+
+    return group.helpful
+        and GetConfiguredMaxCount(root, "maxBuffs", group.maxCount)
+        or GetConfiguredMaxCount(root, "maxDebuffs", group.maxCount)
+end
+
 local function ConfigureGroupLayouts(host)
     local root = host.root
     local isFriendly = false
@@ -647,6 +680,12 @@ local function ConfigureGroupLayouts(host)
             elementHeight = size,
             layoutIndex = index,
         })
+
+        local group = CUSTOM_GROUP_BY_KEY[groupKey]
+        if group then
+            SafeCall(host.container, "SetAuraGroupMaxFrameCount", groupKey,
+                GetGroupMaxCount(root, group))
+        end
     end
 
     local buffsOnTop = GetAccessibleBoolean(MCE:SafeTableGet(root, "buffsOnTop")) == true
@@ -797,6 +836,9 @@ local function CreateCustomHost(rootInfo)
             return nil
         end
 
+        -- Always register at full capacity; ConfigureGroupLayouts below applies
+        -- the "only mine" visibility toggles, so a hidden group never has to
+        -- survive AddAuraGroup with a zero frame count.
         local maxCount = group.helpful
             and GetConfiguredMaxCount(root, "maxBuffs", group.maxCount)
             or GetConfiguredMaxCount(root, "maxDebuffs", group.maxCount)
@@ -959,6 +1001,7 @@ local function InstallBetterBlizzAuraStyleWrapper()
             wrappedOptions[key] = value
         end
         wrappedOptions.initializeFrame = function(button, ...)
+            HookCustomAuraButtonBindings(button)
             initializeFrame(button, ...)
             FinalizeBetterBlizzAuraButtonStyle(button)
         end
@@ -1005,7 +1048,7 @@ local function ScheduleHostSync(rootName)
     if pendingRootSync[rootName] then return end
     pendingRootSync[rootName] = true
 
-    C_Timer_After(0, function()
+    RunNextFrame(function()
         pendingRootSync[rootName] = nil
         local rootInfo = CUSTOM_ROOT_BY_NAME[rootName]
         if rootInfo then
@@ -1042,7 +1085,7 @@ end
 local function ScheduleBetterBlizzRefresh()
     if betterBlizzRefreshPending then return end
     betterBlizzRefreshPending = true
-    C_Timer_After(0, function()
+    RunNextFrame(function()
         betterBlizzRefreshPending = false
         MCE:ForceUpdateAll(true)
     end)
@@ -1060,15 +1103,6 @@ local function HookBetterBlizzFrames()
 
     betterBlizzHooked = true
 
-    if type(MCE:SafeTableGet(bbf, "UpdateUserAuraSettings")) == "function" then
-        hooksecurefunc(bbf, "UpdateUserAuraSettings", function()
-            -- BBF refreshes these settings immediately before it creates the
-            -- Target/Focus AuraContainers. Retry the Blizzard AuraButton hook
-            -- here so every pooled button is captured while it is still public.
-            HookCustomAuraButtonBindings()
-        end)
-    end
-
     hooksecurefunc(bbf, "HookPlayerAndTargetAuras", function()
         -- BBF may have just taken ownership of the native aura slots and
         -- created a new pool of public cooldowns. Rebuild once after its setup
@@ -1085,7 +1119,6 @@ function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.Unitframe, self)
 
-    HookCustomAuraButtonBindings()
     HookBetterBlizzFrames()
     for _, rootInfo in ipairs(CUSTOM_ROOTS) do
         HookBlizzardRoot(rootInfo)
@@ -1101,11 +1134,8 @@ function Adapter:OnEnable()
     eventFrame:SetScript("OnEvent", function(_, event, arg1)
         if event == "ADDON_LOADED" then
             if arg1 == "BetterBlizzFrames" then
-                HookCustomAuraButtonBindings()
                 HookBetterBlizzFrames()
                 ScheduleBetterBlizzRefresh()
-            elseif arg1 == "Blizzard_AuraContainer" then
-                HookCustomAuraButtonBindings()
             end
             return
         end
@@ -1273,48 +1303,27 @@ do
     local durationHooked = false
     local countHooked = false
     local customAuraButtonAPI
-    local customAuraButtonProbe
-    local customAuraContainerLoadAttempted = false
 
-    local function CreateCustomAuraButtonProbe()
-        local createOk, probe = pcall(
-            CreateFrame, "AuraButton", nil, UIParent, "CustomAuraButtonTemplate")
-        if not createOk or not probe then
-            return nil
-        end
-
-        pcall(probe.Hide, probe)
-        local meta = getmetatable(probe)
-        local api = meta and meta.__index or nil
-        if type(api) ~= "table" then
-            return nil
-        end
-
-        customAuraButtonProbe = probe
-        return api
-    end
-
-    local function GetCustomAuraButtonAPI()
+    local function GetCustomAuraButtonAPI(button)
         if customAuraButtonAPI then
             return customAuraButtonAPI
         end
+        if not MCE:CanUseFrameAsTableKey(button) then return nil end
 
-        local api = CreateCustomAuraButtonProbe()
-        if not api and not customAuraContainerLoadAttempted then
-            customAuraContainerLoadAttempted = true
-            if C_AddOns and type(C_AddOns.LoadAddOn) == "function" then
-                pcall(C_AddOns.LoadAddOn, "Blizzard_AuraContainer")
-                api = CreateCustomAuraButtonProbe()
-            end
+        local metaOk, meta = pcall(getmetatable, button)
+        if not metaOk or type(meta) ~= "table" then return nil end
+        local api = MCE:SafeTableGet(meta, "__index")
+        if type(api) ~= "table"
+           or type(MCE:SafeTableGet(api, "SetDurationCooldown")) ~= "function"
+           or type(MCE:SafeTableGet(api, "SetApplicationCount")) ~= "function" then
+            return nil
         end
-
-        if not api then return nil end
         customAuraButtonAPI = api
         return customAuraButtonAPI
     end
 
-    HookCustomAuraButtonBindings = function()
-        local api = GetCustomAuraButtonAPI()
+    HookCustomAuraButtonBindings = function(button)
+        local api = GetCustomAuraButtonAPI(button)
         if not api then return end
 
         if not durationHooked
@@ -1414,9 +1423,5 @@ do
     end
 end
 
--- Install during file loading when Blizzard_AuraContainer is already present;
--- OnEnable retries for load-order variants. This captures public output
--- widgets inside third-party initialize callbacks before 12.1 restricts them.
-HookCustomAuraButtonBindings()
 InstallBetterBlizzAuraStyleWrapper()
 HookBetterBlizzFrames()
