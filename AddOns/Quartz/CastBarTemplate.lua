@@ -98,9 +98,6 @@ end
 -- Common cleanup after cast ends
 local function CleanupCastEnd(self)
 	self.TimeText:SetText("")
-	if self.NoInterruptOverlay then
-		self.NoInterruptOverlay:Hide()
-	end
 	if self.NoInterruptBorderOverlay then
 		self.NoInterruptBorderOverlay:Hide()
 	end
@@ -256,25 +253,18 @@ end
 local function ToggleCastNotInterruptible(self, notInterruptible, init)
 	local db = self.config
 
-	-- use overlay with SetAlphaFromBoolean
-	if issecretvalue(notInterruptible) then
-		if self.NoInterruptOverlay and db.noInterruptChangeColor then
-			-- Set the overlay color from options
-			self.NoInterruptOverlay:SetStatusBarTexture(media:Fetch("statusbar", db.texture))
-			self.NoInterruptOverlay:SetStatusBarColor(unpack(db.noInterruptColor))
-			-- Animate overlay like main bar if we have a duration object
-			if self.durationObject and self.NoInterruptOverlay.SetTimerDuration then
-				local direction = self.channeling and Enum.StatusBarTimerDirection.RemainingTime or Enum.StatusBarTimerDirection.ElapsedTime
-				self.NoInterruptOverlay:SetTimerDuration(self.durationObject, Enum.StatusBarInterpolation.Immediate, direction)
-			end
-			-- Show the overlay (alpha controls visibility)
-			self.NoInterruptOverlay:Show()
-			-- Set alpha based on secret boolean (true = alpha 1, false = alpha 0)
-			self.NoInterruptOverlay:SetAlphaFromBoolean(notInterruptible, 1, 0)
-		elseif self.NoInterruptOverlay then
-			self.NoInterruptOverlay:Hide()
-		end
-		
+	local isSecret = issecretvalue(notInterruptible)
+	if not isSecret and not notInterruptible then
+		notInterruptible = false
+	end
+
+	if db.noInterruptChangeColor then
+		local nr, ng, nb = unpack(db.noInterruptColor)
+		local br, bg, bb = unpack(self.casting and Quartz3.db.profile.castingcolor or Quartz3.db.profile.channelingcolor)
+		self.Bar:GetStatusBarTexture():SetVertexColorFromBoolean(notInterruptible, CreateColor(nr, ng, nb, 1), CreateColor(br, bg, bb, 1))
+	end
+
+	if isSecret then
 		-- Shield handling with SetAlphaFromBoolean
 		if self.Shield then
 			if not db.hideicon and db.noInterruptShield and self.Shield.SetAlphaFromBoolean then
@@ -306,14 +296,6 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 		return
 	end
 
-	-- Non-secret path: change bar color directly
-	if notInterruptible and db.noInterruptChangeColor then
-		self.Bar:SetStatusBarColor(unpack(db.noInterruptColor))
-	end
-	-- Hide overlays (not needed for non-secret path)
-	if self.NoInterruptOverlay then
-		self.NoInterruptOverlay:Hide()
-	end
 	if self.NoInterruptBorderOverlay then
 		self.NoInterruptBorderOverlay:Hide()
 	end
@@ -634,8 +616,6 @@ function CastBarTemplate:ApplySettings()
 
 	self:SetFrameStrata(db.strata)
 
-	ToggleCastNotInterruptible(self, self.lastNotInterruptible, true)
-
 	local iconwidth = db.h + db.icongap
 	local iconoffset = db.hideicon and 0 or (iconwidth/2 * (db.iconposition == "left" and 1 or -1))
 	local castbarwidth = db.hideicon and db.w or db.w-iconwidth
@@ -645,6 +625,8 @@ function CastBarTemplate:ApplySettings()
 	self.Bar:SetHeight(db.h)
 	self.Bar:SetStatusBarTexture(media:Fetch("statusbar", db.texture))
 	self.Bar:SetMinMaxValues(0, 1)
+
+	ToggleCastNotInterruptible(self, self.lastNotInterruptible, true)
 
 	if db.hidetimetext then
 		self.TimeText:Hide()
@@ -1494,14 +1476,6 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 		bar.Shield:SetPoint("CENTER", bar.Icon, "CENTER", -2, -1)
 		bar.Shield:Hide()
 		
-		-- NoInterruptOverlay: overlays main bar, uses SetAlphaFromBoolean with noInterruptible
-		bar.NoInterruptOverlay = Quartz3:CreateStatusBar(nil, bar)
-		bar.NoInterruptOverlay:SetAllPoints(bar.Bar)
-		bar.NoInterruptOverlay:SetFrameLevel(bar.Bar:GetFrameLevel() + 1)
-		bar.NoInterruptOverlay:SetMinMaxValues(0, 1)
-		bar.NoInterruptOverlay:SetValue(1)
-		bar.NoInterruptOverlay:Hide()
-
 		-- NoInterruptBorderOverlay: border-only frame, uses SetAlphaFromBoolean with notInterruptible
 		bar.NoInterruptBorderOverlay = CreateFrame("Frame", nil, bar, "BackdropTemplate")
 		bar.NoInterruptBorderOverlay:SetAllPoints(bar)

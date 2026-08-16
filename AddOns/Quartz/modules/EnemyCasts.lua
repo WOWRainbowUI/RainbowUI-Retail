@@ -40,6 +40,7 @@ local bit_band, bit_bor = bit.band, bit.bor
 
 local locked = true
 local db, getOptions, castBar
+local barColorObj, noInterruptColorObj
 
 local defaults = {
 	profile = {
@@ -92,13 +93,7 @@ local castbars = setmetatable({}, {
 		bar:SetScript("OnHide", OnHide)
 		bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
 		bar:SetBackdropColor(0,0,0)
-		
-		-- Create NoInterruptOverlay for uninterruptible cast indication
-		bar.NoInterruptOverlay = Quartz3:CreateStatusBar(nil, bar)
-		bar.NoInterruptOverlay:SetAllPoints(bar)
-		bar.NoInterruptOverlay:SetFrameLevel(bar:GetFrameLevel() + 1)
-		bar.NoInterruptOverlay:Hide()
-		
+
 		-- TextFrame ensures text is always above bars and overlays (like CastBarTemplate)
 		bar.TextFrame = CreateFrame("Frame", nil, bar)
 		bar.TextFrame:SetAllPoints(bar)
@@ -555,29 +550,11 @@ do
 						bar.RaidIcon:Hide()
 					end
 
-					-- Handle notInterruptible status with overlay
-					if bar.NoInterruptOverlay then
-						if issecretvalue(notInterruptible) then
-							-- Use SetAlphaFromBoolean for secret value
-							bar.NoInterruptOverlay:SetStatusBarTexture(media:Fetch("statusbar", db.texture))
-							bar.NoInterruptOverlay:SetStatusBarColor(unpack(db.noInterruptColor or {1, 0.2, 0.2}))
-							bar.NoInterruptOverlay:SetMinMaxValues(0, 1)
-							bar.NoInterruptOverlay:SetTimerDuration(durationObj)
-							bar.NoInterruptOverlay:Show()
-							bar.NoInterruptOverlay:SetAlphaFromBoolean(notInterruptible, 1, 0)
-							-- Reset main bar to default color
-							bar:SetStatusBarColor(unpack(db.barcolor))
-						elseif notInterruptible then
-							-- Non-secret true: change bar color directly
-							bar:SetStatusBarColor(unpack(db.noInterruptColor or {1, 0.2, 0.2}))
-							bar.NoInterruptOverlay:Hide()
-						else
-							-- Interruptible: use normal bar color
-							bar:SetStatusBarColor(unpack(db.barcolor))
-							bar.NoInterruptOverlay:Hide()
-						end
+					if not issecretvalue(notInterruptible) and not notInterruptible then
+						notInterruptible = false
 					end
-					
+					bar:GetStatusBarTexture():SetVertexColorFromBoolean(notInterruptible, noInterruptColorObj, barColorObj)
+
 					bar:Show()
 				end
 			end
@@ -705,6 +682,11 @@ do
 
 	function Enemy:ApplySettings()
 		db = self.db.profile
+
+		local br, bg, bb = unpack(db.barcolor)
+		barColorObj = CreateColor(br, bg, bb, 1)
+		local nr, ng, nb = unpack(db.noInterruptColor)
+		noInterruptColorObj = CreateColor(nr, ng, nb, 1)
 
 		-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 		if not db.centerpos then
@@ -885,13 +867,13 @@ do
 							},
 							icons = {
 								type = "toggle",
-								name = L["Show Icons"],
-								desc = L["Show icons on the bars"],
+								name = L["Spell Icon"],
+								desc = L["Show the icon of the spell being cast"],
 								order = 110,
 							},
 							iconside = {
 								type = "select",
-								name = L["Icon Position"],
+								name = L["Spell Icon Position"],
 								desc = L["Set the side of the bar that the icon appears on"],
 								values = {["left"] = L["Left"], ["right"] = L["Right"]},
 								order = 111,
@@ -903,13 +885,13 @@ do
 							},
 							raidicons = {
 								type = "toggle",
-								name = L["Show Raid Icons"],
+								name = L["Raid Marker"],
 								desc = L["Show raid target markers on the cast bars"],
 								order = 111.5,
 							},
 							raidiconside = {
 								type = "select",
-								name = L["Raid Icon Position"],
+								name = L["Raid Marker Position"],
 								desc = L["Set the side of the bar that the raid icon appears on"],
 								values = {["left"] = L["Left"], ["right"] = L["Right"]},
 								order = 111.6,
