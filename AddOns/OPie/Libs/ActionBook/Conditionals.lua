@@ -442,8 +442,9 @@ securecall(function() -- race:token
 	KR:SetStateConditionalValue("race", map[raceToken] or raceToken)
 end)
 securecall(function() -- professions
+	KR:SetStateConditionalValue("prof", false)
 	local MODERN_PROFS = MODERN or CF_MISTS
-	local ct, ot, syncProfInner = {}, {}
+	local ct, ot, curProfState, syncProfInner = {}, {}, false
 	local map = MODERN_PROFS and {
 		[197]="tail", [165]="lw", [164]="bs",
 		[171]="alch", [202]="engi", [333]="ench", [755]="jc", [773]="scri",
@@ -496,7 +497,8 @@ securecall(function() -- professions
 	end or function()
 		local idx, nLines0 = 1, GetNumSkillLines()
 		while idx < nLines0 do
-			local hidx, text, isHeader, isExpanded = idx, GetSkillLineInfo(idx)
+			local hidx, curSkill, skey = idx
+			local text, isHeader, isExpanded = GetSkillLineInfo(idx)
 			if text and isHeader then
 				ExpandSkillHeader(idx)
 				repeat
@@ -533,11 +535,17 @@ securecall(function() -- professions
 			ct[cnd] = GetSpellInfo(GetSpellInfo(sid) or "\1") and 1 or nil
 		end
 		ct["eng8"] = GetSpellInfo(GetSpellInfo(UnitFactionGroup("player") == "Horde" and 265807 or 264492) or "\1") and 1 or nil
+		local s = false
 		for k,v in pairs(ct) do
 			if ot[k] ~= v then
 				KR:SetThresholdConditionalValue(k, v)
 				ot[k] = v
 			end
+			s = s and (s .. "/" .. k) or k
+		end
+		if curProfState ~= s then
+			curProfState = s
+			KR:SetStateConditionalValue("prof", s)
 		end
 		for k,v in pairs(ot) do
 			if ct[k] ~= v then
@@ -709,12 +717,30 @@ securecall(function() -- worldhover
 	wf:SetAllPoints(WorldFrame)
 end)
 securecall(function() -- imbuedmh, imbuedoh, imbuedrw
+	KR:SetStateConditionalValue("imbuedmh", false)
+	KR:SetStateConditionalValue("imbuedoh", false)
+	KR:SetStateConditionalValue("imbuedrw", false)
+	local weaponInfoOffset = {
+		imbuedmh = MODERN and 1,
+		imbuedoh = MODERN and 5,
+		imbuedrw = not MODERN and 9 or nil, -- BUG[Classic/2408]: SAHT ignores ranged weapon; Modern has no ranged slot
+	}
+	local function checkWeaponImbued(name, _args)
+		local isImbued, _expire, _charges, _enchantID = select(weaponInfoOffset[name], GetWeaponEnchantInfo())
+		return not not isImbued
+	end
+	for k in pairs(weaponInfoOffset) do
+		KR:SetNonSecureConditional(k, checkWeaponImbued)
+	end
+	if MODERN then
+		return
+	end
 	local h = CreateFrame("Frame", nil, nil, "SecureAuraHeaderTemplate")
 	SecureHandlerSetFrameRef(h, "KR", KR:seclib())
 	SecureHandlerExecute(h, [[KR = self:GetFrameRef("KR")]])
 	local t1 = CreateFrame("Frame", nil, h, "SecureFrameTemplate")
 	local t2 = CreateFrame("Frame", nil, h, "SecureFrameTemplate")
-	local t3 = nil -- MODERN has no ranged slot; BUG[Classic/2408]: SAHT ignores ranged weapon
+	local t3 = nil -- BUG[Classic/2408]: SAHT ignores ranged weapon
 	h:SetAttribute("unit", "none")
 	h:SetAttribute("includeWeapons", -1)
 	h:SetAttribute("filter", "NONE")
@@ -726,16 +752,7 @@ securecall(function() -- imbuedmh, imbuedoh, imbuedrw
 		SecureHandlerWrapScript(sf, 'OnHide', h, [[KR:RunAttribute("UpdateStateConditional", self:GetAttribute("cname"), nil, "*")]])
 		sf:Hide()
 	end
-	KR:SetStateConditionalValue("imbuedmh", false)
-	KR:SetStateConditionalValue("imbuedoh", false)
 	h:Show()
-
-	if not MODERN then
-		KR:SetNonSecureConditional("imbuedrw", function(_, _args)
-			local isImbued, _expire, _charges, _enchantID = select(9, GetWeaponEnchantInfo())
-			return not not isImbued
-		end)
-	end
 end)
 securecall(function() -- bar:id (future-aware)
 	local CMD_SWAP, CMD_SET, NUM_PAGES = SLASH_SWAPACTIONBAR1, SLASH_CHANGEACTIONBAR1, NUM_ACTIONBAR_PAGES
@@ -988,28 +1005,9 @@ securecall(function() -- myth:token
 		return
 	end
 	local mapTokens = {
-		-- Mythic Plus [TWW S3]:
-		[2830]="aldani/eda",
-		[2773]="floodgate/flo",
-		[2662]="dawnbreaker/dwn",
-		[2660]="arakara/coe",
-		[2649]="priory/psf",
-		[2441]="tazavesh/tzv",
-		[2287]="atonement/hoa",
 		-- Raids:
 		[2769]="liberation/lou",
 		[2810]="manaforge/mfo",
-		-- Legion Remix M+:
-		[1651]="karazhan/kar",
-		[1456]="azshara/eoa",
-		[1477]="valor/hov",
-		[1458]="lair/nel",
-		[1571]="stars/cos",
-		[1466]="thicket/dht",
-		[1493]="vault/vow",
-		[1501]="rook/brh",
-		[1492]="maw/mos",
-		[1516]="arcway/arc",
 		-- Midnight S1:
 		[2526]="academy/aca",
 		[2811]="magterr/mgt",
@@ -1019,6 +1017,15 @@ securecall(function() -- myth:token
 		[1753]="sottrium/tri",
 		[2805]="windspire/wnd",
 		[2915]="xenas/npx",
+		-- Midnight S2:
+		[2993]="altar/aof",
+		[2813]="murder/row",
+		[2825]="nalorakk/den",
+		[2859]="blindvale/blv",
+		[2923]="voidscar/vsa",
+		[1762]="krest/rst",
+		[1877]="sethraliss/sss",
+		[2521]="rubypools/rlp",
 	}
 	local KEYSTONE_LINK_FRAGMENT = "|Hitem:180653:"
 	local KEYSTONE_ICON_ID = C_Item.GetItemIconByID(KEYSTONE_LINK_FRAGMENT)
@@ -1158,6 +1165,15 @@ securecall(function() -- Housing Return
 	end
 	EV.PLAYER_ENTERING_WORLD = syncReturn
 	EV.UPDATE_UI_WIDGET = syncReturn
+end)
+securecall(function() -- Warbank
+	KR:SetStateConditionalValue("warbank", false)
+	if MODERN then
+		function EV.PLAYER_ENTERING_WORLD()
+			local isAvailable = C_Bank.FetchBankLockedReason(2) == nil
+			KR:SetStateConditionalValue("warbank", isAvailable)
+		end
+	end
 end)
 
 securecall(function() -- Managed role units

@@ -264,7 +264,7 @@ do -- GhostIndication
 				spareSlices[cell], ret[i] = cell, nil
 			end
 			ret.incident, ret.count = incidentAngle, count
-			ret:SetPoint("CENTER", (mainRadius/0.80+radius)*cos(incidentAngle), (mainRadius/0.80+radius)*sin(incidentAngle))
+			ret:SetPoint("CENTER", (mainRadius/0.80+radius*1.1)*cos(incidentAngle), (mainRadius/0.80+radius*1.1)*sin(incidentAngle))
 			ret:Show()
 		end
 		activeGroup = ret
@@ -304,7 +304,7 @@ do -- GhostIndication
 end
 
 local SwitchIndicatorFactory, ValidateIndicator do
-	local CURRENT_API_LEVEL, REQ_API_LEVEL, CURRENT_API_LEVEL_OOD = 4, 3, MODERN and 4 or 3
+	local CURRENT_API_LEVEL, REQ_API_LEVEL, CURRENT_API_LEVEL_OOD = 4, MODERN and 4 or 3, MODERN and 4 or 3
 	local RequiredIndicatorMethods = {
 		SetPoint=0, SetScale=0, GetScale=0, SetShown=0, SetParent=0,
 		SetIcon=0, SetIconTexCoord=0, SetIconAtlas=3, SetIconVertexColor=0, SetDominantColor=0,
@@ -839,7 +839,11 @@ function iapi:Show(_, _, fastOpen)
 	EV.SPELL_UPDATE_COOLDOWN = forceMultiUpdate
 end
 function iapi:Hide()
-	setupTransitionAnimation("out", OnUpdate_ZoomOut)
+	if mainFrame:IsVisible() then
+		setupTransitionAnimation("out", OnUpdate_ZoomOut)
+	else
+		mainFrame:Hide()
+	end
 	GhostIndication:Deactivate()
 	if GameTooltip:IsOwned(proxyFrame) then
 		GameTooltip:Hide()

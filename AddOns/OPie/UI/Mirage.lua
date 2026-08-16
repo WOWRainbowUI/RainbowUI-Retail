@@ -32,6 +32,22 @@ local function cooldownFormat(cd)
 	elseif cd >= 9.95 then n = ceil(n) end
 	return f, n, unit
 end
+local createCDTextBinding if SECRETS then
+	local cdTextFormat = C_StringUtil.CreateNumericRuleFormatter()
+	cdTextFormat:AddBreakpoint({threshold=0, format=""})
+	cdTextFormat:AddBreakpoint({threshold=2^-20, step=0.1, format="%.1f"})
+	cdTextFormat:AddBreakpoint({threshold=9.95, step=1, format="%d"})
+	cdTextFormat:AddBreakpoint({threshold=90, format="%dm", components={div=60, step=1}})
+	cdTextFormat:AddBreakpoint({threshold=5400, format="%dh", components={div=3600, step=1}})
+	cdTextFormat:AddBreakpoint({threshold=259200, format="%dd", components={div=86400, step=1}})
+	function createCDTextBinding(fs)
+		local w = C_DurationUtil.CreateDurationTextBinding()
+		w:SetFontString(fs)
+		w:SetFormatter(cdTextFormat)
+		return w
+	end
+end
+
 local function adjustIconAspect(d, aspect)
 	if d.iconAspect ~= aspect then
 		d.iconAspect = aspect
@@ -95,30 +111,6 @@ local CreateCooldown, CallCooldownUpdate do
 		local function boundCurve(m, ...)
 			return bindCurve(m, curve(...))
 		end
-		local function bp(n, t)
-			return {breakpoint=n, abbreviation="|r" .. t, abbreviationIsGlobal=false, significandDivisor=n, fractionDivisor=1}
-		end
-		local sformat = string.format
-
-		local rdQuant = curve(0, 0,0,90,90, 90,1.5,5400,90, 5400,1.5,84600,23.5, 84600,23.5/24, 8596800,99.5)
-		local rdUnit = curve(1, 0,1e1, 90,1e2, 5400,1e3, 84600,1e4)
-		local rdDecimal = curve(1, 0,1, 9.95,0)
-		local timeAbbrevConfig = {locale="US",
-			--[[ BUG[2602/12.0.1]: cannot use cached configuration here due to memory corruption
-			config=CreateAbbreviateConfig={
-			--]]breakpointData={
-				bp(1e4, "d"),
-				bp(1e3, "h"),
-				bp(1e2, "m"),
-				bp(1e1, ""),
-			}
-		}
-		local function abbrevRemainingDuration(dur)
-			local quant = dur:EvaluateRemainingDuration(rdQuant)
-			local unit = dur:EvaluateRemainingDuration(rdUnit)
-			local prec = dur:EvaluateRemainingDuration(rdDecimal)
-			return sformat("%." .. prec .. "f|cff00000%s", quant, AbbreviateNumbers(unit, timeAbbrevConfig))
-		end
 
 		local sparkX, sparkY = C_CurveUtil.CreateCurve(), C_CurveUtil.CreateCurve() do
 			local function addX(px)
@@ -146,7 +138,6 @@ local CreateCooldown, CallCooldownUpdate do
 		end
 
 		return {
-			AbbrevRemainingDuration=abbrevRemainingDuration,
 			ZeroRemainingDurationAlpha=boundCurve("EvaluateRemainingDuration", 1, 0,0, 2^-40,1),
 			CooldownSpiralAngle=boundCurve("EvaluateRemainingPercent", 0, 0,0, 1,2*math.pi),
 			MaskedBorder={
@@ -204,12 +195,6 @@ local CreateCooldown, CallCooldownUpdate do
 		local pd, s0, s1 = d.parentControl, d, d.sst1
 		local dur, isRecharge, usable = d.cdDuration, d.cdIsRecharge, d.usable
 		local zero = dur and dur:IsZero()
-		if dur and pd[isRecharge and "rcTextShown" or "cdTextShown"] then
-			pd.cdText:SetText(Curve.AbbrevRemainingDuration(dur))
-			pd.cdText:SetAlpha(ev(zero, 0, 1))
-		else
-			pd.cdText:SetText("")
-		end
 		if dur then
 			s1.mask:SetRotation(Curve.CooldownSpiralAngle(dur), AROUND_LEFT)
 			pd.veil:SetAlpha(usable and (isRecharge and 0 or ev(zero, 0, 0.40)) or 0.40)
@@ -499,6 +484,9 @@ function Indicator:SetCooldown(remain, duration, usableCharge)
 	local d = getWidgetData(self, IndicatorData)
 	local cdd = d.cdControl
 	cdd.cdDuration, cdd.cdIsRecharge = nil
+	if SECRETS then
+		d.cdTextBinding:Disable()
+	end
 	if (duration or 0) <= 0 or (remain or 0) <= 0 then
 		d.cd:Hide()
 		d.cdText:SetText("")
@@ -569,6 +557,8 @@ end
 function Indicator:SetCooldownDuration(duration, isRecharge)
 	local d = getWidgetData(self, IndicatorData)
 	local cdd = d.cdControl
+	d.cdTextBinding:SetDuration(duration)
+	d.cdTextBinding:SetEnabled(d[isRecharge and "rcTextShown" or "cdTextShown"])
 	cdd.cdDuration, cdd.cdIsRecharge, cdd.usable, cdd.expire = duration, isRecharge, d.ustate == 0, nil
 	CallCooldownUpdate(cdd)
 end
@@ -609,7 +599,7 @@ local function CreateIndicator(name, parent, size, nested, gx)
 	d.cd, d.cdControl = CreateCooldown(ef, size, w, gx, d, d.iconmask)
 	w = d.cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline")
 		w:SetPoint("CENTER")
-	w, d.cdText = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
+	w, d.cdText, d.cdTextBinding = ef:CreateTexture(nil, "ARTWORK", nil, 2), w, createCDTextBinding and createCDTextBinding(w)
 		w:SetSize(60*size/64, 60*size/64)
 		w:SetPoint("CENTER")
 		w:SetColorTexture(0,0,0)

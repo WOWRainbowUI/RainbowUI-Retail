@@ -2,7 +2,7 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local EV, WR, AB, KR, RW, IM = T.Evie, T.Ware, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Kindred", 1,26), T.ActionBook:compatible("Rewire", 1,27), T.ActionBook:compatible("Imp", 1,11)
+local EV, WR, AB, KR, RW, IM = T.Evie, T.Ware, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Kindred", 1,36), T.ActionBook:compatible("Rewire", 1,27), T.ActionBook:compatible("Imp", 1,11)
 assert(EV and WR and AB and KR and RW and IM and 1, "Incompatible library bundle")
 local MODERN, CI_ERA, CF_CATA = COMPAT >= 10e4, COMPAT < 2e4, COMPAT < 10e4 and COMPAT > 4e4
 local playerClass, _, playerRace = UnitClassBase("player"), UnitRace("player")
@@ -347,13 +347,14 @@ securecall(function() -- SoD rune ability castable checks
 		RW:SetSpellCastableChecker(sid+0, checkRuneSpell)
 	end
 end)
-securecall(function() -- 4.4.0 misplaces secure commands
-	if not CF_CATA then
-		return
+securecall(function() -- Misplaced secure commands
+	if MODERN then
+		RW:ImportSlashCmd("TRANSMOG_OUTFIT", true, false)
+	elseif CF_CATA then
+		RW:ImportSlashCmd("WORLD_MARKER", true, false)
+		RW:ImportSlashCmd("CLEAR_WORLD_MARKER", true, false)
+		RW:ImportSlashCmd("EQUIP_SET", true, false)
 	end
-	RW:ImportSlashCmd("WORLD_MARKER", true, false)
-	RW:ImportSlashCmd("CLEAR_WORLD_MARKER", true, false)
-	RW:ImportSlashCmd("EQUIP_SET", true, false)
 end)
 securecall(function() -- Draenic Hologem usability limitation
 	if MODERN and playerRace ~= "Draenei" and playerRace ~= "LightforgedDraenei" then
@@ -402,16 +403,11 @@ securecall(function() -- FLIGHT_BLOCKER init
 	FLIGHT_BLOCKER = f
 end)
 securecall(function() -- MAYBE_FLYABLE: [anyflyable] mirror
-	if not (MODERN and (playerClass == "DRUID" or playerRace == "Dracthyr")) then
-		return
-	end
-	local f = CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
-	f:SetScript("OnAttributeChanged", function(_, a, v)
-		if a == "state-anyflyable" then
+	if MODERN and (playerClass == "DRUID" or playerRace == "Dracthyr") then
+		KR:RegisterFunDriver("[anyflyable] 1;", function(_, v)
 			MAYBE_FLYABLE = v == 1
-		end
-	end)
-	KR:RegisterStateDriver(f, "anyflyable", "[anyflyable] 1;")
+		end)
+	end
 end)
 
 securecall(function() -- Siren Isle flight restrictions
@@ -585,7 +581,7 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 		return
 	end
 	local G99_SPELL_ID, G99_QUEST_ID, questOK = 460013, 84352
-	local inUndermine, wf = false, CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
+	local inUndermine = false
 	local function pushG99SpellCastID()
 		RW:SetCastAlias("spell:" .. G99_SPELL_ID, C_Spell.GetSpellName(G99_SPELL_ID))
 		return "remove"
@@ -605,15 +601,12 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 		IM:SetMountPreference(inUndermine and G99_SPELL_ID or false)
 		AB:NotifyObservers("imptext")
 	end
-	wf:SetScript("OnAttributeChanged", function(_, a, v)
-		if a ~= "state-um" or (v == 1) == inUndermine then
-			return
+	KR:RegisterFunDriver('[in:undermine] 1; 0', function(_, v)
+		if (v == 1) ~= inUndermine then
+			inUndermine = v == 1
+			return hasUnlockedG99() and updateGroundMount()
 		end
-		inUndermine = v == 1
-		return hasUnlockedG99() and updateGroundMount()
 	end)
-	wf:Hide()
-	KR:RegisterStateDriver(wf, 'um', '[in:undermine] 1; 0')
 	RW:SetSpellCastableChecker(G99_SPELL_ID, function()
 		if hasUnlockedG99() and inUndermine then
 			return true, "q-g99"
@@ -695,4 +688,29 @@ securecall(function() -- Modern [12.0]: Nether[-Swept] Drake spell is not castab
 		return HAVE_NETHER_DRAKE and "remove"
 	end
 	EV.PLAYER_ENTERING_WORLD = checkDrake
+end)
+securecall(function() -- Warband Bank Distance Inhibitor usability
+	if MODERN then
+		local NO_WARBANK = false
+		KR:RegisterFunDriver("[warbank] 0; 1", function(_, v)
+			NO_WARBANK = v == 1
+		end)
+		AB:SetSpellIconOverride(460905, function()
+			if NO_WARBANK then
+				return 136116, false
+			end
+		end)
+	end
+end)
+securecall(function() -- BUG[12.1/2608]: Housing dashboard loading race condition
+	if not MODERN or C_AddOns.IsAddOnLoaded("Blizzard_HousingDashboard") then return end
+	function EV:ADDON_LOADED(a)
+		if a == "Blizzard_HousingDashboard" then
+			local a = HousingDashboardFrame.HouseDropdown and HousingDashboardFrame.HouseDropdown.playerHouseList
+			if a and a[1] then
+				TextureLoadingGroupMixin.AddTexture({textures=a[1]}, "__forceNextListUpdateDispatch")
+			end
+			return "remove"
+		end
+	end
 end)

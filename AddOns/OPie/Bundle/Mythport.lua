@@ -38,6 +38,9 @@ local portDriver = "" do
 		-- Midnight S1
 		academy=393273, magterr=1254572, maisara=1254559, saronpit=1254555,
 		skyreach=1254557, sottrium=1254551, windspire=1254400, xenas=1254563,
+		-- Midnight S2
+		altar=1286812, murder=1286809, nalorakk=1286807, blindvale=1286801,
+		voidscar=1286804, krest=1286831, sethraliss=1286828, rubypools=393256,
 	}) do
 		portDriver = portDriver .. "[myth:" .. k .. ",known:" .. v .. "] " .. v .. "; "
 	end
