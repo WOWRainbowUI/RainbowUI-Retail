@@ -34,6 +34,7 @@ local lsmlist = AceGUIWidgetLSMlists
 -- Upvalues
 -- GLOBALS: AuraContainerSortMethod AuraContainerSortDirection AnchorUtil Enum CreateColor
 -- GLOBALS: UnitCanAssist UnitCanAttack UnitIsFriend UnitIsEnemy issecretvalue
+-- GLOBALS: UnitIsConnected UnitPhaseReason UnitIsVisible
 local CreateFrame, UIParent = CreateFrame, UIParent
 local unpack, pairs, ipairs, pcall = unpack, pairs, ipairs, pcall
 
@@ -600,7 +601,26 @@ local function sectionMuted(section, state)
 	return state == "assist"
 end
 
+-- Out of AOI the identity gate drops every spell-ID filter, so sections lose their whitelists and show duplicates.
+local function unitReachable(unit)
+	if unit == "player" then return true end
+	local okConnected, connected = pcall(UnitIsConnected, unit)
+	if okConnected and not issecretvalue(connected) and not connected then
+		return false
+	end
+	local okPhase, phase = pcall(UnitPhaseReason, unit)
+	if okPhase and not issecretvalue(phase) and phase ~= nil then
+		return false
+	end
+	local okVisible, visible = pcall(UnitIsVisible, unit)
+	if okVisible and not issecretvalue(visible) and not visible then
+		return false
+	end
+	return true
+end
+
 local reaction = {}
+local reachable = {}
 local generation = {}
 
 local function createContainer(unit, sections)
@@ -645,7 +665,8 @@ local function configureContainer(unit)
 	container.sections = sections
 
 	local enabled = db[unit] and true or false
-	container:SetEnabled(enabled)
+	reachable[unit] = unitReachable(unit)
+	container:SetEnabled((enabled and reachable[unit]) and true or false)
 	container:SetShown((enabled and lockstate[unit]) and true or false)
 	if not enabled then return end
 
@@ -1436,6 +1457,9 @@ function Buff:OnEnable()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	self:RegisterEvent("UNIT_FACTION")
+	self:RegisterEvent("UNIT_PHASE", "UNIT_FACTION")
+	self:RegisterEvent("UNIT_CONNECTION", "UNIT_FACTION")
+	self:RegisterEvent("UNIT_AURA")
 
 	local function retexture(tex)
 		for _, entry in ipairs(buttons) do
@@ -1495,6 +1519,9 @@ end
 local function refreshUnit(unit)
 	local container = containers[unit]
 	if not container then return end
+	local canReach = unitReachable(unit)
+	reachable[unit] = canReach
+	pcall(container.SetEnabled, container, (db[unit] and canReach) and true or false)
 	local state = unitReaction(unit)
 	if state ~= reaction[unit] then
 		reaction[unit] = state
@@ -1517,6 +1544,15 @@ end
 
 function Buff:UNIT_FACTION(event, unit)
 	if unit == "target" or unit == "focus" then
+		refreshUnit(unit)
+	end
+end
+
+-- Crossing the AOI boundary changes the aura payload, so this is the trigger that fires on the transition itself.
+function Buff:UNIT_AURA(event, unit)
+	if unit ~= "target" and unit ~= "focus" then return end
+	if not containers[unit] then return end
+	if unitReachable(unit) ~= reachable[unit] then
 		refreshUnit(unit)
 	end
 end
