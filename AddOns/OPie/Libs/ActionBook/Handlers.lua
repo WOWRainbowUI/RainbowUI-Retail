@@ -1498,10 +1498,7 @@ securecall(function() -- /ping
 			local ci = INFO[TOKENS[clause] or clause]
 			if not ci then
 				local unit = target ~= "cursor" and target or "mouseover"
-				local guid = UnitGUID(unit)
-				local pingType = guid and issecretvalue(guid)
-				             and (UnitCanAttack("player", unit) and UnitIsEnemy("player", unit) and 4 or 5)
-				              or C_Ping.GetContextualPingTypeForUnit(guid)
+				local pingType = (UnitCanAttack("player", unit) and UnitIsEnemy("player", unit) and 4 or 5)
 				ci = INFO[pingType == 4 and 2 or 1]
 			end
 			local perm = (not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or not C_PartyInfo.GetRestrictPings())
@@ -1853,7 +1850,7 @@ securecall(function() -- outfit: id
 	local SF_PICKUP_FID, SF_DROP_FID, SF_OPICKUP_FID = 567489, 567524, 567565
 	local CTO_NAME, CTO_ICON = C_Spell.GetSpellName(CTO_SID), C_Spell.GetSpellTexture(CTO_SID)
 	local CLOBBER_SLOT = (CLASS == "DRUID" and 120 or 108) + 10
-	local unlockedOutfits = {[0]=true}
+	local unlockedOutfits, pfIdxCache = {[0]=true}, {}
 	local outfitAction, outfitName, outfitIcon = {}, {}, {}
 	local SLASH_USEOUTFIT = "/ab:useoutfit" do
 		local outfitButton = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
@@ -1921,9 +1918,14 @@ securecall(function() -- outfit: id
 					local b = oid == oid0 or C_TransmogOutfitInfo.GetActiveOutfitID() == oid
 					outfitButton:SetAttribute("type", "action")
 					outfitButton:SetAttribute("click-button", b and "RightButton" or "LeftButton")
+				else
+					local a, b = GetActionInfo(CLOBBER_SLOT)
+					securecall(error, "Failed to place outfit " .. string.join("/", tostringall(CLOBBER_SLOT, oid, a, b)))
 				end
 			else
 				ClearCursor()
+				local a, b = GetCursorInfo()
+				securecall(error, "Failed to pickup outfit " .. string.join("/", tostringall(oid, a, b)))
 			end
 		end)
 		outfitButton:SetScript("PostClick", function()
@@ -1956,7 +1958,7 @@ securecall(function() -- outfit: id
 			return name
 		end
 	end
-	local function setOutfitTooltip(tip, id)
+	local function setOutfitTooltip(noLockHint, tip, id)
 		local name = id == 0 and CTO_NAME or outfitName[id] or getOutfitName(id)
 		tip:SetText(HIGHLIGHT_FONT_COLOR_CODE .. (name or ""))
 		tip:AddLine(HIGHLIGHT_FONT_COLOR_CODE .. SPELL_CAST_TIME_INSTANT)
@@ -1965,16 +1967,23 @@ securecall(function() -- outfit: id
 		if dt then
 			tip:AddLine(dt, nil, nil, nil, true)
 		end
+		if noLockHint or C_TransmogOutfitInfo.GetActiveOutfitID() ~= id then
+			return -- No extra hint
+		end
 		local ncs = "|r\n" .. NORMAL_FONT_COLOR_CODE
-		if C_TransmogOutfitInfo.GetActiveOutfitID() ~= id then
-			-- No extra hint
-		elseif C_TransmogOutfitInfo.IsLockedOutfit(id) then
+		if C_TransmogOutfitInfo.IsLockedOutfit(id) then
 			tip:AddLine("\n|cffffffff" .. L"Appearance locked" .. ncs .. L"Use again to allow this apperance to be replaced by a Situation.", nil,nil,nil,1)
 		else
 			tip:AddLine("\n|cffffffff" .. L"Appearance unlocked" .. ncs .. L"Use again to prevent this apperance from being replaced by a Situation.", nil,nil,nil,1)
 		end
 	end
-	local function hintOutfit(id)
+	local function setOutfitTooltipAB(...)
+		return setOutfitTooltip(false, ...)
+	end
+	local function setOutfitTooltipSlash(...)
+		return setOutfitTooltip(true, ...)
+	end
+	local function hintOutfit(id, tipf)
 		local cdsid, now = id == 0 and CTO_SID or UTO_SID, GetTime()
 		local name = outfitName[id] or getOutfitName(id)
 		local icon = outfitIcon[id]
@@ -1988,14 +1997,17 @@ securecall(function() -- outfit: id
 			cdLeft, cdLength, cdEnabled = toCooldown(now, cdLeft, cdLength, cdEnabled)
 			usable = usable and cdLeft == 0
 		end
-		return usable, state, icon, name, 0, cdLeft, cdLength, setOutfitTooltip, id
+		return usable, state, icon, name, 0, cdLeft, cdLength, tipf, id
+	end
+	local function hintOutfitAB(id)
+		return hintOutfit(id, setOutfitTooltipAB)
 	end
 	local function createOutfit(id, flags)
 		if not (unlockedOutfits[id] or type(id) == "number" and C_TransmogOutfitInfo.GetOutfitInfo(id)) then
 			return
 		end
 		local sid = (flags == 1 and id > 0 and 1e5+id or id)
-		local aid = outfitAction[sid] or AB:CreateActionSlot(hintOutfit, id, "retext",SLASH_USEOUTFIT .. " " .. sid)
+		local aid = outfitAction[sid] or AB:CreateActionSlot(hintOutfitAB, id, "retext",SLASH_USEOUTFIT .. " " .. sid)
 		outfitAction[sid], unlockedOutfits[id] = aid, true
 		return aid
 	end
@@ -2011,11 +2023,31 @@ securecall(function() -- outfit: id
 			wipe(outfitName)
 			wipe(outfitIcon)
 		end
+		wipe(pfIdxCache)
 		if newID then
 			unlockedOutfits[newID] = true
 		end
 		AB:NotifyObservers("outfit")
 	end
+	RW:SetCommandHint(SLASH_TRANSMOG_OUTFIT1, 80, function(_, _, clause)
+		if clause == "" then
+			return true, hintOutfit(0, setOutfitTooltipSlash)
+		elseif clause then
+			local force = clause:byte(1) == 33
+			local pfidx = tonumber(force and clause:sub(2) or clause)
+			local oi = pfIdxCache[pfidx] or nil
+			if oi == nil and pfidx then
+				oi = C_TransmogOutfitInfo.GetOutfitInfoByPlayerFacingIndex(pfidx)
+				oi = oi and oi.outfitID or nil
+				pfIdxCache[pfidx] = oi
+			end
+			if oi and (force or oi ~= C_TransmogOutfitInfo.GetActiveOutfitID()) then
+				return true, hintOutfit(oi, setOutfitTooltipSlash)
+			elseif oi then
+				return true, hintOutfit(0, setOutfitTooltipSlash)
+			end
+		end
+	end)
 end)
 securecall(function() -- housing: token
 	if not MODERN then

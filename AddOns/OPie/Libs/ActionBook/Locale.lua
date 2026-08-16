@@ -18,12 +18,12 @@ V =
       "Mostrar sólo al equipar", "Atuendo", z, "Habilidad de mascota", "Habilidades de mascota", "Marcador de objetivo", "Marcador del mundo", "Marcadores del mundo", "Costas del Ventajo", "Mostrar un marcador cuando no esté disponible",
       "Hechizo", "Juguete", "Juguetes", "Paneles de IU", z, z, "Usar otra vez para prevenir que esta apariencia sea reemplazada por una Situación.", "Usar el rango mas alto", "Habilidades de zona",
     }
-    or C == "esMX" and { -- 40/49 (81%)
-      "Habilidades", z, "Usar otros artículos con el mismo nombre", z, z, "Mascota de duelo", "Mascotas de duelo", "Calendario", z, "Macro personalizado",
+    or C == "esMX" and { -- 49/49 (100%)
+      "Habilidades", "Acción", "Usar otros artículos con el mismo nombre", "Apariencia bloqueada", "Apariencia desbloqueada", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Entre facciones", "Macro personalizado",
       "Montura de vuelo de dragón", "Conjunto de equipamientos", "Ranura de equipo", "Conjuntos de equipamiento", "Equipado", "Botón de acción extra", "Montura voladora", "Punto del Fundador", "Menú de juego", "Montura terrestre",
-      z, "Panel de interfaz", "Artículo", "Artículos", "Macro", "Macros", "Misceláneo", "Montura", "Monturas", "Nueva Macro",
-      "Mostrar sólo al equipar", "Indumentaria", z, "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Costas del Ventajo", "Mostrar un sustituto cuando no esté disponible",
-      "Hechizo", "Juegete", "Juguetes", "Paneles de interfaz de usuario", z, z, z, "Usar el rango más alto conocido", "Habilidades de area",
+      "Viviendas", "Panel de interfaz", "Artículo", "Artículos", "Macro", "Macros", "Misceláneo", "Montura", "Monturas", "Nueva Macro",
+      "Mostrar sólo al equipar", "Indumentaria", "Atuendos", "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Costas del Ventajo", "Mostrar un sustituto cuando no esté disponible",
+      "Hechizo", "Juegete", "Juguetes", "Paneles de interfaz de usuario", "Desbloquear apariencia al cambiar", "Usa de nuevo para permitir que esta apariencia se reemplace con una Situación", "Usa de nuevo para prevenir que esta apariencia se reemplace por una Situación", "Usar el rango más alto conocido", "Habilidades de area",
     }
     or C == "frFR" and { -- 45/49 (91%)
       "Compétences", z, "Également utiliser l'élément avec le même nom", "Apparence verrouillée", "Apparence déverrouillée", "Mascotte de combat", "Mascottes de combat", "Calendrier", z, "Macro personnalisée",

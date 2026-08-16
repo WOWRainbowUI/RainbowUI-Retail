@@ -138,6 +138,7 @@ local dragBackdrop = CreateFrame("Frame") do
 	dragBackdrop:EnableMouse(true)
 	dragBackdrop:SetScript("OnMouseDown", dragBackdrop.Hide)
 end
+local uiHintTip = CreateFrame("GameTooltip", "OPieRingEditorHintTip", panel, "GameTooltipTemplate")
 
 newRing = CreateFrame("Frame") do
 	newRing:SetSize(400, 115)
@@ -324,20 +325,20 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 		local function dragAbort(self)
 			local src = self.source
 			if src then
+				self.source = nil
 				SetCursor(nil)
 				dragBackdrop:Hide()
-				self.source = nil
 			end
 			return src
 		end
 		local function dragStop(self)
 			local source = dragAbort(self)
-			if ringContainer.disableSliceDrag then return end
+			if ringContainer.disableSliceDrag or not self:IsShown() then return end
 			local x, y = GetCursorPosition()
 			PlaySound(833)
 			local scale, l, b, w, h = self:GetEffectiveScale(), self:GetRect()
 			local dy, dx = math.floor(-(y / scale - b - h-1)/(h+2)), x / scale - l
-			if dx < -2*w or dx > 2*w then return api.deleteSlice(source) end
+			if dx < -2*w or dx > 2*w then api.deleteSlice(source) return end
 			if dx < -w/2 or dx > 3*w/2 then return end
 			local dest = self:GetID() + dy
 			if not ringContainer.slices[dest+1] or not ringContainer.slices[dest+1]:IsShown() then return end
@@ -360,6 +361,74 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 			ico.auto:SetTexture("Interface/Buttons/UI-AutoCastableOverlay")
 			ico.auto:SetTexCoord(14/64, 49/64, 14/64, 49/64)
 			ringContainer.slices[i+1] = ico
+		end
+		local dz = CreateFrame("Frame", nil, ringContainer) do
+			dz:SetWidth(38)
+			dz:SetPoint("TOPLEFT", -37, -2)
+			dz:SetPoint("BOTTOMLEFT", -37, 2)
+			local v = ringContainer:CreateTexture(nil, "ARTWORK")
+			v:SetAllPoints(dz)
+			v:SetColorTexture(1,1,1,1)
+			local function tryDrop()
+				if not newSlice.disableDrag then
+					api.maybeHandleCursorDrop(api.convertCursorInfo(GetCursorInfo()))
+				end
+			end
+			dz:SetScript("OnMouseUp", tryDrop)
+			dz:SetScript("OnReceiveDrag", tryDrop)
+			local function pollCursorDrop()
+				-- Replacing cursor content prevents native OnReceiveDrag dispatch;
+				-- OnMouseUp will not fire when OnMouseDown happened elsewhere; so poll to fake it.
+				if not IsMouseButtonDown(1) then
+					dz:SetScript("OnUpdate", nil)
+					if dz:IsMouseMotionFocus() then
+						tryDrop()
+					end
+				end
+			end
+			local function syncDropTex()
+				local accept = not newSlice.disableDrag and api.convertCursorInfo(GetCursorInfo()) ~= nil
+				local focus = accept and dz:IsMouseMotionFocus()
+				local owned = uiHintTip:IsOwned(dz)
+				v:SetShown(accept)
+				if focus then
+					v:SetVertexColor(0.25, 1, 0.50, 0.35)
+				else
+					v:SetVertexColor(1, 1, 1, 0.25)
+				end
+				dz:SetScript("OnUpdate", accept and focus and IsMouseButtonDown(1) and pollCursorDrop or nil)
+				if accept and not owned then
+					local nc, hc = NORMAL_FONT_COLOR, HIGHLIGHT_FONT_COLOR
+					uiHintTip:SetOwner(dz, "ANCHOR_NONE")
+					uiHintTip:ClearAllPoints()
+					uiHintTip:SetFrameStrata("TOOLTIP")
+					uiHintTip:SetPoint("TOPLEFT", dz, "TOPRIGHT", -2, -20)
+					uiHintTip:SetText(L"Add to ring", nc.r, nc.g, nc.b)
+					uiHintTip:AddLine(L"Drop actions onto the slice list to add them to the ring.", hc.r, hc.g, hc.b, 1)
+					uiHintTip:Show()
+				elseif owned and not accept then
+					uiHintTip:Hide()
+				end
+			end
+			dz:SetScript("OnShow", function(self)
+				self:RegisterEvent("CURSOR_CHANGED")
+				syncDropTex()
+			end)
+			dz:SetScript("OnHide", function(self)
+				self:UnregisterEvent("CURSOR_CHANGED")
+				self:SetScript("OnUpdate", nil)
+				v:Hide()
+			end)
+			dz:SetScript("OnEvent", syncDropTex)
+			dz:SetScript("OnEnter", function()
+				syncDropTex()
+			end)
+			dz:SetScript("OnLeave", syncDropTex)
+			dz:EnableMouse(true)
+			dz:SetPropagateMouseMotion(true)
+			dz:SetPropagateMouseClicks(true)
+			dz:SetFrameLevel(dz:GetFrameLevel()+20)
+			ringContainer.dropZone, ringContainer.dropZoneTex = dz, v
 		end
 	end
 	ringContainer.newSlice = createIconButton(nil, ringContainer, nil, true) do
@@ -388,6 +457,9 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 			newSlice:Show()
 		end)
 		b:SetScript("OnEnter", function(self)
+			if ringContainer.dropZoneTex:IsShown() then
+				return
+			end
 			GameTooltip:SetOwner(self, "ANCHOR_NONE")
 			GameTooltip:SetPoint("LEFT", self, "RIGHT", 2, 0)
 			GameTooltip:AddLine(L"Add a new slice", 1, 1, 1)
@@ -851,7 +923,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 	sliceDetail.remove = CreateButton(sliceDetail)
 	sliceDetail.remove:SetPoint("BOTTOMRIGHT", -10, 10)
 	sliceDetail.remove:SetText(L"Delete slice")
-	sliceDetail.remove:SetScript("OnClick", function() return api.deleteSlice() end)
+	sliceDetail.remove:SetScript("OnClick", function() api.deleteSlice() end)
 	sliceDetail.repick = CreateButton(sliceDetail)
 	sliceDetail.repick:SetPoint("BOTTOMLEFT", 10, 10)
 	sliceDetail.repick:SetText(L"Change action")
@@ -909,23 +981,23 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		local i = s:CreateTexture(nil, "OVERLAY")
 		i:SetSize(14, 14) i:SetPoint("LEFT", 0, -1)
 		i:SetTexture("Interface/Common/UI-Searchbox-Icon")
-		local l, tip = s:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall"), CreateFrame("GameTooltip", "RKC_SearchTip", newSlice, "GameTooltipTemplate")
+		local l = s:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 		l:SetPoint("LEFT", 16, 0)
 		l:SetText(L"Search")
 		s:SetScript("OnEditFocusGained", function(s)
 			l:Hide()
 			i:SetVertexColor(0.90, 0.90, 0.90)
-			tip:SetFrameStrata("TOOLTIP")
-			tip:SetOwner(s, "ANCHOR_BOTTOM")
-			tip:AddLine((L"Press %s to search"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("ENTER") .. "|r"))
-			tip:AddLine((L"%s to search within current results"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("CTRL-ENTER") .. "|r"), nil, nil, nil, true)
-			tip:AddLine((L"%s to cancel"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("ESCAPE") .. "|r"), true)
-			tip:Show()
+			uiHintTip:SetFrameStrata("TOOLTIP")
+			uiHintTip:SetOwner(s, "ANCHOR_BOTTOM")
+			uiHintTip:AddLine((L"Press %s to search"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("ENTER") .. "|r"))
+			uiHintTip:AddLine((L"%s to search within current results"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("CTRL-ENTER") .. "|r"), nil, nil, nil, true)
+			uiHintTip:AddLine((L"%s to cancel"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("ESCAPE") .. "|r"), true)
+			uiHintTip:Show()
 		end)
 		s:SetScript("OnEditFocusLost", function(s)
 			l:SetShown(not s:GetText():match("%S"))
 			i:SetVertexColor(0.75, 0.75, 0.75)
-			tip:Hide()
+			uiHintTip:Hide()
 		end)
 		s:SetScript("OnEnterPressed", function(s)
 			s:ClearFocus()
@@ -1036,7 +1108,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 	end
 	local function onDragStop(self)
 		onDragAbort(self)
-		if newSlice.disableDrag then return end
+		if newSlice.disableDrag or not self:IsShown() then return end
 		PlaySound(833)
 		local e, x, y = ringContainer.slices[1], GetCursorPosition()
 		if not e:GetLeft() then e = ringContainer.prev end
@@ -1245,6 +1317,39 @@ local function updateImportedRingContents(data, ringNameMap)
 	end
 end
 
+local cursorAC = {} do
+	function cursorAC:spell(_, _, sid)
+		return sid and not C_Spell.IsSpellPassive(sid) and "spell" or nil, sid
+	end
+	function cursorAC:macro(ix)
+		ix = GetMacroInfo(ix)
+		return ix and "macro", ix
+	end
+	function cursorAC:battlepet(ix)
+		local spid = C_PetJournal.GetPetInfoByPetID(ix)
+		if not spid and ix:match("%-0%-") then
+			return "battlepet", "fave"
+		end
+		return "battlepet", ix, spid
+	end
+	function cursorAC:petaction(ix)
+		return ix > 10 and "petspell", ix
+	end
+	function cursorAC:item(ix)
+		return C_ToyBox.IsToyUsable(ix) ~= nil and "toy" or "item", ix
+	end
+	function cursorAC:mount(ix, a3)
+		if a3 == 0 then
+			return "spell", 150544
+		end
+		return "mount", ix
+	end
+	local function identityAC(ct, ix)
+		return ct, ix
+	end
+	cursorAC.outfit, cursorAC.equipmentset, cursorAC.flyout = identityAC, identityAC, identityAC
+end
+
 local ringNameMap, ringOrderMap, ringTypeMap, ringNames, currentRing, currentRingName, sliceBaseIndex, currentSliceIndex, repickSlice, skipResetErrors = {}, {}, {}, {}
 local typePrefix = {
 	MINE="|cff25bdff|TInterface/FriendsFrame/UI-Toast-FriendOnlineIcon:14:14:0:1:32:32:8:24:8:24:30:190:255|t ",
@@ -1252,10 +1357,10 @@ local typePrefix = {
 	HORDE=MODERN and "|cffff3000|A:QuestPortraitIcon-Horde-small:18:18:-1:-2|a" or "|cffff3000|A:poi-horde:16:16:-2:0|a",
 	ALLIANCE=MODERN and "|cff00a0ff|A:QuestPortraitIcon-Alliance-small:20:18:-2:0|a" or "|cff00a0ff|A:poi-alliance:17:20:-2:0|a",
 }
-do
+do -- typePrefix[CLASS]
 	for k, v in pairs(CLASS_ICON_TCOORDS) do
 		local cc = RAID_CLASS_COLORS[k]
-		typePrefix[k] = ("|cff%s|TInterface/GLUES/CHARACTERCREATE/UI-CharacterCreate-Classes:16:16:0:0:256:256:%d:%d:%d:%d|t "):format(cc and cc.colorStr:sub(3) or "a0ff00", v[1]*256+6,v[2]*256-6,v[3]*256+6,v[4]*256-6)
+		typePrefix[k] = cc and ("|cff%s|TInterface/GLUES/CHARACTERCREATE/UI-CharacterCreate-Classes:16:16:0:0:256:256:%d:%d:%d:%d|t "):format(cc and cc.colorStr:sub(3) or "a0ff00", v[1]*256+6,v[2]*256-6,v[3]*256+6,v[4]*256-6) or nil
 	end
 end
 local function sortNames(a,b)
@@ -1684,6 +1789,8 @@ function api.deleteSlice(id)
 			api.hideSliceDetail()
 			currentSliceIndex = nil
 			ringDetail:Show()
+		elseif currentSliceIndex and id < currentSliceIndex then
+			currentSliceIndex = currentSliceIndex - 1
 		end
 		table.remove(currentRing, id)
 		if sliceBaseIndex == id and sliceBaseIndex > 1 then
@@ -1773,6 +1880,36 @@ function api.addSlice(pos, ...)
 	api.updateRingLine(true)
 	if wasRepick then
 		api.finishSliceRepick()
+	end
+end
+function api.convertCursorInfo(...)
+	local ct, ix = ...
+	local f = ix and cursorAC[ct]
+	if f then
+		return f(...)
+	end
+end
+function api.maybeHandleCursorDrop(...)
+	local at, ix = ...
+	if not at then return end
+	local s1, _, y = ringContainer.slices[1], GetCursorPosition()
+	local scale, _, b, _, h = s1:GetEffectiveScale(), s1:GetRect()
+	local dy, b0 = math.floor(-(y / scale - b - h-1)/(h+2)), sliceBaseIndex
+	if at == "flyout" then
+		dy = dy < 0 and 0 or dy
+		local addUnknown = IsAltKeyDown()
+		for j=1, select(3,GetFlyoutInfo(ix)) do
+			local sid, _, isKnown, sname = GetFlyoutSlotInfo(ix, j)
+			if sid and type(sname) == "string" and (addUnknown or isKnown) and not C_Spell.IsSpellPassive(sid) then
+				api.addSlice(dy, "spell", sid)
+				dy, b0 = dy + 1 + (b0 - sliceBaseIndex), sliceBaseIndex
+			end
+		end
+	else
+		api.addSlice(dy, ...)
+	end
+	if not InCombatLockdown() then
+		ClearCursor()
 	end
 end
 local function resolveCustomSliceAdd(ok, ...)

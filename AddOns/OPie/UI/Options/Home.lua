@@ -99,7 +99,7 @@ local navView = CreateFrame("Frame", nil, frame) do
 		svWarning:SetWidth(math.max(300, fs:GetStringWidth()))
 	end
 end
-local logView = CreateFrame("Frame", nil, frame) do
+local logView, clipBar = CreateFrame("Frame", nil, frame) do
 	logView:SetHeight(100) -- going to overflow; it's fine
 	logView:SetPoint("TOPLEFT", 0, oy - 32)
 	logView:SetPoint("TOPRIGHT", 0, oy - 32)
@@ -157,7 +157,7 @@ local logView = CreateFrame("Frame", nil, frame) do
 	clipAnchor:SetHeight(0.125)
 	clipAnchor:SetPoint("TOPLEFT", 20, 0)
 	clipAnchor:SetPoint("TOPRIGHT", 0, 0)
-	local clipBar = XU:Create("ScrollBar", nil, logView), t
+	clipBar = XU:Create("ScrollBar", nil, logView), t
 	clipBar:SetPoint("TOPLEFT", clipHost, "TOPRIGHT", 2, 20)
 	clipBar:SetPoint("BOTTOMLEFT", clipHost, "BOTTOMRIGHT", 2, -16)
 	clipBar:SetWheelScrollTarget(clipHost, -2, -5, -2, -1)
@@ -216,6 +216,7 @@ function H.HandleNavClick(id)
 end
 function H.ShowWhatsNew()
 	if not frame:IsVisible() then
+		clipBar:SetValue(0)
 		frame:OpenPanel()
 	end
 	navView:Hide()

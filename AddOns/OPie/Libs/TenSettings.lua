@@ -130,7 +130,6 @@ do -- TenSettingsFrame
 		M:EscapeCallback(TenSettingsFrame, function(self)
 			self.ClosePanelButton:Click()
 		end)
-		table.insert(UISpecialFrames, TenSettingsFrame:GetName())
 		local dragHandle = CreateFrame("Frame", nil, TenSettingsFrame) do
 			dragHandle:SetPoint("TOPLEFT", TenSettingsFrame, "TOPLEFT", 4, 0)
 			dragHandle:SetPoint("BOTTOMRIGHT", TenSettingsFrame, "TOPRIGHT", -28, -20)

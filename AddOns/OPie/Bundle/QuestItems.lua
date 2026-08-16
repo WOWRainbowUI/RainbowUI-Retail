@@ -154,16 +154,17 @@ if MODERN or CF_WRATH then
 			[250116]=have1, -- quel'thalas treasures [sign weekly]
 			[269702]=have1, -- abundant [rare]
 			[269703]=have1, -- avid learner's [rare]
-			[269701]=have1, -- surplus party270244 favors [rare]
+			[269701]=have1, -- surplus party favors [rare]
 			[270244]=have1, [270247]=have1, -- field pouch/satchel
 			[264914]=have1, -- ranger's cache
-			-- Midnight Apex [S1]
-			[254677]=have1, -- apex cache
-			[263465]=have1, -- saltheril's soiree
-			[260940]=have1, -- stormarion pinnacle
-			[263466]=have1, -- abundant
-			[263467]=have1, -- avid learner's
-			[260193]=have1, -- fabled veteran's
+			-- Midnight Apex [S1/2]
+			[254677]=have1, [279527]=have1, -- apex cache
+			[263465]=have1, [279522]=have1, -- saltheril's soiree
+			[260940]=have1, [279526]=have1, -- stormarion pinnacle
+			[263466]=have1, [279523]=have1, -- abundant
+			[263467]=have1, [279525]=have1, -- avid learner's
+			[260193]=have1, [279520]=have1, -- fabled veteran's
+			[282183]=have1, -- coiled isle [s2]
 			-- Val/Naigtal
 			[275690]=have1, [275691]=have1, -- riftstalker's cache
 			[276389]=have1, [276390]=have1, -- riftstalker's prize
