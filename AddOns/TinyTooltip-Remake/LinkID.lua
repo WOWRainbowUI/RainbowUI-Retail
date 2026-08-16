@@ -10,21 +10,8 @@ local function ParseHyperLink(link)
     end
 end
 
-local function IsSecret(value)
-    return issecretvalue and issecretvalue(value)
-end
-
-local function AreAurasSecret()
-    if (C_Secrets and C_Secrets.ShouldAurasBeSecret) then
-        local ok, result = pcall(C_Secrets.ShouldAurasBeSecret)
-        return (not ok) or result
-    end
-    return false
-end
-
 local function ShowId(tooltip, name, value, noBlankLine, forceShow)
     if (not name or not value) then return end
-    if (IsSecret(name) or IsSecret(value)) then return end
     if (tooltip.IsForbidden and tooltip:IsForbidden()) then return end
     if (forceShow or IsShiftKeyDown() or IsControlKeyDown() or IsAltKeyDown()) then
         local line = addon:FindLine(tooltip, name)
@@ -62,7 +49,7 @@ local function GetItemMaxStack(linkOrId)
 end
 
 local function ShowSpellInfo(tooltip, spellId)
-    if (not spellId or IsSecret(spellId)) then return end
+    if (issecretvalue(spellId) or not spellId) then return end
     local isModifierDown = IsShiftKeyDown() or IsControlKeyDown() or IsAltKeyDown()
     local showAllByModifier = addon.db.spell.modifierShowAll
     local showSpellId = addon.db.spell.showSpellId ~= false
@@ -187,39 +174,10 @@ end
 local function GetSpellIdFromTooltip(tip)
     if (not tip or not tip.GetSpell) then return end
     local ok, _, spellId = pcall(tip.GetSpell, tip)
-    if (ok and spellId and not IsSecret(spellId) and type(spellId) == "number") then
+    if (ok and not issecretvalue(spellId) and type(spellId) == "number") then
         return spellId
     end
 end
-
-local function GetAuraSpellId(unit, index, filter)
-    if (not unit or IsSecret(unit) or IsSecret(index) or IsSecret(filter)) then return end
-    if (AreAurasSecret()) then return end
-    if (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then
-        local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, index, filter)
-        if (ok and aura and aura.spellId and not IsSecret(aura.spellId)) then
-            return aura.spellId
-        end
-    end
-end
-
-local function GetAuraSpellIdByInstance(unit, auraInstanceID)
-    if (not unit or not auraInstanceID) then return end
-    if (IsSecret(unit) or IsSecret(auraInstanceID)) then return end
-    if (AreAurasSecret()) then return end
-    if (C_Secrets and C_Secrets.ShouldUnitAuraInstanceBeSecret) then
-        local ok, isSecret = pcall(C_Secrets.ShouldUnitAuraInstanceBeSecret, unit, auraInstanceID)
-        if (not ok or isSecret) then return end
-    end
-    if (C_UnitAuras and C_UnitAuras.GetAuraDataByAuraInstanceID) then
-        local ok, aura = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unit, auraInstanceID)
-        if (ok and aura and aura.spellId and not IsSecret(aura.spellId)) then
-            return aura.spellId
-        end
-    end
-end
-
-
 
 LibEvent:attachTrigger("tooltip:item", function(self, tip, link)
     ShowLinkIdInfo(tip, link)
@@ -231,44 +189,27 @@ end)
 
 LibEvent:attachTrigger("tooltip:aura", function(self, tip, args)
     local spellId = args and args[2] and args[2].intVal
-    if (IsSecret(spellId)) then return end
-    ShowSpellInfo(tip, spellId or GetSpellIdFromTooltip(tip))
+    if (issecretvalue(spellId)) then
+        spellId = nil
+    end
+    spellId = spellId or GetSpellIdFromTooltip(tip)
+    ShowSpellInfo(tip, spellId)
 end)
 
-local function HookAuraSetter(fnName, resolver)
+local function HookAuraSetter(fnName)
     if (GameTooltip and GameTooltip[fnName]) then
-        hooksecurefunc(GameTooltip, fnName, function(tip, ...)
-            local ok, spellId = pcall(resolver, ...)
-            if (ok and spellId) then
-                ShowSpellInfo(tip, spellId)
-            end
+        hooksecurefunc(GameTooltip, fnName, function(tip)
+            ShowSpellInfo(tip, GetSpellIdFromTooltip(tip))
         end)
     end
 end
 
-HookAuraSetter("SetUnitAura", function(unit, index, filter)
-    return GetAuraSpellId(unit, index, filter)
-end)
-
-HookAuraSetter("SetUnitBuff", function(unit, index, filter)
-    return GetAuraSpellId(unit, index, filter)
-end)
-
-HookAuraSetter("SetUnitDebuff", function(unit, index, filter)
-    return GetAuraSpellId(unit, index, filter)
-end)
-
-HookAuraSetter("SetUnitAuraByAuraInstanceID", function(unit, auraInstanceID)
-    return GetAuraSpellIdByInstance(unit, auraInstanceID)
-end)
-
-HookAuraSetter("SetUnitBuffByAuraInstanceID", function(unit, auraInstanceID)
-    return GetAuraSpellIdByInstance(unit, auraInstanceID)
-end)
-
-HookAuraSetter("SetUnitDebuffByAuraInstanceID", function(unit, auraInstanceID)
-    return GetAuraSpellIdByInstance(unit, auraInstanceID)
-end)
+HookAuraSetter("SetUnitAura")
+HookAuraSetter("SetUnitBuff")
+HookAuraSetter("SetUnitDebuff")
+HookAuraSetter("SetUnitAuraByAuraInstanceID")
+HookAuraSetter("SetUnitBuffByAuraInstanceID")
+HookAuraSetter("SetUnitDebuffByAuraInstanceID")
 
 -- Quest
 if (QuestMapLogTitleButton_OnEnter) then
