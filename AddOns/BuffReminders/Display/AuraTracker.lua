@@ -148,24 +148,11 @@ local function StyleButton(button)
     regions.icon:SetTexCoord(xInset, 1 - xInset, yInset, 1 - yInset)
     regions.icon:SetAlpha(Setting("iconAlpha") or 1)
 
-    -- Duration text: ours to place and font, Blizzard's to write. Uses the addon's
-    -- configured font face and outline, so it matches every other icon's text.
-    --
-    -- Memoized like SetFontCached (SetFont forces a full fontstring re-layout, and
-    -- VisualsRefresh lands here on every step of any appearance slider drag) but with
-    -- the signature kept in OUR side table and written only AFTER the call returns.
-    -- SetFontCached does neither: it stores _br_font_* on the fontstring, which is
-    -- per-button state on a subtree that goes forbidden, and it records the cache
-    -- before calling SetFont - so a denial in combat would leave the cache claiming a
-    -- font that never landed and the post-combat retry would skip it.
-    local fontPath = BR.Display.GetFontPath()
-    local outline = BR.Display.GetOutline()
-    local durationSize = Setting("durationSize") or 16
-    local fontSig = fontPath .. "|" .. durationSize .. "|" .. outline
-    if regions.fontSig ~= fontSig then
-        regions.duration:SetFont(fontPath, durationSize, outline)
-        regions.fontSig = fontSig
-    end
+    -- Duration text: the addon places and fonts it, Blizzard writes it. The
+    -- call stores nothing on the region - per-button state on this subtree
+    -- goes forbidden. A denial throws, and the caller's pcall queues the
+    -- retry.
+    BR.DisplayFonts.Apply(regions.duration, Setting("durationSize") or 16)
 
     -- Border protrudes past the button's bounds, same as the reminder icons.
     -- Regions may extend outside a button; only their parentage is constrained.
@@ -328,14 +315,13 @@ local function CreateMover()
     label:SetPoint("BOTTOM", mover, "TOP", 0, 4)
     mover.label = label
 
-    -- The mover is built once, so it would otherwise keep the font it was created
-    -- with - same reason Movers.lua re-applies this from UpdateSize(). SetFontCached
-    -- is safe here: this is our own frame, not a forbidden button subtree.
+    -- The mover is built once, so font setting changes must be pushed to its
+    -- label explicitly. The frame belongs to the addon, not to a forbidden
+    -- button subtree, so the apply is safe.
     function mover:UpdateFont()
-        BR.Display.SetFontCached(self.label, MOVER_LABEL_SIZE)
+        BR.DisplayFonts.Apply(self.label, MOVER_LABEL_SIZE)
     end
-    -- Must run before SetText: the FontString inherits no font, and setting text on
-    -- a font-less FontString raises an error (hence the same order in Movers.lua).
+    -- Must run before SetText: SetText on a font-less FontString raises an error.
     mover:UpdateFont()
 
     label:SetTextColor(0.4, 1, 0.4, 1)
@@ -454,7 +440,25 @@ liftWatcher:RegisterEvent("PLAYER_REGEN_ENABLED")
 liftWatcher:RegisterEvent("ENCOUNTER_END")
 liftWatcher:RegisterEvent("PLAYER_ENTERING_WORLD")
 liftWatcher:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+-- Blizzard bug: an AuraContainer can show stale or unrelated auras after a
+-- cinematic or a vehicle transition. A forced full update resyncs it. STOP_MOVIE
+-- covers pre-rendered movies, which end without CINEMATIC_STOP.
+liftWatcher:RegisterEvent("CINEMATIC_STOP")
+liftWatcher:RegisterEvent("STOP_MOVIE")
+liftWatcher:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
+liftWatcher:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
 liftWatcher:SetScript("OnEvent", function(_, event)
+    if
+        event == "CINEMATIC_STOP"
+        or event == "STOP_MOVIE"
+        or event == "UNIT_ENTERED_VEHICLE"
+        or event == "UNIT_EXITED_VEHICLE"
+    then
+        if container and Settings().enabled and not pcall(container.UpdateAllAuras, container) then
+            applyPending = true
+        end
+        return
+    end
     -- PLAYER_ENTERING_WORLD doubles as first-run creation: the profile is seeded by
     -- then, and creating out of combat keeps the initial styling out of the deferred path.
     if event == "PLAYER_ENTERING_WORLD" or (applyPending and Settings().enabled) then
