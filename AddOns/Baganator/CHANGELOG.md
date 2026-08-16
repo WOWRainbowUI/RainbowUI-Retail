@@ -1,6 +1,9 @@
 # Baganator
 
-## [820](https://github.com/TheMouseNest/Baganator/tree/820) (2026-08-13)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/819...820) 
+## [821](https://github.com/TheMouseNest/Baganator/tree/821) (2026-08-14)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/820...821) 
 
-- Workaround Blizzard bootstrap change instantly closing guild bank  
+- Add compatibility function for bank type detection for other addons  
+- Remove skins loading early triggers, no longer needed  
+- Retail: Auto-hide reagent bag tutorial  
+- Retail: Fix money/item history display in guild bank  

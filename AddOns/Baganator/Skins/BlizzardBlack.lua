@@ -80,4 +80,4 @@ addonTable.Skins.RegisterSkin(addonTable.Locales.BLIZZARD_BLACK, "blizzard_black
     option = "empty_slot_background",
     default = false,
   },
-}, false, addonTable.Skins.ImmediateLoadingTrigger)
+}, false)
