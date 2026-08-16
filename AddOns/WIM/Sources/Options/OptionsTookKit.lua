@@ -159,10 +159,30 @@ local function CreateSlider(parent, title, minText, maxText, min, max, step, dbT
     s.maxText = s:CreateFontString(s:GetName().."Max", "OVERLAY", "ChatFontSmall");
     s.maxText:SetPoint("TOPRIGHT", s, "BOTTOMRIGHT", -5, 0);
     s.maxText:SetText(maxText);
-    s.valText = s:CreateFontString(s:GetName().."Val", "OVERLAY", "ChatFontSmall");
-    s.valText:SetPoint("LEFT", s, "RIGHT", 15, 2);
-    s.valText:SetTextColor(unpack(TitleColor));
-    s.valText:SetText("");
+    s.input = CreateFrame("EditBox", s:GetName().."Input", s, "InputBoxTemplate");
+    s.input:SetPoint("LEFT", s, "RIGHT", 15, 0);
+    s.input:SetWidth(45);
+    s.input:SetHeight(17);
+    s.input:SetFontObject("ChatFontSmall");
+    s.input:SetAutoFocus(false);
+    s.input:SetScript("OnEnterPressed", function(self)
+        local v = tonumber(self:GetText());
+        if(v) then
+            v = _G.math.max(min, _G.math.min(max, v));
+            v = _G.math.floor(v / step + 0.5) * step;
+            s:SetValue(v);
+        else
+            self:SetText(s:GetValue());
+        end
+        self:ClearFocus();
+    end);
+    s.input:SetScript("OnEscapePressed", function(self)
+        self:SetText(s:GetValue());
+        self:ClearFocus();
+    end);
+    s.input:SetScript("OnShow", function(self)
+        self:SetText(s:GetValue());
+    end);
     s:SetValueStep(step);
     s:SetScript("OnValueChanged", function(self)
         if not self._onsetting then   -- is single threaded
@@ -172,7 +192,9 @@ local function CreateSlider(parent, title, minText, maxText, min, max, step, dbT
             self._onsetting = false
         else return end
         local newValue = self:GetValue()
-        self.valText:SetText(newValue);
+        if(self.input) then
+            self.input:SetText(newValue);
+        end
         dbTree[varName] = newValue;
         if(type(valChanged) == "function") then
             valChanged(self, newValue);

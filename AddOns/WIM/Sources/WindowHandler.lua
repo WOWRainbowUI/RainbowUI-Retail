@@ -59,7 +59,7 @@ db_defaults.keepFocusRested = true;
 db_defaults.autoFocus = false;
 db_defaults.winSize = {
 		width = 333,
-		height = 220,
+		height = 245,
 		scale = 100,
                 strata = "DIALOG"
 	};
@@ -885,6 +885,7 @@ local function instantiateWindow(obj)
     widgets.Backdrop.bg = widgets.Backdrop:CreateTexture(fName.."Backdrop_BG", "BORDER");
     widgets.from = widgets.Backdrop:CreateFontString(fName.."BackdropFrom", "OVERLAY", "GameFontNormalLarge");
     widgets.from.widgetName = "from";
+	widgets.from._allowCustomFont = true;
     widgets.char_info = widgets.Backdrop:CreateFontString(fName.."BackdropCharacterDetails", "OVERLAY", "GameFontNormal");
     widgets.char_info.widgetName = "char_info";
 
@@ -916,6 +917,7 @@ local function instantiateWindow(obj)
     widgets.chat_display:EnableMouseWheel(1);
     widgets.chat_display.widgetName = "chat_display";
 	widgets.chat_display._isWIM = true; -- flag that this is a WIM frame.
+	widgets.chat_display._allowCustomFont = true; -- flag that this frame allows custom fonts.
 
     widgets.msg_box = CreateFrame("EditBox", fName.."MsgBox", obj);
     widgets.msg_box:SetAutoFocus(false);
@@ -924,6 +926,7 @@ local function instantiateWindow(obj)
     widgets.msg_box:SetAltArrowKeyMode(true);
     widgets.msg_box:EnableMouse(true);
     widgets.msg_box.widgetName = "msg_box";
+	widgets.msg_box._allowCustomFont = true;
 
 	-- because we're pretending to be the default chat edit box at times, we need to make sure that any calls are covered.
 	local _ghostFun = function() end;

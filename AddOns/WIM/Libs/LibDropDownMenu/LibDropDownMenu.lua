@@ -1,5 +1,5 @@
 
-local MAJOR, MINOR = "LibDropDownMenu", tonumber((gsub("r63","r",""))) or 9999;
+local MAJOR, MINOR = "LibDropDownMenu", tonumber((gsub("r64","r",""))) or 9999;
 local lib = LibStub:NewLibrary(MAJOR, MINOR);
 
 if not lib then return end
@@ -1164,14 +1164,14 @@ function ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yO
 	else
 		-- Set the dropdownframe scale
 		local uiScale;
-		local uiParentScale = UIParent:GetScale();
+		local topLevelParentScale = UIParent:GetScale();
 		if ( GetCVar("useUIScale") == "1" ) then
 			uiScale = tonumber(GetCVar("uiscale"));
-			if ( uiParentScale < uiScale ) then
-				uiScale = uiParentScale;
+			if ( topLevelParentScale < uiScale ) then
+				uiScale = topLevelParentScale;
 			end
 		else
-			uiScale = uiParentScale;
+			uiScale = topLevelParentScale;
 		end
 		listFrame:SetScale(uiScale);
 

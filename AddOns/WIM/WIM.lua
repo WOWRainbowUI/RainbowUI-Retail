@@ -16,7 +16,7 @@ setfenv(1, WIM);
 
 -- Core information
 addonTocName = "WIM";
-version = "3.17.3";
+version = "3.17.4";
 beta = false; -- flags current version as beta.
 debug = false; -- turn debugging on and off.
 useProtocol2 = true; -- test switch for new W2W Protocol. (Dev use only)
@@ -75,6 +75,7 @@ local function initialize()
 
 	workerFrame:RegisterEvent("GUILD_ROSTER_UPDATE");
 	workerFrame:RegisterEvent("FRIENDLIST_UPDATE");
+	workerFrame:RegisterEvent("IGNORELIST_UPDATE");
 	workerFrame:RegisterEvent("BN_FRIEND_LIST_SIZE_CHANGED");
 	workerFrame:RegisterEvent("BN_FRIEND_INFO_CHANGED");
 
@@ -125,6 +126,11 @@ local function initialize()
     RegisterSlashCommand("enable", function() SetEnabled(not db.enabled) end, L["Toggle WIM 'On' and 'Off'."]);
     RegisterSlashCommand("debug", function() debug = not debug; end, L["Toggle Debugging Mode 'On' and 'Off'."]);
     FRIENDLIST_UPDATE(); -- pretend event has been fired in order to get cache loaded.
+
+	if (GetSelectedSkin().title ~= db.skin.selected) then
+		LoadSkin(GetSelectedSkin().title, true);
+	end
+
     CallModuleFunction("OnInitialized");
     WindowParent:Show();
     dPrint("WIM initialized...");

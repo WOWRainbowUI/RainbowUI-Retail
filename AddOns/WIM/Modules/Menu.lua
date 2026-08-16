@@ -3,7 +3,9 @@ local WIM = WIM;
 local _G = _G;
 local CreateFrame = CreateFrame;
 local table = table;
+local type = type;
 local string = string;
+local unpack = unpack;
 
 --set namespace
 setfenv(1, WIM);
@@ -82,6 +84,7 @@ local function createButton(parent)
     button.text = _G[button:GetName().."Text"];
     button.text:ClearAllPoints();
     button.text:SetPoint("LEFT"); button.text:SetPoint("RIGHT");
+	button.text._allowCustomFont = true; -- flag that this frame allows custom fonts.
     button:GetHighlightTexture():ClearAllPoints();
     button:GetHighlightTexture():SetAllPoints();
 
@@ -89,6 +92,10 @@ local function createButton(parent)
     button.status:SetPoint("LEFT", button, "RIGHT", 0, -1);
     button.close = createCloseButton(button);
     button.close:SetPoint("LEFT", button.status, "RIGHT", 2, 0);
+
+	button.ApplySkin = function(self, skin)
+		SetWidgetFont(self.text, skin.menu.button);
+	end
 
     button:SetScript("OnClick", function(self, b)
 			local forceShow = true
@@ -134,14 +141,6 @@ local function createGroup(title, list, maxButtons, showNone)
 	-- Changes for Patch 9.0.1 - Shadowlands, retail and classic
 	local group = CreateFrame("Frame", "WIM3MenuGroup"..groupCount, _G.WIM3Menu, "BackdropTemplate");
 
-    -- set backdrop - changes for Patch 9.0.1 - Shadowlands, retail and classic
-    group.backdropInfo = {bgFile = "Interface\\AddOns\\"..addonTocName.."\\Modules\\Textures\\Menu_bg",
-        edgeFile = "Interface\\AddOns\\"..addonTocName.."\\Modules\\Textures\\Menu",
-        tile = true, tileSize = 32, edgeSize = 32,
-        insets = { left = 32, right = 32, top = 32, bottom = 32 }};
-
-	group:ApplyBackdrop();
-
     group.list = list;
     group.title = CreateFrame("Frame", group:GetName().."Title", group);
     group.title:SetHeight(17);
@@ -149,8 +148,8 @@ local function createGroup(title, list, maxButtons, showNone)
     group.title.bg = group.title:CreateTexture(nil, "BACKGROUND");
     group.title.bg:SetAllPoints();
     group.title.text = group.title:CreateFontString(nil, "OVERLAY", "ChatFontNormal");
-    local font = group.title.text:GetFont();
-    group.title.text:SetFont(font, 11, "");
+    -- local font = group.title.text:GetFont();
+    -- group.title.text:SetFont(font, 11, "");
     group.title.text:SetAllPoints();
     group.title.text:SetText(title.." ");
     group.title.text:SetJustifyV("TOP");
@@ -182,6 +181,47 @@ local function createGroup(title, list, maxButtons, showNone)
             group:SetHeight(_G.math.max(group.title:GetHeight() + group.buttons[1]:GetHeight()*self:GetButtonCount() + 18*2, 64));
         end
     end
+
+	group.ApplySkin = function(self, skin)
+
+		-- set backdrop - changes for Patch 9.0.1 - Shadowlands, retail and classic
+    	self.backdropInfo = {
+			bgFile = skin.menu.background,
+        	edgeFile = skin.menu.edge,
+        	tile = skin.menu.tile,
+			tileSize = skin.menu.tile_size,
+			edgeSize = skin.menu.edge_size,
+        	insets = {
+				left = skin.menu.insets.left,
+				right = skin.menu.insets.right,
+				top = skin.menu.insets.top,
+				bottom = skin.menu.insets.bottom
+			}
+		};
+
+		self:ApplyBackdrop();
+
+		-- title font
+		self.title.text:SetFont(
+			skin.menu.title.font,
+			skin.menu.title.font_height,
+			skin.menu.title.font_flags
+		);
+
+		-- title color
+		if(type(skin.menu.title.font_color) == "table") then
+            self.title.text:SetTextColor(unpack(skin.menu.title.font_color));
+        else
+            self.title.text:SetTextColor(RGBHexToPercent(skin.menu.title.font_color));
+        end
+
+		-- buttons
+		for i=1, #self.buttons do
+			local button = self.buttons[i];
+			button:ApplySkin(skin);
+		end
+	end
+
     group.width = 0;
     group.Refresh = function(self)
         local maxWidth = 150-18*2;
@@ -259,6 +299,16 @@ local function createMenu()
             self:SetWidth(groupWidth);
         end
 
+	menu.ApplySkin = function(self, skin)
+
+		for i=1, #self.groups do
+			local group = self.groups[i];
+			group:ApplySkin(skin or GetSelectedSkin());
+		end
+
+		self:Refresh();
+	end
+
     menu:SetScript("OnUpdate", function(self)
             if(isMouseOver()) then
                 self.mouseStamp = _G.time();
@@ -308,6 +358,12 @@ function Menu:OnEnable()
         WIM.Menu = createMenu();
         WIM.Menu:Refresh();
     end
+end
+
+function Menu:OnSkinLoaded(skin)
+	if (WIM.Menu) then
+		WIM.Menu:ApplySkin(skin);
+	end
 end
 
 

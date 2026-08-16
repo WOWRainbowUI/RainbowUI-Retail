@@ -33,6 +33,32 @@ local prematureRegisters = {};
 
 local WindowSoupBowl = WIM:GetWindowSoupBowl();
 
+local function normalizeFont(font)
+	if (type(font) == "table" and font.GetFont) then
+		local fontPath, fontHeight, fontFlags = font:GetFont();
+		return fontPath;
+
+	elseif (type(font) == "string") then
+
+		if (type(_G[font]) == "table") then
+			return normalizeFont(_G[font]);
+		else
+			return _G[font];
+		end
+	end
+
+	return font
+end
+
+local fontPaths = {
+	"root.message_window.widgets.from.font",
+	"root.message_window.widgets.char_info.font",
+	"root.message_window.widgets.chat_display.font",
+	"root.message_window.widgets.msg_box.font",
+	"root.menu.title.font",
+	"root.menu.button.font",
+};
+
 local function linkSkinTable(src, dest)
         if(type(src) == "table") then
                 if(type(dest) ~= "table") then dest = {}; end
@@ -177,25 +203,13 @@ function ApplySkinToWindow(obj)
 
     --chat display
     local chat_display = obj.widgets.chat_display;
+	chat_display._font_flags = db.skin.font_outline;
     ApplySkinToWidget(chat_display);
-    local font, height, flags;
-    if(not db.skin.suggest) then
-        if(_G[db.skin.font]) then
-            font, height, flags = _G[db.skin.font]:GetFont();
-        else
-            font = libs.SML.MediaTable.font[db.skin.font] or _G["ChatFontNormal"]:GetFont();
-        end
-        chat_display:SetFont(font, db.fontSize+2, db.skin.font_outline);
-    end
 
     --msg_box
     local msg_box = obj.widgets.msg_box;
+	msg_box._font_flags = db.skin.font_outline;
     ApplySkinToWidget(msg_box);
-    if(not db.skin.suggest) then
-        msg_box:SetFont(font, SelectedSkin.message_window.widgets.msg_box.font_height, WIM.db.skin.font_outline);
-    end
-    --msg_box:SetTextColor(SelectedSkin.message_window.widgets.msg_box.font_color[1], SelectedSkin.message_window.widgets.msg_box.font_color[2], SelectedSkin.message_window.widgets.msg_box.font_color[3]);
-
 
     --apply skin to registered widgets
     for widget, _ in pairs(windows.widgets) do
@@ -228,14 +242,16 @@ function GetSelectedSkin()
     return SelectedSkin or SkinTable["WIM Classic"];
 end
 
-function LoadSkin(skinName)
+function LoadSkin(skinName, immutableDB)
     if(skinName == nil or (not SkinTable[skinName])) then
         skinName = "WIM Classic";
     end
 
     SelectedSkin = SkinTable[skinName];
 
-    db.skin.selected = skinName;
+    if not immutableDB then
+        db.skin.selected = skinName;
+    end;
 
     SKIN_DEBUG = SKIN_DEBUG..skinName.." loaded..\n";
     -- apply skin to window objects
@@ -243,6 +259,8 @@ function LoadSkin(skinName)
     for i=1, table.getn(window_objects) do
         ApplySkinToWindow(window_objects[i].obj);
     end
+
+	CallModuleFunction("OnSkinLoaded", SelectedSkin);
 end
 
 function RegisterFont(objName, title)
@@ -288,6 +306,23 @@ function RegisterSkin(skinTable)
         return;
     end
 
+	-- normalize all fonts
+	for _, path in pairs(fontPaths) do
+		local tbl = skinTable;
+		for key in string.gmatch(path, "[^.]+") do
+			if (key ~= "root") then
+				if (tbl[key] == nil) then
+					break;
+				elseif (type(tbl[key]) == "table") then
+					tbl = tbl[key];
+				else
+					tbl[key] = normalizeFont(tbl[key]);
+					break;
+				end
+			end
+		end
+	end
+
     if(skinTable.title == "WIM Classic") then
         SkinTable[skinTable.title] = skinTable;
         if(skinTable.title == db.skin.selected) then
@@ -304,7 +339,7 @@ function RegisterSkin(skinTable)
 
     -- if this is the selected skin, load it now
     if(skinTable.title == WIM.db.skin.selected) then
-        LoadSkin(WIM.db.skin.selected, WIM.db.skin);
+        LoadSkin(WIM.db.skin.selected);
     end
 end
 
@@ -321,17 +356,23 @@ end
 function SetWidgetFont(obj, widgetSkinTable)
     -- first check what font is being requested, height is applied here.
     if(widgetSkinTable.font) then
-        if(_G[widgetSkinTable.font]) then
+		local _font = (db.skin.suggest or not obj._allowCustomFont) and widgetSkinTable.font or db.skin.font or widgetSkinTable.font;
+
+        if(_G[_font] and _G[_font].GetFont) then
             -- font is to be inherrited
             obj:SetFontObject(_G[widgetSkinTable.font]);
-            local font, height, flags = _G[widgetSkinTable.font]:GetFont();
-            obj:SetFont(font, widgetSkinTable.font_height or height, widgetSkinTable.font_flags or flags);
-        elseif(libs.SML.MediaTable.font[widgetSkinTable.font]) then
-            obj:SetFont(libs.SML.MediaTable.font[widgetSkinTable.font], widgetSkinTable.font_height or 12, widgetSkinTable.font_flags or "");
-        else
+            local font, height, flags = _G["ChatFontNormal"]:GetFont();
+            obj:SetFont(font, widgetSkinTable.font_height or height, obj._font_flags or widgetSkinTable.font_flags or flags);
+        elseif(libs.SML.MediaTable.font[_font]) then
+			-- _G.DevTools_Dump({obj.widgetName ,_font, widgetSkinTable.font_height, obj._font_flags or widgetSkinTable.font_flags or ""});
+            obj:SetFont(libs.SML.MediaTable.font[_font], widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
+		elseif (type(_font) == "string" and _font:match("\\")) then
+			-- font is a path to a font file
+			obj:SetFont(_font, widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
+		else
             -- can't find font, load a default font.
             local font, height, flags = _G["ChatFontNormal"]:GetFont();
-            obj:SetFont(font, widgetSkinTable.font_height or 12, widgetSkinTable.font_flags or "");
+            obj:SetFont(font, widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
         end
     end
     -- next, lets add the extra properties to it.
@@ -370,7 +411,7 @@ function ApplySkinToWidget(obj)
             if(widgetSkin.DisabledTexture) then obj:SetDisabledTexture(widgetSkin.DisabledTexture); end
             if(widgetSkin.HighlightTexture) then obj:SetHighlightTexture(widgetSkin.HighlightTexture, widgetSkin.HighlightAlphaMode); end
         end
-        if(oType == "FontString" or oType == "ScrollingMessageFrame" or oType == "EditBox") then
+        if(oType == "FontString" or oType == "ScrollingMessageFrame" or oType == "EditBox" or (oType == "Frame" and obj.AddMessage)) then
             SetWidgetFont(obj, widgetSkin);
         end
     else
