@@ -11,7 +11,9 @@ local _, BR = ...
 --
 -- `section` buckets an entry under a heading in the options list; `labelKey` is only
 -- needed when one entry spans spells with different names, since single-name entries
--- take their label from the spell itself and localize for free.
+-- take their label from the spell itself and localize for free. `labelSpellID` names
+-- an entry after the ability that grants the aura, for auras whose own name misleads
+-- (228050 resolves to "Divine Shield"); it localizes for free like the default.
 
 ---Display groupings, in the order the options page renders them.
 BR.EXTERNAL_SECTIONS = {
@@ -45,6 +47,7 @@ BR.EXTERNALS = {
     { key = "blessingOfProtection", section = "defensives", spellIDs = { 1022 } }, -- Paladin
     { key = "blessingOfSacrifice", section = "defensives", spellIDs = { 6940 } }, -- Paladin
     { key = "blessingOfSpellwarding", section = "defensives", spellIDs = { 204018 } }, -- Paladin
+    { key = "forgottenQueen", section = "defensives", spellIDs = { 228050 }, labelSpellID = 228049 }, -- Paladin
     { key = "guardianSpirit", section = "defensives", spellIDs = { 47788 } }, -- Priest
     { key = "luminousBarrier", section = "defensives", spellIDs = { 271466 } }, -- Priest
     { key = "painSuppression", section = "defensives", spellIDs = { 33206 } }, -- Priest
@@ -163,12 +166,13 @@ function BR.GetExternalSetting(key)
 end
 
 ---Display label for an entry: explicit key when it spans differently-named spells,
----otherwise the spell's own (already localized) name.
+---otherwise the (already localized) name of labelSpellID or the spell itself.
 ---@param entry table
 ---@return string
 function BR.GetExternalLabel(entry)
     if entry.labelKey then
         return BR.L[entry.labelKey] or entry.key
     end
-    return BR.GetSpellName(entry.spellIDs[1]) or tostring(entry.spellIDs[1])
+    local spellID = entry.labelSpellID or entry.spellIDs[1]
+    return BR.GetSpellName(spellID) or tostring(spellID)
 end

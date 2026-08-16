@@ -322,8 +322,6 @@ english["Display.LoginFirstInstall"] =
     "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
 english["Display.LoginSnooze"] =
     "The consumable dismiss button is now a right-click: right-click a consumable to snooze its reminders, or type |cFFFFD100/br snooze|r."
-english["Display.LoginExternals"] =
-    "New: |cFFFFD100External Buffs|r shows Power Infusion, Bloodlust, externals and Augmentation buffs while they are on you - and keeps working in combat. Turn it on under |cFFFFD100/br|r > Buffs > External Buffs."
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -371,6 +369,7 @@ english["Page.Layout"] = "Layout"
 english["Page.Categories"] = "Categories"
 english["Page.Profiles"] = "Profiles"
 english["Page.Reminders"] = "Reminders"
+english["Page.CustomAnchors"] = "Custom Anchors"
 
 -- Per-category page section headers
 english["Section.Tracking"] = "Tracking"
@@ -689,23 +688,11 @@ english["Options.SplitFrame.Desc"] = "Display this category's buffs in a separat
 english["Options.DisplayOrder"] = "Stacking Order"
 
 -- Layout page
-english["Layout.PositionFrames"] = "Position Frames"
-english["Layout.PositionFrames.Note"] =
-    "Unlock to get drag handles in-game. Click a handle to type exact coordinates; drag to reposition. Anchored frames keep their anchor while dragging."
-english["Layout.SplitFrames"] = "Split Frames"
-english["Layout.SplitFrames.Note"] =
-    "Categories split into their own independently positioned frame. Split a category from the Layout section of its page."
-english["Layout.NoSplitFrames"] = "No categories are split into their own frame."
 english["Layout.DetachedIcons"] = "Detached Icons"
 english["Layout.NoDetached"] =
     'No detached icons. Detach a buff from its settings panel on the Reminders page ("Own frame").'
-english["Layout.AnchorTargets"] = "Anchor Targets"
-english["Layout.AnchorFrame.Desc"] = "Attach this frame to another frame instead of a fixed screen position."
-english["Layout.AnchorPoint.Desc"] = "Which corner or edge of the anchor frame to attach to."
 english["Layout.FrameNotFound"] =
     "This frame doesn't currently exist in-game.\nIt will appear in anchor dropdowns once its addon creates it."
-english["DisabledReason.AnchorPoint"] =
-    "Pick an anchor frame first - anchor points only apply when anchored to a frame."
 
 -- Buff panel (uniform per-buff settings dialog)
 english["BuffPanel.SettingsLink"] = "Settings"
