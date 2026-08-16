@@ -1,10 +1,10 @@
-## Interface: 120007
+## Interface: 120100
 ## Title: |cff9d5db8KeystoneLoot|r
 ## Notes: Shows the items from the mythic plus instances in a compact overview
 ## Notes-ruRU: Компактный аддон, который показывает уровни предметов из подземелий М+
 ## Author: Selina Ruesch
 ## X-Email: selina.ruesch@gmail.com
-## Version: 2.11.0
+## Version: 2.11.2
 ## IconTexture: Interface\Icons\INV_Relics_Hourglass_02
 ## Category-enUS: Dungeons & Raids
 ## Category-deDE: Dungeons & Schlachtzüge
@@ -118,3 +118,5 @@ ui/keystoneloot_frame/mixins/character_dropdown.lua
 ui/keystoneloot_frame/mixins/settings_dropdown.lua
 ui/keystoneloot_frame/mixins/keystoneloot_frame.lua
 ui/keystoneloot_frame/keystoneloot_frame.xml
+
+ui/bootstrap.lua
