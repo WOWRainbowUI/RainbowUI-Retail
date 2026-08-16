@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 820
+## Version: 821
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -174,3 +174,4 @@ Compatibility\Refunds.lua
 Compatibility\Contexts.lua
 Compatibility\ItemLevels.lua
 Compatibility\AuctionValue.lua
+Compatibility\BankType.lua
