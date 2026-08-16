@@ -957,27 +957,6 @@ local BeginAuraGroupDrag
 
 local function OpenAuraGroupPopup(group)
     if not (group and IsEditModeActive() and not IsConfigBlocked()) then return false end
-    local kind = group._msufA3MoverKind
-    if type(kind) == "string" and kind:match("^custom[1-4]$") then
-        local menu = MSUF and MSUF.MSUF2
-        local unit = group._msufA3Unit
-        local scope = BOSS_UNITS[unit] and "boss" or unit
-        if menu then
-            menu.unitAuraTabSelection = menu.unitAuraTabSelection or {}
-            menu.unitAuraTabSelection[scope] = kind
-            if type(menu.SelectPage) == "function" then
-                ExportPublic("MSUF_EM2_MenuFocusRequest", {
-                    pageKey = "uf_" .. tostring(scope),
-                    sectionId = "auras",
-                    component = kind,
-                    source = "edit-mode-custom-aura",
-                    explicit = true,
-                })
-                menu.SelectPage("uf_" .. tostring(scope))
-                return true
-            end
-        end
-    end
     if type(_G.MSUF_OpenAuras3PositionPopup) ~= "function" then return false end
     ExportPublic("MSUF_EM2_ActiveAuraGroup", group._msufA3MoverKind)
     ExportPublic("MSUF_EM2_ActiveAuraUnit", group._msufA3Unit)
@@ -1547,20 +1526,23 @@ local function LayoutPreviewSwipe(icon, cfg, remainingFrac)
     swipe:Show()
 end
 
-local function LayoutPreviewDispelBorder(icon, cfg)
+local function LayoutPreviewDispelBorder(icon, cfg, index)
     local border = icon and icon.DispelBorder
     local atlas = cfg and DEBUFF_TYPE_BORDER_PREVIEW_ATLAS[cfg.debuffBorderMode]
     local barOnly = cfg and cfg.showDurationBar == true and cfg.durationBarDisplay == "BAR_ONLY"
     local size = math_max(1, (icon and icon.GetWidth and icon:GetWidth()) or 24)
     if not barOnly and type(A3.ApplyAuraDispelPreview) == "function"
-        and A3.ApplyAuraDispelPreview(border, icon, size, cfg and cfg.debuffBorderMode, cfg and cfg.iconShape) then
+        and A3.ApplyAuraDispelPreview(border, icon, size, cfg and cfg.debuffBorderMode,
+            cfg and cfg.iconShape, A3.PreviewDispelTypeForIndex(index)) then
         return
     end
     if not (border and atlas and border.SetAtlas and not barOnly) then
         if border then border:Hide() end
         return
     end
-    local pad = math_max(1, math_floor(size / 24 + 0.5))
+    local pad = type(A3.NativeAuraDispelBorderPadding) == "function"
+        and A3.NativeAuraDispelBorderPadding(size)
+        or math_max(1, math_floor(size / 6 + 0.5))
     border:ClearAllPoints()
     border:SetPoint("TOPLEFT", icon, "TOPLEFT", -pad, pad)
     border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", pad, -pad)
@@ -1576,7 +1558,7 @@ local function ApplyIconZoom(texture, zoom)
     texture:SetTexCoord(inset, 1 - inset, inset, 1 - inset)
 end
 
-local function ApplyPreviewIconText(icon, unit, cfg)
+local function ApplyPreviewIconText(icon, unit, cfg, index)
     cfg = cfg or ReadTextConfig(unit)
     local barOnly = cfg.showDurationBar == true and cfg.durationBarDisplay == "BAR_ONLY"
     if icon.Icon then icon.Icon:SetShown(not barOnly) end
@@ -1592,7 +1574,7 @@ local function ApplyPreviewIconText(icon, unit, cfg)
         icon.CooldownText:SetShown(cfg.showCooldownText ~= false)
     end
     LayoutPreviewSwipe(icon, cfg)
-    LayoutPreviewDispelBorder(icon, cfg)
+    LayoutPreviewDispelBorder(icon, cfg, index)
     if icon.DurationBar then
         if cfg.showDurationBar == true then
             local height = Clamp(cfg.durationBarHeight, 2, 1, 16)
@@ -1833,7 +1815,12 @@ local function ApplyEditModeCustomEffect(group, frame, item)
     if root.SetFrameLevel then
         local priority = Clamp(effect.priority, 5, 1, 10)
         local layer = Clamp(effect.layer, 0, 0, 30)
-        root:SetFrameLevel(FrameLayers.ElementLevel and FrameLayers.ElementLevel(layer, 0, 11 - priority)
+        local targetOwner = health
+        if kind == "namecolor" then
+            targetOwner = nameSource and nameSource.GetParent and nameSource:GetParent() or frame
+        end
+        root:SetFrameLevel(FrameLayers.AuraEffectLevel and FrameLayers.AuraEffectLevel(layer, priority, targetOwner)
+            or FrameLayers.ElementLevel and FrameLayers.ElementLevel(layer, 0, 11 - priority)
             or ((group:GetFrameLevel() or 900) + SPELL_FRAME_EFFECT_BASE_OFFSET + (11 - priority) + layer))
     end
     root.tint:Hide()
@@ -2095,7 +2082,7 @@ function EM.RefreshUnit(unit)
                     end
                     if icon.Count then icon.Count:SetText(i == 1 and "3" or "") end
                     if icon.CooldownText then icon.CooldownText:SetText(i == 1 and "1m" or "32") end
-                    ApplyPreviewIconText(icon, unit, textCfg)
+                    ApplyPreviewIconText(icon, unit, textCfg, i)
                     if type(A3.ApplyIconStylePreview) == "function" then
                         A3.ApplyIconStylePreview(icon, iconStyle, size, iconShape)
                     end

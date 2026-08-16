@@ -80,6 +80,51 @@ R.IMMEDIATE_CONVERSATION_PHRASES = {
     "chatgpt", "chat gpt", "ai assistant", "ai chat", "like chatgpt", "like chat gpt",
 }
 
+-- Small talk is read-only by construction: HumanConversationReply only ever
+-- returns text. The fail-closed read-only gate in front of the conversational
+-- fast lane exists to stop WRITES, but it also swallowed "tell me a joke" --
+-- the "tell me" lead-in reads as a settings lookup -- and the sentence came
+-- back as a settings advisory instead of a joke. That also meant the joke lane
+-- never ran, so ctx.lastConversationKind was never set, and the following
+-- "another one" was read as a follow-up to the last MUTATION and tried to
+-- write. Both phrase lists above are pure conversation, so matching one is
+-- proof the request is not a setting change.
+-- Sentences that ASK rather than TELL. "should i turn off Boss Buff Show
+-- Cooldown Swipe?" names one control and one polarity, so the last-word rescue
+-- hook in Submit read it as a command the lanes had wrongly refused and turned
+-- the swipe off -- answering a question by doing the thing. Every form here is
+-- an interrogative opener, so no imperative can match: "make focus frame on"
+-- and "turn off boss buff show cooldown swipe" are unaffected, which matters
+-- because those are exactly the cases the rescue hook exists for.
+R.ADVICE_QUESTION_OPENERS = {
+    "^should i%f[%W]", "^should we%f[%W]", "^should it%f[%W]", "^should the%f[%W]",
+    "^would it be better%f[%W]", "^would you recommend%f[%W]", "^is it better%f[%W]",
+    "^is it worth%f[%W]", "^do you think%f[%W]", "^whats better%f[%W]",
+    "^what is better%f[%W]", "^which is better%f[%W]", "^is it a good idea%f[%W]",
+    "^sollte ich%f[%W]", "^soll ich%f[%W]", "^waere es besser%f[%W]", "^ist es besser%f[%W]",
+}
+
+function R.IsAdviceQuestion(text)
+    local norm = R.Normalize(text)
+    if norm == "" then return false end
+    for i = 1, #R.ADVICE_QUESTION_OPENERS do
+        if norm:find(R.ADVICE_QUESTION_OPENERS[i]) then return true end
+    end
+    return false
+end
+A.RouterIsAdviceQuestion = R.IsAdviceQuestion
+
+function R.IsPureSmallTalk(text)
+    local norm = R.Normalize(text)
+    if norm == "" then return false end
+    if R.IMMEDIATE_SHORT_CONVERSATION[norm] then return true end
+    for i = 1, #(R.IMMEDIATE_CONVERSATION_PHRASES or {}) do
+        if R.HasNormalizedPhrase(norm, R.IMMEDIATE_CONVERSATION_PHRASES[i]) then return true end
+    end
+    return false
+end
+A.RouterIsPureSmallTalk = R.IsPureSmallTalk
+
 R.MUTATION_TERMS = {    "set", "change", "make", "turn", "enable", "disable", "show", "hide", "move", "nudge", "shift", "reset",
     "copy", "export", "import", "create", "delete", "remove", "add", "put", "clear", "switch", "assign", "rename", "close", "toggle",
     "increase", "decrease", "raise", "lower", "bump", "grow", "shrink", "detach", "attach", "anchor", "follow", "undock", "dock", "embed",
@@ -2085,6 +2130,59 @@ local COMPARATIVE_TRAILING_FILLER = {
     "%s+a%s+bit$", "%s+a%s+little$", "%s+a%s+lot$", "%s+slightly$", "%s+please$", "%s+now$",
 }
 
+-- A size is routinely stated as a dimension idiom rather than as an attribute
+-- and a value: "make the shield bar 6 pixels tall", "make my target frame 200
+-- pixels wide". The attribute noun the registry knows ("height", "width")
+-- never appears, so the rewrites above see only a bare number attached to a
+-- subject; the request either drew a pick-list of every per-unit Height or --
+-- worse -- was claimed by a setup article, because "make ... healing ..." also
+-- reads as a request for healer advice.
+--
+-- Each tail names exactly one attribute, so the rewrite is mechanical. This is
+-- deliberately not an alias list: aliases would have to be spelled out per
+-- control and per scope, and the registry keeps only the first
+-- MAX_SETTING_ALIASES of them.
+local DIMENSION_TAILS = {
+    { word = "tall", attribute = "height" },
+    { word = "high", attribute = "height" },
+    { word = "wide", attribute = "width" },
+    { word = "thick", attribute = "thickness" },
+}
+local DIMENSION_UNITS = { "%s*pixels", "%s*pixel", "%s*px", "" }
+
+function R.CanonicalDimensionCommand(text, skipVerify)
+    local norm = R.Normalize(text)
+    if norm == "" or not norm:find("%d") then return nil end
+    for i = 1, #COMPARATIVE_TRAILING_FILLER do
+        norm = R.Trim((norm:gsub(COMPARATIVE_TRAILING_FILLER[i], "")))
+    end
+    for i = 1, #DIMENSION_TAILS do
+        local spec = DIMENSION_TAILS[i]
+        for j = 1, #DIMENSION_UNITS do
+            local body, number = norm:match("^(.-)%s+([-+]?%d+%.?%d*)" .. DIMENSION_UNITS[j] .. "%s+" .. spec.word .. "$")
+            if body and number and body ~= "" then
+                body = body:gsub("^please%s+", ""):gsub("^can%s+you%s+", ""):gsub("^could%s+you%s+", "")
+                    :gsub("^i%s+want%s+", ""):gsub("^i%s+would%s+like%s+", ""):gsub("^id%s+like%s+", "")
+                    :gsub("^i%s+need%s+", ""):gsub("^hey%s+", ""):gsub("^just%s+", "")
+                    :gsub("^now%s+", "")
+                    :gsub("^make%s+", ""):gsub("^set%s+", ""):gsub("^change%s+", "")
+                    :gsub("^the%s+", ""):gsub("^my%s+", "")
+                body = R.Trim(body)
+                if body ~= "" then
+                    -- "make the absorb bar height 6 pixels tall" already names
+                    -- the attribute; appending it again would never match.
+                    local canonical = body:match("%f[%w]" .. spec.attribute .. "$")
+                        and ("set " .. body .. " to " .. number)
+                        or ("set " .. body .. " " .. spec.attribute .. " to " .. number)
+                    if skipVerify then return canonical end
+                    if R.ExactAliasSingleChange(canonical) then return canonical end
+                end
+            end
+        end
+    end
+    return nil
+end
+
 -- The control name a comparative change is about, or nil. Shares the subject
 -- peeling of R.CommandSubjectPhrase so the two can never disagree.
 function R.ComparativeChangeSubject(text)
@@ -2200,6 +2298,77 @@ R.NAMED_BOOLEAN_NEGATIONS = {
     "get rid of", "without", "hide", "remove", "turn off", "switch off", "disable",
 }
 
+-- Does the sentence actually contain the enum value that was read out of it?
+-- NamedBooleanIntentPlan treats "the rest of the sentence" as the value once
+-- the subject resolves to one control, and for an enum that let it write a
+-- choice the player never typed: "show me target portrait position dropdown"
+-- resolved Portrait Position and set it to LEFT. A value that cannot be found
+-- in the text -- as its own token, its display label, or one of the control's
+-- registered value aliases -- is an invention, not a reading.
+-- Openers that can ONLY mean "take me there". Deliberately excludes "show me":
+-- "show me how much maximum health i lost" is navigation-shaped but asks for a
+-- feature to be switched on, and treating it as navigation stopped that
+-- working. "direct me to target portrait position left" names a value only to
+-- identify the control it wants opened, so it must never be applied.
+R.UNAMBIGUOUS_NAVIGATION_OPENERS = {
+    "^direct me to%f[%W]", "^take me to%f[%W]", "^bring me to%f[%W]",
+    "^navigate to%f[%W]", "^jump to%f[%W]", "^go to%f[%W]", "^scroll to%f[%W]",
+    "^where is%f[%W]", "^where are%f[%W]", "^where do i find%f[%W]",
+    "^bring mich zu%f[%W]", "^springe zu%f[%W]", "^wo finde ich%f[%W]",
+}
+
+function R.IsUnambiguousNavigationCommand(text)
+    local norm = R.Normalize(text)
+    if norm == "" then return false end
+    for i = 1, #R.UNAMBIGUOUS_NAVIGATION_OPENERS do
+        if norm:find(R.UNAMBIGUOUS_NAVIGATION_OPENERS[i]) then return true end
+    end
+    return false
+end
+A.RouterIsUnambiguousNavigationCommand = R.IsUnambiguousNavigationCommand
+
+R.ENUM_VALUE_LEADIN_PATTERNS = {
+    "^show me%f[%W]", "^take me to%f[%W]", "^bring me to%f[%W]", "^jump to%f[%W]",
+    "^go to%f[%W]", "^where is%f[%W]", "^where are%f[%W]", "^find%f[%W]",
+    "^zeig mir%f[%W]", "^bring mich zu%f[%W]",
+}
+
+function R.EnumValueAppearsInText(setting, value, norm)
+    if value == nil then return false end
+    local stripped = R.Normalize(norm)
+    -- A navigational lead-in is not the value. Enable-style enums register
+    -- one-word polarity aliases ("show", "on", "enabled") pointing at their
+    -- default ON choice -- Portrait Position maps "show" to LEFT -- so the
+    -- "show" in "SHOW ME target portrait position dropdown" was read as that
+    -- alias and the dropdown was written. "show the target portrait" has no
+    -- lead-in and still resolves.
+    for i = 1, #R.ENUM_VALUE_LEADIN_PATTERNS do
+        stripped = stripped:gsub(R.ENUM_VALUE_LEADIN_PATTERNS[i], "")
+    end
+    local hay = " " .. R.Trim(stripped) .. " "
+    local function mentions(phrase)
+        phrase = R.Normalize(phrase)
+        if phrase == "" then return false end
+        return hay:find(" " .. phrase .. " ", 1, true) ~= nil
+    end
+    local target = tostring(value)
+    if mentions(target) then return true end
+    -- Prefixed media keys ("BORDER:SHADOW") are named by their tail in speech.
+    local tail = target:match("[^:]+$")
+    if tail and tail ~= target and mentions(tail) then return true end
+    if type(R.RegistryValueLabel) == "function" then
+        local ok, label = pcall(R.RegistryValueLabel, setting, value)
+        if ok and label and mentions(label) then return true end
+    end
+    local aliases = setting and setting.valueAliases
+    if type(aliases) == "table" then
+        for alias, mapped in pairs(aliases) do
+            if tostring(mapped) == target and mentions(alias) then return true end
+        end
+    end
+    return false
+end
+
 function R.NamedBooleanIntentPlan(text)
     local norm = R.Normalize(text)
     if norm == "" or norm:find("%d") then return nil end
@@ -2256,6 +2425,14 @@ function R.NamedBooleanIntentPlan(text)
         local parser = A.Parser or {}
         local parsed = type(parser.ValueForRegistrySetting) == "function"
             and parser.ValueForRegistrySetting(setting, norm, text) or nil
+        -- Trust an enum reading only if the sentence really says it. The on/off
+        -- inference below is exempt on purpose: that one is meant to be
+        -- inferred from the mention alone.
+        if parsed ~= nil and setting.type == "enum"
+            and not R.EnumValueAppearsInText(setting, parsed, norm)
+        then
+            parsed = nil
+        end
         -- An on/off enum is a toggle wearing an enum's clothes: the border
         -- controls store "on"/"off", so a sentence that describes the result
         -- ("highlight the frame when something is attacking me") states its
@@ -2275,6 +2452,22 @@ function R.NamedBooleanIntentPlan(text)
             local plan = type(parser.PlanForExactRegistrySetting) == "function"
                 and parser.PlanForExactRegistrySetting(setting, norm, text) or nil
             if type(plan) == "table" and plan.kind == "changes" then
+                -- The planner will happily pick an enum choice for a sentence
+                -- that names only the control, which is how "show me target
+                -- portrait position dropdown" became Portrait Position = LEFT.
+                -- A relative step (relativeDelta) is fine -- "a chunkier
+                -- outline" really does state a direction -- but a concrete enum
+                -- value has to be in the words.
+                for i = 1, #(plan.changes or {}) do
+                    local change = plan.changes[i]
+                    local target = change and change.setting
+                    if type(target) == "table" and target.type == "enum"
+                        and change.value ~= nil
+                        and not R.EnumValueAppearsInText(target, change.value, norm)
+                    then
+                        return nil
+                    end
+                end
                 plan.raw, plan.sourceText = text, text
                 plan.namedWordingTokens = bestNamedLength
                 return plan
@@ -2314,6 +2507,7 @@ function R.RequestNamesOneControl(text)
     if R.CanonicalTrailingStateCommand(text) then return true end
     if R.CanonicalValueConnectorCommand(text) then return true end
     if R.CanonicalValueBeforeControlCommand(text) then return true end
+    if R.CanonicalDimensionCommand(text) then return true end
     if R.ComparativeChangeNamesOneControl(text) then return true end
     -- A result-shaped command ("give the health bars a gradient look") names
     -- its control in the subject even though it states no value word, so the
@@ -2358,6 +2552,19 @@ function R.TopicAnswerSurvivesExactControl(result, text)
         or (type(R.CommandSubjectPhrase) == "function" and R.CommandSubjectPhrase(text) ~= nil)
     if not carriesValue then return result end
     if type(R.RequestNamesOneControl) == "function" and R.RequestNamesOneControl(text) then return nil end
+    -- The sentence may describe its control in wording no label or alias
+    -- spells, yet a dedicated parser lane still recognises it in full: "make
+    -- the healing absorb bar 5 pixels tall" is Heal Absorb Bar Height, but the
+    -- word "make" plus the word "healing" also reads as a request for healer
+    -- setup advice, and the article won. A scoreless single-change plan is a
+    -- recognised sentence rather than a fuzzy name guess, so no setup article
+    -- may outrank one. Paid only here -- an article has already been built for
+    -- a value-carrying request, and this parse is the work the request was
+    -- going to do anyway once the article stood down.
+    if type(A.Parse) == "function" and type(R.OpenEndedSpecialistOwnsChange) == "function" then
+        local parsed = A.Parse(text)
+        if R.OpenEndedSpecialistOwnsChange(parsed) then return nil end
+    end
     return result
 end
 
@@ -12782,6 +12989,22 @@ function R.RegistryDecisionSubject(norm)
     norm = R.Normalize(norm)
     local naturalSubject = R.NaturalRegistryDecisionSubject(norm)
     if naturalSubject then return naturalSubject end
+    -- How-to and lookup scaffolding carries zero setting information but
+    -- poisons the knowledge search ("how do i get rounded corners on my
+    -- frames" scores 0; the same words without the scaffold land on Rounded
+    -- Frame Texture). Strip the interrogative shell before subject matching.
+    local howto = norm:match("^how%s+do%s+i%s+(.+)$") or norm:match("^how%s+can%s+i%s+(.+)$")
+        or norm:match("^how%s+do%s+you%s+(.+)$") or norm:match("^how%s+would%s+i%s+(.+)$")
+        or norm:match("^how%s+to%s+(.+)$")
+        or norm:match("^where%s+do%s+i%s+(.+)$") or norm:match("^where%s+can%s+i%s+(.+)$")
+        or norm:match("^show%s+me%s+the%s+(.+)$") or norm:match("^show%s+me%s+(.+)$")
+        or norm:match("^wie%s+kann%s+ich%s+(.+)$") or norm:match("^wie%s+mache%s+ich%s+(.+)$")
+        or norm:match("^wie%s+bekomme%s+ich%s+(.+)$") or norm:match("^wo%s+finde%s+ich%s+(.+)$")
+    if howto then norm = R.Trim(howto) end
+    local whatDoes = norm:match("^what%s+does%s+(.+)%s+do%s+on%s+the%s+.+%s+page$")
+        or norm:match("^what%s+does%s+(.+)%s+do$")
+        or norm:match("^was%s+macht%s+(.+)$")
+    if whatDoes then norm = R.Trim(whatDoes) end
     local property, scope = norm:match("^what%s+(.+)%s+do%s+you%s+recommend%s+for%s+(.+)$")
     if property and scope then return R.Trim(scope .. " " .. property) end
     local directSubject = norm:match("^what%s+do%s+you%s+recommend%s+for%s+(.+)$")
@@ -13479,6 +13702,8 @@ R.EXPLICIT_SEARCH_CANONICAL_KEYS = {
     ["global text outline"] = "fontScope.shared.outline",
     ["global font monochrome"] = "fontScope.shared.fontMonochrome",
     ["global monochrome font"] = "fontScope.shared.fontMonochrome",
+    ["global font slug"] = "fontScope.shared.fontMonochrome",
+    ["global slug rendering"] = "fontScope.shared.fontMonochrome",
     ["global bar right absorb"] = "general.absorbAnchorMode",
     ["global absorb right"] = "general.absorbAnchorMode",
     ["global bar absorb color"] = "general.absorbBarColor",
@@ -14449,6 +14674,27 @@ function R.OpenEndedSpecialistProvesUniqueEnumValue(plan, entries)
     return selectedIsCandidate and compatible == 1
 end
 
+-- A parser plan built by a dedicated semantic lane carries no matchScore --
+-- that field is stamped only by the broad fuzzy registry match this Router
+-- lane exists to fail closed against. So a scoreless single-change plan is the
+-- one kind of parser answer that is safe to prefer over "I could not identify
+-- one exact MSUF control": the lane recognised the whole sentence, it did not
+-- guess at a name. Used only at give-up points, never ahead of the Router's own
+-- exact-label and named-control resolution.
+function R.OpenEndedSpecialistOwnsChange(plan)
+    if type(plan) ~= "table" or plan.kind ~= "changes" then return false end
+    if type(plan.changes) ~= "table" or #plan.changes == 0 then return false end
+    for i = 1, #plan.changes do
+        local change = plan.changes[i]
+        if type(change) ~= "table" then return false end
+        if change.matchScore ~= nil then return false end
+        local setting = change.setting
+        if type(setting) ~= "table" or tostring(setting.key or "") == "" then return false end
+        if change.value == nil and change.relativeDelta == nil then return false end
+    end
+    return true
+end
+
 function R.OpenEndedSettingCurrentValue(setting)
     if not (setting and type(setting.get) == "function") then return nil end
     local ok, value = pcall(setting.get)
@@ -15282,6 +15528,24 @@ function R.TryOpenEndedSettingIdea(text, coreHandler)
                 return result
             end
         end
+        -- A dimension idiom hides the attribute noun ("6 pixels tall" is a
+        -- height), so the ranked candidates are every control whose name merely
+        -- contains the subject -- for "make the shield bar 6 pixels tall" that
+        -- was the seven per-unit frame Heights. The rewritten sentence is only
+        -- used when it resolves to exactly one control, which is what separates
+        -- it from the list below.
+        if type(coreHandler) == "function" then
+            local sized = R.CanonicalDimensionCommand(text)
+            if sized then
+                local result = coreHandler(sized)
+                if result and not A.RouterIsUnknownResult(result)
+                    and not (type(A.RouterIsNoClueResult) == "function" and A.RouterIsNoClueResult(result))
+                then
+                    RetainConfidentSettingValueQuestion(entries, result)
+                    return result
+                end
+            end
+        end
         -- Last check before offering a list: the request may spell one control's
         -- visible label in full, for a label no other setting shares. That is
         -- not a candidate among several, it is the control -- and for the types
@@ -15377,6 +15641,25 @@ function R.TryOpenEndedSettingIdea(text, coreHandler)
                 searchResults = R.RegistryLocationResultFollowups(entries, visible),
             }
         end
+        -- Give-up point. Every Router resolution above has declined, so the
+        -- alternative to letting the parser's specialist lane run is telling
+        -- the player to go find the control themselves. "set the raid frame bar
+        -- outline thickness to 3" reaches here -- the singular "raid frame"
+        -- keeps it out of the fuzzy index that the plural form hits -- while
+        -- the bar-outline lane had already resolved it exactly.
+        if type(coreHandler) == "function" and R.OpenEndedSpecialistOwnsChange(specialized) then
+            local savedCache = R._openEndedSettingCache
+            R._openEndedSettingCache = { text = R.Normalize(text), analysis = false }
+            local ok, result = pcall(coreHandler, text)
+            R._openEndedSettingCache = savedCache
+            if not ok then error(result, 0) end
+            if result and not A.RouterIsUnknownResult(result)
+                and not (type(A.RouterIsNoClueResult) == "function" and A.RouterIsNoClueResult(result))
+            then
+                RetainConfidentSettingValueQuestion(entries, result)
+                return result
+            end
+        end
         local page = analysis.page
         if page then
             -- The player supplied a real value and the curated registry could
@@ -15408,6 +15691,7 @@ function R.TryOpenEndedSettingIdea(text, coreHandler)
             local canonical = R.CanonicalTrailingStateCommand(text, true)
                 or R.CanonicalValueConnectorCommand(text, true)
                 or R.CanonicalValueBeforeControlCommand(text, true)
+                or R.CanonicalDimensionCommand(text, true)
             if canonical then
                 local rewritten = coreHandler(canonical)
                 if rewritten and not A.RouterIsUnknownResult(rewritten) then return rewritten end
@@ -18075,6 +18359,34 @@ function A.RouteInput(text, coreHandler)
             if navLocated then return navLocated end
             local navDirect = R.NamedSettingDirectAnswer and R.NamedSettingDirectAnswer(navNamed)
             if navDirect then return navDirect end
+        end
+        -- Before conceding, run the same knowledge retrieval the advisory
+        -- lane uses: a request like "show me the healing that is on its way"
+        -- names no control, but its folded subject ranks Heal Prediction
+        -- Overlay far above everything else. Naming the closest controls
+        -- turns a dead end into a one-reply detour; the generic text stays
+        -- for genuinely unmatchable wording (and while the index is cold).
+        local navSubject = R.RegistryDecisionSubject and R.RegistryDecisionSubject(text) or nil
+        local navEntries = (navSubject and navSubject ~= "" and R.RegistrySettingSearchEntries)
+            and R.RegistrySettingSearchEntries(navSubject, R.Normalize(text), 5) or nil
+        if navEntries and #navEntries > 0 then
+            local navLines = {
+                "I could not match that wording to one exact MSUF destination, so I kept every setting unchanged. The closest controls:",
+            }
+            for i = 1, math.min(#navEntries, 3) do
+                local navItem = navEntries[i].item or {}
+                navLines[#navLines + 1] = string.format("%d. %s - %s",
+                    i, tostring(navItem.label or "MSUF setting"), tostring(navItem.pageLabel or "MSUF page"))
+            end
+            navLines[#navLines + 1] = "Say a number to open one, or name the exact control."
+            return {
+                text = table.concat(navLines, "\n"),
+                status = "info",
+                result = "info",
+                summary = "Explicit navigation request did not authorize a setting change.",
+                searchResults = R.RegistryLocationResultFollowups
+                    and R.RegistryLocationResultFollowups(navEntries, 3) or nil,
+            }
         end
         return {
             text = "I could not identify one exact MSUF destination from that wording, so I kept every setting unchanged. Name the page or exact control you want me to open.",

@@ -367,6 +367,7 @@ local OpenPreviewHandleSettings
 local MenuTheme
 local function RefreshHandleSelectionVisuals(box)
     if not box then return end
+    if not box._selectedHandle and Preview.RestoreQueuedHandle(box) then return end
     local guidesOn = PreviewGuidesVisible(box)
     local selected = box._selectedHandle
     if selected and selected.IsShown and not selected:IsShown() then selected = nil; box._selectedHandle = nil end
@@ -592,12 +593,15 @@ function Preview.PrepareUnitHandleSubmenu(menu, unit, handle)
     end
     if state then menu[state] = menu[state] or {}; menu[state][unit] = tab end
     local textureSlot = section == "texture_layer" and (tonumber(key:match("^texLayer(%d)$")) or 1)
+    local textureSlotChanged = false
     if textureSlot then
         menu.unitTexLayerSlot = menu.unitTexLayerSlot or {}
         menu.unitTexLayerTab = menu.unitTexLayerTab or {}
+        textureSlotChanged = (tonumber(menu.unitTexLayerSlot[unit]) or 1) ~= textureSlot
         menu.unitTexLayerSlot[unit] = textureSlot
         menu.unitTexLayerTab[unit] = "placement"
     end
+    return textureSlotChanged
 end
 OpenPreviewHandleSettings = function(handle, source)
     if not handle then return false end
@@ -606,7 +610,7 @@ OpenPreviewHandleSettings = function(handle, source)
     local menu = _G.MSUF2 or M2
     local unit = box and box.key or "player"
     local section = Preview.ResolveUnitHandleSection(handle, unit)
-    Preview.PrepareUnitHandleSubmenu(menu, unit, handle)
+    local textureSlotChanged = Preview.PrepareUnitHandleSubmenu(menu, unit, handle)
     if fields.statusRefresh then
         local selected = NormalizeStatusPreviewId(handle._key)
         Preview.selectedStatusId = selected
@@ -651,10 +655,19 @@ OpenPreviewHandleSettings = function(handle, source)
             -- The Aura workspace captures its selected container while the
             -- Unit page is built. Refreshers cannot replace that cached
             -- container, so rebuild only when this preview opens another one.
-            if (lane ~= previousAuraLane or previousAuraTool ~= "layout") and type(menu.InvalidatePage) == "function" then
+            if (lane ~= previousAuraLane or previousAuraTool ~= "layout")
+                and type(menu.InvalidatePage) == "function"
+            then
+                Preview._restoreHandleUnit, Preview._restoreHandleKey, Preview._restoreSourceBox = unit, handle._key, box
+                Preview._restoreSourceShowSerial = tonumber(box and box._msuf2PreviewShowSerial) or 0
                 menu.InvalidatePage(pageKey)
             end
-            return menu.SelectPage(pageKey) ~= false
+            local selected = menu.SelectPage(pageKey) ~= false
+            if selected then Preview.RestoreQueuedHandle(Preview.active)
+            else
+                Preview._restoreHandleUnit, Preview._restoreHandleKey, Preview._restoreSourceBox, Preview._restoreSourceShowSerial = nil, nil, nil, nil
+            end
+            return selected
         end
         return false
     end
@@ -682,6 +695,12 @@ OpenPreviewHandleSettings = function(handle, source)
     local sectionId = UNIT_SECTION_IDS[section or ""] or UNIT_SECTION_IDS.text
     local pageKey = box and (box._msuf2PinnedPreviewPageKey or ("uf_" .. tostring(box.key or "player"))) or nil
     if menu and type(menu.SelectPage) == "function" and pageKey then
+        -- Texture controls are intentionally bound to one slot for their whole
+        -- lifetime. Opening another texture handle must therefore rebuild the
+        -- cached Unit page before it is focused.
+        if textureSlotChanged and type(menu.InvalidatePage) == "function" then
+            menu.InvalidatePage(pageKey)
+        end
         ExportPublic("MSUF_EM2_MenuFocusRequest", {
             key = box and box.key,
             component = handle._key,
@@ -936,6 +955,19 @@ local function FindUnitPreviewHandle(box, handleKey)
         if handle and handle._key == handleKey then return handle end
     end
     return nil
+end
+function Preview.RestoreQueuedHandle(box)
+    local sameSourceGeneration = box and box == Preview._restoreSourceBox
+        and (tonumber(box._msuf2PreviewShowSerial) or 0) <= (tonumber(Preview._restoreSourceShowSerial) or 0)
+    if not (box and not sameSourceGeneration and SelectPreviewHandle and Preview._restoreHandleKey
+        and tostring(box.key) == tostring(Preview._restoreHandleUnit)
+        and (not box.IsShown or box:IsShown()))
+    then return false end
+    local handle = FindUnitPreviewHandle(box, Preview._restoreHandleKey)
+    if not (handle and handle._msufPlaced ~= false and (not handle.IsShown or handle:IsShown())) then return false end
+    Preview._restoreHandleUnit, Preview._restoreHandleKey, Preview._restoreSourceBox, Preview._restoreSourceShowSerial = nil, nil, nil, nil
+    SelectPreviewHandle(handle, true)
+    return true
 end
 local function RestoreUnitPreviewSelection(box, previous)
     if not box then return end
@@ -2326,6 +2358,7 @@ local function BuildPreview(parent, panel, width, height)
         end
     end
     box:SetScript("OnShow", function(self)
+        self._msuf2PreviewShowSerial = (tonumber(self._msuf2PreviewShowSerial) or 0) + 1
         Preview.active = self
         if PreviewAnimationActive(self) then StartPreviewAnimationDriver(self) end
         RefreshPreviewAnimationButton(self)

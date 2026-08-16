@@ -179,9 +179,9 @@ local MSUF_DEFAULTS_TEXT_SCOPE_KEYS = { "player", "target", "targettarget", "tot
 local MSUF_DEFAULTS_GROUP_SCOPE_KEYS = { "gf_party", "gf_raid", "gf_mythicraid" }
 local MSUF_DEFAULTS_STATUS_PREFIXES = {
     "leaderIcon", "raidMarker", "levelIndicator", "eliteIcon", "statusText",
-    "statusGhostText", "statusAFKText", "statusDNDText",
+    "statusGhostText", "statusAFKText", "statusAFKTimer", "statusAFKTimerText", "statusDNDText",
     "combatStateIndicator", "restedStateIndicator", "restingStateIndicator",
-    "incomingResIndicator", "pvpIndicator", "raidGroupName",
+    "incomingResIndicator", "pvpIndicator", "stanceIndicator", "raidGroupName",
 }
 local MSUF_DEFAULTS_AURA_NUMERIC_KEYS = {
     offsetX = { -4096, 4096 }, offsetY = { -4096, 4096 },
@@ -521,12 +521,13 @@ local function MSUF_Defaults_NormalizeStatusScope(scope, groupScope)
             "roleIconX", "roleIconY", "raidMarkerX", "raidMarkerY",
             "leaderIconX", "leaderIconY", "assistIconX", "assistIconY",
             "statusOffsetX", "statusOffsetY", "statusGhostOffsetX", "statusGhostOffsetY",
-            "statusAFKOffsetX", "statusAFKOffsetY", "statusDNDOffsetX", "statusDNDOffsetY", "groupNumberX", "groupNumberY",
+            "statusAFKOffsetX", "statusAFKOffsetY", "statusAFKTimerOffsetX", "statusAFKTimerOffsetY",
+            "statusDNDOffsetX", "statusDNDOffsetY", "groupNumberX", "groupNumberY",
         }) do
             changed = MSUF_Defaults_NormalizeNumberField(scope, key, -500, 500) or changed
         end
         changed = MSUF_Defaults_NormalizeNumberField(scope, "groupNumberLayer", 0, 30) or changed
-        for _, key in ipairs({ "roleIconAnchor", "raidMarkerAnchor", "leaderIconAnchor", "assistIconAnchor", "statusTextAnchor", "statusGhostTextAnchor", "statusAFKTextAnchor", "statusDNDTextAnchor", "groupNumberAnchor" }) do
+        for _, key in ipairs({ "roleIconAnchor", "raidMarkerAnchor", "leaderIconAnchor", "assistIconAnchor", "statusTextAnchor", "statusGhostTextAnchor", "statusAFKTextAnchor", "statusAFKTimerTextAnchor", "statusDNDTextAnchor", "groupNumberAnchor" }) do
             changed = MSUF_Defaults_UpperStringField(scope, key) or changed
         end
     end
@@ -1035,18 +1036,23 @@ local function MSUF_Defaults_ApplyFreshInstallOverrides(db)
     -- Performance baseline: native interpolation is an
     -- explicit visual option, never an implicit cost on a fresh profile.
     db.bars.smoothPowerBar = false
+    db.bars.chunkedPowerBar = false
     db.bars.classPowerSmoothFill = false
     db.bars.altManaSmoothFill = false
     for _, key in ipairs({ "player", "target", "targettarget", "focustarget", "focus", "pet", "boss" }) do
         if type(db[key]) == "table" then
             db[key].smoothFill = false
+            db[key].chunkedFill = false
             db[key].powerSmoothFill = false
+            db[key].powerChunkedFill = false
         end
     end
     for _, key in ipairs({ "gf_party", "gf_raid", "gf_mythicraid" }) do
         if type(db[key]) == "table" then
             db[key].smoothFill = false
+            db[key].chunkedFill = false
             db[key].powerSmoothFill = false
+            db[key].powerChunkedFill = false
         end
     end
     SetDefault(db.bars, "roundedFramesEnabled", false)
@@ -1456,6 +1462,8 @@ local function MSUF_Defaults_CreateCanonicalUnitAuras()
         },
         shared = {
             bossEditTogether = true,
+            hideBlizzardBuffFrame = false,
+            hideBlizzardDebuffFrame = false,
             buffGroupOffsetX = 0,
             buffGroupOffsetY = 36,
             debuffGroupOffsetX = 0,
@@ -2322,7 +2330,7 @@ end
 local function MSUF_Defaults_HasScopedFontOverrideValue(scope)
     if type(scope) ~= "table" then return false end
     if scope.fontOutline ~= nil or scope.noOutline ~= nil or scope.boldText ~= nil then return true end
-    if scope.fontMonochrome ~= nil or scope.fontTextAlpha ~= nil or scope.fontBaselineOffset ~= nil then return true end
+    if scope.fontMonochrome ~= nil or scope.fontSlug ~= nil or scope.fontTextAlpha ~= nil or scope.fontBaselineOffset ~= nil then return true end
     if scope.textBackdrop ~= nil or scope.fontShadowStrength ~= nil or scope.fontShadowOpacity ~= nil or scope.fontShadowDistance ~= nil then return true end
     if scope.colorPowerTextByType ~= nil or scope.colorHealthTextByHealth ~= nil then return true end
     if scope.nameClassColor ~= nil or scope.npcNameRed ~= nil or scope.nameNpcClassColor ~= nil then return true end
@@ -2665,6 +2673,12 @@ end
     if g.powerBarGradientColorR == nil or g.powerBarGradientColorG == nil or g.powerBarGradientColorB == nil then
         g.powerBarGradientColorR, g.powerBarGradientColorG, g.powerBarGradientColorB = 0, 0, 0
     end
+    if g.healthLossColorR == nil then g.healthLossColorR = 1 end
+    if g.healthLossColorG == nil then g.healthLossColorG = 0.55 end
+    if g.healthLossColorB == nil then g.healthLossColorB = 0.08 end
+    if g.powerLossColorR == nil then g.powerLossColorR = 0.70 end
+    if g.powerLossColorG == nil then g.powerLossColorG = 0.90 end
+    if g.powerLossColorB == nil then g.powerLossColorB = 1 end
     --- Bars: Aggro highlight overlay (Target/Focus/Boss)
     --- Aggro indicator: re-uses the HP outline border as an orange warning when YOU have aggro (target/focus/boss).
     if g.aggroIndicatorMode == nil then
@@ -2881,12 +2895,25 @@ end
     if g.fontMonochrome == nil then
         g.fontMonochrome = false
     end
+    if g.fontSlug == nil then
+        g.fontSlug = false
+    end
+    if g.fontSlug == true then
+        g.fontMonochrome = false
+        if g.boldText == true then g.boldText = false end
+    end
     MSUF_Defaults_NormalizeFontShadowScope(g, true)
     for _, key in ipairs({
         "player", "target", "targettarget", "tot", "focustarget", "focus", "pet", "boss",
         "gf_party", "gf_raid", "gf_mythicraid",
     }) do
-        MSUF_Defaults_NormalizeFontShadowScope(MSUF_DB[key], false)
+        local scope = MSUF_DB[key]
+        if type(scope) == "table" and scope.fontSlug == true then
+            scope.fontMonochrome = false
+            if scope.boldText == true then scope.boldText = false end
+            if scope.fontOutline == "THICKOUTLINE" then scope.fontOutline = "OUTLINE" end
+        end
+        MSUF_Defaults_NormalizeFontShadowScope(scope, false)
     end
     if type(g.fontTextAlpha) ~= "number" then
         g.fontTextAlpha = 1
@@ -3523,6 +3550,15 @@ if g.kickNotReadyColor   == nil then g.kickNotReadyColor   = { ["1"] = 1, ["2"] 
     if g.portraitPlacement == nil then g.portraitPlacement = "ATTACHED" end
     if g.portraitWidth == nil then g.portraitWidth = 0 end
     if g.portraitHeight == nil then g.portraitHeight = 0 end
+    if g.portraitSizeMode ~= "UNIFORM" and g.portraitSizeMode ~= "SEPARATE" then
+        if (tonumber(g.portraitSizeOverride) or 0) > 0 then
+            g.portraitSizeMode = "UNIFORM"
+        elseif (tonumber(g.portraitWidth) or 0) > 0 or (tonumber(g.portraitHeight) or 0) > 0 then
+            g.portraitSizeMode = "SEPARATE"
+        else
+            g.portraitSizeMode = "UNIFORM"
+        end
+    end
     if g.portraitDetachedPoint == nil then g.portraitDetachedPoint = "RIGHT" end
     if g.portraitDetachedTo == nil then g.portraitDetachedTo = "LEFT" end
     if g.portraitLevelOffset == nil then g.portraitLevelOffset = 7 end
@@ -3534,6 +3570,7 @@ if g.kickNotReadyColor   == nil then g.kickNotReadyColor   = { ["1"] = 1, ["2"] 
     if g.portraitOffsetY == nil then g.portraitOffsetY = 0 end
     if g.portraitZoom == nil then g.portraitZoom = 100 end
     if g.portraitBorderStyle == nil then g.portraitBorderStyle = "NONE" end
+    if g.portraitEdgeSoftness == nil then g.portraitEdgeSoftness = 0 end
     if g.portraitBorderThickness == nil then g.portraitBorderThickness = 2 end
     if g.portraitBorderColorR == nil then g.portraitBorderColorR = 1 end
     if g.portraitBorderColorG == nil then g.portraitBorderColorG = 1 end
@@ -3974,6 +4011,9 @@ if MSUF_DB.bars == nil then
     if MSUF_DB.bars.smoothPowerBar == nil then
         MSUF_DB.bars.smoothPowerBar = false
     end
+    if MSUF_DB.bars.chunkedPowerBar == nil then
+        MSUF_DB.bars.chunkedPowerBar = false
+    end
     if MSUF_DB.bars.classPowerSmoothFill == nil then
         MSUF_DB.bars.classPowerSmoothFill = MSUF_DB.bars.smoothPowerBar == true
     end
@@ -4246,6 +4286,18 @@ end
         if type(a3.customContainers) ~= "table" then a3.customContainers = {} end
         if type(a3.customContainers.perUnit) ~= "table" then a3.customContainers.perUnit = {} end
         if type(a3.shared) ~= "table" then a3.shared = {} end
+        --- The first local version exposed one combined Blizzard Aura switch.
+        --- Split that stored choice once so testers keep the same result while
+        --- Buff and Debuff visibility become independently configurable.
+        if a3.shared.hideBlizzardAuraFrames ~= nil then
+            if a3.shared.hideBlizzardBuffFrame == nil then
+                a3.shared.hideBlizzardBuffFrame = a3.shared.hideBlizzardAuraFrames == true
+            end
+            if a3.shared.hideBlizzardDebuffFrame == nil then
+                a3.shared.hideBlizzardDebuffFrame = a3.shared.hideBlizzardAuraFrames == true
+            end
+            a3.shared.hideBlizzardAuraFrames = nil
+        end
         local legacyAuraModel = tonumber(a3.profileModelRevision) ~= MSUF_DEFAULTS_AURAS3_PROFILE_MODEL_REVISION
         if legacyAuraModel and a3.shared._msufA3_debuffTypeBorderModeMigrated_v1 ~= true then
             if a3.shared.useDebuffTypeBorders == true then
@@ -4361,6 +4413,7 @@ local function fill(key, defaults)
         showPowerText = true,
         powerFontSize = 12,
         showInterrupt = true,
+        showInterruptSource = false,
         --- Per-unitframe: reverse fill direction for HP + Power bars.
         --- (false = normal left->right fill)
         reverseFillBars = false,
@@ -4401,6 +4454,7 @@ local function fill(key, defaults)
         showPowerText = true,
         powerFontSize = 12,
         showInterrupt = true,
+        showInterruptSource = false,
         --- Per-unitframe: reverse fill direction for HP + Power bars.
         reverseFillBars = false,
         --- Per-unitframe: vertical fill axis for HP + Power bars.
@@ -4427,6 +4481,7 @@ local function fill(key, defaults)
         showPower = false,
         showPowerText = false,
         showInterrupt = true,
+        showInterruptSource = false,
         --- Per-unitframe: reverse fill direction for HP + Power bars.
         reverseFillBars = false,
         --- Per-unitframe: vertical fill axis for HP + Power bars.
@@ -4540,6 +4595,7 @@ local function fill(key, defaults)
         showPower    = false,
         showPowerText = true,
         showInterrupt = true,
+        showInterruptSource = false,
         portraitMode = "OFF",
         --- Per-unitframe: reverse fill direction for HP + Power bars.
         reverseFillBars = false,
@@ -4606,6 +4662,9 @@ local function fill(key, defaults)
             end
             if u.powerSmoothFill == nil then
                 u.powerSmoothFill = (unitKey == "player") and (bars.smoothPowerBar == true) or false
+            end
+            if u.powerChunkedFill == nil then
+                u.powerChunkedFill = (unitKey == "player") and (bars.chunkedPowerBar == true) or false
             end
             if unitKey == "player" then
                 local legacyShape = tostring(u.detachedPowerBarShape or "FOLLOW_CLASS"):upper()
@@ -4678,6 +4737,9 @@ local function fill(key, defaults)
         --- Per-unitframe: smooth health fill animation (matches Group Frames default).
         if u.smoothFill == nil then
             u.smoothFill = false
+        end
+        if u.chunkedFill == nil then
+            u.chunkedFill = false
         end
         --- Unified alpha: HP fill opacity + power fill opacity + background texture
         --- opacity + a toggle to keep text/portrait opaque. Legacy combat/layered keys
@@ -4755,6 +4817,18 @@ local function fill(key, defaults)
         end
         PortraitDefault("portraitClassStyle", "BLIZZARD")
         u.portraitClassStyle = MSUF_Defaults_NormalizePortraitClassStyleValue(u.portraitClassStyle)
+        local inferredPortraitSizeMode
+        if not useLegacyBaseline and u.portraitSizeMode == nil then
+            if (tonumber(u.portraitSizeOverride) or 0) > 0 then
+                inferredPortraitSizeMode = "UNIFORM"
+            elseif (tonumber(u.portraitWidth) or 0) > 0 or (tonumber(u.portraitHeight) or 0) > 0 then
+                inferredPortraitSizeMode = "SEPARATE"
+            end
+        elseif u.portraitSizeMode ~= nil
+            and u.portraitSizeMode ~= "UNIFORM" and u.portraitSizeMode ~= "SEPARATE"
+        then
+            u.portraitSizeMode = nil
+        end
         PortraitDefault("portraitShape", "SQUARE")
         PortraitDefault("portraitSizeOverride", 0)
         --- 6.0: detached/overlay placement, free width+height, art pan and the
@@ -4763,6 +4837,10 @@ local function fill(key, defaults)
         PortraitDefault("portraitPlacement", "ATTACHED")
         PortraitDefault("portraitWidth", 0)
         PortraitDefault("portraitHeight", 0)
+        if u.portraitSizeMode == nil and inferredPortraitSizeMode ~= nil then
+            u.portraitSizeMode = inferredPortraitSizeMode
+        end
+        PortraitDefault("portraitSizeMode", "UNIFORM")
         PortraitDefault("portraitDetachedPoint", "RIGHT")
         PortraitDefault("portraitDetachedTo", "LEFT")
         PortraitDefault("portraitLevelOffset", 7)
@@ -4774,6 +4852,7 @@ local function fill(key, defaults)
         PortraitDefault("portraitOffsetY", 0)
         PortraitDefault("portraitZoom", 100)
         PortraitDefault("portraitBorderStyle", "NONE")
+        PortraitDefault("portraitEdgeSoftness", 0)
         PortraitDefault("portraitBorderThickness", 2)
         PortraitDefault("portraitBorderColorR", 1)
         PortraitDefault("portraitBorderColorG", 1)

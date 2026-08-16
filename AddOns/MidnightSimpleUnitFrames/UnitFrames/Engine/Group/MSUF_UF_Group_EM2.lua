@@ -171,6 +171,9 @@ end
 
 local function GetLiveGroupKind()
   local gf = GF()
+  if gf and type(gf.GetLiveGroupKind) == "function" then
+    return NormalizeKind(gf.GetLiveGroupKind())
+  end
   if IsInRaid and IsInRaid() then
     return (gf and type(gf.GetLiveRaidKind) == "function" and NormalizeKind(gf.GetLiveRaidKind())) or "raid"
   end
@@ -1260,13 +1263,6 @@ end
 local function InstallStateHooks()
   if _G.MSUF_RegisterAnyEditModeListener then
     _G.MSUF_RegisterAnyEditModeListener(function(active)
-      if active then EnterEditMode() else ExitEditMode() end
-    end)
-  end
-
-  if type(_G.MSUF_SetMSUFEditModeDirect) == "function" and not _G.MSUF_GF_EM2_DirectHooked then
-    ExportPublic("MSUF_GF_EM2_DirectHooked", true)
-    hooksecurefunc("MSUF_SetMSUFEditModeDirect", function(active)
       if active then EnterEditMode() else ExitEditMode() end
     end)
   end

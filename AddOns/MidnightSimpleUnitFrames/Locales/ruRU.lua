@@ -12,6 +12,8 @@ if not MSUF then return end
 local function LoadLocale()
 local L = (MSUF.RegisterLocale and MSUF.RegisterLocale("ruRU")) or (MSUF.L or {})
 
+L["BLIZZARD LIMITATION: During instanced combat, Blizzard may restrict race and class information. Race/Class Text may therefore be unavailable or use fallback identifiers."] = "ОГРАНИЧЕНИЕ BLIZZARD: Во время боя в инстансе Blizzard может ограничивать сведения о расе и классе. Поэтому текст расы/класса может быть недоступен или использовать резервные идентификаторы."
+
 -- Настройки подсветки при наведении.
 L["Soft gradient"] = "Мягкий градиент"
 L["Solid border"] = "Сплошная рамка"
@@ -3292,6 +3294,11 @@ L["Move vs size"] = "Перемещение против размера"
 L["Mover handles and selected borders."] = "Маркеры перемещения и выделенные границы."
 L["Name Text"] = "Имя Текст"
 L["New Task"] = "Новая задача"
+L["See New Features"] = "Посмотреть новые функции"
+L["Menu link unavailable"] = "Ссылка меню недоступна"
+L["Browse releases from 6.02 onward. Highlight links open the matching feature directly in the MSUF menu."] = "Просматривайте выпуски начиная с 6.02. Ссылки в основных изменениях открывают соответствующую функцию прямо в меню MSUF."
+L["Opens and highlights this feature's setting."] = "Открывает и выделяет настройку этой функции."
+L["Shows this bundled release entry."] = "Показывает эту включённую запись о выпуске."
 L["New profile name"] = "Новое имя профиля"
 L["No"] = "Нет"
 L["No blacklisted spells. Add one above or use a preset."] = "Никаких заклинаний из черного списка. Добавьте один из вышеперечисленных или используйте предустановку."
@@ -3836,6 +3843,9 @@ L["%s scope"] = "Область: %s"
 L["%s uses Blizzard frames. WoW's own settings decide when they appear."] = "%s использует рамки Blizzard. Настройки WoW определяют, когда они появляются."
 L[". Shared name-shortening changes do not affect those scopes."] = ". Изменения общего сокращения имён не влияют на эти области."
 L["AFK Text"] = "Текст «Нет на месте»"
+L["AFK Timer"] = "Таймер «Нет на месте»"
+L["Show interrupter name"] = "Показывать, кто прервал"
+L["Stance"] = "Стойка"
 L["Absorb Color"] = "Цвет поглощения"
 L["All icon styling: Appearance > Auras."] = "Оформление всех значков: Внешний вид > Ауры."
 L["Alternative Mana Color"] = "Альтернативный цвет маны"
@@ -4049,6 +4059,10 @@ L["|cffff0000MSUF:|r Cannot change absorb bars while in combat."] = "|cffff0000M
 L["0 keeps the icon just above the bar and moves it together with the whole-castbar layer. 1-30 pins the icon to that frame level on the shared layer scale, so it can be ordered in front of or behind the bar, texts, and other frame elements."] = "0 держит значок сразу над полосой и двигает его вместе со слоем всей полосы заклинания. 1-30 закрепляет значок на этом уровне общей шкалы слоёв, чтобы размещать его перед полосой, текстами и другими элементами рамки или позади них."
 
 --- Detached / overlay portrait placement (6.0 Beta 30)
+L["Size mode"] = "Режим размера"
+L["Portrait edge softness"] = "Мягкость краев портрета"
+L["Uniform"] = "Одинаковый"
+L["Width & height"] = "Ширина и высота"
 L["Width override"] = "Переопределение ширины"
 L["Height override"] = "Переопределение высоты"
 L["Zoom center X"] = "Центр масштаба X"
@@ -4735,6 +4749,17 @@ L["Maximum debuff duration"] = "Максимальная длительност�
 L["Moves all detached Player power text slots together. Slot X/Y controls below add per-slot offsets."] = "Перемещает все текстовые ячейки отделенного ресурса игрока вместе. Настройки X/Y ячеек ниже добавляют индивидуальные смещения."
 L["Moves the Player power bar out of the unit frame. Anchor connects it to the Class Resources stack; Sync only follows the stack width."] = "Выносит полосу ресурса игрока за пределы фрейма юнита. Прикрепить связывает ее со стопкой ресурсов класса; Синхронизировать только повторяет ее ширину."
 L["Native Aura Flow"] = "Стандартный поток аур"
+L["Blizzard Buff & Debuff Frames"] = "Панели положительных и отрицательных эффектов Blizzard"
+L["Hide Blizzard Buff and Debuff Frames"] = "Скрыть панели положительных и отрицательных эффектов Blizzard"
+L["Hides only Blizzard's player Buff Frame and normal Debuff icons near the minimap. Private Auras and Deadly Debuff warnings remain visible."] = "Скрывает только панель положительных эффектов игрока Blizzard и обычные значки отрицательных эффектов возле мини-карты. Приватные ауры и предупреждения о смертельных эффектах остаются видимыми."
+L["Buffs hidden"] = "Положительные эффекты скрыты"
+L["Buffs visible"] = "Положительные эффекты видимы"
+L["Debuffs hidden"] = "Отрицательные эффекты скрыты"
+L["Debuffs visible"] = "Отрицательные эффекты видимы"
+L["Hide Blizzard Buff Frame"] = "Скрыть панель положительных эффектов Blizzard"
+L["Hide Blizzard Debuff Frame"] = "Скрыть панель отрицательных эффектов Blizzard"
+L["Hides Blizzard's player Buff Frame near the minimap."] = "Скрывает панель положительных эффектов игрока Blizzard возле мини-карты."
+L["Hides only Blizzard's normal Debuff icons near the minimap. Private Auras and Deadly Debuff warnings remain visible."] = "Скрывает только обычные значки отрицательных эффектов Blizzard возле мини-карты. Приватные ауры и предупреждения о смертельных эффектах остаются видимыми."
 L["Native size"] = "Стандартный размер"
 L["Native stealable marker"] = "Стандартный маркер похищаемости"
 L["Native weapon enchant auras"] = "Стандартные ауры чар оружия"
@@ -5056,6 +5081,21 @@ L["On (default): names supplied by Northern Sky Raid Tools replace character nam
 
 -- Guided setup restart confirmation.
 L["Run the guided setup again? The walkthrough starts over at the first step."] = "Запустить пошаговую настройку заново? Обучение начнётся с первого шага."
+L["Dispel Type Colors"] = "Цвета типов рассеивания"
+L["Magic custom"] = "Своя магия"
+L["Magic color"] = "Цвет магии"
+L["Curse custom"] = "Своё проклятие"
+L["Curse color"] = "Цвет проклятия"
+L["Disease custom"] = "Своя болезнь"
+L["Disease color"] = "Цвет болезни"
+L["Poison custom"] = "Свой яд"
+L["Poison color"] = "Цвет яда"
+L["Bleed custom"] = "Своё кровотечение"
+L["Bleed color"] = "Цвет кровотечения"
+L["Optional global overrides for harmful Magic, Curse, Disease, Poison and Bleed indicators. Off uses Blizzard's current default. The last edited type is shown first in every aura preview."] = "Необязательные общие цвета индикаторов вредоносных эффектов магии, проклятия, болезни, яда и кровотечения. При отключении используется текущий стандарт Blizzard. Последний изменённый тип показывается первым во всех предпросмотрах аур."
+L["Timer and Dispel colors are shared by live unit/group auras and every preview. Icon border and shadow colors live in Appearance > Auras, scoped by Aura type."] = "Цвета таймеров и рассеивания общие для активных аур юнитов и групп и всех предпросмотров. Цвета рамки и тени значка находятся в Оформление > Ауры и задаются по типу ауры."
+L["Cooldown timer urgency, global Dispel types, icon borders and shadows."] = "Срочность таймеров, общие типы рассеивания, рамки и тени значков."
+L["Safe, Warning, Urgent, Magic, Curse, Disease, Poison, Bleed, icon border and icon shadow."] = "Безопасно, Предупреждение, Срочно, Магия, Проклятие, Болезнь, Яд, Кровотечение, рамка и тень значка."
 end
 if type(MSUF.RegisterLocaleLoader) == "function" then MSUF.RegisterLocaleLoader("ruRU", LoadLocale)
 elseif MSUF.LOCALE == "ruRU" then LoadLocale() end
