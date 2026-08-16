@@ -372,8 +372,8 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit, parent, auraDeta
     end
   end
 
-  self.buffs:SetEnabled(self.debuffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
-  self.debuffs:SetEnabled(self.buffs.details ~= nil)
+  self.buffs:SetEnabled(self.buffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
+  self.debuffs:SetEnabled(self.debuffs.details ~= nil)
   self.crowdControl:SetEnabled(self.crowdControl.details ~= nil)
 
   self.auraDetails = auraDetails
