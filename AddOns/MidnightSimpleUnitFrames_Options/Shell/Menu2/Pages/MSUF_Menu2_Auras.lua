@@ -1550,10 +1550,13 @@ local function BuildMiniAuraPreview(ctx, parent, scope, x, y, width, height, lan
             icon.swipe:SetPoint("TOPLEFT", icon, "TOP", 0, -1)
             icon.swipe:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -1, 1)
         end
-        if borderAtlas and cfg.iconShape ~= "RECTANGLE" and type(A3.ApplyAuraDispelPreview) == "function" then
-            A3.ApplyAuraDispelPreview(icon.dispelBorder, icon, cfg.size, cfg.debuffBorderMode, cfg.iconShape)
+        if borderAtlas and type(A3.ApplyAuraDispelPreview) == "function" then
+            A3.ApplyAuraDispelPreview(icon.dispelBorder, icon, cfg.size, cfg.debuffBorderMode,
+                cfg.iconShape, A3.PreviewDispelTypeForIndex(index))
         elseif borderAtlas and icon.dispelBorder.SetAtlas then
-            local pad = max(1, floor((cfg.size / 24) + 0.5))
+            local pad = type(A3.NativeAuraDispelBorderPadding) == "function"
+                and A3.NativeAuraDispelBorderPadding(cfg.size)
+                or max(1, floor((cfg.size / 6) + 0.5))
             icon.dispelBorder:ClearAllPoints()
             icon.dispelBorder:SetPoint("TOPLEFT", icon, "TOPLEFT", -pad, pad)
             icon.dispelBorder:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", pad, -pad)
@@ -2354,6 +2357,57 @@ local function BuildUnitStyle(ctx, b, scope, options)
     IconStyleSwitch("Icon Shadow", -178, "styleShadowEnabled", "AURAS3_ICON_STYLE_SHADOW")
     iconStyleGates.shadow[1] = IconStyleSlider("Shadow Size", 0, -210, 1, 16, "styleShadowSize", 4, "AURAS3_ICON_STYLE_SHADOW")
     iconStyleGates.shadow[2] = IconStyleAlphaSlider("Shadow Alpha (%)", 1, -210, "styleShadowColor", ICON_STYLE_SHADOW_DEFAULT, "AURAS3_ICON_STYLE_SHADOW_COLOR")
+    end
+
+    if appearanceGlobalsOnly and (previewContainer == "buff" or previewContainer == "debuff") then
+        local blizzardFrames = b:CollapsibleSection(baseId .. "_blizzard_aura_frames", "Blizzard Buff & Debuff Frames", 152, false)
+        local bfw = BodyWidth(blizzardFrames)
+        local function RefreshBlizzardAuraFrameBadge()
+            if not W.SetCollapsibleBadges then return end
+            local buffsHidden = type(Model.ReadHideBlizzardBuffFrame) == "function"
+                and Model.ReadHideBlizzardBuffFrame() == true
+            local debuffsHidden = type(Model.ReadHideBlizzardDebuffFrame) == "function"
+                and Model.ReadHideBlizzardDebuffFrame() == true
+            W.SetCollapsibleBadges(blizzardFrames, {{
+                text = Tr(buffsHidden and "Buffs hidden" or "Buffs visible"),
+                kind = buffsHidden and "accent" or "muted",
+                showWhenClosed = true,
+            }, {
+                text = Tr(debuffsHidden and "Debuffs hidden" or "Debuffs visible"),
+                kind = debuffsHidden and "accent" or "muted",
+                showWhenClosed = true,
+            }})
+        end
+        local hideBlizzardBuffs = BindSwitch(ctx, blizzardFrames, "Hide Blizzard Buff Frame", 24, -44, bfw - 48,
+            function()
+                return type(Model.ReadHideBlizzardBuffFrame) == "function"
+                    and Model.ReadHideBlizzardBuffFrame() == true
+            end,
+            function(value)
+                if type(Model.WriteHideBlizzardBuffFrame) == "function" then
+                    Model.WriteHideBlizzardBuffFrame(value == true)
+                end
+                RefreshBlizzardAuraFrameBadge()
+            end,
+            AuraControlMeta(ctx, "style.appearance.blizzard-aura-frames.hide-buffs"))
+        AddTooltip(hideBlizzardBuffs, "Blizzard Buff & Debuff Frames",
+            "Hides Blizzard's player Buff Frame near the minimap.")
+        local hideBlizzardDebuffs = BindSwitch(ctx, blizzardFrames, "Hide Blizzard Debuff Frame", 24, -84, bfw - 48,
+            function()
+                return type(Model.ReadHideBlizzardDebuffFrame) == "function"
+                    and Model.ReadHideBlizzardDebuffFrame() == true
+            end,
+            function(value)
+                if type(Model.WriteHideBlizzardDebuffFrame) == "function" then
+                    Model.WriteHideBlizzardDebuffFrame(value == true)
+                end
+                RefreshBlizzardAuraFrameBadge()
+            end,
+            AuraControlMeta(ctx, "style.appearance.blizzard-aura-frames.hide-debuffs"))
+        AddTooltip(hideBlizzardDebuffs, "Blizzard Buff & Debuff Frames",
+            "Hides only Blizzard's normal Debuff icons near the minimap. Private Auras and Deadly Debuff warnings remain visible.")
+        RefreshBlizzardAuraFrameBadge()
+        M.TrackRefresh(ctx, RefreshBlizzardAuraFrameBadge)
     end
 
     if appearanceGlobalsOnly and previewContainer == "buff" then

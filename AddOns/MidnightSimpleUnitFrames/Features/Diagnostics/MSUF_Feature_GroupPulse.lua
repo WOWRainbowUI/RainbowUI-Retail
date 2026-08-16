@@ -109,7 +109,6 @@ local function WrapDriver(driver, label)
 end
 
 local function WrapKnownDrivers()
-  WrapDriver(MSUF and MSUF._msufA3ExpiringEffectDriver, "driver:A3Expiring")
   WrapDriver(_G.MSUF_SchedulerFrame, "driver:Scheduler")
 end
 
@@ -287,7 +286,7 @@ end
 local LEAN_SCOPE_KEYS = {
   "overAbsorbOverlay", "fullHealthAbsorbStripe", "healPredEnabled",
   "aggroEnabled", "ciEnabled", "rangeFadeEnabled",
-  "statusText", "statusGhostText", "statusAFKText", "statusDNDText",
+  "statusText", "statusGhostText", "statusAFKText", "statusAFKTimerText", "statusDNDText",
 }
 -- Absorb-only isolation: flip JUST the over-absorb glow/stripe off, so the
 -- absorb renders as a plain bar (no

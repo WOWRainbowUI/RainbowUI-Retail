@@ -37,7 +37,6 @@ local GF_STATUS_ICON_SPECS = Specs.GF_STATUS_ICON_SPECS or {}
 local GF_STATUS_ICON_VALUES = Specs.GF_STATUS_ICON_VALUES or {}
 local PLACED_INDICATOR_TYPES = Specs.PLACED_INDICATOR_TYPES or {}
 local FRAME_EFFECT_TYPES = Specs.FRAME_EFFECT_TYPES or {}
-local FRAME_EFFECT_TIMINGS = Specs.FRAME_EFFECT_TIMINGS or {}
 local ICON_EFFECT_TYPES = Specs.ICON_EFFECT_TYPES or {}
 local SPELL_GROWTH_VALUES = Specs.SPELL_GROWTH_VALUES or {}
 local CI_SLOT_VALUES = Specs.CI_SLOT_VALUES or {}
@@ -545,8 +544,8 @@ local GF_SHARED_COLOR_KEYS = M.KeySetFromWords [[
     ciAggroColorR ciAggroColorG ciAggroColorB
 ]]
 local GF_COPY_CATEGORIES = {
-    { key = "general", label = "Basics", keys = WL [[enabled blizzardFallbackMode showPlayer showSolo clickCastEnabled width height spacing growth groupFilter sortMode sortByRole roleOrder playerFirstInRole unitsPerColumn maxColumns maxFrames autoTanks preserveRaidGroups reverseFill smoothFill hideInClientScene hideInHousing hideOfflineEnabled hideOfflineInCombat hideOfflineDelay frameScaleEnabled frameScaleMode frameScaleManual scaleAt10 scaleAt20 scaleAt25 scaleOver25]] },
-    { key = "health", label = "Health & Bars", keys = WL [[gfBarMode healthColorMode healthCustomR healthCustomG healthCustomB gfDarkR gfDarkG gfDarkB gfUnifiedR gfUnifiedG gfUnifiedB barTexture barBackgroundTexture barBgTexture hpBarAlpha hpBgAlpha alphaExcludeTextPortrait powerBarEnabled powerHeight showPower showPowerText powerTextLeft powerTextCenter powerTextRight powerTextLeftHidePercentSymbol powerTextCenterHidePercentSymbol powerTextRightHidePercentSymbol powerTextDelimiter powerFontSize powerOffsetX powerOffsetY powerTextLayer powerSmoothFill powerShowTank powerShowHealer powerShowDamager powerBarDetached powerBarBorderEnabled powerBarBorderThickness embedPowerBarIntoHealth barOutlineTexture oocFadeEnabled oocFadeAlpha healthFadeEnabled healthFadeThreshold healthFadeAlpha deadBgEnabled deadBgOffline deadBgR deadBgG deadBgB deadBgA powerTextLeftFontSize powerTextCenterFontSize powerTextRightFontSize powerTextLeftOffsetX powerTextLeftOffsetY powerTextCenterOffsetX powerTextCenterOffsetY powerTextRightOffsetX powerTextRightOffsetY]], prefix = WL [[detachedPower]] },
+    { key = "general", label = "Basics", keys = WL [[enabled blizzardFallbackMode showPlayer showSolo clickCastEnabled width height spacing growth groupFilter sortMode sortByRole roleOrder playerFirstInRole unitsPerColumn maxColumns maxFrames autoTanks preserveRaidGroups reverseFill smoothFill chunkedFill hideInClientScene hideInHousing hideOfflineEnabled hideOfflineInCombat hideOfflineDelay frameScaleEnabled frameScaleMode frameScaleManual scaleAt10 scaleAt20 scaleAt25 scaleOver25]] },
+    { key = "health", label = "Health & Bars", keys = WL [[gfBarMode healthColorMode healthCustomR healthCustomG healthCustomB gfDarkR gfDarkG gfDarkB gfUnifiedR gfUnifiedG gfUnifiedB barTexture barBackgroundTexture barBgTexture hpBarAlpha hpBgAlpha alphaExcludeTextPortrait powerBarEnabled powerHeight showPower showPowerText powerTextLeft powerTextCenter powerTextRight powerTextLeftHidePercentSymbol powerTextCenterHidePercentSymbol powerTextRightHidePercentSymbol powerTextDelimiter powerFontSize powerOffsetX powerOffsetY powerTextLayer powerSmoothFill powerChunkedFill powerShowTank powerShowHealer powerShowDamager powerBarDetached powerBarBorderEnabled powerBarBorderThickness embedPowerBarIntoHealth barOutlineTexture oocFadeEnabled oocFadeAlpha healthFadeEnabled healthFadeThreshold healthFadeAlpha deadBgEnabled deadBgOffline deadBgR deadBgG deadBgB deadBgA powerTextLeftFontSize powerTextCenterFontSize powerTextRightFontSize powerTextLeftOffsetX powerTextLeftOffsetY powerTextCenterOffsetX powerTextCenterOffsetY powerTextRightOffsetX powerTextRightOffsetY]], prefix = WL [[detachedPower]] },
     { key = "dispel", label = "Dispel Overlay", keys = WL [[dispelOverlayEnabled dispelOverlayStyle dispelOverlayOnHealth dispelOverlayAlpha dispelOverlayTrigger dispelOverlayLayer dispelOverlayStrata]], prefix = WL [[dispelSymbol]] },
     { key = "text", label = "Text & Name", keys = WL [[showName hideNameOnDeadOffline nameFontSize nameAnchor nameOffsetX nameOffsetY nameTextLayer nameColorMode nameColorR nameColorG nameColorB nameShortenEnabled nameClipSide nameMaxChars nameNoEllipsis showHPText hpFontSize textLeft textCenter textRight hpTextLeftHidePercentSymbol hpTextCenterHidePercentSymbol hpTextRightHidePercentSymbol hpTextLeftAbsorbIcon hpTextCenterAbsorbIcon hpTextRightAbsorbIcon textDelimiter hpTextReverse healthTextDecimals hpTextDecimals hpFullValueShort hpAbsorbIcon hpOffsetX hpOffsetY textLayer hpTextLeftFontSize hpTextCenterFontSize hpTextRightFontSize hpTextLeftOffsetX hpTextLeftOffsetY hpTextCenterOffsetX hpTextCenterOffsetY hpTextRightOffsetX hpTextRightOffsetY]] },
     { key = "font", label = "Font Override", keys = WL [[fontOverride fontOutline useGlobalFontColor fontR fontG fontB colorHealthTextByHealth colorPowerTextByType powerTextColorByType]] },
@@ -1051,7 +1050,7 @@ end
 --- never receive portrait settings through the dynamic Group binding path.
 function GroupPage.BuildPortrait(ctx, builder)
     local kind = "party"
-    local cardH = { main = 224, geometry = 386, placement = 382, border = 380, style = 330 }
+    local cardH = { main = 224, geometry = 440, placement = 382, border = 440, style = 330 }
     local tabH = {
         general = cardH.main + 116,
         geometry = cardH.geometry + 116,
@@ -1070,6 +1069,7 @@ function GroupPage.BuildPortrait(ctx, builder)
         borderDirection = VT("UP", "Up", "RIGHT", "Right", "DOWN", "Down", "LEFT", "Left"),
     }
     local renderValues = VT("2D", "2D portrait", "CLASS", "Class portrait")
+    local sizeModeValues = VT("UNIFORM", "Uniform", "SEPARATE", "Width & height")
     local shapeValues = VT("SQUARE", "Square", "CIRCLE", "Circle", "ROUNDED", "Rounded", "DIAMOND", "Diamond")
     local borderValues = VT("NONE", "No border", "SOLID", "Solid", "CLASS_COLOR", "Class color", "REACTION", "Reaction color", "CUSTOM", "Custom color")
     local function ClassStyleValues()
@@ -1314,12 +1314,28 @@ function GroupPage.BuildPortrait(ctx, builder)
     AttachPortraitFocus(side)
     local render = BindDropdown(mainCard, "Render", renderValues, 16, -116, min(220, cardW - 32), "portraitRender", "2D", nil, RefreshPortraitControls)
     local shape = BindDropdown(borderCard, "Shape", shapeValues, 16, -58, min(220, cardW - 32), "portraitShape", "SQUARE", nil, RefreshPortraitControls)
-    local size = BindNumber(geometryCard, "Size override", 16, -62, cardW - 58, 0, 128, 1, "portraitSizeOverride", 0)
-    local width = BindNumber(geometryCard, "Width override", 16, -116, cardW - 58, 0, 256, 1, "portraitWidth", 0)
-    local height = BindNumber(geometryCard, "Height override", 16, -170, cardW - 58, 0, 256, 1, "portraitHeight", 0)
-    local zoom = BindNumber(geometryCard, "Portrait zoom", 16, -224, cardW - 58, 100, 200, 1, "portraitZoom", 100)
-    local panX = BindNumber(geometryCard, "Zoom center X", 16, -278, cardW - 58, -100, 100, 1, "portraitPanX", 0)
-    local panY = BindNumber(geometryCard, "Zoom center Y", 16, -332, cardW - 58, -100, 100, 1, "portraitPanY", 0)
+    local sizeMode = W.Segment(geometryCard, "Size mode", sizeModeValues, min(360, cardW - 32))
+    W.MoveWidget(sizeMode, geometryCard, 16, -62, min(360, cardW - 32))
+    M.BindSegment(ctx, sizeMode,
+        function()
+            local conf = Conf(kind)
+            local mode = conf.portraitSizeMode
+            if mode == "UNIFORM" or mode == "SEPARATE" then return mode end
+            return ((tonumber(conf.portraitWidth) or 0) > 0 or (tonumber(conf.portraitHeight) or 0) > 0)
+                and "SEPARATE" or "UNIFORM"
+        end,
+        function(value)
+            SetValue("portraitSizeMode", value == "SEPARATE" and "SEPARATE" or "UNIFORM")
+            RefreshPortraitControls()
+        end,
+        PortraitMeta("portraitSizeMode", "portraitSizeMode"))
+    AttachPortraitFocus(sizeMode)
+    local size = BindNumber(geometryCard, "Size override", 16, -116, cardW - 58, 0, 128, 1, "portraitSizeOverride", 0)
+    local width = BindNumber(geometryCard, "Width override", 16, -170, cardW - 58, 0, 256, 1, "portraitWidth", 0)
+    local height = BindNumber(geometryCard, "Height override", 16, -224, cardW - 58, 0, 256, 1, "portraitHeight", 0)
+    local zoom = BindNumber(geometryCard, "Portrait zoom", 16, -278, cardW - 58, 100, 200, 1, "portraitZoom", 100)
+    local panX = BindNumber(geometryCard, "Zoom center X", 16, -332, cardW - 58, -100, 100, 1, "portraitPanX", 0)
+    local panY = BindNumber(geometryCard, "Zoom center Y", 16, -386, cardW - 58, -100, 100, 1, "portraitPanY", 0)
     local placement = BindDropdown(placementCard, "Placement", placementValues.modes, 16, -58, min(220, cardW - 32), "portraitPlacement", "ATTACHED", nil, RefreshPortraitControls)
     placement._msuf2SearchText = "Portrait placement attached detached overlay free position anchor"
     local detachedPoint = BindDropdown(placementCard, "Portrait anchor point", placementValues.points, 16, -112, min(220, cardW - 32), "portraitDetachedPoint", "RIGHT")
@@ -1329,10 +1345,12 @@ function GroupPage.BuildPortrait(ctx, builder)
     level._msuf2SearchText = "Portrait layer offset frame level behind in front of bars"
     local alpha = BindNumber(placementCard, "Portrait opacity", 16, -328, cardW - 58, 0, 100, 1, "portraitAlpha", 100)
     local border = BindDropdown(borderCard, "Border", borderValues, 16, -112, min(220, cardW - 32), "portraitBorderStyle", "NONE", nil, RefreshPortraitControls)
-    local borderArt = BindDropdown(borderCard, "Border art", placementValues.borderArt, 16, -166, min(220, cardW - 32), "portraitBorderArt", "FLAT", nil, RefreshPortraitControls)
-    local direction = BindDropdown(borderCard, "Border direction", placementValues.borderDirection, 16, -220, min(220, cardW - 32), "portraitBorderDirection", "UP")
-    local thickness = BindNumber(borderCard, "Border thickness", 16, -274, cardW - 58, 1, 12, 1, "portraitBorderThickness", 2)
-    local fill = BindToggle(borderCard, "Fill border into frame gap", 16, -342, cardW - 32, "portraitFillBorder", false)
+    local edgeSoftness = BindNumber(borderCard, "Portrait edge softness", 16, -166, cardW - 58, 0, 30, 2, "portraitEdgeSoftness", 0)
+    edgeSoftness._msuf2SearchText = "Portrait edge softness feather fade borderless percent"
+    local borderArt = BindDropdown(borderCard, "Border art", placementValues.borderArt, 16, -220, min(220, cardW - 32), "portraitBorderArt", "FLAT", nil, RefreshPortraitControls)
+    local direction = BindDropdown(borderCard, "Border direction", placementValues.borderDirection, 16, -274, min(220, cardW - 32), "portraitBorderDirection", "UP")
+    local thickness = BindNumber(borderCard, "Border thickness", 16, -328, cardW - 58, 1, 12, 1, "portraitBorderThickness", 2)
+    local fill = BindToggle(borderCard, "Fill border into frame gap", 16, -396, cardW - 32, "portraitFillBorder", false)
     local classStyle = BindDropdown(styleCard, "Class portrait style", ClassStyleValues, 16, -58, min(220, cardW - 32), "portraitClassStyle", "BLIZZARD", M.NormalizePortraitClassStyle)
     local background = BindToggle(styleCard, "Portrait background", 16, -112, cardW - 32, "portraitBgEnabled", false, RefreshPortraitControls)
     local backgroundColor = BindColor(styleCard, "Portrait Background Color", 16, -158, min(260, cardW - 32), "portraitBgColor", { 0.05, 0.05, 0.05 })
@@ -1340,12 +1358,22 @@ function GroupPage.BuildPortrait(ctx, builder)
     local castIcon = BindToggle(styleCard, "Show cast spell icon in portrait", 16, -274, cardW - 32, "portraitCastSpellIcon", false)
     castIcon._msuf2SearchText = "Portrait cast spell icon casting channel empower"
     local activeControls = {
-        render, shape, size, width, height, placement, level, alpha,
-        border, background, castIcon,
+        render, shape, sizeMode, size, width, height, placement, level, alpha,
+        border, edgeSoftness, background, castIcon,
     }
     local function Active(conf) return (conf.portraitMode or "OFF") ~= "OFF" end
     local function Placed(conf, value)
         return Active(conf) and (conf.portraitPlacement or "ATTACHED") == value
+    end
+    local function FillsBar(conf)
+        return (conf.portraitPlacement or "ATTACHED") == "OVERLAY"
+            and (conf.portraitOverlayAlign or "LEFT") == "FULL"
+    end
+    local function UsesSeparateSize(conf)
+        local mode = conf.portraitSizeMode
+        if mode == "SEPARATE" then return true end
+        if mode == "UNIFORM" then return false end
+        return (tonumber(conf.portraitWidth) or 0) > 0 or (tonumber(conf.portraitHeight) or 0) > 0
     end
     RefreshPortraitControls = RefreshPortraitControls(M.BindGateGroup(ctx, function() return Conf(kind) end, {
         { enable = portraitEnable },
@@ -1353,7 +1381,19 @@ function GroupPage.BuildPortrait(ctx, builder)
         { controls = side, on = function(conf) return Placed(conf, "ATTACHED") end },
         { controls = { detachedPoint, detachedTo }, on = function(conf) return Placed(conf, "DETACHED") end },
         { controls = overlayAlign, on = function(conf) return Placed(conf, "OVERLAY") end },
+        { controls = sizeMode, on = function(conf) return Active(conf) and not FillsBar(conf) end },
+        { controls = size, on = function(conf)
+            return Active(conf) and not FillsBar(conf) and not UsesSeparateSize(conf)
+        end },
+        { controls = { width, height }, on = function(conf)
+            return Active(conf) and not FillsBar(conf) and UsesSeparateSize(conf)
+        end },
         { controls = { zoom, panX, panY }, on = function(conf) return Active(conf) and (conf.portraitRender or "2D") ~= "CLASS" end },
+        { controls = edgeSoftness, on = function(conf)
+            return Active(conf)
+                and (conf.portraitShape or "SQUARE") ~= "BLIZZARD"
+                and (conf.portraitBorderStyle or "NONE") == "NONE"
+        end },
         { controls = { thickness, borderArt }, on = function(conf) return Active(conf) and (conf.portraitBorderStyle or "NONE") ~= "NONE" end },
         { controls = direction, on = function(conf)
             return Active(conf) and (conf.portraitBorderStyle or "NONE") ~= "NONE"
@@ -2120,7 +2160,6 @@ M.Assign(GroupPage, {
     GF_STATUS_ICON_VALUES = GF_STATUS_ICON_VALUES,
     PLACED_INDICATOR_TYPES = PLACED_INDICATOR_TYPES,
     FRAME_EFFECT_TYPES = FRAME_EFFECT_TYPES,
-    FRAME_EFFECT_TIMINGS = FRAME_EFFECT_TIMINGS,
     ICON_EFFECT_TYPES = ICON_EFFECT_TYPES,
     SPELL_GROWTH_VALUES = SPELL_GROWTH_VALUES,
     CI_SLOT_VALUES = CI_SLOT_VALUES,

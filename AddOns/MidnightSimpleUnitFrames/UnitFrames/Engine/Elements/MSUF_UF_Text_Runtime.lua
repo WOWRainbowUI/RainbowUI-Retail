@@ -20,6 +20,7 @@ local UnitPowerType = Text.UnitPowerType
 local InCombatLockdown = Text.InCombatLockdown
 local UnitName = Text.UnitName
 local ReadDisplayName = UnitName
+local displayNameResolverUsesFrame = false
 local GetTime = Text.GetTime
 local C_Timer = _G.C_Timer
 local PowerColor = Text.PowerColor
@@ -197,7 +198,13 @@ local function IsFiniteNumber(value)
 end
 
 function Text.SetDisplayNameResolver(resolver)
-  ReadDisplayName = type(resolver) == "function" and resolver or UnitName
+  if type(resolver) == "function" then
+    ReadDisplayName = resolver
+    displayNameResolverUsesFrame = true
+  else
+    ReadDisplayName = UnitName
+    displayNameResolverUsesFrame = false
+  end
 end
 
 if type(Text._pendingDisplayNameResolver) == "function" then
@@ -695,7 +702,7 @@ function Text.UpdateNameColor(frame, event, unit)
   if RegionShown(frame and frame.nameText) then
     ApplyNameTextColor(frame, unit or frame.MSUFUnitKey)
     local rt = frame and frame._msufTextRuntime
-    if rt and rt.inlineToT then
+    if rt and rt.inlineToT and frame._msufIdentityInlineToTScheduled ~= true then
       Text.UpdateInline(frame, event, unit)
     end
   end
@@ -734,7 +741,12 @@ function Text.UpdateInline(frame, event, unit)
     SetTextCached(frame.totInlineSep, inline.separator)
     frame._msufInlineStamp = stamp
   end
-  local name = ReadDisplayName(inlineUnit)
+  local name
+  if displayNameResolverUsesFrame then
+    name = ReadDisplayName(inlineUnit, frame)
+  else
+    name = ReadDisplayName(inlineUnit)
+  end
   SetTextCached(frame.totInlineText, name)
   if AnchorInlineToName then
     AnchorInlineToName(frame)
@@ -748,7 +760,10 @@ local function SetNameTextCached(frame, value)
   SetTextCached(frame.nameText, value)
   local proxy = frame._msufNameAnchorTextActive == true and frame._msufNameAnchorText
   if proxy then SetTextCached(proxy, value) end
-  if frame._msufNameCenterClip == true and RefreshNameCenterClipFit then
+  -- Any no-ellipsis clip window (side or centered) needs the warm fit: it
+  -- tracks whether the name really overflows the window, which decides the
+  -- NAMELEFT/NAMERIGHT status anchor target.
+  if frame._msufNameInlineClip ~= nil and RefreshNameCenterClipFit then
     RefreshNameCenterClipFit(frame)
   end
 end
@@ -884,7 +899,13 @@ function Text.UpdateName(frame, event, unit)
     Text.UpdateNameColor(frame, event, unit)
     return
   end
-  SetNameTextCached(frame, TruncateLegacyGroupName(ReadDisplayName(unit), rt))
+  local displayName
+  if displayNameResolverUsesFrame then
+    displayName = ReadDisplayName(unit, frame)
+  else
+    displayName = ReadDisplayName(unit)
+  end
+  SetNameTextCached(frame, TruncateLegacyGroupName(displayName, rt))
   frame._msufNameTextUnit = unit
   Text.UpdateNameColor(frame, event, unit)
 end
@@ -2017,6 +2038,57 @@ UF.RegisterElement("PowerText", PowerText)
 
 local InlineToT = {}
 
+local inlineToTDriver
+local inlineToTOwner
+local inlineToTUnit
+
+local function InlineToTNeedsColorEvents(inline)
+  return inline and ((inline.colorMode and inline.colorMode ~= "DEFAULT")
+    or inline.targetNameClassColor == true
+    or inline.targetNameNpcColor == true
+    or inline.targetNameNpcClassColor == true
+    or inline.totNameClassColor == true
+    or inline.totNameNpcColor == true
+    or inline.totNameNpcClassColor == true)
+end
+
+local function ClearInlineToTDriver(owner)
+  if owner ~= nil and inlineToTOwner ~= owner then return end
+  if inlineToTDriver and inlineToTDriver.UnregisterAllEvents then
+    inlineToTDriver:UnregisterAllEvents()
+  end
+  inlineToTOwner = nil
+  inlineToTUnit = nil
+end
+
+local function ConfigureInlineToTDriver(frame, spec)
+  local inline = spec and spec.text and spec.text.inlineToT
+  if not InlineEnabled(frame, spec) then
+    ClearInlineToTDriver(frame)
+    return false
+  end
+  if not inlineToTDriver then
+    local createFrame = _G.CreateFrame
+    if type(createFrame) ~= "function" then return false end
+    inlineToTDriver = createFrame("Frame")
+    inlineToTDriver:SetScript("OnEvent", function(_, event)
+      local owner = inlineToTOwner
+      local active = owner and owner._msufActiveElements
+      if not (owner and active and active.InlineToT == true) then return end
+      InlineToT.Update(owner, event, inlineToTUnit)
+    end)
+  end
+
+  inlineToTDriver:UnregisterAllEvents()
+  inlineToTOwner = frame
+  inlineToTUnit = inline.unit or "targettarget"
+  local events = InlineToTNeedsColorEvents(inline) and INLINE_COLOR_UNITLESS_EVENTS or INLINE_NAME_UNITLESS_EVENTS
+  for i = 1, #events do
+    inlineToTDriver:RegisterUnitEvent(events[i], inlineToTUnit)
+  end
+  return true
+end
+
 function InlineToT.IsEnabled(frame, spec)
   return InlineEnabled(frame, spec)
 end
@@ -2025,21 +2097,12 @@ function InlineToT.GetEvents()
   return INLINE_TARGET_EVENTS
 end
 
-function InlineToT.GetUnitlessEvents(frame, spec)
-  local inline = spec and spec.text and spec.text.inlineToT
-  if not inline then
-    return EMPTY_EVENTS
-  end
-  if (inline.colorMode and inline.colorMode ~= "DEFAULT")
-    or inline.targetNameClassColor == true
-    or inline.targetNameNpcColor == true
-    or inline.targetNameNpcClassColor == true
-    or inline.totNameClassColor == true
-    or inline.totNameNpcColor == true
-    or inline.totNameNpcClassColor == true then
-    return INLINE_COLOR_UNITLESS_EVENTS
-  end
-  return INLINE_NAME_UNITLESS_EVENTS
+function InlineToT.GetUnitlessEvents()
+  return EMPTY_EVENTS
+end
+
+function InlineToT.Apply(frame, spec)
+  return ConfigureInlineToTDriver(frame, spec)
 end
 
 function InlineToT.Update(frame, event, unit)
@@ -2048,6 +2111,7 @@ end
 InlineToT.NoDispatchUpdates = { [InlineToT.Update] = true }
 
 function InlineToT.Disable(frame)
+  ClearInlineToTDriver(frame)
   SetShownCached(frame and frame.totInlineSep, false)
   SetShownCached(frame and frame.totInlineText, false)
   if frame then

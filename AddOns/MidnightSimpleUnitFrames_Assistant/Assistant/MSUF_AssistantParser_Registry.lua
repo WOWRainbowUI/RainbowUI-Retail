@@ -179,11 +179,31 @@ local ROOT_FRAME_ENABLED_DETAIL_TERMS = {
     "portrait", "portraits", "power bar", "mana bar",
     "health bar", "hp bar", "castbar", "cast bar", "name", "names", "text", "border", "outline",
     "alpha", "opacity", "range fade", "offline", "solo", "sort", "sorting", "role", "scale", "scaling",
+    -- ContainsAny matches whole words, so every singular above needed its
+    -- plural too: "turn off borders for party frame" was not covered by
+    -- "border" and disabled the party frames.
+    "borders", "outlines", "texts", "castbars", "cast bars", "power bars", "mana bars",
+    "health bars", "hp bars", "scales", "markers", "symbols",
+    -- Parts of a frame that had no entry here at all, so a request about one of
+    -- them could still be answered by switching the whole frame off.
+    "highlight", "highlights", "aggro", "threat", "dispel", "purge",
+    "aura", "auras", "buff", "buffs", "debuff", "debuffs",
+    "gradient", "texture", "color", "colour", "font",
+    "round", "rounded", "corner", "corners", "shape",
+    "spacing", "padding", "column", "columns", "growth", "position", "offset",
 }
 
 local function RootFrameEnabledBlockedByDetail(setting, text)
     if not (setting and setting.attribute == "enabled") then return false end
     if setting.frameType ~= "unitframe" and setting.frameType ~= "group" then return false end
+    return ContainsAny(text, ROOT_FRAME_ENABLED_DETAIL_TERMS)
+end
+
+-- Shared with the followup lane. Two lanes can write a frame's root "enabled"
+-- toggle, they each kept their own idea of "this sentence is about a detail,
+-- not the frame", and the shorter list let "turn off highlight borders for
+-- party frame" disable the player's party frames outright.
+function P.TextNamesFrameDetail(text)
     return ContainsAny(text, ROOT_FRAME_ENABLED_DETAIL_TERMS)
 end
 
@@ -1191,6 +1211,41 @@ local function MissingValueResponse(matches, raw)
     local setting = best and best.setting
     if not setting then return nil end
     RefreshRegistrySettingValues(setting)
+    -- A texture request often names its value with no connector at all ("i
+    -- want a solid looking bar texture", "make the empty part of the bar use
+    -- the flat texture"). Before asking, scan the sentence against the known
+    -- texture vocabulary; exactly one distinct target is the stated value.
+    -- Aliases that also appear in the control's own label are skipped so
+    -- "frame outline style" can never read its own name as the value.
+    if setting.type == "string"
+        and (setting.mediaType ~= nil
+            or tostring(setting.label or ""):lower():find("texture", 1, true))
+    then
+        local barsData = A.GlobalBarRegistry and A.GlobalBarRegistry.Data
+        local textureAliases = type(barsData) == "table" and barsData.TEXTURE_KEY_ALIASES or nil
+        if type(textureAliases) == "table" then
+            local padded = " " .. Normalize(raw) .. " "
+            local labelPadded = " " .. Normalize(setting.label or "") .. " "
+            local found
+            for alias, target in pairs(textureAliases) do
+                local phrase = " " .. tostring(alias) .. " "
+                if padded:find(phrase, 1, true) and not labelPadded:find(phrase, 1, true) then
+                    if found ~= nil and found ~= target then found = nil break end
+                    found = target
+                end
+            end
+            if type(found) == "string" and found ~= "" then
+                return {
+                    kind = "changes",
+                    changes = { { setting = setting, value = found } },
+                    label = setting.label or "Assistant option change",
+                    summary = "Texture value named without a connector.",
+                    raw = raw,
+                    sourceText = raw,
+                }
+            end
+        end
+    end
     if (setting.type == "enum" or setting.type == "string")
         and type(setting.values) == "table" and #setting.values > 0 and #setting.values <= 24
     then
@@ -2048,7 +2103,7 @@ end
 
 local RELATIVE_INCREASE_TERMS = {
     "increase", "raise", "bump up", "more", "higher", "larger", "bigger", "wider", "taller", "thicker", "grow", "add",
-    "stronger", "strengthen", "rounder", "longer", "brighter", "turn it up", "turn up", "crank",
+    "stronger", "strengthen", "rounder", "longer", "brighter", "turn it up", "turn up", "crank", "chunkier",
     "erhoehe", "erhoehen", "hoeher", "groesser", "mehr", "breiter", "dicker",
 }
 local RELATIVE_DECREASE_TERMS = {
@@ -2141,6 +2196,9 @@ local PROPORTIONAL_MULTIPLIER_WORDS = {
     { "twice as", 2 }, { "two times as", 2 }, { "double", 2 }, { "doppelt", 2 },
     { "three times as", 3 }, { "triple", 3 }, { "thrice", 3 },
     { "half as", 0.5 }, { "halve", 0.5 }, { "half the", 0.5 }, { "haelfte", 0.5 },
+    -- "half transparent" states the result as a factor of full opacity; the
+    -- step reader used to take it as one 0.05 decrease (1 -> 0.95).
+    { "half transparent", 0.5 }, { "halb transparent", 0.5 },
 }
 
 -- "20% bigger" and "twice as tall" are changes RELATIVE TO THE CURRENT VALUE, so
@@ -2422,7 +2480,22 @@ ValueForRegistrySetting = function(setting, text, raw)
         -- first so "set hp text separator to :" resolves the colon value.
         local symbolValue = P.SymbolEnumValueForRaw and P.SymbolEnumValueForRaw(setting, raw)
         if symbolValue ~= nil then return symbolValue end
-        return EnumValueForText(setting, text)
+        -- "turn it up" is intensity wording, never a direction value. For
+        -- direction-valued enums, mask those phrases so "the bar gradient is
+        -- too subtle, turn it up" cannot select Direction = up; the relative
+        -- strength path owns that request.
+        local enumText = text
+        for i = 1, #(setting.values or {}) do
+            local v = tostring(setting.values[i] or ""):lower()
+            if v == "up" or v == "down" then
+                enumText = tostring(text or "")
+                    :gsub("turn%s+it%s+up", " "):gsub("turn%s+it%s+down", " ")
+                    :gsub("turn%s+up", " "):gsub("turn%s+down", " ")
+                    :gsub("crank%s+it%s+up", " "):gsub("tone%s+it%s+down", " ")
+                break
+            end
+        end
+        return EnumValueForText(setting, enumText)
     end
     if setting.type == "string" then
         -- Some native controls store their fixed choices as strings because
@@ -2600,6 +2673,10 @@ local FONT_RENDERING_GROUP_SCOPES = {
 
 local function FontRenderingValueForText(text)
     local boolValue = DetectBoolean(text)
+    if tostring(text or ""):find("slug", 1, true) then
+        if boolValue == false then return "SMOOTH" end
+        return "SLUG"
+    end
     if ContainsAny(text, RegistryPhrases[57]) then
         if boolValue == false then return "SMOOTH" end
         return "SHARP"
@@ -2652,7 +2729,7 @@ local function ParseFontRenderingShortcut(text)
         changes = changes,
         label = #changes == 1 and (changes[1].setting.label or "Font Rendering") or "Font Rendering",
         bulkSafe = #changes > 1,
-        summary = "Changes font rendering between smooth and sharp monochrome text.",
+        summary = "Changes font rendering between smooth, sharp monochrome, and Slug text.",
     }
 end
 P.ParseFontRenderingShortcut = ParseFontRenderingShortcut
@@ -2949,6 +3026,19 @@ local function ParseScopedFontTextColorShortcut(text)
 
     local setting = Registry and Registry:GetSetting("fontScope." .. tostring(scope) .. "." .. spec.key)
     if not setting then return nil end
+    -- This lane picks the value from the SPEC, not from the sentence: anything
+    -- that is not a "back to default" request becomes spec.on. For Name Text
+    -- Color Mode that is hardcoded CLASS, and the mode words below belong to
+    -- sibling controls it cannot express -- so "set target name color to
+    -- health" was silently written as Class colour, a value the player never
+    -- named. Name Text Color Mode offers only Default and Class; stand down and
+    -- let a lane that can answer the real question have the sentence.
+    if spec.key == "nameColorMode"
+        and ContainsAny(text, RegistryPhrases[428])
+        and not P._FontTextColorDefaultIntent(text, spec)
+    then
+        return nil
+    end
     local bareChoice = spec.key == "colorHealthTextByHealth" and P.ParseBareHPTextColorModeChoice(text)
     if bareChoice then return bareChoice end
     local value
@@ -3979,6 +4069,15 @@ local BAR_GRADIENT_COLOR_TERMS = {
 }
 
 local function BarGradientDirectionValue(text)
+    -- "turn it up" / "tone it down" is intensity wording: "the bar gradient
+    -- is too subtle, turn it up" used to write Direction = UP instead of
+    -- raising the gradient strength. Mask those phrases before the direction
+    -- words are read; genuine direction requests ("gradient from the top",
+    -- "gradient direction up") are untouched.
+    text = tostring(text or "")
+        :gsub("turn%s+it%s+up", " "):gsub("turn%s+it%s+down", " ")
+        :gsub("turn%s+up", " "):gsub("turn%s+down", " ")
+        :gsub("crank%s+it%s+up", " "):gsub("tone%s+it%s+down", " ")
     if ContainsAny(text, RegistryPhrases[210]) then return "RIGHT" end
     if ContainsAny(text, RegistryPhrases[211]) then return "LEFT" end
     if ContainsAny(text, RegistryPhrases[212]) then return "UP" end

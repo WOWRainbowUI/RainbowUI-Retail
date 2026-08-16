@@ -582,11 +582,16 @@ local function ApplyFrameAuraPreview(frame, kind, visual, lane, descriptor, slot
     dispelBorder = EnsurePreviewTexture(visual, "_dispelBorder", "OVERLAY", 5)
     if A3 and type(A3.ApplyAuraDispelPreview) == "function"
       and A3.ApplyAuraDispelPreview(dispelBorder, visual, size,
-        lane.showAuraSymbol == true and "SYMBOL" or "BORDER", lane.iconShape) then
+        lane.showAuraSymbol == true and "SYMBOL" or "BORDER", lane.iconShape,
+        A3.PreviewDispelTypeForIndex(sampleIndex)) then
       -- Shared renderer stamped the matching shaped/rounded border.
     elseif dispelBorder.SetAtlas then
+      local pad = type(A3.NativeAuraDispelBorderPadding) == "function"
+        and A3.NativeAuraDispelBorderPadding(size)
+        or max(1, floor(size / 6 + 0.5))
       dispelBorder:ClearAllPoints()
-      dispelBorder:SetAllPoints(visual)
+      dispelBorder:SetPoint("TOPLEFT", visual, "TOPLEFT", -pad, pad)
+      dispelBorder:SetPoint("BOTTOMRIGHT", visual, "BOTTOMRIGHT", pad, -pad)
       dispelBorder:SetAtlas(lane.showAuraSymbol == true
         and "ui-debuff-border-magic-icon" or "ui-debuff-border-magic-noicon", false)
     else
@@ -773,11 +778,17 @@ local function ApplySpellFrameEffectPreview(visual, frame, slot)
   root:SetAllPoints(health or frame)
   local layers = MSUF and MSUF.UF and MSUF.UF.Layers or {}
   if root.SetFrameLevel and frame.GetFrameLevel then
-    root:SetFrameLevel(layers.ElementLevel and layers.ElementLevel(effect.layer, 0,
-      11 - max(1, min(10, tonumber(effect.priority) or 5)))
+    local priority = max(1, min(10, tonumber(effect.priority) or 5))
+    local targetOwner = health
+    if effectKind == "namecolor" then
+      targetOwner = nameSource and nameSource.GetParent and nameSource:GetParent() or frame
+    end
+    root:SetFrameLevel(layers.AuraEffectLevel and layers.AuraEffectLevel(effect.layer, priority, targetOwner)
+      or layers.ElementLevel and layers.ElementLevel(effect.layer, 0,
+      11 - priority)
       or ((frame:GetFrameLevel() or 0)
         + (tonumber(layers.SPELL_FRAME_EFFECT_BASE_OFFSET) or 1)
-        + (11 - max(1, min(10, tonumber(effect.priority) or 5)))
+        + (11 - priority)
         + max(0, min(30, tonumber(effect.layer) or 0))))
   end
   root._tint:Hide()
@@ -880,7 +891,29 @@ local function ApplySpellIndicatorPreview(frame, kind, visual, slot)
   local barOnly = slot.showDurationBar == true and slot.durationBarDisplay == "BAR_ONLY"
   if hiddenVisual then
     texture:Hide()
-  elseif visualType == "square" or visualType == "bar" then
+  elseif visualType == "bar" then
+    texture:SetTexture(PREVIEW_WHITE)
+    texture:SetTexCoord(0, 1, 0, 1)
+    texture:SetVertexColor(r * 0.18, g * 0.18, b * 0.18, a * 0.55)
+    texture:Show()
+    durationBar = EnsurePreviewTexture(visual, "_durationBar", "OVERLAY", 2)
+    durationBar:ClearAllPoints()
+    local edge = slot.durationBarReverseFill == true and "RIGHT" or "LEFT"
+    durationBar:SetPoint("TOP" .. edge, visual, "TOP" .. edge, 0, 0)
+    durationBar:SetPoint("BOTTOM" .. edge, visual, "BOTTOM" .. edge, 0, 0)
+    durationBar:SetWidth(max(1, width * 0.68))
+    durationBar:SetTexture(PREVIEW_WHITE)
+    durationBar:SetVertexColor(r, g, b, a)
+    durationBar:Show()
+    if slot.showCooldownText == true then
+      timer = EnsurePreviewFontString(visual, "_timer")
+      SetPreviewFont(timer, slot.cooldownSize or 8)
+      timer:SetText("12")
+      timer:SetTextColor(1, 1, 1, 1)
+      PlacePreviewText(timer, visual, slot.cooldownAnchor or "CENTER", slot.cooldownX or 0, slot.cooldownY or 0)
+      timer:Show()
+    end
+  elseif visualType == "square" then
     texture:SetTexture(PREVIEW_WHITE)
     texture:SetTexCoord(0, 1, 0, 1)
     texture:SetVertexColor(r, g, b, a)
@@ -1049,10 +1082,10 @@ local function RaidGroupPreviewText(style, subgroup)
   return "(" .. subgroup .. ")"
 end
 
-local function SetBar(bar, value, maxValue, r, g, b, a)
+local function SetBar(bar, value, maxValue, animate, r, g, b, a)
   if not bar then return end
   if bar.SetMinMaxValues then bar:SetMinMaxValues(0, maxValue or 100) end
-  if bar.SetValue then bar:SetValue(value or 0) end
+  if bar.SetValue then bar:SetValue(value or 0, animate == true and bar._msufSmoothInterp or nil) end
   if bar.SetStatusBarColor then bar:SetStatusBarColor(r or 1, g or 1, b or 1, a or 1) end
   if bar.Show then bar:Show() end
 end
@@ -1212,6 +1245,7 @@ local function ApplyPreviewStatus(frame, kind, index, role)
   end
   SetShown(frame.combatStateIndicatorIcon, false)
   SetShown(frame.statusIndicatorText, false)
+  SetShown(frame.statusAFKTimerText, false)
 end
 
 --- Seed fake unit state into one preview frame after UF.ApplySpec has built the
@@ -1251,7 +1285,7 @@ local function ApplyPreviewData(frame, index, kind)
   end
   local hpMax = 100
   local hp = floor(hpPct * hpMax + 0.5)
-  SetBar(frame.hpBar or frame.Health or frame.health, hp, hpMax, PreviewHealthColor(frame, class, hpPct))
+  SetBar(frame.hpBar or frame.Health or frame.health, hp, hpMax, true, PreviewHealthColor(frame, class, hpPct))
 
   local powerMax = 100
   local power = min(powerMax, 35 + ((index * 11) % 55))
@@ -1260,7 +1294,7 @@ local function ApplyPreviewData(frame, index, kind)
   end
   local powerBar = frame.targetPowerBar or frame.powerBar or frame.Power or frame.power
   if powerBar and (not powerBar.IsShown or powerBar:IsShown()) then
-    SetBar(powerBar, power, powerMax, 0.10, 0.45, 0.95, 1)
+    SetBar(powerBar, power, powerMax, true, 0.10, 0.45, 0.95, 1)
   end
 
   ApplyPreviewText(frame, hp, hpMax, power, powerMax, class)
@@ -1296,6 +1330,7 @@ local function ClearPreviewData(frame)
   SetShown(frame.phaseIcon, false)
   SetShown(frame.raidGroupNameText, false)
   SetShown(frame.statusIndicatorText, false)
+  SetShown(frame.statusAFKTimerText, false)
   if GF.HideSpellIndicators then GF.HideSpellIndicators(frame) end
   if GF.HideFrameAuras then GF.HideFrameAuras(frame) end
 end

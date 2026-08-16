@@ -194,6 +194,7 @@ local STATUS_REFRESH = {
   "RestingIndicator",
   "IncomingResIndicator",
   "PVPIndicator",
+  "StanceIndicator",
   "GroupStatusRuntime",
 }
 local SYMBOL_PATH_CACHE = {}
@@ -400,15 +401,19 @@ local function ApplyStatusFont(region, font, size, flags)
   return pathMatches and actualSize ~= nil and math.abs(actualSize - size) <= 0.01
 end
 
-local function SetFont(region, spec, size)
+local function SetFont(region, spec, size, role)
   if not region or not region.SetFont then
     return true
   end
-  local font = spec and spec.font
   local flags = spec and spec.fontFlags or "OUTLINE"
   size = tonumber(size) or 14
   if size <= 0 then size = 14 end
   if size < 6 then size = 6 elseif size > 128 then size = 128 end
+  local font = spec and spec.font
+  local resolveRoleFont = MSUF.UFText and MSUF.UFText.ResolveRoleFont
+  if role and type(resolveRoleFont) == "function" then
+    font = resolveRoleFont(font, role, size)
+  end
   local fontEpoch = tonumber(_G.MSUF_FontApplyEpoch) or 0
   local fontReady = region._msufStatusFontPending ~= true
   if font and (region._msufStatusFontAttemptEpoch ~= fontEpoch
@@ -497,10 +502,19 @@ local function NameRelativeAnchor(frame, anchor)
 
   local clip = frame._msufNameInlineClip
   if clip then
-    if anchor == "NAMERIGHT" then
-      return clip, "LEFT", "RIGHT", 0
+    -- The shorten window stays maxChars wide however short the rendered name
+    -- is, so its edge only matches the glyphs while the name really overflows
+    -- (tracked by the warm fit). Fitting names anchor to the invisible
+    -- auto-width twin that mirrors the visible run inside the window.
+    local target = clip
+    if frame._msufNameCenterClipOverflow ~= true
+      and frame._msufNameAnchorTextActive == true and frame._msufNameAnchorText then
+      target = frame._msufNameAnchorText
     end
-    return clip, "RIGHT", "LEFT", 0
+    if anchor == "NAMERIGHT" then
+      return target, "LEFT", "RIGHT", 0
+    end
+    return target, "RIGHT", "LEFT", 0
   end
 
   -- Bar-anchored name FontStrings span the full health bar, so their region
@@ -545,7 +559,7 @@ local function AnchorRegion(region, frame, cfg)
   end
 end
 
-local function LayoutRegion(region, frame, spec, cfg, isText)
+local function LayoutRegion(region, frame, spec, cfg, isText, fontRole)
   if not (region and cfg) then
     return
   end
@@ -556,7 +570,7 @@ local function LayoutRegion(region, frame, spec, cfg, isText)
       region._msufStatusSize = size
     end
   else
-    SetFont(region, spec, cfg.size)
+    SetFont(region, spec, cfg.size, fontRole)
     ApplyTextColor(region, spec, cfg)
     if region.SetJustifyH then
       local anchor = cfg.anchor
@@ -669,16 +683,6 @@ local function ApplyStateIconTexture(tex, kind, cfg, status)
   end
 end
 
-local function UnitFramePVPContextualDisabled()
-  local gameRules = _G.C_GameRules
-  local enum = _G.Enum
-  local rule = enum and enum.GameRule and enum.GameRule.UnitFramePvPContextualDisabled
-  if gameRules and type(gameRules.IsGameRuleActive) == "function" and rule ~= nil then
-    return gameRules.IsGameRuleActive(rule) == true
-  end
-  return false
-end
-
 local function PVPAtlasForFaction(factionGroup)
   return PVP_ATLAS_BY_FACTION[factionGroup]
 end
@@ -689,9 +693,6 @@ end
 
 local function ResolvePVPAtlas(frame, unit, unitState)
   if not (unit and UnitExistsRuntime(unit, unitState, frame)) then
-    return nil
-  end
-  if UnitFramePVPContextualDisabled() then
     return nil
   end
   if UnitIsPVPFreeForAll and BoolTrue(UnitIsPVPFreeForAll(unit)) then
@@ -883,9 +884,18 @@ local CONFIGURED_REGION_DEFS = {
   { "resting", "restingIndicatorIcon", nil, nil, nil, nil, nil, "resting" },
   { "incomingRes", "incomingResIndicatorIcon", "resurrectIcon", { "resurrectIcon", "incomingResIndicatorIcon" }, { "incomingResIndicatorIcon", "IncomingResIndicator" }, nil, nil, "incomingRes" },
   { "pvp", "pvpIndicatorIcon", "pvpIcon", { "pvpIcon", "pvpIndicatorIcon" }, { "pvpIndicatorIcon", "pvpIcon" } },
+  { "stance", "stanceIndicatorText", nil, nil, nil, nil, true },
   { "readyCheck", "readyCheckIcon" },
   { "summon", "summonIcon", nil, nil, nil, nil, nil, nil, true },
   { "phase", "phaseIcon", nil, nil, nil, PHASE_TEXTURE, nil, nil, nil, true },
+}
+
+local NAME_FONT_STATUS = {
+  level = true,
+  race = true,
+  classText = true,
+  raidGroup = true,
+  stance = true,
 }
 
 local function HideConfiguredRegion(frame, def)
@@ -927,7 +937,8 @@ local function ApplyConfiguredRegion(frame, spec, status, def)
   if state then
     ApplyStateOrPackIconTexture(region, state, cfg, status, state)
   end
-  LayoutRegion(region, frame, spec, cfg, text)
+  local nameRelative = cfg.anchor == "NAMERIGHT" or cfg.anchor == "NAMELEFT"
+  LayoutRegion(region, frame, spec, cfg, text, NAME_FONT_STATUS[key] and nameRelative and "name" or nil)
 end
 
 local function ApplyConfiguredRegions(frame, spec)
@@ -1394,6 +1405,22 @@ local function IdentityString(value)
   return "", false
 end
 
+local function IdentityDisplayValue(localizedValue, stableValue)
+  -- UnitRace/UnitClass localized names can be identity-secret in restricted
+  -- instances. Some client builds render those localized secret strings as the
+  -- unit name or as blank text. Their stable second returns remain suitable for
+  -- direct, secret-safe FontString display; never inspect or index them in Lua.
+  if issecretvalue(localizedValue) == true then
+    local _, stablePresent = IdentityString(stableValue)
+    if stablePresent then return stableValue end
+    return localizedValue
+  end
+  if type(localizedValue) == "string" and localizedValue ~= "" then
+    return localizedValue
+  end
+  return stableValue
+end
+
 local function ShowIdentityText(region, value, present)
   if not region then return end
   if present then
@@ -1436,13 +1463,14 @@ local function UpdateIdentityTexts(frame, status)
 
   local raceText, racePresent = "", false
   if showRace and UnitRace then
-    raceText, racePresent = IdentityString(UnitRace(unit))
+    local localizedRace, englishRace = UnitRace(unit)
+    raceText, racePresent = IdentityString(IdentityDisplayValue(localizedRace, englishRace))
   end
 
   local classText, classPresent = "", false
   if showClass then
-    local className = ReadUnitClassCached(frame, unit)
-    classText, classPresent = IdentityString(className)
+    local localizedClass, classToken = ReadUnitClassCached(frame, unit)
+    classText, classPresent = IdentityString(IdentityDisplayValue(localizedClass, classToken))
   end
 
   if showLevel then ShowIdentityText(frame.levelText, levelText, levelPresent) else SetShown(frame.levelText, false) end
@@ -1675,7 +1703,58 @@ local function StatusTextIsGone(value)
   return value == "DEAD" or value == "GHOST" or value == "OFFLINE"
 end
 
+local function HideAFKTimerText(frame)
+  if not frame then return end
+  local fs = frame.statusAFKTimerText
+  if fs then
+    SetText(fs, "")
+    SetShown(fs, false)
+  end
+  frame._msufAFKTimerLayout = nil
+  local afkTimer = MSUF.UFAFKTimer
+  if afkTimer and afkTimer.Detach then afkTimer.Detach(frame) end
+end
+
+--- Companion region to the AFK status text: shows how long the unit has been
+--- AFK. Data comes from the shared GUID ledger (MSUF.UFAFKTimer), which is
+--- strictly out-of-combat; ResolveText returns nil in combat or when the
+--- AFK-on edge was never observed, so this hides instead of guessing.
+local function UpdateAFKTimerText(frame, status, cfg, state)
+  local tcfg = cfg and cfg.afkTimer
+  if not (tcfg and tcfg.enabled == true and state == "afk") then
+    HideAFKTimerText(frame)
+    return
+  end
+  local afkTimer = MSUF.UFAFKTimer
+  if not afkTimer then return end
+  local text
+  if status.testMode == true then
+    text = afkTimer.SampleText()
+  else
+    text = afkTimer.ResolveText(frame.MSUFUnitKey)
+  end
+  if type(text) ~= "string" or text == "" then
+    HideAFKTimerText(frame)
+    return
+  end
+  local fs = EnsureText(frame, "statusAFKTimerText", tcfg.layer)
+  if not fs then return end
+  if frame._msufAFKTimerLayout ~= tcfg then
+    frame._msufAFKTimerLayout = tcfg
+    AdoptRegion(frame, fs, tcfg.layer)
+    LayoutRegion(fs, frame, frame.MSUFSpec, tcfg, true)
+  end
+  SetText(fs, text)
+  SetShown(fs, true)
+  if status.testMode ~= true then
+    if afkTimer.Attach then afkTimer.Attach(frame) end
+  elseif afkTimer.Detach then
+    afkTimer.Detach(frame)
+  end
+end
+
 local function ClearStatusText(frame, fs)
+  HideAFKTimerText(frame)
   if frame._msufStatusTextValue == nil
     and frame._msufStatusTextLayout == nil
     and fs and fs._msufStatusShown == false then
@@ -1751,6 +1830,9 @@ local function UpdateStatusText(frame, status, event, seedHP)
       ClearStatusText(frame, fs)
       return
     end
+    -- Before the unchanged early-out: the ledger ticker re-enters this
+    -- function with an unchanged main text and only the duration moves.
+    UpdateAFKTimerText(frame, status, cfg, state)
     if frame._msufStatusTextValue == text
       and frame._msufStatusTextLayout == layout
       and fs._msufStatusShown == true then
@@ -1876,6 +1958,40 @@ local function UpdatePVP(frame, status)
   end
 end
 
+--- Player stance / form / aura text from the native stance bar. Data comes
+--- from MSUF.UFStance (spellID -> name cache, immutable per session); the
+--- reads are the player's own action-bar state, so they stay valid in combat
+--- and the text updates live while stance-dancing. Region creation, font,
+--- color and anchoring are owned by ApplyConfiguredRegions - this only moves
+--- the text. Lives on Status rather than as a local: the file's main chunk
+--- is at Lua's 200-local ceiling.
+function Status.UpdateStanceText(frame, status)
+  local cfg = status and status.stance
+  local fs = frame.stanceIndicatorText
+  if not (cfg and cfg.enabled and fs) then
+    SetShown(fs, false)
+    return
+  end
+  local stance = MSUF.UFStance
+  local text
+  if status.testMode == true then
+    text = stance and stance.SampleText and stance.SampleText() or nil
+  else
+    text = stance and stance.Resolve and stance.Resolve() or nil
+  end
+  if type(text) ~= "string" or text == "" then
+    frame._msufStanceTextValue = nil
+    SetShown(fs, false)
+    return
+  end
+  if frame._msufStanceTextValue == text and fs._msufStatusShown == true then
+    return
+  end
+  frame._msufStanceTextValue = text
+  SetText(fs, text)
+  SetShown(fs, true)
+end
+
 function Status.IsEnabled(frame, spec)
   return spec and spec.status and spec.status.enabled == true
 end
@@ -1892,6 +2008,7 @@ function Status.Apply(frame, spec)
   if frame then
     frame._msufStatusTextValue = nil
     frame._msufStatusTextLayout = nil
+    frame._msufAFKTimerLayout = nil
   end
   ApplyConfiguredRegions(frame, spec)
   -- ApplyConfiguredRegions lays the status text out with its base table, but a
@@ -1907,6 +2024,7 @@ end
 
 function Status.Disable(frame)
   StopRestingFlipbook(frame and frame.restingIndicatorIcon)
+  HideAFKTimerText(frame)
   for i = 1, #CONFIGURED_REGION_DEFS do
     HideConfiguredRegion(frame, CONFIGURED_REGION_DEFS[i])
   end
@@ -2167,6 +2285,13 @@ local STATUS_INDICATOR_DEFS = {
   { "RestingIndicator", "resting", nil, RESTING_PLAYER_EVENTS, UpdateResting, "restingIndicatorIcon", nil, true },
   { "IncomingResIndicator", "incomingRes", INCOMING_RES_EVENTS, nil, UpdateIncomingRes, "incomingResIndicatorIcon", true },
   { "PVPIndicator", "pvp", nil, nil, UpdatePVP, "pvpIndicatorIcon", true, nil, PVPEvents },
+  -- Stance text events fire only on user action or a stance-bar rebuild
+  -- (talents, level-up, loading screen). Never add
+  -- UPDATE_SHAPESHIFT_COOLDOWN - it fires with practically every GCD and
+  -- would turn this indicator into a hot path.
+  { "StanceIndicator", "stance", nil,
+    { "UPDATE_SHAPESHIFT_FORM", "UPDATE_SHAPESHIFT_FORMS", "PLAYER_ENTERING_WORLD" },
+    Status.UpdateStanceText, "stanceIndicatorText", true, true },
 }
 
 for i = 1, #STATUS_INDICATOR_DEFS do

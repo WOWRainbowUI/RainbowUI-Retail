@@ -180,6 +180,7 @@ local TEXT_ALPHA_FIELDS = {
   "totInlineText",
   "raidGroupNameText",
   "statusIndicatorText",
+  "statusAFKTimerText",
 }
 
 local function StatusBarTexture(bar)
@@ -214,6 +215,7 @@ end
 
 local function ApplyHealthFillAlpha(frame, alpha, force)
   SetStatusBarFillAlpha(frame.hpBar or frame.Health, alpha, "_msufAlphaHealth", force)
+  SetStatusBarFillAlpha(frame.healthLossTrail, alpha, "_msufAlphaHealthLoss", force)
   SetStatusBarFillAlpha(frame.incomingHealBar, alpha, "_msufAlphaPrediction", force)
   SetStatusBarFillAlpha(frame.absorbBar, alpha, "_msufAlphaPrediction", force)
   SetStatusBarFillAlpha(frame.healAbsorbBar, alpha, "_msufAlphaPrediction", force)

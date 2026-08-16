@@ -103,6 +103,10 @@ local function ApplyRuntimePreviewFont(runtimeSpec, fallback, fs, size, role)
     end
 end
 
+local function NameRelativeFontRole(anchor)
+    return (anchor == "NAMERIGHT" or anchor == "NAMELEFT") and "name" or nil
+end
+
 local function PlaceRuntimePreviewName(fs, parent, runtimeText, conf, baselineOffset, resolveNameAnchor)
     local anchor = (runtimeText and runtimeText.nameAnchor) or conf.nameTextAnchor or "TOPLEFT"
     local x = tonumber(runtimeText and runtimeText.nameX)
@@ -643,7 +647,7 @@ local UNIT_RENDER_FALLBACKS = {
     RuntimeSpecForPreviewKey = F.Nil, RuntimeAppliedPortraitSizeForPreviewKey = F.Nil, RuntimeVisualScaleForPreviewKey = F.One, RuntimeCastbarVisualScaleForPreviewKey = F.One, ClampPreviewZoom = NumberOrOne, ResolveDefaultPreviewZoomLock = F.Noop, UpdatePreviewZoomControls = F.Noop,
     ApplyPreviewRounded = F.Noop, ApplyPreviewFrameBorder = F.Noop, PreviewRoundedOutlineThickness = F.One, ApplyPreviewBoundsGuide = F.Noop,
     CastbarShowIcon = F.True, CastbarShowText = F.TruePair, ReadCastbarNum = CastbarNumFallback, FormatCastbarPreviewTime = CastbarTimeFallback,
-    ClassColor = F.WhiteRGB, HealthColor = F.HealthRGB, DarkMatchHPColor = F.HealthRGB, HealthBackgroundColor = F.DarkRGBA, PowerBackgroundColor = F.DarkRGBA, PowerColor = F.PowerRGB, FontColor = F.WhiteRGB,
+    ClassColor = F.WhiteRGB, GradientPreviewColor = F.HealthRGB, HealthColor = F.HealthRGB, DarkMatchHPColor = F.HealthRGB, HealthBackgroundColor = F.DarkRGBA, PowerBackgroundColor = F.DarkRGBA, PowerColor = F.PowerRGB, FontColor = F.WhiteRGB,
     PreviewResolveHealPredAnchorMode = F.Right, PreviewResolveAbsorbAnchorMode = F.Right, PreviewHealPredictionEnabled = F.False, PreviewAbsorbBarEnabled = F.False,
     PreviewNameColor = F.WhiteRGB, PreviewToTInlineColor = F.WhiteRGB, NormalizeHpMode = F.Identity, NormalizePowerMode = F.Identity,
     TextScopeGet = F.Nil, TextScopeHasSlots = F.False, TextScopeSlotGet = F.Nil, FormatMode = F.Empty, ShortenPreviewName = F.Identity, ToTInlineSeparator = F.Identity,
@@ -815,10 +819,12 @@ function Render.Install(Preview, deps)
     local renderState = PickFallbackTable(deps, UNIT_RENDER_FALLBACKS, [[
         RuntimeSpecForPreviewKey RuntimeAppliedPortraitSizeForPreviewKey RuntimeVisualScaleForPreviewKey RuntimeCastbarVisualScaleForPreviewKey ClampPreviewZoom ResolveDefaultPreviewZoomLock UpdatePreviewZoomControls
         ApplyPreviewRounded ApplyPreviewFrameBorder PreviewRoundedOutlineThickness ApplyPreviewBoundsGuide CastbarShowIcon CastbarShowText ReadCastbarNum FormatCastbarPreviewTime
-        ClassColor HealthColor DarkMatchHPColor HealthBackgroundColor PowerBackgroundColor PowerColor FontColor PreviewResolveHealPredAnchorMode PreviewResolveAbsorbAnchorMode PreviewHealPredictionEnabled PreviewAbsorbBarEnabled
+        ClassColor GradientPreviewColor HealthColor DarkMatchHPColor HealthBackgroundColor PowerBackgroundColor PowerColor FontColor PreviewResolveHealPredAnchorMode PreviewResolveAbsorbAnchorMode PreviewHealPredictionEnabled PreviewAbsorbBarEnabled
         PreviewNameColor PreviewToTInlineColor NormalizeHpMode NormalizePowerMode TextScopeGet TextScopeHasSlots TextScopeSlotGet FormatMode ShortenPreviewName ToTInlineSeparator ResolveNameAnchor
         LayoutUnitPreviewOverlay PositionFromAnchor PositionRuntimeLayoutIconPreview PositionStatusCornerPreview PositionSameAnchorPreview PositionLevelPreview ResolveStatusPreviewAnchor SetPreviewIconTexture NormalizeStatusPreviewId
     ]])
+    renderState.GradientPreviewColor = Preview.Model and Preview.Model.GradientPreviewColor
+        or renderState.GradientPreviewColor
     renderState.ZOOM_MIN = tonumber(deps.ZOOM_MIN) or 0.35
     --- Mock body clamp = the shared legal size range every conf.width/height
     --- writer enforces (State/MSUF_Defaults.lua exports it; the EM2 popup
@@ -998,9 +1004,21 @@ function Render.Install(Preview, deps)
         ROUNDED = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Masks\\rounded_mask.tga",
         DIAMOND = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Masks\\diamond_mask.tga",
     }
-    local function ApplyPreviewPortraitShapeMask(portrait, shape)
+    local PREVIEW_SOFT_EDGE_MASKS = { SQUARE = {}, CIRCLE = {}, ROUNDED = {}, DIAMOND = {} }
+    do
+        local root = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Masks\\"
+        for level = 1, 15 do
+            local suffix = (level < 10 and "0" or "") .. tostring(level) .. ".png"
+            PREVIEW_SOFT_EDGE_MASKS.SQUARE[level] = root .. "texture_layer_edge_softness_" .. suffix
+            PREVIEW_SOFT_EDGE_MASKS.CIRCLE[level] = root .. "portrait_edge_softness_circle_" .. suffix
+            PREVIEW_SOFT_EDGE_MASKS.ROUNDED[level] = root .. "portrait_edge_softness_rounded_" .. suffix
+            PREVIEW_SOFT_EDGE_MASKS.DIAMOND[level] = root .. "portrait_edge_softness_diamond_" .. suffix
+        end
+    end
+    local function ApplyPreviewPortraitShapeMask(portrait, shape, edgeSoftnessLevel)
         local wantAtlas = shape == "BLIZZARD"
-        local file = PREVIEW_SHAPE_MASKS[shape]
+        local softMasks = PREVIEW_SOFT_EDGE_MASKS[shape]
+        local file = softMasks and softMasks[edgeSoftnessLevel] or PREVIEW_SHAPE_MASKS[shape]
         local mask = portrait._msufPreviewShapeMask
         if not (wantAtlas or file) then
             if mask and portrait._msufPreviewShapeMasked then
@@ -1312,11 +1330,31 @@ local function PreviewTextureLayerConfigured(conf)
     end
     return false
 end
+local function TextureLayerPreviewData(conf, unitKey, data)
+    if type(conf) ~= "table" or type(data) ~= "table" then return data end
+    local slots = MenuState.unitTexLayerSlot
+    local slot = slots and tonumber(slots[unitKey]) or 1
+    if not slot or slot < 1 or slot > #TEXLAYER_PREVIEW_PREFIXES then slot = 1 end
+    local prefix = TEXLAYER_PREVIEW_PREFIXES[slot]
+    if conf[prefix .. "Enabled"] ~= true
+        or (conf[prefix .. "HealthCondition"] ~= "BELOW"
+            and conf[prefix .. "HealthLowAlphaEnabled"] ~= true) then
+        return data
+    end
+    local threshold = tonumber(conf[prefix .. "HealthThreshold"]) or 0.35
+    if threshold < 0.01 then threshold = 0.01 elseif threshold > 1 then threshold = 1 end
+    local previewHP = math.max(0.01, threshold * 0.5)
+    local copy = {}
+    for key, value in pairs(data) do copy[key] = value end
+    copy.hp = previewHP
+    if tonumber(copy.hpMax) then copy.hpCur = math.floor((copy.hpMax * previewHP) + 0.5) end
+    return copy
+end
 --- Decorative texture layers as their own preview layer (3 slots). Geometry is
 --- scaled for the viewport, while visibility, strata, parent-alpha behavior and
 --- texture resolution are delegated to the same runtime helpers used by live
 --- frames. Kept out of Preview.Refresh, which sits at the 200-local limit.
-local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle, classR, classG, classB)
+local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle, classR, classG, classB, healthR, healthG, healthB, healthPct)
     local prefix = TEXLAYER_PREVIEW_PREFIXES[slot]
     local holder = mock and mock.texLayers and mock.texLayers[slot]
     if not holder then return end
@@ -1324,7 +1362,11 @@ local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scal
     local textureRuntime = MSUF and MSUF.TextureLayer
     local runtimeVisible = conf and (not (textureRuntime and type(textureRuntime.LayerVisible) == "function")
         or textureRuntime.LayerVisible(conf, prefix) == true)
-    if not (wanted and conf and conf[prefix .. "Enabled"] == true and runtimeVisible) then
+    local threshold = tonumber(conf and conf[prefix .. "HealthThreshold"]) or 0.35
+    if threshold < 0.01 then threshold = 0.01 elseif threshold > 1 then threshold = 1 end
+    local healthVisible = not conf or conf[prefix .. "HealthCondition"] ~= "BELOW"
+        or (tonumber(healthPct) or 1) < threshold
+    if not (wanted and conf and conf[prefix .. "Enabled"] == true and runtimeVisible and healthVisible) then
         if textureRuntime and type(textureRuntime.ApplySoftEdgeMask) == "function" then
             textureRuntime.ApplySoftEdgeMask(holder, {}, 0)
         end
@@ -1421,6 +1463,13 @@ local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scal
     local b = tonumber(conf[prefix .. "ColorB"]) or 1
     if conf[prefix .. "ColorMode"] == "CLASS" and classR then
         r, g, b = classR, classG or 1, classB or 1
+    elseif conf[prefix .. "ColorMode"] == "HEALTH" and healthR then
+        local aboveMode = conf[prefix .. "HealthAboveMode"]
+        if (tonumber(healthPct) or 1) < threshold or (aboveMode ~= "CLASS" and aboveMode ~= "CUSTOM") then
+            r, g, b = healthR, healthG or 1, healthB or 1
+        elseif aboveMode == "CLASS" and classR then
+            r, g, b = classR, classG or 1, classB or 1
+        end
     end
     local CreateColor = _G.CreateColor
     if tex.SetGradient and CreateColor then
@@ -1487,6 +1536,11 @@ local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scal
     end
     local alpha = tonumber(conf[prefix .. "Alpha"]) or 1
     if alpha < 0 then alpha = 0 elseif alpha > 1 then alpha = 1 end
+    if conf[prefix .. "HealthLowAlphaEnabled"] == true
+        and (tonumber(healthPct) or 1) < threshold then
+        alpha = tonumber(conf[prefix .. "HealthLowAlpha"]) or 1
+        if alpha < 0 then alpha = 0 elseif alpha > 1 then alpha = 1 end
+    end
     holder:SetAlpha(alpha)
     holder:Show()
     if handle then
@@ -1495,9 +1549,13 @@ local function RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scal
     end
 end
 
-local function RenderTextureLayerPreview(box, mock, conf, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle, classR, classG, classB)
+local function RenderTextureLayerPreview(box, mock, conf, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle, renderState, data, health)
+    local classR, classG, classB = renderState.ClassColor(data.class)
+    local gradientColor = renderState.GradientPreviewColor or UNIT_RENDER_FALLBACKS.GradientPreviewColor
+    local healthR, healthG, healthB = gradientColor(data.hp, health)
     for slot = 1, #TEXLAYER_PREVIEW_PREFIXES do
-        RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle, classR, classG, classB)
+        RenderTextureLayerSlotPreview(box, mock, conf, slot, wanted, scaleFn, sw, baseLevel, setTexture, placeHandle,
+            classR, classG, classB, healthR, healthG, healthB, data.hp)
     end
 end
 
@@ -1599,7 +1657,10 @@ function Preview.Refresh(box, reason)
     -- Auto size (Size override = 0) is resolved by the live Portrait element.
     -- Edit Mode displays that applied holder, so consume the same final geometry
     -- instead of letting Menu2 maintain a second approximation of the auto path.
-    if (tonumber(PortraitStyleGet(key, "portraitSizeOverride", 0)) or 0) <= 0 then
+    local runtimeSizeMode = runtimeSpec and runtimeSpec.portrait and runtimeSpec.portrait.sizeMode
+    if runtimeSizeMode == "SEPARATE"
+        or (tonumber(PortraitStyleGet(key, "portraitSizeOverride", 0)) or 0) <= 0
+    then
         box._runtimeAppliedPortraitW, box._runtimeAppliedPortraitH = R.RuntimeAppliedPortraitSizeForPreviewKey(key)
         if tonumber(box._runtimeAppliedPortraitW) and box._runtimeAppliedPortraitW > 0 then
             box._runtimePortraitW = box._runtimeAppliedPortraitW
@@ -1693,6 +1754,7 @@ function Preview.Refresh(box, reason)
         powerFrac = animPower
         data = CopyPreviewAnimationData(box, data, animHp, powerFrac)
     end
+    data = TextureLayerPreviewData(conf, key, data)
     local cpH = classPowerOn and (tonumber(bars.classPowerHeight) or 4) or 0
     if cpH < 2 then cpH = 2 elseif cpH > 30 then cpH = 30 end
     local classPowerSegCount = PreviewClassPowerSegmentCount(classPowerPreviewSpec, 10)
@@ -2258,7 +2320,8 @@ function Preview.Refresh(box, reason)
             runtimeSpec and runtimeSpec.health and runtimeSpec.health.barGradient,
             "_msufPreviewHealthGradients")
     end
-    RenderTextureLayerPreview(box, mock, conf, PreviewLayerWanted(box, "texLayer"), S, sw, baseLevel, SetTex, PlaceHandle, R.ClassColor(data.class))
+    RenderTextureLayerPreview(box, mock, conf, PreviewLayerWanted(box, "texLayer"), S, sw, baseLevel, SetTex, PlaceHandle,
+        R, data, runtimeSpec and runtimeSpec.health)
     if powerOn then
         mock.powerBG:Show(); mock.power:Show()
         mock.powerBG:ClearAllPoints()
@@ -3103,10 +3166,16 @@ function Preview.Refresh(box, reason)
             if mock.portrait._msufPreviewLayoutWidth ~= nil then mock.portrait._msufPreviewLayoutWidth = nil end
             if mock.portrait._msufPreviewLayoutHeight ~= nil then mock.portrait._msufPreviewLayoutHeight = nil end
         end
-        R.ApplyPreviewPortraitShapeMask(mock.portrait, previewShape)
+        local bStyle = box._runtimePortraitBorderStyle or (portraitBorder and portraitBorder.style) or PortraitStyleGet(key, "portraitBorderStyle", "NONE")
+        local edgeSoftnessLevel = tonumber(runtimeSpec and runtimeSpec.portrait and runtimeSpec.portrait.edgeSoftnessLevel)
+        if edgeSoftnessLevel == nil then
+            edgeSoftnessLevel = floor(((tonumber(PortraitStyleGet(key, "portraitEdgeSoftness", 0)) or 0) / 2) + 0.5)
+            if edgeSoftnessLevel < 0 then edgeSoftnessLevel = 0 elseif edgeSoftnessLevel > 15 then edgeSoftnessLevel = 15 end
+            if previewShape == "BLIZZARD" or bStyle ~= "NONE" then edgeSoftnessLevel = 0 end
+        end
+        R.ApplyPreviewPortraitShapeMask(mock.portrait, previewShape, edgeSoftnessLevel)
         R.LayoutPreviewBlizzardPortrait(mock.portrait, previewShape == "BLIZZARD",
             S(box._runtimePortraitW), S(box._runtimePortraitH))
-        local bStyle = box._runtimePortraitBorderStyle or (portraitBorder and portraitBorder.style) or PortraitStyleGet(key, "portraitBorderStyle", "NONE")
         -- The Blizzard ring shape parks every MSUF border renderer, exactly
         -- like the live element.
         if previewShape == "BLIZZARD" or bStyle == "NONE" then
@@ -3270,7 +3339,8 @@ function Preview.Refresh(box, reason)
                 -- applying the indicator color. Preserve that ownership here so
                 -- glyph metrics (and therefore NAMELEFT/NAMERIGHT placement)
                 -- remain identical when a unit-specific font is configured.
-                ApplyRuntimePreviewFont(runtimeSpec, ApplyPreviewFont, icon.txt, max(7, sz))
+                ApplyRuntimePreviewFont(runtimeSpec, ApplyPreviewFont, icon.txt, max(7, sz),
+                    NameRelativeFontRole(StatusAnchorOffsets(spec, statusCfg)))
             end
             R.SetPreviewIconTexture(icon, spec, conf, g, key, data, statusCfg, box._previewStatusText)
             if spec.id == "statusCombat" and icon.SetAlpha then

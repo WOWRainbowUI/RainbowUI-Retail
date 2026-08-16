@@ -28,7 +28,7 @@ K.MIN_GENERIC_LIST_SCORE = 300
 local INDEX_VERSION = 11
 local SEARCH_CACHE_LIMIT = 32
 local SEARCH_TEXT_LIMIT = 360
-local KNOWLEDGE_COMBINED_ALIAS_LIMIT = 2
+local KNOWLEDGE_COMBINED_ALIAS_LIMIT = 8
 local KNOWLEDGE_VALUE_ALIAS_LIMIT = 4
 local DISCORD_INVITE = "https://discord.gg/2Gf9b2Wprz"
 
@@ -2580,12 +2580,12 @@ local function DirectHelpAnswer(query, opts)
             summary = "Assistant texture help",
         }
     end
-    if ContainsAny(norm, { "font", "fonts", "font outline", "outline", "monochrome", "font shadow", "text shadow", "shadow strength" })
+    if ContainsAny(norm, { "font", "fonts", "font outline", "outline", "monochrome", "slug", "font shadow", "text shadow", "shadow strength" })
         and not ContainsAny(norm, { "font help", "fonts help", "help font", "help fonts" })
         and HasConceptDefinitionIntent(norm)
     then
         return {
-            text = "Font rendering help\nFont options control how text is drawn. Size changes readability, outline makes letters stand out, monochrome changes the render style, and shadow options add contrast behind text. MSUF has shared font options plus text-specific font settings.\nExamples: set global font size to 14; set shared font outline to thick; set player name font size to 16; open fonts.\nYou can ask: Open Fonts | Open Player | Open Group Layout",
+            text = "Font rendering help\nFont options control how text is drawn. Size changes readability, outline makes letters stand out, monochrome creates a pixel-sharp style, Slug enables WoW's crisp vector renderer, and shadow options add contrast behind non-Slug text. MSUF has shared font options plus text-specific font settings.\nExamples: set global font size to 14; set shared font rendering to slug; set player name font size to 16; open fonts.\nYou can ask: Open Fonts | Open Player | Open Group Layout",
             status = "applied",
             summary = "Assistant font rendering help",
         }
