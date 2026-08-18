@@ -188,9 +188,9 @@ L['gulf_of_memory_chest_note'] = 'Чтобы добраться до сокро�
 -------------------------------------------------------------------------------
 
 L['lost_spirit_note'] = 'Верните {item:269935} к {npc:261867}.'
-L['sunken_divers_chest_note'] = 'Убейте ближайшего {npc:263081} и добудьте 3x {item:271424}, затем объедините их в {item:271423}, чтобы открыть сокровище.'
-L['vulzahn_smuggled_treasure_note'] = '1. Получите {item:271791} у {dot:Blue}{npc:253837}\n\n2. Передайте {item:271791} {dot:Red}{npc:262204}, чтобы получить {item:271788}\n\n3. Передайте {item:271788} {dot:Green}{npc:263265}, чтобы получить {item:271792} и открыть сокровище'
-L['grave_of_someone_forgotten_note'] = '1. Поговорите с {dot:Red}{npc:263242}.\n\n2. Поговорите с {dot:Green}{npc:263243}.\n\n3. Поговорите с {dot:Blue}{npc:263241}.\n\n4. Вернитесь к могиле и обыщите ее.'
+L['sunken_divers_chest_note'] = 'Убейте ближайших {npc:263081} и добудьте 3x {item:271424}, затем объедините их в {item:271423}, чтобы открыть сокровище.'
+L['vulzahn_smuggled_treasure_note'] = '1. Поговорите с {dot:Green}{npc:263265} рядом со сокровищем.\n\n2. Поговорите с {dot:Red}{npc:262204}.\n\n3. Получите {item:271791} от {dot:Blue}{npc:253837}.\n\n4. Отдайте {item:271791} {dot:Red}{npc:262204}, чтобы получить {item:271788}.\n\n5. Отдайте {item:271788} {dot:Green}{npc:263265}, чтобы получить {item:271792} и открыть сокровище.'
+L['grave_of_someone_forgotten_note'] = '1. Взаимодействуйте с {object:Безымянной могилой}.\n\n2. Поговорите с {dot:Red}{npc:263242}.\n\n3. Поговорите с {dot:Green}{npc:263243}.\n\n4. Поговорите с {dot:Blue}{npc:263241}.\n\n5. Вернитесь к {object:Безымянной могиле}, чтобы забрать добычу.'
 L['profane_ritual_spoils_note'] = 'Встаньте лицом к статуе и нажимайте на {npc:263187} в таком порядке: верхний правый, верхний левый, нижний правый, нижний левый, чтобы открыть сокровище.'
 L['abandoned_amani_privateers_cache_note'] = '1. Ловите рыбу в {dot:Blue}{object:Мрачном омуте с треской}, чтобы получить {item:265525}, затем скормите ее {npc:258076} под водой.\n\n2. Следуйте за дельфином, чтобы забрать {item:265610} из {dot:Red}{object:Промокшего ящика} и {item:265603} из {dot:Green}{object:Разбитой урны}.\n\n3. Нажмите ПКМ по одной из половин, чтобы объединить их в {item:265602} и открыть сокровище.\n\n{note:Все это время оставайтесь под водой. Если вы всплывете на поверхность, дельфин уплывет.}'
 L['grisly_cod_pool'] = 'Мрачный омут с треской'
@@ -206,11 +206,11 @@ L['options_icons_student_of_hissstory'] = '{achievement:63662}'
 L['options_icons_student_of_hissstory_desc'] = 'Отобразить местоположение объектов, связанных с достижением {achievement:63662}.'
 
 L['options_icons_soft_underbelly'] = '{achievement:62601}'
-L['options_icons_soft_underbelly_desc'] = 'Отобразить местоположения для достижения {achievement:62601}.'
+L['options_icons_soft_underbelly_desc'] = 'Отображает места для {achievement:62601}.'
 
 L['options_icons_the_honored_dead'] = '{achievement:63610}'
-L['options_icons_the_honored_dead_desc'] = 'Отобразить местоположения для достижения {achievement:63610}.'
+L['options_icons_the_honored_dead_desc'] = 'Отображает места для {achievement:63610}.'
 
 L['options_icons_mysterious_mixing'] = '{achievement:63432}'
-L['options_icons_mysterious_mixing_desc'] = nil
-L['mysterious_mixing_note'] = nil
+L['options_icons_mysterious_mixing_desc'] = 'Отображает места для {achievement:63432}.'
+L['mysterious_mixing_note'] = 'Выполняйте ежедневное задание {quest:97016} у {npc:263327}, чтобы создавать подношения:\n\n{note:Ингредиенты можно получить из {object:Треснувшей канопы}, {object:Безделушки в сгустках яда} и {object:Поющей ракушки} по всему острову или купить на аукционе.}'

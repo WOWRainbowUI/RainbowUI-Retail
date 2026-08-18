@@ -85,7 +85,9 @@ L['in_water'] = '물 속에 있음.'
 L['in_building'] = nil
 
 ------------------------------------- TIME ------------------------------------
-L['now'] = nil
+L['starts_in'] = nil
+L['time_remaining'] = nil
+L['next_time'] = nil
 L['hourly'] = '한시간단위'
 L['daily'] = '일간'
 L['weekly'] = '주간'
@@ -222,6 +224,8 @@ L['options_transmog_rewards'] = '형상변환 보상 표시'
 L['options_transmog_rewards_desc'] = '형상변환 보상을 툴팁에 표시하고 수집 진행상황을 추적합니다'
 L['options_all_transmog_rewards'] = '획득 불가 형상변환 보상 표시'
 L['options_all_transmog_rewards_desc'] = '타직업으로만 수집가능한 형상변환 보상을 표시합니다'
+L['options_shared_appearances'] = nil
+L['options_shared_appearances_desc'] = nil
 L['options_rep_rewards'] = nil
 L['options_rep_rewards_desc'] = nil
 L['options_claimed_rep_rewards'] = nil
