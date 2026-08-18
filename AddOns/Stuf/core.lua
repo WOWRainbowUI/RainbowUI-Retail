@@ -30,6 +30,18 @@ local IsInRaid, GetNumGroupMembers = IsInRaid, GetNumGroupMembers
 local UnitExists, UnitCanAttack, UnitInRaid, UnitIsUnit, UnitCanAssist = UnitExists, UnitCanAttack, UnitInRaid, UnitIsUnit, UnitCanAssist
 local FOREIGN_SERVER_LABEL = FOREIGN_SERVER_LABEL
 
+-- 12.0: some unit APIs return "secret values" (class, power type, reaction, ...).
+-- A secret value cannot be used as a table key: "attempted to index a table that
+-- cannot be indexed with secret keys". SafeKey() converts a secret (or nil) into a
+-- plain fallback key so lookups such as classcolor[CLASS] never throw.
+local issecretvalue = _G.issecretvalue
+local function SafeKey(v, default)
+	if v == nil then return default end
+	if issecretvalue and issecretvalue(v) then return default end
+	return v
+end
+Stuf.SafeKey = SafeKey
+
 Stuf.units = { } -- [unit] = frame
 Stuf.unitcopy = {  -- determines which unit copies which
 	party1="party1", party2="party1", party3="party1", party4="party1",
@@ -659,7 +671,7 @@ do  -- color methods = function(parent, element db, 0-1 if hpthreshold, solid co
 	local c, r, g, b, a, colormethods
 	colormethods = {
 		class = function(p, db, value, choice, calpha)
-			c = classcolor[p.cache.CLASS or "PRIEST"] or classcolor.PRIEST
+			c = classcolor[SafeKey(p.cache.CLASS, "PRIEST")] or classcolor.PRIEST
 			return c.r, c.g, c.b, (calpha and db[calpha]) or c.a or 1
 		end,
 		classdark = function(p, db, value, choice, calpha)
@@ -667,7 +679,7 @@ do  -- color methods = function(parent, element db, 0-1 if hpthreshold, solid co
 			return r * 0.3, g * 0.3, b * 0.3, a
 		end,
 		reaction = function(p, db, value, choice, calpha)
-			c = reactioncolor[p.cache.reaction or 0] or Stuf.whitecolor
+			c = reactioncolor[SafeKey(p.cache.reaction, 0)] or Stuf.whitecolor
 			return c.r, c.g, c.b, (calpha and db[calpha]) or c.a or 1
 		end,
 		reactiondark = function(p, db, value, choice, calpha)
@@ -697,7 +709,7 @@ do  -- color methods = function(parent, element db, 0-1 if hpthreshold, solid co
 			return r * 0.3, g * 0.3, b * 0.3, a
 		end,
 		power = function(p, db, value, choice, calpha)
-			c = powercolor[p.cache.powertype or UnitPowerType(p.unit) or 1] or powercolor[1]
+			c = powercolor[SafeKey(p.cache.powertype, nil) or SafeKey(UnitPowerType(p.unit), nil) or 1] or powercolor[1]
 			return c.r, c.g, c.b, (calpha and db[calpha]) or c.a or 1
 		end,
 		powerdark = function(p, db, value, choice, calpha)
@@ -862,7 +874,12 @@ do  -- general data updating
 		local level = UnitLevel(unit)
 		cache.level = (level == -1 and dbg.classification.unknown) or level
 		cache.name = (config and uf.unit) or GetUnitName(unit)
-		cache.class, cache.CLASS = UnitClass(unit)
+		-- 12.0: UnitClass() returns secret strings for hostile players inside instances.
+		-- cache.class is display-only (SetText accepts secrets), but cache.CLASS is used as
+		-- a table key, so drop it when secret and let the colour lookup fall back.
+		local uclass, uCLASS = UnitClass(unit)
+		cache.class = uclass
+		cache.CLASS = SafeKey(uCLASS, nil)
 		
 		if UnitIsPlayer(unit) then
 			cache.pc = true
@@ -1071,7 +1088,7 @@ do  -- general data updating
 	UpdatePowerType = function(unit, uf)  -- update power type and colors
 		uf = uf or su[unit]
 		if not uf or uf.hidden then return end
-		uf.cache.powertype = UnitPowerType(unit)
+		uf.cache.powertype = SafeKey(UnitPowerType(unit), nil)  -- 12.0: may be a secret number
 		for ename, func in pairs(uf.powercolorelements) do
 			func(unit, uf, uf[ename], true, true)
 		end
