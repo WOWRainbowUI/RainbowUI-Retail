@@ -15,6 +15,7 @@ local strfind, strlower = string.find, string.lower
 local floor, max = math.floor, math.max
 local GetTime = GetTime
 local NewTicker = addon.NewTicker
+local GetParentSafe = addon.GetParentSafe
 
 local issecretvalue = issecretvalue
 
@@ -232,6 +233,10 @@ local function getDurationEvaluate(obj)
     return obj.EvaluateRemainingDuration
 end
 
+local function GetColorRGBA(color)
+    return color:GetRGBA()
+end
+
 local function getDurationIsZero(obj)
     return obj.IsZero
 end
@@ -348,7 +353,11 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
     if shouldUseAura then
         local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
         local unitOwner = fs.auraUnitOwner ~= false and fs.auraUnitOwner or nil
-        local auraInstanceID = auraOwner and StyleEngine:GetFrameAuraInstanceID(auraOwner)
+        -- Pass the raw handle through: on 12.1 aura items it is a secret
+        -- value. C_UnitAuras.GetAuraDuration returns nil for every addon
+        -- while aura data is restricted, so this only resolves outside those
+        -- contexts, but dropping the handle also loses the owner frame.
+        local auraInstanceID = auraOwner and StyleEngine:GetFrameAuraInstanceIDValue(auraOwner)
         local unitToken = unitOwner and StyleEngine:GetFrameUnitToken(unitOwner)
         -- CooldownManager always tracks the player's own auras; default to
         -- "player" when the icon frame hierarchy exposes no unitToken.
@@ -414,7 +423,7 @@ function DurationColor:IsAuraDrivenCooldown(cdFrame, category)
     local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
     local unitOwner = fs.auraUnitOwner ~= false and fs.auraUnitOwner or nil
     if auraOwner and unitOwner then
-        local auraID = StyleEngine:GetFrameAuraInstanceID(auraOwner)
+        local auraID = StyleEngine:GetFrameAuraInstanceIDValue(auraOwner)
         local unitToken = StyleEngine:GetFrameUnitToken(unitOwner)
         if auraID and unitToken then return true end
     end
@@ -441,14 +450,6 @@ local function GetCooldownDurationObject(cdFrame, sourceKey)
         local current = DurationColor:GetFallbackDurationObject(cdFrame)
         if current then return current end
         return GetStoredDurationObject(cdFrame, false)
-    end
-    if sourceKey == CATEGORY.Nameplate then
-        local current = DurationColor:GetFallbackDurationObject(cdFrame)
-        if current then
-            DurationColor:SetCooldownDurationObject(cdFrame, current)
-            return current
-        end
-        return nil
     end
     return GetStoredDurationObject(cdFrame, true)
 end
@@ -517,7 +518,13 @@ end
 
 local function IsThresholdColorAllowedForSource(sourceKey, config)
     if not config then return false end
-    if sourceKey == CATEGORY.HealerCC or sourceKey == CATEGORY.MiniAuras then
+    -- Nameplate is excluded outright: WoW 12.1 gives addons no readable
+    -- remaining duration for Blizzard nameplate auras once aura data is
+    -- restricted, so thresholds could only ever apply outside combat.
+    -- BetterBlizzPlates keeps its support because it owns its own aura icons
+    -- and binds their duration text itself.
+    if sourceKey == CATEGORY.HealerCC or sourceKey == CATEGORY.MiniAuras
+       or sourceKey == CATEGORY.Nameplate then
         return false
     end
     if config.allowThresholdColors ~= nil then
@@ -548,7 +555,7 @@ local function IsLiveNameplateAuraContext(cdFrame)
         return false
     end
 
-    local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+    local current = GetParentSafe(cdFrame)
     local depth = 0
     local sawAuraContext = false
     while current and current ~= UIParent and depth < CLASSIFIER_CONSTANTS.ScanDepth do
@@ -589,7 +596,7 @@ local function IsLiveNameplateAuraContext(cdFrame)
                 return true
             end
         end
-        current = current.GetParent and current:GetParent() or nil
+        current = GetParentSafe(current)
     end
 
     fs = fs or resolved or StyleEngine:GetFrameState(cdFrame)
@@ -815,8 +822,12 @@ local function ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve)
 
     local colorOk, color = pcall(evalFn, duration, curve)
     if colorOk and color then
-        local r, g, b, a = color:GetRGBA()
-        return StyleEngine:ApplyRGBAColorToCooldownRegions(cdFrame, r, g, b, a)
+        -- A curve evaluated from a secret Duration returns a secret colour;
+        -- reading it must never abort the style pass.
+        local rgbaOk, r, g, b, a = pcall(GetColorRGBA, color)
+        if rgbaOk then
+            return StyleEngine:ApplyRGBAColorToCooldownRegions(cdFrame, r, g, b, a)
+        end
     end
 
     StyleEngine:ResetCountdownTextColor(cdFrame, config)

@@ -1,5 +1,28 @@
 # Changelog
 
+## 4.5.0 - MiniAuras Group Auras Text Fixes
+- Fixed Text Size, Text Color, and Hide Countdown Numbers not applying to MiniAuras Group Auras icons.
+- Slider options now apply immediately instead of triggering a full rescan.
+
+## 4.4.5 - Raid Frame Auras Text Size Fix
+- Fixed the Raid Frame Auras Text Size option not affecting the displayed countdown text.
+
+## 4.4.4 - Unit Frame Aura Scan Freeze Fix
+- Fixed a freeze that could occur while scanning BetterBlizzFrames and BetterBlizzPlates aura groups on target, focus, and nameplate frames.
+
+## 4.4.3 - MiniAuras Forbidden Object Fix
+- Fixed forbidden object errors that could occur when styling MiniAuras cooldowns.
+
+## 4.4.2 - Complete Localization for All Languages
+- Translated all missing options, tooltips, and messages for German, Spanish, Latin American Spanish, French, Italian, Korean, Brazilian Portuguese, Russian, and Chinese (Simplified and Traditional).
+- Fixed outdated translated category descriptions that no longer matched current behavior.
+- Localized the performance warning text and the Game Default font option.
+- Removed unused and duplicate translation entries.
+
+## 4.4.1 - Nameplate Timer Fixes
+- Fixed the Hide Numbers option not working on nameplate cooldowns.
+- Removed Allow Threshold Colors from Nameplates (not supported in combat, instances, or PvP) yet.
+
 ## 4.4.0 - Unit Frame Aura Visibility and MiniAuras Performance
 - Added Only My Buffs and Only My Debuffs options for target and focus frames.
 - Improved MiniAuras cooldown discovery performance with resumable scanning.

@@ -7,7 +7,6 @@ L["MYDRS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = totalement sombre. Rem
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = totalement sombre. S'applique à tous les groupes de modules MiniAuras ; 80 % correspond au balayage dessiné par MiniAuras."
 
 -- Core
-L["Cannot open options in combat."] = "Impossible d'ouvrir les options en combat."
 L["MiniAuras test command is unavailable."] = "La commande de test de MiniAuras n'est pas disponible."
 L["MyDRs test command is unavailable."] = "La commande de test de MyDRs n'est pas disponible."
 L["sArena slash command is unavailable."] = "La commande slash de sArena n'est pas disponible."
@@ -24,7 +23,6 @@ L["MyDRs"] = "MyDRs"
 L["sArena"] = "sArena"
 L["TellMeWhen"] = "TellMeWhen"
 L["Dominos"] = "Dominos"
-L["Others"] = "Autres"
 
 -- Group Headers
 L["General"] = "Général"
@@ -192,7 +190,7 @@ L["Retired"] = "Retiré"
 -- General Dashboard
 L["Enable categories styling"] = "Activer le style des catégories"
 L["LIVE_CONTROLS_DESC"] = "Les changements s'appliquent immédiatement. Ne laissez actives que les catégories que vous utilisez vraiment pour une configuration plus propre."
-L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Affiche un texte de compte à rebours stylisé sur les icônes d'améliorations et d'affaiblissements de Blizzard CompactPartyFrame et CompactRaidFrame. Le groupe et le raid peuvent être activés séparément. Cela reste indépendant de la catégorie Autres."
+L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Activer Cadres de groupe / raid agit comme interrupteur principal pour cette catégorie. Activer le texte d'aura du raid étend le même style aux cadres de raid Blizzard."
 L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "Le support des cadres de groupe / raid est retiré. Depuis le patch Blizzard 12.0.5, MiniCE ne hook plus et ne stylise plus les cadres compacts de groupe et de raid."
 L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "Nouvel addon en développement : Raid Frame Auras"
 L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras est maintenant disponible sur CurseForge. Il reste séparé de MiniCE, car il utilise ses propres frames en overlay au lieu de styliser les icônes Blizzard existantes, ce qui le rend plus adapté à un addon autonome."
@@ -225,17 +223,16 @@ L["DANGER_ZONE_DESC"] = "Cette action est irréversible. Votre profil sera enti�
 L["MAINTENANCE_DESC"] = "Rétablit cette catégorie à ses paramètres d'usine. Les autres catégories ne sont pas affectées."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action principales, y compris Bartender4 et Dominos."
-L["NAMEPLATE_DESC"] = "Stylez les recharges affichées sur les barres de nom ennemies et alliées (Plater, KuiNameplates, etc.)."
-L["UNITFRAME_DESC"] = "Personnalisez le texte des timers, les cumuls, les balayages et les bordures de recharge sur les cadres de cible, de focus et les cadres d'addons compatibles."
+L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action."
+L["NAMEPLATE_DESC"] = "Personnalisez les recharges sur les barres de nom ennemies et alliées."
+L["UNITFRAME_DESC"] = "Personnalisez les recharges d'auras sur les cadres de cible, de focus et les cadres d'unité pris en charge."
 L["UNITFRAME_121_COMPAT_DESC"] = "WoW 12.1 restreint les boutons d'aura natifs de la cible et du focus. Lorsque cette catégorie est activée, MiniCE utilise l'API de conteneur d'auras personnalisé prise en charge et stylise les conteneurs BetterBlizzFrames lorsque BBF les gère déjà."
 L["PLAYERAURA_DESC"] = "Stylise séparément les boutons de buffs, debuffs et buffs défensifs externes Blizzard du joueur, y compris le texte de durée, les cumuls, le comportement de fondu et les balayages optionnels."
-L["COOLDOWNMANAGER_DESC"] = "Style d'icône partagé pour les afficheurs de CooldownManager. La taille du texte du compte à rebours peut être réglée séparément pour les afficheurs Essential, Utility et d'icônes d'améliorations."
-L["MINIAURAS_DESC"] = "Style dédié aux icônes de recharge de MiniAuras. Prend en charge les icônes de contrôle de foule, les barres de nom, les portraits et les modules de type superposition de MiniAuras lorsqu'il est chargé."
+L["COOLDOWNMANAGER_DESC"] = "Personnalisez les recharges des icônes de CooldownManager."
+L["MINIAURAS_DESC"] = "Personnalisez les icônes de recharge de MiniAuras."
 L["MYDRS_DESC"] = "Style dédié aux icônes de recharge des réductions décroissantes (DR) de MyDRs. MyDRs conserve son propre libellé d'état DR (50 % / IMM)."
 L["SARENA_DESC"] = "Style dédié aux timers de recharge de sArena_Reloaded. Prend en charge le texte des recharges de l'icône de classe, des DR et des icônes bijou / racial lorsque sArena_Reloaded est chargé."
 L["TELLMEWHEN_DESC"] = "Style dédié aux balayages de recharge de TellMeWhen. Prend en charge les cadres de recharge principaux et de charges des icônes TellMeWhen lorsque l'addon est chargé."
-L["OTHERS_DESC"] = "Catégorie fourre-tout pour les recharges qui n'appartiennent à aucune autre catégorie (sacs, menus, addons divers)."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = "Couleurs dynamiques du texte"
@@ -248,7 +245,6 @@ L["Allows the global \"Color by Remaining Time\" thresholds to override this cat
 L["Expiring Soon"] = "Expiration imminente"
 L["Short Duration"] = "Courte durée"
 L["Long Duration"] = "Longue durée"
-L["Beyond Thresholds"] = "Au-delà des seuils"
 L["Threshold (seconds)"] = "Seuil (secondes)"
 L["Default Color"] = "Couleur par défaut"
 L["Color used when the remaining time exceeds all thresholds."] = "Couleur utilisée lorsque le temps restant dépasse tous les seuils."
@@ -260,3 +256,66 @@ L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of
 L["Show Tenths Below (seconds)"] = "Afficher les dixièmes en dessous de (secondes)"
 L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."] = "Les durées en dessous de ce seuil afficheront une décimale (ex. 8,7). Mets 0 pour désactiver."
 L["ABBREV_THRESHOLD_DESC"] = "Définit quand les durées passent en format abrégé. Les minuteries au-dessus de ce seuil affichent des valeurs raccourcies comme 5m ou 1h."
+
+-- BetterBlizzPlates
+L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE gère les couleurs et les seuils du texte de recharge des auras BBP tandis que BBP conserve sa mise en page d'auras."
+L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "Pour une meilleure compatibilité, décochez « Use Blizzard Numbers » et « Expiry Colour » dans /BBP > Nameplate Auras Options."
+L["BetterBlizzPlates Auras"] = "Auras BetterBlizzPlates"
+L["BETTERBLIZZPLATES_DESC"] = "MiniCE gère les couleurs de texte de recharge des auras BBP et les seuils de temps restant tandis que BBP conserve sa mise en page d'auras et son comportement de timer non lié à la couleur. Les options de couleur de timer et de seuil bas de BBP sont ignorées tant que cet adaptateur est activé."
+
+-- Category Names
+L["CooldownManagerCentered"] = "CooldownManagerCentered"
+L["HealerCC"] = "HealerCC"
+L["Profiles"] = "Profils"
+L["ShinyAuras"] = "ShinyAuras"
+L["ElvUI"] = "ElvUI"
+
+-- Group Headers
+L["Swipe Edge"] = "Bord de balayage"
+
+-- Toggles & Settings
+L["Enables styled countdown text on Party / Raid Frames. When disabled, both party and raid aura text styling are turned off."] = "Active le texte de compte à rebours stylisé sur les cadres de groupe / raid. Si désactivé, le style du texte d'aura de groupe et de raid est entièrement coupé."
+L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff icons. Requires Party / Raid Frames to be enabled."] = "Applique aussi le texte de compte à rebours stylisé aux icônes d'améliorations et d'affaiblissements de Blizzard CompactRaidFrame. Nécessite que Cadres de groupe / raid soit activé."
+L["Essential Viewer"] = "Afficheur Essential"
+L["Utility Viewer"] = "Afficheur Utility"
+L["Buff Icon Viewer"] = "Afficheur d'icônes d'améliorations"
+L["Reverse Swipe"] = "Inverser le balayage"
+L["Reverse the swipe direction so the shade fills in the opposite direction."] = "Inverse le sens du balayage pour que l'ombre se remplisse dans la direction opposée."
+
+-- Import / Export
+L["Import string is too large."] = "La chaîne d'import est trop volumineuse."
+L["Import profile contains invalid data."] = "Le profil importé contient des données invalides."
+L["Failed to apply imported profile."] = "Impossible d'appliquer le profil importé."
+
+-- Addon Integrations
+L["Addon Integrations"] = "Intégrations d'addons"
+L["ADDON_INTEGRATIONS_DESC"] = "Active ou désactive les passerelles d'addons optionnelles qui routent les recharges externes vers les catégories de MiniCE."
+L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = "Route les recharges de ShinyAuras vers la catégorie Cadres d'unité. Désactivez ceci si vous voulez que ShinyAuras conserve ses comptes à rebours natifs inchangés."
+L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."] = "Route les recharges prises en charge de barres d'action, de cadres d'unité et de barres de nom d'ElvUI vers les catégories de MiniCE. Désactivez ceci si vous voulez qu'ElvUI conserve son style natif inchangé."
+L["CooldownManagerCentered also styles %s. This may add a small performance cost. Disable CMC timer fonts if you want MiniCE to remain the only owner of those viewer timers."] = "CooldownManagerCentered stylise aussi %s. Cela peut entraîner un léger coût en performance. Désactivez les polices de timer CMC si vous voulez que MiniCE reste le seul à gérer les timers de ces afficheurs."
+
+-- Help
+L["HELP_ARENADR_DESC"] = "Suit les réductions de dégâts croissantes des ennemis directement sur les barres de nom en arène."
+L["Copy this link to open ArenaDR Nameplates on CurseForge."] = "Copiez ce lien pour ouvrir ArenaDR Nameplates sur CurseForge."
+
+-- Category Descriptions
+L["HEALERCC_DESC"] = "Personnalisez les recharges d'alertes HealerCC alliées et ennemies."
+
+-- TellMeWhen
+L["TELLMEWHEN_TIMER_OPTIONS_NOTICE"] = "La visibilité du timer, le texte du timer, le sens de l'ombrage et l'affichage du GCD restent contrôlés par TellMeWhen. La visibilité et l'épaisseur du bord de balayage sont contrôlées ici."
+L["TELLMEWHEN_EDGE_SCALE_DESC"] = "Redimensionne le bord de balayage de TellMeWhen lorsque MiniCE l'a activé."
+
+-- Dynamic Text Colors
+L["Behavior"] = "Comportement"
+L["Advanced Threshold Settings"] = "Réglages avancés des seuils"
+L["Threshold Colors"] = "Couleurs de seuil"
+L["THRESHOLD_COLORS_DESC"] = "Chaque palier définit le seuil et la couleur utilisés pour cette plage de temps restant."
+L["Threshold Transition Offset"] = "Décalage de transition de seuil"
+L["Moves the start of each next color band. Negative values switch slightly earlier."] = "Déplace le début de chaque prochaine bande de couleur. Des valeurs négatives font basculer légèrement plus tôt."
+L["Beyond Thresholds Color"] = "Couleur au-delà des seuils"
+
+-- Performance Warning
+L["PERF_WARNING_DESC"] = "Cette fonctionnalité peut affecter les performances et provoquer des chutes de FPS. À utiliser uniquement sur des configurations puissantes."
+
+-- Font Options
+L["Game Default"] = "Police par défaut du jeu"

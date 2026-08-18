@@ -23,6 +23,7 @@ local blacklistParentNameLookup = {}
 
 local IsSecretValue = addon.IsSecretValue
 local CanAccessAllValues = addon.CanAccessAllValues
+local GetParentSafe = addon.GetParentSafe
 
 for _, parentName in ipairs(BLACKLIST_PARENT_NAMES) do
     blacklistParentNameLookup[parentName] = true
@@ -75,7 +76,7 @@ function Classifier:IsBlacklisted(frame, knownFrameName)
             end
         end
 
-        currentObj = currentObj.GetParent and currentObj:GetParent() or nil
+        currentObj = GetParentSafe(currentObj)
         isFirstObject = false
     end
 

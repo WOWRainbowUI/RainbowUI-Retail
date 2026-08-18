@@ -11,7 +11,6 @@ L["BetterBlizzPlates Auras"] = true
 L["BETTERBLIZZPLATES_DESC"] = "MiniCE owns BBP aura cooldown text colors and remaining-time thresholds while BBP keeps its aura layout and non-color timer behavior. BBP's timer color and low-threshold options are ignored while this adapter is enabled."
 
 -- Core
-L["Cannot open options in combat."] = true
 L["MiniAuras test command is unavailable."] = true
 L["MyDRs test command is unavailable."] = true
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = true
@@ -294,3 +293,9 @@ L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of
 L["Show Tenths Below (seconds)"] = true
 L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."] = true
 L["ABBREV_THRESHOLD_DESC"] = "Controls when cooldown numbers switch to abbreviated format. Timers above this threshold display shortened values like 5m or 1h."
+
+-- Performance Warning
+L["PERF_WARNING_DESC"] = "This feature may impact performance and cause FPS drops. Use only on strong setups."
+
+-- Font Options
+L["Game Default"] = true

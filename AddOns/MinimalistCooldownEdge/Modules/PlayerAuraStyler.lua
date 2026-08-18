@@ -17,6 +17,7 @@ local _G = _G
 
 local IsSecretValue = addon.IsSecretValue
 local CanAccessAllValues = addon.CanAccessAllValues
+local GetParentSafe = addon.GetParentSafe
 
 local CATEGORY = C.Categories.PlayerAura
 local AURA_TYPE = C.PlayerAuraTypes
@@ -57,7 +58,7 @@ local function GetAuraRoot(button)
             return current
         end
 
-        current = current.GetParent and current:GetParent() or nil
+        current = GetParentSafe(current)
     end
 
     return nil
@@ -479,7 +480,7 @@ local function GetDurationPoint(button, config)
         return "CENTER", "CENTER"
     end
 
-    local container = button and button.GetParent and button:GetParent() or nil
+    local container = GetParentSafe(button)
     if container and container.isHorizontal ~= nil then
         if container.isHorizontal then
             return container.addIconsToTop and "BOTTOM" or "TOP",
