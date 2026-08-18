@@ -317,7 +317,7 @@ end
 function ns.conditions.Trait:Matched()
 	local configID = C_Traits.GetConfigIDByTreeID(self.treeID)
 	local nodeInfo = configID and C_Traits.GetNodeInfo(configID, self.nodeID)
-	return nodeInfo and nodeInfo.ID ~= 0 and nodeInfo.ranksPurchased > 0
+	return nodeInfo and nodeInfo.ID ~= 0 and nodeInfo.ranksPurchased >= (self.rank or 1)
 end
 
 ns.conditions.Item = Condition:extends{classname = "Item", type = 'item', KEYFIELDS = {"id", "count"}}
@@ -380,29 +380,13 @@ function ns.conditions.AreaPoi:init(uiMapID, id)
 	self.uiMapID = uiMapID
 	self.id = id
 end
-do
-	-- A map answers with all of its pois at once, so ask it at most once a
-	-- second however many conditions are watching it.
-	local byMap, expires = {}, {}
-	local function poisIn(uiMapID)
-		local now = time()
-		if not byMap[uiMapID] or now > expires[uiMapID] then
-			byMap[uiMapID] = wipe(byMap[uiMapID] or {})
-			for _, poi in ipairs(C_AreaPoiInfo.GetAreaPOIForMap(uiMapID) or {}) do
-				byMap[uiMapID][poi] = true
-			end
-			expires[uiMapID] = now + 1
-		end
-		return byMap[uiMapID]
-	end
-	function ns.conditions.AreaPoi:Matched()
-		return poisIn(self.uiMapID)[self.id] or false
-	end
+function ns.conditions.AreaPoi:Matched()
+	return ns.areaPoi.IsActive(self.id, self.uiMapID)
 end
 function ns.conditions.AreaPoi:Label()
-	local info = C_AreaPoiInfo.GetAreaPOIInfo(self.uiMapID, self.id)
-	if info and info.name then
-		return info.name
+	local name = ns.areaPoi.GetName(self.id, self.uiMapID)
+	if name then
+		return name
 	end
 	return Condition.Label(self)
 end
@@ -414,6 +398,46 @@ function ns.conditions.MapArt:init(uiMapID, id)
 	self.id = id
 end
 function ns.conditions.MapArt:Matched() return C_Map.GetMapArtID(self.uiMapID) == self.id end
+
+ns.conditions.QuestLineCompleteByQuest = Condition:extends{classname = "QuestLineCompleteByQuest", type = 'questlinebyquest', KEYFIELDS = {"uiMapID", "questID"}}
+function ns.conditions.QuestLineCompleteByQuest:init(id, uiMapID)
+	self.id = id
+	self.questID = id
+	-- optional
+	self.uiMapID = uiMapID
+	if uiMapID then
+		self.id = ("%d.%d"):format(id, uiMapID) -- for Label
+	end
+end
+function ns.conditions.QuestLineCompleteByQuest:GetQuestLine()
+	return C_QuestLine.GetQuestLineInfo(self.questID, self.uiMapID)
+end
+function ns.conditions.QuestLineCompleteByQuest:Matched()
+	local questLine = self:GetQuestLine()
+	if not questLine then return end
+	return questLine.isAccountCompleted and not questLine.inProgress
+end
+
+--[[
+-- Why yes, questlines do have unique IDs... and no way to query them without the mapID
+-- Also, this one won't return data about not-yet-available-quests
+ns.conditions.QuestLineComplete = ns.conditions.QuestLineCompleteByQuest:extends{classname = "QuestLineComplete", type = 'questline', KEYFIELDS = {"uiMapID", "lineID"}}
+function ns.conditions.QuestLineComplete:init(uiMapID, id)
+	self.uiMapID = uiMapID
+	self.lineID = id
+
+	self.id = ("%d.%d"):format(uiMapID, id) -- for Label
+end
+function ns.conditions.QuestLineComplete:GetQuestLine()
+	local questLines = C_QuestLine.GetAvailableQuestLines(self.uiMapID)
+	if not questLines then return end
+	for _, questLine in ipairs(questLines) do
+		if questLine.questLineID == self.lineID then
+			return questLine
+		end
+	end
+end
+--]]
 
 ns.conditions.Level = Condition:extends{classname = "Level", type = 'level', CACHEABLE = false}
 function ns.conditions.Level:Label() return UNIT_LEVEL_TEMPLATE:format(self.id) end
