@@ -184,6 +184,7 @@ GTFO.SpellID["458835"] = {
   --desc = "Toxic Sludge";
   ignoreApplication = true;
   sound = 1;
+  maps = { 2274, 2572, 2574, 2573 }; -- Khaz Algar, Voidscar Arena, Voidscar Arena (Upper), Voidscar Arena (Lower)
 };
 
 GTFO.SpellID["1217648"] = {

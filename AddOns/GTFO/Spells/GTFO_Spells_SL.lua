@@ -294,14 +294,19 @@ GTFO.SpellID["324211"] = {
   sound = 1;
 };
 
---- **************
---- * Plaguefall *
---- **************
+--- *********************
+--- * Plaguefall (2289) *
+--- *********************
 
 GTFO.SpellID["330069"] = {
   --desc = "Concentrated Plague";
+  instance = 2289;
   applicationOnly = true;
   sound = 2;
+  stackSound = 1;
+  trivialLevel = 80;
+  
+  -- Legacy functionality
   soundFunction = function() 
 		local stacks = GTFO_DebuffStackCount("player", 330069);
 		if (stacks >= 3) then

@@ -366,6 +366,7 @@ GTFO.SpellID["408173"] = {
 GTFO.SpellID["392365"] = {
   --desc = "Fissuring Slam (Dreadful Defender)";
   sound = 1;
+  maps = { 2133, 2633 }; -- Zaralek Cavern, The Ring of Glory
 };
 
 GTFO.SpellID["403384"] = {
@@ -575,17 +576,31 @@ GTFO.SpellID["412360"] = {
   sound = 2;
 };
 
---- *******************
---- * Ruby Life Pools *
---- *******************
+GTFO.SpellID["392019"] = {
+  --desc = "Magma Eruption (Bazual)";
+  applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["389366"] = {
+  --desc = "Magma Eruption (Bazual)";
+  sound = 1;
+};
+
+--- **************************
+--- * Ruby Life Pools (2521) *
+--- **************************
 
 GTFO.SpellID["372697"] = {
   --desc = "Jagged Earth (Primal Juggernaut)";
+  instance = 2521;
   sound = 1;
 };
 
 GTFO.SpellID["372963"] = {
   --desc = "Chillstorm (Melidrussa Chillworn)";
+  instance = 2521;
+  encounter = 2609;
   applicationOnly = true;
   sound = 1;
 };
@@ -596,56 +611,78 @@ GTFO.SpellID["397077"] = {
   affirmingDebuffSpellID = 372963; -- Chillstorm inner circle
 };
 
+GTFO.SpellID["372963"] = {
+  --desc = "Storm's Eye (Melidrussa Chillworn)";
+  instance = 2521;
+  encounter = 2609;
+  sound = 1;
+};
+
 GTFO.SpellID["374927"] = {
   --desc = "Wall of Flames (Kokia Blazehoof)";
+  instance = 2521;
+  encounter = 2606;
   sound = 1;
 };
 
 GTFO.SpellID["392452"] = {
   --desc = "Flashfire (Flame Channeler)";
+  --instance = 2521;
   sound = 4;
-  negatingDebuffSpellID = 392451; -- Flashfire debuff
+  negatingDebuffSpellID = 392451; -- Flashfire target
   negatingIgnoreTime = 2;
 };
 
 GTFO.SpellID["384773"] = {
   --desc = "Flaming Embers (Kyrakka)";
+  instance = 2521;
+  encounter = 2623;
   sound = 1;
 };
 
 GTFO.SpellID["381526"] = {
   --desc = "Roaring Firebreath (Kyrakka)";
+  instance = 2521;
+  encounter = 2623;
   sound = 1;
 };
 
+GTFO.SpellID["1312684"] = {
+  --desc = "Roaring Firebreath (Kyrakka)";
+  instance = 2521;
+  encounter = 2623;
+  sound = 1;
+};
+
+
 GTFO.SpellID["391727"] = {
   --desc = "Storm Breath (Thunderhead)";
+  instance = 2521;
   sound = 1;
 };
 
 GTFO.SpellID["391724"] = {
   --desc = "Flame Breath (Flamegullet)";
+  instance = 2521;
   sound = 1;
 };
 
 GTFO.SpellID["373973"] = {
   --desc = "Blaze of Glory (Primalist Flamedancer)";
+  instance = 2521;
   sound = 1;
 };
 
 GTFO.SpellID["372820"] = {
-  --desc = "Scorched Earth (Kokia Blazehoof)";
+  --desc = "Scorched Earth (Blazebound Firestorm)";
+  instance = 2521;
   sound = 1;
 };
 
-GTFO.SpellID["392019"] = {
-  --desc = "Magma Eruption (Bazual)";
-  applicationOnly = true;
-  sound = 1;
-};
-
-GTFO.SpellID["389366"] = {
-  --desc = "Magma Eruption (Bazual)";
+GTFO.SpellID["372820"] = {
+  --desc = "Fiery Demise (Kokia Blazehoof)";
+  instance = 2521;
+  encounter = 2606;
   sound = 1;
 };
 

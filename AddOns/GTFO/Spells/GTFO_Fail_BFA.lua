@@ -1109,52 +1109,75 @@ GTFO.SpellID["272469"] = {
   sound = 3;
 };
 
--- ************************
--- * Temple of Sethraliss *
--- ************************
+-- *******************************
+-- * Temple of Sethraliss (1877) *
+-- *******************************
 
 GTFO.SpellID["272657"] = {
   --desc = "Noxious Breath (Scaled Krolusk Rider)";
+  instance = 1877;
   sound = 3;
   applicationOnly = true;
 };
 
 GTFO.SpellID["273225"] = {
   --desc = "Volley (Sandswept Marksman)";
+  instance = 1877;
   sound = 3;
 };
 
 GTFO.SpellID["264206"] = {
   --desc = "Burrow (Merektha)";
+  instance = 1877;
+  encounter = 2125;
   sound = 3;
 };
 
 GTFO.SpellID["269970"] = {
   --desc = "Blinding Sand (Merektha)";
+  instance = 1877;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["264206"] = {
+  --desc = "Burrow (Merektha)";
+  instance = 1877;
+  encounter = 2125;
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["267483"] = {
   --desc = "Loose Sparks (Loose Spark)";
+  instance = 1877;
+  sound = 3;
+};
+
+GTFO.SpellID["1225638"] = {
+  --desc = "Loose Sparks (Loose Spark)";
+  instance = 1877;
   sound = 3;
 };
 
 GTFO.SpellID["264763"] = {
   --desc = "Spark (Static-charged Dervish)";
+  instance = 1877;
   sound = 3;
 };
 
 GTFO.SpellID["272821"] = {
   --desc = "Call Lightning (Imbued Stormcaller)";
+  instance = 1877;
   sound = 3;
 };
 
 GTFO.SpellID["255741"] = {
   --desc = "Cleave (Scaled Krolusk Rider)";
+  instance = 1877;
   sound = 3;
   tankSound = 0;
-  test = true; -- Restrict to this NPC only
+  test = true; -- Restrict to this NPC only?
 };
 
 -- ********************
@@ -1298,58 +1321,136 @@ GTFO.SpellID["250022"] = {
 };
 
 
--- ***************
--- * King's Rest *
--- ***************
+-- **********************
+-- * King's Rest (1762) *
+-- **********************
 
 GTFO.SpellID["276031"] = {
-  --desc = "Pit of Despair";
+  --desc = "Pit of Despair (Minion of Zul)";
+  instance = 1762;
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["270003"] = {
   --desc = "Suppression Slam (Animated Guardian)";
+  instance = 1762;
+  applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["265781"] = {
   --desc = "Serpentine Gust (The Golden Serpent)";
+  instance = 1762;
   sound = 3;
 };
 
 GTFO.SpellID["270872"] = {
-  --desc = "Shadow Whirl (Bloodsworn Agent)";
+  --desc = "Serpent Strike (Bloodsworn Agent)";
+  instance = 1762;
   sound = 3;
 };
 
 GTFO.SpellID["275212"] = {
   --desc = "Bisecting Strike (Weaponmaster Halu)";
+  instance = 1762;
   sound = 3;
 };
 
 GTFO.SpellID["270289"] = {
-  --desc = "Purification Beam";
+  --desc = "Purification Beam (Purification Construct)";
+  instance = 1762;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1312143"] = {
+  --desc = "Explosive Acids (Mchimba the Embalmer)";
+  instance = 1762;
+  encounter = 2142;
+  sound = 3;
+};
+
+GTFO.SpellID["1298104"] = {
+  --desc = "Putrid Seekers (Embalming Fluid)";
+  instance = 1762;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["266206"] = {
+  --desc = "Whirling Axes (Kula the Butcher)";
+  instance = 1762;
+  encounter = 2140;
+  sound = 3;
+};
+
+GTFO.SpellID["266191"] = {
+  --desc = "Whirling Axe (Kula the Butcher)";
+  instance = 1762;
+  encounter = 2140;
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["267105"] = {
-  --desc = "Torrent (Torrent Totem)";
+  --desc = "Torrent (Torrent Totem - Kula the Butcher)";
+  instance = 1762;
+  encounter = 2140;
   sound = 3;
 };
 
 GTFO.SpellID["268419"] = {
   --desc = "Gale Slash (Dazar, The First King)";
+  instance = 1762;
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["268796"] = {
   --desc = "Impaling Spear (Dazar, The First King)";
+  instance = 1762;
   applicationOnly = true;
   sound = 3;
 };
+
+GTFO.SpellID["1303115"] = {
+  --desc = "Aerial Smash (Dazar, The First King)";
+  instance = 1762;
+  encounter = 2143;
+  sound = 3;
+};
+
+GTFO.SpellID["1302945"] = {
+  --desc = "Impaling Spear (Dazar, The First King)";
+  instance = 1762;
+  encounter = 2143;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1303374"] = {
+  --desc = "Searing Gold (Dazar, The First King)";
+  instance = 1762;
+  encounter = 2143;
+  sound = 3;
+  tankSound = 0;
+};
+
+
+--[[
+TODO: Do not activate until log data shows we can distinguish the mandatory target 
+from avoidable bystanders. Registering 270507 directly would false-positive the intended target and likely will not work under 12.X restrictions
+
+GTFO.SpellID["270507"] = {
+  --desc = "Poison Barrage (Spectral Beastmaster)";
+  instance = 1762;
+  applicationOnly = true;
+  sound = 3; -- Valid only for avoidable bystanders
+  test = true; -- Verify this isn't a false-positive for the intended target
+};
+]]--
+
 
 -- ********************
 -- * Siege of Boralus *

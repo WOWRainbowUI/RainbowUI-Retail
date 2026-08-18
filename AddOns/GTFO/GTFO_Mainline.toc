@@ -1,8 +1,8 @@
-## Interface: 120007
+## Interface: 120100
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 6.6.2
+## Version: 6.8
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 ## Category: Combat

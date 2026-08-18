@@ -141,4 +141,6 @@ GTFOLocal =
 	UI_AFKAlertDescription_Retail = "While you are flagged AFK, GTFO will attempt to play an alert one time when combat starts (may not work in Blizzard-restricted situations such as Mythic+).",
 	-- 6.4
 	Help_EncounterRegistrationBlocked = "Encounter alerts may not work this pull due to combat lockdown.",
+	-- 7.8
+	Help_SettingsDuringRestrictions = "Cannot change GTFO enabled state while addon restrictions are active.",
 }
