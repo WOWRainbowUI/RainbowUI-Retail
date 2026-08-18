@@ -1056,7 +1056,7 @@ do
 			npc=256821,
 			loot={
 				264912, -- Void-Channeler's Spire
-			264913, -- Focused Netherslicer
+				264913, -- Focused Netherslicer
 				ns.rewards.Currency(ns.CURRENCY_SINGULARITY, 50, {quest=94755}),
 			},
 			vignette=7428,
@@ -1187,8 +1187,7 @@ end
 -- Invasions
 
 ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
-	[29106290] = {
-		label="Auredar's Chassis",
+	[29106290] = { -- Auredar's Chassis
 		criteria=114009,
 		quest=96316, -- v
 		npc=264569,
@@ -1202,8 +1201,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7668,
 	},
-	[76203960] = {
-		label="Swalewing Matriarch",
+	[76203960] = { -- Swalewing Matriarch
 		criteria=114007,
 		quest=96207, -- v
 		npc=263954,
@@ -1217,8 +1215,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7660,
 	},
-	[39904270] = {
-		label="Broxion",
+	[39904270] = { -- Broxion
 		-- [39904270, 41304680, 42004830, 42604800, 44905440, 45505340, 45805370, 46205600]
 		criteria=114006,
 		quest=96206, -- v
@@ -1234,10 +1231,9 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7659,
 	},
-	[37606240] = {
-		label="Interminable Uarn",
+	[39516103] = { -- Interminable Uarn
 		criteria=114005,
-		quest=96205, -- v
+		quest=96205,
 		npc=263947,
 		loot={
 			274862, -- Corrupted Draenei Priest's Kris
@@ -1249,10 +1245,9 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7658,
 	},
-	[65906210] = {
-		label="Lomelith",
+	[68546229] = { -- Lomelith
 		criteria=114008,
-		quest=96208, -- v
+		quest=96208,
 		npc=263955,
 		loot={
 			274860, -- Ancient Spore-Coated Axe
@@ -1262,8 +1257,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7661,
 	},
-	[69407720] = {
-		label="Warp Agent Xi'grivr",
+	[69407720] = { -- Warp Agent Xi'grivr
 		criteria=114010,
 		quest=96319, -- v
 		npc=264574,
@@ -1274,8 +1268,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7670,
 	},
-	[54206240] = {
-		label="Slaipaan",
+	[54206240] = { -- Slaipaan
 		criteria=114012,
 		quest=96320, -- v
 		npc=264576,
@@ -1289,8 +1282,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7671,
 	},
-	[48006880] = {
-		label="Indomitable Mk XII",
+	[48006880] = { -- Indomitable Mk XII
 		criteria=114011,
 		quest=96317, -- v
 		npc=264571,
@@ -1310,10 +1302,8 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 }, {
 	achievement=62883, -- Showdown Slugger: Naigtal
 })
--- Vilaldoun:
-ns.RegisterPoints(2646, {
-	[73608020] = {
-		label="Auredar's Chassis",
+ns.RegisterPoints(2646, { -- Naigral (Vilaldoun)
+	[73608020] = { -- Auredar's Chassis
 		criteria=114009,
 		quest=96316, -- v
 		npc=264569,
@@ -1331,9 +1321,8 @@ ns.RegisterPoints(2646, {
 	achievement=62883, -- Showdown Slugger: Naigtal
 })
 ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
-	[29201840] = {
-		label="Warbringer Thal'kuur",
-		quest=97014, -- v
+	[29751928] = { -- Warbringer Thal'kuur
+		quest=97014,
 		npc=267422,
 		loot={
 			276298, -- Forgotten Fel-Shard Talon
@@ -1345,8 +1334,7 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 		},
 		vignette=7744,
 	},
-	[48404760] = {
-		label="Voidwarped Sporebat",
+	[48404760] = { -- Voidwarped Sporebat
 		quest=96566, -- v
 		npc=265698,
 		loot={
@@ -1358,6 +1346,34 @@ ns.RegisterPoints(ns.VOIDSTORM_NAIGTAL, {
 			-- 278116, -- Player Experience
 		},
 		vignette=7699,
+	},
+	[68235161] = { -- Sleepy Mandrake
+		label="{npc:267910:Sleepy Mandrake}",
+		loot={
+			{262768, pet=true}, -- Sleepy Mandrake
+		},
+		note=function()
+			local function done(q) return C_QuestLog.IsQuestFlaggedCompletedOnAccount(q) and "{a:common-icon-checkmark}" or "{a:common-icon-redx}" end
+			return "Feed five mushrooms:\n"..
+				done(97091).." {item:276365:Highland Redcap}\n"..
+				done(97092).." {item:276366:Dusty Redcap}\n"..
+				done(97093).." {item:276367:Marshy Redcap}\n"..
+				done(97094).." {item:276368:Partially-Digested Redcap} (mob drop)\n"..
+				done(97095).." {item:276369:Airy Redcap}"
+		end,
+		related={
+			[28906176] = { -- Highland Redcap
+				quest=97091, loot={276365}, label="{item:276365}",
+				path={28906176, 29786262, 30156525, 30426609, 32676921, 33417072, 36217266, 36637216, 36407136, 31146332, 31316254, 31816023, 33475950},
+			},
+			[27914996] = {quest=97092, loot={276366}, label="{item:276366}", note="In the crypts"}, -- Dusty Redcap
+			[71423705] = {quest=97093, loot={276367}, label="{item:276367}", path=75643814}, -- Marshy Redcap
+			-- [] = {quest=97094, loot={276368}}, -- Partially-Digested Redcap
+			[95092667] = {quest=97095, loot={276369}, label="{item:276369}", path=88812597, note="On top of the tallest mushroom, bounce up"}, -- Airy Redcap
+			atlas="TeleportationNetwork-Ardenweald-32x32", minimap=true,
+		},
+		path=67505416,
+		atlas="VignetteLootElite", scale=1.1, minimap=true,
 	},
 })
 
@@ -1694,6 +1710,84 @@ do
 	local loot_shared = {
 		{276549, mount=true}, -- Topaz Skyfang
 		{276803, mount=true}, -- Ruby Writhe
+		-- weapons
+		276042, -- Templetusk Shield
+		276043, -- Vilefang Censer
+		276044, -- Loa-Infused Battlestaff
+		276045, -- Trailblazing Soulblade
+		276046, -- Superclutch Smasher
+		276047, -- Swamp Whomper
+		276048, -- Vipersbane Dagger
+		276049, -- Snakeslayer's Claymore
+		276052, -- Venomshot Greatbow
+		276054, -- Serpentvine Machete
+		276055, -- Soulweaver's Curseblade
+		276057, -- Cryptbound Scepter
+		276058, -- Ruinous Slitherslicer
+		276059, -- Headhunter's Hacker
+		276060, -- Hexxer's Blastin' Rod
+		276061, -- Witch Doctor's Bloodletter
+		276062, -- Hydra Neckchopper
+		-- plate
+		276000, -- Stonehide Vambraces
+		276004, -- Stonehide Sabatons
+		276008, -- Stonehide Gauntlets
+		276012, -- Stonehide Chestguard
+		276016, -- Stonehide Casque
+		276020, -- Stonehide Pauldrons
+		276024, -- Stonehide Greaves
+		276028, -- Stonehide Girdle
+		276041, -- Stonehide Cape
+		-- mail
+		276001, -- Skytalon Armguards
+		276005, -- Skytalon Treads
+		276009, -- Skytalon Gloves
+		276013, -- Skytalon Hauberk
+		276017, -- Skytalon Helmet
+		276021, -- Skytalon Spaulders
+		276025, -- Skytalon Breeches
+		276029, -- Skytalon Belt
+		276038, -- Skytalon Cloak
+		-- leather
+		276002, -- Shadowclaw Wristguards
+		276006, -- Shadowclaw Footpads
+		276010, -- Shadowclaw Handguards
+		276014, -- Shadowclaw Jerkin
+		276018, -- Shadowclaw Headdress
+		276022, -- Shadowclaw Shoulderpads
+		276026, -- Shadowclaw Legguards
+		276030, -- Shadowclaw Sash
+		276040, -- Shadowclaw Shroud
+		-- cloth
+		276003, -- Flamebeak Bracers
+		276007, -- Flamebeak Sandals
+		276011, -- Flamebeak Grips
+		276015, -- Flamebeak Robes
+		276019, -- Flamebeak Crown
+		276023, -- Flamebeak Mantle
+		276027, -- Flamebeak Leggings
+		276031, -- Flamebeak Cord
+		276039, -- Flamebeak Drape
+		-- jewelery
+		-- 276032, -- Bad Juju Necklace
+		-- 276033, -- Loa Watcher's Pendant
+		-- 276034, -- Entangling Brood Ring
+		-- 276035, -- Soulcoiler's Signet
+		-- 276036, -- Ever-Constricting Band
+		-- 276037, -- Counter-Curse Circlet
+		-- trinkets
+		-- 274494, -- Chiral Marrowgrafter
+		-- 274495, -- Pulse Seeker's Oculus
+		-- 274496, -- Ophidian Bone Whistle
+		-- 274497, -- Spirit-Rending Poison
+		-- 274498, -- Spirit Ward
+		-- 274499, -- Toxiferous Transfusion
+		-- 276043, -- Vilefang Censer
+		-- 280047, -- Feathered Bell
+		-- 280091, -- Latent Purifier
+		-- 280123, -- Sharp Axe Holster
+		-- 280376, -- Shadow Shard Sliver
+		-- 280377, -- Breath of Jan'alai
 	}
 
 	-- Coiled to Strike
@@ -1876,48 +1970,48 @@ do
 			areaPoi=8889, -- murloc sacrifice event
 		},
 		[26406480] = { -- Looming Mutagenitor
-			criteria=115368,
+			criteria=115368, quest=93718,
 			npc=255088,
 			loot={
 				276166, -- Twin-Headed Twinblade
 				276172, -- Headdress of Mutagenesis
 				-- 279475, -- Mutagenitor's Feather
-				-- ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=96966}),
 			},
 			vignette={7414, 7686},
 		},
 		[44702593] = { -- Vassti, the Exalted Broodmother
-			criteria=115369,
+			criteria=115369, quest=93676,
 			npc=257863,
 			loot={
 				276173, -- Clutchguard Sandals
 				276175, -- Broodmother's Embrace
 				-- 279476, -- Vassti's Claw
-				-- ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=96967}),
 				-- 273000, -- Corrosive Soul
 			},
 			vignette=7763,
 		},
 		[46996223] = { -- Malformed Leviathan
-			criteria=111353,
+			criteria=111353, quest=93673,
 			npc=255087,
 			loot={
 				276169, -- Malformed Barrier
 				276174, -- Leviathan's Oozing Scalemail
 				-- 279479, -- Leviathan's Eye
-				-- ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=96970}),
 			},
 			areaPoi=8891,
 			vignette={7412, 7453}, -- only saw the former
 		},
 		[67167752] = { -- Venom Lancer Ori'kassi
-			criteria=115371,
+			criteria=115371, quest=93722,
 			npc=255927,
 			loot={
 				276167, -- Ori'kassi's Lance
 				276178, -- Venom Lancer's Gauntlets
 				-- 279478, -- Ori'kassi's Barbed Tail
-				-- ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_ZULJARRA, 50, {quest=96969}),
 				-- 274496, -- Ophidian Bone Whistle
 				-- 273000, -- Corrosive Soul
 				-- 276009, -- Skytalon Gloves

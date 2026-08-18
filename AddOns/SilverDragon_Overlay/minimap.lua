@@ -33,7 +33,7 @@ function dataProvider:RefreshAllData()
 
     for coord, mobid, textureData, scale, alpha in module:IterateNodes(uiMapID, true) do
         local x, y = core:GetXY(coord)
-        local pin = self:AcquirePin("SilverDragonOverlayMinimapPinTemplate", mobid, x, y, textureData, scale or 1.0, alpha or 1.0, coord, uiMapID, true)
+        local pin = self:AcquirePin("SilverDragonOverlayMinimapPinTemplate", mobid, textureData, scale or 1.0, alpha or 1.0, coord, uiMapID, true)
 
         local edge = module.db.profile.minimap.edge == module.const.EDGE_ALWAYS
         if module.db.profile.minimap.edge == module.const.EDGE_FOCUS then
@@ -45,10 +45,30 @@ function dataProvider:RefreshAllData()
         pin:UpdateEdge()
     end
 
+    self.moveThreshold = nil
+
     if module.db.profile.minimap.routes and ns.mobsByZone[uiMapID] then
+        -- Route segments are culled against where the player is standing now, so
+        -- note it: CheckMovement rebuilds the whole set once they've gone far
+        -- enough that something culled could be close to coming into view.
+        local radius = module:GetMinimapViewDiameter() / 2
+        self.playerX, self.playerY = HBD:GetPlayerWorldPosition()
+        self.moveThreshold = radius / 2
+        self.cullDistance = radius + self.moveThreshold
+
         for mobid, coords in pairs(ns.mobsByZone[uiMapID]) do
             self:AddRoute(uiMapID, mobid)
         end
+    end
+end
+
+function dataProvider:CheckMovement()
+    if not (self.moveThreshold and self.playerX) then return end
+    local x, y = HBD:GetPlayerWorldPosition()
+    if not x then return end
+    local dx, dy = x - self.playerX, y - self.playerY
+    if (dx * dx + dy * dy) > (self.moveThreshold * self.moveThreshold) then
+        module:UpdateMinimapIcons()
     end
 end
 
@@ -120,14 +140,14 @@ C_Timer.NewTicker(0.5, function(...)
             end
         end
     end
+    dataProvider:CheckMovement()
 end)
 
 function dataProvider:AddRoute(uiMapID, mobid)
     local data = ns.mobdb[mobid or 0]
     if not data then return end
     if not (data.routes and data.routes[uiMapID]) then return end
-    if not (core:IsMobInPhase(mobid, uiMapID) and not core:ShouldIgnoreMob(mobid, uiMapID)) then return end
-    if not module.should_show_mob(mobid) then return end
+    if not module.should_show_mob(mobid, uiMapID) then return end
     for _, route in ipairs(data.routes[uiMapID]) do
         for i=1, #route - 1 do
             self:DrawSegment(route[i], route[i+1], uiMapID, mobid, route)
@@ -138,15 +158,44 @@ function dataProvider:AddRoute(uiMapID, mobid)
     end
 end
 
+-- Segments are cut to a length in screen pixels, so how many of them a leg needs
+-- follows the minimap zoom. Each piece stays short enough that hiding the ones
+-- whose midpoint leaves the minimap reads as the route being clipped to the
+-- edge, and square enough that rotating its texture doesn't distort it.
+local SEGMENT_LENGTH = 16
+
+local function screenLength(worldDistance)
+    return Minimap:GetWidth() * (worldDistance / module:GetMinimapViewDiameter())
+end
+
+local function onScreenLength(x1, y1, x2, y2, uiMapID)
+    local wx1, wy1 = HBD:GetWorldCoordinatesFromZone(x1, y1, uiMapID)
+    local wx2, wy2 = HBD:GetWorldCoordinatesFromZone(x2, y2, uiMapID)
+    if not (wx1 and wx2) then return 0 end
+    return screenLength(math.sqrt((wx2-wx1)^2 + (wy2-wy1)^2))
+end
+
+-- HereBeDragons hides the pins that fall outside the minimap, but it still has
+-- to look at every one it's been handed, so segments the player can't be near
+-- are better off never being registered.
+function dataProvider:InView(wx, wy, reach)
+    if not self.playerX then return true end
+    local dx, dy = wx - self.playerX, wy - self.playerY
+    return (dx * dx + dy * dy) <= (reach * reach)
+end
+
 local segmented = {}
-function dataProvider:DrawSegment(coord1, coord2, ...)
+function dataProvider:DrawSegment(coord1, coord2, uiMapID, ...)
     wipe(segmented)
     local x1, y1 = core:GetXY(coord1)
     local x2, y2 = core:GetXY(coord2)
 
-    -- find an appropriate number of segments
-    local distance = math.sqrt(((x2-x1) * 1.85)^2 + (y2-y1)^2)
-    local segments = max(floor(distance / 0.015), 1)
+    local wx1, wy1 = HBD:GetWorldCoordinatesFromZone(x1, y1, uiMapID)
+    local wx2, wy2 = HBD:GetWorldCoordinatesFromZone(x2, y2, uiMapID)
+    if not (wx1 and wx2) then return end
+
+    local worldLength = math.sqrt((wx2-wx1)^2 + (wy2-wy1)^2)
+    local segments = max(ceil(screenLength(worldLength) / SEGMENT_LENGTH), 1)
 
     for i=0, segments do
         segmented[#segmented + 1] = core:GetCoord(
@@ -154,8 +203,14 @@ function dataProvider:DrawSegment(coord1, coord2, ...)
             y1 + (y2-y1) / segments * i
         )
     end
+
+    -- zone to world is affine, so a segment's midpoint interpolates exactly
+    local reach = (self.cullDistance or 0) + (worldLength / segments) / 2
     for i=1, #segmented - 1 do
-        self:AcquirePin("SilverDragonOverlayMinimapRoutePinTemplate", segmented[i], segmented[i + 1], ...)
+        local along = (i - 0.5) / segments
+        if self:InView(wx1 + (wx2-wx1) * along, wy1 + (wy2-wy1) * along, reach) then
+            self:AcquirePin("SilverDragonOverlayMinimapRoutePinTemplate", segmented[i], segmented[i + 1], uiMapID, ...)
+        end
     end
 end
 
@@ -171,7 +226,7 @@ function SilverDragonOverlayMinimapPinMixin:OnLoad()
 
     self:SetScript("OnEnter", self.OnMouseEnter)
     self:SetScript("OnLeave", self.OnMouseLeave)
-    self:SetScript("OnMouseUp", self.OnMouseUp)
+    self:SetScript("OnMouseUp", self.OnClick)
 
     self:SetMouseClickEnabled(true)
     self:SetMouseMotionEnabled(true)
@@ -203,12 +258,9 @@ function SilverDragonOverlayMinimapRoutePinMixin:OnAcquired(coord1, coord2, uiMa
 
     local wx1, wy1 = HBD:GetWorldCoordinatesFromZone(x1, y1, uiMapID)
     local wx2, wy2 = HBD:GetWorldCoordinatesFromZone(x2, y2, uiMapID)
-    local wmapDistance = math.sqrt((wx2-wx1)^2 + (wy2-wy1)^2)
-    local mmapDiameter = module:GetMinimapViewDiameter()
-    local length = Minimap:GetWidth() * (wmapDistance / mmapDiameter)
     self.rotation = -math.atan2(wy2-wy1, wx2-wx1)
 
-    self:SetSize(length, 30)
+    self:SetSize(onScreenLength(x1, y1, x2, y2, uiMapID), SEGMENT_LENGTH)
     self.texture:SetRotation(self.rotation)
 
     local r, g, b, a = 1, 1, 1, 0.6

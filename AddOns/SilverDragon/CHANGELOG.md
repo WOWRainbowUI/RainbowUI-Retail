@@ -1,5 +1,25 @@
 # Changelog
 
+## Changed in v2026.29
+
+* Updated for 1.15.9
+* There's a new announcement sound of a kobold insisting "It's not junk, it's treasure...", thanks warchild1x
+* Rares that only appear while a map event is running: more kinds of event are recognised now, and the event starting or stopping is noticed sooner
+* Overlay:
+    * Minimap routes no longer glitch when you zoom the minimap
+    * Minimap routes are cheaper to draw, and segments too far away to see are skipped
+    * Minimap routes now hide in the same cases the rare itself does
+
+## Changed in v2026.28
+
+* Coiled Isle:
+    * questids for the Surge mobs
+    * shared loot for all rares
+* Showing character-loot only is now the default
+* If set to show character-loot only, notify when items were hidden, show them with the shift key
+* The "shared loot" title will now show in the window even if a mob *only* has shared loot
+* Browser: always show all possible loot regardless of settings
+
 ## Changed in v2026.27
 
 * Coiled Isle: added more rare loot, shared mounts

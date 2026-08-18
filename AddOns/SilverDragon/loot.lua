@@ -355,32 +355,43 @@ function ns.Loot.Details.UpdateTooltip(tooltip, id, only, ...)
 end
 
 ns.Loot.Summary = {}
-function ns.Loot.Summary.UpdateTooltip(tooltip, id, only_knowable, ...)
-	local function shouldShow(item)
+do
+	local function shouldShow(item, only_knowable)
 		return (not only_knowable or item:Obtained() ~= nil)
-			and (not core.db.profile.charloot or item:MightDrop())
+			and (not core.db.profile.charloot or IsShiftKeyDown() or item:MightDrop())
 	end
+	function ns.Loot.Summary.UpdateTooltip(tooltip, id, only_knowable, ...)
+		local hidden
 
-	local loot = ns.Loot.GetLootTable(id, ...)
-	if loot then
-		for _, item in ipairs(loot) do
-			if shouldShow(item) then
-				item:AddToTooltip(tooltip)
+		local loot = ns.Loot.GetLootTable(id, ...)
+		if loot then
+			for _, item in ipairs(loot) do
+				if shouldShow(item, only_knowable) then
+					item:AddToTooltip(tooltip)
+				else
+					hidden = true
+				end
 			end
 		end
-	end
 
-	local sharedLoot = ns.Loot.GetLootTable(id, ..., true)
-	if sharedLoot then
-		local sharedShown = false
-		for _, item in ipairs(sharedLoot) do
-			if shouldShow(item) then
-				if not sharedShown then
-					tooltip:AddLine(SHARED_HEADER, NORMAL_FONT_COLOR:GetRGB())
-					sharedShown = true
+		local sharedLoot = ns.Loot.GetLootTable(id, ..., true)
+		if sharedLoot then
+			local sharedShown = false
+			for _, item in ipairs(sharedLoot) do
+				if shouldShow(item, only_knowable) then
+					if not sharedShown then
+						tooltip:AddLine(SHARED_HEADER, NORMAL_FONT_COLOR:GetRGB())
+						sharedShown = true
+					end
+					item:AddToTooltip(tooltip)
+				else
+					hidden = true
 				end
-				item:AddToTooltip(tooltip)
 			end
+		end
+
+		if hidden then
+			tooltip:AddLine("Items for other characters hidden", BLUE_FONT_COLOR:GetRGB())
 		end
 	end
 end
@@ -835,10 +846,10 @@ do
 	-- mergeShared puts shared loot in the same grid rather than a second window
 	-- hanging off the bottom. For a host that's given the window a fixed space to
 	-- sit in there's nowhere for that second one to go.
-	function ns.Loot.Window.ShowForMob(id, independent, treasure, shared, extraFilter, mergeShared)
+	function ns.Loot.Window.ShowForMob(id, independent, treasure, shared, extraFilter, mergeShared, force)
 		local filter = function(item)
 			if extraFilter and not extraFilter(item) then return false end
-			return not core.db.profile.charloot or item:MightDrop()
+			return force or not core.db.profile.charloot or IsShiftKeyDown() or item:MightDrop()
 		end
 		local loot = lootFilter(filter, ns.Loot.GetLootTable(id, treasure))
 		local sharedLoot = lootFilter(filter, shared and ns.Loot.GetLootTable(id, treasure, true))
@@ -864,6 +875,10 @@ do
 			window:SetTitle(core:GetMobLabel(id))
 		else
 			window = GetWindow()
+		end
+		if sharedLoot and not loot then
+			-- needs to be set before addloot for sizing reasons
+			window:SetTitle(SHARED_LOOT_LABEL)
 		end
 		window:AddLoot(loot or sharedLoot)
 		if loot and sharedLoot and mergeShared then
