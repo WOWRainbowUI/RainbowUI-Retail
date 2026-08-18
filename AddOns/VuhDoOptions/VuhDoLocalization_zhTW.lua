@@ -771,7 +771,7 @@ VUHDO_I18N_TT.K713 = "選擇光環條或圖示顏色的決定方式。";
 VUHDO_I18N_TT.K714 = "選擇光環圖示的顯示方式。";
 VUHDO_I18N_TT.K715 = "選擇光環堆疊數的顯示方式。";
 VUHDO_I18N_TT.K716 = "在換行前的最大列數。";
-VUHDO_I18N_TT.K717 = "在裁切前的最大行數。";
+VUHDO_I18N_TT.K717 = "每個固定錨點位置在直向與對角線版面配置下的最大溢出層數。";
 VUHDO_I18N_TT.K718 = "光環條寬度佔血量條寬度的百分比。";
 VUHDO_I18N_TT.K719 = "光環條高度佔血量條高度的百分比。";
 VUHDO_I18N_TT.K720 = "勾選以將光環條垂直顯示而非水平。";
@@ -895,6 +895,7 @@ VUHDO_I18N_TT.K837 = "選擇屬於目前角色的所有設定檔（及其全部�
 VUHDO_I18N_TT.K838 = "清除全部已選擇的目的設定檔。";
 VUHDO_I18N_TT.K839 = "將選定的設定複製到選定的目的地，並與其現有設定合併。";
 VUHDO_I18N_TT.K840 = "將選定的設定複製到選定的目的地，並取代這些區塊中的現有設定。";
+VUHDO_I18N_TT.K841 = "直向與對角線版面配置需要清單型光環群組。過濾型光環群組則使用標準版面配置。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1688,3 +1689,5 @@ VUHDO_I18N_GLOW_STYLE_RAYS = "光芒";
 VUHDO_I18N_GLOW_STYLE_RETICLE = "準星";
 VUHDO_I18N_GLOW_STYLE_RIPPLE = "漣漪";
 VUHDO_I18N_GLOW_STYLE_EMBERS = "餘燼";
+
+VUHDO_I18N_GLOW = "發光";

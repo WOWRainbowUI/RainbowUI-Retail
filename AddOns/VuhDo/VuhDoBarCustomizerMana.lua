@@ -153,7 +153,12 @@ local tPrevManaLayoutHeight;
 local tRegularHeight;
 local tPanelNum;
 local tHealthBar;
-function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
+local tInterpolation;
+function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate, anIsAliveTime, anEventType)
+
+	if -1 == anEventType then -- VUHDO_UPDATE_BOUQUET_RESET
+		return;
+	end
 
 	aMaxValue = aMaxValue or 0;
 	aCurrValue = aCurrValue or 0;
@@ -173,13 +178,16 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 			tManaBar = VUHDO_getHealthBar(tButton, 2);
 
+			tInterpolation = (tManaBar["forceImmediate"] or 1 == anEventType) and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum];
+			tManaBar["forceImmediate"] = nil;
+
 			if anIsActive and tManaBarHeight > 0 then
 				tManaBar:SetMinMaxValues(0, aMaxValue);
 
 				if tManaBar["isInverted"] then
-					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
+					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), tInterpolation);
 				else
-					tManaBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
+					tManaBar:SetValue(aCurrValue, tInterpolation);
 				end
 
 				if aLayerTemplate then
@@ -256,13 +264,16 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 			tManaBar = VUHDO_getHealthBar(tButton, 2);
 
+			tInterpolation = (tManaBar["forceImmediate"] or 1 == anEventType) and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum];
+			tManaBar["forceImmediate"] = nil;
+
 			if anIsActive and tManaBarHeight > 0 then
 				tManaBar:SetMinMaxValues(0, aMaxValue);
 
 				if tManaBar["isInverted"] then
-					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
+					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), tInterpolation);
 				else
-					tManaBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
+					tManaBar:SetValue(aCurrValue, tInterpolation);
 				end
 
 				if aLayerTemplate then
@@ -312,6 +323,8 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 		end
 	end
 
+	return;
+
 end
 
 
@@ -330,7 +343,11 @@ local tBouquetName;
 local tPanelNum;
 local tIndicatorName;
 local tSideInterpolation;
-local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
+local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate, anIsAliveTime, anEventType)
+
+	if -1 == anEventType then -- VUHDO_UPDATE_BOUQUET_RESET
+		return;
+	end
 
 	aMaxValue = aMaxValue or 1;
 	aCurrValue = aCurrValue or 0;
@@ -348,6 +365,8 @@ local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, 
 			tBar = VUHDO_getHealthBar(tButton, aBarNum);
 
 			tSideInterpolation = (17 == aBarNum) and sSideLeftInterpolation[tPanelNum] or sSideRightInterpolation[tPanelNum];
+			tSideInterpolation = (tBar["forceImmediate"] or 1 == anEventType) and VUHDO_IMMEDIATE or tSideInterpolation;
+			tBar["forceImmediate"] = nil;
 
 			tBar:SetMinMaxValues(0, aMaxValue);
 
@@ -359,7 +378,7 @@ local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, 
 				tQuota = aCurrValue;
 			end
 
-			tBar:SetValue(tQuota, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
+			tBar:SetValue(tQuota, tSideInterpolation);
 
 			if anIsActive then
 				if aLayerTemplate then
@@ -378,6 +397,8 @@ local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, 
 			end
 		end
 	end
+
+	return;
 
 end
 

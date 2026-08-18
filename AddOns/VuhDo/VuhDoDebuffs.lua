@@ -1,6 +1,8 @@
 local _;
 
 local GetSpellName = C_Spell.GetSpellName;
+local tsort = table.sort;
+local tconcat = table.concat;
 
 local VUHDO_CUSTOM_DEBUFF_CONFIG = { };
 local VUHDO_UNIT_CUSTOM_DEBUFFS = { };
@@ -15,6 +17,9 @@ VUHDO_PLAYER_HAS_PURGE = false;
 
 local VUHDO_IGNORE_DEBUFFS_BY_CLASS = { };
 local VUHDO_IGNORE_DEBUFF_NAMES = { };
+
+local sDebuffDispelSignature;
+local sDebuffConfigSignature;
 
 VUHDO_DEBUFF_TYPES = {
 	["Magic"] = VUHDO_DEBUFF_TYPE_MAGIC,
@@ -1695,11 +1700,12 @@ end
 
 
 -- Remove debuffing abilities individually not known to the player
-function VUHDO_initDebuffs()
+--
+local tAbility;
+local _, tClass;
+function VUHDO_updatePlayerDispelAbilities()
 
-	local tAbility;
-
-	local _, tClass = UnitClass("player");
+	_, tClass = UnitClass("player");
 
 	twipe(VUHDO_PLAYER_DISPEL_ABILITIES);
 	twipe(VUHDO_PLAYER_PURGE_ABILITIES);
@@ -1708,7 +1714,6 @@ function VUHDO_initDebuffs()
 		for tCnt = 1, #tAbilities do
 			tAbility = tAbilities[tCnt];
 
---			VUHDO_Msg("check: " .. tAbility);
 			if VUHDO_isSpellKnown(tAbility) or tAbility == "*" then
 				if VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] then
 					tAbility = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility];
@@ -1718,12 +1723,10 @@ function VUHDO_initDebuffs()
 
 				VUHDO_PLAYER_DISPEL_ABILITIES[tDebuffType] = tAbility;
 
---				VUHDO_Msg("KEEP: Type " .. tDebuffType .. " because of spell " .. VUHDO_PLAYER_DISPEL_ABILITIES[tDebuffType]);
 				break;
 			end
 		end
 	end
---	VUHDO_Msg("---");
 
 	for tDebuffType, tAbilities in pairs(VUHDO_INIT_PURGE_ABILITIES[tClass] or sEmpty) do
 		for tCnt = 1, #tAbilities do
@@ -1745,6 +1748,81 @@ function VUHDO_initDebuffs()
 
 	VUHDO_PLAYER_HAS_DISPEL = next(VUHDO_PLAYER_DISPEL_ABILITIES) ~= nil;
 	VUHDO_PLAYER_HAS_PURGE = next(VUHDO_PLAYER_PURGE_ABILITIES) ~= nil;
+
+	return;
+
+end
+
+
+
+--
+local tSignatureParts;
+local tPartCnt;
+local tDebuffType;
+function VUHDO_buildDebuffDispelSignature()
+
+	tSignatureParts = { };
+	tPartCnt = 0;
+
+	for tDebuffType, tAbility in pairs(VUHDO_PLAYER_DISPEL_ABILITIES) do
+		tPartCnt = tPartCnt + 1;
+		tSignatureParts[tPartCnt] = "d:" .. tostring(tDebuffType) .. "=" .. tostring(tAbility);
+	end
+
+	for tDebuffType, tAbility in pairs(VUHDO_PLAYER_PURGE_ABILITIES) do
+		tPartCnt = tPartCnt + 1;
+		tSignatureParts[tPartCnt] = "p:" .. tostring(tDebuffType) .. "=" .. tostring(tAbility);
+	end
+
+	tsort(tSignatureParts);
+
+	return tconcat(tSignatureParts, ";");
+
+end
+
+
+
+--
+local tNewDispelSignature;
+local tNewConfigSignature;
+function VUHDO_buildDebuffConfigSignature()
+
+	if not VUHDO_CONFIG then
+		return "";
+	end
+
+	return tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_NO_HARM"])
+		.. "|" .. tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_MOVEMENT"])
+		.. "|" .. tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_DURATION"])
+		.. "|" .. tostring(VUHDO_CONFIG["CUSTOM_DEBUFF"] and #VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"] or 0);
+
+end
+
+
+
+--
+function VUHDO_initDebuffsIfNeeded()
+
+	VUHDO_updatePlayerDispelAbilities();
+
+	tNewDispelSignature = VUHDO_buildDebuffDispelSignature();
+	tNewConfigSignature = VUHDO_buildDebuffConfigSignature();
+
+	if tNewDispelSignature == sDebuffDispelSignature and tNewConfigSignature == sDebuffConfigSignature then
+		return;
+	end
+
+	VUHDO_initDebuffs();
+
+	return;
+
+end
+
+
+
+function VUHDO_initDebuffs()
+
+	VUHDO_updatePlayerDispelAbilities();
 
 	VUHDO_rebuildDispelTypeNameMaps();
 	VUHDO_releaseAllOverlays();
@@ -1806,6 +1884,9 @@ function VUHDO_initDebuffs()
 	VUHDO_rebuildCanColorBarGroupsCache();
 
 	VUHDO_buildSingleDispelTypeCurves();
+
+	sDebuffDispelSignature = VUHDO_buildDebuffDispelSignature();
+	sDebuffConfigSignature = VUHDO_buildDebuffConfigSignature();
 
 	return;
 

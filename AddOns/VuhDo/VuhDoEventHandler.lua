@@ -91,11 +91,17 @@ local VUHDO_unregisterUnitForEvents;
 local VUHDO_isDeferredRefreshActive;
 local VUHDO_isDeferredRedrawActive;
 local VUHDO_processPendingAuraContainerBuilds;
+local VUHDO_processPendingNativeAuraSounds;
 local VUHDO_flushPendingOverlayRebuild;
 local VUHDO_flushPendingOverlayAcquires;
+local VUHDO_flushPendingAlphaChainRebuild;
 local VUHDO_checkAuraDataRestrictedState;
 local VUHDO_syncAuraContainersForUnit;
+local VUHDO_syncAuraContainersForAllRaidUnits;
 local VUHDO_syncOverlaysForUnit;
+local VUHDO_resetAuraContainersForUnit;
+local VUHDO_resetOverlaysForUnit;
+local VUHDO_resetAuraFilterResultCachePerFrame;
 
 local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
@@ -590,11 +596,17 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_isDeferredRefreshActive = _G["VUHDO_isDeferredRefreshActive"];
 	VUHDO_isDeferredRedrawActive = _G["VUHDO_isDeferredRedrawActive"];
 	VUHDO_processPendingAuraContainerBuilds = _G["VUHDO_processPendingAuraContainerBuilds"];
+	VUHDO_processPendingNativeAuraSounds = _G["VUHDO_processPendingNativeAuraSounds"];
 	VUHDO_flushPendingOverlayRebuild = _G["VUHDO_flushPendingOverlayRebuild"];
 	VUHDO_flushPendingOverlayAcquires = _G["VUHDO_flushPendingOverlayAcquires"];
+	VUHDO_flushPendingAlphaChainRebuild = _G["VUHDO_flushPendingAlphaChainRebuild"];
 	VUHDO_checkAuraDataRestrictedState = _G["VUHDO_checkAuraDataRestrictedState"];
 	VUHDO_syncAuraContainersForUnit = _G["VUHDO_syncAuraContainersForUnit"];
+	VUHDO_syncAuraContainersForAllRaidUnits = _G["VUHDO_syncAuraContainersForAllRaidUnits"];
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
+	VUHDO_resetAuraContainersForUnit = _G["VUHDO_resetAuraContainersForUnit"];
+	VUHDO_resetOverlaysForUnit = _G["VUHDO_resetOverlaysForUnit"];
+	VUHDO_resetAuraFilterResultCachePerFrame = _G["VUHDO_resetAuraFilterResultCachePerFrame"];
 
 	VUHDO_initTaskSystem();
 
@@ -701,6 +713,7 @@ VUHDO_TIMERS = {
 	["REFRESH_CUDE_TOOLTIP"] = 1,
 	["UPDATE_AOE"] = 3,
 	["BUFF_WATCH"] = 1,
+	["REFRESH_AURA_CONTAINERS"] = 0,
 };
 local VUHDO_TIMERS = VUHDO_TIMERS;
 
@@ -1025,6 +1038,7 @@ end
 
 
 --
+local tSpellbookChanged;
 local function VUHDO_processSpellbookRefresh()
 
 	sSpellbookRefreshScheduled = false;
@@ -1033,12 +1047,16 @@ local function VUHDO_processSpellbookRefresh()
 		return;
 	end
 
-	VUHDO_initFromSpellbook();
-	VUHDO_registerAllBouquets(false);
+	tSpellbookChanged = VUHDO_initFromSpellbook();
+
 	VUHDO_initBuffs();
 	VUHDO_initDebuffs();
 
-	VUHDO_timeReloadUI(1);
+	if tSpellbookChanged then
+		VUHDO_registerAllBouquets(false);
+
+		VUHDO_timeReloadUI(1);
+	end
 
 	VUHDO_rebuildKeyboardMacros();
 
@@ -1129,13 +1147,33 @@ do
 				VUHDO_updateBouquetsForEvent("target", 13); -- VUHDO_UPDATE_MANA
 				VUHDO_updateBouquetsForEvent("focus",  13); -- VUHDO_UPDATE_MANA
 
+				if VUHDO_RELOAD_AFTER_BATTLE and not InCombatLockdown() then
+					VUHDO_RELOAD_AFTER_BATTLE = false;
+
+					if VUHDO_TIMERS["RELOAD_RAID"] <= 0 then
+						VUHDO_quickRaidReload();
+
+						if VUHDO_IS_RELOAD_BUFFS then
+							VUHDO_reloadBuffPanel();
+
+							VUHDO_IS_RELOAD_BUFFS = false;
+						end
+					end
+
+					VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.5;
+				end
+
 				VUHDO_updateAuraDataRestrictedState(false);
 
 				VUHDO_processPendingAuraContainerBuilds();
 
+				VUHDO_processPendingNativeAuraSounds();
+
 				VUHDO_flushPendingOverlayRebuild();
 
 				VUHDO_flushPendingOverlayAcquires();
+
+				VUHDO_flushPendingAlphaChainRebuild();
 			end
 
 			if VUHDO_OPTIONS_SHOW_AFTER_BATTLE and VuhDoNewOptionsTabbedFrame and not VuhDoNewOptionsTabbedFrame:IsShown() then
@@ -1169,6 +1207,11 @@ do
 
 			VUHDO_setIsOutOfCombat(false);
 
+		elseif "ENCOUNTER_END" == anEvent or "ZONE_CHANGED_NEW_AREA" == anEvent then
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_processPendingAuraContainerBuilds();
+			end
+
 		elseif "RAID_TARGET_UPDATE" == anEvent then
 			VUHDO_TIMERS["CUSTOMIZE"] = 0.1;
 
@@ -1183,10 +1226,17 @@ do
 				end
 			end
 
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_syncAuraContainersForAllRaidUnits();
+			end
+
 			if "INSTANCE_ENCOUNTER_ENGAGE_UNIT" == anEvent then
 				VUHDO_updateToggledUnitEvents();
 
 				for tCnt = 1, 8 do
+					VUHDO_resetAuraContainersForUnit("boss" .. tCnt);
+					VUHDO_resetOverlaysForUnit("boss" .. tCnt);
+
 					VUHDO_syncAuraContainersForUnit("boss" .. tCnt);
 				end
 			end
@@ -1247,6 +1297,9 @@ do
 				VUHDO_updateBouquetsForEvent("player", 23); -- VUHDO_UPDATE_PLAYER_FOCUS
 				VUHDO_updateBouquetsForEvent("focus", 23); -- VUHDO_UPDATE_PLAYER_FOCUS
 
+				VUHDO_resetAuraContainersForUnit("focus");
+				VUHDO_resetOverlaysForUnit("focus");
+
 				VUHDO_syncAuraContainersForUnit("focus");
 				VUHDO_syncOverlaysForUnit("focus");
 
@@ -1261,8 +1314,19 @@ do
 			VUHDO_init();
 			VUHDO_initAddonMessages();
 
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_syncAuraContainersForAllRaidUnits();
+			end
+
 			if VUHDO_VARIABLES_LOADED and VUHDO_INTERNAL_TOGGLES[37] and VUHDO_CONFIG["SHOW_SPELL_TRACE"] then
 				VUHDO_clearAllSpellTraces();
+			end
+
+		elseif "CINEMATIC_STOP" == anEvent or "STOP_MOVIE" == anEvent then
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_syncAuraContainersForAllRaidUnits();
+
+				VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.5;
 			end
 
 		elseif "UPDATE_SHAPESHIFT_FORM" == anEvent then
@@ -1307,6 +1371,9 @@ do
 				if VUHDO_needsRoleInspect("target") then
 					VUHDO_requestTargetFocusInspect("target");
 				end
+
+				VUHDO_resetAuraContainersForUnit("target");
+				VUHDO_resetOverlaysForUnit("target");
 
 				VUHDO_syncAuraContainersForUnit("target");
 				VUHDO_syncOverlaysForUnit("target");
@@ -1477,6 +1544,8 @@ do
 	local tHelpText;
 	local tCurrentValue;
 	local tCount;
+	local tDumpIndicator;
+	local tDumpVerbose;
 	function VUHDO_slashCmd(aCommand)
 
 		tParsedTexts = VUHDO_textParse(aCommand);
@@ -1796,7 +1865,41 @@ do
 			elseif strfind(tSubCommand, "level") then
 				VUHDO_dumpAuraContainerLevels(tParsedTexts[3] or "player");
 			elseif strfind(tSubCommand, "dump") then
-				VUHDO_dumpAuraDiagnostics(tParsedTexts[3] or "player");
+				tUnit = "player";
+				tDumpIndicator = nil;
+				tDumpVerbose = false;
+
+				for tDumpIdx = 3, #tParsedTexts do
+					tArgument = tParsedTexts[tDumpIdx];
+
+					if tArgument == "-v" then
+						tDumpVerbose = true;
+					elseif UnitExists(tArgument) or tArgument == "player" or tArgument == "target" or strfind(tArgument, "^raid") or strfind(tArgument, "^party") then
+						tUnit = tArgument;
+					elseif tArgument and tArgument ~= "" then
+						tDumpIndicator = strupper(tArgument);
+					end
+				end
+
+				VUHDO_dumpAuraDiagnostics(tUnit, tDumpIndicator, tDumpVerbose);
+			elseif strfind(tSubCommand, "nopool") then
+				tArgument = strlower(tParsedTexts[3] or "");
+
+				if tArgument == "on" then
+					VUHDO_setAuraContainerPoolDisabled(true);
+
+					VUHDO_Msg("Aura container pooling disabled.");
+				elseif tArgument == "off" then
+					VUHDO_setAuraContainerPoolDisabled(false);
+
+					VUHDO_Msg("Aura container pooling enabled.");
+				else
+					VUHDO_Msg(format("Aura container pooling is %s.", VUHDO_isAuraContainerPoolDisabled() and "disabled" or "enabled"));
+				end
+			elseif strfind(tSubCommand, "rebuild") then
+				VUHDO_rebuildAuraOverlays();
+			elseif strfind(tSubCommand, "gate") then
+				VUHDO_testAuraContainerGates();
 			elseif strfind(tSubCommand, "test") then
 				VUHDO_createAuraContainerSmokeTest(tParsedTexts[3] or "player");
 			elseif strfind(tSubCommand, "res") then
@@ -2106,6 +2209,8 @@ local function VUHDO_doReloadRoster(anIsQuick)
 
 	if not VUHDO_isConfigPanelShowing() then
 		if VUHDO_IS_RELOADING or VUHDO_isDeferredRefreshActive() or VUHDO_isDeferredRedrawActive() then
+			VUHDO_RELOAD_AFTER_BATTLE = true;
+
 			VUHDO_quickRaidReload();
 		else
 			VUHDO_rebuildTargets();
@@ -2134,7 +2239,7 @@ local function VUHDO_doReloadRoster(anIsQuick)
 			end
 		end
 
-		VUHDO_initDebuffs(); -- Verzgerung nach Taltentwechsel-Spell?
+		VUHDO_initDebuffsIfNeeded(); -- Verzgerung nach Taltentwechsel-Spell?
 	end
 
 	return;
@@ -2242,6 +2347,19 @@ do
 
 		-- Own frame flash routines to avoid taints
 		VUHDO_UIFrameFlash_OnUpdate(aTimeDelta);
+
+		return;
+
+	end
+
+
+
+	--
+	local function VUHDO_handleSegment1B(aTimeDelta)
+
+		VUHDO_resetAuraFilterResultCachePerFrame();
+
+		VUHDO_processDeferredTaskQueue(aTimeDelta);
 
 		return;
 
@@ -2392,6 +2510,10 @@ do
 			VUHDO_updateAllRaidTargetIndices();
 			VUHDO_updateAllRaidBars();
 			VUHDO_initAllEventBouquets();
+		end
+
+		if VUHDO_checkTimer("REFRESH_AURA_CONTAINERS") then
+			VUHDO_syncAuraContainersForAllRaidUnits();
 		end
 
 		-- Refresh Tooltip
@@ -2622,7 +2744,7 @@ do
 	--
 	local tSegmentCallbacks = {
 		["segment1A"] = function(aTimeDelta) VUHDO_handleSegment1A(aTimeDelta); end,
-		["segment1B"] = function() VUHDO_processDeferredTaskQueue(); end,
+		["segment1B"] = function(aTimeDelta) VUHDO_handleSegment1B(aTimeDelta); end,
 		["segment2A"] = function(aTimeDelta) VUHDO_handleSegment2A(aTimeDelta); end,
 		["segment2B"] = function(aTimeDelta) VUHDO_handleSegment2B(aTimeDelta); end,
 		["segment2C"] = function(aTimeDelta) VUHDO_handleSegment2C(aTimeDelta); end,
@@ -2671,7 +2793,7 @@ do
 		end
 
 		-- Segment 1B - Process deferred tasks
-		_, tSegment1BDuration = VUHDO_profileSegment("segment1B", tSegmentCallbacks["segment1B"]);
+		_, tSegment1BDuration = VUHDO_profileSegment("segment1B", tSegmentCallbacks["segment1B"], aTimeDelta);
 
 		if VUHDO_HANDLER_PROFILING_ENABLED then
 			tSegment1Total = tSegment1Total + tSegment1BDuration;
@@ -2728,13 +2850,15 @@ do
 
 		-- Segment 2D: Combat checks
 
+		if not VUHDO_isConfigDemoUsers() then
+			VUHDO_profileSegment("segment2D", tSegmentCallbacks["segment2D"], aTimeDelta);
+		end
+
 		if VUHDO_CONFIG_SHOW_RAID then
 			VUHDO_finalizeOnUpdateMetrics(tStartTimes[1], tStartTimes[2], tSegment1Total);
 
 			return;
 		end
-
-		VUHDO_profileSegment("segment2D", tSegmentCallbacks["segment2D"], aTimeDelta);
 
 		-- Segment 2E: Slow tasks
 
@@ -2837,12 +2961,14 @@ local VUHDO_ALL_EVENT_NAMES = {
 	--"UPDATE_MACROS",
 	"PET_BATTLE_CLOSE", "PET_BATTLE_OPENING_START",
 	"PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED",
+	"ENCOUNTER_END", "ZONE_CHANGED_NEW_AREA",
 	"PLAYER_SPECIALIZATION_CHANGED", "ACTIVE_TALENT_GROUP_CHANGED",
 	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE",
 	"UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_CHANNEL_STOP",
 	"UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_EMPOWER_STOP",
 	"NAME_PLATE_UNIT_REMOVED",
 	"UI_SCALE_CHANGED", "DISPLAY_SIZE_CHANGED",
+	"CINEMATIC_STOP", "STOP_MOVIE",
 };
 
 

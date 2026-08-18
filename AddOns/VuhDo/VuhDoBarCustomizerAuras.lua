@@ -110,6 +110,8 @@ local sEntrySettingsCache = {
 
 local sGlowColorArray = { 1, 1, 0, 1 };
 
+local sAuraGlowKeyCache = { };
+
 local sPanelBarHeights = { };
 
 local sPrewarm = {
@@ -547,7 +549,36 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 
 	VUHDO_initEntrySettingsCache();
 
+	twipe(sAuraGlowKeyCache);
+
 	return;
+
+end
+
+
+
+--
+local tPanelGlowKeys;
+local tAnchorGlowKeys;
+function VUHDO_getAuraGlowKey(aPanelNum, anAnchorIndex, aSlotIndex)
+
+	if not sAuraGlowKeyCache[aPanelNum] then
+		sAuraGlowKeyCache[aPanelNum] = { };
+	end
+
+	tPanelGlowKeys = sAuraGlowKeyCache[aPanelNum];
+
+	if not tPanelGlowKeys[anAnchorIndex] then
+		tPanelGlowKeys[anAnchorIndex] = { };
+	end
+
+	tAnchorGlowKeys = tPanelGlowKeys[anAnchorIndex];
+
+	if not tAnchorGlowKeys[aSlotIndex] then
+		tAnchorGlowKeys[aSlotIndex] = format("VdAuraGlow_%d_%d_%d", aPanelNum or 0, anAnchorIndex, aSlotIndex);
+	end
+
+	return tAnchorGlowKeys[aSlotIndex];
 
 end
 
@@ -3977,7 +4008,7 @@ do
 					sGlowColorArray[4] = 1;
 				end
 
-				tGlowKey = format("VdAuraGlow_%d_%d_%d", aPanelNum or 0, anAnchorIndex, aSlotIndex);
+				tGlowKey = VUHDO_getAuraGlowKey(aPanelNum, anAnchorIndex, aSlotIndex);
 				tStyle = sEntrySettingsCache["glowStyle"][tGroupId] and sEntrySettingsCache["glowStyle"][tGroupId][tEntryIndex];
 
 				VUHDO_startFrameGlow(tIconFrame, tStyle, sGlowColorArray, tGlowKey, 1, "auraGroupBar");
@@ -4048,7 +4079,7 @@ do
 				sGlowColorArray[4] = 1;
 			end
 
-			tGlowKey = format("VdAuraGlow_%d_%d_%d", aPanelNum or 0, anAnchorIndex, aSlotIndex);
+			tGlowKey = VUHDO_getAuraGlowKey(aPanelNum, anAnchorIndex, aSlotIndex);
 			tStyle = sEntrySettingsCache["glowStyle"][aGroupId] and sEntrySettingsCache["glowStyle"][aGroupId][aEntryIndex];
 
 			tGlowFrame = aBarFrame["iconFrame"];

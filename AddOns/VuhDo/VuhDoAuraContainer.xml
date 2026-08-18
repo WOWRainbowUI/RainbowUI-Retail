@@ -10,8 +10,8 @@
 				<Frame parentKey="ChainBaselineFrame" inherits="DisableUntrustedLayoutScriptsTemplate" hidden="true">
 					<Layers>
 						<Layer level="ARTWORK">
-							<Texture parentKey="ChainBaselineTexture" file="Interface\Buttons\WHITE8X8" setAllPoints="true" />
-							<MaskTexture parentKey="ChainBaselineMask" file="Interface\Buttons\WHITE8X8" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Texture parentKey="ChainBaselineTexture" file="Interface\Buttons\WHITE8X8" setAllPoints="true" texelSnappingBias="0.0" snapToPixelGrid="false" />
+							<MaskTexture parentKey="ChainBaselineMask" texelSnappingBias="0.0" snapToPixelGrid="false">
 								<MaskedTextures>
 									<MaskedTexture childKey="ChainBaselineTexture" />
 								</MaskedTextures>
@@ -35,6 +35,10 @@
 					<Texture parentKey="IconColorOverlay" file="Interface\Buttons\WHITE8X8" setAllPoints="true" alphaMode="MOD" hidden="true" />
 				</Layer>
 				<Layer level="OVERLAY">
+					<Texture parentKey="BorderEdgeTop" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<FontString parentKey="SymbolText" inherits="NumberFontNormalSmall">
 						<Anchors>
 							<Anchor point="CENTER" />
@@ -54,7 +58,7 @@
 			</Layers>
 			<Frames>
 
-				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" setAllPoints="true" />
+				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" setAllPoints="true" reverse="true" hideCountdownNumbers="true" drawSwipe="true" drawEdge="true" drawBling="false" />
 
 			</Frames>
 		</AuraButton>
@@ -69,6 +73,12 @@
 				</Layer>
 				<Layer level="ARTWORK">
 					<Texture parentKey="IconColorOverlay" file="Interface\Buttons\WHITE8X8" setAllPoints="true" alphaMode="MOD" hidden="true" />
+				</Layer>
+				<Layer level="OVERLAY">
+					<Texture parentKey="BorderEdgeTop" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 				</Layer>
 			</Layers>
 			<Frames>
@@ -105,7 +115,7 @@
 					</Layers>
 				</Frame>
 
-				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" hidden="true" />
+				<Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" hidden="true" reverse="true" hideCountdownNumbers="true" drawSwipe="true" drawEdge="true" drawBling="false" />
 
 			</Frames>
 		</AuraButton>

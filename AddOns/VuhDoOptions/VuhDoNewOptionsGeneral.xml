@@ -248,13 +248,13 @@
 				VUHDO_IS_PANEL_CONFIG = true;
 				VUHDO_CONFIG_SHOW_RAID = true;
 				VUHDO_initDynamicPanelModels();
-				VUHDO_reloadUI(false);
+				VUHDO_timeReloadUI(0.1);
 			</OnShow>
 			<OnHide>
 				VUHDO_IS_PANEL_CONFIG = false;
 				VUHDO_CONFIG_SHOW_RAID = false;
 				VUHDO_initDynamicPanelModels();
-				VUHDO_reloadUI(false);
+				VUHDO_timeReloadUI(0.1);
 			</OnHide>
 		</Scripts>
 	</Frame>

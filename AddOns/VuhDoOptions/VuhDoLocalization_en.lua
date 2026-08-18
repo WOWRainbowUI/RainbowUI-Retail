@@ -768,7 +768,7 @@ VUHDO_I18N_TT.K713 = "Select how aura bar or icon colors are determined.";
 VUHDO_I18N_TT.K714 = "Select how aura icons are displayed.";
 VUHDO_I18N_TT.K715 = "Select how stack counts are displayed on auras.";
 VUHDO_I18N_TT.K716 = "Maximum number of columns before wrapping to the next row.";
-VUHDO_I18N_TT.K717 = "Maximum number of rows before clipping.";
+VUHDO_I18N_TT.K717 = "Maximum overflow layers per fixed anchor position for straight and diagonal layouts.";
 VUHDO_I18N_TT.K718 = "Width of aura bars as percentage of health bar width.";
 VUHDO_I18N_TT.K719 = "Height of aura bars as percentage of health bar height.";
 VUHDO_I18N_TT.K720 = "Check to orient aura bars vertically instead of horizontally.";
@@ -892,6 +892,7 @@ VUHDO_I18N_TT.K837 = "Select all profiles belonging to your current character (a
 VUHDO_I18N_TT.K838 = "Clear all selected destination profiles.";
 VUHDO_I18N_TT.K839 = "Copy the selected settings into the selected destinations, merging with their existing settings.";
 VUHDO_I18N_TT.K840 = "Copy the selected settings into the selected destinations, replacing their existing settings in those sections.";
+VUHDO_I18N_TT.K841 = "Straight and diagonal layouts require a list-type aura group. Filter-type aura groups use a standard layout instead.";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1688,3 +1689,5 @@ VUHDO_I18N_GLOW_STYLE_RAYS = "Rays";
 VUHDO_I18N_GLOW_STYLE_RETICLE = "Reticle";
 VUHDO_I18N_GLOW_STYLE_RIPPLE = "Ripple";
 VUHDO_I18N_GLOW_STYLE_EMBERS = "Embers";
+
+VUHDO_I18N_GLOW = "Glow";

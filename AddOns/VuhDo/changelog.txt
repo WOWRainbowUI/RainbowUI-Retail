@@ -1,3 +1,49 @@
+Version 3.215  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.214  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
 Version 3.213  
   
   
@@ -4853,4 +4899,4 @@ Improvements:
 Changes:  
   
   
-Features:  
+Features:  

@@ -29,6 +29,8 @@ local UnitIsUnit = UnitIsUnit;
 local UnitGUID = UnitGUID;
 local UnitInRange = UnitInRange;
 local UnitPlayerOrPetInParty = UnitPlayerOrPetInParty;
+local UnitPlayerOrPetInRaid = UnitPlayerOrPetInRaid;
+local UnitIsPlayer = UnitIsPlayer;
 local UnitCanAttack = UnitCanAttack;
 local IsAltKeyDown = IsAltKeyDown;
 local IsControlKeyDown = IsControlKeyDown;
@@ -309,7 +311,7 @@ function VUHDO_getMouseFocus()
 
 	tMouseFoci = GetMouseFoci();
 
-	if tMouseFoci and tMouseFoci[1] then
+	if tMouseFoci and tMouseFoci[1] and tMouseFoci[1]:CanBeAccessedInContext() and not tMouseFoci[1]:IsForbidden() then
 		return tMouseFoci[1];
 	end
 
@@ -637,13 +639,18 @@ end
 
 
 --
+local tPhaseReason;
 function VUHDO_unitPhaseReason(aUnit) 
 
 	if not aUnit then
 		return nil;
 	end
 
-	local tPhaseReason = UnitPhaseReason(aUnit);
+	tPhaseReason = UnitPhaseReason(aUnit);
+
+	if sSecretsEnabled and issecretvalue(tPhaseReason) then
+		return nil;
+	end
 
 	-- FIXME: workaround for Blizzard API bug: https://github.com/Stanzilla/WoWUIBugs/issues/49
 	if (tPhaseReason == Enum.PhaseReason.WarMode or tPhaseReason == Enum.PhaseReason.ChromieTime or tPhaseReason == Enum.PhaseReason.TimerunningHwt) and UnitIsVisible(aUnit) then
@@ -656,13 +663,41 @@ end
 
 
 
--- returns whether or not a unit is in range
+--
+function VUHDO_isUnitRangeCheckable(aUnit)
+
+	if not aUnit then
+		return false;
+	end
+
+	if "player" == aUnit or VUHDO_unitIsUnit(aUnit, "player") then
+		return true;
+	end
+
+	if "pet" == aUnit or VUHDO_unitIsUnit(aUnit, "pet") then
+		return UnitPlayerOrPetInParty(aUnit) or UnitPlayerOrPetInRaid(aUnit);
+	end
+
+	if UnitPlayerOrPetInParty(aUnit) or UnitPlayerOrPetInRaid(aUnit) then
+		return UnitIsPlayer(aUnit);
+	end
+
+	return false;
+
+end
+
+local VUHDO_isUnitRangeCheckable = VUHDO_isUnitRangeCheckable;
+
+
+
+--
 local tIsInRange;
 local tIsChecked;
 local tIsGuessRange;
 local tRangeSpell;
 local tUnitReaction;
 local tIsSpellInRange;
+local tIsInteractDistance;
 local tUnitInfo;
 function VUHDO_isInRange(aUnit, anIsForceUpdate)
 
@@ -694,18 +729,6 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		end
 	end
 
-	if UnitPlayerOrPetInParty(aUnit) or UnitPlayerOrPetInRaid(aUnit) then
-		if sSecretsEnabled then
-			return UnitInRange(aUnit);
-		end
-
-		tIsInRange, tIsChecked = UnitInRange(aUnit);
-
-		if tIsChecked then
-			return tIsInRange;
-		end
-	end
-
 	if UnitCanAttack("player", aUnit) then
 		tIsGuessRange = sIsHarmfulGuessRange;
 		tUnitReaction = "HARMFUL";
@@ -720,11 +743,19 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
 
 		if tIsSpellInRange ~= nil then
+			if not tIsSpellInRange and not InCombatLockdown() and CheckInteractDistance(aUnit, 4) then
+				return true;
+			end
+
 			return tIsSpellInRange;
 		end
 	end
 
-	if not sSecretsEnabled then
+	if VUHDO_isUnitRangeCheckable(aUnit) then
+		if sSecretsEnabled then
+			return UnitInRange(aUnit);
+		end
+
 		tIsInRange, tIsChecked = UnitInRange(aUnit);
 
 		if tIsChecked then
@@ -733,7 +764,11 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 	end
 
 	if not InCombatLockdown() then
-		return CheckInteractDistance(aUnit, 4);
+		tIsInteractDistance = CheckInteractDistance(aUnit, 4);
+
+		if tIsInteractDistance ~= nil then
+			return tIsInteractDistance and true or false;
+		end
 	end
 
 	if tRangeSpell then

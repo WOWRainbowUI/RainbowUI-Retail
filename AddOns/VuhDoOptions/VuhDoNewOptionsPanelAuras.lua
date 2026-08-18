@@ -206,7 +206,9 @@ end
 --
 function VUHDO_panelAurasGroupIdChanged(aCombo, aValue)
 
+	VUHDO_panelAurasResetUnsupportedFixedLayout();
 	VUHDO_panelAurasUpdateFixedSlotsEnabled();
+	VUHDO_panelAurasUpdateFixedLayoutRadiosEnabled();
 
 	VUHDO_rebuildCanColorBarGroupsCache();
 
@@ -347,8 +349,158 @@ end
 
 
 --
+function VUHDO_setRadioEnabled(aRadio, anIsEnabled)
+
+	if not aRadio then
+		return;
+	end
+
+	aRadio:SetMotionScriptsWhileDisabled(true);
+
+	if anIsEnabled then
+		aRadio:Enable();
+		aRadio:SetAlpha(1);
+	else
+		aRadio:Disable();
+		aRadio:SetAlpha(0.5);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tListGroupAnchorKey;
+local tListGroupAnchorData;
+local tListGroupId;
+local tListGroup;
+function VUHDO_panelAurasIsSelectedAnchorListGroup()
+
+	if not VUHDO_PANEL_AURAS_SELECTED_ANCHOR or not DESIGN_MISC_PANEL_NUM then
+		return false;
+	end
+
+	tListGroupAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
+	tListGroupAnchorData = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"];
+	tListGroupAnchorData = tListGroupAnchorData and tListGroupAnchorData[tListGroupAnchorKey];
+
+	if not tListGroupAnchorData then
+		return false;
+	end
+
+	tListGroupId = tListGroupAnchorData["groupId"];
+	tListGroup = VUHDO_getAuraGroup(tListGroupId);
+
+	if not tListGroup then
+		return false;
+	end
+
+	return VUHDO_AURA_GROUP_TYPE_LIST == (tListGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER);
+
+end
+
+
+
+--
+local tFixedLayoutContentPanel;
+local tFixedLayoutTexture;
+local tFixedLayoutStraightRadio;
+local tFixedLayoutDiagonalRadio;
+function VUHDO_panelAurasUpdateFixedLayoutRadiosEnabled()
+
+	tFixedLayoutContentPanel = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanel"];
+
+	if not tFixedLayoutContentPanel then
+		return;
+	end
+
+	tFixedLayoutTexture = _G[tFixedLayoutContentPanel:GetName() .. "PositionTexture"];
+
+	if not tFixedLayoutTexture then
+		return;
+	end
+
+	tFixedLayoutStraightRadio = _G[tFixedLayoutTexture:GetName() .. "StraightRadioButton"];
+	tFixedLayoutDiagonalRadio = _G[tFixedLayoutTexture:GetName() .. "DiagonalRadioButton"];
+
+	VUHDO_setRadioEnabled(tFixedLayoutStraightRadio, VUHDO_panelAurasIsSelectedAnchorListGroup());
+	VUHDO_setRadioEnabled(tFixedLayoutDiagonalRadio, VUHDO_panelAurasIsSelectedAnchorListGroup());
+
+	return;
+
+end
+
+
+
+--
+local tResetAnchorKey;
+local tResetAnchorData;
+local tResetRadioValue;
+local tResetRadioModel;
+local tResetRadioNames;
+local tResetRadio;
+local tResetTexture;
+function VUHDO_panelAurasResetUnsupportedFixedLayout()
+
+	if not VUHDO_PANEL_AURAS_SELECTED_ANCHOR or not DESIGN_MISC_PANEL_NUM then
+		return;
+	end
+
+	tResetAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
+	tResetAnchorData = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"];
+	tResetAnchorData = tResetAnchorData and tResetAnchorData[tResetAnchorKey];
+
+	if not tResetAnchorData then
+		return;
+	end
+
+	tResetRadioValue = tResetAnchorData["radioValue"];
+
+	if not tResetRadioValue or (30 ~= tResetRadioValue and 31 ~= tResetRadioValue) then
+		return;
+	end
+
+	if VUHDO_panelAurasIsSelectedAnchorListGroup() then
+		return;
+	end
+
+	tResetAnchorData["radioValue"] = sDefaultAnchorEntry["radioValue"];
+
+	tResetTexture = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanelPositionTexture"];
+
+	if tResetTexture then
+		tResetRadioNames = {
+			"Radio1", "Radio2", "Radio3", "Radio4", "Radio5", "Radio6", "Radio7", "Radio8", "Radio9", "Radio10",
+			"Radio11", "Radio12", "Radio13", "Radio14", "Radio15", "Radio16", "Radio17",
+			"StraightRadioButton", "DiagonalRadioButton",
+		};
+
+		for _, tName in ipairs(tResetRadioNames) do
+			tResetRadio = _G[tResetTexture:GetName() .. tName];
+
+			if tResetRadio then
+				tResetRadioModel = format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.radioValue", tResetAnchorKey);
+
+				VUHDO_lnfSetRadioModel(tResetRadio, tResetRadioModel, tResetRadio:GetAttribute("radio_value"));
+				VUHDO_lnfRadioButtonInitFromModel(tResetRadio);
+			end
+		end
+	end
+
+	VUHDO_panelAurasUpdateOffsetSlidersEnabled(nil, tResetAnchorData["radioValue"]);
+
+	return;
+
+end
+
+
+
+--
 local tContentPanel;
 local tEnabled;
+local tFixedLayout;
 function VUHDO_panelAurasUpdateOffsetSlidersEnabled(aParent, aRadioValue)
 
 	tContentPanel = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanel"];
@@ -358,9 +510,13 @@ function VUHDO_panelAurasUpdateOffsetSlidersEnabled(aParent, aRadioValue)
 	end
 
 	tEnabled = not aRadioValue or aRadioValue < 30;
+	tFixedLayout = 30 == aRadioValue or 31 == aRadioValue;
 
 	VUHDO_setControlEnabled(tContentPanel, "OffsetXSlider", tEnabled);
 	VUHDO_setControlEnabled(tContentPanel, "OffsetYSlider", tEnabled);
+	VUHDO_setControlEnabled(tContentPanel, "MaxRowsSlider", tFixedLayout);
+
+	VUHDO_panelAurasUpdateFixedLayoutRadiosEnabled();
 
 	return;
 
@@ -646,7 +802,12 @@ end
 function VUHDO_panelAurasAnchorRadioOnLoad(aButton, aRadioValue)
 
 	aButton:SetAttribute("radio_value", aRadioValue);
-	VUHDO_lnfSetTooltip(aButton, VUHDO_I18N_TT.K619);
+
+	if 30 == aRadioValue or 31 == aRadioValue then
+		VUHDO_lnfSetTooltip(aButton, VUHDO_I18N_TT.K841);
+	else
+		VUHDO_lnfSetTooltip(aButton, VUHDO_I18N_TT.K619);
+	end
 
 	return;
 
@@ -790,6 +951,7 @@ local tBarInvertCheck;
 local tFixedSlotsCheck;
 local tRadioValue;
 local tEnabled;
+local tFixedLayout;
 local tEnabledCheck;
 local tBarWidthSlider;
 local tBarHeightSlider;
@@ -828,6 +990,8 @@ function VUHDO_panelAurasRebindContentPanel()
 	if tAnchorData and tAnchorData["enabled"] == nil then
 		tAnchorData["enabled"] = true;
 	end
+
+	VUHDO_panelAurasResetUnsupportedFixedLayout();
 
 	if tTexture then
 		tRadioNames = {
@@ -876,9 +1040,13 @@ function VUHDO_panelAurasRebindContentPanel()
 	if tAnchorData then
 		tRadioValue = tAnchorData["radioValue"];
 		tEnabled = not tRadioValue or tRadioValue < 30;
+		tFixedLayout = 30 == tRadioValue or 31 == tRadioValue;
 
 		VUHDO_setControlEnabled(tContentPanel, "OffsetXSlider", tEnabled);
 		VUHDO_setControlEnabled(tContentPanel, "OffsetYSlider", tEnabled);
+		VUHDO_setControlEnabled(tContentPanel, "MaxRowsSlider", tFixedLayout);
+
+		VUHDO_panelAurasUpdateFixedLayoutRadiosEnabled();
 	end
 
 	tSliderNames = {

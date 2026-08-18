@@ -79,10 +79,25 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				self.statusTexture = self:GetStatusBarTexture();
 			</OnLoad>
 		</Scripts>
 	</StatusBar>
+
+	<Frame name="VuhDoLabelFrameTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="10" y="18" />
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="13" y="-7" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnShow>VUHDO_lnfPatchFont(self, "Label");</OnShow>
+		</Scripts>
+	</Frame>
 
 	<Frame name="VuhDoMinimapDropDown" inherits="UIDropDownMenuTemplate" clampedToScreen="true" id="1" hidden="true">
 		<Scripts>

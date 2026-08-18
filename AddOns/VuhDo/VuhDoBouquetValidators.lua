@@ -334,7 +334,7 @@ local function VUHDO_outOfRangeValidator(anInfo, anItem)
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["range"];
 	end
 
-	return not anInfo["range"], nil, -1, -1, -1;
+	return not anInfo["range"], nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["range"];
 
 end
 
@@ -347,7 +347,7 @@ local function VUHDO_inRangeValidator(anInfo, anItem)
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["range"];
 	end
 
-	return anInfo["range"], nil, -1, -1, -1;
+	return anInfo["range"], nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["range"];
 
 end
 
@@ -814,7 +814,7 @@ local function VUHDO_debuffCharmedValidator(anInfo, _)
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["secretCharmed"];
 	end
 
-	return anInfo["charmed"], nil, -1, -1, -1;
+	return anInfo["charmed"], nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["charmed"];
 
 end
 

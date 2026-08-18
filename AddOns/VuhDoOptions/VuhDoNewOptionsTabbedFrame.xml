@@ -341,7 +341,7 @@
 
 				VUHDO_incrementAuraAnchorConfigVersion();
 
-				VUHDO_reloadUI(false);
+				VUHDO_timeReloadUI(0.1);
 
 				collectgarbage("collect");
 			</OnHide>

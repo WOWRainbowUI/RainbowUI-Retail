@@ -1,18 +1,21 @@
 local _;
 
 local pairs = pairs;
-local ipairs = ipairs;
 local tinsert = table.insert;
 local twipe = table.wipe;
+local format = string.format;
 
 local CreateFrame = CreateFrame;
+local InCombatLockdown = InCombatLockdown;
 
 local VUHDO_META_NEW_ARRAY = VUHDO_META_NEW_ARRAY;
 local VUHDO_BOUQUET_BUFFS_SPECIAL;
 local VUHDO_BOUQUETS;
 local VUHDO_INDICATOR_CONFIG;
+local VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH;
 local VUHDO_SECRET_TYPE_NONE;
 local VUHDO_SECRET_TYPE_BOOLEAN;
+local VUHDO_MAX_ALPHA_CHAIN_STEPS;
 
 local VUHDO_BOUQUET_LAYER_TYPE_NONSECRET;
 local VUHDO_BOUQUET_LAYER_TYPE_CURVE;
@@ -38,13 +41,19 @@ local VUHDO_INDICATOR_FRAME_GETTERS = {
 	["CLUSTER_BORDER"] = "VUHDO_getClusterBorderFrame",
 };
 
+local VUHDO_PixelUtil;
+
 local VUHDO_getHealthBar;
 local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
+local VUHDO_restoreLifeTextAlpha;
 local VUHDO_decompressIfCompressed;
 local VUHDO_getBouquetGlobalOpacityNames;
 local VUHDO_isAuraDataRestricted;
+local VUHDO_copyStatusBarFillTexture;
+local VUHDO_getBouquetLayerTemplate;
+local VUHDO_invalidatePanelButtonInits;
 
 local VUHDO_OVERLAY_CONTAINERS = VUHDO_OVERLAY_CONTAINERS or { };
 
@@ -57,9 +66,16 @@ local sGlobalAlphaChains = { };
 setmetatable(sGlobalAlphaChains, VUHDO_META_NEW_ARRAY);
 
 local sAlphaChainPool;
+local sIdentityTextColor = CreateColor(1, 1, 1, 1);
+
 local sAlphaChainStepEntryPool;
 
-local sWrapperNameCounter = 0;
+local sAlphaChainConfigVersion = 0;
+
+local sAlphaChainWrappers = { };
+setmetatable(sAlphaChainWrappers, VUHDO_META_NEW_ARRAY);
+
+local sPendingAlphaChainRebuild = false;
 
 local VUHDO_TARGET_TYPE_BAR = 1;
 local VUHDO_TARGET_TYPE_TEXTURE = 2;
@@ -123,21 +139,29 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_BOUQUET_BUFFS_SPECIAL = _G["VUHDO_BOUQUET_BUFFS_SPECIAL"];
 	VUHDO_BOUQUETS = _G["VUHDO_BOUQUETS"];
 	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
+	VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH = _G["VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH"];
 	VUHDO_SECRET_TYPE_NONE = _G["VUHDO_SECRET_TYPE_NONE"];
 	VUHDO_SECRET_TYPE_BOOLEAN = _G["VUHDO_SECRET_TYPE_BOOLEAN"];
+	VUHDO_MAX_ALPHA_CHAIN_STEPS = _G["VUHDO_MAX_ALPHA_CHAIN_STEPS"];
 
 	VUHDO_BOUQUET_LAYER_TYPE_NONSECRET = _G["VUHDO_BOUQUET_LAYER_TYPE_NONSECRET"];
 	VUHDO_BOUQUET_LAYER_TYPE_CURVE = _G["VUHDO_BOUQUET_LAYER_TYPE_CURVE"];
 	VUHDO_BOUQUET_LAYER_TYPE_DISPEL = _G["VUHDO_BOUQUET_LAYER_TYPE_DISPEL"];
 	VUHDO_BOUQUET_LAYER_TYPE_AURA = _G["VUHDO_BOUQUET_LAYER_TYPE_AURA"];
 
+	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
+
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
+	VUHDO_restoreLifeTextAlpha = _G["VUHDO_restoreLifeTextAlpha"];
 	VUHDO_decompressIfCompressed = _G["VUHDO_decompressIfCompressed"];
 	VUHDO_getBouquetGlobalOpacityNames = _G["VUHDO_getBouquetGlobalOpacityNames"];
 	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
+	VUHDO_copyStatusBarFillTexture = _G["VUHDO_copyStatusBarFillTexture"];
+	VUHDO_getBouquetLayerTemplate = _G["VUHDO_getBouquetLayerTemplate"];
+	VUHDO_invalidatePanelButtonInits = _G["VUHDO_invalidatePanelButtonInits"];
 
 	sAlphaChainStepEntryPool = VUHDO_createTablePool("AlphaChainStepEntry", 100);
 	sAlphaChainPool = VUHDO_createTablePool("AlphaChain", 50, VUHDO_createAlphaChainDelegate, VUHDO_cleanupAlphaChainDelegate);
@@ -150,64 +174,116 @@ end
 
 --
 local tOverlay;
-local tOverlayText;
-local tBarText;
-function VUHDO_getOrCreateBooleanOverlay(aButton, aValidatorName, aHealthBar)
+local tTargetOverlays;
+local tFillAnchorRegion;
+local tTexture;
+local function VUHDO_applyBooleanOverlayFillTexture(aTexture, aTarget, aTargetType)
 
-	if sBooleanOverlayLayers[aButton][aValidatorName] then
-		return sBooleanOverlayLayers[aButton][aValidatorName];
-	end
-
-	tOverlay = aButton:CreateTexture(nil, "OVERLAY");
-
-	tOverlay:SetAllPoints(aHealthBar);
-	tOverlay:SetTexture("Interface\\Buttons\\WHITE8X8");
-	tOverlay:SetAlpha(0);
-
-	tBarText = VUHDO_getBarText(aHealthBar);
-
-	if tBarText then
-		tOverlayText = aButton:CreateFontString(nil, "OVERLAY");
-
-		tOverlayText:SetAllPoints(tBarText);
-		tOverlayText:SetFontObject(tBarText:GetFontObject());
-		tOverlayText:SetAlpha(0);
+	if aTargetType == VUHDO_TARGET_TYPE_BAR then
+		tFillAnchorRegion = aTarget:GetStatusBarTexture() or aTarget;
 	else
-		tOverlayText = nil;
+		tFillAnchorRegion = aTarget;
 	end
 
-	sBooleanOverlayLayers[aButton][aValidatorName] = {
-		["texture"] = tOverlay,
-		["fontString"] = tOverlayText,
-	};
+	aTexture:ClearAllPoints();
+	aTexture:SetAllPoints(tFillAnchorRegion);
 
-	return sBooleanOverlayLayers[aButton][aValidatorName];
+	if aTargetType == VUHDO_TARGET_TYPE_BAR then
+		if not VUHDO_copyStatusBarFillTexture(aTexture, aTarget) then
+			aTexture:SetTexture("Interface\\Buttons\\WHITE8X8", "CLAMP", "CLAMP", "NEAREST");
+
+			VUHDO_PixelUtil.ApplySettings(aTexture);
+		end
+	else
+		aTexture:SetTexture("Interface\\Buttons\\WHITE8X8", "CLAMP", "CLAMP", "NEAREST");
+
+		VUHDO_PixelUtil.ApplySettings(aTexture);
+	end
+
+	return;
 
 end
 
 
 
 --
-local tTexture;
-local tFontString;
-function VUHDO_applyBooleanOverlay(aOverlay, aSecretBool, aConfig, aTrueColor, aFalseColor)
+local function VUHDO_createBooleanOverlay(aButton, aTarget, aValidatorName, aTargetType)
+
+	tTargetOverlays = sBooleanOverlayLayers[aButton][aTarget];
+
+	if not tTargetOverlays then
+		tTargetOverlays = { };
+
+		sBooleanOverlayLayers[aButton][aTarget] = tTargetOverlays;
+	end
+
+	if tTargetOverlays[aValidatorName] then
+		return tTargetOverlays[aValidatorName];
+	end
+
+	tOverlay = aTarget:CreateTexture(nil, "OVERLAY");
+
+	tOverlay:SetAlpha(0);
+
+	VUHDO_applyBooleanOverlayFillTexture(tOverlay, aTarget, aTargetType);
+
+	tTargetOverlays[aValidatorName] = {
+		["texture"] = tOverlay,
+		["isCleared"] = true,
+	};
+
+	return tTargetOverlays[aValidatorName];
+
+end
+
+
+
+--
+local function VUHDO_clearBooleanOverlay(aOverlay)
+
+	if aOverlay["isCleared"] then
+		return;
+	end
+
+	aOverlay["texture"]:SetAlpha(0);
+
+	aOverlay["isCleared"] = true;
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_getBooleanOverlay(aButton, aTarget, aValidatorName)
+
+	tTargetOverlays = sBooleanOverlayLayers[aButton][aTarget];
+
+	if tTargetOverlays then
+		return tTargetOverlays[aValidatorName];
+	end
+
+	return nil;
+
+end
+
+
+
+--
+local tConfig;
+function VUHDO_applyBooleanOverlay(aOverlay, aResultSlot)
 
 	tTexture = aOverlay["texture"];
-	tFontString = aOverlay["fontString"];
+	tConfig = aResultSlot["color"];
 
-	if aConfig["useBackground"] then
-		tTexture:SetVertexColorFromBoolean(aSecretBool, aTrueColor, aFalseColor);
-	end
+	if tConfig["useBackground"] then
+		tTexture:SetVertexColorFromBoolean(aResultSlot["secretBool"], aResultSlot["trueColorMixin"], aResultSlot["falseColorMixin"]);
+		tTexture:SetAlphaFromBoolean(aResultSlot["secretBool"], aResultSlot["trueAlpha"], aResultSlot["falseAlpha"]);
 
-	if aConfig["useOpacity"] then
-		tTexture:SetAlphaFromBoolean(aSecretBool, aConfig["O"] or 1, 0);
+		aOverlay["isCleared"] = nil;
 	else
-		tTexture:SetAlphaFromBoolean(aSecretBool, 1, 0);
-	end
-
-	if aConfig["useText"] and tFontString then
-		tFontString:SetVertexColorFromBoolean(aSecretBool, aTrueColor, aFalseColor);
-		tFontString:SetAlphaFromBoolean(aSecretBool, aConfig["TO"] or 1, 0);
+		VUHDO_clearBooleanOverlay(aOverlay);
 	end
 
 	return;
@@ -219,11 +295,9 @@ end
 --
 function VUHDO_clearBooleanOverlays(aButton)
 
-	for _, tOverlay in pairs(sBooleanOverlayLayers[aButton]) do
-		tOverlay["texture"]:SetAlpha(0);
-
-		if tOverlay["fontString"] then
-			tOverlay["fontString"]:SetAlpha(0);
+	for _, tTargetOverlaysClear in pairs(sBooleanOverlayLayers[aButton]) do
+		for _, tOverlay in pairs(tTargetOverlaysClear) do
+			VUHDO_clearBooleanOverlay(tOverlay);
 		end
 	end
 
@@ -234,20 +308,140 @@ end
 
 
 --
+function VUHDO_resetAlphaChainWrappers(aButton)
+
+	for _, tResetWrapperData in pairs(sAlphaChainWrappers[aButton]) do
+		for tCnt = 1, VUHDO_MAX_ALPHA_CHAIN_STEPS do
+			tResetWrapperData["wrappers"][tCnt]:SetAlpha(1);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tIndicatorResetWrapperData;
+function VUHDO_resetAlphaChainWrappersForIndicator(aButton, anIndicatorName)
+
+	tIndicatorResetWrapperData = sAlphaChainWrappers[aButton] and sAlphaChainWrappers[aButton][anIndicatorName];
+
+	if not tIndicatorResetWrapperData then
+		return;
+	end
+
+	for tCnt = 1, VUHDO_MAX_ALPHA_CHAIN_STEPS do
+		tIndicatorResetWrapperData["wrappers"][tCnt]:SetAlpha(1);
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_flushPendingAlphaChainRebuild()
+
+	if not sPendingAlphaChainRebuild then
+		return;
+	end
+
+	sPendingAlphaChainRebuild = false;
+
+	VUHDO_invalidatePanelButtonInits();
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_incrementAlphaChainConfigVersion()
+
+	sAlphaChainConfigVersion = sAlphaChainConfigVersion + 1;
+
+	return;
+
+end
+
+
+
+--
+local tWrapperData;
+local tParentFrame;
+local tButtonName;
+local tWrapper;
+local function VUHDO_initAlphaChainWrapperNest(aButton, anIndicatorName, anIndicatorBar, anOriginalParent)
+
+	tWrapperData = sAlphaChainWrappers[aButton] and sAlphaChainWrappers[aButton][anIndicatorName];
+
+	if tWrapperData then
+		return tWrapperData;
+	end
+
+	if not sAlphaChainWrappers[aButton] then
+		sAlphaChainWrappers[aButton] = { };
+	end
+
+	tWrapperData = {
+		["wrappers"] = { },
+		["originalParent"] = anOriginalParent,
+		["tail"] = nil,
+	};
+
+	tParentFrame = anOriginalParent;
+	tButtonName = aButton:GetName() or "VdBtn";
+
+	for tCnt = 1, VUHDO_MAX_ALPHA_CHAIN_STEPS do
+		tWrapper = CreateFrame("Frame", format("%s%sAlpWr%d", tButtonName, anIndicatorName, tCnt), tParentFrame);
+
+		VUHDO_PixelUtil.SetPoint(tWrapper, "TOPLEFT", tParentFrame, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tWrapper, "BOTTOMRIGHT", tParentFrame, "BOTTOMRIGHT", 0, 0);
+
+		tWrapper["isAlphaChainWrapper"] = true;
+		VUHDO_PixelUtil.SetFrameLevel(tWrapper, tParentFrame:GetFrameLevel());
+
+		tWrapper:SetAlpha(1);
+		tWrapper:Show();
+
+		tWrapperData["wrappers"][tCnt] = tWrapper;
+		tParentFrame = tWrapper;
+	end
+
+	tWrapperData["tail"] = tWrapperData["wrappers"][VUHDO_MAX_ALPHA_CHAIN_STEPS];
+
+	anIndicatorBar:SetParent(tWrapperData["tail"]);
+	anIndicatorBar["vuhdo_parent"] = anOriginalParent;
+
+	sAlphaChainWrappers[aButton][anIndicatorName] = tWrapperData;
+
+	return tWrapperData;
+
+end
+
+
+
+--
 local tItem;
 local tSpecial;
-local tWrapper;
 local tChain;
-local tParent;
 local tSecretType;
 local tIndicatorBar;
 local tOriginalParent;
 local tBarIndex;
 local tFrameGetter;
-local tIndicatorAddLevel;
 local tEntry;
 local tHealthBouquetName;
 local tHealthGlobalOpacityNames;
+local tStepCnt;
+local tBooleanStepByName = { };
+local tItemTrueAlpha;
+local tItemFalseAlpha;
+local tExistingEntry;
 function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBouquet, aPanelNum)
 
 	if not aBouquet or not sSecretsEnabled then
@@ -270,31 +464,17 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 		return;
 	end
 
-	tIndicatorAddLevel = tIndicatorBar["addLevel"] or 0;
+	tOriginalParent = tIndicatorBar["vuhdo_parent"] or tIndicatorBar:GetParent();
+
+	tWrapperData = VUHDO_initAlphaChainWrapperNest(aButton, anIndicatorName, tIndicatorBar, tOriginalParent);
+
+	for tCnt = 1, VUHDO_MAX_ALPHA_CHAIN_STEPS do
+		tWrapperData["wrappers"][tCnt]:SetAlpha(1);
+	end
 
 	if sGlobalAlphaChains[aButton] and sGlobalAlphaChains[aButton][anIndicatorName] then
-		tChain = sGlobalAlphaChains[aButton][anIndicatorName];
-
-		tOriginalParent = tChain["originalParent"];
-
-		if tOriginalParent then
-			tIndicatorBar:SetParent(tOriginalParent);
-
-			tIndicatorBar["vuhdo_parent"] = nil;
-		end
-
-		for _, tStep in ipairs(tChain["steps"] or { }) do
-			if tStep["frame"] then
-				tStep["frame"]:Hide();
-				tStep["frame"]:ClearAllPoints();
-				tStep["frame"]:SetParent(nil);
-			end
-		end
-
-		sAlphaChainPool:release(tChain);
+		sAlphaChainPool:release(sGlobalAlphaChains[aButton][anIndicatorName]);
 		sGlobalAlphaChains[aButton][anIndicatorName] = nil;
-	else
-		tOriginalParent = tIndicatorBar:GetParent();
 	end
 
 	if not sGlobalAlphaChains[aButton] then
@@ -305,6 +485,7 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 
 	tChain["originalParent"] = tOriginalParent;
 	tChain["barIndex"] = tBarIndex;
+	tChain["tail"] = tWrapperData["tail"];
 
 	sGlobalAlphaChains[aButton][anIndicatorName] = tChain;
 
@@ -318,6 +499,10 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 		end
 	end
 
+	tStepCnt = 0;
+
+	twipe(tBooleanStepByName);
+
 	for tCnt = 1, #aBouquet do
 		tItem = aBouquet[tCnt];
 		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
@@ -327,28 +512,33 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 				tSecretType = tSpecial["secretType"] or VUHDO_SECRET_TYPE_NONE;
 
 				if tSecretType == VUHDO_SECRET_TYPE_BOOLEAN then
-					sWrapperNameCounter = sWrapperNameCounter + 1;
+					tItemTrueAlpha = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1);
+					tItemFalseAlpha = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1;
 
-					tWrapper = CreateFrame("Frame", tOriginalParent:GetName() .. "AlpWr" .. sWrapperNameCounter, tOriginalParent);
+					tExistingEntry = tBooleanStepByName[tItem["name"]];
 
-					tWrapper:SetAllPoints(tOriginalParent);
+					if tExistingEntry then
+						tExistingEntry["trueAlpha"] = tExistingEntry["trueAlpha"] * tItemTrueAlpha;
+						tExistingEntry["falseAlpha"] = tExistingEntry["falseAlpha"] * tItemFalseAlpha;
+					elseif tStepCnt < VUHDO_MAX_ALPHA_CHAIN_STEPS then
+						tStepCnt = tStepCnt + 1;
 
-					tWrapper["addLevel"] = tIndicatorAddLevel;
-					tWrapper:SetFrameLevel(tOriginalParent:GetFrameLevel());
+						tWrapper = tWrapperData["wrappers"][tStepCnt];
 
-					tWrapper:SetAlpha(1);
-					tWrapper:Show();
+						tEntry = sAlphaChainStepEntryPool:get();
 
-					tEntry = sAlphaChainStepEntryPool:get();
+						tEntry["frame"] = tWrapper;
+						tEntry["wrapperIndex"] = tStepCnt;
+						tEntry["item"] = tItem;
+						tEntry["special"] = tSpecial;
+						tEntry["index"] = tCnt;
+						tEntry["trueAlpha"] = tItemTrueAlpha;
+						tEntry["falseAlpha"] = tItemFalseAlpha;
 
-					tEntry["frame"] = tWrapper;
-					tEntry["item"] = tItem;
-					tEntry["special"] = tSpecial;
-					tEntry["index"] = tCnt;
-					tEntry["trueAlpha"] = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1);
-					tEntry["falseAlpha"] = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1;
+						tBooleanStepByName[tItem["name"]] = tEntry;
 
-					tinsert(tChain["steps"], tEntry);
+						tinsert(tChain["steps"], tEntry);
+					end
 				else
 					tEntry = sAlphaChainStepEntryPool:get();
 
@@ -368,39 +558,24 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
 
 		if tSpecial and tSpecial["isGlobal"] and tItem["color"] and tItem["color"]["useBackground"] then
-			tEntry = sAlphaChainStepEntryPool:get();
+			tSecretType = tSpecial["secretType"] or VUHDO_SECRET_TYPE_NONE;
 
-			tEntry["item"] = tItem;
-			tEntry["special"] = tSpecial;
-			tEntry["index"] = tCnt;
+			if tSecretType == VUHDO_SECRET_TYPE_NONE then
+				tEntry = sAlphaChainStepEntryPool:get();
 
-			tinsert(tChain["overrideValidators"], tEntry);
+				tEntry["item"] = tItem;
+				tEntry["special"] = tSpecial;
+				tEntry["index"] = tCnt;
+
+				tinsert(tChain["overrideValidators"], tEntry);
+			end
 		end
 	end
 
 	if #tChain["steps"] > 0 then
 		tChain["head"] = tChain["steps"][1]["frame"];
-
-		tParent = tOriginalParent;
-
-		for tIdx = 1, #tChain["steps"] do
-			tWrapper = tChain["steps"][tIdx]["frame"];
-
-			tWrapper:SetParent(tParent);
-			tWrapper:ClearAllPoints();
-			tWrapper:SetAllPoints(tParent);
-			tWrapper:SetFrameLevel(tParent:GetFrameLevel());
-
-			tParent = tWrapper;
-		end
-
-		tChain["tail"] = tChain["steps"][#tChain["steps"]]["frame"];
-
-		tIndicatorBar:SetParent(tChain["tail"]);
-
-		tIndicatorBar["vuhdo_parent"] = tOriginalParent;
 	else
-		tChain["tail"] = tOriginalParent;
+		tChain["head"] = tOriginalParent;
 	end
 
 	return;
@@ -429,13 +604,23 @@ local tIndicatorConfig;
 function VUHDO_buildAllIndicatorAlphaChains(aButton, aPanelNum)
 
 	if not sSecretsEnabled then
-		return;
+		return false;
+	end
+
+	if InCombatLockdown() then
+		sPendingAlphaChainRebuild = true;
+
+		return false;
+	end
+
+	if aButton["alphaChainConfigVersion"] == sAlphaChainConfigVersion and aButton["alphaChainPanelNum"] == aPanelNum then
+		return false;
 	end
 
 	tIndicatorConfig = VUHDO_INDICATOR_CONFIG[aPanelNum];
 
 	if not tIndicatorConfig then
-		return;
+		return false;
 	end
 
 	for tIndicatorName, _ in pairs(VUHDO_INDICATOR_BAR_MAP) do
@@ -462,7 +647,126 @@ function VUHDO_buildAllIndicatorAlphaChains(aButton, aPanelNum)
 		end
 	end
 
+	aButton["alphaChainConfigVersion"] = sAlphaChainConfigVersion;
+	aButton["alphaChainPanelNum"] = aPanelNum;
+
+	return true;
+
+end
+
+
+
+--
+function VUHDO_buildTargetIndicatorAlphaChains(aButton, aPanelNum)
+
+	if not sSecretsEnabled then
+		return false;
+	end
+
+	if InCombatLockdown() then
+		sPendingAlphaChainRebuild = true;
+
+		return false;
+	end
+
+	if aButton["alphaChainConfigVersion"] == sAlphaChainConfigVersion and aButton["alphaChainPanelNum"] == aPanelNum then
+		return false;
+	end
+
+	tBouquet = VUHDO_BOUQUETS["STORED"][VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH];
+
+	if not tBouquet then
+		return false;
+	end
+
+	tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+	VUHDO_BOUQUETS["STORED"][VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH] = tBouquet;
+
+	VUHDO_buildGlobalAlphaChainsForIndicator(aButton, "HEALTH_BAR", tBouquet, aPanelNum);
+	VUHDO_buildGlobalAlphaChainsForIndicator(aButton, "MANA_BAR", tBouquet, aPanelNum);
+
+	aButton["alphaChainConfigVersion"] = sAlphaChainConfigVersion;
+	aButton["alphaChainPanelNum"] = aPanelNum;
+
+	return true;
+
+end
+
+
+
+--
+local tLayerTemplate;
+local tValidatorEntry;
+local tBuildBarIndex;
+local function VUHDO_buildBooleanOverlaysForTarget(aButton, aTarget, aTargetType, aLayerTemplate)
+
+	for tIdx = 1, #aLayerTemplate["booleanResults"] do
+		tValidatorEntry = aLayerTemplate["booleanValidators"][tIdx];
+
+		tOverlay = VUHDO_createBooleanOverlay(aButton, aTarget,
+			tValidatorEntry["item"]["name"], aTargetType);
+
+		if tOverlay then
+			VUHDO_applyBooleanOverlayFillTexture(tOverlay["texture"], aTarget, aTargetType);
+		end
+	end
+
 	return;
+
+end
+
+
+
+--
+function VUHDO_buildBooleanOverlaysForButton(aButton, aPanelNum)
+
+	if not sSecretsEnabled then
+		return false;
+	end
+
+	if InCombatLockdown() then
+		sPendingAlphaChainRebuild = true;
+
+		return false;
+	end
+
+	VUHDO_clearBooleanOverlays(aButton);
+
+	tIndicatorConfig = VUHDO_INDICATOR_CONFIG[aPanelNum];
+
+	if not tIndicatorConfig then
+		return false;
+	end
+
+	for tIndicatorName, _ in pairs(VUHDO_INDICATOR_BAR_MAP) do
+		tBouquetName = tIndicatorConfig["BOUQUETS"][tIndicatorName];
+		tLayerTemplate = tBouquetName and tBouquetName ~= "" and VUHDO_getBouquetLayerTemplate(tBouquetName);
+
+		if tLayerTemplate and tLayerTemplate["hasBools"] then
+			tBuildBarIndex = VUHDO_INDICATOR_BAR_MAP[tIndicatorName];
+			tIndicatorBar = VUHDO_getHealthBar(aButton, tBuildBarIndex);
+
+			if tIndicatorBar then
+				VUHDO_buildBooleanOverlaysForTarget(aButton, tIndicatorBar, VUHDO_TARGET_TYPE_BAR, tLayerTemplate);
+			end
+		end
+	end
+
+	for tIndicatorName, _ in pairs(VUHDO_INDICATOR_FRAME_GETTERS) do
+		tBouquetName = tIndicatorConfig["BOUQUETS"][tIndicatorName];
+		tLayerTemplate = tBouquetName and tBouquetName ~= "" and VUHDO_getBouquetLayerTemplate(tBouquetName);
+
+		if tLayerTemplate and tLayerTemplate["hasBools"] then
+			tFrameGetter = VUHDO_INDICATOR_FRAME_GETTERS[tIndicatorName];
+			tIndicatorBar = _G[tFrameGetter](aButton);
+
+			if tIndicatorBar then
+				VUHDO_buildBooleanOverlaysForTarget(aButton, tIndicatorBar, VUHDO_TARGET_TYPE_BORDER, tLayerTemplate);
+			end
+		end
+	end
+
+	return true;
 
 end
 
@@ -474,10 +778,13 @@ local tStep;
 local tSecretBool;
 local tNonSecretAlpha;
 local tIsActive;
+local tIsBoolTrue;
 local tIndicatorBar;
 local tFrameGetter;
 local tMinOverrideIndex;
 local tOverride;
+local tStepItemColor;
+local tIsOpacityOnlyStep;
 function VUHDO_updateIndicatorAlphaChain(aButton, anIndicatorName, anInfo)
 
 	if not anInfo then
@@ -485,12 +792,16 @@ function VUHDO_updateIndicatorAlphaChain(aButton, anIndicatorName, anInfo)
 	end
 
 	if not sGlobalAlphaChains[aButton] then
+		VUHDO_resetAlphaChainWrappersForIndicator(aButton, anIndicatorName);
+
 		return;
 	end
 
 	tChain = sGlobalAlphaChains[aButton][anIndicatorName];
 
 	if not tChain then
+		VUHDO_resetAlphaChainWrappersForIndicator(aButton, anIndicatorName);
+
 		return;
 	end
 
@@ -541,7 +852,10 @@ function VUHDO_updateIndicatorAlphaChain(aButton, anIndicatorName, anInfo)
 	for tIdx = 1, #tChain["steps"] do
 		tStep = tChain["steps"][tIdx];
 
-		if tMinOverrideIndex and tStep["index"] > tMinOverrideIndex then
+		tStepItemColor = tStep["item"] and tStep["item"]["color"];
+		tIsOpacityOnlyStep = tStepItemColor and tStepItemColor["useOpacity"] and not tStepItemColor["useBackground"];
+
+		if tMinOverrideIndex and tStep["index"] > tMinOverrideIndex and not tIsOpacityOnlyStep then
 			tStep["frame"]:SetAlpha(1);
 		else
 			tIsActive, _, _, _, _, _, _, _, _, _, _, tSecretBool = tStep["special"]["validator"](anInfo, tStep["item"]);
@@ -549,9 +863,43 @@ function VUHDO_updateIndicatorAlphaChain(aButton, anIndicatorName, anInfo)
 			if tSecretBool ~= nil then
 				tStep["frame"]:SetAlphaFromBoolean(tSecretBool, tStep["trueAlpha"], tStep["falseAlpha"]);
 			else
-				tStep["frame"]:SetAlpha(tIsActive and tStep["falseAlpha"] or tStep["trueAlpha"]);
+				if tStep["special"]["isInverted"] then
+					tIsBoolTrue = not tIsActive;
+				else
+					tIsBoolTrue = tIsActive;
+				end
+
+				tStep["frame"]:SetAlpha(tIsBoolTrue and tStep["trueAlpha"] or tStep["falseAlpha"]);
 			end
 		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tIndicatorChains;
+function VUHDO_updateAllIndicatorAlphaChains(aButton, anInfo)
+
+	if not anInfo then
+		VUHDO_resetAlphaChainWrappers(aButton);
+
+		return;
+	end
+
+	tIndicatorChains = sGlobalAlphaChains[aButton];
+
+	if not tIndicatorChains then
+		VUHDO_resetAlphaChainWrappers(aButton);
+
+		return;
+	end
+
+	for tIndicatorName, _ in pairs(tIndicatorChains) do
+		VUHDO_updateIndicatorAlphaChain(aButton, tIndicatorName, anInfo);
 	end
 
 	return;
@@ -596,16 +944,9 @@ end
 function VUHDO_rebuildAllAlphaChains()
 
 	for tButton, tIndicatorChains in pairs(sGlobalAlphaChains) do
-		for tIndicatorName, tChain in pairs(tIndicatorChains) do
-			if tChain["steps"] then
-				for _, tStep in ipairs(tChain["steps"]) do
-					if tStep["frame"] then
-						tStep["frame"]:Hide();
-						tStep["frame"]:SetParent(nil);
-					end
-				end
-			end
+		VUHDO_resetAlphaChainWrappers(tButton);
 
+		for tIndicatorName, tChain in pairs(tIndicatorChains) do
 			sAlphaChainPool:release(tChain);
 		end
 	end
@@ -621,7 +962,7 @@ end
 --
 local tResultSlot;
 local tOverlay;
-local function VUHDO_applyBooleanLayers(aButton, aTarget, aLayerTemplate)
+local function VUHDO_applyBooleanLayers(aButton, aTarget, aTargetType, aLayerTemplate)
 
 	if not aLayerTemplate["hasBools"] then
 		return;
@@ -629,15 +970,13 @@ local function VUHDO_applyBooleanLayers(aButton, aTarget, aLayerTemplate)
 
 	for tIdx = 1, #aLayerTemplate["booleanResults"] do
 		tResultSlot = aLayerTemplate["booleanResults"][tIdx];
+		tOverlay = VUHDO_getBooleanOverlay(aButton, aTarget, aLayerTemplate["booleanValidators"][tIdx]["item"]["name"], aTargetType);
 
-		if tResultSlot["color"] and
-		   (tResultSlot["color"]["useBackground"] or tResultSlot["color"]["useText"]) then
-			tOverlay = VUHDO_getOrCreateBooleanOverlay(aButton,
-				aLayerTemplate["booleanValidators"][tIdx]["item"]["name"], aTarget);
-
-			if tOverlay and tResultSlot["trueColorMixin"] and tResultSlot["falseColorMixin"] and tResultSlot["secretBool"] ~= nil then
-				VUHDO_applyBooleanOverlay(tOverlay, tResultSlot["secretBool"],
-					tResultSlot["color"], tResultSlot["trueColorMixin"], tResultSlot["falseColorMixin"]);
+		if tOverlay then
+			if tResultSlot["color"] and tResultSlot["color"]["useBackground"] and tResultSlot["trueColorMixin"] and tResultSlot["falseColorMixin"] and tResultSlot["secretBool"] ~= nil then
+				VUHDO_applyBooleanOverlay(tOverlay, tResultSlot);
+			else
+				VUHDO_clearBooleanOverlay(tOverlay);
 			end
 		end
 	end
@@ -698,8 +1037,10 @@ local function VUHDO_applyRawColorToTarget(aTarget, aTargetType, aR, aG, aB, aA,
 
 	if aLayerTemplate["useOpacity"] and aA then
 		tEffectiveAlpha = aA;
-	else
+	elseif aLayerTemplate["useOpacity"] then
 		tEffectiveAlpha = sCurrentOpacity;
+	else
+		tEffectiveAlpha = 1;
 	end
 
 	if aTargetType == VUHDO_TARGET_TYPE_BAR then
@@ -717,10 +1058,57 @@ end
 
 
 --
+local tResetBarText;
+local tResetBarTextSolo;
+local tResetLifeText;
+function VUHDO_resetBarTextVertexColor(aBar)
+
+	if not aBar["booleanTextStamped"] then
+		return;
+	end
+
+	tResetBarText = VUHDO_getBarText(aBar);
+
+	if tResetBarText then
+		tResetBarText:SetVertexColor(1, 1, 1, 1);
+	end
+
+	tResetBarTextSolo = VUHDO_getBarTextSolo(aBar);
+
+	if tResetBarTextSolo then
+		tResetBarTextSolo:SetVertexColor(1, 1, 1, 1);
+	end
+
+	tResetLifeText = VUHDO_getLifeText(aBar);
+
+	if tResetLifeText then
+		tResetLifeText:SetVertexColor(1, 1, 1, 1);
+	end
+
+	aBar["booleanTextStamped"] = nil;
+
+	VUHDO_restoreLifeTextAlpha(aBar);
+
+	return;
+
+end
+
+
+
+--
 local tBarText;
 local tBarTextSolo;
 local tLifeText;
+local tInactiveMixin;
 local function VUHDO_applyTextColorToBar(aBar, aR, aG, aB)
+
+	VUHDO_resetBarTextVertexColor(aBar);
+
+	if not aBar["booleanTextInactiveMixin"] then
+		aBar["booleanTextInactiveMixin"] = CreateColor(1, 1, 1, 1);
+	end
+
+	aBar["booleanTextInactiveMixin"]:SetRGBA(aR or 1, aG or 1, aB or 1, 1);
 
 	tBarText = VUHDO_getBarText(aBar);
 
@@ -739,6 +1127,97 @@ local function VUHDO_applyTextColorToBar(aBar, aR, aG, aB)
 	if tLifeText then
 		tLifeText:SetTextColor(aR or 1, aG or 1, aB or 1);
 	end
+
+	return;
+
+end
+
+
+
+--
+local tValidatorEntry;
+local tWinningTextIdx;
+local tWinningTextIndex;
+local tSpecial;
+local tTrueTextMixin;
+local tFalseTextMixin;
+local function VUHDO_applyBooleanTextToBar(aBar, aSecretBool, aTrueTextMixin, aFalseTextMixin)
+
+	tBarText = VUHDO_getBarText(aBar);
+
+	if tBarText then
+		tBarText:SetTextColor(1, 1, 1);
+		tBarText:SetVertexColorFromBoolean(aSecretBool, aTrueTextMixin, aFalseTextMixin);
+	end
+
+	tBarTextSolo = VUHDO_getBarTextSolo(aBar);
+
+	if tBarTextSolo then
+		tBarTextSolo:SetTextColor(1, 1, 1);
+		tBarTextSolo:SetVertexColorFromBoolean(aSecretBool, aTrueTextMixin, aFalseTextMixin);
+	end
+
+	tLifeText = VUHDO_getLifeText(aBar);
+
+	if tLifeText then
+		tLifeText:SetTextColor(1, 1, 1);
+		tLifeText:SetVertexColorFromBoolean(aSecretBool, aTrueTextMixin, aFalseTextMixin);
+	end
+
+	aBar["booleanTextStamped"] = true;
+
+	VUHDO_restoreLifeTextAlpha(aBar);
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_applyBooleanTextLayers(aBar, aLayerTemplate)
+
+	if not aLayerTemplate["hasBools"] then
+		VUHDO_resetBarTextVertexColor(aBar);
+
+		return;
+	end
+
+	tWinningTextIdx = nil;
+	tWinningTextIndex = nil;
+
+	for tIdx = 1, #aLayerTemplate["booleanResults"] do
+		tResultSlot = aLayerTemplate["booleanResults"][tIdx];
+		tValidatorEntry = aLayerTemplate["booleanValidators"][tIdx];
+
+		if tResultSlot["color"] and tResultSlot["color"]["useText"] and tResultSlot["activeTextColorMixin"] and tResultSlot["secretBool"] ~= nil then
+			if not tWinningTextIndex or tValidatorEntry["index"] < tWinningTextIndex then
+				tWinningTextIdx = tIdx;
+				tWinningTextIndex = tValidatorEntry["index"];
+			end
+		end
+	end
+
+	if not tWinningTextIdx then
+		VUHDO_resetBarTextVertexColor(aBar);
+
+		return;
+	end
+
+	tResultSlot = aLayerTemplate["booleanResults"][tWinningTextIdx];
+	tValidatorEntry = aLayerTemplate["booleanValidators"][tWinningTextIdx];
+	tSpecial = tValidatorEntry["special"];
+	tInactiveMixin = aBar["booleanTextInactiveMixin"] or sIdentityTextColor;
+
+	if tSpecial and tSpecial["isInverted"] then
+		tTrueTextMixin = tInactiveMixin;
+		tFalseTextMixin = tResultSlot["activeTextColorMixin"];
+	else
+		tTrueTextMixin = tResultSlot["activeTextColorMixin"];
+		tFalseTextMixin = tInactiveMixin;
+	end
+
+	VUHDO_applyBooleanTextToBar(aBar, tResultSlot["secretBool"], tTrueTextMixin, tFalseTextMixin);
 
 	return;
 
@@ -981,7 +1460,7 @@ function VUHDO_applyAllLayersToTexture(aButton, aTexture, aLayerTemplate)
 	end
 
 	VUHDO_applySortedValidatorsToTarget(aButton, aTexture, VUHDO_TARGET_TYPE_TEXTURE, aLayerTemplate);
-	VUHDO_applyBooleanLayers(aButton, aTexture, aLayerTemplate);
+	VUHDO_applyBooleanLayers(aButton, aTexture, VUHDO_TARGET_TYPE_TEXTURE, aLayerTemplate);
 	VUHDO_applySpriteCellToTexture(aTexture, aLayerTemplate);
 
 	return;
@@ -998,7 +1477,7 @@ function VUHDO_applyAllLayersToBorder(aButton, aBorder, aLayerTemplate)
 	end
 
 	VUHDO_applySortedValidatorsToTarget(aButton, aBorder, VUHDO_TARGET_TYPE_BORDER, aLayerTemplate);
-	VUHDO_applyBooleanLayers(aButton, aBorder, aLayerTemplate);
+	VUHDO_applyBooleanLayers(aButton, aBorder, VUHDO_TARGET_TYPE_BORDER, aLayerTemplate);
 
 	return;
 
@@ -1068,14 +1547,10 @@ function VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, 
 		tValidatorEntry = aLayerTemplate["booleanValidators"][tIdx];
 
 		if tGateIdx > 0 and tValidatorEntry and tValidatorEntry["index"] and tValidatorEntry["index"] > tGateIdx then
-			tOverlay = VUHDO_getOrCreateBooleanOverlay(aButton, tValidatorEntry["item"]["name"], aTargetBar);
+			tOverlay = VUHDO_getBooleanOverlay(aButton, aTargetBar, tValidatorEntry["item"]["name"], VUHDO_TARGET_TYPE_BAR);
 
 			if tOverlay then
-				tOverlay["texture"]:SetAlpha(0);
-
-				if tOverlay["fontString"] then
-					tOverlay["fontString"]:SetAlpha(0);
-				end
+				VUHDO_clearBooleanOverlay(tOverlay);
 			end
 		end
 	end
@@ -1101,7 +1576,8 @@ function VUHDO_applyAllLayersToBar(aButton, aBar, aLayerTemplate, anIndicatorKey
 	end
 
 	VUHDO_applySortedValidatorsToTarget(aButton, aBar, VUHDO_TARGET_TYPE_BAR, aLayerTemplate);
-	VUHDO_applyBooleanLayers(aButton, aBar, aLayerTemplate);
+	VUHDO_applyBooleanLayers(aButton, aBar, VUHDO_TARGET_TYPE_BAR, aLayerTemplate);
+	VUHDO_applyBooleanTextLayers(aBar, aLayerTemplate);
 
 	if anIndicatorKey then
 		VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, aLayerTemplate, aBar);

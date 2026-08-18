@@ -1307,14 +1307,39 @@ end
 
 --
 local tSourceTexture;
+local tSourceFile;
+local tSourceAtlas;
 function VUHDO_copyStatusBarFillTexture(aDestTexture, aSourceBar)
 
+	if "StatusBar" ~= aSourceBar:GetObjectType() then
+		return;
+	end
+
 	tSourceTexture = aSourceBar:GetStatusBarTexture();
-	aDestTexture:SetTexture(tSourceTexture:GetTexture());
+
+	if not tSourceTexture then
+		return;
+	end
+
+	tSourceAtlas = tSourceTexture:GetAtlas();
+
+	if tSourceAtlas then
+		aDestTexture:SetAtlas(tSourceAtlas);
+	else
+		tSourceFile = tSourceTexture:GetTexture();
+
+		if not tSourceFile then
+			return;
+		end
+
+		aDestTexture:SetTexture(tSourceFile, "CLAMP", "CLAMP", "NEAREST");
+	end
+
+	aDestTexture:SetTexCoord(tSourceTexture:GetTexCoord());
 
 	VUHDO_PixelUtil.ApplySettings(aDestTexture);
 
-	return;
+	return true;
 
 end
 
@@ -1330,23 +1355,21 @@ function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
 	VUHDO_PixelUtil.SetFrameLevel(aFrame, aBaseLevel);
 
 	while tChild do -- Layer components seem to have no name, important for HoT icons.
-		if tChild.IsForbidden and not tChild:IsForbidden() then
-			if tChild.GetName and tChild:GetName() then
-				tOurLevel = aBaseLevel + 1 + (tChild["addLevel"] or 0);
+		if tChild:CanBeAccessedInContext() and not tChild:IsForbidden() and tChild:GetName() then
+			tOurLevel = tChild["isAlphaChainWrapper"] and aBaseLevel or (aBaseLevel + 1 + (tChild["addLevel"] or 0));
 
-				if not tChild["vfl"] then
-					if not VUHDO_isConfigPanelShowing() then
-						VUHDO_PixelUtil.SetFrameStrata(tChild, aFrame:GetFrameStrata());
-					end
-
-					VUHDO_PixelUtil.SetFrameLevel(tChild, tOurLevel);
-
-					tChild["vfl"] = true;
-
-					VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
-				elseif(anIsForceUpdateChildren) then
-					VUHDO_fixFrameLevels(true, tChild, tOurLevel, tChild:GetChildren());
+			if not tChild["vfl"] then
+				if not VUHDO_isConfigPanelShowing() then
+					VUHDO_PixelUtil.SetFrameStrata(tChild, aFrame:GetFrameStrata());
 				end
+
+				VUHDO_PixelUtil.SetFrameLevel(tChild, tOurLevel);
+
+				tChild["vfl"] = true;
+
+				VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
+			elseif(anIsForceUpdateChildren) then
+				VUHDO_fixFrameLevels(true, tChild, tOurLevel, tChild:GetChildren());
 			end
 		end
 
@@ -1403,6 +1426,8 @@ end
 local tTargetButton;
 local tFocusButton;
 local tUnit;
+local tUnitWatchType;
+local tIsWatched;
 function VUHDO_setupAllButtonsUnitWatch(anIsEnabled)
 
 	if InCombatLockdown() then
@@ -1426,11 +1451,21 @@ function VUHDO_setupAllButtonsUnitWatch(anIsEnabled)
 			end
 		end
 
-		for tButton, _ in pairs(VUHDO_BUTTON_CACHE) do
-			if tButton:IsShown() then
-				-- FIXME: tUnit serves no purpose here?
-				tUnit = tButton:GetAttribute("unit");
+		for tButton, tPanelNum in pairs(VUHDO_BUTTON_CACHE) do
+			tUnit = tButton:GetAttribute("unit");
+			tUnitWatchType = tButton["unitWatchType"];
 
+			if not tUnit then
+				tIsWatched = false;
+			elseif VUHDO_UNIT_WATCH_TYPE_TARGET == tUnitWatchType then
+				tIsWatched = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["showTarget"] and true or false;
+			elseif VUHDO_UNIT_WATCH_TYPE_TOT == tUnitWatchType then
+				tIsWatched = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["showTot"] and true or false;
+			else
+				tIsWatched = true;
+			end
+
+			if tIsWatched then
 				RegisterUnitWatch(tButton);
 			else
 				UnregisterUnitWatch(tButton);
@@ -1438,9 +1473,6 @@ function VUHDO_setupAllButtonsUnitWatch(anIsEnabled)
 		end
 	else
 		for tButton, _ in pairs(VUHDO_BUTTON_CACHE) do
-			-- FIXME: tUnit serves no purpose here?
-			tUnit = tButton:GetAttribute("unit");
-
 			UnregisterUnitWatch(tButton);
 		end
 	end

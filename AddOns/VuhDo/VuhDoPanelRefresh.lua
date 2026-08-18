@@ -42,12 +42,17 @@ local VUHDO_getPanelButtonInitRev;
 local VUHDO_startRefreshButtonInits;
 local VUHDO_enqueueRefreshButtonInit;
 local VUHDO_waitRefreshButtonInits;
+local VUHDO_resetAlphaChainWrappers;
+local VUHDO_clearBooleanOverlays;
+local VUHDO_resetButtonVisuals;
 
 local sRefreshUiNoMembers;
 local sShowPanels;
 local sDurationAnchor = { };
 local sDeferredRefreshCount = 0;
 local sStaleButtonIndices = { };
+local sScratchUnitButtons = { };
+local sScratchUnitButtonsPanel = { };
 
 
 
@@ -88,6 +93,9 @@ function VUHDO_panelRefreshInitLocalOverrides()
 	VUHDO_startRefreshButtonInits = _G["VUHDO_startRefreshButtonInits"];
 	VUHDO_enqueueRefreshButtonInit = _G["VUHDO_enqueueRefreshButtonInit"];
 	VUHDO_waitRefreshButtonInits = _G["VUHDO_waitRefreshButtonInits"];
+	VUHDO_resetAlphaChainWrappers = _G["VUHDO_resetAlphaChainWrappers"];
+	VUHDO_clearBooleanOverlays = _G["VUHDO_clearBooleanOverlays"];
+	VUHDO_resetButtonVisuals = _G["VUHDO_resetButtonVisuals"];
 
 	if VUHDO_CONFIG["USE_DEFERRED_REDRAW"] then
 		sRefreshUiNoMembers = _G["VUHDO_deferRefreshUiNoMembers"];
@@ -146,7 +154,11 @@ local function VUHDO_refreshPositionAllHealButtons(aPanel, aPanelNum)
 			tButton = VUHDO_getOrCreateHealButton(tButtonIdx, aPanelNum);
 			tButtonIdx = tButtonIdx + 1;
 
-			if tButton["raidid"] ~= tUnit then
+			if tButton["raidid"] ~= tUnit or tButton:GetAttribute("unit") ~= tUnit then
+				VUHDO_resetButtonVisuals(tButton);
+				VUHDO_resetAlphaChainWrappers(tButton);
+				VUHDO_clearBooleanOverlays(tButton);
+
 				VUHDO_setupAllHealButtonAttributes(tButton, tUnit, false, 70 == tModelId, false, false); -- VUHDO_ID_VEHICLES
 
 				if VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP[aPanelNum] and VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["showTarget"] then
@@ -199,6 +211,9 @@ local function VUHDO_refreshPositionAllHealButtons(aPanel, aPanelNum)
 		VUHDO_clearUnitAuraFrames(tButton);
 
 		VUHDO_clearAuraContainersForButton(tButton);
+
+		VUHDO_resetAlphaChainWrappers(tButton);
+		VUHDO_clearBooleanOverlays(tButton);
 
 		VUHDO_PixelUtil.Hide(tButton);
 		tButtonIdx = tButtonIdx + 1;
@@ -291,6 +306,8 @@ function VUHDO_refreshUiNoMembers()
 
 	VUHDO_initAllEventBouquets();
 
+	VUHDO_setupAllButtonsUnitWatch(VUHDO_CONFIG["HIDE_EMPTY_BUTTONS"] and not VUHDO_IS_PANEL_CONFIG and not VUHDO_isConfigDemoUsers());
+
 	return;
 
 end
@@ -315,14 +332,41 @@ end
 
 
 --
-function VUHDO_deferRefreshUiNoMembers()
-
-	VUHDO_resetNameTextCache();
+local function VUHDO_commitScratchUnitButtons()
 
 	twipe(VUHDO_UNIT_BUTTONS);
 	twipe(VUHDO_UNIT_BUTTONS_PANEL);
 
-	sDeferredRefreshCount = sDeferredRefreshCount + 1;
+	for tUnit, tButtons in pairs(sScratchUnitButtons) do
+		VUHDO_UNIT_BUTTONS[tUnit] = tButtons;
+	end
+
+	for tUnit, tPanelMap in pairs(sScratchUnitButtonsPanel) do
+		VUHDO_UNIT_BUTTONS_PANEL[tUnit] = tPanelMap;
+	end
+
+	twipe(sScratchUnitButtons);
+	twipe(sScratchUnitButtonsPanel);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferRefreshUiNoMembers()
+
+	VUHDO_resetNameTextCache();
+
+	twipe(sScratchUnitButtons);
+	twipe(sScratchUnitButtonsPanel);
+
+	VUHDO_setUnitButtonBuildScratch(sScratchUnitButtons, sScratchUnitButtonsPanel);
+
+	if sDeferredRefreshCount <= 0 then
+		sDeferredRefreshCount = 1;
+	end
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PANEL, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tPanelNum);
@@ -391,6 +435,12 @@ end
 --
 function VUHDO_deferRefreshPanelCompleteDelegate(aPanelNum)
 
+	if InCombatLockdown() then
+		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PANEL_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum);
+
+		return;
+	end
+
 	if not VUHDO_waitRefreshButtonInits(aPanelNum, VUHDO_DEFER_REFRESH_PANEL_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum) then
 		return;
 	end
@@ -406,6 +456,17 @@ end
 --
 function VUHDO_deferRefreshUiCompleteDelegate()
 
+	if sDeferredRefreshCount > 0 then
+		sDeferredRefreshCount = sDeferredRefreshCount - 1;
+	end
+
+	if sDeferredRefreshCount <= 0 then
+		sDeferredRefreshCount = 0;
+
+		VUHDO_commitScratchUnitButtons();
+		VUHDO_clearUnitButtonBuildScratch();
+	end
+
 	VUHDO_updateAllRaidBars();
 	VUHDO_updatePanelVisibility();
 	VUHDO_PixelUtil.Hide(VuhDoGcdStatusBar);
@@ -420,9 +481,7 @@ function VUHDO_deferRefreshUiCompleteDelegate()
 
 	VUHDO_initAllEventBouquets();
 
-	if sDeferredRefreshCount > 0 then
-		sDeferredRefreshCount = sDeferredRefreshCount - 1;
-	end
+	VUHDO_setupAllButtonsUnitWatch(VUHDO_CONFIG["HIDE_EMPTY_BUTTONS"] and not VUHDO_IS_PANEL_CONFIG and not VUHDO_isConfigDemoUsers());
 
 	return;
 
