@@ -25,6 +25,7 @@ L["The Catalyst"] = "O Catalisador";
 L["Minimap button"] = "Botão do minimapa";
 L["Item level in keystone tooltip"] = "Nível do item na dica da chave";
 L["Favorite in item tooltip"] = "Favorito na dica do item";
+L["Favorite on item icons"] = "Favorito nos ícones de itens";
 L['Hide "Other" in All Slots'] = "Ocultar \"Outro\" em Todos os espaços";
 L["Loot reminder (dungeons)"] = "Lembrete de saque (masmorras)";
 L["Highlighting"] = "Destaques";
@@ -75,6 +76,7 @@ L["This import string requires a newer version of KeystoneLoot."] = "Esta string
 L["Set Favorite"] = "Definir favorito";
 L["Nice to have"] = "Seria bom ter";
 L["Must have"] = "Essencial";
+L["Catalyst"] = "Catalisador";
 
 -- loot_reminder_frame.lua
 L["Correct loot specialization set?"] = "Especialização de saque correta configurada?";

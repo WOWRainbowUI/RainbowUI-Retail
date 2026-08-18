@@ -25,6 +25,7 @@ L["The Catalyst"] = "Катализатор";
 L["Minimap button"] = "Включить кнопку на миникарте";
 L["Item level in keystone tooltip"] = "Показать уровень предметов во всплывающей подсказке ключа";
 L["Favorite in item tooltip"] = "Избранное в подсказке предмета";
+L["Favorite on item icons"] = "Избранное на значках предметов";
 L['Hide "Other" in All Slots'] = "Скрывать \"Прочее\" при показе всех слотов";
 L["Loot reminder (dungeons)"] = "Включить напоминание о добыче";
 L["Highlighting"] = "Подсветка";
@@ -76,6 +77,7 @@ L["Set Favorite"] = "Добавить в избранное";
 L["Nice to have"] = "Желательно";
 L["Must have"] = "Обязательно";
 L["Best in Slot"] = "БиС";
+L["Catalyst"] = "Катализатор";
 L["Voidcore used"] = "Использован сердечник Бездны";
 
 -- loot_reminder_frame.lua
