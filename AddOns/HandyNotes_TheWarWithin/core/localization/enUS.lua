@@ -85,13 +85,15 @@ L['in_water'] = 'In the water.'
 L['in_building'] = 'In the building.'
 
 ------------------------------------- TIME ------------------------------------
-L['now'] = 'Now'
+L['starts_in'] = 'Starts In:'
+L['time_remaining'] = 'Time Remaining:'
+L['next_time'] = 'Next:'
 L['hourly'] = 'Hourly'
 L['daily'] = 'Daily'
 L['weekly'] = 'Weekly'
 
-L['time_format_12hrs'] = '%B %d - %I:%M %p local time'
-L['time_format_24hrs'] = '%B %d - %H:%M local time'
+L['time_format_12hrs'] = '%B %d - %I:%M %p server time'
+L['time_format_24hrs'] = '%B %d - %H:%M server time'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = 'Housing Decor'
@@ -222,6 +224,8 @@ L['options_transmog_rewards'] = 'Show transmog rewards'
 L['options_transmog_rewards_desc'] = 'Display transmog rewards in tooltips and track their collected status.'
 L['options_all_transmog_rewards'] = 'Show unobtainable transmog rewards'
 L['options_all_transmog_rewards_desc'] = 'Display transmog rewards obtainable by other classes.'
+L['options_shared_appearances'] = 'Shared-model appearances count as collected'
+L['options_shared_appearances_desc'] = 'When enabled, collecting a shared-model appearance from another item marks this reward as collected.'
 L['options_rep_rewards'] = 'Show reputation rewards'
 L['options_rep_rewards_desc'] = 'Display reputation rewards in tooltips and track their collected status.'
 L['options_claimed_rep_rewards'] = 'Show claimed reputation rewards'

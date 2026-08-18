@@ -85,13 +85,16 @@ L['in_water'] = '在水下。'
 L['in_building'] = '在建築內。'
 
 ------------------------------------- TIME ------------------------------------
-L['now'] = '現在'
+L['starts_in'] = nil
+L['time_remaining'] = nil
+L['next_time'] = nil
 L['hourly'] = '每小時'
 L['daily'] = '每日'
 L['weekly'] = '每週'
 
-L['time_format_12hrs'] = '%B %d - %I:%M %p 本地時間'
-L['time_format_24hrs'] = '%B %d - %H:%M 本地時間'
+L['time_format_12hrs'] = '%m/%d - %I:%M %p 伺服器時間'
+L['time_format_24hrs'] = '%m/%d - %H:%M 伺服器時間'
+
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = '房屋裝飾'
 L['heirloom'] = '傳家寶'
@@ -220,6 +223,8 @@ L['options_transmog_rewards'] = '顯示塑形外觀獎勵'
 L['options_transmog_rewards_desc'] = '在浮動提示資訊中顯示塑形外觀獎勵，並且追蹤收藏狀態。'
 L['options_all_transmog_rewards'] = '顯示無法取得的塑形外觀獎勵'
 L['options_all_transmog_rewards_desc'] = '顯示其他職業才能取得的塑形外觀獎勵。'
+L['options_shared_appearances'] = nil
+L['options_shared_appearances_desc'] = nil
 L['options_rep_rewards'] = '顯示聲望獎勵'
 L['options_rep_rewards_desc'] = '在浮動提示資訊中顯示聲望獎勵，並且追蹤目前狀態。'
 L['options_claimed_rep_rewards'] = '顯示已取得的聲望獎勵'

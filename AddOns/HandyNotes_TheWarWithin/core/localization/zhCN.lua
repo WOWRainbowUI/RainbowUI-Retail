@@ -85,13 +85,15 @@ L['in_water'] = '在水中。'
 L['in_building'] = '在建筑里面。'
 
 ------------------------------------- TIME ------------------------------------
-L['now'] = '现在'
+L['starts_in'] = '距开始：'
+L['time_remaining'] = '剩余时间：'
+L['next_time'] = '下一次：'
 L['hourly'] = '每小时'
 L['daily'] = '每日'
 L['weekly'] = '每周'
 
-L['time_format_12hrs'] = '%m/%d - %I:%M %p 本地时间'
-L['time_format_24hrs'] = '%m/%d - %H:%M 本地时间'
+L['time_format_12hrs'] = '%m/%d - %I:%M %p 服务器时间'
+L['time_format_24hrs'] = '%m/%d - %H:%M 服务器时间'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = '装饰'
@@ -222,6 +224,8 @@ L['options_transmog_rewards'] = '显示幻化奖励'
 L['options_transmog_rewards_desc'] = '在提示中显示幻化奖励并跟踪其收集状态。'
 L['options_all_transmog_rewards'] = '显示无法获取的幻化奖励'
 L['options_all_transmog_rewards_desc'] = '显示其它职业可以获取的幻化奖励。'
+L['options_shared_appearances'] = '共享模型幻化计为已获得'
+L['options_shared_appearances_desc'] = '开启后，获得同模型的其他物品幻化也会将本物品标记为已获得。'
 L['options_rep_rewards'] = '显示声望奖励'
 L['options_rep_rewards_desc'] = '在提示中显示声望奖励并跟踪其收集状态。'
 L['options_claimed_rep_rewards'] = '显示以已获得声望奖励'
