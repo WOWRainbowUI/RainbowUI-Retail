@@ -85,13 +85,15 @@ L['in_water'] = 'Bajo el agua.'
 L['in_building'] = 'En el edificio.'
 
 ------------------------------------- TIME ------------------------------------
-L['now'] = 'Ahora'
+L['starts_in'] = 'Comienza en:'
+L['time_remaining'] = 'Tiempo restante:'
+L['next_time'] = 'Siguiente:'
 L['hourly'] = 'Horaria'
 L['daily'] = 'Diaria'
 L['weekly'] = 'Semanal'
 
-L['time_format_12hrs'] = '%I:%M %p - %d/%m hora local'
-L['time_format_24hrs'] = '%H:%M - %d/%m hora local'
+L['time_format_12hrs'] = '%I:%M %p - %d/%m hora del servidor'
+L['time_format_24hrs'] = '%H:%M - %d/%m hora del servidor'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = 'Adorno para los hogares'
@@ -222,6 +224,8 @@ L['options_transmog_rewards'] = 'Mostrar recompensas de transfiguraciones'
 L['options_transmog_rewards_desc'] = 'Muestra las recompensas de transfiguraciones en las notas y rastrea el estado de si ha sido aprendida.'
 L['options_all_transmog_rewards'] = 'Mostrar las recompensas de transfiguraciones que no pueden conseguirse'
 L['options_all_transmog_rewards_desc'] = 'Muestra las recompensas de transfiguraciones conseguibles por otras clases.'
+L['options_shared_appearances'] = 'Las transfiguraciones compartidas por múltiples objetos cuentan como conocidas.'
+L['options_shared_appearances_desc'] = 'Cuando está activado, coleccionar una transfiguración compartida por otro objeto, marcará esa recompensa como consegida.'
 L['options_rep_rewards'] = 'Mostrar recompensas de reputaciones'
 L['options_rep_rewards_desc'] = 'Muestra las recompensas de reputaciones en las notas y rastrea el estado de si ha sido conseguida.'
 L['options_claimed_rep_rewards'] = 'Mostrar recompensas de reputación reclamadas'
