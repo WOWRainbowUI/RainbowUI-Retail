@@ -1,14 +1,17 @@
 # XIV_Databar Continued
 
-## [5.7.1](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/5.7.1) (2026-08-13)
+## [5.7.2](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/5.7.2) (2026-08-16)
 
-[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/5.7...5.7.1) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
+[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/5.7.1...5.7.2) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
 
-> **Version 5.7.1 - Mouseover Fix & TOC**
+> **Version 5.7.2 - Less Chat Spam**
 >
-> This update fixes a LUA error when **Show on mouseover** is enabled on Retail 12.0+, and updates the TOC for patch 12.1.
+> Sorry for the chat spam in 5.7. This update disables the login chat tip by default, and marks the changelog as read on the first load after a version change instead of requiring a click on **Open Changelog**.
+> It also updates the German translation (thank you **DlargeX**).
 
-### _Retail :_
+### _Global :_
 
-- 🛠️ _**IMPROVEMENT** -_ TOC update for patch 12.1.
-- 🐞 _**BUGFIX** -_ Fixed a LUA error caused by the removed **MouseIsOver** API when **Show on mouseover** is enabled.
+- 🛠️ _**IMPROVEMENT** -_ Sorry for the inconvenience: the login tip and repeating **Open Changelog** announce in 5.7 were too noisy.
+- 🛠️ _**IMPROVEMENT** -_ The login chat tip is now disabled by default. Re-enable it by unchecking **Disable login message** under **Behavior**.
+- 🛠️ _**IMPROVEMENT** -_ The version update chat announcement now marks the changelog as read on first load, instead of repeating until **Open Changelog** is clicked.
+- 🛠️ _**IMPROVEMENT** -_ Updated German translation (thank you **DlargeX**).

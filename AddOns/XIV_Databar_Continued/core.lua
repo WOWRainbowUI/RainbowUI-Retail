@@ -151,11 +151,6 @@ function XIVBar:ScheduleOpenChangelogAfterCombat()
 end
 
 function XIVBar:HandleChangelogChatLink()
-    local currentVersion = C_AddOns.GetAddOnMetadata(AddOnName, "Version") or ""
-    if self.db and self.db.profile and self.db.profile.general then
-        self.db.profile.general.lastChangelogAnnounce = currentVersion
-    end
-
     if InCombatLockdown() then
         AddChatMessage(self:GetChatPrefix() .. ": " ..
             (L["CHANGELOG_AFTER_COMBAT"] or "Changelog will open after combat ends"))
@@ -193,6 +188,7 @@ function XIVBar:MaybeAnnounceAddonUpdate()
     local link = "|Hxivcchangelog:1|h" .. linkText .. "|h"
     local body = (L["UPDATE_ANNOUNCE"] or "got updated to %s,"):format(versionText)
     AddChatMessage(self:GetChatPrefix() .. " " .. body .. " " .. link)
+    self.db.profile.general.lastChangelogAnnounce = currentVersion
 end
 
 if not XIVBar._XIVC_ChangelogChatLinkHooked then
