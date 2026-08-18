@@ -29,7 +29,7 @@ XIVBar.defaults = {
             enableFreePlacement = false,
             freePlacementInitialized = false,
             modulePlacements = {},
-            disableLoginMessage = false,
+            disableLoginMessage = true,
             lastChangelogAnnounce = "",
         },
         color = {
