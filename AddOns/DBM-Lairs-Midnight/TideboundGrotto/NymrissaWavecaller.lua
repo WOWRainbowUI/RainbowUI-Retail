@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2849, "DBM-Lairs-Midnight", 1, 1317)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260813044936")
+mod:SetRevision("20260815015024")
 --mod:SetCreatureID(238693)
 mod:SetEncounterID(3379)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -77,7 +77,7 @@ function mod:OnLimitedCombatStart()
 	self.vb.abyssalRainCount = 1
 	normal44Slot = 0
 	--Hardcode features first
-	if DBM.Options.HardcodedTimer and not badStateDetected then
+	if DBM.Options.HardcodedTimer and not badStateDetected and self:IsEasy() then
 		self:IgnoreBlizzardAPI()
 		self:RegisterShortTermEvents(
 			"ENCOUNTER_TIMELINE_EVENT_ADDED",
