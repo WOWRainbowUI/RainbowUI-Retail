@@ -77,11 +77,11 @@
 						<Scripts>
 							<OnMouseDown>
 								VUHDO_CONFIG_SHOW_RAID = true;
-								VUHDO_reloadUI(false);
+								VUHDO_timeReloadUI(0.1);
 							</OnMouseDown>
 							<OnMouseUp>
 								VUHDO_CONFIG_SHOW_RAID = false;
-								VUHDO_reloadUI(false);
+								VUHDO_timeReloadUI(0.1);
 							</OnMouseUp>
 						</Scripts>
 					</Button>

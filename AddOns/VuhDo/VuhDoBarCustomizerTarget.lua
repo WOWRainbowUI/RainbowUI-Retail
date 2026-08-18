@@ -25,7 +25,12 @@ local pcall = pcall;
 local pairs = pairs;
 local twipe = table.wipe;
 local issecretvalue = issecretvalue;
+
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+
+local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
+local VUHDO_EASE_OUT = Enum.StatusBarInterpolation.ExponentialEaseOut;
+
 local _;
 
 
@@ -52,6 +57,7 @@ local VUHDO_applyAllLayersToBar;
 local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
+local VUHDO_resetBarTextVertexColor;
 
 
 
@@ -81,6 +87,7 @@ function VUHDO_customTargetInitLocalOverrides()
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
+	VUHDO_resetBarTextVertexColor = _G["VUHDO_resetBarTextVertexColor"];
 
 end
 
@@ -223,27 +230,32 @@ end
 
 --
 local tBar;
-local tQuota;
-local function VUHDO_targetHealthBouquetCallback(aButton, aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
+local tInterpolation;
+local function VUHDO_targetHealthBouquetCallback(aButton, aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate, anIsAliveTime, anEventType)
 
 	aMaxValue = aMaxValue or 1;
 	aCurrValue = aCurrValue or 0;
 
 	tBar = VUHDO_getHealthBar(aButton, 1);
 
+	tInterpolation = (tBar["forceImmediate"] or 1 == anEventType) and VUHDO_IMMEDIATE or VUHDO_EASE_OUT;
+	tBar["forceImmediate"] = nil;
+
 	if anIsActive then
-		tBar:SetMinMaxValues(0, aMaxValue);
+		tBar:SetMinMaxValues(0, aMaxValue, tInterpolation);
 
 		if tBar["isInverted"] then
-			tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue));
+			tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), tInterpolation);
 		else
-			tBar:SetValue(aCurrValue);
+			tBar:SetValue(aCurrValue, tInterpolation);
 		end
 
 		if aLayerTemplate then
 			VUHDO_applyAllLayersToBar(aButton, tBar, aLayerTemplate);
 		elseif aColor then
 			VUHDO_setStatusBarVuhDoColor(tBar, aColor);
+
+			VUHDO_resetBarTextVertexColor(tBar);
 
 			VUHDO_getBarText(tBar):SetTextColor(aColor["TR"], aColor["TG"], aColor["TB"]);
 			VUHDO_getBarTextSolo(tBar):SetTextColor(aColor["TR"], aColor["TG"], aColor["TB"]);
@@ -254,6 +266,7 @@ local function VUHDO_targetHealthBouquetCallback(aButton, aUnit, anIsActive, anI
 	else
 		tBar:SetMinMaxValues(0, 1);
 		tBar:SetValue(tBar["isInverted"] and 1 or 0);
+
 		aButton:SetAlpha(0);
 	end
 

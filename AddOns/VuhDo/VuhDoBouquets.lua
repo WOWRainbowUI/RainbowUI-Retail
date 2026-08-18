@@ -31,12 +31,14 @@ local VUHDO_isAuraDataRestricted;
 local VUHDO_isAuraModeContainers;
 local VUHDO_resolveGroupCandidateFilters;
 local VUHDO_resolveAuraContainerSpellId;
+local VUHDO_addResolvedAuraContainerSpellIds;
 local VUHDO_getAuraGroup;
 local VUHDO_isAuraGroupContainerExpressible;
 local VUHDO_releaseAllOverlays;
 local VUHDO_invalidateAuraContainerTemplateCache;
 local VUHDO_renderNonAuraListSlots;
 local VUHDO_deferSyncOverlaysForUnit;
+local VUHDO_incrementAlphaChainConfigVersion;
 
 local VUHDO_BOUQUETS = { };
 local VUHDO_RAID = { };
@@ -90,14 +92,6 @@ local VUHDO_CUSTOM_BOUQUETS = {
 
 VUHDO_DISPEL_COLOR_GENERATION = 0;
 
-local sAuraIconDispelBorderOptionsBind = {
-	["style"] = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
-	["showWhenHarmful"] = true,
-	["showWhenHelpful"] = true,
-};
-
-local sAuraIconDispelBorderInset = 2;
-
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sEmpty = { };
 
@@ -106,6 +100,7 @@ local sPlayerArray = { };
 local sBouquetLayerTemplates = { };
 local sBouquetCurves = { };
 local sBouquetColors = { };
+local sBouquetTextColors = { };
 local sCurveCache = { };
 local sBrightnessCurveCache = { };
 local sTextBrightnessCurveCache = { };
@@ -143,6 +138,9 @@ local sDispelNameColorKeyMap = {
 	["Bleed"] = "DEBUFF8",
 	["Enrage"] = "DEBUFF9",
 };
+
+local sBackgroundDispelTypeNames = { };
+local sGlowDispelTypeNames = { };
 
 local sDispelTypeCurvePointKeys = {
 	{ 0, "DEBUFF0" },
@@ -221,12 +219,14 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
 	VUHDO_resolveGroupCandidateFilters = _G["VUHDO_resolveGroupCandidateFilters"];
 	VUHDO_resolveAuraContainerSpellId = _G["VUHDO_resolveAuraContainerSpellId"];
+	VUHDO_addResolvedAuraContainerSpellIds = _G["VUHDO_addResolvedAuraContainerSpellIds"];
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_isAuraGroupContainerExpressible = _G["VUHDO_isAuraGroupContainerExpressible"];
 	VUHDO_releaseAllOverlays = _G["VUHDO_releaseAllOverlays"];
 	VUHDO_invalidateAuraContainerTemplateCache = _G["VUHDO_invalidateAuraContainerTemplateCache"];
 	VUHDO_renderNonAuraListSlots = _G["VUHDO_renderNonAuraListSlots"];
 	VUHDO_deferSyncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
+	VUHDO_incrementAlphaChainConfigVersion = _G["VUHDO_incrementAlphaChainConfigVersion"];
 
 	VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
 
@@ -545,6 +545,22 @@ end
 
 
 --
+local tBouquetTextColors;
+function VUHDO_getBouquetBoolTextColor(aBouquetName, aValidatorName)
+
+	tBouquetTextColors = sBouquetTextColors[aBouquetName];
+
+	if tBouquetTextColors then
+		return tBouquetTextColors[aValidatorName];
+	end
+
+	return nil;
+
+end
+
+
+
+--
 local tCacheKey;
 function VUHDO_getHealthCurve(aBouquetName, aClassId)
 
@@ -566,77 +582,9 @@ end
 
 
 --
-local tBorderTexture;
-local tIconTexture;
-local tInsetParent;
-local tBorderOptions;
-function VUHDO_bindAuraButtonDispelBorder(aAuraButton)
+function VUHDO_getDispelTypeBorderCurve()
 
-	if not aAuraButton or not aAuraButton["BorderTexture"] then
-		return;
-	end
-
-	tBorderOptions = sAuraIconDispelBorderOptionsBind;
-	tBorderOptions["showWhenHarmful"] = true;
-	tBorderOptions["showWhenHelpful"] = true;
-
-	tBorderTexture = aAuraButton["BorderTexture"];
-	tInsetParent = aAuraButton["IconFrame"] or aAuraButton;
-
-	tBorderTexture:ClearAllPoints();
-	tBorderTexture:SetAllPoints(tInsetParent);
-	tBorderTexture:SetColorTexture(1, 1, 1, 1);
-	tBorderTexture:SetVertexColor(1, 1, 1, 1);
-	tBorderTexture:Show();
-
-	tBorderOptions["customDispelColorMap"] = nil;
-	tBorderOptions["customDispelColorCurve"] = sDispelTypeBorderCurve;
-
-	aAuraButton:ClearDispelTypeTextures();
-
-	aAuraButton:AddDispelTypeTexture(tBorderTexture, tBorderOptions);
-
-	tIconTexture = aAuraButton["IconTexture"];
-
-	if tIconTexture then
-		tIconTexture:ClearAllPoints();
-		_G["VUHDO_PixelUtil"].SetPoint(tIconTexture, "TOPLEFT", tInsetParent, "TOPLEFT", sAuraIconDispelBorderInset, -sAuraIconDispelBorderInset);
-		_G["VUHDO_PixelUtil"].SetPoint(tIconTexture, "BOTTOMRIGHT", tInsetParent, "BOTTOMRIGHT", -sAuraIconDispelBorderInset, sAuraIconDispelBorderInset);
-		tIconTexture:SetTexCoord(0.08, 0.92, 0.08, 0.92);
-	end
-
-	return;
-
-end
-
-
-
---
-function VUHDO_unbindAuraButtonDispelBorder(aAuraButton)
-
-	if not aAuraButton then
-		return;
-	end
-
-	aAuraButton:ClearDispelTypeTextures();
-	aAuraButton:ClearDispelTypeText();
-
-	tBorderTexture = aAuraButton["BorderTexture"];
-
-	if tBorderTexture then
-		tBorderTexture:Hide();
-	end
-
-	tIconTexture = aAuraButton["IconTexture"];
-	tInsetParent = aAuraButton["IconFrame"] or aAuraButton;
-
-	if tIconTexture then
-		tIconTexture:ClearAllPoints();
-		tIconTexture:SetAllPoints(tInsetParent);
-		tIconTexture:SetTexCoord(0, 1, 0, 1);
-	end
-
-	return;
+	return sDispelTypeBorderCurve;
 
 end
 
@@ -692,6 +640,24 @@ do
 		end
 
 		return sDispelTypeColorMapOpaqueBrightCache[tBrightKey];
+
+	end
+
+
+
+	--
+	function VUHDO_getBackgroundDispelTypeNames()
+
+		return sBackgroundDispelTypeNames;
+
+	end
+
+
+
+	--
+	function VUHDO_getGlowDispelTypeNames()
+
+		return sGlowDispelTypeNames;
 
 	end
 
@@ -758,6 +724,7 @@ function VUHDO_clearCurveCache()
 	twipe(sCurveCache);
 	twipe(sBouquetCurves);
 	twipe(sBouquetColors);
+	twipe(sBouquetTextColors);
 	twipe(sTextBrightnessCurveCache);
 
 	return;
@@ -849,11 +816,9 @@ do
 
 		if tBaseColor then
 			if 2 == tRadio then
-				tBaseColorMixin = CreateColor(
-					tBaseColor["R"] * tHealthBright, tBaseColor["G"] * tHealthBright, tBaseColor["B"] * tHealthBright, tBaseColor["O"] or 1);
+				tBaseColorMixin = CreateColor(tBaseColor["R"] * tHealthBright, tBaseColor["G"] * tHealthBright, tBaseColor["B"] * tHealthBright, tBaseColor["O"] or 1);
 			else
-				tBaseColorMixin = CreateColor(
-					tBaseColor["R"], tBaseColor["G"], tBaseColor["B"], tBaseColor["O"] or 1);
+				tBaseColorMixin = CreateColor(tBaseColor["R"], tBaseColor["G"], tBaseColor["B"], tBaseColor["O"] or 1);
 			end
 		end
 
@@ -1056,16 +1021,14 @@ do
 			if tItem["name"] == "MANA_BELOW" then
 				tThreshold = tItem["custom"][1];
 
-				tWarningColor = CreateColor(
-					tItem["color"]["R"], tItem["color"]["G"], tItem["color"]["B"], 1);
+				tWarningColor = CreateColor(tItem["color"]["R"], tItem["color"]["G"], tItem["color"]["B"], 1);
 
 				tPowerCurve:AddPoint(0.00, tWarningColor);
 				tPowerCurve:AddPoint(tThreshold / 100 - 0.005, tWarningColor);
 			end
 		end
 
-		tPowerBaseColorMixin = CreateColor(
-			tPowerBaseColor["R"], tPowerBaseColor["G"], tPowerBaseColor["B"], 1);
+		tPowerBaseColorMixin = CreateColor(tPowerBaseColor["R"], tPowerBaseColor["G"], tPowerBaseColor["B"], 1);
 
 		if tThreshold then
 			tPowerCurve:AddPoint(tThreshold / 100, tPowerBaseColorMixin);
@@ -1185,6 +1148,8 @@ do
 
 		twipe(sDispelTypeColorMap);
 		twipe(sDispelTypeColorMapOpaque);
+		twipe(sBackgroundDispelTypeNames);
+		twipe(sGlowDispelTypeNames);
 		twipe(sDispelTypeBackgroundFillColorMap);
 		twipe(sDispelTypeBackgroundBackingColorMap);
 		twipe(sDispelTypeColorMapOpaqueBrightCache);
@@ -1201,6 +1166,14 @@ do
 		tTransparent = CreateColor(0, 0, 0, 0);
 
 		for tDispelName, tColorKey in pairs(sDispelNameColorKeyMap) do
+			if tColors and tColors[tColorKey] and tColors[tColorKey]["useBackground"] then
+				sBackgroundDispelTypeNames[tDispelName] = true;
+			end
+
+			if tColors and tColors[tColorKey] and tColors[tColorKey]["useGlow"] then
+				sGlowDispelTypeNames[tDispelName] = true;
+			end
+
 			sDispelTypeColorMap[tDispelName] = VUHDO_safeColorFromTable(tColors and tColors[tColorKey], tDefaultColor);
 			sDispelTypeColorMapOpaque[tDispelName] = VUHDO_safeOpaqueDispelColorFromTable(tColors and tColors[tColorKey], tTransparent);
 			sDispelTypeBackgroundFillColorMap[tDispelName] = VUHDO_safeBackgroundDispelColorFromTable(tColors and tColors[tColorKey], tDefaultColor, 1, 1);
@@ -1223,6 +1196,8 @@ do
 			sDispelTypeBorderCurve:SetType(Enum.LuaCurveType.Step);
 			VUHDO_populateDispelTypeBorderCurve(sDispelTypeBorderCurve);
 
+			VUHDO_rebuildDerivedDispelTypeNameMaps();
+
 			return;
 		end
 
@@ -1244,6 +1219,8 @@ do
 		sDispelTypeBorderCurve = CreateColorCurve();
 		sDispelTypeBorderCurve:SetType(Enum.LuaCurveType.Step);
 		VUHDO_populateDispelTypeBorderCurve(sDispelTypeBorderCurve);
+
+		VUHDO_rebuildDerivedDispelTypeNameMaps();
 
 		return;
 
@@ -1373,6 +1350,7 @@ do
 
 		sBouquetCurves[aBouquetName] = { };
 		sBouquetColors[aBouquetName] = { };
+		sBouquetTextColors[aBouquetName] = { };
 
 		tHasHealthValidator = false;
 		tHasPowerValidator = false;
@@ -1384,9 +1362,11 @@ do
 
 			if tSpecial then
 				if tSpecial["secretType"] == VUHDO_SECRET_TYPE_BOOLEAN then
-					sBouquetColors[aBouquetName][tName] = CreateColor(
-						tItem["color"]["R"], tItem["color"]["G"],
-						tItem["color"]["B"], tItem["color"]["O"] or 1);
+					sBouquetColors[aBouquetName][tName] = CreateColor(tItem["color"]["R"], tItem["color"]["G"], tItem["color"]["B"], 1);
+
+					if tItem["color"]["useText"] then
+						sBouquetTextColors[aBouquetName][tName] = CreateColor(tItem["color"]["TR"], tItem["color"]["TG"], tItem["color"]["TB"], 1);
+					end
 				elseif tSpecial["secretType"] == VUHDO_SECRET_TYPE_HEALTH_PERCENT then
 					tHasHealthValidator = true;
 				elseif tSpecial["secretType"] == VUHDO_SECRET_TYPE_POWER_PERCENT then
@@ -1457,6 +1437,7 @@ do
 	local tBuildGradMax;
 	local tBuildGradMin;
 	local tBuildGradFactor;
+	local tTrueTextColor;
 	function VUHDO_buildBouquetLayerTemplate(aBouquetName)
 
 		tBouquet = VUHDO_BOUQUETS["STORED"][aBouquetName];
@@ -1709,6 +1690,7 @@ do
 					};
 
 					tTrueColor = VUHDO_getBouquetBoolColor(aBouquetName, tItem["name"]);
+					tTrueTextColor = VUHDO_getBouquetBoolTextColor(aBouquetName, tItem["name"]);
 
 					if tSpecial and tSpecial["isInverted"] then
 						tTemplate["booleanResults"][tBoolIdx] = {
@@ -1716,6 +1698,9 @@ do
 							["trueColorMixin"] = sTransparentColor,
 							["falseColorMixin"] = tTrueColor,
 							["color"] = tItem["color"],
+							["trueAlpha"] = 0,
+							["falseAlpha"] = tItem["color"]["useOpacity"] and (tItem["color"]["O"] or 1) or 1,
+							["activeTextColorMixin"] = tTrueTextColor,
 						};
 					else
 						tTemplate["booleanResults"][tBoolIdx] = {
@@ -1723,6 +1708,9 @@ do
 							["trueColorMixin"] = tTrueColor,
 							["falseColorMixin"] = sTransparentColor,
 							["color"] = tItem["color"],
+							["trueAlpha"] = tItem["color"]["useOpacity"] and (tItem["color"]["O"] or 1) or 1,
+							["falseAlpha"] = 0,
+							["activeTextColorMixin"] = tTrueTextColor,
 						};
 					end
 
@@ -3452,8 +3440,7 @@ do
 			VUHDO_evaluateBouquetNonSecret(tUnit, tInfo, tBouquet, tAnzInfos);
 		end
 
-		tHasSecretResults = (tLayerTemplate and (tLayerTemplate["hasCurves"] or tLayerTemplate["hasBools"] or tLayerTemplate["hasDispels"] or tLayerTemplate["hasSecretValues"]))
-			or issecretvalue(txState["icon"]) or issecretvalue(txState["timer"]) or issecretvalue(txState["counter"]) or issecretvalue(txState["duration"]);
+		tHasSecretResults = issecretvalue(txState["icon"]) or issecretvalue(txState["timer"]) or issecretvalue(txState["counter"]) or issecretvalue(txState["duration"]);
 
 		if txState["active"] then
 			if not txState["isColorInit"] then
@@ -3553,7 +3540,7 @@ do
 		VUHDO_activateAurasFromBouquet(aBouquetName);
 
 		for tUnit, _ in pairs(VUHDO_RAID) do
-			aFunction(tUnit, false, nil, 0, 0, 0, nil, nil, aBouquetName);
+			aFunction(tUnit, false, nil, 0, 0, 0, nil, nil, aBouquetName, nil, nil, nil, nil, nil, nil, nil, nil, nil, VUHDO_UPDATE_BOUQUET_RESET);
 		end
 
 		if VUHDO_hasCyclic(aBouquetName) then
@@ -3787,13 +3774,13 @@ do
 		["DEBUFF_CHARMED"] = true,
 	};
 
-	-- Single dispel type specials expressible as Blizzard candidateFilters includeDispelTypes.
-	-- Bleed/Enrage have no dispelName in the 12.1 aura container schema and stay CAT B2.
 	local sDispelSpecialToDispelName = {
 		["DEBUFF_MAGIC"] = "Magic",
 		["DEBUFF_CURSE"] = "Curse",
 		["DEBUFF_DISEASE"] = "Disease",
 		["DEBUFF_POISON"] = "Poison",
+		["DEBUFF_BLEED"] = "Bleed",
+		["DEBUFF_ENRAGE"] = "Enrage",
 	};
 
 	local sRestrictedModeClassCache = { };
@@ -3989,7 +3976,7 @@ do
 
 					tEntries[tEntryCount] = {
 						["entryType"] = VUHDO_AURA_LIST_ENTRY_SPELL,
-						["value"] = tSpellId,
+						["value"] = tName,
 					};
 
 					if tItem["mine"] ~= false and tItem["others"] ~= true then
@@ -4086,6 +4073,7 @@ do
 	local tMixedItemStackLevel;
 	local tMixedPieceKey;
 	local tMixedSpellId;
+	local tMixedIncludeSpellIds;
 	local tMixedDispelName;
 	local tMixedFilterString;
 	local tMixedCandidateFilters;
@@ -4119,7 +4107,15 @@ do
 			tMixedDispelName = nil;
 
 			if not tSpecial then
-				tMixedSpellId = VUHDO_resolveAuraContainerSpellId(tName);
+				tMixedIncludeSpellIds = { };
+
+				VUHDO_addResolvedAuraContainerSpellIds(tMixedIncludeSpellIds, tName);
+
+				if next(tMixedIncludeSpellIds) then
+					tMixedSpellId = VUHDO_resolveAuraContainerSpellId(tName);
+				else
+					tMixedSpellId = nil;
+				end
 			elseif sDispelSpecialToDispelName[tName] then
 				tMixedDispelName = sDispelSpecialToDispelName[tName];
 			end
@@ -4134,9 +4130,7 @@ do
 				end
 
 				tMixedCandidateFilters = {
-					["includeSpellIDs"] = {
-						[tMixedSpellId] = true,
-					},
+					["includeSpellIDs"] = tMixedIncludeSpellIds,
 				};
 
 				tMixedButtonSetup = { };
@@ -4418,6 +4412,8 @@ do
 		VUHDO_invalidateBouquetRestrictedModeCache();
 		VUHDO_invalidateAuraContainerTemplateCache();
 		VUHDO_releaseAllOverlays();
+
+		VUHDO_incrementAlphaChainConfigVersion();
 
 		for tUnit, _ in pairs(VUHDO_RAID or { }) do
 			VUHDO_clearUnitBouquetActiveCache(tUnit);
@@ -4703,7 +4699,7 @@ do
 
 		for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime, anEventType);
 		end
 
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = tIsActive;
@@ -4725,11 +4721,11 @@ do
 
 		if tIsActive then
 			aDelegate(aButton, aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime, 1);
 			VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = true;
 		elseif VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] then
 			aDelegate(aButton, aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime, 1);
 			VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = false;
 		end
 

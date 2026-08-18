@@ -23,6 +23,8 @@ local VUHDO_copyColorTo;
 local VUHDO_evaluateBouquetItemForStaticSlot;
 local VUHDO_applyAuraContainerSlotFilters;
 local VUHDO_getManaAdjustedYOffset;
+local VUHDO_acquireAuraIconFrame;
+local VUHDO_acquireAuraBarFrame;
 
 local sOwnedScratchColor = { };
 
@@ -52,6 +54,8 @@ function VUHDO_auraContainerStaticInitLocalOverrides()
 	VUHDO_evaluateBouquetItemForStaticSlot = _G["VUHDO_evaluateBouquetItemForStaticSlot"];
 	VUHDO_applyAuraContainerSlotFilters = _G["VUHDO_applyAuraContainerSlotFilters"];
 	VUHDO_getManaAdjustedYOffset = _G["VUHDO_getManaAdjustedYOffset"];
+	VUHDO_acquireAuraIconFrame = _G["VUHDO_acquireAuraIconFrame"];
+	VUHDO_acquireAuraBarFrame = _G["VUHDO_acquireAuraBarFrame"];
 
 	return;
 
@@ -479,8 +483,10 @@ do
 					if tAuraFrame and tContainerTemplate then
 						VUHDO_applyStaticBouquetSlotGeometry(tAuraFrame, aButton, tContainerTemplate, tStaticSlot);
 
-						tAuraFrame:SetAlpha(1);
-						tAuraFrame:Show();
+						if tAuraFrame["staticSlotWidth"] then
+							tAuraFrame:SetAlpha(1);
+							tAuraFrame:Show();
+						end
 					end
 				else
 					VUHDO_hideAuraSlot(aButton, tAnchorIndex, tSlotIndex, tIsBar);
@@ -579,6 +585,53 @@ do
 				if tContainerData and tContainerData["staticSlots"] and next(tContainerData["staticSlots"]) then
 					VUHDO_updateStaticBouquetSlotsForButton(tButton, aUnit, tContainerData);
 				end
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tStaticSlots;
+	local tContainerTemplate;
+	local tAnchorIndex;
+	local tPanelNum;
+	local tAnchorConfig;
+	local tIsBar;
+	local tSlotIndex;
+	local tAuraFrame;
+	function VUHDO_precomputeStaticBouquetSlotsForButton(aButton, aContainerData)
+
+		if not aButton or not aContainerData or InCombatLockdown() then
+			return;
+		end
+
+		tStaticSlots = aContainerData["staticSlots"];
+
+		if not tStaticSlots or not next(tStaticSlots) then
+			return;
+		end
+
+		tContainerTemplate = aContainerData["containerTemplate"];
+		tAnchorIndex = aContainerData["anchorIndex"];
+		tPanelNum = aContainerData["panelNum"];
+		tAnchorConfig = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"][tAnchorIndex];
+		tIsBar = tAnchorConfig and tAnchorConfig["style"] == "bars";
+
+		for tSlotEntryIndex, tStaticSlot in pairs(tStaticSlots) do
+			tSlotIndex = tStaticSlot["slotIndex"] or tSlotEntryIndex;
+
+			if tIsBar then
+				tAuraFrame = VUHDO_acquireAuraBarFrame(aButton, tAnchorIndex, tSlotIndex);
+			else
+				tAuraFrame = VUHDO_acquireAuraIconFrame(aButton, tAnchorIndex, tSlotIndex);
+			end
+
+			if tAuraFrame and tContainerTemplate then
+				VUHDO_applyStaticBouquetSlotGeometry(tAuraFrame, aButton, tContainerTemplate, tStaticSlot);
 			end
 		end
 

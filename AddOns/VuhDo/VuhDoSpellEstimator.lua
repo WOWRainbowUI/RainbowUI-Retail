@@ -1,13 +1,16 @@
+local _;
+
+local twipe = table.wipe;
+local pairs = pairs;
+local tinsert = table.insert;
+
 VUHDO_ACTIVE_HOTS = { };
 VUHDO_ACTIVE_HOTS_OTHERS = { };
 VUHDO_PLAYER_HOTS = { };
 
 VUHDO_SPELL_TYPE_HOT = 1;  -- Spell type heal over time
 
-
-
-local twipe = table.wipe;
-local pairs = pairs;
+local sPlayerHotsSnapshot = { };
 
 
 
@@ -99,6 +102,12 @@ local VUHDO_SPELLS = VUHDO_SPELLS;
 -- initializes some dynamic information into VUHDO_SPELLS
 function VUHDO_initFromSpellbook()
 
+	twipe(sPlayerHotsSnapshot);
+
+	for tCnt = 1, #VUHDO_PLAYER_HOTS do
+		sPlayerHotsSnapshot[tCnt] = VUHDO_PLAYER_HOTS[tCnt];
+	end
+
 	twipe(VUHDO_PLAYER_HOTS);
 
 	for tSpellName, someParams in pairs(VUHDO_SPELLS) do
@@ -171,5 +180,17 @@ function VUHDO_initFromSpellbook()
 
 	VUHDO_setKnowsSwiftmend(VUHDO_isSpellKnown(VUHDO_SPELL_ID.SWIFTMEND));
 	VUHDO_setKnowsTrailOfLight(VUHDO_isTalentKnown(VUHDO_SPELL_ID.TRAIL_OF_LIGHT));
+
+	if #sPlayerHotsSnapshot ~= #VUHDO_PLAYER_HOTS then
+		return true;
+	end
+
+	for tCnt = 1, #VUHDO_PLAYER_HOTS do
+		if sPlayerHotsSnapshot[tCnt] ~= VUHDO_PLAYER_HOTS[tCnt] then
+			return true;
+		end
+	end
+
+	return false;
 
 end

@@ -17,6 +17,8 @@ VUHDO_NEXT_INSPECT_TIME_OUT = nil;
 --------------------------------------------------------------
 local NotifyInspect = NotifyInspect;
 local GetSpecializationInfo = GetSpecializationInfo;
+local GetInspectSpecialization = GetInspectSpecialization;
+local GetSpecializationRoleByID = GetSpecializationRoleByID;
 local ClearInspectPlayer = ClearInspectPlayer;
 local GetTime = GetTime;
 local CanInspect = CanInspect;
@@ -274,6 +276,15 @@ function VUHDO_inspectRole(aUnit)
 		tTreeId, _, _, _, tRole = GetSpecializationInfo(tActiveTree, false, false);
 	else
 		tTreeId = GetInspectSpecialization(aUnit);
+
+		if sSecretsEnabled and issecretvalue(tTreeId) then
+			return VUHDO_ID_UNDEFINED;
+		end
+
+		if (tTreeId or 0) == 0 then
+			return VUHDO_ID_UNDEFINED;
+		end
+
 		tRole = GetSpecializationRoleByID(tTreeId);
 	end
 
@@ -356,6 +367,15 @@ function VUHDO_inspectLockRole()
 		tTreeId = GetSpecializationInfo(tActiveTree, false, false);
 	else
 		tTreeId = GetInspectSpecialization(VUHDO_NEXT_INSPECT_UNIT);
+	end
+
+	if sSecretsEnabled and issecretvalue(tTreeId) then
+		ClearInspectPlayer();
+
+		VUHDO_NEXT_INSPECT_UNIT = nil;
+		VUHDO_INSPECTED_ROLES[tInfo["name"]] = VUHDO_ID_UNDEFINED;
+
+		return;
 	end
 
 	if (tTreeId or 0) == 0 then

@@ -283,6 +283,7 @@ local tGuildName, tGuildRank;
 local tBinding;
 local tClassName, tClassNameLoc;
 local tClassDisplayName;
+local tRaceDisplayName;
 function VUHDO_updateTooltip()
 
 	if not UnitExists(VUHDO_TT_UNIT) then
@@ -333,7 +334,16 @@ function VUHDO_updateTooltip()
 	end
 
 	VUHDO_addTooltipLineLeft(format("%s%d %s", VUHDO_I18N_TT_LEVEL, UnitLevel(tUnit) or "", tClassDisplayName), tClassColor, 9);
-	VUHDO_addTooltipLineRight(UnitRace(tUnit) or UnitCreatureType(tUnit) or " ", tClassColor, 9);
+
+	tRaceDisplayName = UnitRace(tUnit);
+
+	if sSecretsEnabled and issecretvalue(tRaceDisplayName) then
+		tRaceDisplayName = UnitCreatureType(tUnit) or " ";
+	else
+		tRaceDisplayName = tRaceDisplayName or UnitCreatureType(tUnit) or " ";
+	end
+
+	VUHDO_addTooltipLineRight(tRaceDisplayName, tClassColor, 9);
 
 	-- Guild
 	tGuildName, tGuildRank = GetGuildInfo(tUnit);

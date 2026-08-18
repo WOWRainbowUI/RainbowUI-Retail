@@ -1467,7 +1467,11 @@ do
 	local tTable;
 	local tFunction;
 	local tArrayModel;
+	local tIsRebuilt;
 	function VUHDO_lnfComboSetSelectedValue(aComboBox, aValue, anIsEditBox)
+
+		tIsRebuilt = false;
+
 		tTable = aComboBox:GetAttribute("combo_table");
 		if not tTable then return; end
 
@@ -1523,9 +1527,26 @@ do
 				tTexture = _G[aComboBox:GetName() .. "SelectPanelItem" .. tIndex .. "CheckTexture"];
 			end
 
+			if not tTexture and not tIsRebuilt then
+				tIsRebuilt = true;
+
+				VUHDO_lnfComboInitItems(aComboBox);
+
+				if (aComboBox.isScrollable) then
+					tTexture = _G[aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex .. "CheckTexture"];
+				elseif (tIndex > 500) then
+					break;
+				else
+					tTexture = _G[aComboBox:GetName() .. "SelectPanelItem" .. tIndex .. "CheckTexture"];
+				end
+			end
+
 			if tArrayModel then
-				if tArrayModel[tInfo[1]] then tTexture:Show();
-				else tTexture:Hide(); end
+				if tArrayModel[tInfo[1]] then
+					if tTexture then tTexture:Show(); end
+				else
+					if tTexture then tTexture:Hide(); end
+				end
 			else
 				if aValue == tInfo[1] then
 					if _G[aComboBox:GetName() .. "EditBox"] then
@@ -1533,9 +1554,10 @@ do
 					else
 						_G[aComboBox:GetName() .. "Text"]:SetText(tInfo[2]);
 					end
-					tTexture:Show();
+
+					if tTexture then tTexture:Show(); end
 				else
-					tTexture:Hide();
+					if tTexture then tTexture:Hide(); end
 				end
 			end
 		end

@@ -120,10 +120,14 @@ local VUHDO_textColor;
 local VUHDO_copyColorTo;
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToTexture;
+local VUHDO_clearBooleanOverlays;
+local VUHDO_clearUnitAuraFrames;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_HEALING_HOTS;
 local VUHDO_RAID;
+local VUHDO_AURA_FRAMES;
+
 local sIsClusterIcons;
 local sIsOthersHots;
 
@@ -135,6 +139,7 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_ACTIVE_HOTS = _G["VUHDO_ACTIVE_HOTS"];
 	VUHDO_ACTIVE_HOTS_OTHERS = _G["VUHDO_ACTIVE_HOTS_OTHERS"];
+	VUHDO_AURA_FRAMES = _G["VUHDO_AURA_FRAMES"];
 	-- functions
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
@@ -155,6 +160,8 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
 	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
+	VUHDO_clearBooleanOverlays = _G["VUHDO_clearBooleanOverlays"];
+	VUHDO_clearUnitAuraFrames = _G["VUHDO_clearUnitAuraFrames"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sHotCols = sBarColors["HOTS"];
@@ -285,276 +292,281 @@ local function VUHDO_noOp() end
 
 
 --
-local tDuration2;
-local tChargeTexture;
-local tIsHotShowIcon;
-local tIsChargeShown;
-local tIcon;
-local tTimer;
-local tCounter;
-local tClock;
-local tDuration;
-local tHotCfg;
-local tIsChargeAlpha;
-local tChargeColor;
-local tStarted;
-local tClockDuration;
-local tOpacity, tTextOpacity;
-local tHotColor;
-local tTimes;
-local tWorkingHotColor = { };
-local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTimes, anIcon, aDuration, aShieldCharges, aColor, anIndex, aClipL, aClipR, aClipT, aClipB)
+local VUHDO_customizeHotIcons;
+do
+	local tDuration2;
+	local tChargeTexture;
+	local tIsHotShowIcon;
+	local tIsChargeShown;
+	local tIcon;
+	local tTimer;
+	local tCounter;
+	local tClock;
+	local tDuration;
+	local tHotCfg;
+	local tIsChargeAlpha;
+	local tChargeColor;
+	local tStarted;
+	local tClockDuration;
+	local tOpacity, tTextOpacity;
+	local tHotColor;
+	local tTimes;
+	local tWorkingHotColor = { };
+	function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTimes, anIcon, aDuration, aShieldCharges, aColor, anIndex, aClipL, aClipR, aClipT, aClipB)
 
-	tHotCfg = sBarColors[VUHDO_HOT_CFGS[anIndex]];
-	tIcon = VUHDO_getBarIcon(aButton, anIndex);
-	
-	-- Noch nicht erstellt von redraw
-	if not tIcon then
-		return;
-	end
+		tHotCfg = sBarColors[VUHDO_HOT_CFGS[anIndex]];
+		tIcon = VUHDO_getBarIcon(aButton, anIndex);
+		
+		-- Noch nicht erstellt von redraw
+		if not tIcon then
+			return;
+		end
 
-	local VUHDO_UIFrameFlash = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlash"] or VUHDO_noOp;
-	local VUHDO_UIFrameFlashStop = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlashStop"] or VUHDO_noOp;
+		local VUHDO_UIFrameFlash = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlash"] or VUHDO_noOp;
+		local VUHDO_UIFrameFlashStop = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlashStop"] or VUHDO_noOp;
 
-	if not aRest then
-		VUHDO_UIFrameFlashStop(tIcon);
-		VUHDO_getBarIconFrame(aButton, anIndex):Hide();
+		if not aRest then
+			VUHDO_UIFrameFlashStop(tIcon);
+			VUHDO_getBarIconFrame(aButton, anIndex):Hide();
 
-		return;
-	else
-		VUHDO_getBarIconFrame(aButton, anIndex):Show();
-	end
-
-	tTimer = VUHDO_getBarIconTimer(aButton, anIndex);
-	tCounter = VUHDO_getBarIconCounter(aButton, anIndex);
-	tClock = VUHDO_getBarIconClockOrStub(aButton, anIndex, tHotCfg["isClock"]);
-	tChargeTexture = VUHDO_getBarIconCharge(aButton, anIndex);
-
-	if aColor and aColor["useText"] and aColor["TR"] then
-		tCounter:SetTextColor(VUHDO_textColor(aColor));
-	end
-
-	tIsHotShowIcon = sIsHotShowIcon[aPanelNum];
-
-	if anIcon and (tIsHotShowIcon or aColor) then
-		if VUHDO_ATLAS_TEXTURES[anIcon] then
-			tIcon:SetAtlas(anIcon);
+			return;
 		else
-			tIcon:SetTexture(anIcon);
+			VUHDO_getBarIconFrame(aButton, anIndex):Show();
 		end
 
-		VUHDO_PixelUtil.ApplySettings(tIcon);
-	end
+		tTimer = VUHDO_getBarIconTimer(aButton, anIndex);
+		tCounter = VUHDO_getBarIconCounter(aButton, anIndex);
+		tClock = VUHDO_getBarIconClockOrStub(aButton, anIndex, tHotCfg["isClock"]);
+		tChargeTexture = VUHDO_getBarIconCharge(aButton, anIndex);
 
-	if not VUHDO_ATLAS_TEXTURES[anIcon] then
-		tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
-	end
-
-	aTimes = aTimes or 0;
-	tIsChargeShown = sIsChargesIcon[aPanelNum] and aTimes > 0;
-	
-	--@TESTING
-	--aTimes = floor(aRest / 3.5);
-
-	tTimes = aTimes > 4 and 4 or aTimes;
-
-	tIsChargeAlpha = false;
-
-	-- FIXME: useSlotColor no longer has a clear purpose
-	if aColor and aColor["useSlotColor"] then
-		tHotColor = VUHDO_copyColor(tHotCfg);
-	elseif aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
-		tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
-
-		if tTimes > 1 and not aColor["noStacksColor"] then
-			tChargeColor = sBarColors[VUHDO_CHARGE_COLORS[tTimes]];
-			if sHotCols["useColorBack"] then
-				tHotColor["R"], tHotColor["G"], tHotColor["B"], tHotColor["O"]
-					= tChargeColor["R"], tChargeColor["G"], tChargeColor["B"], tChargeColor["O"];
-				tIsChargeAlpha = true;
-			end
-			if sHotCols["useColorText"] then
-				tHotColor["TR"], tHotColor["TG"], tHotColor["TB"], tHotColor["TO"]
-					= tChargeColor["TR"], tChargeColor["TG"], tChargeColor["TB"], tChargeColor["TO"];
-			end
+		if aColor and aColor["useText"] and aColor["TR"] then
+			tCounter:SetTextColor(VUHDO_textColor(aColor));
 		end
 
-		if tHotColor["useText"] and not tIsHotShowIcon then
-			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
-		end
+		tIsHotShowIcon = sIsHotShowIcon[aPanelNum];
 
-	elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
-		tHotColor = VUHDO_copyColorTo(sHotCols["WARNING"], tWorkingHotColor);
-
-		-- FIXME: color swatch should set isOpacity but doesn't
-		if tHotColor["O"] then
-			tHotColor["useOpacity"] = true;
-		end
-
-		tTimer:SetTextColor(VUHDO_textColor(tHotColor));
-	else
-		tHotColor = VUHDO_copyColor(tHotCfg);
-
-		-- FIXME: color swatch should set isOpacity but doesn't
-		if tHotColor["O"] then
-			tHotColor["useOpacity"] = true;
-		end
-
-		if tIsHotShowIcon then
-			if aColor then
-				tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
+		if anIcon and (tIsHotShowIcon or aColor) then
+			if VUHDO_ATLAS_TEXTURES[anIcon] then
+				tIcon:SetAtlas(anIcon);
 			else
-				tHotColor["R"], tHotColor["G"], tHotColor["B"] = 1, 1, 1;
+				tIcon:SetTexture(anIcon);
 			end
-		elseif tTimes <= 1 or not sHotCols["useColorText"] then
-			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+
+			VUHDO_PixelUtil.ApplySettings(tIcon);
 		end
 
-		if tTimes > 1 then
-			tChargeColor = sBarColors[VUHDO_CHARGE_COLORS[tTimes]];
-			if sHotCols["useColorBack"] then
-				tHotColor["R"], tHotColor["G"], tHotColor["B"], tHotColor["O"]
-					= tChargeColor["R"], tChargeColor["G"], tChargeColor["B"], tChargeColor["O"];
-				tIsChargeAlpha = true;
+		if not VUHDO_ATLAS_TEXTURES[anIcon] then
+			tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
+		end
+
+		aTimes = aTimes or 0;
+		tIsChargeShown = sIsChargesIcon[aPanelNum] and aTimes > 0;
+		
+		--@TESTING
+		--aTimes = floor(aRest / 3.5);
+
+		tTimes = aTimes > 4 and 4 or aTimes;
+
+		tIsChargeAlpha = false;
+
+		-- FIXME: useSlotColor no longer has a clear purpose
+		if aColor and aColor["useSlotColor"] then
+			tHotColor = VUHDO_copyColor(tHotCfg);
+		elseif aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
+			tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
+
+			if tTimes > 1 and not aColor["noStacksColor"] then
+				tChargeColor = sBarColors[VUHDO_CHARGE_COLORS[tTimes]];
+				if sHotCols["useColorBack"] then
+					tHotColor["R"], tHotColor["G"], tHotColor["B"], tHotColor["O"]
+						= tChargeColor["R"], tChargeColor["G"], tChargeColor["B"], tChargeColor["O"];
+					tIsChargeAlpha = true;
+				end
+				if sHotCols["useColorText"] then
+					tHotColor["TR"], tHotColor["TG"], tHotColor["TB"], tHotColor["TO"]
+						= tChargeColor["TR"], tChargeColor["TG"], tChargeColor["TB"], tChargeColor["TO"];
+				end
 			end
-			if sHotCols["useColorText"] then
-				tHotColor["TR"], tHotColor["TG"], tHotColor["TB"], tHotColor["TO"]
-					= tChargeColor["TR"], tChargeColor["TG"], tChargeColor["TB"], tChargeColor["TO"];
+
+			if tHotColor["useText"] and not tIsHotShowIcon then
 				tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 			end
-		end
-	end
 
-	if tHotColor and (tIsChargeAlpha or tHotColor["useOpacity"]) and tHotColor["O"] then
-		tOpacity = tHotColor["O"];
-		tTextOpacity = tHotColor["TO"];
-	else
-		tOpacity = nil;
-		tTextOpacity = nil;
-	end
+		elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
+			tHotColor = VUHDO_copyColorTo(sHotCols["WARNING"], tWorkingHotColor);
 
-	if tHotColor and tHotColor["useBackground"] and tHotColor["R"] then
-		if tOpacity then
-			tIcon:SetVertexColor(tHotColor["R"], tHotColor["G"], tHotColor["B"], tOpacity);
+			-- FIXME: color swatch should set isOpacity but doesn't
+			if tHotColor["O"] then
+				tHotColor["useOpacity"] = true;
+			end
+
+			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 		else
-			tIcon:SetVertexColor(tHotColor["R"], tHotColor["G"], tHotColor["B"]);
-		end
-	else
-		if tOpacity then
-			tIcon:SetVertexColor(1, 1, 1, tOpacity);
-		else
-			tIcon:SetVertexColor(1, 1, 1);
-		end
-	end
+			tHotColor = VUHDO_copyColor(tHotCfg);
 
-	if aRest == 999 then -- Other players' HoTs
-		if aTimes > 0 then
+			-- FIXME: color swatch should set isOpacity but doesn't
+			if tHotColor["O"] then
+				tHotColor["useOpacity"] = true;
+			end
+
+			if tIsHotShowIcon then
+				if aColor then
+					tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
+				else
+					tHotColor["R"], tHotColor["G"], tHotColor["B"] = 1, 1, 1;
+				end
+			elseif tTimes <= 1 or not sHotCols["useColorText"] then
+				tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+			end
+
+			if tTimes > 1 then
+				tChargeColor = sBarColors[VUHDO_CHARGE_COLORS[tTimes]];
+				if sHotCols["useColorBack"] then
+					tHotColor["R"], tHotColor["G"], tHotColor["B"], tHotColor["O"]
+						= tChargeColor["R"], tChargeColor["G"], tChargeColor["B"], tChargeColor["O"];
+					tIsChargeAlpha = true;
+				end
+				if sHotCols["useColorText"] then
+					tHotColor["TR"], tHotColor["TG"], tHotColor["TB"], tHotColor["TO"]
+						= tChargeColor["TR"], tChargeColor["TG"], tChargeColor["TB"], tChargeColor["TO"];
+					tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+				end
+			end
+		end
+
+		if tHotColor and (tIsChargeAlpha or tHotColor["useOpacity"]) and tHotColor["O"] then
+			tOpacity = tHotColor["O"];
+			tTextOpacity = tHotColor["TO"];
+		else
+			tOpacity = nil;
+			tTextOpacity = nil;
+		end
+
+		if tHotColor and tHotColor["useBackground"] and tHotColor["R"] then
 			if tOpacity then
-				tIcon:SetAlpha(tOpacity);
+				tIcon:SetVertexColor(tHotColor["R"], tHotColor["G"], tHotColor["B"], tOpacity);
+			else
+				tIcon:SetVertexColor(tHotColor["R"], tHotColor["G"], tHotColor["B"]);
+			end
+		else
+			if tOpacity then
+				tIcon:SetVertexColor(1, 1, 1, tOpacity);
+			else
+				tIcon:SetVertexColor(1, 1, 1);
+			end
+		end
+
+		if aRest == 999 then -- Other players' HoTs
+			if aTimes > 0 then
+				if tOpacity then
+					tIcon:SetAlpha(tOpacity);
+				end
+
+				tCounter:SetText(aTimes > 1 and aTimes or "");
+			else
+				VUHDO_UIFrameFlashStop(tIcon);
+				tIcon:SetAlpha(0);
+				tCounter:SetText("");
+			end
+			
+			tTimer:SetText("");
+			tClock:SetAlpha(0);
+
+			return;
+
+		elseif aRest > 0 then
+			if aRest < 10 or tHotCfg["isFullDuration"] then
+				tDuration = (tHotCfg["countdownMode"] == 2 and aRest < sHotCols["WARNING"]["lowSecs"])
+					and format("%.1f", aRest) or format("%d", aRest);
+			elseif tIsChargeShown or (tOpacity and tOpacity > 0) then
+				tDuration = "";
+			else
+				tDuration = "X";
+			end
+
+			tTimer:SetText(tDuration);
+
+			tStarted = floor(10 * (GetTime() - aDuration + aRest) + 0.5) * 0.1;
+			tClockDuration = tClock:GetCooldownDuration() * 0.001;
+
+			local tMinDuration = max(aDuration, 0.1); -- min 0.1 sec duration for visibility
+
+			if tMinDuration > 0 and
+				(tClock:GetAlpha() == 0 or (tClock:GetAttribute("started") or tStarted) ~= tStarted or 
+				(tClock:IsVisible() and (tMinDuration > tClockDuration or tMinDuration < 0.1))) then
+				tClock:SetCooldown(tStarted, tMinDuration);
+				tClock:SetAttribute("started", tStarted);
+
+				tClock:SetAlpha(1);
+			end
+
+			if tOpacity then
+				tIcon:SetAlpha(((sIsFade or tHotCfg["isFadeOut"]) and aRest < 10) and tOpacity * aRest * 0.1 or tOpacity);
+			end
+
+			if aRest > 5 then
+				VUHDO_UIFrameFlashStop(tIcon);
+				tTimer:SetTextColor(1, 1, 1, tTextOpacity or 1);
+			else
+				tDuration2 = aRest * 0.2;
+				tTimer:SetTextColor(1, tDuration2, tDuration2, tTextOpacity or 1);
+				VUHDO_UIFrameFlash(tIcon, 0.2, 0.1, 5, true, 0, 0.1);
 			end
 
 			tCounter:SetText(aTimes > 1 and aTimes or "");
+
 		else
 			VUHDO_UIFrameFlashStop(tIcon);
-			tIcon:SetAlpha(0);
-			tCounter:SetText("");
+			tTimer:SetText("");
+			tClock:SetAlpha(0);
+			tCounter:SetText(aTimes > 1 and aTimes or "");
+
+			if tOpacity then
+				tIcon:SetAlpha(tOpacity);
+			end
 		end
-		
-		tTimer:SetText("");
-		tClock:SetAlpha(0);
+
+		-- FIXME: this whole function needs refactored to logically group (and dedupe) setting the icon, timer and charges colors
+		if aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
+			-- respect the default timer text color set above based on remaining duration
+		elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
+			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+		else
+			if not tIsHotShowIcon and (tTimes <= 1 or not sHotCols["useColorText"]) then
+				tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+			end
+
+			if tTimes > 1 and sHotCols["useColorText"] then
+				tTimer:SetTextColor(VUHDO_textColor(tHotColor));
+			end
+		end
+
+		if tIsChargeShown then
+			tChargeTexture:SetTexture(VUHDO_CHARGE_TEXTURES[tTimes]);
+			VUHDO_PixelUtil.ApplySettings(tChargeTexture);
+			tChargeTexture:SetVertexColor(VUHDO_backColorWithFallback(tHotColor));
+			
+			tChargeTexture:Show();
+		elseif aShieldCharges > 0 then
+			if tIsHotShowIcon then
+				tHotColor = tHotCfg;
+			end
+
+			tChargeTexture:SetTexture(VUHDO_SHIELD_TEXTURES[aShieldCharges]);
+			VUHDO_PixelUtil.ApplySettings(tChargeTexture);
+			
+			if tHotColor and tHotColor["R"] then
+				tChargeTexture:SetVertexColor(tHotColor["R"] + 0.15, tHotColor["G"] + 0.15, tHotColor["B"] + 0.15, tHotColor["O"]);
+			end
+			
+			tChargeTexture:Show();
+		else
+			tChargeTexture:Hide();
+		end
 
 		return;
 
-	elseif aRest > 0 then
-		if aRest < 10 or tHotCfg["isFullDuration"] then
-			tDuration = (tHotCfg["countdownMode"] == 2 and aRest < sHotCols["WARNING"]["lowSecs"])
-				and format("%.1f", aRest) or format("%d", aRest);
-		elseif tIsChargeShown or (tOpacity and tOpacity > 0) then
-			tDuration = "";
-		else
-			tDuration = "X";
-		end
-
-		tTimer:SetText(tDuration);
-
-		tStarted = floor(10 * (GetTime() - aDuration + aRest) + 0.5) * 0.1;
-		tClockDuration = tClock:GetCooldownDuration() * 0.001;
-
-		local tMinDuration = max(aDuration, 0.1); -- min 0.1 sec duration for visibility
-
-		if tMinDuration > 0 and
-			(tClock:GetAlpha() == 0 or (tClock:GetAttribute("started") or tStarted) ~= tStarted or 
-			(tClock:IsVisible() and (tMinDuration > tClockDuration or tMinDuration < 0.1))) then
-			tClock:SetCooldown(tStarted, tMinDuration);
-			tClock:SetAttribute("started", tStarted);
-
-			tClock:SetAlpha(1);
-		end
-
-		if tOpacity then
-			tIcon:SetAlpha(((sIsFade or tHotCfg["isFadeOut"]) and aRest < 10) and tOpacity * aRest * 0.1 or tOpacity);
-		end
-
-		if aRest > 5 then
-			VUHDO_UIFrameFlashStop(tIcon);
-			tTimer:SetTextColor(1, 1, 1, tTextOpacity or 1);
-		else
-			tDuration2 = aRest * 0.2;
-			tTimer:SetTextColor(1, tDuration2, tDuration2, tTextOpacity or 1);
-			VUHDO_UIFrameFlash(tIcon, 0.2, 0.1, 5, true, 0, 0.1);
-		end
-
-		tCounter:SetText(aTimes > 1 and aTimes or "");
-
-	else
-		VUHDO_UIFrameFlashStop(tIcon);
-		tTimer:SetText("");
-		tClock:SetAlpha(0);
-		tCounter:SetText(aTimes > 1 and aTimes or "");
-
-		if tOpacity then
-			tIcon:SetAlpha(tOpacity);
-		end
 	end
-
-	-- FIXME: this whole function needs refactored to logically group (and dedupe) setting the icon, timer and charges colors
-	if aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
-		-- respect the default timer text color set above based on remaining duration
-	elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
-		tTimer:SetTextColor(VUHDO_textColor(tHotColor));
-	else
-		if not tIsHotShowIcon and (tTimes <= 1 or not sHotCols["useColorText"]) then
-			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
-		end
-
-		if tTimes > 1 and sHotCols["useColorText"] then
-			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
-		end
-	end
-
-	if tIsChargeShown then
-		tChargeTexture:SetTexture(VUHDO_CHARGE_TEXTURES[tTimes]);
-		VUHDO_PixelUtil.ApplySettings(tChargeTexture);
-		tChargeTexture:SetVertexColor(VUHDO_backColorWithFallback(tHotColor));
-		
-		tChargeTexture:Show();
-	elseif aShieldCharges > 0 then
-		if tIsHotShowIcon then
-			tHotColor = tHotCfg;
-		end
-
-		tChargeTexture:SetTexture(VUHDO_SHIELD_TEXTURES[aShieldCharges]);
-		VUHDO_PixelUtil.ApplySettings(tChargeTexture);
-		
-		if tHotColor and tHotColor["R"] then
-			tChargeTexture:SetVertexColor(tHotColor["R"] + 0.15, tHotColor["G"] + 0.15, tHotColor["B"] + 0.15, tHotColor["O"]);
-		end
-		
-		tChargeTexture:Show();
-	else
-		tChargeTexture:Hide();
-	end
-
 end
 
 
@@ -637,6 +649,8 @@ end
 
 --
 local tHotIconFrame;
+local tButtonName;
+local tButtonAuras;
 local function VUHDO_removeButtonHots(aButton)
 	for tCnt = 1, 5 do
 		VUHDO_UIFrameFlashStop(VUHDO_getBarIcon(aButton, tCnt));
@@ -651,9 +665,44 @@ local function VUHDO_removeButtonHots(aButton)
 	end
 
 	for tCnt = 9, 11 do
-		VUHDO_getHealthBar(aButton, tCnt):SetValue(0);
+		tHotBar = VUHDO_getHealthBar(aButton, tCnt);
+
+		if tHotBar then
+			tHotBar:SetValue(0);
+		end
 	end
 	VUHDO_getBarRoleIcon(aButton, 51):Hide(); -- Swiftmend indicator
+end
+
+
+
+--
+function VUHDO_resetButtonVisuals(aButton)
+
+	if not aButton then
+		return;
+	end
+
+	VUHDO_removeButtonHots(aButton);
+	VUHDO_clearBooleanOverlays(aButton);
+	VUHDO_clearUnitAuraFrames(aButton);
+
+	tButtonName = aButton:GetName();
+	tButtonAuras = VUHDO_AURA_FRAMES[tButtonName];
+
+	if tButtonAuras then
+		for tAnchorIndex, tAnchorFrames in pairs(tButtonAuras) do
+			for _, tAuraFrame in pairs(tAnchorFrames) do
+				if tAuraFrame then
+					tAuraFrame:SetAlpha(0);
+					tAuraFrame:Hide();
+				end
+			end
+		end
+	end
+
+	return;
+
 end
 
 

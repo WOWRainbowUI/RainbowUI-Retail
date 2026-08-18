@@ -49,6 +49,9 @@ local VUHDO_getModelType;
 local VUHDO_isUnitInModel;
 
 local sEmpty = { };
+local sScratchUnitButtons;
+local sScratchUnitButtonsPanel;
+
 
 
 --
@@ -543,6 +546,21 @@ local VUHDO_RAID_SORTERS = {
 
 
 --
+local function VUHDO_sortPlayerFirstComparator(aUnitId, anotherUnitId)
+
+	if sIsPlayerFirst and aUnitId == "player" then
+		return true;
+	elseif sIsPlayerFirst and anotherUnitId == "player" then
+		return false;
+	else
+		return aUnitId < anotherUnitId;
+	end
+
+end
+
+
+
+--
 local tSorted = { };
 local tMembers;
 local tNoExists;
@@ -566,17 +584,7 @@ function VUHDO_getGroupMembersSorted(anIdentifier, aSortCriterion, aPanelNum, aM
 		end
 
 		if 70 == anIdentifier or tNoExists then -- VUHDO_ID_VEHICLES
-			tsort(tSorted,
-				function(aUnitId, anotherUnitId)
-					if sIsPlayerFirst and aUnitId == "player" then
-						return true;
-					elseif sIsPlayerFirst and anotherUnitId == "player" then
-						return false;
-					else
-						return aUnitId < anotherUnitId;
-					end
-				end
-			);
+			tsort(tSorted, VUHDO_sortPlayerFirstComparator);
 		else
 			sPanelNum = aPanelNum;
 			tsort(tSorted, VUHDO_RAID_SORTERS[aSortCriterion]);
@@ -598,22 +606,55 @@ end
 
 
 --
+function VUHDO_setUnitButtonBuildScratch(aScratchButtons, aScratchButtonsPanel)
+
+	sScratchUnitButtons = aScratchButtons;
+	sScratchUnitButtonsPanel = aScratchButtonsPanel;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_clearUnitButtonBuildScratch()
+
+	sScratchUnitButtons = nil;
+	sScratchUnitButtonsPanel = nil;
+
+	return;
+
+end
+
+
+
+--
+local tUnitButtons;
+local tUnitButtonsPanel;
 local tUnit;
 function VUHDO_addUnitButton(aHealButton, aPanelNum)
 
-	tUnit = aHealButton:GetAttribute("unit");
+	tUnitButtons = sScratchUnitButtons or VUHDO_UNIT_BUTTONS;
+	tUnitButtonsPanel = sScratchUnitButtonsPanel or VUHDO_UNIT_BUTTONS_PANEL;
 
-	if not VUHDO_UNIT_BUTTONS[tUnit] then
-		VUHDO_UNIT_BUTTONS[tUnit] = { };
-		VUHDO_UNIT_BUTTONS_PANEL[tUnit] = { };
+	tUnit = aHealButton["raidid"];
+
+	if not tUnit then
+		return;
 	end
 
-	if not VUHDO_UNIT_BUTTONS_PANEL[tUnit][aPanelNum] then
-		VUHDO_UNIT_BUTTONS_PANEL[tUnit][aPanelNum] = { };
+	if not tUnitButtons[tUnit] then
+		tUnitButtons[tUnit] = { };
+		tUnitButtonsPanel[tUnit] = { };
 	end
 
-	tinsert(VUHDO_UNIT_BUTTONS[tUnit], aHealButton);
-	tinsert(VUHDO_UNIT_BUTTONS_PANEL[tUnit][aPanelNum], aHealButton);
+	if not tUnitButtonsPanel[tUnit][aPanelNum] then
+		tUnitButtonsPanel[tUnit][aPanelNum] = { };
+	end
+
+	tinsert(tUnitButtons[tUnit], aHealButton);
+	tinsert(tUnitButtonsPanel[tUnit][aPanelNum], aHealButton);
 
 	VUHDO_refreshPrivateAuras(aPanelNum, aHealButton, tUnit);
 

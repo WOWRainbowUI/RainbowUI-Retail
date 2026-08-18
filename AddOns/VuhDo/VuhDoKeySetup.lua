@@ -133,23 +133,29 @@ end
 
 --
 local tClickButton;
-function VUHDO_getDropdownClickButton(aButton)
+function VUHDO_getDropdownClickButton(aButton, anIsCreate)
 
 	tClickButton = aButton["vuhdo_dropdown_click_button"];
 
-	if tClickButton or InCombatLockdown() then
+	if tClickButton then
 		return tClickButton;
 	end
 
-	tClickButton = CreateFrame("Button", nil, aButton, "SecureActionButtonTemplate");
+	if not anIsCreate or InCombatLockdown() then
+		return tClickButton;
+	end
+
+	tClickButton = CreateFrame("Button", format("VuhDoDropdownClick%s", aButton:GetName()), aButton, "SecureActionButtonTemplate");
 
 	tClickButton:EnableMouse(false);
 	tClickButton:RegisterForClicks("AnyUp");
 
-	VUHDO_PixelUtil.SetSize(tClickButton, 1, 1);
+	VUHDO_PixelUtil.SetPoint(tClickButton, "TOPLEFT", aButton, "TOPLEFT", 0, 0);
+	VUHDO_PixelUtil.SetPoint(tClickButton, "BOTTOMRIGHT", aButton, "BOTTOMRIGHT", 0, 0);
 
 	VUHDO_safeSetAttribute(tClickButton, "useparent-unit", true);
 	VUHDO_safeSetAttribute(tClickButton, "useOnKeyDown", false);
+	VUHDO_safeSetAttribute(tClickButton, "type", "cancelaura");
 
 	aButton["vuhdo_dropdown_click_button"] = tClickButton;
 
@@ -162,7 +168,7 @@ end
 --
 local function VUHDO_setupDropdownButtonAttributes(aButton, aModiKey, aButtonId)
 
-	tClickButton = VUHDO_getDropdownClickButton(aButton);
+	tClickButton = VUHDO_getDropdownClickButton(aButton, true);
 
 	if not tClickButton then
 		VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "togglemenu");
@@ -182,9 +188,28 @@ end
 
 --
 local tBinding;
+local tHasDropdown;
 local function VUHDO_setupDropdownClickButtonAttributes(aButton)
 
-	tClickButton = VUHDO_getDropdownClickButton(aButton);
+	tHasDropdown = false;
+
+	for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
+		for tCnt = 1, VUHDO_NUM_MOUSE_BUTTONS do
+			tBinding = VUHDO_SPELL_ASSIGNMENTS[tNoMinus .. tCnt];
+
+			if tBinding and tBinding[3] and strlower(tBinding[3]) == "dropdown" then
+				tHasDropdown = true;
+
+				break;
+			end
+		end
+
+		if tHasDropdown then
+			break;
+		end
+	end
+
+	tClickButton = VUHDO_getDropdownClickButton(aButton, tHasDropdown);
 
 	if not tClickButton then
 		return;
@@ -616,19 +641,25 @@ end
 local tDebuffFrame;
 function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceTarget, anIsTgButton, anIsIcButton)
 
+	if anIsTgButton then
+		VUHDO_safeSetAttribute(aButton, "type", "cancelaura");
+	end
+
 	if aUnit and not anIsIcButton then
-		VUHDO_safeSetAttribute(aButton, "unit", aUnit);
-		aButton["raidid"] = aUnit;
+		if VUHDO_safeSetAttribute(aButton, "unit", aUnit) then
+			aButton["raidid"] = aUnit;
 
-		VUHDO_syncAuraContainersForButton(aButton, aUnit);
+			VUHDO_syncAuraContainersForButton(aButton, aUnit);
 
-		if not anIsTgButton then
-			for tCnt = 40, VUHDO_CONFIG["CUSTOM_DEBUFF"]["max_num"] + 39 do
-				tDebuffFrame = VUHDO_getBarIconFrame(aButton, tCnt);
+			if not anIsTgButton then
+				for tCnt = 40, VUHDO_CONFIG["CUSTOM_DEBUFF"]["max_num"] + 39 do
+					tDebuffFrame = VUHDO_getBarIconFrame(aButton, tCnt);
 
-				if tDebuffFrame then
-					VUHDO_safeSetAttribute(tDebuffFrame, "unit", aUnit);
-					tDebuffFrame["raidid"] = aUnit;
+					if tDebuffFrame then
+						if VUHDO_safeSetAttribute(tDebuffFrame, "unit", aUnit) then
+							tDebuffFrame["raidid"] = aUnit;
+						end
+					end
 				end
 			end
 		end

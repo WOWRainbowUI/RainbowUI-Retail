@@ -26,6 +26,10 @@ local VUHDO_refreshAllUnitAuras;
 local VUHDO_redisplayAllUnitAuras;
 local VUHDO_calculateDerivedOrientation;
 local VUHDO_updateToggledUnitEvents;
+local VUHDO_buildAllIndicatorAlphaChains;
+local VUHDO_buildBooleanOverlaysForButton;
+local VUHDO_buildTargetIndicatorAlphaChains;
+local VUHDO_resetButtonVisuals;
 
 local VUHDO_STD_BACKDROP = nil;
 local VUHDO_DESIGN_BACKDROP = nil;
@@ -61,7 +65,7 @@ local VUHDO_SEMAPHORE_CONFIG = {
 	["BUTTON_POSITION_SAFETY_FACTOR"] = 1.5,
 	["PANEL_REDRAW_SAFETY_FACTOR"] = 4.0,
 
-	["MIN_TIMEOUT_MS"] = 5,
+	["MIN_TIMEOUT_MS"] = 250,
 
 	["PARTY_THRESHOLD"] = 5,
 	["SMALL_RAID_THRESHOLD"] = 15,
@@ -84,6 +88,28 @@ local VUHDO_SEMAPHORE_CONFIG = {
 local sButtonInitTimeouts = { };
 local sButtonPositionTimeouts = { };
 local sPanelRedrawTimeout = 0;
+
+
+
+--
+local tReleaseSemaphoreName;
+local function VUHDO_releaseStoredSemaphore(aSemaphore)
+
+	if not aSemaphore then
+		return;
+	end
+
+	tReleaseSemaphoreName = aSemaphore["name"];
+
+	if tReleaseSemaphoreName then
+		VUHDO_releaseSemaphore(tReleaseSemaphoreName);
+	end
+
+	return;
+
+end
+
+
 
 local sGrowthOffsets = {
 	["LEFT"] = { -1, 0 },
@@ -116,6 +142,10 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	VUHDO_redisplayAllUnitAuras = _G["VUHDO_redisplayAllUnitAuras"];
 	VUHDO_calculateDerivedOrientation = _G["VUHDO_calculateDerivedOrientation"];
 	VUHDO_updateToggledUnitEvents = _G["VUHDO_updateToggledUnitEvents"];
+	VUHDO_buildAllIndicatorAlphaChains = _G["VUHDO_buildAllIndicatorAlphaChains"];
+	VUHDO_buildBooleanOverlaysForButton = _G["VUHDO_buildBooleanOverlaysForButton"];
+	VUHDO_buildTargetIndicatorAlphaChains = _G["VUHDO_buildTargetIndicatorAlphaChains"];
+	VUHDO_resetButtonVisuals = _G["VUHDO_resetButtonVisuals"];
 
 	VUHDO_panelRedrawCustomDebuffsInitLocalOverrides();
 	VUHDO_panelRedrawHeadersInitLocalOverrides();
@@ -720,9 +750,19 @@ end
 
 do
 	--
+	local tAggroTexture;
 	function VUHDO_initAggroTexture(aButton, aHealthBar)
 
-		VUHDO_PixelUtil.Hide(VUHDO_getAggroTexture(aHealthBar));
+		tAggroTexture = VUHDO_getAggroTexture(aHealthBar);
+
+		VUHDO_PixelUtil.ClearAllPoints(tAggroTexture);
+
+		VUHDO_PixelUtil.SetPoint(tAggroTexture, "TOPLEFT", aButton, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroTexture, "TOPRIGHT", aButton, "TOPRIGHT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroTexture, "BOTTOMLEFT", aButton, "BOTTOMLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroTexture, "BOTTOMRIGHT", aButton, "BOTTOMRIGHT", 0, 0);
+
+		VUHDO_PixelUtil.Hide(tAggroTexture);
 
 		return;
 
@@ -735,6 +775,9 @@ do
 	local tInfo;
 	local tManaHeight;
 	local tIsManaBouquet;
+	local tIsManaLayoutActive;
+	local tManaLayoutHeight;
+	local tHealthLayoutHeight;
 	function VUHDO_initManaBar(aButton, aManaBar, aWidth, anIsForceBar, aPanelNum)
 
 		tIsManaBouquet = sIsManaBouquet[aPanelNum];
@@ -750,7 +793,11 @@ do
 		VUHDO_PixelUtil.SetWidth(aManaBar, aWidth);
 
 		aButton["regularHeight"] = sPanelConfig[aPanelNum]["barScaling"]["barHeight"];
-		aButton["manaBarLayoutHeight"] = 0;
+
+		tIsManaLayoutActive = aButton["manaBarLayoutHeight"] == nil or aButton["manaBarLayoutHeight"] > 0;
+		tManaLayoutHeight = (tIsManaBouquet and tIsManaLayoutActive) and sPanelConfig[aPanelNum]["barScaling"]["manaBarHeight"] or 0;
+
+		aButton["manaBarLayoutHeight"] = tManaLayoutHeight;
 
 		if tIsManaBouquet then
 			VUHDO_PixelUtil.Show(aManaBar);
@@ -761,8 +808,19 @@ do
 				aManaBar:SetValue(aManaBar["isInverted"] and 1 or 0);
 			end
 
-			if (VUHDO_getHealthBar(aButton, 1):GetHeight() == 0) then
-				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 1), sPanelConfig[aPanelNum]["barHeight"]);
+			if anIsForceBar then
+				if VUHDO_getHealthBar(aButton, 1):GetHeight() == 0 then
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 1), sPanelConfig[aPanelNum]["barHeight"]);
+				end
+			else
+				tHealthLayoutHeight = aButton["regularHeight"] - tManaLayoutHeight;
+
+				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 1), tHealthLayoutHeight);
+
+				if not VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"] then
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tHealthLayoutHeight);
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tHealthLayoutHeight);
+				end
 			end
 		else
 			VUHDO_PixelUtil.Hide(aManaBar);
@@ -1830,9 +1888,6 @@ do
 		tPredTurnAxisHealAbsorb = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealAbsorb"];
 		tPredTurnAxisHealthLoss = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealthLoss"];
 
-		tPredHealthBar:SetMinMaxValues(0, 1);
-		tPredHealthBar:SetValue(0);
-
 		VUHDO_setStatusBarOrientation(tPredHealthBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
 
 		tPredIncBar:ClearAllPoints();
@@ -2073,19 +2128,29 @@ do
 	local tIsInverted;
 	local tOrientation;
 	local tClickPar;
+	local tStatusTexture;
 	function VUHDO_initHealButton(aButton, aPanelNum)
 
 		tClickPar = VUHDO_CONFIG["ON_MOUSE_UP"] and "AnyUp" or "AnyDown";
 		aButton:RegisterForClicks(tClickPar);
 
-		if sPanelConfig[aPanelNum]["statusTexture"] then
-			for tCnt =  1, 22 do
-				if 20 ~= tCnt and 21 ~= tCnt and 22 ~= tCnt then
-					tBar = VUHDO_getHealthBar(aButton, tCnt);
+		tStatusTexture = sPanelConfig[aPanelNum]["statusTexture"];
 
-					if tBar then
-						tBar:SetStatusBarTexture(sPanelConfig[aPanelNum]["statusTexture"]);
+		for tCnt = 1, 22 do
+			if 20 ~= tCnt and 21 ~= tCnt and 22 ~= tCnt then
+				tBar = VUHDO_getHealthBar(aButton, tCnt);
+
+				if tBar then
+					tBar["forceImmediate"] = true;
+
+					if tStatusTexture and tBar["statusTexturePath"] ~= tStatusTexture then
+						tBar:SetStatusBarTexture(tStatusTexture);
+
 						tBar["statusTexture"] = tBar:GetStatusBarTexture();
+						tBar["statusTexturePath"] = tStatusTexture;
+
+						tBar:SetToTargetValue();
+
 						VUHDO_PixelUtil.ApplySettings(tBar["statusTexture"]);
 					end
 				end
@@ -2170,10 +2235,9 @@ do
 
 		if sSecretsEnabled then
 			VUHDO_buildAllIndicatorAlphaChains(aButton, aPanelNum);
-
-			-- FIXME: alpha chains need fixed for target and target-of-target frames (e.g. range opacity not working)
-			--VUHDO_buildAllIndicatorAlphaChains(VUHDO_getTargetButton(aButton), aPanelNum);
-			--VUHDO_buildAllIndicatorAlphaChains(VUHDO_getTotButton(aButton), aPanelNum);
+			VUHDO_buildBooleanOverlaysForButton(aButton, aPanelNum);
+			VUHDO_buildTargetIndicatorAlphaChains(VUHDO_getTargetButton(aButton), aPanelNum);
+			VUHDO_buildTargetIndicatorAlphaChains(VUHDO_getTotButton(aButton), aPanelNum);
 
 			VUHDO_fixFrameLevels(true, aButton, aButton:GetFrameLevel(), aButton:GetChildren());
 		end
@@ -2401,6 +2465,9 @@ do
 		tNumButtons = VUHDO_getNumButtonsPanel(aPanelNum);
 
 		tCycleId = VUHDO_generateCycleId(aCycleId, true);
+
+		VUHDO_releaseStoredSemaphore(sButtonInitSemaphores[aPanelNum]);
+
 		sButtonInitSemaphores[aPanelNum] = VUHDO_createSemaphore("InitAllHealButtons_" .. aPanelNum .. "_" .. tCycleId, 0, tNumButtons, sButtonInitTimeouts[aPanelNum]);
 
 		if not sButtonInitSemaphores[aPanelNum] then
@@ -2408,9 +2475,9 @@ do
 		end
 
 		for tCnt = 1, tNumButtons do
-			VUHDO_deferTask(VUHDO_DEFER_INIT_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, tCnt);
-
-			sButtonInitSemaphores[aPanelNum]:increment();
+			if VUHDO_deferTask(VUHDO_DEFER_INIT_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, tCnt) then
+				sButtonInitSemaphores[aPanelNum]:increment();
+			end
 		end
 
 		VUHDO_deferTask(VUHDO_DEFER_INIT_ALL_HEAL_BUTTONS_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum);
@@ -2447,6 +2514,9 @@ do
 		end
 
 		tCycleId = VUHDO_generateCycleId(aCycleId, true);
+
+		VUHDO_releaseStoredSemaphore(sButtonPositionSemaphores[aPanelNum]);
+
 		sButtonPositionSemaphores[aPanelNum] = VUHDO_createSemaphore("PositionAllHealButtons_" .. aPanelNum .. "_" .. tCycleId, 0, tTotalButtons, sButtonPositionTimeouts[aPanelNum]);
 
 		if not sButtonPositionSemaphores[aPanelNum] then
@@ -2460,9 +2530,9 @@ do
 			tGroupArray = VUHDO_getGroupMembersSorted(tModelId, sPanelConfig[aPanelNum]["sortCriterion"], aPanelNum, tModelIndex);
 
 			for tGroupIndex, tUnit in ipairs(tGroupArray) do
-				VUHDO_deferTask(VUHDO_DEFER_POSITION_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tUnit, aPanelNum, tButtonIndex, tModelIndex, tModelId, tGroupIndex, tColumnIndex);
-
-				sButtonPositionSemaphores[aPanelNum]:increment();
+				if VUHDO_deferTask(VUHDO_DEFER_POSITION_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tUnit, aPanelNum, tButtonIndex, tModelIndex, tModelId, tGroupIndex, tColumnIndex) then
+					sButtonPositionSemaphores[aPanelNum]:increment();
+				end
 
 				tButtonIndex = tButtonIndex + 1;
 			end
@@ -2509,6 +2579,9 @@ do
 		end
 
 		tCycleId = VUHDO_generateCycleId();
+
+		VUHDO_releaseStoredSemaphore(sButtonInitSemaphores[aPanelNum]);
+
 		sButtonInitSemaphores[aPanelNum] = VUHDO_createSemaphore("RefreshInitButtons_" .. aPanelNum .. "_" .. tCycleId, 0, aMaxCount, sButtonInitTimeouts[aPanelNum]);
 
 		return sButtonInitSemaphores[aPanelNum];
@@ -2520,9 +2593,7 @@ do
 	--
 	function VUHDO_enqueueRefreshButtonInit(aPanelNum, aButtonIndex)
 
-		VUHDO_deferTask(VUHDO_DEFER_INIT_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, aButtonIndex);
-
-		if sButtonInitSemaphores[aPanelNum] then
+		if VUHDO_deferTask(VUHDO_DEFER_INIT_HEAL_BUTTON, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aPanelNum, aButtonIndex) and sButtonInitSemaphores[aPanelNum] then
 			sButtonInitSemaphores[aPanelNum]:increment();
 		end
 
@@ -2543,6 +2614,8 @@ do
 		tSemaphores = { sButtonInitSemaphores[aPanelNum] };
 
 		if VUHDO_waitForSemaphores(tSemaphores, aTaskType, aPriority, ...) then
+			VUHDO_releaseStoredSemaphore(sButtonInitSemaphores[aPanelNum]);
+
 			sButtonInitSemaphores[aPanelNum] = nil;
 
 			return true;
@@ -2684,6 +2757,10 @@ do
 
 		VUHDO_positionHealButton(tHealButton, aPanelNum);
 
+		if aUnit and (tHealButton["raidid"] ~= aUnit or tHealButton:GetAttribute("unit") ~= aUnit) then
+			VUHDO_resetButtonVisuals(tHealButton);
+		end
+
 		if aUnit then
 			VUHDO_setupAllHealButtonAttributes(tHealButton, aUnit, false, 70 == aModelId, false, false); -- VUHDO_ID_VEHICLES
 		end
@@ -2706,7 +2783,7 @@ do
 			VUHDO_PixelUtil.SetPoint(tHealButton, "TOPLEFT", tPanel:GetName(), "TOPLEFT", tXPos, -tYPos);
 		end
 
-		if tHealButton:GetAttribute("unit") then
+		if tHealButton["raidid"] then
 			VUHDO_addUnitButton(tHealButton, aPanelNum);
 		end
 
@@ -2782,6 +2859,8 @@ do
 			sRedrawPanelSemaphores[aPanelNum]:decrement();
 
 			if sRedrawPanelSemaphores[aPanelNum]["count"] == 0 then
+				VUHDO_releaseStoredSemaphore(sRedrawPanelSemaphores[aPanelNum]);
+
 				sRedrawPanelSemaphores[aPanelNum] = nil;
 
 				if sWaitingIndividualRedraws[aPanelNum] and #sWaitingIndividualRedraws[aPanelNum] > 0 then
@@ -3187,6 +3266,8 @@ do
 			return;
 		end
 
+		VUHDO_releaseStoredSemaphore(sRedrawAllPanelsSemaphore);
+
 		sRedrawAllPanelsSemaphore = VUHDO_createSemaphore("RedrawAllPanels_" .. tCycleId, 0, 10, sPanelRedrawTimeout);
 
 		if not sRedrawAllPanelsSemaphore then
@@ -3205,10 +3286,14 @@ do
 			end
 
 			if sButtonInitSemaphores[tPanelNum] then
+				VUHDO_releaseStoredSemaphore(sButtonInitSemaphores[tPanelNum]);
+
 				sButtonInitSemaphores[tPanelNum] = nil;
 			end
 
 			if sButtonPositionSemaphores[tPanelNum] then
+				VUHDO_releaseStoredSemaphore(sButtonPositionSemaphores[tPanelNum]);
+
 				sButtonPositionSemaphores[tPanelNum] = nil;
 			end
 		end
@@ -3232,6 +3317,7 @@ do
 		tPanel = VUHDO_getOrCreateActionPanel(aPanelNum);
 
 		VUHDO_initLocalVars(aPanelNum);
+
 		VUHDO_deferInitAllHealButtons(tPanel, aPanelNum, aCycleId);
 
 		if VUHDO_isConfigPanelShowing() then
@@ -3290,10 +3376,14 @@ do
 
 		VUHDO_updateToggledUnitEvents();
 
+		VUHDO_releaseStoredSemaphore(sRedrawAllPanelsSemaphore);
+
 		sRedrawAllPanelsSemaphore = nil;
 
 		for tPanelNum = 1, 10 do
 			if sRedrawPanelSemaphores[tPanelNum] then
+				VUHDO_releaseStoredSemaphore(sRedrawPanelSemaphores[tPanelNum]);
+
 				sRedrawPanelSemaphores[tPanelNum] = nil;
 			end
 		end

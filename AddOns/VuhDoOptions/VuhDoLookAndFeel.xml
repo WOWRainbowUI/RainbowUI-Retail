@@ -223,24 +223,6 @@
 </FontString>
 
 
-<Frame name="VuhDoLabelFrameTemplate" virtual="true">
-	<Size>
-		<AbsDimension x="10" y="18" />
-	</Size>
-	<Anchors>
-		<Anchor point="TOPLEFT">
-			<Offset>
-				<AbsDimension x="13" y="-7" />
-			</Offset>
-		</Anchor>
-	</Anchors>
-	<Scripts>
-		<OnShow>VUHDO_lnfPatchFont(self, "Label");</OnShow>
-	</Scripts>
-</Frame>
-
-
-
 <Frame name="VuhDoBarExampleTexture" virtual="true">
 	<Size>
 		<AbsDimension x="100" y="32" />
@@ -3095,7 +3077,6 @@
 	</Layers>
 	<Scripts>
 		<OnLoad>
-			self.statusTexture = self:GetStatusBarTexture();
 			self:SetStatusBarTexture("Interface\\AddOns\\VuhDoOptions\\Images\\blue_lt_square_16_16");
 			self:SetStatusBarColor(1, 1, 1, 1);
 			self["SetProgress"] = function(self, aValue, aMaxValue)

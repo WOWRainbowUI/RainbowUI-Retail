@@ -363,13 +363,17 @@ local tFrame;
 local tParent;
 function VUHDO_findButtonFromChild(aChildFrame)
 
-	if not aChildFrame or (aChildFrame["IsForbidden"] and aChildFrame:IsForbidden()) then
+	if not aChildFrame then
 		return nil;
 	end
 
 	tFrame = aChildFrame;
 
 	while tFrame do
+		if not tFrame:CanBeAccessedInContext() or tFrame:IsForbidden() then
+			return nil;
+		end
+
 		if VUHDO_BUTTON_CACHE[tFrame] then
 			return tFrame;
 		end
@@ -378,8 +382,6 @@ function VUHDO_findButtonFromChild(aChildFrame)
 
 		if tParent then
 			tFrame = tParent;
-		elseif tFrame["IsForbidden"] and tFrame:IsForbidden() then
-			return nil;
 		elseif tFrame["GetParent"] then
 			tFrame = tFrame:GetParent();
 		else
@@ -914,6 +916,10 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BUTTON_CACHE[tButton] = aPanelNum;
 	VUHDO_BUTTON_CACHE[tTargetButton] = aPanelNum;
 	VUHDO_BUTTON_CACHE[tTotButton] = aPanelNum;
+
+	tButton["unitWatchType"] = VUHDO_UNIT_WATCH_TYPE_HEAL;
+	tTargetButton["unitWatchType"] = VUHDO_UNIT_WATCH_TYPE_TARGET;
+	tTotButton["unitWatchType"] = VUHDO_UNIT_WATCH_TYPE_TOT;
 
 	tButton:SetAttribute("vuhdo_button_marker", true);
 	tTargetButton:SetAttribute("vuhdo_button_marker", true);

@@ -3,6 +3,7 @@ local _;
 local ShouldAurasBeSecret = C_Secrets.ShouldAurasBeSecret;
 local issecretvalue = issecretvalue;
 local pairs = pairs;
+local InCombatLockdown = InCombatLockdown;
 
 local VUHDO_RAID;
 local VUHDO_CONFIG;
@@ -23,6 +24,7 @@ local VUHDO_refreshListBouquetsForUnit;
 local VUHDO_initNativeAuraSounds;
 local VUHDO_rebuildSoundEnabledAuraGroups;
 local VUHDO_clearNativeAuraSounds;
+local VUHDO_invalidateOverlayBuildKeys;
 
 local sSecretsEnabled = false;
 local sIsAuraDataRestricted = false;
@@ -54,6 +56,7 @@ function VUHDO_auraModeInitLocalOverrides()
 	VUHDO_initNativeAuraSounds = _G["VUHDO_initNativeAuraSounds"];
 	VUHDO_rebuildSoundEnabledAuraGroups = _G["VUHDO_rebuildSoundEnabledAuraGroups"];
 	VUHDO_clearNativeAuraSounds = _G["VUHDO_clearNativeAuraSounds"];
+	VUHDO_invalidateOverlayBuildKeys = _G["VUHDO_invalidateOverlayBuildKeys"];
 
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 	VUHDO_syncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
@@ -264,6 +267,25 @@ end
 
 
 --
+function VUHDO_rebuildAuraOverlays()
+
+	if InCombatLockdown() then
+		VUHDO_Msg("Cannot rebuild aura overlays during combat.");
+
+		return;
+	end
+
+	VUHDO_syncAllOverlayUnits(true);
+
+	VUHDO_Msg("Rebuilt all aura overlay containers.");
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_resyncAuraDisplayMode(anIsForceRebuild)
 
 	if not VUHDO_isVariablesLoaded() then
@@ -315,6 +337,8 @@ local function VUHDO_setAuraDataRestrictedState(anIsRestricted, anIsForceResync)
 	end
 
 	VUHDO_AURA_DATA_RESTRICTED = anIsRestricted;
+
+	VUHDO_invalidateOverlayBuildKeys();
 
 	if VUHDO_isAuraModeContainers() and not anIsForceResync then
 		if not anIsRestricted then

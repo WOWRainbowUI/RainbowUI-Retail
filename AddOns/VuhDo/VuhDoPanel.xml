@@ -155,7 +155,6 @@
 			<StatusBar name="$parentAuBar" inherits="VuhDoStatusBar" enableMouse="false">
 				<Scripts>
 					<OnLoad>
-						self.statusTexture = self:GetStatusBarTexture();
 						self.addLevel = 10;
 					</OnLoad>
 				</Scripts>
@@ -180,7 +179,6 @@
 	<StatusBar name="VuhDoHotBarTemplate" setAllPoints="true" hidden="false" inherits="VuhDoStatusBar" virtual="true">
 		<Scripts>
 			<OnLoad>
-				self.statusTexture = self:GetStatusBarTexture();
 				self.addLevel = 6;
 			</OnLoad>
 		</Scripts>
@@ -191,6 +189,17 @@
 			<KeyValue key="backdropInfo" value="BACKDROP_VUHDO_PLAYER_TARGET_FRAME" type="global" />
 			<KeyValue key="backdropBorderColor" value="BACKDROP_BORDER_COLOR_VUHDO_PLAYER_TARGET_FRAME" type="global" />
 		</KeyValues>
+		<Frames>
+
+			<Frame name="$parentOlHost" setAllPoints="true">
+				<Scripts>
+					<OnLoad inherit="prepend">
+						self.addLevel = 3;
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+		</Frames>
 	</Frame>
 
 	<Button name="VuhDoButtonSecureTargetTemplate" virtual="true" inherits="SecureUnitButtonTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
@@ -226,7 +235,6 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										self.statusTexture = self:GetStatusBarTexture();
 										self.addLevel = 1;
 									</OnLoad>
 								</Scripts>
@@ -352,7 +360,9 @@
 					</Anchor>
 				</Anchors>
 				<Frames>
-					
+
+					<Frame name="$parentOlHost" setAllPoints="true" />
+
 					<StatusBar name="$parentHlBar" inherits="VuhDoStatusBar">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
@@ -366,25 +376,6 @@
 								</Offset>
 							</Anchor>
 						</Anchors>
-						<Frames>
-
-							<StatusBar name="$parentMaBar" hidden="true" inherits="VuhDoStatusBar">
-								<Anchors>
-									<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
-										<Offset>
-											<AbsDimension x="0" y="0"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										self.statusTexture = self:GetStatusBarTexture();
-										self.addLevel = 1;
-									</OnLoad>
-								</Scripts>
-							</StatusBar>
-
-						</Frames>
 						<Layers>
 							<Layer level="OVERLAY" textureSubLevel="6">
 								<Texture name="$parentAggro" hidden="true" file="Interface\AddOns\VuhDo\Images\aggro">
@@ -400,21 +391,79 @@
 
 							</Layer>
 						</Layers>
+						<Frames>
+
+							<StatusBar name="$parentMaBar" hidden="true" inherits="VuhDoStatusBar">
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Frames>
+
+									<Frame name="$parentOlHost" setAllPoints="true">
+										<Scripts>
+											<OnLoad>
+												self.addLevel = 1;
+											</OnLoad>
+										</Scripts>
+									</Frame>
+
+								</Frames>
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 1;
+									</OnLoad>
+								</Scripts>
+							</StatusBar>
+
+							<Frame name="$parentOlHost" setAllPoints="true" />
+
+							<Frame name="$parentAggroOlHost">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentAggro" relativePoint="TOPLEFT" />
+									<Anchor point="BOTTOMRIGHT" relativeTo="$parentAggro" relativePoint="BOTTOMRIGHT" />
+								</Anchors>
+							</Frame>
+
+						</Frames>
 					</StatusBar>
 
 					<StatusBar name="$parentLsBar" hidden="true" inherits="VuhDoStatusBar">
+						<Frames>
+
+							<Frame name="$parentOlHost" setAllPoints="true">
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 2;
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+						</Frames>
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>
 
 					<StatusBar name="$parentRsBar" hidden="true" inherits="VuhDoStatusBar">
+						<Frames>
+
+							<Frame name="$parentOlHost" setAllPoints="true">
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 2;
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+						</Frames>
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
@@ -437,18 +486,38 @@
 					</Frame>
 
 					<StatusBar name="$parentHiBar" setAllPoints="true" hidden="true" inherits="VuhDoStatusBar">
+						<Frames>
+
+							<Frame name="$parentOlHost" setAllPoints="true">
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 4;
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+						</Frames>
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self.addLevel = 4;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>
 
 					<StatusBar name="$parentAgBar" inherits="VuhDoStatusBar">
+						<Frames>
+
+							<Frame name="$parentOlHost" setAllPoints="true">
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 5;
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+						</Frames>
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self.addLevel = 5;
 							</OnLoad>
 						</Scripts>
@@ -511,6 +580,21 @@
 								<Texture name="$parent51" hidden="true" file="Interface\AddOns\VuhDo\Images\icon_red"> </Texture>
 							</Layer>
 						</Layers>
+						<Frames>
+
+							<Frame name="$parent51OlHost">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parent51" relativePoint="TOPLEFT" />
+									<Anchor point="BOTTOMRIGHT" relativeTo="$parent51" relativePoint="BOTTOMRIGHT" />
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 11;
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+						</Frames>
 						<Scripts>
 							<OnLoad>
 								self.addLevel = 11;
@@ -544,7 +628,6 @@
 					<StatusBar name="$parentFlBar" setAllPoints="true" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self.addLevel = 13;
 							</OnLoad>
 						</Scripts>
@@ -600,7 +683,6 @@
 							<StatusBar name="$parentIcBar" inherits="VuhDoStatusBar">
 								<Scripts>
 									<OnLoad>
-										self.statusTexture = self:GetStatusBarTexture();
 									</OnLoad>
 								</Scripts>
 							</StatusBar>
@@ -608,7 +690,6 @@
 							<StatusBar name="$parentShBar" inherits="VuhDoStatusBar">
 								<Scripts>
 									<OnLoad>
-										self.statusTexture = self:GetStatusBarTexture();
 									</OnLoad>
 								</Scripts>
 							</StatusBar>
@@ -619,7 +700,6 @@
 					<StatusBar name="$parentOvsOffsBar" alpha="0" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self:SetMinMaxValues(0, 1);
 								self:SetValue(0);
 								self.addLevel = 1;
@@ -637,7 +717,6 @@
 							<StatusBar name="$parentOvsBar" hidden="true" inherits="VuhDoStatusBar">
 								<Scripts>
 									<OnLoad>
-										self.statusTexture = self:GetStatusBarTexture();
 										self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar");
 										self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
 										self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar", "REPEAT", "REPEAT");
@@ -657,7 +736,6 @@
 					<StatusBar name="$parentHeAbBar" hidden="true" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar");
 								self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
 								self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar", "REPEAT", "REPEAT");
@@ -674,7 +752,6 @@
 					<StatusBar name="$parentHlLossBar" hidden="true" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
-								self.statusTexture = self:GetStatusBarTexture();
 								self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\healthloss_bar");
 								self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
 								self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\healthloss_bar", "REPEAT", "REPEAT");
@@ -707,6 +784,11 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<Frames>
+
+					<Frame name="$parentOlHost" setAllPoints="true" />
+
+				</Frames>
 			</StatusBar>
 		</Frames>
 	</Button>

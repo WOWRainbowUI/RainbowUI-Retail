@@ -448,14 +448,27 @@ end
 
 
 --
+local function VUHDO_setLifeTextAlpha(aFontString, anAlpha)
+
+	aFontString["vuhdoLifeTextAlpha"] = anAlpha;
+
+	aFontString:SetAlpha(anAlpha);
+
+	return;
+
+end
+
+
+
+--
 local tAlphaColor;
 local tSoloAlphaColor;
 local function VUHDO_applyLifeTextAlpha(aHealthBar, aUnit, aInfo, aLifeConfig)
 
 	if not sSecretsEnabled or not aInfo["hasSecretHealth"] then
-		VUHDO_getLifeText(aHealthBar):SetAlpha(1);
-		VUHDO_getBarText(aHealthBar):SetAlpha(1);
-		VUHDO_getBarTextSolo(aHealthBar):SetAlpha(0);
+		VUHDO_setLifeTextAlpha(VUHDO_getLifeText(aHealthBar), 1);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarText(aHealthBar), 1);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(aHealthBar), 0);
 
 		return;
 	end
@@ -473,17 +486,45 @@ local function VUHDO_applyLifeTextAlpha(aHealthBar, aUnit, aInfo, aLifeConfig)
 
 	if tAlphaColor then
 		if 1 == aLifeConfig["position"] or 2 == aLifeConfig["position"] then
-			VUHDO_getBarText(aHealthBar):SetAlpha(tAlphaColor["a"] or 1);
-			VUHDO_getBarTextSolo(aHealthBar):SetAlpha(tSoloAlphaColor and tSoloAlphaColor["a"] or 1);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarText(aHealthBar), tAlphaColor["a"] or 1);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(aHealthBar), tSoloAlphaColor and tSoloAlphaColor["a"] or 1);
 		else
-			VUHDO_getLifeText(aHealthBar):SetAlpha(tAlphaColor["a"] or 1);
-			VUHDO_getBarText(aHealthBar):SetAlpha(1);
-			VUHDO_getBarTextSolo(aHealthBar):SetAlpha(0);
+			VUHDO_setLifeTextAlpha(VUHDO_getLifeText(aHealthBar), tAlphaColor["a"] or 1);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarText(aHealthBar), 1);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(aHealthBar), 0);
 		end
 	else
-		VUHDO_getLifeText(aHealthBar):SetAlpha(1);
-		VUHDO_getBarText(aHealthBar):SetAlpha(1);
-		VUHDO_getBarTextSolo(aHealthBar):SetAlpha(0);
+		VUHDO_setLifeTextAlpha(VUHDO_getLifeText(aHealthBar), 1);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarText(aHealthBar), 1);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(aHealthBar), 0);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tFontString;
+function VUHDO_restoreLifeTextAlpha(aBar)
+
+	tFontString = VUHDO_getLifeText(aBar);
+
+	if tFontString and tFontString["vuhdoLifeTextAlpha"] ~= nil then
+		tFontString:SetAlpha(tFontString["vuhdoLifeTextAlpha"]);
+	end
+
+	tFontString = VUHDO_getBarText(aBar);
+
+	if tFontString and tFontString["vuhdoLifeTextAlpha"] ~= nil then
+		tFontString:SetAlpha(tFontString["vuhdoLifeTextAlpha"]);
+	end
+
+	tFontString = VUHDO_getBarTextSolo(aBar);
+
+	if tFontString and tFontString["vuhdoLifeTextAlpha"] ~= nil then
+		tFontString:SetAlpha(tFontString["vuhdoLifeTextAlpha"]);
 	end
 
 	return;
@@ -524,11 +565,11 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 			or (tUnit and VUHDO_isBossUnit(tUnit)) and VUHDO_I18N_NO_BOSS
 			or VUHDO_I18N_NOT_AVAILABLE;
 		VUHDO_getBarText(tHealthBar):SetText("");
-		VUHDO_getBarText(tHealthBar):SetAlpha(0);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarText(tHealthBar), 0);
 		VUHDO_getBarTextSolo(tHealthBar):SetText(tTextString);
-		VUHDO_getBarTextSolo(tHealthBar):SetAlpha(1);
+		VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(tHealthBar), 1);
 		VUHDO_getLifeText(tHealthBar):SetText("");
-		VUHDO_getLifeText(tHealthBar):SetAlpha(0);
+		VUHDO_setLifeTextAlpha(VUHDO_getLifeText(tHealthBar), 0);
 
 		return;
 	end
@@ -602,7 +643,7 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 			end
 
 			VUHDO_getLifeText(tHealthBar):SetText("");
-			VUHDO_getLifeText(tHealthBar):SetAlpha(1);
+			VUHDO_setLifeTextAlpha(VUHDO_getLifeText(tHealthBar), 1);
 		end
 	elseif tIsLife then
 		if tIsLifeLeftOrRight then
@@ -642,10 +683,10 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 			end
 
 			VUHDO_getBarText(tHealthBar):SetText(tTextString);
-			VUHDO_getBarText(tHealthBar):SetAlpha(1);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarText(tHealthBar), 1);
 
 			VUHDO_getBarTextSolo(tHealthBar):SetText(tTextString);
-			VUHDO_getBarTextSolo(tHealthBar):SetAlpha(0);
+			VUHDO_setLifeTextAlpha(VUHDO_getBarTextSolo(tHealthBar), 0);
 		end
 	end
 

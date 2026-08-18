@@ -3540,7 +3540,10 @@ do
 		VUHDO_Msg("  |cffB0E0E6/vd aura restrict on|off|auto|r - Force AuraContainer mode on/off and reload UI");
 		VUHDO_Msg("  |cffB0E0E6/vd aura restrict|r - Show current aura mode (on/off) and data state");
 		VUHDO_Msg("  |cffB0E0E6/vd aura audit|r - Audit bouquet/group container expressibility");
-		VUHDO_Msg("  |cffB0E0E6/vd aura dump [unit]|r - Dump aura container diagnostics");
+		VUHDO_Msg("  |cffB0E0E6/vd aura dump [unit] [indicator] [-v]|r - Dump compact aura container diagnostics");
+		VUHDO_Msg("  |cffB0E0E6/vd aura nopool on|off|r - Disable or enable aura container pooling (diagnostic)");
+		VUHDO_Msg("  |cffB0E0E6/vd aura rebuild|r - Release and rebuild all aura overlay containers");
+		VUHDO_Msg("  |cffB0E0E6/vd aura gates|r - Run aura container gate unit tests");
 		VUHDO_Msg("  |cffB0E0E6/vd aura levels [unit]|r - Dump aura container frame levels");
 		VUHDO_Msg("  |cffB0E0E6/vd aura test [unit]|r - Create minimal aura container smoke test");
 		VUHDO_Msg("  |cffB0E0E6/vd aura|r - Show this help");
