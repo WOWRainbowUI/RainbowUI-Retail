@@ -193,7 +193,7 @@ end
 
 function addon.IsMUIStyledCooldown(cooldown)
     if not MCE:IsMUIAvailable() then return false end
-    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
+    local parent = addon.GetParentSafe(cooldown)
     return parent and parent.mUIBorder ~= nil
 end
 
@@ -242,6 +242,23 @@ function MCE:IsForbidden(frame)
     if not frame then return true end
     local ok, val = pcall(checkForbidden, frame)
     return not ok or val
+end
+
+--- Safe parent lookup shared by every parent walk.
+--- GetParent throws "forbidden object" whenever the parent itself is
+--- forbidden, even though the child passes IsForbidden (MiniAuras
+--- AuraContainer buttons become forbidden right after initialization).
+--- Returns nil in that case so the walk simply stops instead of erroring.
+function addon.GetParentSafe(frame)
+    if not frame then return nil end
+
+    local getParentMethod = MCE:SafeTableGet(frame, "GetParent")
+    if type(getParentMethod) ~= "function" then return nil end
+
+    local ok, parent = pcall(getParent, frame)
+    if not ok then return nil end
+
+    return parent
 end
 
 function MCE:SafeTableGet(tbl, key)
@@ -344,7 +361,7 @@ function MCE:IsLossOfControlCooldown(cooldown)
         return true
     end
 
-    local parent = cooldown.GetParent and cooldown:GetParent() or nil
+    local parent = addon.GetParentSafe(cooldown)
     if not self:CanUseFrameAsTableKey(parent) then
         return false
     end
@@ -851,6 +868,7 @@ actionbarDefaults.reverseSwipe = C.Defaults.Actionbar.ReverseSwipe
 actionbarDefaults.swipeAlpha = C.Defaults.Actionbar.SwipeAlpha
 
 local nameplateDefaults = CategoryDefaults(C.Categories.Nameplate, false, C.Defaults.Nameplate.FontSize)
+nameplateDefaults.allowThresholdColors = nil
 nameplateDefaults.stackSize = C.Defaults.Nameplate.StackSize
 nameplateDefaults.stackAnchor = C.Defaults.Nameplate.StackAnchor
 nameplateDefaults.stackOffsetX = C.Defaults.Nameplate.StackOffsetX
@@ -1014,6 +1032,11 @@ local function CleanupObsoleteProfileFields(profile)
     local actionbarCategory = categories[C.Categories.Actionbar]
     if type(actionbarCategory) == "table" then
         actionbarCategory.textColorByDuration = nil
+    end
+
+    local nameplateCategory = categories[C.Categories.Nameplate]
+    if type(nameplateCategory) == "table" then
+        nameplateCategory.allowThresholdColors = nil
     end
 
     local playerAuraCategory = categories[C.Categories.PlayerAura]

@@ -19,6 +19,11 @@ local hooksecurefunc = hooksecurefunc
 local CATEGORY = C.Categories
 local BBP_CONSTANTS = C.Adapter.BetterBlizzPlates
 
+-- Third-party GetAuraGroupFrameCount() results are trusted only up to this
+-- ceiling; a stale/buggy count from BetterBlizzPlates must not turn the scan
+-- loop below into a multi-second stall ("script ran too long").
+local MAX_SCANNED_AURA_GROUP_FRAMES = 64
+
 local Registry
 local trackedCooldowns = setmetatable({}, addon.weakMeta)
 local initializationStyling = setmetatable({}, addon.weakMeta)
@@ -574,7 +579,7 @@ local function DiscoverContainer(container)
     for groupKey in pairs(groups) do
         local countOk, frameCount = pcall(getCount, container, groupKey)
         if countOk and type(frameCount) == "number" then
-            for frameIndex = 1, frameCount do
+            for frameIndex = 1, min(frameCount, MAX_SCANNED_AURA_GROUP_FRAMES) do
                 local frameOk, button = pcall(getFrame, container, groupKey, frameIndex)
                 if frameOk and button then
                     local cooldown = MCE:SafeTableGet(button, "bbpCooldown")

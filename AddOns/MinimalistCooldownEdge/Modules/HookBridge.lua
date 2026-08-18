@@ -42,6 +42,7 @@ end
 
 local IsSecretValue = addon.IsSecretValue
 local CanAccessAllValues = addon.CanAccessAllValues
+local GetParentSafe = addon.GetParentSafe
 
 local function IsRestrictedCooldown(cooldown)
     return not cooldown
@@ -194,7 +195,7 @@ local function IsAuraRetryCategory(category, cooldown)
 end
 
 local function HasAuraLikeAncestor(cooldown)
-    local current = cooldown and cooldown.GetParent and cooldown:GetParent() or nil
+    local current = GetParentSafe(cooldown)
     for _ = 1, STYLER_CONSTANTS.MaxCooldownOwnerScanDepth do
         if not current then break end
 
@@ -209,7 +210,7 @@ local function HasAuraLikeAncestor(cooldown)
             return true
         end
 
-        current = current.GetParent and current:GetParent() or nil
+        current = GetParentSafe(current)
     end
     return false
 end
@@ -239,7 +240,7 @@ local function HasHookBlacklistMatch(cooldown)
             end
         end
 
-        current = current.GetParent and current:GetParent() or nil
+        current = GetParentSafe(current)
     end
 
     return false
@@ -612,10 +613,15 @@ function HookBridge:SetupHooks()
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressHideNums then return end
             if IsBetterBlizzPlatesOwnedState(fs) then return end
+            if fs.hideNums == nil then return end
             -- hide can be a tainted boolean (MiniCE-written value flowing back through Blizzard);
             -- issecretvalue() does not detect taint, so wrap the comparison in pcall instead.
+            -- Blizzard nameplate aura icons (Blizzard_NamePlateAuras) derive it from
+            -- the secret aura duration, which makes the comparison error out on every
+            -- aura refresh. MiniCE owns this property once it has set it, so an
+            -- unreadable incoming value is treated as a change and reapplied.
             local ok, shouldRestore = pcall(ShouldRestoreValue, fs.hideNums, hide)
-            if not ok or not shouldRestore then return end
+            if ok and not shouldRestore then return end
             fs.suppressHideNums = true
             pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
             fs.suppressHideNums = nil

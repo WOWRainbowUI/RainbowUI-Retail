@@ -146,7 +146,6 @@ C.Colors = {
 C.Defaults = {
     AllowThresholdColorsByCategory = {
         [C.Categories.Actionbar] = true,
-        [C.Categories.Nameplate] = false,
         [C.Categories.BetterBlizzPlates] = true,
         [C.Categories.Unitframe] = true,
         [C.Categories.PlayerAura] = false,

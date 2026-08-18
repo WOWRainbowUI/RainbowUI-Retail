@@ -16,6 +16,7 @@ local strfind, strlower = string.find, string.lower
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
 local RunNextFrame = addon.RunNextFrame
+local GetParentSafe = addon.GetParentSafe
 local _G = _G
 
 local CATEGORY = C.Categories
@@ -59,6 +60,7 @@ local initializationStyling = setmetatable({}, addon.weakMeta)
 local initializationHookInstalled = false
 local durationCooldownHookInstalled = false
 local durationTextHookInstalled = false
+local applicationCountHookInstalled = false
 local customAuraButtonAPI
 local InstallNativeDurationTextHooks
 
@@ -147,10 +149,10 @@ end
 local function GetMiniAurasContainerAndAnchor(cooldown)
     local frame = cooldown
     for _ = 1, MAX_CONTAINER_DEPTH do
-        frame = frame.GetParent and frame:GetParent()
+        frame = GetParentSafe(frame)
         if not frame then return nil, nil end
         if IsMiniAurasContainer(frame) then
-            return frame, frame.GetParent and frame:GetParent() or nil
+            return frame, GetParentSafe(frame)
         end
     end
     return nil, nil
@@ -292,12 +294,14 @@ local function EnsureDurationTextAlphaHook(cooldown, durationText)
     end
 end
 
-local function CaptureNativeDurationText(button, durationText)
-    local cooldown = trackedAuraButtons[button]
+-- Keyed by the cooldown rather than the button: a restricted AuraButton cannot be
+-- used as a table key, but its cooldown always can, and the cooldown is the frame
+-- every consumer of this state looks the region up from.
+local function ApplyCapturedDurationText(cooldown, durationText)
     if not cooldown or not IsObjectTypeSafe(durationText, "FontString") then return end
 
     local state = frameState[cooldown]
-    if not state then return end
+    if not state or state.miniAurasDurationText == durationText then return end
 
     state.miniAurasDurationText = durationText
     state.miniAurasNativeDurationText = true
@@ -308,6 +312,42 @@ local function CaptureNativeDurationText(button, durationText)
 
     EnsureDurationTextAlphaHook(cooldown, durationText)
     RefreshCapturedDurationText(cooldown)
+end
+
+-- trackedAuraButtons is only populated for buttons usable as a table key, which a
+-- restricted AuraButton is not. Fall back to the cooldown the button itself is
+-- bound to, so the API hooks still land on the right frame state.
+local function ResolveCooldownForButton(button)
+    local cooldown = trackedAuraButtons[button]
+    if cooldown then return cooldown end
+
+    local getDurationCooldown = MCE:SafeTableGet(button, "GetDurationCooldown")
+    if type(getDurationCooldown) ~= "function" then return nil end
+
+    local ok, bound = pcall(getDurationCooldown, button)
+    if ok and bound and frameState[bound] then return bound end
+    return nil
+end
+
+local function CaptureNativeDurationText(button, durationText)
+    ApplyCapturedDurationText(ResolveCooldownForButton(button), durationText)
+end
+
+-- MiniAuras registers its stack count through SetApplicationCount. Capturing it
+-- is what lets StyleEngine reach the count at all; otherwise the region keeps
+-- MiniAuras' own icon-derived size whatever the profile asks for.
+local function ApplyCapturedStackText(cooldown, countRegion)
+    if not cooldown or not IsObjectTypeSafe(countRegion, "FontString") then return end
+
+    local state = frameState[cooldown]
+    if not state or state.miniAurasStackText == countRegion then return end
+
+    state.miniAurasStackText = countRegion
+    RefreshCapturedDurationText(cooldown)
+end
+
+local function CaptureNativeStackText(button, countRegion)
+    ApplyCapturedStackText(ResolveCooldownForButton(button), countRegion)
 end
 
 local function ReadAccessibleNumber(object, methodName)
@@ -326,15 +366,19 @@ local function ReadAccessibleBoolean(object, methodName)
     return value
 end
 
--- MiniAuras is an optional dependency and can finish its ADDON_LOADED setup
--- before this adapter file runs. Recover the already-bound DurationText from
--- the AuraButton's anonymous text overlay. MiniAuras marks its other numeric
--- FontString (the stack count) with MiniAurasFace, which makes the selection
--- unambiguous without depending on region order.
-local function FindExistingNativeDurationText(cooldown, button)
-    if not MCE:CanUseFrameAsTableKey(button)
+-- MiniAuras is an optional dependency and can finish its ADDON_LOADED setup before
+-- this adapter runs, so its text regions are recovered from the AuraButton's
+-- anonymous overlay. Returns (durationText, stackText): MiniAuras tags the stack
+-- count with MiniAurasFace, which tells the two apart without relying on region
+-- order.
+local function FindExistingButtonTextRegions(cooldown, button)
+    -- Deliberately NOT CanUseFrameAsTableKey: an AuraButton is restricted once its
+    -- initialization callback returns and fails that test, even though its children
+    -- and regions stay readable through pcall. Requiring it left those buttons'
+    -- duration text unreachable, so it could be neither resized nor hidden.
+    if not button
        or type(MCE:SafeTableGet(button, "SetDurationText")) ~= "function" then
-        return nil
+        return nil, nil
     end
 
     local getDurationCooldown = MCE:SafeTableGet(button, "GetDurationCooldown")
@@ -342,16 +386,19 @@ local function FindExistingNativeDurationText(cooldown, button)
         local ok, boundCooldown = pcall(getDurationCooldown, button)
         if ok and boundCooldown then
             local sameOk, isSame = pcall(function() return boundCooldown == cooldown end)
-            if not sameOk or not isSame then return nil end
+            -- Bail only on a conclusive mismatch: the bound cooldown can be a
+            -- secret value, which makes the comparison throw rather than answer,
+            -- and the button was reached through this cooldown's own parent.
+            if sameOk and not isSame then return nil, nil end
         end
     end
 
     local getChildren = MCE:SafeTableGet(button, "GetChildren")
-    if type(getChildren) ~= "function" then return nil end
+    if type(getChildren) ~= "function" then return nil, nil end
     local children = { pcall(getChildren, button) }
-    if not children[1] then return nil end
+    if not children[1] then return nil, nil end
 
-    local found
+    local durationText, stackText, ambiguous
     for childIndex = 2, #children do
         local child = children[childIndex]
         if child and child ~= cooldown then
@@ -361,30 +408,50 @@ local function FindExistingNativeDurationText(cooldown, button)
                 if regions[1] then
                     for regionIndex = 2, #regions do
                         local region = regions[regionIndex]
-                        if IsObjectTypeSafe(region, "FontString")
-                           and MCE:SafeTableGet(region, "MiniAurasFace") == nil then
-                            if found and found ~= region then return nil end
-                            found = region
+                        if IsObjectTypeSafe(region, "FontString") then
+                            if MCE:SafeTableGet(region, "MiniAurasFace") ~= nil then
+                                stackText = stackText or region
+                            elseif durationText and durationText ~= region then
+                                -- Two unmarked FontStrings: the duration text
+                                -- cannot be told apart, so claim neither. The
+                                -- stack count above stays valid regardless.
+                                ambiguous = true
+                            else
+                                durationText = region
+                            end
                         end
                     end
                 end
             end
         end
     end
-    return found
+
+    if ambiguous then durationText = nil end
+    return durationText, stackText
 end
 
-local function RecoverExistingNativeDurationText(cooldown, button)
+local function RecoverExistingButtonTextRegions(cooldown, button)
     local state = frameState[cooldown]
-    if not state or state.miniAurasNativeDurationText == true then return false end
+    if not state then return false end
+    if state.miniAurasNativeDurationText == true and state.miniAurasStackText then
+        return true
+    end
 
-    local durationText = FindExistingNativeDurationText(cooldown, button)
-    if not durationText then return false end
+    local durationText, stackText = FindExistingButtonTextRegions(cooldown, button)
 
-    state.miniAurasRequestedDurationTextAlpha = ReadAccessibleNumber(durationText, "GetAlpha")
-    state.miniAurasRequestedHideCountdownNumbers =
-        ReadAccessibleBoolean(cooldown, "GetHideCountdownNumbers")
-    CaptureNativeDurationText(button, durationText)
+    -- The stack count is styled from the cooldown's own frame state, so it is
+    -- recovered even when the duration text stays ambiguous.
+    if stackText then
+        ApplyCapturedStackText(cooldown, stackText)
+    end
+
+    if state.miniAurasNativeDurationText ~= true and durationText then
+        state.miniAurasRequestedDurationTextAlpha = ReadAccessibleNumber(durationText, "GetAlpha")
+        state.miniAurasRequestedHideCountdownNumbers =
+            ReadAccessibleBoolean(cooldown, "GetHideCountdownNumbers")
+        ApplyCapturedDurationText(cooldown, durationText)
+    end
+
     return state.miniAurasNativeDurationText == true
 end
 
@@ -398,7 +465,7 @@ local function TrackNativeAuraButton(button, cooldown)
     local frameType = ResolveMiniAurasFrameType(cooldown)
     if not frameType then return end
     MarkTrackedCooldown(cooldown, frameType, button)
-    RecoverExistingNativeDurationText(cooldown, button)
+    RecoverExistingButtonTextRegions(cooldown, button)
 end
 
 -- =========================================================================
@@ -449,9 +516,9 @@ local function ClaimNamedCooldown(cooldown, queueStyle)
     local frameType = ResolveMiniAurasFrameType(cooldown)
     if not frameType then return end
 
-    local button = cooldown.GetParent and cooldown:GetParent() or nil
+    local button = GetParentSafe(cooldown)
     MarkTrackedCooldown(cooldown, frameType, button)
-    RecoverExistingNativeDurationText(cooldown, button)
+    RecoverExistingButtonTextRegions(cooldown, button)
 
     -- Deferred passes run after Styler queued its restyle sweep, so a late
     -- discovery has to queue itself.
@@ -515,6 +582,17 @@ function Adapter:Rebuild()
             if frameType then
                 trackedCooldowns[cooldown] = frameType
                 Registry:Register(cooldown, CATEGORY.MiniAuras, frameType)
+
+                -- The initialization hook claims a cooldown at the moment
+                -- MiniAuras creates it, which is before the duration text and
+                -- stack count exist. That claim also takes the cooldown out of
+                -- the discovery scan's reach, so without retrying here its text
+                -- regions would never be captured for the rest of the session.
+                local state = frameState[cooldown]
+                if state and (state.miniAurasDurationText == nil
+                              or state.miniAurasStackText == nil) then
+                    RecoverExistingButtonTextRegions(cooldown, GetParentSafe(cooldown))
+                end
             else
                 trackedCooldowns[cooldown] = nil
             end
@@ -532,9 +610,9 @@ function Adapter:TryClaim(cooldown)
 
     local frameType = ResolveMiniAurasFrameType(cooldown)
     if frameType then
-        local button = cooldown.GetParent and cooldown:GetParent() or nil
+        local button = GetParentSafe(cooldown)
         MarkTrackedCooldown(cooldown, frameType, button)
-        RecoverExistingNativeDurationText(cooldown, button)
+        RecoverExistingButtonTextRegions(cooldown, button)
         return CATEGORY.MiniAuras, frameType
     end
     return nil
@@ -553,7 +631,7 @@ local function TryStyleDuringInitialization(cooldown, requestedHide)
     local frameType = ResolveMiniAurasFrameType(cooldown)
     if not frameType then return end
 
-    local button = cooldown.GetParent and cooldown:GetParent() or nil
+    local button = GetParentSafe(cooldown)
     local state = MarkTrackedCooldown(cooldown, frameType, button)
     if state and not state.suppressHideNums
        and type(requestedHide) == "boolean"
@@ -587,7 +665,8 @@ local function GetCustomAuraButtonAPI(button)
 end
 
 InstallNativeDurationTextHooks = function(button)
-    if durationCooldownHookInstalled and durationTextHookInstalled then
+    if durationCooldownHookInstalled and durationTextHookInstalled
+       and applicationCountHookInstalled then
         return
     end
 
@@ -608,6 +687,14 @@ InstallNativeDurationTextHooks = function(button)
             CaptureNativeDurationText(button, durationText)
         end)
         durationTextHookInstalled = hookOk
+    end
+
+    if not applicationCountHookInstalled
+       and type(MCE:SafeTableGet(api, "SetApplicationCount")) == "function" then
+        local hookOk = pcall(hooksecurefunc, api, "SetApplicationCount", function(button, countRegion)
+            CaptureNativeStackText(button, countRegion)
+        end)
+        applicationCountHookInstalled = hookOk
     end
 end
 

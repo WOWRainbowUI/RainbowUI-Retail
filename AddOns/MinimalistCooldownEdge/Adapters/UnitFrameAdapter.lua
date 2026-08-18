@@ -7,6 +7,7 @@ local Adapter = MCE:NewModule("UnitFrameAdapter")
 
 local ipairs, pairs, type, pcall = ipairs, pairs, type, pcall
 local strfind = string.find
+local min = math.min
 local unpack = unpack
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
@@ -16,6 +17,11 @@ local CATEGORY = C.Categories
 local UF = C.Adapter.UnitFrames
 local MINIAURAS_PREFIX = C.Classifier.MiniAurasNamePrefix
 local frameState = addon.frameState
+
+-- Third-party GetAuraGroupFrameCount() results are trusted only up to this
+-- ceiling; a stale/buggy count from BetterBlizzFrames must not turn the scan
+-- loop below into a multi-second stall ("script ran too long").
+local MAX_SCANNED_AURA_GROUP_FRAMES = 64
 
 local CUSTOM_GROUPS = {
     { key = "BuffMine", helpful = true, isMine = true, maxCount = 32, size = 21 },
@@ -401,7 +407,7 @@ local function ScanCustomAuraContainer(container, thresholdColorsDisabled)
             if ok and type(count) == "number"
                and not MCE:IsSecretValue(count)
                and addon.CanAccessAllValues(count) then
-                for index = 1, count do
+                for index = 1, min(count, MAX_SCANNED_AURA_GROUP_FRAMES) do
                     local frameOk, button = pcall(getFrame, container, groupKey, index)
                     if frameOk then
                         RegisterAuraButton(button, style, thresholdColorsDisabled)

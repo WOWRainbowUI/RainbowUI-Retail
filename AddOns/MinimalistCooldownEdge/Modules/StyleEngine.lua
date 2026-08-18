@@ -260,6 +260,20 @@ function StyleEngine:GetFrameAuraInstanceID(frame)
     return nil
 end
 
+-- WoW 12.1 turns aura data secret while combat, instance, or PvP restrictions
+-- are active, so Blizzard aura items expose an unreadable auraInstanceID.
+-- The strict reader above drops it, which also loses the owner frame it was
+-- found on. Passing the raw handle through keeps owner resolution working;
+-- callers must treat the value itself as opaque and only hand it to APIs.
+function StyleEngine:GetFrameAuraInstanceIDValue(frame)
+    if not frame then return nil end
+    for i = 1, #AURA_INSTANCE_ID_KEYS do
+        local value = MCE:SafeTableGet(frame, AURA_INSTANCE_ID_KEYS[i])
+        if value ~= nil then return value end
+    end
+    return nil
+end
+
 local function GetCooldownInfoSafe(owner)
     if not owner then
         return nil
@@ -493,7 +507,7 @@ function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
             spellOwner = current
         end
 
-        if not auraInstanceOwner and self:GetFrameAuraInstanceID(current) ~= nil then
+        if not auraInstanceOwner and self:GetFrameAuraInstanceIDValue(current) ~= nil then
             auraInstanceOwner = current
         end
 
@@ -858,14 +872,43 @@ function StyleEngine:GetCooldownTextRegions(cdFrame)
         return textRegionScratch, count
     end
 
+    -- A 12.1 MiniAuras aura button carries two countdown FontStrings: the bound
+    -- duration text, and the cooldown widget's own. MiniAuras shows the bound one
+    -- only for bars, colour-by-time or a milliseconds threshold, and parks it at
+    -- alpha 0 otherwise - which is the default Group Auras / Raid Frame Auras case,
+    -- where its native numbers are what is on screen.
+    --
+    -- Which one is live cannot be determined from Lua: alpha values on these buttons
+    -- are secret, so the parked FontString reads identically to the drawn one, and
+    -- GetHideCountdownNumbers does not settle it either. Style both instead - the
+    -- configured size then lands on whichever MiniAuras actually draws.
     if state and state.miniAurasNativeDurationText == true then
+        local regionCount = 0
+
+        local nativeText = MCE:SafeTableGet(cdFrame, "MiniAurasFontString")
+        if not IsUsableFontString(nativeText) then
+            local getNativeText = MCE:SafeTableGet(cdFrame, "GetCountdownFontString")
+            if type(getNativeText) == "function" then
+                local ok, discovered = pcall(getNativeText, cdFrame)
+                nativeText = ok and discovered or nil
+            end
+        end
+        if IsUsableFontString(nativeText) then
+            regionCount = regionCount + 1
+            textRegionScratch[regionCount] = nativeText
+        end
+
         local durationText = state.miniAurasDurationText
-        if IsUsableFontString(durationText) then
-            textRegionScratch[1] = durationText
-            for i = 2, #textRegionScratch do
+        if IsUsableFontString(durationText) and durationText ~= nativeText then
+            regionCount = regionCount + 1
+            textRegionScratch[regionCount] = durationText
+        end
+
+        if regionCount > 0 then
+            for i = regionCount + 1, #textRegionScratch do
                 textRegionScratch[i] = nil
             end
-            return textRegionScratch, 1
+            return textRegionScratch, regionCount
         end
     end
 
@@ -1024,7 +1067,10 @@ function StyleEngine:ApplyRGBAColorToCooldownRegions(cdFrame, r, g, b, a)
     for i = 1, textRegionCount do
         local region = textRegions[i]
         if region and not MCE:IsForbiddenCached(region) then
-            region:SetTextColor(r, g, b, a)
+            -- Duration curves evaluated from secret aura data return secret
+            -- colour components. FontStrings accept them, but the call is
+            -- guarded so a restricted region cannot abort the style pass.
+            pcall(region.SetTextColor, region, r, g, b, a)
         end
     end
 
@@ -1206,6 +1252,15 @@ end
 
 local function GetStackCountRegion(cdFrame, category)
     local state = frameState[cdFrame]
+    -- MiniAuras registers its stack count on the aura button, which goes
+    -- restricted after initialization, so the region is captured by the adapter
+    -- rather than looked up here. Without this branch the count fell through
+    -- every case below and kept MiniAuras' own icon-derived size for good.
+    if category == CATEGORY.MiniAuras
+       and state and IsUsableFontString(state.miniAurasStackText) then
+        return state.miniAurasStackText, cdFrame
+    end
+
     if category == CATEGORY.Unitframe
        and state and IsUsableFontString(state.unitFrameCount) then
         -- WoW 12.1 custom AuraButtons become inaccessible while auras are
@@ -1302,6 +1357,10 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
         countRegion:Show()
     end
 
+    -- MiniAuras re-derives this font from the icon size on every restyle pass,
+    -- so the chosen size has to be enforced the way the countdown font is.
+    local enforceStackFont = category == CATEGORY.MiniAuras
+
     self:ApplyFontStringStyle(
         countRegion, parent,
         MCE.ResolveFontPath(config.stackFont),
@@ -1311,7 +1370,8 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
         config.stackAnchor, config.stackAnchor,
         config.stackOffsetX, config.stackOffsetY,
         STYLER_CONSTANTS.StackTextLayer,
-        STYLER_CONSTANTS.StackTextSubLevel)
+        STYLER_CONSTANTS.StackTextSubLevel,
+        enforceStackFont)
 end
 
 -- =========================================================================
@@ -1419,7 +1479,7 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
     end
 
     if category == CATEGORY.Actionbar and not hideNums then
-        local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
+        local parent = GetParentSafe(cdFrame)
         local isChargeCooldown = self:IsChargeCooldownFrame(cdFrame, parent)
         if config.hideChargeTimers and isChargeCooldown then
             hideNums = true
@@ -1489,7 +1549,7 @@ function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config, subtype)
     -- Charge recovery is represented by a dedicated cooldown frame. Keep its
     -- progress edge visible even when regular action-bar edges are disabled.
     if category == CATEGORY.Actionbar then
-        local parent = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+        local parent = GetParentSafe(cdFrame)
         if self:IsChargeCooldownFrame(cdFrame, parent) then
             return true
         end
@@ -1792,6 +1852,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
 
     -- Hide countdown numbers
     local hideNums
+    local miniAurasWantTextHidden
     if cdFrame.SetHideCountdownNumbers then
         local requestedHideNums = self:GetDesiredHideCountdownNumbers(
             cdFrame, category, config, isAssistedCombat, subtype)
@@ -1812,6 +1873,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
                and fs.miniAurasNativeDurationText == true
                and fs.miniAurasNativeDurationTextReady == true then
             fs.miniAurasNativeDurationTextActive = true
+            miniAurasWantTextHidden = requestedHideNums == true
             if fs.miniAurasDurationTextHidden ~= requestedHideNums then
                 SetMiniAurasDurationTextAlpha(fs, requestedHideNums and 0 or 1)
                 fs.miniAurasDurationTextHidden = requestedHideNums
@@ -1906,9 +1968,15 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             or category == CATEGORY.HealerCC
             or (category == CATEGORY.Unitframe and fs.unitFrameCustomAura == true))
         local cooldownTextColor = (fs.unitFrameNativeDurationText == true
-            or fs.miniAurasNativeDurationText == true
             or fs.unitFrameThresholdColorsDisabled == true)
             and nil or config.textColor
+        -- MiniAuras re-tints the cooldown's own countdown text from its style on
+        -- every restyle pass, so MiniCE has to hold its colour there. Threshold
+        -- colours stay off for these frames (DurationColorController bails on
+        -- miniAurasNativeDurationText), so a static colour cannot fight them.
+        local enforceMiniAurasColor = category == CATEGORY.MiniAuras
+            and fs.miniAurasNativeDurationText == true
+            and cooldownTextColor ~= nil
 
         for i = 1, textRegionCount do
             local region = textRegions[i]
@@ -1917,15 +1985,65 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
                and type(region.SetScale) == "function" then
                 pcall(region.SetScale, region, 1)
             end
+            -- MiniAuras binds an engine-evaluated colour curve to its duration
+            -- text; the engine owns that one's colour, so only the size/face are
+            -- applied there. The native countdown text has no such binding.
+            local isMiniAurasDurationText = region == fs.miniAurasDurationText
+            local regionColor = isMiniAurasDurationText and nil or cooldownTextColor
+            local regionEnforceColor = enforceMiniAurasColor
+                and not isMiniAurasDurationText
             local regionFontSize = preserveFontSize and GetCurrentFontSize(region, fontSize) or fontSize
             self:ApplyFontStringStyle(
                 region, cdFrame,
                 resolvedFont, regionFontSize, fontStyle,
-                cooldownTextColor,
+                regionColor,
                 config.textAnchor, config.textAnchor,
                 config.textOffsetX, config.textOffsetY,
-                textLayer, textSubLevel, enforceFont, preserveFontSize)
+                textLayer, textSubLevel, enforceFont, preserveFontSize,
+                regionEnforceColor)
         end
+    end
+
+    -- SetHideCountdownNumbers does not suppress the countdown on MiniAuras' 12.1
+    -- duration-object cooldowns: the widget reports the flag set while the number
+    -- stays on screen. Alpha on the regions themselves is the lever that works -
+    -- the same one that makes the font size stick - so drive both text regions
+    -- with it rather than trusting the widget flag alone.
+    -- The engine writes a secret alpha back over ours on most of these regions
+    -- (the number blinks out for a frame and returns), so alpha alone does not
+    -- hold. Shown state and text colour are separate properties on the same
+    -- FontString; drive all three so whichever one the engine leaves alone wins.
+    if miniAurasWantTextHidden ~= nil then
+        local regions, regionCount = self:GetCachedCooldownTextRegions(cdFrame)
+        fs.miniAurasSuppressDurationTextAlpha = true
+        for i = 1, regionCount do
+            local region = regions[i]
+            if region and not MCE:IsForbiddenCached(region) then
+                local fontStyleState = self:GetFontState(region)
+                if miniAurasWantTextHidden then
+                    pcall(region.SetAlpha, region, 0)
+                    pcall(region.Hide, region)
+                    -- The draw layer is the one that holds: it is plain Lua
+                    -- state the engine never recomputes, so parking the text
+                    -- under the icon texture survives the alpha overwrite.
+                    pcall(region.SetDrawLayer, region, "BACKGROUND", -8)
+                    fontStyleState.drawLayer = nil
+                    fontStyleState.suppressSetTextColor = true
+                    pcall(region.SetTextColor, region, 0, 0, 0, 0)
+                    fontStyleState.suppressSetTextColor = nil
+                    fontStyleState.colorR, fontStyleState.colorG = nil, nil
+                    fontStyleState.colorB, fontStyleState.colorA = nil, nil
+                elseif fs.miniAurasTextRegionsHidden then
+                    pcall(region.SetAlpha, region, 1)
+                    pcall(region.Show, region)
+                    pcall(region.SetDrawLayer, region, "OVERLAY", 0)
+                    fontStyleState.drawLayer = nil
+                    fontStyleState.colorR = nil
+                end
+            end
+        end
+        fs.miniAurasSuppressDurationTextAlpha = nil
+        fs.miniAurasTextRegionsHidden = miniAurasWantTextHidden
     end
 
     -- Abbreviation threshold
@@ -1965,7 +2083,11 @@ function StyleEngine:WipeState()
     local preservedUnitFrameState = {}
     local preservedMiniAurasState = {}
     local preservedBetterBlizzPlatesState = {}
+    local preservedClaims = {}
     for cooldown, state in pairs(frameState) do
+        if state and state.allowBlacklisted == true then
+            preservedClaims[#preservedClaims + 1] = cooldown
+        end
         if state and state.unitFrameCustomAura == true then
             preservedUnitFrameState[#preservedUnitFrameState + 1] = {
                 cooldown = cooldown,
@@ -1988,6 +2110,11 @@ function StyleEngine:WipeState()
                 requestedDurationTextAlpha = state.miniAurasRequestedDurationTextAlpha,
                 requestedHideCountdownNumbers = state.miniAurasRequestedHideCountdownNumbers,
                 nativeDurationTextReady = state.miniAurasNativeDurationTextReady,
+                stackText = state.miniAurasStackText,
+                -- Records that the countdown is currently parked out of sight;
+                -- without it the restore path cannot tell there is anything to
+                -- put back, and turning Hide Numbers off needs a reload.
+                textRegionsHidden = state.miniAurasTextRegionsHidden,
                 textRegions = state.textRegions,
             }
         end
@@ -2011,6 +2138,17 @@ function StyleEngine:WipeState()
 
     wipe(frameState)
     wipe(fontState)
+
+    -- An adapter sets allowBlacklisted to claim a frame whose parent chain would
+    -- otherwise be rejected: a MiniAuras aura button goes forbidden right after
+    -- initialization, and Classifier:IsBlacklisted walks parents, so its cooldown
+    -- is blacklisted from then on without the claim. That claim is adapter
+    -- metadata, not styling cache - dropping it here left every tracked cooldown
+    -- that carries no richer preserved state (the pooled majority) permanently
+    -- skipped by ApplyStyle after the first option refresh.
+    for i = 1, #preservedClaims do
+        frameState[preservedClaims[i]] = { allowBlacklisted = true }
+    end
 
     -- Adapter metadata describes stable public output widgets, not styling
     -- cache. Preserve it across ordinary (non-discovery) option refreshes.
@@ -2040,6 +2178,8 @@ function StyleEngine:WipeState()
             miniAurasRequestedHideCountdownNumbers = preserved.requestedHideCountdownNumbers,
             miniAurasNativeDurationText = true,
             miniAurasNativeDurationTextReady = preserved.nativeDurationTextReady == true,
+            miniAurasStackText = preserved.stackText,
+            miniAurasTextRegionsHidden = preserved.textRegionsHidden,
             textRegions = preserved.textRegions,
         }
     end

@@ -24,6 +24,11 @@ end
 -- Base fonts always available (WoW built-ins + addon-bundled fonts)
 local FONT_OPTIONS_BASE = C.FontOptionsBase
 
+-- Base font labels that are descriptive text (not proper font names) get localized here
+local FONT_DISPLAY_OVERRIDES = {
+    [C.Style.Fonts.GameDefault] = L["Game Default"],
+}
+
 --- Returns a merged font table: base fonts + any fonts registered in LibSharedMedia.
 --- Declared as a function so the values are evaluated lazily each time the options
 --- panel opens, picking up fonts registered by other addons after this file loads.
@@ -44,9 +49,10 @@ local function GetFontOptions()
 
     -- Add base fonts only when not already claimed by LSM (path + display name)
     for path, label in pairs(FONT_OPTIONS_BASE) do
-        if not opts[path] and not usedNames[label:lower()] then
-            opts[path] = label
-            usedNames[label:lower()] = true
+        local displayLabel = FONT_DISPLAY_OVERRIDES[path] or label
+        if not opts[path] and not usedNames[displayLabel:lower()] then
+            opts[path] = displayLabel
+            usedNames[displayLabel:lower()] = true
         end
     end
     
@@ -112,7 +118,7 @@ end
 local function CatRangeSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:RequestDebouncedOptionRefresh(CategoryNeedsFullScan(key))
+        MCE:RequestDebouncedOptionRefresh(false)
     end
 end
 
@@ -850,15 +856,17 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isHealerCC = (key == C.Categories.HealerCC)
     local isMiniAuras = (key == C.Categories.MiniAuras)
     local isMyDRs = (key == C.Categories.MyDRs)
+    local isNameplate = (key == C.Categories.Nameplate)
     local isSArena = (key == C.Categories.SArena)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
     local isUnitframe = (key == C.Categories.Unitframe)
     local isPlayerAura = (key == C.Categories.PlayerAura)
     local isActionbar = (key == C.Categories.Actionbar)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe or isPlayerAura)
-    local allowThresholdColorsGet = not isMiniAuras
+    local allowsThresholdColors = not isMiniAuras and not isNameplate
+    local allowThresholdColorsGet = allowsThresholdColors
         and CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key)) or nil
-    local allowThresholdColorsSet = not isMiniAuras
+    local allowThresholdColorsSet = allowsThresholdColors
         and CatSet(key, "allowThresholdColors") or nil
 
     return {
@@ -1078,7 +1086,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatColorGet(key, "textColor"),
                         set = CatColorSet(key, "textColor"),
                     },
-                    allowThresholdColors = not isMiniAuras and {
+                    allowThresholdColors = allowsThresholdColors and {
                         type = "toggle", order = 4.5, width = "full",
                         name = L["Allow Threshold Colors"],
                         desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
@@ -1990,7 +1998,7 @@ function MCE:GetOptions()
                             },
                             perfWarning = {
                                 type = "description", order = 99, fontSize = "small", width = "full",
-                                name = "\n|cffffaa55(!) This feature may impact performance and cause FPS drops. Use only on strong setups. |r",
+                                name = "\n|cffffaa55(!) " .. L["PERF_WARNING_DESC"] .. "|r",
                             },
                         },
                     },
