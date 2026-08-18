@@ -7,13 +7,13 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1314
+PawnVersion = 2.1315
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
 
 -- Pawn requires this version of VgerCore:
-local PawnVgerCoreVersionRequired = 1.21
+local PawnVgerCoreVersionRequired = 1.22
 
 -- Floating point math
 local PawnEpsilon = 0.0000000001
@@ -34,7 +34,6 @@ local PawnItemCache
 local PawnItemCacheMaxSize = 200 -- thanks to bag arrows, this should be greater than the number of possible inventory slots
 
 local PawnScaleTotals = { }
-
 
 -- Best gem data
 --	Best gem data is broken down first by scale name, then by socket, then by minimum item level.  "Gem info" is yet another table.
@@ -1377,19 +1376,29 @@ function PawnGetItemData(ItemLink)
 		end
 
 		-- First the enchanted stats.
-		Item.Stats, Item.SocketBonusStats, Item.UnknownLines, Item.PrettyLink = PawnGetStatsFromTooltipWithMethod(PawnPrivateTooltipName, true, "SetHyperlink", Item.Link)
-		Item.NumLines = (_G[PawnPrivateTooltipName]):NumLines()
+
+		-- This is basically inlining PawnGetStatsFromTooltipWithMethod(PawnPrivateTooltipName, true, "SetHyperlink", Item.Link), but with an added check of the number of lines,
+		-- so that we can skip the parsing that PawnGetStatsFromTooltipWithMethod does if we already have a valid cached item.
+		local Tooltip = _G[PawnPrivateTooltipName]
+		Tooltip:ClearLines()
+		Tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+		Tooltip:SetHyperlink(Item.Link)
+		Item.NumLines = Tooltip:NumLines()
+
+		if CachedItem and CachedItem.Values and Item.NumLines == CachedItem.NumLines then
+			-- We have a cached item with the same number of lines as this tooltip, so we can safely assume that the cached item is valid.
+			if PawnCommon.DebugCache then
+				VgerCore.Message(VgerCore.Color.Green .. "    Cached item and this tooltip both had " .. Item.NumLines .. " lines, so using cached item")
+			end
+			return CachedItem
+		end
+
+		PawnFixStupidTooltipFormatting(PawnPrivateTooltipName)
+		Item.Stats, Item.SocketBonusStats, Item.UnknownLines, Item.PrettyLink = PawnGetStatsFromTooltip(PawnPrivateTooltipName, true)
+		-- ...end of inlining PawnGetStatsFromTooltipWithMethod(...).
+
 		if CachedItem then
-			-- Okay, we had already found this item in the cache, but we didn't know at the time if the cached version of the item is reliable. We'll consider it as reliable if the tooltip
-			-- now has the same number of lines as it did last time.
-			if Item.NumLines == CachedItem.NumLines then
-				if PawnCommon.DebugCache then
-					VgerCore.Message(VgerCore.Color.Green .. "    Cached item and this tooltip both had " .. Item.NumLines .. " lines, so using cached item")
-				end
-				if CachedItem.Values then
-					return CachedItem
-				end
-			else
+			if Item.NumLines ~= CachedItem.NumLines then
 				-- The item in the cache has a different number of lines than this new item, so remove the old item from the cache, and then we'll add the new one later.
 				PawnUncacheItem(CachedItem)
 				if PawnCommon.DebugCache then

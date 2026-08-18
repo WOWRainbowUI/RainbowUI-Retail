@@ -84,6 +84,12 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 
 ## Updates
 
+### Version 2.13.15
+
+* Includes a performance fix from an anonymous Pawn user that should noticeably improve framerates in certain situations, especially on Classic versions. (Thanks!)
+* Midnight: Daggers can show up as upgrades for demon hunters now that they're usable again.
+* Burning Crusade: Fixed a problem where Pawn was missing school-specific (nature, etc.) spell power on some items when playing in Traditional Chinese. (Thanks Jonathan Cheung!)
+
 ### Version 2.13.14
 
 * Fixed a rare bug in 2.13.12 that might have caused an error to occur when hovering over an item with no stats. (Possibly only when using Bagnon?)
