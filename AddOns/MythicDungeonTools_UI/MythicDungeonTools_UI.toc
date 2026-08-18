@@ -1,8 +1,8 @@
-## Interface: 120100, 120007
-# WOW_INTERFACE_TARGETS: mainline-beta, mainline-test, mainline
+## Interface: 120100
+# WOW_INTERFACE_TARGETS: mainline
 ## Title: Mythic Dungeon Tools (MDT) - UI
 ## Author: Nnoggie
-## Version: 6.2.2
+## Version: 6.2.3
 ## Notes: Load-on-demand interface for Mythic Dungeon Tools
 ## Dependencies: MythicDungeonTools
 ## LoadOnDemand: 1
