@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.77 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.78 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -674,5 +674,9 @@ PR.PARAGON_DATA = {
 		[89032] = { -- The Singularity
 			factionID = 2699,
 			cache = 259334,
+		}, 
+		[93798] = { -- Zul'jarra's Forces
+			factionID = 2772,
+			cache = 276624,
 		}, 
 }
