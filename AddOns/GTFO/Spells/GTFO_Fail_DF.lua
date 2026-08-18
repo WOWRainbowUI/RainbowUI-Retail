@@ -31,6 +31,7 @@ GTFO.SpellID["397110"] = {
 GTFO.SpellID["390361"] = {
   --desc = "Lightning Crash (Primalist Stormslinger)";
   sound = 3;
+  maps = { 1978, 2437 }; -- Dragon Isles, Zul'Aman
   applicationOnly = true;
 };
 
@@ -1271,27 +1272,31 @@ GTFO.SpellID["423619"] = {
 };
 
 
---- *******************
---- * Ruby Life Pools *
---- *******************
+--- **************************
+--- * Ruby Life Pools (2521) *
+--- **************************
 
 GTFO.SpellID["372696"] = {
   --desc = "Excavating Blast (Primal Juggernaut)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["373458"] = {
   --desc = "Stone Missile (Primal Terrasentry)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["385292"] = {
   --desc = "Molten Steel (Defier Draghar)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["372796"] = {
   --desc = "Blazing Rush (Defier Draghar)";
+  instance = 2521;
   applicationOnly = true;
   sound = 3;
   tankSound = 0; -- TODO: Is this avoidable by the tank?
@@ -1299,37 +1304,54 @@ GTFO.SpellID["372796"] = {
 
 GTFO.SpellID["384024"] = {
   --desc = "Hailbombs (Melidrussa Chillworn)";
+  instance = 2521;
+  encounter = 2609;
   sound = 3;
 };
 
 GTFO.SpellID["373614"] = {
   --desc = "Burnout (Blazebound Destroyer)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["373977"] = {
   --desc = "Blaze of Glory (Primalist Flamedancer)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["372863"] = {
   --desc = "Ritual of Blazebinding (Kokia Blazehoof)";
+  instance = 2521;
+  encounter = 2606;
+  sound = 3;
+};
+
+GTFO.SpellID["1309540"] = {
+  --desc = "Ritual of Blazebinding (Kokia Blazehoof)";
+  instance = 2521;
+  encounter = 2606;
   sound = 3;
 };
 
 GTFO.SpellID["372811"] = {
   --desc = "Molten Boulder (Kokia Blazehoof)";
+  instance = 2521;
+  encounter = 2606;
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["373087"] = {
   --desc = "Burnout (Blazebound Firestorm)";
+  instance = 2521;
   sound = 3;
 };
 
 GTFO.SpellID["392399"] = {
   --desc = "Crackling Detonation (Primal Thundercloud)";
+  instance = 2521;
   sound = 3;
 };
 

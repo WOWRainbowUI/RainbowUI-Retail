@@ -642,17 +642,63 @@ GTFO.SpellID["278789"] = {
   sound = 1;
 };
 
--- ************************
--- * Temple of Sethraliss *
--- ************************
+-- *******************************
+-- * Temple of Sethraliss (1877) *
+-- *******************************
 
 GTFO.SpellID["272696"] = {
   --desc = "Oil of Immolation (Crazed Incubator)";
+  instance = 1877;
   sound = 1;
 };
 
 GTFO.SpellID["263927"] = {
   --desc = "Toxic Pool (Merektha)";
+  instance = 1877;
+  sound = 1;
+};
+
+GTFO.SpellID["1288885"] = {
+	--desc = "Tempest Winds (Aspix)";
+	sound = 1;
+	encounter = 2124;
+};
+
+GTFO.SpellID["1293133"] = {
+  --desc = "Lingering Storm (Lightning Serpent)";
+  instance = 1877;
+  encounter = 2125;
+  sound = 1;
+};
+
+GTFO.SpellID["1297034"] = {
+  --desc = "Electrified Ground (Merektha)";
+  instance = 1877;
+  encounter = 2125;
+  sound = 1;
+};
+
+GTFO.SpellID["1291815"] = {
+  --desc = "Induction Field (Galvazzt)";
+  instance = 1877;
+  encounter = 2126;
+  sound = 1;
+};
+
+GTFO.SpellID["266923"] = {
+  --desc = "Galvanized (Lightning Spire)";
+  instance = 1877;
+  encounter = 2126;
+  sound = 0;
+  tankSound = 1;
+  stackSound = 0;
+  tankStackSound = 1;
+};
+
+GTFO.SpellID["1300684"] = {
+  --desc = "Hex Muck (Twisted Hexxer)";
+  instance = 1877;
+  encounter = 2127;
   sound = 1;
 };
 
@@ -755,72 +801,114 @@ GTFO.SpellID["253666"] = {
 };
 
 
--- ***************
--- * King's Rest *
--- ***************
+-- **********************
+-- * King's Rest (1762) *
+-- **********************
 
 GTFO.SpellID["269932"] = {
-  --desc = "Gust Slash";
+  --desc = "Gust Slash (Umbral Warrior)";
+  instance = 1762;
   applicationOnly = true;
   sound = 1;
 };
 
+GTFO.SpellID["1296541"] = {
+  --desc = "Gust Slash (Umbral Warrior)";
+  instance = 1762;
+  sound = 1;
+  applicationOnly = true;
+  test = true; -- Verify 12.1 Mythic+ logs use this ID instead of or alongside 269932, if it's duplicated, only one is needed
+};
+
+
 GTFO.SpellID["265914"] = {
   --desc = "Molten Gold (The Golden Serpent)";
+  instance = 1762;
+  encounter = 2139;
   sound = 1;
 };
 
 GTFO.SpellID["267874"] = {
   --desc = "Burning Ground (Mchimba the Embalmer)";
+  instance = 1762;
+  encounter = 2142;
   sound = 1;
 };
 
 GTFO.SpellID["270891"] = {
-  --desc = "Channel Lightning (King Rahu'ai)";
+  --desc = "Channel Lightning/Overload (King Rahu'ai)";
+  instance = 1762;
   sound = 1;
 };
 
-GTFO.SpellID["270931"] = {
-  --desc = "Darkshot";
-  sound = 1;
-  ignoreApplication = true;
-};
+if (GTFO.MidnightMode) then
+  GTFO.SpellID["270931"] = {
+    --desc = "Shadow Volley (Queen Patlaa)";
+    instance = 1762;
+    sound = 1;
+  };
+else
+  GTFO.SpellID["270931"] = {
+    --desc = "Darkshot";
+    sound = 1;
+    ignoreApplication = true;
+  };
+end
 
 GTFO.SpellID["270503"] = {
   --desc = "Hunting Leap (Skeletal Hunting Raptor)";
+  instance = 1762;
   sound = 1;
 };
 
 GTFO.SpellID["270868"] = {
-  --desc = "Lingering Poison";
+  --desc = "Lingering Poison (King A'akul)";
+  instance = 1762;
   sound = 1;
 };
 
 GTFO.SpellID["270928"] = {
   --desc = "Bladestorm (King Timalji)";
+  instance = 1762;
   sound = 1;
 };
 
-GTFO.SpellID["270292"] = {
-  --desc = "Purifying Flame";
+GTFO.SpellID["270289"] = {
+  --desc = "Purification Beam (Purification Construct)";
+  instance = 1762;
   sound = 1;
-  ignoreApplication = true;
 };
+if (GTFO.MidnightMode) then
+  GTFO.SpellID["270292"] = {
+    --desc = "Purifying Flame (Purification Construct)";
+    instance = 1762;
+    sound = 1;
+  };
+else
+  GTFO.SpellID["270292"] = {
+    --desc = "Purifying Flame";
+    sound = 1;
+    ignoreApplication = true;
+  };
+end
 
 GTFO.SpellID["271564"] = {
-  --desc = "Embalming Fluid";
+  --desc = "Lingering Fluid (Embalming Fluid)";
+  instance = 1762;
   applicationOnly = true;
   sound = 1;
 };
 
 GTFO.SpellID["266191"] = {
   --desc = "Whirling Axe";
+  instance = 1762;
   sound = 1;
   applicationOnly = true;
 };
 
 GTFO.SpellID["269230"] = {
   --desc = "Hunting Leap (Reban)";
+  instance = 1762;
   sound = 1;
 };
 

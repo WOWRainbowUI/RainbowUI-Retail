@@ -1495,9 +1495,9 @@ function GTFO_GetAlertID(alert)
 		if (isChallenge == true) then
 			-- Mythic+/Challenge Mode
 			local useAlert = true;
-			if (alert.soundChallengeMinimumLevel) then
+			if (alert.soundChallengeMinimumKeyLevel) then
 				local currentKey, _ = C_ChallengeMode.GetActiveKeystoneInfo()
-				useAlert = alert.soundChallengeMinimumLevel >= tonumber(currentKey);
+				useAlert = alert.soundChallengeMinimumKeyLevel >= tonumber(currentKey);
 			end
 			if (useAlert) then
 				if (tankAlert and (alert.tankSoundChallenge or alert.tankSoundMythic or alert.tankSoundHeroic)) then

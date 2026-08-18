@@ -3277,22 +3277,23 @@ GTFO.SpellID["1243694"] = {
   --desc = "Shattered Space (Dimensius)";
   sound = 3;
   applicationOnly = true;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1230674"] = {
   --desc = "Spaghettification (Dimensius)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1234054"] = {
   --desc = "Shadowquake (Dimensius)";
-  soundFunctionRetail = function() -- Can't tell how many stacks we have due to new addon restrictions, disabling alert
-    return 0;
-  end;
-  sound = 3;
+  sound = 0;
+  stackSound = 3;
   applicationOnly = true;
-  minimumStacks = 1;
   encounter = 3135;
   instance = 2810;
 };
