@@ -521,8 +521,6 @@ local function IsThresholdColorAllowedForSource(sourceKey, config)
     -- Nameplate is excluded outright: WoW 12.1 gives addons no readable
     -- remaining duration for Blizzard nameplate auras once aura data is
     -- restricted, so thresholds could only ever apply outside combat.
-    -- BetterBlizzPlates keeps its support because it owns its own aura icons
-    -- and binds their duration text itself.
     if sourceKey == CATEGORY.HealerCC or sourceKey == CATEGORY.MiniAuras
        or sourceKey == CATEGORY.Nameplate then
         return false
@@ -865,10 +863,6 @@ end
 
 function DurationColor:RefreshTrackedDurationColor(cdFrame, sourceKey, config)
     local fs = frameState[cdFrame]
-    if fs and fs.betterBlizzPlatesOwnsTimerColors == true then
-        self:ClearTrackedDurationColor(cdFrame)
-        return false
-    end
     if fs and fs.unitFrameThresholdColorsDisabled == true then
         self:ClearTrackedDurationColor(cdFrame)
         return false
@@ -995,8 +989,7 @@ function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
     -- Action bars re-fetch live duration data, so avoid extra validation work.
     local category = Registry and Registry:GetCategory(cooldown)
     local trackedState = frameState[cooldown]
-    if trackedState and (trackedState.betterBlizzPlatesOwnsTimerColors == true
-       or trackedState.unitFrameNativeDurationText == true
+    if trackedState and (trackedState.unitFrameNativeDurationText == true
        or trackedState.miniAurasNativeDurationText == true
        or trackedState.unitFrameThresholdColorsDisabled == true) then
         return

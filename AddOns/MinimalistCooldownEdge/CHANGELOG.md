@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.5.4 - BetterBlizzPlates Adapter Removed
+- Removed the BetterBlizzPlates nameplate aura adapter and its options category.
+- BetterBlizzPlates now has its own cooldown text styling options; configure them via /bbp > Nameplate Auras Options.
+
+## 4.5.3 - Target/Focus Cast Bar Fix
+- Fixed the target and focus cast bar disappearing after switching targets with Unit Frames auras enabled.
+
+## 4.5.2 - Shackled Support
+- Added a Shackled adapter for enemy CC cooldown icons.
+- Added a Shackled category with typography, positioning, and swipe controls.
+- Added a Swipe Shade Alpha slider and Reverse Swipe option for Shackled cooldown icons.
+
+## 4.5.1 - Action Bar Style Freeze Fix
+- Fixed a "script ran too long" error that could occur when restyling a large number of action bar cooldowns at once.
+
 ## 4.5.0 - MiniAuras Group Auras Text Fixes
 - Fixed Text Size, Text Color, and Hide Countdown Numbers not applying to MiniAuras Group Auras icons.
 - Slider options now apply immediately instead of triggering a full rescan.

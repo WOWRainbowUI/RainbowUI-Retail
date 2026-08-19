@@ -59,10 +59,6 @@ local function GetTrackedFrameState(cooldown)
     return MCE:SafeTableGet(frameState, cooldown)
 end
 
-local function IsBetterBlizzPlatesOwnedState(fs)
-    return fs and fs.betterBlizzPlatesAura == true
-end
-
 local function IsBlacklistAllowed(cooldown)
     local state = GetTrackedFrameState(cooldown)
     return state and state.allowBlacklisted == true or false
@@ -184,7 +180,6 @@ local VIEWER_TYPE = C.CooldownManagerViewers
 
 local function IsAuraRetryCategory(category, cooldown)
     if category == CATEGORY.Nameplate
-       or category == CATEGORY.BetterBlizzPlates
        or category == CATEGORY.Unitframe then
         return true
     end
@@ -545,7 +540,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetDrawEdge", function(cooldown, enabled)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdge then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             if IsSecretValue(enabled) then return end
             if fs.edge == nil or fs.edge == enabled then return end
             fs.suppressEdge = true
@@ -558,7 +552,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetEdgeScale", function(cooldown, scale)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdgeScale then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             if IsSecretValue(scale) then return end
             if fs.edgeScale == nil or IsNearlyEqual(fs.edgeScale, scale) then return end
             fs.suppressEdgeScale = true
@@ -571,7 +564,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetEdgeColor", function(cooldown, r, g, b, a)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdgeColor then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             if IsSecretValue(r)
                or IsSecretValue(g)
                or IsSecretValue(b)
@@ -589,7 +581,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetSwipeColor", function(cooldown, r, g, b, a)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipe then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             if IsMUIStyledCooldown(cooldown) then return end
             if IsMasqueManagedCooldown(cooldown) then return end
             if IsSecretValue(r)
@@ -612,7 +603,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetHideCountdownNumbers", function(cooldown, hide)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressHideNums then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             if fs.hideNums == nil then return end
             -- hide can be a tainted boolean (MiniCE-written value flowing back through Blizzard);
             -- issecretvalue() does not detect taint, so wrap the comparison in pcall instead.
@@ -632,7 +622,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetCountdownAbbrevThreshold", function(cooldown, seconds)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressCountdownAbbrevThreshold then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             local ok, shouldRestore = pcall(ShouldRestoreValue, fs.countdownAbbrevThreshold, seconds)
             if not ok or not shouldRestore then return end
             fs.suppressCountdownAbbrevThreshold = true
@@ -645,7 +634,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetCountdownMillisecondsThreshold", function(cooldown, seconds)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressCountdownMillisecondsThreshold then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             local ok, shouldRestore = pcall(ShouldRestoreValue, fs.countdownMillisecondsThreshold, seconds)
             if not ok or not shouldRestore then return end
             fs.suppressCountdownMillisecondsThreshold = true
@@ -658,7 +646,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetDrawSwipe", function(cooldown, enabled)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipeDraw then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             -- enabled can be tainted for the same reason as hide above.
             local ok, shouldRestore = pcall(ShouldRestoreValue, fs.drawSwipe, enabled)
             if not ok or not shouldRestore then return end
@@ -672,7 +659,6 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetReverse", function(cooldown, reverse)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressReverseSwipe then return end
-            if IsBetterBlizzPlatesOwnedState(fs) then return end
             -- reverse can be tainted for the same reason as hide above.
             local ok, shouldRestore = pcall(ShouldRestoreValue, fs.reverseSwipe, reverse)
             if not ok or not shouldRestore then return end
