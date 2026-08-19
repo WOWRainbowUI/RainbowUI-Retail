@@ -6,7 +6,7 @@
 ## SavedVariables: _detalhes_global, __details_backup, __details_debug
 ## SavedVariablesPerCharacter: _detalhes_database
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibWindow-1.1, LibDBIcon-1.0, NickTag-1.0, LibDataBroker-1.1, LibGraph-2.0
-## Version: #Details.20260811.15270.172
+## Version: #Details.20260811.15275.172
 ## IconTexture: Interface\AddOns\Details\images\minimap
 ## AddonCompartmentFunc: Details_OpenDefaultOptionsWindow
 
@@ -31,6 +31,7 @@ Definitions.lua
 boot.lua
 indent.lua
 functions\util.lua
+functions\rowtexts.lua
 functions\mixin.lua
 API.lua
 textures.lua
