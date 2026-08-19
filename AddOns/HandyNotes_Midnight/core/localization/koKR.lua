@@ -94,6 +94,8 @@ L['weekly'] = '주간'
 
 L['time_format_12hrs'] = nil
 L['time_format_24hrs'] = nil
+L['local_time'] = '현지 시간'
+L['server_time'] = '서버 시간'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = '하우징 장식'
@@ -191,6 +193,8 @@ L['options_toggle_hide_done_treasure'] = nil
 L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = '미니맵 상의 모든 아이콘 숨김'
 L['options_toggle_hide_minimap_desc'] = '이 애드온이 표시하는 미니맵 내의 모든 아이콘을 숨기고 지도에서만 나타나도록 합니다'
+L['options_toggle_interval_enlarged'] = nil
+L['options_toggle_interval_enlarged_desc'] = nil
 L['options_toggle_maximized_enlarged'] = '세계지도 최대화면 모드에서 아이콘 확대'
 L['options_toggle_maximized_enlarged_desc'] = '세계지도가 최대화면일 때 모든 아이콘 크기를 확대합니다.'
 L['options_toggle_use_char_achieves'] = '캐릭터별 업적'
@@ -259,8 +263,6 @@ L['options_toggle_show_loot'] = '드랍템 표시'
 L['options_toggle_show_loot_desc'] = '드랍템 정보를 툴팁에 표시합니다'
 L['options_toggle_show_notes'] = '가이드 표시'
 L['options_toggle_show_notes_desc'] = '가이드가 있으면 툴팁에 표시합니다'
-L['options_toggle_use_standard_time'] = nil
-L['options_toggle_use_standard_time_desc'] = nil
 L['options_toggle_show_npc_id'] = nil
 L['options_toggle_show_npc_id_desc'] = nil
 

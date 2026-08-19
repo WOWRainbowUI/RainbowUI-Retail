@@ -94,6 +94,8 @@ L['weekly'] = 'Wöchentlich'
 
 L['time_format_12hrs'] = '%d.%m - %I:%M %p'
 L['time_format_24hrs'] = '%d.%m - %H:%M'
+L['local_time'] = 'Ortszeit'
+L['server_time'] = 'Serverzeit'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = 'Behausungsdekoration'
@@ -191,6 +193,8 @@ L['options_toggle_hide_done_treasure'] = 'Blende Schätze aus, deren Belohnungen
 L['options_toggle_hide_done_treasure_desc'] = 'Blendet alle Schätze deren Beute bereits bekannt ist aus.'
 L['options_toggle_hide_minimap'] = 'Blende alle Symbole auf der Minikarte aus'
 L['options_toggle_hide_minimap_desc'] = 'Blendet alle Symbole dieses Addons auf der Minikarte aus und zeigt sie nur auf der Hauptkarte an.'
+L['options_toggle_interval_enlarged'] = nil
+L['options_toggle_interval_enlarged_desc'] = nil
 L['options_toggle_maximized_enlarged'] = 'Symbole bei maximierter Weltkarte vergrößern'
 L['options_toggle_maximized_enlarged_desc'] = 'Wenn die Weltkarte maximiert ist, werden alle Symbole vergrößert.'
 L['options_toggle_use_char_achieves'] = 'Verwende charakterspezifische Erfolge'
@@ -259,8 +263,6 @@ L['options_toggle_show_loot'] = 'Zeige Beute'
 L['options_toggle_show_loot_desc'] = 'Zeigt Beuteinformationen im Tooltip an.'
 L['options_toggle_show_notes'] = 'Zeige Notizen'
 L['options_toggle_show_notes_desc'] = 'Zeigt hilfreiche Notizen an sofern diese verfügbar sind.'
-L['options_toggle_use_standard_time'] = 'Verwende das 12-Stunden-Format'
-L['options_toggle_use_standard_time_desc'] = 'Zeigt die Uhrzeit im 12-Stunden-Format (z.B.: 8:00 PM) anstelle des 24-Stunden-Formates (z.B.: 20:00) in Tooltips an.'
 L['options_toggle_show_npc_id'] = 'Zeige NPC ID'
 L['options_toggle_show_npc_id_desc'] = 'Zeigt die ID des NPCs im Tooltip an.'
 

@@ -85,15 +85,17 @@ L['in_water'] = 'В воде.'
 L['in_building'] = 'В здании.'
 
 ------------------------------------- TIME ------------------------------------
-L['starts_in'] = nil
-L['time_remaining'] = nil
-L['next_time'] = nil
+L['starts_in'] = 'Начало через:'
+L['time_remaining'] = 'Осталось времени:'
+L['next_time'] = 'Следующее:'
 L['hourly'] = 'Ежечасно'
 L['daily'] = 'Ежедневно'
 L['weekly'] = 'Раз в неделю'
 
-L['time_format_12hrs'] = '%e.%m - %I:%M %p Время сервера'
-L['time_format_24hrs'] = '%e.%m - %H:%M Время сервера'
+L['time_format_12hrs'] = '%e.%m - %I:%M %p'
+L['time_format_24hrs'] = '%e.%m - %H:%M'
+L['local_time'] = 'Местное время'
+L['server_time'] = 'Время сервера'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = 'Декор для дома'
@@ -191,6 +193,8 @@ L['options_toggle_hide_done_treasure'] = 'Скрыть сокровища, ес�
 L['options_toggle_hide_done_treasure_desc'] = 'Скрыть все сокровища, из которых получена вся добыча.'
 L['options_toggle_hide_minimap'] = 'Скрыть все значки на миникарте'
 L['options_toggle_hide_minimap_desc'] = 'Скрывает все иконки из этого аддона на миникарте и отображает их только на главной карте.'
+L['options_toggle_interval_enlarged'] = nil
+L['options_toggle_interval_enlarged_desc'] = nil
 L['options_toggle_maximized_enlarged'] = 'Увеличивайте значки на увеличенной карте мира.'
 L['options_toggle_maximized_enlarged_desc'] = 'Когда карта мира развернута, увеличьте все значки.'
 L['options_toggle_use_char_achieves'] = 'Используйте достижения персонажа'
@@ -224,8 +228,8 @@ L['options_transmog_rewards'] = 'Показать трансмогрификац
 L['options_transmog_rewards_desc'] = 'Отображать трансмогрификацию во всплывающих подсказках и отслеживать их статус.'
 L['options_all_transmog_rewards'] = 'Показать недоступные награды за трансмогрификацию'
 L['options_all_transmog_rewards_desc'] = 'Показать награды за трансмогрификацию, доступные другим классам.'
-L['options_shared_appearances'] = nil
-L['options_shared_appearances_desc'] = nil
+L['options_shared_appearances'] = 'Учитывать облики с одинаковой моделью как собранные'
+L['options_shared_appearances_desc'] = 'Если включено, получение облика с такой же моделью от другого предмета помечает эту награду как собранную.'
 L['options_rep_rewards'] = 'Показать награды за репутацию'
 L['options_rep_rewards_desc'] = 'Отображение наград за репутацию во всплывающих подсказках и отслеживать их статус.'
 L['options_claimed_rep_rewards'] = 'Показать полученные награды за репутацию'
@@ -259,8 +263,6 @@ L['options_toggle_show_loot'] = 'Показать Лут'
 L['options_toggle_show_loot_desc'] = 'Добавить информацию о добыче в подсказку'
 L['options_toggle_show_notes'] = 'Показать заметки'
 L['options_toggle_show_notes_desc'] = 'Добавьте полезные заметки в подсказку, где это возможно'
-L['options_toggle_use_standard_time'] = 'Использовать 12-часовой формат'
-L['options_toggle_use_standard_time_desc'] = 'Используйте 12-часовой формат времени (например, 08:00 вечера) вместо 24-часового формата (например, 20:00) во всплывающих подсказках.'
 L['options_toggle_show_npc_id'] = 'Показать ID NPC'
 L['options_toggle_show_npc_id_desc'] = 'Показывать NPC ID для использования в аддонах для сканирования монстров.'
 
