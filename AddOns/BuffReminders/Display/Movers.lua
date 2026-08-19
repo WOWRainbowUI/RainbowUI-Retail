@@ -56,6 +56,11 @@ local detachedMoverFrames = {} -- Per-icon mover frames for detached icons
 local lastDirection = {} -- Tracks previous growDirection per catKey for position conversion
 local coordPopup -- Shared coordinate popup (shown on the active mover)
 
+-- Displays that are not buff categories but share the coordinate popup, keyed the
+-- same way a catKey is. Each adapter owns its own settings table and its own
+-- repositioning, so the popup stays the single place anchors are assigned.
+local moverTargets = {}
+
 -- Offset from anchor edge to frame center, in units of iconSize
 local ANCHOR_TO_CENTER = {
     LEFT = { x = 0.5, y = 0 },
@@ -86,9 +91,13 @@ local function ConvertPosition(oldAnchor, newAnchor, x, y, width, height)
 end
 
 ---Get the saved position table for a category key or detached icon key
----@param catKey string "main", a category name, or a detached icon buff key
----@return table position {point, x, y}
+---@param catKey string "main", a category name, a detached icon buff key, or a registered target
+---@return table position {point, x, y}; a target supplies x and y only
 local function GetSavedPosition(catKey)
+    local target = moverTargets[catKey]
+    if target then
+        return target.GetPosition()
+    end
     local db = BR.profile
     -- Detached icon position
     if IsIconDetached(catKey) then
@@ -118,6 +127,12 @@ local SaveDetachedPosition, PositionDetachedMoverFrame
 ---@param x number
 ---@param y number
 local function SavePosition(catKey, x, y)
+    local target = moverTargets[catKey]
+    if target then
+        target.SetPosition(x, y)
+        return
+    end
+
     -- Detached icon: delegate to detached-specific save
     if IsIconDetached(catKey) then
         SaveDetachedPosition(catKey, x, y)
@@ -214,6 +229,37 @@ local function GetPointCoords(frame, point)
     return x * scale, y * scale
 end
 
+---Offsets of a frame's `selfPoint` from `parent`'s `parentPoint`, in UI units.
+---@return number? x, number? y nil when either frame has no laid-out rect yet
+local function AnchoredOffsets(frame, selfPoint, parent, parentPoint)
+    local fx, fy = GetPointCoords(frame, selfPoint)
+    local px, py = GetPointCoords(parent, parentPoint)
+    if not fx or not px then
+        return nil, nil
+    end
+    local scale = frame:GetEffectiveScale()
+    return RoundCoord((fx - px) / scale), RoundCoord((fy - py) / scale)
+end
+
+---@return boolean true when the coordinate popup is open for this key
+local function IsPopupShownFor(key)
+    return coordPopup ~= nil and coordPopup:IsShown() and coordPopup.catKey == key
+end
+
+---Write coordinates into the popup while its own display moves.
+local function SyncPopupCoords(key, x, y)
+    if IsPopupShownFor(key) then
+        coordPopup.xEdit:SetText(tostring(x))
+        coordPopup.yEdit:SetText(tostring(y))
+    end
+end
+
+local function HidePopupFor(key)
+    if IsPopupShownFor(key) then
+        coordPopup:Hide()
+    end
+end
+
 -- Finish a mover drag: read the direction-anchor edge, re-anchor, save
 local function FinishMoverDrag(mover, catKey)
     mover.isDragging = false
@@ -230,19 +276,12 @@ local function FinishMoverDrag(mover, catKey)
     local extFrame, extPoint = ResolveAnchorParent(catKey)
     if extFrame then
         local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
-        local mx, my = GetPointCoords(mover, extAnchor)
-        local ex, ey = GetPointCoords(extFrame, extPoint)
-        if mx and ex then
-            local scale = mover:GetEffectiveScale()
-            x = RoundCoord((mx - ex) / scale)
-            y = RoundCoord((my - ey) / scale)
+        x, y = AnchoredOffsets(mover, extAnchor, extFrame, extPoint)
+        if x and y then
             mover:ClearAllPoints()
             mover:SetPoint(extAnchor, extFrame, extPoint, x, y)
             SavePosition(catKey, x, y)
-            if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
-                coordPopup.xEdit:SetText(tostring(x))
-                coordPopup.yEdit:SetText(tostring(y))
-            end
+            SyncPopupCoords(catKey, x, y)
             RestoreContainer(catKey)
             if BR.SecureButtons then
                 BR.SecureButtons.ScheduleSecureSync()
@@ -266,10 +305,7 @@ local function FinishMoverDrag(mover, catKey)
     mover:ClearAllPoints()
     mover:SetPoint(anchor, UIParent, "CENTER", x, y)
     SavePosition(catKey, x, y)
-    if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
-        coordPopup.xEdit:SetText(tostring(x))
-        coordPopup.yEdit:SetText(tostring(y))
-    end
+    SyncPopupCoords(catKey, x, y)
     RestoreContainer(catKey)
     -- Re-sync sub-icon action buttons at new position
     if BR.SecureButtons then
@@ -379,6 +415,29 @@ local function RefreshFonts(list)
         local obj = list[i]
         ApplyFont(obj, obj._br_font_size, obj._br_font_explicit_outline)
     end
+end
+
+---Rewrite the caption under a mover after its anchor changed.
+local function UpdateMoverCaption(catKey)
+    local target = moverTargets[catKey]
+    if target then
+        if target.UpdateLabel then
+            target.UpdateLabel()
+        end
+        return
+    end
+    local mover = moverFrames[catKey]
+    if not mover then
+        return
+    end
+    local db = BR.profile
+    local catSettings = db.categorySettings and db.categorySettings[catKey]
+    local frameName = catSettings and catSettings.anchorFrame
+    local dir = GetCategorySettings(catKey).growDirection or "CENTER"
+    mover.anchorText:SetText(
+        (frameName and frameName ~= "") and format(L["Mover.AnchorGrowthFrame"], dir, frameName)
+            or format(L["Mover.AnchorGrowth"], dir)
+    )
 end
 
 -- Coordinate popup: shared singleton for typing exact X/Y positions and anchor settings
@@ -559,31 +618,27 @@ local function CreateCoordinatePopup()
         end
         anchorText:SetText(frameName or L["Mover.NoneScreenCenter"])
         anchorMenu:Hide()
-        -- Set anchor in DB directly, reset position to (0,0), then fire LayoutRefresh once
-        -- This avoids a double-reposition (LayoutRefresh would use old position then SavePosition resets)
-        local db = BR.profile
-        if not db.categorySettings then
-            db.categorySettings = {}
+        -- Set the anchor in the DB directly, reset the position to (0,0), then
+        -- refresh once. A refresh before the reset places the frame at the old
+        -- offsets, so the frame moves twice.
+        local target = moverTargets[catKey]
+        if target then
+            target.SetAnchorFrame(frameName)
+            SavePosition(catKey, 0, 0)
+        else
+            local db = BR.profile
+            if not db.categorySettings then
+                db.categorySettings = {}
+            end
+            if not db.categorySettings[catKey] then
+                db.categorySettings[catKey] = {}
+            end
+            db.categorySettings[catKey].anchorFrame = frameName
+            SavePosition(catKey, 0, 0)
+            BR.CallbackRegistry:TriggerEvent("LayoutRefresh")
         end
-        if not db.categorySettings[catKey] then
-            db.categorySettings[catKey] = {}
-        end
-        db.categorySettings[catKey].anchorFrame = frameName
-        SavePosition(catKey, 0, 0)
-        if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
-            coordPopup.xEdit:SetText("0")
-            coordPopup.yEdit:SetText("0")
-        end
-        BR.CallbackRegistry:TriggerEvent("LayoutRefresh")
-        -- Update mover label
-        local mover = moverFrames[catKey]
-        if mover then
-            local catSettings = GetCategorySettings(catKey)
-            local dir = catSettings.growDirection or "CENTER"
-            local moverLabel = frameName and format(L["Mover.AnchorGrowthFrame"], dir, frameName)
-                or format(L["Mover.AnchorGrowth"], dir)
-            mover.anchorText:SetText(moverLabel)
-        end
+        SyncPopupCoords(catKey, 0, 0)
+        UpdateMoverCaption(catKey)
         -- Update enabled state of anchor point controls (resolved at call time via popup.*)
         local hasAnchor = frameName ~= nil
         popup.pointBtn:SetEnabled(hasAnchor)
@@ -739,7 +794,10 @@ local function CreateCoordinatePopup()
             pointText:SetText(pt)
             pointMenu:Hide()
             local catKey = popup.catKey
-            if catKey then
+            local target = catKey and moverTargets[catKey]
+            if target then
+                target.SetAnchorPoint(pt)
+            elseif catKey then
                 BR.Config.Set("categorySettings." .. catKey .. ".anchorPoint", pt)
             end
         end)
@@ -831,8 +889,12 @@ local function ShowCoordinatePopup(catKey, mover)
 
     -- Populate anchor fields (not applicable for detached icons)
     local isDetached = IsIconDetached(catKey)
+    local target = moverTargets[catKey]
     local anchorName, anchorPoint
-    if not isDetached then
+    if target then
+        anchorName, anchorPoint = target.GetAnchor()
+        anchorPoint = anchorPoint or "CENTER"
+    elseif not isDetached then
         local db = BR.profile
         local catSettings = db.categorySettings and db.categorySettings[catKey]
         anchorName = catSettings and catSettings.anchorFrame
@@ -1398,6 +1460,15 @@ local function RepositionAllFrames()
     end
 end
 
+---Let a display that is not a buff category use the coordinate popup. The adapter
+---supplies GetPosition, SetPosition, GetAnchor, SetAnchorFrame, SetAnchorPoint and
+---an optional UpdateLabel.
+---@param key string Popup key, in the namespace of the category keys
+---@param adapter table
+local function RegisterTarget(key, adapter)
+    moverTargets[key] = adapter
+end
+
 -- Export module
 BR.Movers = {
     Initialize = InitializeMovers,
@@ -1405,6 +1476,12 @@ BR.Movers = {
     HideAll = HideAllMovers,
     SavePosition = SavePosition,
     ScanAnchorFrames = ScanAnchorFrames,
+    RegisterTarget = RegisterTarget,
+    ShowCoordinatePopup = ShowCoordinatePopup,
+    HideCoordinatePopup = HidePopupFor,
+    IsCoordinatePopupShown = IsPopupShownFor,
+    SyncPopupCoords = SyncPopupCoords,
+    AnchoredOffsets = AnchoredOffsets,
     GetMoverFrames = function()
         return moverFrames
     end,

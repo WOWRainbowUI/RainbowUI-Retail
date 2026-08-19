@@ -24,6 +24,8 @@ local _, BR = ...
 -- rather than four gaps.
 
 local min = math.min
+local floor = math.floor
+local format = string.format
 local ipairs = ipairs
 local pairs = pairs
 local pcall = pcall
@@ -38,6 +40,9 @@ local Settings = BR.GetExternalSettings
 local Setting = BR.GetExternalSetting
 
 local GROUP_KEY = "externals"
+-- Key this display answers to in the shared mover coordinate popup. It is not a
+-- buff category, so it can never collide with one.
+local MOVER_KEY = "externals"
 -- Blizzard allocates aura frames in batches of 10; this caps how many can be
 -- visible at once, not how many can be enabled.
 local MAX_FRAMES = 20
@@ -214,21 +219,102 @@ local function InitializeButton(button)
     StyleButton(button)
 end
 
+local function Round(value)
+    return floor(value + 0.5)
+end
+
+---The frame this display is attached to, chosen in the mover coordinate popup.
+---@return table? frame, string? point nil when unset, or when the frame does not exist
+local function ResolveAnchor()
+    local name = Settings().anchorFrame
+    if name and name ~= "" then
+        local frame = _G[name]
+        if frame and frame.GetCenter then
+            return frame, Settings().anchorPoint or "CENTER"
+        end
+    end
+    return nil, nil
+end
+
+---The corner of this display that meets the anchor frame's point. Growth is
+---horizontal only, so only the LEFT and RIGHT rows of the map apply.
+---@param point string Anchor point on the anchor frame
+---@return string
+local function SelfPoint(point)
+    local map = BR.EXT_DIRECTION_ANCHORS[point]
+    return map and map[Settings().growDirection or "RIGHT"] or point
+end
+
+---Where the display sits now, in the coordinates it is saved in: relative to the
+---anchor frame when one is set, otherwise to the center of the screen.
+---@return number? x, number? y, string? selfPoint, table? parent, string? parentPoint
+local function ComputeCoords()
+    local parent, point = ResolveAnchor()
+    if parent and point then
+        local selfPoint = SelfPoint(point)
+        local x, y = BR.Movers.AnchoredOffsets(anchorFrame, selfPoint, parent, point)
+        if not x or not y then
+            -- The anchor frame has no laid-out rect yet. Screen coordinates would be
+            -- saved against the anchor on the next refresh, which moves the display.
+            return nil
+        end
+        return x, y, selfPoint, parent, point
+    end
+    local cx, cy = anchorFrame:GetCenter()
+    local px, py = UIParent:GetCenter()
+    if not cx or not px then
+        return nil
+    end
+    return Round(cx - px), Round(cy - py)
+end
+
+---Persist the position after a drag. An anchored display keeps its anchor: the
+---offsets are recomputed against the anchor frame, so a nudge never converts the
+---display back to screen coordinates.
 local function SavePosition()
-    local settings = Settings()
-    local point, _, _, x, y = anchorFrame:GetPoint()
-    settings.position = { point = point or "CENTER", x = x or 0, y = y or 0 }
+    local x, y, selfPoint, parent, point = ComputeCoords()
+    if not x then
+        return
+    end
+    -- Screen placement is stored center-relative, like every category frame, so the
+    -- coordinates typed in the popup mean the same thing on both.
+    Settings().position = { point = "CENTER", x = x, y = y }
+    anchorFrame:ClearAllPoints()
+    if parent then
+        anchorFrame:SetPoint(selfPoint, parent, point, x, y)
+    else
+        anchorFrame:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    end
+    BR.Movers.SyncPopupCoords(MOVER_KEY, x, y)
 end
 
 local function ApplyPosition()
     local position = Settings().position or BR.defaults.externals.position
+    local x, y = position.x or 0, position.y or 0
+    local parent, point = ResolveAnchor()
     anchorFrame:ClearAllPoints()
-    anchorFrame:SetPoint(
-        position.point or "CENTER",
-        UIParent,
-        position.point or "CENTER",
-        position.x or 0,
-        position.y or 0
+    if parent and point then
+        anchorFrame:SetPoint(SelfPoint(point), parent, point, x, y)
+    else
+        -- Older saves carry the screen point the drag left behind, so it still
+        -- drives both sides of the anchor.
+        local screenPoint = position.point or "CENTER"
+        anchorFrame:SetPoint(screenPoint, UIParent, screenPoint, x, y)
+    end
+end
+
+---Caption under the mover, matching the category movers.
+local function UpdateMoverCaption()
+    local mover = anchorFrame and anchorFrame.mover
+    if not mover then
+        return
+    end
+    local settings = Settings()
+    local dir = settings.growDirection or "RIGHT"
+    local name = settings.anchorFrame
+    mover.anchorText:SetText(
+        (name and name ~= "") and format(L["Mover.AnchorGrowthFrame"], dir, name)
+            or format(L["Mover.AnchorGrowth"], dir)
     )
 end
 
@@ -315,27 +401,60 @@ local function CreateMover()
     label:SetPoint("BOTTOM", mover, "TOP", 0, 4)
     mover.label = label
 
+    local anchorText = mover:CreateFontString(nil, "OVERLAY")
+    anchorText:SetPoint("TOP", mover, "BOTTOM", 0, -4)
+    mover.anchorText = anchorText
+
     -- The mover is built once, so font setting changes must be pushed to its
-    -- label explicitly. The frame belongs to the addon, not to a forbidden
+    -- labels explicitly. The frame belongs to the addon, not to a forbidden
     -- button subtree, so the apply is safe.
     function mover:UpdateFont()
         BR.DisplayFonts.Apply(self.label, MOVER_LABEL_SIZE)
+        BR.DisplayFonts.Apply(self.anchorText, MOVER_LABEL_SIZE)
     end
     -- Must run before SetText: SetText on a font-less FontString raises an error.
     mover:UpdateFont()
 
     label:SetTextColor(0.4, 1, 0.4, 1)
     label:SetText(L["Externals.Title"])
+    anchorText:SetTextColor(0.4, 1, 0.4, 1)
 
-    BR.SetupTooltip(mover, L["Externals.Title"], L["Externals.MoverTooltip"])
+    BR.SetupTooltip(mover, L["Externals.Title"], L["Mover.DragTooltip"])
 
-    mover:SetScript("OnDragStart", function()
-        GameTooltip:Hide()
-        anchorFrame:StartMoving()
-    end)
-    mover:SetScript("OnDragStop", function()
+    local function FinishDrag()
+        mover.isDragging = false
+        mover:SetScript("OnUpdate", nil)
         anchorFrame:StopMovingOrSizing()
         SavePosition()
+    end
+
+    mover:SetScript("OnDragStart", function(self)
+        GameTooltip:Hide()
+        self.isDragging = true
+        anchorFrame:StartMoving()
+        self:SetScript("OnUpdate", function()
+            local x, y = ComputeCoords()
+            if x then
+                BR.Movers.SyncPopupCoords(MOVER_KEY, x, y)
+            end
+        end)
+    end)
+    mover:SetScript("OnDragStop", FinishDrag)
+    mover:SetScript("OnHide", function(self)
+        if self.isDragging then
+            FinishDrag()
+        end
+    end)
+
+    mover:SetScript("OnMouseUp", function(self, button)
+        if self.isDragging or button ~= "LeftButton" then
+            return
+        end
+        if BR.Movers.IsCoordinatePopupShown(MOVER_KEY) then
+            BR.Movers.HideCoordinatePopup(MOVER_KEY)
+        else
+            BR.Movers.ShowCoordinatePopup(MOVER_KEY, self)
+        end
     end)
 
     mover:Hide()
@@ -399,7 +518,11 @@ local function SetUnlocked(unlocked)
     if not mover then
         return
     end
-    mover:SetShown(unlocked and Settings().enabled)
+    local shown = unlocked and Settings().enabled
+    mover:SetShown(shown)
+    if not shown then
+        BR.Movers.HideCoordinatePopup(MOVER_KEY)
+    end
 end
 
 local function Refresh()
@@ -409,6 +532,7 @@ local function Refresh()
         if anchorFrame then
             anchorFrame:Hide()
         end
+        BR.Movers.HideCoordinatePopup(MOVER_KEY)
         return
     end
 
@@ -419,6 +543,7 @@ local function Refresh()
     ApplyPosition()
     anchorFrame:SetSize(GetIconDimensions())
     anchorFrame.mover:UpdateFont()
+    UpdateMoverCaption()
     ApplyConfig()
     anchorFrame:Show()
     -- Re-sync the handle: the display can be created or enabled while the frames
@@ -465,6 +590,44 @@ liftWatcher:SetScript("OnEvent", function(_, event)
         Refresh()
     end
 end)
+
+-- Anchor assignment happens in the shared mover coordinate popup, the same place
+-- every category is anchored from. This display keeps its own settings table, so
+-- the popup drives it through these calls instead of writing categorySettings.
+BR.Movers.RegisterTarget(MOVER_KEY, {
+    -- Live coordinates, not the stored ones: a save that predates the anchor option
+    -- holds offsets from whatever screen point the drag left behind, and the popup
+    -- writes center-relative ones. Reading the frame keeps both in the same space.
+    GetPosition = function()
+        if anchorFrame then
+            local x, y = ComputeCoords()
+            if x then
+                return { x = x, y = y }
+            end
+        end
+        return Settings().position or BR.defaults.externals.position
+    end,
+    SetPosition = function(x, y)
+        Settings().position = { point = "CENTER", x = x, y = y }
+        if anchorFrame then
+            ApplyPosition()
+        end
+    end,
+    GetAnchor = function()
+        local settings = Settings()
+        return settings.anchorFrame, settings.anchorPoint
+    end,
+    SetAnchorFrame = function(name)
+        Settings().anchorFrame = name
+    end,
+    SetAnchorPoint = function(point)
+        Settings().anchorPoint = point
+        if anchorFrame then
+            ApplyPosition()
+        end
+    end,
+    UpdateLabel = UpdateMoverCaption,
+})
 
 BR.CallbackRegistry:RegisterCallback("ExternalsRefresh", Refresh)
 -- The duration text uses the addon's global font face and outline, which live under
