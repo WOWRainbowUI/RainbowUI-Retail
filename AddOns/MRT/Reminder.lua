@@ -122,12 +122,14 @@ function frame:CreateText(t,i,textSizeScale)
 
 	text = self:CreateFontString(nil,"ARTWORK")
 	t[i] = text
+	text:SetFont(ExRT.F.defFont, 12, "")
 	text:SetShadowOffset(1,-1)
 	text:SetTextColor(1,1,1,1)
 
 	text.tss = textSizeScale == 1 and 1.5 or textSizeScale == 2 and 1 or 0.5
 
 	text.tmr = self:CreateFontString(nil,"ARTWORK")
+	text.tmr:SetFont(ExRT.F.defFont, 12, "")
 	text.tmr:SetShadowOffset(1,-1)
 	text.tmr:SetTextColor(1,1,1,1)
 	text.tmr:SetPoint("LEFT",text,"RIGHT",floor(text.tss * 6 + 0.5),0)
@@ -158,10 +160,12 @@ function frame:UpdateTextStyle(obj)
 
 	for o,t in pairs(obj and {{obj}} or {self.textBigD,self.textD,self.textSmallD}) do
 		for ci,text in pairs(t) do
-			if not text:SetFont(font, fontSize*text.tss, outline) then
+			local isValidFont = pcall(text.SetFont, text, font, fontSize*text.tss, outline)
+			if not isValidFont then
 				text:SetFont(ExRT.F.defFont, fontSize*text.tss, outline)
 			end
-			if not text.tmr:SetFont(font, fontSize*text.tss, outline) then
+			local isValidFont = pcall(text.tmr.SetFont, text.tmr, font, fontSize*text.tss, outline)
+			if not isValidFont then
 				text.tmr:SetFont(ExRT.F.defFont, fontSize*text.tss, outline)
 			end
 

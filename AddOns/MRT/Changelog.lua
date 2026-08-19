@@ -1,6 +1,9 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5320
+* 12.1 update
+
 v.5315
 * Fixed Sporefall autologging
 * Minor updates
