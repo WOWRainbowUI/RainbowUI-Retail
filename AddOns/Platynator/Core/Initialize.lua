@@ -97,3 +97,7 @@ frame:SetScript("OnEvent", function(_, eventName, data)
     addonTable.Core.Initialize()
   end
 end)
+
+function Platynator_AddonCompartmentCallback()
+  addonTable.CustomiseDialog.Toggle()
+end
