@@ -1,4 +1,4 @@
-﻿## Interface: 11508, 20205, 30405, 38001, 40402, 50504, 120007, 120100
+﻿## Interface: 11509, 20206, 30405, 38002, 40402, 50504, 120100, 120007
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0Voicepack Saha|r
@@ -7,11 +7,11 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 安格斯
-## Version: 26-0806
+## Version: 26-0819
 ## IconTexture: Interface\AddOns\DBM-VPSaha\z_ags
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: 安格斯 (中文男音)
 ## X-DBM-Voice-ShortName: Saha
-## X-DBM-Voice-Version: 19
+## X-DBM-Voice-Version: 20
 ## X-DBM-Voice-HasCount: 1
 ## X-DBM-Voice-MaxCount: 11
