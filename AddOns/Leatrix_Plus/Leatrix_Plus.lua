@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.00 (12th August 2026)
+-- 	Leatrix Plus 12.1.01 (19th August 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.00"
+	LeaPlusLC["AddonVer"] = "12.1.01"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5894,6 +5894,7 @@
 						or name == "TomCats-LunarFestivalMinimapButton2023"
 						or name == "LibDBIcon10_MethodRaidTools"		-- Method Raid Tools
 						or name == "wlMinimapButton"					-- Wowhead Looter (part of Wowhead client)
+						or name == "CLN_MinimapButton"					-- Chatty Little NPC
 						then
 						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
 						myButton:HookScript("OnEnter", function()
@@ -12453,7 +12454,7 @@
 				-- Help panel
 				if not LeaPlusLC.HelpFrame then
 					local frame = CreateFrame("FRAME", nil, UIParent)
-					frame:SetSize(570, 360); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
+					frame:SetSize(570, 380); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
 					frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); frame.tex:SetColorTexture(0.05, 0.05, 0.05, 0.9)
 					frame.close = LeaPlusLC:CreateCloseButton(frame, 30, 30, "TOPRIGHT", 0, 0)
 					frame.close:SetScript("OnClick", function() frame:Hide() end)
@@ -12466,7 +12467,7 @@
 					frame:SetScript("OnDragStart", frame.StartMoving)
 					frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() frame:SetUserPlaced(false) end)
 					frame:Hide()
-					LeaPlusLC:CreateBar("HelpPanelMainTexture", frame, 570, 360, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+					LeaPlusLC:CreateBar("HelpPanelMainTexture", frame, 570, 380, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
 					-- Panel contents
 					local col1, col2, color1 = 10, 120, "|cffffffaa"
 					LeaPlusLC:MakeTx(frame, "Leatrix Plus Help", col1, -10)
@@ -12498,10 +12499,12 @@
 					LeaPlusLC:MakeWD(frame, "Toggle the Enigmatic quest solver.", col2, -270)
 					LeaPlusLC:MakeWD(frame, color1 .. "/ltp rsnd", col1, -290)
 					LeaPlusLC:MakeWD(frame, "Restart the sound system.", col2, -290)
-					LeaPlusLC:MakeWD(frame, color1 .. "/ltp con", col1, -310)
-					LeaPlusLC:MakeWD(frame, "Launch the developer console with a large font.", col2, -310)
-					LeaPlusLC:MakeWD(frame, color1 .. "/rl", col1, -330)
-					LeaPlusLC:MakeWD(frame, "Reload the UI.", col2, -330)
+					LeaPlusLC:MakeWD(frame, color1 .. "/ltp ra", col1, -310)
+					LeaPlusLC:MakeWD(frame, "Announce target in General chat channel (useful for rares).", col2, -310)
+					LeaPlusLC:MakeWD(frame, color1 .. "/ltp con", col1, -330)
+					LeaPlusLC:MakeWD(frame, "Launch the developer console with a large font.", col2, -330)
+					LeaPlusLC:MakeWD(frame, color1 .. "/rl", col1, -350)
+					LeaPlusLC:MakeWD(frame, "Reload the UI.", col2, -350)
 					LeaPlusLC.HelpFrame = frame
 					_G["LeaPlusGlobalHelpPanel"] = frame
 					table.insert(UISpecialFrames, "LeaPlusGlobalHelpPanel")
@@ -12516,6 +12519,74 @@
 					local p = C_FriendList.GetWhoInfo(i)
 					if not string.find(p.fullName, "-") then
 						print("https://worldofwarcraft.com/en-gb/character/eu/" .. realmName .. "/" .. p.fullName .. "/collections/pets")
+					end
+				end
+				return
+			elseif str == "ra" then
+				-- Announce target name and map pin link in General chat channel
+				if C_ChatInfo.InChatMessagingLockdown() then
+					LeaPlusLC:Print("Chat messages are restricted right now.")
+					return
+				end
+				local genChannel
+				if GameLocale == "deDE" 	then genChannel = "Allgemein"
+				elseif GameLocale == "esMX" then genChannel = "General"
+				elseif GameLocale == "esES" then genChannel = "General"
+				elseif GameLocale == "frFR" then genChannel = "Général"
+				elseif GameLocale == "itIT" then genChannel = "Generale"
+				elseif GameLocale == "ptBR" then genChannel = "Geral"
+				elseif GameLocale == "ruRU" then genChannel = "Общий"
+				elseif GameLocale == "koKR" then genChannel = "공개"
+				elseif GameLocale == "zhCN" then genChannel = "综合"
+				elseif GameLocale == "zhTW" then genChannel = "綜合"
+				else							 genChannel = "General"
+				end
+				-- genChannel = "Crazy" -- Uncomment for debug
+				if genChannel then
+					local index = GetChannelName(genChannel)
+					if index and index > 0 then
+						local mapID = C_Map.GetBestMapForUnit("player")
+						if C_Map.CanSetUserWaypointOnMap(mapID) then
+							local pos = C_Map.GetPlayerMapPosition(mapID, "player")
+							if pos.x and pos.x ~= "0" and pos.y and pos.y ~= "0" then
+								local mapPoint = UiMapPoint.CreateFromVector2D(mapID, pos)
+								if mapPoint then
+									-- Store original pin if there is one
+									local currentPin = C_Map.GetUserWaypointHyperlink()
+									-- Set map pin and get the link
+									C_Map.SetUserWaypoint(mapPoint)
+									local myPin = C_Map.GetUserWaypointHyperlink()
+									-- Put original pin back if there was one
+									if currentPin then
+										C_Timer.After(0.1, function()
+											local oldPin = C_Map.GetUserWaypointFromHyperlink(currentPin)
+											C_Map.SetUserWaypoint(oldPin)
+										end)
+									end
+									-- Announce in chat
+									if myPin then
+										-- Get unit classification (elite, rare, rare elite or boss)
+										local unitType, unitTag = UnitClassification("target"), ""
+										if unitType then
+											if unitType == "rare" or unitType == "rareelite" then unitTag = "(" .. L["Rare"] .. ") " elseif unitType == "worldboss" then unitTag = "(" .. L["Boss"] .. ") " end
+										end
+										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "CHANNEL", nil, index)
+--										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
+										C_Map.ClearUserWaypoint()
+									else
+										LeaPlusLC:Print("Invalid target.")
+									end
+								else
+									LeaPlusLC:Print("Cannot announce in this zone.")
+								end
+							else
+								LeaPlusLC:Print("Cannot announce in this zone.")
+							end
+						else
+							LeaPlusLC:Print("Cannot announce in this zone.")
+						end
+					else
+						LeaPlusLC:Print("Cannot find General chat channel.")
 					end
 				end
 				return

@@ -1,4 +1,8 @@
-﻿12.1.00 - 12th August 2026
+﻿12.1.01 - 15th August 2026
+- For 'Enhance minimap' ('Interface'), added support for the Chatty Little NPC addon custom minimap button.
+- Fixed an issue with the /ltp ra (rare announce) command.  The command will no longer show an error in chat restricted environments.
+
+12.1.00 - 12th August 2026
 - Updated for game patch 12.1.0.
 - The 'Show cooldowns' option ('Interface') and 'Manage control' option ('Frames') have been removed.  The latter is now included with Edit Mode.
 - Fixed various secrets issues.
