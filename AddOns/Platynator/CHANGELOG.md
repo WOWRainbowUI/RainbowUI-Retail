@@ -1,6 +1,8 @@
 # Platynator
 
-## [464](https://github.com/TheMouseNest/Platynator/tree/464) (2026-08-14)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/463...464) 
+## [465](https://github.com/TheMouseNest/Platynator/tree/465) (2026-08-18)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/464...465) 
 
-- Fix typo breaking auras if buffs or debuffs removed  
+- Add to addon compartment  
+- Aura filtering improvements + toggle for filtering friendlies to player buffs  
+- Retail: Fix obscured nameplates gaining opacity when any other plate targeted  

@@ -1366,17 +1366,6 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
-            label = addonTable.Locales.DEFENSIVE,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.filters.defensive = value
-            end,
-            getter = function(details)
-              return details.filters.defensive
-            end,
-            hide = addonTable.Constants.IsClassic,
-          },
-          {
             label = addonTable.Locales.DISPELLABLE,
             kind = "checkbox",
             setter = function(details, value)
@@ -1395,6 +1384,30 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             getter = function(details)
               return details.filters.enrage
             end,
+          },
+          { kind = "spacer" },
+          {
+            label = addonTable.Locales.DEFENSIVE_ONLY,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.defensive = value
+            end,
+            getter = function(details)
+              return details.filters.defensive
+            end,
+            hide = addonTable.Constants.IsClassic,
+          },
+          { kind = "spacer" },
+          {
+            label = addonTable.Locales.FILTER_FRIENDLY_ONLY_FROM_YOU,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.friendlyFromYou = value
+            end,
+            getter = function(details)
+              return details.filters.friendlyFromYou
+            end,
+            hide = addonTable.Constants.IsClassic,
           },
         }
       },
