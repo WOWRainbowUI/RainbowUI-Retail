@@ -68,6 +68,8 @@ BR.defaults = {
         -- dormant. Countdown size and direction have no `defaults` counterpart,
         -- so they always come from this table.
         useCustomAppearance = false,
+        -- anchorFrame/anchorPoint stay nil until the mover popup sets them, and nil
+        -- means screen placement - the same contract the categories use.
         position = { point = "CENTER", x = 0, y = -180 },
         iconSize = 40,
         -- iconWidth: nil = same as iconSize (square). Set explicitly for non-square icons.

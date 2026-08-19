@@ -320,7 +320,6 @@ L["Tab.DisplayBehavior"] = "표시/동작"
 
 -- Sidebar groups
 L["Sidebar.AddonSettings"] = "애드온 설정"
-L["Sidebar.BuffsReminders"] = "버프 및 리마인더"
 L["Sidebar.Appearance"] = "외형"
 L["Sidebar.Display"] = "디스플레이"
 L["Sidebar.Alerts"] = "알림"
@@ -333,7 +332,6 @@ L["Page.ChatRequests"] = "채팅 요청"
 L["Page.Layout"] = "레이아웃"
 L["Page.Categories"] = "카테고리"
 L["Page.Profiles"] = "프로필"
-L["Page.AllBuffs"] = "모든 버프"
 
 -- Per-category page section headers
 L["Section.Tracking"] = "추적"
@@ -654,23 +652,11 @@ L["Options.SplitFrame.Desc"] =
 L["Options.DisplayOrder"] = "쌓이는 순서"
 
 -- Layout page
-L["Layout.PositionFrames"] = "프레임 위치"
-L["Layout.PositionFrames.Note"] =
-    "잠금 해제 시 게임 내에서 드래그 핸들이 표시됩니다. 핸들을 클릭해서 정확한 좌표를 입력하거나 드래그로 위치를 변경하세요. 고정된 프레임은 드래그 중에도 기준점을 유지합니다."
-L["Layout.SplitFrames"] = "프레임 분리"
-L["Layout.SplitFrames.Note"] =
-    "카테고리를 독립적으로 배치 가능한 자체 프레임으로 분리합니다. 각 카테고리 페이지의 레이아웃 섹션에서 분리할 수 있습니다."
-L["Layout.NoSplitFrames"] = "자체 프레임으로 분리된 카테고리가 없습니다."
 L["Layout.DetachedIcons"] = "분리된 아이콘"
 L["Layout.NoDetached"] =
     '분리된 아이콘이 없습니다. 모든 버프 페이지의 설정 패널에서 버프를 분리하세요. ("자체 프레임")'
-L["Layout.AnchorTargets"] = "고정 대상"
-L["Layout.AnchorFrame.Desc"] = "정해진 화면 위치 대신 다른 프레임에 이 프레임을 부착합니다."
-L["Layout.AnchorPoint.Desc"] = "앵커 프레임의 어느 모서리나 가장자리에 부착할지 선택합니다."
 L["Layout.FrameNotFound"] =
     "이 프레임은 현재 게임 내에 존재하지 않습니다.\n관련 애드온이 프레임을 생성해야 앵커 드롭다운에 표시됩니다."
-L["DisabledReason.AnchorPoint"] =
-    "먼저 앵커 프레임을 선택하세요 - 고정 지점은 프레임에 고정된 경우에만 적용됩니다."
 
 -- Buff panel (uniform per-buff settings dialog)
 L["BuffPanel.SettingsLink"] = "설정"

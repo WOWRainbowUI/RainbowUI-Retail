@@ -321,8 +321,6 @@ L["Sidebar.Buffs"] = "增益"
 L["Sidebar.Appearance"] = "外观"
 L["Sidebar.Display"] = "显示"
 L["Sidebar.Alerts"] = "警报"
-L["Sidebar.General"] = "常规"
-L["Sidebar.Profiles"] = "配置文件"
 
 -- Externals (present-based display)
 L["Externals.Title"] = "外部增益"
@@ -340,7 +338,6 @@ L["Externals.Augmentation"] = "增效"
 L["Externals.Bloodlust"] = "嗜血/英勇"
 L["Externals.MassBarrier"] = "群体屏障"
 L["Externals.BlessingOfSeasons"] = "四季祝福"
-L["Externals.MoverTooltip"] = "拖动以调整位置"
 L["Externals.DurationSize"] = "倒计时文字大小"
 L["Externals.Appearance"] = "外观"
 L["Externals.AppearanceNote"] =

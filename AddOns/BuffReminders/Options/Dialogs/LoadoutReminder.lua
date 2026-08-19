@@ -208,7 +208,7 @@ local function Show(existingKey, refreshPanelCallback)
         width = DROPDOWN_W,
         options = {
             { value = "gear", label = L["Loadout.Require.Gear"] },
-            { value = "talent", label = L["Loadout.Require.Talent"] },
+            { value = "talent", label = L["Loadout.Require.TalentOption"] },
             { value = "loadout", label = L["Loadout.Require.Loadout"] },
         },
         get = function()

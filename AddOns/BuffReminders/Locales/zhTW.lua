@@ -343,7 +343,6 @@ L["Externals.Bloodlust"] = "嗜血術"
 L["Externals.MassBarrier"] = "群體屏障"
 -- Groups Blessing of Summer/Autumn/Winter/Spring
 L["Externals.BlessingOfSeasons"] = "四季祝福"
-L["Externals.MoverTooltip"] = "拖曳以重新定位"
 L["Externals.DurationSize"] = "倒數尺寸"
 L["Externals.Appearance"] = "外觀"
 L["Externals.AppearanceNote"] =
@@ -657,7 +656,6 @@ L["Options.PoisonReset"] = "重置回預設"
 L["Options.BronzeHideInCombat"] = "戰鬥中隱藏"
 L["Options.BronzeHideInCombat.Desc"] =
     "當戰鬥中隱藏青銅龍的祝福的提醒。這個增益不太重要，你可能不想在戰鬥中補上。"
-L["Options.DruidFormSettings"] = "德魯伊型態設定"
 L["Options.DruidIgnoreTravelForm"] = "當旅行中忽略"
 L["Options.DruidIgnoreTravelForm.Desc"] =
     "當於旅行型態或上坐騎時時隱藏錯誤型態的提醒 (地面、水中、飛行或坐騎型態)，因此當您有意旅行時，它不會打擾您。"
