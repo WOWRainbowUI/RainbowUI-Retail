@@ -24,6 +24,8 @@ local Recipe = ns.reward.Recipe
 local Reputation = ns.reward.Reputation
 local Toy = ns.reward.Toy
 local Transmog = ns.reward.Transmog
+local Section = ns.reward.Section
+local Spacer = ns.reward.Spacer
 
 local ItemStatus = ns.tooltip.ItemStatus
 
@@ -40,9 +42,24 @@ local map = Map({id = 2215, settings = true})
 ------------------------------------ RARES ------------------------------------
 -------------------------------------------------------------------------------
 
+-- 3-hour cycle phased off the daily quest reset clock (first spawn 61 min
+-- after reset); window thresholds come from the core defaults.
+local BeledarInterval = Class('BeledarInterval', ns.Interval, {
+    initial = {}, -- no fixed epoch; the reset clock phases Next()
+    interval = 10800, -- 3 hours, phased off the daily quest reset clock
+    text = L['beledars_spawn_note']
+})
+
+function BeledarInterval:Next()
+    local now = GetServerTime()
+    local timeLeft = (GetQuestResetTime() + 3660) % self.interval
+    return now + timeLeft, timeLeft
+end
+
 local BeledarsSpawn = Class('BeledarsSpawn', Rare, {
     id = 207802,
     quest = 81763, -- 85164
+    interval = BeledarInterval(),
     rewards = {
         Achievement({id = 40851, criteria = 69716}),
         Mount({item = 223315, id = 2192}),
@@ -57,30 +74,6 @@ local BeledarsSpawn = Class('BeledarsSpawn', Rare, {
         })
     }
 }) -- Beledar's Spawn
-
-function BeledarsSpawn.getters:note()
-    local timeFormat =
-        ns:GetOpt('use_standard_time') and L['time_format_12hrs'] or
-            L['time_format_24hrs']
-
-    local timeLeft = (GetQuestResetTime() + 3660) % 10800
-
-    -- base the spawn epoch on the server clock (not the machine clock) so
-    -- the display follows server time even if the client clock drifts
-    local serverNow = GetServerTime()
-    local nextSpawn = timeLeft + serverNow
-
-    local spawnsIn = ns.FormatCountdown(timeLeft)
-
-    local color = ns.color.Orange
-    if timeLeft < 1800 then color = ns.color.Yellow end -- 30 mins
-    if timeLeft < 600 then color = ns.color.Green end -- 10 mins
-    spawnsIn = color(spawnsIn)
-
-    -- shift by the server's timezone so date() renders the server wall clock
-    return format(L['beledars_spawn_note'], spawnsIn,
-        date(timeFormat, ns.ServerClockEpoch(nextSpawn)))
-end
 
 map.nodes[25004500] = BeledarsSpawn()
 
@@ -99,6 +92,7 @@ map.nodes[65052965] = Rare({
         Reputation({id = 2570, gain = 150, quest = 84052}),
         Transmog({item = 223935, type = L['cloth']}), -- Cabbage Harvester's Pantaloons
         Transmog({item = 223928, type = L['plate']}), -- Crop Cutter's Gauntlets
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221238, type = L['staff']}) -- Pillar of Constructs
     }
 }) -- Crazed Cabbage Smacker
@@ -111,6 +105,7 @@ map.nodes[67552316] = Rare({
         Achievement({id = 40851, criteria = 69722}),
         Reputation({id = 2570, gain = 150, quest = 84054}),
         Transmog({item = 223938, type = L['leather']}), -- Marsh Hopper's Spaulders
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221251, type = L['2h_axe']}), -- Bestial Underground Cleaver
         Transmog({item = 221246, type = L['staff']}), -- Fierce Beast Staff
         Transmog({item = 221247, type = L['crossbow']}) -- Cavernous Critter Shooter
@@ -126,6 +121,7 @@ map.nodes[63643205] = Rare({
         Achievement({id = 40851, criteria = 69721}),
         Reputation({id = 2570, gain = 150, quest = 84053}),
         Transmog({item = 223927, type = L['leather']}), -- Vinewrapped Leather Tunic
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221253, type = L['fist']}), -- Cultivator's Plant Puncher
         Transmog({item = 221250, type = L['1h_sword']}) -- Creeping Lasher Machete
     }
@@ -139,6 +135,7 @@ map.nodes[44744241] = Rare({
         Achievement({id = 40851, criteria = 69717}),
         Reputation({id = 2570, gain = 150, quest = 85165}),
         Transmog({item = 225997}), -- Earthen Adventurer's Spaulders
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 223920, type = L['shield']}) -- Slime Deflecting Stopper
     },
     pois = {
@@ -179,6 +176,7 @@ map.nodes[63931977] = Rare({
         Achievement({id = 40851, criteria = 69724}),
         Reputation({id = 2570, gain = 150, quest = 84056}),
         Transmog({item = 223936, type = L['mail']}), -- Shadow Bog Trousers
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 223918, type = L['gun']}), -- Specter Stalker's Shotgun
         Transmog({item = 223919, type = L['1h_mace']}) -- Abducted Lawman's Gavel
     }
@@ -191,9 +189,10 @@ map.nodes[62011683] = Rare({
     rewards = {
         Achievement({id = 40851, criteria = 69727}),
         Reputation({id = 2570, gain = 150, quest = 84059}),
+        Transmog({item = 223925, type = L['plate']}), -- Blood Hungerer's Chestplate
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221248, type = L['1h_axe']}), -- Deep Terror Carver
-        Transmog({item = 221255, type = L['dagger']}), -- Sharpened Scalepiercer
-        Transmog({item = 223925, type = L['plate']}) -- Blood Hungerer's Chestplate
+        Transmog({item = 221255, type = L['dagger']}) -- Sharpened Scalepiercer
     }
 }) -- Finclaw Bloodtide
 
@@ -240,6 +239,7 @@ map.nodes[33122687] = Rare({
         Achievement({id = 40851, criteria = 69712}),
         Reputation({id = 2570, gain = 150, quest = 84065}),
         Transmog({item = 221211, type = L['cloth']}), -- Grasp of the Shallows
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221248, type = L['1h_axe']}), -- Deep Terror Carver
         Transmog({item = 221255, type = L['dagger']}) -- Sharpened Scalepiercer
     },
@@ -275,6 +275,7 @@ map.nodes[23005922] = Rare({
         Achievement({id = 40851, criteria = 69710}),
         Reputation({id = 2570, gain = 150, quest = 84063}),
         Transmog({item = 221207, type = L['mail']}), -- Den Mother's Chestpiece
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221246, type = L['staff']}), -- Fierce Beast Staff
         Transmog({item = 221251, type = L['2h_axe']}), -- Bestial Underground Cleaver
         Transmog({item = 221247, type = L['crossbow']}) -- Cavernous Critter Shooter
@@ -289,6 +290,7 @@ map.nodes[63452854] = Rare({
         Achievement({id = 40851, criteria = 69719}),
         Reputation({id = 2570, gain = 150, quest = 84051}),
         Transmog({item = 223924, type = L['cloth']}), -- Chitin-Inscribed Vest
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221252, type = L['2h_sword']}), -- Nerubian Slayer's Claymore
         Transmog({item = 221240, type = L['1h_sword']}) -- Nerubian Stagshell Gouger
     }
@@ -316,6 +318,7 @@ map.nodes[61981331] = Rare({ -- patrols
         Achievement({id = 40851, criteria = 69728}),
         Reputation({id = 2570, gain = 150, quest = 84060}),
         Transmog({item = 223934, type = L['plate']}), -- Makrura's Foreboding Legplates
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221248, type = L['1h_axe']}), -- Deep Terror Carver
         Transmog({item = 221255, type = L['dagger']}) -- Sharpened Scalepiercer
     }
@@ -329,6 +332,7 @@ map.nodes[61613277] = Rare({
         Achievement({id = 40851, criteria = 69725}),
         Reputation({id = 2570, gain = 150, quest = 84057}),
         Transmog({item = 223940, type = L['mail']}), -- Deranged Fungarian's Epaulets
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221250, type = L['1h_sword']}), -- Creeping Lasher Machete
         Transmog({item = 221253, type = L['fist']}) -- Cultivator's Plant Puncher
     },
@@ -343,6 +347,7 @@ map.nodes[57304857] = Rare({
         Reputation({id = 2570, gain = 150, quest = 84068}),
         Transmog({item = 221225, type = L['cloth']}), -- Benevolent Hornstag Cinch
         Transmog({item = 223007, type = L['polearm']}), -- Lance of Beledar's Pride
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221251, type = L['2h_axe']}), -- Bestial Underground Cleaver
         Transmog({item = 221247, type = L['crossbow']}), -- Cavernous Critter Shooter
         Transmog({item = 221246, type = L['staff']}) -- Fierce Beast Staff
@@ -357,6 +362,7 @@ map.nodes[61943197] = Rare({
         Achievement({id = 40851, criteria = 69726}),
         Reputation({id = 2570, gain = 150, quest = 84058}),
         Transmog({item = 223932, type = L['mail']}), -- Scarab's Carapace Cap
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221252, type = L['2h_sword']}), -- Nerubian Slayer's Claymore
         Transmog({item = 221240, type = L['1h_sword']}) -- Nerubian Stagshell Gouger
     }
@@ -380,6 +386,7 @@ map.nodes[73405259] = Rare({
         Achievement({id = 40851, criteria = 69709}),
         Reputation({id = 2570, gain = 150, quest = 84062}),
         Transmog({item = 221223, type = L['mail']}), -- Bog Beast Mantle
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221253, type = L['fist']}), -- Cultivator's Plant Puncher
         Transmog({item = 221250, type = L['1h_sword']}) -- Creeping Lasher Machete
     }
@@ -393,6 +400,7 @@ map.nodes[43602994] = Rare({
         Reputation({id = 2570, gain = 150, quest = 84066}),
         Transmog({item = 221216, type = L['plate']}), -- Bruin Strength Legplates
         Transmog({item = 221508, type = L['cloak']}), -- Pelt of Beledar's Strength
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221251, type = L['2h_axe']}), -- Bestial Underground Cleaver
         Transmog({item = 221247, type = L['crossbow']}), -- Cavernous Critter Shooter
         Transmog({item = 221246, type = L['staff']}) -- Fierce Beast Staff
@@ -406,6 +414,7 @@ map.nodes[44011637] = Rare({
         Achievement({id = 40851, criteria = 69711}),
         Reputation({id = 2570, gain = 150, quest = 84064}),
         Transmog({item = 221229, type = L['plate']}), -- Perchfather's Cuffs
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221251, type = L['2h_axe']}), -- Bestial Underground Cleaver
         Transmog({item = 221247, type = L['crossbow']}), -- Cavernous Critter Shooter
         Transmog({item = 221246, type = L['staff']}) -- Fierce Beast Staff
@@ -419,6 +428,7 @@ map.nodes[56486899] = Rare({
         Achievement({id = 40851, criteria = 69708}),
         Reputation({id = 2570, gain = 150, quest = 84061}),
         Transmog({item = 221215, type = L['leather']}), -- Taskmaster's Mining Cap
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 221252, type = L['2h_sword']}), -- Nerubian Slayer's Claymore
         Transmog({item = 221240, type = L['1h_sword']}) -- Nerubian Stagshell Gouger
     }
@@ -432,6 +442,7 @@ map.nodes[66432411] = Rare({
         Achievement({id = 40851, criteria = 69723}),
         Reputation({id = 2570, gain = 150, quest = 84055}),
         Transmog({item = 223933, type = L['leather']}), -- Slime Goliath's Cap
+        Spacer(), Section(L['shared_drops']),
         Transmog({item = 223920, type = L['shield']}) -- Slime Deflecting Stopper
     }
 }) -- Toadstomper
