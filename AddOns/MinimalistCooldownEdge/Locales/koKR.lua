@@ -178,12 +178,8 @@ L["Abbreviate Above (seconds)"] = "축약 기준 (초)"
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = "이 임계값을 초과하는 재사용 대기시간 숫자가 축약됩니다 (예: 300 대신 5m)."
 L["ABBREV_THRESHOLD_DESC"] = "재사용 대기시간 숫자가 축약 형식으로 전환되는 시점을 제어합니다. 이 임계값을 초과하는 타이머는 5m 또는 1h과 같은 축약 값을 표시합니다."
 
--- BetterBlizzPlates / MyDRs / sArena
+-- MyDRs / sArena
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0% = 투명, 100% = 완전히 어둡게. 이 카테고리가 활성화된 동안 MyDRs의 Cooldown Swipe Alpha 설정을 대체합니다. 100%는 MyDRs가 직접 그리는 스와이프와 같습니다."
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE가 BBP 오라 쿨다운 텍스트 색상과 임계값을 관리하는 동안 BBP는 오라 레이아웃을 유지합니다."
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "최상의 호환성을 위해 /BBP > Nameplate Auras Options에서 \"Use Blizzard Numbers\"와 \"Expiry Colour\"의 선택을 해제하세요."
-L["BetterBlizzPlates Auras"] = "BetterBlizzPlates 오라"
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE가 BBP 오라 쿨다운 텍스트 색상과 남은 시간 임계값을 관리하는 동안 BBP는 오라 레이아웃과 색상과 무관한 타이머 동작을 유지합니다. 이 어댑터가 활성화된 동안 BBP의 타이머 색상 및 낮은 임계값 옵션은 무시됩니다."
 L["MyDRs test command is unavailable."] = "MyDRs 테스트 명령을 사용할 수 없습니다."
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = "/mydrs test로 MyDRs 기본 테스트 아이콘을 켜거나 끕니다."
 L["sArena slash command is unavailable."] = "sArena 슬래시 명령을 사용할 수 없습니다."

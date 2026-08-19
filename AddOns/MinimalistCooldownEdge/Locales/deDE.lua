@@ -178,12 +178,8 @@ L["Abbreviate Above (seconds)"] = "Abkürzen ab (Sekunden)"
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = "Abklingzeit-Zahlen über diesem Schwellenwert werden abgekürzt (z.B. 5m statt 300)."
 L["ABBREV_THRESHOLD_DESC"] = "Bestimmt, ab wann Abklingzeit-Zahlen in Kurzformat angezeigt werden. Timer über diesem Wert zeigen verkürzte Werte wie 5m oder 1h."
 
--- BetterBlizzPlates / MyDRs / sArena
+-- MyDRs / sArena
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = vollständig dunkel. Ersetzt die MyDRs-Einstellung Cooldown Swipe Alpha, solange diese Kategorie aktiviert ist; 100 % entspricht der Wischanimation, die MyDRs selbst zeichnet."
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE verwaltet die Textfarben und Schwellenwerte der BBP-Aura-Abklingzeiten, während BBP sein Aura-Layout behält."
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "Deaktiviere für beste Kompatibilität \"Use Blizzard Numbers\" und \"Expiry Colour\" unter /BBP > Nameplate Auras Options."
-L["BetterBlizzPlates Auras"] = "BetterBlizzPlates-Auren"
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE verwaltet die Textfarben und Restzeit-Schwellenwerte der BBP-Aura-Abklingzeiten, während BBP sein Aura-Layout und das nicht farbbezogene Timer-Verhalten behält. Die Timerfarb- und Niedrigschwellen-Optionen von BBP werden ignoriert, solange dieser Adapter aktiviert ist."
 L["MyDRs test command is unavailable."] = "Der MyDRs-Testbefehl ist nicht verfügbar."
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = "Schalte die eingebauten Testsymbole von MyDRs mit /mydrs test ein oder aus."
 L["sArena slash command is unavailable."] = "Der sArena-Slash-Befehl ist nicht verfügbar."

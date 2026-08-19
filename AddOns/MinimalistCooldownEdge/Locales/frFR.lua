@@ -257,11 +257,6 @@ L["Show Tenths Below (seconds)"] = "Afficher les dixièmes en dessous de (second
 L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."] = "Les durées en dessous de ce seuil afficheront une décimale (ex. 8,7). Mets 0 pour désactiver."
 L["ABBREV_THRESHOLD_DESC"] = "Définit quand les durées passent en format abrégé. Les minuteries au-dessus de ce seuil affichent des valeurs raccourcies comme 5m ou 1h."
 
--- BetterBlizzPlates
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE gère les couleurs et les seuils du texte de recharge des auras BBP tandis que BBP conserve sa mise en page d'auras."
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "Pour une meilleure compatibilité, décochez « Use Blizzard Numbers » et « Expiry Colour » dans /BBP > Nameplate Auras Options."
-L["BetterBlizzPlates Auras"] = "Auras BetterBlizzPlates"
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE gère les couleurs de texte de recharge des auras BBP et les seuils de temps restant tandis que BBP conserve sa mise en page d'auras et son comportement de timer non lié à la couleur. Les options de couleur de timer et de seuil bas de BBP sont ignorées tant que cet adaptateur est activé."
 
 -- Category Names
 L["CooldownManagerCentered"] = "CooldownManagerCentered"

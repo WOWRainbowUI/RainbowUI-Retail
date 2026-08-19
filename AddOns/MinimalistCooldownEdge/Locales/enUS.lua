@@ -5,10 +5,7 @@ if not L then return end
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras owns countdown threshold colours. Configure them in MiniAuras > Misc > Countdown Colours."
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Replaces the MyDRs Cooldown Swipe Alpha setting while this category is enabled; 100% matches the swipe MyDRs draws itself."
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Applies to every MiniAuras module group; 80% matches the swipe MiniAuras draws itself."
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE owns BBP aura cooldown text colors and thresholds while BBP keeps its aura layout."
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "For best compatibility, uncheck \"Use Blizzard Numbers\" and \"Expiry Colour\" in /BBP > Nameplate Auras Options."
-L["BetterBlizzPlates Auras"] = true
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE owns BBP aura cooldown text colors and remaining-time thresholds while BBP keeps its aura layout and non-color timer behavior. BBP's timer color and low-threshold options are ignored while this adapter is enabled."
+L["SHACKLED_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Shackled draws a plain Blizzard-default swipe, so this simply re-shades it."
 
 -- Core
 L["MiniAuras test command is unavailable."] = true
@@ -29,6 +26,7 @@ L["MiniAuras"] = true
 L["MyDRs"] = true
 L["sArena"] = true
 L["TellMeWhen"] = true
+L["Shackled"] = true
 L["Profiles"] = true
 L["ShinyAuras"] = true
 L["Dominos"] = true
@@ -263,6 +261,7 @@ L["SARENA_DESC"] = "Style sArena_Reloaded cooldown timers."
 L["TELLMEWHEN_DESC"] = "Style TellMeWhen cooldown text and swipe edges."
 L["TELLMEWHEN_TIMER_OPTIONS_NOTICE"] = "Timer visibility, timer text, shading direction, and GCD display remain controlled by TellMeWhen. Swipe edge visibility and thickness are controlled here."
 L["TELLMEWHEN_EDGE_SCALE_DESC"] = "Scales the TellMeWhen swipe edge when MiniCE has enabled it."
+L["SHACKLED_DESC"] = "Style Shackled's enemy CC-tracker icon cooldowns. Shackled draws its own remaining-time text; MiniCE takes over its font, size, color, and swipe."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = true

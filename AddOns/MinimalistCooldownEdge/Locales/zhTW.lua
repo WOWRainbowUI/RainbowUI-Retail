@@ -178,12 +178,8 @@ L["Abbreviate Above (seconds)"] = "縮寫門檻（秒）"
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = "超過此門檻的冷卻數字將被縮寫（例如顯示5m而不是300）。"
 L["ABBREV_THRESHOLD_DESC"] = "控制冷卻數字何時切換為縮寫格式。超過此門檻的計時器將顯示縮寫值，如5m或1h。"
 
--- BetterBlizzPlates / MyDRs / sArena
+-- MyDRs / sArena
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0% = 完全透明，100% = 完全變暗。此分類啟用期間會取代 MyDRs 的 Cooldown Swipe Alpha 設定；100% 與 MyDRs 自身繪製的冷卻遮罩一致。"
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE 管理 BBP 光環冷卻文字顏色與門檻，BBP 保留其光環版面配置。"
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "為獲得最佳相容性，請在 /BBP > Nameplate Auras Options 中取消勾選 \"Use Blizzard Numbers\" 與 \"Expiry Colour\"。"
-L["BetterBlizzPlates Auras"] = "BetterBlizzPlates 光環"
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE 管理 BBP 光環冷卻文字顏色與剩餘時間門檻，BBP 保留其光環版面配置與非顏色相關的計時器行為。此轉接器啟用期間，BBP 的計時器顏色與低門檻選項將被忽略。"
 L["MyDRs test command is unavailable."] = "MyDRs 測試指令不可用。"
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = "使用 /mydrs test 切換 MyDRs 內建測試圖示。"
 L["sArena slash command is unavailable."] = "sArena 斜線指令不可用。"

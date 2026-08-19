@@ -178,12 +178,8 @@ L["Abbreviate Above (seconds)"] = "Сокращать выше (секунды)"
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = "Числа перезарядки выше этого порога будут сокращены (например, 5м вместо 300)."
 L["ABBREV_THRESHOLD_DESC"] = "Определяет, когда числа перезарядки переключаются на сокращённый формат. Таймеры выше этого порога отображают сокращённые значения, такие как 5м или 1ч."
 
--- BetterBlizzPlates / MyDRs / sArena
+-- MyDRs / sArena
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0% — прозрачно, 100% — полностью темно. Заменяет настройку Cooldown Swipe Alpha аддона MyDRs, пока эта категория активна; 100% соответствует заливке, которую рисует сам MyDRs."
-L["BBP_NAMEPLATE_ADAPTER_NOTICE"] = "MiniCE управляет цветами текста и порогами перезарядок аур BBP, а BBP сохраняет своё расположение аур."
-L["BBP_TYPOGRAPHY_SUPPORT_NOTICE"] = "Для лучшей совместимости снимите отметку с \"Use Blizzard Numbers\" и \"Expiry Colour\" в /BBP > Nameplate Auras Options."
-L["BetterBlizzPlates Auras"] = "Ауры BetterBlizzPlates"
-L["BETTERBLIZZPLATES_DESC"] = "MiniCE управляет цветами текста перезарядок аур BBP и порогами оставшегося времени, а BBP сохраняет своё расположение аур и поведение таймера, не связанное с цветом. Настройки цвета таймера и низкого порога BBP игнорируются, пока этот адаптер включён."
 L["MyDRs test command is unavailable."] = "Команда теста MyDRs недоступна."
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = "Включает или выключает встроенные тестовые иконки MyDRs через /mydrs test."
 L["sArena slash command is unavailable."] = "Слэш-команда sArena недоступна."

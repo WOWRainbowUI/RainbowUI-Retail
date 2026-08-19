@@ -449,50 +449,6 @@ function MCE:IsMiniAurasAvailable()
     return self:IsAddonLoadedCached(C.Addon.MiniAurasName)
 end
 
-function MCE:IsBetterBlizzPlatesAvailable()
-    if not self:IsAddonLoadedCached(C.Addon.BetterBlizzPlatesName) then
-        return false
-    end
-
-    local bbp = self:SafeTableGet(_G, "BBP")
-    if type(bbp) ~= "table"
-       or self:SafeTableGet(bbp, "isMidnight") ~= "12" then
-        return false
-    end
-
-    return CLIENT_INTERFACE_VERSION == C.Adapter.BetterBlizzPlates.InterfaceVersion
-end
-
-function MCE:IsBetterBlizzPlatesAuraCustomizationActive()
-    if not self:IsBetterBlizzPlatesAvailable() then return false end
-
-    local bbp = self:SafeTableGet(_G, "BBP")
-    local db = self:SafeTableGet(_G, "BetterBlizzPlatesDB")
-    return type(bbp) == "table"
-        and self:SafeTableGet(bbp, "isMidnight") == "12"
-        and type(db) == "table"
-        and self:SafeTableGet(db, "enableNameplateAuraCustomisation") == true
-end
-
-function MCE:IsBetterBlizzPlatesAuraCooldown(cooldown)
-    if not self:IsBetterBlizzPlatesAvailable()
-       or not self:CanUseFrameAsTableKey(cooldown) then
-        return false
-    end
-
-    local getParentMethod = self:SafeTableGet(cooldown, "GetParent")
-    if type(getParentMethod) ~= "function" then return false end
-
-    local parentOk, parent = pcall(getParent, cooldown)
-    if not parentOk or not self:CanUseFrameAsTableKey(parent) then return false end
-
-    local managedCooldown = self:SafeTableGet(parent, "bbpCooldown")
-    if not self:CanUseFrameAsTableKey(managedCooldown) then return false end
-
-    local sameOk, isSame = pcall(areSameValue, managedCooldown, cooldown)
-    return sameOk and isSame == true
-end
-
 function MCE:IsHealerCCAvailable()
     if _G.HealerCCAnchor or _G.HealerCCEnemyAnchor then
         self:SetAddonLoadState(C.Addon.HealerCCName, true)
@@ -537,6 +493,15 @@ function MCE:IsMyDRsAvailable()
     end
 
     return self:IsAddonLoadedCached(C.Addon.MyDRsName)
+end
+
+function MCE:IsShackledAvailable()
+    if _G[C.Adapter.Shackled.BarFrameName] then
+        self:SetAddonLoadState(C.Addon.ShackledName, true)
+        return true
+    end
+
+    return self:IsAddonLoadedCached(C.Addon.ShackledName)
 end
 
 function MCE:IsElvUIAvailable()
@@ -874,12 +839,6 @@ nameplateDefaults.stackAnchor = C.Defaults.Nameplate.StackAnchor
 nameplateDefaults.stackOffsetX = C.Defaults.Nameplate.StackOffsetX
 nameplateDefaults.stackOffsetY = C.Defaults.Nameplate.StackOffsetY
 
--- BBP is an optional integration with independent, opt-in styling. Keeping a
--- separate profile block prevents its presence from changing Nameplate defaults.
-local betterBlizzPlatesDefaults = CategoryDefaults(
-    C.Categories.BetterBlizzPlates, false, C.Defaults.Nameplate.FontSize)
-betterBlizzPlatesDefaults.edgeScale = C.Adapter.BetterBlizzPlates.NativeEdgeScale
-
 local unitframeDefaults = CategoryDefaults(C.Categories.Unitframe, false, 12)
 unitframeDefaults.stackSize = C.Defaults.Unitframe.StackSize
 unitframeDefaults.stackAnchor = C.Defaults.Unitframe.StackAnchor
@@ -1050,11 +1009,6 @@ local function CleanupObsoleteProfileFields(profile)
         playerAuraCategory.auraCdTextOnlyMine = nil
     end
 
-    local betterBlizzPlatesCategory = rawget(
-        categories, C.Categories.BetterBlizzPlates)
-    if type(betterBlizzPlatesCategory) == "table" then
-        betterBlizzPlatesCategory.useBBPThresholdColors = nil
-    end
 end
 
 local function CleanupObsoleteDatabaseFields(db, profile)
@@ -1194,6 +1148,14 @@ local myDRsDefaults = CategoryDefaults(C.Categories.MyDRs, false, C.Defaults.MyD
 myDRsDefaults.swipeAlpha = C.Defaults.MyDRs.SwipeAlpha
 myDRsDefaults.reverseSwipe = C.Defaults.MyDRs.ReverseSwipe
 
+-- Shackled draws its own remaining-time FontString beside the cooldown widget
+-- (Blizzard's own countdown numbers are explicitly disabled), so like MyDRs
+-- this category never gains a stack section -- Shackled icons carry no charge
+-- or application count.
+local shackledDefaults = CategoryDefaults(C.Categories.Shackled, false, C.Defaults.Shackled.FontSize)
+shackledDefaults.swipeAlpha = C.Defaults.Shackled.SwipeAlpha
+shackledDefaults.reverseSwipe = C.Defaults.Shackled.ReverseSwipe
+
 MCE.defaults = {
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
@@ -1206,7 +1168,6 @@ MCE.defaults = {
         categories = {
             [C.Categories.Actionbar] = actionbarDefaults,
             [C.Categories.Nameplate] = nameplateDefaults,
-            [C.Categories.BetterBlizzPlates] = betterBlizzPlatesDefaults,
             [C.Categories.Unitframe] = unitframeDefaults,
             [C.Categories.PlayerAura] = playerAuraDefaults,
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
@@ -1215,6 +1176,7 @@ MCE.defaults = {
             [C.Categories.MyDRs] = myDRsDefaults,
             [C.Categories.SArena] = sArenaDefaults,
             [C.Categories.TellMeWhen] = tellMeWhenDefaults,
+            [C.Categories.Shackled] = shackledDefaults,
         },
     },
 }
@@ -1343,11 +1305,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MyDRs"], C.Addon.ShortName, C.Categories.MyDRs))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))
-    if self:IsBetterBlizzPlatesAvailable() then
-        self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(
-            addonName, L["BetterBlizzPlates Auras"], C.Addon.ShortName,
-            C.Categories.BetterBlizzPlates))
-    end
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Shackled"], C.Addon.ShortName, C.Categories.Shackled))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles"))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))
 

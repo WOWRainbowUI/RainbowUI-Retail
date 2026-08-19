@@ -31,8 +31,8 @@ local CUSTOM_GROUPS = {
 }
 
 local CUSTOM_ROOTS = {
-    { name = "TargetFrame", unit = "target", spellBar = "TargetFrameSpellBar" },
-    { name = "FocusFrame", unit = "focus", spellBar = "FocusFrameSpellBar" },
+    { name = "TargetFrame", unit = "target" },
+    { name = "FocusFrame", unit = "focus" },
 }
 
 local CUSTOM_ROOT_BY_NAME = {}
@@ -704,32 +704,6 @@ local function ConfigureGroupLayouts(host)
     SafeCall(host.container, "SetFlowLayoutGrowthDirection", AnchorUtil.FlowDirection.Right, verticalDirection)
     SafeCall(host.container, "ClearAllPoints")
     SafeCall(host.container, "SetPoint", point, host.anchor, relativePoint, 5, offsetY)
-    host.buffsOnTop = buffsOnTop
-end
-
-local function ConfigureSpellBar(host)
-    local spellBar = host.spellBar
-    if not MCE:CanUseFrameAsTableKey(spellBar) then return end
-
-    if host.buffsOnTop then
-        if host.spellBarAnchored then
-            SafeCall(spellBar, "AdjustPosition")
-            host.spellBarAnchored = nil
-        end
-        return
-    end
-
-    SafeCall(spellBar, "ClearAllPoints")
-    local ok = SafeCall(spellBar, "SetPoint", "TOPLEFT", host.container, "BOTTOMLEFT", 18, -10)
-    if ok then
-        host.spellBarAnchored = true
-    end
-end
-
-local function RestoreSpellBar(host)
-    if not host.spellBarAnchored then return end
-    SafeCall(host.spellBar, "AdjustPosition")
-    host.spellBarAnchored = nil
 end
 
 local function SuppressNativeContainer(host)
@@ -767,7 +741,6 @@ local function ActivateCustomHost(host)
     SafeCall(host.container, "SetEnabled", true)
     SafeCall(host.container, "Show")
     SafeCall(host.container, "UpdateAllAuras")
-    ConfigureSpellBar(host)
     host.active = true
 
     for _, cooldown in ipairs(host.cooldowns) do
@@ -779,7 +752,6 @@ end
 local function DeactivateCustomHost(host, restoreNative)
     SafeCall(host.container, "SetEnabled", false)
     SafeCall(host.container, "Hide")
-    RestoreSpellBar(host)
     if restoreNative then
         RestoreNativeContainer(host)
     end
@@ -826,7 +798,6 @@ local function CreateCustomHost(rootInfo)
         nativeMaxDebuffs = GetConfiguredMaxCount(root, "maxDebuffs", 16),
         container = container,
         anchor = GetCustomContainerAnchor(root),
-        spellBar = MCE:SafeTableGet(root, "spellbar") or _G[rootInfo.spellBar],
         cooldowns = {},
     }
 
