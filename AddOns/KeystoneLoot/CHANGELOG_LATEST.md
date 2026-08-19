@@ -1,8 +1,3 @@
-## New Features
-- Show the favorite icon on item buttons in bags, bank, character sheet and loot
-
 ## Improvements
-- Add Catalyst favorite tier and expose the ordered tier list via the API (see README)
-
-## Other Changes
-- Update data
+- Added Baganator for the icon buttons. All credit for this goes to @WanderingFox - Thanks!
+- Update the favorite icon right away when a favorite changes
