@@ -1,6 +1,6 @@
 ## Interface: 120100
 ## Title: HandyNotes: The War Within
-## Version: 152
+## Version: 154
 ## Notes: The War Within Notes
 ## OptionalDeps: Ace3
 ## RequiredDeps: HandyNotes

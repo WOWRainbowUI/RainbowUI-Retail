@@ -92,8 +92,10 @@ L['hourly'] = '每小時'
 L['daily'] = '每日'
 L['weekly'] = '每週'
 
-L['time_format_12hrs'] = '%m/%d - %I:%M %p 伺服器時間'
-L['time_format_24hrs'] = '%m/%d - %H:%M 伺服器時間'
+L['time_format_12hrs'] = '%m/%d - %I:%M %p'
+L['time_format_24hrs'] = '%m/%d - %H:%M'
+L['local_time'] = '本機時間'
+L['server_time'] = '伺服器時間'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = '房屋裝飾'
@@ -191,6 +193,8 @@ L['options_toggle_hide_done_treasure'] = '隱藏所有獎勵已取得的寶藏'
 L['options_toggle_hide_done_treasure_desc'] = '隱藏所有獎勵都已取得的寶藏.'
 L['options_toggle_hide_minimap'] = '隱藏小地圖上的所有圖示'
 L['options_toggle_hide_minimap_desc'] = '在小地圖上隱藏此插件的所有圖示，並只在主地圖上顯示它們.'
+L['options_toggle_interval_enlarged'] = nil
+L['options_toggle_interval_enlarged_desc'] = nil
 L['options_toggle_maximized_enlarged'] = '當世界地圖時最大化時放大圖示'
 L['options_toggle_maximized_enlarged_desc'] = '當世界地圖放到最大時，放大所有的圖示.'
 L['options_toggle_use_char_achieves'] = '使用角色成就'
@@ -259,8 +263,6 @@ L['options_toggle_show_loot'] = '顯示戰利品'
 L['options_toggle_show_loot_desc'] = '在工具提示中加入戰利品資訊'
 L['options_toggle_show_notes'] = '顯示註記'
 L['options_toggle_show_notes_desc'] = '在可用的工具提示中加入有用的註記'
-L['options_toggle_use_standard_time'] = '使用12小時制'
-L['options_toggle_use_standard_time_desc'] = '在提示使用12小時制 (例. 8:00 PM) 而不是24小時制 (例. 20:00).'
 L['options_toggle_show_npc_id'] = '顯示 NPC ID'
 L['options_toggle_show_npc_id_desc'] = '顯示用於稀有搜尋插件的 NPC ID.'
 

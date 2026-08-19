@@ -92,8 +92,10 @@ L['hourly'] = nil
 L['daily'] = nil
 L['weekly'] = 'Semanal'
 
-L['time_format_12hrs'] = '%I:%M %p - %d/%m hora del servidor'
-L['time_format_24hrs'] = '%H:%M - %d/%m hora del servidor'
+L['time_format_12hrs'] = '%I:%M %p - %d/%m'
+L['time_format_24hrs'] = '%H:%M - %d/%m'
+L['local_time'] = 'hora local'
+L['server_time'] = 'hora del servidor'
 
 ----------------------------------- REWARDS -----------------------------------
 L['decor'] = 'Decoraciones de viviendas'
@@ -191,6 +193,8 @@ L['options_toggle_hide_done_treasure'] = nil
 L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = 'Ocultar todos los íconos sobre el minimapa'
 L['options_toggle_hide_minimap_desc'] = 'Oculta todos íconos de este addon sobre el minimapa y los mostra solamente sobre el mapa principal.'
+L['options_toggle_interval_enlarged'] = nil
+L['options_toggle_interval_enlarged_desc'] = nil
 L['options_toggle_maximized_enlarged'] = nil
 L['options_toggle_maximized_enlarged_desc'] = nil
 L['options_toggle_use_char_achieves'] = nil
@@ -259,8 +263,6 @@ L['options_toggle_show_loot'] = 'Mostrar el botín'
 L['options_toggle_show_loot_desc'] = 'Agregar la información de botín al toolip'
 L['options_toggle_show_notes'] = 'Mostrar las Notas'
 L['options_toggle_show_notes_desc'] = 'Agregar las notas útiles al tooltip cuando esté disponible'
-L['options_toggle_use_standard_time'] = nil
-L['options_toggle_use_standard_time_desc'] = nil
 L['options_toggle_show_npc_id'] = nil
 L['options_toggle_show_npc_id_desc'] = nil
 
