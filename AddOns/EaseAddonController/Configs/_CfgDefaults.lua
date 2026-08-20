@@ -1265,7 +1265,7 @@ D["MiliUI_UnitFrames"] = {
     defaultEnable = 1,
 	tags = { "UNITFRAME" },
 	title = "米利的單位框架",
-	desc = "簡單易用小巧的單位框架，支援編輯模式拖曳移動。`",
+	desc = "延續 Stuf 的使用習慣，為 12.1 重新打造的頭像單位框架。``簡單易用小巧的單位框架，支援編輯模式拖曳移動。``包含玩家、目標、專注目標、寵物和首領框架等，不包含隊友框架，適合搭配其他團隊框架插件一起使用。`",
     {
         text = "設定選項",
         callback = function() SlashCmdList["MILIUIUF"]("") end,
