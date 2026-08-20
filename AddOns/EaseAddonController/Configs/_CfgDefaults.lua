@@ -1206,8 +1206,8 @@ D["NiceDamage"] = {
 D["MidnightSimpleUnitFrames"] = {
     defaultEnable = 0,
 	tags = { "UNITFRAME" },
-	title = "至暗之夜頭像",
-	desc = "替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。`",
+	title = "(需手動更新) 至暗之夜頭像",
+	desc = "彩虹已將這個插件移除，若無需使用，請自行刪除 AddOns 資料夾裡面 MidnightSimpleUnitFrames 開頭的 5 個資料夾。``若要繼續使用，請自行更新這個插件，自動更新不會更新此插件。`",
     {
         text = "設定選項",
         callback = function() _G.MSUF_OpenStandaloneOptionsWindow() end,
