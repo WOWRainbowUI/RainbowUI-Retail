@@ -1261,6 +1261,20 @@ D["MiliUI_BloodlustMusic"] = {
 		text = "|cffFF2D2D替換或修改檔案後需要重新載入介面。|r",
 	},
 };
+D["MiliUI_UnitFrames"] = {
+    defaultEnable = 1,
+	tags = { "UNITFRAME" },
+	title = "米利的單位框架",
+	desc = "簡單易用小巧的單位框架，支援編輯模式拖曳移動。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["MILIUIUF"]("") end,
+    },
+	{
+		type = "text",
+		text = "點 '米利的單位框架' 的小地圖按鈕也可以打開設定選項。",
+	},
+};
 D["MiniCC"] = {
     defaultEnable = 0,
 	tags = { "COMBAT" },

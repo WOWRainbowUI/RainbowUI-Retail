@@ -1,0 +1,603 @@
+------------------------------------------------------------
+-- 光環（buffs / debuffs）：12.1 路線 A —— AuraContainer intrinsic
+-- 骨架沿用自己寫過的 12.1 轉接層，實戰驗證過
+--
+-- 鐵律：
+--   * 樣式只能在 initializeFrame 內做（之後 AuraButton 變 forbidden）
+--   * 絕不從按鈕回讀尺寸（回傳秘密值），尺寸一律來自設定
+--   * maximumLineSize 是主軸像素預算 = 顆數 ×（尺寸＋間距）
+--   * 容器建好外觀就烘死，設定變更 → 簽章比對 → 重建
+--   * 插件永遠拿不回剩餘秒數；倒數顯示全部交出 widget 讓暴雪驅動
+--   * 「剩 N 秒才顯示數字」用 ColorCurve alpha 階梯（暴雪端取樣 RemainingDuration）
+------------------------------------------------------------
+local _, ns = ...
+
+-- ⚠ 要在 FILTER_MODES／MODE_LABELS 之前宣告：那些表在檔案層就求值，
+-- 宣告寫在後面會抓到同名的全域 nil，標籤全變空字串而且不報錯
+local L = ns.L
+
+local Media = ns.Media
+
+------------------------------------------------------------
+-- 篩選模式
+--
+-- 12.1 讀不到光環內容，所以過濾只能交給引擎。兩個管道：
+--   token  filter 字串裡的一段（"HARMFUL|CROWD_CONTROL"），`|` 串接、`!` 否定
+--   cand   candidateFilters 表，引擎端求值 —— 有些概念沒有對應的 token，只能走這裡
+-- 完整詞彙與六條硬規則見 .claude/notes 的 wow-121-aura-filter-vocabulary。
+--
+-- ⚠⚠ 這裡刻意設計成**一個模式只對應一個 AuraGroup**。想「多個類別同時顯示」的話：
+-- token 不能 OR ⇒ 一類一個 group ⇒ 要手工維護互斥否定鏈（而且只能否定**已啟用**的
+-- 類別，否定沒啟用的會吃掉本來該顯示的光環）；再加上跨 group 沒有任何總量 API
+-- （maxFrameCount 是每 group 的，SetFlowLayoutMaximumLineSize 是**換行**預算不是上限，
+-- 超過只會多疊一列）⇒ 還得自己切預算，切錯就是靜默漏顯示。EUI 那一千多行絕大部分
+-- 是在付這兩筆帳。
+-- 團隊框需要那套（它問的是「這個隊友身上最重要的**那一個**」，天生多類別競爭）；
+-- 單位框不需要（它問的是「這個目標身上我在乎的**那一類**」，天生單選）。
+-- 單一 group ⇒ maxCount 全額給它，互斥與預算兩個問題都不存在。
+--
+-- ⚠ `IMPORTANT` 這個 token 沒有定論（EUI 註解說它只標 HELPFUL、Platynator 卻拿它配
+-- HARMFUL 出貨），所以「重要」走 candidateFilter `isPriorityAura`，兩邊都不得罪。
+-- ⚠ 不提供 spellID 黑名單：友方單位的減益禁止 ID 過濾（只有標記 NeverSecret 的
+-- 才生效），做出來會是一個「有時有用有時沒用」的功能，比沒有更糟。
+------------------------------------------------------------
+local FILTER_MODES = {
+    all         = {},
+    -- 增益
+    stealable   = { cand = { isStealable = true } },
+    cancelable  = { token = "CANCELABLE" },
+    bigdef      = { token = "BIG_DEFENSIVE" },
+    extdef      = { token = "EXTERNAL_DEFENSIVE" },
+    -- 減益
+    dispellable = { token = "RAID_PLAYER_DISPELLABLE" },
+    cc          = { token = "CROWD_CONTROL" },
+    priority    = { cand = { isPriorityAura = true } },
+    bossrole    = { cand = { isBossOrRoleAura = true } },
+}
+
+-- 下拉選單的內容與順序（設定面板用）。"all" 一律排第一。
+local MODE_ORDER = {
+    buffs   = { "all", "stealable", "cancelable", "bigdef", "extdef" },
+    debuffs = { "all", "dispellable", "cc", "priority", "bossrole" },
+}
+
+local MODE_LABELS = {
+    all         = L["All"],
+    stealable   = L["Stealable or purgeable"],
+    cancelable  = L["Cancelable by right-click"],
+    bigdef      = L["Major defensives"],
+    extdef      = L["External defensives"],
+    dispellable = L["Dispellable by me"],
+    cc          = L["Crowd control"],
+    priority    = L["Important"],
+    bossrole    = L["Boss and role auras"],
+}
+
+-- 設定面板呼叫（Options/Tab_Unit.lua）。模式清單只有這裡一份。
+function ns.AuraFilterItems(elementName)
+    local items = {}
+    for _, key in ipairs(MODE_ORDER[elementName] or MODE_ORDER.buffs) do
+        items[#items + 1] = { text = MODE_LABELS[key] or key, value = key }
+    end
+    return items
+end
+
+------------------------------------------------------------
+-- filter 字串組裝
+--
+-- ⚠ 被客戶端拒絕的 filter 字串是**靜默全空** —— 容器建得起來、事件也收得到，
+-- 就是一顆光環都不進來，看起來跟「插件壞了」一模一樣。所以兩件事缺一不可：
+--   ① 記下被拒的字串（/muf debug 印得出來）
+--   ② 逐級退回，絕不整組放棄（少顯示看得見，全空看不見）
+------------------------------------------------------------
+ns.auraRejectedFilters = {}
+
+local function ValidFilter(f)
+    -- 沒有這支 API 的話別擋（讓引擎自己決定），只有明確說「不合法」才算數
+    if not (AuraUtil and AuraUtil.IsValidFilterString) then return true end
+    local ok, valid = pcall(AuraUtil.IsValidFilterString, f)
+    if ok and valid then return true end
+    ns.auraRejectedFilters[f] = (ns.auraRejectedFilters[f] or 0) + 1
+    return false
+end
+
+-- 回傳 filter 字串 ＋ candidateFilters（可能是 nil）
+--
+-- 模式與「只顯示我上的」是**可以疊的**（`HARMFUL|CROWD_CONTROL|PLAYER` 仍然是
+-- 一個 group）。onlyMine 保留成獨立勾選而不是併進模式清單，除了能疊之外，
+-- 也讓既有設定檔不必遷移。
+local function BuildFilter(baseFilter, edb)
+    local mode = FILTER_MODES[edb.filterMode or "all"] or FILTER_MODES.all
+    local f = baseFilter
+    if mode.token then f = f .. "|" .. mode.token end
+    if edb.onlyMine then f = f .. "|PLAYER" end
+    if ValidFilter(f) then return f, mode.cand end
+
+    -- 退回階梯。模式的 token 被拒 ⇒ 那個模式整個做不到，cand 那一半也不送
+    -- （兩半是同一個概念，只送一半會得到一個沒人要求過的結果）。
+    if edb.onlyMine then
+        local withPlayer = baseFilter .. "|PLAYER"
+        if ValidFilter(withPlayer) then return withPlayer, nil end
+    end
+    return baseFilter, nil
+end
+
+------------------------------------------------------------
+-- 能力偵測
+------------------------------------------------------------
+local caps = { build = select(4, GetBuildInfo()) or 0 }
+local MIN_BUILD = 120100
+
+local function Detect()
+    if caps.detected then return caps end
+    caps.detected = true
+    if caps.build < MIN_BUILD then return caps end
+    local ok, frame = pcall(CreateFrame, "AuraContainer", nil, UIParent, "CustomAuraContainerTemplate")
+    if not ok or not frame then return caps end
+    frame:Hide()
+    caps.auraContainer = type(frame.AddAuraGroup) == "function"
+    caps.flowLayout = type(frame.SetFlowLayoutAnchorPoint) == "function"
+    return caps
+end
+
+------------------------------------------------------------
+-- 倒數格式：NumericRule 三段式（出貨插件驗證過的寫法）
+--   <91 秒   純數字（"27"）
+--   ≥91 秒   "Nm"（分數向上取整，2m32s → "3m"，跟暴雪自己的框架一致）
+--   ≥5401 秒 "Nh"
+-- 不用 SecondsFormatter：它的三種縮寫在中文全都輸出「秒」，設計上沒有無單位出口
+------------------------------------------------------------
+local DurationFormatter
+do
+    if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
+        local ok, formatter = pcall(C_StringUtil.CreateNumericRuleFormatter)
+        if ok and formatter then
+            local R = Enum and Enum.NumericRuleFormatRounding
+            local down, up = R and R.Down or nil, R and R.Up or nil
+            local added = pcall(function()
+                formatter:AddBreakpoint({ threshold = 0, step = 1, rounding = down, min = 1, format = "%d" })
+                formatter:AddBreakpoint({ threshold = 91, step = 1, rounding = down, min = 1, format = "%dm",
+                                          components = { { div = 60, rounding = up } } })
+                formatter:AddBreakpoint({ threshold = 5401, step = 1, rounding = down, min = 1, format = "%dh",
+                                          components = { { div = 3600, rounding = up } } })
+            end)
+            if added then DurationFormatter = formatter end
+        end
+    end
+end
+
+-- 「剩餘低於 threshold 秒才顯示數字」：alpha 階梯 ColorCurve
+local function BuildDurationAlphaCurve(threshold, r, g, b)
+    if not (C_CurveUtil and C_CurveUtil.CreateColorCurve and CreateColor) then return nil end
+    local ok, curve = pcall(C_CurveUtil.CreateColorCurve)
+    if not ok or not curve then return nil end
+    r, g, b = r or 1, g or 1, b or 1
+    local visible = CreateColor(r, g, b, 1)
+    local hidden = CreateColor(r, g, b, 0)
+    local added = pcall(function()
+        curve:AddPoint(0, visible)
+        curve:AddPoint(threshold, visible)
+        curve:AddPoint(threshold + 0.01, hidden)
+        curve:AddPoint(threshold + 86400, hidden)
+    end)
+    if not added then return nil end
+    return curve
+end
+
+------------------------------------------------------------
+-- AuraButton 外觀（三層：外框 → 掃描 → 內縮圖示 → 文字）
+-- 只能在 initializeFrame 內呼叫
+------------------------------------------------------------
+local BORDER = 1                              -- 版面單位；實際用 ns.P.Scale 對齊實體像素
+local TRACK_COLOR = { 0, 0, 0, 1 }            -- swipe 底下的黑色軌道
+local SPENT_COLOR = { 0.18, 0.18, 0.18 }      -- 驅散色外框被灰色吃掉
+local BUFF_BORDER_COLOR = { 0, 0, 0, 1 }      -- 1px 黑框（增益不靠顏色分類，跟減益的驅散色區隔）
+
+local function InitAuraButton(auraButton, style, sizeW, sizeH)
+    sizeH = sizeH or sizeW
+    auraButton:SetIgnoringChildrenForBounds(true)
+    auraButton:SetSize(sizeW, sizeH)
+    auraButton:SetMouseClickEnabled(false)
+    -- 滑鼠提示：光環內容是秘密值，插件畫不出提示——開啟 motion 讓 AuraButton
+    -- 自己顯示暴雪的光環提示（12.1 build 68914 的按鈕 API，EUI 同法）
+    if style.tooltips ~= false then
+        pcall(auraButton.SetMouseMotionEnabled, auraButton, true)
+        if auraButton.SetHideTooltipInCombat then
+            pcall(auraButton.SetHideTooltipInCombat, auraButton, false)
+        end
+        if auraButton.SetTooltipAnchorPoint then
+            pcall(auraButton.SetTooltipAnchorPoint, auraButton, "ANCHOR_RIGHT")
+        end
+    else
+        pcall(auraButton.SetMouseMotionEnabled, auraButton, false)
+    end
+
+    -- 底層外框
+    local borderTex = auraButton:CreateTexture(nil, "BACKGROUND")
+    borderTex:SetAllPoints(auraButton)
+    auraButton.Border = borderTex
+
+    if style.dispelBorder and auraButton.SetAuraBorder then
+        -- 驅散色在底框，掃描用灰色由上吃掉（SetSwipeColor 給不了逐光環的驅散色，
+        -- 兩層對調繞過限制）
+        borderTex:SetColorTexture(1, 1, 1, 1)
+        auraButton:SetAuraBorder(borderTex, {
+            style = Enum.CustomAuraButtonDispelTypeTextureStyle
+                and Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset or nil,
+            showIcon = false,
+            showAlways = true,
+        })
+    else
+        local c = style.borderColor or TRACK_COLOR
+        borderTex:SetColorTexture(c[1], c[2], c[3], c[4] or 1)
+    end
+
+    -- 中層：Cooldown 交給暴雪驅動
+    local cooldown
+    if auraButton.SetDurationCooldown then
+        cooldown = CreateFrame("Cooldown", nil, auraButton, "CooldownFrameTemplate")
+        cooldown:SetAllPoints(auraButton)
+        cooldown:SetSwipeTexture(Media.WHITE8X8)
+        if style.dispelBorder then
+            cooldown:SetSwipeColor(SPENT_COLOR[1], SPENT_COLOR[2], SPENT_COLOR[3])
+            cooldown:SetReverse(true)
+        else
+            local c = style.swipeColor or style.borderColor or { 1, 1, 1, 1 }
+            cooldown:SetSwipeColor(c[1], c[2], c[3])
+        end
+        cooldown:SetHideCountdownNumbers(true)
+        cooldown:SetDrawSwipe(true)
+        cooldown:SetDrawEdge(false)
+        cooldown:SetDrawBling(false)
+        cooldown.noCooldownCount = true
+        auraButton.Cooldown = cooldown
+        auraButton:SetDurationCooldown(cooldown)
+    end
+
+    -- 上層：內縮圖示（露出底下那層當外框；內縮量對齊實體像素，邊寬才會每邊一致）
+    local b = ns.P.Scale(BORDER)
+    local iconFrame = CreateFrame("Frame", nil, auraButton)
+    iconFrame:SetPoint("TOPLEFT", auraButton, "TOPLEFT", b, -b)
+    iconFrame:SetPoint("BOTTOMRIGHT", auraButton, "BOTTOMRIGHT", -b, b)
+    if cooldown then
+        iconFrame:SetFrameLevel(cooldown:GetFrameLevel() + 1)
+    end
+    auraButton.IconFrame = iconFrame
+
+    local textFrame = CreateFrame("Frame", nil, auraButton)
+    textFrame:SetAllPoints(auraButton)
+    textFrame:SetFrameLevel(iconFrame:GetFrameLevel() + 1)
+    auraButton.TextFrame = textFrame
+
+    local icon = iconFrame:CreateTexture(nil, "ARTWORK")
+    icon:SetAllPoints(iconFrame)
+    icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
+    auraButton.Icon = icon
+    auraButton:SetIcon(icon)
+
+    -- 倒數文字
+    if style.showDuration then
+        local duration = textFrame:CreateFontString(nil, "OVERLAY")
+        local fsize = style.durationFontSize or math.max(8, math.floor(sizeH * 0.55))
+        duration:SetFont(Media.Font(ns.db.global.font), fsize, "OUTLINE")
+        duration:SetTextColor(1, 1, 1)
+        duration:SetPoint("CENTER", iconFrame, "CENTER", 0, 0)
+        auraButton.Duration = duration
+        if auraButton.SetDurationText then
+            local formatter = DurationFormatter
+            local options = formatter and { textFormatter = formatter } or {}
+            if style.durationThreshold and Enum and Enum.DurationTextBindingProperty then
+                local curve = BuildDurationAlphaCurve(style.durationThreshold, 1, 1, 1)
+                if curve then
+                    options.textColor = {
+                        curve = curve,
+                        property = Enum.DurationTextBindingProperty.RemainingDuration,
+                    }
+                end
+            end
+            if not pcall(auraButton.SetDurationText, auraButton, duration,
+                         next(options) and options or nil) then
+                auraButton:SetDurationText(duration)
+            end
+        end
+    end
+
+    -- 層數（絕不傳 formatter —— 暴雪會在 Lua 對秘密層數跑 FormatNumber 炸掉整個容器）
+    if style.showStack then
+        local stack = textFrame:CreateFontString(nil, "OVERLAY")
+        stack:SetFont(Media.Font(ns.db.global.font), style.stackFontSize or 10, "OUTLINE")
+        stack:SetTextColor(1, 1, 1)
+        stack:SetPoint("BOTTOMRIGHT", auraButton, "BOTTOMRIGHT", 2, -2)
+        auraButton.Count = stack
+        if auraButton.SetApplicationCount then
+            auraButton:SetApplicationCount(stack)
+        end
+    end
+end
+
+------------------------------------------------------------
+-- growth 字串 → flow layout 方向
+------------------------------------------------------------
+local GROWTH = {
+    LRTB = { vertical = false, growLeft = false, growUp = false },
+    LRBT = { vertical = false, growLeft = false, growUp = true },
+    RLTB = { vertical = false, growLeft = true,  growUp = false },
+    RLBT = { vertical = false, growLeft = true,  growUp = true },
+    TBLR = { vertical = true,  growLeft = false, growUp = false },
+    TBRL = { vertical = true,  growLeft = true,  growUp = false },
+    BTLR = { vertical = true,  growLeft = false, growUp = true },
+    BTRL = { vertical = true,  growLeft = true,  growUp = true },
+}
+
+local function ApplyFlowLayout(container, spec)
+    if container.SetFlowLayoutAnchorPoint then
+        local vertical = spec.growUp and "BOTTOM" or "TOP"
+        local horizontal = spec.growLeft and "RIGHT" or "LEFT"
+        container:SetFlowLayoutAnchorPoint(vertical .. horizontal)
+    end
+    if container.SetFlowLayoutAxis and AnchorUtil and AnchorUtil.FlowLayoutAxis then
+        container:SetFlowLayoutAxis(spec.vertical
+            and AnchorUtil.FlowLayoutAxis.Vertical
+            or AnchorUtil.FlowLayoutAxis.Horizontal)
+    end
+    if container.SetFlowLayoutGrowthDirection and AnchorUtil and AnchorUtil.FlowDirection then
+        local dir = AnchorUtil.FlowDirection
+        container:SetFlowLayoutGrowthDirection(
+            spec.growLeft and dir.Left or dir.Right,
+            spec.growUp and dir.Up or dir.Down)
+    end
+    if container.SetFlowLayoutMaximumLineSize and spec.perLine then
+        local step = spec.size + spec.spacing
+        container:SetFlowLayoutMaximumLineSize(spec.perLine * step)
+    end
+end
+
+------------------------------------------------------------
+-- 容器生命週期
+------------------------------------------------------------
+local function BuildSignature(edb)
+    return table.concat({
+        tostring(edb.x), tostring(edb.y), tostring(edb.w), tostring(edb.h),
+        tostring(edb.maxCount), tostring(edb.perRow), tostring(edb.growth),
+        tostring(edb.spacing), tostring(edb.showStack), tostring(edb.stackSize),
+        tostring(edb.durationText), tostring(edb.durationThreshold),
+        -- ⚠ filterMode 一定要在簽章裡：filter 字串在 AddAuraGroup 宣告時就固定、
+        -- 沒有 setter，只能換整顆容器。漏了這個鍵的症狀是「改了下拉沒反應，
+        -- 動別的設定才一起生效」。
+        tostring(edb.onlyMine), tostring(edb.filterMode), tostring(ns.db.global.font),
+    }, "|")
+end
+
+------------------------------------------------------------
+-- 換人重掃
+--
+-- 動態 token（target / focus / bossN）在框架保持顯示的情況下換人，容器不會自己重解析。
+-- ⚠ 從插件端呼叫 `UpdateAllAuras` **只設得到髒旗標，推不動私有端的處理器**
+-- （實測結論）——真正跨得過分界的是 Hide/Show：
+-- intrinsic 的 OnShow 跑在安全端，會從那裡重掃一次。
+-- 戰鬥中不彈（受保護的 intrinsic 擋 Hide），先設髒旗標記下來，脫戰再補彈一次。
+------------------------------------------------------------
+local pendingBounce = {}
+
+local function HideShow(c) c:Hide(); c:Show() end
+
+local function Kick(c)
+    pcall(HideShow, c)      -- 現成函式：Kick 落在每次換目標上，別在這裡現配 closure
+    if c.SetEnabled then pcall(c.SetEnabled, c, true) end
+end
+
+-- tag 由呼叫端在建容器時算一次存起來（見 entry.tag），這裡不再現串字串——
+-- Bounce 落在每次換目標上，只為了 /muf debug 的一行紀錄而每次組字串不划算。
+-- how 也一律用常數，不做串接。
+local function Bounce(c, tag)
+    if not c then return end
+    local how
+    if InCombatLockdown() then
+        pendingBounce[c] = true
+        local dirty = c.UpdateAllAuras and pcall(c.UpdateAllAuras, c) or false
+        how = dirty and "combat/dirty" or "combat/nodirty"
+    else
+        pendingBounce[c] = nil
+        Kick(c)
+        how = "bounce"
+    end
+    if tag then
+        ns.auraPokeLog = ns.auraPokeLog or {}
+        ns.auraPokeLog[tag] = how
+    end
+end
+
+ns.Events.Register("PLAYER_REGEN_ENABLED", "auras_bounce_replay", function()
+    for c in pairs(pendingBounce) do
+        pendingBounce[c] = nil
+        Kick(c)
+    end
+end)
+
+local function CreateContainer(uf, elementName, edb, filter, cand, style)
+    -- 容器掛中介 holder（不直接依附會被 Hide 的東西；也墊高層級蓋過血條）
+    local holder = uf.auraHost
+    if not holder then
+        holder = CreateFrame("Frame", nil, uf)
+        holder:SetAllPoints(uf)
+        holder:SetFrameLevel(12)
+        uf.auraHost = holder
+    end
+
+    local g = GROWTH[edb.growth or "LRTB"] or GROWTH.LRTB
+    local spec = {
+        vertical = g.vertical, growLeft = g.growLeft, growUp = g.growUp,
+        size = g.vertical and (edb.h or 20) or (edb.w or 20),
+        spacing = edb.spacing or 0,
+        perLine = edb.perRow or 8,
+    }
+
+    local container = CreateFrame("AuraContainer", nil, holder, "CustomAuraContainerTemplate")
+    container:SetSize(1, 1)
+    container:SetFrameLevel(holder:GetFrameLevel() + 1)
+    -- 錨點角依生長方向：往上長要用 BOTTOM 邊釘原點
+    local anchorPoint = (g.growUp and "BOTTOM" or "TOP") .. (g.growLeft and "RIGHT" or "LEFT")
+    container:SetPoint(anchorPoint, uf, "TOPLEFT", edb.x or 0, edb.y or 0)
+    -- 建立順序：SetUnit 在 AddAuraGroup 之前、SetEnabled 最後。這是在這台機器上實跑過的。
+    -- （EUI AuraKit 的「unit last」是配合它自己的分階段建構器，照搬會壞。）
+    container:SetUnit(uf.unit)
+    ApplyFlowLayout(container, spec)
+
+    container:AddAuraGroup("main", filter, {
+        maxFrameCount = edb.maxCount or 16,
+        -- 有些篩選概念沒有對應的 filter token，只能走這裡（引擎端求值，不必讀秘密值）。
+        -- nil 就是不過濾，所以模式是 "all" 時直接傳 nil 沒問題。
+        candidateFilters = cand,
+        layout = {
+            elementWidth = edb.w or 20,
+            elementHeight = edb.h or 20,
+            elementSpacing = edb.spacing or 0,
+            lineSpacing = edb.spacing or 0,
+        },
+        initializeFrame = function(auraButton)
+            InitAuraButton(auraButton, style, edb.w or 20, edb.h or 20)
+        end,
+    })
+
+    -- ⚠ 絕對不要對 container 掛 script handler：AuraContainer 是 forbidden intrinsic，
+    -- `HookScript` 直接丟「cannot replace a forbidden script handler」，而這裡包在 pcall
+    -- 裡 ⇒ 整個容器建立失敗、外面看起來只是「光環沒出來」。重新可見時要重下 SetEnabled，
+    -- 改掛在 holder（我們自己建的普通 Frame）上。
+    if container.SetEnabled then
+        pcall(container.SetEnabled, container, true)
+    end
+    if not holder.__kickHooked then
+        holder.__kickHooked = true
+        holder:HookScript("OnShow", function()
+            -- 容器建立時框架若還沒可見，SetEnabled 註冊不到光環事件，
+            -- 之後就永遠空白 → 真的顯示出來時補踢一次。
+            -- ⚠ 一定要走 Bounce 不能直接 Kick：這個 OnShow 是 RegisterUnitWatch 從
+            -- **安全端**觸發的，戰鬥中換目標就會在戰鬥中跑到這裡；對 intrinsic 下 Hide()
+            -- 會被判成「Blizzard UI 專屬動作」跳封鎖視窗（而且 pcall 攔不住，那不是
+            -- Lua error）。Bounce 有戰鬥閘，會改成設髒旗標、脫戰再補彈。
+            for k, e in pairs(uf.auraContainers or {}) do
+                Bounce(e.container, uf.unit .. "/" .. k)
+            end
+        end)
+    end
+    return container
+end
+
+
+local function BuildStyle(elementName, edb)
+    if elementName == "debuffs" then
+        return {
+            dispelBorder = true,
+            showDuration = edb.durationText and true or false,
+            showStack = edb.showStack and true or false,
+            stackFontSize = edb.stackSize or 10,
+            durationThreshold = edb.durationThreshold,
+        }
+    end
+    return {
+        borderColor = BUFF_BORDER_COLOR,
+        showDuration = edb.durationText and true or false,
+        showStack = edb.showStack and true or false,
+        stackFontSize = edb.stackSize or 10,
+        durationThreshold = edb.durationThreshold,
+    }
+end
+
+local function MakeElement(elementName, baseFilter)
+    local function Build(uf, edb)
+        if not Detect().auraContainer then return end
+        if uf.isPreview then return end     -- 預覽用靜態假圖示（Preview 模組）
+
+        uf.auraContainers = uf.auraContainers or {}
+        local entry = uf.auraContainers[elementName]
+        local signature = BuildSignature(edb)
+        local filter, cand = BuildFilter(baseFilter, edb)
+
+        if entry and entry.signature == signature then
+            entry.container:Show()
+            return
+        end
+        if entry then
+            -- 外觀烘死在 AuraButton 裡，簽章變了只能重建（frame 無法銷毀，舊的藏起來）
+            entry.container:Hide()
+            uf.auraContainers[elementName] = nil
+        end
+
+        local ok, container = pcall(CreateContainer, uf, elementName, edb, filter, cand,
+                                    BuildStyle(elementName, edb))
+        if not ok or not container then
+            ns.aurasLastError = tostring(container)
+            return
+        end
+        -- tag 在這裡算一次就好，Bounce 每次換目標都要用（見 Bounce 的說明）
+        uf.auraContainers[elementName] = { container = container, signature = signature,
+                                           filter = filter, hasCand = cand ~= nil,
+                                           tag = uf.unit .. "/" .. elementName }
+        uf.elements[elementName] = container
+        container:Show()
+    end
+
+    -- 換單位主動彈一次（見上面 Bounce 的說明）
+    local function Repoke(uf)
+        local entry = uf.auraContainers and uf.auraContainers[elementName]
+        if not entry then return end
+        Bounce(entry.container, entry.tag)
+    end
+
+    local function Update(uf, edb, bucket)
+        Repoke(uf)
+    end
+
+    -- 直接掛事件，不只靠 identity 桶派發（框架剛顯示那一瞬間 IsVisible 可能還是 false，
+    -- 派發會被閘門擋掉，光環就停在上一個單位）
+    ns.Events.Register("PLAYER_TARGET_CHANGED", "auras_" .. elementName .. "_t", function()
+        local uf = ns.frames.target
+        if uf then Repoke(uf) end
+        local tot = ns.frames.targettarget
+        if tot then Repoke(tot) end
+    end)
+    ns.Events.Register("PLAYER_FOCUS_CHANGED", "auras_" .. elementName .. "_f", function()
+        local uf = ns.frames.focus
+        if uf then Repoke(uf) end
+        local ft = ns.frames.focustarget
+        if ft then Repoke(ft) end
+    end)
+    ns.Events.Register("UNIT_TARGET", "auras_" .. elementName .. "_ut", function(unit)
+        if unit == "target" and ns.frames.targettarget then Repoke(ns.frames.targettarget) end
+        if unit == "focus" and ns.frames.focustarget then Repoke(ns.frames.focustarget) end
+    end)
+    ns.Events.Register("INSTANCE_ENCOUNTER_ENGAGE_UNIT", "auras_" .. elementName .. "_b", function()
+        for i = 1, 5 do
+            local uf = ns.frames["boss" .. i]
+            if uf then Repoke(uf) end
+        end
+    end)
+
+    local function Disable(uf)
+        local entry = uf.auraContainers and uf.auraContainers[elementName]
+        if entry then entry.container:Hide() end
+    end
+
+    -- 容器建立時就綁死了單位（CreateContainer 的 SetUnit），換載具時要重綁。
+    -- tag 也一起重算——它是給 /muf debug 認框用的，換了單位要跟著變。
+    local function SetUnit(uf, unit)
+        local entry = uf.auraContainers and uf.auraContainers[elementName]
+        if not entry then return end
+        pcall(entry.container.SetUnit, entry.container, unit)
+        entry.tag = unit .. "/" .. elementName
+        Bounce(entry.container, entry.tag)
+    end
+
+    ns.RegisterElement{
+        name = elementName,
+        order = elementName == "buffs" and 60 or 61,
+        buckets = {},        -- 容器自驅動；unitchanged 時換單位
+        build = Build,
+        update = Update,
+        disable = Disable,
+        setunit = SetUnit,
+    }
+end
+
+MakeElement("buffs", "HELPFUL")
+MakeElement("debuffs", "HARMFUL")
