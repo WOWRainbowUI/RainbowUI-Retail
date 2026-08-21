@@ -23,6 +23,12 @@ local DB = ns.DB
 local function black(a) return { r = 0, g = 0, b = 0, a = a or 1 } end
 local function white(a) return { r = 1, g = 1, b = 1, a = a or 1 } end
 
+-- 小圖示（團標／隊長／休息戰鬥／PvP）的框架層級。
+-- 必須高於滑鼠移過的高亮邊框（Core/UnitFrame.lua 的 HIGHLIGHT_LEVEL = 20）：
+-- 這些圖示故意突出框體上緣，邊框壓在上面的話頂線會從圖示中間劃過去。它們是浮在
+-- 框上的徽章，本來就該蓋過邊框。改這個數字要連 UnitFrame.lua 那個常數一起看。
+local ICON_LEVEL = 21
+
 ------------------------------------------------------------
 -- 每個單位的 frame 區塊共通欄位（顯示條件／淡出／高亮）
 --
@@ -252,20 +258,22 @@ function DB.BuildDefaults()
                     buffs  = { enabled = false, x = 0, y = -52, w = 17, h = 17,
                                maxCount = 32, perRow = 16, growth = "LRTB", spacing = 1,
                                showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
                                durationText = true, durationThreshold = 60, filterMode = "all" },
                     debuffs = { enabled = false, x = 0, y = -52, w = 17, h = 17,
                                 maxCount = 40, perRow = 16, growth = "LRTB", spacing = 1,
                                 showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
                                 durationText = true, durationThreshold = 60, filterMode = "all" },
                     icons = { enabled = true,
-                              raidtarget = { enabled = true,  x = 84,  y = 10, w = 20, h = 20, level = 5 },
+                              raidtarget = { enabled = true,  x = 84,  y = 10, w = 20, h = 20, level = ICON_LEVEL },
                               -- 只有玩家框吃得到這兩個：
                               --   restAnimated   休息 zzZ 用暴雪內建的 flipbook 動畫
                               --   combatBlizzard 戰鬥改用內建 AttackIcon（原尺寸 16×16，不吃寬高設定）
-                              status     = { enabled = true,  x = -8,  y = 10, w = 14, h = 14, level = 10,
+                              status     = { enabled = true,  x = -8,  y = 10, w = 14, h = 14, level = ICON_LEVEL,
                                              restAnimated = true, combatBlizzard = false },
-                              leader     = { enabled = true,  x = 7,   y = 10, w = 12, h = 12, level = 10 },
-                              pvp        = { enabled = false, x = -15, y = -12, w = 28, h = 28, level = 10 } },
+                              leader     = { enabled = true,  x = 7,   y = 10, w = 12, h = 12, level = ICON_LEVEL },
+                              pvp        = { enabled = false, x = -15, y = -12, w = 28, h = 28, level = ICON_LEVEL } },
                 },
             },
 
@@ -322,19 +330,25 @@ function DB.BuildDefaults()
                                  color = { r = 0.984, g = 1, b = 0.953, a = 0.861 } },
                     },
                     castbar = bigCastbar(),
+                    -- 上下兩排的右緣都落在 199（框體 200 減 1px 邊框）：
+                    --   增益 8×25 ＋ 7 間距 = 207，所以 x 要退到 -8
+                    --   減益 8×24 ＋ 7 間距 = 199，從 0 起算剛好
+                    -- 兩排尺寸不同是為了對齊右緣，不是打錯。
                     buffs  = { enabled = true, x = -8, y = -62, w = 25, h = 25,
                                maxCount = 16, perRow = 8, growth = "LRTB", spacing = 1,
                                showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
                                durationText = true, durationThreshold = 60, filterMode = "all" },
-                    debuffs = { enabled = true, x = 0, y = 4, w = 25, h = 25,
+                    debuffs = { enabled = true, x = 0, y = 4, w = 24, h = 24,
                                 maxCount = 16, perRow = 8, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
                                 durationText = true, durationThreshold = 60, filterMode = "all" },
                     icons = { enabled = true,
-                              raidtarget = { enabled = true,  x = 84, y = 10, w = 20, h = 20, level = 5 },
-                              status     = { enabled = true,  x = -8, y = 10, w = 14, h = 14, level = 10 },
-                              leader     = { enabled = true,  x = 7,  y = 10, w = 12, h = 12, level = 10 },
-                              pvp        = { enabled = false, x = 176, y = -12, w = 28, h = 28, level = 10 } },
+                              raidtarget = { enabled = true,  x = 84, y = 10, w = 20, h = 20, level = ICON_LEVEL },
+                              status     = { enabled = true,  x = -8, y = 10, w = 14, h = 14, level = ICON_LEVEL },
+                              leader     = { enabled = true,  x = 7,  y = 10, w = 12, h = 12, level = ICON_LEVEL },
+                              pvp        = { enabled = false, x = 176, y = -12, w = 28, h = 28, level = ICON_LEVEL } },
                     -- 觀察按鈕：點下去開觀察視窗。座標是使用者在遊戲裡調定的
                     -- （框右上角外側，往上凸出 5）。
                     -- 預設是「圖示直接浮在框上」——不畫邊框也不畫底色（使用者定案）；
@@ -383,13 +397,18 @@ function DB.BuildDefaults()
                     buffs  = { enabled = true, x = 0, y = -31, w = 19, h = 19,
                                maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
                                showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
                                durationText = false, durationThreshold = 60, filterMode = "all" },
+                    -- 減益走 bossrole 而不是 all：目標的目標通常是坦或補的目標，這麼小的
+                    -- 一排位置有限，只有首領技能和職責相關的減益值得占位，其餘都是雜訊。
                     debuffs = { enabled = true, x = 0, y = 1, w = 19, h = 19,
                                 maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
+                                onlyMine = false, filterMode = "bossrole",
                                 showStack = true, stackSize = 10,
-                                durationText = false, durationThreshold = 60, filterMode = "all" },
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60 },
                     icons = { enabled = true,
-                              raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = 5 } },
+                              raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
                 },
             },
 
@@ -442,7 +461,7 @@ function DB.BuildDefaults()
                         icon  = { x = 0, y = 0, w = 10, h = 10 },
                     },
                     icons = { enabled = true,
-                              raidtarget = { enabled = true, x = 52, y = 12, w = 16, h = 16, level = 6 } },
+                              raidtarget = { enabled = true, x = 52, y = 12, w = 16, h = 16, level = ICON_LEVEL } },
                 },
             },
 
@@ -481,7 +500,7 @@ function DB.BuildDefaults()
                                  size = 8, justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                     },
                     icons = { enabled = true,
-                              raidtarget = { enabled = true, x = 27, y = 10, w = 16, h = 16, level = 6 } },
+                              raidtarget = { enabled = true, x = 27, y = 10, w = 16, h = 16, level = ICON_LEVEL } },
                 },
             },
 
@@ -555,10 +574,12 @@ function DB.BuildDefaults()
                     buffs  = { enabled = true, x = 0, y = -51, w = 19, h = 19,
                                maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
                                showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
                                durationText = false, durationThreshold = 60, filterMode = "all" },
                     debuffs = { enabled = true, x = 0, y = 1, w = 19, h = 19,
                                 maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
                                 durationText = false, durationThreshold = 60, filterMode = "all" },
                 },
             },
@@ -590,6 +611,24 @@ function DB.BuildDefaults()
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                    -- 自己掛在首領身上的減益（DoT／減速／破甲…）。
+                    --
+                    -- 版面：右緣對齊框架（x = 220 就是三條 bar 的右緣），往左長。
+                    -- 首領框的版面已經很滿 —— 頭像佔左上 x 37..103、名字在 y 13 附近、
+                    -- 血量% 靠右、三條 bar 佔 y 0..-36 —— 唯一連續的空白是
+                    -- 「頭像右邊、名字上面」那條，所以放在 y = 20、往左往上長。
+                    -- ⚠ growth 用 RLBT 不是 LRTB：從右緣往左長，圖示變多時往左延伸，
+                    -- 右緣永遠貼齊框架；用 LR 的話右緣會隨數量浮動，看起來就沒對齊。
+                    -- perRow 6 × 18px = 113 寬，左端落在 107，離頭像右緣（103）還有 4。
+                    --
+                    -- onlyMine 是這個元件的重點：首領身上別人的減益幾十個，
+                    -- 只有自己掛的才是「我該不該補」的資訊。
+                    debuffs = { enabled = true, x = 220, y = 10, w = 18, h = 18,
+                                maxCount = 12, perRow = 6, growth = "RLBT", spacing = 1,
+                                onlyMine = true, filterMode = "all",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = true, durationThreshold = 60 },
                     mpbar = { enabled = true, x = 36, y = -13, w = 184, h = 10, level = 4,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -707,6 +746,44 @@ end
 ------------------------------------------------------------
 -- [版本號] = 把一份設定檔補到那個版本要做的事。加條目時 ns.DB_VERSION 一起 bump。
 local PROFILE_MIGRATIONS = {
+
+    -- v13：滑鼠移過的高亮邊框（frame level 20）壓在團隊標記等小圖示上頭 —— 那些圖示
+    -- 故意突出框體上緣，邊框的頂線就從圖示中間劃過去。小圖示是浮在框上的徽章，本來
+    -- 就該蓋過邊框，所以一律提到 ICON_LEVEL（21）。
+    -- 首領框不在這步：使用者點名的是玩家／目標／目標的目標／焦點／焦點的目標。
+    --
+    -- ⚠ 版本號**跳過 12**，不是打錯。開發期間有一版把 DB_VERSION 推到 12 之後整包
+    -- 丟掉，本機 SV 的 schemaVersionSeen 已經記著 12。DB.Migrate 的起點取
+    -- max(schemaVersion, schemaVersionSeen)，用 12 的話這步會被當成「早就跑過」直接
+    -- 跳過，而且是靜默的 —— 遊戲裡看起來就是「改了預設值卻沒生效」。
+    --
+    -- 值閘：只動還等於舊預設的層級。圖示的 level 沒開放給使用者調（Options 只給
+    -- 顯示開關與位置尺寸），所以正常情況下都會命中。
+    [13] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        -- 舊預設：團標 5（焦點兩隻是 6）、其餘 10
+        local OLD = {
+            raidtarget = { [5] = true, [6] = true },
+            status     = { [10] = true },
+            leader     = { [10] = true },
+            pvp        = { [10] = true },
+        }
+        for _, unit in ipairs({ "player", "target", "targettarget", "focus", "focustarget" }) do
+            local udb = units[unit]
+            local icons = type(udb) == "table" and type(udb.elements) == "table"
+                          and udb.elements.icons
+            if type(icons) == "table" then
+                for kind, olds in pairs(OLD) do
+                    local idb = icons[kind]
+                    if type(idb) == "table" and olds[idb.level] then
+                        idb.level = ICON_LEVEL
+                    end
+                end
+            end
+        end
+    end,
+
     -- v10：文字預設從 5 提到 10（v9）之後，施法條的 6／7 就落到文字**底下**了 ——
     -- 唱法時遮不住底下的名字與血量數字，兩層字疊在一起。施法條本來就是覆蓋層，
     -- 層級應該高於文字。一律提到 12（文字用 10、少數 11）。
