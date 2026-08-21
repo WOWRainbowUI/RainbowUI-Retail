@@ -53,7 +53,7 @@ local function SetHooks()
     local function OnEvent(self, event, ...)
         if event == "QUEST_WATCH_LIST_CHANGED" then
             local questID, added = ...
-            if added and KT:Module_IsCollapsed(self) then
+            if added and not dbChar.filterAuto[1] and KT:Module_IsCollapsed(self) then
                 local quest = KT_QuestCache:Get(questID)
                 if self:ShouldDisplayQuest(quest) then
                     KT:Module_Expand(self)

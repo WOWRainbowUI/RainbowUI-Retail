@@ -378,6 +378,12 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.7.2|r\n"..
+					"- CHANGED - improve auto expand tracker modules\n"..
+					"- FIXED (Scenario) - Spell button causes an error when entering combat\n"..
+					"- REVERTED - taint errors (3)\"\n"..
+					"\n")..
+
 					(cTitle.."Version 8.7.1|r\n"..
 					"- 新增 - 複製 URL 後自動關閉 Wowhead 與 YouTube 彈出視窗（見 選項 > 模組 > 一般）\n"..
 					"- 新增 - 啟動時移除無效的已追蹤成就\n"..

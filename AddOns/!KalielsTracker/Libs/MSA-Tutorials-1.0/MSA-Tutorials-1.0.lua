@@ -163,8 +163,8 @@ local function NewEditbox(frame)
 			self:SetTextColor(1, 1, 1)
 			self:HighlightText()
 			if self.showHint then
-				if self._textLength + self.hintWidth + 4 > self.maxWidth then
-					self:SetWidth(self.maxWidth - self.hintWidth - 4)
+				if self._textLength + self.hintWidth + 5 > self.maxWidth then
+					self:SetWidth(self.maxWidth - self.hintWidth)
 				end
 				self.hint:Show()
 			end

@@ -9,6 +9,16 @@ local _, KT = ...
 
 KT.Safe = {}
 
+---@see _G#CooldownFrame_Set
+function KT.Safe.CooldownFrame_Set(self, durationObj, isActive, forceShowDrawEdge)
+    if isActive and durationObj then
+        self:SetDrawEdge(not not forceShowDrawEdge)
+        self:SetCooldownFromDurationObject(durationObj)
+    else
+        CooldownFrame_Clear(self)
+    end
+end
+
 ---@see _G#ShouldShowMawBuffs
 function KT.Safe.ShouldShowMawBuffs()
     return IsInJailersTower()

@@ -1147,13 +1147,8 @@ end
 function KT_ScenarioSpellButtonMixin:UpdateCooldown()
 	local cooldownInfo = C_Spell.GetSpellCooldown(self.spellID);
 	if cooldownInfo then
-        -- MSA (secret proxy)
-        local start = cooldownInfo.startTime + 0
-        local duration = cooldownInfo.duration + 0
-        local enable = cooldownInfo.isEnabled and true or false
-
-		CooldownFrame_Set(self.Cooldown, start, duration, enable);
-		if duration > 0 and not enable then
+		CooldownFrame_Set(self.Cooldown, cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled);
+		if cooldownInfo.duration > 0 and not cooldownInfo.isEnabled then
 			self.Icon:SetVertexColor(0.4, 0.4, 0.4);
 		else
 			self.Icon:SetVertexColor(1, 1, 1);
