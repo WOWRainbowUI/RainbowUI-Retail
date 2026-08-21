@@ -14,12 +14,14 @@ local myname, ns = ...
 API:
 status = ns.areaPoi.GetStatus(areaPoiID[, uiMapID]) -- nil if nothing is known
 	status.active       -- bool, it is running now
+	status.timed        -- bool, whether .active is backed by real timing evidence
 	status.secondsLeft  -- number?, how much longer it runs
 	status.secondsUntil -- number?, how long until the next one starts
 
 ns.areaPoi.GetBestStatus(pois[, uiMapID])   -> status?
 ns.areaPoi.IsActive(pois[, uiMapID])        -> bool
-ns.areaPoi.IsImminent(pois[, uiMapID])      -> bool -- starts within SOON
+ns.areaPoi.IsImminent(pois[, uiMapID])      -> bool -- starts within Soon()
+ns.areaPoi.Soon()                           -> number, seconds -- configurable
 ns.areaPoi.GetName(areaPoiID[, uiMapID])    -> string?
 ns.areaPoi.Describe(pois[, uiMapID][, fallbackName]) -> string, colour
 ns.areaPoi.RegisterCallback(func)           -- called when one of the above changes
@@ -29,8 +31,16 @@ ns.areaPoi = {}
 local areaPoi = ns.areaPoi
 
 -- What counts as "about to start". Blizzard's own reminders warn at 300; ten
--- minutes is long enough to travel there.
-areaPoi.SOON = 600
+-- minutes is the default. Configurable where the host addon has a db to read
+-- from -- MidnightTreasures does, SilverDragon does not yet -- so this is read
+-- fresh each time rather than cached: SilverDragon's ns.db is a passthrough
+-- that could start answering differently at any point, and on this side ns.db
+-- itself does not exist until HL:OnInitialize runs.
+local DEFAULT_SOON = 600
+function areaPoi.Soon()
+	local minutes = ns.db and ns.db.areapoi_soon
+	return (minutes and minutes * 60) or DEFAULT_SOON
+end
 
 local CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
@@ -244,15 +254,21 @@ function areaPoi.GetStatus(areaPoiID, uiMapID)
 	local status = wipe(statuses[areaPoiID])
 	status.areaPoiID = areaPoiID
 	status.uiMapID = uiMapID
-	status.active = (uiMapID and presence(uiMapID)[areaPoiID]) or ongoing(areaPoiID) or false
+	local isOngoing = ongoing(areaPoiID)
+	status.active = (uiMapID and presence(uiMapID)[areaPoiID]) or isOngoing or false
 	if status.active then
 		status.secondsLeft = secondsLeftFor(areaPoiID)
 	end
+	-- Presence alone isn't proof: the same key also feeds the tooltip-grafting
+	-- index for any area POI, timed or not, so .active can be true with nothing
+	-- behind it. secondsLeft and the scheduler are each independent evidence.
+	status.timed = status.secondsLeft ~= nil or isOngoing
 
 	local event = scheduledFor(areaPoiID)
 	-- The schedule is rebuilt on an interval, so an entry can finish between
 	-- refreshes. Using one then would count backwards.
 	if event and event.endTime > now then
+		status.timed = true
 		if event.startTime > now then
 			status.secondsUntil = event.startTime - now
 		else
@@ -298,7 +314,7 @@ end
 
 function areaPoi.IsImminent(pois, uiMapID)
 	local status = areaPoi.GetBestStatus(pois, uiMapID)
-	return (status and status.secondsUntil and status.secondsUntil <= areaPoi.SOON) or false
+	return (status and status.secondsUntil and status.secondsUntil <= areaPoi.Soon()) or false
 end
 
 -- Kept out of GetStatus: this allocates a table on every call, and only the
@@ -327,13 +343,16 @@ function areaPoi.Describe(pois, uiMapID, fallbackName)
 	if status.active and status.secondsLeft then
 		return TIME_LEFT:format(SecondsToTime(status.secondsLeft)), GREEN_FONT_COLOR
 	end
+	if status.active and not status.timed then
+		return -- active but not a tracked event; see .timed above
+	end
 	-- the two remaining lines are sentences about the POI, so they need its name
 	local name = areaPoi.GetName(status.areaPoiID, status.uiMapID) or fallbackName
 	if not name then return end
 	if status.active then
 		return HAS_STARTED:format(name), GREEN_FONT_COLOR
 	end
-	local color = status.secondsUntil <= areaPoi.SOON and NORMAL_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+	local color = status.secondsUntil <= areaPoi.Soon() and NORMAL_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 	return STARTS_IN:format(name, SecondsToTime(status.secondsUntil)), color
 end
 
@@ -342,7 +361,7 @@ end
 --
 -- Two events cover a POI appearing and the schedule changing. Neither covers the
 -- passage of time, so a timer is armed for the next moment an answer above can
--- change: a countdown running out, or a start crossing SOON. It is only armed
+-- change: a countdown running out, or a start crossing the Soon() threshold. It is only armed
 -- while something is watched, so an idle session costs nothing.
 
 do
@@ -357,7 +376,7 @@ do
 		local event = scheduledFor(areaPoiID)
 		if event then
 			local now = time()
-			consider(event.startTime - now - areaPoi.SOON)
+			consider(event.startTime - now - areaPoi.Soon())
 			consider(event.startTime - now)
 			consider(event.endTime - now)
 		end

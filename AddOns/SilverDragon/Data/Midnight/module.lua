@@ -207,6 +207,41 @@ core:RegisterTreasureData("Midnight", {
 		notes="Inside the building; drag objects out 3x",
 	},
 	[7447] = {name="Scout's Pack", achievement=62126, criteria=111870, quest=94387, loot={266101, SINGULARITY}},
+
+	-- Junk
+	-- Technically these contain some healing potions, grey gear, profession knowledge weekly items, and housing dyes
+	-- Eversong
+	[6931] = {name="Misplaced Tome", loot={}},
+	[7438] = {name="Dead Drop", loot={}},
+	[7439] = {name="Coalesced Light", loot={}},
+	[7440] = {name="Ranger's Cache", loot={}},
+	-- Zul'Aman
+	[7044] = {name="Forgotten Amani Cache", loot={}},
+	[7336] = {name="Spiritpaw Satchel", loot={}},
+	[7337] = {name="Twilight Ordinance", loot={}},
+	[7338] = {name="Maisara Vilevessel", loot={}},
+	[7339] = {name="Stonewash Supplies", loot={}},
+	[7348] = {name="Giant Grab Bag", loot={}},
+	[7349] = {name="Shabby Stockpile", loot={}},
+	-- Harandar
+	[7317] = {name="Fungalcap Crock", loot={}},
+	[7318] = {name="Budding Barrel", loot={}},
+	[7320] = {name="Leaf-Wrapped Package", loot={}},
+	-- Voidstorm
+	[7342] = {name="Stashed Singularity Supplies", loot={}},
+	[7343] = {name="Mysterious Domanaar Vessel", loot={}},
+	-- Naigtal
+	[7706] = {name="Hal'hadar Pocket-Storage", loot={}},
+	-- Val
+	[7707] = {name="Domanaar Storage Vessel", loot={}},
+	-- Coiled Isle
+	[7704] = {name="Decrepit Cache", loot={}},
+	[7705] = {name="Cracked Canopic Jar", loot={}},
+	[7712] = {name="Venom-Clotted Bauble", loot={}},
+	[7713] = {name="Singing Shell", loot={}},
+	-- Vaults of Atal'Utek
+	[7654] = {name="Soulcoiler's Cache", loot={}},
+	[7655] = {name="Soulcoiler's Trove", loot={}},
 }, true)
 
 local moth = {name="Glowing Moth", achievement=61052, loot={ns.rewards.Currency(3385)}}
@@ -290,7 +325,7 @@ core:RegisterMobData("Midnight", {
 		quest=97128,
 		worldquest=97128,
 		-- areaPoi=8896,
-		locations={[ns.COILEDISLE]={}}, -- 51605400
+		locations={[ns.COILEDISLE]={}}, -- 59996622
 		loot={
 			268199, -- Tidepiercer's Bubble Popper
 			268217, -- Rising Tide Wristguards
@@ -925,7 +960,7 @@ ns.RegisterPoints(ns.HARANDAR, {
 
 do
 	local loot_shared = {
-		246951, -- Stormarion Core
+		-- 246951, -- Stormarion Core
 		251786, -- Ever-Collapsing Void Fissure
 		264694, -- Ultradon Cuirass
 		264701, -- Cosmic Bell
@@ -1160,19 +1195,19 @@ do
 				-- 264364, -- Hardin Steellock's Head
 				264599, -- Kul'Tiran Signet Ring
 				264615, -- Hardin's Backup Blade
-				-- ns.rewards.Currency(ns.CURRENCY_SINGULARITY, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_SINGULARITY, 50, {quest=94757}),
 			},
 			faction="Horde",
 			vignette=7442,
 		},
 		[69687730] = { -- Gar'chak Skullcleave
-			quest=94461, -- v
+			quest=94461,
 			npc=257231,
 			loot={
 				-- 264363, -- Gar'chak Skullcleave's Head
 				264609, -- Gar'chak's Mark of Honor
 				264641, -- Sharpened Skullcleaver
-				-- ns.rewards.Currency(ns.CURRENCY_SINGULARITY, 50, {quest=}),
+				ns.rewards.Currency(ns.CURRENCY_SINGULARITY, 50, {quest=94756}),
 			},
 			faction="Alliance",
 			vignette=7445,
