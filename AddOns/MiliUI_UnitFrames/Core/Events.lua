@@ -74,13 +74,19 @@ local trackers = {}
 -- 而那次重畫讀的是 pet，跟事件毫無關係。獵人／術士／邪騎／法師整場戰鬥都在付。
 --
 -- ⚠⚠ 閘只在 `uf.unit == uf.baseUnit`（框正在畫它原本的單位）時生效，不是無條件
--- 比對 uf.unit。理由是**我不確定進載具之後引擎是用哪個 token 派送**：
---   * 若是 "vehicle" → 無條件比對 uf.unit 也會對
---   * 若仍是 "player" → 無條件比對會把載具中的事件全部擋掉，玩家框整趟車不更新
--- 後者是那種「只在載具裡壞、而且不報錯」的故障，不值得為了載具那幾十秒去賭。
--- 加上 baseUnit 這個條件之後：日常情況（99% 的時間）該擋的全擋掉，一旦框被
--- 重新對應到別的 token 就整個放行，行為跟改動前一模一樣 ⇒ 兩種答案下都正確。
--- 哪天在載具裡實測確認過 token 是什麼，這裡可以再收緊成單純的 unit ~= uf.unit。
+-- 比對 uf.unit。這個保守版本當初是為了避開「不確定引擎用哪個 token 派送」而寫的，
+-- 日常情況（99% 的時間）該擋的全擋掉，一旦框被重新對應到別的 token 就整個放行。
+--
+-- ⚠⚠ **不要收緊成單純的 `unit ~= uf.unit`。** 註解原本留著「哪天實測確認過就可以
+-- 收緊」的問號，2026-08-20 在有載具 UI 的載具上量到答案了 ——
+-- 下面那張 census 印出來是 `player=player×2,vehicle×4`、`pet=pet×4,player×2`：
+-- **兩個 token 都會派送**，而且技能可能掛在 "player" 上報，即使框已經被對應成
+-- "vehicle"。收緊等於把 player 那半全部擋掉，玩家框整趟車不更新。
+--
+-- 這不是假想的故障：Elements/Castbar.lua 的施法條閘當初就是寫成嚴格比對，症狀是
+-- 「在載具上施法，施法條長在寵物框（那格這時畫的是你自己）」，玩家框永遠空的。
+-- 那邊的修法是把「框在畫誰」跟「這條在畫誰的施法」拆成兩個欄位，見那支的
+-- AcceptCastEvent；這裡則是維持全放行——刷新讀的是 uf.unit，多跑幾次不會讀錯單位。
 local function TrackerOnEvent(self, event, unit)
     local uf = self.uf
     if not (uf and uf:IsVisible()) then return end
@@ -290,7 +296,26 @@ function ns.Events.Register(event, key, fn, unitToken)
             unitScoped[event] = true
             UnitReg(event, unitToken)
         end
-    elseif not externalEvents[event] and not unitScoped[event] then
+    elseif not externalEvents[event] then
+        if unitScoped[event] then
+            -- 這個事件已經被 unit 範圍註冊過，不可以再上全域（會雙送）。
+            --
+            -- ⚠⚠ **SCOPED 裡的事件是正常情況，不要警告。** 那張表綁好 token 之後，
+            -- 它的 OnEvent 會照樣 ns.Fire 給所有訂閱者 ⇒ 不傳 token 的訂閱者一樣
+            -- 收得到（上面那段註解本來就寫明了，UNIT_TARGET 就是這樣設計的）。
+            -- 我一度在這裡無條件記一筆「收不到其他單位的事件」，結果 /muf debug 上
+            -- 冒出兩條指著光環模組的假警報 —— 會誤導的診斷比靜默更糟。
+            --
+            -- 真正值得記的只有另一種：**別的模組臨時用 token 註冊**，把這個事件變成
+            -- unit 範圍，於是後來不傳 token 的訂閱者只收得到那個 token。那才是意外。
+            if not SCOPED[event] then
+                -- 走 ns.errors 不走 ns.ReportError：這是給開發者的線索、不是玩家的
+                -- 問題，不該在登入時彈錯誤視窗。`/muf debug` 讀得到。
+                tinsert(ns.errors, ("Events.Register: %s 已被 %s 之外的 token 註冊，key=%s 的全域訂閱只收得到那個 token")
+                    :format(tostring(event), "SCOPED", tostring(key)))
+            end
+            return
+        end
         externalEvents[event] = true
         Reg(event)
     end
@@ -302,12 +327,15 @@ end
 local metroEntries = {}
 local metroTicker
 
+-- ⚠ 逐項隔離：這是裸迴圈 dispatch，一支拋錯會讓該次 tick 剩下的項目全部不跑。
+-- 症狀是「某個框的文字壞掉之後，所有框的超出距離淡出跟著凍結」，而且每 0.1 秒
+-- 重演一次。UnitFrame 的三處 dispatch 已經是這樣防的，這裡是同一類的最後一個缺口。
 local function MetroTick()
     for _, entry in pairs(metroEntries) do
         entry.elapsed = entry.elapsed + 0.1
         if entry.elapsed >= entry.interval then
             entry.elapsed = 0
-            entry.fn()
+            xpcall(entry.fn, ns.ReportError)
         end
     end
 end

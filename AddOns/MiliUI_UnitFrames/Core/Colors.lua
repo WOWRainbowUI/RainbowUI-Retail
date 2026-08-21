@@ -1,5 +1,5 @@
 ------------------------------------------------------------
--- 顏色方法（移植 Stuf/core.lua colormethods，讀 uf.cache 明文資料）
+-- 顏色方法（讀 uf.cache 明文資料）
 -- 簽名：fn(uf, edb, value01, choiceKey, alphaKey) → r, g, b, a
 --   value01  : 0-1（hpthreshold 內插用，通常傳 cache.frachp）
 --   choiceKey: edb 內自訂色欄位名（solid 用，預設 "bgColor"）
@@ -22,6 +22,15 @@ end
 
 local function G()   -- 全域色票
     return ns.db.global.colors
+end
+
+-- 「暗色」變體共用的守衛。秘密值不能做算術，而上色法是使用者自由指定、彼此還會
+-- 互相委派的（classreactiondark → classdark／reactiondark），所以不要只在會出事的
+-- 那一支加閘 —— 七個變體一律走這裡。
+-- 遇到秘密分量就原色回傳：顏色沒變暗，總比整條 Refresh 拋錯好。
+local function Dim(r, g, b, a)
+    if ns.IsSecret(r) then return r, g, b, a end
+    return r * 0.3, g * 0.3, b * 0.3, a
 end
 
 -- 職業色：明文查表；受限身分的玩家（PvP 敵方玩家等）class 是秘密 → 走官方顯示管道
@@ -49,18 +58,26 @@ methods.class = function(uf, edb, value, choice, alphaKey)
     return WHITE.r, WHITE.g, WHITE.b, a
 end
 methods.classdark = function(uf, edb, value, choice, alphaKey)
-    local r, g, b, a = methods.class(uf, edb, value, choice, alphaKey)
-    if ns.IsSecret(r) then return r, g, b, a end        -- 秘密色不能做算術，原色回傳
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(methods.class(uf, edb, value, choice, alphaKey))
 end
 
+-- ⚠ cache.reaction 在受限單位上可能抽不出明文（nil）。以前這種情況直接落到 WHITE，
+-- 於是副本裡的敵人血條變純白、看不出敵我 —— 而 cache.hostile / cache.attackable
+-- 就在同一支 UpdateFlagFields 裡算好了，沒被拿來用。
+-- 退階順序：明文 reaction → 敵對(2) → 可攻擊但不敵對＝中立(4) → 才是 WHITE。
+-- 旗標本身也抽不出來時兩個都是 false，結果跟改動前一樣，不會憑空塗成友好色。
 methods.reaction = function(uf, edb, value, choice, alphaKey)
-    local c = G().reaction[uf.cache.reaction or 0] or WHITE
+    local cache = uf.cache
+    local c = G().reaction[cache.reaction or 0]
+    if not c then
+        local pal = G().reaction
+        c = (cache.hostile and pal[2]) or (cache.attackable and pal[4]) or WHITE
+    end
     return c.r, c.g, c.b, alphaOf(edb, alphaKey, 1)
 end
 methods.reactiondark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.reaction(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 
 -- 玩家用職業色、NPC/敵對(2)/中立(4)用陣營色
@@ -95,7 +112,7 @@ methods.difficulty = function(uf, edb, value, choice, alphaKey)
 end
 methods.difficultydark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.difficulty(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 
 -- Enum.PowerType index → PowerBarColor 的字串鍵（數字鍵不一定存在，缺了會錯退成法力藍）
@@ -112,7 +129,7 @@ methods.power = function(uf, edb, value, choice, alphaKey)
 end
 methods.powerdark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.power(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 
 methods.hpgreen = function(uf, edb, value, choice, alphaKey)
@@ -121,7 +138,7 @@ methods.hpgreen = function(uf, edb, value, choice, alphaKey)
 end
 methods.hpgreendark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.hpgreen(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 methods.hpred = function(uf, edb, value, choice, alphaKey)
     local c = G().hpRed
@@ -129,7 +146,7 @@ methods.hpred = function(uf, edb, value, choice, alphaKey)
 end
 methods.hpreddark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.hpred(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 
 methods.hpthreshold = function(uf, edb, value, choice, alphaKey)
@@ -151,7 +168,7 @@ methods.hpthreshold = function(uf, edb, value, choice, alphaKey)
 end
 methods.hpthresholddark = function(uf, edb, value, choice, alphaKey)
     local r, g, b, a = methods.hpthreshold(uf, edb, value, choice, alphaKey)
-    return r * 0.3, g * 0.3, b * 0.3, a
+    return Dim(r, g, b, a)
 end
 
 methods.gray = function(uf, edb, value, choice, alphaKey)
@@ -172,7 +189,7 @@ methods.hide = function() return 0, 0, 0, 0 end
 
 Colors.methods = methods
 
--- 對外開放（沿用 Stuf AddColorMethod 語意）
+-- 對外開放：讓其他模組登記自訂的顏色方法
 function Colors.Register(name, fn)
     methods[name] = fn
 end

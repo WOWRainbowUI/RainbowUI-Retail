@@ -37,43 +37,25 @@ local CONTROLS = {
 
 local function Init()
     if tab then return end
-    tab = CreateFrame("Frame", nil, ns.Options.panel)
-    tab:SetAllPoints(ns.Options.panel)
-    tab:Hide()
+    -- 內容比面板高就會掉出去，一律走卷軸（同資源分頁）
+    tab, scroll = ns.Options.MakeFormTab(L["Summons"])
 
-    local title = W.CreateSectionTitle(tab, L["Summons"], 660)
-    title:SetPoint("TOPLEFT", 16, -14)
+    local ctx = Controls.MakeCtx(function() return ns.db.units.totem end, function()
+        if ns.TotemsApplySettings then ns.TotemsApplySettings() end
+    end)
 
-    -- 同資源分頁：內容比面板高就會掉出去，一律走卷軸
-    local holder = CreateFrame("Frame", nil, tab)
-    holder:SetPoint("TOPLEFT", 16, -44)
-    holder:SetPoint("BOTTOMRIGHT", -8, 10)
-    scroll = W.CreateScrollFrame(holder)
-
-    content = CreateFrame("Frame", nil, scroll.child)
-    content:SetPoint("TOPLEFT")
-    content:SetSize(620, 1)
-
-    local ctx = {
-        get = function(spec)
-            local t = Controls.Resolve(ns.db.units.totem, spec)
-            return t and t[spec.key]
-        end,
-        set = function(spec, v)
-            local t = Controls.Resolve(ns.db.units.totem, spec)
-            if t then t[spec.key] = v end
-        end,
-        apply = function()
-            if ns.TotemsApplySettings then ns.TotemsApplySettings() end
-        end,
-    }
-
-    local height, r, built = Controls.Build(content, CONTROLS, ctx, 4, -4, 620)
-    rows = built
-    content:SetHeight(height + 20)
-    scroll:SetContentHeight(height + 20)
-    refreshers = r
+    content, rows, refreshers = ns.Options.BuildScrollBody(scroll, CONTROLS, ctx, 620)
 end
+
+-- 換設定檔時，正開著的這一頁要重整。
+-- ⚠ ctx 是現查 ns.db 所以**寫入**一直都正確，錯的是**控件顯示值** —— 那是 refresher
+-- 推上去的，而 refresher 只在 ShowOptionsTab 跑。原本只有「單位」分頁訂了這個事件，
+-- 所以停在這一頁換設定檔會看到顏色與滑桿全停在舊值，切走再切回來才對。
+ns.RegisterCallback("ProfileChanged", "totemTabProfile", function()
+    if tab and tab:IsShown() then
+        for _, fn in ipairs(refreshers) do fn() end
+    end
+end)
 
 ns.RegisterCallback("ShowOptionsTab", "totemTab", function(id)
     -- 沒放召喚物時框是空的，調位置等於對著空氣調 → 進這一頁就填示範內容
@@ -90,6 +72,11 @@ end)
 ------------------------------------------------------------
 -- 設定搜尋（Options/Search.lua）
 ------------------------------------------------------------
+-- ⚠ 職業判斷要跟 Options/Panel.lua 的分頁清單同一套（兩邊都讀 ns.TOTEM_CLASSES）。
+-- 無條件註冊的話，法師搜「召喚物」會跳到一個根本沒有按鈕的分頁：高亮停在別的鈕上，
+-- 而 ShowOptionsTab 照樣把它叫出來，還順手替一個用不到的職業建出召喚物框、
+-- 鋪四個示範圖示。
+if ns.TOTEM_CLASSES[ns.playerClass] then
 ns.Search.Register("totem", {
     label = L["Summons"],
     enumerate = function(add) add(CONTROLS, L["Summons"]) end,
@@ -98,3 +85,4 @@ ns.Search.Register("totem", {
         ns.Search.Reveal(scroll, content, rows, spec)
     end,
 })
+end

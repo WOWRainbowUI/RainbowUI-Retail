@@ -39,7 +39,13 @@ end
 
 -- 疊在血條邊緣的延伸條（治療預估/吸收盾共用）
 local function EnsureOverlayBar(f, key, level)
-    if f[key] then return f[key] end
+    -- ⚠ 層級每次都要重套，不能只在建立當下設。edb.level 改了（匯入別人的設定檔、
+    -- 或未來的遷移）而這幾條還鎖在舊值的話，血條會升到護盾條上面把它蓋掉。
+    -- absorbStrip 與 borderFrame 都是每次 build 重設的，只有這幾條原本是例外。
+    if f[key] then
+        f[key]:SetFrameLevel(level)
+        return f[key]
+    end
     local bar = CreateFrame("StatusBar", nil, f)
     bar:SetFrameLevel(level)
     -- ⚠ 新建的 StatusBar 預設是「顯示中、min0 max1 value1」＝整條滿格。
@@ -119,11 +125,13 @@ local function ApplyHealPrediction(f, hcalc, unit)
     f.incbar:Show()
 end
 
-local function AnchorOverlay(bar, hpTex, w, h)
-    -- 錨到血條材質右緣，往右延伸；寬度來自設定（絕不回讀），超出由容器裁切
-    bar:ClearAllPoints()
-    bar:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
-    bar:SetSize(w, h)
+-- 疊加層一律「錨在血量前緣、往右延伸」，超出的部分由 clip 容器裁掉。
+-- ⚠ 只收斂這一行，不要把整段版面收進來：兩個呼叫點的**第二個錨點**本來就不一樣
+-- （lossbar 撐到容器右下角、治療預估對齊條高之後給固定寬），硬塞進同一支
+-- helper 會改掉它們的行為。這裡統一的是「錨在哪」這個共通決定。
+local function AnchorToFillEdge(obj, hpTex)
+    obj:ClearAllPoints()
+    obj:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
 end
 
 local function Build(uf, edb)
@@ -197,8 +205,7 @@ local function Build(uf, edb)
     end
     local lossA = edb.lossAlpha or 0
     if lossA > 0 then
-        f.loss:ClearAllPoints()
-        f.loss:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+        AnchorToFillEdge(f.loss, hpTex)
         f.loss:SetPoint("BOTTOMRIGHT", f.clip, "BOTTOMRIGHT", 0, 0)
         local lc = edb.lossColor or { r = 0, g = 0, b = 0 }
         f.loss:SetVertexColor(lc.r or 0, lc.g or 0, lc.b or 0, lossA)
@@ -234,10 +241,18 @@ local function Build(uf, edb)
     end
 
     -- 溢盾光暈（overshield / overshield_reversed 兩張）：4px / 8px 寬的邊緣貼圖
+    -- ⚠ 光暈要自己一個容器，不能直接當 f.clip 的貼圖。護盾條是 f.clip 底下的
+    -- **frame**（level+1），而 frame 永遠畫在父層的貼圖之上、跟 draw layer 無關 ⇒
+    -- 光暈會被護盾條整個蓋掉。而「溢盾」的前提就是一定有盾（預設的反向填充還剛好
+    -- 從同一邊長過來），等於這個光暈永遠看不見。
     if not f.overShieldGlow then
-        f.overShieldGlow = f.clip:CreateTexture(nil, "OVERLAY")
-        f.overShieldGlowR = f.clip:CreateTexture(nil, "OVERLAY")
+        local gf = CreateFrame("Frame", nil, f.clip)
+        gf:SetAllPoints(f.clip)
+        f.overShieldFrame  = gf
+        f.overShieldGlow   = gf:CreateTexture(nil, "OVERLAY")
+        f.overShieldGlowR  = gf:CreateTexture(nil, "OVERLAY")
     end
+    f.overShieldFrame:SetFrameLevel((edb.level or 4) + 2)   -- 護盾條是 +1，要壓在它上面
     f.overShieldGlow:SetTexture(Media.OVERSHIELD_TEXTURE)
     f.overShieldGlow:ClearAllPoints()
     f.overShieldGlow:SetPoint("TOPRIGHT", f.clip, "TOPRIGHT", 0, 0)
@@ -272,8 +287,7 @@ local function Build(uf, edb)
     if edb.showHealPrediction then
         local ib = EnsureOverlayBar(f.clip, "incbar", (edb.level or 4) + 2)
         f.incbar = ib
-        ib:ClearAllPoints()
-        ib:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+        AnchorToFillEdge(ib, hpTex)
         ib:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
         ib:SetWidth(innerW)
         ib:SetStatusBarTexture(texture)
@@ -488,7 +502,9 @@ ns.RegisterElement{
     name = "hpbar",
     order = 20,
     -- reaction：陣營／旗標會改上色法的結果（classreaction 讀 cache.reaction）
-    buckets = { "health", "death", "reaction" },
+    -- info：難度色（methods.difficulty）讀的是 cache.level，只在 info 桶重讀 ——
+    --       少了它，選「難度色」的人升級或目標變等級時顏色不會更新
+    buckets = { "health", "death", "reaction", "info" },
     build = Build,
     update = Update,
 }

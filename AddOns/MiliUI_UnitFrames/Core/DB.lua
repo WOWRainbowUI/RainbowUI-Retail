@@ -54,7 +54,12 @@ local function textDef(o)
     o.flags    = o.flags or "OUTLINE"
     o.justifyH = o.justifyH or "LEFT"
     o.justifyV = o.justifyV or "TOP"
-    o.level    = o.level or 5
+    -- ⚠ 預設 10，不是 5。文字必須高於所有「條」：
+    --   * 條的 level 是 0–6，5 夾在中間 ⇒ 施法條(6) 本來就會蓋住預設層級的文字
+    --   * 超出距離的暗色遮罩最高到 9，低於它的文字會跟著被蓋暗（使用者要的是
+    --     「條變暗、數字保持清晰」）
+    -- 10 之上還留 11 給需要再壓一層的（既有的幾條文字就是用 11）。
+    o.level    = o.level or 10
     o.color    = o.color or white(1)
     return o
 end
@@ -68,7 +73,12 @@ end
 -- 專注／寵物／首領的施法條不疊在頭像上，維持 1.0 且不畫亮點。
 local function bigCastbar(own)
     return {
-        enabled = true, x = 0, y = 0, w = 200, h = 52, level = 6,
+        -- ⚠ 層級要**高於文字**（文字預設 10、部分 11）。施法條是暫時蓋住框內容的
+        -- 覆蓋層，唱法時本來就該把底下的名字／血量數字遮住。
+        -- 文字預設從 5 提到 10 之後（見 textDef），6 就變成在文字**底下**了。
+        -- 高度 = 血條的 50：施法條蓋的是血條／頭像那塊，再高就會在
+        -- 魔力條沒墊到的那一側露出去（玩家的魔力條右移 8、目標左移 8）
+        enabled = true, x = 0, y = 0, w = 200, h = 50, level = 12,
         bg = black(0.8), timeFormat = "elapsedTotal",
         showInterruptState = not own,   -- 自己的施法不套「不可打斷灰」也不畫盾牌
         showCompleteFlash = true, fadeTime = 0.5, interruptHold = 0.4,
@@ -110,7 +120,15 @@ function DB.BuildDefaults()
             numberFormat = "auto",       -- auto | wan | km | raw（見 Tags.NumberMode）
             percentDecimals = 0,
             previewBossDisplayID = 131474,   -- 預覽敵對單位的示範模型（薩拉塔斯 12.x 形態；117121 = TWW 形態）
-            oorAlpha    = 0.45,          -- 超出距離時整個框的透明度
+            -- 超出距離的表現方式：
+            --   dim   疊一層暗色（預設）。alpha 保持 1 ⇒ 背景不會透出來，顏色可預測，
+            --         而且遮罩層級 9 夾在「非文字元件最高 8」與「文字最低 10」之間，
+            --         條變暗、數字保持清晰。
+            --   fade  整個框降 alpha（舊行為）。缺點是血條會跟背景混色 ——
+            --         紅條疊在草地上變濁褐，亮背景上甚至會顯得更亮，語意剛好相反。
+            oorStyle    = "dim",
+            oorDim      = 0.35,          -- dim：暗色層的不透明度（0.55 太深，v8 調淺）
+            oorAlpha    = 0.45,          -- fade：超出距離時整個框的透明度
             oocAlpha    = 0.5,           -- 脫戰時整個框的透明度（哪些框要淡出是每單位設的）
             -- 滑鼠移過的高亮邊框（開關在每單位的 frame.highlight）
             highlightColor = white(0.7),
@@ -186,8 +204,10 @@ function DB.BuildDefaults()
                                  fallback2D = false },
                     hpbar = { enabled = true, x = 0, y = 0, w = 200, h = 50, level = 4, bgLevel = 2, lossAlpha = 0.9,
                               colorMethod = "class", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.5, bgAlpha = 1, border = true,
                               showHealPrediction = true, showAbsorb = true,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 疊加層顏色／方向沿用團隊框慣用的預設
                               healPredictionFollowBar = false, healPredictionColor = { r = 1, g = 1, b = 1, a = 0.4 },
                               absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -200,6 +220,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 8, y = -8, w = 200, h = 50, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 1, border = true },
                     classpower = { enabled = true, x = 8, y = -14, totalw = 200, h = 6,
                                    spacing = 1, rowSpacing = 2, level = 5,
@@ -262,8 +283,10 @@ function DB.BuildDefaults()
                                  fallback2D = false },   -- 副本小怪 3D 取不到時是否退 2D
                     hpbar = { enabled = true, x = 0, y = 0, w = 200, h = 50, level = 4, bgLevel = 2, lossAlpha = 0.9,
                               colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.5, bgAlpha = 1, border = true,
                               showHealPrediction = true, showAbsorb = true,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 疊加層顏色／方向沿用團隊框慣用的預設
                               healPredictionFollowBar = false, healPredictionColor = { r = 1, g = 1, b = 1, a = 0.4 },
                               absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -276,6 +299,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = -8, y = -8, w = 200, h = 50, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 1, border = true },
                     texts = {
                         textDef{ pattern = "[name]",   x = 3, y = -3,  w = 200, h = 50, size = 15 },
@@ -330,9 +354,11 @@ function DB.BuildDefaults()
                     -- 條跟光環整排等寬（使用者定案，見 v6 遷移）
                     hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 20, level = 4,
                               colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.4, bgAlpha = 1, border = true,
                               -- 治療預估仍然關著（跟護盾是不同的勾選）
                               showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 護盾：全部單位一致（疊加層只對 cache.assist 的單位畫，
                               -- 敵人身上本來就不會出現，開著不會多花什麼）
                               showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -345,6 +371,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.4, bgAlpha = 0.6, border = true },
                     texts = {
                         textDef{ pattern = "[name]", x = 0, y = 1, w = 120, h = 20,
@@ -373,9 +400,11 @@ function DB.BuildDefaults()
                 elements = {
                     hpbar = { enabled = true, x = 0, y = 0, w = 120, h = 20, level = 5,
                               colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.4, bgAlpha = 1, border = true,      -- 跟目標框同款（0.4）
                               -- 治療預估仍然關著（跟護盾是不同的勾選）
                               showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 護盾：全部單位一致（疊加層只對 cache.assist 的單位畫，
                               -- 敵人身上本來就不會出現，開著不會多花什麼）
                               showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -388,17 +417,18 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 120, h = 10, level = 5,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 1, border = true },
                     texts = {
                         textDef{ pattern = "[name]", x = 0, y = -4, w = 120, h = 12,
                                  justifyH = "CENTER", justifyV = "TOP" },
                         textDef{ pattern = "[perchp]%", x = 44, y = 6, w = 120, h = 10, size = 11,
-                                 justifyH = "CENTER", justifyV = "MIDDLE", level = 6 },
+                                 justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                         textDef{ pattern = "[curmp]/[maxmp]", x = 0, y = -21, w = 120, h = 10,
-                                 size = 10, justifyH = "CENTER", justifyV = "MIDDLE", level = 6 },
+                                 size = 10, justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                     },
                     castbar = {
-                        enabled = true, x = -20, y = 20, w = 160, h = 10, level = 7, timeFormat = "elapsedTotal", showInterruptState = true, showCompleteFlash = true, fadeTime = 0.5, interruptHold = 0.4, showSpark = false, barAlpha = 1, showInterruptReady = true, showImportantCast = true,
+                        enabled = true, x = -20, y = 20, w = 160, h = 10, level = 12, timeFormat = "elapsedTotal", showInterruptState = true, showCompleteFlash = true, fadeTime = 0.5, interruptHold = 0.4, showSpark = false, barAlpha = 1, showInterruptReady = true, showImportantCast = true,
                         showCastTarget = false,
                         castTarget = { x = 0, y = 18, w = 160, h = 10, size = 9, flags = "OUTLINE",
                                       justifyH = "RIGHT", justifyV = "TOP",
@@ -423,9 +453,11 @@ function DB.BuildDefaults()
                 elements = {
                     hpbar = { enabled = true, x = 0, y = 0, w = 70, h = 20, level = 4,
                               colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.4, bgAlpha = 1, border = true,
                               -- 治療預估仍然關著（跟護盾是不同的勾選）
                               showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 護盾：全部單位一致（疊加層只對 cache.assist 的單位畫，
                               -- 敵人身上本來就不會出現，開著不會多花什麼）
                               showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -438,6 +470,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 70, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 0.6, border = true },
                     texts = {
                         textDef{ pattern = "[name]", x = 0, y = 14, w = 70, h = 50, size = 10,
@@ -445,7 +478,7 @@ function DB.BuildDefaults()
                         textDef{ pattern = "[perchp]%", x = 17, y = 14, w = 70, h = 50, size = 8,
                                  justifyH = "RIGHT", justifyV = "MIDDLE" },
                         textDef{ pattern = "[curmp]/[maxmp]", x = 0, y = -21, w = 70, h = 10,
-                                 size = 8, justifyH = "CENTER", justifyV = "MIDDLE", level = 6 },
+                                 size = 8, justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                     },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 27, y = 10, w = 16, h = 16, level = 6 } },
@@ -470,9 +503,11 @@ function DB.BuildDefaults()
                                  fallback2D = false },
                     hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 40, level = 4, bgLevel = 2, lossAlpha = 0.9,
                               colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 0.5, bgAlpha = 1, border = true,
                               -- 治療預估仍然關著（跟護盾是不同的勾選，要的話在單位→血條打開）
                               showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               -- 護盾：目標框有、Cell 也有，寵物沒理由沒有。
                               -- 自己的寵物 cache.assist 為真，過得了疊加層的 assist 閘門
                               showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -485,6 +520,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -40, w = 119, h = 10, level = 0,
                               colorMethod = "class", bgColorMethod = "classreactiondark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 1, border = true },
                     texts = {
                         textDef{ pattern = "[name]", x = 3, y = -3, w = 120, h = 12, size = 13 },
@@ -500,7 +536,7 @@ function DB.BuildDefaults()
                                  justifyH = "CENTER", justifyV = "BOTTOM" },
                     },
                     castbar = {
-                        enabled = true, x = 0, y = 0, w = 119, h = 40, level = 6, timeFormat = "elapsedTotal",
+                        enabled = true, x = 0, y = 0, w = 119, h = 40, level = 12, timeFormat = "elapsedTotal",
                         showInterruptState = false, showCompleteFlash = true, fadeTime = 0.5, interruptHold = 0.4, showSpark = false, barAlpha = 1, showInterruptReady = false, showImportantCast = false,
                         showCastTarget = false,
                         castTarget = { x = 0, y = -2, w = 116, h = 40, size = 9, flags = "OUTLINE",
@@ -540,9 +576,11 @@ function DB.BuildDefaults()
                                  zoom = 1, rotation = 0, level = 0, fallback2D = false },
                     hpbar = { enabled = true, x = 36, y = 0, w = 184, h = 14, level = 4,
                               colorMethod = "classreaction", bgColorMethod = "solid",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
                               barAlpha = 0.4, bgAlpha = 1, border = true,
                               showHealPrediction = false, healPredictionFollowBar = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
                               healPredictionColor = { r = 1, g = 1, b = 1, a = 0.4 },
                               showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
                               absorbReverseFill = true,
@@ -554,6 +592,7 @@ function DB.BuildDefaults()
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
                     mpbar = { enabled = true, x = 36, y = -13, w = 184, h = 10, level = 4,
                               colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
                               barAlpha = 1, bgAlpha = 1, border = true },
                     texts = {
                         textDef{ pattern = "[name]", x = 40, y = 13, w = 160, h = 14, size = 18,
@@ -562,9 +601,14 @@ function DB.BuildDefaults()
                                  justifyH = "RIGHT", justifyV = "MIDDLE" },
                         textDef{ pattern = "[percmp]%", x = 36, y = -14, w = 184, h = 10, size = 10,
                                  justifyH = "RIGHT", justifyV = "MIDDLE" },
+                        -- 狀態（超出距離／已標記／離線／死亡／靈魂）。置中壓在血條上，
+                        -- 跟目標框同一套寫法 —— key 也是同一條，9 個語系早就有翻譯了
+                        textDef{ pattern = L["[gray_if_oor:Out of Range ][gray_if_tapped:Tapped ][gray_if_offline:Offline ][gray_if_dead:Dead ][gray_if_ghost:Ghost ]"],
+                                 x = 36, y = 0, w = 184, h = 14, size = 13,
+                                 justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                     },
                     castbar = {
-                        enabled = true, x = 36, y = -22, w = 184, h = 14, level = 6,
+                        enabled = true, x = 36, y = -22, w = 184, h = 14, level = 12,
                         timeFormat = "elapsedTotal", showInterruptState = true,
                         showCompleteFlash = true, fadeTime = 0.5, interruptHold = 0.4,
                         showSpark = false, barAlpha = 1, showInterruptReady = true, showImportantCast = true,
@@ -609,12 +653,28 @@ end
 ------------------------------------------------------------
 -- 明確 nil-merge：只補 nil、不覆蓋使用者值
 ------------------------------------------------------------
+-- ⚠ 長度由設定檔自己決定的陣列：**不補洞**。
+-- MergeDefaults 不分陣列與雜湊，`dst[4] == nil` 就整條補一份預設進去。對 texts 來說
+-- 那是錯的：匯入一份條目較少的設定檔（對方版本較舊，或他自己刪過），補洞會讓框上
+-- 多出幾行他沒設定過的文字 ⇒ 匯入的版面重現不出來。
+-- 只列真正可變長度的鍵 —— 色票（reaction[1..10] 之類）是固定長度的陣列，仍要照補，
+-- 否則缺項就永遠補不回來。
+local USER_SIZED_ARRAYS = { texts = true }
+
 local function MergeDefaults(dst, src)
     for k, v in pairs(src) do
-        if type(v) == "table" then
-            if type(dst[k]) ~= "table" then dst[k] = {} end
-            MergeDefaults(dst[k], v)
-        elseif dst[k] == nil then
+        local cur = dst[k]
+        if USER_SIZED_ARRAYS[k] and type(cur) == "table" and cur[1] ~= nil then
+            -- 條目數以現有的為準：只補既有條目缺的鍵，不新增、不刪除
+            for i = 1, #cur do
+                if type(cur[i]) == "table" and type(v[i]) == "table" then
+                    MergeDefaults(cur[i], v[i])
+                end
+            end
+        elseif type(v) == "table" then
+            if type(cur) ~= "table" then dst[k] = {}; cur = dst[k] end
+            MergeDefaults(cur, v)
+        elseif cur == nil then
             dst[k] = v
         end
     end
@@ -647,6 +707,103 @@ end
 ------------------------------------------------------------
 -- [版本號] = 把一份設定檔補到那個版本要做的事。加條目時 ns.DB_VERSION 一起 bump。
 local PROFILE_MIGRATIONS = {
+    -- v10：文字預設從 5 提到 10（v9）之後，施法條的 6／7 就落到文字**底下**了 ——
+    -- 唱法時遮不住底下的名字與血量數字，兩層字疊在一起。施法條本來就是覆蓋層，
+    -- 層級應該高於文字。一律提到 12（文字用 10、少數 11）。
+    -- 順帶把明寫 level = 6 的文字提到 10：那些會被血條的遮罩（level 4 → 遮罩 7）蓋暗。
+    -- 值閘：只動「還等於舊預設」的那些數字，自己調過的一個都不碰。
+    -- v11：玩家／目標的施法條 52 → 50。高度對齊血條——施法條蓋的是血條／頭像
+    -- 那塊，52 會在魔力條沒墊到的那一側露出 2（玩家的魔力條右移 8、目標左移 8）。
+    -- 值閘：只動還等於舊預設 52 的，自己調過高度的不碰。
+    -- ⚠ 不能補進 v6：v6 已隨 1.1.0 發佈，跑過的設定檔不會重跑。
+    [11] = function(profile)
+        for _, unit in ipairs({ "player", "target" }) do
+            local udb = profile.units and profile.units[unit]
+            local cb = type(udb) == "table" and type(udb.elements) == "table"
+                       and udb.elements.castbar
+            if type(cb) == "table" and cb.h == 52 then cb.h = 50 end
+        end
+    end,
+
+    [10] = function(profile)
+        for _, udb in pairs(profile.units or {}) do
+            if type(udb) == "table" and type(udb.elements) == "table" then
+                local cb = udb.elements.castbar
+                if type(cb) == "table" and (cb.level == 6 or cb.level == 7) then
+                    cb.level = 12
+                end
+                local ts = udb.elements.texts
+                if type(ts) == "table" then
+                    for _, t in ipairs(ts) do
+                        if type(t) == "table" and t.level == 6 then t.level = 10 end
+                    end
+                end
+            end
+        end
+    end,
+
+    -- v9：首領框補上「超出距離／死亡…」狀態文字（原本只有目標框有）。
+    -- ⚠ 一定要配遷移：MergeDefaults 對 texts 這種長度由設定檔決定的陣列**不補洞**
+    -- （v7 那次改的），所以光加進 BuildDefaults，既有設定檔一條都不會多出來。
+    -- 值閘用「有沒有任何一條的 pattern 含 gray_if_oor」判斷，不比對在地化字串
+    -- —— 玩家換過客戶端語系的話，比字面值會判錯。
+    [9] = function(profile)
+        -- (a) 所有單位：文字的預設層級 5 → 10。
+        -- 5 會被超出距離的暗色遮罩（最高 9）蓋住，也會被施法條（6）蓋住。
+        -- 值閘：只動「還等於舊預設 5」的，自己調過層級的一條都不碰。
+        for _, udb in pairs(profile.units or {}) do
+            local ts = type(udb) == "table" and type(udb.elements) == "table"
+                       and udb.elements.texts
+            if type(ts) == "table" then
+                for _, t in ipairs(ts) do
+                    if type(t) == "table" and t.level == 5 then t.level = 10 end
+                end
+            end
+        end
+
+        -- (b) 首領框補上狀態文字
+        local boss = profile.units and profile.units.boss
+        local texts = boss and boss.elements and boss.elements.texts
+        if type(texts) ~= "table" then return end
+        for _, t in ipairs(texts) do
+            if type(t) == "table" and type(t.pattern) == "string"
+               and t.pattern:find("gray_if_oor", 1, true) then
+                return                      -- 已經有了（或使用者自己加過）
+            end
+        end
+        texts[#texts + 1] = textDef{
+            pattern = L["[gray_if_oor:Out of Range ][gray_if_tapped:Tapped ][gray_if_offline:Offline ][gray_if_dead:Dead ][gray_if_ghost:Ghost ]"],
+            x = 36, y = 0, w = 184, h = 14, size = 13,
+            justifyH = "CENTER", justifyV = "MIDDLE", level = 10 }
+    end,
+
+    -- v8：暗色層 0.55 太深，預設調成 0.35。
+    -- ⚠ oorDim 在 v7 就已經被 MergeDefaults 補進每一份設定檔了 ⇒ 光改 BuildDefaults
+    -- 對已經載入過的人完全沒用（MergeDefaults 只補 nil）。所以要配這條。
+    -- 值閘：只動「還等於 v7 舊預設」的那些，自己拉過滑桿的一個都不碰。
+    [8] = function(profile)
+        local g = profile.global
+        if type(g) ~= "table" then return end
+        if type(g.oorDim) == "number" and math.abs(g.oorDim - 0.55) < 0.001 then
+            g.oorDim = 0.35
+        end
+    end,
+
+    -- v7：超出距離的預設表現從「整個框降 alpha」改成「疊一層暗色」。
+    --
+    -- oorStyle 是全新的鍵，MergeDefaults 本來就會把新預設補給所有設定檔 ——
+    -- 所以這條遷移**不是**為了保留舊樣子，而是為了認出「刻意調過的人」：
+    -- 動過 oorAlpha 就代表他對淡出的強度有意見、是有意識選過的，那份留在 fade。
+    -- 沒動過的（絕大多數）直接吃新預設，那正是這次要修的畫面。
+    [7] = function(profile)
+        local g = profile.global
+        if type(g) ~= "table" then return end
+        if g.oorStyle ~= nil then return end          -- 已經有值就別碰
+        if type(g.oorAlpha) == "number" and math.abs(g.oorAlpha - 0.45) > 0.001 then
+            g.oorStyle = "fade"
+        end
+    end,
+
     -- v3：觀察按鈕的圖示改用自製圖，樣式代號跟著換名。
     -- 暴雪的 atlas 在 Midnight 被拿掉了（微型選單重畫），留著舊值只會退成備援圖示。
     [3] = function(profile)
@@ -777,9 +934,13 @@ function DB.Migrate(db)
         end
     end
 
-    -- 設定檔層：每一份都補到目前版本
+    -- 設定檔層：每一份都補到目前版本。
+    -- ⚠ 起點取 max(目前版本, 曾經看過的最高版本)。跑過新版又退版、之後再升回來時，
+    -- 那幾步遷移已經在這份 SV 上生效過了 —— 再跑一次會把使用者在新版刻意調回去的
+    -- 值又改掉（值閘只認「還等於舊預設」，認不出「使用者剛剛才改回舊預設的樣子」）。
+    local seen = math.max(from, db.schemaVersionSeen or 0)
     for _, profile in pairs(db.profiles or {}) do
-        DB.MigrateProfile(profile, from)
+        DB.MigrateProfile(profile, seen)
     end
 end
 
@@ -815,12 +976,21 @@ function DB.Init()
     local db = MiliUI_UnitFrames_DB
     db.schemaVersion = db.schemaVersion or ns.DB_VERSION
     if db.schemaVersion > ns.DB_VERSION then
-        -- SV 來自較新版（或開發期版本號被重置）：對齊到目前版本，之後的遷移才跑得到
+        -- SV 來自較新版（或開發期版本號被重置）：對齊到目前版本，之後的遷移才跑得到。
+        -- ⚠ 但要記住「這份 SV 其實看過第幾版」。只把版本壓回來的話，日後升回新版時
+        -- 那幾步遷移會**再跑一次** —— 而值閘型的遷移（例如把某個舊預設值換成新的）
+        -- 會把使用者在新版刻意改回去的設定又改掉。這跟 Share.Import 那次踩的是
+        -- 同一種「值閘在錯誤的時機重跑」。
+        db.schemaVersionSeen = math.max(db.schemaVersionSeen or 0, db.schemaVersion)
         db.schemaVersion = ns.DB_VERSION
     end
     if db.schemaVersion < ns.DB_VERSION then
         DB.Migrate(db)
         db.schemaVersion = ns.DB_VERSION
+    end
+    -- 走完之後把「看過的最高版本」推上去，供下次降版／升版比對
+    if (db.schemaVersionSeen or 0) < db.schemaVersion then
+        db.schemaVersionSeen = db.schemaVersion
     end
 
     db.profiles = db.profiles or {}
@@ -992,7 +1162,17 @@ function DB.SwitchProfile(name)
     MergeDefaults(db.profiles[name], { global = defaults.global, units = defaults.units })
 
     db.profileKeys[CharKey()] = name        -- 這一步永遠要做（重載後靠它認得回來）
-    if name == ns.profileName then return true end
+    if name == ns.profileName then
+        -- ⚠ 早退之前要把排隊中的取消掉。戰鬥中先選了 B（排隊）、又改回目前這份 A：
+        -- 因為延後期間沒 Activate 過，ns.profileName 仍是 A ⇒ 走到這裡直接 return，
+        -- 但 pendingProfile 還是 B ⇒ 脫戰瞬間跳到使用者已經放棄的那一份，
+        -- 而 profileKeys 已經寫回 A，兩者就此不一致（下次登入又變回 A）。
+        if pendingProfile then
+            pendingProfile = nil
+            profileWatcher:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        end
+        return true
+    end
 
     if InCombatLockdown() then
         pendingProfile = name

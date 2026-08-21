@@ -27,6 +27,9 @@ local Search = ns.Search
 local MAX_RESULTS = 8
 local ROW_H = 22
 
+-- 搜尋框窄於這個就不值得放在分頁列了，退回標題列（見 Search.CreateBox）
+local MIN_BOX_W = 120
+
 local sources = {}          -- [tabId] = { label, enumerate, jump }
 
 function Search.Register(tabId, def)
@@ -148,10 +151,25 @@ local function Flash(content, row)
     hl.ag:Play()
 end
 
+-- ⚠ 不能只靠 table 身分比對。「單位」「資源」兩頁的 spec 是每次現生的：列舉索引時
+-- SpecsFor() 生一份、建表單時 BuildPanel 又生另一份 ⇒ 兩邊永遠不是同一張表，
+-- 於是跳得到分頁卻捲不到那一行。而「一般」「召喚物」兩頁的 spec 是模組層級常數、
+-- 身分剛好成立 —— 所以症狀是「有時候會動有時候不會」，特別難聯想。
+-- 這裡改用內容鍵：這幾個欄位合起來就是一列的身分（ctx 也是靠它們取值的）。
+local function SpecKey(spec)
+    if type(spec) ~= "table" then return nil end
+    return table.concat({
+        tostring(spec.type), tostring(spec.root), tostring(spec.sub),
+        tostring(spec.sub2), tostring(spec.index), tostring(spec.key),
+        tostring(spec.label),
+    }, "\1")
+end
+
 function Search.Reveal(scroll, content, rows, spec)
     if not (scroll and content and rows) then return end
+    local wantKey = SpecKey(spec)
     for _, row in ipairs(rows) do
-        if row.spec == spec then
+        if row.spec == spec or (wantKey and SpecKey(row.spec) == wantKey) then
             -- 上面留 40 的餘裕，別讓目標貼在最上緣（看不出來自己跳到哪）
             local target = math.max(0, -row.top - 40)
             local maxScroll = math.max(0, (content:GetHeight() or 0) - (scroll:GetHeight() or 0))
@@ -216,8 +234,32 @@ function Search.CreateBox(panel)
     if box then return box end
 
     box = W.CreateEditBox(panel, 168, 20)
-    -- 面板上緣外側那條，跟標題同一列（標題在左、搜尋在右）
-    box:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", 0, 26)
+
+    -- 位置：優先放在**分頁列右側**，填滿分頁用剩的寬度。
+    --
+    -- 搜尋做的事跟分頁鈕是同一類（換到某個設定所在的地方），放同一列語意才對得上；
+    -- 原本掛在標題列最右端，跟標題之間拉出一段很長的空白，而分頁列右側那 200 多 px
+    -- 反而空著。順帶：結果清單錨在搜尋框下方，移下來之後剛好從面板上緣開始，
+    -- 不會再蓋住分頁鈕。
+    --
+    -- 寬度取自 Panel.lua **累計**出來的剩餘空間，所以會自己隨語系伸縮
+    -- （中日韓約 241px、義俄約 206px、德文最窄約 190px，都比原本固定的 168 寬）。
+    --
+    -- ⚠ 只下**一個**錨點再明給寬度，不要用「左右各一個錨點」自動撐開 ——
+    -- LEFT 定的是垂直中線、RIGHT/TOPRIGHT 定的是另一個高度，兩個一起下會互相打架。
+    local lastTab = ns.Options.lastTabButton
+    local room = ns.Options.tabRoom or 0
+    if lastTab and room >= MIN_BOX_W then
+        -- ⚠ 走 P.Size 不要用 SetWidth：PixelPerfect 在 UI 縮放變動時會拿
+        -- frame.width 重算（PixelPerfect.lua 的 re-scale），只 SetWidth 的話
+        -- 那個欄位還停在 168，縮放一改搜尋框就彈回原寬。
+        ns.P.Size(box, room, 20)
+        box:SetPoint("LEFT", lastTab, "RIGHT", 8, 0)   -- 對齊分頁鈕的垂直中線
+    else
+        -- 空間不夠（日後多了分頁、或某個語系翻得特別長）→ 退回原本的標題列位置。
+        -- 最壞情況是「回到改動前的樣子」，不會變成一個擠扁的殘框。
+        box:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", 0, 26)
+    end
 
     local hint = box:CreateFontString(nil, "OVERLAY")
     hint:SetFontObject(W.fontSmall)
@@ -228,7 +270,11 @@ function Search.CreateBox(panel)
     results = W.CreateFrame(nil, panel, 300, 8)
     results:SetPoint("TOPRIGHT", box, "BOTTOMRIGHT", 0, -3)
     results:SetFrameStrata("FULLSCREEN_DIALOG")
-    results:SetFrameLevel(panel:GetFrameLevel() + 60)
+    -- ⚠ 要壓在戰鬥遮罩（同 strata、level 500）之上。搜尋框錨在面板**外側**、
+    -- 遮罩蓋不到，所以戰鬥中照樣打得了字；但結果清單原本是 panel+60（=160），
+    -- 落在遮罩底下 ⇒ 打了字什麼都看不到，像是搜尋壞掉。
+    -- 搜尋只是跳轉、不改任何設定，戰鬥中可用是對的。
+    results:SetFrameLevel(520)
     results:SetBackdropBorderColor(W.Accent(0.8))
     results:Hide()
     results.rows = {}

@@ -6,6 +6,7 @@ local _, ns = ...
 local L = ns.L
 
 local W, Controls = ns.W, ns.Controls
+local Specs = ns.Specs        -- 下拉選項清單（Options/Specs_UF.lua，TOC 排在本檔之前）
 
 local tab, scroll, content, rows
 local refreshers
@@ -49,6 +50,9 @@ local CONTROLS = {
     { type = "text",   label = L["Uses the engine's built-in interpolation (native in 12.x, works with secret values), so bars slide instead of jumping."] },
 
     { type = "header", label = L["Fade"] },
+    { type = "dropdown", key = "oorStyle", label = L["Out of range look"], items = Specs.OOR_STYLE_ITEMS },
+    { type = "text",   label = L["\"Dim\" lays a dark layer over the bars and keeps the numbers readable. \"Fade\" makes the whole frame transparent, so the background shows through and the bar color gets muddy."] },
+    { type = "slider", key = "oorDim", label = L["Dim strength"], min = 0.2, max = 0.9, step = 0.05 },
     { type = "slider", key = "oorAlpha", label = L["Out of range transparency"], min = 0.1, max = 1, step = 0.05 },
     { type = "slider", key = "oocAlpha", label = L["Out of combat transparency"], min = 0.1, max = 1, step = 0.05 },
     { type = "text",   label = L["Which frames fade, and on which of the two conditions, is set per unit under Units > Frame. With both on, whichever is more transparent wins."] },
@@ -119,47 +123,33 @@ local CONTROLS = {
 
 local function Init()
     if tab then return end
-    tab = CreateFrame("Frame", nil, ns.Options.panel)
-    tab:SetAllPoints(ns.Options.panel)
-    tab:Hide()
+    tab, scroll = ns.Options.MakeFormTab(L["Global style"])
 
-    local title = W.CreateSectionTitle(tab, L["Global style"], 660)
-    title:SetPoint("TOPLEFT", 16, -14)
+    -- 小地圖那條是特例：它不在 ns.db.global 底下，而且欄位語意是反的
+    -- （spec 問「要不要顯示」，DB 存的是 hide）。包一層而不是把特例塞進工廠。
+    local ctx = Controls.MakeCtx(function() return ns.db.global end, ApplyAll)
+    local baseGet, baseSet = ctx.get, ctx.set
+    ctx.get = function(spec)
+        if spec.root == "minimap" then return not ns.db.minimap.hide end
+        return baseGet(spec)
+    end
+    ctx.set = function(spec, v)
+        if spec.root == "minimap" then ns.SetMinimapButtonShown(v); return end
+        baseSet(spec, v)
+    end
 
-    local scrollHolder = CreateFrame("Frame", nil, tab)
-    scrollHolder:SetPoint("TOPLEFT", 16, -44)
-    scrollHolder:SetPoint("BOTTOMRIGHT", -8, 10)
-    scroll = W.CreateScrollFrame(scrollHolder)
-
-    content = CreateFrame("Frame", nil, scroll.child)
-    content:SetPoint("TOPLEFT")
-    content:SetSize(640, 1)
-
-    local ctx = {
-        get = function(spec)
-            if spec.root == "minimap" then
-                return not ns.db.minimap.hide
-            end
-            local t = Controls.Resolve(ns.db.global, spec)
-            return t[spec.key]
-        end,
-        set = function(spec, v)
-            if spec.root == "minimap" then
-                ns.SetMinimapButtonShown(v)
-                return
-            end
-            local t = Controls.Resolve(ns.db.global, spec)
-            t[spec.key] = v
-        end,
-        apply = ApplyAll,
-    }
-
-    local height, r, built = Controls.Build(content, CONTROLS, ctx, 4, -4, 640)
-    rows = built
-    content:SetHeight(height + 20)
-    scroll:SetContentHeight(height + 20)
-    refreshers = r
+    content, rows, refreshers = ns.Options.BuildScrollBody(scroll, CONTROLS, ctx, 640)
 end
+
+-- 換設定檔時，正開著的這一頁要重整。
+-- ⚠ ctx 是現查 ns.db 所以**寫入**一直都正確，錯的是**控件顯示值** —— 那是 refresher
+-- 推上去的，而 refresher 只在 ShowOptionsTab 跑。原本只有「單位」分頁訂了這個事件，
+-- 所以停在這一頁換設定檔會看到顏色與滑桿全停在舊值，切走再切回來才對。
+ns.RegisterCallback("ProfileChanged", "generalTabProfile", function()
+    if tab and tab:IsShown() then
+        for _, fn in ipairs(refreshers) do fn() end
+    end
+end)
 
 ns.RegisterCallback("ShowOptionsTab", "generalTab", function(id)
     if id ~= "general" then

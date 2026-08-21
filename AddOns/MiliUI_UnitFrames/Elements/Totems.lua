@@ -64,8 +64,8 @@ local slots = {}     -- [i] = { btn, icon, bar, cd, duo, active }
 --   2. 戰鬥中沒 arm 到的，**脫戰時補一次**（那時值又變明文了，圖騰還在跑）
 -- 這樣「戰鬥前放的」全程正確，「戰鬥中放的」也只是晚幾秒才出現倒數。
 --
--- （Stuf 的做法是把秘密值 pcall 換算成明文 endtime 存起來，之後自己算 —— 效果類似，
---   但它捕捉失敗時退回 `i * 20` 的**假倒數**，那個不抄。）
+-- （另一種做法是把秘密值 pcall 換算成明文 endtime 存起來、之後自己算 —— 效果類似，
+--   但那種寫法在捕捉失敗時通常退回 `i * 20` 之類的**假倒數**，那個不要。）
 --
 -- ⚠ 另外一個獨立的坑：**不要把 duration 物件讀回來**。`duo:IsZero()`、
 -- `GetTotalDuration()` 這類 getter 回的是秘密值，一做布林測試就炸。
@@ -152,21 +152,26 @@ local function CreateSlot(i)
         if ok then slot.duo = duo end
     end
     -- 時間到：引擎通知，不必自己算（實體在下面，見檔案上方的前置宣告）
+    -- ⚠ 身分閘：暴雪的 frame 刪不掉，被丟棄的格子只是 Hide 掉、Cooldown 還活著。
+    -- 少了這道閘，舊計時器到期會去查「現在的」slots[i]，把現役圖騰標成過期並藏掉
+    -- （戰鬥中就是圖示無故消失）。現在已改成不丟棄格子，這是防止日後又改回去。
     cd:SetScript("OnCooldownDone", function()
+        if slots[slotIndex] ~= slot then return end
         if OnSlotExpired then OnSlotExpired(slotIndex) end
     end)
     return slot
 end
 
 -- 顯示順序：土/火對調（沿用使用者原本的習慣）
+-- ⚠ 兩張常數表放檔案層級：只有兩種可能的順序，而 Relayout 落在每個
+-- PLAYER_TOTEM_UPDATE 與每次倒數結束上，現配一張表沒有意義。
+-- 回傳的是共用表，呼叫端只讀不寫。
+local ORDER_NORMAL, ORDER_SWAPPED = {}, {}
+for i = 1, NUM_SLOTS do ORDER_NORMAL[i] = i; ORDER_SWAPPED[i] = i end
+ORDER_SWAPPED[1], ORDER_SWAPPED[2] = 2, 1
+
 local function DisplayOrder()
-    local db = GetDB()
-    local order = {}
-    for i = 1, NUM_SLOTS do order[i] = i end
-    if db.swapEarthFire then
-        order[1], order[2] = 2, 1
-    end
-    return order
+    return GetDB().swapEarthFire and ORDER_SWAPPED or ORDER_NORMAL
 end
 
 -- 框固定四格寬、圖騰從左往右緊排：數量增減時位置不會飄
@@ -327,7 +332,11 @@ local function Poll()
         end
         -- icon 是明文（字串路徑或數字 fileID），當存在 proxy——haveTotem 是秘密
         -- boolean 不能測。判斷式用 truthiness + ~= ""（數字 fileID 也成立）
-        if icon and icon ~= "" then
+        -- ⚠ 型別先分流再比較。這個判斷原本依賴「秘密值一定是數字」，但 GetTotemInfo
+        -- 的 icon 也可以是字串路徑 —— 萬一戰鬥中回的是秘密**字串**，`icon ~= ""`
+        -- 就變成同型別比較、當場拋錯。
+        local iconType = type(icon)
+        if icon ~= nil and (iconType == "number" or (iconType == "string" and icon ~= "")) then
             local wasActive = slot.active
             slot.active = true
             slot.icon:SetTexture(icon)
@@ -446,11 +455,17 @@ ns.RegisterCallback("Loaded", "totems", Init)
 ns.TotemsApplySettings = function()
     if not frame then Init(); return end
     ApplyPosition()
+    -- ⚠ 不要丟棄既有格子重建。兩個理由：
+    --   1. 暴雪的 frame 刪不掉 —— 丟棄的只是被 Hide、永久留著。拖「圖示大小」滑桿
+    --      一格就漏四組 Frame＋Cooldown＋StatusBar，滑桿從 16 拖到 64 就是 192 組。
+    --   2. 舊格子的 Cooldown 還掛著 OnCooldownDone，到期時會去動現役的圖騰。
+    -- CreateSlot 裡唯一跟設定有關的只有 iconSize（其餘都是相對 btn 的固定值），
+    -- 就地重套即可；圖示、顏色與倒數一律由 Poll 重讀。
+    -- 附帶好處：改圖示大小不再把正在跑的倒數殺掉。
+    local size = GetDB().frame.iconSize or 28
     for i = 1, NUM_SLOTS do
-        if slots[i] then
-            slots[i].btn:Hide()
-            slots[i] = nil
-        end
+        local s = slots[i]
+        if s then s.btn:SetSize(size, size) end
     end
     Poll()
 end

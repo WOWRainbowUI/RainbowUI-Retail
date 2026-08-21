@@ -41,11 +41,56 @@ local HEADER_H   = 24
 local HEADER_GAP = 10      -- 小節上方留白
 local CONTROL_W  = 230     -- 滑桿 / 下拉 標準寬
 
+------------------------------------------------------------
+-- 連續型控件的 apply 合併
+--
+-- 滑桿拖曳與數字框滾輪會在**每一格**觸發 ctx.apply()，而 apply 通常是「整個單位
+-- 重建」等級的工作。最貴的一條是光環：容器的簽章一變就得重建，而暴雪的 frame
+-- 刪不掉（舊的只是被 Hide、永久留著）⇒ 把某個滑桿從 5 拖到 600 就是上百顆孤兒
+-- 容器，面板當場卡住。
+-- 值本身照舊立刻寫進 DB（ctx.set 不延後），只把「套用到畫面」合併成一次。
+------------------------------------------------------------
+local APPLY_DELAY = 0.05
+local pendingCtx, applyScheduled
+
+local function FlushApply()
+    applyScheduled = false
+    local ctx = pendingCtx
+    pendingCtx = nil
+    if ctx and ctx.apply then ctx.apply() end
+end
+
+-- 連續調整用；一次性的控件（toggle / dropdown / color）維持立刻套用
+local function ApplySoon(ctx)
+    pendingCtx = ctx
+    if applyScheduled then return end
+    applyScheduled = true
+    C_Timer.After(APPLY_DELAY, FlushApply)
+end
+
 function Controls.Resolve(tbl, spec)
     if spec.sub then tbl = tbl[spec.sub] end
     if spec.sub2 then tbl = tbl[spec.sub2] end
     if spec.index then tbl = tbl[spec.index] end
     return tbl
+end
+
+-- ctx 工廠：多個分頁的 get/set 一字不差，差別只有「root 從哪來」與 apply 做什麼。
+-- rootFor(spec) 回傳這條 spec 該讀寫的那張表。
+-- ⚠ 不是每個分頁都適用 —— 有額外語意的（例如 spec.default 備援、自動建子表）
+-- 就自己寫，不要為了共用而把那些語意塞進來。
+function Controls.MakeCtx(rootFor, applyFn)
+    return {
+        get = function(spec)
+            local t = Controls.Resolve(rootFor(spec), spec)
+            return t and t[spec.key]
+        end,
+        set = function(spec, v)
+            local t = Controls.Resolve(rootFor(spec), spec)
+            if t then t[spec.key] = v end
+        end,
+        apply = applyFn,
+    }
 end
 
 local function MakeLabel(parent, text, x, y, h)
@@ -115,7 +160,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 nil,
                 function(v)
                     ctx.set(spec, scale == 1 and v or (v / scale))
-                    ctx.apply()
+                    ApplySoon(ctx)
                 end)
             s:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H_TALL / 2)
             tinsert(refreshers, function()
@@ -128,7 +173,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             MakeLabel(parent, spec.label, x0, y, ROW_H)
             local nb = W.CreateNumberBox(parent, 52, spec.step or 1, function(v)
                 ctx.set(spec, v)
-                ctx.apply()
+                ApplySoon(ctx)
             end)
             nb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H / 2)
             tinsert(refreshers, function()
@@ -140,7 +185,11 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
             local px = cx
             for _, field in ipairs(spec.fields) do
-                local sub = { sub = spec.sub, sub2 = spec.sub2, index = spec.index, key = field.key }
+                -- ⚠ root 一定要一起帶過去：ctx 靠它決定寫進 udb / udb.frame / udb.elements。
+                -- 漏掉的話「位置」「尺寸」那兩條（唯二帶 root="frame" 的 spec）會 fall-through
+                -- 到 elements ⇒ 四個數字框永遠顯示 0、改不動框，還在 elements 裡塞孤兒鍵。
+                local sub = { root = spec.root, sub = spec.sub, sub2 = spec.sub2,
+                              index = spec.index, key = field.key }
                 local tag = parent:CreateFontString(nil, "OVERLAY")
                 tag:SetFontObject(W.fontSmall)
                 tag:SetTextColor(0.6, 0.6, 0.6)
@@ -149,7 +198,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 px = px + tag:GetStringWidth() + 4
                 local nb = W.CreateNumberBox(parent, 46, field.step or 1, function(v)
                     ctx.set(sub, v)
-                    ctx.apply()
+                    ApplySoon(ctx)
                 end)
                 nb:SetPoint("LEFT", parent, "TOPLEFT", px, y - ROW_H_TALL / 2)
                 px = px + 46 + 10
@@ -222,6 +271,14 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 ctx.set(spec, self:GetText())
                 ctx.apply()
                 self:ClearFocus()
+            end)
+            -- 沒按 Enter 就點到別處時還原顯示值（理由同數字框：框裡留著沒套用的
+            -- 內容最容易讓人以為已經生效）。
+            -- ⚠ 用 HookScript：CreateEditBox 自己的 OnEditFocusLost 負責把邊框色復原，
+            -- SetScript 會把它蓋掉、讓失焦後的邊框一直留在強調色。
+            eb:HookScript("OnEditFocusLost", function(self)
+                self:SetText(tostring(ctx.get(spec) or ""))
+                self:SetCursorPosition(0)
             end)
             tinsert(refreshers, function()
                 eb:SetText(tostring(ctx.get(spec) or ""))

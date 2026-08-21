@@ -69,15 +69,15 @@ local function ShowSecretReadout()
         ns.secretReadout = f
     end
 
-    local L, n = f.lines, 0
+    local lines, n = f.lines, 0      -- 不要叫 L：會遮蔽檔頭的語系表
     local function line(text)
         n = n + 1
-        if L[n] then L[n]:SetText(text) end
+        if lines[n] then lines[n]:SetText(text) end
     end
     -- 秘密數字只能交給 C 端格式化，不能自己串字串
     local function put(fmt, v)
         n = n + 1
-        local fs = L[n]
+        local fs = lines[n]
         if not fs then return end
         if not pcall(fs.SetFormattedText, fs, fmt, v) then
             fs:SetText((fmt:gsub("%%d", "?")))
@@ -113,7 +113,7 @@ local function ShowSecretReadout()
             UnitGetTotalHealAbsorbs and UnitGetTotalHealAbsorbs(unit) or 0)
     end
 
-    for i = 1, READOUT_LINES do if L[i] then L[i]:SetText("") end end
+    for i = 1, READOUT_LINES do if lines[i] then lines[i]:SetText("") end end
     line("|cff4DD2FF秘密值讀出板|r  白字兩兩必須相等（P1 判準）；灰字本來就不相等")
     line("|cff4DD2FF玩家|r")
     block("player", pf)
@@ -247,6 +247,10 @@ local function Debug()
     ------------------------------------------------------------
     -- 載具期間的事件來源（Core/Events.lua 那道閘要不要收緊的證據）
     --
+    -- 2026-08-20 已量到答案：兩個 token 都會派送，閘**不能**收緊。這張表留著是因為
+    -- 它同時也是「施法條為什麼長在別格」那類問題的第一手證據（見 Castbar 的
+    -- AcceptCastEvent），不是還沒回答的問題。
+    --
     -- 表在框被重新對應（uf.unit ≠ baseUnit）時才累積，下車後仍然留著，
     -- 所以坐完一趟再打 /muf debug 就看得到。
     ------------------------------------------------------------
@@ -264,7 +268,7 @@ local function Debug()
     end
     if #census > 0 then
         p("  載具期間的事件來源：" .. table.concat(census, "  "))
-        p("   |cff888888只有 vehicle ⇒ Core/Events.lua 的閘可收緊；出現 player ⇒ 維持現狀|r")
+        p("   |cff888888兩個 token 都會派送＝已知結論，閘維持全放行（收緊會擋掉 player 那半）|r")
     else
         p("  載具期間的事件來源：（還沒上過載具）")
     end
@@ -408,18 +412,31 @@ local function Debug()
         Probe("CreatureType", UnitCreatureType("target"))
         Probe("UnitLevel", UnitLevel("target"))
         Probe("Classification", UnitClassification("target"))
+        -- ⚠ 這條是「首領戰時目標框有沒有 3D 頭像」的關鍵。
+        -- boss1-5 走 uf.bossIndex 直接對到 EJ 的 displayID，但目標／專注框沒有
+        -- bossIndex，只能問「目標是不是 bossN」—— 而那個判斷若在受限內容回秘密值，
+        -- Portrait 的 EncounterDisplayFor 就會跳過，於是掉回一般路徑被身分閘擋下，
+        -- 結果是「boss 框有模型、選中同一隻的目標框卻空白」。
+        for i = 1, 5 do
+            if UnitExists("boss" .. i) then
+                Probe("IsUnit(boss" .. i .. ")", UnitIsUnit("target", "boss" .. i))
+            end
+        end
         Probe("UnitReaction", UnitReaction("target", "player"))
         Probe("UnitIsPlayer", UnitIsPlayer("target"))
         Probe("UnitHealth", UnitHealth("target"))
         Probe("HealthPercent", UnitHealthPercent("target", false,
-            (CurveConstants and CurveConstants.ScaleTo100) or true))
+            CurveConstants and CurveConstants.ScaleTo100))
         Probe("UnitPowerType", UnitPowerType("target"))
         Probe("CastingInfo[1]", (UnitCastingInfo("target")))
         -- 治療預估計算器（粉紫背景之謎：看 overlay 到底拿到什麼值）
         local tuf0 = ns.frames.target
         local calc = tuf0 and tuf0.hpCalc
         if calc and UnitGetDetailedHealPrediction then
-            UnitGetDetailedHealPrediction("target", nil, calc)
+            -- ⚠ healer 一定要傳 "player"。傳 nil 會讓 GetHealAbsorbs 回垃圾，而這裡
+            -- 灌的是**正在使用中的** hpCalc ⇒ 接下來幾幀的疊加層都會拿到假值。
+            -- 傳 "player" 也才跟實際繪製路徑一致，探針看到的才是真的那份資料。
+            UnitGetDetailedHealPrediction("target", "player", calc)
             Probe("calc.MaxHealth", calc:GetMaximumHealth())
             Probe("calc.CurHealth", calc:GetCurrentHealth())
             Probe("calc.IncHeals", calc:GetIncomingHeals())
@@ -506,6 +523,23 @@ local function Debug()
                 tostring(ns.Cache.IsOOR(tuf)),
                 tostring(ns.Range.Check(tuf.unit))))
         end
+        -- 超出距離的暗色遮罩現況。回報過「遮罩卡住不消失」，而且是那種
+        -- 「看得到但查不出誰畫的」——把每個框的遮罩逐一列出來就一目了然。
+        -- appliedScrim=nil 代表邏輯上是關的；若此時還有 shown=true，那就是卡住了。
+        for _, unit in ipairs(ns.UNITS) do
+            local uf = ns.frames[unit]
+            local list = uf and uf.oorScrims
+            if list then
+                local parts = {}
+                for name, sc in pairs(list) do
+                    parts[#parts + 1] = ("%s=%s"):format(name, sc:IsShown() and "顯示" or "藏")
+                end
+                if #parts > 0 then
+                    p(("   遮罩[%s] appliedScrim=%s  %s"):format(
+                        unit, tostring(uf.appliedScrim), table.concat(parts, " ")))
+                end
+            end
+        end
         -- melee 解得出來時它才是實際在用的那顆（近戰專精）；nil 有三種可能：
         -- 不是近戰專精、這個職業沒列近戰探針、列了但這個專精沒學到
         local h, hp, m = ns.Range.Probes()
@@ -543,15 +577,19 @@ local function Debug()
         p("   " .. (#rows > 0 and table.concat(rows, "  ") or "（沒有框）"))
     end
 
-    -- 寵物上色：「寵物顏色不對」要分得出是沒有職業（classFile nil）、主人解不出來
-    -- （ownerClass nil）、還是被陣營色短路（reaction 2/4 走 reactish）
-    do
-        local puf = ns.frames.pet
-        local c = puf and puf.cache
+    -- 血條上色：「顏色不對」要分得出是沒有職業（classFile nil）、主人解不出來
+    -- （ownerClass nil）、還是被陣營色短路（reaction 2/4 走 reactish）。
+    -- ⚠ 玩家框一起印，因為載具期間它讀的就是 vehicle ——「載具血條是什麼色」只能從這裡看。
+    -- 非玩家沒有自己的職業（classFile 一定 nil，UnitClassBase 對 NPC 回的是假職業，
+    -- 見 Cache.lua 的警語），顏色全靠 ownerClass：OwnerClassOf 對 unit=="vehicle" 回主人職業。
+    for _, ckey in ipairs({ "player", "pet" }) do
+        local cuf = ns.frames[ckey]
+        local c = cuf and cuf.cache
         if c then
-            local hp = puf.db.elements.hpbar
-            local r, g, b = ns.Colors.Get(hp and hp.colorMethod, puf, hp, c.frachp, "barColor", "barAlpha")
-            p(("  寵物上色：classFile=%s ownerClass=%s reaction=%s pc=%s isPlayer=%s"):format(
+            local hp = cuf.db and cuf.db.elements and cuf.db.elements.hpbar
+            local r, g, b = ns.Colors.Get(hp and hp.colorMethod, cuf, hp, c.frachp, "barColor", "barAlpha")
+            p(("  %s框上色（現在讀=%s）：classFile=%s ownerClass=%s reaction=%s pc=%s isPlayer=%s"):format(
+                ckey, SafeStr(cuf.unit),
                 SafeStr(c.classFile), SafeStr(c.ownerClass), SafeStr(c.reaction),
                 tostring(c.pc), tostring(c.isPlayer)))
             p(("   法=%s → rgb=%s,%s,%s%s"):format(
@@ -560,7 +598,7 @@ local function Debug()
                 SafeStr(b and math.floor(b * 255)),
                 c.ownerClass and ("　（" .. tostring(c.ownerClass) .. " 主人色）") or ""))
         else
-            p("  寵物上色：沒有寵物")
+            p(("  %s框上色：沒有這個框"):format(ckey))
         end
     end
 
@@ -655,7 +693,8 @@ local function Debug()
     -- 玩家的計算器值（明文）＋三條 overlay 的實際 StatusBar 狀態
     local puf = ns.frames.player
     if puf and puf.hpCalc then
-        UnitGetDetailedHealPrediction("player", nil, puf.hpCalc)
+        -- 同上：不要用 nil 灌正在使用中的計算器
+        UnitGetDetailedHealPrediction("player", "player", puf.hpCalc)
         local c = puf.hpCalc
         p(("  玩家 calc：max=%s cur=%s dmgAbsorb=%s healAbsorb=%s incHeals=%s"):format(
             SafeStr(c:GetMaximumHealth()), SafeStr(c:GetCurrentHealth()),
@@ -738,6 +777,31 @@ local function Debug()
         local active, list, dbg = ns.GetEncounterDisplays()
         p("  遭遇戰 EJ displayID：active=" .. tostring(active)
             .. " [" .. table.concat(list, ", ") .. "]  " .. tostring(dbg))
+    end
+    -- ⚠ 上面那行在**戰鬥結束後**一定是 active=false []（ENCOUNTER_END 清掉了），
+    -- 所以真正有用的是下面這份快照 —— 它記的是開戰／收尾當下的狀況。
+    if ns.GetEncounterSnapshot then
+        local snap = ns.GetEncounterSnapshot()
+        p(("  └ 上次遭遇戰快照（%s）：active=%s  displayID %d 個 [%s]"):format(
+            tostring(snap.when), tostring(snap.active), snap.n or 0, tostring(snap.ids)))
+        p("    " .. tostring(snap.dbg))
+        if (snap.n or 0) == 0 then
+            p("    |cffffbb00→ 一個 displayID 都沒拿到：問題在 EJ 查詢（看上面 journalEnc 是不是 nil），"
+                .. "不是模型畫不出來|r")
+        end
+    end
+    -- 每個首領框的 3D 狀態（上面那份只講「有沒有拿到 ID」，這裡講「拿到之後畫了沒」）
+    for i = 1, 5 do
+        local buf = ns.frames["boss" .. i]
+        local bf = buf and buf.elements and buf.elements.portrait
+        if bf and bf.model then
+            local fid = bf.model.GetModelFileID and bf.model:GetModelFileID()
+            p(("  boss%d 頭像：顯示=%s displayID=%s(%s) 套用ok=%s fileID=%s key=%s%s"):format(
+                i, tostring(buf:IsVisible()),
+                tostring(bf.lastDisplayID), tostring(bf.lastDisplaySrc),
+                tostring(bf.lastDisplayOK), tostring(fid), tostring(bf.modelKey),
+                bf.modelFailWhy and ("  失敗=" .. tostring(bf.modelFailWhy)) or ""))
+        end
     end
 
     -- 滑鼠底下是誰（把游標放在可疑的框上再打 /muf debug）
