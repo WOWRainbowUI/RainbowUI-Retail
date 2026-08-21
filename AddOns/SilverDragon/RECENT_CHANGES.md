@@ -1,10 +1,8 @@
-## Changed in v2026.29
+## Changed in v2026.30
 
-* Updated for 1.15.9
-* There's a new announcement sound of a kobold insisting "It's not junk, it's treasure...", thanks warchild1x
-* Rares that only appear while a map event is running: more kinds of event are recognised now, and the event starting or stopping is noticed sooner
-* Overlay:
-    * Minimap routes no longer glitch when you zoom the minimap
-    * Minimap routes are cheaper to draw, and segments too far away to see are skipped
-    * Minimap routes now hide in the same cases the rare itself does
+* New "junk loot" announcement sound category: treasures that are known but have nothing worth grabbing now get their own sound, separate from the one for notable treasures. Only plays when your treasure filter is set to "All of them", and defaults to the new "Kobold: Not junk" clip
+* Treasures and mobs recorded *explicitly* as having no loot, achievement, or quest attached are now correctly treated as "not notable", rather than as unknown
+* Fixed: some vignettes that stay visible on the opposite faction's side (like Voidstorm's Hardin Steellock and Gar'chak Skullcleave) were being announced for both factions, instead of only the one that can actually do anything with them
+* Voidstorm: Hardin Steellock and Gar'chak Skullcleave's Singularity currency rewards are now counted towards their loot
+* Transmog: cosmetic appearance sets weren't being counted towards notable loot correctly
 
