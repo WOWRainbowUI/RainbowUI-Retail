@@ -345,6 +345,7 @@ DBM.DefaultOptions = {
 	AlwaysShowSpeedKillTimer2 = false,
 	ShowBrezFrame = false,
 	ShowKeystoneOnComplete = true,
+	AddChallengeTeleports = true,
 	OverrideKeystoneSlash = false,
 	BrezFont = "standardFont",
 	BrezFontSize = 18,
@@ -396,6 +397,7 @@ DBM.DefaultOptions = {
 	PrivateAurasPlayerTextFont = "standardFont",
 	PrivateAurasPlayerTextFontStyle = "OUTLINE",
 	PrivateAurasPlayerDurationFontSize = 32,
+	PrivateAurasPlayerDurationColor = {r = 1, g = 1, b = 1},
 	PrivateAurasPlayerShowDecimalSeconds = true,
 	PrivateAurasPlayerDecimalThreshold = 3,
 	PrivateAurasPlayerStackFontSize = 25,
@@ -423,6 +425,7 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankTextFont = "standardFont",
 	PrivateAurasCoTankTextFontStyle = "OUTLINE",
 	PrivateAurasCoTankDurationFontSize = 32,
+	PrivateAurasCoTankDurationColor = {r = 1, g = 1, b = 1},
 	PrivateAurasCoTankShowDecimalSeconds = false,
 	PrivateAurasCoTankDecimalThreshold = 3,
 	PrivateAurasCoTankStackFontSize = 25,
@@ -443,7 +446,7 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankUseHealerInFiveMan = true,
 	PrivateAurasCoTankSlot1Player = "",
 	PrivateAurasCoTankSlot2Player = "",
-	AurasMaxDuration = 120,
+--	AurasMaxDuration = 120,
 	AlwaysShowPlayerAuras = false,
 }
 

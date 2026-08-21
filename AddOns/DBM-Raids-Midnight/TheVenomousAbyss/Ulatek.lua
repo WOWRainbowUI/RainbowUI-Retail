@@ -1,12 +1,13 @@
 local mod	= DBM:NewMod(2895, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260817061249")
---mod:SetCreatureID(238693)
+mod:SetRevision("20260821052124")
+mod:SetCreatureID(257758, 268956)--Ula'tek has two IDs?
 mod:SetEncounterID(3492)
 --mod:SetHotfixNoticeRev(20250823000000)
 --mod:SetMinSyncRevision(20250823000000)
 mod:SetZone(3004)
+mod:SetBossHPInfoToHighest()
 
 mod:RegisterCombat("combat")
 
