@@ -1,7 +1,7 @@
 ## Interface: 120100, 50504, 20506, 11509
 ## Title: HidingBar Options
 ## Author: sfmict
-## Version: v12.1.2
+## Version: v12.1.3
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: HidingBar Options
 ## Notes-esES: Opciones de HidingBar
