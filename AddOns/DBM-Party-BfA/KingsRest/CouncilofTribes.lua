@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260804201314")
+mod:SetRevision("20260821065732")
 mod:SetCreatureID(135475, 135470, 135472)
 mod:SetEncounterID(2140)
 mod:SetUsedIcons(1, 2)
@@ -150,7 +150,8 @@ if DBM:IsPostMidnight() then
 					timerArcLightningCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "arcLightning", "arcLightningCount"))
 					handled = true
 				elseif timer == 10 or timer == 24 then--Poison Nova opener and repeat
-					timerPoisonNovaCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "poisonNova", "poisonNovaCount"))
+					--When blizzard sends a timer of 24, it's wrong, it's 23
+					timerPoisonNovaCD:TLStart(timer == 24 and 23 or timerExact, eventID, self:TLCountStart(eventID, "poisonNova", "poisonNovaCount"))
 					handled = true
 				elseif timer == 20 or timer == 53 then--Call of the Elements opener and repeat
 					timerTotemsCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "totems", "totemsCount"))

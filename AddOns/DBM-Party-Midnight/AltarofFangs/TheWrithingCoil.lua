@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2879, "DBM-Party-Midnight", 9, 1322)
 local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260812010941")
+mod:SetRevision("20260821065732")
 --mod:SetCreatureID(231631)
 mod:SetEncounterID(3457)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -37,6 +37,7 @@ mod.vb.VindictiveOnslaughtCount = 0
 mod.vb.DeathRattleCount = 0
 mod.vb.AssimilationCount = 0
 mod.vb.ToxicAtrophyCount = 0
+mod.vb.ToxicBarrageCount = 0
 
 ---@param self DBMMod
 ---@param dontSetAlerts boolean? Called on engage when we only want to set timeline parameters and not touch encounter alerts
@@ -72,6 +73,7 @@ function mod:OnLimitedCombatStart()
 	self.vb.DeathRattleCount = 1
 	self.vb.AssimilationCount = 1
 	self.vb.ToxicAtrophyCount = 1
+	self.vb.ToxicBarrageCount = 1
 	nextTenIsToxicAtrophy = true
 	if DBM.Options.HardcodedTimer and not badStateDetected then
 		self:IgnoreBlizzardAPI()
@@ -111,7 +113,7 @@ do
 				timerSynchonizedVenomCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "synchonizedVenom", "SynchonizedVenomCount"))
 			end
 		elseif timer == 14 or timer == 23 then
-			timerToxicBarrageCD:TLStart(timerExact, eventID)
+			timerToxicBarrageCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "toxicBarrage", "ToxicBarrageCount"))
 		elseif timer == 25 then
 			self:TLCountStart(eventID, "assimilation", "AssimilationCount")
 		elseif timer == 30 or timer == 39 then

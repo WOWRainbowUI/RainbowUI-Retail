@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260804043215")
+mod:SetRevision("20260820172904")
 mod:SetCreatureID(133392)
 mod:SetEncounterID(2127)
 mod.onlyHighest = true--Instructs DBM health tracking to literally only store highest value seen during fight, even if it drops below that
@@ -23,7 +23,7 @@ if DBM:IsPostMidnight() then
 	local timerStageOne				= mod:NewCDTimer(32.5, 1273408, nil, nil, nil, 6)
 	local timerDefilingTaintCD		= mod:NewCDCountTimer(15, 1301202, nil, nil, nil, 5, nil, DBM_COMMON_L.HEALER_ICON)
 
-	mod:AddAuraSoundOption(1300704, true, 1300704, 1, 1, "fixateyou", 19, 0)--Fixate (or 1300714 for Shadowlash if fixate is spammy)
+	mod:AddAuraSoundOption(1300714, true, 1300704, 1, 1, "fixateyou", 19, 0)--Fixate (or 1300714 for Shadowlash if fixate is spammy)
 	mod:AddAuraSoundOption(1311981, true, 1311981, 1, 1, "poolyou", 18, 0)--Latent Hex
 	mod:AddAuraSoundOption(1300877, true, 1300877, 1, 1, {"debuffyou", "stackhigh"}, {17,8}, {0,1})--Corruption (stack high alert iffy, might remove stack warning if strat is to pile em up on one person)
 

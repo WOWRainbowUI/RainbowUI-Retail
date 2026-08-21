@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2793, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260805015954")
+mod:SetRevision("20260820222945")
 mod:SetCreatureID(248015)
 mod:SetEncounterID(3287)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -16,7 +16,7 @@ mod:RegisterCombat("combat")
 --)
 --TODO, void cascade has two private auras, but neitehr appear to be pre target aura and rather ones you just get if in beam
 local specWarnUnstableSingularity			= mod:NewSpecialWarningCount(1282770, nil, nil, nil, 2, 2, nil, nil, "watchstep")
-local specWarnCosmicCrash					= mod:NewSpecialWarningCount(1227264, nil, nil, nil, 2, 2, nil, nil, "carefly")
+local specWarnCosmicCrash					= mod:NewSpecialWarningCount(1227264, nil, nil, nil, 2, 2, nil, nil, "scatter")
 local specWarnGraviticOrbs					= mod:NewSpecialWarningCount(1263982, nil, nil, nil, 2, 2, nil, nil, "specialsoon")
 local specWarnVoidCascade					= mod:NewSpecialWarningCount(1222758, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 local specWarnDarkWaves						= mod:NewSpecialWarningCount(1311923, nil, nil, nil, 2, 2, nil, nil, "specialsoon")
