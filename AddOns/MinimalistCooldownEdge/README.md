@@ -23,6 +23,8 @@ Party / Raid Frames are no longer supported. The options menu keeps a retired no
 
 MiniCE detects and styles cooldowns from these addons when they are installed, without requiring them: LibSharedMedia-3.0, Bartender4, Dominos (and Dominos_Cast / Dominos_Config), ElvUI, HealerCC, MiniAuras, sArena_Reloaded, TellMeWhen, ShinyAuras, CooldownManagerCentered, mUI, and BetterBlizzFrames.
 
+BetterBlizzFrames support currently applies to Player Auras only; MiniCE disables Unit Frames styling while BBF is active until a dedicated adapter is available. BetterBlizzPlates is conflict-detected only; MiniCE disables Nameplates styling while BBP is active to prevent possible conflicts.
+
 ## Main features
 
 - Per-category font, text color, edge, swipe, and stack-count styling.

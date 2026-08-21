@@ -52,10 +52,9 @@ local nativeFlatColorCurves = {}
 local durationObjectCache = {}
 local durationObjectCacheCount = 0
 
--- The cache is fed by hooks on the global Cooldown metatable, so every cooldown
--- in the UI contributes an entry whether or not MiniCE manages it. Purging must
--- therefore be self-driven: hanging it off the duration color ticker leaks for
--- the whole session whenever that feature is disabled.
+-- The cache is fed only by owned, active cooldowns that need setter duration
+-- capture. Purging is still self-driven because future end-time buckets can
+-- outlive a duration-color tracking phase.
 local function PurgeExpiredDurationObjects()
     local now = GetTime()
     local remaining = 0
@@ -643,6 +642,44 @@ local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
     return config.enabled == true and IsThresholdColorAllowedForSource(sourceKey, config)
 end
 
+-- Global Cooldown hooks call these before retaining or constructing a Duration.
+-- Keep the checks limited to configuration and cached frame state: this path is
+-- paid by every owned cooldown update while threshold colors are enabled.
+function DurationColor:NeedsDurationUpdate(cdFrame, sourceKey, categoryIsActive)
+    if not cdFrame or not sourceKey
+       or (categoryIsActive ~= true and not MCE:IsCategoryActive(sourceKey)) then
+        return false
+    end
+
+    local durationConfig = GetDurationTextColorsConfig()
+    local config = GetDurationTextSourceConfig(sourceKey)
+    if not (durationConfig and durationConfig.enabled == true)
+       or not IsThresholdColorAllowedForSource(sourceKey, config) then
+        return false
+    end
+
+    local fs = frameState[cdFrame]
+    if fs and (fs.unitFrameNativeDurationText == true
+       or fs.miniAurasNativeDurationText == true) then
+        return false
+    end
+
+    return true
+end
+
+function DurationColor:NeedsDurationCapture(cdFrame, sourceKey, needsDurationUpdate)
+    -- Action Bars always resolve the current main/charge duration from the live
+    -- action APIs. Setter-created objects are both redundant and prone to going
+    -- stale after an action swap.
+    if needsDurationUpdate == nil then
+        needsDurationUpdate = self:NeedsDurationUpdate(cdFrame, sourceKey)
+    end
+    return sourceKey ~= nil
+        and sourceKey ~= CATEGORY.Actionbar
+        and needsDurationUpdate == true
+        or false
+end
+
 local function GetNativeDurationFormatter()
     local profile = MCE.db and MCE.db.profile
     local abbrevThreshold = profile and profile.abbrevThreshold
@@ -863,10 +900,6 @@ end
 
 function DurationColor:RefreshTrackedDurationColor(cdFrame, sourceKey, config)
     local fs = frameState[cdFrame]
-    if fs and fs.unitFrameThresholdColorsDisabled == true then
-        self:ClearTrackedDurationColor(cdFrame)
-        return false
-    end
     -- MiniAuras owns both its native duration binding and countdown colors.
     if fs and fs.miniAurasNativeDurationText == true then
         self:ClearTrackedDurationColor(cdFrame)
@@ -986,12 +1019,23 @@ end
 function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
     if not cooldown or MCE:IsForbiddenCached(cooldown) or StyleEngine.IsSecretValue(cooldown) then return end
 
+    -- Nothing outside this module reads fs.durationObject, and every reader here
+    -- goes through GetStoredDurationObject, which re-resolves it on demand. So
+    -- with duration colors off and this cooldown untracked, the work below --
+    -- above all GetFallbackDurationObject's parent walk plus its C_ActionBar /
+    -- C_UnitAuras / C_Spell queries, paid on every aura refresh -- produces
+    -- nothing observable. Enabling the option runs ForceUpdateAll, which
+    -- rebuilds this state from scratch.
+    if not durationColoredFrames[cooldown] then
+        local durationConfig = GetDurationTextColorsConfig()
+        if not (durationConfig and durationConfig.enabled) then return end
+    end
+
     -- Action bars re-fetch live duration data, so avoid extra validation work.
     local category = Registry and Registry:GetCategory(cooldown)
     local trackedState = frameState[cooldown]
     if trackedState and (trackedState.unitFrameNativeDurationText == true
-       or trackedState.miniAurasNativeDurationText == true
-       or trackedState.unitFrameThresholdColorsDisabled == true) then
+       or trackedState.miniAurasNativeDurationText == true) then
         return
     end
     if category == CATEGORY.Actionbar then

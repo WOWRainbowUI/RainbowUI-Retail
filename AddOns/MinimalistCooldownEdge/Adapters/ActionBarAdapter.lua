@@ -94,32 +94,36 @@ function Adapter:TryClaim(cooldown)
     if not cooldown then return nil end
     local parent = cooldown.GetParent and cooldown:GetParent()
     if not parent or MCE:IsForbidden(parent) then return nil end
+
+    local hasAction = type(parent.action) == "number"
+    local isCooldownMember = parent.cooldown == cooldown or parent.Cooldown == cooldown
+    local isChargeCooldownMember = parent.chargeCooldown == cooldown
+        or parent.ChargeCooldown == cooldown
+    if not hasAction and not isCooldownMember and not isChargeCooldownMember then
+        return nil
+    end
+
     if IsDominosManagedButton(parent) then return nil end
     if IsBT4ManagedButton(parent) then return nil end
 
     if MCE:IsLossOfControlCooldown(cooldown) then return nil end
 
-    if type(parent.action) == "number" then
+    if hasAction then
         RegisterButton(parent)
         return CATEGORY.Actionbar
     end
 
-    for _, key in ipairs(AB.CooldownKeys) do
-        if parent[key] == cooldown then
-            if parent.GetAttribute and parent:GetAttribute("type") then
-                RegisterButton(parent)
-                return CATEGORY.Actionbar
-            end
+    if isCooldownMember then
+        if parent.GetAttribute and parent:GetAttribute("type") then
+            RegisterButton(parent)
+            return CATEGORY.Actionbar
         end
     end
 
-    for _, key in ipairs(AB.ChargeCooldownKeys) do
-        if parent[key] == cooldown then
-            if type(parent.action) == "number"
-               or (parent.GetAttribute and parent:GetAttribute("type")) then
-                RegisterButton(parent)
-                return CATEGORY.Actionbar
-            end
+    if isChargeCooldownMember then
+        if parent.GetAttribute and parent:GetAttribute("type") then
+            RegisterButton(parent)
+            return CATEGORY.Actionbar
         end
     end
 

@@ -105,6 +105,19 @@ local function CategoryNeedsFullScan(key)
         or key == C.Categories.Shackled
 end
 
+local OWNERSHIP_CATEGORIES = {
+    [C.Categories.Actionbar] = true,
+    [C.Categories.Nameplate] = true,
+    [C.Categories.Unitframe] = true,
+    [C.Categories.CooldownManager] = true,
+    [C.Categories.HealerCC] = true,
+    [C.Categories.MiniAuras] = true,
+    [C.Categories.MyDRs] = true,
+    [C.Categories.SArena] = true,
+    [C.Categories.TellMeWhen] = true,
+    [C.Categories.Shackled] = true,
+}
+
 --- Returns a setter function that writes and refreshes.
 local function CatSet(key, field)
     return function(_, val)
@@ -450,8 +463,25 @@ local function DefaultDurationColorSet(_, r, g, b, a)
     MCE:ForceUpdateAll(true)
 end
 
+local function IsCategoryStylingBlocked(key)
+    return MCE:IsCategoryBlockedByAddonConflict(key)
+end
+
+local function GetCategoryConflictWarning(key)
+    if not IsCategoryStylingBlocked(key) then return nil end
+
+    if key == C.Categories.Unitframe then
+        return L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"]
+    end
+    if key == C.Categories.Nameplate then
+        return L["BETTERBLIZZPLATES_NAMEPLATE_CONFLICT_WARNING"]
+    end
+    return nil
+end
+
 local function IsCatDisabled(key)
     return not MCE.db.profile.categories[key].enabled
+        or IsCategoryStylingBlocked(key)
 end
 
 local function IsStackHidden(key)
@@ -537,9 +567,17 @@ local function RefreshDynamicCategoryLabels()
 end
 
 local function SetCategoryEnabledValue(key, value)
+    if IsCategoryStylingBlocked(key) then
+        return
+    end
+
+    local needsFullScan = CategoryNeedsFullScan(key)
     MCE.db.profile.categories[key].enabled = value
     MCE:MarkReloadRequired()
-    MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
+    if OWNERSHIP_CATEGORIES[key] and not needsFullScan then
+        MCE:InvalidateOwnership()
+    end
+    MCE:ForceUpdateAll(needsFullScan)
     NotifyOptionsChanged()
 end
 
@@ -850,17 +888,17 @@ end
 -- =========================================================================
 
 local function CreateCategoryOptions(order, name, key, desc)
+    local isUnitframe = (key == C.Categories.Unitframe)
+    local isNameplate = (key == C.Categories.Nameplate)
     local disabledFn    = function() return IsCatDisabled(key) end
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == C.Categories.CooldownManager)
     local isHealerCC = (key == C.Categories.HealerCC)
     local isMiniAuras = (key == C.Categories.MiniAuras)
     local isMyDRs = (key == C.Categories.MyDRs)
-    local isNameplate = (key == C.Categories.Nameplate)
     local isSArena = (key == C.Categories.SArena)
     local isShackled = (key == C.Categories.Shackled)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
-    local isUnitframe = (key == C.Categories.Unitframe)
     local isPlayerAura = (key == C.Categories.PlayerAura)
     local isActionbar = (key == C.Categories.Actionbar)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe or isPlayerAura)
@@ -895,6 +933,7 @@ local function CreateCategoryOptions(order, name, key, desc)
         name = function()
             if not MCE.db or not MCE.db.profile then return name end
             local enabled = MCE.db.profile.categories[key].enabled
+                and not IsCategoryStylingBlocked(key)
             if enabled then
                 return "|cff33ff99" .. L["ON"] .. "|r  " .. name
             else
@@ -910,9 +949,18 @@ local function CreateCategoryOptions(order, name, key, desc)
                     enabled = {
                         type = "toggle", order = 1, width = "full",
                         name = "|cff33ff99" .. format(L["Enable %s"], name) .. "|r",
-                        desc = L["Toggle styling for this category."],
-                        get = CatGet(key, "enabled"),
+                        desc = function()
+                            return GetCategoryConflictWarning(key)
+                                or L["Toggle styling for this category."]
+                        end,
+                        get = function()
+                            return MCE.db.profile.categories[key].enabled
+                                and not IsCategoryStylingBlocked(key)
+                        end,
                         set = SetCategoryEnabled(key),
+                        disabled = function()
+                            return IsCategoryStylingBlocked(key)
+                        end,
                     },
                     miniAurasTestToggle = isMiniAuras and {
                         type = "execute", order = 2, width = "1",
@@ -988,6 +1036,16 @@ local function CreateCategoryOptions(order, name, key, desc)
             categoryOverview = desc and {
                 type = "group", name = "", inline = true, order = 2,
                 args = {
+                    addonConflictNotice = (isUnitframe or isNameplate) and {
+                        type = "description", order = 0.05, fontSize = "medium", width = "full",
+                        name = function()
+                            return "|cffff7a1a(!) "
+                                .. (GetCategoryConflictWarning(key) or "") .. "|r"
+                        end,
+                        hidden = function()
+                            return GetCategoryConflictWarning(key) == nil
+                        end,
+                    } or nil,
                     catDesc = {
                         type = "description", order = 0.1, fontSize = "medium", width = "full",
                         name = BuildCategoryDescription(desc),
@@ -1281,29 +1339,6 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatSet(key, "raidFrameAuraHideSwipe"),
                     } or nil,
                     raidFrameAuraRowBreak = isMiniAuras and RowBreak(5.293) or nil,
-                    nameplateFontSize = isMiniAuras and {
-                        type = "range", order = 5.3, width = 1.2,
-                        name = L["Nameplates Text Size"],
-                        desc = L["Applies to the MiniAuras Nameplates module."],
-                        min = 6, max = 36, step = 1,
-                        get = CatGet(key, "nameplateFontSize", 12),
-                        set = CatRangeSet(key, "nameplateFontSize"),
-                    } or nil,
-                    nameplateHideCountdownNumbers = isMiniAuras and {
-                        type = "toggle", order = 5.35, width = 0.8,
-                        name = L["Hide Numbers"],
-                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
-                        get = CatGet(key, "nameplateHideCountdownNumbers", false),
-                        set = CatSet(key, "nameplateHideCountdownNumbers"),
-                    } or nil,
-                    nameplateHideSwipe = isMiniAuras and {
-                        type = "toggle", order = 5.37, width = 0.8,
-                        name = L["Hide Swipe"],
-                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
-                        get = CatGet(key, "nameplateHideSwipe", false),
-                        set = CatSet(key, "nameplateHideSwipe"),
-                    } or nil,
-                    nameplateRowBreak = isMiniAuras and RowBreak(5.39) or nil,
                     portraitFontSize = isMiniAuras and {
                         type = "range", order = 5.4, width = 1.2,
                         name = L["Portraits Text Size"],
@@ -1532,8 +1567,12 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Revert this category to default settings."],
                         confirm = true,
                         func = function()
+                            local needsFullScan = CategoryNeedsFullScan(key)
                             MCE.db.profile.categories[key] = CopyTable(MCE.defaults.profile.categories[key])
-                            MCE:ForceUpdateAll()
+                            if OWNERSHIP_CATEGORIES[key] and not needsFullScan then
+                                MCE:InvalidateOwnership()
+                            end
+                            MCE:ForceUpdateAll(needsFullScan)
                             LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
                             MCE:Print(format(L["%s settings reset."], name))
                         end,
@@ -1633,15 +1672,35 @@ function MCE:GetOptions()
                             toggleNameplate = {
                                 type = "toggle", order = 2, width = 1.0,
                                 name = "|cffffd100" .. L["Nameplates"] .. "|r",
-                                get = function() return MCE.db.profile.categories[C.Categories.Nameplate].enabled end,
+                                desc = function()
+                                    return GetCategoryConflictWarning(C.Categories.Nameplate)
+                                        or L["Toggle styling for this category."]
+                                end,
+                                get = function()
+                                    return MCE.db.profile.categories[C.Categories.Nameplate].enabled
+                                        and not IsCategoryStylingBlocked(C.Categories.Nameplate)
+                                end,
                                 set = SetDashboardCategoryEnabled(C.Categories.Nameplate),
+                                disabled = function()
+                                    return IsCategoryStylingBlocked(C.Categories.Nameplate)
+                                end,
                             },
                             quickRowBreak1 = RowBreak(2.1),
                             toggleUnitframe = {
                                 type = "toggle", order = 3, width = 1.0,
                                 name = "|cffffd100" .. L["Unit Frames"] .. "|r",
-                                get = function() return MCE.db.profile.categories[C.Categories.Unitframe].enabled end,
+                                desc = function()
+                                    return GetCategoryConflictWarning(C.Categories.Unitframe)
+                                        or L["Toggle styling for this category."]
+                                end,
+                                get = function()
+                                    return MCE.db.profile.categories[C.Categories.Unitframe].enabled
+                                        and not IsCategoryStylingBlocked(C.Categories.Unitframe)
+                                end,
                                 set = SetDashboardCategoryEnabled(C.Categories.Unitframe),
+                                disabled = function()
+                                    return IsCategoryStylingBlocked(C.Categories.Unitframe)
+                                end,
                             },
                             togglePlayerAura = {
                                 type = "toggle", order = 4, width = 1.0,

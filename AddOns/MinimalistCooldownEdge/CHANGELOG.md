@@ -1,5 +1,34 @@
 # Changelog
 
+## 4.6.0 - UnitFrame Performance Refactor
+- Reworked UnitFrame aura handling for lower CPU usage.
+- UnitFrame auras now rely more directly on Blizzard's native 12.1 AuraContainer updates.
+- Reduced duplicate styling and unnecessary aura refreshes.
+- Improved UnitFrame initialization and combat safety.
+
+## 4.5.9 - MiniAuras Nameplate Auras Removal
+- Removed MiniCE styling support for MiniAuras Nameplate Auras: Enemy - Bar 1 and Enemy - Bar 2.
+
+## 4.5.8 - Ownership Performance
+- Reduced CPU usage from unrelated cooldown frames.
+- Improved cooldown detection efficiency across Blizzard and third-party UI elements.
+
+## 4.5.7 - Action Bar Performance
+- Reduced CPU usage during action bar cooldown, charge, and global cooldown updates.
+- Reduced background cooldown work for disabled styling categories.
+- Reduced duration tracking allocations across the interface.
+
+## 4.5.6 - BetterBlizz Conflict Detection
+- Unit Frames styling is now disabled with a warning while BetterBlizzFrames is active.
+- Nameplates styling is now disabled with a warning while BetterBlizzPlates is active.
+- Removed BetterBlizzFrames-specific Unit Frames compatibility.
+
+## 4.5.5 - Cooldown Update Performance
+- Reduced CPU usage on every cooldown update across the interface.
+- Duration tracking work is now skipped while Duration Text Colors is disabled.
+- MiniAuras and ShinyAuras cooldown checks now only run when those addons are installed.
+- Player Aura refreshes now stop while the Player Auras category is disabled.
+
 ## 4.5.4 - BetterBlizzPlates Adapter Removed
 - Removed the BetterBlizzPlates nameplate aura adapter and its options category.
 - BetterBlizzPlates now has its own cooldown text styling options; configure them via /bbp > Nameplate Auras Options.

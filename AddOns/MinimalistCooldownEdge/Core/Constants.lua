@@ -23,6 +23,7 @@ C.Addon = {
     ShinyAurasName = "ShinyAuras",
     MUIName = "mUI",
     BetterBlizzFramesName = "BetterBlizzFrames",
+    BetterBlizzPlatesName = "BetterBlizzPlates",
     VersionFallback = "Dev",
     SlashCommands = { "mce", "minice", "minimalistcooldownedge" },
 }
@@ -62,7 +63,6 @@ C.PlayerAuraTypes = {
 C.MiniAurasFrameTypes = {
     CC = "cc",
     RaidFrameAura = "raidframeaura",
-    Nameplate = "nameplate",
     Portrait = "portrait",
     Overlay = "overlay",
     -- MiniAuras retains these displays only on its pre-12.1 backend.
@@ -225,9 +225,6 @@ C.Defaults = {
         RaidFrameAuraFontSize = 18,
         RaidFrameAuraHideCountdownNumbers = false,
         RaidFrameAuraHideSwipe = false,
-        NameplateFontSize = 12,
-        NameplateHideCountdownNumbers = false,
-        NameplateHideSwipe = false,
         PortraitFontSize = 18,
         PortraitHideCountdownNumbers = false,
         PortraitHideSwipe = false,
@@ -593,8 +590,8 @@ C.Styler = {
     NumericComparisonEpsilon = 0.001,
     DurationCacheSweepThreshold = 10,
     -- Hard ceiling on distinct end-time buckets held by the duration object
-    -- cache. The cache is fed by every Cooldown:SetCooldown in the UI, so it
-    -- must bound itself instead of relying on the duration color ticker.
+    -- cache. Long future cooldowns can outlive the duration color ticker, so
+    -- the cache must bound itself instead of relying on ticker-driven cleanup.
     DurationCacheMaxEntries = 400,
     DurationColorTickerInterval = 0.5,
     AuraRetryMinInterval = 0.25,

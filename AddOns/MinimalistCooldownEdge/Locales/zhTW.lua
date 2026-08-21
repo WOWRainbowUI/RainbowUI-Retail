@@ -271,8 +271,8 @@ L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff
 L["Hide the swipe animation for this frame group (countdown text still shows)."] = "隱藏此框架群組的掃動動畫（倒數文字仍會顯示）。"
 L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."] = "僅在你自己的光環上顯示冷卻計時文字。使用 Blizzard 的大型光環判斷法，而非直接檢查 sourceUnit。"
 L["UNITFRAME_ONLY_MINE_DESC"] = "僅在你自己施放的光環上顯示計時文字。MiniCE 在 WoW 12.1 中的目標/焦點容器使用 Blizzard 的玩家篩選器；相容插件與舊版框架則使用其群組中繼資料或大型光環備援機制。"
-L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "隱藏其他玩家在目標與焦點框架上施放的減益。MiniCE 在 WoW 12.1 中管理這些光環容器，因此 Blizzard 自身的減益篩選器不再對其生效。當 BetterBlizzFrames 管理該容器時無效。"
-L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "隱藏其他玩家在目標與焦點框架上施放的增益。MiniCE 在 WoW 12.1 中管理這些光環容器，因此 Blizzard 自身的增益篩選器不再對其生效。當 BetterBlizzFrames 管理該容器時無效。"
+L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "隱藏其他玩家在目標與焦點框架上施放的減益。MiniCE 在 WoW 12.1 中管理這些光環容器，因此 Blizzard 自身的減益篩選器不再對其生效。"
+L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "隱藏其他玩家在目標與焦點框架上施放的增益。MiniCE 在 WoW 12.1 中管理這些光環容器，因此 Blizzard 自身的增益篩選器不再對其生效。"
 L["Keeps player aura buttons fully opaque when they are close to expiring."] = "當玩家光環圖示即將到期時，保持其完全不透明。"
 L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."] = "當 CooldownManager 插槽暫時顯示光環時間時，使用專用增益顏色，而非剩餘時間門檻顏色。"
 L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."] = "在插槽顯示光環持續時間期間套用。光環結束、插槽切回冷卻時間後，將恢復門檻顏色。"
@@ -306,7 +306,6 @@ L["MiniAuras text settings are grouped by module family so similar widgets share
 L["Applies to MiniAuras CC module (enemy crowd controls)."] = "適用於 MiniAuras CC 模組（敵方控場效果）。"
 L["Applies to MiniAuras CC, Friendly CDs, and Friendly Indicators modules."] = "適用於 MiniAuras 的 CC、Friendly CDs 與 Friendly Indicators 模組。"
 L["Applies to the MiniAuras Raid Frame Auras module."] = "適用於 MiniAuras 的 Raid Frame Auras 模組。"
-L["Applies to the MiniAuras Nameplates module."] = "適用於 MiniAuras 的 Nameplates 模組。"
 L["Applies to MiniAuras portrait icons."] = "適用於 MiniAuras 頭像圖示。"
 L["Applies to MiniAuras Alerts, Healer CC, Kick Timer, Precognition, Trinkets, and Custom Auras modules."] = "適用於 MiniAuras 的 Alerts、Healer CC、Kick Timer、Precognition、Trinkets 與 Custom Auras 模組。"
 L["Show sArena test frames using /sarena test."] = "使用 /sarena test 顯示 sArena 測試框架。"
@@ -334,7 +333,8 @@ L["HELP_ARENADR_DESC"] = "直接在競技場名條上追蹤敵方遞減效果。
 L["Copy this link to open ArenaDR Nameplates on CurseForge."] = "複製此連結即可在 CurseForge 上開啟 ArenaDR Nameplates。"
 
 -- Category Descriptions
-L["UNITFRAME_121_COMPAT_DESC"] = "WoW 12.1 限制了 Blizzard 原生的目標與焦點光環圖示。此分類啟用期間，MiniCE 使用受支援的自訂光環容器 API，並在 BBF 已管理容器時美化 BetterBlizzFrames 的容器。"
+L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"] = "BetterBlizzFrames 已啟用，因此 MiniCE 的單位框架美化已停用，以避免可能的衝突。專用的 BetterBlizzFrames 轉接器即將推出。"
+L["BETTERBLIZZPLATES_NAMEPLATE_CONFLICT_WARNING"] = "BetterBlizzPlates 已啟用，因此 MiniCE 的名條美化已停用，以避免可能的衝突。"
 L["PLAYERAURA_DESC"] = "美化 Blizzard 玩家增益與減益冷卻。"
 L["HEALERCC_DESC"] = "美化友方與敵方的 HealerCC 警示冷卻。"
 L["MYDRS_DESC"] = "美化 MyDRs 的遞減效果圖示冷卻。MyDRs 保留其自身的 DR 狀態標籤（50% / IMM）。"
