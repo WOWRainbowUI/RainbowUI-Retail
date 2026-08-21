@@ -498,6 +498,12 @@ GTFO.SpellID["??????"] = {
 --- * The Venomous Abyss (3004) *
 --- *****************************
 
+GTFO.SpellID["1297338"] = {
+  --desc = "Deadly Venom";
+  instance = 3004;
+  sound = 1;
+};
+
 GTFO.SpellID["1285623"] = {
   --desc = "Soulcoil Well (Nek'zali the Soulcoiler)";
   instance = 3004;
@@ -527,7 +533,74 @@ GTFO.SpellID["1284210"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1291461"] = {
+  --desc = "Virulent Fumes (Vashnik)";
+  instance = 3004;
+  sound = 1;
+};
 
+GTFO.SpellID["1310500"] = {
+  --desc = "Aftershock (First Mate Nama)";
+  instance = 3004;
+  encounter = 3497;
+  sound = 1;
+};
+
+GTFO.SpellID["1297650"] = {
+  --desc = "Spreading Flames (Trader Gebbo)";
+  instance = 3004;
+  encounter = 3497;
+  sound = 1;
+};
+
+GTFO.SpellID["1296667"] = {
+  --desc = "Caustic Residue (Sszorak)";
+  instance = 3004;
+  encounter = 3420;
+  sound = 1;
+};
+
+GTFO.SpellID["1309471"] = {
+  --desc = "Noxious Slick (The Twin Fangs)";
+  instance = 3004;
+  encounter = 3421;
+  sound = 1;
+};
+
+GTFO.SpellID["1292552"] = {
+  --desc = "Congealed Gore (The Twin Fangs)";
+  instance = 3004;
+  encounter = 3421;
+  sound = 1;
+};
+
+GTFO.SpellID["1292807"] = {
+  --desc = "Stir the Depths (The Twin Fangs)";
+  instance = 3004;
+  encounter = 3421;
+  sound = 1;
+};
+
+GTFO.SpellID["1283290"] = {
+  --desc = "Noxious Ground (Zul'jan)";
+  instance = 3004;
+  encounter = 3429;
+  sound = 1;
+};
+
+GTFO.SpellID["1298591"] = {
+  --desc = "Defiled Ground (Zul'jan)";
+  instance = 3004;
+  encounter = 3429;
+  sound = 1;
+};
+
+GTFO.SpellID["1306858"] = {
+  --desc = "Warden's Protection (Doomscale Warden)";
+  instance = 3004;
+  encounter = 3492;
+  sound = 1;
+};
 
 --- *********************
 --- * Murder Row (2813) *
