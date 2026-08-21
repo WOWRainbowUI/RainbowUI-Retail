@@ -1,7 +1,7 @@
 local addonName, addonTable = ...
 
 -- 开关控制：true 显示 ID，false 隐藏 ID
-addonTable.ShowGossipIDs = true
+addonTable.ShowGossipIDs = false
 
 addonTable.EnabledGossipIDs = {
     [135009] = true, -- 洞穴 (门口)
