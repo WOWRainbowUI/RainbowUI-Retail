@@ -1366,16 +1366,6 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
-            label = addonTable.Locales.DISPELLABLE,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.filters.dispelable = value
-            end,
-            getter = function(details)
-              return details.filters.dispelable
-            end,
-          },
-          {
             label = addonTable.Locales.ENRAGE,
             kind = "checkbox",
             setter = function(details, value)
@@ -1383,6 +1373,16 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
             getter = function(details)
               return details.filters.enrage
+            end,
+          },
+          {
+            label = addonTable.Locales.DISPELLABLE,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.dispelable = value
+            end,
+            getter = function(details)
+              return details.filters.dispelable
             end,
           },
           { kind = "spacer" },

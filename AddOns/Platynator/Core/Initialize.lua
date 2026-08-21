@@ -50,7 +50,15 @@ end
 function addonTable.Core.GetDesignByName(name)
   if addonTable.Design.Defaults[name] then
     if not addonTable.Design.ParsedDefaults[name] then
-      local design = C_EncodingUtil.DeserializeJSON(addonTable.Design.Defaults[name])
+      local text = addonTable.Design.Defaults[name]
+      local design, _
+      if text:sub(1, 1) == "{" then
+        _, design = pcall(C_EncodingUtil.DeserializeJSON, text)
+      else
+        local _, decoded = pcall(C_EncodingUtil.DecodeBase64, text:sub(9)) -- !PLATY!1!
+        local _, decompressed = pcall(C_EncodingUtil.DecompressString, decoded)
+        _, design = pcall(C_EncodingUtil.DeserializeCBOR, decompressed)
+      end
       design.kind = nil
       design.addon = nil
       addonTable.Core.UpgradeDesign(design)
