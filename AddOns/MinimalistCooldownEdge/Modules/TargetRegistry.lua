@@ -9,12 +9,18 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Registry = MCE:NewModule("TargetRegistry")
 
-local setmetatable, wipe, pairs, next = setmetatable, wipe, pairs, next
+local setmetatable, wipe, pairs, next, pcall = setmetatable, wipe, pairs, next, pcall
 local weakMeta = addon.weakMeta
+local frameState = addon.frameState
 local INTERNAL_VISUAL_COOLDOWN_KEY = "MCEPlayerAuraVisualOnly"
 
 -- cooldown -> { category, subtype }
 local entries = setmetatable({}, weakMeta)
+
+-- cooldown -> ownership generation in which every adapter rejected it.
+-- Values are deliberately tiny scalars; weak keys let discarded UI frames die.
+local negativeOwnership = setmetatable({}, weakMeta)
+local ownershipGeneration = 1
 
 -- category -> weak set of cooldowns
 local categoryIndex = {}
@@ -28,11 +34,12 @@ local adapterOrder = {}
 local function InsertUnique(list, value)
     for i = 1, #list do
         if list[i] == value then
-            return
+            return false
         end
     end
 
     list[#list + 1] = value
+    return true
 end
 
 local function EnsureCategorySet(category)
@@ -46,6 +53,22 @@ end
 
 local function IsInternalVisualCooldown(cooldown)
     return MCE:SafeTableGet(cooldown, INTERNAL_VISUAL_COOLDOWN_KEY) == true
+end
+
+local function InvalidateActionbarStructure(cooldown, category)
+    if category ~= C.Categories.Actionbar then return end
+
+    local state = frameState[cooldown]
+    if not state then
+        state = {}
+        frameState[cooldown] = state
+    end
+    state.forceTextRegionRefresh = true
+    state.actionbarTextStructureApplied = nil
+    state.actionbarStackStyleApplied = nil
+    state.actionbarStackCountResolved = nil
+    state.actionbarStackCountRegion = nil
+    state.actionbarStackCountParent = nil
 end
 
 local function RemoveEntry(cooldown)
@@ -71,6 +94,10 @@ local function TryGetEntry(cooldown)
     return MCE:SafeTableGet(entries, cooldown)
 end
 
+local function ReadOwnershipState(cooldown)
+    return entries[cooldown], negativeOwnership[cooldown]
+end
+
 -- Pre-create index sets for known categories
 for _, cat in pairs(C.Categories) do
     EnsureCategorySet(cat)
@@ -82,6 +109,13 @@ function Registry:Register(cooldown, category, subtype)
         RemoveEntry(cooldown)
         return
     end
+
+    negativeOwnership[cooldown] = nil
+
+    -- Registration is also the structural invalidation signal for action
+    -- buttons. Adapters register again when a button is constructed/restyled,
+    -- while ordinary cooldown broadcasts use the existing registry entry.
+    InvalidateActionbarStructure(cooldown, category)
 
     local existing = entries[cooldown]
     if existing then
@@ -126,6 +160,39 @@ function Registry:SetSubtype(cooldown, subtype)
     if entry then entry.subtype = subtype end
 end
 
+function Registry:GetCategoryAndNegative(cooldown)
+    if not cooldown then
+        return nil, false
+    end
+
+    local ok, entry, negativeGeneration = pcall(ReadOwnershipState, cooldown)
+    if not ok then
+        return nil, false
+    end
+
+    if entry then
+        return entry.category, false
+    end
+    return nil, negativeGeneration == ownershipGeneration
+end
+
+function Registry:IsNegative(cooldown)
+    local _, isNegative = self:GetCategoryAndNegative(cooldown)
+    return isNegative
+end
+
+function Registry:MarkNegative(cooldown)
+    if not MCE:CanUseFrameAsTableKey(cooldown) or entries[cooldown] then
+        return
+    end
+
+    negativeOwnership[cooldown] = ownershipGeneration
+end
+
+function Registry:InvalidateOwnership()
+    ownershipGeneration = ownershipGeneration + 1
+end
+
 function Registry:IterateAll()
     return pairs(entries)
 end
@@ -147,7 +214,9 @@ function Registry:RegisterAdapter(category, adapter)
 
     InsertUnique(categoryAdapters, adapter)
 
-    InsertUnique(adapterOrder, adapter)
+    if InsertUnique(adapterOrder, adapter) then
+        self:InvalidateOwnership()
+    end
 end
 
 function Registry:GetAdapter(category)
@@ -167,11 +236,15 @@ function Registry:TryClaim(cooldown)
         RemoveEntry(cooldown)
         return nil
     end
+    if negativeOwnership[cooldown] == ownershipGeneration then
+        return nil
+    end
 
     for i = 1, #adapterOrder do
         local adapter = adapterOrder[i]
-        if adapter.TryClaim then
-            local cat, sub = adapter:TryClaim(cooldown)
+        local tryClaim = adapter.TryClaim
+        if tryClaim then
+            local cat, sub = tryClaim(adapter, cooldown)
             if cat then
                 self:Register(cooldown, cat, sub)
                 return cat, sub
@@ -187,6 +260,8 @@ function Registry:RebuildCategory(category)
         return
     end
 
+    self:InvalidateOwnership()
+
     for i = 1, #categoryAdapters do
         local adapter = categoryAdapters[i]
         if adapter and adapter.Rebuild then
@@ -196,6 +271,8 @@ function Registry:RebuildCategory(category)
 end
 
 function Registry:RebuildAll()
+    self:InvalidateOwnership()
+
     for i = 1, #adapterOrder do
         local adapter = adapterOrder[i]
         if adapter.Rebuild then

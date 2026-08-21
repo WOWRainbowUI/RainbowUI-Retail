@@ -51,6 +51,8 @@ local function IsMiniAurasFrame(frame)
 end
 
 function Adapter:OnEnable()
+    if MCE:IsBetterBlizzPlatesAvailable() then return end
+
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.Nameplate, self)
 
@@ -93,6 +95,7 @@ local function ScanChildren(frame, depth)
 end
 
 local function RegisterNameplate(np)
+    if MCE:IsBetterBlizzPlatesAvailable() then return end
     if not MCE:CanUseFrameAsTableKey(np) then return end
     local unitFrame = MCE:SafeTableGet(np, "UnitFrame")
     if not MCE:CanUseFrameAsTableKey(unitFrame) then
@@ -102,6 +105,7 @@ local function RegisterNameplate(np)
 end
 
 function Adapter:NAME_PLATE_UNIT_ADDED(_, unit)
+    if MCE:IsBetterBlizzPlatesAvailable() then return end
     local np = C_NamePlate.GetNamePlateForUnit(unit)
     if np then RegisterNameplate(np) end
 end
@@ -111,6 +115,7 @@ function Adapter:NAME_PLATE_UNIT_REMOVED()
 end
 
 function Adapter:Rebuild()
+    if MCE:IsBetterBlizzPlatesAvailable() then return end
     local nameplates = C_NamePlate.GetNamePlates()
     if nameplates then
         for _, np in ipairs(nameplates) do
@@ -120,6 +125,7 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
+    if MCE:IsBetterBlizzPlatesAvailable() then return nil end
     if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
     -- MiniAuras cooldowns carry the MiniAuras_ prefix; skip them entirely.
     if IsMiniAurasFrame(cooldown) then return nil end

@@ -14,6 +14,7 @@ local DOM = C.Adapter.Dominos
 local frameState = addon.frameState
 
 local Registry
+local providerAvailable = false
 
 local function IsEnabled()
     return MCE:IsDominosAdapterEnabled()
@@ -99,7 +100,8 @@ local function ScanPrefix(prefix, maxCount)
 end
 
 function Adapter:InitializeDominos()
-    return MCE:IsDominosAvailable()
+    providerAvailable = MCE:IsDominosAvailable()
+    return providerAvailable
 end
 
 function Adapter:OnEnable()
@@ -116,7 +118,9 @@ function Adapter:OnDisable()
 end
 
 function Adapter:ADDON_LOADED(_, addonName)
-    if addonName ~= C.Addon.DominosName then
+    if addonName ~= C.Addon.DominosName
+       and addonName ~= C.Addon.DominosCastName
+       and addonName ~= C.Addon.DominosConfigName then
         return
     end
 
@@ -140,7 +144,7 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
-    if not IsEnabled() or not self:InitializeDominos() or not cooldown or MCE:IsForbidden(cooldown) then
+    if not IsEnabled() or not providerAvailable or not cooldown or MCE:IsForbidden(cooldown) then
         return nil
     end
 

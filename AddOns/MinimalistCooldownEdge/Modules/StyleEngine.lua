@@ -770,10 +770,10 @@ local function GetActionbarCooldownTextOverlay(cdFrame, button)
 end
 
 local function RaiseActionbarCooldownText(cdFrame, button, textRegions, textRegionCount)
-    if not button or textRegionCount == 0 then return end
+    if not button or not textRegionCount or textRegionCount == 0 then return false end
 
     local overlay = GetActionbarCooldownTextOverlay(cdFrame, button)
-    if not overlay then return end
+    if not overlay then return false end
 
     for i = 1, textRegionCount do
         local region = textRegions[i]
@@ -787,6 +787,7 @@ local function RaiseActionbarCooldownText(cdFrame, button, textRegions, textRegi
             end
         end
     end
+    return true
 end
 
 RestoreActionbarCooldownText = function(self, cdFrame)
@@ -803,6 +804,15 @@ RestoreActionbarCooldownText = function(self, cdFrame)
     local overlay = actionbarTextOverlays[cdFrame]
     if overlay and overlay.Hide then
         overlay:Hide()
+    end
+
+    local fs = frameState[cdFrame]
+    if fs then
+        fs.actionbarTextStructureApplied = nil
+        fs.actionbarStackStyleApplied = nil
+        fs.actionbarStackCountResolved = nil
+        fs.actionbarStackCountRegion = nil
+        fs.actionbarStackCountParent = nil
     end
 end
 
@@ -1237,6 +1247,14 @@ end
 
 local function GetStackCountRegion(cdFrame, category)
     local state = frameState[cdFrame]
+    if category == CATEGORY.Actionbar
+       and state and state.actionbarStackCountResolved == true then
+        local cachedRegion = state.actionbarStackCountRegion
+        local cachedParent = state.actionbarStackCountParent
+        return cachedRegion ~= false and cachedRegion or nil,
+            cachedParent ~= false and cachedParent or nil
+    end
+
     -- MiniAuras registers its stack count on the aura button, which goes
     -- restricted after initialization, so the region is captured by the adapter
     -- rather than looked up here. Without this branch the count fell through
@@ -1255,7 +1273,16 @@ local function GetStackCountRegion(cdFrame, category)
     end
 
     local parent = GetParentSafe(cdFrame)
-    if not parent then return nil, nil end
+    if not parent then
+        if category == CATEGORY.Actionbar then
+            state = state or {}
+            frameState[cdFrame] = state
+            state.actionbarStackCountResolved = true
+            state.actionbarStackCountRegion = false
+            state.actionbarStackCountParent = false
+        end
+        return nil, nil
+    end
     local countRegion
 
     if category == CATEGORY.Actionbar then
@@ -1278,6 +1305,14 @@ local function GetStackCountRegion(cdFrame, category)
         end
     end
 
+    if category == CATEGORY.Actionbar then
+        state = state or {}
+        frameState[cdFrame] = state
+        state.actionbarStackCountResolved = true
+        state.actionbarStackCountRegion = IsUsableFontString(countRegion) and countRegion or false
+        state.actionbarStackCountParent = parent
+    end
+
     if not IsUsableFontString(countRegion) then return nil, parent end
     return countRegion, parent
 end
@@ -1298,10 +1333,19 @@ function StyleEngine:GetStackFontSize(cdFrame, category, config, subtype)
 end
 
 function StyleEngine:StyleStackCount(cdFrame, config, category)
-    local countRegion, parent = self:GetStackCountRegion(cdFrame, category)
-    if not countRegion or not parent then return end
-
     local fs = self:GetFrameState(cdFrame)
+    if category == CATEGORY.Actionbar and fs.actionbarStackStyleApplied == true then
+        return
+    end
+
+    local countRegion, parent = self:GetStackCountRegion(cdFrame, category)
+    if not countRegion or not parent then
+        if category == CATEGORY.Actionbar then
+            fs.actionbarStackStyleApplied = true
+        end
+        return
+    end
+
     local isCustomUnitFrameAura = category == CATEGORY.Unitframe
         and fs.unitFrameCustomAura == true
 
@@ -1314,6 +1358,9 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
                 countRegion:Hide()
             end
             fs.stackCountHidden = true
+        end
+        if category == CATEGORY.Actionbar then
+            fs.actionbarStackStyleApplied = true
         end
         return
     end
@@ -1330,7 +1377,12 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
         countRegion:SetAlpha(1)
     end
 
-    if not config.stackEnabled then return end
+    if not config.stackEnabled then
+        if category == CATEGORY.Actionbar then
+            fs.actionbarStackStyleApplied = true
+        end
+        return
+    end
 
     if isCustomUnitFrameAura and type(countRegion.SetScale) == "function" then
         pcall(countRegion.SetScale, countRegion, 1)
@@ -1357,6 +1409,10 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
         STYLER_CONSTANTS.StackTextLayer,
         STYLER_CONSTANTS.StackTextSubLevel,
         enforceStackFont)
+
+    if category == CATEGORY.Actionbar then
+        fs.actionbarStackStyleApplied = true
+    end
 end
 
 -- =========================================================================
@@ -1370,7 +1426,6 @@ function StyleEngine:GetCooldownFontSize(cdFrame, category, config, subtype)
         if subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura then return config.raidFrameAuraFontSize or config.fontSize end
         if subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD then return config.enemyCdFontSize or config.overlayFontSize or config.fontSize end
         if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then return config.friendlyCdFontSize or config.raidFrameAuraFontSize or config.fontSize end
-        if subtype == MINIAURAS_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
         if subtype == MINIAURAS_FRAME_TYPE.Portrait then return config.portraitFontSize or config.fontSize end
         if subtype == MINIAURAS_FRAME_TYPE.Overlay then return config.overlayFontSize or config.fontSize end
         return config.fontSize
@@ -1433,9 +1488,6 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
         end
         if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then
             return config.friendlyCdHideCountdownNumbers ~= nil and config.friendlyCdHideCountdownNumbers or hideNums
-        end
-        if subtype == MINIAURAS_FRAME_TYPE.Nameplate then
-            return config.nameplateHideCountdownNumbers ~= nil and config.nameplateHideCountdownNumbers or hideNums
         end
         if subtype == MINIAURAS_FRAME_TYPE.Portrait then
             return config.portraitHideCountdownNumbers ~= nil and config.portraitHideCountdownNumbers or hideNums
@@ -1500,9 +1552,6 @@ local function GetMiniAurasHideSwipeSetting(config, subtype)
     end
     if subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD then
         return config.friendlyCdHideSwipe
-    end
-    if subtype == MINIAURAS_FRAME_TYPE.Nameplate then
-        return config.nameplateHideSwipe
     end
     if subtype == MINIAURAS_FRAME_TYPE.Portrait then
         return config.portraitHideSwipe
@@ -1631,7 +1680,6 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         if subtype == MINIAURAS_FRAME_TYPE.CC or subtype == MINIAURAS_FRAME_TYPE.RaidFrameAura
            or subtype == MINIAURAS_FRAME_TYPE.LegacyEnemyCD
            or subtype == MINIAURAS_FRAME_TYPE.LegacyFriendlyCD
-           or subtype == MINIAURAS_FRAME_TYPE.Nameplate
            or subtype == MINIAURAS_FRAME_TYPE.Portrait or subtype == MINIAURAS_FRAME_TYPE.Overlay then
             category = CATEGORY.MiniAuras
         end
@@ -1641,15 +1689,18 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     if not (MCE.db and MCE.db.profile and MCE.db.profile.categories) then return end
 
     local config = MCE.db.profile.categories[category]
-    local isAssistedCombat = (category == CATEGORY.Actionbar and self:IsAssistedCombatActionCooldown(cdFrame))
 
-    if not config or not config.enabled then
+    if not config or not MCE:IsCategoryActive(category, config) then
         if DurationColor then
             DurationColor:ClearTrackedDurationColor(cdFrame)
         end
         self:ReleaseManagedVisualState(cdFrame, category)
         return
     end
+
+    -- Resolved below the enabled guard: the release branch above never reads it,
+    -- and IsAssistedCombatActionCooldown walks the parent chain for the action ID.
+    local isAssistedCombat = (category == CATEGORY.Actionbar and self:IsAssistedCombatActionCooldown(cdFrame))
 
     local fs = self:GetFrameState(cdFrame)
     local parent = GetParentSafe(cdFrame)
@@ -1831,17 +1882,30 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         fs.forceTextRegionRefresh = nil
     end
 
-    if category == CATEGORY.Actionbar then
+    local needsActionbarTextStructure = category == CATEGORY.Actionbar
+        and (needsFullRestyle
+            or needsDeferredTextRefresh
+            or textRegionsChanged
+            or fs.actionbarTextStructureApplied ~= true)
+    if needsActionbarTextStructure then
         if not textRegions then
             textRegions, textRegionCount = self:GetCachedCooldownTextRegions(cdFrame)
         end
-        RaiseActionbarCooldownText(cdFrame, parent, textRegions, textRegionCount)
+        if RaiseActionbarCooldownText(cdFrame, parent, textRegions, textRegionCount) then
+            fs.actionbarTextStructureApplied = true
+        end
     end
 
     if needsFullRestyle then fs.styledCat = styleKey end
 
-    -- Stack count (enforced every pass)
-    self:StyleStackCount(cdFrame, config, category)
+    -- Action Button count regions and layout are structural. Blizzard owns the
+    -- displayed value, so ordinary cooldown/GCD broadcasts need no work here.
+    if category ~= CATEGORY.Actionbar
+       or needsFullRestyle
+       or needsDeferredTextRefresh
+       or fs.actionbarStackStyleApplied ~= true then
+        self:StyleStackCount(cdFrame, config, category)
+    end
 
     -- Assisted combat action: hide text
     if isAssistedCombat then
@@ -1863,8 +1927,8 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         local resolvedFont = MCE.ResolveFontPath(config.font)
         local fontSize = self:GetCooldownFontSize(cdFrame, category, config, subtype)
         local preserveFontSize = (category == CATEGORY.HealerCC)
-        -- Aura buttons draw dispel borders and third-party glows (Better-
-        -- BlizzFrames) in OVERLAY on the button itself, and their cooldowns
+        -- Aura buttons draw dispel borders and third-party glows in OVERLAY on
+        -- the button itself, and their cooldowns
         -- inherit the button frame level, so corner-anchored countdown text
         -- is covered unless it is raised to a higher sublevel.
         local raiseText = category == CATEGORY.Actionbar
@@ -1881,8 +1945,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             or category == CATEGORY.HealerCC
             or category == CATEGORY.Shackled
             or (category == CATEGORY.Unitframe and fs.unitFrameCustomAura == true))
-        local cooldownTextColor = (fs.unitFrameNativeDurationText == true
-            or fs.unitFrameThresholdColorsDisabled == true)
+        local cooldownTextColor = fs.unitFrameNativeDurationText == true
             and nil or config.textColor
         -- MiniAuras re-tints the cooldown's own countdown text from its style on
         -- every restyle pass, so MiniCE has to hold its colour there. Threshold
@@ -2004,6 +2067,9 @@ function StyleEngine:WipeState()
         if state and state.unitFrameCustomAura == true then
             preservedUnitFrameState[#preservedUnitFrameState + 1] = {
                 cooldown = cooldown,
+                managedAura = state.unitFrameManagedAura == true,
+                initializing = state.unitFrameAuraInitializing == true,
+                initialized = state.unitFrameAuraInitialized == true,
                 isMine = state.unitFrameAuraIsMine,
                 count = state.unitFrameCount,
                 countdownText = state.unitFrameCountdownText,
@@ -2011,7 +2077,6 @@ function StyleEngine:WipeState()
                 durationTextHolder = state.unitFrameDurationTextHolder,
                 nativeDurationText = state.unitFrameNativeDurationText,
                 nativeDurationTextReady = state.unitFrameNativeDurationTextReady,
-                thresholdColorsDisabled = state.unitFrameThresholdColorsDisabled,
                 textRegions = state.textRegions,
                 durationObject = state.durationObject,
             }
@@ -2054,6 +2119,9 @@ function StyleEngine:WipeState()
         frameState[preserved.cooldown] = {
             allowBlacklisted = true,
             unitFrameCustomAura = true,
+            unitFrameManagedAura = preserved.managedAura == true,
+            unitFrameAuraInitializing = preserved.initializing == true,
+            unitFrameAuraInitialized = preserved.initialized == true,
             unitFrameAuraIsMine = preserved.isMine,
             unitFrameCount = preserved.count,
             unitFrameCountdownText = preserved.countdownText,
@@ -2061,7 +2129,6 @@ function StyleEngine:WipeState()
             unitFrameDurationTextHolder = preserved.durationTextHolder,
             unitFrameNativeDurationText = preserved.nativeDurationText == true,
             unitFrameNativeDurationTextReady = preserved.nativeDurationTextReady == true,
-            unitFrameThresholdColorsDisabled = preserved.thresholdColorsDisabled == true,
             textRegions = preserved.textRegions,
             durationObject = preserved.durationObject,
         }

@@ -225,8 +225,8 @@ L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff
 L["Hide the swipe animation for this frame group (countdown text still shows)."] = "Nasconde l'animazione di scorrimento per questo gruppo di riquadri (il testo del conto alla rovescia resta visibile)."
 L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."] = "Mostra il testo del timer di cooldown solo sulle tue aure. Usa l'euristica di Blizzard per le aure grandi invece di un controllo diretto su sourceUnit."
 L["UNITFRAME_ONLY_MINE_DESC"] = "Mostra il testo del timer solo sulle aure lanciate da te. I contenitori bersaglio/focus di MiniCE per WoW 12.1 usano il filtro Giocatore di Blizzard; i riquadri di addon compatibili e legacy usano i loro metadati di gruppo o il fallback per aure grandi."
-L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "Nasconde le penalità lanciate da altri giocatori sui riquadri bersaglio e focus. MiniCE gestisce questi contenitori di aure su WoW 12.1, quindi il filtro penalità di Blizzard non li raggiunge più. Non ha effetto quando BetterBlizzFrames gestisce il contenitore."
-L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "Nasconde i benefici lanciati da altri giocatori sui riquadri bersaglio e focus. MiniCE gestisce questi contenitori di aure su WoW 12.1, quindi il filtro benefici di Blizzard non li raggiunge più. Non ha effetto quando BetterBlizzFrames gestisce il contenitore."
+L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "Nasconde le penalità lanciate da altri giocatori sui riquadri bersaglio e focus. MiniCE gestisce questi contenitori di aure su WoW 12.1, quindi il filtro penalità di Blizzard non li raggiunge più."
+L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "Nasconde i benefici lanciati da altri giocatori sui riquadri bersaglio e focus. MiniCE gestisce questi contenitori di aure su WoW 12.1, quindi il filtro benefici di Blizzard non li raggiunge più."
 L["Keeps player aura buttons fully opaque when they are close to expiring."] = "Mantiene le icone delle aure del giocatore completamente opache quando stanno per scadere."
 L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."] = "Usa un colore beneficio dedicato invece dei colori soglia del tempo rimanente quando uno slot di CooldownManager mostra temporaneamente la durata di un'aura."
 L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."] = "Applicato mentre lo slot mostra la durata dell'aura. Quando l'aura termina e lo slot torna al tempo di cooldown, i colori soglia riprendono."
@@ -260,7 +260,6 @@ L["MiniAuras text settings are grouped by module family so similar widgets share
 L["Applies to MiniAuras CC module (enemy crowd controls)."] = "Si applica al modulo CC di MiniAuras (controlli di massa nemici)."
 L["Applies to MiniAuras CC, Friendly CDs, and Friendly Indicators modules."] = "Si applica ai moduli CC, Friendly CDs e Friendly Indicators di MiniAuras."
 L["Applies to the MiniAuras Raid Frame Auras module."] = "Si applica al modulo Raid Frame Auras di MiniAuras."
-L["Applies to the MiniAuras Nameplates module."] = "Si applica al modulo Nameplates di MiniAuras."
 L["Applies to MiniAuras portrait icons."] = "Si applica alle icone dei ritratti di MiniAuras."
 L["Applies to MiniAuras Alerts, Healer CC, Kick Timer, Precognition, Trinkets, and Custom Auras modules."] = "Si applica ai moduli Alerts, Healer CC, Kick Timer, Precognition, Trinkets e Custom Auras di MiniAuras."
 L["Show sArena test frames using /sarena test."] = "Mostra i riquadri di test di sArena con /sarena test."
@@ -288,7 +287,8 @@ L["HELP_ARENADR_DESC"] = "Traccia le riduzioni progressive nemiche direttamente 
 L["Copy this link to open ArenaDR Nameplates on CurseForge."] = "Copia questo link per aprire ArenaDR Nameplates su CurseForge."
 
 -- Category Descriptions
-L["UNITFRAME_121_COMPAT_DESC"] = "WoW 12.1 limita le icone aura native di bersaglio e focus di Blizzard. Mentre questa categoria è attiva, MiniCE usa l'API supportata per i contenitori di aure personalizzati e stilizza i contenitori BetterBlizzFrames quando BBF li gestisce già."
+L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"] = "BetterBlizzFrames è attivo, quindi lo stile dei riquadri unità di MiniCE è stato disattivato per evitare possibili conflitti. Un adattatore dedicato per BetterBlizzFrames arriverà presto."
+L["BETTERBLIZZPLATES_NAMEPLATE_CONFLICT_WARNING"] = "BetterBlizzPlates è attivo, quindi lo stile delle barre dei nomi di MiniCE è stato disattivato per evitare possibili conflitti."
 L["PLAYERAURA_DESC"] = "Stilizza i cooldown di benefici e penalità del giocatore di Blizzard."
 L["HEALERCC_DESC"] = "Stilizza i cooldown degli avvisi HealerCC alleati e nemici."
 L["MYDRS_DESC"] = "Stilizza le icone di cooldown delle riduzioni progressive di MyDRs. MyDRs mantiene la propria etichetta di stato DR (50% / IMM)."

@@ -22,9 +22,12 @@ local BT4 = C.Adapter.Bartender4
 local frameState = addon.frameState
 
 local Registry
+local providerAvailable = false
 
--- Set of known BT4 parent buttons for O(1) lookup in TryClaim
-local bt4ButtonSet = {}
+-- Set of known BT4 parent buttons for O(1) lookup in TryClaim.
+-- Weak-keyed like every other per-frame table in the addon, so a button
+-- Bartender4 discards is not pinned for the rest of the session.
+local bt4ButtonSet = setmetatable({}, addon.weakMeta)
 
 local function IsEnabled()
     return MCE:IsBartender4AdapterEnabled()
@@ -61,7 +64,8 @@ local function RegisterButton(button)
 end
 
 function Adapter:InitializeBartender4()
-    return MCE:IsBartender4Available()
+    providerAvailable = MCE:IsBartender4Available()
+    return providerAvailable
 end
 
 function Adapter:OnEnable()
@@ -99,7 +103,7 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
-    if not IsEnabled() or not self:InitializeBartender4() or not cooldown or MCE:IsForbidden(cooldown) then
+    if not IsEnabled() or not providerAvailable or not cooldown or MCE:IsForbidden(cooldown) then
         return nil
     end
 

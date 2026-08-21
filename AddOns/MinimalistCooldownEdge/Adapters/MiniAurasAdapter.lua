@@ -32,7 +32,6 @@ local MINIAURAS_MODULE_TO_FRAME_TYPE = {
     ["Enemy CDs"] = MINIAURAS_FRAME_TYPE.LegacyEnemyCD,
     ["Friendly CDs"] = MINIAURAS_FRAME_TYPE.LegacyFriendlyCD,
     ["Friendly Indicators"] = MINIAURAS_FRAME_TYPE.RaidFrameAura,
-    Nameplates = MINIAURAS_FRAME_TYPE.Nameplate,
     Portraits = MINIAURAS_FRAME_TYPE.Portrait,
     ["Healer CC"] = MINIAURAS_FRAME_TYPE.Overlay,
     ["Kick Timer"] = MINIAURAS_FRAME_TYPE.Overlay,
@@ -158,10 +157,7 @@ local function GetMiniAurasContainerAndAnchor(cooldown)
     return nil, nil
 end
 
-local function ResolveMiniAurasFrameTypeFromModule(container, anchor, cooldown)
-    local moduleName = ReadMiniAurasModule(container)
-        or ReadMiniAurasModule(anchor)
-        or ReadMiniAurasModule(cooldown)
+local function ResolveMiniAurasFrameTypeFromModule(moduleName)
     if not moduleName then return nil end
     return MINIAURAS_MODULE_TO_FRAME_TYPE[moduleName]
 end
@@ -185,7 +181,13 @@ local function ResolveMiniAurasFrameType(cooldown)
 
     -- 1. Prefer MiniAuras' compatibility module tag. It covers both container
     --    implementations and remains stable when the anchor hierarchy changes.
-    local moduleFrameType = ResolveMiniAurasFrameTypeFromModule(container, anchor, cooldown)
+    -- MiniAuras Nameplate Auras (Enemy - Bar 1/2) are deliberately unsupported.
+    local moduleName = ReadMiniAurasModule(container)
+        or ReadMiniAurasModule(anchor)
+        or ReadMiniAurasModule(cooldown)
+    if moduleName == "Nameplates" then return nil end
+
+    local moduleFrameType = ResolveMiniAurasFrameTypeFromModule(moduleName)
     if moduleFrameType then
         return moduleFrameType
     end
@@ -196,9 +198,7 @@ local function ResolveMiniAurasFrameType(cooldown)
         local anchorObjT  = anchor.GetObjectType and anchor:GetObjectType() or ""
         local anchorUnit  = GetFrameUnit(anchor)
 
-        if IsNameplateContext(anchorName, anchorObjT, anchorUnit) then
-            return MINIAURAS_FRAME_TYPE.Nameplate
-        end
+        if IsNameplateContext(anchorName, anchorObjT, anchorUnit) then return nil end
         if IsUnitFrameContext(anchor) then
             return MINIAURAS_FRAME_TYPE.Portrait
         end
@@ -218,9 +218,7 @@ local function ResolveMiniAurasFrameType(cooldown)
         local relativeObjT = relativeTo.GetObjectType and relativeTo:GetObjectType() or ""
         local relativeUnit = GetFrameUnit(relativeTo)
 
-        if IsNameplateContext(relativeName, relativeObjT, relativeUnit) then
-            return MINIAURAS_FRAME_TYPE.Nameplate
-        end
+        if IsNameplateContext(relativeName, relativeObjT, relativeUnit) then return nil end
         if IsUnitFrameContext(relativeTo) then
             return MINIAURAS_FRAME_TYPE.CC
         end
@@ -710,6 +708,11 @@ local function InstallInitializationHook()
     end
 
     hooksecurefunc(cooldownAPI, "SetHideCountdownNumbers", function(cooldown, hide)
+        -- This hook sits on the shared Cooldown API, so it runs for every
+        -- cooldown in the UI. IsMiniAurasNamedFrame costs several pcalls through
+        -- GetFrameName, while the cached availability flag is a plain table
+        -- lookup: keep the walk off the path entirely without MiniAuras loaded.
+        if not MCE:IsMiniAurasAvailable() then return end
         if IsMiniAurasNamedFrame(cooldown) then
             TryStyleDuringInitialization(cooldown, hide)
         end

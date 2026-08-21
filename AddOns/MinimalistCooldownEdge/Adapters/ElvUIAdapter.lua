@@ -13,6 +13,7 @@ local CATEGORY = C.Categories
 local frameState = addon.frameState
 
 local Registry
+local providerAvailable = false
 
 local ELVUI_ADDON_NAME = "ElvUI"
 local AURA_CONTAINER_TYPES = {
@@ -337,9 +338,11 @@ end
 function Adapter:InitializeElvUI()
     RefreshModules()
     if not IsElvUILoaded() then
+        providerAvailable = false
         return false
     end
 
+    providerAvailable = true
     InstallHooks()
     return true
 end
@@ -350,9 +353,8 @@ function Adapter:OnEnable()
     Registry:RegisterAdapter(CATEGORY.Unitframe, self)
     Registry:RegisterAdapter(CATEGORY.Nameplate, self)
 
-    if not self:InitializeElvUI() then
-        self:RegisterEvent("ADDON_LOADED")
-    end
+    self:InitializeElvUI()
+    self:RegisterEvent("ADDON_LOADED")
 end
 
 function Adapter:OnDisable()
@@ -364,9 +366,7 @@ function Adapter:ADDON_LOADED(_, addonName)
         return
     end
 
-    if self:InitializeElvUI() then
-        self:UnregisterEvent("ADDON_LOADED")
-    end
+    self:InitializeElvUI()
 end
 
 function Adapter:Rebuild()
@@ -412,7 +412,7 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
-    if not IsEnabled() or not self:InitializeElvUI() or not IsCooldownFrame(cooldown) then
+    if not IsEnabled() or not providerAvailable or not IsCooldownFrame(cooldown) then
         return nil
     end
 

@@ -225,8 +225,8 @@ L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff
 L["Hide the swipe animation for this frame group (countdown text still shows)."] = "이 프레임 그룹의 스와이프 애니메이션을 숨깁니다 (카운트다운 텍스트는 계속 표시됩니다)."
 L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."] = "자신의 오라에만 쿨다운 타이머 텍스트를 표시합니다. 직접적인 sourceUnit 확인 대신 Blizzard의 큰 오라 추정 방식을 사용합니다."
 L["UNITFRAME_ONLY_MINE_DESC"] = "본인이 시전한 오라에만 타이머 텍스트를 표시합니다. WoW 12.1용 MiniCE의 대상/주시 대상 컨테이너는 Blizzard의 플레이어 필터를 사용하며, 호환 애드온 및 레거시 프레임은 그룹 메타데이터나 큰 오라 대체 방식을 사용합니다."
-L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "대상 및 주시 대상 프레임에서 다른 플레이어가 시전한 약화 효과를 숨깁니다. MiniCE가 WoW 12.1에서 이 오라 컨테이너를 관리하므로 Blizzard 자체 약화 효과 필터가 더 이상 적용되지 않습니다. BetterBlizzFrames가 컨테이너를 관리하는 동안에는 효과가 없습니다."
-L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "대상 및 주시 대상 프레임에서 다른 플레이어가 시전한 강화 효과를 숨깁니다. MiniCE가 WoW 12.1에서 이 오라 컨테이너를 관리하므로 Blizzard 자체 강화 효과 필터가 더 이상 적용되지 않습니다. BetterBlizzFrames가 컨테이너를 관리하는 동안에는 효과가 없습니다."
+L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "대상 및 주시 대상 프레임에서 다른 플레이어가 시전한 약화 효과를 숨깁니다. MiniCE가 WoW 12.1에서 이 오라 컨테이너를 관리하므로 Blizzard 자체 약화 효과 필터가 더 이상 적용되지 않습니다."
+L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "대상 및 주시 대상 프레임에서 다른 플레이어가 시전한 강화 효과를 숨깁니다. MiniCE가 WoW 12.1에서 이 오라 컨테이너를 관리하므로 Blizzard 자체 강화 효과 필터가 더 이상 적용되지 않습니다."
 L["Keeps player aura buttons fully opaque when they are close to expiring."] = "플레이어 오라 아이콘이 곧 만료될 때도 완전히 불투명하게 유지합니다."
 L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."] = "CooldownManager 슬롯이 일시적으로 오라 시간을 표시할 때 남은 시간 임계값 색상 대신 전용 강화 효과 색상을 사용합니다."
 L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."] = "슬롯이 오라 지속시간을 표시하는 동안 적용됩니다. 오라가 끝나고 슬롯이 쿨다운 시간으로 다시 전환되면 임계값 색상이 재개됩니다."
@@ -260,7 +260,6 @@ L["MiniAuras text settings are grouped by module family so similar widgets share
 L["Applies to MiniAuras CC module (enemy crowd controls)."] = "MiniAuras CC 모듈(적 군중 제어)에 적용됩니다."
 L["Applies to MiniAuras CC, Friendly CDs, and Friendly Indicators modules."] = "MiniAuras CC, Friendly CDs, Friendly Indicators 모듈에 적용됩니다."
 L["Applies to the MiniAuras Raid Frame Auras module."] = "MiniAuras Raid Frame Auras 모듈에 적용됩니다."
-L["Applies to the MiniAuras Nameplates module."] = "MiniAuras Nameplates 모듈에 적용됩니다."
 L["Applies to MiniAuras portrait icons."] = "MiniAuras 초상화 아이콘에 적용됩니다."
 L["Applies to MiniAuras Alerts, Healer CC, Kick Timer, Precognition, Trinkets, and Custom Auras modules."] = "MiniAuras Alerts, Healer CC, Kick Timer, Precognition, Trinkets, Custom Auras 모듈에 적용됩니다."
 L["Show sArena test frames using /sarena test."] = "/sarena test로 sArena 테스트 프레임을 표시합니다."
@@ -288,7 +287,8 @@ L["HELP_ARENADR_DESC"] = "투기장에서 적의 점감 효과를 이름표에 �
 L["Copy this link to open ArenaDR Nameplates on CurseForge."] = "이 링크를 복사해 CurseForge에서 ArenaDR Nameplates를 여세요."
 
 -- Category Descriptions
-L["UNITFRAME_121_COMPAT_DESC"] = "WoW 12.1은 Blizzard의 기본 대상/주시 대상 오라 아이콘을 제한합니다. 이 카테고리가 활성화된 동안 MiniCE는 지원되는 사용자 지정 오라 컨테이너 API를 사용하며, BBF가 이미 관리 중인 경우 BetterBlizzFrames 컨테이너도 꾸밉니다."
+L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"] = "BetterBlizzFrames가 활성화되어 있어 충돌 가능성을 방지하기 위해 MiniCE의 유닛 프레임 스타일링이 비활성화되었습니다. BetterBlizzFrames 전용 어댑터가 곧 제공될 예정입니다."
+L["BETTERBLIZZPLATES_NAMEPLATE_CONFLICT_WARNING"] = "BetterBlizzPlates가 활성화되어 있어 충돌 가능성을 방지하기 위해 MiniCE의 이름표 스타일링이 비활성화되었습니다."
 L["PLAYERAURA_DESC"] = "Blizzard 플레이어 강화 및 약화 효과 쿨다운을 꾸밉니다."
 L["HEALERCC_DESC"] = "아군과 적의 HealerCC 경고 쿨다운을 꾸밉니다."
 L["MYDRS_DESC"] = "MyDRs의 점감 효과 아이콘 쿨다운을 꾸밉니다. MyDRs는 자체 DR 상태 표시(50% / IMM)를 유지합니다."

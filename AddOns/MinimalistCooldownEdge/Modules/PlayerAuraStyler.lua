@@ -6,7 +6,7 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local PlayerAuraStyler = MCE:NewModule("PlayerAuraStyler", "AceEvent-3.0")
 
 local type, pcall, tostring = type, pcall, tostring
-local ipairs, pairs, select = ipairs, pairs, select
+local ipairs, pairs, select, next = ipairs, pairs, select, next
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
@@ -829,7 +829,9 @@ function PlayerAuraStyler:StyleAuraButton(button)
 end
 
 local function HookButton(button)
-    if not IsPlayerAuraButton(button) or hookedButtons[button] then
+    -- hookedButtons first: it is a single table lookup, while IsPlayerAuraButton
+    -- walks up to eight parents. Both still have to be false to proceed.
+    if hookedButtons[button] or not IsPlayerAuraButton(button) then
         return
     end
 
@@ -1235,18 +1237,31 @@ function PlayerAuraStyler:ScheduleForceUpdate()
     end)
 end
 
+-- Hoisted out of ForceUpdateAll so the sweep below does not allocate a closure
+-- on every UNIT_AURA-driven refresh.
+local function StyleKnownAuraButton(button)
+    PlayerAuraStyler:StyleAuraButton(button)
+end
+
 function PlayerAuraStyler:ForceUpdateAll()
     self:InstallMixinHooks()
-    self:HookKnownButtons()
 
     local config = GetConfig()
-    if IsConfigEnabled(config) then
-        ForEachKnownAuraButton(function(button)
-            self:StyleAuraButton(button)
-        end)
-    else
-        for button in pairs(managedButtons) do
-            RestoreButton(button)
+    local enabled = IsConfigEnabled(config)
+
+    -- UNIT_AURA drives this several times per second in combat. With the
+    -- category off and nothing left to restore, the button sweep has no
+    -- observable effect: enabling the category runs ForceUpdateAll again, and
+    -- the mixin hook installed above still reaches buttons created meanwhile.
+    if enabled or next(managedButtons) then
+        self:HookKnownButtons()
+
+        if enabled then
+            ForEachKnownAuraButton(StyleKnownAuraButton)
+        else
+            for button in pairs(managedButtons) do
+                RestoreButton(button)
+            end
         end
     end
 

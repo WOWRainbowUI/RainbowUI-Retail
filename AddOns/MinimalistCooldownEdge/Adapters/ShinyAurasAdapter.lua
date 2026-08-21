@@ -84,7 +84,8 @@ function Adapter:OnEnable()
 end
 
 function Adapter:Rebuild()
-    if not IsEnabled() or not SA_IsExternalCooldownMode() then
+    if not MCE:IsShinyAurasAvailable() or not IsEnabled()
+       or not SA_IsExternalCooldownMode() then
         return
     end
 
@@ -95,6 +96,14 @@ function Adapter:Rebuild()
 end
 
 function Adapter:TryClaim(cooldown)
+    -- SA_IsExternalCooldownMode() defaults to true when ShinyAurasDB is absent,
+    -- which is exactly the case where ShinyAuras is not installed. Without this
+    -- guard every unclaimed cooldown in the UI paid the full button walk below
+    -- for an addon that cannot own any of them.
+    if not MCE:IsShinyAurasAvailable() then
+        return nil
+    end
+
     if not IsEnabled() or not cooldown or MCE:IsForbidden(cooldown) then
         return nil
     end
