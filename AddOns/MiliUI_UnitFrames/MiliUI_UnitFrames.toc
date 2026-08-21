@@ -9,8 +9,8 @@
 ## Category-zhTW: 單位框架
 ## Category-zhCN: 头像
 ## Author: Mili
-## Version: 1.0.1
-## X-Website: https://github.com/MiliUIPackage/MiliUI_UnitFrames
+## Version: 1.1.1
+## X-Website: https://github.com/MiliUIPackage/MiliUI
 ## IconTexture: Interface\Icons\inv_pet_riverotter_red
 ## SavedVariables: MiliUI_UnitFrames_DB
 ## OptionalDeps: Clique

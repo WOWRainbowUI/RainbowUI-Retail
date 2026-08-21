@@ -60,14 +60,18 @@ local function BuildEncounterDisplays(dungeonEncounterID)
     end
 end
 
+-- ⚠ 常數表放檔案層級：下面那個迴圈每次頭像更新都跑，現配 "boss"..i 等於
+-- 每次五顆字串，而 UNIT_PORTRAIT_UPDATE 在戰鬥中會反覆來（同檔下方有註記）
+local BOSS_TOKENS = { "boss1", "boss2", "boss3", "boss4", "boss5" }
+
 -- 這個單位在遭遇戰裡對應到哪顆 displayID（nil = 沒有）
 local function EncounterDisplayFor(uf)
     if not encounterActive or #encounterDisplays == 0 then return nil end
     local idx = uf.bossIndex
     if not idx then
         -- 目標／專注：明文確定是 bossN 才套（UnitIsUnit 可能回秘密值 → 跳過）
-        for i = 1, 5 do
-            local m = UnitIsUnit(uf.unit, "boss" .. i)
+        for i = 1, #BOSS_TOKENS do
+            local m = UnitIsUnit(uf.unit, BOSS_TOKENS[i])
             if not ns.IsSecret(m) and m then idx = i; break end
         end
     end
@@ -89,16 +93,51 @@ local function RefreshEncounterFrames()
 end
 
 -- 給 /muf debug 看
+-- ⚠ 診斷用快照：ENCOUNTER_END 會清掉 encounterActive 與 encounterDisplays，
+-- 所以「打完再下 /muf debug」原本什麼都看不到 —— 而那正是唯一能好好打指令的時機。
+-- 這裡另存一份不會被清的，代價只有一張小表。
+local lastSnapshot = { active = false, n = 0, ids = "", dbg = "", when = "從未" }
+
+local function Snapshot(phase)
+    lastSnapshot.active = encounterActive
+    lastSnapshot.n = #encounterDisplays
+    lastSnapshot.ids = table.concat(encounterDisplays, ", ")
+    lastSnapshot.dbg = lastEncounterDebug
+    lastSnapshot.when = phase
+end
+
 function ns.GetEncounterDisplays()
     return encounterActive, encounterDisplays, lastEncounterDebug
+end
+
+-- 給 /muf debug 用：打完架之後仍讀得到開戰當下的狀況
+function ns.GetEncounterSnapshot()
+    return lastSnapshot
 end
 
 ns.Events.Register("ENCOUNTER_START", "portrait_ej", function(encounterID)
     encounterActive = true
     BuildEncounterDisplays(encounterID)
+    Snapshot("ENCOUNTER_START")
     RefreshEncounterFrames()
 end)
+-- ⚠⚠ **ENCOUNTER_START 那一刻 bossN 的 unit token 還不存在。**
+-- 所以那次 RefreshEncounterFrames 跑到目標框時，UnitIsUnit("target","boss1") 是 false
+-- ⇒ 解不出 displayID ⇒ 掉回一般路徑被身分閘擋下 ⇒ 空白，而且不會再有第二次機會。
+-- boss1-5 框沒事，是因為它們有 uf.bossIndex，根本不需要問 UnitIsUnit。
+--
+-- INSTANCE_ENCOUNTER_ENGAGE_UNIT 才是「boss token 可用了」的訊號，但 Core/Events.lua
+-- 的 SPECIAL 只拿它刷 boss1-5，目標／專注不在內 —— 補這一條就是補那次重試。
+--
+-- （以前會好是**巧合**：identity 還沒拆桶之前，UNIT_FLAGS／UNIT_FACTION／
+--   GROUP_ROSTER_UPDATE 這些事件都會順手全量重畫目標框，開戰後撞上一次就出現了。
+--   拆桶把那些事件收斂成只重畫該重畫的東西，那個意外的重試也就跟著消失。
+--   ——「以前是好的，哪次優化改掉的」指的就是這裡。）
+ns.Events.Register("INSTANCE_ENCOUNTER_ENGAGE_UNIT", "portrait_ej_engage", RefreshEncounterFrames)
+
 ns.Events.Register("ENCOUNTER_END", "portrait_ej_end", function()
+    -- 先拍照再清：清完就沒東西可看了
+    Snapshot("ENCOUNTER_END（清除前）")
     encounterActive = false
     wipe(encounterDisplays)
     RefreshEncounterFrames()
@@ -245,9 +284,13 @@ local function Update(uf, edb, bucket)
         if demoID and demoID > 0 then
             pcall(f.model.ClearModel, f.model)
             ok = pcall(f.model.SetDisplayInfo, f.model, demoID)
+            f.lastDisplayID, f.lastDisplaySrc = demoID, "demo"
         elseif ejID then
             pcall(f.model.ClearModel, f.model)
             ok = pcall(f.model.SetDisplayInfo, f.model, ejID)
+            -- 供 /muf debug 追「EJ 有給 ID 但畫不出來」與「根本沒拿到 ID」的差別
+            f.lastDisplayID, f.lastDisplaySrc = ejID, "EJ"
+            f.lastDisplayOK = ok
         else
             -- 可用 = 已連線且可見（EUI 的 isAvailable）。SetUnit 對載不進來的單位不會清空，
             -- 而是留上一個模型或退回預設（widget 就叫 PlayerModel，預設是玩家自己）
@@ -310,8 +353,12 @@ local function Update(uf, edb, bucket)
         return
     end
 
-    -- 明確選 2D 模式才畫 2D
-    f.model:Hide()
+    -- 明確選 2D 模式才畫 2D。
+    -- ⚠ 清空而不是 Hide：這個檔案上方立過規矩「model 永遠保持 Show，拿不到就
+    -- ClearModel()，絕不 Hide」—— 對隱藏中的 model 呼叫 SetUnit 會落空，之後
+    -- Show 出來就永久空白。清空的 model 不畫任何東西，視覺結果跟 Hide 一樣。
+    pcall(f.model.ClearModel, f.model)
+    f.modelKey = nil
     if pcall(SetPortraitTexture, f.tex2d, unit) then
         f.tex2d:Show()
     else

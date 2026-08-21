@@ -66,18 +66,25 @@ end
 
 -- force = 跳過去重（設定套用要保證畫下去，不能被同幀稍早的刷新吃掉）
 function ns.Refresh(uf, bucket, force)
-    if not force then
+    do
         local stamps = uf.paintStamps
         if not stamps then stamps = {}; uf.paintStamps = stamps end
         local gen = Gen()
-        if stamps[bucket] == gen then return end
+        -- ⚠ 只有「跳過」那一步吃 force，戳記維護**兩條路都要跑**。
+        -- 以前整段包在 `if not force` 裡，於是強制重畫既不清戳記也不留戳記：
+        -- 同幀稍早畫過的 health／info 戳記還在 ⇒ 換人之後那幾個桶當幀都被擋掉，
+        -- 血條與文字停在**上一個單位**的值。
+        if not force and stamps[bucket] == gen then return end
         -- 換人是全量重畫，不能被同幀稍早的數值重畫蓋掉 → 先清掉所有戳記
         if bucket == "unitchanged" then wipe(stamps) end
         stamps[bucket] = gen
     end
 
     if not uf.isPreview then          -- 預覽孿生的 cache 由 Preview 模組維護（全假資料）
-        ns.Cache.Update(uf, bucket)
+        -- ⚠ 這裡以前是裸呼叫，是整條 Refresh 上唯一沒有隔離的一步。Cache.Update 會碰
+        -- 受限單位的 Unit API（那些在某些情境會直接拋錯），一拋就等於這個框當次的
+        -- **所有**元件都不更新 —— 比「某個欄位讀不到」嚴重得多。
+        xpcall(ns.Cache.Update, ns.ReportError, uf, bucket)
     end
     if bucket == "unitchanged" then
         -- 只有這個桶跑所有元件：框現在看的是另一個單位，每個元件都要重接
@@ -139,7 +146,12 @@ function ns.EvalActiveUnit(uf)
             xpcall(def.setunit, ns.ReportError, uf, resolved)
         end
     end
-    ns.Refresh(uf, "unitchanged")
+    -- ⚠ force：換單位一定要畫下去。同一幀稍早只要有人跑過 unitchanged（OnShow 的
+    -- RegisterUnitWatch 重畫、顯示閘、輪詢的換人偵測都會），去重就會把這次整個吃掉
+    -- ⇒ uf.unit 已經是 "vehicle"，cache 卻還是上一個單位的（載具期間玩家框顯示
+    -- 自己的名字／職業色，而頭像已經換成載具 —— 那個「有時候好有時候壞」就是這裡）。
+    -- 換單位是新資訊，同幀稍早的任何一次重畫都不可能已經涵蓋它。
+    ns.Refresh(uf, "unitchanged", true)
 end
 
 function ns.RefreshAll(bucket)
@@ -193,12 +205,20 @@ end
 -- 一律交給 ns.Visibility.ApplyAlpha 算完再設一次，它取兩者最低。
 ------------------------------------------------------------
 function ns.ApplyFrameFade(uf)
-    local key = "range_" .. uf.unit
+    -- ⚠ key 用 baseUnit：進載具後 uf.unit 變 "vehicle"，這時若重跑 ApplySettings
+    -- 會註冊 range_vehicle，而舊的 range_player 沒人 Unbind（Unbind 只認新 key）
+    -- ⇒ 留一個孤兒項目在 metroEntries 裡繼續每 0.2 秒跑
+    local key = "range_" .. (uf.baseUnit or uf.unit)
     if uf.isPreview or not uf.db.frame.fadeOutOfRange then
         ns.Metro.Unbind(uf, key)
     else
         uf.rangeFn = uf.rangeFn or function() ns.Visibility.ApplyAlpha(uf) end
-        ns.Metro.Bind(uf, key, 0.3, uf.rangeFn)
+        -- ⚠ 距離沒有事件可訂閱（WoW 不發「距離變了」），只能輪詢 ⇒ **間隔就是延遲**。
+        -- 0.3 秒時肉眼看得出遮罩／淡出慢半拍（實測回報）。收到 0.15：
+        -- 探針是 IsSpellInRange 這種便宜的 C 呼叫，而且只掛在「有開淡出且正在顯示」
+        -- 的框上（Metro.Bind 跟著可見度上下），成本可以接受。
+        -- ⚠ Core/Range.lua 的快取 TTL 必須比這個短，否則等於沒收緊。
+        ns.Metro.Bind(uf, key, 0.15, uf.rangeFn)
     end
     -- 不管有沒有掛輪詢都要套一次：關掉淡出時要把 alpha 還原，不然會卡在半透明
     uf.appliedAlpha = nil       -- 設定可能剛改過 oorAlpha／oocAlpha，強迫重設
@@ -246,7 +266,9 @@ function ns.BuildElements(uf)
                 -- 逐一隔離：一個元件 build 炸掉，其他元件照常建
                 xpcall(def.build, ns.ReportError, uf, edb)
             elseif uf.elements[def.name] then
-                if def.disable then def.disable(uf) end
+                -- disable 也要隔離：跟上面的 build 同一個迴圈，一支拋錯會讓後面的
+                -- 元件整批不重建（而它們的設定已經被判定為「要停用」）
+                if def.disable then xpcall(def.disable, ns.ReportError, uf) end
                 uf.elements[def.name]:Hide()
             end
         end

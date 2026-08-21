@@ -94,35 +94,28 @@ local ctx = {
 -- 直接鋪在 tab 上的話，內容一長就會整段掉出面板外面
 local function Rebuild()
     local controls, specID = BuildControls()
+    -- 舊的內容框留著（frame 刪不掉），藏起來就好
     if content then content:Hide() end
-    content = CreateFrame("Frame", nil, scroll.child)
-    content:SetPoint("TOPLEFT")
-    content:SetSize(620, 1)
-    local height, r, built = Controls.Build(content, controls, ctx, 4, -4, 620)
-    rows = built
-    content:SetHeight(height + 20)
-    scroll:SetContentHeight(height + 20)
+    content, rows, refreshers = ns.Options.BuildScrollBody(scroll, controls, ctx, 620)
     scroll:SetVerticalScroll(0)
-    refreshers = r
     specSig = specID or 0
 end
 
 local function Init()
     if tab then return end
-    tab = CreateFrame("Frame", nil, ns.Options.panel)
-    tab:SetAllPoints(ns.Options.panel)
-    tab:Hide()
-
-    local title = W.CreateSectionTitle(tab, L["Resource bars"], 660)
-    title:SetPoint("TOPLEFT", 16, -14)
-
-    local holder = CreateFrame("Frame", nil, tab)
-    holder:SetPoint("TOPLEFT", 16, -44)
-    holder:SetPoint("BOTTOMRIGHT", -8, 10)
-    scroll = W.CreateScrollFrame(holder)
-
+    tab, scroll = ns.Options.MakeFormTab(L["Resource bars"])
     Rebuild()
 end
+
+-- 換設定檔時，正開著的這一頁要重整。
+-- ⚠ ctx 是現查 ns.db 所以**寫入**一直都正確，錯的是**控件顯示值** —— 那是 refresher
+-- 推上去的，而 refresher 只在 ShowOptionsTab 跑。原本只有「單位」分頁訂了這個事件，
+-- 所以停在這一頁換設定檔會看到顏色與滑桿全停在舊值，切走再切回來才對。
+ns.RegisterCallback("ProfileChanged", "resourceTabProfile", function()
+    if tab and tab:IsShown() then
+        for _, fn in ipairs(refreshers) do fn() end
+    end
+end)
 
 ns.RegisterCallback("ShowOptionsTab", "resourceTab", function(id)
     if id ~= "resource" then

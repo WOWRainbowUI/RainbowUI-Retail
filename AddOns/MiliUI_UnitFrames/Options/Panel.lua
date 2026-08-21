@@ -13,6 +13,21 @@ local Options = ns.Options
 
 local PANEL_W, PANEL_H = 700, 520
 
+-- 分頁鈕兼拖曳把手時的判定門檻（數值沿用 Options/Minimap.lua 已經調過的那組）
+local TAB_DRAG_THRESHOLD = 12
+local TAB_DRAG_DELAY     = 0.12
+
+-- 分頁鈕：74 是**下限**不是固定寬。
+-- ⚠ 按鈕的 label 只錨 CENTER、`SetWordWrap(false)`，太長不會被裁掉而是**往兩側溢出**
+-- （見 Widgets.lua 的 CreateButton 註解）。固定 74 的話德文的 "Beschwörungen"
+-- 每邊要溢出 5px，而分頁間距只有 3px ⇒ 直接啃到隔壁分頁的文字。
+-- 中日韓的標籤都短，仍然吃 74 的下限，外觀完全不變。
+-- 自適應寬度的先例：Options/Tab_Unit.lua 的元件 chip。
+local TAB_MIN_W = 74
+local TAB_H     = 22
+local TAB_GAP   = 3
+local TAB_PAD   = 20        -- 文字左右各留 10
+
 local panel
 local tabButtons = {}
 local highlightTab
@@ -43,6 +58,43 @@ local function VisibleTabs()
         if ClassAllowed(t.class) then list[#list + 1] = t end
     end
     return list
+end
+
+------------------------------------------------------------
+-- 分頁骨架（各分頁的 Init 本來逐字重複這幾段）
+--
+-- 拆成兩支是照實情走的：「一般／資源／召喚物」三頁是單純的表單，骨架完全一樣；
+-- 而 Tab_Unit（左欄選單位＋上方 chip＋逐元件面板）與 Tab_Share（多個獨立區塊、
+-- 沒有單一捲軸）只共用最外層那個蓋滿面板的 frame。硬把五頁塞進同一支會綁死版面。
+------------------------------------------------------------
+function Options.NewTabFrame()
+    local tab = CreateFrame("Frame", nil, Options.panel)
+    tab:SetAllPoints(Options.panel)
+    tab:Hide()
+    return tab
+end
+
+-- 單純表單分頁：frame ＋ 標題 ＋ 捲軸。回傳 tab, scroll
+function Options.MakeFormTab(titleText)
+    local tab = Options.NewTabFrame()
+    local title = W.CreateSectionTitle(tab, titleText, 660)
+    title:SetPoint("TOPLEFT", 16, -14)
+    local holder = CreateFrame("Frame", nil, tab)
+    holder:SetPoint("TOPLEFT", 16, -44)
+    holder:SetPoint("BOTTOMRIGHT", -8, 10)
+    return tab, W.CreateScrollFrame(holder)
+end
+
+-- 捲動內容 ＋ Controls.Build 的串接。回傳 content, rows, refreshers
+-- （rows 是給設定搜尋捲到指定那一列用的，見 Options/Search.lua）
+function Options.BuildScrollBody(scroll, controls, ctx, width)
+    local content = CreateFrame("Frame", nil, scroll.child)
+    content:SetPoint("TOPLEFT")
+    content:SetSize(width, 1)
+    local height, refreshers, rows = ns.Controls.Build(content, controls, ctx, 4, -4, width)
+    content:SetHeight(height + 20)
+    scroll:SetContentHeight(height + 20)
+    return content, rows, refreshers
 end
 
 local function SavePosition()
@@ -131,28 +183,61 @@ local function CreatePanel()
 
     -- 分頁鈕：上緣外側，一路排開，兼拖曳把手
     local prev
+    local stripW = 0
     for i, tab in ipairs(VisibleTabs()) do
-        local b = W.CreateButton(panel, tab.label, "accent-hover", 74, 22)
+        local b = W.CreateButton(panel, tab.label, "accent-hover", TAB_MIN_W, TAB_H)
         b.id = tab.id
+        -- 依實際文字寬撐開（下限 TAB_MIN_W）。要在 SetText 之後量，CreateButton 已經設好了
+        local fs = b:GetFontString()
+        local w = TAB_MIN_W
+        if fs then w = math.max(TAB_MIN_W, math.ceil(fs:GetStringWidth()) + TAB_PAD) end
+        P.Size(b, w, TAB_H)
+        stripW = stripW + w + (i > 1 and TAB_GAP or 0)
         if prev then
-            b:SetPoint("BOTTOMLEFT", prev, "BOTTOMRIGHT", 3, 0)
+            b:SetPoint("BOTTOMLEFT", prev, "BOTTOMRIGHT", TAB_GAP, 0)
         else
             b:SetPoint("BOTTOMLEFT", panel, "TOPLEFT", 0, 1)
         end
-        b:RegisterForDrag("LeftButton")
-        b:SetScript("OnDragStart", function() panel:StartMoving() end)
-        b:SetScript("OnDragStop", function()
-            panel:StopMovingOrSizing()
-            panel:SetUserPlaced(false)
-            SavePosition()
+        -- 分頁鈕同時是視窗的拖曳把手。⚠ 不能用 RegisterForDrag：滑鼠稍微一抖就被
+        -- 判定成拖曳，那一下 OnClick 就被吃掉（切分頁「點了沒反應」，觸控板最明顯）。
+        -- 照 Options/Minimap.lua 已經驗證過的做法自己量距離＋最短按住時間。
+        b:HookScript("OnMouseDown", function(self, button)
+            if button ~= "LeftButton" then return end
+            local sx, sy = GetCursorPosition()
+            local downAt = GetTime()
+            self.dragging = false
+            self:SetScript("OnUpdate", function()
+                local px, py = GetCursorPosition()
+                if not self.dragging then
+                    if not ((math.abs(px - sx) > TAB_DRAG_THRESHOLD
+                             or math.abs(py - sy) > TAB_DRAG_THRESHOLD)
+                            and GetTime() - downAt >= TAB_DRAG_DELAY) then
+                        return
+                    end
+                    self.dragging = true
+                    panel:StartMoving()
+                end
+            end)
+        end)
+        b:HookScript("OnMouseUp", function(self, button)
+            self:SetScript("OnUpdate", nil)
+            if button ~= "LeftButton" then return end
+            if self.dragging then
+                self.dragging = false
+                panel:StopMovingOrSizing()
+                panel:SetUserPlaced(false)
+                SavePosition()
+            end
         end)
         prev = b
         tabButtons[i] = b
     end
     highlightTab = W.CreateButtonGroup(tabButtons, ShowTab)
 
-    -- 搜尋框：跟標題同一列的另一端（標題在左、搜尋在右），不佔面板內部空間
-    if ns.Search then ns.Search.CreateBox(panel) end
+    -- 交給 Search.CreateBox 決定搜尋框放哪。用**累計出來的**寬度而不是回讀幾何：
+    -- 這裡每個值都是自己設下去的，沒有必要多一次 GetWidth。
+    Options.lastTabButton = prev
+    Options.tabRoom = PANEL_W - stripW - 8      -- 8 = 分頁列與搜尋框之間的間距
 
     panel:SetScript("OnHide", function()
         ns.LogClick("panel OnHide")
@@ -165,6 +250,12 @@ local function CreatePanel()
         ns.Preview.Open()
         SetCombatLocked(InCombatLockdown())   -- 戰鬥中開窗也要鎖
     end)
+
+    -- 搜尋框：跟標題同一列的另一端（標題在左、搜尋在右），不佔面板內部空間。
+    -- ⚠ 一定要排在上面兩個 SetScript **之後**：CreateBox 內部用 HookScript 掛
+    -- panel 的 OnHide 做關窗清理，先掛後 SetScript 會把它整個蓋掉 ⇒ 帶著搜尋結果
+    -- 關窗，下次開窗那串字與結果清單還在。
+    if ns.Search then ns.Search.CreateBox(panel) end
 
     ------------------------------------------------------------
     -- 戰鬥遮罩：事件掛在 panel 自己身上（隱藏的框照樣收得到事件）

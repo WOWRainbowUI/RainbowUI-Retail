@@ -148,12 +148,167 @@ end
 ------------------------------------------------------------
 -- 兩個來源取最低。用 uf.appliedAlpha 記住現值，一樣就不重設——SetAlpha 本身便宜，
 -- 但它會跟預覽的高亮 alpha 打架，能不叫就不叫。
+-- 超出距離的暗色遮罩層級。
+-- 非文字元件的預設 level 最高是 8、文字最低是 10 ⇒ 放 9 剛好把「條與頭像」蓋住、
+-- 「數字」留在上面。超出距離時最需要的資訊恰好是「他還剩多少血、要不要移動」，
+-- 那行數字不該跟著糊掉。
+-- ⚠ 使用者若把某條文字的 level 設到 9 以下，那條就會一起變暗 —— 這是可預期的，
+-- 不特別處理（level 本來就是「誰蓋誰」的唯一依據）。
+
+-- 不適合用方形遮罩的元件：改走整體 alpha。
+-- 觀察按鈕是不規則圖示（放大鏡），蓋一塊方形暗色會看出明顯的直角邊界，很不自然。
+-- 這類元件本來就不是「條」，用 alpha 淡一點反而是對的表達 —— 它不承載數值，
+-- 淡掉不會像血條那樣有「顏色被背景污染」的問題。
+local SCRIM_ALPHA_ELEMENTS = {
+    inspect = 0.8,
+}
+
+-- **完全不處理**的元件（既不遮也不淡）。
+-- 3D 頭像是使用者定案要保持原樣：模型是這個框最有辨識度的東西，蓋暗或淡掉都會
+-- 讓「他是誰」變難認，而超出距離要傳達的是「打不到」不是「看不清」。
+-- 血量數字同理，不過那個靠層級就分開了（文字 10/11 高於遮罩上限 9）。
+local NO_DIM_ELEMENTS = {
+    portrait = true,
+}
+
+local function OutOfRange(uf)
+    local fdb = uf.db and uf.db.frame
+    return fdb and fdb.fadeOutOfRange and ns.Range.IsOut(uf.unit) and true or false
+end
+
+-- 暗色層：不降 alpha，改在上面疊一層半透明黑。
+-- 降 alpha 會讓背景透出來 —— 紅血條疊在草地上變成濁褐色，而且在亮背景上甚至會
+-- 顯得更亮，語意剛好相反。疊暗色則是不管背景是什麼都一定變暗，顏色可預測，
+-- 也完全不碰 vertex color（職業色可能是秘密值，碰不得）。
+-- ⚠⚠ **不要用一個大矩形蓋整個框。**
+-- 第一版是「框架矩形 ∪ 所有露出去的元件」＝一張大方塊，結果把「什麼都沒畫」的角落
+-- 也塗黑了：目標框的觀察按鈕在 x=180 y=5（往上、往右各露 5）、魔力條往左下各露 8，
+-- union 起來就是一個四邊都比血條大一圈的黑框 —— 實測「超醜」，回報屬實。
+--
+-- 改成**每個元件各遮各的**：一個元件一張，貼合它自己的矩形，空白處自然不會被塗到。
+--
+-- 疊層怎麼處理：每張遮罩放在「它自己那個元件之上、但仍低於文字」的層級
+-- （level+3，上限 9）。於是被更高元件蓋住的元件，它的遮罩也會一起被蓋住 ——
+-- 靠既有的遮蔽關係就避開了重疊處變兩倍暗。半透明元件疊在別的元件上時仍會微微加深，
+-- 那是可接受的殘留。
+--
+-- 只收「有數字 level 且低於遮罩上限」的元件：光環容器（forbidden intrinsic，碰不得）、
+-- 文字、圖示的 edb 都沒有頂層 level，型別檢查會自動把它們排除。
+-- ⚠⚠ 遮罩要掛在**元件自己**底下，不是掛在 uf 上再用 SetAllPoints 對齊。
+-- 掛 uf 的話，元件藏起來（施法條沒在施法、頭像關掉…）遮罩還會留在原地 ——
+-- 實測就是首領框能量條下方浮著一塊莫名其妙的黑色方塊，那是**隱藏中的施法條**
+-- 的遮罩。掛成子物件之後，父層一藏子層自動跟著藏，不必自己追元件的顯示狀態
+-- （追了也會慢一拍：遮罩只在距離狀態變化時重算，施法開始／結束不會推它）。
+--
+-- 池子用元件名當鍵，元件重建時沿用同一顆。
+-- 每個元件的遮罩要抬多高（相對它自己的 level）。
+--
+-- ⚠⚠ 這張表是這整套的核心，數字不是隨便填的：
+--
+--   **往上要蓋住自己的內部零件。** 各元件內部都用 level+N 明寫過：
+--     hpbar   疊加層與溢盾框在 level+2  → 抬 3
+--     castbar 盾牌框在 lvl+4            → 抬 5
+--     mpbar   邊框在 level+1            → 只抬 1（見下）
+--
+--   **往下不能高過「壓在它上面那個元件的不透明底色」**，否則重疊處會疊成兩倍暗。
+--     mpbar 是刻意只抬 1 的：目標框 mpbar(-8,-8,200,50) 與 hpbar(0,0,200,50) 大幅重疊，
+--     而血條底色在 bgLevel 2（沒設 bgLevel 時就是血條框本身 4）。
+--     mp 遮罩放 1 ⇒ 重疊處被血條的不透明底色擋住、看不見；只有魔力條**露出血條之外**
+--     那截（左 8、下 8）才會被蓋到 —— 這正是我們要的。
+--     抬到 3 的話它會浮在血條底色之上，而血條填充是半透明的（目標框 barAlpha 0.5），
+--     於是從底下透出來跟 hpbar 的遮罩疊起來 ⇒ 一條落在 y = -8 的分隔線。
+--
+-- 只鋪一張聯集矩形也不行：形狀是各元件的聯集，左上與右下會多出空白的直角。
+local SCRIM_LIFT = {
+    hpbar   = 3,
+    castbar = 5,
+    mpbar   = 1,
+}
+-- 已知殘留（不修，記著就好）：首領框的 hpbar 沒設 bgLevel、底色就在血條框自己的
+-- level 4，而 mpbar 也是 4 ⇒ mp 遮罩(5) 會浮在血條之上。但那兩條 bar 只重疊 1 格
+-- （hpbar 到 -14、mpbar 從 -13 起），而且同層的繪製順序本來就不保證 ——
+-- 為 1px 加一套「誰蓋誰」的推導不划算。真的看得出來的話，把首領框魔力條的 y
+-- 從 -13 改成 -14（設定面板就能改）重疊就沒了。
+local DEFAULT_LIFT = 1
+
+-- 遮罩掛成該元件的子物件 ⇒ 元件一藏，遮罩自動跟著藏（施法條沒在唱時不會留黑塊）。
+local function ScrimFor(uf, name, target, level)
+    uf.oorScrims = uf.oorScrims or {}
+    local sc = uf.oorScrims[name]
+    if sc and sc:GetParent() ~= target then
+        sc:Hide()           -- frame 刪不掉，不先藏就會變成永久黑塊
+        sc = nil
+    end
+    if not sc then
+        sc = CreateFrame("Frame", nil, target)
+        sc:EnableMouse(false)
+        sc.tex = sc:CreateTexture(nil, "OVERLAY")
+        sc.tex:SetAllPoints(sc)
+        sc.tex:SetColorTexture(0, 0, 0, 1)
+        uf.oorScrims[name] = sc
+    end
+    sc:SetFrameLevel(level)
+    sc:ClearAllPoints()
+    sc:SetAllPoints(target)
+    return sc
+end
+
+-- 暗色層的開關
+local function ApplyScrim(uf)
+    local g = ns.db.global
+    local on = (g.oorStyle or "dim") == "dim" and OutOfRange(uf)
+    local strength = on and (g.oorDim or 0.35) or nil
+
+    local list = uf.oorScrims
+    if not on then
+        -- ⚠ 關閉路徑刻意不吃早退：只要有任何一條路徑讓 appliedScrim 與畫面不同步，
+        -- 遮罩就會永久卡住而且自己好不了。每次輪詢都關一次，換到「一定會恢復」。
+        uf.appliedScrim = nil
+        if list then for _, sc in pairs(list) do sc:Hide() end end
+        for name in pairs(SCRIM_ALPHA_ELEMENTS) do
+            local ef = uf.elements and uf.elements[name]
+            if ef and ef.SetAlpha then ef:SetAlpha(1) end
+        end
+        return
+    end
+
+    if uf.appliedScrim == strength then return end
+    uf.appliedScrim = strength
+
+    local els = uf.db and uf.db.elements
+    local seen = {}
+    if els then
+        for name, ef in pairs(uf.elements or {}) do
+            local edb = els[name]
+            if edb and edb.enabled ~= false and not NO_DIM_ELEMENTS[name]
+               and type(edb.level) == "number" and ef.SetPoint then
+                local fade = SCRIM_ALPHA_ELEMENTS[name]
+                if fade then
+                    ef:SetAlpha(fade)        -- 不規則圖示：走 alpha，不蓋方塊
+                else
+                    seen[name] = true
+                    local sc = ScrimFor(uf, name, ef,
+                                        edb.level + (SCRIM_LIFT[name] or DEFAULT_LIFT))
+                    sc.tex:SetAlpha(strength)
+                    sc:Show()
+                end
+            end
+        end
+    end
+    if list then
+        for name, sc in pairs(list) do
+            if not seen[name] then sc:Hide() end
+        end
+    end
+end
+
 function V.Alpha(uf)
     local fdb = uf.db and uf.db.frame
     if not fdb then return 1 end
     local g = ns.db.global
     local a = 1
-    if fdb.fadeOutOfRange and ns.Range.IsOut(uf.unit) then
+    -- 只有 fade 模式才降整框 alpha；dim 模式改走 Scrim
+    if (g.oorStyle or "dim") == "fade" and OutOfRange(uf) then
         local oor = g.oorAlpha or 0.45
         if oor < a then a = oor end
     end
@@ -166,6 +321,7 @@ end
 
 function V.ApplyAlpha(uf)
     if not uf or uf.isPreview then return end   -- 預覽的 alpha 由 Preview.Highlight 管
+    ApplyScrim(uf)
     local a = V.Alpha(uf)
     if a == uf.appliedAlpha then return end
     uf.appliedAlpha = a
@@ -187,6 +343,7 @@ function V.Refresh()
         if uf.db and uf.db.frame and uf.db.frame.fadeOutOfCombat then ooc = true end
         V.Apply(uf)
         uf.appliedAlpha = nil       -- 設定可能剛改過 oorAlpha／oocAlpha，強迫重設
+        uf.appliedScrim = nil       -- 同理：強度或元件位置可能變了，遮罩要重算外擴量
         V.ApplyAlpha(uf)
     end
     V.anyConditions, V.anyOocFade = conds, ooc

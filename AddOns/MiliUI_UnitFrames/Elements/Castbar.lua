@@ -151,8 +151,17 @@ local function ImportantTint(f, r, g, b)
     if not (f.showImportantCast and Eval and IsSpellImportant) then return r, g, b, false end
     local id = f.castSpellID
     if id == nil then return r, g, b, false end          -- nil 比較合法，值本身不碰
-    local ok, imp = pcall(IsSpellImportant, id)
-    if not (ok and imp ~= nil) then return r, g, b, false end
+    -- 同一次施法查一次就好：這支落在 10Hz 的 ticker 上，而法術在一次施法中不會變。
+    -- displayToken 每次 StartDisplay 都遞增，正好是「這一次施法」的鍵。
+    -- ⚠ 快取的值可能是秘密布林 —— 只能做 nil 比較，不能寫成 `and v or nil`
+    -- （那對「秘密的假」會塌成 nil，而秘密布林根本不能做布林測試）。
+    if f.impToken ~= f.displayToken then
+        f.impToken = f.displayToken
+        local ok, v = pcall(IsSpellImportant, id)
+        if ok and v ~= nil then f.impCached = v else f.impCached = nil end
+    end
+    local imp = f.impCached
+    if imp == nil then return r, g, b, false end
     local nr, ng, nb = EvalTriple(imp, Colors().important, r, g, b)
     return nr, ng, nb, true
 end
@@ -273,6 +282,16 @@ local function EndFade(f, color, label)
     f:Show()
 end
 
+-- 時間文字：變了才寫。SetText 每次都逼 FontString 在 C 端重排，而 %.1f 的解析度下
+-- 這串字約九成的 tick 跟上次一模一樣（10Hz ticker × 團隊七條同時唱＝每秒 70 次）。
+-- ⚠ 只有這裡能這樣做：elapsed 與 castTotal 都做過算術，所以是**明文**字串，
+-- 比較合法。秘密字串（法術名那類）絕對不能拿來比對。
+local function SetTimeText(f, text)
+    if f.__lastTime == text then return end
+    f.__lastTime = text
+    f.timeText:SetText(text)
+end
+
 local function SecretTick(f)
     if not (f.active and f.castSecret) then
         if f.ticker then f.ticker:Cancel(); f.ticker = nil end
@@ -285,12 +304,13 @@ local function SecretTick(f)
             return
         end
     else
-        if UnitCastingInfo(f.unit) == nil and UnitChannelInfo(f.unit) == nil then
+        local cu = f.castUnit or f.unit
+        if UnitCastingInfo(cu) == nil and UnitChannelInfo(cu) == nil then
             HideBar(f)
             return
         end
     end
-    f.timeText:SetText(FormatTime(f.timeFormat, elapsed, f.castTotal))
+    SetTimeText(f, FormatTime(f.timeFormat, elapsed, f.castTotal))
     ApplySecretColor(f)
 end
 
@@ -311,7 +331,7 @@ local function LegacyOnUpdate(f, dt)
     f.textAccum = (f.textAccum or 1) + dt
     if f.textAccum >= 0.05 then
         f.textAccum = 0
-        f.timeText:SetText(FormatTime(f.timeFormat, now - f.castStart, total))
+        SetTimeText(f, FormatTime(f.timeFormat, now - f.castStart, total))
         -- 斷法冷卻在跑，顏色要跟著重算（秘密模式由 SecretTick 負責）
         if f.showInterruptReady or f.showImportantCast then
             ApplyPlainColor(f, f.castNotInterruptible)
@@ -342,7 +362,7 @@ local function UpdateCastTarget(f)
         fs:SetText("")
         return
     end
-    local token = TARGET_OF[f.unit]
+    local token = TARGET_OF[f.castUnit or f.unit]
     if not token then fs:SetText(""); return end
     -- 名字本身可能是**秘密字串**（受限內容），但兩件事都合法：
     --   「對非布林型別的秘密值做布林測試」是允許的 → `UnitName(token) or ""` 沒問題
@@ -352,26 +372,41 @@ local function UpdateCastTarget(f)
     fs:SetText(name)
 end
 
-local function StartDisplay(f, castTbl, chanTbl)
-    local unit = f.unit
-    castTbl = castTbl or { UnitCastingInfo(unit) }
-    chanTbl = chanTbl or { UnitChannelInfo(unit) }
-    local isCast    = castTbl[1] ~= nil
-    local isChannel = (not isCast) and (chanTbl[1] ~= nil)
+-- ⚠ 一次呼叫、多重回傳落地，**不要配表**。這支不只吃開唱事件，還從 Update 的
+-- unitchanged 桶進來 ⇒ 每次換目標、每個有施法條的框都跑一次，而原本
+-- `{ UnitCastingInfo(unit) }` ＋ `{ UnitChannelInfo(unit) }` 是每次兩張表。
+-- 引導那組改成「不是在施法才查」：舊寫法無論如何都會呼叫兩支 API，而 chanTbl
+-- 的欄位本來就只在 not isCast 時才讀 —— 行為一樣，少一次呼叫。
+-- （原本的 castTbl/chanTbl 參數沒有任何呼叫端在用，一併拿掉。）
+local function StartDisplay(f)
+    -- ⚠ castUnit，不是 unit：載具期間這條畫的可能是「你」的施法，而框畫的是載具
+    local unit = f.castUnit or f.unit
+    -- UnitCastingInfo: name, text, texture, startMS, endMS, isTrade, castID, notInt, spellID
+    local cName, _, cTex, cS4, cS5, _, cCastID, cNotInt, cSpellID = UnitCastingInfo(unit)
+    local isCast = cName ~= nil
+
+    -- UnitChannelInfo: name, text, texture, startMS, endMS, isTrade, notInt, spellID, isEmpowered
+    -- （少了 castID 那格，所以欄位位置跟上面差一位）
+    local hName, hTex, hS4, hS5, hNotInt, hSpellID, hEmp
+    if not isCast then
+        local n, _, tex, s4, s5, _, ni, sid, emp = UnitChannelInfo(unit)
+        hName, hTex, hS4, hS5, hNotInt, hSpellID, hEmp = n, tex, s4, s5, ni, sid, emp
+    end
+    local isChannel = (not isCast) and (hName ~= nil)
     if not (isCast or isChannel) then HideBar(f); return end
 
     -- 明文旗標選欄位；值本身可能是秘密，只賦值不分支
     local name, texture, notInt, s4, s5, isEmpowered, spellID
     if isCast then
-        name, texture, notInt = castTbl[1], castTbl[3], castTbl[8]
-        s4, s5 = castTbl[4], castTbl[5]
-        spellID = castTbl[9]        -- UnitCastingInfo 第 9 個回傳
+        name, texture, notInt = cName, cTex, cNotInt
+        s4, s5 = cS4, cS5
+        spellID = cSpellID
         isEmpowered = false
     else
-        name, texture, notInt = chanTbl[1], chanTbl[3], chanTbl[7]
-        s4, s5 = chanTbl[4], chanTbl[5]
-        spellID = chanTbl[8]        -- UnitChannelInfo 第 8 個（少了 castID 那格）
-        isEmpowered = chanTbl[9] and true or false
+        name, texture, notInt = hName, hTex, hNotInt
+        s4, s5 = hS4, hS5
+        spellID = hSpellID
+        isEmpowered = hEmp and true or false
     end
 
     f.displayToken = f.displayToken + 1
@@ -379,7 +414,7 @@ local function StartDisplay(f, castTbl, chanTbl)
     f.castEmpowered = isEmpowered      -- 賦能引導自己一個底色（同 Platynator）
     f.castSpellID = spellID            -- 可能是秘密值：只轉交，永不讀
     f.castState = isChannel and 2 or 1        -- 1=施法 2=引導（FAILED 只在 1 才理會）
-    f.castGUID = isCast and castTbl[7] or nil -- UnitCastingInfo 第 7 個回傳是 castID
+    f.castGUID = isCast and cCastID or nil     -- UnitCastingInfo 第 7 個回傳是 castID
     f.castNotInterruptible = notInt
     f:SetAlpha(f.baseAlpha or 1)              -- 上一次淡出可能留下低 alpha
     f.icon:SetTexture(texture)
@@ -420,7 +455,10 @@ local function StartDisplay(f, castTbl, chanTbl)
         f.active = true
         ApplySecretColor(f)
         if not f.ticker then
-            f.ticker = C_Timer.NewTicker(0.1, function() SecretTick(f) end)
+            -- 閉包留在 f 上重複使用：ticker 每次施法結束都會 Cancel，不快取的話
+            -- 每次開唱都現配一顆（專案別處已是這個寫法，見 uf.rangeFn / metroTextsFn）
+            f.tickFn = f.tickFn or function() SecretTick(f) end
+            f.ticker = C_Timer.NewTicker(0.1, f.tickFn)
         end
         f:Show()
         return
@@ -442,7 +480,7 @@ end
 
 local function ResyncTiming(f)
     if not f.active then return end
-    local unit = f.unit
+    local unit = f.castUnit or f.unit
     if f.castSecret then
         local castName = UnitCastingInfo(unit)
         local dur, isChannel, isEmpowered
@@ -450,10 +488,10 @@ local function ResyncTiming(f)
             isChannel, isEmpowered = false, false
             if UnitCastingDuration then dur = UnitCastingDuration(unit) end
         else
-            local chanTbl = { UnitChannelInfo(unit) }
-            if chanTbl[1] == nil then return end
+            local c1, _, _, _, _, _, _, _, c9 = UnitChannelInfo(unit)
+            if c1 == nil then return end
             isChannel = true
-            isEmpowered = chanTbl[9] and true or false
+            isEmpowered = c9 and true or false
             if isEmpowered and UnitEmpoweredChannelDuration then
                 dur = UnitEmpoweredChannelDuration(unit, true)
             elseif UnitChannelDuration then
@@ -465,14 +503,17 @@ local function ResyncTiming(f)
             f.bar:SetTimerDuration(dur, nil, TimerDir(isChannel, isEmpowered))
         end
     else
-        local castName = UnitCastingInfo(unit)
+        -- 一次呼叫、多重回傳落地（原本這裡叫了三次 UnitCastingInfo，
+        -- 而 ResyncTiming 掛在 UNIT_SPELLCAST_DELAYED / CHANNEL_UPDATE 上，
+        -- 被打斷或急速變動時會連續來）
+        local castName, _, _, cs4, cs5 = UnitCastingInfo(unit)
         local s4, s5
         if castName ~= nil then
-            s4, s5 = select(4, UnitCastingInfo(unit)), select(5, UnitCastingInfo(unit))
+            s4, s5 = cs4, cs5
         else
-            local chanTbl = { UnitChannelInfo(unit) }
-            if chanTbl[1] == nil then return end
-            s4, s5 = chanTbl[4], chanTbl[5]
+            local c1, _, _, c4, c5 = UnitChannelInfo(unit)
+            if c1 == nil then return end
+            s4, s5 = c4, c5
         end
         f.castStart = (s4 or 0) / 1000
         f.castEnd   = (s5 or 0) / 1000
@@ -561,12 +602,47 @@ local function ApplyTextStyle(fs, tdb, container)
     fs.holder:SetPoint("TOPLEFT", container, "TOPLEFT", tdb.x or 0, tdb.y or 0)
 end
 
+------------------------------------------------------------
+-- 載具期間「這次施法該畫在哪一格」
+--
+-- 事件在註冊期就同時收主副 token（玩家框 player+vehicle、寵物框 pet+player），
+-- 原本的閘卻是嚴格比對 `evUnit ~= f.unit` ⇒ 玩家框被重新對應成 vehicle 之後，
+-- **用 player 這個 token 報出來的施法整個被丟掉**，而寵物框這時剛好讀 player、
+-- 就把它接走了 ——「我在開載具，施法條卻長在旁邊那個小框上」的成因。
+--
+-- 引擎在載具期間兩個 token 都會派送（/muf debug 的「載具期間的事件來源」是證據，
+-- 實測 player 與 vehicle 都有），哪個技能走哪個 token 是暴雪決定的，不該賭。規則：
+--   * 沒被重新對應（99% 的時間）：照舊，只認 f.unit
+--   * 玩家框被重新對應（在載具上）：開唱事件兩個 token 都認，並記下這次是誰在施法；
+--     其餘事件只認「正在畫的那個」，免得載具與自己同時施法時互相收條
+--   * 寵物框被重新對應（這時它畫的是你自己）：讓位、一顆都不畫，否則同一次施法會
+--     在兩個框各畫一條
+--
+-- f.castUnit（這條在畫誰的施法）跟 f.unit（框在畫誰）刻意分開：載具期間兩者可以不同，
+-- 所有讀施法 API 的地方都要用 castUnit，不然會去問一個根本沒在施法的單位。
+local START_EVENTS = {
+    UNIT_SPELLCAST_START = true,
+    UNIT_SPELLCAST_CHANNEL_START = true,
+    UNIT_SPELLCAST_EMPOWER_START = true,
+}
+
+local function AcceptCastEvent(uf, f, event, evUnit)
+    if uf.unit == uf.baseUnit then return evUnit == f.unit end
+    if uf.baseUnit == "pet" then return false end
+    if START_EVENTS[event] then
+        f.castUnit = evUnit
+        return true
+    end
+    return evUnit == (f.castUnit or f.unit)
+end
+
 local function Build(uf, edb)
     local f = uf.elements.castbar
     if not f then
         f = CreateFrame("Frame", nil, uf, "BackdropTemplate")
         f.ename = "castbar"
         f.unit = uf.unit
+        f.castUnit = uf.unit
         f.displayToken = 0
 
         f.bgTex = f:CreateTexture(nil, "BACKGROUND")
@@ -653,7 +729,7 @@ local function Build(uf, edb)
         -- 施法者中途換目標 → 施法目標文字要跟上（C4）
         RegUnit("UNIT_TARGET")
         ev:SetScript("OnEvent", function(_, event, evUnit, arg2, arg3, arg4, arg5)
-            if evUnit ~= f.unit then return end   -- f.unit 會被 setunit 換成 vehicle
+            if not AcceptCastEvent(uf, f, event, evUnit) then return end
             if not uf:IsVisible() then return end
             if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_CHANNEL_START"
                or event == "UNIT_SPELLCAST_EMPOWER_START" then
@@ -812,7 +888,12 @@ end
 -- 施法條把 unit 另外存了一份（ResyncTiming 要用），換載具時要跟著換
 local function SetUnit(uf, unit)
     local f = uf.elements.castbar
-    if f then f.unit = unit end
+    if not f then return end
+    f.unit = unit
+    f.castUnit = unit
+    -- 寵物框在載具期間畫的是你自己，施法交給玩家框（見 AcceptCastEvent）→
+    -- 換過去的當下手上若還有一條，要收掉，否則它會卡在那裡直到淡出計時跑完
+    if uf.baseUnit == "pet" and unit ~= uf.baseUnit then HideBar(f) end
 end
 
 ns.RegisterElement{
