@@ -3787,10 +3787,8 @@ local L = Locales.itIT
 L["ABSOLUTE"] = "Assoluto"
 L["ABSORB"] = "Assorbire"
 L["ABSORB_COLOR"] = "Colore dell'Assorbire"
---[[Translation missing --]]
-L["ACTIVATION"] = "Activation"
---[[Translation missing --]]
-L["ADD"] = "Add"
+L["ACTIVATION"] = "Attivazione"
+L["ADD"] = "Aggiungere"
 L["ADD_COLORS"] = "Aggiungi Colori"
 L["ALIGNMENT"] = "Allineamento"
 L["ALWAYS_ALL"] = "Sempre (tutti)"
