@@ -524,7 +524,112 @@ GTFO.SpellID["??????"] = {
 };
 ]]--
 
+GTFO.SpellID["1295796"] = {
+  --desc = "Plague Wave (Vashnik)";
+  instance = 3004;
+  encounter = 3455;
+  sound = 3;
+};
 
+GTFO.SpellID["1302489"] = {
+  --desc = "Stygian Burst (Vashnik)";
+  instance = 3004;
+  encounter = 3455;
+  sound = 3;
+};
+
+GTFO.SpellID["1305844"] = {
+  --desc = "Blast Wave (Trader Gebbo)";
+  instance = 3004;
+  encounter = 3497;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1291918"] = {
+  --desc = "Shell Spin (First Mate Nama)";
+  instance = 3004;
+  encounter = 3497;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1292388"] = {
+  --desc = "Evil Eyes (Mor'zahi)";
+  instance = 3004;
+  encounter = 3497;
+  sound = 3;
+};
+
+GTFO.SpellID["1305618"] = {
+  --desc = "Fungal Burst (Trader Gebbo)";
+  instance = 3004;
+  encounter = 3497;
+  sound = 3;
+};
+
+GTFO.SpellID["1287083"] = {
+  --desc = "Tempest (Sszorak)";
+  instance = 3004;
+  encounter = 3420;
+  applicationOnly = true;
+  sound = 3;
+  stackSound = 3;
+};
+
+GTFO.SpellID["1294605"] = {
+  --desc = "Vile Flood (Vexhul)";
+  instance = 3004;
+  encounter = 3421;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1292403"] = {
+  --desc = "Caustic Waves (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
+  applicationOnly = true;
+  sound = 3;
+  stackSound = 3;
+};
+
+GTFO.SpellID["1303414"] = {
+  --desc = "Petrifying Sting (Blightscale Viper)";
+  instance = 3004;
+  encounter = 3492;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1285017"] = {
+  --desc = "Axegrinder (Zul'jan)";
+  instance = 3004;
+  encounter = 3429;
+  sound = 1;
+  test = true; -- Verify the aura remains active only while contacting a moving axe
+};
+
+GTFO.SpellID["1302982"] = {
+  --desc = "Virulent Spit (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
+  sound = 3;
+};
+
+GTFO.SpellID["1286885"] = {
+  --desc = "Falling Debris (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
+  sound = 3;
+};
+
+GTFO.SpellID["1310738"] = {
+  --desc = "Toxic Womb (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
+  sound = 3;
+};
 
 --- *********************
 --- * Murder Row (2813) *
