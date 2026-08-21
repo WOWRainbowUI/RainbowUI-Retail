@@ -24,7 +24,7 @@ local function SetHooks()
     KT_AchievementObjectiveTracker:HookScript("OnEvent", function(self, event, ...)
         if event == "CONTENT_TRACKING_UPDATE" then
             local trackableType, _, added = ...
-            if added and trackableType == Enum.ContentTrackingType.Achievement then
+            if added and not dbChar.filterAuto[2] and trackableType == Enum.ContentTrackingType.Achievement then
                 KT:Module_Expand(self)
             end
         end

@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 8.7.2
+- CHANGED - improve auto expand tracker modules
+- FIXED (Scenario) - Spell button causes an error when entering combat
+- REVERTED - &quot;fix: taint errors (3)&quot;
 ### 8.7.1
 - ADDED - auto-close Wowhead and YouTube popups after URL copy (see Options &gt; Modules &gt; General)
 - ADDED - remove invalid tracked achievements on start

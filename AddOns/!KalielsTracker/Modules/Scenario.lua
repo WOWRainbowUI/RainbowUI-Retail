@@ -62,6 +62,19 @@ local function SetHooks()
 
     KT_ScenarioTrackerProgressBarMixin.PlayFlareAnim = function() end
 
+    function KT_ScenarioSpellButtonMixin:UpdateCooldown()
+        local cooldownInfo = C_Spell.GetSpellCooldown(self.spellID)
+        if cooldownInfo then
+            local durationObj = C_Spell.GetSpellCooldownDuration(self.spellID)
+            KT.Safe.CooldownFrame_Set(self.Cooldown, durationObj, cooldownInfo.isActive)
+            if not cooldownInfo.isEnabled then
+                self.Icon:SetVertexColor(0.4, 0.4, 0.4)
+            else
+                self.Icon:SetVertexColor(1, 1, 1)
+            end
+        end
+    end
+
     -- Blizzard_UIWidgetTemplateBase.lua
     hooksecurefunc(UIWidgetBaseScenarioHeaderTemplateMixin, "Setup", function(self, widgetInfo, widgetContainer)
         if self.KTskinID ~= KT.skinID then

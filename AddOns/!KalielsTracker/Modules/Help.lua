@@ -382,6 +382,12 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.7.2|r\n"..
+					"- CHANGED - improve auto expand tracker modules\n"..
+					"- FIXED (Scenario) - Spell button causes an error when entering combat\n"..
+					"- REVERTED - taint errors (3)\"\n"..
+					"\n")..
+
 					(cTitle.."Version 8.7.1|r\n"..
 					"- ADDED - auto-close Wowhead and YouTube popups after URL copy (see Options > Modules > General)\n"..
 					"- ADDED - remove invalid tracked achievements on start\n"..
