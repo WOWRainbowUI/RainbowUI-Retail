@@ -2172,11 +2172,11 @@ function module.options:Load()
 			item:SetScript("OnLeave",function() ELib.Tooltip:Hide() ELib.Tooltip:HideAdd() end)
 			item:SetScript("OnUpdate",function(self)
 				for j=1,#extraIconsDropdown do
-					if extraIconsDropdown[j]:IsVisible() and MouseIsOver(extraIconsDropdown[j]) then
+					if extraIconsDropdown[j]:IsVisible() and extraIconsDropdown[j]:IsMouseOver() then
 						return
 					end
 				end
-				if extraIconsDropdown[1] and extraIconsDropdown[1].main and MouseIsOver(extraIconsDropdown[1].main) then
+				if extraIconsDropdown[1] and extraIconsDropdown[1].main and extraIconsDropdown[1].main:IsMouseOver() then
 					return
 				end
 				self:Hide()

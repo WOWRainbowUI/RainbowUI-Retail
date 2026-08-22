@@ -2100,7 +2100,7 @@ function module.options:Load()
 			end
 			for i=1,#text_pos_X do
 				local obj = text_OBJ[i]
-				if MouseIsOver(obj) then
+				if obj:IsMouseOver() then
 					moveObjects[ text_GROUP[i] ] = {
 						type = 3,
 						index = i,
@@ -2415,7 +2415,7 @@ function module.options:Load()
 		end
 		for i=1,#text_pos_X do
 			local obj = text_OBJ[i]
-			if MouseIsOver(obj) then
+			if obj:IsMouseOver() then
 				groupsUnderCursor[ text_GROUP[i] ] = true
 			end
 		end

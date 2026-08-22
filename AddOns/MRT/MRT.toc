@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5320
+## Version: 5325
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 ## X-Wago-ID: 5bGoJnK0
