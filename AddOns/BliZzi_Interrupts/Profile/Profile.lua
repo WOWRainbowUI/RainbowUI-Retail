@@ -143,6 +143,7 @@ local KEY_PREFIX_CATEGORY = {
     { prefix = "piMacro",          cat = "PI_CALLER"       },
     { prefix = "partyCooldowns",   cat = "PARTY_CDS"       },
     { prefix = "defensiveOverlay", cat = "PARTY_CDS"       },
+    { prefix = "externalSound",    cat = "PARTY_CDS"       },
     { prefix = "smartMd",          cat = "SMART_MISDIRECT" },
     { prefix = "syncCd",           cat = "PARTY_CDS"       },
     { prefix = "interruptAttach",  cat = "INTERRUPTS"      },
@@ -258,6 +259,7 @@ _cat("KEYSTONE_LIST", {
     "keystoneListPosX",
     "keystoneListPosY",
     "keystoneListUseAbbreviation",
+    "keystoneListForceEnglish",
     "keystoneListShowNoPort",
     "keystoneListShowResilient",
     "keystoneListShowInParty",
@@ -302,6 +304,27 @@ local SKIP_KEYS  = { rotationIndex = true,
                      -- internal version counter for Party CD category-toggle invalidation,
                      -- bumped at runtime — meaningless on import (the import will rebuild anyway)
                      syncCdCatVer = true,
+                     -- Sibling counter for the spell-filter list, same reasoning as
+                     -- syncCdCatVer above — it was simply missed when that one was added.
+                     syncCdDisabledVer = true,
+                     -- Which settings sections are folded open. UI state, not
+                     -- configuration, and it changes without the user ever touching a
+                     -- setting: opening the settings page after an update writes a key
+                     -- for the new changelog entry. The bundle export copies every
+                     -- profile key that isn't listed here, so these silently made the
+                     -- exported string differ and UI-pack tooling then reported this
+                     -- addon as edited when nothing about it had been configured.
+                     sectionExpanded = true,
+                     -- Cached talent data of every group member ever seen, keyed by
+                     -- GUID. Pure runtime data that grows with each dungeon, so it
+                     -- changed the exported string constantly — and it is worthless to
+                     -- anyone else, since it describes players they never grouped with.
+                     syncCDCache = true,
+                     -- One-shot "already asked / already dismissed" flags. Shipping them
+                     -- would rob the importing user of a first-run prompt they never saw.
+                     _frameProviderAsked = true, interruptPreviewHintDismissed = true,
+                     -- Debug switch. Never worth shipping to someone else's client.
+                     debugMode = true,
                      -- per-character nickname lives in charDb; global nickname is account-wide
                      myCustomName = true, globalCustomName = true, useGlobalCustomName = true }
 

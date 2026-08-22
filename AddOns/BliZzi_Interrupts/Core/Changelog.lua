@@ -21,6 +21,86 @@
 BIT = BIT or {}
 BIT.CHANGELOG = {
     {
+        version = "4.2.1",
+        date    = "2026-08-11",
+        bullets = {
+            "Fixed: the keystone list showed 'no port' for every Season 2 dungeon even with the teleport learned. The stored teleport spells were the ones from the test realm, which the live patch had reassigned.",
+            "Added: /bitports prints, for each dungeon of the running season, whether its teleport is wired up correctly, and reads the right spell out of your spellbook when it is not.",
+            "Fixed: UI pack tooling reported this addon as edited when nothing had been configured. The profile export carried runtime data along with the settings, above all cached group-member talent data and which settings sections were folded open. The latter changes on its own, since opening the settings after an update records the new changelog entry. None of it is exported anymore.",
+            "Fixed: profile exports no longer carry the debug switch or one-time first-run prompts, which could be forced onto whoever imported the pack.",
+            "Fixed: the same report from a second angle. For packs shipping several profiles, merely switching specs counted as an edit, because which profile is currently active was part of the comparison. It is still exported and still applied on import, it just no longer counts as a difference.",
+        },
+    },
+    {
+        version = "4.2.0",
+        date    = "2026-08-11",
+        bullets = {
+            "Changed: Party CDs turn themselves off on patch 12.1, replacing the detection path added in 4.1.12. That version no longer lets addons read a group member's cooldowns at all, so the module would show a silently wrong picture. Your settings are kept and it returns as soon as there is a supported way to track them. Every other module is unaffected.",
+            "Fixed: keystone list. When several members carry the same dungeon key, the teleport cast animation now fills the row you clicked instead of always the topmost duplicate.",
+        },
+    },
+    {
+        version = "4.1.12",
+        date    = "2026-08-05",
+        bullets = {
+            "Added: the PvP trinket to the Party CDs (Beta, not yet fully tested), in arenas, where its cooldown comes straight from the server instead of being estimated. Its toggle sits in the spell list tab now named 'Racial / PVP Stuff'.",
+            "Added: patch 12.1 readiness. A new Party CD detection path identifies buffs directly by spell ID, dormant until the client updates to 12.1 and then activating automatically.",
+            "Fixed: the unit frame overlay now honors 'Show own cooldowns'. With the setting off, defensives no longer glow on your own frame.",
+            "Fixed: on 12.1 clients the default glow spammed errors every frame. The game removed a helper the glow libraries relied on, both now ship their own replacement.",
+            "Fixed: offensive CD alerts (including the PI caller) never detected anything. The check called an aura API that does not exist in the game and failed silently, detection now runs by spell name.",
+            "Fixed: Party CDs stayed invisible in arenas. An arena group is a raid, so frame addons bind their frames to raid slots while the tracker asked for party slots and found nothing to attach to.",
+            "Fixed: Party CDs could show in arenas while the setting was visibly off, on profiles that never stored that setting.",
+            "Fixed: a Death Knight's Anti-Magic Shell was tracked as Icebound Fortitude, putting the cooldown on the wrong spell.",
+            "Fixed: flag-twin cooldowns are now matched against talent-extended durations instead of base durations, which previously locked in the wrong spell instead of correcting it.",
+            "Fixed: absorb evidence is now also evaluated when it arrives after the buff, the reason the same cast was sometimes tracked correctly and sometimes not.",
+            "Fixed: shield detection no longer depends on reading the shield amount, which is unreadable for group members inside instances and left the check blind in Mythic+.",
+            "Fixed: the first shield seen on a group member counts as evidence again, so the first Anti-Magic Shell of a run is no longer missed.",
+        },
+    },
+    {
+        version = "4.1.11",
+        date    = "2026-07-22",
+        bullets = {
+            "Fixed: a Windwalker's Fortifying Brew no longer glows and starts the cooldown on Touch of Karma; absorb evidence now requires a measured shield gain instead of any shield activity (in dungeon combat healer shields made that always true). Same fix for the DK Anti-Magic Shell vs Icebound Fortitude pair.",
+            "Added: a 'Use class color' toggle for the Party CD glow that colors the glow in your own class color instead of the custom color.",
+            "Added: media dropdowns (sounds, textures, fonts) now have a search box for long lists and always list None at the top, so picking or clearing an entry is quicker.",
+            "Changed: all text outlines now use the game's newer SLUG text renderer, which draws noticeably crisper edges especially at small font sizes.",
+            "Added: a 'Disable crisp text' toggle under the font outline (General settings) for the rare font that renders badly with the new renderer; applies live, no reload.",
+            "Added: a 'Grow border inward' toggle (Border settings): Border Size then grows toward the centre and lays over the bar's edge with the outer footprint staying fixed, instead of expanding outward.",
+            "Fixed: the Solid border now renders the exact same pixel thickness on all four sides (pixel-perfect edges); at fractional UI scales the bottom/right edge used to come out a pixel thinner. Decorative border textures are unchanged.",
+            "Added: 'Grow border inward' toggle for Party CD icons (Party CDs border settings): the icon stays at its configured size and the border draws inward over the edge, instead of the border making the icon a pixel bigger.",
+        },
+    },
+    {
+        version = "4.1.10",
+        date    = "2026-07-16",
+        bullets = {
+            "Added: a bundle entry for the Wago UI pack installer that ships ALL profiles plus the spec assignments in one pack slot, so installing a pack restores the complete setup (e.g. Healer AND DPS/Tank) instead of a single profile; its name is set on the Profiles page (UI Pack Bundle).",
+            "Removed: the one-time interrupt-tracker-reworked pop-up, it only got in the way now (the Interrupts settings page still explains the change).",
+        },
+    },
+    {
+        version = "4.1.9",
+        date    = "2026-07-16",
+        bullets = {
+            "Fixed: a party member's successful interrupt in the open world showed as failed (red bar + failed sound) and was not recorded; it is now recognised for addon-using teammates.",
+            "Fixed: externals cast on a teammate (Pain Suppression, Blessing of Sacrifice/Protection) were never detected in Mythic+; they are now identified by measuring the buff's lifetime, so the cooldown appears when the buff ends.",
+            "Changed: Metamorphosis (Vengeance) is no longer tracked, its cooldown kept re-arming itself during a run.",
+            "Changed: Roar of Sacrifice is no longer tracked, a rarely-used talent gated pet ability that showed for every Hunter without spec data.",
+            "Fixed: successful interrupts while playing solo in the open world were always shown as failed (red bar + failed sound).",
+            "Added: party cooldowns now survive a /reload: teammates' running timers, charges and glows are restored instead of the whole group showing as ready.",
+            "Added: the group role now also proves single-DPS-spec classes without spec data: a damage-role Priest is Shadow, Paladin is Retribution, Monk is Windwalker, so their spec icons (e.g. Dispersion) appear immediately.",
+            "Fixed: Pain Suppression and Time Dilation cast on other party members are now detected in instances (their spell-DB entries lack the external flag, so the classification never matched; forced on like Ice Cold's big flag).",
+            "Changed: LibSpecialization updated to v27: re-requests group specs after logging in during an encounter and when chat restrictions lift, so spec data arrives more reliably in Mythic+.",
+            "Fixed: with two same-class members, a target-cast external is no longer credited to the one who can't cast it (Pain Suppression landed on the Shadow priest instead of the Disc priest, who then got no glow/cooldown); the caster is now narrowed by role/spec.",
+            "Changed: the saved spec cache is now bounded (drops players not seen in 45 days, capped at 3000) so it can't bloat the SavedVariables over time; no runtime impact.",
+            "Added: Keystone List 'Always use English dungeon names' toggle (Display Options); dungeon names otherwise follow your game client language.",
+            "Added: detailed glow controls shared by every glow in the addon (glow type incl. Button glow, lines, frequency, length, thickness) under Party CDs.",
+            "Added: one sound when an external defensive lands on you (Pain Suppression, Sacrifice, Ironbark, ...); no per-spell setup, fires once per received cast.",
+            "Fixed: Party CD icons no longer stay missing after a /reload mid-dungeon when the unit-frame addon builds its frames late (staggered rebuilds now catch them without needing a manual toggle).",
+        },
+    },
+    {
         version = "4.1.8",
         date    = "2026-07-12",
         bullets = {

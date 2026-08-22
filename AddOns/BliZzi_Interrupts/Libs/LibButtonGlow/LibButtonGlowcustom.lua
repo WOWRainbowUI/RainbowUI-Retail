@@ -28,7 +28,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ]]
 local MAJOR_VERSION = "LibButtonGlowcustom"
-local MINOR_VERSION = 8
+local MINOR_VERSION = 9
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
@@ -53,6 +53,33 @@ local function OverlayGlow_OnHide(self)
 	if self.animOut:IsPlaying() then
 		self.animOut:Stop()
 		OverlayGlowAnimOutFinished(self.animOut)
+	end
+end
+
+-- Patch 12.1 removed the game's global AnimateTexCoords helper, which this
+-- library used to step the marching-ants sprite sheet — every OnUpdate then
+-- died with "attempt to call a nil value". Local replacement with the same
+-- signature: advances the texture through a textureWidth x textureHeight
+-- sheet of frameWidth x frameHeight cells, one cell per `throttle` seconds.
+-- The game's own helper is preferred whenever it still exists.
+local AnimateTexCoords = AnimateTexCoords or function(texture, textureWidth, textureHeight, frameWidth, frameHeight, numFrames, elapsed, throttle)
+	if not throttle or throttle <= 0 then throttle = 0.01 end
+	if not texture.__lbgSheetCols then
+		texture.__lbgSheetCols  = math.floor(textureWidth / frameWidth)
+		texture.__lbgSheetColW  = frameWidth / textureWidth
+		texture.__lbgSheetRowH  = frameHeight / textureHeight
+		texture.__lbgSheetFrame = 0
+		texture.__lbgSheetAcc   = throttle -- paint the first cell immediately
+	end
+	texture.__lbgSheetAcc = texture.__lbgSheetAcc + elapsed
+	if texture.__lbgSheetAcc >= throttle then
+		local advance = math.floor(texture.__lbgSheetAcc / throttle)
+		texture.__lbgSheetAcc = texture.__lbgSheetAcc - advance * throttle
+		local frame = (texture.__lbgSheetFrame + advance) % numFrames
+		texture.__lbgSheetFrame = frame
+		local left = (frame % texture.__lbgSheetCols) * texture.__lbgSheetColW
+		local top  = math.floor(frame / texture.__lbgSheetCols) * texture.__lbgSheetRowH
+		texture:SetTexCoord(left, left + texture.__lbgSheetColW, top, top + texture.__lbgSheetRowH)
 	end
 end
 

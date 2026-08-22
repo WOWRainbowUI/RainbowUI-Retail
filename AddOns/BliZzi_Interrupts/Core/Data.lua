@@ -404,6 +404,8 @@ BIT.DEFAULTS = {
     readyColorG       = 1.0,
     readyColorB       = 0.2,
     fontOutline       = "OUTLINE",  -- "NONE", "OUTLINE", "THICKOUTLINE"
+    fontDisableSlug   = false,      -- drop the SLUG renderer token (workaround for fonts that render badly with it)
+    borderInward      = false,      -- true = border grows inward (outer edge fixed) instead of outward
     shadowOffsetX     = 0,
     shadowOffsetY     = 0,
     cdOffsetX         = 0,
@@ -507,6 +509,9 @@ BIT.DEFAULTS = {
     -- 0 = flush, positive = floats further out, negative = overlaps
     -- the icon's outer pixels (useful for decorative borders).
     partyCooldownsBorderOffset = 0,
+    -- true = border grows inward over the icon (keeps the icon at its set
+    -- size) instead of expanding the footprint outward.
+    partyCooldownsBorderInward = false,
     -- Border texture (edge file). Defaults to Blizzard's plain 8×8
     -- white so the user gets a solid line out of the box; Media
     -- options expose the addon's bundled decorative borders
@@ -589,10 +594,25 @@ BIT.DEFAULTS = {
     -- The style list deliberately has no "default" entry — custom
     -- off IS the default glow.
     partyCooldownsGlowCustom         = false,
-    partyCooldownsGlowStyle          = "PIXEL",
+    partyCooldownsGlowStyle          = "PIXEL",   -- PIXEL | AUTOCAST | BUTTON | PROC
     partyCooldownsGlowColorR         = 0.95,
     partyCooldownsGlowColorG         = 0.95,
     partyCooldownsGlowColorB         = 0.32,
+    partyCooldownsGlowUseClassColor  = false,  -- glow in the player's own class color
+
+    -- Detail glow-tuning knobs, shared by every glow in the addon.
+    -- Lines: dash/sparkle count. Frequency: rotation speed (negative
+    -- reverses). Length: dash length, 0 = auto. Thickness: dash width.
+    partyCooldownsGlowLines          = 8,
+    partyCooldownsGlowFrequency      = 0.25,
+    partyCooldownsGlowLength         = 0,
+    partyCooldownsGlowThickness      = 2,
+    -- External-received sound: one configurable sound played when an
+    -- external defensive (Pain Suppression, Ironbark, ...) lands on
+    -- YOU. Deduplicated by aura instance (not spell id), so it fires
+    -- once per received cast and needs no per-spell setup.
+    externalSoundEnabled             = false,
+    externalSound                    = "None",
     -- Unit-frame overlay: mirrors the currently ACTIVE defensive as an
     -- icon centered on the member's unit frame while the buff runs.
     -- On by default (26px, centered).
@@ -716,6 +736,7 @@ BIT.DEFAULTS = {
     keystoneListPosX            = 200,      -- position X (BOTTOMLEFT anchor)
     keystoneListPosY            = 400,      -- position Y (BOTTOMLEFT anchor)
     keystoneListUseAbbreviation = false,    -- show "AD" instead of "Atal'Dazar"
+    keystoneListForceEnglish    = false,    -- force English dungeon names regardless of client/addon language
     keystoneListShowNoPort      = true,     -- show "no port" text when teleport spell unknown
     keystoneListShowResilient   = true,     -- show resilient-keystone icon
     -- Per-context visibility (3.6.3 redesign — replaces the old

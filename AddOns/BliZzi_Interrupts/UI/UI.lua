@@ -1185,6 +1185,76 @@ local function ApplyBackdrop(f, path, size, r, g, b, a)
     f:SetBackdropBorderColor(r, g, b, a)
 end
 
+-- The plain "Solid" border, set by the Border Texture dropdown.
+local function _isSolidBorder()
+    return BIT.db and BIT.db.borderTextureName == "Solid"
+end
+
+-- One physical pixel expressed in the frame's own coordinate units, so a
+-- texture sized to N*onePixel renders as EXACTLY N physical pixels at any UI
+-- scale (with pixel snapping off). This is the pixel-perfect trick quality UIs
+-- use; it fixes SetBackdrop's uneven per-side edge rounding (bottom/right
+-- losing a pixel at fractional scales — the reported bug).
+local function _onePixel(frame)
+    local _, physH = GetPhysicalScreenSize()
+    if not physH or physH <= 0 then return 1 end
+    local es = frame and frame:GetEffectiveScale() or 1
+    if not es or es <= 0 then es = 1 end
+    return (768 / physH) / es
+end
+
+-- Pixel-perfect SOLID border: four edge textures each explicitly sized to the
+-- SAME physical thickness on every side, anchored INWARD from the overlay's
+-- edges (matching the SetBackdrop edgeFile direction, so inward/outward/offset
+-- positioning of the overlay is unchanged). Every edge spans the full side —
+-- corners are double-drawn, which is invisible for an opaque colour (the normal
+-- case) and avoids the inverted-rectangle glitch a corner inset would cause
+-- when a large border meets a small icon.
+local function ApplySolidEdges(overlay, size, r, g, b, a)
+    if not overlay then return end
+    if not overlay._ppEdges then
+        local e = {}
+        for _, k in ipairs({ "T", "B", "L", "R" }) do
+            local tex = overlay:CreateTexture(nil, "OVERLAY")
+            if tex.SetSnapToPixelGrid then tex:SetSnapToPixelGrid(false); tex:SetTexelSnappingBias(0) end
+            e[k] = tex
+        end
+        overlay._ppEdges = e
+    end
+    local e    = overlay._ppEdges
+    local px   = _onePixel(overlay)
+    local edge = math.max(px, math.floor((size or 1) + 0.5) * px)
+    e.T:ClearAllPoints(); e.T:SetPoint("TOPLEFT",    overlay, "TOPLEFT",    0, 0); e.T:SetPoint("TOPRIGHT",    overlay, "TOPRIGHT",    0, 0); e.T:SetHeight(edge)
+    e.B:ClearAllPoints(); e.B:SetPoint("BOTTOMLEFT", overlay, "BOTTOMLEFT", 0, 0); e.B:SetPoint("BOTTOMRIGHT", overlay, "BOTTOMRIGHT", 0, 0); e.B:SetHeight(edge)
+    e.L:ClearAllPoints(); e.L:SetPoint("TOPLEFT",    overlay, "TOPLEFT",    0, 0); e.L:SetPoint("BOTTOMLEFT",  overlay, "BOTTOMLEFT",  0, 0); e.L:SetWidth(edge)
+    e.R:ClearAllPoints(); e.R:SetPoint("TOPRIGHT",   overlay, "TOPRIGHT",   0, 0); e.R:SetPoint("BOTTOMRIGHT", overlay, "BOTTOMRIGHT", 0, 0); e.R:SetWidth(edge)
+    for _, k in ipairs({ "T", "B", "L", "R" }) do e[k]:SetColorTexture(r, g, b, a); e[k]:Show() end
+end
+
+local function HideSolidEdges(overlay)
+    if overlay and overlay._ppEdges then
+        for _, k in ipairs({ "T", "B", "L", "R" }) do overlay._ppEdges[k]:Hide() end
+    end
+end
+
+-- Border dispatch: "Solid" → pixel-perfect edges (uniform on all sides);
+-- decorative texture → Blizzard edgeFile backdrop (its per-side rounding is a
+-- client limitation, and ornate 8-piece textures can't be drawn as 4 lines);
+-- None → nothing.
+local function ApplyBorderTexture(overlay, path, size, r, g, b, a)
+    if not overlay then return end
+    if not path or path == "" then
+        HideSolidEdges(overlay)
+        ApplyBackdrop(overlay, nil, 0, 0, 0, 0, 0)
+    elseif _isSolidBorder() then
+        ApplyBackdrop(overlay, nil, 0, 0, 0, 0, 0)   -- no edgeFile beneath the edges
+        ApplySolidEdges(overlay, size, r, g, b, a)
+    else
+        HideSolidEdges(overlay)
+        ApplyBackdrop(overlay, path, size, r, g, b, a)
+    end
+end
+
 function BIT.UI:ApplyBorderToFrame(f)
     if not f then return end
     local db   = BIT.db
@@ -1207,7 +1277,15 @@ function BIT.UI:ApplyBorderToFrame(f)
     -- thickness, so users can keep a thick border close to the bar or
     -- a thin border far away.
     local offset = db.borderOffset or 0
-    local outward = math.max(0, size + offset)
+    -- Inward mode (db.borderInward): the OUTER edge stays fixed at the frame
+    -- (+offset) and the edgeSize border draws inward from there, so raising
+    -- Border Size grows the rim toward the centre and simply LAYS OVER the
+    -- bar's edge — the bar and icon keep their full size and position (the
+    -- overlay draws above the bar texture but below the text). Outward mode
+    -- (default): expand the overlay out by size+offset so the whole border
+    -- sits outside the bar.
+    local inward  = db.borderInward
+    local outward = inward and math.max(0, offset) or math.max(0, size + offset)
     -- Detached icon: when the icon has an independent size (it overhangs the
     -- bar) or a gap, bar and icon can't share one rectangle, so the bar border
     -- wraps the BAR COLUMN and the icon gets its own border. Each box is
@@ -1244,7 +1322,7 @@ function BIT.UI:ApplyBorderToFrame(f)
             bo:SetAllPoints(f)
         end
     end
-    ApplyBackdrop(bo, path, size, r, g, b, a)
+    ApplyBorderTexture(bo, path, size, r, g, b, a)
 
     -- Icon border: a separate border around the (possibly overhanging) icon,
     -- only when detached AND a border texture is set. Each box (icon + bar)
@@ -1255,15 +1333,18 @@ function BIT.UI:ApplyBorderToFrame(f)
             io:ClearAllPoints()
             io:SetPoint("TOPLEFT",     f.icon, "TOPLEFT",     -outward,  outward)
             io:SetPoint("BOTTOMRIGHT", f.icon, "BOTTOMRIGHT",  outward, -outward)
-            ApplyBackdrop(io, path, size, r, g, b, a)
+            ApplyBorderTexture(io, path, size, r, g, b, a)
         else
-            ApplyBackdrop(f.iconBorderOverlay, nil, 0, 0, 0, 0, 0)
+            ApplyBorderTexture(f.iconBorderOverlay, nil, 0, 0, 0, 0, 0)
         end
     end
 
-    -- With the outside-the-frame approach no content inset is needed;
-    -- pin the effective size to 0 so ApplyBarContentInset keeps
-    -- icon/bar flush with the frame edges (full content visible).
+    -- Content stays flush in BOTH modes (effective size 0): the bar and icon
+    -- keep their full size and position, and the inward-drawn border simply
+    -- LAYS OVER the bar's outer edge (the border overlay draws above the bar
+    -- textures but below the text, so the rim overlaps the bar while numbers
+    -- stay readable). No inset — raising Border Size must not shrink the bar
+    -- or shift the icon.
     f._effectiveBorderSize = 0
     if f._iconS and BIT.UI.ApplyBarContentInset then
         BIT.UI:ApplyBarContentInset(f)
@@ -1339,6 +1420,19 @@ function BIT.UI:ApplyBorderToAll()
     if BIT.UI.AttachedInterrupts and BIT.UI.AttachedInterrupts._ApplyBorderToAll then
         BIT.UI.AttachedInterrupts:_ApplyBorderToAll()
     end
+end
+
+-- Re-snap the pixel-perfect solid borders when the UI scale or resolution
+-- changes: their per-side thickness is computed in physical pixels, so it must
+-- be recomputed when the scale that maps UI units to pixels moves. Decorative
+-- edgeFile borders are unaffected by the re-run (harmless no-op for them).
+do
+    local watcher = CreateFrame("Frame")
+    watcher:RegisterEvent("UI_SCALE_CHANGED")
+    watcher:RegisterEvent("DISPLAY_SIZE_CHANGED")
+    watcher:SetScript("OnEvent", function()
+        if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
+    end)
 end
 
 ------------------------------------------------------------
@@ -2533,14 +2627,14 @@ local function BuildRotationPanel()
 
             -- position number
             f.posLabel = f:CreateFontString(nil, "OVERLAY")
-            f.posLabel:SetFont(STANDARD_TEXT_FONT, 11, "OUTLINE")
+            f.posLabel:SetFont(STANDARD_TEXT_FONT, 11, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             f.posLabel:SetPoint("LEFT", f, "LEFT", 10, 0)
             f.posLabel:SetWidth(18)
             f.posLabel:SetJustifyH("RIGHT")
 
             -- player name
             f.nm = f:CreateFontString(nil, "OVERLAY")
-            f.nm:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
+            f.nm:SetFont(STANDARD_TEXT_FONT, 12, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             f.nm:SetPoint("LEFT", f, "LEFT", 34, 0)
             f.nm:SetWidth(PANEL_W - 34 - 58)
             f.nm:SetJustifyH("LEFT")
@@ -2554,7 +2648,7 @@ local function BuildRotationPanel()
             f.upBtn.tex:SetAllPoints()
             f.upBtn.tex:SetColorTexture(0.25, 0.25, 0.25, 1)
             f.upBtn.lbl = f.upBtn:CreateFontString(nil, "OVERLAY")
-            f.upBtn.lbl:SetFont(STANDARD_TEXT_FONT, 13, "OUTLINE")
+            f.upBtn.lbl:SetFont(STANDARD_TEXT_FONT, 13, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             f.upBtn.lbl:SetAllPoints()
             f.upBtn.lbl:SetJustifyH("CENTER")
             f.upBtn.lbl:SetText("|cFFCCCCCC^|r")
@@ -2569,7 +2663,7 @@ local function BuildRotationPanel()
             f.downBtn.tex:SetAllPoints()
             f.downBtn.tex:SetColorTexture(0.25, 0.25, 0.25, 1)
             f.downBtn.lbl = f.downBtn:CreateFontString(nil, "OVERLAY")
-            f.downBtn.lbl:SetFont(STANDARD_TEXT_FONT, 13, "OUTLINE")
+            f.downBtn.lbl:SetFont(STANDARD_TEXT_FONT, 13, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             f.downBtn.lbl:SetAllPoints()
             f.downBtn.lbl:SetJustifyH("CENTER")
             f.downBtn.lbl:SetText("|cFFCCCCCCv|r")
@@ -2676,7 +2770,7 @@ function BIT.UI:ShowRotationPanel()
 
         -- Title
         local title = rotationPanel:CreateFontString(nil, "OVERLAY")
-        title:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
+        title:SetFont(STANDARD_TEXT_FONT, 14, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
         title:SetText("|cFF00DDDD" .. (BIT.L["ROT_TITLE"] or "Kick Rotation") .. "|r")
         title:SetPoint("TOP", rotationPanel, "TOP", 0, -(HDR_H / 2) + 6)
 
@@ -2685,7 +2779,7 @@ function BIT.UI:ShowRotationPanel()
         closeBtn:SetSize(20, 20)
         closeBtn:SetPoint("TOPRIGHT", rotationPanel, "TOPRIGHT", -4, -4)
         local closeTex = closeBtn:CreateFontString(nil, "OVERLAY")
-        closeTex:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
+        closeTex:SetFont(STANDARD_TEXT_FONT, 14, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
         closeTex:SetText("|cFFFF4444x|r")
         closeTex:SetAllPoints()
         closeTex:SetJustifyH("CENTER")
@@ -2715,7 +2809,7 @@ function BIT.UI:ShowRotationPanel()
             btn.border = border
 
             local lbl = btn:CreateFontString(nil, "OVERLAY")
-            lbl:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
+            lbl:SetFont(STANDARD_TEXT_FONT, 12, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             lbl:SetText("|cFF00DDDD" .. label .. "|r")
             lbl:SetAllPoints()
             lbl:SetJustifyH("CENTER")
@@ -3029,7 +3123,7 @@ local function AI_BuildOrUpdateIcon(unit, memberName)
     if BIT.Media and BIT.Media.SetFont then
         BIT.Media:SetFont(f.text, cSz)
     else
-        f.text:SetFont(STANDARD_TEXT_FONT, cSz, "OUTLINE")
+        f.text:SetFont(STANDARD_TEXT_FONT, cSz, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
     end
     f.text:SetTextColor(1, 1, 1)
 

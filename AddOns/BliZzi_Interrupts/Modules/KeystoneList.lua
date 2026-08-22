@@ -86,8 +86,8 @@ local DUNGEON_INFO = {
     [245] = { abbr = "FH",  port = 410071  }, -- Freehold
     [247] = { abbr = "ML",  port = { 467553, 467555 } }, -- The MOTHERLODE!! (A/H)
     [248] = { abbr = "WM",  port = 424167  }, -- Waycrest Manor
-    [249] = { abbr = "KR",  port = 1289778 }, -- Kings' Rest (returns in Midnight S2; teleport added 12.1)
-    [250] = { abbr = "ToS", port = 1289782 }, -- Temple of Sethraliss (returns in Midnight S2; teleport added 12.1)
+    [249] = { abbr = "KR",  port = 1286831 }, -- Kings' Rest (returns in Midnight S2; teleport added 12.1)
+    [250] = { abbr = "ToS", port = 1286828 }, -- Temple of Sethraliss (returns in Midnight S2; teleport added 12.1)
     [251] = { abbr = "UNDR", port = 410074 }, -- The Underrot
     [353] = { abbr = "SoB", port = { 445418, 464256 } }, -- Siege of Boralus (A/H)
     [370] = { abbr = "WS",  port = 373274  }, -- Operation: Mechagon - Workshop
@@ -138,11 +138,11 @@ local DUNGEON_INFO = {
 
     -- Midnight Season 2 (patch 12.1). Added ahead of the patch so the
     -- list works on day one; teleports are the 12.1 Keystone Hero spells.
-    [584] = { abbr = "BV",  port = 1289776 }, -- The Blinding Vale
-    [585] = { abbr = "VA",  port = 1289777 }, -- Voidscar Arena
-    [586] = { abbr = "DoN", port = 1289773 }, -- Den of Nalorakk
-    [587] = { abbr = "MR",  port = 1289775 }, -- Murder Row
-    [588] = { abbr = "AoF", port = 1289772 }, -- Altar of Fangs (new dungeon in 12.1)
+    [584] = { abbr = "BV",  port = 1286801 }, -- The Blinding Vale
+    [585] = { abbr = "VA",  port = 1286804 }, -- Voidscar Arena
+    [586] = { abbr = "DoN", port = 1286807 }, -- Den of Nalorakk
+    [587] = { abbr = "MR",  port = 1286809 }, -- Murder Row
+    [588] = { abbr = "AoF", port = 1286812 }, -- Altar of Fangs (new dungeon in 12.1)
 }
 
 -- Midnight Season 2 rotation (goes live with 12.1). The test layout
@@ -275,10 +275,85 @@ local function getDungeonPort(challengeMapID)
     return port
 end
 
+-- English dungeon names by challengeMapID. C_ChallengeMode.GetMapUIInfo
+-- already returns the CLIENT-language name (so German clients see German
+-- names automatically) — this table exists only for the "Always use
+-- English dungeon names" toggle, so a player on a non-English client can
+-- force the English names they know from guides / LFG. Keep in sync with
+-- DUNGEON_INFO; a missing entry falls back to the localized API name.
+local DUNGEON_NAMES_EN = {
+    [438] = "Vortex Pinnacle",
+    [456] = "Throne of the Tides",
+    [507] = "Grim Batol",
+    [2]   = "Temple of the Jade Serpent",
+    [161] = "Skyreach",
+    [165] = "Shadowmoon Burial Grounds",
+    [168] = "The Everbloom",
+    [198] = "Darkheart Thicket",
+    [199] = "Black Rook Hold",
+    [200] = "Halls of Valor",
+    [206] = "Neltharion's Lair",
+    [210] = "Court of Stars",
+    [239] = "Seat of the Triumvirate",
+    [244] = "Atal'Dazar",
+    [245] = "Freehold",
+    [247] = "The MOTHERLODE!!",
+    [248] = "Waycrest Manor",
+    [249] = "Kings' Rest",
+    [250] = "Temple of Sethraliss",
+    [251] = "The Underrot",
+    [353] = "Siege of Boralus",
+    [370] = "Operation: Mechagon - Workshop",
+    [375] = "Mists of Tirna Scithe",
+    [376] = "The Necrotic Wake",
+    [378] = "Halls of Atonement",
+    [382] = "Theater of Pain",
+    [391] = "Tazavesh: Streets of Wonder",
+    [392] = "Tazavesh: So'leah's Gambit",
+    [399] = "Ruby Life Pools",
+    [400] = "The Nokhud Offensive",
+    [401] = "The Azure Vault",
+    [402] = "Algeth'ar Academy",
+    [403] = "Uldaman: Legacy of Tyr",
+    [404] = "Neltharus",
+    [405] = "Brackenhide Hollow",
+    [406] = "Halls of Infusion",
+    [463] = "Dawn of the Infinite: Galakrond's Fall",
+    [464] = "Dawn of the Infinite: Murozond's Rise",
+    [499] = "Priory of the Sacred Flame",
+    [500] = "The Rookery",
+    [501] = "The Stonevault",
+    [502] = "City of Threads",
+    [503] = "Ara-Kara, City of Echoes",
+    [504] = "Darkflame Cleft",
+    [505] = "The Dawnbreaker",
+    [506] = "Cinderbrew Meadery",
+    [525] = "Operation: Floodgate",
+    [542] = "Eco-Dome Al'dani",
+    [556] = "Pit of Saron",
+    [557] = "Windrunner Spire",
+    [558] = "Magisters' Terrace",
+    [559] = "Nexus-Point Xenas",
+    [560] = "Maisara Caverns",
+    [583] = "Seat of the Triumvirate",
+    [584] = "The Blinding Vale",
+    [585] = "Voidscar Arena",
+    [586] = "Den of Nalorakk",
+    [587] = "Murder Row",
+    [588] = "Altar of Fangs",
+}
+
 local function getDungeonName(challengeMapID, useAbbr)
     if useAbbr then
         local info = DUNGEON_INFO[challengeMapID]
         if info and info.abbr then return info.abbr end
+    end
+    -- Force English full names regardless of client/addon language.
+    if BIT.db and BIT.db.keystoneListForceEnglish then
+        local en = DUNGEON_NAMES_EN[challengeMapID]
+        if en then return en end
+        -- No hardcoded name (e.g. a future dungeon) → fall through to
+        -- the localized API name below rather than showing nothing.
     end
     if C_ChallengeMode and C_ChallengeMode.GetMapUIInfo then
         local name = C_ChallengeMode.GetMapUIInfo(challengeMapID)
@@ -378,7 +453,14 @@ local function applyConfiguredFont(fs, size)
     if not fs then return end
     local path    = (BIT.db and BIT.db.fontPath) or _G.STANDARD_TEXT_FONT
     local outline = (BIT.db and BIT.db.fontOutline) or "OUTLINE"
-    if outline == "NONE" then outline = "" end
+    -- SLUG = the client's newer GPU text renderer (crisper outlines);
+    -- mirrors the flag composition in Core/Media.lua (respects the
+    -- "Disable crisp text" toggle via the shared slugSuffix).
+    if outline == "NONE" then
+        outline = ""
+    else
+        outline = outline .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")
+    end
     pcall(fs.SetFont, fs, path, size, outline)
 end
 
@@ -811,6 +893,15 @@ local function sendPortCdAnnouncement(mapID, level, remainSec)
     pcall(SendChatMessage, msg, channel)
 end
 
+-- Which row the player last CLICKED to teleport, and when. The cast-
+-- progress animation prefers this row over a spell-ID search: several
+-- group members can carry the SAME dungeon key, and every one of those
+-- rows shares one teleport spell — a search by spell ID alone always
+-- lands on the topmost duplicate (live report: clicking the bottom row
+-- animated the top one). Declared here so both the click hook below and
+-- _startCastAnimation further down close over the same locals.
+local _lastClickedCastRow, _lastClickedCastAt
+
 local function ensureHoverButton()
     if hoverButton then return hoverButton end
     -- Parent the hover button to the keystone list frame, NOT to UIParent.
@@ -846,6 +937,11 @@ local function ensureHoverButton()
     -- ports + posts; clicking someone else's row attempts the cast
     -- (which silently fails if you don't know that port spell) + posts.
     btn:HookScript("OnClick", function(self)
+        -- Remember the clicked ROW for the cast animation — before any
+        -- early return below, and regardless of whether the cast will
+        -- succeed (fires on both AnyDown and AnyUp; identical values).
+        _lastClickedCastRow = self._currentRow
+        _lastClickedCastAt  = GetTime()
         local mapID = self._currentMapID
         local level = self._currentLevel
         if not mapID then return end
@@ -872,7 +968,7 @@ end
 -- SetAttribute() during InCombatLockdown is the canonical taint trigger
 -- that ends up attributed to the addon when the user opens the game
 -- menu later (ClearTarget call path goes through tainted code).
-local function attachHoverToRow(target, keystone)
+local function attachHoverToRow(target, keystone, row)
     if not target or not keystone then return end
     if InCombatLockdown() then return end
     if not keystone.challengeMapID then return end
@@ -888,6 +984,10 @@ local function attachHoverToRow(target, keystone)
     -- is re-used across rows.
     btn._currentMapID         = keystone.challengeMapID
     btn._currentLevel         = keystone.keystoneLevel
+    -- The ROW under the button, for the cast animation's clicked-row
+    -- preference (duplicate keys of the same dungeon share one teleport
+    -- spell, so a spell-ID search alone can't tell the rows apart).
+    btn._currentRow           = row
     -- Owner identification for shift-click post. _currentIsOwn picks
     -- the right template (own vs other-player) and the display name
     -- becomes the {player} substitution when posting another player's
@@ -932,7 +1032,25 @@ local function _findRowForCastSpell(spellID)
 end
 
 local function _startCastAnimation(spellID)
-    local row = _findRowForCastSpell(spellID)
+    -- Prefer the row the player actually CLICKED. Only trusted when the
+    -- click was moments ago, the row is still on screen, and its dungeon's
+    -- teleport really is the spell being cast — a recycled row that shows
+    -- a different dungeon by now fails the port check and falls through.
+    -- The fallback search keeps casts started OUTSIDE the list (spellbook,
+    -- cooldown manager) animating like before; with duplicates those can
+    -- only ever pick the first row, since the spell doesn't say whose key.
+    local row
+    local clicked = _lastClickedCastRow
+    if clicked and _lastClickedCastAt
+       and (GetTime() - _lastClickedCastAt) <= 1.5
+       and clicked._mapID and clicked:IsShown() then
+        local portID = getDungeonPort(clicked._mapID)
+        if portID then
+            local ok, isMatch = pcall(function() return spellID == portID end)
+            if ok and isMatch then row = clicked end
+        end
+    end
+    row = row or _findRowForCastSpell(spellID)
     if not row then return end
     -- UnitCastingInfo returns milliseconds. Divide to align with GetTime().
     local _, _, _, startMs, endMs = UnitCastingInfo("player")
@@ -1384,7 +1502,7 @@ local function configureRow(row, keystone)
                     displayName    = row._displayName,
                     isResilient    = row._displayIsResilient,
                 }
-                attachHoverToRow(self, synthetic)
+                attachHoverToRow(self, synthetic, row)
             end
             if status == "ready" then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -3145,4 +3263,104 @@ do
             end)
         end
     end)
+end
+
+------------------------------------------------------------
+-- /bitports — teleport wiring report
+--
+-- Every season rotates the dungeon pool, and Blizzard hands out the new
+-- teleport spells in a consecutive block that is usually assigned on the
+-- PTR and re-assigned before the patch ships. A stale ID looks exactly
+-- like "you don't own the teleport": getDungeonPort finds an entry,
+-- knownSpell says no, the row renders as "no port" for someone who is
+-- standing there with the teleport on their bars.
+--
+-- This walks the CURRENT season's dungeon list, shows what we have wired
+-- up for each and whether it resolves, and — the part that saves the
+-- guesswork — searches the player's own spellbook for the teleport that
+-- belongs to that dungeon and prints its real spell ID. Whatever it
+-- reports under FIX is what belongs in DUNGEON_INFO.
+--
+-- Lives here rather than in a chat one-liner because the chat box cuts
+-- input at 255 characters, which silently truncates anything long enough
+-- to do this job.
+------------------------------------------------------------
+SLASH_BITPORTS1 = "/bitports"
+SlashCmdList["BITPORTS"] = function()
+    local function C(hex, s) return "|cff" .. hex .. tostring(s) .. "|r" end
+    print(C("0091ed", "BliZzi") .. " " .. C("ffa300", "Party Tools")
+          .. " " .. C("aaaaaa", "[teleport report]") .. " ─────────────")
+
+    -- Snapshot the player's spellbook once: { name = spellID }.
+    local book = {}
+    if C_SpellBook and C_SpellBook.GetNumSpellBookSkillLines then
+        local okN, lineCount = pcall(C_SpellBook.GetNumSpellBookSkillLines)
+        for i = 1, (okN and lineCount or 0) do
+            local okL, line = pcall(C_SpellBook.GetSpellBookSkillLineInfo, i)
+            if okL and line and line.itemIndexOffset and line.numSpellBookItems then
+                for j = line.itemIndexOffset + 1,
+                        line.itemIndexOffset + line.numSpellBookItems do
+                    local okI, item = pcall(C_SpellBook.GetSpellBookItemInfo, j,
+                                            Enum.SpellBookSpellBank.Player)
+                    if okI and item and item.name and item.spellID then
+                        book[#book + 1] = { name = item.name, id = item.spellID }
+                    end
+                end
+            end
+        end
+    end
+    print(("  spellbook entries scanned: %d"):format(#book))
+
+    -- Find a known spell whose name contains the dungeon's name (or vice
+    -- versa). Locale-proof: both sides come from the running client.
+    local function findTeleport(dungeonName)
+        if not dungeonName or dungeonName == "" then return nil end
+        local needle = dungeonName:lower()
+        for _, s in ipairs(book) do
+            local hay = s.name:lower()
+            if hay:find(needle, 1, true) or needle:find(hay, 1, true) then
+                return s.id, s.name
+            end
+        end
+    end
+
+    local okM, maps = pcall(C_ChallengeMode.GetMapTable)
+    if not okM or type(maps) ~= "table" or #maps == 0 then
+        print(C("ff8888", "  C_ChallengeMode.GetMapTable returned nothing — run this while logged in, outside a loading screen."))
+        return
+    end
+
+    local broken = 0
+    for _, mapID in ipairs(maps) do
+        local okU, mapName = pcall(C_ChallengeMode.GetMapUIInfo, mapID)
+        mapName = (okU and mapName) or "?"
+        local wired  = getDungeonPort(mapID)
+        local known  = wired and knownSpell(wired) or false
+        local wiredName
+        if wired and C_Spell and C_Spell.GetSpellName then
+            local okS, n = pcall(C_Spell.GetSpellName, wired)
+            wiredName = okS and n or nil
+        end
+
+        local state
+        if not wired then          state = C("ff8888", "NOT IN TABLE")
+        elseif known then          state = C("88ffaa", "ok")
+        elseif not wiredName then  state = C("ff8888", "ID INVALID")
+        else                       state = C("ffcc44", "not known to you") end
+
+        print(("  [%d] %-28s %s  wired=%s %s"):format(
+            mapID, mapName, state, tostring(wired), wiredName and ("(" .. wiredName .. ")") or ""))
+
+        if not known then
+            broken = broken + 1
+            local realID, realName = findTeleport(mapName)
+            if realID then
+                print("        " .. C("88ffaa", "FIX") .. (" → [%d] = %d  -- %s")
+                      :format(mapID, realID, realName))
+            else
+                print("        " .. C("aaaaaa", "no matching teleport in your spellbook (you may not own it)"))
+            end
+        end
+    end
+    print(("  %d of %d dungeons have no working teleport."):format(broken, #maps))
 end

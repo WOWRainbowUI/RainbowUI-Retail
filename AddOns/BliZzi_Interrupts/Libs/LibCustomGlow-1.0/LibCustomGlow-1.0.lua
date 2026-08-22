@@ -6,7 +6,7 @@ https://www.wowace.com/projects/libbuttonglow-1-0
 -- luacheck: globals CreateFromMixins ObjectPoolMixin CreateTexturePool CreateFramePool
 
 local MAJOR_VERSION = "LibCustomGlow-1.0"
-local MINOR_VERSION = 24
+local MINOR_VERSION = 25
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
@@ -541,6 +541,30 @@ local function bgHide(self)
     if self.animOut:IsPlaying() then
         self.animOut:Stop()
         ButtonGlowPool:Release(self)
+    end
+end
+
+-- Patch 12.1 removed the game's global AnimateTexCoords helper (marching-
+-- ants sprite stepping for the button glow). Same-signature local fallback;
+-- the game's own helper is preferred whenever it still exists.
+local AnimateTexCoords = AnimateTexCoords or function(texture, textureWidth, textureHeight, frameWidth, frameHeight, numFrames, elapsed, throttle)
+    if not throttle or throttle <= 0 then throttle = 0.01 end
+    if not texture.__lcgSheetCols then
+        texture.__lcgSheetCols  = math.floor(textureWidth / frameWidth)
+        texture.__lcgSheetColW  = frameWidth / textureWidth
+        texture.__lcgSheetRowH  = frameHeight / textureHeight
+        texture.__lcgSheetFrame = 0
+        texture.__lcgSheetAcc   = throttle -- paint the first cell immediately
+    end
+    texture.__lcgSheetAcc = texture.__lcgSheetAcc + elapsed
+    if texture.__lcgSheetAcc >= throttle then
+        local advance = math.floor(texture.__lcgSheetAcc / throttle)
+        texture.__lcgSheetAcc = texture.__lcgSheetAcc - advance * throttle
+        local frame = (texture.__lcgSheetFrame + advance) % numFrames
+        texture.__lcgSheetFrame = frame
+        local left = (frame % texture.__lcgSheetCols) * texture.__lcgSheetColW
+        local top  = math.floor(frame / texture.__lcgSheetCols) * texture.__lcgSheetRowH
+        texture:SetTexCoord(left, left + texture.__lcgSheetColW, top, top + texture.__lcgSheetRowH)
     end
 end
 

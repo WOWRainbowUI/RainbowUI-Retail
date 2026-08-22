@@ -22,8 +22,8 @@
       • Border color picker (used only when BORDER / BOTH)
 
     Detection runs off the same UNIT_AURA pipeline that BIT.SyncCD uses,
-    but with a dedicated lightweight aura check (GetAuraDataBySpellID per
-    tracked spell) so it doesn't add noise to the SyncCD scan path.
+    but with a dedicated lightweight per-spell presence check (shared
+    ProbeAuraPresence) so it doesn't add noise to the SyncCD scan path.
 ]]
 
 BIT                  = BIT or {}
@@ -206,12 +206,21 @@ end
 -- avoids walking the unit's full HELPFUL aura ring.
 local function FindActiveOffensiveCD(unit)
     local choices = BIT.db and BIT.db.offensiveCDAlertSpells or {}
+    -- Presence lookup shared with the Party CDs module. The check that
+    -- lived here before called C_UnitAuras.GetAuraDataBySpellID — an API
+    -- that does not exist for unit tokens (the by-ID variant is player-
+    -- only), so the pcall failed on EVERY call and this alert silently
+    -- never detected anything. The shared probe answers via
+    -- GetPlayerAuraBySpellID for the player and GetAuraDataBySpellName
+    -- for party members. Resolved at call time, so load order is moot.
+    local pcd = BIT.PartyCooldowns
+    if not (pcd and pcd.ProbeAuraPresence) then return nil end
     for sid, def in pairs(SPELLS) do
         local enabled = choices[sid]
         if enabled == nil then enabled = def.default end
         if enabled then
-            local ok, ad = pcall(C_UnitAuras.GetAuraDataBySpellID, unit, sid, "HELPFUL")
-            if ok and ad and ad.auraInstanceID then
+            local isPresent = pcd:ProbeAuraPresence(unit, sid)
+            if isPresent then
                 return sid
             end
         end

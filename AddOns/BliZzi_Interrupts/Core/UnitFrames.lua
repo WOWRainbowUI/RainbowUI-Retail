@@ -159,18 +159,47 @@ local function GetFrameUnit(btn)
     return u
 end
 
+-- Does a frame's bound unit refer to the same player we're looking for?
+--
+-- A plain string compare is the fast path and covers the ordinary party
+-- case, where a header child bound to "party2" is exactly what we asked
+-- for. It is NOT enough in an arena: the group there is a RAID, so frame
+-- providers bind their buttons to raid1..raid5 while this module asks for
+-- party1..party4. The tokens name the same player and the compare still
+-- failed, which left every teammate without an anchor and silently hid
+-- their icons (live report: nothing shown in arena, frame=<nil>).
+--
+-- UnitIsUnit() would resolve the alias but stays unusable here for the
+-- reason documented on GetFrameUnit: in 12.x it can hand back a tainted
+-- boolean that throws the moment it is evaluated. So the alias step goes
+-- through UnitInRaid instead, which answers with a plain number. Both
+-- tokens are run through the SAME function and only the results are
+-- compared, so this makes no assumption about how the index maps onto a
+-- raidN token — an off-by-one in that mapping cannot pair us with the
+-- wrong player. Outside a raid it returns nil for both and the function
+-- falls back to the string compare, leaving party behaviour untouched.
+local function SameUnit(frameUnit, unit)
+    if frameUnit == unit then return true end
+    if not frameUnit or not unit then return false end
+
+    local okA, idxA = pcall(UnitInRaid, frameUnit)
+    local okB, idxB = pcall(UnitInRaid, unit)
+    if not okA or not okB then return false end
+    if type(idxA) ~= "number" or type(idxB) ~= "number" then return false end
+
+    local okSA, secA = pcall(issecretvalue, idxA)
+    local okSB, secB = pcall(issecretvalue, idxB)
+    if not okSA or secA or not okSB or secB then return false end
+
+    return idxA == idxB
+end
+
 -- Generic numbered-button scan. Iterates "<prefix>1" through "<prefix>N"
 -- and returns the first child whose unit matches.
--- 12.0.5 note: we compare unit strings directly instead of calling
--- UnitIsUnit() — in Midnight that API can return a tainted boolean when
--- one side is a secret value, which throws as soon as the bool is
--- evaluated in an `if`. Direct string compare side-steps the issue,
--- and since each header child is bound to a single fixed unit slot the
--- alias resolution UnitIsUnit() would do isn't needed here.
 local function ScanUnitButtons(prefix, unit, maxSlots)
     for i = 1, maxSlots do
         local btn = _G[prefix .. i]
-        if btn and GetFrameUnit(btn) == unit then return btn end
+        if btn and SameUnit(GetFrameUnit(btn), unit) then return btn end
     end
 end
 
@@ -202,7 +231,7 @@ local function FindElvUI(unit)
     if group then
         for i = 1, group:GetNumChildren() do
             local child = select(i, group:GetChildren())
-            if visible(child) and GetFrameUnit(child) == unit then
+            if visible(child) and SameUnit(GetFrameUnit(child), unit) then
                 return child
             end
         end
@@ -264,7 +293,7 @@ local function FindMichs(unit)
     if partyHeader and visible(partyHeader) then
         for i = 1, partyHeader:GetNumChildren() do
             local child = select(i, partyHeader:GetChildren())
-            if visible(child) and GetFrameUnit(child) == unit then
+            if visible(child) and SameUnit(GetFrameUnit(child), unit) then
                 return child
             end
         end
@@ -278,7 +307,7 @@ local function FindMichs(unit)
         if raidHeader and visible(raidHeader) then
             for i = 1, raidHeader:GetNumChildren() do
                 local child = select(i, raidHeader:GetChildren())
-                if visible(child) and GetFrameUnit(child) == unit then
+                if visible(child) and SameUnit(GetFrameUnit(child), unit) then
                     return child
                 end
             end
@@ -300,7 +329,7 @@ local function FindVuhDo(unit)
             for btn = 1, 40 do
                 local f = _G["Vd" .. panel .. "H" .. btn]
                 if not f then break end  -- end of this panel's button range
-                if visible(f) and GetFrameUnit(f) == unit then return f end
+                if visible(f) and SameUnit(GetFrameUnit(f), unit) then return f end
             end
         end
     end
@@ -319,7 +348,7 @@ local function _scanHeaderChildren(header, unit)
     if not (header and visible(header)) then return nil end
     for i = 1, header:GetNumChildren() do
         local child = select(i, header:GetChildren())
-        if visible(child) and GetFrameUnit(child) == unit then return child end
+        if visible(child) and SameUnit(GetFrameUnit(child), unit) then return child end
     end
 end
 
@@ -329,7 +358,7 @@ local function FindEllesmere(unit)
     -- when "Show Self First" is on), then the party header children.
     if unit == "player" then
         local selfBtn = _G["ERFPartySelfButton"]
-        if visible(selfBtn) and GetFrameUnit(selfBtn) == "player" then return selfBtn end
+        if visible(selfBtn) and SameUnit(GetFrameUnit(selfBtn), "player") then return selfBtn end
     end
     local f = _scanHeaderChildren(_G["ERFPartyHeader"], unit)
     if f then return f end
@@ -390,20 +419,20 @@ local function FindBlizzard(unit)
     if pf then
         for i = 1, 4 do
             local f = pf["MemberFrame" .. i]
-            if visible(f) and GetFrameUnit(f) == unit then return f end
+            if visible(f) and SameUnit(GetFrameUnit(f), unit) then return f end
         end
     end
     -- Compact party (raid-style toggle off). Member1..5 includes player
     -- as the first slot, party1..4 as the rest.
     for i = 1, 5 do
         local f = _G["CompactPartyFrameMember" .. i]
-        if visible(f) and GetFrameUnit(f) == unit then return f end
+        if visible(f) and SameUnit(GetFrameUnit(f), unit) then return f end
     end
     -- Compact raid container — when raid-style is on, party frames live
     -- inside the raid container as CompactRaidFrame1..N globals.
     for i = 1, 40 do
         local f = _G["CompactRaidFrame" .. i]
-        if visible(f) and GetFrameUnit(f) == unit then return f end
+        if visible(f) and SameUnit(GetFrameUnit(f), unit) then return f end
     end
     -- Standalone player frame fallback (works in both layouts).
     if unit == "player" then
