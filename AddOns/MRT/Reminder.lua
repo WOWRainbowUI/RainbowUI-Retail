@@ -5402,7 +5402,7 @@ function options:Load()
 			info.hasOpacity = false
 			info.swatchFunc = function()
 				local btn = ColorPickerFrame.Footer and ColorPickerFrame.Footer.OkayButton or ColorPickerOkayButton
-				if not MouseIsOver(btn) or IsMouseButtonDown() then return end
+				if not btn:IsMouseOver() or IsMouseButtonDown() then return end
 				local r,g,b = ColorPickerFrame:GetColorRGB()
 				local code = format("%02x%02x%02x",r*255,g*255,b*255)
 				local hlstart,hlend = options.quickSetupFrame.msgEdit:GetTextHighlight()
@@ -12749,7 +12749,7 @@ function options:Load()
 			info.hasOpacity = false
 			info.swatchFunc = function()
 				local btn = ColorPickerFrame.Footer and ColorPickerFrame.Footer.OkayButton or ColorPickerOkayButton
-				if not MouseIsOver(btn) or IsMouseButtonDown() then return end
+				if not btn:IsMouseOver() or IsMouseButtonDown() then return end
 				local r,g,b = ColorPickerFrame:GetColorRGB()
 				local code = format("%02x%02x%02x",r*255,g*255,b*255)
 				local hlstart,hlend = options.setupFrame.msgEdit:GetTextHighlight()

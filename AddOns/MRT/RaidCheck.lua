@@ -2763,181 +2763,183 @@ function module.frame:UpdateData(onlyLine)
 						line[key..j].subIcon:Hide()
 					end
 				end
-				for i=1,60 do
-					local auraData = C_UnitAuras.GetAuraDataByIndex(line.unit, i,"HELPFUL")
-					if not auraData then
-						break
-					elseif C_Secrets and C_Secrets.ShouldAurasBeSecret() then
-						break
-					elseif canaccessvalue and not canaccessvalue(auraData.spellId) then
-
-					elseif module.db.tableFood[auraData.spellId] then
-						local val = module.db.tableFood[auraData.spellId]
-
-						line.food.texture:SetTexture(136000)
-						if type(val)~="number" then
-							val = ""
-						elseif module.db.tableFoodIsBest[auraData.spellId] then
-							line.food.text:SetTextColor(0,1,0)
-						elseif val >= 30 or (UnitLevel'player' < 60 and val >= 10) then
-							line.food.text:SetTextColor(0,1,0)
-						else
-							line.food.text:SetTextColor(1,0,0)
-						end
-						line.food.text:SetText(val)
-						line.food.tooltip = i
-
-						if auraData.expirationTime and auraData.expirationTime - currTime2 < 600 and auraData.expirationTime ~= 0 then
-							line.food.subIcon:Show()
-							line.food.texture:SetAlpha(.6)
-						end
-
-						buffCount = buffCount + 1
-					elseif auraData.icon == 134062 or auraData.icon == 132805 or auraData.icon == 133950 then
-						line.food.texture:SetTexture(134062)
-						line.food.text:SetText("")
-					elseif auraData.icon == 136000 then
-						line.food.texture:SetTexture(136000)
-						line.food.text:SetTextColor(1,1,1)
-						local val1 = auraData.points and auraData.points[1]
-						if val1 and val1 == 0 then val1 = nil end
-						line.food.text:SetText(val1 or "")
-						line.food.tooltip = i
-
-						buffCount = buffCount + 1
-					elseif module.db.tableFlask[auraData.spellId] then
-						local val = module.db.tableFlask[auraData.spellId]
-
-						local frame = line["flask"..(flaskCount == 1 and "" or tostring(flaskCount))]
-						line.flask:Point("CENTER",line.flaskpointer,"CENTER",-(line.flask.size or 18)*((flaskCount-1)/2),0)
-						flaskCount = flaskCount + 1
-						if flaskCount > 4 then
-							flaskCount = 4
-						end
-
-						frame.texture:SetTexture(auraData.icon)
-						if type(val)=='number' then
-							if (UnitLevel'player' >= 60 and val >= 38) or (val >= 14) then
-								frame.text:SetTextColor(0,1,0)
-							else
-								frame.text:SetTextColor(1,1,0)
-							end
-							frame.text:SetText(val)
-						else
-							frame.text:SetText("")
-						end
-						frame.tooltip = i
-
-						if auraData.expirationTime and auraData.expirationTime - currTime2 < 600 and auraData.expirationTime ~= 0 then
-							frame.subIcon:Show()
-							frame.texture:SetAlpha(.6)
-						end
-
-						frame:Show()
-
-						buffCount = buffCount + 1
-					elseif module.db.tableScrolls[auraData.spellId] and ExRT.isBC then
-						local val = module.db.tableScrolls[auraData.spellId]
-
-						local frame = line["scrolls"..(scrollCount == 1 and "" or tostring(scrollCount))]
-						line.scrolls:Point("CENTER",line.scrollspointer,"CENTER",-(line.scrolls.size or 18)*((scrollCount-1)/2),0)
-						scrollCount = scrollCount + 1
-						if scrollCount > 4 then
-							scrollCount = 4
-						end
-
-						frame.texture:SetTexture(auraData.icon)
-						if type(val)=='number' then
-							if (UnitLevel'player' >= 60 and val >= 38) or (val >= 14) then
-								frame.text:SetTextColor(0,1,0)
-							else
-								frame.text:SetTextColor(1,1,0)
-							end
-							frame.text:SetText(val)
-						else
-							frame.text:SetText("")
-						end
-						frame.tooltip = i
-
-						if auraData.expirationTime and auraData.expirationTime - currTime2 < 180 and auraData.expirationTime ~= 0 then
-							frame.subIcon:Show()
-							frame.texture:SetAlpha(.6)
-						end
-
-						frame:Show()
-
-						buffCount = buffCount + 1
-					elseif module.db.tableVantus[auraData.spellId] then
-						local val = module.db.tableVantus[auraData.spellId]
-
-						line.vantus.texture:SetTexture(auraData.icon)
-						line.vantus.text:SetTextColor(1,1,1)
-						line.vantus.text:SetText(val)
-
-						line.vantus.tooltip = i
-					elseif auraData.name and not ExRT.isClassic and vruneName and auraData.name:find(vruneName) then
-						line.vantus.texture:SetTexture(auraData.icon)
-						line.vantus.text:SetText("")
-
-						line.vantus.tooltip = i
-					elseif module.db.tableRunes[auraData.spellId] and line.rune then
-						local val = module.db.tableRunes[auraData.spellId]
-
-						line.rune.texture:SetTexture((auraData.spellId == 270058 or auraData.spellId == 317065) and 840006 or (auraData.spellId == 347901 and 134078) or (auraData.spellId == 367405 and 134078) or auraData.icon)
-						if val >= 18 then
-							line.rune.text:SetTextColor(0,1,0)
-							line.rune.text:SetText("")
-						else
-							line.rune.text:SetTextColor(1,0,0)
-							line.rune.text:SetText(val)
-						end
-					elseif module.db.tableInt[auraData.spellId] and not ExRT.isClassic then
-						line.int.texture:SetTexture(auraData.icon)
-						line.int.text:SetText("")
-
-						buffCount = buffCount + 1
-					elseif module.db.tableAP[auraData.spellId] and not ExRT.isClassic then
-						line.ap.texture:SetTexture(auraData.icon)
-						line.ap.text:SetText("")
-
-						buffCount = buffCount + 1
-					elseif module.db.tableStamina[auraData.spellId] and not ExRT.isClassic then
-						line.stam.texture:SetTexture(auraData.icon)
-						line.stam.text:SetText("")
-
-						buffCount = buffCount + 1
-					elseif module.db.tableVers[auraData.spellId] and not ExRT.isClassic then
-						line.vers.texture:SetTexture(auraData.icon)
-						line.vers.text:SetText("")
-
-						buffCount = buffCount + 1
-					elseif module.db.tableMastery[auraData.spellId] and not ExRT.isClassic then
-						line.mast.texture:SetTexture(auraData.icon)
-						line.mast.text:SetText("")
-
- 						buffCount = buffCount + 1
-					elseif module.db.tableMove[auraData.spellId] and not ExRT.isClassic then
-						line.move.texture:SetTexture(auraData.icon)
-						line.move.text:SetText("")
-
-						--buffCount = buffCount + 1
-					elseif ExRT.isClassic and module.db.tableClassicBuff[auraData.spellId] then
-						local data = module.db.tableClassicBuff[auraData.spellId]
-
-						for l=1,(data.multi and #data or 1) do
-							local bdata = data.multi and data[l] or data
-
-							local key = bdata[1]
-							line[key].texture:SetTexture(auraData.icon)
+				if not C_Secrets or not C_Secrets.ShouldAurasBeSecret() then			
+					for i=1,60 do
+						local auraData = C_UnitAuras.GetAuraDataByIndex(line.unit, i,"HELPFUL")
+						if not auraData then
+							break
+						elseif C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+							break
+						elseif canaccessvalue and not canaccessvalue(auraData.spellId) then
 	
-							local val = bdata[4][auraData.spellId]
-							if type(val)=="boolean" then val = "" end
-							line[key].text:SetText(val or "")
+						elseif module.db.tableFood[auraData.spellId] then
+							local val = module.db.tableFood[auraData.spellId]
 	
-							line[key].tooltip = "spell:"..auraData.spellId
+							line.food.texture:SetTexture(136000)
+							if type(val)~="number" then
+								val = ""
+							elseif module.db.tableFoodIsBest[auraData.spellId] then
+								line.food.text:SetTextColor(0,1,0)
+							elseif val >= 30 or (UnitLevel'player' < 60 and val >= 10) then
+								line.food.text:SetTextColor(0,1,0)
+							else
+								line.food.text:SetTextColor(1,0,0)
+							end
+							line.food.text:SetText(val)
+							line.food.tooltip = i
+	
+							if auraData.expirationTime and auraData.expirationTime - currTime2 < 600 and auraData.expirationTime ~= 0 then
+								line.food.subIcon:Show()
+								line.food.texture:SetAlpha(.6)
+							end
+	
+							buffCount = buffCount + 1
+						elseif auraData.icon == 134062 or auraData.icon == 132805 or auraData.icon == 133950 then
+							line.food.texture:SetTexture(134062)
+							line.food.text:SetText("")
+						elseif auraData.icon == 136000 then
+							line.food.texture:SetTexture(136000)
+							line.food.text:SetTextColor(1,1,1)
+							local val1 = auraData.points and auraData.points[1]
+							if val1 and val1 == 0 then val1 = nil end
+							line.food.text:SetText(val1 or "")
+							line.food.tooltip = i
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableFlask[auraData.spellId] then
+							local val = module.db.tableFlask[auraData.spellId]
+	
+							local frame = line["flask"..(flaskCount == 1 and "" or tostring(flaskCount))]
+							line.flask:Point("CENTER",line.flaskpointer,"CENTER",-(line.flask.size or 18)*((flaskCount-1)/2),0)
+							flaskCount = flaskCount + 1
+							if flaskCount > 4 then
+								flaskCount = 4
+							end
+	
+							frame.texture:SetTexture(auraData.icon)
+							if type(val)=='number' then
+								if (UnitLevel'player' >= 60 and val >= 38) or (val >= 14) then
+									frame.text:SetTextColor(0,1,0)
+								else
+									frame.text:SetTextColor(1,1,0)
+								end
+								frame.text:SetText(val)
+							else
+								frame.text:SetText("")
+							end
+							frame.tooltip = i
+	
+							if auraData.expirationTime and auraData.expirationTime - currTime2 < 600 and auraData.expirationTime ~= 0 then
+								frame.subIcon:Show()
+								frame.texture:SetAlpha(.6)
+							end
+	
+							frame:Show()
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableScrolls[auraData.spellId] and ExRT.isBC then
+							local val = module.db.tableScrolls[auraData.spellId]
+	
+							local frame = line["scrolls"..(scrollCount == 1 and "" or tostring(scrollCount))]
+							line.scrolls:Point("CENTER",line.scrollspointer,"CENTER",-(line.scrolls.size or 18)*((scrollCount-1)/2),0)
+							scrollCount = scrollCount + 1
+							if scrollCount > 4 then
+								scrollCount = 4
+							end
+	
+							frame.texture:SetTexture(auraData.icon)
+							if type(val)=='number' then
+								if (UnitLevel'player' >= 60 and val >= 38) or (val >= 14) then
+									frame.text:SetTextColor(0,1,0)
+								else
+									frame.text:SetTextColor(1,1,0)
+								end
+								frame.text:SetText(val)
+							else
+								frame.text:SetText("")
+							end
+							frame.tooltip = i
+	
+							if auraData.expirationTime and auraData.expirationTime - currTime2 < 180 and auraData.expirationTime ~= 0 then
+								frame.subIcon:Show()
+								frame.texture:SetAlpha(.6)
+							end
+	
+							frame:Show()
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableVantus[auraData.spellId] then
+							local val = module.db.tableVantus[auraData.spellId]
+	
+							line.vantus.texture:SetTexture(auraData.icon)
+							line.vantus.text:SetTextColor(1,1,1)
+							line.vantus.text:SetText(val)
+	
+							line.vantus.tooltip = i
+						elseif auraData.name and not ExRT.isClassic and vruneName and auraData.name:find(vruneName) then
+							line.vantus.texture:SetTexture(auraData.icon)
+							line.vantus.text:SetText("")
+	
+							line.vantus.tooltip = i
+						elseif module.db.tableRunes[auraData.spellId] and line.rune then
+							local val = module.db.tableRunes[auraData.spellId]
+	
+							line.rune.texture:SetTexture((auraData.spellId == 270058 or auraData.spellId == 317065) and 840006 or (auraData.spellId == 347901 and 134078) or (auraData.spellId == 367405 and 134078) or auraData.icon)
+							if val >= 18 then
+								line.rune.text:SetTextColor(0,1,0)
+								line.rune.text:SetText("")
+							else
+								line.rune.text:SetTextColor(1,0,0)
+								line.rune.text:SetText(val)
+							end
+						elseif module.db.tableInt[auraData.spellId] and not ExRT.isClassic then
+							line.int.texture:SetTexture(auraData.icon)
+							line.int.text:SetText("")
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableAP[auraData.spellId] and not ExRT.isClassic then
+							line.ap.texture:SetTexture(auraData.icon)
+							line.ap.text:SetText("")
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableStamina[auraData.spellId] and not ExRT.isClassic then
+							line.stam.texture:SetTexture(auraData.icon)
+							line.stam.text:SetText("")
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableVers[auraData.spellId] and not ExRT.isClassic then
+							line.vers.texture:SetTexture(auraData.icon)
+							line.vers.text:SetText("")
+	
+							buffCount = buffCount + 1
+						elseif module.db.tableMastery[auraData.spellId] and not ExRT.isClassic then
+							line.mast.texture:SetTexture(auraData.icon)
+							line.mast.text:SetText("")
+	
+	 						buffCount = buffCount + 1
+						elseif module.db.tableMove[auraData.spellId] and not ExRT.isClassic then
+							line.move.texture:SetTexture(auraData.icon)
+							line.move.text:SetText("")
+	
+							--buffCount = buffCount + 1
+						elseif ExRT.isClassic and module.db.tableClassicBuff[auraData.spellId] then
+							local data = module.db.tableClassicBuff[auraData.spellId]
+	
+							for l=1,(data.multi and #data or 1) do
+								local bdata = data.multi and data[l] or data
+	
+								local key = bdata[1]
+								line[key].texture:SetTexture(auraData.icon)
+		
+								local val = bdata[4][auraData.spellId]
+								if type(val)=="boolean" then val = "" end
+								line[key].text:SetText(val or "")
+		
+								line[key].tooltip = "spell:"..auraData.spellId
+							end
+						elseif auraData.spellId == 20707 and line.ss then
+							line.ss.texture:SetTexture(136210)
 						end
-					elseif auraData.spellId == 20707 and line.ss then
-						line.ss.texture:SetTexture(136210)
 					end
 				end
 				if line.dur and not self.isTest then
