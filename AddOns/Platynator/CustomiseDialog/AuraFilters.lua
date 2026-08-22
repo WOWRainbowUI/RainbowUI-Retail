@@ -65,6 +65,15 @@ local function GetAuraOptions(parent, kind)
       Announce()
       Refresh()
     end)
+
+    local tooltipsCheckbox = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.ID_IN_TOOLTIPS, -30, function(value)
+      C_CVar.SetCVar("tooltipShowAuraSpellIDs", value and 1 or 0)
+    end)
+    tooltipsCheckbox:SetPoint("LEFT", excludeButton, "RIGHT", 10, 0)
+    tooltipsCheckbox:SetPoint("RIGHT")
+    tooltipsCheckbox:SetScript("OnShow", function()
+      tooltipsCheckbox:SetValue(C_CVar.GetCVarBool("tooltipShowAuraSpellIDs"))
+    end)
   end
 
   local ScrollBox = CreateFrame("Frame", nil, container, "WowScrollBox")

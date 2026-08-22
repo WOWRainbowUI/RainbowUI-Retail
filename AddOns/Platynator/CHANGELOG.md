@@ -1,7 +1,9 @@
 # Platynator
 
-## [467](https://github.com/TheMouseNest/Platynator/tree/467) (2026-08-19)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/466...467) 
+## [468](https://github.com/TheMouseNest/Platynator/tree/468) (2026-08-21)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/467...468) 
 
-- Revert staggering first initialisation of nameplates, the stutters were awful  
-- Retail: Fix enrage auras not showing when filter ticked  
+- Customise: Add "IDs in tooltips" checkbox for auras on Auras tab  
+- Classic: Don't use pingable template when it doesn't exist  
+- Support pinging nameplates  
+- Remove spell from druid interrupt list that doesn't exist anymore  

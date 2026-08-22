@@ -109,7 +109,7 @@ if addonTable.Constants.IsClassic then
     ["MONK"] = {116705},
     ["MAGE"] = {2139},
     ["HUNTER"] = {187707, 147362},
-    ["DRUID"] = {38675, 78675, 106839},
+    ["DRUID"] = {78675, 106839},
   }
 else
   interruptMap = {
@@ -124,7 +124,7 @@ else
     ["MAGE"] = {2139},
     ["HUNTER"] = {147362, 187707},
     ["EVOKER"] = {351338},
-    ["DRUID"] = {38675, 78675, 106839},
+    ["DRUID"] = {78675, 106839},
     ["DEMONHUNTER"] = {183752},
   }
 end
