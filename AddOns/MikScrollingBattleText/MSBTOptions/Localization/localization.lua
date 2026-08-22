@@ -96,6 +96,7 @@ obj["cooldowns"]	= { label="Cooldowns", tooltip="Display options for cooldown no
 obj["lootAlerts"]	= { label="Loot Alerts", tooltip="Display options for loot related notifications."}
 obj["skillIcons"]	= { label="Skill Icons", tooltip="Display options for skill icons."}
 obj["language"]		= { label="Language", tooltip="Shows the current game locale and how language selection works for MSBT."}
+obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text CVars and clear MSBT Blizzard CT overrides."}
 
 
 ------------------------------
@@ -196,6 +197,7 @@ obj["deleteCustomSound"]		= { tooltip="Click to remove the custom sound from MSB
 obj["copyProfile"]				= { label="Copy Profile", tooltip="Copies the profile to a new profile with the name you specify."}
 obj["resetProfile"]				= { label="Reset Profile", tooltip="Resets the profile to the default settings."}
 obj["deleteProfile"]			= { label="Delete Profile", tooltip="Deletes the profile."}
+obj["resetBlizzardSCT"]		= { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text settings and stop MSBT from overriding them."}
 obj["masterFont"]				= { label="Master Fonts", tooltip="Allows you to setup the master font settings which will be inherited by all scroll areas and events within them, unless overridden."}
 obj["partialEffects"]			= { label="Partial Effects", tooltip="Allows you to setup which partial effects will be shown, if they are color coded, and in what color."}
 obj["damageColors"]				= { label="Damage Colors", tooltip="Allows you to setup whether or not amounts are color coded by damage type and what colors to use for each type."}

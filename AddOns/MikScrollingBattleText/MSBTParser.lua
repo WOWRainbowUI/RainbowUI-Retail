@@ -123,6 +123,46 @@ local function TestFlagsAll(unitFlags, testFlags)
 	end
 end
 
+local function SafeUnitBoolean(func, ...)
+	if type(func) ~= "function" then
+		return false
+	end
+
+	local ok, value = pcall(func, ...)
+	if not ok then
+		return false
+	end
+
+	local okNormalize, normalized = pcall(function()
+		return value and true or false
+	end)
+	if okNormalize then
+		return normalized
+	end
+
+	return false
+end
+
+local function SafeEquals(left, right)
+	local ok, isEqual = pcall(function()
+		return left == right
+	end)
+	if ok then
+		return isEqual
+	end
+	return false
+end
+
+local function SafeNotEquals(left, right)
+	local ok, isDifferent = pcall(function()
+		return left ~= right
+	end)
+	if ok then
+		return isDifferent
+	end
+	return false
+end
+
 local function SendParserEvent()
 	for handler in pairs(handlers) do
 		local success, ret = pcall(handler, parserEvent)
@@ -595,7 +635,7 @@ local function OnUpdateDelayedInfo(this, elapsed)
 		if lastPetMapUpdate >= PET_UPDATE_DELAY then
 
 			local petName = UnitName("pet")
-			if not petName or petName ~= UNKNOWN then
+			if not petName or SafeNotEquals(petName, UNKNOWN) then
 
 				local now = GetTime()
 				for guid in pairs(petMap) do
@@ -607,15 +647,23 @@ local function OnUpdateDelayedInfo(this, elapsed)
 				local numGroupMembers = GetNumGroupMembers()
 				for i = 1, numGroupMembers do
 					local unitID = unitPrefix .. i
-					if UnitExists(unitID) then
+					if SafeUnitBoolean(UnitExists, unitID) then
 
 						local guid = UnitGUID(unitID)
 						if guid ~= nil then
-							petMap[guid] = unitID
-							if not classMap[guid] then
-								_, classMap[guid] = UnitClass(unitID)
+							local okAssign = pcall(function()
+								petMap[guid] = unitID
+							end)
+							if okAssign then
+								pcall(function()
+									if not classMap[guid] then
+										_, classMap[guid] = UnitClass(unitID)
+									end
+								end)
+								pcall(function()
+									classTimes[guid] = nil
+								end)
 							end
-							classTimes[guid] = nil
 						end
 					end
 				end
@@ -623,14 +671,22 @@ local function OnUpdateDelayedInfo(this, elapsed)
 				if petName then
 					local unitID = "pet"
 					local guid = UnitGUID(unitID)
-					if guid == UnitGUID("vehicle") then
+					if SafeEquals(guid, UnitGUID("vehicle")) then
 						unitID = "player"
 					end
-					petMap[guid] = unitID
-					if not classMap[guid] then
-						_, classMap[guid] = UnitClass(unitID)
+					local okAssign = pcall(function()
+						petMap[guid] = unitID
+					end)
+					if okAssign then
+						pcall(function()
+							if not classMap[guid] then
+								_, classMap[guid] = UnitClass(unitID)
+							end
+						end)
+						pcall(function()
+							classTimes[guid] = nil
+						end)
 					end
-					classTimes[guid] = nil
 				end
 
 				isPetMapStale = false

@@ -300,6 +300,14 @@ local function FormatPartialEffects(absorbAmount, blockAmount, resistAmount, isG
 	return partialEffectText
 end
 
+local function FormatDisplayAmount(amount, currentProfile)
+	if currentProfile.shortenNumbers then
+		return ShortenNumber(amount, currentProfile.shortenNumberPrecision)
+	end
+
+	return FormatLargeNumber(amount)
+end
+
 local function FormatEvent(message, amount, damageType, overhealAmount, overkillAmount, powerType, name, class, effectName, partialEffects, mergeTrailer, ignoreDamageColoring, hideSkills, hideNames, forceEventColoring)
 
 	local currentProfile = MSBTProfiles.currentProfile
@@ -313,11 +321,7 @@ local function FormatEvent(message, amount, damageType, overhealAmount, overkill
 			amount = amount - overhealAmount
 
 			partialAmount = overhealAmount
-			if currentProfile.shortenNumbers then
-				partialAmount = ShortenNumber(partialAmount, currentProfile.shortenNumberPrecision)
-			elseif currentProfile.groupNumbers then
-				partialAmount = FormatLargeNumber(partialAmount)
-			end
+			partialAmount = FormatDisplayAmount(partialAmount, currentProfile)
 
 			local overhealSettings = currentProfile.overheal
 			partialAmount = string_gsub(overhealSettings.trailer, "%%a", partialAmount)
@@ -330,11 +334,7 @@ local function FormatEvent(message, amount, damageType, overhealAmount, overkill
 			amount = amount - overkillAmount
 
 			partialAmount = overkillAmount
-			if currentProfile.shortenNumbers then
-				partialAmount = ShortenNumber(partialAmount, currentProfile.shortenNumberPrecision)
-			elseif currentProfile.groupNumbers then
-				partialAmount = FormatLargeNumber(partialAmount)
-			end
+			partialAmount = FormatDisplayAmount(partialAmount, currentProfile)
 
 			local overkillSettings = currentProfile.overkill
 			partialAmount = string_gsub(overkillSettings.trailer, "%%a", partialAmount)
@@ -343,13 +343,7 @@ local function FormatEvent(message, amount, damageType, overhealAmount, overkill
 			end
 		end
 
-		local formattedAmount = amount
-
-		if currentProfile.shortenNumbers then
-			formattedAmount = ShortenNumber(formattedAmount, currentProfile.shortenNumberPrecision)
-		elseif currentProfile.groupNumbers then
-			formattedAmount = FormatLargeNumber(formattedAmount)
-		end
+		local formattedAmount = FormatDisplayAmount(amount, currentProfile)
 
 		if damageType and not ignoreDamageColoring and not currentProfile.damageColoringDisabled and not forceEventColoring then
 
@@ -1369,6 +1363,16 @@ local function NormalizeNumber(value)
 	return nil
 end
 
+local function SafeStringKey(value)
+	local ok, result = pcall(function()
+		return tostring(value)
+	end)
+	if ok and type(result) == "string" then
+		return result
+	end
+	return nil
+end
+
 local function SafeUnitBoolean(func, ...)
 	if type(func) ~= "function" then
 		return false
@@ -1446,7 +1450,9 @@ local function CanUseAutoAttackFallback(now)
 		return false
 	end
 
-	local mainSpeed, offSpeed = UnitAttackSpeed("player")
+	local okSpeed, mainSpeedRaw, offSpeedRaw = pcall(UnitAttackSpeed, "player")
+	local mainSpeed = okSpeed and NormalizeNumber(mainSpeedRaw) or nil
+	local offSpeed = okSpeed and NormalizeNumber(offSpeedRaw) or nil
 	local swingSpeed = mainSpeed or offSpeed or 2
 	if offSpeed and offSpeed < swingSpeed then
 		swingSpeed = offSpeed
@@ -1568,12 +1574,7 @@ end
 
 local function BuildOutgoingHitsMessage(totalAmount, hitCount, critCount, isSpell)
 	local currentProfile = MSBTProfiles.currentProfile
-	local formattedAmount = totalAmount
-	if currentProfile.shortenNumbers then
-		formattedAmount = ShortenNumber(formattedAmount, currentProfile.shortenNumberPrecision)
-	elseif currentProfile.groupNumbers then
-		formattedAmount = FormatLargeNumber(formattedAmount)
-	end
+	local formattedAmount = FormatDisplayAmount(totalAmount, currentProfile)
 
 	if not currentProfile.stackSimilarHits then
 		return formattedAmount
@@ -1760,24 +1761,37 @@ local function ProcessDamageMeterOutgoing()
 	end
 
 	local sourceGUIDs = { playerUnitGUID, UnitGUID("pet"), UnitGUID("vehicle") }
-	local seen = {}
+	local processedGUIDs = {}
 
-	for _, sourceGUID in ipairs(sourceGUIDs) do
-		if sourceGUID and not seen[sourceGUID] then
-			seen[sourceGUID] = true
+	for sourceIndex, sourceGUID in ipairs(sourceGUIDs) do
+		local skipSource = false
+		if sourceGUID then
+			for i = 1, #processedGUIDs do
+				local okSame, isSame = pcall(function()
+					return processedGUIDs[i] == sourceGUID
+				end)
+				if okSame and isSame then
+					skipSource = true
+					break
+				end
+			end
+		end
+
+		if sourceGUID and not skipSource then
+			processedGUIDs[#processedGUIDs + 1] = sourceGUID
 			local ok, sessionSource = pcall(C_DamageMeter.GetCombatSessionSourceFromType, 0, Enum.DamageMeterType.DamageDone, sourceGUID)
 			if ok and sessionSource and type(sessionSource.combatSpells) == "table" then
 				for _, damageSpell in ipairs(sessionSource.combatSpells) do
 					-- C_DamageMeter can expose restricted "secret" values. Keep every
 					-- operation in one protected block and skip on any access error.
 					pcall(function()
-						local spellID = damageSpell.spellID
+						local spellID = NormalizeNumber(damageSpell.spellID)
 						local totalAmount = damageSpell.totalAmount
 						if not spellID or totalAmount == nil then
 							return
 						end
 
-						local key = tostring(sourceGUID) .. ":" .. tostring(spellID)
+						local key = tostring(sourceIndex) .. ":" .. tostring(spellID)
 						local lastAmount = damageMeterLastSpellTotals[key] or 0
 						local totalNum = tonumber(totalAmount)
 						if not totalNum or totalNum <= 0 then

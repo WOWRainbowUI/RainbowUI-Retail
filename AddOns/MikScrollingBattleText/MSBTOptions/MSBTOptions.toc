@@ -1,4 +1,4 @@
-## Interface: 120000, 11504, 40400, 110002
+## Interface: 120100, 11504, 40400, 110002
 ## Title: MSBT [|cffffff80Options|r]
 ## Author: Mikord
 ## Notes: Load on demand options for Mik's Scrolling Battle Text.

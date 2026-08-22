@@ -49,8 +49,10 @@ local popupFrames = {}
 -- Tab info.
 local tabData = {}
 local tabListbox
-local bottomTabListbox
+local resetTabListbox
+local languageTabListbox
 local BOTTOM_TAB_ORDER = 9000
+local LANGUAGE_TAB_ORDER = 9500
 
 -- Scheduling variables.
 local waitTable = {}
@@ -96,11 +98,54 @@ local function AddTab(frame, text, tooltip, order)
 
 	if (tabListbox) then
 		InitTab(tabInfo)
-		if tabInfo.order >= BOTTOM_TAB_ORDER and bottomTabListbox then
-			bottomTabListbox:AddItem(tabIndex)
+		if tabInfo.order >= LANGUAGE_TAB_ORDER and languageTabListbox then
+			languageTabListbox:AddItem(tabIndex)
+		elseif tabInfo.order >= BOTTOM_TAB_ORDER and resetTabListbox then
+			resetTabListbox:AddItem(tabIndex)
 		else
 			tabListbox:AddItem(tabIndex)
 		end
+	end
+end
+
+
+-- ****************************************************************************
+-- Refresh all tab containers to update highlight state.
+-- ****************************************************************************
+local function RefreshTabContainers()
+	tabListbox:Refresh()
+	if resetTabListbox then
+		resetTabListbox:Refresh()
+	end
+	if languageTabListbox then
+		languageTabListbox:Refresh()
+	end
+end
+
+
+-- ****************************************************************************
+-- Sets the selected item on the correct tab container for the passed tab index.
+-- ****************************************************************************
+local function SelectTabContainerItem(tabIndex)
+	local tabInfo = tabData[tabIndex]
+	if not tabInfo then
+		return
+	end
+
+	tabListbox:SetSelectedItem(0)
+	if resetTabListbox then
+		resetTabListbox:SetSelectedItem(0)
+	end
+	if languageTabListbox then
+		languageTabListbox:SetSelectedItem(0)
+	end
+
+	if tabInfo.order >= LANGUAGE_TAB_ORDER then
+		languageTabListbox:SetSelectedItem(tabIndex)
+	elseif tabInfo.order >= BOTTOM_TAB_ORDER then
+		resetTabListbox:SetSelectedItem(tabIndex)
+	else
+		tabListbox:SetSelectedItem(tabIndex)
 	end
 end
 
@@ -150,11 +195,10 @@ local function OnClickTabLine(this, line, value)
 	local frame = tabData[value].frame
 	if (frame) then frame:Show() end
 
+	SelectTabContainerItem(value)
+
 	-- Force a refresh to the listbox to update the highlight font color.
-	tabListbox:Refresh()
-	if bottomTabListbox then
-		bottomTabListbox:Refresh()
-	end
+	RefreshTabContainers()
 end
 
 
@@ -185,6 +229,7 @@ local function CreateMainFrame()
 	mainFrame:RegisterForDrag("LeftButton")
 	--mainFrame:SetToplevel(true)
 	mainFrame:SetClampedToScreen(true)
+	mainFrame:SetFrameStrata("DIALOG")
 	mainFrame:SetWidth(790)
 	mainFrame:SetHeight(490)
 	mainFrame:SetPoint("CENTER")
@@ -192,6 +237,7 @@ local function CreateMainFrame()
 	mainFrame:SetScript("OnHide", OnHideMainFrame)
 
 	mainFrame:SetScript("OnShow", function(self)
+			self:SetFrameLevel((self:GetParent() and self:GetParent():GetFrameLevel() or 0) + 50)
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
 	end)
 	mainFrame:SetScript("OnDragStart", function(self)
@@ -315,19 +361,29 @@ local function CreateMainFrame()
 	tabListbox:SetDisplayHandler(DisplayTabLine)
 	tabListbox:SetClickHandler(OnClickTabLine)
 
-	-- Setup the bottom tabs listbox.
-	bottomTabListbox = MSBTControls.CreateListbox(mainFrame)
-	bottomTabListbox:Configure(195, 20, 20)
-	bottomTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 16)
-	bottomTabListbox:SetCreateLineHandler(CreateTabLine)
-	bottomTabListbox:SetDisplayHandler(DisplayTabLine)
-	bottomTabListbox:SetClickHandler(OnClickTabLine)
+	-- Setup the reset tab listbox.
+	resetTabListbox = MSBTControls.CreateListbox(mainFrame)
+	resetTabListbox:Configure(195, 20, 20)
+	resetTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 92)
+	resetTabListbox:SetCreateLineHandler(CreateTabLine)
+	resetTabListbox:SetDisplayHandler(DisplayTabLine)
+	resetTabListbox:SetClickHandler(OnClickTabLine)
+
+	-- Setup the language tab listbox.
+	languageTabListbox = MSBTControls.CreateListbox(mainFrame)
+	languageTabListbox:Configure(195, 20, 20)
+	languageTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 16)
+	languageTabListbox:SetCreateLineHandler(CreateTabLine)
+	languageTabListbox:SetDisplayHandler(DisplayTabLine)
+	languageTabListbox:SetClickHandler(OnClickTabLine)
 
 	-- Add registered tabs.
 	for k, tabInfo in ipairs(tabData) do
 		InitTab(tabInfo)
-		if tabInfo.order >= BOTTOM_TAB_ORDER then
-			bottomTabListbox:AddItem(k)
+		if tabInfo.order >= LANGUAGE_TAB_ORDER then
+			languageTabListbox:AddItem(k)
+		elseif tabInfo.order >= BOTTOM_TAB_ORDER then
+			resetTabListbox:AddItem(k)
 		else
 			tabListbox:AddItem(k)
 		end
@@ -351,13 +407,8 @@ local function CreateMainFrame()
 	end
 	defaultTabIndex = defaultTabIndex or 1
 
-	if tabData[defaultTabIndex].order >= BOTTOM_TAB_ORDER then
-		bottomTabListbox:SetSelectedItem(defaultTabIndex)
-	else
-		tabListbox:SetSelectedItem(defaultTabIndex)
-	end
-	tabListbox:Refresh()
-	bottomTabListbox:Refresh()
+	SelectTabContainerItem(defaultTabIndex)
+	RefreshTabContainers()
 	tabData[defaultTabIndex].frame:Show()
 
 	-- Insert the frame name into the UISpecialFrames array so it closes when

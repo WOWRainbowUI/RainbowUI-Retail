@@ -2810,6 +2810,32 @@ local function ApplyBlizzardCombatTextOptions()
 	end
 end
 
+local function ResetOfficialBlizzardCombatText()
+	if currentProfile then
+		SetOption(nil, "enableBlizzardV2CombatText", false)
+		SetOption(nil, "enableBlizzardV2CombatTextInGroup", false)
+		SetOption(nil, "disableOutgoingInGroup", false)
+		SetOption(nil, "disableIncomingInGroup", false)
+		SetOption(nil, "disableNotificationInGroup", false)
+		SetOption(nil, "disableStaticInGroup", false)
+	end
+
+	if savedVariables then
+		savedVariables.userDisabled = true
+	end
+
+	SetCVar("floatingCombatTextCombatDamage_v2", 1)
+	SetCVar("floatingCombatTextCombatLogPeriodicSpells_v2", 1)
+	SetCVar("floatingCombatTextPetMeleeDamage_v2", 1)
+	SetCVar("floatingCombatTextPetSpellDamage_v2", 1)
+
+	if (CombatText_UpdateDisplayedMessages) then
+		CombatText_UpdateDisplayedMessages()
+	end
+
+	module.ApplyContextOptions()
+end
+
 local function ApplyContextOptions()
 	local shouldDisable = savedVariables and savedVariables.userDisabled
 
@@ -3140,4 +3166,5 @@ module.SetOption					= SetOption
 module.SetOptionUserDisabled		= SetOptionUserDisabled
 module.IsModDisabled				= IsModDisabled
 module.ApplyContextOptions			= ApplyContextOptions
+module.ResetOfficialBlizzardCombatText = ResetOfficialBlizzardCombatText
 
