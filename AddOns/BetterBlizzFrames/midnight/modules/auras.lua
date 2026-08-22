@@ -49,9 +49,13 @@ local SORT_METHODS = {
 }
 
 local AURA_GROUPS = {
+    { key = "ImportantMine",          tier = "important", mine = true },
     { key = "Important",              tier = "important" },
+    { key = "BigDefMine",             tier = "bigdef",    mine = true },
     { key = "BigDef",                 tier = "bigdef" },
+    { key = "ExtDefMine",             tier = "extdef",    mine = true },
     { key = "ExtDef",                 tier = "extdef" },
+    { key = "CCMine",                 tier = "cc",        mine = true },
     { key = "CC",                     tier = "cc" },
     { key = "WhitelistPandemic",      tier = "whitelistpandemic" },
     { key = "WhitelistImportantMine", tier = "whitelistimportantmine" },
@@ -132,6 +136,10 @@ local PANDEMIC_TIERS = {
 local PURGE_DISPEL_TYPES = {
     Magic = true, Curse = true, Disease = true, Poison = true, Bleed = true,
     Enrage = true,
+}
+
+local PURGEABLE_BUFF_DISPEL_TYPES = {
+    Magic = true, Enrage = true,
 }
 
 local S = {}
@@ -263,6 +271,8 @@ function BBF.UpdateUserAuraSettings()
         S.darkColor = 1
     end
     S.purgeGlowAlways = db.displayDispelGlowAlways
+    S.hidePurge = db.hidePurgeTexture and true or false
+    S.purgeOnFriendly = db.showPurgeTextureOnFriendly and true or false
     S.purgeColor = { GetColor("purgeTextureColorRGB", 0, 0.92, 1, 0.85) }
     S.recolorPurge = db.changePurgeTextureColor
     S.pandemicColor = { GetColor("auraPandemicGlowColor", 1, 0, 0, 1) }
@@ -292,17 +302,17 @@ function BBF.UpdateUserAuraSettings()
     if playerSortKey == "blizzard" then playerSortKey = "stable" end
     S.playerSort = SORT_METHODS[playerSortKey] or SORT_METHODS.stable
 
-    local pveShowsAllDebuffs = BBF.noBuffDebuffFilterOnTargetInPvE
-
     S.target = {
         buffs = db.targetBuffEnable,
         debuffs = db.targetdeBuffEnable,
         buffOnlyMine = db.targetBuffFilterOnlyMe,
-        debuffOnlyMine = db.targetdeBuffFilterOnlyMe and not pveShowsAllDebuffs,
+        debuffOnlyMine = db.targetdeBuffFilterOnlyMe,
         buffPurgeable = db.targetBuffFilterPurgeable,
         buffImportant = db.targetBuffFilterImportant,
         buffDefensives = db.targetBuffFilterDefensives,
         debuffCC = db.targetdeBuffFilterCrowdControl,
+        debuffDispellable = db.targetdeBuffFilterDispellable,
+        debuffDispellableAny = db.targetdeBuffFilterDispellableAny,
         buffShort = db.targetBuffFilterLessMinite,
         debuffShort = db.targetdeBuffFilterLessMinite,
         buffWhitelist = db.targetBuffFilterWatchList,
@@ -321,11 +331,13 @@ function BBF.UpdateUserAuraSettings()
         buffs = db.focusBuffEnable,
         debuffs = db.focusdeBuffEnable,
         buffOnlyMine = db.focusBuffFilterOnlyMe,
-        debuffOnlyMine = db.focusdeBuffFilterOnlyMe and not pveShowsAllDebuffs,
+        debuffOnlyMine = db.focusdeBuffFilterOnlyMe,
         buffPurgeable = db.focusBuffFilterPurgeable,
         buffImportant = db.focusBuffFilterImportant,
         buffDefensives = db.focusBuffFilterDefensives,
         debuffCC = db.focusdeBuffFilterCrowdControl,
+        debuffDispellable = db.focusdeBuffFilterDispellable,
+        debuffDispellableAny = db.focusdeBuffFilterDispellableAny,
         buffShort = db.focusBuffFilterLessMinite,
         debuffShort = db.focusdeBuffFilterLessMinite,
         buffWhitelist = db.focusBuffFilterWatchList,
@@ -340,6 +352,28 @@ function BBF.UpdateUserAuraSettings()
         purgeGlow = db.focusBuffPurgeGlow,
         pandemicGlow = db.focusdeBuffPandemicGlow,
     }
+
+    local friendlyFoeFilters = {
+        buffs             = "BuffEnable",
+        debuffs           = "deBuffEnable",
+        buffBlacklist     = "BuffFilterBlacklist",
+        buffImportant     = "BuffFilterImportant",
+        buffDefensives    = "BuffFilterDefensives",
+        buffShort         = "BuffFilterLessMinite",
+        buffPurgeable     = "BuffFilterPurgeable",
+        debuffBlacklist   = "deBuffFilterBlacklist",
+        debuffCC          = "deBuffFilterCrowdControl",
+        debuffShort       = "deBuffFilterLessMinite",
+    }
+    for _, unit in ipairs({ "target", "focus" }) do
+        local settings = S[unit]
+        for field, key in pairs(friendlyFoeFilters) do
+            settings[field .. "Enemy"] = db[unit .. key .. "Enemy"]
+            settings[field .. "Friendly"] = db[unit .. key .. "Friendly"]
+        end
+        settings.debuffDispellableEnemy = nil
+        settings.debuffDispellableFriendly = true
+    end
 
     S.player = {
         buffs = db.PlayerAuraFrameBuffEnable,
@@ -365,9 +399,10 @@ function BBF.UpdateUserAuraSettings()
 
     S.playerSpacingX = (db.playerAuraSpacingX or 0) -5
     S.playerSpacingY = db.playerAuraSpacingY or 0
-    S.showFilteredIcon = db.showHiddenAurasIcon
-    S.filteredDirection = db.hiddenIconDirection or "BOTTOM"
     S.playerAurasOn = db.playerAuraFiltering and db.enablePlayerBuffFiltering
+    S.showFilteredIcon = db.showHiddenAurasIcon and S.playerAurasOn
+        and db.PlayerAuraFrameBuffEnable and true or false
+    S.filteredDirection = db.hiddenIconDirection or "BOTTOM"
     S.clickthroughPlayerAuras = db.clickthroughPlayerAuras
 
     targetStaticCastbar = db.targetStaticCastbar
@@ -592,6 +627,7 @@ local function ApplyGlowGeometry(texture, anchor, size)
 end
 
 local function GetPurgeMode(style)
+    if style.purgeHidden then return nil end
     if style.purgeGlow then return "glow" end
     if style.isPlayer then return nil end
     return "default"
@@ -1013,7 +1049,7 @@ end
 
 local F = AuraUtil.AuraFilters
 
-local function BuildFilterString(harmful, tier, cfg)
+local function BuildFilterString(harmful, tier, cfg, mine)
     local parts = {}
 
     if harmful then
@@ -1056,7 +1092,11 @@ local function BuildFilterString(harmful, tier, cfg)
         AddNormalNegations()
     end
 
-    if WHITELIST_MINE_TIERS[tier] then
+    if HIGHLIGHT_TIERS[tier] then
+        if cfg.blacklistMineSplit then
+            parts[#parts + 1] = mine and F.Player or ("!" .. F.Player)
+        end
+    elseif WHITELIST_MINE_TIERS[tier] then
         parts[#parts + 1] = F.Player
     elseif WHITELIST_TIERS[tier] then
         parts[#parts + 1] = "!" .. F.Player
@@ -1074,11 +1114,14 @@ local function BuildFilterString(harmful, tier, cfg)
         parts[#parts + 1] = F.Player
     end
 
+    if harmful and cfg.dispellable and not HIGHLIGHT_TIERS[tier] then
+        parts[#parts + 1] = cfg.dispellableAny and F.Dispellable or F.RaidPlayerDispellable
+    end
 
     return AuraUtil.CreateFilterString(unpack(parts))
 end
 
-local function BuildCandidateFilters(harmful, tier, cfg, canFilterIDs)
+local function BuildCandidateFilters(harmful, tier, cfg, canFilterIDs, mine)
     local filters = {}
     local blockAll = false
 
@@ -1087,7 +1130,8 @@ local function BuildCandidateFilters(harmful, tier, cfg, canFilterIDs)
 
     if cfg.blacklist and blacklist.any then
         local set
-        if tier == "mine" then
+        if mine or tier == "mine" or WHITELIST_MINE_TIERS[tier]
+            or (cfg.onlyMine and (tier == "purge" or tier == "purgeenrage")) then
             set = canFilterIDs and blacklist.mine or blacklist.mineNS
         else
             set = canFilterIDs and blacklist.all or blacklist.ns
@@ -1147,8 +1191,10 @@ local function BuildCandidateFilters(harmful, tier, cfg, canFilterIDs)
         end
     end
 
-    if cfg.purgeable and not harmful and not HIGHLIGHT_TIERS[tier] then
-        filters.isStealable = true
+    if cfg.purgeable and not harmful and not HIGHLIGHT_TIERS[tier]
+            and tier ~= "purge" and tier ~= "purgeenrage" then
+        filters.includeDispelTypes = PURGEABLE_BUFF_DISPEL_TYPES
+        filters.isStealable = nil
     end
 
     if cfg.short and not HIGHLIGHT_TIERS[tier] then
@@ -1320,6 +1366,7 @@ local function BuildStyle(tier, sizes, isPlayer, cfg, into)
     t.cropIcon = (S.pixelBorder or S.darkBorder) and true or false
     t.darkColor = S.darkColor
     t.purgeGlow = cfg.purgeGlow
+    t.purgeHidden = cfg.purgeHidden
     t.purgeEnrage = tier == "purgeenrage"
     t.purgeGlowAlways = S.purgeGlowAlways
     t.purgeColor = S.purgeColor
@@ -1335,31 +1382,54 @@ end
 
 local styleScratch = {}
 
+local function FriendlyFoeFilter(f, field, hostile, friendly)
+    if not f[field] then return false end
+    local onEnemy, onFriendly = f[field .. "Enemy"], f[field .. "Friendly"]
+    if not onEnemy and not onFriendly then return true end
+    if hostile then return onEnemy and true or false end
+    if friendly then return onFriendly and true or false end
+    return true
+end
+
 local function GetFrameConfig(host, harmful)
     local f = S[host.settingsKey or host.key]
     local cfg
 
+    local reaction = UnitExists(host.unit) and UnitReaction("player", host.unit)
+    local hostile = (reaction and reaction <= 4) and true or false
+    local friendly = (reaction and reaction > 4) and true or false
+
     if harmful then
+        local debuffOnlyMine = f.debuffOnlyMine
+        if debuffOnlyMine and (friendly or (hostile and BBF.noBuffDebuffFilterOnTargetInPvE)) then
+            debuffOnlyMine = false
+        end
         cfg = {
-            enabled = f.debuffs,
-            onlyMine = f.debuffOnlyMine,
-            short = f.debuffShort,
+            enabled = FriendlyFoeFilter(f, "debuffs", hostile, friendly),
+            onlyMine = debuffOnlyMine,
+            short = FriendlyFoeFilter(f, "debuffShort", hostile, friendly),
             whitelist = f.debuffWhitelist,
-            blacklist = f.debuffBlacklist,
-            ccFilter = f.debuffCC and true or false,
+            blacklist = FriendlyFoeFilter(f, "debuffBlacklist", hostile, friendly),
+            ccFilter = FriendlyFoeFilter(f, "debuffCC", hostile, friendly),
+            dispellable = FriendlyFoeFilter(f, "debuffDispellable", hostile, friendly),
+            dispellableAny = f.debuffDispellableAny and true or false,
             maxCount = MAX_DEBUFFS_PER_GROUP,
             generalMax = host.isPlayer and MAX_DEBUFFS_PER_GROUP or S.maxDebuffs,
         }
     else
+        local buffOnlyMine = f.buffOnlyMine
+        if buffOnlyMine and hostile then
+            buffOnlyMine = false
+        end
         cfg = {
-            enabled = f.buffs,
-            onlyMine = f.buffOnlyMine,
-            purgeable = f.buffPurgeable,
-            short = f.buffShort,
+            enabled = FriendlyFoeFilter(f, "buffs", hostile, friendly),
+            onlyMine = buffOnlyMine,
+            purgeable = FriendlyFoeFilter(f, "buffPurgeable", hostile, friendly),
+            short = FriendlyFoeFilter(f, "buffShort", hostile, friendly),
             whitelist = f.buffWhitelist,
-            blacklist = f.buffBlacklist,
-            importantFilter = f.buffImportant and true or false,
-            defensivesFilter = f.buffDefensives and true or false,
+            blacklist = FriendlyFoeFilter(f, "buffBlacklist", hostile, friendly),
+            importantFilter = FriendlyFoeFilter(f, "buffImportant", hostile, friendly),
+            defensivesFilter = FriendlyFoeFilter(f, "buffDefensives", hostile, friendly),
             maxCount = MAX_BUFFS_PER_GROUP,
             generalMax = host.isPlayer and MAX_BUFFS_PER_GROUP or S.maxBuffs,
         }
@@ -1374,6 +1444,8 @@ local function GetFrameConfig(host, harmful)
     local extras = f.extras and true or false
     cfg.importantFirst = S.importantFirst
     cfg.purgeGlow = extras and f.purgeGlow
+    cfg.purgeHidden = (S.hidePurge
+        or (friendly and not host.isPlayer and not S.purgeOnFriendly)) and true or false
     cfg.collapsed = (not harmful) and host.key == "playerBuffs" and S.buffsCollapsed
         and true or false
     if cfg.collapsed then
@@ -1394,15 +1466,15 @@ local function GetFrameConfig(host, harmful)
         cfg.liveCC = false
     end
 
-    cfg.narrowOn = (cfg.onlyMine or cfg.short or cfg.purgeable) and true or false
+    cfg.narrowOn = (cfg.onlyMine or cfg.short or cfg.purgeable or cfg.dispellable) and true or false
+    cfg.blacklistMineSplit = (cfg.blacklist and listCache.hasShowMine) and true or false
 
     cfg.importantGlow = (extras and f.importantGlow and cfg.liveImportant) and true or false
     cfg.defensiveGlow = (extras and f.defensiveGlow and cfg.liveDefensives) and true or false
     cfg.ccGlow = (extras and f.ccGlow and cfg.liveCC) and true or false
 
-    local reaction = UnitExists(host.unit) and UnitReaction("player", host.unit)
     cfg.purgeFirst = (S.purgeFirst and not harmful and not host.isPlayer
-        and not cfg.purgeable and reaction and reaction <= 4) and true or false
+        and not cfg.purgeable and hostile) and true or false
     cfg.pandemicGlow = (extras and not host.isPlayer and f.pandemicGlow) and true or false
     cfg.splitPandemic = (not cfg.pandemicGlow) and (not host.isPlayer)
         and listCache.whitelist.anyPandemic and true or false
@@ -1428,7 +1500,8 @@ local function AddContainerGroup(host, container, def, cfg, sort)
         container.bbfStyles[def.key] = BuildStyle(def.tier, GetHostSizes(host), host.isPlayer, cfg)
     end
 
-    container:AddAuraGroup(def.key, BuildFilterString(container.bbfHarmful, def.tier, cfg), {
+    container:AddAuraGroup(def.key,
+        BuildFilterString(container.bbfHarmful, def.tier, cfg, def.mine), {
         maxFrameCount = 0,
         sortMethod = sort[1],
         sortDirection = sort[2],
@@ -1538,29 +1611,23 @@ local function SpacerFilterString(harmful)
     return AuraUtil.CreateFilterString(F.Helpful)
 end
 
-local function DisableSpacerMouse(container)
-    local button = container and container.bbfSpacerButton
-    if not button or container.bbfSpacerMouseOff or InCombatLockdown() then return end
-    container.bbfSpacerMouseOff = true
-    button:EnableMouse(false)
-end
-
 local function CreateSpacerContainer(host, parent)
     local container = CreateTypeContainer(host, true, parent)
     container:SetAlpha(0)
     return container
 end
 
-local function AddSpacerGroup(container)
-    container:AddAuraGroup(SPACER_KEY, SpacerFilterString(true), {
+local function AddSpacerGroup(container, key, filterString)
+    container:AddAuraGroup(key, filterString, {
         maxFrameCount = 0,
         layout = { elementWidth = 1, elementHeight = SpacerExtent() },
         initializeFrame = function(button)
             button:SetSize(1, 1)
             button:SetCancelAuraButtons(nil)
             button:SetHideTooltipInCombat(true)
-            container.bbfSpacerButton = button
-            DisableSpacerMouse(container)
+            if not InCombatLockdown() then
+                button:EnableMouse(false)
+            end
         end,
     })
 end
@@ -1570,6 +1637,22 @@ local function ConfigureSpacer(host, harmful)
     if not spacer then return end
 
     spacer.bbfHarmful = harmful
+
+    local extent = SpacerExtent()
+    local plan = host.spacerPlan
+    local mirror = (plan and plan.mirror) and true or false
+
+    if mirror and InCombatLockdown() then
+        for _, def in ipairs(AURA_GROUPS) do
+            local entry = plan[def.key]
+            if entry and entry.live and not spacer:HasAuraGroup(def.key) then
+                mirror = false
+                host.spacerPending = true
+                break
+            end
+        end
+    end
+
     local record = GetAppliedRecord(spacer, SPACER_KEY)
 
     local filter = SpacerFilterString(harmful)
@@ -1578,19 +1661,54 @@ local function ConfigureSpacer(host, harmful)
         spacer:SetAuraGroupFilterString(SPACER_KEY, filter)
     end
 
-    local count = (GetFrameConfig(host, harmful).enabled and not PreviewIsActive(host))
-        and 1 or 0
+    local count = (not mirror and GetFrameConfig(host, harmful).enabled
+        and not PreviewIsActive(host)) and 1 or 0
     if record.count ~= count then
         record.count = count
         spacer:SetAuraGroupMaxFrameCount(SPACER_KEY, count)
     end
 
-    ApplyGroupLayout(spacer, SPACER_KEY, nil, nil, 1, SpacerExtent(), nil, nil)
+    ApplyGroupLayout(spacer, SPACER_KEY, nil, nil, 1, extent, nil, nil)
+
+    for _, def in ipairs(AURA_GROUPS) do
+        local entry = mirror and plan[def.key] or nil
+        if entry and not entry.live then entry = nil end
+
+        local exists = spacer:HasAuraGroup(def.key)
+        if entry and not exists then
+            AddSpacerGroup(spacer, def.key, entry.filterString)
+            exists = true
+        end
+
+        if exists then
+            local groupRecord = GetAppliedRecord(spacer, def.key)
+
+            if entry then
+                if groupRecord.filterString ~= entry.filterString then
+                    groupRecord.filterString = entry.filterString
+                    spacer:SetAuraGroupFilterString(def.key, entry.filterString)
+                end
+                ApplyGroupCandidateFilters(spacer, def.key, entry.filters)
+            end
+
+            local groupCount = entry and 1 or 0
+            if groupRecord.count ~= groupCount then
+                groupRecord.count = groupCount
+                spacer:SetAuraGroupMaxFrameCount(def.key, groupCount)
+            end
+
+            ApplyGroupLayout(spacer, def.key, nil, nil, 1, extent, nil, nil)
+        end
+    end
+
     spacer:SetScale(host.scale or S.scale)
 end
 
 local function ConfigureContainer(host, container, harmful)
     container.bbfHarmful = harmful
+
+    local plan = (container == host.blockTop) and host.spacerPlan or nil
+    if plan then plan.mirror = false end
 
     if not UnitExists(host.unit) then return end
 
@@ -1605,9 +1723,21 @@ local function ConfigureContainer(host, container, harmful)
     local categoryOn = (whitelistFilter or cfg.importantFilter or cfg.defensivesFilter
         or cfg.ccFilter) and true or false
 
+    if plan then
+        plan.mirror = (cfg.narrowOn or categoryOn
+            or (cfg.blacklist and listCache.blacklist.any)) and true or false
+    end
+
     for _, def in ipairs(defs) do
         local exists = container:HasAuraGroup(def.key)
-        local filters, blockAll = BuildCandidateFilters(harmful, def.tier, cfg, canFilterIDs)
+        local filters, blockAll = BuildCandidateFilters(harmful, def.tier, cfg, canFilterIDs, def.mine)
+
+        local entry = plan and plan[def.key]
+        if plan and not entry then
+            entry = {}
+            plan[def.key] = entry
+        end
+        if entry then entry.live = false end
 
         local count = 0
         if cfg.enabled and not blockAll and not PreviewIsActive(host) then
@@ -1616,14 +1746,21 @@ local function ConfigureContainer(host, container, harmful)
             elseif WHITELIST_TIERS[def.tier] then
                 count = cfg.maxCount or 32
             elseif HIGHLIGHT_TIERS[def.tier] then
-                count = TierLive(def.tier, cfg) and (cfg.maxCount or 32) or 0
+                local live = TierLive(def.tier, cfg)
+                    and (not def.mine or cfg.blacklistMineSplit)
+                count = live and (cfg.maxCount or 32) or 0
             elseif cfg.collapsed then
                 count = 0
             elseif def.tier == "purge" or def.tier == "purgeenrage" then
-                local live = cfg.purgeFirst and not (categoryOn and not cfg.narrowOn)
+                local live
+                if cfg.purgeable then
+                    live = def.tier == "purgeenrage"
+                else
+                    live = cfg.purgeFirst and not (categoryOn and not cfg.narrowOn)
 
-                if def.tier == "purgeenrage" and not S.purgeGlowAlways then
-                    live = false
+                    if def.tier == "purgeenrage" and not S.purgeGlowAlways then
+                        live = false
+                    end
                 end
                 count = live and (cfg.maxCount or 32) or 0
             elseif def.tier == "mine" and cfg.mergeNormal then
@@ -1643,10 +1780,17 @@ local function ConfigureContainer(host, container, harmful)
         end
 
         if exists then
-            container:SetAuraGroupFilterString(def.key, BuildFilterString(harmful, def.tier, cfg))
+            local filterString = BuildFilterString(harmful, def.tier, cfg, def.mine)
+            container:SetAuraGroupFilterString(def.key, filterString)
             ApplyGroupCandidateFilters(container, def.key, filters)
             ApplyGroupSortMethod(container, def.key, sort[1], sort[2])
             container:SetAuraGroupMaxFrameCount(def.key, count)
+
+            if entry and count > 0 then
+                entry.live = true
+                entry.filterString = filterString
+                entry.filters = filters
+            end
         end
     end
 
@@ -2444,7 +2588,35 @@ local function CreateToggleIcon()
         BetterBlizzFramesDB.toggleIconPosition = { point, nil, relativePoint, x, y }
     end)
 
+    BBF.StyleToggleAuraIcon()
+
     return icon
+end
+
+function BBF.StyleToggleAuraIcon()
+    local button = BBF.toggleAuraIcon
+    if not button then return end
+
+    local texture = button.Icon
+    local drawBorder = (S.pixelBorder or S.darkBorder) and true or false
+
+    local border = button.bbfBorder
+    if not border then
+        border = button:CreateTexture(nil, "OVERLAY", nil, 5)
+        button.bbfBorder = border
+    end
+
+    ApplyBorderArt(border, S.pixelBorder)
+    ApplyBorderGeometry(border, texture, S.pixelBorder, PLAYER_BUFF_BORDER_INSET)
+    local c = S.darkColor or 1
+    border:SetVertexColor(c, c, c)
+    border:SetShown(drawBorder)
+
+    if drawBorder then
+        texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+    else
+        texture:SetTexCoord(0, 1, 0, 1)
+    end
 end
 
 local function GetFilteredFlow()
@@ -2531,6 +2703,7 @@ function BBF.RefreshFilteredAuras(host)
         BBF.toggleAuraIcon:SetShown(S.showFilteredIcon and true or false)
         BBF.toggleAuraIcon:SetScale(host.scale or 1)
         AnchorToggleIcon()
+        BBF.StyleToggleAuraIcon()
     end
 
     ConfigureFilteredContainer(host)
@@ -3280,6 +3453,7 @@ local function CreateHost(key, frame, unit, spellbar)
 
     local parent = frame.TargetFrameContent.TargetFrameContentContextual
     host.spacer = CreateSpacerContainer(host, parent)
+    host.spacerPlan = {}
     host.blockTop = CreateTypeContainer(host, true, parent)
     host.blockBottom = CreateTypeContainer(host, false, parent)
     host.lastContainer = host.blockBottom
@@ -3287,7 +3461,7 @@ local function CreateHost(key, frame, unit, spellbar)
     BBF.AnchorAuraContainer(host)
     CB.SeedContainerAnchor(host)
 
-    AddSpacerGroup(host.spacer)
+    AddSpacerGroup(host.spacer, SPACER_KEY, SpacerFilterString(true))
     SeedContainerStyles(host, host.blockTop)
     SeedContainerStyles(host, host.blockBottom)
 
@@ -3365,6 +3539,17 @@ local function CreatePlayerHost(key, hostFrame, harmful)
         BBF.AnchorPlayerAuraContainer(host)
         BBF.ApplyAuraGroupConfig(host)
         BBF.RestyleAuraButtons()
+        BBF.RefreshFilteredAuras(host)
+
+        if PreviewIsActive(host) and not host.editModePreviewQueued then
+            host.editModePreviewQueued = true
+            C_Timer.After(0, function()
+                host.editModePreviewQueued = nil
+                if PreviewIsActive(host) then
+                    BBF.RefreshAuraTestMode()
+                end
+            end)
+        end
     end)
 
     return host
@@ -3394,7 +3579,10 @@ function BBF.HookPlayerAndTargetAuras()
                     BBF.RestyleAuraButtons()
                 end
                 for _, h in pairs(BBF.auraHosts) do
-                    DisableSpacerMouse(h.spacer)
+                    if h.spacerPending then
+                        h.spacerPending = nil
+                        BBF.ApplyAuraGroupConfig(h)
+                    end
                 end
                 return
             end
@@ -3410,6 +3598,7 @@ function BBF.HookPlayerAndTargetAuras()
 
             if host then
                 RefreshHost(host)
+                BBF.RestyleAuraButtons()
                 ForEachContainer(host, UpdateAllAurasIn)
                 if PreviewIsActive() then BBF.RefreshAuraTestMode() end
             end

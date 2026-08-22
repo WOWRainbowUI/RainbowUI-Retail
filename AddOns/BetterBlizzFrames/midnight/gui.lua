@@ -2227,7 +2227,8 @@ function BBF.UpdateEnlargedGlowSwatch(button)
     local swatch = button.checkBoxEnlarged and button.checkBoxEnlarged.swatch
     if not swatch then return end
 
-    local show = (button.npcData and button.npcData.important) and true or false
+    local data = button.npcData
+    local show = (data and data.enlarged and data.important) and true or false
     swatch:SetShown(show)
     if show then
         BBF.TintGlowSwatch(swatch, "auraEnlargedGlowColor", 1, 0.5, 0)
@@ -2458,6 +2459,7 @@ local function CreateList(subPanel, listName, listData, refreshFunc, extraBoxes,
                     elseif not button.npcData.important then
                         EnableElement(button.checkBoxPandemic)
                     end
+                    BBF.UpdateEnlargedGlowSwatch(button)
                     BBF.RefreshAllAuraFrames()
                 end)
                 local swatch = checkBoxEnlarged:CreateTexture(nil, "ARTWORK", nil, 1)
@@ -3299,7 +3301,7 @@ local function guiProfiles()
     frame.streamerText:SetText(L["Profile_Streamers"])
 
     frame.infoText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 100)
+    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 50)
     frame.infoText:SetText(L["Profile_Info_Message"])
     frame.infoText:SetWidth(100)
 
@@ -3685,28 +3687,9 @@ local function guiGeneralTab()
 
     local symmetricPlayerFrame = CreateCheckbox("symmetricPlayerFrame", L["Mirror_TargetFrame"], BetterBlizzFrames, nil, BBF.SymmetricPlayerFrame)
     symmetricPlayerFrame:SetPoint("LEFT", hidePlayerName.text, "RIGHT", 0, 0)
-    CreateTooltipTwo(symmetricPlayerFrame, L["Mirror_TargetFrame"], L["Tooltip_Mirror_TargetFrame_Desc"])
-    -- symmetricPlayerFrame:HookScript("OnClick", function(self)
-    --     if not self:GetChecked() then
-    --         StaticPopup_Show("BBF_CONFIRM_RELOAD")
-    --         BetterBlizzFramesDB.playerFrameOCD = nil
-    --     end
-    -- end)
-    symmetricPlayerFrame:SetScript("OnClick", function(self)
-        self:SetChecked(BetterBlizzFramesDB.symmetricPlayerFrame or false)
-    end)
-
-    symmetricPlayerFrame:SetScript("OnMouseDown", function(self, button)
-        if button == "RightButton" then
-            StaticPopup_Show("BBF_CONFIRM_RELOAD")
-            if BetterBlizzFramesDB.symmetricPlayerFrame then
-                BetterBlizzFramesDB.symmetricPlayerFrame = nil
-                symmetricPlayerFrame:SetChecked(false)
-                return
-            end
-            symmetricPlayerFrame:SetChecked(true)
-            BetterBlizzFramesDB.symmetricPlayerFrame = true
-        end
+    CreateTooltipTwo(symmetricPlayerFrame, L["Mirror_TargetFrame"], L["Tooltip_Mirror_TargetFrame_Desc_Midnight"])
+    symmetricPlayerFrame:HookScript("OnClick", function(self)
+        StaticPopup_Show("BBF_CONFIRM_RELOAD")
     end)
 
     -- local hidePlayerMaxHpReduction = CreateCheckbox("hidePlayerMaxHpReduction", "Hide Reduced HP", BetterBlizzFrames, nil, BBF.HideFrames)
@@ -8516,6 +8499,8 @@ local function guiFrameAuras()
 
     local UpdateLeadingGlowBoxes
 
+    local friendlyFoeFilterBoxes, UpdateFriendlyFoeFilterBoxes = {}, nil
+
     local playerAuraFiltering = CreateCheckbox("playerAuraFiltering", L["Enable_Aura_Settings"], contentFrame)
     playerAuraFiltering.name = guiFrameAuras.name
     CreateTooltipTwo(playerAuraFiltering, L["Enable_Aura_Settings"], L["Tooltip_Enable_Aura_Settings_TargetFocus_Desc"])
@@ -8550,6 +8535,7 @@ local function guiFrameAuras()
 
         CheckAndToggleCheckboxes(playerAuraFiltering)
         UpdateLeadingGlowBoxes()
+        UpdateFriendlyFoeFilterBoxes()
     end)
 
     if not BetterBlizzFramesDB.playerAuraFiltering then
@@ -8669,6 +8655,28 @@ local function guiFrameAuras()
         end
     end
 
+    local FRIENDLY_FOE_BOX_SIZE = 18
+    local FRIENDLY_FOE_ROW_INDENT = 15
+    local FRIENDLY_FOE_ENEMY_X, FRIENDLY_FOE_FRIENDLY_X = 117, 138
+    local FRIENDLY_FOE_ENEMY_COLOR = { 1, 0.25, 0.25 }
+    local FRIENDLY_FOE_FRIENDLY_COLOR = { 0.25, 1, 0.25 }
+
+    function UpdateFriendlyFoeFilterBoxes()
+        local aurasOn = playerAuraFiltering:GetChecked()
+        for _, entry in ipairs(friendlyFoeFilterBoxes) do
+            local rowOn = entry.section:GetChecked() and entry.filter:GetChecked() and true or false
+            if entry.pair then
+                entry.box:SetShown(rowOn)
+            end
+            if not entry.locked and aurasOn and rowOn then
+                EnableElement(entry.box)
+            else
+                DisableElement(entry.box)
+                if entry.forced and aurasOn then entry.box:SetAlpha(1) end
+            end
+        end
+    end
+
     local function AddFrameColumn(xOffset, titleText, iconR, iconG, iconB, keys)
         local overrides = keys.overrides or {}
         local function Key(prefix, suffix)
@@ -8683,6 +8691,7 @@ local function guiFrameAuras()
         anchor:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", xOffset + reservedX, COLUMN_TOP + reservedY)
         anchor:HookScript("OnClick", function()
             CheckAndToggleCheckboxes(anchor)
+            UpdateFriendlyFoeFilterBoxes()
             BBF.RefreshAllAuraFrames()
         end)
 
@@ -8696,8 +8705,17 @@ local function guiFrameAuras()
         icon:SetDesaturated(1)
         icon:SetVertexColor(iconR, iconG, iconB)
 
-        local border = CreateBorderedFrame(anchor, 195, 324 + 3 * COLUMN_ROW_HEIGHT,
-            70 - reservedX, -145 - reservedY - math.floor(3 * COLUMN_ROW_HEIGHT / 2), contentFrame)
+        local border = CreateBorderedFrame(anchor, 195, 324 + 5 * COLUMN_ROW_HEIGHT,
+            70 - reservedX, -145 - reservedY - math.floor(5 * COLUMN_ROW_HEIGHT / 2), contentFrame)
+
+        local function FriendlyFoeBorder(box)
+            local tex = box:CreateTexture(nil, "BACKGROUND")
+            tex:SetAtlas("AlliedRace-UnlockingFrame-GenderSelectionGlow")
+            tex:SetDesaturated(true)
+            tex:SetPoint("TOPLEFT", box, "TOPLEFT", 1.5, -1.5)
+            tex:SetPoint("BOTTOMRIGHT", box, "BOTTOMRIGHT", -2, 2)
+            return tex
+        end
 
         local previous, section = anchor, anchor
         local function Add(key, label, tooltip, extra)
@@ -8719,6 +8737,7 @@ local function guiFrameAuras()
             box:HookScript("OnClick", function()
                 CheckAndToggleCheckboxes(box)
                 UpdateLeadingGlowBoxes()
+                UpdateFriendlyFoeFilterBoxes()
                 BBF.RefreshAllAuraFrames()
             end)
             previous, section = box, box
@@ -8733,16 +8752,88 @@ local function guiFrameAuras()
             return box
         end
 
-        Add(Key(keys.buff, "FilterWatchList"), L["Whitelist"], L["Tooltip_Whitelist"], L["Tooltip_Whitelist_Desc"])
-        Add(Key(keys.buff, "FilterBlacklist"), L["Blacklist"], L["Tooltip_Blacklist"], L["Tooltip_Aura_Filter_Unit_Note"])
+        local function AddFriendlyFoeToggles(filterBox, key, omit)
+            if not keys.unitFrame then return end
+            local locked = key == nil
+            local forced = locked and omit ~= nil
+            local sub = (not locked) and L["Tooltip_Filter_FriendlyFoe_Default"] or nil
+            local lockedNote
+            if omit == "Friendly" then
+                lockedNote = L["Tooltip_Filter_FriendlyFoe_Locked_Enemy"]
+            elseif omit == "Enemy" then
+                lockedNote = L["Tooltip_Filter_FriendlyFoe_Locked_Friendly"]
+            end
+            local owner = filterBox.Text and filterBox.Text:GetText()
+            local xShift = (filterBox == section) and FRIENDLY_FOE_ROW_INDENT or 0
+
+            local function FriendlyFoeBox(suffix, xPos, color, title, desc)
+                if owner and owner ~= "" then title = title .. " - " .. owner end
+                local box
+                if locked then
+                    box = CreateFrame("CheckButton", nil, filterBox,
+                        "InterfaceOptionsCheckButtonTemplate")
+                    box:SetChecked(forced)
+                else
+                    box = CreateCheckbox(key .. suffix, "", filterBox, nil,
+                        BBF.RefreshAllAuraFrames)
+                end
+
+                local normal, pushed = box:GetNormalTexture(), box:GetPushedTexture()
+                if normal then normal:SetTexture(nil) end
+                if pushed then pushed:SetTexture(nil) end
+                box:SetMotionScriptsWhileDisabled(true)
+                box:SetSize(FRIENDLY_FOE_BOX_SIZE, FRIENDLY_FOE_BOX_SIZE)
+                box:ClearAllPoints()
+                box:SetPoint("LEFT", filterBox, "LEFT", xPos + xShift, 0)
+                FriendlyFoeBorder(box):SetVertexColor(unpack(color))
+                if locked then
+                    CreateTooltipTwo(box, title, lockedNote)
+                else
+                    CreateTooltipTwo(box, title, desc, sub)
+                end
+                friendlyFoeFilterBoxes[#friendlyFoeFilterBoxes + 1] = {
+                    box = box, filter = filterBox, section = section, locked = locked,
+                    forced = forced, pair = true,
+                }
+                return box
+            end
+
+            if omit ~= "Enemy" then
+                FriendlyFoeBox("Enemy", FRIENDLY_FOE_ENEMY_X, FRIENDLY_FOE_ENEMY_COLOR,
+                    L["Filter_Enemy"], L["Tooltip_Filter_Enemy_Only"])
+            end
+            if omit ~= "Friendly" then
+                FriendlyFoeBox("Friendly", FRIENDLY_FOE_FRIENDLY_X, FRIENDLY_FOE_FRIENDLY_COLOR,
+                    L["Filter_Friendly"], L["Tooltip_Filter_Friendly_Only"])
+            end
+
+            filterBox:HookScript("OnClick", UpdateFriendlyFoeFilterBoxes)
+        end
+
+        AddFriendlyFoeToggles(anchor, keys.buffEnable or (keys.buff .. "Enable"))
+
+        AddFriendlyFoeToggles(
+            Add(Key(keys.buff, "FilterWatchList"), L["Whitelist"], L["Tooltip_Whitelist"], L["Tooltip_Whitelist_Desc"]),
+            nil, "Enemy")
+        AddFriendlyFoeToggles(
+            Add(Key(keys.buff, "FilterBlacklist"), L["Blacklist"], L["Tooltip_Blacklist"], L["Tooltip_Aura_Filter_Unit_Note"]),
+            nil, "Enemy")
         local importantFilter = AddCategoryFilter(Key(keys.buff, "FilterImportant"),
             L["Important"], L["Tooltip_Aura_Filter_Important"])
+        AddFriendlyFoeToggles(importantFilter, Key(keys.buff, "FilterImportant"))
         local defensivesFilter = AddCategoryFilter(Key(keys.buff, "FilterDefensives"),
             L["Defensive_Auras"], L["Tooltip_Aura_Filter_Defensives"])
-        Add(Key(keys.buff, "FilterLessMinite"), L["Under_One_Min"], L["Tooltip_Under_One_Min"])
+        AddFriendlyFoeToggles(defensivesFilter, Key(keys.buff, "FilterDefensives"))
+        AddFriendlyFoeToggles(
+            Add(Key(keys.buff, "FilterLessMinite"), L["Under_One_Min"], L["Tooltip_Under_One_Min"]),
+            Key(keys.buff, "FilterLessMinite"))
         if keys.unitFrame then
-            Add(Key(keys.buff, "FilterOnlyMe"), L["Only_Mine"], L["Tooltip_Aura_Only_Mine"])
-            Add(Key(keys.buff, "FilterPurgeable"), L["Purgeable"], L["Tooltip_Aura_Purgeable"])
+            AddFriendlyFoeToggles(
+                Add(Key(keys.buff, "FilterOnlyMe"), L["Only_Mine"], L["Tooltip_Aura_Only_Mine"]),
+                nil, "Enemy")
+            AddFriendlyFoeToggles(
+                Add(Key(keys.buff, "FilterPurgeable"), L["Purgeable"], L["Tooltip_Aura_Purgeable"]),
+                Key(keys.buff, "FilterPurgeable"))
         end
 
         if not keys.unitFrame then
@@ -8774,13 +8865,47 @@ local function guiFrameAuras()
         end
 
         local debuffSection = AddSection(keys.debuffEnable or (keys.debuff .. "Enable"), L["Show_Debuffs"])
-        Add(Key(keys.debuff, "FilterWatchList"), L["Whitelist"], L["Tooltip_Aura_Whitelist_Filter"], L["Tooltip_Aura_Filter_Unit_Note"])
-        Add(Key(keys.debuff, "FilterBlacklist"), L["Blacklist"], L["Tooltip_Aura_Blacklist_Filter"], L["Tooltip_Aura_Filter_Unit_Note"])
+        AddFriendlyFoeToggles(debuffSection, keys.debuffEnable or (keys.debuff .. "Enable"))
+        AddFriendlyFoeToggles(
+            Add(Key(keys.debuff, "FilterWatchList"), L["Whitelist"], L["Tooltip_Aura_Whitelist_Filter"], L["Tooltip_Aura_Filter_Unit_Note"]),
+            nil, "Friendly")
+        AddFriendlyFoeToggles(
+            Add(Key(keys.debuff, "FilterBlacklist"), L["Blacklist"], L["Tooltip_Aura_Blacklist_Filter"], L["Tooltip_Aura_Filter_Unit_Note"]),
+            nil, "Friendly")
         local ccFilter = AddCategoryFilter(Key(keys.debuff, "FilterCrowdControl"),
             L["Crowd_Control"], L["Tooltip_Aura_Filter_CC"])
-        Add(Key(keys.debuff, "FilterLessMinite"), L["Under_One_Min"], L["Tooltip_Under_One_Min"])
+        AddFriendlyFoeToggles(ccFilter, Key(keys.debuff, "FilterCrowdControl"))
         if keys.unitFrame then
-            Add(Key(keys.debuff, "FilterOnlyMe"), L["Only_Mine"], L["Tooltip_Aura_Only_Mine_Debuff"])
+            local dispellable = Add(Key(keys.debuff, "FilterDispellable"),
+                L["Dispellable"], L["Tooltip_Aura_Dispellable"])
+            AddFriendlyFoeToggles(dispellable, nil, "Enemy")
+
+            local dispellableAny = CreateCheckbox(Key(keys.debuff, "FilterDispellableAny"),
+                L["Always_Show"], dispellable, nil, BBF.RefreshAllAuraFrames)
+            dispellableAny:SetPoint("TOPLEFT", dispellable, "BOTTOMLEFT", 15, pixelsBetweenBoxes)
+            CreateTooltipTwo(dispellableAny, L["Always_Show"], L["Tooltip_Aura_Dispellable_Any"])
+
+            friendlyFoeFilterBoxes[#friendlyFoeFilterBoxes + 1] = {
+                box = dispellableAny, filter = dispellable, section = section,
+            }
+
+            local outdent = CreateFrame("Frame", nil, section)
+            outdent:SetSize(23, 23)
+            outdent:SetPoint("TOPLEFT", dispellableAny, "TOPLEFT", -15, 0)
+            previous = outdent
+
+            dispellable:HookScript("OnClick", function()
+                CheckAndToggleCheckboxes(dispellable)
+                UpdateFriendlyFoeFilterBoxes()
+            end)
+        end
+        AddFriendlyFoeToggles(
+            Add(Key(keys.debuff, "FilterLessMinite"), L["Under_One_Min"], L["Tooltip_Under_One_Min"]),
+            Key(keys.debuff, "FilterLessMinite"))
+        if keys.unitFrame then
+            AddFriendlyFoeToggles(
+                Add(Key(keys.debuff, "FilterOnlyMe"), L["Only_Mine"], L["Tooltip_Aura_Only_Mine_Debuff"]),
+                nil, "Friendly")
         end
 
         AddSection(keys.prefix .. "AuraGlows", L["Extra_Aura_Settings"])
@@ -8844,6 +8969,7 @@ local function guiFrameAuras()
     })
 
     UpdateLeadingGlowBoxes()
+    UpdateFriendlyFoeFilterBoxes()
 
     --------------------------
     -- Frame settings
@@ -9082,14 +9208,37 @@ local function guiFrameAuras()
     purgeableAurasFirst:SetPoint("TOPLEFT", importantAurasFirst, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(purgeableAurasFirst, L["Purgeable_Auras_First"], L["Tooltip_Purgeable_Auras_First_Desc"])
 
+    local hidePurgeTexture = CreateCheckbox("hidePurgeTexture", L["Hide_Purge_Texture"], playerAuraFiltering, nil, BBF.RefreshAllAuraFrames)
+    hidePurgeTexture:SetPoint("TOPLEFT", purgeableAurasFirst, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hidePurgeTexture, L["Hide_Purge_Texture"], L["Tooltip_Hide_Purge_Texture"])
+
+    local showPurgeTextureOnFriendly = CreateCheckbox("showPurgeTextureOnFriendly", L["Show_Purge_Texture_On_Friendly"], playerAuraFiltering, nil, BBF.RefreshAllAuraFrames)
+    showPurgeTextureOnFriendly:SetPoint("TOPLEFT", hidePurgeTexture, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(showPurgeTextureOnFriendly, L["Show_Purge_Texture_On_Friendly"], L["Tooltip_Show_Purge_Texture_On_Friendly"])
+
     local displayDispelGlowAlways = CreateCheckbox("displayDispelGlowAlways", L["Always_Show_Purge_Texture"], playerAuraFiltering, nil, BBF.RefreshAllAuraFrames)
-    displayDispelGlowAlways:SetPoint("TOPLEFT", purgeableAurasFirst, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    displayDispelGlowAlways:SetPoint("TOPLEFT", showPurgeTextureOnFriendly, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(displayDispelGlowAlways, L["Always_Show_Purge_Texture"], L["Tooltip_Always_Show_Purge_Texture"])
 
     local changePurgeTextureColor = CreateCheckbox("changePurgeTextureColor", L["Change_Purge_Texture_Color"], playerAuraFiltering, nil, BBF.RefreshAllAuraFrames)
     changePurgeTextureColor:SetPoint("TOPLEFT", displayDispelGlowAlways, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltip(changePurgeTextureColor, L["Change_Purge_Texture_Color"])
     AddColorButton(changePurgeTextureColor, "purgeTextureColorRGB", L["Change_Purge_Texture_Color"])
+
+    local function UpdatePurgeTextureBoxes()
+        local hidden = hidePurgeTexture:GetChecked()
+        for _, box in ipairs({ showPurgeTextureOnFriendly, displayDispelGlowAlways, changePurgeTextureColor }) do
+            if hidden then
+                box:Disable()
+                box:SetAlpha(0.5)
+            else
+                box:Enable()
+                box:SetAlpha(1)
+            end
+        end
+    end
+    hidePurgeTexture:HookScript("OnClick", UpdatePurgeTextureBoxes)
+    UpdatePurgeTextureBoxes()
 
     local auraTimerColor = CreateCheckbox("auraTimerColor", L["Timer_Text_Color"], playerAuraFiltering)
     auraTimerColor:SetPoint("TOPLEFT", showAuraCdText, "BOTTOMLEFT", 0, pixelsBetweenBoxes)

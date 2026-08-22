@@ -265,6 +265,8 @@ local defaultSettings = {
 
     playerAuraFiltering = false,
     displayDispelGlowAlways = false,
+    hidePurgeTexture = false,
+    showPurgeTextureOnFriendly = false,
     overShieldsUnitFrames = true,
     overShieldsCompactUnitFrames = true,
 
@@ -296,6 +298,8 @@ local defaultSettings = {
     targetdeBuffFilterLessMinite = false,
     targetdeBuffFilterOnlyMe = false,
     targetdeBuffFilterCrowdControl = false,
+    targetdeBuffFilterDispellable = false,
+    targetdeBuffFilterDispellableAny = false,
 
     --Focus buffs
     focusBuffEnable = true,
@@ -320,6 +324,8 @@ local defaultSettings = {
     focusdeBuffFilterLessMinite = false,
     focusdeBuffFilterOnlyMe = false,
     focusdeBuffFilterCrowdControl = false,
+    focusdeBuffFilterDispellable = false,
+    focusdeBuffFilterDispellableAny = false,
 
     PlayerAuraFrameBuffFilterWatchList = false,
     PlayerAuraFramedeBuffFilterWatchList = false,
@@ -4125,12 +4131,6 @@ end
 
 function BBF.SymmetricPlayerFrame()
     if not BetterBlizzFramesDB.symmetricPlayerFrame then return end
-    if BBF.isMidnight then
-        C_Timer.After(5, function()
-            BBF.Print(L["Print_Symmetric_Disabled_Midnight"])
-        end)
-        return
-    end
     if BetterBlizzFramesDB.noPortraitModes or BetterBlizzFramesDB.noPortraitPixelBorder then return end
     if BetterBlizzFramesDB.classicFrames then
         BBF.Print(L["Print_Symmetric_Not_Available_Classic"])
@@ -4140,19 +4140,19 @@ function BBF.SymmetricPlayerFrame()
         BBF.Print(L["Print_Leave_Combat"])
         return
     end
-    -- Update Player Portrait Mask
+
+    BBF.UnregisterPlayerFrameArtEvents()
+
     local portraitMask = PlayerFrame.PlayerFrameContainer.PlayerPortraitMask
     portraitMask:SetAtlas("CircleMask")
     portraitMask:SetSize(56, 56)
-    portraitMask:SetPoint(select(1, portraitMask:GetPoint()), 27, -20)
+    portraitMask:SetPoint("TOPLEFT", 27, -20)
 
-    --local a,b,c,d,e = PlayerLevelText:GetPoint()
-    PlayerLevelText:SetPoint("TOPRIGHT",PlayerFrame.PlayerFrameContent.PlayerFrameContentMain,"TOPRIGHT",-24,-27.7)
+    PlayerLevelText:SetPoint("TOPRIGHT", PlayerFrame.PlayerFrameContent.PlayerFrameContentMain, "TOPRIGHT", -24, -27.7)
 
-    --local a,b,c,d,e = TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:GetPoint()
-    TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetPoint("TOPLEFT",TargetFrame.TargetFrameContent.TargetFrameContentMain,"TOPRIGHT",132,-2)
+    local tMain = TargetFrame.TargetFrameContent.TargetFrameContentMain
+    tMain.LevelText:SetPoint("TOPLEFT", tMain.ReputationColor, "TOPRIGHT", -132, -2)
 
-    -- Prevent portrait size changes
     hooksecurefunc(portraitMask, "SetSize", function(self)
         if not self.changing then
             self.changing = true
@@ -4163,28 +4163,22 @@ function BBF.SymmetricPlayerFrame()
 
     PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon:SetAtlas(nil)
 
-    -- Update Mana Bar
     local manaBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar
-    manaBar:SetWidth(132)
-    manaBar:SetPoint(select(1, manaBar:GetPoint()), 77, select(5, manaBar:GetPoint()))
+    manaBar:SetWidth(136)
+    manaBar:SetPoint("TOPLEFT", 76, -61)
 
-    -- Store original points for text
-    local leftTextPoint = { manaBar.LeftText:GetPoint() }
-    local rightTextPoint = { manaBar.RightText:GetPoint() }
-    local centerTextPoint = { manaBar.ManaBarText:GetPoint() }
+    manaBar.LeftText:SetPoint("LEFT", 11, 0)
+    manaBar.RightText:SetPoint("RIGHT", -5, 0)
+    manaBar.ManaBarText:SetPoint("CENTER", 4.5, 0)
 
-    manaBar.LeftText:SetPoint(leftTextPoint[1], leftTextPoint[2], leftTextPoint[3], 11, leftTextPoint[5])
-    manaBar.RightText:SetPoint(rightTextPoint[1], rightTextPoint[2], rightTextPoint[3], -5, rightTextPoint[5])
-    manaBar.ManaBarText:SetPoint(centerTextPoint[1], centerTextPoint[2], centerTextPoint[3], 4.5, centerTextPoint[5])
-
-    -- Hook for Mana Bar positioning and width
     hooksecurefunc(manaBar, "SetPoint", function(self)
+        if InCombatLockdown() then return end
         if not self.changing then
             self.changing = true
-            self:SetPoint(select(1, manaBar:GetPoint()), 76, select(5, manaBar:GetPoint()))
-            self.LeftText:SetPoint(leftTextPoint[1], leftTextPoint[2], leftTextPoint[3], 11, leftTextPoint[5])
-            self.RightText:SetPoint(rightTextPoint[1], rightTextPoint[2], rightTextPoint[3], -5, rightTextPoint[5])
-            self.ManaBarText:SetPoint(centerTextPoint[1], centerTextPoint[2], centerTextPoint[3], 4.5, centerTextPoint[5])
+            self:SetPoint("TOPLEFT", 76, -61)
+            self.LeftText:SetPoint("LEFT", 11, 0)
+            self.RightText:SetPoint("RIGHT", -5, 0)
+            self.ManaBarText:SetPoint("CENTER", 4.5, 0)
             self.changing = false
         end
     end)
@@ -4198,30 +4192,28 @@ function BBF.SymmetricPlayerFrame()
         end
     end)
 
-    -- Update ManaBarMask texture
     local playerManaMask = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask
     playerManaMask:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Flipped")
     playerManaMask:SetWidth(258.5)
-    playerManaMask:SetPoint(select(1, playerManaMask:GetPoint()), -64, select(5, playerManaMask:GetPoint()))
+    playerManaMask:SetPoint("TOPLEFT", -64, 2)
     hooksecurefunc(playerManaMask, "SetAtlas", function(self)
         self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Flipped")
         self:SetWidth(258.5)
-        self:SetPoint(select(1, self:GetPoint()), -64, select(5, self:GetPoint()))
+        self:SetPoint("TOPLEFT", -64, 2)
     end)
 
-    -- Update Health Bar Mask texture
     local healthbarMask = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBarMask
     hooksecurefunc(healthbarMask, "SetAtlas", function(self)
         self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetHealthMask2x-Flipped")
     end)
     healthbarMask:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetHealthMask2x-Flipped")
 
-    healthbarMask:SetSize(129,32)
+    healthbarMask:SetSize(129, 32 + BBF.GetBigPlayerHealthbarGrowth())
 
     hooksecurefunc(healthbarMask, "SetHeight", function(self)
         if self.changing then return end
         self.changing = true
-        self:SetHeight(32)
+        self:SetHeight(32 + BBF.GetBigPlayerHealthbarGrowth())
         self.changing = false
     end)
 
@@ -4233,27 +4225,22 @@ function BBF.SymmetricPlayerFrame()
         self.changing = false
     end)
 
-
-    -- Hook for Health Bar positioning and width (+1 width, -1 x position)
-    local healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
-    local healthBarPoint = { healthBar:GetPoint() }
+    local healthBarsContainer = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer
+    local healthBar = healthBarsContainer.HealthBar
 
     hooksecurefunc(healthBar, "SetPoint", function(self)
         if not self.changing then
             self.changing = true
-            self:SetPoint(healthBarPoint[1], healthBarPoint[2], healthBarPoint[3], healthBarPoint[4] - 1.5, healthBarPoint[5]+1)
+            self:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5, 1)
             self.changing = false
         end
     end)
-    healthBar:SetPoint(healthBarPoint[1], healthBarPoint[2], healthBarPoint[3], healthBarPoint[4] - 1.5, healthBarPoint[5]+1)
+    healthBar:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5, 1)
 
     local playerPortrait = PlayerFrame.PlayerFrameContainer.PlayerPortrait
-    local playerPortraitPoint = { playerPortrait:GetPoint() }
     playerPortrait:SetSize(58.5, 58.5)
-    playerPortrait:SetPoint(playerPortraitPoint[1], playerPortraitPoint[2], playerPortraitPoint[3], playerPortraitPoint[4] + 2, playerPortraitPoint[5]+1)
+    playerPortrait:SetPoint("TOPLEFT", 26, -18)
 
-    -- Hook for HealthBarsContainer width
-    local healthBarsContainer = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer
     hooksecurefunc(healthBarsContainer, "SetWidth", function(self)
         if InCombatLockdown() then return end
         if not self.changing then
@@ -4265,42 +4252,38 @@ function BBF.SymmetricPlayerFrame()
     healthBarsContainer:SetWidth(126)
 
     hooksecurefunc(healthBarsContainer, "SetHeight", function(self)
+        if InCombatLockdown() then return end
         if not self.changing then
             self.changing = true
-            self:SetHeight(20.5)
+            self:SetHeight(20.5 + BBF.GetBigPlayerHealthbarGrowth())
             self.changing = false
         end
     end)
-    healthBarsContainer:SetHeight(20.5)
+    healthBarsContainer:SetHeight(20.5 + BBF.GetBigPlayerHealthbarGrowth())
 
-    local rightTextPoint = { healthBarsContainer.RightText:GetPoint() }
-    local leftTextPoint = { healthBarsContainer.LeftText:GetPoint() }
-    local centerTextPoint = { healthBarsContainer.HealthBarText:GetPoint() }
-    healthBarsContainer.RightText:SetPoint(rightTextPoint[1], rightTextPoint[2], rightTextPoint[3], -4, rightTextPoint[5]+1)
-    healthBarsContainer.LeftText:SetPoint(leftTextPoint[1], leftTextPoint[2], leftTextPoint[3], leftTextPoint[4], leftTextPoint[5]+1)
-    healthBarsContainer.HealthBarText:SetPoint(centerTextPoint[1], centerTextPoint[2], centerTextPoint[3], centerTextPoint[4], centerTextPoint[5]+1)
+    healthBarsContainer.RightText:SetPoint("RIGHT", -4, 1)
+    healthBarsContainer.LeftText:SetPoint("LEFT", 2, 1)
+    healthBarsContainer.HealthBarText:SetPoint("CENTER", 0, 1)
 
-    -- Hook for Health Bar width
     hooksecurefunc(healthBar, "SetHeight", function(self)
         if InCombatLockdown() then return end
         if not self.changing then
             self.changing = true
-            self:SetHeight(20)
+            self:SetHeight(20 + BBF.GetBigPlayerHealthbarGrowth())
             self.changing = false
         end
     end)
-    healthBar:SetHeight(20)
+    healthBar:SetHeight(20 + BBF.GetBigPlayerHealthbarGrowth())
     healthBar:SetWidth(126)
 
 
     local playerTex = PlayerFrame.PlayerFrameContainer.FrameTexture
     if BetterBlizzFramesDB.hideUnitFrameShadow then
-        local targetTex = TargetFrame.TargetFrameContainer.FrameTexture:GetTexture()
+        local targetTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow"
         playerTex:SetTexture(targetTex)
         playerTex:SetSize(192, 67)
         playerTex:SetTexCoord(1,0,0,1)
         hooksecurefunc(playerTex, "SetAtlas", function(self)
-            local targetTex = TargetFrame.TargetFrameContainer.FrameTexture:GetTexture()
             self:SetTexture(targetTex)
             self:SetSize(192, 67)
             self:SetTexCoord(1,0,0,1)
@@ -4319,7 +4302,6 @@ function BBF.SymmetricPlayerFrame()
         end)
     end
 
-
     local playerFlash = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture
     hooksecurefunc(playerFlash, "SetAtlas", function(self)
         if self.changing then return end
@@ -4332,13 +4314,12 @@ function BBF.SymmetricPlayerFrame()
     playerFlash:SetAtlas("UI-HUD-UnitFrame-Target-MinusMob-PortraitOn-Status")
     playerFlash:SetTexCoord(1,0,0,1)
     playerFlash:SetSize(194, 70)
-    local a,b,c,d,e = playerFlash:GetPoint()
-    playerFlash:SetPoint(a,b,c,20,-13.5)
+    playerFlash:SetPoint("TOPLEFT", PlayerFrame.PlayerFrameContainer, "TOPLEFT", 20, -13.5)
 
     hooksecurefunc(playerFlash, "SetPoint", function(self)
         if self.changing then return end
         self.changing = true
-        playerFlash:SetPoint(a,b,c,20,-13.5)
+        self:SetPoint("TOPLEFT", PlayerFrame.PlayerFrameContainer, "TOPLEFT", 20, -13.5)
         self.changing = false
     end)
 
@@ -4346,13 +4327,10 @@ function BBF.SymmetricPlayerFrame()
     local altTex = BetterBlizzFramesDB.hideUnitFrameShadow and "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow-Alt" or "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-Alt"
     playerAltTex:SetTexture(altTex)
     playerAltTex:SetSize(192, 67)
-    local a,b,c,d,e = playerAltTex:GetPoint()
-    PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture:SetPoint(a,b,c,0,-0.5)
+    playerAltTex:SetPoint("CENTER", 0, -0.5)
 
     local playerThreat = PlayerFrame.threatIndicator
-    hooksecurefunc(playerThreat, "SetAtlas", function(self)
-        if self.changing then return end
-        self.changing = true
+    local function ApplyThreatLayout(self)
         if playerAltTex:IsShown() then
             self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOn-InCombat-Alt")
             self:SetSize(192, 67.5)
@@ -4361,72 +4339,54 @@ function BBF.SymmetricPlayerFrame()
             self:SetSize(188, 67)
             self:SetTexCoord(1,0,0,1)
         end
-        self.changing = false
-    end)
-    if playerAltTex:IsShown() then
-        playerThreat:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOn-InCombat-Alt")
-        playerThreat:SetSize(192, 67.5)
-    else
-        playerThreat:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-InCombat")
-        playerThreat:SetTexCoord(1,0,0,1)
-        playerThreat:SetSize(188, 67)
+    end
+    local function ApplyThreatPoint(self)
+        if playerAltTex:IsShown() then
+            self:SetPoint("CENTER", 0, 1.5)
+        else
+            self:SetPoint("CENTER", 0.5, 1)
+        end
     end
 
-    local a,b,c,d,e = playerThreat:GetPoint()
-    if playerAltTex:IsShown() then
-        playerThreat:SetPoint(a,b,c,0,1.5)
-    else
-        playerThreat:SetPoint(a,b,c,d+2,e)
-    end
+    hooksecurefunc(playerThreat, "SetAtlas", function(self)
+        if self.changing then return end
+        self.changing = true
+        ApplyThreatLayout(self)
+        self.changing = false
+    end)
+    ApplyThreatLayout(playerThreat)
+
+    ApplyThreatPoint(playerThreat)
     hooksecurefunc(playerThreat, "SetPoint", function(self)
         if self.changing then return end
         self.changing = true
-        if playerAltTex:IsShown() then
-            playerThreat:SetPoint(a,b,c,0,1.5)
-        else
-            playerThreat:SetPoint(a,b,c,d+2,e)
-        end
-
+        ApplyThreatPoint(self)
         self.changing = false
     end)
 
     local function ConfigurePowerBar(frame)
-        -- Set point and width for the main power bar
-        local a, b, c, d, e = frame:GetPoint()
-        frame:SetPoint(a, b, c, 77, -72.5)
+        if not frame then return end
+
+        frame:SetPoint("TOPLEFT", 77, -72.5)
         frame:SetWidth(133)
         frame:SetHeight(10)
 
-        -- Adjust the LeftText position
-        local a, b, c, d, e = frame.LeftText:GetPoint()
-        frame.LeftText:SetPoint(a, b, c, 10, e+0.5)
+        frame.LeftText:SetPoint("LEFT", 10, 0.5)
+        frame.TextString:SetPoint("CENTER", 10, 0.5)
+        frame.RightText:SetPoint("RIGHT", -3, 0.5)
 
-        -- Adjust the TextString position
-        local a, b, c, d, e = frame.TextString:GetPoint()
-        frame.TextString:SetPoint(a, b, c, 10, e+0.5)
-
-        -- Adjust the TextString position
-        local a, b, c, d, e = frame.RightText:GetPoint()
-        frame.RightText:SetPoint(a, b, c,-3, e+0.5)
-
-        -- Hook the PowerBarMask SetAtlas function
         hooksecurefunc(frame.PowerBarMask, "SetAtlas", function(self)
             self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Alt")
             self:SetWidth(249)
         end)
 
-        -- Apply settings to the PowerBarMask
         frame.PowerBarMask:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Alt")
         frame.PowerBarMask:SetWidth(249)
         frame.PowerBarMask:SetHeight(13)
-
-        -- Adjust the PowerBarMask position
-        local a, b, c, d, e = frame.PowerBarMask:GetPoint()
-        frame.PowerBarMask:SetPoint(a, b, c, -57, 3)
+        frame.PowerBarMask:SetPoint("TOPLEFT", -57, 3)
     end
 
-    -- Call the function for each frame
-    local _, playerClass = UnitClass("player")
+    local playerClass = UnitClassBase("player")
 
     if playerClass == "MONK" then
         ConfigurePowerBar(MonkStaggerBar)
@@ -4715,8 +4675,8 @@ end
 
 function BBF.FixStupidBlizzPTRShit()
     --if BBF.isMidnight then return end
-    if InCombatLockdown() then return end
     if BBF.ocdFixActive then return end
+    if InCombatLockdown() then return end
     BBF.ocdFixActive = true
 
     local function FixCastbarBackground(bg)
@@ -4838,12 +4798,14 @@ function BBF.FixStupidBlizzPTRShit()
 
     local a, b, c, d, e = TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:GetPoint()
     TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetPoint(a, b, c, d, -24)
-    if not BBF.ocdAdjusted then
-        local a,b,c,d,e = TargetFrame.bbfName:GetPoint()
-        TargetFrame.bbfName:SetPoint(a,b,c,d,-2)
-        local a,b,c,d,e = FocusFrame.bbfName:GetPoint()
-        FocusFrame.bbfName:SetPoint(a,b,c,d,-2)
-        BBF.ocdAdjusted = true
+    if not BBF.ocdAdjusted and TargetFrame.bbfName and FocusFrame.bbfName then
+        local a,b,c,d = TargetFrame.bbfName:GetPoint()
+        local e,f,g,h = FocusFrame.bbfName:GetPoint()
+        if a and e then
+            TargetFrame.bbfName:SetPoint(a,b,c,d,-2)
+            FocusFrame.bbfName:SetPoint(e,f,g,h,-2)
+            BBF.ocdAdjusted = true
+        end
     end
     local lvlYOffset = BetterBlizzFramesDB.symmetricPlayerFrame and -4 or -4
     --TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetHeight()
@@ -4861,7 +4823,8 @@ function BBF.FixStupidBlizzPTRShit()
     -- HealthBarColorActive
     --if not BetterBlizzFramesDB.playerFrameOCDTextureBypass then
         local a, b, c, d, e = PlayerLevelText:GetPoint()
-        PlayerLevelText:SetPoint(a,b,c,d,-28.5)
+        local xoffset = BetterBlizzFramesDB.symmetricPlayerFrame and -2.5 or -1
+        PlayerLevelText:SetPoint(a,b,c,d+xoffset,-28.5)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBarMask:SetHeight(33)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask:SetPoint("TOPLEFT", PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar, "TOPLEFT", -2, 3)
         -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask:SetHeight(17)
@@ -5081,17 +5044,23 @@ function BBF.SpecPortraits()
     if not BetterBlizzFramesDB.classPortraitsUseSpecIcons then return end
     hooksecurefunc("UnitFramePortrait_Update", function(self)
         if (self.unit == "target" or self.unit == "focus" or self.unit == "player") and UnitIsPlayer(self.unit) then
-            if self.unit == "player" and BetterBlizzFramesDB.classPortraitsUseSpecIconsSkipSelf then
-                return
-            end
-            local specID = BBF.GetSpecID(self.unit)
-            if specID then
-                local _, _, _, icon = GetSpecializationInfoByID(specID)
-                if icon then
-                    self.portrait:SetTexture(icon)
-                    return
+            if not (self.unit == "player" and BetterBlizzFramesDB.classPortraitsUseSpecIconsSkipSelf) then
+                local specID = BBF.GetSpecID(self.unit)
+                if specID then
+                    local _, _, _, icon = GetSpecializationInfoByID(specID)
+                    if icon then
+                        local crop = 0.04
+                        self.portrait:SetTexture(icon)
+                        self.portrait:SetTexCoord(crop, 1 - crop, crop, 1 - crop)
+                        self.bbfSpecPortraitCropped = true
+                        return
+                    end
                 end
             end
+        end
+        if self.bbfSpecPortraitCropped then
+            self.portrait:SetTexCoord(0, 1, 0, 1)
+            self.bbfSpecPortraitCropped = nil
         end
     end)
     BBF.SpecPortraitsHooked = true
@@ -5399,6 +5368,8 @@ First:SetScript("OnEvent", function(_, event, addonName)
             "enableMaxTargetFocusBuffs", "maxTargetFocusBuffs",
             "enableMaxTargetFocusDebuffs", "maxTargetFocusDebuffs",
             "hidePlayerAuraTooltips", "playerAuraPandemicGlow",
+            "targetdeBuffFilterDispellableEnemy", "targetdeBuffFilterDispellableFriendly",
+            "focusdeBuffFilterDispellableEnemy", "focusdeBuffFilterDispellableFriendly",
         }) do
             BetterBlizzFramesDB[key] = nil
         end
