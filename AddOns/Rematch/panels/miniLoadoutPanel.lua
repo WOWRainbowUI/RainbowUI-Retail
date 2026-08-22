@@ -45,7 +45,7 @@ function rematch.miniLoadoutPanel:Update()
 
         -- when slotting a pet, the loadouts are updated; if the mouse is over a loadout when that happens and the pet card
         -- is unlocked and visible, then we need to change pets the card is showing (using the OnEnter to let focus handle it)
-        if MouseIsOver(self.Loadouts[i]) and rematch.petCard.petID~=petID and not rematch.cardManager:IsCardLocked(rematch.petCard) then
+        if self.Loadouts[i]:IsMouseOver() and rematch.petCard.petID~=petID and not rematch.cardManager:IsCardLocked(rematch.petCard) then -- 12.1 fix
             local focus = GetMouseFoci()[1]
             if focus and focus.petID then
                 focus:GetScript("OnEnter")(focus)
@@ -72,7 +72,7 @@ end
 -- OnUpdate closes flyout after C.FLYOUT_OPEN_TIMER passes with mouse not on the flyout or ability that opened it
 local flyoutTimer = 0
 function rematch.miniLoadoutPanel.AbilityFlyout:OnUpdate(elapsed)
-    if self.anchoredTo and (MouseIsOver(self.anchoredTo) or MouseIsOver(self)) then
+    if self.anchoredTo and (InputUtil.IsMouseOver(self.anchoredTo) or InputUtil.IsMouseOver(self)) then
         flyoutTimer = 0
     else
         flyoutTimer = flyoutTimer + elapsed
