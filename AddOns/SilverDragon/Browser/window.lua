@@ -322,6 +322,14 @@ function module:UpdateHeaderButtons()
 	self.window.grouping:GenerateMenu()
 end
 
+local openConfig = function()
+	local config = core:GetModule("Config", true)
+	if config then
+		config:ShowConfig()
+		LibStub("AceConfigDialog-3.0"):SelectGroup("SilverDragon", "browser")
+	end
+end
+
 local filterIgnoredLabels = {
 	show = "Show ignored",
 	hide = "Hide ignored",
@@ -331,6 +339,9 @@ local filterIgnoredLabels = {
 -- The per-expansion switches, the only settings here that reach outside the
 -- window. The wording has to be plain about that: unticking an expansion does
 -- not tidy up this list, it takes those rares away from the whole addon.
+local SOURCE_KNOWN_DESC = "If you disable this, SilverDragon will just not know about these mobs. They'll still be announced when you mouse over them, like any unknown rare."
+local SOURCE_IGNORE_DESC = "Ignore every mob provided by this module. This will make them all not be announced, regardless of any other settings."
+
 local sources = {}
 local function sortedSources()
 	wipe(sources)
@@ -350,7 +361,7 @@ function module:AddDatasourceMenu(rootDescription)
 			core.db.global.datasources[value] = not core.db.global.datasources[value]
 			core:BuildLookupTables()
 			return MenuResponse.Refresh
-		end, source):SetTitleAndTextTooltip(nil, "If you disable this, SilverDragon will just not know about these mobs. They'll still be announced when you mouse over them, like any unknown rare.")
+		end, source):SetTitleAndTextTooltip(nil, SOURCE_KNOWN_DESC)
 	end
 
 	local silenced = rootDescription:CreateButton("Sources to ignore...")
@@ -361,9 +372,28 @@ function module:AddDatasourceMenu(rootDescription)
 			core.db.global.ignore_datasource[value] = not core.db.global.ignore_datasource[value] or nil
 			core:BuildLookupTables()
 			return MenuResponse.Refresh
-		end, source):SetTitleAndTextTooltip(nil, "Ignore every mob provided by this module. This will make them all not be announced, regardless of any other settings.")
+		end, source):SetTitleAndTextTooltip(nil, SOURCE_IGNORE_DESC)
 	end
 end
+
+-- The same two switches, for the one source whose heading was right-clicked.
+function module:AddSourceSwitches(rootDescription, source)
+	rootDescription:CreateCheckbox("SilverDragon knows these rares", function()
+		return core.db.global.datasources[source]
+	end, function()
+		core.db.global.datasources[source] = not core.db.global.datasources[source]
+		core:BuildLookupTables()
+		return MenuResponse.Refresh
+	end):SetTitleAndTextTooltip(nil, SOURCE_KNOWN_DESC)
+	rootDescription:CreateCheckbox("Ignore every rare from here", function()
+		return core.db.global.ignore_datasource[source]
+	end, function()
+		core.db.global.ignore_datasource[source] = not core.db.global.ignore_datasource[source] or nil
+		core:BuildLookupTables()
+		return MenuResponse.Refresh
+	end):SetTitleAndTextTooltip(nil, SOURCE_IGNORE_DESC)
+end
+
 function module:ShowFilterMenu(owner)
 	if not (_G.MenuUtil and MenuUtil.CreateContextMenu) then return end
 	MenuUtil.CreateContextMenu(owner, function(_, rootDescription)
@@ -405,14 +435,17 @@ function module:ShowFilterMenu(owner)
 			LibStub("AceConfigDialog-3.0"):SelectGroup("SilverDragon", "mobs", "custom")
 			return MenuResponse.CloseAll
 		end)
+
+		local config = core:GetModule("Config", true)
+		if config then
+			rootDescription:CreateButton(OPTIONS, openConfig)
+		end
 	end)
 end
 
 function module:ShowConfigMenu(owner)
 	if not (_G.MenuUtil and MenuUtil.CreateContextMenu) then
-		local config = core:GetModule("Config", true)
-		if config then config:ShowConfig() end
-		return
+		return openConfig()
 	end
 	MenuUtil.CreateContextMenu(owner, function(_, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_BROWSER_CONTEXT")
@@ -440,7 +473,7 @@ function module:ShowConfigMenu(owner)
 			module.window.detailPane:SetMob(module.selectedMob)
 			return MenuResponse.Refresh
 		end)
-		rootDescription:CreateCheckbox("Dim the rest of the zone", function()
+		rootDescription:CreateCheckbox("Show other rares in the zone", function()
 			return module.db.profile.mapShowAll
 		end, function()
 			module.db.profile.mapShowAll = not module.db.profile.mapShowAll
@@ -448,6 +481,10 @@ function module:ShowConfigMenu(owner)
 			return MenuResponse.Refresh
 		end)
 		rootDescription:CreateDivider()
+		local config = core:GetModule("Config", true)
+		if config then
+			rootDescription:CreateButton(OPTIONS, openConfig)
+		end
 		rootDescription:CreateButton(CLOSE, function()
 			module.window:Hide()
 			return MenuResponse.CloseAll

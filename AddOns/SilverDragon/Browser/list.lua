@@ -84,23 +84,38 @@ end
 --
 -- "hidden" here means hidden from the browser by the user's filter choices, not
 -- the data's own `hidden` flag, which is applied when the index is built.
+local function isWatched(id)
+	if core.db.global.custom.any[id] then return true end
+	for uiMapID, mobs in pairs(core.db.global.custom) do
+		if uiMapID ~= "any" and mobs[id] then return true end
+	end
+	return false
+end
+
+-- Ignored means you said so, about this rare or about everything from its
+-- source. Adding one by hand says the opposite, and wins -- the same order
+-- core:ShouldIgnoreMob settles it in.
+--
+-- The source is only consulted once the per-mob flag has come back empty, and
+-- the hand-added list only once the source has come back ignored: this runs for
+-- every mob in the data whenever a header counts its rows.
+local function isIgnored(id)
+	if core.db.global.ignore[id] then return true end
+	local data = ns.mobdb[id]
+	if not (data and data.source and core.db.global.ignore_datasource[data.source]) then
+		return false
+	end
+	return not isWatched(id)
+end
+
 local function passesFilter(id)
 	local db = module.db.profile
-	local ignored = core.db.global.ignore[id]
-	if db.filterIgnored == "hide" and ignored then return false end
-	if db.filterIgnored == "only" and not ignored then return false end
-	if db.filterWatched then
-		local watched = core.db.global.custom.any[id]
-		if not watched then
-			for uiMapID, mobs in pairs(core.db.global.custom) do
-				if uiMapID ~= "any" and mobs[id] then
-					watched = true
-					break
-				end
-			end
-		end
-		if not watched then return false end
+	if db.filterIgnored ~= "show" then
+		local ignored = isIgnored(id)
+		if db.filterIgnored == "hide" and ignored then return false end
+		if db.filterIgnored == "only" and not ignored then return false end
 	end
+	if db.filterWatched and not isWatched(id) then return false end
 	return true
 end
 module.passesFilter = passesFilter
@@ -989,6 +1004,12 @@ function NavLineMixin:SetData(data)
 		elseif watched then
 			self.badge:SetAtlas("VignetteKill")
 		end
+	elseif data.kind == KIND_SOURCE and data.source
+		and core.db.global.ignore_datasource[data.source] then
+		-- every mob under here is ignored, so the heading wears the same mark a
+		-- single ignored one does
+		self.badge:SetAtlas("common-icon-redx")
+		self.badge:Show()
 	else
 		self.badge:Hide()
 	end
@@ -1019,8 +1040,9 @@ function NavLineMixin:SetData(data)
 		if data.kind == KIND_SOURCE and data.source and not data.noToggle then
 			-- there's no checkbox on the row any more, so say it in the label
 			local off = not core.db.global.datasources[data.source]
+			local ignored = core.db.global.ignore_datasource[data.source]
 			self.title:SetText(off and (data.source .. " |cff999999(not loaded)|r") or data.source)
-			self.title:SetAlpha(off and 0.5 or 1)
+			self.title:SetAlpha(off and 0.5 or ignored and 0.4 or 1)
 		else
 			self.title:SetText(data.kind == KIND_SOURCE and data.source or data.label or "")
 		end
@@ -1058,7 +1080,7 @@ NavLineMixin.Scripts = {
 		if button == "RightButton" then
 			-- by value: rows recycle, and a menu holding onto this frame would
 			-- act on whatever scrolled into it
-			return module:ShowRowMenu(self, data.kind, data.id, data.key, data.uiMapID)
+			return module:ShowRowMenu(self, data.kind, data.id, data.key, data.uiMapID, data.source)
 		end
 		if data.kind == KIND_MOB then
 			return module:SelectMob(data.id, data.uiMapID)
@@ -1073,7 +1095,7 @@ NavLineMixin.Scripts = {
 	end,
 }
 
-function module:ShowRowMenu(owner, kind, id, key, uiMapID)
+function module:ShowRowMenu(owner, kind, id, key, uiMapID, source)
 	if not (_G.MenuUtil and MenuUtil.CreateContextMenu) then
 		return self:ShowConfigMenu(owner)
 	end
@@ -1107,6 +1129,10 @@ function module:ShowRowMenu(owner, kind, id, key, uiMapID)
 		end
 		-- a header: what the options panel's All / None buttons did, said plainly
 		rootDescription:CreateTitle(owner.title:GetText() or "")
+		if kind == KIND_SOURCE and source then
+			module:AddSourceSwitches(rootDescription, source)
+			rootDescription:CreateDivider()
+		end
 		local ids = {}
 		for _, entry in module.dataProvider:Enumerate() do
 			if entry.kind == KIND_MOB and entry.key:find(key, 1, true) == 1 then
