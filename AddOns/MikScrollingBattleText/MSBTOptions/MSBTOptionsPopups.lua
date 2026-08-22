@@ -126,7 +126,7 @@ local function CreatePopup()
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
 	frame:RegisterForDrag("LeftButton")
-	frame:SetFrameStrata("HIGH")
+	frame:SetFrameStrata("DIALOG")
 	--frame:SetToplevel(true)
 	frame:SetClampedToScreen(true)
 	frame:SetBackdrop(popupBackdrop)
@@ -161,7 +161,7 @@ local function ChangePopupParent(frame, parent)
 	local oldHandler = frame.hideHandler
 	frame.hideHandler = nil
 	frame:SetParent(parent or UIParent)
-	frame:SetFrameStrata("HIGH")
+	frame:SetFrameStrata("DIALOG")
 	frame.hideHandler = oldHandler
 end
 
