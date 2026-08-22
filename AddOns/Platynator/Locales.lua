@@ -159,6 +159,7 @@ L["PRIORITY"] = "Priority"
 L["INCLUDE"] = "Include"
 L["EXCLUDE"] = "Exclude"
 L["THAT_SPELL_DOESNT_EXIST"] = "That spell doesn't exist"
+L["ID_IN_TOOLTIPS"] = "IDs in tooltips"
 
 L["BUFFS_FRIENDLY"] = "Buffs (Friendly)"
 L["DEBUFFS_ENEMY"] = "Debuffs (Enemy)"

@@ -31,6 +31,36 @@ function addonTable.Display.ManagerMixin:OnLoad()
   self.nameplateClickRegions = {}
   self.nameplateStackRegions = {}
 
+  for i = 1, 40 do
+    local clickRegion = CreateFrame("Frame")
+    self.nameplateClickRegions["NamePlate" .. i] = clickRegion
+    if addonTable.Constants.IsMists then
+      clickRegion:SetScale(UIParent:GetScale())
+    end
+    clickRegion.visual = clickRegion:CreateTexture()
+    clickRegion.visual:SetColorTexture(addonTable.Constants.ClickRegionColor.r, addonTable.Constants.ClickRegionColor.g, addonTable.Constants.ClickRegionColor.b, addonTable.Constants.ClickRegionColor.a)
+    clickRegion.visual:SetAllPoints()
+
+    if C_XMLUtil.GetTemplateInfo("PingableUnitFrameTemplate") then
+      local pingRegion = CreateFrame("Frame", nil, clickRegion, "PingableUnitFrameTemplate")
+      pingRegion:SetAllPoints()
+
+      clickRegion.ping = pingRegion
+    end
+
+    local stackRegion = CreateFrame("Frame")
+    local tex = stackRegion:CreateTexture()
+    tex:SetColorTexture(1, 0, 0, 0)
+    tex:SetAllPoints(stackRegion)
+    stackRegion.visual = stackRegion:CreateTexture()
+    stackRegion.visual:SetColorTexture(addonTable.Constants.StackRegionColor.r, addonTable.Constants.StackRegionColor.g, addonTable.Constants.StackRegionColor.b, addonTable.Constants.StackRegionColor.a)
+    stackRegion.visual:SetPoint("CENTER", stackRegion)
+    if addonTable.Constants.IsMists then
+      stackRegion:SetScale(UIParent:GetScale())
+    end
+    self.nameplateStackRegions["NamePlate" .. i] = stackRegion
+  end
+
   self:SetScript("OnEvent", self.OnEvent)
 
   self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
@@ -473,19 +503,15 @@ function addonTable.Display.ManagerMixin:UpdateClickRegion(unit)
   local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
   if nameplate and addonTable.Constants.IsHitTestPointsAvailable and nameplate:CanChangeHitTestPoints() then
     local clickRegion = self.nameplateClickRegions[nameplate:GetName()]
-    if not clickRegion then
-      clickRegion = self.clickRegionPool:Acquire()
-      if addonTable.Constants.IsMists then
-        clickRegion:SetScale(UIParent:GetScale())
-      end
+    if not clickRegion.parented then
+      clickRegion.parented = true
       clickRegion:SetParent(nameplate)
-      clickRegion.visual = clickRegion:CreateTexture()
-      clickRegion.visual:SetColorTexture(addonTable.Constants.ClickRegionColor.r, addonTable.Constants.ClickRegionColor.g, addonTable.Constants.ClickRegionColor.b, addonTable.Constants.ClickRegionColor.a)
-      clickRegion.visual:SetAllPoints()
-      self.nameplateClickRegions[nameplate:GetName()] = clickRegion
     end
     clickRegion:Show()
     clickRegion:ClearAllPoints()
+    if clickRegion.ping then
+      clickRegion.ping:SetAttribute("unit", unit)
+    end
     local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
     local region, clickScale, scale = addonTable.Display.Context:GetClickRegion(unit)
     local width = region.width * clickScale * scale * globalScale * addonTable.Assets.BarBordersSize.width
@@ -544,18 +570,9 @@ function addonTable.Display.ManagerMixin:Install(unit)
     self.nameplateDisplays[unit] = newDisplay
     newDisplay:SetParent(nameplate)
     if nameplate.SetStackingBoundsFrame then
-      if not self.nameplateStackRegions[nameplate:GetName()] then
-        local stackRegion = CreateFrame("Frame", nil, nameplate)
-        local tex = stackRegion:CreateTexture()
-        tex:SetColorTexture(1, 0, 0, 0)
-        tex:SetAllPoints(stackRegion)
-        stackRegion.visual = stackRegion:CreateTexture()
-        stackRegion.visual:SetColorTexture(addonTable.Constants.StackRegionColor.r, addonTable.Constants.StackRegionColor.g, addonTable.Constants.StackRegionColor.b, addonTable.Constants.StackRegionColor.a)
-        stackRegion.visual:SetPoint("CENTER", stackRegion)
-        if addonTable.Constants.IsMists then
-          stackRegion:SetScale(UIParent:GetScale())
-        end
-        self.nameplateStackRegions[nameplate:GetName()] = stackRegion
+      if not self.nameplateStackRegions[nameplate:GetName()].parented then
+        self.nameplateStackRegions[nameplate:GetName()].parented = true
+        self.nameplateStackRegions[nameplate:GetName()]:SetParent(nameplate)
       end
       newDisplay.stackRegion = self.nameplateStackRegions[nameplate:GetName()]
       newDisplay.stackRegion.rect = addonTable.Utilities.GetRectFromRegion(design.regions.stack, scale * design.scale * globalScale, design.regions.stack.anchor, true)
