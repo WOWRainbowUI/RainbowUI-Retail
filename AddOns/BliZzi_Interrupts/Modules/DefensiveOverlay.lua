@@ -167,6 +167,15 @@ local function UpdateUnit(unit)
         return
     end
 
+    -- "Show own cooldowns" (Party CDs) governs the player slot here too:
+    -- someone who switched their own icon row off does not want the same
+    -- information glowing on their own unit frame instead. Party members
+    -- are unaffected.
+    if unit == "player" and BIT.db and BIT.db.partyCooldownsShowOwn == false then
+        HideIconsFrom(rec, 1)
+        return
+    end
+
     CollectDefensives(unit)
     local count = #_scratch
     if count == 0 then

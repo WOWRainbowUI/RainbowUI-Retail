@@ -231,9 +231,20 @@ function BIT.Media:Load()
     self.flatTexture = "Interface\\BUTTONS\\WHITE8X8"
 
     local db     = BIT.db
-    -- Font outline: "NONE" maps to empty string for WoW SetFont API
+    -- Font outline: "NONE" maps to empty string for WoW SetFont API.
+    -- Non-empty outlines carry the SLUG token: the 12.x client's newer
+    -- GPU text renderer, which draws noticeably crisper outlines at
+    -- small sizes than the legacy bitmap outline. Unknown tokens are
+    -- ignored by the flag parser, so this is safe everywhere we run.
+    --
+    -- slugSuffix is the shared source of truth every other font call site
+    -- reads (bar text, CD numbers, keystone list, settings). The user can
+    -- drop it via the "Disable crisp text" toggle when a specific font
+    -- renders badly with the new renderer. Recomputed here, and Load() is
+    -- re-run live when the toggle flips, so no /reload is needed.
+    self.slugSuffix = (db and db.fontDisableSlug) and "" or ", SLUG"
     local outline = db and db.fontOutline or "OUTLINE"
-    self.fontFlags = (outline == "NONE") and "" or outline
+    self.fontFlags = (outline == "NONE") and "" or (outline .. self.slugSuffix)
     local locale = GetLocale()
     local lsm    = GetLSM()
 
@@ -366,11 +377,11 @@ function BIT.Media:SetFont(fontString, size)
     local path = self.font
     -- safety: if font path is invalid, fall back to WoW default
     if path then
-        local ok = pcall(function() fontString:SetFont(path, size, self.fontFlags or "OUTLINE") end)
+        local ok = pcall(function() fontString:SetFont(path, size, self.fontFlags or ("OUTLINE" .. (self.slugSuffix or ", SLUG"))) end)
         if ok and fontString:GetFont() then return end
     end
     -- fallback — guaranteed to work
-    fontString:SetFont("Fonts\\FRIZQT__.TTF", size, "OUTLINE")
+    fontString:SetFont("Fonts\\FRIZQT__.TTF", size, "OUTLINE" .. (self.slugSuffix or ", SLUG"))
 end
 
 function BIT.Media:SetBarTexture(widget)

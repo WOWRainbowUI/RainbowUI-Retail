@@ -34,7 +34,18 @@ end
 ------------------------------------------------------------
 local function BuildReport()
     local lines = {}
-    local function L(s) lines[#lines + 1] = s or "" end
+    -- Every line is screened for secret values before it enters the buffer.
+    -- Concatenating a secret (a tainted class / name / spell field) with a
+    -- string yields a SECRET string, and table.concat then throws
+    -- "invalid value (secret) at index N" — killing the whole report at the
+    -- exact moment it is needed (live: a M+ run where a member's class came
+    -- through tainted). Substituting a placeholder keeps the rest readable.
+    local function L(s)
+        if s == nil then s = "" end
+        local ok, isSec = pcall(issecretvalue, s)
+        if not ok or isSec then s = "  <secret value — omitted>" end
+        lines[#lines + 1] = s
+    end
     local function HR(ch) L(string.rep(ch or "-", 60)) end
 
     local now = GetTime()

@@ -16,7 +16,7 @@
 ]]
 
 BIT = BIT or {}
-BIT.VERSION    = "4.1.8"
+BIT.VERSION    = "4.2.1"
 BIT.SyncCD      = BIT.SyncCD      or {}
 BIT.SyncCD.users = BIT.SyncCD.users or {}  -- name → {class, specID} — only HELLO senders, never touched by interrupt system
 BIT.syncCdState = BIT.syncCdState or {}
@@ -77,7 +77,7 @@ BIT.devLogMode = false  -- silent log: captures to buffer, no chat output
 BIT.SUPPRESS_FAILKICK = false
 
 ------------------------------------------------------------
--- Dev log buffer (in-memory circular buffer, max 600 entries)
+-- Dev log buffer (in-memory circular buffer, see _BUF_MAX below)
 -- Used by /bitdevlog + /bitdevdump for post-run analysis.
 ------------------------------------------------------------
 do
@@ -114,6 +114,14 @@ do
         synccd    = { "[SCAN-", "[AURA-TRACK]", "[GLOW-", "[COMMIT-" },
         auras     = { "[SCAN-", "[AURA-TRACK]" },
         glow      = { "[GLOW-", "[GLOW-SET]" },
+        -- Party CD detection chain: classification inputs → resolved spell →
+        -- caster attribution → committed cooldown. Use /bitdevdump pcd.
+        pcd       = { "[PCD-CLASSIFY]", "[PCD-LOOKUP]", "[PCD-CASTER]", "[PCD-COMMIT]", "[PCD-DEFER]",
+                      "[PCD-ABSORB]", "[PCD-PROBE]", "[PCD-121]" },
+        -- Party interrupt attribution (open-world teammate kick). Shows the
+        -- nameplate event's interrupter field, the stash, the KICK/FAILKICK
+        -- comms and whether they paired. Use /bitdevdump intkick.
+        intkick   = { "[INT-NP]", "[INT-STASH]", "[INT-PAIR]", "[INT-COMM]", "[USC-INT]" },
     }
 
     -- /bitdevdump [N] [filter]
@@ -620,6 +628,15 @@ do
     dispatch["KICK"] = function(parts, sender)
         local sid = tonumber(parts[3])
         local cd  = tonumber(parts[4])
+        -- Remember when this sender last announced an interrupt-cast, so the
+        -- FAILKICK handler can recognise a KICK-then-FAILKICK pair from the same
+        -- sender (the signature of their client's own success-detection failing).
+        BIT._lastKickAt = BIT._lastKickAt or {}
+        BIT._lastKickAt[sender] = GetTime()
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[INT-COMM] KICK from " .. tostring(sender)
+                .. " sid=" .. tostring(sid) .. " cd=" .. tostring(cd))
+        end
         if cd and cd > 0 then
             -- update recentCasts for mob-interrupt correlation
             if sid then recentCasts[sender] = { t = GetTime(), spellID = sid } end
@@ -684,7 +701,33 @@ do
         -- detection can fail on a secret GUID in instances and wrongly broadcast
         -- a failure even though the cast actually interrupted something.
         local li = BIT._lastInterrupt and BIT._lastInterrupt[sender]
-        if li and type(li.expireAt) == "number" and GetTime() < li.expireAt then return end
+        local suppressed = li and type(li.expireAt) == "number" and GetTime() < li.expireAt
+        local reason = suppressed and "verified" or nil
+
+        -- Out-of-fight guard. When WE are not in combat we can't corroborate a
+        -- teammate's interrupt (no nameplate event fires out of range), so a
+        -- successful open-world kick from an older/mis-detecting client arrives
+        -- as an un-suppressable "failed". A teammate's failed kick isn't
+        -- actionable while we're not even in the fight, so if they announced an
+        -- interrupt-cast (KICK) in the last ~2s and we're out of combat, drop it.
+        -- While WE are in combat this never applies, so genuine failed kicks in
+        -- our own fight still alert us.
+        if not suppressed then
+            local recentKick = BIT._lastKickAt and BIT._lastKickAt[sender]
+            if recentKick and (GetTime() - recentKick) < 2.0
+               and not UnitAffectingCombat("player") then
+                suppressed = true
+                reason = "out-of-combat"
+            end
+        end
+
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[INT-COMM] FAILKICK from " .. tostring(sender)
+                .. " suppressed=" .. tostring(suppressed and true or false)
+                .. " (" .. (reason or "shown")
+                .. ", lastInterrupt=" .. (li and "yes" or "no") .. ")")
+        end
+        if suppressed then return end
         if BIT.db.showFailedKick and BIT.UI and BIT.UI.FlashFailedKick then
             BIT.UI:FlashFailedKick(sender)
         end
@@ -2182,13 +2225,38 @@ local function PairPartyInterrupt()
     local now = GetTime()
     _pruneOld(vis, now, 2.0)
     _pruneOld(kick, now, 2.0)
-    if #vis == 0 or #kick == 0 then return end
+    if #vis == 0 or #kick == 0 then
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[INT-PAIR] no pair (visuals=" .. #vis .. " comms=" .. #kick .. ")")
+        end
+        return
+    end
     local v = table.remove(vis, #vis)
     local k = table.remove(kick, #kick)
+    if BIT.devLogMode and BIT.DevLog then
+        BIT.DevLog("[INT-PAIR] paired -> " .. tostring(k.name))
+    end
     BIT._lastInterrupt[k.name] = { icon = v.icon, mark = v.mark, expireAt = k.cdEnd }
     if BIT.db and BIT.db.showFailedKick and BIT.UI and BIT.UI.MarkSuccessKick then
         BIT.UI:MarkSuccessKick(k.name)
     end
+
+    -- Add a history-list record too, so the paired open-world interrupt shows a
+    -- bar exactly like the instance GUID path does. In an instance the record is
+    -- built directly from the event (secret name displayed); in the open world
+    -- the name isn't on the event, but the KICK comm gave us a clean sender name
+    -- here, plus the visual's icon/marker — everything the record needs. (This
+    -- only runs when a visual was stashed, which happens only in the open world,
+    -- so it never double-records the instance path.)
+    local entry = BIT.Registry and BIT.Registry:Get(k.name)
+    local dur = (BIT.db and BIT.db.interruptRecordDuration) or 15
+    local recs = BIT._interruptRecords
+    recs[#recs + 1] = {
+        name = k.name, class = entry and entry.class or nil,
+        icon = v.icon, mark = v.mark,
+        expireAt = now + dur, duration = dur,
+    }
+    while #recs > 10 do table.remove(recs, 1) end
     if BIT.debugMode then
         print("|cff0091edBliZzi|r |cffffa300Party Tools|r |cFFAAAAAA[INT]|r paired visual -> "
               .. tostring(k.name) .. " icon=" .. tostring(v.icon) .. " mark=" .. tostring(v.mark))
@@ -2205,6 +2273,10 @@ local function StashPartyInterruptVisual(nameplateUnit, interruptedSpellID)
             or ((type(issecretvalue) == "function" and issecretvalue(mark)) and "<secret>" or tostring(mark))
         print("|cff0091edBliZzi|r |cffffa300Party Tools|r |cFFAAAAAA[INT]|r stash visual icon="
               .. iconStr .. " mark=" .. markStr)
+    end
+    if BIT.devLogMode and BIT.DevLog then
+        BIT.DevLog("[INT-STASH] icon=" .. ((icon == nil) and "nil" or (iconSecret and "secret" or "ok"))
+            .. " mark=" .. ((mark == nil) and "nil" or "present"))
     end
     if icon == nil and mark == nil then return end  -- == nil is secret-safe
     local buf = BIT._partyKickVisuals
@@ -2226,22 +2298,30 @@ end
 local function HandleNameplateInterrupt(nameplateUnit, interruptedSpellID, interruptedBy)
     local now = GetTime()
 
-    -- Self detection.
-    --  * Instances: the event carries the interrupter GUID; UnitTokenFromGUID
-    --    resolves OUR OWN guid to a unit token but returns nil for a party
-    --    member's secret GUID. The nil compare is taint-safe; the token is never
-    --    passed to a protected API.
-    --  * Open world: the GUID is nil for everyone, so fall back to our own-kick
-    --    stamp (_lastOwnKickTime, set when we cast our interrupt). This also
-    --    catches the instance duplicate event that comes through with token nil.
-    local isSelf = false
-    if interruptedBy ~= nil then
-        local okTok, token = pcall(UnitTokenFromGUID, interruptedBy)
-        isSelf = okTok and token ~= nil
-    end
-    if not isSelf and BIT.Self and BIT.Self._lastOwnKickTime
-       and (now - BIT.Self._lastOwnKickTime) < 1.0 then
-        isSelf = true
+    -- Self-detection = our OWN recent interrupt cast (_lastOwnKickTime), the
+    -- only taint-safe signal. We deliberately do NOT use UnitTokenFromGUID:
+    -- in the open world a teammate's interrupter GUID resolves to a party token
+    -- (party1/2/...), so the old "token ~= nil" test flagged a TEAMMATE's kick
+    -- as our own. That swallowed the event (no party visual stashed), left the
+    -- teammate un-tracked, and let their client's stale failed-kick report play
+    -- the failed sound. Our own kick always stamps _lastOwnKickTime in OnOwnKick
+    -- right before the interrupt lands, so this stays correct for self.
+    local isSelf = (BIT.Self and BIT.Self._lastOwnKickTime
+        and (now - BIT.Self._lastOwnKickTime) < 1.0) or false
+
+    -- Diagnostic: classify the interrupter field (nil / secret / present) and
+    -- the resolved isSelf, so a dump shows exactly how the open-world path was
+    -- reached.
+    if BIT.devLogMode and BIT.DevLog then
+        local byStr = "present"
+        if interruptedBy == nil then
+            byStr = "nil"
+        elseif type(issecretvalue) == "function" then
+            local okS, sec = pcall(issecretvalue, interruptedBy)
+            if okS and sec then byStr = "secret" end
+        end
+        BIT.DevLog("[INT-NP] unit=" .. tostring(nameplateUnit)
+            .. " by=" .. byStr .. " isSelf=" .. tostring(isSelf))
     end
 
     if BIT.debugMode then
@@ -2267,12 +2347,34 @@ local function HandleNameplateInterrupt(nameplateUnit, interruptedSpellID, inter
         return
     end
 
-    -- Party interrupt: read the kicker's name
-    -- STRAIGHT from the event GUID and add a transient record. No addon comm, no
-    -- roster matching, no heuristic → correct for any interrupter (even players
-    -- without our addon, and during M+ where addon comm is blocked). The name may
-    -- be a secret value: it is only ever displayed (SetText), never compared.
-    if interruptedBy == nil then return end            -- no GUID → can't name them
+    -- Not our own kick. How we attribute depends on the zone, because the
+    -- interrupt event exposes the interrupter differently:
+    --   * Open world: interruptedBy is nil OR a SECRET value. A secret GUID even
+    --     resolves teammates via UnitTokenFromGUID (see self-detection above), so
+    --     the interrupter can't be named from the event at all. We stash the
+    --     interrupted-spell visual and let an addon teammate's KICK comm pair with
+    --     it (PairPartyInterrupt) — that records the interrupt, flashes success,
+    --     and sets _lastInterrupt[sender] so the teammate's own (mis-detecting)
+    --     client can't make our client play the failed sound.
+    --   * Instance: the event carries the interrupter GUID. The name is usually a
+    --     secret value in M+ but can still be DISPLAYED, so we record it directly
+    --     for the interrupt history (addon comm is often blocked here, so we don't
+    --     rely on comm-pairing). The name is only ever displayed, never compared.
+    local okIn, inInst = pcall(IsInInstance)
+    if not (okIn and inInst) then
+        local g0 = _recGuard[nameplateUnit]
+        if g0 and (now - g0) < 0.5 then return end     -- de-dup the per-kick burst
+        _recGuard[nameplateUnit] = now
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[INT-NP] open-world stash unit=" .. tostring(nameplateUnit))
+        end
+        StashPartyInterruptVisual(nameplateUnit, interruptedSpellID)
+        return
+    end
+    if interruptedBy == nil then return end            -- instance but no GUID → can't name
+    if BIT.devLogMode and BIT.DevLog then
+        BIT.DevLog("[INT-NP] instance GUID record unit=" .. tostring(nameplateUnit))
+    end
     local g = _recGuard[nameplateUnit]
     if g and (now - g) < 0.5 then return end           -- de-dup the per-kick events
     _recGuard[nameplateUnit] = now
@@ -2312,11 +2414,11 @@ _interruptFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")  -- interrupted CHA
 _interruptFrame:RegisterEvent("GROUP_ROSTER_UPDATE")          -- maintain the activity gate below
 _interruptFrame:RegisterEvent("PLAYER_ENTERING_WORLD")        -- maintain the activity gate below
 
--- Activity gate: the spell-cast events above fire for EVERY nearby unit. Standing
--- solo in a city would otherwise run this handler for every passer-by's cast —
--- pure waste, since interrupt tracking only matters with teammates. So we only
--- process while in a group or an instance. Default true so events that arrive
--- before the first roster/zone update aren't dropped.
+-- Activity gate: PARTY cast tracking only pays off with teammates around, so it
+-- idles while solo in the open world. Default true so events that arrive before
+-- the first roster/zone update aren't dropped.
+-- NOTE: this gate covers UNIT_SPELLCAST_SUCCEEDED only. The interrupt events
+-- below must keep running solo — see UpdateKickWatch.
 BIT._kickWatch = true
 
 _interruptFrame:SetScript("OnEvent", function(_, event, unit, ...)
@@ -2324,7 +2426,9 @@ _interruptFrame:SetScript("OnEvent", function(_, event, unit, ...)
         BIT:UpdateKickWatch()
         return
     end
-    if not BIT._kickWatch then return end  -- idle (solo, open world): skip all cast processing
+    -- Party cast processing idles when solo; the INTERRUPTED/CHANNEL_STOP branch
+    -- below deliberately stays live, since it resolves our OWN kick's feedback.
+    if event == "UNIT_SPELLCAST_SUCCEEDED" and not BIT._kickWatch then return end
 
     if event == "UNIT_SPELLCAST_SUCCEEDED" then
         -- Clear any cached notInterruptible state for this unit — the cast
@@ -2975,6 +3079,7 @@ end
 function BIT:UpdateKickWatch()
     local zoneOK = true
     if BIT.UI and BIT.UI.IsZoneEnabled then zoneOK = BIT.UI:IsZoneEnabled() end
+    -- Party cast watcher: only useful with teammates around.
     local active = false
     if _interruptEnabled and (IsInGroup() or IsInInstance()) and zoneOK then
         active = true
@@ -2982,10 +3087,19 @@ function BIT:UpdateKickWatch()
     BIT._kickWatch = active
     if active then
         _interruptFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "party1", "party2", "party3", "party4")
+    else
+        _interruptFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    end
+
+    -- Interrupt confirmation must ALSO run while solo. Our own kick arms the
+    -- failed-kick watchdog from the always-on player watcher, and only these
+    -- events can resolve it into a success — gating them on group/instance made
+    -- every solo open-world kick time out into the failed state (red + sound).
+    local confirmOK = _interruptEnabled and zoneOK
+    if confirmOK then
         _interruptFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
         _interruptFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
     else
-        _interruptFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
         _interruptFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
         _interruptFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
     end
@@ -3209,14 +3323,11 @@ function BIT:Initialize()
         BIT.SmartMisdirect:Initialize()
     end
 
-    -- One-time notice that the interrupt tracker was reworked, so updating
-    -- users don't mistake the changed display for a bug. Re-shows on every
-    -- login/reload until the user ticks "I understand" (account-wide).
-    C_Timer.After(3, function()
-        if BIT.SettingsUI and BIT.SettingsUI.MaybeShowReworkNotice then
-            BIT.SettingsUI:MaybeShowReworkNotice()
-        end
-    end)
+    -- The one-time "interrupt tracker reworked" pop-up was removed — at this
+    -- point it only got in the way. The rework is still explained by the static
+    -- banner on the Interrupts settings page for anyone who wants the context.
+    -- (BIT.SettingsUI:ShowReworkNotice / MaybeShowReworkNotice remain defined
+    -- but are no longer called.)
 end
 
 ------------------------------------------------------------

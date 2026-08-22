@@ -133,6 +133,12 @@ local function RGB(t) return t[1], t[2], t[3] end
 
 local function ApplyFont(fs, size, flags)
     local font = BIT.Media and BIT.Media.font or "Fonts\\FRIZQT__.TTF"
+    -- Upgrade any outline flag to the client's newer SLUG text renderer
+    -- (crisper edges at small sizes) unless the user disabled it. The
+    -- shared slugSuffix is "" when off, so this becomes a no-op then.
+    if flags and flags:find("OUTLINE", 1, true) and not flags:find("SLUG", 1, true) then
+        flags = flags .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")
+    end
     fs:SetFont(font, size, flags or "")
 end
 
@@ -297,6 +303,11 @@ end
 ---                "None" entry has no file and is skipped.
 local function MediaOpts(getListFn, previewKind)
     local opts = {}
+    -- "None" is always hoisted to the TOP regardless of where the media
+    -- source placed it (LSM lists it alphabetically, so it otherwise sits
+    -- under "N"). Keeping it first makes clearing a selection — e.g.
+    -- removing a sound — a one-click reach at the top of the list.
+    local noneOpt
     if BIT.Media and getListFn then
         for _, e in ipairs(getListFn()) do
             local opt = { value = e.name, label = e.name }
@@ -313,9 +324,14 @@ local function MediaOpts(getListFn, previewKind)
             elseif previewKind == "sound" and e.file and e.file ~= "" then
                 opt.sound = true
             end
-            opts[#opts+1] = opt
+            if e.name == "None" then
+                noneOpt = opt
+            else
+                opts[#opts+1] = opt
+            end
         end
     end
+    if noneOpt then table.insert(opts, 1, noneOpt) end
     return opts
 end
 
@@ -365,7 +381,7 @@ local dropdownPopup
 -- the feature itself is under construction. Default behaviour (no value
 -- passed) keeps the hint visible, matching the PI Caller
 -- developer-disabled pages.
-local function CreateToggle(parent, label, getter, setter, indent, disabled, iconTexture, suppressHint)
+local function CreateToggle(parent, label, getter, setter, indent, disabled, iconTexture, suppressHint, tooltip)
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H)
 
@@ -444,6 +460,18 @@ local function CreateToggle(parent, label, getter, setter, indent, disabled, ico
         hint:SetPoint("RIGHT", f, "RIGHT", 0, 0)
         hint:SetJustifyH("RIGHT")
         hint:SetText("|cffff8800Under Construction|r")
+    end
+
+    -- Optional hover tooltip on the switch. Shown on the track (which is
+    -- mouse-enabled whenever the toggle isn't disabled).
+    if tooltip and not disabled then
+        track:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(label, 1, 1, 1)
+            GameTooltip:AddLine(tooltip, 0.8, 0.8, 0.8, true)
+            GameTooltip:Show()
+        end)
+        track:SetScript("OnLeave", function() GameTooltip:Hide() end)
     end
 
     f._update = UpdateVisual
@@ -649,13 +677,46 @@ local function CreateDropdown(parent, label, options, getter, setter)
                 local max = sf:GetVerticalScrollRange()
                 sf:SetVerticalScroll(math.max(0, math.min(max, cur - delta * 22 * 3)))
             end)
+
+            -- Search / filter box at the top. Shown per-open only when the
+            -- list is long enough to be worth filtering (see the OnClick
+            -- below); typing re-runs popup._rebuild to narrow the rows by a
+            -- case-insensitive substring of the option label. Lives on the
+            -- shared popup so every dropdown reuses the same widget.
+            local searchBox = CreateFrame("EditBox", nil, dropdownPopup, "BackdropTemplate")
+            MakeBg(searchBox, RGB(WIDGET_BG))
+            ApplyFont(searchBox, 11)
+            searchBox:SetTextColor(RGB(TEXT))
+            searchBox:SetTextInsets(6, 6, 0, 0)
+            searchBox:SetAutoFocus(false)
+            local searchHint = searchBox:CreateFontString(nil, "OVERLAY")
+            ApplyFont(searchHint, 11)
+            searchHint:SetPoint("LEFT", 6, 0)
+            searchHint:SetTextColor(0.5, 0.5, 0.5)
+            searchHint:SetText(LS("DD_SEARCH_HINT", "Search..."))
+            local function updSearchHint()
+                if (searchBox:GetText() or "") == "" and not searchBox:HasFocus() then
+                    searchHint:Show()
+                else
+                    searchHint:Hide()
+                end
+            end
+            searchBox:SetScript("OnEscapePressed", function(self)
+                self:SetText(""); self:ClearFocus()
+            end)
+            searchBox:SetScript("OnEditFocusGained", function() searchHint:Hide() end)
+            searchBox:SetScript("OnEditFocusLost", updSearchHint)
+            searchBox:SetScript("OnTextChanged", function(self)
+                updSearchHint()
+                if self._setting then return end
+                if dropdownPopup._rebuild then dropdownPopup._rebuild() end
+            end)
+            searchBox:Hide()
+            dropdownPopup.searchBox = searchBox
         end
         local popup = dropdownPopup
         local child = popup.scrollChild
         local sf    = popup.scrollFrame
-        -- clear old
-        for _, item in ipairs(popup.items) do item:Hide() end
-        wipe(popup.items)
 
         local itemH   = 22
         local maxShow = 10
@@ -673,22 +734,60 @@ local function CreateDropdown(parent, label, options, getter, setter)
         end
         local btnW    = btn:GetWidth()
         local w       = hasPreview and (btnW + 110) or btnW
-        local visH    = math.min(#options, maxShow) * itemH + 4
+
+        -- Search box only appears once the list is long enough to scroll;
+        -- short dropdowns don't need filtering. Re-anchor the scroll frame
+        -- below it (or back to the top when hidden).
+        local SEARCH_H   = 24
+        local showSearch = #options > maxShow
+        local searchBox  = popup.searchBox
+        if showSearch then
+            searchBox:Show()
+            searchBox:ClearAllPoints()
+            searchBox:SetPoint("TOPLEFT",  2, -2)
+            searchBox:SetPoint("TOPRIGHT", -2, -2)
+            searchBox:SetHeight(20)
+            sf:ClearAllPoints()
+            sf:SetPoint("TOPLEFT",     2, -SEARCH_H)
+            sf:SetPoint("BOTTOMRIGHT", -20, 2)
+        else
+            searchBox:Hide()
+            sf:ClearAllPoints()
+            sf:SetPoint("TOPLEFT",     2, -2)
+            sf:SetPoint("BOTTOMRIGHT", -20, 2)
+        end
+
         popup:ClearAllPoints()
-        popup:SetSize(w, visH)
         popup:SetPoint("TOP", btn, "BOTTOM", 0, -2)
         MakeBg(popup, 0.10, 0.10, 0.12, 0.98)
         popup:SetBackdropBorderColor(RGB(ACCENT))
 
-        child:SetWidth(w - (#options > maxShow and 22 or 4))
-        child:SetHeight(#options * itemH)
+        -- (Re)build the visible rows from a filtered view of the options.
+        -- Runs on open and on every search keystroke (via popup._rebuild).
+        local function rebuildItems()
+            for _, item in ipairs(popup.items) do item:Hide() end
+            wipe(popup.items)
 
-        -- hide scrollbar when not needed
-        if sf.ScrollBar then
-            if #options > maxShow then sf.ScrollBar:Show() else sf.ScrollBar:Hide() end
-        end
+            local filter = ""
+            if showSearch then
+                filter = (searchBox:GetText() or ""):gsub("^%s+", ""):gsub("%s+$", ""):lower()
+            end
+            local shown = {}
+            for _, opt in ipairs(options) do
+                if filter == "" or tostring(opt.label):lower():find(filter, 1, true) then
+                    shown[#shown + 1] = opt
+                end
+            end
 
-        for i, opt in ipairs(options) do
+            local visN = math.min(#shown, maxShow)
+            popup:SetSize(w, visN * itemH + 4 + (showSearch and SEARCH_H or 0))
+            child:SetWidth(w - (#shown > maxShow and 22 or 4))
+            child:SetHeight(math.max(1, #shown * itemH))
+            if sf.ScrollBar then
+                if #shown > maxShow then sf.ScrollBar:Show() else sf.ScrollBar:Hide() end
+            end
+
+            for i, opt in ipairs(shown) do
             local item = CreateFrame("Button", nil, child)
             item:SetSize(child:GetWidth(), itemH)
             item:SetPoint("TOPLEFT", 0, -(i - 1) * itemH)
@@ -800,9 +899,22 @@ local function CreateDropdown(parent, label, options, getter, setter)
                 Refresh()
             end)
             popup.items[i] = item
+            end
+            sf:SetVerticalScroll(0)
         end
-        sf:SetVerticalScroll(0)
+
+        popup._rebuild = rebuildItems
+        -- Reset the search to the full list on every open. The flag stops
+        -- the programmatic clear from recursing through OnTextChanged.
+        if showSearch then
+            searchBox._setting = true
+            searchBox:SetText("")
+            searchBox._setting = false
+        end
+        rebuildItems()
         popup:Show()
+        -- Focus the search box so the user can type to filter immediately.
+        if showSearch then searchBox:SetFocus() end
         -- close on outside click
         popup:SetScript("OnUpdate", function(self)
             if not self:IsMouseOver() and not btn:IsMouseOver() and IsMouseButtonDown("LeftButton") then
@@ -3592,6 +3704,14 @@ function BuildSizeFont()
         function() return BIT.db.borderOffset or 0 end,
         function(v) BIT.db.borderOffset = v; if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end end,
         function(v) return math.floor(v) .. "px" end)
+    w[#w+1] = CreateToggle(p, LS("CB_BORDER_INWARD", "Grow border inward"),
+        function() return BIT.db.borderInward end,
+        function(v)
+            BIT.db.borderInward = v
+            if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
+        end,
+        nil, false, nil, false,
+        LS("CB_BORDER_INWARD_TT", "Border Size grows toward the centre instead of outward, so the outer edge of the bar stays put and the content is inset to make room."))
 
     -- Title
     w[#w+1] = CreateSectionHeader(p, LS("SEC_TITLE_BAR", "Title Bar"), "sui_sf_title")
@@ -3665,6 +3785,22 @@ function BuildSizeFont()
                 BIT.KeystoneList:OnSettingsChanged()
             end
         end)
+    -- "Disable crisp text (SLUG)" workaround. Note the getter returns the
+    -- toggle-ON state = "crisp text disabled"; keep the DB key negative
+    -- (fontDisableSlug) so the default-false means crisp text is ON.
+    w[#w+1] = CreateToggle(p, LS("CB_DISABLE_SLUG", "Disable crisp text"),
+        function() return BIT.db.fontDisableSlug end,
+        function(v)
+            BIT.db.fontDisableSlug = v
+            BIT.Media:Load()                      -- recompute the shared slugSuffix
+            BIT.UI:RebuildBars()                  -- interrupt bars re-render live
+            if BIT.SyncCD and BIT.SyncCD.Rebuild then BIT.SyncCD:Rebuild() end
+            if BIT.KeystoneList and BIT.KeystoneList.OnSettingsChanged then
+                BIT.KeystoneList:OnSettingsChanged()
+            end
+        end,
+        nil, false, nil, false,
+        LS("CB_DISABLE_SLUG_TT", "Turn this on if a font looks broken or blurry. It switches the text back to the game's older renderer."))
     w[#w+1] = CreateSlider(p, LS("SL_SHADOW_X", "Shadow X"), -5, 5, 1,
         function() return BIT.db.shadowOffsetX or 0 end,
         function(v)
@@ -3897,16 +4033,37 @@ local function BuildPartyCDs()
     -- (rather than in a separate Display section) so the user finds
     -- everything they’re likely to flip first in one place.
     w[#w+1] = CreateSectionHeader(p, LS("SEC_GENERAL", "General"), "sui_pcd_gen")
+    -- Client gate: on a game version that no longer lets addons read a
+    -- group member's cooldowns the module refuses to start, so the toggle
+    -- is shown switched off and disabled with the reason spelled out. The
+    -- stored setting is left untouched — the page just stops pretending
+    -- the switch does anything.
+    local pcdBlocked = BIT.PartyCooldowns and BIT.PartyCooldowns.IsBlockedByClient
+                       and BIT.PartyCooldowns:IsBlockedByClient()
+    if pcdBlocked then
+        w[#w+1] = CreateLabel(p, LS("PCD_BLOCKED_NOTE",
+            "This game version no longer lets addons read a group member's cooldowns, so Party CDs are off. Your settings are kept and it returns as soon as there is a supported way to track them."), 11)
+    end
     w[#w+1] = CreateToggle(p, LS("PCD_ENABLE", "Enable Party Cooldowns"),
-        function() return BIT.db.partyCooldownsEnabled ~= false end,
+        function() return (not pcdBlocked) and BIT.db.partyCooldownsEnabled ~= false end,
         function(v)
+            if pcdBlocked then return end
             BIT.db.partyCooldownsEnabled = v
             if not BIT.PartyCooldowns then return end
             if v then BIT.PartyCooldowns:Enable() else BIT.PartyCooldowns:Disable() end
-        end)
+        end, false, pcdBlocked or nil)
     w[#w+1] = CreateToggle(p, LS("CB_SHOW_OWN", "Show own cooldowns"),
         function() return BIT.db.partyCooldownsShowOwn == true end,
-        function(v) BIT.db.partyCooldownsShowOwn = v; _applyVis() end)
+        function(v)
+            BIT.db.partyCooldownsShowOwn = v
+            _applyVis()
+            -- The unit-frame overlay honours this toggle for the player
+            -- slot too — refresh it so flipping the setting hides/shows
+            -- the own-frame glow icons live instead of on the next aura.
+            if BIT.DefensiveOverlay and BIT.DefensiveOverlay.RefreshAll then
+                BIT.DefensiveOverlay:RefreshAll()
+            end
+        end)
     w[#w+1] = CreateToggle(p, LS("CB_SHOW_TOOLTIP", "Show tooltip"),
         function() return BIT.db.partyCooldownsShowTooltip ~= false end,
         function(v)
@@ -3949,13 +4106,13 @@ local function BuildPartyCDs()
         end
         if _ovlPreviewRefresh then _ovlPreviewRefresh() end
     end
+    -- Every widget gated behind the "Use custom glow" toggle. The
+    -- sync function shows/hides the whole group at once.
+    local glowGated = {}
     local function _syncGlowVisibility()
         local on = BIT.db.partyCooldownsGlowCustom == true
-        if glowStyleDD then
-            if on then glowStyleDD:Show() else glowStyleDD:Hide() end
-        end
-        if glowColorSwatch then
-            if on then glowColorSwatch:Show() else glowColorSwatch:Hide() end
+        for _, wd in ipairs(glowGated) do
+            if on then wd:Show() else wd:Hide() end
         end
         if pages and pages[activePage] and pages[activePage].layout then
             pages[activePage].layout()
@@ -3971,6 +4128,7 @@ local function BuildPartyCDs()
     glowStyleDD = CreateDropdown(p, LS("PCD_GLOW_STYLE", "Glow style"),
         { { value = "PIXEL",    label = LS("PCD_GLOW_STYLE_PIXEL",    "Pixel lines") },
           { value = "AUTOCAST", label = LS("PCD_GLOW_STYLE_AUTOCAST", "Autocast shine") },
+          { value = "BUTTON",   label = LS("PCD_GLOW_STYLE_BUTTON",   "Button glow") },
           { value = "PROC",     label = LS("PCD_GLOW_STYLE_PROC",     "Modern proc") } },
         function() return BIT.db.partyCooldownsGlowStyle or "PIXEL" end,
         function(v)
@@ -3979,6 +4137,7 @@ local function BuildPartyCDs()
         end)
     glowStyleDD._dynamic = true
     glowStyleDD._update  = _syncGlowVisibility
+    glowGated[#glowGated + 1] = glowStyleDD
     w[#w+1] = glowStyleDD
     glowColorSwatch = CreateColorSwatch(p, LS("PCD_GLOW_COLOR", "Glow color"),
         function() return BIT.db.partyCooldownsGlowColorR or 0.95 end,
@@ -3992,7 +4151,41 @@ local function BuildPartyCDs()
         end)
     glowColorSwatch._dynamic = true
     glowColorSwatch._update  = _syncGlowVisibility
+    glowGated[#glowGated + 1] = glowColorSwatch
     w[#w+1] = glowColorSwatch
+
+    local glowClassColorCB = CreateToggle(p,
+        LS("PCD_GLOW_CLASS_COLOR", "Use class color"),
+        function() return BIT.db.partyCooldownsGlowUseClassColor == true end,
+        function(v)
+            BIT.db.partyCooldownsGlowUseClassColor = v
+            _restyleGlows()
+        end, false, nil, nil, nil,
+        LS("PCD_GLOW_CLASS_COLOR_TT",
+           "Color the glow in your own class color instead of the custom color above."))
+    glowClassColorCB._dynamic = true
+    glowClassColorCB._update  = _syncGlowVisibility
+    glowGated[#glowGated + 1] = glowClassColorCB
+    w[#w+1] = glowClassColorCB
+
+    -- Detail glow knobs (shared by every glow in the addon). Pixel uses
+    -- all four; autocast uses lines + frequency; button uses frequency;
+    -- proc ignores them — shown together for simplicity.
+    local function _mkGlowSlider(labelKey, fb, dbKey, lo, hi, step, dflt, fmt)
+        local sl = CreateSlider(p, LS(labelKey, fb), lo, hi, step,
+            function() return BIT.db[dbKey] or dflt end,
+            function(v) BIT.db[dbKey] = v; _restyleGlows() end,
+            fmt)
+        sl._dynamic = true
+        sl._update  = _syncGlowVisibility
+        glowGated[#glowGated + 1] = sl
+        w[#w+1] = sl
+    end
+    _mkGlowSlider("PCD_GLOW_LINES",     "Glow lines",            "partyCooldownsGlowLines",     1, 20, 1, 8)
+    _mkGlowSlider("PCD_GLOW_FREQUENCY", "Glow frequency",        "partyCooldownsGlowFrequency", -1, 1, 0.05, 0.25,
+        function(v) return string.format("%.2f", v) end)
+    _mkGlowSlider("PCD_GLOW_LENGTH",    "Glow length (0=auto)",  "partyCooldownsGlowLength",    0, 20, 1, 0)
+    _mkGlowSlider("PCD_GLOW_THICKNESS", "Glow thickness",        "partyCooldownsGlowThickness", 1, 10, 1, 2)
 
     -- Glow preview: a single sample icon glowing with the current
     -- configuration. Restyled on every glow-setting change and
@@ -4201,6 +4394,25 @@ local function BuildPartyCDs()
         _ovlPreviewRefresh = fullRefresh
         w[#w+1] = pv
     end
+
+    -- ── Received-External Sound ─────────────────────────────────────
+    -- One sound whenever an external defensive lands on YOU (Pain
+    -- Suppression, Sacrifice, Ironbark, ...). No per-spell setup —
+    -- the alert fires once per received cast, deduped by aura
+    -- instance. Same sound catalog + click-to-play as the kick sounds.
+    w[#w+1] = CreateSectionHeader(p, LS("PCD_SEC_EXTSOUND", "Received Defensive Sound"), "sui_pcd_extsound")
+    w[#w+1] = CreateToggle(p, LS("EXTSOUND_ENABLE", "Play sound when you receive a defensive"),
+        function() return BIT.db.externalSoundEnabled == true end,
+        function(v)
+            BIT.db.externalSoundEnabled = v
+            if BIT.ExternalSound and BIT.ExternalSound.ApplyEnabled then
+                BIT.ExternalSound:ApplyEnabled()
+            end
+        end)
+    w[#w+1] = CreateDropdown(p, LS("EXTSOUND_SOUND", "Sound"),
+        MediaOpts(function() return BIT.Media:GetAvailableSounds() end, "sound"),
+        function() return BIT.db.externalSound or "None" end,
+        function(v) BIT.db.externalSound = v end)
 
     -- ── Anchor & Position ───────────────────────────────────────────
     -- Where the icon row attaches and how it’s nudged. Provider picks
@@ -4671,6 +4883,16 @@ local function BuildPartyCDs()
             end
         end,
         function(v) return math.floor(v) .. "px" end)
+    w[#w+1] = CreateToggle(p, LS("PCD_BORDER_INWARD", "Grow border inward"),
+        function() return BIT.db.partyCooldownsBorderInward end,
+        function(v)
+            BIT.db.partyCooldownsBorderInward = v
+            if BIT.PartyCooldowns and BIT.PartyCooldowns.RefreshBorders then
+                BIT.PartyCooldowns:RefreshBorders()
+            end
+        end,
+        nil, false, nil, false,
+        LS("PCD_BORDER_INWARD_TT", "Keeps each icon at its set size and draws the border inward over the icon edge, instead of making the icon's footprint larger."))
     -- Border texture (edge file). Same media library as the interrupt
     -- tracker's border dropdown so the user gets the bundled decorative
     -- borders (Achievement, Thin, Wooden, etc.) plus the bundled
@@ -4802,6 +5024,11 @@ local function BuildPartyCDs()
         if def.race then
             classKey  = "RACIAL"
             className = PCD_RACE_DISPLAY[def.race] or def.race
+        elseif def.pvpTrinket then
+            -- Shares the racial bucket: neither is class-bound, and both
+            -- are the "everything else" of the spell list.
+            classKey  = "RACIAL"
+            className = LS("PCD_GROUP_PVP", "PvP")
         elseif def.class and LOCALIZED_CLASS_NAMES_MALE then
             className = LOCALIZED_CLASS_NAMES_MALE[def.class] or def.class
         else
@@ -4819,7 +5046,7 @@ local function BuildPartyCDs()
             -- so this purely controls the settings-page display.
             notTrackable = def.disabled or nil,
         }
-        if def.race then
+        if def.race or def.pvpTrinket then
             pcdRacial[#pcdRacial+1] = row
         elseif def.cat == "OFF" then
             pcdOff[#pcdOff+1] = row
@@ -4849,7 +5076,7 @@ local function BuildPartyCDs()
     w[#w+1] = CreateSpellFilterPanel(p, pcdDef, pcdSpellGetter, pcdSpellSetter, {
         { label = LS("PCD_TAB_DEF",    "Def"),    spells = pcdDef    },
         { label = LS("PCD_TAB_OFF",    "Off"),    spells = pcdOff    },
-        { label = LS("PCD_TAB_RACIAL", "Racial"), spells = pcdRacial },
+        { label = LS("PCD_TAB_RACIAL", "Racial / PVP Stuff"), spells = pcdRacial },
     })
 
     return w
@@ -6113,6 +6340,14 @@ local function BuildKeystoneList()
                 BIT.KeystoneList:OnSettingsChanged()
             end
         end)
+    w[#w+1] = CreateToggle(p, LS("KEY_FORCE_ENGLISH", "Always use English dungeon names"),
+        function() return BIT.db.keystoneListForceEnglish == true end,
+        function(v)
+            BIT.db.keystoneListForceEnglish = v
+            if BIT.KeystoneList and BIT.KeystoneList.OnSettingsChanged then
+                BIT.KeystoneList:OnSettingsChanged()
+            end
+        end)
     w[#w+1] = CreateToggle(p, LS("KEY_SHOW_NO_PORT", "Show 'no port' indicator when teleport is unknown"),
         function() return BIT.db.keystoneListShowNoPort ~= false end,
         function(v)
@@ -7228,6 +7463,45 @@ local function BuildProfiles()
             end
         end
     end
+
+    ----------------------------------------------------------------
+    -- UI Pack Bundle (Wago)
+    --
+    -- The Wago pack creator picks a profile from a LIST the installer
+    -- reads live from the addon (GetProfileKeys in Profile/WagoAPI.lua) —
+    -- it does not go through our export popup. So we always expose one
+    -- extra "bundle" entry in that list that ships EVERY profile plus the
+    -- spec assignments in a single pack slot. This field sets the name of
+    -- that entry as it appears in the installer. Stored at the
+    -- SavedVariables ROOT (account-wide, never inside a profile) so it
+    -- neither ships with exports nor resets on profile switches.
+    ----------------------------------------------------------------
+    w[#w+1] = CreateSectionHeader(p, LS("SEC_UIPACK_EXPORT", "UI Pack Bundle (Wago)"), "sui_prof_uipack")
+
+    w[#w+1] = CreateLabel(p, LS("UIPACK_BUNDLE_DESC",
+        "For UI pack creators: the Wago pack installer shows this name as an extra profile entry. Picking it in the pack creator ships ALL your profiles plus the spec assignments, so users get your complete setup (e.g. Healer AND DPS/Tank) instead of a single profile."), 11)
+
+    w[#w+1] = CreateEditBox(p,
+        LS("UIPACK_BUNDLE_NAME", "Bundle name"),
+        function()
+            local sv = BliZziInterruptsSavedVars
+            local n = sv and sv.wagoBundleName
+            -- Fixed "All Profiles" fallback (NOT localized): it must match
+            -- the exact key the Wago API lists/exports, and that key has to
+            -- be stable across languages so the pack tooling always finds it.
+            return (type(n) == "string" and n ~= "" and n) or "All Profiles"
+        end,
+        function(v)
+            local sv = BliZziInterruptsSavedVars
+            if not sv then return end
+            if type(v) == "string" then
+                v = v:gsub("^%s+", ""):gsub("%s+$", "")
+            end
+            -- nil = "use default": keeps the SavedVariables clean and the
+            -- API's fallback authoritative for the default display name.
+            sv.wagoBundleName = (v ~= "" and v) or nil
+        end,
+        220)
 
     return w
 end

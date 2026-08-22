@@ -61,6 +61,40 @@ BIT.PartyCooldowns = BIT.PartyCooldowns or {}
 local PCD = BIT.PartyCooldowns
 
 ------------------------------------------------------------
+-- Client gate
+--
+-- Patch 12.1 closed every route to a group member's buffs while auras
+-- are secret, which covers all of instanced content:
+--   * the aura list and everything keyed by index / slot / instance ID
+--     raise a Lua error,
+--   * the by-spell lookups answer nil (verified on the 12.1 PTR: a
+--     teammate's Desperate Prayer read as absent for the whole key,
+--     even out of combat),
+--   * aura containers render buffs without telling us they exist —
+--     IsShown on their buttons is secret by design.
+-- Nothing is left to build a teammate's cooldown from, so the module
+-- would show a half-populated, silently-wrong picture in exactly the
+-- content it exists for. Off is the honest state until a supported
+-- route appears; a wrong cooldown is worse than none.
+--
+-- Deliberately a HARD gate rather than a flipped default: the setting
+-- stays saved and untouched, so the module returns as it was once this
+-- is lifted. To lift it, delete the check in PCD:IsBlockedByClient.
+------------------------------------------------------------
+local CLIENT_BUILD = (function()
+    local ok, v = pcall(function() return select(4, GetBuildInfo()) end)
+    return (ok and type(v) == "number") and v or 0
+end)()
+local IS_121_CLIENT = CLIENT_BUILD >= 120100
+
+-- True when the running client makes party cooldowns untrackable, so
+-- the module refuses to run at all. Public: the settings page reads it
+-- to explain the greyed-out toggle instead of leaving the user guessing.
+function PCD:IsBlockedByClient()
+    return IS_121_CLIENT
+end
+
+------------------------------------------------------------
 -- Tracked spell definitions
 --
 -- Schema (flat, intentionally simple):
@@ -246,6 +280,7 @@ local SPEC = {
 local SPELL_DEFS = {
     -- ── Death Knight ────────────────────────────────────
     { spellId = 48707,  cd = 60,  dur = 5,   affects = "self",   class = "DEATHKNIGHT", cat = "DEF", label = "Anti-Magic Shell",
+        absorbEvidence = true,                 -- shields the caster: separates it from Icebound Fortitude
         cdMods  = { [205727] = -20,            -- Anti-Magic Barrier: -20s CD
                     [457574] =  20 },          -- Magicus Pestis (or similar): +20s CD in exchange for dispel
         durMods = { [205727] =   2 } },        -- Anti-Magic Barrier: +40% duration (5s base → 7s)
@@ -281,8 +316,15 @@ local SPELL_DEFS = {
     -- (offensive burst window). Re-enable if there's user demand.
     { spellId = 191427, cd = 240, dur = 30,  affects = "self",   class = "DEMONHUNTER", cat = "OFF", label = "Metamorphosis (Havoc)",        spec = SPEC.DH_HAVOC,
         important = true, disabled = true },
+    -- Metamorphosis (Vengeance): DISABLED — the cooldown re-armed itself
+    -- roughly every 20-60s for the whole run without a matching cast (live
+    -- log: ~30 commits in a 21-minute key, every one a fresh 180s, so the
+    -- spell never showed ready again). Something re-triggers the attribution
+    -- long after the real cast; the exact trigger isn't identified yet.
+    -- Listed with `disabled = true` so the Spell Filter panel shows
+    -- "Currently not trackable" instead of a permanently-wrong timer.
     { spellId = 187827, cd = 180, dur = 15,  affects = "self",   class = "DEMONHUNTER", cat = "DEF", label = "Metamorphosis (Vengeance)",    spec = SPEC.DH_VENGEANCE,
-        important = true,
+        important = true, disabled = true,
         durMods = { [1265818] = 5 } },         -- Soul Furnace (or similar duration-extender): +5s
     -- Void Metamorphosis (Devourer): the spec's transform cooldown.
     -- Disabled for now — exact CD / duration / flag pattern needs
@@ -356,6 +398,10 @@ local SPELL_DEFS = {
         cdPctMods = { [412713] = -10 },           -- Interwoven Threads class passive: -10% CD
         talentChargeBonus = { [375406] = 1 } },   -- Obsidian Bulwark talent: +1 charge (total 2)
     { spellId = 357170, cd = 60,  dur = 8,   affects = "target", class = "EVOKER",      cat = "DEF", label = "Time Dilation",                    spec = SPEC.EVOKER_PRES,   talent = 357170,
+        -- Same spell-DB gap as Pain Suppression: no EXTERNAL flag from
+        -- the probe, live aura is external → casts on other members
+        -- were never matched. Force the E bit.
+        external  = true,
         cdMods    = { [376204] = -10 },           -- Just in Time reduces CD by 10s
         cdPctMods = { [412713] = -10 },           -- Interwoven Threads class passive: -10% CD
         durMods   = { [376240] =   2 },           -- Extended Dilation (max rank ~+30% of 8s ≈ +2s)
@@ -387,10 +433,10 @@ local SPELL_DEFS = {
     -- nominal 360s ceiling is effectively just a safety net.
     { spellId = 5384,   cd = 30,  dur = 360, affects = "self",   class = "HUNTER",      cat = "DEF", label = "Feign Death",
         cdMods = { [1258486] = -10 } },          -- Feign Death CD reduction (max rank): -10s
-    -- Roar of Sacrifice: talent-gated external defensive cast on an ally
-    -- (redirects a share of their damage). Trust the Blizzard API for the
-    -- EXTERNAL classification, same as the other target-cast externals.
-    { spellId = 53480,  cd = 120, dur = 10,  affects = "target", class = "HUNTER",      cat = "DEF", label = "Roar of Sacrifice",                   talent = 53480 },
+    -- Roar of Sacrifice (53480) intentionally NOT tracked: a rarely-used,
+    -- talent-gated pet external. Without spec/talent data it was assumed present
+    -- and shown for every Hunter, and as a 10s target-cast external it also added
+    -- ambiguity to the Blessing of Protection / Spellwarding pool. Removed.
 
     -- ── Mage ────────────────────────────────────────────
     { spellId = 365350, cd = 90,  dur = 15,  affects = "self",   class = "MAGE",        cat = "OFF", label = "Arcane Surge",                     spec = SPEC.MAGE_ARCANE },
@@ -483,7 +529,8 @@ local SPELL_DEFS = {
     -- with class-wide Fortifying Brew (15s); the absorb side-channel
     -- resolver below (ToK applies an absorb shield, Fort Brew doesn't)
     -- separates them.
-    { spellId = 122470, auraId = 125174, cd = 90,  dur = 10,  affects = "self",   class = "MONK",        cat = "DEF", label = "Touch of Karma",                   spec = SPEC.MONK_WW,       big = true },
+    { spellId = 122470, auraId = 125174, cd = 90,  dur = 10,  affects = "self",   class = "MONK",        cat = "DEF", label = "Touch of Karma",                   spec = SPEC.MONK_WW,       big = true,
+        absorbEvidence = true },               -- shields the caster: separates it from Fortifying Brew
         -- Touch of Karma carries no CD/duration talent modifiers here: the WW
         -- talents 280197 / 450989 (cooldown) and 391370 (+duration) modify
         -- Zenith, not Karma — attaching them to Karma mis-sized its CD/duration.
@@ -619,6 +666,13 @@ local SPELL_DEFS = {
         cdMods  = { [238100] = -20 },          -- Angel's Mercy reduces CD by 20s
         durMods = { [458718] =  10 } },        -- Desperate Prayer duration extender: +10s (10s → 20s)
     { spellId = 33206,  cd = 180, dur = 8,   affects = "target", class = "PRIEST",      cat = "DEF", label = "Pain Suppression",                 spec = SPEC.PRI_DISC,
+        -- The spell-DB probe leaves 33206 without the EXTERNAL flag,
+        -- so the def key never matched the live "-E--" aura and casts
+        -- on OTHER party members were never detected in instances
+        -- (live report: a whole dungeon with a Disc priest, zero
+        -- detections). The buff is an external defensive at runtime —
+        -- force the E bit like Ice Cold's forced B.
+        external = true,
         talentChargeBonus = { [373035] = 1 } },  -- Protector of the Frail talent: +1 charge
     { spellId = 64843,  cd = 180, dur = 5,   affects = "self",   class = "PRIEST",      cat = "DEF", label = "Divine Hymn",                      spec = SPEC.PRI_HOLY,
         cdMods = { [419110] = -60 },           -- Divine Hymn CDR talent: -60s
@@ -705,6 +759,26 @@ local SPELL_DEFS = {
         disabled = true },                       -- temporarily disabled
     { spellId = 20594,  cd = 120, dur = 8,    affects = "self",  race  = "Dwarf",       cat = "DEF", label = "Stoneform",
         disabled = true },                       -- temporarily disabled
+
+    -- PvP trinket. Neither class- nor race-gated — every player can carry
+    -- one — so it sits in its own universal bucket that SpellsForMember
+    -- walks for every member (see _spellsUniversal).
+    --
+    -- This is the one entry whose cooldown we do NOT model. The server
+    -- hands out the real remaining time via C_PvP.GetArenaCrowdControlDuration,
+    -- which beats our static table on both counts: it already accounts for
+    -- whatever shortens the trinket, and it arrives as a DurationObject, so
+    -- nothing about it can be a secret value. `cd` below is only a fallback
+    -- for the local-cast path and the settings row.
+    --
+    -- That API answers inside arenas only. Outside one there is no data
+    -- source at all, and an icon permanently sitting at "ready" would state
+    -- something we cannot know — so the def is admitted in arenas only.
+    --
+    -- noGlow: using it applies no buff worth surfacing; only the cooldown
+    -- matters, so the icon goes straight to the swipe.
+    { spellId = 336126, cd = 120, dur = 0, affects = "self", cat = "DEF",
+        label = "PvP Trinket (Beta)", pvpTrinket = true, noGlow = true },
 }
 
 -- ── Offensive cooldowns: tracking centrally disabled ─────────────────
@@ -1016,6 +1090,12 @@ end
 -- in _spellsByRace instead. SpellsForMember walks both lists per member.
 local _spellsByClass = {}
 local _spellsByRace  = {}
+-- Entries that belong to EVERY member regardless of class or race (the
+-- PvP trinket). Deliberately kept out of the two indexes above: those
+-- also feed the aura-classification candidate pools, and a spell that
+-- matches every member would inject ambiguity into every flag-twin
+-- decision. This bucket is only ever walked to build icons.
+local _spellsUniversal = {}
 for _, def in ipairs(SPELL_DEFS) do
     if def.class then
         _spellsByClass[def.class] = _spellsByClass[def.class] or {}
@@ -1024,6 +1104,9 @@ for _, def in ipairs(SPELL_DEFS) do
     if def.race then
         _spellsByRace[def.race] = _spellsByRace[def.race] or {}
         table.insert(_spellsByRace[def.race], def)
+    end
+    if not def.class and not def.race then
+        table.insert(_spellsUniversal, def)
     end
 end
 
@@ -1112,15 +1195,43 @@ local _lastHarmfulAdded = {}  -- _lastHarmfulAdded[unit] = GetTime()
 --                         aura. SotF shields the pet; Turtle never touches
 --                         it — a positive Survival-of-the-Fittest confirm.
 -- Also used for the Death Knight Anti-Magic Shell (48707) vs Icebound
--- Fortitude (48792) flag-twin:
---   _absorbAt[unit]       GetTime() of the unit's most recent absorb change
---                         (UNIT_ABSORB_AMOUNT_CHANGED). Anti-Magic Shell
---                         applies an absorb shield; Icebound Fortitude never
---                         does — a positive Anti-Magic-Shell confirm.
+-- Fortitude (48792) flag-twin and Monk Touch of Karma vs Fortifying Brew:
+--   _absorbGainAt[unit]   GetTime() of the unit's most recent MEASURED
+--                         absorb INCREASE. A bare UNIT_ABSORB_AMOUNT_CHANGED
+--                         stamp was useless as evidence: the event also
+--                         fires every time damage eats an existing healer
+--                         shield, so in dungeon combat "changed recently"
+--                         was permanently true and every ambiguous Monk
+--                         self-cast got attributed to Karma (live report:
+--                         Fortifying Brew glowed/CD'd Touch of Karma).
+--                         Only an increase proves a shield was APPLIED.
+--   _absorbAmt[unit]      last cleanly-read total absorb, the baseline the
+--                         increase is measured against. Never written when
+--                         the amount reads secret (M+ combat) — without a
+--                         readable pair no gain is ever claimed and the
+--                         resolvers fall through to the duration probe.
+--   _absorbEventAt[unit]  GetTime() of the bare UNIT_ABSORB_AMOUNT_CHANGED,
+--                         stamped WITHOUT reading the amount. This is the
+--                         only absorb signal that survives an instance:
+--                         UnitGetTotalAbsorbs reads secret for party members
+--                         in M+, so the measured-increase channel above goes
+--                         permanently blind exactly where the twins matter
+--                         (live report: a DK's Anti-Magic Shell still tracked
+--                         as Icebound Fortitude after the increase channel
+--                         was added). The event carries no value, so nothing
+--                         about it can be secret.
+--
+--                         It is weak evidence on its own — damage eating a
+--                         healer's shield fires the same event — so it is
+--                         only ever read through a MUCH tighter window than
+--                         the measured channel (see ABSORB_BARE_WINDOW).
+--                         Correlation, not amount, is what makes it safe.
 local _immuneFlagsAt = {}
 local _feignAt       = {}
 local _petBigDefAt   = {}
-local _absorbAt      = {}
+local _absorbGainAt  = {}
+local _absorbAmt     = {}
+local _absorbEventAt = {}
 -- Window (seconds) within which the above evidence counts as concurrent
 -- with the buff aura being classified.
 local TWIN_EVIDENCE_WINDOW = 0.8
@@ -1130,6 +1241,41 @@ local TWIN_EVIDENCE_WINDOW = 0.8
 -- wider 0.8s window let unrelated flag churn (busy combat) fake Turtle
 -- evidence far too often.
 local TWIN_FLAGS_WINDOW = 0.35
+-- Window for the BARE absorb event (_absorbEventAt). Tighter than
+-- TWIN_EVIDENCE_WINDOW: the measured channel proves a shield was APPLIED
+-- and can afford a generous window, while the bare event only proves "some
+-- absorb changed" and leans entirely on being simultaneous with the aura.
+--
+-- Sized like TWIN_FLAGS_WINDOW and for the same reason: the aura scan is
+-- deferred ~50-120ms, so most of the budget is already spent by the time
+-- the classification asks. Anything much tighter mostly measures our own
+-- scan delay and misses real evidence.
+--
+-- This is NOT the setting that caused Fortifying Brew to glow Touch of
+-- Karma. That was an "any absorb > 0" poll, which is permanently true in
+-- dungeon combat — no window could have saved it. A same-tick correlation
+-- can be wrong (a healer shield landing on the DK just as Icebound goes
+-- up) but not permanently wrong, and the duration probe corrects it when
+-- the buff ends.
+local ABSORB_BARE_WINDOW = 0.35
+
+-- True when the unit shows absorb evidence concurrent with an aura being
+-- classified right now. Prefers the measured increase (strong, wide
+-- window) and falls back to the bare event (weak, tight window) so the
+-- twins stay separable inside instances where the amount reads secret.
+-- Second return value flags which channel answered, for the dev log.
+local function HasAbsorbEvidence(unit)
+    local now = GetTime()
+    local gainAt = _absorbGainAt[unit]
+    if gainAt and (now - gainAt) <= TWIN_EVIDENCE_WINDOW then
+        return true, "measured"
+    end
+    local evAt = _absorbEventAt[unit]
+    if evAt and (now - evAt) <= ABSORB_BARE_WINDOW then
+        return true, "bare"
+    end
+    return false, nil
+end
 
 -- Per-(unit, spellId) last refresh timestamp for selfRefreshing defs.
 -- Used by the spread-vs-recast disambiguator: passive self-refresh
@@ -1238,17 +1384,17 @@ local _stats = {
     unitAuraFired    = 0,  -- total UNIT_AURA callbacks invoked
     fullUpdates      = 0,  -- updateInfo.isFullUpdate == true (or missing updateInfo)
     addedAurasSeen   = 0,  -- entries in updateInfo.addedAuras across all events
-    lookupFastHit    = 0,  -- SafeAuraLookup resolved via direct pcall
-    lookupTaintHit   = 0,  -- SafeAuraLookup resolved via BIT.Taint:ResolveNumber
-    lookupTextureHit = 0,  -- SafeAuraLookup resolved via aura.icon → _spellByTexture
+    -- The 3.8.6 pivot removed the spellId / texture / name / byte-scrubber
+    -- resolvers: SafeAuraLookup now only runs MatchAuraByClassification. Their
+    -- counters were left behind and kept printing a permanent 0, which reads
+    -- as "this path is failing" instead of "this path no longer exists".
+    -- Removed — only the two live resolvers are counted.
     lookupClassifyHit= 0,  -- SafeAuraLookup resolved via Blizzard category filter + duration
-    lookupStringHit  = 0,  -- SafeAuraLookup resolved via string-keyed mirror OR loop-equality (12.0.5 taint workaround)
-    lookupByteHit    = 0,  -- SafeAuraLookup resolved via byte-scrubber (12.0.5 hardest taint workaround)
-    lookupNameHit    = 0,  -- SafeAuraLookup resolved via C_Spell.GetSpellName (12.0.5 taint workaround)
-    lookupRefetchHit = 0,  -- SafeAuraLookup resolved via GetAuraDataByAuraInstanceID refetch (12.0.5 taint workaround)
     lookupLastResortHit = 0, -- SafeAuraLookup resolved via class+spec exclusivity heuristic (taint-saturated M+)
     attributionReassigns        = 0,  -- post-hoc cooldown reassignments after observed-lifetime verification
     lookupMiss       = 0,  -- SafeAuraLookup returned nil (untracked spell OR unresolvable taint)
+    importantOnlyDrops = 0, -- auras carrying ONLY the IMPORTANT flag, dropped by the corroboration gate
+                            -- (mostly ordinary buffs, but IMPORTANT-only DEFENSIVES land here too)
     onAuraAppeared   = 0,  -- OnAuraAppeared actually invoked with a matched def
     casterFallback   = 0,  -- target-cast spells where sourceUnit was unreadable and we used a class-search fallback
     castersDropped   = 0,  -- OnAuraAppeared bailed because casterUnit didn't validate
@@ -1293,6 +1439,14 @@ local function GetInstanceContextKey()
     return "openworld"
 end
 
+-- True only inside an arena, the one context where the server reports
+-- PvP trinket cooldowns. Reuses the pcall-guarded context helper above
+-- so a tainted IsInInstance return degrades to "not an arena" instead
+-- of throwing.
+local function IsInArenaInstance()
+    return GetInstanceContextKey() == "arena"
+end
+
 -- Layout-test mode bypass — `/bitpcd test` flips this on so the
 -- visibility gate doesn't hide the fake icons we're applying for
 -- positioning. Cleared by `/bitpcd clear`.
@@ -1302,12 +1456,17 @@ local function ShouldBeVisibleHere()
     if _testMode then return true end
     if not BIT.db then return true end
     local ctx = GetInstanceContextKey()
-    -- Defaults mirror Core/Data.lua: dungeon/openworld/arena default
-    -- ON (~= false), raid/bg default OFF (== true).
+    -- Each test must mirror BOTH the default in Core/Data.lua and the
+    -- matching getter in the settings page: dungeon/openworld default ON
+    -- (~= false), raid/arena/bg default OFF (== true). Arena used to be
+    -- tested with ~= false while its default and its checkbox both read
+    -- == true — harmless while the key exists, but a profile that never
+    -- stored it (older import) showed icons in arenas with the checkbox
+    -- sitting visibly off.
     if ctx == "dungeon"   then return BIT.db.partyCooldownsShowInDungeon   ~= false end
     if ctx == "raid"      then return BIT.db.partyCooldownsShowInRaid      == true  end
     if ctx == "openworld" then return BIT.db.partyCooldownsShowInOpenWorld ~= false end
-    if ctx == "arena"     then return BIT.db.partyCooldownsShowInArena     ~= false end
+    if ctx == "arena"     then return BIT.db.partyCooldownsShowInArena     == true  end
     if ctx == "bg"        then return BIT.db.partyCooldownsShowInBG        == true  end
     return true
 end
@@ -1721,6 +1880,15 @@ local function SpellsForMember(name, class, race)
     local byRace = race and _spellsByRace[race]
     if byRace then for _, def in ipairs(byRace) do accept(def) end end
 
+    -- Universal entries apply to everyone, but the PvP trinket only has a
+    -- data source inside an arena — admit it exactly where we can state
+    -- something true about it.
+    for _, def in ipairs(_spellsUniversal) do
+        if not def.pvpTrinket or IsInArenaInstance() then
+            accept(def)
+        end
+    end
+
     if #out == 0 then return nil end
     return out
 end
@@ -1772,20 +1940,44 @@ local function StartGlow(icon)
         return
     end
 
-    local color = { db.partyCooldownsGlowColorR or 0.95,
-                    db.partyCooldownsGlowColorG or 0.95,
-                    db.partyCooldownsGlowColorB or 0.32, 1 }
+    -- Glow colour: either the custom picker colour, or — when the
+    -- "class colour" toggle is on — the local player's own class colour
+    -- (Demon Hunter = purple, Priest = white, ...). The player's own
+    -- class token from UnitClass is never a secret value, so it can
+    -- index RAID_CLASS_COLORS directly.
+    local color
+    if db.partyCooldownsGlowUseClassColor then
+        local _, classFile = UnitClass("player")
+        local cc = classFile and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classFile]
+        if cc then color = { cc.r, cc.g, cc.b, 1 } end
+    end
+    if not color then
+        color = { db.partyCooldownsGlowColorR or 0.95,
+                  db.partyCooldownsGlowColorG or 0.95,
+                  db.partyCooldownsGlowColorB or 0.32, 1 }
+    end
+    -- Shared glow-tuning knobs (settings sliders). Read here so every
+    -- glow in the addon — Party CD icons, the unit-frame overlay, the
+    -- previews — reflects one consistent configuration.
+    local lines = db.partyCooldownsGlowLines or 8
+    local freq  = db.partyCooldownsGlowFrequency or 0.25
+    local thick = db.partyCooldownsGlowThickness or 2
+    local len   = db.partyCooldownsGlowLength
+    if not len or len <= 0 then len = nil end   -- 0 / nil = auto length
     local style = db.partyCooldownsGlowStyle or "PIXEL"
     if style == "AUTOCAST" then
-        -- 4 sparkle groups, slightly enlarged for small icons.
-        pcall(lcg.AutoCastGlow_Start, icon, color, 4, 0.125, 1.2)
+        -- Sparkle groups = lines; scale slightly enlarged for small icons.
+        pcall(lcg.AutoCastGlow_Start, icon, color, lines, freq, 1.2)
     elseif style == "PROC" then
+        -- Proc has no line/length/thickness knobs — color + anim only.
         pcall(lcg.ProcGlow_Start, icon, { color = color, startAnim = true })
+    elseif style == "BUTTON" then
+        -- Tinted classic button glow; only the frequency knob applies.
+        pcall(lcg.ButtonGlow_Start, icon, color, freq)
     else
         -- "PIXEL" — also the fallback for unknown values from a
-        -- corrupted import: 8 lines, moderate speed, auto length,
-        -- 2px thick.
-        pcall(lcg.PixelGlow_Start, icon, color, 8, 0.25, nil, 2)
+        -- corrupted import.
+        pcall(lcg.PixelGlow_Start, icon, color, lines, freq, len, thick)
     end
 end
 
@@ -1883,12 +2075,193 @@ local function _saveCache(short, specId, talents)
     sv.partyCDPlayerCache[short] = entry
 end
 
+-- Persistent-cache bounds. Without these the cache grows one entry per
+-- unique player ever seen with LibSpec data — harmless at runtime (it's
+-- only ever loaded once and read via O(1) maps, never scanned) but the
+-- SavedVariables file would bloat over a long pug career. A dropped
+-- player's spec is simply re-learned from LibSpec next time they're in
+-- the group, so pruning has no real downside.
+local CACHE_MAX_AGE  = 45 * 24 * 60 * 60   -- drop players not seen in 45 days
+local CACHE_MAX_KEEP = 3000                -- hard cap; oldest evicted first
+
+-- Bound the persistent cache. Runs once on load: age-prune, then size-
+-- cap (oldest lastSeen first). Operates on the SavedVariables table so
+-- the shrink actually persists.
+local function _pruneCache(cache)
+    if type(cache) ~= "table" then return end
+    local now = (time and time()) or 0
+
+    -- Age prune — only entries with a known (non-zero) lastSeen, so a
+    -- legacy entry that predates timestamping isn't wiped by accident.
+    if now > 0 then
+        for short, entry in pairs(cache) do
+            local ls = (type(entry) == "table") and entry.lastSeen or nil
+            if type(ls) == "number" and ls > 0 and (now - ls) > CACHE_MAX_AGE then
+                cache[short] = nil
+            end
+        end
+    end
+
+    -- Size cap — count first, bail if within bounds.
+    local count = 0
+    for _ in pairs(cache) do count = count + 1 end
+    if count <= CACHE_MAX_KEEP then return end
+
+    -- Over the cap: evict the oldest (count - cap) entries. Missing /
+    -- zero lastSeen sorts oldest, so unknown-age entries go first.
+    local list = {}
+    for short, entry in pairs(cache) do
+        local ls = (type(entry) == "table" and type(entry.lastSeen) == "number") and entry.lastSeen or 0
+        list[#list + 1] = { short = short, ls = ls }
+    end
+    table.sort(list, function(a, b) return a.ls < b.ls end)
+    for i = 1, (count - CACHE_MAX_KEEP) do
+        cache[list[i].short] = nil
+    end
+end
+
 local function _loadCache()
     local sv = BliZziInterruptsSavedVars
     if not sv or not sv.partyCDPlayerCache then return end
+    _pruneCache(sv.partyCDPlayerCache)
     for short, entry in pairs(sv.partyCDPlayerCache) do
         if entry.spec then _specByName[short] = entry.spec end
         if entry.talents then _talentsByName[short] = entry.talents end
+    end
+end
+
+------------------------------------------------------------
+-- Running-cooldown persistence across a /reload.
+--
+-- Teammate cooldowns are MODELED — Blizzard exposes no API for another
+-- player's cooldowns — so every /reload used to wipe the whole group's
+-- timers and render everyone as "all ready". (The LOCAL player is
+-- unaffected: SeedLocalPlayerCDs re-reads Blizzard's authoritative API
+-- on every rebuild. This covers everyone else.)
+--
+-- Timestamps are stored on the WALL CLOCK via time(), not the GetTime()
+-- session clock. GetTime() does survive a /reload, but it resets to ~0
+-- on a full client restart — saved values would then sit far in the
+-- future and freeze every timer forever. Converting through time() is
+-- correct for both cases and lets the restore just drop whatever has
+-- already expired in the meantime.
+--
+-- Per-character scope: the group you reload into is the one you left.
+-- The blob is consumed on load so a stale one can never be applied twice.
+------------------------------------------------------------
+-- Aura instance IDs are only meaningful while those auras still exist.
+-- After a quick /reload they do (restoring them stops the post-load
+-- full sweep from re-committing a still-active buff, which would reset
+-- its cooldown and eat a charge). After a long logout the server may
+-- have recycled the IDs, so a stale one could wrongly dedup a fresh
+-- cast — only re-trust them within this window.
+local CD_STATE_INST_MAXAGE = 60
+
+local function _charSV()
+    BliZziInterruptsSavedVarsChar = BliZziInterruptsSavedVarsChar or {}
+    return BliZziInterruptsSavedVarsChar
+end
+
+local function _saveCdState()
+    local sv   = _charSV()
+    local nowG = GetTime()
+    local nowU = (time and time()) or 0
+    if nowU <= 0 then sv.partyCDState = nil; return end
+
+    local players = {}
+    local function slot(name, spellId)
+        players[name] = players[name] or {}
+        players[name][spellId] = players[name][spellId] or {}
+        return players[name][spellId]
+    end
+
+    for name, byId in pairs(_cdEnd) do
+        for spellId, cdEnd in pairs(byId) do
+            if type(spellId) == "number" and type(cdEnd) == "number" and cdEnd > nowG then
+                slot(name, spellId).cd = nowU + (cdEnd - nowG)
+            end
+        end
+    end
+    for name, byId in pairs(_glowEnd) do
+        for spellId, gEnd in pairs(byId) do
+            if type(spellId) == "number" and type(gEnd) == "number" and gEnd > nowG then
+                slot(name, spellId).glow = nowU + (gEnd - nowG)
+            end
+        end
+    end
+    for name, byId in pairs(_chargeQueue) do
+        for spellId, queue in pairs(byId) do
+            if type(spellId) == "number" and type(queue) == "table" then
+                local q
+                for _, t in ipairs(queue) do
+                    if type(t) == "number" and t > nowG then
+                        q = q or {}
+                        q[#q + 1] = nowU + (t - nowG)
+                    end
+                end
+                if q then slot(name, spellId).q = q end
+            end
+        end
+    end
+    for name, byId in pairs(_lastInst) do
+        for spellId, inst in pairs(byId) do
+            -- Only plain numbers: a secret-tagged instance ID must never
+            -- reach the SavedVariables serializer.
+            if type(spellId) == "number" and type(inst) == "number"
+               and players[name] and players[name][spellId] then
+                players[name][spellId].inst = inst
+            end
+        end
+    end
+
+    sv.partyCDState = next(players) and { savedAt = nowU, players = players } or nil
+end
+
+local function _loadCdState()
+    local sv    = _charSV()
+    local saved = sv.partyCDState
+    sv.partyCDState = nil   -- one-shot
+    if type(saved) ~= "table" or type(saved.players) ~= "table" then return end
+    local nowG = GetTime()
+    local nowU = (time and time()) or 0
+    if nowU <= 0 then return end
+
+    local age = (type(saved.savedAt) == "number") and (nowU - saved.savedAt) or nil
+    local trustInst = age ~= nil and age >= 0 and age <= CD_STATE_INST_MAXAGE
+
+    for name, byId in pairs(saved.players) do
+        if type(name) == "string" and type(byId) == "table" then
+            for spellId, e in pairs(byId) do
+                if type(spellId) == "number" and type(e) == "table" then
+                    if type(e.cd) == "number" and e.cd > nowU then
+                        _cdEnd[name] = _cdEnd[name] or {}
+                        _cdEnd[name][spellId] = nowG + (e.cd - nowU)
+                    end
+                    if type(e.glow) == "number" and e.glow > nowU then
+                        _glowEnd[name] = _glowEnd[name] or {}
+                        _glowEnd[name][spellId] = nowG + (e.glow - nowU)
+                    end
+                    if type(e.q) == "table" then
+                        local q
+                        for _, t in ipairs(e.q) do
+                            if type(t) == "number" and t > nowU then
+                                q = q or {}
+                                q[#q + 1] = nowG + (t - nowU)
+                            end
+                        end
+                        if q then
+                            table.sort(q)
+                            _chargeQueue[name] = _chargeQueue[name] or {}
+                            _chargeQueue[name][spellId] = q
+                        end
+                    end
+                    if trustInst and type(e.inst) == "number" then
+                        _lastInst[name] = _lastInst[name] or {}
+                        _lastInst[name][spellId] = e.inst
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -1921,6 +2294,17 @@ local ROLE_UNIQUE_SPEC = {
     TANK = {
         WARRIOR = SPEC.WAR_PROT, PALADIN = SPEC.PAL_PROT, DEATHKNIGHT = SPEC.DK_BLOOD,
         MONK = SPEC.MONK_BREW, DRUID = SPEC.DRUID_GUARDIAN, DEMONHUNTER = SPEC.DH_VENGEANCE,
+    },
+    -- Classes with exactly ONE damage spec: a DAMAGER-role member of
+    -- these classes has a provable spec, same certainty as the tank /
+    -- healer rows above (live report: a no-LibSpec Shadow priest only
+    -- showed the class-wide Desperate Prayer — DAMAGER proves Shadow,
+    -- which also unlocks Dispersion). Everything else stays absent:
+    -- two-plus DPS specs (Warrior, DK, Druid, Shaman, Evoker, DH with
+    -- Havoc+Devourer) and the pure-DPS classes where the role adds no
+    -- information (Mage, Warlock, Hunter, Rogue).
+    DAMAGER = {
+        PRIEST = SPEC.PRI_SHADOW, PALADIN = SPEC.PAL_RET, MONK = SPEC.MONK_WW,
     },
 }
 local function _reconcileSpecWithRole(unit, name, class)
@@ -2158,7 +2542,7 @@ local function GetStandaloneSlotForTest(name, classFile)
         local label = row:CreateFontString(nil, "OVERLAY")
         local labelFont = (BIT.Media and BIT.Media.font) or "Fonts\\FRIZQT__.TTF"
         local labelSize = (BIT.db and BIT.db.partyCooldownsStandaloneFontSize) or 11
-        label:SetFont(labelFont, labelSize, "OUTLINE")
+        label:SetFont(labelFont, labelSize, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
         label:SetPoint("LEFT", row, "LEFT", 6, 0)
         label:SetJustifyH("LEFT")
         label:SetWidth(80)
@@ -2268,7 +2652,7 @@ local function LayoutStandaloneRows()
             -- the name isn't in SyncCD.users; BIT.GetDisplayName
             -- harmlessly returns the input name in that case.
             if slot.label then
-                slot.label:SetFont(labelFont, labelSize, "OUTLINE")
+                slot.label:SetFont(labelFont, labelSize, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
                 local rendered = n
                 if BIT.GetDisplayName then
                     rendered = BIT.GetDisplayName(n, "PARTY_CDS") or n
@@ -2420,7 +2804,7 @@ local function GetStandaloneSlot(unit, name)
         -- pass) so the user can resize via the settings slider live.
         local labelFont = (BIT.Media and BIT.Media.font) or "Fonts\\FRIZQT__.TTF"
         local labelSize = (BIT.db and BIT.db.partyCooldownsStandaloneFontSize) or 11
-        label:SetFont(labelFont, labelSize, "OUTLINE")
+        label:SetFont(labelFont, labelSize, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
         label:SetPoint("LEFT", row, "LEFT", 6, 0)
         label:SetJustifyH("LEFT")
         -- Width cap so very long realm-suffixed names don't push the
@@ -2539,7 +2923,7 @@ end
 local function ApplyChargeBadgeStyle(icon)
     if not icon or not icon.chargeText then return end
     local font = (BIT.Media and BIT.Media.font) or "Fonts\\FRIZQT__.TTF"
-    icon.chargeText:SetFont(font, GetChargeFontSize(), "OUTLINE")
+    icon.chargeText:SetFont(font, GetChargeFontSize(), ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
     icon.chargeText:ClearAllPoints()
     icon.chargeText:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",
         GetChargeOffsetX(), GetChargeOffsetY())
@@ -2670,7 +3054,7 @@ CreateIcon = function(parent, def)
     cdOverlay:SetAllPoints(f)
     cdOverlay:SetFrameLevel(f:GetFrameLevel() + 30)
     f.text = cdOverlay:CreateFontString(nil, "OVERLAY")
-    f.text:SetFont(font, GetCdTextFontSize(), "OUTLINE")
+    f.text:SetFont(font, GetCdTextFontSize(), ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
     f.text:SetPoint("CENTER", cdOverlay, "CENTER", 0, 0)
     f.text:SetJustifyH("CENTER")
     f.text:SetTextColor(1, 1, 1)
@@ -2698,8 +3082,15 @@ ApplyIconBorder = function(icon)
     if not bo then return end
     local sz      = GetBorderSize()
     local offset  = GetBorderOffset()
-    local outward = sz + offset
     local db      = BIT.db or {}
+    -- Inward mode: keep the icon at its configured size and draw the border
+    -- INWARD over the icon's outer edge, instead of expanding the overlay out
+    -- by the border size (which made the whole thing 1px+ larger than the set
+    -- icon size). With offset=0 the overlay equals the icon and the edgeSize
+    -- border lays over the icon rim. Outward mode (default): expand out by
+    -- size+offset so the border sits outside the icon (existing look).
+    local inward  = db.partyCooldownsBorderInward
+    local outward = inward and offset or (sz + offset)
 
     bo:ClearAllPoints()
     if sz > 0 then
@@ -3100,11 +3491,61 @@ local function RebuildLocalChargeQueue(name, spellId)
     return true
 end
 
+-- Can `unit` plausibly be the caster of a spec-gated def? Used to
+-- narrow the target-cast class-fallback so a same-class member who
+-- CAN'T have the spell is never credited with it — e.g. Pain
+-- Suppression (Discipline) must not be attributed to a Shadow priest
+-- just because both are Priests.
+--
+-- Decision order (only ever EXCLUDES on a positive contradiction —
+-- when we genuinely can't tell, the member stays a candidate):
+--   * non-spec-gated def            → always allowed
+--   * candidate's spec is KNOWN     → must equal / be in def.spec
+--   * spec unknown but ROLE assigned→ role must match one of the
+--     def's spec roles (Disc = HEALER, so a DAMAGER priest is out)
+--   * role NONE / unknown           → allowed (can't rule out)
+local function _casterSpecAllows(unit, def)
+    if not def.spec then return true end
+    local name = FullName(unit)
+    local known = name and GetSpecForName(name)
+    if known then
+        if type(def.spec) == "number" then return known == def.spec end
+        if type(def.spec) == "table" then
+            for _, s in ipairs(def.spec) do if s == known then return true end end
+            return false
+        end
+        return true
+    end
+    -- Spec unknown → fall back to the (non-secret) role.
+    local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(unit)
+    if not role or role == "NONE" then return true end
+    local specs = (type(def.spec) == "table") and def.spec or { def.spec }
+    for _, s in ipairs(specs) do
+        local ok, r = pcall(GetSpecializationRoleByID, s)
+        if ok and r == role then return true end
+    end
+    return false   -- role known and matches none of the def's spec roles
+end
+
 ------------------------------------------------------------
 -- Detection — called from the UNIT_AURA observer when a tracked
 -- buff appears on a party unit.
 ------------------------------------------------------------
-function PCD:OnAuraAppeared(unit, def, aura)
+-- castAt (optional): when the spell was ACTUALLY used. Normally that is now,
+-- and every caller omits it. The deferred flag-twin resolver is the exception:
+-- it only learns WHICH spell an ambiguous aura was once the buff has already
+-- ended, so it must back-date the cooldown to when the aura first appeared —
+-- otherwise the timer would run ~10s long on every deferred detection.
+-- Deliberately scoped to the cooldown arithmetic and the glow window only. The
+-- dedup stamps and instance bookkeeping stay on real time, so a back-dated
+-- commit can never be mistaken for a stale one by the guards above.
+function PCD:OnAuraAppeared(unit, def, aura, castAt)
+    -- Choke-point disabled guard. A disabled def must never commit a cooldown
+    -- or glow, whichever path reached here. OnUnitCast already checks this, but
+    -- the selfRefreshing / updated-aura refresh path did not, so a disabled def
+    -- (Metamorphosis Vengeance) kept re-committing for the LOCAL player — hidden
+    -- only because "show own cooldowns" was off. Gating here closes every path.
+    if def and def.disabled then return end
     _stats.onAuraAppeared = _stats.onAuraAppeared + 1
     -- Pick the caster:
     --   self-cast spells:   caster is the unit the buff is on
@@ -3143,13 +3584,23 @@ function PCD:OnAuraAppeared(unit, def, aura)
             -- Class-search fallback: aura.sourceUnit is secret (typical
             -- in M+), so attribute by the spell's class. Dead members are
             -- excluded — a corpse can't have cast a target-cast buff.
-            local candidates = {}
+            local classMembers = {}
             for _, u in ipairs(PARTY_UNITS) do
                 if UnitExists(u) and UnitClassFile(u) == def.class
                    and not UnitIsDeadOrGhost(u) then
-                    candidates[#candidates + 1] = u
+                    classMembers[#classMembers + 1] = u
                 end
             end
+            -- Narrow to members whose spec / role can actually cast this
+            -- spec-gated spell (a Shadow priest can't have cast Pain
+            -- Suppression). Fail-safe: if the filter excludes everyone
+            -- (misleading role data, etc.) fall back to all class members
+            -- so a real cast is never dropped.
+            local candidates = {}
+            for _, u in ipairs(classMembers) do
+                if _casterSpecAllows(u, def) then candidates[#candidates + 1] = u end
+            end
+            if #candidates == 0 then candidates = classMembers end
             if #candidates == 1 then
                 -- Unambiguous: the only member of that class.
                 casterUnit = candidates[1]
@@ -3185,8 +3636,16 @@ function PCD:OnAuraAppeared(unit, def, aura)
     end
     if not casterUnit or not UnitExists(casterUnit) then
         _stats.castersDropped = _stats.castersDropped + 1
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[PCD-CASTER] " .. (def.label or tostring(def.spellId))
+                .. " on=" .. tostring(unit) .. " -> DROPPED (no caster resolved)")
+        end
         return
     end
+    -- NOTE: no success log here. OnAuraAppeared runs for every re-detection of
+    -- an already-tracked aura (many per second), so a line at this point buries
+    -- everything else. The attribution is reported on the [PCD-COMMIT] line
+    -- instead, which fires only when a cooldown is actually written.
 
     -- Dead-caster guard for target-cast defs. When the buff is on
     -- the unit `unit` and we resolved `casterUnit` via class fallback
@@ -3244,7 +3703,11 @@ function PCD:OnAuraAppeared(unit, def, aura)
     -- like Blur's Havoc+Devourer stay ambiguous); a spec that is already
     -- known is never overridden (LibSpec/role data outranks inference).
     if type(def.spec) == "number"
-       and not (UnitIsUnit and UnitIsUnit(casterUnit, "player")) then
+       and not (UnitIsUnit and UnitIsUnit(casterUnit, "player"))
+       and _casterSpecAllows(casterUnit, def) then
+        -- The _casterSpecAllows gate stops a misattributed cast from
+        -- poisoning the cache with a role-contradicting spec (e.g.
+        -- adopting Discipline for a DAMAGER-role Shadow priest).
         local short = name:match("^([^%-]+)") or name
         if _specByName[short] == nil then
             _specByName[short] = def.spec
@@ -3275,6 +3738,7 @@ function PCD:OnAuraAppeared(unit, def, aura)
     -- (add the second charge). A recast seen ONLY via the scan won't add
     -- its charge until the first recharge completes — an acceptable
     -- trade-off versus a timer that never completes at all.
+    castAt = castAt or now
     -- Same-INSTANCE re-detection guard (all casters, all spells): if the
     -- exact aura instance that produced the last commit shows up again
     -- (full-update rescan, talent-driven duration extension, glow
@@ -3381,7 +3845,7 @@ function PCD:OnAuraAppeared(unit, def, aura)
             for _, t in ipairs(queue) do
                 if t > latestEnd then latestEnd = t end
             end
-            local newEnd = math.max(latestEnd + effectiveCD, now + effectiveCD)
+            local newEnd = math.max(latestEnd + effectiveCD, castAt + effectiveCD)
             -- Phantom-commit safety net: with every charge spent, the
             -- farthest legitimate completion of the LAST recharge is
             -- charges × cd from now (serial recharge, all charges just
@@ -3389,7 +3853,7 @@ function PCD:OnAuraAppeared(unit, def, aura)
             -- double-counted uses — clamp so residual miscounts cost at
             -- most one recharge cycle instead of snowballing without
             -- bound (live report: 800s+ on a 2-charge / ~81s spell).
-            local maxEnd = now + effectiveCD * effectiveCharges
+            local maxEnd = castAt + effectiveCD * effectiveCharges
             if newEnd > maxEnd then newEnd = maxEnd end
             table.insert(queue, newEnd)
             table.sort(queue)
@@ -3405,10 +3869,20 @@ function PCD:OnAuraAppeared(unit, def, aura)
             end
         else
             -- Single charge.
-            _cdEnd[name][def.spellId] = now + effectiveCD
+            _cdEnd[name][def.spellId] = castAt + effectiveCD
         end
 
         _stats.cdsCommitted = _stats.cdsCommitted + 1
+        if BIT.devLogMode and BIT.DevLog then
+            local cdE = _cdEnd[name] and _cdEnd[name][def.spellId]
+            BIT.DevLog("[PCD-COMMIT] " .. (def.label or tostring(def.spellId))
+                .. " owner=" .. tostring(name)
+                .. " on=" .. tostring(unit)
+                .. " via=" .. tostring(casterVia)
+                .. " cd=" .. string.format("%.1f", effectiveCD)
+                .. " charges=" .. tostring(effectiveCharges)
+                .. " rem=" .. (cdE and string.format("%.1f", cdE - now) or "-"))
+        end
     end
 
     -- Visibility gate: CD state is committed (above) so re-entering an
@@ -3485,8 +3959,6 @@ function PCD:OnAuraAppeared(unit, def, aura)
                 icon:SetAlpha(0.65)
             end
         else
-            StartGlow(icon)
-            _glowEnd[name] = _glowEnd[name] or {}
             -- We use the def's nominal duration (clean game-data)
             -- rather than the aura's own expirationTime field — the
             -- latter can be a secret-tainted number for party-member
@@ -3495,7 +3967,23 @@ function PCD:OnAuraAppeared(unit, def, aura)
             -- (e.g. Improved Barkskin = +4s) so the glow timing
             -- matches the actual buff window per-caster.
             local effectiveDur = GetEffectiveDuration(def, name)
-            _glowEnd[name][def.spellId] = now + effectiveDur
+            local glowUntil    = castAt + effectiveDur
+            if glowUntil > now then
+                StartGlow(icon)
+                _glowEnd[name] = _glowEnd[name] or {}
+                _glowEnd[name][def.spellId] = glowUntil
+            else
+                -- Back-dated commit whose buff window has already elapsed
+                -- (deferred flag-twin resolution). Glowing now would claim
+                -- the buff is still up, and with no _glowEnd entry Tick()
+                -- would never transition the icon — so go straight to the
+                -- cooldown visual, exactly like the noGlow path above.
+                if icon.cd then icon.cd:SetCooldown(castAt, effectiveCD) end
+                if GetCdGrayout() then
+                    if icon.tex then icon.tex:SetDesaturated(true) end
+                    icon:SetAlpha(0.65)
+                end
+            end
         end
     end
 end
@@ -3517,6 +4005,7 @@ end
 ------------------------------------------------------------
 local function RefreshGlowOnly(unit, def)
     if not unit or not def then return end
+    if def.disabled then return end   -- never glow a def we don't track
     if def.noGlow then return end
     local casterUnit
     if def.affects == "self" then
@@ -4027,18 +4516,33 @@ local _durationProbes = {}
 -- active phase. We only schedule the resolver for SELF-CAST
 -- ambiguous matches — for target-cast spells the caster isn't
 -- the unit the buff is on and the CD bookkeeping is more involved.
+-- tentative may be nil = DEFERRED mode: nothing was committed and nothing
+-- glows; the winner is committed once the buff ends (see the target-cast
+-- branch in MatchAuraByClassification for why we refuse to guess there).
 local function _queueDurationProbe(unit, instId, candidates, tentative)
-    if not unit or not instId or not tentative then return end
+    if not unit or not instId then return end
+    if not tentative and not (candidates and #candidates > 1) then return end
     local name = FullName(unit)
     if not name then return end
 
     _durationProbes[unit] = _durationProbes[unit] or {}
+    -- Never re-arm a pending probe. firstSeenAt IS the measurement, so a
+    -- second queue call for the same aura instance would reset the clock and
+    -- the observed lifetime would collapse toward zero. In deferred mode
+    -- nothing is committed, so the usual _lastInst dedup doesn't cover us —
+    -- only the rejected-instance cache does, and this guard makes it explicit.
+    if _durationProbes[unit][instId] then return end
     _durationProbes[unit][instId] = {
         unit         = unit,
         instId       = instId,
         firstSeenAt  = GetTime(),
         possibleDefs = candidates,
-        committedDef = tentative,
+        committedDef = tentative,          -- nil in deferred mode
+        deferred     = (tentative == nil),
+        -- Holder of the aura. In tentative (self-cast) mode holder == caster,
+        -- which is what _reassignAttribution needs. In deferred mode the
+        -- caster is unknown until the winner is picked, so this is only used
+        -- to verify the unit token still refers to the same player.
         casterName   = name,
     }
 
@@ -4047,7 +4551,10 @@ local function _queueDurationProbe(unit, instId, candidates, tentative)
     -- duration is a safe upper bound for cancel-early cases too.
     local maxDur = 0
     for _, def in ipairs(candidates) do
-        if def.dur and def.dur > maxDur then maxDur = def.dur end
+        -- Effective, not nominal: a talent-extended candidate outlives
+        -- def.dur and would otherwise trip the timeout while still up.
+        local d = def.dur and GetEffectiveDuration(def, name) or 0
+        if d > maxDur then maxDur = d end
     end
     C_Timer.After((maxDur > 0 and maxDur or 10) + 1.5, function()
         if _durationProbes[unit] and _durationProbes[unit][instId] then
@@ -4190,6 +4697,94 @@ local function _reassignAttribution(record, oldDef, newDef)
     _stats.attributionReassigns = (_stats.attributionReassigns or 0) + 1
 end
 
+-- Retro-correction for the absorb side-channel.
+--
+-- The twin resolvers inside MatchAuraByClassification can only look
+-- BACKWARD: they ask whether an absorb gain was stamped before the aura
+-- arrived. But UNIT_ABSORB_AMOUNT_CHANGED frequently lands a moment AFTER
+-- the UNIT_AURA that carried the twin — the shield value updates once the
+-- aura is already applied. In that ordering the resolver sees no evidence,
+-- falls through, and the tentative goes to the longest-duration candidate:
+-- Anti-Magic Shell reads as Icebound Fortitude, Touch of Karma as
+-- Fortifying Brew. Which way the two events land is essentially a coin
+-- flip, which is what made the misattribution look random rather than
+-- systematic.
+--
+-- So we close the loop from the other side: when a measured gain arrives
+-- and a probe registered moments ago holds exactly ONE absorb-applying
+-- candidate, that candidate is the spell.
+--
+-- Window: the gain must belong to the aura's ARRIVAL. A shield landing
+-- mid-buff (the healer absorbing the same target three seconds into
+-- Icebound) must never re-decide a twin, hence the tight bound on
+-- firstSeenAt rather than on the event alone.
+-- `strong` = a MEASURED absorb increase; false = the bare event, which only
+-- proves that some absorb changed. Weak evidence gets a much tighter window
+-- for the same reason ABSORB_BARE_WINDOW is tight: correlation is the entire
+-- proof, so a shield landing well after the aura is not evidence about it.
+local ABSORB_RETRO_WINDOW      = 1.0
+local ABSORB_RETRO_WINDOW_BARE = 0.35
+local function _applyAbsorbEvidence(unit, strong)
+    local list = _durationProbes[unit]
+    if not list then return end
+    local now    = GetTime()
+    local window = strong and ABSORB_RETRO_WINDOW or ABSORB_RETRO_WINDOW_BARE
+
+    for instId, record in pairs(list) do
+        if not record.evidenceLocked
+           and (now - record.firstSeenAt) <= window then
+            -- Exactly one absorb-applying candidate, or the evidence
+            -- doesn't separate the pool and we leave it to the probe.
+            local hit, hits = nil, 0
+            for _, def in ipairs(record.possibleDefs) do
+                if def.absorbEvidence and not def.disabled then
+                    hits = hits + 1
+                    hit  = def
+                end
+            end
+
+            if hits == 1 and hit ~= record.committedDef then
+                local committed = record.committedDef
+                if committed == nil then
+                    _stats.absorbRetroFix = (_stats.absorbRetroFix or 0) + 1
+                    -- Deferred mode: nothing was committed, so commit the
+                    -- winner back-dated to the aura's appearance, the same
+                    -- way the deferred finalize would. Covers the external
+                    -- absorb twin (Life Cocoon) whose absorb lagged.
+                    list[instId] = nil
+                    if BIT.devLogMode and BIT.DevLog then
+                        BIT.DevLog("[PCD-ABSORB] " .. tostring(unit)
+                            .. " inst=" .. tostring(instId)
+                            .. " -> " .. (hit.label or tostring(hit.spellId))
+                            .. " (deferred commit, "
+                            .. (strong and "measured" or "bare") .. ")")
+                    end
+                    PCD:OnAuraAppeared(record.unit, hit, {}, record.firstSeenAt)
+                elseif committed.affects == "self" and hit.affects == "self" then
+                    -- Tentative mode: swap in place. Restricted to self-cast
+                    -- pairs because _reassignAttribution rewrites the CD
+                    -- bookkeeping under the aura HOLDER's name, which is only
+                    -- the caster for self-cast spells.
+                    _stats.absorbRetroFix = (_stats.absorbRetroFix or 0) + 1
+                    if BIT.devLogMode and BIT.DevLog then
+                        BIT.DevLog("[PCD-ABSORB] " .. tostring(unit)
+                            .. " inst=" .. tostring(instId)
+                            .. " " .. (committed.label or tostring(committed.spellId))
+                            .. " -> " .. (hit.label or tostring(hit.spellId))
+                            .. " (" .. (strong and "measured" or "bare") .. ")")
+                    end
+                    _reassignAttribution(record, committed, hit)
+                    record.committedDef  = hit
+                    -- Hard evidence outranks the duration estimate that runs
+                    -- when the buff ends (a 7s talent-extended Anti-Magic
+                    -- Shell would otherwise score as the 8s Icebound).
+                    record.evidenceLocked = true
+                end
+            end
+        end
+    end
+end
+
 -- Called from UNIT_AURA(removed) or from the timeout C_Timer.
 -- Measures observed lifetime, picks the best-match candidate,
 -- and swaps if needed.
@@ -4204,15 +4799,24 @@ function _finalizeDurationProbe(unit, instId, reason)
     if reason == "removed" then
         observedDur = GetTime() - record.firstSeenAt
     elseif reason == "timeout" then
-        -- Probe whether the aura is still alive past max nominal
-        -- duration. If yes, must be the longest-duration candidate.
+        -- Probe whether the aura is still alive past every candidate's
+        -- effective duration. If yes, it must be the longest candidate.
         local okA, freshData = pcall(C_UnitAuras.GetAuraDataByAuraInstanceID, unit, instId)
         if okA and freshData then
+            -- Still alive past every candidate's nominal duration. In deferred
+            -- mode that tells us nothing usable — an aura outliving the whole
+            -- pool is most likely not one of these spells at all, and there is
+            -- no tentative to correct. Committing the longest candidate on that
+            -- basis would be a guess, so drop it.
+            if record.deferred then return end
+            if record.evidenceLocked then return end
             local longest = record.committedDef
+            local longestDur = longest and GetEffectiveDuration(longest, record.casterName) or 0
             for _, def in ipairs(record.possibleDefs) do
-                if (def.dur or 0) > (longest.dur or 0) then longest = def end
+                local d = GetEffectiveDuration(def, record.casterName)
+                if d > longestDur then longest, longestDur = def, d end
             end
-            if longest ~= record.committedDef then
+            if longest and longest ~= record.committedDef then
                 _reassignAttribution(record, record.committedDef, longest)
             end
             return
@@ -4220,11 +4824,25 @@ function _finalizeDurationProbe(unit, instId, reason)
         observedDur = GetTime() - record.firstSeenAt
     end
 
+    -- Positive side-channel evidence (a measured absorb gain, see the
+    -- UNIT_ABSORB_AMOUNT_CHANGED handler) already resolved this aura by
+    -- observation. A duration estimate must never override that: the
+    -- observed lifetime of a talent-extended buff can sit closer to its
+    -- twin's nominal length than to its own.
+    if record.evidenceLocked then return end
+
+    -- Match against the caster's EFFECTIVE durations, not the nominal
+    -- def.dur. Talent extensions routinely move a spell onto its twin's
+    -- length: a DK with Anti-Magic Barrier casts a 7s Anti-Magic Shell
+    -- (5s base +2s), and comparing that measurement against the nominal
+    -- 5s scored Icebound Fortitude (8s) as the better match — the probe
+    -- then CONFIRMED the wrong tentative instead of correcting it.
+    local casterName = record.casterName
     local bestDef = record.committedDef
     local bestDiff = math.huge
     for _, def in ipairs(record.possibleDefs) do
         if def.dur then
-            local diff = math.abs(def.dur - observedDur)
+            local diff = math.abs(GetEffectiveDuration(def, casterName) - observedDur)
             if diff < bestDiff then
                 bestDiff = diff
                 bestDef = def
@@ -4232,10 +4850,68 @@ function _finalizeDurationProbe(unit, instId, reason)
         end
     end
 
+    -- DEFERRED mode: nothing was committed, so there is nothing to reverse —
+    -- the winner is committed here, back-dated to when the aura appeared.
+    --
+    -- The bar is higher than in tentative mode. A wrong swap merely moves an
+    -- existing cooldown; a wrong commit here invents one out of nothing and
+    -- puts a 3-minute timer on a player who never cast anything. So the match
+    -- must be BOTH within tolerance AND unambiguous: if a second candidate is
+    -- also within tolerance the measurement didn't actually separate them
+    -- (Blessing of Protection and Blessing of Spellwarding are both 10s and
+    -- can never be told apart this way) and we go back to showing nothing.
+    if record.deferred then
+        if bestDef and bestDiff < 1.5 and not bestDef.disabled
+           and UnitExists(record.unit)
+           and FullName(record.unit) == record.casterName then
+            local contested = false
+            for _, def in ipairs(record.possibleDefs) do
+                if def ~= bestDef and def.dur
+                   and math.abs(GetEffectiveDuration(def, casterName) - observedDur) < 1.5 then
+                    contested = true
+                    break
+                end
+            end
+            if not contested then
+                if BIT.devLogMode and BIT.DevLog then
+                    BIT.DevLog("[PCD-DEFER] " .. tostring(record.unit)
+                        .. " inst=" .. tostring(instId)
+                        .. " observed=" .. string.format("%.1f", observedDur)
+                        .. " -> " .. (bestDef.label or tostring(bestDef.spellId))
+                        .. " (" .. tostring(reason) .. ")")
+                end
+                -- Synthetic aura: no instance ID, no tainted fields. Routing
+                -- through OnAuraAppeared reuses the existing caster
+                -- resolution, which is the whole reason this is a target-cast
+                -- spell in the first place.
+                PCD:OnAuraAppeared(record.unit, bestDef, {}, record.firstSeenAt)
+            elseif BIT.devLogMode and BIT.DevLog then
+                BIT.DevLog("[PCD-DEFER] " .. tostring(record.unit)
+                    .. " inst=" .. tostring(instId)
+                    .. " observed=" .. string.format("%.1f", observedDur)
+                    .. " -> DROPPED (duration does not separate candidates)")
+            end
+        end
+        return
+    end
+
     -- 1.5s tolerance covers cancel-early (e.g. Dispersion ended
     -- by the player pressing the button again) and event-delivery
     -- delays. Outside tolerance, leave the tentative as-is rather
     -- than guess wrong.
+    if BIT.devLogMode and BIT.DevLog then
+        local from = record.committedDef
+        BIT.DevLog("[PCD-PROBE] " .. tostring(unit)
+            .. " inst=" .. tostring(instId)
+            .. " observed=" .. string.format("%.1f", observedDur)
+            .. " " .. (from and (from.label or tostring(from.spellId)) or "nil")
+            .. " -> " .. (bestDef and (bestDef.label or tostring(bestDef.spellId)) or "nil")
+            .. string.format(" diff=%.1f", bestDiff)
+            .. ((bestDef ~= record.committedDef and bestDiff < 1.5)
+                and " SWAP" or " keep")
+            .. " (" .. tostring(reason) .. ")")
+    end
+
     if bestDef and bestDef ~= record.committedDef and bestDiff < 1.5 then
         _reassignAttribution(record, record.committedDef, bestDef)
     end
@@ -4308,6 +4984,18 @@ local function _flagKeyMatch(defKey, auraKey)
     return defKey:sub(1, 2) == auraKey:sub(1, 2)
        and defKey:sub(4)    == auraKey:sub(4)
 end
+
+-- Dev-log pairing flag. MatchAuraByClassification sets this when it writes a
+-- [PCD-CLASSIFY] line, so SafeAuraLookup logs the MATCHING outcome for exactly
+-- those auras. Without the pairing the outcome line would also fire for the
+-- thousands of ordinary buffs that never reach classification, flooding the
+-- ring buffer out of the window we care about.
+--
+-- A plain boolean, not the instance ID: SafeAuraLookup is the only caller and
+-- checks it immediately after the synchronous call, so set/consume can never
+-- interleave across auras. That keeps us from comparing an auraInstanceID,
+-- which the rest of this file only ever does behind an issecretvalue guard.
+local _dbgClassified = false
 
 local function MatchAuraByClassification(unit, aura)
     if not unit or not aura then return nil end
@@ -4547,6 +5235,41 @@ local function MatchAuraByClassification(unit, aura)
         end
     end
 
+    -- Dev-log the classification INPUTS (only reached by auras that carry at
+    -- least one of B/E/I, so this stays off the ordinary-buff hot path). This
+    -- is the decisive diagnostic for "spell X was never detected": it shows
+    -- the aura's flag key, whether the duration was readable, and how large
+    -- the candidate pool still is BEFORE the narrowers run. Everything here
+    -- is clean data (auraInstanceID + our own def labels) — no tainted aura
+    -- field is ever read for the log.
+    -- Only BIG / EXTERNAL auras are logged. IMPORTANT-only auras are dropped
+    -- wholesale by the corroboration gate further down and are overwhelmingly
+    -- ordinary buffs (food, flasks, trinket procs) — logging them buried the
+    -- interesting lines under thousands of identical entries and rolled the
+    -- ring buffer over within seconds. Their volume is tracked by the
+    -- importantOnlyDrops counter in /bitpcd dump instead.
+    if BIT.devLogMode and BIT.DevLog and (isBig or isExt) then
+        -- Disabled defs are marked with a trailing *. They are NOT filtered out
+        -- of the candidate pool, so a spell we deliberately don't track can
+        -- still make an enabled one ambiguous and silently block it. If a * ever
+        -- shows up next to a real detection failure, that's the cause.
+        local function candStr(t)
+            if #t == 0 then return "0" end
+            local parts = {}
+            for _, d in ipairs(t) do
+                parts[#parts + 1] = (d.label or tostring(d.spellId)) .. (d.disabled and "*" or "")
+            end
+            return #t .. "[" .. table.concat(parts, ", ") .. "]"
+        end
+        _dbgClassified = true
+        BIT.DevLog("[PCD-CLASSIFY] " .. tostring(unit)
+            .. " inst=" .. tostring(instId)
+            .. " key=" .. auraFlagKey
+            .. " dur=" .. (cleanDur and string.format("%.1f", cleanDur) or "secret")
+            .. " tgt=" .. candStr(targetCands)
+            .. " self=" .. candStr(selfCands))
+    end
+
     -- PER-UNIT NARROWING for self-cast candidates. For a self-cast spell
     -- the aura is ON the caster, so the unit's class+spec must match the
     -- def. Without this, in a multi-class group, all admitted "--I" self-
@@ -4765,6 +5488,7 @@ local function MatchAuraByClassification(unit, aura)
     -- observed duration that matches a candidate, or the Forbearance harmful
     -- aura for that family), never the IMPORTANT flag alone.
     if not IMPORTANT_FILTER_RELIABLE and not isBig and not isExt then
+        _stats.importantOnlyDrops = (_stats.importantOnlyDrops or 0) + 1
         return nil
     end
 
@@ -4783,8 +5507,9 @@ local function MatchAuraByClassification(unit, aura)
         -- absorb evidence changes nothing (the absorb event can lag the
         -- aura event, so its absence must never eliminate a candidate).
         if #candidates > 1 then
-            local absAt = _absorbAt[unit]
-            if absAt and (GetTime() - absAt) <= 1.5 then
+            -- Measured increase preferred, bare event (tight window) as the
+            -- in-instance fallback — see HasAbsorbEvidence.
+            if HasAbsorbEvidence(unit) then
                 local absorbCands = {}
                 for _, d in ipairs(candidates) do
                     if d.absorbEvidence then
@@ -5041,24 +5766,14 @@ local function MatchAuraByClassification(unit, aura)
             end
         end
         if amsDef and iceDef then
-            local isAMS = false
-            -- Event-based: an absorb change fired on this unit recently.
-            local absAt = _absorbAt[unit]
-            if absAt and (GetTime() - absAt) <= TWIN_EVIDENCE_WINDOW then
-                isAMS = true
-            end
-            -- Fallback poll: AMS's absorb shield is present on the unit right
-            -- now. Catches event-order races and the open world (where the
-            -- amount reads clean). Secret-guarded — in instances the amount
-            -- may be secret, in which case we rely on the event above.
-            if not isAMS and UnitGetTotalAbsorbs then
-                local ok, amt = pcall(UnitGetTotalAbsorbs, unit)
-                if ok and type(amt) == "number" then
-                    local okSec, isSec = pcall(issecretvalue, amt)
-                    if okSec and not isSec and amt > 0 then isAMS = true end
-                end
-            end
-            if isAMS then
+            -- Positive AMS evidence = a MEASURED absorb increase in the
+            -- window (AMS applies a shield; Icebound never does). Same fix
+            -- as the Karma/Brew twin below: the old any-change stamp and
+            -- the "any absorb > 0" poll were permanently true in dungeon
+            -- combat (healer shields), so Icebound casts landed on AMS.
+            -- Without absorb evidence, fall through to the duration probe
+            -- (5s AMS vs 8s Icebound separates cleanly).
+            if HasAbsorbEvidence(unit) then
                 if amsDef.disabled then return nil end
                 return amsDef
             end
@@ -5085,19 +5800,15 @@ local function MatchAuraByClassification(unit, aura)
             end
         end
         if karmaDef and brewDef then
-            local isKarma = false
-            local absAt = _absorbAt[unit]
-            if absAt and (GetTime() - absAt) <= TWIN_EVIDENCE_WINDOW then
-                isKarma = true
-            end
-            if not isKarma and UnitGetTotalAbsorbs then
-                local ok, amt = pcall(UnitGetTotalAbsorbs, unit)
-                if ok and type(amt) == "number" then
-                    local okSec, isSec = pcall(issecretvalue, amt)
-                    if okSec and not isSec and amt > 0 then isKarma = true end
-                end
-            end
-            if isKarma then
+            -- Positive Karma evidence = a MEASURED absorb increase in the
+            -- window (Karma applies a 50%-max-HP shield; Brew adds none).
+            -- The old "any absorb change" stamp plus an "any absorb > 0"
+            -- poll were both permanently true in dungeon combat (healer
+            -- shields being eaten by damage), so every Brew cast landed on
+            -- Karma. Without provable gain we now fall through: tentative
+            -- picks Brew (longest duration) and the measured-lifetime probe
+            -- swaps to Karma post-hoc when the buff lived ~10s not ~15s.
+            if HasAbsorbEvidence(unit) then
                 if karmaDef.disabled then return nil end
                 return karmaDef
             end
@@ -5332,8 +6043,12 @@ local function MatchAuraByClassification(unit, aura)
             -- on every pull — Avatar is functionally cast far more
             -- often than the reactive talent-gated Spell Reflection
             -- despite the higher CD.
+            -- Durations are compared EFFECTIVE (talent extensions applied),
+            -- so a loadout that reorders the pool is respected — the same
+            -- basis the duration probe now measures against.
             local function isBetter(a, b)
-                local aDur, bDur = a.dur or 0, b.dur or 0
+                local aDur = a.dur and GetEffectiveDuration(a, name) or 0
+                local bDur = b.dur and GetEffectiveDuration(b, name) or 0
                 if aDur ~= bDur then return aDur > bDur end
                 return (a.cd or math.huge) < (b.cd or math.huge)
             end
@@ -5360,6 +6075,31 @@ local function MatchAuraByClassification(unit, aura)
             end
             _queueDurationProbe(unit, instId, candidates, tentative)
             return tentative
+        end
+
+        -- TARGET-CAST ambiguity — the external-defensive pool (Pain
+        -- Suppression 8s vs Blessing of Protection 10s vs Blessing of
+        -- Spellwarding 10s vs Blessing of Sacrifice 12s: all "BEI-" once the
+        -- unreliable IMPORTANT bit is wildcarded). Live log with a Paladin in
+        -- the group: tgt=3, duration secret, dropped every single time — this
+        -- is why a teammate's Pain Suppression never lit up.
+        --
+        -- NO tentative here, unlike the self-cast branch above. There the
+        -- caster IS the unit the buff is on, so a wrong guess only glows the
+        -- wrong icon on the right player for a few seconds. Here the caster is
+        -- someone else, and each candidate belongs to a DIFFERENT player — a
+        -- wrong guess would hang a 3-minute cooldown on a teammate who never
+        -- cast anything, and we have no evidence favouring any candidate. So
+        -- stay silent and let the measured buff lifetime decide once the aura
+        -- ends: unchanged behaviour (nothing shown) while the buff is up, and
+        -- a correct, back-dated attribution afterwards.
+        local allTargetCast = true
+        for _, def in ipairs(candidates) do
+            if def.affects ~= "target" then allTargetCast = false; break end
+        end
+        if allTargetCast then
+            _queueDurationProbe(unit, instId, candidates, nil)
+            return nil
         end
     end
 
@@ -5503,6 +6243,18 @@ local function SafeAuraLookup(aura)
     _cp.calls = _cp.calls + 1
     local def = MatchAuraByClassification(_lookupUnit, aura)
     _profStop(_cp, _ct0)
+    -- Outcome line, paired to the [PCD-CLASSIFY] line above (see
+    -- _dbgClassified). A MISS here means the aura DID carry a defensive flag
+    -- but no single def survived the narrowers — i.e. it was dropped as
+    -- ambiguous, which is exactly the case the counters can't show us.
+    if _dbgClassified then
+        _dbgClassified = false
+        if BIT.DevLog then
+            BIT.DevLog("[PCD-LOOKUP] " .. tostring(_lookupUnit)
+                .. " -> " .. (def and (def.label or tostring(def.spellId))
+                              or "MISS (no unique candidate)"))
+        end
+    end
     if def then
         _stats.lookupClassifyHit = (_stats.lookupClassifyHit or 0) + 1
         return def
@@ -5759,8 +6511,7 @@ end
 -- query key was. The current path:
 --
 --   1. Call C_UnitAuras.GetUnitAuras(unit, "HELPFUL") to retrieve
---      the unit's full helpful-aura LIST. This call works in M+
---      where GetAuraDataBySpellID returns nil.
+--      the unit's full helpful-aura LIST. This call works in M+.
 --   2. For each aura entry, read aura.auraInstanceID (always clean
 --      per Blizzard's design — taint cannot propagate to this field).
 --   3. Skip already-committed instances via `_lastInst[name][...]`.
@@ -5806,10 +6557,322 @@ local function HideGlowOnAuraEnd(name, spellId)
     end
 end
 
+------------------------------------------------------------
+-- PvP trinket cooldown (arena only)
+--
+-- The one cooldown in this module that is READ instead of modelled.
+-- C_PvP.GetArenaCrowdControlDuration returns the server's own remaining
+-- time: authoritative, already accounting for anything that alters the
+-- trinket, and safe to handle because it arrives as an opaque
+-- DurationObject rather than a number that could be secret.
+--
+-- To keep the icon on the ordinary code path (swipe, countdown text,
+-- dimming, expiry) we convert it into the same absolute _cdEnd timestamp
+-- every other spell uses. A throwaway Cooldown widget does the
+-- laundering: SetCooldownFromDurationObject takes the object, and
+-- GetCooldownTimes reads plain milliseconds back out. If those ever come
+-- back secret the conversion is abandoned and the icon simply stays
+-- ready — no guessing.
+------------------------------------------------------------
+local PVP_TRINKET_SPELL_ID = 336126
+local _trinketScratch
+local _trinketScratchHost   -- permanently hidden parent, see ReadTrinketCdEnd
+
+local function ReadTrinketCdEnd(unit)
+    if not (C_PvP and C_PvP.GetArenaCrowdControlDuration) then return nil end
+    local ok, durationObj = pcall(C_PvP.GetArenaCrowdControlDuration, unit)
+    if not ok or durationObj == nil then return nil end
+
+    if not _trinketScratch then
+        -- The scratch widget exists ONLY to turn a DurationObject into
+        -- plain numbers; it must never draw. Its own :Hide() is not enough
+        -- for that — applying a cooldown makes a Cooldown widget show
+        -- itself again, and parented to UIParent with the template's own
+        -- anchors it covered the whole screen with a swipe and a countdown
+        -- (live report). Parenting it to a permanently hidden host frame
+        -- makes rendering impossible regardless of its own shown state,
+        -- while the cooldown data it stores stays readable.
+        _trinketScratchHost = CreateFrame("Frame", nil, UIParent)
+        _trinketScratchHost:Hide()
+        _trinketScratch = CreateFrame("Cooldown", nil, _trinketScratchHost,
+                                      "CooldownFrameTemplate")
+        _trinketScratch:SetSize(1, 1)
+        _trinketScratch:ClearAllPoints()
+        _trinketScratch:SetPoint("CENTER")
+        _trinketScratch:SetHideCountdownNumbers(true)
+        _trinketScratch:SetDrawEdge(false)
+        _trinketScratch:SetDrawBling(false)
+        _trinketScratch:Hide()
+    end
+    if not pcall(_trinketScratch.SetCooldownFromDurationObject, _trinketScratch, durationObj) then
+        return nil
+    end
+
+    local okGet, startMs, durMs = pcall(_trinketScratch.GetCooldownTimes, _trinketScratch)
+    if not okGet or type(startMs) ~= "number" or type(durMs) ~= "number" then
+        return nil
+    end
+    local okA, secA = pcall(issecretvalue, startMs)
+    local okB, secB = pcall(issecretvalue, durMs)
+    if not okA or secA or not okB or secB then return nil end
+    if durMs <= 0 then return nil end
+
+    -- GetCooldownTimes reports milliseconds on the GetTime() timebase.
+    return (startMs + durMs) / 1000
+end
+
+local function RefreshTrinketFor(unit)
+    if not IsInArenaInstance() then return end
+    if not (unit and UnitExists(unit)) then return end
+    local name = FullName(unit)
+    if not name then return end
+    local icon = _icons[name] and _icons[name][PVP_TRINKET_SPELL_ID]
+    if not icon then return end
+
+    local cdEnd = ReadTrinketCdEnd(unit)
+    local now   = GetTime()
+    _cdEnd[name] = _cdEnd[name] or {}
+
+    if cdEnd and cdEnd > now then
+        _cdEnd[name][PVP_TRINKET_SPELL_ID] = cdEnd
+        if icon.cd then icon.cd:SetCooldown(now, cdEnd - now) end
+        if GetCdGrayout() then
+            if icon.tex then icon.tex:SetDesaturated(true) end
+            icon:SetAlpha(0.65)
+        end
+    else
+        -- Trinket is up (or unreadable): clear rather than let a stale
+        -- timer run down on its own.
+        _cdEnd[name][PVP_TRINKET_SPELL_ID] = nil
+        if icon.cd then pcall(icon.cd.Clear, icon.cd) end
+        if icon.tex then icon.tex:SetDesaturated(false) end
+        icon:SetAlpha(1.0)
+    end
+end
+
+local function RefreshTrinketAll()
+    if not IsInArenaInstance() then return end
+    for _, unit in ipairs(PARTY_UNITS) do
+        if UnitExists(unit) then RefreshTrinketFor(unit) end
+    end
+end
+
+------------------------------------------------------------
+-- 12.1 detection path: spell-ID probing
+--
+-- Patch 12.1 hard-breaks the fingerprint pipeline below: every API that
+-- serves aura data via index, slot, or INSTANCE ID raises a Lua error
+-- while auras are secret (combat / encounter / M+ / PvP), GetUnitAuras
+-- returns a secret vector, and the UNIT_AURA payload turns fully secret.
+-- What explicitly keeps working is access BY SPELL ID.
+--
+-- So this path inverts the question. Instead of enumerating a unit's
+-- auras and guessing which spell each one is, it walks the unit's known
+-- candidate defs and asks per spell: "is this exact buff on this unit
+-- right now?" Identification is exact — flag-twins, duration probes and
+-- absorb side-channels don't exist here, because there is nothing left
+-- to disambiguate.
+--
+-- HOW a single spell is looked up (ProbeAuraPresence): the client has NO
+-- by-spell-ID lookup that takes a unit token — a PTR probetest proved
+-- that the long-assumed C_UnitAuras.GetAuraDataBySpellID simply does not
+-- exist ("attempt to call a nil value"). The real per-spell APIs are
+-- GetPlayerAuraBySpellID (own player only, exact) and
+-- GetAuraDataBySpellName (any unit, via the localized spell name from
+-- C_Spell.GetSpellName). Name lookups are safe here because each
+-- member's candidate list is already class/spec-filtered — a name that
+-- exists twice in the game (both Metamorphosis variants) is only ever
+-- probed against the one def that member can actually own.
+--
+-- The design reads NO aura fields at all (the one minDur exception
+-- screens itself). Detection state is pure presence per (unit, spellId):
+-- absent → present commits through the ordinary OnAuraAppeared pipeline,
+-- present → absent routes through HideGlowOnAuraEnd. Even a client that
+-- turns every aura field secret cannot break "the call returned a table".
+--
+-- Known trade-off: a recast that merely REFRESHES a still-running buff
+-- produces no presence transition and is missed here. For single-charge
+-- defensives that case doesn't exist (buff running = spell on CD); for
+-- the few charge spells the cast-event path still covers it.
+--
+-- Activation: automatically on a 12.1+ client, or forced on any client
+-- via /bitpcd probe121 for live testing. The fingerprint path stays
+-- fully intact underneath — flipping back is removing one condition.
+------------------------------------------------------------
+-- (IS_121_CLIENT lives at the top of the file — the client gate needs it
+-- long before this point.)
+local _force121 = false
+
+local function UseSpellIdProbes()
+    return IS_121_CLIENT or _force121
+end
+
+-- _probePresence[name][spellId] = true while the buff is on the unit.
+local _probePresence = {}
+
+-- spellId -> localized spell name, filled lazily. Only successful reads
+-- are cached: C_Spell.GetSpellName can return nil before the spell data
+-- streams in, and caching that would silence the probe forever.
+local _auraNameCache = {}
+
+-- Presence probe for ONE spell on ONE unit. Returns:
+--   present  boolean — the buff is on the unit right now
+--   aura     table|nil — readable aura data, nil when unreadable
+--   how      "player-id" | "name" | "secret" | nil — which lookup answered
+-- The "secret" case is deliberate forward-compat: should a 12.1 build
+-- return a SECRET value for a present aura instead of clean data, the
+-- non-nil-ness still transports presence — which is all this path needs.
+-- issecretvalue is the one sanctioned test that never throws on secrets.
+local function ProbeAuraPresence(unit, spellId)
+    -- Own player: exact by-ID lookup, immune to name collisions.
+    if unit == "player" and C_UnitAuras.GetPlayerAuraBySpellID then
+        local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+        if ok then
+            local okS, isSec = pcall(issecretvalue, aura)
+            if okS and isSec then return true, nil, "secret" end
+            if aura ~= nil then return true, aura, "player-id" end
+            return false, nil, "player-id"
+        end
+        -- errored → try the name path below
+    end
+
+    local name = _auraNameCache[spellId]
+    if not name then
+        local okN, n = pcall(C_Spell.GetSpellName, spellId)
+        if okN and type(n) == "string" and n ~= "" then
+            name = n
+            _auraNameCache[spellId] = n
+        end
+    end
+    if not name or not C_UnitAuras.GetAuraDataBySpellName then
+        return false, nil, nil
+    end
+    local ok, aura = pcall(C_UnitAuras.GetAuraDataBySpellName, unit, name, "HELPFUL")
+    if not ok then return false, nil, nil end
+    local okS, isSec = pcall(issecretvalue, aura)
+    if okS and isSec then return true, nil, "secret" end
+    if aura ~= nil then return true, aura, "name" end
+    return false, nil, "name"
+end
+
+-- Shared with OffensiveCDAlert, whose aura check suffered the exact same
+-- phantom-API call. Accessed at call time via BIT.PartyCooldowns, so
+-- module load order doesn't matter.
+function PCD:ProbeAuraPresence(unit, spellId)
+    return ProbeAuraPresence(unit, spellId)
+end
+
+local function ProbeUnitAuras(unit, name)
+    _stats.probe121Runs = (_stats.probe121Runs or 0) + 1
+    local class = UnitClassFile(unit)
+    if not class then return end
+
+    -- 12.1: UnitRace can return secrets for units whose identity is
+    -- secret. nil race just skips race-gated defs (all disabled anyway).
+    local race
+    do
+        local okR, _, raceFile = pcall(UnitRace, unit)
+        if okR and type(raceFile) == "string" then race = raceFile end
+    end
+
+    _probePresence[name] = _probePresence[name] or {}
+    local present = _probePresence[name]
+    local seen = {}
+
+    local function probeDef(def)
+        -- Trinket CDs come from the arena server API, never from auras;
+        -- dedup guards against defs reachable via both candidate lists.
+        if def.pvpTrinket or seen[def.spellId] ~= nil then return end
+        local probeId = def.auraId or def.spellId
+        _stats.probe121Probes = (_stats.probe121Probes or 0) + 1
+        local isPresent, aura = ProbeAuraPresence(unit, probeId)
+        if not isPresent then return end
+        seen[def.spellId] = true
+        if present[def.spellId] then return end
+        present[def.spellId] = true
+
+        -- minDur proc guard (short talent-proc grants of a real buff,
+        -- e.g. a 3s Survival of the Fittest proc). The only aura-field
+        -- read in this path, fully screened; a secret or unreadable
+        -- duration must never block a real cast, so it fails open.
+        if def.minDur and aura then
+            local okD, d = pcall(function() return aura.duration end)
+            if okD and type(d) == "number" then
+                local okS, sec = pcall(issecretvalue, d)
+                if (not okS or not sec) and d > 0 and d < def.minDur then
+                    return  -- proc: remember presence, commit nothing
+                end
+            end
+        end
+
+        _stats.probe121Hits = (_stats.probe121Hits or 0) + 1
+        if BIT.devLogMode and BIT.DevLog then
+            BIT.DevLog("[PCD-121] " .. tostring(unit)
+                .. " +" .. (def.label or tostring(def.spellId)))
+        end
+        -- aura can be nil when the client answered with a secret value;
+        -- the commit pipeline accepts an empty table there (same pattern
+        -- as the deferred duration-probe commits).
+        PCD:OnAuraAppeared(unit, def, aura or {})
+    end
+
+    -- The member's own spells (self-cast defensives plus the target-cast
+    -- spells they can put on others — which includes themselves).
+    local own = SpellsForMember(name, class, race)
+    if own then
+        for _, def in ipairs(own) do probeDef(def) end
+    end
+
+    -- Target-cast defs of every OTHER group member: their buff lands on
+    -- THIS unit (a priest's Pain Suppression on the tank). Deliberately
+    -- NOT skipping members of the probed unit's own class — the own list
+    -- above is filtered by the unit's own spec, so a Resto druid's
+    -- Ironbark on a Balance druid would otherwise never be probed.
+    -- OnAuraAppeared's caster resolution attributes the cooldown to the
+    -- right group member exactly as it does today.
+    local userDisabled = BIT.db and BIT.db.partyCooldownsDisabled or nil
+    for _, u in ipairs(PARTY_UNITS) do
+        if u ~= unit and UnitExists(u) then
+            local cls = UnitClassFile(u)
+            local defs = cls and _spellsByClass[cls]
+            if defs then
+                for _, def in ipairs(defs) do
+                    if def.affects == "target" and not def.disabled
+                       and not (userDisabled and userDisabled[def.spellId]) then
+                        probeDef(def)
+                    end
+                end
+            end
+        end
+    end
+
+    -- Presence → absence: the buff ended (expired, dispelled, death).
+    for spellId in pairs(present) do
+        if not seen[spellId] then
+            present[spellId] = nil
+            if BIT.devLogMode and BIT.DevLog then
+                BIT.DevLog("[PCD-121] " .. tostring(unit)
+                    .. " -" .. tostring(spellId))
+            end
+            HideGlowOnAuraEnd(name, spellId)
+        end
+    end
+end
+
 local function ScanUnitAuras(unit, name)
     local _p, _t0 = _prof.scan, debugprofilestop()
     _p.calls = _p.calls + 1
     if not unit or not name then _profStop(_p, _t0); return end
+
+    -- 12.1 clients (or /bitpcd probe121): spell-ID probing replaces the
+    -- whole enumerate-and-fingerprint pass below. Same entry points,
+    -- same commit pipeline, different identification frontend.
+    if UseSpellIdProbes() then
+        ProbeUnitAuras(unit, name)
+        _profStop(_p, _t0)
+        return
+    end
+
     _stats.pollRuns = _stats.pollRuns + 1
 
     -- Build the group-spec cache ONCE for this scan. Every classify
@@ -6017,13 +7080,74 @@ local function OnUnitAura(_, event, ...)
         _profStop(_p, _t0)
         return
     end
-    if event == "UNIT_ABSORB_AMOUNT_CHANGED" then
-        -- Side-channel for the DK Anti-Magic Shell vs Icebound Fortitude
-        -- twin: only AMS adds an absorb. Broad event → gate to our 5 slots
-        -- and stamp the time; the resolver consults it within a tight window
-        -- when both twins are candidates.
+    if event == "ARENA_COOLDOWNS_UPDATE" or event == "PVP_MATCH_STATE_CHANGED" then
+        -- ARENA_COOLDOWNS_UPDATE carries an optional unit; an absent or
+        -- empty one means "re-read everyone". PVP_MATCH_STATE_CHANGED has
+        -- no unit at all and exists to catch the gates-open sweep, where
+        -- cooldowns carried in from a previous round are published.
         local unit = ...
-        if unit and _isPartyUnit[unit] then _absorbAt[unit] = GetTime() end
+        if event == "ARENA_COOLDOWNS_UPDATE"
+           and unit and unit ~= "" and _isPartyUnit[unit] then
+            RefreshTrinketFor(unit)
+        else
+            RefreshTrinketAll()
+        end
+        _profStop(_p, _t0)
+        return
+    end
+    if event == "UNIT_ABSORB_AMOUNT_CHANGED" then
+        -- Side-channel for the absorb-applying twins (DK Anti-Magic Shell,
+        -- Monk Touch of Karma, MW Life Cocoon). Broad event → gate to our
+        -- 5 slots. Evidence is only a MEASURED INCREASE of the readable
+        -- total: the event alone also fires when damage consumes an
+        -- existing shield, which in dungeon combat made "absorb changed
+        -- recently" permanently true and misattributed Fortifying Brew
+        -- casts to Karma. When the amount reads secret (M+ combat) neither
+        -- the baseline nor a gain is recorded — the twin resolvers then
+        -- stay silent and the duration probe decides instead.
+        --
+        -- A gain also reaches BACKWARD via _applyAbsorbEvidence: this event
+        -- often trails the UNIT_AURA it belongs to, so the aura may already
+        -- be sitting on the wrong twin by the time the shield is measured.
+        local unit = ...
+        if unit and _isPartyUnit[unit] then
+            -- Stamp the bare event FIRST and unconditionally. It is the only
+            -- absorb signal that survives an instance, where the amount below
+            -- reads secret. No value is touched here, so nothing can taint.
+            _absorbEventAt[unit] = GetTime()
+            _stats.absorbEvents = (_stats.absorbEvents or 0) + 1
+            _applyAbsorbEvidence(unit, false)
+        end
+        if unit and _isPartyUnit[unit] and UnitGetTotalAbsorbs then
+            local ok, amt = pcall(UnitGetTotalAbsorbs, unit)
+            if ok and type(amt) == "number" then
+                local okS, isSec = pcall(issecretvalue, amt)
+                if not okS or isSec then
+                    _stats.absorbSecret = (_stats.absorbSecret or 0) + 1
+                end
+                if okS and not isSec then
+                    _stats.absorbReadable = (_stats.absorbReadable or 0) + 1
+                    local prev = _absorbAmt[unit]
+                    _absorbAmt[unit] = amt
+                    -- Cold start: with no baseline yet we cannot prove an
+                    -- INCREASE from a single sample, but a first reading of
+                    -- zero is a usable baseline on its own — the unit demonstrably
+                    -- has no shield. Treating "no baseline" as "no evidence"
+                    -- silently burned the first absorb twin of every session
+                    -- (and of every group with a non-absorb healer, where the
+                    -- DK's own Anti-Magic Shell IS the first absorb event).
+                    if prev == nil then prev = 0 end
+                    if amt > prev then
+                        _stats.absorbGains = (_stats.absorbGains or 0) + 1
+                        _absorbGainAt[unit] = GetTime()
+                        -- The aura may already be here and mis-attributed:
+                        -- this event routinely trails its UNIT_AURA. Re-run
+                        -- with the strong flag now that the gain is proven.
+                        _applyAbsorbEvidence(unit, true)
+                    end
+                end
+            end
+        end
         _profStop(_p, _t0)
         return
     end
@@ -6039,7 +7163,10 @@ local function OnUnitAura(_, event, ...)
     -- never party slots, so this returns before the party filter below.
     local petOwner = _petOwner[unit]
     if petOwner then
-        if updateInfo and updateInfo.addedAuras
+        -- Probe mode never reads updateInfo: on 12.1 the payload is
+        -- fully secret, and the pet side-channel only feeds the
+        -- fingerprint path's SotF/Turtle resolver anyway.
+        if not UseSpellIdProbes() and updateInfo and updateInfo.addedAuras
            and UnitClassFile(petOwner) == "HUNTER" then
             for _, addedAura in ipairs(updateInfo.addedAuras) do
                 if addedAura and addedAura.auraInstanceID then
@@ -6073,7 +7200,9 @@ local function OnUnitAura(_, event, ...)
     -- API doesn't expose tainted spellIds at all). If any addedAura
     -- matches HARMFUL, mark the unit as having received a harmful
     -- aura in this batch.
-    if updateInfo and updateInfo.addedAuras then
+    -- (Skipped in probe mode: 12.1 delivers a fully secret payload, and
+    -- the Forbearance side-channel only serves fingerprint flag-twins.)
+    if not UseSpellIdProbes() and updateInfo and updateInfo.addedAuras then
         for _, addedAura in ipairs(updateInfo.addedAuras) do
             if addedAura and addedAura.auraInstanceID then
                 local ok, filteredOut = pcall(C_UnitAuras.IsAuraFilteredOutByInstanceID,
@@ -6095,7 +7224,9 @@ local function OnUnitAura(_, event, ...)
     -- we hide the still-pulsing glow on its icon — otherwise the
     -- ring would keep animating for the full def.dur seconds even
     -- though the buff is already gone.
-    if updateInfo and updateInfo.removedAuraInstanceIDs then
+    -- (Skipped in probe mode: removals surface as presence transitions
+    -- inside ProbeUnitAuras, and duration probes don't exist there.)
+    if not UseSpellIdProbes() and updateInfo and updateInfo.removedAuraInstanceIDs then
         local nameForRemove = FullName(unit)
         local lastInstForUnit = nameForRemove and _lastInst[nameForRemove]
         for _, removedInst in ipairs(updateInfo.removedAuraInstanceIDs) do
@@ -6162,7 +7293,7 @@ local function OnUnitAura(_, event, ...)
     -- For those defs we rely on UNIT_SPELLCAST_SUCCEEDED + new-
     -- instance addedAuras paths exclusively for charge accounting
     -- whenever the talent gate matches.
-    if updateInfo and updateInfo.updatedAuraInstanceIDs then
+    if not UseSpellIdProbes() and updateInfo and updateInfo.updatedAuraInstanceIDs then
         local nameForRefresh = FullName(unit)
         local lastInstForUnit = nameForRefresh and _lastInst[nameForRefresh]
         if lastInstForUnit then
@@ -6365,7 +7496,11 @@ local function OnUnitAura(_, event, ...)
         -- Full updates (post-/reload, zone transition) get an
         -- immediate scan because we want them tracked ASAP — they're
         -- usually steady-state with no related-event ordering issue.
-        local isIncremental = updateInfo and not updateInfo.isFullUpdate
+        -- Probe mode treats every fire as a full update: the payload
+        -- must not be read (secret on 12.1), and the 0.05s Forbearance-
+        -- ordering defer only matters to the fingerprint classifier.
+        local isIncremental = not UseSpellIdProbes()
+                              and updateInfo and not updateInfo.isFullUpdate
                               and updateInfo.addedAuras and #updateInfo.addedAuras > 0
         if isIncremental then
             _stats.pollDeferred = _stats.pollDeferred + 1
@@ -6398,6 +7533,13 @@ local function OnUnitAura(_, event, ...)
     -- Divine Protection). Single-source detection via the scan path
     -- avoids this race entirely.
     --
+    -- Probe mode is done here — the diagnostic counters below read
+    -- updateInfo fields, which is off-limits on a 12.1 secret payload.
+    if UseSpellIdProbes() then
+        _profStop(_p, _t0)
+        return
+    end
+
     -- Full update — happens on PLAYER_ENTERING_WORLD-class transitions
     -- and any time Blizzard chooses not to deliver an incremental delta.
     -- ScanUnitAuras above already handled detection. No separate
@@ -6467,6 +7609,12 @@ local function RegisterAuraObserver()
     -- the event simply never arrived, so the absorb evidence was always
     -- empty. The handler filters to party units (cheap _isPartyUnit check).
     _auraFrame:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+    -- The server pushes PvP trinket cooldowns for the arena team through
+    -- this event; it is the only notification that a trinket was used, so
+    -- the icon is driven entirely by it (plus a sweep when the roster or
+    -- the match state changes).
+    _auraFrame:RegisterEvent("ARENA_COOLDOWNS_UPDATE")
+    _auraFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 end
 
 local function UnregisterAuraObserver()
@@ -6872,7 +8020,7 @@ function PCD:RefreshCdTextStyle()
     for _name, byId in pairs(_icons) do
         for _spellId, icon in pairs(byId) do
             if icon.text then
-                icon.text:SetFont(font, size, "OUTLINE")
+                icon.text:SetFont(font, size, ("OUTLINE" .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")))
             end
         end
     end
@@ -6908,6 +8056,30 @@ function PCD:RefreshCdGrayout()
     end
 end
 
+-- Seed the absorb baselines for the current slots.
+--
+-- The absorb twin resolvers need a PREVIOUS reading to prove that a shield
+-- INCREASED. Establishing that baseline lazily from the first
+-- UNIT_ABSORB_AMOUNT_CHANGED is unreliable in exactly the case that matters:
+-- reloading mid-combat, where the first sample we ever see may be an
+-- existing shield being consumed and would read as a gain from zero. Sampling
+-- on every roster change and after a load screen keeps a real baseline in
+-- place, so the cold-start assumption is a rare fallback instead of the norm.
+local function SeedAbsorbBaselines()
+    if not UnitGetTotalAbsorbs then return end
+    for _, unit in ipairs(PARTY_UNITS) do
+        if UnitExists(unit) then
+            local ok, amt = pcall(UnitGetTotalAbsorbs, unit)
+            if ok and type(amt) == "number" then
+                local okS, isSec = pcall(issecretvalue, amt)
+                if okS and not isSec then
+                    _absorbAmt[unit] = amt
+                end
+            end
+        end
+    end
+end
+
 local function OnRosterOrEditMode()
     if not _enabled then return end
     -- Hide icons left over from members who departed since the last
@@ -6915,6 +8087,9 @@ local function OnRosterOrEditMode()
     -- player B takes the slot, A's icons stay parented to the slot
     -- frame and visually overlap B's new icon row.
     HideIconsOfDepartedMembers()
+    -- Slots may now point at different players — re-sample their shields
+    -- so a twin resolver never compares against the previous occupant.
+    SeedAbsorbBaselines()
     -- ApplyVisibility is the single source of truth for whether the
     -- aura observer + Tick run: it (re-)registers them in a tracked
     -- context and tears them down in an idle one. We no longer
@@ -6933,6 +8108,10 @@ local function OnRosterOrEditMode()
                 OnUnitAura(nil, "UNIT_AURA", unit, { isFullUpdate = true })
             end
         end
+        -- Trinket icons are created by the rebuild above, so seed their
+        -- timers afterwards: entering an arena mid-cooldown (a later round)
+        -- otherwise shows every trinket as ready until someone uses one.
+        RefreshTrinketAll()
     end
 end
 
@@ -6959,6 +8138,12 @@ end
 ------------------------------------------------------------
 function PCD:Enable()
     if _enabled then return end
+    -- Client gate (see the top of this file): on a client where party
+    -- cooldowns cannot be read, the module never starts — no events, no
+    -- frames, no cost. Checked here rather than at every call site so
+    -- every entry point (login boot, settings toggle, /bitpcd on) is
+    -- covered by one guard.
+    if self:IsBlockedByClient() then return end
     _enabled = true
 
     -- Restore the persistent spec/talent cache BEFORE registering for
@@ -6973,6 +8158,13 @@ function PCD:Enable()
     -- path the broadest possible coverage right at /reload time —
     -- crucial for M+ where party-member spellIds arrive tainted.
     _loadLearnedTextures()
+
+    -- Restore teammates' running cooldowns / charges / glows from the
+    -- last session BEFORE the initial sweep below, so a /reload mid-run
+    -- doesn't show the whole group as ready. Restoring _lastInst here
+    -- also makes that sweep skip buffs that are still active instead of
+    -- re-committing them.
+    _loadCdState()
 
     RegisterAuraObserver()
     RegisterRosterHandler()
@@ -6999,6 +8191,24 @@ function PCD:Enable()
             if UnitExists(unit) then
                 OnUnitAura(nil, "UNIT_AURA", unit, { isFullUpdate = true })
             end
+        end
+    end
+
+    -- Late-provider retry. Unit-frame addons (ElvUI, Cell, EllesmereUI,
+    -- ...) often finish building their party frames AFTER this Enable
+    -- runs — most visibly on a /reload mid-dungeon, where there is no
+    -- subsequent roster or zone event to trigger another rebuild, so
+    -- EnsureIconsFor's "GetPartyFrame == nil → bail, retry later" path
+    -- never gets its "later" and the icons stay missing until the user
+    -- manually toggles the feature. Fire a few staggered rebuilds so
+    -- the icons appear on their own once the frames exist. Each pass is
+    -- cheap and idempotent (re-anchors existing icons); guarded on
+    -- _enabled so a disable in between cancels them.
+    if C_Timer and C_Timer.After then
+        for _, delay in ipairs({ 0.5, 1, 2, 4, 8 }) do
+            C_Timer.After(delay, function()
+                if _enabled then PCD:ApplyVisibility() end
+            end)
         end
     end
 end
@@ -7040,7 +8250,18 @@ end
 ------------------------------------------------------------
 local _bootFrame = CreateFrame("Frame")
 _bootFrame:RegisterEvent("PLAYER_LOGIN")
-_bootFrame:SetScript("OnEvent", function()
+_bootFrame:RegisterEvent("PLAYER_LOGOUT")
+_bootFrame:SetScript("OnEvent", function(_, event)
+    if event == "PLAYER_LOGOUT" then
+        -- Fires for /reload and for logging out. Snapshot the modeled
+        -- teammate cooldowns so the next Enable can restore them.
+        _saveCdState()
+        return
+    end
+    -- Client gate: the module stays down and says nothing here. The reason
+    -- is spelled out on the Party CDs settings page, where someone who
+    -- notices the icons are gone goes looking anyway.
+    if PCD:IsBlockedByClient() then return end
     if BIT.db and BIT.db.partyCooldownsEnabled then
         PCD:Enable()
     end
@@ -7254,17 +8475,19 @@ function PCD:Dump()
     print("    UNIT_AURA fires       : " .. _stats.unitAuraFired)
     print("    full updates          : " .. _stats.fullUpdates)
     print("    addedAuras seen       : " .. _stats.addedAurasSeen)
-    print("    SafeAuraLookup fast   : " .. _stats.lookupFastHit)
-    print("    SafeAuraLookup taint  : " .. _stats.lookupTaintHit)
-    print("    SafeAuraLookup tex    : " .. _stats.lookupTextureHit)
     print("    SafeAuraLookup class  : " .. _stats.lookupClassifyHit)
-    print("    SafeAuraLookup string : " .. (_stats.lookupStringHit or 0))
-    print("    SafeAuraLookup byte   : " .. (_stats.lookupByteHit or 0))
-    print("    SafeAuraLookup name   : " .. (_stats.lookupNameHit or 0))
-    print("    SafeAuraLookup refetch: " .. (_stats.lookupRefetchHit or 0))
     print("    SafeAuraLookup last   : " .. (_stats.lookupLastResortHit or 0))
     print("    attribution reassigns : " .. (_stats.attributionReassigns or 0))
+    -- Absorb side-channel health. "readable 0" in an instance means the
+    -- twin resolvers (Anti-Magic Shell, Touch of Karma, Life Cocoon) are
+    -- blind there and only the duration probe can separate those pairs.
+    print("    absorb events (bare)  : " .. (_stats.absorbEvents or 0))
+    print("    absorb reads (clean)  : " .. (_stats.absorbReadable or 0))
+    print("    absorb reads (secret) : " .. (_stats.absorbSecret or 0))
+    print("    absorb gains measured : " .. (_stats.absorbGains or 0))
+    print("    absorb retro-fixes    : " .. (_stats.absorbRetroFix or 0))
     print("    SafeAuraLookup miss   : " .. _stats.lookupMiss)
+    print("    IMPORTANT-only drops  : " .. (_stats.importantOnlyDrops or 0))
     print("    OnAuraAppeared        : " .. _stats.onAuraAppeared)
     print("    caster fallback used  : " .. _stats.casterFallback)
     print("    casters dropped       : " .. _stats.castersDropped)
@@ -7274,6 +8497,15 @@ function PCD:Dump()
     print("    player casts seen     : " .. _stats.playerCastSeen)
     print("    player casts matched  : " .. _stats.playerCastMatched)
     print("    poll runs             : " .. _stats.pollRuns)
+    -- 12.1 spell-ID probe path. "client" = a 12.1+ build activated it,
+    -- "forced" = /bitpcd probe121 is overriding on an older client.
+    local probeMode = "off"
+    if IS_121_CLIENT then probeMode = "on (client)"
+    elseif _force121 then probeMode = "on (forced)" end
+    print("    12.1 probe path       : " .. probeMode)
+    print("    probe121 runs         : " .. (_stats.probe121Runs or 0))
+    print("    probe121 id checks    : " .. (_stats.probe121Probes or 0))
+    print("    probe121 commits      : " .. (_stats.probe121Hits or 0))
     print("    poll deferred         : " .. _stats.pollDeferred)
     print("    poll probes           : " .. _stats.pollProbes)
     print("    poll skips (neg cache): " .. _stats.pollSkipsRejected)
@@ -7793,6 +9025,99 @@ SlashCmdList["BITPCD"] = function(msg)
     elseif arg == "charges" then
         PCD:DumpCharges()
         return
+    elseif arg == "probe121" then
+        _force121 = not _force121
+        -- Wipe the presence state on every flip so the newly active
+        -- path re-detects the current auras from a clean slate.
+        for k in pairs(_probePresence) do _probePresence[k] = nil end
+        if IS_121_CLIENT then
+            print("|cff0091edBIT|r |cFFAAAAAA[PartyCooldowns]|r 12.1 client detected: the spell-ID probe path is always on; the force flag has no effect.")
+        else
+            print("|cff0091edBIT|r |cFFAAAAAA[PartyCooldowns]|r 12.1 spell-ID probe path "
+                .. (_force121 and "|cFF88FFAAFORCED ON|r (live-testing mode)" or "|cFFFF8888off|r (fingerprint path active)"))
+        end
+        for _, unit in ipairs(PARTY_UNITS) do
+            if UnitExists(unit) then
+                local n = FullName(unit)
+                if n then ScanUnitAuras(unit, n) end
+            end
+        end
+        return
+    elseif arg == "probetest" then
+        -- Live diagnosis for the 12.1 spell-ID path: probe every candidate
+        -- def for one unit (or all party slots) RIGHT NOW and print each
+        -- result. Run it while the buff in question is visibly active.
+        -- Distinguishes the three failure layers in one shot: no
+        -- candidates (list/spec problem), candidates but all MISS while a
+        -- buff is up (the API answers nil for this unit = core-assumption
+        -- failure), or HIT here but no commit in combat (event delivery).
+        local unitArg = (msg or ""):match("^%s*%S+%s+(%S+)")
+        local units = {}
+        if unitArg then
+            units[1] = unitArg
+        else
+            for _, u in ipairs(PARTY_UNITS) do units[#units + 1] = u end
+        end
+        print("|cff0091edBIT|r |cFFAAAAAA[PartyCooldowns/probetest]|r direct per-spell aura probes:")
+        for _, u in ipairs(units) do
+            if UnitExists(u) then
+                local n = FullName(u)
+                local cls = UnitClassFile(u)
+                print(("  %s  name=%s class=%s"):format(u, tostring(n), tostring(cls)))
+                if n and cls then
+                    local race
+                    do
+                        local okR, _, raceFile = pcall(UnitRace, u)
+                        if okR and type(raceFile) == "string" then race = raceFile end
+                    end
+                    -- Same candidate set the probe path uses: own spells
+                    -- plus target-cast defs of the other group members.
+                    local cands, seenIds = {}, {}
+                    local own = SpellsForMember(n, cls, race)
+                    if own then
+                        for _, def in ipairs(own) do
+                            if not def.pvpTrinket and not seenIds[def.spellId] then
+                                seenIds[def.spellId] = true
+                                cands[#cands + 1] = def
+                            end
+                        end
+                    end
+                    local userDisabled = BIT.db and BIT.db.partyCooldownsDisabled or nil
+                    for _, o in ipairs(PARTY_UNITS) do
+                        if o ~= u and UnitExists(o) then
+                            local ocls = UnitClassFile(o)
+                            local defs = ocls and _spellsByClass[ocls]
+                            if defs then
+                                for _, def in ipairs(defs) do
+                                    if def.affects == "target" and not def.disabled
+                                       and not (userDisabled and userDisabled[def.spellId])
+                                       and not seenIds[def.spellId] then
+                                        seenIds[def.spellId] = true
+                                        cands[#cands + 1] = def
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    if #cands == 0 then
+                        print("    |cFFFF8888NO CANDIDATES|r (spell list empty for this unit)")
+                    else
+                        local hits = 0
+                        for _, def in ipairs(cands) do
+                            local probeId = def.auraId or def.spellId
+                            local isPresent, _, how = ProbeAuraPresence(u, probeId)
+                            if isPresent then hits = hits + 1 end
+                            print(("    %s %s (%d)  via %s"):format(
+                                isPresent and "|cFF88FFAA+|r" or "|cFF666666-|r",
+                                def.label or tostring(def.spellId), probeId,
+                                how or "|cFFFF8888NO LOOKUP PATH|r"))
+                        end
+                        print(("    => %d candidates, %d hit"):format(#cands, hits))
+                    end
+                end
+            end
+        end
+        return
     elseif arg == "prof" or arg == "profile" then
         PCD:DumpProfile()
         return
@@ -7802,6 +9127,10 @@ SlashCmdList["BITPCD"] = function(msg)
         print("|cff0091edBIT|r |cFFAAAAAA[PartyCooldowns]|r disabled.")
         return
     elseif arg == "on" then
+        if PCD:IsBlockedByClient() then
+            print("|cff0091edBIT|r |cFFFF8888[PartyCooldowns]|r cannot run on this game version: it no longer lets addons read a group member's cooldowns.")
+            return
+        end
         PCD:Enable()
         if BIT.db then BIT.db.partyCooldownsEnabled = true end
         print("|cff0091edBIT|r |cFF88FFAA[PartyCooldowns]|r enabled.")
@@ -7816,6 +9145,10 @@ SlashCmdList["BITPCD"] = function(msg)
         print("  /bitpcd dump       - print current state + pipeline counters")
         print("  /bitpcd charges    - print per-spell charge queue + cdEnd state")
         print("  /bitpcd flagid <id> - probe a spell's BIG/EXT/IMP flags (cast the buff first for the live check)")
+        print("  /bitpcd probe121   - force the 12.1 spell-ID detection path on this client (testing)")
+        print("  /bitpcd probetest [unit] - probe all candidate spell IDs on a unit right now and print hit/miss")
+        print("  record a run       - /bitdevlog, play, then /bitdevdump pcd")
+        print("                       (per-aura detection chain: classify -> lookup -> caster -> commit)")
         print("  /bitpcd prof       - print per-function CPU profile (calls / ms / avg / max)")
         print("  /bitpcd resetstats - zero the pipeline counters + profile")
         print("  /bitpcd            - toggle on / off")
@@ -7827,6 +9160,8 @@ SlashCmdList["BITPCD"] = function(msg)
         PCD:Disable()
         if BIT.db then BIT.db.partyCooldownsEnabled = false end
         print("|cff0091edBIT|r |cFFAAAAAA[PartyCooldowns]|r disabled.")
+    elseif PCD:IsBlockedByClient() then
+        print("|cff0091edBIT|r |cFFFF8888[PartyCooldowns]|r cannot run on this game version: it no longer lets addons read a group member's cooldowns.")
     else
         PCD:Enable()
         if BIT.db then BIT.db.partyCooldownsEnabled = true end

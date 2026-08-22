@@ -1,3 +1,97 @@
+# BliZzi Party Tools 4.2.1
+
+## Fixed
+
+* Keystone list showed "no port" for every Season 2 dungeon even with the teleport learned: the stored teleport spells were the ones from the test realm, which the live patch had reassigned
+* New: /bitports prints, for each dungeon of the running season, whether its teleport is wired up correctly, and reads the right spell out of your spellbook when it is not
+
+* UI pack tooling reported this addon as edited when nothing had been configured: the profile export carried runtime data along with the settings, above all cached group-member talent data and which settings sections were folded open. The latter changes on its own, since opening the settings after an update records the new changelog entry. None of it is exported anymore
+* Profile exports no longer carry the debug switch or one-time first-run prompts, which could be forced onto whoever imported the pack
+* Same report from a second angle: for packs shipping several profiles, merely switching specs counted as an edit, because which profile is currently active was part of the comparison. It is still exported and still applied on import, it just no longer counts as a difference
+
+# BliZzi Party Tools 4.2.0
+
+## Changed
+
+* Party CDs turn themselves off on patch 12.1, replacing the detection path added in 4.1.12: that version no longer lets addons read a group member's cooldowns at all, so the module would show a silently wrong picture. Your settings are kept and it returns as soon as there is a supported way to track them. Every other module is unaffected
+
+## Fixed
+
+* Keystone list: when several members carry the same dungeon key, the teleport cast animation now fills the row you clicked instead of always the topmost duplicate
+
+# BliZzi Party Tools 4.1.12
+
+## Added
+
+* PvP trinket to the Party CDs (Beta, not yet fully tested), in arenas, where its cooldown comes straight from the server instead of being estimated
+* Its toggle sits in the spell list tab now named "Racial / PVP Stuff"
+* Patch 12.1 readiness: a new Party CD detection path that identifies buffs directly by spell ID, dormant until the client updates to 12.1 and then activating automatically
+
+## Fixed
+
+* The unit frame overlay now honors "Show own cooldowns": with the setting off, defensives no longer glow on your own frame
+* On 12.1 clients the default glow spammed errors every frame: the game removed a helper the glow libraries relied on, both now ship their own replacement
+* Offensive CD alerts (including the PI caller) never detected anything: the check called an aura API that does not exist in the game and failed silently, detection now runs by spell name. The 12.1 detection path uses the same corrected lookup
+* Party CDs stayed invisible in arenas: an arena group is a raid, so frame addons bind their frames to raid slots while the tracker asked for party slots and found nothing to attach to
+* Party CDs could show in arenas while the setting was visibly off, on profiles that never stored that setting
+* Death Knight Anti-Magic Shell was tracked as Icebound Fortitude, putting the cooldown on the wrong spell
+* Flag-twin cooldowns are now matched against talent-extended durations instead of base durations, which previously locked in the wrong spell instead of correcting it
+* Absorb evidence is now also evaluated when it arrives after the buff, the reason the same cast was sometimes right and sometimes wrong
+* Shield detection no longer depends on reading the shield amount, which is unreadable for group members inside instances and left the check blind in Mythic+
+* The first shield seen on a group member counts as evidence again, so the first Anti-Magic Shell of a run is no longer missed
+
+# BliZzi Party Tools 4.1.11
+
+## Added
+
+* "Use class color" toggle for the Party CD glow, colors the glow in your own class color
+* Search box in the media dropdowns (sounds, textures, fonts) for long lists, with None always listed first
+* "Disable crisp text" toggle under the font outline for the rare font that renders badly with the new renderer, applies live without a reload
+* "Grow border inward" toggle for bars: Border Size grows toward the centre and lays over the bar's edge, the outer footprint stays fixed
+* "Grow border inward" toggle for Party CD icons: the icon keeps its configured size and the border draws inward over the edge
+
+## Changed
+
+* All text outlines now use the game's newer SLUG text renderer, noticeably crisper at small font sizes
+
+## Fixed
+
+* A Windwalker's Fortifying Brew no longer glows and starts the cooldown on Touch of Karma. Absorb evidence now requires a measured shield gain instead of any shield activity. Same fix for the DK Anti-Magic Shell vs Icebound Fortitude pair
+* The Solid border now renders the exact same pixel thickness on all four sides. At fractional UI scales the bottom/right edge used to come out a pixel thinner, decorative border textures are unchanged
+
+# BliZzi Party Tools 4.1.10
+
+* **Added:** a bundle entry for the Wago UI pack installer that ships ALL profiles plus the spec assignments in one pack slot, so installing a pack restores the complete setup (e.g. Healer AND DPS/Tank) instead of a single profile; its name is set on the Profiles page (UI Pack Bundle)
+* **Removed:** the one-time interrupt-tracker-reworked pop-up, it only got in the way now (the Interrupts settings page still explains the change)
+
+# BliZzi Party Tools 4.1.9
+
+* **Fixed:** a party member's successful interrupt in the open world showed as failed (red bar + failed sound) and was not recorded; it is now recognised for addon-using teammates
+* **Fixed:** externals cast on a teammate (Pain Suppression, Blessing of Sacrifice/Protection) were never detected in Mythic+; they are now identified by measuring the buff's lifetime, so the cooldown appears when the buff ends
+* **Changed:** Metamorphosis (Vengeance) is no longer tracked, its cooldown kept re-arming itself during a run
+* **Changed:** Roar of Sacrifice is no longer tracked, a rarely-used talent gated pet ability that showed for every Hunter without spec data
+
+* **Fixed:** successful interrupts while playing solo in the open world were always shown as failed (red bar + failed sound)
+* **Added:** party cooldowns now survive a /reload: teammates' running timers, charges and glows are restored instead of the whole group showing as ready
+
+* **Added:** the group role now also proves single-DPS-spec classes without spec data: a damage-role Priest is Shadow, Paladin is Retribution, Monk is Windwalker, so their spec icons (e.g. Dispersion) appear immediately
+
+* **Fixed:** Pain Suppression and Time Dilation cast on other party members are now detected in instances (their spell-DB entries lack the external flag, so the classification never matched; forced on like Ice Cold's big flag)
+* **Changed:** LibSpecialization updated to v27: re-requests group specs after logging in during an encounter and when chat restrictions lift, so spec data arrives more reliably in Mythic+
+
+* **Fixed:** with two same-class members, a target-cast external is no longer credited to the one who can't cast it (Pain Suppression landed on the Shadow priest instead of the Disc priest, who then got no glow/cooldown); the caster is now narrowed by role/spec
+
+* **Changed:** the saved spec cache is now bounded (drops players not seen in 45 days, capped at 3000) so it can't bloat the SavedVariables over time; no runtime impact
+
+* **Added:** Keystone List "Always use English dungeon names" toggle (Display Options); dungeon names otherwise follow your game client language
+
+* **Added:** detailed glow controls shared by every glow in the addon (glow type incl. Button glow, lines, frequency, length, thickness) under Party CDs
+* **Added:** one sound when an external defensive lands on you (Pain Suppression, Sacrifice, Ironbark, ...); no per-spell setup, fires once per received cast
+
+* **Fixed:** Party CD icons no longer stay missing after a /reload mid-dungeon when the unit-frame addon builds its frames late (staggered rebuilds now catch them without needing a manual toggle)
+
+***
+
 # BliZzi Party Tools 4.1.8
 
 * **Changed:** with no spec data (Mythic+ comm blocked), party defensives now assume their duration- and cooldown-reduction talents are picked, so glows last the full buff and cooldown timers match the talented spell (fixes a Guardian's extended Barkskin glowing too short)
