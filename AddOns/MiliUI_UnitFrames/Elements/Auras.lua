@@ -101,6 +101,27 @@ local function ValidFilter(f)
     return false
 end
 
+------------------------------------------------------------
+-- 黑名單 → candidateFilters.excludeSpellIDs
+--
+-- 插件端讀不到光環內容，所以「不要顯示這幾顆」只能把法術 ID 交給引擎。
+-- ⚠ 引擎對「友方單位的**減益**」禁止 ID 過濾（反自動化），所以黑名單在
+-- 玩家／隊友的減益那一欄是無效的 —— 增益、以及敵方身上的減益都可以。
+-- 設定面板那邊有寫清楚，這裡不另外擋（送過去被忽略而已，不會壞）。
+------------------------------------------------------------
+local function WithBlacklist(cand, edb)
+    local bl = edb.blacklist
+    if type(bl) ~= "table" or next(bl) == nil then return cand end
+    -- ⚠ 不能直接往 mode.cand 上加：那是 FILTER_MODES 裡的共用常數表，
+    -- 改下去會污染每一個用到同一個模式的單位。一律複製一份新的。
+    local out = {}
+    if cand then
+        for k, v in pairs(cand) do out[k] = v end
+    end
+    out.excludeSpellIDs = bl        -- 格式跟我們存的一樣：[spellID] = true
+    return out
+end
+
 -- 回傳 filter 字串 ＋ candidateFilters（可能是 nil）
 --
 -- 模式與「只顯示我上的」是**可以疊的**（`HARMFUL|CROWD_CONTROL|PLAYER` 仍然是
@@ -111,15 +132,16 @@ local function BuildFilter(baseFilter, edb)
     local f = baseFilter
     if mode.token then f = f .. "|" .. mode.token end
     if edb.onlyMine then f = f .. "|PLAYER" end
-    if ValidFilter(f) then return f, mode.cand end
+    if ValidFilter(f) then return f, WithBlacklist(mode.cand, edb) end
 
     -- 退回階梯。模式的 token 被拒 ⇒ 那個模式整個做不到，cand 那一半也不送
     -- （兩半是同一個概念，只送一半會得到一個沒人要求過的結果）。
+    -- 黑名單跟模式無關，兩層退回都要帶著。
     if edb.onlyMine then
         local withPlayer = baseFilter .. "|PLAYER"
-        if ValidFilter(withPlayer) then return withPlayer, nil end
+        if ValidFilter(withPlayer) then return withPlayer, WithBlacklist(nil, edb) end
     end
-    return baseFilter, nil
+    return baseFilter, WithBlacklist(nil, edb)
 end
 
 ------------------------------------------------------------
@@ -141,28 +163,40 @@ local function Detect()
 end
 
 ------------------------------------------------------------
--- 倒數格式：NumericRule 三段式（出貨插件驗證過的寫法）
+-- 倒數格式：NumericRule 四段式（出貨插件驗證過的寫法）
+--   <1 秒    小數（"0.4"）—— 少了這段，秒段的 min=1 會讓最後一整秒都卡在 "1"
 --   <91 秒   純數字（"27"）
 --   ≥91 秒   "Nm"（分數向上取整，2m32s → "3m"，跟暴雪自己的框架一致）
 --   ≥5401 秒 "Nh"
 -- 不用 SecondsFormatter：它的三種縮寫在中文全都輸出「秒」，設計上沒有無單位出口
+-- 小數段的 step 0.1 ＋ "%.1f" 抄自 Platynator 的施法時間與 Ayije_CDM 的冷卻文字；
+-- 沿用 Down 取整（跟秒段一致），所以最後一格是 "0.0"，不會先跳一下 "1.0"
 ------------------------------------------------------------
 local DurationFormatter
 do
-    if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
-        local ok, formatter = pcall(C_StringUtil.CreateNumericRuleFormatter)
-        if ok and formatter then
-            local R = Enum and Enum.NumericRuleFormatRounding
-            local down, up = R and R.Down or nil, R and R.Up or nil
-            local added = pcall(function()
-                formatter:AddBreakpoint({ threshold = 0, step = 1, rounding = down, min = 1, format = "%d" })
-                formatter:AddBreakpoint({ threshold = 91, step = 1, rounding = down, min = 1, format = "%dm",
-                                          components = { { div = 60, rounding = up } } })
-                formatter:AddBreakpoint({ threshold = 5401, step = 1, rounding = down, min = 1, format = "%dh",
-                                          components = { { div = 3600, rounding = up } } })
-            end)
-            if added then DurationFormatter = formatter end
+    local R = Enum and Enum.NumericRuleFormatRounding
+    local down, up = R and R.Down or nil, R and R.Up or nil
+
+    -- 整包重建：斷點加進去就收不回來，要退掉小數段只能換一顆新的 formatter
+    local function Build(tenths)
+        local f = C_StringUtil.CreateNumericRuleFormatter()
+        if tenths then
+            f:AddBreakpoint({ threshold = 0, step = 0.1, rounding = down, format = "%.1f" })
         end
+        f:AddBreakpoint({ threshold = tenths and 1 or 0, step = 1, rounding = down, min = 1, format = "%d" })
+        f:AddBreakpoint({ threshold = 91, step = 1, rounding = down, min = 1, format = "%dm",
+                          components = { { div = 60, rounding = up } } })
+        f:AddBreakpoint({ threshold = 5401, step = 1, rounding = down, min = 1, format = "%dh",
+                          components = { { div = 3600, rounding = up } } })
+        return f
+    end
+
+    if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
+        local ok, formatter = pcall(Build, true)
+        -- 客戶端要是不吃 0.1 的 step，退回整秒；整顆 formatter 掉了會換成暴雪自己那套
+        -- 帶單位的格式，那個更難看
+        if not ok or not formatter then ok, formatter = pcall(Build, false) end
+        if ok and formatter then DurationFormatter = formatter end
     end
 end
 
@@ -363,6 +397,21 @@ end
 -- 簽章不符就得重建整顆容器，而暴雪的 frame 刪不掉（舊的只是被 Hide、永久留著）——
 -- 把位置放進來等於「挪一格就永久多一顆容器 ＋ maxCount 顆 AuraButton」。
 -- 其餘欄位是在 AddAuraGroup / initializeFrame 當下烘死的，沒有 setter，只能重建。
+-- 黑名單的指紋。
+-- ⚠ 一定要排序：pairs 的順序不保證，同一份名單每次算出來的字串可能不同
+-- ⇒ 每次套設定都白重建一顆容器（而重建的舊容器刪不掉，只是被藏起來）。
+local blScratch = {}
+local function BlacklistKey(edb)
+    local bl = edb.blacklist
+    if type(bl) ~= "table" then return "" end
+    wipe(blScratch)
+    for id, on in pairs(bl) do
+        if on then blScratch[#blScratch + 1] = id end
+    end
+    table.sort(blScratch)
+    return table.concat(blScratch, ",")
+end
+
 local function BuildSignature(edb)
     return table.concat({
         tostring(edb.w), tostring(edb.h),
@@ -377,6 +426,8 @@ local function BuildSignature(edb)
         -- 沒有 setter，只能換整顆容器。漏了這個鍵的症狀是「改了下拉沒反應，
         -- 動別的設定才一起生效」。
         tostring(edb.onlyMine), tostring(edb.filterMode), tostring(ns.db.global.font),
+        -- 黑名單走 candidateFilters，同樣是宣告時就固定、沒有 setter（見 filterMode）
+        BlacklistKey(edb),
     }, "|")
 end
 
@@ -390,6 +441,7 @@ end
 -- 戰鬥中不彈（受保護的 intrinsic 擋 Hide），先設髒旗標記下來，脫戰再補彈一次。
 ------------------------------------------------------------
 local pendingBounce = {}
+local pendingHide = {}
 
 local function HideShow(c) c:Hide(); c:Show() end
 
@@ -403,6 +455,7 @@ end
 -- how 也一律用常數，不做串接。
 local function Bounce(c, tag)
     if not c then return end
+    pendingHide[c] = nil    -- 要彈就不會是要收，兩張延後表不能同時記著同一個容器
     local how
     if InCombatLockdown() then
         pendingBounce[c] = true
@@ -419,7 +472,40 @@ local function Bounce(c, tag)
     end
 end
 
+------------------------------------------------------------
+-- 「這個元件現在該不該在畫面上」的唯一真相
+--
+-- ⚠ 容器有好幾條 Show 的路（換目標、進出載具、框重新顯示、脫戰補彈）**全部繞過
+-- ns.Refresh 的 enabled 閘門** —— 那些是直接掛的事件與 script handler。少一道判斷，
+-- 取消勾選之後只要任何一條路跑過一次，Bounce 的 Show() 就把容器放回來，
+-- 而且從此每次都復活 ⇒ 這個元件再也關不掉。所以每一條路都要過這裡。
+------------------------------------------------------------
+local function IsEnabled(uf, elementName)
+    local edb = uf.db and uf.db.elements and uf.db.elements[elementName]
+    return edb ~= nil and edb.enabled ~= false
+end
+
+-- 收掉容器。
+-- ⚠ 戰鬥中不能對 intrinsic 下 Hide：會被判成「Blizzard UI 專屬動作」跳封鎖視窗，
+-- 而且那不是 Lua error、pcall 攔不住。所以跟 Bounce 一樣先記下來、脫戰再收。
+-- 順手清掉 pendingBounce 是必要的——不清的話脫戰時的補彈會把剛關掉的容器又放回來。
+local function Quiet(c)
+    if not c then return end
+    pendingBounce[c] = nil
+    if InCombatLockdown() then
+        pendingHide[c] = true
+    else
+        pendingHide[c] = nil
+        pcall(c.Hide, c)
+    end
+end
+
 ns.Events.Register("PLAYER_REGEN_ENABLED", "auras_bounce_replay", function()
+    -- 先收後彈：兩張表互斥（見 Bounce / Quiet），順序只是保險
+    for c in pairs(pendingHide) do
+        pendingHide[c] = nil
+        pcall(c.Hide, c)
+    end
     for c in pairs(pendingBounce) do
         pendingBounce[c] = nil
         Kick(c)
@@ -497,8 +583,14 @@ local function CreateContainer(uf, elementName, edb, filter, cand, style)
             -- ⚠ 這個 OnShow 落在**每次換目標**上：既不現配空表，也不現串字串。
             -- e.tag 在建容器時就算好了（見 Bounce 上面的說明），直接用。
             if uf.auraContainers then
-                for _, e in pairs(uf.auraContainers) do
-                    Bounce(e.container, e.tag)
+                -- 表的 key 就是元件名，直接拿來問 DB。這條路是「框重新顯示」
+                -- （顯示條件重算、關預覽、/reload），關掉的元件不能跟著被放回來。
+                for name, e in pairs(uf.auraContainers) do
+                    if IsEnabled(uf, name) then
+                        Bounce(e.container, e.tag)
+                    else
+                        Quiet(e.container)
+                    end
                 end
             end
         end)
@@ -569,11 +661,11 @@ local function MakeElement(elementName, baseFilter)
     local function Repoke(uf)
         local entry = uf.auraContainers and uf.auraContainers[elementName]
         if not entry then return end
-        -- ⚠ 下面四個事件是**直接掛的**，繞過 ns.Refresh 的 enabled 閘門。
-        -- 少了這道判斷，取消勾選之後只要換一次目標，Bounce 的 Show() 就會把容器
-        -- 放回來，而且從此每次換目標都復活 ⇒ 這個元件再也關不掉。
-        local edb = uf.db and uf.db.elements and uf.db.elements[elementName]
-        if not edb or edb.enabled == false then return end
+        -- ⚠ 下面四個事件是**直接掛的**，繞過 ns.Refresh 的 enabled 閘門（見 IsEnabled）
+        if not IsEnabled(uf, elementName) then
+            Quiet(entry.container)      -- 順手自癒：漏網的那次顯示在這裡收掉
+            return
+        end
         Bounce(entry.container, entry.tag)
     end
 
@@ -608,7 +700,7 @@ local function MakeElement(elementName, baseFilter)
 
     local function Disable(uf)
         local entry = uf.auraContainers and uf.auraContainers[elementName]
-        if entry then entry.container:Hide() end
+        if entry then Quiet(entry.container) end
     end
 
     -- 容器建立時就綁死了單位（CreateContainer 的 SetUnit），換載具時要重綁。
@@ -616,8 +708,13 @@ local function MakeElement(elementName, baseFilter)
     local function SetUnit(uf, unit)
         local entry = uf.auraContainers and uf.auraContainers[elementName]
         if not entry then return end
+        -- 單位照樣重綁（關掉的元件之後重新勾選才會接到正確的單位），但不要彈出來
         pcall(entry.container.SetUnit, entry.container, unit)
         entry.tag = unit .. "/" .. elementName
+        if not IsEnabled(uf, elementName) then
+            Quiet(entry.container)
+            return
+        end
         Bounce(entry.container, entry.tag)
     end
 

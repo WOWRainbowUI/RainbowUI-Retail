@@ -4,7 +4,11 @@
 --
 -- 座標語意：
 --   units.<key>.frame.x/y = 框架「中心」相對 UIParent 中心的偏移（解析度無關）
---   元件 x/y             = 相對單位框 TOPLEFT 的偏移
+--   units.<key>.frame.scale = 整框縮放百分比；w/h 仍寫「未縮放」的尺寸，
+--                           畫面上的實際大小是 w×scale%（中心不動）
+--   global.scale          = 全域縮放百分比，**乘**在每個框自己的 scale 上
+--                           （見 ns.FrameScale；全域拉動不會改寫任何一個框的值）
+--   元件 x/y             = 相對單位框 TOPLEFT 的偏移（跟著整框縮放）
 --
 -- 合併規則（堵死 boolean 預設值陷阱）：
 --   * defaults 每個 boolean 都明寫 true/false，一律正向 enabled（廢除 hide）
@@ -35,6 +39,7 @@ local ICON_LEVEL = 21
 -- 抽成一支的理由：這幾個鍵七個單位都要有，散在七處遲早漂掉。呼叫點已經寫了的值
 -- 不覆蓋（例如 target 的 fadeOutOfRange 是 true），這裡只補「維持現狀」的預設。
 --
+--   scale             整框縮放，百分比（100 = 原始大小）
 --   visibility        主模式，見 Core/Visibility.lua 的 MODES
 --   vis*              附加條件，任一成立就藏
 --   fadeOutOfRange    超出距離淡出（輪詢）
@@ -42,6 +47,7 @@ local ICON_LEVEL = 21
 --   highlight         滑鼠移過時畫一圈高亮邊框
 ------------------------------------------------------------
 local function frameDef(o)
+    if o.scale == nil then o.scale = 100 end
     if o.visibility == nil then o.visibility = "always" end
     if o.visOnlyInstances == nil then o.visOnlyInstances = false end
     if o.visHideMounted == nil then o.visHideMounted = false end
@@ -119,6 +125,9 @@ function DB.BuildDefaults()
         schemaVersion = ns.DB_VERSION,
 
         global = {
+            -- 整套框架的縮放（百分比）。跟每個框自己的 frame.scale **相乘**，
+            -- 不改寫它們的值 —— 全域＝整套放大多少，個別＝這個框相對其他框的修正。
+            scale       = 100,
             barTexture  = "tuktex",
             font        = "DEFAULT",
             borderSize  = 1,
@@ -255,13 +264,19 @@ function DB.BuildDefaults()
                                  justifyH = "RIGHT", justifyV = "MIDDLE" },
                     },
                     castbar = bigCastbar(true),
-                    buffs  = { enabled = false, x = 0, y = -52, w = 17, h = 17,
-                               maxCount = 32, perRow = 16, growth = "LRTB", spacing = 1,
+                    -- 版面比照目標框（見那邊的說明），差別只在左右相反：玩家的魔力條
+                    -- 往**右**露 8，框體是 0~208。兩排都是 8 顆 × 24 ＋ 7 間距 = 199 寬：
+                    --   增益：x = 8 靠齊魔力條／資源條的左緣（不是血條左緣），右緣落在 207，
+                    --         y = -77 讓開框下那疊（魔力條露出的一截到 -58、資源條到 -20）
+                    --   減益：x = 0 對血條左緣、右緣落在 199，在框上 y = 4 往上長
+                    -- 舊預設兩排都是 y = -52，同時開的話會完全疊在一起。
+                    buffs  = { enabled = false, x = 8, y = -77, w = 24, h = 24,
+                               maxCount = 16, perRow = 8, growth = "LRTB", spacing = 1,
                                showStack = true, stackSize = 10,
                                stackAnchor = "TOP", stackX = 0, stackY = 4,
                                durationText = true, durationThreshold = 60, filterMode = "all" },
-                    debuffs = { enabled = false, x = 0, y = -52, w = 17, h = 17,
-                                maxCount = 40, perRow = 16, growth = "LRTB", spacing = 1,
+                    debuffs = { enabled = false, x = 0, y = 4, w = 24, h = 24,
+                                maxCount = 16, perRow = 8, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
                                 durationText = true, durationThreshold = 60, filterMode = "all" },
@@ -677,7 +692,7 @@ function DB.BuildDefaults()
                 -- 座標語意與資源條同一組：TOPLEFT 對玩家框 BOTTOMLEFT（往下是負的），
                 -- 玩家框搬家就自己跟著走。
                 -- 版面：框底 →6→ 魔力條(y=-6, 6 高) →2→ 資源條(y=-14, 6 高) →5→ 召喚物(y=-25)
-                frame = { x = 8, y = -25, iconSize = 28, spacing = 4, growth = "RIGHT" },
+                frame = { x = 8, y = -25, iconSize = 28, spacing = 4, growth = "RIGHT", scale = 100 },
                 colors = "accent",       -- "accent" | "element"
                 swapEarthFire = true,
                 showTimeText = true,     -- 圖示上的剩餘秒數
@@ -986,6 +1001,39 @@ local PROFILE_MIGRATIONS = {
             gate(pet.debuffs, "y", 5, 1)
             gate(pet.debuffs, "y", 2, 1)   -- 同上，過渡值
         end
+    end,
+
+    -- v14：玩家框的增益／減益版面比照目標框。
+    --
+    -- 舊預設是沒調過的佔位值：兩排都放 y = -52（同時開會完全疊在一起）、圖示 17
+    -- 配一排 16 顆（17×16 ＋ 15 = 287，比 200 的框寬了快一半）。
+    -- 新版是實地調出來的：兩排都是 8 顆 × 24；增益靠齊魔力條／資源條左緣（x = 8）、
+    -- 放在框下那疊的下面（y = -77），減益在框上往上長、對血條左緣（x = 0、y = 4）。
+    --
+    -- 值閘：只動仍等於舊預設的那個值，自己拉過的不碰。
+    [14] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        local p = type(units.player) == "table" and units.player.elements
+        if type(p) ~= "table" then return end
+
+        local function gate(tbl, key, old, new)
+            if type(tbl) == "table" and tbl[key] == old then tbl[key] = new end
+        end
+
+        gate(p.buffs, "x", 0, 8)
+        gate(p.buffs, "y", -52, -77)
+        gate(p.buffs, "w", 17, 24)
+        gate(p.buffs, "h", 17, 24)
+        gate(p.buffs, "perRow", 16, 8)
+        gate(p.buffs, "maxCount", 32, 16)
+
+        gate(p.debuffs, "y", -52, 4)
+        gate(p.debuffs, "w", 17, 24)
+        gate(p.debuffs, "h", 17, 24)
+        gate(p.debuffs, "perRow", 16, 8)
+        gate(p.debuffs, "maxCount", 40, 16)
+        gate(p.debuffs, "growth", "LRTB", "LRBT")
     end,
 }
 

@@ -12,10 +12,10 @@ local L = ns.L
 local W, Controls, Specs = ns.W, ns.Controls, ns.Specs
 local PosSize, Pos = Specs.PosSize, Specs.Pos
 
--- ⚠ 這是**語系表的 key**，而 key 就是英文原文（Locales/Locale.lua 查不到就回傳 key）。
--- 原本寫成三段 `.. ` 串接，key 是串接後的結果 —— 任何人改動其中一段的空格，
--- 九個語系會同時對不上而且不報錯（靜默退成英文）。改成單一字面字串就沒有這個風險。
-local TAG_SYNTAX_HELP = "Syntax: [name] [level] [curhp] [maxhp] [perchp] [curmp] [maxmp] [percmp] [shields] [healabsorbs] (blank when there is no shield), [shields_short] [healabsorbs_short] (abbreviated), [class] [race] [creaturetype] [classification]; conditional coloring [gray_if_dead:Dead], [class:name], [difficulty:level]."
+-- ⚠ L 的 key 就是英文原文（Locales/Locale.lua 查不到就回傳 key），而且必須以**單一字面
+-- 字串**直接寫在 L[...] 裡：拆段串接或先存變數再查表，九個語系檔（和 locale_audit）都會
+-- 對不上而且不報錯（靜默退成英文）。
+local TAG_SYNTAX_HELP = L["Syntax: [name] [level] [curhp] [maxhp] [perchp] [curmp] [maxmp] [percmp] [shields] [healabsorbs] (blank when there is no shield), [shields_short] [healabsorbs_short] (abbreviated), [class] [race] [creaturetype] [classification]; conditional coloring [gray_if_dead:Dead], [class:name], [difficulty:level]."]
 
 local UNIT_LIST = {
     { key = "player",       label = L["Player"] },
@@ -60,6 +60,8 @@ local function FrameSpecs(unitKey)
                                  L["Click into a number box and use the mouse wheel to nudge it (Shift for ×10)."] },
         { type = "numbers", root = "frame", label = L["Position"], fields = { { key = "x", label = "X" }, { key = "y", label = "Y" } } },
         { type = "numbers", root = "frame", label = L["Size"], fields = { { key = "w", label = L["Width"] }, { key = "h", label = L["Height"] } } },
+        { type = "slider", root = "frame", key = "scale", label = L["Scale (%)"], min = 50, max = 200, step = 1 },
+        { type = "text", label = L["100 is the original size, multiplied by the global scale on the General tab. Everything on the frame scales with it, including the resource and mana bars anchored below; the frame grows around its center, so the position stays put."] },
     }
     if unitKey == "boss" then
         tinsert(list, { type = "header", label = L["Multiple boss layout"] })
@@ -287,8 +289,32 @@ local function CastbarSpecs()
     return list
 end
 
-local function AuraSpecs(name)
-    return {
+-- 黑名單那一列：按鈕寫著目前筆數，點開是挑選視窗（Options/AuraBlacklist.lua）
+local function BlacklistRow(unitKey, name)
+    return function(parent, x, y)
+        local btn = W.CreateButton(parent, L["Blacklist"], "normal", 180, 22)
+        btn:SetPoint("LEFT", parent, "TOPLEFT", x, y - 15)
+        local function UpdateText()
+            local edb = ns.GetUnitDB(unitKey).elements[name]
+            btn:SetText(L["Blacklist"] .. "  (" .. ns.AuraBlacklist.Count(edb) .. ")")
+        end
+        btn:SetScript("OnClick", function()
+            ns.AuraBlacklist.Open(unitKey, name, UpdateText)
+        end)
+        return 30, UpdateText
+    end
+end
+
+-- 黑名單只擺在引擎真的會過濾的地方。
+-- 增益一律可以；減益只有敵方單位算數 —— 遊戲對「友方單位的減益」禁止 ID 過濾
+-- （反自動化），擺在玩家／寵物的減益頁只會是一個按了沒反應的按鈕。
+-- 目標／焦點這些**執行期**才知道是敵是友，所以放著並在下面註明。
+local FRIENDLY_ONLY_UNITS = { player = true, pet = true }
+
+local BLACKLIST_MARKER = {}     -- 佔位，下面依單位決定要不要換成真的那一列
+
+local function AuraSpecs(name, unitKey)
+    local list = {
         { type = "toggle", sub = name, key = "enabled", label = L["Show"] },
         { type = "header", label = L["Position and layout"] },
         Pos(name),
@@ -303,6 +329,7 @@ local function AuraSpecs(name)
           items = function() return ns.AuraFilterItems(name) end },
         { type = "toggle", sub = name, key = "onlyMine", label = L["Only show my own"] },
         { type = "text", label = L["Filtering is done by the game, not by a spell list — 12.1 addons can't read aura contents. The two settings stack: \"dispellable by me\" plus \"only my own\" shows only what you applied and can remove. Changing either rebuilds the icons."] },
+        BLACKLIST_MARKER,
         { type = "header", label = L["Text"] },
         { type = "toggle", sub = name, key = "showStack", label = L["Show stacks"] },
         { type = "slider", sub = name, key = "stackSize", label = L["Stack font size"], min = 6, max = 20 },
@@ -314,6 +341,22 @@ local function AuraSpecs(name)
         { type = "slider", sub = name, key = "durationThreshold", label = L["Show within seconds"], min = 5, max = 600, step = 5 },
         { type = "text", label = L["The countdown is drawn by the game (12.1 addons can't read the remaining seconds); changing this rebuilds the icons."] },
     }
+
+    local allowed = (name == "buffs") or not FRIENDLY_ONLY_UNITS[unitKey]
+    for i = #list, 1, -1 do
+        if list[i] == BLACKLIST_MARKER then
+            if allowed then
+                list[i] = { type = "custom", label = "", build = BlacklistRow(unitKey, name) }
+                if name == "debuffs" then
+                    tinsert(list, i + 1, { type = "text",
+                        label = L["The game only allows spell-ID filtering for debuffs on enemies, so this list does nothing while the unit is friendly."] })
+                end
+            else
+                tremove(list, i)
+            end
+        end
+    end
+    return list
 end
 
 local function IconSpecs(els)
@@ -361,7 +404,7 @@ end
 
 local function TextsSpecs(els)
     local list = {
-        { type = "text", label = L[TAG_SYNTAX_HELP] },
+        { type = "text", label = TAG_SYNTAX_HELP },
     }
     for i = 1, #els.texts do
         tinsert(list, { type = "header", label = L["Text %d"]:format(i) })
@@ -387,8 +430,8 @@ local function SpecsFor(unitKey, elementKey)
     if elementKey == "mpbar" then return BarSpecs("mpbar", false) end
     if elementKey == "manabar" then return ManaBarSpecs() end
     if elementKey == "castbar" then return CastbarSpecs() end
-    if elementKey == "buffs" then return AuraSpecs("buffs") end
-    if elementKey == "debuffs" then return AuraSpecs("debuffs") end
+    if elementKey == "buffs" then return AuraSpecs("buffs", unitKey) end
+    if elementKey == "debuffs" then return AuraSpecs("debuffs", unitKey) end
     if elementKey == "icons" then return IconSpecs(els) end
     if elementKey == "inspect" then return InspectSpecs() end
     if elementKey == "texts" then return TextsSpecs(els) end
@@ -509,6 +552,33 @@ local function SelectElement(elementKey)
     ShowPanel(currentUnit, elementKey)
     -- 只有選到施法條時預覽才演示假施法（它會蓋住頭像，調別的元件時很礙事）
     ns.Preview.SetElement(elementKey)
+end
+
+------------------------------------------------------------
+-- 從預覽點進來（點孿生框＝選單位，點孿生框上的光環圖示＝連元件一起選）
+--
+-- ⚠ 不能只呼叫 SelectUnit：按鈕群組的高亮是掛在**按鈕自己的 OnClick** 上的
+-- （見 W.CreateButtonGroup），從外面呼叫的話表單會換、左欄卻還亮著上一個單位，
+-- 看起來像點錯了。兩排高亮都要自己補。
+------------------------------------------------------------
+function ns.Options.FocusUnitElement(unitKey, elementKey)
+    local udb = ns.GetUnitDB(unitKey)
+    if not udb then return end
+
+    -- 先把選擇寫進狀態，再開分頁。
+    -- Options.Open 一定會派送 ShowOptionsTab，而本頁的處理器就是照 currentUnit /
+    -- currentElement 把兩排高亮與表單一次擺好 —— 先開再改的話會多閃一次舊的那頁。
+    -- 這個單位沒有該元件時就不換（RefreshChips 本來也會退回「框架」）。
+    if elementKey then
+        local els = udb.elements
+        if els and els[elementKey] and ns.Elements[elementKey] then
+            currentElement = elementKey
+        end
+    end
+    currentUnit = unitKey
+
+    -- 面板可能停在別的分頁；帶 tabId 就不會被當成「再按一次＝關閉」
+    ns.Options.Open("units")
 end
 
 ------------------------------------------------------------
