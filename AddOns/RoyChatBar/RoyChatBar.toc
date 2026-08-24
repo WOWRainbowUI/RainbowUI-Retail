@@ -1,0 +1,19 @@
+## Interface: 120100, 120007
+## Title: |cFFF04242R|r|cFFF0AA42o|r|cFFCDF042y|r|cFF65F042C|r|cFF42F088h|r|cFF42F0F0a|r|cFF4288F0t|r|cFF6542F0B|r|cFFCD42F0a|r|cFFF042AAr|r
+## Notes: 快捷聊天按钮
+## Author: NGA二十发寒冰箭Roy
+## Version: 1.9.5
+## IconTexture: Interface\AddOns\RoyChatBar\Media\Icon.tga
+## SavedVariables: RoyChatBarDB
+## Category-zhTW: 聊天
+
+## Title-zhTW: |cffFF9999[聊天]|r 按鈕列
+## Notes-zhTW: RoyChatBarDB |n|n在聊天視窗上方顯示一排能夠快速切換聊天頻道的按鈕列。|n|n|cffffd200使用方法: |r從Esc>選項>插件>聊天，開啟設定。
+## Category-zhTW: 社交
+
+Core.lua
+Locales\enUS.lua
+Locales\zhTW.lua
+Options.lua
+Config.lua
+RoyChatBar.lua

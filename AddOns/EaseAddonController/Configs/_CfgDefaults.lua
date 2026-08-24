@@ -1641,6 +1641,16 @@ D["REPorter"] = {
         text = "切換地圖顯示內容：按住 Shift+Alt 或 Shift+Ctrl 點地圖。\n\n喊話通報到頻道：點地圖上的點，或是地圖旁的按鈕。\n",       
 	},
 };
+D["RoyChatBar"] = {
+    defaultEnable = 1,
+	tags = { "SOCIAL" },
+	title = "聊天按鈕列",
+	desc = "在聊天視窗上方顯示一排能夠快速切換聊天頻道的按鈕列。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["RoyChatBar"]("") end,
+    },
+};
 D["SexyMap"] = {
     defaultEnable = 0,
 	title = "性感小地圖",
