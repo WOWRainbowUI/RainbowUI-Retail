@@ -592,24 +592,8 @@ D["ConsolePort"] = {
 D["CopyAnything"] = {
     defaultEnable = 0,
 	tags = { "SOCIAL" },
-	title = "(暫時停用) 快速複製文字",
-	desc = "快速複製任何框架上面的文字!``聊天視窗中的文字、隊伍框架上面的隊友名字、選取目標框架上面的怪物名字，甚至是設定選項、插件名稱都能複製。``|cffFF2D2D將滑鼠指向要複製的文字，然後連按兩次 Ctrl+C 就複製好了! ``特別注意：使用前必須先將快速鍵設為 Ctrl+C，詳細請點上方的齒輪圖示標籤頁看用法說明。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\boss_odunrunes_orange",
-	{
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory(CopyAnythingDB.categoryID)
-		end,
-    },
-	{
-		type = "text",
-		text = "使用方法：\n\n1.先在 Esc > 選項 > 按鍵綁定 > 插件 > 顯示複製文字，設定快速鍵 (建議設為 Ctrl+C)。\n\n2.將滑鼠指向要複製的文字，按下快速鍵 (例如 Ctrl+C)。\n\n3.在彈出的視窗中拖曳滑鼠選取要複製的文字，按下 Ctrl+C 來複製文字。複製成功視窗會自動關閉。\n\n4.在要貼上文字的地方，例如聊天視窗的輸入框，按下 Ctrl+V 貼上文字。\n",
-	},
-	{
-		type = "text",
-		text = "|cffFF2D2D小技巧：滑鼠指向文字後，連按兩次 Ctrl+C 會直接快速複製整段文字。|r\n",
-	},
+	title = "(請刪除) 快速複製文字",
+	desc = "新的 '聊天視窗增強' 插件已經包含複製文字的功能。``請自行刪除 AddOns 裡面的 CopyAnything 資料夾。`",
 };
 D["CursorTrail"] = {
     defaultEnable = 0,
