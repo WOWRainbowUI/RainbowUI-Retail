@@ -1,0 +1,99 @@
+## Interface: 120100, 120007
+## Title: Coolinator
+## Version: 134
+## Author: plusmouse
+## OptionalDeps: Masque
+## SavedVariables: COOLINATOR_CONFIG
+## SavedVariablesPerCharacter: COOLINATOR_CURRENT_PROFILE, COOLINATOR_LAST_INSTANCE
+## IconTexture: Interface\AddOns\Coolinator\Assets\logo.tga
+## AddonCompartmentFunc: Coolinator_AddonCompartmentCallback
+
+## Category: Buffs & Debuffs
+## Category-deDE: Buffs & Debuffs
+## Category-esES: Beneficios y Perjuicios
+## Category-esMX: Beneficios y Perjuicios
+## Category-frFR: Améliorations et Affaiblissements
+## Category-itIT: Benefici e penalità
+## Category-koKR: 버프 및 디버프
+## Category-ptBR: Bônus e Penalidades
+## Category-ruRU: Баффы и дебаффы
+## Category-zhCN: 增益和减益
+## Category-zhTW: 增益與減益
+
+## Title-zhTW: |cFF00FFFF[戰鬥]|r 冷卻管家
+## Notes-zhTW: Coolinator |n|n一款高度自訂的戰鬥資訊插件，可用圖示或進度條集中追蹤技能冷卻、增益/減益效果、職業資源與施法進度，並透過拖放介面自由調整位置、分組、顏色、邊框與發光效果，讓重要戰鬥資訊更清楚、更符合個人操作習慣。|n|n|cffffd200使用方法: |r輸入 /cooli 進行設定。
+## Category-zhTW: 戰鬥
+## DefaultState: disabled
+
+Libs/LibEditModeOverride/LibEditModeOverride.xml
+
+Locales.lua
+
+Core/Objects.lua
+Core/Locales.lua
+Core/Constants.lua
+Core/Config.lua
+Core/Utilities.lua
+Core/Dialogs.lua
+Core/SlashCmd.lua
+Core/Fonts.lua
+Core/Migration.lua
+Core/Presets.lua
+Core/Initialize.lua
+
+Core/ApplyLayout.lua
+Core/AllSpellsAndItems.lua
+Core/ImportDefaults.lua
+Core/SpellOverrides.lua
+
+Core/Keybindings.lua
+
+Display/Templates.xml
+Display/StyleIcons.lua
+Display/Utilities.lua
+Display/Glows.lua
+Display/BaseDurationStatusBar.lua
+Display/Cooldown.lua
+Display/AuraStatusBarNext.lua [AllowLoadGameType mainline]
+Display/AbilityStatusBar.lua
+Display/ClassResourceStatusBar.lua
+Display/CastBar.lua
+Display/AuraIconNext.lua [AllowLoadGameType mainline]
+Display/AuraIconClassic.lua [AllowLoadGameType classic]
+Display/AuraDebuffBorder.lua
+Display/TotemIcon.lua
+Display/TotemStatusBar.lua
+Display/Group.lua
+Display/Stack.lua
+Display/AbilityChargesStatusBar.lua
+Display/BaseLayout.lua
+Display/LayoutShared.lua
+Display/LayoutNext.lua [AllowLoadGameType mainline]
+#Display/LayoutClassic.lua [AllowLoadGameType classic]
+
+Assets.lua
+
+CustomiseDialog/Components.lua
+CustomiseDialog/ImportDialog.lua
+CustomiseDialog/ImportExport.lua
+CustomiseDialog/Main.lua
+CustomiseDialog/Initialize.lua
+
+Designer/Components.lua
+Designer/Defaults.lua
+Designer/AddDialogs.lua
+Designer/Layout.lua
+Designer/WidgetConfiguration.lua
+
+Designer/Options/Utilities.lua
+Designer/Options/Presets.lua
+Designer/Options/IconTexts.lua
+Designer/Options/BarTexts.lua
+Designer/Options/GroupVisibility.lua
+Designer/Options/Generate.lua
+Designer/Options/Main.lua
+
+Designer/Main.lua
+Designer/Initialize.lua
+
+API/Main.lua

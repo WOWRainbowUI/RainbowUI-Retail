@@ -222,17 +222,8 @@ D["AutoPotion"] = {
 D["Ayije_CDM"] = {
 	defaultEnable = 0,
 	tags = { "COMBAT" },
-	title = "阿吉冷卻管理器",
-	desc = "專注於技能冷卻、增益狀態與戰鬥資源的全面管理。``它能在技能圖示上顯示快捷鍵，並透過光效提示協助玩家掌握技能循環；同時支援群組淡出功能，讓介面在脫戰或無目標時保持整潔。``插件提供完整的外觀自訂，包括邊框、光效與增益條樣式，並能將增益分為三類顯示，獨立追蹤防禦技能、種族技能與飾品。``除此之外，它還內建資源條與施法條，並允許玩家手動加入技能追蹤或建立專屬增益計時器，確保戰鬥資訊一目了然。讓玩家依照個人需求打造最符合操作習慣的戰鬥輔助系統。`",
-	modifier = "米利",
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["AYIJECDM"]("") end,
-    },
+	title = "(請刪除) 阿吉冷卻管理器",
+	desc = "這個插件已經停止更新，更換成 '冷卻管家'。``請自行刪除 AddOns 裡面 Ayije_CDM 開頭的兩個資料夾。`",
 };
 D["Baganator"] = {
 	defaultEnable = 1,
@@ -556,6 +547,24 @@ D["CooldownManagerCentered"] = {
 	{
         text = "設定選項",
         callback = function() SlashCmdList["CMC_SETTINGS"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
+D["Coolinator"] = {
+    defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "冷卻管家",
+	desc = "高度自訂戰鬥 HUD 插件，主要把原本分散在畫面各處的技能冷卻、可用技能、增益/減益效果、職業資源與施法進度，整合成更直覺的圖示或進度條。``你可以依照自己的職業、輸出迴圈與畫面習慣，把重要資訊放在角色附近，減少戰鬥中頻繁查看快捷列條、頭像框架或預設增益效果列的需求。``它的特色是彈性配置與拖放式編輯：可自由調整元件位置與版面、建立不同群組，並設定顏色、背景、邊框與發光提示，讓爆發技能轉好、防禦技能可用或重要效果即將結束時更容易被注意到。``新手可先開啟設計模式，從常用輸出技能、保命技能與核心資源開始擺放；熟悉後再逐步加入各類光環與細部視覺規則。`",
+	{
+        text = "設計模式",
+        callback = function() SlashCmdList["Coolinator"]("d") end,
+    },
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["Coolinator"]("") end,
     },
 	{
 		type = "text",

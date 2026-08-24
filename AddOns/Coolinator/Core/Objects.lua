@@ -1,0 +1,18 @@
+---@class addonTableCoolinator
+local addonTable = select(2, ...)
+addonTable.Core = {}
+addonTable.Utilities = {}
+addonTable.API = {}
+addonTable.Dialogs = {}
+addonTable.Display = {}
+addonTable.Assets = {}
+addonTable.Design = {}
+addonTable.Designer = {
+  Options = {},
+}
+addonTable.CustomiseDialog = {}
+addonTable.State = {}
+
+Coolinator = {
+  API = {}
+}
