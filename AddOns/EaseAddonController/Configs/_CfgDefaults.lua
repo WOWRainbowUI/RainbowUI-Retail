@@ -1897,25 +1897,10 @@ D["TidyPlates_ThreatPlates"] = {
 	},
 };
 D["TinyChat"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "SOCIAL" },
-	title = "聊天按鈕和功能增強",
-	desc = "一個超輕量級的聊天功能增強插件。``提供快速切換頻道按鈕、表情圖案、開怪倒數、擲骰子、顯示物品圖示...還有更多功能。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_misc_food_28",
-    img = true,
-	{
-        text = "重置聊天按鈕位置",
-        callback = function() resetTinyChat() end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
-        text = "使用方法：\n\n聊天增強設定選項：右鍵點頻道按鈕最左側的小圖示。\n\n移動頻道按鈕：按住 Alt 鍵拖曳頻道按鈕最左側的小圖示。\n\n顯示/隱藏社群頻道按鈕：設定選項 > 顯示頻道按鈕 > 社群頻道。\n\n切換頻道：左鍵點聊天視窗上方的頻道名稱。\n\n開啟/關閉頻道：右鍵點聊天視窗上方的頻道名稱。\n\n快速切換頻道：輸入文字時按 Tab 鍵。\n\n快速輸入之前的內容：輸入文字時按上下鍵。\n\n快速捲動到最上/下面：按住 Ctrl 滾動滑鼠滾輪。\n\n輸入表情符號：打字時輸入 { 會顯示表情符號選單。\n\n開怪倒數：左鍵點 '開' 會開始倒數，右鍵點 '開' 會取消倒數。\n\n開怪倒數時間和喊話：右鍵點頻道按鈕最左側的小圖示 > 開怪倒數。\n\n對話泡泡：方便快速手動開/關對話泡泡。\n",
-	},
+	title = "(請刪除) 聊天按鈕和功能增強",
+	desc = "這個插件已替換成 '聊天按鈕列' 插件。``請自行刪除 AddOns 裡面的 TinyChat 資料夾。`",
 };
 D["TinyInspect-Reforged"] = {
     defaultEnable = 1,
