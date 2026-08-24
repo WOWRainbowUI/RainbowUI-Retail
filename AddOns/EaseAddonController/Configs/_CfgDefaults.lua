@@ -458,6 +458,20 @@ D["Cell"] = {
         callback = function() SlashCmdList["CELL"]("resetall") end,
     },
 };
+D["Chattynator"] = {
+	defaultEnable = 1,
+	tags = { "SOCIAL" },
+	title = "聊天視窗增強",
+	desc = "取代遊戲內建的聊天視窗，讓聊天介面更美觀流暢，同時保持高效能運作不拖慢遊戲。``提供暗黑、暴雪、ElvUI、GW2 四種主題風格可自由切換，並支援免編輯模式直接拖曳調整聊天框大小與位置。``此外還具備自訂時間戳記、以訊息為單位的間距優化、超過 2,500 則不同登入期間保留的訊息歷史記錄，以及可用方向鍵瀏覽的指令輸入紀錄，所有設定皆為帳號全域共享。`",
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["Chattynator"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["ChonkyCharacterSheet"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
