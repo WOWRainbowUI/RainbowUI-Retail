@@ -7,7 +7,7 @@ Cell.defaults.appearance = {
     ["accentColor"] = {"class_color", {1, 0.26667, 0.4}}, -- FF4466
     ["optionsFontSizeOffset"] = 0,
     ["useGameFont"] = true,
-    ["texture"] = "Cell ".._G.DEFAULT,
+    ["texture"] = "TukTex",
     ["barColor"] = {"class_color", {0.2, 0.2, 0.2}},
     ["fullColor"] = {false, {0.2, 0.2, 0.2}},
     ["lossColor"] = {"class_color_dark", {0.667, 0, 0}},
@@ -16,7 +16,7 @@ Cell.defaults.appearance = {
     ["barAlpha"] = 1,
     ["lossAlpha"] = 1,
     ["bgAlpha"] = 1,
-    ["barAnimation"] = "Flash",
+    ["barAnimation"] = "Smooth",
     ["colorThresholds"] = {{1,0,0}, {1,0.7,0}, {0.7,1,0}, 0.05, 0.95, true},
     ["colorThresholdsLoss"] = {{1,0,0}, {1,0.7,0}, {0.7,1,0}, 0.05, 0.95, true},
     ["auraIconOptions"] = {
@@ -35,7 +35,8 @@ Cell.defaults.appearance = {
     ["healAbsorbInvertColor"] = false,
     ["shield"] = {not (Cell.isTBC or Cell.isVanilla), {1, 1, 1, 0.4}},
     ["overshield"] = {not (Cell.isTBC or Cell.isVanilla), {1, 1, 1, 1}},
-    ["overshieldReverseFill"] = false,
+    ["overshieldReverseFill"] = true,
+    ["overshieldGlowReverse"] = false,
 }
 
 local buttonStyleIndices = {
@@ -60,7 +61,8 @@ local buttonStyleIndices = {
     "healAbsorbInvertColor",
     "shield",
     "overshield",
-    "overshieldReverseFill"
+    "overshieldReverseFill",
+    "overshieldGlowReverse"
 }
 
 function F.ResetButtonStyle()

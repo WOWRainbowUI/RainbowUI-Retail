@@ -48,6 +48,8 @@ local UnitIsCharmed = UnitIsCharmed
 local UnitIsPlayer = UnitIsPlayer
 local UnitInPartyIsAI = UnitInPartyIsAI
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local GetSpecialization = GetSpecialization or (C_SpecializationInfo and C_SpecializationInfo.GetSpecialization)
+local GetSpecializationInfo = GetSpecializationInfo or (C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo)
 local UnitThreatSituation = UnitThreatSituation
 local GetThreatStatusColor = GetThreatStatusColor
 local UnitExists = UnitExists
@@ -63,6 +65,7 @@ local UnitDetailedThreatSituation = UnitDetailedThreatSituation
 local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID
 local GetAuraSlots = C_UnitAuras.GetAuraSlots
 local GetAuraDataBySlot = C_UnitAuras.GetAuraDataBySlot
+local IsAuraFilteredOutByInstanceID = C_UnitAuras.IsAuraFilteredOutByInstanceID
 local IsDelveInProgress = C_PartyInfo.IsDelveInProgress
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction  -- nil pre-12.0
 local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator  -- nil pre-12.0
@@ -73,8 +76,39 @@ local UnitClassBase = function(unit)
 end
 
 local barAnimationType, highlightEnabled, predictionEnabled
-local shieldEnabled, overshieldEnabled, overshieldReverseFillEnabled
+local shieldEnabled, overshieldEnabled, overshieldReverseFillEnabled, overshieldGlowReverseEnabled
 local absorbEnabled, absorbInvertColor
+
+-- SMOOTH BARS ON MIDNIGHT
+-- SmoothStatusBarMixin is dead here: it is Lua, it caches min/max, and its per-frame Clamp()
+-- does arithmetic -- which throws the moment health or powerMax was ever a secret value. The
+-- replacement is the engine's own interpolation: StatusBar:SetValue(value, interpolation) does
+-- the easing in C, so it takes secrets happily. Enum.StatusBarInterpolation is {Immediate = 0,
+-- ExponentialEaseOut = 1}. Same primitive MiliUI_UnitFrames uses (Core/Secret.lua BarInterp).
+local SBI = Enum and Enum.StatusBarInterpolation
+local SBI_SMOOTH = SBI and SBI.ExponentialEaseOut
+local SBI_IMMEDIATE = SBI and SBI.Immediate
+-- Resolved by B.UpdateAnimation; nil on pre-Midnight so the old SetBarValue path is untouched.
+local barInterp
+
+-- ⚠ B.UpdateAnimation is the only writer, and it only runs from inside an
+-- F.IterateAllUnitButtons callback (Appearance.lua). If that fires before any unit button
+-- exists, the loop body never executes and barInterp stays nil -- SetValue then falls back to
+-- its Immediate default and "Smooth" silently does nothing for the rest of the session. That
+-- was harmless before Midnight (barAnimationType only gated Flash and the SetBarValue path),
+-- but the interpolation argument made load order load-bearing. Resolve from the DB on demand
+-- so the setting cannot be lost to it. SBI_IMMEDIATE is 0, not nil, so this fills in once.
+local function ResolveBarInterp()
+    if not Cell.isMidnight then return nil end
+    if barInterp == nil then
+        if barAnimationType == nil then
+            local a = CellDB and CellDB["appearance"]
+            barAnimationType = a and a["barAnimation"]
+        end
+        barInterp = (barAnimationType == "Smooth") and SBI_SMOOTH or SBI_IMMEDIATE
+    end
+    return barInterp
+end
 
 -- Midnight: Curve for CELL_FADE_OUT_HEALTH_PERCENT feature
 -- Maps health percent â†’ alpha so we can evaluate secret health% without comparisons
@@ -130,6 +164,7 @@ local function UpdateIndicatorParentVisibility(b, indicatorName, enabled)
             indicatorName == "privateAuras" or
             indicatorName == "defensiveCooldowns" or
             indicatorName == "externalCooldowns" or
+            indicatorName == "offensiveCooldowns" or
             indicatorName == "allCooldowns" or
             indicatorName == "dispels" or
             indicatorName == "crowdControls" or
@@ -161,10 +196,6 @@ local function ResetIndicators()
         -- update statusIcon
         if t["indicatorName"] == "statusIcon" then
             I.EnableStatusIcon(t["enabled"])
-
-        -- update aoehealing
-        elseif t["indicatorName"] == "aoeHealing" then
-            I.EnableAoEHealing(t["enabled"])
 
         -- update targetCounter
         elseif t["indicatorName"] == "targetCounter" then
@@ -225,6 +256,7 @@ local function HandleIndicators(b)
         b._waitingForIndicatorCreation = nil
         I.CreateDefensiveCooldowns(b)
         I.CreateExternalCooldowns(b)
+        I.CreateOffensiveCooldowns(b)
         I.CreateAllCooldowns(b)
         I.CreateDebuffs(b)
     end
@@ -256,7 +288,8 @@ local function HandleIndicators(b)
         end
         -- update size
         if t["size"] then
-            -- NOTE: debuffs: ["size"] = {{normalSize}, {bigSize}}
+            -- debuffs keeps its own SetSize (it must size the preview pool too); the value
+            -- is a plain {w, h} now -- Revise rewrites the old {{w,h},{w,h}} shape.
             if t["indicatorName"] == "debuffs" then
                 indicator:SetSize(t["size"][1], t["size"][2])
             else
@@ -316,6 +349,11 @@ local function HandleIndicators(b)
         if t["colors"] then
             indicator:SetColors(t["colors"])
         end
+        -- update durationColor (unified countdown colour widget). Only the text indicator
+        -- consumes it off the container path; the rest read it via ConfigureContainer.
+        if indicator.SetDurationColors then
+            indicator:SetDurationColors(t["durationColor"])
+        end
         -- update texture
         if t["texture"] then
             indicator:SetTexture(t["texture"])
@@ -328,9 +366,15 @@ local function HandleIndicators(b)
         if t["iconStyle"] then
             indicator:SetIconStyle(t["iconStyle"])
         end
-        -- update animation
-        if type(t["showAnimation"]) == "boolean" then
-            indicator:ShowAnimation(t["showAnimation"])
+        -- update animation (style string wins; the boolean is the pre-12.1 spelling)
+        -- ⚠ guarded on the METHOD, not just on the key: only aura-icon indicators have
+        -- ShowAnimation, and a layout entry can carry the key without the widget
+        if indicator.ShowAnimation then
+            if type(t["animationStyle"]) == "string" then
+                indicator:ShowAnimation(t["animationStyle"])
+            elseif type(t["showAnimation"]) == "boolean" then
+                indicator:ShowAnimation(t["showAnimation"])
+            end
         end
         -- update duration
         if type(t["showDuration"]) == "boolean" or type(t["showDuration"]) == "number" then
@@ -405,6 +449,14 @@ local function HandleIndicators(b)
         -- update hideIfEmptyOrFull
         if type(t["hideIfEmptyOrFull"]) == "boolean" then
             indicator:SetHideIfEmptyOrFull(t["hideIfEmptyOrFull"])
+        end
+
+        -- update AuraContainer-backed indicators (12.1 Route A: Blizzard-side
+        -- classification). Every container-backed indicator reads the WHOLE layout entry,
+        -- so the dispatch is on the method, not on a hardcoded name list -- the debuff row,
+        -- the three cooldown rows and custom buff-icon indicators all arrive here too.
+        if indicator.ConfigureContainer then
+            indicator:ConfigureContainer(t)
         end
 
         -- init
@@ -517,6 +569,42 @@ local activeLayouts = {
     raid = nil,
 }
 
+-- Container-backed indicators whose config is derived from ANOTHER indicator's settings, so
+-- changing the source has to reconfigure the dependant too. Right now: the debuff row
+-- subtracts whatever the Important Debuffs display claims, so touching that display's
+-- category toggles (or its enabled state) must re-push the debuff row as well.
+local CONTAINER_DEPENDENTS = {
+    ["raidDebuffs"] = { "debuffs" },
+}
+
+-- Re-run ConfigureContainer for an indicator and anything derived from it. Reads the layout
+-- ENTRY, which already holds the new value by the time UpdateIndicators fires.
+local function PushContainerConfig(indicatorName)
+    if not indicatorName or indicatorName == "" then return end
+    -- ⚠ `layout` in the caller is the layout NAME (a string), not the table -- index the
+    -- current layout TABLE. The caller has already returned unless this is the active layout.
+    local entries = Cell.vars.currentLayoutTable and Cell.vars.currentLayoutTable["indicators"]
+    if not entries then return end
+
+    local names = { indicatorName }
+    for _, dep in next, (CONTAINER_DEPENDENTS[indicatorName] or {}) do
+        names[#names + 1] = dep
+    end
+
+    for _, name in next, names do
+        local t
+        for _, it in next, entries do
+            if it["indicatorName"] == name then t = it break end
+        end
+        if t then
+            F.IterateAllUnitButtons(function(b)
+                local ind = b.indicators[name]
+                if ind and ind.ConfigureContainer then ind:ConfigureContainer(t) end
+            end, true)
+        end
+    end
+end
+
 local function UpdateIndicators(layout, indicatorName, setting, value, value2)
     F.Debug("|cffff7777UpdateIndicators:|r ", layout, indicatorName, setting, value, value2)
 
@@ -581,8 +669,6 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                         b.indicators[indicatorName]:Hide()
                     end
                 end, true)
-            elseif indicatorName == "aoeHealing" then
-                I.EnableAoEHealing(value)
             elseif indicatorName == "targetCounter" then
                 I.EnableTargetCounter(value)
             elseif indicatorName == "targetedSpells" then
@@ -690,6 +776,11 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             F.IterateAllUnitButtons(function(b)
                 local indicator = b.indicators[indicatorName]
                 indicator:SetFrameLevel(indicator:GetParent():GetFrameLevel()+value)
+                -- container-backed indicators: the empty indicator frame moved, but the
+                -- AuraContainer + its buttons live in a separate chain -- re-level it too.
+                if indicator.container and indicator.container.SetContainerLevel then
+                    indicator.container:SetContainerLevel(indicator:GetFrameLevel())
+                end
             end, true)
         elseif setting == "size" then
             F.IterateAllUnitButtons(function(b)
@@ -780,6 +871,14 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 indicator:SetColors(value) -- update color on next SetCooldown
                 UnitButton_UpdateAuras(b) -- call SetCooldown now
             end, true)
+        elseif setting == "durationColor" then
+            F.IterateAllUnitButtons(function(b)
+                local indicator = b.indicators[indicatorName]
+                if indicator and indicator.SetDurationColors then
+                    indicator:SetDurationColors(value)
+                    UnitButton_UpdateAuras(b)
+                end
+            end, true)
         elseif setting == "vehicleNamePosition" then
             F.IterateAllUnitButtons(function(b)
                 local indicator = b.indicators[indicatorName]
@@ -838,6 +937,17 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             F.IterateAllUnitButtons(function(b)
                 b.indicators[indicatorName]:ShowDuration(value)
                 UnitButton_UpdateAuras(b)
+            end, true)
+        elseif setting == "animationStyle" then
+            -- Only reaches the legacy widgets (crowdControls, and the fallback pools where
+            -- AuraContainer is unsupported). Container-backed indicators get it from
+            -- PushContainerConfig at the end of this function.
+            F.IterateAllUnitButtons(function(b)
+                local ind = b.indicators[indicatorName]
+                if ind and ind.ShowAnimation then
+                    ind:ShowAnimation(value)
+                    UnitButton_UpdateAuras(b)
+                end
             end, true)
         elseif setting == "privateAuraOptions" then
             F.IterateAllUnitButtons(function(b)
@@ -949,6 +1059,12 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 end, true)
             elseif value == "showAllSpells" then
                 I.ShowAllTargetedSpells(value2)
+            elseif value == "excludeImportant" then
+                -- ⚠ Deliberately a no-op here: PushContainerConfig at the end of this
+                -- function is what applies it. It must NOT reach the generic write below --
+                -- indicatorBooleans is keyed by INDICATOR, not by setting, so a second
+                -- checkbox on the same indicator overwrites the first. This one shares an
+                -- indicator with dispellableByMe.
             else
                 indicatorBooleans[indicatorName] = value2
             end
@@ -1004,13 +1120,20 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 if value["colors"] then
                     indicator:SetColors(value["colors"])
                 end
+                if indicator.SetDurationColors then
+                    indicator:SetDurationColors(value["durationColor"])
+                end
                 -- update texture
                 if value["texture"] then
                     indicator:SetTexture(value["texture"])
                 end
                 -- update showAnimation
-                if type(value["showAnimation"]) == "boolean" then
-                    indicator:ShowAnimation(value["showAnimation"])
+                if indicator.ShowAnimation then
+                    if type(value["animationStyle"]) == "string" then
+                        indicator:ShowAnimation(value["animationStyle"])
+                    elseif type(value["showAnimation"]) == "boolean" then
+                        indicator:ShowAnimation(value["showAnimation"])
+                    end
                 end
                 -- update showDuration
                 if type(value["showDuration"]) ~= "nil" then
@@ -1051,8 +1174,44 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 b.indicators[indicatorName]:Hide()
                 UnitButton_UpdateAuras(b)
             end, true)
-        elseif setting == "debuffBlacklist" or setting == "dispelBlacklist" or setting == "defensives" or setting == "externals" or setting == "crowdControls" or setting == "bigDebuffs" or setting == "debuffTypeColor" or setting == "castBy" then
+        elseif setting == "debuffBlacklist" or setting == "dispelBlacklist" or setting == "defensives" or setting == "externals" or setting == "offensives" or setting == "crowdControls" or setting == "bigDebuffs" or setting == "debuffTypeColor" or setting == "castBy" then
+            -- These settings live in CellDB, not in the layout entry, so the event carries
+            -- no indicatorName and the generic ConfigureContainer pass above never sees it.
+            -- But the containers read CellDB when they build their filters (the blacklist
+            -- rides on excludeSpellIDs, the curated lists on includeSpellIDs), so the
+            -- affected indicators have to be pushed through explicitly or they keep the
+            -- old spell set until a /reload.
+            local AFFECTED = {
+                debuffBlacklist = { "debuffs" },
+                defensives      = { "defensiveCooldowns", "allCooldowns" },
+                externals       = { "externalCooldowns", "allCooldowns" },
+                offensives      = { "offensiveCooldowns" },
+                castBy          = { "defensiveCooldowns", "externalCooldowns", "allCooldowns" },
+            }
+            -- the palette is baked into each AuraButton at bind time; only a rebuild moves it
+            if setting == "debuffTypeColor" and Cell.AuraDisplay then
+                Cell.AuraDisplay.RefreshDispelPalette()
+            end
+            local names = AFFECTED[setting]
+            local tables
+            if names then
+                local lt = Cell.vars.currentLayoutTable
+                for _, it in next, (lt and lt["indicators"] or {}) do
+                    for _, n in next, names do
+                        if it["indicatorName"] == n then
+                            tables = tables or {}
+                            tables[n] = it
+                        end
+                    end
+                end
+            end
             F.IterateAllUnitButtons(function(b)
+                if tables then
+                    for n, t in next, tables do
+                        local ind = b.indicators[n]
+                        if ind and ind.ConfigureContainer then ind:ConfigureContainer(t) end
+                    end
+                end
                 UnitButton_UpdateAuras(b)
             end, true)
         elseif setting == "speed" then
@@ -1061,6 +1220,19 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 b.indicators[indicatorName]:SetSpeed(value)
             end, true)
         end
+
+        -- 12.1 Route A: container-backed indicators read the WHOLE layout entry, not a single
+        -- value, so any option change has to re-run ConfigureContainer or the container stays
+        -- stale until a /reload. The layout entry already holds the new value by now.
+        --
+        -- ⚠ This runs AFTER the dispatch above, not before, and that ordering is the whole
+        -- point: `setting == "create"` builds the indicator INSIDE the dispatch. Running
+        -- first meant b.indicators[indicatorName] did not exist yet, so a freshly created
+        -- indicator was skipped -- its container kept the Create() defaults, spellIDs stayed
+        -- empty, BuildRecords returned no records and it rendered NOTHING. That is exactly
+        -- what the first-run "create a Healers indicator?" prompt hit: blank until a /reload
+        -- happened to run the HandleIndicators path, which configures containers properly.
+        PushContainerConfig(indicatorName)
     end
 end
 Cell.RegisterCallback("UpdateIndicators", "UnitButton_UpdateIndicators", UpdateIndicators)
@@ -1195,36 +1367,54 @@ local function HandleDebuff(self, auraInfo)
     -- On Midnight in restricted context, spellId may be secret; I.CheckDebuffType guards internally
     debuffType = I.CheckDebuffType(debuffType, spellId)
 
-    if duration then
-        UpdateAuraRefreshState(auraInfo)
-        self._debuffs_cache[auraInstanceID] = auraInfo
+    local isSecret = Cell.isMidnight and not F.IsAuraNonSecret(auraInfo)
 
-        local isBig = false
-        local isBlacklisted = false
-        local isDispelBlacklisted = false
-        if F.IsAuraNonSecret(auraInfo) then
-            isBig = spellId and Cell.vars.bigDebuffs[spellId] or false
-            isBlacklisted = spellId and Cell.vars.debuffBlacklist[spellId] or false
-            isDispelBlacklisted = spellId and Cell.vars.dispelBlacklist[spellId] or false
+    -- 12.1: same as HandleBuff -- a secret auraInstanceID can never key the cache. It also
+    -- must not enter _debuffs_raid, because UnitButton_UpdateDebuffs feeds that back into
+    -- _debuffs_cache[topAuraInstanceID] for the glow.
+    local cacheable = F.IsValueNonSecret(auraInstanceID)
+
+    -- Secret-aware fallback for the CENTRAL raid-debuff display: when spellId/name are
+    -- secret the curated list can't match by ID, so classify via Blizzard's secret-safe
+    -- HARMFUL|RAID filter instead. Only reachable when no AuraContainer backs the
+    -- indicator (Classic, or the widget missing) -- when one does, it owns classification
+    -- and this per-aura C call was pure waste on every single debuff.
+    local secretIsRaidDebuff = false
+    local debuffUnit = self.states.displayedUnit
+    if Cell.isMidnight and IsAuraFilteredOutByInstanceID and auraInstanceID and debuffUnit
+        and not self.indicators.raidDebuffs.container then
+        secretIsRaidDebuff = not IsAuraFilteredOutByInstanceID(debuffUnit, auraInstanceID, "HARMFUL|RAID")
+    end
+
+    if duration or isSecret then
+        UpdateAuraRefreshState(auraInfo)
+        if cacheable then
+            self._debuffs_cache[auraInstanceID] = auraInfo
         end
 
-        if enabledIndicators["debuffs"] and not isBlacklisted then
-            -- all debuffs / only dispellableByMe
-            if not indicatorBooleans["debuffs"] or I.CanDispel(debuffType) then
-                if isBig then
-                    self._debuffs_big[auraInstanceID] = true
-                else
-                    self._debuffs_normal[auraInstanceID] = true
-                end
-            end
+        -- The debuff row is AuraContainer-backed: Blizzard filters it (blacklist rides on
+        -- excludeSpellIDs, dispellable-only on the filter string), so classifying every aura
+        -- here was pure per-aura waste. bigDebuffs is gone with the spell-ID ban.
+        local isDispelBlacklisted = false
+        if F.IsAuraNonSecret(auraInfo) then
+            isDispelBlacklisted = spellId and Cell.vars.dispelBlacklist[spellId] or false
         end
 
         -- user created indicators
         I.UpdateCustomIndicators(self, auraInfo)
 
         -- prepare raidDebuffs
+        -- GetDebuffOrder is secret-safe: returns nil for secret spellId/name, so the
+        -- curated list only ever matches NON-secret auras (old / not-cleanly-sealed
+        -- content). This is the intentional fallback for the central indicator.
         local order = I.GetDebuffOrder(name, spellId, count)
-        if enabledIndicators["raidDebuffs"] and order then
+        -- Secret fallback: classify secret debuffs as raid debuffs via HARMFUL|RAID.
+        -- Never set when the AuraContainer backs this indicator (see above) -- letting
+        -- this fire too would double-show every secret raid debuff.
+        if not order and secretIsRaidDebuff then
+            order = 10000
+        end
+        if enabledIndicators["raidDebuffs"] and order and cacheable then
             auraInfo.raidDebuffOrder = order
             tinsert(self._debuffs_raid, auraInstanceID)
 
@@ -1256,9 +1446,6 @@ local function HandleDebuff(self, auraInfo)
         if enabledIndicators["crowdControls"] and I.IsCrowdControls(name, spellId) and self._debuffs.crowdControlsFound < indicatorNums["crowdControls"] then
             self._debuffs.crowdControlsFound = self._debuffs.crowdControlsFound + 1
             self.indicators.crowdControls[self._debuffs.crowdControlsFound]:SetCooldown(start, duration, debuffType, icon, count, auraInfo.refreshing)
-            -- remove from debuffs
-            self._debuffs_big[auraInstanceID] = nil
-            self._debuffs_normal[auraInstanceID] = nil
         end
 
         -- Per-aura check: only compare spellId if non-secret
@@ -1303,78 +1490,20 @@ local function UnitButton_UpdateDebuffs(self, isFullUpdate)
         self.states.hasRezDebuff = nil
     end
 
-    local startIndex = 1
-
-    -- update raid debuffs
-    -- if self._debuffs.raidDebuffsFound or cleuUnits[unit] then
+    -- 12.1: the central raid-debuff icons are AuraContainer-backed (see I.CreateRaidDebuffs).
+    -- The manual curated-ID renderer that used to fill a 3-icon pool is gone along with the
+    -- pool itself. The glow is kept: it paints the indicator frame, not an icon.
     if self._debuffs_raid[1] then
-        self.indicators.raidDebuffs:Show()
-
-        -- cleuAuras
-        -- local offset = 0
-        -- if cleuUnits[unit] then
-        --     offset = 1
-        --     startIndex = startIndex + 1
-        -- end
-
-        -- sort indices
-        sort(self._debuffs_raid, function(a, b)
-            return self._debuffs_cache[a]["raidDebuffOrder"] < self._debuffs_cache[b]["raidDebuffOrder"]
-        end)
-
-        -- show
-        local topAuraInstanceID
-        -- for i = 1+offset, indicatorNums["raidDebuffs"] do
-        for i = 1, indicatorNums["raidDebuffs"] do
-            local auraInstanceID = self._debuffs_raid[i]
-            if auraInstanceID then
-                local auraInfo = self._debuffs_cache[auraInstanceID]
-                if auraInfo then
-                    local rdStart, rdDur
-                    if F.IsValueNonSecret(auraInfo.expirationTime) and F.IsValueNonSecret(auraInfo.duration) then
-                        rdStart = (auraInfo.expirationTime or 0) - auraInfo.duration
-                        rdDur = auraInfo.duration
-                    else
-                        rdStart = 0
-                        rdDur = 0
-                    end
-                    self.indicators.raidDebuffs[i]:SetCooldown(
-                        rdStart,
-                        rdDur,
-                        (auraInfo.dispelName and (not issecretvalue or not issecretvalue(auraInfo.dispelName))) and auraInfo.dispelName or "",
-                        auraInfo.icon,
-                        auraInfo.applications,
-                        auraInfo.refreshing,
-                        I.IsDebuffUseElapsedTime(auraInfo.name, auraInfo.spellId)
-                    )
-                    self.indicators.raidDebuffs[i].auraInstanceID = auraInstanceID -- NOTE: for tooltip
-                    startIndex = startIndex + 1
-                    -- remove from debuffs
-                    self._debuffs_big[auraInstanceID] = nil
-                    self._debuffs_normal[auraInstanceID] = nil
-
-                    if i == 1 then -- top
-                        topAuraInstanceID = auraInstanceID
-                    end
-                end
-            end
-        end
-
-        -- if cleuUnits[unit] then
-        --     self.indicators.raidDebuffs[1]:SetCooldown(cleuUnits[unit][1], cleuUnits[unit][2], "cleu", cleuUnits[unit][3], 1)
-        --     topGlowType, topGlowOptions = unpack(CellDB["cleuGlow"])
-        -- end
-
-        -- update raidDebuffs
-        self.indicators.raidDebuffs:UpdateSize(startIndex - 1)
-        for i = startIndex, 3 do
-            self.indicators.raidDebuffs[i].auraInstanceID = nil
-        end
-
+        -- The ID is non-secret by construction (HandleDebuff only inserts cacheable ones), but
+        -- the cache entry can still be gone -- indexing that nil is a hard error, so read once.
+        local topAura = self._debuffs_cache[self._debuffs_raid[1]]
         -- update glow
         if not indicatorBooleans["raidDebuffs"] then
             -- to make sure top glow has highest priority
-            local topGlowType, topGlowOptions = self._debuffs_cache[topAuraInstanceID]["raidDebuffGlowType"], self._debuffs_cache[topAuraInstanceID]["raidDebuffGlowOptions"]
+            local topGlowType, topGlowOptions
+            if topAura then
+                topGlowType, topGlowOptions = topAura["raidDebuffGlowType"], topAura["raidDebuffGlowOptions"]
+            end
             if topGlowType and topGlowType ~= "None" then
                 self._debuffs_glow_current[topGlowType] = topGlowOptions
             end
@@ -1387,75 +1516,25 @@ local function UnitButton_UpdateDebuffs(self, isFullUpdate)
                 end
             end
             wipe(self._debuffs_glow_current)
-        else
+        elseif topAura then
             self.indicators.raidDebuffs:ShowGlow(
                 I.GetDebuffGlow(
-                    self._debuffs_cache[topAuraInstanceID]["name"],
-                    self._debuffs_cache[topAuraInstanceID]["spellId"],
-                    self._debuffs_cache[topAuraInstanceID]["applications"]
+                    topAura["name"],
+                    topAura["spellId"],
+                    topAura["applications"]
                 )
             )
         end
-    else
-        self.indicators.raidDebuffs:Hide()
     end
 
-    -- update debuffs
-    startIndex = 1
-    if enabledIndicators["debuffs"] then
-        -- bigDebuffs first
-        for auraInstanceID in next, self._debuffs_big do
-            local auraInfo = self._debuffs_cache[auraInstanceID]
-            if auraInfo and startIndex <= indicatorNums["debuffs"] then
-                -- start, duration, debuffType, texture, count
-                local bStart, bDur
-                if F.IsValueNonSecret(auraInfo.expirationTime) and F.IsValueNonSecret(auraInfo.duration) then
-                    bStart = (auraInfo.expirationTime or 0) - auraInfo.duration
-                    bDur = auraInfo.duration
-                else
-                    bStart = 0
-                    bDur = 0
-                end
-                self.indicators.debuffs[startIndex]:SetCooldown(bStart, bDur, (auraInfo.dispelName and (not issecretvalue or not issecretvalue(auraInfo.dispelName))) and auraInfo.dispelName or "", auraInfo.icon, auraInfo.applications, auraInfo.refreshing, true)
-                self.indicators.debuffs[startIndex].auraInstanceID = auraInstanceID -- NOTE: for tooltip
-                self.indicators.debuffs[startIndex].spellId = auraInfo.spellId -- NOTE: for blacklist
-                startIndex = startIndex + 1
-            elseif startIndex > indicatorNums["debuffs"] then
-                break
-            end
-        end
-        -- then normal debuffs
-        for auraInstanceID in next, self._debuffs_normal do
-            local auraInfo = self._debuffs_cache[auraInstanceID]
-            if auraInfo and startIndex <= indicatorNums["debuffs"] then
-                -- start, duration, debuffType, texture, count
-                local nStart, nDur
-                if F.IsValueNonSecret(auraInfo.expirationTime) and F.IsValueNonSecret(auraInfo.duration) then
-                    nStart = (auraInfo.expirationTime or 0) - auraInfo.duration
-                    nDur = auraInfo.duration
-                else
-                    nStart = 0
-                    nDur = 0
-                end
-                self.indicators.debuffs[startIndex]:SetCooldown(nStart, nDur, (auraInfo.dispelName and (not issecretvalue or not issecretvalue(auraInfo.dispelName))) and auraInfo.dispelName or "", auraInfo.icon, auraInfo.applications, auraInfo.refreshing)
-                self.indicators.debuffs[startIndex].auraInstanceID = auraInstanceID -- NOTE: for tooltip
-                self.indicators.debuffs[startIndex].spellId = auraInfo.spellId -- NOTE: for blacklist
-                startIndex = startIndex + 1
-            elseif startIndex > indicatorNums["debuffs"] then
-                break
-            end
-        end
-    end
+    -- 12.1: the debuff row is AuraContainer-backed (see I.CreateDebuffs). The manual
+    -- scan that used to fill it is gone -- GetAuraSlots throws once auras are secret, so
+    -- it froze in exactly the content it mattered for.
 
-    -- update debuffs
-    self.indicators.debuffs:UpdateSize(startIndex - 1)
-    for i = startIndex, 10 do
-        self.indicators.debuffs[i].auraInstanceID = nil
-        self.indicators.debuffs[i].spellId = nil
-    end
-
-    -- update dispels
-    if F.UnitInGroup(unit) or UnitIsFriend("player", unit) then
+    -- update dispels -- skipped when a Blizzard AuraContainer backs the indicator (it
+    -- drives itself from SetUnit and renders the secret dispel school blind). The manual
+    -- path can't classify the school in restricted content anyway.
+    if not self.indicators.dispels.container and (F.UnitInGroup(unit) or UnitIsFriend("player", unit)) then
         self.indicators.dispels:SetDispels(self._debuffs_dispel)
     end
 
@@ -1465,8 +1544,6 @@ local function UnitButton_UpdateDebuffs(self, isFullUpdate)
     -- user created indicators
     I.ShowCustomIndicators(self, "debuff")
 
-    wipe(self._debuffs_normal)
-    wipe(self._debuffs_big)
     wipe(self._debuffs_dispel)
     wipe(self._debuffs_raid)
 end
@@ -1475,9 +1552,6 @@ end
 -- buffs
 -------------------------------------------------
 local function ResetBuffVars(self)
-    self._buffs.defensiveFound = 0
-    self._buffs.externalFound = 0
-    self._buffs.allFound = 0
     self._buffs.tankActiveMitigationFound = false
     self._buffs.drinkingFound = false
 
@@ -1485,15 +1559,8 @@ local function ResetBuffVars(self)
 end
 
 local function HandleBuff(self, auraInfo)
-    local unit = self.states.displayedUnit
-
     local auraInstanceID = auraInfo.auraInstanceID
     local name = auraInfo.name
-    -- auraInfo.icon may be a secret fileID on Midnight 12.0.0+
-    -- SetTexture() accepts secret numbers, so this works as-is
-    local icon = auraInfo.icon
-    local count = auraInfo.applications
-    -- local debuffType = auraInfo.isHarmful and auraInfo.dispelName
     local expirationTime = auraInfo.expirationTime or 0
     local duration = auraInfo.duration
     -- Midnight 12.0.0+: expirationTime and duration may be secret even when spellId is not.
@@ -1505,36 +1572,30 @@ local function HandleBuff(self, auraInfo)
         start = 0
         duration = 0
     end
-    local source = auraInfo.sourceUnit
     local spellId = auraInfo.spellId
-    -- local attribute = auraInfo.points[1] -- UnitAura:arg16
 
     auraInfo.refreshing = false
 
-    if duration then
+    local isSecret = Cell.isMidnight and not F.IsAuraNonSecret(auraInfo)
+
+    -- 12.1: auraInstanceID itself can be secret, and a secret can NEVER be a table key --
+    -- reading or writing with one is an immediate Lua error. Note the global bail in
+    -- UnitButton_UpdateAuras (ShouldAurasBeSecret) does NOT cover this: outside restricted
+    -- content the global state is clear, yet individual auras still come back secret.
+    local cacheable = F.IsValueNonSecret(auraInstanceID)
+
+    if duration or isSecret then
         UpdateAuraRefreshState(auraInfo)
-        self._buffs_cache[auraInstanceID] = auraInfo
-
-        -- defensiveCooldowns
-        if enabledIndicators["defensiveCooldowns"] and I.IsDefensiveCooldown(name, spellId) and self._buffs.defensiveFound < indicatorNums["defensiveCooldowns"] then
-            self._buffs.defensiveFound = self._buffs.defensiveFound + 1
-            -- start, duration, debuffType, texture, count, refreshing
-            self.indicators.defensiveCooldowns[self._buffs.defensiveFound]:SetCooldown(start, duration, nil, icon, count, auraInfo.refreshing)
+        if cacheable then
+            self._buffs_cache[auraInstanceID] = auraInfo
         end
 
-        -- externalCooldowns
-        if enabledIndicators["externalCooldowns"] and I.IsExternalCooldown(name, spellId, source, unit) and self._buffs.externalFound < indicatorNums["externalCooldowns"] then
-            self._buffs.externalFound = self._buffs.externalFound + 1
-            -- start, duration, debuffType, texture, count, refreshing
-            self.indicators.externalCooldowns[self._buffs.externalFound]:SetCooldown(start, duration, nil, icon, count, auraInfo.refreshing)
-        end
-
-        -- allCooldowns
-        if enabledIndicators["allCooldowns"] and (I.IsExternalCooldown(name, spellId, source, unit) or I.IsDefensiveCooldown(name, spellId)) and self._buffs.allFound < indicatorNums["allCooldowns"] then
-            self._buffs.allFound = self._buffs.allFound + 1
-            -- start, duration, debuffType, texture, count, refreshing
-            self.indicators.allCooldowns[self._buffs.allFound]:SetCooldown(start, duration, nil, icon, count, auraInfo.refreshing)
-        end
+        -- NOTE: defensiveCooldowns / externalCooldowns / allCooldowns used to be driven from
+        -- here by scanning each aura against curated spell tables (plus a BIG_DEFENSIVE /
+        -- EXTERNAL_DEFENSIVE / RAID filter probe for secret auras). On 12.1 all three are
+        -- AuraContainer-backed (see AttachBuffContainer) and drive themselves from SetUnit,
+        -- so that path was dead code AND a second thing drawing icons on the same anchors.
+        -- Removed: retail only, no fallback.
 
         -- tankActiveMitigation
         if enabledIndicators["tankActiveMitigation"] and I.IsTankActiveMitigation(spellId) then
@@ -1579,38 +1640,17 @@ local function UnitButton_UpdateBuffs(self, isFullUpdate)
         ForEachAuraCache(self, "HELPFUL", HandleBuff)
     end
 
-    -- check Mirror Image
-    if self._mirror_image and I.IsDefensiveCooldown(55342) then -- exists and enabled
-        if self._buffs.defensiveFound < indicatorNums["defensiveCooldowns"] then
-            self._buffs.defensiveFound = self._buffs.defensiveFound + 1
-            self.indicators.defensiveCooldowns[self._buffs.defensiveFound]:SetCooldown(self._mirror_image, 40, nil, 135994, 0)
-        end
-        if self._buffs.allFound < indicatorNums["allCooldowns"] then
-            self._buffs.allFound = self._buffs.allFound + 1
-            self.indicators.allCooldowns[self._buffs.allFound]:SetCooldown(self._mirror_image, 40, nil, 135994, 0)
-        end
-    end
+    -- Mirror Image / Mass Barrier used to be injected here from CLEU (they leave no aura),
+    -- straight onto the fallback icon pools and WITHOUT the .container gate the aura path
+    -- had -- so they kept drawing on top of the AuraContainer. Removed with the rest of the
+    -- legacy buff path; the containers own these anchors now.
 
-    -- check Mass Barrier (self)
-    if self._mass_barrier and I.IsExternalCooldown(414660) then -- exists and enabled
-        if self._buffs.externalFound < indicatorNums["externalCooldowns"] then
-            self._buffs.externalFound = self._buffs.externalFound + 1
-            self.indicators.externalCooldowns[self._buffs.externalFound]:SetCooldown(self._mass_barrier, 60, nil, self._mass_barrier_icon, 0)
-        end
-        if self._buffs.allFound < indicatorNums["allCooldowns"] then
-            self._buffs.allFound = self._buffs.allFound + 1
-            self.indicators.allCooldowns[self._buffs.allFound]:SetCooldown(self._mass_barrier, 60, nil, self._mass_barrier_icon, 0)
-        end
-    end
-
-    -- update defensiveCooldowns
-    self.indicators.defensiveCooldowns:UpdateSize(self._buffs.defensiveFound)
-
-    -- update externalCooldowns
-    self.indicators.externalCooldowns:UpdateSize(self._buffs.externalFound)
-
-    -- update allCooldowns
-    self.indicators.allCooldowns:UpdateSize(self._buffs.allFound)
+    -- The fallback icon pools stay collapsed to zero. They are no longer fed by anything,
+    -- and leaving a stale count is what left icons stuck on screen.
+    self.indicators.defensiveCooldowns:UpdateSize(0)
+    self.indicators.externalCooldowns:UpdateSize(0)
+    self.indicators.offensiveCooldowns:UpdateSize(0)
+    self.indicators.allCooldowns:UpdateSize(0)
 
     -- hide tankActiveMitigation
     if not self._buffs.tankActiveMitigationFound then
@@ -1641,8 +1681,6 @@ local function InitAuraTables(self)
     self._missing_auras = {}
 
     -- debuffs
-    self._debuffs_normal = {} -- [auraInstanceID] = refreshing
-    self._debuffs_big = {} -- [auraInstanceID] = refreshing
     self._debuffs_dispel = {} -- [debuffType] = true/false
     self._debuffs_raid = {} -- {id1, id2, ...}
     self._debuffs_glow_current = {}
@@ -1654,8 +1692,6 @@ local function ResetAuraTables(self)
     wipe(self._missing_auras)
 
     -- debuffs
-    wipe(self._debuffs_normal)
-    wipe(self._debuffs_big)
     wipe(self._debuffs_dispel)
     wipe(self._debuffs_raid)
 
@@ -1665,79 +1701,12 @@ local function ResetAuraTables(self)
         self.indicators.raidDebuffs:HideGlow()
     end
 
-    self._mirror_image = nil
-    self._mass_barrier = nil
-    self._mass_barrier_icon = nil
 end
 
--------------------------------------------------
--- check auras using CLEU
--- NOTE: COMBAT_LOG_EVENT_UNFILTERED is unavailable on Midnight (12.0.0+).
--- CheckCLEURequired has been removed; the cleu frame is guarded below.
--------------------------------------------------
-local cleu = CreateFrame("Frame")
-
-local function UpdateMirrorImage(b, event)
-    if event == "SPELL_AURA_APPLIED" then
-        b._mirror_image = GetTime()
-    elseif event == "SPELL_AURA_REMOVED" then
-        b._mirror_image = nil
-    end
-    if b._indicatorsReady then
-        UnitButton_UpdateBuffs(b, false) -- should be no full update needed, indicator update is done
-    end
-end
-
-local SelfBarriers = {
-    [11426] = true, -- å¯’å†°æŠ¤ä½“ (self)
-    [235313] = true, -- çƒˆç„°æŠ¤ä½“ (self)
-    [235450] = true, -- æ£±å…‰æŠ¤ä½“ (self)
-}
-
-local function UpdateMassBarrier(b, event)
-    if event == "SPELL_CAST_SUCCESS" then
-        b._mass_barrier = GetTime()
-        local info = LGI:GetCachedInfo(b.states.guid)
-        if info then
-            if info.specId == 62 then -- Arcane
-                b._mass_barrier_icon = 135991
-            elseif info.specId == 63 then -- Fire
-                b._mass_barrier_icon = 132221
-            elseif info.specId == 64 then -- Frost
-                b._mass_barrier_icon = 135988
-            else
-                b._mass_barrier_icon = 1723997
-            end
-        end
-    elseif event == "SPELL_AURA_REMOVED" then
-        b._mass_barrier = nil
-        b._mass_barrier_icon = nil
-    end
-    if b._indicatorsReady then
-        UnitButton_UpdateBuffs(b, false) -- should be no full update needed, indicator update is done
-    end
-end
-
--- CLEU-based indicator tracking (mirror image, mass barrier).
--- Unavailable on Midnight (12.0.0+); guarded by Cell.isMidnight.
-if not Cell.isMidnight then
-    cleu:SetScript("OnEvent", function()
-        local _, subEvent, _, sourceGUID, _, sourceFlags, _, _, _, destFlags, _, spellId = CombatLogGetCurrentEventInfo()
-
-        -- mirror image
-        if spellId == 55342 and F.IsFriend(sourceFlags) then
-            F.HandleUnitButton("guid", sourceGUID, UpdateMirrorImage, subEvent)
-        end
-
-        -- mass barrier (self), SPELL_CAST_SUCCESS
-        if spellId == 414660 and F.IsFriend(sourceFlags) then
-            F.HandleUnitButton("guid", sourceGUID, UpdateMassBarrier, "SPELL_CAST_SUCCESS")
-        end
-        if (subEvent == "SPELL_AURA_REMOVED" or subEvent == "SPELL_AURA_REFRESH") and SelfBarriers[spellId] and F.IsFriend(sourceFlags) then
-            F.HandleUnitButton("guid", sourceGUID, UpdateMassBarrier, "SPELL_AURA_REMOVED")
-        end
-    end)
-end
+-- Mirror Image / Mass Barrier tracking used to live here, fed by COMBAT_LOG_EVENT_UNFILTERED.
+-- Gone on 12.x twice over: addons cannot register CLEU at all, and the only consumers of
+-- _mirror_image / _mass_barrier were the aura-scanning cooldown rows, which the AuraContainer
+-- rewrite already replaced. Nothing read those flags any more.
 
 -------------------------------------------------
 -- functions
@@ -1747,6 +1716,32 @@ UnitButton_UpdateAuras = function(self, updateInfo)
 
     local unit = self.states.displayedUnit
     if not unit then return end
+
+    -- 12.1 Route A: hand the current unit to the raid-debuff AuraContainer BEFORE the
+    -- secret-payload bail below. The container is Blizzard-driven, so it keeps working
+    -- for teammate debuffs precisely when the manual diff path cannot. SetUnit no-ops
+    -- when the unit is unchanged.
+    if self._containerIndicators then
+        for _, ind in next, self._containerIndicators do
+            if ind.SetContainerUnit then ind:SetContainerUnit(unit) end
+        end
+    end
+
+    -- 12.1: when auras are secret the payload cannot be diffed (isFullUpdate is a secret boolean,
+    -- addedAuras a secret table) AND the slot-based full rescan below errors as well, because
+    -- GetAuraSlots/GetAuraDataBySlot Lua-error while auras are secret. Nothing can be updated, so
+    -- keep the last known state instead of erroring every UNIT_AURA. Cell needs to move to
+    -- AuraContainers for a real fix.
+    --
+    -- The CanDiffAuraPayload guard below only covers INCREMENTAL updates (updateInfo ~= nil). A
+    -- FULL update (updateInfo == nil, e.g. from UnitButton_UpdateAll) slips past it and reaches
+    -- ForEachAura -> GetAuraSlots, which Lua-errors ("Auras cannot be accessed when secret while
+    -- tainted") on every UpdateAll in restricted content. Bail here on the secret state itself so
+    -- BOTH paths keep the last known state. The raid-debuff AuraContainer (SetContainerUnit above)
+    -- is what actually drives teammate debuffs while this is secret.
+    if C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret() then return end
+
+    if updateInfo ~= nil and not F.CanDiffAuraPayload(updateInfo) then return end
 
     local isFullUpdate = not updateInfo or updateInfo.isFullUpdate
 
@@ -1761,22 +1756,30 @@ UnitButton_UpdateAuras = function(self, updateInfo)
 
         if updateInfo.addedAuras then
             for _, aura in next, updateInfo.addedAuras do
-                if aura.isHelpful then
-                    buffsChanged = true
-                    self._buffs_cache[aura.auraInstanceID] = aura
-                end
-                if aura.isHarmful then
-                    debuffsChanged = true
-                    self._debuffs_cache[aura.auraInstanceID] = aura
+                -- CanDiffAuraPayload only proves the PAYLOAD is diffable; individual auras
+                -- inside it can still carry a secret auraInstanceID, which cannot key a table.
+                if F.IsValueNonSecret(aura.auraInstanceID) then
+                    if aura.isHelpful then
+                        buffsChanged = true
+                        self._buffs_cache[aura.auraInstanceID] = aura
+                    end
+                    if aura.isHarmful then
+                        debuffsChanged = true
+                        self._debuffs_cache[aura.auraInstanceID] = aura
+                    end
                 end
             end
         end
 
         if updateInfo.updatedAuraInstanceIDs then
             local aura
-            -- auraInstanceID is NOT secret and is safe to use as table key
             for _, auraInstanceID in next, updateInfo.updatedAuraInstanceIDs do
-                if self._buffs_cache[auraInstanceID] then
+                -- 12.1: the ID itself can be secret -- the old "auraInstanceID is NOT secret"
+                -- assumption no longer holds. A secret cannot index a table at all, not even to
+                -- test membership, so there is nothing to do but skip it.
+                if not F.IsValueNonSecret(auraInstanceID) then
+                    -- skip
+                elseif self._buffs_cache[auraInstanceID] then
                     buffsChanged = true
                     aura = GetAuraDataByAuraInstanceID(unit, auraInstanceID)
                     if aura then
@@ -1813,7 +1816,10 @@ UnitButton_UpdateAuras = function(self, updateInfo)
 
         if updateInfo.removedAuraInstanceIDs then
             for _, auraInstanceID in next, updateInfo.removedAuraInstanceIDs do
-                if self._buffs_cache[auraInstanceID] then
+                -- same as above: a secret ID can never have entered any of these tables
+                if not F.IsValueNonSecret(auraInstanceID) then
+                    -- skip
+                elseif self._buffs_cache[auraInstanceID] then
                     self._buffs_cache[auraInstanceID] = nil
                     buffsChanged = true
                 elseif self._debuffs_cache[auraInstanceID] then
@@ -1827,7 +1833,7 @@ UnitButton_UpdateAuras = function(self, updateInfo)
 
         if next(self._missing_auras) then
             for _, aura in next, self._missing_auras do
-                if F.IsAuraNonSecret(aura) then
+                if F.IsAuraNonSecret(aura) and F.IsValueNonSecret(aura.auraInstanceID) then
                     if aura.isHelpful then
                         buffsChanged = true
                         self._buffs_cache[aura.auraInstanceID] = aura
@@ -2122,7 +2128,14 @@ local function UnitButton_UpdateTarget(self)
     local unit = self.states.displayedUnit
     if not unit then return end
 
-    if UnitIsUnit(unit, "target") then
+    -- 12.1: UnitIsUnit answers with a SECRET boolean as soon as either side is a unit you are
+    -- not allowed to identify, and "target" becomes exactly that the moment the player targets
+    -- a boss or an enemy player -- so a raw boolean test here is a hard Lua error, not a false.
+    --
+    -- Fail CLOSED (secret -> hide). The highlight marks ONE frame: "show on doubt" lights up
+    -- every row in the raid at once, which is worse than a missing highlight and reads as the
+    -- addon being broken. A wrongly-hidden highlight self-corrects on the next target change.
+    if F.ToBool(UnitIsUnit(unit, "target")) then
         if highlightEnabled then self.widgets.targetHighlight:Show() end
     else
         self.widgets.targetHighlight:Hide()
@@ -2150,17 +2163,46 @@ local function CheckVehicleRoot(self, petUnit)
     self.indicators.roleIcon:SetRole(isRoot and "VEHICLE-ROOT" or "VEHICLE")
 end
 
+-- The player's OWN role when Blizzard has not assigned one. Deliberately NOT via
+-- LibGroupInfo: LGI rebuilds its cache from the same PLAYER_SPECIALIZATION_CHANGED this
+-- refreshes on, and whichever handler the client happens to call first would decide whether
+-- we read the new spec or the old one. The spec itself is one call away and never stale.
+local function SpecRole()
+    if not (GetSpecialization and GetSpecializationInfo) then return end
+    local index = GetSpecialization()
+    if not index then return end
+    return select(5, GetSpecializationInfo(index))
+end
+
 UnitButton_UpdateRole = function(self)
     local unit = self.states.unit
     if not unit then return end
 
-    local role = UnitGroupRolesAssigned(unit)
+    -- 12.1: secret for identity-restricted units (boss frames); roleIcon:SetRole compares it
+    local role = F.Desecret(UnitGroupRolesAssigned(unit))
     self.states.role = role
+
+    -- Blizzard only ASSIGNS a role in real group content. Solo, world groups and delves all
+    -- answer "NONE" -- a delve hands the AI companion whatever role you picked for it and
+    -- gives the player none at all -- so the icon hid itself exactly where the frame is one
+    -- of two. GetRole() falls back to LibGroupInfo's spec-derived role, the same fallback
+    -- the power filters have used all along. states.role keeps the ASSIGNED value so nothing
+    -- else starts reading a derived role as an assigned one.
+    -- Respecs are covered by PLAYER_SPECIALIZATION_CHANGED (registered below); solo there is
+    -- no GROUP_ROSTER_UPDATE to do it for us.
+    local iconRole = role
+    if not iconRole or iconRole == "NONE" then
+        if unit == "player" or F.ToBool(UnitIsUnit(unit, "player")) then
+            iconRole = SpecRole() or role
+        else
+            iconRole = GetRole(self) or role
+        end
+    end
 
     local roleIcon = self.indicators.roleIcon
     if enabledIndicators["roleIcon"] then
 
-        roleIcon:SetRole(role)
+        roleIcon:SetRole(iconRole)
 
         --! check vehicle root
         -- Midnight 12.0.0+: guid may be secret for NPC/boss units
@@ -2184,9 +2226,10 @@ UnitButton_UpdateLeader = function(self, event)
             return
         end
 
-        local isLeader = UnitIsGroupLeader(unit)
+        -- 12.1: both return secret booleans for identity-restricted units
+        local isLeader = F.ToBool(UnitIsGroupLeader(unit))
         self.states.isLeader = isLeader
-        local isAssistant = UnitIsGroupAssistant(unit) and IsInRaid()
+        local isAssistant = F.ToBool(UnitIsGroupAssistant(unit)) and IsInRaid()
         self.states.isAssistant = isAssistant
 
         leaderIcon:SetIcon(isLeader, isAssistant)
@@ -2201,7 +2244,12 @@ local function UnitButton_UpdatePlayerRaidIcon(self)
 
     local playerRaidIcon = self.indicators.playerRaidIcon
 
+    -- 12.1: GetRaidTargetIndex answers with a SECRET number for a restricted unit, and a
+    -- secret is truthy -- so `if index then` passes and SetRaidTargetIconTexture does
+    -- arithmetic on it (raidTargetIndex - 1, mod, * 0.25) and throws. Group members are
+    -- normally readable; a charmed ally is not.
     local index = GetRaidTargetIndex(unit)
+    if not F.IsValueNonSecret(index) then index = nil end
 
     if enabledIndicators["playerRaidIcon"] then
         if index then
@@ -2221,7 +2269,10 @@ local function UnitButton_UpdateTargetRaidIcon(self)
 
     local targetRaidIcon = self.indicators.targetRaidIcon
 
+    -- Same secret gate as the player icon above, and this one hits it constantly: the
+    -- unit's target is usually a mob, which is exactly what "identity restricted" covers.
     local index = GetRaidTargetIndex(unit.."target")
+    if not F.IsValueNonSecret(index) then index = nil end
 
     if enabledIndicators["targetRaidIcon"] then
         if index then
@@ -2308,10 +2359,10 @@ end
 UnitButton_UpdatePower = function(self)
     if not (self._shouldShowPowerBar and self.states.power) then return end
 
-    -- Same reason as UpdatePowerMax: always use native SetValue on Midnight to stay
-    -- off the SmoothStatusBar tick, mirroring what the health bar does at line 2395.
+    -- Midnight stays off the SmoothStatusBar tick (see UpdatePowerMax) but still animates:
+    -- barInterp carries the easing into the engine's own SetValue.
     if Cell.isMidnight then
-        self.widgets.powerBar:SetValue(self.states.power)
+        self.widgets.powerBar:SetValue(self.states.power, ResolveBarInterp())
     else
         self.widgets.powerBar:SetBarValue(self.states.power)
     end
@@ -2388,9 +2439,10 @@ local function UnitButton_UpdateHealth(self, diff, skipStateUpdates)
         -- MIDNIGHT PATH: pass secret values directly to status bar
         local calc = self.widgets.healthCalculator
         local health = calc:GetCurrentHealth()
-        -- Always use native SetValue on Midnight — SetSmoothedValue (SetBarValue in Smooth mode)
-        -- is a Lua mixin that does Clamp() arithmetic, which fails on secret values.
-        self.widgets.healthBar:SetValue(health)
+        -- Native SetValue on Midnight — SetSmoothedValue (SetBarValue in Smooth mode) is a Lua
+        -- mixin that does Clamp() arithmetic, which fails on secret values. barInterp asks the
+        -- engine for the easing instead, so "Smooth" still animates a secret health value.
+        self.widgets.healthBar:SetValue(health, ResolveBarInterp())
         if barAnimationType == "Flash" then
             -- Flash: we can't compute exact diff without arithmetic on secrets, so skip precise flash
             B.HideFlash(self)
@@ -2513,6 +2565,20 @@ local function UnitButton_UpdateHealPrediction(self, skipStateUpdates)
     self.widgets.incomingHeal:SetValue(value / self.states.healthMax, self.states.healthPercent)
 end
 
+-- Toggle an overshield glow from a SECRET clamped-bool without reading it. SetAlphaFromBoolean
+-- (the Midnight-safe primitive DandersFrames uses) sets alpha = 1 when isClamped is true, 0 when
+-- false, so the texture stays Shown and alpha does the hiding. If the option is off, isClamped is
+-- unavailable, or the API is missing on this client, just hide the glow outright.
+function B.SetOvershieldGlow(glow, enabled, isClamped)
+    if not glow then return end
+    if enabled and isClamped ~= nil and glow.SetAlphaFromBoolean then
+        glow:Show()
+        glow:SetAlphaFromBoolean(isClamped, 1, 0)
+    else
+        glow:Hide()
+    end
+end
+
 UnitButton_UpdateShieldAbsorbs = function(self, skipStateUpdates)
     if Cell.isMidnight and self.widgets.healthCalculator then
         -- MIDNIGHT PATH: use calculator secret values
@@ -2528,42 +2594,46 @@ UnitButton_UpdateShieldAbsorbs = function(self, skipStateUpdates)
         if not unit then return end
         -- Refresh calculator so we have current data (critical for standalone UNIT_ABSORB_AMOUNT_CHANGED events)
         UnitButton_UpdateCalculator(self)
-        local absorbs = self.widgets.healthCalculator:GetDamageAbsorbs()
-        -- Update the shield widget bars
-        self.widgets.shieldBar:SetValue(absorbs)
-        self.widgets.shieldBar:Show()
-
-        -- Overshield glow and reverse-fill bar
-        -- NOTE: absorbs is a secret value on Midnight â€” we can't compare it to health to detect overshield.
-        -- Show the glow whenever shields are present and overshieldEnabled is on.
-        -- TODO: Use a Curve to map (absorbs + health - maxHealth) to glow visibility for precise overshield detection.
+        -- ⚠ GetDamageAbsorbs()'s FIRST return is the absorb CLAMPED to missing health, so at full
+        -- health it's 0 and the shield vanishes -- that was the "满血不显示护盾" bug. Its SECOND
+        -- return, isClamped, is a secret bool that's true when the absorb overflows past max health
+        -- (an overshield). Feed the bar the UNCLAMPED total instead (GetTotalDamageAbsorbs -- the
+        -- same source healthText uses, off the calculator we just refreshed) so the shield stays
+        -- visible at full health, and drive the overshield glow off isClamped -- never reading it
+        -- -- exactly like DandersFrames.
+        local _, isClamped = self.widgets.healthCalculator:GetDamageAbsorbs()
+        local totalAbsorbs = self.widgets.healthCalculator:GetTotalDamageAbsorbs()
+        -- Exactly ONE shield bar shows. Reverse fill draws from the RIGHT (the front of the health
+        -- bar, so the shield reads as extra HP); forward fill draws from the left over the health.
         if overshieldReverseFillEnabled then
-            self.widgets.shieldBarR:SetValue(absorbs)
+            self.widgets.shieldBar:Hide()
+            self.widgets.shieldBarR:SetValue(totalAbsorbs)
             self.widgets.shieldBarR:Show()
-            if overshieldEnabled then
-                self.widgets.overShieldGlowR:Show()
-            else
-                self.widgets.overShieldGlowR:Hide()
-            end
-            self.widgets.overShieldGlow:Hide()
         else
-            if overshieldEnabled then
-                self.widgets.overShieldGlow:Show()
-            else
-                self.widgets.overShieldGlow:Hide()
-            end
+            self.widgets.shieldBar:SetValue(totalAbsorbs)
+            self.widgets.shieldBar:Show()
             self.widgets.shieldBarR:Hide()
+        end
+        -- Overshield glow: independent direction toggle (overShieldGlowR = left edge, overShieldGlow
+        -- = right edge). Only the chosen one is driven by isClamped; the other is hidden.
+        if overshieldGlowReverseEnabled then
+            self.widgets.overShieldGlow:Hide()
+            B.SetOvershieldGlow(self.widgets.overShieldGlowR, overshieldEnabled, isClamped)
+        else
             self.widgets.overShieldGlowR:Hide()
+            B.SetOvershieldGlow(self.widgets.overShieldGlow, overshieldEnabled, isClamped)
         end
 
         -- Update shield indicator (user-configurable indicator on top of health bar)
         if enabledIndicators["shieldBar"] then
-            -- On Midnight, we pass the secret absorb value directly; the indicator's SetValue
-            -- accepts secrets since it's backed by a StatusBar on Midnight.
+            -- On Midnight the indicator is a StatusBar (see I.CreateShieldBar), so it takes the
+            -- raw secret absorb + maxHealth and lets the native fill resolve the fraction --
+            -- the pre-Midnight percent path can't touch secrets at all.
             -- NOTE: indicatorBooleans["shieldBar"] (onlyShowOvershields) can't be honored with
             -- secrets since we can't compute overshieldPercent. Show full absorbs instead.
+            -- The bar stays Shown even at 0 absorbs: a zero-width fill renders nothing.
             self.indicators.shieldBar:Show()
-            self.indicators.shieldBar:SetValue(absorbs)
+            self.indicators.shieldBar:SetValue(totalAbsorbs, self.widgets.healthCalculator:GetMaximumHealth())
         else
             self.indicators.shieldBar:Hide()
         end
@@ -2654,8 +2724,11 @@ local function UnitButton_UpdateThreat(self)
     local unit = self.states.displayedUnit
     if not unit or not UnitExists(unit) then return end
 
+    -- 12.1: UnitThreatSituation is SecretWhenUnitThreatStateRestricted. Party/raid allies are
+    -- normally readable, but a boss or a charmed ally is not -- and `status >= 1` on a secret
+    -- number is a hard error, so the comparison has to be gated, not just the nil check.
     local status = UnitThreatSituation(unit)
-    if status and status >= 1 then
+    if F.IsValueNonSecret(status) and status and status >= 1 then
         if enabledIndicators["aggroBlink"] then
             self.indicators.aggroBlink:ShowAggro(GetThreatStatusColor(status))
         end
@@ -2678,8 +2751,11 @@ local function UnitButton_UpdateThreatBar(self)
     if not unit or not UnitExists(unit) then return end
 
     -- isTanking, status, scaledPercentage, rawPercentage, threatValue = UnitDetailedThreatSituation(unit, mobUnit)
+    -- 12.1 splits this into TWO secret gates: `status` is SecretWhenUnitThreatStateRestricted,
+    -- the percentages are SecretWhenUnitThreatValuesRestricted. They do NOT move together, so
+    -- both need their own guard -- status because GetThreatStatusColor indexes a table with it.
     local _, status, scaledPercentage, rawPercentage = UnitDetailedThreatSituation(unit, "target")
-    if status then
+    if F.IsValueNonSecret(status) and status then
         self.indicators.aggroBar:Show()
         -- SetSmoothedValue is a Lua mixin whose Clamp() would throw every tick on a secret percentage.
         -- Fall back to native SetValue when the threat percent is secret.
@@ -2753,21 +2829,49 @@ local function UnitButton_UpdateVehicleStatus(self)
     local unit = self.states.unit
     if not unit then return end
 
+    local displayedUnit
     if UnitHasVehicleUI(unit) then -- or UnitInVehicle(unit) or UnitUsingVehicle(unit) then
-        self.states.inVehicle = true
         if unit == "player" then
-            self.states.displayedUnit = "vehicle"
+            displayedUnit = "vehicle"
         else
             -- local prefix, id, suffix = strmatch(unit, "([^%d]+)([%d]*)(.*)")
             local prefix, id = strmatch(unit, "([^%d]+)([%d]*)")
-            self.states.displayedUnit = prefix .. "pet" .. (id or "")
+            displayedUnit = prefix .. "pet" .. (id or "")
         end
+
+        -- ⚠ Do not adopt a token that does not resolve YET. UNIT_ENTERED_VEHICLE fires at the
+        -- START of the transition: "vehicle" is already a valid token by then, but it carries
+        -- no data, so the name reads UNKNOWNOBJECT ("未知目標") and every health read lands on
+        -- nothing. Adopting it there is sticky, too -- UpdateAll only re-runs when something
+        -- sets _updateRequired, so the frame stayed wrong for the whole ride.
+        --
+        -- Stay on the real unit instead and let the UNIT_PET retry (the vehicle rides in the
+        -- pet slot) pick it up once it exists. Same lesson as MiliUI_UnitFrames' EvalActiveUnit
+        -- -- see the comment on the UNIT_PET branch in UnitButton_OnEvent.
+        if not UnitExists(displayedUnit) then displayedUnit = nil end
+    end
+
+    if displayedUnit then
+        self.states.inVehicle = true
+        self.states.displayedUnit = displayedUnit
         self.indicators.nameText:UpdateVehicleName()
     else
         self.states.inVehicle = nil
         self.states.displayedUnit = self.states.unit
         self.indicators.nameText.vehicle:SetText("")
     end
+end
+
+-- 12.1: UnitIsAFK can return a SECRET boolean (or error) -- a direct boolean test on it
+-- is a hard Lua error, which is why AFK was blanket-skipped on Midnight. Read it safely
+-- instead (pcall + F.ToBool): true only when AFK is readable AND set, nil otherwise.
+-- Matches how DandersFrames reads it (pcall + canaccessvalue) -- it IS readable for
+-- party/raid members, so the old skip lost AFK unnecessarily.
+local function SafeIsAFK(unit)
+    if not UnitIsAFK then return nil end
+    local ok, v = pcall(UnitIsAFK, unit)
+    if not ok then return nil end
+    return F.ToBool(v)
 end
 
 UnitButton_UpdateStatusText = function(self)
@@ -2788,8 +2892,9 @@ UnitButton_UpdateStatusText = function(self)
         statusText:Show()
         statusText:SetStatus("OFFLINE")
         statusText:ShowTimer()
-    -- Midnight 12.0.0+: UnitIsAFK may return a secret boolean â€” skip on Midnight
-    elseif not Cell.isMidnight and UnitIsAFK(unit) then
+    -- 12.1: UnitIsAFK may be secret; SafeIsAFK reads it without erroring (was skipped
+    -- entirely on Midnight before, which lost AFK even when it's perfectly readable).
+    elseif SafeIsAFK(unit) then
         statusText:Show()
         statusText:SetStatus("AFK")
         statusText:ShowTimer()
@@ -2839,7 +2944,9 @@ local function UnitButton_UpdateName(self)
     -- However, any NAME COMPARISONS (name == something) will error if name is secret
     self.states.name = UnitName(unit)
     self.states.fullName = F.UnitFullName(unit)
-    self.states.class = UnitClassBase(unit)
+    -- 12.1: UnitClass/UnitClassBase are secret when the unit's identity is restricted, and
+    -- states.class is used as a RAID_CLASS_COLORS key downstream -- sanitise at the source
+    self.states.class = F.Desecret(UnitClassBase(unit))
     self.states.guid = UnitGUID(unit)
     self.states.isPlayer = UnitIsPlayer(unit)
 
@@ -2851,8 +2958,10 @@ UnitButton_UpdateNameTextColor = function(self)
     if not unit then return end
 
     if enabledIndicators["nameText"] then
+        -- 12.1: UnitIsCharmed returns a secret boolean whenever auras are secret (ie. in combat)
+        -- for anything other than the player/pet/vehicle tokens
         if indicatorColors["nameText"][1] == "class_color" or not UnitIsConnected(unit)
-        or ((UnitIsPlayer(unit) or UnitInPartyIsAI(unit)) and UnitIsCharmed(unit)) or self.states.inVehicle then
+        or ((UnitIsPlayer(unit) or UnitInPartyIsAI(unit)) and F.ToBool(UnitIsCharmed(unit))) or self.states.inVehicle then
             self.indicators.nameText:SetColor(F.GetUnitClassColor(unit))
         else
             self.indicators.nameText:SetColor(unpack(indicatorColors["nameText"][2]))
@@ -2878,7 +2987,7 @@ UnitButton_UpdateHealthColor = function(self)
     -- TODO: implement proper ColorCurve coloring for threshold/gradient modes once
     -- SetStatusBarColor secret color API is verified on PTR.
 
-    self.states.class = UnitClassBase(unit) --! update class
+    self.states.class = F.Desecret(UnitClassBase(unit)) --! update class
 
     local barR, barG, barB
     local lossR, lossG, lossB
@@ -2893,7 +3002,7 @@ UnitButton_UpdateHealthColor = function(self)
         if not UnitIsConnected(unit) then
             barR, barG, barB = 0.4, 0.4, 0.4
             lossR, lossG, lossB = 0.4, 0.4, 0.4
-        elseif UnitIsCharmed(unit) then
+        elseif F.ToBool(UnitIsCharmed(unit)) then
             barR, barG, barB, barA = 0.5, 0, 1, 1
             lossR, lossG, lossB, lossA = barR*0.2, barG*0.2, barB*0.2, 1
         elseif self.states.inVehicle then
@@ -3032,6 +3141,7 @@ local function UnitButton_RegisterEvents(self)
     self:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
+    self:RegisterEvent("UNIT_PET") -- the vehicle rides in the pet slot; see UnitButton_OnEvent
 
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("UNIT_FLAGS") -- afk
@@ -3044,6 +3154,10 @@ local function UnitButton_RegisterEvents(self)
 
     -- self:RegisterEvent("PARTY_LEADER_CHANGED") -- GROUP_ROSTER_UPDATE
     -- self:RegisterEvent("PLAYER_ROLES_ASSIGNED") -- GROUP_ROSTER_UPDATE
+    -- the role icon falls back to the spec's role when nothing is assigned (delves, solo,
+    -- world groups -- see UnitButton_UpdateRole), and a solo respec fires nothing else that
+    -- would re-read it
+    self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
@@ -3092,13 +3206,42 @@ local function UnitButton_UnregisterEvents(self)
 end
 
 local function UnitButton_OnEvent(self, event, unit, arg)
+    -- Handled ahead of the unit filter on purpose: the event's unit is "player", which does
+    -- not match a button whose token is "raid5", and every button re-reads only its own role.
+    if event == "PLAYER_SPECIALIZATION_CHANGED" then
+        UnitButton_UpdateRole(self)
+        return
+    end
+
     if unit and (self.states.displayedUnit == unit or self.states.unit == unit) then
         if  event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_CONNECTION" then
             self._updateRequired = 1
             self._powerUpdateRequired = 1
 
+        elseif event == "UNIT_PET" then
+            -- The retry that makes the vehicle actually land. UNIT_ENTERED_VEHICLE fires at the
+            -- start of the transition, when "vehicle" / "<unit>pet" resolves as a token but has
+            -- no data behind it; UNIT_PET is what fires once the vehicle materialises in the pet
+            -- slot. Without it nothing ever re-reads, and the row kept the name and health it
+            -- saw mid-transition -- the "未知目標 + wrong health while in a vehicle" report.
+            -- (MiliUI_UnitFrames watches exactly these three events for the same reason.)
+            --
+            -- Gated on the vehicle state so an ordinary pet summon does not drag every owner's
+            -- button through a full UpdateAll: UnitHasVehicleUI is already true by this point
+            -- when we are entering, and inVehicle covers the leaving side.
+            if self.states.inVehicle or (self.states.unit and UnitHasVehicleUI(self.states.unit)) then
+                self._updateRequired = 1
+                self._powerUpdateRequired = 1
+            end
+
         elseif event == "UNIT_NAME_UPDATE" then
             UnitButton_UpdateName(self)
+            -- The vehicle line is UnitName(displayedUnit), and this event is registered
+            -- precisely for names that arrive as UNKNOWNOBJECT and resolve later. Nothing else
+            -- re-reads it, so without this the vehicle label keeps whatever it first saw.
+            if self.states.inVehicle then
+                self.indicators.nameText:UpdateVehicleName()
+            end
             UnitButton_UpdateNameTextColor(self)
             UnitButton_UpdateHealthColor(self)
             UnitButton_UpdateHealthTextColor(self)
@@ -3469,8 +3612,16 @@ end
 function B.UpdateShields(button)
     predictionEnabled = CellDB["appearance"]["healPrediction"][1]
     shieldEnabled = CellDB["appearance"]["shield"][1]
-    overshieldEnabled = CellDB["appearance"]["overshield"][1]
+    -- OVERSHIELD (12.1): overshield = the absorb clamped past max health. We can't COMPUTE it
+    -- (absorbs/health/max are all secret), but healthCalculator:GetDamageAbsorbs() returns an
+    -- `isClamped` secret bool as its 2nd value -- true exactly when there's an overshield. The
+    -- glow's visibility is driven off that bool via SetAlphaFromBoolean, never reading it. This
+    -- is how DandersFrames shows overshields at full health. Detection restored.
+    overshieldEnabled = shieldEnabled and CellDB["appearance"]["overshield"][1]
     overshieldReverseFillEnabled = shieldEnabled and CellDB["appearance"]["overshieldReverseFill"]
+    -- Overshield-glow direction is its OWN toggle (default off), independent of the shield bar's
+    -- fill direction: the bar can fill from the front while the overshield glow sits on either edge.
+    overshieldGlowReverseEnabled = shieldEnabled and CellDB["appearance"]["overshieldGlowReverse"]
     absorbEnabled = CellDB["appearance"]["healAbsorb"][1]
     absorbInvertColor = CellDB["appearance"]["healAbsorbInvertColor"]
 
@@ -4038,6 +4189,14 @@ end
 function B.UpdateAnimation(button)
     barAnimationType = CellDB["appearance"]["barAnimation"]
 
+    -- Midnight drives easing through SetValue's second argument instead of the mixin. Passing
+    -- nil is identical to the one-argument SetValue, so a client without the enum just snaps.
+    if Cell.isMidnight then
+        barInterp = (barAnimationType == "Smooth") and SBI_SMOOTH or SBI_IMMEDIATE
+    else
+        barInterp = nil
+    end
+
     if barAnimationType == "Smooth" then
         button.widgets.healthBar.SetBarValue = button.widgets.healthBar.SetSmoothedValue
         button.widgets.powerBar.SetBarValue = button.widgets.powerBar.SetSmoothedValue
@@ -4109,7 +4268,6 @@ function B.UpdatePixelPerfect(button, updateIndicators)
         end
     end
 
-    button.widgets.srIcon:UpdatePixelPerfect()
 end
 
 B.UpdateAll = UnitButton_UpdateAll
@@ -4267,17 +4425,9 @@ function CellUnitButton_OnLoad(button)
     tsGlowFrame:SetFrameLevel(button:GetFrameLevel()+200)
     tsGlowFrame:SetAllPoints(button)
 
-    --* srGlowFrame (Spell Request)
-    local srGlowFrame = CreateFrame("Frame", name.."SRGlowFrame", button)
-    button.widgets.srGlowFrame = srGlowFrame
-    srGlowFrame:SetFrameLevel(button:GetFrameLevel()+200)
-    srGlowFrame:SetAllPoints(button)
-
-    --* drGlowFrame (Dispel Request)
-    local drGlowFrame = CreateFrame("Frame", name.."DRGlowFrame", button)
-    button.widgets.drGlowFrame = drGlowFrame
-    drGlowFrame:SetFrameLevel(button:GetFrameLevel()+200)
-    drGlowFrame:SetAllPoints(button)
+    --* srGlowFrame / drGlowFrame (Spell + Dispel Request): both features are gone on 12.x
+    --* (comm blocked in encounters, aura reads restricted, CLEU unavailable), and with them
+    --* two frames per unit button that had nothing left to draw.
 
     --* highLevelFrame
     local highLevelFrame = CreateFrame("Frame", name.."HighLevelFrame", button)
@@ -4485,7 +4635,6 @@ function CellUnitButton_OnLoad(button)
     I.CreatePlayerRaidIcon(button)
     I.CreateTargetRaidIcon(button)
     I.CreateShieldBar(button)
-    I.CreateAoEHealing(button)
     I.CreateTankActiveMitigation(button)
     -- I.CreateDefensiveCooldowns(button)
     -- I.CreateExternalCooldowns(button)
@@ -4500,8 +4649,6 @@ function CellUnitButton_OnLoad(button)
     I.CreateActions(button)
     I.CreateMissingBuffs(button)
     I.CreateHealthThresholds(button)
-    U.CreateSpellRequestIcon(button)
-    U.CreateDispelRequestText(button)
 
     button._waitingForIndicatorCreation = true
 

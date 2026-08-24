@@ -1,8 +1,25 @@
 local _, Cell = ...
+local L = Cell.L
 ---@type CellFuncs
 local F = Cell.funcs
 ---@class CellUnitButtonFuncs
 local I = Cell.iFuncs
+
+--! The name a player SEES.
+--!
+--! A built-in is localized by its name. A CUSTOM indicator's name is free text and must never
+--! go through the locale table -- someone who names a row "Size" would find it translated out
+--! from under them. The exception is a row CELL created for them (the Healers row): those
+--! carry a nameKey, and only that key is localized. Storing the key instead of the localized
+--! string is what makes it real i18n: the name follows the client language, and a profile
+--! exported from a zhTW client shows up in English on an enUS one instead of dragging Chinese
+--! along. Renaming clears the key -- from that moment the name belongs to the player.
+function I.GetIndicatorName(t)
+    if type(t) ~= "table" then return "" end
+    if t["type"] == "built-in" then return L[t["name"]] end
+    if t["nameKey"] then return L[t["nameKey"]] end
+    return t["name"] or ""
+end
 
 -------------------------------------------------
 -- custom indicator
@@ -17,17 +34,22 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["enabled"] = true,
             ["position"] = {"TOPRIGHT", "button", "TOPRIGHT", 0, 3},
             ["frameLevel"] = 5,
-            ["size"] = {13, 13},
+            ["size"] = {16, 16},
             ["font"] = {
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
             },
             ["showStack"] = true,
-            ["showDuration"] = false,
+            ["showDuration"] = true,
             ["showAnimation"] = true,
+            -- "border" / "clock" / "vertical" / "none"; showAnimation is kept around for
+            -- profiles shared with an older Cell
+            ["animationStyle"] = "border",
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}},
+            -- countdown colour-by-time: {enabled, base, {en,sec,col}, {en,sec,col}}
+            ["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
         }
     elseif type == "text" then
         t = {
@@ -38,7 +60,9 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["position"] = {"TOPRIGHT", "button", "TOPRIGHT", 0, 3},
             ["frameLevel"] = 5,
             ["font"] = {"Cell " .. _G.DEFAULT, 12, "Outline", false},
-            ["colors"] = {{0, 1, 0, 1}, {false, 0.5, {1, 1, 0, 1}}, {false, 3, {1, 0, 0, 1}}},
+            -- countdown colour-by-time: {enabled, base, {en,sec,col}, {en,sec,col}} (replaces
+            -- the old percent/seconds "colors" widget -- text now uses the unified seconds one)
+            ["durationColor"] = {false, {0, 1, 0, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
             ["auraType"] = auraType,
             ["auras"] = {},
             ["duration"] = {
@@ -137,9 +161,14 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["showStack"] = true,
             ["showDuration"] = false,
             ["showAnimation"] = true,
+            -- "border" / "clock" / "vertical" / "none"; showAnimation is kept around for
+            -- profiles shared with an older Cell
+            ["animationStyle"] = "border",
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}},
+            -- countdown colour-by-time: {enabled, base, {en,sec,col}, {en,sec,col}}
+            ["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
         }
     elseif type == "color" then
         t = {
@@ -202,6 +231,8 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["frameLevel"] = 5,
             ["size"] = {10, 10},
             ["colors"] = {"duration", {0, 1, 0, 1}, {false, 0.5, {1, 1, 0, 1}}, {false, 3, {1, 0, 0, 1}}, {0, 0, 0, 1}},
+            -- countdown colour-by-time (number): {enabled, base, {en,sec,col}, {en,sec,col}}
+            ["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
             ["font"] = {
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
@@ -268,7 +299,7 @@ end
 -------------------------------------------------
 function I.GetDebuffTypeColor(debuffType)
     -- Midnight 12.0.0+: debuffType may be secret; cannot use as table key
-    if issecretvalue and issecretvalue(debuffType) then return 0, 0, 0 end
+    if not F.IsValueNonSecret(debuffType) then return 0, 0, 0 end
     if debuffType and CellDB["debuffTypeColor"][debuffType] then
         return CellDB["debuffTypeColor"][debuffType]["r"], CellDB["debuffTypeColor"][debuffType]["g"],
             CellDB["debuffTypeColor"][debuffType]["b"]

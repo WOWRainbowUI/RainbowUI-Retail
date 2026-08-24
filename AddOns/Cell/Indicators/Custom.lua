@@ -28,6 +28,16 @@ Cell.snippetVars.customIndicators = customIndicators
 
 --! init enabledIndicators & customIndicators
 function I.UpdateIndicatorTable(indicatorTable)
+    -- ⚠ Only user-created indicators belong here -- the caller walks from
+    -- Cell.defaults.builtIns + 1. If that split point and the actual layout ever disagree (a
+    -- layout that missed a migration, or a new built-in added without bumping builtIns), a
+    -- built-in entry lands here with no ["auras"] and ipairs(nil) throws on EVERY roster
+    -- update. Skipping is strictly better than erroring: the built-in is already driven by its
+    -- own code path, and a genuinely broken custom entry just goes quiet instead of spamming.
+    if indicatorTable["type"] == "built-in" or type(indicatorTable["auras"]) ~= "table" then
+        return
+    end
+
     local indicatorName = indicatorTable["indicatorName"]
     local auraType = indicatorTable["auraType"]
 
@@ -75,6 +85,16 @@ end
 
 function I.CreateIndicator(parent, indicatorTable)
     local indicatorName = indicatorTable["indicatorName"]
+
+    -- This function overwrites parent.indicators[indicatorName] below. If one already
+    -- exists, its AuraContainer is parented to the BUTTON (not to the indicator), so
+    -- dropping the reference alone leaves it live and still bound to the unit -- it keeps
+    -- rendering a stuck icon at the old position forever. Tear it down before orphaning it.
+    local existing = parent.indicators[indicatorName]
+    if existing and I.UnregisterContainerIndicator then
+        I.UnregisterContainerIndicator(parent, existing)
+    end
+
     local indicator
     if indicatorTable["type"] == "icon" then
         indicator = I.CreateAura_BarIcon(nil, parent.widgets.indicatorFrame)
@@ -105,11 +125,41 @@ function I.CreateIndicator(parent, indicatorTable)
     end
     parent.indicators[indicatorName] = indicator
 
+    -- 12.1 "Route A": back icon-type BUFF indicators with a Blizzard AuraContainer so they
+    -- keep updating in combat -- the manual aura scan cannot, because auras are secret
+    -- there. Friendly-unit BUFFS may still be filtered by spell ID, which is what makes
+    -- this possible (the ban covers debuffs on friendly units).
+    -- Effect types (color/glow/border/overlay/text/bar/...) stay on the manual path: they
+    -- render aura PRESENCE rather than icons, and presence is secret.
+    -- NOTE: trackByName matches by name in the manual path; the container matches the
+    -- configured IDs exactly (candidateFilters has no name form).
+    -- 12.1 "Route A" now also covers effect-type BUFF indicators: block and text render aura
+    -- PRESENCE, which the manual path cannot read once auras are secret. The container drives
+    -- visibility so they update in combat -- as a fixed-colour block or a bare countdown/stack
+    -- number (no time-based recolour; remaining duration stays secret). See StyleButton.
+    local ctype = indicatorTable["type"]
+    local isIconish  = ctype == "icon" or ctype == "icons"
+    local isEffectish = ctype == "block" or ctype == "text"
+    if indicator and indicatorTable["auraType"] == "buff" and I.AttachBuffContainer
+        and (isIconish or isEffectish) then
+        local isMulti = ctype == "icons"
+        local customStyle = isEffectish and ctype or nil
+        I.AttachBuffContainer(parent, indicator, function(t)
+            local ids = {}
+            for _, id in pairs(t["auras"] or {}) do
+                if type(id) == "number" then ids[id] = true end
+            end
+            return ids
+        end, isMulti and (indicatorTable["num"] or 3) or 1,
+        true, customStyle) -- ring/fill colour comes from the indicator's own 顏色 setting
+    end
+
     return indicator
 end
 
 function I.RemoveIndicator(parent, indicatorName, auraType)
     local indicator = parent.indicators[indicatorName]
+    if I.UnregisterContainerIndicator then I.UnregisterContainerIndicator(parent, indicator) end
     indicator:ClearAllPoints()
     indicator:Hide()
     indicator:SetParent(nil)
@@ -128,6 +178,7 @@ function I.RemoveAllCustomIndicators(parent)
 
     for indicatorName, indicator in pairs(parent.indicators) do
         if string.find(indicatorName, "^indicator") then
+            if I.UnregisterContainerIndicator then I.UnregisterContainerIndicator(parent, indicator) end
             indicator:ClearAllPoints()
             indicator:Hide()
             indicator:SetParent(nil)
@@ -253,6 +304,24 @@ local function Update(indicator, indicatorTable, unit, spell, start, duration, d
 end
 
 function I.UpdateCustomIndicators(unitButton, auraInfo)
+    -- ⚠ A PER-AURA secrecy gate is required here, not just the content-level one.
+    -- UnitButton_UpdateAuras bails on C_Secrets.ShouldAurasBeSecret(), but that answers for the
+    -- CONTENT, not for one aura -- an individual aura on a raid member can still come back
+    -- wholly secret while it says false, which is how this function was reached at all.
+    -- Three reads below are boolean tests on fields that are secret exactly then (isHelpful on
+    -- the next line, isHarmful twice after it), and a boolean test on a secret boolean is a
+    -- hard error, not a nil -- so it threw before the function could do anything.
+    --
+    -- Bailing loses nothing. A secret aura cannot match an indicator further down either: its
+    -- spell ID and name are unusable as table keys (the lookup is explicitly skipped for
+    -- secrets), and the "track any aura" wildcard branch needs duration ~= 0 while the secret
+    -- path below forces duration to 0. The whole body was already dead work for these auras.
+    --
+    -- Both checks earn their place: IsAuraNonSecret is the sentinel the rest of this function
+    -- and HandleBuff already use (it reads spellId), and the second one guards the exact field
+    -- that crashed rather than assuming a payload is always secret as a whole.
+    if not F.IsAuraNonSecret(auraInfo) or not F.IsValueNonSecret(auraInfo.isHelpful) then return end
+
     local unit = unitButton.states.displayedUnit
 
     local auraType = auraInfo.isHelpful and "buff" or "debuff"
@@ -282,7 +351,10 @@ function I.UpdateCustomIndicators(unitButton, auraInfo)
     end
 
     for indicatorName, indicatorTable in pairs(customIndicators[auraType]) do
-        if indicatorName and enabledIndicators[indicatorName] and unitButton.indicators[indicatorName] then
+        -- Skip indicators an AuraContainer backs: they drive themselves from SetUnit and
+        -- keep working while auras are secret, which this manual path cannot.
+        if indicatorName and enabledIndicators[indicatorName] and unitButton.indicators[indicatorName]
+            and not unitButton.indicators[indicatorName].container then
             local spell  --* trackByName
             if indicatorTable["trackByName"] then
                 spell = auraInfo.name
@@ -323,7 +395,7 @@ function I.ShowCustomIndicators(unitButton, auraType)
     local unit = unitButton.states.displayedUnit
     for indicatorName, indicatorTable in pairs(customIndicators[auraType]) do
         local indicator = unitButton.indicators[indicatorName]
-        if indicator and enabledIndicators[indicatorName] then
+        if indicator and enabledIndicators[indicatorName] and not indicator.container then
             if indicatorTable["num"] then
                 local t = indicatorTable["found"][unit]
                 if t[1] then

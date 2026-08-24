@@ -1,6 +1,10 @@
 local addonName, Cell = ...
 
 -- number of built-in indicators
+-- ⚠ This is the built-in/custom SPLIT POINT, not just a count: everything at a HIGHER index in
+-- layout["indicators"] is treated as a user-created indicator (I.ResetCustomIndicatorTables,
+-- Copy, Import). Adding a built-in without bumping this makes the new entry get parsed as a
+-- custom one, and it dies on the missing ["auras"] field. Keep it == #Cell.defaults.layout.indicators.
 Cell.defaults.builtIns = 30
 
 Cell.defaults.indicatorIndices = {
@@ -20,20 +24,24 @@ Cell.defaults.indicatorIndices = {
     ["aggroBar"] = 14,
     ["aggroBorder"] = 15,
     ["shieldBar"] = 16,
-    ["aoeHealing"] = 17,
-    ["externalCooldowns"] = 18,
-    ["defensiveCooldowns"] = 19,
-    ["allCooldowns"] = 20,
-    ["tankActiveMitigation"] = 21,
-    ["dispels"] = 22,
-    ["debuffs"] = 23,
-    ["raidDebuffs"] = 24,
-    ["privateAuras"] = 25,
-    ["targetedSpells"] = 26,
-    ["targetCounter"] = 27,
-    ["crowdControls"] = 28,
-    ["actions"] = 29,
-    ["missingBuffs"] = 30,
+    ["externalCooldowns"] = 17,
+    ["defensiveCooldowns"] = 18,
+    ["allCooldowns"] = 19,
+    ["tankActiveMitigation"] = 20,
+    ["dispels"] = 21,
+    ["debuffs"] = 22,
+    ["raidDebuffs"] = 23,
+    ["privateAuras"] = 24,
+    ["targetedSpells"] = 25,
+    ["targetCounter"] = 26,
+    ["crowdControls"] = 27,
+    ["actions"] = 28,
+    ["missingBuffs"] = 29,
+    -- ⚠ These indices ARE the positions in layout["indicators"]. A new built-in only ever goes
+    -- on the END -- inserting in the middle renumbers every saved layout out from under itself.
+    -- Removing one (AoE Healing, 2026-08-24) is only safe because the validation pass in
+    -- Revise.lua re-indexes saved layouts BY NAME, plus a one-shot strip for the stale slot.
+    ["offensiveCooldowns"] = 30,
 }
 
 Cell.defaults.layout = {
@@ -43,7 +51,7 @@ Cell.defaults.layout = {
         ["sortByRole"] = false,
         ["roleOrder"] = {"TANK", "HEALER", "DAMAGER"},
         ["hideSelf"] = false,
-        ["size"] = {66, 46},
+        ["size"] = {100, 50},
         ["position"] = {},
         ["powerSize"] = 2,
         ["orientation"] = "vertical",
@@ -61,7 +69,7 @@ Cell.defaults.layout = {
         ["raidEnabled"] = false,
         ["sameSizeAsMain"] = true,
         ["sameArrangementAsMain"] = true,
-        ["size"] = {66, 46},
+        ["size"] = {100, 50},
         ["position"] = {},
         ["powerSize"] = 2,
         ["orientation"] = "vertical",
@@ -74,7 +82,7 @@ Cell.defaults.layout = {
         ["separate"] = false,
         ["sameSizeAsMain"] = true,
         ["sameArrangementAsMain"] = true,
-        ["size"] = {66, 46},
+        ["size"] = {100, 50},
         ["position"] = {},
         ["powerSize"] = 2,
         ["orientation"] = "vertical",
@@ -88,7 +96,7 @@ Cell.defaults.layout = {
         ["units"] = {},
         ["sameSizeAsMain"] = true,
         ["sameArrangementAsMain"] = true,
-        ["size"] = {66, 46},
+        ["size"] = {100, 50},
         ["position"] = {},
         ["powerSize"] = 2,
         ["orientation"] = "vertical",
@@ -130,7 +138,7 @@ Cell.defaults.layout = {
             ["font"] = {"Cell ".._G.DEFAULT, 13, "None", true},
             ["color"] = {"custom_color", {1, 1, 1}},
             ["vehicleNamePosition"] = {"TOP", 0},
-            ["textWidth"] = {"percentage", 0.75},
+            ["textWidth"] = {"percentage", 1},
             ["showGroupNumber"] = false,
         }, -- 1
         {
@@ -333,14 +341,6 @@ Cell.defaults.layout = {
             ["onlyShowOvershields"] = false,
         }, -- 16
         {
-            ["name"] = "AoE Healing",
-            ["indicatorName"] = "aoeHealing",
-            ["type"] = "built-in",
-            ["enabled"] = true,
-            ["height"] = 10,
-            ["color"] = {1, 1, 0},
-        }, -- 17
-        {
             ["name"] = "External Cooldowns",
             ["indicatorName"] = "externalCooldowns",
             ["type"] = "built-in",
@@ -348,7 +348,7 @@ Cell.defaults.layout = {
             ["position"] = {"RIGHT", "button", "RIGHT", 2, 5},
             ["frameLevel"] = 10,
             ["size"] = {12, 20},
-            ["showDuration"] = false,
+            ["showDuration"] = 60, -- only under 60s
             ["showAnimation"] = true,
             ["num"] = 2,
             ["orientation"] = "right-to-left",
@@ -357,43 +357,50 @@ Cell.defaults.layout = {
                 {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
             },
             ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
-        }, -- 18
+        }, -- 17
         {
             ["name"] = "Defensive Cooldowns",
             ["indicatorName"] = "defensiveCooldowns",
             ["type"] = "built-in",
             ["enabled"] = true,
-            ["position"] = {"LEFT", "button", "LEFT", -2, 5},
+            -- ⚠ Pinned by OUR RIGHT edge to the button's LEFT edge, not left-to-left. This row
+            -- hangs off the side of the frame and its width follows how many icons are actually
+            -- up, which differs per class/spec -- so with a left-to-left pin the edge FACING the
+            -- frame is width away from the anchor and the gap jumps every time you swap
+            -- characters. Pinning the facing edge keeps the gap at x and lets the row grow
+            -- outward, which is also why the orientation below flows away from the frame.
+            ["position"] = {"RIGHT", "button", "LEFT", -2, 5},
+            ["frameLevel"] = 10,
+            ["size"] = {12, 20},
+            ["showDuration"] = 60, -- only under 60s
+            ["showAnimation"] = true,
+            ["num"] = 2,
+            ["orientation"] = "right-to-left",  -- flows away from the frame
+            ["font"] = {
+                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
+                {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
+            },
+            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+        }, -- 18
+        {
+            ["name"] = "Externals + Defensives",
+            ["indicatorName"] = "allCooldowns",
+            ["type"] = "built-in",
+            ["enabled"] = false,
+            -- same side, same reasoning as Defensive Cooldowns above
+            ["position"] = {"RIGHT", "button", "LEFT", -2, 5},
             ["frameLevel"] = 10,
             ["size"] = {12, 20},
             ["showDuration"] = false,
             ["showAnimation"] = true,
             ["num"] = 2,
-            ["orientation"] = "left-to-right",
+            ["orientation"] = "right-to-left",  -- flows away from the frame
             ["font"] = {
                 {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
                 {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
             },
             ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
         }, -- 19
-        {
-            ["name"] = "Externals + Defensives",
-            ["indicatorName"] = "allCooldowns",
-            ["type"] = "built-in",
-            ["enabled"] = false,
-            ["position"] = {"LEFT", "button", "LEFT", -2, 5},
-            ["frameLevel"] = 10,
-            ["size"] = {12, 20},
-            ["showDuration"] = false,
-            ["showAnimation"] = true,
-            ["num"] = 2,
-            ["orientation"] = "left-to-right",
-            ["font"] = {
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
-            },
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
-        }, -- 20
         {
             ["name"] = "Tank Active Mitigation",
             ["indicatorName"] = "tankActiveMitigation",
@@ -403,7 +410,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 5,
             ["size"] = {20, 6},
             ["color"] = {"class_color", {0.25, 1, 0}},
-        }, -- 21
+        }, -- 20
         {
             ["name"] = "Dispels",
             ["indicatorName"] = "dispels",
@@ -423,7 +430,7 @@ Cell.defaults.layout = {
             ["highlightType"] = "gradient-half",
             ["iconStyle"] = "blizzard",
             ["orientation"] = "right-to-left",
-        }, -- 22
+        }, -- 21
         {
             ["name"] = "Debuffs",
             ["indicatorName"] = "debuffs",
@@ -431,21 +438,27 @@ Cell.defaults.layout = {
             ["enabled"] = true,
             ["position"] = {"BOTTOMLEFT", "button", "BOTTOMLEFT", 1, 4},
             ["frameLevel"] = 5,
-            ["size"] = {{13, 13}, {17, 17}},
-            ["showDuration"] = false,
+            ["size"] = {15, 15},
+            ["showDuration"] = 60, -- only under 60s
             ["showAnimation"] = true,
             ["showTooltip"] = false,
             ["enableBlacklistShortcut"] = false,
-            ["num"] = 3,
+            ["num"] = 4,
             ["font"] = {
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
+                -- stack: size 8, anchored TOP (+0, +4)
+                {"Cell ".._G.DEFAULT, 8, "Outline", false, "TOP", 0, 4, {1, 1, 1}},
+                -- duration: size 11
                 {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
             },
             ["dispellableByMe"] = false,
+            -- subtract whatever the Important Debuffs display is claiming, so the same
+            -- aura is never drawn in both places. Reads that indicator's five category
+            -- toggles live; does nothing while it is disabled.
+            ["excludeImportant"] = true,
             ["orientation"] = "left-to-right",
-        }, -- 23
+        }, -- 22
         {
-            ["name"] = "Raid Debuffs",
+            ["name"] = "Important Debuffs",
             ["indicatorName"] = "raidDebuffs",
             ["type"] = "built-in",
             ["enabled"] = true,
@@ -453,32 +466,45 @@ Cell.defaults.layout = {
             ["frameLevel"] = 20,
             ["size"] = {22, 22},
             ["border"] = 2,
-            ["num"] = 1,
-            ["showDuration"] = true,
+            ["num"] = 3,
+            ["showDuration"] = 60, -- only under 60s
+            -- 12.1: each toggle adds or drops one Blizzard-side AuraGroup. All five on by
+            -- default -- the point of the indicator is "one debuff that matters, whichever
+            -- kind it is". See BuildRecords in RaidFrames/AuraDisplay.lua.
+            ["filters"] = {
+                ["bossRole"] = true,     -- candidateFilters.isBossOrRoleAura
+                ["priority"] = true,     -- candidateFilters.isPriorityAura
+                ["crowdControl"] = true, -- HARMFUL|CROWD_CONTROL
+                ["raid"] = true,         -- HARMFUL|RAID
+                ["dispellable"] = true,  -- HARMFUL|RAID_PLAYER_DISPELLABLE
+            },
             ["font"] = {
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
+                -- stack: size 9, anchored TOP (+0, +5)
+                {"Cell ".._G.DEFAULT, 9, "Outline", false, "TOP", 0, 5, {1, 1, 1}},
+                -- duration: size 12 (Midnight renders the countdown centered on the icon)
+                {"Cell ".._G.DEFAULT, 12, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
             },
             ["onlyShowTopGlow"] = false,
             ["orientation"] = "left-to-right",
             ["showTooltip"] = false,
-        }, -- 24
+        }, -- 23
         {
             ["name"] = "Private Auras",
             ["indicatorName"] = "privateAuras",
             ["type"] = "built-in",
-            ["enabled"] = true,
+            ["enabled"] = false,
             ["position"] = {"TOP", "button", "TOP", 0, 3},
             ["frameLevel"] = 25,
             ["size"] = {18, 18},
             ["privateAuraOptions"] = {true, false},
-        }, -- 25
+        }, -- 24
         {
             ["name"] = "Targeted Spells",
             ["indicatorName"] = "targetedSpells",
             ["type"] = "built-in",
             ["enabled"] = true,
             ["showAllSpells"] = false,
+            ["displayMode"] = "Both",
             ["position"] = {"TOPLEFT", "button", "TOPLEFT", -4, 4},
             ["frameLevel"] = 50,
             ["size"] = {20, 20},
@@ -486,7 +512,7 @@ Cell.defaults.layout = {
             ["num"] = 1,
             ["font"] = {"Cell ".._G.DEFAULT, 12, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
             ["orientation"] = "left-to-right",
-        }, -- 26
+        }, -- 25
         {
             ["name"] = "Target Counter",
             ["indicatorName"] = "targetCounter",
@@ -501,7 +527,7 @@ Cell.defaults.layout = {
                 ["pve"] = false,
                 ["pvp"] = true,
             },
-        }, -- 27
+        }, -- 26
         {
             ["name"] = "Crowd Controls",
             ["indicatorName"] = "crowdControls",
@@ -519,14 +545,14 @@ Cell.defaults.layout = {
             },
             ["dispellableByMe"] = false,
             ["orientation"] = "left-to-right",
-        }, -- 28
+        }, -- 27
         {
             ["name"] = "Actions",
             ["indicatorName"] = "actions",
             ["type"] = "built-in",
             ["enabled"] = true,
             ["speed"] = 1,
-        }, -- 29
+        }, -- 28
         {
             ["name"] = "Missing Buffs",
             ["indicatorName"] = "missingBuffs",
@@ -536,6 +562,29 @@ Cell.defaults.layout = {
             ["frameLevel"] = 10,
             ["size"] = {13, 13},
             ["orientation"] = "right-to-left",
+        }, -- 29
+        {
+            -- Off by default: it is a raid-lead / analysis tool, not something every healer
+            -- wants competing with the defensive row for space on the frame.
+            ["name"] = "Offensive Cooldowns",
+            ["indicatorName"] = "offensiveCooldowns",
+            ["type"] = "built-in",
+            ["enabled"] = false,
+            -- Geometry tuned in-game rather than guessed: a wide, short pair of icons
+            -- hanging just under the top edge, centred, so it reads as its own row instead
+            -- of crowding the defensive column down the left side.
+            ["position"] = {"CENTER", "button", "TOP", 0, -7},
+            ["frameLevel"] = 10,
+            ["size"] = {22, 12},
+            ["showDuration"] = 60, -- only under 60s
+            ["showAnimation"] = true,
+            ["num"] = 2,
+            ["orientation"] = "left-to-right",
+            ["font"] = {
+                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
+                {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
+            },
+            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
         }, -- 30
     },
 }

@@ -184,12 +184,30 @@ local function HandleBuff(self, auraInfo)
     local count = auraInfo.applications
     -- local debuffType = auraInfo.isHarmful and auraInfo.dispelName
     local expirationTime = auraInfo.expirationTime or 0
-    local start = expirationTime - auraInfo.duration
     local duration = auraInfo.duration
     local source = auraInfo.sourceUnit
     local spellId = auraInfo.spellId
     -- local attribute = auraInfo.points[1] -- UnitAura:arg16
 
+    -- 12.1: nothing below survives a secret aura -- every branch either does arithmetic on the
+    -- temporal fields, compares source, looks name/spellId up in a table, or keys the caches by
+    -- auraInstanceID, and all of those are immediate Lua errors on a secret. The global
+    -- ShouldAurasBeSecret bail in QuickAssist_UpdateAuras does NOT cover this: outside
+    -- restricted content the global state is clear while individual auras still come back
+    -- secret. Skip the aura instead.
+    if Cell.isMidnight and (
+        not F.IsValueNonSecret(auraInstanceID)
+        or not F.IsValueNonSecret(name)
+        or not F.IsValueNonSecret(spellId)
+        or not F.IsValueNonSecret(source)
+        or not F.IsValueNonSecret(count)
+        or not F.IsValueNonSecret(expirationTime)
+        or not F.IsValueNonSecret(duration)
+    ) then
+        return
+    end
+
+    local start = expirationTime - duration
     local refreshing = false
 
     if duration then
@@ -232,6 +250,14 @@ local function QuickAssist_UpdateAuras(self, updateInfo)
 
     local buffsChanged
 
+    -- 12.1: secret UNIT_AURA payload can neither be diffed nor rescanned via GetAuraSlots.
+    -- The CanDiffAuraPayload guard only covers INCREMENTAL updates; a FULL update
+    -- (updateInfo == nil) reaches ForEachAura -> GetAuraSlots below, which Lua-errors while
+    -- auras are secret. Bail on the secret state so both paths keep the last known state.
+    if C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret() then return end
+
+    if updateInfo ~= nil and not F.CanDiffAuraPayload(updateInfo) then return end
+
     if not updateInfo or updateInfo.isFullUpdate then
         wipe(self._buffs_cache)
         wipe(self._buffs_count_cache)
@@ -245,13 +271,18 @@ local function QuickAssist_UpdateAuras(self, updateInfo)
 
         if updateInfo.updatedAuraInstanceIDs then
             for _, auraInstanceID in pairs(updateInfo.updatedAuraInstanceIDs) do
-                if self._buffs_cache[auraInstanceID] then buffsChanged = true end
+                -- 12.1: a secret ID cannot index the cache at all, not even to test membership
+                if F.IsValueNonSecret(auraInstanceID) and self._buffs_cache[auraInstanceID] then
+                    buffsChanged = true
+                end
             end
         end
 
         if updateInfo.removedAuraInstanceIDs then
             for _, auraInstanceID in pairs(updateInfo.removedAuraInstanceIDs) do
-                if self._buffs_cache[auraInstanceID] then
+                if not F.IsValueNonSecret(auraInstanceID) then
+                    -- skip
+                elseif self._buffs_cache[auraInstanceID] then
                     self._buffs_cache[auraInstanceID] = nil
                     self._buffs_count_cache[auraInstanceID] = nil
                     buffsChanged = true
@@ -298,7 +329,7 @@ end
 local function QuickAssist_UpdateCasts(self, spellId)
     if not self.unit then return end
     -- Midnight 12.0.0+: spellId from UNIT_SPELLCAST_SUCCEEDED is secret during restricted contexts
-    if Cell.isMidnight and issecretvalue and issecretvalue(spellId) then return end
+    if not F.IsValueNonSecret(spellId) then return end
     if not offensiveCasts[spellId] then return end
 
     self._casts[spellId] = GetTime()
