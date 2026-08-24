@@ -1108,19 +1108,10 @@ D["ls_Toasts"] = {
 	},
 };
 D["LSGlassRevive"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "SOCIAL" },
-	title = "隱形聊天視窗",
-	desc = "輕量化聊天介面插件，目標是讓遊戲介面更乾淨、沉浸，避免佔據過多畫面空間。它復刻並改良了過去廣受好評的 Glass/LSGlass 插件，讓玩家能再次享受「隱形聊天視窗」的體驗。`",
-	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["LSGLASSREVIVE"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
+	title = "(請刪除) 隱形聊天視窗",
+	desc = "這個插件已替換成 '聊天視窗增強' 插件。``請自行刪除 AddOns 裡面的 LSGlassRevive 資料夾。`",
 };
 D["MailLogger"] = {
     defaultEnable = 1,
