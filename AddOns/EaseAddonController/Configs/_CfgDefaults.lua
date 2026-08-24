@@ -576,9 +576,9 @@ D["ConsolePort"] = {
 	tags = { "ENHANCEMENT" },
 };
 D["CopyAnything"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "SOCIAL" },
-	title = "快速複製文字",
+	title = "(暫時停用) 快速複製文字",
 	desc = "快速複製任何框架上面的文字!``聊天視窗中的文字、隊伍框架上面的隊友名字、選取目標框架上面的怪物名字，甚至是設定選項、插件名稱都能複製。``|cffFF2D2D將滑鼠指向要複製的文字，然後連按兩次 Ctrl+C 就複製好了! ``特別注意：使用前必須先將快速鍵設為 Ctrl+C，詳細請點上方的齒輪圖示標籤頁看用法說明。|r`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\boss_odunrunes_orange",
