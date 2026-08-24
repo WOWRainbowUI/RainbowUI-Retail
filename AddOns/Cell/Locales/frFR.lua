@@ -128,10 +128,12 @@ L["clear unit"] = "Effacer l'unité"
 L["cleuAurasTips"] = "Vérifier les événements CLEU pour les auras invisibles"
 L["Click to preview"] = "Cliquez pour prévisualiser"
 L["Click-Castings"] = "Sorts à la souris"
+L["Click-Casting Hints"] = "Aide des sorts à la souris"
 L["Close"] = "Fermer"
 L["Code Snippets"] = "Extraits de code"
 L["Color"] = "Couleur"
 L["Color By"] = "Couleur par"
+L["Color by Remaining Time"] = "Couleur selon le temps restant"
 L["Color Duration Text"] = "Couleur du texte de la durée"
 L["Color Thresholds"] = "Seuils de couleur"
 L["Columns"] = "Colonnes"
@@ -153,6 +155,11 @@ L["Create new indicator"] = "Créer un nouvel indicateur"
 L["Create new layout"] = "Créer une nouvelle mise en page"
 L["Create several buttons for quick casting and buff monitoring"] = "Créer plusieurs boutons pour lancer rapidement des sorts et surveiller les améliorations"
 L["Crowd Controls"] = "Contrôle des foules"
+L["Important Debuffs"] = "Affaiblissements importants"
+L["Boss/Role Debuffs"] = "Affaiblissements de boss/rôle"
+L["Priority Debuffs"] = "Affaiblissements prioritaires"
+L["Raid-wide Debuffs"] = "Affaiblissements de raid"
+L["Dispellable"] = "Dissipable"
 L["Current"] = "Actuel"
 L["Current Boss"] = "Boss actuel"
 L["Current Profile"] = "Profil actuel"
@@ -204,6 +211,7 @@ L["DISPEL"] = "DISSIPER"
 --[[ L["Dispel Request"] = "Dispel Request"--]]
 L["Dispellable By Me"] = "Dissipable par moi"
 L["dispellableByMe"] = "Afficher uniquement les affaiblissements que je peux dissiper"
+L["excludeImportant"] = "Masquer les affaiblissements déjà affichés comme importants"
 --[[Translation missing --]]
 --[[ L["Dispels"] = "Dispels"--]]
 L["Display a gradient texture when the unit receives a heal from your certain healing spells."] = "Affiche une texture dégradée lorsque l'unité reçoit un soin de certains de vos sorts de soins de zone."
@@ -315,6 +323,7 @@ L["Health Bar"] = "Barre de vie"
 --[[ L["Health Text"] = "Health Text"--]]
 --[[Translation missing --]]
 --[[ L["Health Thresholds"] = "Health Thresholds"--]]
+L["Healers"] = "Soigneurs"
 L["Height"] = "Hauteur"
 L["Hide"] = "Cacher"
 L["Hide Blizzard Frames"] = "Masquer les cadres Blizzard"
@@ -441,7 +450,7 @@ L["Magic"] = "Magique"
 --[[ L["Main"] = "Main"--]]
 L["many"] = "beaucoup"
 L["Marks Bar"] = "Barre de marques"
-L["marksTips"] = "\n|rMarqueur de cible\nClic gauche : |cffffffffdéfinir le marqueur de raid sur la cible|r\nClic droit : |cffffffffverrouiller le marqueur de raid sur la cible (dans votre groupe)|r"
+L["marksTips"] = "\n|rMarqueur de cible\nClic gauche : |cffffffffdéfinir le marqueur de raid sur la cible|r"
 --[[Translation missing --]]
 --[[ L["Max Buttons"] = ""--]]
 --[[Translation missing --]]
@@ -679,6 +688,7 @@ L["Show pets in a separate frame"] = "Afficher les familiers dans un cadre sépa
 L["Show Raid"] = "Afficher le raid"
 --[[Translation missing --]]
 --[[ L["Show Raid Pets"] = "Show Raid Pets"--]]
+L["Show Spell Tooltip"] = "Afficher l'infobulle du sort"
 L["Show Solo"] = "Afficher en solo"
 L["Show Solo Pet"] = "Afficher le familier en solo"
 L["Show units you care about more in a separate frame"] = "Afficher les unités prioritaires dans un cadre séparé"

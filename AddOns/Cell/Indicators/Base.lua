@@ -13,21 +13,122 @@ local P = Cell.pixelPerfectFuncs
 
 local LCG = LibStub("LibCustomGlow-1.0")
 
--- Midnight 12.0.0+: aura count (applications) may be secret; sanitize for safe comparisons/table-key use
-local function _SanitizeCount(count)
-    if issecretvalue and issecretvalue(count) then return 0 end
-    return count or 0
-end
-
 -- Midnight 12.0.0+: helper for stack text display (most common pattern)
+-- Secret stack counts are passed through directly; SetText is C-level and
+-- renders secret values safely. We cannot test == 0/1, so secret stacks
+-- always display (may show "1" for single-stack auras, which is acceptable).
 local function _StackText(count)
-    count = _SanitizeCount(count)
+    if not F.IsValueNonSecret(count) then return count end
+    count = count or 0
     return (count == 0 or count == 1) and "" or count
 end
 
 CELL_BORDER_SIZE = 1
 CELL_BORDER_COLOR = {0, 0, 0, 1}
 CELL_COOLDOWN_STYLE = "VERTICAL"
+
+-------------------------------------------------
+-- cooldown animation style (per indicator)
+-------------------------------------------------
+-- "border"   the DEFAULT and what Cell has always drawn: the coloured ring counts
+--            down. Two layers -- a static coloured ring, and a black sweep over it
+--            with the icon on top -- so the sweep is only ever visible on the border
+--            and the middle of the icon never darkens.
+-- "clock"    the sweep itself, over the ICON, the way Blizzard's own spell cooldown
+--            looks. Same widget as "border", just moved above the icon.
+-- "vertical" a dark mask falling from the top down over the icon -- the look
+--            CELL_COOLDOWN_STYLE = "VERTICAL" used to give globally, now a
+--            per-indicator choice that also works on the container path.
+-- "none"     no animation; the ring/border stays static.
+--
+-- Layouts saved before this option carry the old showAnimation boolean instead.
+-- Absent counts as ON, which is what those layouts were already doing -- and "on" for
+-- them meant the border countdown, so that is the fallback.
+local ANIMATION_STYLES = {border = true, clock = true, vertical = true, none = true}
+
+function I.ResolveAnimationStyle(t)
+    local style = t and t.animationStyle
+    if ANIMATION_STYLES[style] then return style end
+    if t and t.showAnimation == false then return "none" end
+    return "border"
+end
+
+-- Widgets accept both the new string and the old boolean: ShowAnimation is still
+-- called with a boolean from QuickAssist, which has no per-indicator style of its own.
+-- ⚠ A boolean only turns the animation ON or OFF -- it must never pick a style, or
+-- QuickAssist (whose BarIcons default to the global CELL_COOLDOWN_STYLE) would silently
+-- flip to the other look the first time its options were applied.
+function I.NormalizeAnimationStyle(style, current)
+    if ANIMATION_STYLES[style] then return style end
+    if style == false then return "none" end
+    -- true / nil
+    if ANIMATION_STYLES[current] and current ~= "none" then return current end
+    return "border"
+end
+
+-- 12.1: an engine-provided DurationObject drives a StatusBar without the addon ever
+-- reading the remaining time. ElapsedTime + SetReverseFill(true) on a VERTICAL bar
+-- is the mask falling downward. See .claude/notes/wow-121-duration-objects.md.
+local ELAPSED_TIMER_DIR = Enum and Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.ElapsedTime
+
+local function VerticalMask_OnUpdate(self)
+    if not self._duration then return end
+    local elapsed = GetTime() - self._start
+    if elapsed >= self._duration then
+        self:SetValue(self._duration)
+        self:SetScript("OnUpdate", nil)
+        return
+    end
+    self:SetValue(elapsed)
+end
+
+-- plaintext start/duration (preview, and any non-secret in-game update)
+local function VerticalMask_Arm(bar, start, duration)
+    if not bar then return end
+    bar._start, bar._duration = start, duration
+    bar:SetMinMaxValues(0, duration)
+    bar:SetValue(0)
+    bar:SetScript("OnUpdate", VerticalMask_OnUpdate)
+    bar:Show()
+end
+
+-- secret-safe path: hand the engine's own duration object over and never read it back
+local function VerticalMask_ArmFromDuration(bar, durObj)
+    if not (bar and durObj and bar.SetTimerDuration and ELAPSED_TIMER_DIR) then return false end
+    bar:SetScript("OnUpdate", nil)
+    bar._start, bar._duration = nil, nil
+    if not pcall(bar.SetTimerDuration, bar, durObj, nil, ELAPSED_TIMER_DIR) then return false end
+    bar:Show()
+    return true
+end
+
+local function VerticalMask_Clear(bar)
+    if not bar then return end
+    bar:SetScript("OnUpdate", nil)
+    bar._start, bar._duration = nil, nil
+    bar:Hide()
+end
+
+--! ⚠ forward declaration. BorderIcon_SetCooldown / _SetCooldownFromAura are defined
+--! ABOVE the body of this function, and a `local function` declared below its call site
+--! resolves to a nil GLOBAL there -- no error until it actually runs.
+local BorderIcon_ApplySweep
+
+-- A dark mask that covers `region` and fills from the top down. Used by BorderIcon;
+-- AuraDisplay builds its own (Blizzard drives that one through SetDurationBar).
+local function CreateVerticalMask(parent, region, frameLevel)
+    local bar = CreateFrame("StatusBar", nil, parent)
+    bar:Hide()
+    bar:SetOrientation("VERTICAL")
+    bar:SetReverseFill(true)
+    bar:SetStatusBarTexture(Cell.vars.whiteTexture)
+    bar:GetStatusBarTexture():SetVertexColor(0, 0, 0, 0.65)
+    bar:SetAllPoints(region)
+    bar:SetFrameLevel(frameLevel)
+    bar:SetMinMaxValues(0, 1)
+    bar:SetValue(0)
+    return bar
+end
 
 -------------------------------------------------
 -- SetFont
@@ -89,9 +190,46 @@ end
 -------------------------------------------------
 -- Shared
 -------------------------------------------------
+-- Apply font settings to Blizzard's CooldownFrame countdown text (Midnight)
+-- Only applies to CooldownFrame cooldowns (BorderIcon), not StatusBar (BarIcon)
+local function ApplyCountdownFont(frame, font2)
+    if not frame.cooldown then return end
+    if not frame.cooldown.GetCountdownFontString then return end
+    local cdText = frame.cooldown:GetCountdownFontString()
+    if not cdText then return end
+    -- Re-parent above the icon (and above the vertical mask when there is one) so the
+    -- number renders on top, and center it on the icon
+    local host = frame.textFrame or frame.iconFrame
+    if host and cdText:GetParent() ~= host then
+        cdText:SetParent(host)
+        cdText:ClearAllPoints()
+        cdText:SetPoint("CENTER", host, "CENTER", 0, 0)
+    end
+    if font2 then
+        local fontFace = F.GetFont(font2[1]) or cdText:GetFont()
+        local fontSize = font2[2] or 11
+        local outline = font2[3]
+        local flags = outline == "Outline" and "OUTLINE"
+            or outline == "Monochrome" and "OUTLINE,MONOCHROME"
+            or ""
+        cdText:SetFont(fontFace, fontSize, flags)
+    else
+        local fontFace = cdText:GetFont()
+        cdText:SetFont(fontFace, 11, "OUTLINE")
+    end
+end
+
 local function Shared_SetFont(frame, font1, font2)
     I.SetFont(frame.stack, frame, unpack(font1))
     I.SetFont(frame.duration, frame, unpack(font2))
+    -- Store duration font config for Midnight countdown text on CooldownFrame
+    frame._durationFont = font2
+    -- Live-update countdown FontString if it exists; reset cache flag
+    if Cell.isMidnight then
+        frame._countdownFontApplied = false
+        ApplyCountdownFont(frame, font2)
+        frame._countdownFontApplied = true
+    end
 end
 
 local function Shared_ShowStack(frame, show)
@@ -117,7 +255,11 @@ end
 local function VerticalCooldown_OnUpdate(self, elapsed)
     self.elapsed = (self.elapsed or 0) + elapsed
     if self.elapsed >= 0.1 then
-        self:SetValue(self:GetValue() + self.elapsed)
+        -- Track value in Lua variable instead of GetValue() — avoids permanent
+        -- taint from secret SetValue() calls (12.0+). GetValue() returns tainted
+        -- forever once any secret value is passed to SetValue/SetMinMaxValues.
+        self._currentValue = (self._currentValue or 0) + self.elapsed
+        self:SetValue(self._currentValue)
         self.elapsed = 0
     end
 end
@@ -140,7 +282,8 @@ local function VerticalCooldown_ShowCooldown(self, start, duration, _, icon, deb
 
     self.elapsed = 0.1 -- update immediately
     self:SetMinMaxValues(0, duration)
-    self:SetValue(GetTime() - start)
+    self._currentValue = GetTime() - start
+    self:SetValue(self._currentValue)
     self:Show()
 end
 
@@ -433,6 +576,116 @@ local function Icon_OnUpdate_ElapsedTime(frame, elapsed)
 end
 
 -------------------------------------------------
+-- Midnight 12.0.0+: C-level cooldown display via DurationObject
+-- These methods use GetAuraDuration → DurationObject → SetCooldownFromDurationObject
+-- (BorderIcon) or EvaluateElapsedPercent (BarIcon). No Lua arithmetic on secret values.
+-- APIs return nil for expired/invalid auras (no pcall needed).
+-------------------------------------------------
+local _GetAuraDuration = C_UnitAuras and C_UnitAuras.GetAuraDuration
+local _GetAuraAppDisplayCount = C_UnitAuras and C_UnitAuras.GetAuraApplicationDisplayCount
+
+-- BorderIcon: SetCooldownFromAura — drives CooldownFrame with DurationObject
+local function BorderIcon_SetCooldownFromAura(frame, unit, auraInstanceID, texture, refreshing)
+    -- Icon and stack
+    frame.icon:SetTexture(texture)
+    if _GetAuraAppDisplayCount then
+        local displayCount = _GetAuraAppDisplayCount(unit, auraInstanceID)
+        frame.stack:SetText(displayCount and _StackText(displayCount) or "")
+    else
+        frame.stack:SetText("")
+    end
+
+    -- Cooldown swipe via DurationObject
+    -- Swipe color defaults to black; UnitButton.lua overrides border/swipe color
+    -- for dispel types via bracket curves after this call.
+    local durObj = _GetAuraDuration and _GetAuraDuration(unit, auraInstanceID)
+    if durObj and frame.cooldown and frame.cooldown._SetCooldown
+        and frame.cooldown.SetCooldownFromDurationObject then
+        local style = frame.animationStyle or "border"
+        frame.cooldown:SetDrawSwipe(true)
+        frame.cooldown:SetReverse(true)
+        BorderIcon_ApplySweep(frame, style)
+        frame.cooldown:SetCooldownFromDurationObject(durObj, true)
+        -- Apply font settings once (cached via _countdownFontApplied flag)
+        if not frame._countdownFontApplied then
+            ApplyCountdownFont(frame, frame._durationFont)
+            frame._countdownFontApplied = true
+        end
+        -- Keep border visible as base color (caller sets color); black swipe fills over it
+        frame.cooldown:Show()
+        if style == "vertical" then
+            VerticalMask_ArmFromDuration(frame.vMask, durObj)
+        else
+            VerticalMask_Clear(frame.vMask)
+        end
+    else
+        -- No cooldown animation — show static border
+        frame.border:Show()
+        frame.border:SetColorTexture(0, 0, 0)
+        frame.cooldown:Hide()
+        VerticalMask_Clear(frame.vMask)
+    end
+
+    -- Duration text hidden on Midnight (SetFormattedText produces invisible output with secrets)
+    frame.duration:Hide()
+    frame:SetScript("OnUpdate", nil)
+    frame:Show()
+
+    if refreshing then
+        frame.ag:Play()
+    end
+end
+
+-- BarIcon: SetCooldownFromAura — CooldownFrame overlay for clock-swipe animation.
+-- DurationObject:EvaluateElapsedPercent/EvaluateRemainingPercent both error in tainted
+-- combat contexts, so StatusBar can't be driven by DurationObject directly.
+-- NOTE: Built-in indicators (debuffs, defensives, externals) use BorderIcon on Midnight.
+-- This BarIcon path remains for user-created custom indicators that use BarIcon.
+local function BarIcon_SetCooldownFromAura(frame, unit, auraInstanceID, texture, refreshing)
+    frame.icon:SetTexture(texture)
+    if _GetAuraAppDisplayCount then
+        local displayCount = _GetAuraAppDisplayCount(unit, auraInstanceID)
+        frame.stack:SetText(displayCount and _StackText(displayCount) or "")
+    else
+        frame.stack:SetText("")
+    end
+
+    local durObj = _GetAuraDuration and _GetAuraDuration(unit, auraInstanceID)
+    if durObj and frame.animationStyle == "none" then
+        durObj = nil
+    end
+    if durObj then
+        if not frame._midnightCooldown then
+            local cd = CreateFrame("Cooldown", nil, frame)
+            cd:SetAllPoints(frame.icon)
+            cd:SetFrameLevel(frame:GetFrameLevel() + 5)
+            cd:SetSwipeTexture(Cell.vars.whiteTexture)
+            cd:SetSwipeColor(0, 0, 0)
+            cd:SetDrawEdge(false)
+            cd:SetReverse(true)
+            cd:SetHideCountdownNumbers(true)
+            cd.noCooldownCount = true
+            frame._midnightCooldown = cd
+        end
+        if frame._midnightCooldown.SetCooldownFromDurationObject then
+            frame._midnightCooldown:SetCooldownFromDurationObject(durObj, false)
+            frame._midnightCooldown:Show()
+        end
+    else
+        if frame._midnightCooldown then frame._midnightCooldown:Hide() end
+    end
+
+    frame.cooldown:Hide()
+    frame.duration:Hide()
+    frame:SetBackdropColor(0, 0, 0)
+    frame:Show()
+
+    if refreshing then
+        frame.ag:Play()
+    end
+end
+
+-------------------------------------------------
 -- CreateAura_BorderIcon
 -------------------------------------------------
 local function BorderIcon_SetCooldown(frame, start, duration, debuffType, texture, count, refreshing, useElapsedTime)
@@ -447,6 +700,7 @@ local function BorderIcon_SetCooldown(frame, start, duration, debuffType, textur
         frame.border:Show()
         frame.border:SetColorTexture(r, g, b)
         frame.cooldown:Hide()
+        VerticalMask_Clear(frame.vMask)
         frame.duration:Hide()
         frame:SetScript("OnUpdate", nil)
         frame._start = nil
@@ -456,29 +710,66 @@ local function BorderIcon_SetCooldown(frame, start, duration, debuffType, textur
         frame._threshold = nil
         frame._elapsedTime = nil
     else
-        frame.border:Hide()
+        local style = frame.animationStyle or "border"
+        -- ⚠ The COLOUR lives on the static ring and the sweep is the black that eats
+        -- it -- not the other way round. This used to paint a coloured sweep over a
+        -- hidden border, which disagreed with BOTH the secret path in this same file
+        -- (SetCooldownFromAura) and the AuraContainer path that actually renders these
+        -- indicators in game (AuraDisplay.StyleButton). The preview looked inverted
+        -- against the frames it was previewing.
+        frame.border:Show()
+        frame.border:SetColorTexture(r, g, b)
+        frame.cooldown:SetDrawSwipe(true)
+        frame.cooldown:SetReverse(true)
+        BorderIcon_ApplySweep(frame, style)
         frame.cooldown:Show()
-        frame.cooldown:SetSwipeColor(r, g, b)
         frame.cooldown:_SetCooldown(start, duration)
-
-        if not frame.showDuration then
-            frame.duration:Hide()
-        else
-            if frame.showDuration == true then
-                frame._threshold = duration
-            elseif frame.showDuration >= 1 then
-                frame._threshold = frame.showDuration
-            else -- < 1
-                frame._threshold = frame.showDuration * duration
-            end
-            frame.duration:Show()
+        if Cell.isMidnight and not frame._countdownFontApplied then
+            ApplyCountdownFont(frame, frame._durationFont)
+            frame._countdownFontApplied = true
         end
 
-        if frame.showDuration then
-            frame._start = start
-            frame._duration = duration
-            frame._elapsed = 0.1 -- update immediately
-            frame:SetScript("OnUpdate", useElapsedTime and Icon_OnUpdate_ElapsedTime or Icon_OnUpdate)
+        if style == "vertical" then
+            VerticalMask_Arm(frame.vMask, start, duration)
+        else
+            VerticalMask_Clear(frame.vMask)
+        end
+
+        if Cell.isMidnight then
+            -- Midnight: the countdown is rendered by Blizzard's built-in cooldown numbers
+            -- (toggled via SetHideCountdownNumbers in BorderIcon_ShowDuration). Cell's own
+            -- duration FontString + OnUpdate MUST stay off here, otherwise both render and
+            -- overlap -- e.g. Blizzard "29分" (localized, rounds up) on top of Cell's "28m"
+            -- (literal "m", truncated). This keeps the non-secret SetCooldown path consistent
+            -- with the secret SetCooldownFromAura path, which already shows only Blizzard's.
+            frame.duration:Hide()
+            frame:SetScript("OnUpdate", nil)
+            frame._start = nil
+            frame._duration = nil
+            frame._remain = nil
+            frame._elapsed = nil
+            frame._threshold = nil
+            frame._elapsedTime = nil
+        else
+            if not frame.showDuration then
+                frame.duration:Hide()
+            else
+                if frame.showDuration == true then
+                    frame._threshold = duration
+                elseif frame.showDuration >= 1 then
+                    frame._threshold = frame.showDuration
+                else -- < 1
+                    frame._threshold = frame.showDuration * duration
+                end
+                frame.duration:Show()
+            end
+
+            if frame.showDuration then
+                frame._start = start
+                frame._duration = duration
+                frame._elapsed = 0.1 -- update immediately
+                frame:SetScript("OnUpdate", useElapsedTime and Icon_OnUpdate_ElapsedTime or Icon_OnUpdate)
+            end
         end
     end
 
@@ -497,12 +788,64 @@ local function BorderIcon_SetBorder(frame, thickness)
     P.Point(frame.iconFrame, "BOTTOMRIGHT", frame, "BOTTOMRIGHT", -thickness, thickness)
 end
 
+-- Fixed layering, re-asserted on every pass because SetFrameLevel stores an ABSOLUTE
+-- number and the indicator's own level moves with its frameLevel setting:
+--   L+1  the sweep, for "border" (under the icon -> only the ring shows it)
+--   L+2  the icon
+--   L+3  the vertical mask
+--   L+4  the sweep, for "clock" (over the icon -> the sweep IS what you see)
+--   L+5  stack / countdown text, always on top of both animations
+function BorderIcon_ApplySweep(frame, style)
+    local base = frame:GetFrameLevel()
+
+    frame.iconFrame:SetFrameLevel(base + 2)
+    frame.vMask:SetFrameLevel(base + 3)
+    frame.textFrame:SetFrameLevel(base + 5)
+
+    local cd = frame.cooldown
+    if not cd then return end
+
+    cd:ClearAllPoints()
+    if style == "clock" then
+        cd:SetAllPoints(frame.iconFrame)
+        cd:SetFrameLevel(base + 4)
+        -- not opaque: the whole point of this style is watching the icon behind it
+        cd:SetSwipeColor(0, 0, 0, 0.77)
+    else
+        cd:SetAllPoints(frame)
+        cd:SetFrameLevel(base + 1)
+        --! "border" eats the coloured ring outright. For the other styles the swipe is
+        --! made INVISIBLE rather than switched off -- the Cooldown still has to run,
+        --! because it is what draws Blizzard's countdown numbers and what the previews
+        --! loop on through OnCooldownDone.
+        cd:SetSwipeColor(0, 0, 0, style == "border" and 1 or 0)
+    end
+end
+
+-- ⚠ used to be a no-op, which is why the animation option had no effect on the
+-- preview button (the preview is the only place BorderIcon carries a pool).
+local function BorderIcon_ShowAnimation(frame, style)
+    frame.animationStyle = I.NormalizeAnimationStyle(style, frame.animationStyle or "border")
+    if frame.animationStyle ~= "vertical" then
+        VerticalMask_Clear(frame.vMask)
+    end
+    BorderIcon_ApplySweep(frame, frame.animationStyle)
+end
+
 local function BorderIcon_ShowDuration(frame, show)
     frame.showDuration = show
-    if show then
-        frame.duration:Show()
-    else
+    if Cell.isMidnight and frame.cooldown and frame.cooldown.SetHideCountdownNumbers then
+        -- Midnight: Cell's duration text is always hidden (produces invisible output
+        -- with secrets). Only toggle Blizzard's built-in countdown.
         frame.duration:Hide()
+        frame.cooldown:SetHideCountdownNumbers(not show)
+    else
+        -- Pre-Midnight: use Cell's own duration text
+        if show then
+            frame.duration:Show()
+        else
+            frame.duration:Hide()
+        end
     end
 end
 
@@ -510,6 +853,7 @@ local function BorderIcon_UpdatePixelPerfect(frame)
     P.Resize(frame)
     P.Repoint(frame)
     P.Repoint(frame.iconFrame)
+    BorderIcon_ApplySweep(frame, frame.animationStyle or "border")
     P.Repoint(frame.stack)
     P.Repoint(frame.duration)
 end
@@ -532,6 +876,10 @@ function I.CreateAura_BorderIcon(name, parent, borderSize)
     cooldown:SetSwipeTexture(Cell.vars.whiteTexture)
     cooldown:SetSwipeColor(1, 1, 1)
     cooldown:SetHideCountdownNumbers(true)
+    -- Midnight: set abbreviation threshold once at creation (shows "1m" above 60s)
+    if Cell.isMidnight and cooldown.SetCountdownAbbrevThreshold then
+        cooldown:SetCountdownAbbrevThreshold(60)
+    end
     -- disable omnicc
     cooldown.noCooldownCount = true
     -- prevent some addons from adding cooldown text
@@ -542,15 +890,28 @@ function I.CreateAura_BorderIcon(name, parent, borderSize)
     frame.iconFrame = iconFrame
     P.Point(iconFrame, "TOPLEFT", frame, "TOPLEFT", borderSize, -borderSize)
     P.Point(iconFrame, "BOTTOMRIGHT", frame, "BOTTOMRIGHT", -borderSize, borderSize)
-    iconFrame:SetFrameLevel(cooldown:GetFrameLevel()+1)
+    iconFrame:SetFrameLevel(frame:GetFrameLevel() + 2) -- see BorderIcon_ApplySweep
 
     local icon = iconFrame:CreateTexture(name.."Icon", "ARTWORK")
     frame.icon = icon
     icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
     icon:SetAllPoints(iconFrame)
 
-    frame.stack = iconFrame:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
-    frame.duration = iconFrame:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
+    -- "vertical" animation: covers the ICON, not the ring, so the dispel colour on
+    -- the ring stays readable while the mask falls. Above iconFrame or the icon
+    -- texture would cover it (a child frame always draws over the parent's layers).
+    frame.vMask = CreateVerticalMask(frame, iconFrame, frame:GetFrameLevel() + 3)
+
+    -- ⚠ Text goes ABOVE both animations, for the same reason: on the container path the
+    -- countdown and stack sit at base+6/+7 while the mask is at base+3, so if these
+    -- stayed on iconFrame the preview would dim its own numbers and in-game would not.
+    local textFrame = CreateFrame("Frame", nil, frame)
+    frame.textFrame = textFrame
+    textFrame:SetAllPoints(iconFrame)
+    textFrame:SetFrameLevel(frame:GetFrameLevel() + 5)
+
+    frame.stack = textFrame:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
+    frame.duration = textFrame:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
 
     local ag = frame:CreateAnimationGroup()
     frame.ag = ag
@@ -568,7 +929,13 @@ function I.CreateAura_BorderIcon(name, parent, borderSize)
     frame.SetFont = Shared_SetFont
     frame.SetBorder = BorderIcon_SetBorder
     frame.SetCooldown = BorderIcon_SetCooldown
+    frame.SetCooldownFromAura = BorderIcon_SetCooldownFromAura
     frame.ShowDuration = BorderIcon_ShowDuration
+    frame.ShowAnimation = BorderIcon_ShowAnimation
+    -- BarIcon-compatible methods (no-ops for BorderIcon, needed when used as
+    -- cooldown indicator child frames which call these on all children)
+    frame.ShowStack = function() end
+    frame.SetupGlow = function() end
     frame.UpdatePixelPerfect = BorderIcon_UpdatePixelPerfect
 
     return frame
@@ -591,8 +958,11 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
     else
         if frame.showAnimation then
             frame.cooldown:ShowCooldown(start, duration, nil, texture, debuffType)
-            frame.duration:SetParent(frame.cooldown)
-            frame.stack:SetParent(frame.cooldown)
+            --! in "border" mode the sweep sits UNDER the icon frame, so hanging the text
+            --! off it would bury the numbers behind the icon
+            local textHost = (frame.animationStyle == "border" and frame.iconFrame) or frame.cooldown
+            frame.duration:SetParent(textHost)
+            frame.stack:SetParent(textHost)
         else
             frame.cooldown:Hide()
             frame.duration:SetParent(frame)
@@ -635,13 +1005,70 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
     end
 end
 
-local function BarIcon_ShowAnimation(frame, show)
-    frame.showAnimation = show
-    if show then
-        frame.cooldown:Show()
-    else
-        frame.cooldown:Hide()
+-- Accepts the new style string and the old boolean (QuickAssist still passes a
+-- boolean). "vertical"/"clock" swap the whole cooldown widget through
+-- Shared_SetCooldownStyle, which is the same switch CELL_COOLDOWN_STYLE used to do
+-- globally -- it is now per indicator.
+-- "border" needs the icon ABOVE the sweep, so that only the 1px backdrop border
+-- animates. Created lazily and ONLY for that style: QuickAssist and the buff-tracker
+-- BarIcons never ask for it, and moving their icon into a frame would put it above the
+-- vertical mask (a child frame) and hide the mask completely.
+local function BarIcon_EnsureIconFrame(frame)
+    if not frame.iconFrame then
+        local f = CreateFrame("Frame", nil, frame)
+        frame.iconFrame = f
+        f:SetAllPoints(frame)
+        frame.icon:SetParent(f) -- its points anchor to `frame`, so they still resolve
     end
+    return frame.iconFrame
+end
+
+local function BarIcon_ShowAnimation(frame, style)
+    -- a BarIcon is built with the global CELL_COOLDOWN_STYLE, so that is what a bare
+    -- "on" means for this widget
+    local current = frame.animationStyle
+        or (frame.style == "CLOCK" and "clock" or "vertical")
+    style = I.NormalizeAnimationStyle(style, current)
+    frame.animationStyle = style
+    frame.showAnimation = style ~= "none"
+
+    if style == "none" then
+        frame.cooldown:Hide()
+        return
+    end
+
+    local base = frame:GetFrameLevel()
+
+    if style == "vertical" then
+        -- the mask belongs OVER the icon
+        if frame.iconFrame then frame.iconFrame:SetFrameLevel(base) end
+        Shared_SetCooldownStyle(frame, "VERTICAL")
+        frame.cooldown:SetFrameLevel(base + 1)
+        frame.cooldown:Show()
+        return
+    end
+
+    --! ⚠ Both remaining styles reuse the CLOCK widget, so Shared_SetCooldownStyle
+    --! early-returns when switching BETWEEN them -- every difference has to be re-applied
+    --! here by hand, or "clock" would keep the border geometry it inherited.
+    --! P.ClearPoints, not ClearAllPoints: it also empties frame.points, so a later
+    --! P.Repoint (UpdatePixelPerfect) cannot drag the widget back to its creation anchors.
+    Shared_SetCooldownStyle(frame, "CLOCK")
+    P.ClearPoints(frame.cooldown)
+    frame.cooldown:SetFrameLevel(base + 1)
+
+    if style == "border" then
+        frame.cooldown:SetAllPoints(frame) -- the backdrop border too, not just the icon
+        frame.cooldown:SetSwipeColor(0, 0, 0, 1)
+        BarIcon_EnsureIconFrame(frame):SetFrameLevel(base + 2)
+    else -- clock: back to the inset sweep, over the icon
+        P.Point(frame.cooldown, "TOPLEFT", frame, CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+        P.Point(frame.cooldown, "BOTTOMRIGHT", frame, -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+        frame.cooldown:SetSwipeColor(0, 0, 0, 0.77)
+        if frame.iconFrame then frame.iconFrame:SetFrameLevel(base) end
+    end
+
+    frame.cooldown:Show()
 end
 
 local function BarIcon_UpdatePixelPerfect(frame)
@@ -688,6 +1115,7 @@ function I.CreateAura_BarIcon(name, parent)
 
     frame.SetFont = Shared_SetFont
     frame.SetCooldown = BarIcon_SetCooldown
+    frame.SetCooldownFromAura = BarIcon_SetCooldownFromAura
     frame.ShowDuration = Shared_ShowDuration
     frame.ShowStack = Shared_ShowStack
     frame.ShowAnimation = BarIcon_ShowAnimation
@@ -714,6 +1142,13 @@ end
 -------------------------------------------------
 local function Icons_UpdateSize(icons, numAuras)
     if not (icons.width and icons.orientation) then return end -- not init
+
+    -- ⚠ An AuraContainer-backed indicator has had its legacy icon pool thrown away by
+    -- I.DiscardFallbackIcons, which sets maxNum = 0 -- and Icons_SetNumPerLine clamps with
+    -- min(numPerLine, maxNum), so numPerLine lands on 0 too. There is no grid left to
+    -- measure, and the "lines" division below divides by it. Bail: every loop past this
+    -- point is `for i = 1, maxNum` and would do nothing anyway.
+    if not icons.numPerLine or icons.numPerLine <= 0 then return end
 
     if numAuras then -- call from I.CheckCustomIndicators or preview
         for i = numAuras + 1, icons.maxNum do
@@ -752,7 +1187,24 @@ local function Icons_SetNumPerLine(icons, numPerLine)
     end
 end
 
+-- ⚠ Every legacy *_SetOrientation branches on these four strings with NO else, so an
+-- unrecognised value leaves point1 nil and the next P.Point() throws
+-- "Frame:SetPoint(): Usage:" -- the whole frame goes down instead of the layout degrading.
+-- Reachable in practice: an indicator string imported from another Cell build, a layout saved
+-- while an option existed that no longer does, or a hand-edited SavedVariables.
+-- `default` exists because not every consumer supports all four (QuickAssist's bars are
+-- vertical-only, so left-to-right would be just as nil-producing there).
+local VALID_ORIENTATIONS = {
+    ["left-to-right"] = true, ["right-to-left"] = true,
+    ["top-to-bottom"] = true, ["bottom-to-top"] = true,
+}
+function I.SafeOrientation(orientation, default)
+    if VALID_ORIENTATIONS[orientation] then return orientation end
+    return default or "left-to-right"
+end
+
 local function Icons_SetOrientation(icons, orientation)
+    orientation = I.SafeOrientation(orientation)
     icons.orientation = orientation
 
     local anchor = icons:GetPoint()
@@ -993,20 +1445,70 @@ local function Text_SetColors(frame, colors)
     frame.colors = colors
 end
 
+-- The unified countdown-colour widget: {masterEnabled, base, {en,sec,col}, {en,sec,col}}.
+-- Text indicators used to carry the legacy per-indicator `colors` table, but their settings
+-- list only offers `durationColor` now -- so SetColors was never called, frame.colors stayed
+-- nil, and Text_OnUpdateColor indexed it 10x a second. Normalise once here rather than at tick
+-- rate; both threshold bands are in SECONDS (the legacy [2] band was a percentage).
+local function Text_SetDurationColors(frame, dc)
+    frame.state = nil
+    if type(dc) ~= "table" then
+        frame.durColors = nil
+        return
+    end
+    local base = type(dc[2]) == "table" and dc[2] or {1, 1, 1, 1}
+    if not dc[1] then -- master off: flat base, no bands
+        frame.durColors = {base = base}
+        return
+    end
+    local bands = {}
+    for i = 3, 4 do
+        local b = dc[i]
+        if type(b) == "table" and b[1] and type(b[3]) == "table" then
+            bands[#bands + 1] = {sec = tonumber(b[2]) or 0, col = b[3]}
+        end
+    end
+    table.sort(bands, function(x, y) return x.sec < y.sec end) -- tightest threshold wins
+    frame.durColors = {base = base, bands = bands}
+end
+
 local function Text_OnUpdateColor(frame)
-    if frame.colors[3][1] and frame._remain <= frame.colors[3][2] then
+    local dc = frame.durColors
+    if dc then
+        local want, state = dc.base, 0
+        if dc.bands then
+            for i = 1, #dc.bands do
+                if frame._remain <= dc.bands[i].sec then
+                    want, state = dc.bands[i].col, i
+                    break
+                end
+            end
+        end
+        if frame.state ~= state then
+            frame.state = state
+            frame.text:SetTextColor(want[1], want[2] or 1, want[3] or 1, want[4] or 1)
+        end
+        return
+    end
+
+    -- Legacy `colors` shape, kept for layouts saved before the unified widget: [1] base,
+    -- [2] {en, PERCENT of duration, col}, [3] {en, seconds, col}. Nothing populates it for
+    -- text any more, so the nil check is what stops the spam if neither is configured.
+    local c = frame.colors
+    if not c then return end
+    if c[3][1] and frame._remain <= c[3][2] then
         if frame.state ~= 3 then
             frame.state = 3
-            frame.text:SetTextColor(frame.colors[3][3][1], frame.colors[3][3][2], frame.colors[3][3][3], frame.colors[3][3][4])
+            frame.text:SetTextColor(c[3][3][1], c[3][3][2], c[3][3][3], c[3][3][4])
         end
-    elseif frame.colors[2][1] and frame._remain <= frame._duration * frame.colors[2][2] then
+    elseif c[2][1] and frame._remain <= frame._duration * c[2][2] then
         if frame.state ~= 2 then
             frame.state = 2
-            frame.text:SetTextColor(frame.colors[2][3][1], frame.colors[2][3][2], frame.colors[2][3][3], frame.colors[2][3][4])
+            frame.text:SetTextColor(c[2][3][1], c[2][3][2], c[2][3][3], c[2][3][4])
         end
     elseif frame.state ~= 1 then
         frame.state = 1
-        frame.text:SetTextColor(frame.colors[1][1], frame.colors[1][2], frame.colors[1][3], frame.colors[1][4])
+        frame.text:SetTextColor(c[1][1], c[1][2], c[1][3], c[1][4])
     end
 end
 
@@ -1050,12 +1552,20 @@ end
 
 local circled = {"①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫","⑬","⑭","⑮","⑯","⑰","⑱","⑲","⑳","㉑","㉒","㉓","㉔","㉕","㉖","㉗","㉘","㉙","㉚","㉛","㉜","㉝","㉞","㉟","㊱","㊲","㊳","㊴","㊵","㊶","㊷","㊸","㊹","㊺","㊻","㊼","㊽","㊾","㊿"}
 local function Text_SetCooldown(frame, start, duration, debuffType, texture, count)
+    -- Secret stack count: can't compare or index circled[], pass directly to
+    -- SetText (C-level, renders secret values safely)
+    local isSecretCount = not F.IsValueNonSecret(count)
+
     if duration == 0 then
         -- always show stack
-        count = _SanitizeCount(count)
-        count = count == 0 and 1 or count
-        count = frame.circledStackNums and circled[count] or count
-        frame.text:SetText(count)
+        if isSecretCount then
+            frame.text:SetText(count)
+        else
+            count = count or 0
+            count = count == 0 and 1 or count
+            count = frame.circledStackNums and circled[count] or count
+            frame.text:SetText(count)
+        end
         frame.text:SetTextColor(frame.colors[1][1], frame.colors[1][2], frame.colors[1][3], frame.colors[1][4])
         frame:SetScript("OnUpdate", nil)
         frame._count = nil
@@ -1068,27 +1578,36 @@ local function Text_SetCooldown(frame, start, duration, debuffType, texture, cou
         frame._duration = duration
 
         if frame.durationTbl[1] then
-            count = _SanitizeCount(count)
-            if frame.showStack and count ~= 0 then
-                if frame.circledStackNums then
-                    frame._count = circled[count].." "
-                else
-                    frame._count = count.." "
-                end
-            else
+            if isSecretCount then
+                -- Can't concatenate secret with " "; skip stack prefix for duration text
                 frame._count = ""
+            else
+                count = count or 0
+                if frame.showStack and count ~= 0 then
+                    if frame.circledStackNums then
+                        frame._count = circled[count].." "
+                    else
+                        frame._count = count.." "
+                    end
+                else
+                    frame._count = ""
+                end
             end
 
             frame._elapsed = 0.1 -- update immediately
             frame:SetScript("OnUpdate", Text_OnUpdateDuration)
         else
             -- always show stack
-            count = _SanitizeCount(count)
-            count = count == 0 and 1 or count
-            if frame.circledStackNums then
-                frame.text:SetText(circled[count])
-            else
+            if isSecretCount then
                 frame.text:SetText(count)
+            else
+                count = count or 0
+                count = count == 0 and 1 or count
+                if frame.circledStackNums then
+                    frame.text:SetText(circled[count])
+                else
+                    frame.text:SetText(count)
+                end
             end
 
             frame._elapsed = 0.1 -- update immediately
@@ -1115,6 +1634,7 @@ function I.CreateAura_Text(name, parent)
     frame.SetDuration = Text_SetDuration
     frame.SetStack = Text_SetStack
     frame.SetColors = Text_SetColors
+    frame.SetDurationColors = Text_SetDurationColors
 
     return frame
 end
@@ -1810,6 +2330,7 @@ local function QuickAssistBars_SetSize(bars, width, height)
 end
 
 local function QuickAssistBars_SetOrientation(bars, orientation)
+    orientation = I.SafeOrientation(orientation, "top-to-bottom")
     local point1, point2, offset
     if orientation == "top-to-bottom" then
         point1 = "TOPLEFT"

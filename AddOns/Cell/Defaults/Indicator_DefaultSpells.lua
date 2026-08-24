@@ -86,108 +86,6 @@ function I.GetDefaultBigDebuffs()
     return bigDebuffs
 end
 
--------------------------------------------------
--- aoeHealings
--------------------------------------------------
-local aoeHealings = {
-    ["DRUID"] = {
-        [740] = true,      -- 宁静 - Tranquility
-        [145205] = true,   -- 百花齐放 - Efflorescence
-    },
-
-    ["EVOKER"] = {
-        [355916] = true,   -- 翡翠之花 - Emerald Blossom
-        [361361] = true,   -- 婆娑幼苗 - Fluttering Seedlings
-        [363534] = true,   -- 回溯 - Rewind
-        [367230] = true,   -- 精神之花 - Spiritbloom
-        [370984] = true,   -- 翡翠交融 - Emerald Communion
-        [371441] = true,   -- 赐命者之焰 - Life-Giver's Flame
-        [371879] = true,   -- 生生不息 - Cycle of Life
-        [377509] = false,  -- 梦境投影（pvp）- Dream Projection
-    },
-
-    ["MONK"] = {
-        [115098] = true,   -- 真气波 - Chi Wave
-        [123986] = true,   -- 真气爆裂 - Chi Burst
-        [115310] = true,   -- 还魂术 - Revival
-        [322118] = true,   -- 青龙下凡 (SUMMON) - Invoke Yu'lon, the Jade Serpent
-        [388193] = true,   -- 碧火踏 - Jadefire Stomp
-        [443028] = true,   -- 天神御身 - Celestial Conduit
-        [343819] = false,  -- 迷雾之风 (朱鹤下凡产生的“迷雾之风”的施法者是玩家) - Gust of Mists
-    },
-
-    ["PALADIN"] = {
-        [85222]  = true,   -- 黎明之光 - Light of Dawn
-        [119952] = true,   -- 弧形圣光 - Arcing Light
-        [114165] = true,   -- 神圣棱镜 - Holy Prism
-        [200654] = true,   -- 提尔的拯救 - Tyr's Deliverance
-        [216371] = true,   -- 复仇十字军 - Avenging Crusader
-    },
-
-    ["PRIEST"] = {
-        [120517] = true,   -- 光晕 - Halo (moved to Archon hero talent in 12.0)
-        [34861]  = true,   -- 圣言术：灵 - Holy Word: Sanctify
-        [596]    = true,   -- 治疗祷言 - Prayer of Healing
-        [64843]  = true,   -- 神圣赞美诗 - Divine Hymn
-        -- [110744] = true,   -- 神圣之星 - Divine Star (removed in 12.0)
-        [204883] = true,   -- 治疗之环 - Circle of Healing
-        [281265] = true,   -- 神圣新星 - Holy Nova
-        -- [314867] = true,   -- 暗影盟约 - Shadow Covenant (removed in 12.0)
-        [15290]  = true,   -- 吸血鬼的拥抱 - Vampiric Embrace
-        [372787] = true,   -- 神言术：佑 - Divine Word: Sanctuary
-    },
-
-    ["SHAMAN"] = {
-        [1064]   = true,   -- 治疗链 - Chain Heal
-        [73920]  = true,   -- 治疗之雨 - Healing Rain
-        [108280] = true,   -- 治疗之潮图腾 (SUMMON) - Healing Tide Totem
-        [52042]  = true,   -- 治疗之泉图腾 (SUMMON) - Healing Stream Totem
-        [197995] = true,   -- 奔涌之流 - Wellspring
-        -- [157503] = true,   -- 暴雨图腾 - Cloudburst (removed in 12.0)
-        [114911] = true,   -- 先祖指引 - Ancestral Guidance
-        [382311] = true,   -- 先祖复苏 - Ancestral Awakening
-        [207778] = true,   -- 倾盆大雨 - Downpour
-        [114083] = true,   -- 恢复迷雾 (升腾) - Restorative Mists
-    },
-}
-
-function I.GetAoEHealings()
-    return aoeHealings
-end
-
-local builtInAoEHealings = {}
-local customAoEHealings = {}
-
-function I.UpdateAoEHealings(t)
-    -- user disabled
-    wipe(builtInAoEHealings)
-    for class, spells in pairs(aoeHealings) do
-        for id, trackByName in pairs(spells) do
-            if not t["disabled"][id] then -- not disabled
-                if trackByName then
-                    local name = F.GetSpellInfo(id)
-                    if name then
-                        builtInAoEHealings[name] = true
-                    end
-                else
-                    builtInAoEHealings[id] = true
-                end
-            end
-        end
-    end
-
-    -- user created
-    wipe(customAoEHealings)
-    for _, id in pairs(t["custom"]) do
-        customAoEHealings[id] = true
-    end
-end
-
-function I.IsAoEHealing(name, id)
-    if issecretvalue and (issecretvalue(name) or issecretvalue(id)) then return end
-    return builtInAoEHealings[name] or builtInAoEHealings[id] or customAoEHealings[id]
-end
-
 local summonDuration = {
     -- evoker
     [377509] = 6, -- 梦境投影（pvp）- Dream Projection
@@ -231,6 +129,8 @@ local externals = { -- true: track by name, false: track by id
     ["EVOKER"] = {
         [374227] = true, -- 微风 - Zephyr
         [357170] = true, -- 时间膨胀 - Time Dilation
+        [363534] = true, -- 回溯 - Rewind
+        [360995] = true, -- 翠绿拥抱 - Verdant Embrace
         [378441] = true, -- 时间停止 - Time Stop (pvp)
         [374348] = true, -- 新生光焰 - Renewing blaze
     },
@@ -256,6 +156,7 @@ local externals = { -- true: track by name, false: track by id
         [1022] = true, -- 保护祝福 - Blessing of Protection
         [6940] = true, -- 牺牲祝福 - Blessing of Sacrifice
         [204018] = true, -- 破咒祝福 - Blessing of Spellwarding
+        [1044] = true, -- 自由祝福 - Blessing of Freedom
         [31821] = true, -- 光环掌握 - Aura Mastery
         [210256] = true, -- 庇护祝福 - Blessing of Sanctuary
         [228050] = false, -- 圣盾术 (被遗忘的女王护卫) - Divine Shield
@@ -266,6 +167,7 @@ local externals = { -- true: track by name, false: track by id
     ["PRIEST"] = {
         [33206] = true, -- 痛苦压制 - Pain Suppression
         [47788] = true, -- 守护之魂 - Guardian Spirit
+        [10060] = true, -- 能量灌注 - Power Infusion
         [62618] = true, -- 真言术：障 - Power Word: Barrier
         [213610] = true, -- 神圣守卫 - Holy Ward
         [197268] = true, -- 希望之光 - Ray of Hope
@@ -302,9 +204,10 @@ local function UpdateExternals(id, trackByName)
         if name then
             builtInExternals[name] = true
         end
-    else
-        builtInExternals[id] = true
     end
+    -- Also store by ID (in addition to name when trackByName is true)
+    -- so IsExternalCooldown/IsDefensiveCooldown can match by ID directly
+    builtInExternals[id] = true
 end
 
 function I.UpdateExternals(t)
@@ -339,7 +242,7 @@ end
 local UnitIsUnit = UnitIsUnit
 local bos = F.GetSpellInfo(6940) -- 牺牲祝福
 function I.IsExternalCooldown(name, id, source, target)
-    if issecretvalue and (issecretvalue(name) or issecretvalue(id)) then return end
+    if not F.IsValueNonSecret(name) or not F.IsValueNonSecret(id) then return end
     if name == bos then
         if source and target then
             -- NOTE: hide bos on caster
@@ -403,9 +306,11 @@ local defensives = { -- true: track by name, false: track by id
     ["MONK"] = {
         [115176] = false, -- 禅悟冥想 - Zen Meditation
         [115203] = true, -- 壮胆酒 - Fortifying Brew
+        [120954] = false, -- 壮胆酒（酒仙实际增益，与 115203 同名，只配 ID） - Fortifying Brew
         [122278] = true, -- 躯不坏 - Dampen Harm
         [122783] = true, -- 散魔功 - Diffuse Magic
         [125174] = true, -- 业报之触 - Touch of Karma
+        [443113] = true, -- 黑牛之力 - Strength of the Black Ox
     },
 
     ["PALADIN"] = {
@@ -436,6 +341,7 @@ local defensives = { -- true: track by name, false: track by id
         [108271] = true, -- 星界转移 - Astral Shift
         [409293] = true, -- 掘地三尺 - Burrow (PVP)
         [114893] = true, -- 石壁 - Stone Bulwark
+        [381755] = true, -- Primordial Bond
     },
 
     ["WARLOCK"] = {
@@ -471,9 +377,10 @@ function I.UpdateDefensives(t)
                     if name then
                         builtInDefensives[name] = true
                     end
-                else
-                    builtInDefensives[id] = true
                 end
+                -- Also store by ID (in addition to name when trackByName is true)
+    -- so IsExternalCooldown/IsDefensiveCooldown can match by ID directly
+                builtInDefensives[id] = true
             end
         end
     end
@@ -490,8 +397,220 @@ function I.UpdateDefensives(t)
 end
 
 function I.IsDefensiveCooldown(name, id)
-    if issecretvalue and (issecretvalue(name) or issecretvalue(id)) then return end
+    if not F.IsValueNonSecret(name) or not F.IsValueNonSecret(id) then return end
     return builtInDefensives[name] or builtInDefensives[id] or customDefensives[id]
+end
+
+-------------------------------------------------
+-- offensiveCooldowns
+--
+-- Burst windows, so a healer can see who is about to need throughput and a lead can see
+-- whether the raid actually pressed on the pull. Same shape as externals/defensives: a
+-- nested table means "this is the CAST, and these are the BUFF ids it can land as" (talent
+-- variants and hero-talent renames), and every id ends up in the flat match set either way.
+--
+-- Base list carried over from the NeeRgY fork of Cell (github.com/NeeRgY/Cell), which
+-- curated it for Midnight season 1. Same Cell lineage, so no new licensing question.
+-------------------------------------------------
+local offensives = { -- true: track by name, false: track by id
+    ["DEATHKNIGHT"] = {
+        [42650] = true, -- 亡者大軍 - Army of the Dead
+        [51271] = true, -- 冰霜之柱 - Pillar of Frost
+        [1249658] = { -- 辛達苟薩之息 - Breath of Sindragosa
+            [152279] = true,
+        },
+    },
+
+    ["DEMONHUNTER"] = {
+        [1241937] = true, -- 靈魂獻祭 - Soul Immolation
+        [191427] = { -- 惡魔變形 - Metamorphosis
+            [162264] = true,
+        },
+        [1225789] = { -- 虛空惡魔變形 - Void Metamorphosis
+            [1217607] = true,
+        },
+        [370965] = { -- 狩獵 - The Hunt
+            [1246167] = true,
+            [1259431] = true,
+        },
+    },
+
+    ["DRUID"] = {
+        [194223] = true, -- 天體結盟 - Celestial Alignment
+        [106951] = true, -- 狂暴 - Berserk
+        [102560] = true, -- 化身：伊露恩的選民 - Incarnation: Chosen of Elune
+        [391528] = true, -- 眾靈召集 - Convoke the Spirits
+        [202770] = true, -- 伊露恩之怒 - Fury of Elune
+        [204066] = true, -- 月光束 - Lunar Beam
+    },
+
+    ["EVOKER"] = {
+        [375087] = true, -- 巨龍之怒 - Dragonrage
+        [442204] = { -- 萬古吐息 - Breath of Eons
+            [403631] = true,
+        },
+        [357210] = { -- 深呼吸 - Deep Breath
+            [433874] = true,
+        },
+    },
+
+    ["HUNTER"] = {
+        [288613] = true, -- 百發百中 - Trueshot
+        [1250646] = true, -- 擊倒 - Takedown
+        [1265063] = true, -- 血腥狂亂 - Bloody Frenzy
+        [459808] = true, -- 悲鳴之箭 - Wailing Arrow
+        [1261193] = true, -- 轟天雷 - Boomstick
+        [1258344] = { -- 獸群奔騰 - Stampede
+            [1258345] = true,
+        },
+    },
+
+    ["MAGE"] = {
+        [190319] = true, -- 燃燒 - Combustion
+        [365350] = { -- 秘法湧動 - Arcane Surge
+            [365362] = true,
+        },
+    },
+
+    ["MONK"] = {
+        [1249625] = true, -- 天頂 - Zenith
+        [325153] = true, -- 爆裂酒桶 - Exploding Keg
+    },
+
+    ["PALADIN"] = {
+        [1234189] = true, -- 處決判決 - Execution Sentence
+    },
+
+    ["PRIEST"] = {
+        [194249] = true, -- 虛空形態 - Voidform
+    },
+
+    ["ROGUE"] = {
+        [13750] = true, -- 腎上腺素急升 - Adrenaline Rush
+        [121471] = true, -- 暗影之刃 - Shadow Blades
+        [185422] = true, -- 暗影之舞 - Shadow Dance
+        [51690] = true, -- 影分身 - Killing Spree
+        [13877] = true, -- 剃刀亂舞 - Blade Flurry
+        [394095] = { -- 弒君之刃 - Kingsbane
+            [385627] = true,
+        },
+    },
+
+    ["SHAMAN"] = {
+        [466772] = true, -- 末日之風 - Doom Winds
+        [191634] = true, -- 風暴看守者 - Stormkeeper
+        [114050] = { -- 提升 - Ascendance
+            [114051] = true,
+            [1219480] = true,
+        },
+    },
+
+    ["WARLOCK"] = {
+        [265187] = true, -- 召喚惡魔暴君 - Summon Demonic Tyrant
+        [205180] = true, -- 召喚暗黑凝視者 - Summon Darkglare
+        [111685] = true, -- 召喚地獄火 - Summon Infernal
+        [442726] = true, -- 惡意 - Malevolence
+        [1257052] = true, -- 黑暗收割 - Dark Harvest
+    },
+
+    ["WARRIOR"] = {
+        [107574] = true, -- 神威 - Avatar
+        [1719] = true, -- 魯莽 - Recklessness
+        [446035] = { -- 旋風斬 - Bladestorm
+            [227847] = true,
+        },
+    },
+}
+
+function I.GetOffensives()
+    return offensives
+end
+
+local builtInOffensives = {}
+local customOffensives = {}
+
+local function UpdateOffensives(id, trackByName)
+    if trackByName then
+        local name = F.GetSpellInfo(id)
+        if name then
+            builtInOffensives[name] = true
+        end
+    end
+    -- Also store by ID so I.IsOffensiveCooldown() can match by ID directly.
+    builtInOffensives[id] = true
+end
+
+function I.UpdateOffensives(t)
+    -- Tolerate a missing table: this key is newer than the rest of CellDB, so an old profile
+    -- that reaches an option refresh before Revise has run would otherwise error here.
+    if type(t) ~= "table" then t = {["disabled"] = {}, ["custom"] = {}} end
+    t["disabled"] = t["disabled"] or {}
+    t["custom"] = t["custom"] or {}
+
+    -- user disabled
+    wipe(builtInOffensives)
+    for class, spells in pairs(offensives) do
+        for id, v in pairs(spells) do
+            if not t["disabled"][id] then -- not disabled
+                if type(v) == "table" then
+                    builtInOffensives[id] = true -- the cast itself, for I.IsOffensiveCooldown()
+                    for subId, subTrackByName in pairs(v) do
+                        UpdateOffensives(subId, subTrackByName)
+                    end
+                else
+                    UpdateOffensives(id, v)
+                end
+            end
+        end
+    end
+
+    -- user created
+    wipe(customOffensives)
+    for _, id in pairs(t["custom"]) do
+        customOffensives[id] = true
+    end
+end
+
+function I.IsOffensiveCooldown(name, id)
+    if not F.IsValueNonSecret(name) or not F.IsValueNonSecret(id) then return end
+    return builtInOffensives[name] or builtInOffensives[id] or customOffensives[id]
+end
+
+-------------------------------------------------
+-- spell-ID sets for AuraContainer candidateFilters (12.1)
+-- The match tables above are keyed by BOTH spell name and id (name keys exist for
+-- trackByName spells), but candidateFilters.includeSpellIDs accepts NUMERIC keys only --
+-- so strip the string keys. Filtering friendly-unit BUFFS by spell ID is allowed in 12.1
+-- (the restriction only bans it for debuffs on friendly units), which is what lets the
+-- defensive/external indicators keep Cell's curated + custom lists on the container path.
+-------------------------------------------------
+local function NumericKeysOf(...)
+    local out = {}
+    for i = 1, select("#", ...) do
+        local src = select(i, ...)
+        if type(src) == "table" then
+            for k in pairs(src) do
+                if type(k) == "number" then out[k] = true end
+            end
+        end
+    end
+    return out
+end
+
+function I.GetExternalSpellIDs()
+    return NumericKeysOf(builtInExternals, customExternals)
+end
+
+function I.GetDefensiveSpellIDs()
+    return NumericKeysOf(builtInDefensives, customDefensives)
+end
+
+function I.GetOffensiveSpellIDs()
+    return NumericKeysOf(builtInOffensives, customOffensives)
+end
+
+function I.GetAllCooldownSpellIDs()
+    return NumericKeysOf(builtInExternals, customExternals, builtInDefensives, customDefensives)
 end
 
 -------------------------------------------------
@@ -549,7 +668,7 @@ do
 end
 
 function I.IsTankActiveMitigation(spellId)
-    if issecretvalue and issecretvalue(spellId) then return end
+    if not F.IsValueNonSecret(spellId) then return end
     return tankActiveMitigations[spellId]
 end
 
@@ -737,7 +856,7 @@ do
 end
 
 function I.IsDrinking(name)
-    if issecretvalue and issecretvalue(name) then return end
+    if not F.IsValueNonSecret(name) then return end
     return drinks[name]
 end
 
@@ -758,6 +877,8 @@ local spells =  {
     145205, -- 百花齐放 - Efflorescence
     383193, -- 林地护理 - Grove Tending
     439530, -- 共生绽华 - Symbiotic Blooms
+    474754, -- 共生關係 - Symbiotic Relationship
+    29166, -- 啟動 - Innervate
     -- 429224, -- 次级塞纳里奥结界 - Minor Cenarion Ward (removed in 12.0, Durability of Nature redesigned)
 
     -- evoker
@@ -779,6 +900,8 @@ local spells =  {
     406789, -- 空间悖论 - Spatial Paradox
     445740, -- 纵焰 - Enkindle
     409895, -- 精神之花 - Spiritbloom (Reverberations, Chronowarden Hero Talent)
+    409678, -- 時空庇護 - Chrono Ward
+    1291636, -- 時空屏障 - Temporal Barrier
     410263, -- 炼狱祝福 - Inferno's Blessing
     410686, -- 共生绽放 - Symbiotic Bloom
     413984, -- 流沙 - Shifting Sands
@@ -793,6 +916,7 @@ local spells =  {
     450805, -- 净化之魂 - Purified Spirit
     467281, -- 金创药 - Healing Elixir
     115175, -- 抚慰之雾 - Soothing Mist
+    1292922, -- 聚合 - Coalescence
 
     -- paladin
     53563, -- 圣光道标 - Beacon of Light
@@ -803,15 +927,28 @@ local spells =  {
     287280, -- 圣光闪烁 - Glimmer of Light
     156322, -- 永恒之火 - Eternal Flame
     431381, -- 晨光 - Dawnlight
+    -- ⚠ NeeRgY's fork commented these four out as "removed in 12.0"; I could not confirm it
+    -- either way (wowhead still serves the pages, and LibOpenRaid never tracked them at all).
+    -- Kept, because the cost is asymmetric: this list only feeds includeSpellIDs, so a dead ID
+    -- is inert -- it matches nothing and the icon-preview builder skips a nil texture -- while
+    -- a missing live ID is a HoT that silently never shows. Verify with the macro in the
+    -- r288 Revise note before deleting.
     388013, -- 阳春祝福 - Blessing of Spring
     388007, -- 仲夏祝福 - Blessing of Summer
     388010, -- 暮秋祝福 - Blessing of Autumn
     388011, -- 凛冬祝福 - Blessing of Winter
     200654, -- 提尔的拯救 - Tyr's Deliverance
     1244893, -- 救世主道标 - Beacon of the Savior
+    1245369, -- 救世信標（吸收） - Beacon of the Savior (absorb)
+    1241717, -- 純潔屏障 - Seraphic Barrier
+    432496, -- 神聖堅盾 - Holy Bulwark (Holy Armaments 護盾型態)
+    432502, -- 神聖武器 - Sacred Weapon (Holy Armaments 武器型態)
 
     -- priest
-    139, -- 恢复 - Renew
+    -- ⚠ Same unresolved question as the seasonal blessings above, in the other direction: we
+    -- had Renew commented out as 12.0-removed, NeeRgY's fork has it live. Re-enabled on the
+    -- same asymmetry -- an inert ID costs nothing, a missing Holy Priest HoT is very visible.
+    139, -- 恢復 - Renew
     200829, -- 恳求 - Plea (added in 12.0, Disc)
     41635, -- 愈合祷言 - Prayer of Mending
     17, -- 真言术：盾 - Power Word: Shield
@@ -820,6 +957,8 @@ local spells =  {
     372847, -- 光明之泉恢复 - Blessed Bolt
     -- 443526, -- 慰藉预兆 - Premonition of Solace (removed in 12.0)
     1253593, -- 虚空之盾 - Void Shield
+    1300009, -- 虛無之盾-開展視野 - Void Shield (Unfolding Vision)
+    453846, -- 鳴響能量 - Resonant Energy
 
     -- shaman
     974, -- 大地之盾 - Earth Shield
@@ -827,10 +966,18 @@ local spells =  {
     61295, -- 激流 - Riptide
     382024, -- 大地生命武器 - Earthliving Weapon
     375986, -- 始源之潮 - Primordial Wave
+    207400, -- 先祖活力 - Ancestral Vigor
     444490, -- 源水气泡 - Hydrobubble
     -- 73920, -- 治疗之雨 - Healing Rain
     -- 456366, -- 治疗之雨 - Healing Rain
 }
+
+-- The default Healers spell list. Revise reads it to top up an EXISTING Healers indicator --
+-- F.FirstRun only ever fires once (CellDB["firstRun"]), so without that pass anyone who already
+-- had the indicator would never see a spell added here.
+function I.GetDefaultHealerSpells()
+    return spells
+end
 
 function F.FirstRun()
     local icons = "\n\n"
@@ -848,6 +995,7 @@ function F.FirstRun()
         local currentLayoutTable = Cell.vars.currentLayoutTable
 
         local last = #currentLayoutTable["indicators"]
+        local indicatorName -- ⚠ was a global write (and read) -- addon code must not leak names
         if currentLayoutTable["indicators"][last]["type"] == "built-in" then
             indicatorName = "indicator1"
         else
@@ -855,28 +1003,37 @@ function F.FirstRun()
         end
 
         tinsert(currentLayoutTable["indicators"], {
+            --! nameKey, not a translated name: the string in `name` is the fallback, and
+            --! I.GetIndicatorName localizes the KEY at display time. That keeps the row in
+            --! the player's own language after a client language change, and keeps an
+            --! exported profile from carrying one language into another client.
             ["name"] = "Healers",
+            ["nameKey"] = "Healers",
             ["indicatorName"] = indicatorName,
             ["type"] = "icons",
             ["enabled"] = true,
             ["position"] = {"TOPRIGHT", "button", "TOPRIGHT", 0, 3},
             ["frameLevel"] = 5,
-            ["size"] = {13, 13},
+            ["size"] = {17, 17},
             ["num"] = 5,
             ["numPerLine"] = 5,
             ["orientation"] = "right-to-left",
             ["spacing"] = {0, 0},
             ["font"] = {
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
-                {"Cell ".._G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
+                -- stack: size 8, anchored TOP (+0, +5)
+                {"Cell ".._G.DEFAULT, 8, "Outline", false, "TOP", 0, 5, {1, 1, 1}},
+                -- duration: size 11, anchored CENTER (+0, 0)
+                {"Cell ".._G.DEFAULT, 11, "Outline", false, "CENTER", 0, 0, {1, 1, 1}},
             },
             ["showStack"] = true,
-            ["showDuration"] = false,
+            ["showDuration"] = 60, -- only under 60s (true = always, false = never)
             ["showAnimation"] = true,
             ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}},
             ["auraType"] = "buff",
             ["castBy"] = "me",
-            ["auras"] = spells,
+            -- Copy, not the shared table: without this the layout entry aliases the module
+            -- local, so editing the indicator's spell list would edit the defaults too.
+            ["auras"] = F.Copy(spells),
         })
         Cell.Fire("UpdateIndicators", Cell.vars.currentLayout, indicatorName, "create", currentLayoutTable["indicators"][last+1])
         CellDB["firstRun"] = false
@@ -1122,14 +1279,69 @@ local actions = {
         {"A", {0.4, 1, 0}},
     },
     {
-        431416, -- 阿加治疗药水 - Algari Healing Potion
+        1234768, -- 銀月治療藥水 - Silvermoon Health Potion
         {"A", {1, 0.1, 0.1}},
     },
     {
-        431932, -- 淬火药水 - Tempered Potion
+        1236616, -- 潛能聖水 - Light's Potential
         {"C3", {1, 1, 0}},
     },
+    {
+        1295247, -- 濃縮版銀月城生命藥水 - Concentrated Silvermoon Health Potion
+        {"A", {1, 0.1, 0.1}},
+    },
+    {
+        1236648, -- 光融法力藥水 - Lightfused Mana Potion
+        {"D", {0.2, 0.55, 1}},
+    },
+    {
+        1263074, -- 阿曼尼萃取物 - Amani Extract
+        {"A", {1, 0.4, 0.4}},
+    },
+    {
+        1239479, -- 吞噬夢境藥水 - Potion of Devoured Dreams
+        {"D", {0.6, 0.3, 1}},
+    },
+    {
+        1236590, -- 基礎活力藥水 - Basic Rejuvenation Potion
+        {"B", {0.3, 1, 0.75}},
+    },
+    {
+        1295132, -- 流光藥劑 - Liquid Luster
+        {"C3", {0.3, 0.85, 1}},
+    },
+    {
+        1236998, -- 猛烈捨棄藥劑 - Draught of Rampant Abandon
+        {"C3", {0.6, 0.2667, 1}},
+    },
+    {
+        1262857, -- 強效治療藥水 - Potent Healing Potion
+        {"A", {1, 0.1, 0.1}},
+    },
+    {
+        1236994, -- 魯莽藥水 - Potion of Recklessness
+        {"C3", {0.85, 0.35, 1}},
+    },
 }
+-- ⚠ Seasonal. These are the CAST spell IDs, not item IDs -- the indicator watches the cast, so
+-- an item ID here silently tracks nothing. Cross-check against Ayije_CDM/Modules/Racials.lua,
+-- which carries the itemID/spellID pairs for the same consumables.
+-- Midnight replaced TWW's 431416 (Algari Healing Potion) / 431932 (Tempered Potion).
+-- The concentrated tier is a SEPARATE cast ID, not another rank of 1234768, so both have to be
+-- listed: items 271883/271884 -> spell 1295247, items 241304/241305 -> spell 1234768.
+--
+-- Crafting quality does NOT change the cast id -- R1/R2/R3 of one potion share it (241304 and
+-- 241305 both cast 1234768). A different NAME is what means a different id.
+--
+-- Colours are grouped by what the consumable does, so a glance at the animation tells you
+-- which kind it was without reading the icon:
+--   red      restores health          1234768 1295247 1262857, paler red 1263074 (HoT)
+--   blue     restores mana            1236648, violet 1239479 (channelled, defenceless)
+--   teal     restores both            1236590
+--   yellow   Light's Potential        1236616
+--   purple/magenta stat buffs         1236998 primary, 1236994 secondary, 1295132 versatility
+--   green    Healthstone              6262
+-- To confirm any id in game: Cell options -> Indicators -> Actions -> Debug Mode, then drink.
 
 
 function I.GetDefaultActions()
@@ -1317,6 +1529,6 @@ function I.UpdateCrowdControls(t)
 end
 
 function I.IsCrowdControls(name, id)
-    if issecretvalue and (issecretvalue(name) or issecretvalue(id)) then return end
+    if not F.IsValueNonSecret(name) or not F.IsValueNonSecret(id) then return end
     return builtInCrowdControls[name] or builtInCrowdControls[id] or customCrowdControls[name]
 end

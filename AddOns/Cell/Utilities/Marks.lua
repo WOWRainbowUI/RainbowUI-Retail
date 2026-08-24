@@ -84,10 +84,11 @@ marks = Cell.CreateFrame("CellRaidMarksFrame_Marks", marksFrame, 196, 20, true)
 marks:SetPoint("BOTTOMLEFT")
 marks:Hide()
 
-local ticker
 local markButtons = {}
 for i = 1, 9 do
-    markButtons[i] = Cell.CreateButton(marks, "", "accent-hover", {20, 20})
+    -- Midnight 12.0+: SetRaidTarget is protected. Use SecureActionButtonTemplate
+    -- with type="raidtarget" so marking works in and out of combat.
+    markButtons[i] = Cell.CreateButton(marks, "", "accent-hover", {20, 20}, false, false, nil, nil, "SecureActionButtonTemplate")
     markButtons[i].texture = markButtons[i]:CreateTexture(nil, "ARTWORK")
     P.Point(markButtons[i].texture, "TOPLEFT", markButtons[i], "TOPLEFT", 2, -2)
     P.Point(markButtons[i].texture, "BOTTOMRIGHT", markButtons[i], "BOTTOMRIGHT", -2, 2)
@@ -95,65 +96,24 @@ for i = 1, 9 do
     if i == 9 then
         -- clear all marks
         markButtons[i].texture:SetTexture("Interface\\Buttons\\UI-GroupLoot-Pass-Up")
-        markButtons[i]:SetScript("OnClick", function()
-            RemoveRaidTargets()
-            -- markButtons[i]:SetEnabled(false)
-            -- markButtons[i].texture:SetDesaturated(true)
-            -- for j = 1, 8 do
-            --     SetRaidTarget("player", j)
-            -- end
-            -- C_Timer.After(0.5, function()
-            --     SetRaidTarget("player", 0)
-            --     markButtons[i]:SetEnabled(true)
-            --     markButtons[i].texture:SetDesaturated(false)
-            -- end)
-        end)
+        markButtons[i]:RegisterForClicks("AnyDown", "AnyUp")
+        markButtons[i]:SetAttribute("type", "raidtarget")
+        markButtons[i]:SetAttribute("action", "clear-all")
     else
         markButtons[i].texture:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
         SetRaidTargetIconTexture(markButtons[i].texture, i)
-        markButtons[i]:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-        markButtons[i]:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                -- set raid target icon
-                if GetRaidTargetIndex("target") == i then
-                    SetRaidTarget("target", 0)
-                else
-                    SetRaidTarget("target", i)
-                end
-            elseif button == "RightButton" then
-                -- lock raid target icon
-                local unit, name, class = F.GetTargetUnitInfo()
-                if unit and name then
-                    if markButtons[i].locked then
-                        F.NotifyMarkUnlock(i, name, class)
-                        SetRaidTarget(markButtons[i].locked, 0)
-                        markButtons[i]:SetBackdropBorderColor(0, 0, 0, 1)
-                        markButtons[i].locked = nil
-                        if markButtons[i].ticker then
-                            markButtons[i].ticker:Cancel()
-                            markButtons[i].ticker = nil
-                        end
-                    else
-                        F.NotifyMarkLock(i, name, class)
-                        SetRaidTarget(unit, i)
-                        markButtons[i]:SetBackdropBorderColor(markColors[i][1], markColors[i][2], markColors[i][3], 1)
-                        markButtons[i].locked = unit
-                        markButtons[i].ticker = C_Timer.NewTicker(1.5, function()
-                            if UnitName(unit) == name then
-                                if GetRaidTargetIndex(unit) ~= i then
-                                    SetRaidTarget(unit, i)
-                                end
-                            else
-                                markButtons[i].locked = nil
-                                markButtons[i].ticker:Cancel()
-                                markButtons[i].ticker = nil
-                                markButtons[i]:SetBackdropBorderColor(0, 0, 0, 1)
-                            end
-                        end)
-                    end
-                end
-            end
-        end)
+        markButtons[i]:RegisterForClicks("AnyDown", "AnyUp")
+
+        -- Left click: toggle raid target icon (secure action)
+        markButtons[i]:SetAttribute("type1", "raidtarget")
+        markButtons[i]:SetAttribute("marker", i)
+        markButtons[i]:SetAttribute("action1", "toggle")
+
+        -- Right-click "lock the mark onto this unit" is GONE on 12.x: re-applying a mark
+        -- means calling SetRaidTarget from a ticker, and SetRaidTarget is a protected
+        -- function since 12.0 -- the ticker could only ever fire out of combat, which is
+        -- the one time nobody needs a mark re-applied. The secure left-click above is the
+        -- whole feature now. (F.NotifyMarkLock/Unlock went with it.)
     end
 
     markButtons[i].bg:SetColorTexture(0.1, 0.1, 0.1, 0.7)
@@ -167,17 +127,6 @@ for i = 1, 9 do
     --     P.Point(markButtons[i], "LEFT", markButtons[i-1], "RIGHT", 2, 0)
     -- end
 end
-
-marks:SetScript("OnHide", function()
-    for i = 1, 8 do
-        markButtons[i].locked = nil
-        if markButtons[i].ticker then
-            markButtons[i].ticker:Cancel()
-            markButtons[i].ticker = nil
-        end
-        markButtons[i]:SetBackdropBorderColor(0, 0, 0, 1)
-    end
-end)
 
 -------------------------------------------------
 -- world marks

@@ -15,9 +15,14 @@ end
 
 local function Deserialize(encoded)
     local decoded = LibDeflate:DecodeForWoWAddonChannel(encoded) -- decode
+    if not decoded then -- garbage on the channel: DecompressDeflate(nil) would error
+        F.Debug("Error decoding: bad addon-channel payload")
+        return
+    end
     local decompressed = LibDeflate:DecompressDeflate(decoded) -- decompress
     if not decompressed then
-        F.Debug("Error decompressing: " .. errorMsg)
+        -- ⚠ was `.. errorMsg`, an undeclared global -- the error path itself errored
+        F.Debug("Error decompressing")
         return
     end
     local success, data = Serializer:Deserialize(decompressed) -- deserialize
@@ -47,30 +52,6 @@ end
 function F.IsCommRestricted()
     return IsCommRestricted()
 end
-
--- Simple queue for deferred sends (used when comms are restricted)
-local pendingComms = {}
-
-local function QueueComm(prefix, message, channel, target, priority)
-    tinsert(pendingComms, {prefix=prefix, message=message, channel=channel, target=target, priority=priority})
-end
-
-local function FlushPendingComms()
-    if IsCommRestricted() then return end
-    if #pendingComms == 0 then return end
-    local toSend = pendingComms
-    pendingComms = {}
-    for _, msg in ipairs(toSend) do
-        Comm:SendCommMessage(msg.prefix, msg.message, msg.channel, msg.target, msg.priority or "NORMAL")
-    end
-end
-
-local commFrame = CreateFrame("Frame")
-commFrame:RegisterEvent("ENCOUNTER_END")
-commFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
-commFrame:SetScript("OnEvent", function()
-    C_Timer.After(1, FlushPendingComms)
-end)
 
 -----------------------------------------
 -- for WA
@@ -103,84 +84,57 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
     self[event](self, ...)
 end)
 
+-- MiliUI: the handshake runs on our own prefix, not CELL_VERSION. Stock Cell parses the
+-- digits out of whatever arrives there, so broadcasting "r291_MiliUI" would tell every stock
+-- user that a version which does not exist on CurseForge is out, and point them at its
+-- download page. On a private prefix only builds that understand it ever hear us, and stock
+-- Cell's own version conversation is left completely alone.
+--
+-- ⚠ Cell.toc's "## Version: rNNN_MiliUI" is now a release signal, not just the Revise
+-- migration gate -- bump it on every shipped change or this stays silent with no error.
+local VERSION_PREFIX = "CELL_MILIUI_VER"
+local VERSION_URL = "|cFF00CCFFhttps://addons.miliui.com/wow/cell|r"
+
 eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 function eventFrame:GROUP_ROSTER_UPDATE()
-    if IsInGroup() then
-        eventFrame:UnregisterEvent("GROUP_ROSTER_UPDATE")
-        UpdateSendChannel()
-        -- Addon comms blocked during encounters/M+/PvP on Midnight 12.0.0+
-        if IsCommRestricted() then
-            F.Debug("Cell: Comm suppressed - restricted context (CELL_VERSION group)")
-            return
-        end
-        Comm:SendCommMessage("CELL_VERSION", Cell.version, sendChannel, nil, "NORMAL")
-    end
+    if not IsInGroup() then return end
+    UpdateSendChannel() -- also what initialises sendChannel for CELL_PRIO
+    -- ⚠ Stop listening only once the broadcast has actually gone out. Upstream unregistered
+    -- first, which was safe because it had no comm guard -- but 12.1 blocks addon messages
+    -- during encounters/M+/PvP, so unregistering first would silently drop the version for
+    -- the whole session if the first time you were in a group happened to be mid-key.
+    if IsCommRestricted() then return end
+    eventFrame:UnregisterEvent("GROUP_ROSTER_UPDATE")
+    Comm:SendCommMessage(VERSION_PREFIX, Cell.version, sendChannel, nil, "NORMAL")
 end
 
+-- The guild broadcast is the one that actually reaches people: the group send above only
+-- fires if you are in a party, while this goes out every login to everyone in the guild.
+-- Stock Cell had both, and this is the half that made "log in, get told there is an update"
+-- work at all -- restoring only the group half would have made the reminder look broken.
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 function eventFrame:PLAYER_LOGIN()
-    if IsInGuild() then
-        -- Addon comms blocked during encounters/M+/PvP on Midnight 12.0.0+
-        if IsCommRestricted() then
-            F.Debug("Cell: Comm suppressed - restricted context (CELL_VERSION guild)")
-            return
-        end
-        Comm:SendCommMessage("CELL_VERSION", Cell.version, "GUILD", nil, "NORMAL")
+    if IsInGuild() and not IsCommRestricted() then
+        Comm:SendCommMessage(VERSION_PREFIX, Cell.version, "GUILD", nil, "NORMAL")
     end
 end
 
-Comm:RegisterComm("CELL_VERSION", function(prefix, message, channel, sender)
+Comm:RegisterComm(VERSION_PREFIX, function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
     local version = tonumber(string.match(message, "%d+"))
     local myVersion = tonumber(string.match(Cell.version, "%d+"))
     if (not CellDB["lastVersionCheck"] or time()-CellDB["lastVersionCheck"]>=25200) and version and myVersion and myVersion < version then
         CellDB["lastVersionCheck"] = time()
-        F.Print(L["New version found (%s). Please visit %s to get the latest version."]:format(message, "|cFF00CCFFhttps://www.curseforge.com/wow/addons/cell|r"))
+        F.Print(L["New version found (%s). Please visit %s to get the latest version."]:format(message, VERSION_URL))
     end
 end)
 
 -----------------------------------------
--- Notify Marks
+-- Notify Marks (REMOVED)
 -----------------------------------------
-Comm:RegisterComm("CELL_MARKS", function(prefix, message, channel, sender)
-    if sender == UnitName("player") then return end
-    local data = Deserialize(message)
-    if Cell.vars.hasPartyMarkPermission and CellDB["tools"]["marks"][1] and (strfind(CellDB["tools"]["marks"][3], "^target") or strfind(CellDB["tools"]["marks"][3], "^both")) and data then
-        sender = F.GetClassColorStr(select(2, UnitClass(sender)))..sender.."|r"
-
-        if data[1] then -- lock
-            F.Print(L["%s lock %s on %s."]:format(sender, F.GetMarkEscapeSequence(data[2]), data[3]))
-        else
-            F.Print(L["%s unlock %s from %s."]:format(sender, F.GetMarkEscapeSequence(data[2]), data[3]))
-        end
-    end
-end)
-
-function F.NotifyMarkLock(mark, name, class)
-    name = F.GetClassColorStr(class)..name.."|r"
-    F.Print(L["%s lock %s on %s."]:format(L["You"], F.GetMarkEscapeSequence(mark), name))
-
-    UpdateSendChannel()
-    -- Addon comms blocked during encounters/M+/PvP on Midnight 12.0.0+
-    if IsCommRestricted() then
-        F.Debug("Cell: Comm suppressed - restricted context (CELL_MARKS lock)")
-        return
-    end
-    Comm:SendCommMessage("CELL_MARKS", Serialize({true, mark, name}), sendChannel, nil, "ALERT")
-end
-
-function F.NotifyMarkUnlock(mark, name, class)
-    name = F.GetClassColorStr(class)..name.."|r"
-    F.Print(L["%s unlock %s from %s."]:format(L["You"], F.GetMarkEscapeSequence(mark), name))
-
-    UpdateSendChannel()
-    -- Addon comms blocked during encounters/M+/PvP on Midnight 12.0.0+
-    if IsCommRestricted() then
-        F.Debug("Cell: Comm suppressed - restricted context (CELL_MARKS unlock)")
-        return
-    end
-    Comm:SendCommMessage("CELL_MARKS", Serialize({false, mark, name}), sendChannel, nil, "ALERT")
-end
+-- The CELL_MARKS lock/unlock broadcast (and F.NotifyMarkLock / F.NotifyMarkUnlock) went
+-- with the mark-lock feature: keeping a mark stuck on a unit needs SetRaidTarget from a
+-- ticker, and that is a protected function on 12.x. Nothing announces marks any more.
 
 -----------------------------------------
 -- Priority Check

@@ -62,6 +62,86 @@ local slotNames = {
     [17] = _G.INVTYPE_WEAPONOFFHAND,
 }
 
+-- ============================================================
+-- 12.0.7 Click Gate Workaround (target / menu via ungated proxy)
+-- In 12.0.7, Blizzard gates "target", "menu", "togglemenu" actions
+-- on unit buttons when not on default interaction buttons (plain
+-- left/right). Modifier+click (Ctrl+Left, Shift+Right, etc.) and
+-- non-default buttons (Middle, Button4, Button5, Scroll) silently fail.
+-- Workaround: route gated actions through a secure proxy button using
+-- the "click" action type (not gated). Credit: EllesmereUI, DandersFrames.
+-- ============================================================
+
+-- Lazily create the per-frame proxy button (out of combat only).
+-- useparent-unit makes the proxy inherit the frame's real unit token.
+-- Register for both AnyDown and AnyUp to match frame's click direction
+-- (frames use AnyDown when click casting is enabled, proxy needs both).
+local function EnsureClickProxy(frame)
+    if frame.cellClickProxy then return frame.cellClickProxy end
+    if InCombatLockdown() then return nil end
+    local proxy = CreateFrame("Button", nil, frame, "SecureActionButtonTemplate")
+    proxy:EnableMouse(false)                       -- only clicked programmatically
+    proxy:RegisterForClicks("AnyDown", "AnyUp")    -- match frame's click direction
+    proxy:SetAttribute("useparent-unit", true)
+    proxy:SetAttribute("useOnKeyDown", false)
+    frame.cellClickProxy = proxy
+    return proxy
+end
+
+-- Route a gated action (target / togglemenu) through the proxy.
+-- typeAttr is the action attribute on the frame (e.g. "shift-type2").
+-- clickbuttonAttr is its matching clickbutton attribute.
+-- The proxy carries the real action under the SAME suffix.
+local function RouteProxyAction(frame, typeAttr, clickbuttonAttr, realAction)
+    local proxy = EnsureClickProxy(frame)
+    if not proxy then
+        -- In combat the proxy can't be created. Fall back to direct action;
+        -- the whole binding set is reapplied after combat which installs proxy.
+        frame:SetAttribute(typeAttr, realAction)
+        return
+    end
+    frame:SetAttribute(typeAttr, "click")
+    frame:SetAttribute(clickbuttonAttr, proxy)
+    proxy:SetAttribute(typeAttr, realAction)
+    frame.cellProxyRoutes = frame.cellProxyRoutes or {}
+    frame.cellProxyRoutes[#frame.cellProxyRoutes + 1] = { typeAttr = typeAttr, clickbuttonAttr = clickbuttonAttr }
+end
+
+-- Clear proxy routes from a frame: wipe frame's click/clickbutton attrs
+-- and the proxy's action attrs.
+local function ClearProxyRoutes(frame)
+    if frame.cellProxyRoutes then
+        for _, r in ipairs(frame.cellProxyRoutes) do
+            frame:SetAttribute(r.typeAttr, nil)
+            frame:SetAttribute(r.clickbuttonAttr, nil)
+            if frame.cellClickProxy then
+                frame.cellClickProxy:SetAttribute(r.typeAttr, nil)
+            end
+        end
+        frame.cellProxyRoutes = nil
+    end
+end
+
+-- Check if a bindKey represents a gated action for target/menu.
+-- Returns: isGated, actionType ("target" or "togglemenu")
+local function IsGatedAction(bindKey, actionType)
+    if actionType ~= "target" and actionType ~= "togglemenu" and actionType ~= "menu" then
+        return false
+    end
+    -- Parse modifier prefix and button number from bindKey (e.g. "shift-type2")
+    local modifier, dash, key = strmatch(bindKey, "^(.*)type(-*)(.+)$")
+    if not modifier then return false end -- keyboard binding, not gated
+    local hasModifier = modifier and modifier ~= ""
+    local buttonNum = tonumber(key)
+    if actionType == "target" then
+        -- target is gated when: has modifier OR not plain left-click (button 1)
+        return hasModifier or (buttonNum and buttonNum ~= 1)
+    else -- togglemenu / menu
+        -- menu is gated when: has modifier OR not plain right-click (button 2)
+        return hasModifier or (buttonNum and buttonNum ~= 2)
+    end
+end
+
 -- local modifiers = {"", "shift-", "ctrl-", "alt-", "ctrl-shift-", "alt-shift-", "alt-ctrl-", "alt-ctrl-shift-"}
 -- local modifiersDisplay = {"", "Shift|cff777777+|r", "Ctrl|cff777777+|r", "Alt|cff777777+|r", "Ctrl|cff777777+|rShift|cff777777+|r", "Alt|cff777777+|rShift|cff777777+|r", "Alt|cff777777+|rCtrl|cff777777+|r", "Alt|cff777777+|rCtrl|cff777777+|rShift|cff777777+|r"}
 -- local keys = {"Left", "Right", "Middle", "Button4", "Button5", "ScrollUp", "ScrollDown"}
@@ -117,8 +197,25 @@ local function GetBindingDisplay(modifier, key)
     return modifier..key
 end
 
+-- Normalize modifier string to canonical WoW order: ALT-CTRL-SHIFT
+-- Ensures attribute names like "alt-ctrl-clickbutton1" match WoW's expected format
+local function NormalizeModifier(modifier)
+    if not modifier or modifier == "" then return "" end
+    local parts = {}
+    for m in modifier:gmatch("([^-]+)%-") do
+        parts[m:upper()] = true
+    end
+    local result = ""
+    if parts.ALT then result = result .. "alt-" end
+    if parts.CTRL then result = result .. "ctrl-" end
+    if parts.SHIFT then result = result .. "shift-" end
+    if parts.META then result = result .. "meta-" end
+    return result
+end
+
 -- shift-Left -> shift-type1
 local function GetAttributeKey(modifier, bindKey)
+    modifier = NormalizeModifier(modifier)
     if mouseKeyIDs[bindKey] then -- normal mouse button
         return modifier.."type"..mouseKeyIDs[bindKey]
     elseif bindKey == "ScrollUp" or bindKey == "ScrollDown" then -- mouse wheel
@@ -282,6 +379,13 @@ if Cell.isRetail then
             self:ClearBindings()
         ]])
 
+        b:SetAttribute("_onmousedown", [[
+            -- Refresh secure hover bindings before the click is handled. This covers
+            -- stale hover states where OnEnter did not rebuild keyboard/wheel binds.
+            self:ClearBindings()
+            self:Run(self:GetAttribute("snippet"))
+        ]])
+
         -- wrapFrame:WrapScript(b, "OnLeave", [[
         --     -- print("OnLeave")
         --     mouseoverbutton = nil
@@ -364,6 +468,13 @@ else
             self:ClearBindings()
         ]])
 
+        b:SetAttribute("_onmousedown", [[
+            -- Refresh secure hover bindings before the click is handled. This covers
+            -- stale hover states where OnEnter did not rebuild keyboard/wheel binds.
+            self:ClearBindings()
+            self:Run(self:GetAttribute("snippet"))
+        ]])
+
         -- wrapFrame:WrapScript(b, "OnLeave", [[
         --     -- print("OnLeave")
         --     mouseoverbutton = nil
@@ -442,6 +553,8 @@ end
 local previousClickCastings
 local function ClearClickCastings(b)
     if not previousClickCastings then return end
+    -- Clear proxy routes first (for 12.0.7 click gate workaround)
+    ClearProxyRoutes(b)
     b:SetAttribute("cell", nil)
     b:SetAttribute("menu", nil)
     for _, t in pairs(previousClickCastings) do
@@ -459,6 +572,9 @@ local function ClearClickCastings(b)
         b:SetAttribute(attr, nil)
         attr = string.gsub(bindKey, "type", "item")
         b:SetAttribute(attr, nil)
+        -- Also clear clickbutton attributes (for proxy routes)
+        local clickbuttonAttr = string.gsub(bindKey, "type", "clickbutton")
+        b:SetAttribute(clickbuttonAttr, nil)
         -- attr = string.gsub(bindKey, "type", "click")
         -- b:SetAttribute(attr, nil)
         -- if t[2] == "spell" then
@@ -504,8 +620,37 @@ local function ApplyClickCastings(b)
             bindKey = GetMouseWheelBindKey(t[1])
         end
 
+        -- Helper to set attribute via proxy if gated, otherwise direct
+        local function SetActionAttr(bindKey, actionType, actionValue)
+            -- "menu" is an alias for togglemenu in SecureActionButtonTemplate
+            local realAction = actionType
+            if actionType == "menu" then realAction = "togglemenu" end
+
+            -- Check if this action is gated for this bindKey
+            if IsGatedAction(bindKey, realAction) then
+                -- Gated: route through proxy
+                local typeAttr = bindKey
+                local clickbuttonAttr = string.gsub(bindKey, "type", "clickbutton")
+                RouteProxyAction(b, typeAttr, clickbuttonAttr, realAction)
+            else
+                -- Not gated: set directly
+                b:SetAttribute(bindKey, realAction)
+            end
+        end
+
         if t[2] == "togglemenu_nocombat" then
-            b:SetAttribute("menu", bindKey)
+            -- togglemenu_nocombat sets the "menu" attribute to the bindKey
+            -- This is a togglemenu action, check if gated
+            if IsGatedAction(bindKey, "togglemenu") then
+                -- Route through proxy: set type attribute to "click" and clickbutton to proxy
+                local typeAttr = bindKey
+                local clickbuttonAttr = string.gsub(bindKey, "type", "clickbutton")
+                RouteProxyAction(b, typeAttr, clickbuttonAttr, "togglemenu")
+                -- Clear the menu attribute since we're handling it via proxy
+                b:SetAttribute("menu", nil)
+            else
+                b:SetAttribute("menu", bindKey)
+            end
         ------------------------------------------------------------------
         --* 已修复：实际上载具（宠物按钮）无法选中的原因是没有 SetAttribute("toggleForVehicle", false)
         -- elseif Cell.isCata and t[2] == "target" then
@@ -515,7 +660,7 @@ local function ApplyClickCastings(b)
         --     UpdatePlaceholder(b, attr)
         ------------------------------------------------------------------
         else
-            b:SetAttribute(bindKey, t[2])
+            SetActionAttr(bindKey, t[2])
         end
 
         if t[2] == "spell" then
@@ -593,6 +738,8 @@ local function ApplyClickCastings(b)
             local attr = string.gsub(bindKey, "type", "macrotext")
             b:SetAttribute(attr, t[3])
         else
+            -- Handle target, togglemenu, focus, assist, item, etc.
+            -- These are set as attributes like "spell", "macro", "item", etc.
             local attr = string.gsub(bindKey, "type", t[2])
             b:SetAttribute(attr, t[3])
         end
@@ -661,6 +808,20 @@ function F.UpdateClickCastings(noReload, onlyqueued)
 end
 Cell.RegisterCallback("UpdateClickCastings", "UpdateClickCastings", F.UpdateClickCastings)
 
+-- fix from MiliUI: expose the bindings so the Click-Casting Hints tool reads the
+-- same profile this file does instead of decoding CellDB a second time.
+-- Resolved the same way F.UpdateClickCastings resolves clickCastingTable rather
+-- than handing out that upvalue: callbacks fire in no particular order, so on a
+-- profile or spec switch the upvalue can still point at the outgoing table when
+-- another UpdateClickCastings listener runs.
+function F.GetActiveClickCastings()
+    local cc = Cell.vars.clickCastings
+    if type(cc) ~= "table" then return clickCastingTable end
+    return cc["useCommon"] and cc["common"] or cc[Cell.vars.playerSpecID]
+end
+
+F.DecodeClickCastingDB = DecodeDB
+
 local function UpdateQueuedClickCastings()
     UpdateClickCastings(true, true)
 end
@@ -674,6 +835,22 @@ local profileDropdown
 local function CreateProfilePane()
     local profilePane = Cell.CreateTitledPane(clickCastingsTab, L["Profiles"], 422, 50)
     profilePane:SetPoint("TOPLEFT", 5, -5)
+
+    -- fix from MiliUI: the hint bar that displays these bindings is configured two tabs away,
+    -- under Utilities, and nothing on this page ever said so -- people set their click-casts up
+    -- and never found the thing that shows them. Sits in the gap under the two dropdown panes
+    -- (they are fixed-offset from the top, so -124 is stable) and above the profile list, which
+    -- is anchored to the BOTTOM -- nothing has to move for it.
+    local hintsBtn = Cell.CreateButton(clickCastingsTab, L["Click-Casting Hints"],
+        "accent-hover", {100, 17}, nil, nil, nil, nil, nil,
+        L["Click-Casting Hints"], L["CLICK_CASTING_HINTS_JUMP_TIPS"])
+    hintsBtn:SetPoint("TOPLEFT", clickCastingsTab, "TOPLEFT", 5, -124)
+    -- the label is much wider in English than in Chinese, so take the width from the string
+    P.Width(hintsBtn, math.ceil(hintsBtn:GetFontString():GetStringWidth()) + 14)
+    hintsBtn:SetScript("OnClick", function()
+        F.ShowUtilitiesTab()
+        F.ShowClickCastingHintsTab()
+    end)
 
     profileDropdown = Cell.CreateDropdown(profilePane, 412)
     profileDropdown:SetPoint("TOPLEFT", profilePane, "TOPLEFT", 5, -27)
@@ -1412,7 +1589,11 @@ local function UpdateCurrentText(isCommon)
 end
 
 local function CreateListPane()
-    listPane = Cell.CreateTitledPane(clickCastingsTab, L["Current Profile"], 422, 451)
+    -- ⚠ height, not a top offset: this pane is anchored to the BOTTOM, so its height is what
+    -- decides where its title line lands. The tab is 592 tall (OptionsFrame.lua), the hints
+    -- button above ends at -141, so 592 - 5 - 442 = 145 leaves the title 4px of clearance.
+    -- Shrinking the pane only costs rows in a list that scrolls anyway.
+    listPane = Cell.CreateTitledPane(clickCastingsTab, L["Current Profile"], 422, 442)
     listPane:SetPoint("BOTTOMLEFT", clickCastingsTab, 5, 5)
 
     local hint = Cell.CreateButton(listPane, nil, "accent-hover", {17, 17}, nil, nil, nil, nil, nil,

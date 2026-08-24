@@ -44,9 +44,19 @@ local function HideFrame(frame)
     end
 end
 
+-- Stock Cell called _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE") here (and in
+-- HideBlizzardRaid), inherited from the ElvUI recipe this file is stolen from. Removed: it is
+-- DEAD CODE. UIParent does not register that event -- in current retail the whole
+-- Blizzard_UIParent addon is an 11-line stub with no OnEvent handler at all, and nothing in
+-- Blizzard's UI source calls UIParent:RegisterEvent (verified by grep over wow-ui-source live:
+-- 0 hits across 2551 files, against 2519 :RegisterEvent calls overall). The monolithic
+-- UIParent_OnEvent that used to drive UIParent_ManageFramePositions is long gone.
+--
+-- So this is a no-op either way; it is deleted for being misleading, not for an effect.
+-- NeeRgY's fork also drops it and credits it with fixing scenario/delve objective tracking --
+-- that cannot be the mechanism, so if their fix is real it came from something else in their
+-- HideBlizzard rewrite. Do not re-add this line expecting it to hide anything.
 function F.HideBlizzardParty()
-    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
-
     -- Midnight 12.0.0+ may have different party frame structure
     if _G.CompactPartyFrame then
         _G.CompactPartyFrame:UnregisterAllEvents()
@@ -74,9 +84,8 @@ function F.HideBlizzardParty()
     end
 end
 
+-- Same dead UIParent:UnregisterEvent call removed here too. See the note above.
 function F.HideBlizzardRaid()
-    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
-
     if _G.CompactRaidFrameContainer then
         _G.CompactRaidFrameContainer:UnregisterAllEvents()
         _G.CompactRaidFrameContainer:SetParent(hiddenParent)

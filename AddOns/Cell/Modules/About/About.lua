@@ -436,7 +436,7 @@ local function CreateLinksPane()
 
     local linksEB = Cell.CreateEditBox(linksPane, 412, 20)
     linksEB:SetPoint("TOPLEFT", 5, -27)
-    linksEB:SetText("https://github.com/enderneko/Cell")
+    linksEB:SetText("https://addons.miliui.com/wow/cell")
     linksEB:SetScript("OnTextChanged", function(self, userChanged)
         if userChanged then
             linksEB:SetText(current)
@@ -449,8 +449,12 @@ local function CreateLinksPane()
     end)
 
     --! github
+    -- MiliUI: points at this build's download page, not upstream's repo. A player who
+    -- follows the link from inside a MiliUI Cell should get a MiliUI Cell -- sending them
+    -- to stock Cell means they overwrite this build with one that lacks every fix here.
+    -- The community and donation links below are deliberately left pointing at enderneko.
     local github = CreateLink(linksPane, "github", "Interface\\AddOns\\Cell\\Media\\Links\\github.tga", function()
-        current = "https://github.com/enderneko/Cell"
+        current = "https://addons.miliui.com/wow/cell"
         linksEB:SetText(current)
         linksEB:ClearFocus()
     end)
@@ -460,29 +464,13 @@ local function CreateLinksPane()
         github:GetScript("OnEnter")()
     end)
 
-    --! curseforge
-    local curseforge = CreateLink(linksPane, "curseforge", "Interface\\AddOns\\Cell\\Media\\Links\\curseforge.tga", function()
-        current = "https://www.curseforge.com/wow/addons/cell"
-        linksEB:SetText(current)
-        linksEB:ClearFocus()
-    end)
-    curseforge:SetPoint("TOPLEFT", github, "TOPRIGHT", 7, 0)
-
-    --! wago
-    local wago = CreateLink(linksPane, "wago", "Interface\\AddOns\\Cell\\Media\\Links\\wago.tga", function()
-        current = "https://addons.wago.io/addons/cell"
-        linksEB:SetText(current)
-        linksEB:ClearFocus()
-    end)
-    wago:SetPoint("TOPLEFT", curseforge, "TOPRIGHT", 7, 0)
-
     --! discord
     local discord = CreateLink(linksPane, "discord", "Interface\\AddOns\\Cell\\Media\\Links\\discord.tga", function()
         current = "https://discord.gg/9PSe3fKQGJ"
         linksEB:SetText(current)
         linksEB:ClearFocus()
     end)
-    discord:SetPoint("TOPLEFT", wago, "TOPRIGHT", 7, 0)
+    discord:SetPoint("TOPLEFT", github, "TOPRIGHT", 7, 0)
 
     --! kook
     local kook = CreateLink(linksPane, "kook", "Interface\\AddOns\\Cell\\Media\\Links\\kook.tga", function()

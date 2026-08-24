@@ -190,6 +190,7 @@ L["Close"] = "Chiudi"
 --[[ L["Code Snippets"] = "Code Snippets"--]]
 L["Color"] = "Colore"
 L["Color By"] = "Colora per"
+L["Color by Remaining Time"] = "Colora in base al tempo rimanente"
 L["Color Duration Text"] = "Colora testo della durata"
 L["Color Thresholds"] = "Soglie per il colore"
 L["Columns"] = "Colonne"
@@ -223,6 +224,11 @@ L["Create new layout"] = "Crea nuovo layout"
 --[[Translation missing --]]
 --[[ L["Create several buttons for quick casting and buff monitoring"] = ""--]]
 L["Crowd Controls"] = "Effetti di controllo"
+L["Important Debuffs"] = "Debuff importanti"
+L["Boss/Role Debuffs"] = "Debuff di boss/ruolo"
+L["Priority Debuffs"] = "Debuff prioritari"
+L["Raid-wide Debuffs"] = "Debuff del raid"
+L["Dispellable"] = "Dissolvibile"
 --[[Translation missing --]]
 --[[ L["Current"] = " Current"--]]
 --[[Translation missing --]]
@@ -286,6 +292,7 @@ L["DISPEL"] = "DISPEL"
 L["Dispel Request"] = "Richiesta di Dispel"
 L["Dispellable By Me"] = "Dispellabile Da Me"
 L["dispellableByMe"] = "Mostra solo debuff dispellabili da me"
+L["excludeImportant"] = "Nascondi i debuff già mostrati come importanti"
 L["Dispels"] = "Dispel"
 L["Display a gradient texture when the unit receives a heal from your certain healing spells."] = "Mostra una texture a gradiente quando l'unità riceve cure da alcune abilità di cura AoE."
 --[[Translation missing --]]

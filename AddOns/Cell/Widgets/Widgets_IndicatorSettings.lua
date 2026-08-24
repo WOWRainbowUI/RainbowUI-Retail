@@ -493,6 +493,10 @@ local function CreateSetting_Size(parent)
 
         -- show db value
         function widget:SetDBValue(sizeTable)
+            -- Layouts saved before the debuff row moved to an AuraContainer store the
+            -- "size-normal-big" shape {{w,h},{w,h}}. The container has ONE element size, so
+            -- take the normal size and let Revise rewrite the saved value.
+            if type(sizeTable[1]) == "table" then sizeTable = sizeTable[1] end
             widget.width:SetValue(sizeTable[1])
             widget.height:SetValue(sizeTable[2])
         end
@@ -1043,14 +1047,12 @@ local function CreateSetting_HealthFormat(parent)
 
         local function UpdateWidgets()
             local health1Enabled = widget.format.health1.format ~= "none"
-            widget.health1HideIfEmptyOrFullCB:SetEnabled(health1Enabled)
             widget.health1ColorDropdown:SetEnabled(health1Enabled)
             widget.health1ColorPicker:SetEnabled(health1Enabled)
 
             local health2Enabled = widget.format.health2.format ~= "none"
             widget.health2DelimiterEB:SetEnabled(health2Enabled)
             widget.health2DelimiterEB.confirmBtn:Hide()
-            widget.health2HideIfEmptyOrFullCB:SetEnabled(health2Enabled)
             widget.health2ColorDropdown:SetEnabled(health2Enabled)
             widget.health2ColorPicker:SetEnabled(health2Enabled)
             if health2Enabled then
@@ -1124,14 +1126,8 @@ local function CreateSetting_HealthFormat(parent)
         health1Text:SetPoint("BOTTOMLEFT", widget.health1FormatDropdown, "TOPLEFT", 0, 1)
         health1Text:SetText(L["Health"] .. " 1")
 
-        widget.health1HideIfEmptyOrFullCB = Cell.CreateCheckButton(widget, L["hideIfEmptyOrFull"], function(checked)
-            widget.format.health1.hideIfEmptyOrFull = checked
-            widget.func()
-        end)
-        widget.health1HideIfEmptyOrFullCB:SetPoint("TOPLEFT", widget.health1FormatDropdown, "BOTTOMLEFT", 0, -10)
-
         widget.health1ColorDropdown = Cell.CreateDropdown(widget, 127)
-        widget.health1ColorDropdown:SetPoint("TOPLEFT", widget.health1HideIfEmptyOrFullCB, "BOTTOMLEFT", 0, -10)
+        widget.health1ColorDropdown:SetPoint("TOPLEFT", widget.health1FormatDropdown, "BOTTOMLEFT", 0, -10)
         widget.health1ColorDropdown:SetItems({
             {
                 ["text"] = L["Class Color"],
@@ -1182,14 +1178,8 @@ local function CreateSetting_HealthFormat(parent)
         widget.health2DelimiterText:SetPoint("BOTTOMLEFT", widget.health2DelimiterEB, "TOPLEFT", 0, 1)
         widget.health2DelimiterText:SetText(L["Delimiter"])
 
-        widget.health2HideIfEmptyOrFullCB = Cell.CreateCheckButton(widget, L["hideIfEmptyOrFull"], function(checked)
-            widget.format.health2.hideIfEmptyOrFull = checked
-            widget.func()
-        end)
-        widget.health2HideIfEmptyOrFullCB:SetPoint("TOPLEFT", widget.health2FormatDropdown, "BOTTOMLEFT", 0, -10)
-
         widget.health2ColorDropdown = Cell.CreateDropdown(widget, 127)
-        widget.health2ColorDropdown:SetPoint("TOPLEFT", widget.health2HideIfEmptyOrFullCB, "BOTTOMLEFT", 0, -10)
+        widget.health2ColorDropdown:SetPoint("TOPLEFT", widget.health2FormatDropdown, "BOTTOMLEFT", 0, -10)
         widget.health2ColorDropdown:SetItems({
             {
             ["text"] = L["Class Color"],
@@ -1355,14 +1345,12 @@ local function CreateSetting_HealthFormat(parent)
 
             -- health1
             widget.health1FormatDropdown:SetSelectedValue(format.health1.format)
-            widget.health1HideIfEmptyOrFullCB:SetChecked(format.health1.hideIfEmptyOrFull)
             widget.health1ColorDropdown:SetSelectedValue(format.health1.color[1])
             widget.health1ColorPicker:SetColor(unpack(format.health1.color[2]))
 
             -- health2
             widget.health2FormatDropdown:SetSelectedValue(format.health2.format)
             widget.health2DelimiterEB:SetText(format.health2.delimiter)
-            widget.health2HideIfEmptyOrFullCB:SetChecked(format.health2.hideIfEmptyOrFull)
             widget.health2ColorDropdown:SetSelectedValue(format.health2.color[1])
             widget.health2ColorPicker:SetColor(unpack(format.health2.color[2]))
 
@@ -1464,32 +1452,14 @@ local function CreateSetting_DurationVisibility(parent)
                     widget.func(true)
                 end,
             },
+            -- Percentage thresholds are gone: they need the aura's TOTAL duration to compare
+            -- against, and that is secret. Second thresholds only need the remaining time,
+            -- which the container's own formatter can band.
             {
-                ["text"] = "< 75%",
-                ["value"] = 0.75,
+                ["text"] = "< 60 "..L["sec"],
+                ["value"] = 60,
                 ["onClick"] = function()
-                    widget.func(0.75)
-                end,
-            },
-            {
-                ["text"] = "< 50%",
-                ["value"] = 0.5,
-                ["onClick"] = function()
-                    widget.func(0.5)
-                end,
-            },
-            {
-                ["text"] = "< 30%",
-                ["value"] = 0.3,
-                ["onClick"] = function()
-                    widget.func(0.3)
-                end,
-            },
-            {
-                ["text"] = "< 25%",
-                ["value"] = 0.25,
-                ["onClick"] = function()
-                    widget.func(0.25)
+                    widget.func(60)
                 end,
             },
             {
@@ -1530,6 +1500,90 @@ local function CreateSetting_DurationVisibility(parent)
         end
     else
         widget = settingWidgets["durationVisibility"]
+    end
+
+    widget:Show()
+    return widget
+end
+
+-- Midnight: duration visibility without the PERCENTAGE thresholds. Percentages need the
+-- aura's total duration, which is secret; second thresholds do not -- RDC's own
+-- NumericRuleFormatter adds a `format = ""` breakpoint above the cutoff, so "< N sec"
+-- works fine on the AuraContainer path (it was only Blizzard's own countdown text that
+-- couldn't do thresholds).
+local function CreateSetting_DurationVisibilitySimple(parent)
+    local widget
+
+    if not settingWidgets["durationVisibilitySimple"] then
+        widget = Cell.CreateFrame("CellIndicatorSettings_DurationVisibilitySimple", parent, 240, 50)
+        settingWidgets["durationVisibilitySimple"] = widget
+
+        widget.durationVisibility = Cell.CreateDropdown(widget, 245)
+        widget.durationVisibility:SetPoint("TOPLEFT", 5, -20)
+        widget.durationVisibility:SetItems({
+            {
+                ["text"] = L["Never"],
+                ["value"] = false,
+                ["onClick"] = function()
+                    widget.func(false)
+                end,
+            },
+            {
+                ["text"] = L["Always"],
+                ["value"] = true,
+                ["onClick"] = function()
+                    widget.func(true)
+                end,
+            },
+            {
+                ["text"] = "< 60 "..L["sec"],
+                ["value"] = 60,
+                ["onClick"] = function()
+                    widget.func(60)
+                end,
+            },
+            {
+                ["text"] = "< 15 "..L["sec"],
+                ["value"] = 15,
+                ["onClick"] = function()
+                    widget.func(15)
+                end,
+            },
+            {
+                ["text"] = "< 10 "..L["sec"],
+                ["value"] = 10,
+                ["onClick"] = function()
+                    widget.func(10)
+                end,
+            },
+            {
+                ["text"] = "< 5 "..L["sec"],
+                ["value"] = 5,
+                ["onClick"] = function()
+                    widget.func(5)
+                end,
+            },
+        })
+
+        widget.durationVisibilityText = widget:CreateFontString(nil, "OVERLAY", font_name)
+        widget.durationVisibilityText:SetText(L["showDuration"])
+        widget.durationVisibilityText:SetPoint("BOTTOMLEFT", widget.durationVisibility, "TOPLEFT", 0, 1)
+
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        function widget:SetDBValue(durationVisibility)
+            -- Only PERCENTAGE thresholds (0 < v < 1) are impossible now: they need the
+            -- aura's total duration, which is secret. Coerce those to "Always" for display;
+            -- second thresholds map to themselves. The saved value isn't modified.
+            if type(durationVisibility) == "number" and durationVisibility > 0 and durationVisibility < 1 then
+                durationVisibility = true
+            end
+            widget.durationVisibility:SetSelectedValue(durationVisibility)
+        end
+    else
+        widget = settingWidgets["durationVisibilitySimple"]
     end
 
     widget:Show()
@@ -1587,6 +1641,74 @@ local function CreateSetting_Orientation(parent)
         end
     else
         widget = settingWidgets["orientation"]
+    end
+
+    widget:Show()
+    return widget
+end
+
+-- Cooldown animation style. All three are the same idea -- something dark grows as the
+-- aura runs out -- and differ only in WHERE it grows: on the border ("border", Cell's
+-- long-standing look), over the icon in a clock sweep ("clock", how Blizzard draws a
+-- spell cooldown), or falling from the top ("vertical").
+local function CreateSetting_AnimationStyle(parent)
+    local widget
+
+    if not settingWidgets["animationStyle"] then
+        widget = Cell.CreateFrame("CellIndicatorSettings_AnimationStyle", parent, 240, 50)
+        settingWidgets["animationStyle"] = widget
+
+        widget.style = Cell.CreateDropdown(widget, 245)
+        widget.style:SetPoint("TOPLEFT", 5, -20)
+        widget.style:SetItems({
+            {
+                ["text"] = L["Border Countdown"],
+                ["value"] = "border",
+                ["onClick"] = function()
+                    widget.func("border")
+                end,
+            },
+            {
+                ["text"] = L["Clock Sweep"],
+                ["value"] = "clock",
+                ["onClick"] = function()
+                    widget.func("clock")
+                end,
+            },
+            {
+                ["text"] = L["Falling Shadow"],
+                ["value"] = "vertical",
+                ["onClick"] = function()
+                    widget.func("vertical")
+                end,
+            },
+            {
+                ["text"] = L["None"],
+                ["value"] = "none",
+                ["onClick"] = function()
+                    widget.func("none")
+                end,
+            },
+        })
+
+        widget.styleText = widget:CreateFontString(nil, "OVERLAY", font_name)
+        widget.styleText:SetText(L["Cooldown Animation"])
+        widget.styleText:SetPoint("BOTTOMLEFT", widget.style, "TOPLEFT", 0, 1)
+
+        -- callback
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        -- show db value
+        function widget:SetDBValue(style)
+            if style ~= "border" and style ~= "clock" and style ~= "vertical" and style ~= "none" then
+                style = "border"
+            end
+            widget.style:SetSelectedValue(style)
+        end
+    else
+        widget = settingWidgets["animationStyle"]
     end
 
     widget:Show()
@@ -2270,6 +2392,113 @@ local function CreateSetting_Colors(parent)
     return widget
 end
 
+-- Unified countdown colour-by-time widget (12.1). Master toggle + base colour + two
+-- SECONDS thresholds ("剩餘時間 < N 秒 -> colour"). Feeds the AuraContainer duration colour
+-- curve (RemainingDuration). No percent band -- a seconds curve can't carry one.
+-- DB shape: { [1]=enabled(bool), [2]=base{r,g,b,a}, [3]={en,sec,{r,g,b,a}}, [4]={en,sec,{r,g,b,a}} }
+local function CreateSetting_DurationColor(parent)
+    local widget
+
+    if not settingWidgets["durationColor"] then
+        -- 4 rows (toggle + base + 2 thresholds); Cell's colours widget is 12 + rows*21
+        widget = Cell.CreateFrame("CellIndicatorSettings_DurationColor", parent, 240, 96)
+        settingWidgets["durationColor"] = widget
+
+        local normalColor, th1CB, th1Color, th1EB, th1Text, th2CB, th2Color, th2EB, th2Text
+
+        local function RefreshEnabled()
+            local on = widget.colorsTable[1] and true or false
+            Cell.SetEnabled(on, normalColor, th1CB, th2CB)
+            Cell.SetEnabled(on and widget.colorsTable[3][1], th1Color, th1EB, th1Text)
+            Cell.SetEnabled(on and widget.colorsTable[4][1], th2Color, th2EB, th2Text)
+        end
+
+        local enableCB = Cell.CreateCheckButton(widget, L["Color by Remaining Time"], function(checked)
+            widget.colorsTable[1] = checked
+            RefreshEnabled()
+            widget.func(widget.colorsTable)
+        end)
+        enableCB:SetPoint("TOPLEFT", 5, -8)
+
+        normalColor = Cell.CreateColorPicker(widget, L["Normal"], true, function(r, g, b, a)
+            widget.colorsTable[2][1] = r
+            widget.colorsTable[2][2] = g
+            widget.colorsTable[2][3] = b
+            widget.colorsTable[2][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        normalColor:SetPoint("TOPLEFT", enableCB, "BOTTOMLEFT", 0, -8)
+
+        -- one seconds-threshold row: checkbox + colour + "剩餘時間 < [N] 秒". idx = colorsTable slot.
+        local function BuildThresholdRow(idx, anchorTo)
+            local cb, cp, eb, txt
+            cb = Cell.CreateCheckButton(widget, "", function(checked)
+                widget.colorsTable[idx][1] = checked
+                Cell.SetEnabled(widget.colorsTable[1] and checked, cp, eb, txt)
+                widget.func(widget.colorsTable)
+            end)
+            cb:SetPoint("TOPLEFT", anchorTo, "BOTTOMLEFT", 0, -8)
+
+            cp = Cell.CreateColorPicker(widget, L["Remaining Time"].." <", true, function(r, g, b, a)
+                widget.colorsTable[idx][3][1] = r
+                widget.colorsTable[idx][3][2] = g
+                widget.colorsTable[idx][3][3] = b
+                widget.colorsTable[idx][3][4] = a
+                widget.func(widget.colorsTable)
+            end)
+            cp:SetPoint("TOPLEFT", cb, "TOPRIGHT", 2, 0)
+
+            eb = Cell.CreateEditBox(widget, 43, 20, false, false, true)
+            eb:SetPoint("LEFT", cp.label, "RIGHT", 5, 0)
+            eb:SetMaxLetters(4)
+            eb.confirmBtn = Cell.CreateButton(widget, "OK", "accent", {27, 20})
+            eb.confirmBtn:SetPoint("LEFT", eb, "RIGHT", -1, 0)
+            eb.confirmBtn:Hide()
+            eb.confirmBtn:SetScript("OnHide", function() eb.confirmBtn:Hide() end)
+            eb.confirmBtn:SetScript("OnClick", function()
+                local n = tonumber(eb:GetText())
+                widget.colorsTable[idx][2] = n
+                eb:SetText(n)
+                eb:ClearFocus()
+                eb.confirmBtn:Hide()
+                widget.func(widget.colorsTable)
+            end)
+            eb:SetScript("OnTextChanged", function(self, userChanged)
+                if userChanged then
+                    local n = tonumber(self:GetText())
+                    if n and n ~= widget.colorsTable[idx][2] then eb.confirmBtn:Show() else eb.confirmBtn:Hide() end
+                end
+            end)
+
+            txt = widget:CreateFontString(nil, "OVERLAY", font_name)
+            txt:SetPoint("LEFT", eb, "RIGHT", 5, 0)
+            txt:SetText(L["sec"])
+            return cb, cp, eb, txt
+        end
+
+        th1CB, th1Color, th1EB, th1Text = BuildThresholdRow(3, normalColor)
+        th2CB, th2Color, th2EB, th2Text = BuildThresholdRow(4, th1CB)
+
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        function widget:SetDBValue(colorsTable)
+            widget.colorsTable = colorsTable
+            enableCB:SetChecked(colorsTable[1])
+            normalColor:SetColor(colorsTable[2])
+            th1CB:SetChecked(colorsTable[3][1]); th1Color:SetColor(colorsTable[3][3]); th1EB:SetText(colorsTable[3][2])
+            th2CB:SetChecked(colorsTable[4][1]); th2Color:SetColor(colorsTable[4][3]); th2EB:SetText(colorsTable[4][2])
+            RefreshEnabled()
+        end
+    else
+        widget = settingWidgets["durationColor"]
+    end
+
+    widget:Show()
+    return widget
+end
+
 local function CreateSetting_BlockColors(parent)
     local widget
 
@@ -2589,6 +2818,41 @@ local function CreateSetting_BlockColors(parent)
             stackCB2:SetChecked(colorsTable[4][1])
             stackColor2:SetColor(colorsTable[4][3])
             stackEB2:SetText(colorsTable[4][2])
+        end
+    else
+        widget = settingWidgets["blockColors"]
+    end
+
+    widget:Show()
+    return widget
+end
+
+-- Simplified block colours widget: JUST the fill colour. The old "Color By" switch + percent/
+-- seconds threshold rows are gone -- countdown colour-by-time now lives in the unified
+-- durationColor widget. Reads/writes colorsTable[2] (the block's Normal/fill colour) of the
+-- existing block colours table, so no DB migration is needed. builders["blockColors"] points
+-- here; the full CreateSetting_BlockColors above is left in place but unused.
+local function CreateSetting_BlockFill(parent)
+    local widget
+
+    if not settingWidgets["blockColors"] then
+        widget = Cell.CreateFrame("CellIndicatorSettings_BlockColors", parent, 240, 30)
+        settingWidgets["blockColors"] = widget
+
+        local normalColor = Cell.CreateColorPicker(widget, L["Normal"], true, function(r, g, b, a)
+            local c = widget.colorsTable[2]
+            c[1] = r; c[2] = g; c[3] = b; c[4] = a
+            widget.func(widget.colorsTable)
+        end)
+        normalColor:SetPoint("TOPLEFT", 5, -8)
+
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        function widget:SetDBValue(colorsTable)
+            widget.colorsTable = colorsTable
+            if type(colorsTable[2]) == "table" then normalColor:SetColor(colorsTable[2]) end
         end
     else
         widget = settingWidgets["blockColors"]
@@ -5336,7 +5600,32 @@ local function CreateSetting_ActionsPreview(parent)
 end
 
 local actionButtons = {}
+-- Every row below closes over its index into spellTable, and spellTable IS CellDB["actions"],
+-- so the on-screen order is the array order -- sorting the array is what sorts the display.
+-- Safe to reorder: I.ConvertActions keys the lookup by spell id, so the indicator never reads
+-- the array order. Animation type first (plain string compare already gives A < B < C1 < C2 <
+-- C3 < D < E < F < G), then spell id ascending.
+--
+-- Called only when the rows are (re)built, never straight after an in-place edit: the style
+-- dropdown and the colour picker write through spellTable[i], so re-sorting under a live row
+-- would silently repoint it at a different spell. Changing a type therefore leaves that row
+-- where it is until the panel is reopened, which is the intended trade.
+local function SortActionsForDisplay(spellTable)
+    table.sort(spellTable, function(a, b)
+        local aType = type(a) == "table" and type(a[2]) == "table" and a[2][1]
+        local bType = type(b) == "table" and type(b[2]) == "table" and b[2][1]
+        aType = type(aType) == "string" and aType or ""
+        bType = type(bType) == "string" and bType or ""
+        if aType ~= bType then return aType < bType end
+
+        local aId = type(a) == "table" and tonumber(a[1]) or 0
+        local bId = type(b) == "table" and tonumber(b[1]) or 0
+        return (aId or 0) < (bId or 0)
+    end)
+end
+
 local function CreateActionButtons(parent, spellTable, updateHeightFunc)
+    SortActionsForDisplay(spellTable)
     local n = #spellTable
 
     -- tooltip
@@ -5627,6 +5916,7 @@ local function CreateSetting_ActionsList(parent)
                 LCG.PixelGlow_Start(widget.debug, {0,1,0,1}, 9, 0.25, 8, 1)
             end
             Cell.vars.actionsDebugModeEnabled = self.enabled
+            if I.PrintActionsDebugStatus then I.PrintActionsDebugStatus(self.enabled) end
         end)
 
         widget.frame = Cell.CreateFrame(nil, widget, 20, 20)
@@ -6163,6 +6453,77 @@ local function CreateSetting_TargetCounterFilters(parent)
     return widget
 end
 
+-- 12.1: the five categories the central "Important Debuffs" container asks Blizzard for.
+-- Every one of them is a Blizzard-side predicate we cannot evaluate ourselves -- the aura's
+-- spell, duration and school are all secret -- so these toggles add or drop a whole
+-- AuraGroup rather than filtering anything in Lua. See BuildRecords in AuraDisplay.lua.
+local function CreateSetting_RaidDebuffFilters(parent)
+    local widget
+
+    if not settingWidgets["raidDebuffFilters"] then
+        widget = Cell.CreateFrame("CellIndicatorSettings_RaidDebuffFilters", parent, 240, 74)
+        settingWidgets["raidDebuffFilters"] = widget
+
+        widget.bossRole = Cell.CreateCheckButton(widget, L["Boss/Role Debuffs"])
+        widget.bossRole:SetPoint("TOPLEFT", 5, -8)
+
+        widget.priority = Cell.CreateCheckButton(widget, L["Priority Debuffs"])
+        widget.priority:SetPoint("TOPLEFT", widget.bossRole, 135, 0)
+
+        widget.crowdControl = Cell.CreateCheckButton(widget, L["Crowd Controls"])
+        widget.crowdControl:SetPoint("TOPLEFT", widget.bossRole, "BOTTOMLEFT", 0, -8)
+
+        widget.raid = Cell.CreateCheckButton(widget, L["Raid-wide Debuffs"])
+        widget.raid:SetPoint("TOPLEFT", widget.crowdControl, 135, 0)
+
+        widget.dispellable = Cell.CreateCheckButton(widget, L["Dispellable"])
+        widget.dispellable:SetPoint("TOPLEFT", widget.crowdControl, "BOTTOMLEFT", 0, -8)
+
+        -- callback
+        function widget:SetFunc(func)
+            widget.bossRole.onClick = function(checked)
+                widget.filters.bossRole = checked
+                func()
+            end
+            widget.priority.onClick = function(checked)
+                widget.filters.priority = checked
+                func()
+            end
+            widget.crowdControl.onClick = function(checked)
+                widget.filters.crowdControl = checked
+                func()
+            end
+            widget.raid.onClick = function(checked)
+                widget.filters.raid = checked
+                func()
+            end
+            widget.dispellable.onClick = function(checked)
+                widget.filters.dispellable = checked
+                func()
+            end
+        end
+
+        -- show db value
+        function widget:SetDBValue(filters)
+            widget.filters = filters
+            -- absent == on, matching ConfigureContainer: a layout saved before these toggles
+            -- existed showed every category, and opening the panel must not silently
+            -- represent that as "all off" and then write it back on the first click.
+            local function on(k) return filters[k] == nil or filters[k] and true or false end
+            widget.bossRole:SetChecked(on("bossRole"))
+            widget.priority:SetChecked(on("priority"))
+            widget.crowdControl:SetChecked(on("crowdControl"))
+            widget.raid:SetChecked(on("raid"))
+            widget.dispellable:SetChecked(on("dispellable"))
+        end
+    else
+        widget = settingWidgets["raidDebuffFilters"]
+    end
+
+    widget:Show()
+    return widget
+end
+
 local function CreateSetting_DispelFilters(parent)
     local widget
 
@@ -6487,6 +6848,58 @@ local function CreateSetting_IconStyle(parent)
     return widget
 end
 
+local function CreateSetting_TargetedSpellsDisplayMode(parent)
+    local widget
+
+    if not settingWidgets["targetedSpellsDisplayMode"] then
+        widget = Cell.CreateFrame("CellIndicatorSettings_TargetedSpellsDisplayMode", parent, 240, 50)
+        settingWidgets["targetedSpellsDisplayMode"] = widget
+
+        widget.dropdown = Cell.CreateDropdown(widget, 245)
+        widget.dropdown:SetPoint("TOPLEFT", 5, -20)
+        widget.dropdown:SetItems({
+            {
+                ["text"] = L["Icons"],
+                ["value"] = "Icons",
+                ["onClick"] = function()
+                    widget.func("Icons")
+                end,
+            },
+            {
+                ["text"] = L["Border"],
+                ["value"] = "Border",
+                ["onClick"] = function()
+                    widget.func("Border")
+                end,
+            },
+            {
+                ["text"] = L["Both"],
+                ["value"] = "Both",
+                ["onClick"] = function()
+                    widget.func("Both")
+                end,
+            },
+        })
+
+        widget.label = widget:CreateFontString(nil, "OVERLAY", font_name)
+        widget.label:SetText(L["Display Mode"])
+        widget.label:SetPoint("BOTTOMLEFT", widget.dropdown, "TOPLEFT", 0, 1)
+
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        function widget:SetDBValue(value)
+            widget.dropdown:SetSelectedValue(value or "Both")
+        end
+    else
+        widget = settingWidgets["targetedSpellsDisplayMode"]
+    end
+
+    widget:Show()
+    return widget
+end
+
 local CLASS_ROLES = {
     ["DEATHKNIGHT"] = {"TANK", "DAMAGER"},
     ["DEMONHUNTER"] = {"TANK", "DAMAGER"},
@@ -6761,13 +7174,16 @@ local builders = {
     ["healthFormat"] = CreateSetting_HealthFormat,
     ["powerFormat"] = CreateSetting_PowerFormat,
     ["durationVisibility"] = CreateSetting_DurationVisibility,
+    ["durationVisibilitySimple"] = CreateSetting_DurationVisibilitySimple,
     ["orientation"] = CreateSetting_Orientation,
+    ["animationStyle"] = CreateSetting_AnimationStyle,
     ["barOrientation"] = CreateSetting_BarOrientation,
     ["font-noOffset"] = CreateSetting_FontNoOffset,
     ["color"] = CreateSetting_Color,
     ["color-alpha"] = CreateSetting_ColorAlpha,
     ["colors"] = CreateSetting_Colors,
-    ["blockColors"] = CreateSetting_BlockColors,
+    ["durationColor"] = CreateSetting_DurationColor,
+    ["blockColors"] = CreateSetting_BlockFill,
     ["overlayColors"] = CreateSetting_OverlayColors,
     ["customColors"] = CreateSetting_CustomColors,
     ["color-class"] = CreateSetting_ClassColor,
@@ -6780,9 +7196,9 @@ local builders = {
     ["glowOptions"] = CreateSetting_Glow,
     ["targetedSpellsGlow"] = CreateSetting_Glow,
     ["texture"] = CreateSetting_Texture,
-    ["builtInAoEHealings"] = CreateSetting_BuiltIns,
     ["builtInDefensives"] = CreateSetting_BuiltIns,
     ["builtInExternals"] = CreateSetting_BuiltIns,
+    ["builtInOffensives"] = CreateSetting_BuiltIns,
     ["builtInCrowdControls"] = CreateSetting_BuiltIns,
     ["actionsPreview"] = CreateSetting_ActionsPreview,
     ["actionsList"] = CreateSetting_ActionsList,
@@ -6792,10 +7208,12 @@ local builders = {
     ["shape"] = CreateSetting_Shape,
     ["targetCounterFilters"] = CreateSetting_TargetCounterFilters,
     ["dispelFilters"] = CreateSetting_DispelFilters,
+    ["raidDebuffFilters"] = CreateSetting_RaidDebuffFilters,
     ["castBy"] = CreateSetting_CastBy,
     -- ["showOn"] = CreateSetting_ShowOn,
     ["maxValue"] = CreateSetting_MaxValue,
     ["iconStyle"] = CreateSetting_IconStyle,
+    ["targetedSpellsDisplayMode"] = CreateSetting_TargetedSpellsDisplayMode,
     ["powerTextFilters"] = CreateSetting_RoleFilters,
 }
 
@@ -6824,6 +7242,9 @@ function Cell.CreateIndicatorSettings(parent, settingsTable)
             tinsert(widgetsTable, CreateSetting_Num(parent))
         elseif string.find(setting, "^numPerLine:") then
             tinsert(widgetsTable, CreateSetting_NumPerLine(parent))
+        elseif string.find(setting, "^font%-noOffset:") then
+            -- Midnight: simplified font widget for paired font configs (no anchor/offset)
+            tinsert(widgetsTable, CreateSetting_FontNoOffset(parent))
         elseif string.find(setting, "^font") then
             tinsert(widgetsTable, CreateSetting_Font(parent, string.match(setting, "^(font%d?):?.*$")))
         elseif string.find(setting, "^checkbutton4") then
@@ -6835,7 +7256,8 @@ function Cell.CreateIndicatorSettings(parent, settingsTable)
         elseif string.find(setting, "^checkbutton") then
             tinsert(widgetsTable, CreateSetting_CheckButton(parent))
         elseif setting == "auras" or setting == "debuffBlacklist" or setting == "dispelBlacklist" or setting == "targetedSpellsList"
-        or setting == "customAoEHealings" or setting == "customDefensives" or setting == "customExternals" or setting == "customCrowdControls" then
+        or setting == "customDefensives" or setting == "customExternals"
+        or setting == "customOffensives" or setting == "customCrowdControls" then
             tinsert(widgetsTable, CreateSetting_Auras(parent, 1))
         elseif setting == "auras2" or setting == "bigDebuffs" then
             tinsert(widgetsTable, CreateSetting_Auras(parent, 2))

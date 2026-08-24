@@ -13,14 +13,29 @@ Cell.vars.playerFaction = UnitFactionGroup("player")
 -------------------------------------------------
 Cell.isAsian = LOCALE_zhCN or LOCALE_zhTW or LOCALE_koKR
 
-Cell.isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-Cell.isMidnight = Cell.isRetail and (select(4, GetBuildInfo()) >= 120000)
-Cell.isVanilla = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-Cell.isTBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
-Cell.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
-Cell.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
-Cell.isMists = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+-- 2026-08-11: this fork is RETAIL ONLY. Every Classic support file (TOCs, Core_*,
+-- UnitButton_*, per-flavour defaults and loaders) has been deleted; the flavour flags are
+-- pinned so the ~156 remaining `if Cell.isVanilla ...` branches are unreachable dead code
+-- rather than a live code path nobody tests. Fold them out opportunistically when touching
+-- the surrounding code -- do NOT reintroduce a Classic branch.
+Cell.isRetail = true
+Cell.isVanilla = false
+Cell.isTBC = false
+Cell.isWrath = false
+Cell.isCata = false
+Cell.isMists = false
+
+-- still real version checks WITHIN retail, keep them honest
+Cell.isMidnight = select(4, GetBuildInfo()) >= 120000
 Cell.isTWW = LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_WAR_WITHIN
+
+-------------------------------------------------
+-- 12.0+ API compatibility shims
+-------------------------------------------------
+-- IsEncounterInProgress moved to C_InstanceEncounter namespace in 12.0
+if not IsEncounterInProgress and C_InstanceEncounter and C_InstanceEncounter.IsEncounterInProgress then
+    IsEncounterInProgress = C_InstanceEncounter.IsEncounterInProgress
+end
 
 if Cell.isRetail then
     Cell.flavor = "retail"
@@ -994,8 +1009,17 @@ function F.GetUnitButtonByUnit(unit, getSpotlights, getQuickAssist)
     if getSpotlights then
         spotlights = {}
         for _, b in pairs(Cell.unitButtons.spotlight) do
-            if b.unit and UnitIsUnit(b.unit, unit) then
-                tinsert(spotlights, b)
+            -- Spotlight frames can be bound to "boss1"/"target"/"focus", so this pairing hits
+            -- the 12.1 rule that UnitIsUnit returns a SECRET boolean whenever either side is a
+            -- unit you may not identify -- and testing a secret boolean is a hard error.
+            -- Doubt counts as a match, same as F.HandleUnitButton below: a spurious refresh of
+            -- a spotlight frame costs nothing (it re-reads its own unit anyway), a missed one
+            -- leaves the frame stale until the next event.
+            if b.unit then
+                local isMatch = UnitIsUnit(b.unit, unit)
+                if not F.IsValueNonSecret(isMatch) or isMatch then
+                    tinsert(spotlights, b)
+                end
             end
         end
     end
@@ -1046,9 +1070,13 @@ function F.HandleUnitButton(type, unit, func, ...)
     end
 
     for _, b in pairs(Cell.unitButtons.spotlight) do
-        if b.states.unit and UnitIsUnit(b.states.unit, unit) then
-            func(b, ...)
-            handled = true
+        if b.states.unit then
+            local isMatch = UnitIsUnit(b.states.unit, unit)
+            -- UnitIsUnit may return a secret boolean on Midnight; treat secret as true
+            if not F.IsValueNonSecret(isMatch) or isMatch then
+                func(b, ...)
+                handled = true
+            end
         end
     end
 
@@ -1058,15 +1086,30 @@ end
 function F.UpdateTextWidth(fs, text, width, relativeTo)
     if not text or not width then return end
 
+    -- Midnight: text may be a secret string (e.g. NPC names); cannot do Lua string
+    -- operations on secrets. SetText is C-level and handles secrets directly.
+    if not F.IsValueNonSecret(text) then
+        fs:SetText(text)
+        return
+    end
+
     if width == "unlimited" then
         fs:SetText(text)
     elseif width[1] == "percentage" then
         local percent = width[2] or 0.75
-        local width = relativeTo:GetWidth() - 2
-        for i = string.utf8len(text), 0, -1 do
-            fs:SetText(string.utf8sub(text, 1, i))
-            if fs:GetWidth() / width <= percent then
-                break
+        local relW = relativeTo:GetWidth()
+        -- Midnight: relativeTo/fs dimensions may be secret; skip truncation loop
+        if not F.IsValueNonSecret(relW) then
+            fs:SetText(text)
+        else
+            local width = relW - 2
+            for i = string.utf8len(text), 0, -1 do
+                fs:SetText(string.utf8sub(text, 1, i))
+                local fsW = fs:GetWidth()
+                if not F.IsValueNonSecret(fsW) then break end
+                if fsW / width <= percent then
+                    break
+                end
             end
         end
     elseif width[1] == "length" then
@@ -1134,6 +1177,7 @@ local UnitInPartyIsAI = UnitInPartyIsAI or function() end
 -------------------------------------------------
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 function F.GetClassColor(class)
+    class = F.Desecret(class) -- 12.1: a secret class can be neither compared nor used as a key
     if class and class ~= "" and RAID_CLASS_COLORS[class] then
         if CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] then
             return CUSTOM_CLASS_COLORS[class].r, CUSTOM_CLASS_COLORS[class].g, CUSTOM_CLASS_COLORS[class].b
@@ -1146,6 +1190,7 @@ function F.GetClassColor(class)
 end
 
 function F.GetClassColorStr(class)
+    class = F.Desecret(class)
     if class and class ~= "" and RAID_CLASS_COLORS[class] then
         if CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] then
             return "|c"..CUSTOM_CLASS_COLORS[class].colorStr
@@ -1427,7 +1472,9 @@ end
 
 function F.UnitInGroup(unit, ignorePets)
     if ignorePets then
-        return UnitIsUnit(unit, "player") or UnitInParty(unit) or UnitInRaid(unit) or UnitInPartyIsAI(unit)
+        -- 12.1: UnitInRaid returns a secret boolean for identity-restricted units, and every
+        -- caller of UnitInGroup boolean-tests the result -- normalise it here.
+        return UnitIsUnit(unit, "player") or UnitInParty(unit) or F.ToBool(UnitInRaid(unit)) or UnitInPartyIsAI(unit)
     else
         return UnitIsUnit(unit, "player") or UnitIsUnit(unit, "pet") or UnitPlayerOrPetInParty(unit) or UnitPlayerOrPetInRaid(unit) or UnitInPartyIsAI(unit)
     end
@@ -1485,28 +1532,28 @@ function F.IsFriend(unitFlags)
 end
 
 function F.IsPlayer(guid)
-    if guid then
+    if guid and F.IsValueNonSecret(guid) then
         return string.find(guid, "^Player")
     end
 end
 
 function F.IsPet(guid, unit)
-    if unit then
+    if unit and F.IsValueNonSecret(unit) then
         return strfind(unit, "pet%d*$")
     end
-    if guid then
+    if guid and F.IsValueNonSecret(guid) then
         return string.find(guid, "^Pet")
     end
 end
 
 function F.IsNPC(guid)
-    if guid then
+    if guid and F.IsValueNonSecret(guid) then
         return string.find(guid, "^Creature")
     end
 end
 
 function F.IsVehicle(guid)
-    if guid then
+    if guid and F.IsValueNonSecret(guid) then
         return string.find(guid, "^Vehicle")
     end
 end
@@ -1554,6 +1601,10 @@ Cell.vars.whiteTexture = "Interface\\AddOns\\Cell\\Media\\white.tga"
 
 local LSM = LibStub("LibSharedMedia-3.0", true)
 LSM:Register("statusbar", "Cell ".._G.DEFAULT, Cell.vars.texture)
+-- Cell's DEFAULT texture is "TukTex" (Appearance_Defaults). Bundle + self-register it so the
+-- default resolves without depending on SharedMedia/Tukui being installed. LSM:Register no-ops
+-- if another addon already registered "TukTex", so this only fills the gap, never overrides.
+LSM:Register("statusbar", "TukTex", [[Interface\AddOns\Cell\Media\tuktex.tga]])
 LSM:Register("font", "Visitor", [[Interface\Addons\Cell\Media\Fonts\visitor.ttf]], 255)
 
 function F.GetBarTexture()
@@ -2004,6 +2055,8 @@ local function predicate(...)
 end
 
 function F.FindAuraById(unit, type, spellId)
+    -- 12.0+: skip when aura data is restricted (secret values)
+    if Cell.isMidnight and F.IsAuraRestricted() then return nil end
     if type == "BUFF" then
         return AuraUtil.FindAura(predicate, unit, "HELPFUL", spellId)
     else
@@ -2017,6 +2070,8 @@ if Cell.isRetail then
         if Cell.isMidnight and F.IsAuraRestricted() then return {} end
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
+            -- Guard: spellId may be secret even when IsAuraRestricted is false
+            if not F.IsValueNonSecret(spellId) then return end
             if spellIds[spellId] then
                 debuffs[spellId] = I.CheckDebuffType(debuffType, spellId)
             end
@@ -2029,6 +2084,8 @@ if Cell.isRetail then
         if Cell.isMidnight and F.IsAuraRestricted() then return {} end
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
+            -- Guard: spellId/debuffType may be secret even when IsAuraRestricted is false
+            if not F.IsValueNonSecret(spellId) or not F.IsValueNonSecret(debuffType) then return end
             if types == "all" or types[debuffType] then
                 debuffs[spellId] = I.CheckDebuffType(debuffType, spellId)
             end
@@ -2181,7 +2238,8 @@ end
 local UnitInSamePhase
 if Cell.isRetail then
     UnitInSamePhase = function(unit)
-        return not UnitPhaseReason(unit)
+        -- 12.1: UnitPhaseReason is secret for identity-restricted units; assume same phase
+        return not F.Desecret(UnitPhaseReason(unit))
     end
 else
     UnitInSamePhase = UnitInPhase
@@ -2291,11 +2349,15 @@ local harmItems = {
 local UnitInSpellRange
 if C_Spell and C_Spell.IsSpellInRange then
     UnitInSpellRange = function(spellName, unit)
-        return IsSpellInRange(spellName, unit)
+        local r = IsSpellInRange(spellName, unit)
+        if not F.IsValueNonSecret(r) then return nil end
+        return r and true or false
     end
 else
     UnitInSpellRange = function(spellName, unit)
-        return IsSpellInRange(spellName, unit) == 1
+        local result = IsSpellInRange(spellName, unit)
+        if not F.IsValueNonSecret(result) then return nil end
+        return result == 1
     end
 end
 
@@ -2349,7 +2411,8 @@ end
 rc:SetScript("OnEvent", DELAYED_SPELLS_CHANGED)
 
 function F.IsInRange(unit, check)
-    if not UnitIsVisible(unit) then
+    local visible = UnitIsVisible(unit)
+    if not F.IsValueNonSecret(visible) or not visible then
         return false
     end
 
@@ -2361,7 +2424,7 @@ function F.IsInRange(unit, check)
         --! but not available for PLAYER PET when SOLO
         local inRange, checked = UnitInRange(unit)
         -- Midnight 12.0.0+: UnitInRange returns secret booleans during restricted contexts
-        if Cell.isMidnight and issecretvalue and issecretvalue(checked) then
+        if not F.IsValueNonSecret(checked) then
             return F.IsInRange(unit, true)
         end
         if not checked then
@@ -2371,7 +2434,15 @@ function F.IsInRange(unit, check)
 
     else
         if UnitCanAssist("player", unit) then -- or UnitCanCooperate("player", unit)
-            if not (UnitIsConnected(unit) and UnitInSamePhase(unit)) then
+            -- Precautionary, not a confirmed 12.1 crash: neither of these is on the
+            -- SecretWhenUnitIdentityRestricted list, but this branch is the NON-group path, so
+            -- the unit is by definition one whose identity can be restricted. A boolean test on
+            -- a secret boolean is a hard error, and nothing here is worth erroring over -- treat
+            -- "unreadable" as "don't rule the unit out" and let the range probes below decide.
+            -- (F.ToBool is no use here: it folds "secret" and "false" into the same nil.)
+            local connected, samePhase = UnitIsConnected(unit), UnitInSamePhase(unit)
+            if (F.IsValueNonSecret(connected) and not connected)
+                or (F.IsValueNonSecret(samePhase) and not samePhase) then
                 return false
             end
 
@@ -2385,7 +2456,7 @@ function F.IsInRange(unit, check)
 
             local inRange, checked = UnitInRange(unit)
             -- Midnight 12.0.0+: UnitInRange returns secret booleans during restricted contexts
-            if Cell.isMidnight and issecretvalue and issecretvalue(checked) then
+            if not F.IsValueNonSecret(checked) then
                 -- Skip, fall through to pet/interact checks below
             elseif checked then
                 return inRange
@@ -2509,12 +2580,16 @@ end
 -------------------------------------------------
 -- Secret value utilities (Patch 12.0.0+)
 -------------------------------------------------
--- issecretvalue() is a native WoW API available in 12.0.0+
-function F.IsSecretValue(val)
-    if issecretvalue then
-        return issecretvalue(val)
-    end
-    return false
+-- issecretvalue() and hasanysecretvalues() are native WoW APIs available in 12.0.0+.
+-- Convention: these globals are ONLY referenced inside Utils.lua wrapper implementations.
+-- All other files use F.IsValueNonSecret(), F.HasAnySecretValues(), etc.
+
+-- Varargs check: returns true if ANY argument is a secret value.
+-- Wraps the global hasanysecretvalues() with a Cell.isMidnight guard.
+function F.HasAnySecretValues(...)
+    if not Cell.isMidnight then return false end
+    if not hasanysecretvalues then return false end
+    return hasanysecretvalues(...)
 end
 
 -- GetRestrictedActionStatus() returns non-secret boolean
@@ -2563,4 +2638,60 @@ function F.IsValueNonSecret(val)
     if not Cell.isMidnight then return true end
     if not issecretvalue then return true end
     return not issecretvalue(val)
+end
+
+-- Inverse of F.IsValueNonSecret: returns true if the value IS a secret value.
+-- Call sites in UnitButton/Indicators/Utilities reference this name (see CHANGELOG r276-beta).
+function F.IsSecretValue(val)
+    if not Cell.isMidnight then return false end
+    if not issecretvalue then return false end
+    return issecretvalue(val) == true
+end
+
+-- Patch 12.1.0: UnitClass/UnitClassBase/UnitRace/UnitGroupRolesAssigned/UnitInRaid/
+-- UnitIsGroupLeader/UnitIsGroupAssistant/UnitPhaseReason return secrets when the unit's
+-- identity is restricted (not player-controlled and not in the party/raid -- ie. boss/npc/
+-- enemy units). UnitIsCharmed/UnitIsPossessed return secrets whenever auras are secret.
+--
+-- Note that `secret or "DEFAULT"` does NOT work as a fallback: boolean tests on non-boolean
+-- secrets are legal, so the secret is truthy and the fallback never fires. Guard explicitly.
+
+-- Secret (or nil) -> default. Use before comparing a value or using it as a table key.
+function F.Desecret(val, default)
+    if val == nil then return default end
+    if not Cell.isMidnight then return val end
+    if issecretvalue and issecretvalue(val) then return default end
+    return val
+end
+
+-- Secret boolean -> nil, otherwise plain true/nil. Boolean tests on secret BOOLEANS are a
+-- hard Lua error, so any API returning a secret boolean must go through this.
+function F.ToBool(val)
+    if Cell.isMidnight and issecretvalue and issecretvalue(val) then return nil end
+    if val then return true end
+    return nil
+end
+
+-- True if the table is secret, or if indexing it would produce secrets / error.
+function F.IsSecretTable(t)
+    if type(t) ~= "table" then return false end
+    if not Cell.isMidnight then return false end
+    if issecrettable and issecrettable(t) then return true end
+    if canaccesstable and not canaccesstable(t) then return true end
+    return false
+end
+
+-- 12.1: while auras are secret (combat / encounter / M+ / PvP match) the UNIT_AURA payload is
+-- fully secret. The payload table itself is still indexable, but `isFullUpdate` is a secret
+-- BOOLEAN -- a boolean test on it is an immediate Lua error -- and addedAuras /
+-- updatedAuraInstanceIDs / removedAuraInstanceIDs are secret TABLES, so iterating them errors.
+-- Returns false when the payload cannot be diffed.
+function F.CanDiffAuraPayload(info)
+    if info == nil then return false end
+    if not Cell.isMidnight then return true end
+    if F.IsSecretValue(info.isFullUpdate) then return false end
+    if F.IsSecretTable(info.addedAuras) then return false end
+    if F.IsSecretTable(info.updatedAuraInstanceIDs) then return false end
+    if F.IsSecretTable(info.removedAuraInstanceIDs) then return false end
+    return true
 end
