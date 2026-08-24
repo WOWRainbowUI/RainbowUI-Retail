@@ -1,0 +1,6 @@
+<Ui>
+  <Frame name="CoolinatorPropagateMouseClicksTemplate" virtual="true" propagateMouseInput="Clicks">
+  </Frame>
+  <Frame name="CoolinatorPropagateMouseAllTemplate" virtual="true" propagateMouseInput="Both">
+  </Frame>
+</Ui>
