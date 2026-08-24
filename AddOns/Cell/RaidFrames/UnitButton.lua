@@ -14,6 +14,28 @@ local P = Cell.pixelPerfectFuncs
 local A = Cell.animations
 local LGI = LibStub:GetLibrary("LibGroupInfo")
 
+-------------------------------------------------
+-- FIX: Midnight secret-value helpers
+-------------------------------------------------
+local issecretvalue = issecretvalue
+local issecrettable = issecrettable
+local canaccesstable = canaccesstable
+
+-- returns a plain lua boolean; if v is secret/unreadable, returns fallback
+local function SafeBool(v, fallback)
+    if issecretvalue and issecretvalue(v) then return fallback end
+    if v == nil then return fallback end
+    return v and true or false
+end
+
+-- returns true if the table can be safely iterated by tainted code
+local function SafeTable(t)
+    if type(t) ~= "table" then return nil end
+    if issecrettable and issecrettable(t) then return nil end
+    if canaccesstable and not canaccesstable(t) then return nil end
+    return t
+end
+
 CELL_FADE_OUT_HEALTH_PERCENT = nil
 
 local UnitGUID = UnitGUID
@@ -494,10 +516,38 @@ local function FlushQueue()
     wipe(queue)
 end
 
+-- FIX: migrate legacy debuffs size format in the SAVED layout table.
+-- old: ["size"] = {width, height}
+-- new: ["size"] = {{normalW, normalH}, {bigW, bigH}}
+-- currentLayoutTable is a live reference into CellDB, so this write persists.
+local LEGACY_BIG_DEBUFF_SIZE = 20 -- size used for "big" debuffs when migrating old configs
+
+local function MigrateIndicatorConfig(config)
+    if type(config) ~= "table" then return config end
+    local big = LEGACY_BIG_DEBUFF_SIZE
+    for _, t in next, config do
+        if type(t) == "table" and t["indicatorName"] == "debuffs" and type(t["size"]) == "table" then
+            local s = t["size"]
+            if type(s[1]) == "number" then
+                -- legacy {w, h}
+                local w = s[1]
+                local h = type(s[2]) == "number" and s[2] or w
+                t["size"] = {{w, h}, {big, big}}
+            elseif type(s[1]) == "table" and type(s[2]) ~= "table" then
+                -- half-migrated {{w, h}}
+                local w = s[1][1] or 15
+                local h = s[1][2] or w
+                t["size"] = {{w, h}, {big, big}}
+            end
+        end
+    end
+    return config
+end
+
 local function AddToInitQueue(b)
     b._indicatorsReady = nil
     b._status = WAITING_FOR_INIT
-    b._config = Cell.vars.currentLayoutTable["indicators"]
+    b._config = MigrateIndicatorConfig(Cell.vars.currentLayoutTable["indicators"])
     queue[b] = true
 end
 
@@ -1087,7 +1137,16 @@ local function ForEachAuraHelper(button, func, continuationToken, ...)
 end
 
 local function ForEachAura(button, filter, func)
-    ForEachAuraHelper(button, func, GetAuraSlots(button.states.displayedUnit, filter))
+    local unit = button.states.displayedUnit
+    if not unit then return end
+    -- FIX: GetAuraSlots() hard-errors for tainted code when the unit has secret auras.
+    -- Degrade gracefully instead of spamming errors every update.
+    local ok = pcall(function()
+        ForEachAuraHelper(button, func, GetAuraSlots(unit, filter))
+    end)
+    if not ok then
+        button._aurasRestricted = true
+    end
 end
 
 -------------------------------------------------
@@ -1748,7 +1807,14 @@ UnitButton_UpdateAuras = function(self, updateInfo)
     local unit = self.states.displayedUnit
     if not unit then return end
 
-    local isFullUpdate = not updateInfo or updateInfo.isFullUpdate
+    -- FIX: updateInfo.isFullUpdate may be a secret boolean on Midnight and cannot
+    -- be used in a conditional. When unreadable, fall back to a full rescan.
+    local isFullUpdate
+    if not updateInfo then
+        isFullUpdate = true
+    else
+        isFullUpdate = SafeBool(updateInfo.isFullUpdate, true)
+    end
 
     if isFullUpdate then
         -- full update
@@ -1759,8 +1825,9 @@ UnitButton_UpdateAuras = function(self, updateInfo)
         local buffsChanged, debuffsChanged
         wipe(self._missing_auras)
 
-        if updateInfo.addedAuras then
-            for _, aura in next, updateInfo.addedAuras do
+        local addedAuras = SafeTable(updateInfo.addedAuras)
+        if addedAuras then
+            for _, aura in next, addedAuras do
                 if aura.isHelpful then
                     buffsChanged = true
                     self._buffs_cache[aura.auraInstanceID] = aura
@@ -1772,10 +1839,11 @@ UnitButton_UpdateAuras = function(self, updateInfo)
             end
         end
 
-        if updateInfo.updatedAuraInstanceIDs then
+        local updatedIDs = SafeTable(updateInfo.updatedAuraInstanceIDs)
+        if updatedIDs then
             local aura
             -- auraInstanceID is NOT secret and is safe to use as table key
-            for _, auraInstanceID in next, updateInfo.updatedAuraInstanceIDs do
+            for _, auraInstanceID in next, updatedIDs do
                 if self._buffs_cache[auraInstanceID] then
                     buffsChanged = true
                     aura = GetAuraDataByAuraInstanceID(unit, auraInstanceID)
@@ -1811,8 +1879,9 @@ UnitButton_UpdateAuras = function(self, updateInfo)
             end
         end
 
-        if updateInfo.removedAuraInstanceIDs then
-            for _, auraInstanceID in next, updateInfo.removedAuraInstanceIDs do
+        local removedIDs = SafeTable(updateInfo.removedAuraInstanceIDs)
+        if removedIDs then
+            for _, auraInstanceID in next, removedIDs do
                 if self._buffs_cache[auraInstanceID] then
                     self._buffs_cache[auraInstanceID] = nil
                     buffsChanged = true
@@ -2851,8 +2920,10 @@ UnitButton_UpdateNameTextColor = function(self)
     if not unit then return end
 
     if enabledIndicators["nameText"] then
-        if indicatorColors["nameText"][1] == "class_color" or not UnitIsConnected(unit)
-        or ((UnitIsPlayer(unit) or UnitInPartyIsAI(unit)) and UnitIsCharmed(unit)) or self.states.inVehicle then
+        -- FIX: UnitIsCharmed() returns a secret boolean on Midnight when the unit's
+        -- auras are secret; SafeBool() falls back to false instead of erroring.
+        if indicatorColors["nameText"][1] == "class_color" or not SafeBool(UnitIsConnected(unit), true)
+        or ((UnitIsPlayer(unit) or UnitInPartyIsAI(unit)) and SafeBool(UnitIsCharmed(unit), false)) or self.states.inVehicle then
             self.indicators.nameText:SetColor(F.GetUnitClassColor(unit))
         else
             self.indicators.nameText:SetColor(unpack(indicatorColors["nameText"][2]))
@@ -2890,10 +2961,11 @@ UnitButton_UpdateHealthColor = function(self)
     end
 
     if UnitIsPlayer(unit) or UnitInPartyIsAI(unit) then -- player
-        if not UnitIsConnected(unit) then
+        -- FIX: UnitIsConnected/UnitIsCharmed can return secret booleans on Midnight
+        if not SafeBool(UnitIsConnected(unit), true) then
             barR, barG, barB = 0.4, 0.4, 0.4
             lossR, lossG, lossB = 0.4, 0.4, 0.4
-        elseif UnitIsCharmed(unit) then
+        elseif SafeBool(UnitIsCharmed(unit), false) then
             barR, barG, barB, barA = 0.5, 0, 1, 1
             lossR, lossG, lossB, lossA = barR*0.2, barG*0.2, barB*0.2, 1
         elseif self.states.inVehicle then

@@ -320,6 +320,17 @@ end
 -- CreateDebuffs
 -------------------------------------------------
 local function Debuffs_SetSize(self, normalSize, bigSize)
+    -- FIX: compat with legacy config format ["size"] = {width, height}
+    -- new format is ["size"] = {{normalW, normalH}, {bigW, bigH}}
+    if type(normalSize) == "number" then
+        local w = normalSize
+        local h = type(bigSize) == "number" and bigSize or normalSize
+        normalSize = {w, h}
+        bigSize = {w, h}
+    end
+    if type(normalSize) ~= "table" then normalSize = {13, 13} end
+    if type(bigSize) ~= "table" then bigSize = {normalSize[1], normalSize[2]} end
+
     for i = 1, 10 do
         P.Size(self[i], normalSize[1], normalSize[2])
     end
@@ -519,10 +530,11 @@ function I.CreateDebuffs(parent)
         frame._SetCooldown = frame.SetCooldown
         function frame:SetCooldown(start, duration, debuffType, texture, count, refreshing, isBigDebuff)
             frame:_SetCooldown(start, duration, debuffType, texture, count, refreshing)
-            if isBigDebuff then
-                P.Size(frame, debuffs.bigSize[1], debuffs.bigSize[2])
-            else
-                P.Size(frame, debuffs.normalSize[1], debuffs.normalSize[2])
+            -- FIX: guard against SetSize not having run yet / secret isBigDebuff
+            if issecretvalue and issecretvalue(isBigDebuff) then isBigDebuff = false end
+            local size = isBigDebuff and debuffs.bigSize or debuffs.normalSize
+            if type(size) == "table" and size[1] and size[2] then
+                P.Size(frame, size[1], size[2])
             end
         end
     end
