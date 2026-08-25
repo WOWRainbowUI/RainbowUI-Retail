@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.0.5 c";
-local VERSION_DATE = 1786600000;
+local VERSION_TEXT = "v1.0.5 d";
+local VERSION_DATE = 1787400000;
 
 
 local addonName, addon = ...
@@ -102,8 +102,9 @@ local DefaultValues = {
     TranslatorShowOriginalText = true,          --If true, display both original text and the translation
     MuteTargetLostSound = true,                 --Mute target lost sound caused by hiding UI. Accessed through command only: /run DialogueUI_DB.MuteTargetLostSound = false
 
-    --WidgetManagerPosition = {x, y};
-    --QuestItemDisplayPosition = {x, y};
+    --WidgetManagerPosition = {x, y}
+    --QuestItemDisplayPosition = {x, y}
+    --QuickSlotPosition = {x, y}
 
 
     --Deprecated:

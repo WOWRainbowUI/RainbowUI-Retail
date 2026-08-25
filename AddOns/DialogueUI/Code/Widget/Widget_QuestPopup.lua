@@ -247,7 +247,7 @@ do
 
             if self.isReroutedQuest then
                 self.isReroutedQuest = nil;
-                if GetQuestID() == self.questID and fromRightClick then
+                if fromRightClick and GetQuestID() == self.questID then
                     addon.FlagQuestDeclined();
                     CloseQuest();
                 end

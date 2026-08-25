@@ -356,6 +356,10 @@ do  --Quest Flyout ItemButton
         self.ButtonText:SetText(text);
         ThemeUtil:SetFontColor(self.ButtonText, "WarningRed");
     end
+
+    function ItemButtonMixin:Close()
+        self:Hide();
+    end
 end
 
 
@@ -605,6 +609,22 @@ do  --Actions Types
             self:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED");
         end
     end
+
+    function ItemButtonMixin:SetEditMode()
+        self.hasData = true;
+        self.type = "editMode";
+
+        self.CloseButton:StopCountdown();
+        self.CloseButton:Show();
+        self.CloseButton:SetInteractable(true);
+        self.CloseButton:SetTheme(2, true);
+        self:ShowHotkey(true);
+        self:SetButtonEnabled(true);
+        self:SetColorIndex(4);
+        self:SetIcon(134400);
+        self:SetButtonText(L["Valuable Reward Popup"]);
+        self:SetScript("OnEvent", self.OnEventBasic);
+    end
 end
 
 
@@ -705,6 +725,15 @@ do  --Override
             end
         end
     end
+
+    function ItemButtonMixin:OnDragStart()
+        self:SetMovable(true);
+        self:StartMoving();
+    end
+
+    function ItemButtonMixin:OnDragStop()
+        self:StopMovingOrSizing();
+    end
 end
 
 
@@ -739,8 +768,8 @@ local function CreateItemActionButton(parent, additionalMixin)
     API.Mixin(f, ItemButtonMixin);
     f:SetScript("OnEnter", f.OnEnter);
     f:SetScript("OnLeave", f.OnLeave);
-    f:SetScript("OnMouseDown", f.OnMouseDown);
-    f:SetScript("OnMouseUp", f.OnMouseUp);
+    f:SetScript("OnMouseDown", addon.WidgetManager.WidgetBaseMixin.OnMouseDown);
+    f:SetScript("OnMouseUp", addon.WidgetManager.WidgetBaseMixin.OnMouseUp);
     f:SetScript("OnShow", f.OnShow);
 
     f:SetColorIndex(2);
