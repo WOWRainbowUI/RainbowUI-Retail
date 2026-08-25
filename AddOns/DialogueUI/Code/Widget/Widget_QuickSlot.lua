@@ -12,6 +12,11 @@ local COUNTDOWN_IDLE = 4;               --When the user doesn't do anything
 local COUNTDOWN_COMPLETE_AUTO = 2;      --When the item is auto equipped by game
 local COUNTDOWN_COMPLETE_MANUAL = 1;    --When the item is equipped by clicks
 
+local Def = {
+    PopupOffsetX = 0,   --Popup's default Positon
+    PopupOffsetY = 196,
+};
+
 local QuickSlotManager = CreateFrame("Frame");
 addon.QuickSlotManager = QuickSlotManager;
 WidgetManager:AddLootMessageProcessor(QuickSlotManager, "ItemLink");
@@ -265,6 +270,7 @@ end
 
 do  --QuestRewardItemButtonMixin
     local QuestRewardItemButtonMixin = {};
+    QuestRewardItemButtonMixin.dbkeyPosition = "QuickSlotPosition";
 
     function QuestRewardItemButtonMixin:OnLoad()
         self.CloseButton = addon.WidgetManager:CreateAutoCloseButton(self);
@@ -324,7 +330,10 @@ do  --QuestRewardItemButtonMixin
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseUp(button)
-
+        if button == "MiddleButton" then
+            -- Reset Popup position
+            QuickSlotManager:ResetItemButtonPosition();
+        end
     end
 
     function QuestRewardItemButtonMixin:OnButtonHide()
@@ -385,6 +394,33 @@ do  --QuestRewardItemButtonMixin
         end
     end
 
+    function QuestRewardItemButtonMixin:LoadPosition()
+        local pos = addon.GetDBValue(self.dbkeyPosition);
+        local x, y;
+        local useCustomPosition;
+
+        if pos then
+            if type(pos[1]) == "number" and type(pos[2]) == "number" then
+                useCustomPosition = true;
+                x = pos[1];
+                y = pos[2];
+            end
+        end
+
+        self:ClearAllPoints();
+
+        if useCustomPosition then
+            self:SetPoint("CENTER", nil, "BOTTOMLEFT", x, y);
+        else
+            self:SetPoint("BOTTOM", nil, "BOTTOM", Def.PopupOffsetX, Def.PopupOffsetY);
+        end
+    end
+
+    function QuestRewardItemButtonMixin:SavePosition()
+        self.useCenterAsOrigin = true;
+        WidgetManager.WidgetBaseMixin.SavePosition(self);
+    end
+
     function QuestRewardItemButtonMixin:OnItemEquipped()
         self:ShowUpgradeIcon(false);
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
@@ -402,7 +438,7 @@ do  --QuestRewardItemButtonMixin
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
             RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
+            RewardItemButton:LoadPosition();
             RewardItemButton:SetIgnoreParentScale(true);
             RewardItemButton:SetIgnoreParentAlpha(true);
         end
@@ -418,6 +454,30 @@ do  --QuestRewardItemButtonMixin
                 RewardItemButton:ClearButton();
             end
         end
+    end
+
+    function QuickSlotManager:ResetItemButtonPosition()
+        addon.SetDBValue(QuestRewardItemButtonMixin.dbkeyPosition, nil);
+        if RewardItemButton then
+            RewardItemButton:LoadPosition();
+        end
+        addon.SettingsUI:RequestUpdate();
+    end
+
+    function QuickSlotManager:ToggleEditMode()
+        local wasShown = RewardItemButton and RewardItemButton:IsShown();
+        local button = self:GetItemButton();
+        if wasShown and button.type == "editMode" then
+            button:Hide();
+        else
+            button:SetEditMode();
+            button:ShowButton();
+            button:PlayFlyUpAnimation(true);
+        end
+    end
+
+    function QuickSlotManager:IsUsingCustomPosition()
+        return addon.GetDBValue(QuestRewardItemButtonMixin.dbkeyPosition) ~= nil;
     end
 end
 

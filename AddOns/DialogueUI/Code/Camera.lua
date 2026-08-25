@@ -1137,7 +1137,7 @@ if UIModeUtil and UIModeUtil.RegisterMode and UIModeUtil.SetModeActive then
             "encounterUI",
             "extraAbilities",
             "microMenu",
-            "minimap",
+            --"minimap",
             "objectives",
             "pvp",
             "statusBars",
@@ -1150,8 +1150,10 @@ if UIModeUtil and UIModeUtil.RegisterMode and UIModeUtil.SetModeActive then
         UIModeUtil.SetModeActive(modeName, not state);
         if state then
             UIParent:SetAlpha(1);
+            Minimap:Show();
         else
             UIParent:SetAlpha(0);
+            Minimap:Hide();
         end
     end
 

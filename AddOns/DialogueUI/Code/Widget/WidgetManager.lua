@@ -108,6 +108,10 @@ do  --Emulate Drag gesture
         self.t = self.t + elapsed;
         if self.t > 0.008 then
             self.t = 0;
+            if not self.owner:IsVisible() then
+                self:StopWatching();
+                return;
+            end
             self:SetOwnerPosition();
         end
     end
@@ -129,10 +133,12 @@ do  --Draggable Widget
     function WidgetBaseMixin:SavePosition()
         if not self.dbkeyPosition then return end;
 
-        local x = self:GetLeft();
-        local _, y = self:GetCenter();
+        local x1 = self:GetLeft();
+        local x2, y = self:GetCenter();
 
-        if not x and y then return end;
+        if not (x1 and y) then return end;
+
+        local x = self.useCenterAsOrigin and x2 or x1;
 
         local position = {
             Round(x),
@@ -178,21 +184,23 @@ do  --Draggable Widget
         end
     end
 
-    local function WidgetBaseMixin_OnMouseDown(self, button)
+    function WidgetBaseMixin:OnMouseDown(button)
         if button == "LeftButton" then
             DragFrame:StartWatching(self);
         end
 
-        if self.OnMouseDown then
+        if self.OnMouseDown and self.OnMouseDown ~= WidgetBaseMixin.OnMouseDown then -- Raemark: Beware!
             self:OnMouseDown(button);
         end
     end
 
-    local function WidgetBaseMixin_OnMouseUp(self, button)
-        if self.OnMouseUp then
+    function WidgetBaseMixin:OnMouseUp(button)
+        if self.OnMouseUp and self.OnMouseUp ~= WidgetBaseMixin.OnMouseUp then
             self:OnMouseUp(button);
         end
     end
+
+    WidgetManager.WidgetBaseMixin = WidgetBaseMixin;
 
     function WidgetManager:CreateWidget(dbkeyPosition, widgetName)
         local f = CreateFrame("Frame");
@@ -201,8 +209,8 @@ do  --Draggable Widget
         API.Mixin(f, WidgetBaseMixin);
         f.dbkeyPosition = dbkeyPosition;
         f.widgetName = widgetName;
-        f:SetScript("OnMouseDown", WidgetBaseMixin_OnMouseDown);
-        f:SetScript("OnMouseUp", WidgetBaseMixin_OnMouseUp);
+        f:SetScript("OnMouseDown", WidgetBaseMixin.OnMouseDown);
+        f:SetScript("OnMouseUp", WidgetBaseMixin.OnMouseUp);
         return f
     end
 end
@@ -272,20 +280,28 @@ do  --Auto Close Button
         end
     end
 
-    function AutoCloseButtonMixin:SetTheme(themeID)
+    function AutoCloseButtonMixin:SetTheme(themeID, minimized)
         self.themeID = themeID;
-        if themeID == 1 then
-            self.CloseButtonTexture:SetTexCoord(0, 0.25, 0, 0.25);
-            self.Swipe1:SetTexCoord(0.125, 0.25, 0.25, 0.5)
-            self.Swipe2:SetTexCoord(0, 0.125, 0.25, 0.5);
-        elseif themeID == 3 then
-            self.CloseButtonTexture:SetTexCoord(0.75, 1, 0, 0.25);
-            self.Swipe1:SetTexCoord(0.875, 1, 0.25, 0.5)
-            self.Swipe2:SetTexCoord(0.75, 0.875, 0.25, 0.5);
+        if minimized then
+            self.CloseButtonTexture:SetTexCoord(0, 0.25, 0.75, 1);
+            self.Swipe1:SetTexCoord(0.375, 0.5, 0.5, 0.75)
+            self.Swipe2:SetTexCoord(0.25, 0.375, 0.5, 0.75);
+            self.HighlightTexture:SetTexCoord(0.5, 0.75, 0.75, 1);
         else
-            self.CloseButtonTexture:SetTexCoord(0.25, 0.5, 0, 0.25);
-            self.Swipe1:SetTexCoord(0.375, 0.5, 0.25, 0.5)
-            self.Swipe2:SetTexCoord(0.25, 0.375, 0.25, 0.5);
+            if themeID == 1 then
+                self.CloseButtonTexture:SetTexCoord(0, 0.25, 0, 0.25);
+                self.Swipe1:SetTexCoord(0.125, 0.25, 0.25, 0.5)
+                self.Swipe2:SetTexCoord(0, 0.125, 0.25, 0.5);
+            elseif themeID == 3 then
+                self.CloseButtonTexture:SetTexCoord(0.75, 1, 0, 0.25);
+                self.Swipe1:SetTexCoord(0.875, 1, 0.25, 0.5)
+                self.Swipe2:SetTexCoord(0.75, 0.875, 0.25, 0.5);
+            else
+                self.CloseButtonTexture:SetTexCoord(0.25, 0.5, 0, 0.25);
+                self.Swipe1:SetTexCoord(0.375, 0.5, 0.25, 0.5)
+                self.Swipe2:SetTexCoord(0.25, 0.375, 0.25, 0.5);
+            end
+            self.HighlightTexture:SetTexCoord(0.5, 0.75, 0, 0.25);
         end
     end
 
@@ -361,6 +377,7 @@ do  --Auto Close Button
         f.SwipeMask2:SetRotation(-PI);
 
         local highlight = f:CreateTexture(nil, "HIGHLIGHT");
+        f.HighlightTexture = highlight;
         highlight:SetSize(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
         highlight:SetPoint("CENTER", f, "CENTER", 0, 0);
 

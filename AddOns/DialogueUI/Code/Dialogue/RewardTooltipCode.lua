@@ -38,7 +38,7 @@ function RewardTooltipCode:ModifyBlizzardTooltip(tooltip)
             self.TopFrame:SetFixedFrameStrata(true);
         end
         local scale = UIParent:GetEffectiveScale();
-        tooltip:SetScale(scale);
+        self.TopFrame:SetScale(scale);
         tooltip:SetParent(self.TopFrame);
         tooltip:Show();
         tooltip:Hide();
