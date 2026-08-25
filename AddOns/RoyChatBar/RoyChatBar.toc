@@ -1,0 +1,15 @@
+## Interface: 120100,120007
+## Title: |cFFF04242R|r|cFFF0AA42o|r|cFFCDF042y|r|cFF65F042C|r|cFF42F088h|r|cFF42F0F0a|r|cFF4288F0t|r|cFF6542F0B|r|cFFCD42F0a|r|cFFF042AAr|r
+## Notes: 快捷聊天按钮
+## Author: NGA二十发寒冰箭Roy
+## Version: 1.9.5
+## IconTexture: Interface\AddOns\RoyChatBar\Media\Icon.tga
+## SavedVariables: RoyChatBarDB
+## Category-zhTW: 聊天
+
+Core.lua
+Locales\enUS.lua
+Locales\zhTW.lua
+Options.lua
+Config.lua
+RoyChatBar.lua
