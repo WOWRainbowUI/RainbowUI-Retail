@@ -31,6 +31,21 @@ local BLACKLIST_ITEMS = {
     [268280] = true
 };
 
+local function GetTargetSpecId()
+    local slotId = DB:Get("filters.slotId");
+    local specId = DB:Get("filters.specId");
+
+    if (slotId == -1 and DB:Get("filters.classId") ~= Character:GetCurrentClassId()) then
+        specId = 0;
+    end
+
+    if (specId == 0) then
+        specId = Character:GetCurrentSpecId();
+    end
+
+    return specId;
+end
+
 function Upgrade:IsUpgradeable(itemId)
     local _, _, _, _, _, classId, subClassId = C_Item.GetItemInfoInstant(itemId);
 
@@ -39,6 +54,10 @@ function Upgrade:IsUpgradeable(itemId)
     end
 
     return (classId == Enum.ItemClass.Armor or classId == Enum.ItemClass.Weapon);
+end
+
+function Upgrade:GetBaseItemId(itemId)
+    return Favorites:GetBaseItemId(itemId, GetTargetSpecId());
 end
 
 function Upgrade:GetCurrentTrack()
@@ -75,18 +94,7 @@ function Upgrade:BuildItemLink(itemId)
         return string.format("item:%d", itemId);
     end
 
-    -- Get the correct specId
-    local slotId = DB:Get("filters.slotId");
-    local specId = DB:Get("filters.specId");
-    local classId = Character:GetCurrentClassId();
-
-    if (slotId == -1 and DB:Get("filters.classId") ~= classId) then
-        specId = 0;
-    end
-
-    if (specId == 0) then
-        specId = Character:GetCurrentSpecId();
-    end
+    local specId = GetTargetSpecId();
 
     -- Calculate bonus IDs needed
     local bonusIds = {};
@@ -136,13 +144,7 @@ function Upgrade:BuildItemLink(itemId)
     -- 6. Always add 1674 (epic)
     table.insert(bonusIds, 1674);
 
-    -- 7. Midnight Season 1 bonus rings and amulets
-    local _, _, _, itemEquipLoc = C_Item.GetItemInfoInstant(itemId);
-    if (itemEquipLoc == "INVTYPE_FINGER" or itemEquipLoc == "INVTYPE_NECK") then
-        table.insert(bonusIds, 13534);
-    end
-
-    -- 8. Optional enchant and/or gems from favorites
+    -- 7. Optional enchant and/or gems from favorites
     local enchant = Favorites:GetEnchant(itemId, specId) or "";
     local gems    = Favorites:GetGems(itemId, specId);
     local gem1    = gems and gems[1] or "";
@@ -150,6 +152,14 @@ function Upgrade:BuildItemLink(itemId)
     local gem3    = gems and gems[3] or "";
     local gem4    = gems and gems[4] or "";
     local extras  = string.format("%s:%s:%s:%s:%s", enchant, gem1, gem2, gem3, gem4);
+
+    -- 8. Midnight Season 2 bonus rings and amulets
+    local _, _, _, itemEquipLoc = C_Item.GetItemInfoInstant(itemId);
+    if (
+            gem1 == "" and gem2 == "" and gem3 == "" and gem4 == ""
+            and (itemEquipLoc == "INVTYPE_FINGER" or itemEquipLoc == "INVTYPE_NECK")) then
+        table.insert(bonusIds, 13534);
+    end
 
     -- Build link
     local playerLevel = UnitLevel("player");

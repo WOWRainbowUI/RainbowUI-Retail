@@ -1,3 +1,6 @@
-## Improvements
-- Added Baganator for the icon buttons. All credit for this goes to @WanderingFox - Thanks!
-- Update the favorite icon right away when a favorite changes
+## New Features
+- Copy enchant and gem names from the context menu and the URL from the footer
+
+## Bugfixes
+- Fixed item socket slots for necks and rings
+- Catalyst tooltips now show the secondary stats of the base item instead of Blizzard's values

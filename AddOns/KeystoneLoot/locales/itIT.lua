@@ -8,7 +8,7 @@ local L = KeystoneLoot.L;
 
 -- keystoneloot_frame.lua
 L["%s (%s Season %d)"] = "%s (%s Stagione %d)";
-L["Import BIS items from |cnACCOUNT_WIDE_FONT_COLOR:www.keystoneloot.io|r"] = "Importa oggetti BIS da |cnACCOUNT_WIDE_FONT_COLOR:www.keystoneloot.io|r";
+L["Import BIS items from %s"] = "Importa oggetti BIS da %s";
 
 -- itemlevel_dropdown.lua
 L["Veteran"] = "Veterano";
@@ -77,6 +77,10 @@ L["Set Favorite"] = "Imposta preferito";
 L["Nice to have"] = "Utile averlo";
 L["Must have"] = "Indispensabile";
 L["Catalyst"] = "Catalizzatore";
+L["+Secondary stats of the base item"] = "+Statistiche secondarie dell'oggetto base";
+
+-- copy_popup.lua
+L["Press CTRL+C to copy"] = "Premi CTRL+C per copiare";
 
 -- loot_reminder_frame.lua
 L["Correct loot specialization set?"] = "Specializzazione bottino corretta?";
