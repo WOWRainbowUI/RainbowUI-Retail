@@ -69,9 +69,7 @@ local function GetAurasInitializerModern(container)
   return function(frame)
     table.insert(container.frames, frame)
     frame:SetFlattensRenderLayers(true)
-    frame:SetSize(20, 20)
     frame.Icon = frame:CreateTexture(nil, "ARTWORK")
-    frame.Icon:SetSize(20, 20)
     frame.Icon:SetPoint("CENTER")
     frame.Cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
     frame.Cooldown:SetDrawBling(false)
@@ -147,7 +145,12 @@ local anchorMap = {
 }
 
 local function ProcessSpells(kind)
-  local settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  local settings
+  if kind == "crowdControl" then
+    settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS).crowdControl
+  else
+    settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  end
 
   local include = {}
   local exclude = {}
@@ -172,11 +175,11 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   local include, exclude = ProcessSpells(kind)
   local includeFilter
   if kind == "buffs" then
-    includeFilter = settings.playerFromYou and "HELPFUL|PLAYER" or "HELPFUL"
+    includeFilter = settings.filters.playerFromYou and "HELPFUL|PLAYER" or "HELPFUL"
   elseif kind == "debuffs" then
-    includeFilter = settings.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
+    includeFilter = settings.filters.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
   elseif kind == "crowdControl" then
-    includeFilter = settings.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
+    includeFilter = settings.filters.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
   end
   local start, tail = 0, 0
   for i = 1, 2 do
@@ -196,29 +199,29 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
       if settings.filters.enrage then
         table.insert(output, {"HELPFUL|!PLAYER", {isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false}})
         table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false}})
-        table.insert(output, {"HELPFUL|!PLAYER|!IMPORTANT", {
+        table.insert(output, {"HELPFUL|DISPELLABLE|!IMPORTANT|!PLAYER", {
           includeDispelTypes = {["Enrage"] = true},
           excludeSpellIDs = exclude,
           isBossOrRoleAura = false,
         }})
         if settings.filters.dispelable then
-          table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = {["Enrage"] = true}, isStealable = true}})
+          table.insert(output, {"HELPFUL|DISPELLABLE|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = {["Enrage"] = true}, isStealable = true}})
         end
       else
         table.insert(output, {"HELPFUL|!PLAYER", {isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false}})
         table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false}})
         if settings.filters.dispelable then
-          table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, isBossOrRoleAura = false}})
+          table.insert(output, {"HELPFUL|DISPELLABLE|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, isBossOrRoleAura = false}})
         end
       end
     else
       if settings.filters.enrage then
-        table.insert(output, {"HELPFUL|!PLAYER", {includeDispelTypes = {["Enrage"] = true}}})
+        table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {includeDispelTypes = {["Enrage"] = true}}})
         if settings.filters.dispelable then
-          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = {["Enrage"] = true}}})
+          table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = {["Enrage"] = true}}})
         end
       elseif settings.filters.dispelable then
-        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true}})
+        table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {excludeSpellIDs = exclude, isStealable = true}})
       else
         table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}})
       end
@@ -256,6 +259,8 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
 end
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails)
+  self.auraDetails = auraDetails
+
   self.buffs:ClearAllPoints()
   self.debuffs:ClearAllPoints()
   self.crowdControl:ClearAllPoints()
@@ -381,8 +386,6 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit, parent, auraDeta
   self.buffs:SetEnabled(self.buffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
   self.debuffs:SetEnabled(self.debuffs.details ~= nil)
   self.crowdControl:SetEnabled(self.crowdControl.details ~= nil)
-
-  self.auraDetails = auraDetails
 
   self.buffs:SetUnit(unit)
   self.debuffs:SetUnit(unit)

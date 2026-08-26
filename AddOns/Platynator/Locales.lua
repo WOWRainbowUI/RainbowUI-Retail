@@ -3827,8 +3827,7 @@ L["BORDER_COLOR"] = "Colore del bordo"
 L["BORDER_WIDTH"] = "Larghezza del bordo"
 --[[Translation missing --]]
 L["BOSS"] = "Boss"
---[[Translation missing --]]
-L["BOTTOM"] = "Bottom"
+L["BOTTOM"] = "Sotto"
 L["BUFFS"] = "Potenziamenti "
 --[[Translation missing --]]
 L["BUFFS_FRIENDLY"] = "Buffs (Friendly)"
