@@ -998,6 +998,7 @@ unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
 unitframeDefaults.auraCdTextOnlyMine = true
 unitframeDefaults.onlyMineDebuffs = C.Defaults.Unitframe.OnlyMineDebuffs
 unitframeDefaults.onlyMineBuffs = C.Defaults.Unitframe.OnlyMineBuffs
+unitframeDefaults.castBarReposition = C.Defaults.Unitframe.CastBarReposition
 
 local playerAuraStyleDefaults = CategoryDefaults(C.Categories.PlayerAura, true, 12)
 playerAuraStyleDefaults.reverseSwipe = C.Defaults.PlayerAura.ReverseSwipe

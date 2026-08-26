@@ -6,7 +6,7 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local PlayerAuraStyler = MCE:NewModule("PlayerAuraStyler", "AceEvent-3.0")
 
 local type, pcall, tostring = type, pcall, tostring
-local ipairs, pairs, select, next = ipairs, pairs, select, next
+local pairs, select, next = pairs, select, next
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
@@ -861,37 +861,43 @@ local function HookButton(button)
 end
 
 local function ForEachKnownAuraButton(callback)
-    local function ScanRoot(root, auraType)
-        local auraFrames = root and root.auraFrames
-        if type(auraFrames) == "table" then
-            for _, button in ipairs(auraFrames) do
-                if button then
-                    assignedAuraTypes[button] = auraType
-                    callback(button)
-                end
+    -- Blizzard auraFrames tables can reject generic iteration while aura data
+    -- is secret and execution is addon-tainted. Read their known numeric keys
+    -- through SafeTableGet instead; an unreadable entry cleanly ends the same
+    -- contiguous-array walk that ipairs performed.
+    local function ScanAuraFrames(auraFrames, auraType)
+        if type(auraFrames) ~= "table" then return end
+
+        local index = 1
+        while true do
+            local button = MCE:SafeTableGet(auraFrames, index)
+            if not button then return end
+
+            if MCE:CanUseFrameAsTableKey(button) then
+                assignedAuraTypes[button] = auraType
+                callback(button)
             end
+            index = index + 1
         end
+    end
+
+    local function ScanRoot(root, auraType)
+        ScanAuraFrames(MCE:SafeTableGet(root, "auraFrames"), auraType)
     end
 
     ScanRoot(BuffFrame, AURA_TYPE_BUFF)
     ScanRoot(DebuffFrame, AURA_TYPE_DEBUFF)
     ScanRoot(ExternalDefensivesFrame, AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS)
 
-    if BuffFrame and BuffFrame.ConsolidatedBuffs
-        and BuffFrame.ConsolidatedBuffs.Tooltip
-        and BuffFrame.ConsolidatedBuffs.Tooltip.Auras
-        and type(BuffFrame.ConsolidatedBuffs.Tooltip.Auras.auraFrames) == "table" then
-        for _, button in ipairs(BuffFrame.ConsolidatedBuffs.Tooltip.Auras.auraFrames) do
-            if button then
-                assignedAuraTypes[button] = AURA_TYPE_BUFF
-                callback(button)
-            end
-        end
-    end
+    local consolidated = MCE:SafeTableGet(BuffFrame, "ConsolidatedBuffs")
+    local tooltip = MCE:SafeTableGet(consolidated, "Tooltip")
+    local tooltipAuras = MCE:SafeTableGet(tooltip, "Auras")
+    ScanAuraFrames(MCE:SafeTableGet(tooltipAuras, "auraFrames"), AURA_TYPE_BUFF)
 
-    if DeadlyDebuffFrame and DeadlyDebuffFrame.Debuff then
-        assignedAuraTypes[DeadlyDebuffFrame.Debuff] = AURA_TYPE_DEBUFF
-        callback(DeadlyDebuffFrame.Debuff)
+    local deadlyDebuff = MCE:SafeTableGet(DeadlyDebuffFrame, "Debuff")
+    if MCE:CanUseFrameAsTableKey(deadlyDebuff) then
+        assignedAuraTypes[deadlyDebuff] = AURA_TYPE_DEBUFF
+        callback(deadlyDebuff)
     end
 end
 

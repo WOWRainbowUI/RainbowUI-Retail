@@ -201,6 +201,10 @@ C.Defaults = {
         -- no longer applies; these mirror its historical default.
         OnlyMineDebuffs = true,
         OnlyMineBuffs = false,
+        -- Blizzard anchors the Target/Focus spell bar under its own aura
+        -- container, which MiniCE suppresses. Re-anchor it below the MiniCE
+        -- aura rows so it stops overlapping them.
+        CastBarReposition = true,
     },
     PlayerAura = {
         DisableFading = false,

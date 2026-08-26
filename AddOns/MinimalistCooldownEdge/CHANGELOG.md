@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.6.3 - Player Aura Lua Error Fix
+- Fixed repeated Lua errors when Blizzard player aura data is protected.
+
+## 4.6.2 - Cast Bar Repositioning Fix
+- Fixed the Reposition Cast Bar option not moving target and focus cast bars.
+
+## 4.6.1 - Cast Bar Repositioning
+- Added a Unit Frames option to reposition the target and focus cast bars.
+- Cast bars now anchor below the last buff or debuff row while repositioning is enabled.
+
 ## 4.6.0 - UnitFrame Performance Refactor
 - Reworked UnitFrame aura handling for lower CPU usage.
 - UnitFrame auras now rely more directly on Blizzard's native 12.1 AuraContainer updates.
