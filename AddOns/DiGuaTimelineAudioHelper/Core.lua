@@ -40,6 +40,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.coTankAuraEnabled == nil then db.coTankAuraEnabled = false end
             if db.bossVoiceEnabled == nil then db.bossVoiceEnabled = true end
             if db.forceEncounterWarnings == nil then db.forceEncounterWarnings = true end
+            if db.bloodlustOpenSound == nil then db.bloodlustOpenSound = false end
             if db.audioChannel == nil then db.audioChannel = "Master" end
             if db.coTankX == nil then db.coTankX = -400 end
             if db.coTankY == nil then db.coTankY = 350 end
@@ -76,6 +77,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineCoTankCheck:SetChecked(DiGuaTimelineAudioHelper.coTankAuraEnabled)
             DiGuaTimelineBossVoiceCheck:SetChecked(DiGuaTimelineAudioHelper.bossVoiceEnabled)
             DiGuaTimelineForceWarningsCheck:SetChecked(DiGuaTimelineAudioHelper.forceEncounterWarnings) -- 同步勾选状态
+            DiGuaTimelineBloodlustSoundCheck:SetChecked(DiGuaTimelineAudioHelper.bloodlustOpenSound) -- 同步嗜血开启提示音
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -91,7 +93,7 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(220, 220) -- 高度调大到 220px，避免新增选项重叠挤压
+f:SetSize(220, 245) -- 高度调大到 245px，容纳更多选项
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -164,6 +166,11 @@ local cbForceWarnings = CreateCheckButton("DiGuaTimelineForceWarningsCheck", "�
         SetCVar("encounterWarningsEnabled", 1)
     end
     print("|cffffd100[DiGua]|r 自动开启暴雪文字预警: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+local cbBloodlustSound = CreateCheckButton("DiGuaTimelineBloodlustSoundCheck", "嗜血开启提示音", -210, function(self)
+    DiGuaTimelineAudioHelper.bloodlustOpenSound = self:GetChecked()
+    print("|cffffd100[DiGua]|r 嗜血开启提示音: " .. (DiGuaTimelineAudioHelper.bloodlustOpenSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
 f:SetScript("OnShow", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end end)

@@ -5,30 +5,6 @@ local addonName, addonTable = ...
 
 addonTable.AudioTimeline = {
 
-    -- [2124] = { -- 阿德里斯和阿斯匹克斯
-    --     interval = 999, 
-    --     startOffset = 0, 
-    --     alerts = {
-    --         [40] = "DaoShu3.ogg",
-    --         [110] = "DaoShu2.ogg",
-
-    --     }
-    -- },
-
-
-    -- [2126] = { -- 加瓦兹特
-    --     interval = 27, 
-    --     startOffset = 0, 
-    --     alerts = {
-    --         [18] = "DaoShu3.ogg",
-    --         [19] = "DaoShu2.ogg",
-    --         [20] = "DaoShu1.ogg",
-    --         [21] = "AnQuan.ogg",
-    --         [25] = "DaoShu2.ogg",
-    --         [26] = "DaoShu1.ogg",
-    --     }
-    -- },
-
     [2139] = { -- 黄金风蛇
         interval = 65, 
         startOffset = 0, 
@@ -53,18 +29,6 @@ addonTable.AudioTimeline = {
         }
     },
 
-    [2609] = { -- 梅莉杜莎·寒妆
-        interval = 999, 
-        startOffset = 0, 
-        alerts = {
-            -- [0]  = "ZhuYiDangXian.ogg",
-            -- [8]  = "DaoShu5.ogg",
-            -- [9]  = "DaoShu4.ogg",
-            -- [10]  = "DaoShu3.ogg",
-            -- [11]  = "DaoShu2.ogg",
-            -- [12]  = "DaoShu1.ogg",
-        }
-    },
     [2606] = { -- 柯姬雅·焰蹄
         interval = 40, 
         startOffset = 0, 
@@ -77,19 +41,6 @@ addonTable.AudioTimeline = {
             -- [12]  = "DaoShu1.ogg",
         }
     },
-    [2623] = { -- 基拉卡与厄克哈特·风脉
-        interval = 999, 
-        startOffset = 0, 
-        alerts = {
-            [8]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
-            [33]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
-            [57]  = { file = "QuSanTanKe.ogg", role = "HEALER" },
-            -- [10]  = "DaoShu3.ogg",
-            -- [11]  = "DaoShu2.ogg",
-            -- [12]  = "DaoShu1.ogg",
-        }
-    },
-
 
     [3103] = { -- 歼灭者萨祖克斯
         interval = 57, 
@@ -150,19 +101,10 @@ addonTable.AudioTimeline = {
         interval = 70, 
         startOffset = 0, 
         alerts = {
-            [15]  = "ZhuYiDuoQuan.ogg",
-            [51]  = "ZhuYiDuoQuan.ogg",
+            [15]  = "DuoQuan.ogg",
+            [51]  = "DuoQuan.ogg",
         }
     },
-
-
-    -- [3286] = { -- 阿特洛苏斯
-    --     interval = 50, 
-    --     startOffset = 0, 
-    --     alerts = {
-    --         [41]  = "ZhuanHuoDaGuai.ogg",
-    --     }
-    -- },
 
     [3287] = { -- 煞戎努斯
         interval = 53, 
@@ -178,37 +120,10 @@ addonTable.AudioTimeline = {
         startOffset = 0, 
         alerts = {
             [0]  = "ZhunBeiAOE.ogg",
-            [3]  = "ZhuYiDuoQuan.ogg",
+            [2]  = "ZhuYiDuoQuan.ogg",
             [28] = "ZhuYiJieQuan.ogg",
         }
     },
-
-    [3457] = { -- 扭缠盘蛇
-        interval = 999, 
-        startOffset = 0, 
-        alerts = {
-            -- [24]  = "LaDuanLianXian.ogg",
-            -- [30]  = "XiaoGuaiDingNi.ogg",
-            -- [52]  = "DuoKaiChongFeng.ogg",
-            -- [57]  = "DuoKaiTouQian.ogg",
-        }
-    },
-
-    [3458] = { -- 祖尔加
-        interval = 64, 
-        startOffset = 0, 
-        alerts = {
-            [0]  = "ZhuYiDangXian.ogg",
-            [8]  = "DaoShu5.ogg",
-            [9]  = "DaoShu4.ogg",
-            [10]  = "DaoShu3.ogg",
-            [11]  = "DaoShu2.ogg",
-            [12]  = "DaoShu1.ogg",
-            [13]  = "AnQuan.ogg",
-        }
-    },
-
-
 
     [3470] = { -- 盘魂者内克扎莉
         interval = 999, 
@@ -272,7 +187,7 @@ local function OnUpdate(self, elapsed)
                 end
 
                 if soundFile and roleMatched then
-                    PlaySoundFile(addonTable.GetMediaPath() .. soundFile, "Master")
+                    PlaySoundFile(addonTable.GetMediaPath() .. soundFile, DiGuaTimelineAudioHelper.audioChannel)
                 end
                 break 
             end

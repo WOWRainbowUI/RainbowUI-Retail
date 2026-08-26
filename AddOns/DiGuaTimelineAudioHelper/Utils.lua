@@ -3,13 +3,18 @@
 
 local addonName, addonTable = ...
 
---- 创建自定义战斗时间轴计时条
-function addonTable.CustomEncounterBar(iconID, duration, name)
+-- 关联单位 -> eventID 列表的映射表（用于怪物死亡/姓名板消失时取消倒计时）
+-- 同一单位可能同时挂着多个倒计时，所以每个单位存一个 eventID 数组
+addonTable.TimelineEventKeys = addonTable.TimelineEventKeys or {}
+
+-- 创建自定义战斗时间轴计时条
+-- 可选第4参 unitKey：关联单位令牌(如 nameplateX)，该单位移除时自动取消倒计时；返回暴雪 eventID
+function addonTable.CustomEncounterBar(iconID, duration, name, unitKey)
     iconID = iconID or 132117
     duration = duration or 10
     name = name or "未命名提示"
 
-    C_EncounterTimeline.AddScriptEvent({
+    local eventID = C_EncounterTimeline.AddScriptEvent({
         spellID = 0,
         iconFileID = iconID,
         duration = duration,
@@ -19,6 +24,31 @@ function addonTable.CustomEncounterBar(iconID, duration, name)
         maxQueueDuration = 0,
         paused = false,
     })
+
+    -- 若传了关联单位，把 eventID 追加到该单位的列表中，供 NAME_PLATE_UNIT_REMOVED 时全部取消
+    if eventID and unitKey then
+        local list = addonTable.TimelineEventKeys[unitKey]
+        if not list then
+            list = {}
+            addonTable.TimelineEventKeys[unitKey] = list
+        end
+        table.insert(list, eventID)
+    end
+
+    return eventID
+end
+
+-- 按关联单位取消其所有时间轴事件（如该姓名板消失/怪物死亡）
+function addonTable.CancelCustomEncounterBar(unitKey)
+    if not unitKey then return end
+    local list = addonTable.TimelineEventKeys[unitKey]
+    if list then
+        for i = #list, 1, -1 do
+            C_EncounterTimeline.CancelScriptEvent(list[i])
+            list[i] = nil
+        end
+        addonTable.TimelineEventKeys[unitKey] = nil
+    end
 end
 
 
@@ -45,6 +75,19 @@ function addonTable.FindBestVoice()
 
     -- 终极兜底：如果连第一个语音都没有（空表），强制返回 0
     return 0
+end
+
+-- 获取玩家职责（优先通过专精获取，无专精时兜底队伍职责）
+function addonTable.GetPlayerRole()
+    local spec = GetSpecialization()
+    local role = spec and GetSpecializationRole(spec)
+
+    if role and role ~= "NONE" then
+        return role
+    end
+
+    -- 兜底：未选择专精时回退至队伍职责
+    return UnitGroupRolesAssigned("player")
 end
 
 --- 连续顺序播放音频函数
@@ -406,4 +449,175 @@ function addonTable.StartBarTimerBySeconds(seconds, checkCast, PlayerIsSpellTarg
 
     activeBarTimer = C_Timer.NewTimer(duration, ForceHideBarFrame)
     backupBarHideTimer = C_Timer.NewTimer(15, ForceHideBarFrame)
+end
+
+-- 生成"按当前法术快照"过滤代码块的工具函数（调试/抓取条件用，供 UNIT_SPELLCAST_START / CHANNEL 调用）
+function addonTable.GenerateAllSpecsCodeBlock(unitTarget)
+    if not UnitExists(unitTarget) then return end
+    
+    local spellName, _, _, _, _, _, _, _, spellID = UnitCastingInfo(unitTarget)
+    if not spellName then
+        spellName, _, _, _, _, _, _, _, spellID = UnitChannelInfo(unitTarget)
+    end
+    spellName = spellName or "未知法术"
+    local spellComment = spellName .. (spellID and (" (" .. spellID .. ")") or "")
+
+    C_Timer.After(0.5, function()
+        if not UnitExists(unitTarget) then print("❌ [错误] 0.5秒后怪物血条已消失") return end
+
+        print("🎯 [开始抓取快照] 技能 => " .. spellComment)
+        print("--------------------------------------------------")
+
+        local canAttack = UnitCanAttack("player", unitTarget)
+        print(" -> 是否可攻击:", canAttack)
+
+        local currentMapID = C_Map.GetBestMapForUnit("player") or 0  
+        print(" -> 当前地图ID:", currentMapID)
+
+        local subZoneText = GetSubZoneText() or ""
+        print(" -> 当前子区域名字:", subZoneText ~= "" and subZoneText or "无")
+
+        local name = UnitName(unitTarget) or "未知"
+        print(" -> 怪物名字:", name)
+
+        local actualLevel = UnitLevel(unitTarget) or 0
+        print(" -> 实际等级:", actualLevel)
+
+        local classification = UnitClassification(unitTarget) or "normal"
+        print(" -> 分类(精英/普通):", classification)
+
+        local isLieutenant = UnitIsLieutenant(unitTarget)
+        print(" -> 是否为中尉(Lieutenant):", isLieutenant)
+
+        local unitPowerType = UnitPowerType(unitTarget) or 0   
+        print(" -> 能量类型代码:", unitPowerType)
+
+        -- local sex = UnitSex(unitTarget) or 1
+        -- print(" -> 性别代码:", sex)
+
+        local isInside = IsIndoors()
+        print(" -> 是否在室内:", isInside)
+
+        -- -- 严格获取大写英文职业名
+        -- local className = select(2, UnitClass(unitTarget)) or "NONE"
+        -- print(" -> 职业名称:", className)
+
+        -- local auraData = C_UnitAuras.GetAuraDataByIndex(unitTarget, 1, "HELPFUL") 
+        -- print(" -> 1号位增益光环(SpellID):", auraData and auraData.spellId or "无")
+
+        local inCombat = UnitAffectingCombat(unitTarget)
+        print(" -> 是否在战斗中:", inCombat)
+
+        local keyLevel = C_ChallengeMode.GetActiveKeystoneInfo() or 0
+        print(" -> 大秘境层数:", keyLevel)
+
+        local creatureFamily, familyID = UnitCreatureFamily(unitTarget)
+        creatureFamily = creatureFamily or "无"
+        print(" -> 生物家族:", creatureFamily, "(家族ID:", familyID or "nil", ")")
+
+        local stepInfo = C_ScenarioInfo.GetScenarioStepInfo()
+        local stepName = (type(stepInfo) == "table" and stepInfo.title) or "无"
+        print(" -> 战役步骤名称:", stepName)
+
+        local actualValue, percentValue, percentValueString = C_ScenarioInfo.GetUnitCriteriaProgressValues("target")
+        print(" -> 战役条件进度(数值/百分比/文本):", actualValue, percentValue, percentValueString)
+
+        local currentPercentText = GetTrashProgressString and GetTrashProgressString() or "0%"
+        print(" -> 当前小怪进度%:", currentPercentText)
+
+        local hasTarget = UnitExists(unitTarget .. "target")
+        print(" -> 目标是否存在(是否有目标):", hasTarget)
+
+        local rawTargetName = UnitSpellTargetName(unitTarget) 
+        print(" -> 法术指向目标名字:", rawTargetName)
+
+        local targetRole = UnitGroupRolesAssigned(unitTarget .. "target") or "NONE"
+        print(" -> 目标职责(TANK/HEALER/DAMAGER):", targetRole)
+
+        local instName, _, _, _, _, _, _, instanceID = GetInstanceInfo()
+        instanceID = instanceID or 0
+        print(" -> 副本信息(副本名/ID):", instName, instanceID)
+
+        local boss1Kill = C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false   
+        local boss2Kill = C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false
+        local boss3Kill = C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false 
+        local boss4Kill = C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false
+        print(" -> Boss击杀状态(1-4号):", boss1Kill, boss2Kill, boss3Kill, boss4Kill)
+
+        print("--------------------------------------------------")
+
+        -- 计算战斗文本注释
+        local combatComment = inCombat and "在战斗中" or "不在战斗中"
+        
+        -- 计算室内文本注释
+        local indoorComment = isInside and "在室内" or "在室外"
+
+        -- 计算性别文本注释
+        local sexComment = "无性别"
+        if sex == 2 then sexComment = "男性" elseif sex == 3 then sexComment = "女性" end
+
+        -- 计算分类注释
+        local classifcationComment = "普通怪"
+        if classification == "elite" then classifcationComment = "精英怪"
+        elseif classification == "rare" then classifcationComment = "稀有怪"
+        elseif classification == "rareelite" then classifcationComment = "稀有精英"
+        elseif classification == "worldboss" then classifcationComment = "世界Boss" end
+
+        -- 动态匹配客户端常量等级字符串
+        local levelCodeStr = tostring(actualLevel)
+        if actualLevel == 90 then
+            levelCodeStr = "PLAYER_LEVEL"
+        elseif actualLevel == 91 then
+            levelCodeStr = "NEXT_PLAYER_LEVEL"
+        elseif actualLevel == 92 then
+            levelCodeStr = "BOSS_LEVEL"
+        elseif actualLevel == -1 then
+            levelCodeStr = "-1"
+        end
+
+        local spellTargetCodeStr = rawTargetName and "            and UnitSpellTargetName(unitTarget) -- 法术有目标" or "            and not UnitSpellTargetName(unitTarget) -- 法术没目标"
+        local hasTargetStr = hasTarget and "UnitExists(unitTarget .. \"target\")" or "not UnitExists(unitTarget .. \"target\")"
+        -- local roleCheckStr = (hasTarget and targetRole ~= "NONE") and (" and UnitGroupRolesAssigned(unitTarget .. \"target\") == \"" .. targetRole .. "\"") or ""
+
+        -- 建立生物家族的判定行
+        local familyCodeStr = familyID and "            and select(2, UnitCreatureFamily(unitTarget)) -- 是生物家族" or "            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族"
+
+        -- 纯净版运行代码块生成
+        print("        if unitTarget and unitTarget:find(\"nameplate\") and UnitCanAttack(\"player\", unitTarget)")
+        print("            and select(8, GetInstanceInfo()) == " .. instanceID .. " -- 副本ID (" .. (instName or "未知") .. ")")
+        print("            and (C_Map.GetBestMapForUnit(\"player\") or 0) == " .. currentMapID .. " -- 地图ID")
+        if subZoneText ~= "" then
+            print("            and GetSubZoneText() == \"" .. subZoneText .. "\" -- 子区域 (" .. subZoneText .. ")")
+        end
+        print("            and IsIndoors() == " .. tostring(isInside) .. " -- " .. indoorComment)
+        print("            and UnitLevel(unitTarget) == " .. levelCodeStr .. " -- 怪物等级: " .. actualLevel)
+        print("            and UnitPowerType(unitTarget) == " .. unitPowerType)
+        -- print("            and UnitSex(unitTarget) == " .. sex .. " -- " .. sexComment)
+        print("            and UnitClassification(unitTarget) == \"" .. classification .. "\" -- " .. classifcationComment)
+        print("            and UnitIsLieutenant(unitTarget) == " .. tostring(isLieutenant) .. " -- 是否为中尉")
+        print("            and UnitAffectingCombat(unitTarget) == " .. tostring(inCombat) .. " -- " .. combatComment)
+        
+        -- 生成代码块时，严格输出大写英文键，不夹带任何本地化文本
+        -- if className ~= "NONE" then
+        --     print("            and select(2, UnitClass(unitTarget)) == \"" .. className .. "\"")
+        -- end
+
+        -- 动态生成生物家族代码行
+        print(familyCodeStr)
+        
+        -- 4个Boss击杀状态判定条件生成
+        print("            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == " .. tostring(boss1Kill) .. " -- Boss1")
+        print("            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == " .. tostring(boss2Kill) .. " -- Boss2")
+        print("            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == " .. tostring(boss3Kill) .. " -- Boss3")
+        print("            and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == " .. tostring(boss4Kill) .. " -- Boss4")
+
+        print(spellTargetCodeStr)
+        print("        then")
+        print("            C_Timer.After(0.5, function()")
+        -- print("                if UnitExists(unitTarget) and " .. hasTargetStr .. roleCheckStr .. " then")
+        print("                    PlaySoundFile(MEDIA_PATH .. \"音频文件名.ogg\", DiGuaTimelineAudioHelper.audioChannel)")
+        print("                end")
+        print("            end)")
+        print("        end")
+    end)
 end
