@@ -755,6 +755,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         -- ==     虚空之痕竞技场     ==
         -- ============================
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 暗影箭雨
+            and not UnitExists("focus")
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
             and UnitLevel(unitTarget) == UnitLevel("player") + 1
             and UnitPowerType(unitTarget) == 0
@@ -875,7 +876,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             then addonTable.SpellCastStartTime[unitTarget] = GetTime() end
 
-        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 狂暴之沙 
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 狂暴之沙
+            and not UnitExists("focus")
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
             and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
             and IsIndoors() == false -- 在室外
@@ -1391,6 +1393,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and not UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "HEALER"
             then PlaySoundFile(MEDIA_PATH .. "DaDuanJianYu.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
 

@@ -41,6 +41,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.bossVoiceEnabled == nil then db.bossVoiceEnabled = true end
             if db.forceEncounterWarnings == nil then db.forceEncounterWarnings = true end
             if db.bloodlustOpenSound == nil then db.bloodlustOpenSound = false end
+            if db.lfgProposalSound == nil then db.lfgProposalSound = false end
             if db.audioChannel == nil then db.audioChannel = "Master" end
             if db.coTankX == nil then db.coTankX = -400 end
             if db.coTankY == nil then db.coTankY = 350 end
@@ -78,6 +79,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineBossVoiceCheck:SetChecked(DiGuaTimelineAudioHelper.bossVoiceEnabled)
             DiGuaTimelineForceWarningsCheck:SetChecked(DiGuaTimelineAudioHelper.forceEncounterWarnings) -- 同步勾选状态
             DiGuaTimelineBloodlustSoundCheck:SetChecked(DiGuaTimelineAudioHelper.bloodlustOpenSound) -- 同步嗜血开启提示音
+            DiGuaTimelineLfgProposalCheck:SetChecked(DiGuaTimelineAudioHelper.lfgProposalSound) -- 同步副本就绪提示音
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -93,7 +95,7 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(220, 245) -- 高度调大到 245px，容纳更多选项
+f:SetSize(220, 270) -- 高度调大到 270px，容纳更多选项
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -168,9 +170,14 @@ local cbForceWarnings = CreateCheckButton("DiGuaTimelineForceWarningsCheck", "�
     print("|cffffd100[DiGua]|r 自动开启暴雪文字预警: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbBloodlustSound = CreateCheckButton("DiGuaTimelineBloodlustSoundCheck", "嗜血开启提示音", -210, function(self)
+local cbBloodlustSound = CreateCheckButton("DiGuaTimelineBloodlustSoundCheck", "嗜血开启提示语音", -210, function(self)
     DiGuaTimelineAudioHelper.bloodlustOpenSound = self:GetChecked()
-    print("|cffffd100[DiGua]|r 嗜血开启提示音: " .. (DiGuaTimelineAudioHelper.bloodlustOpenSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    print("|cffffd100[DiGua]|r 嗜血开启提示语音: " .. (DiGuaTimelineAudioHelper.bloodlustOpenSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+local cbLfgProposal = CreateCheckButton("DiGuaTimelineLfgProposalCheck", "副本组队就绪提示语音", -235, function(self)
+    DiGuaTimelineAudioHelper.lfgProposalSound = self:GetChecked()
+    print("|cffffd100[DiGua]|r 副本组队就绪提示语音: " .. (DiGuaTimelineAudioHelper.lfgProposalSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
 f:SetScript("OnShow", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end end)

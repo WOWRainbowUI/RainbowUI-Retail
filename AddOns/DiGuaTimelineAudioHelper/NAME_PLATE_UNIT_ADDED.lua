@@ -73,6 +73,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitLevel(unitTarget) == UnitLevel("player")
             and UnitPowerType(unitTarget) == 1
             and UnitClassification(unitTarget) == "normal" -- 普通怪
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             then            
             DisplayNameplateText(unitTarget, "图\n腾")
