@@ -120,6 +120,7 @@ function RGX:CreateTimer(duration, callback, repeating, label)
         callback = callback,
         repeating = repeating == true,
         elapsed = 0,
+        _lastClock = tonumber(self._timerClock) or 0,
         active = true,
     }
 
@@ -345,10 +346,21 @@ function RGX:UpdateTimers(elapsed)
     local slowByLabel = type(budget.slowByLabel) == "table" and budget.slowByLabel or nil
     local started = nowSeconds()
     local processed = 0
-    local index = #self.timers
+    local frameElapsed = tonumber(elapsed) or 0
+    if frameElapsed < 0 then frameElapsed = 0 end
+    self._timerClock = (tonumber(self._timerClock) or 0) + frameElapsed
+    local timerClock = self._timerClock
+
+    local index = tonumber(self._timerCursor) or #self.timers
+    if index < 1 or index > #self.timers then
+        index = #self.timers
+    end
+    local deferred = false
 
     while index >= 1 do
         if processed >= maxPerFrame or (nowSeconds() - started) >= maxSeconds then
+            self._timerCursor = index
+            deferred = true
             if #self.timers > 25 or processed >= maxPerFrame then
                 reportTimerBudget(string.format(
                     "deferred timers after %d callbacks in %.1fms; %d timer(s) still queued",
@@ -365,9 +377,16 @@ function RGX:UpdateTimers(elapsed)
         if not timer or not timer.active then
             table.remove(self.timers, index)
         else
-            timer.elapsed = timer.elapsed + elapsed
+            -- Accrue from the scheduler clock so a timer deferred by the frame
+            -- budget still observes all elapsed time when the cursor reaches it.
+            local lastClock = tonumber(timer._lastClock) or (timerClock - frameElapsed)
+            local accrued = timerClock - lastClock
+            if accrued > 0 then
+                timer.elapsed = timer.elapsed + accrued
+            end
+            timer._lastClock = timerClock
 
-            if timer.elapsed >= timer.duration then
+if timer.elapsed >= timer.duration then
                 processed = processed + 1
                 local callbackStarted = nowSeconds()
                 self._timerDispatchDepth = (self._timerDispatchDepth or 0) + 1
@@ -385,7 +404,11 @@ function RGX:UpdateTimers(elapsed)
                 end
 
                 if not ok then
-                    reportRuntimeError("timer", err)
+                    reportRuntimeError("timer", string.format(
+                        "%s: %s",
+                        tostring(timer.label or timer.id or timer.callback),
+                        tostring(err)
+                    ))
                 elseif callbackElapsed >= timerSlowSeconds then
                     reportRuntimeError("timer-slow", string.format(
                         "%s took %.1fms",
@@ -408,8 +431,13 @@ function RGX:UpdateTimers(elapsed)
         index = index - 1
     end
 
-    if #self.timers == 0 and self.timerFrame then
-        self.timerFrame:SetScript("OnUpdate", nil)
+    if #self.timers == 0 then
+        self._timerCursor = nil
+        if self.timerFrame then
+            self.timerFrame:SetScript("OnUpdate", nil)
+        end
+    elseif not deferred then
+        self._timerCursor = #self.timers
     end
 end
 

@@ -25,6 +25,36 @@ RGX.wakeFrameEvents = RGX.wakeFrameEvents or {
 
 local canRegisterFrameEventsNow
 local flushPendingFrameEvents
+local armRegistrationDriver
+
+-- Registrations attempted from a blocked-but-valid context are retried by the
+-- next-frame driver. Truly rejected registrations (protection layer refuses
+-- the event even from an untainted stack) are dropped after this many tries
+-- so a permanently-blocked event can never spin forever.
+local MAX_REGISTER_ATTEMPTS = 10
+
+local function canAccessValue(value)
+    local api = RGX.API
+    if type(api) == "table" and type(api.CanAccessValue) == "function" then
+        return api.CanAccessValue(value) == true
+    end
+    return false
+end
+
+local function canAccessTable(value)
+    local api = RGX.API
+    if type(api) == "table" and type(api.CanAccessTable) == "function" then
+        return api.CanAccessTable(value) == true
+    end
+    return false
+end
+
+local function safeErrorText(err)
+    if not canAccessValue(err) then
+        return "<inaccessible error>"
+    end
+    return tostring(err)
+end
 
 local function reportDispatchError(channel, name, id, err)
     local message = string.format(
@@ -32,7 +62,7 @@ local function reportDispatchError(channel, name, id, err)
         tostring(channel),
         tostring(name),
         tostring(id),
-        tostring(err)
+        safeErrorText(err)
     )
 
     if type(_G.geterrorhandler) == "function" then
@@ -48,7 +78,7 @@ local function reportEventRegistrationError(action, event, err)
         "[RGX:event] %s failed for '%s': %s",
         tostring(action),
         tostring(event),
-        tostring(err)
+        safeErrorText(err)
     )
 
     if type(_G.geterrorhandler) == "function" then
@@ -59,14 +89,18 @@ local function reportEventRegistrationError(action, event, err)
     print("|cFFFF4444" .. message .. "|r")
 end
 
+-- Returns ok[, permanent]:
+--   ok=true                     registered (verified when verifiable)
+--   ok=false, permanent=true    known-invalid on this client; never retry
+--   ok=false                    transient (unsafe stack / rejected attempt)
 local function safeRegisterFrameEvent(frame, event)
     if not frame or type(event) ~= "string" or event == "" then
-        return false
+        return false, true
     end
 
     if C_EventUtils and type(C_EventUtils.IsEventValid) == "function"
         and C_EventUtils.IsEventValid(event) ~= true then
-        return false
+        return false, true
     end
 
     if RGX.registeredFrameEvents[event] then
@@ -77,11 +111,25 @@ local function safeRegisterFrameEvent(frame, event)
         return false
     end
 
+    -- pcall isolates ordinary Lua/API errors only. ADDON_ACTION_FORBIDDEN is
+    -- raised by the client's protection machinery, not converted to a Lua
+    -- error, so pcall success is NOT proof the registration stuck. The
+    -- authoritative success signal, when the client provides it, is
+    -- frame:IsEventRegistered(event).
     local ok = pcall(frame.RegisterEvent, frame, event)
-    if ok then
-        RGX.registeredFrameEvents[event] = true
+    if not ok then
+        return false
     end
-    return ok
+
+    if type(frame.IsEventRegistered) == "function" and not frame:IsEventRegistered(event) then
+        return false
+    end
+
+    RGX.registeredFrameEvents[event] = true
+    if RGX.pendingFrameEventAttempts then
+        RGX.pendingFrameEventAttempts[event] = nil
+    end
+    return true
 end
 
 local function hasAnyEventHandlers(rgx, event)
@@ -95,11 +143,15 @@ local function queuePendingFrameEvent(rgx, event)
     end
 
     rgx.pendingFrameEvents[event] = true
+    armRegistrationDriver()
 end
 
 local function unqueuePendingFrameEvent(rgx, event)
     if rgx.pendingFrameEvents then
         rgx.pendingFrameEvents[event] = nil
+    end
+    if rgx.pendingFrameEventAttempts then
+        rgx.pendingFrameEventAttempts[event] = nil
     end
 end
 
@@ -262,22 +314,76 @@ end
 
 RGX.eventFrame = RGX.eventFrame or CreateFrame("Frame")
 
+RGX.pendingFrameEventAttempts = RGX.pendingFrameEventAttempts or {}
+
 flushPendingFrameEvents = function(rgx)
     if not rgx or not rgx.pendingFrameEvents or not next(rgx.pendingFrameEvents) then
-        return
+        return false
     end
 
     if not canRegisterFrameEventsNow() then
-        return
+        return false
     end
 
-    for event in pairs(RGX.pendingFrameEvents) do
+    local changed = false
+    for event in pairs(rgx.pendingFrameEvents) do
         if not hasAnyEventHandlers(rgx, event) then
-            rgx.pendingFrameEvents[event] = nil
-        elseif safeRegisterFrameEvent(rgx.eventFrame, event) then
-            rgx.pendingFrameEvents[event] = nil
+            unqueuePendingFrameEvent(rgx, event)
+            changed = true
+        else
+            local ok, permanent = safeRegisterFrameEvent(rgx.eventFrame, event)
+            if ok or permanent then
+                unqueuePendingFrameEvent(rgx, event)
+                changed = true
+            else
+                local attempts = (rgx.pendingFrameEventAttempts[event] or 0) + 1
+                rgx.pendingFrameEventAttempts[event] = attempts
+                if attempts >= MAX_REGISTER_ATTEMPTS then
+                    -- Repeatedly rejected even from a clean next-frame stack:
+                    -- the client's protection layer refuses this event. Drop it
+                    -- instead of retrying forever.
+                    unqueuePendingFrameEvent(rgx, event)
+                    changed = true
+                    if type(rgx.Debug) == "function" then
+                        rgx:Debug("[RGX:event] dropping '" .. tostring(event)
+                            .. "': native registration repeatedly rejected (protection layer)")
+                    end
+                end
+            end
         end
     end
+    return changed
+end
+
+-- Anonymous next-frame registration driver. Native Frame:RegisterEvent calls
+-- must NOT run while unwinding Blizzard's event dispatch (or a timer dispatch,
+-- or combat): the protection layer can flag any C call on those stacks with
+-- ADDON_ACTION_FORBIDDEN. Deferred registrations therefore wait for this
+-- driver's OnUpdate, which always runs on a clean frame-tick stack.
+--
+-- The driver stays armed while pending registrations exist and disarms itself
+-- when the queue is empty. It is a no-op while any unsafe context is active.
+RGX._registrationDriver = CreateFrame("Frame")
+RGX._registrationDriver:Hide()
+armRegistrationDriver = function()
+    RGX._registrationDriver:Show()
+end
+RGX._registrationDriver:SetScript("OnUpdate", function(driver)
+    if type(RGX.pendingFrameEvents) ~= "table" or not next(RGX.pendingFrameEvents) then
+        driver:Hide()
+        return
+    end
+    if not canRegisterFrameEventsNow() then
+        return
+    end
+    flushPendingFrameEvents(RGX)
+    if type(RGX.pendingFrameEvents) ~= "table" or not next(RGX.pendingFrameEvents) then
+        driver:Hide()
+    end
+end)
+
+function RGX:FlushPendingFrameEvents()
+    return flushPendingFrameEvents(self)
 end
 
 local function registerWakeFrameEvents(frame)
@@ -285,7 +391,9 @@ local function registerWakeFrameEvents(frame)
     for event in pairs(RGX.wakeFrameEvents) do
         if not RGX.registeredFrameEvents[event] then
             local ok = pcall(frame.RegisterEvent, frame, event)
-            if ok then
+            if ok
+                and (type(frame.IsEventRegistered) ~= "function"
+                    or frame:IsEventRegistered(event)) then
                 RGX.registeredFrameEvents[event] = true
             end
         end
@@ -357,12 +465,22 @@ end
 -- The callback receives (event, unit, ...) — the unit token is always the
 -- second argument, matching WoW's native unit event signature.
 function RGX:RegisterUnitEvent(event, unit, callback, id, owner)
-  if type(event) ~= "string" or event == "" then return false end
+  if not canAccessValue(event) or type(event) ~= "string" or event == "" then return false end
 
   local units
   if type(unit) == "table" then
-    units = unit
-  elseif type(unit) == "string" and unit ~= "" then
+    if not canAccessTable(unit) then return false end
+    units = {}
+    for _, candidate in ipairs(unit) do
+      if not canAccessValue(candidate)
+          or type(candidate) ~= "string"
+          or candidate == "" then
+        return false
+      end
+      units[#units + 1] = candidate
+    end
+    if #units == 0 then return false end
+  elseif canAccessValue(unit) and type(unit) == "string" and unit ~= "" then
     units = { unit }
   else
     return false
@@ -389,11 +507,40 @@ function RGX:RegisterUnitEvent(event, unit, callback, id, owner)
 end
 
 function RGX:UnregisterUnitEvent(event, id)
-  return unregisterHandler(self.unitEvents, event, id)
+  local removed = unregisterHandler(self.unitEvents, event, id)
+  if removed and not hasAnyEventHandlers(self, event) then
+    unqueuePendingFrameEvent(self, event)
+    safeUnregisterFrameEvent(self.eventFrame, event)
+  end
+  return removed
 end
 
 function RGX:UnregisterAllUnitEvents(id)
-  return unregisterHandlerEverywhere(self.unitEvents, id)
+  if type(id) ~= "string" or id == "" then
+    return false
+  end
+
+  local removed = false
+  local touched = {}
+  for event, bucket in pairs(self.unitEvents) do
+    if bucket[id] then
+      bucket[id] = nil
+      removed = true
+      touched[event] = true
+    end
+    if not next(bucket) then
+      self.unitEvents[event] = nil
+    end
+  end
+
+  for event in pairs(touched) do
+    if not hasAnyEventHandlers(self, event) then
+      unqueuePendingFrameEvent(self, event)
+      safeUnregisterFrameEvent(self.eventFrame, event)
+    end
+  end
+
+  return removed
 end
 
 function RGX:FireEvent(event, ...)
@@ -404,32 +551,36 @@ function RGX:FireEvent(event, ...)
   local unitBucket = self.unitEvents[event]
   if unitBucket then
     local unitToken = select(1, ...)
-    for id, entry in pairs(unitBucket) do
-      local match = false
-      if entry.units then
-        for _, u in ipairs(entry.units) do
-          if u == unitToken then
-            match = true
-            break
+    if canAccessValue(unitToken) then
+      for id, entry in pairs(unitBucket) do
+        local match = false
+        if entry.units then
+          for _, u in ipairs(entry.units) do
+            if canAccessValue(u) and u == unitToken then
+              match = true
+              break
+            end
           end
         end
-      end
-      if match then
-        local ok, err
-        if entry.callbackType == "string" then
-          ok, err = pcall(entry.owner[entry.callback], entry.owner, event, ...)
-        else
-          ok, err = pcall(entry.callback, event, ...)
+        if match then
+          local ok, err
+          if entry.callbackType == "string" then
+            ok, err = pcall(entry.owner[entry.callback], entry.owner, event, ...)
+          else
+            ok, err = pcall(entry.callback, event, ...)
+          end
+          if not ok then
+            reportDispatchError("unitEvent", event, id, err)
+          end
+          count = count + 1
         end
-        if not ok then
-          reportDispatchError("unitEvent", event, id, err)
-        end
-        count = count + 1
       end
     end
   end
 
   self._dispatchDepth = math.max(0, (self._dispatchDepth or 1) - 1)
+  -- No native registration here: this is still Blizzard's event-dispatch stack.
+  -- The anonymous registration driver drains pending events on the next frame.
 
   return count
 end

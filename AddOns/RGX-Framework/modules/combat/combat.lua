@@ -195,12 +195,29 @@ function Combat:IsInCombat()
     return self._inCombat
 end
 
+-- True when combat-log payload callbacks (OnKill, OnCrit, OnCritHeal,
+-- OnPlayerDamaged, OnPlayerHealed) can fire on this client. False on Retail
+-- 12.x, where addon registration of COMBAT_LOG_EVENT_UNFILTERED is rejected.
+function Combat:HasCombatLogEvents()
+    return RGX:HasCapability("combatLogEvent")
+end
+
 function Combat:GetDuration()
     if not self._inCombat then return 0 end
     return (GetTime and GetTime() or 0) - self._combatStartTime
 end
 
 -- ── Combat log parsing ────────────────────────────────────────────────────────
+--
+-- COMBAT_LOG_EVENT_UNFILTERED is registered ONLY on flavors where the client
+-- accepts addon-side CLEU registration (Classic Era, TBC, Wrath/Titan,
+-- Cataclysm, Mists). Retail 12.x rejects it via the protection layer, so the
+-- event is never requested there. Callbacks that depend on combat-log payload
+-- data (OnKill/OnKillingBlow, OnCrit, OnCritHeal, OnPlayerDamaged,
+-- OnPlayerHealed) degrade to never firing on clients without the capability;
+-- query Combat:HasCombatLogEvents() to detect that. All other Combat features
+-- (combat state, health/resource thresholds, target/proc, encounter, PvP)
+-- work independently of CLEU.
 
 local PLAYER_GUID
 
@@ -368,10 +385,12 @@ function Combat:Init()
         Fire(Combat._onPlayerDied)
     end)
 
-    RGX:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(...)
-        if not Combat._inCombat then return end
-        OnCombatLogEvent(...)
-    end)
+    if RGX:HasCapability("combatLogEvent") then
+        RGX:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(...)
+            if not Combat._inCombat then return end
+            OnCombatLogEvent(...)
+        end)
+    end
 
     RGX:RegisterEvent("PLAYER_LOGIN", function()
         PLAYER_GUID = UnitGUID and UnitGUID("player") or ""
@@ -422,10 +441,9 @@ function Combat:Init()
     end)
 
     -- Procs / auras
-    RGX:RegisterEvent("UNIT_AURA", function(_, unit)
-        if unit ~= "player" then return end
+    RGX:RegisterUnitEvent("UNIT_AURA", "player", function()
         Fire(Combat._onProc)
-    end)
+    end, "RGXCombat_Proc")
 
     -- Encounter end
     RGX:RegisterEvent("ENCOUNTER_END", function(_, encounterID, encounterName, difficultyID, groupSize, success)

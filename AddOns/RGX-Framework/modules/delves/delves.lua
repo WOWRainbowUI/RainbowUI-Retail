@@ -155,8 +155,7 @@ function Delves:Init()
         end
     end, "RGXDelves_Renown")
 
-    RGX:RegisterEvent("UNIT_AURA", function(_, unit)
-        if unit ~= "player" then return end
+    RGX:RegisterUnitEvent("UNIT_AURA", "player", function()
         Delves:RefreshLives()
         Delves:QueueLivesRefresh()
     end, "RGXDelves_Lives")

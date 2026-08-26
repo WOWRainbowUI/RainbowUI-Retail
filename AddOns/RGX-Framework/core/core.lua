@@ -65,7 +65,7 @@ local function NormalizeModuleName(name)
     return string.lower(name)
 end
 
-RGX.version = GetAddOnMetadataCompat(addonName, "Version") or "1.0.0"
+RGX.version = GetAddOnMetadataCompat(addonName, "Version") or "unknown"
 RGX.debugMode = false
 
 -- Module storage
@@ -156,7 +156,7 @@ function RGX:RequireModule(name)
         if type(_G.geterrorhandler) == "function" then
             _G.geterrorhandler()(msg)
         else
-            print("|cFFFF4444" .. msg .. "|r")
+            self:Error(msg)
         end
     end
     return module
@@ -279,7 +279,7 @@ end
 -- Utilities
 function RGX:Debug(...)
     if not self.debugMode then return end
-    print("|cFF00FF00[RGX]|r", ...)
+    print(self:CreateChatPrefix({ tagColor = "00ff00" }), ...)
 end
 
 function RGX:CopyTable(orig)
@@ -312,12 +312,91 @@ function RGX:TableCount(tbl)
     return count
 end
 
+local function IsValidTimerName(name)
+    if type(name) ~= "string" or #name == 0 then return false end
+    local hasNonSpace = false
+    for index = 1, #name do
+        local byte = string.byte(name, index)
+        if byte < 32 or byte == 127 then return false end
+        if byte ~= 32 then hasNonSpace = true end
+    end
+    return hasNonSpace
+end
+
+local function CompileDeclarativeEvery(timers)
+    if timers == nil then return nil end
+    if type(timers) ~= "table" then
+        error("RGXAddon: 'every' must be a table of name = { seconds, function } entries", 3)
+    end
+
+    local compiled = {}
+    for timerName, definition in pairs(timers) do
+        if not IsValidTimerName(timerName) then
+            error("RGXAddon: every 'every' timer must have a printable non-empty name", 3)
+        end
+        if type(definition) ~= "table" then
+            error("RGXAddon: 'every." .. timerName .. "' must be { seconds, function }", 3)
+        end
+        for key in pairs(definition) do
+            if key ~= 1 and key ~= 2 then
+                error("RGXAddon: 'every." .. timerName .. "' must contain exactly seconds and handler", 3)
+            end
+        end
+
+        local seconds = rawget(definition, 1)
+        local handler = rawget(definition, 2)
+        if type(seconds) ~= "number" or seconds ~= seconds or seconds <= 0 or seconds >= math.huge then
+            error("RGXAddon: interval for 'every." .. timerName .. "' must be a finite number greater than zero", 3)
+        end
+        if type(handler) ~= "function" then
+            error("RGXAddon: handler for 'every." .. timerName .. "' must be a function", 3)
+        end
+
+        compiled[#compiled + 1] = {
+            name = timerName,
+            seconds = seconds,
+            handler = handler,
+        }
+    end
+
+    table.sort(compiled, function(a, b) return a.name < b.name end)
+    return compiled
+end
+
+local function BindDeclarativeEvery(addon, timers)
+    if not timers then return end
+
+    -- UpdateTimers walks newest-to-oldest, so reverse registration preserves
+    -- lexical name order when timers in this declaration become due together.
+    for index = #timers, 1, -1 do
+        local definition = timers[index]
+        local timer = addon:Every(definition.seconds, function(timerRef)
+            return definition.handler(addon, timerRef)
+        end, addon.name .. ":every:" .. definition.name)
+
+        timer.name = definition.name
+        timer.declarativeName = definition.name
+    end
+end
+
 -- ── RGX.Addon — one call spins up an addon ────────────────────────────────────
 
 function RGX.Addon(name, opts)
     if type(name) ~= "string" or name == "" then return end
-    opts = opts or {}
+    if opts == nil then
+        opts = {}
+    elseif type(opts) ~= "table" then
+        error("RGXAddon: options must be a table", 2)
+    end
     local RGX = _G.RGXFramework
+    local declarativeEvery = CompileDeclarativeEvery(opts.every)
+
+    if RGX._addons and RGX._addons[name] then
+        error("RGXAddon: addon '" .. name .. "' is already registered", 2)
+    end
+    if opts.table ~= nil and type(opts.table) ~= "table" then
+        error("RGXAddon: 'table' must be a table", 2)
+    end
 
     local addon = opts.table or {}
     addon.name = name
@@ -449,16 +528,20 @@ function RGX.Addon(name, opts)
 
     addon.Emit = addon.SendMessage
 
-    function addon:After(...)
-        return RGX:After(...)
+    function addon:After(duration, callback, label)
+        local timer = RGX:After(duration, callback, label)
+        if timer then timer.owner = self end
+        return timer
     end
 
-    function addon:Every(...)
-        return RGX:Every(...)
+    function addon:Every(duration, callback, label)
+        local timer = RGX:Every(duration, callback, label)
+        if timer then timer.owner = self end
+        return timer
     end
 
-    function addon:CancelTimer(...)
-        return RGX:CancelTimer(...)
+    function addon:CancelTimer(timer)
+        return RGX:CancelTimer(timer)
     end
 
     -- Slash — register at file scope, no ADDON_LOADED needed
@@ -573,7 +656,10 @@ function RGX.Addon(name, opts)
             end -- UI check
         end -- addon.db check
 
-        if opts.welcome then addon:Print(opts.welcome) end
+        BindDeclarativeEvery(addon, declarativeEvery)
+        -- Declarative welcome is a login message: it uses the framework chat
+        -- prefix and obeys the global login-message preference (/rgx login off).
+        if opts.welcome then RGX:LoginMessage(opts.welcome) end
         if opts.onInit then opts.onInit(addon) end
         RGX:UnregisterEvent("ADDON_LOADED", name .. "_RGXAddon")
     end, name .. "_RGXAddon")

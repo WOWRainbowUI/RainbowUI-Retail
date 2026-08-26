@@ -10,12 +10,12 @@ RGX:RegisterSlashCommand("rgx", function(msg)
 
     if cmd == "modules" then
         local mods = RGX:GetLoadedModules()
-        print("|cFF00A2FF[RGX]|r Modules:", table.concat(mods, ", "))
+        RGX:Print("Modules:", table.concat(mods, ", "))
     elseif cmd == "fonts" or cmd == "font" then
         local Fonts = RGX:GetModule("fonts")
         if Fonts then
             local list = Fonts:ListAvailable()
-            print("|cFF00A2FF[RGX]|r Fonts:", #list, "available")
+            RGX:Print("Fonts:", #list, "available")
             for i, f in ipairs(list) do
                 print("  ", f.name, "-", f.displayName, "-", f.category)
             end
@@ -24,15 +24,32 @@ RGX:RegisterSlashCommand("rgx", function(msg)
         local Fonts = RGX:GetModule("fonts")
         if Fonts then
             Fonts._forceDebug = not Fonts._forceDebug
-            print("|cFF00A2FF[RGX]|r Font debug:", Fonts._forceDebug and "ON" or "OFF")
+            RGX:Print("Font debug:", Fonts._forceDebug and "ON" or "OFF")
         end
     elseif cmd == "dbtest" then
         if type(RGX.RunDBTests) == "function" then
             RGX:RunDBTests()
         else
-            print("|cFF00A2FF[RGX]|r DB Tests not loaded.")
+            RGX:Print("DB Tests not loaded.")
         end
+    elseif cmd == "login" then
+        local arg = strtrim(rest):lower()
+        if arg == "on" then
+            RGX:SetLoginMessagesEnabled(true)
+            RGX:Print("Login messages: ON")
+        elseif arg == "off" then
+            -- This confirmation is a normal command response, not a login
+            -- message, so it prints even after disabling.
+            RGX:SetLoginMessagesEnabled(false)
+            RGX:Print("Login messages: OFF")
+        elseif arg == "status" or arg == "" then
+            RGX:Print("Login messages:", RGX:IsLoginMessagesEnabled() and "ON" or "OFF")
+        else
+            RGX:Print("Usage: /rgx login on|off|status")
+        end
+    elseif cmd == "version" or cmd == "ver" then
+        RGX:Print("RGX-Framework v" .. (RGX.version or "unknown"))
     else
-        print("|cFF00A2FF[RGX]|r Commands: modules, fonts, debug, dbtest")
+        RGX:Print("Commands: modules, fonts, debug, dbtest, login, version")
     end
 end, "RGX")

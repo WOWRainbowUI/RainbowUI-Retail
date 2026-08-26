@@ -93,23 +93,30 @@ function RGX:EndsWith(str, suffix)
 end
 
 -- Output helpers
+RGX.LOGO_TEXTURE = "Interface\\AddOns\\RGX-Framework\\media\\logo.tga"
+
+-- All player-facing framework / consumer output uses one prefix:
+--   <logo icon> - [RGX] <message>
 function RGX:Print(...)
-    print("|cff58be81[RGX]|r", ...)
+    print(self:CreateChatPrefix(), ...)
 end
 
 function RGX:Warn(...)
-    print("|cffffcc00[RGX]|r", ...)
+    print(self:CreateChatPrefix({ tagColor = "ffcc00" }), ...)
 end
 
 function RGX:Error(...)
-    print("|cffff4444[RGX]|r", ...)
+    print(self:CreateChatPrefix({ tagColor = "ff4444" }), ...)
 end
 
 -- Chat
 function RGX:CreateChatPrefix(opts)
     opts = opts or {}
 
-    local icon = opts.icon or ""
+    local icon = opts.icon
+    if icon == nil then
+        icon = RGX.LOGO_TEXTURE
+    end
     local tag = opts.tag or "RGX"
     local tagColor = opts.tagColor or "58be81"
     local iconSize = tonumber(opts.iconSize) or 16
@@ -131,6 +138,43 @@ function RGX:CreateChatPrefix(opts)
         tagColor,
         tag
     )
+end
+
+-- Login messages (startup lines only) ----------------------------------------
+-- Persisted globally in the framework SavedVariables; default ON.
+-- These gate ONLY LoginMessage(). Print/Warn/Error always work.
+
+function RGX:IsLoginMessagesEnabled()
+    local db = rawget(_G, "RGXFrameworkDB")
+    if type(db) == "table" and type(db.showLoginMessages) == "boolean" then
+        return db.showLoginMessages
+    end
+    return true
+end
+
+function RGX:SetLoginMessagesEnabled(enabled)
+    enabled = (enabled == true)
+    local db = rawget(_G, "RGXFrameworkDB")
+    if type(db) ~= "table" then
+        db = {}
+        rawset(_G, "RGXFrameworkDB", db)
+    end
+    if type(self.db) ~= "table" then
+        self.db = db
+    end
+    db.showLoginMessages = enabled
+    return enabled
+end
+
+function RGX:LoginMessage(message, opts)
+    if not self:IsLoginMessagesEnabled() then
+        return false
+    end
+    if type(opts) ~= "table" then
+        opts = nil
+    end
+    print(self:CreateChatPrefix(opts), message)
+    return true
 end
 
 -- Deep copy with circular-reference and metatable support
