@@ -360,8 +360,8 @@ function SetWidgetFont(obj, widgetSkinTable)
 
         if(_G[_font] and _G[_font].GetFont) then
             -- font is to be inherrited
-            obj:SetFontObject(_G[widgetSkinTable.font]);
-            local font, height, flags = _G["ChatFontNormal"]:GetFont();
+            obj:SetFontObject(_G[_font]);
+            local font, height, flags = _G[_font]:GetFont();
             obj:SetFont(font, widgetSkinTable.font_height or height, obj._font_flags or widgetSkinTable.font_flags or flags);
         elseif(libs.SML.MediaTable.font[_font]) then
 			-- _G.DevTools_Dump({obj.widgetName ,_font, widgetSkinTable.font_height, obj._font_flags or widgetSkinTable.font_flags or ""});
