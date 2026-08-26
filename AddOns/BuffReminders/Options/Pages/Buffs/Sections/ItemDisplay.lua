@@ -66,7 +66,8 @@ local function Build(ctx, layout)
             if updateSubIconSideVisibility then
                 updateSubIconSideVisibility(val)
             end
-            -- Badge-on-sub-icons toggle is only relevant in sub_icons mode.
+            -- The badge-on-sub-icons toggle is enabled only in sub_icons mode,
+            -- so its gate must re-evaluate.
             Components.RefreshAll()
         end,
     })
@@ -214,11 +215,8 @@ local function Build(ctx, layout)
     end
     updateSubIconSideVisibility(BR.Config.Get("defaults.consumableDisplayMode"))
 
-    -- Text subsection: everything about consumable-icon text in one place -
-    -- size, the hide-stat-labels toggle, and per-item positions. Hide-stat-
-    -- labels sits directly above the Stat label position row and gates its
-    -- enabled state, so users see at a glance that hiding the label disables
-    -- positioning it.
+    -- The hide-stat-labels checkbox gates the Stat label position row. Keep the
+    -- checkbox directly above that row, so the dependency stays visible.
     layout:Space(SECTION_GAP)
     Helpers.LayoutSubsectionHeader(layout, parent, L["Options.TextPositions"])
 
@@ -339,9 +337,8 @@ local function Build(ctx, layout)
     buildPositionRow("badge", L["Options.TextPositions.Badge"])
     buildPositionRow("stackCount", L["Options.TextPositions.StackCount"])
 
-    -- Behavior controls visibility/filtering (which consumables show at all),
-    -- which is a different concern from Item Display (how each icon looks).
-    -- Promoted to its own section header for that visual separation.
+    -- Behavior holds the visibility and filter controls (which consumables show).
+    -- Item Display holds the appearance controls (how each icon looks).
     LayoutSectionHeader(layout, parent, L["Options.Behavior"])
 
     local showWithoutItemsHolder = Components.Checkbox(parent, {

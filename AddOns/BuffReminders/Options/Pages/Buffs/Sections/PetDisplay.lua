@@ -4,7 +4,7 @@ local _, BR = ...
 -- BUFF PAGE SECTION: Pet Display (pet category only)
 -- ============================================================================
 -- Display mode (generic vs expanded), pet labels (toggle + scale + per-class
--- segmented bar). Includes the live preview that follows the dropdown.
+-- segmented bar).
 
 local L = BR.L
 local Components = BR.Components
@@ -235,9 +235,8 @@ local function Build(ctx, layout)
     end
     tinsert(BR.RefreshableComponents, petClassBarRefreshHolder)
 
-    -- Position row for pet labels: zone picker + X/Y nudge sliders. Anchors
-    -- the pet *name* text; family/spirit-beast lines continue to stack below
-    -- the name (existing relative anchoring).
+    -- The zone and the offsets move the pet *name* text only. The family and
+    -- spirit-beast lines keep their relative anchors below the name.
     local petLabelPosRow = CreateFrame("Frame", nil, parent)
     petLabelPosRow:SetSize(parent:GetWidth(), 26)
 

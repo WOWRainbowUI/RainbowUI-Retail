@@ -134,7 +134,6 @@ local function Build(content, scrollFrame)
         deleteDropdown:SetValue("")
     end
 
-    -- Per-spec profiles section (LibDualSpec)
     LayoutSectionHeader(layout, content, L["Options.PerSpecProfiles"])
     LayoutSectionNote(layout, content, L["Options.PerSpecProfiles.Desc"])
 
@@ -188,7 +187,6 @@ local function Build(content, scrollFrame)
         RefreshProfileDropdown()
     end
 
-    -- Export section
     LayoutSectionHeader(layout, content, L["Options.ExportSettings"])
     LayoutSectionNote(layout, content, L["Options.ExportSettings.Desc"])
 
@@ -210,7 +208,6 @@ local function Build(content, scrollFrame)
     end)
     layout:Add(exportButton, 22, SECTION_GAP)
 
-    -- Import section
     LayoutSectionHeader(layout, content, L["Options.ImportSettings"])
     LayoutSectionNote(
         layout,

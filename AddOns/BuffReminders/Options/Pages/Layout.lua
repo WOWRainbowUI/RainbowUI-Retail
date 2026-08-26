@@ -7,10 +7,6 @@ local _, BR = ...
 -- stacking order, one row per detached icon, and the custom anchor-target
 -- list (its editor lives in CustomAnchors.lua). The frame lock lives in the
 -- sidebar footer; anchor assignment lives in the mover coordinate popup.
---
--- Tab content is built lazily on first activation and cached; the detached
--- tab's body is fully rebuilt whenever RefreshAll runs while it is visible,
--- so detach changes made anywhere immediately reshape it.
 
 local L = BR.L
 local Components = BR.Components
@@ -40,7 +36,7 @@ local format = string.format
 local ALL_CATEGORIES = BR.CATEGORY_ORDER
 
 -- ============================================================================
--- STACKING ORDER (moved from the Defaults page)
+-- STACKING ORDER
 -- ============================================================================
 
 local ARROW_COLOR = { 0.7, 0.7, 0.7, 1 }
@@ -198,8 +194,8 @@ local function CreateOrderRow(parent, category)
     return row
 end
 
----The combined-frame ordering list. Split categories don't appear here:
----they don't participate in the combined frame's ordering.
+---The combined-frame ordering list. A split category has its own frame, so it
+---does not appear here.
 local function BuildDisplayOrderList(parent, contentWidth)
     -- Budget height for all categories so the sections below stay anchored
     -- when splits change.
@@ -277,7 +273,6 @@ local TAB_STRIP_H = 26
 -- How far below the content top the tab strip sits (positive magnitude,
 -- matching every other page's top padding). PAGE_TOP_PADDING is negative.
 local STRIP_TOP = -PAGE_TOP_PADDING
--- Bottom padding each tab body leaves under its last row.
 local TAB_BOTTOM_PADDING = 16
 
 local TAB_IDS = { "order", "detached", "anchors" }
@@ -294,7 +289,7 @@ end
 
 local function BuildDetachedTab(frame, contentWidth, onResize)
     local db = BR.profile
-    local dynContent -- current generation, replaced wholesale on rebuild
+    local dynContent
 
     local function Render()
         if dynContent then
@@ -361,10 +356,9 @@ local function BuildDetachedTab(frame, contentWidth, onResize)
         onResize()
     end
 
-    -- Rebuild on RefreshAll (detach changes made elsewhere) - but only while
-    -- the tab is visible. WoW frames can't be reclaimed, and activating this
-    -- tab always runs RefreshAll after showing it, so skipping hidden
-    -- rebuilds loses nothing.
+    -- Rebuild on RefreshAll, but only while the tab is visible. WoW frames
+    -- cannot be reclaimed. Activation of this tab runs RefreshAll after the
+    -- show, so a hidden rebuild is never necessary.
     tinsert(BR.RefreshableComponents, {
         Refresh = function()
             if frame:IsVisible() then
@@ -429,9 +423,9 @@ local function Build(content, scrollFrame)
         UpdatePageHeight()
     end
 
-    -- Sticky tab strip, same construction as the Categories page: parented to
-    -- the scroll viewport so it stays pinned while the tab body scrolls
-    -- underneath, with an opaque mask hiding content sliding behind it.
+    -- Sticky tab strip: the parent is the scroll viewport, so the strip stays
+    -- pinned while the tab body scrolls under it. The opaque mask hides the
+    -- content that slides behind the strip.
     local strip = CreateFrame("Frame", nil, scrollFrame)
     strip:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, 0)
     strip:SetPoint("TOPRIGHT", scrollFrame, "TOPRIGHT", -SCROLLBAR_WIDTH, 0)

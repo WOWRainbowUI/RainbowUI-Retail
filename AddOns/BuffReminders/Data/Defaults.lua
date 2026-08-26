@@ -1,17 +1,16 @@
 local _, BR = ...
 
--- The addon's entire default config. Pure data, consumed by the bootstrap (AceDB
--- seeding + migrations), the display layer, and the options panel. Exported as
--- BR.defaults - the single source; read it directly, no module-namespaced alias.
--- Note: enabledBuffs holds only explicit user choices; it ships empty. A buff's
+-- The addon's entire default config. Pure data, exported as BR.defaults - the
+-- single source; read it directly, no module-namespaced alias.
+-- enabledBuffs holds only explicit user choices; it ships empty. A buff's
 -- ship default is declared on the buff definition itself (`defaultEnabled = false`
 -- for opt-in buffs) and resolved at read time by StateHelpers.IsBuffEnabled - no
 -- migration and no per-profile seeding needed for new off-by-default buffs.
 
 BR.defaults = {
     enabledBuffs = {},
-    -- User-defined loadout reminders (talent / loadout / equipment-set mismatch).
-    -- Keyed by generated rule key; empty by default. See Options/Dialogs/LoadoutReminder.lua.
+    -- User-defined loadout reminders (talent / loadout / equipment-set mismatch),
+    -- keyed by generated rule key.
     loadoutReminders = {},
     showOnlyInGroup = false,
     hideWhileResting = false,
@@ -37,7 +36,7 @@ BR.defaults = {
     chatRequestCooldown = true,
     chatRequestMessages = {},
 
-    -- DK runeforge preferences: [specId] = { mainhand, dw_mainhand, dw_offhand }
+    -- DK runeforge preferences, keyed by spec ID.
     -- No runes selected = no reminder for that spec (implicit disable)
     dkRunePreferences = {
         [250] = { mainhand = { [6241] = true } }, -- Blood: Sanguination
@@ -59,10 +58,9 @@ BR.defaults = {
 
     -- Externals: a present-based display, the inverse of the reminder pipeline.
     -- Rendered by Blizzard via an AuraContainer, so it works for auras the addon is
-    -- not allowed to read (docs/SecretValues.md #3.9). Purely additive schema -
-    -- DeepCopyDefault seeds it, so no migration is needed.
+    -- not allowed to read. Purely additive schema - DeepCopyDefault seeds it, so
+    -- no migration is needed.
     externals = {
-        enabled = false,
         -- false = the appearance keys below inherit from the global `defaults`
         -- table (resolved by BR.GetExternalSetting) and their stored values stay
         -- dormant. Countdown size and direction have no `defaults` counterpart,
@@ -78,8 +76,24 @@ BR.defaults = {
         iconAlpha = 1,
         spacing = 4, -- absolute px (Blizzard's elementSpacing), not an iconSize multiplier
         durationSize = 16, -- countdown text, centered on the icon
-        growDirection = "RIGHT", -- "LEFT" or "RIGHT"; the flow layout has no centered growth
+        showSwipe = true, -- radial sweep over the icon; it uncovers as the time runs out
+        growDirection = "RIGHT", -- "LEFT", "RIGHT", "UP" or "DOWN"; the flow layout has no centered growth
+        -- Mouse motion on the buttons. The game draws the tooltip, so it names the
+        -- aura the addon cannot read. Off keeps the icons out of the mouse's way.
+        showTooltips = false,
+        -- The tracked set doubles as the on switch: empty means the display is off.
         entries = {}, -- [Data/Externals.lua key] = true
+        -- sound: deliberately absent - nil means no sound. One value for every
+        -- tracked external, played by the engine when the aura lands, because no
+        -- Lua code can see that happen. Core/Sounds.lua owns the value format.
+        --
+        -- sounds[key] is the per-entry override: nil inherits `sound`, a value
+        -- replaces it, and the no-sound sentinel silences that entry alone.
+        sounds = {},
+        -- The player's own entries, keyed the same way as the curated ones so
+        -- `entries` and `sounds` address both sets.
+        ---@type table<string, ExternalCustomEntry>
+        custom = {},
     },
 
     -- Global defaults (inherited by categories unless overridden)
@@ -131,6 +145,7 @@ BR.defaults = {
         consumableBadgeOnSubIcons = false,
         hideConsumableLabels = false,
         showConsumableTooltips = false,
+        rightClickSnooze = true,
         showBuffTooltips = false,
         hideLegacyConsumables = true,
         petDisplayMode = "generic", -- "generic" or "expanded"
@@ -262,7 +277,7 @@ BR.defaults = {
     },
 
     ---@type AllCategorySettings
-    categorySettings = { -- Per-category settings
+    categorySettings = {
         main = {
             position = { point = "CENTER", x = 0, y = 200 },
             -- main frame always uses defaults for appearance/behavior

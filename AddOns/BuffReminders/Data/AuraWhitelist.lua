@@ -4,12 +4,6 @@ local _, BR = ...
 -- restricted contexts: combat lockdown, boss encounters, and M+ keystones.
 -- Non-whitelisted spells silently return nil, indistinguishable from "buff missing."
 -- This is the single source of truth: any spell ID NOT here is assumed unsafe to query.
---
--- IMPORTANT: Boss encounters (ENCOUNTER_START) restrict the aura API BEFORE the player
--- enters combat (InCombatLockdown). A spell that returns nil during an encounter but
--- before combat will cause a brief false "buff missing" flash if not handled correctly.
--- State.lua uses inCombat (set by Display, covers encounters too) + M+ difficulty to gate queries.
---
 -- Source: Blizzard's restricted-context aura whitelist (confirmed via in-game testing).
 BR.AURA_WHITELIST = {
     -- ========================================================================
@@ -41,9 +35,9 @@ BR.AURA_WHITELIST = {
     -- ========================================================================
     -- LONG-TERM SELF BUFFS
     -- ========================================================================
-    -- Note: Rite spell IDs (433568, 433583) are whitelisted by Blizzard, but the addon checks
-    -- buffIdOverride (433550, 433584) which are NOT whitelisted - so Rites are correctly
-    -- blocked in restricted contexts via IsAuraTrackable regardless.
+    -- Blizzard whitelists the Rite spell IDs (433568, 433583). The addon queries
+    -- buffIdOverride (433550, 433584), which are not whitelisted. IsAuraTrackable
+    -- thus blocks Rites in restricted contexts.
     [433568] = true, -- Rite of Sanctification
     [433583] = true, -- Rite of Adjuration
 

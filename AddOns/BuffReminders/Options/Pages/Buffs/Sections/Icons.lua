@@ -3,9 +3,8 @@ local _, BR = ...
 -- ============================================================================
 -- BUFF PAGE SECTION: Icons
 -- ============================================================================
--- Cross-category "Show text" toggle. Raid-only additions (missing-count-only
--- and the BUFF! reminder text knobs) live in Sections/RaidIcons.lua and are
--- composed conditionally by _Template.lua.
+-- Cross-category "Show text" toggle. The raid-only additions live in
+-- Sections/RaidIcons.lua, which _Template.lua composes conditionally.
 
 local L = BR.L
 local Components = BR.Components

@@ -3,14 +3,10 @@ local _, BR = ...
 -- ============================================================================
 -- BUFF PAGE SECTION: Free Consumables (consumable category only)
 -- ============================================================================
--- Sub-section appended to the consumable Visibility block: an "override the
--- normal visibility for buffs that don't require an item" toggle plus its own
--- W/S/D/R picker. Composed by _Template.lua immediately after Sections.Visibility
--- when category=="consumable".
---
--- Lives in its own file (rather than as an `if category == "consumable"`
--- branch inside Visibility.lua) so the cross-category Visibility section
--- stays focused on its shared concern.
+-- Sub-section appended to the consumable Visibility block: a toggle that
+-- overrides the normal visibility for buffs that do not require an item, plus
+-- its own W/S/D/R picker. _Template.lua composes it immediately after
+-- Sections.Visibility when category=="consumable".
 
 local L = BR.L
 local Components = BR.Components

@@ -4,8 +4,8 @@ local _, BR = ...
 -- BUFF PAGE SECTION: Timing
 -- ============================================================================
 -- Per-category expiration threshold. This is a behavior setting, not an
--- appearance one: it uses the standard per-key fallback (category value if
--- set, else the global default) and is always editable, independent of the
+-- appearance one. It uses the standard per-key fallback: the category value if
+-- set, else the global default. It stays editable, independent of the
 -- useCustomAppearance toggle. The checkbox models the inheritance explicitly:
 -- checked = no category value stored (follow Defaults), unchecked = category
 -- override materialized from the current effective value.

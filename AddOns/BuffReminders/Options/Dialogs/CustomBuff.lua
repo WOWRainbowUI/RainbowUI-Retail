@@ -24,7 +24,6 @@ local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 
 local customBuffDialog = nil
 
--- Layout-aware section header (uses VerticalLayout instead of manual Y tracking)
 local function LayoutSectionHeader(layout, parent, text)
     local header = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header:SetText("|cffffcc00" .. text .. "|r")
@@ -32,7 +31,6 @@ local function LayoutSectionHeader(layout, parent, text)
     return header
 end
 
--- Delete confirmation dialog for custom buffs
 StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
     text = L["Dialog.DeleteCustomBuff"],
     button1 = L["Options.Delete"],
@@ -258,7 +256,6 @@ local function Show(existingKey, refreshPanelCallback)
         UpdateLayout()
     end)
 
-    -- Sections frame (always visible, below add-spell button)
     sectionsFrame = CreateFrame("Frame", nil, dialog)
     sectionsFrame:SetSize(DIALOG_WIDTH - 40, 526)
 
@@ -273,7 +270,6 @@ local function Show(existingKey, refreshPanelCallback)
         secLayout:Space(1)
     end
 
-    -- Appearance section
     LayoutSeparator()
     secLayout:Space(8)
     LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.Appearance"])
@@ -302,7 +298,6 @@ local function Show(existingKey, refreshPanelCallback)
     overlayHint:SetWordWrap(false)
     overlayHint:SetText(L["CustomBuff.LineBreakHint"])
 
-    -- Buff tracking section
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
@@ -345,7 +340,6 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(expirationThresholdHolder, nil, COMPONENT_GAP)
 
-    -- Requirements section
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
@@ -406,7 +400,6 @@ local function Show(existingKey, refreshPanelCallback)
     }, "BuffRemindersCustomClassDropdown")
     secLayout:Add(classDropdownHolder, nil, COMPONENT_GAP)
 
-    -- Initialize spec dropdown for editing existing buff
     if editingBuff and editingBuff.class then
         CreateSpecDropdown(editingBuff.class, editingBuff.requireSpecId)
     end
@@ -418,7 +411,6 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(requireSpellKnownToggle, nil, COMPONENT_GAP)
 
-    -- Require item (item gate)
     local requireItemLabel = sectionsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     requireItemLabel:SetText(L["CustomBuff.RequireItem"])
     requireItemLabel:SetWidth(DROPDOWN_LABEL_W)
@@ -510,13 +502,12 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(glowModeDropdown, nil, COMPONENT_GAP)
 
-    -- Show In section (per-buff content visibility)
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
     LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.ShowIn"])
 
-    -- Local state for load conditions (read on save)
+    -- Edits stay in this table. The save handler writes them to the DB.
     local loadConditions = {}
     if editingBuff and editingBuff.loadConditions then
         for k, v in pairs(editingBuff.loadConditions) do
@@ -530,11 +521,10 @@ local function Show(existingKey, refreshPanelCallback)
             end
         end
     elseif not editingBuff then
-        -- New buff defaults: housing off (matches old category-level default)
+        -- Housing is off by default, so a new buff needs an explicit false.
         loadConditions.housing = false
     end
 
-    -- Reuse VisibilityToggles with a table-backed store instead of DB-backed
     local visToggles = Components.VisibilityToggles(sectionsFrame, {
         store = {
             getContent = function(key)
@@ -562,7 +552,6 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(visToggles, nil, COMPONENT_GAP)
 
-    -- Ready check toggle
     local lcReadyCheckToggle = Components.Toggle(sectionsFrame, {
         label = L["CustomBuff.ReadyCheckOnly"],
         checked = editingBuff and editingBuff.loadConditions and editingBuff.loadConditions.readyCheckOnly or false,
@@ -572,7 +561,6 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(lcReadyCheckToggle, nil, COMPONENT_GAP)
 
-    -- Level filter dropdown
     local levelFilterHolder = Components.Dropdown(sectionsFrame, {
         label = L["CustomBuff.Level"],
         labelWidth = DROPDOWN_LABEL_W,
@@ -592,13 +580,11 @@ local function Show(existingKey, refreshPanelCallback)
     })
     secLayout:Add(levelFilterHolder, nil, COMPONENT_GAP)
 
-    -- Click action section
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
     LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.ClickAction"])
 
-    -- Determine existing action type
     local existingActionType = "none"
     if editingBuff then
         if editingBuff.castMacro and editingBuff.castMacro ~= "" then
@@ -610,11 +596,9 @@ local function Show(existingKey, refreshPanelCallback)
         end
     end
 
-    -- Container for the conditional input (spell/item Lookup or macro text)
     actionInputHolder = CreateFrame("Frame", nil, sectionsFrame)
     actionInputHolder:SetSize(DIALOG_WIDTH - 40, 26)
 
-    -- Spell ID input with Lookup
     castSpellEditBox = CreateFrame("EditBox", nil, actionInputHolder)
     castSpellEditBox:SetFontObject("GameFontHighlightSmall")
     castSpellEditBox:SetAutoFocus(false)
@@ -655,7 +639,6 @@ local function Show(existingKey, refreshPanelCallback)
     castSpellLookupBtn:SetSize(55, 20)
     castSpellLookupBtn:SetPoint("LEFT", castSpellContainer, "RIGHT", 5, 0)
 
-    -- Item ID input with Lookup
     castItemEditBox = CreateFrame("EditBox", nil, actionInputHolder)
     castItemEditBox:SetFontObject("GameFontHighlightSmall")
     castItemEditBox:SetAutoFocus(false)
@@ -698,7 +681,6 @@ local function Show(existingKey, refreshPanelCallback)
     castItemLookupBtn:SetSize(55, 20)
     castItemLookupBtn:SetPoint("LEFT", castItemContainer, "RIGHT", 5, 0)
 
-    -- Macro text input
     local macroHolder = Components.TextInput(actionInputHolder, {
         label = "",
         value = editingBuff and editingBuff.castMacro or "",
@@ -712,9 +694,7 @@ local function Show(existingKey, refreshPanelCallback)
     macroHint:SetPoint("TOPLEFT", 0, -24)
     macroHint:SetText(L["CustomBuff.Action.MacroHint"])
 
-    -- Show/hide inputs based on action type
     local function UpdateActionInputVisibility(actionType)
-        -- Hide all first
         castSpellContainer:Hide()
         castSpellLookupBtn:Hide()
         castSpellIcon:Hide()
@@ -729,7 +709,6 @@ local function Show(existingKey, refreshPanelCallback)
         if actionType == "spell" then
             castSpellContainer:Show()
             castSpellLookupBtn:Show()
-            -- Trigger lookup if there's a value
             if castSpellEditBox:GetText() ~= "" then
                 local id = tonumber(castSpellEditBox:GetText())
                 if id then
@@ -744,7 +723,6 @@ local function Show(existingKey, refreshPanelCallback)
         elseif actionType == "item" then
             castItemContainer:Show()
             castItemLookupBtn:Show()
-            -- Trigger lookup if there's a value
             if castItemEditBox:GetText() ~= "" then
                 local id = tonumber(castItemEditBox:GetText())
                 if id then
@@ -785,7 +763,6 @@ local function Show(existingKey, refreshPanelCallback)
     secLayout:Add(actionTypeDropdown, nil, COMPONENT_GAP)
     secLayout:Add(actionInputHolder, 26)
 
-    -- Initialize visibility for the current action type
     UpdateActionInputVisibility(existingActionType)
 
     local saveError = dialog:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -799,7 +776,6 @@ local function Show(existingKey, refreshPanelCallback)
     end)
     cancelBtn:SetPoint("BOTTOMRIGHT", -20, 15)
 
-    -- Delete button (only when editing existing buff)
     if existingKey and editingBuff then
         local buffName = editingBuff.name or existingKey
         local deleteBtn = CreateButton(dialog, L["Options.Delete"], function()
@@ -844,7 +820,6 @@ local function Show(existingKey, refreshPanelCallback)
             overlayTextValue = nil
         end
 
-        -- Resolve click action fields based on selected action type
         local selectedAction = actionTypeDropdown:GetValue()
         local castSpellIDValue = nil
         local castItemIDValue = nil
@@ -860,7 +835,6 @@ local function Show(existingKey, refreshPanelCallback)
             end
         end
 
-        -- Only persist loadConditions if any value differs from default (all-enabled)
         -- Clean up difficulty sub-tables where all entries are enabled (true/nil)
         for _, diffKey in ipairs({ "dungeonDifficulty", "raidDifficulty" }) do
             local dt = loadConditions[diffKey]
@@ -878,6 +852,7 @@ local function Show(existingKey, refreshPanelCallback)
             end
         end
 
+        -- Persist loadConditions only when a value differs from the all-enabled default.
         local savedLoadConditions = nil
         local function hasNonDefault(t)
             for _, v in pairs(t) do
@@ -926,7 +901,7 @@ local function Show(existingKey, refreshPanelCallback)
         end
 
         dialog:Hide()
-        -- requireItemMode may have changed; clear cached item ownership so the new mode is evaluated
+        -- requireItemMode can change on save; clear the item ownership cache so the new mode applies.
         BR.BuffState.InvalidateItemCache()
         if refreshPanelCallback then
             refreshPanelCallback()

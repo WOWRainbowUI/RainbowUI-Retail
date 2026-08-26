@@ -17,14 +17,18 @@ local LayoutSeparator = BR.Options.Helpers.LayoutSeparator
 -- ============================================================================
 -- GLOW PARAMETER SCHEMA
 -- ============================================================================
--- One row per type-specific control. The runtime iterates this in order to
--- build the dynamic content area; adding a new param means adding one row.
--- `kind` switches between Components.Slider and Components.Checkbox; `fmt` is
--- the optional `formatValue` printf string (omit for integer rendering).
---
--- Keys are bare suffixes - they're prefixed with "glow"/"missingGlow" by the
--- K() closure, so the same schema drives both glow kinds.
 
+---@class GlowParamSpec
+---@field kind "slider"|"checkbox" Selects Components.Slider or Components.Checkbox
+---@field labelKey string Suffix of the "Options.Glow." locale key
+---@field key string Bare setting suffix; K() prefixes it with "glow" or "missingGlow"
+---@field default number|boolean
+---@field min? number
+---@field max? number
+---@field step? number
+---@field fmt? string printf string for the slider value; omit for integer rendering
+
+---@type table<integer, GlowParamSpec[]>
 local GLOW_SCHEMA = {
     [GlowType.Pixel] = {
         { kind = "slider", labelKey = "Lines", key = "PixelLines", min = 1, max = 20, step = 1, default = 8 },
@@ -90,7 +94,7 @@ local GLOW_SCHEMA = {
     },
 }
 
--- Offsets are common to every glow type, rendered after the type-specific block.
+---@type GlowParamSpec[]
 local GLOW_COMMON_OFFSETS = {
     { kind = "slider", labelKey = "XOffset", key = "XOffset", min = -10, max = 10, step = 1, default = 0 },
     { kind = "slider", labelKey = "YOffset", key = "YOffset", min = -10, max = 10, step = 1, default = 0 },
@@ -107,20 +111,18 @@ local PREVIEW_KEY = "BR_adv_preview"
 -- ============================================================================
 -- SINGLETON STATE
 -- ============================================================================
--- WoW frames are never garbage-collected, so the dialog is built once and
--- reused. The editing context (category + glow kind) lives in mutable upvalues
--- that every widget's get/onChange closure reads live; Show() just re-points
--- the context and refreshes, instead of recreating frames each open/tab switch.
+-- WoW frames are never garbage-collected, so the dialog is built once and reused.
+-- The editing context lives in mutable upvalues that every widget closure reads
+-- live, so Show() re-points the context instead of rebuilding frames.
 
-local Show -- forward declaration (the tab handlers in BuildPanel call it)
+local Show -- forward declaration
 
 local panel
 local titleFS, expiringTab, missingTab, enableHolder, typeHolder
 local previewFrame, staticLayout
 local DYNAMIC_START_Y
 
--- Per-type dynamic content, cached so each of the four types is built at most
--- once. [typeIdx] = { frame, height }; switching type hides one and shows another.
+---@type table<integer, { frame: Frame, height: number }>
 local typeContainers = {}
 local activeContainer
 
@@ -173,7 +175,6 @@ local function RefreshPreview()
     Glow.Start(previewFrame, typeIdx, color, PREVIEW_KEY, size, xOff, yOff, params)
 end
 
--- Build a Components.Slider config from one schema row.
 local function sliderConfigFromSpec(spec)
     local cfg = {
         label = L["Options.Glow." .. spec.labelKey],
@@ -214,9 +215,8 @@ end
 -- DYNAMIC (PER-TYPE) CONTENT
 -- ============================================================================
 
--- Build the type-specific controls for one glow type into a cached container
--- frame. Values are wired through readKey/writeKey, so the same container is
--- reused across kinds/categories - only the displayed values change.
+-- Values are wired through readKey/writeKey, so the same container serves every
+-- kind and category; only the displayed values change.
 local function BuildTypeContainer(typeIdx)
     local container = CreateFrame("Frame", nil, panel)
     container:SetAllPoints(panel)
@@ -238,7 +238,6 @@ local function BuildTypeContainer(typeIdx)
         end
     end
 
-    -- Size + Color row
     local sizeHolder
     if typeIdx == GlowType.Pixel or typeIdx == GlowType.Border then
         sizeHolder = Components.NumericStepper(container, {
@@ -260,7 +259,6 @@ local function BuildTypeContainer(typeIdx)
     local colorSwatchHolder
     local procColorCheckbox
     if typeIdx == GlowType.Proc then
-        -- Proc: optional custom color (desaturated + vertex color, less vibrant than default)
         procColorCheckbox = Components.Checkbox(container, {
             label = L["Options.UseCustomColor"],
             tooltip = {
@@ -319,7 +317,6 @@ local function BuildTypeContainer(typeIdx)
         colorSwatchHolder:SetPoint("LEFT", procColorCheckbox, "RIGHT", 8, 0)
     end
 
-    -- Type-specific parameters from schema
     local typeSpecs = GLOW_SCHEMA[typeIdx]
     if typeSpecs then
         for _, spec in ipairs(typeSpecs) do
@@ -327,12 +324,10 @@ local function BuildTypeContainer(typeIdx)
         end
     end
 
-    -- Common offsets
     for _, spec in ipairs(GLOW_COMMON_OFFSETS) do
         addSpec(spec)
     end
 
-    -- Reset button (resets shared keys + every type-specific key from schema).
     layout:Space(8)
     local resetBtn = CreateButton(container, L["Options.ResetToDefaults"], function()
         local keys = { K("Color"), K("Size"), K("XOffset"), K("YOffset") }
@@ -341,8 +336,8 @@ local function BuildTypeContainer(typeIdx)
                 keys[#keys + 1] = K(spec.key)
             end
         end
-        -- Proc's optional custom-color toggle isn't in the schema (it sits next to
-        -- the swatch, not in the type rows) so reset it explicitly.
+        -- The Proc custom-color toggle is not in the schema, so the reset adds its
+        -- key here.
         if typeIdx == GlowType.Proc then
             keys[#keys + 1] = K("ProcUseCustomColor")
         end
@@ -360,8 +355,6 @@ local function BuildTypeContainer(typeIdx)
     return entry
 end
 
--- Swap the visible type container (building it the first time), resize the panel
--- to fit, sync widget values, and restart the preview glow.
 local function ShowTypeContent(typeIdx)
     if activeContainer then
         activeContainer.frame:Hide()
@@ -393,7 +386,6 @@ local function BuildPanel()
         panel:Hide()
     end)
 
-    -- Expiring / Missing tab toggle (sits below the header divider)
     expiringTab = Components.Tab(panel, { label = L["Options.GlowKind.Expiring"] })
     expiringTab:SetPoint("TOPLEFT", MARGIN, -42)
     expiringTab:SetScript("OnClick", function()
@@ -406,7 +398,6 @@ local function BuildPanel()
         Show(currentCategory, "missing")
     end)
 
-    -- Grounding baseline under the tab strip (matches the Categories tabs).
     Components.TabBaseline(panel, expiringTab, PANEL_W - MARGIN * 2)
 
     staticLayout = Components.VerticalLayout(panel, { x = MARGIN, y = -74 })
@@ -446,10 +437,8 @@ local function BuildPanel()
     staticLayout:Space(10)
     DYNAMIC_START_Y = staticLayout:GetY()
 
-    -- Preview: a captioned inset pinned to the header's free right-hand column,
-    -- beside the enable/type controls. Framing it (border + caption) reads as an
-    -- intentional preview panel; keeping it up here clears the full-width sliders
-    -- that fill the dynamic region below.
+    -- The preview sits in the header's right-hand column, clear of the full-width
+    -- sliders that fill the dynamic region below.
     local previewBox = CreateFrame("Frame", nil, panel, "BackdropTemplate")
     previewBox:SetSize(PREVIEW_SIZE + PREVIEW_PAD * 2, PREVIEW_SIZE + PREVIEW_PAD * 2)
     previewBox:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -MARGIN, -70)
@@ -479,9 +468,8 @@ local function BuildPanel()
     previewBorder:SetPoint("BOTTOMRIGHT", DEFAULT_BORDER_SIZE, -DEFAULT_BORDER_SIZE)
     previewBorder:SetColorTexture(0, 0, 0, 1)
 
-    -- Rebuild the dynamic block when the glow type changes (only while shown, and
-    -- only for this dialog's current Type key). The callback lives for the life of
-    -- the panel - no per-show register/unregister churn.
+    -- The callback stays registered for the life of the panel, so it must gate on
+    -- the shown state and on this dialog's current Type key.
     BR.CallbackRegistry:RegisterCallback("SettingChanged", function(_, path)
         if panel:IsShown() and path == configPrefix .. K("Type") then
             ShowTypeContent(readKey("Type", typeFallback))

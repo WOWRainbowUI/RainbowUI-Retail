@@ -1,16 +1,32 @@
 # BuffReminders
 
-## [v6.5.2](https://github.com/zerbiniandrea/BuffReminders/tree/v6.5.2) (2026-08-18)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.5.1...v6.5.2) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.7.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.7.0) (2026-08-24)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.6.0...v6.7.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### New Features ✨
 
-- **Externals:** add frame anchoring for external buffs
-- **Loadouts:** clarify that the talent rule accepts any known spell
+- **Externals:** add your own buffs by spell ID
+- **Externals:** add an option to show buff tooltips on hover
+- **Externals:** show a duration swipe on the tracked buff icons
+- **Externals:** add up and down growth for the tracked buff icons
+
+### Bug Fixes 🐛
+
+- **Externals:** show each row's sound alert and name what it plays
+- **Externals:** clear a row's hover highlight when the pointer leaves it
+- **Healthstone:** clear the low-stock warning after refilling a stone
+
+### Localization 🌐
+
+- Updated translations: zhTW
 
 ### Other Changes 🔧
 
-- **Locales:** remove orphaned translation keys
-- Add a translator guide and correct the localization steps
-- Improve contributing guide
+- **Buffs:** drop the unused per-buff row caption text
+- **Display:** inline single-use aliases to free local slots
+- **I18n:** remove locale keys that no code reads
+- **Libs:** update embedded libs (LibSharedMedia-3.0)
+- **Locales:** keep only the comments translators need
+- **State:** split the refresh cycle into per-category functions
+- Trim code comments to the facts the code cannot show
 
