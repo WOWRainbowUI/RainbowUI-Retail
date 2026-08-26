@@ -31,8 +31,6 @@ Specs.COLOR_METHOD_ITEMS = {
     { text = L["Class / reaction (dark)"], value = "classreactiondark" },
     { text = L["Power color"],        value = "power" },
     { text = L["Power color (dark)"],  value = "powerdark" },
-    { text = L["Health gradient"],      value = "hpthreshold" },
-    { text = L["Health gradient (dark)"], value = "hpthresholddark" },
     { text = L["Green"],          value = "hpgreen" },
     { text = L["Green (dark)"],    value = "hpgreendark" },
     { text = L["Red"],          value = "hpred" },

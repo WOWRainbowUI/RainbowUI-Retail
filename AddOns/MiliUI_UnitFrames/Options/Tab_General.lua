@@ -67,10 +67,11 @@ local CONTROLS = {
     { type = "text",   label = L["The border drawn while the cursor is over a frame. Which frames get it is set per unit, under Units > Frame."] },
 
     { type = "header", label = L["Health colors"] },
-    { type = "text",   label = L["The \"health gradient\" method interpolates between these two; gray is used for dead / offline / out-of-range text."] },
+    { type = "text",   label = L["The \"Green\" and \"Red\" coloring methods use these two; gray is used for dead / offline / out-of-range text."] },
     { type = "color", sub = "colors", key = "hpGreen", label = L["Healthy"] },
     { type = "color", sub = "colors", key = "hpRed",   label = L["Critical"] },
     { type = "color", sub = "colors", key = "gray",    label = L["Gray"] },
+
 
     { type = "header", label = L["Cast bar colors"] },
     { type = "text",   label = L["Every cast bar shares these colors; whether \"non-interruptible\" applies is set per unit. The defaults match the Platynator nameplate preset that ships with MiliUI, so the same cast state reads the same on both."] },

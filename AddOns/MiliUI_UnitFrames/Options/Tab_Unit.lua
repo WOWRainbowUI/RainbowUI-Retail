@@ -124,7 +124,27 @@ local function FrameSpecs(unitKey)
     return list
 end
 
-local function BarSpecs(name, isHP)
+-- 閾值上色那一整區的插入點。它只有血條有，但位置要緊接在「顏色」小節之後
+-- （語意上它就是上色的一部分），而那一段在 BarSpecs 的共用清單裡 ——
+-- 所以先擺一個佔位符，收尾時再依 isHP 換成真的或拿掉。
+local THRESHOLD_MARKER = {}
+
+-- 血量門檻那一列：按鈕寫著目前筆數，點開是編輯器（Options/HealthThresholds.lua）
+local function ThresholdRow(unitKey)
+    return function(parent, x, y)
+        local btn = W.CreateButton(parent, L["Health thresholds"], "normal", 200, 22)
+        btn:SetPoint("LEFT", parent, "TOPLEFT", x, y - 15)
+        local function UpdateText()
+            btn:SetText(L["Health thresholds"] .. "  (" .. ns.HealthThresholds.Count(unitKey) .. ")")
+        end
+        btn:SetScript("OnClick", function()
+            ns.HealthThresholds.Open(unitKey, UpdateText)
+        end)
+        return 30, UpdateText
+    end
+end
+
+local function BarSpecs(name, isHP, unitKey)
     local list = {
         { type = "toggle", sub = name, key = "enabled", label = L["Show"] },
         { type = "header", label = L["Position and size"] },
@@ -137,6 +157,7 @@ local function BarSpecs(name, isHP)
         { type = "color", sub = name, key = "barColor", label = L["Custom foreground color"], hasAlpha = false },
         { type = "color", sub = name, key = "bgColor", label = L["Custom background color"], hasAlpha = false },
         { type = "text", label = L["Custom colors only apply when \"Custom color\" is picked above."] },
+        THRESHOLD_MARKER,
         { type = "header", label = L["Layer"] },
         { type = "slider", sub = name, key = "level", label = L["Foreground layer"], min = 0, max = 15, step = 1 },
         { type = "slider", sub = name, key = "bgLevel", label = L["Background layer"], min = 0, max = 15, step = 1 },
@@ -176,6 +197,20 @@ local function BarSpecs(name, isHP)
         tinsert(list, { type = "toggle", sub = name, key = "showHealAbsorb", label = L["Heal absorb"] })
         tinsert(list, { type = "color", sub = name, key = "healAbsorbColor", label = L["Heal absorb color"] })
         tinsert(list, { type = "text", label = L["Debuffs that eat healing, such as Necrotic. Reverse-filled and drawn on top."] })
+    end
+
+    for i = #list, 1, -1 do
+        if list[i] == THRESHOLD_MARKER then
+            if isHP then
+                list[i] = { type = "header", label = L["Threshold coloring"] }
+                tinsert(list, i + 1, { type = "toggle", sub = name, key = "thresholdEnabled",
+                                       label = L["Recolor below a threshold"] })
+                tinsert(list, i + 2, { type = "text", label = L["Overrides whichever coloring method you picked above: once health drops below a threshold, the bar switches to that threshold's color. The game decides which side of the line the unit is on, so it also works on units whose health the addon can't read (dungeons, Mythic+, raids)."] })
+                tinsert(list, i + 3, { type = "custom", label = "", build = ThresholdRow(unitKey) })
+            else
+                tremove(list, i)
+            end
+        end
     end
     return list
 end
@@ -426,8 +461,8 @@ local function SpecsFor(unitKey, elementKey)
     local els = udb.elements
     if elementKey == "frame" then return FrameSpecs(unitKey) end
     if elementKey == "portrait" then return PortraitSpecs() end
-    if elementKey == "hpbar" then return BarSpecs("hpbar", true) end
-    if elementKey == "mpbar" then return BarSpecs("mpbar", false) end
+    if elementKey == "hpbar" then return BarSpecs("hpbar", true, unitKey) end
+    if elementKey == "mpbar" then return BarSpecs("mpbar", false, unitKey) end
     if elementKey == "manabar" then return ManaBarSpecs() end
     if elementKey == "castbar" then return CastbarSpecs() end
     if elementKey == "buffs" then return AuraSpecs("buffs", unitKey) end

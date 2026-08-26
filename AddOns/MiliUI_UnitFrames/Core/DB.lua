@@ -253,9 +253,9 @@ function DB.BuildDefaults()
                         textDef{ pattern = "[curhp] || ", x = -42, y = -2, w = 200, h = 50, size = 10,
                                  justifyH = "RIGHT", justifyV = "MIDDLE",
                                  color = { r = 0.851, g = 0.851, b = 0.851, a = 1 } },
-                        textDef{ pattern = "[curmp]/[maxmp]", x = 8, y = -10, w = 200, h = 50,
+                        textDef{ pattern = "[curmp]/[maxmp]", x = 8, y = -14, w = 200, h = 50,
                                  justifyH = "CENTER", justifyV = "BOTTOM", level = 11 },
-                        textDef{ pattern = "[percmp]%", x = 10, y = -48, w = 200, h = 10, size = 10,
+                        textDef{ pattern = "[percmp]%", x = 10, y = -51, w = 200, h = 10, size = 10,
                                  justifyH = "RIGHT", justifyV = "BOTTOM", level = 11 },
                         textDef{ pattern = L["[gray_if_dead:Dead][gray_if_ghost:Ghost]"],
                                  x = 0, y = 3, w = 200, h = 50, size = 14,
@@ -331,9 +331,9 @@ function DB.BuildDefaults()
                         textDef{ pattern = "[curhp] || ", x = -42, y = -2, w = 200, h = 50, size = 10,
                                  justifyH = "RIGHT", justifyV = "MIDDLE",
                                  color = { r = 0.851, g = 0.851, b = 0.851, a = 1 } },
-                        textDef{ pattern = "[curmp]/[maxmp]", x = -8, y = -10, w = 200, h = 50,
+                        textDef{ pattern = "[curmp]/[maxmp]", x = -8, y = -14, w = 200, h = 50,
                                  justifyH = "CENTER", justifyV = "BOTTOM", level = 11 },
-                        textDef{ pattern = "[percmp]%", x = 0, y = -48, w = 200, h = 10, size = 10,
+                        textDef{ pattern = "[percmp]%", x = 0, y = -51, w = 200, h = 10, size = 10,
                                  justifyH = "RIGHT", justifyV = "BOTTOM", level = 11 },
                         textDef{ pattern = L["[gray_if_oor:Out of Range ][gray_if_tapped:Tapped ][gray_if_offline:Offline ][gray_if_dead:Dead ][gray_if_ghost:Ghost ]"],
                                  x = 0, y = 3, w = 200, h = 50, size = 14,
@@ -1034,6 +1034,92 @@ local PROFILE_MIGRATIONS = {
         gate(p.debuffs, "perRow", 16, 8)
         gate(p.debuffs, "maxCount", 40, 16)
         gate(p.debuffs, "growth", "LRTB", "LRBT")
+    end,
+
+    -- v15：移除「血量漸層」兩個上色方式。
+    --
+    -- 它們要先把血量百分比抽成明文才能內插，而受限單位（副本／M+／團隊）抽不出來
+    -- ⇒ 顏色凍在上一個值，或者從沒抽到過就一路顯示滿血色。也就是最需要看血條顏色
+    -- 的場合反而是壞的，而且沒有辦法只靠換算法救 —— 明文本身就拿不到。
+    --
+    -- 取代品是新的「閾值上色」（一般分頁），概念不同：它不是漸層，而是「低於某個
+    -- 百分比就換色」，判斷交給引擎，所以受限單位也成立。
+    -- 這裡把舊值換成純綠 —— 單一顏色裡它最接近原本的血條外觀。
+    [15] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        for _, udb in pairs(units) do
+            local els = type(udb) == "table" and udb.elements
+            if type(els) == "table" then
+                for _, edb in pairs(els) do
+                    if type(edb) == "table" then
+                        for _, key in ipairs({ "colorMethod", "bgColorMethod" }) do
+                            local v = edb[key]
+                            if v == "hpthreshold" then
+                                edb[key] = "hpgreen"
+                            elseif v == "hpthresholddark" then
+                                edb[key] = "hpgreendark"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end,
+
+    -- v16：收掉開發期間短暫存在過的 "healthcolor"。
+    --
+    -- v15 有一版把血量漸層換成可自訂顏色點的「血量顏色」，但那條路的曲線 x 軸吃的是
+    -- 原生 0~1 的血量比例、不是 0~100，設定值餵進去全部落在第一個點上（實測：野外
+    -- 整條血條恆為第一個點的顏色）。概念本身也不對——真正要的是「低於某個百分比才
+    -- 換色」，那已經改成一般分頁的「閾值上色」。
+    --
+    -- ⚠ 這一步不能併回 v15：本機的設定檔已經跑過舊版 v15、schemaVersion 停在 15，
+    -- 改寫 v15 對它不會重跑。而 Colors.Get 對認不得的方式會退回「隱藏」⇒ 血條直接
+    -- 消失。所以必須是新的一步。
+    [16] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        for _, udb in pairs(units) do
+            local els = type(udb) == "table" and udb.elements
+            if type(els) == "table" then
+                for _, edb in pairs(els) do
+                    if type(edb) == "table" then
+                        for _, key in ipairs({ "colorMethod", "bgColorMethod" }) do
+                            if edb[key] == "healthcolor" then edb[key] = "hpgreen" end
+                        end
+                    end
+                end
+            end
+        end
+    end,
+
+    -- v17：玩家框與目標框的魔力文字往下 —— 實地調出來的位置。
+    --   [curmp]/[maxmp]  y = -10 → -14
+    --   [percmp]%        y = -48 → -51
+    -- 只動這兩個單位：其餘單位的魔力文字是另一套版面（寬度、對齊都不同），
+    -- 沒有一起調過。
+    --
+    -- 文字是陣列，所以用 pattern 認人而不是用索引 —— 使用者可能加過、刪過、
+    -- 搬過條目，索引完全不可靠。
+    -- 值閘：只動仍等於舊預設的那個 y，自己拉過位置的不碰。
+    [17] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        local MOVES = {
+            ["[curmp]/[maxmp]"] = { old = -10, new = -14 },
+            ["[percmp]%"]       = { old = -48, new = -51 },
+        }
+        for _, unitKey in ipairs({ "player", "target" }) do
+            local udb = units[unitKey]
+            local texts = type(udb) == "table" and udb.elements and udb.elements.texts
+            if type(texts) == "table" then
+                for _, t in ipairs(texts) do
+                    local move = type(t) == "table" and MOVES[t.pattern]
+                    if move and t.y == move.old then t.y = move.new end
+                end
+            end
+        end
     end,
 }
 

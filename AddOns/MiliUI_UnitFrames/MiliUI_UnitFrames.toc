@@ -9,7 +9,7 @@
 ## Category-zhTW: 頭像
 ## Category-zhCN: 头像
 ## Author: Mili
-## Version: 1.1.6
+## Version: 1.2.1
 ## X-Website: https://github.com/MiliUIPackage/MiliUI
 ## IconTexture: Interface\Icons\inv_pet_riverotter_red
 ## SavedVariables: MiliUI_UnitFrames_DB
@@ -63,6 +63,7 @@ Options\Preview.lua
 Options\Panel.lua
 Options\Tab_General.lua
 Options\Tab_Unit.lua
+Options\HealthThresholds.lua
 Options\AuraBlacklist.lua
 Options\Tab_Resource.lua
 Options\Tab_Totem.lua
