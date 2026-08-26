@@ -20,7 +20,7 @@ local AuraSoundRestrictionTypes = {
 	{ Enum.AddOnRestrictionType.Encounter, "Encounter" },
 	{ Enum.AddOnRestrictionType.ChallengeMode, "ChallengeMode" },
 	{ Enum.AddOnRestrictionType.PvPMatch, "PvPMatch" },
-	{ Enum.AddOnRestrictionType.Map, "Map" },
+	--{ Enum.AddOnRestrictionType.Map, "Map" }, -- This doesn't work right now, reports false positives
 };
 
 function GTFO_OnEvent(self, event, ...)

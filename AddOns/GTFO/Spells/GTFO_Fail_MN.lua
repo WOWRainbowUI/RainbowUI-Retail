@@ -84,7 +84,19 @@ GTFO.SpellID["1285909"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1302802"] = {
+  --desc = "Putrid Traps";
+  map = 2512; -- The Coiled Isle
+  applicationOnly = true;
+  sound = 3;
+};
 
+GTFO.SpellID["1307124"] = {
+  --desc = "Foul Mouth (Siltmouth)";
+  map = 2512; -- The Coiled Isle
+  applicationOnly = true;
+  sound = 3;
+};
 
 --- *******************
 --- * Midnight (Prey) *
@@ -160,7 +172,33 @@ GTFO.SpellID["1288126"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["1260207"] = {
+  --desc = "Void Crash (Domanar Enforcer)";
+  instances = { 2933, 2953 }; -- Collegiate Calamity, Parhelion Plaza
+  applicationOnly = true;
+  sound = 3;
+};
 
+GTFO.SpellID["1296957"] = {
+  --desc = "Corrosive Breath (Wind Serpent)";
+  instance = 2933; -- Collegiate Calamity
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1254455"] = {
+  --desc = "Voidscar Raze (Void Phantom)";
+  instance = 2953; -- Parhelion Plaza
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1264991"] = {
+  --desc = "Shadowbind (Twilight Bladesworn)";
+  instance = 2933; -- Collegiate Calamity
+  applicationOnly = true;
+  sound = 3;
+};
 
 
 --- ************************
