@@ -59,8 +59,8 @@ if locale == 'frFR' then
     outOfDate = 'Votre version de |cffffd200%s|r pourrait être obsolète !|n%s a signalé avoir|n|cff82c5ff%s|r, veuillez mettre à jour si c\'est vrai.'
     invalidBuild = 'Votre copie de |cffffd200%s|r est soit corrompue, soit illégale.|nVeuillez télécharger une version officielle gratuitement.'
 elseif locale == 'deDE' then
-    outOfDate = 'Ihre Version von |cffffd200%s|r ist möglicherweise veraltet!|n%s hat gemeldet,|n|cff82c5ff%s|r zu haben, bitte aktualisieren Sie, falls dies zutrifft.'
-    invalidBuild = 'Ihre Kopie von |cffffd200%s|r ist entweder beschädigt oder illegal.|nBitte laden Sie eine offizielle Version kostenlos herunter.'
+    outOfDate = 'Deine Version von |cffffd200%s|r ist möglicherweise veraltet!|n%s hat gemeldet,|n|cff82c5ff%s|r zu haben, bitte aktualisiere deine Installation auf die neueste Version.'
+    invalidBuild = 'Deine Kopie von |cffffd200%s|r ist entweder beschädigt oder illegal.|nBitte lade eine offizielle Version kostenlos herunter.'
 elseif locale == 'esES' or locale == 'esMX' then
     outOfDate = '¡Tu versión de |cffffd200%s|r podría estar desactualizada!|n%s informó tener|n|cff82c5ff%s|r, por favor actualiza si es cierto.'
     invalidBuild = 'Tu copia de |cffffd200%s|r está corrupta o es ilegal.|nPor favor, descarga una versión oficial gratis.'
