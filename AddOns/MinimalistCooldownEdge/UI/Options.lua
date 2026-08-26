@@ -1130,6 +1130,20 @@ local function CreateCategoryOptions(order, name, key, desc)
                 },
             } or nil,
 
+            unitframeCastBar = isUnitframe and {
+                type = "group", name = "|cffffd100" .. L["Cast Bar"] .. "|r",
+                inline = true, order = 6, disabled = disabledFn,
+                args = {
+                    castBarReposition = {
+                        type = "toggle", order = 1, width = 2.6,
+                        name = L["Reposition Cast Bar"],
+                        desc = L["UNITFRAME_CASTBAR_REPOSITION_DESC"],
+                        get = CatGet(key, "castBarReposition", true),
+                        set = CatSet(key, "castBarReposition"),
+                    },
+                },
+            } or nil,
+
             -- ── 2. Typography ───────────────────────────────────────────
             typography = (not isPlayerAura) and {
                 type = "group", name = "|cffffd100" .. L["Typography (Cooldown Numbers)"] .. "|r",

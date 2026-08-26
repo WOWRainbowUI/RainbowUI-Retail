@@ -85,6 +85,9 @@ L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura h
 L["UNITFRAME_ONLY_MINE_DESC"] = "Only show cooldown timer text on auras cast by you. MiniCE's WoW 12.1 target/focus containers use Blizzard's Player filter; compatible addon and legacy frames use their group metadata or the large-aura fallback."
 L["UNITFRAME_ONLY_MINE_DEBUFFS_DESC"] = "Hide debuffs cast by other players on the target and focus frames. MiniCE owns these aura containers on WoW 12.1, so Blizzard's own debuff filter no longer reaches them."
 L["UNITFRAME_ONLY_MINE_BUFFS_DESC"] = "Hide buffs cast by other players on the target and focus frames. MiniCE owns these aura containers on WoW 12.1, so Blizzard's own buff filter no longer reaches them."
+L["Cast Bar"] = true
+L["Reposition Cast Bar"] = true
+L["UNITFRAME_CASTBAR_REPOSITION_DESC"] = "Anchor the target and focus cast bars below the last buff/debuff row. MiniCE owns these aura containers on WoW 12.1, so Blizzard's cast bar otherwise stays pinned to the frame and overlaps them."
 L["Keeps player aura buttons fully opaque when they are close to expiring."] = true
 L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."] = true
 L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."] = true

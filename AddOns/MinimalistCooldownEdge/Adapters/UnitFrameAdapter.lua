@@ -86,6 +86,7 @@ local trackedCooldownMeta = setmetatable({}, addon.weakMeta)
 local hookedCustomAuraButtons = setmetatable({}, addon.weakMeta)
 local HookCustomAuraButtonBindings
 local ProcessPendingHostWork
+local SeedCastBarAnchor
 local hostWorkScheduled = false
 
 for _, definition in ipairs(HOST_DEFINITIONS) do
@@ -864,6 +865,11 @@ local function EnsureHost(host)
     container:SetFlowLayoutPadding(0, 0, 0, 0)
     container:SetFlowLayoutMaximumLineSize(122)
 
+    -- AddAuraGroup stamps UntrustedLayoutScriptExecution onto AuraContainer.
+    -- Seed the spell-bar dependency first so the aspect can propagate through
+    -- the existing anchor relationship instead of rejecting a later SetPoint.
+    SeedCastBarAnchor(host)
+
     for _, group in ipairs(CUSTOM_GROUPS) do
         -- Declare full topology once while safely out of combat. Runtime
         -- visibility is controlled by SetAuraGroupMaxFrameCount.
@@ -880,6 +886,149 @@ local function EnsureHost(host)
     ApplyHostConfigurationIfDirty(host, true)
     UpdateRegenEventRegistration()
     return true
+end
+
+-- ── Cast bar repositioning ────────────────────────────────────────────────
+--
+-- Blizzard anchors the Target/Focus spell bar below its own AuraContainer.
+-- MiniCE suppresses that container and renders auras from its own, so the
+-- spell bar collapses back against the frame and overlaps the aura rows.
+-- When enabled, re-anchor it to the bottom of the MiniCE container so it
+-- always sits under the last buff/debuff row and follows it as rows change.
+local CASTBAR_ANCHOR_X = 18
+local CASTBAR_ANCHOR_Y = -5
+
+local castBarHooked = setmetatable({}, addon.weakMeta)
+local castBarAnchoring = {}
+local castBarOwned = {}
+local AnchorCastBar
+
+local function GetSpellBar(host)
+    local spellBar = _G[host.name .. "SpellBar"]
+    return MCE:CanUseFrameAsTableKey(spellBar) and spellBar or nil
+end
+
+local function IsCastBarRepositionEnabled()
+    local config = GetUnitFrameConfig()
+    return config ~= nil
+       and MCE:IsCategoryActive(CATEGORY.Unitframe, config)
+       and config.castBarReposition ~= false
+end
+
+local function ApplyCastBarPoint(spellBar, point, relativeTo, relativePoint, x, y)
+    -- 12.1 spell bars carry an additive offset on top of their anchor.
+    if type(spellBar.ClearPointsOffset) == "function" then
+        spellBar:ClearPointsOffset()
+    end
+    spellBar:ClearAllPoints()
+    spellBar:SetPoint(point, relativeTo, relativePoint, x, y)
+end
+
+local function TryCastBarPoint(host, spellBar, point, relativeTo, relativePoint, x, y)
+    castBarAnchoring[host.name] = true
+    local ok = pcall(ApplyCastBarPoint, spellBar, point, relativeTo, relativePoint, x, y)
+    castBarAnchoring[host.name] = nil
+    return ok
+end
+
+-- Blizzard's resting placement, reapplied when MiniCE gives ownership back.
+local function GetBlizzardCastBarBase(root)
+    local smallSize = GetAccessibleBoolean(MCE:SafeTableGet(root, "smallSize")) == true
+    local haveToT = GetAccessibleBoolean(MCE:SafeTableGet(root, "haveToT")) == true
+    local x = smallSize and 38 or 43
+    local y = smallSize and 3 or 5
+    if haveToT then
+        y = smallSize and -48 or -46
+    end
+    return x, y
+end
+
+SeedCastBarAnchor = function(host)
+    local spellBar = GetSpellBar(host)
+    if not spellBar or not host.container then return false end
+
+    castBarOwned[host.name] = true
+    if TryCastBarPoint(host, spellBar, "TOPLEFT", host.container, "BOTTOMLEFT",
+        CASTBAR_ANCHOR_X, CASTBAR_ANCHOR_Y) then
+        return true
+    end
+
+    castBarOwned[host.name] = nil
+    local root = host.root or _G[host.name]
+    if MCE:CanUseFrameAsTableKey(root) then
+        local x, y = GetBlizzardCastBarBase(root)
+        TryCastBarPoint(host, spellBar, "TOPLEFT", root, "BOTTOMLEFT", x, y)
+    end
+    return false
+end
+
+local function ReleaseCastBar(host)
+    if not castBarOwned[host.name] then return end
+    castBarOwned[host.name] = nil
+
+    local spellBar = GetSpellBar(host)
+    local root = host.root or _G[host.name]
+    if not spellBar or not MCE:CanUseFrameAsTableKey(root) then return end
+
+    local x, y = GetBlizzardCastBarBase(root)
+    TryCastBarPoint(host, spellBar, "TOPLEFT", root, "BOTTOMLEFT", x, y)
+end
+
+-- Anchoring a clean frame onto one that carries restricted layout execution
+-- taints the layout pass. Only anchor while both sides share the aspect.
+local function CanAnchorCastBarTo(spellBar, container)
+    local aspect = Enum and Enum.ForbiddenAspect
+        and Enum.ForbiddenAspect.UntrustedLayoutScriptExecution
+    if not aspect or type(container.HasAnyForbiddenAspects) ~= "function" then
+        return true
+    end
+
+    local ok, containerRestricted = pcall(container.HasAnyForbiddenAspects, container, aspect)
+    if not ok or not containerRestricted then
+        return ok
+    end
+
+    if type(spellBar.HasAnyForbiddenAspects) ~= "function" then
+        return false
+    end
+    local barOk, barRestricted = pcall(spellBar.HasAnyForbiddenAspects, spellBar, aspect)
+    return barOk and barRestricted == true
+end
+
+AnchorCastBar = function(host)
+    if castBarAnchoring[host.name] then return end
+
+    -- With buffs on top the container grows away from the spell bar, so
+    -- Blizzard's own placement below the frame is already correct.
+    if not IsCastBarRepositionEnabled()
+       or not host.created or not host.active or not host.container
+       or host.appliedBuffsOnTop then
+        ReleaseCastBar(host)
+        return
+    end
+
+    local spellBar = GetSpellBar(host)
+    if not spellBar or not CanAnchorCastBarTo(spellBar, host.container) then
+        ReleaseCastBar(host)
+        return
+    end
+
+    castBarOwned[host.name] = true
+    TryCastBarPoint(host, spellBar, "TOPLEFT", host.container, "BOTTOMLEFT",
+        CASTBAR_ANCHOR_X, CASTBAR_ANCHOR_Y)
+end
+
+-- Blizzard re-points the spell bar every time a cast starts. Reassert the
+-- MiniCE anchor from the same hook instead of polling.
+local function HookCastBar(host)
+    local spellBar = GetSpellBar(host)
+    if not spellBar or castBarHooked[spellBar] then return end
+    castBarHooked[spellBar] = true
+
+    hooksecurefunc(spellBar, "SetPoint", function()
+        if castBarAnchoring[host.name] then return end
+        AnchorCastBar(host)
+    end)
 end
 
 local function ScheduleHostWork(host, configuration, dataRefresh)
@@ -903,6 +1052,7 @@ ProcessPendingHostWork = function()
         local host = hostsByName[definition.name]
         if host.workPending or host.pendingCreate then
             host.workPending = nil
+            HookCastBar(host)
 
             if not IsUnitFrameCategoryEnabled() or MCE:IsBetterBlizzFramesAvailable() then
                 host.pendingCreate = nil
@@ -920,6 +1070,8 @@ ProcessPendingHostWork = function()
                 end
                 host.dataRefreshPending = nil
             end
+
+            AnchorCastBar(host)
         end
     end
 
@@ -994,6 +1146,7 @@ function Adapter:OnEnable()
     for _, definition in ipairs(HOST_DEFINITIONS) do
         local host = hostsByName[definition.name]
         HookBlizzardRoot(host)
+        HookCastBar(host)
         if IsUnitFrameCategoryEnabled() then
             ScheduleHostWork(host, true, true)
         end
@@ -1015,6 +1168,7 @@ function Adapter:OnDisable()
         host.configurationDirty = nil
         host.dataRefreshPending = nil
         DeactivateHost(host, true)
+        ReleaseCastBar(host)
     end
 end
 
@@ -1024,6 +1178,7 @@ function Adapter:Rebuild()
             local host = hostsByName[definition.name]
             host.pendingCreate = nil
             DeactivateHost(host, true)
+            ReleaseCastBar(host)
         end
         UpdateRegenEventRegistration()
         return
@@ -1037,6 +1192,7 @@ function Adapter:Rebuild()
             host.configurationDirty = nil
             host.dataRefreshPending = nil
             DeactivateHost(host, true)
+            ReleaseCastBar(host)
         end
         UpdateRegenEventRegistration()
         return
@@ -1049,6 +1205,7 @@ function Adapter:Rebuild()
     for _, definition in ipairs(HOST_DEFINITIONS) do
         local host = hostsByName[definition.name]
         HookBlizzardRoot(host)
+        HookCastBar(host)
         ScheduleHostWork(host, true, false)
     end
 
