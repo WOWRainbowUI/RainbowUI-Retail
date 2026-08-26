@@ -696,11 +696,6 @@ end
 
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
 local currentSeasonBonusIDs = {
-  [13653] = true, -- Voidforged
-  [13654] = true, -- Voidforged
-  [13655] = true, -- Voidforged
-  [12066] = true, -- Radiance Crafted
-  [13786] = true, -- Sporefused: Myth
 }
 
 local function CheckBonusIDs(itemLink)
