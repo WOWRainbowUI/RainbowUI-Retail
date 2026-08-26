@@ -6,7 +6,11 @@ local function Announce()
 end
 
 local function GetSettings(kind)
-  return addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  if kind == "crowdControl" then
+    return addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS).crowdControl
+  else
+    return addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  end
 end
 
 local function IsExcludedSpell(kind, spellID)

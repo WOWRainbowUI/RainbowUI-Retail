@@ -4,7 +4,12 @@ local addonTable = select(2, ...)
 local legacy = {}
 
 local function ProcessSpells(kind)
-  local settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  local settings
+  if kind == "crowdControl" then
+    settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS).crowdControl
+  else
+    settings = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)[addonTable.Display.Utilities.GetSpecializationID()][kind]
+  end
 
   local include = {}
   local exclude = {}

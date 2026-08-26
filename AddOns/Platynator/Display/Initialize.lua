@@ -21,7 +21,6 @@ end
 addonTable.Display.ManagerMixin = {}
 function addonTable.Display.ManagerMixin:OnLoad()
   self.styleIndex = 0
-  self.pools = {}
   self.clickRegionPool = CreateFramePool("Frame")
 
   self.preallocatedDisplaysByIndex = {}
@@ -65,6 +64,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
 
   self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
   self:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+  self:RegisterEvent("NAME_PLATE_CREATED")
   self:RegisterEvent("PLAYER_LOGIN")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   if C_EventUtils.IsEventValid("GARRISON_UPDATE") then
@@ -223,20 +223,16 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end)
 end
 
-function addonTable.Display.ManagerMixin:GetPool(index)
-  assert(self.pools[index], "Missing pool")
-  return self.pools[index]
-end
-
 function addonTable.Display.ManagerMixin:GeneratePoolForIndex(index)
-  self.preallocatedDisplaysByIndex[index] = {}
-  self.pools[index] = CreateFramePool("Frame", UIParent, nil, nil, false, function(frame)
+  self.preallocatedDisplaysByIndex[index] = table.create(40)
+  for i = 1, 40 do
+    local frame = CreateFrame("Frame", nil, _G["NamePlate" .. i] or UIParent)
     Mixin(frame, addonTable.Display.NameplateMixin)
     frame.kind = index
     frame:OnLoad()
     table.insert(self.preallocatedDisplays, frame)
     table.insert(self.preallocatedDisplaysByIndex[index], frame)
-  end, 40)
+  end
 end
 
 function addonTable.Display.ManagerMixin:GeneratePools()
@@ -252,11 +248,11 @@ end
 function addonTable.Display.ManagerMixin:RestylePools()
   local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
 
-  while #self.pools < #assignments do
-    self:GeneratePoolForIndex(#self.pools + 1)
+  while #self.preallocatedDisplaysByIndex < #assignments do
+    self:GeneratePoolForIndex(#self.preallocatedDisplaysByIndex + 1)
   end
 
-  for index, list in pairs(self.preallocatedDisplaysByIndex) do
+  for index, list in ipairs(self.preallocatedDisplaysByIndex) do
     local settings = assignments[index]
     if settings then
       local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
@@ -283,8 +279,8 @@ function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
 
   local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
 
-  while #self.pools < #assignments do
-    self:GeneratePoolForIndex(#self.pools + 1)
+  while #self.preallocatedDisplaysByIndex < #assignments do
+    self:GeneratePoolForIndex(#self.preallocatedDisplaysByIndex + 1)
   end
 
   local index = 1
@@ -563,12 +559,12 @@ function addonTable.Display.ManagerMixin:Install(unit)
       return
     end
     local design = addonTable.Core.GetDesignByName(designName)
-    local newDisplay = self:GetPool(index):Acquire()
+    local nameplateIndex = tonumber(nameplate:GetName():match("%d+"))
+    local newDisplay = self.preallocatedDisplaysByIndex[index][nameplateIndex]
     if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
       C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     end
     self.nameplateDisplays[unit] = newDisplay
-    newDisplay:SetParent(nameplate)
     if nameplate.SetStackingBoundsFrame then
       if not self.nameplateStackRegions[nameplate:GetName()].parented then
         self.nameplateStackRegions[nameplate:GetName()].parented = true
@@ -601,8 +597,6 @@ function addonTable.Display.ManagerMixin:Uninstall(unit)
     display:SetUnit(nil)
     display:ClearAllPoints()
     display:Hide()
-    display:SetParent(UIParent)
-    self.pools[display.kind]:Release(display)
     self.nameplateDisplays[unit] = nil
   end
 end
@@ -900,9 +894,16 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
       nameplate.UnitFrame.WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
     end
     self:Install(unit)
-  elseif  eventName == "NAME_PLATE_UNIT_REMOVED" then
+  elseif eventName == "NAME_PLATE_UNIT_REMOVED" then
     local unit = ...
     self:Uninstall(unit)
+  elseif eventName == "NAME_PLATE_CREATED" then
+    local nameplate = ...
+    local index = tonumber(nameplate:GetName():match("%d+"))
+    for _, list in ipairs(self.preallocatedDisplaysByIndex) do
+      list[index]:Hide()
+      list[index]:SetParent(nameplate)
+    end
   elseif eventName == "PLAYER_SOFT_INTERACT_CHANGED" then
     if self.lastInteract and self.lastInteract.interactUnit then
       self.lastInteract:UpdateSoftInteract()

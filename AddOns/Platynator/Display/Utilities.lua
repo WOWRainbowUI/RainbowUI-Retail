@@ -494,7 +494,6 @@ do
       allFilters[specializationID] = {
         buffs = { include = {}, exclude = {} },
         debuffs = { include = {}, exclude = {} },
-        crowdControl = { include = {}, exclude = {} },
       }
     end
   end

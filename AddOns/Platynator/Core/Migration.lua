@@ -854,6 +854,21 @@ local function MigrateSettingsv6()
   -- Removed as this was the wrong place
 end
 
+local function MigrateSettingsv7()
+  local filters = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)
+  local globalCrowdControl = {include = {}, exclude = {}}
+
+  for key, val in pairs(filters) do
+    if val.crowdControl then
+      Mixin(globalCrowdControl.include, val.crowdControl.include)
+      Mixin(globalCrowdControl.exclude, val.crowdControl.exclude)
+      val.crowdControl = nil
+    end
+  end
+
+  filters.crowdControl = globalCrowdControl
+end
+
 local settingUpgrades = {
   MigrateSettingsv1,
   MigrateSettingsv2,
@@ -862,6 +877,7 @@ local settingUpgrades = {
   MigrateSettingsv5,
   MigrateSettingsv6,
   MigrateSettingsv6,
+  MigrateSettingsv7,
 }
 function addonTable.Core.MigrateSettings()
   if #settingUpgrades + 1 ~= addonTable.Config.Get(addonTable.Config.Options.MIGRATION) then
