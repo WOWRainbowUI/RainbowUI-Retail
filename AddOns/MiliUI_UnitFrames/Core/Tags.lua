@@ -53,13 +53,18 @@ local SECRET_TAGS = {
     maxhp = { kind = "number", fn = function(u) return UnitHealthMax(u) end },
     curmp = { kind = "number", fn = function(u) return UnitPower(u) end },
     maxmp = { kind = "number", fn = function(u) return UnitPowerMax(u) end },
+    -- ⚠ 第二個參數是 usePredicted，官方預設 true。這裡跟 Core/Cache.lua 的
+    -- UpdateHealthFields **是兩條各自獨立的路**：那邊算的是上色與漸層用的
+    -- cache.frachp，這邊才是玩家真正看到的 [perchp] 文字。改一邊沒用，
+    -- 兩邊都要傳 true。
+    -- 下面 percmp 的 false 是對的 —— 能量那支同一個位置是 unmodified。
     perchp = { kind = "percent",
-               fn = function(u) return UnitHealthPercent(u, false, PERCENT_CURVE) end },
+               fn = function(u) return UnitHealthPercent(u, true, PERCENT_CURVE) end },
     -- powerType 傳 nil＝讓引擎解析該單位當前的資源。以前傳 UnitPowerType(u)，那個值
     -- 在受限單位上是秘密值，等於把秘密值塞進列舉參數的位置。
     percmp = { kind = "percent",
                fn = function(u) return UnitPowerPercent(u, nil, false, PERCENT_CURVE) end },
-    -- 吸收盾／治療吸收數量：走全域 API（EUI 同法，不用計算器）。
+    -- 吸收盾／治療吸收數量：走全域 API，不用計算器。
     -- 無盾時用 C_StringUtil.TruncateWhenZero 讓它輸出空字串——這是官方的
     -- 「秘密數字為 0 就不顯示」管道，插件不必讀值（kind=string 直接串接）
     shields = { kind = "string", fn = function(u)

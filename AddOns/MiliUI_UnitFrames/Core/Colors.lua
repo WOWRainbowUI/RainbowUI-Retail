@@ -1,7 +1,7 @@
 ------------------------------------------------------------
 -- 顏色方法（讀 uf.cache 明文資料）
 -- 簽名：fn(uf, edb, value01, choiceKey, alphaKey) → r, g, b, a
---   value01  : 0-1（hpthreshold 內插用，通常傳 cache.frachp）
+--   value01  : 0-1（血量顏色的預覽路內插用，通常傳 cache.frachp）
 --   choiceKey: edb 內自訂色欄位名（solid 用，預設 "bgColor"）
 --   alphaKey : edb 內 alpha 欄位名（如 "barAlpha"/"bgAlpha"）
 -- cache 已在 Cache.lua 消毒完畢，這裡可以放心做比較與查表。
@@ -149,26 +149,81 @@ methods.hpreddark = function(uf, edb, value, choice, alphaKey)
     return Dim(r, g, b, a)
 end
 
-methods.hpthreshold = function(uf, edb, value, choice, alphaKey)
-    value = value or uf.cache.frachp or 1
-    local hpGreen, hpRed = G().hpGreen, G().hpRed
-    local r, g, b, a
-    if value > 0.5 then
-        r = hpGreen.r + ((1 - value) * 2 * (hpGreen.g - hpGreen.r))
-        g = hpGreen.g
-        b = hpGreen.b
-        a = alphaOf(edb, alphaKey, hpGreen.a)
-    else
-        r = hpRed.r
-        g = hpGreen.g - ((0.5 - value) * 2 * hpGreen.g)
-        b = hpRed.b
-        a = alphaOf(edb, alphaKey, hpRed.a)
-    end
-    return r, g, b, a
+------------------------------------------------------------
+-- 閾值上色：血量低於門檻就換色，蓋過該單位血條選的任何一種上色方式
+--
+-- 設定在**每個單位的血條**上（edb.thresholdEnabled / edb.thresholds），可以放
+-- 好幾個門檻，愈低的愈優先：例如 50% 橘、20% 紅 —— 20 以下紅、20~50 橘、
+-- 50 以上維持原色。
+--
+-- ⚠ 判斷交給引擎，插件端不讀血量。受限單位（副本／M+／團隊）的血量是秘密值，
+-- 自己抽明文抽不到就只能用舊值或猜，顏色會凍住。改成餵一條 Step 曲線給
+-- UnitHealthPercent，由 C 端決定落在哪一段。門檻由低到高排序後：
+--     (0,      最低門檻的顏色)
+--     (t1,     第二低門檻的顏色)
+--     ...
+--     (t最高,  原本的顏色)
+-- Step ＝取「最後一個 x ≤ 目前血量」的點，所以每一段都吃到正確的顏色。
+--
+-- ⚠⚠ 曲線的 x 軸是**原生的 0~1 血量比例**，不是 0~100。餵 0/50/100 的話所有值都
+-- 落在第一個點上 ⇒ 整條血條永遠是第一個點的顏色（實測：野外全紅）。
+------------------------------------------------------------
+local CreateColorCurve = C_CurveUtil and C_CurveUtil.CreateColorCurve
+local thresholdCurve
+
+-- 由低到高。就地排序 edb.thresholds，排過的下次是 no-op
+local function SortedThresholds(edb)
+    local list = edb and edb.thresholds
+    if type(list) ~= "table" or #list == 0 then return nil end
+    table.sort(list, function(x, y) return (x.pct or 0) < (y.pct or 0) end)
+    return list
 end
-methods.hpthresholddark = function(uf, edb, value, choice, alphaKey)
-    local r, g, b, a = methods.hpthreshold(uf, edb, value, choice, alphaKey)
-    return Dim(r, g, b, a)
+
+function Colors.Threshold(uf, edb, r, g, b, a)
+    if not (edb and edb.thresholdEnabled) then return r, g, b, a end
+    local list = SortedThresholds(edb)
+    if not list then return r, g, b, a end
+
+    -- 預覽孿生的血量是假的明文，而曲線路會去讀**真實玩家**的血 → 自己判斷
+    if uf.isPreview then
+        local pct = (uf.cache.frachp or 1) * 100
+        for _, t in ipairs(list) do
+            if pct < (t.pct or 0) then
+                local c = t.color or WHITE
+                return c.r, c.g, c.b, a
+            end
+        end
+        return r, g, b, a
+    end
+
+    if not (CreateColorCurve and CreateColor) then return r, g, b, a end
+    -- ⚠ 原色要當成曲線的最後一個點餵進去，所以它必須讀得出來。職業色在受限單位上
+    -- 是秘密顏色（C_ClassColor 那條路）⇒ 這種情況放棄套用、維持原色，
+    -- 不要拿秘密值去組曲線。
+    if ns.IsSecret(r) then return r, g, b, a end
+
+    if not thresholdCurve then thresholdCurve = CreateColorCurve() end
+    local T = Enum.LuaCurveType
+    if T and T.Step then thresholdCurve:SetType(T.Step) end
+    thresholdCurve:ClearPoints()
+
+    -- 0 那個點吃最低門檻的顏色；第 i 個門檻的點吃「下一個門檻」的顏色；
+    -- 最高門檻的點吃原色
+    local first = (list[1] and list[1].color) or WHITE
+    thresholdCurve:AddPoint(0, CreateColor(first.r, first.g, first.b, 1))
+    for i = 1, #list do
+        local nextC = list[i + 1] and list[i + 1].color
+        local x = (list[i].pct or 0) / 100
+        if nextC then
+            thresholdCurve:AddPoint(x, CreateColor(nextC.r, nextC.g, nextC.b, 1))
+        else
+            thresholdCurve:AddPoint(x, CreateColor(r, g, b, 1))
+        end
+    end
+
+    local ok, col = pcall(UnitHealthPercent, uf.unit, nil, thresholdCurve)
+    if ok and col then return col.r, col.g, col.b, a end
+    return r, g, b, a
 end
 
 methods.gray = function(uf, edb, value, choice, alphaKey)
@@ -195,5 +250,10 @@ function Colors.Register(name, fn)
 end
 
 function Colors.Get(method, uf, edb, value01, choiceKey, alphaKey)
-    return (methods[method or "hide"] or methods.hide)(uf, edb, value01, choiceKey, alphaKey)
+    local fn = methods[method or "hide"]
+    -- ⚠ 認不得的名字**不要**退回 hide —— 那是全透明，症狀是「血條整條消失」，
+    -- 而原因（設定檔留著一個已經改名／移除的方式）完全看不出來。設定值是 nil
+    -- 才當成刻意隱藏；是字串但查不到就給一個看得見的顏色。
+    if not fn then fn = (method == nil) and methods.hide or methods.hpgreen end
+    return fn(uf, edb, value01, choiceKey, alphaKey)
 end
