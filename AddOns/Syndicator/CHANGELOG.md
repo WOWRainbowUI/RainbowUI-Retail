@@ -1,6 +1,6 @@
 # Syndicator
 
-## [276](https://github.com/TheMouseNest/Syndicator/tree/276) (2026-08-12)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/275...276) 
+## [277](https://github.com/TheMouseNest/Syndicator/tree/277) (2026-08-12)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/276...277) 
 
-- Fallback for when catalog info doesn't exist for a decor item  
+- Remove bonus ids from last season in `active season` check  
