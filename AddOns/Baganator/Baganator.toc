@@ -1,11 +1,12 @@
 ## Interface: 120100, 120007, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 821
+## Version: 822
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
 ## SavedVariablesPerCharacter: BAGANATOR_CURRENT_PROFILE
 ## IconTexture: Interface\AddOns\Baganator\Assets\logo.tga
+## AddonCompartmentFunc: Baganator_AddonCompartmentCallback
 
 ## Category-enUS: Inventory
 ## Category-deDE: Inventar
