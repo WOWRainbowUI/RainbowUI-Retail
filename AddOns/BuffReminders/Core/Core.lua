@@ -3,8 +3,7 @@ local _, BR = ...
 -- ============================================================================
 -- SHARED NAMESPACE
 -- ============================================================================
--- This file establishes the BR namespace used by all addon files.
--- It loads first (per TOC order) so other files can access BR.* functions.
+-- Creates the BR namespace. Every other file reads and extends it.
 
 -- ============================================================================
 -- TYPE DEFINITIONS
@@ -60,8 +59,7 @@ local _, BR = ...
 -- Component factory table (populated by Components.lua)
 BR.Components = {}
 
--- Registry of refreshable components (for OnShow refresh pattern)
--- Components with a get() function register here automatically
+-- Components built with a get or enabled callback register here automatically.
 BR.RefreshableComponents = {}
 
 -- ============================================================================
@@ -73,18 +71,6 @@ BR.DEFAULT_BORDER_SIZE = 2
 BR.DEFAULT_ICON_ZOOM = 0 -- percentage; base crop (TEXCOORD_INSET) is always applied separately
 BR.OPTIONS_BASE_SCALE = 1.2
 
--- Shared UI palette. Defined here (before Components/Options load) so every layer
--- references the same tokens instead of copy-pasting raw literals. Callers that
--- need a non-opaque variant index into [1..3] and pass their own alpha.
--- Border: the cool-biased neutral hairline used for panel chrome, dialog
--- separators, and widget borders. The slight blue tint over a flat grey reads as
--- a chosen ground against the warm gold accent (see CreatePanel).
--- Accent: the bright brand gold for active/hover/focus cues (active tabs, focused
--- borders, scale steppers). AccentMuted: the softer gold for "on"/checked fills
--- (checkmarks, linked toggles) that shouldn't shout as loud as the bright accent.
--- NOTE: these are chrome tokens only - never point a value persisted into
--- SavedVariables (e.g. glow color defaults) at them, or a palette tweak would
--- silently rewrite users' saved data.
 BR.Colors = {
     Border = { 0.27, 0.27, 0.32, 1 },
     Accent = { 1, 0.82, 0, 1 },
@@ -97,12 +83,8 @@ BR.Colors = {
 -- WoW tags combat data (auras, unit identity, stats) as "secret" values: a
 -- secret is truthy but throws on compare / arithmetic / ipairs / # / indexing a
 -- table with it. These read helpers use issecretvalue to turn "would throw" into
--- "reads as nil / empty", so callers stay plain Lua instead of hand-rolling a
--- pcall around every operation. Fail-closed by design: a secret reads as absent.
--- Callers that must fail OPEN (e.g. GroupAuraUpdateMatters, which rescans when it
--- can't prove a payload irrelevant) check issecretvalue explicitly instead.
--- Defined here in Core so every layer shares one implementation. See
--- docs/SecretValues.md.
+-- "reads as nil / empty". They fail closed: a secret reads as absent.
+-- A caller that must fail OPEN checks issecretvalue itself instead.
 
 local issecretvalue = issecretvalue
 local EMPTY_LIST = {}
@@ -145,14 +127,11 @@ local function AuraField(aura, key)
 end
 
 -- Aura ENUMERATION APIs (GetAuraDataByIndex / GetAuraDataByAuraInstanceID) THROW -
--- they do not merely return a secret - in restricted contexts on 12.1 (verified on
--- the PTR: combat, and M+ even out of combat). The call raises before returning, so
--- there is no value for issecretvalue to inspect; pcall is the correct (and only)
--- guard - a genuine call-error, not a secret-value operation. A throw means "can't
--- enumerate here", so callers treat nil as end-of-scan and fall back to targeted
--- GetUnitAuraBySpellID queries (which stay whitelist-readable) plus the 3s ticker.
--- GetUnitAuraBySpellID itself does NOT throw, so it needs no wrapper - its return is
--- read through AuraField.
+-- they do not merely return a secret - in restricted contexts (combat, and M+ even
+-- out of combat). The call raises before it returns, so issecretvalue has no value
+-- to inspect and pcall is the only guard. A throw means "cannot enumerate here":
+-- callers treat nil as end-of-scan and fall back to GetUnitAuraBySpellID, which
+-- stays whitelist-readable and does not throw.
 
 ---Enumerate an aura by index; nil if the call throws (restricted context) or past
 ---the last aura.
@@ -189,6 +168,25 @@ BR.Secret = {
     AuraByInstanceID = AuraByInstanceID,
 }
 
+---The frame a stored anchor name points at, or nil when it cannot hold an anchor.
+---A forbidden frame raises on every method call, so anchoring to one would throw
+---on every login - and the name in the database can be anything the user typed.
+---@param name string? Global frame name
+---@return table? frame
+function BR.ResolveAnchorFrame(name)
+    if not name or name == "" then
+        return nil
+    end
+    local frame = _G[name]
+    if type(frame) ~= "table" or frame.GetCenter == nil then
+        return nil
+    end
+    if frame.IsForbidden ~= nil and Plain(frame:IsForbidden()) ~= false then
+        return nil
+    end
+    return frame
+end
+
 -- ============================================================================
 -- CALLBACK REGISTRY (Event System)
 -- ============================================================================
@@ -206,6 +204,7 @@ CallbackRegistry:GenerateCallbackEvents({
     "VisibilityRefresh", -- Fired when visibility toggles change (hide-when, show-only-in-group)
     "BuffStateChanged", -- Fired when buff state entries are recomputed
     "ExternalsRefresh", -- Fired when the externals display needs reconfiguring
+    "CustomAnchorsChanged", -- Fired when the user's anchor-target list gains or loses a name
 })
 BR.CallbackRegistry = CallbackRegistry
 
@@ -393,6 +392,7 @@ local DefaultSettingKeys = {
     consumableTextScale = "VisualsRefresh",
     hideConsumableLabels = "VisualsRefresh",
     showConsumableTooltips = false, -- No refresh needed, read at tooltip time
+    rightClickSnooze = "DisplayRefresh", -- Re-wires the consumable buttons' type2 attribute
     showBuffTooltips = "VisualsRefresh", -- Toggles raid/presence hover capture vs click-through
     hideLegacyConsumables = "DisplayRefresh",
     -- Pet display mode
@@ -407,16 +407,9 @@ local DefaultSettingKeys = {
     position = false, -- No auto-refresh, saved directly by movers
 }
 
--- Canonical buff category list (single source of truth).
---
--- Order here is the canonical category order used everywhere it matters:
--- display stacking, the Defaults "Display Order" UI, the movers, and config
--- validation. Adding a category here automatically wires it into config-path
--- validation (ValidCategories below), the display loop (BR.CATEGORIES), the
--- reorder UI (ALL_CATEGORIES), and the Categories page tab strip -- all
--- of which derive from this list instead of repeating it. Forgetting to extend
--- one of those parallel lists is what silently breaks live config updates, so
--- there is exactly one list to maintain.
+-- Canonical buff category list. The order is the display stacking order.
+-- Every other category list derives from this one, so a new category needs
+-- only this edit.
 BR.CATEGORY_ORDER = { "raid", "presence", "targeted", "self", "pet", "consumable", "utility", "custom", "loadout" }
 
 -- Virtual categories: user-defined entries that live in db.customBuffs /
@@ -452,8 +445,7 @@ local DynamicRoots = {
     detachedIcons = "FramesReparent",
     loadoutReminders = "DisplayRefresh",
     -- One event for the whole subtree: AuraButton styling is creation-window-only,
-    -- so every externals change (appearance or entry set) takes the same
-    -- reconfigure-or-defer path anyway. No point in finer-grained refresh types.
+    -- so every externals change takes the same reconfigure-or-defer path.
     externals = "ExternalsRefresh",
 }
 
@@ -553,7 +545,6 @@ function BR.Config.Set(path, value)
         return
     end
 
-    -- Parse path into segments
     local segments = {}
     for segment in path:gmatch("[^.]+") do
         table.insert(segments, segment)
@@ -563,23 +554,18 @@ function BR.Config.Set(path, value)
         return
     end
 
-    -- Validate path (debug mode only warns, doesn't block)
+    -- Debug mode only warns; an invalid path still writes.
     local isValid, validatedRefreshType = ValidatePath(segments)
     if not isValid and BR.Config.DebugMode then
         print("|cffff6600BuffReminders:|r Invalid config path: " .. path)
     end
 
-    -- Navigate to parent and get old value.
+    -- Level 1 reads through the BR.profile proxy metatable: the proxy is an empty
+    -- shell, so rawget always misses and __newindex then overwrites real data.
     --
-    -- Level 1 reads through the BR.profile proxy's __index to reach the real
-    -- AceDB profile sub-table (the proxy itself is an empty shell, so rawget
-    -- would always miss and we'd overwrite real data via __newindex).
-    --
-    -- Levels 2+ use rawget so the metatable on db.defaults (which falls back
-    -- to the shared code-defaults table for missing keys) doesn't make us
-    -- walk into that shared table and mutate it. Writes must always land in
-    -- the user's own saved table, even for nested paths like
-    -- defaults.textPositions.<item>.<field>.
+    -- Levels 2+ use rawget. The metatable on db.defaults falls back to the shared
+    -- code-defaults table, and a plain index walks into it and mutates it. A write
+    -- must always land in the saved table of the user.
     local parent = db
     for i = 1, #segments - 1 do
         local key = segments[i]
@@ -594,18 +580,14 @@ function BR.Config.Set(path, value)
     local finalKey = segments[#segments]
     local oldValue = parent[finalKey]
 
-    -- Don't trigger if value hasn't changed
     if oldValue == value then
         return
     end
 
-    -- Set the new value
     parent[finalKey] = value
 
-    -- Fire SettingChanged callback
     CallbackRegistry:TriggerEvent("SettingChanged", path, value, oldValue)
 
-    -- Fire refresh event if the setting has one registered
     if validatedRefreshType then
         CallbackRegistry:TriggerEvent(validatedRefreshType, path)
     end
@@ -653,7 +635,6 @@ function BR.Config.SetMulti(changes)
         end
 
         if #segments > 0 then
-            -- Validate path (debug mode only warns, doesn't block)
             local isValid, validatedRefreshType = ValidatePath(segments)
             if not isValid and BR.Config.DebugMode then
                 print("|cffff6600BuffReminders:|r Invalid config path: " .. path)
@@ -678,7 +659,6 @@ function BR.Config.SetMulti(changes)
                 parent[finalKey] = value
                 CallbackRegistry:TriggerEvent("SettingChanged", path, value, oldValue)
 
-                -- Collect refresh types
                 if validatedRefreshType then
                     refreshTypes[validatedRefreshType] = true
                 end
@@ -833,12 +813,6 @@ end
 function BR.CreatePanel(name, width, height, options)
     options = options or {}
     local isDialog = options.dialog
-    -- Dialogs echo the main options panel's restrained palette - dark body, gray
-    -- hairline border - and rely on the soft drop shadow (below) rather than a
-    -- loud gold frame to read as elevated above the content underneath. Gold is
-    -- reserved for accents (active tabs), mirroring the panel's active-nav cue.
-    -- Cool-biased neutrals: a slight blue tint over flat grey reads as a chosen
-    -- ground against the warm gold accent (a pure mid-grey reads as unconsidered).
     local bgColor = options.bgColor or (isDialog and { 0.098, 0.098, 0.118, 1 } or { 0.09, 0.09, 0.107, 0.97 })
     local borderColor = options.borderColor or BR.Colors.Border
 
@@ -864,11 +838,9 @@ function BR.CreatePanel(name, width, height, options)
         panel:SetFrameLevel(options.level)
     end
     if isDialog then
-        -- Soft drop shadow: a fine stack of rings with a smooth alpha falloff so
-        -- the dialog reads as a raised card lifted off the busy content beneath
-        -- it. The outermost ring is barely visible (~4%) and each inner ring
-        -- darkens gradually; sublevels sit below the panel's own backdrop so the
-        -- body color paints over the inner overlap.
+        -- Drop shadow: concentric rings, each darker than the last. The sublevels
+        -- stay below the backdrop of the panel, so the body color paints over the
+        -- inner overlap.
         local SHADOW_STEPS = 6
         for i = 1, SHADOW_STEPS do
             local outset = SHADOW_STEPS - i + 1 -- 6,5,4,3,2,1 px out
@@ -879,30 +851,23 @@ function BR.CreatePanel(name, width, height, options)
             layer:SetColorTexture(0, 0, 0, alpha)
         end
 
-        -- Body gradient: a faint top->bottom falloff over the flat backdrop color
-        -- gives the card subtle depth instead of a dead-flat fill, while staying
-        -- in the main panel's dark range. Sits above the shadow/backdrop but below
-        -- the title separator (BORDER layer 0+).
+        -- Sits above the shadow and backdrop, below the title separator (BORDER 0+).
         local body = panel:CreateTexture(nil, "BORDER", nil, -7)
         body:SetPoint("TOPLEFT", 2, -2)
         body:SetPoint("BOTTOMRIGHT", -2, 2)
         body:SetColorTexture(1, 1, 1, 1)
         body:SetGradient("VERTICAL", CreateColor(0.094, 0.094, 0.112, 1), CreateColor(0.130, 0.130, 0.152, 1))
 
-        -- A thin gray separator under the title mirrors the main panel's header
-        -- divider, so the dialog reads as a titled card in the same family. The
-        -- title (GameFontNormalLarge, gold) sits above it; content layouts start
-        -- just below. The -32 offset is load-bearing - dialogs hardcode content
-        -- positions relative to it, so restyle the line but don't move it.
+        -- The -32 offset is load-bearing: dialogs hardcode content positions
+        -- relative to this line. Restyle the line, but do not move it.
         local titleSep = panel:CreateTexture(nil, "BORDER", nil, 1)
         titleSep:SetPoint("TOPLEFT", 2, -32)
         titleSep:SetPoint("TOPRIGHT", -2, -32)
         titleSep:SetHeight(1)
         titleSep:SetColorTexture(unpack(BR.Colors.Border))
 
-        -- Dialogs are modeless: ESC handled via keyboard input so closing this
-        -- dialog doesn't also close the parent options panel (unlike
-        -- UISpecialFrames, which closes every registered frame).
+        -- ESC is handled through keyboard input, not UISpecialFrames: a registered
+        -- frame closes together with the parent options panel.
         panel:EnableKeyboard(true)
         panel:SetScript("OnKeyDown", function(self, key)
             if InCombatLockdown() then
@@ -983,8 +948,7 @@ end
 -- ============================================================================
 -- SPELL NAME CACHE
 -- ============================================================================
--- Spell names are immutable for a given spellID within a session.
--- Cache them to avoid repeated C_Spell.GetSpellName API calls.
+-- A spell name is immutable for a given spellID within a session.
 
 local spellNameCache = {}
 

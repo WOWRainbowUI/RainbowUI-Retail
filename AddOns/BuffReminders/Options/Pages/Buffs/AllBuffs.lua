@@ -3,16 +3,13 @@ local _, BR = ...
 -- ============================================================================
 -- ALL BUFFS PAGE (control panel)
 -- ============================================================================
--- The single surface for "what does this addon track and which of those am I
--- using." Renders every static category (raid / targeted / consumable on the
--- left; presence / self / pet on the right) as section header + note + the
--- shared per-buff row factory. Custom buffs stay on their own page because
--- they're user-defined and edit-via-dialog.
+-- The single surface for "what does this addon track, and which of those do I
+-- use". Each static category renders in two columns as a section header, a note,
+-- and the shared per-buff row factory. Custom buffs and loadout reminders keep
+-- their own list-editor pages, because the user defines them in a dialog.
 --
--- Per-category pages own *display* configuration only (visibility, icons,
--- click-to-cast, layout, sounds, etc.) - the per-buff list does not appear
--- there. This separation mirrors the original "Buffs" + "DisplayBehavior"
--- split that the sidebar refactor briefly lost.
+-- The Categories page owns display configuration for each category. The per-buff
+-- list does not appear there.
 
 local L = BR.L
 
@@ -25,8 +22,8 @@ local floor = math.floor
 local max = math.max
 local abs = math.abs
 
--- Vertical gap between header text and the description below it. Needs enough
--- clearance for header descenders (g/p/y) to not clash with the note's caps.
+-- Vertical gap between header text and the description below it. The gap must
+-- keep the header descenders (g/p/y) clear of the note's caps.
 local HEADER_TO_NOTE_GAP = 15
 -- Vertical gap between the description and the first row checkbox below it.
 -- Includes the note's own visual height plus breathing room.
@@ -128,10 +125,9 @@ BR.Options.Pages.allBuffs = {
     Build = Build,
 }
 
--- Buffs are a what's-new source: every buff carrying an `addedIn` cohort surfaces
--- here, so its row and this page (plus the Buffs sidebar group) light a dot until
--- acknowledged. A provider (not static Register) because BUFF_TABLES.custom /
--- loadout finish populating at ADDON_LOADED, after this file loads.
+-- Every buff with an `addedIn` cohort is a what's-new source. This is a provider,
+-- not a static Register, because BUFF_TABLES.custom and BUFF_TABLES.loadout fill
+-- at ADDON_LOADED, after this file loads.
 BR.Options.WhatsNew.RegisterProvider(function()
     local entries = {}
     for _, arr in pairs(BUFF_TABLES) do

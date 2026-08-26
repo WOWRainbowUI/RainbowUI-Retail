@@ -42,11 +42,11 @@ local function Build(ctx, layout)
         },
         onChange = function(checked)
             -- split is registered as FramesReparent in CategorySettingKeys, so the
-            -- Set call already fires that event; we only need to redraw visuals.
+            -- Set call fires that event. Only the visuals need a redraw.
             SetCategorySetting(category, "split", checked)
             UpdateVisuals()
-            -- Re-evaluate dependents: resetBtn (BindEnabled) reads IsCategorySplit,
-            -- and the Defaults page's Display Order list re-reads split state.
+            -- resetBtn and the Stacking Order list on the Layout page both read the
+            -- split state, so their gates must re-evaluate.
             Components.RefreshAll()
         end,
     })

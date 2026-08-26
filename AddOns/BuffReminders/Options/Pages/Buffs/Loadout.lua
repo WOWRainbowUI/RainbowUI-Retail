@@ -3,17 +3,15 @@ local _, BR = ...
 -- ============================================================================
 -- LOADOUT REMINDERS PAGE
 -- ============================================================================
--- List of user-defined loadout reminders (one row per rule: enabled checkbox,
--- icon, name, summary, edit + delete). Add / edit open
+-- List of user-defined loadout reminders, one row per rule. Add and edit open
 -- BR.Options.Dialogs.LoadoutReminder.Show.
 --
--- Built on the shared BR.Options.Helpers.ListEditor skeleton (same as the
--- Custom Buffs and Sound Alerts pages): rows flow directly in the page's own
--- scroll container (no nested scroll box) and the Add button sits above the list
--- so it stays reachable no matter how long the list grows. This page supplies
--- only what varies - the data source (getItems) and row content (fillRow).
+-- Built on the shared BR.Options.Helpers.ListEditor skeleton: rows flow in the
+-- page's own scroll container, with no nested scroll box. This page supplies
+-- only the data source (getItems) and the row content (fillRow).
+--
 -- Display styling for the loadout category lives on the Categories page's
--- Loadout tab; this page is purely the rule-list editor.
+-- Loadout tab. This page is only the rule-list editor.
 
 local L = BR.L
 local Components = BR.Components
@@ -79,9 +77,7 @@ local function FormatSummary(rule)
     return summary
 end
 
----What this rule was saved on (spec / character it's bound to), class-colored.
----Rendered right-aligned on the name line, separate from the summary, so the
----long "Name - Realm · Spec" string doesn't compete with the requirement text.
+---What this rule was saved on (the bound spec or character), class-colored.
 local function FormatBinding(rule)
     local binding, classToken = BR.Loadouts.GetBindingLabel(rule)
     if not binding then
@@ -111,8 +107,6 @@ local function FillRowBody(body, key, rule, onEdit, onDelete)
     local iconTex = body:CreateTexture(nil, "ARTWORK")
     iconTex:SetSize(ICON_SIZE, ICON_SIZE)
     iconTex:SetPoint("LEFT", checkbox, "RIGHT", 6, 0)
-    -- Resolve live (set/spec may have been re-iconed since save); GetRuleIcon
-    -- always returns a usable texture, falling back through its per-type defaults.
     iconTex:SetTexture(BR.Loadouts.GetRuleIcon(rule))
     iconTex:SetTexCoord(TEXCOORD_INSET, 1 - TEXCOORD_INSET, TEXCOORD_INSET, 1 - TEXCOORD_INSET)
 
@@ -128,8 +122,8 @@ local function FillRowBody(body, key, rule, onEdit, onDelete)
     local hasSummary = summaryLine ~= ""
     local nameY = hasSummary and 6 or 0
 
-    -- Class-colored binding, right-aligned on the name line. Sizes to its own
-    -- text (single right anchor), so the name truncates against its left edge.
+    -- A single right anchor sizes the binding to its own text, so the name
+    -- truncates against the binding's left edge.
     local bindingLine = FormatBinding(rule)
     local nameRightAnchor, nameRightY = editBtn, nameY
     if bindingLine then
@@ -173,8 +167,8 @@ local function GetSortedRules()
 end
 
 local function Build(content, scrollFrame)
-    -- Advertise Talent Loadout Ex support only when it's actually installed, so
-    -- non-users see no mention of a third-party addon they don't have.
+    -- Name Talent Loadout Ex only when it is installed. Other users must see no
+    -- mention of an addon they do not have.
     local note = L["Category.LoadoutNote"]
     if BR.Loadouts.IsTLXAvailable() then
         note = note .. "\n" .. L["Category.LoadoutTLXNote"]

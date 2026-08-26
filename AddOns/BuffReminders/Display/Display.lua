@@ -192,7 +192,6 @@ local format = string.format
 local random = math.random
 local tinsert, tremove, tsort, tconcat = table.insert, table.remove, table.sort, table.concat
 
--- Localization
 local L = BR.L
 
 -- Shared constants (from Core.lua)
@@ -204,9 +203,6 @@ local GetAspectCropInsets = BR.GetAspectCropInsets
 -- WoW API locals
 local PlaySoundFile = PlaySoundFile
 local IsInGroup = IsInGroup
-
--- LibSharedMedia for sound resolution (fonts live in Display/Fonts.lua)
-local LSM = LibStub("LibSharedMedia-3.0")
 
 -- Shared display font (Display/Fonts.lua), aliased for hot render paths
 local DisplayFonts = BR.DisplayFonts
@@ -225,10 +221,8 @@ end
 -- Global API table for external addon integration
 BuffReminders = {}
 
--- Buff tables from Buffs.lua (via BR namespace)
 local BUFF_TABLES = BR.BUFF_TABLES
 
--- Local aliases for direct access
 local RaidBuffs = BUFF_TABLES.raid
 local PresenceBuffs = BUFF_TABLES.presence
 local TargetedBuffs = BUFF_TABLES.targeted
@@ -308,7 +302,7 @@ end
 local function BuildLoadoutRulesArray()
     local db = BR.profile
     -- The rule set itself changed (reload / profile switch / set rename): the cached
-    -- per-rule satisfied/icon verdicts may now be keyed to stale definitions.
+    -- per-rule satisfied/icon verdicts can now be keyed to stale definitions.
     BR.BuffState.InvalidateLoadoutCache()
     wipe(LoadoutRules)
     if not db or not db.loadoutReminders then
@@ -324,7 +318,6 @@ local function BuildLoadoutRulesArray()
     end
 end
 
--- Get helpers from State.lua
 local GetBuffSettingKey = function(buff)
     return BR.StateHelpers.GetBuffSettingKey(buff)
 end
@@ -332,20 +325,16 @@ local IsBuffEnabled = function(key)
     return BR.StateHelpers.IsBuffEnabled(key)
 end
 
--- Default settings live in Data/Defaults.lua (BR.defaults).
 local defaults = BR.defaults
 
--- Constants
 local CODE_DEFAULTS = defaults.defaults
 local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
 local COUNT_TEXT_SCALE = 1 -- scale for group counts and countdowns
 
--- Locals
 local mainFrame
 local buffFrames = {}
--- Per-category index over buffFrames (category -> key -> frame), so per-category
--- consumers (SecureButtons.UpdateActionButtons runs every display cycle) don't
--- rescan the full frame table. Maintained by Register/UnregisterBuffFrame.
+-- Per-category index over buffFrames (category -> key -> frame). Per-category
+-- consumers run on every display cycle and must not rescan the full frame table.
 local buffFramesByCategory = {}
 local updateTicker
 local readyCheckTimer = nil
@@ -359,7 +348,7 @@ local DECOR_DUEL_DIFFICULTY_ID = 253
 local ClearInstanceEntryState -- forward declaration
 local ClearDelveEntryState -- forward declaration
 local testMode = false
-local eventFrame -- forward declaration; created later in file, referenced by StartUpdates
+local eventFrame -- forward declaration; created later in file
 
 ---@class TestModeData
 ---@field fakeTotal number Total group size for fake counts
@@ -367,7 +356,7 @@ local eventFrame -- forward declaration; created later in file, referenced by St
 ---@field fakeMissing table<number, number> Fake missing counts per raid buff index
 
 ---@type TestModeData?
-local testModeData = nil -- Stores seeded fake values for consistent test display
+local testModeData = nil
 local playerClass = nil -- Cached player class, set once on init
 local glowingSpells = {} -- Track which spell IDs are currently glowing (for action bar glow fallback)
 
@@ -425,7 +414,7 @@ end
 local inCombat = false
 local inEncounter = false
 
--- Narrow UNIT_AURA to player+pet whenever group payloads can't matter: in
+-- Narrow UNIT_AURA to player+pet whenever group payloads cannot matter: in
 -- combat/encounters they are secret and fail closed in GroupAuraUpdateMatters
 -- (the 3s ticker owns group refresh there), and solo there are no group units.
 -- Narrow registration filters on the game's side, so group and nameplate aura
@@ -449,19 +438,18 @@ local isResting = false
 local petDismountSuppressed = false -- Suppress pet eval briefly after dismount (pet respawn delay)
 local wasMounted = IsMounted()
 
--- Category frame system
 local categoryFrames = {}
 local detachedFrames = {} -- Per-icon detached container frames (shown when an icon is detached)
 local CATEGORIES = BR.CATEGORY_ORDER -- canonical list from Core.lua
 
--- Track previously visible frame keys for selective hiding (Phase 3 optimization)
+-- Track previously visible frame keys for selective hiding
 local previouslyVisibleKeys = {} ---@type table<string, boolean>
 
 -- Sound alert state: suppress on first cycle after load/test-toggle to avoid login spam
 local suppressSound = true
 local soundPlayedThisCycle = {} ---@type table<string, boolean>
 
--- Layout signature tracking for skip-redundant-positioning (Phase 4 optimization)
+-- Layout signature tracking for skip-redundant-positioning
 -- Signatures are concatenated visible frame keys; if unchanged, skip repositioning
 local lastMainSignature = ""
 local lastSplitSignatures = {} ---@type table<string, string>
@@ -477,7 +465,6 @@ local CATEGORY_LABELS = {
     loadout = L["Category.Loadout"],
 }
 
--- Export for Options.lua and split modules
 BR.CATEGORIES = CATEGORIES
 BR.CATEGORY_LABELS = CATEGORY_LABELS
 
@@ -528,7 +515,6 @@ local function BuildCategorySettings(category)
     local catSettings = db.categorySettings and db.categorySettings[category]
     local globalDefaults = db.defaults or defaults.defaults
 
-    -- For main frame, always use global defaults
     if category == "main" then
         return {
             position = catSettings and catSettings.position or { point = "CENTER", x = 0, y = 0 },
@@ -546,7 +532,6 @@ local function BuildCategorySettings(category)
         }
     end
 
-    -- For other categories, use inheritance
     local result = {}
     local defaultCatSettings = defaults.categorySettings[category] or {}
 
@@ -557,12 +542,11 @@ local function BuildCategorySettings(category)
     result.split = catSettings and catSettings.split or false
     result.subIconSide = (catSettings and catSettings.subIconSide) or defaultCatSettings.subIconSide
 
-    -- Appearance: inherit from defaults unless useCustomAppearance is true
     local useCustomAppearance = catSettings and catSettings.useCustomAppearance
     if useCustomAppearance then
-        -- Custom appearance: use category values, fall back to code defaults (NOT user's global defaults)
-        -- This ensures custom-appearance categories are fully independent from Global Defaults changes.
-        -- Values are snapshotted from current defaults when useCustomAppearance is first enabled.
+        -- Fall back to code defaults, NOT the user's global defaults: a custom-appearance
+        -- category stays independent from later Global Defaults changes. The options panel
+        -- copies the current defaults when useCustomAppearance turns on.
         result.iconSize = (catSettings and catSettings.iconSize) or 64
         result.iconWidth = catSettings and catSettings.iconWidth
         result.textSize = (catSettings and catSettings.textSize) or CODE_DEFAULTS.textSize
@@ -606,8 +590,8 @@ end
 -- one of those through the refresh events. Readers that run BEFORE the refresh
 -- events after an out-of-band settings swap (profile switch / import) must wipe
 -- explicitly via BR.Display.InvalidateCategorySettingsCache - see
--- Profiles.RefreshAfterProfileChange, whose SyncDirectionCache would otherwise
--- seed direction guards from the previous profile's memoized values.
+-- Profiles.RefreshAfterProfileChange, whose SyncDirectionCache otherwise seeds
+-- direction guards from the previous profile's memoized values.
 -- Callers treat the returned table as read-only.
 local categorySettingsCache = {} ---@type table<string, table>
 
@@ -642,7 +626,7 @@ local function GetEffectiveCategory(frame)
     return "main"
 end
 
----Check if overlay text should be shown for a given category
+---Check if a category shows overlay text
 ---@param category? CategoryName
 ---@return boolean
 local function ShouldShowText(category)
@@ -688,11 +672,9 @@ local function GetFrameFontSize(frame, scale)
     return GetFontSize(scale, catSettings.textSize)
 end
 
----Write the count overlay's text and the font size that text calls for in one
----step. The scale belongs to the content - labels render smaller than counts -
----so setting them together is what stops the two from drifting apart, and
----recording it on the frame lets UpdateVisuals re-apply the right scale without
----having to know what is currently on screen.
+---Write the count overlay text and its font size in one step. Labels render
+---smaller than counts, so the two must stay in step. The frame records the
+---scale, so UpdateVisuals can re-apply it without a read of the current text.
 ---@param frame BuffFrame
 ---@param text string
 ---@param scale number OVERLAY_TEXT_SCALE for labels, COUNT_TEXT_SCALE for numbers
@@ -702,24 +684,20 @@ local function SetCountText(frame, text, scale)
     frame.count:SetText(text)
 end
 
--- Use functions from State.lua
 local FormatRemainingTime = BR.StateHelpers.FormatRemainingTime
 local FormatEatingTime = BR.StateHelpers.FormatEatingTime
 
--- Icon/texture resolution lives in Display/Icons.lua (BR.Icons); aliased here for hot-path call sites.
-local AsSpellList = BR.Icons.AsSpellList
 local GetBuffTexture = BR.Icons.GetBuffTexture
 local GetBuffIcons = BR.Icons.GetBuffIcons
-local PreFillIconCaches = BR.Icons.PreFillIconCaches
 local ResolveRoleTexture = BR.Icons.ResolveRoleTexture
 local ResolveFrameTexture = BR.Icons.ResolveFrameTexture
 
 ---Invalidate the cached texture for a spell ID and re-resolve every buff
 ---frame whose def uses it. Used after spell data settles to pick up cosmetic
 ---overrides (e.g. warlock green fire on Burning Rush) that
----C_Spell.GetSpellTexture doesn't return at login time. Consumable frames
----paint bag-item icons per-render and don't reference these spell IDs, so
----they're left alone - no flash.
+---C_Spell.GetSpellTexture does not return at login time. Consumable frames
+---paint bag-item icons per render and do not reference these spell IDs, so
+---this function leaves them alone - no flash.
 ---@param spellID number
 local function InvalidateBuffIconBySpellID(spellID)
     BR.Icons.InvalidateSpell(spellID)
@@ -749,13 +727,12 @@ local function InvalidateBuffIconBySpellID(spellID)
     end
 end
 
--- Action bar button names to scan for glows
 -- Reverse lookup: spellID -> buff entry (for glow fallback detection across all categories)
 local glowSpellToBuff = {}
 
 --- Register a buff's spellID(s) in the glow fallback lookup table
 local function RegisterGlowBuff(buff, catName)
-    local ids = AsSpellList(buff.spellID)
+    local ids = BR.Icons.AsSpellList(buff.spellID)
     for _, id in ipairs(ids) do
         if id and id ~= 0 then
             glowSpellToBuff[id] = { buff = buff, category = catName }
@@ -776,8 +753,6 @@ end
 
 for catName, category in pairs(BUFF_TABLES) do
     for _, buff in ipairs(category) do
-        -- Skip if: has enchantID, customCheck, or glowMode disabled (custom buffs only)
-        -- readyCheckOnly buffs are skipped unless the user overrode them to always-show
         local skipReadyCheck = buff.readyCheckOnly
         if skipReadyCheck then
             local db = BR.profile
@@ -820,7 +795,6 @@ local sortComparator = function(a, b)
     return a.sortOrder < b.sortOrder
 end
 
--- Local alias for glow module
 local SetExpirationGlow = BR.Glow.SetExpiration
 
 -- Per-render-cycle cache for glow settings (avoids repeated DB reads)
@@ -872,7 +846,7 @@ local function GetCachedGlowSettings(category, kind)
     local xOff = GetSetting(category, prefix .. "XOffset") or 0
     local yOff = GetSetting(category, prefix .. "YOffset") or 0
 
-    -- Build advanced params from effective settings (only fetch keys the resolved type needs)
+    -- Only fetch the keys the resolved glow type needs.
     local params
     local keySet = GLOW_ADVANCED_KEYS[typeIndex]
     local keys = keySet and keySet[prefix]
@@ -897,11 +871,10 @@ local function GetCachedGlowSettings(category, kind)
     return cached
 end
 
--- Hide a buff frame without destroying its glow.
--- The glow overlay is a child of the frame, so frame:Hide() visually hides it and
--- pauses its OnUpdate (WoW doesn't fire OnUpdate on hidden frames). When the frame
--- is re-shown, the glow animation resumes seamlessly from where it left off.
--- SetExpirationGlow handles cleanup when a re-shown frame no longer needs a glow.
+-- The glow overlay is a child of the frame, so frame:Hide() hides it and pauses
+-- its OnUpdate (WoW does not fire OnUpdate on hidden frames). When the frame shows
+-- again, the glow animation continues from the same point.
+-- SetExpirationGlow clears a glow that a re-shown frame no longer needs.
 local function HideFrame(frame)
     frame:Hide()
 end
@@ -915,7 +888,7 @@ end
 ---@return boolean true (for anyVisible chaining)
 local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlow)
     -- Hide stackCount/overlays - ShowTextFrame can be called from fallback paths
-    -- (UpdateFallbackDisplay) that don't go through RenderVisibleEntry's cleanup.
+    -- (UpdateFallbackDisplay) that do not go through RenderVisibleEntry's cleanup.
     frame.stackCount:Hide()
     if frame.statLabel then
         frame.statLabel:Hide()
@@ -937,10 +910,9 @@ local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlo
     return true
 end
 
--- Loadout reminders render the set/talent name below the icon. It's handled like
--- the raid "BUFF!" label: created in CreateBuffFrame, positioned via the shared
--- BELOW-center "buffReminder" text zone, and refreshed in UpdateVisuals. The width
--- caps near the icon so multi-word names wrap (a too-long single word is truncated).
+-- Loadout reminders render the set/talent name below the icon, in the shared
+-- BELOW-center "buffReminder" text zone. The width caps near the icon, so multi-word
+-- names wrap. A single word that is too long is truncated.
 local SUBLABEL_WIDTH_FACTOR = 1.1
 local SUBLABEL_FONT_SCALE = 0.8
 
@@ -985,12 +957,9 @@ BR.EXT_DIRECTION_ANCHORS = EXT_DIRECTION_ANCHORS
 local function ResolveAnchorParent(catKey)
     local db = BR.profile
     local catSettings = db.categorySettings and db.categorySettings[catKey]
-    local frameName = catSettings and catSettings.anchorFrame
-    if frameName and frameName ~= "" then
-        local frame = _G[frameName]
-        if frame and frame.GetCenter then
-            return frame, catSettings.anchorPoint or "CENTER"
-        end
+    local frame = BR.ResolveAnchorFrame(catSettings and catSettings.anchorFrame)
+    if frame then
+        return frame, catSettings.anchorPoint or "CENTER"
     end
     return nil, nil
 end
@@ -1003,7 +972,6 @@ local DIRECTION_LAYOUT = {
     DOWN = { anchor = "TOP", xMult = 0, yMult = -1 },
 }
 
--- Create a detached container frame for an individual buff icon
 local function CreateDetachedFrame(key)
     local pos = GetDetachedPosition(key)
     local frame = CreateFrame("Frame", "BuffReminders_Detached_" .. key, UIParent)
@@ -1056,7 +1024,7 @@ end
 -- Apply icon zoom and border sizing (single source of truth for Masque vs native styling)
 local function UpdateIconStyling(frame, catSettings)
     if IsMasqueActive() then
-        -- Masque controls styling; hide our native border (Masque manages its own textures via ReSkin)
+        -- Masque controls styling; hide the native border (Masque manages its own textures via ReSkin)
         frame.border:Hide()
         return
     end
@@ -1098,10 +1066,9 @@ local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
 -- Show the spell tooltip for a buff frame (raid/presence hover), with a
 -- class-colored "Provided by" line. Gated by defaults.showBuffTooltips so
--- hover never pops a tooltip unless the user opted in. Called from the icon
--- frame itself when no click overlay covers it, and from the click overlay
--- in SecureButtons.lua when click-to-cast is on - callers pass the actual
--- hovered frame as `anchor` so the tooltip lines up with the cursor.
+-- hover never pops a tooltip unless the user opted in. The caller passes the
+-- hovered frame as `anchor`, so the tooltip lines up with the cursor when a
+-- click overlay covers the icon.
 local function ShowBuffSpellTooltip(frame, anchor)
     local db = BR.profile
     if not db or not db.defaults or db.defaults.showBuffTooltips ~= true then
@@ -1153,7 +1120,6 @@ local function ApplyBuffFrameMouse(frame, category)
     end
 end
 
--- Create icon frame for a buff
 local function CreateBuffFrame(buff, category)
     local parent
     if IsIconDetached(buff.key) then
@@ -1183,7 +1149,6 @@ local function CreateBuffFrame(buff, category)
     local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
     frame:SetSize(iconWidth, iconSize)
 
-    -- Icon + border textures
     CreateIconTextures(frame, ResolveFrameTexture(frame))
 
     -- Register with Masque - provide Normal texture so skins like Caith can style it
@@ -1194,7 +1159,6 @@ local function CreateBuffFrame(buff, category)
         })
     end
 
-    -- Apply initial zoom/border state (respects Masque)
     UpdateIconStyling(frame, catSettings)
 
     -- Count text (font size scales with icon size, updated in UpdateVisuals)
@@ -1216,7 +1180,6 @@ local function CreateBuffFrame(buff, category)
     end
     frame.stackCount:Hide()
 
-    -- Frame alpha
     frame:SetAlpha(catSettings.iconAlpha or 1)
 
     -- "BUFF!" text for the class that provides this buff (raid buffs only)
@@ -1234,9 +1197,8 @@ local function CreateBuffFrame(buff, category)
         end
     end
 
-    -- Loadout reminders: the set/talent name renders below the icon, handled like
-    -- the raid "BUFF!" label (same BELOW-center text zone + UpdateVisuals refresh).
-    -- Text is set per render (the name is dynamic); position/font set here.
+    -- Loadout sub-label: the name is dynamic, so each render writes the text.
+    -- Position and font are set here.
     if category == "loadout" then
         frame.subLabel = frame:CreateFontString(nil, "OVERLAY")
         frame.subLabel:SetWordWrap(true)
@@ -1321,7 +1283,6 @@ local function GetOrCreateExtraFrame(frame, index)
     return extra
 end
 
--- Helper to position frames within a container using specified settings
 local function PositionFramesInContainer(container, frames, iconWidth, iconHeight, spacing, direction)
     local count = #frames
     if count == 0 then
@@ -1380,7 +1341,6 @@ local function BuildLayoutSignature(frames)
     if #frames == 0 then
         return ""
     end
-    -- Use table.concat for efficiency; keys are short strings
     local keys = {}
     for i, frame in ipairs(frames) do
         keys[i] = (frame.buffDef and frame.buffDef.key) or frame.key or ""
@@ -1406,7 +1366,6 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
     local offset = 0
     local isVertical = direction == "UP" or direction == "DOWN"
     local layout = DIRECTION_LAYOUT[direction]
-    -- Hoist container width for CENTER mode (constant across iterations)
     local containerWidth = (direction == "CENTER") and container:GetWidth() or 0
 
     for i, frame in ipairs(frames) do
@@ -1420,7 +1379,6 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
             frame:SetPoint("CENTER", container, "CENTER", startX + widths[i] / 2, 0)
         end
 
-        -- Advance offset for next frame
         if i < count then
             local gap = max(spacings[i], spacings[i + 1])
             offset = offset + mainSize + gap
@@ -1428,7 +1386,6 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
     end
 end
 
--- Position and size the main container frame with the given buff frames
 local function PositionMainContainer(mainFrameBuffs)
     local db = BR.profile
 
@@ -1443,7 +1400,6 @@ local function PositionMainContainer(mainFrameBuffs)
         local direction = BR.Config.GetCategorySetting("main", "growDirection") or "CENTER"
         local isVertical = direction == "UP" or direction == "DOWN"
 
-        -- Collect per-frame sizes and spacings based on effective category
         local widths = {}
         local heights = {}
         local spacings = {} -- absolute pixel spacing per frame
@@ -1467,7 +1423,6 @@ local function PositionMainContainer(mainFrameBuffs)
             end
         end
 
-        -- Compute total main-axis extent
         local totalMain = 0
         for i = 1, #widths do
             local mainSize = isVertical and heights[i] or widths[i]
@@ -1477,7 +1432,6 @@ local function PositionMainContainer(mainFrameBuffs)
             end
         end
 
-        -- Size mainFrame to fit contents
         if isVertical then
             mainFrame:SetSize(maxWidth, max(totalMain, maxHeight))
         else
@@ -1506,7 +1460,6 @@ local function PositionMainContainer(mainFrameBuffs)
     end
 end
 
--- Position and size a split category frame with the given buff frames
 local function PositionSplitCategory(category, frames)
     local catFrame = categoryFrames[category]
     if not catFrame then
@@ -1531,12 +1484,10 @@ local function PositionSplitCategory(category, frames)
         local mainSize = isVertical and iconSize or iconWidth
         local spacing = floor(mainSize * (catSettings.spacing or 0.2))
 
-        -- Resize individual buff frames to category's icon size
         for _, frame in ipairs(frames) do
             frame:SetSize(iconWidth, iconSize)
         end
 
-        -- Size category frame to fit contents
         local crossSize = isVertical and iconWidth or iconSize
         local totalSize = #frames * mainSize + (#frames - 1) * spacing
         if isVertical then
@@ -1562,7 +1513,6 @@ local function PositionSplitCategory(category, frames)
     end
 end
 
--- Hide split category frames that have no visible buffs, and hide non-split category frames
 local function PositionSplitCategories(visibleByCategory)
     for _, category in ipairs(CATEGORIES) do
         local catFrame = categoryFrames[category]
@@ -1574,14 +1524,12 @@ local function PositionSplitCategories(visibleByCategory)
                     PositionSplitCategory(category, {})
                 end
             else
-                -- Not split - hide category frame
                 catFrame:Hide()
             end
         end
     end
 end
 
--- Position a detached icon in its own container frame
 local function PositionDetachedIcon(key, frame)
     local container = detachedFrames[key]
     if not container then
@@ -1593,7 +1541,6 @@ local function PositionDetachedIcon(key, frame)
     local iconSize = catSettings.iconSize or 64
     local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
 
-    -- Count extra frames (expanded consumables)
     local totalFrames = 1
     if frame.extraFrames then
         for _, extra in ipairs(frame.extraFrames) do
@@ -1608,17 +1555,14 @@ local function PositionDetachedIcon(key, frame)
     local totalWidth = totalFrames * iconWidth + (totalFrames - 1) * spacing
     container:SetSize(totalWidth, iconSize)
 
-    -- Position at saved coordinates
     local pos = GetDetachedPosition(key)
     container:ClearAllPoints()
     container:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
 
-    -- Anchor the icon inside the container
     frame:SetSize(iconWidth, iconSize)
     frame:ClearAllPoints()
     if totalFrames > 1 then
         frame:SetPoint("LEFT", container, "LEFT", 0, 0)
-        -- Position extra frames after the main icon
         local offset = iconWidth + spacing
         for _, extra in ipairs(frame.extraFrames) do
             if extra:IsShown() then
@@ -1640,7 +1584,6 @@ end
 local function GenerateTestEntries()
     assert(testModeData, "GenerateTestEntries called with nil testModeData")
 
-    -- Reset all entries (same pattern as State.lua:Refresh)
     for _, entry in pairs(BR.BuffState.entries) do
         entry.visible = false
         entry.shouldGlow = false
@@ -1657,7 +1600,6 @@ local function GenerateTestEntries()
     local raidIndex = 1
 
     for _, category in ipairs(CATEGORIES) do
-        -- Per-category glow settings (same pattern as State.lua:GetCategoryGlowSettings)
         local exGlowEnabled = BR.Config.GetCategorySetting(category, "showExpirationGlow") ~= false
         local missGlowEnabled = BR.Config.GetCategorySetting(category, "showMissingGlow") ~= false
         local threshold = BR.Config.GetCategorySetting(category, "expirationThreshold") or 15
@@ -1667,7 +1609,6 @@ local function GenerateTestEntries()
         for i, buff in ipairs(buffTable) do
             local settingKey = buff.groupId or buff.key
             if IsBuffEnabled(settingKey) then
-                -- Get or create entry (mirrors State.lua pattern)
                 local entry = BR.BuffState.entries[buff.key]
                 if not entry then
                     entry = {
@@ -1735,7 +1676,6 @@ local function GenerateTestEntries()
         end
     end
 
-    -- Build visibleByCategory (same pattern as State.lua)
     for _, list in pairs(BR.BuffState.visibleByCategory) do
         wipe(list)
     end
@@ -1749,7 +1689,6 @@ local function GenerateTestEntries()
         end
     end
 
-    -- Mark sorted status
     for _, list in pairs(BR.BuffState.visibleByCategory) do
         local sorted = true
         for j = 2, #list do
@@ -1769,7 +1708,7 @@ ToggleTestMode = function()
         testModeData = nil
         -- Clear all glows, hide test labels, and hide ALL frames (including extra frames)
         -- so UpdateDisplay starts from a clean slate. Without this, frames shown during
-        -- test mode but not tracked in previouslyVisibleKeys would linger as orphans.
+        -- test mode but not tracked in previouslyVisibleKeys linger as orphans.
         for _, frame in pairs(buffFrames) do
             SetExpirationGlow(frame, false)
             frame:Hide()
@@ -1792,7 +1731,7 @@ ToggleTestMode = function()
     else
         -- Seed fake values BEFORE setting testMode = true, so that if initialization
         -- errors (e.g. random(1,0) when threshold is 0), testMode stays false and
-        -- the OnUpdate handler won't call GenerateTestEntries with nil testModeData.
+        -- the OnUpdate handler will not call GenerateTestEntries with nil testModeData.
         local db = BR.profile
         local threshold = max(1, (db.defaults and db.defaults.expirationThreshold) or 15)
         local data = {
@@ -1816,7 +1755,6 @@ ToggleTestMode = function()
     end
 end
 
--- Helper to hide all display frames (mainFrame, category frames, and all buff frames)
 local function HideAllDisplayFrames()
     mainFrame:Hide()
     for _, category in ipairs(CATEGORIES) do
@@ -1833,7 +1771,7 @@ local function HideAllDisplayFrames()
     -- returns early without calling mainFrame:Show(), leaving frames invisible.
     lastMainSignature = ""
     wipe(lastSplitSignatures)
-    -- Also hide individual buff frames (so they don't reappear when mainFrame is shown by fallback)
+    -- Also hide individual buff frames (so they do not reappear when mainFrame is shown by fallback)
     for _, frame in pairs(buffFrames) do
         frame:Hide()
         if frame.extraFrames then
@@ -1842,7 +1780,6 @@ local function HideAllDisplayFrames()
             end
         end
     end
-    -- Hide secure click overlays and action buttons (sub-icons)
     BR.SecureButtons.HideAllSecureFrames()
 end
 
@@ -2083,7 +2020,6 @@ local function ResolveConsumableFrame(frame)
         ApplyConsumableOverlays(frame, items[1], cFontSize)
         return "items"
     end
-    -- No items: fall back icon to buff definition
     RestoreFallbackIcon(frame)
     local defs = BR.profile.defaults or {}
     if defs.showConsumablesWithoutItems then
@@ -2121,7 +2057,6 @@ local function RenderVisibleEntry(frame, entry)
             else
                 frame.count:Hide()
             end
-            -- Per-frame OnUpdate: updates countdown text every render frame
             if not frame._br_eating_onupdate then
                 local expTime = entry.eatingExpirationTime
                 frame:SetScript("OnUpdate", function()
@@ -2152,7 +2087,6 @@ local function RenderVisibleEntry(frame, entry)
         ResolveConsumableFrame(frame)
     end
 
-    -- Get cached glow settings for this entry's category (avoids repeated DB reads)
     local glowKind = entry.glowKindOverride or (entry.displayType == "expiring" and "expiring" or "missing")
     local cachedGlow = entry.category and GetCachedGlowSettings(entry.category, glowKind) or nil
 
@@ -2211,9 +2145,8 @@ local function RenderVisibleEntry(frame, entry)
         end
     end
 
-    -- Loadout reminders: the icon shows the "what's wrong" tag; the specific
-    -- set/talent name renders below the icon via frame.subLabel (positioned/sized
-    -- in CreateBuffFrame + UpdateVisuals, like the raid BUFF! label).
+    -- Loadout reminders: the icon shows the "what is wrong" tag; frame.subLabel
+    -- shows the set or talent name below the icon.
     if frame.subLabel then
         if entry.category == "loadout" and entry.subLabel and ShouldShowText(frame.buffCategory) then
             frame.subLabel:SetText(entry.subLabel)
@@ -2365,7 +2298,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
 end
 
 ---Show or hide pet name/family labels below a frame.
----Skips redundant work if the action and scale haven't changed.
+---Skips redundant work if the action and scale have not changed.
 ---@param frame BuffFrame
 ---@param petAction PetAction?
 local function UpdatePetLabels(frame, petAction)
@@ -2483,7 +2416,7 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
         return
     end
 
-    -- Hide all extras first (handles shrinking action count cleanly)
+    -- Hide all extras first, so a smaller action count leaves no orphan frame.
     if frame.extraFrames then
         for _, extra in ipairs(frame.extraFrames) do
             extra:Hide()
@@ -2514,7 +2447,6 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
     end
     BR.SecureButtons.ReapplyPetSpecIconIfHovered(frame)
 
-    -- Show extra frames for additional actions
     local cachedGlow = entry.category and GetCachedGlowSettings(entry.category, "missing") or nil
     local extraIndex = 0
     for i, action in ipairs(entry.petActions) do
@@ -2553,8 +2485,7 @@ end
 -- ============================================================================
 
 --- Snooze every consumable reminder until the next loading screen. Driven by the /br snooze
---- command and by right-clicking a consumable icon when consumable click-to-cast is enabled
---- (see Display/SecureButtons.lua, which neutralises the right button's item-use).
+--- command and by a right click on a consumable icon when consumable click-to-cast is on.
 function BR.SnoozeConsumables()
     BR.BuffState.SetConsumablesDismissed(true)
     UpdateDisplay()
@@ -2566,13 +2497,13 @@ end
 local function TryPlayBuffSound(key, buffSounds)
     -- Resolve grouped buff keys (e.g. "beaconOfFaith" -> "beacons")
     local settingKey = buffKeyToSettingKey[key] or key
-    -- Deduplicate: don't play the same group sound twice in one cycle
+    -- Deduplicate: do not play the same group sound twice in one cycle
     if soundPlayedThisCycle[settingKey] then
         return
     end
     local soundName = buffSounds[settingKey]
     if soundName then
-        local soundFile = LSM:Fetch("sound", soundName)
+        local soundFile = BR.Sounds.Resolve(soundName)
         if soundFile then
             PlaySoundFile(soundFile, "Master")
         end
@@ -2614,7 +2545,6 @@ local function ArmNextChangeTimer(refreshMode)
     end)
 end
 
--- Update the display
 ---@param refreshMode? "full"|"group"
 UpdateDisplay = function(refreshMode)
     if not mainFrame then
@@ -2637,7 +2567,6 @@ UpdateDisplay = function(refreshMode)
     end
 
     if testMode then
-        -- Test mode: generate fake state entries through the normal pipeline
         GenerateTestEntries()
     else
         local isDead = UnitIsDeadOrGhost("player")
@@ -2689,10 +2618,9 @@ UpdateDisplay = function(refreshMode)
             return
         end
 
-        -- PvP/Arena and M+: aura API is restricted but we use the normal display path
-        -- (State.lua treats PvP the same as M+ for aura restriction purposes)
+        -- PvP/Arena and M+ restrict the aura API, but the normal display path still
+        -- runs. State.lua treats PvP the same as M+ for aura restriction.
 
-        -- Refresh buff state
         BR.BuffState.Refresh(refreshMode)
     end
 
@@ -2706,11 +2634,9 @@ UpdateDisplay = function(refreshMode)
     end
     wipe(soundPlayedThisCycle)
 
-    -- Reuse module-level tables (wiped to avoid per-call allocation)
     wipe(reusableVisibleKeys)
     wipe(reusableMainBuffs)
 
-    -- Build sorted category list by priority
     local sortedCategories = GetSortedCategories()
 
     for _, catEntry in ipairs(sortedCategories) do
@@ -2741,7 +2667,6 @@ UpdateDisplay = function(refreshMode)
                             end
                             reusableVisibleKeys[entry.key] = true
                         end
-                        -- Category-specific post-processing
                         if category == "consumable" then
                             if IsIconDetached(entry.key) then
                                 wipe(reusableDetachedSink)
@@ -2772,7 +2697,6 @@ UpdateDisplay = function(refreshMode)
                             end
                             reusableVisibleKeys[entry.key] = true
                         end
-                        -- Category-specific post-processing
                         if category == "consumable" then
                             if IsIconDetached(entry.key) then
                                 wipe(reusableDetachedSink)
@@ -2789,7 +2713,7 @@ UpdateDisplay = function(refreshMode)
         end
     end
 
-    -- Selectively hide frames that were visible last cycle but aren't now
+    -- Selectively hide frames that were visible last cycle but are not now
     for key in pairs(previouslyVisibleKeys) do
         if not reusableVisibleKeys[key] then
             local frame = buffFrames[key]
@@ -2803,21 +2727,18 @@ UpdateDisplay = function(refreshMode)
                         UpdatePetLabels(extra, nil)
                     end
                 end
-                -- Hide detached container when its icon is no longer visible
                 if detachedFrames[key] then
                     detachedFrames[key]:Hide()
                 end
             end
         end
     end
-    -- Update tracking set
     wipe(previouslyVisibleKeys)
     for key in pairs(reusableVisibleKeys) do
         previouslyVisibleKeys[key] = true
     end
     suppressSound = false
 
-    -- Position main container
     PositionMainContainer(reusableMainBuffs)
 
     -- Handle split category frames with no visible buffs
@@ -2846,7 +2767,6 @@ UpdateDisplay = function(refreshMode)
     end
 end
 
--- Start update ticker
 local function StartUpdates()
     if updateTicker then
         updateTicker:Cancel()
@@ -2855,7 +2775,7 @@ local function StartUpdates()
     -- events unreadable, so poll at full 3s cadence there. Everywhere else the
     -- armed next-change timer owns time-driven updates and this only fires a
     -- slow safety refresh. (NewTicker passes the ticker object to its callback,
-    -- so wrap SetDirty - a table arg would corrupt dirtyMode.)
+    -- so wrap SetDirty - a table arg corrupts dirtyMode.)
     local safetyTicks = 0
     updateTicker = C_Timer.NewTicker(3, function()
         safetyTicks = safetyTicks + 1
@@ -2864,7 +2784,6 @@ local function StartUpdates()
             SetDirty("full")
         end
     end)
-    -- OnUpdate checks dirty flag with throttle
     eventFrame:SetScript("OnUpdate", function()
         if not dirty then
             return
@@ -2879,7 +2798,6 @@ local function StartUpdates()
         lastUpdateTime = now
         UpdateDisplay(refreshMode)
     end)
-    -- Immediate first update
     dirty = false
     dirtyMode = "full"
     lastUpdateTime = GetTime()
@@ -2899,7 +2817,7 @@ end
 local ReparentBuffFrames
 
 -- Loadout reminders are fixed by a plain (insecure) click: equipping a gear set
--- or opening the talent UI are not protected actions out of combat, so they don't
+-- or opening the talent UI are not protected actions out of combat, so they do not
 -- need a SecureActionButton overlay like the click-to-cast categories do.
 local function WireLoadoutFrameClick(frame)
     frame:EnableMouse(true)
@@ -2913,7 +2831,7 @@ local function WireLoadoutFrameClick(frame)
             BR.Loadouts.ApplyFix(rule)
         end
     end)
-    -- Glass mouseover highlight, matching the click-to-cast overlay (no opt-in).
+    -- Mouseover highlight, matching the click-to-cast overlay (no opt-in).
     if not frame.loadoutHighlight then
         local highlight = frame:CreateTexture(nil, "HIGHLIGHT")
         highlight:SetAllPoints(frame.icon)
@@ -2923,7 +2841,6 @@ local function WireLoadoutFrameClick(frame)
     end
 end
 
--- Initialize main frame
 local function InitializeFrames()
     mainFrame = CreateFrame("Frame", "BuffRemindersFrame", UIParent)
     mainFrame:SetSize(200, 50)
@@ -2946,7 +2863,6 @@ local function InitializeFrames()
     end
     mainFrame:EnableMouse(false)
 
-    -- Create category frames for grouped display mode
     for _, category in ipairs(CATEGORIES) do
         categoryFrames[category] = CreateCategoryFrame(category)
     end
@@ -2958,7 +2874,6 @@ local function InitializeFrames()
         end
     end
 
-    -- Export frame references for split modules (Movers, SecureButtons)
     BR.Display.mainFrame = mainFrame
     BR.Display.categoryFrames = categoryFrames
     BR.Display.detachedFrames = detachedFrames
@@ -2979,7 +2894,6 @@ local function InitializeFrames()
         end
     end
 
-    -- Reparent frames based on split category settings
     ReparentBuffFrames()
 
     mainFrame:Hide()
@@ -2994,11 +2908,9 @@ local function CreateCustomBuffFrameRuntime(customBuff)
     local frame = CreateBuffFrame(customBuff, "custom")
     RegisterBuffFrame(customBuff.key, frame, "custom")
     tinsert(CustomBuffs, customBuff)
-    -- Only register for glow tracking if glowMode is not disabled
     if customBuff.glowMode ~= "disabled" then
         RegisterGlowBuff(customBuff, "custom")
     end
-    -- Wire up click-to-cast for the new frame
     if BR.SecureButtons then
         BR.SecureButtons.UpdateActionButtons("custom")
     end
@@ -3012,18 +2924,15 @@ ReparentBuffFrames = function()
         local key = frame.key
         local category = frame.buffCategory
         if IsIconDetached(key) then
-            -- Detached: parent to its own container frame
             if not detachedFrames[key] then
                 detachedFrames[key] = CreateDetachedFrame(key)
             end
             frame:SetParent(detachedFrames[key])
             frame:ClearAllPoints()
         elseif category and IsCategorySplit(category) and categoryFrames[category] then
-            -- This category is split - parent to its own frame
             frame:SetParent(categoryFrames[category])
             frame:ClearAllPoints()
         else
-            -- This category is in main frame
             frame:SetParent(mainFrame)
             frame:ClearAllPoints()
         end
@@ -3088,7 +2997,7 @@ local DETACH_OFFSET_Y = -40
 ---Compute a sensible default position for a newly-detached icon: the source
 ---category's saved CENTER-anchored position offset by (40, -40). Falls back
 ---to the main frame's saved position, then to (0, 0). Keeps detached icons
----from teleporting to absolute screen center where users can't find them.
+---from teleporting to absolute screen center where users cannot find them.
 ---@param key string Buff key
 ---@return number x, number y
 local function ComputeSmartDetachPosition(key)
@@ -3109,8 +3018,6 @@ local function ComputeSmartDetachPosition(key)
 end
 
 ---Detach an individual icon from its container into its own frame.
----Initial position is offset from the source category so the icon appears
----next to where it came from (not at hidden screen center).
 ---@param key string Buff key
 local function DetachIcon(key)
     local db = BR.profile
@@ -3119,8 +3026,7 @@ local function DetachIcon(key)
     end
     local x, y = ComputeSmartDetachPosition(key)
     db.detachedIcons[key] = { position = { x = x, y = y } }
-    -- FramesReparent callback handles ResetLayoutSignatures + InvalidateSortedCategories
-    -- + ReparentBuffFrames + UpdateVisuals
+    -- The FramesReparent callback reparents the frames and refreshes the layout.
     BR.CallbackRegistry:TriggerEvent("FramesReparent")
 end
 
@@ -3166,7 +3072,6 @@ local function RemoveCustomBuffFrame(key)
             frame.clickOverlay:Hide()
             frame.clickOverlay = nil
         end
-        -- Clean up action buttons
         if frame.actionButtons and not InCombatLockdown() then
             for _, btn in ipairs(frame.actionButtons) do
                 UnregisterStateDriver(btn, "visibility")
@@ -3197,7 +3102,6 @@ local function RemoveCustomBuffFrame(key)
             BR.SecureButtons.UnregisterSecureHost(frame)
         end
     end
-    -- Clean up detached state
     local db = BR.profile
     if db.detachedIcons then
         db.detachedIcons[key] = nil
@@ -3205,7 +3109,6 @@ local function RemoveCustomBuffFrame(key)
     if detachedFrames[key] then
         detachedFrames[key]:Hide()
     end
-    -- Remove from BUFF_TABLES.custom array
     for i = #CustomBuffs, 1, -1 do
         if CustomBuffs[i].key == key then
             tremove(CustomBuffs, i)
@@ -3216,14 +3119,12 @@ local function RemoveCustomBuffFrame(key)
     ResetLayoutSignatures()
 end
 
--- Export custom buff management for Options.lua
 BR.CustomBuffs = {
     CreateRuntime = CreateCustomBuffFrameRuntime,
     Remove = RemoveCustomBuffFrame,
     UpdateFrame = function(key, spellIDValue, displayName)
         local frame = buffFrames[key]
         if frame then
-            -- Re-register glow lookup with new spellID (unregister old, then conditionally re-register)
             UnregisterGlowSpell(frame.spellIDs)
             local texture = GetBuffTexture(spellIDValue)
             if texture then
@@ -3241,7 +3142,6 @@ BR.CustomBuffs = {
                     RegisterGlowBuff(customBuff, "custom")
                 end
             end
-            -- Refresh click-to-cast overlays with updated action fields
             if BR.SecureButtons then
                 BR.SecureButtons.UpdateActionButtons("custom")
             end
@@ -3252,7 +3152,7 @@ BR.CustomBuffs = {
 ---Create a frame for a newly added loadout rule (runtime add from the dialog).
 ---@param rule LoadoutRule
 local function CreateLoadoutRuleFrameRuntime(rule)
-    -- Drop any cached verdict for this key: an edited rule reuses its key but may
+    -- Drop any cached verdict for this key: an edited rule reuses its key but can
     -- now require a different set/talent/loadout (invalidate before the mainFrame guard).
     BR.BuffState.InvalidateLoadoutCache()
     if not mainFrame then
@@ -3263,7 +3163,7 @@ local function CreateLoadoutRuleFrameRuntime(rule)
     WireLoadoutFrameClick(frame)
     tinsert(LoadoutRules, rule)
     -- Keep the runtime array in the same key order BuildLoadoutRulesArray produces
-    -- on reload, so an added/edited rule's display order doesn't drift mid-session
+    -- on reload, so an added/edited rule's display order does not drift mid-session
     -- (State derives sortOrder from this array's index).
     tsort(LoadoutRules, function(a, b)
         return a.key < b.key
@@ -3297,7 +3197,6 @@ local function RemoveLoadoutRuleFrame(key)
     ResetLayoutSignatures()
 end
 
--- Export loadout-rule management for the options dialog/page.
 BR.LoadoutReminders = {
     CreateRuntime = CreateLoadoutRuleFrameRuntime,
     Remove = RemoveLoadoutRuleFrame,
@@ -3308,7 +3207,6 @@ BR.LoadoutReminders = {
 local function UpdateVisuals()
     wipe(categorySettingsCache)
     for _, frame in pairs(buffFrames) do
-        -- Use effective category settings (split category or "main")
         local effectiveCat = GetEffectiveCategory(frame)
         local catSettings = GetCategorySettings(effectiveCat)
         local size = catSettings.iconSize or 64
@@ -3329,12 +3227,10 @@ local function UpdateVisuals()
             BR.TextPositions.Apply(frame.stackCount, frame, sz, sx, sy)
         end
 
-        -- Text color and alpha
         local tc = catSettings.textColor or { 1, 1, 1 }
         local ta = catSettings.textAlpha or 1
         frame.count:SetTextColor(tc[1], tc[2], tc[3], ta)
 
-        -- Frame alpha
         frame:SetAlpha(catSettings.iconAlpha or 1)
 
         -- Consumable overlay font/size + reposition (per-category zones)
@@ -3359,7 +3255,6 @@ local function UpdateVisuals()
             end
         end
         if frame.buffText then
-            -- Raid BUFF! text
             local raidCs = BR.profile.categorySettings and BR.profile.categorySettings.raid
             ApplyFont(frame.buffText, (raidCs and raidCs.buffTextSize) or GetFrameFontSize(frame, 0.8))
             frame.buffText:SetTextColor(tc[1], tc[2], tc[3], ta)
@@ -3373,7 +3268,6 @@ local function UpdateVisuals()
             frame.buffText:SetShown(showReminder)
         end
         if frame.subLabel then
-            -- Loadout name label: same treatment as buffText (font / color / zone).
             ApplyFont(frame.subLabel, GetFrameFontSize(frame, SUBLABEL_FONT_SCALE))
             frame.subLabel:SetTextColor(tc[1], tc[2], tc[3], ta)
             frame.subLabel:SetWidth(width * SUBLABEL_WIDTH_FACTOR)
@@ -3386,7 +3280,6 @@ local function UpdateVisuals()
         -- switches between hover-enabled and fully click-through without /reload.
         ApplyBuffFrameMouse(frame, frame.buffCategory)
 
-        -- Per-category text visibility
         if not ShouldShowText(frame.buffCategory) then
             frame.count:Hide()
             ClearConsumableOverlays(frame)
@@ -3410,8 +3303,6 @@ end
 -- ============================================================================
 -- CALLBACK REGISTRY SUBSCRIPTIONS
 -- ============================================================================
--- Subscribe to config change events for automatic UI updates.
--- This decouples the options panel from the display system.
 
 local CallbackRegistry = BR.CallbackRegistry
 
@@ -3471,7 +3362,7 @@ CallbackRegistry:RegisterCallback("FramesReparent", function()
 end)
 
 -- Masque skin change callback - restore native styling when Masque is disabled.
--- Deferred because Masque modifies button regions after firing the callback.
+-- Deferred because Masque modifies button regions after it fires the callback.
 if masqueGroup then
     masqueGroup:RegisterCallback(function()
         C_Timer.After(0, function()
@@ -3481,10 +3372,6 @@ if masqueGroup then
     end)
 end
 
--- Export shared references for Options.lua
-BR.LSM = LSM
-
--- Export helpers for Options.lua
 BR.Helpers = {
     GetBuffSettingKey = GetBuffSettingKey,
     IsBuffEnabled = IsBuffEnabled,
@@ -3499,7 +3386,7 @@ BR.Helpers = {
     GetBuffTexture = GetBuffTexture,
     GetBuffIcons = GetBuffIcons,
     ApplyDynamicIcon = BR.Icons.ApplyDynamicIcon,
-    PreFillIconCaches = PreFillIconCaches,
+    PreFillIconCaches = BR.Icons.PreFillIconCaches,
     DeepCopy = function(...)
         return BR.ImportExport.DeepCopy(...)
     end,
@@ -3525,7 +3412,7 @@ BR.Helpers = {
 }
 
 -- Lock state is session-only: frames start locked on every login/reload and the
--- unlocked state is never persisted, so a user can't accidentally leave anchor
+-- unlocked state is never persisted. A user cannot accidentally leave anchor
 -- handles showing across sessions.
 local frameLocked = true
 local function IsFrameLocked()
@@ -3544,16 +3431,13 @@ local function SetFrameLocked(locked)
     end
 end
 
--- Toggle lock state: when unlocked, show mover frames for dragging
 local function ToggleLock()
     SetFrameLocked(not frameLocked)
     return frameLocked
 end
 
--- Export display functions for Options.lua
 BR.Display.Update = UpdateDisplay
 BR.Display.ToggleTestMode = ToggleTestMode
--- Builders + registration helpers used by the bootstrap (Core/Bootstrap.lua)
 BR.Display.BuildCustomBuffArray = BuildCustomBuffArray
 BR.Display.BuildLoadoutRulesArray = BuildLoadoutRulesArray
 BR.Display.RegisterGlowBuff = RegisterGlowBuff
@@ -3587,14 +3471,12 @@ BR.Display.IsSpellGlowing = function(spellID)
     return glowingSpells[spellID] == true
 end
 
--- Export Masque state for Options.lua
 BR.Masque = {
     IsActive = function()
         return masqueGroup ~= nil and not masqueGroup.db.Disabled
     end,
 }
 
--- Slash command handler
 -- Temporary diagnostic for the DK "Wrong Rune" false-positive reports. Dumps every
 -- value that feeds the dkRuneMH / dkRuneOH checks so a user can paste it into an
 -- issue. Intentionally not localized (throwaway developer command).
@@ -3635,8 +3517,8 @@ local function PrintRuneDebug()
 
     -- Raw item links + the value the addon actually parses/uses. Escape the pipe
     -- codes (| -> ||) so the link prints as copyable literal text instead of
-    -- rendering as a clickable [Item Name] (which would drop the enchant payload
-    -- when the user pastes the output to us).
+    -- rendering as a clickable [Item Name], which drops the enchant payload
+    -- when the user pastes the output.
     local function escapeLink(link)
         if not link then
             return "nil"
@@ -3676,7 +3558,7 @@ local function PrintRuneDebug()
         dumpBucket("dw_offhand", specPrefs.dw_offhand)
     end
 
-    -- Which bucket the MH check resolves to, and the verdict each check would return.
+    -- Which bucket the MH check resolves to, and the verdict of each check.
     line("MH check uses bucket:", hasOH and "dw_mainhand" or "mainhand (2H)")
     local mhEntry = BR.BuffState.entries and BR.BuffState.entries.dkRuneMH
     local ohEntry = BR.BuffState.entries and BR.BuffState.entries.dkRuneOH
@@ -3822,14 +3704,12 @@ ClearDelveEntryState = function()
     BR.BuffState.SetDelveEntryState(false)
 end
 
--- Event handlers keyed by event name. Bodies are unchanged from the former
--- if/elseif dispatch; each closure keeps the same file-scope upvalue access.
+-- Event handlers keyed by event name.
 local eventHandlers = {}
 
 eventHandlers.PLAYER_ENTERING_WORLD = function()
-    -- Reset consumable dismiss on instance change
     BR.BuffState.SetConsumablesDismissed(false)
-    -- Invalidate caches on zone change (spec may have auto-switched on entry)
+    -- Invalidate caches on zone change (the spec can auto-switch on entry)
     BR.BuffState.InvalidateContentTypeCache()
     BR.BuffState.InvalidateSpellCache()
     BR.BuffState.InvalidateSpecCache()
@@ -3865,7 +3745,7 @@ eventHandlers.PLAYER_ENTERING_WORLD = function()
                 BR.SecureButtons.UpdateActionButtons(cat)
             end
         end
-        -- Re-resolve icons for spells with cosmetic overrides that aren't
+        -- Re-resolve icons for spells with cosmetic overrides that are not
         -- applied yet at login (e.g. warlock green fire on Burning Rush).
         -- Covers built-in self buff and custom buffs at the same spellID.
         C_Timer.After(2, function()
@@ -3923,7 +3803,7 @@ eventHandlers.PLAYER_ENTERING_WORLD = function()
     -- and warm up the static icon cache for every buff in one pass so the next menu
     -- open / detached-icons render hits the cached path.
     C_Timer.After(1.5, function()
-        PreFillIconCaches()
+        BR.Icons.PreFillIconCaches()
         for key, def in pairs(BR.profile.customBuffs or {}) do
             local frame = buffFrames[key]
             if frame and def.spellID then
@@ -3937,7 +3817,7 @@ eventHandlers.PLAYER_ENTERING_WORLD = function()
 end
 
 eventHandlers.ZONE_CHANGED_NEW_AREA = function()
-    -- Delves have no loading screen, so PLAYER_ENTERING_WORLD doesn't fire.
+    -- Delves have no loading screen, so PLAYER_ENTERING_WORLD does not fire.
     -- GetInstanceInfo() still returns stale data when this event fires,
     -- so defer the cache invalidation + refresh.
     C_Timer.After(0.5, function()
@@ -3968,15 +3848,15 @@ eventHandlers.GROUP_ROSTER_UPDATE = function()
     UpdateAuraEventRegistration()
     SetDirty("group")
     -- Refresh chat-request macrotext so prefix tracks party↔raid↔instance
-    -- transitions. PreClick used to rebuild the macro on each click, but the
-    -- secure dispatcher could read a stale value before PreClick's write
-    -- propagated, sending to the wrong channel.
+    -- transitions. A rebuild in PreClick is too late: the secure dispatcher can
+    -- read the old macrotext before the write propagates, and send to the wrong
+    -- channel.
     BR.SecureButtons.RefreshChatRequestMacros()
 end
 eventHandlers.GROUP_FORMED = eventHandlers.GROUP_ROSTER_UPDATE
 
 -- Roles can change without the roster changing (someone re-assigns their role),
--- which flips whether the refreshment-table reminder should show.
+-- which flips whether the refreshment-table reminder shows.
 eventHandlers.PLAYER_ROLES_ASSIGNED = function()
     BR.BuffState.InvalidateHealerCache()
     SetDirty("group")
@@ -4035,9 +3915,9 @@ eventHandlers.UNIT_AURA = function(arg1, arg2)
         SetDirty("full")
     elseif BR.BuffState.GroupAuraUpdateMatters(arg1, arg2) then
         -- Group aura churn is filtered against the tracked spell set: most
-        -- payloads (HoTs, procs, debuffs) can't affect the display and skip the
+        -- payloads (HoTs, procs, debuffs) cannot affect the display and skip the
         -- rescan entirely. The 3s fallback ticker bounds anything the filter
-        -- can't see (secret values, unrecordable instance IDs).
+        -- cannot see (secret values, unrecordable instance IDs).
         SetDirty("group")
     end
 end
@@ -4107,7 +3987,7 @@ eventHandlers.CHALLENGE_MODE_RESET = eventHandlers.CHALLENGE_MODE_START
 
 eventHandlers.PVP_MATCH_STATE_CHANGED = function()
     local state = C_PvP.GetActiveMatchState()
-    -- Prep phase: anything that isn't Engaged means match isn't active.
+    -- Prep phase: any state other than Engaged means the match is not active.
     local isPrep = state ~= Enum.PvPMatchState.Engaged
     BR.BuffState.SetPvPPrepPhase(isPrep)
     SetDirty()
@@ -4129,13 +4009,11 @@ eventHandlers.UPDATE_EXPANSION_LEVEL = function()
 end
 
 eventHandlers.READY_CHECK = function()
-    -- Cancel any existing timer
     if readyCheckTimer then
         readyCheckTimer:Cancel()
     end
     BR.BuffState.SetReadyCheckState(true)
     UpdateDisplay() -- user-facing, must be instant
-    -- Start timer to reset ready check state
     readyCheckTimer = C_Timer.NewTimer(15, function()
         BR.BuffState.SetReadyCheckState(false)
         readyCheckTimer = nil
@@ -4215,7 +4093,7 @@ end
 
 eventHandlers.EQUIPMENT_SETS_CHANGED = function()
     -- A saved equipment set changed (created / equipped / renamed): re-evaluate
-    -- loadout reminders. Icons may have changed too, so rebuild the rule array
+    -- loadout reminders. Icons can change too, so rebuild the rule array
     -- (BuildLoadoutRulesArray invalidates the loadout cache).
     BuildLoadoutRulesArray()
     SetDirty()

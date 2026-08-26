@@ -3,9 +3,8 @@ local _, BR = ...
 -- ============================================================================
 -- GENERAL PAGE
 -- ============================================================================
--- Addon-meta toggles that aren't tied to any buff or category: login messages
--- and the minimap launcher icon. Kept small intentionally - Chat Requests
--- and Anchor Frames live on their own dedicated pages.
+-- Addon-meta toggles that are not tied to a buff or a category: login messages
+-- and the minimap launcher icon.
 
 local L = BR.L
 local Components = BR.Components
