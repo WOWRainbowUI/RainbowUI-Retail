@@ -1,6 +1,6 @@
 ## Interface: 120007, 120100
 ## Title: BtWQuests: Midnight
-## Version: 3.0
+## Version: 3.1
 ## Notes: Midnight quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests

@@ -46,6 +46,7 @@ Database:AddChain(Chain.LegacyOfTheAmani, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
@@ -219,6 +220,7 @@ Database:AddChain(Chain.AnIslandOfFangs, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
@@ -395,6 +397,7 @@ Database:AddChain(Chain.GhostsOfThePast, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
@@ -486,6 +489,7 @@ Database:AddChain(Chain.OriginalSin, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
@@ -612,6 +616,7 @@ Database:AddChain(Chain.TheBattleForAtalUtek, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
@@ -698,6 +703,7 @@ Database:AddChain(Chain.TheCallOfTheVoid, {
     expansion = EXPANSION_ID,
     category = CATEGORY_ID,
     range = LEVEL_RANGE,
+    major = true,
     prerequisites = {
         {
             type = "level",
