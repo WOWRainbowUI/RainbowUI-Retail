@@ -84,6 +84,35 @@ GTFO.SpellID["1285890"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1291780"] = {
+  --desc = "Venom Deluge (Malformed Leviathan)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1292010"] = {
+  --desc = "Oozing Poison (Malformed Leviathan)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1286785"] = {
+  --desc = "Vile Spew";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1290672"] = {
+  --desc = "Clutchspew (Vassti, the Exalted Broodmother)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1301104"] = {
+  --desc = "Noxious Spittle (Susarikk)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
 
 
 --- *******************
@@ -101,6 +130,25 @@ GTFO.SpellID["1256357"] = {
   map = 2437; -- Zul'Aman
   sound = 1;
 };
+
+GTFO.SpellID["1288086"] = {
+  --desc = "Poison Tide (Batani the Scaled)";
+  map = 2437; -- Zul'Aman
+  sound = 1;
+};
+
+GTFO.SpellID["1286720"] = {
+  --desc = "Envenomed Net";
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1287232"] = {
+  --desc = "Corrosive Venom (Kursak the Coiled)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
 
 --- *********************
 --- * Midnight (Delves) *
@@ -123,6 +171,12 @@ GTFO.SpellID["1301863"] = {
 GTFO.SpellID["1280182"] = {
   --desc = "Ula'tek Poison Pool";
   instance = 2963; -- The Grudge Pit
+  sound = 1;
+};
+
+GTFO.SpellID["1260224"] = {
+  --desc = "Domineering Energy (Wrathbound Voidwraith)";
+  instances = { 2933, 2953 }; -- Collegiate Calamity, Parhelion Plaza
   sound = 1;
 };
 
@@ -703,21 +757,6 @@ GTFO.SpellID["1282892"] = {
 
 -- Note: Toxic Sludge is reused from TWW (Undermine area)
 
-GTFO.SpellID["1264188"] = {
-	--desc = "Unstable Singularity - Follower dungeon (Charonus)";
-	instance = 2923;
-	encounter = 3287;
-	sound = 1;
-	applicationOnly = true;
-};
-
-GTFO.SpellID["1248130"] = {
-	--desc = "Unstable Singularity - Other versions (Charonus)";
-	instance = 2923;
-	encounter = 3287;
-	sound = 1;
-	applicationOnly = true;
-};
 
 --- ****************************
 --- * The Blinding Vale (2859) *

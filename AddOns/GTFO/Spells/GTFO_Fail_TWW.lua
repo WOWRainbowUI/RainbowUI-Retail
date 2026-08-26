@@ -1998,6 +1998,24 @@ GTFO.SpellID["1245594"] = {
 
 GTFO.SpellID["1236256"] = {
   --desc = "Vorpal Cleave (Shadowguard Phasecutter)";
+  instances = {
+    2664, -- Fungal Folly
+    2679, -- Mycomancer Cavern
+    2680, -- Earthcrawl Mines
+    2681, -- Kriegval's Rest
+    2683, -- The Waterworks
+    2684, -- The Dread Pit
+    2685, -- Skittering Breach
+    2686, -- Nightfall Sanctum
+    2687, -- The Sinkhole
+    2688, -- The Spiral Weave
+    2689, -- Tak-Rethan Abyss
+    2690, -- The Underkeep
+    2803, -- Archival Assault
+    2815, -- Excavation Site 9
+    2826, -- Sidestreet Sluice
+    2933, -- Collegiate Calamity
+  };
   sound = 3;
   ignoreApplication = true;
 };
