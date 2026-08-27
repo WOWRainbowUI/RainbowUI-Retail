@@ -36,7 +36,7 @@ local UnitIsGhost = UnitIsGhost
 local UnitPowerType = UnitPowerType
 local UnitPowerMax = UnitPowerMax
 -- local UnitInRange = UnitInRange
--- local UnitIsVisible = UnitIsVisible
+local UnitIsVisible = UnitIsVisible -- UnitButton_UpdateInRange, on the event path
 local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local GetTime = GetTime
 local GetRaidTargetIndex = GetRaidTargetIndex
@@ -152,6 +152,8 @@ local UnitButton_UpdateHealthColor, UnitButton_UpdateNameTextColor, UnitButton_U
 local UnitButton_UpdatePowerMax, UnitButton_UpdatePower, UnitButton_UpdatePowerType, UnitButton_UpdatePowerText, UnitButton_UpdatePowerTextColor
 local UnitButton_UpdateShieldAbsorbs
 local CheckPowerEventRegistration, ShouldShowPowerText, ShouldShowPowerBar
+-- assigned with the unit-scoped registration helpers, further down
+local ScopeTokens
 
 -------------------------------------------------
 -- unit button init indicators
@@ -1711,11 +1713,36 @@ end
 -------------------------------------------------
 -- functions
 -------------------------------------------------
+
+--! DRINKING is the one status that can outlive its aura. It is written by the manual buff
+--! scan -- and that scan is exactly what stops running the moment auras go secret (a boss
+--! pull, a key). A teammate who drank before the pull therefore wears "DRINKING" for the
+--! whole fight, and nothing takes it off until that unit's next READABLE aura change, which
+--! may not come until the group leaves the instance.
+--!
+--! Two rules, and both are free unless the status is actually up:
+--!   * auras readable   -> ask the API whether a drink buff is still on the unit;
+--!   * cannot tell      -> clear it. Nobody drinks through combat, and a status we can
+--!                         neither verify nor refresh is a lie by default.
+--! It re-appears by itself the moment a readable scan sees the buff again.
+local function ClearStaleDrinking(self)
+    local statusText = self.indicators and self.indicators.statusText
+    if not statusText or statusText:GetStatus() ~= "DRINKING" then return end
+
+    if I.HasDrinkAura(self.states.displayedUnit) == true then return end
+
+    if self._buffs then self._buffs.drinkingFound = false end
+    statusText:SetStatus()
+end
+
 UnitButton_UpdateAuras = function(self, updateInfo)
     if not self._indicatorsReady then return end
 
     local unit = self.states.displayedUnit
     if not unit then return end
+
+    --! before the secret bails below, not after: those bails are the reason it gets stuck
+    ClearStaleDrinking(self)
 
     -- 12.1 Route A: hand the current unit to the raid-debuff AuraContainer BEFORE the
     -- secret-payload bail below. The container is Blizzard-driven, so it keeps working
@@ -1855,11 +1882,24 @@ UnitButton_UpdateAuras = function(self, updateInfo)
 end
 
 -- Updates the health prediction calculator for a button (Midnight 12.0.0+)
+-- Refresh the heal-prediction calculator for this button.
+--
+-- ⚠ ONE refresh per button per frame. Three separate paths ask for this -- health states,
+-- shield absorbs, heal absorbs -- and a single UNIT_HEALTH runs all three, so the same
+-- UnitGetDetailedHealPrediction ran three times over on identical data. Absorb-family events
+-- often land several per button in one frame too, multiplying it again.
+--
+-- GetTime() is constant for a whole frame, and the game state behind this call cannot change
+-- inside one: events are dispatched between frames. Stamping the UNIT as well means a vehicle
+-- swap or a roster re-point in the same frame still forces a real refresh.
 local function UnitButton_UpdateCalculator(self)
     local unit = self.states.displayedUnit
     if not unit then return end
     local calc = self.widgets.healthCalculator
     if not calc then return end
+    local now = GetTime()
+    if self.__calcStamp == now and self.__calcUnit == unit then return end
+    self.__calcStamp, self.__calcUnit = now, unit
     UnitGetDetailedHealPrediction(unit, "player", calc)
 end
 
@@ -2068,10 +2108,14 @@ ShouldShowPowerBar = function(b)
 end
 
 CheckPowerEventRegistration = function(b)
-    if b:IsVisible() and not b.isPreview and (b._shouldShowPowerText or b._shouldShowPowerBar) then
-        b:RegisterEvent("UNIT_POWER_FREQUENT")
-        b:RegisterEvent("UNIT_MAXPOWER")
-        b:RegisterEvent("UNIT_DISPLAYPOWER")
+    -- UNIT_POWER_FREQUENT is the single noisiest event in the game -- every rogue's energy,
+    -- every mana tick, on every unit -- so it is scoped to this button's tokens like the rest
+    -- (see RegisterUnitScopedEvents). No unit yet = nothing to listen for.
+    local u, du = ScopeTokens(b)
+    if u and b:IsVisible() and not b.isPreview and (b._shouldShowPowerText or b._shouldShowPowerBar) then
+        b:RegisterUnitEvent("UNIT_POWER_FREQUENT", u, du)
+        b:RegisterUnitEvent("UNIT_MAXPOWER", u, du)
+        b:RegisterUnitEvent("UNIT_DISPLAYPOWER", u, du)
         return true
     else
         b:UnregisterEvent("UNIT_POWER_FREQUENT")
@@ -2783,13 +2827,36 @@ local function UnitButton_UpdateCombatIcon(self)
     end
 end
 
--- UNIT_IN_RANGE_UPDATE: unit, inRange
+-- UNIT_IN_RANGE_UPDATE hands us `inRange` for the unit that changed. For a GROUP member
+-- that is exactly what F.IsInRange computes anyway (UnitInRange, no spell refinement -- read
+-- the group branch there), so taking it saves the whole call and, more to the point, makes
+-- the fade instant instead of up to half a second late.
+--
+-- ⚠ Not a total replacement, which is why the periodic sweep survives at half its old rate:
+--   * the event only exists for group members. A spotlight bound to target/focus/bossN, an
+--     NPC frame or an Xtarget never fires it and is still swept.
+--   * visibility stays ours to decide. The event answers "in range", and upstream's copy of
+--     this in QuickAssist carries a "FIXME: BLIZZARD, IT'S BUGGY!" -- so a missed edge is
+--     assumed, not ruled out, and the sweep corrects it within 0.5s.
 local IsInRange = F.IsInRange
 local function UnitButton_UpdateInRange(self, ir)
     local unit = self.states.displayedUnit
     if not unit then return end
 
-    local inRange = IsInRange(unit)
+    local inRange
+    -- ⚠ secret test FIRST, then the nil test. `ir ~= nil` is still a comparison, and the
+    -- payload for an identity-restricted teammate can arrive secret; F.IsValueNonSecret(nil)
+    -- answers true, so ordering it this way costs nothing and keeps the nil case working.
+    if F.IsValueNonSecret(ir) and ir ~= nil then
+        local visible = UnitIsVisible(unit)
+        if F.IsValueNonSecret(visible) and not visible then
+            inRange = false
+        else
+            inRange = ir and true or false
+        end
+    else
+        inRange = IsInRange(unit)
+    end
     -- Nil-safety: if IsInRange errors (e.g. secret value issue), default to true
     -- so frames don't grey out incorrectly
     if inRange == nil then inRange = true end
@@ -2823,6 +2890,80 @@ local function UnitButton_UpdateInRange(self, ir)
         self.states.wasInRange = inRange
         -- self:SetAlpha(inRange and 1 or CellDB["appearance"]["outOfRangeAlpha"])
     end
+end
+
+-------------------------------------------------
+-- unit-scoped event registration
+--
+-- Every event listed below is handled ONLY inside UnitButton_OnEvent's
+-- `self.states.displayedUnit == unit or self.states.unit == unit` branch -- so let the ENGINE
+-- do that filtering in C instead of waking 40 Lua handlers to throw 39 of them away.
+--
+-- The old shape was not subtly wasteful. With plain RegisterEvent, every UNIT_HEALTH /
+-- UNIT_POWER_FREQUENT / UNIT_AURA fired by ANY unit in the world -- teammates, the boss,
+-- every nameplate, your own energy ticking -- entered EVERY unit button's handler and was
+-- rejected by a string compare. In a 20-man fight that is tens of thousands of pointless
+-- Lua calls a second, and it scales with raid size times world activity.
+--
+-- ⚠ TWO units per registration, `unit` AND `displayedUnit`. They differ for the whole time
+-- someone is in a vehicle (raid3 / raid3pet, player / vehicle) and BOTH tokens get dispatched
+-- during the ride -- registering only one goes deaf halfway through.
+--
+-- ⚠ What is deliberately NOT scoped:
+--   * UNIT_THREAT_LIST_UPDATE -- also handled in the OTHER branch, where it drives the threat
+--     BAR from the payload of units this button is NOT bound to. Scoping it would silently
+--     freeze that bar, with nothing to point at.
+--   * PLAYER_FLAGS_CHANGED / READY_CHECK_CONFIRM / INCOMING_SUMMON_CHANGED -- they carry a
+--     unit argument but are not unit events, so RegisterUnitEvent does not filter them.
+--     They stay broadcast and Lua-filtered; all three are rare.
+-------------------------------------------------
+local UNIT_SCOPED_EVENTS = {
+    "UNIT_HEALTH", "UNIT_MAXHEALTH",
+    "UNIT_AURA",
+    "UNIT_HEAL_PREDICTION", "UNIT_ABSORB_AMOUNT_CHANGED", "UNIT_HEAL_ABSORB_AMOUNT_CHANGED",
+    "UNIT_THREAT_SITUATION_UPDATE",
+    "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "UNIT_PET",
+    "UNIT_FLAGS", "UNIT_FACTION", "UNIT_CONNECTION",
+    "UNIT_IN_RANGE_UPDATE", "UNIT_NAME_UPDATE", "UNIT_PORTRAIT_UPDATE",
+}
+
+-- The button's current token pair, or nil when it has no unit.
+ScopeTokens = function(b)
+    local u = b.states and b.states.unit
+    if type(u) ~= "string" then return nil end
+    local du = b.states.displayedUnit
+    if du == u or type(du) ~= "string" then du = nil end
+    return u, du
+end
+
+-- Register ONE scoped event for the button's current tokens. Used by the indicator toggles,
+-- which turn a single event on and off without touching the rest.
+local function RegisterScopedEvent(b, event)
+    local u, du = ScopeTokens(b)
+    if not u then return end
+    b:RegisterUnitEvent(event, u, du)
+end
+
+-- Re-point every scoped registration at the button's current tokens. Called wherever those
+-- tokens can change: the header assigning a unit, a vehicle swap, and the OnShow path that
+-- registers everything from scratch.
+--
+-- ⚠ Gated on _eventsRegistered. The secure header assigns units to HIDDEN buttons too, and
+-- registering there would resurrect events on a button OnHide had just torn down -- a hidden
+-- raid slot quietly updating for whoever used to stand in it.
+local function RegisterUnitScopedEvents(b)
+    if not b._eventsRegistered then return end
+    local u, du = ScopeTokens(b)
+    if not u then return end
+    for i = 1, #UNIT_SCOPED_EVENTS do
+        b:RegisterUnitEvent(UNIT_SCOPED_EVENTS[i], u, du)
+    end
+    -- UNIT_TARGET rides the targetRaidIcon toggle (see B.UpdateTargetRaidIcon); before Cell
+    -- has loaded its indicator config everything is registered, matching UnitButton_RegisterEvents.
+    if not Cell.loaded or enabledIndicators["targetRaidIcon"] then
+        b:RegisterUnitEvent("UNIT_TARGET", u, du)
+    end
+    CheckPowerEventRegistration(b)
 end
 
 local function UnitButton_UpdateVehicleStatus(self)
@@ -2860,6 +3001,10 @@ local function UnitButton_UpdateVehicleStatus(self)
         self.states.displayedUnit = self.states.unit
         self.indicators.nameText.vehicle:SetText("")
     end
+
+    -- displayedUnit just moved; the scoped registrations are pinned to the OLD pair until
+    -- they are re-pointed, and a button listening to the wrong token shows nothing at all.
+    RegisterUnitScopedEvents(self)
 end
 
 -- 12.1: UnitIsAFK can return a SECRET boolean (or error) -- a direct boolean test on it
@@ -3016,24 +3161,53 @@ UnitButton_UpdateHealthColor = function(self)
         barR, barG, barB, lossR, lossG, lossB = F.GetHealthBarColor(self.states.healthPercent, self.states.isDeadOrGhost or self.states.isDead, 0, 1, 0.2)
     end
 
+    -- Incoming-heal tint: the configured colour, or the bar's own at 40%.
+    local ihR, ihG, ihB, ihA
+    if Cell.loaded and CellDB["appearance"]["healPrediction"][2] then
+        local hp = CellDB["appearance"]["healPrediction"][3]
+        ihR, ihG, ihB, ihA = hp[1], hp[2], hp[3], hp[4]
+    else
+        ihR, ihG, ihB, ihA = barR, barG, barB, 0.4
+    end
+
+    -- ⚠ APPLIED-COLOUR STAMP. With "colour by health" or "full-health colour" on, this whole
+    -- function runs on EVERY UNIT_HEALTH -- and the colour it computes is usually the one
+    -- already on the bar. On Midnight it is worse: health percent is secret inside instances,
+    -- states.healthPercent is pinned to 0, so the colour provably cannot change and every
+    -- tick re-applied identical values to three widgets.
+    --
+    -- Stamping the OUTPUT (not the inputs) keeps this exact: the incoming-heal colour is
+    -- folded in above, so a settings change moves one of the twelve numbers and the skip
+    -- lifts by itself. The two paths that replace the widgets underneath us -- B.SetTexture
+    -- and B.UpdateColor -- clear the stamp explicitly.
+    if self.__hcBarR == barR and self.__hcBarG == barG and self.__hcBarB == barB and self.__hcBarA == barA
+        and self.__hcLossR == lossR and self.__hcLossG == lossG and self.__hcLossB == lossB and self.__hcLossA == lossA
+        and self.__hcIhR == ihR and self.__hcIhG == ihG and self.__hcIhB == ihB and self.__hcIhA == ihA then
+        return
+    end
+    self.__hcBarR, self.__hcBarG, self.__hcBarB, self.__hcBarA = barR, barG, barB, barA
+    self.__hcLossR, self.__hcLossG, self.__hcLossB, self.__hcLossA = lossR, lossG, lossB, lossA
+    self.__hcIhR, self.__hcIhG, self.__hcIhB, self.__hcIhA = ihR, ihG, ihB, ihA
+
     self.widgets.healthBar:SetStatusBarColor(barR, barG, barB, barA)
     self.widgets.healthBarLoss:SetVertexColor(lossR, lossG, lossB, lossA)
 
     if Cell.isMidnight then
         -- StatusBar on Midnight: use SetStatusBarColor
-        if Cell.loaded and CellDB["appearance"]["healPrediction"][2] then
-            self.widgets.incomingHeal:SetStatusBarColor(CellDB["appearance"]["healPrediction"][3][1], CellDB["appearance"]["healPrediction"][3][2], CellDB["appearance"]["healPrediction"][3][3], CellDB["appearance"]["healPrediction"][3][4])
-        else
-            self.widgets.incomingHeal:SetStatusBarColor(barR, barG, barB, 0.4)
-        end
+        self.widgets.incomingHeal:SetStatusBarColor(ihR, ihG, ihB, ihA)
     else
         -- Texture on pre-Midnight: use SetVertexColor
-        if Cell.loaded and CellDB["appearance"]["healPrediction"][2] then
-            self.widgets.incomingHeal:SetVertexColor(CellDB["appearance"]["healPrediction"][3][1], CellDB["appearance"]["healPrediction"][3][2], CellDB["appearance"]["healPrediction"][3][3], CellDB["appearance"]["healPrediction"][3][4])
-        else
-            self.widgets.incomingHeal:SetVertexColor(barR, barG, barB, 0.4)
-        end
+        self.widgets.incomingHeal:SetVertexColor(ihR, ihG, ihB, ihA)
     end
+end
+
+-- Forget what colour the widgets are wearing. Anything that replaces or repaints them from
+-- outside UnitButton_UpdateHealthColor must call this, or the stamp above will skip the
+-- repaint that puts the colour back.
+local function InvalidateHealthColor(b)
+    b.__hcBarR, b.__hcBarG, b.__hcBarB, b.__hcBarA = nil, nil, nil, nil
+    b.__hcLossR, b.__hcLossG, b.__hcLossB, b.__hcLossA = nil, nil, nil, nil
+    b.__hcIhR, b.__hcIhG, b.__hcIhB, b.__hcIhA = nil, nil, nil, nil
 end
 
 -- Configures the health color curve for a button (Midnight 12.0.0+)
@@ -3121,35 +3295,23 @@ end
 -- unit button events
 -------------------------------------------------
 local function UnitButton_RegisterEvents(self)
+    self._eventsRegistered = true
     -- self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-    self:RegisterEvent("UNIT_HEALTH")
-    self:RegisterEvent("UNIT_MAXHEALTH")
+    -- The UNIT_* events this button actually cares about are registered per-token at the
+    -- bottom of this function (RegisterUnitScopedEvents) so the engine filters them in C.
+    -- What stays broadcast here is what CANNOT be scoped -- read the note above
+    -- UNIT_SCOPED_EVENTS before moving anything between the two lists.
 
-    self:RegisterEvent("UNIT_POWER_FREQUENT")
-    self:RegisterEvent("UNIT_MAXPOWER")
-    self:RegisterEvent("UNIT_DISPLAYPOWER")
-
-    self:RegisterEvent("UNIT_AURA")
-
-    self:RegisterEvent("UNIT_HEAL_PREDICTION")
-    self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-    self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-
-    self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+    -- also handled in the non-matching branch, for the threat BAR: it reads the payload of
+    -- units this button is not bound to, so it must keep hearing everyone
     self:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
-    self:RegisterEvent("UNIT_ENTERED_VEHICLE")
-    self:RegisterEvent("UNIT_EXITED_VEHICLE")
-    self:RegisterEvent("UNIT_PET") -- the vehicle rides in the pet slot; see UnitButton_OnEvent
 
+    -- carry a unit argument but are not unit events; RegisterUnitEvent would not filter them
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
-    self:RegisterEvent("UNIT_FLAGS") -- afk
-    self:RegisterEvent("UNIT_FACTION") -- mind control
-
-    self:RegisterEvent("UNIT_CONNECTION") -- offline
     self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- afk
-    self:RegisterEvent("UNIT_NAME_UPDATE") -- unknown target
+
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA") --? update status text
 
     -- self:RegisterEvent("PARTY_LEADER_CHANGED") -- GROUP_ROSTER_UPDATE
@@ -3167,9 +3329,7 @@ local function UnitButton_RegisterEvents(self)
         if enabledIndicators["playerRaidIcon"] then
             self:RegisterEvent("RAID_TARGET_UPDATE")
         end
-        if enabledIndicators["targetRaidIcon"] then
-            self:RegisterEvent("UNIT_TARGET")
-        end
+        -- UNIT_TARGET is scoped; RegisterUnitScopedEvents below reads the same flag
         if enabledIndicators["readyCheckIcon"] then
             self:RegisterEvent("READY_CHECK")
             self:RegisterEvent("READY_CHECK_FINISHED")
@@ -3177,7 +3337,6 @@ local function UnitButton_RegisterEvents(self)
         end
     else
         self:RegisterEvent("RAID_TARGET_UPDATE")
-        self:RegisterEvent("UNIT_TARGET")
         self:RegisterEvent("READY_CHECK")
         self:RegisterEvent("READY_CHECK_FINISHED")
         self:RegisterEvent("READY_CHECK_CONFIRM")
@@ -3191,8 +3350,8 @@ local function UnitButton_RegisterEvents(self)
     -- self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
     -- self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
 
-    -- self:RegisterEvent("UNIT_PET")
-    self:RegisterEvent("UNIT_PORTRAIT_UPDATE") -- pet summoned far away
+    -- Everything unit-scoped, pointed at this button's current tokens.
+    RegisterUnitScopedEvents(self)
 
     --! OnShowæ—¶ç«‹å³æ‰§è¡Œï¼Œä½†UpdateIndicatorså¯èƒ½å¹¶æœªæ‰§è¡Œå®Œæ¯•ï¼Œå¯¼è‡´åœ¨ResetCustomIndicatorsè¿‡ç¨‹ä¸­æŒ‡ç¤ºå™¨å‘ç”Ÿå˜åŒ–ï¼Œè¿›è€ŒæŠ¥é”™
     local success, result = pcall(UnitButton_UpdateAll, self)
@@ -3203,6 +3362,68 @@ end
 
 local function UnitButton_UnregisterEvents(self)
     self:UnregisterAllEvents()
+    -- ⚠ Cleared so a unit assignment on a HIDDEN button cannot re-register anything
+    -- (RegisterUnitScopedEvents is gated on this).
+    self._eventsRegistered = nil
+end
+
+-------------------------------------------------
+-- overlay repaint coalescer
+--
+-- Heal prediction, shields and heal absorbs are three repaints of the SAME overlay stack on
+-- the health bar, and each of the five health/absorb events wants some combination of them.
+-- At raid scale the server lands several of those on one button in a single frame -- a heal
+-- landing while a shield ticks while the target takes damage -- and only the LAST repaint is
+-- ever seen. The rest are drawn and thrown away before the frame reaches the screen.
+--
+-- So mark here, paint once. This is Blizzard's own model for the stock raid frames: absorb
+-- and heal-prediction repaints are "frequent and expensive, update once per frame at most".
+--
+-- ⚠ Only the EVENT paths are coalesced. UnitButton_UpdateAll, the appearance/option paths and
+-- anything the user just clicked keep calling the three directly -- those must land before
+-- whatever reads the widgets next, and none of them are hot.
+--
+-- ⚠ The budget is the backstop for a genuine storm (a raid-wide shield landing on everyone in
+-- one frame). Leftovers keep the frame shown and are painted next frame; because entries are
+-- removed as they are painted, the next pass naturally starts with whoever was skipped.
+--
+-- ⚠ The flush paints all three rather than tracking which event marked the button. That is a
+-- deliberate trade, not an oversight: UNIT_HEALTH is by far the most common of the five and
+-- already wanted all three, and with the calculator refresh stamped per frame the extra two
+-- are a handful of getters and a SetValue. Tracking dirty KINDS would save that in the
+-- single-absorb-event-alone case and cost a mask on every mark.
+-------------------------------------------------
+local overlayDirty = {}
+local overlayFlush = CreateFrame("Frame")
+local OVERLAY_FLUSH_BUDGET = 20
+overlayFlush:Hide()
+overlayFlush:SetScript("OnUpdate", function(self)
+    local left = OVERLAY_FLUSH_BUDGET
+    for b in pairs(overlayDirty) do
+        overlayDirty[b] = nil
+        -- a button can be hidden, or re-pointed at someone else, between mark and paint
+        if b:IsVisible() and b.states and b.states.displayedUnit then
+            -- ⚠ skipStateUpdates = true below, so the pre-Midnight branches inside the three
+            -- would skip their own UnitButton_UpdateHealthStates -- which is where classic
+            -- reads states.totalAbsorbs / healAbsorbs from. Run it ONCE here instead of up to
+            -- three times inside them. On Midnight all three return before that block (the
+            -- calculator path), so this is skipped entirely.
+            if not Cell.isMidnight then
+                UnitButton_UpdateHealthStates(b)
+            end
+            UnitButton_UpdateHealPrediction(b, true)
+            UnitButton_UpdateShieldAbsorbs(b, true)
+            UnitButton_UpdateHealAbsorbs(b, true)
+        end
+        left = left - 1
+        if left <= 0 then break end
+    end
+    if next(overlayDirty) == nil then self:Hide() end
+end)
+
+local function MarkOverlayDirty(b)
+    overlayDirty[b] = true
+    overlayFlush:Show()
 end
 
 local function UnitButton_OnEvent(self, event, unit, arg)
@@ -3250,25 +3471,19 @@ local function UnitButton_OnEvent(self, event, unit, arg)
         elseif event == "UNIT_MAXHEALTH" then
             UnitButton_UpdateHealthMax(self)
             UnitButton_UpdateHealth(self, nil, true)
-            UnitButton_UpdateHealPrediction(self, true)
-            UnitButton_UpdateShieldAbsorbs(self, true)
-            UnitButton_UpdateHealAbsorbs(self, true)
+            MarkOverlayDirty(self)
 
         elseif event == "UNIT_HEALTH" then
+            -- the bar value itself stays synchronous: it is one SetValue, and states.* below
+            -- it are read by other handlers in the same frame
             UnitButton_UpdateHealth(self)
-            UnitButton_UpdateHealPrediction(self, true)
-            UnitButton_UpdateShieldAbsorbs(self, true)
-            UnitButton_UpdateHealAbsorbs(self, true)
+            MarkOverlayDirty(self)
             -- UnitButton_UpdateStatusText(self)
 
-        elseif event == "UNIT_HEAL_PREDICTION" then
-            UnitButton_UpdateHealPrediction(self)
-
-        elseif event == "UNIT_ABSORB_AMOUNT_CHANGED" then
-            UnitButton_UpdateShieldAbsorbs(self)
-
-        elseif event == "UNIT_HEAL_ABSORB_AMOUNT_CHANGED" then
-            UnitButton_UpdateHealAbsorbs(self)
+        elseif event == "UNIT_HEAL_PREDICTION"
+            or event == "UNIT_ABSORB_AMOUNT_CHANGED"
+            or event == "UNIT_HEAL_ABSORB_AMOUNT_CHANGED" then
+            MarkOverlayDirty(self)
 
         elseif event == "UNIT_MAXPOWER" then
             UnitButton_UpdatePowerStates(self)
@@ -3292,8 +3507,8 @@ local function UnitButton_OnEvent(self, event, unit, arg)
         elseif event == "UNIT_AURA" then
             UnitButton_UpdateAuras(self, arg)
 
-        -- elseif event == "UNIT_IN_RANGE_UPDATE" then
-        --     UnitButton_UpdateInRange(self, arg)
+        elseif event == "UNIT_IN_RANGE_UPDATE" then
+            UnitButton_UpdateInRange(self, arg)
 
         elseif event == "UNIT_TARGET" then
             UnitButton_UpdateTargetRaidIcon(self)
@@ -3335,6 +3550,9 @@ local function UnitButton_OnEvent(self, event, unit, arg)
 
         elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
             UnitButton_UpdateLeader(self, event)
+            --! combat started: whatever they were drinking, they are not any more -- and this
+            --! is the one moment we are certain to hear about, UNIT_AURA is not
+            if event == "PLAYER_REGEN_DISABLED" then ClearStaleDrinking(self) end
 
         elseif event == "PLAYER_TARGET_CHANGED" then
             UnitButton_UpdateTarget(self)
@@ -3410,10 +3628,10 @@ local function UnitButton_OnAttributeChanged(self, name, value)
             self.states.displayedUnit = value
             if string.find(value, "^raid%d+$") then Cell.unitButtons.raid.units[value] = self end
 
-            -- range
-            -- if value ~= "focus" and not strfind(value, "target$") then
-            --     self:RegisterUnitEvent("UNIT_IN_RANGE_UPDATE", value)
-            -- end
+            -- The token just changed, so every scoped registration is pointed at the
+            -- PREVIOUS occupant. No-op while the button is hidden -- OnShow registers from
+            -- scratch -- see the gate in RegisterUnitScopedEvents.
+            RegisterUnitScopedEvents(self)
 
             -- for omnicd
             if string.match(value, "raid%d") then
@@ -3423,8 +3641,6 @@ local function UnitButton_OnAttributeChanged(self, name, value)
             end
 
             -- ResetAuraTables(self)
-        -- else
-        --     self:UnregisterEvent("UNIT_IN_RANGE_UPDATE")
         end
     end
 end
@@ -3435,11 +3651,15 @@ end
 Cell.vars.guids = {} -- guid to unitid
 Cell.vars.names = {} -- name to unitid
 
+-- Shared tick driver membership; defined with the driver, below UnitButton_OnTick.
+local StartTicking, StopTicking
+
 local function UnitButton_OnShow(self)
     -- print(GetTime(), "OnShow", self:GetName())
     self._updateRequired = nil -- prevent UnitButton_UpdateAll twice. when convert party <-> raid, GROUP_ROSTER_UPDATE fired.
     self._powerUpdateRequired = 1
     UnitButton_RegisterEvents(self)
+    StartTicking(self)
 
     --[[
     if self.states.unit then
@@ -3465,6 +3685,7 @@ end
 local function UnitButton_OnHide(self)
     -- print(GetTime(), "OnHide", self:GetName())
     UnitButton_UnregisterEvents(self)
+    StopTicking(self)
 
     ResetAuraTables(self)
 
@@ -3562,10 +3783,13 @@ local function UnitButton_OnTick(self)
 
     self.__tickCount = e
 
-    -- !TODO: use UNIT_DISTANCE_CHECK_UPDATE and UNIT_IN_RANGE_UPDATE events in 10.1.5
-    -- if self.states.displayedUnit == "target" or self.states.displayedUnit == "focus" then
+    -- Range SWEEP, every other tick (0.5s). Group members are already event-driven and
+    -- correct within a frame of the change (UNIT_IN_RANGE_UPDATE, see UnitButton_UpdateInRange);
+    -- this is the safety net for a missed edge and the only path for the tokens the event
+    -- does not cover -- spotlight target/focus/bossN, NPC frames, Xtarget.
+    if e == 0 then
         UnitButton_UpdateInRange(self)
-    -- end
+    end
 
     if self._updateRequired and self._indicatorsReady then
         self._updateRequired = nil
@@ -3578,14 +3802,58 @@ local function UnitButton_OnTick(self)
     end
 end
 
-local function UnitButton_OnUpdate(self, elapsed)
-    local e = (self.__updateElapsed or 0) + elapsed
-    if e > 0.25 then
-        e = 0
-        UnitButton_OnTick(self)
-        UnitButton_UpdateCombatIcon(self)
+-------------------------------------------------
+-- shared tick driver
+--
+-- ONE ticker for every shown unit button, in place of an OnUpdate on each of them.
+--
+-- The old shape paid a Lua call per button per FRAME just to accumulate `elapsed` -- 40
+-- buttons at 144fps is ~5,700 calls a second -- while the body it was gating only ever ran
+-- four times a second. A C_Timer ticker sleeps in C between fires, so the same four passes
+-- now cost four calls a second regardless of raid size or framerate.
+--
+-- Membership rides OnShow/OnHide, which already pair with Register/UnregisterEvents, so a
+-- hidden button stops ticking exactly as it stopped getting OnUpdate. The ticker cancels
+-- itself when the last button leaves: with the frames hidden there is no per-frame code at
+-- all, which an always-on ticker would not give us.
+--
+-- ⚠ Iterating `pairs` while a tick body hides a button is safe (removing the CURRENT key
+-- during traversal is defined in Lua), but a body that SHOWS one may or may not visit it
+-- this pass. Both are fine here -- the newly shown button just starts next pass.
+--
+-- ⚠ Each button is ticked under pcall. A per-button OnUpdate isolated failures for free;
+-- one shared loop does not, and an error on raid7 would silently cost raid8..40 their tick
+-- for the rest of the fight. Same guard, and the same F.Debug report, as UnitButton_UpdateAll.
+-------------------------------------------------
+local tickingButtons = {}
+local tickDriver
+
+local function TickOne(b)
+    UnitButton_OnTick(b)
+    UnitButton_UpdateCombatIcon(b)
+end
+
+function StartTicking(self)
+    tickingButtons[self] = true
+    if not tickDriver then
+        tickDriver = C_Timer.NewTicker(0.25, function()
+            for b in pairs(tickingButtons) do
+                local ok, err = pcall(TickOne, b)
+                if not ok then
+                    F.Debug("UnitButton tick |cffff0000FAILED:|r", b:GetName(), err)
+                end
+            end
+        end)
     end
-    self.__updateElapsed = e
+end
+
+function StopTicking(self)
+    if tickingButtons[self] == nil then return end
+    tickingButtons[self] = nil
+    if tickDriver and next(tickingButtons) == nil then
+        tickDriver:Cancel()
+        tickDriver = nil
+    end
 end
 
 -------------------------------------------------
@@ -3652,6 +3920,8 @@ function B.UpdateShields(button)
 end
 
 function B.SetTexture(button, tex)
+    -- new texture objects underneath, so whatever colour they were wearing is gone
+    InvalidateHealthColor(button)
     button.widgets.healthBar:SetStatusBarTexture(tex)
     button.widgets.healthBar:GetStatusBarTexture():SetDrawLayer("ARTWORK", -7) --! VERY IMPORTANT
     button.widgets.healthBarLoss:SetTexture(tex)
@@ -3667,6 +3937,9 @@ function B.SetTexture(button, tex)
 end
 
 function B.UpdateColor(button)
+    -- the user just changed a colour setting: this call is the whole point, do not let the
+    -- stamp decide it is unnecessary
+    InvalidateHealthColor(button)
     UnitButton_UpdateHealthColor(button)
     UnitButton_UpdatePowerType(button)
     UnitButton_UpdatePowerTextColor(button)
@@ -4138,7 +4411,7 @@ function B.UpdateTargetRaidIcon(button, enabled)
     if not button:IsShown() then return end
     UnitButton_UpdateTargetRaidIcon(button)
     if enabled then
-        button:RegisterEvent("UNIT_TARGET")
+        RegisterScopedEvent(button, "UNIT_TARGET")
     else
         button:UnregisterEvent("UNIT_TARGET")
     end
@@ -4658,7 +4931,8 @@ function CellUnitButton_OnLoad(button)
     button:HookScript("OnHide", UnitButton_OnHide) -- use _onhide for click-castings
     button:HookScript("OnEnter", UnitButton_OnEnter) -- SecureHandlerEnterLeaveTemplate
     button:HookScript("OnLeave", UnitButton_OnLeave) -- SecureHandlerEnterLeaveTemplate
-    button:SetScript("OnUpdate", UnitButton_OnUpdate)
+    -- no OnUpdate: the 0.25s tick runs on one shared C_Timer for every shown button
+    -- (see the shared tick driver above UnitButton_OnShow's StartTicking)
     button:SetScript("OnEvent", UnitButton_OnEvent)
     button:RegisterForClicks("AnyDown")
 end
