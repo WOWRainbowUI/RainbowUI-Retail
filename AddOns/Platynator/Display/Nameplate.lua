@@ -131,7 +131,7 @@ function addonTable.Display.NameplateMixin:Install(nameplate, offsetY)
   end
 
   -- We force a sizing immediately to avoid 0 size widgets breaking the textures from the Blizz animations
-  self:ApplyPixelPerfectSizing(true)
+  self:ApplyPixelPerfectSizing()
   addonTable.Display.LayerWidgets(self.widgets)
   self:SetScript("OnUpdate", nil)
   self:Show()

@@ -204,23 +204,23 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
           excludeSpellIDs = exclude,
           isBossOrRoleAura = false,
         }})
-        if settings.filters.dispelable then
+        if settings.filters.dispellable then
           table.insert(output, {"HELPFUL|DISPELLABLE|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = {["Enrage"] = true}, isStealable = true}})
         end
       else
         table.insert(output, {"HELPFUL|!PLAYER", {isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false}})
         table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false}})
-        if settings.filters.dispelable then
+        if settings.filters.dispellable then
           table.insert(output, {"HELPFUL|DISPELLABLE|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, isBossOrRoleAura = false}})
         end
       end
     else
       if settings.filters.enrage then
         table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {includeDispelTypes = {["Enrage"] = true}}})
-        if settings.filters.dispelable then
+        if settings.filters.dispellable then
           table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = {["Enrage"] = true}}})
         end
-      elseif settings.filters.dispelable then
+      elseif settings.filters.dispellable then
         table.insert(output, {"HELPFUL|DISPELLABLE|!PLAYER", {excludeSpellIDs = exclude, isStealable = true}})
       else
         table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}})

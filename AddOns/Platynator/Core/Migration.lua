@@ -687,6 +687,15 @@ local function UpgradeDesignv17(design)
   end
 end
 
+local function UpgradeDesignv18(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "buffs" then
+      auras.filters.dispelable = nil
+      auras.filters.dispellable = true
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -705,6 +714,7 @@ local designUpgrades = {
   UpgradeDesignv15,
   UpgradeDesignv16,
   UpgradeDesignv17,
+  UpgradeDesignv18,
 }
 
 function addonTable.Core.UpgradeDesign(design)

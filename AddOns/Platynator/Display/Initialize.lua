@@ -223,6 +223,10 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end)
 end
 
+local function StyleSettingsKey(settings)
+  return settings.style .. "$$" .. settings.scale .. "$$" .. addonTable.Core.GetDesignScale(settings.simplified or false)
+end
+
 function addonTable.Display.ManagerMixin:GeneratePoolForIndex(index)
   self.preallocatedDisplaysByIndex[index] = table.create(40)
   for i = 1, 40 do
@@ -230,70 +234,79 @@ function addonTable.Display.ManagerMixin:GeneratePoolForIndex(index)
     Mixin(frame, addonTable.Display.NameplateMixin)
     frame.kind = index
     frame:OnLoad()
+    frame:SetPoint("CENTER")
     table.insert(self.preallocatedDisplays, frame)
     table.insert(self.preallocatedDisplaysByIndex[index], frame)
   end
 end
 
 function addonTable.Display.ManagerMixin:GeneratePools()
+  self:RestylePoolsStaggered(1)
+end
+
+function addonTable.Display.ManagerMixin:AllocateEnoughPools()
   local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
 
-  for index, settings in ipairs(assignments) do
-    self:GeneratePoolForIndex(index)
+  self.seenStyleIndexes = {}
+  self.indexToStyle = {}
+  local index = 0
+  for _, settings in ipairs(assignments) do
+    local key = StyleSettingsKey(settings)
+    if not self.seenStyleIndexes[key] then
+      index = index + 1
+      self.seenStyleIndexes[key] = index
+      self.indexToStyle[index] = settings
+      if not self.preallocatedDisplaysByIndex[index] then
+        self:GeneratePoolForIndex(index)
+      end
+    end
   end
-
-  self:RestylePools()
 end
 
 function addonTable.Display.ManagerMixin:RestylePools()
-  local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
-
-  while #self.preallocatedDisplaysByIndex < #assignments do
-    self:GeneratePoolForIndex(#self.preallocatedDisplaysByIndex + 1)
-  end
+  self:AllocateEnoughPools()
 
   for index, list in ipairs(self.preallocatedDisplaysByIndex) do
-    local settings = assignments[index]
+    local settings = self.indexToStyle[index]
     if settings then
       local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
       for _, display in ipairs(list) do
         if display.styleIndex ~= self.styleIndex then
+          display:SetPoint("CENTER")
           display:InitializeWidgets(design, scaleOffset, scaleMod)
           display.styleIndex = self.styleIndex
+          display:Hide()
         end
       end
     end
   end
 end
 
-function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
+function addonTable.Display.ManagerMixin:RestylePoolsStaggered(step)
+  step = step or 1
   if self.styleTicker then
     self.styleTicker:Cancel()
     self.styleTicker = nil
   end
   self.styleIndex = self.styleIndex + 1
 
+  self:AllocateEnoughPools()
+
   if addonTable.Utilities.IsChangesRestricted() then -- Can do the rest lazily as we know it doesn't affect auras
     return
   end
 
-  local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
-
-  while #self.preallocatedDisplaysByIndex < #assignments do
-    self:GeneratePoolForIndex(#self.preallocatedDisplaysByIndex + 1)
-  end
-
   local index = 1
-  local step = 5
   self.styleTicker = C_Timer.NewTicker(0, function()
     for i = index, index + step - 1 do
       local display = self.preallocatedDisplays[i]
-      local settings = assignments[display.kind]
+      local settings = self.indexToStyle[display.kind]
       if settings then
         local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
         if display.styleIndex ~= self.styleIndex then
           display:InitializeWidgets(design, scaleOffset, scaleMod)
           display.styleIndex = self.styleIndex
+          display:Hide()
         end
       end
     end
@@ -482,7 +495,6 @@ function addonTable.Display.ManagerMixin:UpdateStackingRegion(unit)
     return
   end
   stackRegion.visual:SetSize(stackRegion.rect.width, stackRegion.rect.height)
-  -- Avoid UIScale affecting stack regions
   stackRegion:SetPoint(
     "BOTTOMLEFT",
     stackRegion:GetParent(),
@@ -551,8 +563,8 @@ function addonTable.Display.ManagerMixin:Install(unit)
   if nameplate and unit and (addonTable.Constants.IsRetail or not UnitIsUnit("player", unit)) then
     addonTable.Cache:AddUnit(unit)
     local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
-    local designName, scale, shouldSimplify, index = addonTable.Display.Context:GetAssignedDesign(unit)
-    if index == 0 then
+    local designName, scale, shouldSimplify, settings = addonTable.Display.Context:GetAssignedDesign(unit)
+    if settings == nil then
       addonTable.Cache:RemoveUnit(unit)
       addonTable.Display.Context:RevokedUnitListeners(unit)
       addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.BAD_CUSTOM_STYLE_SELECT)
@@ -560,7 +572,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
     end
     local design = addonTable.Core.GetDesignByName(designName)
     local nameplateIndex = tonumber(nameplate:GetName():match("%d+"))
-    local newDisplay = self.preallocatedDisplaysByIndex[index][nameplateIndex]
+    local newDisplay = self.preallocatedDisplaysByIndex[self.seenStyleIndexes[StyleSettingsKey(settings)]][nameplateIndex]
     if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
       C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     end
@@ -901,7 +913,6 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     local nameplate = ...
     local index = tonumber(nameplate:GetName():match("%d+"))
     for _, list in ipairs(self.preallocatedDisplaysByIndex) do
-      list[index]:Hide()
       list[index]:SetParent(nameplate)
     end
   elseif eventName == "PLAYER_SOFT_INTERACT_CHANGED" then
@@ -947,13 +958,6 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     end
     self:UpdateObscuredAlpha()
   elseif eventName == "UI_SCALE_CHANGED" then
-    for unit, display in pairs(self.nameplateDisplays) do
-      local _, _, shouldSimplify = addonTable.Display.Context:GetAssignedDesign(unit)
-      display.offsetScale = addonTable.Core.GetDesignScale(shouldSimplify) * UIParent:GetEffectiveScale() * addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
-      if display.stackRegion then
-        self:UpdateStackingRegion(unit)
-      end
-    end
     self:UpdateNamePlateSize()
   elseif eventName == "PLAYER_ENTERING_WORLD" then
     self:UpdateInstanceShowState()

@@ -338,9 +338,11 @@ addonTable.CustomiseDialog.DesignWidgets = {
         reversed = false,
       },
       filters = {
-        dispelable = true,
+        dispellable = true,
         important = true,
         enrage = false,
+        defensive = false,
+        friendlyFromYou = true,
       },
       showType = true,
       showSwipe = true,

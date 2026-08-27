@@ -123,7 +123,7 @@ function addonTable.Display.AurasManagerMixin:DoesBuffFilterIn(auraInstanceID, d
     return false
   end
 
-  if self.buffsDetails.filters.dispelable and dispelName == nil then
+  if self.buffsDetails.filters.dispellable and dispelName == nil then
     return false
   end
 
@@ -269,7 +269,7 @@ function addonTable.Display.AurasManagerMixin:AddAuras(addedAuras)
   for _, aura in ipairs(addedAuras) do
     local keep = false
     if (((not self.isPlayer or not self.isFriendly and aura.isStealable) and self.buffsDetails and aura.isHelpful and
-        not legacy.blacklistedBuffs[aura.spellId] and ((not self.buffsDetails.dispelable and not self.buffsDetails.important) or aura.dispelName ~= nil)
+        not legacy.blacklistedBuffs[aura.spellId] and ((not self.buffsDetails.dispellable and not self.buffsDetails.important) or aura.dispelName ~= nil)
     ) or self.canAssist and self.buffsInclude[aura.spellId]) and (not self.canAssist or not self.buffsExclude[aura.spellId])
     then
       keep = true
