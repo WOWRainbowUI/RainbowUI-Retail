@@ -135,6 +135,7 @@ addonTable.Constants.KindToLabel = {
   ["icon"] = addonTable.Locales.ICON,
   ["group"] = addonTable.Locales.GROUP,
   ["stack"] = addonTable.Locales.STACK,
+  ["spacer"] = addonTable.Locales.SPACER,
 }
 
 addonTable.Constants.BarResourceLabelMap = {

@@ -40,7 +40,7 @@ function addonTable.Display.GroupMixin:ApplySize(width, height)
 
       for _, w in ipairs(self.children) do
         if w.ApplySize then
-          w:ApplySize(width, height)
+          w:ApplySize(width / w:GetScale(), height / w:GetScale())
         end
       end
     end
@@ -62,7 +62,7 @@ function addonTable.Display.GroupMixin:ApplySize(width, height)
 
       for _, w in ipairs(self.children) do
         if w.ApplySize then
-          w:ApplySize(width, height)
+          w:ApplySize(width / w:GetScale(), height / w:GetScale())
         end
       end
     end
@@ -73,7 +73,7 @@ function addonTable.Display.GroupMixin:ApplySize(width, height)
 
     for _, w in ipairs(self.children) do
       if w.ApplySize then
-        w:ApplySize(width, height)
+        w:ApplySize(width / w:GetScale(), height / w:GetScale())
       end
     end
   end

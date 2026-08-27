@@ -177,6 +177,27 @@ table.insert(runeBarTextures.entries, 6, {
     return details.foreground.readyColor
   end,
 })
+local comboPipBarTextures = CopyTable(pipBarTextures)
+table.insert(comboPipBarTextures.entries, 4, {
+  label = addonTable.Locales.CHARGED_BORDER_COLOR,
+  kind = "colorPicker",
+  setter = function(details, value)
+    details.border.chargedColor = value
+  end,
+  getter = function(details)
+    return details.border.chargedColor
+  end,
+})
+table.insert(comboPipBarTextures.entries, 7, {
+  label = addonTable.Locales.CHARGED_FOREGROUND_COLOR,
+  kind = "colorPicker",
+  setter = function(details, value)
+    details.foreground.chargedColor = value
+  end,
+  getter = function(details)
+    return details.foreground.chargedColor
+  end,
+})
 local barTextureNoForegroundColor = {
   label = addonTable.Locales.TEXTURES,
   entries = {
@@ -997,7 +1018,7 @@ addonTable.Designer.WidgetConfiguration = {
         --valueBarTexts,
       },
       ["combo-points"] = {
-        pipBarTextures,
+        comboPipBarTextures,
         --valueBarTexts,
       },
       ["soul-shards"] = {
@@ -1280,6 +1301,43 @@ addonTable.Designer.WidgetConfiguration = {
               setter = function() end,
               getter = function(details) return details end,
             }
+          }
+        }
+      }
+    }
+  },
+  ["spacer"] = {
+    ["*"] = {
+      ["*"] = {
+        {
+          label = addonTable.Locales.GENERAL,
+          entries = {
+            presets,
+            { kind = "spacer" },
+            {
+              label = addonTable.Locales.WIDTH,
+              kind = "slider",
+              min = 25, max = 800,
+              valuePattern = "%d%%",
+              setter = function(details, value)
+                details.width = value / 100
+              end,
+              getter = function(details)
+                return details.width * 100
+              end,
+            },
+            {
+              label = addonTable.Locales.HEIGHT,
+              kind = "slider",
+              min = 25, max = 800,
+              valuePattern = "%d%%",
+              setter = function(details, value)
+                details.height = value / 100
+              end,
+              getter = function(details)
+                return details.height * 100
+              end,
+            },
           }
         }
       }

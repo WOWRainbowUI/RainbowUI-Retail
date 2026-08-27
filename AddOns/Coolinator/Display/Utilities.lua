@@ -341,12 +341,14 @@ do
   local index = 0
   local helpful = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate")
   helpful:SetUnit("player")
+  local helpfulPet = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate")
+  helpfulPet:SetUnit("pet")
   local harmful = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate")
   harmful:SetUnit("target")
 
   local monitor = CreateFrame("Frame")
-  monitor:RegisterUnitEvent("UNIT_FACTION", "player", "target")
-  monitor:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", "player", "target")
+  monitor:RegisterUnitEvent("UNIT_FACTION", "player", "target", "pet")
+  monitor:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", "player", "target", "pet")
   monitor:RegisterEvent("PLAYER_TARGET_CHANGED")
   monitor:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
   monitor:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
@@ -362,10 +364,14 @@ do
       elseif data == "player" then
         helpful:SetEnabled(UnitCanAssist("player", "player"))
         helpful:UpdateAllAuras()
+      elseif data == "pet" then
+        helpfulPet:SetEnabled(UnitCanAssist("player", "pet"))
+        helpfulPet:UpdateAllAuras()
       end
     else
       harmful:UpdateAllAuras()
       helpful:UpdateAllAuras()
+      helpfulPet:UpdateAllAuras()
     end
   end)
 
@@ -373,7 +379,7 @@ do
     index = index + 1
     local key = tostring(index)
 
-    return key, helpful:AddAuraSlot(key, "HELPFUL|PLAYER", selfSettings), harmful:AddAuraSlot(key, "HARMFUL|PLAYER", targetSettings)
+    return key, helpful:AddAuraSlot(key, "HELPFUL|PLAYER", selfSettings), harmful:AddAuraSlot(key, "HARMFUL|PLAYER", targetSettings), helpfulPet:AddAuraSlot(key, "HELPFUL", selfSettings)
   end
 
   function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings)

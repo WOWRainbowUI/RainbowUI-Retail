@@ -126,7 +126,7 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
   horizontal = horizontal
   vertical = vertical
   if not self.helpfulButton then
-    self.index, self.helpfulButton, self.harmfulButton = addonTable.Display.GeneratePlayerAuraSlots(
+    self.index, self.helpfulButton, self.harmfulButton, self.helpfulPetButton = addonTable.Display.GeneratePlayerAuraSlots(
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)
         self.StyleButton(auraButton, self.details)
@@ -148,6 +148,10 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
     self.helpfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.helpfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
 
+    self.helpfulPetButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
+    self.helpfulPetButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
+    self.helpfulPetButton:SetFrameLevel(self:GetFrameLevel() + 1)
+
     self.harmfulButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
@@ -158,7 +162,8 @@ function addonTable.Display.AuraIconNextMixin:Setup(details)
   self.details = details
 
   self.include = {
-    includeSpellIDs = {[self.details.resource.spellID] = true}
+    includeSpellIDs = {[self.details.resource.spellID] = true},
+    isFromPlayerOrPlayerPet = true,
   }
   if addonTable.State.CDM.auraMap[self.details.resource.spellID] then
     local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[self.details.resource.spellID])
@@ -169,6 +174,7 @@ function addonTable.Display.AuraIconNextMixin:Setup(details)
 
   if self.helpfulButton then
     self.StyleButton(self.helpfulButton, details)
+    self.StyleButton(self.helpfulPetButton, details)
 
     self.SetBorders(self.harmfulButton, details)
     self.StyleButton(self.harmfulButton, details)
@@ -185,6 +191,7 @@ function addonTable.Display.AuraIconNextMixin:TriggerLayout()
 
   if self.helpfulButton:CanBeAccessedInContext() then
     self.helpfulButton:SetAlpha(self:GetEffectiveAlpha())
+    self.helpfulPetButton:SetAlpha(self:GetEffectiveAlpha())
     self.harmfulButton:SetAlpha(self:GetEffectiveAlpha())
   end
 end
@@ -207,6 +214,7 @@ end
 function addonTable.Display.AuraIconNextMixin:OnEvent(_, restrictionType, state)
   if addonTable.Utilities.WillRestrictionApplySoon(restrictionType, state) then
     self.helpfulButton:SetAlpha(1)
+    self.helpfulPetButton:SetAlpha(1)
     self.harmfulButton:SetAlpha(1)
   end
 end
