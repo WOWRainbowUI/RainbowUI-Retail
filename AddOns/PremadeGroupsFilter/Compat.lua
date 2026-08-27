@@ -22,11 +22,15 @@ local PGF = select(2, ...)
 local L = PGF.L
 local C = PGF.C
 
+-- Assumption: if there is no issecretvalue function, the value is never secret
+local issecretvalue = issecretvalue or function () return false end
+
 function PGF.GetSearchResultInfo(resultID)
     local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
     -- In rare cases such as when an application is full or rejected,
-    -- C_LFGList.GetSearchResultInfo returns nil
-    if not searchResultInfo then
+    -- C_LFGList.GetSearchResultInfo returns nil.
+    -- In restricted envs, the searchResultInfo table itself can be secret.
+    if not searchResultInfo or issecretvalue(searchResultInfo) then
         return nil
     end
     -- Copy the table to avoid tainting the original Blizzard data
@@ -51,13 +55,6 @@ end
 function PGF.GetSearchResultPlayerInfo(...)
     -- Copy the table to avoid tainting the original Blizzard data
     return PGF.Table_Copy_Rec(C_LFGList.GetSearchResultPlayerInfo(...))
-end
-
-function PGF.GetSearchResultMemberInfo(...)
-    local info = C_LFGList.GetSearchResultPlayerInfo(...)
-    if info then
-        return info.assignedRole, info.classFilename, info.className, info.specName, info.isLeader, info.isLeaver
-    end
 end
 
 function PGF.GetSearchResultMemberCounts(resultID)

@@ -22,6 +22,39 @@ local PGF = select(2, ...)
 local L = PGF.L
 local C = PGF.C
 
+local function AddMemberNames(tooltip, resultID, searchResultInfo)
+    local names = {}
+    local colors = {}
+    local hasNames = false
+    for i = 1, searchResultInfo.numMembers do
+        local playerInfo = PGF.GetSearchResultPlayerInfo(resultID, i)
+        names[i] = playerInfo.name
+        colors[i] = RAID_CLASS_COLORS[playerInfo.classFilename] or NORMAL_FONT_COLOR
+        hasNames = hasNames or playerInfo.name ~= nil
+    end
+    if not hasNames then return end
+
+    local tooltipName = tooltip:GetName()
+    local membersLine
+    for i = 1, tooltip:NumLines() do
+        local left = _G[tooltipName .. "TextLeft" .. i]
+        if left and left:GetText() == MEMBERS_COLON then
+            membersLine = i
+            break
+        end
+    end
+    if not membersLine then return end
+
+    for i = 1, searchResultInfo.numMembers do
+        if names[i] then
+            local right = _G[tooltipName .. "TextRight" .. (membersLine + i)]
+            right:SetText(names[i])
+            right:SetTextColor(colors[i].r, colors[i].g, colors[i].b)
+            right:Show()
+        end
+    end
+end
+
 function PGF.AddClassSpecListing(tooltip, resultID, searchResultInfo)
     tooltip:AddLine(" ")
     tooltip:AddLine(CLASS_ROLES)
@@ -45,10 +78,12 @@ function PGF.AddClassCountListing(tooltip, resultID, searchResultInfo)
     local roles = {}
     local classInfo = {}
     for i = 1, searchResultInfo.numMembers do
-        local role, class, classLocalized = PGF.GetSearchResultMemberInfo(resultID, i)
+        local playerInfo = PGF.GetSearchResultPlayerInfo(resultID, i)
+        local role = playerInfo.assignedRole
+        local class = playerInfo.classFilename
         if role and class then -- can be nil, see #297
             classInfo[class] = {
-                name = classLocalized or "?",
+                name = playerInfo.className or "?",
                 color = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR
             }
             if not roles[role] then roles[role] = {} end
@@ -76,8 +111,6 @@ function PGF.OnLFGListUtilSetSearchEntryTooltip(tooltip, resultID, autoAcceptOpt
     local activityInfo = PGF.GetActivityInfoTable(searchResultInfo.activityID)
     if not activityInfo then return end
 
-    -- do not show members where Blizzard already does that
-    if activityInfo.displayType == Enum.LFGListDisplayType.ClassEnumerate then return end
     -- RoleCount       Raids, BGs, Custom Groups
     -- RoleEnumerate   Dungeons
     -- ClassEnumerate  Arena
@@ -86,6 +119,14 @@ function PGF.OnLFGListUtilSetSearchEntryTooltip(tooltip, resultID, autoAcceptOpt
     -- Comment         ?
 
     if searchResultInfo.isDelisted or not tooltip:IsShown() then return end
+
+    if activityInfo.displayType == Enum.LFGListDisplayType.RoleEnumerate or
+            activityInfo.displayType == Enum.LFGListDisplayType.ClassEnumerate then
+        AddMemberNames(tooltip, resultID, searchResultInfo)
+    end
+
+    -- do not add a second member listing where Blizzard already shows it
+    if activityInfo.displayType == Enum.LFGListDisplayType.ClassEnumerate then return end
 
     -- restore age dropped in 10.2.7
     if searchResultInfo.age > 0 then
