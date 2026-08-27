@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.01 (19th August 2026)
+-- 	Leatrix Plus 12.1.02 (26th August 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.01"
+	LeaPlusLC["AddonVer"] = "12.1.02"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -576,7 +576,6 @@
 		LeaPlusLC:LockOption("NoChatButtons", "NoChatButtonsBtn", true)				-- Hide chat buttons
 		LeaPlusLC:LockOption("SetChatFontSize", "SetChatFontSizeBtn", true)			-- Set chat font size
 		LeaPlusLC:LockOption("FilterChatMessages", "FilterChatMessagesBtn", true)	-- Filter chat messages
-		LeaPlusLC:LockOption("MailFontChange", "MailTextBtn", true)					-- Resize mail text
 		LeaPlusLC:LockOption("QuestFontChange", "QuestTextBtn", true)				-- Resize quest text
 		LeaPlusLC:LockOption("MinimapModder", "ModMinimapBtn", true)				-- Enhance minimap
 		LeaPlusLC:LockOption("TipModEnable", "MoveTooltipButton", true)				-- Enhance tooltip
@@ -593,6 +592,7 @@
 		LeaPlusLC:LockOption("FasterLooting", "FasterLootingBtn", true)				-- Faster auto loot
 		LeaPlusLC:LockOption("NoTransforms", "NoTransformsBtn", false)				-- Remove transforms
 		LeaPlusLC:LockOption("SetAddtonOptions", "SetAddtonOptionsBtn", true)		-- Set additional options
+		LeaPlusLC:LockOption("SetEditModeLayout", "SetEditModeLayoutBtn", false)	-- Set edit mode layout
 	end
 
 ----------------------------------------------------------------------
@@ -627,7 +627,6 @@
 		or	(LeaPlusLC["HideKeybindText"]		~= LeaPlusDB["HideKeybindText"])		-- Hide keybind text
 		or	(LeaPlusLC["HideMacroText"]			~= LeaPlusDB["HideMacroText"])			-- Hide macro text
 
-		or	(LeaPlusLC["MailFontChange"]		~= LeaPlusDB["MailFontChange"])			-- Resize mail text
 		or	(LeaPlusLC["QuestFontChange"]		~= LeaPlusDB["QuestFontChange"])		-- Resize quest text
 
 		-- Interface
@@ -697,6 +696,104 @@
 ----------------------------------------------------------------------
 
 	function LeaPlusLC:Player()
+
+		----------------------------------------------------------------------
+		-- Set edit mode layout
+		----------------------------------------------------------------------
+
+		do
+
+			-- Create configuration panel
+			local LayoutPanel = LeaPlusLC:CreatePanel("Set edit mode layout", "LayoutPanel")
+
+			local titleTX = LeaPlusLC:MakeTx(LayoutPanel, "Layout name", 16, -72)
+			local LayoutBox = LeaPlusLC:CreateEditBox("LayoutBox", LayoutPanel, 500, 40, "TOPLEFT", 20, -92, "LayoutBox", "LayoutBox")
+
+			LeaPlusLC:CreateHelpButton("EditModeLayoutNameHelpButton", LayoutPanel, titleTX, "If the edit mode layout name that you enter here exists, that layout will be applied when you login to any character on your account.")
+
+			-- Apply the layout on login if it is not already active
+			if LeaPlusLC["SetEditModeLayout"] == "On" then
+				if EditModeManagerFrame then
+					local activeLayoutInfo = EditModeManagerFrame:GetActiveLayoutInfo()
+					local success, layouts = pcall(function() return EditModeManagerFrame:GetLayouts() end)
+					if success and layouts and type(layouts) == "table" then
+						for index, layout in ipairs(layouts) do
+							if layout.layoutName and layout.layoutName == LeaPlusLC["EditModeLayoutName"] then
+								if activeLayoutInfo.layoutName and activeLayoutInfo.layoutName ~= LeaPlusLC["EditModeLayoutName"] then
+									pcall(C_EditMode.SetActiveLayout, index)
+									LeaPlusLC:Print(L["Edit Mode layout"] .. " '" .. layout.layoutName .. "' " .. L["applied"])
+								end
+							end
+						end
+					end
+				end
+			end
+
+			-- Function to save the keyword
+			local function SetEditModeName()
+				local LayoutText = LayoutBox:GetText()
+				if LayoutText and LayoutText ~= "" then
+					LeaPlusLC["EditModeLayoutName"] = strtrim(LayoutBox:GetText())
+				else
+					LeaPlusLC["EditModeLayoutName"] = ""
+				end
+			end
+
+			-- Save the keyword when it changes
+			LayoutBox:SetScript("OnTextChanged", SetEditModeName)
+
+			-- Refresh editbox with trimmed keyword when edit focus is lost (removes additional spaces)
+			LayoutBox:SetScript("OnEditFocusLost", function()
+				LayoutBox:SetText(LeaPlusLC["EditModeLayoutName"])
+			end)
+
+			-- Help button hidden
+			LayoutPanel.h:Hide()
+
+			-- Back button handler
+			LayoutPanel.b:SetScript("OnClick", function()
+				-- Save the keyword
+				SetEditModeName()
+				-- Show the options panel
+				LayoutPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page8"]:Show()
+				return
+			end)
+
+			-- Add reset button
+			LayoutPanel.r:SetScript("OnClick", function()
+				-- Reset the keyword to default
+				LeaPlusLC["EditModeLayoutName"] = ""
+				-- Set the editbox to default
+				LayoutBox:SetText("")
+				-- Save the keyword
+				SetEditModeName()
+				-- Refresh panel
+				LayoutPanel:Hide(); LayoutPanel:Show()
+			end)
+
+			-- Ensure keyword is a string on startup
+			LeaPlusLC["EditModeLayoutName"] = tostring(LeaPlusLC["EditModeLayoutName"]) or ""
+
+			-- Set editbox value when shown
+			LayoutBox:HookScript("OnShow", function()
+				LayoutBox:SetText(LeaPlusLC["EditModeLayoutName"])
+			end)
+
+			-- Configuration button handler
+			LeaPlusCB["SetEditModeLayoutBtn"]:SetScript("OnClick", function()
+				if IsShiftKeyDown() and IsControlKeyDown() then
+					-- Preset profile
+					LeaPlusLC["EditModeLayoutName"] = "Main"
+					LayoutBox:SetText(LeaPlusLC["EditModeLayoutName"])
+					SetEditModeName()
+				else
+					-- Show panel
+					LayoutPanel:Show()
+					LeaPlusLC:HideFrames()
+				end
+			end)
+
+		end
 
 		----------------------------------------------------------------------
 		-- Set additional options
@@ -4227,66 +4324,6 @@
 					QuestSizeUpdate()
 				else
 					QuestTextPanel:Show()
-					LeaPlusLC:HideFrames()
-				end
-			end)
-
-		end
-
-		----------------------------------------------------------------------
-		--	Resize mail text
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["MailFontChange"] == "On" then
-
-			-- Create configuration panel
-			local MailTextPanel = LeaPlusLC:CreatePanel("Resize mail text", "MailTextPanel")
-
-			LeaPlusLC:MakeTx(MailTextPanel, "Text size", 16, -72)
-			LeaPlusLC:MakeSL(MailTextPanel, "LeaPlusMailFontSize", "Drag to set the font size of mail text.", 10, 30, 1, 16, -92, "%.0f")
-
-			-- Function to set the text size
-			local function MailSizeUpdate()
-				local MailFont, void, flags = QuestFont:GetFont()
-				OpenMailBodyText:SetFont("h1", MailFont, LeaPlusLC["LeaPlusMailFontSize"], flags)
-				OpenMailBodyText:SetFont("h2", MailFont, LeaPlusLC["LeaPlusMailFontSize"], flags)
-				OpenMailBodyText:SetFont("h3", MailFont, LeaPlusLC["LeaPlusMailFontSize"], flags)
-				OpenMailBodyText:SetFont("p", MailFont, LeaPlusLC["LeaPlusMailFontSize"], flags)
-				SendMailBodyEditBox:SetFont(MailFont, LeaPlusLC["LeaPlusMailFontSize"], flags)
-			end
-
-			-- Set text size after changing slider and on startup
-			LeaPlusCB["LeaPlusMailFontSize"]:HookScript("OnValueChanged", MailSizeUpdate)
-			MailSizeUpdate()
-
-			-- Help button hidden
-			MailTextPanel.h:Hide()
-
-			-- Back button handler
-			MailTextPanel.b:SetScript("OnClick", function()
-				MailTextPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page4"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			MailTextPanel.r:SetScript("OnClick", function()
-
-				-- Reset slider
-				LeaPlusLC["LeaPlusMailFontSize"] = 15
-
-				-- Refresh side panel
-				MailTextPanel:Hide(); MailTextPanel:Show()
-
-			end)
-
-			-- Show configuration panal when options panel button is clicked
-			LeaPlusCB["MailTextBtn"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaPlusLC["LeaPlusMailFontSize"] = 22
-					MailSizeUpdate()
-				else
-					MailTextPanel:Show()
 					LeaPlusLC:HideFrames()
 				end
 			end)
@@ -8690,6 +8727,9 @@
 			-- Show tooltip
 			local function ShowTip(self)
 
+				-- Do nothing in restricted environments
+				if C_ChatInfo.InChatMessagingLockdown() then return end
+
 				-- Required for Dragonflight (or not self:IsTooltipType(Enum.TooltipDataType.Unit))
 				if self ~= GameTooltip then return end
 
@@ -10304,9 +10344,6 @@
 				LeaPlusLC:LoadVarChk("HideKeybindText", "Off")				-- Hide keybind text
 				LeaPlusLC:LoadVarChk("HideMacroText", "Off")				-- Hide macro text
 
-				LeaPlusLC:LoadVarChk("MailFontChange", "Off")				-- Resize mail text
-				LeaPlusLC:LoadVarNum("LeaPlusMailFontSize", 15, 10, 30)		-- Mail text slider
-
 				LeaPlusLC:LoadVarChk("QuestFontChange", "Off")				-- Resize quest text
 				LeaPlusLC:LoadVarNum("LeaPlusQuestFontSize", 12, 10, 30)	-- Quest text slider
 
@@ -10411,6 +10448,8 @@
 				-- Settings
 				LeaPlusLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
 				LeaPlusLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
+				LeaPlusLC:LoadVarChk("SetEditModeLayout", "Off")			-- Set edit mode layout
+				LeaPlusLC["EditModeLayoutName"]	= LeaPlusDB["EditModeLayoutName"] or ""			-- Edit mode layout name
 				LeaPlusLC:LoadVarNum("PlusPanelScale", 1, 1, 2)				-- Panel scale
 				LeaPlusLC:LoadVarNum("PlusPanelAlpha", 0, 0, 1)				-- Panel alpha
 
@@ -10647,9 +10686,6 @@
 			LeaPlusDB["HideKeybindText"] 		= LeaPlusLC["HideKeybindText"]
 			LeaPlusDB["HideMacroText"] 			= LeaPlusLC["HideMacroText"]
 
-			LeaPlusDB["MailFontChange"] 		= LeaPlusLC["MailFontChange"]
-			LeaPlusDB["LeaPlusMailFontSize"] 	= LeaPlusLC["LeaPlusMailFontSize"]
-
 			LeaPlusDB["QuestFontChange"] 		= LeaPlusLC["QuestFontChange"]
 			LeaPlusDB["LeaPlusQuestFontSize"]	= LeaPlusLC["LeaPlusQuestFontSize"]
 
@@ -10755,6 +10791,8 @@
 			-- Settings
 			LeaPlusDB["ShowMinimapIcon"] 		= LeaPlusLC["ShowMinimapIcon"]
 			LeaPlusDB["UseEnglishLanguage"] 	= LeaPlusLC["UseEnglishLanguage"]
+			LeaPlusDB["SetEditModeLayout"] 		= LeaPlusLC["SetEditModeLayout"]
+			LeaPlusDB["EditModeLayoutName"] 	= LeaPlusLC["EditModeLayoutName"]
 			LeaPlusDB["PlusPanelScale"] 		= LeaPlusLC["PlusPanelScale"]
 			LeaPlusDB["PlusPanelAlpha"] 		= LeaPlusLC["PlusPanelAlpha"]
 
@@ -13287,7 +13325,7 @@
 				return
 			elseif str == "forced" then
 				-- Enable all addon restrictions
-				-- Example: /run ChatFrame1:SetMaxLines(4096) and whipser yourself
+				-- Example: /run ChatFrame1:SetMaxLines(4096) and whisper yourself
 				SetCVar("addonMapRestrictionsForced", "1")
 				SetCVar("addonChatRestrictionsForced", "1")
 				SetCVar("addonCombatRestrictionsForced", "1")
@@ -13374,8 +13412,6 @@
 				LeaPlusDB["HideKeybindText"] = "On"				-- Hide keybind text
 				LeaPlusDB["HideMacroText"] = "On"				-- Hide macro text
 
-				LeaPlusDB["MailFontChange"] = "On"				-- Resize mail text
-				LeaPlusDB["LeaPlusMailFontSize"] = 22			-- Mail font size
 				LeaPlusDB["QuestFontChange"] = "On"				-- Resize quest text
 				LeaPlusDB["LeaPlusQuestFontSize"] = 18			-- Quest font size
 
@@ -13459,6 +13495,8 @@
 				LeaPlusDB["AddOptNoMountBox"] = "On"			-- Uncheck mount special animation checkbox
 
 				LeaPlusDB["UseEnglishLanguage"] = "On"			-- Use English language
+				LeaPlusDB["SetEditModeLayout"] = "On"			-- Set edit mode layout
+				LeaPlusDB["EditModeLayoutName"] = "Main"		-- Edit mode layout name
 
 				-- Function to assign cooldowns
 				local function setIcon(pclass, pspec, sp1, pt1, sp2, pt2, sp3, pt3, sp4, pt4, sp5, pt5)
@@ -13797,10 +13835,8 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "HideMacroText"				,	"Hide macro text"				,	146, -172, 	true,	"If checked, macro text will not be shown on action buttons.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Text Size"					, 	340, -72)
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MailFontChange"			,	"Resize mail text"				, 	340, -92, 	true,	"If checked, you will be able to change the font size of standard mail text.|n|nThis does not affect mail created using templates (such as auction house invoices).")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "QuestFontChange"			,	"Resize quest text"				, 	340, -112, 	true,	"If checked, you will be able to change the font size of quest text.|n|nEnabling this option will also change the text size of other frames which inherit the same font (such as the Dungeon Finder frame).")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "QuestFontChange"			,	"Resize quest text"				, 	340, -92, 	true,	"If checked, you will be able to change the font size of quest text.|n|nEnabling this option will also change the text size of other frames which inherit the same font (such as the Dungeon Finder frame).")
 
-	LeaPlusLC:CfgBtn("MailTextBtn", LeaPlusCB["MailFontChange"])
 	LeaPlusLC:CfgBtn("QuestTextBtn", LeaPlusCB["QuestFontChange"])
 
 ----------------------------------------------------------------------
@@ -13902,8 +13938,13 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		false,	"If checked, a minimap button will be available.|n|nClick - Toggle options panel.|n|nSHIFT-click - Toggle music.|n|nCTRL-click - Toggle minimap target tracking.|n|nALT-click - Toggle errors (if enabled).|n|nCTRL/SHIFT-click - Toggle windowed mode.|n|nCTRL/ALT-click - Toggle Zygor (if installed).")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UseEnglishLanguage"		, "Use English language"			, 146, -112,	true,	"If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
+	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Edit Mode"					, 146, -152)
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetEditModeLayout"			, "Set edit mode layout"			, 146, -172,	false,	"If checked, you can specify an edit mode layout that will always be applied when you login to any character.")
+
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -72)
 	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "Drag to set the scale of the Leatrix Plus panel.", 1, 2, 0.1, 340, -92, "%.1f")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Transparency", 340, -132)
 	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelAlpha", "Drag to set the transparency of the Leatrix Plus panel.", 0, 1, 0.1, 340, -152, "%.1f")
+
+	LeaPlusLC:CfgBtn("SetEditModeLayoutBtn", LeaPlusCB["SetEditModeLayout"])

@@ -1,4 +1,10 @@
-﻿12.1.01 - 15th August 2026
+﻿12.1.02 - 26th August 2026
+- Added a new option called 'Set edit mode layout' ('Settings').  If checked, you can specify an edit mode layout that will be automatically applied when you login to any character.
+- The 'Resize mail text' option ('Text') had to be removed due to secrets issues.
+- For 'Enhance tooltip' ('Interface'), tooltips will no longer be processed in addon restricted environments.
+- For 'Mute game sounds' ('System'), added the new sounds for Valeera (Midnight).
+
+12.1.01 - 15th August 2026
 - For 'Enhance minimap' ('Interface'), added support for the Chatty Little NPC addon custom minimap button.
 - Fixed an issue with the /ltp ra (rare announce) command.  The command will no longer show an error in chat restricted environments.
 
