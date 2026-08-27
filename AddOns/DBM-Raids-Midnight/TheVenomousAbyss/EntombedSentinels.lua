@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2874, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260821052124")
+mod:SetRevision("20260826075515")
 mod:SetCreatureID(258558, 258557)
 mod:SetEncounterID(3445)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,15 +15,20 @@ mod:RegisterCombat("combat")
 --TODO, personal alerts for blighted Blood? or just generic warning fine?
 --TODO, https://www.wowhead.com/ptr/spell=1284485/debilitating-miasma isn't in journal but https://www.wowhead.com/ptr/spell=1288232/unstable-miasma is. I suspect only one of them exists (ID 642)
 --TODO, find encounter event Ids for warnings that will likely hook up to mythic venom types. they're probably assigned to Dungeon Ecounter 0
-DBM:RegisterAltSpellName(1284483, DBM_COMMON_L.DISPELS)--Blighted Blood --> Dispels
+DBM:RegisterAltSpellName(1288232, DBM_COMMON_L.GROUPSOAK)--Unstable Miasma --> Group Soak
+DBM:RegisterAltSpellName(1284251, DBM_COMMON_L.BIG_ADDS)--Venom Coagulation --> Big Adds
+DBM:RegisterAltSpellName(1284434, DBM_COMMON_L.GROUPSOAK.. " ".. DBM_COMMON_L.ORBS)--Toxic Droplets --> Soak Orbs
+DBM:RegisterAltSpellName(1284483, DBM_COMMON_L.POOL.. " ".. DBM_COMMON_L.DEBUFFS)--Blighted Blood --> Pool Debuffs
+DBM:RegisterAltSpellName(1284588, DBM_COMMON_L.MATHPUZZLE)--Vitriolic Stasis --> Math Puzzle
+--DBM:RegisterAltSpellName(1296878, DBM_COMMON_L.MATHPUZZLE)--Not sure what to give it yet
 local warnVitriolicStasis				= mod:NewCountAnnounce(1284588, 2)--Hardcode only
 local warnUnstableMiasma				= mod:NewCountAnnounce(1288232, 2)--Hardcode only
 
 local specWarnVenomCoagulation			= mod:NewSpecialWarningCount(1284251, nil, nil, nil, 2, 2, nil, nil, "bigmob")
 local specWarnToxicDroplets				= mod:NewSpecialWarningCount(1284434, nil, nil, nil, 2, 2, nil, nil, "helpsoak")
-local specWarnEmpoweringSlam			= mod:NewSpecialWarningCount(1284458, nil, nil, nil, 1, 2, nil, nil, "defensive")
-local specWarnBloodvenomInjection		= mod:NewSpecialWarningCount(1284487, nil, nil, nil, 1, 2, nil, nil, "defensive")
---local specWarnBlightedBlood				= mod:NewSpecialWarningCount(1284483, "Healer", nil, nil, 2, 2, nil, nil, "helpdispel")--Verify we want to dispel right away first
+local specWarnEmpoweringSlam			= mod:NewSpecialWarningDefensive(1284458, nil, nil, nil, 1, 2, nil, nil, "defensive")
+local specWarnBloodvenomInjection		= mod:NewSpecialWarningDefensive(1284487, nil, nil, nil, 1, 2, nil, nil, "defensive")
+--local specWarnBlightedBlood			= mod:NewSpecialWarningCount(1284483, "Healer", nil, nil, 2, 2, nil, nil, "helpdispel")--Verify we want to dispel right away first
 --local specWarnDebilitatingMiasma		= mod:NewSpecialWarningCount(1284485, nil, nil, nil, 2, 2, nil, nil, "keepmove")--Possibly unused
 --local specWarnUnstableMiasma			= mod:NewSpecialWarningSoakCount(1288232, nil, nil, nil, 2, 2, nil, nil, "gathershare")--Aura used instead
 local specWarnShiftingProtovenom		= mod:NewSpecialWarningCount(1296878, nil, nil, nil, 3, 19, 4, nil, "colorchange")
@@ -33,19 +38,20 @@ local timerToxicDropletsCD				= mod:NewCDCountTimer(20.5, 1284434, nil, nil, nil
 local timerEmpoweringSlamCD				= mod:NewCDCountTimer(20.5, 1284458, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerBloodvenomInjectionCD		= mod:NewCDCountTimer(20.5, 1284487, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerBlightedBloodCD				= mod:NewCDCountTimer(20.5, 1284483, nil, "Healer", nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)
---local timerDebilitatingMiasmaCD			= mod:NewCDCountTimer(20.5, 1284485, nil, nil, nil, 3)--Possibly unused
+--local timerDebilitatingMiasmaCD		= mod:NewCDCountTimer(20.5, 1284485, nil, nil, nil, 3)--Possibly unused
 local timerVitriolicStasisCD			= mod:NewCDCountTimer(20.5, 1284588, nil, nil, nil, 6)
 local timerUnstableMiasmaCD				= mod:NewCDCountTimer(20.5, 1288232, nil, nil, nil, 3)
 local timerShiftingProtovenomCD			= mod:NewCDCountTimer(20.5, 1296878, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerBerserkCD					= mod:NewBerserkTimer(600)
 
+--Aura sounds cannot be changed in combat. Pools do not drop on Normal/LFR, so use a generic debuff warning there.
 --Evidence Log https://www.warcraftlogs.com/reports/xdTc1fhtKWPrbCVv?fight=29&type=auras&spells=debuffs
-mod:AddAuraSoundOption(1284590, true, 1284588, 1, 1, "toxic", 2, 0)--Helical Toxins (better audio?)
-mod:AddAuraSoundOption(1284471, true, 1284483, 1, 1, "poolyou", 18, 0)--Blighted Blood
+mod:AddAuraSoundOption(1284590, true, 1284588, 1, 1, "phasechange", 2, 0)--Helical Toxins (better audio?)
+mod:AddAuraSoundOption(1284471, true, 1284483, 1, 1, "poolyou", 18, 0, {[14] = "debuffyou", [17] = "debuffyou"})--Blighted Blood
 mod:AddAuraSoundOption(1284210, true, 1284210, 1, 2, "watchfeet", 8, 0)--Blood Venom (1284208 is target ID but not logged so probbably no aura either)
 mod:AddAuraSoundOption(1288260, true, 1288232, 1, 1, "gathershare", 2, 0)--Unstable Miasma
-mod:AddAuraSoundOption(1288297, true, 1288232, 1, 3, "poolyou", 18, 0)--Clinging Mark (stacks from soaking unstalbe Miasma)
-mod:AddAuraSoundOption(1284491, true, 1284491, 1, 1, "poolyou", 18, 1)--Bloodvenom Injection (stacks only, cause you swap at 2+ stacks)
+mod:AddAuraSoundOption(1288297, true, 1288232, 1, 3, "poolyou", 18, 0, {[14] = "debuffyou", [17] = "debuffyou"})--Clinging Mark (stacks from soaking unstalbe Miasma)
+mod:AddAuraSoundOption(1284491, true, 1284491, 1, 1, "poolyou", 18, {0,1}, {[14] = "debuffyou", [17] = "debuffyou"})--Bloodvenom Injection
 --Debuffs that do not appear in combat log but MIGHT still work with aura sounds?
 mod:AddAuraSoundOption(1296880, true, 1296878, 1, 1, "movetopartner", 20, 0)--Shifting Protovenom
 
@@ -54,6 +60,7 @@ local badStateDetected = false--Used to track if hardcode features have failed a
 local badStateDetectedAt = nil
 local badStateDetectedDuringWipeResend = false
 local seenTimelineEventIDs = {}
+local timelineEventStartTimes = {}
 local firstBerserkIgnored = false
 local next22Event = "empoweringslam"
 local mythic20EventCycleIndex = 1
@@ -116,6 +123,7 @@ function mod:OnLimitedCombatStart()
 	badStateDetectedAt = nil
 	badStateDetectedDuringWipeResend = false
 	seenTimelineEventIDs = {}
+	timelineEventStartTimes = {}
 	self.vb.VenomCoagulationCount = 1
 	self.vb.ToxicDropletsCount = 1
 	self.vb.EmpoweringSlamCount = 1
@@ -150,6 +158,7 @@ function mod:OnCombatEnd()
 	badStateDetectedAt = nil
 	badStateDetectedDuringWipeResend = false
 	seenTimelineEventIDs = {}
+	timelineEventStartTimes = {}
 	firstBerserkIgnored = false
 	next22Event = "empoweringslam"
 	mythic20EventCycleIndex = 1
@@ -252,6 +261,9 @@ do
 		local isResend = seenTimelineEventIDs[eventID]
 		seenTimelineEventIDs[eventID] = true
 		local timerExact = eventInfo.duration
+		if not isResend then
+			timelineEventStartTimes[eventID] = {started = GetTime(), duration = timerExact}
+		end
 		local timer = math.floor(timerExact + 0.5)
 		if not badStateDetected then
 			local wasBadStateDetected = badStateDetected
@@ -266,8 +278,13 @@ do
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
 		if not eventID or not eventState then return end
+		local timelineEvent = timelineEventStartTimes[eventID]
+		timelineEventStartTimes[eventID] = nil
 		self:TLBatchUntrack(eventID)
-		if eventState == 2 then
+		-- Toxic Droplets, Venom Coagulation, and the 51.5s Coagulation row can reach their
+		-- scheduled expiry with state 3. Immediate state-3 rows are genuine reset cancellations.
+		local expiredWithCancelState = eventState == 3 and timelineEvent and math.abs((GetTime() - timelineEvent.started) - timelineEvent.duration) <= 1
+		if eventState == 2 or expiredWithCancelState then
 			local eventType, eventCount = self:TLCountFinish(eventID)
 			if not eventType or not eventCount then return end
 			if eventType == "venomcoagulation" then
@@ -277,11 +294,15 @@ do
 				specWarnToxicDroplets:Show(eventCount)
 				specWarnToxicDroplets:Play("helpsoak")
 			elseif eventType == "empoweringslam" then
-				specWarnEmpoweringSlam:Show(eventCount)
-				specWarnEmpoweringSlam:Play("defensive")
+				if self:IsTanking("player", "boss1", nil, true) then--Breath
+					specWarnEmpoweringSlam:Show()
+					specWarnEmpoweringSlam:Play("defensive")
+				end
 			elseif eventType == "bloodvenominjection" then
-				specWarnBloodvenomInjection:Show(eventCount)
-				specWarnBloodvenomInjection:Play("defensive")
+				if self:IsTanking("player", "boss2", nil, true) then--Blood
+					specWarnBloodvenomInjection:Show()
+					specWarnBloodvenomInjection:Play("defensive")
+				end
 			elseif eventType == "blightedblood" then
 			--	specWarnBlightedBlood:Show(eventCount)
 			--	specWarnBlightedBlood:Play("helpdispel")

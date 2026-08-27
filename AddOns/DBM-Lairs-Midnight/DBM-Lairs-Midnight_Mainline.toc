@@ -1,6 +1,6 @@
 ## Interface: 120007, 120100
 ## X-Min-Interface: 120007
-## Version: 12.1.5
+## Version: 12.1.6
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010Lairs (Midnight)|r

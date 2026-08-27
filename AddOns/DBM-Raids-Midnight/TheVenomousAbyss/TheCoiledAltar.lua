@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2883, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260821052124")
+mod:SetRevision("20260825220924")
 mod:SetCreatureID(259854, 257911)--Malacrass, Zul'jan
 mod:SetEncounterID(3429)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -18,20 +18,27 @@ mod:RegisterCombat("combat")
 --TODO, threat check to see WHICH tank is aiming frontal (Soul Severing) and give them a different audio from everyone else who is just dodging it
 --TODO, refine audio for second step of Toxic Deluge?
 --TODO, most mythic stuff missing due to no PTR logs
---DBM:RegisterAltSpellName(1257717, DBM_COMMON_L.ADDS)--Alluring Bubble --> Adds
+DBM:RegisterAltSpellName(1282487, DBM_COMMON_L.POOLS)--Fangs of the Coiled Altar --> Pools
+DBM:RegisterAltSpellName(1299960, DBM_COMMON_L.ORBS)--Toxic Deluge --> Orbs
+DBM:RegisterAltSpellName(1299680, DBM_COMMON_L.TANK .. " " .. DBM_COMMON_L.FRONTAL)--Sever --> Tank Frontal
+DBM:RegisterAltSpellName(1286573, DBM_COMMON_L.TANK .. " " .. DBM_COMMON_L.FRONTAL)--Soul Severing --> Tank Frontal
+DBM:RegisterAltSpellName(1287227, DBM_COMMON_L.TANK .. " " .. DBM_COMMON_L.FRONTAL)--Blighted Severing --> Tank Frontal
+DBM:RegisterAltSpellName(1286441, DBM_COMMON_L.ADDS)--Spiritcackle --> Adds
+DBM:RegisterAltSpellName(1298381, DBM_COMMON_L.POOLS)--Defilement of the Crucible --> Pools
+DBM:RegisterAltSpellName(1289900, DBM_COMMON_L.MINDCONTROL)--Deathmarch --> Mind Control
 local warnPhase2						= mod:NewPhaseAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
 local warnPhase3						= mod:NewPhaseAnnounce(3, 2, nil, nil, nil, nil, nil, 2)
 
-local specWarnUnnervingFixation			= mod:NewSpecialWarningYou(1285911, nil, nil, nil, 1, 19, nil, nil, "fixateyou")
+--local specWarnUnnervingFixation			= mod:NewSpecialWarningYou(1285911, nil, nil, nil, 1, 19, nil, nil, "fixateyou")
 local specWarnFangsoftheCoiledAlter		= mod:NewSpecialWarningCount(1282487, nil, nil, nil, 2, 2, nil, nil, "specialsoon")
 local specWarnGuilotine					= mod:NewSpecialWarningCount(1283485, nil, nil, nil, 2, 2, nil, nil, "helpsoak")
 local specWarnVenomfang					= mod:NewSpecialWarningCount(1282281, "RemovePoison", nil, nil, 2, 2, nil, nil, "helpdispel")
 local specWarnAxegrinder				= mod:NewSpecialWarningDodgeCount(1283832, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 local specWarnEternalNightfall			= mod:NewSpecialWarningCount(1286918, nil, nil, nil, 3, 2, nil, nil, "attackshield")
-local specWarnGloombomb					= mod:NewSpecialWarningYou(1286895, nil, nil, nil, 1, 2, nil, nil, "bombyou")
+local specWarnGloombomb					= mod:NewSpecialWarningBlizzYou(1286895, nil, nil, nil, 1, 2, nil, nil, "bombyou")
 local specWarnDeathmarch				= mod:NewSpecialWarningCount(1289900, nil, nil, nil, 2, 2, nil, nil, "findmc")
 local specWarnSoulSevering				= mod:NewSpecialWarningCount(1286573, nil, nil, nil, 2, 15, nil, nil, "frontal")--Stage 2 tank sever
-local specWarnSpiritcackle				= mod:NewSpecialWarningSwitchCount(1286441, nil, nil, nil, 1, 2, nil, nil, "killmob")
+local specWarnSpiritcackle				= mod:NewSpecialWarningCount(1286441, nil, nil, nil, 1, 2, nil, nil, "mobsoon")
 local specWarnDefilementoftheCrucible	= mod:NewSpecialWarningCount(1298381, nil, nil, nil, 2, 2, nil, nil, "specialsoon")--Stage 2 empowered version of Fang of the Crucible, same spellid but different encounter event ID
 local specWarnGrimGuillotine			= mod:NewSpecialWarningCount(1299266, nil, nil, nil, 2, 2, nil, nil, "helpsoak")--Stage 2 empowered version of Guillotine, same spellid but different encounter event ID
 local specWarnSever						= mod:NewSpecialWarningCount(1299680, nil, nil, nil, 2, 15, nil, nil, "frontal")--Stage 1 tank sever
@@ -65,7 +72,7 @@ mod:AddAuraSoundOption(1282419, true, 1299960, 1, 3, "holdingorb", 20, 0)--Volat
 mod:AddAuraSoundOption(1306906, "RemovePoison", 1282281, 1, 3, "poisonyou", 20, 0)--Venomfang
 mod:AddAuraSoundOption(1310498, true, 1299960, 3, 3, "holdingdeadlyorb", 20, 0)--Mutagenic Venom (Mutated version of Volatile Venom)
 mod:AddAuraSoundOption(1283290, true, 1282487, 1, 2, "watchfeet", 8, 0)--Noxious Ground
---mod:AddAuraSoundOption(1285911, true, 1285911, 1, 2, "fixateyou", 19, 0)--Unnerving Fixation (Uncomment if BlizzYou doesn't work correctly)
+mod:AddAuraSoundOption(1285911, true, 1285911, 1, 2, "fixateyou", 19, 0)--Unnerving Fixation (Uncomment if BlizzYou doesn't work correctly)
 mod:AddAuraSoundOption(1310744, true, 1285911, 1, 3, "defensive", 2, 0)--Malevolent Resonance (failed Unnerving Fixation mechanic)
 mod:AddAuraSoundOption(1297445, true, 1289900, 1, 1, "targetyou", 2, 0)--Dreadmarch
 mod:AddAuraSoundOption(1285017, true, 1283832, 1, 2, "watchfeet", 8, 0)--Axegrinder
@@ -111,7 +118,7 @@ local function setFallback(self, dontSetAlerts)
 		if self:CheckDispelFilter("poison") then
 			specWarnVenomfang:SetAlert(679, "helpdispel", 2, 2)
 		end
-		specWarnUnnervingFixation:SetAlert(667, "fixateyou", 19, 2, 0)
+		--specWarnUnnervingFixation:SetAlert(667, "fixateyou", 19, 2, 0)
 		specWarnFangsoftheCoiledAlter:SetAlert(677, "specialsoon", 2, 2)
 		specWarnGuilotine:SetAlert(678, "helpsoak", 2, 2)
 		specWarnAxegrinder:SetAlert(680, "watchstep", 2, 2)
@@ -119,7 +126,7 @@ local function setFallback(self, dontSetAlerts)
 		specWarnGloombomb:SetAlert(684, "bombyou", 2, 2, 0)
 		specWarnDeathmarch:SetAlert(685, "findmc", 2, 2)
 		specWarnSoulSevering:SetAlert(686, "frontal", 15, 2)
-		specWarnSpiritcackle:SetAlert(687, "killmob", 2, 2)
+		specWarnSpiritcackle:SetAlert(687, "mobsoon", 2, 2)
 		specWarnDefilementoftheCrucible:SetAlert(794, "specialsoon", 2, 2)
 		specWarnGrimGuillotine:SetAlert(803, "helpsoak", 2, 2)
 		specWarnSever:SetAlert(811, "frontal", 15, 2)
@@ -147,6 +154,7 @@ end
 
 function mod:OnLimitedCombatStart()
 	self:TLCountReset()
+	self:TLActiveEventReset()
 	self:SetStage(1)
 	stage1FortyTwoCount = 0
 	stage1FortyThreeCount = 0
@@ -170,7 +178,7 @@ function mod:OnLimitedCombatStart()
 	self.vb.SpiritcackleCount = 1
 	self.vb.ToxicDelugeCount = 1
 	--Hardcode features first
-	if DBM.Options.HardcodedTimer and (self:IsHeroic() or self:IsNormal()) and not badStateDetected then
+	if DBM.Options.HardcodedTimer and (self:IsHeroic() or self:IsNormal() or self:IsLFR() or self:IsStory()) and not badStateDetected then
 		self:IgnoreBlizzardAPI()
 		self:RegisterShortTermEvents(
 			"ENCOUNTER_TIMELINE_EVENT_ADDED",
@@ -186,6 +194,7 @@ end
 
 function mod:OnCombatEnd()
 	self:TLCountReset()
+	self:TLActiveEventReset()
 	stage1FortyTwoCount = 0
 	stage1FortyThreeCount = 0
 	stage2ThirtyFourCount = 0
@@ -243,13 +252,19 @@ do
 
 	---@param timer number
 	---@return boolean
-	local function isStage2BucketTimer(timer)
+	local function isHeroicStage2BucketTimer(timer)
 		return timer == 6 or timer == 13 or timer == 22 or timer == 31 or timer == 33 or timer == 34 or timer == 38 or timer == 70
 	end
 
 	---@param timer number
 	---@return boolean
-	local function isStage3UniqueTimer(timer)
+	local function isNormalStage2BucketTimer(timer)
+		return timer == 6 or timer == 32 or timer == 33 or timer == 34 or timer == 40 or timer == 70
+	end
+
+	---@param timer number
+	---@return boolean
+	local function isHeroicStage3UniqueTimer(timer)
 		return timer == 15 or timer == 29 or timer == 42 or timer == 51 or timer == 59 or timer == 66 or timer == 88 or timer == 94
 	end
 
@@ -269,7 +284,7 @@ do
 
 		if stage == 1 then
 			--Stage 1
-			if isStage2BucketTimer(timer) then
+			if isHeroicStage2BucketTimer(timer) then
 				enterStage2(self)
 				return timersHeroic(self, timer, timerExact, eventID)
 			elseif timer == 2 then--Toxic Deluge
@@ -303,7 +318,7 @@ do
 				return timersHeroic(self, timer, timerExact, eventID)
 			end
 			--Fallback stage 3 transition: unique stage 3 timer after long silence.
-			if isStage3UniqueTimer(timer) and (GetTime() - lastTLEvent) > 20 then
+			if isHeroicStage3UniqueTimer(timer) and (GetTime() - lastTLEvent) > 20 then
 				enterStage3(self)
 				return timersHeroic(self, timer, timerExact, eventID)
 			end
@@ -384,7 +399,10 @@ do
 
 		if stage == 1 then
 			--Normal stage 1: CoiledAltarWipe (Normal/Week1)
-			if timer == 2 then--Toxic Deluge
+			if isNormalStage2BucketTimer(timer) then
+				enterStage2(self)
+				return timersNormal(self, timer, timerExact, eventID)
+			elseif timer == 2 then--Toxic Deluge
 				handled = true
 				timerToxicDelugeCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "toxicDeluge", "ToxicDelugeCount"))
 			elseif timer == 12 then--Axegrinder
@@ -489,14 +507,17 @@ do
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		if eventInfo.source ~= 0 then return end
-		if not self:IsHeroic() and not self:IsNormal() then return end
+		if not self:IsHeroic() and not self:IsNormal() and not self:IsLFR() and not self:IsStory() then return end
 		local eventID = eventInfo.id
+		if C_EncounterTimeline.GetEventState(eventID) ~= 0 then return end
+		if not self:TLTrackActiveEvent(eventID) then return end
 		local timerExact = eventInfo.duration
 		local timer = math.floor(timerExact + 0.5)
 		if not badStateDetected then
 			if self:IsHeroic() then
 				timersHeroic(self, timer, timerExact, eventID)
 			else
+				--LFR and Story share the verified Normal timer sequence (LFR:World/Week2/TheCoiledAltar).
 				timersNormal(self, timer, timerExact, eventID)
 			end
 		end
@@ -504,10 +525,14 @@ do
 	end
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
-		if not self:IsHeroic() and not self:IsNormal() then return end
+		if not self:IsHeroic() and not self:IsNormal() and not self:IsLFR() and not self:IsStory() then return end
 		lastTLEvent = GetTime()
+		if not eventID then return end
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
-		if not eventID or not eventState then return end
+		if not eventState then return end
+		if eventState >= 2 then
+			self:TLReleaseActiveEvent(eventID)
+		end
 		if eventState == 2 then
 			local eventType, eventCount = self:TLCountFinish(eventID)
 			if not eventType then return end
@@ -528,8 +553,7 @@ do
 				specWarnEternalNightfall:Show(eventCount)
 				specWarnEternalNightfall:Play("attackshield")
 			elseif eventType == "gloombomb" then
-				specWarnGloombomb:Show()
-				specWarnGloombomb:Play("bombyou")
+				specWarnGloombomb:Show(eventCount, "bombyou")
 			elseif eventType == "deathmarch" then
 				specWarnDeathmarch:Show(eventCount)
 				specWarnDeathmarch:Play("findmc")
@@ -538,7 +562,7 @@ do
 				specWarnSoulSevering:Play("frontal")
 			elseif eventType == "spiritcackle" then
 				specWarnSpiritcackle:Show(eventCount)
-				specWarnSpiritcackle:Play("killmob")
+				specWarnSpiritcackle:Play("mobsoon")
 			elseif eventType == "defilement" then
 				specWarnDefilementoftheCrucible:Show(eventCount)
 				specWarnDefilementoftheCrucible:Play("specialsoon")

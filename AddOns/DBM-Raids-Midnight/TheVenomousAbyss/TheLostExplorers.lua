@@ -3,7 +3,7 @@ local mod	= DBM:NewMod(2894, "DBM-Raids-Midnight", 1, 1320)
 
 local UnitIsFriend = UnitIsFriend
 
-mod:SetRevision("20260821052124")
+mod:SetRevision("20260826071852")
 mod:SetCreatureID(261835, 261843, 261848)--261584 is Mor'zahi
 mod:SetEncounterID(3497)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -14,13 +14,13 @@ mod:SetBossHPInfoToHighest()
 mod:RegisterCombat("combat")
 mod:RegisterSafeEventsInCombat("UNIT_FLAGS boss1 boss3 boss4")
 
---DBM:RegisterAltSpellName(1257717, DBM_COMMON_L.ADDS)--Alluring Bubble --> Adds
 --TODO: Toss targets for toss mechanics?
 --TODO, Frostfire Volley patches need GTFOs, when it's possible (aura api?)
 --TODO, all of Mor'zahi mechanics are missing EncounterEvents (or assigned to invalid encounterIds)
 --NOTE: Blink Nova has two spellids and two encounter event IDs. TODO, identify if maybe diff IDs are diff teleport locations and further refine voice pack
 --NOTE: These 3 spells are not timeline based but activated on deaths that we cant detect so we'll use non hardcoded objects for them only. Cataclysmic Invocation, Relentless Escalation, and Smashing Shovel
 --TODO, maybe add a troll BOING sound to https://www.wowhead.com/ptr/spell=1299854/bounce ?
+DBM:RegisterAltSpellName(1295854, DBM_COMMON_L.TANKDEBUFF)--Shredding Shards --> Tank Debuff
 mod:AddCustomAlertSoundOption(1291390, true, 2)--Cataclysmic Invocation
 --mod:AddCustomAlertSoundOption(0, true, 2)--Relentless Escalation (no event ID?)
 --mod:AddCustomAlertSoundOption(0, true, 2)--Smashing Shovel (no event ID?)
@@ -120,6 +120,7 @@ function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1292779, 783, "stilldanger", 4)
 	badStateDetected = false
 	self:TLCountReset()
+	self:TLActiveEventReset()
 	delayedStarts = {}
 	pendingNormalStage = nil
 	normalStage2Special32Count = 0
@@ -154,6 +155,7 @@ end
 
 function mod:OnCombatEnd()
 	self:TLCountReset()
+	self:TLActiveEventReset()
 	self:Unschedule()
 	delayedStarts = {}
 	pendingNormalStage = nil
@@ -172,7 +174,7 @@ do
 		local entry = delayedStarts[eventID]
 		if not entry then return end
 		delayedStarts[eventID] = nil
-		entry.timerObj:TLStart(entry.timerExact, eventID, self:TLCountStart(eventID, entry.eventType, entry.countKey))
+		entry.timerObj:TLStart(entry.timerExact - 1, eventID, self:TLCountStart(eventID, entry.eventType, entry.countKey))
 	end
 
 	---@param self DBMMod
@@ -226,7 +228,8 @@ do
 			self:SetStage(3)
 			pendingNormalStage = nil
 			stage = 3
-		elseif ((stage == 2 or stage == 4) and (timer == 20 or timer == 60)) or stage == 3 and timer == 60 then
+		--The stage 1 Shell Spin opener can arrive before Final Ascension's later reset marker when returning from stage 4.
+		elseif (stage == 4 and (timer == 18 or timer == 20 or timer == 60)) or (stage == 2 and (timer == 20 or timer == 60)) or stage == 3 and timer == 60 then
 			self:SetStage(1)
 			pendingNormalStage = nil
 			normalNext31IsIce = true
@@ -368,18 +371,23 @@ do
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		if eventInfo.source ~= 0 or not self:IsNormal() or badStateDetected then return end
 		local eventID = eventInfo.id
+		if C_EncounterTimeline.GetEventState(eventID) ~= 0 or not self:TLTrackActiveEvent(eventID) then return end
 		local timerExact = eventInfo.duration
 		timersNormal(self, math.floor(timerExact + 0.5), timerExact, eventID)
 	end
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
+		if not eventID then return end
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
+		if not eventState then return end
+		if eventState >= 2 then
+			self:TLReleaseActiveEvent(eventID)
+		end
 		local queued = delayedStarts[eventID]
 		if eventState == 3 and queued then
 			delayedStarts[eventID] = nil
 			return
 		end
-		if not eventID or not eventState then return end
 		if eventState == 2 then
 			local eventType, eventCount = self:TLCountFinish(eventID)
 			if not eventType or not eventCount then return end
@@ -404,8 +412,10 @@ do
 				specWarnMushroomToss:Show(eventCount)
 				specWarnMushroomToss:Play("watchstep")
 			elseif eventType == "shredding" then
-				specWarnShreddingShards:Show()
-				specWarnShreddingShards:Play("defensive")
+				if self:IsTanking("player", "boss4", nil, true) then--Iku
+					specWarnShreddingShards:Show()
+					specWarnShreddingShards:Play("defensive")
+				end
 			elseif eventType == "frostfire" then
 				specWarnFrostfireVolley:Show(eventCount)
 				specWarnFrostfireVolley:Play("watchstep")

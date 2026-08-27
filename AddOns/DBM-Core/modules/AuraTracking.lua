@@ -275,7 +275,10 @@ end
 local function GetRowWidth(settings)
 	local width = settings.Width or 1
 	if settings.GrowDirection == "UP" or settings.GrowDirection == "DOWN" then
-		return width
+		local height = settings.Height or 1
+		local limit = settings.Limit or 1
+		local spacing = settings.Spacing or 0
+		return math.max(height, (height * limit) + (spacing * math.max(limit - 1, 0)))
 	end
 	local limit = settings.Limit or 1
 	local spacing = settings.Spacing or 0

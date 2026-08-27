@@ -1,35 +1,34 @@
 # DBM - Core
 
-## [12.1.5](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.5) (2026-08-21)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.4...12.1.5) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.1.6](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.6) (2026-08-26)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.5...12.1.6) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Update translations (#2185)  
-- Update koKR (#2188)  
-    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-    Co-authored-by: anon1231823 <67269448+anon1231823@users.noreply.github.com>  
 - prep new tag  
-- core function update  
-- missed another unused  
-- cleanup unused  
-- update nekzali heroic to live routing  
-- Fix both health not reporting for season 2 raids  
-- deal with some quirks on entombed  
-    1. boss can resend timers during deaths  
-    2. Boss sends duplicate timers every intermission that needed improved filters.  
-- Fix aura container not displaying most environmental/GTFO debuffs because they have no duration. So for now duration based filtering is scrapped. This should also hopefully fix important stacks from not showing on fangs  
-- Layout fixes  
-- altar normal update  
-- Enabe wavecaller wrouting on herioc and mythic. world, normal, and heroic confirmed same. mythic probably also same. similar to rotmire, everything same.  
-- Fix explorers not using correct in combat registerer  
-    Add color option for duration text to aura container  
-- never bumped alpha  
-- preliminary normal coiled alter hardcoded timers, more later tonight  
-- Add normal routing to vashnik as wel as handle better when boss resends duplicate timers  
-- Add confirmed normal routing on Sszorak. Drycode extrapolated mythic routing based on blizzards 1, 8/9, 4/5 scaling rules evidenced in other fights from past and fangs from this tier.  
-    Give fangs a safety rounding net for submerge variance  
-- Enable normal (and lfr by assumption) routing on sentinels, since logs confirm normal is compatible with existing heroic and mythic ptr routing.  
-- Rework explorers with multiple TL debug pulls of new evidence collection. disabled heroic and mythic routing for fight until that can be redone too  
-- Update localization.ru.lua (#2184)  
-- Add option to turn off challenge ui teleports.  
-- Normal nekzali routing  
-- Add normal mode routing and newly added submerge timer to twin fangs  
+- another audio tweak  
+- Make it possible to have custom audio based on difficulty. Resolves the issue with sentinel auras giving normal/LFR false warnings about dropping pools  
+- Work around blizzard bug on sentinels were some spells never fire alerts because completed timers falsely terminate with state 3  
+- Add missing GTFO to Nekzal  
+- improve several tank alerts to be threat based now that we have 2 weeks of evidence which boss unit id is which  
+- fix another tank only alert going off for everyone on explorers  
+- fix lost explorers routing issue  
+- fix bad spell id on scissor guy  
+- just treaing state 3 as finished in stage 3 still left some issues, particularly with waves. so lets pre schedule initially but use state 3 as backup. at very least this should resolve seeing the first waves alert 5 seconds late (and at same time as 2nd wave)  
+- and story altar too  
+- story mode fixes for ulatek  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2193  
+- fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2197  
+- function tweak for vashnik  
+- Since this blizz bug is common now, and can seemly happen on any fight, lets just create utility functions for it.  
+- fixes to coiled altar with fixation and bloom bomb  
+    bomb now correctly intercepts ENCOUNER\_WARNING, meanwhile fixation now uses aura since intercept can't be deterministic due to fixation being a secondary affect controled by damage  
+- Fix two batchable timers  
+- start unending tides berserk timer  
+- filter blizzard garbage, tighten other checks  
+- Further improve debug log with GUID/CID capturing  
+- add logging of warning severity as another tool for disambiguating warning text  
+- adjust order of operations to MAYBE address https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2193 which only affects certain users  
+- initial ulatek normal routing, but he died so fast didn't get stage 3, rip  
+- Push default renames to most bosses. Ulatek still WIP  
+- work around blizzard bug where alluring bubble always returns state 3 (and well after cast actually happens)  
+    fix my won bug that caused bar colors not to register to timeline when using both timeline and bars  
+- Bump alpha  
