@@ -199,8 +199,9 @@ local function GetSecondaryStatName(text)
     return statName and SECONDARY_STAT_NAMES[statName] and statName or nil;
 end
 
-local function GetBaseItemStatLines(itemId)
-    local baseItemId = Upgrade:GetBaseItemId(itemId);
+local function GetBaseItem(itemId)
+    local catalystItem = KeystoneLoot.CatalystDatabase[itemId];
+    local baseItemId = catalystItem and Favorites:GetCatalystItemForSlot(catalystItem.slotId);
     if (not baseItemId) then
         return nil;
     end
@@ -222,35 +223,65 @@ local function GetBaseItemStatLines(itemId)
         end
     end
 
-    return #statLines > 0 and statLines or nil;
+    if (#statLines == 0) then
+        return nil;
+    end
+
+    return C_Item.GetItemInfo(baseItemId), statLines;
+end
+
+local function CountSecondaryStatLines(itemLink)
+    local data = C_TooltipInfo.GetHyperlink(itemLink);
+    if (not data) then
+        return 0;
+    end
+
+    local count = 0;
+    for _, lineData in ipairs(data.lines) do
+        if (GetSecondaryStatName(lineData.leftText)) then
+            count = count + 1;
+        end
+    end
+
+    return count;
 end
 
 local function SetCatalystTooltip(itemId, itemLink)
-    local statLines = GetBaseItemStatLines(itemId);
+    local baseName, statLines = GetBaseItem(itemId);
+    local lastStatLine = CountSecondaryStatLines(itemLink);
     local Info = CreateBaseTooltipInfo("GetHyperlink", itemLink);
     local index = 0;
 
-    Info.linePreCall = function(tooltip, lineData)
+    Info.linePreCall = function(Tooltip, lineData)
         if (not GetSecondaryStatName(lineData.leftText)) then
             return;
         end
 
         index = index + 1;
+        if (index == 1) then
+            Tooltip:AddLine(" ");
+            Tooltip:AddLine(string.format("|cff9d5db8%s:|r", L["Tier token"]));
+        end
+    end;
 
-        if (not statLines) then
-            if (index > 1) then
-                return true;
-            end
-
-            lineData.leftText = L["+Secondary stats of the base item"];
+    Info.linePostCall = function(Tooltip, lineData)
+        if (index ~= lastStatLine or not GetSecondaryStatName(lineData.leftText)) then
             return;
         end
 
-        if (not statLines[index]) then
-            return true;
+        local color = lineData.leftColor or NORMAL_FONT_COLOR;
+
+        Tooltip:AddLine(" ");
+        Tooltip:AddLine(string.format("|cff9d5db8%s:%s|r", L["Catalyst"], baseName and (" " .. baseName) or ""));
+
+        if (not statLines) then
+            Tooltip:AddLine(L["+Secondary stats of the base item"], color:GetRGB());
+            return;
         end
 
-        lineData.leftText = statLines[index];
+        for _, statLine in ipairs(statLines) do
+            Tooltip:AddLine(statLine, color:GetRGB());
+        end
     end;
 
     GameTooltip:ProcessInfo(Info);

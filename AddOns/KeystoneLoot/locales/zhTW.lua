@@ -79,6 +79,7 @@ L["Must have"] = "必須取得";
 L["Best in Slot"] = "最佳裝備";
 L["Catalyst"] = "催化器";
 L["+Secondary stats of the base item"] = "+基礎物品的副屬性";
+L["Tier token"] = "套裝標記";
 
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "按 CTRL+C 複製";

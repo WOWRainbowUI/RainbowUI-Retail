@@ -1,6 +1,6 @@
-## New Features
-- Copy enchant and gem names from the context menu and the URL from the footer
-
 ## Bugfixes
-- Fixed item socket slots for necks and rings
-- Catalyst tooltips now show the secondary stats of the base item instead of Blizzard's values
+- Catalyst tooltips keep Blizzard's token values and list the catalyst result separately
+
+## Improvements
+- Show the favorite icon in EllesmereUI Bags
+- Optional EllesmereUI skin when the addon is installed

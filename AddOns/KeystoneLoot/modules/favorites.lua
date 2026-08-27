@@ -208,8 +208,8 @@ local function ParseV2(dataStr)
 end
 
 -- v3: KeystoneLoot:v3,<base64(compress(json))>
--- JSON: { ["<specId>"] = { { itemId=, tier=, bonusIds={}, gems={}, enchant=, baseItemId= }, ... } }
--- Returns: importedItems[specId] = { { itemId, tier, bonusIds, gems, enchant, baseItemId }, ... }
+-- JSON: { ["<specId>"] = { { itemId=, tier=, bonusIds={}, gems={}, enchant= }, ... } }
+-- Returns: importedItems[specId] = { { itemId, tier, bonusIds, gems, enchant }, ... }
 local function ParseV3(dataStr)
     local importedItems = {};
 
@@ -241,12 +241,11 @@ local function ParseV3(dataStr)
 
                 if (itemId) then
                     table.insert(importedItems[specId], {
-                        itemId     = itemId,
-                        tier       = tonumber(itemData.tier) or Favorites.TIER_MUST,
-                        bonusIds   = itemData.bonusIds,
-                        gems       = itemData.gems,
-                        enchant    = itemData.enchant,
-                        baseItemId = itemData.baseItemId,
+                        itemId   = itemId,
+                        tier     = tonumber(itemData.tier) or Favorites.TIER_MUST,
+                        bonusIds = itemData.bonusIds,
+                        gems     = itemData.gems,
+                        enchant  = itemData.enchant,
                     });
                 end
             end
@@ -346,7 +345,7 @@ function Favorites:GetTierIcon(tier)
     return self.TIER_TEXTURE[tier];
 end
 
-function Favorites:Add(sourceId, specId, itemId, tier, bonusIds, gems, enchant, baseItemId, characterKey)
+function Favorites:Add(sourceId, specId, itemId, tier, bonusIds, gems, enchant, characterKey)
     if (not sourceId or specId == nil or not itemId) then
         return false;
     end
@@ -372,7 +371,7 @@ function Favorites:Add(sourceId, specId, itemId, tier, bonusIds, gems, enchant, 
             -- Catalyst: add for all specs of the class
             for index = 1, C_SpecializationInfo.GetNumSpecializationsForClassID(classId) do
                 local resolvedSpecId = GetSpecializationInfoForClassID(classId, index);
-                self:Add(sourceId, resolvedSpecId, itemId, tier, bonusIds, gems, enchant, baseItemId, characterKey);
+                self:Add(sourceId, resolvedSpecId, itemId, tier, bonusIds, gems, enchant, characterKey);
             end
 
             return true;
@@ -382,7 +381,7 @@ function Favorites:Add(sourceId, specId, itemId, tier, bonusIds, gems, enchant, 
         if (item and item.classes[classId]) then
             -- Regular item: add only for specs that can use it
             for _, resolvedSpecId in ipairs(item.classes[classId]) do
-                self:Add(sourceId, resolvedSpecId, itemId, tier, bonusIds, gems, enchant, baseItemId, characterKey);
+                self:Add(sourceId, resolvedSpecId, itemId, tier, bonusIds, gems, enchant, characterKey);
             end
 
             return true;
@@ -408,11 +407,10 @@ function Favorites:Add(sourceId, specId, itemId, tier, bonusIds, gems, enchant, 
 
     -- Add item
     favorites[characterKey][sourceId][specId][itemId] = {
-        tier       = tier,
-        bonusIds   = bonusIds,
-        gems       = gems,
-        enchant    = enchant,
-        baseItemId = baseItemId,
+        tier     = tier,
+        bonusIds = bonusIds,
+        gems     = gems,
+        enchant  = enchant,
     };
 
     -- Save to DB
@@ -573,8 +571,31 @@ function Favorites:GetEnchant(itemId, specId)
     return GetExtras(itemId, "enchant", specId);
 end
 
-function Favorites:GetBaseItemId(itemId, specId)
-    return GetExtras(itemId, "baseItemId", specId);
+function Favorites:GetCatalystItemForSlot(slotId)
+    local characterKey = Character:GetSelectedKey();
+    local favorites    = DB:Get("favorites");
+
+    if (not slotId or not favorites or not favorites[characterKey]) then
+        return nil;
+    end
+
+    local bestItemId;
+
+    for sourceId, sourceData in pairs(favorites[characterKey]) do
+        if (sourceId ~= "catalyst") then
+            for _, specData in pairs(sourceData) do
+                for itemId, itemInfo in pairs(specData) do
+                    if (itemInfo.tier == self.TIER_CATALYST
+                            and self:GetItemSlotId(itemId) == slotId
+                            and (not bestItemId or itemId < bestItemId)) then
+                        bestItemId = itemId;
+                    end
+                end
+            end
+        end
+    end
+
+    return bestItemId;
 end
 
 function Favorites:SetTier(itemId, specId, tier, characterKey)
@@ -754,12 +775,11 @@ function Favorites:Export(characterKey)
                 end
 
                 table.insert(exportTable[specKey], {
-                    itemId     = itemId,
-                    tier       = itemInfo.tier or self.TIER_MUST,
-                    bonusIds   = itemInfo.bonusIds,
-                    gems       = itemInfo.gems,
-                    enchant    = itemInfo.enchant,
-                    baseItemId = itemInfo.baseItemId,
+                    itemId   = itemId,
+                    tier     = itemInfo.tier or self.TIER_MUST,
+                    bonusIds = itemInfo.bonusIds,
+                    gems     = itemInfo.gems,
+                    enchant  = itemInfo.enchant,
                 });
 
                 hasEntries = true;
@@ -843,7 +863,7 @@ function Favorites:Import(importStr, overwrite, characterKey)
                             tier = self.TIER_MUST;
                         end
 
-                        self:Add(sourceId, specId, itemData.itemId, tier, itemData.bonusIds, itemData.gems, itemData.enchant, itemData.baseItemId, characterKey);
+                        self:Add(sourceId, specId, itemData.itemId, tier, itemData.bonusIds, itemData.gems, itemData.enchant, characterKey);
                         totalImported = totalImported + 1;
                     else
                         skippedExisting = skippedExisting + 1;
