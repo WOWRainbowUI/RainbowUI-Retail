@@ -78,6 +78,7 @@ L["Nice to have"] = "Serait utile";
 L["Must have"] = "Indispensable";
 L["Catalyst"] = "Catalyseur";
 L["+Secondary stats of the base item"] = "+Statistiques secondaires de l'objet de base";
+L["Tier token"] = "Jeton de palier";
 
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "Appuyez sur CTRL+C pour copier";

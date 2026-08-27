@@ -79,6 +79,7 @@ L["Must have"] = "필수";
 L["Best in Slot"] = "최고 장비";
 L["Catalyst"] = "촉매";
 L["+Secondary stats of the base item"] = "+기본 아이템의 2차 능력치";
+L["Tier token"] = "티어 토큰";
 
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "CTRL+C를 눌러 복사";

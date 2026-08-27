@@ -82,6 +82,7 @@ L["Must have"] = "Muss haben";
 L["Catalyst"] = "Katalysator";
 L["Voidcore used"] = "Leerenkern benutzt";
 L["+Secondary stats of the base item"] = "+Sekundärwerte des Basis-Gegenstands";
+L["Tier token"] = "Tier-Token";
 
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "STRG+C zum Kopieren";

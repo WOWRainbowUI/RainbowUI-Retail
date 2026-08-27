@@ -80,6 +80,7 @@ L["Best in Slot"] = "БиС";
 L["Catalyst"] = "Катализатор";
 L["Voidcore used"] = "Использован сердечник Бездны";
 L["+Secondary stats of the base item"] = "+Вторичные характеристики базового предмета";
+L["Tier token"] = "Жетон сета";
 
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "Нажмите CTRL+C, чтобы скопировать";

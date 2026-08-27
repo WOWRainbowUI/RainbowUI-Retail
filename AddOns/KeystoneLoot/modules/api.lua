@@ -151,15 +151,14 @@ local function BuildEntry(sourceId, specId, itemId, itemInfo)
     local tier = itemInfo.tier or Favorites.TIER_MUST;
 
     return {
-        itemId     = itemId,
-        specId     = specId,
-        sourceId   = sourceId,
-        tier       = tier,
-        tierName   = Favorites.TIER_NAME[tier],
-        bonusIds   = CopyTableSafe(itemInfo.bonusIds, true),
-        gems       = CopyTableSafe(itemInfo.gems, true),
-        enchant    = itemInfo.enchant,
-        baseItemId = itemInfo.baseItemId,
+        itemId   = itemId,
+        specId   = specId,
+        sourceId = sourceId,
+        tier     = tier,
+        tierName = Favorites.TIER_NAME[tier],
+        bonusIds = CopyTableSafe(itemInfo.bonusIds, true),
+        gems     = CopyTableSafe(itemInfo.gems, true),
+        enchant  = itemInfo.enchant,
     };
 end
 
@@ -289,7 +288,7 @@ function API:ParseCharacterKey(characterKey)
     return Character:ParseKey(characterKey);
 end
 
--- All favorites: { itemId, specId, sourceId, tier, tierName, bonusIds, gems, enchant, baseItemId }
+-- All favorites: { itemId, specId, sourceId, tier, tierName, bonusIds, gems, enchant }
 function API:GetFavorites(characterKey)
     characterKey = ToCharacterKey(characterKey);
 
@@ -528,7 +527,7 @@ function API:GetItemInfo(itemId)
     };
 end
 
--- options: { bonusIds, gems, enchant, baseItemId, characterKey } - all optional
+-- options: { bonusIds, gems, enchant, characterKey } - all optional
 -- specId 0 adds the item for every spec of the class that can use it
 function API:AddFavorite(itemId, specId, tier, options)
     itemId = ToItemId(itemId);
@@ -568,7 +567,7 @@ function API:AddFavorite(itemId, specId, tier, options)
     end
 
     local success = Favorites:Add(sourceId, specId, itemId, tier, CopyTableSafe(options.bonusIds, true),
-        CopyTableSafe(options.gems, true), tonumber(options.enchant), tonumber(options.baseItemId), characterKey);
+        CopyTableSafe(options.gems, true), tonumber(options.enchant), characterKey);
 
     if (success) then
         RefreshUI();
