@@ -3,7 +3,7 @@
 ## Title: Leatrix Plus
 ## Notes: curseforge.com/wow/addons/leatrix-plus
 
-## Version: 12.1.01
+## Version: 12.1.02
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## LoadSavedVariablesFirst: true
