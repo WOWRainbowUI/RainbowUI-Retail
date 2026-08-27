@@ -44,6 +44,11 @@ function addonTable.Core.SavePreset(label, details, overwrite)
     if overwrite or not presets["group"][label] then
       presets["group"][label] = new
     end
+  elseif details.kind == "spacer" then
+    presets[details.kind] = presets[details.kind] or {}
+    if overwrite or not presets["spacer"][label] then
+      presets["spacer"][label] = new
+    end
   elseif details.kind == "icon" then
     presets[details.kind] = presets[details.kind] or {}
     presets[details.kind][details.resource.kind] = presets[details.kind][details.resource.kind] or {}
@@ -71,7 +76,7 @@ function addonTable.Core.GetPreset(details)
     return
   end
   local presets = addonTable.Config.Get(addonTable.Config.Options.PRESETS)
-  if details.kind == "group" then
+  if details.kind == "group" or details.kind == "spacer" then
     return presets[details.kind][details.preset]
   elseif details.kind == "icon" then
     return presets[details.kind][details.resource.kind][details.preset]
@@ -86,7 +91,7 @@ end
 
 function addonTable.Core.GetApplicablePresets(details)
   local presets = addonTable.Config.Get(addonTable.Config.Options.PRESETS)
-  if details.kind == "group" then
+  if details.kind == "group" or details.kind == "spacer" then
     return presets[details.kind] or {}
   elseif details.kind == "icon" then
     return presets[details.kind] and presets[details.kind][details.resource.kind] or {}
@@ -115,7 +120,7 @@ local function RemovePresetFromDesign(label, details, design)
   for _, entry in ipairs(design.entries) do
     if entry.preset and entry.preset == label then
       if entry.kind == details.kind then
-        if entry.kind == "group" then
+        if entry.kind == "group" or entry.kind == "spacer" then
           entry.preset = nil
         elseif entry.kind == "bar" and entry.resource.kind == details.resource.kind then
           if details.resource.kind == "class" and details.resource.resource == entry.resource.resource then
@@ -128,7 +133,7 @@ local function RemovePresetFromDesign(label, details, design)
         end
       end
     end
-    if entry.kind == "group" then
+    if entry.kind == "group" or entry.kind == "stack" then
       RemovePresetFromDesign(label, details, entry)
     end
   end
@@ -142,7 +147,7 @@ function addonTable.Core.DeletePreset(label, details)
   end
 
   local presets = addonTable.Config.Get(addonTable.Config.Options.PRESETS)
-  if details.kind == "group" then
+  if details.kind == "group" or details.kind == "spacer" then
     presets[details.kind][label] = nil
   elseif details.kind == "bar" then
     if details.resource.kind == "class" then
@@ -182,6 +187,10 @@ function addonTable.Core.GetPresetsGrouped(presets)
         table.insert(group.entries, details)
       end
     end
+  end
+
+  for _, details in pairs(presets["spacer"] or {}) do
+    table.insert(group.entries, details)
   end
 
   return group

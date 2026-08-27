@@ -247,3 +247,5 @@ end
 
 function addonTable.Designer.GroupMixin:TriggerLayout()
 end
+
+addonTable.Designer.SpacerMixin = CreateFromMixins(addonTable.Display.SpacerMixin)

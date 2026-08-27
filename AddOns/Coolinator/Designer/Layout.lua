@@ -264,6 +264,7 @@ function addonTable.Designer.LayoutManagerMixin:OnLoad()
   self.pools = {
     group = addonTable.Display.GeneratePool(addonTable.Designer.GroupMixin, ""),
     stack = addonTable.Display.GeneratePool(addonTable.Display.StackMixin, ""),
+    spacer = addonTable.Display.GeneratePool(addonTable.Designer.SpacerMixin, ""),
     icon = addonTable.Display.GeneratePool(addonTable.Designer.IconMixin, ""),
     bar = addonTable.Display.GeneratePool(addonTable.Designer.BarMixin, ""),
     barIcon = addonTable.Display.GeneratePool(addonTable.Designer.BarWithIconMixin, ""),
@@ -867,6 +868,10 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
     local new = CopyTable(addonTable.Designer.Defaults.CastBar)
     addonTable.Core.SavePreset(new.preset, new, false)
     addonTable.Core.ApplyPresetToDetails(new)
+    inserter(new)
+  end)
+  rootDescription:CreateButton(addonTable.Locales.SPACER, function()
+    local new = CopyTable(addonTable.Designer.Defaults.Spacer)
     inserter(new)
   end)
   if not noGroups then

@@ -394,6 +394,20 @@ local function Iconsv25(group)
   end
 end
 
+local function Combov26(group)
+  for i = #group.entries, 1, -1 do
+    local entry = group.entries[i]
+    if entry.kind == "group" or entry.kind == "stack" then
+      Combov26(entry)
+    elseif entry.kind == "bar" then
+      if entry.resource.kind == "class" and entry.resource.resource == "combo-points" then
+        entry.foreground.chargedColor = GetColor("55aaff")
+        entry.border.chargedColor = CopyTable(entry.border.readyColor)
+      end
+    end
+  end
+end
+
 local steps = {
   AddAlignment,
   addonTable.Core.RemoveDeadGroups,
@@ -423,6 +437,8 @@ local steps = {
   Iconsv24,
   Iconsv24,
   Iconsv25,
+  Combov26,
+  Combov26,
 }
 addonTable.Constants.CurrentLayoutVersion = #steps
 

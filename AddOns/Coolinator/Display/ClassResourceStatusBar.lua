@@ -10,13 +10,17 @@ addonTable.Display.ClassResourceStatusBar = {}
 local function SizeStatusBar(self, width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
   PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
   PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
 end
 
 local function PadStatusBar(self, horizontal, vertical)
   PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
+end
+
+local function GetApplicableSize(self)
+  return self.sizingWidth, self.sizingHeight
 end
 
 addonTable.Display.ClassResourceStatusBar.stagger = {}
@@ -39,6 +43,7 @@ function addonTable.Display.ClassResourceStatusBar.stagger:OnLoad()
   self.borderMask:SetAllPoints(self.statusBar)
 
   self.GetDefaultSize = GetDefaultSize
+  self.GetApplicableSize = GetApplicableSize
 
   self.text = self.statusBar:CreateFontString()
 
@@ -141,6 +146,8 @@ local function GenerateBarForAuraResource(spellID, max, label)
 
   mixin.ApplySize = SizeStatusBar
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 end
 
 local function GenerateBarForResource(primaryResource, label)
@@ -211,6 +218,8 @@ local function GenerateBarForResource(primaryResource, label)
     addonTable.Display.SizeTextsForBar(self, self.details, textsByKeys, self.details.scale)
   end
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 end
 
 local function GeneratePipResource(secondaryResource, label, divisor)
@@ -271,6 +280,85 @@ local function GeneratePipResource(secondaryResource, label, divisor)
 
   mixin.ApplySize = SizeStatusBar
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
+
+  function mixin:ShouldCollapse()
+    return true
+  end
+end
+
+local function GenerateComboPipResource(secondaryResource, label)
+  addonTable.Display.ClassResourceStatusBar[label] = {}
+  local mixin = addonTable.Display.ClassResourceStatusBar[label]
+
+  function mixin:OnLoad()
+    self:SetIgnoringChildrenForBounds(true)
+    addonTable.Display.GenerateStatusBar(self)
+  end
+
+  function mixin:OnEvent(eventName, ...)
+    self:Import()
+  end
+
+  function mixin:Setup(details)
+    self:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+    self:RegisterUnitEvent("UNIT_MAXPOWER", "player")
+
+    self.rawWidth, self.rawHeight, self.borderWidth, self.borderHeight, self.lowerScale = addonTable.Display.ApplyStatusBar(details, self.statusBar, self.border, self.borderMask, self.background)
+    self.details = details
+    self.index = details.index
+    self.statusBar:SetMinMaxValues(0, 1)
+
+    self.borderWrapper:SetFrameLevel(self.statusBar:GetFrameLevel() + 2)
+
+    self:Import()
+  end
+
+  function mixin:Disable()
+    self:UnregisterAllEvents()
+  end
+
+  function mixin:Import()
+    local max = UnitPowerMax("player", secondaryResource)
+    local current = UnitPower("player", secondaryResource)
+
+    if max < self.index then
+      self:Hide()
+      return
+    end
+    self:Show()
+
+    local charges = GetUnitChargedPowerPoints("player")
+    local isCharged = false
+
+    if charges then
+      for _, chargeIndex in ipairs(charges) do
+        if chargeIndex == self.index then
+          isCharged = true
+        end
+      end
+    end
+
+    self.border:SetVertexColor(self.details.border.color.r, self.details.border.color.g, self.details.border.color.b)
+    if isCharged then
+      self.border:SetVertexColor(self.details.border.chargedColor.r, self.details.border.chargedColor.g, self.details.border.chargedColor.b)
+      self.statusBar:GetStatusBarTexture():SetVertexColor(self.details.foreground.chargedColor.r, self.details.foreground.chargedColor.g, self.details.foreground.chargedColor.b)
+      self.statusBar:SetValue(1)
+    elseif current >= self.index then
+      self.border:SetVertexColor(self.details.border.readyColor.r, self.details.border.readyColor.g, self.details.border.readyColor.b)
+      self.statusBar:GetStatusBarTexture():SetVertexColor(self.details.foreground.color.r, self.details.foreground.color.g, self.details.foreground.color.b)
+      self.statusBar:SetValue(1)
+    else
+      self:SetShown(self.details.showEmpty)
+      self.statusBar:SetValue(0)
+    end
+  end
+
+  mixin.ApplySize = SizeStatusBar
+  mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 
   function mixin:ShouldCollapse()
     return true
@@ -349,6 +437,8 @@ local function GenerateEssenceResource(label)
 
   mixin.ApplySize = SizeStatusBar
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 
   function mixin:ShouldCollapse()
     return true
@@ -413,6 +503,8 @@ local function GenerateRunesResource(label)
 
   mixin.ApplySize = SizeStatusBar
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 end
 
 local function GeneratePipAuraResource(spellID, max, label, divisor)
@@ -473,6 +565,8 @@ local function GeneratePipAuraResource(spellID, max, label, divisor)
 
   mixin.ApplySize = SizeStatusBar
   mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
 
   function mixin:ShouldCollapse()
     return true
@@ -490,7 +584,7 @@ GenerateBarForResource(Enum.PowerType.LunarPower, "astral-power")
 GenerateBarForResource(Enum.PowerType.Maelstrom, "maelstrom")
 GeneratePipResource(Enum.PowerType.SoulShards, "soul-shards", 10)
 GeneratePipResource(Enum.PowerType.HolyPower, "holy-power")
-GeneratePipResource(Enum.PowerType.ComboPoints, "combo-points")
+GenerateComboPipResource(Enum.PowerType.ComboPoints, "combo-points")
 GeneratePipResource(Enum.PowerType.Chi, "chi")
 GeneratePipResource(Enum.PowerType.ArcaneCharges, "arcane-charges")
 GenerateEssenceResource("essence")

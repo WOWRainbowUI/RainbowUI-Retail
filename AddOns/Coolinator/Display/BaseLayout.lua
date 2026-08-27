@@ -16,6 +16,16 @@ function addonTable.Display.BaseLayoutManagerMixin:GetBar(details)
   assert(false)
 end
 
+function addonTable.Display.BaseLayoutManagerMixin:GetSpacer(details)
+  local spacer = self.pools.spacer:Acquire()
+  spacer:Show()
+  spacer:SetAlpha(1)
+  spacer:SetScale(1)
+  spacer:Setup(details)
+
+  return spacer
+end
+
 function addonTable.Display.BaseLayoutManagerMixin:Delayout()
   assert(false)
 end
@@ -103,6 +113,12 @@ function addonTable.Display.BaseLayoutManagerMixin:GetGroup(details)
         stack:SetAlpha(entry.alpha)
         stack:SetParent(wrapper)
         table.insert(wrapper.children, stack)
+      end
+    elseif entry.kind == "spacer" then
+      local spacer = self:GetSpacer(entry)
+      if spacer then
+        spacer:SetParent(wrapper)
+        table.insert(wrapper.children, spacer)
       end
     end
   end

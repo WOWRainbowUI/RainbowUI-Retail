@@ -23,6 +23,7 @@ function addonTable.Display.LayoutManagerSharedMixin:OnLoad()
   self.pools = {
     group = addonTable.Display.GeneratePool(addonTable.Display.GroupMixin),
     stack = addonTable.Display.GeneratePool(addonTable.Display.StackMixin),
+    spacer = addonTable.Display.GeneratePool(addonTable.Display.SpacerMixin),
     cooldown = addonTable.Display.GeneratePool(addonTable.Display.CooldownMixin),
     abilityBar = addonTable.Display.GeneratePool(addonTable.Display.AbilityStatusBarMixin),
     abilityChargesPip = addonTable.Display.GeneratePool(addonTable.Display.AbilityChargesPipMixin),

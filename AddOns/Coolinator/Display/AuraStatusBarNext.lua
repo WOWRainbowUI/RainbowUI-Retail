@@ -56,7 +56,7 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
     auraButton.borderWrapper:SetFrameLevel(auraButton.statusBar:GetFrameLevel() + 2)
     auraButton.TextsContainer:SetFrameLevel(auraButton.statusBar:GetFrameLevel() + 4)
     auraButton:SetDurationText(auraButton.TextsContainer.Duration, durationFormat)
-    auraButton:SetMouseMotionEnabled(false and addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
+    auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
 
     addonTable.Display.ApplyTexts(auraButton, details, textsByKey, details.scale)
 
@@ -118,6 +118,7 @@ function addonTable.Display.AuraStatusBarNextMixin:TriggerLayout()
 
   if self.helpfulButton:CanBeAccessedInContext() then
     self.helpfulButton:SetAlpha(self:GetEffectiveAlpha())
+    self.helpfulPetButton:SetAlpha(self:GetEffectiveAlpha())
     self.harmfulButton:SetAlpha(self:GetEffectiveAlpha())
   end
 end
@@ -150,7 +151,8 @@ function addonTable.Display.AuraStatusBarNextMixin:Setup(details)
   end
 
   self.include = {
-    includeSpellIDs = {[self.details.resource.spellID] = true}
+    includeSpellIDs = {[self.details.resource.spellID] = true},
+    isFromPlayerOrPlayerPet = true,
   }
   if addonTable.State.CDM.auraMap[self.details.resource.spellID] then
     local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[self.details.resource.spellID])
@@ -168,6 +170,7 @@ function addonTable.Display.AuraStatusBarNextMixin:Setup(details)
 
   if self.helpfulButton then
     self.StyleButton(self.helpfulButton, details, self.durationFormat)
+    self.StyleButton(self.helpfulPetButton, details, self.durationFormat)
     self.StyleButton(self.harmfulButton, details, self.durationFormat)
 
     addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include)
@@ -184,7 +187,7 @@ function addonTable.Display.AuraStatusBarNextMixin:ApplyPadding(horizontal, vert
   end
 
   if not self.helpfulButton then
-    self.index, self.helpfulButton, self.harmfulButton = addonTable.Display.GeneratePlayerAuraSlots(
+    self.index, self.helpfulButton, self.harmfulButton, self.helpfulPetButton = addonTable.Display.GeneratePlayerAuraSlots(
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)
         self.StyleButton(auraButton, self.details, self.durationFormat)
@@ -208,6 +211,10 @@ function addonTable.Display.AuraStatusBarNextMixin:ApplyPadding(horizontal, vert
     self.helpfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.helpfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
 
+    self.helpfulPetButton:SetSize(self.helpfulPetButton.sizingWidth + horizontal, self.helpfulPetButton.sizingHeight + vertical)
+    self.helpfulPetButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
+    self.helpfulPetButton:SetFrameLevel(self:GetFrameLevel() + 1)
+
     self.harmfulButton:SetSize(self.harmfulButton.sizingWidth + horizontal, self.harmfulButton.sizingHeight + vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
@@ -223,9 +230,7 @@ function addonTable.Display.AuraStatusBarNextMixin:ApplySize(width, height)
 
   if self.helpfulButton then
     self.SizeButton(self.helpfulButton, width, height)
-  end
-
-  if self.harmfulButton then
+    self.SizeButton(self.helpfulPetButton, width, height)
     self.SizeButton(self.harmfulButton, width, height)
   end
 end
@@ -245,6 +250,7 @@ end
 function addonTable.Display.AuraStatusBarNextMixin:OnEvent(_, restrictionType, state)
   if addonTable.Utilities.WillRestrictionApplySoon(restrictionType, state) then
     self.helpfulButton:SetAlpha(1)
+    self.helpfulPetButton:SetAlpha(1)
     self.harmfulButton:SetAlpha(1)
   end
 end
