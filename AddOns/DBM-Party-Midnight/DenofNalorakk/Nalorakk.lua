@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2778, "DBM-Party-Midnight", 5, 1311)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260801215244")
+mod:SetRevision("20260824193124")
 --mod:SetCreatureID()--TOO many IDs to guess
 mod:SetEncounterID(3209)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -35,7 +35,18 @@ mod.vb.furyCount = 0
 mod.vb.onslaughtCount = 0
 local next25IsMaul = true
 local timerTypeByEventID = {}
+local replacementTimersByEventID = {}
 local badStateDetected = false
+local replacementTimerValues = {
+	--Blizzard first sends bad timers, then replaces and cancels them in a later dispatch.
+	[5] = true,
+	[13] = true,
+	[54] = true,
+}
+local batchTimerValues = {
+	--25-second Maul/Onslaught events can be legitimate overlaps, so only suppress same-dispatch batches.
+	[25] = true,
+}
 
 ---@param self DBMMod
 ---@param dontSetAlerts boolean? Called on engage when we only want to set timeline parameters and not touch encounter alerts
@@ -54,11 +65,13 @@ end
 
 function mod:OnLimitedCombatStart()
 	self:TLCountReset()
+	self:TLBatchReset()
 	self.vb.maulCount = 1
 	self.vb.furyCount = 1
 	self.vb.onslaughtCount = 1
 	next25IsMaul = true
 	timerTypeByEventID = {}
+	replacementTimersByEventID = {}
 	if DBM.Options.HardcodedTimer and not badStateDetected then
 		self:IgnoreBlizzardAPI()
 		self:RegisterShortTermEvents(
@@ -73,6 +86,8 @@ end
 
 function mod:OnCombatEnd()
 	self:TLCountReset()
+	self:TLBatchReset()
+	replacementTimersByEventID = {}
 	self:UnregisterShortTermEvents()
 end
 
@@ -82,28 +97,46 @@ do
 	---@param timerExact number
 	---@param eventID number
 	local function timersAll(self, timer, timerExact, eventID)
-		local eventType
+		local timerObj, eventType, countKey
 		if timer == 5 then
+			timerObj = timerEchoingMaulCD
 			eventType = "maul"
+			countKey = "maulCount"
 		elseif timer == 13 then
+			timerObj = timerOverwhelmingOnslaughtCD
 			eventType = "onslaught"
+			countKey = "onslaughtCount"
 		elseif timer == 54 then
+			timerObj = timerFuryoftheWarGodCD
 			eventType = "fury"
+			countKey = "furyCount"
 		elseif timer == 25 then
-			eventType = next25IsMaul and "maul" or "onslaught"
-			next25IsMaul = not next25IsMaul
-			timerTypeByEventID[eventID] = eventType .. "25"
+			self:TLBatchStart(timer, function(_, survivingEventID)
+				local eventType = next25IsMaul and "maul" or "onslaught"
+				next25IsMaul = not next25IsMaul
+				timerTypeByEventID[survivingEventID] = eventType .. "25"
+				if eventType == "maul" then
+					return timerEchoingMaulCD, eventType, "maulCount"
+				end
+				return timerOverwhelmingOnslaughtCD, eventType, "onslaughtCount"
+			end, timerExact, eventID, nil, nil, batchTimerValues)
+			return true
 		else
 			return
 		end
 		timerTypeByEventID[eventID] = timerTypeByEventID[eventID] or eventType
-		if eventType == "maul" then
-			timerEchoingMaulCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, eventType, "maulCount"))
-		elseif eventType == "onslaught" then
-			timerOverwhelmingOnslaughtCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, eventType, "onslaughtCount"))
-		else
-			timerFuryoftheWarGodCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, eventType, "furyCount"))
+		local replacedEventID = self:TLBatchTrackLatest(timer, eventID, replacementTimerValues)
+		if replacedEventID == eventID then return true end
+		if replacedEventID then
+			local replacedTimer = replacementTimersByEventID[replacedEventID]
+			if replacedTimer then
+				replacedTimer.timerObj:Stop(replacedTimer.count)
+				replacementTimersByEventID[replacedEventID] = nil
+			end
 		end
+		local eventCount = self:TLCountStart(eventID, eventType, countKey)
+		timerObj:TLStart(timerExact, eventID, eventCount)
+		replacementTimersByEventID[eventID] = {timerObj = timerObj, count = eventCount}
 		return true
 	end
 
@@ -125,8 +158,13 @@ do
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
 		if not eventID or not eventState then return end
+		if eventState >= 2 then
+			self:TLBatchUntrack(eventID)
+			replacementTimersByEventID[eventID] = nil
+		end
 		if eventState == 2 then
 			local eventType, eventCount = self:TLCountFinish(eventID)
+			timerTypeByEventID[eventID] = nil
 			if eventType and eventCount then
 				if eventType == "maul" then
 					warnEchoingMaul:Show(eventCount)

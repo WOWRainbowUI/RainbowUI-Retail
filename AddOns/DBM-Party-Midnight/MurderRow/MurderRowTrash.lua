@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("MurderRowTrash", "DBM-Party-Midnight", 2)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260810165039")
+mod:SetRevision("20260826065652")
 --mod:SetModelID(47785)
 mod:SetZone(2813)
 
@@ -27,8 +27,8 @@ mod:AddGossipOption(true, "Action")
 function mod:GOSSIP_SHOW()
 	local gossipOptionID = self:GetGossipID()
 	if gossipOptionID then
-		--Balath Dawnblade NPC before server event
-		if self.Options.AutoGossipAction and gossipOptionID == 131567 then
+		--Balath Dawnblade NPC before server event and event itself
+		if self.Options.AutoGossipAction and (gossipOptionID == 131567 or gossipOptionID == 131502) then
 			self:SelectGossip(gossipOptionID)
 		end
 	end

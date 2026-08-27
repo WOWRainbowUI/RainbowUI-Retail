@@ -1,7 +1,14 @@
 local mod	= DBM:NewMod(2503, "DBM-Party-Dragonflight", 7, 1202)
-local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260820222945")
+-- North-West, South-West, South-East, North-East
+local windDirections = {
+	[0] = DBM_COMMON_L.NORTHWEST,
+	[1] = DBM_COMMON_L.SOUTHWEST,
+	[2] = DBM_COMMON_L.SOUTHEAST,
+	[3] = DBM_COMMON_L.NORTHEAST
+}
+
+mod:SetRevision("20260824065548")
 mod:SetCreatureID(190484, 190485)
 mod:SetEncounterID(2623)
 mod:SetZone(2521)
@@ -12,9 +19,10 @@ mod:SetHotfixNoticeRev(20230109000000)
 
 mod:RegisterCombat("combat")
 
+DBM:RegisterAltSpellName(381517, 227878)--Winds of Change -> Winds
 if DBM:IsPostMidnight() then
 	--TODO, infernospit has two IDs, 381602 for timer and 381605 for debuff alert an one is cast alert (889 vs 894).
-	--local warnWindsofChange						= mod:NewCountAnnounce(381517, 3)--Not actually a count timer, but has best localized text (disabled until hardcode)
+	local warnWindsofChange						= mod:NewCountAnnounce(381517, 3)--Not actually a count timer, but has best localized text
 
 	local specWarnInfernoSpit						= mod:NewSpecialWarningBlizzYou(381602, nil, nil, nil, 2, 18, nil, nil, "poolyou")--381605
 	local specWarnRoaringFirebreath					= mod:NewSpecialWarningDodge(381525, nil, nil, nil, 2, 2, nil, nil, "breathsoon")
@@ -33,7 +41,6 @@ if DBM:IsPostMidnight() then
 	local badStateDetected = false
 	local nextTwentyIsFirebreath = true
 	local nextSixteenIsFirebreath = true
-	local windsEventIDs = {}
 	---@param self DBMMod
 	---@param dontSetAlerts boolean? Called on engage when we only want to set timeline parameters and not touch encounter alerts
 	local function setFallback(self, dontSetAlerts)
@@ -57,7 +64,7 @@ if DBM:IsPostMidnight() then
 
 	function mod:OnLimitedCombatStart()
 		self:TLCountReset()
-		self:TLBatchReset()
+		self:TLActiveEventReset()
 		self:SetStage(1)
 		self.vb.infernospitCount = 1
 		self.vb.firebreathCount = 1
@@ -66,7 +73,6 @@ if DBM:IsPostMidnight() then
 		self.vb.cloudburstCount = 1
 		nextTwentyIsFirebreath = true
 		nextSixteenIsFirebreath = true
-		windsEventIDs = {}
 		if DBM.Options.HardcodedTimer and not badStateDetected then
 			self:IgnoreBlizzardAPI()
 			self:RegisterShortTermEvents("ENCOUNTER_TIMELINE_EVENT_ADDED", "ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED")
@@ -78,8 +84,7 @@ if DBM:IsPostMidnight() then
 
 	function mod:OnCombatEnd()
 		self:TLCountReset()
-		self:TLBatchReset()
-		windsEventIDs = {}
+		self:TLActiveEventReset()
 		self:UnregisterShortTermEvents()
 	end
 
@@ -89,9 +94,14 @@ if DBM:IsPostMidnight() then
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
 		if eventState ~= 0 then return end
 		--Transition batches can resend an active event ID with a new positive duration.
-		if self:TLBatchTrackLatest(eventID, eventID) == eventID then return end
+		if not self:TLTrackActiveEvent(eventID) then return end
 		local timerExact = eventInfo.duration
 		local timer = math.floor(timerExact + 0.5)
+		--The P2 batch starts with a 5-second Firebreath and 13-second Inferno Spit.
+		--The only P1 5-second event is the opening Stormslam, whose count is still 1.
+		if timer == 5 and self:GetStage(1) and self.vb.stormslamCount > 1 then
+			self:SetStage(2)
+		end
 		local handled = false
 		if self:GetStage(1) then
 			if timer == 1 or (timer == 20 and nextTwentyIsFirebreath) then
@@ -104,8 +114,8 @@ if DBM:IsPostMidnight() then
 				timerStormslamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "stormslam", "stormslamCount"))
 				handled = true
 			elseif timer == 10 or timer == 22 then
-				windsEventIDs[eventID] = true
-				timerWindsofChangeCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "winds", "windsCount"))
+				local windCount = self:TLCountStart(eventID, "winds", "windsCount")
+				timerWindsofChangeCD:TLStart(timerExact, eventID, windDirections[((windCount or 1) - 1) % 4], windCount)
 				handled = true
 			elseif timer == 12 or (timer == 20 and not nextTwentyIsFirebreath) then
 				if timer == 20 then
@@ -131,8 +141,8 @@ if DBM:IsPostMidnight() then
 				timerInfernoSpitCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "infernospit", "infernospitCount"))
 				handled = true
 			elseif timer == 22 then
-				windsEventIDs[eventID] = true
-				timerWindsofChangeCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "winds", "windsCount"))
+				local windCount = self:TLCountStart(eventID, "winds", "windsCount")
+				timerWindsofChangeCD:TLStart(timerExact, eventID, windDirections[((windCount or 1) - 1) % 4], windCount)
 				handled = true
 			elseif timer == 23 then
 				timerStormslamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "stormslam", "stormslamCount"))
@@ -152,9 +162,12 @@ if DBM:IsPostMidnight() then
 	end
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
+		if not eventID then return end
 		local eventState = C_EncounterTimeline.GetEventState(eventID)
 		if not eventState then return end
-		self:TLBatchUntrack(eventID)
+		if eventState >= 2 then
+			self:TLReleaseActiveEvent(eventID)
+		end
 		if eventState == 2 then
 			local eventType, eventCount = self:TLCountFinish(eventID)
 			if eventType == "infernospit" and eventCount then
@@ -162,6 +175,9 @@ if DBM:IsPostMidnight() then
 			elseif eventType == "firebreath" and eventCount then
 				specWarnRoaringFirebreath:Show()
 				specWarnRoaringFirebreath:Play("breathsoon")
+			elseif eventType == "winds" and eventCount then
+				---@diagnostic disable-next-line: param-type-mismatch
+				warnWindsofChange:Show(windDirections[(eventCount - 1) % 4])
 			elseif eventType == "stormslam" and eventCount then
 				if self:IsTank() then
 					specWarnStormslam:Show()
@@ -172,12 +188,8 @@ if DBM:IsPostMidnight() then
 				specWarnInterruptingCloudburst:Play("stopcast")
 			end
 		elseif eventState == 3 then
-			if windsEventIDs[eventID] and self:GetStage(1) then
-				self:SetStage(2)
-			end
 			self:TLCountCancel(eventID)
 		end
-		windsEventIDs[eventID] = nil
 	end
 else
 	mod:RegisterEventsInCombat(
@@ -193,7 +205,6 @@ else
 	 or ability.id = 181089
 	 or type = "dungeonencounterstart" or type = "dungeonencounterend"
 	--]]
-	DBM:RegisterAltSpellName(381517, 227878)--Winds of Change -> Winds
 	--Kyrakka
 	mod:AddTimerLine(DBM:EJ_GetSectionInfo(25365))
 	local warnFlamespit								= mod:NewTargetNoFilterAnnounce(381605, 3)
@@ -232,14 +243,6 @@ else
 		end
 	end
 
-	--Count started at 0 because count is incremented in success event not start
-	local directions = {
-		[0] = L.North,
-		[1] = L.West,
-		[2] = L.South,
-		[3] = L.East
-	}
-
 	local function scanBosses(self, delay)
 		for i = 1, 2 do
 			local unitID = "boss"..i
@@ -261,7 +264,7 @@ else
 	function mod:OnCombatStart(delay)
 		self.vb.windDirection = 0
 		self:SetStage(1)
-		timerWindsofChangeCD:Start(17.1-delay, L.North)
+		timerWindsofChangeCD:Start(17.1-delay, windDirections[0])
 		self:Schedule(1, scanBosses, self, delay)--1 second delay to give IEEU time to populate boss guids
 		self.vb.dragonAlive = true
 		if self.Options.InfoFrame then
@@ -288,7 +291,7 @@ else
 			timerRoaringFirebreathCD:Start(18, args.sourceGUID)--18-27
 		elseif spellId == 381517 then
 			---@diagnostic disable-next-line: param-type-mismatch
-			warnWindsofChange:Show(directions[self.vb.windDirection])
+			warnWindsofChange:Show(windDirections[self.vb.windDirection])
 		elseif spellId == 381512 then
 			if self:IsTanking("player", nil, nil, true, args.sourceGUID) then--Using GUID check because might be boss1 or boss2
 				specWarnStormslam:Show()
@@ -313,7 +316,7 @@ else
 			if self.vb.windDirection == 4 then
 				self.vb.windDirection = 0
 			end
-			timerWindsofChangeCD:Start(nil, directions[self.vb.windDirection])
+			timerWindsofChangeCD:Start(nil, windDirections[self.vb.windDirection])
 		end
 	end
 

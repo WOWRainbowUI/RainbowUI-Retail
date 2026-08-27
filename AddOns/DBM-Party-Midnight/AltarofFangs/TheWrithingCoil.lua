@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2879, "DBM-Party-Midnight", 9, 1322)
 local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260821065732")
+mod:SetRevision("20260823190258")
 --mod:SetCreatureID(231631)
 mod:SetEncounterID(3457)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -26,6 +26,7 @@ local timerVindictiveOnslaughtCD	= mod:NewCDCountTimer(8, 1299940, nil, nil, nil
 local timerDeathRattleCD			= mod:NewCDCountTimer(8, 1299053, nil, nil, nil, 3)
 local timerToxicBarrageCD			= mod:NewCDCountTimer(8, 1310357, nil, nil, nil, 5)
 local timerToxicAtrophyCD			= mod:NewCDCountTimer(8, 1310547, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
+local timerAssimilationCD			= mod:NewCDCountTimer(8, 1300686, nil, nil, nil, 6)
 
 --mod:AddAuraSoundOption(470966, true, 470966, 4, 1, "justrun", 2)
 
@@ -62,6 +63,7 @@ local function setFallback(self, dontSetAlerts)
 	timerDeathRattleCD:SetTimeline(816, onlyColor)
 	timerToxicBarrageCD:SetTimeline(938, onlyColor)
 	timerToxicAtrophyCD:SetTimeline(939, onlyColor)
+	timerAssimilationCD:SetTimeline(818, onlyColor)
 end
 
 function mod:OnLimitedCombatStart()
@@ -115,7 +117,7 @@ do
 		elseif timer == 14 or timer == 23 then
 			timerToxicBarrageCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "toxicBarrage", "ToxicBarrageCount"))
 		elseif timer == 25 then
-			self:TLCountStart(eventID, "assimilation", "AssimilationCount")
+			timerAssimilationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "assimilation", "AssimilationCount"))
 		elseif timer == 30 or timer == 39 then
 			timerVindictiveOnslaughtCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "vindictiveOnslaught", "VindictiveOnslaughtCount"))
 		elseif timer == 44 or timer == 53 then
