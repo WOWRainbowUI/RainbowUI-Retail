@@ -388,7 +388,7 @@ ns.RegisterCallback("SettingsApplied", "visibility", function() V.Refresh() end)
 -- /muf debug
 ------------------------------------------------------------
 function V.Debug()
-    local out = {}
+    local out = { ("anyConditions=%s"):format(tostring(V.anyConditions)) }
     for _, unit in ipairs(ns.UNITS) do
         local uf = ns.frames[unit]
         if uf and uf.visGate then
