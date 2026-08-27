@@ -1,6 +1,6 @@
 # RangeDisplay
 
-## [v6.3.4](https://github.com/mitchnull/RangeDisplay/tree/v6.3.4) (2026-07-30)
-[Full Changelog](https://github.com/mitchnull/RangeDisplay/compare/v6.3.3...v6.3.4) 
+## [v6.3.5](https://github.com/mitchnull/RangeDisplay/tree/v6.3.5) (2026-08-27)
+[Full Changelog](https://github.com/mitchnull/RangeDisplay/compare/v6.3.4...v6.3.5) 
 
-- toc bump  
+- dummy commit to grab new deps  
