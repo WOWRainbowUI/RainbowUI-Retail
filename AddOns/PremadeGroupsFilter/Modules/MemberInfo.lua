@@ -24,7 +24,7 @@ local C = PGF.C
 
 --- Sets member info keyword values based on the search result info
 function PGF.PutSearchResultMemberInfos(resultID, searchResultInfo, env)
-    -- init to zero
+    -- initialize keyword values
     env.ranged = 0
     env.melees = 0
     env.hasmyclass = false
@@ -32,6 +32,13 @@ function PGF.PutSearchResultMemberInfos(resultID, searchResultInfo, env)
     env.hasmyspec = false
     env.hasmyarmor = false
     env.hasleaver = false
+    env.memberminlvl = math.huge
+    env.membermaxlvl = 0
+    env.memberavglvl = 0
+    local memberLevelTotal = 0
+    local memberLevelCount = 0
+    local memberLevels = {}
+    local memberNames = {}
     local mySpecInfo = PGF.GetSpecializationInfoForPlayer()
     local specs = PGF.GetAllSpecializations()
     for specID, specInfo in pairs(specs) do
@@ -44,11 +51,21 @@ function PGF.PutSearchResultMemberInfos(resultID, searchResultInfo, env)
 
     -- increment keywords
     for i = 1, searchResultInfo.numMembers do
-        local role, class, classLocalized, specLocalized, isLeader, isLeaver = PGF.GetSearchResultMemberInfo(resultID, i)
-        if isLeaver then
+        local playerInfo = PGF.GetSearchResultPlayerInfo(resultID, i)
+        if playerInfo.name then
+            memberNames[playerInfo.name:lower()] = true
+        end
+        if playerInfo.level and playerInfo.level > 0 then
+            env.memberminlvl = math.min(env.memberminlvl, playerInfo.level)
+            env.membermaxlvl = math.max(env.membermaxlvl, playerInfo.level)
+            memberLevelTotal = memberLevelTotal + playerInfo.level
+            memberLevelCount = memberLevelCount + 1
+            table.insert(memberLevels, playerInfo.level)
+        end
+        if playerInfo.isLeaver then
             env.hasleaver = true
         end
-        local specInfo = PGF.GetSpecializationInfoByLocalizedName(class, specLocalized)
+        local specInfo = PGF.GetSpecializationInfoByLocalizedName(playerInfo.classFilename, playerInfo.specName)
         if specInfo then
             if specInfo.role == "DAMAGER" then
                 env.ranged = env.ranged + (specInfo.range and 1 or 0)
@@ -74,6 +91,40 @@ function PGF.PutSearchResultMemberInfos(resultID, searchResultInfo, env)
                 end
             end
         end
+    end
+    if memberLevelCount > 0 then
+        env.memberavglvl = memberLevelTotal / memberLevelCount
+    else
+        env.memberminlvl = 0
+    end
+    env.hasmemberlvl = function(min, max)
+        for _, level in ipairs(memberLevels) do
+            if (not min or level >= min) and (not max or level <= max) then
+                return true
+            end
+        end
+        return false
+    end
+    env.memberlvlcount = function(min, max)
+        local count = 0
+        for _, level in ipairs(memberLevels) do
+            if (not min or level >= min) and (not max or level <= max) then
+                count = count + 1
+            end
+        end
+        return count
+    end
+    env.hasmember = function(name)
+        return type(name) == "string" and memberNames[name:lower()] or false
+    end
+    env.findmember = function(query)
+        if type(query) ~= "string" then return false end
+        query = query:lower()
+        if query == "" then return false end
+        for memberName in pairs(memberNames) do
+            if memberName:find(query, 1, true) then return true end
+        end
+        return false
     end
 
     -- set aliases
@@ -122,14 +173,14 @@ end
 function PGF.GetSearchResultMemberInfoTable(resultID, numMembers)
     local members = {}
     for i = 1, numMembers do
-        local role, class, classLocalized, specLocalized, isLeader, isLeaver = PGF.GetSearchResultMemberInfo(resultID, i)
-        local specInfo = PGF.GetSpecializationInfoByLocalizedName(class, specLocalized)
+        local playerInfo = PGF.GetSearchResultPlayerInfo(resultID, i)
+        local specInfo = PGF.GetSpecializationInfoByLocalizedName(playerInfo.classFilename, playerInfo.specName)
         if specInfo then
             local memberInfo = PGF.Table_Copy_Shallow(specInfo)
-            memberInfo.isLeader = isLeader
-            memberInfo.isLeaver = isLeaver
-            memberInfo.leaderMarkup = isLeader and string.format("|A:%s:10:12:0:0|a", C.LEADER_ATLAS) or ""
-            memberInfo.leaverMarkup = isLeader and string.format("|A:%s:10:12:0:0|a", C.LEAVER_ATLAS) or ""
+            memberInfo.isLeader = playerInfo.isLeader
+            memberInfo.isLeaver = playerInfo.isLeaver
+            memberInfo.leaderMarkup = playerInfo.isLeader and string.format("|A:%s:10:12:0:0|a", C.LEADER_ATLAS) or ""
+            memberInfo.leaverMarkup = playerInfo.isLeader and string.format("|A:%s:10:12:0:0|a", C.LEAVER_ATLAS) or ""
             table.insert(members, memberInfo)
         end
     end
