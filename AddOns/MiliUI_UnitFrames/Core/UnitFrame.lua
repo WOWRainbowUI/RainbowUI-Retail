@@ -323,38 +323,191 @@ end
 -- Spawn
 ------------------------------------------------------------
 ------------------------------------------------------------
--- 右鍵選單
+-- 右鍵選單：交給暴雪的安全動作 "togglemenu"，經一顆隱藏代理鈕轉送
 --
--- ⚠⚠ **不要用 `type2 = "togglemenu"`。** 暴雪那支安全動作是靠一串
---     UnitIsUnit(unit, "player") / "vehicle" / "pet"
--- 決定要開哪一種選單，而 12.1 的 `UnitIsUnit` 對**身分受限**的單位回**秘密布林**
--- （受限＝不是你控制的、也不在你隊伍／團隊裡）。所以對「不同隊的玩家」，判斷鏈在
--- 走到「這是玩家」那一條之前就被前面某一條吃掉 —— 實際症狀是**跳出寵物選單**。
--- 距離只是表象：隊友再遠也正常，路人站旁邊一樣壞。
+-- ⚠⚠ **不要自己開整份選單，已試過兩次都失敗。**
+-- 自己算出選單類型再呼叫 UnitPopup_OpenMenu 會開出正確的選單，但整份選單帶著
+-- 我們的 taint ⇒ 保護項目（設為焦點 FocusUnit…）按下去跳「嘗試進行 Blizzard UI
+-- 專屬動作，遭到封鎖」的強制彈窗，還會建議玩家關掉插件；包 securecallfunction
+-- 也救不回來（2026-08-26 實測）。安全開啟是保護項目能動的唯一路。
 --
--- 改成自己決定選單類型，完全不碰 UnitIsUnit：
---   * 能靜態決定的直接查表（玩家／寵物／焦點／首領）
---   * 剩下的看**已經消毒過**的 cache.isPlayer —— 受限單位抽不出明文時它是 false，
---     就退回 TARGET，那是暴雪自己對非玩家目標用的選單，內容會自己適應
+-- ⚠ 暴雪那支安全動作有個引擎端缺陷：它靠
+--     UnitIsUnit(unit, "player") / "vehicle" / "pet" → … → UnitIsPlayer(unit)
+-- 決定選單種類，而 12.1 的 UnitIsUnit 對**身分受限**的單位回秘密布林（受限＝
+-- 不是你控制的、也不在你隊伍／團隊裡；離線／不同區的隊友資料沒串流過來也算），
+-- 判斷在走到「這是玩家」之前就被前面某一條吃掉 —— 症狀是跳出寵物選單。
+-- 這改不了，只能事後補救（見下面的後掛勾）。
 ------------------------------------------------------------
-local STATIC_MENU = {
-    player = "SELF",
-    pet    = "PET",
-    focus  = "FOCUS",
-    boss   = "BOSS",
+local PET_MENUS = { PET = true, OTHERPET = true, OTHERBATTLEPET = true }
+
+-- 會被誤判的 token。刻意用白名單：寵物家族的 token（pet / partypetN / raidpetN）
+-- 開寵物選單是對的，不能碰。
+--
+-- 為什麼剛好是這幾個：SECURE_ACTIONS.togglemenu 先拿 token 字串分類，比中就結束——
+-- partyN / bossN / focus / arenaN 都在那一段早退出，**一次 UnitIsUnit 都不呼叫**。
+-- 比不中的才會掉進 UnitIsUnit 鏈，而 TARGET 的判斷排在寵物家族**後面**，所以
+-- target / targettarget / focustarget 是會被誤判的那幾個。
+-- （focus 其實早退出、不會誤判，留著是防其他分類路徑。）
+local MENU_FIX_TOKENS = {
+    target = true, targettarget = true, focus = true, focustarget = true,
 }
 
-local function MenuType(uf)
-    local which = STATIC_MENU[uf.unitKey]
-    if which then return which end
-    -- isPlayer 為真 ⇒ 這個單位不受限（受限的抽不出明文，Cache 會存成 false），
-    -- 所以下面兩支問下去是安全的；保險起見仍然過 ToBool
-    if uf.cache and uf.cache.isPlayer then
-        if ns.ToBool(UnitInRaid(uf.unit)) then return "RAID_PLAYER" end
-        if ns.ToBool(UnitInParty(uf.unit)) then return "PARTY" end
-        return "PLAYER"
+-- 該重開哪一種選單。raidN / partyN 直接從 token 推；target 這類指向不固定的
+-- token 用 GUID 對照隊伍名冊 —— 隊友／團友的 GUID 就算離線、不同區也讀得到。
+-- 分 PARTY / RAID_PLAYER 而不是一律 PLAYER，差別就是「開除隊伍成員」那幾項
+-- 在不在選單裡（實際回報的場景正是要踢離線隊友：PLAYER 選單根本沒有踢人項目，
+-- 看起來就是「選單無法踢掉他」）。
+local function MenuWhichFor(lu, guid)
+    if lu:match("^raid%d+$") then return "RAID_PLAYER" end
+    if lu:match("^party%d+$") then return "PARTY" end
+    if IsInRaid() then
+        for i = 1, GetNumGroupMembers() do
+            if ns.Desecret(UnitGUID("raid" .. i)) == guid then return "RAID_PLAYER" end
+        end
+    elseif IsInGroup() then
+        for i = 1, 4 do
+            if ns.Desecret(UnitGUID("party" .. i)) == guid then return "PARTY" end
+        end
     end
-    return "TARGET"
+    return "PLAYER"
+end
+
+------------------------------------------------------------
+-- 重開的那份選單帶著 taint，有幾個項目**一定**壞，開著只會炸或污染：
+--   設為焦點／跟隨   保護函式，點了跳 FORBIDDEN（前一版實測）
+--   標記目標圖示     子選單每顆勾選都比較 GetRaidTargetIndex —— 12.1 是秘密數字，
+--                    tainted 執行一比就炸（LUA_WARNING UnitPopupSharedButtonMixins
+--                    2489 ＋ fontString nil 連鎖，整片子選單壞掉、警告刷屏）；
+--                    就算畫得出來，SetRaidTarget 也是保護函式
+--   檢視房屋         tainted 跑 HouseListFrame:InitWithContextData 會把房屋清單
+--                    污染到底：之後連安全選單開的「拜訪房屋」都被擋，直到重登
+-- 全部灰掉。reopenUnit 閘保證只動我們重開的那一份，正常的安全選單一個不碰。
+-- （ModifyMenu 的回呼是在 UnitPopup_OpenMenu **裡面**同步跑的，旗標包住呼叫就夠。）
+------------------------------------------------------------
+local reopenUnit
+
+-- 「複製角色名稱」的替代品：CopyToClipboard 是**保護函式**（實測 FORBIDDEN，
+-- 訊息就點名它），tainted 選單裡點暴雪那顆必被封鎖，名字給得再全也沒用。
+-- 改開一個 Blizzard 風格的彈窗、名字反白 —— 剪貼簿我們寫不進去，
+-- 但玩家自己 Ctrl+C 不受任何限制。
+local COPY_POPUP = "MILIUIUF_COPY_NAME"
+StaticPopupDialogs[COPY_POPUP] = {
+    text = COPY_CHARACTER_NAME,
+    button1 = OKAY,
+    hasEditBox = true,
+    editBoxWidth = 260,
+    OnShow = function(self, data)
+        -- 12.x 的 StaticPopup 欄位是大寫 EditBox（舊版小寫 editBox），兩個都認
+        local eb = self.EditBox or self.editBox
+        if not eb then return end
+        eb:SetText(data or "")
+        eb:HighlightText()
+        eb:SetFocus()
+    end,
+    -- 唯讀：使用者一改就還原（跟共用層複製框同一套語意）
+    EditBoxOnTextChanged = function(self)
+        local data = self:GetParent().data
+        if self:GetText() ~= (data or "") then
+            self:SetText(data or "")
+            self:HighlightText()
+        end
+    end,
+    EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
+    EditBoxOnEnterPressed = function(self) self:GetParent():Hide() end,
+    timeout = 0, whileDead = true, hideOnEscape = true, preferredIndex = 3,
+}
+
+-- 遞迴走訪：像「複製角色名稱」這種項目藏在「其他選項」**子選單**裡，
+-- 只掃第一層根本碰不到它。
+local function GreyBrokenItems(desc)
+    for _, d in desc:EnumerateElementDescriptions() do
+        if d.SetEnabled then
+            local ok, text = pcall(MenuUtil.GetElementText, d)
+            if ok and text and (text == SET_FOCUS or text == FOLLOW
+                    or text == RAID_TARGET_ICON or text == UNIT_VIEW_HOUSES
+                    or text == COPY_CHARACTER_NAME) then
+                d:SetEnabled(false)
+            end
+        end
+        if d.EnumerateElementDescriptions then
+            GreyBrokenItems(d)
+        end
+    end
+end
+
+local function ModifyReopenedMenu(owner, rootDescription, contextData)
+    if not reopenUnit then return end
+    if not contextData or contextData.unit ~= reopenUnit then return end
+    GreyBrokenItems(rootDescription)
+    -- 名字讀得到才補我們自己的那顆（讀不到＝連給玩家 Ctrl+C 的內容都沒有）。
+    -- 這份選單本來就是 tainted 的，加一般按鈕沒有額外代價。
+    local name = contextData.name
+    if name and rootDescription.CreateButton then
+        rootDescription:CreateButton(COPY_CHARACTER_NAME, function()
+            StaticPopup_Show(COPY_POPUP, nil, nil, name)
+        end)
+    end
+end
+
+local menuFixInstalled = false
+local function InstallMenuClassifierFix()
+    if menuFixInstalled or type(UnitPopup_OpenMenu) ~= "function" then return end
+    menuFixInstalled = true
+
+    -- 只註冊我們可能重開的三種（見 MenuWhichFor 的回傳值）
+    if Menu and Menu.ModifyMenu and MenuUtil and MenuUtil.GetElementText then
+        Menu.ModifyMenu("MENU_UNIT_PLAYER", ModifyReopenedMenu)
+        Menu.ModifyMenu("MENU_UNIT_PARTY", ModifyReopenedMenu)
+        Menu.ModifyMenu("MENU_UNIT_RAID_PLAYER", ModifyReopenedMenu)
+    end
+
+    -- 後掛勾補救：平常完全不介入（選單維持全安全），只有開出來的是寵物家族選單、
+    -- 而那個單位的 GUID 又明明是 Player- 開頭時，才重開一次正確的。taint 只沾到
+    -- 那一個本來就是錯的選單實例。
+    -- ⚠ GUID 是秘密值就放棄（不同隊的路人多半如此）。救得回來的是「GUID 讀得到、
+    --    但引擎那條 UnitIsUnit 鏈誤判」—— 離線／不同區的隊友正是這種。
+    -- ⚠⚠ 重開一定要傳**全新的 context 表**：UnitPopup_OpenMenu 會就地把
+    --    playerLocation/accountInfo 塞進去，而入口又斷言那些欄位是 nil ⇒
+    --    重用第一次那張表會直接 assertion failed。
+    local reopening = false
+    hooksecurefunc("UnitPopup_OpenMenu", function(which, contextData)
+        if reopening then return end
+        if not PET_MENUS[which] then return end
+        local unit = contextData and contextData.unit
+        if type(unit) ~= "string" then return end
+        local lu = unit:lower()
+        -- ⚠ Cell 有自己的一份（Cell/RaidFrames/UnitPopupFix.lua，同一套邏輯），載入時會
+        --   豎起 CellUnitPopupClassifierFix。兩份都救的話會各重開一次、開出兩層選單。
+        --   這種掛勾**只看 token 不看是誰的框**，而兩邊用的是同一組 token（Cell 的
+        --   Spotlight 框可以被指到 target/focus 那幾個），沒辦法按插件切一半，所以
+        --   Cell 在就整組讓給它，Cell 不在才由我們接。
+        if _G.CellUnitPopupClassifierFix then return end
+        -- ⚠⚠ raidN / partyN 不是死碼，別清掉：**我們自己沒有隊伍／團隊框**（見
+        --   ns.UNIT_KEYS），這兩條是為了別人的團隊框（沒有 Cell 的安裝、或暴雪原生框）。
+        --   raidN 在 SECURE_ACTIONS.togglemenu 沒有早退出分支，跟 target 一樣會走完整條
+        --   UnitIsUnit 鏈而被誤判成寵物。
+        if not (MENU_FIX_TOKENS[lu] or lu:match("^raid%d+$") or lu:match("^party%d+$")) then
+            return
+        end
+        local guid = UnitGUID(unit)
+        if ns.IsSecret(guid) then return end          -- 判不出來就不動
+        if type(guid) ~= "string" or not guid:find("^Player%-") then return end
+        -- 名字讀得到就放進 context：餵給我們自己補的那顆「複製角色名稱」
+        -- （暴雪那顆在 tainted 選單裡點了必被封鎖，一律灰掉——見上面）。
+        -- 隊友（含離線）的名字是明文；讀不到（秘密值）就不補、也不長我們那顆。
+        local ctx = { unit = unit }
+        local n, realm = (UnitNameUnmodified or UnitName)(unit)
+        n = ns.Desecret(n)
+        if n then
+            realm = ns.Desecret(realm)
+            ctx.name = (realm and realm ~= "" and (n .. "-" .. realm)) or n
+        end
+        reopening = true
+        reopenUnit = unit
+        UnitPopup_OpenMenu(MenuWhichFor(lu, guid), ctx)
+        reopenUnit = nil
+        reopening = false
+    end)
 end
 
 function ns.SpawnUnitFrame(unit)
@@ -377,17 +530,42 @@ function ns.SpawnUnitFrame(unit)
 
     uf:RegisterForClicks("AnyUp")
     uf:SetAttribute("*type1", "target")
-    -- type2 刻意留空：右鍵選單自己開（見上面 MenuType 的說明）
+    -- 右鍵不直接掛 type2="togglemenu"：12.0.7 起 SecureUnitButton_OnClick 的
+    -- menu/togglemenu 動作被 ClickBindings 閘住 —— 帳號少了「右鍵→開啟選單」那條
+    -- 互動綁定（被點擊施法設定洗掉、或本來就沒有）的話，動作**靜默丟棄**，症狀是
+    -- 「右鍵沒反應」而且只有部分玩家中。SecureActionButton_OnClick 沒有這道閘，
+    -- 所以右鍵轉成巨集 /click 到一顆隱藏代理鈕，由代理跑 togglemenu（一樣是安全開啟）。
+    -- 閘的判準是 C_ClickBindings.GetBindingType(button, modifiers) 回不回 None
+    -- （SecureTemplates.lua 的 expectBinding 那三行），**沒有按鍵編號豁免**——平常
+    -- 救到右鍵的是帳號還留著原廠互動綁定，不是「它是第 2 鍵」。
+    -- ⚠ 更正（2026-08-27 實測）：type="click" 委派其實也能繞過去，但 clickbutton
+    --   **必須傳 frame 物件**——SECURE_ACTIONS.click 會對它呼叫 HasAccessConstraints()
+    --   與 HasAnyForbiddenAspects()，傳按鈕**名字串**才會炸。這裡原本記成「12.1 的
+    --   click 動作壞掉」，錯在當初傳的是名字串（跟隔壁 macrotext 同一個變數）。
+    --   兩條路都通，這裡維持巨集：macrotext 建框時寫死一次就結束，不像 clickbutton
+    --   那樣每次重套點擊施法都要重鋪（而且戰鬥中鋪不了會退回被閘住的直接動作），
+    --   也少那兩道引擎檢查。Cell 走的是 clickbutton 那條，見它的 ClickCastings.lua。
+    local proxyName = ns.GLOBAL_NAMES[unit] .. "MenuProxy"
+    local proxy = CreateFrame("Button", proxyName, uf, "SecureActionButtonTemplate")
+    proxy:SetSize(1, 1)
+    proxy:SetAlpha(0)
+    proxy:EnableMouse(false)                  -- 只吃 /click，不吃真滑鼠
+    proxy:RegisterForClicks("AnyUp")
+    -- secure 解析是按「按鈕後綴」查 type（RightButton→type2），裸 type 不保證備援，
+    -- 每個後綴都設
+    proxy:SetAttribute("type", "togglemenu")
+    for i = 1, 5 do proxy:SetAttribute("type" .. i, "togglemenu") end
+    proxy:SetAttribute("useparent-unit", true)     -- 單位跟著父框，載具切換也跟
+    proxy:SetAttribute("toggleForVehicle", true)
+    -- 不管「按鍵按下時施放」CVar 設哪邊都在放開那一下執行（/click 送的是放開邊緣）
+    proxy:SetAttribute("useOnKeyDown", false)
+    uf:SetAttribute("*type2", "macro")
+    uf:SetAttribute("*macrotext2", "/click " .. proxyName)
+    InstallMenuClassifierFix()                 -- 只裝一次，第一個框生成時順便
     uf:SetAttribute("unit", unit)
     -- 載具：讓 secure 端在點擊時自己把 player ↔ pet 對調（讀取時計算，不寫屬性，
     -- 所以戰鬥中也有效）。顯示面由 ns.EvalActiveUnit 跟上，見那裡的說明。
     uf:SetAttribute("toggleForVehicle", true)
-    -- HookScript：OnClick 是 SecureUnitButtonTemplate 自己的，SetScript 會蓋掉左鍵指定
-    uf:HookScript("OnClick", function(self, button)
-        if button ~= "RightButton" then return end
-        if not UnitPopup_OpenMenu then return end
-        UnitPopup_OpenMenu(MenuType(self), { unit = self.unit })
-    end)
     -- secure 端搬動 unit 屬性時同步顯示面
     uf:HookScript("OnAttributeChanged", function(self, attr)
         if attr == "unit" or attr == "toggleForVehicle" then
