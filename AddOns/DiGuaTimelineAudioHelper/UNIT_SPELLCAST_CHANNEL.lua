@@ -125,6 +125,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             C_Timer.After(10, function() addonTable.SpellChannelCounter[unitTarget] = nil end) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 寒冰壁垒
+            and not UnitExists("focus")
             and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
             and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
             and IsIndoors() == true -- 在室内
@@ -490,6 +491,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitPowerType(unitTarget) == 1
             and UnitClassification(unitTarget) == "elite" -- 分类
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and addonTable.SpellCastStartTime[unitTarget]
             then
                 addonTable.CustomEncounterBar(136016, 31.6, "注意躲圈", unitTarget)

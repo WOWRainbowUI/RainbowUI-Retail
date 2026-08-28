@@ -58,7 +58,7 @@ addonTable.EventSoundData = {
     [88] = { {"ZhunBeiAOE.ogg", 1} }, -- 贪婪咆哮 (1235118)
 
     -- 寒冬哨兵
-    [67] = { {"ZhuYiDianMing.ogg", 1} }, -- 冰川折磨 (1235548)
+    [67] = { {"QuSanMoFa.ogg", 1, {HEALER = true}}, {"ZhuYiDianMing.ogg", 1, {DAMAGER = true}} }, -- 冰川折磨 (1235548) 治疗=驱散 / DPS=注意点名
     [70] = { {"KaoJinZhongChang.ogg", 1} }, -- 寒冰暴雨 (1235656)
     [68] = { {"ZhuYiDuoFeng.ogg", 1} }, -- 狂怒的飑风 (1235623)
     [69] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 粉碎冰刺 (1235783)
@@ -212,8 +212,8 @@ addonTable.EventSoundData = {
     -- 迷失的探险者
     [721] = { {"ZhunBeiAOE.ogg", 0} }, -- 灾变祈求 (1291390)
     [722] = { {"DaDuanBoss.ogg", 1, {TANK = true, DAMAGER = true}} }, -- 冰封烈焰 (1286921)
-    [723] = { {"ZhuYiDianMing.ogg", 1, {HEALER = true, DAMAGER = true}}, {"YiMiaoMuBiaoShiNi.ogg", 0} }, -- 闪现新星 (1296025)
-    [724] = { {"ZhuYiDianMing.ogg", 1}, {"YiMiaoMuBiaoShiNi.ogg", 0} }, -- 闪现新星 (1290742)
+    -- [723] = { {"ZhuYiDianMing.ogg", 1, {HEALER = true, DAMAGER = true}}, {"YiMiaoMuBiaoShiNi.ogg", 0} }, -- 闪现新星 (1296025)
+    -- [724] = { {"ZhuYiDianMing.ogg", 1}, {"YiMiaoMuBiaoShiNi.ogg", 0} }, -- 闪现新星 (1290742)
     [725] = { {"FenTanShangHai.ogg", 1} }, -- 巨力重击 (1296092)
     [726] = { {"DuoBiGuiKe.ogg", 1} }, -- 旋壳 (1296061)
     -- [727] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 投掷垃圾 (1291933)
@@ -222,7 +222,7 @@ addonTable.EventSoundData = {
     [768] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 撕裂碎片 (1295854)
     [776] = { {"BaMaFenSan.ogg", 1} }, -- 霜火连射 (1295886)
     [777] = { {"BaMaFenSan.ogg", 1} }, -- 霜火连射 (1295935)
-    [781] = { {"ZhaDanDianMing.ogg", 1} }, -- 爆炸惊喜 (1297625)
+    [781] = { {"WuMiaoHouDianMing.ogg", 2} }, -- 爆炸惊喜 (1297625)
     [783] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 强化晋升 (1292779)  
 
     -- 万毒邪祟者瓦什尼克
@@ -242,7 +242,7 @@ addonTable.EventSoundData = {
     -- [652] = { {"XiaoXinJiFei.ogg", 1} }, -- 狂怒侧风 (1285425)
     [653] = { {"ZhunBeiDianMing.ogg", 1}, {"KuaiZhaoGuangZhu.ogg", 0} }, -- 剧毒涌动 (1305959)
     [664] = { {"TanKeLianJi.ogg", 1} }, -- 顶级掠食者 (1277025)
-    [665] = { {"ZhunBeiChuiFeng.ogg", 1} }, -- 呼啸旋涡 (1285732)
+    [665] = { {"KaoJinZhongChang.ogg", 2}, {"YiShangJieDuan.ogg", 1} }, -- 呼啸旋涡 (1285732)
     -- [851] = { {".ogg", 1} }, -- 腐蚀利爪 (1296310)
     [863] = { {"ShouLingKuangBao.ogg", 0} }, -- 怒不可遏 (1296898)
 

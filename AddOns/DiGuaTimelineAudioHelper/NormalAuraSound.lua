@@ -8,7 +8,8 @@ local isNormalAuraRegistered = false
 local registeredNormalAuraIDs = {} -- 存储绑定的唯一流水号 ID
 
 -- ==================== 1. 注册普通光环音效 (12.1+ 新API) ====================
-local function RegisterNormalAuras()
+-- 注意：这是真正的注册逻辑（调用保护接口），调用方需保证已脱战（见第 3 节安全入口）
+local function DoRegisterNormalAuras()
     if isNormalAuraRegistered then return end
     if not (C_UnitAuras and C_UnitAuras.AddAuraSound) then return end
     if not addonTable.NormalAura then return end
@@ -77,7 +78,8 @@ local function RegisterNormalAuras()
                 local soundInfo = {
                     unitToken = unitToken,
                     spellID = tonumber(spellID),
-                    soundFileName = addonTable.GetMediaPath() .. soundFile .. ".ogg",
+                    -- 使用固定默认路径辅助函数：alarmbeep / JingBao 永远从内置 Media 目录播放
+                    soundFileName = addonTable.GetSoundFullPath(soundFile .. ".ogg"),
                     outputChannel = DiGuaTimelineAudioHelper.audioChannel,
                 }
 
@@ -349,7 +351,7 @@ addonTable.NormalAura = {
         [1297796] = "HunMi", -- 昏迷
         [1297797] = "KuaiKaiJianShang", -- 强力猛击
         [1309919] = "YouBu", -- 冰冷咆哮
-        [1309964] = "ChiXuShangHai", -- 凛冽严冬
+        [1309964] = "JingBao", -- 凛冽严冬
         [1311695] = "HuJiaJiangDi", -- Shred Armor
 
     -- ============================
@@ -513,14 +515,15 @@ addonTable.NormalAura = {
         [1284947] = "KuaiKaiJianShang", -- 培育爆裂
         [1284491] = "alarmbeep", -- 鲜血毒液注射
         [1288260] = "YiMiaoMuBiaoShiNi", -- 不稳定的瘴气
-        [1288297] = "TieBianFangShui", -- 附着幽暗
+        [1288297] = "TieBianFangShui|[3]321", -- 附着幽暗
         [1284471] = "alarmbeep", -- 凋零之血
         [1284210] = "JingBao", -- 鲜血毒液
         
     -- ============================
     -- ==       迷失的探险者      ==
     -- ============================
-
+        
+        [1296025] = "YuanLiRenQun|[4]321", -- 闪现新星
         -- [1291929] = "", -- 稳固打击
         [1291918] = "alarmbeep", -- 旋壳
         [1286922] = "KuaiKaiJianShang", -- 冰封烈焰
@@ -528,7 +531,7 @@ addonTable.NormalAura = {
         [1295954] = "CaiHuoXiaoCeng", -- 穿刺冰霜
         [1295928] = "CaiBingXiaoCeng", -- 燃烧烈焰
         [1308853] = "LiuXue", -- 木刺炸裂
-        [1297625] = "YiMiaoTieBianFangShui", -- 爆炸惊喜
+        [1297625] = "ZhaDanDianNi|[7]321", -- 爆炸惊喜
         [1299854] = "MarioJump", -- 弹射
         [1297648] = "JingBao", -- 冰霜区域
         [1297649] = "JingBao", -- 火焰区域        
@@ -542,7 +545,7 @@ addonTable.NormalAura = {
         -- [1282114] = "", -- 适应性感染
         [1280935] = "NiBeiYiShang", -- 滴毒之牙
         -- [1282509] = "", -- 恶性催化剂
-        -- [1281907] = "", -- 瘟疫泡沫        
+        [1281913] = "[3]321.ogg", -- 瘟疫泡沫
         [1294994] = "ZhuYiJiaoXia", -- 冥河感染
         [1295224] = "KaoJinDuiYou", -- 虹吸感染
         [1295380] = "alarmbeep", -- 虹吸感染
@@ -558,9 +561,10 @@ addonTable.NormalAura = {
         [1297707] = "WuMaFenSan", -- 剧毒
         [1299899] = "WuMaFenSan", -- 剧毒
         [1277051] = "alarmbeep", -- 残毁创伤
-        [1285425] = "XiaoXinJiFei", -- 狂怒侧风
-        [1285453] = "XiaoXinJiFei", -- 狂怒侧风        
-        [1305959] = "TieBianFangShui", -- 剧毒涌动
+        [1285425] = "XiaoXinJiFei|[5]321.ogg", -- 狂怒侧风
+        [1285453] = "XiaoXinJiFei|[5]321.ogg", -- 狂怒侧风        
+        [1305963] = "[7]321.ogg", -- 剧毒涌动
+        -- [1305959] = "[7]321.ogg", -- 剧毒涌动
         [1296667] = "JingBao", -- 腐蚀残渣
         [1287205] = "alarmbeep", -- 粘稠囊肿
         [1287083] = "ZhongDu", -- 风暴
@@ -668,7 +672,7 @@ addonTable.NormalAura = {
         [204018] = "PoZhouZhuFu", -- 破咒祝福
         -- [29166] = "NiBeiJiHuo", -- 激活
         [406789] = "YiDongShiFa", -- 空间悖论
-        -- [8936] = "alarmbeep", -- 愈合(测试)
+        -- [8936] = "alarmbeep|TieBianFangShui", -- 愈合(测试)（同ID用"|"写一行，两个声音一起响）
     },
 
     -- 1: 光环刷新/叠层时 (可选)
@@ -700,7 +704,7 @@ addonTable.NormalAura = {
 }
 
 -- ==================== 2. 注销普通光环音效 ====================
-local function UnregisterNormalAuras()
+local function DoUnregisterNormalAuras()
     if not isNormalAuraRegistered then return end
     if not (C_UnitAuras and C_UnitAuras.RemoveAuraSound) then return end
 
@@ -714,16 +718,49 @@ local function UnregisterNormalAuras()
     isNormalAuraRegistered = false
 end
 
--- ==================== 3. 重新加载 (用于设置修改后刷新) ====================
-local function ReloadNormalAuras()
-    UnregisterNormalAuras()
-    RegisterNormalAuras()
+-- ==================== 3. 战斗锁定防御 + 安全入口 ====================
+-- 保护接口（AddAuraSound / RemoveAuraSound）在战斗锁定期间调用会触发
+-- ADDON_ACTION_BLOCKED（典型场景：快速进出首领战刷坐骑，战斗中延迟回调去注册）。
+-- 统一入口：若处于战斗锁定，先挂 PLAYER_REGEN_ENABLED，脱战后补执行。
+
+local pendingNormalAuraAction = nil   -- nil | "register" | "unregister" | "reload"
+
+local RegenFrame = CreateFrame("Frame")
+RegenFrame:SetScript("OnEvent", function(self, event)
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    local action = pendingNormalAuraAction
+    pendingNormalAuraAction = nil
+    if action == "register" then
+        DoRegisterNormalAuras()
+    elseif action == "unregister" then
+        DoUnregisterNormalAuras()
+    elseif action == "reload" then
+        DoUnregisterNormalAuras()
+        DoRegisterNormalAuras()
+    end
+end)
+
+-- 尝试立即执行；若在战斗锁定中则等脱战再执行
+local function RunNormalAuraAction(action)
+    if InCombatLockdown() then
+        pendingNormalAuraAction = action
+        RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        return
+    end
+    if action == "register" then
+        DoRegisterNormalAuras()
+    elseif action == "unregister" then
+        DoUnregisterNormalAuras()
+    elseif action == "reload" then
+        DoUnregisterNormalAuras()
+        DoRegisterNormalAuras()
+    end
 end
 
--- 导出函数供插件内部其他模块调用
-addonTable.RegisterNormalAuras = RegisterNormalAuras
-addonTable.UnregisterNormalAuras = UnregisterNormalAuras
-addonTable.ReloadNormalAuras = ReloadNormalAuras
+-- 导出函数（全部走战斗安全入口）
+addonTable.RegisterNormalAuras   = function() RunNormalAuraAction("register") end
+addonTable.UnregisterNormalAuras = function() RunNormalAuraAction("unregister") end
+addonTable.ReloadNormalAuras     = function() RunNormalAuraAction("reload") end
 
 
 -- ==================== 5. 事件监听与自启动 ====================
@@ -738,31 +775,20 @@ frame:SetScript("OnEvent", function(self, event, ...)
         major, minor = tonumber(major) or 0, tonumber(minor) or 0
 
         if major > 12 or (major == 12 and minor >= 1) then
-            -- 判断是否处于战斗状态
-            if not InCombatLockdown() then
-                -- 非战斗状态：正常延迟 0.5 秒后注册
-                C_Timer.After(0.5, function()
-                    RegisterNormalAuras()
-                end)
-            else
-                -- 战斗中：监听脱战事件，等脱战后再补注册
-                self:RegisterEvent("PLAYER_REGEN_ENABLED")
-            end
+            -- 使用战斗安全入口：若处于战斗锁定会自动等脱战后注册
+            C_Timer.After(0.5, function()
+                RunNormalAuraAction("register")
+            end)
         end
 
         self:UnregisterEvent("PLAYER_LOGIN")
 
     elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
-        -- 专精/职责变化：延迟 1 秒后按新职责重新注册
+        -- 专精/职责变化：延迟 1 秒后按新职责重新注册（战斗锁定会自动等脱战）
         C_Timer.After(1, function()
-            ReloadNormalAuras()
+            RunNormalAuraAction("reload")
         end)
 
-    elseif event == "PLAYER_REGEN_ENABLED" then
-        -- 脱战后触发注册，并取消监听
-        C_Timer.After(0.5, function()
-            RegisterNormalAuras()
-        end)
-        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    -- PLAYER_REGEN_ENABLED 已由第 3 节的 RegenFrame 统一处理，这里不再单独监听
     end
 end)

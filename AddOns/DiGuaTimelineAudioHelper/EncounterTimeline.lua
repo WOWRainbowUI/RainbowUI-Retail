@@ -65,15 +65,6 @@ addonTable.AudioTimeline = {
         }
     },
 
-    [3208] = { -- 寒冬哨兵
-        interval = 63, 
-        startOffset = 0, 
-        alerts = {
-            [7]  = { file = "QuSanMoFa.ogg", role = "HEALER" },
-        }
-    },
-
-
     [3209] = { -- 纳洛拉克
         interval = 65, 
         startOffset = 0, 
@@ -82,17 +73,17 @@ addonTable.AudioTimeline = {
             [17]  = "DaoShu3.ogg",
             [18]  = "DaoShu2.ogg",
             [19]  = "DaoShu1.ogg",
-            [20]  = "DaoShu3.ogg",
-            [21]  = "DaoShu2.ogg",
-            [22]  = "DaoShu1.ogg",
+            [20]  = "XiaoXinJiTui.ogg",
+            -- [21]  = "DaoShu2.ogg",
+            -- [22]  = "DaoShu1.ogg",
             [23]  = "TanKeJieQuan.ogg",
             [40]  = "WuMiaoHouAOE.ogg",
             [42]  = "DaoShu3.ogg",
             [43]  = "DaoShu2.ogg",
             [44]  = "DaoShu1.ogg",
-            [45]  = "DaoShu3.ogg",
-            [46]  = "DaoShu2.ogg",
-            [47]  = "DaoShu1.ogg",
+            [45]  = "XiaoXinJiTui.ogg",
+            -- [46]  = "DaoShu2.ogg",
+            -- [47]  = "DaoShu1.ogg",
             [48]  = "TanKeJieQuan.ogg",
         }
     },

@@ -3,55 +3,6 @@
 
 local addonName, addonTable = ...
 
--- 关联单位 -> eventID 列表的映射表（用于怪物死亡/姓名板消失时取消倒计时）
--- 同一单位可能同时挂着多个倒计时，所以每个单位存一个 eventID 数组
-addonTable.TimelineEventKeys = addonTable.TimelineEventKeys or {}
-
--- 创建自定义战斗时间轴计时条
--- 可选第4参 unitKey：关联单位令牌(如 nameplateX)，该单位移除时自动取消倒计时；返回暴雪 eventID
-function addonTable.CustomEncounterBar(iconID, duration, name, unitKey)
-    iconID = iconID or 132117
-    duration = duration or 10
-    name = name or "未命名提示"
-
-    local eventID = C_EncounterTimeline.AddScriptEvent({
-        spellID = 0,
-        iconFileID = iconID,
-        duration = duration,
-        overrideName = name,
-        icons = 0x1,
-        severity = 2,
-        maxQueueDuration = 0,
-        paused = false,
-    })
-
-    -- 若传了关联单位，把 eventID 追加到该单位的列表中，供 NAME_PLATE_UNIT_REMOVED 时全部取消
-    if eventID and unitKey then
-        local list = addonTable.TimelineEventKeys[unitKey]
-        if not list then
-            list = {}
-            addonTable.TimelineEventKeys[unitKey] = list
-        end
-        table.insert(list, eventID)
-    end
-
-    return eventID
-end
-
--- 按关联单位取消其所有时间轴事件（如该姓名板消失/怪物死亡）
-function addonTable.CancelCustomEncounterBar(unitKey)
-    if not unitKey then return end
-    local list = addonTable.TimelineEventKeys[unitKey]
-    if list then
-        for i = #list, 1, -1 do
-            C_EncounterTimeline.CancelScriptEvent(list[i])
-            list[i] = nil
-        end
-        addonTable.TimelineEventKeys[unitKey] = nil
-    end
-end
-
-
 function addonTable.FindBestVoice()
     local ttsVoices = C_VoiceChat.GetTtsVoices()
     
@@ -112,18 +63,39 @@ function addonTable.PlayAudioSequence(...)
                 local fullPath = addonTable.GetMediaPath() .. fileName
                 local willPlay = PlaySoundFile(fullPath, DiGuaTimelineAudioHelper.audioChannel)
                 
-                -- 定义默认的本地兜底路径
-                local defaultPath = "Interface\\AddOns\\DiGuaTimelineAudioHelper\\Media\\"
-                
-                -- 2. 动态兜底逻辑：如果当前播放失败（willPlay为假/nil），且我们当前用的不是默认路径
-                --    则说明用的是第三方语音包（无论是 WYJJ 还是 Ranran），立即改用本地 Media 路径再试一次
-                if not willPlay and addonTable.GetMediaPath() ~= defaultPath then
-                    local fallbackPath = defaultPath .. fileName
+                -- 2. 动态兜底逻辑：如果当前播放失败（willPlay为假/nil），且当前用的不是内置默认路径
+                --    （即启用了第三方 DiGua- 语音包且恰好缺该文件），则改用内置 Media 路径再试一次
+                if not willPlay and addonTable.GetMediaPath() ~= addonTable.GetDefaultMediaPath() then
+                    local fallbackPath = addonTable.GetDefaultMediaPath() .. fileName
                     PlaySoundFile(fallbackPath, DiGuaTimelineAudioHelper.audioChannel)
                 end
             end)
         end
     end
+end
+
+-- ==================== 固定默认路径音频 ====================
+-- 以下文件无论是否启用第三方 DiGua- 语音包，都强制从内置 Media 目录播放
+-- （保证关键警报音永远使用本插件自带的原始音源，不被语音包替换）
+local FIXED_DEFAULT_PATH_SOUNDS = {
+    ["alarmbeep.ogg"] = true,
+    ["jingbao.ogg"]   = true,
+    ["bubu.ogg"]      = true,
+}
+
+--- 获取音频完整路径（带固定默认路径覆盖）
+--- 传入 "xxx.ogg" 文件名，返回完整路径。
+--- 若文件名命中固定列表，则强制使用内置默认路径；否则使用当前语音包/内置路径。
+--- 注意：本函数在运行时才调用，因此即使依赖 Core.lua 中定义的
+--- GetMediaPath / GetDefaultMediaPath（加载顺序靠后）也不受影响。
+function addonTable.GetSoundFullPath(fileName)
+    if FIXED_DEFAULT_PATH_SOUNDS[fileName:lower()] then
+        local defaultPath = addonTable.GetDefaultMediaPath and addonTable.GetDefaultMediaPath()
+        if defaultPath then
+            return defaultPath .. fileName
+        end
+    end
+    return addonTable.GetMediaPath() .. fileName
 end
 
 -- 🛠️ 职责优先的特征指纹扫描仪（施法/意图/能量 强固版）
@@ -237,7 +209,7 @@ cd:SetBlingTexture("")
 -- 更新光圈颜色与音效
 local function UpdateRingColor(isAlarm)
     if isAlarm then
-        PlaySoundFile(addonTable.GetMediaPath() .. "BuBu.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        PlaySoundFile(addonTable.GetSoundFullPath("BuBu.ogg"), DiGuaTimelineAudioHelper.audioChannel)
         cd:SetSwipeColor(unpack(RING_COLOR_ALARM))
     else
         cd:SetSwipeColor(unpack(RING_COLOR_NORMAL))
@@ -361,7 +333,7 @@ statusBar:SetValue(1)
 -- 更新进度条颜色与音效
 function UpdateBarColor(isAlarm)
     if isAlarm then
-        PlaySoundFile(addonTable.GetMediaPath() .. "BuBu.ogg", DiGuaTimelineAudioHelper.audioChannel)
+        PlaySoundFile(addonTable.GetSoundFullPath("BuBu.ogg"), DiGuaTimelineAudioHelper.audioChannel)
         statusBar:SetStatusBarColor(unpack(BAR_COLOR_ALARM))
     else
         statusBar:SetStatusBarColor(unpack(BAR_COLOR_NORMAL))

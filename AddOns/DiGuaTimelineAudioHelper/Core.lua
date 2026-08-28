@@ -7,18 +7,36 @@ local frame = CreateFrame("Frame")
 -- 1. 变量定义
 local MEDIA_PATH
 
--- 核心：路径更新逻辑
-local function RefreshMediaPath()
-    if DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.enabled == false then
-        MEDIA_PATH = "Interface\\AddOns\\DiGuaTimelineAudioHelper\\Mute\\"
-    else
-        if C_AddOns.IsAddOnLoaded("DiGua-Ranran") then
-            MEDIA_PATH = "Interface\\AddOns\\DiGua-Ranran\\Media\\"
-        elseif C_AddOns.IsAddOnLoaded("DiGua-WYJJ") then
-            MEDIA_PATH = "Interface\\AddOns\\DiGua-WYJJ\\Media\\"
-        else
-            MEDIA_PATH = "Interface\\AddOns\\DiGuaTimelineAudioHelper\\Media\\"
+-- 语音资源路径常量（内置路径固定，供全插件统一引用，避免各处硬编码）
+local DEFAULT_MEDIA_PATH = "Interface\\AddOns\\DiGuaTimelineAudioHelper\\Media\\"
+local MUTE_MEDIA_PATH = "Interface\\AddOns\\DiGuaTimelineAudioHelper\\Mute\\"
+local currentVoicePackName -- 当前联动的语音包名（nil 表示使用内置语音）
+
+-- 扫描所有已加载插件，返回按字母序最靠前的 "DiGua-" 前缀语音包名（A 优先于 Z）
+local function FindVoicePackName()
+    local candidates = {}
+    local numAddOns = C_AddOns.GetNumAddOns and C_AddOns.GetNumAddOns()
+    if numAddOns then
+        for i = 1, numAddOns do
+            local name = C_AddOns.GetAddOnInfo(i)
+            if name and name:sub(1, 6) == "DiGua-" and C_AddOns.IsAddOnLoaded(name) then
+                candidates[#candidates + 1] = name
+            end
         end
+    end
+    table.sort(candidates, function(a, b) return a:lower() < b:lower() end)
+    return candidates[1]
+end
+
+local function RefreshMediaPath()
+    currentVoicePackName = nil
+    if DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.enabled == false then
+        MEDIA_PATH = MUTE_MEDIA_PATH
+    else
+        currentVoicePackName = FindVoicePackName()
+        MEDIA_PATH = currentVoicePackName
+            and ("Interface\\AddOns\\" .. currentVoicePackName .. "\\Media\\")
+            or DEFAULT_MEDIA_PATH
     end
 end
 
@@ -42,6 +60,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.forceEncounterWarnings == nil then db.forceEncounterWarnings = true end
             if db.bloodlustOpenSound == nil then db.bloodlustOpenSound = false end
             if db.lfgProposalSound == nil then db.lfgProposalSound = false end
+            if db.centerCountdownEnabled == nil then db.centerCountdownEnabled = false end -- 屏幕中央倒计时（默认关）
+            if db.interruptIgnoreFocus == nil then db.interruptIgnoreFocus = false end -- 有焦点也提醒打断（默认关）
             if db.audioChannel == nil then db.audioChannel = "Master" end
             if db.coTankX == nil then db.coTankX = -400 end
             if db.coTankY == nil then db.coTankY = 350 end
@@ -51,6 +71,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     elseif event == "PLAYER_LOGIN" then
         RefreshMediaPath()
+        if currentVoicePackName then
+            -- print("|cffffd100[DiGua]|r 语音包联动: |cff00ff00" .. currentVoicePackName .. "|r")
+        end
 
         -- 初始化首领语音状态：关闭则清空，开启则确保清理后重新注册
         addonTable.ClearTimelineSounds(addonTable.EventSoundData)
@@ -80,6 +103,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineForceWarningsCheck:SetChecked(DiGuaTimelineAudioHelper.forceEncounterWarnings) -- 同步勾选状态
             DiGuaTimelineBloodlustSoundCheck:SetChecked(DiGuaTimelineAudioHelper.bloodlustOpenSound) -- 同步嗜血开启提示音
             DiGuaTimelineLfgProposalCheck:SetChecked(DiGuaTimelineAudioHelper.lfgProposalSound) -- 同步副本就绪提示音
+            DiGuaTimelineCenterCountdownCheck:SetChecked(DiGuaTimelineAudioHelper.centerCountdownEnabled) -- 同步屏幕中央倒计时
+            DiGuaTimelineInterruptFocusCheck:SetChecked(DiGuaTimelineAudioHelper.interruptIgnoreFocus) -- 同步有焦点也提醒打断
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -95,7 +120,7 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(220, 270) -- 高度调大到 270px，容纳更多选项
+f:SetSize(220, 330) -- 高度调大到 330px，容纳更多选项
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -125,9 +150,9 @@ local cb = CreateCheckButton("DiGuaTimelineEnableCheck", "启用语音", -35, fu
     print("|cffffd100[DiGua]|r 整体音效状态: " .. (DiGuaTimelineAudioHelper.enabled and "|cff00ff00已开启|r" or "|cffff0000已禁用|r"))
 end)
 
-local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时光圈", -60, function(self)
+local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", -60, function(self)
     DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
-    print("|cffffd100[DiGua]|r 倒计时光圈图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
+    print("|cffffd100[DiGua]|r 倒计时圆环图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
 end)
 
 local cbChannel = CreateCheckButton("DiGuaTimelineChannelCheck", "使用环境音频道", -85, function(self)
@@ -180,6 +205,20 @@ local cbLfgProposal = CreateCheckButton("DiGuaTimelineLfgProposalCheck", "副本
     print("|cffffd100[DiGua]|r 副本组队就绪提示语音: " .. (DiGuaTimelineAudioHelper.lfgProposalSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
+local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck", "技能剩余5秒中央倒计时", -260, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.centerCountdownEnabled = isEnabled
+    if addonTable.SetCenterCountdownEnabled then addonTable.SetCenterCountdownEnabled(isEnabled) end
+    -- 取消勾选时同步隐藏拖动框（仅控制台打开且功能开启时才显示）
+    if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(f:IsShown()) end
+    print("|cffffd100[DiGua]|r 技能剩余5秒中央倒计时: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+local cbInterruptFocus = CreateCheckButton("DiGuaTimelineInterruptFocusCheck", "有焦点也提醒打断", -285, function(self)
+    DiGuaTimelineAudioHelper.interruptIgnoreFocus = self:GetChecked()
+    print("|cffffd100[DiGua]|r 有焦点也提醒打断: " .. (DiGuaTimelineAudioHelper.interruptIgnoreFocus and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
 f:SetScript("OnShow", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end end)
 f:SetScript("OnHide", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end end)
 
@@ -190,4 +229,5 @@ SlashCmdList["DIGUA"] = function()
 end
 -- 5. 跨文件接口提供
 addonTable.GetMediaPath = function() return MEDIA_PATH end
+addonTable.GetDefaultMediaPath = function() return DEFAULT_MEDIA_PATH end
 addonTable.GetAudioChannel = function() return DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.audioChannel or "Master" end
