@@ -5,6 +5,8 @@
     <Script file="PixelPerfect.lua"/>
     <Script file="FAIAP.lua"/>
     <!-- externals -->
+	<!-- MiliUIGlow 取代 LibCustomGlow：vendor 複製、不走 LibStub，契約見 MiliUIGlow/README.md -->
+    <Script file="MiliUIGlow\MiliUIGlow.lua"/>
     <Script file="LibSpecData.lua"/>
     <Script file="LibGroupInfo.lua"/>
     <Script file="LibBadWords.lua"/>
