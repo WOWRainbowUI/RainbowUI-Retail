@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-05-21T15:06:55Z
+    This file was last updated on 2026-08-25T23:47:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ if not T._FatalError then
         showAlert = 1,
         preferredIndex = 3,
     }; -- }}}
-    T._FatalError = function (TheError) StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
+    T._FatalError = function (TheError) T._StaticPopupDialogsWasShown = true; StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
 end
 -- }}}
 
@@ -1100,6 +1100,12 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
     self.CooldownFrame = CreateFrame ("Cooldown", nil, self.Frame, "DcrMicroUnitCDTemplate");
     self.CooldownFrame:SetHideCountdownNumbers(true)
 
+
+    if DC.TWELVE_ONE then
+        self.auraContainer = CreateFrame("AuraContainer", nil, self.Frame, "CustomAuraContainerTemplate")
+        self.auraContainer:SetAllPoints(self.Frame) -- todo: check if required
+    end
+
     if petminus ~= 0 then
         self.Frame:SetWidth(20 - petminus);
         self.Frame:SetHeight(20 - petminus);
@@ -1134,6 +1140,43 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
     self.Texture:SetPoint("CENTER",self.Frame ,"CENTER",0,0)
     self.Texture:SetHeight(16 - petminus);
     self.Texture:SetWidth(16 - petminus);
+
+    if self.auraContainer then
+        local c = self.auraContainer
+
+        local setButton = function(ab)
+            self.auraButton = ab
+            ab:EnableMouse(false)
+
+            ab:ClearAllPoints()
+            ab:SetPoint("CENTER", self.Frame, "CENTER", 0, 0)
+            ab:SetSize(16 - petminus, 16 - petminus) -- todo check if useful
+
+            local border = ab:CreateTexture(nil, "OVERLAY")
+            border:ClearAllPoints()
+            border:SetAllPoints(ab)
+            border:SetColorTexture(1, 1, 1, 1) -- necessary for te curve to work...
+            border:Show()
+
+            self.auraBorder = border
+        end
+
+        local b = c:AddAuraSlot(
+            "DCR_DISPELLABLE",
+            "HARMFUL|RAID",
+            {
+                sortMethod = 0,
+                sortDirection = 0,
+                initializeFrame = function(auraButton)
+                    setButton(auraButton)
+                end,
+            }
+        )
+
+        c:SetUnit(Unit)
+        c:SetShown(true)
+        c:SetEnabled(true)
+    end
 
     -- inner Texture (Charmed special texture)
     self.InnerTexture = self.Frame:CreateTexture(nil, "OVERLAY", nil, 6);
@@ -1194,7 +1237,7 @@ function MicroUnitF.prototype:Update(SkipSetColor, SkipDebuffs, CheckStealth, o_
         --@end-debug@]==]
     end
 
-    -- Update the frame attributes if necessary (Spells priority or unit id changes)
+    -- Update the frame attributes if necessary (Spells priority,  unit id changes, or color config changed)
     if (D.Status.SpellsChanged ~= MF.LastAttribUpdate ) then
         --D:Debug("Attributes update required: ", MF.ID);
         if (MF:UpdateAttributes(Unit, true)) then
@@ -1205,7 +1248,7 @@ function MicroUnitF.prototype:Update(SkipSetColor, SkipDebuffs, CheckStealth, o_
 
 
     if (not SkipSetColor) then
-        if (not SkipDebuffs) then
+        if (not SkipDebuffs and not DC.TWELVE_ONE) then
             -- get the manageable debuffs of this unit
             MF:SetDebuffs(o_auraUpdateInfo);
             --D:Debug("Debuff set for ", MF.ID);
@@ -1282,6 +1325,10 @@ do
         if not self.CurrUnit then
             self.Frame:SetAttribute("unit", Unit);
 
+            if self.auraContainer then
+                self.auraContainer:SetUnit(Unit)
+            end
+
             -- UnitToMUF[] can only be set when out of fight so it remains
             -- coherent with what is displayed when groups are changed during a
             -- fight
@@ -1293,6 +1340,21 @@ do
 
             -- set the return value because we did something expensive
             ReturnValue = self;
+        end
+
+
+        if self.auraButton then
+            local ab = self.auraButton
+            ab:SetAuraBorder(self.auraBorder, {
+                showIcon = false,
+                showWhenHarmful = true,
+                showWhenHelpful = false,
+                showWithoutDispelType = true,
+                style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+                customDispelColorCurve = D.Status.dsCurve
+            })
+
+            D:Debug("auraBorderSet for ", Unit)
         end
 
         if (D.Status.SpellsChanged == self.LastAttribUpdate) then
@@ -1923,6 +1985,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.2";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-11-g237fc73";
 
 -- Heresy

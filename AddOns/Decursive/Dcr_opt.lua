@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-07-22T09:05:00Z
+    This file was last updated on 2026-08-26T22:37:12Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ StaticPopupDialogs["DECURSIVE_ERROR_FRAME"] = {
     showAlert = 1,
     preferredIndex = 3,
     }; -- }}}
-T._FatalError = function (TheError) StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
+T._FatalError = function (TheError) T._StaticPopupDialogsWasShown = true; StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
 end
 -- }}}
 if not T._LoadedFiles or not T._LoadedFiles["Dcr_utils.lua"] then
@@ -208,9 +208,9 @@ function D:GetDefaultsSettings()
 
             MFScanEverybodyTimer = 1,
             MFScanEverybodyReport = false,
-            --[=[@alpha@
+            --@alpha@
             -- MFScanEverybodyReport = true, -- UNdebuff is triggered very often, not sure when. No more need for reporting though.
-            --@end-alpha@]=]
+            --@end-alpha@
 
             delayedDebuffOccurences = 0,
             delayedUnDebuffOccurences = 0,
@@ -515,7 +515,7 @@ local OptionsPostSetActions = { -- {{{
     ["DebuffsFrameElemScale"] = function(v) D.MicroUnitF:SetScale(D.profile.DebuffsFrameElemScale); end,
     ["DebuffsFrameRefreshRate"] = function(v) D:ScheduleRepeatedCall("Dcr_MUFupdate", D.DebuffsFrame_Update, D.db.global.DebuffsFrameRefreshRate, D); D:Debug("MUFs refresh rate changed:", D.db.global.DebuffsFrameRefreshRate, v); end,
     ["MFScanEverybodyTimer"] = function(v)
-        if v > 0 then
+        if v > 0 and not DC.TWELVE_ONE then
             D:ScheduleRepeatedCall("Dcr_ScanEverybody", D.ScanEveryBody, D.db.global.MFScanEverybodyTimer, D);
             D:Debug("MUFs scan every body timer changed:", D.db.global.MFScanEverybodyTimer, v);
         else
@@ -524,7 +524,7 @@ local OptionsPostSetActions = { -- {{{
         end
     end,
     ["MFScanEverybodyReport"] = function(v)
-        if D.db.global.MFScanEverybodyTimer > 0 then
+        if D.db.global.MFScanEverybodyTimer > 0 and not DC.TWELVE_ONE then
             D:ScheduleRepeatedCall("Dcr_ScanEverybody", D.ScanEveryBody, D.db.global.MFScanEverybodyTimer, D);
         end
         D:Debug("MUFs scan every body reporting changed:", D.db.global.MFScanEverybodyReport, v);
@@ -1517,12 +1517,14 @@ local function GetStaticOptions ()
                                 max = 60,
                                 step = 1,
                                 order = 2800,
+                                disabled = function() return DC.TWELVE_ONE end,
                             },
                             MFScanEverybodyReport = {
                                 type = "toggle",
                                 name = L["OPT_PERIODICRESCAN_REPORT"],
                                 desc = L["OPT_PERIODICRESCAN_REPORT_DESC"],
                                 order = 2900,
+                                disabled = function() return DC.TWELVE_ONE end,
                             },
                         },
                     }, -- }}}
@@ -1966,7 +1968,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.8.2", "John Wellesz", ("2026-08-12T11:19:22Z"):sub(1,10),
+                                    "2.8.3-11-g237fc73", "John Wellesz", ("2026-08-26T22:37:12Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2205,6 +2207,56 @@ function D:CheckCureOrder ()
 
 end
 
+local TRANSPARENT_CM = D:NumToColorMixin({1,1,1,0})
+function D:SetColorCurve()
+
+    if DC.MN then
+        -- we need to set the color of the new MN curve thingy:
+        -- one color per spell, so we need to create a table type -> color
+        local mfc = D.profile.MF_colors
+        local dsc = D.Status.dsCurve
+        local dtToBT = DC.DTtoBT
+
+        local typeToColor = {}
+        for Spell, Prio in pairs(D.Status.CuringSpellsPrio) do -- for each configured spell
+            for typeprio, afflictionType in ipairs(D.Status.ReversedCureOrder) do -- use ipairs' behaviour to our advantage
+                if D.Status.CuringSpells[afflictionType] == Spell then -- handling an affliction type
+                    typeToColor[afflictionType] = D:NumToColorMixin(mfc[Prio]) -- register the type to color mapping
+                end
+            end
+        end
+
+        -- use transparent color for unset types
+        for typeprio, afflictionType in pairs(D.Status.ReversedCureOrder) do
+            if D.Status.CuringSpells[afflictionType] == false then
+                D:Debug("Will use transparent color for type", afflictionType)
+                typeToColor[afflictionType] = TRANSPARENT_CM
+            end
+        end
+
+        --[==[@debug@
+        --D:Debug("SetCureOrder(): typeToColor table:", D:tAsString(typeToColor));
+        --@end-debug@]==]
+
+
+        -- update our curve
+        dsc:ClearPoints()
+        dsc:AddPoint(0, D:NumToColorMixin(mfc[DC.NORMAL]))
+        for affType, cm in pairs(typeToColor) do
+            --[==[@debug@
+            D:Debug("Adding point: ", affType, dtToBT[affType], cm)
+            --@end-debug@]==]
+            dsc:AddPoint(dtToBT[affType], cm)
+        end
+
+        --[==[@debug@
+        --D:Debug("SetCureOrder(): dsCurve points:", dsc:GetPoints());
+        --@end-debug@]==]
+
+    end
+
+end
+
 function D:SetCureOrder (ToChange)
 
 
@@ -2315,42 +2367,7 @@ function D:SetCureOrder (ToChange)
     --@end-debug@]==]
 
 
-    if DC.MN then
-        -- we need to set the color of the new MN curve thingy:
-        -- one color per spell, so we need to create a table type -> color
-        local mfc = D.profile.MF_colors
-        local dsc = D.Status.dsCurve
-        local dtToBT = DC.DTtoBT
-
-        local typeToColor = {}
-        for Spell, Prio in pairs(D.Status.CuringSpellsPrio) do -- for each configured spell
-            for typeprio, afflictionType in ipairs(D.Status.ReversedCureOrder) do
-                if D.Status.CuringSpells[afflictionType] == Spell then -- handling an affliction type
-                    typeToColor[afflictionType] = D:NumToColorMixin(mfc[Prio]) -- register the type to color mapping
-                end
-            end
-        end
-
-        --[==[@debug@
-        --D:Debug("SetCureOrder(): typeToColor table:", D:tAsString(typeToColor));
-        --@end-debug@]==]
-
-
-        -- update our curve
-        dsc:ClearPoints()
-        dsc:AddPoint(0, D:NumToColorMixin(mfc[DC.NORMAL]))
-        for affType, cm in pairs(typeToColor) do
-            --[==[@debug@
-            D:Debug("Adding point: ", affType, dtToBT[affType], cm)
-            --@end-debug@]==]
-            dsc:AddPoint(dtToBT[affType], cm)
-        end
-
-        --[==[@debug@
-        --D:Debug("SetCureOrder(): dsCurve points:", dsc:GetPoints());
-        --@end-debug@]==]
-
-    end
+    D:SetColorCurve()
 
     -- Set the spells shortcut (former decurse key)
     D:AddDelayedFunctionCall(
@@ -2360,7 +2377,7 @@ function D:SetCureOrder (ToChange)
     D:Debug("Spell changed");
     D.Status.SpellsChanged = GetTime();
     D.Status.delayedDebuffReportDisabled = true;
-    if self.db.global.MFScanEverybodyTimer == 0 or self.db.global.MFScanEverybodyTimer > 1 then
+    if (self.db.global.MFScanEverybodyTimer == 0 or self.db.global.MFScanEverybodyTimer > 1) and not DC.TWELVE_ONE then
         D:Debug("ScanEveryBody delayed call scheduled by SetCureOrder")
         D:ScheduleDelayedCall("scanEverybodyAfterSpellChanged", D.ScanEveryBody, 1, D)
     end
@@ -2403,7 +2420,7 @@ function D:ShowHideDebuffsFrame ()
     else
         D:ScheduleRepeatedCall("Dcr_MUFupdate", D.DebuffsFrame_Update, D.db.global.DebuffsFrameRefreshRate, D);
 
-        if D.db.global.MFScanEverybodyTimer > 0 then
+        if D.db.global.MFScanEverybodyTimer > 0 and not DC.TWELVE_ONE then
             self:ScheduleRepeatedCall("Dcr_ScanEverybody", D.ScanEveryBody, D.db.global.MFScanEverybodyTimer, D);
         end
 
@@ -2935,6 +2952,8 @@ do
         D.MicroUnitF:Delayed_Force_FullUpdate();
 
         D:Debug("MUF color setting changed:", ColorReason);
+        D:SetColorCurve()
+        D.MicroUnitF:Force_FullUpdate();
     end
 
     local ColorPicker = {
@@ -3800,6 +3819,10 @@ end
 function D:QuickAccess (CallingObject, button) -- {{{
     --D:Debug("clicked");
 
+    if not D.Status.Enabled or InCombatLockdown() then
+        return
+    end
+
     if (not CallingObject) then
         CallingObject = "noframe";
     end
@@ -3823,6 +3846,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.8.2";
+T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-11-g237fc73";
 
 -- Closer
