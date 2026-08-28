@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-07-22T09:05:00Z
+    This file was last updated on 2026-08-25T23:47:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -63,6 +63,8 @@ DecursiveTemplateMixin = BackdropTemplateMixin and BackdropTemplateMixin or {
 
 T._FatalError_Diaplayed = false;
 
+T._StaticPopupDialogsWasShown = false
+
 -- big ugly scary fatal error message display function - only used when nothing else works {{{
 T._FatalError = function (TheError)
 
@@ -83,6 +85,7 @@ T._FatalError = function (TheError)
     end
 
     if not T._FatalError_Diaplayed then
+        T._StaticPopupDialogsWasShown = true
         StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError);
         if T._DiagStatus then
             T._FatalError_Diaplayed = true;
@@ -115,7 +118,7 @@ local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.8.2";
+local VERSION = "2.8.3-11-g237fc73";
 
 if not T._LoadedFiles then
     T._LoadedFiles = {};
@@ -228,7 +231,7 @@ function T._AddDebugText(a1, ...) -- {{{
     local zone = GetRealZoneText() or "none";
 
     if not Reported[text] then
-        table.insert (DebugTextTable,  ("\n\n|cffff0000*****************|r\n\n%.4f (tr:'%s' ca:'%s' icl:'%s' rs:'%s' h%d_w%d-%dfps-%s-ttd:%d): %s -|count: "):format(
+        table.insert (DebugTextTable,  ("\n\n|cffff0000*****************|r\n\n%.4f (tr:'%s' ca:'%s' icl:'%s' rs:'%s' h%d_w%d-%dfps-%s-ttd:%d-ttd2:%s): %s -|count: "):format(
         NiceTime(), -- %.4f
         tostring(T._DebugTimerRefName), -- tr:'%s'
         tostring(T._CatchAllErrors), -- ca:'%s'
@@ -239,6 +242,7 @@ function T._AddDebugText(a1, ...) -- {{{
         GetFramerate(), -- %dfps
         zone, -- -%s
         T.Dcr.temp_tt_taint_debug or -1337, -- ttd:%d (tooltip debug)
+        tostring(T._StaticPopupDialogsWasShown),
         text -- %s
         ));
         table.insert (DebugTextTable, 1);
@@ -336,7 +340,7 @@ do
         local dbclud = T.Dcr.Status and T.Dcr.Status.delayedUnDebuffOccurences or -1
 
 
-        DebugHeader = ("%s\n2.8.2  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.8.3-11-g237fc73  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         #DebugTextTable / 2, -- DTl: %d
@@ -674,7 +678,7 @@ DC.TWW = tocversion >= 110000
 DC.MN = tocversion >= 120000
 DC.BCC = tocversion >= 20505 and tocversion < 30000
 DC.MOP = tocversion >= 50504 and tocversion < 60000
-DC.TWELVEONE = tocversion >= 120100
+DC.TWELVE_ONE = tocversion >= 120100
 
 
 
@@ -875,6 +879,7 @@ T._ShowNotice = function (notice)
         end
     end
 
+    T._StaticPopupDialogsWasShown = true
     StaticPopup_Show ("DECURSIVE_NOTICE_FRAME", notice);
 end
 
@@ -1208,4 +1213,4 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.8.2";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.8.3-11-g237fc73";

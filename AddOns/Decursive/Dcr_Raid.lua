@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-02-26T01:29:57Z
+    This file was last updated on 2026-08-23T20:02:19Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ StaticPopupDialogs["DECURSIVE_ERROR_FRAME"] = {
     showAlert = 1,
     preferredIndex = 3,
     }; -- }}}
-T._FatalError = function (TheError) StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
+T._FatalError = function (TheError) T._StaticPopupDialogsWasShown = true; StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
 end
 -- }}}
 if not T._LoadedFiles or not T._LoadedFiles["Dcr_Events.lua"] then
@@ -164,12 +164,20 @@ do
     end
 
     local FakeClasses = {};
-    local function _UnitClass(unit)
+    local function _UnitClass2(unit)
+        local internationalClass = select(2, UnitClass(unit))
+
+        if not canaccessvalue(internationalClass) then
+            D:Debug("WARNING: unit class was secret, defaulting to WARRIOR")
+
+            internationalClass = DC.CLASS_PRIEST
+        end
+
         if not TestMode then
-            return UnitClass(unit);
+            return internationalClass;
         else
             if UnitClass(unit) then
-                return UnitClass(unit);
+                return internationalClass;
             end
 
             local randomClass = FakeClasses[unit] or DC.ClassNumToUName[random(11,23)];
@@ -252,7 +260,7 @@ do
 
         local guidAccessible = canaccessvalue(GUID)
 
-        --[=[@alpha@
+        --@alpha@
         --if not guidAccessible then
             -- fails on high restrictions (secretMapRestrictionsForced while dueling but not in real combat in a real dungeon during an encounter...)
             -- setting this debug report generation so we can test if this can really happen in normal game conditions
@@ -260,7 +268,7 @@ do
           -- ok it does happen in normal game conditions:
           --          4225.1120 (tr:'Dcr_Delayed_MFsDisplay_Update' ca:'false' icl:'false' rs:'Ma:1' h28_w29-43fps-Manaforge Oméga): could not access guid for unit:raid1
         --end
-        --@end-alpha@]=]
+        --@end-alpha@
 
 		-- this GUID cache was there to map CLEU to unit ids... so it's not really useful in Midnight (I need to check this though)
         self[unit] = guidAccessible and GUID or unit;
@@ -466,7 +474,7 @@ do
         t_insert(SortingTable, unit);
 
         UnitInfo[unit] = {
-            ["class"]  = DC.ClassUNameToNum[select(2, _UnitClass(unit)) or DC.CLASS_WARRIOR]; -- issue #46: sometimes nil is returned on pets right after joining a group
+            ["class"]  = DC.ClassUNameToNum[_UnitClass2(unit) or DC.CLASS_WARRIOR]; -- issue #46: sometimes nil is returned on pets right after joining a group
             ["GUID"]   = GUID;
             ["group"]  = group;
             ["RaidID"] = id;
@@ -566,7 +574,7 @@ do
 
                     pGUID = UnitToGUID[unit] or unit; -- at logon sometimes GUID is nil...
 
-                    if not IsInSkipList(pGUID, nil, DC.ClassUNameToNum[(select(2, _UnitClass(unit)))], _UnitGroupRolesAssigned(unit)) then
+                    if not IsInSkipList(pGUID, nil, DC.ClassUNameToNum[(_UnitClass2(unit))], _UnitGroupRolesAssigned(unit)) then
 
                         addUnit(unit, i, pGUID, 1);
 
@@ -694,7 +702,7 @@ do
             if DC.ClassNumToUName[UnitInfo[unit].class] then
                 D:Debug(D:ColorTextNA(unit, D:GetClassHexColor(DC.ClassNumToUName[UnitInfo[unit].class])), DC.ClassNumToUName[UnitInfo[unit].class], UnitInfo[unit].group and "g"..UnitInfo[unit].group or nil, "i"..UnitInfo[unit].RaidID, UnitInfo[unit].role);
             else
-                self:AddDebugText("issue #46 debug:", unit, UnitInfo[unit].class, "_UC: ",  select(2, _UnitClass(unit)));
+                self:AddDebugText("issue #46 debug:", unit, UnitInfo[unit].class, "_UC: ",  _UnitClass2(unit));
             end
         end
         --@end-debug@]==]
@@ -704,7 +712,7 @@ end
 
 
 -------------------------------------------------------------------------------
-T._LoadedFiles["Dcr_Raid.lua"] = "2.8.2";
+T._LoadedFiles["Dcr_Raid.lua"] = "2.8.3-11-g237fc73";
 
 -- "Your God is dead and no one cares"
 -- "If there is a Hell I'll see you there"

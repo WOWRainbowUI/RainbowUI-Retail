@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-12T11:19:22Z
+    This file was last updated on 2026-08-25T23:47:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -44,7 +44,10 @@ if not T._FatalError then
         showAlert = 1,
         preferredIndex = 3,
     }; -- }}}
-    T._FatalError = function (TheError) StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
+    T._FatalError = function (TheError)
+        T._StaticPopupDialogsWasShown = true
+        StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError);
+    end
 end
 -- }}}
 if not T._LoadedFiles or not T._LoadedFiles["enUS.lua"] then
@@ -75,7 +78,7 @@ local function RegisterDecursive_Once() -- {{{
     --@end-debug@]==]
 
     D.name = "Decursive";
-    D.version = "2.8.2";
+    D.version = "2.8.3-11-g237fc73";
     D.author = "John Wellesz";
 
     D.DcrFullyInitialized = false;
@@ -918,12 +921,12 @@ local function InitVariables_Once() -- {{{
     -- A table UnitID=>IsDebuffed (boolean)
     D.UnitDebuffed = {};
 
-    D.Revision = "4a55838"; -- not used here but some other add-on may request it from outside
-    D.date = "2026-08-12T11:19:22Z";
-    D.version = "2.8.2";
+    D.Revision = "237fc73"; -- not used here but some other add-on may request it from outside
+    D.date = "2026-08-26T22:37:12Z";
+    D.version = "2.8.3-11-g237fc73";
 
     if D.date ~= "@project".."-date-iso@" then
-        -- 1786533562 doesn't work
+        -- 1787783832 doesn't work
 
         --local example =  "2008-05-01T12:34:56Z";
 
@@ -967,9 +970,9 @@ function D:VersionWarnings(forceDisplay) -- {{{
     local alpha = false;
     local debug = false;
     local fromCheckOut = false;
-    --[=[@alpha@
+    --@alpha@
     alpha = true;
-    --@end-alpha@]=]
+    --@end-alpha@
     --[==[@debug@
     debug = true;
     --@end-debug@]==]
@@ -989,7 +992,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
 
             if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay or debug then
 
-                T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
+                T._ShowNotice ("|cff00ff00Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
 
                 self.db.global.LastExpirationAlert = time();
             end
@@ -998,7 +1001,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         self.db.global.TocExpiredDetection = false;
     end
 
-    if (("2.8.2"):lower()):find("beta") or ("2.8.2"):find("RC") or ("2.8.2"):find("Candidate") or alpha then
+    if (("2.8.3-11-g237fc73"):lower()):find("beta") or ("2.8.3-11-g237fc73"):find("RC") or ("2.8.3-11-g237fc73"):find("Candidate") or alpha then
 
         D.RunningADevVersion = true;
 
@@ -1011,7 +1014,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
                 DC.DevVersionExpired = true;
                 -- Display the expiration notice only once evry 48 hours
                 if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay then
-                    T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
+                    T._ShowNotice ("|cff00ff00Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
 
                     self.db.global.LastExpirationAlert = time();
                 end
@@ -1022,16 +1025,16 @@ function D:VersionWarnings(forceDisplay) -- {{{
         end
 
         -- display a warning if this is a developpment version (avoid insults from people who don't know what they're doing)
-        if self.db.global.NonRelease ~= "2.8.2" then
-            self.db.global.NonRelease = "2.8.2";
-            T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" .. (("2.8.2"):find("RC") and L["ER_VERSION_NOTICE"] or L["DEV_VERSION_ALERT"]) .. "|r");
+        if self.db.global.NonRelease ~= "2.8.3-11-g237fc73" then
+            self.db.global.NonRelease = "2.8.3-11-g237fc73";
+            T._ShowNotice ("|cff00ff00Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFFFFAA66" .. (("2.8.3-11-g237fc73"):find("RC") and L["ER_VERSION_NOTICE"] or L["DEV_VERSION_ALERT"]) .. "|r");
         end
     end
 
     --[==[@debug@
     fromCheckOut = true;
     if time() - self.db.global.LastUnpackagedAlert > 24 * 3600  then
-        T._ShowNotice ("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66" ..
+        T._ShowNotice ("|cff00ff00Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFFFFAA66" ..
         [[
         |cFFFF0000You're using an unpackaged version of Decursive.|r
         Decursive is not meant to be used this way.
@@ -1056,12 +1059,12 @@ function D:VersionWarnings(forceDisplay) -- {{{
     end
 
 
-    -- Prevent time travelers from blocking the system
-    if D.db.global.NewerVersionDetected > time() then
+    -- Prevent time travelers or forks from blocking the system. Todo: create a "forking Decursive" section in the main readme.
+    if D.db.global.NewerVersionDetected > time() or D.db.global.NewerVersionName ~= false and D.db.global.NewerVersionName:match("^%d%d") then
         D.db.global.NewerVersionDetected = D.VersionTimeStamp;
         D.db.global.NewerVersionName = false;
         D.db.global.NewerVersionAlert = 0;
-        D:Debug("|cFFFF0000TIME TRAVELER DETECTED!|r");
+        D:Debug("|cFFFF0000Ivalid new version in db!|r");
     end
 
     -- if not fromCheckOut then -- this version is properly packaged
@@ -1069,7 +1072,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         if D.db.global.NewerVersionDetected > D.VersionTimeStamp and D.db.global.NewerVersionName ~= D.version then -- it's still newer than this one
             if time() - D.db.global.NewerVersionAlert > 3600 * 24 * 4 then -- it's been more than 4 days since the new version alert was shown
                 if not D.db.global.NewVersionsBugMeNot then -- the user did not disable new version alerts
-                    T._ShowNotice ("|cff55ff55Decursive version: 2.8.2|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
+                    T._ShowNotice ("|cff55ff55Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
                     D.db.global.NewerVersionAlert = time();
                 end
             end
@@ -1099,28 +1102,24 @@ function D:OnInitialize() -- Called on ADDON_LOADED by AceAddon -- {{{
 
     self.db = LibStub("AceDB-3.0"):New("DecursiveDB", D.defaults, true);
 
-    self.db.RegisterCallback(self, "OnProfileChanged", "SetConfiguration")
-    self.db.RegisterCallback(self, "OnProfileCopied", "SetConfiguration")
-    self.db.RegisterCallback(self, "OnProfileReset", "SetConfiguration")
 
 
     -- Register slashes command {{{
-    self:RegisterChatCommand("dcrdiag"      ,function() T._SelfDiagnostic(true, true)               end         );
+    self:RegisterChatCommand("dcrdiag"      ,function() T._SelfDiagnostic(true, true)             end );
+    self:RegisterChatCommand("dcrEnable121" ,function() D.db.global.debug = true; D:Enable()      end );
 
-    if not DC.TWELVEONE then
-        self:RegisterChatCommand("decursive"    ,function() LibStub("AceConfigDialog-3.0"):Open(D.name) end         );
-        self:RegisterChatCommand("dcrpradd"     ,function() D:AddTargetToPriorityList()                 end, false  );
-        self:RegisterChatCommand("dcrprclear"   ,function() D:ClearPriorityList()                       end, false  );
-        self:RegisterChatCommand("dcrprshow"    ,function() D:ShowHidePriorityListUI()                  end, false  );
-        self:RegisterChatCommand("dcrskadd"     ,function() D:AddTargetToSkipList()                     end, false  );
-        self:RegisterChatCommand("dcrskclear"   ,function() D:ClearSkipList()                           end, false  );
-        self:RegisterChatCommand("dcrskshow"    ,function() D:ShowHideSkipListUI()                      end, false  );
-        self:RegisterChatCommand("dcrreset"     ,function() D:ResetWindow()                             end, false  );
-        self:RegisterChatCommand("dcrshow"      ,function() D:HideBar(0)                                end, false  );
-        self:RegisterChatCommand("dcrhide"      ,function() D:HideBar(1)                                end, false  );
-        self:RegisterChatCommand("dcrshoworder" ,function() D:Show_Cure_Order()                         end, false  );
-    end
-    self:RegisterChatCommand("dcrreport"    ,function() T._ShowDebugReport()                         end, false  );
+    self:RegisterChatCommand("decursive"    ,function() LibStub("AceConfigDialog-3.0"):Open(D.name) end, false  );
+    self:RegisterChatCommand("dcrpradd"     ,function() D:AddTargetToPriorityList()                 end, false  );
+    self:RegisterChatCommand("dcrprclear"   ,function() D:ClearPriorityList()                       end, false  );
+    self:RegisterChatCommand("dcrprshow"    ,function() D:ShowHidePriorityListUI()                  end, false  );
+    self:RegisterChatCommand("dcrskadd"     ,function() D:AddTargetToSkipList()                     end, false  );
+    self:RegisterChatCommand("dcrskclear"   ,function() D:ClearSkipList()                           end, false  );
+    self:RegisterChatCommand("dcrskshow"    ,function() D:ShowHideSkipListUI()                      end, false  );
+    self:RegisterChatCommand("dcrreset"     ,function() D:ResetWindow()                             end, false  );
+    self:RegisterChatCommand("dcrshow"      ,function() D:HideBar(0)                                end, false  );
+    self:RegisterChatCommand("dcrhide"      ,function() D:HideBar(1)                                end, false  );
+    self:RegisterChatCommand("dcrshoworder" ,function() D:Show_Cure_Order()                         end, false  );
+    self:RegisterChatCommand("dcrreport"    ,function() T._ShowDebugReport()                        end, false  );
     -- }}}
 
 
@@ -1161,20 +1160,23 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
         return false;
     end
 
+    D.debug = D.db.global.debug;
 
-    if DC.TWELVEONE then
-        if not self.db.global.TwelveOneIncompatibleMessageWasShown  then
-            T._ShowNotice("|cff00ff00Decursive version: 2.8.2|r\n\n" .. "|cFFFFAA66"
+    --[=[
+    if DC.TWELVE_ONE and not D.debug then
+        if not self.db.global.TwelveOneIncompatibleMessageWasShown then
+            T._ShowNotice("|cff00ff00Decursive version: 2.8.3-11-g237fc73|r\n\n" .. "|cFFFFAA66"
             .. "This version of Decursive is not compatible with WoW 12.1.x.\nDecursive will now stay hidden until it is updated with a compatible version.\n\n|cffffff00Check the release notes for more details.|r\n\n|cffff0000This message will not be shown again|r."
             .. "|r")
 
             self.db.global.TwelveOneIncompatibleMessageWasShown = true;
         end
-        return false;
+        D:Disable()
+        return false
     end
+    --]=]
 
     T._CatchAllErrors = "OnEnable"; -- During init we catch all the errors else, if a library fails we won't know it.
-    D.debug = D.db.global.debug;
 
 
     if (FirstEnable) then
@@ -1184,6 +1186,9 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
         DecursiveTextFrame:SetFadeDuration(D.CONF.TEXT_LIFETIME / 3);
         DecursiveTextFrame:SetTimeVisible(D.CONF.TEXT_LIFETIME);
 
+        self.db.RegisterCallback(self, "OnProfileChanged", "SetConfiguration")
+        self.db.RegisterCallback(self, "OnProfileCopied", "SetConfiguration")
+        self.db.RegisterCallback(self, "OnProfileReset", "SetConfiguration")
     end
 
     -- hook the load macro thing {{{
@@ -1267,7 +1272,7 @@ end -- // }}}
 
 function D:SetConfiguration() -- {{{
 
-    if T._SelfDiagnostic() == 2 then
+    if T._SelfDiagnostic() == 2 or not D:IsEnabled() then
         return false;
     end
     local prev_CatchAllErrors = T._CatchAllErrors
@@ -1364,9 +1369,9 @@ function D:SetConfiguration() -- {{{
                 if tonumber(spell) ~= 2139 and not D.classprofile.UserSpells[tonumber(spell)] then
                     D.classprofile.UserSpells[tonumber(spell)] = spellData;
                 end
-                --[=[@alpha@
+                --@alpha@
                 D:AddDebugText('Sanity check error: string-number (',spell,') found in ', 'oldUserSpells' );
-                --@end-alpha@]=]
+                --@end-alpha@
 
             elseif type(spell) == 'string' then -- necessary due to fuck up in previous release
 
@@ -1463,7 +1468,7 @@ function D:SetConfiguration() -- {{{
     if D.profile.ShowDebuffsFrame then
         self:ScheduleRepeatedCall("Dcr_MUFupdate", self.DebuffsFrame_Update, self.db.global.DebuffsFrameRefreshRate, self);
 
-        if self.db.global.MFScanEverybodyTimer > 0 then
+        if self.db.global.MFScanEverybodyTimer > 0 and not DC.TWELVE_ONE then
             self:ScheduleRepeatedCall("Dcr_ScanEverybody", self.ScanEveryBody, self.db.global.MFScanEverybodyTimer, self, self.db.global.ScanEverybodyReport);
         end
     end
@@ -1495,13 +1500,19 @@ function D:OnDisable() -- When the addon is disabled by Ace -- {{{
 
     D:SetIcon("Interface\\AddOns\\Decursive\\iconOFF.tga");
 
-    if ( D.profile.ShowDebuffsFrame) then
+    if (D.profile and D.profile.ShowDebuffsFrame) then
         D.MFContainer:Hide();
     end
 
     D:CancelAllTimedCalls();
     D:Debug(D:GetTimersInfo());
 
+
+
+    LibStub("AceConfigRegistry-3.0"):NotifyChange(D.name);
+    D.eventFrame:SetScript("OnEvent", nil);
+
+    -- if not DC.TWELVE_ONE or D.debug then
     -- the disable warning popup : {{{ -
     StaticPopupDialogs["Decursive_OnDisableWarning"] = {
         text = L["DISABLEWARNING"],
@@ -1515,10 +1526,9 @@ function D:OnDisable() -- When the addon is disabled by Ace -- {{{
         showAlert = 1,
         preferredIndex = 3,
     }; -- }}}
-
-    LibStub("AceConfigRegistry-3.0"):NotifyChange(D.name);
-    D.eventFrame:SetScript("OnEvent", nil);
+    T._StaticPopupDialogsWasShown = true
     StaticPopup_Show("Decursive_OnDisableWarning");
+    -- end
 end -- }}}
 
 -------------------------------------------------------------------------------
@@ -1800,9 +1810,9 @@ function D:Configure() --{{{
 
                 -- Could it be enhanced by something (a talent for example)?
                 if spell.EnhancedBy then
-                    --[=[@alpha@
+                    --@alpha@
                     self:Debug("Enhancement for ", SpellName);
-                    --@end-alpha@]=]
+                    --@end-alpha@
 
                     -- Workaround to the fact that function are not serialized upon storage to the DB
                     if not spell.EnhancedByCheck and D.classprofile.UserSpells[spellID] and DC.SpellsToUse[spellID] then -- XXX
@@ -1816,9 +1826,9 @@ function D:Configure() --{{{
                         Types = spell.Enhancements.Types; -- set the type to scan to the new ones
 
                         if spell.Enhancements.UnitFiltering then -- On the 'player' unit only?
-                            --[=[@alpha@
+                            --@alpha@
                             self:Debug("Enhancement for %s is for player only", SpellName);
-                            --@end-alpha@]=]
+                            --@end-alpha@
                             UnitFiltering = spell.Enhancements.UnitFiltering;
                         end
                     end
@@ -1873,9 +1883,9 @@ function D:Configure() --{{{
 
                     if lastfilter and filteredTypeCount == #Types then -- we have the same filter everywhere and all the types managed by this spell are affected
                         D.Status.FoundSpells[SpellName][6] = lastfilter;
-                        --[=[@alpha@
+                        --@alpha@
                         self:Debug("permanent filter added for spell",SpellName, lastfilter);
-                        --@end-alpha@]=]
+                        --@end-alpha@
                     end
 
                 end
@@ -2146,9 +2156,9 @@ function D:SetSpellsTranslations(FromDIAG) -- {{{
 
     local duplicates = {};
     local alpha = false;
-    --[=[@alpha@
+    --@alpha@
     alpha = true;
-    --@end-alpha@]=]
+    --@end-alpha@
     local Sname, Sids, Sid, _, ok;
     ok = true;
     for Sname, Sid in pairs(DSI) do
@@ -2380,7 +2390,7 @@ end -- }}}
 
 
 
-T._LoadedFiles["DCR_init.lua"] = "2.8.2";
+T._LoadedFiles["DCR_init.lua"] = "2.8.3-11-g237fc73";
 
 -------------------------------------------------------------------------------
 
@@ -2389,42 +2399,42 @@ TEST to see what keyword substitutions are actually working....
 
 Simple replacements
 
-1240
+1252
     Turns into the current revision of the file in integer form. e.g. 1234
     Note: does not work for git
-1240
+1254
     Turns into the highest revision of the entire project in integer form. e.g. 1234
     Note: does not work for git
-4a55838b77b6e6d26267d2cb026ebf16f983b476
+2762890b82c3e65143f2a7f9f2bf3b9417057a65
     Turns into the hash of the file in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-4a55838b77b6e6d26267d2cb026ebf16f983b476
+237fc7399d15f6fcdbdab10df54549789ebf3e64
     Turns into the hash of the entire project in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-4a55838
+2762890
     Turns into the abbreviated hash of the file in hex form. e.g. 106c63 Note: does not work for svn
-4a55838
+237fc73
     Turns into the abbreviated hash of the entire project in hex form. e.g. 106c63
     Note: does not work for svn
 Archarodim
     Turns into the last author of the file. e.g. ckknight
 Archarodim
     Turns into the last author of the entire project. e.g. ckknight
-2026-08-12T11:19:22Z
+2026-08-25T23:47:58Z
     Turns into the last changed date (by UTC) of the file in ISO 8601. e.g. 2008-05-01T12:34:56Z
-2026-08-12T11:19:22Z
+2026-08-26T22:37:12Z
     Turns into the last changed date (by UTC) of the entire project in ISO 8601. e.g. 2008-05-01T12:34:56Z
-20260812111922
+20260825234758
     Turns into the last changed date (by UTC) of the file in a readable integer fashion. e.g. 20080501123456
-20260812111922
+20260826223712
     Turns into the last changed date (by UTC) of the entire project in a readable integer fashion. e.g. 2008050123456
-1786533562
+1787701678
     Turns into the last changed date (by UTC) of the file in POSIX timestamp. e.g. 1209663296
     Note: does not work for git
-1786533562
+1787783832
     Turns into the last changed date (by UTC) of the entire project in POSIX timestamp. e.g. 1209663296
     Note: does not work for git
-2.8.2
+2.8.3-11-g237fc73
     Turns into an approximate version of the project. The tag name if on a tag, otherwise it's up to the repo.
     :SVN returns something like "r1234"
     :Git returns something like "v0.1-873fc1"

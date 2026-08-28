@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2025-03-16T19:40:05Z
+    This file was last updated on 2026-08-22T18:15:32Z
 --]]
 -------------------------------------------------------------------------------
 local addonName, T = ...;
@@ -39,4 +39,4 @@ T._LoadedFiles["Dcr_preload.lua"] = false;
 T._OriginalDebugHandler = geterrorhandler();
 
 
-T._LoadedFiles["Dcr_preload.lua"] = "2.8.2";
+T._LoadedFiles["Dcr_preload.lua"] = "2.8.3-11-g237fc73";

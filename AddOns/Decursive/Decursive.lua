@@ -1,8 +1,8 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.2) add-on for World of Warcraft UI
-    Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
+    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-07-05T15:38:11Z
+    This file was last updated on 2026-08-25T23:47:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ StaticPopupDialogs["DECURSIVE_ERROR_FRAME"] = {
     showAlert = 1,
     preferredIndex = 3,
     }; -- }}}
-T._FatalError = function (TheError) StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
+T._FatalError = function (TheError) T._StaticPopupDialogsWasShown = true; StaticPopup_Show ("DECURSIVE_ERROR_FRAME", TheError); end
 end
 -- }}}
 if not T._LoadedFiles or not T._LoadedFiles["Dcr_Raid.lua"] then
@@ -252,6 +252,11 @@ end --}}}
 
 
 function D:PlaySound (UnitID, Caller) --{{{
+    if DC.TWELVE_ONE then
+        D:Debug("12.1: PlaySound was called!", debugstack(2))
+        return
+    end
+
     if self.profile.PlaySound and not self.Status.SoundPlayed then
         local Debuffs, IsCharmed = self:UnitCurableDebuffs(UnitID, true);
         if Debuffs[1] or IsCharmed then
@@ -412,7 +417,8 @@ do
     local UnitDebuff        = (not DC.MN and _G.UnitDebuff) or function (unitToken, i)
 
         -- this mechanism is completely disabled in 12.1 so do nothing for now...
-        if DC.TWELVEONE then
+        if DC.TWELVE_ONE then
+            D:Debug("12.1: UnitDebuff was called!", debugstack(2))
             return nil
         end
 
@@ -452,6 +458,8 @@ do
     -- This local function only sets interesting values of UnitDebuff()
     local Name, Texture, Applications, TypeName, Duration, ExpirationTime, _, SpellID, secretMode, auraInstanceID;
     local function GetUnitDebuff  (Unit, i) --{{{
+
+        -- 12.1 note: only called from one locatioin which is already disbled in 12.1
 
         if D.LiveList.TestItemDisplayed and UnitExists(Unit) then -- and not UnTrustedUnitIDs[Unit] then
             if i == 1 then
@@ -508,6 +516,12 @@ do
     -- This function does more than just reporting Debuffs. it also detects charmed units
 
     function D:GetUnitDebuffAll (Unit) --{{{
+
+        if DC.TWELVE_ONE then
+            D:Debug("12.1: GetUnitDebuffAll was called!")
+            return DC.EMPTY_TABLE, false
+        end
+
         -- create a Debuff table for this unit if there is not already one
         if not DebuffUnitCache[Unit] then
             DebuffUnitCache[Unit] = {};
@@ -704,6 +718,11 @@ do
     -- in different conditions.
     function D:UnitCurableDebuffs (Unit, JustOne) -- {{{
 
+        if DC.TWELVE_ONE then
+            D:Debug("12.1: UnitCurableDebuffs was called!", debugstack(2))
+            return DC.EMPTY_TABLE, false
+        end
+
         if not Unit then
             D:AddDebugText("No unit supplied to UnitCurableDebuffs()");
             return DC.EMPTY_TABLE, false;
@@ -835,6 +854,11 @@ do
     --local debugprofilestop = _G.debugprofilestop;
     --@end-debug@]==]
     function D:ScanEveryBody()
+
+        if DC.TWELVE_ONE then
+            D:Debug("12.1: ScanEveryBody was called!", debugstack(2))
+            return
+        end
 
         if not NoScanStatuses then
             NoScanStatuses = {[DC.ABSENT] = true, [DC.FAR] = true, [DC.BLACKLISTED] = true};
@@ -977,6 +1001,11 @@ do
     -- this function returns true if one of the debuff(s) passed to it is found on the specified unit
     function D:CheckUnitForBuffs(unit, BuffNamesToCheck) --{{{
 
+        if DC.TWELVE_ONE then
+            D:Debug("12.1: CheckUnitForBuffs was called!", debugstack(2))
+            return false
+        end
+
         if type(BuffNamesToCheck) == "string" then
 
             return UnitBuff(unit, BuffNamesToCheck)
@@ -1002,6 +1031,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.8.2";
+T._LoadedFiles["Decursive.lua"] = "2.8.3-11-g237fc73";
 
 -- Sin
