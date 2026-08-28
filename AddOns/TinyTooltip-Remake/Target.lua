@@ -45,6 +45,44 @@ local function SafeIsPlayer(unit)
     return SafeBoolEval(UnitIsPlayer, unit)
 end
 
+local function IsSecret(value)
+    return issecretvalue and issecretvalue(value)
+end
+
+local function SafeUnitName(unit)
+    local ok, name = pcall(UnitName, unit)
+    if (not ok or type(name) ~= "string" or IsSecret(name)) then return end
+    return name
+end
+
+local function SafeSelectionColor(unit)
+    local ok, r, g, b = pcall(UnitSelectionColor, unit)
+    if (not ok) then return end
+    if (type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number") then return end
+    if (IsSecret(r) or IsSecret(g) or IsSecret(b)) then return end
+    return r, g, b
+end
+
+local function SafeHexColor(unit)
+    local r, g, b = SafeSelectionColor(unit)
+    if (not r) then return end
+    local ok, hex = pcall(addon.GetHexColor, addon, r, g, b)
+    if (ok and type(hex) == "string" and not IsSecret(hex)) then return hex end
+end
+
+local function SafeClassColorCode(unit)
+    local ok, class = pcall(function() return select(2, UnitClass(unit)) end)
+    if (not ok or not class or IsSecret(class)) then return end
+    local okColor, code = pcall(function() return select(4, GetClassColor(class)) end)
+    if (okColor and type(code) == "string" and not IsSecret(code)) then return code end
+end
+
+local function SafeRaidIcon(unit)
+    local ok, icon = pcall(addon.GetRaidIcon, addon, unit)
+    if (ok and type(icon) == "string" and not IsSecret(icon)) then return icon end
+    return ""
+end
+
 local function IsTargetToken(unit)
     if (type(unit) ~= "string") then
         return false
@@ -56,44 +94,43 @@ local function IsTargetToken(unit)
 end
 
 local function GetTargetString(unit)
-    if (IsTargetToken(unit)) then
-        local okName, name = pcall(UnitName, unit)
-        if (not okName or type(name) ~= "string") then return end
-        local icon = addon:GetRaidIcon(unit) or ""
-        local r, g, b = UnitSelectionColor(unit)
-        if SafeIsUnit(unit, "player") then
-            return format("|cffff3333>>%s<<|r", strupper(YOU))
-        end
-        if SafeIsPlayer(unit) then
-            local class = select(2, UnitClass(unit))
-            if (not issecretvalue(class) and class) then
-                local colorCode = select(4, GetClassColor(class))
-                return format("%s|c%s%s|r", icon, colorCode or "ffffffff", name)
-            end
-        end
-        if (r and g and b) then
-            return format("%s|cff%s[%s]|r", icon, addon:GetHexColor(r, g, b), name)
-        end
-        return format("%s[%s]", icon, name)
-    end
     if (type(unit) ~= "string") then return end
-    if (not SafeBool(UnitExists, unit)) then return end
-    local name = UnitName(unit)
-    local icon = addon:GetRaidIcon(unit) or ""
+    if (not IsTargetToken(unit) and not SafeBool(UnitExists, unit)) then return end
+
+    local name = SafeUnitName(unit)
+    if (not name) then return end
+
     if SafeIsUnit(unit, "player") then
         return format("|cffff3333>>%s<<|r", strupper(YOU))
-    elseif SafeIsPlayer(unit) then
-        local class = select(2, UnitClass(unit))
-        if (not issecretvalue(class) and class) then
-            local colorCode = select(4, GetClassColor(class))
+    end
+
+    local icon = SafeRaidIcon(unit)
+
+    if SafeIsPlayer(unit) then
+        local colorCode = SafeClassColorCode(unit)
+        if (colorCode) then
             return format("%s|c%s%s|r", icon, colorCode, name)
         end
-        return format("%s|cff%s%s|r", icon, addon:GetHexColor(UnitSelectionColor(unit)), name)
-    elseif SafeBool(UnitIsOtherPlayersPet, unit) then
-        return format("%s|cff%s<%s>|r", icon, addon:GetHexColor(UnitSelectionColor(unit)), name)
-    else
-        return format("%s|cff%s[%s]|r", icon, addon:GetHexColor(UnitSelectionColor(unit)), name)
+        local hex = SafeHexColor(unit)
+        if (hex) then
+            return format("%s|cff%s%s|r", icon, hex, name)
+        end
+        return format("%s%s", icon, name)
     end
+
+    local hex = SafeHexColor(unit)
+
+    if SafeBool(UnitIsOtherPlayersPet, unit) then
+        if (hex) then
+            return format("%s|cff%s<%s>|r", icon, hex, name)
+        end
+        return format("%s<%s>", icon, name)
+    end
+
+    if (hex) then
+        return format("%s|cff%s[%s]|r", icon, hex, name)
+    end
+    return format("%s[%s]", icon, name)
 end
 
 local function UpdateTargetLine(tip, targetUnit)
@@ -313,15 +350,18 @@ local function GetTargetByString(mouseover, num, tip)
                     tip:AddLine(format("%s:", targetByLabel))
                     first = false
                 end
-                roleIcon  = addon:GetRoleIcon(prefix..i) or ""
-                local class = select(2, UnitClass(prefix..i))
-                if (not issecretvalue(class) and class) then
-                    colorCode = select(4, GetClassColor(class))
-                else
-                    colorCode = addon:GetHexColor(UnitSelectionColor(prefix..i))
+                roleIcon = addon:GetRoleIcon(prefix..i) or ""
+                name = SafeUnitName(prefix..i)
+                colorCode = SafeClassColorCode(prefix..i)
+                if (not colorCode) then
+                    local hex = SafeHexColor(prefix..i)
+                    colorCode = hex and ("ff" .. hex) or nil
                 end
-                name      = UnitName(prefix..i)
-                tip:AddLine("   " .. roleIcon .. " |c" .. colorCode .. name .. "|r")
+                if (name and colorCode) then
+                    tip:AddLine("   " .. roleIcon .. " |c" .. colorCode .. name .. "|r")
+                elseif (name) then
+                    tip:AddLine("   " .. roleIcon .. " " .. name)
+                end
             end
         end
     end
