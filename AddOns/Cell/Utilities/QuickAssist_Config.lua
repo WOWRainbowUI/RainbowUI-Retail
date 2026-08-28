@@ -4,7 +4,7 @@ local F = Cell.funcs
 local U = Cell.uFuncs
 local A = Cell.animations
 local P = Cell.pixelPerfectFuncs
-local LCG = LibStub("LibCustomGlow-1.0")
+local LCG = Cell.MiliUIGlow
 
 -- ----------------------------------------------------------------------- --
 --                                 defaults                                --
@@ -610,13 +610,13 @@ local function UpdateLayoutPreview()
             -- drag
             layoutPreviewButtons[i]:RegisterForDrag("LeftButton")
             layoutPreviewButtons[i]:SetScript("OnDragStart", function()
-                CellQuickAssistAnchorFrame:StartMoving()
-                CellQuickAssistAnchorFrame:SetUserPlaced(false)
+                F.StartAnchorMoving(CellQuickAssistAnchorFrame, function()
+                    P.SavePosition(CellQuickAssistAnchorFrame, layoutTable["position"])
+                end)
             end)
 
             layoutPreviewButtons[i]:SetScript("OnDragStop", function()
-                CellQuickAssistAnchorFrame:StopMovingOrSizing()
-                P.SavePosition(CellQuickAssistAnchorFrame, layoutTable["position"])
+                F.StopAnchorMoving()
             end)
         end
     end

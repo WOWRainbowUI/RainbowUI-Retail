@@ -20,7 +20,7 @@ local UnitClassBase = function(unit)
 end
 
 local LGI = LibStub:GetLibrary("LibGroupInfo")
-local LCG = LibStub("LibCustomGlow-1.0")
+local LCG = Cell.MiliUIGlow
 local LibTranslit = LibStub("LibTranslit-1.0")
 
 local quickAssistTable, layoutTable, styleTable, spellTable, quickAssistReady
@@ -67,13 +67,13 @@ config:SetScript("OnClick", function(self, button)
 end)
 
 config:SetScript("OnDragStart", function()
-    anchorFrame:StartMoving()
-    anchorFrame:SetUserPlaced(false)
+    F.StartAnchorMoving(anchorFrame, function()
+        P.SavePosition(anchorFrame, layoutTable["position"])
+    end)
 end)
 
 config:SetScript("OnDragStop", function()
-    anchorFrame:StopMovingOrSizing()
-    P.SavePosition(anchorFrame, layoutTable["position"])
+    F.StopAnchorMoving()
 end)
 
 config:HookScript("OnEnter", function()

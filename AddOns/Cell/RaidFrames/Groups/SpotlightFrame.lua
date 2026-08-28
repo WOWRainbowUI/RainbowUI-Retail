@@ -5,7 +5,7 @@ local B = Cell.bFuncs
 local A = Cell.animations
 local P = Cell.pixelPerfectFuncs
 
-local LCG = LibStub("LibCustomGlow-1.0")
+local LCG = Cell.MiliUIGlow
 
 local placeholders, assignmentButtons = {}, {}
 local menu, target, targettarget, focus, focustarget, unit, unitname, unitpet, unittarget, tank, boss1target, clear
@@ -40,12 +40,12 @@ config:SetFrameStrata("MEDIUM")
 config:SetAllPoints(anchorFrame)
 config:RegisterForDrag("LeftButton")
 config:SetScript("OnDragStart", function()
-    anchorFrame:StartMoving()
-    anchorFrame:SetUserPlaced(false)
+    F.StartAnchorMoving(anchorFrame, function()
+        P.SavePosition(anchorFrame, Cell.vars.currentLayoutTable["spotlight"]["position"])
+    end)
 end)
 config:SetScript("OnDragStop", function()
-    anchorFrame:StopMovingOrSizing()
-    P.SavePosition(anchorFrame, Cell.vars.currentLayoutTable["spotlight"]["position"])
+    F.StopAnchorMoving()
 end)
 config:SetAttribute("_onclick", [[
     for i = 1, 15 do

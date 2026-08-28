@@ -4,7 +4,7 @@ local F = Cell.funcs
 local I = Cell.iFuncs
 local U = Cell.uFuncs
 local P = Cell.pixelPerfectFuncs
-local LCG = LibStub("LibCustomGlow-1.0")
+local LCG = Cell.MiliUIGlow
 local LGI = LibStub:GetLibrary("LibGroupInfo")
 local A = Cell.animations
 
@@ -395,12 +395,12 @@ buffTrackerFrame:SetClampedToScreen(true)
 buffTrackerFrame:SetMovable(true)
 buffTrackerFrame:RegisterForDrag("LeftButton")
 buffTrackerFrame:SetScript("OnDragStart", function()
-    buffTrackerFrame:StartMoving()
-    buffTrackerFrame:SetUserPlaced(false)
+    F.StartAnchorMoving(buffTrackerFrame, function()
+        P.SavePosition(buffTrackerFrame, CellDB["tools"]["buffTracker"][4])
+    end)
 end)
 buffTrackerFrame:SetScript("OnDragStop", function()
-    buffTrackerFrame:StopMovingOrSizing()
-    P.SavePosition(buffTrackerFrame, CellDB["tools"]["buffTracker"][4])
+    F.StopAnchorMoving()
 end)
 
 -------------------------------------------------
