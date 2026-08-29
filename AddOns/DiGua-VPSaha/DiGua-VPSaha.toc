@@ -1,0 +1,12 @@
+## Interface: 120100, 120007
+## Title: [神秘地瓜] 安格斯語音包
+## Notes: 替換神秘地瓜的預設語音，用安格斯美妙的聲音打本奔。
+## Author: 安格斯
+## Version: 26-0829
+## IconTexture: Interface\AddOns\DBM-VPSaha\z_ags
+
+## Title-zhTW: |cffFF7F00[副本]|r 神秘地瓜-安格斯語音包
+## Notes-zhTW: 替換神秘地瓜的預設語音，用安格斯美妙的聲音打本奔。
+## Category-zhTW: 團隊
+## RequiredDeps: DiGuaTimelineAudioHelper
+## DefaultState: disabled
