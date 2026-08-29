@@ -67,7 +67,7 @@ DBM.DefaultOptions = {
 					(locale == "ptBR" and "Anshlun") or
 					(locale == "ruRU" and "Alexander") or
 					(locale == "zhCN" and "Ruichen") or
-					(locale == "zhTW" and "Hao"),
+					(locale == "zhTW" and "Genji"),
 	CountdownVoice2 = ((locale == "enUS" or locale == "enGB") and "Kolt") or
 					(locale == "deDE" and "Franziska") or
 					(locale == "esES" and "Fernanda") or
@@ -77,7 +77,7 @@ DBM.DefaultOptions = {
 					(locale == "ptBR" and "Neryssa") or
 					(locale == "ruRU" and "Nadezhda") or
 					(locale == "zhCN" and "Chunru") or
-					(locale == "zhTW" and "Ling"),
+					(locale == "zhTW" and "DVa"),
 	CountdownVoice3 = ((locale == "enUS" or locale == "enGB") and "Smooth") or
 					(locale == "deDE" and "Franziska") or
 					(locale == "esES" and "Fernanda") or
@@ -87,7 +87,7 @@ DBM.DefaultOptions = {
 					(locale == "ptBR" and "Neryssa") or
 					(locale == "ruRU" and "Nadezhda") or
 					(locale == "zhCN" and "Chunru") or
-					(locale == "zhTW" and "Ling"),
+					(locale == "zhTW" and "Overwatch"),
 	CountSize = 5,
 	PullVoice = ((locale == "enUS" or locale == "enGB") and "Corsica") or
 					(locale == "deDE" and "Karl") or
@@ -98,9 +98,9 @@ DBM.DefaultOptions = {
 					(locale == "ptBR" and "Anshlun") or
 					(locale == "ruRU" and "Alexander") or
 					(locale == "zhCN" and "Ruichen") or
-					(locale == "zhTW" and "Hao"),
+					(locale == "zhTW" and "Meicn"),
 	CountdownVoiceNamesMigrated = false,
-	ChosenVoicePack2 = (locale == "enUS" or locale == "enGB") and "VEM" or "None",
+	ChosenVoicePack2 = (locale == "enUS" or locale == "enGB") and "VEM" or "Saha",
 	VPReplacesAnnounce = true,
 	VPReplacesSADefault = true,
 	EventSoundVictory2 = "Interface\\AddOns\\DBM-Core\\sounds\\Victory\\SmoothMcGroove_Fanfare.ogg",
