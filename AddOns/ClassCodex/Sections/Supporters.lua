@@ -17,6 +17,7 @@ local CHAMPIONS = {
     "HelloImDrew",
     "Keith C Davis",
     "willis_1128",
+    "Jakob Hartley",
 }
 local SUPPORTER_LIST = {
     "Bxnane",
@@ -33,6 +34,7 @@ local SUPPORTER_LIST = {
     "Юрий Минкин",
     "Sabuha",
     "André Milde",
+    "Alida Bell",
 }
 
 -------------------------------------------------------------------------------

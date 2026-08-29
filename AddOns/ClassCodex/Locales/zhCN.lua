@@ -28,6 +28,8 @@ L["talent_pane.save_as.confirm"] = "保存"
 L["section.stat_priority"] = "属性优先级"
 L["section.talents"] = "天赋"
 L["section.rotation"] = "输出循环"
+L["section.omnium"] = "Omnium Folio"
+L["omnium.week"] = "第 %d 周"
 
 -- Title-bar cog menu
 L["title_bar.menu_hint"] = "停靠、大小和显示选项"

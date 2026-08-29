@@ -156,19 +156,44 @@ end
 -- Gear Data Lookup
 -------------------------------------------------------------------------------
 
-local function GetSpecGearData(classToken, specKey)
+-- The trinket source is a per-spec preference (default Icy Veins, whose tier
+-- rankings are editorial rather than u.gg's popularity). Keyed by the current
+-- spec so the panel, Compendium and tooltip tier lookup all agree — mirrors how
+-- trinketContext is stored (Sections/Trinkets.lua).
+local function GetTrinketSource()
+    local specKey = ns.GetSpecKey and ns.GetSpecKey()
+    if specKey and ClassCodexCharDB and ClassCodexCharDB.perSpec
+        and ClassCodexCharDB.perSpec[specKey]
+        and ClassCodexCharDB.perSpec[specKey].trinketSource then
+        return ClassCodexCharDB.perSpec[specKey].trinketSource
+    end
+    return "icyveins"
+end
+
+-- trinketSourceOverride: when set (the Compendium passes its session-scoped
+-- source), it wins over the per-spec saved pref. The panel and tooltip omit it
+-- and use the saved pref.
+local function GetSpecGearData(classToken, specKey, trinketSourceOverride)
     if not (classToken and specKey) then classToken, specKey = ns.GetClassAndSpec() end
     if not classToken or not specKey then return nil end
     local out = {}
-    -- trinkets + gems from u.gg
+    -- trinkets from the selected source (default Icy Veins), falling back to the
+    -- other source if the chosen one carries none for this spec.
+    local function readTrinkets(src)
+        local sd = ns.SourceSpec and ns.SourceSpec(src, classToken, specKey)
+        return sd and sd.trinkets and sd.trinkets["all"] and sd.trinkets["all"]["all"]
+    end
+    local tsrc = trinketSourceOverride or GetTrinketSource()
+    local tr = readTrinkets(tsrc)
+    if not tr then tr = readTrinkets(tsrc == "icyveins" and "ugg" or "icyveins") end
+    if tr then
+        local list = {}
+        for _, t in ipairs(tr) do list[#list + 1] = { itemId = t.itemId, tier = t.tier, popularity = t.pop } end
+        out.trinkets = list
+    end
+    -- gems from u.gg
     local usd = ns.SourceSpec and ns.SourceSpec("ugg", classToken, specKey)
     if usd then
-        local tr = usd.trinkets and usd.trinkets["all"] and usd.trinkets["all"]["all"]
-        if tr then
-            local list = {}
-            for _, t in ipairs(tr) do list[#list + 1] = { itemId = t.itemId, tier = t.tier, popularity = t.pop } end
-            out.trinkets = list
-        end
         local gm = usd.gems and usd.gems["all"] and usd.gems["all"]["all"]
         if gm and gm[1] then
             local secondary = {}
@@ -457,7 +482,7 @@ function ns:GetIcyVeinsBisSpecs(itemId)
     return ConsolidateByClass(raw)
 end
 
-local IV_GEAR_TAB = { all = "綜合", raid = "團隊副本", mplus = "傳奇+" }
+local IV_GEAR_TAB = { all = "Overall", raid = "Raid", mplus = "Mythic+" }
 function ns:GetIcyVeinsSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
     local sd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)

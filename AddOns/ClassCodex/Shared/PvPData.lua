@@ -354,6 +354,13 @@ ns.ENH_SOURCE_LABELS = {
     ["PvP"]  = ns.PVP_SOURCE_ICON .. "  u.gg (PvP)",
 }
 
+-- Trinket source picker labels, keyed by source registry key (matches the
+-- values saved in perSpec.trinketSource).
+ns.TRINKET_SOURCE_LABELS = {
+    icyveins = ns.SourceLabelText("icyveins"),
+    ugg      = ns.SourceLabelText("ugg"),
+}
+
 -------------------------------------------------------------------------------
 -- Combined source-availability check used by source-dropdown population.
 -- Returns true if EITHER Bnet talents OR u.gg stats/gear exist for the spec.

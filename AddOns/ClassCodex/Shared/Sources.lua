@@ -225,7 +225,11 @@ function ns.ResolveAttribution(surface, class, specKey)
         return "icyveins", icyVeinsTalentsUrl(class, spec)
 
     elseif surface == "trinkets" then
-        return "ugg", uggTrinketsUrl(class, spec)
+        -- Default Icy Veins (tier rankings); u.gg is a per-spec opt-in. IV lists
+        -- trinkets on its gear page, so that's the attribution link.
+        local picked = (ps and ps.trinketSource) or "icyveins"
+        if picked == "ugg" then return "ugg", uggTrinketsUrl(class, spec) end
+        return "icyveins", icyVeinsGearUrl(class, spec)
 
     elseif surface == "talents" then
         -- PvP talents come from Blizzard's armory (bnet); the rest from u.gg /

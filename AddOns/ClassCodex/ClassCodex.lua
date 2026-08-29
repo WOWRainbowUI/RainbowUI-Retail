@@ -883,7 +883,7 @@ end
 
 -- Tab visibility rules: which DB keys must ALL be false to hide a tab.
 local TAB_VISIBILITY_RULES = {
-    { tab = guideTab,         tabKey = "guide",         keys = { "Stats", "Talents", "Rotation" } },
+    { tab = guideTab,         tabKey = "guide",         keys = { "Stats", "Talents", "Rotation", "Omnium" } },
     { tab = statsTab,         tabKey = "stats",         keys = { "StatTargets" } },
     { tab = talentsTab,       tabKey = "talents",       keys = { "Talents" } },
     { tab = bisTab,           tabKey = "bis",           keys = { "BisGear" } },
@@ -1428,6 +1428,13 @@ local allTalentSourceDropdown = CreateOptionDropdown("ClassCodexAllTalentSourceD
 allTalentSourceDropdown:Hide()
 -- Options + current selection are pushed in by UpdateAllTalents via
 -- :SetOptions; the WowStyle1Dropdown template owns click + popup.
+-- Session-local override for a manual source pick on this tab. Honoured by
+-- UpdateAllTalents' render immediately (like the talent-pane mirror dropdown),
+-- reset when the spec changes so context auto-detect resumes. Without it the
+-- render always re-derived the source from GetEffectiveTalentSource(), which
+-- ignores an unpinned pick — so changing the dropdown never changed the talents.
+local allTalentSourceOverride = nil
+local allTalentSourceOverrideSpec = nil
 
 local function BindAllTalentCopy(row, exportString)
     row.copyBtn:SetScript("OnClick", function()
@@ -1857,7 +1864,16 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
         and ns.GetIcyVeinsTalentSpecData
         and ns:GetIcyVeinsTalentSpecData(classToken, specKey) ~= nil
 
-    local source = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "ugg"
+    -- A manual pick on this tab's source dropdown is a session-local override,
+    -- reset when the spec changes. Before this, the render always re-derived the
+    -- source from GetEffectiveTalentSource() — which ignores an unpinned pick
+    -- (pinTalentSource defaults off) — so the dropdown never changed the talents.
+    local specTag = (classToken or "?") .. "/" .. (specKey or "?")
+    if allTalentSourceOverride and allTalentSourceOverrideSpec ~= specTag then
+        allTalentSourceOverride, allTalentSourceOverrideSpec = nil, nil
+    end
+    local source = allTalentSourceOverride
+        or (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "ugg"
 
     allTalentSourceDropdown:ClearAllPoints()
     allTalentSourceDropdown:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, 0)
@@ -1871,7 +1887,14 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
         { label = SOURCE_ICON_PVP, value = "pvp" },
     }
     allTalentSourceDropdown:SetOptions(sourceOpts, source, function(picked)
-        if ns.SetPersistedTalentSource then ns.SetPersistedTalentSource(picked) end
+        allTalentSourceOverride = picked
+        allTalentSourceOverrideSpec = specTag
+        -- Persist the pick only while Pin is on — matches the talent-pane
+        -- dropdown; an unpinned pick is a temporary override, not the source a
+        -- later Pin should lock onto.
+        if ClassCodexDB and ClassCodexDB.pinTalentSource and ns.SetPersistedTalentSource then
+            ns.SetPersistedTalentSource(picked)
+        end
         ns:UpdatePanel()
     end)
     allTalentSourceDropdown:Show()
@@ -1905,6 +1928,14 @@ local MAX_ROTATION_STEPS = 20
 local currentRotationContext = nil
 local lastRotationContentHeight = 0
 local rotationSectionCollapsed = false
+
+-- Omnium Folio section — weekly rune icons (Sections/Omnium.lua). Guide tab.
+local omniumSection, omniumHeader, omniumContent = ns.Sections.Omnium.InitPanel({
+    parent = contentFrame,
+    header = CreateSectionHeader,
+})
+local lastOmniumContentHeight = 0
+local omniumSectionCollapsed = false
 
 -------------------------------------------------------------------------------
 -- Footer
@@ -2077,6 +2108,14 @@ rotationHeader:SetScript("OnClick", function()
     end
     ns:LayoutPanel()
 end)
+omniumHeader:SetScript("OnClick", function()
+    omniumSectionCollapsed = not omniumSectionCollapsed
+    SetCollapsed(omniumContent, omniumHeader, omniumSectionCollapsed)
+    if ClassCodexCharDB and ClassCodexCharDB.collapsed then
+        ClassCodexCharDB.collapsed.omnium = omniumSectionCollapsed
+    end
+    ns:LayoutPanel()
+end)
 
 -------------------------------------------------------------------------------
 -- Collapse state restore (extracted to avoid upvalue pressure on UpdatePanel)
@@ -2088,9 +2127,11 @@ local function RestoreCollapseState()
         statSectionCollapsed = saved.stats or false
         talentSectionCollapsed = saved.talents or false
         rotationSectionCollapsed = saved.rotation or false
+        omniumSectionCollapsed = saved.omnium or false
         SetCollapsed(statContent, statHeader, statSectionCollapsed)
         SetCollapsed(talentContent, talentHeader, talentSectionCollapsed)
         SetCollapsed(rotationContent, rotationHeader, rotationSectionCollapsed)
+        SetCollapsed(omniumContent, omniumHeader, omniumSectionCollapsed)
     end
 end
 
@@ -2305,6 +2346,12 @@ function ns:UpdatePanel()
         end,
     })
 
+    -- Omnium Folio — weekly rune recommendations (Icy Veins, hero/content-agnostic).
+    local ivsd = ns.SourceSpec and ns.SourceSpec("icyveins", classToken, specKey)
+    local omniumRunes = ivsd and ivsd.omniumFolio and ivsd.omniumFolio["all"] and ivsd.omniumFolio["all"]["all"]
+    lastOmniumContentHeight = ns.Sections.Omnium.RenderPanel({ runes = omniumRunes })
+    if lastOmniumContentHeight > 0 then omniumSection:Show() else omniumSection:Hide() end
+
     -- Talents tab: grouped-by-context layout showing all builds
     if activeTab == "talents" then
         ns:UpdateAllTalents(specData, classToken, specKey)
@@ -2326,6 +2373,7 @@ function ns:UpdatePanel()
         statSection:Hide() -- priority list lives on Guide; no duplication here
         talentSection:Hide()
         rotationSection:Hide()
+        omniumSection:Hide()
         subheaderFrame:SetHeight(1)
         subheaderFrame:Hide()
         local statRowCount = ns.Sections.StatTargets.RenderPanel({
@@ -2343,6 +2391,7 @@ function ns:UpdatePanel()
         statTargets.section:Hide()
         talentSection:Hide()
         rotationSection:Hide()
+        omniumSection:Hide()
         subheaderFrame:SetHeight(1)
         subheaderFrame:Hide()
     end
@@ -2355,6 +2404,7 @@ function ns:UpdatePanel()
             if not ClassCodexDB[prefix .. "Stats"] then statSection:Hide() end
             if not ClassCodexDB[prefix .. "Talents"] then talentSection:Hide() end
             if not ClassCodexDB[prefix .. "Rotation"] then rotationSection:Hide() end
+            if not ClassCodexDB[prefix .. "Omnium"] then omniumSection:Hide() end
         elseif activeTab == "stats" then
             if not ClassCodexDB[prefix .. "StatTargets"] then statTargets.section:Hide() end
         elseif activeTab == "talents" then
@@ -2454,6 +2504,13 @@ function ns:LayoutPanel()
         rotationContentHeight = rotationContentHeight + lastRotationContentHeight
     end
     LayoutSection(rotationSection, rotationSectionCollapsed, rotationContentHeight)
+
+    -- Omnium section
+    local omniumContentHeight = 0
+    if omniumSection:IsShown() and not omniumSectionCollapsed then
+        omniumContentHeight = lastOmniumContentHeight
+    end
+    LayoutSection(omniumSection, omniumSectionCollapsed, omniumContentHeight)
 
     -- Talents tab: all-builds grouped content
     if allTalentContent:IsShown() then
@@ -2747,6 +2804,7 @@ local function SectionVisibilityOptions()
         { key = prefix .. "ShowStats",    label = L["section.stat_priority"] },
         { key = prefix .. "ShowTalents",  label = L["section.talents"] },
         { key = prefix .. "ShowRotation", label = L["section.rotation"] },
+        { key = prefix .. "ShowOmnium",   label = L["section.omnium"] },
     }
     local gearingOpts = isFloating and ns.gearingFloatOptions or ns.gearingDockOptions
     if gearingOpts then
@@ -3062,10 +3120,10 @@ end
 local STAT_LOOKUP = {}
 do
     local stats = {
-        { key = "致命一擊", globals = { "STAT_CRITICAL_STRIKE", "ITEM_MOD_CRIT_RATING_SHORT" } },
-        { key = "加速",           globals = { "STAT_HASTE", "ITEM_MOD_HASTE_RATING_SHORT" } },
-        { key = "精通",         globals = { "STAT_MASTERY", "ITEM_MOD_MASTERY_RATING_SHORT" } },
-        { key = "臨機應變",     globals = { "STAT_VERSATILITY", "ITEM_MOD_VERSATILITY" } },
+        { key = "Critical Strike", globals = { "STAT_CRITICAL_STRIKE", "ITEM_MOD_CRIT_RATING_SHORT" } },
+        { key = "Haste",           globals = { "STAT_HASTE", "ITEM_MOD_HASTE_RATING_SHORT" } },
+        { key = "Mastery",         globals = { "STAT_MASTERY", "ITEM_MOD_MASTERY_RATING_SHORT" } },
+        { key = "Versatility",     globals = { "STAT_VERSATILITY", "ITEM_MOD_VERSATILITY" } },
     }
     for _, s in ipairs(stats) do
         for _, g in ipairs(s.globals) do
@@ -3602,6 +3660,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             floatShowStatTargets = true,
             floatShowTalents = true,
             floatShowRotation = true,
+            floatShowOmnium = true,
             floatShowEnchants = true,
             floatShowGems = true,
             floatShowConsumables = true,
@@ -3613,6 +3672,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             dockShowStatTargets = true,
             dockShowTalents = true,
             dockShowRotation = true,
+            dockShowOmnium = true,
             dockShowEnchants = true,
             dockShowGems = true,
             dockShowConsumables = true,
@@ -3713,6 +3773,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             local hasGuide = ClassCodexDB[modePrefix .. "Stats"] ~= false
                 or ClassCodexDB[modePrefix .. "Talents"] ~= false
                 or ClassCodexDB[modePrefix .. "Rotation"] ~= false
+                or ClassCodexDB[modePrefix .. "Omnium"] ~= false
             local hasGearing = ClassCodexDB[modePrefix .. "Enchants"] ~= false
                 or ClassCodexDB[modePrefix .. "Gems"] ~= false
                 or ClassCodexDB[modePrefix .. "Consumables"] ~= false
