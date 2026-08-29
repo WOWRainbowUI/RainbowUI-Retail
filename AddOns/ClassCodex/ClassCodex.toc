@@ -1,4 +1,4 @@
-## Interface: 120007
+## Interface: 120100, 120007
 ## Title: Class Codex
 ## Notes: Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.
 ## Author: jfstn
@@ -32,14 +32,7 @@ Data\db_reference.lua
 
 Locales.lua
 Locales\enUS.lua
-Locales\koKR.lua
 Locales\zhCN.lua
-Locales\deDE.lua
-Locales\frFR.lua
-Locales\ptBR.lua
-Locales\esES.lua
-Locales\itIT.lua
-Locales\ruRU.lua
 Locales\zhTW.lua
 Shared\SourceData.lua
 Shared\Sources.lua
