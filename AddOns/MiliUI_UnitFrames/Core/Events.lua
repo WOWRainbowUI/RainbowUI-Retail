@@ -46,10 +46,24 @@ local UNIT_EVENT_BUCKET = {
     UNIT_PORTRAIT_UPDATE = "portrait",
 }
 
-local function RefreshUnit(unitToken, bucket)
+-- ⚠⚠ 這幾個事件**不吃同幀去重**（戳記照寫，只是不吃它跳過）。
+--
+-- 它們帶的是「值」本身，而且對應的狀態可能是**終點**：死亡之後血量不再變動，
+-- 同幀第二波派送被戳記擋掉就永遠等不到下一次補救，血條會停在死前那一格。
+-- 完整理由寫在 Core/UnitFrame.lua 的「同幀去重」那段。
+--
+-- 只列帶值的：absorb 家族（UNIT_ABSORB_AMOUNT_CHANGED 等）**刻意不列** ——
+-- 護盾會持續產生事件，過期一幀下一幀就自我修復，而它們正是同幀重複派送的大宗，
+-- 去重省下來的就是它們。
+local FORCE_EVENT = {
+    UNIT_HEALTH = true,
+    UNIT_MAXHEALTH = true,
+}
+
+local function RefreshUnit(unitToken, bucket, force)
     local uf = ns.frames[unitToken]
     if uf and uf:IsVisible() then
-        ns.Refresh(uf, bucket)
+        ns.Refresh(uf, bucket, force)
     end
 end
 
@@ -104,7 +118,7 @@ local function TrackerOnEvent(self, event, unit)
         census[unit] = (census[unit] or 0) + 1
     end
     local bucket = UNIT_EVENT_BUCKET[event]
-    if bucket then ns.Refresh(uf, bucket) end
+    if bucket then ns.Refresh(uf, bucket, FORCE_EVENT[event]) end
 end
 
 -- 單位框生出來時呼叫（SpawnUnitFrame）
@@ -217,14 +231,15 @@ local SPECIAL = {
     -- 而 death 桶只有 UNIT_CONNECTION 會推，所以那顆文字根本沒有重畫的機會。
     -- 三個都收：PLAYER_DEAD（倒地）、PLAYER_UNGHOST（從靈魂變回活人）、
     -- PLAYER_ALIVE（放棄屍體變靈魂，以及登入時）。都是罕見事件，成本可以忽略。
+    -- 一律 force：生死是終點狀態，被同幀稍早的重畫吃掉就等不到下一次了（同 FORCE_EVENT）。
     PLAYER_DEAD = function()
-        RefreshUnit("player", "death")
+        RefreshUnit("player", "death", true)
     end,
     PLAYER_ALIVE = function()
-        RefreshUnit("player", "death")
+        RefreshUnit("player", "death", true)
     end,
     PLAYER_UNGHOST = function()
-        RefreshUnit("player", "death")
+        RefreshUnit("player", "death", true)
     end,
     -- AFK／DND。不是 UNIT_ 事件，不確定 RegisterUnitEvent 吃不吃，留在全域比較保險
     PLAYER_FLAGS_CHANGED = function(unit)
@@ -267,12 +282,63 @@ SCOPED = {
 -- 實際註冊仍然留在 Start（跟 SPECIAL 一致），這裡只先立旗標。
 for event in pairs(SCOPED) do unitScoped[event] = true end
 
+------------------------------------------------------------
+-- 全域 frame 的派送要延到下一幀（taint 隔離）
+--
+-- ⚠⚠ 這裡的事件有一部分是**在暴雪的 secure 執行流程裡同步派送**的：
+--
+--   TARGETNEARESTENEMY:2     → TargetNearestEnemy()  ─┐
+--   TURNORACTION:4           → TurnOrActionStop()    ─┼→ PLAYER_TARGET_CHANGED
+--   MULTIACTIONBAR4BUTTON9:2 → UseAction()           ─┘
+--
+-- 也就是「按 Tab 選目標」「右鍵轉向點怪」「按技能」這三個最常按的動作。在這個
+-- handler 裡同步跑 RefreshUnit／ns.Fire，等於把 MiliUI_UnitFrames 的 taint 灌進
+-- 那條按鍵的 secure 執行流程 —— 2026-08-30 的 taint.log：一分鐘內 119 次，
+-- 期間暴雪的 SetTexture 被封鎖 62 次。
+--
+-- 跟 Core/UnitFrame.lua 的 OnShow 是同一類問題（我們的 Lua 跑在暴雪的 secure
+-- 堆疊裡面），同一招處理：丟到下一幀就完全脫離那條堆疊。那邊實測有效
+-- （SecureStateDriverManager 那條從 60 筆歸零、SetAttribute 封鎖從 40 次歸零）。
+--
+-- 幾個刻意的決定：
+--   * **不去重**。UNIT_PET / PLAYER_FLAGS_CHANGED / UNIT_PORTRAIT_UPDATE 的參數是
+--     unit token，同一幀來兩次很可能是**不同單位**，去重會吃掉一筆。這張表上的
+--     事件本來就低頻（檔案上方那句「留在全域沒有成本問題」），照單全收最安全。
+--   * 參數整包留著（`n` ＋ unpack）而不是只存第一個。目前只有兩個 handler 吃參數、
+--     而且都只吃第一個，但 externalEvents 是開放註冊的，寫死 arg1 會在未來某支
+--     元件註冊「要第二個參數」的事件時**靜默**壞掉。
+--   * 雙緩衝：flush 途中若有 handler 又觸發事件，新的進另一個桶，不會蓋掉正在跑的。
+------------------------------------------------------------
+local qA, qB = {}, {}
+local queue, queueN, queueQueued = qA, 0, false
+
+local function FlushGlobalEvents()
+    queueQueued = false
+    local run, n = queue, queueN
+    queue = (run == qA) and qB or qA
+    queueN = 0
+    for i = 1, n do
+        local a = run[i]
+        run[i] = nil
+        local event = a.event
+        local special = SPECIAL[event]
+        if special then special(unpack(a, 1, a.n)) end
+        if externalEvents[event] then
+            ns.Fire(FIRE_KEY[event], unpack(a, 1, a.n))
+        end
+    end
+end
+
 -- 全域 frame：SPECIAL 的內部邏輯 ＋ 有人訂閱的外掛事件
 eventFrame:SetScript("OnEvent", function(_, event, ...)
-    local special = SPECIAL[event]
-    if special then special(...) end
-    if externalEvents[event] then
-        ns.Fire(FIRE_KEY[event], ...)
+    -- 這裡**只做記帳**，真正的工作在下一幀 —— 見上面那段的說明
+    local a = { n = select("#", ...), ... }
+    a.event = event
+    queueN = queueN + 1
+    queue[queueN] = a
+    if not queueQueued then
+        queueQueued = true
+        C_Timer.After(0, FlushGlobalEvents)
     end
 end)
 

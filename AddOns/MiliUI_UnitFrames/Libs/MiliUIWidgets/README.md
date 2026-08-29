@@ -1,17 +1,31 @@
 # MiliUIWidgets
 
-MiliUI 各插件共用的設定介面元件庫。自寫、零外部依賴、零資產檔（材質只用暴雪內建的
-`WHITE8X8`，字型走暴雪內建路徑），所以整包就是五支 `.lua`，複製過去就會動。
+MiliUI 各插件共用的元件與基礎設施。自寫、零外部依賴、零資產檔（材質只用暴雪內建的
+`WHITE8X8`，字型走暴雪內建路徑），複製過去就會動。
 
 **這是 vendor 包，不是 LibStub 函式庫。** 每個插件各帶一份、各跑各的，彼此不共享執行期
-狀態。原始碼的唯一來源是 **MiliUI 本體**（`AddOns/MiliUI/Libs/MiliUIWidgets/`）這份，
-改動請改那裡再同步出去。
+狀態 —— 所以單獨發佈某支插件時，玩家只會下載到**一個**資料夾，不必另外裝共用層。
+
+原始碼的唯一來源是 **MiliUI 本體**（`AddOns/MiliUI/Libs/MiliUIWidgets/`）這份。
+改動請改那裡，然後：
+
+```bash
+python3 .claude/scripts/sync-widgets.py           # 同步出去
+python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前檢查會跑）
+```
+
+⚠ 那支腳本**不會主動把新模組塞進沒帶它的插件**，只更新已經帶著的那幾支。要讓某支
+插件開始用新模組，先手動複製一次、TOC 排好，之後它才管得到。
 
 ## 檔案
 
 | 檔案 | 複製時 | 說明 |
 |---|---|---|
 | `Env.lua` | **要改** | 宿主接點，見下方契約 |
+| `Secret.lua` | 逐字複製 | 12.1 秘密值工具（`ns.Secret`）。**無相依，排在最前面** |
+| `Errors.lua` | 逐字複製 | 錯誤處理器與封鎖動作攔截（`ns.Errors`）。**無相依，排在最前面** |
+| `Metro.lua` | 逐字複製 | 共用輪詢 ticker（`ns.Metro.New`）。**無相依，排在最前面** |
+| `BlizzOptions.lua` | 逐字複製 | 暴雪「選項 > 插件」入口頁（`ns.RegisterBlizzardCategory`），排在 `Options\Blizzard.lua` 之前 |
 | `Widgets.lua` | 逐字複製 | 元件庫：按鈕／勾選框／滑桿／下拉／色票／輸入框／複製框／列表／遮罩／彈窗／標題列 |
 | `ContextMenu.lua` | 逐字複製 | 右鍵／情境選單（長在遊戲畫面上的那種，不是設定表單裡的下拉） |
 | `Controls.lua` | 逐字複製 | 表單引擎：吃一張 spec 清單，吐出對齊好的一整頁控制項 |
@@ -43,7 +57,8 @@ MiliUI 各插件共用的設定介面元件庫。自寫、零外部依賴、零�
 邊的介面「莫名其妙變了樣」。
 
 已用掉的前綴：`MiliUIPack`（本體）、`MiliUIUF`、`MiliUITip`、`MiliUIFocus`、
-`MiliUIChatBar`、`MiliUIBurst`、`MiliUIBLM`、`MiliUIDM`、`MiliUIAura`、`MiliUINote`。
+`MiliUIChatBar`、`MiliUIBurst`、`MiliUIBLM`、`MiliUIDM`、`MiliUIAura`、`MiliUINote`、
+`MiliUIInfo`。
 
 ### L 只需要四個 key
 
@@ -65,12 +80,21 @@ MiliUI 各插件共用的設定介面元件庫。自寫、零外部依賴、零�
 
 ```
 Libs\MiliUIWidgets\PixelPerfect.lua
+Libs\MiliUIWidgets\Secret.lua
+Libs\MiliUIWidgets\Errors.lua
+Libs\MiliUIWidgets\Metro.lua
 ...(語系、Core 等)...
 Libs\MiliUIWidgets\Env.lua
 Libs\MiliUIWidgets\Widgets.lua
 Libs\MiliUIWidgets\ContextMenu.lua
 Libs\MiliUIWidgets\Controls.lua
+...(Options 各分頁)...
+Libs\MiliUIWidgets\BlizzOptions.lua
+Options\Blizzard.lua
 ```
+
+`Secret` / `Errors` / `Metro` 三支**完全沒有相依**（不讀 Env、不讀語系），所以跟
+`PixelPerfect.lua` 一起排在最前面 —— 宿主的 `Core/*.lua` 在檔案層就會用到它們。
 
 ### 右鍵選單（`ContextMenu.lua`）
 
@@ -100,6 +124,25 @@ ChatBar 與 DamageMeters 各帶一份幾乎一樣的引擎，結果同一個「E
 | `W.CreateCopyBox(parent, w, h, getText, selectLabel)` | 巨集／指令那種「內容是程式產生的、玩家要整段複製走」的欄位。一被輸入就還原，等於唯讀但選得起來（停用的輸入框連選取都做不到）。`selectLabel` 給了才長全選鈕，字串由宿主在地化 |
 | `W.CreateRowList(parent, w, h, rowH, buildRow)` | 「一列一筆資料」的清單。捲軸／列高／內容高度由它管，宿主只寫 `buildRow`（建控件）與 `list:Update(items, updateRow)`（填值）。⚠ 列會回收再用，`updateRow` 必須連 `OnClick` 的 closure 一起重設 |
 | `W.CreateInputPopup(parent, w, title, fields)` | 「新增一筆／改名」這種要先問字串的對話框。`popup:Open(values, onAccept, title)`，`onAccept` 回傳 `false` 就不關窗 |
+
+### 貼齊螢幕（`W.PlaceClamped` / `W.ScreenNudge`）
+
+**任何貼著某個東西彈出來的浮動面板都要過這裡**，不然擺在畫面邊角時會開到畫面外——
+那不只是難看，是**點不到**（被裁掉的那截沒辦法捲到）。右鍵選單、子選單、下拉清單
+都已經走這條路；新做的浮動面板也照辦。
+
+```lua
+local pts = { "TOPRIGHT", btn, "BOTTOMRIGHT", 0, -2 }
+panel:Show()                    -- 先有尺寸、先 Show，否則量到舊的矩形
+W.PlaceClamped(panel, pts)      -- pts 會被就地改寫成推回後的偏移
+```
+
+兩段式，**順序不能倒過來**：先由呼叫端決定要不要**翻面**（往下開改成往上開——
+只有它知道另一側在哪、翻過去合不合理），翻完還出界才由 `W.PlaceClamped` **平移**。
+先平移的話面板會蓋住開它的那顆按鈕。
+
+`pts` 被就地改寫是刻意的：呼叫端存起來重貼時（選單的開關項目要原地重畫）才會回到
+同一個位置，不然按一下就自己跳回出界的地方。
 
 ### 視窗拖曳（`W.CreateTitleBar` / `W.MakeDragHandle`）
 

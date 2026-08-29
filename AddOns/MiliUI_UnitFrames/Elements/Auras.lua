@@ -26,6 +26,14 @@ local Media = ns.Media
 --   cand   candidateFilters 表，引擎端求值 —— 有些概念沒有對應的 token，只能走這裡
 -- 完整詞彙與六條硬規則見 .claude/notes 的 wow-121-aura-filter-vocabulary。
 --
+-- ✅ **布林型 candidateFilters 對敵對單位正常運作**（2026-08-28 首領戰實測）：
+--    同一個容器，「全部」顯示首領的 4 顆增益，切成「可偷取或驅散」
+--    （`{ isStealable = true }`）就變空 —— 差別只有那個 payload，所以引擎確實採用了它，
+--    首領的增益本來就沒有可偷取的。**不需要為這幾個模式補身分閘。**
+--    ⚠ wow-121-identity-gate-failopen 那篇的 fail-open 只講 `include/excludeSpellIDs`，
+--      而且觀察全部來自「友方隊友」情境，不要外推到這裡。
+--    ⚠ 還沒驗的是黑名單（`excludeSpellIDs`）在敵對單位的增益列上會不會被靜默忽略。
+--
 -- ⚠⚠ 這裡刻意設計成**一個模式只對應一個 AuraGroup**。想「多個類別同時顯示」的話：
 -- token 不能 OR ⇒ 一類一個 group ⇒ 要手工維護互斥否定鏈（而且只能否定**已啟用**的
 -- 類別，否定沒啟用的會吃掉本來該顯示的光環）；再加上跨 group 沒有任何總量 API
@@ -201,21 +209,64 @@ do
 end
 
 -- 「剩餘低於 threshold 秒才顯示數字」：alpha 階梯 ColorCurve
+--
+-- ⚠⚠ 這個**絕對不能在 initializeFrame 裡呼叫**。那個 callback 跑在暴雪
+-- Blizzard_AuraContainerFrameProviders 的 CreateFrame 裡（securecallfunction 內），
+-- 執行流程一定是被我們污染的，而 `CreateColor()` 會走到
+-- `ColorMixin:OnLoad` → `self:SetRGBA(...)`：
+--
+--   Blizzard_SharedXMLBase/Color.lua:10: attempted to index a table that cannot be
+--   accessed while tainted (execution tainted by 'MiliUI_UnitFrames')
+--
+-- 所以做兩件事：
+--   1. **快取**。曲線只跟 (threshold, r, g, b) 有關，同一個設定全部按鈕共用一顆。
+--   2. 由呼叫端在容器建立時（正常的插件路徑，不在暴雪的 frame 建立堆疊裡）先
+--      WarmDurationAlphaCurve 一次；初始化裡就只是查表，一次 CreateColor 都不做。
+-- 兩顆 CreateColor 另外包 pcall：哪天暴雪把更多表鎖起來，代價是「沒有淡出效果」，
+-- 不是整顆按鈕建到一半斷掉。
+local curveCache = {}
+
 local function BuildDurationAlphaCurve(threshold, r, g, b)
-    if not (C_CurveUtil and C_CurveUtil.CreateColorCurve and CreateColor) then return nil end
-    local ok, curve = pcall(C_CurveUtil.CreateColorCurve)
-    if not ok or not curve then return nil end
     r, g, b = r or 1, g or 1, b or 1
-    local visible = CreateColor(r, g, b, 1)
-    local hidden = CreateColor(r, g, b, 0)
+    local key = ("%s/%s/%s/%s"):format(threshold, r, g, b)
+    local hit = curveCache[key]
+    if hit ~= nil then return hit or nil end          -- false = 建過但失敗，不要重試
+
+    if not (C_CurveUtil and C_CurveUtil.CreateColorCurve and CreateColor) then
+        curveCache[key] = false
+        return nil
+    end
+    local ok, curve = pcall(C_CurveUtil.CreateColorCurve)
+    if not ok or not curve then
+        curveCache[key] = false
+        return nil
+    end
+    local okColor, visible, hidden = pcall(function()
+        return CreateColor(r, g, b, 1), CreateColor(r, g, b, 0)
+    end)
+    if not okColor or not visible or not hidden then
+        curveCache[key] = false
+        return nil
+    end
     local added = pcall(function()
         curve:AddPoint(0, visible)
         curve:AddPoint(threshold, visible)
         curve:AddPoint(threshold + 0.01, hidden)
         curve:AddPoint(threshold + 86400, hidden)
     end)
-    if not added then return nil end
+    if not added then
+        curveCache[key] = false
+        return nil
+    end
+    curveCache[key] = curve
     return curve
+end
+
+-- 在乾淨的插件路徑上先把曲線建好放進快取，讓 initializeFrame 只需要查表
+local function WarmDurationAlphaCurve(style)
+    if style and style.showDuration and style.durationThreshold then
+        BuildDurationAlphaCurve(style.durationThreshold, 1, 1, 1)
+    end
 end
 
 ------------------------------------------------------------
@@ -329,9 +380,22 @@ local function InitAuraButton(auraButton, style, sizeW, sizeH)
                     }
                 end
             end
+            -- ⚠ 備援也要包 pcall。這裡是 initializeFrame，整段跑在暴雪
+            -- Blizzard_AuraContainerFrameProviders 的 CreateFrame 裡面（樣式只能在
+            -- 這裡做，之後 AuraButton 就 forbidden 了），所以執行流程一定是被我們
+            -- 污染的 —— 而 SetDurationText 內部會走到 CreateColor()，12.1 的
+            -- ColorMixin 是「被污染時不給存取」的表：
+            --
+            --   Blizzard_SharedXMLBase/Color.lua:10: attempted to index a table that
+            --   cannot be accessed while tainted (execution tainted by 'MiliUI_UnitFrames')
+            --
+            -- 主要路徑本來就有 pcall，備援卻是裸的 ⇒ 它一炸就把整個 InitAuraButton
+            -- 從中間截斷，後面的層數文字完全沒建（錯誤 locals 裡沒有 Count 就是指紋）。
+            -- 備援的意義是「主要的壞了還能撐住」，它自己不設防等於白做。
+            -- 兩條都失敗就是沒有倒數文字 —— 難看，但至少按鈕是完整的。
             if not pcall(auraButton.SetDurationText, auraButton, duration,
                          next(options) and options or nil) then
-                auraButton:SetDurationText(duration)
+                pcall(auraButton.SetDurationText, auraButton, duration)
             end
         end
     end
@@ -548,6 +612,10 @@ local function CreateContainer(uf, elementName, edb, filter, cand, style)
     container:SetUnit(uf.unit)
     ApplyFlowLayout(container, spec)
 
+    -- ⚠ 曲線一定要在這裡先建好。initializeFrame 裡呼叫 CreateColor 會撞上
+    -- 「被污染時不給存取」的 ColorMixin —— 見 BuildDurationAlphaCurve 上面那段。
+    WarmDurationAlphaCurve(style)
+
     container:AddAuraGroup("main", filter, {
         maxFrameCount = edb.maxCount or 16,
         -- 有些篩選概念沒有對應的 filter token，只能走這裡（引擎端求值，不必讀秘密值）。
@@ -560,7 +628,14 @@ local function CreateContainer(uf, elementName, edb, filter, cand, style)
             lineSpacing = edb.spacing or 0,
         },
         initializeFrame = function(auraButton)
-            InitAuraButton(auraButton, style, edb.w or 20, edb.h or 20)
+            -- ⚠ 整段要隔離。這個 callback 跑在暴雪 Blizzard_AuraContainerFrameProviders
+            -- 的 CreateFrame → CreateFrameBatch 裡面，錯誤逃出去會把**整批** frame 的
+            -- 建立一起打斷，不是只有這一顆按鈕。而 12.1 一直在追加「被污染時不給存取」
+            -- 的表（ColorMixin 就是一張），初始化裡每個裸的暴雪 API 呼叫都是一顆地雷 ——
+            -- InitAuraButton 裡的 SetAuraBorder / SetDurationCooldown / SetIcon /
+            -- SetApplicationCount 都還是裸的。
+            -- 這道閘的代價是「那顆按鈕外觀不完整」，比「整批光環不出來」便宜太多。
+            xpcall(InitAuraButton, ns.ReportError, auraButton, style, edb.w or 20, edb.h or 20)
         end,
     })
 

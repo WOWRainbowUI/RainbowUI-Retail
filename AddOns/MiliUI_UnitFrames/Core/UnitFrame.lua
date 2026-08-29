@@ -51,7 +51,20 @@ end
 -- 完整的 health 更新（cache 消毒 ＋ 血條計算器 ＋ 目標框八條文字 tag）。
 -- 一幀一個世代編號，同一 (框, 桶) 在同一幀只跑一次。
 --
--- 我們每次都是「重讀當下的值」而不是套用差量，所以併掉中間那幾次不會漏資訊。
+-- ⚠⚠ **「遊戲狀態一幀之內不會變」是錯的假設，帶「值」的事件一定要 force。**
+-- 這段原本的理由寫著「我們每次都是重讀當下的值，所以併掉中間那幾次不會漏資訊」——
+-- 那在單封包幀成立，在**多封包幀不成立**：高負載時（團滅、一堆人同幀掉血）客戶端會在
+-- 同一個渲染幀裡連續處理多個伺服器封包、每處理一批就派送一次事件，而 GetTime() 整幀
+-- 凍結不動。同幀第二波派送命中戳記被跳過 ⇒ 那一波帶進來的新血量根本沒有被讀到。
+--
+-- 平常無所謂（下一個 UNIT_HEALTH 會補救），**死亡是終點狀態**：之後血量不再變動，
+-- 永遠等不到下一個事件 ⇒ 被秒殺的人血條就停在死前那格，一直到放靈魂／復活／reload。
+-- 死亡文字走的是即時的 UnitIsDeadOrGhost，所以會是對的 ——「**字對條錯**」就是指紋。
+--
+-- 所以 Core/Events.lua 的 FORCE_EVENT 對 UNIT_HEALTH / UNIT_MAXHEALTH 傳 force=true：
+-- 戳記照寫、只是不吃它跳過。常態幀的刷新次數完全不變（血量路徑刷完戳記已寫入，同幀
+-- 其餘的 absorb 事件照樣命中跳過），多刷的只有「同幀多波派送、而且資料真的變了」那一刻。
+-- Cell 在 ae8ae5852 修的是同一條，見 .claude/notes/wow-gettime-stamp-multipacket.md。
 ------------------------------------------------------------
 local paintGen, lastGenTime = 0, 0
 
@@ -163,6 +176,59 @@ function ns.RefreshAll(bucket)
 end
 
 ------------------------------------------------------------
+-- OnShow 的全量刷新要延到下一幀（taint 隔離）
+--
+-- ⚠⚠ RegisterUnitWatch 的顯示是暴雪**從 secure 端**做的：
+--
+--   -- Blizzard_RestrictedAddOnEnvironment/SecureStateDriver.lua:83
+--   local function SecureStateDriverManager_UpdateUnitWatch(frame, doState)
+--       ...
+--       if exists then
+--           frame:Show()                            ← 我們的 OnShow 在這裡同步跑
+--           frame:SetAttribute("statehidden", nil)  ← 下一行當場被封鎖
+--
+-- 在 OnShow 裡直接呼叫 ns.Refresh，等於把 MiliUI_UnitFrames 的 taint 灌進暴雪
+-- 那條執行流程。而外層是 `for frame in pairs(unitExistsWatchers)` 的迴圈 ——
+-- 染一次之後**後面每一個 watcher**（包含別的插件的單位框）的 statehidden
+-- 都跟著被封鎖，真正的污染點根本不在被點名的那支插件的堆疊裡。
+--
+-- 2026-08-30 taint.log 實測（3 分半的樣本）：這條走了 60 次，
+-- 期間 SetAttribute 被封鎖 40 次。這也是「MiliUI_UnitFrames 完全不碰快捷列
+-- 卻被 ADDON_ACTION_BLOCKED 點名」的來源，見 .claude/notes/wow-actionbar-taint-blame.md。
+--
+-- 丟到下一幀就完全脫離那條堆疊。單位「剛出現」延一幀沒有視覺差別。
+-- 用共用旗標而不是每次 Show 都排一個 closure：切目標很頻繁。
+------------------------------------------------------------
+local showDirty, showWork, showFlushQueued = {}, {}, false
+
+local function FlushShowRefresh()
+    showFlushQueued = false
+    -- 先把待辦收成陣列再跑：Refresh 途中若有東西被 Show，改的是 showDirty 而不是
+    -- 正在走訪的容器
+    local n = 0
+    for uf in pairs(showDirty) do
+        showDirty[uf] = nil
+        n = n + 1
+        showWork[n] = uf
+    end
+    for i = 1, n do
+        local uf = showWork[i]
+        showWork[i] = nil
+        -- 這一幀之內可能又被藏回去（快速切目標、或顯示閘關起來）：藏了就不用畫，
+        -- 閘框重新顯示時它自己的 OnShow 會補一次全量重畫
+        if uf:IsVisible() then ns.Refresh(uf, "unitchanged") end
+    end
+end
+
+local function QueueShowRefresh(uf)
+    showDirty[uf] = true
+    if not showFlushQueued then
+        showFlushQueued = true
+        C_Timer.After(0, FlushShowRefresh)
+    end
+end
+
+------------------------------------------------------------
 -- 位置：CENTER 對 CENTER 偏移；boss1-5 依 growth/spacing 疊排
 ------------------------------------------------------------
 -- 在指定的 effective scale 上對齊實體像素。
@@ -270,12 +336,54 @@ end
 -- 滑鼠移過高亮
 --
 -- 一圈細邊框，層級要壓過光環容器的 holder（12），不然滑到有光環的框上時高亮會被
--- 光環蓋掉一角。EnableMouse(false)：它鋪滿整個框，吃到滑鼠就會把單位框的點擊擋掉。
+-- 光環蓋掉一角。EnableMouse(false)：它整片蓋在框體上，吃到滑鼠就會把單位框的點擊擋掉。
 ------------------------------------------------------------
 -- 高過使用者能調的上限（各層級滑桿是 0-15），邊框才不會被框內元件遮掉。
 -- ⚠ 但小圖示要**再高一層**：團標之類的故意突出框體邊緣，邊框壓上去會從圖示中間
 -- 劃過。它們的層級在 Core/DB.lua 的 ICON_LEVEL，改這個數字要連那邊一起看。
 local HIGHLIGHT_LEVEL = 20
+
+------------------------------------------------------------
+-- 高亮貼的是「視覺框體」，不是框架矩形
+--
+-- 這兩個常常不一樣，貼框架的話邊線會落在空的地方。首領框最明顯：框是 220×32，
+-- 但血條與能量條都從 x = 36 起（左邊那 36 是留給 3D 頭像與團標的空白）⇒ 左邊憑空
+-- 多一條直線；而框底 -32 落在施法條（-22..-36）中間 ⇒ 底線從施法條上橫劃過去。
+-- 玩家／目標框則是反過來：魔力條刻意往側邊與下方各露 8（見 notes 的「視覺框體」），
+-- 那一截整個被框在高亮外面。
+--
+-- **只收血條與能量條** —— 這兩條是「框顯示著就一定看得到」的部分，取它們的聯集
+-- 等於視覺框體。其餘元件都不收，各有各的理由：
+--   * 施法條**沒在唱法時是隱藏的**（見 Elements/Castbar.lua）。把它保留的位置收進來，
+--     九成時間高亮底下就多出一條空的長條，反而變鬆。首領框的施法條緊貼在能量條下方，
+--     不收的結果是底線正好落在它上緣，唱法時它整條掛在高亮外面，讀起來仍然乾淨。
+--     （順帶一提，專注／目標的目標的施法條本來就在**框外上方**、寵物與專注的目標那條
+--     甚至比框還寬 —— 收進來會鬆掉一大塊。）
+--   * 3D 頭像是浮在框上的模型，首領框的頭像整個在框上方 50。
+--   * 文字的 FontString 矩形跟字面對不起來（首領名字 18pt 塞在 14 高的框裡），
+--     拿它當邊界一樣會從字上劃過。
+--   * 光環、團標、資源條本來就**故意**突出框體。
+------------------------------------------------------------
+local BODY_ELEMENTS = { "hpbar", "mpbar" }
+
+local function BodyBounds(uf)
+    local l, t, r, b
+    for _, name in ipairs(BODY_ELEMENTS) do
+        local e = uf.db.elements and uf.db.elements[name]
+        if e and e.enabled ~= false then
+            -- 元件座標語意：TOPLEFT 對框架 TOPLEFT，往下為負（見 ApplyElementBase）
+            local x1, y1 = e.x or 0, e.y or 0
+            local x2, y2 = x1 + (e.w or 0), y1 - (e.h or 0)
+            if not l or x1 < l then l = x1 end
+            if not t or y1 > t then t = y1 end
+            if not r or x2 > r then r = x2 end
+            if not b or y2 < b then b = y2 end
+        end
+    end
+    -- 兩條都關掉就退回框架矩形，至少還有東西可以貼
+    if not l then return 0, 0, uf.db.frame.w or 0, -(uf.db.frame.h or 0) end
+    return l, t, r, b
+end
 
 function ns.ApplyHighlight(uf)
     local on = uf.db.frame.highlight ~= false
@@ -287,11 +395,16 @@ function ns.ApplyHighlight(uf)
     local hl = uf.highlight
     if not hl then
         hl = CreateFrame("Frame", nil, uf, "BackdropTemplate")
-        hl:SetAllPoints(uf)
         hl:SetFrameLevel(HIGHLIGHT_LEVEL)
         hl:EnableMouse(false)
         uf.highlight = hl
     end
+    -- ⚠ 錨點每次都要重下，不能只在建立時做一次：改了任何一條 bar 的位置／尺寸，
+    -- 視覺框體就跟著變了
+    local l, t, r, b = BodyBounds(uf)
+    hl:ClearAllPoints()
+    hl:SetPoint("TOPLEFT", uf, "TOPLEFT", Scale(l), Scale(t))
+    hl:SetPoint("BOTTOMRIGHT", uf, "TOPLEFT", Scale(r), Scale(b))
     local g = ns.db.global
     local c = g.highlightColor or { r = 1, g = 1, b = 1, a = 0.7 }
     hl:SetBackdrop({ edgeFile = Media.WHITE8X8, edgeSize = Media.BorderInset(g.highlightSize or 1) })
@@ -583,7 +696,10 @@ function ns.SpawnUnitFrame(unit)
     -- SetScript 的話那個 hook 會被整個蓋掉——症狀是輪詢永遠掛不上、超出距離的
     -- 文字凍結在選目標那一刻，而且完全不報錯。實際踩過。
     uf:SetScript("OnShow", function(self)
-        ns.Refresh(self, "unitchanged")     -- 單位出現時（RegisterUnitWatch 驅動）全量刷新
+        -- 單位出現時（RegisterUnitWatch 驅動）全量刷新。
+        -- ⚠ 不可以在這裡同步跑 —— Show() 是暴雪 secure 端呼叫的，見上面
+        -- QueueShowRefresh 那段的說明。
+        QueueShowRefresh(self)
     end)
 
     -- 滑鼠提示與高亮（走暴雪的單位提示）。OnEnter/OnLeave 不是受保護腳本，
