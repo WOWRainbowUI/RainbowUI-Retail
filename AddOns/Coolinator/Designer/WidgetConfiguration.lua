@@ -842,7 +842,13 @@ addonTable.Designer.WidgetConfiguration = {
     ["abilityCharge"] = {
       ["*"] = {
         fullBarTextures,
-        valueBarTexts,
+        --valueBarTexts,
+      }
+    },
+    ["auraStackPip"] = {
+      ["*"] = {
+        fullBarTextures,
+        --valueBarTexts,
       }
     },
     ["class"] = {

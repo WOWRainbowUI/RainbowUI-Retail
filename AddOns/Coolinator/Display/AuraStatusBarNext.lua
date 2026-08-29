@@ -106,7 +106,7 @@ function addonTable.Display.AuraStatusBarNextMixin:Enable()
   self:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 
-function addonTable.Display.AuraStatusBarNextMixin:Disable(details)
+function addonTable.Display.AuraStatusBarNextMixin:Disable()
   self:UnregisterAllEvents()
 end
 

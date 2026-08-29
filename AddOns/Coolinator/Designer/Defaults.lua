@@ -197,13 +197,46 @@ local function GetChargeGroup(fill, empty)
       asset = "Cooli: 7px",
       color = GetColor("9d9d9d"),
     },
+    showEmpty = true,
   }
   local group = CopyTable(Group)
   group.locked = true
   for i = 1, 3 do
     table.insert(group.entries, CopyTable(pip))
     group.entries[#group.entries].index = #group.entries
-    group.entries[#group.entries].showEmpty = true
+  end
+
+  return group
+end
+
+local function GetAuraStackGroup(fill, empty)
+  local pip = {
+    kind = "bar",
+    resource = {kind = "auraStackPip", spellID = 0},
+    width = 0.3,
+    height = 0.8,
+    scale = 1.5,
+    alpha = 1,
+    layout = "horizontal",
+    foreground = {
+      asset = "Cooli: Fade Bottom",
+      color = fill,
+    },
+    background = {
+      asset = "Cooli: Solid White",
+      color = empty,
+    },
+    border = {
+      asset = "Cooli: 7px",
+      color = GetColor("9d9d9d"),
+    },
+    showEmpty = true
+  }
+  local group = CopyTable(Group)
+  group.locked = true
+  for i = 1, 6 do
+    table.insert(group.entries, CopyTable(pip))
+    group.entries[#group.entries].index = #group.entries
   end
 
   return group
@@ -328,6 +361,7 @@ addonTable.Designer.Defaults = {
     texts = spellBarTexts,
   },
   AbilityCharges = GetChargeGroup(GetColor("00ff77"), GetColor("deffb3", 0.3)),
+  AuraStackPips = GetAuraStackGroup(GetColor("00ff77"), GetColor("deffb3", 0.3)),
   ClassResource = {
     ["icicles"] = {
       kind = "bar",

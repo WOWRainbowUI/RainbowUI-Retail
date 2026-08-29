@@ -146,7 +146,7 @@ function addonTable.Designer.GetLabel(details)
     if details.resource.kind == "class" then
       label = label .. " - " .. addonTable.Constants.BarClassResourceLabelMap[details.resource.resource]
     end
-    if details.resource.kind == "aura" or details.resource.kind == "ability" then
+    if details.resource.kind == "aura" or details.resource.kind == "ability" or details.resource.kind == "auraStackPip" then
       label = label .. ": " .. details.resource.spellID
     elseif details.resource.kind == "item" then
       label = label .. ": " .. details.resource.itemID
