@@ -34,6 +34,8 @@ L["talent_pane.save_as.confirm"] = "Save"
 L["section.stat_priority"] = "Stat Priority"
 L["section.talents"] = "Talents"
 L["section.rotation"] = "Rotation"
+L["section.omnium"] = "Omnium Folio"
+L["omnium.week"] = "Week %d"
 
 -- Talent build sections (Icy Veins source)
 L["talents.leveling"] = "Leveling"

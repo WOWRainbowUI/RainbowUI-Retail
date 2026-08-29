@@ -1,8 +1,8 @@
-## Interface: 120007, 120100
+## Interface: 120007
 ## Title: Class Codex
 ## Notes: Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.
 ## Author: jfstn
-## Version: 0.40.7
+## Version: 0.40.14
 ## SavedVariables: ClassCodexDB
 ## SavedVariablesPerCharacter: ClassCodexCharDB
 ## X-Curse-Project-ID: 1480030
@@ -12,9 +12,6 @@
 ## AddonCompartmentFunc: ClassCodex_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: ClassCodex_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: ClassCodex_OnAddonCompartmentLeave
-## Title-zhTW: Class Codex 職業法典
-## Notes-zhTW: 為你當前專精提供屬性優先級、天賦構建、輸出迴圈指南和裝備推薦。
-## Category-zhTW: 職業
 
 Libs\embeds.xml
 
@@ -31,7 +28,14 @@ Data\db_reference.lua
 
 Locales.lua
 Locales\enUS.lua
+Locales\koKR.lua
 Locales\zhCN.lua
+Locales\deDE.lua
+Locales\frFR.lua
+Locales\ptBR.lua
+Locales\esES.lua
+Locales\itIT.lua
+Locales\ruRU.lua
 Locales\zhTW.lua
 Shared\SourceData.lua
 Shared\Sources.lua
@@ -62,6 +66,7 @@ Sections\Stats.lua
 Sections\Enhancements.lua
 Sections\StatTargets.lua
 Sections\Rotation.lua
+Sections\Omnium.lua
 Sections\Talents.lua
 ClassCodex.lua
 GearingSections.lua

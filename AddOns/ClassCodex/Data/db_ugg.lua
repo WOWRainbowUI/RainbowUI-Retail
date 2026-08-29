@@ -6,31 +6,20 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 237834, 240949 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 244742, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 237834 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 8019, spellId = 1236085 } },
-              ["戒指1"] = { { id = 8027, spellId = 1236089 } },
-              ["戒指2"] = { { id = 8027, spellId = 1236089 } },
-              ["頭"] = { { id = 7991, spellId = 1236071 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 6241, spellId = 326805 } },
-              ["肩"] = { { id = 7973, spellId = 1236062 } },
-            },
-            ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236088 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243975 } },
-              ["主手"] = { { id = 327082 } },
-              ["肩"] = { { id = 1236061 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 8019, spellId = 1236085 } },
+              ["Finger 1"] = { { id = 8027, spellId = 1236089 } },
+              ["Finger 2"] = { { id = 8027, spellId = 1236089 } },
+              Head = { { id = 7991, spellId = 1236071 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 6241, spellId = 326805 } },
+              Shoulders = { { id = 7973, spellId = 1236062 } },
             },
           },
         },
@@ -53,23 +42,6 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249342, slot = "Trinket 2" },
               { ilvl = 298, itemId = 49802, slot = "Main Hand" },
             },
-            ["pvp:3v3"] = {
-              { itemId = 249970, slot = "Head" },
-              { itemId = 240952, slot = "Neck" },
-              { itemId = 249968, slot = "Shoulders" },
-              { itemId = 255566, slot = "Back" },
-              { itemId = 249973, slot = "Chest" },
-              { itemId = 244742, slot = "Wrist" },
-              { itemId = 249971, slot = "Hands" },
-              { itemId = 255561, slot = "Waist" },
-              { itemId = 249657, slot = "Legs" },
-              { itemId = 249654, slot = "Feet" },
-              { itemId = 240951, slot = "Finger 1" },
-              { itemId = 240951, slot = "Finger 2" },
-              { itemId = 252957, slot = "Trinket 1" },
-              { itemId = 251792, slot = "Trinket 2" },
-              { itemId = 260188, slot = "Main Hand" },
-            },
             raid = {
               { ilvl = 289, itemId = 249970, slot = "Head" },
               { ilvl = 298, itemId = 268291, slot = "Neck" },
@@ -91,7 +63,6 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240918 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste", "mastery" }, { "crit" } } } },
           deathbringer = {
             mplus = {
               minor = { { "Speed", "Leech" }, { "Avoidance" } },
@@ -120,7 +91,7 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 496, haste = 917, mastery = 764, versatility = 412 },
-            raid = { crit = 699, haste = 850, mastery = 855, versatility = 127 },
+            raid = { crit = 744, haste = 805, mastery = 855, versatility = 127 },
           },
         },
         talents = {
@@ -128,243 +99,243 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 27.5,
+                pickrate = 36.9,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxYMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 20.8,
+                pickrate = 16.1,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 28.6,
+                pickrate = 32.4,
               },
             },
             ["mplus:12805"] = {
-              {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZGzsYmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGADDA",
-                pickrate = 12,
-              },
-            },
-            ["mplus:12811"] = {
-              {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 32.1,
-              },
-            },
-            ["mplus:12874"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
                 pickrate = 24,
               },
             },
+            ["mplus:12811"] = {
+              {
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
+                pickrate = 38.5,
+              },
+            },
+            ["mplus:12874"] = {
+              {
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
+                pickrate = 33.3,
+              },
+            },
             ["mplus:12915"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 16.7,
+                pickrate = 30.6,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmZmxgZZmZmZmlZmxYGAAAAADmZmZmxMzMGAMzMzMDAAwY2GYALglhZADLAmxAAgZGAGPA",
-                pickrate = 12.5,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
+                pickrate = 17.4,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
-                pickrate = 27.3,
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmZmZMMbzMzMzsYmxMzYAAAAgZmZmZMzMMjxAgxMzMDAAwY2GYALgthZADLAmxMAAMzAAPA",
-                pickrate = 10.1,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzMzsYMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 15,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmZmZMMbzMzMzsYmxMzYAAAAgZmZmZMzMMjxAgxMzMDAAwY2GYALgthZADLAmxMAAMzAAPA",
-                pickrate = 14.5,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmZmFzMmZGDAAAAMzMzMjZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 9.4,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzYmFjxYGDAAAAYGzMzMzMMjxAgxMzMDAAwY2GYALgthBYYBwMmBAgZGADDA",
-                pickrate = 9.4,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyYmxMmZmhZbmZmZmFzMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 10,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmZmFzMmZGDAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMDYYBwMGAAMzAAPA",
-                pickrate = 17.7,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMzYmlZmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAGz2ADYBsMMADLAmxAAgZGAGDA",
+                pickrate = 15,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzYmFjxYGDAAAAYGzMzMzMMjxAgxMzMDAAwY2GYALgthBYYBwMmBAgZGADDA",
-                pickrate = 23.1,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzMzsYMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 20,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmZmFzMmZGDAAAAYmZmZmZmhZMAgZmZmZAAAGz2ADYBsNMDYYBwMmBAgZGgBPA",
-                pickrate = 15.4,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzMzsYMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 23.1,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZMMbzMzMzsYmZGzAAAAAYmZmZMzMMjxMAMmZmZAAAGz2ADYBsMMDYYBwMMDAgZGADPA",
-                pickrate = 16.7,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzMzsYMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 14.3,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAAzyMzMmxMzMMLzMzMzsYMGzYAAAAgZGzMzMzMjZmxAAzMzMDAAwY2GYALglhZADLAmhBAgZGADPA",
-                pickrate = 18.2,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMz2MzMzMzMzMMbzMzMzwMPwMmxAAAAAmZmZmZmZYmZAAjZmZGAAgxsNwA2ALDzAGWAMYGAAzMAwA",
+                pickrate = 10,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmZmFzMGzYGAAAAYmZmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGgBPA",
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmZmFzMmZGDAAAAYmZmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
                 pickrate = 10,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmZmlZmxYGDAAAAYmZmZmZmhZMAgZmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
-                pickrate = 13,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyYmxMmZMMbzMzMzsMzMGzYAAAAAzwMzMzMegZmBAMzMzMDAAwY2GYALgthZADLAmxAAgZGADPA",
+                pickrate = 20.8,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzYmFjxYGDAAAAYGzMzMzMMjxAgxMzMDAAwY2GYALgthBYYBwMmBAgZGADDA",
-                pickrate = 28.6,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMzMzsYMGzYAAAAAzYmZmZmhZMGAMmZmZAAAGz2ADYBsNMDYYBwMmBAgZGADPA",
+                pickrate = 11.1,
               },
             },
           },
           sanlayn = {
             mplus = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmZMbzMzMzsYmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAMwAzYxMW2AsMgNAzYAAAmZA8AA",
-                pickrate = 18.8,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMbzMzMzsYmZmZGDAAAAYGmZmZmxMjBAMzMzMDAAgBGYGLmxyGgtBsBYGDAAwMDgHA",
+                pickrate = 13.3,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxgZZmZmZmlZmxMzAAAAAYGmZmZmxDMzMAgZmZmZAAAMwAzYxMW2AsNgNAzYAAAmZgZ8AA",
-                pickrate = 16.7,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmZmFzMGzYGAAAAYGzMzMzMMzMAgxMzMDAAgBGYGLmxyGgtBsBYGzAAAmZA8AA",
+                pickrate = 11.1,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzgxMjhZZmZegZmFzMzMzYGAAAAYGmZmxMMzMAgZmZmZAAAMwAzYxMWWAsNgNAzYMDAAmZwgHA",
-                pickrate = 16.7,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmZmFjxYGzAAAAAzwMzMzMegZMAgZmZmZAAAMwAzYxMW2AsMgNAzYGAAwMDM8AA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmZMbzMzMzsYmxMzAAAAAYwMzMzMmZmxAgZmZmZAAAMwAzYxMW2AsMgNAzYAAAmZA8AA",
-                pickrate = 50,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzgxMjhZbMzMzsNzMmZGzAAAAAzYmZmZmhZMAgZmZmZAAAMwAzYzMWWAsNgNAzYGAAwMDY8AA",
+                pickrate = 11.1,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMz2MzMMmZMMLzMzMzwMzMzMmBAAAAmhZmZMzYmZAAzMzMzAAAYgBmxiZssBYbAbAmxMAAgZGAPA",
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmZmFzMmZGDAAAAYwMzMzMmZMmBgZmZmZAAAMwAzYxMW2AsMgNAzYAAAmZA8AA",
                 pickrate = 18.2,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmZmFzMzMzAAAAAYwMzMzMmZmxAgZmZmZAAAMwAzYxM2WAsNgNAzYAAAmZA8AA",
-                pickrate = 22.2,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmZmFjxYGzAAAAAzYmZmZmxDMjBAMzMzMDAAgBGYGLmxyGglBsBYGGAAwMDM8AA",
+                pickrate = 10,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxYMLzMzMzsMzMmZGAAAAAzwMzMzMegZmBAMzMzMDAAgBGYGLmxyGgtBsBYGDAAwMDY8AA",
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZzMzMzsMzMzYGDAAAAYGmZmZmxDMzMAgZmZmZAAAMwAzYxMW2AsNgNAzYAAAmZA8AA",
                 pickrate = 10,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxgZbmZGzsMzMmZGDAAAAYwMzMzMmZMGAMzMzMDAAgBGYGLMW2AsNgNAzYGAAwMDYMA",
-                pickrate = 20,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzgxMjhZbMzMzsNzMmZGzAAAAAzwMzMzMegZmBAMzMzMDAAgBGYGLmxyGgtBsBYGDAAwMDY8AA",
+                pickrate = 14.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxgZbmZmZmlZmxMzYAAAAADmZmZmxMjxAgZmZmZAAAMwAzYxMW2AsMgNAzYGAAwMDY8AA",
-                pickrate = 14.3,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZMzMzsMjxMzYAAAAAzwMzMzMmZMAgZmZmZAAAMwAzYxMW2AsMgNAzYAAAmZAjHA",
+                pickrate = 25,
               },
             },
             raid = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsYmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
-                pickrate = 12.1,
+                pickrate = 11.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsYmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
-                pickrate = 12.2,
+                pickrate = 15.3,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 34.2,
+                pickrate = 32.5,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 34.6,
+                pickrate = 47.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 49.4,
+                pickrate = 42.9,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 29.4,
+                pickrate = 36.4,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsYmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
-                pickrate = 16.1,
+                pickrate = 22,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 25,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsYmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
+                pickrate = 12.5,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsZmxYGzAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYhxyGgtBsBYGGAAwMDGMA",
-                pickrate = 10,
+                export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsZmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
+                pickrate = 22.9,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZGzsYmxYGDAAAAMzMzMzMzMMjxAgxMzMDAAgBGYGLMW2AsNgNAzwAAAmZwMMA",
-                pickrate = 31.1,
+                pickrate = 30,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMzYmFzMGzYAAAAgZmZmZmZmhZMGAMmZmZAAAMwAzYjxyGgtBsBYGGAAwMDGMA",
-                pickrate = 44.8,
+                pickrate = 45.8,
               },
             },
           },
@@ -372,17 +343,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 36, tier = "S" },
-              { itemId = 249344, pop = 32.9, tier = "S" },
-              { itemId = 249342, pop = 25.3, tier = "A" },
-              { itemId = 252420, pop = 11.5, tier = "B" },
-              { itemId = 268292, pop = 7.3, tier = "B" },
-              { itemId = 250256, pop = 3.6, tier = "C" },
-              { itemId = 249339, pop = 2.9, tier = "C" },
-              { itemId = 260235, pop = 1.6, tier = "C" },
-              { itemId = 252418, pop = 1.5, tier = "C" },
-              { itemId = 193701, pop = 1.2, tier = "C" },
-              { itemId = 252421, pop = 1.1, tier = "C" },
+              { itemId = 249343, pop = 33.5, tier = "S" },
+              { itemId = 249344, pop = 31.2, tier = "S" },
+              { itemId = 249342, pop = 25.4, tier = "A" },
+              { itemId = 252420, pop = 11.8, tier = "B" },
+              { itemId = 268292, pop = 6.6, tier = "B" },
+              { itemId = 250256, pop = 4.1, tier = "C" },
+              { itemId = 249339, pop = 2, tier = "C" },
+              { itemId = 260235, pop = 2, tier = "C" },
+              { itemId = 252421, pop = 1.9, tier = "C" },
+              { itemId = 252418, pop = 1.7, tier = "C" },
+              { itemId = 193701, pop = 1.4, tier = "C" },
+              { itemId = 249806, pop = 1.1, tier = "C" },
             },
           },
         },
@@ -398,25 +370,25 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 8019, spellId = 1236085 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 7991, spellId = 1236071 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 3370, spellId = 53343 } },
-              ["副手"] = { { id = 3368, spellId = 53344 } },
-              ["肩"] = { { id = 7973, spellId = 1236062 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 8019, spellId = 1236085 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 7991, spellId = 1236071 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 3370, spellId = 53343 } },
+              ["Off Hand"] = { { id = 3368, spellId = 53344 } },
+              Shoulders = { { id = 7973, spellId = 1236062 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 53343 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 53343 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -435,8 +407,8 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249381, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 285, itemId = 240949, slot = "Finger 2" },
-              { ilvl = 298, itemId = 249344, slot = "Trinket 1" },
-              { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
+              { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
+              { ilvl = 298, itemId = 249344, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249281, slot = "Main Hand" },
               { ilvl = 295, itemId = 237839, slot = "Off Hand" },
             },
@@ -516,147 +488,147 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
-                pickrate = 10.8,
+                pickrate = 11.1,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjxYGzyMzMzMbzYYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBgBD",
-                pickrate = 25,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
+                pickrate = 19.1,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
-                pickrate = 10.5,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjZmZY2mZmZmxMGmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywAMWwMDzMwMAGmZAYwA",
+                pickrate = 10,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZzMDmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
-                pickrate = 13.3,
+                pickrate = 14.3,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbzYYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBgBD",
-                pickrate = 15,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZzMDzMGzMzMDMmZYmZmxMAAAAAAAAAMmtBGwCYZYAGLYmhZGYGADzMAAD",
+                pickrate = 16.7,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzMDz2MzMzMbGDzMGzMzMDMmZYmZmxMAAAAAAAAAMmtBGwCYZYAGLYmhZGYGADzMAAD",
-                pickrate = 33.3,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
+                pickrate = 23.5,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZzMDmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
-                pickrate = 17.7,
+                pickrate = 11.1,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjZGDz2MzMzMbzYYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBgBD",
-                pickrate = 15.4,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjZmZY2mZmZmxMGMjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGGgxixMDzMwMAGmZAYwA",
+                pickrate = 13.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBwAD",
-                pickrate = 10.5,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjxYY2mZmZmZbmZYmxYmZmZgxMDzMzMmBAAAAAAAAgxsNwAWALDDwYBzMMzAzAYYmBgBD",
+                pickrate = 18.8,
               },
             },
             raid = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBwMYA",
-                pickrate = 29.6,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 22.3,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGjhZYwMzMzMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzADADzMAzMYA",
-                pickrate = 17.1,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 21.7,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZYmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
-                pickrate = 41.1,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 39.3,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBwMYA",
-                pickrate = 35.1,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 40,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZYmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
-                pickrate = 21.6,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMDmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
+                pickrate = 14.7,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBwMYA",
-                pickrate = 45.7,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 40,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZYmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
-                pickrate = 19.4,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMDmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
+                pickrate = 17.2,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBYGYA",
-                pickrate = 18.8,
+                pickrate = 15.8,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLmZYmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBYGYA",
-                pickrate = 12.2,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYMMDDmZmZmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYAYYmBwMYA",
+                pickrate = 15,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBwMYA",
-                pickrate = 17,
+                pickrate = 18.9,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMDmxYmhZY8AmZwMzMzMAAAAAAAAAMmtBGwCYZYAGLYmxMzAzAYYmBwMYA",
-                pickrate = 46.8,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZwMGzMMDjHwMDmZmZmBAAAAAAAAgxsNwAWALDDwYBzMmZGYGADzMAzMYA",
+                pickrate = 47.3,
               },
             },
           },
           ["rider-of-the-apocalypse"] = {
             raid = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAYAmZMzMDY2mZmZmZxMjZmxYYmZYMzAzMzMzMAAAAAAAAAA2MbGGYgZjhZYDzMzMzAzAYAYmZG4BA",
-                pickrate = 30,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmhZMDY2mZmZmZbmZMzMGzMMDjxMDmZmZmBAAAAAAAAAwmZzwADMLMMDbYmxMzAGADAzMjBPA",
+                pickrate = 20,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbzMjxMGzMMDjHwMDmZmZmBAAAAAAAAAwiZxwADMLMMDbYmxMzAzAYAYmxM4BA",
-                pickrate = 50,
+                pickrate = 33.3,
               },
             },
-            ["raid:3177"] = {
+            ["raid:3176"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAYAmZMzMDY2mZmZmZxMjZmxYYmZYMzAzMzMzMAAAAAAAAAA2MbGGYgZjhZYDzMzMzAzAYAYmZG4BA",
-                pickrate = 50,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZmZMY2mZmZmZxMjxMGzMMDjHwMDmZmZmBAAAAAAAAAwmZzwADMbMMDbYmxMzAzAYAYmZG4BA",
+                pickrate = 100,
               },
             },
-            ["raid:3179"] = {
+            ["raid:3180"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAYAmZMzMDY2mZmZmZxMjZmxYYmZYMzAzMzMzMAAAAAAAAAA2MbGGYgZjhZYDzMzMzAzAYAYmZG4BA",
-                pickrate = 50,
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAA8AAzMMjxYY2mZmZmhZmZmZMmxMjBPwMGzMzMzMDAAAAAAAAAAmFDDAmNwMshZmZGDMAMAMzAA",
+                pickrate = 100,
               },
             },
             ["raid:3181"] = {
@@ -665,9 +637,9 @@ ClassCodexSource["ugg"] = {
                 pickrate = 33.3,
               },
             },
-            ["raid:3182"] = {
+            ["raid:3306"] = {
               {
-                export = "CsPAAAAAAAAAAAAAAAAAAAAAAYAmZMzMDY2mZmZmZxMjZmxYYmZYMzAzMzMzMAAAAAAAAAA2MbGGYgZjhZYDzMzMzAzAYAYmZG4BA",
+                export = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmhZMDY2mZmZmZbmZMzMGzMMDjxMDmZmZmBAAAAAAAAAwmZzwADMLMMDbYmxMzAGADAzMjBPA",
                 pickrate = 100,
               },
             },
@@ -676,16 +648,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249344, pop = 37.6, tier = "S" },
-              { itemId = 249343, pop = 36.4, tier = "S" },
-              { itemId = 193701, pop = 20.6, tier = "A" },
-              { itemId = 252420, pop = 4.4, tier = "C" },
-              { itemId = 249342, pop = 3.5, tier = "C" },
-              { itemId = 268292, pop = 3.4, tier = "C" },
+              { itemId = 249343, pop = 35.9, tier = "S" },
+              { itemId = 249344, pop = 32.2, tier = "S" },
+              { itemId = 193701, pop = 26.7, tier = "A" },
+              { itemId = 249342, pop = 5.6, tier = "B" },
+              { itemId = 252420, pop = 4.6, tier = "C" },
+              { itemId = 268292, pop = 4, tier = "C" },
               { itemId = 250256, pop = 1.6, tier = "C" },
-              { itemId = 250258, pop = 1.5, tier = "C" },
-              { itemId = 249805, pop = 1.2, tier = "C" },
-              { itemId = 249806, pop = 1.2, tier = "C" },
+              { itemId = 250258, pop = 1.3, tier = "C" },
+              { itemId = 249805, pop = 1, tier = "C" },
+              { itemId = 249806, pop = 0.9, tier = "C" },
+              { itemId = 250241, pop = 0.3, tier = "C" },
             },
           },
         },
@@ -694,31 +667,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 237834, 240949 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244742, 237907, 237902, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 237907, 237902, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 237834, 240949 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 6245, spellId = 327082 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 6245, spellId = 327082 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 327082 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 327082 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -740,7 +713,6 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249344, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249277, slot = "Main Hand" },
-              { ilvl = 298, itemId = 249281, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
               { itemId = 249970, slot = "Head" },
@@ -748,7 +720,7 @@ ClassCodexSource["ugg"] = {
               { itemId = 249968, slot = "Shoulders" },
               { itemId = 255567, slot = "Back" },
               { itemId = 249973, slot = "Chest" },
-              { itemId = 244742, slot = "Wrist" },
+              { itemId = 255563, slot = "Wrist" },
               { itemId = 249971, slot = "Hands" },
               { itemId = 237907, slot = "Waist" },
               { itemId = 255558, slot = "Legs" },
@@ -808,7 +780,7 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 1101, haste = 265, mastery = 1230, versatility = 0 },
+            mplus = { crit = 1043, haste = 265, mastery = 1202, versatility = 0 },
             raid = { crit = 1043, haste = 265, mastery = 1202, versatility = 0 },
           },
         },
@@ -817,85 +789,85 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 40.3,
+                pickrate = 40.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 42.9,
+                pickrate = 43.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 39.1,
+                pickrate = 36.2,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 38.8,
+                pickrate = 34.5,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 44.8,
+                pickrate = 48.3,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 31.9,
+                pickrate = 36.3,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 37.2,
+                pickrate = 42.6,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 43,
+                pickrate = 42.6,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMjxMzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxgxCGwMAMmZGzAMzMmxA",
-                pickrate = 40.1,
+                pickrate = 39,
               },
             },
             raid = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 12.4,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZMbmZMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
+                pickrate = 10.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 41.6,
+                pickrate = 49.4,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 61.8,
+                pickrate = 62.4,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 62.7,
+                pickrate = 66,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 48,
+                pickrate = 47.2,
               },
             },
             ["raid:3179"] = {
@@ -907,86 +879,98 @@ ClassCodexSource["ugg"] = {
             ["raid:3180"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMjZbmZMmxAAAAAAAAwMDjBALzYmZzMjZmBsY2MMwAzGDGLYAzAwYmZMDwMzYGD",
-                pickrate = 37.3,
+                pickrate = 33.9,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 9.5,
+                pickrate = 45.3,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 28,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZMbmZMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
+                pickrate = 21.5,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 15.6,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZMbmZMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
+                pickrate = 19.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMjZzMzMmxAAAAAAAAwMDzMAYbGzMbzMjxMgNzihBGY2YwYBAzAwYmZMDwMzMGD",
-                pickrate = 64.1,
+                pickrate = 62.2,
               },
             },
           },
           sanlayn = {
+            mplus = {
+              {
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMGDz2MzMzMLzMjZmxAAAAAAAAw8AjZmBALDmZxMjxMGYgZsZGLLA2GshBMDgZmZmhBzMYY8AA",
+                pickrate = 100,
+              },
+            },
+            ["mplus:112526"] = {
+              {
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMGDz2MzMzMLzMjZmxAAAAAAAAw8AjZmBALDmZxMjxMGYgZsZGLLA2GshBMDgZmZmhBzMYY8AA",
+                pickrate = 100,
+              },
+            },
             raid = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMzMbzMjxMmBAAAAAAAw8ADmBALDmZZmZMzMGYgZsYGLbA2GshBMDgZmZmhBzMYY8AA",
-                pickrate = 8.7,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMMjxYY2mZmZmZZmZmxMmBAAAAAAAw8ADmBALDmZZmZMzMGYgZsYGbbA2GshBMDgZmZmhBzMYY8AA",
+                pickrate = 13.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMzMLzMzMmxAAAAAAAAw8ADmBALDmZZmZMzMGYgZsYGbbA2GshBMDgZmZmhBzMYY8AA",
-                pickrate = 6.2,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMMjxYY2mZmZmZZmZmxMmBAAAAAAAw8ADmBALDmZZmZMzMGYgZsYGbbA2GshBMDgZmZmhBzMYY8AA",
+                pickrate = 15.3,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMzMmZmZMjZAAAAAAAAMPwgZAwygZWmZGzMjBGYGLmx2GgtBbYAzAYmZmZYwMDGGPA",
-                pickrate = 33.3,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZmZzMjZmxMAAAAAAAAmZYmBAbDzMbzMjZmxADMjNzYZDw2gNAMDAjZmxMYmBY8AA",
+                pickrate = 100,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMmZMzYMzmZmZmZZmZMmxAAAAAAAAwYYmBALzgZZmZMmxADMjFzYZBw2gNMgZAMzMzMmBzMYY8AA",
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZmZzMjZmxMAAAAAAAAmZYMAYbGzMbzMjZmxADMjNzYZDw2gNAMDAjZmxMYmBY8AA",
                 pickrate = 100,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmBjZGDz2MzMzMbmZMzMmBAAAAAAAwMjZMAYZYmZzMzMzMGYgZsZGLbA2GshBMDAjZmhBzMYY8AA",
-                pickrate = 33.3,
+                pickrate = 37.5,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZmZzMjxMGAAAAAAAAmZYmBALzYmZzMjxMGYgZsYGLLA2GshBMDAjZmxMYmBzY8AA",
-                pickrate = 50,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZmZzMjxMGAAAAAAAAmZYmBAbzYmZzMjxMGYgZsYGLLA2GshBMDAjZmxMYmBzY8AA",
+                pickrate = 100,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZmxMzYYMAAAAAAAAMzwYAwyMmZ2mZGjZMwAzYzMWWAsNYDDYGAGzMjZwMDmZGPA",
-                pickrate = 100,
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMzMLmZmxMGAAAAAAAAmZYMAYZGzMbmZMzMGYgZsZGLbA2GshBMDAjZmxMYmBzY8AA",
+                pickrate = 50,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxYY2mZmZmZzYMzMGAAAAAAAAmHYYMAYZGmZZmZMmxADMjNzYZDw2gNAMDgZmZmxMYmBzY8AA",
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxYY2mZmZmZzYMzMGAAAAAAAAmHYYMAYZGmZZmZMmxADMjNzYbDw2gNAMDgZmZmxMYmBzY8AA",
                 pickrate = 100,
               },
             },
-            ["raid:3183"] = {
+            ["raid:3306"] = {
               {
-                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMzMLzMjxMGAAAAAAAAmHYYmBALDmZZmZMzMGYgZsYGbLA2GsBgZAMzMzMMYmBjZ8AA",
+                export = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMmZY2GzMzMMzMzMjZAAAAAAAAMPwwYAw2MMzyMzYMjBGYGLmx2CgtBbAYGAzMzMjZwMDGGPA",
                 pickrate = 100,
               },
             },
@@ -995,18 +979,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249344, pop = 58.9, tier = "S" },
-              { itemId = 249343, pop = 38.2, tier = "S" },
-              { itemId = 193701, pop = 5.4, tier = "B" },
-              { itemId = 252420, pop = 5, tier = "B" },
-              { itemId = 249342, pop = 2.9, tier = "C" },
-              { itemId = 268292, pop = 2.6, tier = "C" },
-              { itemId = 250256, pop = 1.6, tier = "C" },
-              { itemId = 250258, pop = 1.3, tier = "C" },
-              { itemId = 249805, pop = 0.8, tier = "C" },
+              { itemId = 249344, pop = 58.2, tier = "S" },
+              { itemId = 249343, pop = 38.8, tier = "S" },
+              { itemId = 193701, pop = 5.5, tier = "B" },
+              { itemId = 252420, pop = 4.8, tier = "C" },
+              { itemId = 249342, pop = 3, tier = "C" },
+              { itemId = 268292, pop = 2.9, tier = "C" },
+              { itemId = 250256, pop = 1.7, tier = "C" },
+              { itemId = 250258, pop = 1.4, tier = "C" },
+              { itemId = 249805, pop = 0.9, tier = "C" },
               { itemId = 249806, pop = 0.7, tier = "C" },
-              { itemId = 250227, pop = 0, tier = "C" },
-              { itemId = 255616, pop = 0, tier = "C" },
+              { itemId = 250227, pop = 0.1, tier = "C" },
+              { itemId = 246304, pop = 0, tier = "C" },
             },
           },
         },
@@ -1027,26 +1011,26 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8041, spellId = 1236097 } },
-              ["副手"] = { { id = 8041, spellId = 1236097 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8041, spellId = 1236097 } },
+              ["Off Hand"] = { { id = 8041, spellId = 1236097 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236072 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236056 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236091 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236072 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236056 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236097 } },
+              Shoulders = { { id = 1236091 } },
             },
           },
         },
@@ -1147,7 +1131,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 31.7,
+                pickrate = 30.7,
               },
             },
             ["mplus:10658"] = {
@@ -1158,142 +1142,166 @@ ClassCodexSource["ugg"] = {
             },
             ["mplus:112526"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 38.7,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
+                pickrate = 29.2,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 46.7,
+                pickrate = 41,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 38.4,
+                pickrate = 34.8,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 26.7,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
+                pickrate = 20.2,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 39.5,
+                pickrate = 45.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 42.9,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
+                pickrate = 31.5,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 38.5,
+                pickrate = 40.2,
               },
             },
             raid = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 50.4,
+                pickrate = 52,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 51.7,
+                pickrate = 55.8,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 50.8,
+                pickrate = 53,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 50.4,
+                pickrate = 50.1,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 49.6,
+                pickrate = 50.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 48.4,
+                pickrate = 49.2,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 47.5,
+                pickrate = 53.9,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 45.7,
+                pickrate = 46.7,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 47.7,
+                pickrate = 49.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 49.8,
+                pickrate = 47.6,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFswMzMzmtZmZAMMAAMjBjZA",
-                pickrate = 51.4,
+                pickrate = 51.1,
               },
             },
           },
           ["void-scarred"] = {
+            mplus = {
+              {
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZmZMGmBAAAAAAgxsNYGAAAAAAAAmxMMmZmZmZmZYmtZGjNz2CAAMAzYmZ2mZmZ2mZZmZMmBA",
+                pickrate = 50,
+              },
+            },
+            ["mplus:112526"] = {
+              {
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsNzYsZsAAADwwMzsNzMzsMzyMGzMDA",
+                pickrate = 100,
+              },
+            },
+            ["mplus:12805"] = {
+              {
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZmZMGmBAAAAAAgxsNYGAAAAAAAAmxMMmZmZmZmZYmtZGjNz2CAAMAzYmZ2mZmZ2mZZmZMmBA",
+                pickrate = 100,
+              },
+            },
             raid = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZGjxwMAAAAAAAMmthZGAAAAAAAAmxMMmZmZMzMzYmtZGjNz2CAAMAzYmZ2mZmZ2mZbmZMjBA",
-                pickrate = 25,
+                pickrate = 21.1,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAegxsNYGAAAAAAAAmxMMPwMzMjZmZMzsNzYsZWWAAgBYGzMzyMzMz2MbzMjhBA",
-                pickrate = 100,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZGjxwMAAAAAAAMmthZGAAAAAAAAmxMMmZmZMzMzYmtZGjNz2CAAMAzYmZ2mZmZ2mZbmZMjBA",
+                pickrate = 50,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZGjxwMAAAAAAAMmthZGAAAAAAAAmxMMmZmZMzMzYmtZGjNz2CAAMAzYmZ2mZmZ2mZbmZMjBA",
-                pickrate = 66.7,
+                pickrate = 20,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMmZmZMzMzYmtZGjNz2CAAMAzYmZ2mZmZ2mZbmZMjBA",
-                pickrate = 33.3,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAMzMzMzMGjhZAAAAAAAYMbjxMAAAAAAAAMjZYegZmZmZmZmxMbzMzYzstAAADAmZmlZmZmtZ2mZGmZA",
+                pickrate = 16.7,
+              },
+            },
+            ["raid:3178"] = {
+              {
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmZmZmZmZMGmBAAAAAAgxsNYGAAAAAAAAmxMMPwMzMzMzMzYmtZGjNz2CAAMAGzMz2MzMz2MbzMDzMA",
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAMmthZGAAAAAAAAmxMMmZmZmZmZYmtZGjNzyCAAMAPwYmZWmZmZ2mZZmZMmZA",
-                pickrate = 33.3,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mZmZmZmZMGmBAAAAAAgxsNYGAAAAAAAAmxMMPwMzMzMzMzYmtZmZsZ2WAAgBAzMz2MzMz2MLzMDzMA",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
@@ -1302,10 +1310,10 @@ ClassCodexSource["ugg"] = {
                 pickrate = 100,
               },
             },
-            ["raid:3183"] = {
+            ["raid:3306"] = {
               {
-                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsNzYsZsAAADwwMzsMzMzsMz2MzYMDA",
-                pickrate = 100,
+                export = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAegxsNYGAAAAAAAAmxMMmZmZMzMDzsYGjNzyCAAAYGzMzyMzMz2MLzMDGzDA",
+                pickrate = 40,
               },
             },
           },
@@ -1313,16 +1321,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 59, tier = "S" },
-              { itemId = 249343, pop = 35.6, tier = "S" },
-              { itemId = 250144, pop = 8, tier = "B" },
+              { itemId = 249346, pop = 58.9, tier = "S" },
+              { itemId = 249343, pop = 35.5, tier = "S" },
+              { itemId = 250144, pop = 7.8, tier = "B" },
               { itemId = 250256, pop = 6.1, tier = "B" },
-              { itemId = 268292, pop = 3.3, tier = "C" },
-              { itemId = 249809, pop = 1.3, tier = "C" },
-              { itemId = 250223, pop = 1, tier = "C" },
+              { itemId = 268292, pop = 3.6, tier = "C" },
+              { itemId = 249809, pop = 1.6, tier = "C" },
+              { itemId = 250223, pop = 0.9, tier = "C" },
               { itemId = 250258, pop = 0.8, tier = "C" },
+              { itemId = 50259, pop = 0.6, tier = "C" },
               { itemId = 250257, pop = 0.6, tier = "C" },
-              { itemId = 50259, pop = 0.5, tier = "C" },
+              { itemId = 193718, pop = 0, tier = "C" },
             },
           },
         },
@@ -1338,26 +1347,26 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236072 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236056 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236091 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236072 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236056 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236091 } },
             },
           },
         },
@@ -1457,98 +1466,92 @@ ClassCodexSource["ugg"] = {
           ["aldrachi-reaver"] = {
             mplus = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzMGzMAAAAAAgZxY2mhZmZbMDmZmhxwYZmtZwwYbjZwMzMmxCAAAAAAAYmBYAAAA4BA",
-                pickrate = 16.7,
-              },
-            },
-            ["mplus:10658"] = {
-              {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzMGzMAAAAAAgZxY2mhZmZbMDmZmhxwYZmtZwwYbjZwMzMmxCAAAAAAAYmBYAAAA4BA",
-                pickrate = 100,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzyMmZmxYmxMzMAAAAAAgZxY2mhZmZbmZsMLzDMjlxwYZmlZwwYbjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                pickrate = 28.6,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMbGz2MMzMbzMjlZmHYGmZYsMz2MYYstxMYMzYGLAAAAAAAgZGgBAAAgHA",
-                pickrate = 25,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMDjxMzMmZMMAAAAAAAzyDMmtZmZmZ2mZmZZWGzYZwM2mZZGMMW2YGMzMjZsAAAAAAAAmZAGAAAAeA",
+                pickrate = 100,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMbGz2MPgZmZbmZsMz8AzYZMMWmZbGMM22YGMmZMsAAAAAAAAmZAGAAAAeA",
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMbGz2MPgZmZbmZsMLzDMjlxwYZmtZwwYbjZwYmxwCAAAAAAAYmBYAAAA4BA",
                 pickrate = 33.3,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMjZMzMjxMjxMDAAAAAAY2MmlZGzMz2MzYZm5BmhxwYZmtZwwYbjZwYmxwCAAAwAAAAzMADAAAAPA",
-                pickrate = 20,
-              },
-            },
-            ["mplus:12874"] = {
-              {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMjZMzMzMmZwMDAAAAAAY2egZGzMMzsNzMWmZMjlxsYsMz2MYYssxMYMzYYBAAAAAAAMzAMAAAA8A",
-                pickrate = 100,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzyMmZmxYmxMzMAAAAAAgZxY2mhZmZbmZsMLzDMjlxwYZmlZwwYbjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                pickrate = 50,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzMGzMAAAAAAgZxY2mhZmZbmZYGmhxwYZmtZwwYbjZwMzMmxCAAAAAAAYmBYAAAA4BA",
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzMGzMAAAAAAgZxY2mhZmZbmZYWYGGDjlZ2mBDjtNmBzMzYGLAAAAAAAgZGgBAAAgHA",
                 pickrate = 100,
+              },
+            },
+            ["mplus:361753"] = {
+              {
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMLGz2MMzMbzMjlZxMDjhxyMbzghx2GzgxMjZsAAAAMAAAwMDwAAAAwDA",
+                pickrate = 50,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMbGz24BMzMbzMjlZmHYGLjhxyMLzghx2GzgxMjZsAAAAAAAAmZAGAAAAeA",
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxYmxYmBAAAAAAMbGz24BMzMbzMjlZZegZsMGGLzsMDGGbbMDGzMmxCAAAAAAAYmBYAAAA4BA",
                 pickrate = 100,
               },
             },
             raid = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMjZMzMzMmBmZAAAAAAAz2DMzYmBzsNzMWmtxMWGzYsMz2MYYstxAjZmZYBAAAAAAAMzAMAAAAMA",
-                pickrate = 30.7,
+                pickrate = 34.2,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMjZMzMzMmBmZAAAAAAAz2DMzYmBzsNzMWmtxMWGzYsMz2MYYstxAjZmZYBAAAAAAAMzAMAAAAMA",
-                pickrate = 31.9,
+                pickrate = 35.5,
               },
             },
-            ["raid:3178"] = {
+            ["raid:3176"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmxYmBAAAAAAMLPwY2mhZmZbmZsMzYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
-                pickrate = 50,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmxYmBAAAAAAMLPwY2mhZmZbmZsMLjZsMmFjlZ2mBDjlNmBjZGDLAAAAAAAgZGgBAAAgHA",
+                pickrate = 33.3,
+              },
+            },
+            ["raid:3177"] = {
+              {
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmxYmBAAAAAAMLPwY2mhZmZbmZsMLjZsMmFjlZ2mBDjlNmBjZGDLAAAAAAAgZGgBAAAgHA",
+                pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmxYmBAAAAAAMLPwY2mhZmZbmZsMzYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmZGzMGzMAAAAAAgZ7BGjZYmZ2mZGLzyYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                pickrate = 100,
+              },
+            },
+            ["raid:3180"] = {
+              {
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzyMmZmZmZmBzMAAAAAAgZ7BmZMDmZ2mZGLzyYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
                 pickrate = 100,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmZGzMGzMAAAAAAgZzY2mhZmZbmZsMzYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmZGzMGzMAAAAAAgZzY2mhZmZbmZsMLjZsMmFjlZ2mBDjlNmBjZGDLAAAAAAAgZGgBAAAgHA",
                 pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmxYmBAAAAAAMLPwY2mhZmZbmZsMzYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3183"] = {
-              {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmZmZmxwMAAAAAAgZzY2mhZmZbmZsMzYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3306"] = {
-              {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmZGzMGzMAAAAAAgZ7BGjZYmZ2mZGLzMmxyYWMWmZbGMMW2YGMmZMsAAAAAAAAmZAGAAAAeA",
-                pickrate = 100,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxMzMYmBAAAAAAMLPwMjZYmZ2mZGLzyYGLjZxYZmtZwwYZjZwYmxwCAAAAAAAYmBYAAAA4BA",
+                pickrate = 50,
               },
             },
           },
@@ -1556,121 +1559,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 25.8,
+                pickrate = 30.5,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 17.7,
+                pickrate = 37.7,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 25,
+                pickrate = 32.7,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 22.2,
+                pickrate = 23.3,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 36.8,
+                pickrate = 35.4,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglB2mNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 30.4,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZWmxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
+                pickrate = 23.3,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 21.7,
+                pickrate = 23.5,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglB2mNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 31.1,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
+                pickrate = 24.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzwYmBAAAAAAMLGz2MMzAzYb2mZmxYglBWmNzYYWYMmZGzYDAAAYAAAAMzgBAAAgB",
-                pickrate = 21.7,
+                pickrate = 27.8,
               },
             },
             raid = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 19.6,
+                pickrate = 19.9,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzMGzMAAAAAAgZzY2mhZGMzYbm5BmZMGDLDsNLmxwsxMjZmxwGAAAAAAAAzMYAAAA4BA",
-                pickrate = 9,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlB2mFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 12.4,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 14.2,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 13.5,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 15.1,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZGGzMAAAAAAgZ5BGz2MMzgZGbz28AzMGjhlB2mFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 12.3,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzAzYb2mZmZbMwyALzmZMMbMGzMjhNAAAgBAAAwMDGAAAAG",
-                pickrate = 38.8,
+                pickrate = 37.5,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 14.3,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlB2mFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 14,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2MmZmxMzwYmBAAAAAAMLPwY2mhZmZbMjtZbMDjhxyAbzmZMMbMGzMjhNAAAAAAAAmZwAAAAwA",
-                pickrate = 53.9,
+                pickrate = 48.9,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 29.7,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 28.9,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 18.4,
+                pickrate = 23.6,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 28,
+                pickrate = 29.4,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZGYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
-                pickrate = 23.9,
+                export = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzwYmBAAAAAAMbGz2MMzgZGbz28AzMGjhlBWmFzYY2YMmZGDbAAAAAAAAMzgBAAAgB",
+                pickrate = 25,
               },
             },
           },
@@ -1678,16 +1681,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 58.7, tier = "S" },
-              { itemId = 249343, pop = 37.2, tier = "S" },
-              { itemId = 252420, pop = 6.7, tier = "B" },
-              { itemId = 268292, pop = 4, tier = "C" },
+              { itemId = 193701, pop = 56.8, tier = "S" },
+              { itemId = 249343, pop = 39.7, tier = "S" },
+              { itemId = 252420, pop = 6.1, tier = "B" },
+              { itemId = 268292, pop = 5.2, tier = "B" },
               { itemId = 260235, pop = 1.7, tier = "C" },
-              { itemId = 249805, pop = 1.4, tier = "C" },
-              { itemId = 249806, pop = 1.4, tier = "C" },
+              { itemId = 250258, pop = 1.5, tier = "C" },
               { itemId = 250256, pop = 1.4, tier = "C" },
-              { itemId = 250258, pop = 1.3, tier = "C" },
-              { itemId = 250144, pop = 1.2, tier = "C" },
+              { itemId = 249805, pop = 1.3, tier = "C" },
+              { itemId = 249806, pop = 1.3, tier = "C" },
+              { itemId = 250144, pop = 1.1, tier = "C" },
+              { itemId = 249344, pop = 0.3, tier = "C" },
+              { itemId = 255616, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -1696,33 +1701,33 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 244576, 237840 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 244556, 244554, 244559, 244557, 244764, 240951 }, embellishments = {} },
-            raid = { crafts = { 239656, 244576, 237840 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244560, 244557, 244553, 240951, 237909 }, embellishments = {} },
+            raid = { crafts = { 244576, 237840 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 8025, spellId = 1236088 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 8025, spellId = 1236088 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236072 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236056 } },
+              Legs = { { id = 1243980 } },
+              ["Main Hand"] = { { id = 1236080 } },
+              ["Off Hand"] = { { id = 1236080 } },
+              Shoulders = { { id = 1236091 } },
             },
           },
         },
@@ -1748,27 +1753,27 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 250033, slot = "Head" },
-              { itemId = 240952, slot = "Neck" },
-              { itemId = 244556, slot = "Shoulders" },
-              { itemId = 255452, slot = "Back" },
-              { itemId = 244554, slot = "Chest" },
-              { itemId = 250029, slot = "Wrist" },
-              { itemId = 244559, slot = "Hands" },
+              { itemId = 255612, slot = "Neck" },
+              { itemId = 255446, slot = "Shoulders" },
+              { itemId = 255453, slot = "Back" },
+              { itemId = 255436, slot = "Chest" },
+              { itemId = 244560, slot = "Wrist" },
+              { itemId = 255439, slot = "Hands" },
               { itemId = 244557, slot = "Waist" },
               { itemId = 250032, slot = "Legs" },
-              { itemId = 244764, slot = "Feet" },
-              { itemId = 240951, slot = "Finger 1" },
+              { itemId = 244553, slot = "Feet" },
+              { itemId = 255609, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
-              { itemId = 255616, slot = "Trinket 1" },
-              { itemId = 255614, slot = "Trinket 2" },
-              { itemId = 255620, slot = "Main Hand" },
-              { itemId = 255620, slot = "Off Hand" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 237909, slot = "Main Hand" },
+              { itemId = 237909, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 298, itemId = 250033, slot = "Head" },
               { ilvl = 298, itemId = 268291, slot = "Neck" },
               { ilvl = 289, itemId = 250031, slot = "Shoulders" },
-              { ilvl = 285, itemId = 239656, slot = "Back" },
+              { ilvl = 289, itemId = 250028, slot = "Back" },
               { ilvl = 289, itemId = 250036, slot = "Chest" },
               { ilvl = 285, itemId = 244576, slot = "Wrist" },
               { ilvl = 289, itemId = 250034, slot = "Hands" },
@@ -1798,7 +1803,7 @@ ClassCodexSource["ugg"] = {
               secondary = { { "versatility" }, { "haste", "crit", "mastery" } },
             },
           },
-          all = { ["pvp:3v3"] = { secondary = { { "mastery" }, { "haste", "versatility" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" } } } },
           annihilator = {
             mplus = {
               minor = { { "Leech" }, { "Speed", "Avoidance" } },
@@ -1814,240 +1819,234 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 479, haste = 1054, mastery = 700, versatility = 265 },
-            raid = { crit = 448, haste = 1008, mastery = 700, versatility = 310 },
+            mplus = { crit = 500, haste = 1102, mastery = 700, versatility = 265 },
+            raid = { crit = 500, haste = 1073, mastery = 700, versatility = 265 },
           },
         },
         talents = {
           ["aldrachi-reaver"] = {
             mplus = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZmZGbmZ2GjZAAAAY2mBDjlNmBDzYsAAAAgBGAAMzAMAAAAeA",
-                pickrate = 22.2,
-              },
-            },
-            ["mplus:10658"] = {
-              {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjxMAAAAMbzghxyCDMMzMWAAAAwADAAmZAAAAAYA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZWmZsZmZbMmBAAAgZbGMMW2YGMMjxCAAAAGYAAwMDwAAAA4BA",
+                pickrate = 23.1,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmxYmZgFzYGMzYmxMPwMzMGmZmZsZmZbMmBAAAgZbGMMW2YGMMjxCAAAAGYAAwMDwAAAA4BA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZWmZsZmZbMmBAAAgZbGMMW2YGMMjxCAAAAGYAAwMDwAAAA4BA",
+                pickrate = 50,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZmxMzwYxMmBzMmZMzDMzMjBzMzY7BMz2YMAAAAY2mBDjlNmBDzMjFAAAAMwAAgZGAAAAAeA",
-                pickrate = 66.7,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMjxMzALmxMYmxMjZmZmZMYWmZs9AzMbjxMAAAAMbzghxyCzghZmxCAAAAGYAAwMDAAAAAPA",
+                pickrate = 50,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZmZGbmZ2GjZAAAAY2mBDjlNmBDzYsAAAAgBGAAMzAMAAAAeA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMjxMzALmxMYmxMjZmZmZMYWmZs9AzMbjxMAAAAMbzghxyCzghZmxCAAAAGYAAwMDAAAAAPA",
+                pickrate = 50,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAA2mxMzMGmxYmZwwMzMwMmZMzMzMjBzMzYzMz2YYAAAAYWmBDjlNmBDzMjFAAAAMwAAgZGgBAAAwDA",
-                pickrate = 50,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAA2mxMzMGmxYmZgFzYGMzYmxMPwMzMGmZZmxmZmtxYGAAAAmtZwwYZjZwwMGLAAAAYgBAAzMADAAAgHA",
+                pickrate = 100,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjxMAAAAMbzghxyCDMMzMWAAAAwADAAmZAAAAAYA",
-                pickrate = 50,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMjxMzgZxMmBzMmZMzDMzMjBzyMjtHYmZbMmBAAAgZbGMMWWYGMMzMWAAAAwADAAmZAAAAA4BA",
+                pickrate = 33.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZmZGbmZ2GjZAAAAY2mBDjlNmBDzYsAAAAgBGAAMzAMAAAAeA",
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzMmZGYxMmBzMmZMzDMzMjhZWmZsZmZbMmBAAAgZbGMMW2YGMMjxCAAAAGYAAwMDwAAAA4BA",
                 pickrate = 100,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjxMAAAAMbzghxyCDMMzMWAAAAwADAAmZAAAAAYA",
-                pickrate = 66.7,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjxMjhZMmZGYxMmBzMmZmxMzMjBzyMjtHYmZbMmBAAAgZbGMMWWYGMMzMzCAAAAGYAAwMDAAAAAPA",
+                pickrate = 50,
               },
             },
             raid = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzghZmZMmZMzYGzYmZwMzMWmZGjBAAAAMbzghxyCzghZmxCAAAAGMDAAmZAGAAAAPA",
-                pickrate = 16.7,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMzMMjxMzMgZmZgZMzYmZmZGDzYmx2YmtxAAAAAmtZwwYbjZwwMzYBAAAADmBAAzMADAAAgHA",
+                pickrate = 17.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMzMMjxMzMgZmZgZMzYmZmZGDzYmx2YmtxAAAAAmtZwwYbjZwwMzYBAAAADmBAAzMADAAAgHA",
-                pickrate = 27.3,
+                pickrate = 42.9,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzghZmZMmZMzYGzYmZwMzMWmZGjBAAAAMbzghxyCzghZmxCAAAAGMDAAmZAGAAAAPA",
-                pickrate = 100,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZMmZmhZxMzMwMmZMzDMjZmBjZGbzMjxAAAAAmtZwwYZjZwwMzYBAAAADGAAYmBMAAAA8AA",
+                pickrate = 50,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzghZmZMmZMzYGzYmZwMzMWmZGjBAAAAMbzghxyCzghZmxCAAAAGMDAAmZAGAAAAPA",
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzghZmZMmZMzYGzYmZwsMzYZmZMGAAAAwsNDGGLLMDGmZGLAAAAYwMAAYmBYAAAA8AA",
                 pickrate = 33.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzgZxMzMYmxMjZMzMjBzMzYZmZMGAAAAwsNDGGLLMDGmZGLAAAAYwMAAYmBYAAAA8AA",
-                pickrate = 50,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmxMzMmZGmhZMjxMjZYGzMzYYmlZGbMz2YAAAAAz2MYYsswMYYmZsAAAAgBGAAMzAMAAAAeA",
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmxMzMmZGmhZMjxMjZYGzMzYYmZmxGzsNGAAAAwsNDGGLLMDGmZGLAAAAYgBAAzMADAAAgHA",
-                pickrate = 100,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZMmZmhZxMzMwMmZMzDMjZmBjZGbzMjxAAAAAmtZwwYZjZwwMzYBAAAADGAAYmBMAAAA8AA",
+                pickrate = 50,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZmxMzwMMjZwMjZGz8AzMzYwMzM2mZGjhBAAAgZbGMM2WYGMMzMWAAAAwADAAmZAGAAAAPA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZmxMzwMMjZMMjZYmHYmZGDzsMzYbmZMGAAAAwsNDGGLLMDGmZGLAAAAYwAAAzMAAAAA8AA",
+                pickrate = 100,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZmxMzwMMjZMMjZYmHYmZGDzMzM2mZGjBAAAAMbzghxyCzghZmxCAAAAGMAAwMDAAAAAPA",
-                pickrate = 100,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMzMmZGmhZmZMMjZYGzMzYYmlZGbPwMz2YAAAAAz2MYYssxMYYmZsAAAAgBDAAMzAMAAAAeA",
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjxMzALmZmBzMGjZmZMzMYmZGbPwMz2YYAAAAYWmBDjlFmBDzYsAAAAgBzAAgZGgBAAAwDA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZMmZmhZxMzMwMmZMzDMjZmBjZGbzMjxAAAAAmtZwwYZjZwwMzYBAAAADGAAYmBYAAAA8AA",
+                pickrate = 100,
               },
             },
           },
           annihilator = {
             mplus = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZsZmZbMmBAAAAAAAgZmxGAAAAGYmZmZ2sNzMDAMAAAAGA",
-                pickrate = 23.2,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 15,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZsZmZbMmBAAAAAAAgZmxGAAAAGYmZmZ2sNzMDAMAAAAGA",
-                pickrate = 26.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 11.1,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
-                pickrate = 14.3,
+                pickrate = 20,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
-                pickrate = 15.8,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzwMzwMLmxMYmxMjZMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 31.3,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZsZmZbMmBAAAAAAAgZmxGAAAAGYmZmZ2sNzMDAMAAAAGA",
-                pickrate = 23.8,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 16,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDsYGzgZGzMmZmZmxgZbmx2DMzsNGzAAAAAAAAwMDbAAAAYgZmZmZz2MzMAAAAAAD",
-                pickrate = 25,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDmFzYGMzYmxMPwMzMGMbzM2MzsNGzAAAAAAAAwMzYDAAAADMzMzMb2mZmBAAAAAYA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZsZmZbMmBAAAAAAAgZmxGAAAAGYmZmZ2sNzMDAMAAAAGA",
-                pickrate = 12.5,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjxMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 9.5,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzALmxMYmxMjZmZmZMY2mZsNzMbjhBAAAAAAAgZG2AAAAwAzMzMzmtZmZAAAAAAGA",
-                pickrate = 16.7,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
+                pickrate = 14.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtHYmZbMMAAAAAAAAMzM2AAAAwAzMzMzmtZmZAAAAAAGA",
-                pickrate = 13.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDsYGzgZGzMzYmZmxgZbmx2DMzsNGzAAAAAAAAwMDbAAAAYgZmZmZz2MzMAAAAAAD",
+                pickrate = 20,
               },
             },
             raid = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZGmZmxMMzMjhZMzYGzMzYwYmx2MzYMAAAAAAAAgZmxGAAAAGMzMzMzitZmZAgBAAAwA",
-                pickrate = 9.8,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDmFzYGMzYmxMPwMzMGMbzM2MzsNGGAAAAAAAAmZGbAAAAYgZmZmZz2MzMAwAAAAYA",
+                pickrate = 12,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZGmZmxMMzMjhZMzYGzMzYwYmx2MzYMAAAAAAAAgZmxGAAAAGMzMzMzitZmZAgBAAAwA",
-                pickrate = 17.9,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMDmZGMLmxMYmxMjZMzMjhZ2mZs9AzMbjBAAAAAAAAMzM2AAAAwgZmZmZ2sNzMDAMAAAAGA",
+                pickrate = 25,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtZmZbMMAAAAAAAAMzwGAAAAGYmZmZ2sNzMDAAAAAwA",
-                pickrate = 34.2,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZwMzMMLmZmxgxMjZMzMjhZMzYbmZMGAAAAAAAAwMzYDAAAADGzMzMb2mZmBAGAAAAD",
+                pickrate = 14.3,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtZmZbMMAAAAAAAAMzwGAAAAGYmZmZ2sNzMDAAAAAwA",
-                pickrate = 33.3,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZwMzALmxMYmxMjZegZmZMMz2MjtxMGjZAAAAAAAAYmZsBAAAgBmZmZmFbzMzAgZAAAAMA",
+                pickrate = 14.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzwMzwMLmxMGmxMjZMzMjBz2MjNzMbjhBAAAAAAAgZmxGAAAAGMzMzMzmtZmZAAAAAAGA",
-                pickrate = 32,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDmFzYGMzYmxMPwMzMGMbzM2MzsNGGAAAAAAAAmZGbAAAAYgZmZmZz2MzMAwAAAAYA",
+                pickrate = 37,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMzMDmZmhZxMzMGmxMjZMzMjhZYGbmZ2GDAAAAAAAAYmZsBAAAgBjZmZmNbzMzAADAAAgB",
-                pickrate = 13,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZwMzgZxMmBzMmZMzDMzMjBz2MjtZmZbMMAAAAAAAAMzwGAAAAGYmZmZ2sNzMDAAAAAwA",
+                pickrate = 26.7,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZwMzgZxMmBzMmZMjZmZMMzyMjtZmxYAAAAAAAAAzMjNAAAAMYMzMzsZbmZGAYAAAAMA",
-                pickrate = 21.4,
+                pickrate = 16.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMmZwMzwMMjZwMjZGzYmZGDzsMzYzMz2YMAAAAAAAAYmZsBAAAgBmZmZmNbzMzAADAAAgB",
-                pickrate = 20,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZwMzgZxMmBzMmZMjZmZMMzyMjtZmxYAAAAAAAAAzMjNAAAAMYMzMzsZbmZGAYAAAAMA",
+                pickrate = 13.3,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZwMzgZxMmBzMmZMjZmZMMzyMjtZmxYAAAAAAAAAzMjNAAAAMYMzMzsZbmZGAYAAAAMA",
-                pickrate = 21.7,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZwMzgZxMmBzMmZMzDMzMjBzyMjtZmxYAAAAAAAAAzMjNAAAAMYMzMzsZbmZGAYAAAAMA",
+                pickrate = 17.4,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMzMwMzwMLmxMYmxMMjZmZMMzyMjNzMbjBAAAAAAAAMzM2AAAAwgZmZmZWsNzMDAMAAAAGA",
-                pickrate = 13,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMDmZGYxMmBzMmZMzDMzMjhZ2mZs9AzMGjZAAAAAAAAYmZsBAAAgBmZmZmFbzMzAADAAAgB",
+                pickrate = 15.4,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZGmZmxMMzMjhZMzYGzMzYwYmx2MzYMAAAAAAAAgZmxGAAAAGMzMzMzitZmZAgBAAAwA",
-                pickrate = 14,
+                export = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMGmBzMDmFzYGMzYmxMPwMzMGMbzM2MzsNGGAAAAAAAAmZGbAAAAYgZmZmZz2MzMAwAAAAYA",
+                pickrate = 12.5,
               },
             },
           },
@@ -2055,18 +2054,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 38.1, tier = "S" },
-              { itemId = 268292, pop = 24.8, tier = "A" },
-              { itemId = 250256, pop = 12.2, tier = "B" },
-              { itemId = 252420, pop = 8.2, tier = "B" },
-              { itemId = 249339, pop = 7.3, tier = "B" },
-              { itemId = 249344, pop = 4.9, tier = "C" },
-              { itemId = 250144, pop = 4.5, tier = "C" },
+              { itemId = 249343, pop = 32, tier = "S" },
+              { itemId = 268292, pop = 25.5, tier = "A" },
+              { itemId = 250256, pop = 15.9, tier = "A" },
+              { itemId = 252420, pop = 6.8, tier = "B" },
+              { itemId = 249339, pop = 5.8, tier = "B" },
+              { itemId = 249344, pop = 4.8, tier = "C" },
+              { itemId = 250144, pop = 4.2, tier = "C" },
               { itemId = 260235, pop = 4.1, tier = "C" },
-              { itemId = 193701, pop = 2.6, tier = "C" },
-              { itemId = 250258, pop = 1.8, tier = "C" },
-              { itemId = 252418, pop = 1.7, tier = "C" },
-              { itemId = 252421, pop = 0.6, tier = "C" },
+              { itemId = 193701, pop = 3, tier = "C" },
+              { itemId = 252418, pop = 1.8, tier = "C" },
+              { itemId = 246307, pop = 1.7, tier = "C" },
             },
           },
         },
@@ -2077,31 +2075,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244576, 245770, 245769 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244554, 244560, 244557, 240951, 245870 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244556, 244554, 244560, 244557, 244553, 240951, 245870 }, embellishments = {} },
             raid = { crafts = { 239656, 244576, 245770, 245769 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236088 } },
-              ["戒指2"] = { { id = 1236088 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -2128,19 +2126,19 @@ ClassCodexSource["ugg"] = {
             ["pvp:3v3"] = {
               { itemId = 250024, slot = "Head" },
               { itemId = 255610, slot = "Neck" },
-              { itemId = 250022, slot = "Shoulders" },
+              { itemId = 244556, slot = "Shoulders" },
               { itemId = 255433, slot = "Back" },
               { itemId = 244554, slot = "Chest" },
               { itemId = 244560, slot = "Wrist" },
               { itemId = 250025, slot = "Hands" },
               { itemId = 244557, slot = "Waist" },
               { itemId = 250023, slot = "Legs" },
-              { itemId = 255418, slot = "Feet" },
+              { itemId = 244553, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
-              { itemId = 255607, slot = "Finger 2" },
+              { itemId = 240951, slot = "Finger 2" },
               { itemId = 255616, slot = "Trinket 1" },
               { itemId = 255614, slot = "Trinket 2" },
-              { itemId = 255622, slot = "Main Hand" },
+              { itemId = 251201, slot = "Main Hand" },
               { itemId = 245870, slot = "Off Hand" },
             },
             raid = {
@@ -2168,7 +2166,7 @@ ClassCodexSource["ugg"] = {
           all = { ["pvp:3v3"] = { secondary = { { "haste" }, { "versatility" }, { "mastery" }, { "crit" } } } },
           ["elunes-chosen"] = {
             mplus = {
-              minor = { { "Avoidance" }, { "Leech", "Speed" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
               secondary = { { "mastery", "haste" }, { "crit", "versatility" } },
             },
@@ -2180,7 +2178,7 @@ ClassCodexSource["ugg"] = {
           },
           ["keeper-of-the-grove"] = {
             mplus = {
-              minor = { { "Avoidance" }, { "Leech", "Speed" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
               secondary = { { "mastery", "haste" }, { "crit", "versatility" } },
             },
@@ -2202,213 +2200,213 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 41.2,
+                pickrate = 36.8,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 22.6,
+                pickrate = 41.4,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 39.5,
+                pickrate = 41.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 35.5,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMgZZmlZWMzM2YZmlxMjxCGGgx22MDGz2AYAAAAYxMzMzgNjZMGAAmZgBA",
+                pickrate = 30,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 35.7,
+                pickrate = 37.8,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 46,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMgZZmlZWMzM2YZmlxMjxCGGgx22MDGz2AYAAAAYxMzMzgNjZMGAAmZgBA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 45,
+                pickrate = 27.6,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 29.2,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMgZZmlZWMzM2YZmlxMjxCGGgx22MDGz2AYAAAAYxMzMzgNjZMGAAmZgBA",
+                pickrate = 23.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 28.6,
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwsYmZmBDzYMzyMLmZGbsMzyYmZGLYYAGbbzMYMbDgZAAAAswMzMD2MmxYAAYmBeAA",
-                pickrate = 9.3,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsYmZmBYGjZWmZxMzYjlZWGzMzYBDDwYbbmBjZbAMAAAAsYmZmZwmBGDAAzMwA",
+                pickrate = 13.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwsMmZmBDDzyMLzsZmZsxyMLjZGjFMMAjttZGMmtBwMAAAAWMzMzMYzYGjBAgZG4BA",
-                pickrate = 7.9,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
+                pickrate = 35.6,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 25.9,
+                pickrate = 18.2,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 25,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmlZmZmBDDjZWGLmZGbsMzyMjZmZBDDwYbbmBjZbAMAAAAsYmZmZwmhxYAAYmBGA",
+                pickrate = 14.3,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 21.4,
+                pickrate = 37.5,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 18.2,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MMmZgxsMzMzMLMgxMLzsYmZsxyMLjxMjFMAYstNzgxsNAmBAAAwCzMzMYzYGjBAgZGs8AA",
+                pickrate = 16.7,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsYmZmBYGjZWmZxMzYjlZWGzMzYBDDwYbbmBjZbAMAAAAsYmZmZwmBGDAAzMwA",
-                pickrate = 24.3,
+                pickrate = 41.2,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwsYmZmBDzYMzyYxMzYjlZWmZMzMLYYAGbbzMYMbDgZAAAAsYmZmZwmhxYAAYmBeAA",
-                pickrate = 41.2,
+                pickrate = 28.6,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmlZmZmBDDjZWGLmZGbsMzyMjZmZBDDwYbbmBjZbAMAAAAsYmZmZwmhxYAAYmBGA",
-                pickrate = 28.8,
+                pickrate = 36.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwsMmZmBDDzyMbzwYGLsMzyMjxMbYYAGbLzMYMbDgZAAAAsYmZmZwmxMGzAAYmBeAA",
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwsNmZmBDzYWmZbGGzYhlZWmZMmZDDDwYbZmBjZbAMDAAAgFmZmZwmxMGzAAYmBeAA",
                 pickrate = 33.3,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMLMYMLzsMziZmxGLzsMmZMWwwAM22mZwY2GADAAAALmZmZGsZYMGAAmZgBA",
-                pickrate = 37.5,
+                pickrate = 30,
               },
             },
           },
           ["keeper-of-the-grove"] = {
             mplus = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsMzMzMAzYMzyYbGzYjlZWGzMjZBDDwAssN2wYmZZAAAAwGzMzMYzAjZAMzAADA",
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwswMzMLMMMmZZsNjZmNWmZZMzwsghBYAW2GbYmZmlBAAAAbmZmZGsZMjxMAmZAgHAA",
                 pickrate = 33.3,
+              },
+            },
+            ["mplus:12874"] = {
+              {
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMD8AmlxMzMYwwyMLzYGzYhlZMzMjZ2wwAMALbjNMzMzyAAAAgNzMzMD2MMGzAYmBAeAA",
+                pickrate = 100,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsMzMzMAzYMzyYbGzYjlZWGzMjZBDDwAssN2wYmZZAAAAwGzMzMYzAjZAMzAADA",
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMD8AmlxMzMLAMLzsMWmxM2YZmlxMzYWwwAMALbjNMzMzyAAAAgNzMzMD2MmxYAYmBAeAA",
                 pickrate = 100,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2YGz2MjxMDMmlxMzADDzyMbDzMzYjlZWmZmhZBDAGgttxGmZmZZAAAAwmZmZmBbGzYMAMzAAPAA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:61209"] = {
-              {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMD8AmFzMzMLMgZZmlxyMmZ2YZGjZmhFMMADwy2YDzMzsMAAAAYjZmZGsZMjxMAmZAgHAA",
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMDwswMzMLMMMmZZsNjZmNWmZZMzwsghBYAW2GbYmZmlBAAAAbmZmZGsZMjxMAmZAgHAA",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgHwsMmZmBYwyMbzYGzYjlZMzMjZ2wwAMALbjNMmZWGAAAAsZmZmZwmxMGzAYmBAGA",
-                pickrate = 9.9,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgHwsYmZmhBDjZWGbzYGbsMzyYmZMLYYAGgltxGGzMLDAAAA2MzMzMYzYYMDgZGAYA",
+                pickrate = 7.8,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsYmZmBYGz2MLjthZmtxyMGzMDbYYAGgltxGGzMLDAAAA2YmZmBbGGjZAMzAADA",
-                pickrate = 20.2,
+                pickrate = 9.5,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFmZmBDzY2mZZsNjZsxyMGzMjZBDDwAssN2wYmZZAAAAwmZmZmBbGzYMDgZGAYA",
-                pickrate = 48.4,
+                pickrate = 61.1,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsMzMzMAzYMzyYbGzYjlZWGzMjZBDDwAssN2wYmZZAAAAwGzMzMYzAjZAMzAADA",
-                pickrate = 37.2,
+                pickrate = 32.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmFzMzMYYGz2MLjthZmNWmZZMzMshhBYA22GbYMzsMAAAAYzMzMzgNDjxMAmZAgBA",
-                pickrate = 22.8,
+                pickrate = 30.4,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZAmlxMzMYYGjZWGbzYGbsMzyYmZMLYYAGgltxGGzMLDAAAA2MzMzMYzwYMDgZGAYA",
-                pickrate = 18.6,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsMmZmBYGjZWGbzYGbsMzyYmZMLYYAGgltxGGzMLDAAAA2YmZmBbGDjZAMzAADA",
+                pickrate = 21.2,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGjZGjZG4BMLmZmZYwMGzsM2mxM2YZmlxMzYWwwAMALbjNMzMzyAAAAgNzMzMD2MMGzAYmBAeAA",
-                pickrate = 20,
+                pickrate = 14.3,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgxsMzMzMAzYMzyYZGzYjlZWGzMjZBDDwAssN2wYmZZAAAAwGzMzMYzAjZAMzAADA",
-                pickrate = 25.7,
+                pickrate = 29.9,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWYGz2MjxMD8AmlZmZmBYGjZ2GLzYGbsMjxMzMzCGGgBYZbshZmZWGAAAAsxMzMD2MMGzAYmBAeAA",
-                pickrate = 29.4,
+                pickrate = 33.3,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgHwsMmZmBYwyMbzYGzYjlZMzMjZ2wwAMALbjNMmZWGAAAAsZmZmZwmxMGzAYmBAGA",
-                pickrate = 36.1,
+                pickrate = 30.6,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgHwsMmZmBYwyMbzYGzYjlZMzMjZ2wwAMALbjNMmZWGAAAAsZmZmZwmxMGzAYmBAGA",
-                pickrate = 31.1,
+                export = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAzmZMmZgHwsYmZmhBDjZWGbzYGbsMzyYmZMLYYAGgltxGGzMLDAAAA2MzMzMYzYYMDgZGAYA",
+                pickrate = 26.2,
               },
             },
           },
@@ -2416,16 +2414,19 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 51.3, tier = "S" },
-              { itemId = 249343, pop = 37.5, tier = "S" },
-              { itemId = 250144, pop = 7.4, tier = "B" },
-              { itemId = 268292, pop = 6.6, tier = "B" },
-              { itemId = 250256, pop = 5.6, tier = "B" },
-              { itemId = 250223, pop = 2.1, tier = "C" },
-              { itemId = 249809, pop = 2, tier = "C" },
-              { itemId = 250257, pop = 1.4, tier = "C" },
-              { itemId = 250258, pop = 1.4, tier = "C" },
-              { itemId = 251792, pop = 1.2, tier = "C" },
+              { itemId = 249346, pop = 51.5, tier = "S" },
+              { itemId = 249343, pop = 36.6, tier = "S" },
+              { itemId = 250144, pop = 8.4, tier = "B" },
+              { itemId = 268292, pop = 6.9, tier = "B" },
+              { itemId = 250256, pop = 6.2, tier = "B" },
+              { itemId = 250223, pop = 2.6, tier = "C" },
+              { itemId = 249809, pop = 1.6, tier = "C" },
+              { itemId = 250257, pop = 1.6, tier = "C" },
+              { itemId = 251792, pop = 1.3, tier = "C" },
+              { itemId = 264507, pop = 1.1, tier = "C" },
+              { itemId = 252957, pop = 0.4, tier = "C" },
+              { itemId = 249340, pop = 0.2, tier = "C" },
+              { itemId = 249810, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -2434,31 +2435,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244576 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244554, 244560, 244557 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244736, 244554, 244560, 244557, 244553, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 244576 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236068 } },
-              ["腳"] = { { id = 1236057 } },
-              ["戒指1"] = { { id = 1236059 } },
-              ["戒指2"] = { { id = 1236059 } },
-              ["頭"] = { { id = 1236084 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236076 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236087 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -2476,27 +2477,27 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250023, slot = "Legs" },
               { ilvl = 289, itemId = 250026, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 285, itemId = 251513, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
-              { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
+              { ilvl = 298, itemId = 249806, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249302, slot = "Main Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 250024, slot = "Head" },
-              { itemId = 50228, slot = "Neck" },
-              { itemId = 250022, slot = "Shoulders" },
+              { itemId = 244736, slot = "Head" },
+              { itemId = 255612, slot = "Neck" },
+              { itemId = 255426, slot = "Shoulders" },
               { itemId = 255434, slot = "Back" },
               { itemId = 244554, slot = "Chest" },
               { itemId = 244560, slot = "Wrist" },
-              { itemId = 250025, slot = "Hands" },
+              { itemId = 255419, slot = "Hands" },
               { itemId = 244557, slot = "Waist" },
-              { itemId = 250023, slot = "Legs" },
-              { itemId = 151317, slot = "Feet" },
-              { itemId = 251115, slot = "Finger 1" },
-              { itemId = 151308, slot = "Finger 2" },
-              { itemId = 193701, slot = "Trinket 1" },
-              { itemId = 193701, slot = "Trinket 2" },
-              { itemId = 255637, slot = "Main Hand" },
+              { itemId = 255424, slot = "Legs" },
+              { itemId = 244553, slot = "Feet" },
+              { itemId = 255609, slot = "Finger 1" },
+              { itemId = 240951, slot = "Finger 2" },
+              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 2" },
+              { itemId = 255631, slot = "Main Hand" },
             },
             raid = {
               { ilvl = 298, itemId = 250024, slot = "Head" },
@@ -2520,12 +2521,12 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240900 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "mastery" }, { "haste" }, { "versatility" }, { "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" } } } },
           ["druid-of-the-claw"] = {
             mplus = {
-              minor = { { "Speed", "Leech" }, { "Avoidance" } },
+              minor = { { "Leech", "Speed", "Avoidance" } },
               primary = "Agility",
-              secondary = { { "mastery", "versatility", "haste", "crit" } },
+              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Leech", "Speed" } },
@@ -2535,9 +2536,9 @@ ClassCodexSource["ugg"] = {
           },
           wildstalker = {
             mplus = {
-              minor = { { "Speed", "Leech" }, { "Avoidance" } },
+              minor = { { "Leech", "Speed", "Avoidance" } },
               primary = "Agility",
-              secondary = { { "mastery", "versatility", "haste", "crit" } },
+              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Leech", "Speed" } },
@@ -2548,7 +2549,7 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 623, haste = 634, mastery = 1144, versatility = 127 },
+            mplus = { crit = 455, haste = 1027, mastery = 1018, versatility = 37 },
             raid = { crit = 455, haste = 1004, mastery = 973, versatility = 143 },
           },
         },
@@ -2557,73 +2558,73 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 32.2,
+                pickrate = 37.8,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 47.6,
+                pickrate = 46.2,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 33,
+                pickrate = 43.6,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 39.8,
+                pickrate = 34.5,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 46.2,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
+                pickrate = 41.1,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 30,
+                pickrate = 42.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 51.9,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
+                pickrate = 37.4,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 41.4,
+                pickrate = 38.5,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 26.6,
+                pickrate = 31.2,
               },
             },
             raid = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAgZmlZbmZGAwCMzMALMYAAAMzGeAA",
-                pickrate = 10.4,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
+                pickrate = 23.4,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
-                pickrate = 18,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzGzMzMGzm5B2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAgZmlZZmZGAwCMzMALMYAAAMzGeAA",
+                pickrate = 12.8,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwYmxMzYWmZmZmlxMMAAAAAAGYAAAAMzsMLzMzAAWgZmHAYBYAAAMzGeAA",
-                pickrate = 18.2,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYbgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAgZmlZZmZGAwCMzMALMYAAAMzGeAA",
+                pickrate = 23.1,
               },
             },
             ["raid:3177"] = {
@@ -2634,38 +2635,38 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3178"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzGzMzMGzm5B2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAgZmlZZmZGAwCMzMALMYAAAMzGeAA",
-                pickrate = 12.5,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWGzMzYMzDYAAAAAAMwAAAAYmZZ2mZmBAsAmZAWYGGAAAzshHA",
+                pickrate = 18.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZ2YmZmZGzm5BWGbzYGzMDAAAALgZzwDYmBzYWGzMzYMzDYAAAAAAMwAAAAwMLz2MzMAgFwMDwCzwAAAYmNMA",
-                pickrate = 28.6,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZYmZmZMzsZsNz2MzMzDMzAAAAwyAzixwMjZmxsYmZmZZMzAAAAAAgBAAAAYmZZ2mZmBAsAmZAWYwAAAYmN8AA",
+                pickrate = 25,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYbgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAgZmlZZmZGAwCMzMALMYAAAMzGeAA",
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxMYmZmZMzsZsNz2MzMzDMzAAAAwyAzmxwMjZmxsYmZmZZMzAAAAAAgBAAAAYmZZ2mZmBAsAmZAWYwAAAYmN8AA",
                 pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZ2YmZmZGzm5BWGbzYGzMDAAAALgZzwDYmBzYWGzMzYMzDYAAAAAAMwAAAAwMLz2MzMAgFwMDwCzwAAAYmNMA",
-                pickrate = 33.3,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZ2YmZmZGzm5BWGbzYGzMDAAAALDMbGeAzMmZGzyYmZGjZeADAAAAAgBGAAAAzMLz2MzMAgFwMDwCzwAAAYmN8AA",
+                pickrate = 50,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZ2MzMzMmZ2M2GbzMzMPwMDAAAALDMLGDzMmZGzyYmZmlxMMAAAAAAGAAAAgZmtZbmZGAwCYmBYhZYAAAMzGeAA",
-                pickrate = 33.3,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzAMMzMzsBwMzMPwMDAAAALDMwYGMzMmFYmxYGAAAAAAAAAAAwMzysMGDAYBAAADAAAAA",
+                pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZYmZmZMzsZsNz2MzMzDMzAAAAwyAzmxwMjZmxsYmZmZZMzAAAAAAgBAAAAYmZZ2mZmBAsAmZAWYwAAAYmN8AA",
-                pickrate = 14.3,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZmZmxY2M2GbzMzMmZAAAAYBMbGeAzMYGziZmZmlxMMAAAAAAGYAAAAYmlZZmZGAwCMzMALMYAAAMzGGA",
+                pickrate = 33.3,
               },
             },
           },
@@ -2673,121 +2674,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 35.2,
+                pickrate = 53.1,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 22.2,
+                pickrate = 50,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 53.9,
+                pickrate = 50,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 60,
+                pickrate = 40,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 40,
+                pickrate = 80,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzGzMzMGzm5B2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 45.5,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMziZMzMGzmx2YbmZm5BmZAAAAYbgZzAzMzMzYWGzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
+                pickrate = 50,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 25,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzCzMzMGzmx2MbzMzMmZAAAAYZgZzAzMzMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
+                pickrate = 20,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMDmZmZMmNzDsNzyMzMjZGAAAAWGY2MwMzMzMmFmZmZZMzAAAAAAgBGAAAAAgZbmlZWmZZDmZGgFGMAAmZAwDA",
-                pickrate = 16.7,
+                pickrate = 33.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzGzMzMGzm5B2GbzMzMmZAAAAYZgZzwDYmxMzYWMzMzsMmhBAAAAAwADAAAAAwsNzyMLzssBzMDwCDGAAzMA4BA",
-                pickrate = 46.7,
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzYMDAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
-                pickrate = 10,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAAbgZzwYmBzYWYmZGjZeAAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
+                pickrate = 14.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzYMDAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
-                pickrate = 8.6,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAAbgZzwYmBzYWYmZGjZMAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
+                pickrate = 11.3,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYm5BmZAAAAYDMbGGzMYGzyMzMzYMjBAAAAAgBGAAAAAgZbmFz2MLbgZeAgFzgBAwMDAGA",
-                pickrate = 25,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzYMjBAAAAAgBGAAAAAgZbmFz2MLbgZGgFzgBAwMDAGA",
+                pickrate = 9.1,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzYMDAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
-                pickrate = 25,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAAbgZzwYmBzYWYmZGjZeAAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
+                pickrate = 32.5,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2M2GbzMzMmZAAAAYDMMMmZwMmlxMzMGz8ADAAAAAADMAAAAAAz2MLmlZW2AzMALMDDAgZGAMA",
-                pickrate = 30.8,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzmZmZmxY2MWGbzMzMmZAAAAYDMbGGzMYGzyYmZGjZMAAAAAAMwAAAAAAMbzsY2mZZDMzAsYGMAAmZAwA",
+                pickrate = 25,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYm5BmZAAAAYZgZzwYmxMzYWYmZmtxMGAAAAAAGYAAAAAAmtZWmZbmlNwMDwiZwAAYmBAPA",
-                pickrate = 11.1,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzsMmhBAAAAAwADAAAAAwsNziZbmlNwMPAwiZwAAYmBAD",
+                pickrate = 18.8,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzCjZmxY2MPw2YbmZm5BmZAAAAYDMMMmZwMmFmZmxYGzAAAAAAYgBAAAAAY2mZxsMzyGMzMALMDDAgZGAMA",
-                pickrate = 18.2,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZMzCjZmxY2MPw2YbmZm5BmZAAAAYDMbwYmBzYWGzMzYMzDMAAAAAAMwAAAAAAMbzsYWmZZDMzAsYGMAAmZAwA",
+                pickrate = 23.5,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALghhxMDmxsMmZmxYGDAAAAAADMAAAAAAz2MLmtZW2AzMALmZYAAMzAgB",
-                pickrate = 28.6,
+                pickrate = 30,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYm5BmZAAAAYDMMMmZwMmFmZmZZMzDYAAAAAAMwAAAAAAMbzsY2mZZDMzAsYGMAAmZAwA",
-                pickrate = 31.3,
+                pickrate = 22.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAAbghhxMDmxsMmZmxYGzAAAAAAYgBAAAAAY2mZxsNzyGYmBYxMYAAMzAgB",
-                pickrate = 25,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAAbgZzwYmBzYWGzMzYMjBAAAAAgBGAAAAAgZbmFz2MLbgZGgFzgBAwMDAGA",
+                pickrate = 13.3,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAALgZzwYmBzYWGzMzYMDAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
-                pickrate = 14.2,
+                export = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtl5BWGbzYGzMDAAAAbgZzwYmBzYWYmZGjZeAAAAAAAMwAAAAAAMbzsY2mZZDMzAsYmhBAwMDAGA",
+                pickrate = 14.5,
               },
             },
           },
@@ -2795,19 +2796,19 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 59.3, tier = "S" },
-              { itemId = 249343, pop = 36.8, tier = "S" },
-              { itemId = 250256, pop = 6.5, tier = "B" },
-              { itemId = 268292, pop = 5, tier = "C" },
-              { itemId = 250144, pop = 4.1, tier = "C" },
-              { itemId = 249806, pop = 3.5, tier = "C" },
-              { itemId = 252420, pop = 2.8, tier = "C" },
+              { itemId = 193701, pop = 59.9, tier = "S" },
+              { itemId = 249343, pop = 35.6, tier = "S" },
+              { itemId = 250256, pop = 5.3, tier = "B" },
+              { itemId = 268292, pop = 5.3, tier = "B" },
+              { itemId = 252420, pop = 3.5, tier = "C" },
+              { itemId = 249806, pop = 3.3, tier = "C" },
+              { itemId = 250144, pop = 3.1, tier = "C" },
               { itemId = 249805, pop = 1.2, tier = "C" },
-              { itemId = 260235, pop = 1, tier = "C" },
               { itemId = 251792, pop = 0.9, tier = "C" },
-              { itemId = 249344, pop = 0.3, tier = "C" },
-              { itemId = 250257, pop = 0.1, tier = "C" },
+              { itemId = 249344, pop = 0.8, tier = "C" },
+              { itemId = 250462, pop = 0.2, tier = "C" },
               { itemId = 250258, pop = 0.1, tier = "C" },
+              { itemId = 260235, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -2816,27 +2817,27 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244576, 240949 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244570, 244560, 244557, 244569, 245771 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244570, 244576, 244569, 240951, 245771 }, embellishments = {} },
             raid = { crafts = { 239656, 244576 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 8025, spellId = 1236088 } },
-              ["戒指2"] = { { id = 8025, spellId = 1236088 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 8025, spellId = 1236088 } },
+              ["Finger 2"] = { { id = 8025, spellId = 1236088 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["戒指1"] = { { id = 1236087 } },
-              ["腿"] = { { id = 1243978 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -2861,19 +2862,19 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 250024, slot = "Head" },
-              { itemId = 255610, slot = "Neck" },
+              { itemId = 50228, slot = "Neck" },
               { itemId = 250022, slot = "Shoulders" },
-              { itemId = 251161, slot = "Back" },
+              { itemId = 250019, slot = "Back" },
               { itemId = 244570, slot = "Chest" },
-              { itemId = 244560, slot = "Wrist" },
+              { itemId = 244576, slot = "Wrist" },
               { itemId = 250025, slot = "Hands" },
-              { itemId = 244557, slot = "Waist" },
+              { itemId = 49806, slot = "Waist" },
               { itemId = 250023, slot = "Legs" },
               { itemId = 244569, slot = "Feet" },
-              { itemId = 251115, slot = "Finger 1" },
+              { itemId = 240951, slot = "Finger 1" },
               { itemId = 49812, slot = "Finger 2" },
               { itemId = 193701, slot = "Trinket 1" },
-              { itemId = 252418, slot = "Trinket 2" },
+              { itemId = 151307, slot = "Trinket 2" },
               { itemId = 245771, slot = "Main Hand" },
             },
             raid = {
@@ -2886,7 +2887,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250025, slot = "Hands" },
               { ilvl = 298, itemId = 268286, slot = "Waist" },
               { ilvl = 289, itemId = 250023, slot = "Legs" },
-              { ilvl = 289, itemId = 249334, slot = "Feet" },
+              { ilvl = 289, itemId = 250026, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
@@ -2897,7 +2898,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240894 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "mastery" }, { "haste" }, { "versatility", "crit" } } } },
           ["druid-of-the-claw"] = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
@@ -2926,93 +2927,93 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 335, haste = 1092, mastery = 797, versatility = 362 },
-            raid = { crit = 292, haste = 1161, mastery = 797, versatility = 276 },
+            raid = { crit = 335, haste = 1248, mastery = 797, versatility = 215 },
           },
         },
         talents = {
           ["druid-of-the-claw"] = {
             mplus = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMjZWMLzMmZZZgZzwYmhZmZWmZmZmlxMAAAAAAMjFDAAAAmZWmlZmZAAsgZGgFzgBsYxAgZ2gHA",
-                pickrate = 33.3,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#103214#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82159#103228#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82237#103316#1-82239#103318#1-82241#103320#1-82242#103322#1-92226#103208#1-92227#103218#1-92585#114698#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 66.7,
+              },
+            },
+            ["mplus:10658"] = {
+              {
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#103214#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82159#103228#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82237#103316#1-82239#103318#1-82241#103320#1-82242#103322#1-92226#103208#1-92227#103218#1-92585#114698#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135569#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 100,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMjZWMLzMmZZZgZzwYmhZmZWmZmZmlxMAAAAAAMjFDAAAAmZWmlZmZAAsgZGgFzgBsYxAgZ2gHA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:12915"] = {
-              {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMPgZWMLzMzMLLDMbzwYmhxMzyMzMzsMmhBAAAAwgZsYAAAAwMzysMzMDAgFMDgFzgBsgBAzsBPA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:61209"] = {
-              {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMjZWMLzMPwMLLDMbzwYmhxMzyMzMzsMmhBAAAAwgZsYAAAAwMzysMzMDAgFMDgFzgBsgBAzsBPA",
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#103214#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82159#103228#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82237#103316#1-82239#103318#1-82241#103320#1-82242#103322#1-92226#103208#1-92227#103218#1-92585#114698#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMjxmZZMPgZZZgZDGGYmZWMzMzsMmhBAAAAAMjlZAAAAgZWmlZmZAAsYMzAsYGMAW2GAMzGMA",
-                pickrate = 25.7,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82157#103226#1-82160#103229#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92227#103218#1-92585#114698#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137059#1-110431#137060#2-110431#137061#1",
+                pickrate = 25,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMzmZZm5BMWGY2gxMDzMzsMzMzMGzwAAAAAAmxyMAAAAYmZZWmZmBAwixMDwiZwAWwAgZ2gHA",
-                pickrate = 15,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82138#103203#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#1-82157#103226#1-82160#103229#1-82198#103275#1-82199#103277#1-82206#103284#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82240#103319#1-82241#103320#1-82242#103322#1-82246#103326#1-92226#103208#1-92227#103218#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100174#123793#1-100175#123794#1-100176#123795#1-100177#123796#1-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMjZ2MLDMLLDMbGGzMMzMzyMzMzYMjZAAAAAAzYZGAAAAMzsMLzMzAAYBz8AALmBDgltBAzsBPA",
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82138#103203#1-82140#103206#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82160#103229#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109275#103205#1-109375#135568#1-109377#135491#1-109378#135570#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#135981#1-110431#137061#1-110431#137060#2-110431#137059#1",
                 pickrate = 18.2,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMzmZZm5BMWGY2gxMDzMzsMmZmxYGzAAAAAAmxyMAAAAYmZZWmZmBAwixMDwiZwAWwAgZ2gHA",
-                pickrate = 12.5,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82148#103215#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82214#103292#2-82217#103295#1-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109275#103205#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 20,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMjZ2MLzYMLLDMMMmZYmZmlZmZmxMzwAAAAAAmZWmBAAAAzMLzyMzMAAWwMPAwiZwAWsYAwMLwA",
-                pickrate = 14.3,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82138#103203#2-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82156#103225#1-82157#103226#1-82160#103229#1-82198#103276#1-82199#103277#1-82206#103284#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82240#103319#1-82241#103320#1-82242#103322#1-82246#103326#1-92226#103208#1-92227#103218#1-92229#114300#1-92585#114698#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#1-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMjxmZZMPgZZZgZDGGYmZWMzMzsMmhBAAAAAMjlZAAAAgZWmlZmZAAsYMzAsYGMAW2GAMzGMA",
-                pickrate = 25,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82157#103226#1-82160#103229#1-82198#103276#1-82199#103277#1-82206#103284#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82240#103319#1-82241#103320#1-82242#103322#1-82246#103326#1-92226#103208#1-92585#114698#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109275#103205#1-109375#135568#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137059#1-110431#137060#2-110431#137061#1",
+                pickrate = 12.5,
+              },
+            },
+            ["raid:3180"] = {
+              {
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#103214#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#1-82159#103228#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82214#103292#1-82217#103295#1-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82240#103319#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92227#103218#1-92585#114698#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100173#123792#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135569#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 33.3,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsYmZMzmZZgZZZgxMMmZYmZmlZmZmZZMDDAAAAgBzYbGAAAAMzsMLzMzAAYBzAYxMYALW2GAMzG8AA",
-                pickrate = 25,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82138#103203#2-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82160#103229#1-82161#103231#1-82198#103276#1-82199#103277#1-82206#103284#1-82208#103286#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82237#103316#1-82239#103318#1-82241#103320#1-82242#103322#1-82246#103326#1-91044#112967#1-92226#103208#1-92227#103218#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135491#1-109378#135570#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 12.5,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxs4BGjZ2mZZGMLLDMMMmZYmZmlZmZmxYGzAAAAAAmxyMAAAAYmZZWmZmBAwCmZAWMDGwiFDAmZBeA",
-                pickrate = 14.3,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82160#103229#1-82198#103275#1-82199#103277#1-82206#103284#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82241#103320#1-82242#103322#1-82246#103326#1-92226#103208#1-92227#103218#1-92229#114300#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxswMjZ2mZZMPgx2AzmhxMDzMzsMzMzMmZGzAAAAAAmx2MAAAAYmZZWmZmBAwCmBwiZwgxiFDAmZDeA",
-                pickrate = 16.7,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82148#103215#1-82149#103216#1-82152#103221#1-82153#103222#1-82156#103225#1-82157#103226#1-82160#103229#1-82198#103275#1-82199#103277#1-82206#103284#1-82207#128589#1-82209#103287#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82240#103319#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92227#103218#1-92585#136806#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109275#103205#1-109375#135568#1-109377#135491#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137061#1-110431#137060#2-110431#137059#1",
+                pickrate = 10,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMzmZZm5BMWGY2gxMDzMzsMzMzMGzYGAAAAAwMWmBAAAAzMLzyMzMAAWwMDwiZwAWwAgZ2gHA",
-                pickrate = 20,
+                export = "82126#103190#1-82127#103191#1-82129#103193#1-82131#103195#1-82135#103199#1-82136#103201#1-82137#103202#1-82140#103206#1-82142#103209#1-82143#103210#2-82145#103212#1-82146#103213#2-82147#135336#1-82149#103216#1-82152#103221#1-82153#103222#1-82154#103223#2-82156#103225#1-82157#103226#1-82160#103229#1-82198#103276#1-82199#103277#1-82206#103284#1-82207#128589#1-82214#103292#2-82218#103296#1-82219#103297#1-82220#103298#1-82223#103301#1-82224#103302#1-82225#103303#2-82227#103305#1-82228#103306#1-82229#103307#1-82230#103308#1-82231#103309#1-82232#128581#1-82233#103311#2-82234#103312#1-82235#103313#1-82236#103314#1-82239#103318#1-82241#103320#1-82242#103322#1-82244#103324#1-82246#103326#1-92226#103208#1-92227#103218#1-92585#114698#1-92586#114699#1-92587#114700#1-94609#117206#1-94610#117207#1-94611#117208#1-94612#117210#1-94613#117211#1-94614#117214#1-94615#117215#1-94616#117216#1-94618#117218#1-94619#117219#1-94620#117220#1-99807#123301#1-100175#123794#1-100176#123795#1-100177#123796#2-104078#128580#1-104080#128584#1-104081#128585#1-104085#128591#1-109375#135568#1-109379#135490#1-109721#135979#1-109722#135980#1-109723#136624#1-110431#137059#1-110431#137060#2-110431#137061#1",
+                pickrate = 33.3,
               },
             },
           },
@@ -3020,121 +3021,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 40.1,
+                pickrate = 39.3,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 37.7,
+                pickrate = 42.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 34.6,
+                pickrate = 32.5,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 40.7,
+                pickrate = 40.9,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 39.8,
+                pickrate = 43.4,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 39.2,
+                pickrate = 35.4,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 37.1,
+                pickrate = 39.7,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 40.4,
+                pickrate = 35.1,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 47.3,
+                pickrate = 43,
               },
             },
             raid = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 6.1,
+                pickrate = 10.3,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 51.2,
+                pickrate = 43,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGY2MMMwMzsMzMzMGzwAAAAAAmx2MgltZGMmlBwAAAAYDzMALmBDYxy2AMzAYA",
-                pickrate = 9.5,
+                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
+                pickrate = 8.3,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGY2MMMwMzsMzMzMGzwAAAAAAmx2MgltZGMmlBwAAAAYDzMALmBDYxy2AMzAYA",
-                pickrate = 7,
+                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGY2YMMwMzsMzMzMGzYGAAAAAwM2mBssNzgxsNAGAAAAbYGDYxMYALW2GgZGAD",
+                pickrate = 8.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 37.9,
+                pickrate = 27.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGYYYYgZmZZmZmZMmxMAAAAAgZsNDYZbmBjZbAMAAAA2wMDwiZwAWssNAzMAG",
-                pickrate = 19.2,
+                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
+                pickrate = 26.3,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMziZZGMWGYYYYgZmZZmZmZMmxMAAAAAgZsNDYZbmBjZbAMAAAA2wMDwiZwAWssNAzMAG",
-                pickrate = 20,
+                pickrate = 30.4,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGY2YMMwMzsMzMzMGzYGAAAAAwM2mBssNzgxsNAGAAAAbYGDYxMYALW2GgZGAD",
-                pickrate = 18.2,
+                pickrate = 22.7,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGM2GYYGDDMzMLzMzMjxMmBAAAAAMjtZALbzMYMbDgBAAAwGmxAWMDGwiltBYmBwA",
-                pickrate = 10.3,
+                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGMWGY2YMMwMzsMzMzMGzYGAAAAAwM2mBssNzgxsNAGAAAAbYGDYxMYALW2GgZGAD",
+                pickrate = 15.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMPwYMzmZZGM2GY2YMMwMzsMzMzMGzYGAAAAAwM2mBssNzgxsNAGAAAAbYGDYxMYALW2GgZGAD",
-                pickrate = 24.4,
+                export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
+                pickrate = 18.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWmZxMPwMLLDMbGGGwMzyMzMzsMmhBAAAAAYsZGYZbmBjZZAMAAAA2wMDwixwAziFAmZAA",
-                pickrate = 59,
+                pickrate = 56.4,
               },
             },
           },
@@ -3142,17 +3143,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 37.7, tier = "S" },
-              { itemId = 268292, pop = 22.8, tier = "A" },
-              { itemId = 193701, pop = 18, tier = "A" },
-              { itemId = 250256, pop = 13.1, tier = "B" },
-              { itemId = 250144, pop = 7.4, tier = "B" },
-              { itemId = 260235, pop = 7.4, tier = "B" },
-              { itemId = 249344, pop = 5.4, tier = "B" },
-              { itemId = 249339, pop = 2.5, tier = "C" },
+              { itemId = 249343, pop = 36.7, tier = "S" },
+              { itemId = 268292, pop = 22.3, tier = "A" },
+              { itemId = 193701, pop = 18.4, tier = "A" },
+              { itemId = 250256, pop = 12.5, tier = "B" },
+              { itemId = 260235, pop = 8.6, tier = "B" },
+              { itemId = 250144, pop = 7, tier = "B" },
+              { itemId = 249344, pop = 6.5, tier = "B" },
+              { itemId = 249339, pop = 2.7, tier = "C" },
               { itemId = 252420, pop = 2.3, tier = "C" },
-              { itemId = 250242, pop = 1.6, tier = "C" },
-              { itemId = 252418, pop = 0.7, tier = "C" },
+              { itemId = 252418, pop = 1.3, tier = "C" },
             },
           },
         },
@@ -3160,32 +3160,32 @@ ClassCodexSource["ugg"] = {
       restoration = {
         crafting = {
           all = {
-            mplus = { crafts = { 239656, 244576, 244569, 245770 }, embellishments = {} },
+            mplus = { crafts = { 239656, 244576, 244573, 244569, 245770 }, embellishments = {} },
             ["pvp:3v3"] = { crafts = { 240952, 244554, 244560, 244557, 244553, 240951, 245870 }, embellishments = {} },
-            raid = { crafts = { 244576, 244573, 244569, 245770 }, embellishments = {} },
+            raid = { crafts = { 244576, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 8025, spellId = 1236088 } },
-              ["戒指2"] = { { id = 8025, spellId = 1236088 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 8025, spellId = 1236088 } },
+              ["Finger 2"] = { { id = 8025, spellId = 1236088 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -3199,7 +3199,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250027, slot = "Chest" },
               { ilvl = 285, itemId = 244576, slot = "Wrist" },
               { ilvl = 289, itemId = 250025, slot = "Hands" },
-              { ilvl = 298, itemId = 268286, slot = "Waist" },
+              { ilvl = 285, itemId = 244573, slot = "Waist" },
               { ilvl = 289, itemId = 250023, slot = "Legs" },
               { ilvl = 285, itemId = 244569, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
@@ -3235,9 +3235,9 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250027, slot = "Chest" },
               { ilvl = 285, itemId = 244576, slot = "Wrist" },
               { ilvl = 289, itemId = 250025, slot = "Hands" },
-              { ilvl = 285, itemId = 244573, slot = "Waist" },
+              { ilvl = 298, itemId = 268286, slot = "Waist" },
               { ilvl = 289, itemId = 250023, slot = "Legs" },
-              { ilvl = 285, itemId = 244569, slot = "Feet" },
+              { ilvl = 289, itemId = 250026, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
@@ -3259,7 +3259,7 @@ ClassCodexSource["ugg"] = {
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
+              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
             },
           },
           wildstalker = {
@@ -3271,129 +3271,135 @@ ClassCodexSource["ugg"] = {
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
+              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
             },
           },
         },
         statTargets = {
           all = {
-            mplus = { crit = 292, haste = 1254, mastery = 1093, versatility = 37 },
-            raid = { crit = 202, haste = 1331, mastery = 972, versatility = 287 },
+            mplus = { crit = 202, haste = 1314, mastery = 1114, versatility = 37 },
+            raid = { crit = 335, haste = 1292, mastery = 1141, versatility = 37 },
           },
         },
         talents = {
           ["keeper-of-the-grove"] = {
             mplus = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgZmNsYbGAAAAAAAAAAsYYmtZGzMzAMLmZmZYYmBAAAAwAAMDYbbsgZmZWGAAAALMmxwMzGYmBAzMAgHA",
-                pickrate = 12.5,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgZmNsYbGAAAAAAAAAAsYwsNzYMzAMLmZmZYYmBAAAAwAAMDYbbsgxMzyAAAAYhxMGmZ2AmBAzMAgB",
+                pickrate = 17.4,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDzsNzYmZG4BMLmZmZYYMAAAAAGwAYAbLjFMzMzyAAAAYhxMGMzGYmBAzMAgHA",
-                pickrate = 33.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZb4BYmZbML2mBAAAAAAAAAAbGmZbGmZGAzCzMzsYwMAAAAAGAwMDYZbsgZmZ2GAAAALMzMzgZ2wYmBAzMAgHA",
+                pickrate = 25,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxwMzMjZZYGjZBLz2MAAAAAAAAAAYDmZzMmZmBmZWGzMzsY4BGAAAAAAAGAbbjFMzMz2AAAAYhZmZwYgxMDAmZAAPAA",
-                pickrate = 33.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsZsYbGAAAAAAAAAAsZYmtZYmZGgZxMzMzihHAAAAAADAwMgttxCmZmZZAAAAswMzMDzMbgZGAMzAAeAA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFYmtBzMzAjZjZmZWM8ADAAAAADAwMgttxCmZmZZAAAAswMzMwMbYMzAgZGAwDA",
-                pickrate = 20,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDzsNDzMDgZxMzMzihBAAAAADAwMgttxCmZmZZAAAAswMzMDmZDMzAgZGAwDA",
+                pickrate = 25,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsxsYbGAAAAAAAAAAsMYmNzYmZGzYMLmZmxihBAAAAAAAMgttxCmZmZZAAAAswMz8AYmZBMzAgZGAwDA",
-                pickrate = 25,
+                pickrate = 33.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgZmNsYbGAAAAAAAAAAsYYmtZGzMzAMLmZmZYYmBAAAAwAAMDYbbsgZmZWGAAAALMmxwMzGYmBAzMAgHA",
-                pickrate = 33.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgZmNsYbGAAAAAAAAAAsYwsNzYMzAMLmZmZYYmBAAAAwAAMDYbbsgxMzyAAAAYhxMGmZ2AmBAzMAgB",
+                pickrate = 25,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDzsNDzMDgZxMzMzihBAAAAADAwMgttxCmZmZZAAAAswMzMDmZDMzAgZGAwDA",
-                pickrate = 33.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZYMzMzsNMMjthFbzAAAAAAAAAAgFDzsNDzMzAMLMzMzmBzAAAAAYAAmBssNWwMzMbDAAAgFGzMwMbGjZGAMzAAeAA",
+                pickrate = 25,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgxsxsYZGAAAAAAAAAAsYYmtZGzMD4BMLmZmZWM8AAAAAAYADgBssMWwMzMbDAAAgFGz8ADzMbYMzAgZGAwDA",
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgxsxsYbGAAAAAAAAAAsYYmtZGzMzAMLzMzMDDMAAAAAGAgZAbbjFMzMzyAAAAYhZmxwMzGGzMAYmBA8AA",
                 pickrate = 33.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNMMzsgFbzAAAAAAAAAAgNYmtxYmZAzMLmZmZYwMAAAAAGAgZALbjFMzMzyAAAAYhZmZwMzCYmBAzMAgHA",
-                pickrate = 25,
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgxsxsYbGAAAAAAAAAAsZYGzMmZmBeAziZmZsY4BMAAAAAGAgZALbjFMzMzyAAAAYhxMPwwMzmBzMAYmBA8AA",
-                pickrate = 11.1,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbzyMmZGz2wDwMzmxCzAAAAAAAAAAgFDzsZGzMDYMLjZmZYYGAAAAAGAAAbbjFMzMzyAAAAYhxMzwMDMmZAwMDA4BA",
+                pickrate = 14.8,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjZmxYGzMYbmxMmZDLjZAAAAAAAAAAwihZMzYmZAMLmZmZYYGAAAAAGwAmZALLjFMzMz2AAAAYhxMzgxGYmBAzMAgHA",
-                pickrate = 13.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzyMmZGz2MDmZ2wCzAAAAAAAAAAgNDzsNGzMDgZxMzMDDmBAAAAwAGgBYbbsgZmZWGAAAALMmZGmZ2MYmBAzMAgHA",
+                pickrate = 28.6,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgxsxsYbGAAAAAAAAAAsZYGzMmZmBeAziZmZsY4BMAAAAAGAgZALbjFMzMzyAAAAYhxMPwwMzmBzMAYmBA8AA",
-                pickrate = 18.2,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMzMbzMjZMbML2mBAAAAAAAAAALGmZbmxMGAzyMzMzsYAAAAAAGwAmBYbbsgZmZWGAAAALMmZGmZ2wYmBAzMAAA",
+                pickrate = 12.5,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzMjxMmlhHYMjNjlxAAAAAAAAAAALGmZzMmZmBeAzyYmZGGmBAAAAgBAMA2WGbYmZmlBAAAwCjZmBzAjZGAMzAAeAA",
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZhZMzMmtZmZwsxsYZGAAAAAAAAAAsYYmtZGzMzAPgZjZmZWMMzAAAAAYAAMgttxCmZmZZAAAAswYGDzYDMzAgZGAwDA",
                 pickrate = 10,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMmZGzMjZbYmZGLGLjZAAAAAAAAAAwGMzmZMzMDMmlxMzMMMDAAAAADAYMgttxGmZmZZAAAAswYmZwMwYmBAzMAAA",
-                pickrate = 10,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMmlZMzMmthHgZmNjFmBAAAAAAAAAAbGmZjxMzMwYWGzMzwwDMAAAAAMgBMA22GLYmZmlBAAAwCjxMMzsZwMDAmZAAPAA",
+                pickrate = 12.5,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNzgxsxsYbGAAAAAAAAAAsZYGzMmZmBeAziZmZsY4BMAAAAAGAgZALbjFMzMzyAAAAYhxMPwwMzmBzMAYmBA8AA",
-                pickrate = 12.5,
+                pickrate = 33.3,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzMjZmxsNMzMzsZswMAAAAAAAAAAYDmZbmxMzMwDYWGzMzsYYGAAAAAGAADYbbshZmZWGAAAALMmZwMzGYmBAzMAAA",
-                pickrate = 25,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzyMmZGz2wwMzmxCzAAAAAAAAAAgFDzsZGzMzgZMLjZmZYYGAAAAAGAAAbLjFMzMzyAAAAYhxMGmZgxMDAmZAAPAA",
+                pickrate = 20,
+              },
+            },
+            ["raid:3181"] = {
+              {
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbzyMmZGz2wDwMzmxCzAAAAAAAAAAgFDzsZGzMDYMLjZmZYYGAAAAAGAAAbbjFMzMzyAAAAYhxMzwMDMmZAwMDA4BA",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AmxsZsYbGAAAAAAAAAAsYYmNzYmZGgZZmZmZYYGAAAAAGAADYbbsgZmZWGAAAALYmZGmZYwMDAmZAAPAA",
-                pickrate = 33.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsMjFbzAAAAAAAAAAglBzsBzMDzYMLmZmZWmhHYGAAAAAAAMgtlxCmZmZZAAAAswYmBmZBMzAgZGAwDA",
+                pickrate = 50,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzMjZmxsN8AmZGGLMDAAAAAAAAAA2gZ2MjZmZgxsNmZmhhZAAAAAYAAAstNWwMzMLDAAAgFmZmBzMwYmBAzMAgHA",
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLzyMGzYWGegxM2MWGDAAAAAAAAAAsYYmNGzMzAPgZZmZmZYYGAAAAAGAwAYbZshZmZWGAAAALMmZGMDMmZAwMDA4BA",
                 pickrate = 50,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbzMjxMmtBjZmNjlxMAAAAAAAAAAYxwMbmxMzAGzyYmZGGegBAAAAgBAAw2yYDzMzsMAAAAWYMzMYGGjZGAMzAAeAA",
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMmlZMzMmthHgZmFjFmBAAAAAAAAAALDmZzMmZGGGzyMzMzwwMAAAAAAAMA22GLYmZmlBAAAwCjZGMzsAmZAwMDA4BA",
                 pickrate = 40,
               },
             },
@@ -3402,121 +3408,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
-                pickrate = 24,
+                pickrate = 30.1,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
-                pickrate = 14.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsZsYbGAAAAAAAAAAsYwsNDjZGgZxMzMDDDAAAAAGAgZAAAAAwsNzmZbmFbMzMzwMzGwMAAzMAMA",
+                pickrate = 15.4,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzswsYbGAAAAAAAAAAsMwsZYMzYMjZxMzMMDjBAAAAwAAYAAAAAwsMzmZZmFbMzMwMzCwMAAzMAMA",
-                pickrate = 12.5,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
+                pickrate = 25,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsZsYbGAAAAAAAAAAsMwsNDjZGDPgZxMzMMDPwMAAAAAGAgZAAAAAwsNziZbmNbMm5BwMzGwMAAzMAMA",
-                pickrate = 11.1,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
+                pickrate = 18.8,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
-                pickrate = 33.3,
+                pickrate = 35,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
-                pickrate = 14.3,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsZsYbGAAAAAAAAAAsNYmNDzMDDjZZmZmZMDzAAAAAAAADAAAAAmtZWmZbmNbMmZwMzCYmBAYmBgHA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzswsYbGAAAAAAAAAAsMwsZYMzYYMLmZmZWM8ADAAAAAAAMAAAAAY2mZzsMziNmZmBzMLAzAAMzAwA",
-                pickrate = 16.7,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzswsYbGAAAAAAAAAAsMwsZYMzYYMLmZmhZYAAAAAAAADAAAAAmtZ2MLzsZjZmZwMzCGmBAYmBgB",
+                pickrate = 13.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsNMMmFmFbzAAAAAAAAAAglBmtZYMzY4BMLmZmxyM8AGAAAAADAwMAAAAAY2mZzsMziNmZGYmZBYGAgZGAGA",
-                pickrate = 16.7,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDmtZYMDgZxMzMzihBAAAAADAwMAAAAAY2mZzsNziNmZmZwMbAzAAMzAwA",
+                pickrate = 21.4,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzswsYbGAAAAAAAAAAsMwsNDjZGDPgZxMzMWM8AGAAAAADAwMAAAAAY2mZzsMziNmZmHAzMLAzAAMzAwA",
-                pickrate = 25,
+                pickrate = 14.3,
               },
             },
             raid = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 31.9,
+                pickrate = 31.6,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 26.5,
+                pickrate = 24.5,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 23,
+                pickrate = 24.7,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGz2wDwMzmxCzAAAAAAAAAAgtBmNGjZGDPgZZmZmZYYGAAAAAAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 28.8,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNGjZG4BMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
+                pickrate = 5.2,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 28.8,
+                pickrate = 43.1,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 24.1,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgFDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
+                pickrate = 12.8,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 40.3,
+                pickrate = 27.7,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgFDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 22.9,
+                pickrate = 28.6,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgFDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 19.7,
+                export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
+                pickrate = 35.4,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 38.5,
+                pickrate = 42.7,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMLz2MmZGz2wDwMzmxCzAAAAAAAAAAgNDmNzYMzAMLzMzMDDzAAAAAwAAAAAAAAmtZWMbzsZjxMzwMDMMDAwMDADA",
-                pickrate = 20.3,
+                pickrate = 25.4,
               },
             },
           },
@@ -3524,18 +3530,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 36.1, tier = "S" },
-              { itemId = 250256, pop = 19.7, tier = "A" },
-              { itemId = 268292, pop = 17.2, tier = "A" },
-              { itemId = 249809, pop = 14.9, tier = "B" },
-              { itemId = 193718, pop = 4.7, tier = "C" },
-              { itemId = 249346, pop = 4.7, tier = "C" },
-              { itemId = 250144, pop = 3.9, tier = "C" },
-              { itemId = 249808, pop = 3.3, tier = "C" },
-              { itemId = 249341, pop = 3.2, tier = "C" },
-              { itemId = 248583, pop = 1.9, tier = "C" },
-              { itemId = 250253, pop = 1.5, tier = "C" },
-              { itemId = 250258, pop = 1, tier = "C" },
+              { itemId = 249343, pop = 42.2, tier = "S" },
+              { itemId = 268292, pop = 17.6, tier = "A" },
+              { itemId = 249809, pop = 14.3, tier = "B" },
+              { itemId = 250256, pop = 11.6, tier = "B" },
+              { itemId = 193718, pop = 5.8, tier = "B" },
+              { itemId = 250144, pop = 5, tier = "C" },
+              { itemId = 249346, pop = 4.3, tier = "C" },
+              { itemId = 249341, pop = 3.3, tier = "C" },
+              { itemId = 250253, pop = 2, tier = "C" },
+              { itemId = 249808, pop = 1.9, tier = "C" },
+              { itemId = 249811, pop = 1.5, tier = "C" },
+              { itemId = 248583, pop = 1.1, tier = "C" },
             },
           },
         },
@@ -3545,7 +3551,7 @@ ClassCodexSource["ugg"] = {
       augmentation = {
         crafting = {
           all = {
-            mplus = { crafts = { 239656, 244584 }, embellishments = {} },
+            mplus = { crafts = { 239656, 244584, 245770 }, embellishments = {} },
             ["pvp:3v3"] = { crafts = { 239656, 244584 }, embellishments = {} },
             raid = { crafts = { 239656, 244584, 245770 }, embellishments = {} },
           },
@@ -3553,24 +3559,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236057 } },
-              ["戒指1"] = { { id = 1236074 } },
-              ["戒指2"] = { { id = 1236074 } },
-              ["頭"] = { { id = 1236084 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236076 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236057 } },
+              ["Finger 1"] = { { id = 1236074 } },
+              ["Finger 2"] = { { id = 1236074 } },
+              Head = { { id = 1236084 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236076 } },
             },
           },
         },
@@ -3591,7 +3597,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 49812, slot = "Finger 2" },
               { ilvl = 298, itemId = 249808, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249810, slot = "Trinket 2" },
-              { ilvl = 298, itemId = 50227, slot = "Main Hand" },
+              { ilvl = 295, itemId = 245770, slot = "Main Hand" },
               { ilvl = 298, itemId = 249276, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
@@ -3614,7 +3620,7 @@ ClassCodexSource["ugg"] = {
             },
             raid = {
               { ilvl = 289, itemId = 49824, slot = "Head" },
-              { ilvl = 289, itemId = 50228, slot = "Neck" },
+              { ilvl = 289, itemId = 249337, slot = "Neck" },
               { ilvl = 289, itemId = 249995, slot = "Shoulders" },
               { ilvl = 285, itemId = 239656, slot = "Back" },
               { ilvl = 289, itemId = 250000, slot = "Chest" },
@@ -3662,76 +3668,88 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 1072, haste = 1032, mastery = 214, versatility = 76 },
-            raid = { crit = 1165, haste = 1117, mastery = 337, versatility = 40 },
+            mplus = { crit = 1107, haste = 1117, mastery = 214, versatility = 40 },
+            raid = { crit = 1195, haste = 1087, mastery = 337, versatility = 40 },
           },
         },
         talents = {
           chronowarden = {
+            mplus = {
+              {
+                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAwMjHwMYMzMmZmBAAAAzYmZMzsMmZgZ2MwYGLsADMDDzALYmxMDA8A",
+                pickrate = 100,
+              },
+            },
+            ["mplus:61209"] = {
+              {
+                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAwMjHwMYMzMmZmBAAAAzYmZMzsMmZgZ2MwYGLsADMDDzALYmxMDA8A",
+                pickrate = 100,
+              },
+            },
             raid = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 30.6,
+                pickrate = 28.8,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 26,
+                pickrate = 20.4,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 28.5,
+                pickrate = 28.1,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 39.7,
+                pickrate = 23.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 35.5,
+                pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 32.3,
+                pickrate = 22.1,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMzMmZmBAAAAzYmZMzsNmZgZWMwYGLsADMDDzALYmxMDA8A",
-                pickrate = 18.2,
+                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAwMjHwMYMzMzMzMAAAAYGzYMzsNmZgZWMwYGLsADMDDzALYmxMDA8A",
+                pickrate = 10,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 22.2,
+                pickrate = 36.4,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 30.9,
+                pickrate = 27,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 19.5,
+                pickrate = 24.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZWMwYGLsADMDDGYBzMmZAgB",
-                pickrate = 20.4,
+                pickrate = 25.8,
               },
             },
           },
@@ -3739,121 +3757,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMzAjhxMzMAAAAwMzMjZmlxMDMz2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 12.2,
+                pickrate = 16.6,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMmHAjhxMzMAAAAwMzMjZmlxMDMz2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 15.3,
+                pickrate = 19,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMMzMbjZGMDzMLzYmZMzGAAAAAAAAmhx8AYMMmZmBAAAAmZmZMzsMmZgZ2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 17.5,
+                pickrate = 11.9,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwM8AzYGjhxMzMAAAAwMzYMzsMmZgZ2mxgFYZMMWGAzAshxMYmBwA",
-                pickrate = 25.9,
+                pickrate = 20.9,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMzAjhxMzMAAAAwMzMjZmlxMDMz2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 16.9,
+                pickrate = 17.3,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMmHAjhxMzMAAAAwMzMjZmlxMDMz2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 22.6,
+                pickrate = 19.3,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMzAjhxMzMAAAAwMzMjZmlxMDMz2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 24.6,
+                pickrate = 23.9,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMMzMbjZGMDzMLzYmZMzGAAAAAAAAmhx8AYMMmZmBAAAAmZmZMzsMmZgZ2MGsALjhxyAYGgNMmBzMAG",
-                pickrate = 10,
+                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMMzMbjZGMDzMLzYmZMzGAAAAAMAAwMMGYMMmZmBAAAAzMzYMzsMmZgZ2MGsALjhxyAYGgNMmBzMAG",
+                pickrate = 13,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwM8AzYGjhxMzMAAAAwMzYMzsMmZgZ2mxgFYZMMWGAzAshxMYmBwA",
-                pickrate = 26.9,
+                pickrate = 23.7,
               },
             },
             raid = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 31.9,
+                pickrate = 34.2,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 19.7,
+                pickrate = 24.8,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 35.3,
+                pickrate = 31.9,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 31.9,
+                pickrate = 36.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 35.2,
+                pickrate = 25.9,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 32.4,
+                pickrate = 28.6,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 24.1,
+                pickrate = 21,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 19,
+                pickrate = 24.5,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 19.1,
+                export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBMYMzMmZmBAAAAzYmZMzsMzMDMzmxgFYZMM2GAzghNMzAzMYwDA",
+                pickrate = 22.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBMYMzMmZmBAAAAzYmZMzsMzMDMzmxgFYZMM2GAzghNMzAzMYwDA",
-                pickrate = 29.4,
+                pickrate = 38.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYMMmZmBAAAAzYmZMzsMmZgZ2MGsALjhx2AYGgNMzAzMAG",
-                pickrate = 28.8,
+                pickrate = 31.6,
               },
             },
           },
@@ -3861,16 +3879,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 250256, pop = 36.8, tier = "S" },
-              { itemId = 249808, pop = 35.2, tier = "S" },
-              { itemId = 250223, pop = 25.8, tier = "A" },
-              { itemId = 249810, pop = 18.9, tier = "A" },
+              { itemId = 249808, pop = 36.8, tier = "S" },
+              { itemId = 250256, pop = 36.1, tier = "S" },
+              { itemId = 250223, pop = 25.9, tier = "A" },
+              { itemId = 249810, pop = 22.1, tier = "A" },
               { itemId = 249343, pop = 7, tier = "B" },
-              { itemId = 268292, pop = 6.5, tier = "B" },
-              { itemId = 249346, pop = 5.7, tier = "B" },
-              { itemId = 250144, pop = 3.3, tier = "C" },
+              { itemId = 249346, pop = 6.6, tier = "B" },
+              { itemId = 268292, pop = 6.3, tier = "B" },
               { itemId = 249809, pop = 3.2, tier = "C" },
-              { itemId = 193718, pop = 0.7, tier = "C" },
+              { itemId = 250144, pop = 3.1, tier = "C" },
+              { itemId = 193718, pop = 0.6, tier = "C" },
               { itemId = 151310, pop = 0.2, tier = "C" },
             },
           },
@@ -3880,31 +3898,32 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244584, 245770 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 244562, 244568, 244565, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239656, 244584 }, embellishments = {} },
             raid = { crafts = { 239656, 244584, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236088 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236057 } },
+              ["Finger 1"] = { { id = 1236059 } },
+              ["Finger 2"] = { { id = 1236059 } },
+              Hands = { { id = 44968 } },
+              Head = { { id = 1236084 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236076 } },
             },
           },
         },
@@ -3921,8 +3940,8 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 49810, slot = "Waist" },
               { ilvl = 298, itemId = 249996, slot = "Legs" },
               { ilvl = 298, itemId = 249999, slot = "Feet" },
-              { ilvl = 289, itemId = 49812, slot = "Finger 1" },
-              { ilvl = 298, itemId = 268290, slot = "Finger 2" },
+              { ilvl = 298, itemId = 268290, slot = "Finger 1" },
+              { ilvl = 289, itemId = 49812, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249346, slot = "Trinket 2" },
               { ilvl = 295, itemId = 245770, slot = "Main Hand" },
@@ -3930,21 +3949,21 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 249997, slot = "Head" },
-              { itemId = 240952, slot = "Neck" },
+              { itemId = 249337, slot = "Neck" },
               { itemId = 249995, slot = "Shoulders" },
-              { itemId = 255509, slot = "Back" },
-              { itemId = 244562, slot = "Chest" },
-              { itemId = 244568, slot = "Wrist" },
-              { itemId = 249998, slot = "Hands" },
-              { itemId = 244565, slot = "Waist" },
+              { itemId = 239656, slot = "Back" },
+              { itemId = 250000, slot = "Chest" },
+              { itemId = 244584, slot = "Wrist" },
+              { itemId = 249325, slot = "Hands" },
+              { itemId = 49810, slot = "Waist" },
               { itemId = 249996, slot = "Legs" },
-              { itemId = 255494, slot = "Feet" },
-              { itemId = 240951, slot = "Finger 1" },
-              { itemId = 240951, slot = "Finger 2" },
-              { itemId = 255616, slot = "Trinket 1" },
-              { itemId = 255614, slot = "Trinket 2" },
-              { itemId = 255622, slot = "Main Hand" },
-              { itemId = 255625, slot = "Off Hand" },
+              { itemId = 249999, slot = "Feet" },
+              { itemId = 268290, slot = "Finger 1" },
+              { itemId = 251217, slot = "Finger 2" },
+              { itemId = 249346, slot = "Trinket 1" },
+              { itemId = 249343, slot = "Trinket 2" },
+              { itemId = 251111, slot = "Main Hand" },
+              { itemId = 249276, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 249997, slot = "Head" },
@@ -3968,12 +3987,12 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240906 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "mastery" }, { "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "crit" }, { "haste" }, { "mastery" } } } },
           flameshaper = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
+              secondary = { { "crit" }, { "haste" }, { "versatility", "mastery" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -3985,7 +4004,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
+              secondary = { { "crit" }, { "haste" }, { "versatility", "mastery" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -4005,243 +4024,243 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMjxMzwAjZmZYmZmZAmZmZMzsMzMYGYGzAbgNwMMAbglhZAmZGGA",
-                pickrate = 12.1,
+                pickrate = 27.3,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMjZGmBGYMjZMzwgtZmZmhxMzMgZMzMmZWmZGMDMjZgNwGYGGgNwywMAzMDD",
-                pickrate = 20,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAz8ADmZMzwMwMGDzMzMzMGjlxMzMMPwMzMAzMjxMzyMzgZgZMDsBWAzwMgNwywMAzMDPA",
+                pickrate = 21.4,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMjxMzwAjZmZYmZmZAmZmZMzsMzMYGYGzAbgNwMMAbglhZAmZGGA",
-                pickrate = 21.4,
+                pickrate = 31.3,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAz8ADmZMzYmZwMYMjZMzwYsMzMzMMmZmBMzMMmZWmZGMDYMDsB2AzwAsBWGGAzMDD",
-                pickrate = 18.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMjxMzwAjZmZYmZmZAmZmZMzsMzMYGYGzAbgNwMMAbglhZAmZGGA",
+                pickrate = 23.1,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzYmBmBDzMzMzMGYMzMDzMzMDwMzYMzsMzMYGYGzAbgNwMMDYDsMMDwMzwDA",
-                pickrate = 15.4,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMjxMzwAjZmZYmZmZAmZmZMzsMzMYGYGzAbgNwMMAbglhZAmZGGA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZGjZmZmZGMwMYmZMzMzwYsNmZMMmZmBMzMGmZMzMYGwYGYDsBmhBYDsMMDwMzwA",
-                pickrate = 35.3,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAz8ADmZMzwMwwYMjZmZGGjlxMzMMPwMzMAzMjxMzyMzgZgZMDsB2AzwAsBWGmBYmZYA",
+                pickrate = 20,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwMMmBDjZmZGGYMzMDzMzMDwYGjZmtZmBzAzYGYDsBmhBYDsMMDwMzwA",
-                pickrate = 25,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMjZGmBGYMzMjZmxAjZmZYmZmZAzYmZMzsMzMYGYGzAbgNwMMDYDsMMDwMzwDA",
+                pickrate = 18.2,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAz8ADmZMzYmZwMYMjZMzwYsMzMzMMmZmBMzMMmZWmZGMDYMDsB2AzwAsBWGGAzMDD",
-                pickrate = 18.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMjxMzwAjZmZYmZmZAmZmZMzsMzMYGYGzAbgNwMMAbglhZAmZGGA",
+                pickrate = 15.4,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzYmhxMYYmZMzMGYMzMDzMzMDwMzYMzYmZwMwMmB2AbgZYGwGYZYGgZmhHA",
-                pickrate = 15.4,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzYwMjZGmBGzYMjhZGGjlxMzMMzMzMgZmZmxMzyYGMDMjZgFwGYGGgNwywMAzMDD",
+                pickrate = 18.2,
               },
             },
             raid = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 15.1,
+                pickrate = 17.1,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwYmZgBjZmxMzMGjlZmZmhZmZmBMjZMmZWmZGMDMjZgFwCYGmBsBWGGAzMDPA",
-                pickrate = 29.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMDGMgBjZmZmZmxYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGmBsBWGGAzMDPA",
+                pickrate = 19.1,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 11.6,
+                pickrate = 18.6,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMDMYMjxMzwYsMzMzMMzMzMgZMjxMzyMzgZgZMDsBWAzwAsBWGGAzMzYA",
-                pickrate = 18.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
+                pickrate = 19.4,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMDGMgBjZmZmZmxYsMzMzMMzMzMgZMzMmZ2mZGMDMjZgNwCYGmBsBWGGAzMDPA",
-                pickrate = 50,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
+                pickrate = 40,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 20,
+                pickrate = 12.5,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMDMYMzMmZmxYsMzMzMMzMzMgZMjxMzyMzgZgZMDsAWAzwMgNwywMAzMDPA",
-                pickrate = 100,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwYmB8AMjZmZMzMGjlZmZmhZmZmBMjZmxMz2MzgZgZMDsBWAzwMgNwywAYmZ4BA",
+                pickrate = 33.3,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 16.7,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMDMYMjxMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
+                pickrate = 11.8,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 23.1,
+                pickrate = 20.7,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwYmZgBjZMmZGGjlZmZmhZmZmBMjZMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 18,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMDMYMjxMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZMzMzwYsMzMzMMzMzMgZMzMmZWmZGMDMjZgNwCYGGgNwywAYmZYA",
-                pickrate = 16.7,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMDGMgBjZMzMzwYsMzMzMMzMzMgZMzMmZ2mZGMDMjZgNwCYGGgNwywAYmZYA",
+                pickrate = 17.7,
               },
             },
           },
           scalecommander = {
             mplus = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZMmZGzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjhx2AYGA2wMYmBDD",
-                pickrate = 24.5,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZmxMzMzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjxM2GAzAwGmBzMY4BA",
+                pickrate = 16.4,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBmBjZmxMzMzYsMjZmZmZmZmBMjZmxMjZmBGYMYBWGjZsNAmBgNMDmZwwDA",
-                pickrate = 10,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
+                pickrate = 30.8,
               },
             },
             ["mplus:112526"] = {
-              {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMzgZYGmZ8AmBjZmxMzMzwsNjZmZmxMzMAzMjxMzyYGYgxgNYZMmx2AYGA2wMYmB4BA",
-                pickrate = 18.2,
-              },
-            },
-            ["mplus:12805"] = {
-              {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZMmZGzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjhx2AYGA2wMYmBDD",
-                pickrate = 25,
-              },
-            },
-            ["mplus:12811"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
                 pickrate = 16.7,
               },
             },
+            ["mplus:12805"] = {
+              {
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
+                pickrate = 23.1,
+              },
+            },
+            ["mplus:12811"] = {
+              {
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
+                pickrate = 25,
+              },
+            },
             ["mplus:12874"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMzgZYGmZ8AmBjZmxMzMzwsNjZmZmxMzMAzMjxMzyYGYgxgNYZMmx2AYGA2wMYmB4BA",
-                pickrate = 18.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGzYMzMmZmZGjtZMzMzMzMzMAzMjxMz2MzADMGsALjxM2GAzAwGmBzMY4BA",
+                pickrate = 10,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZMmZGzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjhx2AYGA2wMYmBDD",
-                pickrate = 18.2,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
+                pickrate = 23.1,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmhxAjHYmZmZmZGmtZMzMzMzMzMAzMzMmZWmZGYgxgFYZMmx2AYGA2wAzMY4BA",
-                pickrate = 10,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGM8AmHAjZMmZGzwsNjZmZmZmZmBMzMzMmZMzMwAjBLwyYYsNAmBgNMDmZwwA",
+                pickrate = 18.2,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZMmZGzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjhx2AYGA2wMYmBDD",
-                pickrate = 25,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZmxMzMzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjxM2GAzAwGmBzMY4BA",
+                pickrate = 16.7,
               },
             },
             raid = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 31.7,
+                pickrate = 28.8,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 23.7,
+                pickrate = 25.5,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZgZYGmBMYMzMzMzMzYsNjZmZm5BmZmBMjZMmZ2mZGYgxgFYZMmx2AYGA2wAzMY4BA",
-                pickrate = 14.3,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
+                pickrate = 26.7,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 30,
+                pickrate = 18.2,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 22.6,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMDMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
+                pickrate = 10.7,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 17.7,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMDMYMzMmZmZGjtZMzMzMPwMzMgZMjxMzyMzADMGsALjxM2GAzAwGGYmBz4BA",
+                pickrate = 14.3,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwM8AmBjZMmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
                 pickrate = 21.4,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZmxMzMzwsNjZmZmZmZmBMzMjxMz2MzADMGsALjxM2GAzAwGmBzMY4BA",
-                pickrate = 14.3,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDYYGmZgBjZmZmZmZGjtZMzMzMzMzMgZMzwMzyMzADMGsALjxM2GAzAwGGYmBDPA",
+                pickrate = 11.1,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 25,
+                pickrate = 22.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZMmZGzwsNjZmZmZmZmBMzMjxMzyMzADMGsALjhx2AYGA2wMYmBDD",
-                pickrate = 33.3,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZgZ8AzwMwwYMzMmZmZGjtZMzMzMmZmBMzMjxMjZmBGYMYBWGjZsNAmBgNMDmZwwDA",
+                pickrate = 40,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMjZmZGzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMM2GAzAwGGYmBDD",
-                pickrate = 16.7,
+                export = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZgZYGmBMYMzMzMzMzYsNjZmZm5BmZmBMjZMmZWmZGYgxgFYZMmx2AYGA2wAzMY4BA",
+                pickrate = 18.2,
               },
             },
           },
@@ -4249,17 +4268,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 34.6, tier = "S" },
-              { itemId = 249343, pop = 32.8, tier = "S" },
-              { itemId = 250144, pop = 16, tier = "A" },
-              { itemId = 250256, pop = 14.1, tier = "B" },
-              { itemId = 268292, pop = 7.7, tier = "B" },
-              { itemId = 250223, pop = 6.2, tier = "B" },
-              { itemId = 249809, pop = 3, tier = "C" },
+              { itemId = 249346, pop = 31.6, tier = "S" },
+              { itemId = 249343, pop = 28.9, tier = "A" },
+              { itemId = 250144, pop = 18.5, tier = "A" },
+              { itemId = 250256, pop = 13.3, tier = "B" },
+              { itemId = 268292, pop = 6.1, tier = "B" },
+              { itemId = 250223, pop = 5.2, tier = "B" },
+              { itemId = 249809, pop = 4.2, tier = "C" },
               { itemId = 249810, pop = 1.9, tier = "C" },
-              { itemId = 250258, pop = 1.2, tier = "C" },
-              { itemId = 249340, pop = 0.9, tier = "C" },
-              { itemId = 249808, pop = 0.3, tier = "C" },
+              { itemId = 250258, pop = 1.3, tier = "C" },
+              { itemId = 248583, pop = 1.1, tier = "C" },
+              { itemId = 250246, pop = 0.6, tier = "C" },
+              { itemId = 250257, pop = 0.6, tier = "C" },
             },
           },
         },
@@ -4267,7 +4287,7 @@ ClassCodexSource["ugg"] = {
       preservation = {
         crafting = {
           all = {
-            mplus = { crafts = { 239656, 244584, 245770 }, embellishments = {} },
+            mplus = { crafts = { 244584, 244581, 245770 }, embellishments = {} },
             ["pvp:3v3"] = { crafts = { 240952, 244562, 240951 }, embellishments = {} },
             raid = { crafts = { 244584, 245770 }, embellishments = {} },
           },
@@ -4275,24 +4295,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 8025, spellId = 1236088 } },
-              ["戒指2"] = { { id = 7969, spellId = 1236060 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 8025, spellId = 1236088 } },
+              ["Finger 2"] = { { id = 7969, spellId = 1236060 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236088 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236088 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -4302,11 +4322,11 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249997, slot = "Head" },
               { ilvl = 298, itemId = 268291, slot = "Neck" },
               { ilvl = 289, itemId = 249995, slot = "Shoulders" },
-              { ilvl = 285, itemId = 239656, slot = "Back" },
+              { ilvl = 289, itemId = 249992, slot = "Back" },
               { ilvl = 289, itemId = 250000, slot = "Chest" },
               { ilvl = 285, itemId = 244584, slot = "Wrist" },
               { ilvl = 289, itemId = 249998, slot = "Hands" },
-              { ilvl = 289, itemId = 249371, slot = "Waist" },
+              { ilvl = 285, itemId = 244581, slot = "Waist" },
               { ilvl = 298, itemId = 249996, slot = "Legs" },
               { ilvl = 298, itemId = 249999, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
@@ -4354,12 +4374,12 @@ ClassCodexSource["ugg"] = {
             },
           },
         },
-        gems = { all = { all = { { primary = 240983, secondary = { 240916 } } } } },
+        gems = { all = { all = { { primary = 240983, secondary = { 240900 } } } } },
         statPriority = {
           all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "mastery" }, { "crit" } } } },
           chronowarden = {
             mplus = {
-              minor = { { "Leech" }, { "Avoidance", "Speed" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Intellect",
               secondary = { { "mastery", "crit" }, { "haste", "versatility" } },
             },
@@ -4371,7 +4391,7 @@ ClassCodexSource["ugg"] = {
           },
           flameshaper = {
             mplus = {
-              minor = { { "Leech" }, { "Avoidance", "Speed" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Intellect",
               secondary = { { "mastery", "crit" }, { "haste", "versatility" } },
             },
@@ -4384,7 +4404,7 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 735, haste = 835, mastery = 990, versatility = 120 },
+            mplus = { crit = 750, haste = 777, mastery = 1111, versatility = 40 },
             raid = { crit = 503, haste = 644, mastery = 1617, versatility = 40 },
           },
         },
@@ -4392,122 +4412,122 @@ ClassCodexSource["ugg"] = {
           chronowarden = {
             mplus = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzMjhZGmZGAAAwMzMzMMzYMzMAAMmxGLwAzwwMMsAjZGgxDA",
-                pickrate = 10.9,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmxsZGjx2wAAgZmZGzYMMzwMzAAAAbzMjZGzMjxYGAAGzYjFYgZYYGwCMzMDAPA",
+                pickrate = 10.5,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYm5BmtZYM2GGAAYGzYGMmxYmZAAAAmZmZmxMzMjxMAAMmxGLwAzwwMMsAjZGAeAA",
-                pickrate = 10,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYm5BmNzYM2GAAAzYGzMjxMDmZGAAAwMzMMMzYMzMAAMmxGLwAzwghhFYMzAMGA",
+                pickrate = 20,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzMjhZGmZGAAAwMzMzMMzYMzMAAMmxGLwAzwwMMsAjZGgxDA",
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzYGzMjhZGmZGAAAYbmZmxwMjxMzAAwYGbsADMDDzwwCMzMDw4BA",
                 pickrate = 11.1,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2AAAYGzMzMjhZGmZGAAAYbmZmxwMzMLjZAAYMjNWgBmhhZYYBGzMA8AA",
-                pickrate = 11.8,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzMjhZwMzAAAAmZmxMMzYMzMAAMmxGLwAzwghhFYMzAMGA",
+                pickrate = 21.4,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzYMMzwMzAAAAmZmZmxMzYMzMAAMmxGLwAzwwMMsAjZGgxDA",
-                pickrate = 14.3,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzYMMDmZGAAAwMzMmxMzYMzMAAMmxGLwAzwghhFYMzAMGA",
+                pickrate = 20,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ22GYYm5BmNzYM2GGAAYGzYmZmhZwYGAAAwMzMMmZmZWGzAAwYGbsADMDDGwCMmZAYA",
-                pickrate = 18.2,
+                pickrate = 20,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzYMMzwMzAAAAmZmZmxMzYMzMAAMmxGLwAzwwMMsAjZGgxDA",
-                pickrate = 16.7,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ22GYYmxsZGjx2wAAAzYGzMjhZwMzAAAAbzMDzwMjZbmZAAYMjNWgBmhBDDLwYmBYMA",
+                pickrate = 11.8,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmxsZGjx2AAAYGzYGMMzYmZGAAAYbmZMGzMzMmZGAAGzYhFYgZYYGwCMzMDw4BA",
-                pickrate = 16.7,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2wAAAzYmZmZmhZwYGAAAYbmZGGmZmxYGAAGzYjFYgZYwwwCMzMDADA",
+                pickrate = 13.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz22ADzMPwsZGjx2wAAAzYGzYMMzwMzAAAALzMzMzYmZmxYGAAGzYjFYgZYYGGWgxMDAPA",
-                pickrate = 18.2,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ22GYYm5BmNzYM2GGAAYGzYmZmhZwYGAAAwMzMMmZmZWGzAAwYGbsADMDDGwCMmZAYA",
+                pickrate = 16.7,
               },
             },
             raid = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 46.6,
+                pickrate = 22.6,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzY2mZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 22.4,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZgZMDzMzmZmZmZxAAAMjZMDGzYMzMAAAAzMzMmxMjZbmZAwAjZsxCMwMMMDYBGzMAjHA",
+                pickrate = 14.9,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 44,
+                pickrate = 54.9,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 22.2,
+                pickrate = 42.4,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 56,
+                pickrate = 58.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 33.3,
+                pickrate = 19.1,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 22.2,
+                pickrate = 19.2,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WGYYm5BmNzMjZWmxAAAzYGDMmZGzMzAAAAmZGjZMzYWmZGAMwYGbsADMDDzAWgxMDw4BA",
-                pickrate = 11.1,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
+                pickrate = 43.8,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbmZGzsMjBAAmxMmHgZMjhZGAAAgZmxwYmZmlZmBADMmxGLwAzwwMMsAjZGgxDA",
-                pickrate = 12.5,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
+                pickrate = 18.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 11.5,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2MwwMzMbmxDwsMAAAmhxMYYmxMzMAAAgZmZGzwMzsMzMAYgxM2YBGYGGmhhFYMzAMeAA",
+                pickrate = 8.3,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMYmZAAAAmZmhZMzYWmZGAMwYGbsADMDDGwCMmZAGDA",
-                pickrate = 40.6,
+                pickrate = 29.6,
               },
             },
           },
@@ -4515,49 +4535,49 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGmZGMMjxMzAAAAmZmhhZmZWGzAAjZgNwGYGGgNzYzwMAzMMA",
-                pickrate = 36.7,
+                pickrate = 36.6,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGzYmZMMjxMzAAAAmZmhhZGzyYGAYMDsA2AzwAsZGbGmBYmhB",
-                pickrate = 16.7,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GAAAzYGzgxDMzYmZGAAAwMzMzMmZmHYWGzAAjZgFwGYGmBsZGbGGAzM8AA",
+                pickrate = 18.2,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGmZGMMjxMzAAAAmZmhhZmZWGzAAjZgNwGYGGgNzYzwMAzMMA",
-                pickrate = 28.6,
+                pickrate = 43.8,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGmZGMMjxMzAAAAmZmhhZmZWGzAAjZgNwGYGGgNzYzwMAzMMA",
-                pickrate = 28.6,
+                pickrate = 22.2,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYm5BmtZGw2wAAAzYGzMjhZMmZGAAAwMzMMMzYWGzAAjZgFwGYGGgNzYzwMAzMMA",
-                pickrate = 25,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYm5BmtZGw2wAAAzYGzMjhZmxMzAAAAmZmZMMzYWGzAAjZgFwGYGmBsZGbGmBYmhHA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGmZGMMjxMzAAAAmZmhhZmZWGzAAjZgNwGYGGgNzYzwMAzMMA",
-                pickrate = 18.2,
+                pickrate = 10,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYm5BmtZGw2wAAAzYGzMjhZMmZGAAAwMzMMMzYWGzAAjZgFwGYGGgNzYzwMAzMMA",
-                pickrate = 18.2,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGzYmZMMzMmZGAAAwMzMjhZmHYMmBAGzALgNwMMDYzM2MMDwMDPA",
+                pickrate = 10,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GGAAYGmZGMMjxMzAAAAmZmhhZmZWGzAAjZgNwGYGGgNzYzwMAzMMA",
-                pickrate = 30,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yYGDzMmFjZGMMAAwMmxMMjZMmZGAAAgZmxYYmZmlxMAwYGYBsAmhZAbG2MMDwMDPA",
+                pickrate = 12.5,
               },
             },
             ["mplus:61209"] = {
@@ -4569,67 +4589,67 @@ ClassCodexSource["ugg"] = {
             raid = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2mxMmZBDAAMjZMwYGMzMAAAAzMzwMzMjZZmZAwMmB2ALgZYAWgNDDgZmxA",
-                pickrate = 18.3,
+                pickrate = 17.4,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2mxMmZBDAAMjZMwYGMzMAAAAzMzwMzMjZZmZAwMmB2ALgZYAWgNDDgZmxA",
-                pickrate = 38.8,
+                pickrate = 29.6,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZMmZGAAAgZmZGzYmxsMzMAYGzAbgFwMMDYB2MMAmZGPA",
-                pickrate = 17.9,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2MmZmZBDAAMjZMwYGjZmBAAAYmZmxMzMjZZmZAwMmB2ALgZYGwCsZYAMzMeAA",
+                pickrate = 12.5,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZwMjBzMz2MmxMbGDAAMjZMMzYGDmBAAAYmZmxMmZegZZmZAwMmB2ALgZYGwCsZYAMzMeAA",
-                pickrate = 8.7,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZgZmZ2MmZmZBDAAMjZMwYGjZmBAAAYmZmxMzMjZZmZAwMmBWALgZYGwCsZYAMzMeAA",
+                pickrate = 19.2,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZMmZGAAAgZmZGzYmxsMzMAYGzAbgFwMMDYB2MMAmZGPA",
-                pickrate = 15.4,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzYwMAAAAzMjxMmZmZZmZAwMmB2ALgZYGwCsZYAMzMeAA",
+                pickrate = 15,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMLYAAgZMj5BMGzYwMAAAAzMjxMmZmZZmZAwMmB2ALgZYGwCsZYAMzMeAA",
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZwMzAAAAMzMDzYmxsMzMAYGzAbgFwMMALwmhBwMzYA",
                 pickrate = 17.7,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZMmZGAAAgZmZGzYmxsMzMAYGzAbgFwMMDYB2MMAmZGPA",
-                pickrate = 22.2,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZwMzAAAAMzMDzYmxsMzMAYGzAbgFwMMALwmhBwMzYA",
+                pickrate = 30,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzAmBAAAYmZwMmZmZZmZAwMmB2ALgZYAWgNDDgZmxA",
-                pickrate = 15.8,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzmZmxwMjZzwMzsgBAAmxMGYmZwMzAAAAMzMDzYmxsMzMAYGzAbgFwMMALwmhBwMzYA",
+                pickrate = 17.7,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2mxMmZBDAAMjZMwYGMzMAAAAzMzwMzMjZZmZAwMmB2ALgZYAWgNDDgZmxA",
-                pickrate = 19.2,
+                pickrate = 16,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMjZwYGMzMAAAAzMDmxMjZZmZAwMmB2ALgZYAWgNDDgZmxA",
-                pickrate = 14.7,
+                pickrate = 19.2,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2mxMmZBDAAMjZMwYGjZmBAAAYmZmxMzMjZbmZAwMmB2ALgZYGwCsZYAMzMeAA",
-                pickrate = 28,
+                export = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMDmZMYmZ2mxMmZBDAAMjZMwYGMzMAAAAzMzwMzMjZZmZAwMmB2ALgZYAWgNDDgZmxA",
+                pickrate = 7.4,
               },
             },
           },
@@ -4637,17 +4657,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 34.5, tier = "S" },
-              { itemId = 249808, pop = 18.6, tier = "A" },
-              { itemId = 268292, pop = 17.8, tier = "A" },
-              { itemId = 249809, pop = 16.3, tier = "A" },
-              { itemId = 250144, pop = 9.7, tier = "B" },
-              { itemId = 250256, pop = 8.4, tier = "B" },
-              { itemId = 249341, pop = 6.2, tier = "B" },
-              { itemId = 249346, pop = 5.4, tier = "B" },
-              { itemId = 193718, pop = 3, tier = "C" },
-              { itemId = 249811, pop = 2.4, tier = "C" },
-              { itemId = 151340, pop = 0.5, tier = "C" },
+              { itemId = 249343, pop = 33.4, tier = "S" },
+              { itemId = 249808, pop = 19.4, tier = "A" },
+              { itemId = 249809, pop = 17.5, tier = "A" },
+              { itemId = 268292, pop = 15.1, tier = "A" },
+              { itemId = 250256, pop = 10.5, tier = "B" },
+              { itemId = 250144, pop = 7.4, tier = "B" },
+              { itemId = 249341, pop = 7.2, tier = "B" },
+              { itemId = 249346, pop = 5.1, tier = "B" },
+              { itemId = 193718, pop = 2.7, tier = "C" },
+              { itemId = 249811, pop = 2.7, tier = "C" },
+              { itemId = 252411, pop = 1.4, tier = "C" },
             },
           },
         },
@@ -4658,31 +4678,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244584, 240949 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244611, 244610 }, embellishments = {} },
-            raid = { crafts = { 239656, 244584, 244611 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 244565, 244566, 240951 }, embellishments = {} },
+            raid = { crafts = { 239656, 244584 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236072 } },
-              ["戒指1"] = { { id = 1236059 } },
-              ["戒指2"] = { { id = 1236059 } },
-              ["頭"] = { { id = 1236055 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236091 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -4704,23 +4724,24 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249806, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249279, slot = "Main Hand" },
+              { ilvl = 298, itemId = 249925, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 249988, slot = "Head" },
-              { itemId = 50228, slot = "Neck" },
-              { itemId = 151323, slot = "Shoulders" },
-              { itemId = 258575, slot = "Back" },
-              { itemId = 249991, slot = "Chest" },
-              { itemId = 251209, slot = "Wrist" },
+              { itemId = 255517, slot = "Head" },
+              { itemId = 240952, slot = "Neck" },
+              { itemId = 249986, slot = "Shoulders" },
+              { itemId = 255529, slot = "Back" },
+              { itemId = 255512, slot = "Chest" },
+              { itemId = 255525, slot = "Wrist" },
               { itemId = 249989, slot = "Hands" },
-              { itemId = 244611, slot = "Waist" },
-              { itemId = 249987, slot = "Legs" },
-              { itemId = 244610, slot = "Feet" },
-              { itemId = 251217, slot = "Finger 1" },
-              { itemId = 251093, slot = "Finger 2" },
-              { itemId = 252420, slot = "Trinket 1" },
-              { itemId = 193701, slot = "Trinket 2" },
-              { itemId = 251174, slot = "Main Hand" },
+              { itemId = 244565, slot = "Waist" },
+              { itemId = 244566, slot = "Legs" },
+              { itemId = 255514, slot = "Feet" },
+              { itemId = 240951, slot = "Finger 1" },
+              { itemId = 240951, slot = "Finger 2" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 255630, slot = "Main Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 249988, slot = "Head" },
@@ -4730,7 +4751,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249991, slot = "Chest" },
               { ilvl = 285, itemId = 244584, slot = "Wrist" },
               { ilvl = 289, itemId = 249989, slot = "Hands" },
-              { ilvl = 285, itemId = 244611, slot = "Waist" },
+              { ilvl = 289, itemId = 249985, slot = "Waist" },
               { ilvl = 298, itemId = 249987, slot = "Legs" },
               { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
@@ -4743,7 +4764,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240898 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "crit" }, { "haste" }, { "mastery" }, { "versatility" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
           ["dark-ranger"] = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -4771,123 +4792,123 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 889, haste = 594, mastery = 1048, versatility = 0 },
-            raid = { crit = 485, haste = 1040, mastery = 971, versatility = 41 },
+            mplus = { crit = 889, haste = 594, mastery = 1107, versatility = 26 },
+            raid = { crit = 572, haste = 1024, mastery = 902, versatility = 41 },
           },
         },
         talents = {
           ["dark-ranger"] = {
             mplus = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAYGjhZGwghZBs9AAA",
-                pickrate = 12.5,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 38.7,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmBjZmBAAAAMDAAAmxYYmBMYYWALPAAA",
-                pickrate = 20,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxM2WmZMjZYZxMzAAAAAmFAAAMjxwMDYBYGw2DAA",
+                pickrate = 16.7,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZMjNzMmxMsMmZGAAAAwMAAAYGjhZGwAmZBs9AAA",
-                pickrate = 10,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 40,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlxMzAAAAAmBAAAmZMMzAGwMLgtHAA",
-                pickrate = 50,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 33.3,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZMjNzMmxMsMmZGAAAAwMAAAYGjhZGwAmZBs9AAA",
-                pickrate = 16.7,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxM2MzYGzwyiZmBAAAAMLAAAYGjhZGwCYZGw2DAA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsZmxMmhthZGAAAAwMAAAYmZMMzAGgZBs9AAA",
-                pickrate = 10,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxM2WmZMjZYbhZGAAAAwsAAAgHYmxwMDYBDzA2eAAA",
+                pickrate = 12.5,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZMzy2MzYGzgxMzAAAAAmBAAAzYMMzAGgZBs9AAA",
-                pickrate = 20,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMjZMDbLmZGAAAAwsAAAAjxwMDYBDzA2eAAA",
+                pickrate = 40,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZMjtZmhxMsMmZGAAAAwMAAAMPwYMMzAGMMLgtHAA",
-                pickrate = 11.1,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 37.5,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
-                pickrate = 25,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxM2WmZYMDLLMzAAAAAmFAAAmZMzwMDYBYGw2DAA",
+                pickrate = 12.5,
               },
             },
             raid = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
-                pickrate = 39.7,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 26.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
-                pickrate = 35.3,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 34.8,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
-                pickrate = 25,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMDjZYZhZGAAAAwsAAAw8AjZGmZALAzA2eAAA",
+                pickrate = 16.7,
               },
             },
             ["raid:3177"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMMmZZmhZMzwwMjxMjZmZmZmhZMmxMYMzMAAAAgZAAAYMzAzMgBWmZBs9AAA",
-                pickrate = 14.3,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMmlZGPIzgZmZGzMjxMGmZGzMzMWeAPgZmZY5BhZmBAAAAAAAAPwMjhZGwCzwMgtHAA",
+                pickrate = 20,
               },
             },
             ["raid:3178"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmhlZGzYGsYmZAAAAAzCAAAjxMDzMgFDMDY7BAA",
                 pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZmhZMzYYGzMzMzMjtZmhxMYYmBAAAAMDAAAzDMmZYmBMAzCY7BAA",
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMsMzMmhZMzwMmZmhZMzMmxMsMzYGzgFmZAAAAAzCAAAzMmBzMgFjhZAbPAAA",
                 pickrate = 33.3,
               },
             },
             ["raid:3180"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
-                pickrate = 50,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxMsMzYGzgFmZAAAAAzCAAAzMmBzMgFjhZAbPAAA",
+                pickrate = 16.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmZGAAAAwMAAAwYMMzAGMMLgtHAA",
-                pickrate = 40,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmZmx2yMjZMDLLmZGAAAAwsAAAAjxwMDYBDzA2eAAA",
+                pickrate = 50,
               },
             },
-            ["raid:3182"] = {
+            ["raid:3183"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMMmZZmhZMzwwMjxMjZmxMzM2mZGzYGMMzAAAAAmBAAAzYMMzAGMMLgtHAA",
-                pickrate = 25,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMsYmZZGmxMDDzMGzMmZGzMzYbZmxMmBLMzAAAAAmFAAAMjxwMDYBDzA2eAAA",
+                pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjZmhZYmZGMjZmZYGzMjZmZsNzMMmhlhZGAAAAwMAAAMPwYmhZGwAMLgtHAA",
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZGmhZmZwMmZmhZMzMmxwmZGzYGWeQYmBAAAAMLAAAMzMjhZGwCssMDY7BAA",
                 pickrate = 16.7,
               },
             },
@@ -4896,121 +4917,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
-                pickrate = 14.2,
+                pickrate = 19.2,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
-                pickrate = 18.4,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYwMAAAAAAAAAzYMgZ2AMMLgtBA",
+                pickrate = 17.1,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsZmxMmBjxMAAAAAAAAAzYMgZ2AwMLgtBA",
-                pickrate = 20.6,
+                pickrate = 13.6,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
-                pickrate = 10,
+                pickrate = 11.8,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsZmxMmhlxYGAAAAAAAAgZMGwMbAwsA2GA",
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZMjNzMmxMsMGzAAAAAAAAAmZMGwMbAwsA2GA",
                 pickrate = 12.5,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
-                pickrate = 16.3,
+                pickrate = 26.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYwMAAAAAAAAAzYMgZ2AMMLgtBA",
-                pickrate = 11.5,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
+                pickrate = 18.5,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZMjtZmhxMYMmBAAAAAAAAMzYmBMzGAMLgtBA",
-                pickrate = 12,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMYMmBAAAAAAAAYGjBMzGAMLgtBA",
+                pickrate = 12.5,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsZmxMmhlxYGAAAAAAAAgZMGwMbAwsA2GA",
-                pickrate = 15.4,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMmxMsMYGAAAAAAAAgZMGwMbAwsA2GA",
+                pickrate = 10.3,
               },
             },
             raid = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 38.8,
+                pickrate = 41.5,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMzMDzMjZMDGMDAAAAgZAAAYmZmBYmNAYWAbDA",
-                pickrate = 4.8,
+                export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMMmBjxMAAAAAAAAgxYmBMzGAmZBsNAA",
+                pickrate = 25.8,
               },
             },
             ["raid:3176"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 37.7,
+                pickrate = 34.7,
               },
             },
             ["raid:3177"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 43.4,
+                pickrate = 48.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZmZsNzMMmBjxMAAAAAAAAgxYmBMzGAmZBsNAA",
-                pickrate = 42,
+                pickrate = 36.8,
               },
             },
             ["raid:3179"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 50.9,
+                pickrate = 48.7,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMjHYZmZWMDzMzMjZGmZGzwMjZMjtZmxMmhlxYGAAAAAAAAwYMzAmZDAmFw2AA",
-                pickrate = 27.9,
+                pickrate = 27,
               },
             },
             ["raid:3181"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 40.2,
+                pickrate = 45.5,
               },
             },
             ["raid:3182"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 32.8,
+                pickrate = 34.2,
               },
             },
             ["raid:3183"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 24.8,
+                pickrate = 27,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwghNAAMDbjZ2mZYGzMMMzYMzYmZMjZYmZMjZwgZAAAAAMDAAAzMzMAzsBYYWAbDA",
-                pickrate = 53.7,
+                pickrate = 57.8,
               },
             },
           },
@@ -5018,19 +5039,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 50.1, tier = "S" },
-              { itemId = 249343, pop = 36, tier = "S" },
-              { itemId = 249806, pop = 6.6, tier = "B" },
-              { itemId = 252420, pop = 5.7, tier = "B" },
-              { itemId = 268292, pop = 4, tier = "C" },
-              { itemId = 250144, pop = 2.2, tier = "C" },
+              { itemId = 193701, pop = 51.8, tier = "S" },
+              { itemId = 249343, pop = 34.2, tier = "S" },
+              { itemId = 249806, pop = 6.4, tier = "B" },
+              { itemId = 252420, pop = 6.3, tier = "B" },
+              { itemId = 268292, pop = 4.1, tier = "C" },
+              { itemId = 250144, pop = 2.3, tier = "C" },
               { itemId = 250256, pop = 1.8, tier = "C" },
-              { itemId = 249805, pop = 1.3, tier = "C" },
-              { itemId = 250258, pop = 1.3, tier = "C" },
-              { itemId = 249344, pop = 1.2, tier = "C" },
-              { itemId = 260235, pop = 0.6, tier = "C" },
-              { itemId = 264507, pop = 0.1, tier = "C" },
-              { itemId = 265657, pop = 0.1, tier = "C" },
+              { itemId = 250258, pop = 1.5, tier = "C" },
+              { itemId = 260235, pop = 1.5, tier = "C" },
+              { itemId = 249344, pop = 1.3, tier = "C" },
+              { itemId = 249805, pop = 1, tier = "C" },
+              { itemId = 264507, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -5040,30 +5060,30 @@ ClassCodexSource["ugg"] = {
           all = {
             mplus = { crafts = { 239656, 244609, 244611 }, embellishments = {} },
             ["pvp:3v3"] = { crafts = { 240952, 244565, 240951 }, embellishments = {} },
-            raid = { crafts = { 244611 }, embellishments = {} },
+            raid = { crafts = { 239656, 244611 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -5084,7 +5104,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268290, slot = "Finger 2" },
               { ilvl = 298, itemId = 260235, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
-              { ilvl = 298, itemId = 249288, slot = "Main Hand" },
+              { ilvl = 298, itemId = 249279, slot = "Main Hand" },
             },
             ["pvp:3v3"] = {
               { itemId = 255517, slot = "Head" },
@@ -5107,18 +5127,18 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249988, slot = "Head" },
               { ilvl = 298, itemId = 268291, slot = "Neck" },
               { ilvl = 289, itemId = 249986, slot = "Shoulders" },
-              { ilvl = 289, itemId = 249335, slot = "Back" },
+              { ilvl = 285, itemId = 239656, slot = "Back" },
               { ilvl = 289, itemId = 249991, slot = "Chest" },
               { ilvl = 289, itemId = 249304, slot = "Wrist" },
               { ilvl = 289, itemId = 249989, slot = "Hands" },
               { ilvl = 285, itemId = 244611, slot = "Waist" },
               { ilvl = 298, itemId = 249987, slot = "Legs" },
               { ilvl = 298, itemId = 249990, slot = "Feet" },
-              { ilvl = 289, itemId = 249336, slot = "Finger 1" },
-              { ilvl = 298, itemId = 268290, slot = "Finger 2" },
+              { ilvl = 298, itemId = 268290, slot = "Finger 1" },
+              { ilvl = 289, itemId = 249336, slot = "Finger 2" },
               { ilvl = 298, itemId = 260235, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
-              { ilvl = 298, itemId = 249279, slot = "Main Hand" },
+              { ilvl = 298, itemId = 249288, slot = "Main Hand" },
             },
           },
         },
@@ -5132,7 +5152,7 @@ ClassCodexSource["ugg"] = {
               secondary = { { "crit" }, { "mastery" }, { "versatility" }, { "haste" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Agility",
               secondary = { { "crit" }, { "versatility", "mastery" }, { "haste" } },
             },
@@ -5144,7 +5164,7 @@ ClassCodexSource["ugg"] = {
               secondary = { { "crit" }, { "mastery" }, { "versatility" }, { "haste" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Agility",
               secondary = { { "crit" }, { "versatility", "mastery" }, { "haste" } },
             },
@@ -5152,8 +5172,8 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 956, haste = 614, mastery = 844, versatility = 122 },
-            raid = { crit = 830, haste = 708, mastery = 850, versatility = 154 },
+            mplus = { crit = 835, haste = 685, mastery = 895, versatility = 122 },
+            raid = { crit = 936, haste = 637, mastery = 799, versatility = 167 },
           },
         },
         talents = {
@@ -5161,231 +5181,231 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 50.7,
+                pickrate = 55,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 41.2,
+                pickrate = 42.9,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 57.1,
+                pickrate = 36.7,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 50,
+                pickrate = 48.4,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 33.3,
+                pickrate = 50,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 36.4,
+                pickrate = 40.6,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 36.7,
+                pickrate = 47.2,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 39.4,
+                pickrate = 41.4,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsAMLAAAAAAAAAzYmZGbGzMjZYZMmxgZZzMzwMzYmZWYmlhZGAAgZMmZmZADgBYjZGD",
-                pickrate = 41.9,
+                pickrate = 48.5,
               },
             },
             raid = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmZmZmFMLDzMAAgxMzMzMzAGYWMAbMDA",
-                pickrate = 17.2,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmxMzsgZZwMAAgxMzMzMzAGYWMAbMzYA",
+                pickrate = 12.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsAMLAAAAAAAAAzYGzYbGzMjZwYMjBz2GzMzyMzYmZWYmlBzAAAGzMmZmZADYxAsxMjB",
-                pickrate = 22.7,
+                pickrate = 20.2,
               },
             },
             ["raid:3176"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmZmZmFMLDzMAAgxMzMzMzAGYWMAbMDA",
-                pickrate = 29,
+                pickrate = 20.8,
               },
             },
             ["raid:3177"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmxMzsgZZwMAAgxMzMzMzAGYWMAbMzYA",
-                pickrate = 15.2,
+                pickrate = 12.8,
               },
             },
             ["raid:3178"] = {
               {
                 export = "94957#136231#1-94959#123779#1-94960#128219#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#136742#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#1-109485#135708#1-109487#135710#2-109489#135712#1-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1",
-                pickrate = 10,
+                pickrate = 27.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmZmZmFMLDzMAAgxMzMzMzAGYWMAbMDA",
-                pickrate = 20,
+                pickrate = 17.9,
               },
             },
             ["raid:3180"] = {
               {
-                export = "94957#136231#1-94959#123779#1-94960#117557#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#117583#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102415#126480#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109484#135706#2-109485#135708#1-109487#135710#2-109489#135712#1-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110156#136676#1-110157#136677#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 28.6,
+                export = "94957#136231#1-94959#123779#1-94960#128219#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#136742#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
+                pickrate = 20,
               },
             },
             ["raid:3181"] = {
               {
-                export = "94957#136231#1-94959#123779#1-94960#128219#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#136742#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128411#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109488#135711#1-109489#135712#1-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1",
-                pickrate = 36.8,
+                export = "94957#136231#1-94959#123779#1-94960#117557#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#136742#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#1-109485#135708#1-109486#135709#1-109487#135710#2-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110154#136673#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
+                pickrate = 27.8,
               },
             },
             ["raid:3182"] = {
               {
-                export = "94957#136231#1-94959#123779#1-94960#117557#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#117583#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#128379#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109486#135709#1-109487#135710#2-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110154#136673#1-110155#136675#1-110157#136677#1-110164#136686#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 37.5,
+                export = "94957#136231#1-94959#123779#1-94960#117557#1-94961#117558#1-94968#117565#1-94974#117571#1-94982#132888#1-94983#128238#1-94986#117583#1-94987#117584#1-94993#117590#1-99831#123346#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#128379#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103972#128394#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109486#135709#1-109487#135710#2-109490#135713#1-109491#135714#1-109799#136057#1-109800#136058#1-109801#136059#1-109938#136232#1-110154#136673#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
+                pickrate = 23.1,
               },
             },
             ["raid:3183"] = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsAMLAAAAAAAAAzYGzYbGzMjZwYMjBz2GzMzyMzYmZWYmlBzAAAGzMzMzMDYAMAbMzYA",
-                pickrate = 16.7,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsAMLAAAAAAAAAzYGzYbGzMjZwYMjBz2GzMzyMzYmZWYmlBzAAAGzMmZmZADYxAsxMjB",
+                pickrate = 20.7,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMLAAAAAAAAAzYGzwMmZGzgxYGDmtNmZmlZmxMzsgZZwMAAgxMzMzMzAGYWMAbMzYA",
-                pickrate = 16.9,
+                pickrate = 22.9,
               },
             },
           },
           sentinel = {
             mplus = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102415#126480#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 30.8,
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102393#126457#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
+                pickrate = 33.3,
+              },
+            },
+            ["mplus:10658"] = {
+              {
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102393#126457#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
+                pickrate = 100,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110155#136675#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 50,
-              },
-            },
-            ["mplus:12805"] = {
-              {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109487#135710#2-109488#135711#1-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110157#136677#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
-                pickrate = 33.3,
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102393#126457#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
+                pickrate = 100,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102415#126480#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103955#128375#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-109485#135708#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110153#136672#1-110154#136673#1-110157#136677#1-110430#137058#1-110430#137057#2-110430#137056#1-110573#137376#1-110574#137377#1-110575#137378#1",
-                pickrate = 50,
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#1-102402#126466#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109487#135710#2-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
+                pickrate = 100,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109488#135711#1-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
-                pickrate = 100,
+                pickrate = 50,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102415#126480#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 50,
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109487#135710#2-109488#135711#1-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110157#136677#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
+                pickrate = 33.3,
               },
             },
-            ["mplus:61209"] = {
+            ["mplus:361753"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102415#126480#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102394#135704#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128378#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109484#135706#2-109485#135708#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110156#136676#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGDAzM2YYA2YmxA",
-                pickrate = 25.3,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMYMzMmBjxMGMbbbmZGzMzMzMLYWGmZAAAzMzMAYmx2mhBYjZGD",
+                pickrate = 12.3,
               },
             },
             ["raid:3159"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109488#135711#1-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 16.7,
+                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102394#126458#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103960#128381#1-103961#128383#1-103962#128384#1-103964#128386#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109484#135706#2-109485#135708#1-109486#135709#1-109487#135710#2-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110154#136673#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110574#137377#1-110575#137378#1",
+                pickrate = 35,
               },
             },
             ["raid:3176"] = {
               {
                 export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 33.3,
+                pickrate = 23.1,
               },
             },
             ["raid:3177"] = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGDAzM2YYA2YmxA",
-                pickrate = 20,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGAYmxGziBYjZGD",
+                pickrate = 16.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMYMzMmBjxMGMbbbmZGzMjZmZBzywMDAAYmZmBAzM22MMAbMzMD",
-                pickrate = 21.3,
+                pickrate = 15.1,
               },
             },
             ["raid:3179"] = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGDAzM2YYA2YmxA",
-                pickrate = 26.1,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGAYmxGziBYjZGD",
+                pickrate = 25,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMYMzMmBjxMGMbbbmZGzMzMzMLYWGmZAAAzMzMAYmx2mhBYjZGD",
-                pickrate = 14.7,
+                pickrate = 13.4,
               },
             },
             ["raid:3181"] = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGDAzM2YYA2YmxA",
-                pickrate = 23.1,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGAYmxGziBYjZGD",
+                pickrate = 22.6,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGDAzM2YYA2YmxA",
-                pickrate = 33.8,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMYMzMmBjxMGMbbbmZGzMzMzMLYWGmZAAAzMzMAYmxGziBYjZGD",
+                pickrate = 15.7,
               },
             },
             ["raid:3183"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103955#128375#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109488#135711#1-109489#135712#1-109490#135713#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110152#136670#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1",
-                pickrate = 18.2,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbbmZYmZmZmZBzywMDAAYMzMDAzM2YWMAbMzYA",
+                pickrate = 22.2,
               },
             },
             ["raid:3306"] = {
               {
-                export = "94958#117555#1-94965#117562#1-94970#117567#1-94971#117568#1-94973#117570#1-94976#117573#1-94978#117575#1-94980#117577#1-94981#117578#1-94989#117586#1-94990#117587#1-99831#123345#1-102380#126443#1-102381#126444#1-102384#126447#2-102387#126450#1-102389#126452#1-102390#126453#1-102391#126454#1-102395#126459#1-102396#126460#2-102401#126465#2-102402#126466#1-102404#126468#1-102406#126470#1-102409#126473#2-102411#126475#1-102416#126481#2-102419#126484#1-102422#126488#1-102423#126489#1-102424#126490#1-103947#128367#1-103956#128376#1-103957#128377#1-103958#132194#1-103959#128714#1-103961#128383#1-103962#128384#1-103964#128386#1-103966#128388#1-103973#128395#2-103974#128396#1-103975#128397#1-103977#128399#1-103978#128400#1-103979#128401#1-103982#128404#1-103984#128406#1-103985#128407#1-103986#128408#1-103990#128413#1-104095#128609#1-104127#128710#1-104130#128717#1-107288#132192#1-107289#132193#1-107290#132195#1-109483#135705#1-109485#135708#1-109486#135709#1-109487#135710#2-109489#135712#1-109805#136063#1-109807#136065#1-109938#136232#1-110028#136521#1-110155#136675#1-110157#136677#1-110164#136685#1-110430#137058#1-110430#137057#2-110430#137056#1-110572#137375#1-110573#137376#1-110575#137378#1",
-                pickrate = 12.5,
+                export = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGGLDgZwGAAAAAAAAwMmxMMjZmxMYMmxgZbbzMzYmZmZmZBzywMDAAYmZGAYmxGziBYjZGD",
+                pickrate = 14.3,
               },
             },
           },
@@ -5393,16 +5413,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 62.8, tier = "S" },
-              { itemId = 260235, pop = 14.7, tier = "B" },
-              { itemId = 249343, pop = 11.5, tier = "B" },
-              { itemId = 252420, pop = 7.1, tier = "B" },
-              { itemId = 268292, pop = 3.4, tier = "C" },
-              { itemId = 249806, pop = 3, tier = "C" },
-              { itemId = 250144, pop = 2.5, tier = "C" },
-              { itemId = 249344, pop = 1.6, tier = "C" },
-              { itemId = 250256, pop = 1.4, tier = "C" },
-              { itemId = 251792, pop = 1.1, tier = "C" },
+              { itemId = 193701, pop = 61.2, tier = "S" },
+              { itemId = 260235, pop = 13.7, tier = "B" },
+              { itemId = 249343, pop = 10.3, tier = "B" },
+              { itemId = 252420, pop = 7.2, tier = "B" },
+              { itemId = 249806, pop = 3.9, tier = "C" },
+              { itemId = 268292, pop = 3.2, tier = "C" },
+              { itemId = 250144, pop = 1.9, tier = "C" },
+              { itemId = 250256, pop = 1.8, tier = "C" },
+              { itemId = 249344, pop = 1.7, tier = "C" },
+              { itemId = 249345, pop = 1.4, tier = "C" },
             },
           },
         },
@@ -5411,33 +5431,33 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244584, 237837 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244584, 244565, 240951, 237837 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 244568, 244565, 244566, 240951, 237837 }, embellishments = {} },
             raid = { crafts = { 239656, 244584, 237837 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8041, spellId = 1236097 } },
-              ["副手"] = { { id = 8041, spellId = 1236097 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8041, spellId = 1236097 } },
+              ["Off Hand"] = { { id = 8041, spellId = 1236097 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236097 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236097 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -5463,19 +5483,19 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 255517, slot = "Head" },
-              { itemId = 268291, slot = "Neck" },
+              { itemId = 240952, slot = "Neck" },
               { itemId = 249986, slot = "Shoulders" },
               { itemId = 255529, slot = "Back" },
               { itemId = 249991, slot = "Chest" },
-              { itemId = 244584, slot = "Wrist" },
+              { itemId = 244568, slot = "Wrist" },
               { itemId = 249989, slot = "Hands" },
               { itemId = 244565, slot = "Waist" },
-              { itemId = 249987, slot = "Legs" },
+              { itemId = 244566, slot = "Legs" },
               { itemId = 255514, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
-              { itemId = 193701, slot = "Trinket 1" },
-              { itemId = 249343, slot = "Trinket 2" },
+              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 2" },
               { itemId = 255637, slot = "Main Hand" },
               { itemId = 237837, slot = "Off Hand" },
             },
@@ -5487,7 +5507,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249991, slot = "Chest" },
               { ilvl = 285, itemId = 244584, slot = "Wrist" },
               { ilvl = 289, itemId = 249989, slot = "Hands" },
-              { ilvl = 289, itemId = 249371, slot = "Waist" },
+              { ilvl = 289, itemId = 249985, slot = "Waist" },
               { ilvl = 298, itemId = 249987, slot = "Legs" },
               { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
@@ -5501,7 +5521,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240898 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "mastery" }, { "crit", "versatility", "haste" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "mastery" }, { "versatility" }, { "haste", "crit" } } } },
           ["pack-leader"] = {
             mplus = {
               minor = { { "Avoidance" }, { "Leech", "Speed" } },
@@ -5530,184 +5550,166 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 695, haste = 821, mastery = 995, versatility = 26 },
-            raid = { crit = 608, haste = 872, mastery = 1032, versatility = 26 },
+            raid = { crit = 695, haste = 821, mastery = 995, versatility = 26 },
           },
         },
         talents = {
           ["pack-leader"] = {
             mplus = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDPwYMgZ2AgxYmZzAA",
-                pickrate = 8.5,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
+                pickrate = 27.1,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
-                pickrate = 22.5,
+                pickrate = 20.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
-                pickrate = 20.5,
+                pickrate = 25,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
-                pickrate = 26.5,
+                pickrate = 36.1,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZYZMmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
-                pickrate = 32.8,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
+                pickrate = 17.3,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
-                pickrate = 35.3,
+                pickrate = 34,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZYZMmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
-                pickrate = 10,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZwYMDAAAADAMWWmZmFzMzwMGDYmNADjxMzmBA",
+                pickrate = 15.2,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGmxYAzsBAjxMzmBA",
-                pickrate = 18.6,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZwYMDAAAADAMWWmZmFzMzwMGDYmNADjxMzmBA",
+                pickrate = 23.8,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZYZMmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
-                pickrate = 20.9,
+                pickrate = 20,
               },
             },
             raid = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDGjBMzGghxYmZzAA",
-                pickrate = 29.1,
+                pickrate = 28.1,
               },
             },
             ["raid:3159"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDGjBMzGghxYmZzAA",
-                pickrate = 24.4,
+                pickrate = 22,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDGjBMzGghxYmZzAA",
-                pickrate = 30.3,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzwMGzYGMGzAAAAwAAjllZmZxMzMGzMGwMbAsYMmZ2MA",
+                pickrate = 18.8,
               },
             },
             ["raid:3177"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxYmZmZsMAAAAAAYGzYGmxYGzgxYGAAAAGAYssMzMLmZmZGzMAmZDwsMjxM2MA",
-                pickrate = 16.1,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGMYxYmZmZsMAAAAAAYGzMzwMGzYGMGzAAAAwAAjllZmZxMzMz8AzMAmZDwwYMjNDA",
+                pickrate = 12.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDGjZAAAAYAgxyyMzsYmZGjZGDYmNAYMmZ2MA",
-                pickrate = 21.7,
+                pickrate = 19.1,
               },
             },
             ["raid:3179"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDGjBMzGghxYmZzAA",
-                pickrate = 32.3,
+                pickrate = 23.5,
               },
             },
             ["raid:3180"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzwMGzYGMGzAAAAwAAjllZmZxMzMGjZGwMbAGGjZmNDA",
-                pickrate = 8.8,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDPwYMgZ2AgxYmZzAA",
+                pickrate = 16.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGbzYMjZwYMDAAAADAMWWmZmFzMzYMGDYmNAzixYmZzAA",
-                pickrate = 17.7,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGmxYGzgxYGAAAAGAYssMzMLmZmxYmxAmZDwsYMmZ2MA",
+                pickrate = 41.7,
               },
             },
             ["raid:3182"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzYGmxYGzgxYGAAAAGAYssMzMLmZmxYmBwMbAmlZMmZ2MA",
-                pickrate = 29.2,
+                pickrate = 20.5,
               },
             },
             ["raid:3183"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGMYxMzMzMjlBAAAAAAzYGzwMGzYGMGzAAAAwAAjllZmZxMzMGzMGwMbAmFjxM2MA",
-                pickrate = 27.3,
+                pickrate = 25.8,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGMYxMzMzMsMAAAAAAYGzMzYbGjZMDLjxMAAAAMAwYZZmZWMzMDGjBMzGghxYmZzAA",
-                pickrate = 29.6,
+                pickrate = 33.1,
               },
             },
           },
           sentinel = {
             raid = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZMjZYGjZMDGzMDAAAwAAssNzMLmZmZmHYMDAmx2GLGjZmNPAA",
-                pickrate = 13.3,
-              },
-            },
-            ["raid:3159"] = {
-              {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjxDsMDAAAAAgZYMjlZMmZegBzYmBAAAYAAW2mZmFzMzMzwMDAzYbBzYMjNPAA",
-                pickrate = 50,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjZegl5BAAAAAAMjZmZYZMMmBLmZGAAAgBAYZmllZMLzMjZmxAwMGGGLmFbeAAA",
+                pickrate = 30,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZMjZYGjZMDGzMDAAAwAAssNzMLmZmZmHYMDAmx2GLGjZmNPAA",
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjZegl5BAAAAAAMjZmZYZMMmBLmZGAAAgBAYZmllZMLzMjZmxAwMGGGLmFbeAAA",
                 pickrate = 40,
-              },
-            },
-            ["raid:3177"] = {
-              {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjZegl5BAAAAAAMjZmZYGDjZwYmZAAAAGAgltZmZxMzMjZmxAwM2YYMmxmHAA",
-                pickrate = 100,
               },
             },
             ["raid:3178"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZmZmZYGjZMwYGDAAAwAAssNzMLmZmZmZMAwM2YWMGzMbeAAA",
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZmZmZYZMmxALmxAAAAMAALzssMjZZmZmZMAwMGmFjFzys5BAA",
                 pickrate = 100,
+              },
+            },
+            ["raid:3179"] = {
+              {
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjZegl5BAAAAAAMjZmZYZMMmBLmZGAAAgBAYZmllZMLzMjZmxAwMGGGLmFbeAAA",
+                pickrate = 50,
               },
             },
             ["raid:3180"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZMjZYGjZMDGmZAAAAGAYssNzMLmZmxMzMDAmxGWMGzMbeAAA",
-                pickrate = 50,
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbzMzMzMzsNPAAAAAAgZMzMDLjxMmhlHEzMDAAAAAglZWWMzYmBzMGAmxYGLjFWmNPAA",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZMzMjtZMmxMYMzMAAAADAMWWmZmFzMzYMGDAzYDLGjZmNPAA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3183"] = {
-              {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZMjZYGjZMDGzMDAAAwAAjltZmZxMzMGzMGAmxGzixYmZzDAA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3306"] = {
-              {
-                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbmZmZMjlBAAAAAgZmZmZYGjZMwYGDAAAwAAssNzMLmZmZmZMAwM2YWMGzMbeAAA",
+                export = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxYGLDgZAbGzMjZegl5BAAAAAAMjZmZYZMMmBLmZGAAAgBAYZmllZMLzMMzMGAmxwwYxsMbeAAA",
                 pickrate = 100,
               },
             },
@@ -5716,17 +5718,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 56.1, tier = "S" },
-              { itemId = 249343, pop = 32, tier = "S" },
-              { itemId = 249806, pop = 9.1, tier = "B" },
-              { itemId = 252420, pop = 3.6, tier = "C" },
-              { itemId = 268292, pop = 2.9, tier = "C" },
-              { itemId = 250256, pop = 1.4, tier = "C" },
-              { itemId = 249805, pop = 0.7, tier = "C" },
-              { itemId = 250144, pop = 0.7, tier = "C" },
-              { itemId = 250258, pop = 0.7, tier = "C" },
-              { itemId = 260235, pop = 0.7, tier = "C" },
-              { itemId = 251792, pop = 0.2, tier = "C" },
+              { itemId = 193701, pop = 53.7, tier = "S" },
+              { itemId = 249343, pop = 32.2, tier = "S" },
+              { itemId = 249806, pop = 11.6, tier = "B" },
+              { itemId = 268292, pop = 3.3, tier = "C" },
+              { itemId = 252420, pop = 3.2, tier = "C" },
+              { itemId = 250144, pop = 1.2, tier = "C" },
+              { itemId = 250256, pop = 1.2, tier = "C" },
+              { itemId = 249805, pop = 0.8, tier = "C" },
+              { itemId = 249345, pop = 0.6, tier = "C" },
+              { itemId = 260235, pop = 0.6, tier = "C" },
+              { itemId = 251792, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -5737,31 +5739,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239678, 239677, 239682, 239684, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244735, 239677, 239682, 239684, 240951, 245870 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -5786,11 +5788,11 @@ ClassCodexSource["ugg"] = {
               { ilvl = 295, itemId = 245769, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 250060, slot = "Head" },
+              { itemId = 244735, slot = "Head" },
               { itemId = 255610, slot = "Neck" },
               { itemId = 250058, slot = "Shoulders" },
-              { itemId = 239678, slot = "Back" },
-              { itemId = 255358, slot = "Chest" },
+              { itemId = 255375, slot = "Back" },
+              { itemId = 250063, slot = "Chest" },
               { itemId = 239677, slot = "Wrist" },
               { itemId = 250061, slot = "Hands" },
               { itemId = 239682, slot = "Waist" },
@@ -5798,10 +5800,10 @@ ClassCodexSource["ugg"] = {
               { itemId = 239684, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 255609, slot = "Finger 2" },
-              { itemId = 255614, slot = "Trinket 1" },
-              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
-              { itemId = 255625, slot = "Off Hand" },
+              { itemId = 245870, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 250060, slot = "Head" },
@@ -5828,7 +5830,7 @@ ClassCodexSource["ugg"] = {
           all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "mastery" }, { "crit" } } } },
           spellslinger = {
             mplus = {
-              minor = { { "Avoidance" }, { "Speed", "Leech" } },
+              minor = { { "Speed", "Avoidance", "Leech" } },
               primary = "Intellect",
               secondary = { { "versatility" }, { "mastery", "haste", "crit" } },
             },
@@ -5840,7 +5842,7 @@ ClassCodexSource["ugg"] = {
           },
           sunfury = {
             mplus = {
-              minor = { { "Avoidance" }, { "Speed", "Leech" } },
+              minor = { { "Speed", "Avoidance", "Leech" } },
               primary = "Intellect",
               secondary = { { "versatility" }, { "mastery", "haste", "crit" } },
             },
@@ -5862,158 +5864,140 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 20.4,
+                pickrate = 14.8,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 30.3,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
+                pickrate = 18.2,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzgZmZAAAYAAAgZmZWWmZwCAAbzYmZMbmlZmZMzYMMzMjFmZm5BmBAYAAAMzCAYGAMMA",
-                pickrate = 31,
+                pickrate = 25,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 14.3,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
+                pickrate = 15.2,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 20,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzgZmZAAAYAAAgZmZWWmZwCAAbzYmZMbmlZmZMzYMMzMjFmZm5BmBAYAAAMzCAYGAMMA",
+                pickrate = 18.4,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 34.2,
+                pickrate = 17.1,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
-                pickrate = 17.7,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
+                pickrate = 18,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzgZmZAAAYAAAgZmZWWmZwCAAbzYmZMbmlZmZMzYMMzMjFmZm5BmBAYAAAMzCAYGAMMA",
-                pickrate = 16.1,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzYZsMzMzCmZwMzMAAAMAAAwMzMLLzMYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+                pickrate = 15.2,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzgZmZAAAYAAAgZmZWWmZwCAAbzYmZMbmlZmZMzYMMzMjFmZm5BmBAYAAAMzCAYGAMMA",
-                pickrate = 23.5,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzMDAAADAAAMzMzyyMDWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMMA",
+                pickrate = 16.7,
               },
             },
             raid = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 40,
+                pickrate = 43.5,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 18.5,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbzYmZMbmlZmZMzYMMzMjFmZmxMAADAAgZWAAzAghB",
+                pickrate = 28.8,
               },
             },
             ["raid:3176"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 55.1,
+                pickrate = 47.9,
               },
             },
             ["raid:3177"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 44.8,
+                pickrate = 44.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 51.7,
+                pickrate = 58.6,
               },
             },
             ["raid:3179"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 47.2,
+                pickrate = 43.2,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 34.8,
+                pickrate = 36.4,
               },
             },
             ["raid:3181"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 44.4,
+                pickrate = 53.6,
               },
             },
             ["raid:3182"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 40.6,
+                pickrate = 50,
               },
             },
             ["raid:3183"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 32,
+                pickrate = 44.8,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzgZmZAAAYAAAgZmZWWmZwCAAbDzMjZbxyMzMmZMGzMzMWYmZGzAAMAAAmZBAMDAGG",
-                pickrate = 31.6,
+                pickrate = 34.6,
               },
             },
           },
           sunfury = {
             raid = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGmZGDAAADAYmZmZZbbGAAbAAsZYmZYbWmZmZZYMjZmhFmZm5BmBAYAAAGgZGwMA4BYA",
-                pickrate = 57.1,
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGmZZmZmFmZGmZGDAAADAYmZmZZZbGAAbAAsxMzMGbWmZmZZGjFzMjxCzMzYGAgFAAgBYmBMDAeAGA",
+                pickrate = 50,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzwMzMDAAADAYmZmZZbZGAAbAAsZYmZYbWmZmZZYMjZmhFmZmxMAADAAwAMzAzMA4BYA",
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzwMzMDAAADAYmZmZZbZGAAbAAsZYmZYbWmZmZZYsMmZGWYmZGzAAsAAAMAzMwMDAeAGA",
                 pickrate = 100,
               },
             },
-            ["raid:3176"] = {
+            ["raid:3177"] = {
               {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGmZGDAAADAYmZmZZbbGAAbAAsZYmZYbWmZmZZYMjZmhFmZm5BmBAYAAAGgZGwMA4BYA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3178"] = {
-              {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGmZGDAAADAYmZmZZbbGAAbAAsZYmZYbWmZmZZYMjZmhFmZm5BmBAYAAAGgZGwMA4BYA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3179"] = {
-              {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGmZZmZmFmZGmZGDAAADAYmZmZZZbGAAbAAsxMzMGbWmZmZZGjxMzYswMzMmBAYAAAGgZGwMA4BYA",
-                pickrate = 50,
-              },
-            },
-            ["raid:3306"] = {
-              {
-                export = "C4DAAAAAAAAAAAAAAAAAAAAAAMzALzMjtxDMzwMzMDAAADAYmZmZZZbGAAbAAsxMzMzYxyMzMLYMmZmZsxMzMPwMAADAAwAMzAmBAPADA",
+                export = "C4DAAAAAAAAAAAAAAAAAAAAAAYGmZZmZmFmZGmZGDAAADAYmZmZZZbGAAbAAsxMzMGbWmZmZZGjFzMjxCzMzYGAgFAAgBYmBMDAeAGA",
                 pickrate = 100,
               },
             },
@@ -6022,17 +6006,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 55.3, tier = "S" },
-              { itemId = 249343, pop = 38.9, tier = "S" },
-              { itemId = 250144, pop = 13, tier = "B" },
-              { itemId = 268292, pop = 7.4, tier = "B" },
-              { itemId = 250256, pop = 5.8, tier = "B" },
-              { itemId = 250223, pop = 2.4, tier = "C" },
-              { itemId = 250258, pop = 2.2, tier = "C" },
-              { itemId = 264507, pop = 2.1, tier = "C" },
-              { itemId = 249809, pop = 1.7, tier = "C" },
-              { itemId = 50259, pop = 1.5, tier = "C" },
-              { itemId = 151310, pop = 0.2, tier = "C" },
+              { itemId = 249346, pop = 51.9, tier = "S" },
+              { itemId = 249343, pop = 40, tier = "S" },
+              { itemId = 250144, pop = 14.4, tier = "B" },
+              { itemId = 268292, pop = 7.6, tier = "B" },
+              { itemId = 250256, pop = 6.9, tier = "B" },
+              { itemId = 250223, pop = 3.4, tier = "C" },
+              { itemId = 250258, pop = 2.9, tier = "C" },
+              { itemId = 250257, pop = 2.2, tier = "C" },
+              { itemId = 249809, pop = 1.8, tier = "C" },
+              { itemId = 50259, pop = 1.3, tier = "C" },
               { itemId = 249808, pop = 0.2, tier = "C" },
             },
           },
@@ -6041,32 +6024,32 @@ ClassCodexSource["ugg"] = {
       fire = {
         crafting = {
           all = {
-            mplus = { crafts = { 239656, 239648, 239649, 245770 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239685, 239684, 240951 }, embellishments = {} },
+            mplus = { crafts = { 239656, 239648, 239649 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239684, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 239649 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -6084,26 +6067,26 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250059, slot = "Legs" },
               { ilvl = 298, itemId = 250062, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 289, itemId = 249920, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249369, slot = "Finger 2" },
               { ilvl = 298, itemId = 249346, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
-              { ilvl = 295, itemId = 245770, slot = "Main Hand" },
+              { ilvl = 298, itemId = 249294, slot = "Main Hand" },
               { ilvl = 298, itemId = 249922, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 255364, slot = "Head" },
+              { itemId = 250060, slot = "Head" },
               { itemId = 255610, slot = "Neck" },
               { itemId = 250058, slot = "Shoulders" },
               { itemId = 255374, slot = "Back" },
-              { itemId = 239685, slot = "Chest" },
+              { itemId = 255357, slot = "Chest" },
               { itemId = 255372, slot = "Wrist" },
               { itemId = 250061, slot = "Hands" },
               { itemId = 255369, slot = "Waist" },
               { itemId = 255365, slot = "Legs" },
               { itemId = 239684, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
-              { itemId = 255607, slot = "Finger 2" },
-              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 240951, slot = "Finger 2" },
+              { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255616, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
             },
@@ -6129,196 +6112,226 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240900 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "crit", "mastery" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "crit" }, { "mastery" } } } },
           frostfire = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
           },
           sunfury = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
           },
         },
         statTargets = {
           all = {
-            mplus = { crit = 103, haste = 1448, mastery = 1027, versatility = 43 },
-            raid = { crit = 103, haste = 1408, mastery = 1069, versatility = 43 },
+            mplus = { crit = 103, haste = 1173, mastery = 1068, versatility = 193 },
+            raid = { crit = 103, haste = 1408, mastery = 919, versatility = 193 },
           },
         },
         talents = {
           frostfire = {
             mplus = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGjZmZAAAYmtZMzsMLAAAgFzMzsNmZmZ2AAAAAwmZmZGAAYYmZGzYmZDYmBMMjhB4BA",
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62125#134184#1-62127#80187#1-62129#80189#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101029#124795#2-101883#125819#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 40,
+              },
+            },
+            ["mplus:10658"] = {
+              {
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62125#134184#1-62127#80187#1-62129#80189#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101029#124795#2-101883#125819#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110423#137037#1-110423#137036#2-110423#137035#1",
                 pickrate = 50,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGjZmZAAAYmtZMzsMLAAAgFzMzsNmZmZ2AAAAAwmZmZGAAYYmZGzYmZDYmBMMjhB4BA",
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117775#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101004#124765#2-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101029#124795#2-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-109393#135600#1-109396#135604#1-109397#135605#1-109398#135606#1-109399#135607#1-109400#135608#1-109402#135610#1-109403#135612#1-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110080#136578#1-110081#136579#1-110086#136587#1-110089#136590#1-110423#137037#1-110423#137036#2-110423#137035#1",
                 pickrate = 50,
+              },
+            },
+            ["mplus:61209"] = {
+              {
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62125#134184#1-62127#80187#1-62129#80189#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101029#124795#2-101883#125819#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 100,
               },
             },
             raid = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYmFjlZmZWmNzwYegZGAAAmZZGzMLzCAAAYxMDbjZmZsBAAAAgFzMmZAAwYGzMzMzMzmHAmZADzYMYwDA",
-                pickrate = 25,
+                export = "62085#80141#1-62086#80142#1-62087#80143#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108662#134192#2-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110321#136878#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 22.2,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzALzMmFmZGjZmZAAAYmlZMzsMLAAAgFzMjtxMzMzCAAAAA2YmZmBAAjZMzYmZmZDYmBMzYMGAPAA",
-                pickrate = 50,
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108662#134192#2-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110321#136878#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 100,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYmFjlZmZWmNzwYegZGAAAmZZGzMLzCAAAYxMz8ALjZmZsBAAAAgFzMmZAAwYYmZmZmZ2AmZADzYMYwDA",
-                pickrate = 100,
+                export = "62085#80141#1-62086#80142#1-62087#80143#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62110#136466#1-62114#80173#2-62115#80174#1-62119#80178#1-62122#80181#1-62123#80182#1-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-101004#124765#2-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101029#124795#2-101883#125818#1-108654#134183#1-108656#134186#1-108657#134187#1-108658#134188#1-108660#134190#1-108661#134191#1-108662#134192#2-109393#135600#1-109395#135603#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110080#136578#1-110081#136579#1-110086#136587#1-110321#136878#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 66.7,
               },
             },
             ["raid:3177"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYmFjlZmZWmNzwYegZGAAAmZZGzMLzCAAAYxMDbjZmZsBAAAAgFzMmZAAwYGzMzMzMzmHAmZADzYMYwDA",
+                export = "62085#80141#1-62086#80142#1-62087#80143#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108662#134192#2-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110321#136878#1-110423#137037#1-110423#137036#2-110423#137035#1",
                 pickrate = 100,
+              },
+            },
+            ["raid:3179"] = {
+              {
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#1-62104#80161#1-62105#134197#1-62112#80170#1-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101004#124765#2-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101027#124793#1-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108660#134190#1-108661#134191#1-108662#134192#1-109393#135600#1-109396#135604#1-109397#135605#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109412#135622#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110079#136577#1-110080#136578#1-110081#136579#1-110086#136587#1-110087#136588#1-110089#136590#1-110321#136878#1-110322#136879#1-110423#137037#1-110423#137036#2",
+                pickrate = 100,
+              },
+            },
+            ["raid:3181"] = {
+              {
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#1-62104#80161#1-62105#134197#1-62112#80170#1-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101004#124765#2-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101027#124793#1-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108660#134190#1-108661#134191#1-108662#134192#1-109393#135600#1-109396#135604#1-109397#135605#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109412#135622#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110079#136577#1-110080#136578#1-110081#136579#1-110086#136587#1-110087#136588#1-110089#136590#1-110321#136878#1-110322#136879#1-110423#137037#1-110423#137036#2",
+                pickrate = 100,
+              },
+            },
+            ["raid:3306"] = {
+              {
+                export = "62085#80141#1-62086#80142#1-62087#80143#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62119#80178#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99829#123343#1-100989#124750#1-100995#124756#1-100998#124759#1-100999#124760#1-101007#135618#1-101009#124771#1-101016#124779#1-101019#124783#2-101021#124786#1-101024#124789#1-101027#124793#1-101883#125818#1-108654#134182#1-108656#134186#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108662#134192#2-109393#135600#1-109395#135603#1-109396#135604#1-109398#135606#1-109399#135607#1-109400#135608#1-109401#135609#1-109402#135610#1-109403#135612#1-109404#135613#2-109406#135615#1-109407#135616#1-109408#135617#1-109409#135602#1-109670#135921#1-109671#135922#1-109672#135923#1-109956#136441#1-110081#136579#1-110086#136587#1-110088#136589#1-110321#136878#1-110423#137037#1-110423#137036#2-110423#137035#1",
+                pickrate = 50,
               },
             },
           },
           sunfury = {
             mplus = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzwYmZmZ2GAmZgxYMYGGA",
-                pickrate = 8.5,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzYGAAADAYmZMLLbzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzCAmZgxYMYGGA",
+                pickrate = 15.6,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzYGAAADAYmZMLLbzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzCAmZgxYMYGGA",
-                pickrate = 30.8,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzYGAAADAYmZMbLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzGAmZgxYMYGGA",
+                pickrate = 14.3,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzwYmZmZ2GAmZAzYMYGGA",
-                pickrate = 21.1,
+                pickrate = 11.8,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzYAAAYAAzMjZZZZGAgNzMjtxMzM2AAAAAgFzMzMDAAGzwYmZmZ2GAmZAGjBzwA",
-                pickrate = 13.6,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzwYmZmZ2GAmZAzYMYGGA",
+                pickrate = 28.6,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGMzYAAAYAAzMjZbZZGAgNzMjtxMzM2AAAAAgFzMzMAAwYGGzMzMzyAwMDMGjBzwA",
-                pickrate = 21.4,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsZmZmBAAGzwYmZmZ2GAmZAGjBzwA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGMzYAAAYAAzMjZbZZGAgNzMjtxMzM2AAAAAgFzMzMAAwYGGzMzMzCAmZgxYmBzwA",
-                pickrate = 17.7,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzYGAAADAYmZMLLbzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzCAmZgxYMYGGA",
+                pickrate = 21.4,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzYAAAYAAzMjZZZZGAgNzMjtxMzMWAAAAAgFzMzMDAAGzYGzMzMzCAmZAGjBzwA",
-                pickrate = 18.8,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzgZmZGAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzGAmZgxYMYGGA",
+                pickrate = 14.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzYAAAYAAzMjZbZZGAgNzMjtxMzM2AAAAAgFzMzMDAAGzwYmZmZ2GAmZAGjBzwA",
-                pickrate = 12.5,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFegZGMzYGAAADAYmZMLLbzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzCAmZgxYMYGGA",
+                pickrate = 11.8,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzwYmZmZ2GAmZgxYMYGGA",
-                pickrate = 13.3,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGMzYGAAADAYmZMbLLzAAsZmZsNmZmxGAAAAAsYmZmBAAGzYGzMzMzGAmZgxYMYGGA",
+                pickrate = 16.7,
               },
             },
             raid = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 28.2,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 26.9,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 25.5,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxGAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
+                pickrate = 15.2,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 14.8,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 24.1,
               },
             },
             ["raid:3177"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsMAMzAjxYghB",
-                pickrate = 17.1,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 23.5,
               },
             },
             ["raid:3178"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsAgZGYMGDmhB",
-                pickrate = 24.1,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 29.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 38.9,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 39.3,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsMAMzAjxYghB",
-                pickrate = 19.1,
+                pickrate = 17.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsBgZGYMGDmhB",
-                pickrate = 26.3,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsAgZGYMGDmhB",
+                pickrate = 25,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 26.5,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 30.4,
               },
             },
             ["raid:3183"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 20.6,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmBAAAAAYxMzMzAAgxMmxMzMzsBgZGYMGDmhB",
+                pickrate = 15.3,
               },
             },
             ["raid:3306"] = {
               {
-                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZWAwMDwYMYGGA",
-                pickrate = 37.5,
+                export = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDMzMDAAADAYmZMLLLzAAsZmZsNmZmxCAAAAAsYmZmZAAwYGzYmZmZ2AwMDwYMYGGA",
+                pickrate = 17.7,
               },
             },
           },
@@ -6326,17 +6339,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 250144, pop = 41.5, tier = "S" },
-              { itemId = 249346, pop = 37, tier = "S" },
-              { itemId = 249343, pop = 15.2, tier = "A" },
-              { itemId = 250256, pop = 5, tier = "C" },
-              { itemId = 268292, pop = 2.7, tier = "C" },
-              { itemId = 250223, pop = 2.2, tier = "C" },
-              { itemId = 249809, pop = 2.1, tier = "C" },
-              { itemId = 250257, pop = 1.9, tier = "C" },
-              { itemId = 250258, pop = 1, tier = "C" },
-              { itemId = 249340, pop = 0.7, tier = "C" },
-              { itemId = 251792, pop = 0.3, tier = "C" },
+              { itemId = 250144, pop = 42.4, tier = "S" },
+              { itemId = 249346, pop = 31, tier = "S" },
+              { itemId = 249343, pop = 17.7, tier = "A" },
+              { itemId = 250256, pop = 5.4, tier = "B" },
+              { itemId = 268292, pop = 3.5, tier = "C" },
+              { itemId = 249809, pop = 2.2, tier = "C" },
+              { itemId = 250223, pop = 1.6, tier = "C" },
+              { itemId = 249810, pop = 1.2, tier = "C" },
+              { itemId = 250258, pop = 1.1, tier = "C" },
+              { itemId = 151310, pop = 0.7, tier = "C" },
             },
           },
         },
@@ -6345,31 +6357,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239685, 239684, 245870 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239685, 239684, 240951, 245870 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -6405,7 +6417,7 @@ ClassCodexSource["ugg"] = {
               { itemId = 255365, slot = "Legs" },
               { itemId = 239684, slot = "Feet" },
               { itemId = 255607, slot = "Finger 1" },
-              { itemId = 255607, slot = "Finger 2" },
+              { itemId = 240951, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255616, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
@@ -6469,25 +6481,7 @@ ClassCodexSource["ugg"] = {
           frostfire = {
             mplus = {
               {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#134197#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125819#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 50,
-              },
-            },
-            ["mplus:10658"] = {
-              {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#134197#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125819#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 100,
-              },
-            },
-            ["mplus:12811"] = {
-              {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#134197#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125819#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 100,
-              },
-            },
-            ["mplus:361753"] = {
-              {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62129#80189#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#134441#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108850#136839#1-108852#134408#2-108855#134411#1-108858#134414#2-108859#134415#1-108860#134416#1-108863#134420#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-110079#136577#1-110080#136578#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108851#134407#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
                 pickrate = 100,
               },
             },
@@ -6499,14 +6493,14 @@ ClassCodexSource["ugg"] = {
             },
             raid = {
               {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62129#80189#1-62150#134540#1-62153#80216#1-62157#80220#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-81468#102429#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#136839#1-108851#134407#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 18.2,
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62129#80189#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#136839#1-108851#134407#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
+                pickrate = 25,
               },
             },
             ["raid:3159"] = {
               {
-                export = "62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62110#136466#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117776#1-99828#123342#1-101883#125818#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108850#136839#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108860#134416#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-110079#136577#1-110081#136579#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 25,
+                export = "62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62129#80189#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108860#134416#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110081#136579#1-110422#137034#1-110422#137033#2-110422#137032#1",
+                pickrate = 50,
               },
             },
             ["raid:3176"] = {
@@ -6515,144 +6509,144 @@ ClassCodexSource["ugg"] = {
                 pickrate = 33.3,
               },
             },
-            ["raid:3177"] = {
+            ["raid:3178"] = {
               {
-                export = "62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62129#80189#1-62150#134540#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-81468#102429#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#136839#1-108851#134407#1-108852#134408#2-108855#134411#1-108858#134414#2-108859#134415#1-108863#136838#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
+                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62129#80189#1-62150#134540#1-62151#80214#1-62153#80216#1-62157#80220#1-62163#80226#1-62164#80227#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#136839#1-108851#134407#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
                 pickrate = 100,
               },
             },
-            ["raid:3181"] = {
+            ["raid:3183"] = {
               {
-                export = "62084#80140#1-62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62127#80187#1-62129#80189#1-62150#134540#1-62153#80216#1-62157#80220#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-81468#102429#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-101883#125818#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#136839#1-108851#134407#1-108852#134408#2-108855#134411#1-108857#134413#1-108858#134414#2-108859#134415#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
+                export = "62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62100#80157#1-62102#80159#2-62104#80161#1-62105#80163#1-62107#80165#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62127#80187#1-62129#80189#1-62150#134540#1-62153#80216#1-62157#80220#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-81468#102429#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-103771#134418#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108850#134406#1-108851#134407#1-108852#134408#2-108855#134411#1-108858#134414#2-108859#134415#1-108863#136838#1-108864#134421#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-109916#136183#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
                 export = "62085#80141#1-62086#80142#1-62091#80147#1-62094#126060#1-62096#80153#1-62098#80155#1-62102#80159#2-62104#80161#1-62105#80163#1-62112#80170#2-62114#80173#2-62115#80174#1-62116#80175#1-62117#80176#1-62122#80181#1-62123#80182#2-62124#80183#1-62125#134184#1-62127#80187#1-62129#80189#1-62150#134540#1-62153#80216#1-62157#80220#1-62164#80227#1-62170#80234#1-62173#80237#1-62176#80241#1-62177#80242#1-62178#80243#1-62179#80244#1-62180#80245#1-62181#80247#1-62182#80248#1-62185#80251#1-81468#102429#1-93524#115877#1-94632#117235#1-94633#117236#1-94634#117237#1-94635#117238#1-94636#117239#1-94637#117240#1-94638#117241#1-94639#117242#1-94640#117243#1-94641#117244#1-94642#117245#1-99828#123342#1-103771#128077#1-108653#134180#1-108654#134182#1-108655#134185#1-108657#134187#1-108658#134188#1-108659#134189#1-108660#134190#1-108661#134191#1-108849#134405#1-108850#136839#1-108852#134408#2-108855#134411#1-108858#134414#2-108859#134415#1-108860#134416#1-108863#136838#1-108864#134538#1-109670#135921#1-109671#135922#1-109672#135923#1-109915#136182#1-110078#136576#1-110079#136577#1-110081#136579#1-110258#136796#1-110422#137034#1-110422#137033#2-110422#137032#1",
-                pickrate = 50,
+                pickrate = 100,
               },
             },
           },
           spellslinger = {
             mplus = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZmZMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYBAAgZ2AmBGwMYA",
-                pickrate = 11.2,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZmZMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYDAAgZ2AmBGwMYA",
+                pickrate = 8.9,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZGzMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYDAAgZ2AmBGwMYA",
-                pickrate = 16.7,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlxMzgZGjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMwAmBDA",
+                pickrate = 11.5,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZmZMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYDAAgZ2AmBGwMYA",
-                pickrate = 14.3,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZGjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzMjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGbAAAMzGwMMGwMYA",
-                pickrate = 11.1,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZGjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
+                pickrate = 21.1,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzMjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw22YmZGMbDjZGLAAAMzGwMMGwMYA",
-                pickrate = 16,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZGjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzYmZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
-                pickrate = 12.5,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZGjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
+                pickrate = 13,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzYmZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
-                pickrate = 16,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzgZmZMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYBAAgZ2AmBGwMYA",
+                pickrate = 14.8,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzMjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGbAAAMzGwMMGwMYA",
-                pickrate = 13.6,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzMjZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw22YmZGMbDjZGbAAAMzGwMMGwMYA",
+                pickrate = 15.4,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzYmZmZmZxMzwMmBAAAmZmZZZmxGAAsBAAAsAw2yYmZGMbDjZGLAAAMzGwMMGwMYA",
-                pickrate = 16.7,
+                export = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZGMzMzMzMzMLmZGmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMzYDAAgZ2AmBGwMYA",
+                pickrate = 14.8,
               },
             },
             raid = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 39.7,
+                pickrate = 41.5,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 43.5,
+                pickrate = 36.3,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 34.2,
+                pickrate = 36.4,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 30.8,
+                pickrate = 34.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 42.1,
+                pickrate = 43,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 39.3,
+                pickrate = 39.9,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgFA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 28.5,
+                pickrate = 34.2,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 37.2,
+                pickrate = 37.6,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 33.4,
+                pickrate = 36.6,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 33.3,
+                pickrate = 36.3,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZGMzMjZmZmZxMzMmxMAAAwMzMLLzM2AAgNAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBDA",
-                pickrate = 41.5,
+                pickrate = 48.7,
               },
             },
           },
@@ -6660,17 +6654,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 54.9, tier = "S" },
-              { itemId = 249343, pop = 38.5, tier = "S" },
-              { itemId = 250144, pop = 5.9, tier = "B" },
-              { itemId = 268292, pop = 5.4, tier = "B" },
-              { itemId = 250256, pop = 3.5, tier = "C" },
-              { itemId = 250223, pop = 2.4, tier = "C" },
-              { itemId = 249809, pop = 1.6, tier = "C" },
-              { itemId = 250258, pop = 1, tier = "C" },
-              { itemId = 250257, pop = 0.9, tier = "C" },
+              { itemId = 249346, pop = 53.9, tier = "S" },
+              { itemId = 249343, pop = 37.5, tier = "S" },
+              { itemId = 250144, pop = 6.2, tier = "B" },
+              { itemId = 268292, pop = 5.8, tier = "B" },
+              { itemId = 250256, pop = 3.7, tier = "C" },
+              { itemId = 250223, pop = 2.3, tier = "C" },
+              { itemId = 249809, pop = 2.1, tier = "C" },
+              { itemId = 250257, pop = 1.2, tier = "C" },
+              { itemId = 250258, pop = 1.1, tier = "C" },
               { itemId = 251792, pop = 0.9, tier = "C" },
-              { itemId = 246304, pop = 0.2, tier = "C" },
+              { itemId = 50259, pop = 0.3, tier = "C" },
+              { itemId = 151310, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -6681,31 +6676,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244569, 237845 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244736, 240952, 239678, 244554, 244740, 244557, 244764, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 239678, 244740, 244557, 244764, 240951 }, embellishments = {} },
             raid = { crafts = { 244569, 237839 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236068 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -6730,11 +6725,11 @@ ClassCodexSource["ugg"] = {
               { ilvl = 295, itemId = 237845, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 244736, slot = "Head" },
+              { itemId = 255460, slot = "Head" },
               { itemId = 240952, slot = "Neck" },
               { itemId = 250013, slot = "Shoulders" },
               { itemId = 239678, slot = "Back" },
-              { itemId = 244554, slot = "Chest" },
+              { itemId = 255455, slot = "Chest" },
               { itemId = 244740, slot = "Wrist" },
               { itemId = 255458, slot = "Hands" },
               { itemId = 244557, slot = "Waist" },
@@ -6742,8 +6737,8 @@ ClassCodexSource["ugg"] = {
               { itemId = 244764, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
-              { itemId = 250256, slot = "Trinket 1" },
-              { itemId = 249343, slot = "Trinket 2" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255616, slot = "Trinket 2" },
               { itemId = 255637, slot = "Main Hand" },
             },
             raid = {
@@ -6768,7 +6763,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240910 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "mastery", "versatility" }, { "crit" }, { "haste" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "crit" }, { "haste" } } } },
           ["master-of-harmony"] = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
@@ -6805,49 +6800,49 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 20.3,
+                pickrate = 20.8,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 16.4,
+                pickrate = 22,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 17.6,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwYzAzMzMmZjZGzsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
+                pickrate = 17.7,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwMbGYmZmhZjZGzsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
-                pickrate = 23.1,
+                pickrate = 26.4,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 17,
+                pickrate = 17.7,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 17.7,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbMYmZmxMbMzYsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
+                pickrate = 12.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwYzAzMzMmZjZGzsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
-                pickrate = 11.9,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
+                pickrate = 26.7,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
-                pickrate = 27.8,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwYzAzMzMMb2mZMzywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
+                pickrate = 13.5,
               },
             },
             ["mplus:61209"] = {
@@ -6858,190 +6853,190 @@ ClassCodexSource["ugg"] = {
             },
             raid = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYAzAzwYzMGzMzMmZZYGzsMssZZbWGmFAAYZWGLz2MLDAAAwMsBmZAjxAAAGA",
-                pickrate = 43.9,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwMbGYmZmhZjZGzsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
+                pickrate = 11.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzMMzAzwYDYmZmhZz2Mjxywy2DstNbYWAAglZZmlZbmlBAAAwwGYmBMzYADA4BA",
-                pickrate = 13.9,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBDMzAzwMbGYmZmhZjZGzsMss9ALbzGmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
+                pickrate = 16.7,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYAzAzwYzMGzMzMmZZYGzsMssZZbWGmFAAYZWGLz2MLDAAAwMsBmZAjxAAAGA",
-                pickrate = 35.7,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYMYGYGGbmxYmZmxMLDzYmlhlNLbzywsAAALzyMLz2MLDAAAwMsBmZAzMGAAwDA",
+                pickrate = 23.5,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZAAAAAAAYZBjhZGYGGbMYmZmhZb2MjZWGW2stNmxsAAALzyMLz2MLDAAAwMsBmZAzMGwAAeA",
-                pickrate = 14.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBzgZGYGGbGYmZmhZz2Mjxywy2DssNbYWAAglZZsMbzsMAAAAG2AzMgxYAAAD",
+                pickrate = 16.7,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzYWmxGmZAAAAAAAYZBjhZGYGGbmBzMzMmZZYGzsMssZbb2mxsAAALzyMLz2MLDAAAghNwMDYmxAAAeA",
-                pickrate = 14.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZAAAAAAAYZBjhZGYGGbmBzMzMMLDzYmlhlNbbz2MmFAAYZWmZZ2mZZAAAAMsBmZAzMGwAAeA",
+                pickrate = 18.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYAzAzwYzMGzMzMmZZYGzsMssZZbWGmFAAYZWGLz2MLDAAAwMsBmZAjxAAAGA",
-                pickrate = 37.5,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYMYGYGGbmxYmZmxMLDzYmlhlNLbzywsAAALzyMLz2MLDAAAwMsBmZAzMGAAwDA",
+                pickrate = 18.2,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzwyM2wMjBAAAAAAYZBjhZGYGmZzAzMzMMbDzYmlhlNbbz2MmFAAYZWmZZ2mZZAAAAmhNwMDYmxAAAeA",
-                pickrate = 15.4,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYMYGYGGbmxYmZmxMLDzYmlhlNLbzywsAAALzyMLz2MLDAAAwMsAmZAzMGAAwDA",
+                pickrate = 18.2,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzwyM2wMDAAAAAAALLYgZGYGGbMGzMzMMbjZGzsMssZbb2mZmFAAYZWGLz2MLDAAAghNwMDYMGAAwA",
-                pickrate = 28.6,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzwyM2wMDAAAAAAALLYMMzAzwYzMYmZmhZbMzYmlhlNbbz2MmFAAYZWmZZ2mZZAAAAmhNwMDYmxAAAeA",
+                pickrate = 15.4,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzmxmZmZAAAAAAAYZBjhZGYGmZzMGzMzMMbDzYmFss9Abbz2YGAAwysMz2sNzyAAAAMDbgZGwMjBMAgHA",
-                pickrate = 27.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzYWmxGmZAAAAAAAYZBjhZGYGGbGGzMzMMLjZGzsMssZbb2GzsAAALzyMLz2MLDAAAghNwMDYmxAAAeA",
+                pickrate = 10,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyM2YmZAAAAAAAYZBjhZGYGmZjBzMzMMbDzYmlhlNbbz2YmFAAYZWmZZ2mZZAAAAmhNwMDYmxAGAwDA",
-                pickrate = 15.4,
+                pickrate = 11.8,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYAzAzwYzMGzMzMmZZYGzsMssZZbWGmFAAYZWGLz2MLDAAAwMsBmZAjxAAAGA",
-                pickrate = 32.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYMYGYGGbmxYmZmxMLDzYmlhlNLbzywsAAALzyMLz2MLDAAAwMsBmZAzMGAAwDA",
+                pickrate = 26.3,
               },
             },
           },
           ["shado-pan"] = {
             mplus = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBjhZGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
-                pickrate = 17.7,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGz2MzGzMjBAAAAAAYZBjhZGYGGbGYmZmhZbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
+                pickrate = 9.1,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBjhZGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
-                pickrate = 33.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbxYGPwgZegNmZGDAAAAAAw2CMDzMWYGzADmZmZYWGMmZZYZbW2mthZBAA2AAAAz2sMzMzswwCAzMMzMAYA4BA",
+                pickrate = 16.7,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGzi5B2YmZMAAAAAAALLYmBzAzwYzAzMzMMbMzYmlhltZZb2GmFAAYDAAAMbzyMzMzGDbAMzwMjBYAgHA",
-                pickrate = 10,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGziZ2YmZMAAAAAAALLYMMzAzwMbMYmZmxMbMGzsMssNLbzGmFAAYDAAAMbzyMzMzCDLAMzwMjBAA8AA",
+                pickrate = 11.1,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGzyMzGzMjBAAAAAAYZBzMYGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
-                pickrate = 33.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBjhZGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBjhZGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
-                pickrate = 33.3,
+                pickrate = 10,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGziZ2YmZMAAAAAAALLYMMzAzwYzAzMzMMbjZGzsMss9ALbz2wsAAAbAAAgZbWmZmZ2YYBgZGmZMAAgHA",
-                pickrate = 33.3,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGziZ2YmZMAAAAAAALLYMMzAzwMbGYmZmhZz2YMzywy2DssNbDzCAAsBAAAmtZZmZmZjhNAmZYmxAAAeA",
+                pickrate = 25,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMDAAAAAAALLYMMzAzwMbGGzMzMMbjZeAzsMss9ALbzGmFAAYDAAAMbzyMzMzGDbAMzwMjBAA8AA",
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMzGzMjBAAAAAAYZBjhZGYGmZzAzMzMMbMzYmlhltHYZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
                 pickrate = 14.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGziZ2YmZAAAAAAAYZBzMMzAzwMbMYmZmhZjZGzsMssNLbzGmFAAYDAAAMbzyMzMzGDbAMzwMjBAA8AA",
-                pickrate = 16.7,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGGzyMPwGzMjBAAAAAAYZBjhZGMzwYzAzMzMMbjZGjlhltZZb2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
+                pickrate = 10,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGzCzmZmZMAAAAAAAWwMDmBmBzmZwMzMDz2YmxMLDLbWWmtZMLAAwGAAAY2mlZmZmFGWAYmhZGDAA4BA",
-                pickrate = 25,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGzyM2YmZMAAAAAAALLYmhZGYGGbwYmZmhZjZGzsMssNbbz2wsAAAbAAAgZbWmZmZ2YYDgZGmZMAAgHA",
+                pickrate = 20,
               },
             },
             raid = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 50.2,
+                pickrate = 44.8,
               },
             },
             ["raid:3159"] = {
-              {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZAAAAAAAYZBDMzAzwYjxYmZmhZbMzYmlhlNbbjZmZBAA2AAAAz2sYmZmFG2AYmhxYAAAD",
-                pickrate = 25.8,
-              },
-            },
-            ["raid:3176"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
                 pickrate = 33.3,
               },
             },
+            ["raid:3176"] = {
+              {
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZAAAAAAAYZBDMzAzwMbmBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
+                pickrate = 13.6,
+              },
+            },
             ["raid:3177"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 51.2,
+                pickrate = 50,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 30.8,
+                pickrate = 42.4,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 32,
+                pickrate = 37,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 25.9,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZAAAAAAAYZBDMzAzwMbmBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
+                pickrate = 21.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYMMzAzwYjBzMzMMbjZGzsMssZbbMjZBAA2AAAAz2sMzMzsYG2AYmhZGDAA4BA",
-                pickrate = 17.4,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGGbMYmZmhZbMzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
+                pickrate = 25,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGzYWmxGzMDAAAAAAALLYAzAzwMbmxYmZmhZbYGzsMssZbb2YmFAAYDAAAMbziZmZ2YYBgZGGjBAAMA",
-                pickrate = 21.9,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWM2wMDAAAAAAALLYgZGYGmZzMGzMzMMbDzYsMssZbb2mxsAAAbAAAgZbWMzMziZYBgZGGjBAAMA",
+                pickrate = 21.6,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGz4BGWM2YmZAAAAAAAYZBDMzAzwMbmBzMzMMbDzYmlhlNbbz2MmFAAYDAAAMbziZmZWMDLAMzwYMAAgB",
-                pickrate = 24,
+                export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWM2wMDAAAAAAALLYgZGYGmZzMGzMzMMbDzYsMssZbb2mxsAAAbAAAgZbWMzMziZYBgZGGjBAAMA",
+                pickrate = 21.4,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGzYGWmxGmZMAAAAAAALLYgZGYGmZjBzMzMMbDzYmlhlNbbjZMLAAwGAAAY2mFzMzsYG2AYmhxYAAAD",
-                pickrate = 60.3,
+                pickrate = 48.9,
               },
             },
           },
@@ -7049,18 +7044,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 41, tier = "S" },
-              { itemId = 268292, pop = 25, tier = "A" },
-              { itemId = 252420, pop = 20.4, tier = "A" },
-              { itemId = 249339, pop = 11.1, tier = "B" },
-              { itemId = 260235, pop = 10, tier = "B" },
-              { itemId = 151312, pop = 3.1, tier = "C" },
-              { itemId = 252418, pop = 2.1, tier = "C" },
-              { itemId = 193701, pop = 1.7, tier = "C" },
-              { itemId = 252421, pop = 1.7, tier = "C" },
-              { itemId = 249806, pop = 1.5, tier = "C" },
-              { itemId = 151307, pop = 0.5, tier = "C" },
-              { itemId = 250258, pop = 0.2, tier = "C" },
+              { itemId = 249343, pop = 40.4, tier = "S" },
+              { itemId = 268292, pop = 25.1, tier = "A" },
+              { itemId = 252420, pop = 18.6, tier = "A" },
+              { itemId = 249339, pop = 12.2, tier = "B" },
+              { itemId = 260235, pop = 10.5, tier = "B" },
+              { itemId = 151312, pop = 3.9, tier = "C" },
+              { itemId = 252418, pop = 2.6, tier = "C" },
+              { itemId = 193701, pop = 1.6, tier = "C" },
+              { itemId = 249806, pop = 1.2, tier = "C" },
+              { itemId = 252421, pop = 1.1, tier = "C" },
+              { itemId = 151307, pop = 0.9, tier = "C" },
+              { itemId = 250258, pop = 0.3, tier = "C" },
             },
           },
         },
@@ -7069,31 +7064,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244576 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244736, 244576, 244764, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244736, 240952, 239678, 244576, 244559, 244764, 240951 }, embellishments = {} },
             raid = { crafts = { 244576, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 8025, spellId = 1236088 } },
-              ["戒指2"] = { { id = 8025, spellId = 1236088 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 8025, spellId = 1236088 } },
+              ["Finger 2"] = { { id = 8025, spellId = 1236088 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236088 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -7119,21 +7114,21 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 244736, slot = "Head" },
-              { itemId = 255610, slot = "Neck" },
+              { itemId = 240952, slot = "Neck" },
               { itemId = 255464, slot = "Shoulders" },
-              { itemId = 255471, slot = "Back" },
+              { itemId = 239678, slot = "Back" },
               { itemId = 255454, slot = "Chest" },
               { itemId = 244576, slot = "Wrist" },
-              { itemId = 250016, slot = "Hands" },
+              { itemId = 244559, slot = "Hands" },
               { itemId = 255467, slot = "Waist" },
               { itemId = 250014, slot = "Legs" },
               { itemId = 244764, slot = "Feet" },
-              { itemId = 151311, slot = "Finger 1" },
+              { itemId = 255607, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
-              { itemId = 255614, slot = "Trinket 2" },
+              { itemId = 255616, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
-              { itemId = 249922, slot = "Off Hand" },
+              { itemId = 249276, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 298, itemId = 250015, slot = "Head" },
@@ -7194,177 +7189,165 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsYstsMjZ2Mz2yyMjFmhZMDYwAYmZmhZDzwsMDAAAAAAYx2MLz2MDAAMAAzAGDmFMmBA",
-                pickrate = 12.7,
+                pickrate = 11.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsZstsMjZ2Mz2yyMjFmhZMDYMGAzMzMMbYGmlZAAAAAAAL2mZZ2mZAAgBAYGwYgFMmBA",
-                pickrate = 48,
+                pickrate = 35.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsYstsMjZ2Mz2yyMjFGMjZADGglZmZGmNMDzyMAAAAAAgFbzsMbzMAAwAAMDYMYWwYGA",
-                pickrate = 29.8,
+                pickrate = 28.5,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsYstsMjZ2Mz2yyMjFmhZMDYwAYmZmhZDzwsMDAAAAAAYx2MLz2MDAAMYAYGwYgFMmBA",
-                pickrate = 23.9,
+                pickrate = 26.4,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMMjZADGAzMzMMbYGmlZAAAAAAAL2mZZ2mZAAgBDAzAGDmFMmBA",
-                pickrate = 19.7,
+                pickrate = 16.1,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsYstsMjZ2Mz2yyMjFGMjZADGAzMzMMbYGmlZAAAAAAAL2mZZ2mZAAgBDAzAGDmFMmBA",
-                pickrate = 29.7,
+                pickrate = 28.5,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMMjZAjxAYmZmhZDGmlZAAAAAAAL2mZZ2mZAAgBDAzAGDmFMmBA",
-                pickrate = 27.8,
+                pickrate = 23.2,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMMjZshxYAWmZmZY2ghZZGAAAAAAwitZWmtZGAAYAAmBMGYBjZA",
-                pickrate = 27.8,
+                pickrate = 24.8,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjFjtllZMzmZ2WWmZswMMjZADGAzMzMMbzGDzyMAAAAAAgFbzsMbzMAAwAAMDYMYWwYGA",
-                pickrate = 53.1,
+                pickrate = 53.6,
               },
             },
             raid = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 32.5,
+                pickrate = 29.6,
               },
             },
             ["raid:3159"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 35.1,
+                pickrate = 31.8,
               },
             },
             ["raid:3176"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 35.6,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
+                pickrate = 29.6,
               },
             },
             ["raid:3177"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
-                pickrate = 28.2,
+                pickrate = 31.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
-                pickrate = 37.9,
+                pickrate = 28.4,
               },
             },
             ["raid:3179"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 38.2,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
+                pickrate = 29.5,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxM2mB2sYGzMLzYDjZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
-                pickrate = 28.9,
+                pickrate = 27.8,
               },
             },
             ["raid:3181"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 30.4,
+                pickrate = 27.4,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
-                pickrate = 34.2,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
+                pickrate = 27,
               },
             },
             ["raid:3183"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgLAYGwYYsgxMA",
-                pickrate = 35.7,
+                pickrate = 34.8,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmltlZGLMDzYGwgBjZZmZmhZbwgFDAAAAAAYxyMLz2MDAAMgBYGwYYsgxMA",
-                pickrate = 39.1,
+                pickrate = 37.7,
               },
             },
           },
           ["master-of-harmony"] = {
             mplus = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxw2MLjZx2MmZsYsssMDz2DMz2yyMjFmxMjZADGmhlZmZGmtBDWMDAAAAY2mZZ2mZZ2AAAAYAmZAgxwYBDA",
-                pickrate = 30,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2mZZML2mxMjFjtllZMzmZ2WWmZswwMjZmNMGDwyMzMDzGMMLzMAAAAgZZmtZZmlZDAAAgBYmBAGDsgBA",
+                pickrate = 16.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBWmZZML2mZMjNjtllZmZ2Mz2yyMjFGmZMDYwghlZmZGmlBDzyMDAAAAY2mZb2mZZ2AAAAYwwMDAMALYAA",
-                pickrate = 33.3,
+                pickrate = 100,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2mZZMLz2MmZsYstsMjZ2Y2WWmZswMmZMjFMYAMzMzwshZYWmZAAAAAzyMbzyMbzGAAAADGmZAgxALYAA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:12874"] = {
-              {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxwyMLjZZ2mxMjFjltlZY2Y2WWmZswMmZMDYwsAz2MjZY2wMMLmBAAAAMLzsNbzsMbAAAAMY8AzMAwYYADA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:12915"] = {
-              {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxw2MLjZx2MmZsYsssMDz2DMz2yyMjFmxMjZADGmhlZmZGmtBDWMDAAAAY2mZZ2mZZ2AAAAYAmZAgxwYBDA",
-                pickrate = 66.7,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2mZZML2mxMjFjtllZMzmZ2WWmZswMmZMDYwAsMzMzwsBDzyMDAAAAYWmZbWmZb2AAAAYwwMDAMGGLYAA",
+                pickrate = 50,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsYstsMjZ2Mz2yyMjFGmZMjFMGDgZmZGmtZjhZZmBAAAAMLzsNbzsMbAAAAMAzMAwAsgBA",
-                pickrate = 100,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2mZZML2mxMjFjtllZMzmZ2WWmZswwMjZmNMGDwyMzMDzGMMLzMAAAAgZZmtZZmlZDAAAgBYmBAGDsgBA",
+                pickrate = 50,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgB2mZZML2mZMjNjltlZmZ2Mzy2yMjFmZGMDYwgBzMzMMbzGDzyMDAAAAYWmZZ2mZZ2AAAAYAmZAgxALYAA",
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2mZZMLz2MmZsYstsMjZ2Y2WWmZswwMjZmFMYAMzMzwsNbmhZZmBAAAAMLzsNLzsMbAAAAMAzMAwAsgBA",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBWmZZML2mZMjFjtllZmZ2Mz2yyMjFmxMjZADGGsMzMzwsBDWMDAAAAYWmZZ2mZZ2AAAAYwwMDAMGGLDDA",
-                pickrate = 18.5,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmxyMYWsNjZmlFjtllZMzmZ2WWmZswwMjZADmFzgZmZGmtZjhZzMAAAAgZbmtZbmlZDAAAgBYmBAGDjFMAA",
+                pickrate = 12.5,
               },
             },
             ["raid:3159"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZZ2mZMzyywGGzsNmNLzMWYGzMmBMYYwyMzMDzGjBLzMAAAAgZbmlZbmlZDAAAgBYmBAGDsgBA",
-                pickrate = 20,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxwyMGzitZGzssZstsMjZ2Mz2y2MjFmxMjZADGglZGzwsNYwyMDAAAAY2mZb2mZb2AAAAYAmZAgxwYZYAA",
+                pickrate = 18.2,
               },
             },
             ["raid:3176"] = {
@@ -7375,50 +7358,50 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3177"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBWmZZML2mZMjFjtllZmZ2Mz2yyMjFmxMjZADGGsMzMzwsBDWMDAAAAYWmZZ2mZZ2AAAAYwwMDAMGGLDDA",
-                pickrate = 11.1,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLDL2mxMjtHYstsNjZ2Mz22yMjFmxMjZADGglZmZGmthZYWmZAAAAAz2MLz2MLzGAAAADwMDAMALYAA",
+                pickrate = 10,
               },
             },
             ["raid:3178"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZWGLjZz2MmZsZsstMjZ2MzmtZGbMjZGzAGMLwsNzMzwsNL8AMbzMAAAAgZZmlZbmtZDAAAgBDzMAAgFMAA",
-                pickrate = 20,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxgZwsYbmZmZZxYbZZmZmNzstsMzYhZMzYGwgBDmZmZY2wMYxMAAAAgZZmlZZmlZDAAAgBDzMAwYYsMMAA",
+                pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBWmZZML2mZMjFjtllZmZ2Mz2yyMjFmxMjZADGGsMzMzwsBDWMDAAAAYWmZZ2mZZ2AAAAYwwMDAMGGLDDA",
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZYx2MmZs9AjtltZMzmZ22WmZswMmZMDYwgxsMzMzwshZYWmZAAAAAz2MLz2MLzGAAAADwMDAMALYAA",
                 pickrate = 20,
               },
             },
             ["raid:3180"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxM2GLzYziZmZsYsssMzMDzsstMzYhxMzYGwgBDLzMzMMLwwsYGAAAAwsNzysMzysBAAAwghZGAYMMWwAA",
-                pickrate = 25,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmxyMYWsNjZmlFjtllZMzmZ2WWmZswwMjZADmFzgZmZGmtZjhZzMAAAAgZbmtZbmlZDAAAgBYmBAGDjFMAA",
+                pickrate = 16.7,
               },
             },
             ["raid:3181"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmltZstsMzMzmZWW2mZswMmZMDYwghlZmZGmlZjHgZxMAAAAgZbmlZbmlZDAAAgBYmBAGDjFMAA",
-                pickrate = 33.3,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmxyMYWsNjZmlFjtllZMzmZ2WWmZswwMjZADmFzgZmZGmtZjhZzMAAAAgZbmtZbmlZDAAAgBYmBAGDjFMAA",
+                pickrate = 50,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MjZsYstsMjZ2Mz2yyMjFmZmZMDYwAYmZmhZDzws8AzAAAAAmlZ2mtZ2mNAAAAGMMzAAjBWwAA",
-                pickrate = 14.3,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGWmZZML2mxMjFjlllZMzmZ2WWmZswMmZMDYwghlZmZGmNMDzyMDAAAAY2mZb2mZb2AAAAYAmZAgxALYAA",
+                pickrate = 20,
               },
             },
             ["raid:3183"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMzyYWsNjZmlFjtllZMzmZ2WWmZswMmZMDYwsxwyMzMDz2ghZ5BmBAAAAMLzsMbzsMbAAAAMAzMAwYgFMAA",
-                pickrate = 25,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgxMWmBzitZGzssNjNMzMbmZbZZmxCzYmxMgBDzgZmZGmtBDWegZAAAAAz2MLz2MLzGAAAADGmZAgxALYAA",
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
-                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBWmZZML2mZMjFjtllZmZ2Mz2yyMjFmxMjZADGGsMzMzwsBDWMDAAAAYWmZZ2mZZ2AAAAYwwMDAMGGLDDA",
-                pickrate = 25,
+                export = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG2mZZML2mxMjNjlllZMzmZ2WWmZswMmZMDYwghlZmZGmNMDzyMDAAAAY2mZb2mZb2AAAAYAmZAgxALYAA",
+                pickrate = 12.5,
               },
             },
           },
@@ -7426,17 +7409,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249808, pop = 51.1, tier = "S" },
-              { itemId = 249343, pop = 29.1, tier = "A" },
-              { itemId = 249341, pop = 11.5, tier = "B" },
-              { itemId = 268292, pop = 11, tier = "B" },
-              { itemId = 250256, pop = 10, tier = "B" },
-              { itemId = 250144, pop = 4.9, tier = "C" },
-              { itemId = 249811, pop = 1.8, tier = "C" },
-              { itemId = 151340, pop = 1.4, tier = "C" },
-              { itemId = 250253, pop = 1.4, tier = "C" },
-              { itemId = 50259, pop = 1.2, tier = "C" },
-              { itemId = 252411, pop = 0.2, tier = "C" },
+              { itemId = 249808, pop = 50, tier = "S" },
+              { itemId = 249343, pop = 27.7, tier = "A" },
+              { itemId = 249341, pop = 13.3, tier = "B" },
+              { itemId = 268292, pop = 12, tier = "B" },
+              { itemId = 250256, pop = 9.5, tier = "B" },
+              { itemId = 250144, pop = 5, tier = "C" },
+              { itemId = 250253, pop = 1.7, tier = "C" },
+              { itemId = 249811, pop = 1.5, tier = "C" },
+              { itemId = 151340, pop = 1.2, tier = "C" },
+              { itemId = 50259, pop = 1, tier = "C" },
+              { itemId = 252411, pop = 0.3, tier = "C" },
             },
           },
         },
@@ -7452,25 +7435,25 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -7487,8 +7470,8 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268286, slot = "Waist" },
               { ilvl = 289, itemId = 250014, slot = "Legs" },
               { ilvl = 289, itemId = 250017, slot = "Feet" },
-              { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 285, itemId = 251513, slot = "Finger 2" },
+              { ilvl = 285, itemId = 251513, slot = "Finger 1" },
+              { ilvl = 298, itemId = 268290, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249302, slot = "Main Hand" },
@@ -7567,125 +7550,145 @@ ClassCodexSource["ugg"] = {
           },
         },
         talents = {
+          ["conduit-of-the-celestials"] = {
+            raid = {
+              {
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzMYGbDDYYYmZmhZbYGmlZGAgFzsNGGzMDAgFzsMbjZAAADDgZAGbDgZmZzDA",
+                pickrate = 33.3,
+              },
+            },
+            ["raid:3159"] = {
+              {
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzMYGbDDYYYmZmhZbYGmlZGAgFzsNGGzMDAgFzsMbjZAAADDgZAGbDgZmZzDA",
+                pickrate = 100,
+              },
+            },
+            ["raid:3176"] = {
+              { export = "C0QAAAAAAAAAAAAAAAAAAAAAA8AzAwDMMmxAAAAAAAAAAAAADjZGzAGAAAAwyMDAAsAYmZAAsglZbMDAAAAAAAAA", pickrate = 100 },
+            },
+            ["raid:3182"] = {
+              { export = "C0QAAAAAAAAAAAAAAAAAAAAAA8AzYAeghZZGDAAAAAAAAAAAAAGMDYAMAAAwMDAAsAYmZAAsglZbMDAAAAAAAAA", pickrate = 100 },
+            },
+          },
           ["shado-pan"] = {
             mplus = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDzGmhZZGAALmZbMMmZGAAbAwsMLmZmZBYMDMzAALjBMgB",
-                pickrate = 13.8,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
+                pickrate = 30.8,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmx2MAAAAAAAAAAAALDzYGzwwYwwwMzMDzGmBLzAAYxMbjZMzMzAAYDAmlZxMzMLAjZgZGAGGADYA",
-                pickrate = 26.3,
+                pickrate = 20,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDDzYGGGwwwMzMDzGmhZZGAALmZbMMmZGAAbAwsMLmZmZBYYgZGAGLjBMgB",
-                pickrate = 12.5,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
+                pickrate = 38.5,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
-                pickrate = 15,
+                pickrate = 22.7,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDDYGGGwMGmZmZY2GmhZZGAALmZbMMmZGAAbAwsMLmZmZBYYgZGAGLjBMgB",
-                pickrate = 11.1,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDzGmhZZGAALmZbMMmZGAAbAwsMLmZmZBYMDMzAALjBMgB",
+                pickrate = 15.8,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDzGmhZZGAALmZbMMmZGAAbAwsMLmZmZBYMDMzAALjBMgB",
-                pickrate = 17.9,
+                pickrate = 22.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
-                pickrate = 23.8,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDDzYGGGDGGmZmZY2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAwYZAMgB",
+                pickrate = 13,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
-                pickrate = 24,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAGmxMzMDzGmhZZGAALmZbMMmZGAAbAwsMLmZmZBYMDMzAwYZAMgB",
+                pickrate = 12,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzAzwwAmxwMzMDz2wMMLzAAYxMbjhxMzAAYDAmlZxMzMLADDMzAALjBMgB",
-                pickrate = 23.8,
+                pickrate = 17.7,
               },
             },
             raid = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 41.2,
+                pickrate = 35.9,
               },
             },
             ["raid:3159"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 50.2,
+                pickrate = 35.9,
               },
             },
             ["raid:3176"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 40.1,
+                pickrate = 41.1,
               },
             },
             ["raid:3177"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 32.1,
+                pickrate = 28.4,
               },
             },
             ["raid:3178"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 49.4,
+                pickrate = 55.2,
               },
             },
             ["raid:3179"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 41,
+                pickrate = 37.3,
               },
             },
             ["raid:3180"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 45.3,
+                pickrate = 42.6,
               },
             },
             ["raid:3181"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 34,
+                pickrate = 27.1,
               },
             },
             ["raid:3182"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAAWMz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 15.5,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsgBMjZMzMzwsMMDzyMAAWMz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
+                pickrate = 30.4,
               },
             },
             ["raid:3183"] = {
               {
-                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzMD2mxgtZGbzAAAAAAAAAAAAsMMMjZYYgthhZmZGmNMDziBAwiZ2GDzMzMAA2AgZZWMzMzCAzAzMAMWmBYAD",
-                pickrate = 20,
+                export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzMD2mxgtZGbzAAAAAAAAAAAAsMMMjZYYgthhZmZGmthZYWMAAWMz2YYmZmBAwGAMLziZmZWAwAzMAMWmBYAD",
+                pickrate = 11.4,
               },
             },
             ["raid:3306"] = {
               {
                 export = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYw2MGsNzMbzAAAAAAAAAAAAsMMgZsNMgZMMzMzwsMMDzyMAA2Mz2YYmZmBAwGAMLziZmZWAwAzMAwyYADYA",
-                pickrate = 39.3,
+                pickrate = 41.1,
               },
             },
           },
@@ -7693,18 +7696,19 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 53.1, tier = "S" },
-              { itemId = 249343, pop = 36.8, tier = "S" },
-              { itemId = 268292, pop = 5.7, tier = "B" },
-              { itemId = 250256, pop = 3.7, tier = "C" },
+              { itemId = 193701, pop = 56.3, tier = "S" },
+              { itemId = 249343, pop = 34.3, tier = "S" },
+              { itemId = 268292, pop = 5.1, tier = "B" },
+              { itemId = 250256, pop = 4.3, tier = "C" },
               { itemId = 252420, pop = 3.7, tier = "C" },
-              { itemId = 250144, pop = 3.1, tier = "C" },
+              { itemId = 250144, pop = 3.2, tier = "C" },
               { itemId = 249806, pop = 1.6, tier = "C" },
-              { itemId = 249805, pop = 1.5, tier = "C" },
-              { itemId = 249344, pop = 1.1, tier = "C" },
-              { itemId = 251792, pop = 0.8, tier = "C" },
-              { itemId = 252418, pop = 0.6, tier = "C" },
+              { itemId = 249344, pop = 1.5, tier = "C" },
+              { itemId = 249805, pop = 1.4, tier = "C" },
+              { itemId = 252418, pop = 0.8, tier = "C" },
+              { itemId = 249339, pop = 0.6, tier = "C" },
               { itemId = 249345, pop = 0.2, tier = "C" },
+              { itemId = 260235, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -7714,32 +7718,32 @@ ClassCodexSource["ugg"] = {
       holy = {
         crafting = {
           all = {
-            mplus = { crafts = { 239656, 237834, 240949, 237843 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244738, 240952, 237906, 237902, 240951 }, embellishments = {} },
+            mplus = { crafts = { 239656, 237834, 237843, 237831 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244738, 240952, 237906, 237903, 244766, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 237834, 237843, 237831 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 8013, spellId = 1236082 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7969, spellId = 1236060 } },
-              ["戒指2"] = { { id = 7969, spellId = 1236060 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 8013, spellId = 1236082 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7969, spellId = 1236060 } },
+              ["Finger 2"] = { { id = 7969, spellId = 1236060 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236056 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236056 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -7757,11 +7761,11 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249960, slot = "Legs" },
               { ilvl = 289, itemId = 249963, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 285, itemId = 240949, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249808, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
               { ilvl = 295, itemId = 237843, slot = "Main Hand" },
-              { ilvl = 298, itemId = 249275, slot = "Off Hand" },
+              { ilvl = 295, itemId = 237831, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
               { itemId = 244738, slot = "Head" },
@@ -7770,10 +7774,10 @@ ClassCodexSource["ugg"] = {
               { itemId = 255587, slot = "Back" },
               { itemId = 249964, slot = "Chest" },
               { itemId = 255583, slot = "Wrist" },
-              { itemId = 255573, slot = "Hands" },
+              { itemId = 237903, slot = "Hands" },
               { itemId = 255581, slot = "Waist" },
               { itemId = 255578, slot = "Legs" },
-              { itemId = 237902, slot = "Feet" },
+              { itemId = 244766, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
@@ -7793,7 +7797,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249960, slot = "Legs" },
               { ilvl = 289, itemId = 249332, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 289, itemId = 249369, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
               { ilvl = 295, itemId = 237843, slot = "Main Hand" },
@@ -7808,245 +7812,251 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste", "versatility", "crit" } },
             },
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste", "versatility", "crit" } },
             },
           },
           lightsmith = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste", "versatility", "crit" } },
             },
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste", "versatility", "crit" } },
             },
           },
         },
         statTargets = {
           all = {
-            mplus = { crit = 301, haste = 1035, mastery = 1152, versatility = 99 },
-            raid = { crit = 275, haste = 942, mastery = 1337, versatility = 39 },
+            mplus = { crit = 275, haste = 1233, mastery = 1047, versatility = 39 },
+            raid = { crit = 275, haste = 1189, mastery = 1090, versatility = 39 },
           },
         },
         talents = {
           ["herald-of-the-sun"] = {
             mplus = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMGMMmZGGmNGAGA2AbsNzMzysNzMbGAAAgF2wgNDMjZAAAzMMjxwA",
-                pickrate = 8.5,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMGMmxMzwwsxAwAwGYjtZmZWmtZmZzAAAAswCgNzgZMAAAzMMjxwA",
+                pickrate = 11,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGWGbzMLGGMMmZGGmNGAGA2AbmtZmZWmtZmZzAAAAswGgNzgZMYGAAzMMjxwA",
-                pickrate = 15,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWgxYWGbzMLmxghxMzwwsxAwAwGYjtZMzysNzMbGAAAgFWwgNDMjZwAAYmhZMGGA",
+                pickrate = 21.1,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxMGMMmZGGmNGAGA2AbsNzMzysNzMbGAAAgF2wgNDMjZAAAzMMjxwA",
-                pickrate = 15,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMGMmxMzwwsxAwAwGYjtZmZWmtZmZzAAAAswCgNzgZMAAAzMMjxwA",
+                pickrate = 11.5,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGWGbzMLGGMMmZGGmNGAGA2AbmtZmZWmtZmZzAAAAswGgNzgZMYGAAzMMjxwA",
-                pickrate = 16.7,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjxwyYbmZxwghxMzMGmNGAGA2AbsMzMzysNzMbGAAAgFWwgNDMjZYGAAzMMjxwA",
+                pickrate = 13.3,
               },
             },
             ["mplus:12811"] = {
+              {
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzsMzMLMGDLjtZmFDDGGzMDDzGDADAbgNWmZmZZ2mZmNDAAAwCbA2MDmxMYAAMzwMGDDA",
+                pickrate = 23.1,
+              },
+            },
+            ["mplus:12874"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjxwyYbmZxMGMLGzMDDzGDADAbgNWmZmZZ2mZmNDAAAwCbA2MDmxMYAAMzwMGDDA",
                 pickrate = 13,
               },
             },
-            ["mplus:12874"] = {
-              {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGWGbzMLGGMMmZmxwsxAwAwGYjtZmZWmtZmZzAAAAswGGsZgZMYGAAzMMjxwA",
-                pickrate = 7.7,
-              },
-            },
             ["mplus:12915"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxMGMMmZGGmNGAGA2AbsNzMzysNzMbGAAAgF2wgNDMjZAAAzMMjxwA",
-                pickrate = 22.2,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMGMmxMzwwsxAwAwGYjtZmZWmtZmZzAAAAswCgNzgZMAAAzMMjxwA",
+                pickrate = 11.1,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxMGMMmZGGmNGAGA2AbsNzMzysNzMbGAAAgF24BGsZgZMAAAzMMjxwA",
-                pickrate = 22.2,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMGMMmZGGmNGAGA2AbsNzMzysNzMbGAAAgF2wgNDMjZAAAzMMjxwA",
+                pickrate = 25,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81565#102545#1-81566#102547#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81580#102564#1-81583#102567#2-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81593#102579#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95069#117666#1-95071#117668#1-95072#117669#1-95073#117778#1-95080#117677#1-95086#117683#1-95094#117691#1-95095#117692#1-95098#117777#1-95099#117696#1-95105#117702#1-99839#123362#1-102502#126571#1-103851#128241#2-103856#128309#1-103863#128259#1-103864#128260#1-103866#128262#1-108099#133479#1-109748#136006#1-109749#136007#1-109750#136008#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 17.7,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGWGbzMLmxghxMzMGmNGAGA2AbsNzMzysNzMbGAAAgF2wgNDMjBGAAzMMjxwA",
+                pickrate = 9.1,
               },
             },
             raid = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 47.5,
+                pickrate = 44,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 40.2,
+                pickrate = 37.6,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 52.9,
+                pickrate = 46.2,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 41.2,
+                pickrate = 45.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 50.4,
+                pickrate = 43.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 43.4,
+                pickrate = 51.2,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 51.9,
+                pickrate = 48.5,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 51.2,
+                pickrate = 40,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 41.4,
+                pickrate = 41.3,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLzwgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 12.8,
+                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
+                pickrate = 38,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmxgxMmZGGmNGAGwwGYjlZMzysNzMbGAAAgFAYzwYGzAAAmZYGjhB",
-                pickrate = 54.2,
+                pickrate = 40.6,
               },
             },
           },
           lightsmith = {
             mplus = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102532#1-81555#102534#1-81557#102536#1-81558#102537#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81573#102556#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81587#102572#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103863#128259#1-103864#128260#1-103866#128262#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102532#1-81555#102534#1-81557#102536#1-81558#102537#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81573#102556#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81587#102572#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102594#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103863#128259#1-103864#128260#1-103866#128262#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
                 pickrate = 20,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102532#1-81555#102534#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81566#102546#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81573#102556#1-81574#102557#1-81576#102559#1-81579#102563#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81589#102574#1-81590#102575#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 25,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103852#128242#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 20,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmZmZGzMzCMGWGbzMLmxgZZGzMDDzGDADAbgN2mZGAAAYmZZbx2MDbsxAbAzYGAwMDAzYMMA",
-                pickrate = 25,
+                export = "81496#102465#1-81508#102477#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 14.3,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 25,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102532#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81575#102558#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103856#128309#1-103858#128254#2-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 100,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81575#102558#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103858#128254#2-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 50,
+                pickrate = 25,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103852#128242#1-103856#128309#1-103858#128254#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 20,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81575#102558#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103858#128254#2-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 50,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81573#102556#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#2-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103851#128241#2-103856#128309#1-103859#128255#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137017#1-110417#137018#2-110417#137019#1",
-                pickrate = 16.7,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102532#1-81555#102534#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81566#102546#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81573#102556#1-81574#102557#1-81576#102559#1-81579#102563#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81589#102574#1-81590#102575#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 50,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "81496#102465#1-81508#102477#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 20,
+                pickrate = 25,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103852#128242#1-103856#128309#1-103859#128255#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 50,
+                pickrate = 100,
               },
             },
             raid = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 13,
+                export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81576#102559#1-81578#102562#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "81496#102465#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81575#102558#1-81576#102559#1-81578#102562#1-81580#102564#1-81584#102568#1-81585#102570#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102594#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93520#115872#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 20,
+                pickrate = 23.1,
               },
             },
             ["raid:3176"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81575#102558#1-81578#102562#1-81580#102564#1-81581#102565#1-81583#102567#2-81584#102568#1-81585#102570#1-81590#102575#1-81592#102578#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 16.7,
+                export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81576#102559#1-81578#102562#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 25,
               },
             },
             ["raid:3177"] = {
               {
-                export = "81496#102465#1-81510#133481#1-81554#102533#1-81555#102534#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81575#102558#1-81576#102559#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81588#133501#1-81590#102575#1-81592#102578#1-81593#102579#1-81594#102580#1-81597#102583#1-81600#102587#1-81605#102592#1-81607#102594#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93357#115673#1-93520#115872#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103852#128242#1-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 11.1,
+                export = "81496#133480#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102532#1-81555#102534#1-81558#102537#1-81564#102544#1-81565#102545#1-81566#102547#1-81567#102548#1-81568#102549#1-81569#102550#1-81574#102557#1-81575#102558#1-81576#102559#1-81579#102563#1-81580#102564#1-81581#102565#1-81583#102567#2-81584#102568#1-81585#102570#1-81590#102575#1-81592#102578#1-81593#102579#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93357#115673#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103856#128252#1-103858#128254#2-103861#128257#1-103863#128259#1-103867#128263#1-103868#128264#1-108034#133407#1-108099#133479#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 14.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102553#1-81578#102562#1-81580#102564#1-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 100,
+                export = "81496#102465#1-81508#102477#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#2-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81595#102581#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93520#115872#1-93521#115873#1-93522#115874#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 25,
               },
             },
             ["raid:3179"] = {
               {
-                export = "81496#102465#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81576#102559#1-81578#102562#1-81580#102564#1-81581#102565#1-81584#102568#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93357#115673#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103851#128241#2-103852#128242#1-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 33.3,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81556#102535#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#2-81584#102569#1-81585#102570#1-81588#133501#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93357#115673#1-93520#115872#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-103831#102576#1-103856#128309#1-103861#128257#1-103863#128259#1-103866#128262#1-103867#128263#1-103868#128264#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 22.2,
+              },
+            },
+            ["raid:3180"] = {
+              {
+                export = "81496#102465#1-81510#133481#1-81554#102532#1-81555#102534#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81566#102546#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81576#102559#1-81579#102563#1-81580#102564#1-81581#102565#1-81583#102567#1-81584#102568#1-81585#102570#1-81589#102574#1-81590#102575#1-81592#102578#1-81594#102580#1-81597#102583#1-81600#102587#1-81605#102592#1-81607#102594#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93357#115673#1-93520#115872#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 100,
               },
             },
             ["raid:3181"] = {
@@ -8057,14 +8067,14 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3182"] = {
               {
-                export = "81496#102465#1-81510#133481#1-81554#102532#1-81555#102534#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81566#102546#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81574#102557#1-81576#102559#1-81579#102563#1-81580#102564#1-81581#102565#1-81583#102567#1-81584#102568#1-81585#102570#1-81589#102574#1-81590#102575#1-81592#102578#1-81594#102580#1-81597#102583#1-81600#102587#1-81605#102592#1-81607#102594#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#102624#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115465#1-93191#128246#1-93357#115673#1-93520#115872#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117879#1-95233#117881#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103831#102576#1-103851#128241#2-103856#128309#1-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103867#128263#1-108034#133407#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 50,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81575#102558#1-81580#102564#1-81583#102567#2-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#136574#1-103852#128242#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 100,
               },
             },
-            ["raid:3183"] = {
+            ["raid:3306"] = {
               {
-                export = "81496#102465#1-81508#102477#1-81510#133481#1-81543#102518#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81560#102539#1-81561#102540#1-81562#102541#1-81564#102544#1-81565#102545#1-81567#102548#1-81568#102549#1-81569#102550#1-81570#102551#1-81571#102552#1-81575#102558#1-81580#102564#1-81583#102567#2-81584#102569#1-81585#102570#1-81588#133501#1-81589#102574#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93180#115465#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117879#1-95233#117881#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103852#128242#1-103856#128309#1-103858#128254#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110012#136503#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
-                pickrate = 100,
+                export = "81496#102465#1-81508#102477#1-81510#133481#1-81554#102533#1-81555#102534#1-81557#102536#1-81558#102537#1-81562#102541#1-81564#102544#1-81565#102545#1-81566#102546#1-81567#102548#1-81568#102549#1-81569#102550#1-81575#102558#1-81578#102562#1-81580#102564#1-81583#102567#2-81584#102568#1-81585#102570#1-81587#102572#2-81588#133501#1-81590#102575#1-81591#102577#1-81592#102578#1-81594#102580#1-81597#102583#1-81598#102584#1-81600#102587#1-81605#102592#1-81607#102594#1-81608#102596#1-81609#102597#1-81613#102601#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-92220#114292#1-93009#115034#2-93168#115447#1-93180#115466#1-93191#128246#1-93520#131438#1-93521#115873#1-93522#115874#1-93523#115875#1-93927#116376#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117880#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99839#123359#1-102502#126571#1-103851#128241#2-103856#128309#1-103859#128255#1-103861#128257#1-103863#128259#1-103865#128261#1-103866#128262#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110092#136593#1-110257#136795#1-110417#137019#1-110417#137018#2-110417#137017#1",
+                pickrate = 40,
               },
             },
           },
@@ -8072,17 +8082,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249808, pop = 35.8, tier = "S" },
+              { itemId = 249808, pop = 35.9, tier = "S" },
               { itemId = 249343, pop = 34.9, tier = "S" },
-              { itemId = 268292, pop = 19, tier = "A" },
-              { itemId = 249809, pop = 10.6, tier = "B" },
-              { itemId = 250256, pop = 7.6, tier = "B" },
-              { itemId = 193718, pop = 3.7, tier = "C" },
-              { itemId = 250144, pop = 3.2, tier = "C" },
-              { itemId = 249346, pop = 2.6, tier = "C" },
-              { itemId = 249811, pop = 2.3, tier = "C" },
-              { itemId = 249341, pop = 1.5, tier = "C" },
-              { itemId = 252411, pop = 1.1, tier = "C" },
+              { itemId = 268292, pop = 18.6, tier = "A" },
+              { itemId = 249809, pop = 9.6, tier = "B" },
+              { itemId = 250256, pop = 6.9, tier = "B" },
+              { itemId = 193718, pop = 4, tier = "C" },
+              { itemId = 250144, pop = 3.3, tier = "C" },
+              { itemId = 249346, pop = 2.7, tier = "C" },
+              { itemId = 249811, pop = 2.2, tier = "C" },
+              { itemId = 252411, pop = 1.5, tier = "C" },
+              { itemId = 246305, pop = 1.1, tier = "C" },
             },
           },
         },
@@ -8098,24 +8108,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -8184,7 +8194,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Speed", "Leech" }, { "Avoidance" } },
               primary = "Strength",
-              secondary = { { "versatility" }, { "haste", "mastery", "crit" } },
+              secondary = { { "versatility" }, { "haste", "crit", "mastery" } },
             },
             raid = {
               minor = { { "Speed", "Leech" }, { "Avoidance" } },
@@ -8196,7 +8206,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Speed", "Leech" }, { "Avoidance" } },
               primary = "Strength",
-              secondary = { { "versatility" }, { "haste", "mastery", "crit" } },
+              secondary = { { "versatility" }, { "haste", "crit", "mastery" } },
             },
             raid = {
               minor = { { "Speed", "Leech" }, { "Avoidance" } },
@@ -8208,251 +8218,245 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 528, haste = 1060, mastery = 735, versatility = 213 },
-            raid = { crit = 448, haste = 1086, mastery = 735, versatility = 227 },
+            raid = { crit = 448, haste = 1115, mastery = 735, versatility = 227 },
           },
         },
         talents = {
           lightsmith = {
             mplus = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
-                pickrate = 15,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzMMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
+                pickrate = 16.8,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
-                pickrate = 20.8,
+                pickrate = 12.5,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
-                pickrate = 12.5,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhZzGAGYAzgNAAAAYmZZbxyMjFzgBAMDjBAzMAYmBMA",
+                pickrate = 24,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhZzGAGYAzgNAAAAYmZZbxyMjFzgBAMDjBAzMAYmBMA",
-                pickrate = 18.2,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhHYzGAGYAzgNAAAAYmZZbxyMjFzgBwgZYMAYmBAzMgB",
+                pickrate = 22.2,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
-                pickrate = 8.7,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzghZzGAGYAzgNAAAAYmZZbxyMjFzgBwgZYMAYmBgZmBMA",
+                pickrate = 13.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZbMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
-                pickrate = 25.9,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhZzGAGYADsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
+                pickrate = 15.8,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzghZzGAGYAzgNAAAAYmZZbxyMjFzgBwgZYMAYmBgZmBMA",
-                pickrate = 21.2,
+                pickrate = 20.7,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhZzGAGYAzgNAAAAYmZZbxyMjFzgBAMDjBAzMAYmBMA",
-                pickrate = 13,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYGMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
+                pickrate = 13.6,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzghZzGAGYAzgNAAAAYmZZbxyMjFzgBwYMDjBAzMAYmBMA",
-                pickrate = 20,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzMMMb2AwADYGsBAAAAzMLbLWmZsYGMAGMDjBAzMAYmBMA",
+                pickrate = 25,
               },
             },
             raid = {
+              {
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 21.3,
+              },
+            },
+            ["raid:3159"] = {
               {
                 export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 13.5,
               },
             },
-            ["raid:3159"] = {
-              {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#1-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 23.3,
-              },
-            },
             ["raid:3176"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAAjZmlZGzghZzGAGYAzgNAAAAYmZZbxyMjFzgBwYMDjBAzMAYmBMA",
-                pickrate = 15.4,
+                export = "81469#102430#1-81471#102433#2-81472#102435#1-81473#102436#1-81474#102437#2-81477#102440#1-81479#102443#1-81481#102445#1-81482#102446#2-81483#102448#1-81485#102450#2-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81494#102463#1-81495#102464#1-81499#102468#1-81501#102470#1-81502#102471#1-81503#125873#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102594#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81628#102620#1-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-93009#115034#2-93187#115479#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3177"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 25,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAAYMzsMzYmhhHYzGAGYAzgNAAAAYmZZbxyMjFzgBwgZYMAYmBAzMgB",
+                pickrate = 31.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81474#102437#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-93357#115673#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103850#128240#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 18.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 10,
+                export = "81469#102430#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81485#102450#2-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81499#102468#1-81501#102470#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101928#102434#1-103850#128240#1-103851#128241#2-103859#128255#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 12.5,
               },
             },
             ["raid:3180"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#136732#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111887#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 18.2,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81472#102435#1-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81498#102467#1-81499#102468#1-81501#102470#1-81502#102471#1-81503#102472#1-81505#102474#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103850#128240#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3181"] = {
               {
                 export = "81469#102430#1-81471#102433#2-81472#102435#1-81474#102437#2-81475#102438#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102460#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81505#136732#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-93009#115034#2-93187#115479#1-93192#128244#1-93357#115673#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101928#102434#1-103850#128240#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103866#128262#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 33.3,
+                pickrate = 18.2,
               },
             },
             ["raid:3182"] = {
               {
-                export = "81469#102430#1-81471#102433#2-81472#102435#1-81473#102436#1-81474#102437#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81485#102450#2-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81493#102460#1-81494#102463#1-81495#102464#1-81497#102466#1-81499#102468#1-81501#102470#1-81502#102471#1-81503#102472#1-81505#136732#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111887#1-93009#115034#2-93168#115447#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-103850#128240#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 50,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81472#102435#1-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81482#102446#2-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117883#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-103850#128240#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 100,
               },
             },
             ["raid:3183"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81472#102435#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81485#102450#2-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81493#102460#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#125873#1-81504#102473#1-81505#136732#1-81506#102475#1-81510#133481#1-81597#102583#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81617#102606#1-81621#102612#2-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117876#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-103850#128240#1-103851#128241#2-103859#128255#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#1-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103850#128240#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-93357#115673#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 10,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95228#117873#1-95229#117874#1-95230#117875#1-95231#117877#1-95232#117878#1-95233#117881#1-95234#117882#1-95235#117884#1-95236#117885#1-95237#117886#1-95238#117887#1-99838#123361#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109742#136000#1-109743#136001#1-109744#136002#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 19.1,
               },
             },
           },
           templar = {
             mplus = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81628#102620#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103850#128240#1-103851#128241#2-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 18.2,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 45,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "81469#102430#1-81471#102433#2-81473#102436#1-81476#102439#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81485#102450#2-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81609#102597#1-81612#102600#1-81615#102603#1-81616#102604#1-81621#102612#2-81628#102620#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111887#1-93009#115034#2-93168#115447#1-93188#115480#1-93192#128244#1-93357#115673#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103851#128241#2-103854#128247#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 50,
+                pickrate = 100,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "81469#102430#1-81471#102433#2-81472#102435#1-81474#102437#1-81475#102438#1-81476#102439#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93188#115480#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103865#128261#1-103866#128262#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 33.3,
-              },
-            },
-            ["mplus:12805"] = {
-              {
-                export = "81469#102430#1-81471#102433#2-81474#102437#2-81476#102439#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81485#102450#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102460#1-81494#102463#1-81495#102464#1-81497#102466#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#136732#1-81506#102475#1-81507#102476#1-81510#133481#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102594#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111887#1-93009#115034#2-93168#115447#1-93188#115480#1-93192#128244#1-93357#115673#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103851#128241#2-103856#128252#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109998#136486#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 50,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "81469#102430#1-81471#102433#2-81472#102435#1-81474#102437#2-81476#102439#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102460#1-81494#102463#1-81495#102464#1-81497#102466#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81628#102620#1-81629#102621#1-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103850#128240#1-103851#128241#2-103857#128253#1-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 25,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 33.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81630#102622#1-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117819#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103850#128240#1-103851#128241#2-103859#128255#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 33.3,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81631#128251#1-81632#102625#1-90062#111887#1-93009#115034#2-93165#115444#1-93187#115479#1-93188#115480#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103859#128255#1-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81475#102438#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
                 pickrate = 100,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "81469#102430#1-81471#102433#2-81472#102435#1-81474#102437#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81485#102450#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102462#1-81497#102466#1-81499#102468#1-81501#102470#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81510#133481#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102594#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81621#102612#2-81628#102620#1-81629#102621#1-81630#102622#2-81631#102624#1-81632#102625#1-90062#111887#1-93009#115034#2-93165#115444#1-93188#115480#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117814#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117819#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103850#128240#1-103851#128241#2-103860#128256#1-103861#128257#1-103863#128259#1-103864#128260#1-103865#128261#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109997#136485#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 50,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 33.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "81469#102430#1-81471#102433#2-81472#102435#1-81474#102437#1-81475#102438#1-81476#102439#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102447#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81506#102475#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93188#115480#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101928#102434#1-103851#128241#2-103859#128255#1-103863#128259#1-103864#128260#1-103865#128261#1-103866#128262#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
-                pickrate = 25,
+                export = "81469#102430#1-81470#102432#1-81471#102433#2-81473#102436#1-81477#102440#1-81479#102443#1-81481#102445#1-81483#102448#1-81484#102449#1-81486#102452#1-81487#102453#1-81489#102455#1-81490#102456#1-81491#102457#1-81492#102459#1-81493#102461#1-81494#102463#1-81495#102464#1-81497#102466#1-81498#102467#1-81499#102468#1-81502#102471#1-81503#102472#1-81504#102473#1-81505#102474#1-81506#102475#1-81507#102476#1-81510#133481#1-81543#102518#1-81597#102583#1-81598#102584#1-81600#102587#1-81603#102590#1-81604#102591#1-81605#102592#1-81607#102595#1-81608#102596#1-81609#102597#1-81612#102600#1-81614#102602#1-81615#102603#1-81616#102604#1-81621#102612#2-81630#102622#2-81631#128251#1-81632#102625#1-90062#111886#1-93009#115034#2-93165#115444#1-93187#115479#1-93192#128244#1-95177#117810#1-95178#117811#1-95179#117812#1-95180#117813#1-95181#117858#1-95182#117815#1-95183#117816#1-95184#117818#1-95185#117820#1-95186#117822#1-95187#117823#1-99838#123358#1-101927#102451#1-101928#102434#1-103851#128241#2-103861#128257#1-103863#128259#1-103864#128260#1-103867#128263#1-103877#128278#1-109745#136003#1-109746#136004#1-109747#136005#1-109999#136487#1-110006#136496#1-110012#136503#1-110418#137022#1-110418#137021#2-110418#137020#1",
+                pickrate = 40,
               },
             },
             raid = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 56.1,
+                pickrate = 47.4,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 34.5,
+                pickrate = 42.1,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 54.3,
+                pickrate = 37.5,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 55.4,
+                pickrate = 46.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 45.5,
+                pickrate = 38.7,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 41.9,
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZmZYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMMb2AwAGwgNAAwMjtZmlZAA2AzAgxMMGAglZAmZAD",
+                pickrate = 17.1,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFLDDAwAAAAAAAMzsYGzMjxMb2AwAAzgNAAwMjtZmlZAA2AzAYMmhxAAsMDwMDYA",
+                export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
                 pickrate = 15,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 19.1,
+                pickrate = 15.8,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZGDzyYZMjZmZbZMGzsYZYAAGAAAAAAgZmNzYGMzMb2AwADYGsBAAmZsNzsMDAwGDzAYMmhxAAsMDwMDYA",
-                pickrate = 15.4,
+                pickrate = 18.2,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZGDzyMLjZMzMWGjxMLMMAADAAAAAAwMziZMDmZmNbAYgZgZwGAAYmx2MzyMAAbMMDAGzwYAAWmBYmBMA",
-                pickrate = 17.4,
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAgZmFzYmZMmZzGAGwAGsBAAmZsNzsMDAwGYGAMmhxAAsMDwMDYA",
-                pickrate = 47.6,
+                pickrate = 50.5,
               },
             },
           },
@@ -8460,17 +8464,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 38.8, tier = "S" },
-              { itemId = 249342, pop = 23.8, tier = "A" },
-              { itemId = 193701, pop = 9.1, tier = "B" },
-              { itemId = 252420, pop = 9.1, tier = "B" },
-              { itemId = 268292, pop = 8.4, tier = "B" },
-              { itemId = 250256, pop = 7.6, tier = "B" },
-              { itemId = 260235, pop = 4.2, tier = "C" },
-              { itemId = 249344, pop = 3.2, tier = "C" },
-              { itemId = 249339, pop = 2.9, tier = "C" },
+              { itemId = 249343, pop = 37.6, tier = "S" },
+              { itemId = 249342, pop = 19.3, tier = "A" },
+              { itemId = 250256, pop = 10.8, tier = "B" },
+              { itemId = 252420, pop = 9.8, tier = "B" },
+              { itemId = 193701, pop = 9.2, tier = "B" },
+              { itemId = 268292, pop = 8, tier = "B" },
+              { itemId = 260235, pop = 3.8, tier = "C" },
+              { itemId = 249344, pop = 3.6, tier = "C" },
+              { itemId = 249339, pop = 2.6, tier = "C" },
               { itemId = 252418, pop = 2.5, tier = "C" },
-              { itemId = 151312, pop = 1, tier = "C" },
+              { itemId = 252421, pop = 1.1, tier = "C" },
             },
           },
         },
@@ -8486,24 +8490,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -8560,7 +8564,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 260235, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249277, slot = "Main Hand" },
-              { ilvl = 295, itemId = 237831, slot = "Off Hand" },
+              { ilvl = 285, itemId = 237831, slot = "Off Hand" },
             },
           },
         },
@@ -8595,129 +8599,129 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 827, haste = 640, mastery = 1034, versatility = 39 },
-            raid = { crit = 869, haste = 640, mastery = 1076, versatility = 39 },
+            raid = { crit = 867, haste = 640, mastery = 1074, versatility = 39 },
           },
         },
         talents = {
           ["herald-of-the-sun"] = {
             mplus = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwYmltZmZZMzMDAAAAAgZmxsMDzM2Gz2wMbzYMGDzYhNAMLz2MzsNDAAAsAYAAzwAzYmZDYmZYMjBPA",
-                pickrate = 17.7,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwilZmZmZZMzMDAAAAAglZGzyMMzYGz2wsstMGjxwMWYDALzMzsMbzAAAALAGAwMMwMmZ2AmZZYMjBPA",
+                pickrate = 12.5,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLjZmZAAAAAAMzMGzwMjtxsNMz2MmZMGmxCbAYWmtZmZbGAAAYBwAYwgZwMmZ2AmZGGzYwDA",
-                pickrate = 16.7,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZGAAAAAALzMmFDzMmxsNMLbLjZGjhZswGAWmZmZZ2mBAAAWAMwALmhBmxMzGwMLDjhBPA",
+                pickrate = 11.1,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLjZmZAAAAAAMzMmlZYmx2Y2GmZbGzMGDzYhNAMLz2MzsNDAAAsAYgFgZMgZMzsBMzMMGG8AA",
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYGzAAAAAAYZmxsMDzMmxsNMLbLjxYMMjF2AwyMzMLz2MAAAwCgBwYxMbGYGzMbAzsMMGG8AA",
                 pickrate = 10,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwYmltZmZZMzMDAAAAAgZmxsMDzM2Gz2wMbzYMGDzYhNAMLz2MzsNDAAAsAYAAzwAzYmZDYmZYMjBPA",
-                pickrate = 18.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwilZmZmZZMzMDAAAAAglZGzyMMzYGz2wsstMGjxwMWYDALzMzsMbzAAAALAGAsYmNgZMzsBMzywYYwDA",
+                pickrate = 20,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwYmttZmZZMzMDAAAAAgZmxwwMsNmthZ2mxMjxwMWYDDYWmtZmZbGAAAYBwAgxMMwMmZ2AmZGGzYwDA",
-                pickrate = 18.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZGAAAAAALzMGzwMjZMbDzy2yYmZGDzYhNAsMzMzysNDAAAsAYwCgZMgZMzsBMzywYYwDA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwYmltZmZZMzMDAAAAAgZmxsMDzM2Gz2wMbzYMGDzYhNAMLz2MzsNDAAAsAYAAzwAzYmZDYmZYMjBPA",
-                pickrate = 16.7,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYMzAAAAAAYZmxsMDzMmxsNMLbLjZGjhZsw2DCALzMzsMLzAAAALAGAwMMwMmZ2AmZZYMjBPA",
+                pickrate = 11.1,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAwYmltZmZZMzMDAAAAAgZmxsMDzM2Gz2wMbzYMGDzYhNAMLz2MzsNDAAAsAYgFgxGDmxMzGwMzwYYwDA",
-                pickrate = 18.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZGAAAAAALzMmFDzMmxsNMLbLjZGjhZswGAWmZmZZ2mBAAAWAMAYxMMwMmZ2AmZZYMjBPA",
+                pickrate = 10,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzMLjZmZAAAAAAMzMGzwMjtxsNMz2MmZMGmxCbAYWmtZmZbGAAAYBwAgxMMwMmZ2AmZGGzYwDA",
-                pickrate = 18.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZGAAAAAALzMGzwMjZMbDzy2yYMGDzYhNAsMzMzysNDAAAsAYgBWMDDMjZmNgZWGGzYwDA",
+                pickrate = 10,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLjZmZAAAAAAMzMmlZYmx2Y2GmZbGjxYYGLsBgZZ2mZmtZAAAgFADAGzwAzYmZDYmZYMjBPA",
-                pickrate = 14.3,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZGAAAAAALzMmlZYmxMmthZZbZMzYMMjF2AwyMzMLz2MAAAwCgBALmhBmxMzGwMLDjhBPA",
+                pickrate = 20,
               },
             },
             raid = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLDzMAAAAAAMmxYGmZsNmthZ2mxYMzwMWYbAYWmtZmZbGAAAYBwAYMmhZwMGzCwMzMGDDeA",
-                pickrate = 21.8,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALmxYGmZMjZbYW2WGjxMDzYhtFAWmZmZZ2mBAAAWAMAGLmhZwMGzCwMLzYMM4BA",
+                pickrate = 20.1,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzMLDzMAAAAAAMzMmtZYmx2Y2GmZbGjxMDzYhtBgZZ2mZmtZAAAgFADAGzYGYGjZBYmZYMM4BA",
-                pickrate = 45.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALzMmtZYmxMmthZZbZMGzMMjF2WAYZmZmlZbGAAAYBwAgFzYGYGjZBYmlhxwgHA",
+                pickrate = 31.3,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLDzMAAAAAAMzMmtZYmx2Y2GmZbGjxMDzYhtBgZZ2mZmtZAAAgFADAGzYGYGjZBYmZYMM4BA",
-                pickrate = 35.5,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALmxYGmZMjZbYW2WGjxMDzYhtFAWmZmZZ2mBAAAWAMAGLmhZwMGzCwMLzYMM4BA",
+                pickrate = 15.1,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzMLDzMAAAAAAMzMmtZYmx2Y2GmZbGjxMDzYhtBgZZ2mZmtZAAAgFADAGzYGYGjZBYmZYMM4BA",
-                pickrate = 40.3,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALzMmtZYmxMmthZZbZMGzMMjF2WAYZmZmlZbGAAAYBwAgFzYGYGjZBYmlhxwgHA",
+                pickrate = 29.4,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzYZMmZAAAAAAMzMmlZYmZ2Gz2wMbzYMmZYGLs9AAMLz2MzsNDAAAsAYAwYGGYGzMbAzMDjhBPA",
-                pickrate = 19.1,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMWGjZGAAAAAALmxsNDzMmxsNMLbLzMGzMMjF2AwyMzMLz2MAAAwCgBALmhZwMmZ2AmZZYMjBPA",
+                pickrate = 18.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLjZmBAAAAAgxMGzwMjtZmthZ2mxYMGmxCbDAzysNzMbzAAAALAGAMmhZwMGzCwMzwYGDeA",
-                pickrate = 43.5,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZAAAAAAYxMGzwMjZmZbYW2WGjxYYGLstAwyMzMLz2MAAAwCgBALmhZwMGzCwMLDjZM4BA",
+                pickrate = 41.9,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmxyYMzAAAAAAYgZbGmZsNMbDzsNjxYmhZsw2DAwsMbzMzmBAAAWAMAYMDzgZMzsBMzMMmxgB",
-                pickrate = 46.6,
+                pickrate = 46.9,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLDzMAAAAAAMzMmtZYmx2Y2GmZbGzMmZYGLYAYWmtZmZbGAAAYBwALwYGGYGjZBYmZYMM4BA",
-                pickrate = 24.2,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALzMmtZYmxMmthZZbZMzYmhZsgFAWmZmZZ2mBAAAWAMwALmhBmxYWAmZZYMM4BA",
+                pickrate = 24.1,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLjZmBAAAAAgxMGzgZsNmthZ2mxYMGmxCbDAzysNzMbzAAAALAGYZwYGGYGjZDYmZMjZM4BA",
-                pickrate = 41.4,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzyYmZAAAAAAYxMGzgZMjZbYW2WGjxYYGLstAwyMzMLz2MAAAwCgBmBLmhBmxY2AmZZMjZM4BA",
+                pickrate = 43.6,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLDjBAAAAAgxMmlZYmx2Y2GmZbGjxMjZGLsNAMLz2MzsNDAAAsAYAMGzwAzYMLAzMDjZM4BA",
-                pickrate = 33.3,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywYAAAAAAYxMmtZYGmxsNMLbLjxYmhZsw2CDYZmZmlZbGAAAYBwAGjFzwAzYMbAzsMjxwgHA",
+                pickrate = 12.5,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzssNzMLDzMAAAAAAMmxYGmZsNmthZ2mxYMzwMWYbAYWmtZmZbGAAAYBwAYMmhZwMGzCwMzMGDDeA",
-                pickrate = 44.6,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMzywMDAAAAAALmxYGmZMjZbYW2WGjxMDzYhtFAWmZmZZ2mBAAAWAMAGLmhZwMGzCwMLzYMM4BA",
+                pickrate = 33.3,
               },
             },
           },
@@ -8725,121 +8729,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
-                pickrate = 25.1,
+                pickrate = 25,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
-                pickrate = 29.2,
+                pickrate = 25.9,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYmZGAAAAAAzgZZGmZsNMbDzsNjxYMMjN2AAAYmx2Mz2MAgNADAGzwAzYmZDLzghxwgB",
-                pickrate = 17.1,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
+                pickrate = 25.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
-                pickrate = 30.4,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYmZGAAAAAAzgZZGmZsNMbDzsNjxYMMjN2AAAYmx2Mz2MAgNADAGzwAzYmZDLzghxwgB",
+                pickrate = 17.4,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYmZGAAAAAAzgZZGmZsNMbDzsNjxYMMjN2AAAYmx2Mz2MAgNADAGzwAzYmZDLzghxwgB",
-                pickrate = 25,
+                pickrate = 16.8,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
-                pickrate = 27.6,
+                pickrate = 25.8,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGzMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYGzMbYZGMMmxgB",
-                pickrate = 18.7,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGjZGAAAAAAzgZZGmZsNMbDzsNjxYMMjN2AAAYmx2Mz2MAgNADAGzwAzMzMbYZGMMmxgB",
+                pickrate = 16,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzMLjxMDAAAAAgZmxsMDzM2Gz2wMbzYMGDzYjNAAAmZmtZmtZAAbAGAMmhBmZmZ2wyMYYMjBPA",
-                pickrate = 14.1,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
+                pickrate = 27.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYMzAAAAAAYGMLzwMjthZbYmtZMGjhZsxGAAAzM2mZ2mBAsBYAwYGGYmZmZDLzghxwgB",
-                pickrate = 22.7,
+                pickrate = 20,
               },
             },
             raid = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYgxMMzYbY2GmZbGjxMDzYjthBAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 49.2,
+                pickrate = 50,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMMbbzMzyYmZAAAAAAYghhZGbDz2wMbzYMGDzYjtBAAwMjtZmtZAAbAGYBGzwMYGjZDLzghxMGMA",
-                pickrate = 6.7,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGzMzAAAAAAYghhZGbDz2wMbzYmxYYGbsBAAwMjtZmtZAAbAGYBGzwMYGzMbYZGMmxwgB",
+                pickrate = 45.3,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGzMzAAAAAAYGMmhZGbDz2wMbzYMGDzYjNAAAmZsNzsNDAYDwAgxMMDmxMzGWmBDjZMYA",
-                pickrate = 21,
+                pickrate = 17.9,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYgxMMzYbY2GmZbGjxMDzYjthBAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 73,
+                pickrate = 73.5,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGjZmBAAAAAYGMmhZGbDz2wMbzYMGDzYjNAAAmZsNzsNDAYDwAgxMMDmZmxGWmBDjZMYA",
-                pickrate = 31,
+                pickrate = 35.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYgxMMzYbY2GmZbGjxMDzYjthBAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 51.2,
+                pickrate = 53.2,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAzstNzYZMmZAAAAAAMmxYGmZsNmthZ2mxMjZGmxGbAAAMzMbzMbzAA2AMAYMDzgZmZmNsMDGGzYwDA",
-                pickrate = 23.5,
+                export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAALzMzMWGjZGAAAAAALmxYGmZMjZbYW2WGzMmZYGbsBAAwMLzMzstMAgNADAWMDzgZmZmNsMDGGzYwDA",
+                pickrate = 24.2,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYGMmhZGbDz2wMbzYMmZYGbsNAAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 34.5,
+                pickrate = 43.7,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGzMDAAAAAADMLzwMjthZbYmtZMGjhZsx2AAAYmx2Mz2MAgNADAGzwMYGjZDLzghxMGMA",
-                pickrate = 23.4,
+                pickrate = 23.2,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYGMmhZGbDz2wMbzYMmZYGbsNAAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 20.8,
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZbbmZWGmZAAAAAAYgxMMzYbY2GmZbGjxMDzYjthBAAmZsNzsNDAYDwAgxMMDmxY2wyMYYMjBD",
-                pickrate = 75.9,
+                pickrate = 75.2,
               },
             },
           },
@@ -8847,17 +8851,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 56.1, tier = "S" },
-              { itemId = 249343, pop = 35.3, tier = "S" },
-              { itemId = 252420, pop = 5, tier = "B" },
-              { itemId = 249342, pop = 4.8, tier = "C" },
-              { itemId = 268292, pop = 3.8, tier = "C" },
-              { itemId = 260235, pop = 3.5, tier = "C" },
-              { itemId = 249806, pop = 2.5, tier = "C" },
-              { itemId = 250256, pop = 2.1, tier = "C" },
-              { itemId = 250258, pop = 1, tier = "C" },
-              { itemId = 250241, pop = 0.9, tier = "C" },
-              { itemId = 250226, pop = 0, tier = "C" },
+              { itemId = 193701, pop = 57, tier = "S" },
+              { itemId = 249343, pop = 34.3, tier = "S" },
+              { itemId = 252420, pop = 5.6, tier = "B" },
+              { itemId = 249342, pop = 4.7, tier = "C" },
+              { itemId = 268292, pop = 3.7, tier = "C" },
+              { itemId = 260235, pop = 3.3, tier = "C" },
+              { itemId = 249806, pop = 2.4, tier = "C" },
+              { itemId = 250256, pop = 2.3, tier = "C" },
+              { itemId = 250258, pop = 1.1, tier = "C" },
+              { itemId = 251792, pop = 1, tier = "C" },
+              { itemId = 250241, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -8868,31 +8872,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239680, 240952, 239677, 239682, 239684, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239680, 240952, 239683, 239678, 239677, 239682, 239684, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 245770, 245769 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 8013, spellId = 1236082 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7997, spellId = 1236074 } },
-              ["戒指2"] = { { id = 7997, spellId = 1236074 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7997, spellId = 1236074 } },
+              ["Finger 2"] = { { id = 7997, spellId = 1236074 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -8919,8 +8923,8 @@ ClassCodexSource["ugg"] = {
             ["pvp:3v3"] = {
               { itemId = 239680, slot = "Head" },
               { itemId = 240952, slot = "Neck" },
-              { itemId = 255387, slot = "Shoulders" },
-              { itemId = 255394, slot = "Back" },
+              { itemId = 239683, slot = "Shoulders" },
+              { itemId = 239678, slot = "Back" },
               { itemId = 250054, slot = "Chest" },
               { itemId = 239677, slot = "Wrist" },
               { itemId = 250052, slot = "Hands" },
@@ -8939,7 +8943,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268291, slot = "Neck" },
               { ilvl = 289, itemId = 250049, slot = "Shoulders" },
               { ilvl = 285, itemId = 239656, slot = "Back" },
-              { ilvl = 298, itemId = 268284, slot = "Chest" },
+              { ilvl = 298, itemId = 250054, slot = "Chest" },
               { ilvl = 285, itemId = 239648, slot = "Wrist" },
               { ilvl = 289, itemId = 250052, slot = "Hands" },
               { ilvl = 285, itemId = 239664, slot = "Waist" },
@@ -8961,31 +8965,31 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery" }, { "crit", "versatility" } },
+              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
             },
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
           },
           voidweaver = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery" }, { "crit", "versatility" } },
+              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
             },
             raid = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Intellect",
-              secondary = { { "haste" }, { "mastery", "versatility", "crit" } },
+              secondary = { { "haste" }, { "versatility", "mastery", "crit" } },
             },
           },
         },
         statTargets = {
           all = {
             mplus = { crit = 547, haste = 1129, mastery = 965, versatility = 36 },
-            raid = { crit = 489, haste = 1242, mastery = 910, versatility = 36 },
+            raid = { crit = 489, haste = 1187, mastery = 748, versatility = 253 },
           },
         },
         talents = {
@@ -8993,147 +8997,129 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzYmZmZMzAAAAAAAAAAYYWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 19.1,
+                pickrate = 20,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzsNzMjxMDAAAAAAAAAgxYZGmZmZGzwMYzYGMAzshBYMLDwYwCAAMmZMGMDwMjBMA",
-                pickrate = 16.7,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsZYWmZMmZmhZbGzMjZMzAAAAAAAAAAYMWmBzMzgxMjxmxMYAmZDDwYWGgxgFAAYMzMjBzAMzMAD",
+                pickrate = 11.1,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzYmZmZMzAAAAAAAAAAYYWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 19.4,
+                pickrate = 16,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzYmZmZMzAAAAAAAAAAYYWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 14.8,
+                pickrate = 17.9,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYeAWmZMzMzgZbGzMjZMzAAAAAAAAAAYYWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 12.5,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzsNzMjxMDAAAAAAAAAgBLzwMzMDzwMYzYGMAzshBYMLDwYwCAAMmZmxgZAmZmBMA",
+                pickrate = 13.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYYWmZMmZmhZbGzMjZMzAAAAAAAAAAYYWmBzMzwMMjBjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 13.8,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzYmZmZMzAAAAAAAAAAYYWmBzMzwMmZMYMDGgZWwAMmlBYMYBAAGzMzYwMAzMDwA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsMzwyMjZmBMbzYmZMjZGAAAAAAAAAAjZWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmxYwMAzMzAG",
-                pickrate = 29.4,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYYWmZMmZmhZbGzMjZMzAAAAAAAAAAYMzyMYmZGmxMD2MmBDwMLYAGzyAMGsAAAjZGjBzAMzMAD",
+                pickrate = 17.4,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsNzDwyMjxMzgZbmtZmxMmZAAAAAAAAAAMGLzgZmZGzwMYzYGMAzsgBYMLDwYwCAAMmZmxgZAmZGgB",
-                pickrate = 12.5,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYYWmZMmZmhZbGzMjZMzAAAAAAAAAAYMzyMYmZmxMMD2MmBDwMLYAGzyAMGsAAAjZegZMYGgZmBYA",
+                pickrate = 23.1,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYwyMjZmZGMbzYmZmZMzAAAAAAAAAAYYWmBzMzwMmZAjZwAMzCGgxsMAjBLAAwYmZGDmBYmZGwA",
-                pickrate = 19.4,
+                pickrate = 16.7,
               },
             },
             raid = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 45,
+                pickrate = 49,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 40.3,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsMY2mZm5BYmBmZbmZmZYGAAAAAAAAAAzwyMYmZGMMDMjZwAMzCGgxsMAjBLAAwYmZGDzMAzMzYGG",
+                pickrate = 12.1,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 49.6,
+                pickrate = 48.3,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 44.6,
+                pickrate = 50.8,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 45.3,
+                pickrate = 41.2,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 43.9,
+                pickrate = 50,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 38.5,
+                pickrate = 56.9,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 33.3,
+                pickrate = 40.9,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 28.1,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBmxMmZAmZDDwYWGgxgFAAYMmZMYGgZGjZYA",
+                pickrate = 13,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBmxMmZAmZDDwYWGgxgFAAYMmZMYGgZGjZYA",
-                pickrate = 16.7,
+                pickrate = 23.3,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsAz2MzMYmhZbmtZmZmhZAAAAAAAAAAMDLzgZmZwMmBMmxMDwMbYAGzyAMGsAAAjxMjBzAMzMjZYA",
-                pickrate = 41.4,
+                pickrate = 48.9,
               },
             },
           },
           voidweaver = {
-            mplus = {
-              {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYY2YMzMzMjZBmZmZ8AzAAAAAAAAAAYYWmBzMzwMMDMzYmZGMzAAAMbz2CYsZAAYMmZMMzgZGMmZ4BA",
-                pickrate = 50,
-              },
-            },
-            ["mplus:112526"] = {
-              {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsZY2YMzMzMPgZbYmZmZYGAAAAAAAAAAzMzyMYmZGMmZMYmZmxgZGAAgZb22AjNDAAjZMjBzgZGMmZ4BA",
-                pickrate = 100,
-              },
-            },
-            ["mplus:12811"] = {
-              {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYY2YMzMzMjZBmZmZ8AzAAAAAAAAAAYYWmBzMzwMMDMzYmZGMzAAAMbz2CYsZAAYMmZMMzgZGMmZ4BA",
-                pickrate = 100,
-              },
-            },
             raid = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsgZ2YMPAzMjZbsNzMzMzAAAAAAAAAAgZYZGMzMDzwMwMzMzMwMDAAwsNLLgxmBAgxYmxgZwMDGzM8AA",
-                pickrate = 19.4,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMjZAAAAAAAAAAwMmtBmZmhZYGYmZmZGYmBAAY2mtNwYzAAwYmxYwMYmBjZGG",
+                pickrate = 16,
               },
             },
             ["raid:3159"] = {
@@ -9144,56 +9130,44 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3176"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMMDAAAAAAAAAAmxsNzYGmhZYGDzMmZGYmBAAY2mtFwYzAAwYmZGwMYmBjZGeA",
-                pickrate = 22.2,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMjZAAAAAAAAAAwMmtBmZmhZYGYmZmZGYmBAAY2mtNwYzAAwYmxYwMYmBjZGG",
+                pickrate = 25,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMmZGY2mZmZMDAAAAAAAAAAmhtZwMzMYGzAmZmZGYmBAAY2mtNwYzAAwYMzYwMYmBzMzwDA",
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMjZAAAAAAAAAAwMmtBmZmhZYGYmZmZGYmBAAY2mtNwYzAAwYmxYwMYmBjZGG",
                 pickrate = 25,
-              },
-            },
-            ["raid:3178"] = {
-              {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADYMzsxYmZmZGY2mZGjZAAAAAAAAAAwwsZYmZmBjxAzMzMDYmBAAY2mtNwYzAAwYmZGDmBzMYmZGG",
-                pickrate = 50,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADYMzsxYmZmZGY2mZGjZAAAAAAAAAAwwsZYmZmBjxAzMzMDYmBAAY2mtNwYzAAwYmZGDmBzMYmZGG",
-                pickrate = 33.3,
-              },
-            },
-            ["raid:3180"] = {
-              {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzYYWmZGMDAAAAAAAAAAmhtZwMzMMDzAzMzMAzMAAAz2stAGbGAAGzMzYwMYmBzMzwDA",
-                pickrate = 50,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMMDAAAAAAAAAAmxsNzYGmhZYGDzMmZGYmBAAY2mtFwYzAAwYmZGwMYmBjZGeA",
+                pickrate = 25,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMmZGY2mZmZMDAAAAAAAAAAmhtZwMzMYGzAmZmZGYmBAAY2mtNwYzAAwYMzYwMYmBzMzwDA",
-                pickrate = 33.3,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADswMzGjZGzMDMbzMzMmBAAAAAAAAAAzMz2MYmZGMmZgZmZGgZGAAgZb2WAjNDAAjZMjBzgZGMzMDD",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMMDAAAAAAAAAAGsNDmZmBzYGYmZmZGYmBAAY2mtNwYzAAwYMzYwMYmBzMzwDA",
-                pickrate = 66.7,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsgZ2YMPAzMjZbsNzMzMzAAAAAAAAAAgZYZGMzMDzwMwMzMzMwMDAAwsNLLgxmBAgxYmxgZwMDGzM8AA",
+                pickrate = 100,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADswMzGjZYmZgZbmZmxMAAAAAAAAAAYG2mBzMzgZMDYmZmZgZGAAgZb22AjNDAAjxMjBzgZGMzMDPA",
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYY2wMzMzMjZjtZmZMMDAAAAAAAAAgZmZbGMMDzYmxgZmZYwMDAAwsNbbgxmBAgxMzMzgZwMDGzM8AA",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAzyMzMMDAAAAAAAAAAmhtZwMzMMDzAzMzMAzMAAAz2stAGbGAAGzMzYwMYmBzMzwDA",
-                pickrate = 20,
+                export = "CAQAAAAAAAAAAAAAAAAAAAAAAADgZmNGzMzMzAz2MzMjZAAAAAAAAAAwMmtZGzwMMDzYYmxMzAzMAAAz2stAGbGAAGzMzAmBzMYMzwDA",
+                pickrate = 33.3,
               },
             },
           },
@@ -9201,18 +9175,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249808, pop = 39.4, tier = "S" },
-              { itemId = 249343, pop = 32.5, tier = "S" },
-              { itemId = 249346, pop = 22.7, tier = "A" },
-              { itemId = 268292, pop = 11, tier = "B" },
-              { itemId = 250256, pop = 7.8, tier = "B" },
-              { itemId = 250144, pop = 4.1, tier = "C" },
+              { itemId = 249808, pop = 40.8, tier = "S" },
+              { itemId = 249343, pop = 30.7, tier = "S" },
+              { itemId = 249346, pop = 23.1, tier = "A" },
+              { itemId = 268292, pop = 13, tier = "B" },
+              { itemId = 250256, pop = 7.9, tier = "B" },
+              { itemId = 250144, pop = 3.9, tier = "C" },
+              { itemId = 252411, pop = 2.6, tier = "C" },
               { itemId = 249809, pop = 2.4, tier = "C" },
-              { itemId = 250253, pop = 2.2, tier = "C" },
-              { itemId = 252411, pop = 2.2, tier = "C" },
-              { itemId = 249341, pop = 2, tier = "C" },
-              { itemId = 193718, pop = 1.8, tier = "C" },
-              { itemId = 249811, pop = 0.5, tier = "C" },
+              { itemId = 193718, pop = 2.1, tier = "C" },
+              { itemId = 249811, pop = 1.9, tier = "C" },
+              { itemId = 250253, pop = 1.8, tier = "C" },
+              { itemId = 249341, pop = 0.5, tier = "C" },
             },
           },
         },
@@ -9221,23 +9195,32 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239648, 245770, 245769 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239648, 239676, 245769 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239680, 240952, 239677, 239682, 240951 }, embellishments = {} },
             raid = { crafts = { 245770, 245769 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7997, spellId = 1236074 } },
-              ["戒指2"] = { { id = 7997, spellId = 1236074 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7997, spellId = 1236074 } },
+              ["Finger 2"] = { { id = 7997, spellId = 1236074 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
-            ["pvp:3v3"] = { ["戒指2"] = { { id = 1236074 } }, ["主手"] = { { id = 1237008 } } },
+            ["pvp:3v3"] = {
+              Chest = { { id = 1236082 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229454 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
+            },
           },
         },
         gear = {
@@ -9256,27 +9239,27 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 249336, slot = "Finger 2" },
               { ilvl = 298, itemId = 249808, slot = "Trinket 1" },
-              { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
+              { ilvl = 298, itemId = 249343, slot = "Trinket 2" },
               { ilvl = 295, itemId = 245770, slot = "Main Hand" },
               { ilvl = 295, itemId = 245769, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 250051, slot = "Head" },
-              { itemId = 151309, slot = "Neck" },
-              { itemId = 250049, slot = "Shoulders" },
-              { itemId = 193712, slot = "Back" },
+              { itemId = 239680, slot = "Head" },
+              { itemId = 240952, slot = "Neck" },
+              { itemId = 255387, slot = "Shoulders" },
+              { itemId = 255394, slot = "Back" },
               { itemId = 250054, slot = "Chest" },
-              { itemId = 239648, slot = "Wrist" },
+              { itemId = 239677, slot = "Wrist" },
               { itemId = 250052, slot = "Hands" },
-              { itemId = 239664, slot = "Waist" },
-              { itemId = 239676, slot = "Legs" },
-              { itemId = 258584, slot = "Feet" },
-              { itemId = 251093, slot = "Finger 1" },
-              { itemId = 251093, slot = "Finger 2" },
-              { itemId = 250144, slot = "Trinket 1" },
-              { itemId = 249808, slot = "Trinket 2" },
-              { itemId = 50227, slot = "Main Hand" },
-              { itemId = 245769, slot = "Off Hand" },
+              { itemId = 239682, slot = "Waist" },
+              { itemId = 250050, slot = "Legs" },
+              { itemId = 255379, slot = "Feet" },
+              { itemId = 240951, slot = "Finger 1" },
+              { itemId = 240951, slot = "Finger 2" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 255631, slot = "Main Hand" },
+              { itemId = 255625, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 250051, slot = "Head" },
@@ -9300,7 +9283,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240910 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "haste" }, { "mastery", "crit" }, { "versatility" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
           archon = {
             mplus = {
               minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
@@ -9328,130 +9311,130 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 895, haste = 702, mastery = 625, versatility = 335 },
-            raid = { crit = 912, haste = 702, mastery = 778, versatility = 290 },
+            mplus = { crit = 895, haste = 702, mastery = 748, versatility = 335 },
+            raid = { crit = 883, haste = 702, mastery = 778, versatility = 290 },
           },
         },
         talents = {
           archon = {
             mplus = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYYWmhZmZGmxMDgZAAMzmZY2MAwYwmxYDgZMzYMMzstMADYA",
-                pickrate = 14.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYYWmhZmZGmxMDgZmBAMzmZY2MAwYwmxYDwMjZGjhZmtlBYAPA",
+                pickrate = 13.8,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzYGzygxMzMDzMjtZmZGAAAAjZWmhZmZGmxMjBMDAgZWMDzmBAGD2MzYDgZYeAjBzstMAzAD",
-                pickrate = 23.1,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzYGzygxMzMDzMjtZmZGAAAAjZWmhZmZGmxMjBMzMAgZWMDzmBAGD2MzYDwMDzDYMYmtlBYG4BA",
+                pickrate = 20,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZMzMjlZmZAAAAYMWmhZmZGbzYmBwMAAmZzMMbGAYMYzYsBwMMjxgZ2WGgZgB",
-                pickrate = 18.2,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZMzMjtZmBAAAAjZWmBzMzwMmZwGmZmBAmZzMMbGAYMYzYmNAzMMjxgZ2WGgB8AA",
+                pickrate = 10,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZMzMjlZmZAAAAYMWmhZmZGbzYmBwMAAmZzMMbGAYMYzYsBwMMjxgZ2WGgZgB",
-                pickrate = 18.2,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGmZWGjxMjhZGsMzMzAAAAYGzyMYmZGmxMjBMzMAgZ2MDziBAGD2MzMAMzYmxYwMLLDwAeAA",
+                pickrate = 10,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYYWmhZmZGmxMDgZAAMzmZY2MAwYwmxYDgZMzYMMzstMADYA",
-                pickrate = 35.7,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYYWmhZmZGmxMDgZmBAMzmZY2MAwYwmxYDwMjZGjhZmtlBYAPA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYYWmhZmZGmhZMgZmBAMzmZY2MAwYwmxYDwMjZGjhZmtlBYAPA",
-                pickrate = 14.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMMzsMGjZGDzMYZmZmBAAAwMmlZwMzMMjZGDYmZAAzsZGmFDAMGsZmZWAMzYmxYwMLLDwAeAA",
+                pickrate = 10,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYMzyMYmZGmxMDgZAAMzmZY2MAwYwmxYDgZMzYMMzstMADYA",
-                pickrate = 15.4,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzYGzygxMzMDzMjlZmZGAAAAjZWmBzMzwMmZwGmBAwMbmhZzAAjBbmZsAwMmZMGMz2yAMgB",
+                pickrate = 18.2,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZYmZsNzMzAAAAYMzyMYmZmxMMD2wMAAmZzMMbGAYMYzYsBwMGjxwMz2yAMgB",
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzYGzygxMzMDzMjtZmZGAAAAjZWmBzMzMmxMD2wMAAmZxMMbGAYMYzMjNAmh5BMGMz2yAMDMA",
                 pickrate = 25,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZMzMjlZmZAAAAYMWmBzMzYzYmxAmBAwMbmhZzAAjBbGjFAmxMjxwMz2yAMgB",
-                pickrate = 18.2,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAgZzwYWGMmZmZMzMjlZmZAAAAYMWmBzMzgxMjxGmZGAwMbmhZzAAjBbGjFAzMmZMGmZ2WGgB8AA",
+                pickrate = 10,
               },
             },
             raid = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 33.5,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 34.9,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 31,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 37.1,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 35.7,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 29.8,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 32.8,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 35.7,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 30.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 36.7,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 37.8,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 29.2,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 36.1,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 20.5,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 28.3,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
-                pickrate = 13.5,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGjxYwMbLDwMwA",
+                pickrate = 17.4,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzAAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 19.5,
+                pickrate = 19.6,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMDzAYGGAYmFzwsYAgxgNzMzCAzYMGDzMbLDwMwA",
-                pickrate = 38.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxYMzMDzMzYZGmBAAAwMmlZwMzMMzYGAzwAAzsYGmFDAMGsZmZWAYGMGDzMbLDwMwA",
+                pickrate = 7.4,
               },
             },
           },
@@ -9459,12 +9442,12 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGzwMjhZYsMzMzAAAAYMzyMYmZGmxMDgZAgZWwAMmlBYMwiZmBAzYmxYwMAzMzAD",
-                pickrate = 16.3,
+                pickrate = 20,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsNzMzAAAAYMzyMYmZmxMMjxGmZGAmZBDDGzyAMGYxMzsAwMm5BMGMDwMzAGA",
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsNzMzAAAAYMzyMMzMzwMMjBMDAMzCGgxsMAjBWMzMLAMjZeAjBzAMzMDMA",
                 pickrate = 16.7,
               },
             },
@@ -9476,74 +9459,74 @@ ClassCodexSource["ugg"] = {
             },
             ["mplus:12805"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsNzMzAAAAYMzyMMzMzwMmZAMzMAMzCGGMmlBYMwiZmZBgZMzDYMYGgZmZgB",
-                pickrate = 15.4,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGzwMjhZYsMzMzAAAAYMzyMMzMzwMmZMgZAgZWwAMmlBYMwiZmBAzw8AGDzMAzMDYA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGzwMjhZYsMzMzAAAAYMzyMYmZGmxMDgZAgZWwAMmlBYMwiZmBAzYmxYwMAzMzAD",
-                pickrate = 20,
+                pickrate = 26.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMzMPwsNmhZGDzwYZmZmBAAAwwsMDmZmhZMzYAzAAzshBYMLDwYgFzMDAmxMjxgZAmZmBGA",
-                pickrate = 23.1,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsMzMzAAAAYMzyMMzMDmhZMgZAgZWwAMmtBYMwiZmZBgZMzDYMMzAMzMDMA",
+                pickrate = 15.4,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGzMmZMMDjtZmZGAAAAjZWmBzMzwMmZAMzMAMzCGGMmlBYMwiZGLAMjZGjBzAMzMDMA",
-                pickrate = 15.4,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsNzMzAAAAYMzyMMzMzwMmZAMzMAMzCGGMmlBYMwiZmZBgZMzDYMYGgZmZgB",
+                pickrate = 12.5,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMzMmlxMjZGDzwYbmZmBAAAwYsMDzMzMjZYGshZmBgZWwwgxsMAjBWMzMAYGzMGDmBYmxAD",
-                pickrate = 16.7,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGzwMjhZYsNzMzAAAAYMWmhZmZmxMmZwGmZGAmZDDDGzyAMGYxMzsAwMGjxgZAmZGwA",
+                pickrate = 13.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzYWGmxMjhZYsMzMzAAAAYMWmhZmZGmxMjBMzMAMzGGGMmlBYMwiZmBAzYmxYwMAzMD4BA",
-                pickrate = 16.7,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAbGzY2GzwMjhZYsMzMzAAAAYYWmhZmZGmxMDgZAgZWwAMmlBYMwiZmBAzYmxYwMAzMzAD",
+                pickrate = 18.8,
               },
             },
             raid = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMegxsMmxMzYMzwYZmZGAAAAGzsNDmZmxmxMjBjZmBgZWwwgxsMAjBWMmZBgZMzDYMYGgZmBMA",
-                pickrate = 12.5,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMMzsMGjZGDzwYZmZmBAAAwMmlZwMzMMzYGAzMDAzsghBjZZAGDsYmZWAYGjxYYmBYmZG4BA",
+                pickrate = 15,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMjZGDzwMLzMmBAAAwMmlZYGPwMMDzYAzMzAYmFMMYMLDwYgFzMzCAzwMGDzMAzMzAPA",
-                pickrate = 18.2,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMmxsMGjZGDzwYZmZmBAAAwwsMDzMzMMjZGAzMDAzsghBjZZAGDsYmZWAYGz8AzYwMAzMzAD",
+                pickrate = 10,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMegxsMmxMzYMzwYZmZGAAAAGzsNDmZmxmxMjBjZmBgZWwwgxsMAjBWMmZBgZMzDYMYGgZmBMA",
-                pickrate = 20,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAGjZmlZmZmZGDzwYZmxMAAAAmxsMDmZmhZYGDYmZAYmFMMYMLDwYgFGzCAGzMGDzMAzMzAPA",
+                pickrate = 22.2,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMmxsMGjZGjHYGGLzMzMAAAAGzsMDmZmhZMzAYmZGAzsghBjZZAGDsYmZAwMGjxgZAmZmBeAA",
-                pickrate = 33.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMzMzYYGGLzMmBAAAwMmlZwYmhZMzYAzMDAzshhBjZZAGDsYmZWAYGmxYYmBYmZG4BA",
+                pickrate = 25,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMjZGDzwYZmZmBAAAwMmlZwMzMMzYGAzMzAYmFMMYMLDwYgFzMzCAzYMGDmBYmZG4BA",
-                pickrate = 50,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmtxMjZGDzwYZmZmBAAAwMmlZYGmBzYGDYmZGAzsghBjZZAGDsYmZWAYGzMzYwMAzMzAPA",
+                pickrate = 33.3,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAMMzsMmhZGDzwYZmZmBAAAwYsMDmZmhZGzgNMzMDgZWwwgxsMAjBWMzMLAMjZGjBzAMzYgHA",
-                pickrate = 33.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMzMzYYGGLzMmBAAAwMmlZwYmhZMzYAzMDAzshhBjZZAGDsYmZWAYGmxYYmBYmZG4BA",
+                pickrate = 50,
               },
             },
             ["raid:3180"] = {
@@ -9554,26 +9537,26 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3181"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMjZGDzwYZmZmBAAAwMmlZwMzMMjZGAzMDAzshhBjZZAGDsYmZWAYGzMGDmBYmZG4BA",
-                pickrate = 100,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAADAAAAAAYDmZWGzMmZMMDjlZmZGAAAAzYWmBzMzwMjZAMzMAMzGGGMmlBYMwiZmZBgZMzYMYGgZmZgHA",
+                pickrate = 25,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMjZGDzMGLzMmBAAAwMmlZwMzMMzYGAzMzAYmFMMYMLDwYgFzMzCAzYMGDmBYmZG4BA",
-                pickrate = 25,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmlxMjZGDzwMLzMmBAAAwMmlZwMzMYMzAYmZAYmFMMYMLDwYgFzMzCAzYmxYYmBYmZG4BA",
+                pickrate = 20,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmtxMjZGDzwYZmZmBAAAwMmlZYGmBzYGDYmZGAzsghBjZZAGDsYmZWAYGzMzYwMAzMzAPA",
-                pickrate = 14.3,
+                export = "CEQAAAAAAAAAAAAAAAAAAAAAAwYAAAAAAAgZmtxMjZGDzwYZmZmBAAAwMmlZGzwMMzYGAzMzAYmFMMYMLDwYgFzMzCAzgZGDzMAzMzAPA",
+                pickrate = 11.1,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CEQAAAAAAAAAAAAAAAAAAAAAAADAAAAAAwYMzsMzMjZGjZmxYZmxMAAAAGzsMDmZmhZYGDYmZAYmFMMYMLDwYgFzYAwwMjxwMDwMzMwA",
-                pickrate = 12.5,
+                pickrate = 16.7,
               },
             },
           },
@@ -9581,19 +9564,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249808, pop = 42, tier = "S" },
-              { itemId = 268292, pop = 25, tier = "A" },
-              { itemId = 249343, pop = 22, tier = "A" },
-              { itemId = 249809, pop = 11.3, tier = "B" },
-              { itemId = 250256, pop = 5.6, tier = "B" },
-              { itemId = 193718, pop = 3.9, tier = "C" },
-              { itemId = 249811, pop = 3.6, tier = "C" },
-              { itemId = 249341, pop = 2.5, tier = "C" },
-              { itemId = 249346, pop = 2.1, tier = "C" },
-              { itemId = 250144, pop = 1.9, tier = "C" },
-              { itemId = 250253, pop = 1.9, tier = "C" },
-              { itemId = 252411, pop = 1, tier = "C" },
-              { itemId = 250246, pop = 0.5, tier = "C" },
+              { itemId = 249808, pop = 41.8, tier = "S" },
+              { itemId = 268292, pop = 24.5, tier = "A" },
+              { itemId = 249343, pop = 20.7, tier = "A" },
+              { itemId = 249809, pop = 11.4, tier = "B" },
+              { itemId = 250256, pop = 7.3, tier = "B" },
+              { itemId = 249811, pop = 4.5, tier = "C" },
+              { itemId = 193718, pop = 4, tier = "C" },
+              { itemId = 249346, pop = 2.6, tier = "C" },
+              { itemId = 250253, pop = 2.4, tier = "C" },
+              { itemId = 249341, pop = 2.1, tier = "C" },
+              { itemId = 250144, pop = 1.2, tier = "C" },
             },
           },
         },
@@ -9609,24 +9590,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 7981, spellId = 1236066 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 7981, spellId = 1236066 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -9663,8 +9644,8 @@ ClassCodexSource["ugg"] = {
               { itemId = 239684, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 255607, slot = "Finger 2" },
-              { itemId = 255616, slot = "Trinket 1" },
-              { itemId = 255614, slot = "Trinket 2" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255616, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
               { itemId = 245870, slot = "Off Hand" },
             },
@@ -9693,7 +9674,7 @@ ClassCodexSource["ugg"] = {
           all = { ["pvp:3v3"] = { secondary = { { "haste" }, { "versatility" }, { "mastery" }, { "crit" } } } },
           archon = {
             mplus = {
-              minor = { { "Speed", "Leech", "Avoidance" } },
+              minor = { { "Speed", "Avoidance", "Leech" } },
               primary = "Intellect",
               secondary = { { "haste" }, { "mastery" }, { "crit", "versatility" } },
             },
@@ -9705,7 +9686,7 @@ ClassCodexSource["ugg"] = {
           },
           voidweaver = {
             mplus = {
-              minor = { { "Speed", "Leech", "Avoidance" } },
+              minor = { { "Speed", "Avoidance", "Leech" } },
               primary = "Intellect",
               secondary = { { "haste" }, { "mastery" }, { "crit", "versatility" } },
             },
@@ -9726,122 +9707,122 @@ ClassCodexSource["ugg"] = {
           archon = {
             mplus = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDjZsYmZAmBYmNzwsZAYMGLAYGgxMzMmtxMbLDwM4BA",
-                pickrate = 23.8,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82695#114588#1-82701#103851#1-82703#103853#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#117281#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108147#133542#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 15.4,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMMzyMDzM2mxYmZGbYMDbzMDwMAzsYGmNDAjxYBAzYgxMzMmtxMbLDwM4BA",
-                pickrate = 16.7,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82645#103784#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82675#103821#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82701#103851#1-82703#103853#1-82704#103854#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#125085#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 50,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMMzyMDjx2MzYmZGbYMjFzMDwMAzsYGmNDAjxYBAzYgxMzMmtxMbLDwM4BA",
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82704#103854#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#125085#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
                 pickrate = 33.3,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDjZsYmZAmBYmNzwsZAYMGLAYGgxMzMmtxMbLDwM4BA",
-                pickrate = 50,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82675#103821#1-82676#135091#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82704#103854#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#117281#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108031#134051#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 33.3,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZAAAAAAAAAAAAgZxMGLzMmZWmZYmx2MGzMzMwYw2MzYgZAmZzMMbGAGjxCAmZYYMzMjZbMz2yAMDeAA",
-                pickrate = 16.7,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82675#103821#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-82717#103869#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#125085#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 28.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMMzyMDDz2MzYmZmBGzw2MzAMDwMbmhZzAwYMWAwMGYMzMjZbMz2yAMDeAA",
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82675#103821#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82701#103851#1-82703#103853#1-82704#103854#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#125085#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108147#133542#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
                 pickrate = 20,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYM2mZGzMzYDjhFzMjBmBYmNzwsZAYMGLAYGgxMzMmtxMbLDwM4BA",
-                pickrate = 16.7,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82695#114588#1-82701#103851#1-82703#103853#1-82708#103860#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#125085#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108031#134051#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 50,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzMbYMssNzMAzAMzmZY2MAMGjFAMDwYmZGz2YmtlBwgHA",
-                pickrate = 15.4,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82695#114588#1-82701#103851#1-82703#103853#1-82708#103860#1-82710#103678#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#117281#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 16.7,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsMzwYsNzMmZmxGGzYZbmZAmBYmNzwsZAYMGLAYGgxMzMmtxMbLDwAPAA",
-                pickrate = 50,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82695#114588#1-82701#103851#1-82703#103853#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94676#117279#1-94677#117280#1-94678#117281#1-94680#117283#1-94681#117284#1-94685#117288#1-94686#125083#1-94688#117291#1-94697#117300#1-94699#117302#1-94702#117305#1-99800#123289#1-108007#133378#1-108029#133400#1-108147#133542#1-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109775#136688#1-109776#136034#1-109777#136035#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 40,
               },
             },
             raid = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 46,
+                pickrate = 43.2,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsMzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 12,
+                pickrate = 14.8,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 49.6,
+                pickrate = 43.3,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 45.8,
+                pickrate = 45.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 50,
+                pickrate = 44.4,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 57.1,
+                pickrate = 49.6,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 15.8,
+                pickrate = 21.4,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 38.3,
+                pickrate = 41.8,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 37.7,
+                pickrate = 38.2,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGDzgZMAzAMzmZY2MAwYsAgZAGzMzY2GzstMAzgB",
-                pickrate = 25.8,
+                pickrate = 24.4,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGYGLmxAMDwMbmhZzAAjxCAmBYMzMjZbMz2yAMDGA",
-                pickrate = 51.9,
+                pickrate = 50.5,
               },
             },
           },
@@ -9849,121 +9830,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZGbgZsYGDwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 15.9,
+                pickrate = 13.1,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZmBYG2mxAMzMDAAwsNbbgZjBAGMmZmxsNmBzMYGMA",
-                pickrate = 18,
+                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZGbgZsYGDwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
+                pickrate = 28.3,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbghltZMAzMzAAAMbz2GY2YAgBjZmZMbjZwMDmBDA",
-                pickrate = 25.5,
+                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbghFzYMwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
+                pickrate = 34.6,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbghFzYMwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 36.2,
+                pickrate = 33.3,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbghFzYMwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 36,
+                pickrate = 28.6,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbgZsYGDwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 34.6,
+                pickrate = 35.6,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZGbghFzYMwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 27.7,
+                pickrate = 26.9,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZmZDMYbGDwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 30,
+                pickrate = 23.6,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbghFzYMwMzMAAAz2stBmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 35.3,
+                pickrate = 31.6,
               },
             },
             raid = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbgZsYGDwMzMAAAz2stAmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 29.8,
+                pickrate = 28.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYG2mZGzMzYDjZsYmZAmZmBAGAz2stAmNGAYwYmZGz2YGMzgZwDA",
-                pickrate = 36,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82708#103860#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 16,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDjx2MzYmZGbYMjFzMDwMzMAwAY2mtFwsxAADGzMzY2GzgZGMDeAA",
-                pickrate = 17.7,
+                export = "82552#103781#1-82555#103817#1-82556#103834#1-82559#103682#1-82560#103683#2-82563#103686#1-82643#103782#1-82646#103785#1-82647#103786#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82704#103854#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#117299#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 15.8,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbgZsYGDwMzMAAAz2stAmNGAYwYmZGz2YGMzgZwA",
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82674#115883#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82701#103851#1-82703#103853#1-82704#103854#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109005#134841#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
                 pickrate = 16.7,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsMzwMmNzMmZmxGGzYxMzAMzMDAMAmtZbBMbMAzAMmZmxsNmBzMYG8AA",
-                pickrate = 10,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#136811#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82675#103821#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82701#103851#1-82703#103853#1-82704#103854#1-82710#103678#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-82717#103869#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 18.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDDz2MzYmZGbMjhFzMDwMzMAwAY2mtNwsxAADGzMzY2GzgZGMDeAA",
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82663#103806#1-82665#103808#1-82666#103809#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82693#103843#1-82701#103851#1-82703#103853#1-82704#103854#1-82710#103862#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#117299#1-94703#117306#1-99800#123287#1-100212#123841#1-108007#133378#1-108031#134051#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
                 pickrate = 10,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbgZsYGDwMzMAAAz2stAmNGAYwYmZGz2YGMzgZwA",
-                pickrate = 36.9,
+                pickrate = 35.5,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzM2mxYmZGbMjhFzMDwMzMAwAY2mtNwsxAADGzMzY2GzgZGMDeAA",
-                pickrate = 21.4,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#136811#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82675#103821#1-82676#135091#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82699#103849#1-82701#103851#1-82703#103853#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 23.1,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbYMjFzMDwMzMAwAY2mtNwsxAADGzMzY2GzgZGMDeAA",
-                pickrate = 13.3,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#136811#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82704#103854#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 20,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbMjZwMzAMzMDAMAmtZbDMbMAwgxMzMmtxMYmBzgHA",
-                pickrate = 16.7,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#136811#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82675#103821#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82699#103849#1-82701#103851#1-82703#103853#1-82708#103860#1-82712#103864#1-82713#103865#1-82715#103867#1-82717#103869#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 27.8,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CIQAAAAAAAAAAAAAAAAAAAAAAMjZMGAAAAAAAAAAAAjZZmxYZmxMz2MDzw2MzYmZGbYMjFzMDwMzMAwAY2mtNwsxAADGzMzY2GzgZGMDeAA",
-                pickrate = 28.6,
+                export = "82552#103781#1-82553#103787#1-82555#103817#1-82556#103834#1-82559#103682#1-82563#103686#1-82644#103783#1-82646#103785#1-82647#103786#1-82648#103788#1-82649#103789#2-82651#103792#1-82654#103796#1-82656#103798#1-82657#103674#1-82658#103799#1-82659#103801#1-82662#103805#1-82663#103806#1-82665#103808#1-82666#136811#1-82667#103811#1-82668#103812#1-82669#103813#1-82672#103818#1-82673#103819#1-82676#135091#1-82677#103823#1-82678#103825#1-82679#103826#1-82680#103828#1-82684#103833#2-82685#103835#1-82686#103836#2-82687#103837#1-82690#103840#1-82695#114588#1-82701#103851#1-82703#103853#1-82704#103854#1-82708#103860#1-82711#103863#1-82712#103864#1-82713#103865#1-82715#103867#1-93170#103810#1-93171#115448#1-94668#117271#1-94669#117272#1-94670#117273#1-94684#117287#1-94692#117295#1-94693#123845#1-94694#117297#1-94695#125982#1-94696#123844#1-94703#117306#1-99800#123287#1-100212#123841#1-108152#133549#2-108731#134284#1-109006#103841#1-109009#103677#1-109010#134844#2-109011#134845#1-109012#134846#1-109015#134849#1-109017#136223#1-109018#134851#1-109020#134859#1-109021#134860#1-109778#136036#1-109779#136037#1-109780#136038#1-109890#136157#1-109917#136185#1-110408#136992#1-110408#136991#2-110408#136990#1",
+                pickrate = 47.6,
               },
             },
           },
@@ -9971,18 +9952,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249346, pop = 42.4, tier = "S" },
-              { itemId = 249343, pop = 40.1, tier = "S" },
-              { itemId = 250144, pop = 13.2, tier = "B" },
-              { itemId = 250256, pop = 5.7, tier = "B" },
-              { itemId = 268292, pop = 5.1, tier = "B" },
-              { itemId = 249809, pop = 2.8, tier = "C" },
-              { itemId = 250223, pop = 2.6, tier = "C" },
-              { itemId = 250258, pop = 1.1, tier = "C" },
-              { itemId = 264507, pop = 1, tier = "C" },
-              { itemId = 251792, pop = 0.8, tier = "C" },
-              { itemId = 151310, pop = 0.1, tier = "C" },
-              { itemId = 246304, pop = 0.1, tier = "C" },
+              { itemId = 249346, pop = 44.2, tier = "S" },
+              { itemId = 249343, pop = 37.6, tier = "S" },
+              { itemId = 250144, pop = 12, tier = "B" },
+              { itemId = 250256, pop = 5.8, tier = "B" },
+              { itemId = 268292, pop = 5.5, tier = "B" },
+              { itemId = 249809, pop = 3, tier = "C" },
+              { itemId = 250223, pop = 2.7, tier = "C" },
+              { itemId = 250258, pop = 1.3, tier = "C" },
+              { itemId = 250257, pop = 1, tier = "C" },
+              { itemId = 264507, pop = 0.9, tier = "C" },
+              { itemId = 246304, pop = 0.4, tier = "C" },
+              { itemId = 151310, pop = 0.3, tier = "C" },
             },
           },
         },
@@ -9993,33 +9974,33 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244576, 237837 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 244560, 244557, 244558, 244553, 240951, 237837 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 244560, 244557, 244553, 240951, 237837 }, embellishments = {} },
             raid = { crafts = { 239656, 244576, 237837 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236066 } },
-              ["副手"] = { { id = 1236066 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236066 } },
+              ["Off Hand"] = { { id = 1236066 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -10039,7 +10020,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 49812, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
-              { ilvl = 295, itemId = 246304, slot = "Trinket 2" },
+              { ilvl = 298, itemId = 260235, slot = "Trinket 2" },
               { ilvl = 298, itemId = 49807, slot = "Main Hand" },
               { ilvl = 295, itemId = 237837, slot = "Off Hand" },
             },
@@ -10047,17 +10028,17 @@ ClassCodexSource["ugg"] = {
               { itemId = 250006, slot = "Head" },
               { itemId = 240952, slot = "Neck" },
               { itemId = 250004, slot = "Shoulders" },
-              { itemId = 250001, slot = "Back" },
+              { itemId = 255491, slot = "Back" },
               { itemId = 255474, slot = "Chest" },
               { itemId = 244560, slot = "Wrist" },
               { itemId = 171687, slot = "Hands" },
               { itemId = 244557, slot = "Waist" },
-              { itemId = 244558, slot = "Legs" },
+              { itemId = 250005, slot = "Legs" },
               { itemId = 244553, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
-              { itemId = 255613, slot = "Trinket 1" },
-              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 255614, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 2" },
               { itemId = 237837, slot = "Main Hand" },
               { itemId = 237837, slot = "Off Hand" },
             },
@@ -10083,27 +10064,27 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240906 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "mastery", "versatility" }, { "haste", "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
           deathstalker = {
             mplus = {
-              minor = { { "Speed", "Avoidance", "Leech" } },
+              minor = { { "Leech" }, { "Avoidance", "Speed" } },
               primary = "Agility",
-              secondary = { { "crit" }, { "versatility", "haste", "mastery" } },
+              secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Agility",
               secondary = { { "crit" }, { "versatility", "haste", "mastery" } },
             },
           },
           fatebound = {
             mplus = {
-              minor = { { "Speed", "Avoidance", "Leech" } },
+              minor = { { "Leech" }, { "Avoidance", "Speed" } },
               primary = "Agility",
-              secondary = { { "crit" }, { "versatility", "haste", "mastery" } },
+              secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Agility",
               secondary = { { "crit" }, { "versatility", "haste", "mastery" } },
             },
@@ -10119,80 +10100,86 @@ ClassCodexSource["ugg"] = {
           deathstalker = {
             mplus = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjlZmZ2mZZmBPwMzMzYYmxYA2MLDMgFwywMghFjFzMADeAA",
-                pickrate = 18.6,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjZmZmtZWmZwDMzMzMGmZMGgNzyADYBsMMDYYxYxMDwgHA",
+                pickrate = 31.1,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjlZmZ2mZZmBPwMzMzYYmxYA2MLDMgFwywMghFjFzMADeAA",
-                pickrate = 11.8,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjZmZmtZWmZwDMzMzMGmZMGgNzyADYBsMMDYYxYxMDwgHA",
+                pickrate = 26.7,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDAAAAAAzywsNDAAAAAY22GzMzMzYsMzMzyMLzMeAPwMzMzYYmxYA2MLDMgFwywMghFDmZAGjHA",
-                pickrate = 25,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYMzMzsNzyMDegZmZmxwMjxAsZWGYALglhZADLGLmZAGjHA",
+                pickrate = 66.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDAAAAAAzywsNDAAAAAY2WGzMzMzYsMzMz2MLzM4BmZmZGDzMGDwmZZgBsAWGmBMsYsYmBYMeAA",
-                pickrate = 33.3,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDAAAAAAzywsNDAAAAAY2WGzMzMzYMzMzsNzyMDegZmZmxwMjxAsZWGYALglhZADLGLmZAGjHA",
+                pickrate = 50,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYsMzMz2MLzM4BmZmZGDzMGDwmZZgBsAWGmBMsYsYmBYMeAA",
-                pickrate = 40,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYMzMzsNzyMDegZmZmxwMjxAsZWGYALglhZADLGLmZAGjHA",
+                pickrate = 37.5,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjlZmZ2mZZmBPwMzMzYYmxYA2MLDMgFwywMghFjFzMADeAA",
-                pickrate = 31.6,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjZmZmtZWmZwDMzMzMGmZMGgNzyADYBsMMDYYxYxMDwgHA",
+                pickrate = 38.5,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYsMzMz2MLzM4BmZmZGDzMGDwmZZgBsAWGmBMsYsYmBYMeAA",
-                pickrate = 50,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WmZmZmZGjZmZmtZWmZwDMzMzMGmZMGgNzyADYBsMMDYYxYxMDwgHA",
+                pickrate = 66.7,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNzwAAAAAAzygtZAAAAAAz2yYmZmZGjlZmZ2mZZmBPwMzMzYYmxYYwmZZgBsAWGmBMsgFzMADeAA",
-                pickrate = 27.3,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNzwAAAAAAzygtZAAAAAAz2yYmZmZGjZmZmtZWmZwDMzMzMGmZMGGsZWGYALglhZADLYxMDwgHA",
+                pickrate = 36.4,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYsMzMz2MLzM4BmZmZGDzMGDwmZZgBsAWGmBMsYsYmBYMeAA",
-                pickrate = 50,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAY2WGzMzMzYMzMzsNzyMDegZmZmxwMjxAsZWGYALglhZADLGLmZAGjHA",
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmFDGAAAAAY2GsNDAAAAAYsNzMzMzMGLzMzsNzyMDegZmZmxwMjxAsYWGYALglhZADLGbmZAGjHA",
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNzwAAAAAAzygtZAAAAAAz2yYmZmZGjZmZmtZWmZ8AmZmZMmxMjxwgNzyADYBsMMDYYBMzAMYA",
                 pickrate = 18.2,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAwsMzsYwAAAAAAz2gtZAAAAAAjtZmZmZmxYZmZmtZ2mZMegZmZmxwMjxAsZWGYALgthZADLGbmZAGjHA",
-                pickrate = 12.5,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAz22MzMzMzYMzMzsNzyMzMYmZmZGzMMGgNzyADYBsMMDYYxgZGgBPA",
+                pickrate = 14.3,
               },
             },
-            ["raid:3178"] = {
+            ["raid:3179"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAMzsMzsZAAAAAAYWGsNDAAAAAY2WmZmZmZGjlZmZ2GmZwMzMzMmZMjxAsZWGYALglhZADLGLmZAGjHA",
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNzwAAAAAAzygtZAAAAAAz2yYmZmZGjZmZmtZWmZ8AmZmZMmxMjxwgNzyADYBsMMDYYBMzAMYA",
                 pickrate = 100,
+              },
+            },
+            ["raid:3181"] = {
+              {
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsYwAAAAAAWGsMDAAAAAYsNzMzMzMGzMzMbzsMzMDmZmZmxMjxMAbmlBGwCYbYGwwiBzMAjxDA",
+                pickrate = 50,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAz22MzMzMzYsMzMz2MLzMzgZMzMjZGzYA2MbDMgFwywMghFDmZAG8AA",
-                pickrate = 20,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAMzsMzsZsNDAAAAAMLD2mBAAAAAM2mZmxDMzAzMzsMMzgZmZmZMzYGjBYzsMwAWALDzAGWMWMzAMz4BA",
+                pickrate = 100,
               },
             },
           },
@@ -10200,121 +10187,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 43.5,
+                pickrate = 47.1,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 37.5,
+                pickrate = 41.7,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 39.5,
+                pickrate = 37.2,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 36.6,
+                pickrate = 33.3,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 29.3,
+                pickrate = 38.1,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 60,
+                pickrate = 53.1,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 37.1,
+                pickrate = 44.4,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 40.6,
+                pickrate = 40.9,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAw2yMzMzMzYMzMzsNzyMjHwDMzMzMGmZMGADsAzYYMbA2GwmBAzMDGA",
-                pickrate = 38.9,
+                pickrate = 40,
               },
             },
             raid = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmxwAYgFYGDjZDw2A2MAYmZwA",
-                pickrate = 21.4,
+                pickrate = 28.7,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAgtZmZmZmxYmZmZbGzMGzYmZGzwMGDgBWgZMMmNAbDYzAgZmZYA",
-                pickrate = 67.4,
+                pickrate = 50,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmhxAYgFYGDjZBwyA2MAYmZwA",
-                pickrate = 13.2,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmxwAYgFYGDjZDw2A2MAYmZwA",
+                pickrate = 40.4,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAw22MzMzMzYMzMzsNzyMzMYMzMzYmxwAYgFYGDjZBwyA2MAYmZwA",
-                pickrate = 16.1,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAw22MzMzMzYMzMzsNzyMzMYMzMzYmxwAYgFYGDjZBw2A2MAYmZwA",
+                pickrate = 16.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAgtxMzMzMGzMzMbzYmxYGzMzYGmxYAMwCMjhxsBYbAbGAMzMzYA",
-                pickrate = 30.8,
+                pickrate = 50,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzygtZAAAAAAsNzMzMzMGzMzMbzsMzMPAmZmZmxMjZMAGYBmxwY2AsNgNDAmZGjB",
-                pickrate = 21.7,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmhxAYgFYGDjZBwyA2MAYmZwA",
+                pickrate = 29.2,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAgtZmZmZmxYmZmZbmlZGPgHYmxMjhZGzMAGYBmxwY2AsNgNjNAzMDGA",
-                pickrate = 31.8,
+                pickrate = 47.1,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmxwAYgFYGDjZBw2A2MAYmZwA",
-                pickrate = 25,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmxwAYgFYGDjZDw2A2MAYmZwA",
+                pickrate = 27.3,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAsNzMzMzMGzMzMbzsMzMYmZmZmhZmZmBwALwMGGzGgtBsZAwMzgB",
-                pickrate = 10.3,
+                export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzygtZAAAAAAsNzMzMzMGzMzMbzsMzMPAzMzMzMMjZMAGYBmxwYWAsMgNDAmZGjB",
+                pickrate = 13.3,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAA22mZmZmZGjZmZmtZWmZmBzMzMzYmxwAYgFYGDjZDw2A2MAYmZwA",
-                pickrate = 23.7,
+                pickrate = 20,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAw22MzMzMzYMzMzsNzyMzMYMzMzYmxwAYgFYGDjZBw2A2MAYmZwA",
-                pickrate = 22.8,
+                pickrate = 25.8,
               },
             },
           },
@@ -10322,17 +10309,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 52.4, tier = "S" },
-              { itemId = 249343, pop = 45.1, tier = "S" },
-              { itemId = 252420, pop = 4.4, tier = "C" },
-              { itemId = 268292, pop = 2.4, tier = "C" },
+              { itemId = 193701, pop = 54.1, tier = "S" },
+              { itemId = 249343, pop = 41.9, tier = "S" },
+              { itemId = 252420, pop = 5, tier = "B" },
+              { itemId = 268292, pop = 3.5, tier = "C" },
+              { itemId = 249805, pop = 2.4, tier = "C" },
               { itemId = 260235, pop = 2.3, tier = "C" },
-              { itemId = 249805, pop = 1.4, tier = "C" },
-              { itemId = 250144, pop = 1.2, tier = "C" },
-              { itemId = 250256, pop = 1.2, tier = "C" },
-              { itemId = 248583, pop = 0.9, tier = "C" },
-              { itemId = 249345, pop = 0.8, tier = "C" },
-              { itemId = 249344, pop = 0.2, tier = "C" },
+              { itemId = 250256, pop = 1.6, tier = "C" },
+              { itemId = 249344, pop = 1.3, tier = "C" },
+              { itemId = 250144, pop = 1.3, tier = "C" },
+              { itemId = 250227, pop = 1.2, tier = "C" },
               { itemId = 250257, pop = 0.2, tier = "C" },
             },
           },
@@ -10342,33 +10328,33 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244569, 237837 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 244736, 244740, 244557, 244553, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244555, 244740, 244557, 244553, 240951, 237909, 237910 }, embellishments = {} },
             raid = { crafts = { 244569, 237837 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236081 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -10385,15 +10371,15 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268286, slot = "Waist" },
               { ilvl = 289, itemId = 250005, slot = "Legs" },
               { ilvl = 285, itemId = 244569, slot = "Feet" },
-              { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 289, itemId = 49812, slot = "Finger 2" },
+              { ilvl = 289, itemId = 49812, slot = "Finger 1" },
+              { ilvl = 298, itemId = 268290, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 260235, slot = "Trinket 2" },
               { ilvl = 298, itemId = 260423, slot = "Main Hand" },
               { ilvl = 295, itemId = 237837, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 244736, slot = "Head" },
+              { itemId = 244555, slot = "Head" },
               { itemId = 255610, slot = "Neck" },
               { itemId = 255483, slot = "Shoulders" },
               { itemId = 255490, slot = "Back" },
@@ -10405,10 +10391,10 @@ ClassCodexSource["ugg"] = {
               { itemId = 244553, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 255607, slot = "Finger 2" },
-              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255614, slot = "Trinket 2" },
-              { itemId = 255636, slot = "Main Hand" },
-              { itemId = 255619, slot = "Off Hand" },
+              { itemId = 237909, slot = "Main Hand" },
+              { itemId = 237910, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 298, itemId = 268283, slot = "Head" },
@@ -10435,24 +10421,24 @@ ClassCodexSource["ugg"] = {
           all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "crit" } } } },
           fatebound = {
             mplus = {
-              minor = { { "Leech" }, { "Avoidance", "Speed" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Agility",
               secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed", "Avoidance" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Agility",
               secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
           },
           trickster = {
             mplus = {
-              minor = { { "Leech" }, { "Avoidance", "Speed" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Agility",
               secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed", "Avoidance" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Agility",
               secondary = { { "versatility" }, { "crit", "haste", "mastery" } },
             },
@@ -10468,55 +10454,61 @@ ClassCodexSource["ugg"] = {
           fatebound = {
             raid = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMzMzsBmxMLD2mBAAAAAMbLzMzwMzMziZmZbAAAAYAMwGMjxMmNAbDswAgZmBeA",
-                pickrate = 28.6,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMzMzsBmxMLD2mBAAAAAMbLzMzwMzMzYmZ2GAAAAGADsBzYMjZDw2ALMAYmZgHA",
+                pickrate = 16.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMzMzsBmxMLD2mBAAAAAMbLzMzwMzMziZmZbAAAAYAMwGMjxMmNAbDswAgZmBeA",
-                pickrate = 42.9,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMzMzsBmxMLD2mBAAAAAMbLzMzwMzMzYmZ2GAAAAGADsBzYMjZDw2ALMAYmZgHA",
+                pickrate = 66.7,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZMzsNzMzYmZmNGmZbmlBbzAAAAAAmttZmZYmZmZxMzsNAAAAMAGYDmxYGzGgtBWYAwMzAPA",
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZMzsNzMzYmZmNGmZbmlBbzAAAAAAmttZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMwDA",
                 pickrate = 50,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMjxsxwMmZZw2MAAAAAgZbbmZGmZmZWMzMbDAAAADgB2gZMmxsBYbgFGAMzMwDA",
-                pickrate = 25,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmZmFwMbzsMYbGAAAAAgtlZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMDeA",
+                pickrate = 33.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgBjxMzMzMbzMzMmZMLMMjZWGsNDAAAAAYsNzMzMzMzMLmZmtBAAAgBwAbwMGzY2AsNwCDAmZGDPA",
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmZmFwMbzsMYbGAAAAAgtlZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMDeA",
                 pickrate = 50,
+              },
+            },
+            ["raid:3179"] = {
+              {
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmZmFwMbzsMYbGAAAAAgtlZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMDeA",
+                pickrate = 100,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNGmZbmlBbzAAAAAAmttZmZYmZmZxMzsNAAAAMAGYDmxYGzGgtBWYAwMzAPA",
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNGmZbmlBbzAAAAAAmttZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMwDA",
                 pickrate = 50,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmZmNwMbzsMYbGAAAAAgttZmZYmZmZxMzsNAAAAMAGYDmxYGzGgtBWYAwMzM4BA",
-                pickrate = 50,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmZmNwMbzsMYbGAAAAAgttZmZYmZmZMzMbDAAAADgB2gZMmxsBYbgFGAMzMDeA",
+                pickrate = 33.3,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmFGmZbmlBbzAAAAAAYZmZGmZmZWMzMbDAAAgZAMwGMjxMmNAbDswAgZmZwDA",
-                pickrate = 25,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNGmZbmlBbzAAAAAAstNzMDzMzMjZmZbAAAAYAMwGMjxMmNAbDswAgZmZwDA",
+                pickrate = 16.7,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZMzsNzMzMjHwswDMzMbzsMYbGAAAAAgttZmZYmZmZxMzsNAAAAmBwAbwMGzY2AsNwCDAmZG4BA",
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMzMzsAmxMLD2mBAAAAAYbZmZGmZmZGzMz2AAAAYGADsBzYMjZDw2ALMAYmZgHA",
                 pickrate = 50,
               },
             },
@@ -10525,121 +10517,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 28.3,
+                pickrate = 26,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMLDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 33.3,
+                pickrate = 37,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 37.5,
+                pickrate = 33.9,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAzMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 14.6,
+                pickrate = 17.8,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 45,
+                pickrate = 35.1,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgZ2mBzMzMzsNzMjZmZmFwMbjlBbzAAAAAAstMzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 13.7,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgZ2mBzMzMzsNzMjZmZmFwMbjlBbzAAAAAAssMzMDzMzMjZmZZAAAAYMAYMLGGYgZhFswGDwMDGYA",
+                pickrate = 36.8,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 30.9,
+                pickrate = 31,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgtlZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 21.6,
+                pickrate = 17.1,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAgllZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 18.3,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbsMYbGAAAAAwssMzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
+                pickrate = 24.5,
               },
             },
             raid = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 33.3,
+                pickrate = 34.2,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 17.7,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbsMYbGAAAAAgtlZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
+                pickrate = 35.5,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 26.8,
+                pickrate = 31.3,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAgttZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 21.2,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
+                pickrate = 37.3,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbsMYbGAAAAAgttZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 25,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
+                pickrate = 40,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 31.4,
+                pickrate = 39.1,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmxsBmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 30,
+                pickrate = 18.2,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 25,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAgttZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
+                pickrate = 16.7,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAgttZmZYmZmZMzMbDAAAAjBAjZxwADMLsgF2YAmZwMYA",
-                pickrate = 22.4,
+                export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
+                pickrate = 26.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 40,
+                pickrate = 40.4,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbsMYbGAAAAAwstNzMDzMzMjZmZbAAAAYMAYMLGGYgZhFswGDwMDGYA",
-                pickrate = 34.3,
+                pickrate = 34.5,
               },
             },
           },
@@ -10647,16 +10639,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 49.2, tier = "S" },
-              { itemId = 260235, pop = 26.8, tier = "A" },
-              { itemId = 252420, pop = 22.8, tier = "A" },
-              { itemId = 268292, pop = 6.3, tier = "B" },
-              { itemId = 250256, pop = 5.3, tier = "B" },
-              { itemId = 249345, pop = 3.8, tier = "C" },
-              { itemId = 249344, pop = 2, tier = "C" },
-              { itemId = 249805, pop = 1.9, tier = "C" },
-              { itemId = 151307, pop = 1.5, tier = "C" },
-              { itemId = 250144, pop = 1.4, tier = "C" },
+              { itemId = 249343, pop = 50.4, tier = "S" },
+              { itemId = 260235, pop = 25.2, tier = "A" },
+              { itemId = 252420, pop = 22, tier = "A" },
+              { itemId = 268292, pop = 5.9, tier = "B" },
+              { itemId = 250256, pop = 4.1, tier = "C" },
+              { itemId = 249345, pop = 3.7, tier = "C" },
+              { itemId = 249344, pop = 2.8, tier = "C" },
+              { itemId = 249805, pop = 2.6, tier = "C" },
+              { itemId = 250144, pop = 1.7, tier = "C" },
+              { itemId = 250227, pop = 1.3, tier = "C" },
+              { itemId = 250257, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -10672,26 +10665,26 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236060 } },
-              ["戒指2"] = { { id = 1236060 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243980 } },
-              ["主手"] = { { id = 1236097 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236060 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243980 } },
+              ["Main Hand"] = { { id = 1236097 } },
+              ["Off Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -10792,37 +10785,37 @@ ClassCodexSource["ugg"] = {
             raid = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 28.7,
+                pickrate = 27.7,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMDbzMzMzMjBjZ2GAAAAzgxsYWGYALgthZAzCmhZGgZ8AA",
-                pickrate = 37.2,
+                export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMDbzMzMzMjBjZ2GAAAAzgxsZWGYALgthZAzCmhZGgZ8AA",
+                pickrate = 64.4,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 28.4,
+                pickrate = 26.7,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 27.3,
+                pickrate = 25.6,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMLDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 33.3,
+                export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMzstNzMzMzMGMmZbAAAAYwYWMLDMgFw2wMgZBGmZAmxDA",
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 38.5,
+                pickrate = 37.5,
               },
             },
             ["raid:3180"] = {
@@ -10834,25 +10827,25 @@ ClassCodexSource["ugg"] = {
             ["raid:3181"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 26.3,
+                pickrate = 23.5,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 37.5,
+                pickrate = 34.5,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 29.5,
+                pickrate = 29.2,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLzwstNGzMmBzMzMjxsNMjttZmZmZmxgxMbDAAAADGziZZgBsA2GmBMLYGmZAmxDA",
-                pickrate = 21.7,
+                pickrate = 27.9,
               },
             },
           },
@@ -10860,67 +10853,67 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 52.3,
+                pickrate = 54,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 42.4,
+                pickrate = 44.1,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 58,
+                pickrate = 52.4,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 57.1,
+                pickrate = 49,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 35.6,
+                pickrate = 44.2,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 40,
+                pickrate = 48.2,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 59.5,
+                pickrate = 57.1,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 47.1,
+                pickrate = 47.3,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjtlZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 41,
+                pickrate = 55.2,
               },
             },
             raid = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 61.2,
+                pickrate = 61.4,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjttZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 41.3,
+                pickrate = 35.7,
               },
             },
             ["raid:3176"] = {
@@ -10932,25 +10925,25 @@ ClassCodexSource["ugg"] = {
             ["raid:3177"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 71.1,
+                pickrate = 74.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjttZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 59.9,
+                pickrate = 62.9,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 75.3,
+                pickrate = 76.3,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMGPwMzMjxsNMjttZmZmZmxgxMbDAAAADGDYMbGGYgZhFsYDzAmZwMGA",
-                pickrate = 70.5,
+                pickrate = 64.8,
               },
             },
             ["raid:3181"] = {
@@ -10962,19 +10955,19 @@ ClassCodexSource["ugg"] = {
             ["raid:3182"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 73.8,
+                pickrate = 73.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 71.8,
+                pickrate = 73.9,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLDmttxYmxMYmZmZMmthZstNzMzMzMGMmZbAAAAYwYAjZzwADMLsgFbYGwMDmxA",
-                pickrate = 68.4,
+                pickrate = 64.5,
               },
             },
           },
@@ -10982,17 +10975,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249344, pop = 59.7, tier = "S" },
-              { itemId = 249343, pop = 33.9, tier = "S" },
+              { itemId = 249344, pop = 58.7, tier = "S" },
+              { itemId = 249343, pop = 36.4, tier = "S" },
               { itemId = 193701, pop = 6.8, tier = "B" },
-              { itemId = 268292, pop = 3.5, tier = "C" },
-              { itemId = 252420, pop = 3.3, tier = "C" },
-              { itemId = 250144, pop = 1.6, tier = "C" },
-              { itemId = 250256, pop = 1, tier = "C" },
+              { itemId = 252420, pop = 3.8, tier = "C" },
+              { itemId = 268292, pop = 3.3, tier = "C" },
+              { itemId = 250144, pop = 1.5, tier = "C" },
+              { itemId = 250256, pop = 1.2, tier = "C" },
+              { itemId = 249806, pop = 0.9, tier = "C" },
+              { itemId = 249805, pop = 0.8, tier = "C" },
               { itemId = 251782, pop = 0.8, tier = "C" },
-              { itemId = 249345, pop = 0.7, tier = "C" },
-              { itemId = 249806, pop = 0.7, tier = "C" },
-              { itemId = 249805, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -11002,32 +10994,32 @@ ClassCodexSource["ugg"] = {
       elemental = {
         crafting = {
           all = {
-            mplus = { crafts = { 244584, 244611, 244610 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239678, 244568, 244765 }, embellishments = {} },
-            raid = { crafts = { 244611, 244610, 245770 }, embellishments = {} },
+            mplus = { crafts = { 244584, 244611 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239678, 244568, 244765, 240951 }, embellishments = {} },
+            raid = { crafts = { 244611, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 7981, spellId = 1236066 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 7981, spellId = 1236066 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -11043,7 +11035,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249980, slot = "Hands" },
               { ilvl = 285, itemId = 244611, slot = "Waist" },
               { ilvl = 298, itemId = 268288, slot = "Legs" },
-              { ilvl = 285, itemId = 244610, slot = "Feet" },
+              { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 249919, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
@@ -11063,7 +11055,7 @@ ClassCodexSource["ugg"] = {
               { itemId = 255539, slot = "Legs" },
               { itemId = 244765, slot = "Feet" },
               { itemId = 255607, slot = "Finger 1" },
-              { itemId = 255607, slot = "Finger 2" },
+              { itemId = 240951, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255616, slot = "Trinket 2" },
               { itemId = 267371, slot = "Main Hand" },
@@ -11079,7 +11071,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 249980, slot = "Hands" },
               { ilvl = 285, itemId = 244611, slot = "Waist" },
               { ilvl = 298, itemId = 268288, slot = "Legs" },
-              { ilvl = 285, itemId = 244610, slot = "Feet" },
+              { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
               { ilvl = 289, itemId = 249919, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
@@ -11096,7 +11088,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "mastery", "crit", "versatility" }, { "haste" } },
+              secondary = { { "mastery", "versatility", "crit" }, { "haste" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -11108,7 +11100,7 @@ ClassCodexSource["ugg"] = {
             mplus = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
-              secondary = { { "mastery", "crit", "versatility" }, { "haste" } },
+              secondary = { { "mastery", "versatility", "crit" }, { "haste" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -11119,94 +11111,94 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 827, haste = 579, mastery = 982, versatility = 142 },
-            raid = { crit = 841, haste = 579, mastery = 1208, versatility = 112 },
+            mplus = { crit = 713, haste = 624, mastery = 1066, versatility = 135 },
+            raid = { crit = 772, haste = 624, mastery = 1292, versatility = 60 },
           },
         },
         talents = {
           farseer = {
             mplus = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsNzMjx2iBmZ2GLzMzMmxilZmlZMmZWAAGAYmxwwA",
-                pickrate = 12.2,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGLLmBzMbjlZmZGzYxyMzyMGzMLAADAMzYY4BA",
+                pickrate = 13.5,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMmZbZmhZmZbsMjZGDLWmZWmxYmZBAYAgZGDDPA",
-                pickrate = 18.2,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMzMLLzMMzYjlZMzYYxyMzyMGzMLAAzAgZGDDPA",
+                pickrate = 10,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLbzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAzyMzMmZbxMbmZGjlZMzYYZWmZWGGzMLAADAMzYYGPA",
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGLLmBzMbjlZmZGzYxyMzyMGzMLAADAMzYY4BA",
                 pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAzyMzMmZbZmhZmxYZmHYmxgZxMLzYMzsAAMDAmZMM8AA",
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGzMLLLDmhBAAAAsYmNYADY2YGwsAAz2MzMGLLmZjZmtZWm5BmZMsYZGLzMjZmFAgBAmZMM8AA",
                 pickrate = 10,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsNzMjx2iBmZ2GLzMzMmxilZmlZMmZWAAGAYmxwwA",
-                pickrate = 25,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGbLmBzMbjlZmZGzYxyMzyMGzMLAADAMzYY4BA",
+                pickrate = 14.3,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGLLmBzMbjlZmZGDLWmZWmxYmZBAMDAMzYY4BA",
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGLLmZjZmtxyMmZMsMLzMLzYMzsAAMDAmZMM8AA",
                 pickrate = 16.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsNzMjxyiBmZ2GLz8AzMzwilZmlZMmZWAAGAYmxwwA",
-                pickrate = 16.7,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAzyMzMmZZZmhZmZjlZMzYYxyMzyMGzMLAADDgZGDDPA",
+                pickrate = 18.2,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAzyMzMmZZZmhZmZjlZegZmHYglZmlZMmZWAAGAYmxwwDA",
-                pickrate = 10,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGbLmBzMbjlZmZGzYxyMzyMGzMLAADAMzYY4BA",
+                pickrate = 16.7,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGzMLLLDmhBAAAAsYmNYADY2YGwsAAz2MzMmZZxMYmZbmlZegZGDLWmxyMzYmZBAYAgZGDDPA",
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZMmhZAAAAgFzsBDYAzGzAmFAYWmZmxMbLmhZmxYZGzMPwwysMjlZmxYWAAGAYmxwwDA",
                 pickrate = 10,
               },
             },
             raid = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMGjZZZZMmhBAAAAsYmNYADY2YGwsAAz2MzMGbLmBzMbjlZmZGDLWmZWmxYmZBAYYAMzYY4BA",
-                pickrate = 11.6,
+                pickrate = 18.3,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLbzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsMzMjx2iBmZ2GLzMzMGWmlxsMjxMzCAwwAYmxwwA",
-                pickrate = 34,
+                pickrate = 32.6,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMmZmZZZbMmhBAAAAsZmNYADY2YGwsAAzyMjxYbxMLMzsNWMzMjhFLzYxMjZmFAwMMAmZMM8AA",
-                pickrate = 27.6,
+                pickrate = 27.3,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMmZmZZZbMmhBAAAAsZmNYADY2YGwsAAzyMjxYbxMLMzsNWMzMjhFLzYxMjZmNAwMMAmZMM8AA",
-                pickrate = 40,
+                pickrate = 26.3,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsMzMjx2ixCzMbjtZmZGDLzyYWmxYmZBAYAgZGDDD",
-                pickrate = 28,
+                pickrate = 31.6,
               },
             },
             ["raid:3179"] = {
@@ -11217,154 +11209,154 @@ ClassCodexSource["ugg"] = {
             },
             ["raid:3180"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsNzMjZ2WmBzMwyMzMjZwyMzyMGzMLAAzAgZGDDD",
-                pickrate = 24.6,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMGjZZZZMmhBAAAAYxMbwAGwsxAMLAwsNzMjx2yMWYGYZmZmxMYZmZZGjZmFAwMDAmZMMMA",
+                pickrate = 14.6,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZZZwMMAAAAgFzsBDYAzGzAmFAY2mZmxYbxMYmxYZmZmxwysMs8AzMmZWAAzwAYmxwwDA",
-                pickrate = 21.4,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLbzMmZmZZZZwMMAAAAgFzsBDYAzGzAmFAY2mZmxYbxMYmxYZmZmxwysMs8AzMmZWAAzwAYmxwwDA",
+                pickrate = 22.2,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZZZwMMAAAAgFzsBDYAzGzAmFAY2mZmxYbxMYmZbsMzMzYYxywyDMzYmZBAMDDgZGDDPA",
-                pickrate = 15.4,
+                pickrate = 13.8,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZZZwMMAAAAgFzsBDYAzGzAmFAY2mZmxYbxMYmZbsMzMzYYxywiZmZmZBAMDDgZGDDPA",
-                pickrate = 21.4,
+                pickrate = 23.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMmZmZZZZMMmBAAAAsYmNYADY2YGwsAAz2MzMGbLmZhZGzsMzMzYYZWGWMzMmZBAYAgZGDDPA",
-                pickrate = 30.6,
+                pickrate = 23.1,
               },
             },
           },
           stormbringer = {
             mplus = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMjhlZZGLmZGzsAAMAmZghhB",
-                pickrate = 11.1,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMzDMsYZGLmZGzsAAMAmZghhB",
+                pickrate = 18.3,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMjhlZZGLmZGzsAAMAmZghhB",
-                pickrate = 14.3,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZsNWmZmZeghFLzYxMzYmFAghBmZghhB",
+                pickrate = 15.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYgZsNWmZmZegZsYZGLmZGzsAAMAmZghhB",
-                pickrate = 20,
+                pickrate = 16,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYsxM2GLzMzMGWmlZsYmZMzCAwAYmBGGGA",
-                pickrate = 11.8,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYsxM2GLzMzMGWmlZsYmZMzCAwAYmBGGGA",
+                pickrate = 16.7,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAgNzYYDWgZYYGbAwsNzMjx2iZwM2GLzMzMPwMWsMjFzMjZWAAGAzMwwwDA",
-                pickrate = 13,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYgZsNWmZmZegZsYZGLmZGzsAAMAmZghhB",
+                pickrate = 16,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYgZsNWmZmZegZsYZGLmZGzsAAMAmZghhB",
-                pickrate = 13.6,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMzDMsYZGLmZGzsAAMAmZghhB",
+                pickrate = 16.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAgNzYYDWgZYYGbAwsNzMjxyiZwMz2YZmZmxwilZsYmZMzCAwwAzMwwwDA",
-                pickrate = 8.7,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMjhlZZGLmZGzsAAMAmZghhB",
+                pickrate = 12,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZsNWmZmZegZsYZGLmZGzsAAMAmZghhB",
-                pickrate = 12,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYssYgZmtxyMzMzDMsYZGLmZGzsAAMAmZghhB",
+                pickrate = 15.4,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYgZsNWmZmZmhFLzYxMzYmFAgBwMDMMMA",
-                pickrate = 17.4,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwgxGAMbzMzYstYgZsNWmZmZMjFLzYxMzYmFAghBmZghhB",
+                pickrate = 15,
               },
             },
             raid = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 27.4,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMwMzyYZmZmxwysMjFzMMzCAwAYmBGGGA",
+                pickrate = 8.5,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAwmZMsBLwMMMjNAY2mZmZmZbxMYGGLzMzMGWmlZsYmhZWAAGAzMwwwDA",
-                pickrate = 16.5,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
+                pickrate = 13,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 20.8,
+                pickrate = 24.6,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 26.7,
+                pickrate = 20.5,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 20,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
+                pickrate = 29.6,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 22.8,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
+                pickrate = 26.4,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMmZmZZbbgxMDAAAAAWMjhNYBmhhZsBAz2MzMGbLmBzMGLzMzMGWmlZsYmZMzCAwMAzMwwwDA",
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAgFzYYDWgZYYGbAwsMzMjx2iZWYGGLzMzMGWsMjFzMjZWAAmxAzMwwwDA",
                 pickrate = 10,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 24.3,
+                pickrate = 21.4,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMwMzyYZmZmxwysMjFzMMzCAwAYmBGGGA",
-                pickrate = 13.7,
+                pickrate = 10.6,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmtZmZM2WMwMzyYZmZmxwysMjFzMMzCAwAYmBGGGA",
-                pickrate = 11.1,
+                export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMwMzyYZmZmxwysMjFzMMzCAwAYmBGGGA",
+                pickrate = 13.5,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYwYDAmlZmZM2WMWYmZZsMzMzYYZWGWMzwMLAADgZGYYYA",
-                pickrate = 27.1,
+                pickrate = 31.8,
               },
             },
           },
@@ -11372,17 +11364,19 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 250144, pop = 55.8, tier = "S" },
-              { itemId = 249343, pop = 31.8, tier = "S" },
-              { itemId = 249346, pop = 12.1, tier = "B" },
-              { itemId = 249809, pop = 6.1, tier = "B" },
-              { itemId = 268292, pop = 5.1, tier = "B" },
-              { itemId = 250256, pop = 4.8, tier = "C" },
-              { itemId = 250258, pop = 1.1, tier = "C" },
-              { itemId = 264507, pop = 0.9, tier = "C" },
-              { itemId = 250257, pop = 0.6, tier = "C" },
-              { itemId = 251792, pop = 0.6, tier = "C" },
-              { itemId = 249808, pop = 0.1, tier = "C" },
+              { itemId = 250144, pop = 54.9, tier = "S" },
+              { itemId = 249343, pop = 31.5, tier = "S" },
+              { itemId = 249346, pop = 12.2, tier = "B" },
+              { itemId = 249809, pop = 5.7, tier = "B" },
+              { itemId = 268292, pop = 5.7, tier = "B" },
+              { itemId = 250256, pop = 4.6, tier = "C" },
+              { itemId = 251792, pop = 1, tier = "C" },
+              { itemId = 264507, pop = 1, tier = "C" },
+              { itemId = 250258, pop = 0.9, tier = "C" },
+              { itemId = 250257, pop = 0.7, tier = "C" },
+              { itemId = 193718, pop = 0.1, tier = "C" },
+              { itemId = 248583, pop = 0.1, tier = "C" },
+              { itemId = 250223, pop = 0.1, tier = "C" },
               { itemId = 250246, pop = 0.1, tier = "C" },
             },
           },
@@ -11399,26 +11393,26 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["副手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              ["Off Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236068 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236068 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -11436,7 +11430,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 268288, slot = "Legs" },
               { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 285, itemId = 251513, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249920, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249287, slot = "Main Hand" },
@@ -11453,7 +11447,7 @@ ClassCodexSource["ugg"] = {
               { itemId = 255542, slot = "Waist" },
               { itemId = 244566, slot = "Legs" },
               { itemId = 244765, slot = "Feet" },
-              { itemId = 255607, slot = "Finger 1" },
+              { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255616, slot = "Trinket 2" },
@@ -11492,7 +11486,7 @@ ClassCodexSource["ugg"] = {
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Agility",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste" }, { "crit", "versatility" } },
             },
           },
           totemic = {
@@ -11504,13 +11498,13 @@ ClassCodexSource["ugg"] = {
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Agility",
-              secondary = { { "mastery", "haste" }, { "versatility", "crit" } },
+              secondary = { { "mastery", "haste" }, { "crit", "versatility" } },
             },
           },
         },
         statTargets = {
           all = {
-            mplus = { crit = 409, haste = 853, mastery = 1264, versatility = 0 },
+            mplus = { crit = 241, haste = 1156, mastery = 1138, versatility = 0 },
             raid = { crit = 241, haste = 1156, mastery = 1138, versatility = 0 },
           },
         },
@@ -11519,121 +11513,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjNmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 16,
+                pickrate = 16.6,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMmBwMDGMGA",
-                pickrate = 8.8,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 14.7,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMbzYGjllZsxMz2YZmZmhxyYGAgZYMDGAzMYwYA",
-                pickrate = 16.7,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 11.1,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjNmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 20,
+                pickrate = 20.6,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 15.2,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZZGzYssMDMzsNWmZmZeAjlxMAAzwYmhBwMDGMGA",
+                pickrate = 11.1,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 15.6,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 20,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 19.5,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZeAjlxMAAzwYmhBwMDGMGA",
+                pickrate = 15.6,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjNmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 22.2,
+                pickrate = 12.1,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYstMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
-                pickrate = 13,
+                pickrate = 8.3,
               },
             },
             raid = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 25.9,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 25.4,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 16.1,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYGzssMjNmZwyMzMzDYYMDAwMMmBzAMzgBjB",
+                pickrate = 27.5,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 17.4,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 27,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 27,
+                pickrate = 12.5,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAwGgNzYYDWgZYYGsAwsNjZMWWmxCzMbjlZmZGGLjZAAmhxMYMgZGMY8AA",
-                pickrate = 13.6,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYGzssMjFmZwyMzMzDYYMDAwMMmBzAMzgBjB",
+                pickrate = 22.2,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYGjllZgZGjlZmZmHwYZMDAwMMmBzAMzgBjB",
-                pickrate = 15.4,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYmZmllZwMzwsMzMzALjZAAmhxMYAMzgBjB",
+                pickrate = 25,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYmZssMjFmZ2YZmZmhhxMAAzwYGmBwMDGMGA",
-                pickrate = 20,
+                pickrate = 18.5,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYmZstMDMzsZWmZmZYYMDAwMMmhZAMzgBjB",
-                pickrate = 25,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwgBLAMLzYmZmtlZsYmZYWmZmZAjZAAmhxMYAMzgBjB",
+                pickrate = 34.8,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 11.1,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAwGgNzYYDWgZYYGsAwsMjZMzyyMwMDWmZmZeADjZAAmhxMMzMgZGMY8AA",
+                pickrate = 21.7,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAwGgNzYYDWgZYYGsAwsNjZmZWWmBzMzCLzMzMgxMAAzwYGMzAmZwgxDA",
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAwGgNzYYDWgZYYGsAwsMjZmxyyMwMzGLzMzMMMmBAYGGzwMzAmZwgxDA",
                 pickrate = 21.4,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMjFmZ2GLzMzMMWGzAAMDjZGGAzMYwYA",
-                pickrate = 24.4,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGMYBgZbGzYssMDMzsNWmZmZYsMmBAYGGzMMDwMDGMGA",
+                pickrate = 27.5,
               },
             },
           },
@@ -11641,121 +11635,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsNjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
-                pickrate = 33.3,
+                pickrate = 25,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgNYDmxiZsNAmBsBwsMjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
-                pickrate = 12.5,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsNjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
+                pickrate = 33.3,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMzyyM2MzMYZmZmBMmBAAYMmZGmZAGMeAA",
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsNjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
                 pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWM2YmxYZmZmZwyYGAAgxYGDzMADGPAA",
-                pickrate = 33.3,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWMWYmZbsMzDMzMYZMDAAwYYmhZGgBjHA",
+                pickrate = 20,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWM2YmZbsMzMzMYZMDAAwYYMMzAMY8AA",
                 pickrate = 14.3,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWM2YmZbsMzMzMYZMDAAwYYMMzAMY8AA",
-                pickrate = 14.3,
+                pickrate = 25,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsNjZMWWM2YmZbsMzDMzMYZMDAAwYMjhZGgBjHA",
-                pickrate = 50,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWMwMz2YZmZmZwyYGAAgxYGDzMADGPAA",
+                pickrate = 33.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZMzMzMzMzMzMzAAAAAAAAAgFYDmxiZsNAmBsBwsNjZMWWmBmZ2YZmZm5BMWGzAAAMGzYYmBYwYA",
-                pickrate = 25,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWMwMz2YZmZmZw2YGAAgxYGDzMADGDA",
+                pickrate = 20,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWMwMz2YZmZmZwyYGAAgxwMDzMADGPAA",
-                pickrate = 16.7,
+                pickrate = 33.3,
               },
             },
             raid = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYGjllZswMzGLzMzMMMmBAYGgxMDmZAgxA",
-                pickrate = 17,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
+                pickrate = 24,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
-                pickrate = 36.7,
+                pickrate = 29.6,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYGjllZswMzGLzMzMMMmBAYGgxMDmZAgxA",
-                pickrate = 25,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWmxCzMbsMzMzwwYGAgZAGzMDzMAwYA",
+                pickrate = 19.2,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZmxyyMwMzGLzMzMMMmBAYGgxMzwMDAMGA",
-                pickrate = 18.2,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
+                pickrate = 22.2,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYGjllZswMzGLzMzMMMmBAYGgxMDmZAgxA",
-                pickrate = 17.4,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZMWWmxCzMbsMzMzwwYGAADMGzMDzMAwYA",
+                pickrate = 13,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYGjllZswMzGLzMzMMMmBAYGgxMDmZAgxA",
-                pickrate = 18.2,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAsAbwMWMjtBwMgNAmlZMzMWWmBmZ2YZmZmhhxMAAGgxMzwMDAMeAA",
+                pickrate = 21.4,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAsAbwMWMjtBwMgNAmtZMjxyyMwMzGbzMzMPghxMAAGgxMzwMDAMeAA",
-                pickrate = 18.2,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZmxyyMwMzCLzMzMMMmBAYGgxMzwMDAMeAA",
+                pickrate = 10,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAsAbwMWMjtBwMgNAmlZMzM2WmBmZ2YZmZmhhxMAAGgxMzwMDAMeAA",
-                pickrate = 20,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAgFYDmxiZsNAmBsBwsMjZmx2yMwMzGLzMzMMMmBAYGgxMzwMDAMeAA",
+                pickrate = 13.3,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
-                pickrate = 26.3,
+                export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYGjllZswMzGLzMzMMMmBAYGgxMDmZAgxA",
+                pickrate = 23.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
-                pickrate = 30.2,
+                pickrate = 28.9,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFGbDgZAbAMLzYmZssMDMzsxyMzMDDjZAAmBYMzgZGAYMA",
-                pickrate = 39.1,
+                pickrate = 25,
               },
             },
           },
@@ -11763,16 +11757,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 193701, pop = 50.8, tier = "S" },
-              { itemId = 249343, pop = 38.7, tier = "S" },
-              { itemId = 252420, pop = 5.9, tier = "B" },
-              { itemId = 250144, pop = 4.6, tier = "C" },
-              { itemId = 250256, pop = 4.1, tier = "C" },
-              { itemId = 268292, pop = 3.9, tier = "C" },
-              { itemId = 249806, pop = 2.1, tier = "C" },
-              { itemId = 250258, pop = 1.1, tier = "C" },
-              { itemId = 251782, pop = 0.9, tier = "C" },
-              { itemId = 251792, pop = 0.9, tier = "C" },
+              { itemId = 193701, pop = 55, tier = "S" },
+              { itemId = 249343, pop = 37.1, tier = "S" },
+              { itemId = 250144, pop = 5.3, tier = "B" },
+              { itemId = 252420, pop = 5, tier = "C" },
+              { itemId = 268292, pop = 4.2, tier = "C" },
+              { itemId = 250256, pop = 4, tier = "C" },
+              { itemId = 249806, pop = 2.5, tier = "C" },
+              { itemId = 250258, pop = 1.3, tier = "C" },
+              { itemId = 249805, pop = 1.1, tier = "C" },
+              { itemId = 249344, pop = 1, tier = "C" },
+              { itemId = 250257, pop = 0.2, tier = "C" },
+              { itemId = 260235, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -11781,31 +11777,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 244584, 244581 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 244565, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 239678, 244562, 244565, 240951 }, embellishments = {} },
             raid = { crafts = { 239656, 244584, 244581 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 8013, spellId = 1236082 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 7997, spellId = 1236074 } },
-              ["戒指2"] = { { id = 7997, spellId = 1236074 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 7937, spellId = 1229454 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 8013, spellId = 1236082 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7997, spellId = 1236074 } },
+              ["Finger 2"] = { { id = 7997, spellId = 1236074 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 7937, spellId = 1229454 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236082 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236058 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229454 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -11833,8 +11829,8 @@ ClassCodexSource["ugg"] = {
               { itemId = 249979, slot = "Head" },
               { itemId = 240952, slot = "Neck" },
               { itemId = 249977, slot = "Shoulders" },
-              { itemId = 255548, slot = "Back" },
-              { itemId = 249982, slot = "Chest" },
+              { itemId = 239678, slot = "Back" },
+              { itemId = 244562, slot = "Chest" },
               { itemId = 255544, slot = "Wrist" },
               { itemId = 249980, slot = "Hands" },
               { itemId = 244565, slot = "Waist" },
@@ -11859,7 +11855,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249978, slot = "Legs" },
               { ilvl = 298, itemId = 268287, slot = "Feet" },
               { ilvl = 289, itemId = 249336, slot = "Finger 1" },
-              { ilvl = 289, itemId = 49812, slot = "Finger 2" },
+              { ilvl = 298, itemId = 268290, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
               { ilvl = 298, itemId = 249293, slot = "Main Hand" },
@@ -11869,7 +11865,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240910 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "mastery", "versatility" }, { "haste" }, { "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
           farseer = {
             mplus = {
               minor = { { "Leech" }, { "Avoidance", "Speed" } },
@@ -11877,7 +11873,7 @@ ClassCodexSource["ugg"] = {
               secondary = { { "versatility" }, { "crit", "mastery", "haste" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Intellect",
               secondary = { { "versatility" }, { "crit", "mastery", "haste" } },
             },
@@ -11889,7 +11885,7 @@ ClassCodexSource["ugg"] = {
               secondary = { { "versatility" }, { "crit", "mastery", "haste" } },
             },
             raid = {
-              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed", "Avoidance" } },
               primary = "Intellect",
               secondary = { { "versatility" }, { "crit", "mastery", "haste" } },
             },
@@ -11898,20 +11894,26 @@ ClassCodexSource["ugg"] = {
         statTargets = {
           all = {
             mplus = { crit = 1020, haste = 434, mastery = 723, versatility = 396 },
-            raid = { crit = 1020, haste = 434, mastery = 723, versatility = 396 },
+            raid = { crit = 847, haste = 572, mastery = 778, versatility = 396 },
           },
         },
         talents = {
           farseer = {
             mplus = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzYMjxiZWgBMgZhZAjFMzgZbmxYmtlZmNzY2Yx8AzMGWmlBAADwYGAMzgZwDA",
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzMjZMWMzCMgBMLMDYsgZGMbzMmZmtlZGmxsxixMjhlZZAAwAMzMAYmBG8AA",
+                pickrate = 25,
+              },
+            },
+            ["mplus:10658"] = {
+              {
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssMmZmZMzMjZMWMzCMgBMLMDYswMzgZbmZGzssMzsZGDWmxMjhlZZAAwAwMAYmBG8AA",
                 pickrate = 50,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzYMjxiZWgBMgZhZAjFMzgZbmxYmtlZmNzY2Yx8AzMGWmlBAADwYGAMzgZwDA",
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzMjZMWMzCMgBMLMDYsgZGMbzMmZmtlZGmxsxixMjhlZZAAwAMzMAYmBG8AA",
                 pickrate = 100,
               },
             },
@@ -11923,80 +11925,80 @@ ClassCodexSource["ugg"] = {
             },
             ["mplus:12811"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNYmZmZGjZMWMzGMgBMbMDYs4BMzgZbwMzstMzsZGzGLmZm5BGWGDAAGAmBAzMMG8AA",
-                pickrate = 100,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNmZmZMzYMMWMzCMgBMLMDYswMzgZZmZGzstNzwMGsMjZGjZZWmBAgBwMDAmZYAPA",
+                pickrate = 50,
               },
             },
-            ["mplus:361753"] = {
+            ["mplus:12915"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzYMjxiZWgBMgZhZAjFMzgZbmxYmtlZmNzY2Yx8AzMGWmlBAADwYGAMzgZwDA",
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzMjZMWMzCMgBMLMDYsgZGMbzMGzssMzwMmNWMmZMsMLzAAwAMzMAYmBG8AA",
                 pickrate = 100,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZmZmZGjZMWMzCMgBMLMDYswMzgZZmZGzstMzsZGzCLGzMGWmlBAADAzAgZGYwDA",
-                pickrate = 50,
+                pickrate = 100,
               },
             },
             raid = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZGjZGzMMziZWgBMgZhZAjFzgBLzMzYmtlZmFzYWYZmHYmxgZZAAAgZmBAzMwgHA",
-                pickrate = 12,
+                pickrate = 14.3,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZmHYMzwMMziZ2gBMgZhZAjFzwgZbmZmZmtlZGmZmF2mxMjBzyAAAAjZAwMDM4BA",
-                pickrate = 18.2,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZGjZmZmhZWMzCMgBMLMDYsYGGYbmZmZmtlZmNzMDWm5BMjBzyAAAAzMDAmZgBPA",
+                pickrate = 15.4,
               },
             },
             ["raid:3176"] = {
+              {
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMGLLzwMzMzMmZGjFzsBDYAzGzAGLYmBzyMzMmZZZmhZMYZGzMPwwysYAAAwYGAMzwMDeA",
+                pickrate = 14.3,
+              },
+            },
+            ["raid:3177"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZmZmZmZMMWMzCMgBMLMDYsYGzgZbmZGzstMzwMzswiZmZMYWGAAAgZAwMDM4BA",
                 pickrate = 16.7,
               },
             },
-            ["raid:3177"] = {
-              {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZGjZmZmhZWMzCMgBMLMDYsYGgZZmZGzstMzsYGzCLzYmxwysMAAAwMzAgZGAeA",
-                pickrate = 25,
-              },
-            },
             ["raid:3178"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNMzYMzYmhZWMzCMgBMLMDYsYGGMLjZmZmtlZmFzYWYZmHYmxgZZAAwAMmBAzMwgHA",
-                pickrate = 33.3,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZGjZGzMMziZWgBMgZhZAjFzgBLzMzYmtlZmFzYWYZmHYmxgZZAAAgZmBAzMwgHA",
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNMzYMzYmhZWMzCMgBMLMDYsYGGMLjZmZmtlZmNzYWYZmHYmxgZZAAwAMmBAzMwgHA",
-                pickrate = 25,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZmZmZmZMMWMzCMgBMLMDYsYGzAbzMmZmtlZGmZmFWMzMjBzyAAAAMjBwMDM4BA",
+                pickrate = 50,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNMzYMzMzMjZWMzCMgBMLMDYsYGGMbzMmZmtlZmFzYWYxYmxgZZAAAgZmBAzMwgHA",
-                pickrate = 100,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNMzYMzYmhZWMzCMgBMLMDYsYGGMLjZmZmtlZmFzYWYZmHYmxgZZAAwAMmBAzMwgHA",
+                pickrate = 50,
               },
             },
-            ["raid:3182"] = {
+            ["raid:3181"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNMzYMzYmhZWMzCMgBMLMDYsYGmhZZMmZmtlZGmxswiZmZMDzyAAAAzMDAmZgBPA",
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNmZGjZmZmhZWMzCMgBMLMDYsYGgZZMmZmtlZGmxsYWMzMjBzyAAAAzMDAmZgBPA",
                 pickrate = 100,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzsssNDzMjZGzMMWMzGMgBMbMDYsgZGYZmZmZmtlZGmxswyMPwMjBzyAAAAzMDAmZgBPA",
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNDzMzMzMjZMWMzCMgBMLMDYsgZGMbzMGzstMzwMmNWMPwMzDMsMLDAAGAmBAzMYG8AA",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzstsNMzMjZGjZMziZWgBMgZhZAjFmZGMbzMGzstMzwMmFWMmZMjlZZAAwAMzMAYmBG8AA",
-                pickrate = 28.6,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZmltlBzMzMzMmZM2MzCMgBMLMDYsgZmhZ7BwMzstMzsYGzmhZmZmZYMAAYAMzAgZGGwDA",
+                pickrate = 25,
               },
             },
           },
@@ -12004,121 +12006,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZswYbAMDshZGMbzMGmllZGmxsxixMjhlZZGAAGAzMYmBgxgB",
-                pickrate = 25.3,
+                pickrate = 25,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZswYbAMDshZGMbzMGmllZGmxsxixMjhlZZGAAGAzMYmBgxgB",
-                pickrate = 18.2,
+                pickrate = 18.4,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFGbDgZgNMzgZbmZGmtlZmFzYwyMmZMYWmBAgBwMDmZAYMYA",
-                pickrate = 16.5,
+                pickrate = 17.4,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZswYbAMDshZGMbzMGmllZmNzY2YxYmxwysMAAYAMzgZGAGDG",
-                pickrate = 10.2,
+                pickrate = 14.4,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFGbDgZgNMzgZbmxwstMzwMmNWMmZMmlZZGAAGAzMYmBgxgB",
-                pickrate = 12.3,
+                pickrate = 17.1,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZswYbAMDshZGMbzMGmllZGmxsxixMjhlZZGAAGAzMYmBgxgB",
-                pickrate = 26.2,
+                pickrate = 22.3,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZswYbAMDshZGMbzMGmllZGmxsxixMjhlZZGAAGAzMYmBgxgB",
-                pickrate = 27,
+                pickrate = 33.1,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFGbDgZgNMzgZbmZGmllZGmxsxyMmZMDzyAAgBwMDmZAYMYA",
-                pickrate = 15.1,
+                pickrate = 26.5,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFGbDgZgNMzgZbmxwstMzwMmNWMmZMmlZZGAAGAzMYmBgxgB",
-                pickrate = 17.3,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFGbDgZgNMzgZbmZGmtlZGmxglZMzYYZWmBAgBwMDmZAYMYA",
+                pickrate = 30.5,
               },
             },
             raid = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYZMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 13,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 13.1,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYZMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 20.6,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 22.8,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYZMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 11.2,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 8.3,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGMLjxMmtlZmFzYWYxMzMGMLDAAAMzMYmBAGMA",
-                pickrate = 28.2,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 13.6,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGMLjxMmtlZmFzYWYxMzMGMLDAAAMzMYmBAGMA",
-                pickrate = 48.7,
+                pickrate = 44,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGMLjxMmtlZmFzYWYxMzMGMLDAAAMzMYmBAGMA",
-                pickrate = 29.5,
+                pickrate = 37.9,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxsxyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 11.5,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYZMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 19.7,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxsxyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 23.8,
+                pickrate = 26.8,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 22.4,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZswYbAMDsZGGMLjxMmtlZmFzYWYxMzMGMLDAAAMzMYmBAGMA",
+                pickrate = 6.3,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbjZmxYmZmZYGLwGMjFGbDgZgNzAYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
-                pickrate = 5.2,
+                pickrate = 3.5,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGMLjxMmtlZmFzYWYxMzMGMLDAAAMzMYmBAGMA",
-                pickrate = 40.2,
+                export = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZswYbAMDsZGGYbMzMmtlZGmxswyMzMjBzyAAAAzMDmZAgBD",
+                pickrate = 13,
               },
             },
           },
@@ -12126,17 +12128,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 252411, pop = 39.3, tier = "S" },
-              { itemId = 249343, pop = 31.6, tier = "S" },
-              { itemId = 268292, pop = 17.7, tier = "A" },
-              { itemId = 249808, pop = 15, tier = "A" },
-              { itemId = 249809, pop = 7, tier = "B" },
-              { itemId = 193718, pop = 6.2, tier = "B" },
-              { itemId = 249811, pop = 5.3, tier = "B" },
+              { itemId = 252411, pop = 39.1, tier = "S" },
+              { itemId = 249343, pop = 29.6, tier = "A" },
+              { itemId = 268292, pop = 17.9, tier = "A" },
+              { itemId = 249808, pop = 14.9, tier = "B" },
+              { itemId = 249809, pop = 6.8, tier = "B" },
+              { itemId = 249811, pop = 6, tier = "B" },
+              { itemId = 193718, pop = 5.9, tier = "B" },
               { itemId = 250256, pop = 4.8, tier = "C" },
               { itemId = 250144, pop = 3, tier = "C" },
-              { itemId = 250253, pop = 2.4, tier = "C" },
-              { itemId = 250246, pop = 0.6, tier = "C" },
+              { itemId = 264507, pop = 2.6, tier = "C" },
+              { itemId = 250253, pop = 1.1, tier = "C" },
+              { itemId = 250246, pop = 0.7, tier = "C" },
             },
           },
         },
@@ -12154,24 +12157,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -12193,7 +12196,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 249810, slot = "Trinket 2" },
               { ilvl = 295, itemId = 245770, slot = "Main Hand" },
-              { ilvl = 298, itemId = 249922, slot = "Off Hand" },
+              { ilvl = 298, itemId = 249276, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
               { itemId = 255402, slot = "Head" },
@@ -12263,7 +12266,7 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 853, haste = 939, mastery = 788, versatility = 42 },
+            mplus = { crit = 912, haste = 906, mastery = 762, versatility = 42 },
             raid = { crit = 977, haste = 776, mastery = 762, versatility = 107 },
           },
         },
@@ -12271,13 +12274,13 @@ ClassCodexSource["ugg"] = {
           hellcaller = {
             mplus = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsZmZzMjZZAAAzMzysZmZZMAgFYgZxYGzAYWALDAAAzAAAzMYMjZsNzYGMzMzYYmZmBAMgHA",
-                pickrate = 33.3,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsZmZbmZMbDAAYmZWsYmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYMjxsNzYGzMzMDDzMzAAMgHA",
+                pickrate = 25,
               },
             },
-            ["mplus:112526"] = {
+            ["mplus:10658"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAsZGPwMjZ2MjtZmZmtBAAMzMLziZmlxAAWgBmFjZMDgZDsMAAAMDAAMzgxMGzyYMjZmZmhhZmBAwAeA",
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmFGbzMjZZAAAzMzysNzMbjBAsADMbGzYGAzGYZAAAwAAAzMYMzMGzMmBzMzMGmZmBAYAPA",
                 pickrate = 100,
               },
             },
@@ -12289,38 +12292,45 @@ ClassCodexSource["ugg"] = {
             },
             ["mplus:12915"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsZmZzMjZZAAAzMzysZmZZMAgFYgZxYGzAYWALDAAAzAAAzMYMjZsNzYGMzMzYYmZmBAMgHA",
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsZmZbmZMbDAAYmZWsYmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYMjxsNzYGzMzMDDzMzAAMgHA",
+                pickrate = 100,
+              },
+            },
+            ["mplus:361753"] = {
+              {
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsZmZbmZmZbAAAzMziFzMLjBAsADMLGzYGAzGYZAAAYGAAYmBjZMmtZGzYmZmZYYmZAAMgHA",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZmZmFGbMzMbAAAzMzysZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYmZMzsNzYGMzMzYYmZGAgB8AA",
-                pickrate = 16.7,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGLmZMLDAAYmZWmNzMLjBAsADMLGzYGAzGYZAAAYGAAYmBjZmxsNGzwMzMDDzMzMAgZgHA",
+                pickrate = 25,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGLmZMLDAAYmZWmtZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYMzMmtxYGmZmZYYmZmBAMgHA",
-                pickrate = 33.3,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWGAAgZmlZxMzyYAALwAzixMmBwsAWGAAAmBAAmZAzMjxMzwMmZmxgZmZGAwMwDA",
+                pickrate = 66.7,
               },
             },
-            ["raid:3176"] = {
-              {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGLmZMLDAAYmZWmNzMLjBAsADMLGzYGAzGYZAAAYGAAYmBjZmxsNGzwMzMDDzMzMAgZgHA",
-                pickrate = 50,
-              },
-            },
+            ["raid:3176"] = { { export = "CkQAAAAAAAAAAAAAAAAAAAAAAgBzYgBzMAAAwAYGAAsADMLGzYGAzGYBAAAAAAAAAAAAAAAA", pickrate = 50 } },
             ["raid:3177"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAYmZMzYmNzYZmZMLDAAYmZWmtZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYMzwYMmhZmZGGmZmZAAD4BA",
                 pickrate = 100,
               },
             },
+            ["raid:3179"] = {
+              {
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAgZMzYmFzYzMjZZAAAzMzysZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYmZGzsNGzwYmZGDzMzMAgZgHA",
+                pickrate = 50,
+              },
+            },
             ["raid:3180"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZmZmFGbMzMbAAAzMzysZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYmZMzsNzYGMzMzYYmZGAgB8AA",
-                pickrate = 50,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsMGbzMzMLDAAYmZWmNzMLjBAsADMLGzYGAzGYZAAAYGAAYmBjZMGjxMYmZmxwMzMDAYG4BA",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
@@ -12329,16 +12339,10 @@ ClassCodexSource["ugg"] = {
                 pickrate = 100,
               },
             },
-            ["raid:3183"] = {
-              {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAghZGzsZmZbmZmZZAAAmZWmlZmZZMAgFYgZxYGzAY2ALDAAAzAAAzMYmZMzYYYmxMzMDmZmBAYG4BA",
-                pickrate = 100,
-              },
-            },
             ["raid:3306"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsYGbzMzMLDAAwMzysMzMLjBAsADMLGzYGAzGYZAAAYGAAYmBMzMGDDzMmZmZwMzMAAzAPA",
-                pickrate = 50,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGLmZMLDAAYmZWmNzMLjBAsADMLGzYGAzGYZAAAYGAAYmBjZmxsNGzwMzMDDzMzMAgZgHA",
+                pickrate = 100,
               },
             },
           },
@@ -12346,121 +12350,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 37.4,
+                pickrate = 30.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 27.6,
+                pickrate = 27.3,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 29.6,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
+                pickrate = 17.4,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 32,
+                pickrate = 35.7,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 25.8,
+                pickrate = 29,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 30,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
+                pickrate = 18.5,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 41.9,
+                pickrate = 40.6,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 26.1,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
+                pickrate = 25,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtxYGjZmZGDzMzAAMgB",
-                pickrate = 20.7,
+                pickrate = 23.1,
               },
             },
             raid = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxMmZGzyAAAMzsMbzMziZAgx22ADYAzwGww2AAAwMAAAmZMzYGwwMzMzMGMzMzAAmBGA",
-                pickrate = 23.1,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzyAAAMzsYZmZWmZAgxyyADYAzwGww2AAAwMAAAmZYmZMwwMzMzYGMzMzAAmBGA",
+                pickrate = 21.2,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxMmZGzyAAAMzsMbzMziZAgx22ADYAzwGww2AAAwMAAAmZMzYGwwMzMzMGMzMzAAmBGA",
-                pickrate = 39,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzyAAAMzsYZmZWmZAgxyyADYAzwGww2AAAwMAAAmZYmZMwwMzMzYGMzMzAAmBGA",
+                pickrate = 31.8,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZGmFGmZGzyAAAMzsYZmZWmZAgx2yADYAzwCww2AAAwMAAAmZmZGzMbYYmZmZMDmZmBAYGYA",
-                pickrate = 24.3,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzYWGAAgZmlZbmZWMDAM2WGYADYG2AG2GAAAmBAAwMDzMzMwwMzMzYGMzMzAAmBGA",
+                pickrate = 34,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAgZmZGmNGmZGzyAAAMzsYZmZWmZAgxyyADYAzwGww2AAAwMAAAmZYmZmZDDzMzMjZwMzMDAYGYA",
-                pickrate = 33.3,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzyAAAMzsYZmZWmZAgxy2ADYAzwGww2AAAwMAAAmZMzYMwwMzMzYGMzMzAAmBGA",
+                pickrate = 19.2,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAzMzysZmZZMAwYbZgBMgZYDYYbAAAYGAAAzMjZMjtZGzgZmZGDzMzAAMgB",
-                pickrate = 28.6,
+                pickrate = 38.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAgZmZGmNGmZGzyAAAMzsYZmZWmZAgxyyADYAzwGww2AAAwMAAAmZMzMzMwwMzMzYGMzMzAAmBGA",
-                pickrate = 23.5,
+                pickrate = 25.9,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAgZmZmxsZGbzMjZbAAAzMzysYmZZMAwYZZgBMgZYDYYbAAAYGAAAzMMjxYmxMYmZmxwMzMDAYAD",
-                pickrate = 30,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzYWGAAwMzsMLmZWGDAM22GYADYG2AG2GAAAmBAAwMjZGzMmZMDmZmZMMzMzAAGwA",
+                pickrate = 22.6,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzyAAAMzsYbmZWmZAgx22ADYAzwCww2AAAwMAAAmZMzYMwwMzMzYGMzMzAAmBGA",
-                pickrate = 28.6,
+                pickrate = 42.9,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzYWGAAgZmlZbmZWmZAgx2yADYAzwGww2AAAwMAAAmZMzYmBGmxMzMGMzMzAAmBGA",
-                pickrate = 11.8,
+                export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzYWGAAgZmlZZmZWMDAM22GYADYGWAG2GAAAmBAAwMzMzYmBGmZmZGzgZmZAAmBGA",
+                pickrate = 15,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzyAAAMzsMbzMziZAgx22ADYAzwGww2AAAwMAAAmZMzYMwwMzMzYGMzMzAAmBGA",
-                pickrate = 8.7,
+                pickrate = 10,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxMmZGzyAAAMzsMbzMziZAgx22ADYAzwGww2AAAwMAAAmZMzYGwwMzMzMGMzMzAAmBGA",
-                pickrate = 26.8,
+                pickrate = 22.7,
               },
             },
           },
@@ -12468,17 +12472,17 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 250144, pop = 60.3, tier = "S" },
-              { itemId = 249343, pop = 33.1, tier = "S" },
-              { itemId = 250256, pop = 6.9, tier = "B" },
-              { itemId = 268292, pop = 3.2, tier = "C" },
-              { itemId = 249346, pop = 2.7, tier = "C" },
-              { itemId = 250223, pop = 1.9, tier = "C" },
-              { itemId = 249809, pop = 1.5, tier = "C" },
-              { itemId = 249810, pop = 1.3, tier = "C" },
-              { itemId = 250258, pop = 1.2, tier = "C" },
-              { itemId = 250257, pop = 1.1, tier = "C" },
-              { itemId = 264507, pop = 0.2, tier = "C" },
+              { itemId = 250144, pop = 65.6, tier = "S" },
+              { itemId = 249343, pop = 28.5, tier = "A" },
+              { itemId = 250256, pop = 7.9, tier = "B" },
+              { itemId = 268292, pop = 3.5, tier = "C" },
+              { itemId = 249346, pop = 2.9, tier = "C" },
+              { itemId = 250223, pop = 2, tier = "C" },
+              { itemId = 249810, pop = 1.4, tier = "C" },
+              { itemId = 50259, pop = 1.3, tier = "C" },
+              { itemId = 249809, pop = 1.3, tier = "C" },
+              { itemId = 250258, pop = 1.3, tier = "C" },
+              { itemId = 241340, pop = 0.2, tier = "C" },
             },
           },
         },
@@ -12487,31 +12491,29 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 239648, 245770 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239650, 239656, 239648 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239650, 239656, 239648, 245770 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236057 } },
-              ["戒指1"] = { { id = 1236059 } },
-              ["戒指2"] = { { id = 1236059 } },
-              Hands = { { id = 44968 } },
-              ["頭"] = { { id = 1236084 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
+              Chest = { { id = 1236069 } },
+              ["Finger 1"] = { { id = 1236060 } },
+              ["Finger 2"] = { { id = 1236059 } },
+              Head = { { id = 1236084 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
             },
           },
         },
@@ -12529,7 +12531,7 @@ ClassCodexSource["ugg"] = {
               { ilvl = 289, itemId = 250041, slot = "Legs" },
               { ilvl = 298, itemId = 268282, slot = "Feet" },
               { ilvl = 298, itemId = 268290, slot = "Finger 1" },
-              { ilvl = 289, itemId = 49812, slot = "Finger 2" },
+              { ilvl = 289, itemId = 249919, slot = "Finger 2" },
               { ilvl = 298, itemId = 249343, slot = "Trinket 1" },
               { ilvl = 298, itemId = 268292, slot = "Trinket 2" },
               { ilvl = 295, itemId = 245770, slot = "Main Hand" },
@@ -12545,13 +12547,13 @@ ClassCodexSource["ugg"] = {
               { itemId = 250043, slot = "Hands" },
               { itemId = 250039, slot = "Waist" },
               { itemId = 250041, slot = "Legs" },
-              { itemId = 268282, slot = "Feet" },
-              { itemId = 251217, slot = "Finger 1" },
+              { itemId = 49805, slot = "Feet" },
+              { itemId = 49812, slot = "Finger 1" },
               { itemId = 268290, slot = "Finger 2" },
-              { itemId = 250144, slot = "Trinket 1" },
-              { itemId = 249343, slot = "Trinket 2" },
-              { itemId = 251111, slot = "Main Hand" },
-              { itemId = 249922, slot = "Off Hand" },
+              { itemId = 249343, slot = "Trinket 1" },
+              { itemId = 250144, slot = "Trinket 2" },
+              { itemId = 245770, slot = "Main Hand" },
+              { itemId = 249276, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 250042, slot = "Head" },
@@ -12575,10 +12577,10 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240906 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "haste" }, { "crit" }, { "mastery" }, { "versatility" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "crit", "haste" }, { "mastery" }, { "versatility" } } } },
           diabolist = {
             mplus = {
-              minor = { { "Avoidance", "Speed", "Leech" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
               secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
             },
@@ -12590,7 +12592,7 @@ ClassCodexSource["ugg"] = {
           },
           ["soul-harvester"] = {
             mplus = {
-              minor = { { "Avoidance", "Speed", "Leech" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Intellect",
               secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
             },
@@ -12603,7 +12605,7 @@ ClassCodexSource["ugg"] = {
         },
         statTargets = {
           all = {
-            mplus = { crit = 912, haste = 906, mastery = 762, versatility = 42 },
+            mplus = { crit = 987, haste = 776, mastery = 817, versatility = 42 },
             raid = { crit = 987, haste = 776, mastery = 817, versatility = 42 },
           },
         },
@@ -12612,121 +12614,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 29.6,
+                pickrate = 30.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 31.5,
+                pickrate = 26.5,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 27,
+                pickrate = 30.6,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAAAAAAjZMsADsNsghFjZGLz2MzMmBAmZMmZmZAGzYGbAAgxMzMGGWmxAGA",
-                pickrate = 17.9,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
+                pickrate = 34.1,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 30.6,
+                pickrate = 29.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAAAAAAjZMsADsNsghFjZGLz2MzMmBAmZMmZmZAGzYGbAAgxMzMGGWmxAGA",
-                pickrate = 14,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
+                pickrate = 26.7,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 31.8,
+                pickrate = 25,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
-                pickrate = 30.2,
+                pickrate = 29,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZZAAAAAAAAjZMsADsNsghFjZGLz2MzMmBAmZMmZmZAGzYGbAAgxMzMGGWmxAGA",
-                pickrate = 15.5,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLDAAAAAAAYMjhFYgthFMsYMzYZ2mZmxMAwMjxMzMDwYGzYDAAMmZmxwwyMGwA",
+                pickrate = 32.1,
               },
             },
             raid = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDLYYxYMWmlZmZMDAMzYmZmZGgZmxMDAAwYmZGDDLzYADA",
-                pickrate = 12.7,
+                pickrate = 14.5,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZmZbAAAAAAAAjZMsADsNsghFjZGLz2MzMmBAmZMmZmZAGzYGAAAjZmZMMsMjBMA",
-                pickrate = 35.4,
+                pickrate = 33.2,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZGz2AAAAAAAAGzYYBGYbYBDLGzMWmtZmZMDAMzYMzMzAMzMmZ2AAAjZmZMMsMjBMA",
-                pickrate = 13.6,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDLYYxYmxysNzMjZAgZGjZmZGgZmxMDAAwYmZGDDLzYADA",
+                pickrate = 4.4,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMbDAAAAAAAYMjhFYgthNMsYMGLzyMzMmBAMjZmZmZAmZGzAAAYMzMjhxsMjBMA",
-                pickrate = 48,
+                pickrate = 51.6,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDbYYxYMWmtZmZMDAMzYmZmZGgZmxYWAAAjZmZMMsMjBMA",
-                pickrate = 20.6,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmtxwMzMzyAAAAAAAAGzYYBGYbYBDLGMzysNzMjZAgZYmZmZGgZmxYAAAmZmZGDjZZGDYA",
+                pickrate = 35.9,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDLYYxYmxysNzMjZAgZGjZmZGgZmxMDAAwYmZGDDLzYADA",
-                pickrate = 23.4,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmxMzMmNGmZmZ2GAAAAAAAwYGDLwAbDLYYxYMWmtZmZMDAMzYmZmZGAzMGDAAwYmZGDDLzYADA",
+                pickrate = 18.4,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZGz2AAAAAAAAGzYYBGYbYBDLGzMWmtZmZMDAMzYMzMzAMzMmZ2AAAjZmZMMsMjBMA",
-                pickrate = 52.5,
+                pickrate = 54.8,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmxMzwsxwMzYWGAAAAAAAwYGDLwAbDLYYxYMWmtZmZMDAMzYmZmZGgZmxMDAAwYmZGDDLzYADA",
-                pickrate = 25,
+                pickrate = 32.4,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDLYYxYMWmlZmZMDAMzYmZmZGgZmxMDAAwYmZGDDLzYADA",
-                pickrate = 28.6,
+                pickrate = 31.7,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWGAAAAAAAwYGDLwAbDLYYxYMWmlZmZMDAMzYmZmZGgZmxMDAAwYmZGDDLzYADA",
-                pickrate = 11.1,
+                pickrate = 12,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzYWGAAAAAAAwYGDLwAbDLYYxYMWmlZmZMDAMzYmZmZGAzMmZAAAGzMzMDDLzYADA",
-                pickrate = 42.6,
+                pickrate = 35.9,
               },
             },
           },
@@ -12734,55 +12736,49 @@ ClassCodexSource["ugg"] = {
             raid = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGbzMjZZAAAAAAAGLbDMgBMDbDYsZMGLzyMzMmBAMzMzMDwMzYGjBAAYMzMzMGsMDgHA",
-                pickrate = 19.2,
+                pickrate = 16.1,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGzsZGbzMjZZAAAAAAAGLLDMgBMDLDYsZwYZ2mZmxMAwMmZmZAmZmZGmZDAAMzMzMmZw2MAeAA",
-                pickrate = 40,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzYmNGmZGzyAAAAAAAMWWGYADYGWGwYzYMz2sMzMDDAMDzMzAMzMzMmZAAAGzMzMDzYZGD4BA",
+                pickrate = 37.5,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZGzyAAAAAAAM2WGYADYG2GwYzYMWmlZmZMDAYmZmZGgZmxMmZAAAGzMzMjBLzA4BA",
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzYmNGmZGzyAAAAAAAMWWGYADYGWGwYzYMz2sMzMDDAMDzMzAMzMzMmZAAAGzMzMDzYZGD4BA",
                 pickrate = 50,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGbzMjZZAAAAAAAGLbDMgBMDbDYsZMGLzyMzMmBAMzMzMDwMzYGjBAAYMzMzMGsMDgHA",
-                pickrate = 19.1,
+                pickrate = 17.4,
               },
             },
-            ["raid:3180"] = {
+            ["raid:3179"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzYmNGmZGzyAAAAAAAMWWGYADYGWGwYzYmxyYmZMzAAzMzMmBYmZmZMzAAAMmZmZGDWmZAeAA",
-                pickrate = 100,
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZGzyAAAAAAAM2WGYADYG2GwYzYMWmlZmZMDAYmHYmZGgZmxMmZAAAGzMzMjBLzYAPA",
+                pickrate = 50,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAgZmZGzsxYbmZMLDAAAAAAwYbZgBMgZYbAjNjxYbWmZmxMAgZmZmZAmZYmZmBAAYMzMzMmhlBgHA",
-                pickrate = 100,
-              },
-            },
-            ["raid:3182"] = {
-              {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGbzMjZZAAAAAAAGbbDMgBMDbDYsZMGLzyMzMmBAMzMzMDwMzYGjBAAYMzMzMGsMDgHA",
-                pickrate = 33.3,
+                pickrate = 50,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmtxwMzMzyAAAAAAAM22GYADYG2GwYzYM2GzMzYGAwMzMzMAzMMjxAAAMmZmZGzwyMAeAA",
+                export = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGzsZGbzMjZZAAAAAAAGLLDMgBMDLDYsZwYZ2mZmxMAwMmZmZAmZmZGmZDAAMzMzMmZw2MAeAA",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CoQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsZGbzMjZBAAAAAAwYbbgBMgZYbAjNjxYbWmZmxMAgZmZmZAmZGzMzMbAAgxMzMGzwyAwDA",
-                pickrate = 16.7,
+                pickrate = 33.3,
               },
             },
           },
@@ -12790,17 +12786,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 250144, pop = 60.7, tier = "S" },
-              { itemId = 249343, pop = 36.4, tier = "S" },
-              { itemId = 250256, pop = 4.7, tier = "C" },
-              { itemId = 249346, pop = 2.3, tier = "C" },
-              { itemId = 268292, pop = 2.3, tier = "C" },
+              { itemId = 250144, pop = 60.4, tier = "S" },
+              { itemId = 249343, pop = 36.3, tier = "S" },
+              { itemId = 250256, pop = 4.6, tier = "C" },
+              { itemId = 268292, pop = 2.8, tier = "C" },
+              { itemId = 249346, pop = 2.6, tier = "C" },
               { itemId = 249809, pop = 1.6, tier = "C" },
               { itemId = 250223, pop = 1.3, tier = "C" },
-              { itemId = 250258, pop = 0.7, tier = "C" },
+              { itemId = 249810, pop = 0.7, tier = "C" },
               { itemId = 50259, pop = 0.6, tier = "C" },
-              { itemId = 250257, pop = 0.6, tier = "C" },
-              { itemId = 249810, pop = 0.1, tier = "C" },
+              { itemId = 251785, pop = 0.6, tier = "C" },
             },
           },
         },
@@ -12809,31 +12804,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 239648, 245770 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 239684, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 240952, 239684, 240951, 245870 }, embellishments = {} },
             raid = { crafts = { 239656, 239648, 245770 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 7935, spellId = 1229442 } },
-              ["主手"] = { { id = 8039, spellId = 1236095 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 7935, spellId = 1229442 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236059 } },
-              ["戒指2"] = { { id = 1236059 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1229442 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236059 } },
+              ["Finger 2"] = { { id = 1236059 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1229442 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -12870,10 +12865,10 @@ ClassCodexSource["ugg"] = {
               { itemId = 239684, slot = "Feet" },
               { itemId = 240951, slot = "Finger 1" },
               { itemId = 240951, slot = "Finger 2" },
-              { itemId = 255614, slot = "Trinket 1" },
-              { itemId = 255616, slot = "Trinket 2" },
+              { itemId = 255616, slot = "Trinket 1" },
+              { itemId = 255614, slot = "Trinket 2" },
               { itemId = 255622, slot = "Main Hand" },
-              { itemId = 255625, slot = "Off Hand" },
+              { itemId = 245870, slot = "Off Hand" },
             },
             raid = {
               { ilvl = 289, itemId = 250042, slot = "Head" },
@@ -12897,7 +12892,7 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240906 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "crit" }, { "mastery" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "crit", "mastery" } } } },
           diabolist = {
             mplus = {
               minor = { { "Speed", "Avoidance", "Leech" } },
@@ -12933,244 +12928,244 @@ ClassCodexSource["ugg"] = {
           diabolist = {
             mplus = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZmZb2MzMziZmllxAAgZMmZmNwYGDLwAbDLYswAAAjBDbAYmBYMjZsBAAYmZGAAGDD",
-                pickrate = 14.5,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGmNzMbzMjZb2MzMziZmllxAAgZMmZmFwYGDLwAbDLYswAAAjBDbAYmBYMjZGAAAmZmBAgxwA",
+                pickrate = 17.5,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGmNzMbzMjZb2MzMziZmllxAAgZMmZmFwYGDLwAbDLYswAAAjBDbAYmBYMjZGAAAmZmBAgxwA",
-                pickrate = 15.4,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAsZGzMDzGzsNzMmlZZmZmZxMzyyYAAwMGzMzGYMjhFYgthFMWYAAgxghNAMzAMmxMAAAYmZGAAYYA",
+                pickrate = 18.2,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzwsYmZbmZmZZ2MzMziZmllxAAgZMmZmFwYGDLwAbDLYswAAAjBDAwMDwYGzYDAAwMzMAAYGG",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLzmZmZWMzssMGAAMjxMzsAGzYYBGYbYBjFGAAYMYAAmZAGzYmBAAgZmZAAwMMA",
                 pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmFzMbzMjZZ2MzMziZmllxAAgZMmZmNwYGDLwAbDLYswAAAjBDAwMDwYGzYBAAwMzMAAYGG",
-                pickrate = 15.4,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZML2mZmxiZssMzAAgZwMzsBGzYYBGYbYBjFGAAYMDDAwMDwYGzMbAAAmZmBAAzwA",
+                pickrate = 18.2,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzYmNzMbzMjZb2MzMziZmllxAAgZMmZmFwYGDLwAbDLMjFGAAYMYYDAzMAzMjZsBAAYmZGAAGDPA",
-                pickrate = 15.8,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzwsZmZzMjZbWMzMziZmllxAAgZMmZmNwYGDLwAbDLYswAAAjZYYDAzMAjZMDAAAmZmZAAwwA",
+                pickrate = 20,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGmNzMbzMjZb2MzMziZmllxAAgZMmZmFwYGDLwAbDLYswAAAjBDbAYmBYMjZGAAAmZmBAgxwA",
-                pickrate = 25,
+                pickrate = 16.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzYmNzMbzMjZb2MzMziZmllxAAgZMmZmFwYGDLwAbDLMjFGAAYMYYDAzMAjZMzsAAAYmZGAAGDPA",
-                pickrate = 11.8,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzwsZmZbmZMbzmZmZWMzssMGAAMjxMzsAGzYYBGYbYBjFGAAYMYYDAzMAjZMzsAAAYmZGAAGDD",
+                pickrate = 18.8,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMMzYmNzMbzMzMbzmZmZWMzssMGAAMjxMzsAGzYYBGYbYhZswAAAjBDbAYmBYMDzsBAAYmZGAAGDPA",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGzswMbzMzMLzmZmZWMzssMGAAMjxMzsAGzYYBGYbYhZswAAAjBDAwMDwYGzAAAgZmZGAAmhHA",
                 pickrate = 15.4,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNmZbmZMLzmZmZWMzssMGAAMjxMzsAGzYYBGYbYBjFGAAYMYAAmZAGzYmBAAgZmZAAwMMA",
-                pickrate = 14.3,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAYmxDMzYmNzMbzMjZxmZmZWMzssMGAAMjxMzsAGzYYBGYbYhZswAAAjBDAwMDwYGzYDAAwMzMAAYGeA",
+                pickrate = 10,
               },
             },
             raid = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAYmxMzYmNGmZGz2sMzMzsYmZbhBAAzYMzMLgxMGWgB2GWYGLMAAwYwwGAmZAmZGjZDAAwMzMAAMGeA",
-                pickrate = 13.5,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzYWmlZmZmFzMbLMAAYGjZmZBMmxwCMw2wCzYhBAAGDG2AwMDwMzYmZDAAwMzMAAMGeA",
+                pickrate = 6.9,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMmZmFzMbLMAAYGjZmZBMmxwCMw2wCGLMAAwYwwGAmZAMzYMAAAMzMzAAwMMA",
-                pickrate = 14.3,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzYWmlZmZmFzMbLMAAYGjZmZBMmxwCMw2wCzYhBAAGDG2AwMDwMzYmZDAAwMzMAAMGeA",
+                pickrate = 8.6,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmlZmZmFjZbxMAAYGjZmZBMmxwCMw2wCzYhBAAGDwGAmZAMzYMAAAMzMzAAYM8A",
-                pickrate = 17.4,
+                pickrate = 8,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmtZmZmFjZbxMAAYGjZmZBMmxwCMw2wGzYhBAAGDwGAmZAMzYMAAAMzMzAAYM8A",
-                pickrate = 20,
+                pickrate = 18.2,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAgZmZGmNGbzMjZZWGzMziZmlFGAAMjxMzsAGzYYBGYbYBjFGAAYMYYDAzMAzMjZGAAAmZmBAAzwA",
-                pickrate = 31,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZmZWmlxMzsYmZZhBAAzYMzMLgxMGWgB2GWwYhBAAGDG2AwMDwMzYmBAAgZmZAAwMMA",
+                pickrate = 50,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzMzysMzMzsYMbLmBAAzYMzMLgxMGWgB2GWYGLMAAwYA2AwMDwMzYmBAAgZmZAAYM8A",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzYWmFmZmFzMW8ADAAmxYmZWAjZMsADsNswMWYAAgxgZsBgZGgZmxMzGAAgZmZAAwM8A",
                 pickrate = 10,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmtxwMzY2mtZmZmFjZZxDMAAYGjZmZBMmxwCMw2wCGLMAAwYgxGAmZAmZGjZBAAwMzMAAMGG",
-                pickrate = 40,
+                pickrate = 37.1,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmtZmZmFjZbxDMAAYGjZmZBMmxwCMw2wGzYhBAAGDM2AwMDgZGjBAAgZmZGAAjhHA",
-                pickrate = 25,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAgZmZGzsxYbmZMLzyYmZWMzstwAAgZMmZmNwYGDLwAbDLMjFGAAYMYYDAzMAzMjZGAAAmZmBAAzwDA",
+                pickrate = 10,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAgZmZGmNGbzMjZZWmZmZWMmlFzAAgZMmZmFwYGDLwAbDLYswAAAjBYDAzMAzMjZGAAAmZmBAgxwA",
-                pickrate = 37.8,
+                pickrate = 37.5,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysYmZmFzMW8ADAAmxYmZWAjZMsADsNsgxCDAAMGMjNAMzAYmxYAAAYmZmBAwYYA",
-                pickrate = 15.8,
+                pickrate = 21.1,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYmZbxDMAAYGjZmZBMmxwCMw2wGGLMAAwYA2AwMDgZGzMAAAMzMDAAjhB",
-                pickrate = 34.2,
+                pickrate = 36.4,
               },
             },
           },
           hellcaller = {
             mplus = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmFzYbmZMLz2MjZWMjllxAAgZMmZmFLwAzihxMAmNsxAAAjZYAAwMDGzMMbAAAmZmZAAYGG",
-                pickrate = 19.1,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzYbmZMLz2MzMziZmllxAAgZMmZmNLwAzihxMAmNsxAAAjZYAAwMDGzYMbAAAmZmZAAwwA",
+                pickrate = 10.7,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsYmZzMzMLz2MzMziZmllxAAgZMmZmNLwAzixMmBwshNGAAYMDDAAmZwYGzYDAAwMzMAAwwDA",
-                pickrate = 33.3,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAgxMzYmNzMbzMjZZ2MzMziZmllxAAgZMmZmFLwAzixMmBwshNGAAYMDDAAmZwYGzMAAAMzMDAAeghHA",
+                pickrate = 25,
               },
             },
             ["mplus:112526"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsZmZbmZMLz2MzMziZmllxAAgZMmZmFLwAzixMmBwshNGAAYMDDAAmZwYGzYDAAwMzMAAwwDA",
-                pickrate = 18.2,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGzsNzMbzMjZZ2MzMziZmllxAAgZMmZmFLwAzixMmBwshNGAAYMYAAwMDGzYGAAAMzMDAAmhHA",
+                pickrate = 10,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGbmZMLz2MzMWMjllZGAAMDmZmNLwAzixMmBwshNGAAYMDDAAmZwYmxMbAAAmZmZAAYGeA",
-                pickrate = 16.7,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGbzMjZZ2mZMziZssMGAAMjxMzsYBGYWMmxMAmNsxAAAjZYAAwMDGzMMbAAAmZmZAAYGeA",
+                pickrate = 25,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZZWmZmZWMzssMGAAMjxMzsZBGYWMMmBwshNGAAYMDDAAmZwYGzYDAAwMzMAAwwA",
-                pickrate = 25,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzY2mlZmZmFzMLLjBAAzYMzMLWgBmFjZMDgZDbMAAwYwAAgZGMzMmZ2AAAMzMDAAeghHA",
+                pickrate = 12.5,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZx2MzMWMzssMzAAgZwMzsZBGYWMMmBwshNGAAYMDDAAmZwYGjZDAAwMzMDAAPwwA",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAgZMzYmFzYbmZMLz2MzMWMjllZGAAMDmZmNLwAzixMmBwshNGAAYMDDAAmZwMzMMbAAAmZmZAAYGeA",
                 pickrate = 16.7,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmFzYbmZMLz2MjZWMjllxAAgZMmZmFLwAzihxMAmNsxAAAjZYAAwMDGzMMbAAAmZmZAAYGG",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGzsYGbzMjZZ2mZMziZssMGAAMjxMzsYBGYWMmxMAmNsxAAAjZYAAwMDGzMMbAAAmZmZAAYGeA",
                 pickrate = 25,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZx2MzMWMzssMzAAgZwMzsZBGYWMMmBwshNGAAYMDDAAmZwYGjZDAAwMzMDAAPwwA",
-                pickrate = 25,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzYbmZMLz2MzMziZmllxAAgZMmZmNLwAzihxMAmNsxAAAjZYAAwMDGzYMbAAAmZmZAAwwA",
+                pickrate = 33.3,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAgZmZGzsxYzMjZZ2MzMziZssMzAAAmxMzsYBGY2MmxMAmNsxAAADYGAAmZwYGzMbAAAmZmZAAYGeA",
-                pickrate = 12.5,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGmNzMbzMjZx2MzMWMzssMzAAgZwMzsZBGYWMMmBwshNGAAYMDDAAmZwYGjZDAAwMzMDAAPwwA",
+                pickrate = 28.6,
               },
             },
             raid = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYMbLegBAAzMjZmZxCMwsYYMDgZDbMAAwYA2AAmZgZGjBAAgZmZGAAjhB",
-                pickrate = 28.2,
+                pickrate = 15,
               },
             },
             ["raid:3159"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmlxMzsYMbLMAAYmZMzMLWgBmFjZMDgZDbMAAwYgxGAwMDMzYMAAAMzMzAAwM8A",
-                pickrate = 12.1,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsNGmZmZ2mlxMzsYMbLMAAYmZMzMLWgBmFDjZAMbYjBAAGDM2AAmZgZGjBAAgZmZAAwMMA",
+                pickrate = 20.3,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmtxwMzMzysMzMzsYmZbhBAAzYMzMLWgBmFDjZAMbYjBAAGDG2AAmZwMzYMAAAMzMDAAjhB",
-                pickrate = 23.9,
+                pickrate = 32.4,
               },
             },
             ["raid:3177"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGmNGmZGz2sYmZmFjZbxDMAAYmZMzMLWgBmFDjZAMbYjBAAGDM2AAmZwMzYmZDAAwMzMAAMGG",
-                pickrate = 26.9,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYMbLmBAAzYMzMLWgBmFDjZAMbYjBAAGDwGAwMDMzYMAAAMzMzAAYMMA",
+                pickrate = 16,
               },
             },
             ["raid:3178"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzMzysMzMzsYMbLmBAAzYMzMLWgBmFjZMDgZDbMAAwYA2AAmZwMzYmBAAgZmZAAYM8A",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZmZmNGmZmZWmlxYmFzYbxMAAYGjZmZxCMwsYMjZAMbYjBAAGDG2AAmZwMzwMAAAMzMDAAmhHA",
                 pickrate = 10,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYmZbxDMAAYGjZmZxCMwsYYMDgZDbMAAwYA2AAmZgZGzMAAAMzMDAAjhB",
-                pickrate = 12.1,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYMbLegBAAzMjZmZxCMwsYYMDgZDbMAAwYA2AAmZgZGjBAAgZmZGAAjhB",
+                pickrate = 33.3,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmlZmZmFjZZxDMAAYmZMzMLWgBmFjZMDgZDbMAAwYA2AAmZgZGjBAAgZmZGAAjhHA",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmtxwMzMzysMzMzsYMLLmBAAzYMzMLWgBmFjZMDgZDbMAAwYA2AAmZwYGjBAAgZmZAAYM8A",
                 pickrate = 14.3,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzwsxwMzMzysMzMzsYMbLegBAAzMjZmZxCMwsYYMDgZDbMAAwYA2AAmZgZGjBAAgZmZGAAjhB",
-                pickrate = 31.8,
+                pickrate = 28.7,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzMzysMzMzsYMLLmBAAzYMzMLWgBmFjZMDgZDbMAAwYA2AAmZwMzYmBAAgZmZAAYM8A",
-                pickrate = 50,
+                pickrate = 22.2,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGzsxwMzMzysYmZmFzMW8ADAAmxYmZWsADMLGzYGAzG2YAAgxgZsBAMzgZmxMDAAAzMzAAwY4BA",
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZmZWmFzMzsYMWMDAAmZGzMziFYgZxYGzAY2wGDAAMGYsBAMzAzMGDAAAzMzMAAGDPA",
                 pickrate = 100,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZGz2sMzMzsYMbLegBAAzMjZmZxCMwsYMjZAMbYjBAAGDwGAwMDGzYmBAAgZmZGAAjhHA",
-                pickrate = 25,
+                export = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzYmNGmZGzysMmZmFzMbLMAAYGjZmZxCMwsYMjZAMbYjBAAGDG2AAmZgZGzMbAAAmZmBAAzwDA",
+                pickrate = 10,
               },
             },
           },
@@ -13178,17 +13173,16 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 43.9, tier = "S" },
+              { itemId = 249343, pop = 42.8, tier = "S" },
               { itemId = 249346, pop = 19.2, tier = "A" },
-              { itemId = 250144, pop = 12, tier = "B" },
-              { itemId = 249809, pop = 7.9, tier = "B" },
-              { itemId = 250256, pop = 7.1, tier = "B" },
-              { itemId = 268292, pop = 6.8, tier = "B" },
+              { itemId = 250144, pop = 19, tier = "A" },
+              { itemId = 249809, pop = 8.4, tier = "B" },
+              { itemId = 268292, pop = 7.2, tier = "B" },
+              { itemId = 250256, pop = 4.6, tier = "C" },
               { itemId = 250223, pop = 4.4, tier = "C" },
-              { itemId = 249810, pop = 2, tier = "C" },
-              { itemId = 249340, pop = 1.9, tier = "C" },
-              { itemId = 250258, pop = 1.8, tier = "C" },
-              { itemId = 248583, pop = 0.8, tier = "C" },
+              { itemId = 249810, pop = 2.1, tier = "C" },
+              { itemId = 250258, pop = 1.9, tier = "C" },
+              { itemId = 249340, pop = 1.4, tier = "C" },
             },
           },
         },
@@ -13206,24 +13200,24 @@ ClassCodexSource["ugg"] = {
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8163, spellId = 1243980 } },
-              ["主手"] = { { id = 7981, spellId = 1236066 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8163, spellId = 1243980 } },
+              ["Main Hand"] = { { id = 7981, spellId = 1236066 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -13284,12 +13278,12 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240906 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "crit", "haste" }, { "mastery" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste", "crit" }, { "mastery" } } } },
           colossus = {
             mplus = {
-              minor = { { "Avoidance", "Speed", "Leech" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Strength",
-              secondary = { { "crit" }, { "haste" }, { "versatility", "mastery" } },
+              secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -13299,9 +13293,9 @@ ClassCodexSource["ugg"] = {
           },
           slayer = {
             mplus = {
-              minor = { { "Avoidance", "Speed", "Leech" } },
+              minor = { { "Avoidance" }, { "Speed", "Leech" } },
               primary = "Strength",
-              secondary = { { "crit" }, { "haste" }, { "versatility", "mastery" } },
+              secondary = { { "crit" }, { "haste" }, { "mastery", "versatility" } },
             },
             raid = {
               minor = { { "Avoidance" }, { "Speed", "Leech" } },
@@ -13321,121 +13315,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzsZmZmZMzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 12.7,
+                pickrate = 12.9,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMjZmNzMzMDzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 26,
+                pickrate = 26.2,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMjZmNzMzMDzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 19.2,
+                pickrate = 26.8,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMjZmNzMzMDzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 24.8,
+                pickrate = 21.8,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzsZmZmZMzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 14.5,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMjZmNzMzMDzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
+                pickrate = 27.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzstMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
-                pickrate = 21.8,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzsZmZmZMzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
+                pickrate = 17.1,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzstMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
-                pickrate = 24.9,
+                pickrate = 21.1,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzsZmZmZMzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 12.4,
+                pickrate = 15.5,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMjZmNzMzMDzYmBAAAAwYzMwGGwmZMsADMDbYMYBMzwwgZzsNYmBAYmhB",
-                pickrate = 19.4,
+                pickrate = 28.4,
               },
             },
             raid = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzstMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
-                pickrate = 32.9,
+                pickrate = 23.5,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzstMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
-                pickrate = 37.1,
+                pickrate = 29.3,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghZGGDzstMzMzMmZMzAAAAAYsZGYGGwmZMsADMDbMjBLAzgxgZzsNYmBAMzwDA",
-                pickrate = 16.7,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMMzssMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFgZwYwsZ2GMzAAmZGGA",
+                pickrate = 14.3,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghZGGDzstMzMzMmZMzAAAAAYsZGYGGwmZMsADMDbMjBLAzgxgZzsNYmBAMzwDA",
-                pickrate = 41.7,
+                pickrate = 18.2,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMMzssMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFgZwYwsZ2GMzAAmZGGA",
-                pickrate = 44.9,
+                pickrate = 47.7,
               },
             },
             ["raid:3179"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghZGGDzstMzMzMmZMzAAAAAYsZGYGGwmZMsADMDbMjBLAzgxgZzsNYmBAMzwDA",
-                pickrate = 33.3,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghZGGDzsZmZmZMzYmBAAAAwYzMwMMgNzYYBGYG2YGDWAzMWGGMbmtBzMAAzwDA",
+                pickrate = 40,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMDzstMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
-                pickrate = 11.9,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwYYmtlZmZmxMjZGAAAAAjNzAbYAbmxwCMwMshxgFwMDDDmNz2gZGAgZGGA",
+                pickrate = 14.3,
               },
             },
             ["raid:3181"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghZGmhZYZmZmZYGzMAAAAAmxMDYsAsZGDbwAzwGzYwCYmBz2YwMbDmZAAzM8AA",
-                pickrate = 25,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzYAAAAMMDGzMDbmZmhZMzMAAAAAGLmBmxyAWMjhNYgZYjZMDLAzYxsMGWmZbwMDAYmhHAA",
+                pickrate = 100,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghZGmhZmtlZmZmBjZGAAAAAzYmBMWGwmZMsBDMDbMjBLgZGGbjBzYwMDAwM8AA",
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzYAAAAMMDGzMDbmZmhZMzMAAAAAGLmBmxyAWMjhNYgZYjZMDLAzYxsMGWmZbwMDAYmhHAA",
                 pickrate = 100,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghZGmhZYZmZmZwYmBAAAAwMmZAjlBsZGDbwAzwGzYwCYmxmZbMYGDmZAAzM8AA",
-                pickrate = 50,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghZGmhZsZmZmZYGzMAAAAAmxMDYsMgNzYYDGYG2YGDWAzMY2GDmxgZGAwMDPAA",
+                pickrate = 40,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghxwMMzssMzMzMMjZGAAAAAjNzAbYAbmxwCMwMshxgFgZwYwsZ2GMzAAmZGGA",
-                pickrate = 22.2,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghZGGDzstMzMzMmZMzAAAAAYsZGYGGwmZMsADMDbMjBLAzgxgZzsNYmBAMzwDA",
+                pickrate = 18.2,
               },
             },
           },
@@ -13443,115 +13437,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZMzsZmZmZYGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 21.8,
+                pickrate = 18.3,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZMzsZmZmZYGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 75,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGGjZmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
+                pickrate = 50,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZYmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 21.1,
+                pickrate = 22.2,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZYmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 33.3,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGGjZmtlZmZmxMjZGAAAAAjlZGYGMW2GYBMgZYGwMYDMzwwgZbmtBYmBAGeAA",
+                pickrate = 25,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZYmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 18.2,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZMzsZmZmZYGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
+                pickrate = 28.6,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghZGmZMDLzMzMDGzMAAAAAmZZmBMWMWWGYBMgZYGwMYDMzYxsNGMjBYmBgxwDA",
-                pickrate = 14.3,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmhZmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
+                pickrate = 25,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGGjZmNzMzMjZGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 20,
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZYmtlZmZmhZMzAAAAAYsMzAzgxy2ALgBMDzAmBbgZGGGMbzsNAzMAYGeAA",
+                pickrate = 25,
+              },
+            },
+            ["mplus:361753"] = {
+              {
+                export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGGjZGLzMzMDzYmBAAAAwYZmBmBjltBWADYGmBMD2AzMM2GMbzsNAzMAYGeAA",
+                pickrate = 16.7,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGmZMzsZmZmZYGzMAAAAAGLzMwMYssNwCYAzwMgZwGYmhhBz2MbDwMDAmhHAA",
-                pickrate = 27.3,
+                pickrate = 23.8,
               },
             },
             raid = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghxwMjZYZmZmZwYmBAAAAwMLzMAGjllBWADYGGgZwGYmBz2YwMGgZGAmxwA",
-                pickrate = 46.7,
+                pickrate = 50.4,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghZGGDzstMzMzMmZMzAAAAAYsMzAGMWWGYBMgZYGwMYDYGMGMbzsNAzMAMzwDA",
-                pickrate = 26.3,
+                pickrate = 33.3,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghxwMjZYZmZmZwYmBAAAAwMLzMAGjllBWADYGGgZwGYmBz2YwMGgZGAmxwA",
-                pickrate = 45.1,
+                pickrate = 44.6,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghxwMjZYZmZmZwYmBAAAAwMLzMAGjllBWADYGGgZwGYmBz2YwMGgZGAmxwA",
-                pickrate = 52.6,
+                pickrate = 65.2,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzYmZAAAAMMGmZMDLzMzMDGzMAAAAAmZZmB2YMWWGYBMgZYAmBbgZGMbjBzsNAzMAMjhB",
-                pickrate = 23.5,
+                pickrate = 23.1,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzYmZAAAAMMGmZMDLzMzMDGzMAAAAAmZZmB2YMWWGYBMgZYAmBbgZGMbjBzsNAzMAMjhB",
-                pickrate = 30.6,
+                pickrate = 23.5,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzYmZAAAAMMzwYMDLzMzMDGzMAAAAAmZZmBmxixyyALgBMDzAmBbgZGbmtxgZ2GgZGAmZ4BA",
-                pickrate = 66.7,
+                pickrate = 50,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzYmZAAAAMMGmZMDLzMzMDGzMAAAAAmZZmB2YMWWGYBMgZYAmBbgZGMbjBzsNAzMAMjhB",
-                pickrate = 37.7,
+                pickrate = 35,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzYmZAAAAMMGmZMDLzMzMDGzMAAAAAmZZmB2YMWWGYBMgZYAmBbgZGMbjBzsNAzMAMjhB",
-                pickrate = 51.9,
+                pickrate = 45.3,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghxwMjZYZmZmZwYmBAAAAwMLzMAGjllBWADYGGgZwGYmBz2YwMGgZGAmxwA",
-                pickrate = 62.1,
+                pickrate = 63,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghxwMjZYZmZmZwYmBAAAAwMLzMAGjllBWADYGGgZwGYmBz2YwMGgZGAmxwA",
-                pickrate = 56.9,
+                pickrate = 62,
               },
             },
           },
@@ -13559,17 +13559,18 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 50.1, tier = "S" },
-              { itemId = 249342, pop = 42.3, tier = "S" },
-              { itemId = 252420, pop = 7.6, tier = "B" },
-              { itemId = 260235, pop = 4.7, tier = "C" },
-              { itemId = 250256, pop = 4.5, tier = "C" },
-              { itemId = 193701, pop = 4.3, tier = "C" },
-              { itemId = 268292, pop = 4.3, tier = "C" },
-              { itemId = 249344, pop = 1.9, tier = "C" },
-              { itemId = 249805, pop = 1.5, tier = "C" },
+              { itemId = 249343, pop = 48.8, tier = "S" },
+              { itemId = 249342, pop = 40.2, tier = "S" },
+              { itemId = 252420, pop = 8.6, tier = "B" },
+              { itemId = 268292, pop = 5.5, tier = "B" },
+              { itemId = 260235, pop = 5, tier = "C" },
+              { itemId = 193701, pop = 4.9, tier = "C" },
+              { itemId = 250256, pop = 4.7, tier = "C" },
+              { itemId = 249344, pop = 2.1, tier = "C" },
+              { itemId = 249805, pop = 1.7, tier = "C" },
               { itemId = 264507, pop = 1.2, tier = "C" },
-              { itemId = 250226, pop = 0.1, tier = "C" },
+              { itemId = 246304, pop = 0.1, tier = "C" },
+              { itemId = 250241, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -13578,33 +13579,33 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 237834, 237846 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 239678, 237908, 240951, 237915 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 239678, 237908, 244766, 237915 }, embellishments = {} },
             raid = { crafts = { 239656, 237834, 237846 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7963, spellId = 1236057 } },
-              ["戒指1"] = { { id = 7967, spellId = 1236059 } },
-              ["戒指2"] = { { id = 7967, spellId = 1236059 } },
-              ["頭"] = { { id = 8017, spellId = 1236084 } },
-              ["腿"] = { { id = 8163, spellId = 1243980 } },
-              ["主手"] = { { id = 8041, spellId = 1236097 } },
-              ["副手"] = { { id = 8041, spellId = 1236097 } },
-              ["肩"] = { { id = 8001, spellId = 1236076 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7963, spellId = 1236057 } },
+              ["Finger 1"] = { { id = 7967, spellId = 1236059 } },
+              ["Finger 2"] = { { id = 7967, spellId = 1236059 } },
+              Head = { { id = 8017, spellId = 1236084 } },
+              Legs = { { id = 8163, spellId = 1243980 } },
+              ["Main Hand"] = { { id = 8041, spellId = 1236097 } },
+              ["Off Hand"] = { { id = 8041, spellId = 1236097 } },
+              Shoulders = { { id = 8001, spellId = 1236076 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236095 } },
-              ["副手"] = { { id = 1236095 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236089 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236095 } },
+              ["Off Hand"] = { { id = 1236095 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -13630,17 +13631,17 @@ ClassCodexSource["ugg"] = {
             },
             ["pvp:3v3"] = {
               { itemId = 249952, slot = "Head" },
-              { itemId = 255612, slot = "Neck" },
+              { itemId = 255610, slot = "Neck" },
               { itemId = 249950, slot = "Shoulders" },
               { itemId = 239678, slot = "Back" },
               { itemId = 255588, slot = "Chest" },
               { itemId = 237908, slot = "Wrist" },
               { itemId = 249953, slot = "Hands" },
               { itemId = 255600, slot = "Waist" },
-              { itemId = 255597, slot = "Legs" },
-              { itemId = 255590, slot = "Feet" },
+              { itemId = 255596, slot = "Legs" },
+              { itemId = 244766, slot = "Feet" },
               { itemId = 255609, slot = "Finger 1" },
-              { itemId = 240951, slot = "Finger 2" },
+              { itemId = 255607, slot = "Finger 2" },
               { itemId = 255614, slot = "Trinket 1" },
               { itemId = 255616, slot = "Trinket 2" },
               { itemId = 237915, slot = "Main Hand" },
@@ -13668,10 +13669,10 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240900 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery" }, { "haste" }, { "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "mastery", "haste", "crit" } } } },
           ["mountain-thane"] = {
             mplus = {
-              minor = { { "Speed", "Avoidance", "Leech" } },
+              minor = { { "Avoidance", "Speed", "Leech" } },
               primary = "Strength",
               secondary = { { "haste", "mastery" }, { "versatility", "crit" } },
             },
@@ -13683,7 +13684,7 @@ ClassCodexSource["ugg"] = {
           },
           slayer = {
             mplus = {
-              minor = { { "Speed", "Avoidance", "Leech" } },
+              minor = { { "Avoidance", "Speed", "Leech" } },
               primary = "Strength",
               secondary = { { "haste", "mastery" }, { "versatility", "crit" } },
             },
@@ -13704,122 +13705,122 @@ ClassCodexSource["ugg"] = {
           ["mountain-thane"] = {
             mplus = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 10,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 15,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 25.5,
+                pickrate = 22.5,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 16.2,
+                pickrate = 17.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 15,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 20.5,
               },
             },
             ["mplus:12811"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 20.8,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 14,
               },
             },
             ["mplus:12874"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 23.2,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 18.9,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#118836#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 22.2,
+                pickrate = 20.9,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 12.2,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 23.7,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 11.9,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90395#112264#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 15.4,
               },
             },
             raid = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
-                pickrate = 31.2,
+                pickrate = 35.4,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
-                pickrate = 37,
+                pickrate = 31,
               },
             },
             ["raid:3176"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90373#112240#2-90374#112241#1-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 30.2,
+                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
+                pickrate = 14.6,
               },
             },
             ["raid:3177"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90373#112240#2-90374#112241#1-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-108705#136627#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 12,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90346#112208#1-90347#112209#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90373#112240#2-90374#112241#1-90375#112242#1-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 15.4,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
-                pickrate = 27.3,
+                pickrate = 29.7,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
-                pickrate = 20.7,
+                pickrate = 22.4,
               },
             },
             ["raid:3180"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmxyMzMzMMmZMjZMzyMzYMzsMmZGAAAGYDWWMMmBwsgZsAYGMbDAmZAMMzMzwgB",
-                pickrate = 45.1,
+                pickrate = 43.1,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmxyMzMzMMmZMjZMzyMzYMzsMmZGAAAGYDWWMMmBwsgZsAYGMbDAmZAMMzMzwgB",
-                pickrate = 22.2,
+                pickrate = 29.4,
               },
             },
             ["raid:3182"] = {
               {
-                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmxyMzMzMMmZMjZMzyMzYMzsMmZGAAAGYDWWMMmBwsgZsAYGMbDAmZAMMzMzwgB",
-                pickrate = 30.6,
+                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
+                pickrate = 28,
               },
             },
             ["raid:3183"] = {
               {
-                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmxyMzMzMMmZMjZMzyMzYMzsMmZGAAAGYDWWMMmBwsgZsAYGMbDAmZAMMzMzwgB",
-                pickrate = 37.5,
+                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90343#112205#1-90344#112206#1-90346#112208#1-90347#112209#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112285#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94785#117382#1-94792#118834#1-94797#117394#1-94798#117395#1-94800#117397#1-94803#117400#1-94805#117402#1-94807#117404#1-94808#117405#1-94816#117413#1-94817#117414#1-95956#118850#1-95959#118853#1-99852#123392#1-108543#134032#1-108544#134033#1-108686#134226#1-108705#136627#1-109391#135597#1-109809#136068#1-109810#136069#1-109811#136070#1-109963#136448#1-109966#136451#1-109967#136452#1-109968#136453#1-109969#136454#1-110118#136625#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                pickrate = 16.7,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhhZmZbZmZmZGGzMmxMmZZmZMmZWGzMDAAADsBLLGGzAYWwMWAMDGDAmZAMMzMzwgB",
-                pickrate = 18.3,
+                pickrate = 22.9,
               },
             },
           },
@@ -13827,121 +13828,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 78.9,
+                pickrate = 80.1,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 74.5,
+                pickrate = 75.6,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 58.2,
+                pickrate = 75.4,
               },
             },
             ["mplus:12805"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 66.7,
+                pickrate = 73.7,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 64.4,
+                pickrate = 68.3,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 75,
+                pickrate = 74.4,
               },
             },
             ["mplus:12915"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 72.2,
+                pickrate = 75,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 73.8,
+                pickrate = 76.2,
               },
             },
             ["mplus:61209"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhxwMbLzMzMzMzYmxMmZmZZmZMmZ2GzDMDAAgxyyALgBMDDwMsBYGMGAAMzYYmZmhBD",
-                pickrate = 76.4,
+                pickrate = 66,
               },
             },
             raid = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 39.3,
+                pickrate = 40.6,
               },
             },
             ["raid:3159"] = {
               {
                 export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90332#112190#1-90337#112198#1-90344#112206#1-90346#112208#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90387#112255#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112284#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94784#117381#1-94786#117383#1-94787#117384#1-94788#117385#1-94795#117392#1-94801#117398#1-94809#117406#1-94810#117407#1-94813#117410#1-94814#117411#1-94820#117417#1-95956#118850#1-99852#123389#1-108542#134031#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109815#136074#1-109816#136075#1-109817#136076#1-109963#136448#1-109966#136451#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 15.1,
+                pickrate = 17.7,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 39.6,
+                pickrate = 39,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 37,
+                pickrate = 47.5,
               },
             },
             ["raid:3178"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90337#112198#1-90344#112206#1-90346#112208#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90387#112255#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112284#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94784#117381#1-94786#117383#1-94787#117384#1-94788#117385#1-94795#117392#1-94801#117398#1-94809#117406#1-94810#117407#1-94813#117410#1-94814#117411#1-94820#117417#1-95956#118850#1-99852#123389#1-108542#134031#1-108543#134032#1-108544#134033#1-108674#134213#1-108686#134226#1-108705#136627#1-109391#135597#1-109815#136074#1-109816#136075#1-109817#136076#1-109963#136448#1-109966#136451#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
+                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
                 pickrate = 23.1,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 39,
+                pickrate = 37.7,
               },
             },
             ["raid:3180"] = {
               {
-                export = "90325#112182#1-90326#112183#1-90328#112185#1-90331#112188#1-90332#112190#1-90337#112198#1-90344#112206#1-90346#112208#1-90348#112210#1-90351#112215#1-90352#112216#1-90353#112217#1-90355#112219#1-90360#112224#2-90366#112233#2-90368#112235#2-90371#112238#1-90373#112240#2-90378#112245#1-90381#112248#2-90382#112249#1-90385#112253#1-90387#112255#1-90388#119139#1-90390#112259#1-90392#112261#1-90394#112263#1-90396#112265#1-90397#112266#2-90398#112267#1-90399#112268#1-90401#112270#1-90402#112271#1-90403#112272#1-90406#112275#1-90408#112277#1-90410#112279#1-90412#112281#1-90415#112284#1-90421#112292#2-90427#112298#1-90428#112299#2-90429#112300#1-90430#112301#1-92538#114644#1-94784#117381#1-94786#117383#1-94787#117384#1-94788#117385#1-94795#117392#1-94801#117398#1-94809#117406#1-94810#117407#1-94813#117410#1-94814#117411#1-94820#117417#1-95956#118850#1-99852#123389#1-108542#134031#1-108543#134032#1-108544#134033#1-108686#134226#1-109391#135597#1-109815#136074#1-109816#136075#1-109817#136076#1-109963#136448#1-109966#136451#1-109968#136453#1-109969#136454#1-110118#136625#1-110119#136626#1-110203#136735#1-110412#137004#1-110412#137003#2-110412#137002#1",
-                pickrate = 25,
+                export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
+                pickrate = 20,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 35.5,
+                pickrate = 32.4,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 36.5,
+                pickrate = 38.8,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 40.7,
+                pickrate = 45.9,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjhZGzwyMzMzMMmZmZMjZWmZGjZmtxMzAAAYssMwCYAzwAMDbAzMY2GAAMzYYMzMMYA",
-                pickrate = 36.3,
+                pickrate = 33.3,
               },
             },
           },
@@ -13949,18 +13950,19 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 49.4, tier = "S" },
-              { itemId = 249342, pop = 43.9, tier = "S" },
-              { itemId = 193701, pop = 6.2, tier = "B" },
-              { itemId = 252420, pop = 4.3, tier = "C" },
-              { itemId = 268292, pop = 3.8, tier = "C" },
-              { itemId = 250256, pop = 2.6, tier = "C" },
-              { itemId = 249344, pop = 1.6, tier = "C" },
-              { itemId = 249806, pop = 1.5, tier = "C" },
+              { itemId = 249343, pop = 53.1, tier = "S" },
+              { itemId = 249342, pop = 39.8, tier = "S" },
+              { itemId = 193701, pop = 6.7, tier = "B" },
+              { itemId = 252420, pop = 4.8, tier = "C" },
+              { itemId = 268292, pop = 3.9, tier = "C" },
+              { itemId = 250256, pop = 2.4, tier = "C" },
+              { itemId = 249344, pop = 1.4, tier = "C" },
               { itemId = 249805, pop = 1.1, tier = "C" },
-              { itemId = 250258, pop = 0.9, tier = "C" },
-              { itemId = 260235, pop = 0.2, tier = "C" },
+              { itemId = 249806, pop = 1.1, tier = "C" },
+              { itemId = 251782, pop = 0.9, tier = "C" },
+              { itemId = 250258, pop = 0.2, tier = "C" },
               { itemId = 250226, pop = 0.1, tier = "C" },
+              { itemId = 260235, pop = 0.1, tier = "C" },
             },
           },
         },
@@ -13969,31 +13971,31 @@ ClassCodexSource["ugg"] = {
         crafting = {
           all = {
             mplus = { crafts = { 239656, 237834, 237839, 237831 }, embellishments = {} },
-            ["pvp:3v3"] = { crafts = { 240952, 239678, 237908, 240951 }, embellishments = {} },
+            ["pvp:3v3"] = { crafts = { 244738, 239678, 237908, 244766 }, embellishments = {} },
             raid = { crafts = { 239656, 237834 }, embellishments = {} },
           },
         },
         enchants = {
           all = {
             all = {
-              ["胸"] = { { id = 7987, spellId = 1236069 } },
-              ["腳"] = { { id = 7993, spellId = 1236072 } },
-              ["戒指1"] = { { id = 8025, spellId = 1236088 } },
-              ["戒指2"] = { { id = 8025, spellId = 1236088 } },
-              ["頭"] = { { id = 7961, spellId = 1236056 } },
-              ["腿"] = { { id = 8159, spellId = 1243976 } },
-              ["主手"] = { { id = 7983, spellId = 1236067 } },
-              ["肩"] = { { id = 8031, spellId = 1236091 } },
+              Chest = { { id = 7987, spellId = 1236069 } },
+              Feet = { { id = 7993, spellId = 1236072 } },
+              ["Finger 1"] = { { id = 8025, spellId = 1236088 } },
+              ["Finger 2"] = { { id = 8025, spellId = 1236088 } },
+              Head = { { id = 7961, spellId = 1236056 } },
+              Legs = { { id = 8159, spellId = 1243976 } },
+              ["Main Hand"] = { { id = 8039, spellId = 1236095 } },
+              Shoulders = { { id = 8031, spellId = 1236091 } },
             },
             ["pvp:3v3"] = {
-              ["胸"] = { { id = 1236069 } },
-              ["腳"] = { { id = 1236085 } },
-              ["戒指1"] = { { id = 1236089 } },
-              ["戒指2"] = { { id = 1236089 } },
-              ["頭"] = { { id = 1236071 } },
-              ["腿"] = { { id = 1243976 } },
-              ["主手"] = { { id = 1236067 } },
-              ["肩"] = { { id = 1236062 } },
+              Chest = { { id = 1236069 } },
+              Feet = { { id = 1236085 } },
+              ["Finger 1"] = { { id = 1236089 } },
+              ["Finger 2"] = { { id = 1236088 } },
+              Head = { { id = 1236071 } },
+              Legs = { { id = 1243976 } },
+              ["Main Hand"] = { { id = 1236080 } },
+              Shoulders = { { id = 1236062 } },
             },
           },
         },
@@ -14018,8 +14020,8 @@ ClassCodexSource["ugg"] = {
               { ilvl = 295, itemId = 237831, slot = "Off Hand" },
             },
             ["pvp:3v3"] = {
-              { itemId = 249952, slot = "Head" },
-              { itemId = 240952, slot = "Neck" },
+              { itemId = 244738, slot = "Head" },
+              { itemId = 255610, slot = "Neck" },
               { itemId = 249950, slot = "Shoulders" },
               { itemId = 239678, slot = "Back" },
               { itemId = 249955, slot = "Chest" },
@@ -14027,12 +14029,12 @@ ClassCodexSource["ugg"] = {
               { itemId = 249953, slot = "Hands" },
               { itemId = 255601, slot = "Waist" },
               { itemId = 255596, slot = "Legs" },
-              { itemId = 255590, slot = "Feet" },
-              { itemId = 240951, slot = "Finger 1" },
-              { itemId = 255607, slot = "Finger 2" },
+              { itemId = 244766, slot = "Feet" },
+              { itemId = 255607, slot = "Finger 1" },
+              { itemId = 151308, slot = "Finger 2" },
               { itemId = 249342, slot = "Trinket 1" },
               { itemId = 255614, slot = "Trinket 2" },
-              { itemId = 49802, slot = "Main Hand" },
+              { itemId = 255635, slot = "Main Hand" },
               { itemId = 255626, slot = "Off Hand" },
             },
             raid = {
@@ -14057,10 +14059,10 @@ ClassCodexSource["ugg"] = {
         },
         gems = { all = { all = { { primary = 240983, secondary = { 240890 } } } } },
         statPriority = {
-          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "mastery", "crit" } } } },
+          all = { ["pvp:3v3"] = { secondary = { { "versatility" }, { "haste" }, { "mastery" }, { "crit" } } } },
           colossus = {
             mplus = {
-              minor = { { "Speed", "Leech" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Strength",
               secondary = { { "versatility" }, { "haste", "crit", "mastery" } },
             },
@@ -14072,7 +14074,7 @@ ClassCodexSource["ugg"] = {
           },
           ["mountain-thane"] = {
             mplus = {
-              minor = { { "Speed", "Leech" }, { "Avoidance" } },
+              minor = { { "Leech" }, { "Speed" }, { "Avoidance" } },
               primary = "Strength",
               secondary = { { "versatility" }, { "haste", "crit", "mastery" } },
             },
@@ -14093,62 +14095,56 @@ ClassCodexSource["ugg"] = {
           colossus = {
             mplus = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYmZMzMzMzY2MzsMjxYMjZMzmZmZmhhZGAAAAsMzAMjBA2MjhFYgZYhZMzCgZGGbDAwMDAwAPAA",
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYMzMmZmZGzmZmlhxYMDjhlZmZmxMMzAAAAglZGgZMAwmZMsBDMDLMjZWgxMzgZbAAmZAAzAPAA",
                 pickrate = 20,
               },
             },
             ["mplus:10658"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYmZMzMzMzY2MzsMjxYMjZMzmZmZmhhZGAAAAsMzAMjBA2MjhFYgZYhZMzCgZGGbDAwMDAwAPAA",
-                pickrate = 50,
-              },
-            },
-            ["mplus:12805"] = {
-              {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbmZWmxYMzwMzMbGzMzYmxMDAAAAMzAYMAwmZMsADMDLMjZWwMzMzwwAAMzAAAeAA",
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbmZWmxYMmZMmxyMmZGzwMDAAAAWGAmxAAbmxwGMwMswMmZBGMDmtBAYmBAMD8AA",
                 pickrate = 100,
               },
             },
-            ["mplus:12811"] = {
+            ["mplus:12915"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMmxMzMzMMbmZWmxYMmhxMbmZmZGzwMDAAAAWmZAMGAYzMG2gBmhFmxMLgZmZYsNAAzMAAD8AA",
-                pickrate = 100,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYMzMmZmZGzmZmlhxYMDjhlZmZmxMMzAAAAglZGgZMAwmZMsBDMDLMjZWgxMzgZbAAmZAAzAPAA",
+                pickrate = 33.3,
               },
             },
             ["mplus:361753"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMmxMzMzMMbmZWmxYMmhxMbmZmZGzwMDAAAAWmZAMGAYzMG2gBmhFmxMLwYmZYsNAAzMAAD8AA",
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMMzMzMjZzMzyMGjZGmZmZzYmZGzMmZAAAAwyMDgxAAbmxwCMwMswMmZBzMzMDDDAwMDAA4BA",
                 pickrate = 100,
               },
             },
             raid = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzywYMmZMzMWmxMzwwMDAAAAWGDwMGAYzMGWgBmhFmxMLwMMDmtBAYmBAMD8AA",
-                pickrate = 23.5,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzyMGjxMjxMWmZmZGMmZAAAAwyAwMGAYzMG2gBmhFmxMLwMmZYsNAAzMAAD8AA",
+                pickrate = 20,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzywYMmZMzMWmxMzwwMDAAAAWGDwMGAYzMGWgBmhFmxMLwMMDmtBAYmBAMD8AA",
-                pickrate = 30.8,
+                pickrate = 30,
               },
             },
             ["raid:3176"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLAAgZmZmZmZmZMLmZWmxYMzMzMzYzMzDMzwMjZAAAAgZGAjBAWMjhFYgZYhZMzCmZmBmxAAMzAAmBeAA",
-                pickrate = 50,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLAAgZmZmZmZGjZzMzywDYMGzMmZxMzMzYmZmZAAAAw2MDwMGAYxMGWgBmhFmxMLYmZYYGDAwMDAwAPAA",
+                pickrate = 25,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAMAAAzMDzMzMzY2MzsNMGzMDjZ2MzMzMMjZGAAAAsMzAMjBAWMjhNYgZYjZMzCmZMDmxAAMzAAMwDA",
-                pickrate = 33.3,
+                pickrate = 100,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYMDzMzMzY2mZmlhxYMjZMjlZmZmxMMzAAAAglxAMjBA2MjhNYgZYhZYWwYGzwMbDAwMDAwAPAA",
-                pickrate = 50,
+                pickrate = 100,
               },
             },
             ["raid:3180"] = {
@@ -14157,15 +14153,21 @@ ClassCodexSource["ugg"] = {
                 pickrate = 50,
               },
             },
+            ["raid:3181"] = {
+              {
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzyMGjxMMzwyMzMzgxMDAAAAWGAmxAAbmxwGMwMswMmZBmxMDmtBAYmBAMD8AA",
+                pickrate = 100,
+              },
+            },
             ["raid:3182"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzyMGjxMMGLLzMzMjZYmBAAAALDAzYAgFzYYDGYGWYGzsAzYmBjBAYmBAMD8AA",
-                pickrate = 100,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYmZMzMzMzY2MmlZMGjZYmhlZmZmBjZGAAAAsMGgZMAwmZMsBDMDLMjZWgZMzgZbAAmZAAzAPAA",
+                pickrate = 50,
               },
             },
             ["raid:3306"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMGAAYMjZmZmZGzmZmlhxYMDzMWWmZmZGmxMDAAAAWGAmxAAbmxwGMwMswMmZhxMzMwsNAAzMAgB8AA",
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAMLDAAMzMmZmZmZMbGzyMGjxMjxMWmZmZGMmZAAAAwyAwMGAYzMG2gBmhFmxMLwMmZYsNAAzMAAD8AA",
                 pickrate = 40,
               },
             },
@@ -14174,121 +14176,121 @@ ClassCodexSource["ugg"] = {
             mplus = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 29.8,
+                pickrate = 29.7,
               },
             },
             ["mplus:10658"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 18.8,
+                pickrate = 33.3,
               },
             },
             ["mplus:112526"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 31.8,
+                pickrate = 16.7,
               },
             },
             ["mplus:12805"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 15.8,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZM2WMzMzYGmZAAAAwyMDwMGgB2glFDjZAMLYmNYMzMYMAYmBAgZAD",
+                pickrate = 16.7,
               },
             },
             ["mplus:12811"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 24,
+                pickrate = 29.6,
               },
             },
             ["mplus:12874"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
-                pickrate = 21.4,
+                pickrate = 28.6,
               },
             },
             ["mplus:12915"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZGzMzMzY2MzsMjxYYYmhFzMzMmhZGAAAAsMzAMjBYgNYZxwYGAzGmZDGmZwsNAYmBAgZAD",
-                pickrate = 11.8,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAYWwMbwYmZwsNAYmBAgZAD",
+                pickrate = 15.8,
               },
             },
             ["mplus:361753"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZM2WMzMzYGmZAAAAwyMDwMGgB2glFDjZAMLYmNYMzMYMAYmBAgZAD",
-                pickrate = 20,
+                pickrate = 31.6,
               },
             },
             ["mplus:61209"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAjZYmZmZGzmZmlZMGDjZMsYmZmxMMzAAAAglZGgZMADsBLLGGzAY2wMbwYmZwsNAYmBAgZAD",
-                pickrate = 21.4,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMjZmZmZGzmxsMjxYYMjhlZmZmhhZGAAAAsMGgZMADsBLLGGzAYWwMbwMmZwsNAYmBAgZAD",
+                pickrate = 15.4,
               },
             },
             raid = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 35.4,
+                pickrate = 35.3,
               },
             },
             ["raid:3159"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 35.2,
+                pickrate = 35.6,
               },
             },
             ["raid:3176"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 40.4,
+                pickrate = 39.7,
               },
             },
             ["raid:3177"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 44.1,
+                pickrate = 37.7,
               },
             },
             ["raid:3178"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 41.9,
+                pickrate = 26.3,
               },
             },
             ["raid:3179"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 34.4,
+                pickrate = 25.6,
               },
             },
             ["raid:3180"] = {
               {
-                export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 20.7,
+                export = "CkEAAAAAAAAAAAAAAAAAAAAAAYZAAgZmZMzMjZMbGzyMGjhhZGWmZmZGMmZAAAAwyYAmxAMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
+                pickrate = 24.2,
               },
             },
             ["raid:3181"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 29.4,
+                pickrate = 33.3,
               },
             },
             ["raid:3182"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlhxYYYmhlZmZmBjZGAAAAsMGgZ2GgB2glFDjZAMbYmNMzYmBz2AgZGAAmBMA",
-                pickrate = 38.4,
+                pickrate = 43,
               },
             },
             ["raid:3183"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 40.7,
+                pickrate = 46.4,
               },
             },
             ["raid:3306"] = {
               {
                 export = "CkEAAAAAAAAAAAAAAAAAAAAAAwAAAzMzYmZGzY2MmlZMGDDzMsMzMzMYMzAAAAglxAMz2AMwGssYYMDgZDzsBzYmBz2AgZGAAmBMA",
-                pickrate = 40.3,
+                pickrate = 44.4,
               },
             },
           },
@@ -14296,23 +14298,23 @@ ClassCodexSource["ugg"] = {
         trinkets = {
           all = {
             all = {
-              { itemId = 249343, pop = 48.2, tier = "S" },
-              { itemId = 249342, pop = 26.9, tier = "A" },
-              { itemId = 268292, pop = 15.3, tier = "A" },
-              { itemId = 250256, pop = 5.3, tier = "B" },
-              { itemId = 252420, pop = 4.7, tier = "C" },
-              { itemId = 260235, pop = 2.6, tier = "C" },
-              { itemId = 193701, pop = 2, tier = "C" },
-              { itemId = 252418, pop = 1.9, tier = "C" },
-              { itemId = 249344, pop = 1.8, tier = "C" },
-              { itemId = 249339, pop = 1.6, tier = "C" },
-              { itemId = 151312, pop = 0.6, tier = "C" },
-              { itemId = 249806, pop = 0.6, tier = "C" },
+              { itemId = 249343, pop = 44.9, tier = "S" },
+              { itemId = 249342, pop = 25.8, tier = "A" },
+              { itemId = 268292, pop = 15.5, tier = "A" },
+              { itemId = 250256, pop = 6.1, tier = "B" },
+              { itemId = 252420, pop = 5, tier = "B" },
+              { itemId = 260235, pop = 3, tier = "C" },
+              { itemId = 252418, pop = 2.7, tier = "C" },
+              { itemId = 193701, pop = 2.3, tier = "C" },
+              { itemId = 249344, pop = 2, tier = "C" },
+              { itemId = 249339, pop = 1.9, tier = "C" },
+              { itemId = 250242, pop = 1.1, tier = "C" },
+              { itemId = 264694, pop = 0.6, tier = "C" },
             },
           },
         },
       },
     },
   },
-  meta = { generatedAt = "2026-07-28T06:28:34.937Z", schemaVersion = 1, source = "ugg" },
+  meta = { generatedAt = "2026-08-06T06:23:33.857Z", schemaVersion = 1, source = "ugg" },
 }

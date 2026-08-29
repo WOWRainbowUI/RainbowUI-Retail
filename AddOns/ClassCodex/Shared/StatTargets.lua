@@ -21,10 +21,10 @@ ns.STAT_KEYS = { "crit", "haste", "mastery", "versatility" }
 
 -- Canonical display labels (match u.gg priority entries exactly).
 ns.STAT_LABELS = {
-    crit = "致命一擊",
-    haste = "加速",
-    mastery = "精通",
-    versatility = "臨機應變",
+    crit = "Critical Strike",
+    haste = "Haste",
+    mastery = "Mastery",
+    versatility = "Versatility",
 }
 
 -- Reverse lookup: display label -> stat key.
@@ -182,21 +182,21 @@ function ns.AppendStatExtrasToTooltip(tooltip, statKey, snapshot, opts)
         tooltip:AddLine(label, 1, 0.82, 0)
         tooltip:AddDoubleLine(
             string.format("%.1f%%", livePct),
-            string.format("%d 點", current),
+            string.format("%d rating", current),
             1, 1, 1, 0.75, 0.75, 0.75)
     end
 
     if not opts.omitTarget and target and target > 0 then
         if opts.includeTitle then tooltip:AddLine(" ") end
-        tooltip:AddDoubleLine("目標", string.format("%d", target),
+        tooltip:AddDoubleLine("Target", string.format("%d", target),
             0.7, 0.7, 0.7, 1, 1, 1)
         local kind = ns.ClassifyStatDelta(current, target) or "below"
         local diff = current - target
         local sign = (diff >= 0) and "+" or "−"
         local stateLabels = {
-            above = "高於目標",
-            at    = "達標",
-            below = "低於目標",
+            above = "Above target",
+            at    = "At target",
+            below = "Below target",
         }
         local c = STATE_COLORS[kind]
         tooltip:AddDoubleLine(stateLabels[kind], string.format("%s%d", sign, math.abs(diff)),

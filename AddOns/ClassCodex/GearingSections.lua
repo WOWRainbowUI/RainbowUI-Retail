@@ -213,6 +213,9 @@ function ns:LayoutGearingSections(y)
     y = LayoutSection(enhFrames.consumSection, enhFrames.consumCollapsed, lastConsumCount * ROW_HEIGHT)
 
     local trinketContentHeight = lastTrinketCount * ROW_HEIGHT
+    if ns.Sections.Trinkets.IsPanelSourceDropdownShown() then
+        trinketContentHeight = trinketContentHeight + 30
+    end
     if ns.Sections.Trinkets.IsPanelCtxDropdownShown() then
         trinketContentHeight = trinketContentHeight + 30
     end

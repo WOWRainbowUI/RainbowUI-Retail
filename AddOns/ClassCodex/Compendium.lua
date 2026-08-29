@@ -1045,6 +1045,12 @@ local function UpdateCompendiumAttribution(class, spec)
 end
 
 function ns:UpdateCompendium()
+    -- The Compendium window is built lazily on first open, so its section frames
+    -- don't exist until then. Callers like the Crafting tab's "Top picks only"
+    -- menu toggle fire this even when the window was never opened — bail instead
+    -- of indexing a nil UI.statSection (BugGrabber: Compendium.lua "attempt to
+    -- index field 'statSection' (a nil value)").
+    if not UI.statSection then return end
     -- Hide all sections first
     UI.statSection:Hide(); UI.talentSection:Hide(); UI.rotationSection:Hide()
     UI.enchantSection:Hide(); UI.gemSection:Hide(); UI.consumSection:Hide()
@@ -1115,10 +1121,10 @@ end
 -- u.gg PvP stat keys -> the full stat names the PvE priority uses, so both
 -- surfaces read identically ("Critical Strike", not "crit").
 local PVP_STAT_NAMES = {
-    crit = "致命一擊",
-    haste = "加速",
-    mastery = "精通",
-    versatility = "臨機應變",
+    crit = "Critical Strike",
+    haste = "Haste",
+    mastery = "Mastery",
+    versatility = "Versatility",
 }
 
 -- Build a synthetic priority record from u.gg's per-spec PvP stat data so the
@@ -1641,9 +1647,13 @@ function ns:UpdateCompendiumConsumables()
 end
 
 function ns:UpdateCompendiumTrinkets()
-    local gearData = ns.GetSpecGearData(selectedClass, selectedSpec)
+    local src = ns.Sections.Trinkets.GetCompendiumSourceKey
+        and ns.Sections.Trinkets.GetCompendiumSourceKey(selectedClass, selectedSpec)
+    local gearData = ns.GetSpecGearData(selectedClass, selectedSpec, src)
     ns.Sections.Trinkets.RenderCompendium({
         trinkets = gearData and gearData.trinkets,
+        class    = selectedClass,
+        specKey  = selectedSpec,
         refresh  = function() ns:UpdateCompendium() end,
     })
 end

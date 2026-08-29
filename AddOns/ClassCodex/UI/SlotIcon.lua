@@ -205,6 +205,22 @@ function SlotIconAPI:SetItem(itemId)
     end
 end
 
+-- Spell-based icon (e.g. Omnium Folio runes). Same slot bevel as items;
+-- the texture is the spell's icon.
+function SlotIconAPI:SetSpell(spellId)
+    self._spellId = spellId
+    local info = spellId and C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(spellId)
+    local tex = info and info.iconID
+    if tex then
+        self.tex:SetTexture(tex)
+        self.tex:Show()
+        self.empty:Hide()
+    else
+        self.tex:Hide()
+        self.empty:Show()
+    end
+end
+
 -- Markers are keyed by NAME (not corner) so multiple markers can share
 -- a corner — e.g. `bis` and `popular` both at top-left, side-by-side.
 -- The corner + offset come from the registered preset

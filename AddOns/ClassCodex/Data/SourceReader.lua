@@ -17,9 +17,9 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexUggBuilds = ClassCodexUggBuilds or {}
 
 local WILDCARD = "all"
-local STAT_DISPLAY = { crit = "致命一擊", haste = "加速", mastery = "精通", versatility = "臨機應變" }
-local ROTATION_CTX = { ["single-target"] = "單目標", aoe = "AoE", cleave = "順劈", [WILDCARD] = "技能循環" }
-local TALENT_CTX = { raid = "團隊", mplus = "傳奇+", delve = "探究", leveling = "升級", [WILDCARD] = "綜合" }
+local STAT_DISPLAY = { crit = "Critical Strike", haste = "Haste", mastery = "Mastery", versatility = "Versatility" }
+local ROTATION_CTX = { ["single-target"] = "Single Target", aoe = "AoE", cleave = "Cleave", [WILDCARD] = "Rotation" }
+local TALENT_CTX = { raid = "Raid", mplus = "Mythic+", delve = "Delves", leveling = "Leveling", [WILDCARD] = "General" }
 
 local function resolve(category, hero, context)
   if not category then return nil end
