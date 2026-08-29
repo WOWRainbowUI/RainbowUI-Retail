@@ -11,6 +11,10 @@ function addonTable.Display.SpacerMixin:Setup(details)
   self.height = details.height * (addonTable.Constants.nativeSize - 4)
 end
 
+function addonTable.Display.SpacerMixin:GetDefaultSize()
+  return self.width, self.height
+end
+
 function addonTable.Display.SpacerMixin:ApplySize(width, height)
   PixelUtil.SetSize(self, self.width, self.height)
 end

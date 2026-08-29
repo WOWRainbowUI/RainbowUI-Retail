@@ -165,14 +165,16 @@ local function GetSpellIconDialog(allGetter, activeGetter, kind)
   end)
   ScrollUtil.InitScrollBoxListWithScrollBar(frame.scrollBox, frame.scrollBar, frame.view)
 
-  function frame:Update(callback)
+  function frame:Update(callback, includeActive)
     frame.callback = callback
     local all = allGetter()
     table.sort(all)
-    seen = activeGetter()
-    all = tFilter(all, function(data)
-      return not seen[data]
-    end, true)
+    if not includeActive then
+      seen = activeGetter()
+      all = tFilter(all, function(data)
+        return not seen[data]
+      end, true)
+    end
     frame.view:SetDataProvider(CreateDataProvider(all))
     frame:Show()
   end

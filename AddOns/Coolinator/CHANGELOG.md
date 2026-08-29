@@ -1,14 +1,8 @@
 # Coolinator
 
-## [135](https://github.com/TheMouseNest/Coolinator/tree/135) (2026-08-26)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/134...135) 
+## [136](https://github.com/TheMouseNest/Coolinator/tree/136) (2026-08-27)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/135...136) 
 
-- Fix migration (again)  
-- Forgot to include migration step  
-- Support charged combo points  
-- Fix presets for "spacer" widgets  
-- More sizing fixes  
-- Fix tooltips on aura status bars  
-- Sizing fixes  
-- Permit tracking buffs on pets  
-- Add "Spacer" element for leaving a space/whitespace deliberately  
+- Fix error after deleting multiple items  
+- Fix secret spacer size breaking layouts  
+- Support showing aura stacks as pips  

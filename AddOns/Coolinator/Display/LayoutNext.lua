@@ -8,10 +8,12 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
   self.specialistPools = {
     auraIcon = addonTable.Display.GeneratePool(addonTable.Display.AuraIconNextMixin, "CoolinatorPropagateMouseClicksTemplate"),
     auraBar = addonTable.Display.GeneratePool(addonTable.Display.AuraStatusBarNextMixin, "CoolinatorPropagateMouseClicksTemplate"),
+    auraStackPip = addonTable.Display.GeneratePool(addonTable.Display.AuraStacksPipMixin, "CoolinatorPropagateMouseClicksTemplate"),
   }
   self.prelaidWidgets = {
     auraIcon = {},
     auraBar = {},
+    auraStackPip = {},
   }
   for key, mixin in pairs(addonTable.Display.ClassResourceStatusBar) do
     self.pools["class-" .. key] = addonTable.Display.GeneratePool(mixin)
@@ -25,6 +27,7 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
       self.prelaidWidgets = {
         auraIcon = {},
         auraBar = {},
+        auraStackPip = {},
       }
     end
 
@@ -101,6 +104,28 @@ function addonTable.Display.LayoutManagerNextMixin:GetBar(details)
     frame:Enable()
     return frame
 
+  elseif details.resource.kind == "auraStackPip" then
+    local stack = self.prelaidWidgets.auraStackPip[details.resource.spellID]
+    local counter = self.prelaidWidgets.auraStackPipCounters[details.resource.spellID]
+    local frame = stack and stack[counter or 1]
+    if not frame then
+      if not addonTable.Utilities.IsAurasRestricted() then
+        frame = self.specialistPools.auraStackPip:Acquire()
+        if not stack then
+          stack = {}
+          self.prelaidWidgets.auraStackPip[details.resource.spellID] = stack
+        end
+        table.insert(stack, frame)
+        frame:Setup(details)
+      else
+        return
+      end
+    end
+    self.prelaidWidgets.auraStackPipCounters[details.resource.spellID] = (counter or 1) + 1
+    frame:Show()
+    frame:Enable()
+    return frame
+
   else
     return addonTable.Display.LayoutManagerSharedMixin.GetBar(self, details)
   end
@@ -109,6 +134,7 @@ end
 function addonTable.Display.LayoutManagerNextMixin:Layout()
   self.prelaidWidgets.auraIconCounters = {}
   self.prelaidWidgets.auraBarCounters = {}
+  self.prelaidWidgets.auraStackPipCounters = {}
 
   for _, list in pairs(self.prelaidWidgets.auraIcon) do
     for _, w in ipairs(list) do
