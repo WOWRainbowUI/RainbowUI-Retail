@@ -76,13 +76,14 @@ local GetSpellInfo = GetSpellInfo or VUHDO_getSpellInfo;
 local InCombatLockdown = InCombatLockdown;
 local GetWeaponEnchantInfo = GetWeaponEnchantInfo;
 local UnitOnTaxi = UnitOnTaxi;
-local IsSpellInRange = IsSpellInRange or VUHDO_isSpellInRange;
 local GetShapeshiftFormInfo = GetShapeshiftFormInfo;
 local issecretvalue = issecretvalue;
 local AbbreviateNumbers = AbbreviateNumbers;
 local ShouldSpellAuraBeSecret = C_Secrets and C_Secrets.ShouldSpellAuraBeSecret;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+
+local VUHDO_isSpellInRange;
 
 local VUHDO_BUFF_TARGET_MODE_STANDARD;
 local VUHDO_BUFF_TARGET_MODE_NAME;
@@ -141,6 +142,7 @@ function VUHDO_buffWatchInitLocalOverrides()
 	VUHDO_brightenTextColor = _G["VUHDO_brightenTextColor"];
 	VUHDO_isConfigDemoUsers = _G["VUHDO_isConfigDemoUsers"];
 	VUHDO_determineAura = _G["VUHDO_determineAura"];
+	VUHDO_isSpellInRange = _G["VUHDO_isSpellInRange"];
 	VUHDO_textColor = _G["VUHDO_textColor"];
 
 	VUHDO_BUFF_TARGET_MODE_STANDARD = _G["VUHDO_BUFF_TARGET_MODE_STANDARD"];
@@ -586,10 +588,10 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec, anSuppres
 		end
 
 		if tIsWatchUnit then
-			tSpellInRange = IsSpellInRange(aBuffInfo[1], tUnit);
+			tSpellInRange = VUHDO_isSpellInRange(aBuffInfo[1], tUnit, "HELPFUL");
 
-			tInRange = (tSpellInRange == 1 or tSpellInRange == true) or tInfo["hasSecretRange"]
-				or (VUHDO_SECRETS_ENABLED and issecretvalue(tInfo["baseRange"])) or tInfo["baseRange"];
+			tInRange = (tSpellInRange == true) or tInfo["hasSecretRange"]
+				or (sSecretsEnabled and issecretvalue(tInfo["baseRange"])) or tInfo["baseRange"];
 
 			tIsAvailable = tInfo["connected"] and not tInfo["dead"];
 

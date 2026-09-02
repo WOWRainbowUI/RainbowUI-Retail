@@ -723,20 +723,6 @@ do
 			return;
 		end
 
-		if sSecretsEnabled and tInfo["hasSecretHealthMax"] then
-			if not tInfo["healthmax"] then
-				VUHDO_hideShieldBarsForButtons(tAllButtons);
-
-				return;
-			end
-		else
-			if tInfo["healthmax"] <= 0 then
-				VUHDO_hideShieldBarsForButtons(tAllButtons);
-
-				return;
-			end
-		end
-
 		if not tInfo["connected"] or tInfo["dead"] then
 			VUHDO_hideShieldBarsForButtons(tAllButtons);
 
@@ -746,6 +732,8 @@ do
 		if sShieldCalculator and sTotalShieldCalculator then
 			VUHDO_updateShieldBarSecret(aUnit, aIncHealAmount, tInfo, tAllButtons, anInterpolation);
 		elseif sSecretsEnabled and tInfo["hasSecretHealthMax"] then
+			VUHDO_hideShieldBarsForButtons(tAllButtons);
+		elseif (tInfo["healthmax"] or 0) <= 0 then
 			VUHDO_hideShieldBarsForButtons(tAllButtons);
 		else
 			VUHDO_updateShieldBarNonSecret(aUnit, aIncHealAmount, tInfo, tAllButtons, anInterpolation);
@@ -793,24 +781,6 @@ function VUHDO_updateHealAbsorbBar(aUnit, anInterpolation)
 		end
 
 		return;
-	end
-
-	if sSecretsEnabled and tInfo["hasSecretHealthMax"] then
-		if not tInfo["healthmax"] then
-			for _, tButton in pairs(tAllButtons) do
-				VUHDO_getHealAbsorbBar(VUHDO_getHealthBar(tButton, 1)):Hide();
-			end
-
-			return;
-		end
-	else
-		if tInfo["healthmax"] <= 0 then
-			for _, tButton in pairs(tAllButtons) do
-				VUHDO_getHealAbsorbBar(VUHDO_getHealthBar(tButton, 1)):Hide();
-			end
-
-			return;
-		end
 	end
 
 	if not tInfo["connected"] or tInfo["dead"] then
@@ -873,6 +843,10 @@ function VUHDO_updateHealAbsorbBar(aUnit, anInterpolation)
 			tHealAbsorbBar:Show();
 		end
 	elseif sSecretsEnabled and tInfo["hasSecretHealthMax"] then
+		for _, tButton in pairs(tAllButtons) do
+			VUHDO_getHealAbsorbBar(VUHDO_getHealthBar(tButton, 1)):Hide();
+		end
+	elseif (tInfo["healthmax"] or 0) <= 0 then
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_getHealAbsorbBar(VUHDO_getHealthBar(tButton, 1)):Hide();
 		end
@@ -1638,10 +1612,6 @@ do
 							if tLossWidth then
 								VUHDO_PixelUtil.SetWidth(tLossHealthBar, tLossWidth);
 							end
-						end
-
-						if tLossBar:GetFrameLevel() >= tLossHealthBar:GetFrameLevel() then
-							VUHDO_PixelUtil.SetFrameLevel(tLossBar, tLossHealthBar:GetFrameLevel() - 1);
 						end
 
 						if sSecretsEnabled and tLossHealthBar["secretCurveColor"] and tLossHealthBar["secretCurveColor"]["R"] then

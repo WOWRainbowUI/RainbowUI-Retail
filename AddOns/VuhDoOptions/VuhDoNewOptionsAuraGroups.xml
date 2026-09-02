@@ -336,7 +336,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="12" y="-72" />
+									<AbsDimension x="12" y="-64" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -387,6 +387,13 @@
 							<OnTextChanged>
 								VUHDO_auraGroupsNameChanged(self);
 							</OnTextChanged>
+							<OnEditFocusLost>
+								VUHDO_auraGroupsNameCommit(self);
+							</OnEditFocusLost>
+							<OnEnterPressed>
+								VUHDO_auraGroupsNameCommit(self);
+								self:ClearFocus();
+							</OnEnterPressed>
 						</Scripts>
 					</EditBox>
 
@@ -607,7 +614,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentEnabledCheckButton" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-8" />
+									<AbsDimension x="0" y="-4" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -680,14 +687,223 @@
 						</Scripts>
 					</Button>
 
+					<Frame name="$parentConditionsPanel" hidden="true">
+						<Size>
+							<AbsDimension x="420" y="110" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFilterCombo" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Frames>
+
+							<Frame name="$parentConditionsLabel" inherits="VuhDoLabelFrameTemplate" enableMouse="true">
+								<Size>
+									<AbsDimension x="120" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" />
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_CONDITIONS" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K855);
+									</OnLoad>
+									<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
+									<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
+								</Scripts>
+							</Frame>
+
+							<CheckButton name="$parentConditionsRow1IsStealableTriState" text="VUHDO_I18N_AURA_CONDITION_STEALABLE" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isStealable", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K845);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow1FromMeTriState" text="VUHDO_I18N_AURA_CONDITION_FROM_ME" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1IsStealableTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isFromPlayerOrPlayerPet", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K846);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow1RoleAuraTriState" text="VUHDO_I18N_AURA_CONDITION_ROLE_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1FromMeTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isRoleAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K847);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow1PriorityAuraTriState" text="VUHDO_I18N_AURA_CONDITION_PRIORITY_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1RoleAuraTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isPriorityAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K848);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow2BossAuraTriState" text="VUHDO_I18N_AURA_CONDITION_BOSS_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1IsStealableTriState" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isBossAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K849);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow2BossOrRoleTriState" text="VUHDO_I18N_AURA_CONDITION_BOSS_OR_ROLE" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossAuraTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isBossOrRoleAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K850);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow2CanApplyTriState" text="VUHDO_I18N_AURA_CONDITION_CAN_APPLY" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossOrRoleTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.canApplyAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K851);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow2NameplateAllTriState" text="VUHDO_I18N_AURA_CONDITION_NAMEPLATE_ALL" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2CanApplyTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.nameplateShowAll", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K852);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentConditionsRow3NameplatePersonalTriState" text="VUHDO_I18N_AURA_CONDITION_NAMEPLATE_PERSONAL" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossAuraTriState" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.nameplateShowPersonal", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K853);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentHasDurationCheck" text="VUHDO_I18N_AURA_HAS_DURATION" inherits="VuhDoCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow3NameplatePersonalTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="5" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_HAS_DURATION");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K854);
+										self:SetAttribute("custom_function_post", VUHDO_auraGroupsHasDurationChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+						</Frames>
+					</Frame>
+
 					<Frame name="$parentColorTypeLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
 							<AbsDimension x="120" y="18" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentFilterCombo" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parentConditionsPanelConditionsRow3NameplatePersonalTriState" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-8" />
+									<AbsDimension x="0" y="-4" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -837,7 +1053,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentCanColorBarCheckButton" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-16" />
+									<AbsDimension x="0" y="-14" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -896,17 +1112,43 @@
 						</Scripts>
 					</Button>
 
-					<Frame name="$parentIgnorePanel" hidden="true">
+					<Button name="$parentIgnoreListButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_IGNORE_LIST" hidden="true">
 						<Size>
-							<AbsDimension x="350" y="110" />
+							<AbsDimension x="70" y="26" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentPrioritySlider" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-28" />
+									<AbsDimension x="0" y="-4" />
 								</Offset>
 							</Anchor>
 						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K699);
+							</OnLoad>
+							<OnClick>
+								VUHDO_auraGroupsIgnoreListShow();
+							</OnClick>
+						</Scripts>
+					</Button>
+
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentIgnoreListSettingsFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" hidden="true">
+				<Size>
+					<AbsDimension x="518" y="428" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentStorePanel" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parentRootPane" setAllPoints="true" inherits="VuhDoPanelTemplate">
 						<Frames>
 
 							<Frame name="$parentIgnoreLabel" inherits="VuhDoLabelFrameTemplate">
@@ -916,7 +1158,7 @@
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset>
-											<AbsDimension x="0" y="0" />
+											<AbsDimension x="13" y="-12" />
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -991,9 +1233,26 @@
 								</Scripts>
 							</Button>
 
+							<Button name="$parentOkayButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_OKAY">
+								<Size>
+									<AbsDimension x="80" y="26" />
+								</Size>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT">
+										<Offset>
+											<AbsDimension x="-13" y="13" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										VUHDO_auraGroupsIgnoreListHide();
+									</OnClick>
+								</Scripts>
+							</Button>
+
 						</Frames>
 					</Frame>
-
 				</Frames>
 			</Frame>
 

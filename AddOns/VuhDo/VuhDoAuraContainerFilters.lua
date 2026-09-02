@@ -7,6 +7,7 @@ local tonumber = tonumber;
 local strsplit = strsplit;
 local strupper = string.upper;
 local strfind = string.find;
+local strsub = string.sub;
 local twipe = table.wipe;
 local tinsert = table.insert;
 local floor = math.floor;
@@ -16,6 +17,9 @@ local GetSpellIDForSpellIdentifier = C_Spell.GetSpellIDForSpellIdentifier;
 
 VUHDO_AURA_NAME_TO_SPELL_IDS = { };
 local VUHDO_AURA_NAME_TO_SPELL_IDS = VUHDO_AURA_NAME_TO_SPELL_IDS;
+
+VUHDO_AURA_NAME_PREFERRED_SPELL_ID = { };
+local VUHDO_AURA_NAME_PREFERRED_SPELL_ID = VUHDO_AURA_NAME_PREFERRED_SPELL_ID;
 
 VUHDO_AURA_CONTAINER_MAPPED_SPELL_IDS = {
 	-- [200025] = { 53563 }, -- Beacon of Virtue to Beacon of Light
@@ -72,7 +76,7 @@ local VUHDO_buildMixedBouquetListSlotTemplates;
 local VUHDO_applyBarButtonSetupFields;
 local VUHDO_getAuraTimerFormatter;
 local VUHDO_getAuraTimerColorCurve;
-local VUHDO_getAnchorTriStateBool;
+local VUHDO_getTriStateBool;
 local VUHDO_buildAnchorButtonSetup;
 local VUHDO_getHealthBarWidth;
 local VUHDO_getHealthBarHeight;
@@ -81,7 +85,6 @@ local VUHDO_getAuraBarWidthPixels;
 local VUHDO_getAuraBarHeightPixels;
 local VUHDO_getAuraBarWidthPixelsVertical;
 local VUHDO_getAuraBarHeightPixelsVertical;
-local VUHDO_getManaAdjustedYOffset;
 local VUHDO_deepCopyTable;
 
 local sEmpty = { };
@@ -96,6 +99,24 @@ local sAllDispelGlowTypeNames = { };
 local sPlayerDispelGlowTypeNames = { };
 local sPlayerPurgeGlowTypeNames = { };
 local sGroupResolvedFilterCache = { };
+local sGlobalIgnoreSpellIds;
+
+local sNonNegatableFilterTokens = {
+	["INCLUDE_NAME_PLATE_ONLY"] = true,
+	["MAW"] = true,
+};
+
+local sCandidateBooleanKeys = {
+	"isStealable",
+	"isFromPlayerOrPlayerPet",
+	"isRoleAura",
+	"isPriorityAura",
+	"isBossAura",
+	"isBossOrRoleAura",
+	"canApplyAura",
+	"nameplateShowAll",
+	"nameplateShowPersonal",
+};
 
 local sAuraBarFallbackColor = {
 	["R"] = 0.2,
@@ -219,7 +240,7 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_applyBarButtonSetupFields = _G["VUHDO_applyBarButtonSetupFields"];
 	VUHDO_getAuraTimerFormatter = _G["VUHDO_getAuraTimerFormatter"];
 	VUHDO_getAuraTimerColorCurve = _G["VUHDO_getAuraTimerColorCurve"];
-	VUHDO_getAnchorTriStateBool = _G["VUHDO_getAnchorTriStateBool"];
+	VUHDO_getTriStateBool = _G["VUHDO_getTriStateBool"];
 	VUHDO_buildAnchorButtonSetup = _G["VUHDO_buildAnchorButtonSetup"];
 	VUHDO_getHealthBarWidth = _G["VUHDO_getHealthBarWidth"];
 	VUHDO_getHealthBarHeight = _G["VUHDO_getHealthBarHeight"];
@@ -228,7 +249,6 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_getAuraBarHeightPixels = _G["VUHDO_getAuraBarHeightPixels"];
 	VUHDO_getAuraBarWidthPixelsVertical = _G["VUHDO_getAuraBarWidthPixelsVertical"];
 	VUHDO_getAuraBarHeightPixelsVertical = _G["VUHDO_getAuraBarHeightPixelsVertical"];
-	VUHDO_getManaAdjustedYOffset = _G["VUHDO_getManaAdjustedYOffset"];
 	VUHDO_deepCopyTable = _G["VUHDO_deepCopyTable"];
 
 	VUHDO_rebuildDispelTypeNameMaps();
@@ -248,6 +268,7 @@ local tNameIds;
 function VUHDO_rebuildDefaultAuraNameSpellIds()
 
 	twipe(VUHDO_AURA_NAME_TO_SPELL_IDS);
+	twipe(VUHDO_AURA_NAME_PREFERRED_SPELL_ID);
 
 	for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or sEmpty) do
 		if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and not tGroup["isHarmful"] then
@@ -268,6 +289,8 @@ function VUHDO_rebuildDefaultAuraNameSpellIds()
 							end
 
 							tNameIds[tSpellId] = true;
+
+							VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] = VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] or tSpellId;
 						end
 					end
 				end
@@ -281,118 +304,98 @@ end
 
 
 
---
-local tType;
-local tFilter;
-local tExcludeFilter;
-local tTokens;
-local tNative;
-local tUpper;
-local tEmit;
-local tHasCategory;
-local tSeen = { };
-local tSlotIsMine;
-local tSlotIsOthers;
-local tEntryIsMine;
-local tEntryIsOthers;
-local tHasMixedSource;
-local tHasRaidPlayerDispellable;
-function VUHDO_buildAuraGroupNativeFilterString(aGroup)
+do
+	--
+	local tType;
+	local tFilter;
+	local tExcludeFilter;
+	local tTokens;
+	local tNative;
+	local tUpper;
+	local tEmit;
+	local tHasCategory;
+	local tSeen = { };
+	local tSlotIsMine;
+	local tSlotIsOthers;
+	local tEntryIsMine;
+	local tEntryIsOthers;
+	local tHasMixedSource;
+	local tHasRaidPlayerDispellable;
+	local tIsNegated;
+	local tBase;
+	function VUHDO_buildAuraGroupNativeFilterString(aGroup)
 
-	if not aGroup then
-		return "HELPFUL";
-	end
+		if not aGroup then
+			return "HELPFUL";
+		end
 
-	tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
-	tFilter = aGroup["resolvedFilter"] or aGroup["filter"];
+		tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+		tFilter = aGroup["resolvedFilter"] or aGroup["filter"];
 
-	if tType == VUHDO_AURA_GROUP_TYPE_LIST then
-		tNative = aGroup["isHarmful"] and "HARMFUL" or "HELPFUL";
+		if tType == VUHDO_AURA_GROUP_TYPE_LIST then
+			tNative = aGroup["isHarmful"] and "HARMFUL" or "HELPFUL";
 
-		tSlotIsMine = nil;
-		tSlotIsOthers = nil;
-		tHasMixedSource = false;
+			tSlotIsMine = nil;
+			tSlotIsOthers = nil;
+			tHasMixedSource = false;
 
-		for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
-			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-				if tSlotIsMine == nil then
-					tSlotIsMine = tEntry["mine"] ~= false;
-					tSlotIsOthers = tEntry["others"] == true;
-				else
-					tEntryIsMine = tEntry["mine"] ~= false;
-					tEntryIsOthers = tEntry["others"] == true;
+			for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+					if tSlotIsMine == nil then
+						tSlotIsMine = tEntry["mine"] ~= false;
+						tSlotIsOthers = tEntry["others"] == true;
+					else
+						tEntryIsMine = tEntry["mine"] ~= false;
+						tEntryIsOthers = tEntry["others"] == true;
 
-					if tEntryIsMine ~= tSlotIsMine or tEntryIsOthers ~= tSlotIsOthers then
-						tHasMixedSource = true;
+						if tEntryIsMine ~= tSlotIsMine or tEntryIsOthers ~= tSlotIsOthers then
+							tHasMixedSource = true;
 
-						break;
+							break;
+						end
 					end
 				end
 			end
-		end
 
-		if not tHasMixedSource and tSlotIsMine ~= nil then
-			if tSlotIsMine and not tSlotIsOthers then
-				return tNative .. "|PLAYER";
-			elseif tSlotIsOthers and not tSlotIsMine then
-				return tNative .. "|!PLAYER";
+			if not tHasMixedSource and tSlotIsMine ~= nil then
+				if tSlotIsMine and not tSlotIsOthers then
+					return tNative .. "|PLAYER";
+				elseif tSlotIsOthers and not tSlotIsMine then
+					return tNative .. "|!PLAYER";
+				end
 			end
+
+			return tNative;
 		end
 
-		return tNative;
-	end
-
-	if not tFilter then
-		return aGroup["isHarmful"] and "HARMFUL" or "HELPFUL";
-	end
-
-	tHasRaidPlayerDispellable = strfind(tFilter, "RAID_PLAYER_DISPELLABLE", 1, true) ~= nil;
-
-	twipe(tSeen);
-	tTokens = { strsplit("|", tFilter) };
-	tNative = "";
-	tHasCategory = false;
-
-	for _, tToken in ipairs(tTokens) do
-		tUpper = strupper(tToken);
-
-		if tUpper == "NOT_CANCELABLE" then
-			tEmit = "!CANCELABLE";
-		elseif tHasRaidPlayerDispellable and tUpper == "PLAYER" then
-			tEmit = nil;
-		elseif VUHDO_AURA_NATIVE_FILTER_TOKENS[tUpper] then
-			tEmit = tUpper;
-		else
-			tEmit = nil;
+		if not tFilter then
+			return aGroup["isHarmful"] and "HARMFUL" or "HELPFUL";
 		end
 
-		if tEmit and not tSeen[tEmit] then
-			tSeen[tEmit] = true;
+		tHasRaidPlayerDispellable = strfind(tFilter, "RAID_PLAYER_DISPELLABLE", 1, true) ~= nil;
 
-			tNative = tNative == "" and tEmit or (tNative .. "|" .. tEmit);
-
-			if tEmit == "HELPFUL" or tEmit == "HARMFUL" then
-				tHasCategory = true;
-			end
-		end
-	end
-
-	if not tHasCategory then
-		tNative = (aGroup["isHarmful"] and "HARMFUL" or "HELPFUL") .. (tNative == "" and "" or ("|" .. tNative));
-	end
-
-	tExcludeFilter = aGroup["excludeFilter"];
-
-	if tExcludeFilter then
-		tTokens = { strsplit("|", tExcludeFilter) };
+		twipe(tSeen);
+		tTokens = { strsplit("|", tFilter) };
+		tNative = "";
+		tHasCategory = false;
 
 		for _, tToken in ipairs(tTokens) do
 			tUpper = strupper(tToken);
+			tIsNegated = strfind(tUpper, "!", 1, true) == 1;
+			tBase = tIsNegated and strsub(tUpper, 2) or tUpper;
 
-			if tUpper == "NOT_CANCELABLE" then
-				tEmit = "CANCELABLE";
-			elseif VUHDO_AURA_NATIVE_FILTER_TOKENS[tUpper] then
-				tEmit = "!" .. tUpper;
+			if tBase == "NOT_CANCELABLE" then
+				tEmit = "!CANCELABLE";
+			elseif tHasRaidPlayerDispellable and tBase == "PLAYER" then
+				tEmit = nil;
+			elseif VUHDO_AURA_NATIVE_FILTER_TOKENS[tBase] then
+				if tIsNegated and sNonNegatableFilterTokens[tBase] then
+					tEmit = tBase;
+				elseif tIsNegated then
+					tEmit = "!" .. tBase;
+				else
+					tEmit = tBase;
+				end
 			else
 				tEmit = nil;
 			end
@@ -400,13 +403,51 @@ function VUHDO_buildAuraGroupNativeFilterString(aGroup)
 			if tEmit and not tSeen[tEmit] then
 				tSeen[tEmit] = true;
 
-				tNative = tNative .. "|" .. tEmit;
+				tNative = tNative == "" and tEmit or (tNative .. "|" .. tEmit);
+
+				if tEmit == "HELPFUL" or tEmit == "HARMFUL" then
+					tHasCategory = true;
+				end
 			end
 		end
+
+		if not tHasCategory then
+			tNative = (aGroup["isHarmful"] and "HARMFUL" or "HELPFUL") .. (tNative == "" and "" or ("|" .. tNative));
+		end
+
+		tExcludeFilter = aGroup["excludeFilter"];
+
+		if tExcludeFilter then
+			tTokens = { strsplit("|", tExcludeFilter) };
+
+			for _, tToken in ipairs(tTokens) do
+				tUpper = strupper(tToken);
+				tIsNegated = strfind(tUpper, "!", 1, true) == 1;
+				tBase = tIsNegated and strsub(tUpper, 2) or tUpper;
+
+				if tBase == "NOT_CANCELABLE" then
+					tEmit = "CANCELABLE";
+				elseif VUHDO_AURA_NATIVE_FILTER_TOKENS[tBase] then
+					if tIsNegated then
+						tEmit = tBase;
+					else
+						tEmit = "!" .. tBase;
+					end
+				else
+					tEmit = nil;
+				end
+
+				if tEmit and not tSeen[tEmit] then
+					tSeen[tEmit] = true;
+
+					tNative = tNative .. "|" .. tEmit;
+				end
+			end
+		end
+
+		return tNative;
+
 	end
-
-	return tNative;
-
 end
 
 
@@ -464,7 +505,6 @@ local tCandidateFilters;
 local tExpressible;
 local tType;
 local tSpellIds;
-local tNum;
 function VUHDO_getAuraGroupResolvedFilters(aGroup)
 
 	if not aGroup then
@@ -524,6 +564,8 @@ function VUHDO_invalidateAuraGroupFilterCache()
 
 	twipe(sGroupResolvedFilterCache);
 
+	sGlobalIgnoreSpellIds = nil;
+
 	return;
 
 end
@@ -550,6 +592,7 @@ function VUHDO_resolveAuraGroupCandidateFilters(aGroup)
 			["Curse"] = true,
 			["Disease"] = true,
 			["Poison"] = true,
+			["Bleed"] = true,
 		};
 	end
 
@@ -831,7 +874,7 @@ function VUHDO_resolveAuraContainerSpellId(aValue)
 		return nil;
 	end
 
-	tResolvedSpellId = tonumber(aValue) or VUHDO_SPELL_NAME_TO_ID[aValue] or GetSpellIDForSpellIdentifier(aValue);
+	tResolvedSpellId = tonumber(aValue) or VUHDO_AURA_NAME_PREFERRED_SPELL_ID[aValue] or VUHDO_SPELL_NAME_TO_ID[aValue] or GetSpellIDForSpellIdentifier(aValue);
 
 	return tResolvedSpellId;
 
@@ -840,9 +883,37 @@ end
 
 
 --
+local tPreferredNumVal;
+function VUHDO_resolveAuraContainerPreferredSpellId(aValue)
+
+	if type(aValue) == "number" then
+		return aValue;
+	end
+
+	if type(aValue) ~= "string" then
+		return nil;
+	end
+
+	tPreferredNumVal = tonumber(aValue);
+
+	if tPreferredNumVal then
+		return tPreferredNumVal;
+	end
+
+	if VUHDO_AURA_NAME_PREFERRED_SPELL_ID[aValue] then
+		return VUHDO_AURA_NAME_PREFERRED_SPELL_ID[aValue];
+	end
+
+	return VUHDO_resolveAuraContainerSpellId(aValue);
+
+end
+
+
+
+--
 local tNumVal;
 local tMappedIds;
-local tScratchIds;
+local tResolvedSpellIds;
 local tResolveSpellId;
 function VUHDO_addResolvedAuraContainerSpellIds(aDest, aValue)
 
@@ -868,36 +939,36 @@ function VUHDO_addResolvedAuraContainerSpellIds(aDest, aValue)
 		return;
 	end
 
-	tScratchIds = nil;
+	tResolvedSpellIds = nil;
 	tNameIds = VUHDO_AURA_NAME_TO_SPELL_IDS[aValue];
 
 	if tNameIds then
 		for tSpellId, _ in pairs(tNameIds) do
 			aDest[tSpellId] = true;
-			tScratchIds = tScratchIds or { };
-			tScratchIds[tSpellId] = true;
+			tResolvedSpellIds = tResolvedSpellIds or { };
+			tResolvedSpellIds[tSpellId] = true;
 		end
 	else
 		tResolveSpellId = VUHDO_SPELL_NAME_TO_ID[aValue];
 
 		if tResolveSpellId then
 			aDest[tResolveSpellId] = true;
-			tScratchIds = tScratchIds or { };
-			tScratchIds[tResolveSpellId] = true;
+			tResolvedSpellIds = tResolvedSpellIds or { };
+			tResolvedSpellIds[tResolveSpellId] = true;
 		else
 			tResolveSpellId = GetSpellIDForSpellIdentifier(aValue);
 
 			if tResolveSpellId then
 				aDest[tResolveSpellId] = true;
-				tScratchIds = tScratchIds or { };
-				tScratchIds[tResolveSpellId] = true;
+				tResolvedSpellIds = tResolvedSpellIds or { };
+				tResolvedSpellIds[tResolveSpellId] = true;
 			end
 		end
 	end
 
-	if tScratchIds then
-		for tScratchSpellId, _ in pairs(tScratchIds) do
-			tMappedIds = VUHDO_AURA_CONTAINER_MAPPED_SPELL_IDS[tScratchSpellId];
+	if tResolvedSpellIds then
+		for tResolvedSpellId, _ in pairs(tResolvedSpellIds) do
+			tMappedIds = VUHDO_AURA_CONTAINER_MAPPED_SPELL_IDS[tResolvedSpellId];
 
 			if tMappedIds then
 				for tMappedCnt = 1, #tMappedIds do
@@ -915,27 +986,24 @@ end
 
 --
 local tResult;
-local tNum;
 function VUHDO_resolveGroupExcludeSpellIDs(aGroup)
 
 	if not aGroup then
 		return nil;
 	end
 
-	if not sGroupResolvedFilterCache["__globalIgnore__"] then
-		tResult = { };
+	if not sGlobalIgnoreSpellIds then
+		sGlobalIgnoreSpellIds = { };
 
 		-- FIXME: 12.1 only supports spell ID ignore list entries
 		for tKey, _ in pairs(VUHDO_AURA_IGNORE_LIST or sEmpty) do
-			VUHDO_addResolvedAuraContainerSpellIds(tResult, tKey);
+			VUHDO_addResolvedAuraContainerSpellIds(sGlobalIgnoreSpellIds, tKey);
 		end
-
-		sGroupResolvedFilterCache["__globalIgnore__"] = tResult;
 	end
 
 	tResult = nil;
 
-	for tNum, _ in pairs(sGroupResolvedFilterCache["__globalIgnore__"]) do
+	for tNum, _ in pairs(sGlobalIgnoreSpellIds) do
 		tResult = tResult or { };
 
 		tResult[tNum] = true;
@@ -977,7 +1045,7 @@ do
 	local tXOff;
 	local tYOff;
 	local tNumBasePositions;
-	function VUHDO_resolveFixedAuraSlotPlacement(aRadioValue, aSlotIndex, aBarWidth, aBarHeight, anAnchorConfig, aButton, anIconSize)
+	function VUHDO_resolveFixedAuraSlotPlacement(aRadioValue, aSlotIndex, aBarWidth, aBarHeight, anAnchorConfig, anIconSize)
 
 		tNumBasePositions = 9;
 
@@ -1025,8 +1093,6 @@ do
 			tXOff = tXOff + tGrowthXOff;
 			tYOff = tYOff + tGrowthYOff;
 		end
-
-		tYOff = VUHDO_getManaAdjustedYOffset(aButton, tSlotPos["relPoint"], tYOff);
 
 		return tSlotPos["anchor"], tSlotPos["relPoint"], tXOff, tYOff;
 
@@ -1118,9 +1184,9 @@ do
 		tSlotEntryDurationMode = anEntry["durationMode"] or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 		tSlotEntryTimerThreshold = anEntry["timerThreshold"] or 9.99;
 
-		tSlotEntryShowTimer = VUHDO_getAnchorTriStateBool(anEntry, "showTimer", nil);
-		tSlotEntryShowStacks = VUHDO_getAnchorTriStateBool(anEntry, "showStacks", nil);
-		tSlotEntryShowClock = VUHDO_getAnchorTriStateBool(anEntry, "showClock", nil);
+		tSlotEntryShowTimer = VUHDO_getTriStateBool(anEntry, "showTimer", nil);
+		tSlotEntryShowStacks = VUHDO_getTriStateBool(anEntry, "showStacks", nil);
+		tSlotEntryShowClock = VUHDO_getTriStateBool(anEntry, "showClock", nil);
 
 		tNeedsSlotButtonCopy = tSlotEntryDurationMode ~= tAnchorDurationMode
 			or tSlotEntryTimerThreshold ~= tAnchorTimerThreshold
@@ -1224,6 +1290,7 @@ do
 		aBouquetSlotTemplate["buttonSetup"]["durationCooldown"] = aAnchorButtonSetup["durationCooldown"];
 		aBouquetSlotTemplate["buttonSetup"]["applicationCount"] = aAnchorButtonSetup["applicationCount"];
 		aBouquetSlotTemplate["buttonSetup"]["mouseMotion"] = aAnchorButtonSetup["mouseMotion"];
+		aBouquetSlotTemplate["buttonSetup"]["disableMouse"] = aAnchorButtonSetup["disableMouse"];
 		aBouquetSlotTemplate["buttonSetup"]["durationTextOptions"] = aAnchorButtonSetup["durationTextOptions"];
 
 		if anIsBar then
@@ -1376,7 +1443,7 @@ do
 	local tCol;
 	local tRow;
 	local tIsSlotDropped;
-	function VUHDO_buildListAnchorSlots(aGroup, anAnchorConfig, aPixelWidth, aPixelHeight, aSpacing, aMaxCols, aMaxFrameCount, aTemplateName, aAnchorButtonSetup, anIsBar, aGrowthDir, aWrapDir, anIsFixedLayout, aFixedRadioValue, aBarWidth, aBarHeight, aButton)
+	function VUHDO_buildListAnchorSlots(aGroup, anAnchorConfig, aPixelWidth, aPixelHeight, aSpacing, aMaxCols, aMaxFrameCount, aTemplateName, aAnchorButtonSetup, anIsBar, aGrowthDir, aWrapDir, anIsFixedLayout, aFixedRadioValue, aBarWidth, aBarHeight)
 
 		tSlots = { };
 
@@ -1394,7 +1461,7 @@ do
 			tIsSlotDropped = false;
 
 			if anIsFixedLayout then
-				tFixedSlotAnchor, tFixedSlotRelPoint, tSlotX, tSlotY = VUHDO_resolveFixedAuraSlotPlacement(aFixedRadioValue, tEntryIndex, aBarWidth, aBarHeight, anAnchorConfig, aButton, aPixelWidth);
+				tFixedSlotAnchor, tFixedSlotRelPoint, tSlotX, tSlotY = VUHDO_resolveFixedAuraSlotPlacement(aFixedRadioValue, tEntryIndex, aBarWidth, aBarHeight, anAnchorConfig, aPixelWidth);
 
 				if not tFixedSlotAnchor then
 					tIsSlotDropped = true;
@@ -1612,7 +1679,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 	if tPanelNum then
 		tCachedEntry = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] and VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex];
 
-		if tCachedEntry then
+		if tCachedEntry and tCachedEntry["version"] == VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION then
 			tCachedTemplate = tCachedEntry["template"];
 
 			if not tCachedEntry["instanceTemplate"] then
@@ -1622,7 +1689,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 					["containerLayout"] = tCachedTemplate["containerLayout"],
 					["groups"] = tCachedTemplate["groups"],
 					["slots"] = tCachedTemplate["slots"],
-					["poolKeyBase"] = tCachedTemplate["poolKeyBase"],
+					["buildSignature"] = tCachedTemplate["buildSignature"],
 					["staticSlots"] = tCachedTemplate["staticSlots"],
 					["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
 					["panelNum"] = tPanelNum,
@@ -1726,7 +1793,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 		if VUHDO_isListCollapseEligible(tGroup, tUseFixedSlots, tIsFixedLayout) then
 			tGroups = VUHDO_buildListAnchorEntryGroups(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar);
 		else
-			tSlots = VUHDO_buildListAnchorSlots(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxCols, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar, tGrowthDir, tWrapDir, tIsFixedLayout, tFixedRadioValue, tHealthBarWidthPx, tHealthBarHeightPx, aButton);
+			tSlots = VUHDO_buildListAnchorSlots(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxCols, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar, tGrowthDir, tWrapDir, tIsFixedLayout, tFixedRadioValue, tHealthBarWidthPx, tHealthBarHeightPx);
 		end
 	end
 
@@ -1766,6 +1833,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 		end
 
 		VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex] = {
+			["version"] = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION,
 			["template"] = tCachedTemplate,
 			["instanceTemplate"] = {
 				["parent"] = aButton,
@@ -1773,7 +1841,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 				["containerLayout"] = tContainerLayout,
 				["groups"] = tGroups,
 				["slots"] = tSlots,
-				["poolKeyBase"] = tCachedTemplate["poolKeyBase"],
+				["buildSignature"] = tCachedTemplate["buildSignature"],
 				["staticSlots"] = tCachedTemplate["staticSlots"],
 				["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
 				["panelNum"] = tPanelNum,
@@ -1788,7 +1856,7 @@ function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConf
 		["containerLayout"] = tContainerLayout,
 		["groups"] = tGroups,
 		["slots"] = tSlots,
-		["poolKeyBase"] = tCachedTemplate["poolKeyBase"],
+		["buildSignature"] = tCachedTemplate["buildSignature"],
 		["staticSlots"] = tCachedTemplate["staticSlots"],
 		["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
 		["panelNum"] = tPanelNum,
@@ -1800,53 +1868,108 @@ end
 
 
 --
-local tType;
-local tIsHarmful;
-local tCandidate;
-local tSpellIds;
-local tExcludeIds;
-local tValue;
-local tNum;
-function VUHDO_resolveGroupCandidateFilters(aGroup, anAnchorConfig)
+local tResolvedProcessedType;
+function VUHDO_resolveProcessedAuraType(aTypeName)
 
-	if not aGroup then
+	if not aTypeName then
 		return nil;
 	end
 
-	tCandidate = nil;
-	tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
-	tIsHarmful = aGroup["isHarmful"] == true;
+	tResolvedProcessedType = AuraUtil.AuraUpdateChangedType[aTypeName];
 
-	if not tIsHarmful and tType == VUHDO_AURA_GROUP_TYPE_LIST and aGroup["entries"] then
-		tSpellIds = nil;
+	if not tResolvedProcessedType or tResolvedProcessedType == AuraUtil.AuraUpdateChangedType.None then
+		return nil;
+	end
 
-		for _, tEntry in ipairs(aGroup["entries"]) do
-			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-				tValue = tEntry["value"];
+	return tResolvedProcessedType;
 
-				tSpellIds = tSpellIds or { };
+end
 
-				VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tValue);
+
+
+do
+	--
+	local tType;
+	local tCandidate;
+	local tSpellIds;
+	local tExcludeIds;
+	local tValue;
+	local tCandidateBooleans;
+	local tTriState;
+	local tBoolKey;
+	local tResolvedBool;
+	function VUHDO_resolveGroupCandidateFilters(aGroup, anAnchorConfig)
+
+		if not aGroup then
+			return nil;
+		end
+
+		tCandidate = nil;
+		tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+
+		if tType == VUHDO_AURA_GROUP_TYPE_LIST and aGroup["entries"] then
+			tSpellIds = nil;
+
+			for _, tEntry in ipairs(aGroup["entries"]) do
+				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+					tValue = tEntry["value"];
+
+					tSpellIds = tSpellIds or { };
+
+					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tValue);
+				end
+			end
+
+			if tSpellIds and next(tSpellIds) then
+				tCandidate = tCandidate or { };
+
+				tCandidate["includeSpellIDs"] = tSpellIds;
 			end
 		end
 
-		if tSpellIds and next(tSpellIds) then
+		tExcludeIds = VUHDO_resolveGroupExcludeSpellIDs(aGroup);
+
+		if tExcludeIds then
 			tCandidate = tCandidate or { };
 
-			tCandidate["includeSpellIDs"] = tSpellIds;
+			tCandidate["excludeSpellIDs"] = tExcludeIds;
 		end
+
+		tCandidateBooleans = aGroup["candidateBooleans"];
+
+		if tCandidateBooleans then
+			for tCnt = 1, #sCandidateBooleanKeys do
+				tBoolKey = sCandidateBooleanKeys[tCnt];
+				tTriState = tCandidateBooleans[tBoolKey];
+				tResolvedBool = VUHDO_getTriStateBool({ [tBoolKey] = tTriState }, tBoolKey, nil);
+
+				if tResolvedBool ~= nil then
+					tCandidate = tCandidate or { };
+
+					tCandidate[tBoolKey] = tResolvedBool;
+				end
+			end
+		end
+
+		if aGroup["processedAuraType"] then
+			tResolvedProcessedType = VUHDO_resolveProcessedAuraType(aGroup["processedAuraType"]);
+
+			if tResolvedProcessedType then
+				tCandidate = tCandidate or { };
+
+				tCandidate["processedAuraType"] = tResolvedProcessedType;
+			end
+		end
+
+		if aGroup["hasDuration"] then
+			tCandidate = tCandidate or { };
+
+			tCandidate["maxDuration"] = math.huge;
+		end
+
+		return tCandidate;
+
 	end
-
-	tExcludeIds = VUHDO_resolveGroupExcludeSpellIDs(aGroup);
-
-	if tExcludeIds then
-		tCandidate = tCandidate or { };
-
-		tCandidate["excludeSpellIDs"] = tExcludeIds;
-	end
-
-	return tCandidate;
-
 end
 
 

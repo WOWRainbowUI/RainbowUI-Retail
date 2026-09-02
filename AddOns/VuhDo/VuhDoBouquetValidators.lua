@@ -51,6 +51,7 @@ local VUHDO_getDispelTypeTextCurve;
 local VUHDO_getOrBuildBrightnessCurve;
 local VUHDO_getOrBuildTextBrightnessCurve;
 local VUHDO_isAuraDataRestricted;
+local VUHDO_isAuraModeContainers;
 
 local sBarColors;
 local sIsDistance;
@@ -152,6 +153,7 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getOrBuildBrightnessCurve = _G["VUHDO_getOrBuildBrightnessCurve"];
 	VUHDO_getOrBuildTextBrightnessCurve = _G["VUHDO_getOrBuildTextBrightnessCurve"];
 	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
+	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sIsDistance = VUHDO_CONFIG["DIRECTION"]["isDistanceText"];
@@ -662,7 +664,6 @@ local tCanColorBar;
 local tCanColorText;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
-	-- FIXME: debuffBarColorValidator disabled in full container mode
 	if VUHDO_isAuraDataRestricted() then
 		return false, nil, -1, -1, -1;
 	end
@@ -683,7 +684,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 				end
 			end
 
-			tCanColorBar = VUHDO_getAuraCanColorBar(anInfo["unit"]);
+			tCanColorBar = not VUHDO_isAuraModeContainers() and VUHDO_getAuraCanColorBar(anInfo["unit"]);
 			tCanColorText = VUHDO_getAuraCanColorText(anInfo["unit"]);
 
 			if tCanColorBar or tCanColorText then
@@ -752,7 +753,8 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 		return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 	elseif anInfo["debuff"] then
 		tCurve = aSecretContext["dispelCurve"];
-		tCanColorBar = VUHDO_getAuraCanColorBar(anInfo["unit"]);
+
+		tCanColorBar = not VUHDO_isAuraModeContainers() and VUHDO_getAuraCanColorBar(anInfo["unit"]);
 		tCanColorText = VUHDO_getAuraCanColorText(anInfo["unit"]);
 
 		if tCanColorBar or tCanColorText then

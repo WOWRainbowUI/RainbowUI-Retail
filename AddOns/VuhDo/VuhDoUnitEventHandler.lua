@@ -32,6 +32,7 @@ local VUHDO_needsUnitAuraEvent;
 local VUHDO_syncNativeAuraSoundsForUnit;
 local VUHDO_isAuraModeContainers;
 local VUHDO_syncAuraContainersForUnit;
+local VUHDO_syncOverlaysForUnit;
 
 local VUHDO_RAID;
 local VUHDO_CONFIG;
@@ -41,6 +42,8 @@ local VUHDO_VARIABLES_LOADED;
 local VUHDO_TIMERS;
 
 local sUnitEventFrames = { };
+
+local sLastUnitEventToggleFingerprint;
 
 local sAllUnitEventNames = {
 	"UNIT_AURA",
@@ -120,6 +123,7 @@ function VUHDO_unitEventHandlerInitLocalOverrides()
 	VUHDO_syncNativeAuraSoundsForUnit = _G["VUHDO_syncNativeAuraSoundsForUnit"];
 	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
 	VUHDO_syncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
+	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 
 	VUHDO_updateHealth = _G["VUHDO_deferUpdateHealth"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
@@ -297,6 +301,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		if VUHDO_RAID and VUHDO_RAID[anArg1] ~= nil then
 			VUHDO_syncAuraContainersForUnit(anArg1, VUHDO_DEFERRED_TASK_PRIORITY_CRITICAL);
+			VUHDO_syncOverlaysForUnit(anArg1, VUHDO_DEFERRED_TASK_PRIORITY_CRITICAL);
 		end
 
 		VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.5;
@@ -330,6 +335,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 			VUHDO_updateHealth(anArg1, VUHDO_UPDATE_DC);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);
+			VUHDO_syncOverlaysForUnit(anArg1);
 		end
 
 	elseif "UNIT_NAME_UPDATE" == anEvent then
@@ -352,6 +358,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 			VUHDO_updateBouquetsForEvent(anArg1, 34);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);
+			VUHDO_syncOverlaysForUnit(anArg1);
 		end
 
 	elseif "UNIT_FLAGS" == anEvent then
@@ -361,6 +368,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		if VUHDO_RAID[anArg1] ~= nil then
 			VUHDO_syncAuraContainersForUnit(anArg1);
+			VUHDO_syncOverlaysForUnit(anArg1);
 		end
 
 	elseif "INCOMING_RESURRECT_CHANGED" == anEvent then
@@ -390,6 +398,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 			VUHDO_updateBouquetsForEvent(anArg1, 39);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);
+			VUHDO_syncOverlaysForUnit(anArg1);
 		end
 
 	end
@@ -654,6 +663,26 @@ function VUHDO_unregisterAllUnitEventFrames()
 end
 
 
+--
+local tUnitEventToggleFingerprint;
+local function VUHDO_getUnitEventToggleFingerprint()
+
+	tUnitEventToggleFingerprint = (VUHDO_needsUnitAuraEvent() and "A" or "a")
+		.. (VUHDO_getThreatEventsInterest() and "T" or "t")
+		.. (VUHDO_getPowerEventsInterest() and "P" or "p")
+		.. (VUHDO_isAnyoneInterestedIn(VUHDO_UPDATE_UNIT_TARGET) and "U" or "u")
+		.. (VUHDO_isAnyoneInterestedIn(VUHDO_UPDATE_ALT_POWER) and "L" or "l")
+		.. (VUHDO_CONFIG["SHOW_INCOMING"] and "I" or "i")
+		.. (VUHDO_CONFIG["SHOW_OWN_INCOMING"] and "O" or "o")
+		.. (VUHDO_getShieldInterest() and "S" or "s")
+		.. (VUHDO_getHealAbsorbInterest() and "H" or "h")
+		.. (VUHDO_getHealthLossInterest() and "M" or "m");
+
+	return tUnitEventToggleFingerprint;
+
+end
+
+
 
 --
 function VUHDO_refreshAllUnitEventRegistrations()
@@ -661,6 +690,14 @@ function VUHDO_refreshAllUnitEventRegistrations()
 	if not VUHDO_RAID then
 		return;
 	end
+
+	tUnitEventToggleFingerprint = VUHDO_getUnitEventToggleFingerprint();
+
+	if tUnitEventToggleFingerprint == sLastUnitEventToggleFingerprint then
+		return;
+	end
+
+	sLastUnitEventToggleFingerprint = tUnitEventToggleFingerprint;
 
 	for tUnit, _ in pairs(VUHDO_RAID) do
 		VUHDO_registerUnitForEvents(tUnit);

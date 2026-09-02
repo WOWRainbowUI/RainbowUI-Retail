@@ -9,9 +9,12 @@ local GetTime = GetTime;
 local InCombatLockdown = InCombatLockdown;
 local issecretvalue = issecretvalue;
 
-local AddAuraSound = (C_UnitAuras and C_UnitAuras.AddAuraSound) or function() return nil; end;
-local RemoveAuraSound = (C_UnitAuras and C_UnitAuras.RemoveAuraSound) or function() end;
-local UnitAuraSoundTriggerAdded = Enum.UnitAuraSoundTrigger and Enum.UnitAuraSoundTrigger.Added;
+local AddAuraSound = C_UnitAuras and C_UnitAuras.AddAuraSound;
+local RemoveAuraSound = C_UnitAuras and C_UnitAuras.RemoveAuraSound;
+local IsAddOnRestrictionActive = C_RestrictedActions and C_RestrictedActions.IsAddOnRestrictionActive;
+local AddOnRestrictionType = Enum and Enum.AddOnRestrictionType;
+local UnitAuraSoundTrigger = Enum and Enum.UnitAuraSoundTrigger;
+local UnitAuraSoundTriggerAdded = UnitAuraSoundTrigger and UnitAuraSoundTrigger["Added"];
 
 local VUHDO_CONFIG;
 local VUHDO_RAID;
@@ -23,20 +26,21 @@ local VUHDO_AURA_LIST_ENTRY_SPELL;
 
 local VUHDO_getAuraGroup;
 local VUHDO_getAllAuraGroups;
-local VUHDO_auraMatchesFilter;
+local VUHDO_isAuraMatchingGroupFilters;
 local VUHDO_auraSourceMatchesFilter;
-local VUHDO_isAuraIgnored;
 local VUHDO_playSoundFile;
 local VUHDO_addResolvedAuraContainerSpellIds;
 local VUHDO_isAuraModeContainers;
-local VUHDO_LibSharedMedia;
 
 local sNextSoundTime = { };
 local sNativeAuraSoundIds = { };
 local sNativeAuraSoundUnits = { };
 local sPendingNativeAuraSoundUnits = { };
+local sPendingNativeAuraSoundRetry = { };
 local sPendingNativeAuraSoundClear = false;
 local sSoundEnabledAuraGroups = { };
+local sHasNativeAuraSoundsToRegister = nil;
+local sNativeResolvedSpellIds = { };
 
 
 
@@ -54,13 +58,104 @@ function VUHDO_auraSoundsInitLocalOverrides()
 
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_getAllAuraGroups = _G["VUHDO_getAllAuraGroups"];
-	VUHDO_auraMatchesFilter = _G["VUHDO_auraMatchesFilter"];
+	VUHDO_isAuraMatchingGroupFilters = _G["VUHDO_isAuraMatchingGroupFilters"];
 	VUHDO_auraSourceMatchesFilter = _G["VUHDO_auraSourceMatchesFilter"];
-	VUHDO_isAuraIgnored = _G["VUHDO_isAuraIgnored"];
 	VUHDO_playSoundFile = _G["VUHDO_playSoundFile"];
 	VUHDO_addResolvedAuraContainerSpellIds = _G["VUHDO_addResolvedAuraContainerSpellIds"];
 	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
-	VUHDO_LibSharedMedia = _G["VUHDO_LibSharedMedia"];
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_isNativeAuraSoundRestricted()
+
+	if IsAddOnRestrictionActive then
+		if IsAddOnRestrictionActive(AddOnRestrictionType and AddOnRestrictionType["Encounter"] or 1) then
+			return true;
+		end
+
+		if IsAddOnRestrictionActive(AddOnRestrictionType and AddOnRestrictionType["Combat"] or 0)
+			and IsAddOnRestrictionActive(AddOnRestrictionType and AddOnRestrictionType["ChallengeMode"] or 2) then
+			return true;
+		end
+	end
+
+	return false;
+
+end
+
+
+
+--
+local tAllGroups;
+local tSound;
+local tGroupType;
+local tEntries;
+local tEntry;
+local function VUHDO_listGroupHasNativeAuraSoundSpellIds(aGroup)
+
+	if not aGroup then
+		return false;
+	end
+
+	twipe(sNativeResolvedSpellIds);
+	tEntries = aGroup["entries"];
+
+	if not tEntries then
+		return false;
+	end
+
+	for tCnt = 1, #tEntries do
+		tEntry = tEntries[tCnt];
+
+		if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+			VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tEntry["value"]);
+		end
+	end
+
+	return next(sNativeResolvedSpellIds) ~= nil;
+
+end
+
+
+
+--
+function VUHDO_computeHasNativeAuraSoundsToRegister()
+
+	tAllGroups = VUHDO_getAllAuraGroups();
+
+	if not tAllGroups then
+		return false;
+	end
+
+	for tGroupId, tGroup in pairs(tAllGroups) do
+		if VUHDO_getAuraGroup(tGroupId) then
+			tSound = tGroup["sound"];
+
+			if (tSound or "") ~= "" then
+				tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+
+				if tGroupType == VUHDO_AURA_GROUP_TYPE_LIST and VUHDO_listGroupHasNativeAuraSoundSpellIds(tGroup) then
+					return true;
+				end
+			end
+		end
+	end
+
+	return false;
+
+end
+
+
+
+--
+function VUHDO_invalidateNativeAuraSoundScanCache()
+
+	sHasNativeAuraSoundsToRegister = nil;
 
 	return;
 
@@ -71,7 +166,7 @@ end
 --
 function VUHDO_clearNativeAuraSounds()
 
-	if InCombatLockdown() then
+	if InCombatLockdown() or VUHDO_isNativeAuraSoundRestricted() then
 		sPendingNativeAuraSoundClear = true;
 
 		return;
@@ -94,52 +189,52 @@ end
 
 
 --
-local tSoundPath;
 local tSoundId;
-local tSettings;
-local tSpellId;
-local tResolvedSpellIds;
+local tSoundInfo;
 function VUHDO_registerNativeAuraSoundForUnit(aUnit, aSpellId, aSoundKey)
 
-	if not aUnit or not aSpellId or not aSoundKey or aSoundKey == "" then
-		return;
+	if not aUnit or not aSpellId or aSoundKey == nil or aSoundKey == "" then
+		return false;
 	end
 
-	if InCombatLockdown() then
-		return;
+	if InCombatLockdown() or VUHDO_isNativeAuraSoundRestricted() then
+		sPendingNativeAuraSoundUnits[aUnit] = true;
+
+		return false;
 	end
 
-	if VUHDO_LibSharedMedia then
-		tSoundPath = VUHDO_LibSharedMedia:Fetch("sound", aSoundKey);
-	else
-		tSoundPath = aSoundKey;
+	if not UnitAuraSoundTriggerAdded then
+		return false;
 	end
 
-	if not tSoundPath or tSoundPath == "" then
-		return;
-	end
-
-	tSoundId = AddAuraSound(UnitAuraSoundTriggerAdded, {
+	tSoundInfo = {
 		["unitToken"] = aUnit,
 		["spellID"] = aSpellId,
-		["soundFileName"] = tSoundPath,
-	});
+	};
+
+	if type(aSoundKey) == "number" then
+		tSoundInfo["soundFileID"] = aSoundKey;
+	elseif type(aSoundKey) == "string" then
+		tSoundInfo["soundFileName"] = aSoundKey;
+	else
+		return false;
+	end
+
+	tSoundId = AddAuraSound(UnitAuraSoundTriggerAdded, tSoundInfo);
 
 	if tSoundId then
 		sNativeAuraSoundIds[tSoundId] = true;
+
+		return true;
 	end
 
-	return;
+	return false;
 
 end
 
 
 
 --
-local tAllGroups;
-local tGroup;
-local tSound;
-local tGroupType;
 function VUHDO_rebuildSoundEnabledAuraGroups()
 
 	twipe(sSoundEnabledAuraGroups);
@@ -157,8 +252,12 @@ function VUHDO_rebuildSoundEnabledAuraGroups()
 			if (tSound or "") ~= "" then
 				tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
 
-				if tGroupType == VUHDO_AURA_GROUP_TYPE_FILTER or tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
+				if tGroupType == VUHDO_AURA_GROUP_TYPE_FILTER then
 					tinsert(sSoundEnabledAuraGroups, tGroupId);
+				elseif tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
+					if not VUHDO_listGroupHasNativeAuraSoundSpellIds(tGroup) then
+						tinsert(sSoundEnabledAuraGroups, tGroupId);
+					end
 				end
 			end
 		end
@@ -171,73 +270,78 @@ end
 
 
 --
-local tDefaultSound;
-local tHasSoundsToRegister;
+local tRegistrationFailed;
 function VUHDO_syncNativeAuraSoundsForUnit(aUnit)
 
 	if not VUHDO_isAuraModeContainers() or not aUnit then
-		return;
+		return true;
 	end
 
 	if sNativeAuraSoundUnits[aUnit] then
-		return;
+		return true;
 	end
 
-	if not VUHDO_CONFIG or not VUHDO_CONFIG["CUSTOM_DEBUFF"] then
+	if sHasNativeAuraSoundsToRegister == nil then
+		sHasNativeAuraSoundsToRegister = VUHDO_computeHasNativeAuraSoundsToRegister();
+	end
+
+	if not sHasNativeAuraSoundsToRegister then
 		sNativeAuraSoundUnits[aUnit] = true;
 
-		return;
+		return true;
 	end
 
-	tDefaultSound = VUHDO_CONFIG["CUSTOM_DEBUFF"]["SOUND"];
-	tSettings = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"];
-	tHasSoundsToRegister = false;
-
-	if tSettings then
-		for tSettingsKey, tDebuffSettings in pairs(tSettings) do
-			tResolvedSpellIds = { };
-
-			VUHDO_addResolvedAuraContainerSpellIds(tResolvedSpellIds, tSettingsKey);
-
-			if next(tResolvedSpellIds) and ((tDebuffSettings["SOUND"] or "") ~= "" or (tDefaultSound or "") ~= "") then
-				tHasSoundsToRegister = true;
-
-				break;
-			end
-		end
-	end
-
-	if not tHasSoundsToRegister then
-		sNativeAuraSoundUnits[aUnit] = true;
-
-		return;
-	end
-
-	if InCombatLockdown() then
+	if InCombatLockdown() or VUHDO_isNativeAuraSoundRestricted() then
 		sPendingNativeAuraSoundUnits[aUnit] = true;
 
-		return;
+		return false;
 	end
 
-	if tSettings then
-		for tSettingsKey, tDebuffSettings in pairs(tSettings) do
-			tResolvedSpellIds = { };
+	tAllGroups = VUHDO_getAllAuraGroups();
+	tRegistrationFailed = false;
 
-			VUHDO_addResolvedAuraContainerSpellIds(tResolvedSpellIds, tSettingsKey);
+	if tAllGroups then
+		for tGroupId, tGroup in pairs(tAllGroups) do
+			if VUHDO_getAuraGroup(tGroupId) then
+				tSound = tGroup["sound"];
 
-			for tSpellId, _ in pairs(tResolvedSpellIds) do
-				if tDebuffSettings["SOUND"] and tDebuffSettings["SOUND"] ~= "" then
-					VUHDO_registerNativeAuraSoundForUnit(aUnit, tSpellId, tDebuffSettings["SOUND"]);
-				elseif tDefaultSound and tDefaultSound ~= "" then
-					VUHDO_registerNativeAuraSoundForUnit(aUnit, tSpellId, tDefaultSound);
+				if (tSound or "") ~= "" then
+					tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+
+					if tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
+						twipe(sNativeResolvedSpellIds);
+						tEntries = tGroup["entries"];
+
+						if tEntries then
+							for tCnt = 1, #tEntries do
+								tEntry = tEntries[tCnt];
+
+								if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+									VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tEntry["value"]);
+								end
+							end
+						end
+
+						for tSpellId, _ in pairs(sNativeResolvedSpellIds) do
+							if not VUHDO_registerNativeAuraSoundForUnit(aUnit, tSpellId, tSound) then
+								tRegistrationFailed = true;
+							end
+						end
+					end
 				end
 			end
 		end
 	end
 
+	if tRegistrationFailed then
+		sPendingNativeAuraSoundUnits[aUnit] = true;
+
+		return false;
+	end
+
 	sNativeAuraSoundUnits[aUnit] = true;
 
-	return;
+	return true;
 
 end
 
@@ -246,7 +350,7 @@ end
 --
 function VUHDO_processPendingNativeAuraSounds()
 
-	if InCombatLockdown() then
+	if InCombatLockdown() or VUHDO_isNativeAuraSoundRestricted() then
 		return;
 	end
 
@@ -260,11 +364,21 @@ function VUHDO_processPendingNativeAuraSounds()
 		return;
 	end
 
+	twipe(sPendingNativeAuraSoundRetry);
+
 	for tUnit, _ in pairs(sPendingNativeAuraSoundUnits) do
-		VUHDO_syncNativeAuraSoundsForUnit(tUnit);
+		if not VUHDO_syncNativeAuraSoundsForUnit(tUnit) then
+			sPendingNativeAuraSoundRetry[tUnit] = true;
+		end
 	end
 
 	twipe(sPendingNativeAuraSoundUnits);
+
+	for tUnit, _ in pairs(sPendingNativeAuraSoundRetry) do
+		sPendingNativeAuraSoundUnits[tUnit] = true;
+	end
+
+	twipe(sPendingNativeAuraSoundRetry);
 
 	return;
 
@@ -273,7 +387,6 @@ end
 
 
 --
-local tUnit;
 function VUHDO_initNativeAuraSounds()
 
 	if not VUHDO_isAuraModeContainers() then
@@ -341,7 +454,6 @@ end
 
 
 --
-local tEntries;
 local tValue;
 local tSpellId;
 local tName;
@@ -408,11 +520,8 @@ function VUHDO_checkAuraGroupSounds(aUnit, anAuraData)
 				tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
 
 				if tGroupType == VUHDO_AURA_GROUP_TYPE_FILTER then
-					if tGroup["filter"] and VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["resolvedFilter"]) then
-						if (not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["excludeFilter"]))
-							and not VUHDO_isAuraIgnored(anAuraData, tGroupId) then
-							VUHDO_playAuraGroupSound(tGroupId);
-						end
+					if tGroup["filter"] and VUHDO_isAuraMatchingGroupFilters(aUnit, tGroupId, tGroup, anAuraData) then
+						VUHDO_playAuraGroupSound(tGroupId);
 					end
 				elseif tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
 					if VUHDO_auraMatchesListGroup(anAuraData, tGroup) then

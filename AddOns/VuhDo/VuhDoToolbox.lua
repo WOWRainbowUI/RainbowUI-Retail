@@ -52,6 +52,9 @@ local FindAuraByName = AuraUtil.FindAuraByName;
 local IsUsableItem = IsUsableItem or C_Item.IsUsableItem;
 local IsUsableSpell = IsUsableSpell or C_Spell.IsSpellUsable;
 local GetSpellCooldownDuration = C_Spell and C_Spell.GetSpellCooldownDuration;
+local IsSpellInRange = IsSpellInRange or C_Spell.IsSpellInRange;
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost;
+local UnitIsConnected = UnitIsConnected;
 local IsSpellInSpellBook = C_SpellBook and C_SpellBook.IsSpellInSpellBook;
 local IsSpellKnownNew = C_SpellBook and C_SpellBook.IsSpellKnown;
 local SpellBookSpellBank = Enum and Enum.SpellBookSpellBank;
@@ -240,7 +243,7 @@ end
 --
 local VUHDO_RANGE_SPELLS_REMAP = {
 	["HELPFUL"] = {
-		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.EMERALD_BLOSSOM },
+		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.CHRONO_FLAME, VUHDO_SPELL_ID.EMERALD_BLOSSOM },
 		[VUHDO_SPELL_ID.DETOX] = { VUHDO_SPELL_ID.VIVIFY },
 	},
 	["HARMFUL"] = {
@@ -257,16 +260,12 @@ function VUHDO_isSpellInRange(aSpell, aUnit, aUnitReaction)
 		return;
 	end
 
-	if IsSpellInRange then
-		tIsSpellInRange = IsSpellInRange(aSpell, aUnit);
-	else
-		tIsSpellInRange = C_Spell.IsSpellInRange(aSpell, aUnit);
-	end
+	tIsSpellInRange = IsSpellInRange(aSpell, aUnit);
 
 	if tIsSpellInRange == nil and aUnitReaction and
 		VUHDO_RANGE_SPELLS_REMAP[aUnitReaction] and VUHDO_RANGE_SPELLS_REMAP[aUnitReaction][aSpell] then
 		for _, tRangeSpell in pairs(VUHDO_RANGE_SPELLS_REMAP[aUnitReaction][aSpell]) do
-			tIsSpellInRange = C_Spell.IsSpellInRange(tRangeSpell, aUnit);
+			tIsSpellInRange = IsSpellInRange(tRangeSpell, aUnit);
 
 			if tIsSpellInRange ~= nil then
 				break;
@@ -464,11 +463,23 @@ local sIsHarmfulGuessRange = true;
 local sScanRange;
 local sZeroRange = "";
 local sPetRangeSpell;
+local sResurrectionRangeSpell;
 
 local VUHDO_PET_RANGE_SPELLS = {
 	["HUNTER"] = 136,
 	["WARLOCK"] = 755,
 	["DEATHKNIGHT"] = 47541,
+};
+
+local VUHDO_RESURRECTION_RANGE_SPELLS = {
+	["DRUID"] = VUHDO_SPELL_ID.REBIRTH,
+	["PRIEST"] = VUHDO_SPELL_ID.RESURRECTION,
+	["PALADIN"] = VUHDO_SPELL_ID.INTERCESSION,
+	["SHAMAN"] = VUHDO_SPELL_ID.ANCESTRAL_SPIRIT,
+	["MONK"] = VUHDO_SPELL_ID.RESUSCITATE,
+	["DEATHKNIGHT"] = VUHDO_SPELL_ID.RAISE_ALLY,
+	["WARLOCK"] = VUHDO_SPELL_ID.SOULSTONE,
+	["EVOKER"] = VUHDO_SPELL_ID.RETURN,
 };
 
 
@@ -491,6 +502,7 @@ function VUHDO_toolboxInitLocalOverrides()
 	end
 
 	sPetRangeSpell = VUHDO_PET_RANGE_SPELLS[VUHDO_PLAYER_CLASS];
+	sResurrectionRangeSpell = VUHDO_RESURRECTION_RANGE_SPELLS[VUHDO_PLAYER_CLASS];
 
 	sZeroRange = "0.0 " .. VUHDO_I18N_YARDS;
 
@@ -613,7 +625,11 @@ function VUHDO_checkInteractDistance(aUnit, aDistIndex)
 			end
 		end
 
-		return true;
+		if not InCombatLockdown() then
+			return CheckInteractDistance(aUnit, aDistIndex);
+		end
+
+		return false;
 	end
 
 	if not InCombatLockdown() then
@@ -699,6 +715,7 @@ local tUnitReaction;
 local tIsSpellInRange;
 local tIsInteractDistance;
 local tUnitInfo;
+local tFriendlyRangeSpell;
 function VUHDO_isInRange(aUnit, anIsForceUpdate)
 
 	if not aUnit then
@@ -737,20 +754,10 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		tUnitReaction = "HELPFUL";
 	end
 
-	tRangeSpell = sRangeSpell[tUnitReaction];
+	tRangeSpell = sRangeSpell and sRangeSpell[tUnitReaction];
+	tFriendlyRangeSpell = sRangeSpell and sRangeSpell["HELPFUL"];
 
-	if tRangeSpell and not tIsGuessRange then
-		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
-
-		if tIsSpellInRange ~= nil then
-			if not tIsSpellInRange and not InCombatLockdown() and CheckInteractDistance(aUnit, 4) then
-				return true;
-			end
-
-			return tIsSpellInRange;
-		end
-	end
-
+	-- UnitInRange is SecretReturns; IsSpellInRange is not (SpellDocumentation.lua / UnitDocumentation.lua).
 	if VUHDO_isUnitRangeCheckable(aUnit) then
 		if sSecretsEnabled then
 			return UnitInRange(aUnit);
@@ -763,6 +770,34 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		end
 	end
 
+	if tRangeSpell and not tIsGuessRange and UnitCanAttack("player", aUnit) then
+		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
+
+		if tIsSpellInRange ~= nil then
+			return tIsSpellInRange;
+		end
+	end
+
+	if sResurrectionRangeSpell and not UnitCanAttack("player", aUnit) and UnitIsDeadOrGhost(aUnit) then
+		tIsSpellInRange = VUHDO_isSpellInRange(sResurrectionRangeSpell, aUnit, "HELPFUL");
+
+		if tIsSpellInRange ~= nil then
+			return tIsSpellInRange;
+		end
+	end
+
+	if tRangeSpell and not tIsGuessRange and not UnitCanAttack("player", aUnit) then
+		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
+
+		if tIsSpellInRange ~= nil then
+			if tIsSpellInRange == false and not InCombatLockdown() and CheckInteractDistance(aUnit, 4) then
+				return true;
+			end
+
+			return tIsSpellInRange;
+		end
+	end
+
 	if not InCombatLockdown() then
 		tIsInteractDistance = CheckInteractDistance(aUnit, 4);
 
@@ -771,12 +806,9 @@ function VUHDO_isInRange(aUnit, anIsForceUpdate)
 		end
 	end
 
-	if tRangeSpell then
-		tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
-
-		if tIsSpellInRange ~= nil then
-			return tIsSpellInRange;
-		end
+	if tFriendlyRangeSpell and not sIsHelpfulGuessRange and not UnitCanAttack("player", aUnit)
+		and UnitIsConnected(aUnit) and not UnitIsDeadOrGhost(aUnit) then
+		return false;
 	end
 
 	return true;
@@ -1004,11 +1036,14 @@ local VUHDO_isInSameZone = VUHDO_isInSameZone;
 --
 function VUHDO_setUnitInfoHealthMax(anInfo, aHealthMax)
 
-	anInfo["healthmax"] = aHealthMax;
-
-	if sSecretsEnabled then
-		anInfo["hasSecretHealthMax"] = issecretvalue(aHealthMax);
+	if sSecretsEnabled and issecretvalue(aHealthMax) then
+		anInfo["healthmax"] = aHealthMax;
+		anInfo["hasSecretHealthMax"] = true;
+	elseif type(aHealthMax) == "number" and aHealthMax > 0 then
+		anInfo["healthmax"] = aHealthMax;
+		anInfo["hasSecretHealthMax"] = false;
 	else
+		anInfo["healthmax"] = 0;
 		anInfo["hasSecretHealthMax"] = false;
 	end
 
@@ -1964,5 +1999,92 @@ function VUHDO_playSoundFile(aSound)
 	end
 
 	return tSuccess;
+
+end
+
+
+
+--
+local tInfo;
+local tSpellInRange;
+local tUnitInRange;
+local tUnitInRangeChecked;
+local tInteractDistance;
+local tResolvedRange;
+local tRangeSpellName;
+function VUHDO_formatRangeProbeValue(aValue)
+
+	if aValue == nil then
+		return "<nil>";
+	elseif sSecretsEnabled and issecretvalue(aValue) then
+		return "<secret>";
+	elseif "boolean" == type(aValue) then
+		return aValue and "<true>" or "<false>";
+	else
+		return tostring(aValue);
+	end
+
+end
+
+
+
+--
+function VUHDO_dumpRangeDiagnostics(aUnit)
+
+	if not aUnit or not VUHDO_RAID or not VUHDO_RAID[aUnit] then
+		VUHDO_Msg("Range diagnostic: unit not in raid roster.");
+
+		return;
+	end
+
+	tInfo = VUHDO_RAID[aUnit];
+	tRangeSpellName = sRangeSpell and sRangeSpell["HELPFUL"];
+
+	VUHDO_Msg(format("Range diagnostic for %s:", aUnit));
+	VUHDO_Msg(format("  range=%s hasSecretRange=%s baseRange=%s isEventRange=%s",
+		VUHDO_formatRangeProbeValue(tInfo["range"]),
+		tostring(tInfo["hasSecretRange"]),
+		VUHDO_formatRangeProbeValue(tInfo["baseRange"]),
+		tostring(tInfo["isEventRange"])));
+
+	if tRangeSpellName then
+		tSpellInRange = IsSpellInRange(tRangeSpellName, aUnit);
+
+		VUHDO_Msg(format("  IsSpellInRange(%s)=%s", tRangeSpellName, VUHDO_formatRangeProbeValue(tSpellInRange)));
+	end
+
+	tUnitInRange, tUnitInRangeChecked = UnitInRange(aUnit);
+
+	VUHDO_Msg(format("  UnitInRange=%s checked=%s",
+		VUHDO_formatRangeProbeValue(tUnitInRange),
+		VUHDO_formatRangeProbeValue(tUnitInRangeChecked)));
+
+	if not InCombatLockdown() then
+		tInteractDistance = CheckInteractDistance(aUnit, 4);
+
+		VUHDO_Msg(format("  CheckInteractDistance(4)=%s", VUHDO_formatRangeProbeValue(tInteractDistance)));
+	else
+		VUHDO_Msg("  CheckInteractDistance(4)=<skipped in combat>");
+	end
+
+	tResolvedRange = VUHDO_isInRange(aUnit, true);
+
+	VUHDO_Msg(format("  VUHDO_isInRange(force)=%s", VUHDO_formatRangeProbeValue(tResolvedRange)));
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_rangeHelp()
+
+	VUHDO_Msg("|cffFFD100--- Range Commands ---|r");
+	VUHDO_Msg("  |cffB0E0E6/vd range [unit]|r - Dump range state and API probes for a unit (default: mouseover)");
+	VUHDO_Msg("  |cffB0E0E6/vd range|r - Show this help");
+	VUHDO_Msg("|cffFFD100--- End of Range Commands ---|r");
+
+	return;
 
 end
