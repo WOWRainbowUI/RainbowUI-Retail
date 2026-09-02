@@ -68,7 +68,7 @@ function addonTable.Designer.IconMixin:Setup(details)
   self.DebuffBorder:Hide()
   if details.resource.spellID then
     texture = C_Spell.GetSpellTexture(details.resource.spellID)
-    if details.resource.kind == "aura" then
+    if details.resource.kind == "aura" or details.resource.kind == "auraMissing" then
       self.Icon:SetDesaturated(not addonTable.Utilities.IsAuraSpellKnown(details.resource.spellID) or false)
       self.DebuffBorder:Show()
       self.DebuffBorder:Setup(details)

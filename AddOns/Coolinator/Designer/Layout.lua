@@ -170,9 +170,6 @@ local function DeleteRoot(root, shouldUpdate)
   local details = root.details
   if shouldUpdate then
     addonTable.CallbackRegistry:TriggerEvent("Designer.Options", {})
-    if CheckChildren(details, function(d) return d.kind == "bar" and d.resource.kind == "aura" and not addonTable.Constants.Totems[d.resource.spellID] end) then
-      addonTable.CallbackRegistry:TriggerEvent("AuraBarsChanged")
-    end
   end
 end
 
@@ -822,6 +819,16 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
       inserter(new)
     end)
   end)
+  aura:CreateButton(addonTable.Locales.ICON_WHEN_MISSING, function()
+    self.auraFrame:Update(function(data)
+      local new = CopyTable(addonTable.Designer.Defaults.AuraMissingIcon)
+      new.resource.spellID = data
+      if origin.kind == "icon" and origin.resource.kind == "auraMissing" then
+        ImportStyle(new, origin)
+      end
+      inserter(new)
+    end, true)
+  end)
   aura:CreateButton(addonTable.Locales.BAR, function()
     self.auraFrame:Update(function(data)
       local new = CopyTable(addonTable.Designer.Defaults.AuraBar)
@@ -830,9 +837,6 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
         ImportStyle(new, origin)
       end
       inserter(new)
-      if not addonTable.Constants.Totems[data] then
-        addonTable.CallbackRegistry:TriggerEvent("AuraBarsChanged")
-      end
     end)
   end)
   aura:CreateButton(addonTable.Locales.STACKS_PIPS, function()
@@ -914,6 +918,7 @@ function addonTable.Designer.LayoutManagerMixin:MarkSelected(details)
       not details.resource or
       (current.resource.kind == "class" and tCompare(details.resource, current.resource)) or
       (current.resource.kind == "aura" and details.resource.kind == current.resource.kind) or
+      (current.resource.kind == "auraMissing" and details.resource.kind == current.resource.kind) or
       (current.resource.kind == "ability" and details.resource.kind == current.resource.kind) or
       (current.resource.kind == "abilityCharge" and details.resource.kind == current.resource.kind) or
       (current.resource.kind == "auraStackPip" and details.resource.kind == current.resource.kind and details.resource.spellID == current.resource.spellID)

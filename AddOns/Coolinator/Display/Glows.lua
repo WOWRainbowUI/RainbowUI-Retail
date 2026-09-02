@@ -37,6 +37,9 @@ function addonTable.Display.GlowMixin:SetAsset(assetName, color, reverse)
     self.animation:SetDuration(asset.duration)
   else
     self.animation:Stop()
+    self.animation:SetFlipBookColumns(1)
+    self.animation:SetFlipBookRows(1)
+    self.animation:SetDuration(0)
   end
 
   self.isReverse = reverse

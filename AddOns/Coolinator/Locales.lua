@@ -90,6 +90,8 @@ L["GROUP"] = "Group"
 L["BAR"] = "Bar"
 L["BARS"] = "Bars"
 L["AURA"] = "Aura"
+L["AURA_MISSING"] = "Aura (missing)"
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
 L["AURA_BAR"] = "Aura Bar"
 L["AURA_STACK_PIP"] = "Aura Stack Pip"
 L["AURA_STACKS"] = "Aura Stacks"
@@ -797,14 +799,10 @@ L["WORLD"] = "World"
 local L = Locales.deDE
 L["ABILITY"] = "Fähigkeit"
 L["ABILITY_BAR"] = "Fähigkeitsleiste"
---[[Translation missing --]]
-L["ABILITY_CHARGE"] = "Ability Charge"
---[[Translation missing --]]
-L["ABILITY_CHARGES"] = "Ability Charges"
---[[Translation missing --]]
-L["ACTION"] = "Action"
---[[Translation missing --]]
-L["ACTIVE"] = "Active"
+L["ABILITY_CHARGE"] = "Fähigkeitenaufladung"
+L["ABILITY_CHARGES"] = "Fahigkeitenaufladungen"
+L["ACTION"] = "Aktion"
+L["ACTIVE"] = "Aktiv"
 L["ADD"] = "hinzufügen"
 --[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
@@ -815,10 +813,8 @@ L["ARCANE_FLURRY"] = "Arcane Flurry"
 L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "Are you sure you want to clear your saved anchors?"
 L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aurenleiste"
---[[Translation missing --]]
-L["AURA_BARS"] = "Auras Bars"
---[[Translation missing --]]
-L["AURAS"] = "Auras"
+L["AURA_BARS"] = "Aurenleisten"
+L["AURAS"] = "Auren"
 L["AUTO_SIZE"] = "Autoskalierung"
 L["BACKGROUND"] = "Hintergrund"
 L["BACKGROUND_COLOR"] = "Hintergrundfarbe"
@@ -841,12 +837,9 @@ L["CAST_BAR"] = "Cast Bar"
 --[[Translation missing --]]
 L["CASTING"] = "Casting"
 L["CENTER"] = "Mittig"
---[[Translation missing --]]
-L["CENTER_HORIZONTAL"] = "Center Horizontal"
---[[Translation missing --]]
-L["CENTER_VERTICAL"] = "Center Vertical"
---[[Translation missing --]]
-L["CHANNELING"] = "Channeling"
+L["CENTER_HORIZONTAL"] = "horizontal ausrichten"
+L["CENTER_VERTICAL"] = "vertikal ausrichten"
+L["CHANNELING"] = "kanalisieren"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Wähle einen neuen Designnamen aus"
 L["CHOOSE_ABILITY"] = "Wähle Fähigkeit"
 --[[Translation missing --]]
@@ -856,41 +849,30 @@ L["CHOOSE_EQUIPMENT"] = "Wähle Ausrüstungsgegenstand"
 L["CHOOSE_ITEM"] = "Wähle Gegenstand"
 L["CHOOSE_POTION_EFFECT"] = "Wähle Trankeffekt"
 L["CLASS"] = "Klasse"
---[[Translation missing --]]
-L["CLOSE_DESIGNER"] = "Close Designer"
+L["CLOSE_DESIGNER"] = "schließe Designer"
 L["COLOR"] = "Farbe"
---[[Translation missing --]]
-L["COLORS"] = "Colors"
---[[Translation missing --]]
-L["COMBAT"] = "Combat"
---[[Translation missing --]]
-L["COMPLETED"] = "Completed"
---[[Translation missing --]]
-L["CONFIRM_DELETE_DESIGN_X"] = "Are you sure you want to delete design \"%s\"?"
+L["COLORS"] = "Farben"
+L["COMBAT"] = "Kampf"
+L["COMPLETED"] = "Abgeschlossen"
+L["CONFIRM_DELETE_DESIGN_X"] = "Bist du dir sicher, dass du Design \"%s\" löschen willst?"
 --[[Translation missing --]]
 L["CONFIRM_DELETE_PRESET_X"] = "Are you sure you want to delete preset \"%s\"? This will affect ALL designs."
 L["CONFIRM_DELETE_PROFILE_X"] = "Bestätige Löschung Profil %s"
 L["COOLDOWN"] = "Abklingzeit"
 L["COOLINATOR"] = "Coolinator"
---[[Translation missing --]]
-L["COUNT"] = "Count"
---[[Translation missing --]]
-L["CREATE_PRESET"] = "Create Preset"
+L["COUNT"] = "Anzahl"
+L["CREATE_PRESET"] = "Voreinstellung erstellen"
 L["CTRL_C_TO_COPY"] = "Strg+C zum kopieren"
---[[Translation missing --]]
-L["CUSTOM"] = "Custom"
+L["CUSTOM"] = "benutzerdefiniert"
 L["CUSTOMISE_COOLINATOR"] = "Bearbeite Coolinator"
 L["CUSTOMISE_COOLINATOR_X"] = "Bearbeite Coolinator %s"
---[[Translation missing --]]
-L["DANGER"] = "Danger"
+L["DANGER"] = "Gefahr"
 --[[Translation missing --]]
 L["DANGER_COLOR"] = "Danger color"
 --[[Translation missing --]]
 L["DANGER_COLOR_FADED"] = "Danger color faded"
---[[Translation missing --]]
-L["DEFAULT"] = "Default"
---[[Translation missing --]]
-L["DELETE"] = "Delete"
+L["DEFAULT"] = "Standard"
+L["DELETE"] = "Löschen"
 --[[Translation missing --]]
 L["DELVE"] = "Delve"
 --[[Translation missing --]]
@@ -898,26 +880,19 @@ L["DESATURATE"] = "Desaturate"
 --[[Translation missing --]]
 L["DESATURATE_ON_COOLDOWN"] = "Desaturate on cooldown"
 L["DESIGN"] = "Design"
---[[Translation missing --]]
 L["DESIGNER"] = "Designer"
 --[[Translation missing --]]
 L["DETACH_PRESET"] = "Detach Preset"
---[[Translation missing --]]
-L["DEVELOPMENT_IS_TIME_CONSUMING"] = "|cff04cca4Development takes a huge amount of time|r"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
---[[Translation missing --]]
-L["DISPLAY"] = "Display"
---[[Translation missing --]]
-L["DONATE"] = "Donate"
+L["DEVELOPMENT_IS_TIME_CONSUMING"] = "|cff04cca4die Entwicklung beansprucht eine Menge Zeit|r"
+L["DISCORD_DESCRIPTION"] = "Updates, Vorschläge und Support"
+L["DISPLAY"] = "Anzeige"
+L["DONATE"] = "Spenden"
 --[[Translation missing --]]
 L["DUE_TO_AURA_BARS_CHANGING_RELOAD_REQUIRED"] = "Due to aura bars changing a reload is required for Coolinator function"
 --[[Translation missing --]]
 L["DUNGEON"] = "Dungeon"
---[[Translation missing --]]
-L["DURATION"] = "Duration"
---[[Translation missing --]]
-L["EDIT_THE_ICONS_AND_BARS_ONSCREEN"] = "Edit the icons and bars onscreen by clicking on them"
+L["DURATION"] = "Dauer"
+L["EDIT_THE_ICONS_AND_BARS_ONSCREEN"] = "Editiere die Icons und Balken indem du auf sie klickst"
 --[[Translation missing --]]
 L["ELAPSED"] = "Elapsed"
 --[[Translation missing --]]
@@ -932,22 +907,15 @@ L["EMPOWERED_STAGE_HOLD"] = "Empowered stage hold"
 L["ENABLE"] = "Enable"
 --[[Translation missing --]]
 L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Enable if lines falling off font"
---[[Translation missing --]]
-L["ENTER_DESIGN_NAME"] = "Enter Profile Name:"
---[[Translation missing --]]
-L["ENTER_PRESET_NAME"] = "Enter preset name:"
---[[Translation missing --]]
-L["ENTER_PROFILE_NAME"] = "Enter Profile Name:"
---[[Translation missing --]]
-L["ENTER_THE_NEW_DESIGN_NAME"] = "Enter the new design name"
---[[Translation missing --]]
-L["ENTER_THE_NEW_PROFILE_NAME"] = "Enter the new profile name"
---[[Translation missing --]]
-L["EQUIPMENT"] = "Equipment"
+L["ENTER_DESIGN_NAME"] = "Gebe Name für Design ein:"
+L["ENTER_PRESET_NAME"] = "Gebe Namen für Voreinstellung ein:"
+L["ENTER_PROFILE_NAME"] = "Gebe Profilnamen ein:"
+L["ENTER_THE_NEW_DESIGN_NAME"] = "Gebe den neuen Namen für das Design ein:"
+L["ENTER_THE_NEW_PROFILE_NAME"] = "Gebe den neuen Namen für das Profil ein:"
+L["EQUIPMENT"] = "Ausrüstung"
 --[[Translation missing --]]
 L["ESSENTIAL"] = "Essential"
---[[Translation missing --]]
-L["EXPORT"] = "Export"
+L["EXPORT"] = "Exportieren"
 --[[Translation missing --]]
 L["FADE"] = "Fade"
 --[[Translation missing --]]
@@ -956,30 +924,22 @@ L["FADE_OUT_OF_COMBAT"] = "Fade out of combat"
 L["FADE_WHEN_MOUNTED"] = "Fade when mounted"
 --[[Translation missing --]]
 L["FLASH_GLOW"] = "Flash Glow"
---[[Translation missing --]]
-L["FONT"] = "Font"
---[[Translation missing --]]
-L["FONT_SIZE"] = "Font size"
---[[Translation missing --]]
-L["FOREGROUND"] = "Foreground"
---[[Translation missing --]]
-L["FOREGROUND_COLOR"] = "Foreground color"
---[[Translation missing --]]
-L["GENERAL"] = "General"
+L["FONT"] = "Schriftart"
+L["FONT_SIZE"] = "Schriftgröße"
+L["FOREGROUND"] = "Vordergrund"
+L["FOREGROUND_COLOR"] = "Vordergrundfarbe"
+L["GENERAL"] = "Allgemein"
 --[[Translation missing --]]
 L["GLOW_COLOR"] = "Glow color"
---[[Translation missing --]]
-L["GROUP"] = "Group"
+L["GROUP"] = "Gruppe"
 --[[Translation missing --]]
 L["GROW_FROM"] = "Grow from"
---[[Translation missing --]]
-L["HAS_TARGET"] = "Has Target"
+L["HAS_TARGET"] = "Hat Ziel"
 --[[Translation missing --]]
 L["HAS_TARGET_ASSIST"] = "Has Target (Assist)"
 --[[Translation missing --]]
 L["HAS_TARGET_ATTACK"] = "Has Target (Attack)"
---[[Translation missing --]]
-L["HEIGHT"] = "Height"
+L["HEIGHT"] = "Höhe"
 --[[Translation missing --]]
 L["HIDE"] = "Hide"
 --[[Translation missing --]]
@@ -990,36 +950,26 @@ L["HIDE_OUT_OF_COMBAT"] = "Hide out of combat"
 L["HIDE_WHEN_MOUNTED"] = "Hide when mounted"
 --[[Translation missing --]]
 L["HIDE_WHEN_READY"] = "Hide when ready"
---[[Translation missing --]]
-L["HORIZONTAL"] = "Horizontal"
+L["HORIZONTAL"] = "horizontal"
 --[[Translation missing --]]
 L["ICICLES"] = "Icicles"
---[[Translation missing --]]
-L["ICON"] = "Icon"
+L["ICON"] = "Symbol"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
---[[Translation missing --]]
-L["IMPORT"] = "Import"
+L["IMPORT"] = "importieren"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
---[[Translation missing --]]
-L["IN_COMBAT"] = "In Combat"
+L["IN_COMBAT"] = "Im Kampf"
 --[[Translation missing --]]
 L["INCOMPATIBLE_WIDGET_TYPE"] = "Incompatible widget type"
---[[Translation missing --]]
-L["INSERT"] = "Insert"
---[[Translation missing --]]
-L["INTERRUPTED"] = "Interrupted"
+L["INSERT"] = "Einfügen"
+L["INTERRUPTED"] = "unterbrochen"
 --[[Translation missing --]]
 L["INVALID_ANCHOR_NAME"] = "Invalid anchor name"
---[[Translation missing --]]
-L["INVALID_DESIGN_NAME"] = "Invalid design name"
---[[Translation missing --]]
-L["INVALID_IMPORT"] = "Invalid import"
---[[Translation missing --]]
-L["ITEM"] = "Item"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
+L["INVALID_DESIGN_NAME"] = "ungültiger Name des Design"
+L["INVALID_IMPORT"] = "Import ungültig"
+L["ITEM"] = "Gegenstand"
+L["JOIN_THE_DISCORD"] = "Trete Discord bei"
 --[[Translation missing --]]
 L["KEYBINDING"] = "Keybinding"
 --[[Translation missing --]]
@@ -1208,8 +1158,11 @@ L["TOTAL"] = "Total"
 L["TRANSPARENCY"] = "Transparency"
 --[[Translation missing --]]
 L["UNINTERRUPTABLE"] = "Uninterruptable"
---[[Translation missing --]]
-L["UNLEARNED"] = "Unlearned"
+L["UNLEARNED"] = [=[ungelernt  
+
+or 
+
+nicht gelernt]=]
 --[[Translation missing --]]
 L["USE_BLIZZARD_WIDGETS"] = "Use Blizzard widgets (no styling)"
 --[[Translation missing --]]
@@ -1222,16 +1175,11 @@ L["UTILITY"] = "Utility"
 L["VALUE"] = "Value"
 --[[Translation missing --]]
 L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VERTICAL"] = "Vertical"
---[[Translation missing --]]
-L["VISIBILITY"] = "Visibility"
---[[Translation missing --]]
-L["VISIBLE"] = "Visible"
---[[Translation missing --]]
-L["WARNING"] = "Warning"
---[[Translation missing --]]
-L["WARNING_COLOR"] = "Warning color"
+L["VERTICAL"] = "vertikal"
+L["VISIBILITY"] = "Sichtbarkeit"
+L["VISIBLE"] = "sichtbar"
+L["WARNING"] = "Warnung"
+L["WARNING_COLOR"] = "Warnfarbe"
 --[[Translation missing --]]
 L["WARNING_COLOR_FADED"] = "Warning color faded"
 --[[Translation missing --]]

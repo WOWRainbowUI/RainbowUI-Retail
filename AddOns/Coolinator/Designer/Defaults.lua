@@ -270,6 +270,17 @@ addonTable.Designer.Defaults = {
     showPandemic = true,
     pandemicColor = GetColor("ff3030"),
   },
+  AuraMissingIcon = {
+    kind = "icon",
+    style = "blizzard",
+    resource = {kind = "auraMissing", spellID = 0},
+    height = 1, scale = 1, alpha = 1,
+    swipeColor = GetColor("000000", 0.8),
+    showIcon = true,
+    whenInactive = "none",
+    whenActive = "hide",
+    glowColor = GetColor("ffe114"),
+  },
   AbilityIcon = {
     kind = "icon",
     style = "blizzard",

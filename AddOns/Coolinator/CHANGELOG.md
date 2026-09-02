@@ -1,8 +1,7 @@
 # Coolinator
 
-## [136](https://github.com/TheMouseNest/Coolinator/tree/136) (2026-08-27)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/135...136) 
+## [137](https://github.com/TheMouseNest/Coolinator/tree/137) (2026-08-29)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/136...137) 
 
-- Fix error after deleting multiple items  
-- Fix secret spacer size breaking layouts  
-- Support showing aura stacks as pips  
+- Masque: Working again  
+- Add new widget to show an aura's icon if its \_not\_ active (ie missing)  
