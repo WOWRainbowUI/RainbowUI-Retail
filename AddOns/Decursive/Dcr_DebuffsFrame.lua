@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-08-25T23:47:58Z
+    This file was last updated on 2026-08-28T15:57:06Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -757,7 +757,7 @@ do
 
         local icon = index and string.format("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t ", index) or ""
 
-        local coloredUnitName = D:ColorTextNA((D:PetUnitName(unit, true)), ((UnitClass(unit)) and DC.HexClassColor[ (select(2, UnitClass(unit))) ] or "AAAAAA"))
+        local coloredUnitName = D:ColorTextNA((D:PetUnitName(unit, true)), ((UnitClass(unit)) and DC.HexClassColor[ D:SafeUnitClass2(unit) ] or "AAAAAA"))
         .. "  |cFF3F3F3F(".. unit .. ")|r"
 
         local playerLine = string.format("%s %s", icon or "", coloredUnitName)
@@ -911,7 +911,9 @@ do
 
         tip:Hide()
         D.temp_tt_taint_debug = D.temp_tt_taint_debug - 1
-        D:Debug("tt: ", D.temp_tt_taint_debug)
+        --[==[@debug@
+        D:Debug("ttt debug: ", D.temp_tt_taint_debug)
+        --@end-debug@]==]
     end
 
     function MicroUnitF:OnLeave(frame) -- {{{
@@ -1248,7 +1250,7 @@ function MicroUnitF.prototype:Update(SkipSetColor, SkipDebuffs, CheckStealth, o_
 
 
     if (not SkipSetColor) then
-        if (not SkipDebuffs and not DC.TWELVE_ONE) then
+        if (not SkipDebuffs) then
             -- get the manageable debuffs of this unit
             MF:SetDebuffs(o_auraUpdateInfo);
             --D:Debug("Debuff set for ", MF.ID);
@@ -1794,7 +1796,11 @@ do
 
             if self.UnitGUID then -- can be nil because of focus...
                 -- Get its class
-                Class = (select(2, UnitClass(self.CurrUnit)));
+                local maybeSecretClass = select(2, UnitClass(self.CurrUnit))
+                --[==[@debug@
+                if not canaccessvalue(maybeSecretClass) then D:Debug("class is secret for unit", self.CurrUnit) end
+                --@end-debug@]==]
+                Class = canaccessvalue(maybeSecretClass) and maybeSecretClass or false
             else
                 Class = false;
             end
@@ -1985,6 +1991,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-19-gef0d480";
 
 -- Heresy

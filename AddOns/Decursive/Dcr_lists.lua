@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -333,7 +333,7 @@ local function AddElementToList(element, checkIfExist, list, listGUIDtoName, lis
             table.insert(list, GUIDorNum);
 
             if type(element) == "string" then
-                listClass[GUIDorNum]      = isNotPlayerCase and select(2, UnitClass(element)) or nil;
+                listClass[GUIDorNum]      = isNotPlayerCase and D:SafeUnitClass2(element) or nil;
                 listGUIDtoName[GUIDorNum] = isNotPlayerCase and D:UnitName(element) or "player"; -- used to prevent multi addition
             elseif element > 10 then
                 listClass[element]        = DC.ClassNumToUName[element];
@@ -531,4 +531,4 @@ function D:PopulateButtonPress(frame) --{{{
 
 end --}}}
 
-T._LoadedFiles["Dcr_lists.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_lists.lua"] = "2.8.3-19-gef0d480";

@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-25T23:47:58Z
+    This file was last updated on 2026-08-28T12:24:50Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.8.3-11-g237fc73";
+local VERSION = "2.8.3-19-gef0d480";
 
 if not T._LoadedFiles then
     T._LoadedFiles = {};
@@ -340,7 +340,7 @@ do
         local dbclud = T.Dcr.Status and T.Dcr.Status.delayedUnDebuffOccurences or -1
 
 
-        DebugHeader = ("%s\n2.8.3-11-g237fc73  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.8.3-19-gef0d480  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         #DebugTextTable / 2, -- DTl: %d
@@ -672,8 +672,10 @@ T._CatchAllErrors = false;
 T._tocversion = tocversion;
 
 DC.WOWC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
-DC.WOTLK = WOW_PROJECT_WRATH_CLASSIC ~= nil and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC -- https://wowpedia.fandom.com/wiki/WOW_PROJECT_ID
-DC.CATACLYSM = WOW_PROJECT_CATACLYSM_CLASSIC ~= nil and WOW_PROJECT_ID >= WOW_PROJECT_CATACLYSM_CLASSIC
+-- Titan Reforged uses 38xxx TOCs but follows WotLK class and spell behavior.
+DC.TITAN = tocversion >= 38000 and tocversion < 40000
+DC.WOTLK = DC.TITAN or (WOW_PROJECT_WRATH_CLASSIC ~= nil and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC) -- https://wowpedia.fandom.com/wiki/WOW_PROJECT_ID
+DC.CATACLYSM = not DC.TITAN and WOW_PROJECT_CATACLYSM_CLASSIC ~= nil and WOW_PROJECT_ID >= WOW_PROJECT_CATACLYSM_CLASSIC
 DC.TWW = tocversion >= 110000
 DC.MN = tocversion >= 120000
 DC.BCC = tocversion >= 20505 and tocversion < 30000
@@ -1048,7 +1050,8 @@ do
         local DcrMinMidTOC = tonumber(GetAddOnMetadata("Decursive", "X-Mid-Interface") or 50503);
 
         -- test if Decursive is backward compatible with the client's version
-        if tocversion < DcrMinTOC or tocversion > 30000 and tocversion < DcrMinMidTOC then
+        -- Allow supported WotLK-compatible clients in the mid-classic version gap.
+        if (tocversion < DcrMinTOC or (tocversion > 30000 and tocversion < DcrMinMidTOC)) and not DC.WOTLK then
             table.insert(Errors, ("Your World of Warcraft client version (%d) is too old to run this version of Decursive.\n"):format(tocversion));
             GenericErrorMessage2 = "You need to install an older version of Decursive.";
             FatalOccured = true;
@@ -1213,4 +1216,4 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.8.3-19-gef0d480";

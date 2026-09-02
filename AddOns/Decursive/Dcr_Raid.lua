@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-23T20:02:19Z
+    This file was last updated on 2026-08-28T15:57:06Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -165,18 +165,12 @@ do
 
     local FakeClasses = {};
     local function _UnitClass2(unit)
-        local internationalClass = select(2, UnitClass(unit))
-
-        if not canaccessvalue(internationalClass) then
-            D:Debug("WARNING: unit class was secret, defaulting to WARRIOR")
-
-            internationalClass = DC.CLASS_PRIEST
-        end
+        local internationalClass = D:SafeUnitClass2(unit)
 
         if not TestMode then
-            return internationalClass;
+            return internationalClass
         else
-            if UnitClass(unit) then
+            if internationalClass then
                 return internationalClass;
             end
 
@@ -241,13 +235,9 @@ do
 
     local FakeRoles = {}; local roles = {"HEALER", "TANK", "DAMAGER", "NONE"};
     local function _UnitGroupRolesAssigned(unit)
-
-        -- if DC.WOWC then
-        --    return "NONE";
-        -- end
-
         if not TestMode then
-            return UnitGroupRolesAssigned(unit);
+            local role = UnitGroupRolesAssigned(unit);
+            return canaccessvalue(role) and role or "NONE"
         elseif not FakeRoles[unit] then
             FakeRoles[unit] = roles[random(1,4)];
         end
@@ -419,7 +409,20 @@ do
         -- several criteria the criteria with the lowest position will take
         -- precedence over the other, including GUID.
         UIa = UnitInfo[ua]; UIb = UnitInfo[ub];
-        uaVSub = a_isBefore_b(getMinOf4(IPL[UIa.class], IPL[UIa.group], IPL[UIa.GUID], IPL[UIa.role]), getMinOf4(IPL[UIb.class], IPL[UIb.group], IPL[UIb.GUID], IPL[UIb.role]));
+
+        uaVSub = a_isBefore_b(
+            getMinOf4(
+                IPL[UIa.class],
+                IPL[UIa.group],
+                IPL[UIa.GUID],
+                IPL[UIa.role]
+            ), getMinOf4(
+                IPL[UIb.class],
+                IPL[UIb.group],
+                IPL[UIb.GUID],
+                IPL[UIb.role]
+            )
+        );
 
         --[==[@debug@
         if ua == "player" or ub == "player" then
@@ -481,6 +484,15 @@ do
             ["isPet"]  = isPet;
             ["role"]   = not isPet and _UnitGroupRolesAssigned(unit) or "NONE";
         }
+
+        --[==[@debug@
+        for k, v in pairs(UnitInfo[unit]) do
+            if not canaccessvalue(v) then
+                D:Debug("XXXXXXXXXXXXXXXXXXXXXXXXXXXX ", k, " is secret for unit: ", unit)
+            end
+        end
+        --@end-debug@]==]
+
     end
 
     local function setInternalList(inList, outList)
@@ -712,7 +724,7 @@ end
 
 
 -------------------------------------------------------------------------------
-T._LoadedFiles["Dcr_Raid.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_Raid.lua"] = "2.8.3-19-gef0d480";
 
 -- "Your God is dead and no one cares"
 -- "If there is a Hell I'll see you there"
