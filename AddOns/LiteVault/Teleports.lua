@@ -22,7 +22,7 @@ end
 -- Midnight Season 1 M+ dungeon pool.
 -- spellID = primary teleport spell learned after completing the dungeon at qualifying keystone level.
 -- alternateSpellIDs = fallback spell IDs observed for the same teleport.
-lv.TELEPORT_DUNGEONS = {
+local MIDNIGHT_S1_TELEPORTS = {
     { name = "Magisters' Terrace",      spellID = 1254572 },
     { name = "Maisara Caverns",         spellID = 1254559 },
     { name = "Nexus-Point Xenas",       spellID = 1254563 },
@@ -32,6 +32,32 @@ lv.TELEPORT_DUNGEONS = {
     { name = "Seat of the Triumvirate", spellID = 1254551 },
     { name = "Skyreach",                spellID = skyreachSpellID },
 }
+
+local MIDNIGHT_S2_TELEPORTS = {
+    { name="Altar of Fangs", spellName="Path of Venomous Evolution", spellID=1286812 },
+    { name="Murder Row", spellName="Path of the Devious Smuggler", spellID=1286809 },
+    { name="Den of Nalorakk", spellName="Path of the Worthy Aspirant", spellID=1286807 },
+    { name="The Blinding Vale", spellName="Path of the Blooming Verdure", spellID=1286801 },
+    { name="Voidscar Arena", spellName="Path of the Brutal Combatant", spellID=1286804 },
+    { name="Ruby Life Pools", spellName="Path of the Clutch Defender", spellID=393256 },
+    { name="King's Rest", spellName="Path of the Slumbering Conqueror", spellID=1286831 },
+    { name="Temple of Sethraliss", spellName="Path of the Sacred Temple", spellID=1286828 },
+}
+
+lv.TELEPORT_SEASONS = {
+    midnight_s1 = MIDNIGHT_S1_TELEPORTS,
+    midnight_s2 = MIDNIGHT_S2_TELEPORTS,
+}
+
+function lv.GetActiveTeleportSeasonKey(interfaceVersion)
+    return lv.GetActiveUpgradeSeasonKey(interfaceVersion)
+end
+
+function lv.GetActiveTeleportDungeons(interfaceVersion)
+    return lv.TELEPORT_SEASONS[lv.GetActiveTeleportSeasonKey(interfaceVersion)] or MIDNIGHT_S1_TELEPORTS
+end
+
+lv.TELEPORT_DUNGEONS = lv.GetActiveTeleportDungeons()
 
 local function GetDungeonSpellIDs(dungeon)
     local spellIDs = {}
@@ -72,7 +98,9 @@ function lv.ScanTeleports()
     local db = LiteVaultDB[lv.PLAYER_KEY]
     if not db then return end
 
-    local known = {}
+    -- Preserve learned flags from inactive historical pools while refreshing
+    -- only the currently displayed pool.
+    local known = db.teleports or {}
     for _, dungeon in ipairs(lv.TELEPORT_DUNGEONS) do
         for _, spellID in ipairs(GetDungeonSpellIDs(dungeon)) do
             if C_SpellBook and C_SpellBook.IsSpellInSpellBook then
@@ -204,6 +232,7 @@ local function EnsurePanel()
         edgeSize = 14,
         insets  = { left=3, right=3, top=3, bottom=3 },
     })
+    lv.EnsureBorderStyle(panel, "panelMedium")
 
     -- Title
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -281,7 +310,7 @@ local function EnsurePanel()
         if lv.RegisterThemedElement then
             local function applyTheme(f, t)
                 f:SetBackdropColor(unpack(t.backgroundSolid or t.background))
-                f:SetBackdropBorderColor(unpack(t.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", t)
                 closeBtn:SetBackdropColor(unpack(t.buttonBg))
                 closeBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
                 closeBtn.Text:SetTextColor(unpack(t.textSecondary))
@@ -356,11 +385,13 @@ function lv.ToggleTeleportPanel()
     end
 end
 
--- Hook WoW Group Finder ("I" key) to show panel alongside it.
--- Try both frame names for compatibility across expansions.
-C_Timer.After(1, function()
+-- Hook WoW Group Finder whenever Blizzard's lazily-loaded PVE UI becomes available.
+local pveHookInstalled = false
+local function InstallPVEFrameHook()
+    if pveHookInstalled then return true end
     local pveFrame = GetTeleportAnchorFrame()
     if pveFrame then
+        pveHookInstalled = true
         pveFrame:HookScript("OnShow", function()
             if not lv.IsMPlusTeleportsEnabled() then
                 HideTeleportPanel()
@@ -373,6 +404,17 @@ C_Timer.After(1, function()
         pveFrame:HookScript("OnHide", function()
             HideTeleportPanel()
         end)
+        return true
+    end
+    return false
+end
+
+C_Timer.After(1, InstallPVEFrameHook)
+local pveLoadFrame = CreateFrame("Frame")
+pveLoadFrame:RegisterEvent("ADDON_LOADED")
+pveLoadFrame:SetScript("OnEvent", function(_, _, loadedAddon)
+    if loadedAddon == "Blizzard_GroupFinder" or loadedAddon == "Blizzard_PVEFrame" then
+        InstallPVEFrameHook()
     end
 end)
 

@@ -16,6 +16,17 @@ local ShowSelectionChoices
 local folioEventFrame
 local pendingCommitConfigID
 local pendingCommitToken = 0
+local registeredFolioViews = {}
+
+local function Text(key, fallback)
+    local value = lv.L and lv.L[key]
+    return (value and value ~= key and value ~= "") and value or fallback or key
+end
+
+local function FolioReasonText(reasonKey)
+    if not reasonKey then return Text("TEXT_OMNIUM_FOLIO_UNAVAILABLE", "Omnium Folio is unavailable.") end
+    return Text(reasonKey, reasonKey)
+end
 
 local function GetFolioLabel()
     return _G.RUNES_OF_POWER or "Omnium Folio"
@@ -27,12 +38,12 @@ end
 
 local function FormatFolioStatusText()
     if pendingCommitConfigID then
-        return "Committing Folio changes..."
+        return Text("TEXT_FOLIO_COMMITTING", "Committing Folio changes...")
     end
     if InCombatLockdown and InCombatLockdown() then
-        return "Folio changes are unavailable in combat."
+        return Text("TEXT_FOLIO_UNAVAILABLE_COMBAT", "Folio changes are unavailable in combat.")
     end
-    return "Left-click to purchase. Right-click to refund. Selection nodes open a choice flyout."
+    return Text("TEXT_FOLIO_HELP", "Left-click to purchase. Right-click to refund. Selection nodes open a choice flyout.")
 end
 
 local function CreateActionButton(parent, width, label)
@@ -140,22 +151,22 @@ end
 
 local function GetActiveFolioConfig()
     if not (C_Traits and C_Traits.GetConfigInfo and C_Traits.GetTreeNodes and C_Traits.GetNodeInfo) then
-        return nil, "Omnium Folio is unavailable on this client."
+        return nil, "TEXT_FOLIO_UNAVAILABLE_CLIENT"
     end
 
     local configID = GetActiveConfigID()
     if not configID then
-        return nil, "No active Omnium Folio config was found."
+        return nil, "TEXT_FOLIO_NO_ACTIVE_CONFIG"
     end
 
     local configInfo = C_Traits.GetConfigInfo(configID)
     if not configInfo or not HasTreeOnConfig(configInfo, TRAIT_TREE_ID) then
-        return nil, "The current character does not have an active Omnium Folio tree."
+        return nil, "TEXT_FOLIO_NO_ACTIVE_TREE"
     end
 
     local nodeIDs = C_Traits.GetTreeNodes(TRAIT_TREE_ID)
     if type(nodeIDs) ~= "table" or #nodeIDs == 0 then
-        return nil, "No Omnium Folio nodes were found."
+        return nil, "TEXT_FOLIO_NO_NODES"
     end
 
     return {
@@ -245,7 +256,7 @@ local function ResolveEntryPresentation(configID, entryID, fallbackNodeID)
         entryInfo = entryInfo,
         definitionInfo = definitionInfo,
         spellID = spellID,
-        name = spellName or (definitionInfo and definitionInfo.overrideName) or string.format("Node %d", tonumber(fallbackNodeID) or 0),
+        name = spellName or (definitionInfo and definitionInfo.overrideName) or string.format(Text("TEXT_FOLIO_NODE_FMT"), tonumber(fallbackNodeID) or 0),
         icon = (definitionInfo and (definitionInfo.overrideIcon or definitionInfo.icon)) or spellIcon or "Interface\\Icons\\INV_Misc_QuestionMark",
         maxRanks = tonumber(entryInfo and entryInfo.maxRanks) or 0,
     }
@@ -529,8 +540,25 @@ local function RefreshRowLayout(view, count)
     view.scrollFrame:SetVerticalScroll(0)
 end
 
-local function HideSelectionFlyout()
+local function IsFrameDescendantOfFrame(child, parent)
+    if not child or not parent then
+        return false
+    end
+    local frame = child
+    while frame do
+        if frame == parent then
+            return true
+        end
+        frame = frame.GetParent and frame:GetParent() or nil
+    end
+    return false
+end
+
+local function HideSelectionFlyout(ownerFrame)
     if selectionFlyout then
+        if ownerFrame and selectionFlyout.owner and not IsFrameDescendantOfFrame(selectionFlyout.owner, ownerFrame) then
+            return
+        end
         selectionFlyout.closeToken = (selectionFlyout.closeToken or 0) + 1
         selectionFlyout:Hide()
         selectionFlyout.owner = nil
@@ -681,10 +709,10 @@ local function ShowTraitTooltip(owner, nodeData, entryID, rank)
 
     if InCombatLockdown and InCombatLockdown() then
         GameTooltip:AddLine(" ")
-        GameTooltip:AddLine("Folio changes are unavailable in combat.", 1, 0.2, 0.2, true)
+        GameTooltip:AddLine(Text("TEXT_FOLIO_UNAVAILABLE_COMBAT"), 1, 0.2, 0.2, true)
     elseif IsCommitPending(nodeData.configID) then
         GameTooltip:AddLine(" ")
-        GameTooltip:AddLine("A Folio change is already being committed.", 1, 0.82, 0, true)
+        GameTooltip:AddLine(Text("TEXT_FOLIO_COMMIT_IN_PROGRESS"), 1, 0.82, 0, true)
     else
         local showInstructions = false
         if nodeData.canPurchase then
@@ -1078,7 +1106,7 @@ local function ApplyDashboardFolioTheme(frame, theme)
     end
 
     frame:SetBackdropColor(unpack(theme.backgroundTransparent or theme.background))
-    frame:SetBackdropBorderColor(unpack(theme.borderPrimary))
+    lv.ApplyBorderStyle(frame, "panelStructural", theme)
 
     if frame.title then
         frame.title:SetTextColor(unpack(theme.textGold or theme.textPrimary))
@@ -1140,15 +1168,15 @@ local function PopulateFolioView(state, reason)
 
     folioView.title:SetText(GetFolioLabel())
     folioView.charLabel:SetText(GetCharacterDisplayName(lv.PLAYER_KEY))
-    folioView.updatedText:SetText("Live current character")
+    folioView.updatedText:SetText(Text("TEXT_FOLIO_LIVE_CHARACTER"))
     folioView.noteText:SetText(FormatFolioStatusText())
 
     if state then
-        folioView.pointsText:SetText(string.format("Available Points: %d", tonumber(state.availablePoints) or 0))
-        folioView.progressText:SetText(string.format("Selected Nodes: %d / %d    Spent Points: %d", tonumber(state.selectedNodeCount) or 0, tonumber(state.totalNodeCount) or 0, tonumber(state.spentPoints) or 0))
+        folioView.pointsText:SetText(string.format(Text("TEXT_FOLIO_AVAILABLE_POINTS_FMT"), tonumber(state.availablePoints) or 0))
+        folioView.progressText:SetText(string.format(Text("TEXT_FOLIO_PROGRESS_FMT"), tonumber(state.selectedNodeCount) or 0, tonumber(state.totalNodeCount) or 0, tonumber(state.spentPoints) or 0))
     else
-        folioView.pointsText:SetText("Available Points: -")
-        folioView.progressText:SetText("Selected Nodes: -")
+        folioView.pointsText:SetText(Text("TEXT_FOLIO_AVAILABLE_POINTS_NONE"))
+        folioView.progressText:SetText(Text("TEXT_FOLIO_SELECTED_NODES_NONE"))
     end
 
     local selectedNodes = state and state.selectedNodes or {}
@@ -1161,16 +1189,16 @@ local function PopulateFolioView(state, reason)
             if index <= #selectedNodes then
                 local node = selectedNodes[index]
                 row.icon:SetTexture(node.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-                row.nameText:SetText(node.name or string.format("Node %d", tonumber(node.nodeID) or 0))
+                row.nameText:SetText(node.name or string.format(Text("TEXT_FOLIO_NODE_FMT"), tonumber(node.nodeID) or 0))
                 if tonumber(node.currentRank) and tonumber(node.currentRank) > 0 then
-                    row.rankText:SetText(string.format("Rank %d", tonumber(node.currentRank) or 0))
+                    row.rankText:SetText(string.format(Text("TEXT_FOLIO_RANK_FMT"), tonumber(node.currentRank) or 0))
                 else
-                    row.rankText:SetText("Selected")
+                    row.rankText:SetText(Text("TEXT_FOLIO_SELECTED"))
                 end
             end
         end
     else
-        folioView.emptyText:SetText(reason or "No committed Omnium Folio nodes are active.")
+        folioView.emptyText:SetText(reason and FolioReasonText(reason) or Text("TEXT_FOLIO_NO_COMMITTED_NODES"))
         folioView.emptyText:Show()
     end
 
@@ -1187,9 +1215,9 @@ local function EnsureDashboardNodeButtons(frame, count)
     end
 end
 
-function ShowSelectionChoices(ownerButton)
+function ShowSelectionChoices(ownerButton, forceRefresh)
     local nodeData = ownerButton and ownerButton.nodeData or nil
-    if selectionFlyout and selectionFlyout:IsShown() and selectionFlyout.owner == ownerButton then
+    if selectionFlyout and selectionFlyout:IsShown() and selectionFlyout.owner == ownerButton and not forceRefresh then
         HideSelectionFlyout()
         return
     end
@@ -1205,12 +1233,12 @@ function ShowSelectionChoices(ownerButton)
     if IsCommitPending(nodeData.configID) then
         return
     end
-    if not dashboardFolioFrame then
+    if ownerButton.IsVisible and not ownerButton:IsVisible() then
         return
     end
 
     if not selectionFlyout then
-        selectionFlyout = CreateSelectionFlyout(dashboardFolioFrame)
+        selectionFlyout = CreateSelectionFlyout(UIParent)
     end
 
     local entries = {}
@@ -1249,7 +1277,7 @@ function ShowSelectionChoices(ownerButton)
                 icon = entryData.icon,
                 dashboardIsActive = not not entryData.isSelected,
                 dashboardIsPurchasable = not not entryData.canChoose,
-                dashboardRankText = entryData.isSelected and "Active" or "",
+                dashboardRankText = entryData.isSelected and Text("STATUS_ACTIVE") or "",
                 dashboardShowChoiceMarkers = false,
                 dashboardShouldPulse = false,
             }
@@ -1269,6 +1297,19 @@ function ShowSelectionChoices(ownerButton)
 
     selectionFlyout:Show()
     ApplyCompleteFolioTheme(lv.GetTheme and lv.GetTheme() or nil)
+end
+
+local function RefreshSelectionFlyoutForOwner()
+    if not (selectionFlyout and selectionFlyout:IsShown()) then
+        return
+    end
+
+    local owner = selectionFlyout.owner
+    if owner and owner.IsVisible and owner:IsVisible() and owner.nodeData then
+        ShowSelectionChoices(owner, true)
+    else
+        HideSelectionFlyout()
+    end
 end
 
 local function RefreshDashboardNodeButton(button, nodeData)
@@ -1348,8 +1389,8 @@ local function PopulateDashboardFolio(state, reason)
     dashboardFolioFrame.title:SetText(GetFolioLabel())
 
     if not state then
-        dashboardFolioFrame.pointsText:SetText("Available Points: -")
-        dashboardFolioFrame.emptyText:SetText(reason or "Omnium Folio is unavailable.")
+        dashboardFolioFrame.pointsText:SetText(Text("TEXT_FOLIO_AVAILABLE_POINTS_NONE"))
+        dashboardFolioFrame.emptyText:SetText(reason and FolioReasonText(reason) or Text("TEXT_OMNIUM_FOLIO_UNAVAILABLE"))
         dashboardFolioFrame.emptyText:Show()
         dashboardFolioFrame.nodesContainer:Hide()
         HideSelectionFlyout()
@@ -1357,7 +1398,7 @@ local function PopulateDashboardFolio(state, reason)
         return
     end
 
-    dashboardFolioFrame.pointsText:SetText(string.format("Available Points: %d", tonumber(state.availablePoints) or 0))
+    dashboardFolioFrame.pointsText:SetText(string.format(Text("TEXT_FOLIO_AVAILABLE_POINTS_FMT"), tonumber(state.availablePoints) or 0))
     dashboardFolioFrame.emptyText:Hide()
     dashboardFolioFrame.nodesContainer:Show()
 
@@ -1395,23 +1436,6 @@ local function PopulateDashboardFolio(state, reason)
         end
     end
 
-    if selectionFlyout and selectionFlyout:IsShown() and selectionFlyout.owner and selectionFlyout.owner.nodeData then
-        local ownerNodeID = selectionFlyout.owner.nodeData.nodeID
-        local ownerButton
-        for _, button in ipairs(dashboardFolioFrame.nodeButtons or {}) do
-            if button:IsShown() and button.nodeData and button.nodeData.nodeID == ownerNodeID then
-                ownerButton = button
-                break
-            end
-        end
-
-        if ownerButton then
-            ShowSelectionChoices(ownerButton)
-        else
-            HideSelectionFlyout()
-        end
-    end
-
     ApplyCompleteFolioTheme(lv.GetTheme and lv.GetTheme() or nil)
 end
 
@@ -1419,6 +1443,10 @@ local function RefreshAllFolioDisplays()
     local state, reason = BuildLiveFolioState()
     PopulateFolioView(state, reason)
     PopulateDashboardFolio(state, reason)
+    for callback in pairs(registeredFolioViews) do
+        pcall(callback, state, reason)
+    end
+    RefreshSelectionFlyoutForOwner()
 end
 
 local function EnsureEventFrame()
@@ -1491,10 +1519,8 @@ function lv.AttachFolioDashboardFrame()
     frame:SetPoint("TOP", lv.WeeklyBox, "BOTTOM", 0, -6)
     frame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 14,
-        insets = { left = 3, right = 3, top = 3, bottom = 3 },
     })
+    lv.EnsureBorderStyle(frame, "panelStructural")
     frame:Hide()
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -1515,7 +1541,7 @@ function lv.AttachFolioDashboardFrame()
     frame.emptyText:SetPoint("LEFT", 20, 0)
     frame.emptyText:SetPoint("RIGHT", -20, 0)
     frame.emptyText:SetJustifyH("CENTER")
-    frame.emptyText:SetText("Omnium Folio is unavailable.")
+    frame.emptyText:SetText(Text("TEXT_OMNIUM_FOLIO_UNAVAILABLE", "Omnium Folio is unavailable."))
     frame.emptyText:Hide()
 
     frame.nodesContainer = CreateFrame("Frame", nil, frame)
@@ -1547,7 +1573,7 @@ function lv.SetDashboardFolioVisible(visible)
         ApplyCompleteFolioTheme(lv.GetTheme and lv.GetTheme() or nil)
         dashboardFolioFrame:Show()
     else
-        HideSelectionFlyout()
+        HideSelectionFlyout(dashboardFolioFrame)
         dashboardFolioFrame:Hide()
     end
 end
@@ -1632,4 +1658,61 @@ function lv.InitFolioUI(env)
 
     RefreshAllFolioDisplays()
     ApplyCompleteFolioTheme(lv.GetTheme and lv.GetTheme() or nil)
+end
+
+function lv.GetLiveFolioState()
+    return BuildLiveFolioState()
+end
+
+function lv.GetFolioLabelText()
+    return GetFolioLabel()
+end
+
+function lv.GetFolioStatusText()
+    return FormatFolioStatusText()
+end
+
+function lv.GetFolioNodeMetrics()
+    return NODE_SIZE, NODE_GAP
+end
+
+function lv.CreateFolioNodeButton(parent)
+    return CreateDashboardNodeButton(parent)
+end
+
+function lv.RefreshFolioNodeButton(button, nodeData)
+    RefreshDashboardNodeButton(button, nodeData)
+end
+
+function lv.ApplyFolioNodeButtonTheme(button, theme)
+    ApplyDashboardNodeTheme(button, theme or (lv.GetTheme and lv.GetTheme() or nil))
+end
+
+function lv.ApplySharedFolioTheme(theme)
+    ApplyCompleteFolioTheme(theme)
+end
+
+function lv.ShowFolioSelectionChoices(ownerButton)
+    ShowSelectionChoices(ownerButton)
+end
+
+function lv.HideFolioSelectionChoices(ownerFrame)
+    HideSelectionFlyout(ownerFrame)
+end
+
+function lv.RegisterFolioView(refreshCallback)
+    if type(refreshCallback) ~= "function" then
+        return
+    end
+
+    registeredFolioViews[refreshCallback] = true
+    EnsureEventFrame()
+    local state, reason = BuildLiveFolioState()
+    pcall(refreshCallback, state, reason)
+end
+
+function lv.UnregisterFolioView(refreshCallback)
+    if refreshCallback then
+        registeredFolioViews[refreshCallback] = nil
+    end
 end

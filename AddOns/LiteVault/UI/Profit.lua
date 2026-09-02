@@ -27,12 +27,13 @@ local weeklyUI = lv.weeklyUI
 local GetCurrentWeeklyQuestList = lv.GetCurrentWeeklyQuestList
 local BuildWeeklyWarningText = lv.BuildWeeklyWarningText
 local UpdateWeeklyWarningLayout = lv.UpdateWeeklyWarningLayout
-local BuildWeeklyQuestText = lv.BuildWeeklyQuestText
+local RenderWeeklyQuestRows = lv.RenderWeeklyQuestRows
 
 local GoldBox = CreateFrame("Frame", nil, LVWindow, "BackdropTemplate")
 GoldBox:SetSize(360, 218) -- Width matched to WeeklyBox (360)
 GoldBox:SetPoint("TOP", WeeklyBox, "BOTTOM", 0, -6) -- Perfectly aligned with WeeklyBox
 GoldBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14 })
+lv.EnsureBorderStyle(GoldBox, "panelMedium")
 
 -- Store reference for theming
 lv.GoldBox = GoldBox
@@ -41,11 +42,11 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(GoldBox, function(f, theme)
             f:SetBackdropColor(unpack(theme.backgroundTransparent))
-            f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            lv.ApplyBorderStyle(f, "panel", theme)
         end)
         local t = lv.GetTheme()
         GoldBox:SetBackdropColor(unpack(t.backgroundTransparent))
-        GoldBox:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(GoldBox, "panel", t)
     end
 end)
 
@@ -295,14 +296,16 @@ end
 local function BuildWeeklyProfitGraphSeries(charKey)
     local now = time()
     local todayStart = GetStartOfDayTimestamp(now)
-    local firstDay = todayStart - (6 * 86400)
+    local resetStart = (lv.GetLastWeeklyReset and lv.GetLastWeeklyReset()) or (todayStart - (6 * 86400))
+    local firstDay = GetStartOfDayTimestamp(resetStart)
+    local dayCount = math.max(1, math.min(7, math.floor((todayStart - firstDay) / 86400) + 1))
     local transactions = GetTransactionsForPeriod("week", {
         charKey = charKey,
         includeIgnored = true,
         region = nil,
     })
     local labels = { order = {} }
-    for i = 0, 6 do
+    for i = 0, dayCount - 1 do
         local dayStart = firstDay + (i * 86400)
         labels.order[#labels.order + 1] = {
             bucketKey = dayStart,
@@ -324,10 +327,12 @@ end
 local function BuildWarbandProfitGraphSeries()
     local now = time()
     local todayStart = GetStartOfDayTimestamp(now)
-    local firstDay = todayStart - (6 * 86400)
+    local resetStart = (lv.GetLastWeeklyReset and lv.GetLastWeeklyReset()) or (todayStart - (6 * 86400))
+    local firstDay = GetStartOfDayTimestamp(resetStart)
+    local dayCount = math.max(1, math.min(7, math.floor((todayStart - firstDay) / 86400) + 1))
     local transactions = GetTransactionsForPeriod("week")
     local labels = { order = {} }
-    for i = 0, 6 do
+    for i = 0, dayCount - 1 do
         local dayStart = firstDay + (i * 86400)
         labels.order[#labels.order + 1] = {
             bucketKey = dayStart,
@@ -427,54 +432,15 @@ local function GetProfitLedgerSourceName(key)
     return key or ""
 end
 
-local function GetProfitTokenDisplayText()
-    local tokenInfo = lv.GetWowTokenInfo and lv.GetWowTokenInfo() or nil
-    if not tokenInfo or not tokenInfo.supported or not tokenInfo.price then
-        return UIText("MSG_WOW_TOKEN_VISIT_AH_SHORT"), tokenInfo
-    end
-
-    local gold = math.floor((tokenInfo.price or 0) / COPPER_PER_GOLD)
-    return string.format("%s|TInterface\\MoneyFrame\\UI-GoldIcon:14:14:2:0|t", BreakUpLargeNumbers(gold)), tokenInfo
+local function GetProfitTokenMonthlyText()
+    local count = lv.GetCurrentMonthWowTokenPurchaseCount and lv.GetCurrentMonthWowTokenPurchaseCount() or 0
+    return string.format(UIText("TEXT_PROFIT_TOKENS_THIS_MONTH_FMT", "Tokens This Month: %d"), count)
 end
 
-local function FormatProfitTokenGoldOnly(copperAmount, iconSize)
-    local gold = math.floor(math.max(0, tonumber(copperAmount) or 0) / COPPER_PER_GOLD)
-    iconSize = iconSize or 14
-    return string.format("%s|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:2:0|t", BreakUpLargeNumbers(gold), iconSize, iconSize)
-end
-
-local function FormatProfitTokenGoldText(copperAmount)
-    local gold = math.floor(math.max(0, tonumber(copperAmount) or 0) / COPPER_PER_GOLD)
-    return string.format("%sg", BreakUpLargeNumbers(gold))
-end
-
-local function ShowProfitTokenTooltip(owner)
-    local info = lv.GetWowTokenInfo and lv.GetWowTokenInfo() or nil
+local function ShowProfitTokenMonthlyTooltip(owner)
     GameTooltip:SetOwner(owner, "ANCHOR_TOP")
-    GameTooltip:AddLine(UIText("TOOLTIP_WOW_TOKEN_TITLE"), 1, 0.82, 0)
-    GameTooltip:AddLine(UIText("TOOLTIP_WOW_TOKEN_DESC"), 1, 1, 1, true)
-    if not info or not info.supported then
-        GameTooltip:AddLine(UIText("MSG_WOW_TOKEN_API_UNAVAILABLE"), 1, 0.3, 0.3, true)
-    elseif not info.price then
-        GameTooltip:AddLine(info.helpText or UIText("MSG_WOW_TOKEN_VISIT_AH"), 1, 1, 1, true)
-    else
-        GameTooltip:AddDoubleLine(UIText("LABEL_WOW_TOKEN"), FormatProfitTokenGoldOnly(info.price, 14), 1, 1, 1, 1, 1, 1)
-        GameTooltip:AddDoubleLine(UIText("LABEL_LAST_UPDATED"), info.updatedText or UIText("LABEL_UNKNOWN"), 1, 1, 1, 0.82, 0.82, 0.82)
-        if info.deltaText then
-            GameTooltip:AddDoubleLine(UIText("LABEL_TOKEN_DELTA"), info.deltaText, 1, 1, 1, 1, 1, 1)
-        end
-        GameTooltip:AddDoubleLine(
-            UIText("LABEL_TOKEN_AFFORDABLE"),
-            info.canAfford and UIText("BUTTON_YES") or UIText("BUTTON_NO"),
-            1, 1, 1,
-            info.canAfford and 0.2 or 1,
-            info.canAfford and 0.9 or 0.3,
-            info.canAfford and 0.2 or 0.3
-        )
-        if info.stale then
-            GameTooltip:AddLine(UIText("LABEL_TOKEN_STALE"), 1, 0.3, 0.3)
-        end
-    end
+    GameTooltip:AddLine(UIText("TITLE_PROFIT_WOW_TOKENS_THIS_MONTH", "WoW Tokens This Month"), 1, 0.82, 0)
+    GameTooltip:AddLine(UIText("TOOLTIP_PROFIT_WOW_TOKENS_THIS_MONTH", "Counts WoW Tokens purchased during the current calendar month. Token purchases are excluded from profit totals."), 1, 1, 1, true)
     GameTooltip:Show()
 end
 
@@ -505,6 +471,8 @@ local function GetProfitGenericDetailFallback(trans)
         return (tonumber(trans.amount) or 0) < 0
             and UIText("TEXT_PROFIT_FALLBACK_GOLD_SENT")
             or UIText("TEXT_PROFIT_FALLBACK_GOLD_RECEIVED")
+    elseif trans.source == "wowToken" then
+        return UIText("TEXT_PROFIT_FALLBACK_WOW_TOKEN_PURCHASE", "WoW Token Purchase")
     elseif trans.source == "auction" then
         return (tonumber(trans.amount) or 0) < 0
             and UIText("TEXT_PROFIT_FALLBACK_AUCTION_PURCHASE")
@@ -574,6 +542,9 @@ local function GetProfitLedgerSourceTag(trans)
     end
     if IsProfitAuctionFeeTransaction(trans) then
         return "AH Fee"
+    end
+    if trans.source == "wowToken" then
+        return "Token"
     end
     if trans.source == "auction" or trans.source == "ahFee" then
         return "AH"
@@ -742,6 +713,7 @@ end
 
 local PROFIT_BREAKDOWN_SOURCE_COLORS = {
     auction = { 1.00, 0.65, 0.00, 1 },      -- WGT Auction House orange
+    wowToken = { 0.00, 0.80, 1.00, 1 },     -- LiteVault WoW Token cyan
     ahFee = { 1.00, 0.65, 0.00, 1 },        -- WGT AH Fee orange
     blackMarket = { 1.00, 0.65, 0.00, 1 },  -- WGT Black Market orange
     vendor = { 0.27, 1.00, 0.27, 1 },       -- WGT Vendor green
@@ -935,15 +907,9 @@ end
 
 local function BuildProfitLedgerFilterOptions(transactions)
     local options = {}
-    local seen = {}
-    for _, tx in ipairs(transactions or {}) do
-        if tx and tx.source and not seen[tx.source] and tx.source ~= "warbandBank" then
-            seen[tx.source] = true
-        end
-    end
 
     for _, source in ipairs(GetSourceDefinitions()) do
-        if seen[source.key] then
+        if source.key ~= "wowToken" then
             options[#options + 1] = {
                 key = source.key,
                 label = (source.key == "auction") and "AH" or GetProfitLedgerSourceName(source.key),
@@ -1100,7 +1066,7 @@ local function RefreshProfitLedgerFilterMenu(frame, options)
     frame.currentFilterOptions = options or {}
     frame.activeSourceFilters = frame.activeSourceFilters or {}
 
-    local yOffset = -56
+    local columns = 2
     for index, option in ipairs(frame.currentFilterOptions) do
         local cb = GetProfitLedgerFilterCheck(frame, index)
         cb.ownerFrame = frame
@@ -1108,9 +1074,10 @@ local function RefreshProfitLedgerFilterMenu(frame, options)
         cb.Text:SetText(option.label)
         cb:SetChecked(frame.activeSourceFilters[option.key] == true)
         cb:ClearAllPoints()
-        cb:SetPoint("TOPLEFT", 14, yOffset)
+        local column = (index - 1) % columns
+        local row = math.floor((index - 1) / columns)
+        cb:SetPoint("TOPLEFT", 14 + (column * 170), -56 - (row * 24))
         cb:Show()
-        yOffset = yOffset - 24
     end
     if frame.filterChecks then
         for index = #frame.currentFilterOptions + 1, #frame.filterChecks do
@@ -1118,7 +1085,8 @@ local function RefreshProfitLedgerFilterMenu(frame, options)
         end
     end
 
-    frame.filterMenu:SetHeight(math.max(92, 64 + (#frame.currentFilterOptions * 24)))
+    frame.filterMenu:SetWidth(360)
+    frame.filterMenu:SetHeight(math.max(92, 64 + (math.ceil(#frame.currentFilterOptions / columns) * 24)))
     UpdateProfitLedgerFilterButtonLabel(frame)
 end
 
@@ -1637,6 +1605,7 @@ local function EnsureProfitExportWindow()
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    lv.EnsureBorderStyle(frame, "panel")
     frame:Hide()
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -1691,7 +1660,7 @@ local function EnsureProfitExportWindow()
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(frame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             lv.RegisterThemedElement(frame.editPanel, ApplyProfitPanelTheme)
             lv.RegisterThemedElement(frame.close, function(btn, theme)
@@ -1717,7 +1686,7 @@ local function EnsureProfitExportWindow()
         local t = lv.GetTheme and lv.GetTheme()
         if t then
             frame:SetBackdropColor(unpack(t.background))
-            frame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(frame, "panel", t)
             ApplyProfitPanelTheme(frame.editPanel, t)
             frame.close:SetBackdropColor(unpack(t.buttonBg))
             frame.close:SetBackdropBorderColor(unpack(t.borderPrimary))
@@ -1785,6 +1754,7 @@ local function EnsureProfitGoalEditorWindow()
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    lv.EnsureBorderStyle(frame, "panelCompact")
     frame:Hide()
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -1842,7 +1812,7 @@ local function EnsureProfitGoalEditorWindow()
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(frame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             lv.RegisterThemedElement(frame.save, function(btn, theme)
                 btn:SetBackdropColor(unpack(theme.buttonBg))
@@ -1867,7 +1837,7 @@ local function EnsureProfitGoalEditorWindow()
         local t = lv.GetTheme and lv.GetTheme()
         if t then
             frame:SetBackdropColor(unpack(t.background))
-            frame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(frame, "panel", t)
             frame.save:SetBackdropColor(unpack(t.buttonBg))
             frame.save:SetBackdropBorderColor(unpack(t.borderPrimary))
             frame.save.Text:SetTextColor(unpack(t.textSecondary))
@@ -1912,6 +1882,7 @@ local function EnsureProfitGraphWindow()
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    lv.EnsureBorderStyle(frame, "panelMedium")
     frame:Hide()
 
     frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -2080,7 +2051,7 @@ local function EnsureProfitGraphWindow()
             end)
             lv.RegisterThemedElement(frame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             lv.RegisterThemedElement(frame.graphPanel, ApplyProfitPanelTheme)
             lv.RegisterThemedElement(frame.summaryBox, ApplyProfitSummaryBoxTheme)
@@ -2127,7 +2098,7 @@ local function EnsureProfitGraphWindow()
         local t = lv.GetTheme and lv.GetTheme()
         if t then
             frame:SetBackdropColor(unpack(t.background))
-            frame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(frame, "panel", t)
             ApplyProfitPanelTheme(frame.graphPanel, t)
             ApplyProfitSummaryBoxTheme(frame.summaryBox, t)
             frame.close:SetBackdropColor(unpack(t.buttonBg))
@@ -2588,71 +2559,6 @@ end
 
 local goldUI = {}
 
-local function UpdateProfitTokenHistoryPanel(tokenInfo)
-    if not goldUI.tokenHistoryPanel or not goldUI.tokenHistoryRows then
-        return
-    end
-
-    local title = UIText("TITLE_WOW_TOKEN_HISTORY")
-    local history = (tokenInfo and tokenInfo.history) or {}
-
-    if goldUI.tokenHistoryTitle then
-        goldUI.tokenHistoryTitle:SetText(title)
-    end
-
-    if goldUI.tokenHistoryCurrentValue then
-        goldUI.tokenHistoryCurrentValue:SetText((tokenInfo and tokenInfo.price) and FormatProfitTokenGoldOnly(tokenInfo.price, 12) or UIText("LABEL_UNKNOWN"))
-    end
-    if goldUI.tokenHistoryPreviousValue then
-        goldUI.tokenHistoryPreviousValue:SetText((tokenInfo and tokenInfo.previousPrice) and FormatProfitTokenGoldOnly(tokenInfo.previousPrice, 12) or "-")
-    end
-    if goldUI.tokenHistoryChangeValue then
-        goldUI.tokenHistoryChangeValue:SetText((tokenInfo and tokenInfo.deltaText) or "-")
-    end
-    if goldUI.tokenHistoryUpdatedValue then
-        goldUI.tokenHistoryUpdatedValue:SetText((tokenInfo and (tokenInfo.updatedRelativeText or tokenInfo.updatedText)) or UIText("LABEL_UNKNOWN"))
-    end
-    if goldUI.tokenHistoryAffordableValue then
-        goldUI.tokenHistoryAffordableValue:SetText((tokenInfo and tokenInfo.price)
-            and (tokenInfo.canAfford and UIText("BUTTON_YES") or UIText("BUTTON_NO"))
-            or "-")
-    end
-    if goldUI.tokenHistoryStatus then
-        if not tokenInfo or not tokenInfo.supported then
-            goldUI.tokenHistoryStatus:SetText(UIText("MSG_WOW_TOKEN_API_UNAVAILABLE"))
-            goldUI.tokenHistoryStatus:Show()
-            goldUI.tokenHistoryScroll:Hide()
-        elseif not tokenInfo.price then
-            goldUI.tokenHistoryStatus:SetText(tokenInfo.helpText or UIText("MSG_WOW_TOKEN_VISIT_AH"))
-            goldUI.tokenHistoryStatus:Show()
-            goldUI.tokenHistoryScroll:Hide()
-        else
-            goldUI.tokenHistoryStatus:Hide()
-            goldUI.tokenHistoryScroll:Show()
-        end
-    end
-
-    for index, row in ipairs(goldUI.tokenHistoryRows) do
-        local historyIndex = #history - index + 1
-        local entry = historyIndex >= 1 and history[historyIndex] or nil
-        if entry then
-            row.time:SetText(entry.relativeText or UIText("LABEL_UNKNOWN"))
-            row.price:SetText(FormatProfitTokenGoldText(entry.priceCopper))
-            row.change:SetText("")
-            row:Show()
-        else
-            row.time:SetText("")
-            row.price:SetText("")
-            row.change:SetText("")
-            row:Hide()
-        end
-    end
-
-    if goldUI.tokenHistoryContent then
-        goldUI.tokenHistoryContent:SetHeight(math.max(1, math.min(#history, 5) * 24))
-    end
-end
-
 goldUI.pageTitle = GoldBox:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 goldUI.pageTitle:SetPoint("TOPLEFT", 28, -22)
 goldUI.pageTitle:SetText(UIText("BUTTON_PROFIT"))
@@ -2665,26 +2571,20 @@ goldUI.tokenCard = CreateProfitPanel(GoldBox, 212, 46)
 goldUI.tokenCard:SetPoint("TOPRIGHT", GoldBox, "TOPRIGHT", -28, -22)
 goldUI.tokenCard:EnableMouse(true)
 goldUI.tokenCard:SetScript("OnEnter", function(self)
-    ShowProfitTokenTooltip(self)
+    ShowProfitTokenMonthlyTooltip(self)
 end)
 goldUI.tokenCard:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
-goldUI.tokenCard:SetScript("OnMouseUp", function()
-    if goldUI.tokenHistoryPanel then
-        UpdateProfitTokenHistoryPanel(lv.GetWowTokenInfo and lv.GetWowTokenInfo() or nil)
-        goldUI.tokenHistoryPanel:SetShown(not goldUI.tokenHistoryPanel:IsShown())
-    end
-end)
 
 goldUI.tokenTitle = goldUI.tokenCard:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 goldUI.tokenTitle:SetPoint("TOPLEFT", 14, -10)
-goldUI.tokenTitle:SetText(UIText("LABEL_WOW_TOKEN"))
+goldUI.tokenTitle:SetText(UIText("TITLE_PROFIT_WOW_TOKENS_THIS_MONTH", "WoW Tokens This Month"))
 
 goldUI.tokenValue = goldUI.tokenCard:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 goldUI.tokenValue:SetPoint("BOTTOMRIGHT", -14, 10)
 goldUI.tokenValue:SetJustifyH("RIGHT")
-goldUI.tokenValue:SetText(UIText("MSG_WOW_TOKEN_VISIT_AH_SHORT"))
+goldUI.tokenValue:SetText(GetProfitTokenMonthlyText())
 
 goldUI.summaryCards = {}
 local summaryCardDefs = {
@@ -2744,155 +2644,6 @@ goldUI.monthlyContent = goldUI.monthlyCard.value
 
 goldUI.tokenCard:ClearAllPoints()
 goldUI.tokenCard:SetPoint("BOTTOM", goldUI.warbandCard, "TOP", 35, 4)
-
-goldUI.tokenHistoryPanel = CreateFrame("Frame", "LiteVaultTokenHistoryWindow", UIParent, "BackdropTemplate")
-goldUI.tokenHistoryPanel:SetSize(500, 320)
-goldUI.tokenHistoryPanel:SetPoint("CENTER")
-goldUI.tokenHistoryPanel:SetMovable(true)
-goldUI.tokenHistoryPanel:EnableMouse(true)
-goldUI.tokenHistoryPanel:RegisterForDrag("LeftButton")
-goldUI.tokenHistoryPanel:SetScript("OnDragStart", goldUI.tokenHistoryPanel.StartMoving)
-goldUI.tokenHistoryPanel:SetScript("OnDragStop", goldUI.tokenHistoryPanel.StopMovingOrSizing)
-goldUI.tokenHistoryPanel:SetFrameStrata("DIALOG")
-goldUI.tokenHistoryPanel:SetToplevel(true)
-goldUI.tokenHistoryPanel:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 }
-})
-table.insert(UISpecialFrames, "LiteVaultTokenHistoryWindow")
-goldUI.tokenHistoryPanel:Hide()
-
-goldUI.tokenHistoryTitle = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-goldUI.tokenHistoryTitle:SetPoint("TOPLEFT", 15, -15)
-goldUI.tokenHistoryTitle:SetJustifyH("LEFT")
-goldUI.tokenHistoryTitle:SetText(UIText("TITLE_WOW_TOKEN_HISTORY"))
-
-goldUI.tokenHistoryClose = CreateFrame("Button", nil, goldUI.tokenHistoryPanel, "BackdropTemplate")
-goldUI.tokenHistoryClose:SetSize(60, 22)
-goldUI.tokenHistoryClose:SetPoint("TOPRIGHT", -10, -10)
-goldUI.tokenHistoryClose:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
-})
-goldUI.tokenHistoryClose.Text = goldUI.tokenHistoryClose:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-goldUI.tokenHistoryClose.Text:SetPoint("CENTER")
-goldUI.tokenHistoryClose.Text:SetText(UIText("BUTTON_CLOSE"))
-goldUI.tokenHistoryClose:SetScript("OnClick", function()
-    goldUI.tokenHistoryPanel:Hide()
-end)
-goldUI.tokenHistoryClose:SetScript("OnEnter", function(self)
-    local theme = lv.GetTheme and lv.GetTheme()
-    if theme then
-        self:SetBackdropBorderColor(unpack(theme.borderHover or theme.borderPrimary))
-        self:SetBackdropColor(unpack(theme.buttonBgHover or theme.buttonBg))
-        self.Text:SetTextColor(unpack(theme.textPrimary))
-    end
-end)
-goldUI.tokenHistoryClose:SetScript("OnLeave", function(self)
-    local theme = lv.GetTheme and lv.GetTheme()
-    if theme then
-        self:SetBackdropBorderColor(unpack(theme.borderPrimary))
-        self:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
-        self.Text:SetTextColor(unpack(theme.textPrimary))
-    end
-end)
-
-goldUI.tokenHistoryCurrentLabel = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryCurrentLabel:SetPoint("TOPLEFT", 18, -50)
-goldUI.tokenHistoryCurrentLabel:SetText(UIText("LABEL_CURRENT"))
-goldUI.tokenHistoryCurrentValue = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-goldUI.tokenHistoryCurrentValue:SetPoint("TOPRIGHT", -18, -50)
-goldUI.tokenHistoryCurrentValue:SetJustifyH("RIGHT")
-goldUI.tokenHistoryCurrentValue:SetWidth(240)
-
-goldUI.tokenHistoryPreviousLabel = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryPreviousLabel:SetPoint("TOPLEFT", 18, -76)
-goldUI.tokenHistoryPreviousLabel:SetText(UIText("LABEL_PREVIOUS"))
-goldUI.tokenHistoryPreviousValue = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-goldUI.tokenHistoryPreviousValue:SetPoint("TOPRIGHT", -18, -76)
-goldUI.tokenHistoryPreviousValue:SetJustifyH("RIGHT")
-goldUI.tokenHistoryPreviousValue:SetWidth(240)
-
-goldUI.tokenHistoryChangeLabel = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryChangeLabel:SetPoint("TOPLEFT", 18, -102)
-goldUI.tokenHistoryChangeLabel:SetText(UIText("LABEL_TOKEN_DELTA"))
-goldUI.tokenHistoryChangeValue = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-goldUI.tokenHistoryChangeValue:SetPoint("TOPRIGHT", -18, -102)
-goldUI.tokenHistoryChangeValue:SetJustifyH("RIGHT")
-goldUI.tokenHistoryChangeValue:SetWidth(240)
-
-goldUI.tokenHistoryUpdatedLabel = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryUpdatedLabel:SetPoint("TOPLEFT", 18, -128)
-goldUI.tokenHistoryUpdatedLabel:SetText(UIText("LABEL_LAST_UPDATED"))
-goldUI.tokenHistoryUpdatedValue = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-goldUI.tokenHistoryUpdatedValue:SetPoint("TOPRIGHT", -18, -128)
-goldUI.tokenHistoryUpdatedValue:SetJustifyH("RIGHT")
-goldUI.tokenHistoryUpdatedValue:SetWidth(240)
-
-goldUI.tokenHistoryAffordableLabel = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryAffordableLabel:SetPoint("TOPLEFT", 18, -154)
-goldUI.tokenHistoryAffordableLabel:SetText(UIText("LABEL_TOKEN_AFFORDABLE"))
-goldUI.tokenHistoryAffordableValue = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-goldUI.tokenHistoryAffordableValue:SetPoint("TOPRIGHT", -18, -154)
-goldUI.tokenHistoryAffordableValue:SetJustifyH("RIGHT")
-goldUI.tokenHistoryAffordableValue:SetWidth(240)
-
-goldUI.tokenHistoryHeader = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-goldUI.tokenHistoryHeader:SetPoint("TOPLEFT", 18, -188)
-goldUI.tokenHistoryHeader:SetText(UIText("LABEL_RECENT_HISTORY"))
-
-goldUI.tokenHistoryStatus = goldUI.tokenHistoryPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-goldUI.tokenHistoryStatus:SetPoint("TOPLEFT", 18, -212)
-goldUI.tokenHistoryStatus:SetPoint("TOPRIGHT", -18, -212)
-goldUI.tokenHistoryStatus:SetJustifyH("LEFT")
-goldUI.tokenHistoryStatus:SetWordWrap(true)
-goldUI.tokenHistoryStatus:Hide()
-
-goldUI.tokenHistoryScroll = CreateFrame("ScrollFrame", nil, goldUI.tokenHistoryPanel)
-goldUI.tokenHistoryScroll:SetPoint("TOPLEFT", 18, -212)
-goldUI.tokenHistoryScroll:SetPoint("BOTTOMRIGHT", -18, 18)
-goldUI.tokenHistoryScroll:EnableMouseWheel(true)
-goldUI.tokenHistoryContent = CreateFrame("Frame", nil, goldUI.tokenHistoryScroll)
-goldUI.tokenHistoryContent:SetSize(446, 1)
-goldUI.tokenHistoryScroll:SetScrollChild(goldUI.tokenHistoryContent)
-goldUI.tokenHistoryScroll:SetScript("OnMouseWheel", function(self, delta)
-    local current = self:GetVerticalScroll()
-    local maxScroll = math.max(0, (goldUI.tokenHistoryContent:GetHeight() or 1) - self:GetHeight())
-    local step = 24
-    self:SetVerticalScroll(math.max(0, math.min(current - (delta * step), maxScroll)))
-end)
-
-goldUI.tokenHistoryRows = {}
-for index = 1, 5 do
-    local row = CreateFrame("Frame", nil, goldUI.tokenHistoryContent)
-    row:SetSize(446, 24)
-    row:SetPoint("TOPLEFT", 0, -((index - 1) * 24))
-    row.bg = row:CreateTexture(nil, "BACKGROUND")
-    row.bg:SetAllPoints()
-    if index % 2 == 0 then
-        row.bg:SetColorTexture(1, 1, 1, 0.05)
-    else
-        row.bg:SetColorTexture(0, 0, 0, 0.1)
-    end
-    row.time = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    row.time:SetPoint("LEFT", 8, 0)
-    row.time:SetWidth(120)
-    row.time:SetJustifyH("LEFT")
-    row.price = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.price:SetPoint("RIGHT", -8, 0)
-    row.price:SetWidth(180)
-    row.price:SetJustifyH("RIGHT")
-    row.change = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.change:SetPoint("RIGHT", 0, 0)
-    row.change:SetWidth(0)
-    row.change:SetJustifyH("RIGHT")
-    row.change:Hide()
-    goldUI.tokenHistoryRows[index] = row
-end
 
 goldUI.goalPanel = CreateProfitPanel(GoldBox, 878, 94)
 goldUI.goalPanel:SetPoint("TOPLEFT", goldUI.weeklyCard, "BOTTOMLEFT", 0, -14)
@@ -3076,10 +2827,6 @@ C_Timer.After(0, function()
             lv.RegisterThemedElement(card, ApplyProfitPanelTheme)
         end
         lv.RegisterThemedElement(goldUI.tokenCard, ApplyProfitPanelTheme)
-        lv.RegisterThemedElement(goldUI.tokenHistoryPanel, function(frame, theme)
-            frame:SetBackdropColor(unpack(theme.backgroundSolid or theme.background))
-            frame:SetBackdropBorderColor(unpack(theme.borderPrimary))
-        end)
         lv.RegisterThemedElement(goldUI.goalPanel, ApplyProfitPanelTheme)
         lv.RegisterThemedElement(goldUI.warbandHistoryBtn, function(btn, theme)
             btn:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
@@ -3108,46 +2855,6 @@ C_Timer.After(0, function()
         lv.RegisterThemedElement(goldUI.tokenValue, function(label, theme)
             label:SetTextColor(unpack(theme.textPrimary))
         end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryTitle, function(label, theme)
-            label:SetTextColor(unpack(theme.textPrimary))
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryClose, function(btn, theme)
-            btn:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
-            btn:SetBackdropBorderColor(unpack(theme.borderPrimary))
-            btn.Text:SetTextColor(unpack(theme.textPrimary))
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryCurrentLabel, function(label, theme)
-            label:SetTextColor(1, 0.84, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryPreviousLabel, function(label, theme)
-            label:SetTextColor(1, 0.84, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryChangeLabel, function(label, theme)
-            label:SetTextColor(1, 0.84, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryUpdatedLabel, function(label, theme)
-            label:SetTextColor(1, 0.84, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryAffordableLabel, function(label, theme)
-            label:SetTextColor(1, 0.84, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryHeader, function(label, theme)
-            label:SetTextColor(1, 1, 0)
-        end)
-        lv.RegisterThemedElement(goldUI.tokenHistoryStatus, function(label, theme)
-            label:SetTextColor(unpack(theme.textSecondary or theme.textPrimary))
-        end)
-        for _, row in ipairs(goldUI.tokenHistoryRows or {}) do
-            lv.RegisterThemedElement(row.time, function(label, theme)
-                label:SetTextColor(unpack(theme.textMuted or theme.textSecondary or theme.textPrimary))
-            end)
-            lv.RegisterThemedElement(row.price, function(label, theme)
-                label:SetTextColor(unpack(theme.textPrimary))
-            end)
-            lv.RegisterThemedElement(row.change, function(label, theme)
-                label:SetTextColor(unpack(theme.textPrimary))
-            end)
-        end
         lv.RegisterThemedElement(goldUI.goalSubtitle, function(label, theme)
             label:SetTextColor(unpack(theme.textMuted or theme.textSecondary or theme.textPrimary))
         end)
@@ -3204,24 +2911,7 @@ C_Timer.After(0, function()
         end
         ApplyProfitPanelTheme(goldUI.tokenCard, t)
         goldUI.tokenTitle:SetTextColor(unpack(t.textSecondary or t.textPrimary))
-        goldUI.tokenHistoryPanel:SetBackdropColor(unpack(t.backgroundSolid or t.background))
-        goldUI.tokenHistoryPanel:SetBackdropBorderColor(unpack(t.borderPrimary))
-        goldUI.tokenHistoryTitle:SetTextColor(unpack(t.textPrimary))
-        goldUI.tokenHistoryClose:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
-        goldUI.tokenHistoryClose:SetBackdropBorderColor(unpack(t.borderPrimary))
-        goldUI.tokenHistoryClose.Text:SetTextColor(unpack(t.textPrimary))
-        goldUI.tokenHistoryCurrentLabel:SetTextColor(1, 0.84, 0)
-        goldUI.tokenHistoryPreviousLabel:SetTextColor(1, 0.84, 0)
-        goldUI.tokenHistoryChangeLabel:SetTextColor(1, 0.84, 0)
-        goldUI.tokenHistoryUpdatedLabel:SetTextColor(1, 0.84, 0)
-        goldUI.tokenHistoryAffordableLabel:SetTextColor(1, 0.84, 0)
-        goldUI.tokenHistoryHeader:SetTextColor(1, 1, 0)
-        goldUI.tokenHistoryStatus:SetTextColor(unpack(t.textSecondary or t.textPrimary))
-        for _, row in ipairs(goldUI.tokenHistoryRows or {}) do
-            row.time:SetTextColor(unpack(t.textMuted or t.textSecondary or t.textPrimary))
-            row.price:SetTextColor(unpack(t.textPrimary))
-            row.change:SetTextColor(unpack(t.textPrimary))
-        end
+        goldUI.tokenValue:SetTextColor(unpack(t.textPrimary))
         ApplyProfitPanelTheme(goldUI.goalPanel, t)
         goldUI.goalTitle:SetTextColor(unpack(t.textPrimary))
         goldUI.goalSubtitle:SetTextColor(unpack(t.textMuted or t.textSecondary or t.textPrimary))
@@ -3365,7 +3055,7 @@ function lv.UpdateTrackingDisplays()
     data.weeklyQuests = data.weeklyQuests or {}
     local questList = GetCurrentWeeklyQuestList()
     UpdateWeeklyWarningLayout(BuildWeeklyWarningText())
-    weeklyUI.content:SetText(BuildWeeklyQuestText(data, questList))
+    RenderWeeklyQuestRows(data, questList)
 
     local currentCharOpts = BuildCurrentCharacterProfitOpts()
     local weeklySummary = GetSummaryForPeriod("week", currentCharOpts)
@@ -3375,7 +3065,7 @@ function lv.UpdateTrackingDisplays()
     local monthlyGoalProgress = lv.GetProfitGoalProgress and lv.GetProfitGoalProgress("month") or nil
     local weeklyTopEarners = lv.GetProfitTopEarners and lv.GetProfitTopEarners("week", 5) or {}
     local monthlyTopEarners = lv.GetProfitTopEarners and lv.GetProfitTopEarners("month", 5) or {}
-    local tokenText, tokenInfo = GetProfitTokenDisplayText()
+    local tokenText = GetProfitTokenMonthlyText()
     local theme = lv.GetTheme and lv.GetTheme() or nil
 
     UpdateSummaryCard(goldUI.weeklyCard, weeklySummary, "weekly")
@@ -3384,18 +3074,9 @@ function lv.UpdateTrackingDisplays()
     if goldUI.tokenValue then
         goldUI.tokenValue:SetText(tokenText or "")
         if theme then
-            if not tokenInfo or not tokenInfo.supported or not tokenInfo.price then
-                goldUI.tokenValue:SetTextColor(unpack(theme.textMuted or theme.textSecondary or theme.textPrimary))
-            elseif tokenInfo.stale then
-                goldUI.tokenValue:SetTextColor(unpack(theme.textMuted or theme.textSecondary or theme.textPrimary))
-            elseif tokenInfo.canAfford then
-                goldUI.tokenValue:SetTextColor(0.2, 0.9, 0.2)
-            else
-                goldUI.tokenValue:SetTextColor(unpack(theme.textPrimary))
-            end
+            goldUI.tokenValue:SetTextColor(unpack(theme.textPrimary))
         end
     end
-    UpdateProfitTokenHistoryPanel(tokenInfo)
 
     goldUI.weeklyCard:SetScript("OnMouseUp", function()
         ShowProfitDetail("weekly", GetCurrentProfitCharKey())
@@ -3457,7 +3138,7 @@ function lv.UpdateProfitLocalizationText()
         goldUI.pageSubtitle:SetText(UIText("TEXT_PROFIT_SUBTITLE"))
     end
     if goldUI.tokenTitle then
-        goldUI.tokenTitle:SetText(UIText("LABEL_WOW_TOKEN"))
+        goldUI.tokenTitle:SetText(UIText("TITLE_PROFIT_WOW_TOKENS_THIS_MONTH", "WoW Tokens This Month"))
     end
     if goldUI.monthlyTitle then
         goldUI.monthlyTitle:SetText((L["LABEL_MONTHLY_PROFIT"] ~= "LABEL_MONTHLY_PROFIT") and L["LABEL_MONTHLY_PROFIT"] or "Monthly Profit")

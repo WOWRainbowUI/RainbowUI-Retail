@@ -13,6 +13,11 @@ local L = setmetatable({}, {
 
 lv.L = L
 
+function lv.GetAddonVersion()
+    local version = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version")
+    return (type(version) == "string" and version ~= "") and version or "12.1.0.5"
+end
+
 -- =============================================================================
 -- DEBUG STATE
 -- =============================================================================
@@ -39,28 +44,26 @@ end
 
 -- Register locale strings (called by each locale file)
 local function IsBrokenLocaleValue(value)
-    if type(value) ~= "string" or not value:find("?", 1, true) then
-        return false
-    end
+    if type(value) ~= "string" then return true end
+    if value:find("\239\191\189", 1, true) then return true end -- U+FFFD
+    -- Strong mojibake prefixes only. Do not reject arbitrary UTF-8 lead or
+    -- continuation bytes; Lua patterns operate on bytes, not code points.
+    if value:find("\195\131\194", 1, true)
+        or value:find("\195\130\194", 1, true)
+        or value:find("\195\162\226", 1, true) then return true end
+    if value:find("[%z\1-\8\11\12\14-\31\127]") then return true end
+    if value:find("%a%?%a") then return true end
+    return false
+end
 
-    local sawQuestion = false
-    local skipFormatCode = false
-    for i = 1, #value do
-        local ch = value:sub(i, i)
-        if skipFormatCode then
-            skipFormatCode = false
-        elseif ch == "%" then
-            skipFormatCode = true
-        elseif ch == "?" then
-            sawQuestion = true
-        elseif ch:match("[%a]") then
-            return false
-        elseif string.byte(ch) and string.byte(ch) > 127 then
-            return false
-        end
-    end
+lv.IsBrokenLocaleValueForTests = IsBrokenLocaleValue
 
-    return sawQuestion
+local function GetDebugLocaleValue(key, value)
+    if not lv.localeDebug.showKeys then return value end
+    local formats = {}
+    for token in value:gmatch("%%[%d%$%.%-]*[sdif]") do formats[#formats + 1] = token end
+    if #formats > 0 then return tostring(key) .. " " .. table.concat(formats, " ") end
+    return tostring(key)
 end
 
 -- English always loads, other locales only load if they match current locale
@@ -70,13 +73,14 @@ function lv.RegisterLocale(locale, strings)
     -- Always load English as base
     if locale == "enUS" then
         for key, value in pairs(strings) do
-            L[key] = value
+            L[key] = GetDebugLocaleValue(key, value)
         end
+        L.ADDON_VERSION = lv.localeDebug.showKeys and "ADDON_VERSION" or ("v" .. lv.GetAddonVersion())
     -- Load matching locale (overwrites English, unless the localized value is corrupted)
     elseif locale == currentLocale then
         for key, value in pairs(strings) do
             if not IsBrokenLocaleValue(value) then
-                L[key] = value
+                L[key] = GetDebugLocaleValue(key, value)
             end
         end
     end
@@ -101,6 +105,7 @@ function lv.ReloadLocales()
             lv.RegisterLocale(currentLocale, lv.LocaleData[currentLocale])
         end
     end
+    L.ADDON_VERSION = "v" .. lv.GetAddonVersion()
 
     -- Refresh layout values for new locale
     if lv.RefreshLayout then
@@ -127,8 +132,7 @@ function lv.ToggleLocaleDebugKeys()
         print("|cff9933ffLiteVault:|r Locale debug mode |cffff0000OFF|r - Showing translations")
     end
 
-    -- Refresh UI to show changes
-    if lv.UpdateUI then lv.UpdateUI() end
+    lv.ReloadLocales()
 end
 
 -- Toggle border visualization mode
@@ -343,11 +347,11 @@ local function InitLayout()
         manageButtonLeft = isChinese and 40 or 35,
         totalGoldLeft = isChinese and 25 or 20,
 
-        professionWindowWidth = isCJK and 540 or 500,
-        professionWindowHeight = isCJK and 360 or 340,
-        professionTabWidth = isWide and 84 or 72,
-        professionTreasureTabWidth = isWide and 88 or 76,
-        professionCloseWidth = isWide and 68 or 60,
+        professionWindowWidth = isCJK and 780 or (isWide and 770 or 760),
+        professionWindowHeight = isCJK and 550 or 540,
+        professionTabWidth = isWide and 116 or 104,
+        professionTreasureTabWidth = isWide and 120 or 108,
+        professionCloseWidth = isWide and 76 or 68,
         professionTreasureRowHeight = isCJK and 220 or 206,
         professionTreasureRowSpacing = isCJK and 228 or 214,
 

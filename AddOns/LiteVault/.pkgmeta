@@ -1,0 +1,19 @@
+package-as: LiteVault
+
+ignore:
+  - backups
+  - .agents
+  - .git
+  - .github
+  - .vscode
+  - ClaudeOPUS4.5.ps1
+  - CLAUDE_md
+  - GOLDTRACKER_RULES.md
+  - STABILITY_TEST_CHECKLIST.md
+  - tools
+  - "*.zip"
+  - "*.bak"
+  - "*.lua.bak"
+  - "*.obj"
+  - "*SavedVariables*"
+  - Libs/LibStub/tests

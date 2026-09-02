@@ -3,11 +3,12 @@ local addonName, lv = ...
 local L = lv.L
 local rows = {}
 local isManaging = false
-local MYTH_DAWNCREST_CURRENCY_ID = 3347
-
 local function GetCurrencyButtonIcon()
     if C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo then
-        local info = C_CurrencyInfo.GetCurrencyInfo(MYTH_DAWNCREST_CURRENCY_ID)
+        local definitions = lv.GetActiveCrestDefinitions()
+        local mythDef = definitions[#definitions]
+        local currencyID = mythDef and lv.ResolveActiveCrestCurrencyID(mythDef)
+        local info = currencyID and C_CurrencyInfo.GetCurrencyInfo(currencyID)
         if info and info.iconFileID then
             return info.iconFileID
         end
@@ -347,7 +348,7 @@ function lv.RefreshLedgerButtons()
             r.bagsActionBtn.text:SetText((L["BUTTON_BAGS"] ~= "BUTTON_BAGS") and L["BUTTON_BAGS"] or "Bags")
         end
         if r.gearActionBtn and r.gearActionBtn.text then
-            r.gearActionBtn.text:SetText("Gear")
+            r.gearActionBtn.text:SetText(L["BUTTON_GEAR"])
         end
         if r.raidBtn and r.raidBtn.text then
             r.raidBtn.text:SetText((L["BUTTON_RAIDS"] ~= "BUTTON_RAIDS") and L["BUTTON_RAIDS"] or "Raids")
@@ -373,9 +374,8 @@ function lv.InitList(parent, window)
     charBg:SetWidth(lv.Layout.charListWidth)
     charBg:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 14
     })
+    lv.EnsureBorderStyle(charBg, "panelStructural")
 
     -- Store reference for theming
     lv.charBg = charBg
@@ -385,11 +385,11 @@ function lv.InitList(parent, window)
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(charBg, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderSecondary))
+                lv.ApplyBorderStyle(f, "panelStructural", theme)
             end)
             local t = lv.GetTheme()
             charBg:SetBackdropColor(unpack(t.background))
-            charBg:SetBackdropBorderColor(unpack(t.borderSecondary))
+            lv.ApplyBorderStyle(charBg, "panelStructural", t)
         end
     end)
 
@@ -431,6 +431,7 @@ function lv.InitList(parent, window)
         edgeSize = 14,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    lv.EnsureBorderStyle(OptionsPanel, "panel")
     OptionsPanel:Hide()
 
     -- Register options panel for theming
@@ -438,11 +439,11 @@ function lv.InitList(parent, window)
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(OptionsPanel, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             local t = lv.GetTheme()
             OptionsPanel:SetBackdropColor(unpack(t.background))
-            OptionsPanel:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(OptionsPanel, "panel", t)
         end
     end)
 
@@ -457,26 +458,9 @@ function lv.InitList(parent, window)
 
     local optionsScroll = CreateFrame("ScrollFrame", nil, OptionsPanel)
     optionsScroll:SetPoint("TOPLEFT", 10, -40)
-    optionsScroll:SetPoint("BOTTOMRIGHT", -10, 42)
+    optionsScroll:SetPoint("BOTTOMRIGHT", -10, 10)
     optionsScroll:EnableMouseWheel(true)
 
-    local changeLogPanel = CreateFrame("Frame", nil, OptionsPanel)
-    changeLogPanel:SetPoint("TOPLEFT", 10, -40)
-    changeLogPanel:SetPoint("BOTTOMRIGHT", -10, 42)
-    changeLogPanel:Hide()
-    local changeLogTitle = changeLogPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    changeLogTitle:SetPoint("TOPLEFT", 10, -10)
-    changeLogTitle:SetPoint("RIGHT", -10, 0)
-    changeLogTitle:SetJustifyH("LEFT")
-    changeLogTitle:SetTextColor(1, 0.82, 0)
-
-    local changeLogText = changeLogPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    changeLogText:SetPoint("TOPLEFT", changeLogTitle, "BOTTOMLEFT", 0, -12)
-    changeLogText:SetPoint("RIGHT", -10, 0)
-    changeLogText:SetJustifyH("LEFT")
-    changeLogText:SetJustifyV("TOP")
-    changeLogText:SetWordWrap(true)
-    changeLogText:SetSpacing(6)
 
     local optionsContent = CreateFrame("Frame", nil, optionsScroll)
     optionsContent:SetSize(math.max(1, optionsPanelWidth - 24), 1)
@@ -492,62 +476,6 @@ function lv.InitList(parent, window)
         end
     end)
 
-    local showingChangeLog = false
-    local changeLogBtn
-
-    function lv.UpdateChangeLogButtonLabel()
-        if not changeLogBtn or not changeLogBtn.Text then return end
-        local L = lv.L
-        local label
-        if showingChangeLog then
-            label = ((L["Back"] ~= "Back") and L["Back"] or "Back")
-        else
-            label = ((L["Change Log"] ~= "Change Log") and L["Change Log"] or "Change Log")
-        end
-        changeLogBtn.Text:SetText(label)
-        changeLogBtn:SetWidth(math.max(96, math.ceil(changeLogBtn.Text:GetStringWidth() + 22)))
-    end
-
-    function lv.UpdateChangeLogContent()
-        local L = lv.L
-        if changeLogTitle then
-            changeLogTitle:SetText((L["LiteVault Update Summary"] ~= "LiteVault Update Summary") and L["LiteVault Update Summary"] or "LiteVault Update Summary")
-        end
-        if changeLogText then
-            local lines = {
-                "- " .. (((L["Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker."] ~= "Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker.") and L["Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker."]) or "Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker."),
-                "- " .. (((L["Updated vault item level display to more closely match Blizzard’s default Great Vault presentation."] ~= "Updated vault item level display to more closely match Blizzard’s default Great Vault presentation.") and L["Updated vault item level display to more closely match Blizzard’s default Great Vault presentation."]) or "Updated vault item level display to more closely match Blizzard’s default Great Vault presentation."),
-                "- " .. (((L["Added a large batch of new translations across supported locales."] ~= "Added a large batch of new translations across supported locales.") and L["Added a large batch of new translations across supported locales."]) or "Added a large batch of new translations across supported locales."),
-                "- " .. (((L["Improved localized text rendering and refresh behavior throughout the addon."] ~= "Improved localized text rendering and refresh behavior throughout the addon.") and L["Improved localized text rendering and refresh behavior throughout the addon."]) or "Improved localized text rendering and refresh behavior throughout the addon."),
-                "- " .. (((L["Updated localization support for buttons, bag tabs, weekly text, and other UI labels."] ~= "Updated localization support for buttons, bag tabs, weekly text, and other UI labels.") and L["Updated localization support for buttons, bag tabs, weekly text, and other UI labels."]) or "Updated localization support for buttons, bag tabs, weekly text, and other UI labels."),
-                "- " .. (((L["Fixed multiple localization-related layout issues."] ~= "Fixed multiple localization-related layout issues.") and L["Fixed multiple localization-related layout issues."]) or "Fixed multiple localization-related layout issues."),
-                "- " .. (((L["Fixed several localization-related crash issues."] ~= "Fixed several localization-related crash issues.") and L["Fixed several localization-related crash issues."]) or "Fixed several localization-related crash issues.")
-            }
-            changeLogText:SetText(table.concat(lines, "\n"))
-        end
-    end
-
-    local function UpdateChangeLogButtonStyle()
-        if not changeLogBtn then return end
-        local t = lv.GetTheme()
-        if showingChangeLog then
-            changeLogBtn:SetBackdropColor(unpack(t.tabActive or t.buttonBgHover or t.buttonBgAlt or t.buttonBg))
-            changeLogBtn:SetBackdropBorderColor(unpack(t.tabActiveBorder or t.borderPrimary))
-            changeLogBtn.Text:SetTextColor(1, 0.82, 0)
-        else
-            changeLogBtn:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
-            changeLogBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-            changeLogBtn.Text:SetTextColor(unpack(t.textPrimary))
-        end
-    end
-
-    local function SetOptionsSubpanel(showChangeLog)
-        showingChangeLog = showChangeLog and true or false
-        optionsScroll:SetShown(not showingChangeLog)
-        changeLogPanel:SetShown(showingChangeLog)
-        lv.UpdateChangeLogButtonLabel()
-        UpdateChangeLogButtonStyle()
-    end
 
     -- Disable Time Played checkbox
     local disableTimePlayedCB = CreateFrame("CheckButton", nil, optionsContent, "InterfaceOptionsCheckButtonTemplate")
@@ -617,38 +545,6 @@ function lv.InitList(parent, window)
         end
         if LiteVaultDB then
             LiteVaultDB.use24HourClock = enabled
-        end
-    end)
-
-    -- Dark Mode checkbox
-    local darkModeCB = CreateFrame("CheckButton", nil, optionsContent, "InterfaceOptionsCheckButtonTemplate")
-    darkModeCB.Text:SetText(L["OPTION_DARK_MODE"])
-    darkModeCB.Text:SetTextColor(1, 1, 1)
-    darkModeCB.Text:SetWidth(optionsLabelWidth)
-    darkModeCB.Text:SetJustifyH("LEFT")
-    darkModeCB.Text:SetJustifyV("TOP")
-
-    -- Description text for dark mode
-    local darkModeDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    darkModeDesc:SetText(L["OPTION_DARK_MODE_DESC"])
-    darkModeDesc:SetTextColor(1, 0.82, 0)
-    darkModeDesc:SetWidth(optionsDescWidth)
-    darkModeDesc:SetJustifyH("LEFT")
-    darkModeDesc:SetJustifyV("TOP")
-
-    -- Initialize dark mode checkbox from saved variable
-    C_Timer.After(0.1, function()
-        if LiteVaultDB then
-            darkModeCB:SetChecked(lv.currentTheme == "dark")
-        end
-    end)
-
-    -- Toggle theme when checkbox changes
-    darkModeCB:SetScript("OnClick", function(self)
-        if self:GetChecked() then
-            lv.SetTheme("dark")
-        else
-            lv.SetTheme("light")
         end
     end)
 
@@ -749,6 +645,34 @@ function lv.InitList(parent, window)
         end
     end)
 
+    local miniFolioEnabledCB = CreateFrame("CheckButton", nil, optionsContent, "InterfaceOptionsCheckButtonTemplate")
+    miniFolioEnabledCB.Text:SetText((L["OPTION_ENABLE_MINI_OMNIUM_FOLIO"] ~= "OPTION_ENABLE_MINI_OMNIUM_FOLIO") and L["OPTION_ENABLE_MINI_OMNIUM_FOLIO"] or "Enable Mini Omnium Folio")
+    miniFolioEnabledCB.Text:SetTextColor(1, 1, 1)
+    miniFolioEnabledCB.Text:SetWidth(optionsLabelWidth)
+    miniFolioEnabledCB.Text:SetJustifyH("LEFT")
+    miniFolioEnabledCB.Text:SetJustifyV("TOP")
+
+    local miniFolioEnabledDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    miniFolioEnabledDesc:SetText((L["OPTION_ENABLE_MINI_OMNIUM_FOLIO_DESC"] ~= "OPTION_ENABLE_MINI_OMNIUM_FOLIO_DESC") and L["OPTION_ENABLE_MINI_OMNIUM_FOLIO_DESC"] or "Show a movable Omnium Folio panel outside the main LiteVault window for quick node access.")
+    miniFolioEnabledDesc:SetTextColor(1, 0.82, 0)
+    miniFolioEnabledDesc:SetWidth(optionsDescWidth)
+    miniFolioEnabledDesc:SetJustifyH("LEFT")
+    miniFolioEnabledDesc:SetJustifyV("TOP")
+
+    C_Timer.After(0.1, function()
+        if LiteVaultDB then
+            miniFolioEnabledCB:SetChecked(LiteVaultDB.miniFolioEnabled and true or false)
+        end
+    end)
+
+    miniFolioEnabledCB:SetScript("OnClick", function(self)
+        if lv.SetMiniFolioEnabled then
+            lv.SetMiniFolioEnabled(self:GetChecked() and true or false)
+        elseif LiteVaultDB then
+            LiteVaultDB.miniFolioEnabled = self:GetChecked() and true or false
+        end
+    end)
+
     local disableRunestonePinsCB = CreateFrame("CheckButton", nil, optionsContent, "InterfaceOptionsCheckButtonTemplate")
     disableRunestonePinsCB.Text:SetText((L["OPTION_DISABLE_RUNESTONE_MAP_PINS"] ~= "OPTION_DISABLE_RUNESTONE_MAP_PINS") and L["OPTION_DISABLE_RUNESTONE_MAP_PINS"] or "Disable runestone map pins")
     disableRunestonePinsCB.Text:SetTextColor(1, 1, 1)
@@ -807,19 +731,34 @@ function lv.InitList(parent, window)
         end
     end)
 
-    -- Theme-aware option description colors
-    local function ApplyOptionDescColors(theme)
-        -- Light mode: gold, Dark mode: void purple
-        local r, g, b = 1, 0.82, 0
-        if lv.currentTheme == "dark" then
-            r, g, b = 0.6, 0.2, 1
+    OptionsPanel:HookScript("OnShow", function()
+        if LiteVaultDB then
+            disableTimePlayedCB:SetChecked(LiteVaultDB.disableTimePlayed or false)
+            local use24 = false
+            if GetCVarBool then
+                use24 = GetCVarBool("timeMgrUseMilitaryTime")
+            else
+                use24 = (LiteVaultDB.use24HourClock ~= false)
+            end
+            timeFormatCB:SetChecked(use24 and true or false)
+            disableBagViewCB:SetChecked(LiteVaultDB.disableBagViewing or false)
+            disableOverlayCB:SetChecked(LiteVaultDB.disableCharacterOverlay or false)
+            disableTeleportsCB:SetChecked(LiteVaultDB.disableMPlusTeleports or false)
+            miniFolioEnabledCB:SetChecked(LiteVaultDB.miniFolioEnabled and true or false)
+            disableRunestonePinsCB:SetChecked(LiteVaultDB.disableRunestoneMapPins or false)
+            calendarProfitHighlightsCB:SetChecked(not LiteVaultDB.disableCalendarProfitHighlights)
         end
+    end)
+
+    -- Canonical option-description accent.
+    local function ApplyOptionDescColors(theme)
+        local r, g, b = unpack(theme.textAccent or theme.textSecondary)
         timePlayedDesc:SetTextColor(r, g, b)
         timeFormatDesc:SetTextColor(r, g, b)
-        darkModeDesc:SetTextColor(r, g, b)
         disableBagViewDesc:SetTextColor(r, g, b)
         disableOverlayDesc:SetTextColor(r, g, b)
         disableTeleportsDesc:SetTextColor(r, g, b)
+        miniFolioEnabledDesc:SetTextColor(r, g, b)
         disableRunestonePinsDesc:SetTextColor(r, g, b)
         calendarProfitHighlightsDesc:SetTextColor(r, g, b)
     end
@@ -829,10 +768,10 @@ function lv.InitList(parent, window)
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(timePlayedDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(timeFormatDesc, function(_, theme) ApplyOptionDescColors(theme) end)
-            lv.RegisterThemedElement(darkModeDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableBagViewDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableOverlayDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableTeleportsDesc, function(_, theme) ApplyOptionDescColors(theme) end)
+            lv.RegisterThemedElement(miniFolioEnabledDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableRunestonePinsDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(calendarProfitHighlightsDesc, function(_, theme) ApplyOptionDescColors(theme) end)
         end
@@ -974,10 +913,10 @@ function lv.InitList(parent, window)
     local optionRows = {
         { checkbox = disableTimePlayedCB, desc = timePlayedDesc },
         { checkbox = timeFormatCB, desc = timeFormatDesc },
-        { checkbox = darkModeCB, desc = darkModeDesc },
         { checkbox = disableBagViewCB, desc = disableBagViewDesc },
         { checkbox = disableOverlayCB, desc = disableOverlayDesc },
         { checkbox = disableTeleportsCB, desc = disableTeleportsDesc },
+        { checkbox = miniFolioEnabledCB, desc = miniFolioEnabledDesc },
         { checkbox = disableRunestonePinsCB, desc = disableRunestonePinsDesc },
         { checkbox = calendarProfitHighlightsCB, desc = calendarProfitHighlightsDesc },
     }
@@ -994,14 +933,14 @@ function lv.InitList(parent, window)
         timePlayedDesc:SetWidth(optionsDescWidth)
         timeFormatCB.Text:SetWidth(optionsLabelWidth)
         timeFormatDesc:SetWidth(optionsDescWidth)
-        darkModeCB.Text:SetWidth(optionsLabelWidth)
-        darkModeDesc:SetWidth(optionsDescWidth)
         disableBagViewCB.Text:SetWidth(optionsLabelWidth)
         disableBagViewDesc:SetWidth(optionsDescWidth)
         disableOverlayCB.Text:SetWidth(optionsLabelWidth)
         disableOverlayDesc:SetWidth(optionsDescWidth)
         disableTeleportsCB.Text:SetWidth(optionsLabelWidth)
         disableTeleportsDesc:SetWidth(optionsDescWidth)
+        miniFolioEnabledCB.Text:SetWidth(optionsLabelWidth)
+        miniFolioEnabledDesc:SetWidth(optionsDescWidth)
         disableRunestonePinsCB.Text:SetWidth(optionsLabelWidth)
         disableRunestonePinsDesc:SetWidth(optionsDescWidth)
         calendarProfitHighlightsCB.Text:SetWidth(optionsLabelWidth)
@@ -1119,60 +1058,20 @@ function lv.InitList(parent, window)
         end
     end)
 
-    changeLogBtn = CreateFrame("Button", nil, OptionsPanel, "BackdropTemplate")
-    changeLogBtn:SetSize(96, 24)
-    changeLogBtn:SetPoint("BOTTOMRIGHT", OptionsPanel, "BOTTOMRIGHT", -16, 12)
-    changeLogBtn:SetBackdrop({
-        bgFile = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 10,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    changeLogBtn.Text = changeLogBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    changeLogBtn.Text:SetPoint("CENTER")
-    lv.UpdateChangeLogButtonLabel()
-    changeLogBtn:SetScript("OnClick", function()
-        SetOptionsSubpanel(not showingChangeLog)
-    end)
-    changeLogBtn:SetScript("OnEnter", function(self)
-        if showingChangeLog then return end
-        local t = lv.GetTheme()
-        self:SetBackdropColor(unpack(t.buttonBgHover or t.buttonBg))
-        self:SetBackdropBorderColor(unpack(t.borderHover or t.borderPrimary))
-    end)
-    changeLogBtn:SetScript("OnLeave", function()
-        UpdateChangeLogButtonStyle()
-    end)
-
-    C_Timer.After(0, function()
-        lv.UpdateChangeLogContent()
-        UpdateChangeLogButtonStyle()
-        if lv.RegisterThemedElement then
-            lv.RegisterThemedElement(changeLogBtn, function()
-                UpdateChangeLogButtonStyle()
-            end)
-        end
-    end)
-
-    -- Store references
     lv.OptionsPanel = OptionsPanel
-    lv.changeLogBtn = changeLogBtn
-    lv.changeLogPanel = changeLogPanel
-    lv.changeLogTitle = changeLogTitle
-    lv.changeLogText = changeLogText
     lv.optionsPanelTitle = optionsPanelTitle
     lv.disableTimePlayedCB = disableTimePlayedCB
     lv.timePlayedDesc = timePlayedDesc
     lv.timeFormatCB = timeFormatCB
     lv.timeFormatDesc = timeFormatDesc
-    lv.darkModeCB = darkModeCB
-    lv.darkModeDesc = darkModeDesc
     lv.disableBagViewCB = disableBagViewCB
     lv.disableBagViewDesc = disableBagViewDesc
     lv.disableOverlayCB = disableOverlayCB
     lv.disableOverlayDesc = disableOverlayDesc
     lv.disableTeleportsCB = disableTeleportsCB
     lv.disableTeleportsDesc = disableTeleportsDesc
+    lv.miniFolioEnabledCB = miniFolioEnabledCB
+    lv.miniFolioEnabledDesc = miniFolioEnabledDesc
     lv.disableRunestonePinsCB = disableRunestonePinsCB
     lv.disableRunestonePinsDesc = disableRunestonePinsDesc
     lv.calendarProfitHighlightsCB = calendarProfitHighlightsCB
@@ -1205,11 +1104,10 @@ function lv.InitList(parent, window)
                     disableBagViewCB:SetChecked(LiteVaultDB.disableBagViewing or false)
                     disableOverlayCB:SetChecked(LiteVaultDB.disableCharacterOverlay or false)
                     disableTeleportsCB:SetChecked(LiteVaultDB.disableMPlusTeleports or false)
+                    miniFolioEnabledCB:SetChecked(LiteVaultDB.miniFolioEnabled and true or false)
                     disableRunestonePinsCB:SetChecked(LiteVaultDB.disableRunestoneMapPins or false)
                     calendarProfitHighlightsCB:SetChecked(not LiteVaultDB.disableCalendarProfitHighlights)
                 end
-                darkModeCB:SetChecked(lv.currentTheme == "dark")
-                SetOptionsSubpanel(false)
                 lv.UpdateLangButtons()
                 if lv.UpdateOptionsPanelLayout then
                     lv.UpdateOptionsPanelLayout()
@@ -1379,24 +1277,30 @@ function lv.UpdateList()
                         r.portraitIlvlText:SetShadowOffset(1, -1)
                         r.portraitIlvlText:SetShadowColor(0, 0, 0, 1)
 
-                        r.portraitTimeText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                        r.portraitTimeText = r:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                         r.portraitTimeText:SetPoint("BOTTOMRIGHT", r.pFrame, "TOPRIGHT", 0, 7)
                         r.portraitTimeText:SetJustifyH("RIGHT")
-                        r.portraitTimeText:SetFont(STANDARD_TEXT_FONT, 10, "OUTLINE")
-                        r.portraitTimeText:SetShadowOffset(1, -1)
-                        r.portraitTimeText:SetShadowColor(0, 0, 0, 1)
+                        local timeFont, timeFontSize = r.portraitTimeText:GetFont()
+                        if timeFont and timeFontSize then
+                            r.portraitTimeText:SetFont(timeFont, timeFontSize, "OUTLINE")
+                        end
                         
                         -- No mask - square portraits!
                         
                         -- Character Name
                         r.nameText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
                         r.nameText:SetPoint("TOPLEFT", 105, -36)
+                        local nameFont, nameFontSize = r.nameText:GetFont()
+                        if nameFont and nameFontSize then
+                            r.nameText:SetFont(nameFont, nameFontSize, "OUTLINE")
+                        end
 
-                        r.identityText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                        r.identityText = r:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                         r.identityText:SetPoint("LEFT", r.nameText, "RIGHT", 12, -3)
                         r.identityText:SetJustifyH("LEFT")
-                        if lv.ApplyLocaleFont then
-                            lv.ApplyLocaleFont(r.identityText, 10)
+                        local identityFont, identityFontSize = r.identityText:GetFont()
+                        if identityFont and identityFontSize then
+                            r.identityText:SetFont(identityFont, identityFontSize, "OUTLINE")
                         end
 
                         -- Freshness Indicator under the currency button
@@ -1422,16 +1326,21 @@ function lv.UpdateList()
                             point = { "TOPLEFT", 105, -58 },
                             backdrop = {
                                 bgFile = "Interface\\Buttons\\WHITE8X8",
-                                edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-                                edgeSize = 10,
                             },
                             mouse = true,
                             propagateMouseClicks = true,
                         })
                         r.dataBox:SetPoint("BOTTOMRIGHT", -15, 15)
+                        lv.EnsureBorderStyle(r.dataBox, "panelStructural")
                         r.dataBox:SetScript("OnMouseUp", HandleCharacterCardMouseUp)
                         r.dataBox:SetBackdropColor(unpack(t.dataBoxBg))
-                        r.dataBox:SetBackdropBorderColor(unpack(t.portraitBorder))
+                        lv.ApplyBorderStyle(r.dataBox, "panelStructural", t)
+                        if lv.RegisterThemedElement then
+                            lv.RegisterThemedElement(r.dataBox, function(frame, theme)
+                                frame:SetBackdropColor(unpack(theme.dataBoxBg))
+                                lv.ApplyBorderStyle(frame, "panelStructural", theme)
+                            end)
+                        end
                         r.levelBadge:SetPoint("CENTER", r.pFrame, "TOPLEFT", -2, 2)
                         r.levelBadge:SetFrameLevel(r.pFrame:GetFrameLevel() + 4)
                         r.levelBadge:Hide()
@@ -1447,9 +1356,9 @@ function lv.UpdateList()
                         r.mplusText = r.dataBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                         r.mplusText:SetPoint("TOPLEFT", 15, -15)
                         
-                        -- Second row: Catalyst, Sparks, Ascendant Voidshards, and Ascendant Voidcores
+                        -- Second row: Catalyst and Sparks, plus legacy Season 1 Ascendant resources.
                         r.upgradeFrame = CreateSmallActionButton(r.dataBox, {
-                            width = 174,
+                            width = lv.GetActiveUpgradeSeasonKey() == "midnight_s1" and 174 or 90,
                             height = 28,
                             point = { "BOTTOMLEFT", r.dataBox, "BOTTOMLEFT", 94, 50 },
                             backdrop = {
@@ -1469,7 +1378,7 @@ function lv.UpdateList()
                         r.catalystBadge = CreateCircularBadge(r.catalystBtn, "LEFT", r.catalystBtn, "LEFT", 0, 0, DATA_BADGE_STYLE)
                         r.catalystBtn.badge = r.catalystBadge
                         r.catalystIcon = r.catalystBadge.icon
-                        local catInfo = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(lv.CATALYST_ID)
+                        local catInfo = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(lv.GetActiveCatalystCurrencyID())
                         SetCircularBadgeTexture(r.catalystBadge, (catInfo and catInfo.iconFileID) or 610613)
 
                         r.catalystText = r.catalystBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1485,25 +1394,27 @@ function lv.UpdateList()
                         r.sparkText = r.sparkBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                         r.sparkText:SetPoint("LEFT", r.sparkBadge, "RIGHT", 3, 0)
 
-                        r.voidshardBtn = CreateFrame("Frame", nil, r.upgradeFrame)
-                        r.voidshardBtn:SetPoint("LEFT", r.sparkBtn, "RIGHT", 8, 0)
-                        r.voidshardBtn:SetSize(34, 24)
+                        if lv.GetActiveUpgradeSeasonKey() == "midnight_s1" then
+                            r.voidshardBtn = CreateFrame("Frame", nil, r.upgradeFrame)
+                            r.voidshardBtn:SetPoint("LEFT", r.sparkBtn, "RIGHT", 8, 0)
+                            r.voidshardBtn:SetSize(34, 24)
 
-                        r.voidshardBadge = CreateCircularBadge(r.voidshardBtn, "LEFT", r.voidshardBtn, "LEFT", 0, 0, DATA_BADGE_STYLE)
-                        r.voidshardBtn.badge = r.voidshardBadge
+                            r.voidshardBadge = CreateCircularBadge(r.voidshardBtn, "LEFT", r.voidshardBtn, "LEFT", 0, 0, DATA_BADGE_STYLE)
+                            r.voidshardBtn.badge = r.voidshardBadge
 
-                        r.voidshardText = r.voidshardBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                        r.voidshardText:SetPoint("LEFT", r.voidshardBadge, "RIGHT", 3, 0)
+                            r.voidshardText = r.voidshardBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                            r.voidshardText:SetPoint("LEFT", r.voidshardBadge, "RIGHT", 3, 0)
 
-                        r.voidcoreBtn = CreateFrame("Frame", nil, r.upgradeFrame)
-                        r.voidcoreBtn:SetPoint("LEFT", r.voidshardBtn, "RIGHT", 8, 0)
-                        r.voidcoreBtn:SetSize(34, 24)
+                            r.voidcoreBtn = CreateFrame("Frame", nil, r.upgradeFrame)
+                            r.voidcoreBtn:SetPoint("LEFT", r.voidshardBtn, "RIGHT", 8, 0)
+                            r.voidcoreBtn:SetSize(34, 24)
 
-                        r.voidcoreBadge = CreateCircularBadge(r.voidcoreBtn, "LEFT", r.voidcoreBtn, "LEFT", 0, 0, DATA_BADGE_STYLE)
-                        r.voidcoreBtn.badge = r.voidcoreBadge
+                            r.voidcoreBadge = CreateCircularBadge(r.voidcoreBtn, "LEFT", r.voidcoreBtn, "LEFT", 0, 0, DATA_BADGE_STYLE)
+                            r.voidcoreBtn.badge = r.voidcoreBadge
 
-                        r.voidcoreText = r.voidcoreBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                        r.voidcoreText:SetPoint("LEFT", r.voidcoreBadge, "RIGHT", 3, 0)
+                            r.voidcoreText = r.voidcoreBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                            r.voidcoreText:SetPoint("LEFT", r.voidcoreBadge, "RIGHT", 3, 0)
+                        end
 
                         r.upgradeFrame.catalystBadge = r.catalystBadge
                         r.upgradeFrame.sparkBadge = r.sparkBadge
@@ -1530,8 +1441,10 @@ function lv.UpdateList()
                             GameTooltip:AddLine(" ")
                             GameTooltip:AddDoubleLine(L["TOOLTIP_CATALYST_TITLE"], tostring(self.catalystCount or 0), 1, 1, 1, 0, 0.82, 1)
                             GameTooltip:AddDoubleLine(L["TOOLTIP_SPARKS_TITLE"], tostring(self.fullSparks or 0), 1, 1, 1, 1, 0.67, 0)
-                            GameTooltip:AddDoubleLine(L["TOOLTIP_VOIDSHARDS_TITLE"], tostring(self.ascendantVoidshards or 0), 1, 1, 1, 0.73, 0.42, 1)
-                            GameTooltip:AddDoubleLine(L["TOOLTIP_VOIDCORES_TITLE"], tostring(self.ascendantVoidcores or 0), 1, 1, 1, 0.95, 0.48, 1)
+                            if lv.GetActiveUpgradeSeasonKey() == "midnight_s1" then
+                                GameTooltip:AddDoubleLine(L["TOOLTIP_VOIDSHARDS_TITLE"], tostring(self.ascendantVoidshards or 0), 1, 1, 1, 0.73, 0.42, 1)
+                                GameTooltip:AddDoubleLine(L["TOOLTIP_VOIDCORES_TITLE"], tostring(self.ascendantVoidcores or 0), 1, 1, 1, 0.95, 0.48, 1)
+                            end
                             GameTooltip:Show()
                         end)
                         r.upgradeFrame:SetScript("OnLeave", function(self)
@@ -2028,7 +1941,7 @@ function lv.UpdateList()
                             GameTooltip:Show()
                         end)
 
-                        r.gearActionBtn = SetupActionMenuButton(r.actionMenu, "Gear")
+                        r.gearActionBtn = SetupActionMenuButton(r.actionMenu, L["BUTTON_GEAR"])
                         r.gearActionBtn:SetPoint("TOP", r.bagsActionBtn, "BOTTOM", 0, -6)
                         r.gearActionBtn.ownerRow = r
                         r.gearActionBtn:SetScript("OnClick", function(self)
@@ -2044,8 +1957,8 @@ function lv.UpdateList()
                             local theme = lv.GetTheme()
                             self:SetBackdropBorderColor(unpack(theme.borderHover))
                             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                            GameTooltip:SetText("View Gear", 1, 0.82, 0)
-                            GameTooltip:AddLine("View the saved equipped gear snapshot for this character", 1, 1, 1, true)
+                            GameTooltip:SetText(L["TOOLTIP_GEAR_TITLE"], 1, 0.82, 0)
+                            GameTooltip:AddLine(L["TOOLTIP_GEAR_DESC"], 1, 1, 1, true)
                             GameTooltip:Show()
                         end)
 
@@ -2111,7 +2024,7 @@ function lv.UpdateList()
                     r.pFrame:SetBackdropBorderColor(unpack(t.portraitBorder))
                     r.pClassBorder:SetBackdropBorderColor(unpack(t.portraitBorder))
                     r.dataBox:SetBackdropColor(unpack(t.dataBoxBg))
-                    r.dataBox:SetBackdropBorderColor(unpack(t.portraitBorder))
+                    lv.ApplyBorderStyle(r.dataBox, "panelStructural", t)
                     r.vaultBox:SetBackdropColor(unpack(t.dataBoxBgVault))
                     r.vaultBox:SetBackdropBorderColor(unpack(t.portraitBorder))
                     r.professionFrame:SetBackdropColor(unpack(t.dataBoxBgVault))
@@ -2236,7 +2149,7 @@ function lv.UpdateList()
                             r.ilvlText:SetText(string.format("|c%s%d|r", lv.GetiLvLColor(data.ilvl or 0), (data.ilvl or 0)))
                         end
                     end
-                    r.portraitTimeText:SetText(string.format("|cffffd100%dd %dh|r", math.floor((data.played or 0)/86400), math.floor(((data.played or 0)%86400)/3600)))
+                    r.portraitTimeText:SetText(string.format("|cffffd100" .. L["TIME_DAYS_HOURS"] .. "|r", math.floor((data.played or 0)/86400), math.floor(((data.played or 0)%86400)/3600)))
                     
                     -- Main Stats - now just M+ Score (iLvl moved to top)
                     local mplusLine = string.format("|c%s" .. L["LABEL_MPLUS_SCORE"] .. "|r",
@@ -2244,10 +2157,11 @@ function lv.UpdateList()
                     r.mplusText:SetText(mplusLine)
                     
                     -- Gold (right side)
-                    r.goldText:SetText(GetCoinTextureString(data.gold or 0, 13))
+                    local moneyFormatter = lv.FormatGoldAligned or GetCoinTextureString
+                    r.goldText:SetText(moneyFormatter(data.gold or 0, 13))
                     
                     -- Catalyst Charges
-                    local catInfo = C_CurrencyInfo.GetCurrencyInfo(lv.CATALYST_ID)
+                    local catInfo = C_CurrencyInfo.GetCurrencyInfo(lv.GetActiveCatalystCurrencyID())
                     if catInfo and catInfo.iconFileID then
                         SetCircularBadgeTexture(r.catalystBadge, catInfo.iconFileID)
                     end
@@ -2273,7 +2187,7 @@ function lv.UpdateList()
                     r.sparkBtn.fullSparks = data.fullSparks or 0
                     r.sparkBtn.fracturedSparks = data.fracturedSparks or 0
                     local fullSparks = data.fullSparks or 0
-                    local sparkIcon = GetItemIcon(232875) or 0  -- Spark of Radiance
+                    local sparkIcon = GetItemIcon(lv.GetActiveSparkItemID()) or 0
                     SetCircularBadgeTexture(r.sparkBadge, sparkIcon)
                     if fullSparks > 0 then
                         r.sparkText:SetText(string.format("|cffffaa00%d|r", fullSparks))
@@ -2288,44 +2202,45 @@ function lv.UpdateList()
                         SetCircularBadgeState(r.sparkBtn.badge, upgradeFrameHovered)
                     end
 
-                    -- Ascendant Voidshards
-                    r.voidshardBtn.ascendantVoidshards = data.ascendantVoidshards or 0
-                    local ascendantVoidshards = data.ascendantVoidshards or 0
-                    local voidshardIcon = GetItemIcon(lv.ASCENDANT_VOIDSHARD_ITEM_ID) or 0
-                    SetCircularBadgeTexture(r.voidshardBadge, voidshardIcon)
-                    if ascendantVoidshards > 0 then
-                        r.voidshardText:SetText(string.format("|cffbb6aff%d|r", ascendantVoidshards))
-                    else
-                        r.voidshardText:SetText("|cff6666660|r")
-                    end
-                    if r.upgradeFrame then
-                        r.upgradeFrame.ascendantVoidshards = ascendantVoidshards
-                    end
-                    if r.voidshardBtn and r.voidshardBtn.badge then
-                        local upgradeFrameHovered = r.upgradeFrame and r.upgradeFrame.IsMouseOver and r.upgradeFrame:IsMouseOver()
-                        SetCircularBadgeState(r.voidshardBtn.badge, upgradeFrameHovered)
-                    end
+                    if r.voidshardBtn and r.voidcoreBtn then
+                        -- Legacy Midnight Season 1 Ascendant resources.
+                        r.voidshardBtn.ascendantVoidshards = data.ascendantVoidshards or 0
+                        local ascendantVoidshards = data.ascendantVoidshards or 0
+                        local voidshardIcon = GetItemIcon(lv.ASCENDANT_VOIDSHARD_ITEM_ID) or 0
+                        SetCircularBadgeTexture(r.voidshardBadge, voidshardIcon)
+                        if ascendantVoidshards > 0 then
+                            r.voidshardText:SetText(string.format("|cffbb6aff%d|r", ascendantVoidshards))
+                        else
+                            r.voidshardText:SetText("|cff6666660|r")
+                        end
+                        if r.upgradeFrame then
+                            r.upgradeFrame.ascendantVoidshards = ascendantVoidshards
+                        end
+                        if r.voidshardBtn.badge then
+                            local upgradeFrameHovered = r.upgradeFrame and r.upgradeFrame.IsMouseOver and r.upgradeFrame:IsMouseOver()
+                            SetCircularBadgeState(r.voidshardBtn.badge, upgradeFrameHovered)
+                        end
 
-                    -- Ascendant Voidcores
-                    r.voidcoreBtn.ascendantVoidcores = data.ascendantVoidcores or 0
-                    local ascendantVoidcores = data.ascendantVoidcores or 0
-                    local voidcoreIcon = GetItemIcon(lv.ASCENDANT_VOIDCORE_ITEM_ID) or 0
-                    SetCircularBadgeTexture(r.voidcoreBadge, voidcoreIcon)
-                    if ascendantVoidcores > 0 then
-                        r.voidcoreText:SetText(string.format("|cffff7aff%d|r", ascendantVoidcores))
-                    else
-                        r.voidcoreText:SetText("|cff6666660|r")
-                    end
-                    if r.upgradeFrame then
-                        r.upgradeFrame.ascendantVoidcores = ascendantVoidcores
-                    end
-                    if r.voidcoreBtn and r.voidcoreBtn.badge then
-                        local upgradeFrameHovered = r.upgradeFrame and r.upgradeFrame.IsMouseOver and r.upgradeFrame:IsMouseOver()
-                        SetCircularBadgeState(r.voidcoreBtn.badge, upgradeFrameHovered)
+                        r.voidcoreBtn.ascendantVoidcores = data.ascendantVoidcores or 0
+                        local ascendantVoidcores = data.ascendantVoidcores or 0
+                        local voidcoreIcon = GetItemIcon(lv.ASCENDANT_VOIDCORE_ITEM_ID) or 0
+                        SetCircularBadgeTexture(r.voidcoreBadge, voidcoreIcon)
+                        if ascendantVoidcores > 0 then
+                            r.voidcoreText:SetText(string.format("|cffff7aff%d|r", ascendantVoidcores))
+                        else
+                            r.voidcoreText:SetText("|cff6666660|r")
+                        end
+                        if r.upgradeFrame then
+                            r.upgradeFrame.ascendantVoidcores = ascendantVoidcores
+                        end
+                        if r.voidcoreBtn.badge then
+                            local upgradeFrameHovered = r.upgradeFrame and r.upgradeFrame.IsMouseOver and r.upgradeFrame:IsMouseOver()
+                            SetCircularBadgeState(r.voidcoreBtn.badge, upgradeFrameHovered)
+                        end
                     end
                     -- NEW: M+ Key Display
                     if data.currentKey then
-                        r.keyText:SetText(string.format("|TInterface\\Icons\\inv_relics_hourglass:16:16|t |cff00ccff%s +%d|r", data.currentKey.name or "Unknown", data.currentKey.level or 0))
+                        r.keyText:SetText(string.format("|TInterface\\Icons\\inv_relics_hourglass:16:16|t |cff00ccff%s +%d|r", data.currentKey.name or L["LABEL_UNKNOWN"], data.currentKey.level or 0))
                     else
                         r.keyText:SetText("|cffffd700" .. L["LABEL_NO_KEY"] .. "|r")
                     end

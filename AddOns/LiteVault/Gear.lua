@@ -85,21 +85,18 @@ local function GetGearLabel()
 end
 
 local function GetEmptyLabel()
-    return T("Empty", "Empty")
+    return T("LABEL_EMPTY", "Empty")
 end
 
 local function GetGearSlotLabel(slotDef)
     if not slotDef then
         return ""
     end
-    if slotDef.slotID == 11 then
-        return "Finger 1"
-    elseif slotDef.slotID == 12 then
-        return "Finger 2"
-    elseif slotDef.slotID == 13 then
-        return "Trinket 1"
-    elseif slotDef.slotID == 14 then
-        return "Trinket 2"
+    if slotDef.slotID >= 11 and slotDef.slotID <= 14 then
+        local globalLabel = slotDef.global and _G[slotDef.global]
+        local baseLabel = globalLabel or slotDef.fallback
+        local ordinal = (slotDef.slotID == 11 or slotDef.slotID == 13) and 1 or 2
+        return string.format(T("LABEL_INVENTORY_SLOT_NUMBER_FMT", "%s %d"), baseLabel, ordinal)
     end
 
     local globalLabel = slotDef and slotDef.global and _G[slotDef.global]
@@ -122,11 +119,11 @@ end
 
 local function BuildUpdatedText(timestamp)
     if not timestamp then
-        return "Updated: Never"
+        return T("TEXT_GEAR_UPDATED_NEVER", "Updated: Never")
     end
 
     local age = SecondsToTime(math.max(0, time() - timestamp), false, true, 1)
-    return string.format("Updated %s ago", age)
+    return string.format(T("TEXT_GEAR_UPDATED_AGO_FMT", "Updated %s ago"), age)
 end
 
 local function GetSlotEntry(gearData, slotID)
@@ -146,7 +143,7 @@ end
 local function GetPanelTitle(charKey, db)
     local classColor = GetCharacterClassColor(db and db.class)
     local nameOnly = (charKey and charKey:match("^([^-]+)")) or charKey or "Unknown"
-    return string.format("%s's %s", classColor:WrapTextInColorCode(nameOnly), GetGearLabel())
+    return string.format(T("TEXT_GEAR_TITLE_FMT"), classColor:WrapTextInColorCode(nameOnly), GetGearLabel())
 end
 
 local function GetCenterName(charKey)
@@ -185,16 +182,16 @@ local function BuildCombatStatsRowData(combatStats)
     end
 
     return {
-        { label = "Crit", rating = tostring(tonumber(combatStats.critRating) or 0), percent = fmtPercent(combatStats.critPercent) },
-        { label = "Haste", rating = tostring(tonumber(combatStats.hasteRating) or 0), percent = fmtPercent(combatStats.hastePercent) },
-        { label = "Mastery", rating = tostring(tonumber(combatStats.masteryRating) or 0), percent = fmtPercent(combatStats.masteryPercent) },
-        { label = "Vers", rating = tostring(tonumber(combatStats.versRating) or 0), percent = fmtPercent(combatStats.versPercent) },
+        { label = T("LABEL_GEAR_CRIT"), rating = tostring(tonumber(combatStats.critRating) or 0), percent = fmtPercent(combatStats.critPercent) },
+        { label = T("LABEL_GEAR_HASTE"), rating = tostring(tonumber(combatStats.hasteRating) or 0), percent = fmtPercent(combatStats.hastePercent) },
+        { label = T("LABEL_GEAR_MASTERY"), rating = tostring(tonumber(combatStats.masteryRating) or 0), percent = fmtPercent(combatStats.masteryPercent) },
+        { label = T("LABEL_GEAR_VERS"), rating = tostring(tonumber(combatStats.versRating) or 0), percent = fmtPercent(combatStats.versPercent) },
     }
 end
 
 local function ApplyGearPanelTheme(frame, theme)
     frame:SetBackdropColor(unpack(theme.backgroundSolid or theme.background))
-    frame:SetBackdropBorderColor(unpack(theme.borderPrimary))
+    lv.ApplyBorderStyle(frame, "panel", theme)
 end
 
 local function ApplyGearCloseButtonTheme(btn, theme)
@@ -294,7 +291,7 @@ local function SetCombatStatRows(frame, rowData)
     end
 
     if frame.header then
-        frame.header:SetText("Stats")
+        frame.header:SetText(T("LABEL_STATS", "Stats"))
     end
 
     for index, row in ipairs(frame.rows) do
@@ -534,6 +531,7 @@ local function CreateGearPanel()
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 },
     })
+    lv.EnsureBorderStyle(panel, "panel")
     panel:Hide()
     panel:SetScript("OnHide", function()
         currentGearChar = nil
@@ -659,7 +657,7 @@ function lv.OpenGearPanel(charKey, skipMenuClose)
     gearPanel.centerIdentity:SetText(GetCenterIdentity(db))
     local avgItemLevel = tonumber(db.ilvl) or 0
     local avgItemLevelColor = (lv.GetiLvLColor and lv.GetiLvLColor(avgItemLevel)) or "ffffffff"
-    gearPanel.avgIlvlText:SetText(string.format("iLvl |c%s%d|r", avgItemLevelColor, avgItemLevel))
+    gearPanel.avgIlvlText:SetText(string.format(T("TEXT_GEAR_ILVL_COLORED_FMT"), avgItemLevelColor, avgItemLevel))
     SetCombatStatRows(gearPanel.statsFrame, BuildCombatStatsRowData(db.combatStats))
 
     local classTag = db.class or "WARRIOR"
@@ -709,6 +707,7 @@ end
 
 function lv.RefreshGearPanelForCurrentChar(playerKey)
     if not gearPanel or not gearPanel:IsShown() then return end
+    playerKey = playerKey or currentGearChar
     if currentGearChar ~= playerKey then return end
 
     currentGearChar = nil

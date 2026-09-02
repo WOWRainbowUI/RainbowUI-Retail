@@ -87,17 +87,21 @@ local CATCHUP_UNLOCK_QUESTS_MIDNIGHT = {
 }
 
 local function IsMidnightMode()
+    local interfaceVersion = select(4, GetBuildInfo())
+    if (tonumber(interfaceVersion) or 0) >= 120000 then
+        return true
+    end
     return LiteVaultDB and LiteVaultDB.professionExpansionMode == "midnight"
 end
 
-local function GetTreatiseQuestID(skillLineID)
+function lv.KnowledgeSources.GetTreatiseQuestID(skillLineID)
     if IsMidnightMode() then
         return TREATISE_QUEST_MIDNIGHT[skillLineID]
     end
     return TREATISE_QUEST_TWW[skillLineID]
 end
 
-local function GetArtisanQuestIDs(skillLineID)
+function lv.KnowledgeSources.GetArtisanQuestIDs(skillLineID)
     if IsMidnightMode() then
         return ARTISAN_QUESTS_MIDNIGHT[skillLineID]
     end
@@ -143,7 +147,7 @@ end
 
 function lv.KnowledgeSources.GetSourcesForProfession(skillLineID)
     local out = {}
-    local tQuest = GetTreatiseQuestID(skillLineID)
+    local tQuest = lv.KnowledgeSources.GetTreatiseQuestID(skillLineID)
     if tQuest then
         out[#out + 1] = {
             key = "treatise",
@@ -155,7 +159,7 @@ function lv.KnowledgeSources.GetSourcesForProfession(skillLineID)
         }
     end
 
-    local artisanQuestIDs = GetArtisanQuestIDs(skillLineID)
+    local artisanQuestIDs = lv.KnowledgeSources.GetArtisanQuestIDs(skillLineID)
     local artisanDoneCount = CountCompletedQuests(artisanQuestIDs)
     local artisanTotalCount = artisanQuestIDs and #artisanQuestIDs or 0
     local artisanDone = artisanTotalCount > 0 and artisanDoneCount > 0 or false
@@ -188,7 +192,7 @@ function lv.KnowledgeSources.GetSourcesForProfession(skillLineID)
         end
         out[#out + 1] = {
             key = "catchup",
-            label = (L and L["Catch-up"] and L["Catch-up"] ~= "Catch-up") and L["Catch-up"] or "Catch-up",
+            label = (L and L["LABEL_KNOWLEDGE_CATCHUP"] and L["LABEL_KNOWLEDGE_CATCHUP"] ~= "Catch-up") and L["LABEL_KNOWLEDGE_CATCHUP"] or "Catch-up",
             currencyID = catchID,
             currencyInfo = cInfo,
             unlocked = AreAllQuestsDone(unlockQuests),
@@ -198,6 +202,151 @@ function lv.KnowledgeSources.GetSourcesForProfession(skillLineID)
     end
 
     return out
+end
+
+local function CopyCurrencyInfo(info)
+    if not info then return nil end
+    return {
+        currencyID = info.currencyID,
+        name = info.name,
+        iconFileID = info.iconFileID,
+        quantity = tonumber(info.quantity) or 0,
+        maxQuantity = tonumber(info.maxQuantity) or 0,
+    }
+end
+
+local function CaptureQuestStates(questIDs)
+    local states = {}
+    for _, questID in ipairs(questIDs or {}) do
+        states[questID] = IsQuestDone(questID)
+    end
+    return states
+end
+
+local function CaptureQuestNames(questIDs)
+    local names = {}
+    for _, questID in ipairs(questIDs or {}) do
+        local name = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID)
+        if name and name ~= "" then
+            names[questID] = name
+        end
+    end
+    return names
+end
+
+function lv.KnowledgeSources.CaptureSnapshot(skillLineID)
+    local capturedAt = time()
+    local weeklyResetStart = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    local entries = lv.KnowledgeSources.GetSourcesForProfession(skillLineID)
+    local snapshot = {
+        capturedAt = capturedAt,
+        weeklyResetStart = weeklyResetStart,
+    }
+
+    for _, entry in ipairs(entries) do
+        if entry.key == "treatise" then
+            snapshot.treatise = {
+                questID = entry.questID,
+                questName = CaptureQuestNames({ entry.questID })[entry.questID],
+                done = entry.done and true or false,
+            }
+        elseif entry.key == "artisan" then
+            snapshot.artisan = {
+                questIDs = entry.questIDs,
+                questNames = CaptureQuestNames(entry.questIDs),
+                questStates = CaptureQuestStates(entry.questIDs),
+                doneCount = tonumber(entry.doneCount) or 0,
+                totalCount = tonumber(entry.totalCount) or 0,
+                currencyID = entry.currencyID,
+                currencyInfo = CopyCurrencyInfo(entry.currencyInfo),
+            }
+        elseif entry.key == "catchup" then
+            snapshot.catchup = {
+                currencyID = entry.currencyID,
+                currencyInfo = CopyCurrencyInfo(entry.currencyInfo),
+                unlocked = entry.unlocked and true or false,
+                unlockQuests = entry.unlockQuests,
+                unlockQuestNames = CaptureQuestNames(entry.unlockQuests),
+                unlockQuestStates = CaptureQuestStates(entry.unlockQuests),
+            }
+        end
+    end
+
+    return snapshot
+end
+
+
+function lv.KnowledgeSources.GetSnapshotStatus(snapshot)
+    if not snapshot or not snapshot.capturedAt or not snapshot.weeklyResetStart then
+        return "unknown"
+    end
+    local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    if not currentReset then
+        return "unknown"
+    end
+    return tonumber(snapshot.weeklyResetStart) == tonumber(currentReset) and "current" or "stale"
+end
+
+function lv.KnowledgeSources.GetSnapshotSummary(snapshot)
+    if not snapshot then return nil, nil end
+    local summary = {
+        weeklyDone = 0,
+        weeklyTotal = 0,
+        catchUpCurrent = 0,
+        catchUpMax = 0,
+        catchUpUnlocked = false,
+    }
+    local entries = {}
+
+    if snapshot.treatise then
+        local e = {
+            key = "treatise",
+            questID = snapshot.treatise.questID,
+            questName = snapshot.treatise.questName,
+            done = snapshot.treatise.done and true or false,
+        }
+        entries[#entries + 1] = e
+        summary.weeklyTotal = summary.weeklyTotal + 1
+        if e.done then summary.weeklyDone = summary.weeklyDone + 1 end
+    end
+
+    if snapshot.artisan then
+        local e = {
+            key = "artisan",
+            questIDs = snapshot.artisan.questIDs,
+            questNames = snapshot.artisan.questNames,
+            questStates = snapshot.artisan.questStates,
+            doneCount = tonumber(snapshot.artisan.doneCount) or 0,
+            totalCount = tonumber(snapshot.artisan.totalCount) or 0,
+            currencyID = snapshot.artisan.currencyID,
+            currencyInfo = snapshot.artisan.currencyInfo,
+        }
+        e.done = e.totalCount > 0 and e.doneCount > 0 or false
+        entries[#entries + 1] = e
+        summary.weeklyTotal = summary.weeklyTotal + 1
+        if e.done then summary.weeklyDone = summary.weeklyDone + 1 end
+    end
+
+    if snapshot.catchup then
+        local info = snapshot.catchup.currencyInfo
+        local e = {
+            key = "catchup",
+            currencyID = snapshot.catchup.currencyID,
+            currencyInfo = info,
+            unlocked = snapshot.catchup.unlocked and true or false,
+            unlockQuests = snapshot.catchup.unlockQuests,
+            unlockQuestNames = snapshot.catchup.unlockQuestNames,
+            unlockQuestStates = snapshot.catchup.unlockQuestStates,
+        }
+        entries[#entries + 1] = e
+        if info then
+            summary.catchUpCurrent = tonumber(info.quantity) or 0
+            summary.catchUpMax = tonumber(info.maxQuantity) or 0
+        end
+        summary.catchUpUnlocked = e.unlocked
+    end
+
+    return summary, entries
 end
 
 function lv.KnowledgeSources.CalculateWeeklySummary(skillLineID)

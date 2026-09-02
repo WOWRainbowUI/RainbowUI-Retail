@@ -26,7 +26,8 @@ local PROFESSION_WINDOW_BADGE_STYLE = {
 
 -- Cache for expansion-specific profession skill line IDs (captured when profession window opens)
 local cachedChildSkillLines = {}
-local cachedExpansionMode = "tww"
+local cachedExpansionMode = "midnight"
+local emptyProfessionScanPendingByCharacter = {}
 
 -- Hardcoded fallback mappings for current expansion (TWW/Khaz Algar)
 -- Parent skill line ID -> Current expansion child skill line ID
@@ -59,27 +60,6 @@ local MIDNIGHT_SKILL_LINES = {
     [197] = 2918,  -- Tailoring
 }
 
--- Weekly knowledge source mapping by expansion parent skillLineID.
-local TREATISE_QUEST_TWW = {
-    [171] = 83725, [164] = 83726, [333] = 83727, [202] = 83728, [182] = 83729,
-    [773] = 83730, [755] = 83731, [165] = 83732, [186] = 83733, [393] = 83734, [197] = 83735
-}
-local TREATISE_QUEST_MIDNIGHT = {
-    [171] = 95127, -- Alchemy
-    [164] = 95128, -- Blacksmithing
-    [333] = 95129, -- Enchanting
-    [202] = 83728, -- Engineering (from current MKPT 0.3.1 data)
-    [182] = 95130, -- Herbalism
-    [773] = 95131, -- Inscription
-    [755] = 95133, -- Jewelcrafting
-    [165] = 95134, -- Leatherworking
-    [186] = 95135, -- Mining
-    [393] = 95136, -- Skinning
-    [197] = 95137, -- Tailoring
-}
-local ARTISAN_QUEST_BY_PROF = {
-    [171] = 84133, [164] = 84127, [202] = 84128, [773] = 84129, [755] = 84130, [165] = 84131, [197] = 84132
-}
 local MIDNIGHT_TREASURE_QUESTS = {
     [171] = { -- Alchemy
         unique = {89111, 89112, 89113, 89114, 89115, 89116, 89117, 89118},
@@ -204,6 +184,32 @@ local MIDNIGHT_GLYPH_ZONES = {
     },
 }
 
+local COILED_ISLE_GLYPH_ZONE = {
+    key = "coiled_isle",
+    map = 2512,
+    zoneName = "The Coiled Isle",
+    achievementID = 63395,
+    minInterface = 120100,
+    glyphs = {
+        { x = 0.374, y = 0.605, achievementID = 63394, label = "The Fangs" },
+        { x = 0.288, y = 0.753, achievementID = 63421, label = "The Wreck of Sethralis's Scales" },
+        { x = 0.458, y = 0.649, achievementID = 63423, label = "Gate of the Eastern Fang" },
+        { x = 0.641, y = 0.607, achievementID = 63425, label = "The Whispering Marsh" },
+        { x = 0.520, y = 0.384, achievementID = 63427, label = "The Serpent's Tail" },
+        { x = 0.438, y = 0.442, achievementID = 63430, label = "Gate of the Serpent's Eye" },
+        { x = 0.266, y = 0.631, achievementID = 63420, label = "The Forum" },
+        { x = 0.406, y = 0.905, achievementID = 63422, label = "Southern Island" },
+        { x = 0.589, y = 0.489, achievementID = 63424, label = "Tokka's Landing" },
+        { x = 0.703, y = 0.482, achievementID = 63426, label = "The Wreck of Paku's Talon" },
+        { x = 0.429, y = 0.306, achievementID = 63428, label = "Blistering Terrace" },
+    },
+}
+
+local glyphInterfaceVersion = select(4, GetBuildInfo())
+if (tonumber(glyphInterfaceVersion) or 0) >= COILED_ISLE_GLYPH_ZONE.minInterface then
+    table.insert(MIDNIGHT_GLYPH_ZONES, COILED_ISLE_GLYPH_ZONE)
+end
+
 local TREASURE_WAYPOINT_BY_QUEST = {
     [89067] = { map = 2444, x = 0.6069, y = 0.8426 },
     [89068] = { map = 2437, x = 0.4048, y = 0.4935 },
@@ -295,12 +301,6 @@ local TREASURE_WAYPOINT_BY_QUEST = {
     [89184] = { map = 2393, x = 0.4853, y = 0.7438 },
 }
 
-local function GetTreatiseQuestID(skillLineID)
-    if cachedExpansionMode == "midnight" then
-        return TREATISE_QUEST_MIDNIGHT[skillLineID]
-    end
-    return TREATISE_QUEST_TWW[skillLineID]
-end
 local function IsMidnightChildLine(parentID, childID)
     return MIDNIGHT_SKILL_LINES[parentID] and MIDNIGHT_SKILL_LINES[parentID] == childID
 end
@@ -352,11 +352,11 @@ local function GetChildSkillLineID(parentSkillLineID)
     if cachedChildSkillLines[parentSkillLineID] then
         return cachedChildSkillLines[parentSkillLineID]
     end
-    -- If Midnight was detected once, use Midnight map for uncached professions too.
+    -- Midnight is the current expansion and must work before the profession UI is opened.
     if cachedExpansionMode == "midnight" and MIDNIGHT_SKILL_LINES[parentSkillLineID] then
         return MIDNIGHT_SKILL_LINES[parentSkillLineID]
     end
-    -- Fallback to hardcoded current expansion values (default before first Midnight capture).
+    -- Compatibility fallback for persisted/observed older expansion data.
     if KHAZ_ALGAR_SKILL_LINES[parentSkillLineID] then
         return KHAZ_ALGAR_SKILL_LINES[parentSkillLineID]
     end
@@ -373,6 +373,8 @@ function lv.ScanProfessionDetails()
     local db = LiteVaultDB[name]
 
     local prof1, prof2 = GetProfessions()
+    local scanTimestamp = time()
+    local weeklyResetStart = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
 
     local function GetProfessionDetails(profIndex)
         if not profIndex then return nil end
@@ -414,6 +416,10 @@ function lv.ScanProfessionDetails()
             catchUpName = (prev and prev.catchUpName) or nil,
             catchUpIcon = (prev and prev.catchUpIcon) or nil,
             treasureQuestStates = (prev and prev.treasureQuestStates) or nil,
+            weeklySources = (prev and prev.weeklySources) or nil,
+            snapshotTimestamp = scanTimestamp,
+            weeklyResetStart = weeklyResetStart,
+            knowledgeDerivedAuthoritative = false,
         }
 
         local childSkillLineID = GetChildSkillLineID(skillLineID)
@@ -452,61 +458,32 @@ function lv.ScanProfessionDetails()
             end
         end
 
-        -- Scan spent/max from the profession traits tree.
-        if C_ProfSpecs and C_ProfSpecs.GetConfigIDForSkillLine and C_Traits and C_Traits.GetConfigInfo then
-            local spent, maxValue = 0, 0
-            local configID = C_ProfSpecs.GetConfigIDForSkillLine(childSkillLineID)
-            if configID and configID > 0 then
-                local configInfo = C_Traits.GetConfigInfo(configID)
-                if configInfo and configInfo.treeIDs then
-                    for _, treeID in ipairs(configInfo.treeIDs) do
-                        local treeNodes = C_Traits.GetTreeNodes(treeID)
-                        if treeNodes then
-                            for _, treeNode in ipairs(treeNodes) do
-                                local nodeInfo = C_Traits.GetNodeInfo(configID, treeNode)
-                                if nodeInfo then
-                                    if nodeInfo.ranksPurchased and nodeInfo.ranksPurchased > 1 and nodeInfo.currentRank then
-                                        spent = spent + math.max(0, (nodeInfo.currentRank - 1))
-                                    end
-                                    if nodeInfo.maxRanks then
-                                        maxValue = maxValue + math.max(0, (nodeInfo.maxRanks - 1))
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            details.knowledgeSpent = spent
-            details.knowledgeMax = maxValue
-            details.maxKnowledgePoints = maxValue
-        end
-
-        -- Keep existing field behavior for current UI.
+        -- Unspent knowledge is authoritative. The legacy spent/max derivation used
+        -- assumption-heavy trait rank arithmetic, so retain old fields only as
+        -- non-authoritative compatibility data until Blizzard semantics are proven.
         details.knowledgePoints = details.knowledgeUnspent
 
-        -- Weekly source status snapshot for this character/profession.
-        local treatiseQuestID = GetTreatiseQuestID(skillLineID)
-        local artisanQuestID = ARTISAN_QUEST_BY_PROF[skillLineID]
-        if treatiseQuestID then
-            details.treatiseQuestID = treatiseQuestID
-            details.treatiseDone = C_QuestLog.IsQuestFlaggedCompleted(treatiseQuestID) and true or false
-        end
-        if artisanQuestID then
-            details.artisanQuestID = artisanQuestID
-            details.artisanDone = C_QuestLog.IsQuestFlaggedCompleted(artisanQuestID) and true or false
-        end
-
-        -- Catch-up currency snapshot.
-        local catchUpCurrencyID = lv.KnowledgeSources and lv.KnowledgeSources.GetCatchUpCurrencyID and lv.KnowledgeSources.GetCatchUpCurrencyID(skillLineID)
-        if catchUpCurrencyID then
-            details.catchUpCurrencyID = catchUpCurrencyID
-            local cInfo = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(catchUpCurrencyID)
-            if cInfo then
-                details.catchUpQuantity = tonumber(cInfo.quantity) or 0
-                details.catchUpMax = tonumber(cInfo.maxQuantity) or 0
-                details.catchUpName = cInfo.name
-                details.catchUpIcon = cInfo.iconFileID
+        -- Capture the authoritative weekly-source model once for this character.
+        if lv.KnowledgeSources and lv.KnowledgeSources.CaptureSnapshot then
+            details.weeklySources = lv.KnowledgeSources.CaptureSnapshot(skillLineID)
+            local weekly = details.weeklySources
+            if weekly and weekly.treatise then
+                details.treatiseQuestID = weekly.treatise.questID
+                details.treatiseDone = weekly.treatise.done
+            end
+            if weekly and weekly.artisan then
+                -- Legacy aliases retained for SavedVariables compatibility only.
+                details.artisanQuestID = weekly.artisan.questIDs and weekly.artisan.questIDs[1] or nil
+                details.artisanDone = (tonumber(weekly.artisan.doneCount) or 0) > 0
+            end
+            if weekly and weekly.catchup then
+                local catchup = weekly.catchup
+                local cInfo = catchup.currencyInfo
+                details.catchUpCurrencyID = catchup.currencyID
+                details.catchUpQuantity = cInfo and tonumber(cInfo.quantity) or 0
+                details.catchUpMax = cInfo and tonumber(cInfo.maxQuantity) or 0
+                details.catchUpName = cInfo and cInfo.name or nil
+                details.catchUpIcon = cInfo and cInfo.iconFileID or nil
             end
         end
 
@@ -541,19 +518,56 @@ function lv.ScanProfessionDetails()
         end
     end
 
-    -- Only update if we got data, don't overwrite existing data with empty
+    -- A non-empty scan is authoritative and naturally removes replaced professions.
     if #newDetails > 0 then
+        db.professions = {}
+        for _, details in ipairs(newDetails) do
+            db.professions[#db.professions + 1] = {
+                name = details.name,
+                icon = details.icon,
+                skillLevel = details.skillLevel,
+                maxSkillLevel = details.maxSkillLevel,
+            }
+        end
         db.professionDetails = newDetails
+        emptyProfessionScanPendingByCharacter[name] = nil
+    else
+        -- Require two consecutive empty scans before clearing valid cached data.
+        -- This protects snapshots from transient API unavailability while allowing
+        -- genuinely unlearned professions to disappear.
+        if emptyProfessionScanPendingByCharacter[name] then
+            db.professions = {}
+            db.professionDetails = {}
+            emptyProfessionScanPendingByCharacter[name] = nil
+        else
+            emptyProfessionScanPendingByCharacter[name] = scanTimestamp
+            C_Timer.After(1, lv.ScanProfessionDetails)
+        end
     end
 end
 
 -- 2. WINDOW SETUP
 local currentProfChar = nil
-local currentProfTab = "sources"
+local currentProfTab = "overview"
 local pendingTreasureRefresh = false
 
+function lv.IsCurrentProfessionCharacter(charKey)
+    return charKey ~= nil and charKey == lv.PLAYER_KEY
+end
+
+local function GetStoredWeeklySourceData(profData)
+    local snapshot = profData and profData.weeklySources or nil
+    local status = lv.KnowledgeSources and lv.KnowledgeSources.GetSnapshotStatus
+        and lv.KnowledgeSources.GetSnapshotStatus(snapshot) or "unknown"
+    local summary, entries = nil, nil
+    if snapshot and lv.KnowledgeSources and lv.KnowledgeSources.GetSnapshotSummary then
+        summary, entries = lv.KnowledgeSources.GetSnapshotSummary(snapshot)
+    end
+    return summary, entries, status
+end
+
 local LVProfessionWindow = CreateFrame("Frame", "LiteVaultProfessionWindow", UIParent, "BackdropTemplate")
-LVProfessionWindow:SetSize(lv.Layout.professionWindowWidth or 500, lv.Layout.professionWindowHeight or 340)
+LVProfessionWindow:SetSize(lv.Layout.professionWindowWidth or 760, lv.Layout.professionWindowHeight or 540)
 LVProfessionWindow:SetPoint("CENTER")
 LVProfessionWindow:SetFrameStrata("DIALOG")
 LVProfessionWindow:SetMovable(true)
@@ -565,10 +579,10 @@ LVProfessionWindow:SetScript("OnDragStop", LVProfessionWindow.StopMovingOrSizing
 
 LVProfessionWindow:SetBackdrop({
     bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    edgeFile = "Interface\\Buttons\\WHITE8X8",
+    edgeSize = 2,
 })
+lv.EnsureBorderStyle(LVProfessionWindow, "panelStructural")
 LVProfessionWindow:Hide()
 
 -- Register for theming
@@ -576,189 +590,149 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(LVProfessionWindow, function(f, theme)
             f:SetBackdropColor(unpack(theme.backgroundSolid))
-            f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            lv.ApplyBorderStyle(f, "panelStructural", theme)
         end)
         local t = lv.GetTheme()
         LVProfessionWindow:SetBackdropColor(unpack(t.backgroundSolid))
-        LVProfessionWindow:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(LVProfessionWindow, "panelStructural", t)
     end
 end)
 
 -- Title
-LVProfessionWindow.title = LVProfessionWindow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-LVProfessionWindow.title:SetPoint("TOPLEFT", 15, -12)
+LVProfessionWindow.title = LVProfessionWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+LVProfessionWindow.title:SetPoint("TOPLEFT", 22, -20)
+
+LVProfessionWindow.status = LVProfessionWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+LVProfessionWindow.status:SetPoint("TOPLEFT", LVProfessionWindow.title, "BOTTOMLEFT", 0, -6)
+
+LVProfessionWindow.updated = LVProfessionWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+LVProfessionWindow.updated:SetPoint("LEFT", LVProfessionWindow.status, "RIGHT", 0, 0)
 
 -- Close Button
-local profClose = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
-profClose:SetSize(lv.Layout.professionCloseWidth or 60, 22)
-profClose:SetPoint("TOPRIGHT", -8, -8)
-profClose:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
+local profClose = lv.CreateSmallActionButton(LVProfessionWindow, {
+    width = lv.Layout.professionCloseWidth or 68,
+    height = 28,
+    point = { "TOPRIGHT", -16, -16 },
+    text = L["BUTTON_CLOSE"],
+    fontObject = "GameFontHighlightSmall",
 })
-profClose.Text = profClose:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-profClose.Text:SetPoint("CENTER")
-profClose.Text:SetText(L["BUTTON_CLOSE"])
-lv.ApplyLocaleFont(profClose.Text, 11)
+profClose.Text = profClose.text
+lv.ApplyLocaleFont(profClose.Text, 12)
 lv.professionCloseBtn = profClose
 
-local profSourcesTabBtn = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
-profSourcesTabBtn:SetSize(lv.Layout.professionTabWidth or 72, 22)
-profSourcesTabBtn:SetPoint("RIGHT", profClose, "LEFT", -6, 0)
-profSourcesTabBtn:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
+local profSourcesTabBtn = lv.CreateInteriorNavigationButton(LVProfessionWindow, {
+    width = lv.Layout.professionTabWidth or 104,
+    height = 30,
+    point = { "TOPLEFT", 20, -66 },
+    text = L["TAB_OVERVIEW"],
 })
-profSourcesTabBtn.Text = profSourcesTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-profSourcesTabBtn.Text:SetPoint("CENTER")
-profSourcesTabBtn.Text:SetText(L["TAB_SOURCES"])
-lv.ApplyLocaleFont(profSourcesTabBtn.Text, 11)
+lv.ApplyLocaleFont(profSourcesTabBtn.Text, 12)
 
-local profTreasuresTabBtn = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
-profTreasuresTabBtn:SetSize(lv.Layout.professionTreasureTabWidth or 76, 22)
-profTreasuresTabBtn:SetPoint("RIGHT", profSourcesTabBtn, "LEFT", -4, 0)
-profTreasuresTabBtn:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
+local profTreasuresTabBtn = lv.CreateInteriorNavigationButton(LVProfessionWindow, {
+    width = lv.Layout.professionTreasureTabWidth or 108,
+    height = 30,
+    text = L["TAB_TREASURES"],
 })
-profTreasuresTabBtn.Text = profTreasuresTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-profTreasuresTabBtn.Text:SetPoint("CENTER")
-profTreasuresTabBtn.Text:SetText(L["TAB_TREASURES"])
-lv.ApplyLocaleFont(profTreasuresTabBtn.Text, 11)
+lv.ApplyLocaleFont(profTreasuresTabBtn.Text, 12)
 
-local profGlyphsTabBtn = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
-profGlyphsTabBtn:SetSize(lv.Layout.professionGlyphTabWidth or 64, 22)
-profGlyphsTabBtn:SetPoint("RIGHT", profTreasuresTabBtn, "LEFT", -4, 0)
-profGlyphsTabBtn:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
+local profWeeklyTabBtn = lv.CreateInteriorNavigationButton(LVProfessionWindow, {
+    width = lv.Layout.professionTabWidth or 104,
+    height = 30,
+    point = { "LEFT", profSourcesTabBtn, "RIGHT", 8, 0 },
+    text = L["LABEL_WEEKLY"],
 })
-profGlyphsTabBtn.Text = profGlyphsTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-profGlyphsTabBtn.Text:SetPoint("CENTER")
-profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS"))
-lv.ApplyLocaleFont(profGlyphsTabBtn.Text, 11)
+lv.ApplyLocaleFont(profWeeklyTabBtn.Text, 12)
+profTreasuresTabBtn:SetPoint("LEFT", profWeeklyTabBtn, "RIGHT", 8, 0)
+
+local profScroll = CreateFrame("ScrollFrame", nil, LVProfessionWindow)
+profScroll:SetPoint("TOPLEFT", 18, -108)
+profScroll:SetPoint("BOTTOMRIGHT", -22, 18)
+profScroll:SetClipsChildren(true)
+profScroll:EnableMouseWheel(true)
+
+local profContent = CreateFrame("Frame", nil, profScroll)
+profContent:SetSize((lv.Layout.professionWindowWidth or 760) - 48, 1)
+profScroll:SetScrollChild(profContent)
+profScroll:SetScript("OnMouseWheel", function(self, delta)
+    local maxScroll = math.max(0, profContent:GetHeight() - self:GetHeight())
+    self:SetVerticalScroll(math.max(0, math.min(maxScroll, self:GetVerticalScroll() - (delta * 36))))
+end)
+
+local function StyleProfessionTab(btn, active, hovered, theme)
+    local t = theme or lv.GetTheme()
+    lv.StyleInteriorNavigationButton(btn, active, hovered, t, t and (t.backgroundSolid or t.background))
+end
 
 -- Register close button for theming
 C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(profClose, function(btn, theme)
-            btn:SetBackdropColor(unpack(theme.buttonBgAlt))
-            btn:SetBackdropBorderColor(unpack(theme.borderPrimary))
-            btn.Text:SetTextColor(unpack(theme.textPrimary))
+            lv.StyleSmallActionButton(btn, false, theme)
         end)
         lv.RegisterThemedElement(profSourcesTabBtn, function(btn, theme)
-            local isActive = (currentProfTab == "sources")
-            btn:SetBackdropColor(unpack(isActive and (theme.buttonBgHover or theme.buttonBgAlt) or theme.buttonBgAlt))
-            btn:SetBackdropBorderColor(unpack(isActive and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary))
-            btn.Text:SetTextColor(unpack(theme.textPrimary))
+            StyleProfessionTab(btn, currentProfTab == "overview", false, theme)
         end)
         lv.RegisterThemedElement(profTreasuresTabBtn, function(btn, theme)
-            local isActive = (currentProfTab == "treasures")
-            btn:SetBackdropColor(unpack(isActive and (theme.buttonBgHover or theme.buttonBgAlt) or theme.buttonBgAlt))
-            btn:SetBackdropBorderColor(unpack(isActive and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary))
-            btn.Text:SetTextColor(unpack(theme.textPrimary))
+            StyleProfessionTab(btn, currentProfTab == "treasures", false, theme)
         end)
-        lv.RegisterThemedElement(profGlyphsTabBtn, function(btn, theme)
-            local isActive = (currentProfTab == "glyphs")
-            btn:SetBackdropColor(unpack(isActive and (theme.buttonBgHover or theme.buttonBgAlt) or theme.buttonBgAlt))
-            btn:SetBackdropBorderColor(unpack(isActive and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary))
-            btn.Text:SetTextColor(unpack(theme.textPrimary))
+        lv.RegisterThemedElement(profWeeklyTabBtn, function(btn, theme)
+            StyleProfessionTab(btn, currentProfTab == "weekly", false, theme)
         end)
         local t = lv.GetTheme()
-        profClose:SetBackdropColor(unpack(t.buttonBgAlt))
-        profClose:SetBackdropBorderColor(unpack(t.borderPrimary))
-        profClose.Text:SetTextColor(unpack(t.textPrimary))
-        profSourcesTabBtn:SetBackdropColor(unpack(t.buttonBgHover or t.buttonBgAlt))
-        profSourcesTabBtn:SetBackdropBorderColor(unpack(t.borderHover or t.borderPrimary))
-        profSourcesTabBtn.Text:SetTextColor(unpack(t.textPrimary))
-        profTreasuresTabBtn:SetBackdropColor(unpack(t.buttonBgAlt))
-        profTreasuresTabBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-        profTreasuresTabBtn.Text:SetTextColor(unpack(t.textPrimary))
-        profGlyphsTabBtn:SetBackdropColor(unpack(t.buttonBgAlt))
-        profGlyphsTabBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-        profGlyphsTabBtn.Text:SetTextColor(unpack(t.textPrimary))
+        lv.StyleSmallActionButton(profClose, false, t)
+        StyleProfessionTab(profSourcesTabBtn, true, false, t)
+        StyleProfessionTab(profTreasuresTabBtn, false, false, t)
+        StyleProfessionTab(profWeeklyTabBtn, false, false, t)
     end
 end)
 
 profClose:SetScript("OnClick", function() LVProfessionWindow:Hide() end)
 profClose:SetScript("OnEnter", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
-    self:SetBackdropColor(unpack(t.buttonBgHover))
-    self.Text:SetTextColor(unpack(t.textPrimary))
+    lv.StyleSmallActionButton(self, true)
 end)
 profClose:SetScript("OnLeave", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderPrimary))
-    self:SetBackdropColor(unpack(t.buttonBgAlt))
-    self.Text:SetTextColor(unpack(t.textPrimary))
+    lv.StyleSmallActionButton(self, false)
 end)
 
 profSourcesTabBtn:SetScript("OnEnter", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
-    self:SetBackdropColor(unpack(t.buttonBgHover))
+    StyleProfessionTab(self, currentProfTab == "overview", true)
 end)
 profSourcesTabBtn:SetScript("OnLeave", function(self)
-    local t = lv.GetTheme()
-    local isActive = (currentProfTab == "sources")
-    self:SetBackdropBorderColor(unpack(isActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-    self:SetBackdropColor(unpack(isActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
+    StyleProfessionTab(self, currentProfTab == "overview", false)
 end)
 
 profTreasuresTabBtn:SetScript("OnEnter", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
-    self:SetBackdropColor(unpack(t.buttonBgHover))
+    StyleProfessionTab(self, currentProfTab == "treasures", true)
 end)
 profTreasuresTabBtn:SetScript("OnLeave", function(self)
-    local t = lv.GetTheme()
-    local isActive = (currentProfTab == "treasures")
-    self:SetBackdropBorderColor(unpack(isActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-    self:SetBackdropColor(unpack(isActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
+    StyleProfessionTab(self, currentProfTab == "treasures", false)
 end)
 
-profGlyphsTabBtn:SetScript("OnEnter", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
-    self:SetBackdropColor(unpack(t.buttonBgHover))
+profWeeklyTabBtn:SetScript("OnEnter", function(self)
+    StyleProfessionTab(self, currentProfTab == "weekly", true)
 end)
-profGlyphsTabBtn:SetScript("OnLeave", function(self)
-    local t = lv.GetTheme()
-    local isActive = (currentProfTab == "glyphs")
-    self:SetBackdropBorderColor(unpack(isActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-    self:SetBackdropColor(unpack(isActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
+profWeeklyTabBtn:SetScript("OnLeave", function(self)
+    StyleProfessionTab(self, currentProfTab == "weekly", false)
 end)
 
 local function RefreshProfessionTabButtons()
     local t = lv.GetTheme()
     if not t then return end
     profClose.Text:SetText(L["BUTTON_CLOSE"])
-    profSourcesTabBtn.Text:SetText(L["TAB_SOURCES"])
+    profSourcesTabBtn.Text:SetText(L["TAB_OVERVIEW"])
     profTreasuresTabBtn.Text:SetText(L["TAB_TREASURES"])
-    profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS"))
-    local srcActive = (currentProfTab == "sources")
+    profWeeklyTabBtn.Text:SetText(L["LABEL_WEEKLY"])
+    local srcActive = (currentProfTab == "overview")
     local treActive = (currentProfTab == "treasures")
-    local glyphActive = (currentProfTab == "glyphs")
-    profSourcesTabBtn:SetBackdropColor(unpack(srcActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
-    profSourcesTabBtn:SetBackdropBorderColor(unpack(srcActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-    profTreasuresTabBtn:SetBackdropColor(unpack(treActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
-    profTreasuresTabBtn:SetBackdropBorderColor(unpack(treActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-    profGlyphsTabBtn:SetBackdropColor(unpack(glyphActive and (t.buttonBgHover or t.buttonBgAlt) or t.buttonBgAlt))
-    profGlyphsTabBtn:SetBackdropBorderColor(unpack(glyphActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
+    local weeklyActive = (currentProfTab == "weekly")
+    StyleProfessionTab(profSourcesTabBtn, srcActive, false, t)
+    StyleProfessionTab(profTreasuresTabBtn, treActive, false, t)
+    StyleProfessionTab(profWeeklyTabBtn, weeklyActive, false, t)
 end
 
 profSourcesTabBtn:SetScript("OnClick", function()
-    if currentProfTab == "sources" then return end
-    currentProfTab = "sources"
+    if currentProfTab == "overview" then return end
+    currentProfTab = "overview"
     RefreshProfessionTabButtons()
     if currentProfChar then
         lv.ShowProfessionWindow(currentProfChar, true)
@@ -774,9 +748,9 @@ profTreasuresTabBtn:SetScript("OnClick", function()
     end
 end)
 
-profGlyphsTabBtn:SetScript("OnClick", function()
-    if currentProfTab == "glyphs" then return end
-    currentProfTab = "glyphs"
+profWeeklyTabBtn:SetScript("OnClick", function()
+    if currentProfTab == "weekly" then return end
+    currentProfTab = "weekly"
     RefreshProfessionTabButtons()
     if currentProfChar then
         lv.ShowProfessionWindow(currentProfChar, true)
@@ -788,37 +762,49 @@ lv.LVProfessionWindow = LVProfessionWindow
 -- Create profession display rows (max 2 professions)
 local profRows = {}
 for i = 1, 2 do
-    local f = CreateFrame("Frame", nil, LVProfessionWindow)
-    f:SetSize(470, 124)
-    f:SetPoint("TOPLEFT", 15, -40 - ((i-1) * 132))
+    local f = CreateFrame("Frame", nil, profContent, "BackdropTemplate")
+    f:SetSize((lv.Layout.professionWindowWidth or 760) - 58, 120)
+    f:SetPoint("TOPLEFT", 4, -4 - ((i-1) * 132))
+    f:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        edgeSize = 1,
+    })
+    lv.EnsureBorderStyle(f, "panelCompact")
 
     -- Profession icon
-    f.iconBadge = CreateCircularBadge(f, "TOPLEFT", f, "TOPLEFT", 0, 0, PROFESSION_WINDOW_BADGE_STYLE)
+    f.iconBadge = CreateCircularBadge(f, "TOPLEFT", f, "TOPLEFT", 16, -18, PROFESSION_WINDOW_BADGE_STYLE)
     f.icon = f.iconBadge.icon
 
     -- Profession name
     f.name = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     f.name:SetPoint("TOPLEFT", f.iconBadge, "TOPRIGHT", 10, -2)
+    f.name:SetWidth(240)
+    f.name:SetJustifyH("LEFT")
+    f.name:SetWordWrap(false)
 
     -- Skill level
     f.skill = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     f.skill:SetPoint("TOPLEFT", f.name, "BOTTOMLEFT", 0, -4)
+    f.skill:SetWidth(240)
+    f.skill:SetJustifyH("LEFT")
+    f.skill:SetWordWrap(false)
 
     -- Concentration bar background
     f.concBg = f:CreateTexture(nil, "BACKGROUND")
-    f.concBg:SetSize(220, 14)
-    f.concBg:SetPoint("TOPLEFT", f.skill, "BOTTOMLEFT", 0, -6)
+    f.concBg:SetSize(350, 16)
+    f.concBg:SetPoint("TOPLEFT", 330, -68)
     f.concBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
 
     -- Concentration bar fill
     f.concBar = f:CreateTexture(nil, "ARTWORK")
-    f.concBar:SetSize(220, 14)
+    f.concBar:SetSize(350, 16)
     f.concBar:SetPoint("TOPLEFT", f.concBg, "TOPLEFT", 0, 0)
     f.concBar:SetColorTexture(0.25, 0.4, 0.7, 1) -- Muted blue for concentration
 
     -- Concentration bar border (thin 1px border)
     f.concBorder = CreateFrame("Frame", nil, f, "BackdropTemplate")
-    f.concBorder:SetSize(222, 16)
+    f.concBorder:SetSize(352, 18)
     f.concBorder:SetPoint("CENTER", f.concBg, "CENTER", 0, 0)
     f.concBorder:SetBackdrop({
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -836,7 +822,10 @@ for i = 1, 2 do
 
     -- Knowledge points
     f.knowledge = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    f.knowledge:SetPoint("TOPLEFT", f.concReset, "BOTTOMLEFT", 0, -4)
+    f.knowledge:SetPoint("TOPLEFT", 330, -30)
+    f.knowledge:SetWidth(350)
+    f.knowledge:SetJustifyH("LEFT")
+    f.knowledge:SetWordWrap(false)
 
     -- Sources summary (always visible in Skills window)
     f.sourcesTop = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -849,24 +838,24 @@ for i = 1, 2 do
     f.treasureHint:Hide()
 
     f.uniqueHeader = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    f.uniqueHeader:SetPoint("TOPLEFT", 0, -38)
+    f.uniqueHeader:SetPoint("TOPLEFT", 14, -54)
     f.uniqueHeader:Hide()
 
     f.weeklyHeader = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    f.weeklyHeader:SetPoint("TOPLEFT", 228, -38)
+    f.weeklyHeader:SetPoint("TOPLEFT", 356, -54)
     f.weeklyHeader:Hide()
 
     f.treasureButtons = {}
     for idx = 1, 16 do
         local btn = CreateFrame("Button", nil, f)
-        btn:SetSize(215, 16)
+        btn:SetSize(326, 16)
         local col = (idx <= 8) and 0 or 1
         local rowIdx = ((idx - 1) % 8)
-        btn:SetPoint("TOPLEFT", 0 + (col * 228), -56 - (rowIdx * 18))
+        btn:SetPoint("TOPLEFT", 14 + (col * 342), -74 - (rowIdx * 18))
         btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         btn.text:SetPoint("LEFT", 0, 0)
         btn.text:SetJustifyH("LEFT")
-        btn.text:SetWidth(215)
+        btn.text:SetWidth(326)
         btn.text:SetWordWrap(false)
         btn:Hide()
         f.treasureButtons[idx] = btn
@@ -883,57 +872,24 @@ C_Timer.After(0, function()
             lv.RegisterThemedElement(row.concBorder, function(border, theme)
                 border:SetBackdropBorderColor(unpack(theme.borderPrimary))
             end)
+            lv.RegisterThemedElement(row, function(card, theme)
+                card:SetBackdropColor(unpack(theme.backgroundAlt or theme.backgroundSolid))
+                lv.ApplyBorderStyle(card, "panelCompact", theme)
+            end)
             -- Apply initial theme
             local t = lv.GetTheme()
             row.concBorder:SetBackdropBorderColor(unpack(t.borderPrimary))
+            row:SetBackdropColor(unpack(t.backgroundAlt or t.backgroundSolid))
+            lv.ApplyBorderStyle(row, "panelCompact", t)
         end
     end
 end)
 
 -- No professions text
-local noProfText = LVProfessionWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+local noProfText = profContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 noProfText:SetPoint("CENTER", 0, 0)
 noProfText:SetText("|cff666666" .. L["LABEL_NO_PROFESSIONS"] .. "|r")
 noProfText:Hide()
-
-local glyphPanels = {}
-for i = 1, 4 do
-    local panel = CreateFrame("Frame", nil, LVProfessionWindow)
-    panel:SetSize(228, 136)
-    local col = ((i - 1) % 2)
-    local row = math.floor((i - 1) / 2)
-    panel:SetPoint("TOPLEFT", 15 + (col * 235), -44 - (row * 142))
-
-    panel.header = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    panel.header:SetPoint("TOPLEFT", 0, 0)
-    panel.header:SetJustifyH("LEFT")
-
-    panel.buttons = {}
-    for idx = 1, 12 do
-        local btn = CreateFrame("Button", nil, panel)
-        btn:SetSize(108, 16)
-        local btnCol = ((idx - 1) % 2)
-        local btnRow = math.floor((idx - 1) / 2)
-        btn:SetPoint("TOPLEFT", btnCol * 114, -22 - (btnRow * 18))
-        btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        btn.text:SetPoint("LEFT", 0, 0)
-        btn.text:SetWidth(108)
-        btn.text:SetJustifyH("LEFT")
-        btn.text:SetWordWrap(false)
-        btn:Hide()
-        panel.buttons[idx] = btn
-    end
-
-    panel:Hide()
-    glyphPanels[i] = panel
-end
-
-local function BoolStatusText(done)
-    if done then
-        return "|cff00ff00" .. L["STATUS_DONE_WORD"] .. "|r"
-    end
-    return "|cffff5555" .. L["STATUS_MISSING_WORD"] .. "|r"
-end
 
 local QueueTreasureRefreshOnItemLoad
 
@@ -1093,6 +1049,13 @@ local function QuestStatusLine(done, questName)
     return string.format("%s: %s", status, questName)
 end
 
+local function GetStoredQuestDisplayName(questID, storedName)
+    if storedName and storedName ~= "" then
+        return storedName
+    end
+    return string.format("%s %d", L["LABEL_QUEST"], tonumber(questID) or 0)
+end
+
 local function PrintProfessionMessage(msg)
     local prefix = "|cff9933ff" .. ((L and L["MSG_PREFIX"]) or "LiteVault") .. "|r "
     print(prefix .. msg)
@@ -1250,13 +1213,20 @@ local function IsAchievementCriteriaDone(achievementID, criteriaID)
     return false
 end
 
+local function IsGlyphDone(zoneData, glyph)
+    if glyph and glyph.achievementID then
+        return select(4, GetAchievementInfo(glyph.achievementID)) and true or false
+    end
+    return IsAchievementCriteriaDone(zoneData and zoneData.achievementID, glyph and glyph.criteriaID)
+end
+
 local function CountCompletedGlyphs(zoneData)
     if not zoneData or not zoneData.glyphs then
         return 0, 0
     end
     local done = 0
     for _, glyph in ipairs(zoneData.glyphs) do
-        if IsAchievementCriteriaDone(zoneData.achievementID, glyph.criteriaID) then
+        if IsGlyphDone(zoneData, glyph) then
             done = done + 1
         end
     end
@@ -1271,17 +1241,30 @@ lv.IsGlyphCompleted = function(zoneData, glyph)
     if not zoneData or not glyph then
         return false
     end
-    return IsAchievementCriteriaDone(zoneData.achievementID, glyph.criteriaID)
+    return IsGlyphDone(zoneData, glyph)
 end
 
 lv.CountCompletedGlyphs = CountCompletedGlyphs
 lv.SetGlyphWaypoint = SetGlyphWaypoint
 
+local function FormatProfessionSnapshotAge(timestamp)
+    timestamp = tonumber(timestamp)
+    if not timestamp or timestamp <= 0 then
+        return L["LABEL_UNKNOWN"]
+    end
+    local elapsed = math.max(0, time() - timestamp)
+    if elapsed < 60 then
+        return L["TIME_JUST_NOW"]
+    elseif elapsed < 3600 then
+        return string.format(L["TIME_MINUTES_AGO_FMT"], math.floor(elapsed / 60))
+    elseif elapsed < 86400 then
+        return string.format(L["TIME_HOURS_AGO_FMT"], math.floor(elapsed / 3600))
+    end
+    return string.format(L["TIME_DAYS_AGO_FMT"], math.floor(elapsed / 86400))
+end
+
 -- 3. PUBLIC FUNCTION
 function lv.ShowProfessionWindow(charKey, forceRefresh)
-    if currentProfTab == "glyphs" then
-        currentProfTab = "sources"
-    end
     if LVProfessionWindow:IsShown() and currentProfChar == charKey and not forceRefresh then
         LVProfessionWindow:Hide()
         currentProfChar = nil
@@ -1290,7 +1273,7 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
     currentProfChar = charKey
 
     -- Scan current character's professions if viewing self
-    if charKey == lv.PLAYER_KEY then
+    if lv.IsCurrentProfessionCharacter(charKey) then
         lv.ScanProfessionDetails()
     end
 
@@ -1299,24 +1282,41 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
 
     local nameOnly = charKey:match("^([^-]+)")
     local cc = C_ClassColor.GetClassColor(data.class or "WARRIOR")
-    if currentProfTab == "glyphs" then
-        LVProfessionWindow.title:SetText(LT("TITLE_GLYPH_HUNTER"))
-    else
-        LVProfessionWindow.title:SetText(string.format(L["TITLE_PROFESSIONS"], cc:WrapTextInColorCode(nameOnly)))
-    end
+    LVProfessionWindow.title:SetText(string.format(L["TITLE_PROFESSIONS"], cc:WrapTextInColorCode(nameOnly)))
     RefreshProfessionTabButtons()
 
     -- Hide all rows first
     for i = 1, 2 do
         profRows[i]:Hide()
     end
-    for i = 1, #glyphPanels do
-        glyphPanels[i]:Hide()
-    end
     noProfText:Hide()
+    profScroll:SetVerticalScroll(0)
 
     -- Use professionDetails if it has data, otherwise fall back to basic professions
     local profData = (data.professionDetails and #data.professionDetails > 0) and data.professionDetails or data.professions or {}
+
+    local latestSnapshot = nil
+    local hasStaleSnapshot = false
+    for _, prof in ipairs(profData) do
+        local weekly = prof.weeklySources
+        local capturedAt = weekly and tonumber(weekly.capturedAt) or tonumber(prof.snapshotTimestamp)
+        if capturedAt and (not latestSnapshot or capturedAt > latestSnapshot) then
+            latestSnapshot = capturedAt
+        end
+        local status = weekly and lv.KnowledgeSources and lv.KnowledgeSources.GetSnapshotStatus
+            and lv.KnowledgeSources.GetSnapshotStatus(weekly) or "unknown"
+        if status == "stale" then
+            hasStaleSnapshot = true
+        end
+    end
+    if lv.IsCurrentProfessionCharacter(charKey) then
+        LVProfessionWindow.status:SetText("|cff66ff66" .. L["STATUS_LIVE"] .. "|r")
+    elseif hasStaleSnapshot then
+        LVProfessionWindow.status:SetText("|cffff6666" .. L["STATUS_STALE"] .. "|r")
+    else
+        LVProfessionWindow.status:SetText("|cffffff66" .. L["STATUS_CACHED"] .. "|r")
+    end
+    LVProfessionWindow.updated:SetText(string.format("  ·  %s: %s", L["LABEL_LAST_UPDATED"], FormatProfessionSnapshotAge(latestSnapshot)))
 
     -- Gathering professions don't have concentration
     local gatheringProfs = {
@@ -1338,65 +1338,19 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
         -- Korean
         ["채광"] = true, ["약초채집"] = true, ["무두질"] = true,
     }
+    local gatheringSkillLines = { [182] = true, [186] = true, [393] = true }
 
-    if currentProfTab == "glyphs" then
-        for idx, zoneData in ipairs(MIDNIGHT_GLYPH_ZONES) do
-            local panel = glyphPanels[idx]
-            if panel then
-                local done, total = CountCompletedGlyphs(zoneData)
-                panel.header:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", zoneData.zoneName, done, total))
-
-                for buttonIndex, btn in ipairs(panel.buttons) do
-                    btn:Hide()
-                    btn:SetScript("OnClick", nil)
-                    btn:SetScript("OnEnter", nil)
-                    btn:SetScript("OnLeave", nil)
-
-                    local glyph = zoneData.glyphs[buttonIndex]
-                    if glyph then
-                        local glyphDone = IsAchievementCriteriaDone(zoneData.achievementID, glyph.criteriaID)
-                        local color = glyphDone and "|cff00ff00" or "|cffff5555"
-                        btn.text:SetText(color .. glyph.label .. "|r")
-                        btn:Show()
-                        btn:SetScript("OnEnter", function(self)
-                            GameTooltip:SetOwner(self, "ANCHOR_CURSOR_RIGHT")
-                            GameTooltip:ClearLines()
-                            GameTooltip:SetText(glyph.label, 0.4, 0.8, 1)
-                            GameTooltip:AddLine(string.format("%s: %s", L["LABEL_ZONE"], zoneData.zoneName), 1, 1, 1)
-                            GameTooltip:AddLine(string.format("%s: %.1f / %.1f", L["LABEL_COORDINATES"], glyph.x * 100, glyph.y * 100), 1, 1, 1)
-                            GameTooltip:AddLine(string.format("%s: %s", LT("LABEL_ACHIEVEMENT"), BoolStatusText(glyphDone)), 1, 1, 1)
-                            if HasTomTom() then
-                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_WAYPOINT"], 0.2, 1, 0.2)
-                            elseif CanUseBlizzardWaypoint() then
-                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"], 0.2, 1, 0.2)
-                            else
-                                GameTooltip:AddLine(L["MSG_TOMTOM_NOT_DETECTED"], 1, 0.2, 0.2)
-                            end
-                            GameTooltip:Show()
-                        end)
-                        btn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-                        btn:SetScript("OnClick", function()
-                            SetGlyphWaypoint(glyph, zoneData)
-                        end)
-                    end
-                end
-
-                panel:Show()
-            end
-        end
-
-        LVProfessionWindow:SetHeight(345)
-    elseif #profData == 0 then
+    if #profData == 0 then
         noProfText:Show()
-        LVProfessionWindow:SetHeight(100)
+        profContent:SetHeight(math.max(1, profScroll:GetHeight()))
     else
-        local yOffset = -40
+        local yOffset = -4
         local requestedTreasureData = false
         for i, prof in ipairs(profData) do
             if i > 2 then break end
             local row = profRows[i]
             row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", LVProfessionWindow, "TOPLEFT", 15, yOffset)
+            row:SetPoint("TOPLEFT", profContent, "TOPLEFT", 4, yOffset)
 
             SetCircularBadgeTexture(row.iconBadge, prof.icon or 136243)
             SetCircularBadgeState(row.iconBadge, false)
@@ -1408,9 +1362,9 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
 
             -- Check if this is a gathering profession (no concentration)
             -- Use original English name for lookup since gatheringProfs uses English keys
-            local isGathering = gatheringProfs[prof.name] or false
+            local isGathering = gatheringSkillLines[prof.skillLineID] or gatheringProfs[prof.name] or false
 
-            if currentProfTab == "sources" then
+            if currentProfTab == "overview" or currentProfTab == "weekly" then
                 row.treasureHint:Hide()
                 row.uniqueHeader:Hide()
                 row.weeklyHeader:Hide()
@@ -1424,43 +1378,32 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                     row.concText:Hide()
                     row.concBorder:Hide()
                     row.concReset:Hide()
-                    row.knowledge:SetPoint("TOPLEFT", row.skill, "BOTTOMLEFT", 0, -6)
+                    row.knowledge:ClearAllPoints()
+                    row.knowledge:SetPoint("TOPLEFT", 330, -36)
                 else
                     row.concBg:Show()
                     row.concBar:Show()
                     row.concText:Show()
                     row.concBorder:Show()
-                    row.concReset:Show()
-                    row.knowledge:SetPoint("TOPLEFT", row.concReset, "BOTTOMLEFT", 0, -4)
+                    row.concReset:Hide()
+                    row.knowledge:ClearAllPoints()
+                    row.knowledge:SetPoint("TOPLEFT", 330, -36)
 
                     local conc = prof.concentration or 0
                     local maxConc = prof.maxConcentration or 1000
                     if maxConc == 0 then maxConc = 1000 end
                     local concPercent = conc / maxConc
-                    row.concBar:SetWidth(math.max(1, 220 * concPercent))
+                    row.concBar:SetWidth(math.max(1, 350 * concPercent))
                     row.concText:SetText(string.format(L["LABEL_CONCENTRATION"], conc, maxConc))
 
-                    if conc >= maxConc then
-                        row.concReset:SetText("|cff00ff00" .. L["LABEL_CONC_FULL"] .. "|r")
-                    else
-                        local dailySeconds = lv.GetSecondsUntilDailyReset()
-                        local dailyHours = math.floor(dailySeconds / 3600)
-                        local dailyMins = math.floor((dailySeconds % 3600) / 60)
-
-                        local weeklySeconds = C_DateAndTime.GetSecondsUntilWeeklyReset()
-                        local weeklyDays = math.floor(weeklySeconds / 86400)
-                        local weeklyHours = math.floor((weeklySeconds % 86400) / 3600)
-
-                        local resetText = string.format("|cffffd100%s  |  %s|r",
-                            string.format(L["LABEL_CONC_DAILY_RESET"], dailyHours, dailyMins),
-                            string.format(L["LABEL_CONC_WEEKLY_RESET"], weeklyDays, weeklyHours))
-                        row.concReset:SetText(resetText)
-                    end
+                    -- Concentration regenerates continuously; it does not use the
+                    -- daily/weekly reset model formerly shown here.
+                    row.concReset:SetText("")
                 end
 
                 local kp = prof.knowledgePoints or 0
                 if kp > 0 then
-                    row.knowledge:SetText(string.format("|cff00ff00%s|r", string.format(L["LABEL_KNOWLEDGE_AVAILABLE"], kp)))
+                    row.knowledge:SetText(string.format(L["LABEL_KNOWLEDGE_AVAILABLE"], kp))
                 else
                     row.knowledge:SetText(string.format("|cff888888%s|r", L["LABEL_NO_KNOWLEDGE"]))
                 end
@@ -1469,8 +1412,10 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                 local treatiseDoneCount, treatiseTotalCount = 0, 0
                 local artisanDoneCount, artisanTotalCount = 0, 0
                 local unlockDoneCount, unlockTotalCount = 0, 0
-                if lv.KnowledgeSources and lv.KnowledgeSources.CalculateWeeklySummary then
-                    local s, entries = lv.KnowledgeSources.CalculateWeeklySummary(prof.skillLineID)
+                local sourceStatus = "unknown"
+                do
+                    local s, entries, status = GetStoredWeeklySourceData(prof)
+                    sourceStatus = status
                     if s then
                         weeklyDone = tonumber(s.weeklyDone) or 0
                         weeklyTotal = tonumber(s.weeklyTotal) or 0
@@ -1485,23 +1430,55 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                             artisanDoneCount = tonumber(e.doneCount) or ((e.done and 1) or 0)
                             artisanTotalCount = tonumber(e.totalCount) or ((e.questIDs and #e.questIDs) or ((e.questID and 1) or 0))
                         elseif e.key == "catchup" then
-                            unlockDoneCount, unlockTotalCount = CountCompletedQuests(e.unlockQuests)
+                            unlockTotalCount = e.unlockQuests and #e.unlockQuests or 0
+                            for _, qid in ipairs(e.unlockQuests or {}) do
+                                if e.unlockQuestStates and e.unlockQuestStates[qid] then
+                                    unlockDoneCount = unlockDoneCount + 1
+                                end
+                            end
                         end
                     end
                     row._knowledgeEntries = entries
+                end
+
+                if sourceStatus == "current" then
+                    row.sourcesTop:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
+                        L["LABEL_WEEKLY"], weeklyDone, weeklyTotal,
+                        L["LABEL_CATCHUP"], catchCur, catchMax))
+                    row.sourcesBottom:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
+                        L["LABEL_TREATISE"], treatiseDoneCount, treatiseTotalCount,
+                        L["LABEL_ARTISAN_QUEST"], artisanDoneCount, artisanTotalCount,
+                        L["LABEL_UNLOCKED"], unlockDoneCount, unlockTotalCount))
                 else
+                    row.sourcesTop:SetText(string.format("|cffffffcc%s: |cff888888%s|r", L["LABEL_WEEKLY"], L["LABEL_UNKNOWN"]))
+                    row.sourcesBottom:SetText(string.format("|cffffffcc%s: |cff888888%s|r", L["LABEL_CATCHUP"], L["LABEL_UNKNOWN"]))
                     row._knowledgeEntries = {}
                 end
 
-                row.sourcesTop:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
-                    L["LABEL_WEEKLY"], weeklyDone, weeklyTotal,
-                    L["LABEL_CATCHUP"], catchCur, catchMax))
-                row.sourcesBottom:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
-                    L["LABEL_TREATISE"], treatiseDoneCount, treatiseTotalCount,
-                    L["LABEL_ARTISAN_QUEST"], artisanDoneCount, artisanTotalCount,
-                    L["LABEL_UNLOCKED"], unlockDoneCount, unlockTotalCount))
+                if currentProfTab == "overview" then
+                    row.skill:Show()
+                    row.knowledge:Show()
+                    row.sourcesTop:Hide()
+                    row.sourcesBottom:Hide()
+                    row:SetScript("OnEnter", nil)
+                else
+                    row.skill:Hide()
+                    row.concBg:Hide()
+                    row.concBar:Hide()
+                    row.concText:Hide()
+                    row.concBorder:Hide()
+                    row.concReset:Hide()
+                    row.knowledge:Hide()
+                    row.sourcesTop:ClearAllPoints()
+                    row.sourcesTop:SetPoint("TOPLEFT", row.name, "BOTTOMLEFT", 0, -12)
+                    row.sourcesBottom:ClearAllPoints()
+                    row.sourcesBottom:SetPoint("TOPLEFT", row.sourcesTop, "BOTTOMLEFT", 0, -8)
+                    row.sourcesTop:Show()
+                    row.sourcesBottom:Show()
+                end
 
                 row:SetScript("OnEnter", function(self)
+                    if currentProfTab ~= "weekly" then return end
                     local entries = self._knowledgeEntries or {}
                     if #entries == 0 then return end
                     GameTooltip:SetOwner(self, "ANCHOR_CURSOR_RIGHT")
@@ -1515,7 +1492,7 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                             GameTooltip:AddLine(" ")
                             GameTooltip:AddLine(L["LABEL_TREATISE"], 1, 0.82, 0)
                             if e.questID then
-                                local qName = GetQuestDisplayName(e.questID)
+                                local qName = GetStoredQuestDisplayName(e.questID, e.questName)
                                 GameTooltip:AddLine(QuestStatusLine(e.done, qName), 1, 1, 1)
                             end
                         elseif e.key == "artisan" then
@@ -1531,8 +1508,8 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                                 local totalCount = tonumber(e.totalCount) or #e.questIDs
                                 GameTooltip:AddLine(string.format("%s: %d/%d", L["LABEL_WEEKLY"], doneCount, totalCount), 0.85, 0.85, 0.85)
                                 for _, qid in ipairs(e.questIDs) do
-                                    local done = C_QuestLog.IsQuestFlaggedCompleted(qid) and true or false
-                                    local qName = GetQuestDisplayName(qid)
+                                    local done = e.questStates and e.questStates[qid] and true or false
+                                    local qName = GetStoredQuestDisplayName(qid, e.questNames and e.questNames[qid])
                                     GameTooltip:AddLine(QuestStatusLine(done, qName), 1, 1, 1)
                                 end
                             end
@@ -1544,8 +1521,8 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                             if e.unlockQuests and #e.unlockQuests > 0 then
                                 GameTooltip:AddLine(L["LABEL_UNLOCK_REQUIREMENTS"], 1, 0.82, 0)
                                 for _, qid in ipairs(e.unlockQuests) do
-                                    local done = C_QuestLog.IsQuestFlaggedCompleted(qid) and true or false
-                                    local qName = GetQuestDisplayName(qid)
+                                    local done = e.unlockQuestStates and e.unlockQuestStates[qid] and true or false
+                                    local qName = GetStoredQuestDisplayName(qid, e.unlockQuestNames and e.unlockQuestNames[qid])
                                     GameTooltip:AddLine(QuestStatusLine(done, qName), 1, 1, 1)
                                 end
                             end
@@ -1571,9 +1548,18 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                 local tData = MIDNIGHT_TREASURE_QUESTS[prof.skillLineID]
                 local uniqueDone, uniqueTotal = CountCompletedQuestsForCharacter(charKey, prof, tData and tData.unique or nil)
                 local weeklyDoneCount, weeklyTotalCount = CountCompletedQuestsForCharacter(charKey, prof, tData and tData.weekly or nil)
+                local weeklySnapshotStatus = lv.KnowledgeSources and lv.KnowledgeSources.GetSnapshotStatus
+                    and lv.KnowledgeSources.GetSnapshotStatus(prof.weeklySources) or "unknown"
+                local uniqueRows = tData and tData.unique and #tData.unique or 0
+                local weeklyRows = weeklySnapshotStatus == "current" and tData and tData.weekly and #tData.weekly or 0
+                row._treasureRowCount = math.max(uniqueRows, weeklyRows)
                 row.skill:SetText("")
                 row.uniqueHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_UNIQUE_TREASURES"), uniqueDone, uniqueTotal))
-                row.weeklyHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_WEEKLY_TREASURES"), weeklyDoneCount, weeklyTotalCount))
+                if weeklySnapshotStatus == "current" then
+                    row.weeklyHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_WEEKLY_TREASURES"), weeklyDoneCount, weeklyTotalCount))
+                else
+                    row.weeklyHeader:SetText(string.format("|cffffffcc%s: |cff888888%s|r", LT("LABEL_WEEKLY_TREASURES"), L["LABEL_UNKNOWN"]))
+                end
                 row._treasureData = tData
 
                 for _, btn in ipairs(row.treasureButtons) do
@@ -1634,10 +1620,12 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                     end
                 end
                 buttonIndex = 9
-                for _, qid in ipairs(tData and tData.weekly or {}) do
-                    if row.treasureButtons[buttonIndex] then
-                        ConfigureTreasureButton(row.treasureButtons[buttonIndex], qid, false)
-                        buttonIndex = buttonIndex + 1
+                if weeklySnapshotStatus == "current" then
+                    for _, qid in ipairs(tData and tData.weekly or {}) do
+                        if row.treasureButtons[buttonIndex] then
+                            ConfigureTreasureButton(row.treasureButtons[buttonIndex], qid, false)
+                            buttonIndex = buttonIndex + 1
+                        end
                     end
                 end
             end
@@ -1648,24 +1636,36 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
 
             row:Show()
             if currentProfTab == "treasures" then
-                row:SetHeight(lv.Layout.professionTreasureRowHeight or 206)
-                yOffset = yOffset - (lv.Layout.professionTreasureRowSpacing or 214)
+                -- Treasure entries begin 74px below the card top, use 18px rows,
+                -- and need 12px of clear space below the final 16px text row.
+                local treasureHeight = math.max(96, 84 + ((row._treasureRowCount or 0) * 18))
+                row:SetHeight(treasureHeight)
+                yOffset = yOffset - (treasureHeight + 12)
             else
-                row:SetHeight(124)
-                row.knowledge:Show()
-                row.sourcesTop:Show()
-                row.sourcesBottom:Show()
+                if currentProfTab == "overview" then
+                    local overviewHeight = isGathering and 106 or 122
+                    row:SetHeight(overviewHeight)
+                    row.knowledge:Show()
+                    row.sourcesTop:Hide()
+                    row.sourcesBottom:Hide()
+                    yOffset = yOffset - (overviewHeight + 12)
+                else
+                    row:SetHeight(116)
+                    row.knowledge:Hide()
+                    row.sourcesTop:Show()
+                    row.sourcesBottom:Show()
+                    yOffset = yOffset - 128
+                end
                 row.treasureHint:Hide()
                 row.uniqueHeader:Hide()
                 row.weeklyHeader:Hide()
                 for _, btn in ipairs(row.treasureButtons) do
                     btn:Hide()
                 end
-                yOffset = yOffset - 132
             end
         end
 
-        LVProfessionWindow:SetHeight(math.abs(yOffset) + 58)
+        profContent:SetHeight(math.max(profScroll:GetHeight(), math.abs(yOffset) + 4))
 
         if currentProfTab == "treasures" and requestedTreasureData and not pendingTreasureRefresh then
             C_Timer.After(0.8, function()
@@ -1687,7 +1687,25 @@ eventFrame:RegisterEvent("SKILL_LINES_CHANGED")
 eventFrame:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
 eventFrame:RegisterEvent("TRADE_SKILL_SHOW")
 eventFrame:RegisterEvent("TRADE_SKILL_CLOSE")
+eventFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+eventFrame:RegisterEvent("QUEST_LOG_UPDATE")
+eventFrame:RegisterEvent("QUEST_TURNED_IN")
+eventFrame:RegisterEvent("TRAIT_TREE_CURRENCY_INFO_UPDATED")
+eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 eventFrame:RegisterEvent("PLAYER_LOGOUT")
+
+local professionScanGeneration = 0
+local function QueueProfessionScan(delay, refreshOpenWindow)
+    professionScanGeneration = professionScanGeneration + 1
+    local generation = professionScanGeneration
+    C_Timer.After(delay or 0.25, function()
+        if generation ~= professionScanGeneration then return end
+        lv.ScanProfessionDetails()
+        if refreshOpenWindow and currentProfChar == lv.PLAYER_KEY and LVProfessionWindow:IsShown() then
+            lv.ShowProfessionWindow(currentProfChar, true)
+        end
+    end)
+end
 
 -- Retry scan with increasing delays if initial scan fails
 local function ScanWithRetry()
@@ -1719,21 +1737,17 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         -- Capture the child profession info when profession window opens
         C_Timer.After(0.1, function()
             lv.CaptureChildProfessionInfo()
-            lv.ScanProfessionDetails()
+            QueueProfessionScan(0, true)
         end)
     elseif event == "SKILL_LINES_CHANGED" or event == "TRADE_SKILL_LIST_UPDATE" or event == "TRADE_SKILL_CLOSE" then
-        lv.ScanProfessionDetails()
-        if currentProfChar and LVProfessionWindow:IsShown() and currentProfTab == "sources" then
-            lv.ShowProfessionWindow(currentProfChar, true)
-        end
+        QueueProfessionScan(0.2, true)
+    elseif event == "CURRENCY_DISPLAY_UPDATE" or event == "QUEST_LOG_UPDATE" or event == "QUEST_TURNED_IN"
+        or event == "TRAIT_TREE_CURRENCY_INFO_UPDATED" or event == "TRAIT_CONFIG_UPDATED" then
+        QueueProfessionScan(0.35, true)
     elseif event == "PLAYER_LOGOUT" then
         -- Ensure data is captured before logout
         lv.ScanProfessionDetails()
     end
 end)
-
-profGlyphsTabBtn:Hide()
-profGlyphsTabBtn:EnableMouse(false)
-
 
 

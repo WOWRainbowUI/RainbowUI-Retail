@@ -11,7 +11,12 @@ local function UIText(key, fallback)
     return v
 end
 
--- Custom gold formatting with zero-padded silver/copper for aligned icons
+local function FormatGoldThousands(gold)
+    local grouped = tostring(math.floor(tonumber(gold) or 0)):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+    return grouped
+end
+
+-- Custom gold formatting with grouped gold and zero-padded silver/copper.
 local function FormatGoldAligned(copperAmount, iconSize)
     iconSize = iconSize or 14
     copperAmount = math.max(0, tonumber(copperAmount) or 0)
@@ -25,9 +30,54 @@ local function FormatGoldAligned(copperAmount, iconSize)
     local copperIcon = string.format("|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:%d|t", iconSize, iconSize, baseline)
 
     -- Zero-pad silver and copper to 2 digits
-    return string.format("%d%s %02d%s %02d%s", gold, goldIcon, silver, silverIcon, copper, copperIcon)
+    return string.format("%s%s %02d%s %02d%s", FormatGoldThousands(gold), goldIcon, silver, silverIcon, copper, copperIcon)
 end
 lv.FormatGoldAligned = FormatGoldAligned
+
+-- Compact formatting is intentionally limited to the Dashboard balance rows.
+-- Other callers of FormatGoldAligned continue to receive exact coin values.
+local function FormatDashboardMoney(copperAmount, iconSize)
+    copperAmount = math.max(0, tonumber(copperAmount) or 0)
+    local gold = copperAmount / 10000
+    if gold < 1000 then
+        return FormatGoldAligned(copperAmount, iconSize)
+    end
+
+    local divisor, suffix, decimals
+    if gold < 1000000 then
+        divisor, suffix = 1000, "k"
+        if gold < 10000 then
+            decimals = 2
+        elseif gold < 100000 then
+            decimals = 1
+        else
+            decimals = 0
+        end
+    else
+        divisor, suffix = 1000000, "m"
+        if gold < 10000000 then
+            decimals = 2
+        elseif gold < 100000000 then
+            decimals = 1
+        else
+            decimals = 0
+        end
+    end
+
+    local value = string.format("%." .. decimals .. "f", gold / divisor)
+    if decimals > 0 then
+        value = value:gsub("(%..-)0+$", "%1"):gsub("%.$", "")
+    end
+    return value .. suffix
+end
+
+local function FormatDashboardExactMoney(copperAmount)
+    copperAmount = math.max(0, math.floor(tonumber(copperAmount) or 0))
+    local gold = math.floor(copperAmount / 10000)
+    local silver = math.floor((copperAmount % 10000) / 100)
+    local copper = copperAmount % 100
+    return string.format("%sg %ds %dc", FormatGoldThousands(gold), silver, copper)
+end
 
 -- 1. MAIN WINDOW
 local LVWindow = CreateFrame("Frame", "LiteVaultWindow", UIParent, "BackdropTemplate")
@@ -52,11 +102,12 @@ LVWindow:SetBackdrop({
     edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
+lv.EnsureBorderStyle(LVWindow, "window")
 
 -- Apply theme colors (initial application, will be updated by theme system)
 local function ApplyMainWindowTheme(frame, theme)
     frame:SetBackdropColor(unpack(theme.background))
-    frame:SetBackdropBorderColor(unpack(theme.borderPrimary))
+    lv.ApplyBorderStyle(frame, "window", theme)
 end
 
 -- Register for theme updates (called after theme system loads)
@@ -64,10 +115,6 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(LVWindow, ApplyMainWindowTheme)
         ApplyMainWindowTheme(LVWindow, lv.GetTheme())
-    else
-        -- Fallback to dark theme colors
-        LVWindow:SetBackdropColor(0.02, 0.02, 0.08, 0.95)
-        LVWindow:SetBackdropBorderColor(0.6, 0.2, 1, 1)
     end
 end)
 
@@ -484,6 +531,7 @@ local FilterFrame = CreateFrame("Frame", "LiteVaultFilterFrame", LVWindow, "Back
 FilterFrame:SetSize(180, 240)
 FilterFrame:Hide()
 FilterFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14, insets = { left = 4, right = 4, top = 4, bottom = 4 } })
+lv.EnsureBorderStyle(FilterFrame, "panelCompact")
 
 local fTitle = FilterFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 fTitle:SetPoint("TOPLEFT", 15, -12)
@@ -518,7 +566,7 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(FilterFrame, function(f, theme)
             f:SetBackdropColor(unpack(theme.background))
-            f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            lv.ApplyBorderStyle(f, "panelCompact", theme)
         end)
         lv.RegisterThemedElement(fClose, function(btn, theme)
             btn:SetBackdropColor(unpack(theme.buttonBgAlt))
@@ -528,7 +576,7 @@ C_Timer.After(0, function()
         -- Apply initial theme
         local t = lv.GetTheme()
         FilterFrame:SetBackdropColor(unpack(t.background))
-        FilterFrame:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(FilterFrame, "panelCompact", t)
         fClose:SetBackdropColor(unpack(t.buttonBgAlt))
         fClose:SetBackdropBorderColor(unpack(t.borderPrimary))
         fClose.Text:SetTextColor(unpack(t.textPrimary))
@@ -631,22 +679,13 @@ local sortLabel = sortFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmal
 sortLabel:SetPoint("LEFT", 0, 0)
 sortLabel:SetText(L["LABEL_SORT_BY"])
 
--- Register sort label for theming (purple in dark, gold in light)
+-- Register sort label with the canonical LiteVault title accent.
 C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(sortLabel, function(label, theme)
-            if lv.currentTheme == "dark" then
-                label:SetTextColor(0.69, 0.61, 0.85, 1) -- #b19cd9 purple
-            else
-                label:SetTextColor(1, 0.82, 0, 1) -- #ffd100 gold
-            end
+            label:SetTextColor(unpack(theme.textGold))
         end)
-        -- Apply initial color
-        if lv.currentTheme == "dark" then
-            sortLabel:SetTextColor(0.69, 0.61, 0.85, 1)
-        else
-            sortLabel:SetTextColor(1, 0.82, 0, 1)
-        end
+        sortLabel:SetTextColor(unpack(lv.GetTheme().textGold))
     end
 end)
 
@@ -832,7 +871,8 @@ end
 local WeeklyBox = CreateFrame("Frame", nil, LVWindow, "BackdropTemplate")
 WeeklyBox:SetSize(360, math.max(lv.Layout.weeklyBoxHeight or 120, 170))
 WeeklyBox:SetPoint("TOP", lv.CalFrame, "BOTTOM", 0, -8) -- Centered under calendar
-WeeklyBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14 })
+WeeklyBox:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8" })
+lv.EnsureBorderStyle(WeeklyBox, "panelStructural")
 
 -- Store reference for theming
 lv.WeeklyBox = WeeklyBox
@@ -841,11 +881,11 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(WeeklyBox, function(f, theme)
             f:SetBackdropColor(unpack(theme.backgroundTransparent))
-            f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            lv.ApplyBorderStyle(f, "panelStructural", theme)
         end)
         local t = lv.GetTheme()
         WeeklyBox:SetBackdropColor(unpack(t.backgroundTransparent))
-        WeeklyBox:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(WeeklyBox, "panelStructural", t)
     end
 end)
 if lv.AttachFolioDashboardFrame then
@@ -853,8 +893,12 @@ if lv.AttachFolioDashboardFrame then
 end
 local weeklyViewMode = "weeklies"
 local function CreateWeeklyContentArea()
-    local title = WeeklyBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local title = WeeklyBox:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -10)
+
+    local summary = WeeklyBox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    summary:SetPoint("TOP", title, "BOTTOM", 0, -5)
+    summary:SetText("")
 
     local content = WeeklyBox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     content:SetPoint("TOPLEFT", 15, -50)
@@ -870,22 +914,88 @@ local function CreateWeeklyContentArea()
     warning:SetText("")
     warning:Hide()
 
-    return title, content, warning
+    return title, summary, content, warning
 end
 
 local weeklyUI = {}
-weeklyUI.title, weeklyUI.content, weeklyUI.warning = CreateWeeklyContentArea()
+weeklyUI.title, weeklyUI.summary, weeklyUI.content, weeklyUI.warning = CreateWeeklyContentArea()
+weeklyUI.rows = {}
 lv.weeklyUI = weeklyUI
+
+local WEEKLY_ROW_HEIGHT = 28
+local WEEKLY_METADATA_ROW_HEIGHT = 32
+local WEEKLY_ROW_GAP = 3
+local WEEKLY_STATUS_WIDTH = 116
+
+local function ApplyWeeklyQuestRowTheme(row, theme)
+    row:SetBackdropColor(unpack(theme.weeklyQuestRowBg))
+    row:SetBackdropBorderColor(unpack(theme.weeklyQuestRowBorder))
+    row.name:SetTextColor(unpack(theme.textPrimary))
+    row.metadata:SetTextColor(unpack(theme.textMuted))
+end
+
+local function EnsureWeeklyQuestRow(index)
+    local row = weeklyUI.rows[index]
+    if row then return row end
+
+    row = CreateFrame("Frame", nil, WeeklyBox, "BackdropTemplate")
+    row:SetSize(320, WEEKLY_ROW_HEIGHT)
+    row:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
+        edgeSize = 8,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 },
+    })
+
+    row.status = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    row.status:SetPoint("RIGHT", row, "RIGHT", -12, 0)
+    row.status:SetWidth(WEEKLY_STATUS_WIDTH)
+    row.status:SetJustifyH("RIGHT")
+
+    row.name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    row.name:SetPoint("TOPLEFT", 11, -4)
+    row.name:SetPoint("RIGHT", row.status, "LEFT", -10, 0)
+    row.name:SetJustifyH("LEFT")
+    row.name:SetWordWrap(false)
+
+    row.metadata = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    row.metadata:SetPoint("TOPLEFT", row, "TOPLEFT", 11, -19)
+    row.metadata:SetPoint("RIGHT", row.status, "LEFT", -10, 0)
+    row.metadata:SetJustifyH("LEFT")
+    row.metadata:SetWordWrap(false)
+
+    weeklyUI.rows[index] = row
+    if lv.RegisterThemedElement then
+        lv.RegisterThemedElement(row, ApplyWeeklyQuestRowTheme)
+    end
+    ApplyWeeklyQuestRowTheme(row, lv.GetTheme())
+    return row
+end
+
+C_Timer.After(0, function()
+    if lv.RegisterThemedElement then
+        lv.RegisterThemedElement(weeklyUI.title, function(label, theme)
+            label:SetTextColor(unpack(theme.textGold))
+        end)
+        lv.RegisterThemedElement(weeklyUI.summary, function(label, theme)
+            label:SetTextColor(unpack(theme.weeklyQuestSummaryText))
+        end)
+    end
+    local t = lv.GetTheme()
+    weeklyUI.title:SetTextColor(unpack(t.textGold))
+    weeklyUI.summary:SetTextColor(unpack(t.weeklyQuestSummaryText))
+end)
 
 local weeklyTabDefs = {
     { key = "weeklies", labelKey = "BUTTON_WEEKLIES", quests = function() return lv.WEEKLY_QUESTS or {} end },
 }
 local factionWeeklyTabDefs = {
-    { key = "amani", labelKey = "BUTTON_AMANI_TRIBE", quests = function() return lv.WEEKLY_AMANI_TRIBE_QUESTS or {} end, warningKey = "WARNING_WEEKLY_AMANI_CHOICE" },
+    { key = "amani", labelKey = "BUTTON_AMANI_TRIBE", quests = function() return lv.WEEKLY_AMANI_TRIBE_QUESTS or {} end },
     { key = "harati", labelKey = "BUTTON_HARATI", quests = function() return lv.WEEKLY_HARATI_QUESTS or {} end },
-    { key = "singularity", labelKey = "BUTTON_SINGULARITY", quests = function() return lv.WEEKLY_SINGULARITY_QUESTS or {} end, warningKey = "WARNING_WEEKLY_SINGULARITY_CHOICE" },
+    { key = "singularity", labelKey = "BUTTON_SINGULARITY", quests = function() return lv.WEEKLY_SINGULARITY_QUESTS or {} end },
     { key = "silvermoon", labelKey = "BUTTON_SILVERMOON_COURT", quests = function() return lv.WEEKLY_SILVERMOON_COURT_QUESTS or {} end, warningKey = "WARNING_WEEKLY_RUNESTONES" },
     { key = "ritualsites", labelKey = "BUTTON_RITUAL_SITES", quests = function() return lv.WEEKLY_RITUAL_SITES_QUESTS or {} end },
+    { key = "zuljarra", labelKey = "BUTTON_ZULJARRA_FORCES", quests = function() return lv.WEEKLY_ZULJARRA_QUESTS or {} end },
 }
 
 local function GetWeeklyTabDef(mode)
@@ -944,15 +1054,9 @@ lv.UpdateWeeklyWarningLayout = UpdateWeeklyWarningLayout
 local function NormalizeWeeklyQuestTitle(title)
     if type(title) ~= "string" then return nil end
     title = title:gsub("’", "'"):gsub("‘", "'")
+    title = title:gsub("：", ":"):gsub("，", ",")
+    title = title:gsub("’", "'"):gsub("‘", "'")
     title = title:gsub("ï¼š", ":"):gsub("：", ":")
-    title = title:gsub("%s+", " ")
-    title = title:match("^%s*(.-)%s*$")
-    if title == "" then return nil end
-    return title:lower()
-end
-
-local function NormalizeWeeklyQuestTitle(title)
-    if type(title) ~= "string" then return nil end
     title = title:gsub("%s+", " ")
     title = title:match("^%s*(.-)%s*$")
     if title == "" then return nil end
@@ -1123,7 +1227,7 @@ local function GetWeeklyQuestDisplayName(quest)
         return GetWeeklyQuestVariantDisplayName(quest, rotatingQuestID)
     end
 
-    return L[quest.name]
+    return GetWeeklyQuestVariantDisplayName(quest, quest.id)
 end
 
 local function BuildWeeklyQuestNextWeekText(quest)
@@ -1321,23 +1425,99 @@ local function BuildWeeklyQuestText(data, questList)
 end
 lv.BuildWeeklyQuestText = BuildWeeklyQuestText
 
-local function StyleWeeklyTab(btn, active)
+local function GetWeeklyQuestStatusLabel(state)
+    local key = state == "done" and "STATUS_DONE"
+        or state == "in_progress" and "STATUS_IN_PROGRESS"
+        or "STATUS_NOT_STARTED"
+    return tostring(L[key] or key):gsub("^%[", ""):gsub("%]$", ""):gsub("%-", " ")
+end
+
+local function RenderWeeklyQuestRows(data, questList)
+    questList = questList or {}
+    data.weeklyQuests = data.weeklyQuests or {}
+    weeklyUI.content:Hide()
+
+    for _, row in ipairs(weeklyUI.rows) do
+        row:Hide()
+    end
+
+    if #questList == 0 then
+        weeklyUI.summary:SetText(string.format(UIText("LABEL_WEEKLY_COMPLETION_SUMMARY", "%d / %d Complete"), 0, 0))
+        weeklyUI.content:SetText(L["MSG_NO_WEEKLY_QUESTS_CONFIGURED"])
+        weeklyUI.content:ClearAllPoints()
+        weeklyUI.content:SetPoint("TOP", weeklyUI.summary, "BOTTOM", 0, -12)
+        weeklyUI.content:SetWidth(320)
+        weeklyUI.content:SetJustifyH("CENTER")
+        weeklyUI.content:Show()
+        return
+    end
+
+    local completed = 0
+    local theme = lv.GetTheme()
+    local rowTop = -42
+    for index, quest in ipairs(questList) do
+        local state = GetWeeklyQuestState(quest)
+        if state == "done" then completed = completed + 1 end
+
+        -- Preserve the existing weeklyQuests snapshot representation.
+        data.weeklyQuests[quest.id] = BuildWeeklyQuestStatusText(state)
+
+        local row = EnsureWeeklyQuestRow(index)
+        local metadataKey = quest.dashboardMetadataKey
+        local metadata = metadataKey and L[metadataKey] or ""
+        local rowHeight = metadata ~= "" and WEEKLY_METADATA_ROW_HEIGHT or WEEKLY_ROW_HEIGHT
+        row:SetHeight(rowHeight)
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", WeeklyBox, "TOPLEFT", 20, rowTop)
+        row.name:ClearAllPoints()
+        if metadata ~= "" then
+            row.name:SetPoint("TOPLEFT", row, "TOPLEFT", 11, -4)
+        else
+            row.name:SetPoint("LEFT", row, "LEFT", 11, 0)
+        end
+        row.name:SetPoint("RIGHT", row.status, "LEFT", -10, 0)
+        row.name:SetText(L[quest.name])
+        row.metadata:SetText(metadata)
+        if metadata ~= "" then
+            row.metadata:Show()
+        else
+            row.metadata:Hide()
+        end
+        row.status:SetText(GetWeeklyQuestStatusLabel(state))
+        if state == "done" then
+            row.status:SetTextColor(unpack(theme.weeklyQuestCompleteText))
+        elseif state == "in_progress" then
+            row.status:SetTextColor(unpack(theme.textGold))
+        else
+            row.status:SetTextColor(unpack(theme.weeklyQuestNotStartedText))
+        end
+        row:Show()
+        rowTop = rowTop - rowHeight - WEEKLY_ROW_GAP
+    end
+
+    weeklyUI.summary:SetText(string.format(UIText("LABEL_WEEKLY_COMPLETION_SUMMARY", "%d / %d Complete"), completed, #questList))
+end
+lv.RenderWeeklyQuestRows = RenderWeeklyQuestRows
+
+local function StyleWeeklyTab(btn, visualState)
     local t = lv.GetTheme and lv.GetTheme() or nil
     if not t then return end
-    btn:SetBackdropColor(unpack(active and t.buttonBgHover or t.buttonBg))
-    btn:SetBackdropBorderColor(unpack(active and t.borderHover or t.borderPrimary))
+    local hovered = visualState == "hover"
+    local pressed = visualState == "pressed"
+    btn:SetBackdropColor(unpack(pressed and (t.buttonBgActive or t.buttonBgHover) or (hovered and t.buttonBgHover or t.buttonBg)))
+    btn:SetBackdropBorderColor(unpack((hovered or pressed) and t.borderHover or t.borderPrimary))
     btn.Text:SetTextColor(unpack(t.textPrimary))
 end
 
 local function ApplyFactionWindowTheme(frame, theme)
     frame:SetBackdropColor(unpack(theme.background))
-    frame:SetBackdropBorderColor(unpack(theme.borderPrimary))
+    lv.ApplyBorderStyle(frame, "panel", theme)
 end
 
 local function CreateFactionWeeklyWindow()
     local frame = CreateFrame("Frame", "LiteVaultFactionWeeklyFrame", LVWindow, "BackdropTemplate")
     frame:SetSize(700, 240)
-    frame:SetPoint("TOP", LVWindow, "TOP", 0, -70)
+    frame:SetPoint("TOP", LVWindow, "TOP", 0, -100)
     frame:SetFrameStrata("MEDIUM")
     frame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -1345,6 +1525,7 @@ local function CreateFactionWeeklyWindow()
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
+    lv.EnsureBorderStyle(frame, "panelTabbed")
     frame:Hide()
 
     C_Timer.After(0, function()
@@ -1359,6 +1540,72 @@ end
 
 FactionWeeklyWindow = CreateFactionWeeklyWindow()
 
+local factionSectionMode = "weeklies"
+local factionSectionTabs = {}
+local FactionTokkaWindow
+
+local function StyleFactionSectionTab(button, active, hovered)
+    lv.StyleInteriorNavigationButton(button, active, hovered)
+end
+
+local function UpdateFactionSectionTabs()
+    for mode, button in pairs(factionSectionTabs) do
+        StyleFactionSectionTab(button, mode == factionSectionMode)
+    end
+end
+
+local function SetFactionSectionMode(mode)
+    factionSectionMode = mode == "tokka" and "tokka" or "weeklies"
+    local showWeeklies = factionSectionMode == "weeklies"
+    FactionWeeklyWindow:SetShown(showWeeklies)
+    if FactionTokkaWindow then FactionTokkaWindow:SetShown(not showWeeklies) end
+    SetFactionCardsVisible(showWeeklies)
+    UpdateFactionSectionTabs()
+    if showWeeklies then
+        if lv.UpdateFactionWeeklyWindow then lv.UpdateFactionWeeklyWindow() end
+    elseif lv.UpdateCaptainTokkaWindow then
+        lv.UpdateCaptainTokkaWindow()
+    end
+end
+
+local function CreateFactionSectionTab(mode, labelKey, anchor)
+    local button = lv.CreateInteriorNavigationButton(LVWindow, {
+        width = 156,
+        height = 24,
+        text = L[labelKey],
+    })
+    if anchor then
+        button:SetPoint("LEFT", anchor, "RIGHT", -4, 0)
+    else
+        button:SetPoint("BOTTOMLEFT", FactionWeeklyWindow, "TOPLEFT", 8, -3)
+    end
+    lv.ApplyLocaleFont(button.Text, 11)
+    button:SetScript("OnClick", function() SetFactionSectionMode(mode) end)
+    button:SetScript("OnEnter", function(self)
+        StyleFactionSectionTab(self, factionSectionMode == mode, true)
+    end)
+    button:SetScript("OnLeave", function(self)
+        StyleFactionSectionTab(self, factionSectionMode == mode, false)
+    end)
+    button:Hide()
+    factionSectionTabs[mode] = button
+    return button
+end
+
+local weekliesSectionTab = CreateFactionSectionTab("weeklies", "BUTTON_FACTION_WEEKLIES")
+CreateFactionSectionTab("tokka", "BUTTON_CAPTAIN_TOKKA", weekliesSectionTab)
+
+C_Timer.After(0, function()
+    if lv.RegisterThemedElement then
+        for _, button in pairs(factionSectionTabs) do
+            lv.RegisterThemedElement(button, function()
+                UpdateFactionSectionTabs()
+            end)
+        end
+    end
+    UpdateFactionSectionTabs()
+end)
+
 local function CreateFactionTopControls()
     local title = FactionWeeklyWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 20, -18)
@@ -1370,7 +1617,7 @@ local factionTitle = CreateFactionTopControls()
 
 local function CreateFactionContentArea()
     local warning = FactionWeeklyWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    warning:SetPoint("TOPLEFT", 20, -84)
+    warning:SetPoint("TOPLEFT", 20, -120)
     warning:SetPoint("RIGHT", -20, 0)
     warning:SetJustifyH("LEFT")
     warning:SetJustifyV("TOP")
@@ -1379,7 +1626,7 @@ local function CreateFactionContentArea()
     warning:Hide()
 
     local scrollFrame = CreateFrame("ScrollFrame", nil, FactionWeeklyWindow)
-    scrollFrame:SetPoint("TOPLEFT", 20, -84)
+    scrollFrame:SetPoint("TOPLEFT", 20, -120)
     scrollFrame:SetPoint("BOTTOMRIGHT", -20, 20)
     scrollFrame:EnableMouseWheel(true)
 
@@ -1402,12 +1649,13 @@ local factionUI = {}
 factionUI.warning, factionUI.scrollFrame, factionUI.scrollChild, factionUI.content = CreateFactionContentArea()
 local factionCards = {}
 lv.factionCards = factionCards
+local factionWeeklyMode = "amani"
 
 local FACTION_CARD_WIDTH = 310
 local FACTION_CARD_HEIGHT = 82
 local FACTION_CARD_COLUMNS = 2
 local FACTION_CARD_X_STEP = 320
-local FACTION_CARD_Y_STEP = 92
+local FACTION_CARD_Y_STEP = 88
 local FACTION_CARD_TOP_PADDING = 8
 local FACTION_CARD_TEXT_GAP = 12
 
@@ -1417,7 +1665,30 @@ local FACTION_CARD_CONFIG = {
     { key = "singularity", labelKey = "BUTTON_SINGULARITY", short = "S", atlas = "majorfactions_icons_sky512", color = {0.45, 0.30, 0.85} },
     { key = "silvermoon", labelKey = "BUTTON_SILVERMOON_COURT", short = "SC", atlas = "majorfactions_icons_light512", color = {0.90, 0.64, 0.16} },
     { key = "ritualsites", labelKey = "BUTTON_RITUAL_SITES", short = "RS", atlas = "majorfactions_icons_RitualSites512", color = {0.82, 0.48, 0.96}, selectable = false },
+    { key = "zuljarra", labelKey = "BUTTON_ZULJARRA_FORCES", short = "ZF", dynamicMajorFactionAtlas = true, color = {0.36, 0.62, 0.58} },
+    { key = "tokka", labelKey = "BUTTON_CAPTAIN_TOKKA", short = "CT", dynamicMajorFactionAtlas = true, sectionMode = "tokka", color = {0.24, 0.66, 0.72} },
+    { key = "valeera", labelKey = "LABEL_VALEERA_SANGUINAR", allowTextFallback = false, selectable = false, color = {0.72, 0.18, 0.22} },
+    { key = "slayersduellum", labelKey = "LABEL_SLAYERS_DUELLUM", allowTextFallback = false, selectable = false, color = {0.20, 0.43, 0.78} },
 }
+
+-- Blizzard artwork identifiers used by the Midnight expansion landing page.
+local FACTION_ARTWORK_BY_FACTION_ID = {
+    [2744] = { kind = "creatureDisplay", id = 26365 }, -- Valeera Sanguinar
+    [2770] = { kind = "texture", id = 7448209 },       -- Slayer's Duellum
+    [2773] = { kind = "creatureDisplay", id = 145432, creatureID = 253515 }, -- Captain Tokka
+}
+
+local function GetDynamicMajorFactionAtlas(cfg)
+    if not (cfg and cfg.dynamicMajorFactionAtlas) then return nil end
+    local factionID = lv.MIDNIGHT_FACTION_IDS and lv.MIDNIGHT_FACTION_IDS[cfg.key]
+    if not (factionID and C_MajorFactions and C_MajorFactions.GetMajorFactionData) then return nil end
+    local factionData = C_MajorFactions.GetMajorFactionData(factionID)
+    local textureKit = factionData and factionData.textureKit
+    if type(textureKit) ~= "string" or textureKit == "" then return nil end
+    local atlas = "majorfactions_icons_" .. textureKit .. "512"
+    local atlasInfo = C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas)
+    return atlasInfo and atlas or nil
+end
 
 local function UpdateFactionCardEmblem(card)
     if not card or not card.cfg then
@@ -1427,8 +1698,26 @@ local function UpdateFactionCardEmblem(card)
     local cfg = card.cfg
     local iconTexture
 
-    if cfg.atlas then
-        card.emblemIcon:SetAtlas(cfg.atlas, true)
+    local factionID = lv.MIDNIGHT_FACTION_IDS and lv.MIDNIGHT_FACTION_IDS[cfg.key]
+    local artwork = factionID and FACTION_ARTWORK_BY_FACTION_ID[factionID]
+    if artwork then
+        if artwork.kind == "creatureDisplay" and SetPortraitTextureFromCreatureDisplayID then
+            SetPortraitTextureFromCreatureDisplayID(card.emblemIcon, artwork.id)
+            card.emblemIcon:Show()
+            card.emblemText:Hide()
+            return
+        elseif artwork.kind == "texture" then
+            card.emblemIcon:SetTexCoord(0, 1, 0, 1)
+            card.emblemIcon:SetTexture(artwork.id)
+            card.emblemIcon:Show()
+            card.emblemText:Hide()
+            return
+        end
+    end
+
+    local resolvedAtlas = cfg.atlas or GetDynamicMajorFactionAtlas(cfg)
+    if resolvedAtlas then
+        card.emblemIcon:SetAtlas(resolvedAtlas, false)
         card.emblemIcon:Show()
         card.emblemText:Hide()
         return
@@ -1439,6 +1728,11 @@ local function UpdateFactionCardEmblem(card)
         iconTexture = currencyInfo and (currencyInfo.iconFileID or currencyInfo.icon)
     end
 
+    if not iconTexture and factionID == 2744 and C_GossipInfo and C_GossipInfo.GetFriendshipReputation then
+        local friendshipInfo = C_GossipInfo.GetFriendshipReputation(factionID)
+        iconTexture = friendshipInfo and friendshipInfo.texture
+    end
+
     if iconTexture then
         card.emblemIcon:SetTexture(iconTexture)
         card.emblemIcon:Show()
@@ -1446,24 +1740,130 @@ local function UpdateFactionCardEmblem(card)
     else
         card.emblemIcon:SetTexture(nil)
         card.emblemIcon:Hide()
-        card.emblemText:SetText(cfg.short or "")
-        card.emblemText:Show()
+        card.emblemText:SetText(cfg.allowTextFallback == false and "" or (cfg.short or ""))
+        card.emblemText:SetShown(cfg.allowTextFallback ~= false)
     end
 end
 
+local function GetFactionCardAccent(cfg, theme, hovered)
+    local source = cfg.color or {0.55, 0.55, 0.55}
+    local scale = 0.86
+    if hovered then scale = math.min(1.05, scale + 0.10) end
+    return math.min(1, source[1] * scale), math.min(1, source[2] * scale), math.min(1, source[3] * scale)
+end
+
+local function UpdateFactionCardEmblemAccentGeometry(card)
+    if not (card and card.emblemBg and card.emblemAccentLines) then return end
+
+    local scale = card.emblemBg:GetEffectiveScale()
+    local yOffset = 0
+    if scale and scale > 0 then
+        local emblemTop = card.emblemBg:GetTop()
+        if emblemTop then
+            local accentTop = emblemTop - 3
+            yOffset = (math.floor((accentTop * scale) + 0.5) / scale) - accentTop
+        end
+    end
+    local top, bottom, left, right = unpack(card.emblemAccentLines)
+
+    for _, line in ipairs(card.emblemAccentLines) do
+        if line.SetSnapToPixelGrid then
+            line:SetSnapToPixelGrid(true)
+        end
+        if line.SetTexelSnappingBias then
+            line:SetTexelSnappingBias(0)
+        end
+        line:ClearAllPoints()
+    end
+
+    top:SetPoint("TOPLEFT", 3, -3 + yOffset)
+    top:SetPoint("TOPRIGHT", -3, -3 + yOffset)
+    top:SetHeight(1)
+
+    bottom:SetPoint("BOTTOMLEFT", 3, 3 + yOffset)
+    bottom:SetPoint("BOTTOMRIGHT", -3, 3 + yOffset)
+    bottom:SetHeight(1)
+
+    left:SetPoint("TOPLEFT", 3, -3 + yOffset)
+    left:SetPoint("BOTTOMLEFT", 3, 3 + yOffset)
+    left:SetWidth(1)
+
+    right:SetPoint("TOPRIGHT", -3, -3 + yOffset)
+    right:SetPoint("BOTTOMRIGHT", -3, 3 + yOffset)
+    right:SetWidth(1)
+end
+
+local function ApplyFactionCardVisual(card, theme, hovered)
+    if not (card and card.cfg and theme) then return end
+    local ar, ag, ab = GetFactionCardAccent(card.cfg, theme, hovered)
+    local outer = hovered and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary
+    local inner = theme.borderSubdued or theme.borderMuted or theme.borderPrimary
+    local background = theme.buttonBgAlt or theme.dataBoxBgAlt or theme.backgroundAlt or theme.background
+
+    card:SetBackdropColor(unpack(background))
+    card:SetBackdropBorderColor(unpack(outer))
+    card.innerBorder:SetBackdropBorderColor(inner[1], inner[2], inner[3], 0.62)
+    card.topAccent:SetColorTexture(ar, ag, ab, hovered and 0.70 or 0.46)
+    card.bottomAccent:SetColorTexture(ar, ag, ab, hovered and 0.64 or 0.40)
+    for _, segment in ipairs(card.cornerBrackets) do
+        segment:SetColorTexture(ar, ag, ab, hovered and 0.90 or 0.68)
+    end
+    card.emblemBg:SetBackdropColor(0.035, 0.04, 0.045, 0.96)
+    card.emblemBg:SetBackdropBorderColor(unpack(outer))
+    UpdateFactionCardEmblemAccentGeometry(card)
+    for _, line in ipairs(card.emblemAccentLines) do
+        line:SetColorTexture(ar, ag, ab, 0.88)
+    end
+    card.emblemText:SetTextColor(ar, ag, ab)
+    card.nameText:SetTextColor(unpack(theme.textPrimary))
+end
+
+local ShowFactionCardTooltip
+local RefreshFactionCards
+
 local function CreateFactionCards()
     for index, cfg in ipairs(FACTION_CARD_CONFIG) do
-        local card = CreateFrame("Button", nil, FactionWeeklyWindow, "BackdropTemplate")
+        local card = CreateFrame("Frame", nil, FactionWeeklyWindow, "BackdropTemplate")
+        card:EnableMouse(true)
         card:SetSize(FACTION_CARD_WIDTH, FACTION_CARD_HEIGHT)
         local col = (index - 1) % 2
         local row = math.floor((index - 1) / 2)
         card:SetPoint("TOPLEFT", FactionWeeklyWindow, "BOTTOMLEFT", 20 + (col * FACTION_CARD_X_STEP), -(16 + (row * FACTION_CARD_Y_STEP)))
         card:SetBackdrop({
             bgFile = "Interface\\Buttons\\WHITE8X8",
-            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-            edgeSize = 12,
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            edgeSize = 3,
             insets = { left = 3, right = 3, top = 3, bottom = 3 }
         })
+
+        card.innerBorder = CreateFrame("Frame", nil, card, "BackdropTemplate")
+        card.innerBorder:SetPoint("TOPLEFT", 3, -3)
+        card.innerBorder:SetPoint("BOTTOMRIGHT", -3, 3)
+        card.innerBorder:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1 })
+
+        card.topAccent = card:CreateTexture(nil, "BORDER")
+        card.topAccent:SetPoint("TOPLEFT", 20, -4)
+        card.topAccent:SetPoint("TOPRIGHT", -20, -4)
+        card.topAccent:SetHeight(1)
+
+        card.bottomAccent = card:CreateTexture(nil, "BORDER")
+        card.bottomAccent:SetPoint("BOTTOMLEFT", 20, 4)
+        card.bottomAccent:SetPoint("BOTTOMRIGHT", -20, 4)
+        card.bottomAccent:SetHeight(1)
+
+        card.cornerBrackets = {}
+        local cornerSegments = {
+            {"TOPLEFT", 4, -4, 8, 2}, {"TOPLEFT", 4, -4, 2, 8},
+            {"TOPRIGHT", -4, -4, 8, 2}, {"TOPRIGHT", -4, -4, 2, 8},
+            {"BOTTOMLEFT", 4, 4, 8, 2}, {"BOTTOMLEFT", 4, 4, 2, 8},
+            {"BOTTOMRIGHT", -4, 4, 8, 2}, {"BOTTOMRIGHT", -4, 4, 2, 8},
+        }
+        for _, def in ipairs(cornerSegments) do
+            local segment = card:CreateTexture(nil, "OVERLAY")
+            segment:SetSize(def[4], def[5])
+            segment:SetPoint(def[1], def[2], def[3])
+            card.cornerBrackets[#card.cornerBrackets + 1] = segment
+        end
 
         card.emblemBg = CreateFrame("Frame", nil, card, "BackdropTemplate")
         card.emblemBg:SetSize(42, 42)
@@ -1476,8 +1876,34 @@ local function CreateFactionCards()
         })
 
         card.emblemIcon = card.emblemBg:CreateTexture(nil, "ARTWORK")
-        card.emblemIcon:SetPoint("TOPLEFT", 5, -5)
-        card.emblemIcon:SetPoint("BOTTOMRIGHT", -5, 5)
+        card.emblemIcon:SetPoint("TOPLEFT", 6, -6)
+        card.emblemIcon:SetPoint("BOTTOMRIGHT", -6, 6)
+
+        card.emblemAccentLines = {}
+
+        local emblemAccentTop = card.emblemBg:CreateTexture(nil, "OVERLAY", nil, 7)
+        emblemAccentTop:SetPoint("TOPLEFT", 3, -3)
+        emblemAccentTop:SetPoint("TOPRIGHT", -3, -3)
+        emblemAccentTop:SetHeight(1)
+        card.emblemAccentLines[#card.emblemAccentLines + 1] = emblemAccentTop
+
+        local emblemAccentBottom = card.emblemBg:CreateTexture(nil, "OVERLAY", nil, 7)
+        emblemAccentBottom:SetPoint("BOTTOMLEFT", 3, 3)
+        emblemAccentBottom:SetPoint("BOTTOMRIGHT", -3, 3)
+        emblemAccentBottom:SetHeight(1)
+        card.emblemAccentLines[#card.emblemAccentLines + 1] = emblemAccentBottom
+
+        local emblemAccentLeft = card.emblemBg:CreateTexture(nil, "OVERLAY", nil, 7)
+        emblemAccentLeft:SetPoint("TOPLEFT", 3, -3)
+        emblemAccentLeft:SetPoint("BOTTOMLEFT", 3, 3)
+        emblemAccentLeft:SetWidth(1)
+        card.emblemAccentLines[#card.emblemAccentLines + 1] = emblemAccentLeft
+
+        local emblemAccentRight = card.emblemBg:CreateTexture(nil, "OVERLAY", nil, 7)
+        emblemAccentRight:SetPoint("TOPRIGHT", -3, -3)
+        emblemAccentRight:SetPoint("BOTTOMRIGHT", -3, 3)
+        emblemAccentRight:SetWidth(1)
+        card.emblemAccentLines[#card.emblemAccentLines + 1] = emblemAccentRight
 
         card.emblemText = card.emblemBg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         card.emblemText:SetPoint("CENTER")
@@ -1496,18 +1922,16 @@ local function CreateFactionCards()
         card.progressText:SetJustifyH("LEFT")
 
         card.cfg = cfg
+        ApplyFactionCardVisual(card, lv.GetTheme(), false)
+        if lv.RegisterThemedElement then
+            lv.RegisterThemedElement(card, function(element, theme)
+                ApplyFactionCardVisual(element, theme, element.factionCardHovered)
+            end)
+        end
         card:Hide()
-        card:SetScript("OnClick", function(self)
-            if self.cfg.selectable == false then
-                return
-            end
-            factionWeeklyMode = self.cfg.key
-            if lv.UpdateFactionWeeklyWindow then
-                lv.UpdateFactionWeeklyWindow()
-            end
-        end)
         card:SetScript("OnEnter", ShowFactionCardTooltip)
         card:SetScript("OnLeave", function(self)
+            self.factionCardHovered = false
             GameTooltip:Hide()
             if RefreshFactionCards then
                 RefreshFactionCards()
@@ -1553,7 +1977,127 @@ factionUI.scrollFrame:SetScript("OnMouseWheel", function(self, delta)
     end
 end)
 
-local factionWeeklyMode = "amani"
+FactionTokkaWindow = CreateFrame("Frame", "LiteVaultCaptainTokkaFrame", LVWindow, "BackdropTemplate")
+FactionTokkaWindow:SetPoint("TOPLEFT", LVWindow, "TOPLEFT", 20, -100)
+FactionTokkaWindow:SetPoint("BOTTOMRIGHT", LVWindow, "BOTTOMRIGHT", -20, 20)
+FactionTokkaWindow:SetBackdrop({
+    bgFile="Interface\\Buttons\\WHITE8X8", edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
+    edgeSize=16, insets={left=4,right=4,top=4,bottom=4},
+})
+lv.EnsureBorderStyle(FactionTokkaWindow, "panelTabbed")
+FactionTokkaWindow:Hide()
+
+local tokkaTitle = FactionTokkaWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+tokkaTitle:SetPoint("TOPLEFT", 20, -18)
+tokkaTitle:SetText(L["BUTTON_CAPTAIN_TOKKA"])
+lv.ApplyLocaleFont(tokkaTitle, 15)
+
+local tokkaReputation = FactionTokkaWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+tokkaReputation:SetPoint("TOPLEFT", tokkaTitle, "BOTTOMLEFT", 0, -6)
+
+local tokkaWarning = FactionTokkaWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+tokkaWarning:SetPoint("TOPLEFT", tokkaReputation, "BOTTOMLEFT", 0, -10)
+tokkaWarning:SetPoint("RIGHT", FactionTokkaWindow, "RIGHT", -20, 0)
+tokkaWarning:SetJustifyH("LEFT")
+tokkaWarning:SetJustifyV("TOP")
+tokkaWarning:SetWordWrap(true)
+tokkaWarning:SetTextColor(1, 0.35, 0.2)
+tokkaWarning:SetText(L["WARNING_TOKKA_ONE_TIME_ARTIFACTS"])
+lv.ApplyLocaleFont(tokkaWarning, 11)
+
+local tokkaScrollFrame = CreateFrame("ScrollFrame", nil, FactionTokkaWindow)
+tokkaScrollFrame:SetPoint("TOPLEFT", 20, -112)
+tokkaScrollFrame:SetPoint("BOTTOMRIGHT", -20, 20)
+tokkaScrollFrame:EnableMouseWheel(true)
+local tokkaScrollChild = CreateFrame("Frame", nil, tokkaScrollFrame)
+tokkaScrollChild:SetSize(1, 1)
+tokkaScrollFrame:SetScrollChild(tokkaScrollChild)
+tokkaScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+    local maxScroll = math.max(0, tokkaScrollChild:GetHeight() - self:GetHeight())
+    self:SetVerticalScroll(math.max(0, math.min(maxScroll, self:GetVerticalScroll() - (delta * 36))))
+end)
+
+local tokkaTracker = { rows = {} }
+
+local function IsTokkaArtifactCompleted(questID)
+    if C_QuestLog and C_QuestLog.IsQuestFlaggedCompletedOnAccount then
+        return C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) and true or false
+    end
+    return C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted
+        and C_QuestLog.IsQuestFlaggedCompleted(questID) and true or false
+end
+
+local function GetTokkaTreasureProgress()
+    local completed = 0
+    local artifacts = (lv.TOKKA_TREASURES_OF_THE_DAMNED and lv.TOKKA_TREASURES_OF_THE_DAMNED.artifacts) or {}
+    for _, artifact in ipairs(artifacts) do
+        if IsTokkaArtifactCompleted(artifact.questID) then completed = completed + 1 end
+    end
+    return completed, #artifacts
+end
+
+local function EnsureTokkaTrackerRows()
+    if tokkaTracker.header then return end
+
+    tokkaTracker.header = tokkaScrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    tokkaTracker.header:SetPoint("TOPLEFT", 4, -2)
+    tokkaTracker.header:SetPoint("RIGHT", -4, 0)
+    tokkaTracker.header:SetJustifyH("LEFT")
+    lv.ApplyLocaleFont(tokkaTracker.header, 13)
+
+    local artifacts = (lv.TOKKA_TREASURES_OF_THE_DAMNED and lv.TOKKA_TREASURES_OF_THE_DAMNED.artifacts) or {}
+    for index, artifact in ipairs(artifacts) do
+        local row = CreateFrame("Frame", nil, tokkaScrollChild, "BackdropTemplate")
+        row:EnableMouse(true)
+        row:SetHeight(25)
+        row:SetPoint("TOPLEFT", 0, -(28 + ((index - 1) * 27)))
+        row:SetPoint("RIGHT", 0, 0)
+        row:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8" })
+        row.label = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        row.label:SetPoint("LEFT", 8, 0)
+        row.label:SetPoint("RIGHT", -8, 0)
+        row.label:SetJustifyH("LEFT")
+        lv.ApplyLocaleFont(row.label, 12)
+        row.artifact = artifact
+        row:SetScript("OnEnter", function(self)
+            local done = IsTokkaArtifactCompleted(self.artifact.questID)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(L[self.artifact.artifactName] or self.artifact.artifactName, 1, 0.82, 0)
+            GameTooltip:AddLine(string.format(L["LABEL_QUEST_FMT"], L[self.artifact.questName] or self.artifact.questName), 1, 1, 1)
+            GameTooltip:AddLine(done and L["LABEL_COMPLETED"] or L["LABEL_NOT_COMPLETED"], done and 0.2 or 0.8, done and 1 or 0.8, done and 0.2 or 0.8)
+            GameTooltip:AddLine(string.format(L["LABEL_QUEST_ID_FMT"], self.artifact.questID), 0.65, 0.65, 0.65)
+            GameTooltip:AddLine(L["TOOLTIP_TOKKA_TREASURE_HINT"], 0.85, 0.85, 0.85, true)
+            GameTooltip:Show()
+        end)
+        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        tokkaTracker.rows[index] = row
+    end
+end
+
+local function SetTokkaTrackerVisible(visible)
+    EnsureTokkaTrackerRows()
+    tokkaTracker.header:SetShown(visible)
+    for _, row in ipairs(tokkaTracker.rows) do row:SetShown(visible) end
+end
+
+local function RenderTokkaTracker()
+    EnsureTokkaTrackerRows()
+    local completed, total = GetTokkaTreasureProgress()
+    local completeColor = completed == total and "|cff20ff20" or "|cffffff00"
+    tokkaTracker.header:SetText(string.format("%s    %s%d / %d|r", L["TITLE_TREASURES_OF_THE_DAMNED"], completeColor, completed, total))
+    for index, row in ipairs(tokkaTracker.rows) do
+        local done = IsTokkaArtifactCompleted(row.artifact.questID)
+        local prefix = done and "|cff20ff20[+] |r" or "|cff888888[-] |r"
+        row.label:SetText(prefix .. (L[row.artifact.artifactName] or row.artifact.artifactName))
+        local t = lv.GetTheme()
+        local stripe = (index % 2 == 0) and t.rowStripeEven or t.rowStripeOdd
+        row:SetBackdropColor(unpack(stripe))
+    end
+    local frameWidth = math.max(tokkaScrollFrame:GetWidth(), 1)
+    tokkaScrollChild:SetSize(frameWidth, math.max(305, tokkaScrollFrame:GetHeight()))
+    tokkaScrollFrame:SetVerticalScroll(0)
+end
+
 local factionTabButtons = {}
 
 local function CreateFactionTabButton(index, def)
@@ -1561,8 +2105,10 @@ local function CreateFactionTabButton(index, def)
     btn:SetSize(126, 28)
     if index == 1 then
         btn:SetPoint("TOPLEFT", factionTitle, "BOTTOMLEFT", 0, -10)
-    else
+    elseif index <= 5 then
         btn:SetPoint("LEFT", factionTabButtons[index - 1], "RIGHT", 7, 0)
+    else
+        btn:SetPoint("TOPLEFT", factionTabButtons[1], "BOTTOMLEFT", 0, -7)
     end
     btn:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -1574,9 +2120,25 @@ local function CreateFactionTabButton(index, def)
     btn.Text:SetPoint("CENTER")
     btn.Text:SetText(L[def.labelKey])
     lv.ApplyLocaleFont(btn.Text, 10)
-    btn.mode = def.key
-    btn:SetScript("OnClick", function()
-        factionWeeklyMode = def.key
+    btn.factionWeeklyKey = def.key
+    btn.mode = btn.factionWeeklyKey
+    btn:RegisterForClicks("LeftButtonUp")
+    btn:SetScript("OnEnter", function(self)
+        StyleWeeklyTab(self, "hover")
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self:SetButtonState("NORMAL")
+        StyleWeeklyTab(self, "idle")
+    end)
+    btn:SetScript("OnMouseDown", function(self, mouseButton)
+        StyleWeeklyTab(self, "pressed")
+    end)
+    btn:SetScript("OnMouseUp", function(self, mouseButton)
+        StyleWeeklyTab(self, self:IsMouseOver() and "hover" or "idle")
+    end)
+    btn:SetScript("OnClick", function(self)
+        local selectorKey = self.factionWeeklyKey
+        factionWeeklyMode = selectorKey
         if lv.UpdateFactionWeeklyWindow then
             lv.UpdateFactionWeeklyWindow()
         end
@@ -1592,11 +2154,11 @@ local function InitializeFactionWindowThemes()
     C_Timer.After(0, function()
         if lv.RegisterThemedElement then
             for _, btn in ipairs(factionTabButtons) do
-                lv.RegisterThemedElement(btn, function(b) StyleWeeklyTab(b, b.mode == factionWeeklyMode) end)
+                lv.RegisterThemedElement(btn, function(b) StyleWeeklyTab(b, "idle") end)
             end
         end
         for _, btn in ipairs(factionTabButtons) do
-            StyleWeeklyTab(btn, btn.mode == factionWeeklyMode)
+            StyleWeeklyTab(btn, "idle")
         end
     end)
 end
@@ -1604,11 +2166,11 @@ end
 InitializeFactionWindowThemes()
 
 local function UpdateFactionTabButtons()
-    for i, btn in ipairs(factionTabButtons) do
-        local def = factionWeeklyTabDefs[i]
+    for _, btn in ipairs(factionTabButtons) do
+        local def = GetFactionWeeklyTabDef(btn.factionWeeklyKey)
         if btn.Text and def and def.labelKey then
             btn.Text:SetText(L[def.labelKey])
-            StyleWeeklyTab(btn, btn.mode == factionWeeklyMode)
+            StyleWeeklyTab(btn, "idle")
         end
     end
 end
@@ -1622,6 +2184,43 @@ local function GetFactionRenownDetails(mode)
         return nil
     end
 
+    if mode == "valeera" and C_GossipInfo and C_GossipInfo.GetFriendshipReputation then
+        local friendship = C_GossipInfo.GetFriendshipReputation(factionID)
+        if friendship and friendship.friendshipFactionID then
+            local standing = tonumber(friendship.standing) or 0
+            local currentThreshold = tonumber(friendship.reactionThreshold) or 0
+            local nextThreshold = tonumber(friendship.nextThreshold) or currentThreshold
+            local maxRep = tonumber(friendship.maxRep) or 0
+            local level = tonumber(tostring(friendship.reaction or ""):match("%d+")) or 0
+            local atMax = (maxRep > 0 and standing >= maxRep) or level >= 80
+            return {
+                kind="friendship", mode=mode, factionID=factionID, name=friendship.name, level=math.min(level, 80),
+                reactionName=friendship.reaction, earned=math.max(0, standing - currentThreshold),
+                threshold=math.max(0, nextThreshold - currentThreshold), standing=standing, maxRep=maxRep,
+                texture=friendship.texture, maxLevel=80, isAtMaxRenown=atMax,
+            }
+        end
+    end
+
+    if mode == "tokka" and C_GossipInfo and C_GossipInfo.GetFriendshipReputation then
+        local friendship = C_GossipInfo.GetFriendshipReputation(factionID)
+        if friendship and friendship.friendshipFactionID and friendship.reaction and friendship.reaction ~= "" then
+            local standing = tonumber(friendship.standing) or 0
+            local currentThreshold = tonumber(friendship.reactionThreshold) or 0
+            local nextThreshold = tonumber(friendship.nextThreshold)
+            local maxRep = tonumber(friendship.maxRep) or 0
+            local hasNextRank = nextThreshold and nextThreshold > currentThreshold
+            local atMax = (maxRep > 0 and standing >= maxRep)
+                or (not hasNextRank and (currentThreshold > 0 or standing > 0))
+            return {
+                kind="customFriendship", mode=mode, factionID=factionID, name=friendship.name,
+                reactionName=friendship.reaction, earned=math.max(0, standing - currentThreshold),
+                threshold=hasNextRank and (nextThreshold - currentThreshold) or 0,
+                standing=standing, maxRep=maxRep, texture=friendship.texture, isAtMaxRenown=atMax,
+            }
+        end
+    end
+
     local majorFactionData
     if C_MajorFactions and C_MajorFactions.GetMajorFactionData then
         majorFactionData = C_MajorFactions.GetMajorFactionData(factionID)
@@ -1630,6 +2229,32 @@ local function GetFactionRenownDetails(mode)
     local renownInfo
     if C_MajorFactions and C_MajorFactions.GetMajorFactionRenownInfo then
         renownInfo = C_MajorFactions.GetMajorFactionRenownInfo(factionID)
+    end
+    local standardFactionData
+    if not majorFactionData and not renownInfo and C_Reputation and C_Reputation.GetFactionDataByID then
+        standardFactionData = C_Reputation.GetFactionDataByID(factionID)
+    end
+    if mode == "tokka" and not standardFactionData and C_Reputation and C_Reputation.GetFactionDataByID then
+        standardFactionData = C_Reputation.GetFactionDataByID(factionID)
+    end
+    if not majorFactionData and not renownInfo and not standardFactionData then return nil end
+
+    if standardFactionData then
+        local earned = math.max(0, (standardFactionData.currentStanding or 0) - (standardFactionData.currentReactionThreshold or 0))
+        local threshold = math.max(0, (standardFactionData.nextReactionThreshold or 0) - (standardFactionData.currentReactionThreshold or 0))
+        local currentValue, paragonThreshold, rewardQuestID, hasRewardPending
+        if standardFactionData.reaction == 8 and C_Reputation and C_Reputation.GetFactionParagonInfo then
+            currentValue, paragonThreshold, rewardQuestID, hasRewardPending = C_Reputation.GetFactionParagonInfo(factionID)
+        end
+        local paragonProgress = currentValue and paragonThreshold and paragonThreshold > 0 and (currentValue % paragonThreshold) or nil
+        if paragonProgress == 0 and hasRewardPending then paragonProgress = paragonThreshold end
+        return {
+            kind="standard", mode=mode, factionID=factionID, name=standardFactionData.name, reaction=standardFactionData.reaction or 0,
+            reactionName=_G["FACTION_STANDING_LABEL" .. tostring(standardFactionData.reaction or 0)],
+            earned=earned, threshold=threshold, maxLevel=8, isAtMaxRenown=standardFactionData.reaction == 8,
+            isParagon=paragonProgress ~= nil, paragonProgress=paragonProgress, paragonThreshold=paragonThreshold,
+            rewardQuestID=rewardQuestID, hasRewardPending=hasRewardPending,
+        }
     end
 
     local renownLevel = (majorFactionData and majorFactionData.renownLevel) or (renownInfo and renownInfo.renownLevel) or 0
@@ -1739,7 +2364,27 @@ local function BuildFactionRenownText(mode)
     local renownText = UIText("LABEL_RENOWN_UNAVAILABLE")
 
     if details then
-        if details.isParagon then
+        if details.kind == "friendship" then
+            if details.isAtMaxRenown then
+                renownText = string.format(UIText("LABEL_RENOWN_LEVEL_MAXIMUM_FMT"), details.maxLevel or 80)
+            else
+                renownText = string.format(UIText("LABEL_RENOWN_LEVEL_PROGRESS_FMT"), details.level or 0, details.earned or 0, details.threshold or 0)
+            end
+        elseif details.kind == "customFriendship" then
+            if details.isAtMaxRenown or not details.threshold or details.threshold <= 0 then
+                renownText = details.reactionName or renownText
+            else
+                renownText = string.format("%s (%d/%d)", details.reactionName or "", details.earned or 0, details.threshold)
+            end
+        elseif details.kind == "standard" then
+            if details.isParagon then
+                renownText = string.format("%s %d/%d", UIText("LABEL_PARAGON"), details.paragonProgress or 0, details.paragonThreshold or 0)
+            elseif details.isAtMaxRenown then
+                renownText = details.reactionName or UIText("LABEL_MAXIMUM")
+            else
+                renownText = string.format("%s (%d/%d)", details.reactionName or "", details.earned or 0, details.threshold or 0)
+            end
+        elseif details.isParagon then
             local paragonLabel = UIText("LABEL_PARAGON")
             if details.paragonProgress and details.paragonThreshold then
                 renownText = string.format("%s %d/%d", paragonLabel, details.paragonProgress, details.paragonThreshold)
@@ -1752,7 +2397,7 @@ local function BuildFactionRenownText(mode)
             if details.threshold and details.threshold > 0 then
                 renownText = string.format(UIText("LABEL_RENOWN_PROGRESS"), details.renownLevel, details.earned or 0, details.threshold or 0)
             else
-                renownText = string.format("%s %d", UIText("LABEL_RENOWN"), details.renownLevel)
+                renownText = string.format(UIText("LABEL_RENOWN_VALUE_FMT"), details.renownLevel)
             end
         end
     end
@@ -1766,7 +2411,10 @@ local function BuildFactionTooltipText(details)
     end
 
     local lines = {}
-    if details.isParagon then
+    if details.kind == "friendship" or details.kind == "customFriendship" or details.kind == "standard" then
+        local mode = details.mode or (details.kind == "friendship" and "valeera" or "slayersduellum")
+        lines[#lines + 1] = BuildFactionRenownText(mode)
+    elseif details.isParagon then
         lines[#lines + 1] = UIText("LABEL_MAX_RENOWN")
         if details.paragonProgress and details.paragonThreshold then
             lines[#lines + 1] = string.format("%s %d/%d", UIText("LABEL_PARAGON"), details.paragonProgress, details.paragonThreshold)
@@ -1789,10 +2437,11 @@ local function BuildFactionTooltipText(details)
     return table.concat(lines, "\n")
 end
 
-local function ShowFactionCardTooltip(self)
+ShowFactionCardTooltip = function(self)
     local details = self and self.factionDetails
     local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
+    self.factionCardHovered = true
+    ApplyFactionCardVisual(self, t, true)
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
     GameTooltip:SetText(L[self.cfg.labelKey] or self.cfg.key, 1, 0.82, 0)
 
@@ -1802,30 +2451,38 @@ local function ShowFactionCardTooltip(self)
             GameTooltip:AddLine(line, 0.85, 0.85, 0.85, true)
         end
     end
-    if self.cfg and self.cfg.selectable ~= false then
-        GameTooltip:AddLine(UIText("TOOLTIP_FACTION_CARD_HINT"), 0.8, 0.8, 0.8, true)
-    end
     GameTooltip:Show()
 end
 
-local function RefreshFactionCards()
+RefreshFactionCards = function()
     local showCards = (currentMainView == "factions") and FactionWeeklyWindow and FactionWeeklyWindow:IsShown()
 
     for _, card in ipairs(factionCards) do
-        local label = L[card.cfg.labelKey] or card.cfg.key
         local progressText, info = BuildFactionRenownText(card.cfg.key)
-        local level = info and (info.renownLevel or 0) or 0
+        local label = (info and info.name) or L[card.cfg.labelKey] or card.cfg.key
+        local level = info and (info.level or info.renownLevel or info.reaction or 0) or 0
         local earned = info and (info.earned or 0) or 0
         local threshold = info and (info.threshold or 0) or 0
         local isMaxed = info and info.isAtMaxRenown
-        local selected = (card.cfg.selectable ~= false) and (card.cfg.key == factionWeeklyMode)
         local t = lv.GetTheme()
         local levelLabel = L["LABEL_RENOWN_LEVEL"]
 
         card.nameText:SetText(label)
         card.factionDetails = info
         UpdateFactionCardEmblem(card)
-        if info and info.isParagon then
+        if not info then
+            card.levelText:SetText(string.format("|cffcccccc%s|r", progressText))
+            card.progressText:SetText("")
+        elseif info.kind == "friendship" then
+            card.levelText:SetText(string.format("|cffffd100%s|r", string.format(UIText("LABEL_RENOWN_LEVEL_FMT"), info.level or 0)))
+            card.progressText:SetText(string.format("|cffcccccc%s|r", progressText))
+        elseif info.kind == "customFriendship" then
+            card.levelText:SetText(string.format("|cffffd100%s|r", info.reactionName or ""))
+            card.progressText:SetText((info.isAtMaxRenown or threshold <= 0) and "" or string.format("|cffcccccc%d/%d|r", earned, threshold))
+        elseif info.kind == "standard" then
+            card.levelText:SetText(string.format("|cffffd100%s|r", info.reactionName or ""))
+            card.progressText:SetText(info.isParagon and string.format("|cffcccccc%s|r", progressText) or (info.isAtMaxRenown and "" or string.format("|cffcccccc%d/%d|r", earned, threshold)))
+        elseif info.isParagon then
             card.levelText:SetText(string.format("|cffffd100%s|r", UIText("LABEL_MAX_RENOWN")))
             card.progressText:SetText(string.format("|cffcccccc%s|r", progressText))
         elseif isMaxed then
@@ -1839,13 +2496,8 @@ local function RefreshFactionCards()
             card.progressText:SetText("")
         end
 
-        card.emblemBg:SetBackdropColor(0.08, 0.08, 0.08, 0.9)
-        card.emblemBg:SetBackdropBorderColor(card.cfg.color[1], card.cfg.color[2], card.cfg.color[3], 1)
-        card.emblemText:SetTextColor(card.cfg.color[1], card.cfg.color[2], card.cfg.color[3])
         if t then
-            card:SetBackdropColor(unpack(selected and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.background or t.buttonBgAlt or t.buttonBg)))
-            card:SetBackdropBorderColor(unpack(selected and (t.borderHover or t.borderPrimary) or t.borderPrimary))
-            card.nameText:SetTextColor(unpack(t.textPrimary))
+            ApplyFactionCardVisual(card, t, card.factionCardHovered)
         end
 
         if showCards then
@@ -1867,7 +2519,7 @@ local function GetActiveFactionWeeklyTab()
 end
 
 local function GetFactionWarningText(def)
-    if not def then
+    if not def or def.key ~= "silvermoon" then
         return ""
     end
     if def.warningKey and L and L[def.warningKey] and L[def.warningKey] ~= def.warningKey then
@@ -1877,15 +2529,16 @@ local function GetFactionWarningText(def)
 end
 
 local function UpdateFactionWarningLayout(warningText)
+    warningText = warningText or ""
     factionUI.warning:SetText(warningText)
-    factionUI.warning:SetPoint("TOPLEFT", 20, -84)
+    factionUI.warning:SetPoint("TOPLEFT", 20, -120)
     factionUI.warning:SetPoint("RIGHT", -20, 0)
 
     if warningText ~= "" then
-        factionUI.scrollFrame:SetPoint("TOPLEFT", 20, -126)
+        factionUI.scrollFrame:SetPoint("TOPLEFT", 20, -162)
         factionUI.warning:Show()
     else
-        factionUI.scrollFrame:SetPoint("TOPLEFT", 20, -84)
+        factionUI.scrollFrame:SetPoint("TOPLEFT", 20, -120)
         factionUI.warning:Hide()
     end
 end
@@ -1918,6 +2571,20 @@ end
 
 local function GetHaratiQuestState(quest, charDB, trackedCfg, currentReset)
     if not (quest and trackedCfg) then
+        return "not_started"
+    end
+
+    if quest.id == trackedCfg.parentID and lv.GetHaratiWeeklyState then
+        local state = lv.GetHaratiWeeklyState(charDB)
+        if state ~= "not_started" then
+            return state
+        end
+        for _, relic in ipairs(lv.HARATI_RELICS or {}) do
+            if C_QuestLog.GetLogIndexForQuestID(relic.firstQuestID)
+                or C_QuestLog.GetLogIndexForQuestID(relic.repeatQuestID) then
+                return "in_progress"
+            end
+        end
         return "not_started"
     end
 
@@ -2134,6 +2801,10 @@ local function GetFactionQuestState(quest)
             return "not_started"
         end
 
+    local savedState = GetSavedCharacterWeeklyQuestState(quest)
+    if savedState == "done" then return "done" end
+    if savedState == "in_progress" and C_QuestLog.GetLogIndexForQuestID(quest.id) then return "in_progress" end
+
     local isDone = C_QuestLog.IsQuestFlaggedCompleted(quest.id)
     local isInProgress = not isDone and C_QuestLog.GetLogIndexForQuestID(quest.id)
 
@@ -2144,31 +2815,6 @@ local function GetFactionQuestState(quest)
     end
 
     return "not_started"
-end
-
-local function ShouldDisplayFactionQuest(quest, state)
-    if factionWeeklyMode == "ritualsites" then
-        if quest and quest.name == "Void Assaults" then
-            return state ~= "not_started"
-        end
-        return true
-    end
-    return state ~= "not_started"
-end
-
-local function IsQuestOrVariantInLog(quest)
-    if not quest or not C_QuestLog or not C_QuestLog.GetLogIndexForQuestID then
-        return false
-    end
-    if quest.id and C_QuestLog.GetLogIndexForQuestID(quest.id) then
-        return true
-    end
-    for _, variantID in ipairs(quest.variants or {}) do
-        if C_QuestLog.GetLogIndexForQuestID(variantID) then
-            return true
-        end
-    end
-    return false
 end
 
 local function BuildFactionQuestStatusText(state)
@@ -2196,17 +2842,13 @@ local function BuildFactionQuestRowText(quest)
             return nil
         end
     end
-    if factionWeeklyMode == "harati" and quest and quest.id ~= 89268 then
+    if factionWeeklyMode == "harati" and quest and quest.id ~= lv.HARATI_SELECTOR_QUEST_ID then
         return nil
     end
     local state = GetFactionQuestState(quest)
-    if factionWeeklyMode == "ritualsites" and quest and quest.name == "Void Assaults" and state == "not_started" and not IsQuestOrVariantInLog(quest) then
+    if state ~= "done" then
         return nil
     end
-    if not ShouldDisplayFactionQuest(quest, state) then
-        return nil
-    end
-
     local row = GetWeeklyQuestDisplayName(quest) .. ": " .. BuildFactionQuestStatusText(state)
     local nextWeekText = BuildWeeklyQuestNextWeekText(quest)
     if nextWeekText then
@@ -2216,19 +2858,18 @@ local function BuildFactionQuestRowText(quest)
 end
 
 local function BuildFactionQuestText(quests)
-    if not quests or #quests == 0 then
-        return L["MSG_NO_WEEKLY_QUESTS_CONFIGURED"]
-    end
-
     local rows = {}
-    for _, quest in ipairs(quests) do
+    for _, quest in ipairs(quests or {}) do
         local row = BuildFactionQuestRowText(quest)
         if row then
             rows[#rows + 1] = row
         end
     end
 
-    return table.concat(rows, "\n")
+    if #rows == 0 then
+        return UIText("MSG_NO_FACTION_WEEKLY_COMPLETIONS"), 0
+    end
+    return table.concat(rows, "\n"), #rows
 end
 
 function lv.UpdateFactionWeeklyWindow()
@@ -2239,17 +2880,238 @@ function lv.UpdateFactionWeeklyWindow()
     local quests = (def and def.quests and def.quests()) or {}
     local warningText = GetFactionWarningText(def)
     UpdateFactionWarningLayout(warningText)
-    factionUI.content:SetText(BuildFactionQuestText(quests))
+    factionUI.content:Show()
+    SetTokkaTrackerVisible(false)
+    local renderedText, renderedRows = BuildFactionQuestText(quests)
+    local emptyCompletedRows = renderedRows == 0
+    local theme = lv.GetTheme()
+    factionUI.content:SetJustifyH(emptyCompletedRows and "CENTER" or "LEFT")
+    if emptyCompletedRows then
+        factionUI.content:SetTextColor(unpack(theme.textMuted))
+    else
+        factionUI.content:SetTextColor(1, 1, 1, 1)
+    end
+    factionUI.content:SetText("")
+    factionUI.content:SetText(renderedText)
     RefreshFactionScrollLayout(true)
 
     RefreshFactionCards()
+end
+
+SLASH_LVHARATIDEBUG1 = "/lvharatidebug"
+SlashCmdList["LVHARATIDEBUG"] = function()
+    local lines = {}
+    local function HaratiDebugBool(value)
+        return value and "true" or "false"
+    end
+    local function HaratiDebugValue(value)
+        if value == nil then return "nil" end
+        return tostring(value)
+    end
+    local function EmitHaratiDebug(outputLines)
+        local chunkSize = 8
+        local chunkCount = math.max(1, math.ceil(#outputLines / chunkSize))
+        for chunk = 1, chunkCount do
+            if chunkCount > 1 then
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(
+                    "|cff66ccffLiteVault Hara'ti Debug:|r chunk %d/%d", chunk, chunkCount
+                ))
+            end
+            local first = ((chunk - 1) * chunkSize) + 1
+            local last = math.min(chunk * chunkSize, #outputLines)
+            for index = first, last do
+                DEFAULT_CHAT_FRAME:AddMessage(outputLines[index])
+            end
+        end
+    end
+    local function Add(line)
+        lines[#lines + 1] = line
+    end
+    local function QuestInLog(questID)
+        return C_QuestLog and C_QuestLog.GetLogIndexForQuestID
+            and C_QuestLog.GetLogIndexForQuestID(questID) ~= nil or false
+    end
+    local function CharacterCompleted(questID)
+        return C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted
+            and C_QuestLog.IsQuestFlaggedCompleted(questID) and true or false
+    end
+    local function AccountCompleted(questID)
+        return C_QuestLog and C_QuestLog.IsQuestFlaggedCompletedOnAccount
+            and C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) and true or false
+    end
+    local function JoinIDs(ids)
+        return #ids > 0 and table.concat(ids, ",") or "none"
+    end
+
+    local playerKey = lv.PLAYER_KEY
+    local charDB = LiteVaultDB and playerKey and LiteVaultDB[playerKey] or nil
+    local weeklyQuests = type(charDB) == "table" and charDB.weeklyQuests or nil
+    local observations = type(charDB) == "table" and charDB.haratiFirstQuestObservations or nil
+    local haratiWeekly = type(charDB) == "table" and charDB.haratiWeekly or nil
+    local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    local currentState, currentRecord = "unavailable", nil
+    if lv.GetHaratiWeeklyState then
+        currentState, currentRecord = lv.GetHaratiWeeklyState(charDB)
+    end
+    local characterName = UnitName and UnitName("player") or nil
+    local realmName = GetNormalizedRealmName and GetNormalizedRealmName()
+        or (GetRealmName and GetRealmName()) or nil
+    local parentSaved = weeklyQuests and weeklyQuests["Legends of the Haranir"] or nil
+    local repeatCandidates, firstCandidates, migrationCandidates, selectorCandidates = {}, {}, {}, {}
+
+    Add("=== HARA'TI CORE ===")
+    Add(string.format("playerKey=%s character=%s realm=%s reset=%s mode=%s state=%s",
+        HaratiDebugValue(playerKey), HaratiDebugValue(characterName), HaratiDebugValue(realmName),
+        HaratiDebugValue(currentReset), HaratiDebugValue(factionWeeklyMode), HaratiDebugValue(currentState)))
+    if type(haratiWeekly) == "table" then
+        Add(string.format("haratiWeekly completed=%s selected=%s resetStart=%s questID=%s path=%s source=%s completedAt=%s selectedAt=%s",
+            HaratiDebugValue(haratiWeekly.completed), HaratiDebugValue(haratiWeekly.selected),
+            HaratiDebugValue(haratiWeekly.resetStart), HaratiDebugValue(haratiWeekly.questID),
+            HaratiDebugValue(haratiWeekly.path), HaratiDebugValue(haratiWeekly.source),
+            HaratiDebugValue(haratiWeekly.completedAt), HaratiDebugValue(haratiWeekly.selectedAt)))
+    else
+        Add("haratiWeekly=nil")
+    end
+    if type(parentSaved) == "table" then
+        Add(string.format("parent state=%s questID=%s title=%s updatedAt=%s resetStart=%s week=%s weekKey=%s source=%s",
+            HaratiDebugValue(parentSaved.state), HaratiDebugValue(parentSaved.questID),
+            HaratiDebugValue(parentSaved.title), HaratiDebugValue(parentSaved.updatedAt),
+            HaratiDebugValue(parentSaved.resetStart), HaratiDebugValue(parentSaved.week),
+            HaratiDebugValue(parentSaved.weekKey), HaratiDebugValue(parentSaved.source)))
+    else
+        Add("parent weeklyQuests[Legends of the Haranir]=nil")
+    end
+
+    Add("=== SELECTORS ===")
+    local selectors = {
+        {id = lv.HARATI_SELECTOR_FIRST, name = "Lost Legends"},
+        {id = lv.HARATI_SELECTOR_REPEAT, name = "Echoes Rekindled"},
+    }
+    for _, selector in ipairs(selectors) do
+        local inLog = QuestInLog(selector.id)
+        local wouldSelect = inLog and currentState == "not_started"
+        if wouldSelect then selectorCandidates[#selectorCandidates + 1] = selector.id end
+        Add(string.format("%d %s inLog=%s character=%s account=%s class=%s selectorWouldFire=%s savedParentState=%s savedParentQuestID=%s",
+            selector.id, selector.name, HaratiDebugBool(inLog), HaratiDebugBool(CharacterCompleted(selector.id)),
+            HaratiDebugBool(AccountCompleted(selector.id)), HaratiDebugValue(lv.HARATI_SELECTOR_LOOKUP[selector.id]),
+            HaratiDebugBool(wouldSelect), HaratiDebugValue(parentSaved and parentSaved.state),
+            HaratiDebugValue(parentSaved and parentSaved.questID)))
+    end
+
+    Add("=== FIRST-TIME RELICS ===")
+    for _, relic in ipairs(lv.HARATI_RELICS or {}) do
+        local saved = weeklyQuests and weeklyQuests[relic.name] or nil
+        local observation = observations and observations[relic.firstQuestID] or nil
+        local completed = CharacterCompleted(relic.firstQuestID)
+        local observedTransition = currentState ~= "done" and type(observation) == "table"
+            and observation.resetStart == currentReset and observation.completed == false and completed == true
+        local wouldFire = false
+        Add(string.format("%d %s inLog=%s character=%s account=%s saved=%s/%s/%s observation=%s reset=%s previous=%s observedAt=%s transitionObserved=%s transitionWouldFire=%s",
+            relic.firstQuestID, relic.name, HaratiDebugBool(QuestInLog(relic.firstQuestID)),
+            HaratiDebugBool(completed), HaratiDebugBool(AccountCompleted(relic.firstQuestID)),
+            HaratiDebugValue(saved and saved.state), HaratiDebugValue(saved and saved.questID),
+            HaratiDebugValue(saved and saved.updatedAt), type(observation) == "table" and "present" or "nil",
+            HaratiDebugValue(observation and observation.resetStart),
+            HaratiDebugValue(observation and observation.completed),
+            HaratiDebugValue(observation and observation.observedAt), HaratiDebugBool(observedTransition),
+            HaratiDebugBool(wouldFire)))
+    end
+
+    Add("=== REPEAT RELICS ===")
+    for _, relic in ipairs(lv.HARATI_RELICS or {}) do
+        local saved = weeklyQuests and weeklyQuests[relic.name] or nil
+        local completed = CharacterCompleted(relic.repeatQuestID)
+        local wouldFire = currentState ~= "done" and completed
+        if wouldFire then repeatCandidates[#repeatCandidates + 1] = relic.repeatQuestID end
+        Add(string.format("%d %s inLog=%s character=%s account=%s saved=%s/%s/%s repeatWouldFire=%s",
+            relic.repeatQuestID, relic.name, HaratiDebugBool(QuestInLog(relic.repeatQuestID)),
+            HaratiDebugBool(completed), HaratiDebugBool(AccountCompleted(relic.repeatQuestID)),
+            HaratiDebugValue(saved and saved.state), HaratiDebugValue(saved and saved.questID),
+            HaratiDebugValue(saved and saved.updatedAt), HaratiDebugBool(wouldFire)))
+    end
+
+    Add("=== SAVED CHILD RECORDS ===")
+    for _, relic in ipairs(lv.HARATI_RELICS or {}) do
+        local saved = weeklyQuests and weeklyQuests[relic.name] or nil
+        local recognized = type(saved) == "table" and lv.GetHaratiRelicForQuestID
+            and lv.GetHaratiRelicForQuestID(saved.questID) ~= nil or false
+        local wouldFire = type(saved) == "table" and saved.state == "done"
+            and (saved.updatedAt or 0) >= (currentReset or math.huge) and recognized
+        if wouldFire then migrationCandidates[#migrationCandidates + 1] = saved.questID end
+        Add(string.format("%s state=%s questID=%s title=%s updatedAt=%s recognized=%s migrationWouldFire=%s%s",
+            relic.name, HaratiDebugValue(saved and saved.state), HaratiDebugValue(saved and saved.questID),
+            HaratiDebugValue(saved and saved.title), HaratiDebugValue(saved and saved.updatedAt),
+            HaratiDebugBool(recognized), HaratiDebugBool(wouldFire),
+            wouldFire and (" MIGRATION WOULD FIRE: " .. tostring(saved.questID)) or ""))
+    end
+
+    local winningSource = "no_completion_evidence"
+    if currentState == "done" and type(currentRecord) == "table" then
+        local source = currentRecord.source
+        if source == "repeat_flag_reconstruction" then
+            winningSource = "repeat_flag_reconstruction:" .. HaratiDebugValue(currentRecord.questID)
+        elseif source == "same_reset_flag_transition" then
+            winningSource = "same_reset_flag_transition:" .. HaratiDebugValue(currentRecord.questID)
+        elseif source == "12.0.7.4_migration" then
+            winningSource = "12.0.7.4_migration:" .. HaratiDebugValue(currentRecord.questID)
+        elseif source == "quest_turn_in" then
+            winningSource = "actual_relic_turnin:" .. HaratiDebugValue(currentRecord.questID)
+        elseif source == nil then
+            winningSource = "unknown_existing_record"
+        else
+            winningSource = "haratiWeekly_current_reset_completed"
+        end
+    elseif currentState == "in_progress" then
+        winningSource = "selector_only"
+    elseif type(haratiWeekly) == "table" and haratiWeekly.completed then
+        winningSource = "unknown_existing_record"
+    end
+
+    Add("=== RECONSTRUCTION SUMMARY ===")
+    Add(string.format("current haratiWeekly=%s stored source=%s", HaratiDebugValue(currentState),
+        HaratiDebugValue(haratiWeekly and haratiWeekly.source)))
+    Add(string.format("selector-only evidence=%s actual local turn-in evidence=%s",
+        JoinIDs(selectorCandidates), haratiWeekly and haratiWeekly.source == "quest_turn_in"
+            and HaratiDebugValue(haratiWeekly.questID) or "unavailable/not recorded"))
+    Add("repeat reconstruction candidates=" .. JoinIDs(repeatCandidates))
+    Add("same-reset first-transition candidates=" .. JoinIDs(firstCandidates))
+    Add("migration candidates=" .. JoinIDs(migrationCandidates))
+    Add("WINNING CURRENT STATE SOURCE: " .. winningSource)
+
+    if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+        EmitHaratiDebug(lines)
+    end
+end
+
+function lv.UpdateCaptainTokkaWindow()
+    local theme = lv.GetTheme()
+    FactionTokkaWindow:SetBackdropColor(unpack(theme.background))
+    lv.ApplyBorderStyle(FactionTokkaWindow, "panel", theme)
+    tokkaTitle:SetText(L["BUTTON_CAPTAIN_TOKKA"])
+    tokkaWarning:SetText(L["WARNING_TOKKA_ONE_TIME_ARTIFACTS"])
+    local reputationText = BuildFactionRenownText("tokka")
+    tokkaReputation:SetText(reputationText or L["LABEL_RENOWN_UNAVAILABLE"])
+    SetTokkaTrackerVisible(true)
+    RenderTokkaTracker()
+end
+
+function lv.ShowFactionSection()
+    for _, button in pairs(factionSectionTabs) do button:Show() end
+    SetFactionSectionMode("weeklies")
+end
+
+function lv.HideFactionSection()
+    FactionWeeklyWindow:Hide()
+    if FactionTokkaWindow then FactionTokkaWindow:Hide() end
+    for _, button in pairs(factionSectionTabs) do button:Hide() end
+    SetFactionCardsVisible(false)
 end
 
 function lv.ShowFactionWeeklyWindow()
     if lv.SetMainView then
         lv.SetMainView("factions")
     else
-        FactionWeeklyWindow:Show()
+        lv.ShowFactionSection()
         if lv.RefreshAchievementsButton then
             lv.RefreshAchievementsButton()
         end
@@ -2275,13 +3137,14 @@ function lv.UpdateTotalDisplay(totG, totP)
         LVWindow.totalBg = CreateFrame("Frame", nil, LVWindow, "BackdropTemplate")
         LVWindow.totalBg:SetPoint("BOTTOMLEFT", 35, 26)
         LVWindow.totalBg:SetSize(lv.Layout.totalDisplayWidth, 52)
-        LVWindow.totalBg:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12 })
+        LVWindow.totalBg:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8" })
+        lv.EnsureBorderStyle(LVWindow.totalBg, "panelStructural")
 
         -- Register for theming
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(LVWindow.totalBg, function(f, theme)
                 f:SetBackdropColor(unpack(theme.backgroundSolid))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panelStructural", theme)
             end)
         end
 
@@ -2293,14 +3156,18 @@ function lv.UpdateTotalDisplay(totG, totP)
         LVWindow.timeText:SetPoint("RIGHT", 0, 0)
         LVWindow.timeStyle = 1 -- Default style
 
-        -- Total Gold row (left label, right value)
+        -- Keep both money values in a compact, fixed column just after the
+        -- longer Warband Bank label. Total Time retains its own right column.
+        local moneyValueLeft = lv.Layout.totalGoldLeft + 125
+
+        -- Total Gold row (left label, aligned value column)
         LVWindow.totalLabel = LVWindow.totalBg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         LVWindow.totalLabel:SetPoint("LEFT", lv.Layout.totalGoldLeft, 10)
         LVWindow.totalLabel:SetTextColor(1, 0.82, 0)
 
         LVWindow.totalValue = LVWindow.totalBg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        LVWindow.totalValue:SetPoint("RIGHT", LVWindow.timeBtn, "LEFT", -14, 10)
-        LVWindow.totalValue:SetJustifyH("RIGHT")
+        LVWindow.totalValue:SetPoint("LEFT", LVWindow.totalBg, "LEFT", moneyValueLeft, 10)
+        LVWindow.totalValue:SetJustifyH("LEFT")
 
         -- Warband Bank row (same font as Total Gold)
         LVWindow.wbBankLabel = LVWindow.totalBg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -2308,8 +3175,31 @@ function lv.UpdateTotalDisplay(totG, totP)
         LVWindow.wbBankLabel:SetTextColor(1, 0.82, 0)
 
         LVWindow.wbBankValue = LVWindow.totalBg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        LVWindow.wbBankValue:SetPoint("RIGHT", LVWindow.timeBtn, "LEFT", -14, -10)
-        LVWindow.wbBankValue:SetJustifyH("RIGHT")
+        LVWindow.wbBankValue:SetPoint("LEFT", LVWindow.totalBg, "LEFT", moneyValueLeft, -10)
+        LVWindow.wbBankValue:SetJustifyH("LEFT")
+
+        local function CreateMoneyTooltipTarget(yOffset, titleProvider, amountKey)
+            local target = CreateFrame("Frame", nil, LVWindow.totalBg)
+            target:SetPoint("LEFT", 0, yOffset)
+            target:SetPoint("RIGHT", LVWindow.timeBtn, "LEFT", -4, yOffset)
+            target:SetHeight(22)
+            target:EnableMouse(true)
+            target:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_TOP")
+                GameTooltip:AddLine(titleProvider(), 1, 0.82, 0)
+                GameTooltip:AddLine(FormatDashboardExactMoney(LVWindow[amountKey]), 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            target:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            return target
+        end
+
+        LVWindow.totalMoneyTooltip = CreateMoneyTooltipTarget(10, function()
+            return L["LABEL_TOTAL_GOLD"]:gsub("%%s", "")
+        end, "totalMoneyExact")
+        LVWindow.wbBankMoneyTooltip = CreateMoneyTooltipTarget(-10, function()
+            return L["LABEL_WARBAND_BANK"]
+        end, "wbBankMoneyExact")
 
         LVWindow.timeBtn:SetScript("OnClick", function()
             LVWindow.timeStyle = LVWindow.timeStyle + 1
@@ -2337,20 +3227,22 @@ function lv.UpdateTotalDisplay(totG, totP)
     -- Apply theme colors
     local t = lv.GetTheme()
     LVWindow.totalBg:SetBackdropColor(unpack(t.backgroundSolid))
-    LVWindow.totalBg:SetBackdropBorderColor(unpack(t.borderPrimary))
+    lv.ApplyBorderStyle(LVWindow.totalBg, "panelStructural", t)
     local totalGoldLabel = L["LABEL_TOTAL_GOLD"]:gsub("%%s", "")
     if LVWindow.totalLabel then
         LVWindow.totalLabel:SetText(totalGoldLabel)
     end
     if LVWindow.totalValue then
-        LVWindow.totalValue:SetText(FormatGoldAligned(totG, 14))
+        LVWindow.totalMoneyExact = totG
+        LVWindow.totalValue:SetText(FormatDashboardMoney(totG, 14))
     end
     local wbBankGold = (LiteVaultDB["Warband Bank"] and LiteVaultDB["Warband Bank"].gold) or 0
     if LVWindow.wbBankLabel then
         LVWindow.wbBankLabel:SetText(L["LABEL_WARBAND_BANK"])
     end
     if LVWindow.wbBankValue then
-        LVWindow.wbBankValue:SetText(FormatGoldAligned(wbBankGold, 14))
+        LVWindow.wbBankMoneyExact = wbBankGold
+        LVWindow.wbBankValue:SetText(FormatDashboardMoney(wbBankGold, 14))
     end
     if lv.FormatWarbandTime then
         LVWindow.timeText:SetText(string.format(L["LABEL_TOTAL_TIME"], lv.FormatWarbandTime(totP, LVWindow.timeStyle)))
@@ -2719,12 +3611,6 @@ function lv.RefreshLocalizedUI()
     if lv.timeFormatDesc then
         lv.timeFormatDesc:SetText(L["OPTION_ENABLE_24HR_CLOCK_DESC"])
     end
-    if lv.darkModeCB then
-        lv.darkModeCB.Text:SetText(L["OPTION_DARK_MODE"])
-    end
-    if lv.darkModeDesc then
-        lv.darkModeDesc:SetText(L["OPTION_DARK_MODE_DESC"])
-    end
     if lv.disableBagViewCB then
         lv.disableBagViewCB.Text:SetText(L["OPTION_DISABLE_BAG_VIEWING"])
     end
@@ -2743,6 +3629,12 @@ function lv.RefreshLocalizedUI()
     if lv.disableTeleportsDesc then
         lv.disableTeleportsDesc:SetText(L["OPTION_DISABLE_MPLUS_TELEPORTS_DESC"])
     end
+    if lv.miniFolioEnabledCB then
+        lv.miniFolioEnabledCB.Text:SetText(L["OPTION_ENABLE_MINI_OMNIUM_FOLIO"])
+    end
+    if lv.miniFolioEnabledDesc then
+        lv.miniFolioEnabledDesc:SetText(L["OPTION_ENABLE_MINI_OMNIUM_FOLIO_DESC"])
+    end
     if lv.disableRunestonePinsCB then
         lv.disableRunestonePinsCB.Text:SetText(L["OPTION_DISABLE_RUNESTONE_MAP_PINS"])
     end
@@ -2754,12 +3646,6 @@ function lv.RefreshLocalizedUI()
     end
     if lv.calendarProfitHighlightsDesc then
         lv.calendarProfitHighlightsDesc:SetText(L["OPTION_ENABLE_CALENDAR_PROFIT_HIGHLIGHTS_DESC"])
-    end
-    if lv.UpdateChangeLogButtonLabel then
-        lv.UpdateChangeLogButtonLabel()
-    end
-    if lv.UpdateChangeLogContent then
-        lv.UpdateChangeLogContent()
     end
     if lv.RefreshBagPanelLocale then
         lv.RefreshBagPanelLocale()
@@ -2819,7 +3705,8 @@ function lv.RefreshLocalizedUI()
         end
         local wbBankGold = (LiteVaultDB and LiteVaultDB["Warband Bank"] and LiteVaultDB["Warband Bank"].gold) or 0
         LVWindow.wbBankLabel:SetText(L["LABEL_WARBAND_BANK"])
-        LVWindow.wbBankValue:SetText(FormatGoldAligned(wbBankGold, 14))
+        LVWindow.wbBankMoneyExact = wbBankGold
+        LVWindow.wbBankValue:SetText(FormatDashboardMoney(wbBankGold, 14))
     end
 
     -- Resize frames for locale
@@ -2847,10 +3734,6 @@ function lv.RefreshLocalizedUI()
     -- Raid Lockouts window
     if lv.raidLockoutsCloseBtn and lv.raidLockoutsCloseBtn.Text then
         lv.raidLockoutsCloseBtn.Text:SetText(L["BUTTON_CLOSE"])
-    end
-    if lv.raidViewToggleBtn and lv.raidViewToggleBtn.text then
-        local viewMode = lv.getRaidViewMode and lv.getRaidViewMode() or "lockouts"
-        lv.raidViewToggleBtn.text:SetText(viewMode == "lockouts" and L["BUTTON_PROGRESSION"] or L["BUTTON_LOCKOUTS"])
     end
     if lv.raidDiffButtons and lv.RAID_DIFFICULTIES then
         for _, diff in ipairs(lv.RAID_DIFFICULTIES) do
@@ -2909,6 +3792,20 @@ function lv.RefreshLocalizedUI()
 
     -- Refresh calendar (day names and month)
     if lv.RefreshCalendarLocale then lv.RefreshCalendarLocale() end
+
+    -- Refresh standalone/optional surfaces that keep resolved strings after
+    -- construction. Each module decides whether its frame is currently visible.
+    if lv.RefreshGearPanelForCurrentChar then lv.RefreshGearPanelForCurrentChar() end
+    if lv.UpdateVaultWindow and lv.LVVaultWindow and lv.LVVaultWindow:IsShown() then lv.UpdateVaultWindow() end
+    if lv.RefreshCurrencyWindow then lv.RefreshCurrencyWindow() end
+    if lv.RefreshFolioDisplays then lv.RefreshFolioDisplays() end
+    if lv.RefreshMiniFolio then lv.RefreshMiniFolio() end
+    if lv.UpdateInstancePanel then lv.UpdateInstancePanel() end
+    if lv.UpdateTeleportPanel then lv.UpdateTeleportPanel() end
+    if lv.RefreshOpenProfitWindow then lv.RefreshOpenProfitWindow() end
+    if lv.RefreshWowTokenUI then lv.RefreshWowTokenUI() end
+    if lv.UpdateRaidLockoutGrid then lv.UpdateRaidLockoutGrid() end
+    if lv.RefreshAchievementsView then lv.RefreshAchievementsView() end
 
     -- Refresh the full UI
     if lv.UpdateUI then lv.UpdateUI() end

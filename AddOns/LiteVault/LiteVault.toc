@@ -2,7 +2,7 @@
 ## Title: LiteVault
 ## Notes: Lightweight Warband Tracker
 ## Author: Dragon
-## Version: 12.0.7.3
+## Version: 12.1.0.5
 ## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
 ## IconTexture: Interface\AddOns\LiteVault\button.png
 
@@ -14,6 +14,7 @@ Locales\Localization.lua
 Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
+Locales\Repair.lua
 
 # Libraries
 Libs\LibDataBroker-1.1-4\LibDataBroker-1.1.lua
@@ -22,6 +23,7 @@ Libs\LibDataBroker-1.1-4\LibDataBroker-1.1.lua
 Theme.lua
 Core.lua
 Utils.lua
+UI\Builders.lua
 GoldTracker.lua
 Currency.lua
 Vault.lua
@@ -33,9 +35,12 @@ RaidLockouts.lua
 Bags.lua
 Gear.lua
 Folio.lua
+UI\MiniFolio.lua
 Modules\Stats.lua
 Modules\MountDrops.lua
 Modules\InstanceTracker.lua
+Modules\MPlusPlanner.lua
+Modules\MPlusPlannerDebug.lua
 Modules\InstanceCap.lua
 Teleports.lua
 Achievements.lua
@@ -43,7 +48,6 @@ Modules\RunestoneMapPins.lua
 Modules\RunestoneMapPins.xml
 UI\CharacterOverlay.lua
 UI\InstancePanel.lua
-UI\Builders.lua
 List.lua
 UI.lua
 UI\Profit.lua
