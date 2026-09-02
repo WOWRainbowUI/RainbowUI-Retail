@@ -14,7 +14,6 @@ local type, pcall, wipe = type, pcall, wipe
 local strfind = string.find
 local select = select
 local hooksecurefunc = hooksecurefunc
-local CreateFrame = CreateFrame
 local issecretvalue = issecretvalue
 
 local CATEGORY = C.Categories
@@ -51,12 +50,9 @@ local NESTED_UNIT_TOKEN_KEYS = {
 local frameState = addon.frameState
 local fontState = addon.fontState
 local hookedFontStrings = setmetatable({}, addon.weakMeta)
-local actionbarTextOverlays = setmetatable({}, addon.weakMeta)
-local actionbarTextOriginalParents = setmetatable({}, addon.weakMeta)
 
 -- Lazy module references (resolved on first use in OnEnable)
 local Registry, DurationColor, Classifier
-local RestoreActionbarCooldownText
 local GetParentSafe
 
 -- Pre-computed style keys to avoid per-call string concatenation.
@@ -647,10 +643,6 @@ function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     fs.countdownAbbrevThreshold = nil
     fs.countdownMillisecondsThreshold = nil
 
-    if category == CATEGORY.Actionbar and RestoreActionbarCooldownText then
-        RestoreActionbarCooldownText(self, cdFrame)
-    end
-
     if category == CATEGORY.MiniAuras or category == CATEGORY.SArena then
         local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
         for i = 1, textRegionCount do
@@ -679,17 +671,9 @@ end
 
 local textRegionScratch = {}
 
--- Retail action-button labels live in a high-level text container (level 500
--- in Blizzard's mixin). Draw-layer sublevels cannot cross frame boundaries,
--- so countdown text needs its own child frame above the label parents.
-local ACTION_BUTTON_TEXT_FRAME_KEYS = { "TextOverlayContainer", "textOverlayContainer" }
-local ACTION_BUTTON_TEXT_REGION_KEYS = {
-    "HotKey", "hotkey",
-    "Name", "name",
-    "MacroName", "macroName",
-    "Count", "count",
-}
-
+-- Keep Blizzard ActionButton countdown FontStrings in their native hierarchy.
+-- Reparenting one through an addon-owned overlay can taint the protected button
+-- path that later forwards secret cooldown values to Cooldown:SetCooldown.
 GetParentSafe = function(region)
     local getParent = MCE:SafeTableGet(region, "GetParent")
     if type(getParent) ~= "function" then return nil end
@@ -698,122 +682,6 @@ GetParentSafe = function(region)
         return nil
     end
     return parent
-end
-
-local function GetFrameLevelSafe(frame)
-    local getFrameLevel = MCE:SafeTableGet(frame, "GetFrameLevel")
-    if type(getFrameLevel) ~= "function" then return nil end
-    local ok, level = pcall(getFrameLevel, frame)
-    return ok and GetAccessibleNumber(level) or nil
-end
-
-local function IncludeFrameLevel(maxLevel, frame)
-    local level = GetFrameLevelSafe(frame)
-    if level and (not maxLevel or level > maxLevel) then
-        return level
-    end
-    return maxLevel
-end
-
-local function GetActionButtonTextFrameLevel(button)
-    local maxLevel = GetFrameLevelSafe(button)
-
-    for i = 1, #ACTION_BUTTON_TEXT_FRAME_KEYS do
-        local frame = MCE:SafeTableGet(button, ACTION_BUTTON_TEXT_FRAME_KEYS[i])
-        maxLevel = IncludeFrameLevel(maxLevel, frame)
-    end
-
-    for i = 1, #ACTION_BUTTON_TEXT_REGION_KEYS do
-        local region = MCE:SafeTableGet(button, ACTION_BUTTON_TEXT_REGION_KEYS[i])
-        maxLevel = IncludeFrameLevel(maxLevel, GetParentSafe(region))
-    end
-
-    local buttonName = MCE:GetFrameName(button)
-    if buttonName then
-        maxLevel = IncludeFrameLevel(maxLevel, GetParentSafe(_G[buttonName .. "HotKey"]))
-        maxLevel = IncludeFrameLevel(maxLevel, GetParentSafe(_G[buttonName .. "Name"]))
-        maxLevel = IncludeFrameLevel(maxLevel, GetParentSafe(_G[buttonName .. "Count"]))
-    end
-
-    return maxLevel or 0
-end
-
-local function GetActionbarCooldownTextOverlay(cdFrame, button)
-    local overlay = actionbarTextOverlays[cdFrame]
-    if not overlay then
-        if type(CreateFrame) ~= "function" then return nil end
-
-        local ok, created = pcall(CreateFrame, "Frame", nil, cdFrame)
-        if not ok or not created then return nil end
-
-        overlay = created
-        actionbarTextOverlays[cdFrame] = overlay
-
-        if overlay.SetAllPoints then
-            pcall(overlay.SetAllPoints, overlay, cdFrame)
-        end
-        if overlay.EnableMouse then
-            pcall(overlay.EnableMouse, overlay, false)
-        end
-    end
-
-    local targetLevel = GetActionButtonTextFrameLevel(button)
-        + STYLER_CONSTANTS.ActionbarTextFrameLevelOffset
-    if GetFrameLevelSafe(overlay) ~= targetLevel and overlay.SetFrameLevel then
-        pcall(overlay.SetFrameLevel, overlay, targetLevel)
-    end
-    if overlay.Show then
-        overlay:Show()
-    end
-
-    return overlay
-end
-
-local function RaiseActionbarCooldownText(cdFrame, button, textRegions, textRegionCount)
-    if not button or not textRegionCount or textRegionCount == 0 then return false end
-
-    local overlay = GetActionbarCooldownTextOverlay(cdFrame, button)
-    if not overlay then return false end
-
-    for i = 1, textRegionCount do
-        local region = textRegions[i]
-        if region and type(region.SetParent) == "function" then
-            local currentParent = GetParentSafe(region)
-            if currentParent ~= overlay then
-                if not actionbarTextOriginalParents[region] then
-                    actionbarTextOriginalParents[region] = currentParent
-                end
-                pcall(region.SetParent, region, overlay)
-            end
-        end
-    end
-    return true
-end
-
-RestoreActionbarCooldownText = function(self, cdFrame)
-    local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
-    for i = 1, textRegionCount do
-        local region = textRegions[i]
-        local originalParent = region and actionbarTextOriginalParents[region]
-        if originalParent and type(region.SetParent) == "function" then
-            pcall(region.SetParent, region, originalParent)
-            actionbarTextOriginalParents[region] = nil
-        end
-    end
-
-    local overlay = actionbarTextOverlays[cdFrame]
-    if overlay and overlay.Hide then
-        overlay:Hide()
-    end
-
-    local fs = frameState[cdFrame]
-    if fs then
-        fs.actionbarTextStructureApplied = nil
-        fs.actionbarStackStyleApplied = nil
-        fs.actionbarStackCountResolved = nil
-        fs.actionbarStackCountRegion = nil
-        fs.actionbarStackCountParent = nil
-    end
 end
 
 local function FilterFontStringRegions(count, firstRegion, ...)
@@ -1880,20 +1748,6 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
         textRegionsChanged = HaveCooldownTextRegionsChanged(fs, textRegions, textRegionCount)
         fs.forceTextRegionRefresh = nil
-    end
-
-    local needsActionbarTextStructure = category == CATEGORY.Actionbar
-        and (needsFullRestyle
-            or needsDeferredTextRefresh
-            or textRegionsChanged
-            or fs.actionbarTextStructureApplied ~= true)
-    if needsActionbarTextStructure then
-        if not textRegions then
-            textRegions, textRegionCount = self:GetCachedCooldownTextRegions(cdFrame)
-        end
-        if RaiseActionbarCooldownText(cdFrame, parent, textRegions, textRegionCount) then
-            fs.actionbarTextStructureApplied = true
-        end
     end
 
     if needsFullRestyle then fs.styledCat = styleKey end

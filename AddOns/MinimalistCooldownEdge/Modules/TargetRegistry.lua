@@ -64,7 +64,6 @@ local function InvalidateActionbarStructure(cooldown, category)
         frameState[cooldown] = state
     end
     state.forceTextRegionRefresh = true
-    state.actionbarTextStructureApplied = nil
     state.actionbarStackStyleApplied = nil
     state.actionbarStackCountResolved = nil
     state.actionbarStackCountRegion = nil

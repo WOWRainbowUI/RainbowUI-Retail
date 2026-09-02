@@ -606,7 +606,6 @@ C.Styler = {
     SecretAuraRefreshInterval = 0.25,
     CooldownTextLayer = C.Style.Layers.Overlay,
     CooldownTextSubLevel = 7,
-    ActionbarTextFrameLevelOffset = 1,
     StackTextLayer = C.Style.Layers.Overlay,
     StackTextSubLevel = 7,
 }
