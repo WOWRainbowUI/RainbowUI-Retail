@@ -1070,6 +1070,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
       w.Wrapper = CreateFrame("Frame", nil, w)
       w.Wrapper:SetSize(10, 20)
       w.Wrapper:SetPoint("BOTTOMLEFT")
+      w:SetFrameStrata("MEDIUM")
       w.count = #textures[kind]
       w.auras = {}
       for index, tex in ipairs(textures[kind]) do
@@ -1325,7 +1326,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
 
       elseif w.kind == "specialBars" and w.details.kind == "power" then
         local points = {}
-        local color = CreateColor(234/255, 61/255, 247/255)
+        local color = w.details.useSpecColors and CreateColor(234/255, 61/255, 247/255) or w.details.fixedColor
         for i = 1, 6 do
           table.insert(points, {set = i <= 4, color = color})
         end

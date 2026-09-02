@@ -157,6 +157,8 @@ addonTable.CustomiseDialog.DesignWidgets = {
       scale = 1 * 0.60,
       layer = 3,
       anchor = {"TOPLEFT", -140, 50},
+      useSpecColors = true,
+      fixedColor = GetColor("f0c900"),
     },
   },
   {

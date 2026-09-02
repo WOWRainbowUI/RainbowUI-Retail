@@ -258,8 +258,14 @@ function addonTable.Display.ManagerMixin:RestylePools()
       local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
       for _, display in ipairs(list) do
         if display.styleIndex ~= self.styleIndex then
+          local parent = display:GetParent()
+          display:SetParent(UIParent)
+          display:Show()
+          display:SetPoint("CENTER")
           display:InitializeWidgets(design, scaleOffset, scaleMod)
           display.styleIndex = self.styleIndex
+          display:Hide()
+          display:SetParent(parent)
         end
       end
     end
@@ -292,8 +298,14 @@ function addonTable.Display.ManagerMixin:RestylePoolsStaggered()
       if settings then
         local design, scaleMod, scaleOffset = addonTable.Core.GetDesignByName(settings.style), settings.scale, addonTable.Core.GetDesignScale(settings.simplified or false)
         if display.styleIndex ~= self.styleIndex then
+          local parent = display:GetParent()
+          display:SetParent(UIParent)
+          display:Show()
+          display:SetPoint("CENTER")
           display:InitializeWidgets(design, scaleOffset, scaleMod)
           display.styleIndex = self.styleIndex
+          display:Hide()
+          display:SetParent(parent)
         end
       end
     end
@@ -578,13 +590,16 @@ function addonTable.Display.ManagerMixin:Install(unit)
 
     self:UpdateClickRegion(unit)
 
-    newDisplay:Install(nameplate, self:GetBaseOffset(unit) / scale / design.scale / globalScale)
     if newDisplay.styleIndex ~= self.styleIndex then
       local scaleOffset, scaleMod = addonTable.Core.GetDesignScale(shouldSimplify), scale
-      newDisplay.styleIndex = self.styleIndex
+      newDisplay:SetParent(UIParent)
+      newDisplay:Show()
+      newDisplay:SetPoint("CENTER")
       newDisplay:InitializeWidgets(design, scaleOffset, scaleMod)
-      newDisplay:LayerWidgets()
+      newDisplay.styleIndex = self.styleIndex
+      newDisplay:SetParent(nameplate)
     end
+    newDisplay:Install(nameplate, self:GetBaseOffset(unit) / scale / design.scale / globalScale)
     newDisplay:SetUnit(unit)
   end
 end

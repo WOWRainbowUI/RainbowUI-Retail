@@ -687,6 +687,24 @@ local function UpgradeDesignv17(design)
   end
 end
 
+local function UpgradeDesignv18(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "buffs" then
+      auras.filters.dispelable = nil
+      auras.filters.dispellable = true
+    end
+  end
+end
+
+local function UpgradeDesignv19(design)
+  for _, bar in ipairs(design.specialBars) do
+    if bar.kind == "power" then
+      bar.useSpecColors = bar.useSpecColors ~= nil and bar.useSpecColors or true
+      bar.fixedColor = bar.fixedColor or GetColor("f0c900")
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -705,6 +723,8 @@ local designUpgrades = {
   UpgradeDesignv15,
   UpgradeDesignv16,
   UpgradeDesignv17,
+  UpgradeDesignv18,
+  UpgradeDesignv19,
 }
 
 function addonTable.Core.UpgradeDesign(design)
