@@ -18,6 +18,7 @@
 ]]
 local Quartz3 = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
 local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
+local media = LibStub("LibSharedMedia-3.0")
 
 local MODNAME = "Player"
 local Player = Quartz3:NewModule(MODNAME, "AceEvent-3.0", "AceHook-3.0")
@@ -46,6 +47,11 @@ local defaults = {
 	{
 		hideblizz = true,
 		showticks = true,
+		ticktexture = "Blizzard Spark",
+		tickcolor = {1, 1, 1, 0.5},
+		tickwidth = 20,
+		tickheightmode = "bar",
+		tickheight = 55,
 		noInterruptChangeColor = false,
 		noInterruptShield = false,
 		targetnamestyle = "default"
@@ -55,6 +61,15 @@ local defaults = {
 do
 	local function setOpt(info, value)
 		db[info[#info]] = value
+		Player:ApplySettings()
+	end
+
+	local function getColor(info)
+		return unpack(db[info[#info]])
+	end
+
+	local function setColor(info, ...)
+		db[info[#info]] = {...}
 		Player:ApplySettings()
 	end
 
@@ -74,6 +89,54 @@ do
 				name = L["Show channeling ticks"],
 				desc = L["Show damage / mana ticks while channeling spells like Drain Life or Blizzard"],
 				order = 102,
+			}
+			options.args.ticktexture = {
+				type = "select",
+				dialogControl = "LSM30_Statusbar",
+				name = L["Tick Texture"],
+				desc = L["Set the texture of the channeling ticks"],
+				values = AceGUIWidgetLSMlists.statusbar,
+				set = setOpt,
+				disabled = function() return not db.showticks end,
+				order = 103,
+			}
+			options.args.tickcolor = {
+				type = "color",
+				name = L["Tick Color"],
+				desc = L["Set the color of the channeling ticks"],
+				hasAlpha = true,
+				get = getColor,
+				set = setColor,
+				disabled = function() return not db.showticks end,
+				order = 104,
+			}
+			options.args.tickwidth = {
+				type = "range",
+				name = L["Tick Thickness"],
+				desc = L["Set the thickness of the channeling ticks"],
+				min = 1, max = 32, step = 1,
+				set = setOpt,
+				disabled = function() return not db.showticks end,
+				order = 105,
+			}
+			options.args.tickheightmode = {
+				type = "select",
+				name = L["Tick Height"],
+				desc = L["Set the height of the channeling ticks"],
+				values = {["bar"] = L["Bar Height"], ["custom"] = L["Custom"]},
+				set = setOpt,
+				disabled = function() return not db.showticks end,
+				order = 106,
+			}
+			options.args.tickheight = {
+				type = "range",
+				name = L["Custom Height"],
+				desc = L["Set the height of the channeling ticks"],
+				min = 1, max = 128, step = 1,
+				set = setOpt,
+				disabled = function() return not db.showticks end,
+				hidden = function() return db.tickheightmode ~= "custom" end,
+				order = 107,
 			}
 			options.args.nlttargetname = {
 				type = "description",
@@ -190,6 +253,7 @@ function Player:ApplySettings()
 	self.Bar:SetConfig(db)
 	if self:IsEnabled() then
 		self.Bar:ApplySettings()
+		self:ApplyTickSettings()
 	end
 end
 
@@ -214,19 +278,34 @@ function Player:OnHide()
 	end
 end
 
+local function styleTick(spark)
+	spark:SetTexture(media:Fetch("statusbar", db.ticktexture))
+	spark:SetVertexColor(unpack(db.tickcolor))
+	spark:SetBlendMode('ADD')
+	spark:SetWidth(db.tickwidth)
+	local tickHeight = db.tickheightmode == "custom" and db.tickheight or db.h
+	-- The Blizzard spark texture has built-in transparent padding, compensate to match the visible height
+	if db.ticktexture == "Blizzard Spark" then
+		tickHeight = tickHeight * 2.2
+	end
+	spark:SetHeight(tickHeight)
+end
+
 local sparkfactory = {
 	__index = function(t,k)
 		local spark = castBar:CreateTexture(nil, 'OVERLAY')
 		t[k] = spark
-		spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		spark:SetVertexColor(unpack(Quartz3.db.profile.sparkcolor))
-		spark:SetBlendMode('ADD')
-		spark:SetWidth(20)
-		spark:SetHeight(db.h*2.2)
+		styleTick(spark)
 		return spark
 	end
 }
 local barticks = setmetatable({}, sparkfactory)
+
+function Player:ApplyTickSettings()
+	for i = 1, #barticks do
+		styleTick(barticks[i])
+	end
+end
 
 local function setBarTicks(ticknum, duration, ticks)
 	if( ticknum and ticknum > 0) then
@@ -400,6 +479,8 @@ local channelingTicks = WoWWrath and {
 	[GetSpellName(117952)] = 4, -- crackling jade lightning
 	[GetSpellName(115175)] = 8, -- soothing mist
 	[GetSpellName(443028)] = 4, -- celestial conduit
+	-- hunter
+	[GetSpellName(257044)] = 7, -- rapid fire
 	-- evoker
 	[GetSpellName(356995)] = 3, -- disintegrate
 	[GetSpellName(370960)] = 5, -- emerald communion
@@ -443,6 +524,9 @@ function Player:UpdateChannelingTicks()
 		elseif playerClass == "EVOKER" then
 			-- Azure Celerity adds a tick to Disintegrate
 			channelingTicks[GetSpellName(356995)] = IsPlayerSpell(1219723) and 4 or 3
+		elseif playerClass == "HUNTER" then
+			-- Quick Draw adds 3 more ticks of Rapid Fire
+			channelingTicks[GetSpellName(257044)] = IsPlayerSpell(459794) and 10 or 7
 		end
 	end
 end
