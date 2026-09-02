@@ -1,8 +1,11 @@
 ---@class addonTableCoolinator
 local addonTable = select(2, ...)
 
+local offsetSize = addonTable.Constants.nativeSize - 4
+
 addonTable.Display.CooldownMixin = {}
 function addonTable.Display.CooldownMixin:OnLoad()
+  self:SetSize(offsetSize, offsetSize)
   self:SetFlattensRenderLayers(true)
   self:SetCollapsesLayout(true)
   self:SetIgnoringChildrenForBounds(true)
@@ -53,13 +56,12 @@ function addonTable.Display.CooldownMixin:Style()
 end
 
 function addonTable.Display.CooldownMixin:GetDefaultSize()
-  local dim = addonTable.Constants.nativeSize - 4
-  return dim, dim
+  return offsetSize, offsetSize
 end
 
 function addonTable.Display.CooldownMixin:ApplyPadding(horizontal, vertical)
   self.paddingH, self.paddingV = horizontal, vertical
-  local width, height = PixelUtil.ConvertPixelsToUIForRegion(addonTable.Constants.nativeSize - 4 + horizontal, self), PixelUtil.ConvertPixelsToUIForRegion(addonTable.Constants.nativeSize - 4 + vertical, self)
+  local width, height = PixelUtil.ConvertPixelsToUIForRegion(offsetSize + horizontal, self), PixelUtil.ConvertPixelsToUIForRegion(offsetSize + vertical, self)
   self:SetSize(width, height)
   PixelUtil.SetSize(self.SpellActivationAlert, width * 1.4, height * 1.4);
 end

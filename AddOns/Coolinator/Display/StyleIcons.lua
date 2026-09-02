@@ -66,16 +66,18 @@ function addonTable.Display.StyleIcon(styleSettings, parent, icon, count, keybin
     parent.Mask = parent:CreateMaskTexture()
   end
 
-  for _, c in ipairs(cooldowns) do
-    local text = c.widget:GetRegions()
-    SetupText(text, details.texts.cooldown)
-    c.widget:SetHideCountdownNumbers(not c.text or not details.texts.cooldown.visible)
-  end
-  if count then
-    SetupText(count, details.texts.count)
-  end
-  if keybinding then
-    SetupText(keybinding, details.texts.keybinding)
+  if details.texts then
+    for _, c in ipairs(cooldowns) do
+      local text = c.widget:GetRegions()
+      SetupText(text, details.texts.cooldown)
+      c.widget:SetHideCountdownNumbers(not c.text or not details.texts.cooldown.visible)
+    end
+    if count then
+      SetupText(count, details.texts.count)
+    end
+    if keybinding then
+      SetupText(keybinding, details.texts.keybinding)
+    end
   end
 
   parent.Mask:SetAllPoints(icon)
@@ -96,6 +98,9 @@ function addonTable.Display.StyleIcon(styleSettings, parent, icon, count, keybin
 
   if addonTable.State.UsingMasque then
     parent.styleSet = "Masque"
+    parent.GetSize = function()
+      return addonTable.Constants.nativeSize - 4, addonTable.Constants.nativeSize - 4
+    end
     masqueGroup:AddButton(icon:GetParent(), {
       Icon = icon,
       Normal = parent.border,

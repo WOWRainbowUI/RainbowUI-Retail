@@ -40,6 +40,8 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
     auraButton:SetApplicationCount(auraButton.TextsContainer.Charges)
     auraButton.TextsContainer.Duration = auraButton.TextsContainer:CreateFontString(nil, nil, "NumberFontNormal")
     auraButton.TextsContainer.Name = auraButton.TextsContainer:CreateFontString(nil, nil, "NumberFontNormal")
+    auraButton.TextsContainer.Name:SetWordWrap(false)
+    auraButton.TextsContainer.Name:SetNonSpaceWrap(false)
     auraButton:SetSpellName(auraButton.TextsContainer.Name)
 
     auraButton:SetPoint("TOPLEFT", self)

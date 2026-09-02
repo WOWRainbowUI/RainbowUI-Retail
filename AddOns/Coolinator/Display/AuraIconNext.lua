@@ -6,7 +6,7 @@ addonTable.Display.AuraIconNextMixin = {}
 local offsetSize = addonTable.Constants.nativeSize - 4
 
 function addonTable.Display.AuraIconNextMixin:OnLoad()
-  self:SetSize(addonTable.Constants.nativeSize - 4, addonTable.Constants.nativeSize - 4)
+  self:SetSize(offsetSize, offsetSize)
 
   self:SetScript("OnShow", self.OnShow)
   self:SetScript("OnHide", self.OnHide)
@@ -114,8 +114,7 @@ function addonTable.Display.AuraIconNextMixin:IgnoreForSizing()
 end
 
 function addonTable.Display.AuraIconNextMixin:GetDefaultSize()
-  local dim = addonTable.Constants.nativeSize - 4
-  return dim, dim
+  return offsetSize, offsetSize
 end
 
 function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
@@ -123,8 +122,6 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
     return
   end
 
-  horizontal = horizontal
-  vertical = vertical
   if not self.helpfulButton then
     self.index, self.helpfulButton, self.harmfulButton, self.helpfulPetButton = addonTable.Display.GeneratePlayerAuraSlots(
       {initializeFrame = function(auraButton)

@@ -707,6 +707,76 @@ addonTable.Designer.WidgetConfiguration = {
         },
       }
     },
+    ["auraMissing"] = {
+      ["*"] = {
+        {
+          label = addonTable.Locales.ACTIVE,
+          entries = {
+            {
+              label = addonTable.Locales.WHEN_ACTIVE,
+              kind = "dropdown",
+              getInitData = function(details)
+                return {
+                  addonTable.Locales.HIDE,
+                }, {
+                  "hide",
+                }
+              end,
+              setter = function(details, value)
+                details.whenActive = value
+              end,
+              getter = function(details)
+                return details.whenActive
+              end,
+            },
+            {
+              label = addonTable.Locales.WHEN_INACTIVE,
+              kind = "dropdown",
+              getInitData = function(details)
+                return {
+                  addonTable.Locales.NONE,
+                  addonTable.Locales.PIXEL_GLOW,
+                  addonTable.Locales.MARCHING_ANTS_GLOW,
+                  addonTable.Locales.STATIC_GLOW,
+                }, {
+                  "none",
+                  "glow-pixel",
+                  "glow-marching-ants",
+                  "glow-static",
+                }
+              end,
+              setter = function(details, value)
+                details.whenInactive = value
+              end,
+              getter = function(details)
+                return details.whenInactive
+              end,
+            },
+            { kind = "spacer" },
+            {
+              label = addonTable.Locales.GLOW_COLOR,
+              kind = "colorPicker",
+              setter = function(details, value)
+                details.glowColor = value
+              end,
+              getter = function(details)
+                return details.glowColor
+              end,
+            },
+            {
+              label = addonTable.Locales.REVERSE_GLOW,
+              kind = "checkbox",
+              setter = function(details, value)
+                details.glowReverse = value
+              end,
+              getter = function(details)
+                return details.glowReverse
+              end,
+            },
+          },
+        },
+      }
+    },
   },
   ["bar"] = {
     ["*"] = {
