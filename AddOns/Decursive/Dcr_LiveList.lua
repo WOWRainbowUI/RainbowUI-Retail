@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-25T23:47:58Z
+    This file was last updated on 2026-08-28T15:57:06Z
 
 --]]
 -------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ function LiveList.prototype:SetDebuff(UnitID, Debuff, IsCharmed) -- {{{
 
     -- Unit Name
     if not cancompare(self.PrevUnitName, self.UnitName) or self.PrevUnitName ~= self.UnitName then
-        self.UnitClass = (select(2, UnitClass(UnitID)));
+        self.UnitClass = D:SafeUnitClass2(UnitID)
         self.UnitNameFontString:SetText(self.UnitName);
         if self.UnitClass then
             self.UnitNameFontString:SetTextColor(unpack(DC.ClassesColors[self.UnitClass])); -- got one report where unpack got a nil... probably a damaged classescolors table...
@@ -370,11 +370,6 @@ end -- }}}
 
 function LiveList:GetDebuff(UnitID) -- {{{
     --  (note that this function is only called for the mouseover and target if the MUFs are active)
-
-    if DC.TWELVE_ONE then
-        D:Debug("12.1: LiveList:GetDebuff was called!", debugstack(2))
-        return false
-    end
 
     if (UnitID == "target" or UnitID == "mouseover") and (not UnitIsFriend(UnitID, "player") or not UnitExists(UnitID)) then
         if D.ManagedDebuffUnitCache[UnitID] and D.ManagedDebuffUnitCache[UnitID][1] then
@@ -611,4 +606,4 @@ function LiveList:Onclick() -- {{{
     D:Println(L["HLP_LL_ONCLICK_TEXT"]);
 end -- }}}
 
-T._LoadedFiles["Dcr_LiveList.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_LiveList.lua"] = "2.8.3-19-gef0d480";

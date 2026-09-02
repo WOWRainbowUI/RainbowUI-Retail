@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-11-g237fc73) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-26T22:31:56Z
+    This file was last updated on 2026-08-28T15:57:06Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -96,6 +96,21 @@ local pcall             = _G.pcall;
 local canaccessvalue    = _G.canaccessvalue or function(_) return true; end
 local CreateColor       = _G.CreateColor
 local C_SpellBook       = _G.C_SpellBook
+local UnitClass         = _G.UnitClass;
+
+
+
+function D:SafeUnitClass2(unit)
+    local internationalClass = select(2, UnitClass(unit))
+
+    if not canaccessvalue(internationalClass) then
+        D:Debug("WARNING: unit class was secret for unit:", unit ,"defaulting to WARRIOR")
+
+        internationalClass = DC.CLASS_WARRIOR
+    end
+
+    return internationalClass
+end
 
 -- replacement for the default function as it is bugged in WoW5 (it returns nil for some spells such as resto shamans' 'Purify Spirit')
 D.IsSpellInRange = function (spellName, unit)
@@ -1140,4 +1155,4 @@ do
         return nocase:trim();
     end
 end
-T._LoadedFiles["Dcr_utils.lua"] = "2.8.3-11-g237fc73";
+T._LoadedFiles["Dcr_utils.lua"] = "2.8.3-19-gef0d480";
