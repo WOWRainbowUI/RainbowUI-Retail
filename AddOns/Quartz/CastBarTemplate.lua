@@ -181,7 +181,7 @@ local function OnUpdate(self)
 
 		self.Bar:SetValue(perc)
 		self.Spark:ClearAllPoints()
-		self.Spark:SetPoint("CENTER", self.Bar, "LEFT", perc * self.Bar:GetWidth(), 0)
+		self.Spark:SetPoint("CENTER", self.Bar, "LEFT", perc * self.Bar:GetWidth() - 2 + (self.sparkOffset or 0), 0)
 
 		local timeTextValue = db.casttimecountup and ((endTime - startTime) - remainingTime) or remainingTime
 		if delay and delay ~= 0 then
@@ -207,6 +207,14 @@ local function OnUpdate(self)
 		end
 	elseif self.fadeOut then
 		self.Spark:Hide()
+		if Quartz3.db.profile.instantfade then
+			local stopTime = self.stopTime
+			if not stopTime or currentTime > stopTime + 0.1 then
+				self.stopTime = nil
+				self:Hide()
+			end
+			return
+		end
 		local alpha
 		local stopTime = self.stopTime
 		if stopTime then
@@ -430,7 +438,9 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 
 	self:SetNameText(displayName or spell)
 
-	self.Spark:Show()
+	if Quartz3.db.profile.sparkenabled then
+		self.Spark:Show()
+	end
 
 	-- Check Samwise icon - skip if icon is secret
 	if not issecretvalue(icon) then
@@ -721,11 +731,21 @@ function CastBarTemplate:ApplySettings()
 		self.Icon:SetAlpha(db.iconalpha)
 	end
 
-	self.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-	self.Spark:SetVertexColor(unpack(Quartz3.db.profile.sparkcolor))
+	local gdb = Quartz3.db.profile
+	self.Spark:SetTexture(media:Fetch("statusbar", gdb.sparktexture))
+	self.Spark:SetVertexColor(unpack(gdb.sparkcolor))
 	self.Spark:SetBlendMode("ADD")
-	self.Spark:SetWidth(20)
-	self.Spark:SetHeight(db.h*2.2)
+	self.Spark:SetWidth(gdb.sparkwidth)
+	local sparkHeight = gdb.sparkheightmode == "custom" and gdb.sparkheight or db.h
+	-- The Blizzard spark texture has built-in transparent padding, compensate to match the visible height
+	if gdb.sparktexture == "Blizzard Spark" then
+		sparkHeight = sparkHeight * 2.2
+	end
+	self.Spark:SetHeight(sparkHeight)
+	self.sparkOffset = gdb.sparkoffset or 0
+	if not gdb.sparkenabled then
+		self.Spark:Hide()
+	end
 
 	if self.Shield then
 		local scale = (db.h/25)
@@ -821,15 +841,17 @@ do
 				local db = bar.config
 				local hasNoInterrupt = db.noInterruptChangeColor or db.noInterruptChangeBorder or db.noInterruptShield
 				local t = (now - bar.demoStart) % (hasNoInterrupt and 6.6 or 4.6)
-				local value, color, timeText, text
+				local value, color, timeText, text, showSpark
 				if t < 2.0 then
 					value, color = t / 2.0, gdb.castingcolor
 					timeText = ("%.1f"):format(2.0 - t)
+					showSpark = true
 				elseif t < 2.6 then
 					value, color, timeText = 1, gdb.completecolor, "0.0"
 				elseif t < 3.8 then
 					value, color = (t - 2.6) / 2.0, gdb.castingcolor
 					timeText = ("%.1f"):format(2.0 - (t - 2.6))
+					showSpark = true
 				elseif t < 4.6 then
 					value, color, timeText = 0.6, gdb.failcolor, ""
 					text = L["INTERRUPTED (%s)"]:format(bar.unit)
@@ -837,6 +859,7 @@ do
 					value = (t - 4.6) / 2.0
 					color = db.noInterruptChangeColor and db.noInterruptColor or gdb.castingcolor
 					timeText = ("%.1f"):format(2.0 - (t - 4.6))
+					showSpark = true
 				end
 
 				local inNoInterrupt = (hasNoInterrupt and t >= 4.6) and true or false
@@ -850,6 +873,14 @@ do
 				bar.Bar:SetStatusBarColor(unpack(color))
 				bar.TimeText:SetText(timeText)
 				bar.Text:SetText(text or bar.unit)
+
+				if showSpark and gdb.sparkenabled then
+					bar.Spark:ClearAllPoints()
+					bar.Spark:SetPoint("CENTER", bar.Bar, "LEFT", value * bar.Bar:GetWidth() - 2 + (bar.sparkOffset or 0), 0)
+					bar.Spark:Show()
+				else
+					bar.Spark:Hide()
+				end
 			end
 		end
 	end)

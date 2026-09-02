@@ -35,6 +35,12 @@ local defaults = {
 	profile = {
 		modules = { ["*"] = true, ["EnemyCasts"] = false, ["GCD"] = false, ["Mirror"] = false, ["Buff"] = false, ["Target"] = false, ["Pet"] = false, ["Tradeskill"] = false },
 		hidesamwise = true,
+		sparkenabled = true,
+		sparktexture = "Blizzard Spark",
+		sparkwidth = 20,
+		sparkheightmode = "bar",
+		sparkheight = 55,
+		sparkoffset = 0,
 		sparkcolor = {1, 1, 1, 0.5},
 		spelltextcolor = {1, 1, 1},
 		timetextcolor = {1, 1, 1},
@@ -47,6 +53,7 @@ local defaults = {
 		backgroundalpha = 1,
 		borderalpha = 1,
 		casttimeprecision = 1,
+		instantfade = false,
 	},
 	global = {
 		configDialog = {},
@@ -61,6 +68,7 @@ media:Register("statusbar", "Rocks", "Interface\\AddOns\\Quartz\\textures\\Rocks
 media:Register("statusbar", "Runes", "Interface\\AddOns\\Quartz\\textures\\Runes")
 media:Register("statusbar", "Xeon", "Interface\\AddOns\\Quartz\\textures\\Xeon")
 media:Register("statusbar", "Minimalist", "Interface\\AddOns\\Quartz\\textures\\Minimalist")
+media:Register("statusbar", "Blizzard Spark", "Interface\\CastingBar\\UI-CastingBar-Spark")
 media:Register("border", "Tooltip enlarged", "Interface\\AddOns\\Quartz\\textures\\Tooltip-BigBorder")
 
 -- Bump on every profile migration added to CheckUpgrade.

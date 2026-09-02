@@ -160,7 +160,9 @@ function Flight:BeginFlight(duration, destination)
 	Player.Bar:Show()
 	Player.Bar:SetAlpha(Player.db.profile.alpha)
 
-	Player.Bar.Spark:Show()
+	if Quartz3.db.profile.sparkenabled then
+		Player.Bar.Spark:Show()
+	end
 	if WoWClassic then
 		Player.Bar.Icon:SetTexture("Interface\\Icons\\ability_eyeoftheowl")
 	else

@@ -34,7 +34,7 @@ local lsmlist = AceGUIWidgetLSMlists
 -- Upvalues
 -- GLOBALS: AuraContainerSortMethod AuraContainerSortDirection AnchorUtil Enum CreateColor
 -- GLOBALS: UnitCanAssist UnitCanAttack UnitIsFriend UnitIsEnemy issecretvalue
--- GLOBALS: UnitIsConnected UnitPhaseReason UnitIsVisible
+-- GLOBALS: UnitIsConnected UnitIsVisible
 local CreateFrame, UIParent = CreateFrame, UIParent
 local unpack, pairs, ipairs, pcall = unpack, pairs, ipairs, pcall
 
@@ -104,6 +104,7 @@ local defaults = {
 
 		buffnametext = true,
 		bufftimetext = true,
+		bufftooltips = "off",
 
 		bufftexture = "LiteStep",
 		bufffont = "Friz Quadrata TT",
@@ -143,8 +144,7 @@ local styleButton
 local function initButton(button, unit, isBuff, gen)
 	local entry = { button = button, unit = unit, isBuff = isBuff, gen = gen }
 
-	-- Historical click-through, pcall'd because the calls are input-restricted on some builds.
-	pcall(button.SetMouseMotionEnabled, button, false)
+	-- Clicks stay disabled, pcall'd because the call is input-restricted on some builds.
 	pcall(button.SetMouseClickEnabled, button, false)
 
 	local bar = CreateFrame("StatusBar", nil, button)
@@ -187,6 +187,11 @@ end
 
 function styleButton(entry)
 	local unit, button, bar = entry.unit, entry.button, entry.bar
+
+	-- Hover tooltips are native to the AuraButton, mouse motion is the only switch.
+	pcall(button.SetMouseMotionEnabled, button, db.bufftooltips ~= "off" and true or false)
+	pcall(button.SetHideTooltipInCombat, button, db.bufftooltips == "nocombat" and true or false)
+
 	local width = db[unit .. "width"]
 	local height = db[unit .. "height"]
 	local icons = db[unit .. "icons"]
@@ -602,14 +607,11 @@ local function sectionMuted(section, state)
 end
 
 -- Out of AOI the identity gate drops every spell-ID filter, so sections lose their whitelists and show duplicates.
+-- War mode phasing reports a phase reason while the aura payload stays usable, so phase is not part of the gate.
 local function unitReachable(unit)
 	if unit == "player" then return true end
 	local okConnected, connected = pcall(UnitIsConnected, unit)
 	if okConnected and not issecretvalue(connected) and not connected then
-		return false
-	end
-	local okPhase, phase = pcall(UnitPhaseReason, unit)
-	if okPhase and not issecretvalue(phase) and phase ~= nil then
 		return false
 	end
 	local okVisible, visible = pcall(UnitIsVisible, unit)
@@ -1261,6 +1263,14 @@ do
 								name = L["Buff Time Text"],
 								desc = L["Display the time remaining on buffs/debuffs on their bars"],
 								order = 107,
+							},
+							bufftooltips = {
+								type = "select",
+								name = L["Aura Tooltips"],
+								desc = L["Show the aura tooltip when hovering its bar"],
+								values = {["off"] = L["Disabled"], ["on"] = L["Enabled"], ["nocombat"] = L["Enabled only out of combat"]},
+								sorting = {"off", "on", "nocombat"},
+								order = 107.1,
 							},
 							bufffont = {
 								type = "select",
