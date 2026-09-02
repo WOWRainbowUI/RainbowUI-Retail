@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.02 (26th August 2026)
+-- 	Leatrix Plus 12.1.03 (2nd September 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.02"
+	LeaPlusLC["AddonVer"] = "12.1.03"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -678,6 +678,7 @@
 
 		-- Settings
 		or	(LeaPlusLC["UseEnglishLanguage"]	~= LeaPlusDB["UseEnglishLanguage"])		-- Use English language
+		or	(LeaPlusLC["SimpleAddonListing"]	~= LeaPlusDB["SimpleAddonListing"])		-- Simple addon listing
 
 		then
 			-- Enable the reload button
@@ -696,6 +697,66 @@
 ----------------------------------------------------------------------
 
 	function LeaPlusLC:Player()
+
+		----------------------------------------------------------------------
+		-- Simple addon list
+		----------------------------------------------------------------------
+
+		if LeaPlusLC["SimpleAddonListing"] == "On" then
+
+			-- Strip Wow color codes
+			local function StripColors(s) return (s or ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "") end
+
+			-- Build, filter, sort and feed the list in one pass
+			local function UpdateList()
+				local provider   = CreateTreeDataProvider()
+				local filter     = AddonList.SearchBox:GetText():lower()
+				local groups     = {}
+
+				for i = 1, C_AddOns.GetNumAddOns() do
+					local name, title = C_AddOns.GetAddOnInfo(i)
+					local group = C_AddOns.GetAddOnMetadata(i, "Group") or name
+					local searchable = (StripColors(title or name) .. StripColors(group)):lower()
+
+					if filter == "" or searchable:find(filter, 1, true) then
+						groups[group] = groups[group] or {parent = {addonIndex = i}, children = {}}
+						if name ~= group then
+							table.insert(groups[group].children, {addonIndex = i})
+						end
+					end
+				end
+
+				-- Sort groups alphabetically (ignoring color codes)
+				local sortedGroups = {}
+				for g in pairs(groups) do table.insert(sortedGroups, g) end
+				table.sort(sortedGroups, function(a, b) return StripColors(a):lower() < StripColors(b):lower() end)
+
+				-- Insert sorted groups and their sorted children into the provider
+				for void, gName in ipairs(sortedGroups) do
+					local node = provider:Insert(groups[gName].parent)
+
+					local ch = groups[gName].children
+					table.sort(ch, function(a, b)
+						local aT = StripColors(select(2, C_AddOns.GetAddOnInfo(a.addonIndex)) or ""):lower()
+						local bT = StripColors(select(2, C_AddOns.GetAddOnInfo(b.addonIndex)) or ""):lower()
+						return aT < bT
+					end)
+
+					for void, child in ipairs(ch) do node:Insert(child) end
+				end
+
+				AddonList.ScrollBox:SetDataProvider(provider, ScrollBoxConstants.RetainScrollPosition)
+				AddonList.ScrollBox:Show()
+			end
+
+			AddonList.SearchBox:HookScript("OnTextChanged", UpdateList)
+			hooksecurefunc("AddonList_Update", UpdateList)
+			AddonList:HookScript("OnShow", function()
+				AddonList.ScrollBox:Hide()
+				C_Timer.After(0, UpdateList)
+			end)
+
+		end
 
 		----------------------------------------------------------------------
 		-- Set edit mode layout
@@ -718,8 +779,8 @@
 					local success, layouts = pcall(function() return EditModeManagerFrame:GetLayouts() end)
 					if success and layouts and type(layouts) == "table" then
 						for index, layout in ipairs(layouts) do
-							if layout.layoutName and layout.layoutName == LeaPlusLC["EditModeLayoutName"] then
-								if activeLayoutInfo.layoutName and activeLayoutInfo.layoutName ~= LeaPlusLC["EditModeLayoutName"] then
+							if layout.layoutName and layout.layoutName:lower() == LeaPlusLC["EditModeLayoutName"]:lower() then
+								if activeLayoutInfo.layoutName and activeLayoutInfo.layoutName:lower() ~= LeaPlusLC["EditModeLayoutName"]:lower() then
 									pcall(C_EditMode.SetActiveLayout, index)
 									LeaPlusLC:Print(L["Edit Mode layout"] .. " '" .. layout.layoutName .. "' " .. L["applied"])
 								end
@@ -2942,7 +3003,9 @@
 		-- Drink alcohol from bags.
 
 		if LeaPlusLC["NoBagAutomation"] == "On" and not LeaLockList["NoBagAutomation"] then
-			RunScript("hooksecurefunc('OpenAllBags', CloseAllBags)")
+			if not C_PlayerInfo.IsPlayerNPERestricted() then
+				RunScript("hooksecurefunc('OpenAllBags', CloseAllBags)")
+			end
 		end
 
 		----------------------------------------------------------------------
@@ -10453,6 +10516,8 @@
 				LeaPlusLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
 				LeaPlusLC:LoadVarChk("SetEditModeLayout", "Off")			-- Set edit mode layout
 				LeaPlusLC["EditModeLayoutName"]	= LeaPlusDB["EditModeLayoutName"] or ""			-- Edit mode layout name
+				LeaPlusLC:LoadVarChk("SimpleAddonListing", "Off")			-- Simple addon listing
+
 				LeaPlusLC:LoadVarNum("PlusPanelScale", 1, 1, 2)				-- Panel scale
 				LeaPlusLC:LoadVarNum("PlusPanelAlpha", 0, 0, 1)				-- Panel alpha
 
@@ -10796,6 +10861,8 @@
 			LeaPlusDB["UseEnglishLanguage"] 	= LeaPlusLC["UseEnglishLanguage"]
 			LeaPlusDB["SetEditModeLayout"] 		= LeaPlusLC["SetEditModeLayout"]
 			LeaPlusDB["EditModeLayoutName"] 	= LeaPlusLC["EditModeLayoutName"]
+			LeaPlusDB["SimpleAddonListing"] 	= LeaPlusLC["SimpleAddonListing"]
+
 			LeaPlusDB["PlusPanelScale"] 		= LeaPlusLC["PlusPanelScale"]
 			LeaPlusDB["PlusPanelAlpha"] 		= LeaPlusLC["PlusPanelAlpha"]
 
@@ -11771,6 +11838,7 @@
 								else
 									-- Unknown tooltip
 									tipTitle = tipTitle:gsub("|c%x%x%x%x%x%x%x%x", "") -- Remove color tag
+									tipTitle = tipTitle:gsub(" ", "%%20")
 									LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
 									LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Link will search Wowhead"])
 									return
@@ -13500,80 +13568,7 @@
 				LeaPlusDB["UseEnglishLanguage"] = "On"			-- Use English language
 				LeaPlusDB["SetEditModeLayout"] = "On"			-- Set edit mode layout
 				LeaPlusDB["EditModeLayoutName"] = "Main"		-- Edit mode layout name
-
-				-- Function to assign cooldowns
-				local function setIcon(pclass, pspec, sp1, pt1, sp2, pt2, sp3, pt3, sp4, pt4, sp5, pt5)
-					-- Set spell ID
-					if sp1 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R1Idn"] = "" else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R1Idn"] = sp1 end
-					if sp2 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R2Idn"] = "" else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R2Idn"] = sp2 end
-					if sp3 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R3Idn"] = "" else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R3Idn"] = sp3 end
-					if sp4 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R4Idn"] = "" else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R4Idn"] = sp4 end
-					if sp5 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R5Idn"] = "" else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R5Idn"] = sp5 end
-					-- Set pet checkbox
-					if pt1 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R1Pet"] = false else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R1Pet"] = true end
-					if pt2 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R2Pet"] = false else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R2Pet"] = true end
-					if pt3 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R3Pet"] = false else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R3Pet"] = true end
-					if pt4 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R4Pet"] = false else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R4Pet"] = true end
-					if pt5 == 0 then LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R5Pet"] = false else LeaPlusDB["Cooldowns"][pclass]["S" .. pspec .. "R5Pet"] = true end
-				end
-
-				-- Create main table
-				LeaPlusDB["Cooldowns"] = {}
-
-				-- Create class tables
-				for index = 1, GetNumClasses() do
-					local classDisplayName, classTag, classID = GetClassInfo(index)
-					LeaPlusDB["Cooldowns"][classTag] = {}
-				end
-
-				-- Assign cooldowns
-				setIcon("WARRIOR", 		1, --[[Arms]] 		 	--[[1]] 32216, 0, 	--[[2]] 209574, 0, 	--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Victory Rush, Shattered Defences
-				setIcon("WARRIOR", 		2, --[[Fury]]  			--[[1]] 32216, 0, 	--[[2]] 184362, 0, 	--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Victory Rush, Enrage
-				setIcon("WARRIOR", 		3, --[[Protection]]  	--[[1]] 32216, 0, 	--[[2]] 190456, 0, 	--[[3]] 132404, 0, 	--[[4]] 0, 0, 		--[[5]] 0, 0) -- Victory Rush, Ignore Pain, Shield Block
-
-				setIcon("PALADIN", 		1, --[[Holy]]  			--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 203539, 0, 	--[[5]] 203538, 0) 	-- nil, nil, nil, Wisdom, Kings
-				setIcon("PALADIN", 		2, --[[Protection]]  	--[[1]] 132403, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) 		-- Shield of the Righteous, nil, nil, nil, nil
-				setIcon("PALADIN", 		3, --[[Retribution]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 203539, 0, 	--[[5]] 203538, 0) 	-- nil, nil, nil, Wisdom, Kings
-
-				setIcon("SHAMAN", 		1, --[[Elemental]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 215864, 0, 	--[[5]] 546, 0) -- nil, nil, nil, Rainfall, Water Walking
-				setIcon("SHAMAN", 		2, --[[Enhancement]]  	--[[1]] 194084, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 215864, 0, 	--[[5]] 546, 0) -- Flametongue, nil, nil, Rainfall, Water Walking
-				setIcon("SHAMAN", 		3, --[[Resto]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 215864, 0, 	--[[5]] 546, 0) -- nil, nil, nil, Rainfall, Water Walking
-
-				setIcon("ROGUE", 		1, --[[Assassination]]  --[[1]] 1784, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 2823, 0, 	--[[5]] 3408, 0) -- Stealth, nil, nil, Deadly Poison, Crippling Poison
-				setIcon("ROGUE", 		2, --[[Outlaw]]  		--[[1]] 1784, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 2823, 0, 	--[[5]] 3408, 0) -- Stealth, nil, nil, Deadly Poison, Crippling Poison
-				setIcon("ROGUE", 		3, --[[Subtetly]]  		--[[1]] 1784, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 2823, 0, 	--[[5]] 3408, 0) -- Stealth, nil, nil, Deadly Poison, Crippling Poison
-
-				setIcon("DRUID", 		1, --[[Balance]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("DRUID", 		2, --[[Feral]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("DRUID", 		3, --[[Guardian]]  		--[[1]] 192081, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Ironfur
-				setIcon("DRUID", 		4, --[[Resto]]			--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-
-				setIcon("MONK", 		1, --[[Brewmaster]]  	--[[1]] 125359, 0,	--[[2]] 115307, 0, 	--[[3]] 124274, 0, 	--[[4]] 124273, 0, 	--[[5]] 116781, 0) -- Tiger Power, Shuffle, Moderate Stagger, Heavy Stagger, Legacy of the White Tiger
-				setIcon("MONK", 		2, --[[Mistweaver]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("MONK", 		3, --[[Windwalker]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-
-				setIcon("MAGE", 		1, --[[Arcane]]  		--[[1]] 235450, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 1459, 0) -- Prismatic Barrier, nil, nil, nil, Arcane Intellect
-				setIcon("MAGE", 		2, --[[Fire]]  			--[[1]] 235313, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 1459, 0) -- Blazing Barrier, nil, nil, nil, Arcane Intellect
-				setIcon("MAGE", 		3, --[[Frost]]  		--[[1]] 11426, 0, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 1459, 0) -- Ice Barrier, nil, nil, nil, Arcane Intellect
-
-				setIcon("WARLOCK", 		1, --[[Affliction]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("WARLOCK", 		2, --[[Demonology]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("WARLOCK", 		3, --[[Destruction]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-
-				setIcon("PRIEST", 		1, --[[Discipline]]  	--[[1]] 17, 0, 		--[[2]] 194384, 0, 	--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Power Word: Shield
-				setIcon("PRIEST", 		2, --[[Holy]]  			--[[1]] 17, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Power Word: Shield
-				setIcon("PRIEST", 		3, --[[Shadow]]  		--[[1]] 17, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0) -- Power Word: Shield
-
-				setIcon("HUNTER", 		1, --[[Beast Mastery]]  --[[1]] 136, 1, 	--[[2]] 118455, 1, 	--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 5384, 0) -- Mend Pet, nil, nil, nil, Feign Death
-				setIcon("HUNTER", 		2, --[[Marksmanship]]  	--[[1]] 136, 1, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 5384, 0) -- Mend Pet, nil, nil, nil, Feign Death
-				setIcon("HUNTER", 		3, --[[Survival]]  		--[[1]] 136, 1, 	--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 5384, 0) -- Mend Pet, nil, nil, nil, Feign Death
-
-				setIcon("DEATHKNIGHT", 	1, --[[Blood]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 195181, 0) -- nil, nil, nil, nil, Bone Shield
-				setIcon("DEATHKNIGHT", 	2, --[[Frost]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("DEATHKNIGHT", 	3, --[[Unholy]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-
-				setIcon("DEMONHUNTER", 	1, --[[Havoc]]  		--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 0, 0)
-				setIcon("DEMONHUNTER", 	2, --[[Vengeance]]  	--[[1]] 0, 0, 		--[[2]] 0, 0, 		--[[3]] 0, 0, 		--[[4]] 0, 0, 		--[[5]] 203819, 0) -- nil, nil, nil, nil, Demon Spikes
+				LeaPlusDB["SimpleAddonListing"] = "On"			-- Simple addon listing
 
 				-- Mute game sounds (LeaPlusLC["MuteGameSounds"])
 				for k, v in pairs(LeaPlusLC["muteTable"]) do
@@ -13941,8 +13936,9 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		false,	"If checked, a minimap button will be available.|n|nClick - Toggle options panel.|n|nSHIFT-click - Toggle music.|n|nCTRL-click - Toggle minimap target tracking.|n|nALT-click - Toggle errors (if enabled).|n|nCTRL/SHIFT-click - Toggle windowed mode.|n|nCTRL/ALT-click - Toggle Zygor (if installed).")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UseEnglishLanguage"		, "Use English language"			, 146, -112,	true,	"If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
-	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Edit Mode"					, 146, -152)
+	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Miscellaneous"				, 146, -152)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetEditModeLayout"			, "Set edit mode layout"			, 146, -172,	false,	"If checked, you can specify an edit mode layout that will always be applied when you login to any character.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SimpleAddonListing"		, "Simple addon listing"			, 146, -192,	true,	"If checked, the addon listing will be shown in alphabetical order without categories.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -72)
 	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "Drag to set the scale of the Leatrix Plus panel.", 1, 2, 0.1, 340, -92, "%.1f")
