@@ -58,7 +58,7 @@ addonTable.EventSoundData = {
     [88] = { {"ZhunBeiAOE.ogg", 1} }, -- 贪婪咆哮 (1235118)
 
     -- 寒冬哨兵
-    [67] = { {"QuSanMoFa.ogg", 1, {HEALER = true}}, {"ZhuYiDianMing.ogg", 1, {DAMAGER = true}} }, -- 冰川折磨 (1235548) 治疗=驱散 / DPS=注意点名
+    [67] = { {"QuSanMoFa.ogg", 1, {HEALER = true}}, {"ZhuYiDianMing.ogg", 1, {DAMAGER = true}}, {"WuMiaoHouDianMing.ogg", 2, {DAMAGER = true, HEALER = true}} }, -- 冰川折磨 (1235548) 治疗=驱散 / DPS=注意点名
     [70] = { {"KaoJinZhongChang.ogg", 1} }, -- 寒冰暴雨 (1235656)
     [68] = { {"ZhuYiDuoFeng.ogg", 1} }, -- 狂怒的飑风 (1235623)
     [69] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 粉碎冰刺 (1235783)

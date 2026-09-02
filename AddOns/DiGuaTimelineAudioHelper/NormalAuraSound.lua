@@ -677,7 +677,7 @@ addonTable.NormalAura = {
 
     -- 1: 光环刷新/叠层时 (可选)
     refreshedList = {
-        [1238053] = "JiNuDieJia:nameplate:TANK", -- 母熊之怒
+        -- [1238053] = "JiNuDieJia:nameplate:TANK", -- 母熊之怒
         [1311730] = "alarmbeep", -- 瓦解宝珠
         [1282892] = "alarmbeep", -- 致病撕咬
         [1238801] = "alarmbeep", -- 饥肠辘辘

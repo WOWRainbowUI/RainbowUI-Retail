@@ -56,6 +56,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.ringEnabled == nil then db.ringEnabled = true end
             if db.tenSecCountDown == nil then db.tenSecCountDown = false end
             if db.coTankAuraEnabled == nil then db.coTankAuraEnabled = false end
+            if db.playerDebuffEnabled == nil then db.playerDebuffEnabled = false end -- 玩家减益图标（默认关）
             if db.bossVoiceEnabled == nil then db.bossVoiceEnabled = true end
             if db.forceEncounterWarnings == nil then db.forceEncounterWarnings = true end
             if db.bloodlustOpenSound == nil then db.bloodlustOpenSound = false end
@@ -105,6 +106,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineLfgProposalCheck:SetChecked(DiGuaTimelineAudioHelper.lfgProposalSound) -- 同步副本就绪提示音
             DiGuaTimelineCenterCountdownCheck:SetChecked(DiGuaTimelineAudioHelper.centerCountdownEnabled) -- 同步屏幕中央倒计时
             DiGuaTimelineInterruptFocusCheck:SetChecked(DiGuaTimelineAudioHelper.interruptIgnoreFocus) -- 同步有焦点也提醒打断
+            DiGuaTimelinePlayerDebuffCheck:SetChecked(DiGuaTimelineAudioHelper.playerDebuffEnabled) -- 同步玩家减益图标
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -120,7 +122,7 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(220, 330) -- 高度调大到 330px，容纳更多选项
+f:SetSize(220, 340) -- 高度调大到 330px，容纳更多选项
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -166,9 +168,9 @@ local cbTenSec = CreateCheckButton("DiGuaTimelineTenSecCheck", "开启 10 秒倒
     print("|cffffd100[DiGua]|r 团队倒计时模式: " .. (DiGuaTimelineAudioHelper.tenSecCountDown and "|cff00ff00已开启 (10秒)|r" or "|cffff0000未开启 (默认5秒)|r"))
 end)
 
-local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦私有光环监控", -135, function(self)
+local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦私有光环监控(暂时无法使用)", -135, function(self)
     DiGuaTimelineAudioHelper.coTankAuraEnabled = self:GetChecked()
-    print("|cffffd100[DiGua]|r 副坦私有光环监控: " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    print("|cffffd100[DiGua]|r 副坦私有光环监控(暂时无法使用): " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(f:IsShown()) end
     if addonTable.UpdateRaidTankAuras then addonTable.UpdateRaidTankAuras() end
@@ -219,8 +221,20 @@ local cbInterruptFocus = CreateCheckButton("DiGuaTimelineInterruptFocusCheck", "
     print("|cffffd100[DiGua]|r 有焦点也提醒打断: " .. (DiGuaTimelineAudioHelper.interruptIgnoreFocus and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-f:SetScript("OnShow", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end end)
-f:SetScript("OnHide", function() if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end end)
+local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", -310, function(self)
+    DiGuaTimelineAudioHelper.playerDebuffEnabled = self:GetChecked()
+    print("|cffffd100[DiGua]|r 玩家减益图标: " .. (DiGuaTimelineAudioHelper.playerDebuffEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    if addonTable.SetPlayerDebuffEnabled then addonTable.SetPlayerDebuffEnabled(self:GetChecked()) end
+end)
+
+f:SetScript("OnShow", function()
+    if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end
+    if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(true) end
+end)
+f:SetScript("OnHide", function()
+    if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end
+    if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(false) end
+end)
 
 SLASH_DIGUA1 = "/digua"
 SLASH_DIGUA2 = "/dg" -- 新增别名 /dg

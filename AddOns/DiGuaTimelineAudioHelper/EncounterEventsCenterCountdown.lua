@@ -128,7 +128,7 @@ Base.bg:Hide()
 -- 拖拽时的中心文字提示
 Base.txt = Base:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 Base.txt:SetPoint("CENTER")
-Base.txt:SetText("中央\n倒计时")
+Base.txt:SetText("剩余5秒\n倒计时")
 Base.txt:SetTextColor(1, 1, 1, 0.9)
 Base.txt:Hide()
 
@@ -176,7 +176,7 @@ local function CreateRow()
 
     -- 倒计时文本控件
     row.Text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
-    row.Text:SetFont(STANDARD_TEXT_FONT, 18, "OUTLINE")
+    row.Text:SetFont(STANDARD_TEXT_FONT, 19, "OUTLINE")
     -- row.Text:SetShadowColor(0, 0, 0, 0) -- 关闭投影阴影，保留描边
     row.Text:SetWordWrap(false)
     -- 文本稍微右移，为左侧图标腾出 space，确保“图标+文字”整体居中显示

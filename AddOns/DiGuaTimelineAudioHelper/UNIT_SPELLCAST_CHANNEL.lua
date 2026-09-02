@@ -6,6 +6,7 @@ local addonName, addonTable = ...
 local frame = CreateFrame("Frame")
 addonTable.SpellChannelStart = addonTable.SpellChannelStart or {}
 addonTable.SpellChannelCounter = addonTable.SpellChannelCounter or {}
+addonTable.JinHuaAudioLock = nil -- 进化控断音频防抖锁
 -- addonTable.UNIT_SPELLCAST_CHANNEL_STOP_Triggered = addonTable.UNIT_SPELLCAST_CHANNEL_STOP_Triggered or {}
 frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
@@ -62,8 +63,13 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and UnitSpellTargetName(unitTarget) -- 法术有目标
-            then PlaySoundFile(addonTable.GetMediaPath() .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) 
-            addonTable.SpellChannelStart[unitTarget] = GetTime() end
+            then
+                if not addonTable.JinHuaAudioLock then
+                    addonTable.JinHuaAudioLock = true
+                    PlaySoundFile(addonTable.GetMediaPath() .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                    C_Timer.After(1.5, function() addonTable.JinHuaAudioLock = nil end)
+                end
+                addonTable.SpellChannelStart[unitTarget] = GetTime() end
 
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 剧毒喷雾 (重置计数)
@@ -103,7 +109,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget)
-            then addonTable.CustomEncounterBar(5764925, 23.1, "注意射线", unitTarget)
+            then addonTable.CustomEncounterBar(5764925, 23.5, "注意射线", unitTarget)
             PlaySoundFile(addonTable.GetMediaPath() .. "ZhuYiSheXian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
         -- ============================
         -- ==      红玉新生法地      ==
