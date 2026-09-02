@@ -12,7 +12,7 @@ function addon:Print(...)
 		if arg == nil then
 			msg = msg .. '|cffbd0605nil|r '
 		elseif type(arg) == 'boolean' then
-			if not not arg then
+			if arg then
 				msg = msg .. '|cff08bc06' .. tostring(arg) .. '|r' .. ' '
 			else
 				msg = msg .. '|cffff0000' .. tostring(arg) .. '|r' .. ' ' -- TODO: find a new color
@@ -35,20 +35,17 @@ function addon:Printf(fmt, ...)
 end
 
 --[[ namespace:Dump(_object_[, _startKey_]) ![](https://img.shields.io/badge/function-blue)
-Wrapper for `DevTools_Dump`.
+Wrapper for [`DevTools_Dump`](https://www.townlong-yak.com/framexml/go/DevTools_Dump).
 --]]
 function addon:Dump(value, startKey)
 	DevTools_Dump(value, startKey)
 end
 
 --[[ namespace:DumpUI(_object_) ![](https://img.shields.io/badge/function-blue)
-Similar to `namespace:Dump(object)`; a wrapper for the graphical version.
+Similar to `namespace:Dump(object)`; a wrapper for the [graphical version](https://www.townlong-yak.com/framexml/go/DisplayTableInspectorWindow).
 --]]
 function addon:DumpUI(value)
-	if GameEvent then -- 12.1
-		C_AddOns.LoadAddOn('Blizzard_DebugTools')
-	else
-		UIParentLoadAddOn('Blizzard_DebugTools')
+	if C_AddOns.LoadAddOn('Blizzard_DebugTools') then
+		DisplayTableInspectorWindow(value)
 	end
-	DisplayTableInspectorWindow(value)
 end

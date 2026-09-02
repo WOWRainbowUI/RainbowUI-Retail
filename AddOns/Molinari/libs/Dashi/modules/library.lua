@@ -1,5 +1,12 @@
 local _, addon = ...
 
+--[[ namespace:startswith(_str_, _contents_) ![](https://img.shields.io/badge/function-blue)
+Checks if the first string starts with the 2nd string.
+--]]
+function addon:startswith(str, prefix)
+	return str:sub(1, #prefix) == prefix
+end
+
 --[[ namespace:tsize(_tbl_) ![](https://img.shields.io/badge/function-blue)
 Returns the number of entries in the table `tbl`.  
 Works for associative tables as opposed to `#table`.
@@ -15,22 +22,42 @@ function addon:tsize(tbl)
 	return size
 end
 
---[[ namespace:startswith(_str_, _contents_) ![](https://img.shields.io/badge/function-blue)
-Checks if the first string starts with the 2nd string.
+--[[ namespace:pack(_..._) ![](https://img.shields.io/badge/function-blue)
+Packs variable arguments into a table, along with a field `n` which holds the number of arguments.
+
+Functionally equivalent to [table.pack](https://www.luadocs.com/docs/functions/table/pack) from Lua 5.2.
 --]]
-function addon:startswith(str, contents)
-	return str:sub(1, contents:len()) == contents
+function addon:pack(...)
+	-- functionally equivalent to SafePack from TableUtil
+	return {
+		n = select('#', ...),
+		...
+	}
+end
+
+--[[ namespace:unpack(_tbl_[, _first_][, _last_]) ![](https://img.shields.io/badge/function-blue)
+Unpacks an indexed table `tbl`.
+By default it will start at the first index unless `first` is provided, and the last index defined
+by addon:pack or `last if provided.
+
+Functionally equivalent to [table.unpack](https://www.luadocs.com/docs/functions/table/unpack) from Lua 5.2.
+--]]
+function addon:unpack(tbl, first, last)
+	return unpack(tbl, first or 1, last or tbl.n)
 end
 
 --[[ namespace:T([_tbl_]) ![](https://img.shields.io/badge/function-blue)
-Returns the table _`tbl`_ with meta methods. If _`tbl`_ is not provided a new empty table is used.
+Returns the table _`tbl`_ with meta methods. If _`tbl`_ is not provided a new table is created.
 
-Included are all meta methods from the `table` library, as well as a few extra handy methods:
+Included are all meta methods from the [`table` library](https://warcraft.wiki.gg/wiki/Lua_functions#Table_library), as well as a few extra handy methods:
 
 - `tbl:size()` returns the number of entries in the table
 - `tbl:contains(value)` returns `true` if the table contains the given `value`, otherwise `false`
 - `tbl:merge(t)` merges (and returns) the table with the supplied table `t`
     - can also be used by using an addition arithmetic metamethod
+- `tbl:random()` returns a random value from the table
+- `tbl:copy(shallow)` creates and returns a copy of the table
+- `tbl:removeValue(value)` removes an entry from the table that matches the value
 
 It's also possible to add extra meta methods by supplying mixins through the variable argument.
 
@@ -54,7 +81,7 @@ do
 		addon:ArgCheck(tbl, 1, 'table')
 
 		for k, v in next, tbl do
-			if type(self[k] or false) == 'table' then
+			if type(self[k]) == 'table' and type(v) == 'table' then
 				tableMethods.merge(self[k], tbl[k])
 			else
 				self[k] = v
@@ -97,17 +124,10 @@ do
 		for index = #self, 1, -1 do
 			if self[index] == value then
 				table.remove(self, index)
-				break
+				return index
 			end
 		end
 	end
-
-	-- remove obsolete and deprecated methods present in the table library
-	-- https://warcraft.wiki.gg/wiki/Lua_functions#Deprecated_functions
-	tableMethods.foreach = nil
-	tableMethods.foreachi = nil
-	tableMethods.getn = nil
-	tableMethods.setn = nil
 
 	local function newIndex(self, key, value)
 		-- turn child tables into this metatable too
@@ -118,121 +138,14 @@ do
 		end
 	end
 
+	local meta = {
+		__index = tableMethods,
+		__newindex = newIndex,
+		__add = tableMethods.merge,
+	}
+
 	function addon:T(tbl)
-		addon:ArgCheck(tbl, 1, 'table', 'nil')
-
-		return setmetatable(tbl or {}, {
-			__index = tableMethods,
-			__newindex = newIndex,
-			__add = tableMethods.merge,
-		})
-	end
-end
-
---[[ namespace:sub(_string_, start[, stop])
-UTF-8 aware [`string.sub`](https://warcraft.wiki.gg/wiki/API_strsub).
---]]
-do
-	-- cherry-picked from Phanx's implementation back in 2007, I'm sure
-	-- they'd be fine with me borrowing it like this after all these years
-	local function utf8bytes(str, pos)
-		-- count the number of bytes based on the character
-		if not pos then
-			pos = 1
-		end
-
-		local byte1 = str:byte(pos)
-		if byte1 > 0 and byte1 <= 127 then
-			-- ASCII
-			return 1
-		elseif byte1 >= 194 and byte1 <= 223 then
-			local byte2 = str:byte(pos + 1)
-			if not byte2 then
-				error('UTF-8 string terminated early')
-			elseif byte2 < 128 or byte2 > 191 then
-				error('Invalid UTF-8 character')
-			end
-
-			return 2
-		elseif byte1 >= 224 and byte1 <= 239 then
-			local byte2 = str:byte(pos + 1)
-			local byte3 = str:byte(pos + 2)
-			if not byte2 or not byte3 then
-				error('UTF-8 string terminated early')
-			elseif byte1 == 224 and (byte2 < 160 or byte2 > 191) then
-				error('Invalid UTF-8 character')
-			elseif byte1 == 237 and (byte2 < 128 or byte2 > 159) then
-				error('Invalid UTF-8 character')
-			elseif byte2 < 128 or byte2 > 191 then
-				error('Invalid UTF-8 character')
-			elseif byte3 < 128 or byte3 > 191 then
-				error('Invalid UTF-8 character')
-			end
-
-			return 3
-		elseif byte1 >= 240 and byte1 <= 244 then
-			local byte2 = str:byte(pos + 1)
-			local byte3 = str:byte(pos + 2)
-			local byte4 = str:byte(pos + 3)
-
-			if not byte2 or not byte3 or not byte4 then
-				error('UTF-8 string terminated early')
-			elseif byte1 == 240 and (byte2 < 144 or byte2 > 191) then
-				error('Invalid UTF-8 character')
-			elseif byte1 == 244 and (byte2 < 128 or byte2 > 143) then
-				error('Invalid UTF-8 character')
-			elseif byte2 < 128 or byte2 > 191 then
-				error('Invalid UTF-8 character')
-			elseif byte3 < 128 or byte3 > 191 then
-				error('Invalid UTF-8 character')
-			elseif byte4 < 128 or byte4 > 191 then
-				error('Invalid UTF-8 character')
-			end
-
-			return 4
-		end
-
-		error('Invalid UTF-8 character')
-	end
-
-	function addon:sub(str, start, stop)
-		addon:ArgCheck(str, 1, 'string')
-		addon:ArgCheck(start, 2, 'number')
-		addon:ArgCheck(stop, 3, 'number', 'nil')
-
-		if not stop then
-			-- default to stop at the end of the string
-			stop = -1
-		end
-
-		local offset = (start >= 0 and stop >= 0) or strlenutf8(str)
-		local startChar = (start >= 0) and start or (offset + start + 1)
-		local stopChar = (stop >= 0) and stop or (offset + stop + 1)
-
-		if startChar > stopChar then
-			-- can't start before the stop
-			return ''
-		end
-
-		local bytes = str:len()
-		local startByte, stopByte = 1, str:len()
-		local pos, len = 1, 0
-
-		while pos <= bytes do
-			len = len + 1
-
-			if len == startChar then
-				startByte = pos
-			end
-
-			pos = pos + utf8bytes(str, pos)
-
-			if len == stopChar then
-				stopByte = pos - 1
-				break
-			end
-		end
-
-		return str:sub(startByte, stopByte)
+		addon:ArgCheck(tbl, 1, 'table|nil')
+		return setmetatable(tbl or {}, meta)
 	end
 end
