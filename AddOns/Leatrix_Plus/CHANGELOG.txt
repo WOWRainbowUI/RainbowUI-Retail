@@ -1,4 +1,10 @@
-﻿12.1.02 - 26th August 2026
+﻿12.1.03 - 2nd September 2026
+- Added a new option called 'Simple addon listing' ('Settings').  If checked, the addon listing will be shown in alphabetical order without categories.
+- For 'Set edit mode layout' ('Settings'), letter case will now be ignored when matching your chosen edit mode layout name.
+- The 'Disable bag automation' option ('System'), will no longer function if you login during the new player experience.
+- For Weblink, fixed an issue for unknown tooltip search terms with spaces in them.
+
+12.1.02 - 26th August 2026
 - Added a new option called 'Set edit mode layout' ('Settings').  If checked, you can specify an edit mode layout that will be automatically applied when you login to any character.
 - The 'Resize mail text' option ('Text') had to be removed due to secrets issues.
 - For 'Enhance tooltip' ('Interface'), tooltips will no longer be processed in addon restricted environments.
