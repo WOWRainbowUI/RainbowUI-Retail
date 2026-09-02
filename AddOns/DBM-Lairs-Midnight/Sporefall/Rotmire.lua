@@ -3,7 +3,7 @@ local mod	= DBM:NewMod(2711, "DBM-Lairs-Midnight", 2, 1305)
 
 mod.statTypes = "normal,heroic,mythic"
 
-mod:SetRevision("20260813044228")
+mod:SetRevision("20260827050047")
 mod:SetCreatureID(238693)
 mod:SetEncounterID(3159)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -188,9 +188,7 @@ do
 					specWarnPutridFist:Show()
 					specWarnPutridFist:Play("defensive")
 				elseif self:IsTank() then
-					local targetGUID = UnitGUID("boss1target")
-					local targetName = UnitName("boss1target")
-					specWarnPutridFistTaunt:SecretShow(targetGUID, targetName)
+					specWarnPutridFistTaunt:SecretShowByUnit("boss1")
 					specWarnPutridFistTaunt:Play("tauntboss")
 				end
 			elseif eventType == "vines" then

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2888, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260826065714")
+mod:SetRevision("20260828030104")
 mod:SetCreatureID(259927)
 mod:SetEncounterID(3470)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -34,7 +34,7 @@ local specWarnResidualToll				= mod:NewSpecialWarningCount(1298698, nil, nil, ni
 
 local timerEssenceRendCD				= mod:NewCDCountTimer(20.5, 1287426, nil, nil, nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)
 local timerRestlessAmaniCD				= mod:NewCDCountTimer(20.5, 1297630, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)
-local timerPossessionBarrageCD			= mod:NewCDCountTimer(20.5, 1284103, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
+local timerPossessionBarrageCD			= mod:NewCDCountTimer(20.5, 1284103, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerGraspingDepthsCD				= mod:NewCDCountTimer(20.5, 1293212, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerInvokeCD						= mod:NewCDCountTimer(20.5, 1299673, nil, nil, nil, 6)
 local timerHungeringPyreCD				= mod:NewCDCountTimer(20.5, 1305421, nil, nil, nil, 5)
@@ -284,9 +284,7 @@ do
 					specWarnPossessionBarrage:Show(eventCount)
 					specWarnPossessionBarrage:Play("justrun")
 				else
-					local targetGUID = UnitGUID("boss1target")
-					local targetName = UnitName("boss1target")
-					specWarnPossessionBarrageTaunt:SecretShow(targetGUID, targetName)
+					specWarnPossessionBarrageTaunt:SecretShowByUnit("boss1")
 					specWarnPossessionBarrageTaunt:Play("tauntboss")
 				end
 			elseif eventType == "invoke" then
