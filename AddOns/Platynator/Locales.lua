@@ -3794,29 +3794,23 @@ L["ADD_COLORS"] = "Aggiungi Colori"
 L["ALIGNMENT"] = "Allineamento"
 L["ALWAYS_ALL"] = "Sempre (tutti)"
 L["ANIMATE"] = "Animare"
---[[Translation missing --]]
-L["ANIMATE_X"] = "Animate (fps impact)"
+L["ANIMATE_X"] = "Animare (impatto sugli FPS)"
 L["ANIMATED_BORDER"] = "Bordo Animato"
---[[Translation missing --]]
-L["APPLIES_TO"] = "Applies to"
+L["APPLIES_TO"] = "Si applica a"
 L["APPLY_MAIN_COLOR_TO_BACKGROUND"] = "Applicare il colore principale allo sfondo"
 L["APPLY_OTHER_CVARS"] = "Applicare altri CVar"
 L["ARCANE_FLURRY"] = "Raffica Arcana"
---[[Translation missing --]]
-L["ATTACK"] = "Attack"
+L["ATTACK"] = "Attacco"
 L["AURAS"] = "Aure"
 L["AUTOMATIC"] = "Automatico"
---[[Translation missing --]]
-L["AUTOMATICALLY_SIZED"] = "Automatically sized"
+L["AUTOMATICALLY_SIZED"] = "Dimensioni automatiche"
 L["BACKGROUND"] = "Sfondo"
 L["BACKGROUND_COLOR"] = "Colore dello sfondo"
---[[Translation missing --]]
-L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select settings didn't include settings for a unit type (either \"Can Attack\" or \"Cannot Attack\")."
+L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Le impostazioni di selezione dello stile \"Personalizzato\" non includevano le impostazioni per un tipo di unità (ovvero \"Può Attaccare\" o \"Non può Attaccare\")."
 L["BARS"] = "Barre"
 L["BEAVER"] = "Castoro"
-L["BEHAVIOUR"] = "Comportamento"
---[[Translation missing --]]
-L["BLANK"] = "Blank"
+L["BEHAVIOUR"] = "Funzionamento "
+L["BLANK"] = "Vuoto"
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
@@ -3829,20 +3823,15 @@ L["BORDER_WIDTH"] = "Larghezza del bordo"
 L["BOSS"] = "Boss"
 L["BOTTOM"] = "Sotto"
 L["BUFFS"] = "Potenziamenti "
---[[Translation missing --]]
-L["BUFFS_FRIENDLY"] = "Buffs (Friendly)"
+L["BUFFS_FRIENDLY"] = "Potenziamenti (Amichevoli)"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
---[[Translation missing --]]
-L["CAN_ATTACK"] = "Can Attack"
---[[Translation missing --]]
-L["CANNOT_ALTER_AURAS_IN_COMBAT"] = "Cannot alter auras in combat"
---[[Translation missing --]]
-L["CANNOT_ATTACK"] = "Cannot Attack"
+L["CAN_ATTACK"] = "Può Attaccare"
+L["CANNOT_ALTER_AURAS_IN_COMBAT"] = "Non è possibile modificare le aure in combattimento"
+L["CANNOT_ATTACK"] = "Non può Attaccare "
 L["CANNOT_INTERRUPT"] = "Non puoi interrompere"
 L["CAST"] = "Lancio"
---[[Translation missing --]]
-L["CAST_INTERRUPTED_TIMEOUT"] = "Cast interrupted timeout"
+L["CAST_INTERRUPTED_TIMEOUT"] = "Lancio interrotto fuoritempo "
 L["CAST_INTERRUPTER"] = "Interruttore del Lancio"
 L["CAST_NAME"] = "Nome del Lancio"
 L["CAST_TARGET"] = "Bersaglio del Lancio"
@@ -3866,37 +3855,28 @@ L["CLOSER_TO_SCREEN_EDGES"] = "Più vicino ai bordi dello schermo"
 L["COLOR"] = "Colore"
 L["COLORS"] = "Colori"
 L["COMBAT"] = "Combattere"
---[[Translation missing --]]
-L["COMBAT_OBSCURED_TRANSPARENCY"] = "Combat obscured transparency"
---[[Translation missing --]]
-L["COMMON"] = "Common"
+L["COMBAT_OBSCURED_TRANSPARENCY"] = "Combattimento oscurato trasparenza"
+L["COMMON"] = "Comune"
 L["CONFIRM_DELETE_PROFILE_X"] = "Sei sicuro di voler eliminare il profilo \"%s\"?"
 L["CONFIRM_DELETE_STYLE_X"] = "Sei sicuro di voler eliminare lo stile \"%s\"?"
---[[Translation missing --]]
-L["COUNTDOWN"] = "Countdown"
+L["COUNTDOWN"] = "Conto alla Rovescia"
 L["CREATURE_NAME"] = "Nome della Creatura"
 L["CROWD_CONTROL"] = "Controllo della Folla"
---[[Translation missing --]]
-L["CROWD_CONTROL_ENEMY"] = "Crowd Control (Enemy)"
+L["CROWD_CONTROL_ENEMY"] = "Controllo della Folla (Nemico)"
 L["CTRL_C_TO_COPY"] = "Ctrl+C per copiare"
 L["CUSTOM"] = "Personale"
 L["CUSTOMISE_PLATYNATOR"] = "Personalizza Platynator"
---[[Translation missing --]]
-L["DAMAGE"] = "Damage"
+L["DAMAGE"] = "Danno"
 L["DAMAGE_ABSORB_VALUE"] = "Valore di Assorbimento del Danno"
 L["DEBUFFS"] = "Penalità "
---[[Translation missing --]]
-L["DEBUFFS_ENEMY"] = "Debuffs (Enemy)"
+L["DEBUFFS_ENEMY"] = "Penalità (Nemico)"
 L["DEER"] = "Cervo"
 L["DEFAULT"] = "Predefinito"
 L["DEFAULT_BRACKETS"] = "(Predefinito)"
 L["DEFENSIVE"] = "Difensivo"
---[[Translation missing --]]
-L["DELETE"] = "Delete"
---[[Translation missing --]]
-L["DELVE"] = "Delve"
---[[Translation missing --]]
-L["DELVE_TYPE"] = "Delve Type"
+L["DELETE"] = "Eliminare"
+L["DELVE"] = "Scorribanda"
+L["DELVE_TYPE"] = "Tipo di Scorribanda "
 L["DESIGNER"] = "Designa"
 L["DEVELOPMENT_IS_TIME_CONSUMING"] = "|cff04cca4Lo sviluppo richiede un'enorme quantità di tempo|r"
 L["DIFFICULT"] = "Difficile"
@@ -3907,14 +3887,12 @@ L["DISCORD_DESCRIPTION"] = "Aggiornamenti, suggerimenti per nuove funzionalità 
 L["DISPELLABLE"] = "Dissipabile"
 L["DO_NOTHING"] = "Non fare nulla"
 L["DONATE"] = "Donare"
---[[Translation missing --]]
-L["DUNGEON"] = "Dungeon"
+L["DUNGEON"] = "Spedizione "
 L["DURATION"] = "Durata"
 --[[Translation missing --]]
 L["ELITE"] = "Elite"
 L["ELITE_TYPE"] = "Tipo di Elite"
---[[Translation missing --]]
-L["EMPOWERED"] = "Empowered"
+L["EMPOWERED"] = "Potenziato"
 L["EMPTY"] = "Vuoto"
 L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Abilita se le linee cadono dal carattere"
 L["ENABLE_OVERRIDE"] = "Abilita di sovrascrivere"
@@ -3923,24 +3901,19 @@ L["ENABLE_OVERRIDE_WORLD"] = "Abilita di sovrascrivere il mondo"
 L["ENEMIES"] = "Nemici"
 L["ENEMY"] = "Nemico"
 L["ENEMY_PLAYER"] = "Giocatore Nemico"
---[[Translation missing --]]
-L["ENERGY"] = "Energy"
---[[Translation missing --]]
-L["ENERGY_PERCENTAGE"] = "Energy Percentage"
+L["ENERGY"] = "Energia"
+L["ENERGY_PERCENTAGE"] = "Percentuale di Energia"
 L["ENLARGE_NAMEPLATE"] = "Ingrandire la targhetta"
 L["ENTER_PROFILE_NAME"] = "Inserisci il nome del profilo:"
 L["ENTER_THE_CUSTOM_STYLE_NAME"] = "Inserisci il nome dello stile personalizzato"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Inserisci il nuovo nome del profilo"
 L["ENTER_THE_NEW_STYLE_NAME"] = "Inserisci il nuovo nome dello stile"
---[[Translation missing --]]
-L["EXCLUDE"] = "Exclude"
+L["EXCLUDE"] = "Escludere"
 L["EXECUTE"] = "Esegui"
---[[Translation missing --]]
-L["EXECUTE_CLASSIC"] = "Execute (Classic ONLY)"
+L["EXECUTE_CLASSIC"] = "Esegui (SOLO Classic)"
 L["EXPORT"] = "Esporta"
 L["FADE"] = "Dissolvenza"
---[[Translation missing --]]
-L["FADING"] = "Fading"
+L["FADING"] = "Sbiadimento"
 L["FILLED"] = "Riempito"
 L["FILTERS"] = "Filtri"
 L["FIXED"] = "Fisso"
@@ -3956,18 +3929,14 @@ L["FRIENDLY_PLAYERS"] = "Giocatori Amichevoli "
 L["FROM_YOU"] = "Da te"
 L["GENERAL"] = "Generale "
 L["GLOBAL_SCALE"] = "Scala globale"
---[[Translation missing --]]
-L["GUARDIANS"] = "Guardians"
+L["GUARDIANS"] = "Guardiani"
 L["GUILD"] = "Gilda"
 L["HARE"] = "Lepre"
 L["HARE_SIMPLIFIED"] = "Lepre Semplificata"
---[[Translation missing --]]
-L["HAS_THREAT"] = "Has threat"
---[[Translation missing --]]
-L["HEALER"] = "Healer"
+L["HAS_THREAT"] = "Ha una minaccia"
+L["HEALER"] = "Curatore"
 L["HEALTH"] = "Salute"
---[[Translation missing --]]
-L["HEALTH_FILL_TEXT"] = "Health Fill Text"
+L["HEALTH_FILL_TEXT"] = "Riempire Testo della Salute"
 L["HEALTH_VALUE"] = "Valore della Salute"
 L["HEDGEHOG"] = "Cane della Prateria"
 L["HEIGHT"] = "Altezza"
@@ -3980,35 +3949,27 @@ L["IMPORT_DEFAULT_STYLE"] = "Importa Stile Predefinito "
 L["IMPORTANT"] = "Importante "
 L["IMPORTANT_CAST"] = "Lancio Importante "
 L["IMPOSSIBLE"] = "Impossibile "
---[[Translation missing --]]
-L["IN_COMBAT"] = "In Combat"
---[[Translation missing --]]
-L["IN_COMBAT_WITH"] = "In Combat With"
---[[Translation missing --]]
-L["IN_RANGE"] = "In Range"
---[[Translation missing --]]
-L["INCLUDE"] = "Include"
+L["IN_COMBAT"] = "In Combattimento "
+L["IN_COMBAT_WITH"] = "In Combattimento con"
+L["IN_RANGE"] = "Nel Raggio d'Azione"
+L["INCLUDE"] = "Includi"
 L["INCLUDE_ELITE_RARES"] = "Includi rari d'élite"
 L["INCLUDE_TARGET"] = "Includi il Bersaglio "
---[[Translation missing --]]
-L["INSTANCES_NAME_ONLY_SIZE"] = "Instances name only size"
+L["INSTANCES_NAME_ONLY_SIZE"] = "Unica dimensione del nome delle istanze"
 L["INTERRUPT_NOT_READY"] = "Interruzione non pronta"
 L["INTERRUPT_POINT_COLOR"] = "Colore del punto di interruzione"
 L["INTERRUPT_READY"] = "Interruzione Pronta"
 L["INTERRUPTED"] = "Interrotto"
 L["INTERRUPTED_CAST"] = "Lancio interrotto "
 L["INVALID_IMPORT"] = "Importazione non valida"
---[[Translation missing --]]
-L["IS_CASTING"] = "Is Casting"
+L["IS_CASTING"] = "Il Lanciamento è"
 L["JOIN_THE_DISCORD"] = "Unisciti al server Discord"
 L["LAYER"] = "Strato"
 L["LEFT"] = "Sinistra"
 L["LEVEL"] = "Livello "
---[[Translation missing --]]
-L["LIMIT_TO"] = "Limit to"
+L["LIMIT_TO"] = "Limite di"
 L["LINK"] = "Collegamento"
---[[Translation missing --]]
-L["LOCATION"] = "Location"
+L["LOCATION"] = "Posizione"
 L["MAKE_NEW"] = "Crea nuovo"
 --[[Translation missing --]]
 L["MANA"] = "Mana"
@@ -4023,19 +3984,14 @@ L["MINION"] = "Minion"
 L["MINIONS"] = "Minions"
 L["MINOR"] = "Minore"
 L["MINORS"] = "Minori"
---[[Translation missing --]]
-L["MOB_CLASSIFICATION"] = "Mob Classification"
---[[Translation missing --]]
-L["MOBS"] = "Mobs"
+L["MOB_CLASSIFICATION"] = "Classificazione della Folla"
+L["MOBS"] = "Folla"
 L["MOUSEOVER"] = "Passaggio del Mouse"
 L["MOVE"] = "Muovi"
 L["MULTIPLE_SELECTED"] = "Selezione Multipla "
---[[Translation missing --]]
-L["MULTIPLE_VALUES_DISPLAY"] = "Multiple values display"
---[[Translation missing --]]
-L["MY_CLASS"] = "My Class"
---[[Translation missing --]]
-L["MYTHIC_PLUS_FORCES_VALUE"] = "Mythic+ Forces Value"
+L["MULTIPLE_VALUES_DISPLAY"] = "Visualizzazione di valori multipli"
+L["MY_CLASS"] = "La Mia Classe"
+L["MYTHIC_PLUS_FORCES_VALUE"] = "Valore delle Forze Mitica+"
 L["NAME_ONLY"] = "Solo il Nome"
 L["NAME_ONLY_PLAYERS"] = "Solo il Nome (Giocatori)"
 L["NEUTRAL"] = "Neutrale "

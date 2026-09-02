@@ -1,6 +1,6 @@
 # Platynator
 
-## [474](https://github.com/TheMouseNest/Platynator/tree/474) (2026-08-26)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/473...474) 
+## [481](https://github.com/TheMouseNest/Platynator/tree/481) (2026-09-01)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/480...481) 
 
-- Automatically enable "Dispellable" for buffs  
+- Migration fix for broken power bar widgets  

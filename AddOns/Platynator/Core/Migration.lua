@@ -696,6 +696,15 @@ local function UpgradeDesignv18(design)
   end
 end
 
+local function UpgradeDesignv19(design)
+  for _, bar in ipairs(design.specialBars) do
+    if bar.kind == "power" then
+      bar.useSpecColors = bar.useSpecColors ~= nil and bar.useSpecColors or true
+      bar.fixedColor = bar.fixedColor or GetColor("f0c900")
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -715,6 +724,7 @@ local designUpgrades = {
   UpgradeDesignv16,
   UpgradeDesignv17,
   UpgradeDesignv18,
+  UpgradeDesignv19,
 }
 
 function addonTable.Core.UpgradeDesign(design)
