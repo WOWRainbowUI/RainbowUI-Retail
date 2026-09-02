@@ -80,19 +80,3 @@ VUHDO_ATLAS_TEXTURES = {
 	["RaidFrame-Icon-SummonAccepted"] = true,
 	["RaidFrame-Icon-SummonDeclined"] = true,
 };
-
-
-
---
-VUHDO_REL_POINT_MANA_FACTOR = {
-	["TOPLEFT"] = 0,
-	["TOP"] = 0,
-	["TOPRIGHT"] = 0,
-	["LEFT"] = 0.5,
-	["CENTER"] = 0.5,
-	["RIGHT"] = 0.5,
-	["BOTTOMLEFT"] = 1,
-	["BOTTOM"] = 1,
-	["BOTTOMRIGHT"] = 1,
-};
-

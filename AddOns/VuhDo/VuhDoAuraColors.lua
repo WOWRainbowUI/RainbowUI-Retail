@@ -55,6 +55,9 @@ local VUHDO_syncAllOverlayUnits;
 local VUHDO_buildAuraGroupNativeFilterString;
 local VUHDO_auraSourceMatchesFilter;
 local VUHDO_invalidateOverlayBuildKeys;
+local VUHDO_invalidateNativeAuraSoundScanCache;
+local VUHDO_clearNativeAuraSounds;
+local VUHDO_initNativeAuraSounds;
 
 local sUnitDispellableAuraId = { };
 local sUnitAuraCanColorBar = { };
@@ -265,6 +268,9 @@ function VUHDO_auraColorsInitLocalOverrides()
 	VUHDO_buildAuraGroupNativeFilterString = _G["VUHDO_buildAuraGroupNativeFilterString"];
 	VUHDO_auraSourceMatchesFilter = _G["VUHDO_auraSourceMatchesFilter"];
 	VUHDO_invalidateOverlayBuildKeys = _G["VUHDO_invalidateOverlayBuildKeys"];
+	VUHDO_invalidateNativeAuraSoundScanCache = _G["VUHDO_invalidateNativeAuraSoundScanCache"];
+	VUHDO_clearNativeAuraSounds = _G["VUHDO_clearNativeAuraSounds"];
+	VUHDO_initNativeAuraSounds = _G["VUHDO_initNativeAuraSounds"];
 
 	sAuraColorWinnerPool = VUHDO_createTablePool("AuraColorWinner", 100, VUHDO_createAuraColorWinnerDelegate, VUHDO_cleanupAuraColorWinnerDelegate);
 	sCanColorBarGroupPool = VUHDO_createTablePool("CanColorBarGroup", 50, VUHDO_createCanColorBarGroupDelegate, VUHDO_cleanupCanColorBarGroupDelegate);
@@ -343,6 +349,15 @@ do
 
 		VUHDO_rebuildAuraModeEventFlags();
 		VUHDO_rebuildSoundEnabledAuraGroups();
+
+		VUHDO_invalidateNativeAuraSoundScanCache();
+
+		if VUHDO_isAuraModeContainers() then
+			VUHDO_clearNativeAuraSounds();
+			VUHDO_initNativeAuraSounds();
+		else
+			VUHDO_clearNativeAuraSounds();
+		end
 
 		VUHDO_collectBouquetAuraGroupIds();
 

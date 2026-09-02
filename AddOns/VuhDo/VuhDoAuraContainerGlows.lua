@@ -855,55 +855,72 @@ local tBarGlowClipFrame;
 local tBarGlowHolderFrame;
 local tTexture;
 local tCoreTexture;
+local function VUHDO_hideAuraButtonAuraGroupBarGlowEntry(aBarGlowEntry)
+
+	if not aBarGlowEntry then
+		return;
+	end
+
+	tBarGlowBodyAnim = aBarGlowEntry["bodyAnim"];
+
+	if tBarGlowBodyAnim then
+		tBarGlowBodyAnim:Stop();
+	end
+
+	tTexture = aBarGlowEntry["body"];
+
+	if tTexture then
+		tTexture:Hide();
+	end
+
+	tBarGlowCoreAnim = aBarGlowEntry["coreAnim"];
+
+	if tBarGlowCoreAnim then
+		tBarGlowCoreAnim:Stop();
+	end
+
+	tCoreTexture = aBarGlowEntry["core"];
+
+	if tCoreTexture then
+		tCoreTexture:Hide();
+	end
+
+	tBarGlowHolderFrame = aBarGlowEntry["holder"];
+
+	if tBarGlowHolderFrame then
+		tBarGlowHolderFrame:Hide();
+	end
+
+	tBarGlowClipFrame = aBarGlowEntry["clip"];
+
+	if tBarGlowClipFrame then
+		tBarGlowClipFrame:Hide();
+	end
+
+	aBarGlowEntry["stopped"] = true;
+
+	return;
+
+end
+
+
+
+--
+local tBarGlowCache;
+local tActiveStyle;
 function VUHDO_stopAuraButtonAuraGroupBarGlow(aAuraButton)
 
 	if not aAuraButton or not aAuraButton:CanBeAccessedInContext() then
 		return;
 	end
 
-	tBarGlowEntry = aAuraButton["vuhdoAuraGroupBarGlow"];
+	tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+	tActiveStyle = aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"];
+	tBarGlowEntry = tBarGlowCache and tActiveStyle and tBarGlowCache[tActiveStyle];
 
-	if not tBarGlowEntry then
-		return;
-	end
+	VUHDO_hideAuraButtonAuraGroupBarGlowEntry(tBarGlowEntry);
 
-	tBarGlowBodyAnim = tBarGlowEntry["bodyAnim"];
-
-	if tBarGlowBodyAnim then
-		tBarGlowBodyAnim:Stop();
-	end
-
-	tTexture = tBarGlowEntry["body"];
-
-	if tTexture then
-		tTexture:Hide();
-	end
-
-	tBarGlowCoreAnim = tBarGlowEntry["coreAnim"];
-
-	if tBarGlowCoreAnim then
-		tBarGlowCoreAnim:Stop();
-	end
-
-	tCoreTexture = tBarGlowEntry["core"];
-
-	if tCoreTexture then
-		tCoreTexture:Hide();
-	end
-
-	tBarGlowHolderFrame = tBarGlowEntry["holder"];
-
-	if tBarGlowHolderFrame then
-		tBarGlowHolderFrame:Hide();
-	end
-
-	tBarGlowClipFrame = tBarGlowEntry["clip"];
-
-	if tBarGlowClipFrame then
-		tBarGlowClipFrame:Hide();
-	end
-
-	tBarGlowEntry["stopped"] = true;
+	aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] = nil;
 
 	return;
 
@@ -925,13 +942,34 @@ local tGlowVisual;
 local tTexture;
 local tCoreTexture;
 local tBarGlowScale;
+local tBarGlowCache;
+local tActiveStyle;
+local tPrevEntry;
 local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup, aStyle, aColorR, aColorG, aColorB, aColorO)
 
-	tBarGlowEntry = aAuraButton["vuhdoAuraGroupBarGlow"];
 	tBarGlowStyle = aStyle or VUHDO_DEFAULT_AURA_GLOW_STYLE;
 	tGlowVisual = VUHDO_resolveGlowVisual(tBarGlowStyle);
 
-	if tBarGlowEntry and tBarGlowEntry["style"] == tBarGlowStyle then
+	tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+
+	if not tBarGlowCache then
+		tBarGlowCache = { };
+		aAuraButton["vuhdoAuraGroupBarGlow"] = tBarGlowCache;
+	end
+
+	tActiveStyle = aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"];
+
+	if tActiveStyle and tActiveStyle ~= tBarGlowStyle then
+		tPrevEntry = tBarGlowCache[tActiveStyle];
+
+		if tPrevEntry and not tPrevEntry["stopped"] then
+			VUHDO_hideAuraButtonAuraGroupBarGlowEntry(tPrevEntry);
+		end
+	end
+
+	tBarGlowEntry = tBarGlowCache[tBarGlowStyle];
+
+	if tBarGlowEntry then
 		tBarGlowClipFrame = tBarGlowEntry["clip"];
 		tBarGlowHolderFrame = tBarGlowEntry["holder"];
 		tTexture = tBarGlowEntry["body"];
@@ -961,13 +999,9 @@ local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup,
 
 		tBarGlowEntry["stopped"] = nil;
 
+		aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] = tBarGlowStyle;
+
 		return;
-	end
-
-	if tBarGlowEntry then
-		VUHDO_stopAuraButtonAuraGroupBarGlow(aAuraButton);
-
-		aAuraButton["vuhdoAuraGroupBarGlow"] = nil;
 	end
 
 	tBarGlowWidth = anButtonSetup["width"] or 20;
@@ -1022,7 +1056,9 @@ local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup,
 		["coreAnim"] = tBarGlowCoreAnim,
 	};
 
-	aAuraButton["vuhdoAuraGroupBarGlow"] = tBarGlowEntry;
+	tBarGlowCache[tBarGlowStyle] = tBarGlowEntry;
+
+	aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] = tBarGlowStyle;
 
 	return;
 
@@ -1053,6 +1089,7 @@ end
 
 
 --
+local tBarGlowCache;
 function VUHDO_releaseAuraButtonGlowState(aAuraButton)
 
 	if not aAuraButton then
@@ -1064,8 +1101,18 @@ function VUHDO_releaseAuraButtonGlowState(aAuraButton)
 	end
 
 	VUHDO_stopInPlaceFrameGlow(aAuraButton, "vuhdo");
-	VUHDO_stopAuraButtonAuraGroupBarGlow(aAuraButton);
 
+	tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+
+	if tBarGlowCache then
+		for tStyleKey, tStyleEntry in pairs(tBarGlowCache) do
+			VUHDO_hideAuraButtonAuraGroupBarGlowEntry(tStyleEntry);
+		end
+
+		aAuraButton["vuhdoAuraGroupBarGlow"] = nil;
+	end
+
+	aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] = nil;
 	aAuraButton["vuhdoAuraGroupBarGlowActive"] = nil;
 
 	return;
@@ -1076,11 +1123,13 @@ end
 
 --
 local tBarGlowEntry;
+local tBarGlowCache;
 local tTexture;
 local tCoreTexture;
 local function VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton)
 
-	tBarGlowEntry = aAuraButton["vuhdoAuraGroupBarGlow"];
+	tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+	tBarGlowEntry = tBarGlowCache and tBarGlowCache[aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"]];
 
 	if not tBarGlowEntry or tBarGlowEntry["dispelTinted"] then
 		return;
@@ -1118,6 +1167,7 @@ local tUnitGlowColorType;
 local tUnitGlowMetaColor;
 local tUnitDefaultGlow;
 local tBarGlowEntry;
+local tBarGlowCache;
 function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, anButtonSetup)
 
 	if not aAuraButton or not anButtonSetup or not anButtonSetup["auraGroupBarGlow"] then
@@ -1138,9 +1188,10 @@ function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, anButtonSetup)
 			VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 		end
 
-		tBarGlowEntry = aAuraButton["vuhdoAuraGroupBarGlow"];
+		tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+		tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
 
-		if tBarGlowEntry and tBarGlowEntry["style"] == tUnitGlowStyle and not tBarGlowEntry["stopped"] then
+		if tBarGlowEntry and not tBarGlowEntry["stopped"] then
 			if not tBarGlowEntry["dispelTinted"] or aAuraButton:GetDispelTypeTextureCount() == 0 then
 				tBarGlowEntry["dispelTinted"] = false;
 
@@ -1161,9 +1212,10 @@ function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, anButtonSetup)
 			VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 		end
 
-		tBarGlowEntry = aAuraButton["vuhdoAuraGroupBarGlow"];
+		tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+		tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
 
-		if tBarGlowEntry and tBarGlowEntry["style"] == tUnitGlowStyle and not tBarGlowEntry["stopped"] then
+		if tBarGlowEntry and not tBarGlowEntry["stopped"] then
 			tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
 			aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
 

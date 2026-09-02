@@ -598,9 +598,9 @@ VUHDO_I18N_AURA_GROUP_TORGHAST_ANIMA = "Pouvoirs d'Anima de Torghast";
 VUHDO_I18N_AURA_GROUP_INFERRED_RIPTIDE = "Remous (D\195\169duit)";
 VUHDO_I18N_AURA_GROUP_INFERRED_ECHO = "\195\137cho (D\195\169duit)";
 VUHDO_I18N_AURA_GROUP_INFERRED_ATONEMENT = "Expiation (D\195\169duit)";
-VUHDO_I18N_AURA_GROUP_MY_NAMEPLATE = "Mes debuffs de barre de vie";
-VUHDO_I18N_AURA_GROUP_OTHERS_NAMEPLATE = "Debuffs de barre de vie des autres";
-VUHDO_I18N_AURA_GROUP_ALL_NAMEPLATE = "Tous les debuffs de barre de vie";
+VUHDO_I18N_AURA_GROUP_MY_NAMEPLATE = "My Debuffs incl. Nameplate";
+VUHDO_I18N_AURA_GROUP_OTHERS_NAMEPLATE = "Others' Debuffs incl. Nameplate";
+VUHDO_I18N_AURA_GROUP_ALL_NAMEPLATE = "All Debuffs incl. Nameplate";
 VUHDO_I18N_AURA_GROUP_MY_DEBUFFS = "Mes debuffs";
 VUHDO_I18N_AURA_GROUP_MY_EXTERNAL_DEF = "Mes d\195\169fensifs externes";
 VUHDO_I18N_AURA_GROUP_MY_RAID_DEBUFFS = "Mes debuffs de raid";
@@ -671,3 +671,9 @@ VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL = "Text Source";
 VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL = "Text Format";
 
 VUHDO_I18N_BLIZZ_RESTORE_RELOAD = "Rechargez votre interface (/reload) pour restaurer les cadres Blizzard masqués.";
+
+VUHDO_I18N_AURA_GROUP_PURGEABLE_BUFFS = "Purgeable Buffs";
+VUHDO_I18N_AURA_GROUP_ALL_PURGEABLE_BUFFS = "All Purgeable Buffs";
+VUHDO_I18N_AURA_GROUP_BOSS_DEBUFFS = "Boss & Role Debuffs";
+VUHDO_I18N_AURA_GROUP_PRIORITY_DEBUFFS = "Priority Debuffs";
+VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS = "Relevant Buffs";

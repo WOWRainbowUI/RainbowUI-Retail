@@ -316,6 +316,7 @@
 			<OnShow>
 				self:SetScale(VUHDO_OPTIONS_SETTINGS.scale);
 				VuhDoNewOptionsScaleSlider:Show();
+				VUHDO_newOptionsBufferVars();
 				VUHDO_lnfSkinInit();
 				VuhDoNewOptionsPanelBarsTexturePanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
 				VuhDoNewOptionsPanelHeaderHeaderBgPanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
@@ -325,7 +326,6 @@
 					VUHDO_newOptionsPanelFindDefaultPanel();
 				end
 				VUHDO_newOptionsIndicatorsEnsureBuilt();
-				VUHDO_newOptionsBufferVars();
 				if (VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"]) then
 					VuhDoNewOptionsTabbedFrameTabsPanelSpellsRadioButton:Hide();
 				end

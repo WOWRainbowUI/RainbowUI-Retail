@@ -575,9 +575,9 @@ VUHDO_I18N_AURA_GROUP_TORGHAST_ANIMA = "Poderes de \195\161nima de Torghast";
 VUHDO_I18N_AURA_GROUP_INFERRED_RIPTIDE = "Mareas Vivas (Inferido)";
 VUHDO_I18N_AURA_GROUP_INFERRED_ECHO = "Eco (Inferido)";
 VUHDO_I18N_AURA_GROUP_INFERRED_ATONEMENT = "Expiaci\195\179n (Inferido)";
-VUHDO_I18N_AURA_GROUP_MY_NAMEPLATE = "Mis perjuicios de placas de nombre";
-VUHDO_I18N_AURA_GROUP_OTHERS_NAMEPLATE = "Perjuicios de placas de nombre de otros";
-VUHDO_I18N_AURA_GROUP_ALL_NAMEPLATE = "Todos los perjuicios de placas de nombre";
+VUHDO_I18N_AURA_GROUP_MY_NAMEPLATE = "My Debuffs incl. Nameplate";
+VUHDO_I18N_AURA_GROUP_OTHERS_NAMEPLATE = "Others' Debuffs incl. Nameplate";
+VUHDO_I18N_AURA_GROUP_ALL_NAMEPLATE = "All Debuffs incl. Nameplate";
 VUHDO_I18N_AURA_GROUP_MY_DEBUFFS = "Mis perjuicios";
 VUHDO_I18N_AURA_GROUP_MY_EXTERNAL_DEF = "Defensivos externos";
 VUHDO_I18N_AURA_GROUP_MY_RAID_DEBUFFS = "Perjuicios de banda";
@@ -648,3 +648,9 @@ VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL = "Text Source";
 VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL = "Text Format";
 
 VUHDO_I18N_BLIZZ_RESTORE_RELOAD = "Recarga tu interfaz (/reload) para restaurar los marcos de Blizzard ocultos.";
+
+VUHDO_I18N_AURA_GROUP_PURGEABLE_BUFFS = "Purgeable Buffs";
+VUHDO_I18N_AURA_GROUP_ALL_PURGEABLE_BUFFS = "All Purgeable Buffs";
+VUHDO_I18N_AURA_GROUP_BOSS_DEBUFFS = "Boss & Role Debuffs";
+VUHDO_I18N_AURA_GROUP_PRIORITY_DEBUFFS = "Priority Debuffs";
+VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS = "Relevant Buffs";

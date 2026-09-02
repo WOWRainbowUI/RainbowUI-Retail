@@ -1016,7 +1016,7 @@ end
 
 --
 function VUHDO_lnfTriStateCheckButtonUpdateModel(aCheckButton)
-	local tValue = VUHDO_lnfGetValueFromModel(aCheckButton);
+	local tValue = VUHDO_lnfGetValueFromModel(aCheckButton) or 2;
 	tValue = (tValue % 3) + 1;
 	VUHDO_lnfUpdateVarFromModel(aCheckButton, tValue);
 	VUHDO_triStateSetSelected(aCheckButton);

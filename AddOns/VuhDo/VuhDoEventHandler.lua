@@ -16,6 +16,11 @@ local tinsert = table.insert;
 local tremove = table.remove;
 local twipe = table.wipe;
 local floor = math.floor;
+local issecretvalue = issecretvalue;
+local SetCVar = SetCVar;
+local GetCVar = GetCVar;
+local ShouldAurasBeSecret = C_Secrets and C_Secrets.ShouldAurasBeSecret;
+local IsAddOnRestrictionActive = C_RestrictedActions and C_RestrictedActions.IsAddOnRestrictionActive;
 
 VUHDO_INTERNAL_TOGGLES = { };
 local VUHDO_INTERNAL_TOGGLES = VUHDO_INTERNAL_TOGGLES;
@@ -56,6 +61,24 @@ local VUHDO_HANDLER_EVENT_SNAPSHOTS = {
 	-- },
 };
 
+local sBossUnitIds = { "boss1", "boss2", "boss3", "boss4", "boss5", "boss6", "boss7", "boss8" };
+local sLastBossUnitGuids = { };
+local sEmpty = { };
+
+local sAddonRestrictionCvars = {
+	"addonChallengeModeRestrictionsForced",
+	"addonCombatRestrictionsForced",
+	"addonEncounterRestrictionsForced",
+	"addonPvPMatchRestrictionsForced",
+	"addonMapRestrictionsForced",
+	"addonChatRestrictionsForced",
+};
+
+local sAddonRestrictionEnableCvars = {
+	"addonChallengeModeRestrictionsForced",
+	"addonCombatRestrictionsForced",
+	"addonEncounterRestrictionsForced",
+};
 
 local VUHDO_parseAddonMessage;
 local VUHDO_spellcastSent;
@@ -91,6 +114,7 @@ local VUHDO_unregisterUnitForEvents;
 local VUHDO_isDeferredRefreshActive;
 local VUHDO_isDeferredRedrawActive;
 local VUHDO_processPendingAuraContainerBuilds;
+local VUHDO_processPendingAuraHostUpdates;
 local VUHDO_processPendingNativeAuraSounds;
 local VUHDO_flushPendingOverlayRebuild;
 local VUHDO_flushPendingOverlayAcquires;
@@ -101,7 +125,8 @@ local VUHDO_syncAuraContainersForAllRaidUnits;
 local VUHDO_syncOverlaysForUnit;
 local VUHDO_resetAuraContainersForUnit;
 local VUHDO_resetOverlaysForUnit;
-local VUHDO_resetAuraFilterResultCachePerFrame;
+local VUHDO_clearOverlaysForUnit;
+local VUHDO_syncAllOverlayUnits;
 
 local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
@@ -596,6 +621,7 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_isDeferredRefreshActive = _G["VUHDO_isDeferredRefreshActive"];
 	VUHDO_isDeferredRedrawActive = _G["VUHDO_isDeferredRedrawActive"];
 	VUHDO_processPendingAuraContainerBuilds = _G["VUHDO_processPendingAuraContainerBuilds"];
+	VUHDO_processPendingAuraHostUpdates = _G["VUHDO_processPendingAuraHostUpdates"];
 	VUHDO_processPendingNativeAuraSounds = _G["VUHDO_processPendingNativeAuraSounds"];
 	VUHDO_flushPendingOverlayRebuild = _G["VUHDO_flushPendingOverlayRebuild"];
 	VUHDO_flushPendingOverlayAcquires = _G["VUHDO_flushPendingOverlayAcquires"];
@@ -606,7 +632,8 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
 	VUHDO_resetAuraContainersForUnit = _G["VUHDO_resetAuraContainersForUnit"];
 	VUHDO_resetOverlaysForUnit = _G["VUHDO_resetOverlaysForUnit"];
-	VUHDO_resetAuraFilterResultCachePerFrame = _G["VUHDO_resetAuraFilterResultCachePerFrame"];
+	VUHDO_clearOverlaysForUnit = _G["VUHDO_clearOverlaysForUnit"];
+	VUHDO_syncAllOverlayUnits = _G["VUHDO_syncAllOverlayUnits"];
 
 	VUHDO_initTaskSystem();
 
@@ -645,6 +672,7 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	sAggroRefreshSecs = VUHDO_CONFIG["THREAT"]["AGGRO_REFRESH_MS"] * 0.001;
 	sRangeRefreshSecs = VUHDO_CONFIG["RANGE_CHECK_DELAY"] * 0.001;
 	sRangeFallbackSecs = VUHDO_CONFIG["RANGE_FALLBACK_DELAY"] * 0.001;
+
 	sClusterRefreshSecs = VUHDO_CONFIG["CLUSTER"]["REFRESH"] * 0.001;
 	sAoeRefreshSecs = VUHDO_CONFIG["AOE_ADVISOR"]["refresh"] * 0.001;
 	sBuffsRefreshSecs = VUHDO_BUFF_SETTINGS["CONFIG"]["REFRESH_SECS"];
@@ -694,6 +722,7 @@ local VUHDO_RELOAD_PANEL_NUM = nil;
 VUHDO_TIMERS = {
 	["RELOAD_UI"] = 0,
 	["REGISTER_BOUQUETS"] = 0,
+	["REBUILD_AURA_GROUPS"] = 0,
 	["RELOAD_PANEL"] = 0,
 	["CUSTOMIZE"] = 0,
 	["CHECK_PROFILES"] = 6.2,
@@ -1023,6 +1052,8 @@ local function VUHDO_init()
 		VUHDO_initKeyboardMacros();
 	end
 
+	VUHDO_incrementAuraAnchorConfigVersion();
+
 	VUHDO_timeReloadUI(3);
 	VUHDO_aoeUpdateTalents();
 
@@ -1050,7 +1081,7 @@ local function VUHDO_processSpellbookRefresh()
 	tSpellbookChanged = VUHDO_initFromSpellbook();
 
 	VUHDO_initBuffs();
-	VUHDO_initDebuffs();
+	VUHDO_initDebuffsIfNeeded();
 
 	if tSpellbookChanged then
 		VUHDO_registerAllBouquets(false);
@@ -1082,6 +1113,61 @@ local function VUHDO_scheduleSpellbookRefresh()
 	sSpellbookRefreshScheduled = true;
 
 	C_Timer.After(0.5, VUHDO_processSpellbookRefresh);
+
+	return;
+
+end
+
+
+
+--
+local tBossUnit;
+local tBossGuid;
+local function VUHDO_updateBossUnits()
+
+	VUHDO_updateToggledUnitEvents();
+
+	for tBossCnt = 1, 8 do
+		tBossUnit = sBossUnitIds[tBossCnt];
+
+		if UnitExists(tBossUnit) then
+			tBossGuid = UnitGUID(tBossUnit);
+
+			if tBossGuid and sSecretsEnabled and issecretvalue(tBossGuid) then
+				tBossGuid = sEmpty;
+			end
+		else
+			tBossGuid = nil;
+		end
+
+		if sLastBossUnitGuids[tBossCnt] ~= tBossGuid then
+			sLastBossUnitGuids[tBossCnt] = tBossGuid;
+
+			VUHDO_resetAuraContainersForUnit(tBossUnit);
+			VUHDO_resetOverlaysForUnit(tBossUnit);
+
+			if tBossGuid then
+				VUHDO_setHealth(tBossUnit, 1); -- VUHDO_UPDATE_ALL
+				VUHDO_updateHealthBarsFor(tBossUnit, 1); -- VUHDO_UPDATE_ALL
+				VUHDO_initEventBouquetsFor(tBossUnit);
+
+				VUHDO_syncAuraContainersForUnit(tBossUnit);
+				VUHDO_syncOverlaysForUnit(tBossUnit);
+			else
+				VUHDO_clearOverlaysForUnit(tBossUnit);
+			end
+
+			if VUHDO_TIMERS["RELOAD_ROSTER"] < 0.15 then
+				VUHDO_TIMERS["RELOAD_ROSTER"] = 0.15;
+			end
+		elseif tBossGuid == sEmpty then
+			VUHDO_resetAuraContainersForUnit(tBossUnit);
+			VUHDO_resetOverlaysForUnit(tBossUnit);
+
+			VUHDO_syncAuraContainersForUnit(tBossUnit);
+			VUHDO_syncOverlaysForUnit(tBossUnit);
+		end
+	end
 
 	return;
 
@@ -1167,6 +1253,10 @@ do
 
 				VUHDO_processPendingAuraContainerBuilds();
 
+				VUHDO_processPendingManaBarLayouts();
+
+				VUHDO_processPendingAuraHostUpdates();
+
 				VUHDO_processPendingNativeAuraSounds();
 
 				VUHDO_flushPendingOverlayRebuild();
@@ -1210,14 +1300,19 @@ do
 		elseif "ENCOUNTER_END" == anEvent or "ZONE_CHANGED_NEW_AREA" == anEvent then
 			if VUHDO_VARIABLES_LOADED then
 				VUHDO_processPendingAuraContainerBuilds();
+
+				VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.5;
+			end
+
+		elseif "ZONE_CHANGED" == anEvent or "ZONE_CHANGED_INDOORS" == anEvent then
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.5;
 			end
 
 		elseif "RAID_TARGET_UPDATE" == anEvent then
 			VUHDO_TIMERS["CUSTOMIZE"] = 0.1;
 
-		-- INSTANCE_ENCOUNTER_ENGAGE_UNIT fires when a boss unit is added to the UI
-		-- this is essentially the equivalent of GROUP_ROSTER_UPDATE for bosses/NPCs
-		elseif "GROUP_ROSTER_UPDATE" == anEvent or "INSTANCE_ENCOUNTER_ENGAGE_UNIT" == anEvent or "UPDATE_ACTIVE_BATTLEFIELD" == anEvent then
+		elseif "GROUP_ROSTER_UPDATE" == anEvent or "UPDATE_ACTIVE_BATTLEFIELD" == anEvent then
 			if VUHDO_FIRST_RELOAD_UI then
 				VUHDO_normalRaidReload(true);
 
@@ -1227,18 +1322,14 @@ do
 			end
 
 			if VUHDO_VARIABLES_LOADED then
-				VUHDO_syncAuraContainersForAllRaidUnits();
+				if VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] < 0.9 then
+					VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = 0.9;
+				end
 			end
 
-			if "INSTANCE_ENCOUNTER_ENGAGE_UNIT" == anEvent then
-				VUHDO_updateToggledUnitEvents();
-
-				for tCnt = 1, 8 do
-					VUHDO_resetAuraContainersForUnit("boss" .. tCnt);
-					VUHDO_resetOverlaysForUnit("boss" .. tCnt);
-
-					VUHDO_syncAuraContainersForUnit("boss" .. tCnt);
-				end
+		elseif "INSTANCE_ENCOUNTER_ENGAGE_UNIT" == anEvent then
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_updateBossUnits();
 			end
 
 		elseif "PLAYER_FOCUS_CHANGED" == anEvent then
@@ -1316,6 +1407,9 @@ do
 
 			if VUHDO_VARIABLES_LOADED then
 				VUHDO_syncAuraContainersForAllRaidUnits();
+
+				C_Timer.After(2, VUHDO_timeRefreshAuraContainers);
+				C_Timer.After(6, VUHDO_timeRefreshAuraContainers);
 			end
 
 			if VUHDO_VARIABLES_LOADED and VUHDO_INTERNAL_TOGGLES[37] and VUHDO_CONFIG["SHOW_SPELL_TRACE"] then
@@ -1467,7 +1561,7 @@ do
 
 				if ((VUHDO_RAID or tEmptyRaid)[anArg1] ~= nil) then
 					VUHDO_resetTalentScan(anArg1);
-					VUHDO_initDebuffs(); -- Talentabhngige Debuff-Fhigkeiten neu initialisieren.
+					VUHDO_initDebuffsIfNeeded(); -- Talentabhngige Debuff-Fhigkeiten neu initialisieren.
 					VUHDO_timeReloadUI(1);
 				end
 			end
@@ -1616,6 +1710,22 @@ do
 				VUHDO_loadProfile(strtrim(tTokens[1]));
 			end
 
+		elseif tCommandWord == "restrict" then
+			tSubCommand = strlower(tParsedTexts[2] or "");
+
+			if tSubCommand == "on" then
+				VUHDO_setForcedAddonRestrictions(true);
+			elseif tSubCommand == "off" then
+				VUHDO_setForcedAddonRestrictions(false);
+			elseif tSubCommand == "status" then
+				VUHDO_printForcedAddonRestrictionStatus();
+			elseif tSubCommand == "" then
+				tCurrentValue = GetCVar("addonChallengeModeRestrictionsForced") or "0";
+				VUHDO_setForcedAddonRestrictions(tCurrentValue ~= "1");
+			else
+				VUHDO_Msg("Usage: /vd restrict [on|off|status]");
+			end
+
 		elseif strfind(tCommandWord, "res") then
 			for tPanelNum = 1, VUHDO_MAX_PANELS do
 				VUHDO_PANEL_SETUP[tPanelNum]["POSITION"] = nil;
@@ -1661,24 +1771,6 @@ do
 
 		elseif tCommandWord == "proff" then
 			SetCVar("scriptProfile", "0");
-			ReloadUI();
-
-		elseif tCommandWord == "secrets" then
-			tCurrentValue = GetCVar("secretCombatRestrictionsForced") or "0";
-
-			if tCurrentValue == "1" then
-				SetCVar("secretCombatRestrictionsForced", "0");
-				SetCVar("secretEncounterRestrictionsForced", "0");
-				SetCVar("secretChallengeModeRestrictionsForced", "0");
-				SetCVar("secretPvPMatchRestrictionsForced", "0");
-				SetCVar("secretMapRestrictionsForced", "0");
-				VUHDO_Msg("Secret restrictions DISABLED - reloading UI...");
-			else
-				SetCVar("secretCombatRestrictionsForced", "1");
-				SetCVar("secretEncounterRestrictionsForced", "1");
-				VUHDO_Msg("Secret restrictions ENABLED (combat+encounter) - reloading UI...");
-			end
-
 			ReloadUI();
 
 		elseif (strfind(tCommandWord, "chkvars")) then
@@ -1810,6 +1902,7 @@ do
 				VUHDO_resetDeferredTaskMetrics();
 				VUHDO_resetPoolMetrics();
 				VUHDO_resetSemaphoreMetrics();
+				VUHDO_resetAuraContainerMetrics();
 
 				VUHDO_Msg("All profiling metrics reset.");
 			elseif tSubCommand == "test" then
@@ -1857,13 +1950,33 @@ do
 				VUHDO_animHelp();
 			end
 
+		elseif tCommandWord == "range" then
+			tSubCommand = strlower(tParsedTexts[2] or "");
+			tUnit = tParsedTexts[3];
+
+			if tSubCommand == "" or strfind(tSubCommand, "help") or strfind(tSubCommand, "%?") then
+				VUHDO_rangeHelp();
+			else
+				if not tUnit or tUnit == "" then
+					tUnit = tSubCommand;
+				end
+
+				if not tUnit or tUnit == "" then
+					_, tUnit = VUHDO_getCurrentMouseOver();
+				end
+
+				if not tUnit or tUnit == "" then
+					tUnit = "mouseover";
+				end
+
+				VUHDO_dumpRangeDiagnostics(tUnit);
+			end
+
 		elseif tCommandWord == "aura" then
 			tSubCommand = strlower(tParsedTexts[2] or "");
 
 			if strfind(tSubCommand, "mig") then
 				VUHDO_resetAndRemigrateAuras();
-			elseif strfind(tSubCommand, "level") then
-				VUHDO_dumpAuraContainerLevels(tParsedTexts[3] or "player");
 			elseif strfind(tSubCommand, "dump") then
 				tUnit = "player";
 				tDumpIndicator = nil;
@@ -1882,27 +1995,9 @@ do
 				end
 
 				VUHDO_dumpAuraDiagnostics(tUnit, tDumpIndicator, tDumpVerbose);
-			elseif strfind(tSubCommand, "nopool") then
-				tArgument = strlower(tParsedTexts[3] or "");
-
-				if tArgument == "on" then
-					VUHDO_setAuraContainerPoolDisabled(true);
-
-					VUHDO_Msg("Aura container pooling disabled.");
-				elseif tArgument == "off" then
-					VUHDO_setAuraContainerPoolDisabled(false);
-
-					VUHDO_Msg("Aura container pooling enabled.");
-				else
-					VUHDO_Msg(format("Aura container pooling is %s.", VUHDO_isAuraContainerPoolDisabled() and "disabled" or "enabled"));
-				end
 			elseif strfind(tSubCommand, "rebuild") then
 				VUHDO_rebuildAuraOverlays();
-			elseif strfind(tSubCommand, "gate") then
-				VUHDO_testAuraContainerGates();
-			elseif strfind(tSubCommand, "test") then
-				VUHDO_createAuraContainerSmokeTest(tParsedTexts[3] or "player");
-			elseif strfind(tSubCommand, "res") then
+			elseif strfind(tSubCommand, "restrict") then
 				tArgument = strlower(tParsedTexts[3] or "");
 
 				if tArgument == "on" then
@@ -1925,8 +2020,6 @@ do
 					VUHDO_Msg("Aura data restricted: " .. (VUHDO_isAuraDataRestricted() and "yes" or "no"));
 					VUHDO_Msg("Force aura mode: " .. (VUHDO_FORCE_AURA_MODE == nil and "auto" or tostring(VUHDO_FORCE_AURA_MODE)));
 				end
-			elseif strfind(tSubCommand, "aud") then
-				VUHDO_auditAuraConfiguration();
 			else
 				VUHDO_auraHelp();
 			end
@@ -2167,6 +2260,28 @@ end
 
 
 --
+function VUHDO_timeRebuildAuraGroups(aNumSecs)
+
+	VUHDO_TIMERS["REBUILD_AURA_GROUPS"] = aNumSecs;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_timeRefreshAuraContainers(aNumSecs)
+
+	VUHDO_TIMERS["REFRESH_AURA_CONTAINERS"] = aNumSecs or 0.5;
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_timeRedrawPanel(aPanelNum, aNumSecs)
 
 	VUHDO_RELOAD_PANEL_NUM = aPanelNum;
@@ -2228,6 +2343,8 @@ local function VUHDO_doReloadRoster(anIsQuick)
 				VUHDO_IS_RELOADING = false;
 			else
 				VUHDO_refreshUI();
+
+				VUHDO_TIMERS["RELOAD_RAID"] = 0;
 
 				if VUHDO_IS_RELOAD_BUFFS and not anIsQuick then
 					VUHDO_reloadBuffPanel();
@@ -2410,12 +2527,12 @@ do
 				VUHDO_PROHIBIT_REPOS = true;
 
 				VUHDO_initAllBurstCaches();
-				VUHDO_redrawPanel(VUHDO_RELOAD_PANEL_NUM);
-				VUHDO_updateAllPanelBars(VUHDO_RELOAD_PANEL_NUM);
 				VUHDO_buildGenericHealthBarBouquet();
 				VUHDO_buildGenericTargetHealthBouquet();
 				VUHDO_registerAllBouquets(false);
 				VUHDO_initAllEventBouquets();
+				VUHDO_redrawPanel(VUHDO_RELOAD_PANEL_NUM);
+				VUHDO_updateAllPanelBars(VUHDO_RELOAD_PANEL_NUM);
 
 				if not VUHDO_CONFIG["USE_DEFERRED_REDRAW"] then
 					VUHDO_redisplayAllUnitAuras();
@@ -2431,10 +2548,13 @@ do
 			if VUHDO_IS_RELOADING or InCombatLockdown() or tIsDeferredActive then
 				VUHDO_TIMERS["REGISTER_BOUQUETS"] = 0.3;
 			else
-				VUHDO_wipeAuraContainerPool();
 				VUHDO_registerAllBouquets(false);
 				VUHDO_initAllEventBouquets();
 			end
+		end
+
+		if VUHDO_checkTimer("REBUILD_AURA_GROUPS") then
+			VUHDO_rebuildCanColorBarGroupsCache();
 		end
 
 		return;
@@ -2514,6 +2634,8 @@ do
 
 		if VUHDO_checkTimer("REFRESH_AURA_CONTAINERS") then
 			VUHDO_syncAuraContainersForAllRaidUnits();
+
+			VUHDO_syncAllOverlayUnits(false);
 		end
 
 		-- Refresh Tooltip
@@ -2962,6 +3084,7 @@ local VUHDO_ALL_EVENT_NAMES = {
 	"PET_BATTLE_CLOSE", "PET_BATTLE_OPENING_START",
 	"PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED",
 	"ENCOUNTER_END", "ZONE_CHANGED_NEW_AREA",
+	"ZONE_CHANGED", "ZONE_CHANGED_INDOORS",
 	"PLAYER_SPECIALIZATION_CHANGED", "ACTIVE_TALENT_GROUP_CHANGED",
 	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE",
 	"UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_CHANNEL_STOP",
@@ -3020,6 +3143,59 @@ do
 		return;
 
 	end
+end
+
+
+
+--
+local tCvar;
+local tCvarValue;
+local tCvarList;
+function VUHDO_setForcedAddonRestrictions(anIsEnabled)
+
+	if anIsEnabled then
+		tCvarList = sAddonRestrictionEnableCvars;
+	else
+		tCvarList = sAddonRestrictionCvars;
+	end
+
+	for tCnt = 1, #tCvarList do
+		tCvar = tCvarList[tCnt];
+
+		SetCVar(tCvar, anIsEnabled and "1" or "0");
+	end
+
+	if anIsEnabled then
+		VUHDO_Msg("Forced addon restrictions ENABLED - reloading UI.");
+	else
+		VUHDO_Msg("Forced addon restrictions DISABLED - reloading UI.");
+	end
+
+	ReloadUI();
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_printForcedAddonRestrictionStatus()
+
+	for tCnt = 1, #sAddonRestrictionCvars do
+		tCvar = sAddonRestrictionCvars[tCnt];
+		tCvarValue = GetCVar(tCvar) or "0";
+
+		VUHDO_Msg(tCvar .. " = " .. tCvarValue);
+	end
+
+	VUHDO_Msg("ShouldAurasBeSecret: " .. (ShouldAurasBeSecret() and "yes" or "no"));
+	VUHDO_Msg("AddOnRestriction Combat: " .. (IsAddOnRestrictionActive(Enum.AddOnRestrictionType["Combat"]) and "active" or "inactive"));
+	VUHDO_Msg("AddOnRestriction Encounter: " .. (IsAddOnRestrictionActive(Enum.AddOnRestrictionType["Encounter"]) and "active" or "inactive"));
+	VUHDO_Msg("AddOnRestriction ChallengeMode: " .. (IsAddOnRestrictionActive(Enum.AddOnRestrictionType["ChallengeMode"]) and "active" or "inactive"));
+
+	return;
+
 end
 
 
@@ -3505,6 +3681,7 @@ function VUHDO_showProfilingMetrics()
 		VUHDO_printDeferredTaskMetrics(false);
 		VUHDO_printPoolMetrics();
 		VUHDO_printSemaphoreMetrics();
+		VUHDO_printAuraContainerMetrics();
 	end);
 
 	return;

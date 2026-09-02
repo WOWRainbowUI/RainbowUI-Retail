@@ -15,21 +15,22 @@ local VUHDO_AURA_FRAMES;
 local VUHDO_AURA_CONTAINERS;
 
 local VUHDO_PixelUtil;
-local VUHDO_getHealthBar;
 local VUHDO_getUnitButtonsPanel;
 local VUHDO_displayAuraInSlot;
 local VUHDO_hideAuraSlot;
 local VUHDO_copyColorTo;
 local VUHDO_evaluateBouquetItemForStaticSlot;
-local VUHDO_applyAuraContainerSlotFilters;
-local VUHDO_getManaAdjustedYOffset;
+local VUHDO_applyAuraContainerVisibility;
+local VUHDO_rewriteAuraContainerGateState;
+local VUHDO_isUnitAuraFilterRestricted;
+local VUHDO_getAuraAnchorHost;
 local VUHDO_acquireAuraIconFrame;
 local VUHDO_acquireAuraBarFrame;
 
-local sOwnedScratchColor = { };
+local sOwnedStaticSlotColor = { };
 
-local sStaticSlotAuraScratch = {
-	["color"] = sOwnedScratchColor,
+local sStaticSlotAura = {
+	["color"] = sOwnedStaticSlotColor,
 };
 
 local sMixedSlotEvalCache = { };
@@ -46,14 +47,15 @@ function VUHDO_auraContainerStaticInitLocalOverrides()
 	VUHDO_AURA_CONTAINERS = _G["VUHDO_AURA_CONTAINERS"];
 
 	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
-	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getUnitButtonsPanel = _G["VUHDO_getUnitButtonsPanel"];
 	VUHDO_displayAuraInSlot = _G["VUHDO_displayAuraInSlot"];
 	VUHDO_hideAuraSlot = _G["VUHDO_hideAuraSlot"];
 	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
 	VUHDO_evaluateBouquetItemForStaticSlot = _G["VUHDO_evaluateBouquetItemForStaticSlot"];
-	VUHDO_applyAuraContainerSlotFilters = _G["VUHDO_applyAuraContainerSlotFilters"];
-	VUHDO_getManaAdjustedYOffset = _G["VUHDO_getManaAdjustedYOffset"];
+	VUHDO_applyAuraContainerVisibility = _G["VUHDO_applyAuraContainerVisibility"];
+	VUHDO_rewriteAuraContainerGateState = _G["VUHDO_rewriteAuraContainerGateState"];
+	VUHDO_isUnitAuraFilterRestricted = _G["VUHDO_isUnitAuraFilterRestricted"];
+	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_acquireAuraIconFrame = _G["VUHDO_acquireAuraIconFrame"];
 	VUHDO_acquireAuraBarFrame = _G["VUHDO_acquireAuraBarFrame"];
 
@@ -85,7 +87,7 @@ do
 		tSlotAnchor = aStaticSlot["anchor"];
 
 		if tSlotAnchor then
-			tRelFrame = VUHDO_getHealthBar(aButton, 3);
+			tRelFrame = VUHDO_getAuraAnchorHost(aButton);
 
 			if not tRelFrame then
 				tRelFrame = aButton;
@@ -98,7 +100,7 @@ do
 
 		if tPoint then
 			if tPoint["relFrame"] == "HealthBar" then
-				tRelFrame = VUHDO_getHealthBar(aButton, 3);
+				tRelFrame = VUHDO_getAuraAnchorHost(aButton);
 			else
 				tRelFrame = aButton;
 			end
@@ -110,10 +112,6 @@ do
 			tRelPoint = tPoint["relativePoint"] or tPoint["point"] or tAnchorPoint;
 			tXOff = (tPoint["x"] or 0) + (aStaticSlot["x"] or 0);
 			tYOff = (tPoint["y"] or 0) + (aStaticSlot["y"] or 0);
-
-			if tPoint["relFrame"] == "HealthBar" then
-				tYOff = VUHDO_getManaAdjustedYOffset(aButton, tRelPoint, tYOff);
-			end
 
 			return tPoint["point"] or tAnchorPoint, tRelFrame, tRelPoint, tXOff, tYOff;
 		end
@@ -207,9 +205,9 @@ do
 
 	--
 	local tSlotDataAsAura;
-	local function VUHDO_fillStaticSlotScratch(anIcon, anExpirationTime, aDuration, anApplications, aName, anAuraInstanceId, aClipL, aClipR, aClipT, aClipB, aColor, aGroupId, anEntryIndex, anIsAliveTime, anIsColorReference)
+	local function VUHDO_fillStaticSlotAura(anIcon, anExpirationTime, aDuration, anApplications, aName, anAuraInstanceId, aClipL, aClipR, aClipT, aClipB, aColor, aGroupId, anEntryIndex, anIsAliveTime, anIsColorReference)
 
-		tSlotDataAsAura = sStaticSlotAuraScratch;
+		tSlotDataAsAura = sStaticSlotAura;
 
 		tSlotDataAsAura["icon"] = anIcon;
 		tSlotDataAsAura["expirationTime"] = anExpirationTime or 0;
@@ -228,11 +226,11 @@ do
 		if anIsColorReference then
 			tSlotDataAsAura["color"] = aColor;
 		elseif aColor then
-			VUHDO_copyColorTo(aColor, sOwnedScratchColor);
-			tSlotDataAsAura["color"] = sOwnedScratchColor;
+			VUHDO_copyColorTo(aColor, sOwnedStaticSlotColor);
+			tSlotDataAsAura["color"] = sOwnedStaticSlotColor;
 		else
-			twipe(sOwnedScratchColor);
-			tSlotDataAsAura["color"] = sOwnedScratchColor;
+			twipe(sOwnedStaticSlotColor);
+			tSlotDataAsAura["color"] = sOwnedStaticSlotColor;
 		end
 
 		return tSlotDataAsAura;
@@ -290,7 +288,7 @@ do
 		end
 
 		if issecretvalue(tSecretBool) then
-			tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tIcon or "Interface\\Icons\\INV_Misc_QuestionMark", 0, 0, 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
+			tSlotDataAsAura = VUHDO_fillStaticSlotAura(tIcon or "Interface\\Icons\\INV_Misc_QuestionMark", 0, 0, 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
 
 			VUHDO_displayAuraInSlot(aButton, aPanelNum, anAnchorIndex, aSlotIndex, tSlotDataAsAura, anAnchorConfig);
 
@@ -309,14 +307,14 @@ do
 		if tIsActive and tInfo["connected"] and not tInfo["dead"] then
 			if tDuration then
 				if issecretvalue(tDuration) or issecretvalue(tTimer) then
-					tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tIcon, tTimer, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
+					tSlotDataAsAura = VUHDO_fillStaticSlotAura(tIcon, tTimer, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
 				elseif tDuration > 0 and tTimer then
-					tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tIcon, GetTime() + tTimer, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
+					tSlotDataAsAura = VUHDO_fillStaticSlotAura(tIcon, GetTime() + tTimer, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
 				else
-					tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tIcon, 0, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
+					tSlotDataAsAura = VUHDO_fillStaticSlotAura(tIcon, 0, tDuration, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
 				end
 			else
-				tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tIcon, 0, 0, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
+				tSlotDataAsAura = VUHDO_fillStaticSlotAura(tIcon, 0, 0, tCounter or 0, tBuffName, -1, tClipL, tClipR, tClipT, tClipB, tColor, anAnchorConfig["groupId"], aStaticSlot["entryIndex"]);
 			end
 
 			VUHDO_displayAuraInSlot(aButton, aPanelNum, anAnchorIndex, aSlotIndex, tSlotDataAsAura, anAnchorConfig);
@@ -372,6 +370,7 @@ do
 	local tPriorityCutoff;
 	local tContainer;
 	local tCanAttack;
+	local tIsAuraFilterRestricted;
 	local tEvalCacheEntry;
 	local tSlotEntryIndex;
 	function VUHDO_updateStaticBouquetSlotsForButton(aButton, aUnit, aContainerData, aCanAttack, anIsSlotFiltersApplied)
@@ -403,6 +402,7 @@ do
 		tIsBar = tAnchorConfig["style"] == "bars";
 		tListSlots = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][tPanelNum] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][tPanelNum][tAnchorIndex];
 		tButtonName = aButton:GetName();
+		tIsAuraFilterRestricted = VUHDO_isUnitAuraFilterRestricted(aUnit);
 
 		tMixedPriorityCutoffs = aContainerData["mixedPriorityCutoffs"];
 
@@ -417,7 +417,7 @@ do
 
 		tInfo = VUHDO_RAID[aUnit];
 
-		if tInfo and tInfo["connected"] and not tInfo["dead"] then
+		if not tIsAuraFilterRestricted and tInfo and tInfo["connected"] and not tInfo["dead"] then
 			for tSlotEntryIndex, tStaticSlot in pairs(tStaticSlots) do
 				if tStaticSlot["isMixedBouquetItem"] then
 					tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tClipL, tClipR, tClipT, tClipB, tSecretBool
@@ -460,7 +460,9 @@ do
 		for tSlotEntryIndex, tStaticSlot in pairs(tStaticSlots) do
 			tSlotIndex = tStaticSlot["slotIndex"] or tSlotEntryIndex;
 
-			if tStaticSlot["isMixedBouquetItem"] then
+			if tIsAuraFilterRestricted or not tInfo or not tInfo["connected"] or tInfo["dead"] then
+				VUHDO_hideAuraSlot(aButton, tAnchorIndex, tSlotIndex, tIsBar);
+			elseif tStaticSlot["isMixedBouquetItem"] then
 				tEntryIndex = tStaticSlot["entryIndex"];
 				tItemIndex = tStaticSlot["itemIndex"];
 				tPriorityCutoff = tEntryIndex and tMixedPriorityCutoffs[tEntryIndex];
@@ -474,7 +476,7 @@ do
 				tSlotData = tListSlots and tListSlots[tStaticSlot["entryIndex"]];
 
 				if tSlotData and tSlotData["isActive"] then
-					tSlotDataAsAura = VUHDO_fillStaticSlotScratch(tSlotData["icon"], tSlotData["expirationTime"] or 0, tSlotData["duration"] or 0, tSlotData["stacks"] or 0, tSlotData["name"], tSlotData["auraInstanceID"] or -1, tSlotData["clipL"], tSlotData["clipR"], tSlotData["clipT"], tSlotData["clipB"], tSlotData["color"], tSlotData["groupId"], tSlotData["entryIndex"], tSlotData["isAliveTime"], true);
+					tSlotDataAsAura = VUHDO_fillStaticSlotAura(tSlotData["icon"], tSlotData["expirationTime"] or 0, tSlotData["duration"] or 0, tSlotData["stacks"] or 0, tSlotData["name"], tSlotData["auraInstanceID"] or -1, tSlotData["clipL"], tSlotData["clipR"], tSlotData["clipT"], tSlotData["clipB"], tSlotData["color"], tSlotData["groupId"], tSlotData["entryIndex"], tSlotData["isAliveTime"], true);
 
 					VUHDO_displayAuraInSlot(aButton, tPanelNum, tAnchorIndex, tSlotIndex, tSlotDataAsAura, tAnchorConfig);
 
@@ -497,13 +499,8 @@ do
 		tContainer = aContainerData["container"];
 
 		if tContainer and not anIsSlotFiltersApplied then
-			if aCanAttack == nil then
-				tCanAttack = UnitCanAttack("player", aUnit);
-			else
-				tCanAttack = aCanAttack;
-			end
-
-			VUHDO_applyAuraContainerSlotFilters(tContainer, aContainerData, tCanAttack);
+			VUHDO_rewriteAuraContainerGateState(aUnit);
+			VUHDO_applyAuraContainerVisibility(tContainer, aContainerData);
 		end
 
 		return;

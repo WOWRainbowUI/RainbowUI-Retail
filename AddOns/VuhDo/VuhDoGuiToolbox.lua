@@ -18,6 +18,7 @@ local twipe = table.wipe;
 local pcall = pcall;
 local GetClassColor = C_ClassColor and C_ClassColor.GetClassColor;
 local CreateColor = CreateColor;
+local issecretvalue = issecretvalue;
 
 local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5;
 
@@ -41,6 +42,7 @@ local sCompactPartyOnShowHooked = false;
 local sBlizzRestoreNeedsReload = false;
 local sFontTestRegion;
 local sFontValidationCache = { };
+local sPendingAuraHostUpdates = { };
 
 local tEmptyColor = { };
 
@@ -51,6 +53,9 @@ local VUHDO_getHealthBarText;
 local VUHDO_getUnitButtonsSafe;
 local VUHDO_isModelInPanel;
 local VUHDO_getResolvedTextProvider;
+local VUHDO_getAuraAnchorHost;
+local VUHDO_getHealthBar;
+local VUHDO_PixelUtil;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -58,6 +63,7 @@ local VUHDO_getResolvedTextProvider;
 local VUHDO_CONFIG = { };
 local VUHDO_PANEL_SETUP = { };
 local VUHDO_USER_CLASS_COLORS = { };
+local VUHDO_ATLAS_TEXTURES = { };
 function VUHDO_guiToolboxInitLocalOverrides()
 
 	--VUHDO_getNumbersFromString = _G["VUHDO_getNumbersFromString"];
@@ -65,6 +71,7 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_USER_CLASS_COLORS = _G["VUHDO_USER_CLASS_COLORS"];
+	VUHDO_ATLAS_TEXTURES = _G["VUHDO_ATLAS_TEXTURES"];
 	VUHDO_LibSharedMedia = _G["VUHDO_LibSharedMedia"];
 	VUHDO_getActionPanelOrStub = _G["VUHDO_getActionPanelOrStub"];
 	VUHDO_getPanelButtons = _G["VUHDO_getPanelButtons"];
@@ -72,6 +79,9 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
 	VUHDO_isModelInPanel = _G["VUHDO_isModelInPanel"];
 	VUHDO_getResolvedTextProvider = _G["VUHDO_getResolvedTextProvider"];
+	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
+	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
+	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -1274,10 +1284,19 @@ end
 
 
 --
+local tLabel;
+local tFontSize;
+local tFontFlags;
 function VUHDO_lnfPatchFont(aComponent, aLabelName)
 
 	if not sIsNotInChina then
-		_G[aComponent:GetName() .. aLabelName]:SetFont(VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME), 12, "");
+		tLabel = _G[aComponent:GetName() .. aLabelName];
+
+		_, tFontSize, tFontFlags = tLabel:GetFont();
+
+		if type(tFontSize) == "number" and tFontSize > 0 then
+			tLabel:SetFont(VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME), tFontSize, tFontFlags or "");
+		end
 	end
 
 	return;
@@ -1301,6 +1320,30 @@ function VUHDO_setLlcStatusBarTexture(aStatusBar, aTextureName)
 		aStatusBar:SetStatusBarTexture(tFile);
 		VUHDO_PixelUtil.ApplySettings(aStatusBar:GetStatusBarTexture());
 	end
+end
+
+
+
+--
+local tIsAtlas;
+function VUHDO_setTextureOrAtlas(aTexture, anIcon, aClipL, aClipR, aClipT, aClipB)
+
+	if not aTexture or not anIcon then
+		return false;
+	end
+
+	tIsAtlas = not issecretvalue(anIcon) and VUHDO_ATLAS_TEXTURES[anIcon] and true or false;
+
+	if tIsAtlas then
+		aTexture:SetAtlas(anIcon);
+		aTexture:SetTexCoord(0, 1, 0, 1);
+	else
+		aTexture:SetTexture(anIcon);
+		aTexture:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
+	end
+
+	return tIsAtlas;
+
 end
 
 
@@ -1580,6 +1623,51 @@ end
 local sFlashFrames = { };
 local sIsFlashFrame = { };
 
+
+
+--
+local function VUHDO_isFlashRegionWritable(aRegion)
+
+	return aRegion:CanBeAccessedInContext() and not aRegion:IsForbidden();
+
+end
+
+
+
+--
+function VUHDO_startThreatMarkTextureFlash(aTexture)
+
+	if not aTexture then
+		return;
+	end
+
+	VUHDO_UIFrameFlash(aTexture, 0.2, 0.5, 3.2, true, 0, 0);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_stopThreatMarkTextureFlash(aTexture)
+
+	if not aTexture then
+		return;
+	end
+
+	VUHDO_UIFrameFlashStop(aTexture);
+
+	if VUHDO_isFlashRegionWritable(aTexture) then
+		aTexture:SetAlpha(1);
+	end
+
+	return;
+
+end
+
+
+
 --
 function VUHDO_UIFrameFlash(aFrame, aFadeInTime, aFadeOutTime, aFlashDuration, anIsShowWhenDone, aFlashInHoldTime, aFlashOutHoldTime)
 
@@ -1609,27 +1697,32 @@ function VUHDO_UIFrameFlash_OnUpdate(aTimeDelta)
 
 	while sFlashFrames[tIndex] do
 	  tFrame = sFlashFrames[tIndex];
-	  tFrame.flashTimer = tFrame.flashTimer + aTimeDelta;
 
-	  if tFrame.flashTimer > tFrame.flashDuration and tFrame.flashDuration ~= -1 then
+	  if not VUHDO_isFlashRegionWritable(tFrame) then
 	    VUHDO_UIFrameFlashStop(tFrame);
 	  else
-	    tFlashTime = tFrame.flashTimer;
+	    tFrame.flashTimer = tFrame.flashTimer + aTimeDelta;
 
-	    tFlashTime = tFlashTime
-	    	% (tFrame.fadeInTime + tFrame.fadeOutTime + (tFrame.flashInHoldTime or 0) + (tFrame.flashOutHoldTime or 0));
-
-	    if tFlashTime < tFrame.fadeInTime then
-	    	tAlpha = tFlashTime / tFrame.fadeInTime;
-	    elseif tFlashTime < tFrame.fadeInTime + (tFrame.flashInHoldTime or 0) then
-	    	tAlpha = 1;
-	    elseif tFlashTime < tFrame.fadeInTime + (tFrame.flashInHoldTime or 0) + tFrame.fadeOutTime then
-	    	tAlpha = 1 - ((tFlashTime - tFrame.fadeInTime - (tFrame.flashInHoldTime or 0)) / tFrame.fadeOutTime);
+	    if tFrame.flashTimer > tFrame.flashDuration and tFrame.flashDuration ~= -1 then
+	      VUHDO_UIFrameFlashStop(tFrame);
 	    else
-	    	tAlpha = 0;
-	    end
+	      tFlashTime = tFrame.flashTimer;
 
-	    tFrame:SetAlpha(tAlpha);
+	      tFlashTime = tFlashTime
+	      	% (tFrame.fadeInTime + tFrame.fadeOutTime + (tFrame.flashInHoldTime or 0) + (tFrame.flashOutHoldTime or 0));
+
+	      if tFlashTime < tFrame.fadeInTime then
+	      	tAlpha = tFlashTime / tFrame.fadeInTime;
+	      elseif tFlashTime < tFrame.fadeInTime + (tFrame.flashInHoldTime or 0) then
+	      	tAlpha = 1;
+	      elseif tFlashTime < tFrame.fadeInTime + (tFrame.flashInHoldTime or 0) + tFrame.fadeOutTime then
+	      	tAlpha = 1 - ((tFlashTime - tFrame.fadeInTime - (tFrame.flashInHoldTime or 0)) / tFrame.fadeOutTime);
+	      else
+	      	tAlpha = 0;
+	      end
+
+	      tFrame:SetAlpha(tAlpha);
+	    end
 	  end
 
 	  tIndex = tIndex - 1;
@@ -1642,7 +1735,11 @@ end
 function VUHDO_UIFrameFlashStop(aFrame)
 	if sIsFlashFrame[aFrame] then
 		tDeleteItem(sFlashFrames, aFrame);
-		aFrame:SetAlpha(aFrame.showWhenDone and 1 or 0);
+
+		if VUHDO_isFlashRegionWritable(aFrame) then
+			aFrame:SetAlpha(aFrame.showWhenDone and 1 or 0);
+		end
+
 		aFrame.flashTimer = nil;
 		sIsFlashFrame[aFrame] = nil;
 	end
@@ -1700,12 +1797,44 @@ end
 
 
 --
-function VUHDO_getManaAdjustedYOffset(aButton, aRelPoint, aYOff)
+local tHost;
+local tBgBar;
+function VUHDO_updateAuraAnchorHost(aButton)
 
-	if aRelPoint and aButton then
-		return (aYOff or 0) + (aButton["manaBarLayoutHeight"] or 0) * (VUHDO_REL_POINT_MANA_FACTOR[aRelPoint] or 0);
+	if InCombatLockdown() then
+		sPendingAuraHostUpdates[aButton] = true;
+
+		return;
 	end
 
-	return aYOff or 0;
+	tHost = VUHDO_getAuraAnchorHost(aButton);
+
+	if not tHost then
+		return;
+	end
+
+	tBgBar = VUHDO_getHealthBar(aButton, 3);
+
+	VUHDO_PixelUtil.ClearAllPoints(tHost);
+
+	VUHDO_PixelUtil.SetPoint(tHost, "TOPLEFT", tBgBar, "TOPLEFT", 0, 0);
+	VUHDO_PixelUtil.SetPoint(tHost, "BOTTOMRIGHT", tBgBar, "BOTTOMRIGHT", 0, aButton["manaBarLayoutHeight"] or 0);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_processPendingAuraHostUpdates()
+
+	for tButton, _ in pairs(sPendingAuraHostUpdates) do
+		VUHDO_updateAuraAnchorHost(tButton);
+	end
+
+	twipe(sPendingAuraHostUpdates);
+
+	return;
 
 end

@@ -9,7 +9,7 @@ local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_applyAllLayersToTexture;
 local VUHDO_getIsDirectionArrow;
-local VUHDO_syncAuraContainersForUnit;
+local VUHDO_deferSyncAuraContainersForUnit;
 local VUHDO_isUnitRangeCheckable;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
@@ -24,7 +24,7 @@ function VUHDO_barCustomizerThreatInitLocalOverrides()
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
 	VUHDO_getIsDirectionArrow = _G["VUHDO_getIsDirectionArrow"];
-	VUHDO_syncAuraContainersForUnit = _G["VUHDO_syncAuraContainersForUnit"];
+	VUHDO_deferSyncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
 	VUHDO_isUnitRangeCheckable = _G["VUHDO_isUnitRangeCheckable"];
 
 	for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
@@ -47,12 +47,6 @@ function VUHDO_threatIndicatorsBouquetCallback(aUnit, anIsActive, anIcon, aTimer
 			tTexture = VUHDO_getAggroTexture(VUHDO_getHealthBar(tButton, 1));
 
 			if anIsActive then
-				tTexture:ClearAllPoints();
-				VUHDO_PixelUtil.SetPoint(tTexture, "TOPLEFT", tButton, "TOPLEFT", 0, 0);
-				VUHDO_PixelUtil.SetPoint(tTexture, "TOPRIGHT", tButton, "TOPRIGHT", 0, 0);
-				VUHDO_PixelUtil.SetPoint(tTexture, "BOTTOMLEFT", tButton, "BOTTOMLEFT", 0, 0);
-				VUHDO_PixelUtil.SetPoint(tTexture, "BOTTOMRIGHT", tButton, "BOTTOMRIGHT", 0, 0);
-
 				if aLayerTemplate then
 					VUHDO_applyAllLayersToTexture(tButton, tTexture, aLayerTemplate);
 				elseif aColor then
@@ -61,9 +55,9 @@ function VUHDO_threatIndicatorsBouquetCallback(aUnit, anIsActive, anIcon, aTimer
 
 				tTexture:Show();
 
-				VUHDO_UIFrameFlash(tTexture, 0.2, 0.5, 3.2, true, 0, 0);
+				VUHDO_startThreatMarkTextureFlash(tTexture);
 			else
-				VUHDO_UIFrameFlashStop(tTexture);
+				VUHDO_stopThreatMarkTextureFlash(tTexture);
 
 				tTexture:Hide();
 			end
@@ -334,7 +328,7 @@ function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 	tUnitInfo["visible"] = UnitIsVisible(aUnit);
 
 	if tWasVisible ~= tUnitInfo["visible"] then
-		VUHDO_syncAuraContainersForUnit(aUnit);
+		VUHDO_deferSyncAuraContainersForUnit(aUnit, VUHDO_DEFERRED_TASK_PRIORITY_HIGH);
 	end
 
 	if not tUnitInfo["isEventRange"] then
@@ -410,7 +404,9 @@ function VUHDO_updateAllRange()
 	end
 
 	for tUnit, _ in pairs(VUHDO_RAID) do
-		VUHDO_updateUnitRange(tUnit);
+		if not VUHDO_RAID[tUnit]["isEventRange"] then
+			VUHDO_updateUnitRange(tUnit);
+		end
 	end
 
 	return;

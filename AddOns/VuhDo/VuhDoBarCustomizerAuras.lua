@@ -72,7 +72,7 @@ local VUHDO_isAuraModeContainers;
 local VUHDO_syncAuraContainersForUnit;
 local VUHDO_clearAuraContainersForButton;
 local VUHDO_initAuraContainersForButton;
-local VUHDO_getManaAdjustedYOffset;
+local VUHDO_getAuraAnchorHost;
 
 VUHDO_AURA_FRAMES = VUHDO_AURA_FRAMES or { };
 local VUHDO_AURA_FRAMES = VUHDO_AURA_FRAMES;
@@ -511,7 +511,7 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_syncAuraContainersForUnit = _G["VUHDO_syncAuraContainersForUnit"];
 	VUHDO_clearAuraContainersForButton = _G["VUHDO_clearAuraContainersForButton"];
 	VUHDO_initAuraContainersForButton = _G["VUHDO_initAuraContainersForButton"];
-	VUHDO_getManaAdjustedYOffset = _G["VUHDO_getManaAdjustedYOffset"];
+	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 
 	sAuraPools["slotDataAsAura"] = VUHDO_createTablePool("SlotDataAsAura", 500);
 	sAuraPools["slotAssignment"] = VUHDO_createTablePool("SlotAssignment", 200);
@@ -2371,7 +2371,7 @@ do
 		end
 
 		if "HealthBar" == tPos["relFrame"] then
-			tRelFrame = VUHDO_getHealthBar(aButton, 3);
+			tRelFrame = VUHDO_getAuraAnchorHost(aButton);
 		else
 			tRelFrame = aButton;
 		end
@@ -2395,10 +2395,6 @@ do
 		if aRadioValue ~= 17 then
 			tBaseX = (tPos["xOffset"] or 0) + tBaseX;
 			tBaseY = (tPos["yOffset"] or 0) + tBaseY;
-		end
-
-		if "HealthBar" == tPos["relFrame"] then
-			tBaseY = VUHDO_getManaAdjustedYOffset(aButton, tPos["relPoint"], tBaseY);
 		end
 
 		tGrowthDir = sGrowthOffsets[anAnchorConfig["growthDir"]] or sGrowthOffsets["RIGHT"];
@@ -2668,7 +2664,7 @@ do
 			return;
 		end
 
-		tRelFrame = VUHDO_getHealthBar(aButton, 3);
+		tRelFrame = VUHDO_getAuraAnchorHost(aButton);
 
 		if not tRelFrame then
 			return;
@@ -2715,9 +2711,8 @@ do
 			tYOff = tYOff + tGrowthYOff;
 		end
 
-		tYOff = VUHDO_getManaAdjustedYOffset(aButton, tSlotPos["relPoint"], tYOff);
-
 		aFrame:ClearAllPoints();
+
 		VUHDO_PixelUtil.SetPoint(aFrame, tSlotPos["anchor"], tRelFrame, tSlotPos["relPoint"], tXOff, tYOff);
 		VUHDO_PixelUtil.SetSize(aFrame, tSize, tSize);
 
@@ -3170,7 +3165,7 @@ function VUHDO_showAuraTooltip(aAuraFrame)
 		tAnchorConfig = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"][aAuraFrame["anchorIndex"]];
 	end
 
-	tShowTooltip = sAnchorSettingsCache["showTooltip"][tPanelNum] and sAnchorSettingsCache["showTooltip"][tPanelNum][aAuraFrame["anchorIndex"]] or VUHDO_resolveAuraTriState(tAnchorConfig and tAnchorConfig["showTooltip"], "showTooltip");
+	tShowTooltip = VUHDO_resolveAuraTriState(tAnchorConfig and tAnchorConfig["showTooltip"], "showTooltip");
 
 	if not tShowTooltip then
 		return false;

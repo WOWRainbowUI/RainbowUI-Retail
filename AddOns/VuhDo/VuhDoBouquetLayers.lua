@@ -56,6 +56,7 @@ local VUHDO_getBouquetLayerTemplate;
 local VUHDO_invalidatePanelButtonInits;
 
 local VUHDO_OVERLAY_CONTAINERS = VUHDO_OVERLAY_CONTAINERS or { };
+local VUHDO_OVERLAY_SLOT_HOSTS = VUHDO_OVERLAY_SLOT_HOSTS or { };
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -1495,6 +1496,8 @@ local tContainer;
 local tGroupEntry;
 local tBouquetIdx;
 local tOverlay;
+local tSlotHostData;
+local tSlotFrame;
 function VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, aLayerTemplate, aTargetBar)
 
 	if not aButton or not anIndicatorKey or not aLayerTemplate or not VUHDO_isAuraDataRestricted() then
@@ -1503,7 +1506,7 @@ function VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, 
 
 	tButtonName = aButton:GetName();
 
-	if not tButtonName or not VUHDO_OVERLAY_CONTAINERS[tButtonName] then
+	if not tButtonName or (not VUHDO_OVERLAY_CONTAINERS[tButtonName] and not VUHDO_OVERLAY_SLOT_HOSTS[tButtonName]) then
 		return;
 	end
 
@@ -1536,6 +1539,25 @@ function VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, 
 					tContainer:Hide();
 				else
 					tContainer:Show();
+				end
+			end
+		end
+	end
+
+	tSlotHostData = VUHDO_OVERLAY_SLOT_HOSTS[tButtonName];
+
+	if tSlotHostData and tSlotHostData["slotRecords"] then
+		for tSlotKey, tSlotRecord in pairs(tSlotHostData["slotRecords"]) do
+			if tSlotRecord["indicatorKey"] == anIndicatorKey then
+				tSlotFrame = tSlotRecord["slotFrame"];
+				tBouquetIdx = tSlotRecord["bouquetIdx"];
+
+				if tSlotFrame then
+					if tGateIdx > 0 and tBouquetIdx and tBouquetIdx > tGateIdx then
+						tSlotFrame:Hide();
+					else
+						tSlotFrame:Show();
+					end
 				end
 			end
 		end

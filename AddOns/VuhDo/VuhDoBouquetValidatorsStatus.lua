@@ -102,12 +102,8 @@ local function VUHDO_healthBelowValidator(anInfo, aSomeCustom, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
-	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
-		if not anInfo["healthmax"] then
-			return false, nil, -1, -1, -1;
-		end
-	else
-		if anInfo["healthmax"] <= 0 then
+	if not sSecretsEnabled or not anInfo["hasSecretHealthMax"] then
+		if (anInfo["healthmax"] or 0) <= 0 then
 			return false, nil, -1, -1, -1;
 		end
 	end
@@ -142,12 +138,8 @@ local function VUHDO_healthAboveValidator(anInfo, aSomeCustom, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
-	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
-		if not anInfo["healthmax"] then
-			return false, nil, -1, -1, -1;
-		end
-	else
-		if anInfo["healthmax"] <= 0 then
+	if not sSecretsEnabled or not anInfo["hasSecretHealthMax"] then
+		if (anInfo["healthmax"] or 0) <= 0 then
 			return false, nil, -1, -1, -1;
 		end
 	end

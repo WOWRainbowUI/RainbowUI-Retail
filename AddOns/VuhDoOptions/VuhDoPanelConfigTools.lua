@@ -237,7 +237,16 @@ function VUHDO_updateGlobalIconList()
 
 				VUHDO_GLOBAL_ICONS[tName] = tIcon;
 			else
-				VUHDO_GLOBAL_ICONS[tName] = "";
+				tSpellId = VUHDO_resolveAuraContainerPreferredSpellId(tName);
+
+				if tSpellId then
+					_, _, tIcon = GetSpellInfo(tSpellId);
+
+					VUHDO_GLOBAL_ICONS[tName] = tIcon;
+					VUHDO_GLOBAL_ICONS[tostring(tSpellId)] = tIcon;
+				else
+					VUHDO_GLOBAL_ICONS[tName] = "";
+				end
 			end
 		end
 	end

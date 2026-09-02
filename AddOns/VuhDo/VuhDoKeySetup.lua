@@ -583,6 +583,28 @@ local tOnLeaveSnippet = [[
 local tClearBindsSnippet = [[
 	self:ClearBindings();
 ]]
+local tOnShowSnippet = [[
+	if sHealButton and sHealButton ~= self then
+		sHealButton:ClearBindings();
+	end
+
+	self:ClearBindings();
+
+	if self:IsUnderMouse() then
+		sHealButton = self;
+
+		local tBody = self:GetAttribute("vuhdo_onenter");
+
+		if tBody then
+			self:Run(tBody);
+		end
+	end
+]]
+local tOnHideSnippet = [[
+	self:ClearBindings();
+
+	sHealButton = nil;
+]]
 
 
 
@@ -777,8 +799,8 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 
 		VUHDO_safeSetAttribute(aButton, "_onenter", tWheelDefString);
 		VUHDO_safeSetAttribute(aButton, "_onleave", tClearBindsSnippet);
-		VUHDO_safeSetAttribute(aButton, "_onshow", tClearBindsSnippet);
-		VUHDO_safeSetAttribute(aButton, "_onhide", tClearBindsSnippet);
+		VUHDO_safeSetAttribute(aButton, "_onshow", tOnShowSnippet);
+		VUHDO_safeSetAttribute(aButton, "_onhide", tOnHideSnippet);
 
 		VUHDO_safeSetAttribute(aButton, "vuhdo_onenter", tWheelDefString);
 		VUHDO_safeSetAttribute(aButton, "vuhdo_onleave", tClearBindsSnippet);

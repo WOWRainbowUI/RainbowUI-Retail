@@ -9,6 +9,7 @@ local VUHDO_CONFIG;
 local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
 
 local pairs = pairs;
+local twipe = table.wipe;
 
 local UnitPowerType = UnitPowerType;
 local UnitPower = UnitPower;
@@ -25,6 +26,8 @@ local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_updateHealthLossBar;
 local VUHDO_syncOverlaysForUnit;
+local VUHDO_updateAuraAnchorHost;
+local VUHDO_repositionAuraFramesForButton;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sIsInverted;
@@ -32,6 +35,7 @@ local sIsHealthBarVertical;
 local sManaInterpolation = { };
 local sSideLeftInterpolation = { };
 local sSideRightInterpolation = { };
+local sPendingManaBarLayouts = { };
 
 
 
@@ -54,6 +58,8 @@ function VUHDO_customManaInitLocalOverrides()
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_updateHealthLossBar = _G["VUHDO_updateHealthLossBar"];
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
+	VUHDO_updateAuraAnchorHost = _G["VUHDO_updateAuraAnchorHost"];
+	VUHDO_repositionAuraFramesForButton = _G["VUHDO_repositionAuraFramesForButton"];
 
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 
@@ -103,16 +109,17 @@ function VUHDO_updateManaBars(aUnit, aChange)
 	end
 
 	if not VUHDO_isConfigDemoUsers() then
-		if 1 == aChange then
-			tInfo["power"] = UnitPower(aUnit);
-		elseif 2 == aChange  then
-			tInfo["powermax"] = UnitPowerMax(aUnit);
-		elseif 3 == aChange then
-			tPowerType, _ = UnitPowerType(aUnit);
+		tPowerType, _ = UnitPowerType(aUnit);
 
-			tInfo["powertype"] = tonumber(tPowerType);
-			tInfo["powermax"] = UnitPowerMax(aUnit);
-			tInfo["power"] = UnitPower(aUnit);
+		tInfo["powertype"] = tonumber(tPowerType);
+
+		if 1 == aChange then
+			tInfo["power"] = UnitPower(aUnit, tInfo["powertype"]);
+		elseif 2 == aChange  then
+			tInfo["powermax"] = UnitPowerMax(aUnit, tInfo["powertype"]);
+		elseif 3 == aChange then
+			tInfo["powermax"] = UnitPowerMax(aUnit, tInfo["powertype"]);
+			tInfo["power"] = UnitPower(aUnit, tInfo["powertype"]);
 		end
 
 		if sSecretsEnabled then
@@ -146,13 +153,90 @@ end
 
 
 
+do
+	--
+	local tLayoutManaBar;
+	local tLayoutHealthBar;
+	local tLayoutRegularHeight;
+	local tLayoutPrevHeight;
+	function VUHDO_applyManaBarLayout(aButton, aPanelNum, aManaBarHeight, aUnit)
+
+		if InCombatLockdown() then
+			aButton["pendingManaPanelNum"] = aPanelNum;
+			aButton["pendingManaBarHeight"] = aManaBarHeight;
+			aButton["pendingManaUnit"] = aUnit;
+
+			sPendingManaBarLayouts[aButton] = true;
+
+			return;
+		end
+
+		sPendingManaBarLayouts[aButton] = nil;
+
+		tLayoutManaBar = VUHDO_getHealthBar(aButton, 2);
+		tLayoutPrevHeight = aButton["manaBarLayoutHeight"];
+
+		aButton["manaBarLayoutHeight"] = aManaBarHeight;
+
+		VUHDO_updateAuraAnchorHost(aButton);
+
+		if aManaBarHeight > 0 then
+			VUHDO_PixelUtil.SetHeight(tLayoutManaBar, aManaBarHeight);
+			VUHDO_PixelUtil.Show(tLayoutManaBar);
+		else
+			VUHDO_PixelUtil.Hide(tLayoutManaBar);
+		end
+
+		tLayoutRegularHeight = aButton["regularHeight"];
+
+		if tLayoutRegularHeight then
+			tLayoutHealthBar = VUHDO_getHealthBar(aButton, 1);
+
+			VUHDO_PixelUtil.ClearAllPoints(tLayoutHealthBar);
+			VUHDO_PixelUtil.SetPoint(tLayoutHealthBar, "TOPLEFT", VUHDO_getRealParent(tLayoutHealthBar), "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetSize(tLayoutHealthBar, aButton:GetWidth(), tLayoutRegularHeight - aManaBarHeight);
+
+			if not sIsHealthBarVertical[aPanelNum] then
+				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tLayoutRegularHeight - aManaBarHeight);
+				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tLayoutRegularHeight - aManaBarHeight);
+			end
+		end
+
+		if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
+			VUHDO_updateHealthLossBar(aUnit);
+		end
+
+		if tLayoutPrevHeight ~= aManaBarHeight then
+			VUHDO_repositionAuraFramesForButton(aButton, aPanelNum);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_processPendingManaBarLayouts()
+
+		for tButton, _ in pairs(sPendingManaBarLayouts) do
+			VUHDO_applyManaBarLayout(tButton, tButton["pendingManaPanelNum"],
+				tButton["pendingManaBarHeight"], tButton["pendingManaUnit"]);
+		end
+
+		twipe(sPendingManaBarLayouts);
+
+		return;
+
+	end
+end
+
+
+
 --
 local tAllButtons, tManaBar;
 local tManaBarHeight;
-local tPrevManaLayoutHeight;
-local tRegularHeight;
 local tPanelNum;
-local tHealthBar;
 local tInterpolation;
 function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate, anIsAliveTime, anEventType)
 
@@ -200,36 +284,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				tManaBar:SetValue((not anIsActive and tManaBar["isInverted"]) and 1 or 0);
 			end
 
-			if not InCombatLockdown() then
-				tPrevManaLayoutHeight = tButton["manaBarLayoutHeight"];
-				tButton["manaBarLayoutHeight"] = tManaBarHeight;
-
-				if tManaBarHeight > 0 then
-					VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
-				end
-
-				tRegularHeight = tButton["regularHeight"];
-
-				if tRegularHeight then
-					tHealthBar = VUHDO_getHealthBar(tButton, 1);
-					tHealthBar:ClearAllPoints();
-					tHealthBar:SetPoint("TOPLEFT", VUHDO_getRealParent(tHealthBar), "TOPLEFT", 0, 0);
-					VUHDO_PixelUtil.SetSize(tHealthBar, tButton:GetWidth(), tRegularHeight - tManaBarHeight);
-
-					if not sIsHealthBarVertical[tPanelNum] then
-						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 6), tRegularHeight - tManaBarHeight);
-						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 19), tRegularHeight - tManaBarHeight);
-					end
-				end
-
-				if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
-					VUHDO_updateHealthLossBar(aUnit);
-				end
-
-				if tPrevManaLayoutHeight ~= tManaBarHeight then
-					VUHDO_repositionAuraFramesForButton(tButton, tPanelNum);
-				end
-			end
+			VUHDO_applyManaBarLayout(tButton, tPanelNum, tManaBarHeight, aUnit);
 
 			if sSecretsEnabled then
 				VUHDO_updateIndicatorAlphaChain(tButton, "MANA_BAR", VUHDO_RAID[aUnit]);
@@ -286,36 +341,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				tManaBar:SetValue((not anIsActive and tManaBar["isInverted"]) and 1 or 0);
 			end
 
-			if not InCombatLockdown() then
-				tPrevManaLayoutHeight = tButton["manaBarLayoutHeight"];
-				tButton["manaBarLayoutHeight"] = tManaBarHeight;
-
-				if tManaBarHeight > 0 then
-					VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
-				end
-
-				tRegularHeight = tButton["regularHeight"];
-
-				if tRegularHeight then
-					tHealthBar = VUHDO_getHealthBar(tButton, 1);
-					tHealthBar:ClearAllPoints();
-					tHealthBar:SetPoint("TOPLEFT", VUHDO_getRealParent(tHealthBar), "TOPLEFT", 0, 0);
-					VUHDO_PixelUtil.SetSize(tHealthBar, tButton:GetWidth(), tRegularHeight - tManaBarHeight);
-
-					if not sIsHealthBarVertical[tPanelNum] then
-						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 6), tRegularHeight - tManaBarHeight);
-						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 19), tRegularHeight - tManaBarHeight);
-					end
-				end
-
-				if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
-					VUHDO_updateHealthLossBar(aUnit);
-				end
-
-				if tPrevManaLayoutHeight ~= tManaBarHeight then
-					VUHDO_repositionAuraFramesForButton(tButton, tPanelNum);
-				end
-			end
+			VUHDO_applyManaBarLayout(tButton, tPanelNum, tManaBarHeight, aUnit);
 
 			if sSecretsEnabled then
 				VUHDO_updateIndicatorAlphaChain(tButton, "MANA_BAR", VUHDO_RAID[aUnit]);

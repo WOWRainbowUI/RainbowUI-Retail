@@ -310,6 +310,8 @@
 				</Frames>
 			</StatusBar>
 
+			<Frame name="$parentAuHost" />
+
 		</Frames>
 	</Button>
 
@@ -376,21 +378,6 @@
 								</Offset>
 							</Anchor>
 						</Anchors>
-						<Layers>
-							<Layer level="OVERLAY" textureSubLevel="6">
-								<Texture name="$parentAggro" hidden="true" file="Interface\AddOns\VuhDo\Images\aggro">
-									<Size>
-										<AbsDimension x="10" y="20" />
-									</Size>
-									<Anchors>
-										<Anchor point="LEFT" relativePoint="RIGHT" />
-										<Anchor point="RIGHT" relativePoint="LEFT" />
-									</Anchors>
-									<TexCoords left="0" right="1" top="0" bottom="1" />
-								</Texture>
-
-							</Layer>
-						</Layers>
 						<Frames>
 
 							<StatusBar name="$parentMaBar" hidden="true" inherits="VuhDoStatusBar">
@@ -422,10 +409,18 @@
 							<Frame name="$parentOlHost" setAllPoints="true" />
 
 							<Frame name="$parentAggroOlHost">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentAggro" relativePoint="TOPLEFT" />
-									<Anchor point="BOTTOMRIGHT" relativeTo="$parentAggro" relativePoint="BOTTOMRIGHT" />
-								</Anchors>
+								<Layers>
+									<Layer level="ARTWORK">
+										<Texture name="$parentTex" hidden="true" file="Interface\AddOns\VuhDo\Images\aggro" setAllPoints="true">
+											<TexCoords left="0" right="1" top="0" bottom="1" />
+										</Texture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										self.addLevel = 8;
+									</OnLoad>
+								</Scripts>
 							</Frame>
 
 						</Frames>
@@ -767,6 +762,8 @@
 
 				</Frames>
 			</StatusBar>
+
+			<Frame name="$parentAuHost" />
 
 			<Button name="$parentTg" inherits="VuhDoButtonSecureTargetTemplate"> </Button>
 			<Button name="$parentTot" inherits="VuhDoButtonSecureTargetTemplate"> </Button>

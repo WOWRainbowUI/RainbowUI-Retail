@@ -1718,7 +1718,7 @@ function VUHDO_updatePlayerDispelAbilities()
 				if VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] then
 					tAbility = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility];
 				elseif type(tAbility) == "number" then
-					tAbility = GetSpellName(tAbility);
+					tAbility = GetSpellName(tAbility) or tAbility;
 				end
 
 				VUHDO_PLAYER_DISPEL_ABILITIES[tDebuffType] = tAbility;
@@ -1736,7 +1736,7 @@ function VUHDO_updatePlayerDispelAbilities()
 				if VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] then
 					tAbility = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility];
 				elseif type(tAbility) == "number" then
-					tAbility = GetSpellName(tAbility);
+					tAbility = GetSpellName(tAbility) or tAbility;
 				end
 
 				VUHDO_PLAYER_PURGE_ABILITIES[tDebuffType] = tAbility;
@@ -1785,6 +1785,8 @@ end
 --
 local tNewDispelSignature;
 local tNewConfigSignature;
+local tDispelChanged;
+local tConfigChanged;
 function VUHDO_buildDebuffConfigSignature()
 
 	if not VUHDO_CONFIG then
@@ -1808,7 +1810,10 @@ function VUHDO_initDebuffsIfNeeded()
 	tNewDispelSignature = VUHDO_buildDebuffDispelSignature();
 	tNewConfigSignature = VUHDO_buildDebuffConfigSignature();
 
-	if tNewDispelSignature == sDebuffDispelSignature and tNewConfigSignature == sDebuffConfigSignature then
+	tDispelChanged = tNewDispelSignature ~= sDebuffDispelSignature;
+	tConfigChanged = tNewConfigSignature ~= sDebuffConfigSignature and tNewConfigSignature ~= "";
+
+	if not tDispelChanged and not tConfigChanged then
 		return;
 	end
 
@@ -1820,12 +1825,21 @@ end
 
 
 
+local tInitDispelSignature;
+local tInitConfigSignature;
 function VUHDO_initDebuffs()
 
 	VUHDO_updatePlayerDispelAbilities();
 
 	VUHDO_rebuildDispelTypeNameMaps();
-	VUHDO_releaseAllOverlays();
+
+	tInitDispelSignature = VUHDO_buildDebuffDispelSignature();
+	tInitConfigSignature = VUHDO_buildDebuffConfigSignature();
+
+	if tInitDispelSignature ~= sDebuffDispelSignature
+		or (tInitConfigSignature ~= sDebuffConfigSignature and tInitConfigSignature ~= "") then
+		VUHDO_invalidateAllOverlayPlans();
+	end
 
 	if not VUHDO_CONFIG then
 		VUHDO_CONFIG = _G["VUHDO_CONFIG"];

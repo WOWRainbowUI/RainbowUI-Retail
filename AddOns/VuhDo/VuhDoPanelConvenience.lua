@@ -350,6 +350,15 @@ end
 
 
 --
+function VUHDO_getAuraAnchorHost(aButton)
+
+	return VUHDO_BARS_PER_BUTTON[aButton][VUHDO_BAR_AURA_ANCHOR_HOST];
+
+end
+
+
+
+--
 function VUHDO_getRealParent(aFrame)
 
 	return aFrame["vuhdo_parent"] or aFrame:GetParent();
@@ -651,7 +660,9 @@ end
 
 --
 function VUHDO_getAggroTexture(aHealthBar)
-	return _G[aHealthBar:GetName() .. "Aggro"];
+
+	return _G[aHealthBar:GetName() .. "AggroOlHostTex"];
+
 end
 
 
@@ -895,6 +906,10 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BARS_PER_BUTTON[tButton][23] = _G[tButtonName .. "BgBarOvsOffsBar"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][23] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tTotButton][23] = VuhDoDummyStatusBar;
+	-- Aura anchor host
+	VUHDO_BARS_PER_BUTTON[tButton][24] = _G[tButtonName .. "AuHost"];
+	VUHDO_BARS_PER_BUTTON[tTargetButton][24] = _G[tButtonName .. "TgAuHost"];
+	VUHDO_BARS_PER_BUTTON[tTotButton][24] = _G[tButtonName .. "TotAuHost"];
 
 	VUHDO_HEALTH_BAR_TEXT[tButton] = { };
 

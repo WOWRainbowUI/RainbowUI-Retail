@@ -49,8 +49,8 @@ local VUHDO_getModelType;
 local VUHDO_isUnitInModel;
 
 local sEmpty = { };
-local sScratchUnitButtons;
-local sScratchUnitButtonsPanel;
+local sRefreshUnitButtons;
+local sRefreshUnitButtonsPanel;
 
 
 
@@ -606,10 +606,10 @@ end
 
 
 --
-function VUHDO_setUnitButtonBuildScratch(aScratchButtons, aScratchButtonsPanel)
+function VUHDO_setRefreshUnitButtons(aRefreshButtons, aRefreshButtonsPanel)
 
-	sScratchUnitButtons = aScratchButtons;
-	sScratchUnitButtonsPanel = aScratchButtonsPanel;
+	sRefreshUnitButtons = aRefreshButtons;
+	sRefreshUnitButtonsPanel = aRefreshButtonsPanel;
 
 	return;
 
@@ -618,10 +618,10 @@ end
 
 
 --
-function VUHDO_clearUnitButtonBuildScratch()
+function VUHDO_clearRefreshUnitButtons()
 
-	sScratchUnitButtons = nil;
-	sScratchUnitButtonsPanel = nil;
+	sRefreshUnitButtons = nil;
+	sRefreshUnitButtonsPanel = nil;
 
 	return;
 
@@ -635,8 +635,8 @@ local tUnitButtonsPanel;
 local tUnit;
 function VUHDO_addUnitButton(aHealButton, aPanelNum)
 
-	tUnitButtons = sScratchUnitButtons or VUHDO_UNIT_BUTTONS;
-	tUnitButtonsPanel = sScratchUnitButtonsPanel or VUHDO_UNIT_BUTTONS_PANEL;
+	tUnitButtons = sRefreshUnitButtons or VUHDO_UNIT_BUTTONS;
+	tUnitButtonsPanel = sRefreshUnitButtonsPanel or VUHDO_UNIT_BUTTONS_PANEL;
 
 	tUnit = aHealButton["raidid"];
 

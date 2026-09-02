@@ -15,6 +15,7 @@ local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnc
 
 local VUHDO_getFont;
 local VUHDO_getHealthBar;
+local VUHDO_updateAuraAnchorHost;
 local VUHDO_getPixelPerfectBorderEdgeSize;
 local VUHDO_getPixelPerfectBorderInsets;
 local VUHDO_getDynamicModelArray;
@@ -133,6 +134,7 @@ function VUHDO_panelRedrawInitLocalOverrides()
 
 	VUHDO_getFont = _G["VUHDO_getFont"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
+	VUHDO_updateAuraAnchorHost = _G["VUHDO_updateAuraAnchorHost"];
 	VUHDO_getPixelPerfectBorderEdgeSize = _G["VUHDO_getPixelPerfectBorderEdgeSize"];
 	VUHDO_getPixelPerfectBorderInsets = _G["VUHDO_getPixelPerfectBorderInsets"];
 	VUHDO_getDynamicModelArray = _G["VUHDO_getDynamicModelArray"];
@@ -751,17 +753,20 @@ end
 do
 	--
 	local tAggroTexture;
+	local tAggroHostFrame;
 	function VUHDO_initAggroTexture(aButton, aHealthBar)
 
 		tAggroTexture = VUHDO_getAggroTexture(aHealthBar);
+		tAggroHostFrame = VUHDO_getOverlayHostFrame(tAggroTexture);
 
-		VUHDO_PixelUtil.ClearAllPoints(tAggroTexture);
+		VUHDO_PixelUtil.ClearAllPoints(tAggroHostFrame);
 
-		VUHDO_PixelUtil.SetPoint(tAggroTexture, "TOPLEFT", aButton, "TOPLEFT", 0, 0);
-		VUHDO_PixelUtil.SetPoint(tAggroTexture, "TOPRIGHT", aButton, "TOPRIGHT", 0, 0);
-		VUHDO_PixelUtil.SetPoint(tAggroTexture, "BOTTOMLEFT", aButton, "BOTTOMLEFT", 0, 0);
-		VUHDO_PixelUtil.SetPoint(tAggroTexture, "BOTTOMRIGHT", aButton, "BOTTOMRIGHT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroHostFrame, "TOPLEFT", aButton, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroHostFrame, "TOPRIGHT", aButton, "TOPRIGHT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroHostFrame, "BOTTOMLEFT", aButton, "BOTTOMLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAggroHostFrame, "BOTTOMRIGHT", aButton, "BOTTOMRIGHT", 0, 0);
 
+		VUHDO_PixelUtil.Show(tAggroHostFrame);
 		VUHDO_PixelUtil.Hide(tAggroTexture);
 
 		return;
@@ -798,6 +803,8 @@ do
 		tManaLayoutHeight = (tIsManaBouquet and tIsManaLayoutActive) and sPanelConfig[aPanelNum]["barScaling"]["manaBarHeight"] or 0;
 
 		aButton["manaBarLayoutHeight"] = tManaLayoutHeight;
+
+		VUHDO_updateAuraAnchorHost(aButton);
 
 		if tIsManaBouquet then
 			VUHDO_PixelUtil.Show(aManaBar);
@@ -2012,10 +2019,6 @@ do
 			tPredHealthLossBar:SetAllPoints(tPredBgBar);
 			VUHDO_setStatusBarOrientation(tPredHealthLossBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
 			tPredHealthLossBar:SetReverseFill(tPredIsInverted == (tPredHealthLossDerived == "HORIZONTAL_INV" or tPredHealthLossDerived == "VERTICAL_INV"));
-
-			if tPredHealthLossBar:GetFrameLevel() >= tPredHealthBar:GetFrameLevel() then
-				VUHDO_PixelUtil.SetFrameLevel(tPredHealthLossBar, tPredHealthBar:GetFrameLevel() - 1);
-			end
 		end
 
 		return;
@@ -2291,6 +2294,7 @@ do
 				VUHDO_clearUnitAuraFrames(tHealButton);
 
 				VUHDO_clearAuraContainersForButton(tHealButton);
+				VUHDO_releaseOverlaysForButton(tHealButton);
 
 				VUHDO_PixelUtil.ClearAllPoints(tHealButton);
 				VUHDO_PixelUtil.Hide(tHealButton);
@@ -2928,6 +2932,7 @@ do
 				VUHDO_clearUnitAuraFrames(tHealButton);
 
 				VUHDO_clearAuraContainersForButton(tHealButton);
+				VUHDO_releaseOverlaysForButton(tHealButton);
 
 				VUHDO_PixelUtil.ClearAllPoints(tHealButton);
 				VUHDO_PixelUtil.Hide(tHealButton);
@@ -3094,6 +3099,7 @@ do
 		VUHDO_initAllBurstCaches(); -- Wichtig f�r INTERNAL_TOGGLES=>Clusters
 		VUHDO_reloadRaidMembers();
 		VUHDO_resetNameTextCache();
+		VUHDO_initDebuffs(); -- Talente scheinen recht sp�t zur Verf�gung zu stehen...
 
 		if VUHDO_CONFIG["USE_DEFERRED_REDRAW"] and VUHDO_IN_COMBAT_RELOG then
 			VUHDO_refreshRaidMembers();
@@ -3113,7 +3119,6 @@ do
 		VUHDO_IS_RELOADING = false;
 
 		VUHDO_reloadBuffPanel();
-		VUHDO_initDebuffs(); -- Talente scheinen recht sp�t zur Verf�gung zu stehen...
 
 		return;
 

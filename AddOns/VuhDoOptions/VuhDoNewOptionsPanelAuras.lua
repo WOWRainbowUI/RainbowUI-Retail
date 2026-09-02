@@ -1355,7 +1355,7 @@ local tMainPanel;
 local tAnchorCombo;
 function VUHDO_panelAurasRefreshUI()
 
-	VUHDO_incrementAuraAnchorConfigVersion();
+	VUHDO_invalidateAuraContainerTemplateCache();
 
 	VUHDO_initPanelAurasAnchorComboModel();
 

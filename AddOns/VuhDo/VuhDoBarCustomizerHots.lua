@@ -103,6 +103,7 @@ local _G = _G;
 
 local VUHDO_getHealthBar;
 local VUHDO_getBarRoleIcon;
+local VUHDO_setTextureOrAtlas;
 local VUHDO_updateAllClusterIcons;
 local VUHDO_shouldScanUnit;
 local VUHDO_getShieldLeftCount;
@@ -144,6 +145,7 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarRoleIcon = _G["VUHDO_getBarRoleIcon"];
+	VUHDO_setTextureOrAtlas = _G["VUHDO_setTextureOrAtlas"];
 	VUHDO_updateAllClusterIcons = _G["VUHDO_updateAllClusterIcons"];
 	VUHDO_shouldScanUnit = _G["VUHDO_shouldScanUnit"];
 	VUHDO_getShieldLeftCount = _G["VUHDO_getShieldLeftCount"];
@@ -1540,11 +1542,7 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 			if anIsActive and (aColor or aLayerTemplate) then
 				tIcon = VUHDO_getBarRoleIcon(tButton, 51);
 
-				if VUHDO_ATLAS_TEXTURES[anIcon] then
-					tIcon:SetAtlas(anIcon);
-				else
-					tIcon:SetTexture(anIcon);
-				end
+				VUHDO_setTextureOrAtlas(tIcon, anIcon, aClipL, aClipR, aClipT, aClipB);
 
 				VUHDO_PixelUtil.ApplySettings(tIcon);
 
@@ -1552,10 +1550,6 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 					VUHDO_applyAllLayersToTexture(tButton, tIcon, aLayerTemplate);
 				elseif aColor then
 					tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
-				end
-
-				if not VUHDO_ATLAS_TEXTURES[anIcon] then
-					tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
 				end
 
 				tIcon:Show();

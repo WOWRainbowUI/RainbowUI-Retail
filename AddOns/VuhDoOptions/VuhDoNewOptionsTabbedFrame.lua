@@ -190,14 +190,37 @@ end
 function VUHDO_yesNoDiscardChangesCallback(aDecision)
 	if (VUHDO_YES == aDecision) then
 
-		VUHDO_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_CONFIG);
-		VUHDO_INDICATOR_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_INDICATOR_CONFIG);
-		VUHDO_PANEL_SETUP = VUHDO_decompressIfCompressed(VUHDO_B_PANEL_SETUP);
-		VUHDO_SPELL_ASSIGNMENTS = VUHDO_decompressIfCompressed(VUHDO_B_SPELL_ASSIGNMENTS);
-		VUHDO_BUFF_SETTINGS = VUHDO_decompressIfCompressed(VUHDO_B_BUFF_SETTINGS);
-		VUHDO_SPELL_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_SPELL_CONFIG);
-		VUHDO_SPELLS_KEYBOARD = VUHDO_decompressIfCompressed(VUHDO_B_SPELLS_KEYBOARD);
-		VUHDO_BOUQUETS = VUHDO_decompressIfCompressed(VUHDO_B_BOUQUETS);
+		if (VUHDO_B_CONFIG ~= nil) then
+			VUHDO_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_CONFIG);
+		end
+
+		if (VUHDO_B_INDICATOR_CONFIG ~= nil) then
+			VUHDO_INDICATOR_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_INDICATOR_CONFIG);
+		end
+
+		if (VUHDO_B_PANEL_SETUP ~= nil) then
+			VUHDO_PANEL_SETUP = VUHDO_decompressIfCompressed(VUHDO_B_PANEL_SETUP);
+		end
+
+		if (VUHDO_B_SPELL_ASSIGNMENTS ~= nil) then
+			VUHDO_SPELL_ASSIGNMENTS = VUHDO_decompressIfCompressed(VUHDO_B_SPELL_ASSIGNMENTS);
+		end
+
+		if (VUHDO_B_BUFF_SETTINGS ~= nil) then
+			VUHDO_BUFF_SETTINGS = VUHDO_decompressIfCompressed(VUHDO_B_BUFF_SETTINGS);
+		end
+
+		if (VUHDO_B_SPELL_CONFIG ~= nil) then
+			VUHDO_SPELL_CONFIG = VUHDO_decompressIfCompressed(VUHDO_B_SPELL_CONFIG);
+		end
+
+		if (VUHDO_B_SPELLS_KEYBOARD ~= nil) then
+			VUHDO_SPELLS_KEYBOARD = VUHDO_decompressIfCompressed(VUHDO_B_SPELLS_KEYBOARD);
+		end
+
+		if (VUHDO_B_BOUQUETS ~= nil) then
+			VUHDO_BOUQUETS = VUHDO_decompressIfCompressed(VUHDO_B_BOUQUETS);
+		end
 
 		VUHDO_initAllBurstCaches();
 		VUHDO_initBouquetComboModel();
