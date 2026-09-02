@@ -6608,8 +6608,11 @@ addon.data.nondisenchantable = {
 	[276532] = true, -- Cursebreaker's Bracers
 	[276533] = true, -- Cursebreaker's Wristwraps
 	[276534] = true, -- Cursebreaker's Cuffs
+	[276625] = true, -- Puffin Pack
 	[276641] = true, -- Corroded Cursebreaker's Vambraces
 	[276642] = true, -- Corroded Cursebreaker's Bracers
 	[276643] = true, -- Corroded Cursebreaker's Wristwraps
 	[276644] = true, -- Corroded Cursebreaker's Cuffs
+	[280097] = true, -- Venomous Aspirant's Insignia of Alacrity
+	[280118] = true, -- Venomous Aspirant's Medallion
 }

@@ -8,46 +8,42 @@ local _, namespace = ...
 ```
 --]]
 
---[[ namespace:ArgCheck(arg, argIndex, type[, type...]) ![](https://img.shields.io/badge/function-blue)
-Checks if the argument `arg` at position `argIndex` is of `type`(s).
---]]
-function addon:ArgCheck(arg, argIndex, ...)
-	assert(type(argIndex) == 'number', 'Bad argument #2 to \'ArgCheck\' (number expected, got ' .. type(argIndex) .. ')')
+do
+	-- hidden dummy frame we anchor regions we want to hide to
+	local hidden = CreateFrame('Frame')
+	hidden:Hide()
 
-	for index = 1, select('#', ...) do
-		if type(arg) == select(index, ...) then
-			return
+	--[[ namespace:Hide(_object_[, _child_, _..._]) ![](https://img.shields.io/badge/function-blue)
+	Forcefully hide an `object`, or its `child`.  
+	It will recurse down to the last child if provided.
+
+	Usage:
+	```lua
+	namespace:Hide('ChatFrame2')
+	namespace:Hide('MinimapCluster', 'InstanceDifficulty')
+	namespace:Hide(someFrame, 'ResetButton')
+	```
+	--]]
+	function addon:Hide(object, ...)
+		if type(object) == 'string' then
+			object = _G[object]
 		end
-	end
 
-	local types = string.join(', ', ...)
-	local name = debugstack(2, 2, 0):match(': in function [`<](.-)[\'>]')
-	error(string.format('Bad argument #%d to \'%s\' (%s expected, got %s)', argIndex, name, types, type(arg)), 3)
-end
-
-if not addon:HasVersion(120000) then
-	-- UnitType-0-ServerID-InstanceID-ZoneUID-ID-SpawnUID
-	local GUID_PATTERN = '(%w+)%-0%-(%d+)%-(%d+)%-(%d+)%-(%d+)%-(.+)'
-	function addon:ExtractFieldsFromUnitGUID(guid) -- DEPRECATED
-		if guid then
-			local unitType, serverID, instanceID, zoneUID, id, spawnUID = guid:match(GUID_PATTERN)
-			if unitType then
-				return unitType, tonumber(serverID), tonumber(instanceID), tonumber(zoneUID), tonumber(id), spawnUID
+		if ... then
+			-- iterate through arguments, they're children referenced by key
+			for index = 1, select('#', ...) do
+				object = object[select(index, ...)]
 			end
 		end
-	end
-end
 
---[[ namespace:GetUnitID(_unit_) ![](https://img.shields.io/badge/function-blue)
-Returns the creature ID for the given [`unit`](https://warcraft.wiki.gg/wiki/UnitId).
---]]
-if not addon:HasVersion(120000) then
-	-- remove in 12.x, replaced with UnitCreatureID
-	function addon:GetUnitID(unit) -- DEPRECATED
-		if unit and UnitExists(unit) then
-			local unitGUID = UnitGUID(unit)
-			local _, _, _, _, unitID = addon:ExtractFieldsFromUnitGUID(unitGUID)
-			return unitID, unitGUID
+		if object then
+			if object.SetRolesets then
+				object:UnregisterAllEvents()
+				object:SetRolesets('alwaysBlocked')
+			else
+				object:Hide()
+				object:SetParent(hidden)
+			end
 		end
 	end
 end
@@ -72,15 +68,12 @@ do
 	function addon:GetCreatureName(creatureID)
 		return creatureNames[creatureID]
 	end
-	function addon:GetNPCName(npcID) -- DEPRECATED
-		return addon:GetCreatureName(npcID)
-	end
 end
 
 do
 	local ITEM_LINK_FORMAT = '|Hitem:%d|h'
 	--[[ namespace:GetItemLinkFromID(_itemID_) ![](https://img.shields.io/badge/function-blue)
-	Generates an [item link](https://warcraft.wiki.gg/wiki/ItemLink) from an `itemID`.  
+	Generates an [item link](https://warcraft.wiki.gg/wiki/ItemLink) from `itemID`.  
 	This is a crude generation and won't have valid data for complex items.
 	--]]
 	function addon:GetItemLinkFromID(itemID)
@@ -97,53 +90,17 @@ function addon:GetPlayerMapID()
 end
 
 --[[ namespace:GetPlayerPosition(_mapID_) ![](https://img.shields.io/badge/function-blue)
-Returns the `x` and `y` coordinates for the player in the given `mapID` (if they are valid).
+Returns a position vector object of coordinates for the player in the given `mapID` (if they are valid).
 --]]
 function addon:GetPlayerPosition(mapID)
-	local pos = C_Map.GetPlayerMapPosition(mapID or addon:GetPlayerMapID(), 'player')
-	if pos then
-		return pos:GetXY()
-	end
+	return C_Map.GetPlayerMapPosition(mapID or addon:GetPlayerMapID(), 'player')
 end
 
---[[ namespace:GetUnitAura(_unitID_, _spellID_) ![](https://img.shields.io/badge/function-blue)
-Returns the aura by `spellID` on the [`unitID`](https://warcraft.wiki.gg/wiki/UnitId), if it exists.
---]]
-if addon:HasVersion(120000) then
-	-- because there's a bug with spell whitelisting we have to use the old method, hopefully it'll be fixed soon enough
-	local function auraSlotsWrapper(unit, spellID, token, ...)
-		local slot, data
-		for index = 1, select('#', ...) do
-			slot = select(index, ...)
-			data = C_UnitAuras.GetAuraDataBySlot(unit, slot)
-			if not issecretvalue(data.spellId) and spellID == data.spellId and data.sourceUnit ~= nil then
-				return nil, data
-			end
-		end
-
-		return token
-	end
-
-	function addon:GetUnitAura(unit, spellID, filter)
-		local token, data
-		repeat
-			token, data = auraSlotsWrapper(unit, spellID, C_UnitAuras.GetAuraSlots(unit, filter or 'HELPFUL', nil, token))
-		until token == nil
-
-		return data
-	end
-else
-	-- just remove it, the new API is a drop-in replacement
-	function addon:GetUnitAura(unit, spellID) -- DEPRECATED
-		return C_UnitAuras.GetUnitAuraBySpellID(unit, spellID)
-	end
-end
-
---[[ namespace:CreateColor(r, g, b[, a]) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:CreateColor(_r_, _g_, _b_[, _a_]) ![](https://img.shields.io/badge/function-blue)
 Wrapper for CreateColor that can handle >1-255 range as well.  
 Alpha (`a`) will always be in the 0-1 range.
 --]]
---[[ namespace:CreateColor(hex) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:CreateColor(_hex_) ![](https://img.shields.io/badge/function-blue)
 Wrapper for CreateColor that can handle hex colors (both `RRGGBB` and `AARRGGBB`).
 --]]
 function addon:CreateColor(r, g, b, a)
@@ -184,7 +141,7 @@ do
 	end
 end
 
---[[ namespace:SafeSetTrue(_object, key_) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:SafeSetTrue(_object_, _key_) ![](https://img.shields.io/badge/function-blue)
 Safely set `object`'s `key` to `true` without tainting it.
 
 Note: This is incredibly hacky and might be fixed.
@@ -193,11 +150,29 @@ function addon:SafeSetTrue(object, key)
 	TextureLoadingGroupMixin.AddTexture({textures = object}, key)
 end
 
---[[ namespace:SafeSetNil(_object, key_) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:SafeSetNil(_object_, _key_) ![](https://img.shields.io/badge/function-blue)
 Safely set `object`'s `key` to `nil` without tainting it.
 
 Note: This is incredibly hacky and might be fixed.
 --]]
 function addon:SafeSetNil(object, key)
 	TextureLoadingGroupMixin.RemoveTexture({textures = object}, key)
+end
+
+--[[ namespace:GetEmptyBagSlot([_includeReagentBag_]) ![](https://img.shields.io/badge/function-blue)
+Returns the bagID and slotIndex of the first empty bag slot, if any.
+--]]
+function addon:GetEmptyBagSlot(includeReagentBag)
+	local numBags = Constants.InventoryConstants.NumBagSlots
+	if includeReagentBag then
+		numBags = numBags + Constants.InventoryConstants.NumReagentBagSlots
+	end
+
+	for bagID = Enum.BagIndex.Backpack, numBags do
+		for slotIndex = 1, C_Container.GetContainerNumSlots(bagID) do
+			if not C_Container.GetContainerItemInfo(bagID, slotIndex) then
+				return bagID, slotIndex
+			end
+		end
+	end
 end

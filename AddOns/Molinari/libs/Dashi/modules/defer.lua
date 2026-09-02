@@ -2,15 +2,16 @@ local _, addon = ...
 
 local queue = {}
 local function iterate()
-	for _, info in next, queue do
+	local pending = queue
+	queue = {}
+
+	for _, info in ipairs(pending) do
 		if info.callback then
-			info.callback(unpack(info.args))
-		elseif info.object and info.args then
-			info.object[info.method](info.object, unpack(info.args))
+			xpcall(info.callback, geterrorhandler(), addon:unpack(info.args))
+		else
+			xpcall(info.method, geterrorhandler(), info.object, addon:unpack(info.args))
 		end
 	end
-
-	table.wipe(queue)
 
 	return true -- unregister event
 end
@@ -23,7 +24,6 @@ local function defer(info)
 	end
 end
 
-
 --[[ namespace:Defer(_callback_[, _..._]) ![](https://img.shields.io/badge/function-blue)
 Defers a function `callback` (with optional arguments) until after combat ends.  
 Callback can be the global name of a function.  
@@ -34,19 +34,15 @@ function addon:Defer(callback, ...)
 		callback = _G[callback]
 	end
 
-	if not callback then
-		error('callback is nil') -- TODO: pretty this up
-	end
-
 	addon:ArgCheck(callback, 1, 'function')
 
 	if InCombatLockdown() then
 		defer({
 			callback = callback,
-			args = {...},
+			args = addon:pack(...),
 		})
 	else
-		callback(...)
+		xpcall(callback, geterrorhandler(), ...)
 	end
 end
 
@@ -62,10 +58,52 @@ function addon:DeferMethod(object, method, ...)
 	if InCombatLockdown() then
 		defer({
 			object = object,
-			method = method,
-			args = {...},
+			method = object[method],
+			args = addon:pack(...),
 		})
 	else
-		object[method](object, ...)
+		xpcall(object[method], geterrorhandler(), object, ...)
 	end
+end
+
+local function deferEventCallback(callback, ...)
+	addon:Defer(callback, ...)
+	return true -- always unregister, don't want this event to trigger multiple defers
+end
+
+--[[ namespace:DeferEvent(_event_, _callback_[, _..._]) ![](https://img.shields.io/badge/function-blue)
+Defers a function `callback` (with optional arguments) until after combat ends and `event` has triggered.
+Triggers when `event` triggers if not in combat.
+--]]
+function addon:DeferEvent(event, callback, ...)
+	addon:ArgCheck(event, 1, 'string')
+	addon:ArgCheck(callback, 2, 'function')
+	addon:RegisterEvent(event, GenerateClosure(deferEventCallback, callback, ...))
+end
+
+--[[ namespace:DeferUnitEvent(_event_, _unit_[, ..., _unitN_], _callback_[, _..._]) ![](https://img.shields.io/badge/function-blue)
+Defers a function `callback` (with optional arguments) until after combat ends and `event` has triggered for _unit_(s).
+Triggers when `event` triggers if not in combat.
+--]]
+function addon:DeferUnitEvent(event, ...)
+	addon:ArgCheck(event, 1, 'string')
+
+	local args = addon:pack(...)
+	local callback, callbackIndex
+
+	for index = 1, args.n do
+		if type(args[index]) == 'function' then
+			callback = args[index]
+			callbackIndex = index
+			break
+		else
+			-- any vararg before the callback must be a unit
+			addon:ArgCheck(args[index], index + 1, 'string')
+		end
+	end
+
+	addon:ArgCheck(callback, 3, 'function', 'no callback provided')
+
+	local closure = GenerateClosure(deferEventCallback, callback, unpack(args, callbackIndex + 1, args.n))
+	addon:RegisterUnitEvent(event, unpack(args, 1, callbackIndex - 1), closure)
 end

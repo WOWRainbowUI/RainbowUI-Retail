@@ -1,7 +1,7 @@
 local addonName, addon = ...
 
 --[[ namespace.eventMixin ![](https://img.shields.io/badge/object-teal)
-A multi-purpose [event](https://warcraft.wiki.gg/wiki/Events)-[mixin](https://en.wikipedia.org/wiki/Mixin).
+A multi-purpose [event](https://warcraft.wiki.gg/wiki/Events)-[mixin](https://warcraft.wiki.gg/wiki/API:Mixin).
 
 These methods are mixed into `namespace`, and thus are available directly, e.g:
 
@@ -12,256 +12,338 @@ end)
 ```
 --]]
 
-local eventHandler = CreateFrame('Frame')
-local callbacks = {}
+local eventMixin = {}
 
-local IsEventValid
-if addon:IsRetail() then
-	IsEventValid = C_EventUtils.IsEventValid
-else
-	local eventValidator = CreateFrame('Frame')
-	function IsEventValid(event)
-		local isValid = pcall(eventValidator.RegisterEvent, eventValidator, event)
+local IsEventValid, IsUnitEventValid, IsUnitValid; do
+	if addon:IsRetail() then
+		IsEventValid = C_EventUtils.IsEventValid
+	else
+		local eventValidator = CreateFrame('Frame')
+		function IsEventValid(event)
+			local isValid = pcall(eventValidator.RegisterEvent, eventValidator, event)
+			if isValid then
+				eventValidator:UnregisterEvent(event)
+			end
+			return isValid
+		end
+	end
+
+	local unitEventValidator = CreateFrame('Frame')
+	function IsUnitEventValid(event, unit)
+		-- C_EventUtils.IsEventValid doesn't cover unit events, so we'll have to do this the old fashioned way
+		local isValid = pcall(unitEventValidator.RegisterUnitEvent, unitEventValidator, event, unit)
 		if isValid then
-			eventValidator:UnregisterEvent(event)
+			unitEventValidator:UnregisterEvent(event)
 		end
 		return isValid
 	end
-end
 
-local unitEventValidator = CreateFrame('Frame')
-local function IsUnitEventValid(event, unit)
-	-- C_EventUtils.IsEventValid doesn't cover unit events, so we'll have to do this the old fashioned way
-	local isValid = pcall(unitEventValidator.RegisterUnitEvent, unitEventValidator, event, unit)
-	if isValid then
-		unitEventValidator:UnregisterEvent(event)
-	end
-	return isValid
-end
+	local unitValidator = CreateFrame('Frame')
+	function IsUnitValid(unit)
+		local success = pcall(unitValidator.RegisterUnitEvent, unitValidator, 'UNIT_HEALTH', unit)
+		if not success then
+			return false
+		end
 
-local unitValidator = CreateFrame('Frame')
-local function IsUnitValid(unit)
-	if unitValidator:RegisterUnitEvent('UNIT_HEALTH', unit) then
-		local _, registeredUnit = unitValidator:IsEventRegistered('UNIT_HEALTH')
+		local isRegistered, registeredUnit = unitValidator:IsEventRegistered('UNIT_HEALTH')
 		unitValidator:UnregisterEvent('UNIT_HEALTH')
-		return not not registeredUnit -- it will be nil if the registered unit is invalid
+
+		return isRegistered and registeredUnit == unit
 	end
 end
 
-local eventMixin = {}
---[[ namespace.eventMixin:RegisterEvent(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
-Registers a [frame `event`](https://warcraft.wiki.gg/wiki/Events) with the `callback` function.  
-If the callback returns positive it will be unregistered.
---]]
-function eventMixin:RegisterEvent(event, callback)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	assert(type(callback) == 'function', 'arg2 must be a function')
+do -- regular events
+	local eventCallbacks = {}
 
-	if not callbacks[event] then
-		callbacks[event] = {}
-	end
+	local eventHandler = CreateFrame('Frame')
+	eventHandler:SetScript('OnEvent', function(_, event, ...)
+		eventMixin:TriggerEvent(event, ...)
+	end)
 
-	table.insert(callbacks[event], {
-		callback = callback,
-		owner = self,
-	})
+	--[[ namespace.eventMixin:RegisterEvent(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
+	Registers a [frame `event`](https://warcraft.wiki.gg/wiki/Events) with the `callback` function.  
+	If the callback returns truthy it will be unregistered.
+	--]]
+	function eventMixin:RegisterEvent(event, callback)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgCheck(callback, 2, 'function')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
 
-	if not eventHandler:IsEventRegistered(event) then
-		eventHandler:RegisterEvent(event)
-	end
-end
+		if not eventCallbacks[event] then
+			eventCallbacks[event] = {}
+		end
 
---[[ namespace.eventMixin:UnregisterEvent(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
-Unregisters a [frame `event`](https://warcraft.wiki.gg/wiki/Events) from the `callback` function.
---]]
-function eventMixin:UnregisterEvent(event, callback)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	assert(type(callback) == 'function', 'arg2 must be a function')
-
-	if callbacks[event] then
-		for index, data in next, callbacks[event] do
+		for _, data in next, eventCallbacks[event] do
 			if data.owner == self and data.callback == callback then
-				callbacks[event][index] = nil
-				break
+				-- no duplicate event callbacks
+				return
 			end
 		end
 
-		if #callbacks[event] == 0 then
-			eventHandler:UnregisterEvent(event)
-		end
-	end
-end
-
---[[ namespace.eventMixin:UnregisterAllEvents([_callback_]) ![](https://img.shields.io/badge/function-blue)
-Unregisters all [frame events](https://warcraft.wiki.gg/wiki/Events), or specifically from the `callback` function.
---]]
-function eventMixin:UnregisterAllEvents(callback)
-	if callback then
-		assert(type(callback) == 'function', 'arg1 must be a function')
-	end
-
-	for event, cbs in next, callbacks do
-		for _, data in next, cbs do
-			if data.owner == self then
-				if callback then
-					if data.callback == callback then
-						self:UnregisterEvent(event, data.callback)
-					end
-				else
-					self:UnregisterEvent(event, data.callback)
-				end
-			end
-		end
-	end
-end
-
---[[ namespace.eventMixin:IsEventRegistered(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
-Checks if the [frame `event`](https://warcraft.wiki.gg/wiki/Events) is registered with the `callback` function.
---]]
-function eventMixin:IsEventRegistered(event, callback)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	assert(type(callback) == 'function', 'arg2 must be a function')
-
-	if callbacks[event] then
-		for _, data in next, callbacks[event] do
-			if data.callback == callback then
-				return true
-			end
-		end
-	end
-end
-
---[[ namespace.eventMixin:TriggerEvent(_event_[, _..._]) ![](https://img.shields.io/badge/function-blue)
-Manually trigger the `event` (with optional arguments) on all registered callbacks.  
-If the callback returns positive it will be unregistered.
---]]
-function eventMixin:TriggerEvent(event, ...)
-	if callbacks[event] then
-		for _, data in next, callbacks[event] do
-			if data.callback(data.owner, ...) then
-				-- callbacks can unregister themselves by returning positively,
-				-- ret contains the boolean
-				eventMixin.UnregisterEvent(data.owner, event, data.callback)
-			end
-		end
-	end
-end
-
-eventHandler:SetScript('OnEvent', function(_, event, ...)
-	eventMixin:TriggerEvent(event, ...)
-end)
-
--- special handling for unit events
-local unitEventHandlers = {}
-local function getUnitEventHandler(unit)
-	if not unitEventHandlers[unit] then
-		local unitEventHandler = CreateFrame('Frame')
-		unitEventHandler:SetScript('OnEvent', function(_, event, ...)
-			eventMixin:TriggerUnitEvent(event, unit, ...)
-		end)
-		unitEventHandlers[unit] = unitEventHandler
-	end
-	return unitEventHandlers[unit]
-end
-
-local unitEventCallbacks = {}
---[[ namespace.eventMixin:RegisterUnitEvent(_event_, _unit_[, _unitN,..._], _callback_) ![](https://img.shields.io/badge/function-blue)
-Registers a [`unit`](https://warcraft.wiki.gg/wiki/UnitId)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) with the `callback` function.  
-If the callback returns positive it will be unregistered for that unit.
---]]
-function eventMixin:RegisterUnitEvent(event, ...)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	local callback = select(select('#', ...), ...)
-	assert(type(callback) == 'function', 'last argument must be a function')
-
-	for i = 1, select('#', ...) - 1 do
-		local unit = select(i, ...)
-		assert(IsUnitValid(unit), 'arg' .. (i + 1) .. ' must be a valid unit')
-		assert(IsUnitEventValid(event, unit), 'event "' .. event .. '" is not valid for the given unit')
-
-		if not unitEventCallbacks[unit] then
-			unitEventCallbacks[unit] = {}
-		end
-		if not unitEventCallbacks[unit][event] then
-			unitEventCallbacks[unit][event] = {}
-		end
-
-		table.insert(unitEventCallbacks[unit][event], {
+		table.insert(eventCallbacks[event], {
 			callback = callback,
 			owner = self,
 		})
 
-		local unitEventHandler = getUnitEventHandler(unit)
-		local isRegistered, registeredUnit = unitEventHandler:IsEventRegistered(event)
-		if not isRegistered then
-			unitEventHandler:RegisterUnitEvent(event, unit)
-		elseif registeredUnit ~= unit then
-			error('unit event somehow registered with the wrong unit')
+		if not eventHandler:IsEventRegistered(event) then
+			eventHandler:RegisterEvent(event)
 		end
 	end
-end
 
---[[ namespace.eventMixin:UnregisterUnitEvent(_event_, _unit_[, _unitN,..._], _callback_) ![](https://img.shields.io/badge/function-blue)
-Unregisters a [`unit`](https://warcraft.wiki.gg/wiki/UnitId)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) from the `callback` function.
---]]
-function eventMixin:UnregisterUnitEvent(event, ...)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	local callback = select(select('#', ...), ...)
-	assert(type(callback) == 'function', 'last argument must be a function')
+	--[[ namespace.eventMixin:UnregisterEvent(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
+	Unregisters a [frame `event`](https://warcraft.wiki.gg/wiki/Events) from the `callback` function.
+	--]]
+	function eventMixin:UnregisterEvent(event, callback)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgCheck(callback, 2, 'function')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
 
-	for i = 1, select('#', ...) - 1 do
-		local unit = select(i, ...)
-		assert(IsUnitValid(unit), 'arg' .. (i + 1) .. ' must be a valid unit')
-		assert(IsUnitEventValid(event, unit), 'event is not valid for the given unit')
-
-		if unitEventCallbacks[unit] and unitEventCallbacks[unit][event] then
-			for index, data in next, unitEventCallbacks[unit][event] do
+		if eventCallbacks[event] then
+			for index, data in next, eventCallbacks[event] do
 				if data.owner == self and data.callback == callback then
-					unitEventCallbacks[unit][event][index] = nil
+					eventCallbacks[event][index] = nil
 					break
 				end
 			end
 
-			if #unitEventCallbacks[unit][event] == 0 then
-				getUnitEventHandler(unit):UnregisterEvent(event)
+			if not next(eventCallbacks[event]) then
+				eventHandler:UnregisterEvent(event)
 			end
 		end
 	end
-end
 
---[[ namespace.eventMixin:IsUnitEventRegistered(_event_, _unit_[, _unitN,..._], _callback_) ![](https://img.shields.io/badge/function-blue)
-Checks if the [`unit`](https://warcraft.wiki.gg/wiki/UnitId)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) is registered with the `callback` function.
---]]
-function eventMixin:IsUnitEventRegistered(event, ...)
-	assert(IsEventValid(event), 'arg1 must be an event')
-	local callback = select(select('#', ...), ...)
-	assert(type(callback) == 'function', 'last argument must be a function')
+	--[[ namespace.eventMixin:UnregisterAllEvents([_callback_]) ![](https://img.shields.io/badge/function-blue)
+	Unregisters all [frame events](https://warcraft.wiki.gg/wiki/Events), or specifically from the `callback` function.
+	--]]
+	function eventMixin:UnregisterAllEvents(callback)
+		addon:ArgCheck(callback, 2, 'function|nil')
 
-	for i = 1, select('#', ...) - 1 do
-		local unit = select(i, ...)
-		assert(IsUnitValid(unit), 'arg' .. (i + 1) .. ' must be a valid unit')
-		assert(IsUnitEventValid(event, unit), 'event is not valid for the given unit')
+		for event, cbs in next, eventCallbacks do
+			for _, data in next, cbs do
+				if data.owner == self then
+					if callback then
+						if data.callback == callback then
+							self:UnregisterEvent(event, data.callback)
+						end
+					else
+						self:UnregisterEvent(event, data.callback)
+					end
+				end
+			end
+		end
+	end
 
-		if unitEventCallbacks[unit] and unitEventCallbacks[unit][event] then
-			for _, data in next, unitEventCallbacks[unit][event] do
-				if data.callback == callback then
+	--[[ namespace.eventMixin:IsEventRegistered(_event_, _callback_) ![](https://img.shields.io/badge/function-blue)
+	Checks if the [frame `event`](https://warcraft.wiki.gg/wiki/Events) is registered with the `callback` function.
+	--]]
+	function eventMixin:IsEventRegistered(event, callback)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgCheck(callback, 2, 'function')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+
+		if eventCallbacks[event] then
+			for _, data in next, eventCallbacks[event] do
+				if data.owner == self and data.callback == callback then
 					return true
 				end
 			end
 		end
 	end
+
+	--[[ namespace.eventMixin:TriggerEvent(_event_[, _..._]) ![](https://img.shields.io/badge/function-blue)
+	Manually trigger the `event` (with optional arguments) on all registered callbacks.  
+	If the callback returns truthy it will be unregistered.
+	--]]
+	function eventMixin:TriggerEvent(event, ...)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+
+		local callbacksForEvent = eventCallbacks[event]
+		if callbacksForEvent then
+			for _, data in next, callbacksForEvent do
+				local success, ret = xpcall(data.callback, geterrorhandler(), data.owner, ...)
+				if success and ret then
+					-- callbacks can unregister themselves by returning truthy,
+					eventMixin.UnregisterEvent(data.owner, event, data.callback)
+				end
+			end
+		end
+	end
 end
 
---[[ namespace.eventMixin:TriggerEvent(_event_, _unit_[, _unitN,..._][, _..._]) ![](https://img.shields.io/badge/function-blue)
-Manually trigger the [`unit`](https://warcraft.wiki.gg/wiki/UnitId)-specific `event` (with optional arguments) on all registered callbacks.  
-If the callback returns positive it will be unregistered.
---]]
-function eventMixin:TriggerUnitEvent(event, unit, ...)
-	if unitEventCallbacks[unit] and unitEventCallbacks[unit][event] then
-		for _, data in next, unitEventCallbacks[unit][event] do
-			if data.callback(data.owner, ...) then
-				-- callbacks can unregister themselves by returning positively
-				eventMixin.UnregisterUnitEvent(data.owner, event, unit, data.callback)
+do -- unit events
+	local unitEventCallbacks = {}
+
+	-- separate event handler for each unit, for easier tracking
+	local unitEventHandlers = {}
+	local function getUnitEventHandler(unit)
+		if not unitEventHandlers[unit] then
+			local unitEventHandler = CreateFrame('Frame')
+			unitEventHandler:SetScript('OnEvent', function(_, event, ...)
+				eventMixin:TriggerUnitEvent(event, unit, ...)
+			end)
+			unitEventHandlers[unit] = unitEventHandler
+		end
+		return unitEventHandlers[unit]
+	end
+
+	--[[ namespace.eventMixin:RegisterUnitEvent(_event_, _unit_[, ..., _unitN_], _callback_) ![](https://img.shields.io/badge/function-blue)
+	Registers a [`unit`](https://warcraft.wiki.gg/wiki/UnitToken)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) with the `callback` function.  
+	If the callback returns truthy it will be unregistered for that unit.
+	--]]
+	function eventMixin:RegisterUnitEvent(event, ...)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+
+		local numArgs = select('#', ...)
+		local callback = select(numArgs, ...)
+		addon:ArgCheck(callback, numArgs + 1, 'function')
+
+		local numUnits = numArgs - 1
+		addon:ArgAssert(numUnits > 0, 2, 'no units')
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			addon:ArgCheck(unit, i + 1, 'string')
+			addon:ArgAssert(IsUnitValid(unit), i + 1, 'invalid unit')
+			addon:ArgAssert(IsUnitEventValid(event, unit), i + 1, "event '" .. event .. "' is invalid for the unit '" .. unit .. "'")
+		end
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			if not unitEventCallbacks[unit] then
+				unitEventCallbacks[unit] = {}
+			end
+
+			if not unitEventCallbacks[unit][event] then
+				unitEventCallbacks[unit][event] = {}
+			end
+
+			local callbackIsRegisteredForUnitEvent
+			local callbacksForUnitEvent = unitEventCallbacks[unit][event]
+			for _, data in next, callbacksForUnitEvent do
+				if data.owner == self and data.callback == callback then
+					callbackIsRegisteredForUnitEvent = true
+					break
+				end
+			end
+
+			if not callbackIsRegisteredForUnitEvent then
+				table.insert(callbacksForUnitEvent, {
+					callback = callback,
+					owner = self,
+				})
+
+				local unitEventHandler = getUnitEventHandler(unit)
+				local isRegistered, registeredUnit = unitEventHandler:IsEventRegistered(event)
+				if not isRegistered then
+					unitEventHandler:RegisterUnitEvent(event, unit)
+				elseif registeredUnit ~= unit then
+					error('unit event somehow registered with the wrong unit', 2)
+				end
+			end
+		end
+	end
+
+	--[[ namespace.eventMixin:UnregisterUnitEvent(_event_, _unit_[, ..., _unitN_], _callback_) ![](https://img.shields.io/badge/function-blue)
+	Unregisters a [`unit`](https://warcraft.wiki.gg/wiki/UnitToken)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) from the `callback` function.
+	--]]
+	function eventMixin:UnregisterUnitEvent(event, ...)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+
+		local numArgs = select('#', ...)
+		local callback = select(numArgs, ...)
+		addon:ArgCheck(callback, numArgs + 1, 'function')
+
+		local numUnits = numArgs - 1
+		addon:ArgAssert(numUnits > 0, 2, 'no units')
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			addon:ArgCheck(unit, i + 1, 'string')
+			addon:ArgAssert(IsUnitValid(unit), i + 1, 'invalid unit')
+			addon:ArgAssert(IsUnitEventValid(event, unit), i + 1, "event '" .. event .. "' is invalid for the unit '" .. unit .. "'")
+		end
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			local callbackEventsForUnit = unitEventCallbacks[unit]
+			local callbacksForUnitEvent = callbackEventsForUnit and callbackEventsForUnit[event]
+			if callbacksForUnitEvent then
+				for index, data in next, callbacksForUnitEvent do
+					if data.owner == self and data.callback == callback then
+						callbacksForUnitEvent[index] = nil
+						break
+					end
+				end
+
+				if not next(callbacksForUnitEvent) then
+					callbackEventsForUnit[event] = nil
+					getUnitEventHandler(unit):UnregisterEvent(event)
+				end
+
+				if not next(callbackEventsForUnit) then
+					unitEventCallbacks[unit] = nil
+				end
+			end
+		end
+	end
+
+	--[[ namespace.eventMixin:IsUnitEventRegistered(_event_, _unit_[, ..., _unitN_], _callback_) ![](https://img.shields.io/badge/function-blue)
+	Checks if the [`unit`](https://warcraft.wiki.gg/wiki/UnitToken)-specific [frame `event`](https://warcraft.wiki.gg/wiki/Events) is registered with the `callback` function.
+	--]]
+	function eventMixin:IsUnitEventRegistered(event, ...)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+
+		local numArgs = select('#', ...)
+		local callback = select(numArgs, ...)
+		addon:ArgCheck(callback, numArgs + 1, 'function')
+
+		local numUnits = numArgs - 1
+		addon:ArgAssert(numUnits > 0, 2, 'no units')
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			addon:ArgCheck(unit, i + 1, 'string')
+			addon:ArgAssert(IsUnitValid(unit), i + 1, 'invalid unit')
+			addon:ArgAssert(IsUnitEventValid(event, unit), i + 1, "event '" .. event .. "' is invalid for the unit '" .. unit .. "'")
+		end
+
+		for i = 1, numUnits do
+			local unit = select(i, ...)
+			local callbackEventsForUnit = unitEventCallbacks[unit]
+			local callbacksForUnitEvent = callbackEventsForUnit and callbackEventsForUnit[event]
+			if callbacksForUnitEvent then
+				for _, data in next, callbacksForUnitEvent do
+					if data.owner == self and data.callback == callback then
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	--[[ namespace.eventMixin:TriggerEvent(_event_, _unit_[, _..._]) ![](https://img.shields.io/badge/function-blue)
+	Manually trigger the [`unit`](https://warcraft.wiki.gg/wiki/UnitToken)-specific `event` (with optional arguments) on all registered callbacks.  
+	If the callback returns truthy it will be unregistered.
+	--]]
+	function eventMixin:TriggerUnitEvent(event, unit, ...)
+		addon:ArgCheck(event, 1, 'string')
+		addon:ArgAssert(IsEventValid(event), 1, 'invalid event')
+		addon:ArgAssert(IsUnitValid(unit), 2, 'invalid unit')
+		addon:ArgAssert(IsUnitEventValid(event, unit), 2, "event '" .. event .. "' is invalid for the unit '" .. unit .. "'")
+
+		local callbackEventsForUnit = unitEventCallbacks[unit]
+		local callbacksForUnitEvent = callbackEventsForUnit and callbackEventsForUnit[event]
+		if callbacksForUnitEvent then
+			for _, data in next, callbacksForUnitEvent do
+				local success, ret = xpcall(data.callback, geterrorhandler(), data.owner, ...)
+				if success and ret then
+					-- callbacks can unregister themselves by returning truthy
+					eventMixin.UnregisterUnitEvent(data.owner, event, unit, data.callback)
+				end
 			end
 		end
 	end
@@ -270,8 +352,8 @@ end
 -- expose mixin
 addon.eventMixin = eventMixin
 
--- anonymous event registration
-addon = setmetatable(addon, {
+-- event registration through the namespace
+setmetatable(addon, {
 	__newindex = function(t, key, value)
 		if key == 'OnLoad' then
 			--[[ namespace:OnLoad() ![](https://img.shields.io/badge/function-blue)
@@ -286,9 +368,8 @@ addon = setmetatable(addon, {
 			--]]
 			addon:RegisterEvent('ADDON_LOADED', function(self, name)
 				if name == addonName then
-					if value(self) then
-						return true -- pass along unregistration state
-					end
+					xpcall(value, geterrorhandler(), self)
+					return true
 				end
 			end)
 		elseif key == 'OnLogin' then
@@ -303,9 +384,8 @@ addon = setmetatable(addon, {
 			```
 			--]]
 			addon:RegisterEvent('PLAYER_LOGIN', function(self)
-				if value(self) then
-					return true -- pass along unregistration state
-				end
+				xpcall(value, geterrorhandler(), self)
+				return true
 			end)
 		elseif key == 'OnLogout' then
 			--[[ namespace:OnLogout() ![](https://img.shields.io/badge/function-blue)
@@ -319,13 +399,12 @@ addon = setmetatable(addon, {
 			```
 			--]]
 			addon:RegisterEvent('PLAYER_LOGOUT', function(self)
-				if value(self) then
-					return true -- pass along unregistration state
-				end
+				xpcall(value, geterrorhandler(), self)
+				return true
 			end)
-		elseif IsEventValid(key) then
+		elseif type(key) == 'string' and IsEventValid(key) then
 			--[[ namespace:_event_ ![](https://img.shields.io/badge/function-blue)
-			Registers a  to an anonymous function.
+			Registers an event to a method on the namespace with the same name.
 
 			Usage:
 			```lua
@@ -342,24 +421,6 @@ addon = setmetatable(addon, {
 		else
 			-- default table behaviour
 			rawset(t, key, value)
-		end
-	end,
-	__index = function(t, key)
-		if IsEventValid(key) then
-			--[[ namespace:_event_([_..._]) ![](https://img.shields.io/badge/function-blue)
-			Manually trigger all registered anonymous `event` callbacks, with optional arguments.
-
-			Usage:
-			```lua
-			namespace:BAG_UPDATE(1) -- triggers the above example
-			```
-			--]]
-			return function(_, ...)
-				eventMixin.TriggerEvent(t, key, ...)
-			end
-		else
-			-- default table behaviour
-			return rawget(t, key)
 		end
 	end,
 })

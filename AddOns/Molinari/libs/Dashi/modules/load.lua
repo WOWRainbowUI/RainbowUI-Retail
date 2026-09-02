@@ -1,20 +1,23 @@
 local _, addon = ...
 
---[[ namespace:IsAddOnEnabled(addonName) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:IsAddOnEnabled(_addonName_) ![](https://img.shields.io/badge/function-blue)
 Checks whether the addon exists, is loadable, and is enabled.
 --]]
 function addon:IsAddOnEnabled(name)
+	addon:ArgCheck(name, 1, 'string')
 	return C_AddOns.GetAddOnEnableState(name, UnitName('player')) > 0 and (C_AddOns.IsAddOnLoadable(name))
 end
-
 
 local addonCallbacks = {}
 --[[ namespace:HookAddOn(_addonName_, _callback_) ![](https://img.shields.io/badge/function-blue)
 Registers a hook for when an addon with the name `addonName` loads with a `callback` function.
 --]]
 function addon:HookAddOn(addonName, callback)
+	addon:ArgCheck(addonName, 1, 'string')
+	addon:ArgCheck(callback, 2, 'function')
+
 	if C_AddOns.IsAddOnLoaded(addonName) then
-		callback(self)
+		callback()
 	else
 		table.insert(addonCallbacks, {
 			addonName = addonName,
@@ -26,10 +29,7 @@ end
 addon:RegisterEvent('ADDON_LOADED', function(self, addonName)
 	for _, info in next, addonCallbacks do
 		if info.addonName == addonName then
-			local successful, err = pcall(info.callback)
-			if not successful then
-				error(err)
-			end
+			xpcall(info.callback, geterrorhandler())
 		end
 	end
 end)
