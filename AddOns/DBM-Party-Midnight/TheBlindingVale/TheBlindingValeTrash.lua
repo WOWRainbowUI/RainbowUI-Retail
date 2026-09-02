@@ -1,7 +1,7 @@
-local mod	= DBM:NewMod("TheBlindingValeTrash", "DBM-Party-Midnight", 5)
+local mod	= DBM:NewMod("TheBlindingValeTrash", "DBM-Party-Midnight", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260810165039")
+mod:SetRevision("20260828192406")
 --mod:SetModelID()
 mod:SetZone(2859)
 

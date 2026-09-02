@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2880, "DBM-Party-Midnight", 9, 1322)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260823190258")
+mod:SetRevision("20260901065547")
 --mod:SetCreatureID(231631)
 mod:SetEncounterID(3458)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -11,6 +11,10 @@ mod.respawnTime = 29
 
 mod:RegisterCombat("combat")
 
+DBM:RegisterAltSpellName(1300876, DBM_COMMON_L.LINE .. " " .. DBM_COMMON_L.GROUPSOAKS)--Ritual of the Fang --> Line Soaks
+DBM:RegisterAltSpellName(1301413, DBM_COMMON_L.LINE .. " " .. DBM_COMMON_L.AVOID)--Boneslicer --> Line Avoid
+DBM:RegisterAltSpellName(1301111, DBM_COMMON_L.FRONTAL)--Axegrinder --> Frontal
+DBM:RegisterAltSpellName(1301350, DBM_COMMON_L.TANKBUSTER)--Chop Down --> Tank Buster
 --local warnRecklessLeap			= mod:NewCountAnnounce(1283247, 2)
 
 local specWarnBoneslicer			= mod:NewSpecialWarningCount(1301413, nil, nil, nil, 2, 2, nil, nil, "farfromline")
@@ -24,6 +28,7 @@ local timerAxegrinderCD				= mod:NewCDCountTimer(8, 1301111, nil, nil, nil, 3)
 local timerChopDownCD				= mod:NewCDCountTimer(8, 1301350, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 
 --mod:AddAuraSoundOption(470966, true, 470966, 4, 1, "justrun", 2)
+mod:AddAuraSoundOption(1301231, true, 1301231, 1, 2, "watchfeet", 8, 0)--Bloodletting
 
 local badStateDetected = false
 mod.vb.BoneslicerCount = 0

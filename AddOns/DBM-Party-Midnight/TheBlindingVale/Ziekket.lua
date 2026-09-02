@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2772, "DBM-Party-Midnight", 4, 1309)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260803030106")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(247676)
 mod:SetEncounterID(3202)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,8 +15,12 @@ mod:RegisterCombat("combat")
 
 --)
 
+DBM:RegisterAltSpellName(1246372, DBM_COMMON_L.ADDS)--Awaken Lightbloom --> Adds
+DBM:RegisterAltSpellName(1253690, DBM_COMMON_L.TANK .. " " .. DBM_COMMON_L.LINE)--Lightbeam --> Tank Line
+DBM:RegisterAltSpellName(1246858, DBM_COMMON_L.ORB .. " " .. DBM_COMMON_L.GROUPSOAKS)--Lightbloom's Essence --> Orb Soaks
+DBM:RegisterAltSpellName(1247685, DBM_COMMON_L.TANKBUSTER)--Thornspike --> Tank Buster
 local specWarnAwakenLightbloom				= mod:NewSpecialWarningCount(1246372, nil, nil, nil, 2, 2, nil, nil, "mobsoon")
-local specWarnThornspike					= mod:NewSpecialWarningCount(1247685, "Tank", nil, nil, 1, 2, nil, nil, "defensive")
+local specWarnThornspike					= mod:NewSpecialWarningDefensive(1247685, nil, nil, nil, 1, 2, nil, nil, "defensive")
 local specWarnLightbloomsEssence			= mod:NewSpecialWarningCount(1246858, nil, nil, nil, 2, 2, nil, nil, "catchballs")
 local specWarnLightbeam						= mod:NewSpecialWarningBlizzYou(1253690, nil, nil, nil, 2, 19, nil, nil, "beamyou")
 
@@ -134,7 +138,7 @@ do
 					specWarnAwakenLightbloom:Play("mobsoon")
 				elseif eventType == "thornspike" then
 					if self:IsTanking("player", "boss1", nil, true) then
-						specWarnThornspike:Show(eventCount)
+						specWarnThornspike:Show()
 						specWarnThornspike:Play("defensive")
 					end
 				elseif eventType == "lightbeam" then

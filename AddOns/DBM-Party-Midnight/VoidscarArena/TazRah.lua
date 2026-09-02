@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2791, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260820224431")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(238887)
 mod:SetEncounterID(3285)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -14,10 +14,14 @@ mod:RegisterCombat("combat")
 --mod:RegisterEventsInCombat(
 
 --)
-local specWarnVoidBlast						= mod:NewSpecialWarningCount(1297017, "Tank", nil, nil, 1, 2, nil, nil, "defensive")
-local specWarnBlackHole						= mod:NewSpecialWarningCount(1300259, nil, nil, nil, 2, 2, nil, nil, "pullin")
+DBM:RegisterAltSpellName(1297017, DBM_COMMON_L.TANKBUSTER)--Void Blast --> Tank Buster
+DBM:RegisterAltSpellName(1300259, DBM_COMMON_L.ORBS)--Black Hole --> Orbs
+DBM:RegisterAltSpellName(1222098, DBM_COMMON_L.LINES)--Nether Dash --> Lines
+DBM:RegisterAltSpellName(1296963, DBM_COMMON_L.POOLS)--Umbral Rupture --> Pools
+local specWarnVoidBlast						= mod:NewSpecialWarningDefensive(1297017, nil, nil, nil, 1, 2, nil, nil, "defensive")
+local specWarnBlackHole						= mod:NewSpecialWarningCount(1300259, nil, nil, nil, 2, 2, nil, nil, "watchorb")
 local specWarnUmbralRupture					= mod:NewSpecialWarningCount(1296963, nil, nil, nil, 2, 2, nil, nil, "watchstep")
-local specWarnNetherDash					= mod:NewSpecialWarningBlizzYou(1222098, nil, nil, nil, 2, 2, nil, nil, "chargemove")
+local specWarnNetherDash					= mod:NewSpecialWarningBlizzYou(1222098, nil, nil, nil, 2, 2, nil, nil, "lineyou")
 
 local timerVoidBlastCD						= mod:NewCDCountTimer(20.5, 1297017, nil, nil, nil, 5)
 local timerBlackHoleCD						= mod:NewCDCountTimer(20.5, 1300259, nil, nil, nil, 2)
@@ -36,8 +40,8 @@ local netherDashFinishTimes = {}
 local function setFallback(self, dontSetAlerts)
 	if not dontSetAlerts then
 		if self:IsTank() then specWarnVoidBlast:SetAlert(39, "defensive", 2, 2) end
-		specWarnNetherDash:SetAlert(558, "chargemove", 2, 2, 0)
-		specWarnBlackHole:SetAlert(41, "pullin", 12, 2)
+		specWarnNetherDash:SetAlert(558, "lineyou", 17, 2, 0)
+		specWarnBlackHole:SetAlert(41, "watchorb", 2, 2)
 		specWarnUmbralRupture:SetAlert(782, "watchstep", 2, 2)
 	end
 	local onlyColor = not DBM.Options.HideDBMBars and not badStateDetected
@@ -75,7 +79,7 @@ end
 do
 
 	local function DashCheck(self, count)
-		specWarnNetherDash:Show(count, "chargemove", 3)
+		specWarnNetherDash:Show(count, "lineyou", 3)
 	end
 
 	local function timersAll(self, timer, timerExact, eventID)
@@ -118,7 +122,7 @@ do
 			if eventType and eventCount then
 				if eventType == "voidBlast" then
 					if self:IsTanking("player", "boss1", nil, true) then
-						specWarnVoidBlast:Show(eventCount)
+						specWarnVoidBlast:Show()
 						specWarnVoidBlast:Play("defensive")
 					end
 				elseif eventType == "blackHole" then

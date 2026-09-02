@@ -8,7 +8,7 @@ local windDirections = {
 	[3] = DBM_COMMON_L.NORTHEAST
 }
 
-mod:SetRevision("20260824065548")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(190484, 190485)
 mod:SetEncounterID(2623)
 mod:SetZone(2521)
@@ -20,6 +20,9 @@ mod:SetHotfixNoticeRev(20230109000000)
 mod:RegisterCombat("combat")
 
 DBM:RegisterAltSpellName(381517, 227878)--Winds of Change -> Winds
+DBM:RegisterAltSpellName(381602, DBM_COMMON_L.POOLS)--Infernospit --> Pools
+DBM:RegisterAltSpellName(381525, 17088)--Roaring Firebreath --> Breath
+DBM:RegisterAltSpellName(381512, DBM_COMMON_L.TANKBUSTER)--Stormslam --> Tank Buster
 if DBM:IsPostMidnight() then
 	--TODO, infernospit has two IDs, 381602 for timer and 381605 for debuff alert an one is cast alert (889 vs 894).
 	local warnWindsofChange						= mod:NewCountAnnounce(381517, 3)--Not actually a count timer, but has best localized text

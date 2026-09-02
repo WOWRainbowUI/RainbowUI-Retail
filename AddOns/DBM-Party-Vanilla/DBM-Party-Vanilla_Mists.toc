@@ -33,7 +33,7 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
-## Version: r260
+## Version: r261
 
 locale.generated.lua
 

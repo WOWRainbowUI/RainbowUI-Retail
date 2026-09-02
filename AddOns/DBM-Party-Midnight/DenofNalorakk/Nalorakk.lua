@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2778, "DBM-Party-Midnight", 5, 1311)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260824193124")
+mod:SetRevision("20260831213150")
 --mod:SetCreatureID()--TOO many IDs to guess
 mod:SetEncounterID(3209)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -17,6 +17,9 @@ mod:RegisterCombat("combat")
 
 --NOTE, https://www.wowhead.com/spell=1262846/spirit-thrash seems to be older version of fury of the war god
 --NOTE, 909-911 are 12.1 versions of spells, likely custom alert texts added to fill void of private aura alert removals
+DBM:RegisterAltSpellName(1243011, DBM_COMMON_L.GROUPSOAKS)--Fury of the War God --> Soaks
+DBM:RegisterAltSpellName(1243569, DBM_COMMON_L.TANKCOMBO)--Overwhelming Onslaught --> Tank Combo
+DBM:RegisterAltSpellName(1242860, DBM_COMMON_L.SPREADDEBUFFS)--Echoing Maul --> Spread Debuffs
 local warnEchoingMaul						= mod:NewCountAnnounce(1242860, 3)
 
 local specWarnFuryoftheWarGod				= mod:NewSpecialWarningCount(1243011, nil, nil, nil, 2, 3, nil, nil, "specialsoon")

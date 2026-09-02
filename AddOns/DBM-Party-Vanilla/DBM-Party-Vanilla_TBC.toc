@@ -51,7 +51,7 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r260
+## Version: r261
 
 locale.generated.lua
 

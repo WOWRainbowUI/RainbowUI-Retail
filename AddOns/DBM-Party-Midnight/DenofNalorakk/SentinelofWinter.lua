@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2777, "DBM-Party-Midnight", 5, 1311)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260824092806")
+mod:SetRevision("20260831213150")
 mod:SetCreatureID(244100)
 mod:SetEncounterID(3208)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,6 +15,10 @@ mod:RegisterCombat("combat")
 
 --)
 
+DBM:RegisterAltSpellName(1235548, DBM_COMMON_L.DISPELS)--Glacial Torment --> Dispels
+DBM:RegisterAltSpellName(1235623, 86189)--Raging Squall --> Tornados
+DBM:RegisterAltSpellName(1235783, DBM_COMMON_L.ADDS)--Shattering Frostspike --> Adds
+DBM:RegisterAltSpellName(1235656, DBM_COMMON_L.PUSHBACK)--Frozen Tempest --> Interrupt
 local specWarnGlacialTorment			= mod:NewSpecialWarningCount(1235548, "Healer", nil, nil, 2, 3, nil, nil, "helpdispel")
 local specWarnRagingSquall				= mod:NewSpecialWarningCount(1235623, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 local specWarnShatteringFrostspike		= mod:NewSpecialWarningCount(1235783, nil, nil, nil, 2, 1, nil, nil, "mobsoon")

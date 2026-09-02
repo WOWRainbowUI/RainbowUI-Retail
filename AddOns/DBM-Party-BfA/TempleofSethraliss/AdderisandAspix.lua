@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260825013109")
+mod:SetRevision("20260901052519")
 mod:SetCreatureID(133379, 133944)
 mod:SetEncounterID(2124)
 mod:SetUsedIcons(8)
@@ -12,6 +12,9 @@ mod:SetZone(1877)
 mod:RegisterCombat("combat")
 
 if DBM:IsPostMidnight() then
+	DBM:RegisterAltSpellName(1288049, DBM_COMMON_L.GROUPSOAK)--Thunder and Lightning --> Help Soak
+	DBM:RegisterAltSpellName(1311805, DBM_COMMON_L.POOLS)--Tempest Winds --> Pools
+	DBM:RegisterAltSpellName(1289059, DBM_COMMON_L.PUSHBACK)--Gale Force --> Pushback
 	--General
 	local specWarnSwitchToAdderis			= mod:NewSpecialWarningSwitch(-18485, nil, nil, nil, 1, 2)
 	local specWarnSwitchToAspix				= mod:NewSpecialWarningSwitch(-18484, nil, nil, nil, 1, 2)
@@ -167,13 +170,13 @@ if DBM:IsPostMidnight() then
 				if bossJustDied or self.vb.galeForceCount == 1 then
 					--Gale Force opener, and Gale Force after Adderis dies.
 					if bossJustDied then adderisDead = true end
-					startTimer(self, timerGaleForceCD, timerExact, eventID, "galeForce", "galeForceCount")
+					startBatchTimer(self, timer, timerGaleForceCD, timerExact, eventID, "galeForce", "galeForceCount")
 				else
 					--The transition re-sync re-adds Thunder and Lightning at five seconds.
-					startTimer(self, timerThunderandLightningCD, timerExact, eventID, "thunderAndLightning", "thunderAndLightningCount")
+					startBatchTimer(self, timer, timerThunderandLightningCD, timerExact, eventID, "thunderAndLightning", "thunderAndLightningCount")
 				end
-			elseif bossJustDied and timer == 12 then
-				adderisDead = true
+			elseif timer == 12 then
+				if bossJustDied then adderisDead = true end
 				startBatchTimer(self, timer, timerTempestWindsCD, timerExact, eventID, "tempestWinds", "tempestWindsCount")
 			elseif bossJustDied and timer == 15 then
 				aspixDead = true

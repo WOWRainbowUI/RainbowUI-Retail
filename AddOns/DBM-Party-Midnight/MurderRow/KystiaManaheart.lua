@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2679, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260821065732")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(252458)
 mod:SetEncounterID(3101)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,6 +15,8 @@ mod:RegisterCombat("combat")
 
 --)
 --NOTE: Chaos Barrage has no event ID, but some wierd spell called "escape" (https://www.wowhead.com/spell=1248184/escape) does
+DBM:RegisterAltSpellName(1253811, DBM_COMMON_L.FRONTAL)--Fel Spray --> Frontal
+DBM:RegisterAltSpellName(1264095, DBM_COMMON_L.INTERRUPTS)--Mirror Images --> Interrupts
 local specWarnMirrorImages					= mod:NewSpecialWarningCount(1264095, nil, nil, nil, 1, 2, nil, nil, "crowdcontrol")
 local specWarnFelSpray						= mod:NewSpecialWarningBlizzTarget(1253811, nil, nil, nil, 2, 2, nil, nil, "frontal")
 local specWarnFelNova						= mod:NewSpecialWarningCount(474240, nil, nil, nil, 2, 3, nil, nil, "watchstep")

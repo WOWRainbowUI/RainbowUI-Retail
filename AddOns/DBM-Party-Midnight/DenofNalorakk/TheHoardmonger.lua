@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2776, "DBM-Party-Midnight", 5, 1311)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260731205021")
+mod:SetRevision("20260831213150")
 mod:SetCreatureID(248710)
 mod:SetEncounterID(3207)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,13 +15,16 @@ mod:RegisterCombat("combat")
 
 --)
 
+DBM:RegisterAltSpellName(1253268, DBM_COMMON_L.FRONTAL)--Earthshatter Slam --> Frontal
+DBM:RegisterAltSpellName(1234233, DBM_COMMON_L.GROUPSOAKS)--Spoiled Supplies --> Soaks
+DBM:RegisterAltSpellName(1235118, DBM_COMMON_L.AOEDAMAGE)--Ravenous Bellow --> AoE
 local specWarnSpoiledSupplies				= mod:NewSpecialWarningCount(1234233, nil, nil, nil, 2, 2, nil, nil, "greenmushroomcoming")
 local specWarnEarthshatterSlam				= mod:NewSpecialWarningCount(1253268, nil, nil, nil, 2, 2, nil, nil, "frontal")
 local specWarnRavenousBellow				= mod:NewSpecialWarningCount(1235118, nil, nil, nil, 2, 2, nil, nil, "aesoon")
 
 local timerSpoiledSuppliesCD				= mod:NewCDCountTimer(20.5, 1234233, nil, nil, nil, 5)
 local timerEarthshatterSlamCD				= mod:NewCDCountTimer(20.5, 1253268, nil, nil, nil, 3)
-local timerRavenousBellowCD				= mod:NewCDCountTimer(20.5, 1235118, nil, nil, nil, 2)
+local timerRavenousBellowCD					= mod:NewCDCountTimer(20.5, 1235118, nil, nil, nil, 2)
 
 --Custom Aura Sounds
 mod:AddAuraSoundOption(1235405, true, 1235405, 1, 2, "watchfeet", 8)--Bonespiked

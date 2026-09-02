@@ -4,7 +4,7 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,mythic"
 mod.soloChallenge = true
 
-mod:SetRevision("20260825013109")
+mod:SetRevision("20260828192406")
 --mod:SetCreatureID(244752)--Not known which 2 are nemesis boss yet and which 2 are random spawns
 mod:SetEncounterID(3508, 3525)
 mod:SetHotfixNoticeRev(20250220000000)
@@ -172,6 +172,7 @@ do
 			timelineEvents[eventID] = {eventType = "serpentsStrike", timer = timerExact, startedAt = GetTime()}
 		elseif self:IsRoundedTimer(timerExact, 18, 0.24)
 			or self:IsRoundedTimer(timerExact, 20, 0.24)
+			or self:IsRoundedTimer(timerExact, 20.42, 0.02)
 			or self:IsRoundedTimer(timerExact, 35.5, 0.75) then
 			local count = self:TLCountStart(eventID, "soulExtinction", "soulExtinctionCount")
 			timerSoulExtinctionCD:TLStart(timerExact, eventID, count)

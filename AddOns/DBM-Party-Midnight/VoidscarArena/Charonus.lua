@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2793, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260820222945")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(248015)
 mod:SetEncounterID(3287)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,6 +15,8 @@ mod:RegisterCombat("combat")
 
 --)
 --TODO, void cascade has two private auras, but neitehr appear to be pre target aura and rather ones you just get if in beam
+--I have a hard time remembering what spell is waht so these renames mostly need doing later
+--DBM:RegisterAltSpellName(1282770, DBM_COMMON_L.ORB .. " " .. DBM_COMMON_L.POOLS)--Unstable Singularity --> Orb Pools (ok?)
 local specWarnUnstableSingularity			= mod:NewSpecialWarningCount(1282770, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 local specWarnCosmicCrash					= mod:NewSpecialWarningCount(1227264, nil, nil, nil, 2, 2, nil, nil, "scatter")
 local specWarnGraviticOrbs					= mod:NewSpecialWarningCount(1263982, nil, nil, nil, 2, 2, nil, nil, "specialsoon")

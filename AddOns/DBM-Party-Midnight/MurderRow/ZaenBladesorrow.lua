@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2680, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260803030106")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(234649)
 mod:SetEncounterID(3102)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,6 +15,10 @@ mod:RegisterCombat("combat")
 
 --)
 
+DBM:RegisterAltSpellName(474478, DBM_COMMON_L.AOEDAMAGE)--Killing Spree --> AOE Damage
+DBM:RegisterAltSpellName(1222795, DBM_COMMON_L.TANKBUSTER)--Envenom --> Tank Buster
+DBM:RegisterAltSpellName(1218347, DBM_COMMON_L.LINES)--Murder in a Row --> Lines
+--DBM:RegisterAltSpellName(1214357, DBM_COMMON_L.BOMB)--Fire Bomb --> Bomb
 local specWarnSameDayDelivery				= mod:NewSpecialWarningCount(474765, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 local specWarnKillingSpree					= mod:NewSpecialWarningCount(474478, nil, nil, nil, 2, 2, nil, nil, "aesoon")
 local specWarnEnvenom						= mod:NewSpecialWarningCount(1222795, "Tank", nil, nil, 2, 3, nil, nil, "defensive")

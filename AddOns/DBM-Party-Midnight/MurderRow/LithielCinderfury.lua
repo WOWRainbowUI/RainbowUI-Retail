@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2682, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260824081444")
+mod:SetRevision("20260901065547")
 mod:SetCreatureID(237415)
 mod:SetEncounterID(3105)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -18,6 +18,8 @@ mod:RegisterCombat("combat")
 --TODO, add https://www.wowhead.com/beta/spell=1218203/fingers-of-guldan if it's targeting private aura
 --NOTE, need to find private aura for Infernal Fixate
 --NOTE, https://www.wowhead.com/beta/spell=1217262/seed-of-corruption has a private aura but not in journal
+DBM:RegisterAltSpellName(1218203, DBM_COMMON_L.CIRCLES .. " + " .. DBM_COMMON_L.ADDS)--Fingers of Guldan --> Circles + Adds
+DBM:RegisterAltSpellName(474408, DBM_COMMON_L.BIG_ADD)--Summon Vilefiend --> Big Add
 local specWarnFingersofGuldan				= mod:NewSpecialWarningCount(1218203, nil, nil, nil, 2, 2, nil, nil, "range5")
 local specWarnSummonVilefiend				= mod:NewSpecialWarningCount(474408, nil, nil, nil, 1, 2, nil, nil, "bigmob")
 local specWarnMaleficWave					= mod:NewSpecialWarningCount(1224478, nil, nil, nil, 2, 2, nil, nil, "usegate")

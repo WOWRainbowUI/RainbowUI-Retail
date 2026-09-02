@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 120100
 ## X-Min-Interface: 80000
 ## Category: DBM
 
@@ -35,7 +35,7 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 6
 ## X-Curse-Project-ID: 314994
-## Version: r260
+## Version: r261
 
 localization.en.lua
 localization.cn.lua

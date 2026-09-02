@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2878, "DBM-Party-Midnight", 9, 1322)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260823190258")
+mod:SetRevision("20260831213150")
 --mod:SetCreatureID(231631)
 mod:SetEncounterID(3456)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,6 +15,8 @@ mod:RegisterSafeEventsInCombat(
 	"ENCOUNTER_WARNING"
 )
 
+DBM:RegisterAltSpellName(1296220, DBM_COMMON_L.SPREADDEBUFFS)--Triple Shot -- > Spread Debuffs
+DBM:RegisterAltSpellName(1307894, DBM_COMMON_L.CIRCLES)--Ravenous Stomp --> Circles
 --https://www.wowhead.com/ptr/spell=1296219/fetid-roar isn't in journal but has encounter event
 local warnTripleShot				= mod:NewCountAnnounce(1296220, 2)
 
