@@ -6,7 +6,6 @@ local L = {
     -- ADDON INFO
     -- ==========================================================================
     ADDON_NAME = "LiteVault",
-    ADDON_VERSION = "v12.0.7.3",
 
     -- ==========================================================================
     -- COMMON UI ELEMENTS
@@ -19,6 +18,19 @@ local L = {
     BUTTON_ALL = "Alle",
     BUTTON_NONE = "Keine",
     BUTTON_FILTER = "Filter",
+    TAB_TRACKERS = "Tracker",
+    TAB_META_ACHIEVEMENTS = "Meta-Erfolge",
+    TEXT_FOLIO_NODE_FMT = "Knoten %d",
+    TEXT_GEAR_TITLE_FMT = "%s – %s",
+    LABEL_GEAR_CRIT = "Krit",
+    LABEL_GEAR_HASTE = "Tempo",
+    LABEL_GEAR_MASTERY = "Meisterschaft",
+    LABEL_GEAR_VERS = "Vielseitigkeit",
+    TEXT_GEAR_ILVL_COLORED_FMT = "Gegenstandsstufe |c%s%d|r",
+    STATUS_LIVE = "[LIVE]",
+    STATUS_CACHED = "[ZWISCHENGESPEICHERT]",
+    STATUS_STALE = "[VERALTET]",
+    TAB_OVERVIEW = "Übersicht",
     DIALOG_DELETE_CHAR = "%s aus LiteVault löschen?",
     LABEL_MYTHIC_PLUS = "M+",
 
@@ -51,6 +63,7 @@ local L = {
     -- TRACKING DISPLAYS
     -- ==========================================================================
     LABEL_WEEKLY_QUESTS = "%ss Wöchentliche Quests",
+    LABEL_WEEKLY_COMPLETION_SUMMARY = "%d / %d abgeschlossen",
     BUTTON_WEEKLIES = "Wöchentlich",
     BUTTON_EVENTS = "Ereignisse",
     BUTTON_FACTIONS = "Fraktionen",
@@ -89,8 +102,8 @@ local L = {
 
     TOOLTIP_CATALYST_TITLE = "Katalysator-Aufladungen",
     TOOLTIP_SPARKS_TITLE = "Handwerksfunken",
-    TOOLTIP_VOIDSHARDS_TITLE = "Ascendant Voidshards",
-    TOOLTIP_VOIDCORES_TITLE = "Ascendant Voidcores",
+    TOOLTIP_VOIDSHARDS_TITLE = "Aufgestiegene Leerensplitter",
+    TOOLTIP_VOIDCORES_TITLE = "Aufgestiegene Leerenkerne",
 
     TOOLTIP_VAULT_TITLE = "Die Große Schatzkammer",
     TOOLTIP_VAULT_DESC = "Klicken um die Große Schatzkammer zu öffnen",
@@ -197,20 +210,11 @@ local L = {
     -- ==========================================================================
     -- RAID LOCKOUTS WINDOW
     -- ==========================================================================
-    TITLE_RAID_LOCKOUTS_WINDOW = "Raid-Sperren",
     TITLE_RAID_FORMAT = "%ss %s %s",
-
-    BUTTON_PROGRESSION = "Fortschritt",
-    BUTTON_LOCKOUTS = "Sperren",
 
     DIFFICULTY_NORMAL = "Normal",
     DIFFICULTY_HEROIC = "Heroisch",
     DIFFICULTY_MYTHIC = "Mythisch",
-
-    TOOLTIP_VIEW_LOCKOUTS = "Aktuell angezeigt: Sperren (diese Woche)",
-    TOOLTIP_VIEW_LOCKOUTS_SWITCH = "Klicken für Fortschritt (bester Stand)",
-    TOOLTIP_VIEW_PROGRESSION = "Aktuell angezeigt: Fortschritt (bester Stand)",
-    TOOLTIP_VIEW_PROGRESSION_SWITCH = "Klicken für Sperren (diese Woche)",
 
     MSG_NO_CHAR_DATA = "Keine Charakterdaten gefunden",
     MSG_NO_PROGRESSION = "Kein %s Fortschritt aufgezeichnet",
@@ -325,8 +329,6 @@ local L = {
     TITLE_OPTIONS = "LiteVault Optionen",
     OPTION_DISABLE_TIMEPLAYED = "Spielzeit-Verfolgung deaktivieren",
     OPTION_DISABLE_TIMEPLAYED_DESC = "Verhindert /played Nachrichten im Chat",
-    OPTION_DARK_MODE = "Dunkelmodus",
-    OPTION_DARK_MODE_DESC = "Zwischen dunklem und hellem Design wechseln",
     OPTION_DISABLE_BAG_VIEWING = "Taschen-/Bank-Ansicht deaktivieren",
     OPTION_DISABLE_BAG_VIEWING_DESC = "Versteckt den Taschen-Button und deaktiviert die Ansicht von gespeicherten Taschen, Bank und Kriegsmeute-Bank.",
     OPTION_DISABLE_CHARACTER_OVERLAY = "Überlagerungssystem deaktivieren",
@@ -658,11 +660,6 @@ L["Raid-Neusynchronisierung nicht verfügbar."] = "Raid-Neusynchronisierung nich
 L["Spielzeitmeldungen werden unterdrückt."] = "Spielzeitmeldungen werden unterdrückt."
 L["Time played messages restored."] = "Spielzeitmeldungen wiederhergestellt."
 L["%dm %02ds"] = "%d Min. %02d Sek."
-L["Crests:"] = "Wappen:"
-L["Mount Drops"] = "Reittierbeute"
-L["(Collected)"] = "(Gesammelt)"
-L["(Uncollected)"] = "(Nicht gesammelt)"
-L["Mounts: %d/%d"] = "Reittiere: %d/%d"
 L["LABEL_MOUNTS_FMT"] = "Reittiere: %d/%d"
 L["The Voidspire"] = "Die Leerennadel"
 L["The Dreamrift"] = "Der Traumriss"
@@ -679,10 +676,7 @@ L["LiteVault-Updateübersicht"] = "LiteVault-Updateübersicht"
 L["Mehrere zentrale UI-Elemente wurden überarbeitet, darunter das Währungssymbol, das Schlachtzugssymbol, die Berufe-Leiste und die Verfolgung der Großen Schatzkammer."] = "Mehrere zentrale UI-Elemente wurden überarbeitet, darunter das Währungssymbol, das Schlachtzugssymbol, die Berufe-Leiste und die Verfolgung der Großen Schatzkammer."
 L["Die Anzeige der Gegenstandsstufe in der Schatzkammer wurde angepasst, damit sie Blizzards standardmäßiger Darstellung der Großen Schatzkammer stärker entspricht."] = "Die Anzeige der Gegenstandsstufe in der Schatzkammer wurde angepasst, damit sie Blizzards standardmäßiger Darstellung der Großen Schatzkammer stärker entspricht."
 L["Eine große Anzahl neuer Übersetzungen für unterstützte Sprachen wurde hinzugefügt."] = "Eine große Anzahl neuer Übersetzungen für unterstützte Sprachen wurde hinzugefügt."
-L["Improved localized text rendering and refresh behavior throughout the addon."] = "Die Darstellung und Aktualisierung lokalisierter Texte im gesamten Addon wurde verbessert."
 L["Die Lokalisierungsunterstützung für Schaltflächen, Taschentabs, Wochentexte und weitere UI-Bezeichnungen wurde aktualisiert."] = "Die Lokalisierungsunterstützung für Schaltflächen, Taschentabs, Wochentexte und weitere UI-Bezeichnungen wurde aktualisiert."
-L["Fixed multiple localization-related layout issues."] = "Mehrere lokalisierungsbezogene Layoutprobleme wurden behoben."
-L["Fixed several localization-related crash issues."] = "Mehrere lokalisierungsbezogene Absturzprobleme wurden behoben."
 
 L["Aufschlüsselung"] = "Aufschlüsselung"
 L["Kriegsmeuten-Aufschlüsselung"] = "Kriegsmeuten-Aufschlüsselung"
@@ -724,11 +718,6 @@ L["BUTTON_SET"] = "Set"
 L["BUTTON_WARBAND_BANK_HISTORY"] = "Warband Bank History"
 L["BUTTON_WARBAND_PROFIT_EXPORT"] = "Warband Weekly Profit CSV"
 L["BUTTON_WEEKLY_PROFIT_EXPORT"] = "Weekly Profit CSV"
-L["HELP_THEME_CURRENT_FMT"] = "Current: %s"
-L["HELP_THEME_DARK"] = "/lvtheme dark - Switch to Dark theme"
-L["HELP_THEME_LIGHT"] = "/lvtheme light - Switch to Light theme"
-L["HELP_THEME_TITLE"] = "LiteVault Theme Commands:"
-L["HELP_THEME_TOGGLE"] = "/lvtheme - Toggle between themes"
 L["LABEL_CHARACTER_TIME"] = "Character / Time"
 L["LABEL_CURRENT"] = "Current"
 L["LABEL_DEFENSE_FMT"] = "Defense: %s"
@@ -736,7 +725,7 @@ L["LABEL_DETAIL"] = "Detail"
 L["LABEL_DETAILS"] = "Details"
 L["LABEL_GOLD"] = "Gold"
 L["LABEL_GOAL_AMOUNT"] = "Goal Amount (gold)"
-L["LABEL_HISTORY_COUNT"] = "History Count"
+L["LABEL_HISTORY_COUNT"] = "Anzahl Verlaufseinträge"
 L["LABEL_LAST_UPDATED"] = "Last Updated"
 L["LABEL_NET"] = "Net"
 L["LABEL_PREVIOUS"] = "Previous"
@@ -745,8 +734,8 @@ L["LABEL_RUNESTONE"] = "Runestone"
 L["LABEL_SHARE"] = "Share"
 L["LABEL_SOURCE"] = "Source"
 L["LABEL_STATUS"] = "Status"
-L["LABEL_TOKEN_AFFORDABLE"] = "Affordable"
-L["LABEL_TOKEN_DELTA"] = "Delta"
+L["LABEL_TOKEN_AFFORDABLE"] = "Erschwinglich"
+L["LABEL_TOKEN_DELTA"] = "Differenz"
 L["LABEL_TOKEN_NOT_AFFORDABLE"] = "Cannot Afford"
 L["LABEL_TOKEN_STALE"] = "Stale"
 L["LABEL_WARBAND_WEEKLY_PROFIT"] = "Warband Weekly Profit"
@@ -757,9 +746,6 @@ L["MSG_PROFIT_GOAL_NOT_SET"] = "No goal set"
 L["MSG_RAID_RESYNC_COMPLETE"] = "Raid resync complete."
 L["MSG_RAID_RESYNC_STARTED"] = "Raid resync started..."
 L["MSG_RAID_RESYNC_UNAVAILABLE"] = "Raid resync unavailable."
-L["MSG_THEME_SET_DARK"] = "Theme set to Dark (Void Purple)"
-L["MSG_THEME_SET_LIGHT"] = "Theme set to Light"
-L["MSG_THEME_SWITCHED_FMT"] = "Theme switched to %s"
 L["MSG_TIMEPLAYED_RESTORED"] = "Time played messages restored."
 L["MSG_TIMEPLAYED_SUPPRESSED"] = "Time played messages will be suppressed."
 L["MSG_WOW_TOKEN_API_UNAVAILABLE"] = "WoW Token API is unavailable in this client."
@@ -789,25 +775,26 @@ L["TEXT_PROFIT_FALLBACK_TRADE_GAIN"] = "Trade gain"
 L["TEXT_PROFIT_FALLBACK_TRADE_PAYMENT"] = "Trade payment"
 L["TEXT_PROFIT_FALLBACK_TRAINING_COST"] = "Training cost"
 L["TEXT_PROFIT_FALLBACK_TRAVEL_COST"] = "Travel cost"
-L["TEXT_PROFIT_ITEM_FALLBACK_FMT"] = "Item %d"
-L["TEXT_PROFIT_GOALS_SUBTITLE"] = "Weekly and monthly net-profit targets for your warband."
-L["TEXT_PROFIT_GOAL_EDITOR_HINT"] = "Enter a goal in gold. Leave blank or 0 to clear it."
+L["TEXT_PROFIT_FALLBACK_WOW_TOKEN_PURCHASE"] = "WoW-Marke gekauft"
+L["TEXT_PROFIT_ITEM_FALLBACK_FMT"] = "Gegenstand %d"
+L["TEXT_PROFIT_GOALS_SUBTITLE"] = "Wöchentliche und monatliche Nettogewinnziele für deine Kriegsmeute."
+L["TEXT_PROFIT_GOAL_EDITOR_HINT"] = "Gib ein Ziel in Gold ein. Leer lassen oder 0 eingeben, um es zu löschen."
 L["TEXT_PROFIT_GRAPH_EMPTY_MONTHLY"] = "No monthly profit history recorded yet."
 L["TEXT_PROFIT_GRAPH_EMPTY_WARBAND"] = "No warband profit history recorded yet."
 L["TEXT_PROFIT_GRAPH_EMPTY_WARBAND_MONTHLY"] = "No monthly warband profit history recorded yet."
 L["TEXT_PROFIT_GRAPH_EMPTY_WEEKLY"] = "No weekly profit history recorded yet."
-L["TEXT_PROFIT_GRAPH_PENDING_MONTHLY"] = "Monthly graph history is now tracking and will populate as you earn or spend gold."
-L["TEXT_PROFIT_GRAPH_PENDING_WARBAND_MONTHLY"] = "Monthly warband graph history is now tracking and will populate as gold changes are recorded."
+L["TEXT_PROFIT_GRAPH_PENDING_MONTHLY"] = "Der monatliche Diagrammverlauf wird jetzt erfasst und füllt sich, sobald du Gold verdienst oder ausgibst."
+L["TEXT_PROFIT_GRAPH_PENDING_WARBAND_MONTHLY"] = "Der monatliche Diagrammverlauf der Kriegsmeute wird jetzt erfasst und füllt sich, sobald Goldänderungen aufgezeichnet werden."
 L["TEXT_PROFIT_LEDGER_EMPTY_MONTHLY"] = "No monthly ledger transactions recorded yet."
 L["TEXT_PROFIT_LEDGER_EMPTY_WARBAND"] = "No warband ledger transactions recorded yet."
 L["TEXT_PROFIT_LEDGER_EMPTY_WEEKLY"] = "No weekly ledger transactions recorded yet."
-L["TEXT_PROFIT_MONTHLY_GRAPH_SUBTITLE"] = "Daily net profit for the current character this month. New data starts filling as gold changes are recorded."
-L["TEXT_PROFIT_MONTHLY_LEDGER_SUBTITLE"] = "Recent monthly transactions for the current character."
+L["TEXT_PROFIT_MONTHLY_GRAPH_SUBTITLE"] = "Täglicher Nettogewinn des aktuellen Charakters in diesem Monat. Neue Daten erscheinen, sobald Goldänderungen aufgezeichnet werden."
+L["TEXT_PROFIT_MONTHLY_LEDGER_SUBTITLE"] = "Neueste monatliche Transaktionen des aktuellen Charakters."
 L["TEXT_PROFIT_SUBTITLE"] = "Weekly and monthly profit across your tracked characters."
-L["TEXT_PROFIT_WARBAND_GRAPH_SUBTITLE"] = "Daily combined profit across tracked characters over the last 7 days."
-L["TEXT_PROFIT_WARBAND_LEDGER_WEEKLY_SUBTITLE"] = "Recent combined weekly transactions across tracked characters."
-L["TEXT_PROFIT_WARBAND_MONTHLY_GRAPH_SUBTITLE"] = "Daily combined profit across tracked characters this month."
-L["TEXT_PROFIT_SOURCE_AH_FEE"] = "AH Fee"
+L["TEXT_PROFIT_WARBAND_GRAPH_SUBTITLE"] = "Täglicher Gesamtgewinn aller erfassten Charaktere in den letzten 7 Tagen."
+L["TEXT_PROFIT_WARBAND_LEDGER_WEEKLY_SUBTITLE"] = "Neueste zusammengefasste Wochentransaktionen aller erfassten Charaktere."
+L["TEXT_PROFIT_WARBAND_MONTHLY_GRAPH_SUBTITLE"] = "Täglicher Gesamtgewinn aller erfassten Charaktere in diesem Monat."
+L["TEXT_PROFIT_SOURCE_AH_FEE"] = "Auktionshausgebühr"
 L["TEXT_PROFIT_SOURCE_BLACK_MARKET"] = "Black Market"
 L["TEXT_PROFIT_SOURCE_CHEST"] = "Chest"
 L["TEXT_PROFIT_SOURCE_CRAFT"] = "Craft"
@@ -817,15 +804,27 @@ L["TEXT_PROFIT_SOURCE_LOOTED"] = "Looted"
 L["TEXT_PROFIT_SOURCE_REPAIR"] = "Repair"
 L["TEXT_PROFIT_SOURCE_TRAINING"] = "Training"
 L["TEXT_PROFIT_SOURCE_WORLD_QUEST"] = "World Quest"
-L["TEXT_PROFIT_WEEKLY_GRAPH_SUBTITLE"] = "Daily net profit for the current character over the last 7 days."
-L["TEXT_PROFIT_WEEKLY_LEDGER_SUBTITLE"] = "Recent weekly transactions for the current character."
-L["TIME_DAYS_AGO_FMT"] = "%dd ago"
-L["TIME_HOURS_AGO_FMT"] = "%dh ago"
+L["TEXT_PROFIT_WEEKLY_GRAPH_SUBTITLE"] = "Täglicher Nettogewinn des aktuellen Charakters in den letzten 7 Tagen."
+L["TEXT_PROFIT_WEEKLY_LEDGER_SUBTITLE"] = "Neueste Wochentransaktionen des aktuellen Charakters."
+L["TEXT_TRACKED_ACHIEVEMENT_ENTRIES_UNAVAILABLE_FMT"] = "Für %s wurden noch keine verfolgten Einträge hinzugefügt."
+L["TIME_DAYS_AGO_FMT"] = "vor %d T."
+L["TIME_HOURS_AGO_FMT"] = "vor %d Std."
 L["TIME_JUST_NOW"] = "Just now"
-L["TIME_MINUTES_AGO_FMT"] = "%dm ago"
+L["TIME_MINUTES_AGO_FMT"] = "vor %d Min."
 L["TIME_YESTERDAY"] = "Yesterday"
 L["TITLE_GLYPH_HUNTER"] = "Glyph Hunter"
+L["OPTION_ENABLE_MINI_OMNIUM_FOLIO"] = "Enable Mini Omnium Folio"
+L["OPTION_ENABLE_MINI_OMNIUM_FOLIO_DESC"] = "Show a movable Omnium Folio panel outside the main LiteVault window for quick node access."
+L["TEXT_FOLIO_AVAILABLE_POINTS_FMT"] = "Available Points: %d"
+L["TEXT_OMNIUM_FOLIO_UNAVAILABLE"] = "Omnium Folio is unavailable."
+L["TITLE_MINI_OMNIUM_FOLIO"] = "Omnium Folio"
+L["TOOLTIP_HIDE_MINI_FOLIO"] = "Hide Mini Folio"
+L["TOOLTIP_LOCK_MINI_FOLIO"] = "Lock Mini Folio"
+L["TOOLTIP_UNLOCK_MINI_FOLIO"] = "Unlock Mini Folio"
+L["TEXT_PROFIT_TOKENS_THIS_MONTH_FMT"] = "Marken in diesem Monat: %d"
+L["TITLE_PROFIT_WOW_TOKENS_THIS_MONTH"] = "WoW-Marken in diesem Monat"
 L["TITLE_WOW_TOKEN_HISTORY"] = "WoW Token History"
+L["TOOLTIP_PROFIT_WOW_TOKENS_THIS_MONTH"] = "Zählt die im aktuellen Kalendermonat gekauften WoW-Marken. Markenkäufe werden nicht in die Gewinnsummen einbezogen."
 L["TOOLTIP_RUNESTONE_EVENT"] = "Fortify the Runestones"
 L["TOOLTIP_RUNESTONE_SET_WAYPOINT"] = "Click to set waypoint."
 L["TOOLTIP_WOW_TOKEN_DESC"] = "Last known WoW Token market price."
@@ -837,7 +836,6 @@ L["Achievements"] = "Achievements"
 L["Criteria"] = "Criteria"
 L["Details"] = "Details"
 L["Groups"] = "Groups"
-L["Back to Groups"] = "Back to Groups"
 L["Treasures of Midnight"] = "Treasures of Midnight"
 L["Glory of the Midnight Delver"] = "Glory of the Midnight Delver"
 L["Runestone Rush"] = "Runestone Rush"
@@ -850,94 +848,12 @@ L["Dust 'Em Off"] = "Dust 'Em Off"
 L["No Time to Paws"] = "No Time to Paws"
 L["Stormarion Assault"] = "Stormarion Assault"
 L["Moths"] = "Moths"
-L["Shared Loot"] = "Shared Loot"
 L["Rares of Midnight"] = "Rares of Midnight"
-L["Track the four Midnight treasure achievements and their rewards."] = "Track the four Midnight treasure achievements and their rewards."
-L["Track the four zone achievements for Midnight, the Highest Peaks."] = "Track the four zone achievements for Midnight, the Highest Peaks."
-L["Complete Glory of the Midnight Delver to earn this mount."] = "Complete Glory of the Midnight Delver to earn this mount."
-L["Track the four Midnight rare achievements and zone rare rewards."] = "Track the four Midnight rare achievements and zone rare rewards."
-L["Track the four Midnight rare achievements."] = "Track the four Midnight rare achievements."
-L["Track Ever-Painting progress. Entry details can be filled in later."] = "Track Ever-Painting progress. Entry details can be filled in later."
-L["Track Runestone Rush progress. Entry details can be filled in later."] = "Track Runestone Rush progress. Entry details can be filled in later."
-L["Track The Party Must Go On progress. Entry details can be filled in later."] = "Track The Party Must Go On progress. Entry details can be filled in later."
-L["Complete the five telescopes in this zone."] = "Complete the five telescopes in this zone."
-L["Tracked entries for Ever-Painting have not been added yet."] = "Tracked entries for Ever-Painting have not been added yet."
-L["Tracked entries for Runestone Rush have not been added yet."] = "Tracked entries for Runestone Rush have not been added yet."
-L["Track the four faction invites for The Party Must Go On. x/y marked."] = "Track the four faction invites for The Party Must Go On. x/y marked."
-L["Tracked entries for The Party Must Go On have not been added yet."] = "Tracked entries for The Party Must Go On have not been added yet."
-L["Track Explore Eversong Woods progress. x/y marked."] = "Track Explore Eversong Woods progress. x/y marked."
-L["Tracked entries for Explore Eversong Woods have not been added yet."] = "Tracked entries for Explore Eversong Woods have not been added yet."
-L["Track the Eversong Woods meta-achievement and jump into its child trackers."] = "Track the Eversong Woods meta-achievement and jump into its child trackers."
-L["Track Explore Voidstorm progress. x/y marked."] = "Track Explore Voidstorm progress. x/y marked."
-L["Tracked entries for Explore Voidstorm have not been added yet."] = "Tracked entries for Explore Voidstorm have not been added yet."
-L["Evade the Hungering Presence's grasp in Voidstorm for at least 60 seconds."] = "Evade the Hungering Presence's grasp in Voidstorm for at least 60 seconds."
-L["This achievement does not need coordinate tracking in LiteVault. Survive the Hungering Presence event in Voidstorm for at least 60 seconds."] = "This achievement does not need coordinate tracking in LiteVault. Survive the Hungering Presence event in Voidstorm for at least 60 seconds."
-L["Track Explore Zul'Aman progress. x/y marked."] = "Track Explore Zul'Aman progress. x/y marked."
-L["Tracked entries for Explore Zul'Aman have not been added yet."] = "Tracked entries for Explore Zul'Aman have not been added yet."
-L["Track the Voidstorm meta-achievement and jump into its child trackers."] = "Track the Voidstorm meta-achievement and jump into its child trackers."
-L["Track the Zul'Aman meta-achievement and jump into its child trackers."] = "Track the Zul'Aman meta-achievement and jump into its child trackers."
-L["Track Explore Harandar progress. x/y marked."] = "Track Explore Harandar progress. x/y marked."
-L["Tracked entries for Explore Harandar have not been added yet."] = "Tracked entries for Explore Harandar have not been added yet."
-L["Track the Harandar meta-achievement and jump into its child trackers."] = "Track the Harandar meta-achievement and jump into its child trackers."
-L["Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit."] = "Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit."
-L["This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit."] = "This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit."
-L["Tracked entries for No Time to Paws have not been added yet."] = "Tracked entries for No Time to Paws have not been added yet."
-L["Attempt to fly to The Cradle high in the sky above Harandar."] = "Attempt to fly to The Cradle high in the sky above Harandar."
-L["Fly into The Cradle high in the sky above Harandar to complete this achievement."] = "Fly into The Cradle high in the sky above Harandar to complete this achievement."
-L["These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap."] = "These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap."
-L["Recover the Haranir journal entries listed below."] = "Recover the Haranir journal entries listed below."
-L["Recover the Haranir journal entries listed below. x/y marked."] = "Recover the Haranir journal entries listed below. x/y marked."
-L["Protect each Haranir legend location listed below. x/y marked."] = "Protect each Haranir legend location listed below. x/y marked."
-L["Defend each Haranir legend location listed below."] = "Defend each Haranir legend location listed below."
-L["Find all of the Glowing Moths hiding in Harandar. x/y found."] = "Find all of the Glowing Moths hiding in Harandar. x/y found."
-L["Coordinate groups have not been added yet."] = "Coordinate groups have not been added yet."
-L["This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable."] = "This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable."
-L["Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2."] = "Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2."
-L["%s contains %d moth coordinates. Click a moth to place a waypoint."] = "%s contains %d moth coordinates. Click a moth to place a waypoint."
-L["Complete all three waves of the Stormarion Assault. x/y marked."] = "Complete all three waves of the Stormarion Assault. x/y marked."
-L["Wave 1 Complete"] = "Wave 1 Complete"
-L["Wave 2 Complete"] = "Wave 2 Complete"
-L["Wave 3 Complete"] = "Wave 3 Complete"
-L["Tracked entries for A Singular Problem have not been added yet."] = "Tracked entries for A Singular Problem have not been added yet."
+L["Discover all of the lore objects found on the Coiled Isle."] = "Entdecke alle Wissensobjekte von Coiled Isle."
+L["%s contains %d moth coordinates. Click a moth to place a waypoint."] = "%s enthält %d Mottenkoordinaten. Klicke auf eine Motte, um einen Wegpunkt zu setzen."
 L["Abundance: Prosperous Plentitude!"] = "Abundance: Prosperous Plentitude!"
-L["Tracked entries for Abundance: Prosperous Plentitude! have not been added yet."] = "Tracked entries for Abundance: Prosperous Plentitude! have not been added yet."
-L["Complete an Abundant Harvest cave run in each location. x/y marked."] = "Complete an Abundant Harvest cave run in each location. x/y marked."
-L["You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough."] = "You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough."
-L["Rally your forces against Xal'atath by completing the achievements below. x/y done."] = "Rally your forces against Xal'atath by completing the achievements below. x/y done."
-L["Aid the Hara'ti by completing the achievements below. x/y done."] = "Aid the Hara'ti by completing the achievements below. x/y done."
-L["Complete all of the Voidstorm achievements listed below. x/y done."] = "Complete all of the Voidstorm achievements listed below. x/y done."
-L["Complete all of the Zul'Aman achievements listed below. x/y done."] = "Complete all of the Zul'Aman achievements listed below. x/y done."
-L["Complete the Eversong Woods achievements listed below. x/y done."] = "Complete the Eversong Woods achievements listed below. x/y done."
-L["Complete the four Midnight zone meta-achievements and earn the mount reward."] = "Complete the four Midnight zone meta-achievements and earn the mount reward."
-L["Track the known Ever-Painting canvases. x/y marked."] = "Track the known Ever-Painting canvases. x/y marked."
-L["Track the known Runestone Rush entries. x/y marked."] = "Track the known Runestone Rush entries. x/y marked."
-L["Complete all four supporting Midnight delver achievements to finish this meta achievement."] = "Complete all four supporting Midnight delver achievements to finish this meta achievement."
-L["This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete."] = "This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete."
-L["Tracked entries for Thrill of the Chase have not been added yet."] = "Tracked entries for Thrill of the Chase have not been added yet."
-L["Trigger each listed blessing effect. x/y marked."] = "Trigger each listed blessing effect. x/y marked."
-L["Trigger each listed blessing effect for credit."] = "Trigger each listed blessing effect for credit."
-L["Tracked entries for Making an Amani Out of You have not been added yet."] = "Tracked entries for Making an Amani Out of You have not been added yet."
-L["Tracked entries for That's Aln, Folks! have not been added yet."] = "Tracked entries for That's Aln, Folks! have not been added yet."
-L["Tracked entries for Forever Song have not been added yet."] = "Tracked entries for Forever Song have not been added yet."
-L["Tracked entries for Yelling into the Voidstorm have not been added yet."] = "Tracked entries for Yelling into the Voidstorm have not been added yet."
-L["Tracked entries for Light Up the Night have not been added yet."] = "Tracked entries for Light Up the Night have not been added yet."
-L["Click to open this tracker."] = "Click to open this tracker."
-L["Achievement credit from:"] = "Achievement credit from:"
-L["Complete the cave run here for credit."] = "Complete the cave run here for credit."
-L["Charge the runestone with Latent Arcana to start its defense event."] = "Charge the runestone with Latent Arcana to start its defense event."
-L["Coordinates pending."] = "Coordinates pending."
-L["Tracker not added yet."] = "Tracker not added yet."
-L["Zone reward not added yet."] = "Zone reward not added yet."
-L["Meta reward not added yet."] = "Meta reward not added yet."
-L["No achievement reward listed."] = "No achievement reward listed."
-L["Mount: Brilliant Petalwing"] = "Mount: Brilliant Petalwing"
-L["Housing Decor: On'ohia's Call"] = "Housing Decor: On'ohia's Call"
 
 
-L["Track Explore Eversong Woods progress. Entry details can be filled in later."] = "Track Explore Eversong Woods progress. Entry details can be filled in later."
-L["Updated vault item level display to more closely match Blizzard’s default Great Vault presentation."] = "Updated vault item level display to more closely match Blizzard’s default Great Vault presentation."
-
-L["TITLE_RAID_PROGRESSION"] = "Raid Progression"
 L["DIFFICULTY_LFR"] = "LFR"
 L["LABEL_VAULT_TIER_FMT"] = "Tier %d"
 L["LABEL_CRESTS"] = "Crests:"
@@ -948,8 +864,8 @@ L["STATUS_UNCOLLECTED_PARENS"] = "(Uncollected)"
 L["BUTTON_BREAKDOWN"] = "Breakdown"
 L["BUTTON_WARBAND_PROFIT_BREAKDOWN"] = "Warband Breakdown"
 L["BUTTON_RITUAL_SITES"] = "Ritual Sites"
-L["TEXT_PROFIT_WARBAND_BREAKDOWN_SUBTITLE"] = "Source mix across your warband's weekly income and spending."
-L["TEXT_PROFIT_WARBAND_BREAKDOWN_SPEND"] = "Where your warband spent the most gold this week."
+L["TEXT_PROFIT_WARBAND_BREAKDOWN_SUBTITLE"] = "Quellenverteilung der wöchentlichen Einnahmen und Ausgaben eurer Kriegsmeute."
+L["TEXT_PROFIT_WARBAND_BREAKDOWN_SPEND"] = "Wofür eure Kriegsmeute diese Woche am meisten Gold ausgegeben hat."
 L["OPTION_ENABLE_CALENDAR_PROFIT_HIGHLIGHTS_DESC"] = "Show green and red profit-day highlights on the calendar."
 L["Void Strike"] = "Void Strike"
 L["Void Assaults"] = "Void Assaults"
@@ -970,18 +886,11 @@ L["Hero Dawncrest"] = "Hero Dawncrest"
 L["Myth Dawncrest"] = "Myth Dawncrest"
 L["Raid resync unavailable."] = "Raid resync unavailable."
 L["Time played messages will be suppressed."] = "Time played messages will be suppressed."
-L["Lady Liadrin Weekly"] = "Lady Liadrin Weekly"
-L["Change Log"] = "Change Log"
+L["Lady Liadrin Weekly"] = "Wöchentlich: Lady Liadrin"
 L["Back"] = "Back"
-L["LiteVault Update Summary"] = "LiteVault Update Summary"
-L["Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker."] = "Refreshed several core UI elements, including the currency icon, raid icon, professions bar, and Great Vault tracker."
-L["Added a large batch of new translations across supported locales."] = "Added a large batch of new translations across supported locales."
-L["Updated localization support for buttons, bag tabs, weekly text, and other UI labels."] = "Updated localization support for buttons, bag tabs, weekly text, and other UI labels."
 
 L["LABEL_CHARACTER"] = "Character"
 
-L["WARNING_WEEKLY_AMANI_CHOICE"] = "Warning! Once you choose an Amani Tribe quest, it's locked to your account."
-L["WARNING_WEEKLY_SINGULARITY_CHOICE"] = "Warning! Once you choose a The Singularity quest, it's locked to your account."
 
 L["Ever-Painting"] = "Ever-Painting"
 L["Midnight, the Highest Peaks"] = "Midnight, the Highest Peaks"
@@ -997,6 +906,113 @@ L["Light Up the Night"] = "Light Up the Night"
 L["Altar of Blessings: Sacred Buffet Devotee"] = "Altar of Blessings: Sacred Buffet Devotee"
 
 -- Register this locale
+L["LABEL_FIRST_KILL"] = "Erster Sieg:"
+L["LABEL_EARLIEST_RECORDED_KILL"] = "Frühester erfasster Sieg:"
+L["TEXT_HISTORICAL_DATA_UNAVAILABLE"] = "Historische Daten nicht verfügbar"
+L["LABEL_KNOWN_KILLS"] = "Bekannte Siege:"
+L["LABEL_ALSO_KILLED_BY"] = "Außerdem besiegt von:"
+L["TEXT_KILL_DATE_UNAVAILABLE"] = "Siegesdatum nicht verfügbar"
+
+L["BUTTON_ZULJARRA_FORCES"] = "Zul'jarra's Forces"
+L["BUTTON_CAPTAIN_TOKKA"] = "Kapitän Tokka"
+L["LABEL_VALEERA_SANGUINAR"] = "Valeera Sanguinar"
+L["LABEL_SLAYERS_DUELLUM"] = "Slayer's Duellum"
+L["LABEL_MAXIMUM"] = "Maximum"
+L["BUTTON_FACTION_WEEKLIES"] = "Faction Weeklies"
+L["TITLE_TREASURES_OF_THE_DAMNED"] = "Treasures of the Damned"
+L["LABEL_COMPLETED"] = "Completed"
+L["LABEL_NOT_COMPLETED"] = "Not Completed"
+L["LABEL_QUEST_FMT"] = "Aufgabe: %s"
+L["LABEL_QUEST_ID_FMT"] = "Quest-ID: %d"
+L["TOOLTIP_TOKKA_TREASURE_HINT"] = "Fish this artifact up on the Coiled Isle and return it to Second Mate Sluggs at Tokka's Folly."
+L["WARNING_TOKKA_ONE_TIME_ARTIFACTS"] = "Warning: These artifact quests are one-time Warband turn-ins. They do not reset daily or weekly and can only reward reputation once."
+L["Turn Back the Surge"] = "Turn Back the Surge"
+L["Purging the Vaults"] = "Purging the Vaults"
+L["Spark of Tides"] = "Spark of Tides"
+L["Venomblight Manaflux"] = "Venomblight Manaflux"
+L["Adventurer Mistcrest"] = "Adventurer Mistcrest"
+L["Veteran Mistcrest"] = "Veteran Mistcrest"
+L["Champion Mistcrest"] = "Champion Mistcrest"
+L["Hero Mistcrest"] = "Hero Mistcrest"
+L["Myth Mistcrest"] = "Myth Mistcrest"
+L["Corrosive Coin"] = "Corrosive Coin"
+L["Trailing Xal'atath"] = "Trailing Xal'atath"
+L["My Venomous Nemesis"] = "My Venomous Nemesis"
+L.LABEL_CURRENT_CHARACTER = L.LABEL_CURRENT_CHARACTER or "Aktueller Charakter"
+L.LABEL_WARBAND_THIS_WEEK = L.LABEL_WARBAND_THIS_WEEK or "Kriegsmeute diese Woche"
+L.LABEL_RUNS = L.LABEL_RUNS or "Läufe"
+L.STATUS_TIMED = L.STATUS_TIMED or "Im Zeitlimit"
+L.STATUS_DEPLETED = L.STATUS_DEPLETED or "Abgelaufen"
+L.LABEL_BEST_TIMED = L.LABEL_BEST_TIMED or "Bester Lauf im Zeitlimit"
+L.FILTER_THIS_WEEK = L.FILTER_THIS_WEEK or "Diese Woche"
+L.FILTER_SEASON = L.FILTER_SEASON or "Saison"
+L.FILTER_ALL_HISTORY = L.FILTER_ALL_HISTORY or "Gesamter Verlauf"
+L.SECTION_SEASON_BESTS = L.SECTION_SEASON_BESTS or "Saisonbestleistungen"
+L.LABEL_BEST = L.LABEL_BEST or "Beste"
+L.LABEL_SCORE = L.LABEL_SCORE or "Wertung"
+L.LABEL_NO_RUN = L.LABEL_NO_RUN or "Kein Lauf"
+L.LABEL_LOWEST_SCORE = L.LABEL_LOWEST_SCORE or "Niedrigste Wertung"
+L.LABEL_NO_MPLUS_KEY = L.LABEL_NO_MPLUS_KEY or "Kein M+ Schlüssel"
+L.LABEL_DUNGEON = L.LABEL_DUNGEON or "Dungeon"
+L.LABEL_KEY = L.LABEL_KEY or "Schlüssel"
+L.LABEL_RESULT = L.LABEL_RESULT or "Ergebnis"
+L.LABEL_TIME = L.LABEL_TIME or "Zeit"
+L.LABEL_DATE = L.LABEL_DATE or "Datum"
+L.LABEL_REWARDS = L.LABEL_REWARDS or "Belohnungen"
+L.LABEL_MAP_RECORD = L.LABEL_MAP_RECORD or "Kartenrekord"
+L.LABEL_AFFIX_RECORD = L.LABEL_AFFIX_RECORD or "Affixrekord"
+L.LABEL_MPLUS_SCORE_PLAIN = L.LABEL_MPLUS_SCORE_PLAIN or "M+ Wertung"
+L.LABEL_TIMER = L.LABEL_TIMER or "Zeitlimit"
+L.LABEL_TIME_REMAINING = L.LABEL_TIME_REMAINING or "Verbleibende Zeit"
+L.LABEL_OVER_TIMER = L.LABEL_OVER_TIMER or "Über dem Zeitlimit"
+L.LABEL_RECORDED_DURATION = L.LABEL_RECORDED_DURATION or "Aufgezeichnete Dauer"
+L.LABEL_NOT_AVAILABLE = L.LABEL_NOT_AVAILABLE or "--"
+L.SECTION_MPLUS_HISTORY = L.SECTION_MPLUS_HISTORY or "Mythisch+-Verlauf"
+L.TEXT_NO_MPLUS_RUNS_THIS_WEEK = L.TEXT_NO_MPLUS_RUNS_THIS_WEEK or "Diese Woche wurden keine Mythisch+-Läufe abgeschlossen."
+L.TEXT_NO_MPLUS_RUNS_THIS_SEASON = L.TEXT_NO_MPLUS_RUNS_THIS_SEASON or "In dieser Saison wurden keine Mythisch+-Läufe abgeschlossen."
+L.TEXT_NO_MPLUS_RUNS_RECORDED = L.TEXT_NO_MPLUS_RUNS_RECORDED or "Keine Mythisch+-Läufe aufgezeichnet."
+L.BUTTON_PLAN_RATING = L.BUTTON_PLAN_RATING or "Wertung planen"
+L.TITLE_MPLUS_RATING_PLANNER = L.TITLE_MPLUS_RATING_PLANNER or "Mythisch+-Wertungsplaner"
+L.BUTTON_BACK_TO_DASHBOARD = L.BUTTON_BACK_TO_DASHBOARD or "Zurück zur Übersicht"
+L.LABEL_CURRENT_RATING = L.LABEL_CURRENT_RATING or "Aktuelle Wertung"
+L.LABEL_TARGET_RATING = L.LABEL_TARGET_RATING or "Zielwertung"
+L.LABEL_MINIMUM_KEY = L.LABEL_MINIMUM_KEY or "Minimaler Schlüssel"
+L.LABEL_MAXIMUM_KEY = L.LABEL_MAXIMUM_KEY or "Maximaler Schlüssel"
+L.LABEL_AVOID_DUNGEONS = L.LABEL_AVOID_DUNGEONS or "Dungeons vermeiden"
+L.BUTTON_CALCULATE_PLAN = L.BUTTON_CALCULATE_PLAN or "Plan berechnen"
+L.LABEL_MAXIMUM_PROJECTED_RATING = L.LABEL_MAXIMUM_PROJECTED_RATING or "Maximal erwartete Wertung"
+L.LABEL_PROJECTED_RATING = L.LABEL_PROJECTED_RATING or "Erwartete Wertung"
+L.LABEL_CURRENT = L.LABEL_CURRENT or "Aktuell"
+L.LABEL_PLAN = L.LABEL_PLAN or "Plan"
+L.LABEL_GAIN = L.LABEL_GAIN or "Gewinn"
+L.TEXT_PLANNER_ALREADY_REACHED = L.TEXT_PLANNER_ALREADY_REACHED or "Diese Wertung wurde bereits erreicht."
+L.TEXT_PLANNER_UNREACHABLE = L.TEXT_PLANNER_UNREACHABLE or "Das Ziel ist mit den aktuellen Grenzen nicht erreichbar."
+L.TEXT_PLANNER_INVALID_MINIMUM = L.TEXT_PLANNER_INVALID_MINIMUM or "Der minimale Schlüssel muss eine ganze Zahl ab 2 sein."
+L.TEXT_PLANNER_INVALID_MAXIMUM = L.TEXT_PLANNER_INVALID_MAXIMUM or "Der maximale Schlüssel muss mindestens dem Minimum entsprechen und darf höchstens 20 sein."
+L.TEXT_PLANNER_INVALID_TARGET = L.TEXT_PLANNER_INVALID_TARGET or "Gib eine gültige ganzzahlige Zielwertung ein."
+L.TEXT_PLANNER_TIMED_ASSUMPTION = L.TEXT_PLANNER_TIMED_ASSUMPTION or "Die Prognose setzt voraus, dass jeder vorgeschlagene Schlüssel im Zeitlimit abgeschlossen wird."
+L.PLANNER_FASTEST = L.PLANNER_FASTEST or "SCHNELLSTE"
+L.PLANNER_BALANCED = L.PLANNER_BALANCED or "AUSGEWOGEN"
+L.PLANNER_EASIEST = L.PLANNER_EASIEST or "EINFACHSTE"
+local phase2 = {
+MSG_NO_FACTION_WEEKLY_COMPLETIONS="Keine wöchentlichen Abschlüsse erfasst.", TOOLTIP_QUEST_ID_FMT="ID: |cffffffff%d", CALENDAR_MONTH_YEAR_FMT="%s %d",
+LABEL_RENOWN_LEVEL_MAXIMUM_FMT="Ruhmstufe %d – Maximum", LABEL_RENOWN_LEVEL_PROGRESS_FMT="Ruhmstufe %d (%d/%d)", LABEL_RENOWN_LEVEL_FMT="Ruhmstufe %d", LABEL_RENOWN_VALUE_FMT="Ruhm %d",
+TEXT_CRESTS_WITH_VALUES_FMT="Wappen %s", TOOLTIP_REWARDS_FMT="Belohnungen: %s", TOOLTIP_MOUNT_COLLECTED_FMT="%s (Gesammelt)", TOOLTIP_MOUNT_UNCOLLECTED_FMT="%s (Nicht gesammelt)", LABEL_REWARD="Belohnung", LABEL_NOTE="Hinweis", STATUS_ACTIVE="Aktiv",
+TOOLTIP_ENTRANCE_COORDINATES_FMT="Eingang: %.2f, %.2f (Karte %d)", TOOLTIP_INSCRIPTION_COORDINATES_FMT="Inschrift: %.2f, %.2f (Karte %d)", TOOLTIP_ENTRANCE_INSCRIPTION_CLICK_INSTRUCTIONS="Umschalt-Klick für den Eingang; Klick für die Inschrift.", LABEL_100_RENOWN_FMT="100 Ruhm: %s", TOOLTIP_ACHIEVEMENT_CREDIT_FROM_FMT="Erfolgskredit durch: %s",
+NOTE_HARANDAR_TREASURE_REQUIREMENTS="Einige Schätze erfordern zusätzliche Schritte oder Gegenstände.", NOTE_FORGOTTEN_MASK_LOCATION="An einer beschädigten Steinmauer auf der Insel Gnarldor, südlich des Tiefeneingangs.", NOTE_HEAD_MASONS_TABLET_LOCATION="Im Tor des Östlichen Fangzahns. Eingang: 45.72, 64.94 auf Karte 2512.", NOTE_PROFANED_PLAQUE_LOCATION="Im Tor des Westlichen Fangzahns, im Raum direkt links nach dem Eingang. Eingang: 31.80, 64.91 auf Karte 2512.",
+BUTTON_CANCEL="Abbrechen", BUTTON_SAVE="Speichern", BUTTON_SELECT_ALL="Alle auswählen", LABEL_COMPLETED="Abgeschlossen", LABEL_NOT_COMPLETED="Nicht abgeschlossen", LABEL_DETAILS="Details", LABEL_DETAIL="Detail", LABEL_INFO="Info", LABEL_MAXIMUM="Maximum", LABEL_PREVIOUS="Vorherige", LABEL_RECENT_HISTORY="Letzter Verlauf", LABEL_SOURCE="Quelle", LABEL_STATUS="Status", TIME_JUST_NOW="Gerade eben", TIME_YESTERDAY="Gestern",
+BUTTON_BACK_TO_GROUPS="Zurück zu den Gruppen", TEXT_COORDINATE_GROUPS_NOT_AVAILABLE="Koordinatengruppen wurden noch nicht hinzugefügt.", TEXT_ZONE_REWARD_NOT_AVAILABLE="Zonenbelohnung noch nicht hinzugefügt.", TEXT_META_REWARD_NOT_AVAILABLE="Meta-Belohnung noch nicht hinzugefügt.", TEXT_ACHIEVEMENT_REWARD_NOT_LISTED="Keine Erfolgsbelohnung aufgeführt.", TOOLTIP_RUNESTONE_CHARGE_INSTRUCTION="Lade den Runenstein mit latenter Arkana auf, um sein Verteidigungsereignis zu starten.", TEXT_COORDINATES_PENDING="Koordinaten ausstehend.", TOOLTIP_CLICK_OPEN_TRACKER="Klicken, um diesen Tracker zu öffnen.", TEXT_TRACKER_NOT_AVAILABLE="Tracker noch nicht hinzugefügt.",
+MSG_PROFIT_GOAL_INVALID="Gib einen gültigen Goldbetrag ein.", MSG_PROFIT_GOAL_NOT_SET="Kein Ziel festgelegt", TEXT_PROFIT_EXPORT_HINT="Klicke in das Feld und drücke Strg+C zum Kopieren.", TEXT_PROFIT_EXPORT_SUBTITLE="Kopiere den folgenden CSV-Text.", TEXT_PROFIT_SOURCE_BLACK_MARKET="Schwarzmarkt", TEXT_PROFIT_SOURCE_CHEST="Truhe", TEXT_PROFIT_SOURCE_CRAFT="Herstellung", TEXT_PROFIT_SOURCE_FLIGHT_PATH="Flugpunkt", TEXT_PROFIT_SOURCE_GUILD_BANK="Gildenbank", TEXT_PROFIT_SOURCE_LOOTED="Erbeutet", TEXT_PROFIT_SOURCE_REPAIR="Reparatur", TEXT_PROFIT_SOURCE_TRAINING="Ausbildung", TEXT_PROFIT_SOURCE_WORLD_QUEST="Weltquest", MSG_RAID_RESYNC_COMPLETE="Schlachtzugssynchronisierung abgeschlossen.", MSG_RAID_RESYNC_STARTED="Schlachtzugssynchronisierung gestartet...", MSG_RAID_RESYNC_UNAVAILABLE="Schlachtzugssynchronisierung nicht verfügbar.",
+TEXT_PROFIT_FALLBACK_APPEARANCE_COST="Aussehenskosten", TEXT_PROFIT_FALLBACK_AUCTION_DEPOSIT="Auktionskaution", TEXT_PROFIT_FALLBACK_AUCTION_FEE="Auktionsgebühr", TEXT_PROFIT_FALLBACK_AUCTION_PURCHASE="Auktionskauf", TEXT_PROFIT_FALLBACK_AUCTION_SALE="Auktionsverkauf", TEXT_PROFIT_FALLBACK_BARBER_COST="Barbierkosten", TEXT_PROFIT_FALLBACK_BLACK_MARKET_PURCHASE="Schwarzmarktkauf", TEXT_PROFIT_FALLBACK_CRAFTING_ORDER="Handwerksauftrag", TEXT_PROFIT_FALLBACK_GEAR_UPGRADE="Ausrüstungsaufwertung", TEXT_PROFIT_FALLBACK_GOLD_RECEIVED="Gold erhalten", TEXT_PROFIT_FALLBACK_GOLD_REWARD="Goldbelohnung", TEXT_PROFIT_FALLBACK_GOLD_SENT="Gold gesendet", TEXT_PROFIT_FALLBACK_GUILD_DEPOSIT="Gildeneinzahlung", TEXT_PROFIT_FALLBACK_GUILD_WITHDRAWAL="Gildenabhebung", TEXT_PROFIT_FALLBACK_RAW_GOLD="Direktes Gold", TEXT_PROFIT_FALLBACK_SERVICE_COST="Dienstleistungskosten", TEXT_PROFIT_FALLBACK_TRADE_GAIN="Handelsgewinn", TEXT_PROFIT_FALLBACK_TRADE_PAYMENT="Handelszahlung", TEXT_PROFIT_FALLBACK_TRAINING_COST="Ausbildungskosten", TEXT_PROFIT_FALLBACK_TRAVEL_COST="Reisekosten", TEXT_PROFIT_GRAPH_EMPTY_MONTHLY="Noch kein monatlicher Gewinnverlauf aufgezeichnet.", TEXT_PROFIT_GRAPH_EMPTY_WARBAND="Noch kein Gewinnverlauf der Kriegsmeute aufgezeichnet.", TEXT_PROFIT_GRAPH_EMPTY_WARBAND_MONTHLY="Noch kein monatlicher Gewinnverlauf der Kriegsmeute aufgezeichnet.", TEXT_PROFIT_GRAPH_EMPTY_WEEKLY="Noch kein wöchentlicher Gewinnverlauf aufgezeichnet.", TEXT_PROFIT_LEDGER_EMPTY_MONTHLY="Noch keine monatlichen Hauptbuchtransaktionen aufgezeichnet.", TEXT_PROFIT_LEDGER_EMPTY_WARBAND="Noch keine Hauptbuchtransaktionen der Kriegsmeute aufgezeichnet.", TEXT_PROFIT_LEDGER_EMPTY_WEEKLY="Noch keine wöchentlichen Hauptbuchtransaktionen aufgezeichnet.", TEXT_PROFIT_SUBTITLE="Wöchentlicher und monatlicher Gewinn deiner erfassten Charaktere.",
+BUTTON_BREAKDOWN="Aufschlüsselung", BUTTON_FILTER="Filter", BUTTON_SET="Festlegen", BUTTON_RAIDS="Schlachtzüge", BUTTON_WARBAND_BANK_HISTORY="Kriegsmeutenbank-Verlauf", TITLE_TREASURES_OF_THE_DAMNED="Schätze der Verdammten", TOOLTIP_TOKKA_TREASURE_HINT="Angle dieses Artefakt auf Coiled Isle und bringe es zu Second Mate Sluggs in Tokka's Folly zurück.", WARNING_TOKKA_ONE_TIME_ARTIFACTS="Warnung: Diese Artefaktquests sind einmalige Abgaben der Kriegsmeute. Sie werden weder täglich noch wöchentlich zurückgesetzt und gewähren nur einmal Ruf.", MSG_RAID_HISTORY_PRESERVED="Der Schlachtzugsverlauf wurde beibehalten; die destruktive Saisonzurücksetzung ist deaktiviert.", TOOLTIP_RAID_BOSS_DIFFICULTY_FMT="%s — %s", TITLE_MINI_OMNIUM_FOLIO="Omniumfoliant", TOOLTIP_HIDE_MINI_FOLIO="Mini-Foliant ausblenden", TOOLTIP_LOCK_MINI_FOLIO="Mini-Foliant sperren", TOOLTIP_UNLOCK_MINI_FOLIO="Mini-Foliant entsperren", TAB_GLYPHS="Glyphen", TITLE_GLYPH_HUNTER="Glyphenjäger", TOOLTIP_RUNESTONE_SET_WAYPOINT="Klicken, um einen Wegpunkt zu setzen.", LABEL_CHARACTER_TIME="Charakterzeit", LABEL_LAST_UPDATED="Zuletzt aktualisiert", LABEL_VAULT_OVERALL_PROGRESS="Gesamtfortschritt: %d/%d", LABEL_VAULT_ROW_DUNGEONS="Dungeons", TITLE_CHARACTER_GREAT_VAULT_FMT="Große Schatzkammer von %s: %s", TITLE_CHARACTER_WEEKLY_PLANNER_FMT="Wochenplaner von %s: %s", LABEL_NEXT_WEEK_FMT="Nächste Woche: %s",
+BUTTON_EDIT_MONTHLY_GOAL="Monatsziel bearbeiten", BUTTON_EDIT_WEEKLY_GOAL="Wochenziel bearbeiten", BUTTON_EXPORT_CSV="CSV exportieren", BUTTON_MONTHLY_PROFIT_EXPORT="Monatlicher Gewinn als CSV", BUTTON_WARBAND_PROFIT_BREAKDOWN="Kriegsmeuten-Aufschlüsselung", BUTTON_WARBAND_PROFIT_EXPORT="Wöchentlicher Kriegsmeutengewinn als CSV", BUTTON_WEEKLY_PROFIT_EXPORT="Wöchentlicher Gewinn als CSV", LABEL_GOAL_AMOUNT="Zielbetrag (Gold)", LABEL_GOLD="Gold", LABEL_NET="Netto", LABEL_SHARE="Teilen", LABEL_ZONE="Zone", LABEL_WARBAND_WEEKLY_PROFIT="Wöchentlicher Kriegsmeutengewinn", MSG_NIT_TIMEPLAYED_WARNING="NovaInstanceTracker erkannt. Die /played-Meldung kann von NIT unterdrückt werden, selbst wenn die LiteVault-Option deaktiviert ist.", MSG_TIMEPLAYED_RESTORED="Spielzeitmeldungen wiederhergestellt.", MSG_TIMEPLAYED_SUPPRESSED="Spielzeitmeldungen werden unterdrückt.", MSG_WOW_TOKEN_API_UNAVAILABLE="Die WoW-Token-API ist in diesem Client nicht verfügbar.", MSG_WOW_TOKEN_DATA_UNAVAILABLE="WoW-Token-Daten nicht verfügbar.", MSG_WOW_TOKEN_VISIT_AH="Besuche das Auktionshaus, um den WoW-Token-Preis zu aktualisieren.", OPTION_ENABLE_CALENDAR_PROFIT_HIGHLIGHTS_DESC="Zeigt grüne und rote Hervorhebungen für Gewinntage im Kalender an.",
+TITLE_ACHIEVEMENTS="Erfolge", LABEL_ACHIEVEMENT_GROUPS="Gruppen", LABEL_GLOWING_MOTHS="Motten", LABEL_SHARED_LOOT="Gemeinsame Beute", LABEL_KNOWLEDGE_CATCHUP="Aufholen", STATUS_ASSAULT_WAVE_1_COMPLETE="Welle 1 abgeschlossen", STATUS_ASSAULT_WAVE_2_COMPLETE="Welle 2 abgeschlossen", STATUS_ASSAULT_WAVE_3_COMPLETE="Welle 3 abgeschlossen", TEXT_MIDNIGHT_RARES_TRACKER_DESCRIPTION="Verfolge seltene Midnight-Erfolge, Belohnungen und gemeinsame Beute.", TEXT_MIDNIGHT_TREASURES_TRACKER_DESCRIPTION="Verfolge Midnight-Schatz-Erfolge und ihre Belohnungen.", TEXT_HARANIR_JOURNAL_INSTRUCTION="Berge die unten aufgeführten Haranir-Tagebucheinträge.", TEXT_HARANIR_LEGEND_DEFENSE_INSTRUCTION="Verteidige jeden unten aufgeführten Ort einer Haranir-Legende.", TEXT_BLESSING_EFFECT_INSTRUCTION="Löse jeden aufgeführten Segnungseffekt für die Wertung aus.", TOOLTIP_CAVE_RUN_CREDIT_INSTRUCTION="Schließe den Höhlenlauf hier für die Wertung ab.", TEXT_TELESCOPE_ZONE_REQUIREMENT="Schließe die fünf Teleskope in dieser Zone ab.",
+TEXT_MIDNIGHT_DELVER_META_INSTRUCTION="Schließe alle vier unterstützenden Tiefen-Erfolge von Midnight ab, um diesen Meta-Erfolg zu vollenden.", TEXT_COILED_ISLE_META_INSTRUCTION="Schließe die Erfolge von Coiled Isle ab.", TEXT_MIDNIGHT_ZONE_META_REWARD_REQUIREMENT="Schließe die vier Zonen-Meta-Erfolge von Midnight ab und erhalte die Reittierbelohnung.", TEXT_CLAW_ENFORCEMENT_REQUIREMENT="Schließe die Harandar-Weltquest 'Claw Enforcement' mit mindestens 15 Stapeln von Predator's Pursuit ab.", TEXT_ATALUTEK_META_INSTRUCTION="Schließe die Erfolge von Vaults of Atal'Utek ab.", TEXT_COILED_ISLE_LORE_INSTRUCTION="Entdecke die Wissensobjekte von Coiled Isle.", TEXT_HUNGERING_PRESENCE_REQUIREMENT="Entkomme dem Griff von Hungering Presence in Voidstorm mindestens 60 Sekunden lang.", TEXT_CRADLE_FLIGHT_REQUIREMENT="Fliege hoch über Harandar in The Cradle hinein, um diesen Erfolg abzuschließen.", TEXT_EVERSONG_META_TRACKER_DESCRIPTION="Verfolge den Meta-Erfolg von Eversong Woods und öffne seine untergeordneten Tracker.", TEXT_MIDNIGHT_PEAKS_TRACKER_DESCRIPTION="Verfolge die vier Zonenerfolge für Midnight, the Highest Peaks.", TEXT_HARANDAR_META_TRACKER_DESCRIPTION="Verfolge den Harandar-Meta-Erfolg und öffne seine untergeordneten Tracker.", TEXT_VOIDSTORM_META_TRACKER_DESCRIPTION="Verfolge den Voidstorm-Meta-Erfolg und öffne seine untergeordneten Tracker.", TEXT_ZULAMAN_META_TRACKER_DESCRIPTION="Verfolge den Zul'Aman-Meta-Erfolg und öffne seine untergeordneten Tracker.", TEXT_CRADLE_FLIGHT_ATTEMPT="Versuche, hoch über Harandar nach The Cradle zu fliegen.", NOTE_MOTH_ROUTE_RENOWN_REQUIREMENT="Die LiteVault-Route setzt voraus, dass Hara'ti Renown 11 bereits freigeschaltet ist.",
+TEXT_HARATI_META_PROGRESS_INSTRUCTION="Hilf den Hara'ti, indem du die Erfolge unten abschließt. x/y abgeschlossen.", TEXT_VOIDSTORM_META_PROGRESS_INSTRUCTION="Schließe alle unten aufgeführten Voidstorm-Erfolge ab. x/y abgeschlossen.", TEXT_ZULAMAN_META_PROGRESS_INSTRUCTION="Schließe alle unten aufgeführten Zul'Aman-Erfolge ab. x/y abgeschlossen.", TEXT_STORMARION_ASSAULT_PROGRESS_INSTRUCTION="Schließe alle drei Wellen von Stormarion Assault ab. x/y markiert.", TEXT_ABUNDANT_HARVEST_PROGRESS_INSTRUCTION="Schließe an jedem Ort einen Höhlenlauf von Abundant Harvest ab. x/y markiert.", TEXT_EVERSONG_META_PROGRESS_INSTRUCTION="Schließe die unten aufgeführten Erfolge von Eversong Woods ab. x/y abgeschlossen.", TEXT_GLOWING_MOTH_PROGRESS="Finde alle in Harandar versteckten Glowing Moths. x/y gefunden.", TEXT_HARANIR_LEGEND_PROGRESS="Beschütze jeden unten aufgeführten Ort einer Haranir-Legende. x/y markiert.", TEXT_XALATATH_META_PROGRESS="Stelle dich Xal'atath, indem du die Erfolge unten abschließt. x/y abgeschlossen.", TEXT_HARANIR_JOURNAL_PROGRESS="Berge die unten aufgeführten Haranir-Tagebucheinträge. x/y markiert.", TEXT_BLESSING_EFFECT_PROGRESS="Löse jeden aufgeführten Segnungseffekt aus. x/y markiert.", TEXT_FACTION_INVITE_PROGRESS="Verfolge die vier Fraktionseinladungen für The Party Must Go On. x/y markiert.", TEXT_EVER_PAINTING_PROGRESS="Verfolge die bekannten Gemälde von Ever-Painting. x/y markiert.", TEXT_RUNESTONE_RUSH_PROGRESS="Verfolge die bekannten Einträge von Runestone Rush. x/y markiert.",
+TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Schließe Glory of the Midnight Delver ab, um dieses Reittier zu erhalten.", NOTE_MOTH_GROUP_1_RENOWN="Motten 1–40 erscheinen bei Hara'ti Renown 1, die Verfolgung bei Renown 2.", NOTE_MOTH_GROUP_2_RENOWN="Motten 41–80 erscheinen bei Hara'ti Renown 4, die Verfolgung bei Renown 6.", NOTE_MOTH_GROUP_3_RENOWN="Motten 81–120 erscheinen bei Hara'ti Renown 9, die Verfolgung bei Renown 11.", NOTE_HARANIR_JOURNAL_AVAILABILITY="Diese Tagebücher sind nur während der accountweiten Wochenquest 'Legends of the Haranir' verfügbar. Achte in einer Vision auf das Lupensymbol auf der Minikarte.", NOTE_CLAW_ENFORCEMENT_NO_COORDINATES="Dieser Erfolg benötigt keine Koordinatenverfolgung in LiteVault. Schließe die Harandar-Weltquest 'Claw Enforcement' mit mindestens 15 Stapeln von Predator's Pursuit ab.", NOTE_HUNGERING_PRESENCE_NO_COORDINATES="Dieser Erfolg benötigt keine Koordinatenverfolgung in LiteVault. Überstehe das Ereignis Hungering Presence in Voidstorm mindestens 60 Sekunden lang.", NOTE_HARANIR_LEGENDS_WEEKLY_ESTIMATE="Dies ist an die accountweite Wochenquest 'Legends of the Haranir' gebunden. Ohne bisherigen Fortschritt dauert der Abschluss schätzungsweise etwa 7 Wochen.", NOTE_MOTH_TRACKER_GROUPING="Dieser Tracker ist in 3 Gruppen mit je 40 Koordinaten aufgeteilt, damit die Mottenrouten übersichtlich bleiben.", TEXT_EVER_PAINTING_TRACKER_PLACEHOLDER="Verfolge den Fortschritt von Ever-Painting. Eintragsdetails können später ergänzt werden.", TEXT_EXPLORE_EVERSONG_TRACKER_PLACEHOLDER="Verfolge den Fortschritt von Explore Eversong Woods. Eintragsdetails können später ergänzt werden.", TEXT_RUNESTONE_RUSH_TRACKER_PLACEHOLDER="Verfolge den Fortschritt von Runestone Rush. Eintragsdetails können später ergänzt werden.", TEXT_PARTY_TRACKER_PLACEHOLDER="Verfolge den Fortschritt von The Party Must Go On. Eintragsdetails können später ergänzt werden.", TOOLTIP_ABUNDANT_HARVEST_CREDIT_REQUIREMENT="Du musst an jedem Ort einen Höhlenlauf von Abundant Harvest abschließen. Der bloße Besuch der Höhle genügt nicht.",
+TEXT_EXPLORE_EVERSONG_PROGRESS="Verfolge den Fortschritt von Explore Eversong Woods. x/y markiert.", TEXT_EXPLORE_HARANDAR_PROGRESS="Verfolge den Fortschritt von Explore Harandar. x/y markiert.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Verfolge den Fortschritt von Explore Voidstorm. x/y markiert.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Verfolge den Fortschritt von Explore Zul'Aman. x/y markiert.",
+}
+for key,value in pairs(phase2) do L[key]=value end
 lv.RegisterLocale("deDE", L)
 
 -- Store for reload functionality

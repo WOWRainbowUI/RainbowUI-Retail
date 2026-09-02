@@ -130,7 +130,8 @@ function lv.InitCalendar(parent)
     -- The dashboard no longer has the old profit panel on the right,
     -- so the calendar column sits better a bit lower against the character stack.
     CalFrame:SetPoint("TOPRIGHT", -28, -100)
-    CalFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14 })
+    CalFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8" })
+    lv.EnsureBorderStyle(CalFrame, "panelStructural")
     lv.CalFrame = CalFrame
 
     -- Register for theming
@@ -138,11 +139,11 @@ function lv.InitCalendar(parent)
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(CalFrame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.backgroundTransparent))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panelStructural", theme)
             end)
             local t = lv.GetTheme()
             CalFrame:SetBackdropColor(unpack(t.backgroundTransparent))
-            CalFrame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(CalFrame, "panelStructural", t)
         end
     end)
 
@@ -175,10 +176,10 @@ function lv.InitCalendar(parent)
     C_Timer.After(0, function()
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(lv.calTitle, function(f, theme)
-                f:SetTextColor(unpack(theme.textAccent))
+                f:SetTextColor(unpack(theme.textGold))
             end)
             local t = lv.GetTheme()
-            lv.calTitle:SetTextColor(unpack(t.textAccent))
+            lv.calTitle:SetTextColor(unpack(t.textGold))
         end
     end)
 
@@ -338,17 +339,18 @@ function lv.InitCalendar(parent)
     WorldEventsFrame:SetToplevel(true)
     WorldEventsFrame:Hide()
     WorldEventsFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14, insets = { left = 4, right = 4, top = 4, bottom = 4 } })
+    lv.EnsureBorderStyle(WorldEventsFrame, "panelCompact")
 
     -- Register for theming
     C_Timer.After(0, function()
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(WorldEventsFrame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             local t = lv.GetTheme()
             WorldEventsFrame:SetBackdropColor(unpack(t.background))
-            WorldEventsFrame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(WorldEventsFrame, "panel", t)
         end
     end)
 
@@ -414,16 +416,17 @@ function lv.InitCalendar(parent)
     PlannerFrame:SetToplevel(true)
     PlannerFrame:Hide()
     PlannerFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14, insets = { left = 4, right = 4, top = 4, bottom = 4 } })
+    lv.EnsureBorderStyle(PlannerFrame, "panelMedium")
 
     C_Timer.After(0, function()
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(PlannerFrame, function(f, theme)
                 f:SetBackdropColor(unpack(theme.background))
-                f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+                lv.ApplyBorderStyle(f, "panel", theme)
             end)
             local t = lv.GetTheme()
             PlannerFrame:SetBackdropColor(unpack(t.background))
-            PlannerFrame:SetBackdropBorderColor(unpack(t.borderPrimary))
+            lv.ApplyBorderStyle(PlannerFrame, "panel", t)
         end
     end)
 
@@ -612,7 +615,7 @@ function lv.InitCalendar(parent)
         end
 
         local entries = GetPlannerEntries(currentPlannerChar)
-        local nameOnly = (currentPlannerChar or lv.PLAYER_KEY or ""):match("^([^-]+)") or (UnitName("player") or "Unknown")
+        local nameOnly = (currentPlannerChar or lv.PLAYER_KEY or ""):match("^([^-]+)") or (UnitName("player") or _G.UNKNOWN or L["LABEL_UNKNOWN"])
         plannerTitle:SetText(string.format(UIText("TITLE_CHARACTER_WEEKLY_PLANNER_FMT"), nameOnly, UIText("TITLE_WEEKLY_PLANNER")))
         plannerCharBtn.Text:SetText(nameOnly)
 
@@ -764,7 +767,7 @@ function lv.InitCalendar(parent)
     for i, name in ipairs(DAY_NAMES) do
         local h = CreateFrame("Frame", nil, CalFrame, "BackdropTemplate")
         h:SetSize(44, 20)
-        h:SetPoint("TOPLEFT", 15 + ((i-1)*48), -55)
+        h:SetPoint("TOPLEFT", 14 + ((i-1)*48), -55)
         h:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8, insets = { left = 3, right = 3, top = 3, bottom = 3 } })
         local t = h:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         t:SetPoint("CENTER"); t:SetText(name); t:SetTextColor(1, 1, 1)
@@ -790,11 +793,13 @@ function lv.InitCalendar(parent)
             for _, h in ipairs(lv.dayHeaders) do
                 lv.RegisterThemedElement(h, function(f, theme)
                     f:SetBackdropColor(unpack(theme.calendarHeaderBg))
+                    f.dayText:SetTextColor(unpack(theme.textMuted))
                 end)
             end
             local t = lv.GetTheme()
             for _, h in ipairs(lv.dayHeaders) do
                 h:SetBackdropColor(unpack(t.calendarHeaderBg))
+                h.dayText:SetTextColor(unpack(t.textMuted))
             end
         end
     end)
@@ -811,7 +816,7 @@ function lv.UpdateCalendar()
     local firstDay = date("*t", firstTime)
     -- Use localized month name
     local monthName = L["MONTH_" .. lv.VIEW_MONTH] or date("%B", firstTime)
-    lv.calTitle:SetText(monthName .. " " .. lv.VIEW_YEAR)
+    lv.calTitle:SetText(string.format(L["CALENDAR_MONTH_YEAR_FMT"], monthName, lv.VIEW_YEAR))
     
     if (lv.VIEW_YEAR % 4 == 0 and (lv.VIEW_YEAR % 100 ~= 0 or lv.VIEW_YEAR % 400 == 0)) then DAYS_IN_MONTH[2] = 29 else DAYS_IN_MONTH[2] = 28 end
     local startOffset = firstDay.wday - 1
@@ -822,16 +827,47 @@ function lv.UpdateCalendar()
             dayButtons[i] = CreateFrame("Button", nil, lv.CalFrame, "BackdropTemplate")
             dayButtons[i]:SetSize(44, 44)
             dayButtons[i]:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8, insets = { left = 2, right = 2, top = 2, bottom = 2 } })
+            dayButtons[i].surfaceUpper = dayButtons[i]:CreateTexture(nil, "BACKGROUND", nil, 1)
+            dayButtons[i].surfaceUpper:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dayButtons[i].surfaceUpper:SetPoint("TOPLEFT", 2, -2)
+            dayButtons[i].surfaceUpper:SetPoint("TOPRIGHT", -2, -2)
+            dayButtons[i].surfaceUpper:SetHeight(8)
+            dayButtons[i].surfaceUpperTransition = dayButtons[i]:CreateTexture(nil, "BACKGROUND", nil, 1)
+            dayButtons[i].surfaceUpperTransition:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dayButtons[i].surfaceUpperTransition:SetPoint("TOPLEFT", 2, -10)
+            dayButtons[i].surfaceUpperTransition:SetPoint("TOPRIGHT", -2, -10)
+            dayButtons[i].surfaceUpperTransition:SetHeight(8)
+            dayButtons[i].surfaceLower = dayButtons[i]:CreateTexture(nil, "BACKGROUND", nil, 2)
+            dayButtons[i].surfaceLower:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dayButtons[i].surfaceLower:SetPoint("BOTTOMLEFT", 2, 2)
+            dayButtons[i].surfaceLower:SetPoint("BOTTOMRIGHT", -2, 2)
+            dayButtons[i].surfaceLower:SetHeight(12)
+            dayButtons[i].todayTint = dayButtons[i]:CreateTexture(nil, "BACKGROUND", nil, 3)
+            dayButtons[i].todayTint:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dayButtons[i].todayTint:SetPoint("TOPLEFT", 2, -2)
+            dayButtons[i].todayTint:SetPoint("TOPRIGHT", -2, -2)
+            dayButtons[i].todayTint:SetHeight(8)
+            dayButtons[i].todayTintTransition = dayButtons[i]:CreateTexture(nil, "BACKGROUND", nil, 3)
+            dayButtons[i].todayTintTransition:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dayButtons[i].todayTintTransition:SetPoint("TOPLEFT", 2, -10)
+            dayButtons[i].todayTintTransition:SetPoint("TOPRIGHT", -2, -10)
+            dayButtons[i].todayTintTransition:SetHeight(8)
+            dayButtons[i].todayTint:Hide()
+            dayButtons[i].todayTintTransition:Hide()
             dayButtons[i].text = dayButtons[i]:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
             dayButtons[i].text:SetPoint("TOPLEFT", 5, -5)
             dayButtons[i].bars = {}
             for j=1, 5 do 
                 local t = dayButtons[i]:CreateTexture(nil, "ARTWORK")
-                t:SetHeight(4); t:SetTexture("Interface\\Buttons\\WHITE8X8")
+                t:SetHeight(3); t:SetTexture("Interface\\Buttons\\WHITE8X8")
                 dayButtons[i].bars[j] = t 
             end
             dayButtons[i]:SetScript("OnEnter", function(self)
                 if self.dayNum then
+                    local theme = lv.GetTheme()
+                    local bg = self.restingBg or theme.calendarDayBg
+                    local lift = theme.calendarHoverLift or 0
+                    self:SetBackdropColor(math.min(1, bg[1] + lift), math.min(1, bg[2] + lift), math.min(1, bg[3] + lift), bg[4])
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                     GameTooltip:AddLine(string.format(L["TOOLTIP_ACTIVITY_FOR"], lv.VIEW_MONTH, self.dayNum, lv.VIEW_YEAR), 1, 1, 1)
                     if self.moneyStats then
@@ -853,17 +889,31 @@ function lv.UpdateCalendar()
                     GameTooltip:Show() 
                 end 
             end)
-            dayButtons[i]:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            dayButtons[i]:SetScript("OnLeave", function(self)
+                if self.restingBg then
+                    self:SetBackdropColor(unpack(self.restingBg))
+                end
+                GameTooltip:Hide()
+            end)
         end
         
         local btn, dayNum = dayButtons[i], i - startOffset
         local t = lv.GetTheme()
         btn:SetBackdropColor(unpack(t.calendarDayBg))
+        btn.surfaceUpper:SetVertexColor(unpack(t.calendarDayHighlight))
+        btn.surfaceUpperTransition:SetVertexColor(unpack(t.calendarDayHighlightTransition))
+        btn.surfaceLower:SetVertexColor(unpack(t.calendarDayLowerShade))
+        btn.todayTint:SetVertexColor(unpack(t.calendarTodayTint))
+        btn.todayTintTransition:SetVertexColor(unpack(t.calendarTodayTintTransition))
+        btn.todayTint:Hide()
+        btn.todayTintTransition:Hide()
         btn:SetBackdropBorderColor(unpack(t.calendarDayBorder))
         btn.text:SetTextColor(unpack(t.textPrimary))
         btn.dayNum = nil
         btn.eventList = nil
         btn.moneyStats = nil
+        btn.isToday = false
+        btn.profitDirection = nil
         for _, bar in ipairs(btn.bars) do bar:Hide() end
 
         if dayNum > 0 and dayNum <= DAYS_IN_MONTH[lv.VIEW_MONTH] then
@@ -871,33 +921,40 @@ function lv.UpdateCalendar()
             btn.text:SetText(dayNum)
             btn.dayNum = dayNum
             if dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year then
+                btn.isToday = true
                 btn:SetBackdropBorderColor(unpack(t.calendarTodayBorder))
-                btn:SetBackdropColor(unpack(t.calendarTodayBg))
+                btn.text:SetTextColor(unpack(t.textGold))
             end
 
             local moneyStats = moneyStatsByDay[dayNum]
             if CalendarProfitHighlightsEnabled() and moneyStats and moneyStats.net ~= 0 then
                 btn.moneyStats = moneyStats
                 if moneyStats.net > 0 then
-                    btn.text:SetTextColor(0.65, 1, 0.65)
+                    btn.profitDirection = "gain"
+                    btn.text:SetTextColor(unpack(t.textPrimary))
                     if not (dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year) then
                         btn:SetBackdropBorderColor(0.18, 0.72, 0.28, 1)
                     end
                     if dayNum == bestMoneyDay then
-                        btn:SetBackdropColor(0.08, 0.16, 0.08, 0.95)
+                        btn:SetBackdropColor(unpack(t.calendarProfitPositiveBest))
                     else
-                        btn:SetBackdropColor(0.05, 0.13, 0.07, 0.95)
+                        btn:SetBackdropColor(unpack(t.calendarProfitPositive))
                     end
+                    btn.surfaceUpper:SetVertexColor(unpack(t.calendarProfitPositiveHighlight))
+                    btn.surfaceUpperTransition:SetVertexColor(unpack(t.calendarProfitPositiveHighlightTransition))
                 else
-                    btn.text:SetTextColor(1, 0.65, 0.65)
+                    btn.profitDirection = "loss"
+                    btn.text:SetTextColor(unpack(t.textPrimary))
                     if not (dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year) then
                         btn:SetBackdropBorderColor(0.78, 0.28, 0.28, 1)
                     end
                     if dayNum == worstMoneyDay then
-                        btn:SetBackdropColor(0.16, 0.06, 0.06, 0.95)
+                        btn:SetBackdropColor(unpack(t.calendarProfitNegativeWorst))
                     else
-                        btn:SetBackdropColor(0.13, 0.05, 0.05, 0.95)
+                        btn:SetBackdropColor(unpack(t.calendarProfitNegative))
                     end
+                    btn.surfaceUpper:SetVertexColor(unpack(t.calendarProfitNegativeHighlight))
+                    btn.surfaceUpperTransition:SetVertexColor(unpack(t.calendarProfitNegativeHighlightTransition))
                 end
             end
             
@@ -909,7 +966,7 @@ function lv.UpdateCalendar()
                         and (not data.region or data.region == lv.REGION) then
                         btn.eventList = btn.eventList or {}
                         local cc = C_ClassColor.GetClassColor(data.class or "WARRIOR")
-                        table.insert(btn.eventList, { title = "|c" .. cc:GenerateHexColor() .. name:match("^([^-]+)") .. "|r Logged In" })
+                        table.insert(btn.eventList, { title = string.format(L["TEXT_CALENDAR_LOGGED_IN_FMT"], "|c" .. cc:GenerateHexColor() .. name:match("^([^-]+)") .. "|r") })
                     end
                 end
             end
@@ -918,6 +975,7 @@ function lv.UpdateCalendar()
             local filters = (LiteVaultDB and LiteVaultDB.filters) or {}
             local numEvents = C_Calendar.GetNumDayEvents(0, dayNum)
             local activeBars = {}
+            local eventConfig = lv.EVENT_CONFIG or {}
             
             if numEvents > 0 then
                 local foundTypes = {}
@@ -933,7 +991,7 @@ function lv.UpdateCalendar()
                         local titleHasTimewalking = false
                         local titleHasPvP = false
                         local titleHasDungeon = false
-                        for checkKw, checkCfg in pairs(lv.EVENT_CONFIG) do
+                        for checkKw, checkCfg in pairs(eventConfig) do
                             if string.find(title, checkKw) then
                                 if checkCfg.key == "timewalking" then titleHasTimewalking = true end
                                 if checkCfg.key == "pvp" then titleHasPvP = true end
@@ -941,7 +999,7 @@ function lv.UpdateCalendar()
                             end
                         end
 
-                        for kw, cfg in pairs(lv.EVENT_CONFIG) do
+                        for kw, cfg in pairs(eventConfig) do
                             if string.find(title, kw) then
                                 -- Use cfg.key to determine event type (works across all locales)
                                 local show = (cfg.key == "timewalking" and filters.timewalking) or
@@ -980,13 +1038,20 @@ function lv.UpdateCalendar()
                         local b = btn.bars[k]
                         b:SetVertexColor(cfg.r, cfg.g, cfg.b)
                         b:ClearAllPoints()
-                        b:SetPoint("BOTTOMLEFT", 2, 2 + ((k-1)*5))
-                        b:SetPoint("BOTTOMRIGHT", -2, 2 + ((k-1)*5))
+                        b:SetHeight(3)
+                        b:SetPoint("BOTTOMLEFT", 3, 3 + ((k-1)*4))
+                        b:SetPoint("BOTTOMRIGHT", -3, 3 + ((k-1)*4))
                         b:Show() 
                     end 
                 end
             end
-            btn:SetPoint("TOPLEFT", 15 + ((i-1)%7)*48, -80 - math.floor((i-1)/7)*46)
+            if btn.isToday then
+                btn.text:SetTextColor(unpack(t.textGold))
+                btn.todayTint:Show()
+                btn.todayTintTransition:Show()
+            end
+            btn.restingBg = { btn:GetBackdropColor() }
+            btn:SetPoint("TOPLEFT", 14 + ((i-1)%7)*48, -80 - math.floor((i-1)/7)*46)
         else
             btn:Hide()
         end
@@ -1012,309 +1077,38 @@ local WORLD_EVENT_TRANSLATIONS = {
     ["Kalimdor Cup"] = "WORLD_EVENT_KALIMDOR",
     ["Eastern Kingdoms Cup"] = "WORLD_EVENT_EASTERN",
     ["Winds of Mysterious Fortune"] = "WORLD_EVENT_WINDS",
-    -- zhTW reverse mappings
-    ["æ„›å°±åœ¨èº«é‚Š"] = "WORLD_EVENT_LOVE",
-    ["æ–°å¹´æ…¶å…¸"] = "WORLD_EVENT_LUNAR",
-    ["è²´æ—èŠ±åœ’"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["å…’ç«¥é€±"] = "WORLD_EVENT_CHILDREN",
-    ["ä»²å¤ç«ç„°ç¯€æ…¶"] = "WORLD_EVENT_MIDSUMMER",
-    ["å•¤é…’ç¯€"] = "WORLD_EVENT_BREWFEST",
-    ["è¬é¬¼ç¯€"] = "WORLD_EVENT_HALLOWS",
-    ["å†¬å¹•ç¯€"] = "WORLD_EVENT_WINTERVEIL",
-    ["äº¡è€…ç¯€"] = "WORLD_EVENT_DEAD",
-    ["æµ·ç›œç¯€"] = "WORLD_EVENT_PIRATES",
-    ["æ™‚å°šå¤§è€ƒé©—"] = "WORLD_EVENT_STYLE",
-    ["å¤–åŸŸæ¯"] = "WORLD_EVENT_OUTLAND",
-    ["åŒ—è£‚å¢ƒæ¯"] = "WORLD_EVENT_NORTHREND",
-    ["å¡æž—å¤šæ¯"] = "WORLD_EVENT_KALIMDOR",
-    ["æ±éƒ¨çŽ‹åœ‹æ¯"] = "WORLD_EVENT_EASTERN",
-    ["ç¥žç§˜å‘½é‹ä¹‹é¢¨"] = "WORLD_EVENT_WINDS",
-    -- zhCN reverse mappings
-    ["æƒ…äººèŠ‚"] = "WORLD_EVENT_LOVE",
-    ["æ˜¥èŠ‚"] = "WORLD_EVENT_LUNAR",
-    ["å¤æ´»èŠ‚"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["å„¿ç«¥å‘¨"] = "WORLD_EVENT_CHILDREN",
-    ["ä»²å¤ç«ç„°èŠ‚"] = "WORLD_EVENT_MIDSUMMER",
-    ["ç¾Žé…’èŠ‚"] = "WORLD_EVENT_BREWFEST",
-    ["ä¸‡åœ£èŠ‚"] = "WORLD_EVENT_HALLOWS",
-    ["å†¬å¹•èŠ‚"] = "WORLD_EVENT_WINTERVEIL",
-    ["äº¡çµèŠ‚"] = "WORLD_EVENT_DEAD",
-    ["æµ·ç›—æ—¥"] = "WORLD_EVENT_PIRATES",
-    ["è¯•è¡£å¤§ä¼š"] = "WORLD_EVENT_STYLE",
-    ["å¤–åŸŸæ¯"] = "WORLD_EVENT_OUTLAND",
-    ["è¯ºæ£®å¾·æ¯"] = "WORLD_EVENT_NORTHREND",
-    ["å¡åˆ©å§†å¤šæ¯"] = "WORLD_EVENT_KALIMDOR",
-    ["ä¸œéƒ¨çŽ‹å›½æ¯"] = "WORLD_EVENT_EASTERN",
-    ["ç¥žç§˜å‘½è¿ä¹‹é£Ž"] = "WORLD_EVENT_WINDS",
-    -- koKR reverse mappings
-    ["ì˜¨ ì„¸ìƒì— ì‚¬ëž‘ì„"] = "WORLD_EVENT_LOVE",
-    ["ë‹¬ì˜ ì¶•ì œ"] = "WORLD_EVENT_LUNAR",
-    ["ê·€ì¡±ì˜ ì •ì›"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["ì–´ë¦°ì´ ì£¼ê°„"] = "WORLD_EVENT_CHILDREN",
-    ["í•œì—¬ë¦„ ë¶ˆê½ƒì¶•ì œ"] = "WORLD_EVENT_MIDSUMMER",
-    ["ê°€ì„ ì¶•ì œ"] = "WORLD_EVENT_BREWFEST",
-    ["í• ë¡œìœˆ ì¶•ì œ"] = "WORLD_EVENT_HALLOWS",
-    ["ê²¨ìš¸ë§žì´ ì¶•ì œ"] = "WORLD_EVENT_WINTERVEIL",
-    ["ë§ìžì˜ ë‚ "] = "WORLD_EVENT_DEAD",
-    ["í•´ì ì˜ ë‚ "] = "WORLD_EVENT_PIRATES",
-    ["ìŠ¤íƒ€ì¼ì˜ ì‹œí—˜"] = "WORLD_EVENT_STYLE",
-    ["ì•„ì›ƒëžœë“œ ì»µ"] = "WORLD_EVENT_OUTLAND",
-    ["ë…¸ìŠ¤ë Œë“œ ì»µ"] = "WORLD_EVENT_NORTHREND",
-    ["ì¹¼ë¦¼ë„ì–´ ì»µ"] = "WORLD_EVENT_KALIMDOR",
-    ["ë™ë¶€ ì™•êµ­ ì»µ"] = "WORLD_EVENT_EASTERN",
-    ["ì‹ ë¹„ë¡œìš´ í–‰ìš´ì˜ ë°”ëžŒ"] = "WORLD_EVENT_WINDS",
-    -- deDE reverse mappings
-    ["Liebe liegt in der Luft"] = "WORLD_EVENT_LOVE",
-    ["Mondfest"] = "WORLD_EVENT_LUNAR",
-    ["Nobelgarten"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Kinderwoche"] = "WORLD_EVENT_CHILDREN",
-    ["Sonnenwendfest"] = "WORLD_EVENT_MIDSUMMER",
-    ["Braufest"] = "WORLD_EVENT_BREWFEST",
-    ["SchlotternÃ¤chte"] = "WORLD_EVENT_HALLOWS",
-    ["Winterhauch"] = "WORLD_EVENT_WINTERVEIL",
-    ["Tag der Toten"] = "WORLD_EVENT_DEAD",
-    ["Piratentag"] = "WORLD_EVENT_PIRATES",
-    ["Probe des Stils"] = "WORLD_EVENT_STYLE",
-    ["Scherbenwelt-Cup"] = "WORLD_EVENT_OUTLAND",
-    ["Nordend-Cup"] = "WORLD_EVENT_NORTHREND",
-    ["Kalimdor-Cup"] = "WORLD_EVENT_KALIMDOR",
-    ["Ã–stliche KÃ¶nigreiche-Cup"] = "WORLD_EVENT_EASTERN",
-    ["Winde des geheimnisvollen GlÃ¼cks"] = "WORLD_EVENT_WINDS",
-    -- frFR reverse mappings
-    ["De l'amour dans l'air"] = "WORLD_EVENT_LOVE",
-    ["FÃªte lunaire"] = "WORLD_EVENT_LUNAR",
-    ["Le Jardin des nobles"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Semaine des enfants"] = "WORLD_EVENT_CHILDREN",
-    ["FÃªte du Feu du solstice d'Ã©tÃ©"] = "WORLD_EVENT_MIDSUMMER",
-    ["FÃªte des Brasseurs"] = "WORLD_EVENT_BREWFEST",
-    ["Sanssaint"] = "WORLD_EVENT_HALLOWS",
-    ["Voile d'hiver"] = "WORLD_EVENT_WINTERVEIL",
-    ["Jour des morts"] = "WORLD_EVENT_DEAD",
-    ["Jour des pirates"] = "WORLD_EVENT_PIRATES",
-    ["Ã‰preuve de style"] = "WORLD_EVENT_STYLE",
-    ["Coupe de l'Outreterre"] = "WORLD_EVENT_OUTLAND",
-    ["Coupe de Norfendre"] = "WORLD_EVENT_NORTHREND",
-    ["Coupe de Kalimdor"] = "WORLD_EVENT_KALIMDOR",
-    ["Coupe des Royaumes de l'Est"] = "WORLD_EVENT_EASTERN",
-    ["Vents de fortune mystÃ©rieuse"] = "WORLD_EVENT_WINDS",
-    -- esES reverse mappings
-    ["El amor estÃ¡ en el aire"] = "WORLD_EVENT_LOVE",
-    ["Festival Lunar"] = "WORLD_EVENT_LUNAR",
-    ["JardÃ­n Noble"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Semana de los NiÃ±os"] = "WORLD_EVENT_CHILDREN",
-    ["Festival de Fuego del Solsticio de Verano"] = "WORLD_EVENT_MIDSUMMER",
-    ["Fiesta de la Cerveza"] = "WORLD_EVENT_BREWFEST",
-    ["Halloween"] = "WORLD_EVENT_HALLOWS",
-    ["Festival de Invierno"] = "WORLD_EVENT_WINTERVEIL",
-    ["DÃ­a de los Muertos"] = "WORLD_EVENT_DEAD",
-    ["DÃ­a de los Piratas"] = "WORLD_EVENT_PIRATES",
-    ["Prueba de Estilo"] = "WORLD_EVENT_STYLE",
-    ["Copa de Terrallende"] = "WORLD_EVENT_OUTLAND",
-    ["Copa de Rasganorte"] = "WORLD_EVENT_NORTHREND",
-    ["Copa de Kalimdor"] = "WORLD_EVENT_KALIMDOR",
-    ["Copa de los Reinos del Este"] = "WORLD_EVENT_EASTERN",
-    ["Vientos de fortuna misteriosa"] = "WORLD_EVENT_WINDS",
-    -- ptBR reverse mappings
-    ["O Amor EstÃ¡ no Ar"] = "WORLD_EVENT_LOVE",
-    ["Festival da Lua"] = "WORLD_EVENT_LUNAR",
-    ["Jardinova"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Semana das CrianÃ§as"] = "WORLD_EVENT_CHILDREN",
-    ["Festival do Fogo do SolstÃ­cio"] = "WORLD_EVENT_MIDSUMMER",
-    ["CervaFest"] = "WORLD_EVENT_BREWFEST",
-    ["NoturnÃ¡lia"] = "WORLD_EVENT_HALLOWS",
-    ["Festa do VÃ©u de Inverno"] = "WORLD_EVENT_WINTERVEIL",
-    ["Dia dos Mortos"] = "WORLD_EVENT_DEAD",
-    ["Dia dos Piratas"] = "WORLD_EVENT_PIRATES",
-    ["Prova de Estilo"] = "WORLD_EVENT_STYLE",
-    ["Copa de TerralÃ©m"] = "WORLD_EVENT_OUTLAND",
-    ["Copa de NortÃºndria"] = "WORLD_EVENT_NORTHREND",
-    ["Copa de Kalimdor"] = "WORLD_EVENT_KALIMDOR",
-    ["Copa dos Reinos do Leste"] = "WORLD_EVENT_EASTERN",
-    ["Ventos da Fortuna Misteriosa"] = "WORLD_EVENT_WINDS",
-    -- ruRU reverse mappings
-    ["Ð›ÑŽÐ±Ð¾Ð²ÑŒ Ð²Ð¸Ñ‚Ð°ÐµÑ‚ Ð² Ð²Ð¾Ð·Ð´ÑƒÑ…Ðµ"] = "WORLD_EVENT_LOVE",
-    ["Ð›ÑƒÐ½Ð½Ñ‹Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ"] = "WORLD_EVENT_LUNAR",
-    ["Ð¡Ð°Ð´ Ñ‡ÑƒÐ´ÐµÑ"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Ð”ÐµÑ‚ÑÐºÐ°Ñ Ð½ÐµÐ´ÐµÐ»Ñ"] = "WORLD_EVENT_CHILDREN",
-    ["ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ð¹ ÑÐ¾Ð»Ð½Ñ†ÐµÐ²Ð¾Ñ€Ð¾Ñ‚"] = "WORLD_EVENT_MIDSUMMER",
-    ["Ð¥Ð¼ÐµÐ»ÑŒÐ½Ð¾Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ"] = "WORLD_EVENT_BREWFEST",
-    ["Ð¢Ñ‹ÐºÐ²Ð¾Ð²Ð¸Ð½"] = "WORLD_EVENT_HALLOWS",
-    ["Ð—Ð¸Ð¼Ð½Ð¸Ð¹ ÐŸÐ¾ÐºÑ€Ð¾Ð²"] = "WORLD_EVENT_WINTERVEIL",
-    ["Ð”ÐµÐ½ÑŒ Ð¼Ñ‘Ñ€Ñ‚Ð²Ñ‹Ñ…"] = "WORLD_EVENT_DEAD",
-    ["Ð”ÐµÐ½ÑŒ Ð¿Ð¸Ñ€Ð°Ñ‚Ð°"] = "WORLD_EVENT_PIRATES",
-    ["Ð˜ÑÐ¿Ñ‹Ñ‚Ð°Ð½Ð¸Ðµ ÑÑ‚Ð¸Ð»ÐµÐ¼"] = "WORLD_EVENT_STYLE",
-    ["ÐšÑƒÐ±Ð¾Ðº Ð—Ð°Ð¿Ñ€ÐµÐ´ÐµÐ»ÑŒÑ"] = "WORLD_EVENT_OUTLAND",
-    ["ÐšÑƒÐ±Ð¾Ðº ÐÐ¾Ñ€Ð´ÑÐºÐ¾Ð»Ð°"] = "WORLD_EVENT_NORTHREND",
-    ["ÐšÑƒÐ±Ð¾Ðº ÐšÐ°Ð»Ð¸Ð¼Ð´Ð¾Ñ€Ð°"] = "WORLD_EVENT_KALIMDOR",
-    ["ÐšÑƒÐ±Ð¾Ðº Ð’Ð¾ÑÑ‚Ð¾Ñ‡Ð½Ñ‹Ñ… ÐºÐ¾Ñ€Ð¾Ð»ÐµÐ²ÑÑ‚Ð²"] = "WORLD_EVENT_EASTERN",
-    ["Ð’ÐµÑ‚Ñ€Ð° Ñ‚Ð°Ð¸Ð½ÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ ÑƒÐ´Ð°Ñ‡Ð¸"] = "WORLD_EVENT_WINDS",
 }
 
--- Helper function to get localized event name
-local function GetLocalizedEventName(title)
-    local key = WORLD_EVENT_TRANSLATIONS[title]
+local function BuildWorldEventAliases()
+    local aliases = {}
+    for englishName, localeKey in pairs(WORLD_EVENT_TRANSLATIONS) do
+        aliases[englishName] = localeKey
+        for _, localeData in pairs(lv.LocaleData or {}) do
+            local localizedName = localeData and localeData[localeKey]
+            if type(localizedName) == "string" and localizedName ~= "" then
+                aliases[localizedName] = localeKey
+            end
+        end
+    end
+    return aliases
+end
+
+local function GetLocalizedEventName(title, localeKey)
+    local key = localeKey or BuildWorldEventAliases()[title]
     if key then
         return L[key]
     end
     return title
 end
 
--- Whitelist of world events to display (English + localized names)
-local WORLD_EVENTS = {
-    -- English
-    "Love is in the Air",
-    "Lunar Festival",
-    "Noblegarden",
-    "Children's Week",
-    "Midsummer Fire Festival",
-    "Brewfest",
-    "Hallow's End",
-    "Feast of Winter Veil",
-    "Day of the Dead",
-    "Pirates' Day",
-    "Trial of Style",
-    "Outland Cup",
-    "Northrend Cup",
-    "Kalimdor Cup",
-    "Eastern Kingdoms Cup",
-    "Winds of Mysterious Fortune",
-    -- zhTW
-    "æ„›å°±åœ¨èº«é‚Š",
-    "æ–°å¹´æ…¶å…¸",
-    "è²´æ—èŠ±åœ’",
-    "å…’ç«¥é€±",
-    "ä»²å¤ç«ç„°ç¯€æ…¶",
-    "å•¤é…’ç¯€",
-    "è¬é¬¼ç¯€",
-    "å†¬å¹•ç¯€",
-    "äº¡è€…ç¯€",
-    "æµ·ç›œç¯€",
-    "æ™‚å°šå¤§è€ƒé©—",
-    "å¤–åŸŸæ¯",
-    "åŒ—è£‚å¢ƒæ¯",
-    "å¡æž—å¤šæ¯",
-    "æ±éƒ¨çŽ‹åœ‹æ¯",
-    "ç¥žç§˜å‘½é‹ä¹‹é¢¨",
-    -- zhCN
-    "æƒ…äººèŠ‚",
-    "æ˜¥èŠ‚",
-    "å¤æ´»èŠ‚",
-    "å„¿ç«¥å‘¨",
-    "ä»²å¤ç«ç„°èŠ‚",
-    "ç¾Žé…’èŠ‚",
-    "ä¸‡åœ£èŠ‚",
-    "å†¬å¹•èŠ‚",
-    "äº¡çµèŠ‚",
-    "æµ·ç›—æ—¥",
-    "è¯•è¡£å¤§ä¼š",
-    "å¤–åŸŸæ¯",
-    "è¯ºæ£®å¾·æ¯",
-    "å¡åˆ©å§†å¤šæ¯",
-    "ä¸œéƒ¨çŽ‹å›½æ¯",
-    "ç¥žç§˜å‘½è¿ä¹‹é£Ž",
-    -- koKR
-    "ì˜¨ ì„¸ìƒì— ì‚¬ëž‘ì„",
-    "ë‹¬ì˜ ì¶•ì œ",
-    "ê·€ì¡±ì˜ ì •ì›",
-    "ì–´ë¦°ì´ ì£¼ê°„",
-    "í•œì—¬ë¦„ ë¶ˆê½ƒì¶•ì œ",
-    "ê°€ì„ ì¶•ì œ",
-    "í• ë¡œìœˆ ì¶•ì œ",
-    "ê²¨ìš¸ë§žì´ ì¶•ì œ",
-    "ë§ìžì˜ ë‚ ",
-    "í•´ì ì˜ ë‚ ",
-    "ìŠ¤íƒ€ì¼ì˜ ì‹œí—˜",
-    "ì•„ì›ƒëžœë“œ ì»µ",
-    "ë…¸ìŠ¤ë Œë“œ ì»µ",
-    "ì¹¼ë¦¼ë„ì–´ ì»µ",
-    "ë™ë¶€ ì™•êµ­ ì»µ",
-    "ì‹ ë¹„ë¡œìš´ í–‰ìš´ì˜ ë°”ëžŒ",
-    -- deDE
-    "Liebe liegt in der Luft",
-    "Mondfest",
-    "Nobelgarten",
-    "Kinderwoche",
-    "Sonnenwendfest",
-    "Braufest",
-    "SchlotternÃ¤chte",
-    "Winterhauch",
-    "Tag der Toten",
-    "Piratentag",
-    "Probe des Stils",
-    "Scherbenwelt-Cup",
-    "Nordend-Cup",
-    "Kalimdor-Cup",
-    "Ã–stliche KÃ¶nigreiche-Cup",
-    "Winde des geheimnisvollen GlÃ¼cks",
-    -- frFR
-    "De l'amour dans l'air",
-    "FÃªte lunaire",
-    "Le Jardin des nobles",
-    "Semaine des enfants",
-    "FÃªte du Feu du solstice d'Ã©tÃ©",
-    "FÃªte des Brasseurs",
-    "Sanssaint",
-    "Voile d'hiver",
-    "Jour des morts",
-    "Jour des pirates",
-    "Ã‰preuve de style",
-    "Coupe de l'Outreterre",
-    "Coupe de Norfendre",
-    "Coupe de Kalimdor",
-    "Coupe des Royaumes de l'Est",
-    "Vents de fortune mystÃ©rieuse",
-    -- esES
-    "El amor estÃ¡ en el aire",
-    "Festival Lunar",
-    "JardÃ­n Noble",
-    "Semana de los NiÃ±os",
-    "Festival de Fuego del Solsticio de Verano",
-    "Fiesta de la Cerveza",
-    "Halloween",
-    "Festival de Invierno",
-    "DÃ­a de los Muertos",
-    "DÃ­a de los Piratas",
-    "Prueba de Estilo",
-    "Copa de Terrallende",
-    "Copa de Rasganorte",
-    "Copa de Kalimdor",
-    "Copa de los Reinos del Este",
-    "Vientos de fortuna misteriosa",
-    -- ptBR
-    "O Amor EstÃ¡ no Ar",
-    "Festival da Lua",
-    "Jardinova",
-    "Semana das CrianÃ§as",
-    "Festival do Fogo do SolstÃ­cio",
-    "CervaFest",
-    "NoturnÃ¡lia",
-    "Festa do VÃ©u de Inverno",
-    "Dia dos Mortos",
-    "Dia dos Piratas",
-    "Prova de Estilo",
-    "Copa de TerralÃ©m",
-    "Copa de NortÃºndria",
-    "Copa de Kalimdor",
-    "Copa dos Reinos do Leste",
-    "Ventos da Fortuna Misteriosa",
-    -- ruRU
-    "Ð›ÑŽÐ±Ð¾Ð²ÑŒ Ð²Ð¸Ñ‚Ð°ÐµÑ‚ Ð² Ð²Ð¾Ð·Ð´ÑƒÑ…Ðµ",
-    "Ð›ÑƒÐ½Ð½Ñ‹Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ",
-    "Ð¡Ð°Ð´ Ñ‡ÑƒÐ´ÐµÑ",
-    "Ð”ÐµÑ‚ÑÐºÐ°Ñ Ð½ÐµÐ´ÐµÐ»Ñ",
-    "ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ð¹ ÑÐ¾Ð»Ð½Ñ†ÐµÐ²Ð¾Ñ€Ð¾Ñ‚",
-    "Ð¥Ð¼ÐµÐ»ÑŒÐ½Ð¾Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ",
-    "Ð¢Ñ‹ÐºÐ²Ð¾Ð²Ð¸Ð½",
-    "Ð—Ð¸Ð¼Ð½Ð¸Ð¹ ÐŸÐ¾ÐºÑ€Ð¾Ð²",
-    "Ð”ÐµÐ½ÑŒ Ð¼Ñ‘Ñ€Ñ‚Ð²Ñ‹Ñ…",
-    "Ð”ÐµÐ½ÑŒ Ð¿Ð¸Ñ€Ð°Ñ‚Ð°",
-    "Ð˜ÑÐ¿Ñ‹Ñ‚Ð°Ð½Ð¸Ðµ ÑÑ‚Ð¸Ð»ÐµÐ¼",
-    "ÐšÑƒÐ±Ð¾Ðº Ð—Ð°Ð¿Ñ€ÐµÐ´ÐµÐ»ÑŒÑ",
-    "ÐšÑƒÐ±Ð¾Ðº ÐÐ¾Ñ€Ð´ÑÐºÐ¾Ð»Ð°",
-    "ÐšÑƒÐ±Ð¾Ðº ÐšÐ°Ð»Ð¸Ð¼Ð´Ð¾Ñ€Ð°",
-    "ÐšÑƒÐ±Ð¾Ðº Ð’Ð¾ÑÑ‚Ð¾Ñ‡Ð½Ñ‹Ñ… ÐºÐ¾Ñ€Ð¾Ð»ÐµÐ²ÑÑ‚Ð²",
-    "Ð’ÐµÑ‚Ñ€Ð° Ñ‚Ð°Ð¸Ð½ÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ ÑƒÐ´Ð°Ñ‡Ð¸",
-}
+local function CalendarDateTimestamp(calendarTime, fallbackYear)
+    if not calendarTime then return nil end
+    local year = tonumber(calendarTime.year) or fallbackYear
+    local month = tonumber(calendarTime.month)
+    local day = tonumber(calendarTime.monthDay)
+    if not year or not month or not day then return nil end
+    return time({ year = year, month = month, day = day, hour = 12, min = 0, sec = 0 })
+end
 
 function lv.UpdateWorldEventsFrame()
     if not lv.WorldEventsFrame then return end
@@ -1324,6 +1118,7 @@ function lv.UpdateWorldEventsFrame()
     local viewYear = lv.VIEW_YEAR or today.year
     local events = {}
     local foundEvents = {} -- Track unique events by title
+    local worldEventAliases = BuildWorldEventAliases()
 
     -- Get days in viewed month
     local daysInMonth = DAYS_IN_MONTH[viewMonth]
@@ -1339,9 +1134,8 @@ function lv.UpdateWorldEventsFrame()
             if event and event.calendarType == "HOLIDAY" then
                 local title = SafeString(event.title)
                 if title and not foundEvents[title] then
-                    -- Check if event matches whitelist
-                    for _, eventName in ipairs(WORLD_EVENTS) do
-                        if string.find(title, eventName) then
+                    for eventName, localeKey in pairs(worldEventAliases) do
+                        if string.find(title, eventName, 1, true) then
                             foundEvents[title] = true
 
                             local dateStr = ""
@@ -1351,15 +1145,21 @@ function lv.UpdateWorldEventsFrame()
                                     event.startTime.month, event.startTime.monthDay,
                                     event.endTime.month, event.endTime.monthDay)
 
-                                -- Check if currently active (based on real today, not viewed month)
-                                local startDate = event.startTime.month * 100 + event.startTime.monthDay
-                                local endDate = event.endTime.month * 100 + event.endTime.monthDay
-                                local todayDate = today.month * 100 + today.day
-                                isActive = todayDate >= startDate and todayDate <= endDate
+                                local startYear = tonumber(event.startTime.year) or viewYear
+                                local endYear = tonumber(event.endTime.year) or startYear
+                                if not event.endTime.year then
+                                    local startOrdinal = event.startTime.month * 100 + event.startTime.monthDay
+                                    local endOrdinal = event.endTime.month * 100 + event.endTime.monthDay
+                                    if endOrdinal < startOrdinal then endYear = startYear + 1 end
+                                end
+                                local startDate = CalendarDateTimestamp(event.startTime, startYear)
+                                local endDate = CalendarDateTimestamp(event.endTime, endYear)
+                                local todayDate = time({ year = today.year, month = today.month, day = today.day, hour = 12, min = 0, sec = 0 })
+                                isActive = startDate and endDate and todayDate >= startDate and todayDate <= endDate or false
                             end
 
                             table.insert(events, {
-                                title = GetLocalizedEventName(title),
+                                title = GetLocalizedEventName(title, localeKey),
                                 dates = dateStr,
                                 isActive = isActive,
                                 startMonth = event.startTime and event.startTime.month or 12,

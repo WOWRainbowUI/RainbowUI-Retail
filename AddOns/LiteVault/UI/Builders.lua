@@ -165,3 +165,51 @@ function lv.CreateSmallActionButton(parent, opts)
 
     return btn
 end
+
+function lv.StyleSmallActionButton(button, hovered, theme)
+    local t = theme or (lv.GetTheme and lv.GetTheme()) or nil
+    if not button or not t then return end
+    button:SetBackdropColor(unpack(hovered and t.buttonBgHover or t.buttonBgAlt))
+    button:SetBackdropBorderColor(unpack(hovered and t.borderHover or t.borderPrimary))
+    local text = button.Text or button.text
+    if text then
+        text:SetTextColor(unpack(t.textPrimary))
+    end
+end
+
+function lv.StyleInteriorNavigationButton(button, active, hovered, theme, bridgeColor)
+    local t = theme or (lv.GetTheme and lv.GetTheme()) or nil
+    if not button or not t then return end
+    local highlighted = active or hovered
+    local background = highlighted and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.buttonBgAlt or t.buttonBg)
+    local border = highlighted and (t.borderHover or t.borderPrimary) or t.borderPrimary
+    button:SetBackdropColor(unpack(background))
+    button:SetBackdropBorderColor(unpack(border))
+    button.Text:SetTextColor(unpack(highlighted and t.textPrimary or t.textSecondary))
+    button.activeBridge:SetColorTexture(unpack(bridgeColor or t.background))
+    button.activeBridge:SetShown(active)
+end
+
+function lv.CreateInteriorNavigationButton(parent, opts)
+    opts = opts or {}
+    local button = lv.CreateSmallActionButton(parent, {
+        width = opts.width,
+        height = opts.height,
+        point = opts.point,
+        text = opts.text,
+        fontObject = opts.fontObject or "GameFontHighlightSmall",
+        backdrop = {
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            edgeSize = 12,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 },
+        },
+    })
+    button.Text = button.text
+    button.activeBridge = button:CreateTexture(nil, "OVERLAY")
+    button.activeBridge:SetPoint("TOPLEFT", button, "BOTTOMLEFT", 4, 3)
+    button.activeBridge:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", -4, 3)
+    button.activeBridge:SetHeight(5)
+    button.activeBridge:Hide()
+    return button
+end

@@ -43,6 +43,7 @@ local TREASURE_ACHIEVEMENT_REWARDS = {
     [62126] = { type = "item", itemID = 264695, label = "Toy: Interdimensional Parcel Signal" },
     [61263] = { type = "mount", name = "Vivacious Chloroceros", label = "Mount: Vivacious Chloroceros" },
     [62125] = { type = "item", itemID = 268717, label = "Toy: Pango Plating" },
+    [63359] = { type = "mount", name = "Auriferous Venomfang", itemID = 275656, label = "Mount: Auriferous Venomfang" },
 }
 local TREASURES_OF_MIDNIGHT = {
     {
@@ -292,7 +293,7 @@ local TREASURES_OF_MIDNIGHT = {
     {
         id = 61263,
         name = "Treasures of Harandar",
-        note = "Some treasures require extra steps or items to open.",
+        note = "NOTE_HARANDAR_TREASURE_REQUIREMENTS",
         treasures = {
             { mapID = 2413, x = 71.69, y = 31.04, name = "Failed Shroom Jumper's Satchel", reward = { type = "item", itemID = 258963, label = "Toy: Shroom Jumper's Parachute" } },
             { mapID = 2413, x = 47.00, y = 50.33, name = "Burning Branch of the World Tree", reward = { type = "item", itemID = 258900, label = "Item: Charred World Tree Branch" } },
@@ -356,11 +357,114 @@ local TREASURES_OF_MIDNIGHT = {
         },
     },
 }
+
+local COILED_ISLE_TREASURES = {
+    id = 63359,
+    name = "Treasures of the Coiled Isle",
+    minInterface = 120100,
+    treasures = {
+        {
+            mapID = 2512, x = 71.82, y = 66.66, name = "Amani Privateer's Cache",
+            steps = {
+                { mapID = 2512, x = 73.40, y = 66.10, text = "1 Grisly Cod Pool - fish up a Grisly Morsel" },
+                { mapID = 2512, x = 72.50, y = 67.20, text = "2 Hungry Dolphin - feed it the morsel and remain underwater" },
+                { mapID = 2512, x = 73.10, y = 67.00, text = "3 Waterlogged Crate - follow the dolphin and loot one key half" },
+                { mapID = 2512, x = 72.40, y = 68.40, text = "4 Broken Urn - loot the other key half" },
+                { mapID = 2512, x = 71.82, y = 66.66, text = "5 Combine the key pieces and open Amani Privateer's Cache" },
+            },
+        },
+        {
+            mapID = 2512, x = 65.41, y = 5.58, name = "Sunken Diver's Chest",
+            steps = {
+                { mapID = 2512, x = 65.41, y = 5.58, text = "1 Sunken Diver's Chest" },
+                { mapID = 2512, x = 65.41, y = 5.58, text = "2 Obtain 3 Diver's Key Fragments from nearby Glittering Grouper Brinetail" },
+                { mapID = 2512, x = 65.41, y = 5.58, text = "3 Combine the fragments into Diver's Key" },
+                { mapID = 2512, x = 65.41, y = 5.58, text = "4 Return to Sunken Diver's Chest and loot it" },
+            },
+        },
+        {
+            mapID = 2512, x = 43.56, y = 67.51, name = "Profane Ritual Spoils",
+            steps = {
+                { mapID = 2512, x = 43.56, y = 67.51, text = "1 Profane Ritual Table" },
+                { mapID = 2512, x = 43.56, y = 67.51, text = "2 Click Top Right" },
+                { mapID = 2512, x = 43.56, y = 67.51, text = "3 Click Top Left" },
+                { mapID = 2512, x = 43.56, y = 67.51, text = "4 Click Bottom Right" },
+                { mapID = 2512, x = 43.56, y = 67.51, text = "5 Click Bottom Left" },
+                { mapID = 2512, x = 43.56, y = 67.51, text = "6 Loot Profane Ritual Spoils" },
+            },
+        },
+        { mapID = 2512, x = 31.38, y = 83.60, name = "Possessed Vase" },
+        { mapID = 2512, x = 55.20, y = 37.96, name = "Tarnished Amani Glaive" },
+        {
+            mapID = 2512, x = 68.05, y = 65.89, name = "Lost Spirit",
+            steps = {
+                { mapID = 2512, x = 70.25, y = 64.45, text = "1 Forgotten Trinket" },
+                { mapID = 2512, x = 68.05, y = 65.89, text = "2 Lost Spirit - return with the trinket and use the new dialogue option" },
+                { mapID = 2512, x = 68.05, y = 65.89, text = "3 Loot the treasure left by the spirit" },
+            },
+        },
+        { mapID = 2512, x = 46.86, y = 29.62, name = "Damaged Loa Trinket" },
+        { mapID = 2512, x = 66.92, y = 28.05, name = "Ornate Bottle" },
+        { mapID = 2512, x = 49.33, y = 31.96, name = "Waterlogged Basket" },
+        { mapID = 2512, x = 73.35, y = 56.67, name = "Crumbling Urn" },
+        {
+            mapID = 2512, x = 58.14, y = 45.76, name = "Vul'zahn's Smuggled Treasure",
+            steps = {
+                { mapID = 2512, x = 58.14, y = 45.76, text = "1 Vul'zahn - ask about the treasure" },
+                { mapID = 2512, x = 57.97, y = 48.75, text = "2 Witherbark Cook - ask for food" },
+                { mapID = 2512, x = 57.25, y = 48.49, text = "3 Apothecary Dezi - obtain the headache medicine" },
+                { mapID = 2512, x = 57.97, y = 48.75, text = "4 Witherbark Cook - give the medicine and obtain Snuffling Boar Stew" },
+                { mapID = 2512, x = 58.14, y = 45.76, text = "5 Vul'zahn - give him the stew and receive the treasure key" },
+                { mapID = 2512, x = 58.14, y = 45.76, text = "6 Loot Vul'zahn's Smuggled Treasure" },
+            },
+        },
+        { mapID = 2512, x = 45.90, y = 66.20, name = "Fangbound Sack" },
+        {
+            mapID = 2512, x = 67.21, y = 48.38, name = "Grave of Someone Forgotten",
+            steps = {
+                { mapID = 2512, x = 67.21, y = 48.38, text = "1 Grave of Someone Forgotten - interact with the grave or nearby spirit" },
+                { mapID = 2512, x = 70.40, y = 58.40, text = "2 Spirit of Zan'ja" },
+                { mapID = 2512, x = 66.40, y = 57.20, text = "3 Spirit of Ru'ko" },
+                { mapID = 2512, x = 69.10, y = 52.70, text = "4 Spirit of Zuzan" },
+                { mapID = 2512, x = 67.21, y = 48.38, text = "5 Return to the Grave" },
+            },
+        },
+        {
+            mapID = 2512, x = 70.61, y = 76.70, name = "Brine-Crusted Chest",
+            steps = {
+                { mapID = 2512, x = 71.90, y = 82.80, text = "1 Search Bubbling Clams for a Luminescent Pearl" },
+                { mapID = 2512, x = 70.60, y = 77.10, text = "2 Nacretta - place the pearl for her" },
+                { mapID = 2512, x = 70.60, y = 77.10, text = "3 Pick up the Dropped Key" },
+                { mapID = 2512, x = 70.61, y = 76.70, text = "4 Open the Brine-Crusted Chest" },
+            },
+        },
+        { mapID = 2512, x = 75.38, y = 68.37, name = "Malfunctioning Staff" },
+        { mapID = 2512, x = 60.41, y = 59.49, name = "Jaktu's Cursed Blade" },
+        { mapID = 2512, x = 58.14, y = 43.62, name = "Cracked Skull" },
+        { mapID = 2512, x = 64.71, y = 36.65, name = "Venomjade Necklace" },
+        { mapID = 2512, x = 53.15, y = 43.14, name = "Stinking Vessel" },
+        { mapID = 2512, x = 29.53, y = 67.08, name = "Smoldering Incense" },
+        { mapID = 2512, x = 64.92, y = 79.00, name = "Forgotten Mask", note = "NOTE_FORGOTTEN_MASK_LOCATION" },
+        { mapID = 2512, x = 44.01, y = 26.60, name = "Zul'jan's Stash" },
+    },
+}
+
+if lv.GetClientInterfaceVersion() >= COILED_ISLE_TREASURES.minInterface then
+    table.insert(TREASURES_OF_MIDNIGHT, COILED_ISLE_TREASURES)
+end
 local MIDNIGHT_DELVER_CRITERIA = {
     { id = 61741, name = "Delve Loremaster: Midnight" },
     { id = 61723, name = "Curio Fanatic: Midnight" },
     { id = 61901, name = "Midnight: Leave No Treasure Unfound" },
-    { id = 61797, name = "My Shady Nemesis" },
+    {
+        key = "seasonalNemesis",
+        id = lv.GetActiveUpgradeSeasonKey() == "midnight_s2" and 63326 or 61797,
+        name = lv.GetActiveUpgradeSeasonKey() == "midnight_s2" and "My Venomous Nemesis" or "My Shady Nemesis",
+        variants = {
+            { season="midnight_s1", id=61797, name="My Shady Nemesis" },
+            { season="midnight_s2", id=63326, name="My Venomous Nemesis" },
+        },
+    },
 }
 local MIDNIGHT_HIGHEST_PEAKS_CRITERIA = {
     { id = 62288, name = "Eversong Woods: The Highest Peaks" },
@@ -374,11 +478,13 @@ local MIDNIGHT_RARES_OF_MIDNIGHT = {
     { id = 61264, name = "Leaf None Behind" },
     { id = 62130, name = "The Ultimate Predator" },
 }
+local COILED_ISLE_RARES_ACHIEVEMENT = { id = 63358, name = "Coiled to Strike", minInterface = 120100 }
 local MIDNIGHT_RARES_REWARDS = {
     [61507] = { type = "item", itemID = 257367, label = "Housing Decor: Silvermoon Energy Focus" },
     [62122] = { type = "item", itemID = 264335, label = "Housing Decor: Colossal Amani Stone Visage" },
     [61264] = { type = "item", itemID = 264266, label = "Housing Decor: Lightbloom Moss Mound" },
     [62130] = { type = "item", itemID = 264493, label = "Housing Decor: Opened Domanaar Storage Crate" },
+    [63358] = { type = "item", itemID = 263873, label = "Housing Decor: Amani Forge" },
 }
 local MIDNIGHT_RARES_SHARED_LOOT = {
     [61507] = {
@@ -533,7 +639,7 @@ local LIGHT_UP_THE_NIGHT_CHILDREN = {
     { id = 62260, name = "That's Aln, Folks!", subView = "thatsalnfolks" },
     { id = 62256, name = "Yelling into the Voidstorm", subView = "yellingintovoidstorm" },
 }
-local LIGHT_UP_THE_NIGHT_REWARD = { type = "item", itemID = 252011, label = "Mount: Brilliant Petalwing" }
+local LIGHT_UP_THE_NIGHT_REWARD = { type = "item", itemID = 252011 }
 local MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN = {
     { name = "Treasures of Zul'Aman", subView = "treasures", selectedID = 62125 },
     { name = "Tallest Tree in the Forest", subView = "rares", selectedID = 62122 },
@@ -553,9 +659,7 @@ local THATS_ALN_FOLKS_CHILDREN = {
     { name = "From The Cradle to the Grave", subView = "fromthecradletothegrave" },
 }
 local THATS_ALN_FOLKS_REWARD = nil
-local CHRONICLER_OF_THE_HARANIR_REWARD_TEXT = "Title: \"Chronicler of the Haranir\""
-local LEGENDS_NEVER_DIE_REWARD = { type = "item", itemID = 264259, label = "Housing Decor: On'ohia's Call" }
-local DUST_EM_OFF_REWARD_TEXT = "Title: \"Dustlord\""
+local LEGENDS_NEVER_DIE_REWARD = { type = "item", itemID = 264259 }
 local DUST_MOTH_QUEST_OFFSETS = {
     [1] = 0, [2] = 60, [3] = 11, [4] = 99, [5] = 12, [6] = 34, [7] = 28, [8] = 46, [9] = 27, [10] = 45,
     [11] = 40, [12] = 72, [13] = 36, [14] = 74, [15] = 31, [16] = 42, [17] = 3, [18] = 73, [19] = 87, [20] = 97,
@@ -819,6 +923,10 @@ local DUST_EM_OFF_GROUPS = {
         { mapID = 2413, x = 73.71, y = 68.27, name = "Moth #79" },
         { mapID = 2413, x = 67.76, y = 68.86, name = "Moth #37" },
     } },
+    [63358] = {
+        { itemID = 276803, label = "Ruby Writhe" },
+        { itemID = 276549, label = "Topaz Skyfang" },
+    },
 }
 local MIDNIGHT_RARES_DETAILS = {
     [61507] = {
@@ -888,7 +996,24 @@ local MIDNIGHT_RARES_DETAILS = {
         { mapID = 2405, x = 40.19, y = 41.40, name = "Nightbrood", rep = "50 Singularity rep", rewards = { { itemID = 264551, label = "Nightbrood's Jaw" }, { itemID = 264574, label = "Netherterror's Legplates" } } },
         { mapID = 2405, x = 53.96, y = 62.73, name = "Far'thana the Mad", rep = "50 Singularity rep", rewards = { { itemID = 264912, label = "Void-Channeler's Spire" }, { itemID = 264913, label = "Focused Netherslicer" } } },
     },
+    [63358] = {
+        { mapID = 2512, x = 53.8, y = 72.0, name = "Farthik the Plunderer", note = "Interact with the Unguarded Chest to bring Farthik down and make him attackable.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 24.9, y = 73.6, name = "Kari'zah the Forgotten", note = "South of The Forum near the sewer exit facing the ocean.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 43.9, y = 50.9, name = "Hisstara", note = "Inside the structure in the Venom Rise area, south of the Gate of the Serpent's Eye.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 69.6, y = 44.8, name = "Garsecg", note = "In the Mlurkkr Mire area.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 57.6, y = 67.4, name = "Coin-Eye Skully", note = "Swims in a large patrol circle south of Tokka's Landing near the Tidebound Grotto entrance. The waypoint marks the patrol area rather than a fixed spawn position.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 58.1, y = 40.1, name = "Sss'alik", note = "Patrols the nearby area north of Tokka's Landing. The waypoint marks the patrol area.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 50.1, y = 68.9, name = "Siltmouth", note = "Near the bottom of the venom waterfall at the lower level of the Gate of the Eastern Fang.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 31.7, y = 56.7, name = "Lockjaw", note = "In the northern area of The Forum near the upper waterfall.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2613, x = 37.7, y = 17.5, name = "Szarith the Fanged", note = "Inside The Underbelly. Enter the Vaults at 45.4, 64.9 on map 2512, then enter The Underbelly at 47.3, 6.4 on map 2509.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2642, x = 63.5, y = 62.4, name = "Nar'zira", note = "Inside the Tomb of the Lost Priest. Surface entrance is at 52.4, 43.1 on map 2512.", rep = "50 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 70.4, y = 63.7, name = "Big Mon", note = "Patrols around the Altar of Wrath in the Whispering Marsh.", rep = "50 Zul'jarra's Forces rep", rewards = { { itemID = 280540, label = "Lil' Mon" } } },
+        { mapID = 2512, x = 52.1, y = 32.4, name = "Destra", note = "In the northern Serpent's Tail area, southwest of the Azta'rec delve entrance.", rep = "50 Zul'jarra's Forces rep" },
+    },
 }
+if lv.GetClientInterfaceVersion() >= COILED_ISLE_RARES_ACHIEVEMENT.minInterface then
+    table.insert(MIDNIGHT_RARES_OF_MIDNIGHT, COILED_ISLE_RARES_ACHIEVEMENT)
+end
 local MIDNIGHT_HIGHEST_PEAKS_WAYPOINTS = {
     [62288] = {
         { mapID = 2393, x = 20.12, y = 79.73, name = "Telescope #1" },
@@ -965,8 +1090,100 @@ local ACH = {
     LEGENDS_NEVER_DIE = 61574,
     DUST_EM_OFF = 61052,
     FROM_THE_CRADLE_TO_THE_GRAVE = 61860,
+    STUDENT_OF_HISSSTORY = 63662,
 }
-local REWARD_ITEM = {
+ACH.STUDENT_OF_HISSSTORY_CONFIG = {
+    id = 63662,
+    name = "Student of Hissstory",
+    minInterface = 120100,
+    reward = { type = "item", itemID = 280419, label = "Toy: Cursed Badge of the Soulcoilers" },
+    objects = {
+        { mapID = 2512, x = 42.5, y = 65.0, name = "Head Mason's Tablet", note = "NOTE_HEAD_MASONS_TABLET_LOCATION", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 70.0, y = 65.9, name = "Worn Tablet", note = "Inside the Altar of Wrath in the Whispering Marsh.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 31.6, y = 83.7, name = "Message in a Bottle", note = "On the shore beside the wreck of Sethraliss's Scale.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 25.0, y = 67.8, name = "Forum Rules", note = "In The Forum, at the base of the stone structure.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 71.9, y = 44.9, name = "Zandalari Logbook", note = "In the water next to the shipwreck near the Wreck of Paku's Talon.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 57.4, y = 80.3, name = "Amani Exile's Words", note = "On Gnarldor Isle inside the base of a large fallen hollow tree.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 50.7, y = 68.4, name = "Abandoned Tablet", note = "Below the broken bridge east of the Gate of the Eastern Fang.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 45.8, y = 47.9, name = "Oily Black Stone", note = "Inside the venom pool in Venom Rise. The inscription can be understood in Shadow Priest Voidform, but this is not required for achievement credit.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 34.1, y = 36.5, name = "Survival Journals", note = "Washed ashore on the small island near The Forum area.", rep = "250 Zul'jarra's Forces rep" },
+        { mapID = 2512, x = 32.5, y = 63.7, name = "Profaned Plaque", note = "NOTE_PROFANED_PLAQUE_LOCATION", rep = "250 Zul'jarra's Forces rep" },
+    },
+}
+ACH.STUDENT_OF_HISSSTORY_CONFIG.available = lv.GetClientInterfaceVersion() >= ACH.STUDENT_OF_HISSSTORY_CONFIG.minInterface
+ACH.HONORED_DEAD_CONFIG = {
+    id = 63610,
+    name = "The Honored Dead",
+    minInterface = 120100,
+    description = "Discover the Funerary Inscriptions throughout the Vaults of Atal'Utek.",
+    objects = {
+        { mapID = 2509, x = 49.46, y = 56.65, name = "To a daughter.", note = "On the right side of the second set of stairs while leaving the Amani Foothold." },
+        { mapID = 2638, x = 14.55, y = 63.93, name = "To parents.", note = "On the right-side wall after entering the Profaned Mausoleum.", steps = { { mapID = 2509, x = 54.83, y = 48.11, name = "Profaned Mausoleum Entrance" }, { mapID = 2638, x = 14.55, y = 63.93, name = "To parents." } } },
+        { mapID = 2509, x = 52.93, y = 33.92, name = "To a captain.", note = "At the top of the right-side staircase leading toward the Venomous Abyss raid." },
+        { mapID = 2509, x = 45.84, y = 61.86, name = "To failure.", note = "Inside the Amani Foothold on the left-side pillar near the staircase." },
+        { mapID = 2509, x = 46.78, y = 7.74, name = "To a sister.", note = "At the far north of the Vaults near the Underbelly entrance." },
+        { mapID = 2509, x = 42.65, y = 32.92, name = "To a stranger.", note = "Underneath the left-side bridge leading toward the Venomous Abyss raid entrance." },
+        { mapID = 2509, x = 52.16, y = 45.30, name = "To a lover.", note = "In the right-side corridor near the middle of the Vaults." },
+        { mapID = 2509, x = 55.63, y = 40.47, name = "To a dream.", note = "On the right side when entering the Gate of the Serpent's Eye from inside the Vaults." },
+        { mapID = 2509, x = 42.83, y = 39.93, name = "To sons.", note = "At the top of the staircase leading toward the venom lake near the center of the Vaults." },
+        { mapID = 2509, x = 47.24, y = 28.92, name = "To a father.", note = "Below the connecting bridges leading toward the Venomous Abyss raid." },
+        { mapID = 2636, x = 77.01, y = 36.87, name = "To comrades.", note = "Inside the Vault of Restless Bones.", steps = { { mapID = 2509, x = 39.70, y = 48.19, name = "Vault of Restless Bones Entrance" }, { mapID = 2636, x = 77.01, y = 36.87, name = "To comrades." } } },
+        { mapID = 2509, x = 56.44, y = 23.02, name = "To a shield-bearer.", note = "Near the Seal of Wrath in the northern Vaults." },
+    },
+}
+ACH.HONORED_DEAD_CONFIG.available = lv.GetClientInterfaceVersion() >= ACH.HONORED_DEAD_CONFIG.minInterface
+ACH.META_12_1 = {
+    minInterface = 120100,
+    parents = {
+        {
+            id = 63639, name = "Ula'tek Uncoiled",
+            children = {
+                { id = 62297, name = "The Curse of Ula'tek", criteria = { "Legacy of the Amani", "Ghosts of the Past", "The Battle for Atal'Utek", "An Island of Fangs", "Original Sin", "The Call of the Void" } },
+                { id = 63359, name = "Treasures of the Coiled Isle", subView = "treasures", selectedID = 63359 },
+                { id = 63358, name = "Coiled to Strike", subView = "rares", selectedID = 63358 },
+                { id = 63640, name = "Explore the Coiled Isle", criteria = { "Blistering Terrace", "Gate of the Serpent's Eye", "Mlurkkr Mire", "The Serpent's Tail", "Tokka's Landing", "Gate of the Eastern Fang", "Gnarldor Isle", "The Forum", "The Whispering Marsh", "Wreck of Paku's Talon" } },
+            },
+        },
+        {
+            id = 63630, name = "Assault the Vault", reward = { type = "item", itemID = 276801, label = "Mount: Venomous Coiler" },
+            children = {
+                { id = 63598, name = "Roll the Patrol", note = "Complete all twelve Temple Patrol variants.", criteria = { "Broken Bonds", "Slay Children of Ula'tek", "Scavenged Weapons", "Congealed Venom", "Vengeance for the Dead", "Calming the Dead", "Slay the Restless", "Siphon Venom", "Breath and Bile", "Dragged Below", "Ash to Ash", "Laid to Rest" }, details = {
+                    { name = "Broken Bonds", note = "Free 6 Amani Soldiers." }, { name = "Slay Children of Ula'tek", note = "Defeat 6 Children of Ula'tek forces." },
+                    { name = "Scavenged Weapons", note = "Gather 8 Scavenged Weapons." }, { name = "Congealed Venom", note = "Gather 8 Congealed Venom." },
+                    { name = "Vengeance for the Dead", note = "Defeat the nearby marked enemy." }, { name = "Calming the Dead", note = "Assist with 5 elements of Er'inye's ritual." },
+                    { name = "Slay the Restless", note = "Defeat 6 nearby undead." }, { name = "Siphon Venom", note = "Siphon venom from the totem while avoiding ground effects." },
+                    { name = "Breath and Bile", note = "Collect 5 Rotten Pneuma and 5 Ophidian Bile." }, { name = "Dragged Below", note = "Rescue 5 Desperate Warriors using the rope mechanic." },
+                    { name = "Ash to Ash", note = "Burn 6 Slain Warriors." }, { name = "Laid to Rest", note = "Locate and burn a nearby spirit's bones." },
+                } },
+                { id = 63599, name = "Submerge the Incursion", note = "Temple Incursions are 10-minute group events that begin after the current Temple Strike is completed when an Incursion is available.", criteria = { "Cache of the Three", "Summoning Ritual", "Supplies Must Flow" } },
+                { id = 62649, name = "A Lone Wanderer", note = "During Purifying Earth and Sky, use the Shrine of Sky to become a Spiritwing. Fly through one of the large blue Wandering Soul Globes.", criteria = { "Soul Globe" } },
+                { id = 62600, name = "Ritual Behavior", note = "Collect each offering and deliver it to the Ritual Altar during Summoning Ritual.", criteria = { "Petrified Egg", "Spirit Urn", "Venomous Ooze" }, details = {
+                    { mapID = 2509, x = 47.22, y = 54.42, name = "Petrified Egg", note = "Found on the ground during the event; deliver it to the Ritual Altar." },
+                    { mapID = 2509, x = 47.22, y = 54.42, name = "Spirit Urn", note = "Found on the ground during the event; deliver it to the Ritual Altar." },
+                    { mapID = 2509, x = 47.22, y = 54.42, name = "Venomous Ooze", note = "Obtained from Venomous Giants; deliver it to the Ritual Altar." },
+                } },
+                { id = 63610, name = "The Honored Dead", subView = "honoreddead" },
+                { id = 63600, name = "Spike the Strike", note = "Complete all six Temple Strike variants.", criteria = { "Purifying Earth and Sky", "The Underbelly", "Overflowing Venom", "Ruuk'jar's Clutch", "Profane Pyres", "Cursed Depths" }, details = {
+                    { name = "Purifying Earth and Sky", note = "Use the Earth/Sky transformations and collect the event objectives." }, { name = "The Underbelly", note = "Enter the Underbelly and defeat Ula'tek's forces." },
+                    { name = "Overflowing Venom", note = "Defeat summoned snakes and interrupt summoning rituals." }, { name = "Ruuk'jar's Clutch", note = "Enter the portals and destroy Ruuk'jar's eggs." },
+                    { name = "Profane Pyres", note = "Gather souls, burn them in the pyres and use the flames against sarcophagi." }, { name = "Cursed Depths", note = "Enter the marked crevices beneath the Seal of Wrath and defeat the enemies inside." },
+                } },
+                { id = 63601, name = "Oppose the Foes", note = "An Ancient Foe appears after a successful Temple Incursion. Defeat all three Ancient Foes.", criteria = { "Congealed Malice", "Susarikk", "Khu'tulak" } },
+                { id = 62604, name = "Dance While Everyone Watches", note = "During Cache of the Three, /dance inside the defense circle at each stone until the achievement credit triggers.", criteria = { "Many Faces Stone", "Poison Stone", "Stone of Shackles" }, details = {
+                    { name = "Many Faces Stone", note = "Dance inside the defense circle at the Shrine of Many Faces." }, { name = "Poison Stone", note = "Dance inside the defense circle at the Shrine of Venom / Poison." }, { name = "Stone of Shackles", note = "Dance inside the defense circle at the Shrine of Shackles." },
+                } },
+                { id = 62601, name = "Soft Underbelly", note = "Five visible named criteria; completion is read from Blizzard.", criteria = { "Champion of the Scale", "Priest of the First Rattle", "Vserix the Sneaky", "Guardian of the Sacrifice", "Szarith the Fanged" }, details = {
+                    { name = "Champion of the Scale", note = "Available during Temple Strike: The Underbelly." }, { name = "Priest of the First Rattle", note = "Available during Temple Strike: The Underbelly." },
+                    { name = "Vserix the Sneaky", note = "Can be encountered in the Underbelly independently of the Strike." }, { name = "Guardian of the Sacrifice", note = "Available during Temple Strike: The Underbelly." },
+                    MIDNIGHT_RARES_DETAILS[63358][9],
+                } },
+                { id = 63636, name = "Fully Corroded", note = "Unlock all 20 required Altar of Corrosion talents. Spirit Corrosion comes from Corrosive Coin progression, Renown rewards, and Corrosive Relic discoveries.", rewardText = "Title: the Snake", criteria = { "Talents Unlocked" }, details = { { mapID = 2509, x = 51.2, y = 62.6, name = "Talents Unlocked", note = "Altar of Corrosion / Er'inye. Unlock all 20 required Altar of Corrosion talents." } }, requiredQuantity = 20 },
+            },
+        },
+    },
+}
+ACH.META_12_1.available = lv.GetClientInterfaceVersion() >= ACH.META_12_1.minInterface
+ACH.REWARD_ITEM = {
     CRIMSON_DRAGONHAWK = 257145,
     GIGANTO_MANIS = 257199,
 }
@@ -1033,10 +1250,10 @@ local function GetAchievementRewardDisplayInfo(achievementID, rewardText)
             local mountInfo = GetMountRewardInfoByName(override.name)
             local mountName = (mountInfo and mountInfo.name) or override.name
             return {
-                icon = mountInfo and mountInfo.icon or nil,
+                icon = (mountInfo and mountInfo.icon) or (override.itemID and C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(override.itemID)) or nil,
                 label = override.label or string.format(GetLocaleText("TEXT_ACHIEVEMENT_MOUNT_FMT", "Mount: %s"), mountName),
-                tooltipType = "mount",
-                tooltipValue = mountInfo and mountInfo.spellID or nil,
+                tooltipType = mountInfo and "mount" or (override.itemID and "item" or nil),
+                tooltipValue = (mountInfo and mountInfo.spellID) or override.itemID,
             }
         end
         if override.type == "item" and override.itemID then
@@ -1116,11 +1333,13 @@ local function GetAchievementCriteriaRows(achievementID)
     local count = GetAchievementNumCriteria and GetAchievementNumCriteria(achievementID) or 0
     if not GetAchievementCriteriaInfo then return rows end
     for index = 1, count do
-        local desc, _, completed = GetAchievementCriteriaInfo(achievementID, index)
+        local desc, _, completed, quantity, requiredQuantity = GetAchievementCriteriaInfo(achievementID, index)
         if desc and desc ~= "" then
             rows[#rows + 1] = {
                 text = desc,
                 done = completed and true or false,
+                quantity = quantity,
+                requiredQuantity = requiredQuantity,
             }
         end
     end
@@ -1207,6 +1426,12 @@ local currentMainView = (env.getCurrentMainView and env.getCurrentMainView()) or
 local UIText = env.UIText or lv.UIText or function(key, fallback)
     return GetLocaleText(key, fallback)
 end
+local function GetTrackedAchievementEntriesUnavailableText(achievementID, fallback)
+    return string.format(
+        UIText("TEXT_TRACKED_ACHIEVEMENT_ENTRIES_UNAVAILABLE_FMT"),
+        GetAchievementName(achievementID, fallback)
+    )
+end
 local RefreshAchievementsView
 local function SetDashboardContentVisible(visible)
     if env.setDashboardContentVisible then
@@ -1243,6 +1468,7 @@ AchievementView:SetBackdrop({
     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
     edgeSize = 14,
 })
+lv.EnsureBorderStyle(AchievementView, "panel")
 AchievementView:Hide()
 lv.AchievementView = AchievementView
 
@@ -1250,7 +1476,7 @@ do
     local t = lv.GetTheme and lv.GetTheme()
     if t then
         AchievementView:SetBackdropColor(unpack(t.backgroundTransparent))
-        AchievementView:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(AchievementView, "panel", t)
     end
 end
 
@@ -1264,13 +1490,44 @@ achievementsSubtitle:SetJustifyH("LEFT")
 achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS"))
 
 local achievementSubView = "home"
+local achievementHomeSection = "trackers"
+local achievementReturnSection = "trackers"
 
 local achievementHome = CreateFrame("Frame", nil, AchievementView)
 achievementHome:SetPoint("TOPLEFT", 0, 0)
 achievementHome:SetPoint("BOTTOMRIGHT", 0, 0)
 local home = {}
 
-home.treasureLaunchBtn = CreateFrame("Button", nil, achievementHome, "BackdropTemplate")
+home.sectionNav = CreateFrame("Frame", nil, achievementHome)
+home.sectionNav:SetPoint("TOPLEFT", 18, -68)
+home.sectionNav:SetSize(330, 34)
+home.sectionButtons = {}
+for i, info in ipairs({
+    { key = "trackers", label = "TAB_TRACKERS" },
+    { key = "meta", label = "TAB_META_ACHIEVEMENTS" },
+}) do
+    local btn = CreateFrame("Button", nil, home.sectionNav, "BackdropTemplate")
+    btn:SetSize(info.key == "trackers" and 120 or 178, 28)
+    btn:SetPoint("LEFT", i == 1 and home.sectionNav or home.sectionButtons[i - 1], i == 1 and "LEFT" or "RIGHT", i == 1 and 0 or 8, 0)
+    btn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 10,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 },
+    })
+    btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    btn.Text:SetPoint("CENTER")
+    btn.Text:SetText(UIText(info.label))
+    btn.sectionKey = info.key
+    home.sectionButtons[i] = btn
+end
+
+home.trackersContent = CreateFrame("Frame", nil, achievementHome)
+home.trackersContent:SetAllPoints(achievementHome)
+home.metaContent = CreateFrame("Frame", nil, achievementHome)
+home.metaContent:SetAllPoints(achievementHome)
+
+home.treasureLaunchBtn = CreateFrame("Button", nil, home.trackersContent, "BackdropTemplate")
 home.treasureLaunchBtn:SetSize(220, 34)
 home.treasureLaunchBtn:SetPoint("TOPLEFT", 18, -118)
 home.treasureLaunchBtn:SetBackdrop({
@@ -1286,14 +1543,14 @@ if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.treasureLaunchBtn.Text, 11)
 end
 
-home.treasureLaunchNote = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+home.treasureLaunchNote = home.trackersContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.treasureLaunchNote:SetPoint("TOPLEFT", home.treasureLaunchBtn, "BOTTOMLEFT", 2, -10)
 home.treasureLaunchNote:SetPoint("TOPRIGHT", home.treasureLaunchBtn, "BOTTOMRIGHT", -2, -10)
 home.treasureLaunchNote:SetJustifyH("LEFT")
 home.treasureLaunchNote:SetWordWrap(true)
-home.treasureLaunchNote:SetText("|cffb8b8b8" .. UIText("Track the four Midnight treasure achievements and their rewards.") .. "|r")
+home.treasureLaunchNote:SetText("|cffb8b8b8" .. UIText("TEXT_MIDNIGHT_TREASURES_TRACKER_DESCRIPTION") .. "|r")
 
-home.glyphHunterLaunchBtn = CreateFrame("Button", nil, achievementHome, "BackdropTemplate")
+home.glyphHunterLaunchBtn = CreateFrame("Button", nil, home.trackersContent, "BackdropTemplate")
 home.glyphHunterLaunchBtn:SetSize(220, 34)
 home.glyphHunterLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchNote, "BOTTOMLEFT", 0, -22)
 home.glyphHunterLaunchBtn:SetBackdrop({
@@ -1309,26 +1566,26 @@ if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.glyphHunterLaunchBtn.Text, 11)
 end
 
-home.glyphRewardIcon = achievementHome:CreateTexture(nil, "ARTWORK")
+home.glyphRewardIcon = home.trackersContent:CreateTexture(nil, "ARTWORK")
 home.glyphRewardIcon:SetSize(18, 18)
 home.glyphRewardIcon:SetPoint("TOPLEFT", home.glyphHunterLaunchBtn, "BOTTOMLEFT", 2, -10)
 if C_Item and C_Item.GetItemIconByID then
-    home.glyphRewardIcon:SetTexture(C_Item.GetItemIconByID(REWARD_ITEM.CRIMSON_DRAGONHAWK))
+    home.glyphRewardIcon:SetTexture(C_Item.GetItemIconByID(ACH.REWARD_ITEM.CRIMSON_DRAGONHAWK))
 end
 
-home.glyphRewardText = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+home.glyphRewardText = home.trackersContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.glyphRewardText:SetPoint("LEFT", home.glyphRewardIcon, "RIGHT", 6, 0)
 home.glyphRewardText:SetJustifyH("LEFT")
-home.glyphRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(REWARD_ITEM.CRIMSON_DRAGONHAWK, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
+home.glyphRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(ACH.REWARD_ITEM.CRIMSON_DRAGONHAWK, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
 
-home.glyphRewardNote = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+home.glyphRewardNote = home.trackersContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.glyphRewardNote:SetPoint("TOPLEFT", home.glyphRewardIcon, "BOTTOMLEFT", 0, -4)
 home.glyphRewardNote:SetPoint("RIGHT", home.glyphHunterLaunchBtn, "RIGHT", -2, 0)
 home.glyphRewardNote:SetJustifyH("LEFT")
 home.glyphRewardNote:SetWordWrap(true)
 home.glyphRewardNote:SetText("|cffb8b8b8" .. UIText("DESC_GLYPH_REWARD") .. "|r")
 
-home.delverLaunchBtn = CreateFrame("Button", nil, achievementHome, "BackdropTemplate")
+home.delverLaunchBtn = CreateFrame("Button", nil, home.trackersContent, "BackdropTemplate")
 home.delverLaunchBtn:SetSize(220, 34)
 home.delverLaunchBtn:SetPoint("TOPLEFT", home.glyphRewardNote, "BOTTOMLEFT", 0, -22)
 home.delverLaunchBtn:SetBackdrop({
@@ -1344,24 +1601,24 @@ if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.delverLaunchBtn.Text, 11)
 end
 
-home.delverRewardIcon = achievementHome:CreateTexture(nil, "ARTWORK")
+home.delverRewardIcon = home.trackersContent:CreateTexture(nil, "ARTWORK")
 home.delverRewardIcon:SetSize(18, 18)
 home.delverRewardIcon:SetPoint("TOPLEFT", home.delverLaunchBtn, "BOTTOMLEFT", 2, -10)
 if C_Item and C_Item.GetItemIconByID then
-    home.delverRewardIcon:SetTexture(C_Item.GetItemIconByID(REWARD_ITEM.GIGANTO_MANIS))
+    home.delverRewardIcon:SetTexture(C_Item.GetItemIconByID(ACH.REWARD_ITEM.GIGANTO_MANIS))
 end
 
-home.delverRewardText = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+home.delverRewardText = home.trackersContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.delverRewardText:SetPoint("LEFT", home.delverRewardIcon, "RIGHT", 6, 0)
 home.delverRewardText:SetJustifyH("LEFT")
-home.delverRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(REWARD_ITEM.GIGANTO_MANIS, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
+home.delverRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(ACH.REWARD_ITEM.GIGANTO_MANIS, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
 
-home.delverRewardNote = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+home.delverRewardNote = home.trackersContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.delverRewardNote:SetPoint("TOPLEFT", home.delverRewardIcon, "BOTTOMLEFT", 0, -4)
 home.delverRewardNote:SetPoint("RIGHT", home.delverLaunchBtn, "RIGHT", -2, 0)
 home.delverRewardNote:SetJustifyH("LEFT")
 home.delverRewardNote:SetWordWrap(true)
-home.delverRewardNote:SetText("|cffb8b8b8" .. UIText("Complete Glory of the Midnight Delver to earn this mount.") .. "|r")
+home.delverRewardNote:SetText("|cffb8b8b8" .. UIText("TEXT_DELVER_MOUNT_REWARD_REQUIREMENT") .. "|r")
 
 local function CreateAchievementLaunchButton(parent, anchorTarget, offsetY, text)
     local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
@@ -1444,28 +1701,59 @@ local function CreateAchievementRewardDisplay(parent, yOffset)
 end
 
 home.peaksLaunchBtn = CreateAchievementLaunchButton(
-    achievementHome,
+    home.trackersContent,
     home.delverRewardNote,
     -22,
     GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, UIText("Midnight, the Highest Peaks"))
 )
 home.peaksLaunchNote = CreateAchievementLaunchNote(
-    achievementHome,
+    home.trackersContent,
     home.peaksLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the four zone achievements for Midnight, the Highest Peaks.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_MIDNIGHT_PEAKS_TRACKER_DESCRIPTION") .. "|r"
 )
 
 home.raresLaunchBtn = CreateAchievementLaunchButton(
-    achievementHome,
+    home.trackersContent,
     home.peaksLaunchNote,
     -22,
     UIText("Rares of Midnight")
 )
 home.raresLaunchNote = CreateAchievementLaunchNote(
-    achievementHome,
+    home.trackersContent,
     home.raresLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the four Midnight rare achievements and zone rare rewards.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_MIDNIGHT_RARES_TRACKER_DESCRIPTION") .. "|r"
 )
+
+home.loreLaunchBtn = CreateAchievementLaunchButton(
+    home.trackersContent,
+    home.raresLaunchNote,
+    -22,
+    GetAchievementName(ACH.STUDENT_OF_HISSSTORY, "Student of Hissstory")
+)
+home.loreLaunchNote = CreateAchievementLaunchNote(
+    home.trackersContent,
+    home.loreLaunchBtn,
+    "|cffb8b8b8" .. UIText("TEXT_COILED_ISLE_LORE_INSTRUCTION") .. "|r"
+)
+if not ACH.STUDENT_OF_HISSSTORY_CONFIG.available then
+    home.loreLaunchBtn:Hide()
+    home.loreLaunchNote:Hide()
+end
+
+home.ulatekLaunchBtn = CreateAchievementLaunchButton(home.metaContent, home.loreLaunchNote, -22, GetAchievementName(63639, "Ula'tek Uncoiled"))
+home.ulatekLaunchNote = CreateAchievementLaunchNote(home.metaContent, home.ulatekLaunchBtn, "|cffb8b8b8" .. UIText("TEXT_COILED_ISLE_META_INSTRUCTION") .. "|r")
+home.ulatekLaunchMetaOverlay = CreateMetaAchievementHomeOverlay(home.metaContent, home.ulatekLaunchBtn, home.ulatekLaunchNote)
+home.assaultVaultLaunchBtn = CreateAchievementLaunchButton(home.trackersContent, home.loreLaunchNote, -22, GetAchievementName(63630, "Assault the Vault"))
+home.assaultVaultLaunchNote = CreateAchievementLaunchNote(home.trackersContent, home.assaultVaultLaunchBtn, "|cffb8b8b8" .. UIText("TEXT_ATALUTEK_META_INSTRUCTION") .. "|r")
+home.honoredDeadLaunchBtn = CreateAchievementLaunchButton(home.trackersContent, home.assaultVaultLaunchNote, -22, GetAchievementName(ACH.HONORED_DEAD_CONFIG.id, ACH.HONORED_DEAD_CONFIG.name))
+home.honoredDeadLaunchNote = CreateAchievementLaunchNote(home.trackersContent, home.honoredDeadLaunchBtn, "|cffb8b8b8" .. UIText(ACH.HONORED_DEAD_CONFIG.description) .. "|r")
+if not ACH.META_12_1.available then
+    home.ulatekLaunchBtn:Hide(); home.ulatekLaunchNote:Hide()
+    home.assaultVaultLaunchBtn:Hide(); home.assaultVaultLaunchNote:Hide()
+end
+if not ACH.HONORED_DEAD_CONFIG.available then
+    home.honoredDeadLaunchBtn:Hide(); home.honoredDeadLaunchNote:Hide()
+end
 
 home.everPaintingLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
@@ -1476,7 +1764,7 @@ home.everPaintingLaunchBtn = CreateAchievementLaunchButton(
 home.everPaintingLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.everPaintingLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track Ever-Painting progress. Entry details can be filled in later.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_EVER_PAINTING_TRACKER_PLACEHOLDER") .. "|r"
 )
 home.everPaintingLaunchBtn:Hide()
 home.everPaintingLaunchNote:Hide()
@@ -1490,7 +1778,7 @@ home.runestoneRushLaunchBtn = CreateAchievementLaunchButton(
 home.runestoneRushLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.runestoneRushLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track Runestone Rush progress. Entry details can be filled in later.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_RUNESTONE_RUSH_TRACKER_PLACEHOLDER") .. "|r"
 )
 home.runestoneRushLaunchBtn:Hide()
 home.runestoneRushLaunchNote:Hide()
@@ -1504,7 +1792,7 @@ home.partyMustGoOnLaunchBtn = CreateAchievementLaunchButton(
 home.partyMustGoOnLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.partyMustGoOnLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track The Party Must Go On progress. Entry details can be filled in later.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_PARTY_TRACKER_PLACEHOLDER") .. "|r"
 )
 home.partyMustGoOnLaunchBtn:Hide()
 home.partyMustGoOnLaunchNote:Hide()
@@ -1518,7 +1806,7 @@ home.exploreEversongLaunchBtn = CreateAchievementLaunchButton(
 home.exploreEversongLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.exploreEversongLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track Explore Eversong Woods progress. Entry details can be filled in later.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_EXPLORE_EVERSONG_TRACKER_PLACEHOLDER") .. "|r"
 )
 home.exploreEversongLaunchBtn:ClearAllPoints()
 home.exploreEversongLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 40, 56)
@@ -1534,7 +1822,7 @@ home.foreverSongLaunchBtn = CreateAchievementLaunchButton(
 home.foreverSongLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.foreverSongLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the Eversong Woods meta-achievement and jump into its child trackers.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_EVERSONG_META_TRACKER_DESCRIPTION") .. "|r"
 )
 home.foreverSongLaunchBtn:ClearAllPoints()
 home.foreverSongLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 78, 0)
@@ -1551,7 +1839,7 @@ home.yellingIntoVoidstormLaunchBtn = CreateAchievementLaunchButton(
 home.yellingIntoVoidstormLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.yellingIntoVoidstormLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the Voidstorm meta-achievement and jump into its child trackers.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_VOIDSTORM_META_TRACKER_DESCRIPTION") .. "|r"
 )
 home.yellingIntoVoidstormLaunchBtn:ClearAllPoints()
 home.yellingIntoVoidstormLaunchBtn:SetPoint("TOPLEFT", home.foreverSongLaunchNote, "BOTTOMLEFT", -2, -22)
@@ -1568,7 +1856,7 @@ home.makingAnAmaniLaunchBtn = CreateAchievementLaunchButton(
 home.makingAnAmaniLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.makingAnAmaniLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the Zul'Aman meta-achievement and jump into its child trackers.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_ZULAMAN_META_TRACKER_DESCRIPTION") .. "|r"
 )
 home.makingAnAmaniLaunchBtn:ClearAllPoints()
 home.makingAnAmaniLaunchBtn:SetPoint("TOPLEFT", home.yellingIntoVoidstormLaunchNote, "BOTTOMLEFT", -2, -22)
@@ -1581,21 +1869,21 @@ home.thatsAlnFolksLaunchBtn = CreateAchievementLaunchButton(
 home.thatsAlnFolksLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.thatsAlnFolksLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the Harandar meta-achievement and jump into its child trackers.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_HARANDAR_META_TRACKER_DESCRIPTION") .. "|r"
 )
 home.thatsAlnFolksLaunchBtn:ClearAllPoints()
 home.thatsAlnFolksLaunchBtn:SetPoint("TOPLEFT", home.makingAnAmaniLaunchNote, "BOTTOMLEFT", -2, -22)
 
 home.lightUpTheNightLaunchBtn = CreateAchievementLaunchButton(
-    achievementHome,
+    home.metaContent,
     home.thatsAlnFolksLaunchNote,
     -22,
     GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night"))
 )
 home.lightUpTheNightLaunchNote = CreateAchievementLaunchNote(
-    achievementHome,
+    home.metaContent,
     home.lightUpTheNightLaunchBtn,
-    "|cffb8b8b8" .. UIText("Complete the four Midnight zone meta-achievements and earn the mount reward.") .. "|r"
+    "|cffb8b8b8" .. UIText("TEXT_MIDNIGHT_ZONE_META_REWARD_REQUIREMENT") .. "|r"
 )
 home.lightUpTheNightLaunchBtn:ClearAllPoints()
 home.lightUpTheNightLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 78, 0)
@@ -1604,7 +1892,7 @@ home.lightUpTheNightLaunchNote:ClearAllPoints()
 home.lightUpTheNightLaunchNote:SetPoint("TOPLEFT", home.lightUpTheNightLaunchBtn, "BOTTOMLEFT", 2, -10)
 home.lightUpTheNightLaunchNote:SetPoint("TOPRIGHT", home.lightUpTheNightLaunchBtn, "BOTTOMRIGHT", -2, -10)
 home.lightUpTheNightLaunchNote:SetJustifyH("LEFT")
-home.lightUpTheNightMetaOverlay = CreateMetaAchievementHomeOverlay(achievementHome, home.lightUpTheNightLaunchBtn, home.lightUpTheNightLaunchNote)
+home.lightUpTheNightMetaOverlay = CreateMetaAchievementHomeOverlay(home.metaContent, home.lightUpTheNightLaunchBtn, home.lightUpTheNightLaunchNote)
 home.foreverSongLaunchBtn:Hide()
 home.foreverSongLaunchNote:Hide()
 home.yellingIntoVoidstormLaunchBtn:Hide()
@@ -1628,6 +1916,12 @@ do
         home.raresLaunchBtn:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
         home.raresLaunchBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
         home.raresLaunchBtn.Text:SetTextColor(unpack(t.textPrimary))
+        home.loreLaunchBtn:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
+        home.loreLaunchBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
+        home.loreLaunchBtn.Text:SetTextColor(unpack(t.textPrimary))
+        for _, btn in ipairs({ home.ulatekLaunchBtn, home.assaultVaultLaunchBtn }) do
+            btn:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg)); btn:SetBackdropBorderColor(unpack(t.borderPrimary)); btn.Text:SetTextColor(unpack(t.textPrimary))
+        end
         home.everPaintingLaunchBtn:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
         home.everPaintingLaunchBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
         home.everPaintingLaunchBtn.Text:SetTextColor(unpack(t.textPrimary))
@@ -1722,6 +2016,23 @@ home.raresLaunchBtn:SetScript("OnLeave", function(self)
     self:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
     self.Text:SetTextColor(unpack(t.textPrimary))
 end)
+
+home.loreLaunchBtn:SetScript("OnEnter", function(self)
+    local t = lv.GetTheme()
+    self:SetBackdropBorderColor(unpack(t.borderHover))
+    self:SetBackdropColor(unpack(t.buttonBgHover))
+    self.Text:SetTextColor(unpack(t.textPrimary))
+end)
+home.loreLaunchBtn:SetScript("OnLeave", function(self)
+    local t = lv.GetTheme()
+    self:SetBackdropBorderColor(unpack(t.borderPrimary))
+    self:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg))
+    self.Text:SetTextColor(unpack(t.textPrimary))
+end)
+for _, btn in ipairs({ home.ulatekLaunchBtn, home.assaultVaultLaunchBtn }) do
+    btn:SetScript("OnEnter", function(self) local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderHover)); self:SetBackdropColor(unpack(t.buttonBgHover)) end)
+    btn:SetScript("OnLeave", function(self) local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderPrimary)); self:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg)) end)
+end
 
 home.everPaintingLaunchBtn:SetScript("OnEnter", function(self)
     local t = lv.GetTheme()
@@ -1896,15 +2207,23 @@ local altarOfBlessings = {}
 local noTimeToPaws = {}
 local fromTheCradleToTheGrave = {}
 local chroniclerOfTheHaranir = {}
+local studentOfHissstory = {}
+local meta121 = { parentIndex = nil, childIndex = nil }
 local legendsNeverDie = {}
 local dustEmOff = {}
 local dustEmOffSelectedGroup = 1
 local function ApplyAchievementsTheme(theme)
     if not theme then return end
     AchievementView:SetBackdropColor(unpack(theme.backgroundTransparent))
-    AchievementView:SetBackdropBorderColor(unpack(theme.borderPrimary))
+    lv.ApplyBorderStyle(AchievementView, "panel", theme)
     achievementsTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary))
     achievementsSubtitle:SetTextColor(unpack(theme.textSecondary))
+    for _, btn in ipairs(home.sectionButtons or {}) do
+        local selected = btn.sectionKey == achievementHomeSection
+        btn:SetBackdropColor(unpack(selected and (theme.buttonBgHover or theme.buttonBg) or (theme.buttonBgAlt or theme.buttonBg)))
+        btn:SetBackdropBorderColor(unpack(selected and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary))
+        btn.Text:SetTextColor(unpack(theme.textPrimary))
+    end
     home.treasureLaunchBtn:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
     home.treasureLaunchBtn:SetBackdropBorderColor(unpack(theme.borderPrimary))
     home.treasureLaunchBtn.Text:SetTextColor(unpack(theme.textPrimary))
@@ -1927,6 +2246,19 @@ local function ApplyAchievementsTheme(theme)
         home.raresLaunchBtn.Text:SetTextColor(unpack(theme.textPrimary))
     end
     if home.raresLaunchNote then home.raresLaunchNote:SetTextColor(unpack(theme.textSecondary)) end
+    for _, entry in ipairs({
+        { button = home.loreLaunchBtn, note = home.loreLaunchNote },
+        { button = home.ulatekLaunchBtn, note = home.ulatekLaunchNote },
+        { button = home.assaultVaultLaunchBtn, note = home.assaultVaultLaunchNote },
+        { button = home.honoredDeadLaunchBtn, note = home.honoredDeadLaunchNote },
+    }) do
+        if entry.button then
+            entry.button:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
+            entry.button:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            entry.button.Text:SetTextColor(unpack(theme.textPrimary))
+        end
+        if entry.note then entry.note:SetTextColor(unpack(theme.textSecondary)) end
+    end
     if home.everPaintingLaunchBtn then
         home.everPaintingLaunchBtn:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
         home.everPaintingLaunchBtn:SetBackdropBorderColor(unpack(theme.borderPrimary))
@@ -2301,6 +2633,21 @@ local function ApplyAchievementsTheme(theme)
             row.Text:SetTextColor(unpack(theme.textPrimary))
         end
     end
+    if studentOfHissstory.summary then studentOfHissstory.summary:SetTextColor(unpack(theme.textSecondary)) end
+    if studentOfHissstory.criteriaTitle then studentOfHissstory.criteriaTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary)) end
+    if studentOfHissstory.rewardLabel then studentOfHissstory.rewardLabel:SetTextColor(unpack(theme.textPrimary)) end
+    if studentOfHissstory.detailTitle then studentOfHissstory.detailTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary)) end
+    for _, row in ipairs(studentOfHissstory.rows or {}) do
+        row:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg))
+        row:SetBackdropBorderColor(unpack(theme.borderPrimary))
+        if row.Text then row.Text:SetTextColor(unpack(theme.textPrimary)) end
+    end
+    if meta121.summary then meta121.summary:SetTextColor(unpack(theme.textSecondary)) end
+    if meta121.rewardTitle then meta121.rewardTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary)) end
+    if meta121.rewardLabel then meta121.rewardLabel:SetTextColor(unpack(theme.textPrimary)) end
+    if meta121.detailTitle then meta121.detailTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary)) end
+    if meta121.note then meta121.note:SetTextColor(unpack(theme.textSecondary)) end
+    for _, row in ipairs(meta121.rows or {}) do row:SetBackdropColor(unpack(theme.buttonBgAlt or theme.buttonBg)); row:SetBackdropBorderColor(unpack(theme.borderPrimary)); row.Text:SetTextColor(unpack(theme.textPrimary)) end
     if legendsNeverDie.summary then legendsNeverDie.summary:SetTextColor(unpack(theme.textSecondary)) end
     if legendsNeverDie.criteriaTitle then legendsNeverDie.criteriaTitle:SetTextColor(unpack(theme.textGold or theme.textPrimary)) end
     if legendsNeverDie.rewardLabel then legendsNeverDie.rewardLabel:SetTextColor(unpack(theme.textPrimary)) end
@@ -2363,7 +2710,7 @@ treasureSummary:SetJustifyH("LEFT")
 
 local treasureAchievementsTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 treasureAchievementsTitle:SetPoint("TOPLEFT", 0, -28)
-treasureAchievementsTitle:SetText(UIText("Achievements"))
+treasureAchievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS"))
 
 treasureAchievementButtons = {}
 for i, info in ipairs(TREASURES_OF_MIDNIGHT) do
@@ -2378,8 +2725,9 @@ for i, info in ipairs(TREASURES_OF_MIDNIGHT) do
     )
 end
 
+local treasureDetailOffset = (#TREASURES_OF_MIDNIGHT - 4) * 26
 treasureDetailTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-treasureDetailTitle:SetPoint("TOPLEFT", 0, -170)
+treasureDetailTitle:SetPoint("TOPLEFT", 0, -170 - treasureDetailOffset)
 treasureDetailTitle:SetText(UIText("LABEL_REWARD"))
 
 treasureRewardText = treasureView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -2389,18 +2737,18 @@ treasureRewardText:SetJustifyH("LEFT")
 treasureRewardText:SetWordWrap(true)
 
 do
-    local reward = CreateAchievementRewardDisplay(treasureView, -198)
+    local reward = CreateAchievementRewardDisplay(treasureView, -198 - treasureDetailOffset)
     treasureRewardIcon = reward.icon
     treasureRewardLabel = reward.label
     treasureRewardButton = reward.button
 end
 
 local treasureCriteriaTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-treasureCriteriaTitle:SetPoint("TOPLEFT", 0, -244)
+treasureCriteriaTitle:SetPoint("TOPLEFT", 0, -244 - treasureDetailOffset)
 treasureCriteriaTitle:SetText(UIText("LABEL_DETAILS"))
 
 local treasureCriteriaScroll = CreateFrame("ScrollFrame", nil, treasureView)
-treasureCriteriaScroll:SetPoint("TOPLEFT", 0, -268)
+treasureCriteriaScroll:SetPoint("TOPLEFT", 0, -268 - treasureDetailOffset)
 treasureCriteriaScroll:SetPoint("BOTTOMRIGHT", -4, 0)
 treasureCriteriaScroll:EnableMouseWheel(true)
 
@@ -2426,7 +2774,7 @@ for i = 1, 30 do
 end
 
 treasureButtons = {}
-for i = 1, 20 do
+for i = 1, 22 do
     local btn = CreateFrame("Button", nil, treasureCriteriaContent, "BackdropTemplate")
     btn:SetSize(740, 22)
     btn:SetBackdrop({
@@ -2500,7 +2848,7 @@ delverSummary:SetJustifyH("LEFT")
 
 delverCriteriaTitle = delverView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 delverCriteriaTitle:SetPoint("TOPLEFT", 0, -28)
-delverCriteriaTitle:SetText(UIText("Achievements"))
+delverCriteriaTitle:SetText(UIText("TITLE_ACHIEVEMENTS"))
 
 delverAchievementButtons = {}
 for i, info in ipairs(MIDNIGHT_DELVER_CRITERIA) do
@@ -2523,7 +2871,7 @@ peaksView:Hide()
 peaksSummary = peaksView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 peaksSummary:SetPoint("TOPLEFT", 0, 0)
 peaksSummary:SetJustifyH("LEFT")
-peaksSummary:SetText(UIText("Complete the five telescopes in this zone."))
+peaksSummary:SetText(UIText("TEXT_TELESCOPE_ZONE_REQUIREMENT"))
 
 do
     local reward = CreateAchievementRewardDisplay(peaksView, -198)
@@ -2588,10 +2936,11 @@ rares.view:Hide()
 rares.summary = rares.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 rares.summary:SetPoint("TOPLEFT", 0, 0)
 rares.summary:SetJustifyH("LEFT")
-rares.summary:SetText(UIText("Track the four Midnight rare achievements."))
+rares.summary:SetText(UIText("TEXT_MIDNIGHT_RARES_TRACKER_DESCRIPTION"))
 
 rares.criteriaTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-rares.criteriaTitle:SetPoint("TOPLEFT", 0, -170)
+local rareDetailOffset = (#MIDNIGHT_RARES_OF_MIDNIGHT - 4) * 26
+rares.criteriaTitle:SetPoint("TOPLEFT", 0, -170 - rareDetailOffset)
 rares.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 rares.achievementButtons = {}
@@ -2608,15 +2957,15 @@ for i, info in ipairs(MIDNIGHT_RARES_OF_MIDNIGHT) do
 end
 
 do
-    local reward = CreateAchievementRewardDisplay(rares.view, -198)
+    local reward = CreateAchievementRewardDisplay(rares.view, -198 - rareDetailOffset)
     rares.rewardIcon = reward.icon
     rares.rewardLabel = reward.label
     rares.rewardButton = reward.button
 end
 
 rares.sharedLootTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-rares.sharedLootTitle:SetPoint("TOPLEFT", 0, -232)
-rares.sharedLootTitle:SetText(UIText("Shared Loot"))
+rares.sharedLootTitle:SetPoint("TOPLEFT", 0, -232 - rareDetailOffset)
+rares.sharedLootTitle:SetText(UIText("LABEL_SHARED_LOOT"))
 rares.sharedLootTitle:Hide()
 
 rares.sharedLootSlots = {}
@@ -2626,7 +2975,7 @@ for i = 1, 7 do
     slot.icon:SetSize(18, 18)
     local col = (i - 1) % 4
     local row = math.floor((i - 1) / 4)
-    slot.icon:SetPoint("TOPLEFT", rares.view, "TOPLEFT", 0 + (col * 185), -258 - (row * 24))
+    slot.icon:SetPoint("TOPLEFT", rares.view, "TOPLEFT", 0 + (col * 185), -258 - rareDetailOffset - (row * 24))
     slot.icon:Hide()
     slot.label = rares.view:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     slot.label:SetPoint("LEFT", slot.icon, "RIGHT", 6, 0)
@@ -2642,7 +2991,7 @@ for i = 1, 7 do
 end
 
 rares.detailTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-rares.detailTitle:SetPoint("TOPLEFT", 0, -312)
+rares.detailTitle:SetPoint("TOPLEFT", 0, -312 - rareDetailOffset)
 rares.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 rares.criteriaRows = {}
@@ -2651,7 +3000,7 @@ for i = 1, 15 do
     btn:SetSize(240, 24)
     local col = (i - 1) % 3
     local row = math.floor((i - 1) / 3)
-    btn:SetPoint("TOPLEFT", 0 + (col * 248), -338 - (row * 28))
+    btn:SetPoint("TOPLEFT", 0 + (col * 248), -338 - rareDetailOffset - (row * 28))
     btn:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -2691,6 +3040,59 @@ for i = 1, 15 do
     rares.criteriaRows[i] = btn
 end
 
+studentOfHissstory.view = CreateFrame("Frame", nil, AchievementView)
+studentOfHissstory.view:SetPoint("TOPLEFT", 18, -70)
+studentOfHissstory.view:SetPoint("BOTTOMRIGHT", -12, 12)
+studentOfHissstory.view:Hide()
+studentOfHissstory.summary = studentOfHissstory.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+studentOfHissstory.summary:SetPoint("TOPLEFT", 0, 0)
+studentOfHissstory.criteriaTitle = studentOfHissstory.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+studentOfHissstory.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
+do
+    local reward = CreateAchievementRewardDisplay(studentOfHissstory.view, -64)
+    studentOfHissstory.rewardIcon, studentOfHissstory.rewardLabel, studentOfHissstory.rewardButton = reward.icon, reward.label, reward.button
+end
+studentOfHissstory.detailTitle = studentOfHissstory.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+studentOfHissstory.detailTitle:SetPoint("TOPLEFT", 0, -110)
+studentOfHissstory.detailTitle:SetText(UIText("LABEL_DETAILS"))
+studentOfHissstory.rows = {}
+for i = 1, 12 do
+    local btn = CreateFrame("Button", nil, studentOfHissstory.view, "BackdropTemplate")
+    btn:SetSize(360, 28)
+    local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
+    btn:SetPoint("TOPLEFT", col * 372, -140 - (row * 34))
+    btn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 10, insets = { left = 2, right = 2, top = 2, bottom = 2 } })
+    btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    btn.Text:SetPoint("LEFT", 8, 0)
+    btn.Text:SetWidth(320)
+    btn.Text:SetJustifyH("LEFT")
+    for slot = 1, 3 do
+        local suffix = slot == 1 and "" or tostring(slot)
+        btn["rewardIcon" .. suffix] = btn:CreateTexture(nil, "ARTWORK")
+        btn["rewardIcon" .. suffix]:Hide()
+        btn["rewardButton" .. suffix] = CreateFrame("Button", nil, btn)
+        btn["rewardButton" .. suffix]:Hide()
+    end
+    btn:Hide()
+    studentOfHissstory.rows[i] = btn
+end
+
+meta121.view = CreateFrame("Frame", nil, AchievementView)
+meta121.view:SetPoint("TOPLEFT", 18, -70); meta121.view:SetPoint("BOTTOMRIGHT", -12, 12); meta121.view:Hide()
+meta121.summary = meta121.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight"); meta121.summary:SetPoint("TOPLEFT", 0, 0)
+meta121.rewardTitle = meta121.view:CreateFontString(nil, "OVERLAY", "GameFontNormal"); meta121.rewardTitle:SetPoint("TOPLEFT", 0, -36); meta121.rewardTitle:SetText(UIText("LABEL_REWARD"))
+do local reward = CreateAchievementRewardDisplay(meta121.view, -64); meta121.rewardIcon, meta121.rewardLabel, meta121.rewardButton = reward.icon, reward.label, reward.button end
+meta121.detailTitle = meta121.view:CreateFontString(nil, "OVERLAY", "GameFontNormal"); meta121.detailTitle:SetPoint("TOPLEFT", 0, -110); meta121.detailTitle:SetText(UIText("LABEL_CRITERIA"))
+meta121.note = meta121.view:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"); meta121.note:SetPoint("TOPLEFT", 120, -110); meta121.note:SetPoint("RIGHT", -12, 0); meta121.note:SetJustifyH("LEFT")
+meta121.rows = {}
+for i = 1, 12 do
+    local btn = CreateFrame("Button", nil, meta121.view, "BackdropTemplate"); btn:SetSize(360, 28)
+    local col, row = (i - 1) % 2, math.floor((i - 1) / 2); btn:SetPoint("TOPLEFT", col * 372, -140 - (row * 34))
+    btn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 10, insets = { left = 2, right = 2, top = 2, bottom = 2 } })
+    btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"); btn.Text:SetPoint("LEFT", 8, 0); btn.Text:SetWidth(340); btn.Text:SetJustifyH("LEFT")
+    btn:Hide(); meta121.rows[i] = btn
+end
+
 everPainting.view = CreateFrame("Frame", nil, AchievementView)
 everPainting.view:SetPoint("TOPLEFT", 18, -70)
 everPainting.view:SetPoint("BOTTOMRIGHT", -12, 12)
@@ -2720,7 +3122,7 @@ everPainting.emptyText:SetPoint("TOPLEFT", 0, -138)
 everPainting.emptyText:SetPoint("RIGHT", -12, 0)
 everPainting.emptyText:SetJustifyH("LEFT")
 everPainting.emptyText:SetWordWrap(true)
-everPainting.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Ever-Painting have not been added yet.") .. "|r")
+everPainting.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.EVER_PAINTING, "Ever-Painting") .. "|r")
 
 everPainting.rows = {}
 for i = 1, 12 do
@@ -2772,7 +3174,7 @@ runestoneRush.emptyText:SetPoint("TOPLEFT", 0, -138)
 runestoneRush.emptyText:SetPoint("RIGHT", -12, 0)
 runestoneRush.emptyText:SetJustifyH("LEFT")
 runestoneRush.emptyText:SetWordWrap(true)
-runestoneRush.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Runestone Rush have not been added yet.") .. "|r")
+runestoneRush.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.RUNESTONE_RUSH, "Runestone Rush") .. "|r")
 
 runestoneRush.rows = {}
 for i = 1, 12 do
@@ -2824,7 +3226,7 @@ partyMustGoOn.emptyText:SetPoint("TOPLEFT", 0, -138)
 partyMustGoOn.emptyText:SetPoint("RIGHT", -12, 0)
 partyMustGoOn.emptyText:SetJustifyH("LEFT")
 partyMustGoOn.emptyText:SetWordWrap(true)
-partyMustGoOn.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for The Party Must Go On have not been added yet.") .. "|r")
+partyMustGoOn.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.THE_PARTY_MUST_GO_ON, "The Party Must Go On") .. "|r")
 
 partyMustGoOn.rows = {}
 for i = 1, 12 do
@@ -2876,7 +3278,7 @@ exploreEversong.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreEversong.emptyText:SetPoint("RIGHT", -12, 0)
 exploreEversong.emptyText:SetJustifyH("LEFT")
 exploreEversong.emptyText:SetWordWrap(true)
-exploreEversong.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Eversong Woods have not been added yet.") .. "|r")
+exploreEversong.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.EXPLORE_EVERSONG_WOODS, "Explore Eversong Woods") .. "|r")
 
 exploreEversong.rows = {}
 for i = 1, 12 do
@@ -2928,7 +3330,7 @@ exploreVoidstorm.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreVoidstorm.emptyText:SetPoint("RIGHT", -12, 0)
 exploreVoidstorm.emptyText:SetJustifyH("LEFT")
 exploreVoidstorm.emptyText:SetWordWrap(true)
-exploreVoidstorm.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Voidstorm have not been added yet.") .. "|r")
+exploreVoidstorm.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.EXPLORE_VOIDSTORM, "Explore Voidstorm") .. "|r")
 
 exploreVoidstorm.rows = {}
 for i = 1, 12 do
@@ -2980,7 +3382,7 @@ thrillOfTheChase.emptyText:SetPoint("TOPLEFT", 0, -138)
 thrillOfTheChase.emptyText:SetPoint("RIGHT", -12, 0)
 thrillOfTheChase.emptyText:SetJustifyH("LEFT")
 thrillOfTheChase.emptyText:SetWordWrap(true)
-thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Thrill of the Chase have not been added yet.") .. "|r")
+thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.THRILL_OF_THE_CHASE, "Thrill of the Chase") .. "|r")
 
 thrillOfTheChase.rows = {}
 for i = 1, 12 do
@@ -3032,7 +3434,7 @@ noTimeToPaws.emptyText:SetPoint("TOPLEFT", 0, -138)
 noTimeToPaws.emptyText:SetPoint("RIGHT", -12, 0)
 noTimeToPaws.emptyText:SetJustifyH("LEFT")
 noTimeToPaws.emptyText:SetWordWrap(true)
-noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for No Time to Paws have not been added yet.") .. "|r")
+noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.NO_TIME_TO_PAWS, "No Time to Paws") .. "|r")
 
 noTimeToPaws.rows = {}
 for i = 1, 12 do
@@ -3084,7 +3486,7 @@ fromTheCradleToTheGrave.emptyText:SetPoint("TOPLEFT", 0, -138)
 fromTheCradleToTheGrave.emptyText:SetPoint("RIGHT", -12, 0)
 fromTheCradleToTheGrave.emptyText:SetJustifyH("LEFT")
 fromTheCradleToTheGrave.emptyText:SetWordWrap(true)
-fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
+fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_CRADLE_FLIGHT_REQUIREMENT") .. "|r")
 
 fromTheCradleToTheGrave.rows = {}
 for i = 1, 4 do
@@ -3137,17 +3539,17 @@ chroniclerOfTheHaranir.noteText:SetPoint("TOPLEFT", 0, -138)
 chroniclerOfTheHaranir.noteText:SetPoint("RIGHT", -12, 0)
 chroniclerOfTheHaranir.noteText:SetJustifyH("LEFT")
 chroniclerOfTheHaranir.noteText:SetWordWrap(true)
-chroniclerOfTheHaranir.noteText:SetText("|cffb8b8b8" .. UIText("These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap.") .. "|r")
+chroniclerOfTheHaranir.noteText:SetText("|cffb8b8b8" .. UIText("NOTE_HARANIR_JOURNAL_AVAILABILITY") .. "|r")
 
 chroniclerOfTheHaranir.emptyText = chroniclerOfTheHaranir.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 chroniclerOfTheHaranir.emptyText:SetPoint("TOPLEFT", 0, -162)
 chroniclerOfTheHaranir.emptyText:SetPoint("RIGHT", -12, 0)
 chroniclerOfTheHaranir.emptyText:SetJustifyH("LEFT")
 chroniclerOfTheHaranir.emptyText:SetWordWrap(true)
-chroniclerOfTheHaranir.emptyText:SetText("|cffb8b8b8" .. UIText("Recover the Haranir journal entries listed below.") .. "|r")
+chroniclerOfTheHaranir.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_HARANIR_JOURNAL_INSTRUCTION") .. "|r")
 
 chroniclerOfTheHaranir.rows = {}
-for i = 1, 20 do
+for i = 1, 22 do
     local row = CreateFrame("Frame", nil, chroniclerOfTheHaranir.view, "BackdropTemplate")
     row:SetSize(220, 22)
     local col = (i - 1) % 2
@@ -3197,14 +3599,14 @@ legendsNeverDie.noteText:SetPoint("TOPLEFT", 0, -138)
 legendsNeverDie.noteText:SetPoint("RIGHT", -12, 0)
 legendsNeverDie.noteText:SetJustifyH("LEFT")
 legendsNeverDie.noteText:SetWordWrap(true)
-legendsNeverDie.noteText:SetText("|cffb8b8b8" .. UIText("This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete.") .. "|r")
+legendsNeverDie.noteText:SetText("|cffb8b8b8" .. UIText("NOTE_HARANIR_LEGENDS_WEEKLY_ESTIMATE") .. "|r")
 
 legendsNeverDie.emptyText = legendsNeverDie.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 legendsNeverDie.emptyText:SetPoint("TOPLEFT", 0, -162)
 legendsNeverDie.emptyText:SetPoint("RIGHT", -12, 0)
 legendsNeverDie.emptyText:SetJustifyH("LEFT")
 legendsNeverDie.emptyText:SetWordWrap(true)
-legendsNeverDie.emptyText:SetText("|cffb8b8b8" .. UIText("Defend each Haranir legend location listed below.") .. "|r")
+legendsNeverDie.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_HARANIR_LEGEND_DEFENSE_INSTRUCTION") .. "|r")
 
 legendsNeverDie.rows = {}
 for i = 1, 8 do
@@ -3250,7 +3652,7 @@ end
 
 dustEmOff.detailTitle = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 dustEmOff.detailTitle:SetPoint("TOPLEFT", 0, -110)
-dustEmOff.detailTitle:SetText(UIText("Groups"))
+dustEmOff.detailTitle:SetText(UIText("LABEL_ACHIEVEMENT_GROUPS"))
 
 dustEmOff.groupBackBtn = CreateFrame("Button", nil, dustEmOff.view, "BackdropTemplate")
 dustEmOff.groupBackBtn:SetSize(90, 22)
@@ -3263,7 +3665,7 @@ dustEmOff.groupBackBtn:SetBackdrop({
 })
 dustEmOff.groupBackBtn.Text = dustEmOff.groupBackBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 dustEmOff.groupBackBtn.Text:SetPoint("CENTER")
-dustEmOff.groupBackBtn.Text:SetText(UIText("Back to Groups"))
+dustEmOff.groupBackBtn.Text:SetText(UIText("BUTTON_BACK_TO_GROUPS"))
 dustEmOff.groupBackBtn:Hide()
 
 dustEmOff.noteText = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -3271,14 +3673,14 @@ dustEmOff.noteText:SetPoint("TOPLEFT", 0, -138)
 dustEmOff.noteText:SetPoint("RIGHT", -12, 0)
 dustEmOff.noteText:SetJustifyH("LEFT")
 dustEmOff.noteText:SetWordWrap(true)
-dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable.") .. "|r")
+dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("NOTE_MOTH_TRACKER_GROUPING") .. "|r")
 
 dustEmOff.emptyText = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 dustEmOff.emptyText:SetPoint("TOPLEFT", 0, -170)
 dustEmOff.emptyText:SetPoint("RIGHT", -12, 0)
 dustEmOff.emptyText:SetJustifyH("LEFT")
 dustEmOff.emptyText:SetWordWrap(true)
-dustEmOff.emptyText:SetText("|cffb8b8b8" .. UIText("Coordinate groups have not been added yet.") .. "|r")
+dustEmOff.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_COORDINATE_GROUPS_NOT_AVAILABLE") .. "|r")
 
 dustEmOff.groupButtons = {}
 for i = 1, 3 do
@@ -3386,7 +3788,7 @@ aSingularProblem.emptyText:SetPoint("TOPLEFT", 0, -170)
 aSingularProblem.emptyText:SetPoint("RIGHT", -12, 0)
 aSingularProblem.emptyText:SetJustifyH("LEFT")
 aSingularProblem.emptyText:SetWordWrap(true)
-aSingularProblem.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for A Singular Problem have not been added yet.") .. "|r")
+aSingularProblem.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.A_SINGULAR_PROBLEM, "A Singular Problem") .. "|r")
 
 aSingularProblem.rows = {}
 for i = 1, 3 do
@@ -3439,7 +3841,7 @@ exploreZulaman.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreZulaman.emptyText:SetPoint("RIGHT", -12, 0)
 exploreZulaman.emptyText:SetJustifyH("LEFT")
 exploreZulaman.emptyText:SetWordWrap(true)
-exploreZulaman.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Zul'Aman have not been added yet.") .. "|r")
+exploreZulaman.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.EXPLORE_ZULAMAN, "Explore Zul'Aman") .. "|r")
 
 exploreZulaman.rows = {}
 for i = 1, 12 do
@@ -3491,7 +3893,7 @@ exploreHarandar.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreHarandar.emptyText:SetPoint("RIGHT", -12, 0)
 exploreHarandar.emptyText:SetJustifyH("LEFT")
 exploreHarandar.emptyText:SetWordWrap(true)
-exploreHarandar.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Harandar have not been added yet.") .. "|r")
+exploreHarandar.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.EXPLORE_HARANDAR, "Explore Harandar") .. "|r")
 
 exploreHarandar.rows = {}
 for i = 1, 12 do
@@ -3543,7 +3945,7 @@ abundanceProsperous.emptyText:SetPoint("TOPLEFT", 0, -138)
 abundanceProsperous.emptyText:SetPoint("RIGHT", -12, 0)
 abundanceProsperous.emptyText:SetJustifyH("LEFT")
 abundanceProsperous.emptyText:SetWordWrap(true)
-abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Abundance: Prosperous Plentitude! have not been added yet.") .. "|r")
+abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, "Abundance: Prosperous Plentitude!") .. "|r")
 
 abundanceProsperous.rows = {}
 for i = 1, 8 do
@@ -3595,7 +3997,7 @@ altarOfBlessings.emptyText:SetPoint("TOPLEFT", 0, -138)
 altarOfBlessings.emptyText:SetPoint("RIGHT", -12, 0)
 altarOfBlessings.emptyText:SetJustifyH("LEFT")
 altarOfBlessings.emptyText:SetWordWrap(true)
-altarOfBlessings.emptyText:SetText("|cffb8b8b8" .. UIText("Trigger each listed blessing effect for credit.") .. "|r")
+altarOfBlessings.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_BLESSING_EFFECT_INSTRUCTION") .. "|r")
 
 altarOfBlessings.rows = {}
 for i = 1, 24 do
@@ -3648,7 +4050,7 @@ makingAnAmaniOutOfYou.emptyText:SetPoint("TOPLEFT", 0, -138)
 makingAnAmaniOutOfYou.emptyText:SetPoint("RIGHT", -12, 0)
 makingAnAmaniOutOfYou.emptyText:SetJustifyH("LEFT")
 makingAnAmaniOutOfYou.emptyText:SetWordWrap(true)
-makingAnAmaniOutOfYou.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Making an Amani Out of You have not been added yet.") .. "|r")
+makingAnAmaniOutOfYou.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.MAKING_AN_AMANI_OUT_OF_YOU, "Making an Amani Out of You") .. "|r")
 
 makingAnAmaniOutOfYou.childButtons = {}
 for i = 1, 6 do
@@ -3701,7 +4103,7 @@ thatsAlnFolks.emptyText:SetPoint("TOPLEFT", 0, -138)
 thatsAlnFolks.emptyText:SetPoint("RIGHT", -12, 0)
 thatsAlnFolks.emptyText:SetJustifyH("LEFT")
 thatsAlnFolks.emptyText:SetWordWrap(true)
-thatsAlnFolks.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for That's Aln, Folks! have not been added yet.") .. "|r")
+thatsAlnFolks.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.THATS_ALN_FOLKS, "That's Aln, Folks!") .. "|r")
 
 thatsAlnFolks.childButtons = {}
 for i = 1, 8 do
@@ -3754,7 +4156,7 @@ foreverSong.emptyText:SetPoint("TOPLEFT", 0, -138)
 foreverSong.emptyText:SetPoint("RIGHT", -12, 0)
 foreverSong.emptyText:SetJustifyH("LEFT")
 foreverSong.emptyText:SetWordWrap(true)
-foreverSong.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Forever Song have not been added yet.") .. "|r")
+foreverSong.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.FOREVER_SONG, "Forever Song") .. "|r")
 
 foreverSong.childButtons = {}
 for i = 1, 6 do
@@ -3807,7 +4209,7 @@ yellingIntoVoidstorm.emptyText:SetPoint("TOPLEFT", 0, -138)
 yellingIntoVoidstorm.emptyText:SetPoint("RIGHT", -12, 0)
 yellingIntoVoidstorm.emptyText:SetJustifyH("LEFT")
 yellingIntoVoidstorm.emptyText:SetWordWrap(true)
-yellingIntoVoidstorm.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Yelling into the Voidstorm have not been added yet.") .. "|r")
+yellingIntoVoidstorm.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.YELLING_INTO_THE_VOIDSTORM, "Yelling into the Voidstorm") .. "|r")
 
 yellingIntoVoidstorm.childButtons = {}
 for i = 1, 6 do
@@ -3860,7 +4262,7 @@ lightUpTheNight.emptyText:SetPoint("TOPLEFT", 0, -138)
 lightUpTheNight.emptyText:SetPoint("RIGHT", -12, 0)
 lightUpTheNight.emptyText:SetJustifyH("LEFT")
 lightUpTheNight.emptyText:SetWordWrap(true)
-lightUpTheNight.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Light Up the Night have not been added yet.") .. "|r")
+lightUpTheNight.emptyText:SetText("|cffb8b8b8" .. GetTrackedAchievementEntriesUnavailableText(ACH.LIGHT_UP_THE_NIGHT, "Light Up the Night") .. "|r")
 
 lightUpTheNight.childButtons = {}
 for i = 1, 4 do
@@ -3912,7 +4314,7 @@ achievementsEmpty:SetText("|cff888888" .. UIText("MSG_NO_ACHIEVEMENT_DATA") .. "
 achievementsEmpty:Hide()
 
 local achievementPanels = {}
-for i = 1, 4 do
+for i = 1, 5 do
     local panel = CreateFrame("Frame", nil, achievementsContent, "BackdropTemplate")
     panel:SetSize(418, 206)
     local col = (i - 1) % 2
@@ -4212,18 +4614,81 @@ do
     end
 end
 
+local function LayoutAchievementHomeBlocksWithinBounds()
+    local parentLeft, parentTop = achievementHome:GetLeft(), achievementHome:GetTop()
+    local parentWidth, parentHeight = achievementHome:GetWidth(), achievementHome:GetHeight()
+    if not parentLeft or not parentTop or parentWidth <= 0 or parentHeight <= 0 then return end
+
+    local trackerBlocks = {
+        { button = home.treasureLaunchBtn, bottom = home.treasureLaunchNote },
+        { button = home.glyphHunterLaunchBtn, bottom = home.glyphRewardNote },
+        { button = home.delverLaunchBtn, bottom = home.delverRewardNote },
+        { button = home.peaksLaunchBtn, bottom = home.peaksLaunchNote },
+        { button = home.raresLaunchBtn, bottom = home.raresLaunchNote },
+        { button = home.loreLaunchBtn, bottom = home.loreLaunchNote },
+        { button = home.assaultVaultLaunchBtn, bottom = home.assaultVaultLaunchNote },
+        { button = home.honoredDeadLaunchBtn, bottom = home.honoredDeadLaunchNote },
+    }
+    local metaBlocks = {
+        { button = home.lightUpTheNightLaunchBtn, bottom = home.lightUpTheNightLaunchNote, visual = home.lightUpTheNightMetaOverlay and home.lightUpTheNightMetaOverlay.Overlay },
+        { button = home.ulatekLaunchBtn, bottom = home.ulatekLaunchNote, visual = home.ulatekLaunchMetaOverlay and home.ulatekLaunchMetaOverlay.Overlay },
+    }
+    home.trackersContent:SetShown(achievementHomeSection == "trackers")
+    home.metaContent:SetShown(achievementHomeSection == "meta")
+    for _, block in ipairs(trackerBlocks) do
+        block.button:SetShown(achievementHomeSection == "trackers")
+        block.bottom:SetShown(achievementHomeSection == "trackers")
+    end
+    for _, block in ipairs(metaBlocks) do
+        block.button:SetShown(achievementHomeSection == "meta")
+        block.bottom:SetShown(achievementHomeSection == "meta")
+        if block.visual then block.visual:SetShown(achievementHomeSection == "meta") end
+    end
+
+    local blocks = achievementHomeSection == "meta" and metaBlocks or trackerBlocks
+    local blockGap, edgePadding = 22, 8
+    local startX, startY = 18, 118
+    local buttonWidth = home.treasureLaunchBtn:GetWidth()
+    local columnStep = buttonWidth + 78
+    local usableBottom, usableRight = parentHeight - edgePadding, parentWidth - edgePadding
+    local x, y = startX, startY
+
+    for _, block in ipairs(blocks) do
+        if block.button:IsShown() then
+            local blockTop, blockBottom = block.button:GetTop(), block.bottom:GetBottom()
+            local visualTop = block.visual and block.visual:GetTop()
+            local visualBottom = block.visual and block.visual:GetBottom()
+            local topOffset = (visualTop and blockTop) and (visualTop - blockTop) or 0
+            local leftOffset = (block.visual and block.visual:GetLeft() and block.button:GetLeft()) and (block.button:GetLeft() - block.visual:GetLeft()) or 0
+            local blockWidth = (block.visual and block.visual:GetWidth()) or block.button:GetWidth()
+            if visualTop and visualBottom then
+                blockTop, blockBottom = visualTop, visualBottom
+            end
+            local blockHeight = (blockTop and blockBottom) and (blockTop - blockBottom) or block.button:GetHeight()
+            if y + blockHeight > usableBottom then x, y = x + columnStep, startY end
+            if x + blockWidth <= usableRight then
+                block.button:ClearAllPoints()
+                local layoutParent = achievementHomeSection == "meta" and home.metaContent or home.trackersContent
+                block.button:SetPoint("TOPLEFT", layoutParent, "TOPLEFT", x + leftOffset, -(y + topOffset))
+                y = y + blockHeight + blockGap
+            end
+        end
+    end
+end
+
 local function RenderAchievementsHome()
     achievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS"))
     achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS"))
     glyphHunterBackBtn.Text:SetText(UIText("BUTTON_BACK"))
-    local rewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.CRIMSON_DRAGONHAWK, UIText("LABEL_UNKNOWN"))
-    local hasReward = HasAchievement(ACH.MIDNIGHT_GLYPH_HUNTER) and HasMountRewardFromItem(REWARD_ITEM.CRIMSON_DRAGONHAWK)
+    local rewardName = lv.GetLocalizedItemNameByID(ACH.REWARD_ITEM.CRIMSON_DRAGONHAWK, UIText("LABEL_UNKNOWN"))
+    local hasReward = HasAchievement(ACH.MIDNIGHT_GLYPH_HUNTER) and HasMountRewardFromItem(ACH.REWARD_ITEM.CRIMSON_DRAGONHAWK)
     local rewardColor = hasReward and "|cff00ff00" or "|cffff8040"
     home.glyphRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD"), rewardColor, rewardName))
-    local delverRewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.GIGANTO_MANIS, UIText("LABEL_UNKNOWN"))
-    local delverHasReward = HasAchievement(ACH.GLORY_OF_THE_MIDNIGHT_DELVER) and HasMountRewardFromItem(REWARD_ITEM.GIGANTO_MANIS)
+    local delverRewardName = lv.GetLocalizedItemNameByID(ACH.REWARD_ITEM.GIGANTO_MANIS, UIText("LABEL_UNKNOWN"))
+    local delverHasReward = HasAchievement(ACH.GLORY_OF_THE_MIDNIGHT_DELVER) and HasMountRewardFromItem(ACH.REWARD_ITEM.GIGANTO_MANIS)
     local delverRewardColor = delverHasReward and "|cff00ff00" or "|cffff8040"
     home.delverRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD"), delverRewardColor, delverRewardName))
+    LayoutAchievementHomeBlocksWithinBounds()
     achievementsEmpty:Hide()
     for _, panel in ipairs(achievementPanels) do
         panel:Hide()
@@ -4234,6 +4699,12 @@ local function RenderAchievementSelectionButtons(buttons, entries, selectedID)
     local doneCount = 0
     for i, info in ipairs(entries) do
         local complete = HasAchievement(info.id)
+        if info.variants then
+            complete = false
+            for _, variant in ipairs(info.variants) do
+                if HasAchievement(variant.id) then complete = true break end
+            end
+        end
         if complete then
             doneCount = doneCount + 1
         end
@@ -4292,7 +4763,7 @@ local function SetItemRewardDisplay(icon, label, button, rewardInfo, emptyText, 
             if GameTooltip.SetItemByID then
                 GameTooltip:SetItemByID(rewardInfo.itemID)
             else
-                GameTooltip:SetText(displayText or "Reward", 1, 0.82, 0)
+                GameTooltip:SetText(displayText or UIText("LABEL_REWARD"), 1, 0.82, 0)
             end
             if extraTooltipLine and extraTooltipLine ~= "" then
                 GameTooltip:AddLine(extraTooltipLine, 0.8, 0.8, 0.8, true)
@@ -4364,7 +4835,7 @@ local function SetSharedLootDisplay(titleLabel, slots, items)
                     end
                     if info.note and info.note ~= "" then
                         GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine(info.note, 0.8, 0.8, 0.8, true)
+                        GameTooltip:AddLine(UIText(info.note, info.note), 0.8, 0.8, 0.8, true)
                     end
                     GameTooltip:Show()
                 end)
@@ -4427,8 +4898,10 @@ local function SetRareDetailButton(btn, info, isRareDone, fallbackLabel)
     btn.Text:SetText(string.format("%s%s|r", isRareDone and "|cff00ff00" or "|cffff5555", info.name or info.label or fallbackLabel))
     SetRareRewardIcons(btn, info.rewards)
     btn:SetScript("OnClick", function()
-        if info.mapID and info.x and info.y then
-            SetAchievementTreasureWaypoint(info.mapID, info.x, info.y, info.name or info.label or fallbackLabel)
+        local target = info
+        if info.steps and IsShiftKeyDown and IsShiftKeyDown() then target = info.steps[1] or info end
+        if target.mapID and target.x and target.y then
+            SetAchievementTreasureWaypoint(target.mapID, target.x, target.y, target.name or info.name or info.label or fallbackLabel)
         end
     end)
     btn:SetScript("OnEnter", function(self)
@@ -4441,7 +4914,13 @@ local function SetRareDetailButton(btn, info, isRareDone, fallbackLabel)
             GameTooltip:SetText(info.name or info.label or fallbackLabel, 1, 0.82, 0)
             GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
             if info.note and info.note ~= "" then
-                GameTooltip:AddLine(info.note, 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(UIText(info.note, info.note), 0.8, 0.8, 0.8, true)
+            end
+            if info.steps and #info.steps > 1 then
+                local entrance, destination = info.steps[1], info.steps[#info.steps]
+                GameTooltip:AddLine(string.format(UIText("TOOLTIP_ENTRANCE_COORDINATES_FMT"), entrance.x, entrance.y, entrance.mapID), 0.85, 0.85, 0.85)
+                GameTooltip:AddLine(string.format(UIText("TOOLTIP_INSCRIPTION_COORDINATES_FMT"), destination.x, destination.y, destination.mapID), 0.85, 0.85, 0.85)
+                GameTooltip:AddLine(UIText("TOOLTIP_ENTRANCE_INSCRIPTION_CLICK_INSTRUCTIONS"), 0.8, 0.8, 0.8)
             end
             if info.rep and info.rep ~= "" then
                 GameTooltip:AddLine(info.rep, 0.85, 0.85, 0.85)
@@ -4494,7 +4973,7 @@ local function SetPeaksWaypointRows(rows, waypointRows, renownLabel)
         if info then
             row.Text:SetText(string.format("%.2f, %.2f - %s", info.x, info.y, info.name))
             if row.RenownText then
-                row.RenownText:SetText(renownLabel and string.format("100 Renown: %s", renownLabel) or "")
+                row.RenownText:SetText(renownLabel and string.format(UIText("LABEL_100_RENOWN_FMT"), renownLabel) or "")
             end
             row:SetScript("OnClick", function()
                 SetAchievementTreasureWaypoint(info.mapID, info.x, info.y, info.name)
@@ -4510,7 +4989,7 @@ local function SetPeaksWaypointRows(rows, waypointRows, renownLabel)
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
                 if renownLabel then
-                    GameTooltip:AddLine(string.format("100 Renown: %s", renownLabel), 1, 0.82, 0)
+                    GameTooltip:AddLine(string.format(UIText("LABEL_100_RENOWN_FMT"), renownLabel), 1, 0.82, 0)
                 end
                 GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
@@ -4545,9 +5024,9 @@ local function RenderRaresAchievementsView()
     end
     achievementsTitle:SetText(UIText("Rares of Midnight"))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT"), doneCount, #MIDNIGHT_RARES_OF_MIDNIGHT))
-    rares.summary:SetText(UIText("Track the four Midnight rare achievements."))
+    rares.summary:SetText(UIText("TEXT_MIDNIGHT_RARES_TRACKER_DESCRIPTION"))
     rares.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
-    SetItemRewardDisplay(rares.rewardIcon, rares.rewardLabel, rares.rewardButton, MIDNIGHT_RARES_REWARDS[rares.selectedAchievementID], "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(rares.rewardIcon, rares.rewardLabel, rares.rewardButton, MIDNIGHT_RARES_REWARDS[rares.selectedAchievementID], "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     SetSharedLootDisplay(rares.sharedLootTitle, rares.sharedLootSlots, MIDNIGHT_RARES_SHARED_LOOT[rares.selectedAchievementID])
 
     local detailRows = MIDNIGHT_RARES_DETAILS[rares.selectedAchievementID] or {}
@@ -4566,13 +5045,44 @@ local function RenderRaresAchievementsView()
     end
 end
 
+local function RenderLoreObjectTracker(config)
+    local criteriaRows = GetAchievementCriteriaRows(config.id)
+    local completedLookup, completedCount = {}, 0
+    for _, rowInfo in ipairs(criteriaRows) do
+        local normalizedName = rowInfo and rowInfo.text and NormalizeAchievementTreasureName(rowInfo.text)
+        if normalizedName then
+            completedLookup[normalizedName] = rowInfo.done and true or false
+            if rowInfo.done then completedCount = completedCount + 1 end
+        end
+    end
+    achievementsTitle:SetText(GetAchievementName(config.id, config.name))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), completedCount, #config.objects))
+    studentOfHissstory.summary:SetText(UIText(config.description or "Discover all of the lore objects found on the Coiled Isle."))
+    studentOfHissstory.criteriaTitle:SetText(UIText("LABEL_REWARD"))
+    SetItemRewardDisplay(studentOfHissstory.rewardIcon, studentOfHissstory.rewardLabel, studentOfHissstory.rewardButton, config.reward)
+    for i, btn in ipairs(studentOfHissstory.rows) do
+        local info = config.objects[i]
+        if info then
+            SetRareDetailButton(btn, info, completedLookup[NormalizeAchievementTreasureName(info.name)] and true or false, string.format("Lore %d", i))
+        else
+            HideRareDetailButton(btn)
+        end
+    end
+    achievementsEmpty:Hide()
+    for _, panel in ipairs(achievementPanels) do panel:Hide() end
+end
+
+local function RenderStudentOfHissstoryView()
+    RenderLoreObjectTracker(ACH.STUDENT_OF_HISSSTORY_CONFIG)
+end
+
 local function RenderDelverAchievementsView()
     local doneCount = RenderAchievementSelectionButtons(delverAchievementButtons, MIDNIGHT_DELVER_CRITERIA, delverSelectedAchievementID)
     local selectedName, criteriaRows
     delverSelectedAchievementID, selectedName, criteriaRows = ResolveSelectedAchievementWithDescription(MIDNIGHT_DELVER_CRITERIA, delverSelectedAchievementID)
     achievementsTitle:SetText(UIText("Glory of the Midnight Delver"))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), doneCount, #MIDNIGHT_DELVER_CRITERIA))
-    delverSummary:SetText(UIText("Complete all four supporting Midnight delver achievements to finish this meta achievement."))
+    delverSummary:SetText(UIText("TEXT_MIDNIGHT_DELVER_META_INSTRUCTION"))
     delverDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_CRITERIA"), selectedName or UIText("LABEL_UNKNOWN")))
     for i, row in ipairs(delverCriteriaRows) do
         local info = criteriaRows[i]
@@ -4596,7 +5106,7 @@ local function RenderPeaksAchievementsView()
     peaksSelectedAchievementID, selectedName, criteriaRows = ResolveSelectedAchievementWithDescription(MIDNIGHT_HIGHEST_PEAKS_CRITERIA, peaksSelectedAchievementID)
     achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, UIText("Midnight, the Highest Peaks")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), doneCount, #MIDNIGHT_HIGHEST_PEAKS_CRITERIA))
-    peaksSummary:SetText(UIText("Complete the five telescopes in this zone."))
+    peaksSummary:SetText(UIText("TEXT_TELESCOPE_ZONE_REQUIREMENT"))
     peaksCriteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
     SetItemRewardDisplay(peaksRewardIcon, peaksRewardLabel, peaksRewardButton, MIDNIGHT_HIGHEST_PEAKS_REWARDS[peaksSelectedAchievementID], "")
     peaksDetailTitle:SetText(UIText("LABEL_DETAILS"))
@@ -4663,16 +5173,16 @@ local function RenderGlyphHunterAchievementsView()
                 if glyph then
                     local glyphDone = lv.IsGlyphCompleted and lv.IsGlyphCompleted(zoneData, glyph)
                     local color = glyphDone and "|cff00ff00" or "|cffff5555"
-                    btn.text:SetText(string.format("%s%s|r", color, glyph.name or string.format("%.2f, %.2f", glyph.x or 0, glyph.y or 0)))
+                    btn.text:SetText(string.format("%s%s|r", color, glyph.label or string.format("%.2f, %.2f", glyph.x or 0, glyph.y or 0)))
                     btn:SetScript("OnClick", function()
-                        if lv.SetMapWaypoint then
-                            lv.SetMapWaypoint(zoneData.mapID, glyph.x, glyph.y, glyph.name or zoneData.zoneName)
+                        if lv.SetGlyphWaypoint then
+                            lv.SetGlyphWaypoint(glyph, zoneData)
                         end
                     end)
                     btn:SetScript("OnEnter", function()
                         if GameTooltip then
                             GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-                            GameTooltip:SetText(glyph.name or zoneData.zoneName, 1, 0.82, 0)
+                            GameTooltip:SetText(glyph.label or zoneData.zoneName, 1, 0.82, 0)
                             if glyph.x and glyph.y then
                                 GameTooltip:AddLine(string.format("%.2f, %.2f", glyph.x, glyph.y), 0.8, 0.8, 0.8)
                             end
@@ -4690,7 +5200,7 @@ local function RenderGlyphHunterAchievementsView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_GLYPH_HUNTER, UIText("TITLE_MIDNIGHT_GLYPH_HUNTER")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_GLYPHS_COLLECTED"), totalDone, totalCount))
-    achievementsContent:SetHeight(440)
+    achievementsContent:SetHeight(#zones > 4 and 656 or 440)
 end
 
 local function RenderTreasureAchievementsView()
@@ -4746,7 +5256,7 @@ local function RenderTreasureAchievementsView()
     end
     achievementsTitle:SetText(UIText("Treasures of Midnight"))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT"), doneCount, #TREASURES_OF_MIDNIGHT))
-    treasureSummary:SetText(UIText("Track the four Midnight treasure achievements and their rewards."))
+    treasureSummary:SetText(UIText("TEXT_MIDNIGHT_TREASURES_TRACKER_DESCRIPTION"))
     treasureDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
     local achievementRewardInfo = GetAchievementRewardDisplayInfo(treasureSelectedAchievementID, rewardText)
     if achievementRewardInfo and achievementRewardInfo.icon then
@@ -4786,7 +5296,7 @@ local function RenderTreasureAchievementsView()
         treasureRewardLabel:Hide()
         treasureRewardButton:Hide()
         treasureRewardText:Show()
-        treasureRewardText:SetText("|cff999999" .. UIText("No achievement reward listed.") .. "|r")
+        treasureRewardText:SetText("|cff999999" .. UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED") .. "|r")
     end
     for _, row in ipairs(treasureCriteriaRows) do
         row:SetText("")
@@ -4798,7 +5308,7 @@ local function RenderTreasureAchievementsView()
         local noteRow = treasureCriteriaRows[1]
         noteRow:ClearAllPoints()
         noteRow:SetPoint("TOPLEFT", 0, -currentY)
-        noteRow:SetText("|cffffd100Note:|r " .. selectedTreasureInfo.note)
+        noteRow:SetText("|cffffd100" .. UIText("LABEL_NOTE") .. ":|r " .. UIText(selectedTreasureInfo.note, selectedTreasureInfo.note))
         noteRow:Show()
         currentY = currentY + math.max(20, noteRow:GetStringHeight() + 8)
     end
@@ -4903,8 +5413,15 @@ local function RenderTreasureAchievementsView()
                 local t = lv.GetTheme()
                 self:SetBackdropBorderColor(unpack(t.borderHover))
                 self:SetBackdropColor(unpack(t.buttonBgHover))
+                if currentTreasure.note then
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(currentTreasure.name, 1, 0.82, 0)
+                    GameTooltip:AddLine(UIText(currentTreasure.note, currentTreasure.note), 1, 1, 1, true)
+                    GameTooltip:Show()
+                end
             end)
             btn:SetScript("OnLeave", function(self)
+                GameTooltip:Hide()
                 local t = lv.GetTheme()
                 local selected = (treasureSelectedEntry == currentIndex)
                 self:SetBackdropBorderColor(unpack(selected and (t.borderHover or t.borderPrimary) or t.borderPrimary))
@@ -4994,7 +5511,7 @@ local function RenderEverPaintingView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.EVER_PAINTING, UIText("Ever-Painting")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    everPainting.summary:SetText(string.format(UIText("Track the known Ever-Painting canvases. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), seenCount, #EVER_PAINTING_ENTRIES))
+    everPainting.summary:SetText(string.format(UIText("TEXT_EVER_PAINTING_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), seenCount, #EVER_PAINTING_ENTRIES))
     everPainting.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EVER_PAINTING, UIText("Ever-Painting"))))
     SetItemRewardDisplay(everPainting.rewardIcon, everPainting.rewardLabel, everPainting.rewardButton, EVER_PAINTING_REWARD, "")
     everPainting.detailTitle:SetText(UIText("LABEL_DETAILS"))
@@ -5065,9 +5582,9 @@ local function RenderRunestoneRushView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    runestoneRush.summary:SetText(string.format(UIText("Track the known Runestone Rush entries. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #RUNESTONE_RUSH_ENTRIES))
+    runestoneRush.summary:SetText(string.format(UIText("TEXT_RUNESTONE_RUSH_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #RUNESTONE_RUSH_ENTRIES))
     runestoneRush.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush"))))
-    SetItemRewardDisplay(runestoneRush.rewardIcon, runestoneRush.rewardLabel, runestoneRush.rewardButton, RUNESTONE_RUSH_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(runestoneRush.rewardIcon, runestoneRush.rewardLabel, runestoneRush.rewardButton, RUNESTONE_RUSH_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     runestoneRush.detailTitle:SetText(UIText("LABEL_DETAILS"))
     runestoneRush.emptyText:SetShown(#RUNESTONE_RUSH_ENTRIES == 0)
     for i, row in ipairs(runestoneRush.rows or {}) do
@@ -5086,9 +5603,9 @@ local function RenderRunestoneRushView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Charge the runestone with Latent Arcana to start its defense event."), 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_CHARGE_INSTRUCTION"), 0.8, 0.8, 0.8, true)
                 if info.boss and info.boss ~= "" then
-                    GameTooltip:AddLine(UIText("Achievement credit from:") .. " " .. info.boss, 1, 0.82, 0, true)
+                    GameTooltip:AddLine(string.format(UIText("TOOLTIP_ACHIEVEMENT_CREDIT_FROM_FMT"), info.boss), 1, 0.82, 0, true)
                 end
                 GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
@@ -5140,9 +5657,9 @@ local function RenderPartyMustGoOnView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    partyMustGoOn.summary:SetText(string.format(UIText("Track the four faction invites for The Party Must Go On. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THE_PARTY_MUST_GO_ON_ENTRIES))
+    partyMustGoOn.summary:SetText(string.format(UIText("TEXT_FACTION_INVITE_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THE_PARTY_MUST_GO_ON_ENTRIES))
     partyMustGoOn.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On"))))
-    SetItemRewardDisplay(partyMustGoOn.rewardIcon, partyMustGoOn.rewardLabel, partyMustGoOn.rewardButton, THE_PARTY_MUST_GO_ON_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(partyMustGoOn.rewardIcon, partyMustGoOn.rewardLabel, partyMustGoOn.rewardButton, THE_PARTY_MUST_GO_ON_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     partyMustGoOn.detailTitle:SetText(UIText("LABEL_DETAILS"))
     partyMustGoOn.emptyText:SetShown(#THE_PARTY_MUST_GO_ON_ENTRIES == 0)
     for i, row in ipairs(partyMustGoOn.rows or {}) do
@@ -5221,9 +5738,9 @@ local function RenderExploreEversongView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, UIText("Explore Eversong Woods")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    exploreEversong.summary:SetText(string.format(UIText("Track Explore Eversong Woods progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_EVERSONG_WOODS_ENTRIES))
+    exploreEversong.summary:SetText(string.format(UIText("TEXT_EXPLORE_EVERSONG_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_EVERSONG_WOODS_ENTRIES))
     exploreEversong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, UIText("Explore Eversong Woods"))))
-    SetItemRewardDisplay(exploreEversong.rewardIcon, exploreEversong.rewardLabel, exploreEversong.rewardButton, EXPLORE_EVERSONG_WOODS_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(exploreEversong.rewardIcon, exploreEversong.rewardLabel, exploreEversong.rewardButton, EXPLORE_EVERSONG_WOODS_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     exploreEversong.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreEversong.emptyText:SetShown(#EXPLORE_EVERSONG_WOODS_ENTRIES == 0)
     for i, row in ipairs(exploreEversong.rows or {}) do
@@ -5292,9 +5809,9 @@ local function RenderExploreVoidstormView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_VOIDSTORM, UIText("Explore Voidstorm")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    exploreVoidstorm.summary:SetText(string.format(UIText("Track Explore Voidstorm progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_VOIDSTORM_ENTRIES))
+    exploreVoidstorm.summary:SetText(string.format(UIText("TEXT_EXPLORE_VOIDSTORM_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_VOIDSTORM_ENTRIES))
     exploreVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_VOIDSTORM, UIText("Explore Voidstorm"))))
-    SetItemRewardDisplay(exploreVoidstorm.rewardIcon, exploreVoidstorm.rewardLabel, exploreVoidstorm.rewardButton, EXPLORE_VOIDSTORM_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(exploreVoidstorm.rewardIcon, exploreVoidstorm.rewardLabel, exploreVoidstorm.rewardButton, EXPLORE_VOIDSTORM_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     exploreVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreVoidstorm.emptyText:SetShown(#EXPLORE_VOIDSTORM_ENTRIES == 0)
     for i, row in ipairs(exploreVoidstorm.rows or {}) do
@@ -5348,11 +5865,11 @@ local function RenderThrillOfTheChaseView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.THRILL_OF_THE_CHASE, UIText("Thrill of the Chase")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    thrillOfTheChase.summary:SetText(UIText("Evade the Hungering Presence's grasp in Voidstorm for at least 60 seconds."))
+    thrillOfTheChase.summary:SetText(UIText("TEXT_HUNGERING_PRESENCE_REQUIREMENT"))
     thrillOfTheChase.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THRILL_OF_THE_CHASE, UIText("Thrill of the Chase"))))
-    SetItemRewardDisplay(thrillOfTheChase.rewardIcon, thrillOfTheChase.rewardLabel, thrillOfTheChase.rewardButton, THRILL_OF_THE_CHASE_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(thrillOfTheChase.rewardIcon, thrillOfTheChase.rewardLabel, thrillOfTheChase.rewardButton, THRILL_OF_THE_CHASE_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     thrillOfTheChase.detailTitle:SetText(UIText("LABEL_INFO"))
-    thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("This achievement does not need coordinate tracking in LiteVault. Survive the Hungering Presence event in Voidstorm for at least 60 seconds.") .. "|r")
+    thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("NOTE_HUNGERING_PRESENCE_NO_COORDINATES") .. "|r")
     thrillOfTheChase.emptyText:SetShown(true)
     for i, row in ipairs(thrillOfTheChase.rows or {}) do
         row:SetScript("OnClick", nil)
@@ -5393,9 +5910,9 @@ local function RenderASingularProblemView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.A_SINGULAR_PROBLEM, UIText("A Singular Problem")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    aSingularProblem.summary:SetText(string.format(UIText("Complete all three waves of the Stormarion Assault. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, 3))
+    aSingularProblem.summary:SetText(string.format(UIText("TEXT_STORMARION_ASSAULT_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, 3))
     aSingularProblem.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.A_SINGULAR_PROBLEM, UIText("A Singular Problem"))))
-    SetItemRewardDisplay(aSingularProblem.rewardIcon, aSingularProblem.rewardLabel, aSingularProblem.rewardButton, A_SINGULAR_PROBLEM_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(aSingularProblem.rewardIcon, aSingularProblem.rewardLabel, aSingularProblem.rewardButton, A_SINGULAR_PROBLEM_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     aSingularProblem.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     aSingularProblem.emptyText:SetShown(false)
     aSingularProblem.eventButton:SetScript("OnClick", function()
@@ -5422,9 +5939,9 @@ local function RenderASingularProblemView()
     aSingularProblem.eventButton:Show()
 
     local waveNames = {
-        UIText("Wave 1 Complete"),
-        UIText("Wave 2 Complete"),
-        UIText("Wave 3 Complete"),
+        UIText("STATUS_ASSAULT_WAVE_1_COMPLETE"),
+        UIText("STATUS_ASSAULT_WAVE_2_COMPLETE"),
+        UIText("STATUS_ASSAULT_WAVE_3_COMPLETE"),
     }
     for i, row in ipairs(aSingularProblem.rows or {}) do
         local waveName = waveNames[i]
@@ -5460,11 +5977,11 @@ local function RenderNoTimeToPawsView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.NO_TIME_TO_PAWS, UIText("No Time to Paws")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    noTimeToPaws.summary:SetText(UIText("Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit."))
+    noTimeToPaws.summary:SetText(UIText("TEXT_CLAW_ENFORCEMENT_REQUIREMENT"))
     noTimeToPaws.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.NO_TIME_TO_PAWS, UIText("No Time to Paws"))))
-    SetItemRewardDisplay(noTimeToPaws.rewardIcon, noTimeToPaws.rewardLabel, noTimeToPaws.rewardButton, nil, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(noTimeToPaws.rewardIcon, noTimeToPaws.rewardLabel, noTimeToPaws.rewardButton, nil, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     noTimeToPaws.detailTitle:SetText(UIText("LABEL_INFO"))
-    noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit.") .. "|r")
+    noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("NOTE_CLAW_ENFORCEMENT_NO_COORDINATES") .. "|r")
     noTimeToPaws.emptyText:SetShown(true)
     for i, row in ipairs(noTimeToPaws.rows or {}) do
         row:SetScript("OnClick", nil)
@@ -5486,11 +6003,11 @@ local function RenderFromTheCradleToTheGraveView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, UIText("From The Cradle to the Grave")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    fromTheCradleToTheGrave.summary:SetText(UIText("Attempt to fly to The Cradle high in the sky above Harandar."))
+    fromTheCradleToTheGrave.summary:SetText(UIText("TEXT_CRADLE_FLIGHT_ATTEMPT"))
     fromTheCradleToTheGrave.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, UIText("From The Cradle to the Grave"))))
-    SetItemRewardDisplay(fromTheCradleToTheGrave.rewardIcon, fromTheCradleToTheGrave.rewardLabel, fromTheCradleToTheGrave.rewardButton, nil, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(fromTheCradleToTheGrave.rewardIcon, fromTheCradleToTheGrave.rewardLabel, fromTheCradleToTheGrave.rewardButton, nil, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     fromTheCradleToTheGrave.detailTitle:SetText(UIText("LABEL_INFO"))
-    fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
+    fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("TEXT_CRADLE_FLIGHT_REQUIREMENT") .. "|r")
     fromTheCradleToTheGrave.emptyText:SetShown(true)
     for i, row in ipairs(fromTheCradleToTheGrave.rows or {}) do
         row:SetScript("OnEnter", nil)
@@ -5518,9 +6035,9 @@ local function RenderChroniclerOfTheHaranirView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, UIText("Chronicler of the Haranir")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    chroniclerOfTheHaranir.summary:SetText(string.format(UIText("Recover the Haranir journal entries listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    chroniclerOfTheHaranir.summary:SetText(string.format(UIText("TEXT_HARANIR_JOURNAL_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
     chroniclerOfTheHaranir.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, UIText("Chronicler of the Haranir"))))
-    SetItemRewardDisplay(chroniclerOfTheHaranir.rewardIcon, chroniclerOfTheHaranir.rewardLabel, chroniclerOfTheHaranir.rewardButton, nil, "|cffb8b8b8" .. UIText("Title: \"Chronicler of the Haranir\"", CHRONICLER_OF_THE_HARANIR_REWARD_TEXT) .. "|r")
+    SetItemRewardDisplay(chroniclerOfTheHaranir.rewardIcon, chroniclerOfTheHaranir.rewardLabel, chroniclerOfTheHaranir.rewardButton, nil, "|cffb8b8b8" .. (GetAchievementRewardText(ACH.CHRONICLER_OF_THE_HARANIR) or UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED")) .. "|r")
     chroniclerOfTheHaranir.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     chroniclerOfTheHaranir.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(chroniclerOfTheHaranir.rows or {}) do
@@ -5552,13 +6069,13 @@ local function RenderLegendsNeverDieView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.LEGENDS_NEVER_DIE, UIText("Legends Never Die")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    legendsNeverDie.summary:SetText(string.format(UIText("Protect each Haranir legend location listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    legendsNeverDie.summary:SetText(string.format(UIText("TEXT_HARANIR_LEGEND_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
     legendsNeverDie.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.LEGENDS_NEVER_DIE, UIText("Legends Never Die"))))
     SetItemRewardDisplay(legendsNeverDie.rewardIcon, legendsNeverDie.rewardLabel, legendsNeverDie.rewardButton, {
         type = LEGENDS_NEVER_DIE_REWARD.type,
         itemID = LEGENDS_NEVER_DIE_REWARD.itemID,
-        label = UIText("Housing Decor: On'ohia's Call", LEGENDS_NEVER_DIE_REWARD.label),
-    }, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+        label = GetAchievementRewardText(ACH.LEGENDS_NEVER_DIE) or UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED"),
+    }, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     legendsNeverDie.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     legendsNeverDie.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(legendsNeverDie.rows or {}) do
@@ -5593,14 +6110,14 @@ local function RenderDustEmOffView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.DUST_EM_OFF, UIText("Dust 'Em Off")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    dustEmOff.summary:SetText(string.format(UIText("Find all of the Glowing Moths hiding in Harandar. x/y found."):gsub("x/y", "|cffffff00%d/%d|r"), progressCount, progressTotal))
+    dustEmOff.summary:SetText(string.format(UIText("TEXT_GLOWING_MOTH_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), progressCount, progressTotal))
     dustEmOff.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.DUST_EM_OFF, UIText("Dust 'Em Off"))))
-    SetItemRewardDisplay(dustEmOff.rewardIcon, dustEmOff.rewardLabel, dustEmOff.rewardButton, nil, "|cffb8b8b8" .. UIText("Title: \"Dustlord\"", DUST_EM_OFF_REWARD_TEXT) .. "|r")
+    SetItemRewardDisplay(dustEmOff.rewardIcon, dustEmOff.rewardLabel, dustEmOff.rewardButton, nil, "|cffb8b8b8" .. (GetAchievementRewardText(ACH.DUST_EM_OFF) or UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED")) .. "|r")
     local selectedGroup = DUST_EM_OFF_GROUPS[dustEmOffSelectedGroup] or DUST_EM_OFF_GROUPS[1]
     if not DUST_EM_OFF_GROUPS[dustEmOffSelectedGroup] then
         dustEmOffSelectedGroup = DUST_EM_OFF_GROUPS[1] and 1 or nil
     end
-    dustEmOff.detailTitle:SetText(isGroupPage and (selectedGroup and selectedGroup.name or UIText("Moths")) or UIText("Groups"))
+    dustEmOff.detailTitle:SetText(isGroupPage and (selectedGroup and selectedGroup.name or UIText("LABEL_GLOWING_MOTHS")) or UIText("LABEL_ACHIEVEMENT_GROUPS"))
     dustEmOff.groupBackBtn:SetShown(isGroupPage)
     dustEmOff.groupBackBtn:SetScript("OnClick", function()
         achievementSubView = "dustemoff"
@@ -5648,7 +6165,7 @@ local function RenderDustEmOffView()
                 self.Text:SetTextColor(unpack(t.textPrimary))
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
-                GameTooltip:AddLine(info.note or UIText("Coordinates pending."), 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(info.note or UIText("TEXT_COORDINATES_PENDING"), 0.8, 0.8, 0.8, true)
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self)
@@ -5669,7 +6186,7 @@ local function RenderDustEmOffView()
     if isGroupPage and selectedGroup then
         dustEmOff.noteText:SetText(string.format("|cffb8b8b8%s|r", string.format(UIText("%s contains %d moth coordinates. Click a moth to place a waypoint."), selectedGroup.name, selectedGroup.entries and #selectedGroup.entries or 0)))
     else
-        dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2.") .. "\n" .. UIText("Moths 41-80 appear at Hara'ti Renown 4, tracking at Renown 6.") .. "\n" .. UIText("Moths 81-120 appear at Hara'ti Renown 9, tracking at Renown 11.") .. "\n" .. UIText("LiteVault routing assumes you already have Hara'ti Renown 11 unlocked.") .. "|r")
+        dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("NOTE_MOTH_GROUP_1_RENOWN") .. "\n" .. UIText("NOTE_MOTH_GROUP_2_RENOWN") .. "\n" .. UIText("NOTE_MOTH_GROUP_3_RENOWN") .. "\n" .. UIText("NOTE_MOTH_ROUTE_RENOWN_REQUIREMENT") .. "|r")
     end
     for i, btn in ipairs(dustEmOff.entryButtons or {}) do
         local info = isGroupPage and selectedGroup and selectedGroup.entries and selectedGroup.entries[i]
@@ -5747,9 +6264,9 @@ local function RenderExploreZulamanView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_ZULAMAN, UIText("Explore Zul'Aman")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    exploreZulaman.summary:SetText(string.format(UIText("Track Explore Zul'Aman progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_ZULAMAN_ENTRIES))
+    exploreZulaman.summary:SetText(string.format(UIText("TEXT_EXPLORE_ZULAMAN_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_ZULAMAN_ENTRIES))
     exploreZulaman.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_ZULAMAN, UIText("Explore Zul'Aman"))))
-    SetItemRewardDisplay(exploreZulaman.rewardIcon, exploreZulaman.rewardLabel, exploreZulaman.rewardButton, EXPLORE_ZULAMAN_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(exploreZulaman.rewardIcon, exploreZulaman.rewardLabel, exploreZulaman.rewardButton, EXPLORE_ZULAMAN_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     exploreZulaman.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreZulaman.emptyText:SetShown(#EXPLORE_ZULAMAN_ENTRIES == 0)
     for i, row in ipairs(exploreZulaman.rows or {}) do
@@ -5822,9 +6339,9 @@ local function RenderExploreHarandarView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_HARANDAR, UIText("Explore Harandar")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    exploreHarandar.summary:SetText(string.format(UIText("Track Explore Harandar progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_HARANDAR_ENTRIES))
+    exploreHarandar.summary:SetText(string.format(UIText("TEXT_EXPLORE_HARANDAR_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_HARANDAR_ENTRIES))
     exploreHarandar.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_HARANDAR, UIText("Explore Harandar"))))
-    SetItemRewardDisplay(exploreHarandar.rewardIcon, exploreHarandar.rewardLabel, exploreHarandar.rewardButton, EXPLORE_HARANDAR_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(exploreHarandar.rewardIcon, exploreHarandar.rewardLabel, exploreHarandar.rewardButton, EXPLORE_HARANDAR_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     exploreHarandar.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreHarandar.emptyText:SetShown(#EXPLORE_HARANDAR_ENTRIES == 0)
     for i, row in ipairs(exploreHarandar.rows or {}) do
@@ -5878,17 +6395,17 @@ local function RenderAbundanceProsperousView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, UIText("Abundance: Prosperous Plentitude!")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    abundanceProsperous.summary:SetText(string.format(UIText("Complete an Abundant Harvest cave run in each location. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES))
+    abundanceProsperous.summary:SetText(string.format(UIText("TEXT_ABUNDANT_HARVEST_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES))
     abundanceProsperous.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, UIText("Abundance: Prosperous Plentitude!"))))
     SetItemRewardDisplay(
         abundanceProsperous.rewardIcon,
         abundanceProsperous.rewardLabel,
         abundanceProsperous.rewardButton,
         ABUNDANCE_PROSPEROUS_PLENTITUDE_REWARD or GetAchievementRewardFallback(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE),
-        "|cff999999" .. UIText("Zone reward not added yet.") .. "|r"
+        "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r"
     )
     abundanceProsperous.detailTitle:SetText(UIText("LABEL_DETAILS"))
-    abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough.") .. "|r")
+    abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("TOOLTIP_ABUNDANT_HARVEST_CREDIT_REQUIREMENT") .. "|r")
     abundanceProsperous.emptyText:SetShown(true)
     for i, row in ipairs(abundanceProsperous.rows or {}) do
         local info = ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES[i]
@@ -5906,7 +6423,7 @@ local function RenderAbundanceProsperousView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Complete the cave run here for credit."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_CAVE_RUN_CREDIT_INSTRUCTION"), 0.8, 0.8, 0.8)
                 GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
@@ -5949,9 +6466,9 @@ local function RenderAltarOfBlessingsView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.ALTAR_OF_BLESSINGS, UIText("Altar of Blessings: Sacred Buffet Devotee")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    altarOfBlessings.summary:SetText(string.format(UIText("Trigger each listed blessing effect. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    altarOfBlessings.summary:SetText(string.format(UIText("TEXT_BLESSING_EFFECT_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
     altarOfBlessings.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.ALTAR_OF_BLESSINGS, UIText("Altar of Blessings: Sacred Buffet Devotee"))))
-    SetItemRewardDisplay(altarOfBlessings.rewardIcon, altarOfBlessings.rewardLabel, altarOfBlessings.rewardButton, ALTAR_OF_BLESSINGS_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    SetItemRewardDisplay(altarOfBlessings.rewardIcon, altarOfBlessings.rewardLabel, altarOfBlessings.rewardButton, ALTAR_OF_BLESSINGS_REWARD, "|cff999999" .. UIText("TEXT_ZONE_REWARD_NOT_AVAILABLE") .. "|r")
     altarOfBlessings.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     altarOfBlessings.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(altarOfBlessings.rows or {}) do
@@ -5987,9 +6504,9 @@ local function RenderForeverSongView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.FOREVER_SONG, UIText("Forever Song")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    foreverSong.summary:SetText(string.format(UIText("Complete the Eversong Woods achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #FOREVER_SONG_CHILDREN))
+    foreverSong.summary:SetText(string.format(UIText("TEXT_EVERSONG_META_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #FOREVER_SONG_CHILDREN))
     foreverSong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.FOREVER_SONG, UIText("Forever Song"))))
-    SetItemRewardDisplay(foreverSong.rewardIcon, foreverSong.rewardLabel, foreverSong.rewardButton, FOREVER_SONG_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    SetItemRewardDisplay(foreverSong.rewardIcon, foreverSong.rewardLabel, foreverSong.rewardButton, FOREVER_SONG_REWARD, "|cff999999" .. UIText("TEXT_META_REWARD_NOT_AVAILABLE") .. "|r")
     foreverSong.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     foreverSong.emptyText:SetShown(#FOREVER_SONG_CHILDREN == 0)
     for i, btn in ipairs(foreverSong.childButtons or {}) do
@@ -6016,7 +6533,7 @@ local function RenderForeverSongView()
                 self.Text:SetTextColor(unpack(t.textPrimary))
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
-                GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_CLICK_OPEN_TRACKER"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self)
@@ -6066,13 +6583,13 @@ local function RenderLightUpTheNightView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    lightUpTheNight.summary:SetText(string.format(UIText("Rally your forces against Xal'atath by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #LIGHT_UP_THE_NIGHT_CHILDREN))
+    lightUpTheNight.summary:SetText(string.format(UIText("TEXT_XALATATH_META_PROGRESS"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #LIGHT_UP_THE_NIGHT_CHILDREN))
     lightUpTheNight.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night"))))
     SetItemRewardDisplay(lightUpTheNight.rewardIcon, lightUpTheNight.rewardLabel, lightUpTheNight.rewardButton, {
         type = LIGHT_UP_THE_NIGHT_REWARD.type,
         itemID = LIGHT_UP_THE_NIGHT_REWARD.itemID,
-        label = UIText("Mount: Brilliant Petalwing", LIGHT_UP_THE_NIGHT_REWARD.label),
-    }, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+        label = GetAchievementRewardText(ACH.LIGHT_UP_THE_NIGHT) or UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED"),
+    }, "|cff999999" .. UIText("TEXT_META_REWARD_NOT_AVAILABLE") .. "|r")
     lightUpTheNight.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     lightUpTheNight.emptyText:SetShown(#LIGHT_UP_THE_NIGHT_CHILDREN == 0)
     for i, btn in ipairs(lightUpTheNight.childButtons or {}) do
@@ -6100,9 +6617,9 @@ local function RenderLightUpTheNightView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TOOLTIP_CLICK_OPEN_TRACKER"), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TEXT_TRACKER_NOT_AVAILABLE"), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6153,9 +6670,9 @@ local function RenderYellingIntoTheVoidstormView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, UIText("Yelling into the Voidstorm")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    yellingIntoVoidstorm.summary:SetText(string.format(UIText("Complete all of the Voidstorm achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #YELLING_INTO_THE_VOIDSTORM_CHILDREN))
+    yellingIntoVoidstorm.summary:SetText(string.format(UIText("TEXT_VOIDSTORM_META_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #YELLING_INTO_THE_VOIDSTORM_CHILDREN))
     yellingIntoVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, UIText("Yelling into the Voidstorm"))))
-    SetItemRewardDisplay(yellingIntoVoidstorm.rewardIcon, yellingIntoVoidstorm.rewardLabel, yellingIntoVoidstorm.rewardButton, YELLING_INTO_THE_VOIDSTORM_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    SetItemRewardDisplay(yellingIntoVoidstorm.rewardIcon, yellingIntoVoidstorm.rewardLabel, yellingIntoVoidstorm.rewardButton, YELLING_INTO_THE_VOIDSTORM_REWARD, "|cff999999" .. UIText("TEXT_META_REWARD_NOT_AVAILABLE") .. "|r")
     yellingIntoVoidstorm.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     yellingIntoVoidstorm.emptyText:SetShown(#YELLING_INTO_THE_VOIDSTORM_CHILDREN == 0)
     for i, btn in ipairs(yellingIntoVoidstorm.childButtons or {}) do
@@ -6183,9 +6700,9 @@ local function RenderYellingIntoTheVoidstormView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TOOLTIP_CLICK_OPEN_TRACKER"), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TEXT_TRACKER_NOT_AVAILABLE"), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6236,9 +6753,9 @@ local function RenderMakingAnAmaniOutOfYouView()
     end
     achievementsTitle:SetText(GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, UIText("Making an Amani Out of You")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    makingAnAmaniOutOfYou.summary:SetText(string.format(UIText("Complete all of the Zul'Aman achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN))
+    makingAnAmaniOutOfYou.summary:SetText(string.format(UIText("TEXT_ZULAMAN_META_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN))
     makingAnAmaniOutOfYou.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, UIText("Making an Amani Out of You"))))
-    SetItemRewardDisplay(makingAnAmaniOutOfYou.rewardIcon, makingAnAmaniOutOfYou.rewardLabel, makingAnAmaniOutOfYou.rewardButton, MAKING_AN_AMANI_OUT_OF_YOU_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    SetItemRewardDisplay(makingAnAmaniOutOfYou.rewardIcon, makingAnAmaniOutOfYou.rewardLabel, makingAnAmaniOutOfYou.rewardButton, MAKING_AN_AMANI_OUT_OF_YOU_REWARD, "|cff999999" .. UIText("TEXT_META_REWARD_NOT_AVAILABLE") .. "|r")
     makingAnAmaniOutOfYou.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     makingAnAmaniOutOfYou.emptyText:SetShown(#MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN == 0)
     for i, btn in ipairs(makingAnAmaniOutOfYou.childButtons or {}) do
@@ -6266,9 +6783,9 @@ local function RenderMakingAnAmaniOutOfYouView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TOOLTIP_CLICK_OPEN_TRACKER"), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TEXT_TRACKER_NOT_AVAILABLE"), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6319,9 +6836,9 @@ local function RenderThatsAlnFolksView()
     end
     achievementsTitle:SetText(GetAchievementName(62260, UIText("That's Aln, Folks!")))
     achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
-    thatsAlnFolks.summary:SetText(string.format(UIText("Aid the Hara'ti by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THATS_ALN_FOLKS_CHILDREN))
+    thatsAlnFolks.summary:SetText(string.format(UIText("TEXT_HARATI_META_PROGRESS_INSTRUCTION"):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THATS_ALN_FOLKS_CHILDREN))
     thatsAlnFolks.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THATS_ALN_FOLKS, UIText("That's Aln, Folks!"))))
-    SetItemRewardDisplay(thatsAlnFolks.rewardIcon, thatsAlnFolks.rewardLabel, thatsAlnFolks.rewardButton, THATS_ALN_FOLKS_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    SetItemRewardDisplay(thatsAlnFolks.rewardIcon, thatsAlnFolks.rewardLabel, thatsAlnFolks.rewardButton, THATS_ALN_FOLKS_REWARD, "|cff999999" .. UIText("TEXT_META_REWARD_NOT_AVAILABLE") .. "|r")
     thatsAlnFolks.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     thatsAlnFolks.emptyText:SetShown(#THATS_ALN_FOLKS_CHILDREN == 0)
     for i, btn in ipairs(thatsAlnFolks.childButtons or {}) do
@@ -6349,9 +6866,9 @@ local function RenderThatsAlnFolksView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TOOLTIP_CLICK_OPEN_TRACKER"), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TEXT_TRACKER_NOT_AVAILABLE"), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6376,6 +6893,111 @@ local function RenderThatsAlnFolksView()
     end
 end
 
+local function RenderMeta121View()
+    local parent = ACH.META_12_1.parents[meta121.parentIndex or 1]
+    if not parent then return end
+    local child = meta121.childIndex and parent.children[meta121.childIndex] or nil
+    local displayID = child and child.id or parent.id
+    local criteriaRows = GetAchievementCriteriaRows(displayID)
+    local completedLookup, completedCount = {}, 0
+    for _, rowInfo in ipairs(criteriaRows) do
+        local key = rowInfo.text and NormalizeAchievementTreasureName(rowInfo.text)
+        if key then completedLookup[key] = rowInfo; if rowInfo.done then completedCount = completedCount + 1 end end
+    end
+    local entries = child and (child.details or child.criteria) or parent.children
+    achievementsTitle:SetText(GetAchievementName(displayID, child and child.name or parent.name))
+    if child then
+        local total = child.requiredQuantity or #entries
+        if child.requiredQuantity and criteriaRows[1] and tonumber(criteriaRows[1].quantity) then completedCount = tonumber(criteriaRows[1].quantity) or 0 end
+        achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), completedCount, total))
+        meta121.summary:SetText(GetAchievementDescription(displayID) or child.name)
+        meta121.note:SetText(child.note or "")
+        meta121.rewardTitle:SetText(UIText("LABEL_REWARD"))
+        SetItemRewardDisplay(meta121.rewardIcon, meta121.rewardLabel, meta121.rewardButton, nil, child.rewardText and ("|cffb8b8b8" .. child.rewardText .. "|r") or ("|cff999999" .. UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED") .. "|r"))
+    else
+        completedCount = 0
+        for _, info in ipairs(parent.children) do if HasAchievement(info.id) then completedCount = completedCount + 1 end end
+        achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), completedCount, #parent.children))
+        meta121.summary:SetText(GetAchievementDescription(parent.id) or parent.name)
+        meta121.note:SetText("")
+        meta121.rewardTitle:SetText(UIText("LABEL_REWARD"))
+        local runtimeReward = GetAchievementRewardText(parent.id)
+        SetItemRewardDisplay(meta121.rewardIcon, meta121.rewardLabel, meta121.rewardButton, parent.reward, runtimeReward or ("|cff999999" .. UIText("TEXT_ACHIEVEMENT_REWARD_NOT_LISTED") .. "|r"))
+    end
+    meta121.detailTitle:SetText(UIText("LABEL_CRITERIA"))
+    for i, btn in ipairs(meta121.rows) do
+        local info = entries[i]
+        if info then
+            local name = type(info) == "table" and info.name or info
+            local id = type(info) == "table" and info.id or nil
+            local rowInfo = completedLookup[NormalizeAchievementTreasureName(name)]
+            local done = child and rowInfo and rowInfo.done or (not child and id and HasAchievement(id))
+            local progress = ""
+            if not child and id then
+                local childRows, childDone = GetAchievementCriteriaRows(id), 0
+                for _, criterion in ipairs(childRows) do if criterion.done then childDone = childDone + 1 end end
+                if #childRows > 0 then progress = string.format("  %d/%d", childDone, #childRows) end
+            elseif child and child.requiredQuantity and rowInfo then progress = string.format("  %d/%d", tonumber(rowInfo.quantity) or 0, child.requiredQuantity) end
+            btn.Text:SetText(string.format("%s%s%s|r", done and "|cff00ff00" or "|cffffcc66", name, progress))
+            btn:SetScript("OnClick", function()
+                if not child and info.subView == "treasures" then achievementSubView = "treasures"; treasureSelectedAchievementID = info.selectedID
+                elseif not child and info.subView == "rares" then achievementSubView = "rares"; rares.selectedAchievementID = info.selectedID
+                elseif not child and info.subView == "honoreddead" then
+                    meta121.honoredDeadReturn = true
+                    achievementSubView = "honoreddead"
+                elseif not child then meta121.childIndex = i
+                elseif type(info) == "table" and info.mapID then SetAchievementTreasureWaypoint(info.mapID, info.x, info.y, info.name)
+                end
+                RefreshAchievementsView()
+            end)
+            btn:SetScript("OnEnter", function(self)
+                local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderHover)); self:SetBackdropColor(unpack(t.buttonBgHover))
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText(name, 1, 0.82, 0)
+                if type(info) == "table" and info.mapID then GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1) end
+                if type(info) == "table" and info.note then GameTooltip:AddLine(info.note, 0.8, 0.8, 0.8, true) end
+                GameTooltip:Show()
+            end)
+            btn:SetScript("OnLeave", function(self) local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderPrimary)); self:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg)); GameTooltip:Hide() end)
+            btn:Show()
+        else btn:Hide(); btn:SetScript("OnClick", nil); btn:SetScript("OnEnter", nil); btn:SetScript("OnLeave", nil) end
+    end
+    achievementsEmpty:Hide(); for _, panel in ipairs(achievementPanels) do panel:Hide() end
+end
+
+local function SetAchievementSubviewVisibility(active)
+    achievementHome:SetShown(active.home)
+    home.sectionNav:SetShown(active.home)
+    glyphHunterBackBtn:SetShown(not active.home)
+    achievementsScroll:SetShown(active.glyphs)
+    treasureView:SetShown(active.treasures)
+    delverView:SetShown(active.delver)
+    peaksView:SetShown(active.peaks)
+    rares.view:SetShown(active.rares)
+    studentOfHissstory.view:SetShown(active.student or active.honoredDead)
+    meta121.view:SetShown(active.meta121)
+    everPainting.view:SetShown(active.everPainting)
+    runestoneRush.view:SetShown(active.runestoneRush)
+    partyMustGoOn.view:SetShown(active.partyMustGoOn)
+    exploreEversong.view:SetShown(active.exploreEversong)
+    exploreVoidstorm.view:SetShown(active.exploreVoidstorm)
+    thrillOfTheChase.view:SetShown(active.thrillOfTheChase)
+    noTimeToPaws.view:SetShown(active.noTimeToPaws)
+    fromTheCradleToTheGrave.view:SetShown(active.fromTheCradle)
+    chroniclerOfTheHaranir.view:SetShown(active.chronicler)
+    legendsNeverDie.view:SetShown(active.legends)
+    dustEmOff.view:SetShown(active.dustEmOff or active.dustEmOffGroup)
+    aSingularProblem.view:SetShown(active.singularProblem)
+    exploreZulaman.view:SetShown(active.exploreZulaman)
+    exploreHarandar.view:SetShown(active.exploreHarandar)
+    abundanceProsperous.view:SetShown(active.abundance)
+    altarOfBlessings.view:SetShown(active.altar)
+    foreverSong.view:SetShown(active.foreverSong)
+    lightUpTheNight.view:SetShown(active.lightUpTheNight)
+    thatsAlnFolks.view:SetShown(active.thatsAlnFolks)
+    yellingIntoVoidstorm.view:SetShown(active.yellingIntoVoidstorm)
+    makingAnAmaniOutOfYou.view:SetShown(active.makingAnAmani)
+end
+
 RefreshAchievementsView = function()
     if not AchievementView:IsShown() then return end
     ApplyAchievementsTheme(lv.GetTheme and lv.GetTheme() or nil)
@@ -6385,6 +7007,9 @@ RefreshAchievementsView = function()
     local onTreasures = (achievementSubView == "treasures")
     local onPeaks = (achievementSubView == "peaks")
     local onRares = (achievementSubView == "rares")
+    local onStudentOfHissstory = (achievementSubView == "studentofhissstory")
+    local onHonoredDead = (achievementSubView == "honoreddead")
+    local onMeta121 = (achievementSubView == "meta121")
     local onEverPainting = (achievementSubView == "everpainting")
     local onRunestoneRush = (achievementSubView == "runestonerush")
     local onPartyMustGoOn = (achievementSubView == "partymustgoon")
@@ -6407,36 +7032,19 @@ RefreshAchievementsView = function()
     local onThatsAlnFolks = (achievementSubView == "thatsalnfolks")
     local onYellingIntoVoidstorm = (achievementSubView == "yellingintovoidstorm")
     local onMakingAnAmani = (achievementSubView == "makinganamani")
-    local onHome = not (onGlyphs or onDelver or onTreasures or onPeaks or onRares or onEverPainting or onRunestoneRush or onPartyMustGoOn or onExploreEversong or onExploreVoidstorm or onThrillOfTheChase or onNoTimeToPaws or onFromTheCradleToTheGrave or onChroniclerOfTheHaranir or onLegendsNeverDie or onDustEmOff or onDustEmOffGroup or onASingularProblem or onExploreZulaman or onExploreHarandar or onAbundanceProsperous or onAltarOfBlessings or onForeverSong or onLightUpTheNight or onThatsAlnFolks or onYellingIntoVoidstorm or onMakingAnAmani)
+    local onHome = not (onGlyphs or onDelver or onTreasures or onPeaks or onRares or onStudentOfHissstory or onHonoredDead or onMeta121 or onEverPainting or onRunestoneRush or onPartyMustGoOn or onExploreEversong or onExploreVoidstorm or onThrillOfTheChase or onNoTimeToPaws or onFromTheCradleToTheGrave or onChroniclerOfTheHaranir or onLegendsNeverDie or onDustEmOff or onDustEmOffGroup or onASingularProblem or onExploreZulaman or onExploreHarandar or onAbundanceProsperous or onAltarOfBlessings or onForeverSong or onLightUpTheNight or onThatsAlnFolks or onYellingIntoVoidstorm or onMakingAnAmani)
     glyphHunterBackBtn.Text:SetText(UIText("BUTTON_BACK"))
-    achievementHome:SetShown(onHome)
-    glyphHunterBackBtn:SetShown(not onHome)
-    achievementsScroll:SetShown(onGlyphs)
-    treasureView:SetShown(onTreasures)
-    delverView:SetShown(onDelver)
-    peaksView:SetShown(onPeaks)
-    rares.view:SetShown(onRares)
-    everPainting.view:SetShown(onEverPainting)
-    runestoneRush.view:SetShown(onRunestoneRush)
-    partyMustGoOn.view:SetShown(onPartyMustGoOn)
-    exploreEversong.view:SetShown(onExploreEversong)
-    exploreVoidstorm.view:SetShown(onExploreVoidstorm)
-    thrillOfTheChase.view:SetShown(onThrillOfTheChase)
-    noTimeToPaws.view:SetShown(onNoTimeToPaws)
-    fromTheCradleToTheGrave.view:SetShown(onFromTheCradleToTheGrave)
-    chroniclerOfTheHaranir.view:SetShown(onChroniclerOfTheHaranir)
-    legendsNeverDie.view:SetShown(onLegendsNeverDie)
-    dustEmOff.view:SetShown(onDustEmOff or onDustEmOffGroup)
-    aSingularProblem.view:SetShown(onASingularProblem)
-    exploreZulaman.view:SetShown(onExploreZulaman)
-    exploreHarandar.view:SetShown(onExploreHarandar)
-    abundanceProsperous.view:SetShown(onAbundanceProsperous)
-    altarOfBlessings.view:SetShown(onAltarOfBlessings)
-    foreverSong.view:SetShown(onForeverSong)
-    lightUpTheNight.view:SetShown(onLightUpTheNight)
-    thatsAlnFolks.view:SetShown(onThatsAlnFolks)
-    yellingIntoVoidstorm.view:SetShown(onYellingIntoVoidstorm)
-    makingAnAmaniOutOfYou.view:SetShown(onMakingAnAmani)
+    SetAchievementSubviewVisibility({
+        home = onHome, glyphs = onGlyphs, treasures = onTreasures, delver = onDelver, peaks = onPeaks,
+        rares = onRares, student = onStudentOfHissstory, honoredDead = onHonoredDead, meta121 = onMeta121, everPainting = onEverPainting, runestoneRush = onRunestoneRush,
+        partyMustGoOn = onPartyMustGoOn, exploreEversong = onExploreEversong, exploreVoidstorm = onExploreVoidstorm,
+        thrillOfTheChase = onThrillOfTheChase, noTimeToPaws = onNoTimeToPaws, fromTheCradle = onFromTheCradleToTheGrave,
+        chronicler = onChroniclerOfTheHaranir, legends = onLegendsNeverDie, dustEmOff = onDustEmOff,
+        dustEmOffGroup = onDustEmOffGroup, singularProblem = onASingularProblem, exploreZulaman = onExploreZulaman,
+        exploreHarandar = onExploreHarandar, abundance = onAbundanceProsperous, altar = onAltarOfBlessings,
+        foreverSong = onForeverSong, lightUpTheNight = onLightUpTheNight, thatsAlnFolks = onThatsAlnFolks,
+        yellingIntoVoidstorm = onYellingIntoVoidstorm, makingAnAmani = onMakingAnAmani,
+    })
 
     if onHome then
         RenderAchievementsHome()
@@ -6458,6 +7066,15 @@ RefreshAchievementsView = function()
         RenderRaresAchievementsView()
         return
     end
+    if onStudentOfHissstory then
+        RenderStudentOfHissstoryView()
+        return
+    end
+    if onHonoredDead then
+        RenderLoreObjectTracker(ACH.HONORED_DEAD_CONFIG)
+        return
+    end
+    if onMeta121 then RenderMeta121View(); return end
     if onEverPainting then
         RenderEverPaintingView()
         return
@@ -6548,6 +7165,7 @@ lv.RefreshAchievementsView = RefreshAchievementsView
 
 function lv.SetMainView(view)
     currentMainView = ((view == "achievements") or (view == "instances") or (view == "options") or (view == "factions") or (view == "profit")) and view or "dashboard"
+    if currentMainView ~= "factions" and lv.HideFactionSection then lv.HideFactionSection() end
     if env.setCurrentMainView then
         env.setCurrentMainView(currentMainView)
     end
@@ -6559,6 +7177,8 @@ function lv.SetMainView(view)
     end
     if currentMainView == "achievements" then
         achievementSubView = "home"
+        achievementHomeSection = "trackers"
+        achievementReturnSection = "trackers"
         if lv.CloseAuxPanels then lv.CloseAuxPanels(nil) end
         SetDashboardContentVisible(false)
         SetProfitContentVisible(false)
@@ -6578,14 +7198,13 @@ function lv.SetMainView(view)
         SetDashboardContentVisible(false)
         SetProfitContentVisible(false)
         SetFolioContentVisible(false)
-        local factionWeeklyWindow = GetFactionWeeklyWindow()
-        if factionWeeklyWindow then
-            factionWeeklyWindow:Show()
-            if lv.UpdateFactionWeeklyWindow then
-                lv.UpdateFactionWeeklyWindow()
-            end
+        if lv.ShowFactionSection then
+            lv.ShowFactionSection()
+        else
+            local factionWeeklyWindow = GetFactionWeeklyWindow()
+            if factionWeeklyWindow then factionWeeklyWindow:Show() end
+            SetFactionCardsVisible(true)
         end
-        SetFactionCardsVisible(true)
     elseif currentMainView == "options" then
         AchievementView:Hide()
         if _G["LiteVaultInstancePanel"] then _G["LiteVaultInstancePanel"]:Hide() end
@@ -6615,9 +7234,6 @@ function lv.SetMainView(view)
                 if lv.disableOverlayCB then
                     lv.disableOverlayCB:SetChecked(LiteVaultDB.disableCharacterOverlay or false)
                 end
-            end
-            if lv.darkModeCB then
-                lv.darkModeCB:SetChecked(lv.currentTheme == "dark")
             end
             if lv.UpdateLangButtons then
                 lv.UpdateLangButtons()
@@ -6693,6 +7309,21 @@ home.raresLaunchBtn:SetScript("OnClick", function()
     RefreshAchievementsView()
 end)
 
+home.loreLaunchBtn:SetScript("OnClick", function()
+    if not ACH.STUDENT_OF_HISSSTORY_CONFIG.available then return end
+    achievementSubView = "studentofhissstory"
+    RefreshAchievementsView()
+end)
+home.honoredDeadLaunchBtn:SetScript("OnClick", function()
+    if not ACH.HONORED_DEAD_CONFIG.available then return end
+    meta121.honoredDeadReturn = nil
+    achievementReturnSection = "trackers"
+    achievementSubView = "honoreddead"
+    RefreshAchievementsView()
+end)
+home.ulatekLaunchBtn:SetScript("OnClick", function() if ACH.META_12_1.available then meta121.parentIndex = 1; meta121.childIndex = nil; achievementSubView = "meta121"; RefreshAchievementsView() end end)
+home.assaultVaultLaunchBtn:SetScript("OnClick", function() if ACH.META_12_1.available then meta121.parentIndex = 2; meta121.childIndex = nil; achievementSubView = "meta121"; RefreshAchievementsView() end end)
+
 home.everPaintingLaunchBtn:SetScript("OnClick", function()
     achievementSubView = "everpainting"
     RefreshAchievementsView()
@@ -6738,8 +7369,32 @@ home.thatsAlnFolksLaunchBtn:SetScript("OnClick", function()
     RefreshAchievementsView()
 end)
 
+for _, btn in ipairs(home.sectionButtons) do
+    btn:SetScript("OnClick", function(self)
+        achievementHomeSection = self.sectionKey
+        achievementReturnSection = self.sectionKey
+        RefreshAchievementsView()
+    end)
+    btn:SetScript("OnEnter", function(self)
+        local t = lv.GetTheme()
+        self:SetBackdropColor(unpack(t.buttonBgHover or t.buttonBg))
+        self:SetBackdropBorderColor(unpack(t.borderHover or t.borderPrimary))
+    end)
+    btn:SetScript("OnLeave", function()
+        ApplyAchievementsTheme(lv.GetTheme and lv.GetTheme() or nil)
+    end)
+end
+
 glyphHunterBackBtn:SetScript("OnClick", function()
-    achievementSubView = "home"
+    if achievementSubView == "honoreddead" and meta121.honoredDeadReturn then
+        meta121.honoredDeadReturn = nil
+        achievementSubView = "meta121"
+    elseif achievementSubView == "meta121" and meta121.childIndex then
+        meta121.childIndex = nil
+    else
+        achievementSubView = "home"
+        achievementHomeSection = achievementReturnSection
+    end
     RefreshAchievementsView()
 end)
 

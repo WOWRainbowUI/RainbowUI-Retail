@@ -1,21 +1,121 @@
--- Manaforge Omega Boss Names (Season 3) - Hardcoded since EJ may not be available
+-- Raid identity and progression. Numeric Blizzard identifiers are authoritative
+-- when known; localized names are display/fallback data only.
 local addonName, lv = ...
 local L = lv.L
+
+local RAID_SCHEMA_VERSION = 5
+local CURRENT_RAID_SEASON = "midnight_s2"
+local GetEncounterStorageKey
+local RecordSeasonRaidKill
+local MigrateRaidData
+local RaidLockoutWindow
+
+local RAID_SEASONS = {
+    midnight_s1 = {
+        category = "legacy",
+        progressionTrackingActive = false,
+        firstKillTrackingActive = false,
+        labelKey = "LABEL_MIDNIGHT_SEASON_1",
+        raidOrder = { "midnight_s1_voidspire", "midnight_s1_dreamrift", "midnight_s1_sporefall", "midnight_s1_march" },
+        raids = {
+            midnight_s1_voidspire = {
+                displayKey = "The Voidspire", bossCount = 6,
+                bosses = { "Imperator Averzian", "Vorasius", "Fallen-King Salhadaar", "Vaelgor & Ezzorak", "Lightblinded Vanguard", "Alleria Windrunner (Crown of the Cosmos)" },
+            },
+            midnight_s1_dreamrift = { displayKey = "The Dreamrift", bossCount = 1, bosses = { "Chimarus" } },
+            midnight_s1_sporefall = { displayKey = "Sporefall", bossCount = 1, bosses = { "Rotmire" }, instanceIDs = { 16279 } },
+            midnight_s1_march = { displayKey = "March of Quel'Danas", bossCount = 2, bosses = { "Belo'ren", "L'ura (Midnight Falls)" } },
+        },
+    },
+    midnight_s2 = {
+        category = "current",
+        progressionTrackingActive = true,
+        firstKillTrackingActive = true,
+        labelKey = "LABEL_MIDNIGHT_SEASON_2",
+        raidOrder = { "midnight_s2_venomous_abyss", "midnight_s2_tidebound_grotto" },
+        -- Blizzard has confirmed eight encounters. Numeric instance, journal,
+        -- and encounter IDs remain intentionally unset until verified in-client.
+        raids = {
+            midnight_s2_venomous_abyss = {
+                displayKey = "The Venomous Abyss", bossCount = 8, identifiersPending = true,
+                difficulties = {
+                    { storageKey=17, difficultyID=17, tag="L", labelKey="DIFFICULTY_LFR" },
+                    { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
+                    { storageKey=15, difficultyID=15, tag="H", labelKey="DIFFICULTY_HEROIC" },
+                    { storageKey=16, difficultyID=16, tag="M", labelKey="DIFFICULTY_MYTHIC" },
+                },
+                bosses = {
+                    "Nek'zali the Soulcoiler", "Entombed Sentinels", "Vashnik the Malignant", "The Lost Explorers",
+                    "Sszorak", "The Twin Fangs", "The Coiled Altar", "Ula'tek",
+                },
+            },
+            midnight_s2_tidebound_grotto = {
+                displayKey = "The Tidebound Grotto", bossCount = 1, identifiersPending = true,
+                difficulties = {
+                    { storageKey="world", difficultyID=nil, tag="W", labelKey="DIFFICULTY_WORLD", identifiersPending=true },
+                    { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
+                    { storageKey=15, difficultyID=15, tag="H", labelKey="DIFFICULTY_HEROIC" },
+                    { storageKey=16, difficultyID=16, tag="M", labelKey="DIFFICULTY_MYTHIC" },
+                },
+                bosses = { "Nymrissa Wavecaller" },
+            },
+        },
+        achievements = {
+            aotc = { labelKey = "LABEL_RAID_AOTC", achievementID = nil },
+            cuttingEdge = { labelKey = "LABEL_RAID_CUTTING_EDGE", achievementID = nil },
+        },
+    },
+}
+
+lv.RAID_SEASONS = RAID_SEASONS
+lv.CURRENT_RAID_SEASON = CURRENT_RAID_SEASON
 
 local function LT(text)
     return (L and L[text] and L[text] ~= text) and L[text] or text
 end
 
-local raidTabs = {"The Voidspire", "The Dreamrift", "Sporefall", "March of Quel'Danas"}
+local CATEGORY_DEFAULT_SEASONS = { current = "midnight_s2", legacy = "midnight_s1" }
+local selectedCategory = "current"
+local selectedSeasonKey = CATEGORY_DEFAULT_SEASONS.current
+local selectedRaidBySeason = {
+    midnight_s1 = RAID_SEASONS.midnight_s1.raidOrder[1],
+    midnight_s2 = RAID_SEASONS.midnight_s2.raidOrder[1],
+}
+local raidTabs = RAID_SEASONS[selectedSeasonKey].raidOrder
 local raidTabButtons = {}
-local selectedRaidTab = raidTabs[1]
+local selectedRaidTab = selectedRaidBySeason[selectedSeasonKey]
 local currentRaidCharKey = nil
+
+local function GetSeasonLabel(seasonKey)
+    local season = RAID_SEASONS[seasonKey] or {}
+    local labelKey = season.labelKey or "LABEL_MIDNIGHT_SEASON_1"
+    return L[labelKey] or labelKey
+end
+
+local function GetCurrentSeasonLabel()
+    return GetSeasonLabel(selectedSeasonKey)
+end
+
+local function GetRaidConfig(seasonKey, raidKey)
+    local season = RAID_SEASONS[seasonKey]
+    return season and season.raids and season.raids[raidKey]
+end
+
+local function GetRaidDisplayName(seasonKey, raidKey)
+    local raid = GetRaidConfig(seasonKey, raidKey)
+    return raid and LT(raid.displayKey) or tostring(raidKey or "")
+end
+
+local function FormatRaidCharacterTitle(character, raidsTitle, season)
+    local formatText = L["TITLE_RAIDS_CHARACTER_FMT"] or "{character} - {raids} - {season}"
+    return (formatText:gsub("{character}", character):gsub("{raids}", raidsTitle):gsub("{season}", season))
+end
 
 local function UpdateRaidTabButtonStyles()
     local theme = lv.GetTheme and lv.GetTheme() or nil
     if not theme then return end
-    for raidName, btn in pairs(raidTabButtons) do
-        if raidName == selectedRaidTab then
+    for raidKey, btn in pairs(raidTabButtons) do
+        if raidKey == selectedRaidTab then
             btn:SetBackdropColor(unpack(theme.buttonBgActive or theme.buttonBgHover or theme.buttonBg))
             btn:SetBackdropBorderColor(unpack(theme.borderHover or theme.borderPrimary))
         else
@@ -25,22 +125,28 @@ local function UpdateRaidTabButtonStyles()
     end
 end
 
-local function ShowRaidTab(raidName)
-    selectedRaidTab = raidName
+local function ShowRaidTab(raidKey)
+    selectedRaidTab = raidKey
+    selectedRaidBySeason[selectedSeasonKey] = raidKey
+    if lv.InvalidateWarbandRaidCache then lv.InvalidateWarbandRaidCache() end
     UpdateRaidTabButtonStyles()
-    if lv.GetCurrentRaidBossCount then
-        lv.NUM_RAID_BOSSES = lv.GetCurrentRaidBossCount()
-    end
     if lv.UpdateRaidLockoutGrid then
         lv.UpdateRaidLockoutGrid()
     end
+end
+
+local function SizeRaidTabButtonToLabel(button)
+    if not button or not button.Text then return end
+    local minimumWidth = (lv.Layout and lv.Layout.raidTabWidth) or 130
+    local labelWidth = math.ceil(button.Text:GetStringWidth() or 0)
+    button:SetWidth(math.max(minimumWidth, labelWidth + 32))
 end
 
 local function CreateRaidTabs(parent)
     local title = parent.title or parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     if not parent.title then
         title:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, -18)
-        title:SetText(L["TITLE_RAID_LOCKOUTS_WINDOW"])
+        title:SetText(L["TITLE_RAIDS"] or "Raids")
         if lv.ApplyLocaleFont then
             lv.ApplyLocaleFont(title, 15)
         end
@@ -48,17 +154,15 @@ local function CreateRaidTabs(parent)
     end
     local startX = 40
     local spacing = 140
-    for i, raidName in ipairs(raidTabs) do
-        local btnWidth = 130
-        if raidName == "March of Quel'Danas" then
-            btnWidth = (lv.Layout and lv.Layout.raidLongTabWidth) or 146
-        else
-            btnWidth = (lv.Layout and lv.Layout.raidTabWidth) or 130
-        end
+    for _, existing in pairs(raidTabButtons) do existing:Hide() end
+    raidTabs = (RAID_SEASONS[selectedSeasonKey] and RAID_SEASONS[selectedSeasonKey].raidOrder) or {}
+    selectedRaidTab = selectedRaidBySeason[selectedSeasonKey] or raidTabs[1]
+    for i, raidKey in ipairs(raidTabs) do
+        local btnWidth = (lv.Layout and lv.Layout.raidTabWidth) or 130
         local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
         btn:SetSize(btnWidth, 28)
         if i == 1 then
-            btn:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+            btn:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, -112)
         else
             btn:SetPoint("LEFT", raidTabButtons[raidTabs[i-1]], "RIGHT", 10, 0)
         end
@@ -71,21 +175,24 @@ local function CreateRaidTabs(parent)
         btn:EnableMouse(true)
         btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         btn.Text:SetPoint("CENTER")
-        btn.Text:SetText(LT(raidName))
+        btn.Text:SetText(GetRaidDisplayName(selectedSeasonKey, raidKey))
         if lv.ApplyLocaleFont then
             lv.ApplyLocaleFont(btn.Text, 11)
         end
+        -- Content-aware width keeps localized short and long raid names inside
+        -- their button while retaining the existing LiteVault tab styling.
+        SizeRaidTabButtonToLabel(btn)
         btn:SetFrameLevel(parent:GetFrameLevel() + 100)
         btn:SetToplevel(true)
         btn:Raise()
         btn:SetAlpha(1)
         btn:SetScript("OnClick", function()
-            ShowRaidTab(raidName)
+            ShowRaidTab(raidKey)
         end)
         btn:SetScript("OnEnter", function(self)
             local theme = lv.GetTheme and lv.GetTheme() or nil
             if not theme then return end
-            if raidName ~= selectedRaidTab then
+            if raidKey ~= selectedRaidTab then
                 self:SetBackdropColor(unpack(theme.buttonBgHover or theme.buttonBg))
                 self:SetBackdropBorderColor(unpack(theme.borderHover or theme.borderPrimary))
             end
@@ -93,7 +200,7 @@ local function CreateRaidTabs(parent)
         btn:SetScript("OnLeave", function(self)
             local theme = lv.GetTheme and lv.GetTheme() or nil
             if not theme then return end
-            if raidName == selectedRaidTab then
+            if raidKey == selectedRaidTab then
                 self:SetBackdropColor(unpack(theme.buttonBgActive or theme.buttonBgHover or theme.buttonBg))
                 self:SetBackdropBorderColor(unpack(theme.borderHover or theme.borderPrimary))
             else
@@ -101,11 +208,11 @@ local function CreateRaidTabs(parent)
                 self:SetBackdropBorderColor(unpack(theme.borderPrimary))
             end
         end)
-        raidTabButtons[raidName] = btn
+        raidTabButtons[raidKey] = btn
         -- Register for theme updates
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(btn, function(f, theme)
-                if raidName == selectedRaidTab then
+                if raidKey == selectedRaidTab then
                     f:SetBackdropColor(unpack(theme.buttonBgActive or theme.buttonBgHover or theme.buttonBg))
                     f:SetBackdropBorderColor(unpack(theme.borderHover or theme.borderPrimary))
                 else
@@ -125,38 +232,13 @@ C_Timer.After(0, function()
     end
 end)
 
-local MIDNIGHT_RAIDS = {
-    ["The Voidspire"] = {
-        bossCount = 6,
-        bosses = {
-            "Imperator Averzian",
-            "Vorasius",
-            "Fallen-King Salhadaar",
-            "Vaelgor & Ezzorak",
-            "Lightblinded Vanguard",
-            "Alleria Windrunner (Crown of the Cosmos)"
-        }
-    },
-    ["The Dreamrift"] = {
-        bossCount = 1,
-        bosses = {
-            "Chimarus"
-        }
-    },
-    ["Sporefall"] = {
-        bossCount = 1,
-        bosses = {
-            "Rotmire"
-        }
-    },
-    ["March of Quel'Danas"] = {
-        bossCount = 2,
-        bosses = {
-            "Belo'ren",
-            "L'ura (Midnight Falls)"
-        }
-    }
-}
+local function ForEachConfiguredRaid(callback)
+    for seasonKey, season in pairs(RAID_SEASONS) do
+        for raidKey, raidInfo in pairs(season.raids or {}) do
+            callback(seasonKey, raidKey, raidInfo)
+        end
+    end
+end
 
 local function NormalizeEncounterName(name)
     if type(name) ~= "string" then
@@ -194,12 +276,45 @@ end
 
 -- Expose current selected raid boss count for other UI surfaces (e.g. roster badge).
 function lv.GetCurrentRaidBossCount()
-    local raidName = selectedRaidTab or raidTabs[1]
-    local raidData = MIDNIGHT_RAIDS and MIDNIGHT_RAIDS[raidName]
-    if not raidData then
-        return lv.NUM_RAID_BOSSES or 8
+    local raidKey = selectedRaidBySeason[CURRENT_RAID_SEASON] or RAID_SEASONS[CURRENT_RAID_SEASON].raidOrder[1]
+    return lv.GetRaidBossCount(CURRENT_RAID_SEASON, raidKey)
+end
+
+function lv.GetSelectedRaidKey()
+    return selectedSeasonKey, selectedRaidTab or raidTabs[1]
+end
+
+function lv.GetRaidBossCount(seasonKey, raidKey)
+    local raid = GetRaidConfig(seasonKey, raidKey)
+    return raid and (raid.bossCount or #(raid.bosses or {})) or 0
+end
+
+function lv.GetRaidProgressionCount(charKey, seasonKey, raidKey, difficultyID)
+    local playerData = LiteVaultDB and LiteVaultDB[charKey]
+    if not playerData then return 0 end
+    if not playerData.raidData or playerData.raidData.schemaVersion ~= RAID_SCHEMA_VERSION then MigrateRaidData(playerData) end
+    local season = playerData.raidData and playerData.raidData.seasons and playerData.raidData.seasons[seasonKey]
+    local raid = season and season.raids and season.raids[raidKey]
+    local difficulty = raid and raid.difficulties and raid.difficulties[difficultyID]
+    local count, seen = 0, {}
+    for _, encounter in pairs((difficulty and difficulty.encounters) or {}) do
+        if encounter == true then
+            count = count + 1
+        elseif type(encounter) == "table" and encounter.killed then
+            local identity = encounter.bossIndex and ("index:" .. tostring(encounter.bossIndex))
+                or (encounter.encounterID and ("encounter:" .. tostring(encounter.encounterID)))
+            if not identity or not seen[identity] then
+                count = count + 1
+                if identity then seen[identity] = true end
+            end
+        end
     end
-    return raidData.bossCount or #(raidData.bosses or {}) or (lv.NUM_RAID_BOSSES or 8)
+    return count
+end
+
+function lv.GetCurrentRaidProgressionKills(charKey, difficultyID)
+    local raidKey = selectedRaidBySeason[CURRENT_RAID_SEASON] or RAID_SEASONS[CURRENT_RAID_SEASON].raidOrder[1]
+    return lv.GetRaidProgressionCount(charKey, CURRENT_RAID_SEASON, raidKey, difficultyID)
 end
 
 -- Current tier map IDs - FIXED: Make sure this table exists and contains correct IDs
@@ -207,10 +322,15 @@ if not lv.CURRENT_TIER_MAPS then
     -- Learned dynamically when entering/saving tracked raids.
     lv.CURRENT_TIER_MAPS = {}
 end
-lv.CURRENT_TIER_MAPS[16279] = true
-
 lv.CURRENT_TIER_MAP_KEYS = lv.CURRENT_TIER_MAP_KEYS or {}
-lv.CURRENT_TIER_MAP_KEYS[16279] = "Sporefall"
+lv.CURRENT_TIER_INSTANCE_IDS = lv.CURRENT_TIER_INSTANCE_IDS or {}
+ForEachConfiguredRaid(function(seasonKey, raidKey, raidInfo)
+    for _, instanceID in ipairs(raidInfo.instanceIDs or {}) do
+        lv.CURRENT_TIER_MAPS[instanceID] = true
+        lv.CURRENT_TIER_MAP_KEYS[instanceID] = { seasonKey = seasonKey, raidKey = raidKey }
+        lv.CURRENT_TIER_INSTANCE_IDS[instanceID] = { seasonKey = seasonKey, raidKey = raidKey }
+    end
+end)
 
 -- Difficulty data (names are set dynamically from locale)
 lv.RAID_DIFFICULTIES = {
@@ -223,24 +343,23 @@ lv.RAID_DIFFICULTIES = {
 -- Current selected difficulty
 local currentDifficulty = 16 -- Default to Mythic
 
--- View mode: "lockouts" (current week) or "progression" (best ever)
-local currentViewMode = "lockouts"
-lv.getRaidViewMode = function() return currentViewMode end
-
 -- Optional statistic backfill map (fill with real stat IDs when available).
 -- Shape:
 -- BossStatMap["The Voidspire"][1] = { normal = 123, heroic = 456, mythic = 789 }
 local BossStatMap = {
-    ["The Voidspire"] = {
+    seasonKey = "midnight_s1",
+    raids = {
+    midnight_s1_voidspire = {
         [1] = { mythic = 61372 }, -- Imperator Averzian
         [2] = { mythic = 61373 }, -- Vorasius
         [3] = { mythic = 61374 }, -- Fallen-King Salhadaar
         [4] = { mythic = 61375 }, -- Vaelgor (& Ezzorak)
     },
-    ["March of Quel'Danas"] = {
+    midnight_s1_march = {
         -- Shared encounter stat (Belo'ren + Child of Al'ar).
         [1] = { mythic = 61378 }, -- Belo'ren
         [2] = { mythic = 61378 }, -- Child of Al'ar
+    },
     },
 }
 
@@ -257,6 +376,16 @@ local function IsTrackedRaidDifficulty(difficultyID)
 end
 
 local DIFF_ORDER = {17, 14, 15, 16} -- LFR, Normal, Heroic, Mythic
+local function GetRaidDifficultyOrder(seasonKey, raidKey)
+    local raidInfo = GetRaidConfig(seasonKey, raidKey)
+    if raidInfo and raidInfo.difficulties then return raidInfo.difficulties end
+    return {
+        { storageKey=17, difficultyID=17, tag="L", labelKey="DIFFICULTY_LFR" },
+        { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
+        { storageKey=15, difficultyID=15, tag="H", labelKey="DIFFICULTY_HEROIC" },
+        { storageKey=16, difficultyID=16, tag="M", labelKey="DIFFICULTY_MYTHIC" },
+    }
+end
 local function EnsureTripletOrbs(indicator)
     if indicator.orbs then return end
     local parent = indicator:GetParent()
@@ -298,7 +427,7 @@ local function HideTripletOrbs(indicator)
     end
 end
 
-local function RenderBossTriplet(indicator, statesByDiff, viewMode)
+local function RenderBossTriplet(indicator, statesByDiff)
     indicator:Show()
     indicator:SetTexCoord(0, 1, 0, 1)
     if indicator.text then indicator.text:Hide() end
@@ -307,21 +436,12 @@ local function RenderBossTriplet(indicator, statesByDiff, viewMode)
     indicator:SetAlpha(0)
     EnsureTripletOrbs(indicator)
 
-    local isDark = (lv.currentTheme == "dark")
     local theme = lv.GetTheme and lv.GetTheme() or nil
-    local darkButton = (theme and theme.buttonBgAlt) or {0.10, 0.10, 0.10, 1.0}
-    local lightButton = (theme and theme.buttonBgAlt) or {0.28, 0.33, 0.28, 1.0}
-    local killColor = isDark and {0.58, 0.34, 0.86, 1.0} or {0.50, 0.58, 0.47, 1.0}
-    local unkillColor = isDark and {darkButton[1], darkButton[2], darkButton[3], 1.0} or {lightButton[1], lightButton[2], lightButton[3], 1.0}
-    -- Keep dark-mode borders neutral so kill fill doesn't blend into the border.
-    local shellColor
-    if isDark then
-        -- Dark-mode border tone: #56019c
-        shellColor = {0.337, 0.004, 0.612, 0.82}
-    else
-        local shellBase = (theme and theme.borderPrimary) or {0.2, 0.2, 0.2, 1.0}
-        shellColor = {shellBase[1], shellBase[2], shellBase[3], 0.68}
-    end
+    local button = (theme and theme.buttonBgAlt) or {0.210, 0.239, 0.278, 1.0}
+    local killColor = {0.58, 0.34, 0.86, 1.0}
+    local unkillColor = {button[1], button[2], button[3], 1.0}
+    local shellBase = (theme and theme.borderSecondary) or {0.349, 0.388, 0.435, 1.0}
+    local shellColor = {shellBase[1], shellBase[2], shellBase[3], 0.68}
 
     for i = 1, 4 do
         local orb = indicator.orbs[i]
@@ -347,50 +467,25 @@ local function RenderBossTriplet(indicator, statesByDiff, viewMode)
     end
 end
 
-local function GetBossStateForDifficulty(playerData, raidName, bosses, bossIndex, difficultyID, viewMode)
-    local targetKey = currentRaidCharKey or lv.PLAYER_KEY
-    local liveRaidState = lv._liveRaidState
-    local isViewingCurrentPlayer = (targetKey == lv.PLAYER_KEY)
-
-    -- Current lockout display is API-truth for the active player.
-    if viewMode == "lockouts" and isViewingCurrentPlayer and liveRaidState and not lv._raidScanInProgress then
-        local raidState = liveRaidState[raidName]
+function lv.GetCharacterRaidWeeklyBossState(charKey, seasonKey, raidKey, difficultyID, bossIndex)
+    local playerData = LiteVaultDB and LiteVaultDB[charKey]
+    if not playerData then return false end
+    if charKey == lv.PLAYER_KEY and lv._liveRaidState and not lv._raidScanInProgress then
+        local raidState = lv._liveRaidState[seasonKey] and lv._liveRaidState[seasonKey][raidKey]
         local diffState = raidState and raidState[difficultyID]
-        if diffState and diffState.bosses then
-            return true, diffState.bosses[bossIndex] == true
-        end
-        local lockout = playerData and playerData.raidLockouts and playerData.raidLockouts[raidName] and playerData.raidLockouts[raidName][difficultyID]
-        if lockout and lockout.bosses then
-            return true, lockout.bosses[bossIndex] == true
-        end
-        return true, false
+        if diffState and diffState.bosses then return diffState.bosses[bossIndex] == true end
     end
-
-    if viewMode == "progression" then
-        local diffKey = GetDifficultyKey(difficultyID)
-        local raidKills = playerData and playerData.raidKills and playerData.raidKills[raidName]
-        if raidKills and diffKey and raidKills[diffKey] then
-            return true, raidKills[diffKey][bossIndex] == true
-        end
-
-        local prog = playerData and playerData.raidProgression and playerData.raidProgression[difficultyID]
-        if prog and prog.bosses then
-            local savedName = prog.bossNames and prog.bossNames[bossIndex]
-            if savedName and bosses[bossIndex] and savedName == bosses[bossIndex] then
-                return true, prog.bosses[bossIndex] == true
-            end
-        end
-        return false, false
+    local raidInfo = GetRaidConfig(seasonKey, raidKey)
+    local displayKey = raidInfo and raidInfo.displayKey
+    local lockout = playerData and playerData.raidLockouts and playerData.raidLockouts[seasonKey]
+        and playerData.raidLockouts[seasonKey][raidKey] and playerData.raidLockouts[seasonKey][raidKey][difficultyID]
+    if not lockout and playerData and playerData.raidLockouts and displayKey then
+        lockout = playerData.raidLockouts[displayKey] and playerData.raidLockouts[displayKey][difficultyID]
     end
-
-    local lockout = playerData and playerData.raidLockouts and playerData.raidLockouts[raidName] and playerData.raidLockouts[raidName][difficultyID]
     if lockout and lockout.bosses then
-        local savedName = lockout.bossNames and lockout.bossNames[bossIndex]
-        if savedName and bosses[bossIndex] and savedName == bosses[bossIndex] then
-            return true, lockout.bosses[bossIndex] == true
-        end
+        return lockout.bosses[bossIndex] == true
     end
-    return false, false
+    return false
 end
 
 local function EnsureRaidKills(playerData, raidName)
@@ -407,6 +502,261 @@ local function EnsureRaidKills(playerData, raidName)
     return playerData.raidKills[raidName]
 end
 
+local function EnsureSeasonRaidDifficulty(playerData, seasonKey, raidName, difficultyID)
+    if not playerData or not seasonKey or not raidName or not difficultyID then return nil end
+    playerData.raidData = playerData.raidData or { schemaVersion = RAID_SCHEMA_VERSION, seasons = {} }
+    playerData.raidData.seasons = playerData.raidData.seasons or {}
+    local season = playerData.raidData.seasons[seasonKey]
+    if not season then
+        season = { raids = {} }
+        playerData.raidData.seasons[seasonKey] = season
+    end
+    season.raids = season.raids or {}
+    local raid = season.raids[raidName]
+    if not raid then
+        raid = { difficulties = {} }
+        season.raids[raidName] = raid
+    end
+    raid.difficulties = raid.difficulties or {}
+    local difficulty = raid.difficulties[difficultyID]
+    if not difficulty then
+        difficulty = { encounters = {}, updatedAt = 0 }
+        raid.difficulties[difficultyID] = difficulty
+    end
+    difficulty.encounters = difficulty.encounters or {}
+    playerData.raidData.schemaVersion = RAID_SCHEMA_VERSION
+    return difficulty
+end
+
+GetEncounterStorageKey = function(raidInfo, bossIndex, encounterID)
+    encounterID = tonumber(encounterID)
+    if encounterID and encounterID > 0 then return encounterID end
+    local configured = raidInfo and raidInfo.encounters and raidInfo.encounters[bossIndex]
+    if configured and configured.encounterID then return configured.encounterID end
+    return "index:" .. tostring(bossIndex)
+end
+
+RecordSeasonRaidKill = function(playerData, seasonKey, raidName, difficultyID, bossIndex, encounterID, displayName, metadata)
+    metadata = metadata or {}
+    local seasonInfo = RAID_SEASONS[seasonKey]
+    if not seasonInfo or (not seasonInfo.progressionTrackingActive and not metadata.migration) then return false end
+    local raidInfo = RAID_SEASONS[seasonKey] and RAID_SEASONS[seasonKey].raids[raidName]
+    local bucket = EnsureSeasonRaidDifficulty(playerData, seasonKey, raidName, difficultyID)
+    if not bucket then return false end
+    local storageKey = GetEncounterStorageKey(raidInfo, bossIndex, encounterID)
+    local fallbackKey = "index:" .. tostring(bossIndex)
+    local existingKey, existing, hadUndatedKill = nil, nil, false
+    local earliestFirstKillAt, earliestFirstKillSource
+    for key, saved in pairs(bucket.encounters) do
+        if type(saved) == "table" and saved.bossIndex == bossIndex then
+            if not existing or tonumber(key) then existingKey, existing = key, saved end
+            if saved.killed and (not saved.firstKillAt or saved.firstKillSource ~= "observed") then hadUndatedKill = true end
+            if saved.firstKillAt and saved.firstKillSource == "observed"
+                and (not earliestFirstKillAt or saved.firstKillAt < earliestFirstKillAt) then
+                earliestFirstKillAt, earliestFirstKillSource = saved.firstKillAt, saved.firstKillSource
+            end
+        elseif saved == true and (key == storageKey or key == fallbackKey) then
+            hadUndatedKill = true
+        end
+    end
+    local incomingFirstKillAt = metadata.firstKillSource == "observed" and tonumber(metadata.firstKillAt) or nil
+    if incomingFirstKillAt and (not earliestFirstKillAt or incomingFirstKillAt < earliestFirstKillAt) then
+        earliestFirstKillAt, earliestFirstKillSource = incomingFirstKillAt, metadata.firstKillSource
+    end
+    if metadata.historicalUndated then hadUndatedKill = true end
+    if not tonumber(storageKey) and existingKey and tonumber(existingKey) then
+        storageKey = existingKey
+    end
+    local mergeCandidate = existing or bucket.encounters[storageKey] or bucket.encounters[fallbackKey]
+    local merged = type(mergeCandidate) == "table" and mergeCandidate or {}
+    merged.killed = true
+    merged.encounterID = tonumber(encounterID) or merged.encounterID
+    merged.bossIndex = bossIndex
+    merged.displayName = displayName or merged.displayName
+    local observedAt = tonumber(metadata.observedAt)
+    if observedAt and seasonInfo.firstKillTrackingActive and not existing and not hadUndatedKill then
+        earliestFirstKillAt, earliestFirstKillSource = observedAt, "observed"
+    end
+    if hadUndatedKill then
+        -- An older undated record means a later observed date cannot truthfully
+        -- be called this character's first kill.
+        merged.firstKillAt, merged.firstKillSource = nil, nil
+    else
+        merged.firstKillAt, merged.firstKillSource = earliestFirstKillAt, earliestFirstKillSource
+    end
+    bucket.encounters[storageKey] = merged
+    for key, saved in pairs(bucket.encounters) do
+        if key ~= storageKey and type(saved) == "table" and saved.bossIndex == bossIndex then
+            bucket.encounters[key] = nil
+        end
+    end
+    bucket.encounters[storageKey] = merged
+    bucket.updatedAt = GetServerTime()
+    lv._warbandRaidCache = nil
+    return true
+end
+
+MigrateRaidData = function(playerData)
+    if not playerData then return end
+    playerData.raidData = playerData.raidData or { schemaVersion = RAID_SCHEMA_VERSION, seasons = {} }
+    playerData.raidData.seasons = playerData.raidData.seasons or {}
+    if not playerData.raidData.migratedRaidKillsS1 and type(playerData.raidKills) == "table" then
+        for raidName, legacyRaid in pairs(playerData.raidKills) do
+            local legacyMap = {
+                ["The Voidspire"]="midnight_s1_voidspire", ["The Dreamrift"]="midnight_s1_dreamrift",
+                ["Sporefall"]="midnight_s1_sporefall", ["March of Quel'Danas"]="midnight_s1_march",
+            }
+            local raidKey = legacyMap[raidName]
+            if raidKey and type(legacyRaid) == "table" then
+                for _, difficultyID in ipairs({ 17, 14, 15, 16 }) do
+                    local diffKey = GetDifficultyKey(difficultyID)
+                    for bossIndex, killed in pairs(legacyRaid[diffKey] or {}) do
+                        if killed then
+                            RecordSeasonRaidKill(playerData, "midnight_s1", raidKey, difficultyID, bossIndex, nil,
+                                legacyRaid.bossNames and legacyRaid.bossNames[bossIndex], { migration = true })
+                        end
+                    end
+                end
+            end
+        end
+        playerData.raidData.migratedRaidKillsS1 = true
+    end
+    -- Schema v4 copies display-name raid buckets into stable internal-key buckets.
+    -- Originals remain untouched for rollback compatibility. RecordSeasonRaidKill
+    -- performs boss-identity merging, making this safe to run repeatedly.
+    local legacyKeys = {
+        midnight_s1 = {
+            ["The Voidspire"]="midnight_s1_voidspire", ["The Dreamrift"]="midnight_s1_dreamrift",
+            ["Sporefall"]="midnight_s1_sporefall", ["March of Quel'Danas"]="midnight_s1_march",
+        },
+        midnight_s2 = {
+            ["The Venomous Abyss"]="midnight_s2_venomous_abyss",
+            ["Lair Boss"]="midnight_s2_tidebound_grotto",
+            ["midnight_s2_lair_boss"]="midnight_s2_tidebound_grotto",
+        },
+    }
+    for seasonKey, names in pairs(legacyKeys) do
+        local season = playerData.raidData.seasons[seasonKey]
+        for displayName, raidKey in pairs(names) do
+            local oldRaid = season and season.raids and season.raids[displayName]
+            for difficultyID, difficulty in pairs((oldRaid and oldRaid.difficulties) or {}) do
+                for _, encounter in pairs(difficulty.encounters or {}) do
+                    if encounter == true then
+                        -- Very old boolean records have no safe boss identity.
+                    elseif type(encounter) == "table" and encounter.killed and encounter.bossIndex then
+                        local canonicalRaid = season.raids and season.raids[raidKey]
+                        local canonicalDifficulty = canonicalRaid and canonicalRaid.difficulties and canonicalRaid.difficulties[difficultyID]
+                        local existingBoss
+                        for _, saved in pairs((canonicalDifficulty and canonicalDifficulty.encounters) or {}) do
+                            if type(saved) == "table" and saved.bossIndex == encounter.bossIndex then existingBoss = saved break end
+                        end
+                        if not existingBoss or (not existingBoss.encounterID and encounter.encounterID) then
+                            RecordSeasonRaidKill(playerData, seasonKey, raidKey, difficultyID, encounter.bossIndex,
+                                encounter.encounterID, encounter.displayName, {
+                                    migration = true,
+                                    firstKillAt = encounter.firstKillAt,
+                                    firstKillSource = encounter.firstKillSource,
+                                    historicalUndated = not encounter.firstKillAt or encounter.firstKillSource ~= "observed",
+                                })
+                        end
+                    end
+                end
+            end
+        end
+    end
+    -- raidProgression is deliberately retained: its raid attribution is ambiguous.
+    playerData.raidData.schemaVersion = RAID_SCHEMA_VERSION
+end
+
+lv.EnsureRaidDataSchema = MigrateRaidData
+
+function lv.GetCharacterRaidBossState(charKey, seasonKey, raidKey, difficultyID, bossIndex)
+    local playerData = LiteVaultDB and LiteVaultDB[charKey]
+    if not playerData then return false end
+    if not playerData.raidData or playerData.raidData.schemaVersion ~= RAID_SCHEMA_VERSION then MigrateRaidData(playerData) end
+    local season = playerData.raidData and playerData.raidData.seasons and playerData.raidData.seasons[seasonKey]
+    local raid = season and season.raids and season.raids[raidKey]
+    local difficulty = raid and raid.difficulties and raid.difficulties[difficultyID]
+    for _, encounter in pairs((difficulty and difficulty.encounters) or {}) do
+        if type(encounter) == "table" and encounter.killed and encounter.bossIndex == bossIndex then
+            return true
+        end
+    end
+    return false
+end
+
+function lv.GetCharacterRaidBossHistory(charKey, seasonKey, raidKey, difficultyID, bossIndex)
+    local playerData = LiteVaultDB and LiteVaultDB[charKey]
+    if not playerData then return nil end
+    if not playerData.raidData or playerData.raidData.schemaVersion ~= RAID_SCHEMA_VERSION then MigrateRaidData(playerData) end
+    local season = playerData.raidData and playerData.raidData.seasons and playerData.raidData.seasons[seasonKey]
+    local raid = season and season.raids and season.raids[raidKey]
+    local difficulty = raid and raid.difficulties and raid.difficulties[difficultyID]
+    for _, encounter in pairs((difficulty and difficulty.encounters) or {}) do
+        if type(encounter) == "table" and encounter.killed and encounter.bossIndex == bossIndex then
+            local trustworthy = encounter.firstKillSource == "observed" and tonumber(encounter.firstKillAt) or nil
+            return { firstKillAt = trustworthy, firstKillSource = trustworthy and "observed" or nil }
+        end
+    end
+    return nil
+end
+
+local function GetWarbandCacheKey(seasonKey, raidKey, difficultyID, bossIndex)
+    return table.concat({seasonKey, raidKey, difficultyID, bossIndex}, ":")
+end
+
+function lv.GetWarbandRaidBossState(seasonKey, raidKey, difficultyID, bossIndex)
+    for charKey, data in pairs(LiteVaultDB or {}) do
+        if lv.IsLiteVaultCharacterRecord and lv.IsLiteVaultCharacterRecord(charKey, data)
+            and (not data.raidData or data.raidData.schemaVersion ~= RAID_SCHEMA_VERSION) then
+            MigrateRaidData(data)
+        end
+    end
+    lv._warbandRaidCache = lv._warbandRaidCache or {}
+    local cacheKey = GetWarbandCacheKey(seasonKey, raidKey, difficultyID, bossIndex)
+    local cached = lv._warbandRaidCache[cacheKey]
+    if cached then return cached.killed, cached.killers, cached.history end
+    local killers, seen = {}, {}
+    for _, charKey in ipairs(LiteVaultOrder or {}) do
+        local data = LiteVaultDB and LiteVaultDB[charKey]
+        if lv.IsLiteVaultCharacterRecord and lv.IsLiteVaultCharacterRecord(charKey, data)
+            and lv.GetCharacterRaidBossState(charKey, seasonKey, raidKey, difficultyID, bossIndex) then
+            local history = lv.GetCharacterRaidBossHistory(charKey, seasonKey, raidKey, difficultyID, bossIndex) or {}
+            killers[#killers + 1] = { key = charKey, name = charKey:match("^([^-]+)") or charKey, class = data.classFile or data.class,
+                firstKillAt = history.firstKillAt, firstKillSource = history.firstKillSource }
+            seen[charKey] = true
+        end
+    end
+    for charKey, data in pairs(LiteVaultDB or {}) do
+        if not seen[charKey] and lv.IsLiteVaultCharacterRecord and lv.IsLiteVaultCharacterRecord(charKey, data)
+            and lv.GetCharacterRaidBossState(charKey, seasonKey, raidKey, difficultyID, bossIndex) then
+            local history = lv.GetCharacterRaidBossHistory(charKey, seasonKey, raidKey, difficultyID, bossIndex) or {}
+            killers[#killers + 1] = { key = charKey, name = charKey:match("^([^-]+)") or charKey, class = data.classFile or data.class,
+                firstKillAt = history.firstKillAt, firstKillSource = history.firstKillSource }
+        end
+    end
+    local earliest, hasUndated = nil, false
+    for _, killer in ipairs(killers) do
+        if killer.firstKillAt then
+            if not earliest or killer.firstKillAt < earliest.firstKillAt then earliest = killer end
+        else
+            hasUndated = true
+        end
+    end
+    local history = {
+        definitive = #killers > 0 and not hasUndated and earliest ~= nil,
+        hasUndated = hasUndated,
+        earliest = earliest,
+    }
+    cached = { killed = #killers > 0, killers = killers, history = history }
+    lv._warbandRaidCache[cacheKey] = cached
+    return cached.killed, cached.killers, cached.history
+end
+
+function lv.InvalidateWarbandRaidCache()
+    lv._warbandRaidCache = nil
+end
+
 local function HasLegacyRaidLockoutSchema(raidLockouts)
     if type(raidLockouts) ~= "table" then return false end
     for k, v in pairs(raidLockouts) do
@@ -421,32 +771,56 @@ local function EnsureRaidLockoutsSchema(playerData)
     if not playerData then return end
     playerData.raidLockouts = playerData.raidLockouts or {}
 
-    -- One-time migration from old difficulty-only schema.
-    if playerData.raidLockoutsSchemaVersion ~= 2 and HasLegacyRaidLockoutSchema(playerData.raidLockouts) then
-        playerData.raidLockouts = {}
+    -- Retain old display-name and difficulty-only snapshots for rollback.
+    -- Their raid attribution may be ambiguous, so new writes use nested stable
+    -- keys without destructively guessing at the old data.
+    local s2Lockouts = playerData.raidLockouts.midnight_s2
+    local temporaryLair = s2Lockouts and s2Lockouts.midnight_s2_lair_boss
+    if temporaryLair then
+        s2Lockouts.midnight_s2_tidebound_grotto = s2Lockouts.midnight_s2_tidebound_grotto or {}
+        local target = s2Lockouts.midnight_s2_tidebound_grotto
+        for difficultyKey, oldState in pairs(temporaryLair) do
+            if type(oldState) == "table" then
+                target[difficultyKey] = target[difficultyKey] or { bosses={}, bossNames={}, scannedAt=0 }
+                for bossIndex, killed in pairs(oldState.bosses or {}) do
+                    if killed then target[difficultyKey].bosses[bossIndex] = true end
+                end
+                for bossIndex, bossName in pairs(oldState.bossNames or {}) do
+                    target[difficultyKey].bossNames[bossIndex] = target[difficultyKey].bossNames[bossIndex] or bossName
+                end
+                target[difficultyKey].scannedAt = math.max(target[difficultyKey].scannedAt or 0, oldState.scannedAt or 0)
+            end
+        end
     end
 
-    for raidName in pairs(MIDNIGHT_RAIDS) do
-        playerData.raidLockouts[raidName] = playerData.raidLockouts[raidName] or {}
+    for seasonKey, season in pairs(RAID_SEASONS) do
+        playerData.raidLockouts[seasonKey] = playerData.raidLockouts[seasonKey] or {}
+        for raidKey in pairs(season.raids or {}) do
+            playerData.raidLockouts[seasonKey][raidKey] = playerData.raidLockouts[seasonKey][raidKey] or {}
+        end
     end
-    playerData.raidLockoutsSchemaVersion = 2
+    playerData.raidLockoutsSchemaVersion = 3
+    MigrateRaidData(playerData)
 end
 
-local function EnsureRaidLockoutBucket(playerData, raidName, difficultyID)
-    if not playerData or not raidName or not difficultyID then return nil end
+local function EnsureRaidLockoutBucket(playerData, seasonKey, raidKey, difficultyID)
+    if not playerData or not seasonKey or not raidKey or not difficultyID then return nil end
     EnsureRaidLockoutsSchema(playerData)
-    playerData.raidLockouts[raidName][difficultyID] = playerData.raidLockouts[raidName][difficultyID] or {
+    playerData.raidLockouts[seasonKey][raidKey][difficultyID] = playerData.raidLockouts[seasonKey][raidKey][difficultyID] or {
         bosses = {},
         bossNames = {},
         scannedAt = GetServerTime()
     }
-    return playerData.raidLockouts[raidName][difficultyID]
+    return playerData.raidLockouts[seasonKey][raidKey][difficultyID]
 end
 
 local function BackfillRaidKillsFromStatistics(playerData)
     if not playerData then return end
-    for raidName, bosses in pairs(BossStatMap) do
-        local raidKills = EnsureRaidKills(playerData, raidName)
+    local seasonKey = BossStatMap.seasonKey
+    if not (RAID_SEASONS[seasonKey] and RAID_SEASONS[seasonKey].progressionTrackingActive) then return end
+    for raidKey, bosses in pairs(BossStatMap.raids or {}) do
+        local raidInfo = GetRaidConfig(seasonKey, raidKey)
+        local raidKills = EnsureRaidKills(playerData, raidInfo and raidInfo.displayKey or raidKey)
         for bossIndex, diffStats in pairs(bosses or {}) do
             for diffKey, statID in pairs(diffStats or {}) do
                 local statText = select(1, GetStatistic(statID))
@@ -454,9 +828,12 @@ local function BackfillRaidKillsFromStatistics(playerData)
                 if statVal > 0 and raidKills[diffKey] then
                     -- Boolean-only progression seed: killed at least once.
                     raidKills[diffKey][bossIndex] = true
-                    if MIDNIGHT_RAIDS[raidName] and MIDNIGHT_RAIDS[raidName].bosses then
-                        raidKills.bossNames[bossIndex] = MIDNIGHT_RAIDS[raidName].bosses[bossIndex]
+                    if raidInfo and raidInfo.bosses then
+                        raidKills.bossNames[bossIndex] = raidInfo.bosses[bossIndex]
                     end
+                    local difficultyIDs = { lfr=17, normal=14, heroic=15, mythic=16 }
+                    RecordSeasonRaidKill(playerData, seasonKey, raidKey,
+                        difficultyIDs[diffKey], bossIndex, nil, raidKills.bossNames[bossIndex])
                 end
             end
         end
@@ -484,6 +861,8 @@ function lv.ScanRaidLockouts()
     if lastLockoutReset > 0 and lastLockoutReset < (nextReset - 604800) then
         -- Weekly reset occurred, clear lockout data
         playerData.raidLockouts = {}
+        lv._liveRaidState = {}
+        lv._liveRaidResetEpoch = nextReset - 604800
     end
     playerData.lastLockoutReset = currentTime
 
@@ -497,7 +876,7 @@ function lv.ScanRaidLockouts()
     if not playerData.raidKills then
         playerData.raidKills = {}
     end
-    if not playerData.raidKillsBackfilled and next(BossStatMap) then
+    if not playerData.raidKillsBackfilled and next(BossStatMap.raids or {}) then
         BackfillRaidKillsFromStatistics(playerData)
         playerData.raidKillsBackfilled = true
     end
@@ -521,73 +900,85 @@ function lv.ScanRaidLockouts()
     end)
 end
 
-local function LearnTrackedRaidMapID(raidName, mapID)
-    mapID = tonumber(mapID)
-    if not raidName or not mapID or mapID <= 0 then return end
-    if not MIDNIGHT_RAIDS[raidName] then return end
-    lv.CURRENT_TIER_MAPS = lv.CURRENT_TIER_MAPS or {}
-    lv.CURRENT_TIER_MAP_KEYS = lv.CURRENT_TIER_MAP_KEYS or {}
-    lv.CURRENT_TIER_MAPS[mapID] = true
-    lv.CURRENT_TIER_MAP_KEYS[mapID] = raidName
+local function LearnTrackedRaidInstanceID(seasonKey, raidKey, instanceID)
+    instanceID = tonumber(instanceID)
+    if not GetRaidConfig(seasonKey, raidKey) or not instanceID or instanceID <= 0 then return end
+    lv.CURRENT_TIER_INSTANCE_IDS = lv.CURRENT_TIER_INSTANCE_IDS or {}
+    lv.CURRENT_TIER_INSTANCE_IDS[instanceID] = { seasonKey = seasonKey, raidKey = raidKey }
 end
 
 local RAID_INSTANCE_ALIASES = {
-    ["The Voidspire"] = {
+    midnight_s1_voidspire = {
         "The Voidspire",
     },
-    ["The Dreamrift"] = {
+    midnight_s1_dreamrift = {
         "The Dreamrift",
     },
-    ["Sporefall"] = {
+    midnight_s1_sporefall = {
         "Sporefall",
     },
-    ["March of Quel'Danas"] = {
+    midnight_s1_march = {
         "March of Quel'Danas",
+        "March on Quel'Danas",
         "Dragon's March on Quel'Danas",
         "The Dragon's March on Quel'Danas",
     },
+    midnight_s2_venomous_abyss = { "The Venomous Abyss" },
+    midnight_s2_tidebound_grotto = { "The Tidebound Grotto" },
 }
 
-local function InstanceNameMatchesRaid(instanceName, raidName)
-    if type(instanceName) ~= "string" or type(raidName) ~= "string" then
+local function InstanceNameMatchesRaid(instanceName, raidKey, raidInfo)
+    if type(instanceName) ~= "string" or type(raidKey) ~= "string" then
         return false
     end
 
-    local aliases = RAID_INSTANCE_ALIASES[raidName] or { raidName }
+    local aliases = RAID_INSTANCE_ALIASES[raidKey] or { raidInfo and raidInfo.displayKey or raidKey }
     for _, alias in ipairs(aliases) do
-        if instanceName == alias or instanceName:find(alias, 1, true) or alias:find(instanceName, 1, true) then
-            return true
+        for _, candidate in ipairs({ alias, LT(alias) }) do
+            if instanceName == candidate or instanceName:find(candidate, 1, true) or candidate:find(instanceName, 1, true) then
+                return true
+            end
         end
     end
 
     local normalizedInstance = NormalizeEncounterName(instanceName)
     for _, alias in ipairs(aliases) do
-        local normalizedAlias = NormalizeEncounterName(alias)
-        if normalizedInstance == normalizedAlias
-            or normalizedInstance:find(normalizedAlias, 1, true)
-            or normalizedAlias:find(normalizedInstance, 1, true) then
-            return true
+        for _, candidate in ipairs({ alias, LT(alias) }) do
+            local normalizedAlias = NormalizeEncounterName(candidate)
+            if normalizedAlias ~= "" and (normalizedInstance == normalizedAlias
+                or normalizedInstance:find(normalizedAlias, 1, true)
+                or normalizedAlias:find(normalizedInstance, 1, true)) then
+                return true
+            end
         end
     end
 
     return false
 end
 
-local function DetectTrackedRaid(instanceName, mapID)
-    if mapID and lv.CURRENT_TIER_MAPS and lv.CURRENT_TIER_MAPS[mapID] then
-        local byMap = lv.CURRENT_TIER_MAP_KEYS and lv.CURRENT_TIER_MAP_KEYS[mapID]
-        if byMap and MIDNIGHT_RAIDS[byMap] then
-            return true, byMap
+local function DetectTrackedRaid(instanceName, instanceID)
+    if instanceID and lv.CURRENT_TIER_INSTANCE_IDS then
+        local byInstanceID = lv.CURRENT_TIER_INSTANCE_IDS[instanceID]
+        if type(byInstanceID) == "table" and GetRaidConfig(byInstanceID.seasonKey, byInstanceID.raidKey) then
+            return byInstanceID.seasonKey, byInstanceID.raidKey
         end
     end
-    if not instanceName then return false, nil end
-    for raidName, _ in pairs(MIDNIGHT_RAIDS) do
-        if InstanceNameMatchesRaid(instanceName, raidName) then
-            LearnTrackedRaidMapID(raidName, mapID)
-            return true, raidName
+    if not instanceName then return nil, nil end
+    local foundSeason, foundRaid
+    ForEachConfiguredRaid(function(seasonKey, raidKey, raidInfo)
+        if not foundRaid and InstanceNameMatchesRaid(instanceName, raidKey, raidInfo) then
+            foundSeason, foundRaid = seasonKey, raidKey
+            LearnTrackedRaidInstanceID(seasonKey, raidKey, instanceID)
         end
-    end
-    return false, nil
+    end)
+    return foundSeason, foundRaid
+end
+
+-- Shared season-aware raid resolver for runtime consumers such as InstanceTracker.
+-- Numeric identifiers remain authoritative when known; localized configured names
+-- provide the fallback while new-season identifiers are pending live verification.
+function lv.ResolveConfiguredRaid(instanceName, instanceID)
+    return DetectTrackedRaid(instanceName, instanceID)
 end
 
 -- Scan the actual raid info panel for lockout data
@@ -596,68 +987,64 @@ function lv.ScanRaidInfoPanel()
 
     local playerData = LiteVaultDB[lv.PLAYER_KEY]
     lv._raidScanInProgress = true
-    local previousLiveRaidState = lv._liveRaidState or {}
+    local currentResetEpoch = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    local previousLiveRaidState = (currentResetEpoch and lv._liveRaidResetEpoch == currentResetEpoch) and (lv._liveRaidState or {}) or {}
+    lv._liveRaidResetEpoch = currentResetEpoch
     lv._liveRaidState = {}
     -- Keep the existing current-week lockout table and merge fresh API data into it.
     EnsureRaidLockoutsSchema(playerData)
-    for raidName in pairs(MIDNIGHT_RAIDS) do
-        playerData.raidLockouts[raidName] = playerData.raidLockouts[raidName] or {}
+    ForEachConfiguredRaid(function(seasonKey, raidKey)
         for _, diff in ipairs(lv.RAID_DIFFICULTIES or {}) do
-            playerData.raidLockouts[raidName][diff.id] = playerData.raidLockouts[raidName][diff.id] or {
+            playerData.raidLockouts[seasonKey][raidKey][diff.id] = playerData.raidLockouts[seasonKey][raidKey][diff.id] or {
                 bosses = {},
                 bossNames = {},
                 scannedAt = 0
             }
         end
-    end
+    end)
 
     -- Use the built-in API but with better validation
     for i = 1, GetNumSavedInstances() do
-        local name, _, reset, difficulty, locked, extended, _, isRaid, _, _, numBosses, _, _, _, mapID = GetSavedInstanceInfo(i)
-        -- Detect current tracked raid by mapID or Midnight raid name.
-        local isCurrentRaid, trackedRaidName = DetectTrackedRaid(name, mapID)
+        local name, _, reset, difficulty, locked, extended, _, isRaid, _, _, numBosses, _, _, instanceID = GetSavedInstanceInfo(i)
+        -- The final Retail return is an instance ID, not a map ID.
+        local resolvedSeasonKey, resolvedRaidKey = DetectTrackedRaid(name, instanceID)
 
         -- Only scan ACTIVE lockouts (reset > 0 means it expires in the future = current week)
         -- Expired lockouts (reset = 0) are from previous weeks and should be ignored
         local isActiveLockout = reset and reset > 0
 
         -- Skip expired lockouts (from previous weeks)
-        if isRaid and isCurrentRaid and not isActiveLockout and IsTrackedRaidDifficulty(difficulty) then
+        if isRaid and resolvedRaidKey and not isActiveLockout and IsTrackedRaidDifficulty(difficulty) then
         end
 
-        if isRaid and isCurrentRaid and isActiveLockout and IsTrackedRaidDifficulty(difficulty) then
-            local resolvedRaidName = trackedRaidName
-            if not MIDNIGHT_RAIDS[resolvedRaidName or ""] and name then
-                for raidName, _ in pairs(MIDNIGHT_RAIDS) do
-                    if name == raidName or name:find(raidName, 1, true) then
-                        resolvedRaidName = raidName
-                        break
-                    end
-                end
-            end
-            local raidInfo = MIDNIGHT_RAIDS[resolvedRaidName or ""]
-            LearnTrackedRaidMapID(resolvedRaidName, mapID)
-            local trackedBossCount = (raidInfo and raidInfo.bossCount) or lv.NUM_RAID_BOSSES
+        if isRaid and resolvedRaidKey and isActiveLockout and IsTrackedRaidDifficulty(difficulty) then
+            local raidInfo = GetRaidConfig(resolvedSeasonKey, resolvedRaidKey)
+            LearnTrackedRaidInstanceID(resolvedSeasonKey, resolvedRaidKey, instanceID)
+            local trackedBossCount = (raidInfo and raidInfo.bossCount) or 0
 
-            local canStoreLiveState = resolvedRaidName and MIDNIGHT_RAIDS[resolvedRaidName]
+            local canStoreLiveState = raidInfo ~= nil
             if canStoreLiveState then
                 -- Live, API-authoritative state for current lockout rendering.
-                local priorState = previousLiveRaidState[resolvedRaidName] and previousLiveRaidState[resolvedRaidName][difficulty] or nil
-                lv._liveRaidState[resolvedRaidName] = lv._liveRaidState[resolvedRaidName] or {}
-                lv._liveRaidState[resolvedRaidName][difficulty] = lv._liveRaidState[resolvedRaidName][difficulty] or {
+                local priorState = previousLiveRaidState[resolvedSeasonKey] and previousLiveRaidState[resolvedSeasonKey][resolvedRaidKey]
+                    and previousLiveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty] or nil
+                lv._liveRaidState[resolvedSeasonKey] = lv._liveRaidState[resolvedSeasonKey] or {}
+                lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey] = lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey] or {}
+                lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty] = lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty] or {
                     bosses = {},
                     bossNames = {},
+                    encounterIDs = {},
+                    encounterObservedAt = {},
                     scannedAt = GetServerTime()
                 }
                 if priorState and priorState.bosses then
                     for bossIndex, isKilled in pairs(priorState.bosses) do
                         if isKilled then
-                            lv._liveRaidState[resolvedRaidName][difficulty].bosses[bossIndex] = true
+                            lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].bosses[bossIndex] = true
                         end
                     end
                 end
                 if priorState and priorState.bossNames then
-                    lv._liveRaidState[resolvedRaidName][difficulty].bossNames = priorState.bossNames
+                    lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].bossNames = priorState.bossNames
                 end
             end
 
@@ -667,7 +1054,7 @@ function lv.ScanRaidInfoPanel()
                 if bossName then
                     -- Update current week's lockout (live scan is authoritative).
                     if isDead then
-                        local lockout = EnsureRaidLockoutBucket(playerData, resolvedRaidName, difficulty)
+                        local lockout = EnsureRaidLockoutBucket(playerData, resolvedSeasonKey, resolvedRaidKey, difficulty)
                         local canonicalName = (raidInfo and raidInfo.bosses and raidInfo.bosses[bossIndex]) or bossName
                         if lockout then
                             lockout.bosses[bossIndex] = true
@@ -675,8 +1062,15 @@ function lv.ScanRaidInfoPanel()
                             lockout.scannedAt = GetServerTime()
                         end
                         if canStoreLiveState then
-                            lv._liveRaidState[resolvedRaidName][difficulty].bosses[bossIndex] = true
-                            lv._liveRaidState[resolvedRaidName][difficulty].bossNames[bossIndex] = canonicalName
+                            lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].bosses[bossIndex] = true
+                            lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].bossNames[bossIndex] = canonicalName
+                            local pending = lv._pendingRaidEncounter
+                            if pending and pending.seasonKey == resolvedSeasonKey and pending.raidKey == resolvedRaidKey and pending.difficultyID == difficulty
+                                and EncounterNamesMatch(pending.encounterName, bossName) then
+                                lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].encounterIDs[bossIndex] = pending.encounterID
+                                lv._liveRaidState[resolvedSeasonKey][resolvedRaidKey][difficulty].encounterObservedAt[bossIndex] = pending.observedAt
+                                lv._pendingRaidEncounter = nil
+                            end
                         end
                     end
                 end
@@ -687,15 +1081,18 @@ function lv.ScanRaidInfoPanel()
     -- Reconcile persistent progression from live API snapshot.
     playerData.raidProgression = playerData.raidProgression or {}
     playerData.raidKills = playerData.raidKills or {}
-    for raidName, byDiff in pairs(lv._liveRaidState) do
+    for seasonKey, byRaid in pairs(lv._liveRaidState) do
+      for raidKey, byDiff in pairs(byRaid or {}) do
         for diffID, diffState in pairs(byDiff or {}) do
-            if IsTrackedRaidDifficulty(diffID) then
+            local seasonInfo = RAID_SEASONS[seasonKey]
+            if seasonInfo and seasonInfo.progressionTrackingActive and IsTrackedRaidDifficulty(diffID) then
                 playerData.raidProgression[diffID] = playerData.raidProgression[diffID] or {bosses = {}, bossNames = {}, killCount = 0}
                 local diffKey = GetDifficultyKey(diffID)
-                local raidKills = (diffKey and EnsureRaidKills(playerData, raidName)) or nil
+                local raidInfo = GetRaidConfig(seasonKey, raidKey)
+                local raidKills = (diffKey and raidInfo and EnsureRaidKills(playerData, raidInfo.displayKey)) or nil
                 for bossIndex, isKilled in pairs(diffState.bosses or {}) do
                     if isKilled then
-                        local bossName = (diffState.bossNames and diffState.bossNames[bossIndex]) or (MIDNIGHT_RAIDS[raidName] and MIDNIGHT_RAIDS[raidName].bosses and MIDNIGHT_RAIDS[raidName].bosses[bossIndex])
+                        local bossName = (diffState.bossNames and diffState.bossNames[bossIndex]) or (raidInfo and raidInfo.bosses and raidInfo.bosses[bossIndex])
                         playerData.raidProgression[diffID].bosses[bossIndex] = true
                         if bossName then
                             playerData.raidProgression[diffID].bossNames[bossIndex] = bossName
@@ -707,6 +1104,10 @@ function lv.ScanRaidInfoPanel()
                             end
                             raidKills.updatedAt = GetServerTime()
                         end
+                        local encounterID = diffState.encounterIDs and diffState.encounterIDs[bossIndex]
+                        RecordSeasonRaidKill(playerData, seasonKey, raidKey, diffID, bossIndex, encounterID, bossName, {
+                            observedAt = diffState.encounterObservedAt and diffState.encounterObservedAt[bossIndex],
+                        })
                     end
                 end
                 local killCount = 0
@@ -716,6 +1117,7 @@ function lv.ScanRaidInfoPanel()
                 playerData.raidProgression[diffID].killCount = killCount
             end
         end
+      end
     end
 
     lv._raidScanInProgress = false
@@ -729,16 +1131,14 @@ end
 
 -- Helper function to count progression kills for a character
 function lv.GetProgressionKills(charKey, difficultyId)
-    if not LiteVaultDB or not LiteVaultDB[charKey] then return 0 end
-    local data = LiteVaultDB[charKey]
-    if not data.raidProgression or not data.raidProgression[difficultyId] then return 0 end
-    return data.raidProgression[difficultyId].killCount or 0
+    return lv.GetCurrentRaidProgressionKills(charKey, difficultyId)
 end
 
 -- Create the Raid Lockout Window
-local RaidLockoutWindow = CreateFrame("Frame", "LiteVaultRaidFrame", UIParent, "BackdropTemplate")
-RaidLockoutWindow:SetSize(700, 440) -- Reduced size for less wasted space
+RaidLockoutWindow = CreateFrame("Frame", "LiteVaultRaidFrame", UIParent, "BackdropTemplate")
+RaidLockoutWindow:SetSize(900, 500)
 RaidLockoutWindow:SetPoint("CENTER")
+RaidLockoutWindow:SetClampedToScreen(true)
 RaidLockoutWindow:SetFrameStrata("DIALOG")
 RaidLockoutWindow:SetMovable(true)
 RaidLockoutWindow:EnableMouse(true)
@@ -751,6 +1151,7 @@ RaidLockoutWindow:SetBackdrop({
     edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 })
+lv.EnsureBorderStyle(RaidLockoutWindow, "panel")
 RaidLockoutWindow:Hide()
 
 -- Register for theming
@@ -758,7 +1159,7 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         lv.RegisterThemedElement(RaidLockoutWindow, function(f, theme)
             f:SetBackdropColor(unpack(theme.backgroundSolid))
-            f:SetBackdropBorderColor(unpack(theme.borderPrimary))
+            lv.ApplyBorderStyle(f, "panel", theme)
             -- Refresh grid to update button colors when theme changes
             if f:IsShown() then
                 lv.UpdateRaidLockoutGrid()
@@ -766,23 +1167,13 @@ C_Timer.After(0, function()
         end)
         local t = lv.GetTheme()
         RaidLockoutWindow:SetBackdropColor(unpack(t.backgroundSolid))
-        RaidLockoutWindow:SetBackdropBorderColor(unpack(t.borderPrimary))
+        lv.ApplyBorderStyle(RaidLockoutWindow, "panel", t)
     end
 end)
 
--- FIXED: Register with escape handler so it closes when user hits Escape
-local UpdateRaidViewToggleText
+-- Register with escape handler so it closes when user hits Escape.
 RaidLockoutWindow:SetScript("OnShow", function(self)
     table.insert(UISpecialFrames, "LiteVaultRaidFrame")
-    currentViewMode = "lockouts"
-    UpdateRaidViewToggleText()
-    -- Ensure saved theme is applied before first paint of this window.
-    if LiteVaultDB and LiteVaultDB.theme and lv.Themes and lv.Themes[LiteVaultDB.theme] then
-        lv.currentTheme = LiteVaultDB.theme
-        if lv.ApplyTheme then
-            lv.ApplyTheme()
-        end
-    end
     -- Refresh immediately on open so first load is correct without mode toggles.
     if lv.ScanRaidLockouts then
         lv.ScanRaidLockouts()
@@ -808,16 +1199,67 @@ end)
 -- Title (will be updated with character name) - Left aligned to avoid buttons
 local title = RaidLockoutWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOPLEFT", 15, -15)
-title:SetText("|cffa335ee" .. L["TITLE_RAID_LOCKOUTS_WINDOW"] .. "|r - " .. L["LABEL_MIDNIGHT_SEASON_1"])
+title:SetText(string.format(L["TITLE_RAID_SEASON_FMT"] or "%s - %s", L["TITLE_RAIDS"] or "Raids", GetCurrentSeasonLabel()))
 if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(title, 15)
 end
 RaidLockoutWindow.title = title
 
+local seasonContextText = RaidLockoutWindow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+seasonContextText:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", 20, -87)
+RaidLockoutWindow.seasonContextText = seasonContextText
+
+local categoryButtons = {}
+local function UpdateCategoryButtonStyles()
+    local theme = lv.GetTheme and lv.GetTheme()
+    if not theme then return end
+    for category, button in pairs(categoryButtons) do
+        local active = category == selectedCategory
+        button:SetBackdropColor(unpack(active and (theme.buttonBgActive or theme.buttonBgHover) or theme.buttonBg))
+        button:SetBackdropBorderColor(unpack(active and (theme.borderHover or theme.borderPrimary) or theme.borderPrimary))
+    end
+end
+
+local function SelectRaidCategory(category)
+    local seasonKey = CATEGORY_DEFAULT_SEASONS[category]
+    if not seasonKey or not RAID_SEASONS[seasonKey] then return end
+    selectedCategory = category
+    selectedSeasonKey = seasonKey
+    raidTabs = RAID_SEASONS[seasonKey].raidOrder
+    selectedRaidTab = selectedRaidBySeason[seasonKey] or raidTabs[1]
+    selectedRaidBySeason[seasonKey] = selectedRaidTab
+    lv.InvalidateWarbandRaidCache()
+    CreateRaidTabs(RaidLockoutWindow)
+    UpdateCategoryButtonStyles()
+    if lv.UpdateRaidLockoutGrid then lv.UpdateRaidLockoutGrid() end
+end
+
+for index, category in ipairs({ "current", "legacy" }) do
+    local button = CreateFrame("Button", nil, RaidLockoutWindow, "BackdropTemplate")
+    button:SetSize(112, 28)
+    button:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", 20 + ((index - 1) * 122), -48)
+    button:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8", edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=12, insets={left=3,right=3,top=3,bottom=3} })
+    button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    button.Text:SetPoint("CENTER")
+    button.Text:SetText(category == "current" and L["TAB_RAID_CURRENT"] or L["TAB_RAID_LEGACY"])
+    button:SetScript("OnClick", function() SelectRaidCategory(category) end)
+    button:SetScript("OnEnter", function(self) local t=lv.GetTheme(); self:SetBackdropColor(unpack(t.buttonBgHover)); self:SetBackdropBorderColor(unpack(t.borderHover)) end)
+    button:SetScript("OnLeave", UpdateCategoryButtonStyles)
+    categoryButtons[category] = button
+end
+UpdateCategoryButtonStyles()
+C_Timer.After(0, function()
+    if lv.RegisterThemedElement then
+        for _, button in pairs(categoryButtons) do
+            lv.RegisterThemedElement(button, function() UpdateCategoryButtonStyles() end)
+        end
+    end
+end)
+
 -- Bottom-right live marker for current-character lockout API view
 local liveTagText = RaidLockoutWindow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 liveTagText:SetPoint("BOTTOMRIGHT", RaidLockoutWindow, "BOTTOMRIGHT", -14, 10)
-liveTagText:SetText("|cff2ecc71[LIVE]|r")
+liveTagText:SetText("|cff2ecc71" .. L["STATUS_LIVE"] .. "|r")
 liveTagText:Hide()
 RaidLockoutWindow.liveTagText = liveTagText
 
@@ -828,13 +1270,13 @@ local function RefreshRaidWindowTitle()
     local classTag = (LiteVaultDB and playerKey and LiteVaultDB[playerKey] and LiteVaultDB[playerKey].class) or select(2, UnitClass("player")) or "WARRIOR"
     local cc = C_ClassColor.GetClassColor(classTag or "WARRIOR")
     local nameHex = (cc and cc.GenerateHexColor and cc:GenerateHexColor()) or "ffffffff"
-    local modeTitle = (currentViewMode == "progression") and L["TITLE_RAID_PROGRESSION"] or L["TITLE_RAID_LOCKOUTS_WINDOW"]
     local isCurrentPlayerView = (playerKey == lv.PLAYER_KEY)
-    local seasonText = L["LABEL_MIDNIGHT_SEASON_1"]
-    RaidLockoutWindow.title:SetText(string.format("|c%s%s|r|cffa335ee's %s|r - %s", nameHex, charName, modeTitle, seasonText))
+    local seasonText = GetCurrentSeasonLabel()
+    local coloredName = string.format("|c%s%s|r", nameHex, charName)
+    RaidLockoutWindow.title:SetText(FormatRaidCharacterTitle(coloredName, L["TITLE_RAIDS"] or "Raids", seasonText))
 
     if RaidLockoutWindow.liveTagText then
-        if currentViewMode == "lockouts" and isCurrentPlayerView then
+        if isCurrentPlayerView then
             RaidLockoutWindow.liveTagText:Show()
         else
             RaidLockoutWindow.liveTagText:Hide()
@@ -889,81 +1331,6 @@ closeBtn:SetScript("OnLeave", function(self)
     self.Text:SetTextColor(unpack(t.textPrimary))
 end)
 
--- View Mode Toggle Button (Lockouts vs Progression)
-local viewToggleBtn = CreateFrame("Button", nil, RaidLockoutWindow, "BackdropTemplate")
-viewToggleBtn:SetSize((lv.Layout and lv.Layout.raidViewToggleWidth) or 110, 26)
-viewToggleBtn:SetPoint("RIGHT", closeBtn, "LEFT", -10, 0)
-viewToggleBtn:SetBackdrop({
-    bgFile = "Interface\\Buttons\\WHITE8X8",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 12,
-    insets = { left = 3, right = 3, top = 3, bottom = 3 }
-})
-
-local viewToggleTxt = viewToggleBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-viewToggleTxt:SetPoint("CENTER")
-viewToggleTxt:SetText(L["BUTTON_PROGRESSION"])
-if lv.ApplyLocaleFont then
-    lv.ApplyLocaleFont(viewToggleTxt, 11)
-end
-viewToggleBtn.text = viewToggleTxt
-
-UpdateRaidViewToggleText = function()
-    if not viewToggleBtn or not viewToggleBtn.text then return end
-    viewToggleBtn.text:SetText(currentViewMode == "lockouts" and L["BUTTON_PROGRESSION"] or L["BUTTON_LOCKOUTS"])
-end
-
--- Register for theming
-C_Timer.After(0, function()
-    if lv.RegisterThemedElement then
-        lv.RegisterThemedElement(viewToggleBtn, function(btn, theme)
-            btn:SetBackdropColor(unpack(theme.buttonBgAlt))
-            btn:SetBackdropBorderColor(unpack(theme.borderPrimary))
-        end)
-        local t = lv.GetTheme()
-        viewToggleBtn:SetBackdropColor(unpack(t.buttonBgAlt))
-        viewToggleBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-    end
-end)
-
-viewToggleBtn:SetScript("OnClick", function(self)
-    if currentViewMode == "lockouts" then
-        currentViewMode = "progression"
-    else
-        currentViewMode = "lockouts"
-    end
-    UpdateRaidViewToggleText()
-    RefreshRaidWindowTitle()
-    lv.UpdateRaidLockoutGrid()
-end)
-
-viewToggleBtn:SetScript("OnEnter", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderHover))
-    self:SetBackdropColor(unpack(t.buttonBgHover))
-    self.text:SetTextColor(unpack(t.textPrimary))
-    GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-    if currentViewMode == "lockouts" then
-        GameTooltip:SetText(L["TOOLTIP_VIEW_LOCKOUTS"], 1, 1, 1)
-        GameTooltip:AddLine(L["TOOLTIP_VIEW_LOCKOUTS_SWITCH"], 0.7, 0.7, 0.7)
-    else
-        GameTooltip:SetText(L["TOOLTIP_VIEW_PROGRESSION"], 1, 1, 1)
-        GameTooltip:AddLine(L["TOOLTIP_VIEW_PROGRESSION_SWITCH"], 0.7, 0.7, 0.7)
-    end
-    GameTooltip:Show()
-end)
-
-viewToggleBtn:SetScript("OnLeave", function(self)
-    local t = lv.GetTheme()
-    self:SetBackdropBorderColor(unpack(t.borderPrimary))
-    self:SetBackdropColor(unpack(t.buttonBgAlt))
-    self.text:SetTextColor(unpack(t.textPrimary))
-    GameTooltip:Hide()
-end)
-
-RaidLockoutWindow.viewToggleBtn = viewToggleBtn
-lv.raidViewToggleBtn = viewToggleBtn
-
 -- Difficulty Tabs (Vertical on left side, centered)
 local diffButtons = {}
 local SHOW_DIFFICULTY_SELECTOR = false
@@ -1005,11 +1372,8 @@ for i, diff in ipairs(lv.RAID_DIFFICULTIES) do
     btn:SetScript("OnLeave", function(self)
         self.isHovered = false
         if currentDifficulty ~= self.diffID then
-            if lv.currentTheme == "light" then
-                self:SetBackdropBorderColor(0.20, 0.20, 0.20, 0.6)
-            else
-                self:SetBackdropBorderColor(0.5, 0.2, 0.8, 0.6)
-            end
+            local t = lv.GetTheme()
+            self:SetBackdropBorderColor(t.borderPrimary[1], t.borderPrimary[2], t.borderPrimary[3], 0.6)
         end
     end)
 
@@ -1024,8 +1388,8 @@ lv.raidDiffButtons = diffButtons
 -- Boss Name Headers (dynamic for selected raid)
 local maxBosses = 8 -- Maximum possible bosses in any raid (for grid allocation)
 local bossHeaders = {}
-local gridStartX = 180 -- Shifted right to avoid difficulty slider
-local columnWidth = 80 -- Width of each boss column
+local gridStartX = 145
+local columnWidth = 90
 for i = 1, maxBosses do
     local header = CreateFrame("Frame", nil, RaidLockoutWindow)
     header:SetSize(columnWidth, 40)
@@ -1043,18 +1407,10 @@ for i = 1, maxBosses do
     -- Keep the separator tied to the label position so it always sits just under boss names.
     separator:SetPoint("TOP", nameText, "BOTTOM", 0, -2)
     local function GetBossNameColor()
-        if lv.currentTheme == "dark" then
-            return 0.9, 0.7, 1, 1
-        else
-            return 1, 0.82, 0, 1
-        end
+        return unpack(lv.GetTheme().textGold)
     end
     local function GetSeparatorColor()
-        if lv.currentTheme == "dark" then
-            return 0.5, 0.2, 0.8, 0.6
-        else
-            return 0.2, 0.2, 0.2, 0.6
-        end
+        return unpack(lv.GetTheme().dividerBright)
     end
     nameText:SetTextColor(GetBossNameColor())
     separator:SetColorTexture(GetSeparatorColor())
@@ -1089,26 +1445,128 @@ C_Timer.After(0, function()
     if lv.RegisterThemedElement then
         for i, headerData in ipairs(bossHeaders) do
             lv.RegisterThemedElement(headerData.frame, function(f, theme)
-                if lv.currentTheme == "dark" then
-                    headerData.nameText:SetTextColor(0.9, 0.7, 1, 1)
-                    headerData.separator:SetColorTexture(0.5, 0.2, 0.8, 0.6)
-                else
-                    headerData.nameText:SetTextColor(1, 0.82, 0, 1)
-                    headerData.separator:SetColorTexture(0.2, 0.2, 0.2, 0.6)
-                end
+                headerData.nameText:SetTextColor(unpack(theme.textGold))
+                headerData.separator:SetColorTexture(unpack(theme.dividerBright))
             end)
         end
     end
 end)
 
--- Character Rows (no grid lines needed for single character view)
+local function GetSelectedCharacterClassColor(characterData)
+    if type(characterData) ~= "table" then return nil end
+    local classTag = characterData.classFile or characterData.class
+    if type(classTag) ~= "string" or classTag == "" then return nil end
+    classTag = classTag:upper():gsub("%s+", "")
+
+    local color = C_ClassColor and C_ClassColor.GetClassColor and C_ClassColor.GetClassColor(classTag)
+    if not color and RAID_CLASS_COLORS then
+        color = RAID_CLASS_COLORS[classTag]
+    end
+    return color
+end
+
+local function SetCharacterNameColor(fontString, classColor)
+    if classColor then
+        fontString:SetTextColor(classColor.r or 1, classColor.g or 1, classColor.b or 1, 1)
+        return
+    end
+    local theme = lv.GetTheme()
+    fontString:SetTextColor(unpack((theme and theme.textPrimary) or { 1, 1, 1, 1 }))
+end
+
+local function AddCharacterNameTooltipLine(characterName, classColor)
+    if classColor then
+        GameTooltip:AddLine(characterName, classColor.r or 1, classColor.g or 1, classColor.b or 1)
+    else
+        GameTooltip:AddLine(characterName, 1, 1, 1)
+    end
+end
+
+local function FormatRaidKillDate(timestamp)
+    return timestamp and date("%x", timestamp) or nil
+end
+
+local function AddClassColoredKiller(killer)
+    local color = C_ClassColor and C_ClassColor.GetClassColor and C_ClassColor.GetClassColor(killer.class)
+    if not color and RAID_CLASS_COLORS then color = RAID_CLASS_COLORS[killer.class] end
+    if color and color.WrapTextInColorCode then
+        GameTooltip:AddLine(color:WrapTextInColorCode(killer.name))
+    else
+        GameTooltip:AddLine(killer.name, 0.9, 0.9, 0.9)
+    end
+end
+
+local function ShowRaidIndicatorTooltip(button)
+    if not button or not button.bossName or not button.difficultyLabelKey then return end
+    local difficultyName = L[button.difficultyLabelKey] or button.difficultyLabelKey
+    GameTooltip:SetOwner(button, "ANCHOR_TOP")
+    GameTooltip:SetText(string.format(L["TOOLTIP_RAID_BOSS_DIFFICULTY_FMT"] or "%s — %s", button.bossName, difficultyName), 1, 0.82, 0)
+    GameTooltip:AddLine(" ")
+    if button.rowKind == "warband" then
+        GameTooltip:AddLine(L["LABEL_WARBAND_PROGRESSION"], 0.75, 0.45, 1)
+        if button.isKilled then
+            GameTooltip:AddLine(L["STATUS_KILLED"], 0.2, 1, 0.2)
+            local history = button.firstKillHistory or {}
+            GameTooltip:AddLine(L["LABEL_FIRST_KILL"], 1, 1, 1)
+            if history.definitive and history.earliest then
+                AddClassColoredKiller({
+                    name = string.format("%s — %s", history.earliest.name, FormatRaidKillDate(history.earliest.firstKillAt)),
+                    class = history.earliest.class,
+                })
+                if #(button.killers or {}) > 1 then GameTooltip:AddLine(L["LABEL_ALSO_KILLED_BY"], 1, 1, 1) end
+            else
+                GameTooltip:AddLine(L["TEXT_HISTORICAL_DATA_UNAVAILABLE"], 0.7, 0.7, 0.7)
+                if history.earliest then
+                    GameTooltip:AddLine(L["LABEL_EARLIEST_RECORDED_KILL"], 1, 1, 1)
+                    AddClassColoredKiller({
+                        name = string.format("%s — %s", history.earliest.name, FormatRaidKillDate(history.earliest.firstKillAt)),
+                        class = history.earliest.class,
+                    })
+                end
+                GameTooltip:AddLine(L["LABEL_KNOWN_KILLS"], 1, 1, 1)
+            end
+            local displayed, limit = 0, 8
+            for _, killer in ipairs(button.killers or {}) do
+                if not (history.definitive and history.earliest and killer.key == history.earliest.key) and displayed < limit then
+                    AddClassColoredKiller(killer)
+                    displayed = displayed + 1
+                end
+            end
+            local omitted = #(button.killers or {}) - displayed - ((history.definitive and history.earliest) and 1 or 0)
+            if omitted > 0 then
+                GameTooltip:AddLine(string.format(L["TEXT_MORE_CHARACTERS_FMT"] or "+ %d more", omitted), 0.7, 0.7, 0.7)
+            end
+        else
+            GameTooltip:AddLine(L["TEXT_NO_WARBAND_RAID_KILL"], 0.7, 0.7, 0.7, true)
+        end
+    elseif button.rowKind == "weekly" then
+        GameTooltip:AddLine(L["LABEL_THIS_WEEK"], 0.75, 0.75, 1)
+        AddCharacterNameTooltipLine(button.characterName or L["LABEL_CHARACTER"], button.characterClassColor)
+        GameTooltip:AddLine(button.isKilled and L["STATUS_SAVED_KILLED"] or L["STATUS_NOT_SAVED_KILLED"], button.isKilled and 0.2 or 0.8, button.isKilled and 1 or 0.35, 0.2)
+    else
+        GameTooltip:AddLine(L["LABEL_CHARACTER_PROGRESSION"], 0.75, 0.75, 1)
+        AddCharacterNameTooltipLine(button.characterName or L["LABEL_CHARACTER"], button.characterClassColor)
+        GameTooltip:AddLine(button.isKilled and L["STATUS_KILLED"] or L["STATUS_NOT_KILLED"], button.isKilled and 0.2 or 0.8, button.isKilled and 1 or 0.35, 0.2)
+        if button.isKilled then
+            if button.characterHistory and button.characterHistory.firstKillAt then
+                GameTooltip:AddLine(L["LABEL_FIRST_KILL"], 1, 1, 1)
+                GameTooltip:AddLine(FormatRaidKillDate(button.characterHistory.firstKillAt), 0.9, 0.9, 0.9)
+            else
+                GameTooltip:AddLine(L["TEXT_KILL_DATE_UNAVAILABLE"], 0.7, 0.7, 0.7)
+            end
+        end
+    end
+    GameTooltip:Show()
+end
+
+-- Unified Character progression, current weekly lockout, and derived Warband rows.
 local charRows = {}
-local maxRows = 20
+local maxRows = 3
 
 for i = 1, maxRows do
     local row = CreateFrame("Frame", nil, RaidLockoutWindow, "BackdropTemplate")
-    row:SetSize(maxBosses * columnWidth + 190, 40)
-    row:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", 20, -145 - ((i - 1) * 42))
+    row:SetSize(860, 62)
+    row:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", 20, -220 - ((i - 1) * 82))
     row:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -1128,6 +1586,13 @@ for i = 1, maxRows do
         local t = lv.GetTheme()
         self:SetBackdropColor(0.0, 0.0, 0.0, 0.0)
         self:SetBackdropBorderColor(0.0, 0.0, 0.0, 0.0)
+        if self.nameText then
+            if self.rowKind == "character" then
+                SetCharacterNameColor(self.nameText, self.characterClassColor)
+            else
+                self.nameText:SetTextColor(unpack(t.textPrimary or { 1, 1, 1, 1 }))
+            end
+        end
         if self.diffLabels then
             for _, labelSet in ipairs(self.diffLabels) do
                 if labelSet then
@@ -1140,17 +1605,30 @@ for i = 1, maxRows do
     end
     row:UpdateTheme()
     
-    -- Character name (hidden for character-specific view)
+    row.rowKind = (i == 1 and "character") or (i == 2 and "weekly") or "warband"
     row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     row.nameText:SetPoint("LEFT", 15, 0)
     row.nameText:SetWidth(100)
     row.nameText:SetJustifyH("LEFT")
+    row.nameText:SetWordWrap(false)
+
+    row.nameHit = CreateFrame("Button", nil, row)
+    row.nameHit:SetPoint("LEFT", row, "LEFT", 10, 0)
+    row.nameHit:SetSize(110, 32)
+    row.nameHit:SetScript("OnEnter", function(self)
+        if not self.characterName then return end
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        AddCharacterNameTooltipLine(self.characterName, self.characterClassColor)
+        GameTooltip:Show()
+    end)
+    row.nameHit:SetScript("OnLeave", function() GameTooltip:Hide() end)
     
     row:UpdateTheme()
     
     -- Boss kill indicators - centered under boss name headers
     row.bossIndicators = {}
     row.diffLabels = {}
+    row.hitButtons = {}
     for b = 1, maxBosses do
         local indicator = row:CreateTexture(nil, "ARTWORK")
         indicator:SetSize(72, 32)
@@ -1171,6 +1649,16 @@ for i = 1, maxRows do
             labelSet[idx] = label
         end
         row.diffLabels[b] = labelSet
+        row.hitButtons[b] = {}
+        for idx = 1, 4 do
+            local hit = CreateFrame("Button", nil, row)
+            hit:SetSize(15, 28)
+            hit:SetPoint("CENTER", indicator, "CENTER", offsets[idx], 0)
+            hit.rowKind = row.rowKind
+            hit:SetScript("OnEnter", ShowRaidIndicatorTooltip)
+            hit:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            row.hitButtons[b][idx] = hit
+        end
     end
     
     charRows[i] = row
@@ -1196,42 +1684,50 @@ function lv.UpdateRaidLockoutGrid()
         for diffID, btn in pairs(diffButtons) do
             if diffID == currentDifficulty then
                 -- Active button
-                if lv.currentTheme == "light" then
-                    btn:SetBackdropColor(0.35, 0.42, 0.35, 1)  -- Sage green active
-                    btn:SetBackdropBorderColor(0.20, 0.20, 0.20, 1)  -- Dark grey border
-                else
-                    btn:SetBackdropColor(0.2, 0.1, 0.3, 1)  -- Void purple active
-                    btn:SetBackdropBorderColor(0.6, 0.2, 1, 1)  -- Void purple border
-                end
+                local theme = lv.GetTheme()
+                btn:SetBackdropColor(unpack(theme.buttonBgActive))
+                btn:SetBackdropBorderColor(unpack(theme.borderSecondary))
             else
                 -- Inactive button
-                if lv.currentTheme == "light" then
-                    btn:SetBackdropColor(0.30, 0.35, 0.30, 0.9)  -- Sage green inactive
-                else
-                    btn:SetBackdropColor(0.1, 0.05, 0.15, 0.9)  -- Void purple inactive
-                end
+                local theme = lv.GetTheme()
+                btn:SetBackdropColor(unpack(theme.buttonBg))
                 -- Only reset border if not being hovered
                 if not btn.isHovered then
-                    if lv.currentTheme == "light" then
-                        btn:SetBackdropBorderColor(0.20, 0.20, 0.20, 0.6)  -- Dark grey border
-                    else
-                        btn:SetBackdropBorderColor(0.5, 0.2, 0.8, 0.6)  -- Void purple border
-                    end
+                    btn:SetBackdropBorderColor(theme.borderPrimary[1], theme.borderPrimary[2], theme.borderPrimary[3], 0.6)
                 end
             end
         end
     end
     
-    -- Use selected Midnight S1 raid bosses for headers
-    local raidName = selectedRaidTab or raidTabs[1]
-    local raidData = MIDNIGHT_RAIDS[raidName]
+    local seasonKey = selectedSeasonKey
+    local raidKey = selectedRaidTab or raidTabs[1]
+    local raidData = GetRaidConfig(seasonKey, raidKey)
     local bosses = raidData and raidData.bosses or {}
     local bossCount = (raidData and raidData.bossCount) or #bosses
-    lv.NUM_RAID_BOSSES = bossCount
+    local raidDifficulties = GetRaidDifficultyOrder(seasonKey, raidKey)
+    if RaidLockoutWindow.seasonContextText then
+        RaidLockoutWindow.seasonContextText:SetText(GetSeasonLabel(seasonKey))
+    end
+    categoryButtons.current.Text:SetText(L["TAB_RAID_CURRENT"])
+    categoryButtons.legacy.Text:SetText(L["TAB_RAID_LEGACY"])
+    for key, button in pairs(raidTabButtons) do
+        local config = GetRaidConfig(seasonKey, key)
+        if config and button.Text then
+            button.Text:SetText(LT(config.displayKey))
+            SizeRaidTabButtonToLabel(button)
+        end
+    end
+    local gridLeft, gridWidth = 145, 730
+    columnWidth = gridWidth / math.max(1, bossCount)
     for i = 1, #bossHeaders do
         if i <= bossCount and bosses[i] then
             bossHeaders[i].nameText:SetText(LT(bosses[i]))
             bossHeaders[i].frame.bossName = LT(bosses[i])
+            bossHeaders[i].frame:ClearAllPoints()
+            bossHeaders[i].frame:SetSize(columnWidth, 46)
+            bossHeaders[i].nameText:SetWidth(math.max(40, columnWidth - 6))
+            bossHeaders[i].separator:SetWidth(math.max(36, columnWidth - 8))
+            bossHeaders[i].frame:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", gridLeft + ((i - 1) * columnWidth), -158)
             bossHeaders[i].frame:Show()
         else
             bossHeaders[i].nameText:SetText("")
@@ -1259,49 +1755,73 @@ function lv.UpdateRaidLockoutGrid()
         RaidLockoutWindow.noDataText:Hide()
     end
 
-    local row = charRows[1]
-    if not row then return end
-    row.nameText:SetText("")
-    -- Restore old Claude indicator logic, adapted to current dynamic raid boss count
-    for bossIdx = 1, #bossHeaders do
-        local indicator = row.bossIndicators[bossIdx]
-        local diffLabelSet = row.diffLabels and row.diffLabels[bossIdx]
-        if bossIdx <= bossCount then
-            local headerFrame = bossHeaders[bossIdx] and bossHeaders[bossIdx].frame
-            indicator:ClearAllPoints()
-            if headerFrame then
-                -- Invisible grid anchor: marker is pinned to the matching boss header column.
-                indicator:SetPoint("TOP", headerFrame, "BOTTOM", 0, 26)
-            else
-                indicator:SetPoint("CENTER", 0, -30)
-            end
-            if diffLabelSet then
-                for _, label in ipairs(diffLabelSet) do
-                    label:Show()
-                end
-            end
-            local statesByDiff = {}
-            for orbIdx, diffID in ipairs(DIFF_ORDER) do
-                local hasData, isKilled = GetBossStateForDifficulty(playerData, raidName, bosses, bossIdx, diffID, currentViewMode)
-                statesByDiff[orbIdx] = {hasData = hasData, isKilled = isKilled}
-            end
-            RenderBossTriplet(indicator, statesByDiff, currentViewMode)
+    local visibleRows = 3
+    local characterName = targetKey:match("^([^-]+)") or targetKey
+    local characterClassColor = GetSelectedCharacterClassColor(playerData)
+    for rowIndex = 1, visibleRows do
+        local row = charRows[rowIndex]
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", RaidLockoutWindow, "TOPLEFT", 20, -212 - ((rowIndex - 1) * 82))
+        if rowIndex == 1 then
+            row.nameText:SetText(characterName)
+            row.characterClassColor = characterClassColor
+            SetCharacterNameColor(row.nameText, characterClassColor)
+            row.nameHit.characterName = characterName
+            row.nameHit.characterClassColor = characterClassColor
+            row.nameHit:Show()
         else
-            if indicator.text then indicator.text:Hide() end
-            HideTripletOrbs(indicator)
-            indicator:Hide()
-            if diffLabelSet then
-                for _, label in ipairs(diffLabelSet) do
-                    label:Hide()
+            row.nameText:SetText(rowIndex == 2 and L["LABEL_THIS_WEEK"] or L["LABEL_WARBAND"])
+            row.characterClassColor = nil
+            row.nameText:SetTextColor(unpack((lv.GetTheme().textPrimary) or { 1, 1, 1, 1 }))
+            row.nameHit.characterName = nil
+            row.nameHit.characterClassColor = nil
+            row.nameHit:Hide()
+        end
+        for bossIdx = 1, #bossHeaders do
+            local indicator = row.bossIndicators[bossIdx]
+            local diffLabelSet = row.diffLabels[bossIdx]
+            if bossIdx <= bossCount then
+                indicator:ClearAllPoints()
+                indicator:SetPoint("TOP", bossHeaders[bossIdx].frame, "BOTTOM", 0, -22 - ((rowIndex - 1) * 82))
+                local statesByDiff = {}
+                for orbIdx, difficultyInfo in ipairs(raidDifficulties) do
+                    local difficultyKey = difficultyInfo.storageKey
+                    local isKilled, killers, firstKillHistory, characterHistory
+                    if rowIndex == 3 then
+                        isKilled, killers, firstKillHistory = lv.GetWarbandRaidBossState(seasonKey, raidKey, difficultyKey, bossIdx)
+                    elseif rowIndex == 2 then
+                        isKilled = lv.GetCharacterRaidWeeklyBossState(targetKey, seasonKey, raidKey, difficultyKey, bossIdx)
+                    else
+                        isKilled = lv.GetCharacterRaidBossState(targetKey, seasonKey, raidKey, difficultyKey, bossIdx)
+                        characterHistory = lv.GetCharacterRaidBossHistory(targetKey, seasonKey, raidKey, difficultyKey, bossIdx)
+                    end
+                    statesByDiff[orbIdx] = { hasData = true, isKilled = isKilled }
+                    local hit = row.hitButtons[bossIdx][orbIdx]
+                    hit.bossName = LT(bosses[bossIdx])
+                    hit.characterName = characterName
+                    hit.characterClassColor = characterClassColor
+                    hit.difficultyID = difficultyInfo.difficultyID
+                    hit.difficultyKey = difficultyKey
+                    hit.difficultyLabelKey = difficultyInfo.labelKey
+                    hit.isKilled = isKilled
+                    hit.killers = killers
+                    hit.firstKillHistory = firstKillHistory
+                    hit.characterHistory = characterHistory
+                    hit:Show()
+                    diffLabelSet[orbIdx]:SetText(difficultyInfo.tag)
                 end
+                for _, label in ipairs(diffLabelSet) do label:Show() end
+                RenderBossTriplet(indicator, statesByDiff)
+            else
+                HideTripletOrbs(indicator)
+                indicator:Hide()
+                for _, label in ipairs(diffLabelSet) do label:Hide() end
+                for _, hit in ipairs(row.hitButtons[bossIdx]) do hit:Hide() end
             end
         end
+        row:Show()
     end
-
-    row:Show()
-    for i = 2, maxRows do
-        charRows[i]:Hide()
-    end
+    for i = visibleRows + 1, maxRows do charRows[i]:Hide() end
 end
 
 -- FIXED: Public function to show window with better timing
@@ -1311,8 +1831,7 @@ function lv.ShowRaidLockoutWindow(charKey)
         RaidLockoutWindow:Hide()
     else
         currentRaidCharKey = targetKey
-        currentViewMode = "lockouts"
-        UpdateRaidViewToggleText()
+        lv.InvalidateWarbandRaidCache()
         -- Force theme refresh for raid tab buttons
         for _, btn in pairs(raidTabButtons) do
             if lv.GetTheme and btn and btn.SetBackdropColor then
@@ -1331,20 +1850,12 @@ function lv.ShowRaidLockoutWindow(charKey)
                 -- Ensure color functions are present
                 if not header.GetBossNameColor then
                     header.GetBossNameColor = function()
-                        if lv.currentTheme == "dark" then
-                            return 0.9, 0.7, 1, 1
-                        else
-                            return 1, 0.82, 0, 1
-                        end
+                        return unpack(lv.GetTheme().textGold)
                     end
                 end
                 if not header.GetSeparatorColor then
                     header.GetSeparatorColor = function()
-                        if lv.currentTheme == "dark" then
-                            return 0.5, 0.2, 0.8, 0.6
-                        else
-                            return 0.2, 0.2, 0.2, 0.6
-                        end
+                        return unpack(lv.GetTheme().dividerBright)
                     end
                 end
                 header.nameText:SetTextColor(header.GetBossNameColor())
@@ -1397,6 +1908,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
         -- Real-time boss kill tracking
         -- arg1 = encounterID, arg2 = encounterName, arg3 = difficultyID, arg4 = raidSize, arg5 = success
         local encounterID, encounterName, difficultyID, raidSize, success = arg1, arg2, arg3, arg4, arg5
+        lv.lastRaidEncounterDiagnostic = { encounterID=tonumber(encounterID), encounterName=encounterName, difficultyID=difficultyID, success=success }
 
         -- Only track successful kills in raid difficulties we care about
         if success == 1 and IsTrackedRaidDifficulty(difficultyID) then
@@ -1404,32 +1916,52 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
             if playerData then
                 -- Initialize if needed
                 EnsureRaidLockoutsSchema(playerData)
-                if not playerData.raidProgression then playerData.raidProgression = {} end
-                if not playerData.raidProgression[difficultyID] then
-                    playerData.raidProgression[difficultyID] = {bosses = {}, bossNames = {}, killCount = 0}
-                end
 
-                -- Find boss index by name across Midnight S1 raids
-                local matchedRaidName = nil
+                -- Resolve the raid from Blizzard's numeric instance identity first.
+                -- Saved-instance reconciliation below resolves the localized boss
+                -- name to its stable boss index after the encounter.
+                local currentInstanceName = GetInstanceInfo and select(1, GetInstanceInfo()) or nil
+                local currentInstanceID = GetInstanceInfo and select(8, GetInstanceInfo()) or nil
+                local matchedSeasonKey, matchedRaidKey = DetectTrackedRaid(currentInstanceName, currentInstanceID)
                 local matchedIndex = nil
-                for raidName, raidInfo in pairs(MIDNIGHT_RAIDS) do
+                ForEachConfiguredRaid(function(seasonKey, raidKey, raidInfo)
+                    if not matchedIndex and (not matchedRaidKey or (matchedSeasonKey == seasonKey and matchedRaidKey == raidKey)) then
                     for i, bossName in ipairs(raidInfo.bosses or {}) do
                         if EncounterNamesMatch(encounterName, bossName) then
-                            matchedRaidName = raidName
+                            matchedSeasonKey = seasonKey
+                            matchedRaidKey = raidKey
                             matchedIndex = i
                             break
                         end
                     end
-                    if matchedIndex then break end
+                    end
+                end)
+                if matchedRaidKey and not matchedIndex then
+                    lv._pendingRaidEncounter = {
+                        seasonKey = matchedSeasonKey, raidKey = matchedRaidKey, encounterID = tonumber(encounterID),
+                        encounterName = encounterName, difficultyID = difficultyID, observedAt = GetServerTime(),
+                    }
+                    RequestRaidInfo()
+                    C_Timer.After(0.75, function()
+                        if lv.ScanRaidInfoPanel then lv.ScanRaidInfoPanel() end
+                    end)
+                elseif not matchedRaidKey then
+                    lv.lastUnknownRaidIdentity = {
+                        instanceID = tonumber(currentInstanceID), encounterID = tonumber(encounterID),
+                        instanceName = GetInstanceInfo and select(1, GetInstanceInfo()) or nil,
+                        encounterName = encounterName,
+                    }
                 end
                 if matchedIndex then
                         local diffKey = GetDifficultyKey(difficultyID)
-                        local canonicalName = (MIDNIGHT_RAIDS[matchedRaidName] and MIDNIGHT_RAIDS[matchedRaidName].bosses and MIDNIGHT_RAIDS[matchedRaidName].bosses[matchedIndex]) or encounterName
-                        local raidKills = (matchedRaidName and diffKey) and EnsureRaidKills(playerData, matchedRaidName) or nil
-                        local lockout = EnsureRaidLockoutBucket(playerData, matchedRaidName, difficultyID)
+                        local matchedRaidInfo = GetRaidConfig(matchedSeasonKey, matchedRaidKey)
+                        local canonicalName = (matchedRaidInfo and matchedRaidInfo.bosses and matchedRaidInfo.bosses[matchedIndex]) or encounterName
+                        local raidKills = (matchedRaidInfo and diffKey) and EnsureRaidKills(playerData, matchedRaidInfo.displayKey) or nil
+                        local lockout = EnsureRaidLockoutBucket(playerData, matchedSeasonKey, matchedRaidKey, difficultyID)
                         lv._liveRaidState = lv._liveRaidState or {}
-                        lv._liveRaidState[matchedRaidName] = lv._liveRaidState[matchedRaidName] or {}
-                        lv._liveRaidState[matchedRaidName][difficultyID] = lv._liveRaidState[matchedRaidName][difficultyID] or {
+                        lv._liveRaidState[matchedSeasonKey] = lv._liveRaidState[matchedSeasonKey] or {}
+                        lv._liveRaidState[matchedSeasonKey][matchedRaidKey] = lv._liveRaidState[matchedSeasonKey][matchedRaidKey] or {}
+                        lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID] = lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID] or {
                             bosses = {},
                             bossNames = {},
                             scannedAt = GetServerTime()
@@ -1440,28 +1972,34 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
                             lockout.bossNames[matchedIndex] = canonicalName
                             lockout.scannedAt = GetServerTime()
                         end
-                        if lv._liveRaidState[matchedRaidName] and lv._liveRaidState[matchedRaidName][difficultyID] then
-                            lv._liveRaidState[matchedRaidName][difficultyID].bosses[matchedIndex] = true
-                            lv._liveRaidState[matchedRaidName][difficultyID].bossNames[matchedIndex] = canonicalName
-                            lv._liveRaidState[matchedRaidName][difficultyID].scannedAt = GetServerTime()
+                        if lv._liveRaidState[matchedSeasonKey] and lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID] then
+                            lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID].bosses[matchedIndex] = true
+                            lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID].bossNames[matchedIndex] = canonicalName
+                            lv._liveRaidState[matchedSeasonKey][matchedRaidKey][difficultyID].scannedAt = GetServerTime()
                         end
 
-                        -- Update progression (persistent)
-                        playerData.raidProgression[difficultyID].bosses[matchedIndex] = true
-                        playerData.raidProgression[difficultyID].bossNames[matchedIndex] = canonicalName
+                        local seasonInfo = RAID_SEASONS[matchedSeasonKey]
+                        if seasonInfo and seasonInfo.progressionTrackingActive then
+                            -- Update progression (persistent) only for the configured active season.
+                            playerData.raidProgression = playerData.raidProgression or {}
+                            playerData.raidProgression[difficultyID] = playerData.raidProgression[difficultyID]
+                                or {bosses = {}, bossNames = {}, killCount = 0}
+                            playerData.raidProgression[difficultyID].bosses[matchedIndex] = true
+                            playerData.raidProgression[difficultyID].bossNames[matchedIndex] = canonicalName
 
-                        -- Recount kills
-                        local killCount = 0
-                        for _, killed in pairs(playerData.raidProgression[difficultyID].bosses) do
-                            if killed then killCount = killCount + 1 end
-                        end
-                        playerData.raidProgression[difficultyID].killCount = killCount
+                            local killCount = 0
+                            for _, killed in pairs(playerData.raidProgression[difficultyID].bosses) do
+                                if killed then killCount = killCount + 1 end
+                            end
+                            playerData.raidProgression[difficultyID].killCount = killCount
 
-                        -- Write into per-raid progression store used by raid tabs.
-                        if raidKills and diffKey then
-                            raidKills[diffKey][matchedIndex] = true
-                            raidKills.bossNames[matchedIndex] = canonicalName
-                            raidKills.updatedAt = GetServerTime()
+                            if raidKills and diffKey then
+                                raidKills[diffKey][matchedIndex] = true
+                                raidKills.bossNames[matchedIndex] = canonicalName
+                                raidKills.updatedAt = GetServerTime()
+                            end
+                            RecordSeasonRaidKill(playerData, matchedSeasonKey, matchedRaidKey, difficultyID, matchedIndex,
+                                encounterID, canonicalName, { observedAt = GetServerTime() })
                         end
                 end
 
@@ -1473,5 +2011,22 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
         end
     end
 end)
+
+SLASH_LVRAIDDEBUG1 = "/lvraiddebug"
+SlashCmdList["LVRAIDDEBUG"] = function()
+    local instanceName, _, difficultyID, _, _, _, _, instanceID = GetInstanceInfo()
+    local mapID = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player") or nil
+    local seasonKey, raidKey = DetectTrackedRaid(instanceName, instanceID)
+    print("|cff9933ffLiteVault Raid Debug|r")
+    print("instanceName=" .. tostring(instanceName))
+    print("instanceID=" .. tostring(instanceID) .. " mapID=" .. tostring(mapID) .. " difficultyID=" .. tostring(difficultyID))
+    print("seasonKey=" .. tostring(seasonKey) .. " raidKey=" .. tostring(raidKey))
+    local last = lv.lastRaidEncounterDiagnostic or lv.lastUnknownRaidIdentity
+    if last then
+        print("lastEncounterID=" .. tostring(last.encounterID) .. " lastEncounterName=" .. tostring(last.encounterName))
+    else
+        print(L["MSG_RAID_DEBUG_NO_ENCOUNTER"] or "No ENCOUNTER_END event has been observed this session.")
+    end
+end
 
 
