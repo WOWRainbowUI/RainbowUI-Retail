@@ -20,16 +20,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "自定義字體"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "無效字體名."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "字體名字已經存在."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "字體路徑必須指向.ttf文件"
-L.MSG_UNABLE_TO_SET_FONT			= "無法使用選定字型"
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "自定義聲音"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "無效聲音名"
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "聲音名已經存在"
 L.MSG_NEW_PROFILE					= "新建記錄檔"
 L.MSG_PROFILE_ALREADY_EXISTS		= "記錄檔已存在"
 L.MSG_INVALID_PROFILE_NAME			= "無效的記錄檔名稱"
@@ -38,7 +28,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "此滾動區域名稱已存在"
 L.MSG_INVALID_SCROLL_AREA_NAME		= "無效的滾動區名稱"
 L.MSG_ACKNOWLEDGE_TEXT				= "你確定要執行這個動作嗎？"
 L.MSG_NORMAL_PREVIEW_TEXT			= "一般"
-L.MSG_INVALID_SOUND_FILE			= "音效必須為OGG格式。"
 L.MSG_NEW_TRIGGER					= "新增觸發"
 L.MSG_TRIGGER_CLASSES				= "觸發職業"
 L.MSG_MAIN_EVENTS					= "主要事件"
@@ -63,15 +52,10 @@ L.MSG_INVALID_ITEM_NAME				= "無效物品名."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="自定義媒體檔", tooltip="設置自定義媒體檔"}
 obj["general"]		= { label="一般設定", tooltip="一般選項設定"}
 obj["scrollAreas"]	= { label="滾動區域", tooltip="新增、刪除和設定滾動區域；移動滑鼠到按鈕上可以得到更多訊息"}
 obj["events"]		= { label="事件設定", tooltip="設定承受傷害、輸出傷害和通知的事件；移動滑鼠到按鈕可得到更多訊息"}
-obj["triggers"]		= { label="技能觸發", tooltip="設定觸發；移動滑鼠到按鈕可得到更多訊息"}
-obj["spamControl"]	= { label="洗屏控制", tooltip="設定對可能造成洗畫面的訊息進行控制"}
-obj["cooldowns"]	= { label="冷卻通知", tooltip="設定技能冷卻通知"}
 obj["lootAlerts"]	= { label="拾取通告", tooltip="設置與拾取有關的通告"}
-obj["skillIcons"]	= { label="技能圖示", tooltip="設定技能圖示"}
 
 
 ------------------------------
@@ -84,8 +68,6 @@ obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatic
 obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
 obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="爆擊特效顯示", tooltip="使用爆擊特效來顯示致命一擊"}
-obj["enableSounds"]				= { label="啟用音效", tooltip="設定是否當指定事件和觸發器發生時播放音效"}
-obj["textShadowing"]			= { label="字體陰影", tooltip="顯示字體陰影效果讓它們看起來更爽"}
 obj["colorPartialEffects"]		= { label="特效著色", tooltip="設定是否開啟為部分特效指定顏色"}
 obj["crushing"]					= { label="碾壓", tooltip="設定是否顯示碾壓訊息"}
 obj["glancing"]					= { label="偏斜", tooltip="設定是否顯示偏斜訊息"}
@@ -107,22 +89,16 @@ obj["enableTrigger"]			= { tooltip="啟用觸發"}
 obj["allPowerGains"]			= { label="所有能量獲取", tooltip="顯示所有獲取的能量包括那些戰鬥日誌中不顯示的。警告：這個選項將會大量洗頻同時無視能量門檻和抑制顯示設定\n不推薦"}
 obj["abbreviateSkills"]			= { label="技能縮寫", tooltip="縮減技能名稱（僅適用於英文版）。若事件描述中加入「%sl」代碼，此選項即失效"}
 obj["mergeSwings"]				= { label="合併普通攻擊", tooltip="合併極短時間內的普通攻擊傷害"}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="隱藏技能", tooltip="在承受傷害和輸出傷害中不顯示技能名稱。開啟此選項將使你失去某些事件自定義功能，因為它會忽略「%s」代碼"}
 obj["hideNames"]				= { label="隱藏名稱", tooltip="在承受傷害和輸出傷害中不顯示單位名稱。開啟此選項將使你失去某些事件自定義功能，因為它會忽略「%n」代碼"}
 obj["hideFullOverheals"]		= { label="隱藏全部過量的治療", tooltip="不顯示全部過量的治療."}
 obj["hideFullHoTOverheals"]		= { label="隱藏全部溢出的持續治療", tooltip="不顯示全部溢出的儲蓄治療"}
 obj["hideMergeTrailer"]			= { label="隱藏合併攻擊細節", tooltip="不在合併攻擊後顯示被合併的攻擊次數及暴擊詳情"}
 obj["allClasses"]				= { label="所有職業"}
-obj["enablePlayerCooldowns"]	= { label="技能冷卻", tooltip="在技能冷卻完成之後顯示提示信息"}
-obj["enablePetCooldowns"]		= { label="寵物技能冷卻", tooltip="在寵物技能冷卻完成之後顯示提示信息"}
-obj["enableItemCooldowns"]		= { label="物品冷卻", tooltip="在物品冷卻完成後顯示提示信息."}
 obj["lootedItems"]				= { label="拾取物品", tooltip="顯示物品拾取."}
 obj["moneyGains"]				= { label="獲得金錢", tooltip="顯示獲得的金錢"}
 obj["alwaysShowQuestItems"]		= { label="總是顯示任務物品", tooltip="總是顯示任務物品, 無論其是何品質."}
 obj["enableIcons"]				= { label="啟用技能圖示", tooltip="顯示事件的技能圖示"}
-obj["exclusiveSkills"]			= { label="排除技能名稱", tooltip="僅在沒有技能圖示時，顯示技能名稱"}
 
 
 ------------------------------
@@ -136,7 +112,6 @@ obj["critFont"]				= { label="爆擊傷害字型：", tooltip="選擇爆擊傷�
 obj["normalOutline"]		= { label="一般文字描邊：", tooltip="選擇非爆擊傷害字型的描邊樣式"}
 obj["critOutline"]			= { label="爆擊文字描邊：", tooltip="選擇爆擊傷害字型的描邊樣式"}
 obj["scrollArea"]			= { label="滾動區域：", tooltip="選擇滾動區域進行設定"}
-obj["sound"]				= { label="音效：", tooltip="選擇事件發生時播放的音效"}
 obj["animationStyle"]		= { label="動畫樣式：", tooltip="滾動區域內非黏滯的動畫樣式"}
 obj["stickyAnimationStyle"]	= { label="爆擊特效：", tooltip="滾動區域內爆擊特效的動畫樣式"}
 obj["direction"]			= { label="方向：", tooltip="動畫的方向"}
@@ -156,12 +131,6 @@ obj["triggerParameter"]		= { label="參數:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="添加字體", tooltip="向字體列表添加自定義字體.\n\n警告: 字體檔必須 *在WOW運行之前* 就放置在目標檔夾內.\n\n推薦將其放置在 MikScrollingBattleText\\Fonts 文件夾."}
-obj["addCustomSound"]			= { label="添加聲音", tooltip="想聲音列表添加自定義聲音.\n\n警告: 音效檔案必須 *在WOW運行之前* 就放置在目標檔夾內.\n\n推薦將其放置在 MikScrollingBattleText\\Sounds 文件夾."}
-obj["editCustomFont"]			= { tooltip="點擊編輯自定義字體."}
-obj["deleteCustomFont"]			= { tooltip="點擊將此字體從MSBT中移除."}
-obj["editCustomSound"]			= { tooltip="點擊編輯自定義聲音."}
-obj["deleteCustomSound"]		= { tooltip="點擊將此聲音從MSBT中移除."}
 obj["copyProfile"]				= { label="複製記錄檔", tooltip="複製記錄檔到新增的記錄檔中"}
 obj["resetProfile"]				= { label="重置記錄檔", tooltip="重置記錄檔至默認設定"}
 obj["deleteProfile"]			= { label="刪除記錄檔", tooltip="刪除記錄檔"}
@@ -183,8 +152,6 @@ obj["toggleAll"]				= { label="開啟/關閉所有事件", tooltip="開啟/關�
 obj["moveAll"]					= { label="移動所有事件", tooltip="移動所選事件分類中所有事件至指定滾動區域"}
 obj["eventFontSettings"]		= { tooltip="設定此事件字型"}
 obj["eventSettings"]			= { tooltip="設定事件效果比如輸出區域，輸出訊息，播放音效等"}
-obj["customSound"]				= { tooltip="選擇自定義音效文件" }
-obj["playSound"]				= { label="播放", tooltip="播放選定的聲音."}
 obj["addTrigger"]				= { label="增加新觸發", tooltip="增加新觸發"}
 obj["triggerSettings"]			= { tooltip="設定觸發條件"}
 obj["deleteTrigger"]			= { tooltip="刪除觸發"}
@@ -202,7 +169,6 @@ obj["skillSuppressions"]		= { label="技能縮寫", tooltip="縮寫技能名稱"
 obj["skillSubstitutions"]		= { label="技能替換", tooltip="用自定義名稱替換技能名稱"}
 obj["addSkill"]					= { label="增加技能", tooltip="增加新技能到列表中"}
 obj["deleteSkill"]				= { tooltip="點擊刪除技能"}
-obj["cooldownExclusions"]		= { label="冷卻排除", tooltip="不追蹤指定技能的冷卻"}
 obj["itemsAllowed"]				= { label="允許物品", tooltip="總是顯示這些物品, 無論其是何物品品質."}
 obj["itemExclusions"]			= { label="排除物品", tooltip="永遠不顯示這些物品."}
 obj["addItem"]					= { label="增加物品", tooltip="向列表中增加新的物品."}
@@ -214,17 +180,12 @@ obj["deleteItem"]				= { tooltip="點擊刪除物品."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="字體名:", tooltip="用來確定字體的名字.\n\n例如: 我的字體"}
-obj["customFontPath"]	= { label="字體路徑:", tooltip="字體檔的路徑.\n\n注意: 如果檔在 MikScrollingBattleText\\Fonts 中的話, 只需要輸入檔案名就可以.\n\n例如: myFont.ttf "}
-obj["customSoundName"]	= { label="音效名:", tooltip="用來確定音效的名字.\n\n例如: 我的音效"}
-obj["customSoundPath"]	= { label="音效路徑:", tooltip="音效檔的路徑.\n\n注意: 如果檔在 MikScrollingBattleText\\Sounds 中的話, 只需要輸入檔案名就可以.\n\n例如: mySound.ogg "}
 obj["copyProfile"]		= { label="新增記錄檔：", tooltip="輸入新增記錄檔的名稱"}
 obj["partialEffect"]	= { tooltip="特效觸發時的提示."}
 obj["scrollAreaName"]	= { label="新增滾動區域:", tooltip="新增滾動區域的名稱"}
 obj["xOffset"]			= { label="X值：", tooltip="所選擇滾動區域的X值"}
 obj["yOffset"]			= { label="Y值：", tooltip="所選擇滾動區域的Y值"}
 obj["eventMessage"]		= { label="顯示訊息：", tooltip="事件發生時顯示的訊息"}
-obj["soundFile"]		= { label="音效檔：", tooltip="事件發生時播放的音效"}
 obj["iconSkill"]		= { label="技能圖示：", tooltip="事件發生時會顯示該技能的圖示\n\n如果沒有圖示MSBT會自動找一個圖示\n\n注意: 如果目前玩家的技能書中無該技能，必須用技能ID取代技能名稱。可以在各大網站(例：WOWhead)找到技能ID。"}
 obj["skillName"]		= { label="技能名稱：", tooltip="所增加的技能的名稱"}
 obj["substitutionText"]	= { label="替代文字：", tooltip="用來代替技能名稱的文字"}
@@ -251,7 +212,6 @@ obj["dotThrottleTime"]		= { label="持續傷害抑制顯示", tooltip="在設定
 obj["hotThrottleTime"]		= { label="持續治療抑制顯示", tooltip="在設定的秒數中造成的持續治療將合併為一次顯示"}
 obj["powerThrottleTime"]	= { label="能量抑制顯示", tooltip="在設定的秒數中持續獲得的能量將合併為一次顯示"}
 obj["skillThrottleTime"]	= { label="技能抑制顯示", tooltip="在設定的秒數中持續使用的技能將只顯示一次"}
-obj["cooldownThreshold"]	= { label="冷卻計時門檻", tooltip="冷卻時間低於設定秒數的技能不會被顯示"}
 
 
 ------------------------------
@@ -277,10 +237,8 @@ obj["HEALING_DONE"]			= "%a - 輸出治療總數.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - 吸收傷害總數.\n"
 obj["AURA_AMOUNT"]			= "%a - 光環的堆疊數量.\n"
 obj["ENERGY_AMOUNT"]		= "%a - 能量總數.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - 你的連擊點總數.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - 榮譽總數.\n"
 obj["REP_AMOUNT"]			= "%a - 聲望總數.\n"
 obj["ITEM_AMOUNT"]			= "%a - 拾取物品的數量.\n"
@@ -306,8 +264,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - 傷害來源 (掉落, 溺水, 巖漿, 等等
 obj["FACTION_NAME"]			= "%e - 聲望陣營名.\n"
 obj["EMOTE_TEXT"]			= "%e - 表情文字.\n"
 obj["MONEY_TEXT"]			= "%e - 獲取金錢文字.\n"
-obj["COOLDOWN_NAME"]		= "%e - 就緒的法術名字.\n"
-obj["ITEM_COOLDOWN_NAME"]	= "%e - 就緒的物品名字.\n"
 obj["ITEM_NAME"]			= "%e - 拾取物品的名稱.\n"
 obj["POWER_TYPE"]			= "%p - 能力類別 (能量, 怒氣, 法力).\n"
 obj["TOTAL_ITEMS"]			= "%t - 拾取物品的總數."
@@ -467,10 +423,6 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="戰鬥開始", tooltip="顯示你�
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="戰鬥結束", tooltip="顯示你已經結束了戰鬥"}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="能量獲得", tooltip="顯示你額外獲得的法力，怒氣或者能量"}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="能量失去", tooltip="顯示你失去的法力，怒氣或者能量"}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
---obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
---obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="連擊點獲得", tooltip="顯示你獲得的連擊點"}
 obj["NOTIFICATION_CP_FULL"]				= { label="連擊點全滿", tooltip="顯示你的連擊點已滿"}
 obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="神聖能量變化", tooltip="顯示你神聖能量的變化"}
@@ -531,14 +483,10 @@ obj["SPELL_CAST_FAILED"]		= "施法失敗"
 obj["SPELL_SUMMON"]				= "召喚"
 obj["SPELL_CREATE"]				= "創造"
 obj["PARTY_KILL"]				= "隊友擊殺"
---obj["UNIT_DIED"]				= "單位死亡"
 obj["UNIT_DESTROYED"]			= "單位被摧毀"
 obj["SPELL_EXTRA_ATTACKS"]		= "額外攻擊"
 obj["UNIT_HEALTH"]				= "生命值改變"
 obj["UNIT_POWER"]				= "法力值改變"
-obj["SKILL_COOLDOWN"]			= "技能冷卻完成"
-obj["PET_COOLDOWN"]				= "寵物技能冷卻完成"
-obj["ITEM_COOLDOWN"]			= "物品冷卻完成"
 
 -- Main event conditions.
 obj["sourceName"]				= "來源玩家名字"
@@ -663,10 +611,6 @@ obj[3] = "右邊"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT 法力過低"
-obj["MSBT Low Health"]	= "MSBT 生命過低"
-obj["MSBT Cooldown"]	= "MSBT 冷卻"
 
 
 ------------------------------

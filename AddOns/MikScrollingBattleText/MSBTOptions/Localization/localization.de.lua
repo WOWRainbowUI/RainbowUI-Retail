@@ -18,16 +18,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "Benutzerdefinierte Schrift"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "Ungültiger Schriftname."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "Schriftname existiert bereits."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "Schriftpfad muss zu einer .ttf-Datei führen."
-L.MSG_UNABLE_TO_SET_FONT			= "Die ausgewählte Schrift kann nicht verwendet werden."
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "Benutzerdefinierte Sounds"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Ungültiger Sound-Name."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Sound-Name existiert bereits."
 L.MSG_NEW_PROFILE					= "Neues Profil"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Profil existiert bereits."
 L.MSG_INVALID_PROFILE_NAME			= "Ungültiger Profilname."
@@ -36,7 +26,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Name für Scroll-Bereich existiert bereits."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Ungültiger Name für Scroll-Bereich."
 L.MSG_ACKNOWLEDGE_TEXT				= "Bist du sicher, dass du diese Aktion durchführen willst?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
-L.MSG_INVALID_SOUND_FILE			= "Sound muss eine .ogg Datei sein."
 L.MSG_NEW_TRIGGER					= "Neuer Auslöser"
 L.MSG_TRIGGER_CLASSES				= "Klassen Auslöser"
 L.MSG_MAIN_EVENTS					= "Hauptereignisse"
@@ -61,15 +50,10 @@ L.MSG_INVALID_ITEM_NAME				= "Ungültiger Gegenstandsname."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="Benutzerdefinierte Medien", tooltip="Optionen für benutzerdefinierte Medien anzeigen."}
 obj["general"]		= { label="Allgemein", tooltip="Allgemeine Optionen anzeigen."}
 obj["scrollAreas"]	= { label="Scroll-Bereiche", tooltip="Optionen für das Erstellen, Löschen, und Konfigurieren der Scroll-Bereiche anzeigen.\n\nFür mehr Informationen mit der Maus über die Symbole fahren."}
 obj["events"]		= { label="Ereignisse", tooltip="Optionen für eingehende, ausgehende und benachrichtigende Ereignisse anzeigen.\n\nFür mehr Informationen mit der Maus über die Symbole fahren."}
-obj["triggers"]		= { label="Auslöser", tooltip="Optionen für das Auslösersystem anzeigen.\n\nFür mehr Informationen mit der Maus über die Symbole fahren."}
-obj["spamControl"]	= { label="Spamkontrolle", tooltip="Optionen für die Spamkontrolle anzeigen."}
-obj["cooldowns"]	= { label="Abklingzeiten", tooltip="Optionen für die Abklingzeiten anzeigen."}
 obj["lootAlerts"]	= { label="Plündernachrichten", tooltip="Optionen für die Plünderbenachrichtigung anzeigen."}
-obj["skillIcons"]	= { label="Fähigkeitssymbole", tooltip="Optionen für die Fähigkeitssymbole anzeigen."}
 
 
 ------------------------------
@@ -82,8 +66,6 @@ obj["disableMSBTInGroup"]		= { label="MSBT in Gruppen deaktivieren", tooltip="MS
 obj["enableBlizzardV2CombatText"]= { label="Blizzard-Kampftext aktivieren", tooltip="Blizzard Kampftext (v2) fuer Spieler und Begleiter aktivieren." }
 obj["enableBlizzardV2InGroup"]	= { label="Blizzard-Kampftext in Gruppen", tooltip="Blizzard Kampftext nur in Gruppe oder Schlachtzug aktivieren." }
 obj["stickyCrits"]				= { label="Sticky-Krits", tooltip="Bei kritischen Treffern den 'Sticky'-Stil verwenden."}
-obj["enableSounds"]				= { label="Sounds aktivieren", tooltip="Sounds abspielen, die Ereignissen und Auslösern zugewiesen wurden."}
-obj["textShadowing"]			= { label="Textschatten", tooltip="Fügt den Schriften einen Schatteneffekt hinzu, um die Lesbarkeit zu erhöhen."}
 obj["colorPartialEffects"]		= { label="Teileffekte einfärben", tooltip="Fügt den Teileffekten festgelegte Farben hinzu."}
 obj["crushing"]					= { label="Schmetternde Stöße", tooltip="Zeigt den Anhang bei schmetternden Treffern an."}
 obj["glancing"]					= { label="Streifende Treffer", tooltip="Zeigt den Anhang bei streifenden Treffern an."}
@@ -105,22 +87,16 @@ obj["enableTrigger"]			= { tooltip="Auslöser aktivieren."}
 obj["allPowerGains"]			= { label="ALLE Regenerationen", tooltip="Zeigt alle Ressourcenregenerationen einschließlich derjenigen, die nicht im Kampflog gemeldet werden.\n\nWARNUNG: Diese Einstellung führt zu viel Spam, da sie alle Grenzwerte und Drosselfunktionen ignoriert.\n\nNICHT EMPFOHLEN."}
 obj["abbreviateSkills"]			= { label="Fähigkeiten abkürzen", tooltip="Fähigkeiten abkürzen (nur Englisch).\n\nDies kann von jedem Ereignis mit dem %sl Code überschrieben werden."}
 obj["mergeSwings"]				= { label="Schwünge verbinden", tooltip="Verbindet normale Meleetreffer, die in einer kurzen Zeitspanne erfolgen."}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="Fähigkeiten verstecken", tooltip="Keine Fähigkeitsnamen für eingehende und ausgehende Ereignisse anzeigen.\n\nDu gibst ein wenig Anpassungsmöglichkeit auf Ereignisebene auf, da der Ereigniscode %s nun ignoriert wird."}
 obj["hideNames"]				= { label="Namen verstecken", tooltip="Keine Namen für eingehende und ausgehende Ereignisse anzeigen.\n\nDu gibst ein wenig Anpassungsmöglichkeit auf Ereignisebene auf, da der Ereigniscode %n nun ignoriert wird."}
 obj["hideFullOverheals"]		= { label="Überheilungen verstecken", tooltip="Heilungen, die eine effektive Heilung von null haben, werden nicht angezeigt."}
 obj["hideFullHoTOverheals"]		= { label="HoT Überheilungen verstecken", tooltip="Heilungen über Zeit, die eine effektive Heilung von null haben, werden nicht angezeigt."}
 obj["hideMergeTrailer"]			= { label="Verbinden-Anhang verstecken", tooltip="Der Anhang, der die Anzahl der miteinander verbundenen Treffer und Krits am Ende jedes Ereignisses darstellt, wird nicht angezeigt."}
 obj["allClasses"]				= { label="Alle Klassen"}
-obj["enablePlayerCooldowns"]	= { label="Spieler Abklingzeiten", tooltip="Zeigt Benachrichtigungen, wenn deine Abklingzeiten abgelaufen sind."}
-obj["enablePetCooldowns"]		= { label="Begleiter Abklingzeiten", tooltip="Zeigt Benachrichtigungen, wenn die Abklingzeiten deines Begleiters abgelaufen sind."}
-obj["enableItemCooldowns"]		= { label="Gegenstand Abklingzeiten", tooltip="Zeigt Benachrichtigungen, wenn deine Gegenstands-Abklingzeiten abgelaufen sind."}
 obj["lootedItems"]				= { label="Geplünderte Gegenstände", tooltip="Zeigt Benachrichtigungen, wenn Gegenstände geplündert wurden."}
 obj["moneyGains"]				= { label="Gold erhalten", tooltip="Zeigt Benachrichtigungen, wenn Gold erhalten wurde."}
 obj["alwaysShowQuestItems"]		= { label="Questgegenstände immer anzeigen", tooltip="Questgegenstände immer anzeigen, unabhängig der ausgewählten Qualitäten."}
 obj["enableIcons"]				= { label="Fähigkeitssymbole aktivieren", tooltip="Zeigt, wenn möglich, Symbole für Ereignisse an."}
-obj["exclusiveSkills"]			= { label="Nur Fähigkeitsnamen", tooltip="Zeigt nur Fähigkeitsnamen, solange kein Symbol verfügbar ist."}
 
 
 ------------------------------
@@ -134,7 +110,6 @@ obj["critFont"]				= { label="Schrift - Kritisch:", tooltip="Legt die Schriftart
 obj["normalOutline"]		= { label="Kontur - Normal:", tooltip="Legt die Kontur für nicht-kritische Treffer."}
 obj["critOutline"]			= { label="Kontur - Kritisch:", tooltip="Legt die Kontur für kritische Treffer."}
 obj["scrollArea"]			= { label="Scroll-Bereich:", tooltip="Wählt den zu konfigurierenden Scroll-Bereich aus."}
-obj["sound"]				= { label="Sound:", tooltip="Wählt den Sound aus, der abgespielt werden soll, wenn das Ereignis erscheint."}
 obj["animationStyle"]		= { label="Animationen:", tooltip="Der Animationsstil für Nicht-'Sticky'-Animationen in dem Scroll-Bereich."}
 obj["stickyAnimationStyle"]	= { label="Sticky Animationen:", tooltip="Der Animationsstil für 'Sticky'-Animationen in dem Scroll-Bereich."}
 obj["direction"]			= { label="Richtung:", tooltip="Die Richtung der Animation."}
@@ -154,12 +129,6 @@ obj["triggerParameter"]		= { label="Parameter:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="Schrift hinzufügen", tooltip="Fügt eine benutzerdefinierte Schrift zu der Liste der verfügbaren Schriften.\n\nWARNUNG: Die Datei muss in dem Ziel-Verzeichnis existieren, *BEVOR* WoW gestartet wurde.\n\nEs wird empfohlen, die Datei in den MikScrollingBattleText\\Fonts Ordner zu kopieren um Fehler zu vermeiden."}
-obj["addCustomSound"]			= { label="Sound hinzufügen", tooltip="Fügt einen benutzerdefinierten Sound zu der Liste der verfügbaren Sounds.\n\nWARNUNG: Die Datei muss in dem Ziel-Verzeichnis existieren, *BEVOR* WoW gestartet wurde.\n\nEs wird empfohlen, die Datei in den MikScrollingBattleText\\Sounds Ordner zu kopieren um Fehler zu vermeiden."}
-obj["editCustomFont"]			= { tooltip="Klicken, um benutzerdefinierte Schrift zu bearbeiten."}
-obj["deleteCustomFont"]			= { tooltip="Klicken, um benutzerdefinierte Schrift aus MSBT zu entfernen."}
-obj["editCustomSound"]			= { tooltip="Klicken, um benutzerdefinierten Sound zu bearbeiten."}
-obj["deleteCustomSound"]		= { tooltip="Klicken, um benutzerdefinierten Sound aus MSBT zu entfernen."}
 obj["copyProfile"]				= { label="Kopieren", tooltip="Kopiert das aktuelle Profil auf ein neues Profil, dessen Namen du selbst bestimmst."}
 obj["resetProfile"]				= { label="Zurücksetzen", tooltip="Setzt das Profil auf die Standardeinstellungen zurück."}
 obj["deleteProfile"]			= { label="Löschen", tooltip="Löscht das Profil."}
@@ -181,8 +150,6 @@ obj["toggleAll"]				= { label="Alle umschalten", tooltip="Die Aktivierung aller 
 obj["moveAll"]					= { label="Alle verschieben", tooltip="Verschiebt alle Ereignisse in der ausgewählten Kategorie zu dem ausgewählten Scroll-Bereich."}
 obj["eventFontSettings"]		= { tooltip="Klicken, um die Schrifteinstellungen für dieses Ereignis zu bearbeiten."}
 obj["eventSettings"]			= { tooltip="Klicken, um die Ereigniseinstellungen wie Scroll-Bereich, Text, Sound, etc. zu bearbeiten."}
-obj["customSound"]				= { tooltip="Klicken, um eine benutzerdefinierte Sound-Datei auszuwählen." }
-obj["playSound"]				= { label="Abspielen", tooltip="Klicken, um den ausgewählten Sound abzuspielen."}
 obj["addTrigger"]				= { label="Neuen Auslöser hinzufügen", tooltip="Einen neuen Auslöser hinzufügen."}
 obj["triggerSettings"]			= { tooltip="Klicken, um die Auslöser-Einstellungen zu konfigurieren."}
 obj["deleteTrigger"]			= { tooltip="Klicken, um diesen Auslöser zu löschen."}
@@ -200,7 +167,6 @@ obj["skillSuppressions"]		= { label="Fähigkeiten unterdrücken", tooltip="Unter
 obj["skillSubstitutions"]		= { label="Fähigkeiten ersetzen", tooltip="Ersetzt Fähigkeitsnamen mit angepassten Werten."}
 obj["addSkill"]					= { label="Fähigkeiten hinzufügen", tooltip="Neuen Fähigkeiten zur Liste hinzufügen."}
 obj["deleteSkill"]				= { tooltip="Klicken, um Fähigkeiten zu entfernen."}
-obj["cooldownExclusions"]		= { label="Cooldown-Ausschlüsse", tooltip="Bei festgelegten Fähigkeiten die Cooldown-Verfolgung ignorieren."}
 obj["itemsAllowed"]				= { label="Gegenstände erlauben", tooltip="Festgelegte Gegenstände unabhängig der Gegenstandsqualität immer anzeigen."}
 obj["itemExclusions"]			= { label="Gegenstände ignorieren", tooltip="Verhindert, dass festgelegte Gegenstände angezeigt werden."}
 obj["addItem"]					= { label="Gegenstand hinzufügen", tooltip="Neuen Gegenstand zur Liste hinzufügen."}
@@ -212,17 +178,12 @@ obj["deleteItem"]				= { tooltip="Klicken, um Gegenstand zu entfernen."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="Schriftname:", tooltip="Der Name wird benutzt um die Schrift zu identifizieren.\n\nBeispiel: Meine Super Schrift"}
-obj["customFontPath"]	= { label="Schrift Pfad:", tooltip="Der Pfad zu der Schrift Datei.\n\nNOTIZ: Wenn die Datei in dem empfohlenen MikScrollingBattleText\\Fonts Ordner ist, muss nur der Dateiname hier eingegeben werden anstatt der ganze Pfad.\n\nBeispiel: meineSchrift.ttf "}
-obj["customSoundName"]	= { label="Sound Name:", tooltip="Der Name wird benutzt um den Sound zu identifizieren.\n\nBeispiel: Mein Sound"}
-obj["customSoundPath"]	= { label="Sound Pfad:", tooltip="Der Pfad zu der Sound Datei.\n\nNOTIZ: Wenn die Datei in dem empfohlenen MikScrollingBattleText\\Sounds Ordner ist, muss nur der Dateiname hier eingegeben werden anstatt der ganze Pfad.\n\nBeispiel: mySound.ogg "}
 obj["copyProfile"]		= { label="Neuer Profilname:", tooltip="Der Name des neuen Profils auf den das eben gewählte Profil kopiert werden soll."}
 obj["partialEffect"]	= { tooltip="Der Trailer, der angehängt wird wenn der Partielle Effekte erscheint."}
 obj["scrollAreaName"]	= { label="Neuen Scroll-Bereich-Namen eingeben:", tooltip="Neuer Name für den Scroll-Bereich."}
 obj["xOffset"]			= { label="X-Achse:", tooltip="Die X-Achse des ausgewählten Scroll-Bereichs."}
 obj["yOffset"]			= { label="Y-Achse:", tooltip="Die Y-Achse des ausgewählten Scroll-Bereichs."}
 obj["eventMessage"]		= { label="Ausgabenachricht eingeben:", tooltip="Die Nachricht die angezeigt wird, wenn das Ereignis auftritt."}
-obj["soundFile"]		= { label="Sound-Dateiname:", tooltip="Der Name der Sound Datei zum Abspielen wenn das Ereignis erscheint."}
 obj["iconSkill"]		= { label="Fähigkeitssymbol:", tooltip="Der Name oder Spell-ID des Zaubers mit dem Symbol das angezeigt wird, wenn das Ereignis auftritt.\n\nMSBT wird versuchen, automatisch ein Symbol auszuwählen, wenn keines festgelegt wurde.\n\nNOTIZ: Eine Spell-ID muss anstatt einem Namen benutzt werden, wenn die Fähigkeit nicht im Zauberbuch für die Klasse, die gespielt wird, während das Ereignis auftritt, ist. Die meisten Datenbanken wie z.B. Wowhead Dir dabei helfen."}
 obj["skillName"]		= { label="Fähigkeitsname:", tooltip="Name der Fähigkeit, die hinzugefügt werden soll."}
 obj["substitutionText"]	= { label="Text ersetzen:", tooltip="Der Text, der für den Fähigkeitsnamen ersetzt werden soll."}
@@ -248,7 +209,6 @@ obj["dotThrottleTime"]		= { label="DoTs drosseln", tooltip="Die Nummer in Sekund
 obj["hotThrottleTime"]		= { label="HoTs drosseln", tooltip="Die Nummer in Sekunden, die HoTs gedrosselt werden sollen."}
 obj["powerThrottleTime"]	= { label="Energie drosseln", tooltip="Die Nummer in Sekunden, die Energieänderungen gedrosselt werden sollen."}
 obj["skillThrottleTime"]	= { label="Drosseln", tooltip="Die Nummer in Sekunden, um diese Fähigkeit zu drosseln."}
-obj["cooldownThreshold"]	= { label="Cooldown-Schwelle", tooltip="Fähigkeiten mit einer Abklingzeit, die weniger als die angegebenen Sekunden entspricht, werden nicht angezeigt."}
 
 
 ------------------------------
@@ -274,10 +234,8 @@ obj["HEALING_DONE"]			= "%a - Geheilte Menge.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Menge des absobierten Schadens.\n"
 obj["AURA_AMOUNT"]			= "%a - Menge der Stapel für eine Aura.\n"
 obj["ENERGY_AMOUNT"]		= "%a - Menge der Energie.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - Menge der momentanen Combo-Punkte.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Menge der heiligen Kraft.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Menge der Ehre.\n"
 obj["REP_AMOUNT"]			= "%a - Menge des Rufs.\n"
 obj["ITEM_AMOUNT"]			= "%a - Menge des geplünderten Gegenstands.\n"
@@ -303,8 +261,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - Name der Schadensquelle (Fallen, Ertrinken, 
 obj["FACTION_NAME"]			= "%e - Name der Fraktion.\n"
 obj["EMOTE_TEXT"]			= "%e - Der Text der Geste.\n"
 obj["MONEY_TEXT"]			= "%e - Der Text des erhaltenen Geldes.\n"
-obj["COOLDOWN_NAME"]		= "%e - Name der Fähigkeit, die bereit ist.\n"
-obj["ITEM_COOLDOWN_NAME"]	= "%e - Name des Gegenstands, der bereit ist.\n"
 obj["ITEM_NAME"]			= "%e - Der Name des geplünderten Gegenstands.\n"
 obj["POWER_TYPE"]			= "%p - Art der Energie (Energie, Wut, Mana, Runenmacht, usw.).\n"
 obj["TOTAL_ITEMS"]			= "%t - Gesamte Anzahl der geplünderten Gegenstände im Inventar."
@@ -464,10 +420,6 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Kampfeintritt", tooltip="Aktiviert,
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Kampfaustritt", tooltip="Aktiviert, wenn du in den Kampf verlässt."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="Energie erhalten", tooltip="Aktiviert, wenn du zusätzliches Mana, Wut oder Energie erhälst."}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="Energie verloren", tooltip="Aktiviert, wenn du durch Abzug Mana, Wut oder Energie verlierst."}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
---obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
---obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="Combo-Punkte erhalten", tooltip="Aktiviert, wenn du Combo-Punkte bekommst."}
 obj["NOTIFICATION_CP_FULL"]				= { label="Combo-Punkte komplett", tooltip="Aktiviert, wenn du alle Combo-Punkte erreicht hast."}
 obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Heilige Kraft verändert", tooltip="Aktiviert, wenn sich deine Heilige Kraft verändert."}
@@ -528,14 +480,10 @@ obj["SPELL_CAST_FAILED"]		= "Wirken fehlgeschlagen"
 obj["SPELL_SUMMON"]				= "Beschwören"
 obj["SPELL_CREATE"]				= "Erstellen"
 obj["PARTY_KILL"]				= "Todesstoß"
---obj["UNIT_DIED"]				= "Einheit tot"
 obj["UNIT_DESTROYED"]			= "Einheit zerstört"
 obj["SPELL_EXTRA_ATTACKS"]		= "Zusätzliche Attacken"
 obj["UNIT_HEALTH"]				= "Lebenspunkteveränderung"
 obj["UNIT_POWER"]				= "Powerveränderung"
-obj["SKILL_COOLDOWN"]			= "Spielerabklingzeit abgelaufen"
-obj["PET_COOLDOWN"]				= "Begleiterabklingzeit abgelaufen"
-obj["ITEM_COOLDOWN"]			= "Gegenstandabklingzeit abgelaufen"
 
 -- Main event conditions.
 obj["sourceName"]				= "Quellenname"
@@ -660,10 +608,6 @@ obj[3] = "Rechts"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT Wenig Mana"
-obj["MSBT Low Health"]	= "MSBT Wenig Gesundheit"
-obj["MSBT Cooldown"]	= "MSBT Abklingzeit"
 
 ------------------------------
 -- Animation style info

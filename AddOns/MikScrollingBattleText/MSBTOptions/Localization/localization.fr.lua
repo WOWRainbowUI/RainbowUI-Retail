@@ -18,16 +18,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "Polices Personnalisées"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "Nom de Police incorrect."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "Le nom de la Police existe déjà."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "Le chemin de la Police doit pointé vers un fichier .ttf."
---L.MSG_UNABLE_TO_SET_FONT			= "Unable to set specified font."
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "Sons Personnalisés"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Nom du Son incorrect."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Le nom du son existe déjà."
 L.MSG_NEW_PROFILE					= "Nouveau Profil"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Le Profil existe déjà."
 L.MSG_INVALID_PROFILE_NAME			= "Nom de profil invalide."
@@ -36,7 +26,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Une zone de défilement portant ce nom exist
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Nom de zone de défilement invalide."
 L.MSG_ACKNOWLEDGE_TEXT				= "Etes-vous certain de vouloir effectuer cette action?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
-L.MSG_INVALID_SOUND_FILE			= "Le fichier son doit être au format .ogg."
 L.MSG_NEW_TRIGGER					= "Nouveau déclencheur"
 L.MSG_TRIGGER_CLASSES				= "Classes du déclencheur"
 L.MSG_MAIN_EVENTS					= "Evènements principaux"
@@ -61,15 +50,10 @@ L.MSG_INVALID_ITEM_NAME				= "Nom de l'item incorrect."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="Média Personnalisé", tooltip="Affiche les options pour gérer les médias personnalisés."}
 obj["general"]		= { label="Général", tooltip="Affiche les options générales."}
 obj["scrollAreas"]	= { label="Zones de défilement", tooltip="Affiche les options de création, suppression et configuration des zones de défilement.\n\nPassez votre souris sur les icônes pour plus d'informations."}
 obj["events"]		= { label="Evènements", tooltip="Affiche les options pour les évènements entrants, sortants et de notification.\n\nPassez votre souris sur les icônes pour plus d'informations."}
-obj["triggers"]		= { label="Déclencheurs", tooltip="Affiche les options du système de déclencheurs.\n\nPassez votre souris sur les icônes pour plus d'informations."}
-obj["spamControl"]	= { label="Controle du Spam", tooltip="Affiche les options de contrôle du spam."}
-obj["cooldowns"]	= { label="Cooldowns", tooltip="Affiche les options des notifications de cooldown."}
 obj["lootAlerts"]	= { label="Alertes Loot", tooltip="Affiche les options des notifications relatives au items ramassés."}
-obj["skillIcons"]	= { label="Icônes des Compétences", tooltip="Affiche les options des icônes de compétences."}
 
 
 ------------------------------
@@ -82,8 +66,6 @@ obj["disableMSBTInGroup"]	= { label="Desactiver MSBT en groupe", tooltip="Desact
 obj["enableBlizzardV2CombatText"]= { label="Activer le texte de combat Blizzard", tooltip="Active le texte de combat flottant Blizzard (v2) pour joueur et familier." }
 obj["enableBlizzardV2InGroup"]= { label="Texte Blizzard en groupe", tooltip="Active le texte de combat Blizzard uniquement en groupe ou en raid." }
 obj["stickyCrits"]			= { label="Critiques persistants", tooltip="Utiliser le style persistant pour les coups critiques."}
-obj["enableSounds"]			= { label="Activer les sons", tooltip="Jouer les sons associés aux évènements et déclencheurs."}
-obj["textShadowing"]		= { label="Ombre sur le texte", tooltip="Appliquer un effet d'ombre au texte pour améliorer le rendu de la police."}
 obj["colorPartialEffects"]	= { label="Colorer les effets partiels", tooltip="Assigner des couleurs aux effets partiels."}
 obj["crushing"]				= { label="Ecrasements", tooltip="Afficher les écrasements."}
 obj["glancing"]				= { label="Eraflures", tooltip="Afficher les éraflures."}
@@ -104,23 +86,14 @@ obj["stickyEvent"]			= { label="Toujours Persistant", tooltip="Utiliser le style
 obj["enableTrigger"]		= { tooltip="Activer le déclencheur."}
 obj["allPowerGains"]		= { label="Tous les gains d'énergie", tooltip="Affiche tous les gains d'énergie même ceux qui ne sont pas affichés dans le journal ce combat.\n\nATTENTION: Cette option est source de spam et ignorera les réglages de seuil de spam et de son contrôle.\n\nNON RECOMMANDE."}
 obj["abbreviateSkills"]		= { label="Compétences Abrégées", tooltip="Nom des compétences abrégées (client anglais seulement).\n\nCela peut être contourné pour chaque évènement en utilisant le code %sl."}
---obj["mergeSwings"]				= { label="Merge Swings", tooltip="Merge regular melee swings that hit within a short time span."}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]			= { label="Cacher les Noms des Compétences", tooltip="Ne pas afficher les noms de compétences pour les évènements entrants et sortants.\n\nVous abandonnerez quelques possibilités de personnalisation de l'évènement si vous utilisez cette option car le code %s sera ignoré."}
 obj["hideNames"]			= { label="Cacher les Noms des Unités", tooltip="Ne pas afficher les noms des unités pour les évènements entrants et sortants.\n\nVous abandonnerez quelques possibilités de personnalisation de l'évènement si vous utilisez cette option car le code %n sera ignoré."}
 obj["hideFullOverheals"]	= { label="Cacher les Soins en Excès Total", tooltip="Ne pas afficher les soins qui ont un soin effectif égal à zéro."}
---obj["hideFullHoTOverheals"]		= { label="Hide Full HoT Overheals", tooltip="Don't display heals over time that have an effective heal amount of zero."}
---obj["hideMergeTrailer"]			= { label="Hide Merge Trailer", tooltip="Don't display the trailer that specifies the number of hits and crits at the end of merged events."}
 obj["allClasses"]			= { label="Toutes les classes"}
---obj["enablePlayerCooldowns"]	= { label="Player Cooldowns", tooltip="Display notifications when your cooldowns complete."}
---obj["enablePetCooldowns"]		= { label="Pet Cooldowns", tooltip="Display notifications when your pet's cooldowns complete."}
---obj["enableItemCooldowns"]		= { label="Item Cooldowns", tooltip="Display notifications when item cooldowns complete."}
 obj["lootedItems"]			= { label="Items Ramassés", tooltip="Affiche les notifications quand des items sont ramassés."}
 obj["moneyGains"]			= { label="Gains d'argent", tooltip="Affiche vos gains d'argent."}
 obj["alwaysShowQuestItems"]	= { label="Toujours Montrer les Items de Quête", tooltip="Toujours montrer les items de quête quelle que soit la sélection selon la qualité des items."}
 obj["enableIcons"]			= { label="Activer les Icônes de Compétence", tooltip="Affiche les icônes des compétences pour les évènements quand c'est possible."}
-obj["exclusiveSkills"]		= { label="Noms Exclusifs de compétence", tooltip="Montre seulement les noms de compétence quand une icône n'est pas disponible."}
 
 
 ------------------------------
@@ -134,7 +107,6 @@ obj["critFont"]				= { label="Police critique:", tooltip="Assigne la police de c
 obj["normalOutline"]		= { label="Contour normal:", tooltip="Assigne le contour utilisé pour les coups non critiques."}
 obj["critOutline"]			= { label="Contour critique:", tooltip="Assigne le contour utilisé pour les coups critiques."}
 obj["scrollArea"]			= { label="Zone de défilement:", tooltip="Sélectionne la zone de défilement à configurer."}
-obj["sound"]				= { label="Son:", tooltip="Sélectionne le son à jouer quand un évènement intervient."}
 obj["animationStyle"]		= { label="Animation normale:", tooltip="Style d'animation pour l'animation non persistante dans la zone de défilement."}
 obj["stickyAnimationStyle"]	= { label="Animations persistante:", tooltip="Style d'animation pour l'animation persistante dans la zone de défilement."}
 obj["direction"]			= { label="Direction:", tooltip="La direction de l'animation."}
@@ -154,12 +126,6 @@ obj["triggerParameter"]		= { label="Paramètre:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="Ajouter une Police", tooltip="Ajoute une police personnalisée à la liste des polices disponibles.\n\nATTENTION: Le fichier de la police doit exister *AVANT* que WoW n'est démarré.\n\nIl est fortement recommandé de placer ce fichier dans le répertoire MikScrollingBattleText\\Fonts pour éviter tout problème."}
-obj["addCustomSound"]			= { label="Ajouter un Son", tooltip="Ajoute un son personnalisé à la liste des sons disponibles.\n\nATTENTION: Le fichier son doit exister *AVANT* que WoW n'est démarré.\n\nIl est fortement recommandé de placer ce fichier dans le répertoire MikScrollingBattleText\\Sounds pour éviter tout problème."}
-obj["editCustomFont"]			= { tooltip="Cliquer pour éditer la police personnalisée."}
-obj["deleteCustomFont"]			= { tooltip="Cliquer pour enlever la police personnalisée de MSBT."}
-obj["editCustomSound"]			= { tooltip="Cliquer pour éditer le son personnalisé."}
-obj["deleteCustomSound"]		= { tooltip="Cliquer pour enlever le son personnalisé de MSBT."}
 obj["copyProfile"]				= { label="Copier", tooltip="Copie le profil sous un nouveau nom."}
 obj["resetProfile"]				= { label="Réinitialiser", tooltip="Réinitialise le profil avec les paramètres par défaut."}
 obj["deleteProfile"]			= { label="Supprimer", tooltip="Supprime le profil."}
@@ -181,8 +147,6 @@ obj["toggleAll"]				= { label="Changer Tout", tooltip="Modifie l'état des évè
 obj["moveAll"]					= { label="Déplacer Tout", tooltip="Déplace tous les évènements dans la catégorie sélectionnée vers la zone de défilement spécifiée."}
 obj["eventFontSettings"]		= { tooltip="Cliquer pour éditer les paramètres de police de l'évènement."}
 obj["eventSettings"]			= { tooltip="Cliquer pour éditer les paramètres de l'évènement comme la zone de défilement, message, sonore, etc."}
-obj["customSound"]				= { tooltip="Cliquer pour saisir un fichier son personnalisé." }
-obj["playSound"]				= { label="Jouer", tooltip="Cliquer pour jouer le son."}
 obj["addTrigger"]				= { label="Ajouter un déclencheur", tooltip="Ajoute un nouveau déclencheur."}
 obj["triggerSettings"]			= { tooltip="Cliquer pour configurer les conditions du déclencheur."}
 obj["deleteTrigger"]			= { tooltip="Cliquer pour supprimer ce déclencheur."}
@@ -200,7 +164,6 @@ obj["skillSuppressions"]		= { label="Compétences supprimées", tooltip="Supprim
 obj["skillSubstitutions"]		= { label="Compétences substituées", tooltip="Substitue les nom des compétences avec des valeurs personnalisées."}
 obj["addSkill"]					= { label="Ajouter une compétence", tooltip="Ajoute une nouvelle compétence à la liste."}
 obj["deleteSkill"]				= { tooltip="Cliquer pour supprimer cette compétence."}
-obj["cooldownExclusions"]		= { label="Exclusions de la liste des cooldowns", tooltip="Spécifie les compétences pour lesquelles le cooldown sera ignoré."}
 obj["itemsAllowed"]				= { label="Items Autorisés", tooltip="Toujours montrer les items spécifiés quelle que soit leur qualité."}
 obj["itemExclusions"]			= { label="Item Interdit", tooltip="Empêche d'afficher les items spécifiés."}
 obj["addItem"]					= { label="Ajouter un Item", tooltip="Ajoute un nouvel item à la liste."}
@@ -212,17 +175,11 @@ obj["deleteItem"]				= { tooltip="Cliquer pour supprimer l'item."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="Nom de la Police:", tooltip="Le nom utilisé pour identifier la police.\n\nExemple: Ma Super Police"}
-obj["customFontPath"]	= { label="Chemin de la police:", tooltip="Le chemin du fichier de la police.\n\nNOTE: Si le fichier est situé dans le répertoire recommandé MikScrollingBattleText\\Fonts, seul le nom de fichier doit être entré ici, au lieu du chemin complet.\n\nExemple: maPolice.ttf"}
-obj["customSoundName"]	= { label="Nom du Son:", tooltip="Le nom utilisé pour identifier le son.\n\nExemple: Mon Son"}
-obj["customSoundPath"]	= { label="Chemin du Son:", tooltip="Le chemin qui pointe vers le fichier du son.\n\nNOTE: Si le fichier est situé dans le répertoire rcommandé MikScrollingBattleText\\Sounds, seul le nom de fichier doit être entré ici, au lieu du chemin complet.\n\nExemple: monSon.ogg"}
 obj["copyProfile"]		= { label="Nom du nouveau profil:", tooltip="Nom du nouveau profil vers lequel copier le profil courant."}
---obj["partialEffect"]	= { tooltip="The trailer that will be appended when the partial effect occurs."}
 obj["scrollAreaName"]	= { label="Nouveau nom pour la zone de défilement:", tooltip="Nouveau nom pour la zone de défilement."}
 obj["xOffset"]			= { label="Décalage X:", tooltip="Le décalage horizontal de la zone de défilement."}
 obj["yOffset"]			= { label="Décalage Y:", tooltip="Le décalage vertical de la zone de défilement."}
 obj["eventMessage"]		= { label="Message affiché:", tooltip="Le message affiché quand l'évènement intervient."}
-obj["soundFile"]		= { label="Nom du fichier son:", tooltip="le nom du fichier son à joueur quand l'évènement intervient."}
 obj["iconSkill"]		= { label="Icône de la compétence:", tooltip="Le nom ou le numéro d'ID d'une compétence dont l'icône sera affichée quand l'évènement survient.\n\nMSBT essayera automatiquement d'afficher une icône appropriée si aucune n'est spécifiée.\n\nNOTE: une numéro d'ID doit être utilisé à la place du nom si la compétence n'est pas dans le livre de sort de la classe jouée quand l'évènement survient. La plupart des bases de données en ligne comme wowhead permettent de rechercher cette ID."}
 obj["skillName"]		= { label="Nom de la compétence:", tooltip="Le nom de la compétence à ajouter."}
 obj["substitutionText"]	= { label="Texte de substitution:", tooltip="Le texte à substituer pour le nom de la compétence."}
@@ -249,7 +206,6 @@ obj["dotThrottleTime"]		= { label="Temps de spam des DoT", tooltip="Le nombre de
 obj["hotThrottleTime"]		= { label="Temps de spam des HoT", tooltip="Le nombre de secondes à prendre en compte pour afficher les HoT."}
 obj["powerThrottleTime"]	= { label="Temps de spam des Gains", tooltip="Le nombre de secondes à prendre en compte pour afficher les gains de puissance."}
 obj["skillThrottleTime"]	= { label="Contrôle du temps", tooltip="Le nombre de secondes à prendre en compte pour afficher la compétence."}
-obj["cooldownThreshold"]	= { label="Contrôle du cooldown", tooltip="Les compétences avec un cooldown inférieur au nombre de secondes spécifié ne seront pas affichées."}
 
 
 ------------------------------
@@ -275,10 +231,8 @@ obj["HEALING_DONE"]			= "%a - Quantité de soins.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Quantité de dommages absorbés.\n"
 obj["AURA_AMOUNT"]			= "%a - Nombre de la pile pour cet aura.\n"
 obj["ENERGY_AMOUNT"]		= "%a - Quantité de pouvoir.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - Nombre de points de combo.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Quantité d'honneur.\n"
 obj["REP_AMOUNT"]			= "%a - Quantité de réputation.\n"
 obj["ITEM_AMOUNT"]			= "%a - Quantité de l'item ramassé.\n"
@@ -304,8 +258,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - Nom de la source de dommages (chute, noyade,
 obj["FACTION_NAME"]			= "%e - Faction.\n"
 obj["EMOTE_TEXT"]			= "%e - Le texte de l'emote.\n"
 obj["MONEY_TEXT"]			= "%e - Le texte de l'argent gagné.\n"
-obj["COOLDOWN_NAME"]		= "%e - Le nom de la compétence qui est prête.\n"
---obj["ITEM_COOLDOWN_NAME"]	= "%e - The name of item that is ready.\n"
 obj["ITEM_NAME"]			= "%e - Le nom de l'item ramassé.\n"
 obj["POWER_TYPE"]			= "%p - Type de pouvoir (énergie, rage, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Nombre total de l'item ramassé dans l'inventaire."
@@ -322,7 +274,6 @@ obj["INCOMING_MISS"]						= { label="Manques de mêlée", tooltip="Afficher les 
 obj["INCOMING_DODGE"]						= { label="Esquives de mêlée", tooltip="Afficher les attaques de mêlée esquivées."}
 obj["INCOMING_PARRY"]						= { label="Parades de mêlée", tooltip="Afficher les attaques de mêlée parées."}
 obj["INCOMING_BLOCK"]						= { label="Blocages de mêlée", tooltip="Afficher les dommages en mêlée bloquées."}
---obj["INCOMING_DEFLECT"]						= { label="Melee Deflects", tooltip="Enable incoming melee deflects."}
 obj["INCOMING_ABSORB"]						= { label="Absorptions de mêlée", tooltip="Afficher les dommages en mêlée absorbés."}
 obj["INCOMING_IMMUNE"]						= { label="Immunités de mêlée", tooltip="Afficher les attaques de mêlée auxquelles vous êtes immunisé."}
 obj["INCOMING_SPELL_DAMAGE"]				= { label="Compétences", tooltip="Afficher les dommages des compétences."}
@@ -335,7 +286,6 @@ obj["INCOMING_SPELL_MISS"]					= { label="Manques des compétences", tooltip="Af
 obj["INCOMING_SPELL_DODGE"]					= { label="Esquives des compétences", tooltip="Afficher les compétences que vous avez esquivé."}
 obj["INCOMING_SPELL_PARRY"]					= { label="Parades des compétences", tooltip="Afficher les compétences que vous avez paré."}
 obj["INCOMING_SPELL_BLOCK"]					= { label="Bloquages des compétences", tooltip="Afficher les capacités que vous avez bloqué."}
---obj["INCOMING_SPELL_DEFLECT"]				= { label="Skill Deflects", tooltip="Enable incoming skill deflects."}
 obj["INCOMING_SPELL_RESIST"]				= { label="Résistances aux sorts", tooltip="Afficher les sorts auxquels vous avez résisté."}
 obj["INCOMING_SPELL_ABSORB"]				= { label="Absorptions des compétences", tooltip="Afficher les dommages des compétences que vous avez absorbé."}
 obj["INCOMING_SPELL_IMMUNE"]				= { label="Immunités aux compétences", tooltip="Afficher les compétences auxquelles vous êtes immunisé."}
@@ -344,7 +294,6 @@ obj["INCOMING_SPELL_INTERRUPT"]				= { label="Sorts interrompus", tooltip="Affic
 obj["INCOMING_HEAL"]						= { label="Soins", tooltip="Afficher les soins reçus."}
 obj["INCOMING_HEAL_CRIT"]					= { label="Soins critiques", tooltip="Afficher les soins critiques reçus."}
 obj["INCOMING_HOT"]							= { label="Soins sur le temps (HoT)", tooltip="Afficher les soins des soins sur le temps (HoT) reçus."}
---obj["INCOMING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enable incoming crit heals over time."}
 obj["INCOMING_ENVIRONMENTAL"]				= { label="Dommages de l'environnement", tooltip="Afficher les effets de l'environnement (chutes, noyades, lave, etc...) sur vous."}
 
 obj = L.INCOMING_PET_EVENTS
@@ -354,7 +303,6 @@ obj["PET_INCOMING_MISS"]						= { label="Manques de mêlée", tooltip="Afficher 
 obj["PET_INCOMING_DODGE"]						= { label="Esquives de mêlée", tooltip="Afficher les attaques de mêlée esquivées par votre familier"}
 obj["PET_INCOMING_PARRY"]						= { label="Parades de mêlée", tooltip="Afficher les attaques de mêlée parées par votre familier."}
 obj["PET_INCOMING_BLOCK"]						= { label="Blocages de mêlée", tooltip="Afficher les dommages en mêlée bloquées par votre familier."}
---obj["PET_INCOMING_DEFLECT"]						= { label="Melee Deflects", tooltip="Enable your pet's incoming melee deflects."}
 obj["PET_INCOMING_ABSORB"]						= { label="Absorptions de mêlée", tooltip="Afficher les dommages en mêlée absorbés par votre familier."}
 obj["PET_INCOMING_IMMUNE"]						= { label="Immunités de mêlée", tooltip="Afficher les attaques de mêlée auxquelles votre familier est immunisé."}
 obj["PET_INCOMING_SPELL_DAMAGE"]				= { label="Compétences", tooltip="Afficher les dommages des compétences sur votre familier."}
@@ -367,14 +315,12 @@ obj["PET_INCOMING_SPELL_MISS"]					= { label="Manques des compétences", tooltip
 obj["PET_INCOMING_SPELL_DODGE"]					= { label="Esquives des compétences", tooltip="Afficher les compétences que votre familier a esquivé."}
 obj["PET_INCOMING_SPELL_PARRY"]					= { label="Parades des compétences", tooltip="Afficher les compétences que votre familier a paré."}
 obj["PET_INCOMING_SPELL_BLOCK"]					= { label="Bloquages des compétences", tooltip="Afficher les capacités que votre familier a bloqué."}
---obj["PET_INCOMING_SPELL_DEFLECT"]				= { label="Skill Deflects", tooltip="Enable your pet's incoming skill deflects."}
 obj["PET_INCOMING_SPELL_RESIST"]				= { label="Résistances aux sorts", tooltip="Afficher les sorts auxquels votre familier a résisté."}
 obj["PET_INCOMING_SPELL_ABSORB"]				= { label="Absorptions des compétences", tooltip="Afficher les dommages des compétences que votre familier a absorbé."}
 obj["PET_INCOMING_SPELL_IMMUNE"]				= { label="Immunités aux compétences", tooltip="Afficher les compétences auxquelles votre familier est immunisé."}
 obj["PET_INCOMING_HEAL"]						= { label="Soins", tooltip="Afficher les soins reçus par votre familier."}
 obj["PET_INCOMING_HEAL_CRIT"]					= { label="Soins critiques", tooltip="Afficher les soins critiques reçus par votre familier."}
 obj["PET_INCOMING_HOT"]							= { label="Soins sur le temps (HoT)", tooltip="Afficher les soins des soins sur le temps (HoT) reçus par votre familier."}
---obj["PET_INCOMING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enable your pet's incoming crit heals over time."}
 
 
 ------------------------------
@@ -388,7 +334,6 @@ obj["OUTGOING_MISS"]						= { label="Manques de mêlée", tooltip="Afficher vos 
 obj["OUTGOING_DODGE"]						= { label="Esquives de mêlée", tooltip="Afficher vos attaques esquivées en mêlée."}
 obj["OUTGOING_PARRY"]						= { label="Parades de mêlée", tooltip="Afficher vos attaques parées en mêlée."}
 obj["OUTGOING_BLOCK"]						= { label="Bloquages de mêlée", tooltip="Afficher vos dommages en mêlée bloquées."}
---obj["OUTGOING_DEFLECT"]						= { label="Melee Deflects", tooltip="Enable outgoing melee deflects."}
 obj["OUTGOING_ABSORB"]						= { label="Absorptions de mêlée", tooltip="Afficher vos dommages en mêlée absorbés."}
 obj["OUTGOING_IMMUNE"]						= { label="Immunités de mêlée", tooltip="Afficher vos attaques de mêlée auxquelles l'ennemi est immunisé."}
 obj["OUTGOING_EVADE"]						= { label="Evites de mêlée", tooltip="Afficher vos attaques de mêlée evitées."}
@@ -402,7 +347,6 @@ obj["OUTGOING_SPELL_MISS"]					= { label="Manques compétences", tooltip="Affich
 obj["OUTGOING_SPELL_DODGE"]					= { label="Esquives compétences", tooltip="Afficher vos compétences esquivées."}
 obj["OUTGOING_SPELL_PARRY"]					= { label="Parades compétences", tooltip="Afficher vos compétences parées."}
 obj["OUTGOING_SPELL_BLOCK"]					= { label="Bloquages compétences", tooltip="Afficher vos compétences bloquées."}
---obj["OUTGOING_SPELL_DEFLECT"]				= { label="Skill Deflects", tooltip="Enable outgoing skill deflects."}
 obj["OUTGOING_SPELL_RESIST"]				= { label="Résistances aux sorts", tooltip="Afficher les résistances à vos sorts."}
 obj["OUTGOING_SPELL_ABSORB"]				= { label="Absorptions compétences", tooltip="Afficher les absorptions de dommages de vos compétences."}
 obj["OUTGOING_SPELL_IMMUNE"]				= { label="Immunités compétences", tooltip="Afficher les dommages de vos compétences auxquelles l'ennemi est immunisé."}
@@ -412,7 +356,6 @@ obj["OUTGOING_SPELL_EVADE"]					= { label="Evites compétences", tooltip="Affich
 obj["OUTGOING_HEAL"]						= { label="Soins", tooltip="Afficher les soins effectués."}
 obj["OUTGOING_HEAL_CRIT"]					= { label="Soins critiques", tooltip="Afficher les soins critiques effectués."}
 obj["OUTGOING_HOT"]							= { label="Soins sur le temps (HoT)", tooltip="Afficher les soins sur le temps."}
---obj["OUTGOING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enable outgoing crit heals over time."}
 obj["OUTGOING_DISPEL"]						= { label="Dissipations", tooltip="Affiche les dissipations."}
 
 obj = L.OUTGOING_PET_EVENTS
@@ -422,7 +365,6 @@ obj["PET_OUTGOING_MISS"]						= { label="Manques de mêlée", tooltip="Afficher 
 obj["PET_OUTGOING_DODGE"]						= { label="Esquives de mêlée", tooltip="Afficher les attaques de mêlée de votre familier esquivées."}
 obj["PET_OUTGOING_PARRY"]						= { label="Parades de mêlée", tooltip="Afficher les attaques de mêlée de votre familier parées."}
 obj["PET_OUTGOING_BLOCK"]						= { label="Bloquages de mêlée", tooltip="Afficher les attaques de mêlée de votre familier bloquées."}
---obj["PET_OUTGOING_DEFLECT"]						= { label="Melee Deflects", tooltip="Enable your pet's outgoing melee deflects."}
 obj["PET_OUTGOING_ABSORB"]						= { label="Absorptions de mêlée", tooltip="Afficher les dommages en mêlée absorbés de votre familier."}
 obj["PET_OUTGOING_IMMUNE"]						= { label="Immunités de mêlée", tooltip="Afficher les capacités en mêlée de votre familier auxquelles l'ennemi est immunisé."}
 obj["PET_OUTGOING_EVADE"]						= { label="Evites de mêlée", tooltip="Afficher les evites en mêlée de votre familier."}
@@ -436,15 +378,10 @@ obj["PET_OUTGOING_SPELL_MISS"]					= { label="Manques compétences", tooltip="Af
 obj["PET_OUTGOING_SPELL_DODGE"]					= { label="Esquives compétences", tooltip="Afficher les compétences de votre familier qui ont été esquivées."}
 obj["PET_OUTGOING_SPELL_PARRY"]					= { label="Parades compétences", tooltip="Afficher les compétences de votre familier qui ont été parées."}
 obj["PET_OUTGOING_SPELL_BLOCK"]					= { label="Bloquages compétences", tooltip="Afficher les bloquages des compétences de votre familier."}
---obj["PET_OUTGOING_SPELL_DEFLECT"]				= { label="Skill Deflects", tooltip="Enable your pet's outgoing skill deflects."}
 obj["PET_OUTGOING_SPELL_RESIST"]				= { label="Résistances aux sorts", tooltip="Afficher les sorts de votre familier résisté."}
 obj["PET_OUTGOING_SPELL_ABSORB"]				= { label="Absorptions compétences", tooltip="Afficher les compétences de votre familier absorbés."}
 obj["PET_OUTGOING_SPELL_IMMUNE"]				= { label="Immunités compétences", tooltip="Afficher les compétences de votre familier auxquelles l'ennemi est immunisé."}
 obj["PET_OUTGOING_SPELL_EVADE"]					= { label="Evites compétences", tooltip="Afficher les évites des compétences de votre familier."}
---obj["PET_OUTGOING_HEAL"]						= { label="Heals", tooltip="Enable your pet's outgoing heals."}
---obj["PET_OUTGOING_HEAL_CRIT"]					= { label="Crit Heals", tooltip="Enable your pet's outgoing crit heals."}
---obj["PET_OUTGOING_HOT"]							= { label="Heals Over Time", tooltip="Enable your pet's outgoing heals over time."}
---obj["PET_OUTGOING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enable your pet's outgoing crit heals over time."}
 obj["PET_OUTGOING_DISPEL"]						= { label="Dissipations", tooltip="Affiche les dissipations de votre familier."}
 
 
@@ -465,14 +402,8 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Début combat", tooltip="Afficher l
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Sortie combat", tooltip="Afficher la fin du combat."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="Gains de puissance", tooltip="Afficher les gains de mana, rage et énergie."}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="Pertes de puissance", tooltip="Afficher les pertes de mana, rage et énergie par des drains."}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
---obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
---obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="Gain de points de combo", tooltip="Afficher les points de combo."}
 obj["NOTIFICATION_CP_FULL"]				= { label="5 points de combo", tooltip="Afficher quand vous avez atteint 5 points de combo."}
---obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Holy Power Changes", tooltip="Enable when you change holy power."}
---obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="Holy Power Full", tooltip="Enable when you attain full holy power."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Gains d'honneur", tooltip="Afficher les gains d'honneur."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Gains de réputation", tooltip="Afficher les gains de réputation."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Pertes de réputation", tooltip="Afficher les pertes de réputation."}
@@ -519,7 +450,6 @@ obj["SPELL_AURA_APPLIED"]		= "Aura Appliquée"
 obj["SPELL_AURA_REMOVED"]		= "Aura Enlevée"
 obj["SPELL_STOLEN"]				= "Aura Volée"
 obj["SPELL_DISPEL"]				= "Aura Dissipée"
---obj["SPELL_AURA_REFRESH"]		= "Aura Refresh"
 obj["SPELL_AURA_BROKEN_SPELL"]	= "Aura Cassée"
 obj["ENCHANT_APPLIED"]			= "Enchantement Appliqué"
 obj["ENCHANT_REMOVED"]			= "Enchantement Enlevé"
@@ -529,14 +459,10 @@ obj["SPELL_CAST_FAILED"]		= "Sort Echoué"
 obj["SPELL_SUMMON"]				= "Invoquer"
 obj["SPELL_CREATE"]				= "Créer"
 obj["PARTY_KILL"]				= "Coup Fatal"
---obj["UNIT_DIED"]				= "Unité Morte"
 obj["UNIT_DESTROYED"]			= "Unité Détruite"
 obj["SPELL_EXTRA_ATTACKS"]		= "Attaque Supplémentaire"
 obj["UNIT_HEALTH"]				= "Modification des Points de Vie"
 obj["UNIT_POWER"]				= "Modification de Puissance"
---obj["SKILL_COOLDOWN"]			= "Player Cooldown Complete"
---obj["PET_COOLDOWN"]				= "Pet Cooldown Complete"
---obj["ITEM_COOLDOWN"]			= "Item Cooldown Complete"
 
 -- Main event conditions.
 obj["sourceName"]				= "Origine Unité Nom"
@@ -572,8 +498,6 @@ obj["auraType"]					= "Type Aura"
 obj["threshold"]				= "Seuil"
 obj["unitID"]					= "Unité ID"
 obj["unitReaction"]				= "Unité Réaction"
---obj["itemID"]					= "Item ID"
---obj["itemName"]					= "Item Name"
 
 -- Exception conditions.
 obj["activeTalents"]	= "Talents Actifs"
@@ -646,9 +570,6 @@ obj = L.OUTLINES
 obj[1] = "Aucun"
 obj[2] = "Fin"
 obj[3] = "Epais"
---obj[4] = "Monochrome"
---obj[5] = "Monochrome + Thin"
---obj[6] = "Monochrome + Thick"
 
 -- Text aligns.
 obj = L.TEXT_ALIGNS
@@ -661,10 +582,6 @@ obj[3] = "Droite"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT Mana Faible"
-obj["MSBT Low Health"]	= "MSBT Vie Faible"
-obj["MSBT Cooldown"]	= "MSBT Cooldown"
 
 
 ------------------------------

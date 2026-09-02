@@ -1,5 +1,5 @@
 ## Interface: 120100, 11504, 40400, 110002
-## Version: 12.023
+## Version: 12.025
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
@@ -12,16 +12,43 @@ Libs\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0.lua
 
 MikSBT.lua
+Core\Diagnostics.lua
+Core\EventBus.lua
+Core\ComponentRegistry.lua
+Core\Addon.lua
+Configuration\ProfileStore.lua
+Configuration\MediaRegistry.lua
+Configuration\RuntimeController.lua
+API\RestrictedValue.lua
+API\Spells.lua
+API\Units.lua
+API\Combat.lua
+API\Cooldowns.lua
+API\BlizzardCombatText.lua
+Compatibility\LegacyAPI.lua
+Services\Formatter.lua
+Services\Batcher.lua
+Services\Throttler.lua
+Services\EventRouter.lua
+Services\EventPipeline.lua
+Components\SelfHealTracker.lua
+Components\IncomingCombat.lua
+Components\OutgoingBatcher.lua
+Components\DamageMeterSource.lua
+Components\OutgoingCombat.lua
+Components\ParserNotifications.lua
+Components\UtilityNotifications.lua
+Display\ScrollAreas.lua
+Display\DisplayService.lua
 Localization\localization.xml
 MSBTProfiles.lua
 MSBTParser.lua
 MSBTMedia.lua
-MSBTAnimations.lua
+Display\AnimationEngine.lua
 MSBTTriggers.lua
-MSBTCooldowns.lua
-MSBTLoot.lua
+Components\LootNotifications.lua
 MSBTMain.lua
-MSBTAnimationStyles.lua
+Display\AnimationStyles.lua
 
 MSBTOptions\Localization\localization.xml
 MSBTOptions\MSBTOptionsControls.lua

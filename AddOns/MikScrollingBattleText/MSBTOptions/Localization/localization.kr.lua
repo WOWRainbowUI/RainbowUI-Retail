@@ -19,16 +19,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "사용자 글꼴"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "잘못된 글꼴 이름."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "글꼴 이름이 이미 존재합니다."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "글꼴 경로가 .ttf 파일을 가리켜야 합니다."
---L.MSG_UNABLE_TO_SET_FONT			= "Unable to set specified font."
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "사용자 소리"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "잘못된 소리 이름."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "소리 이름이 이미 존재합니다."
 L.MSG_NEW_PROFILE					= "새로운 프로필"
 L.MSG_PROFILE_ALREADY_EXISTS		= "프로필이 이미 존재합니다."
 L.MSG_INVALID_PROFILE_NAME			= "허용되지 않는 프로필 이름입니다."
@@ -37,7 +27,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "스크롤 영역 이름이 이미 존재합�
 L.MSG_INVALID_SCROLL_AREA_NAME		= "허용되지 않는 스크롤 영역 이름입니다."
 L.MSG_ACKNOWLEDGE_TEXT				= "이 동작을 수행 하시겠습니까?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "기본"
-L.MSG_INVALID_SOUND_FILE			= "효과음은 .ogg 파일이어야 합니다."
 L.MSG_NEW_TRIGGER					= "새로운 트리거"
 L.MSG_TRIGGER_CLASSES				= "직업 트리거"
 L.MSG_MAIN_EVENTS					= "메인 이벤트"
@@ -62,15 +51,10 @@ L.MSG_INVALID_ITEM_NAME				= "잘못된 아이템 이름."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="사용자 미디어", tooltip="사용자 미디어를 관리하기 위한 설정을 표시합니다."}
 obj["general"] = { label="일반", tooltip="전반적인 설정을 표시합니다."}
 obj["scrollAreas"] = { label="스크롤 영역", tooltip="스크롤 영역의 생성, 삭제, 배치에 관한 설정을 표시합니다.\n\n더 많은 정보를 얻으려면 아이콘 버튼에 마우스 커서를 올리세요."}
 obj["events"] = { label="이벤트", tooltip="이벤트에 관한 설정을 표시합니다.\n\n더 많은 정보를 얻으려면 아이콘 버튼에 마우스 커서를 올리세요."}
-obj["triggers"] = { label="트리거", tooltip="트리거 시스템에 관한 설정을 표시합니다.\n\n더 많은 정보를 얻으려면 아이콘 버튼에 마우스 커서를 올리세요."}
-obj["spamControl"] = { label="스팸 메시지 설정", tooltip="스팸 메시지 조정에 관한 설정을 표시합니다."}
-obj["cooldowns"] = { label="재사용 대기시간", tooltip="재사용 대기시간 알림에 관한 설정을 표시합니다.."}
 obj["lootAlerts"]	= { label="획득 알림", tooltip="전리품 획득 안내에 대한 설정을 표시합니다."}
-obj["skillIcons"] = { label="기술 아이콘", tooltip="기술 아이콘에 관한 설정을 표시합니다."}
 
 
 ------------------------------
@@ -83,8 +67,6 @@ obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatic
 obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
 obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="치명타 고정", tooltip="치명타를 고정 스타일로 표시합니다."}
-obj["enableSounds"]				= { label="효과음 사용", tooltip="이벤트와 트리거에 지정된 효과음을 재생합니다."}
-obj["textShadowing"]			= { label="문자 그림자", tooltip="글꼴을 또렷하게 개선하도록 문자에 그림자 효과를 적용합니다."}
 obj["colorPartialEffects"]		= { label="부분 속성 색상", tooltip="부분 속성을 선택한 색상으로 표시합니다."}
 obj["crushing"]					= { label="강타", tooltip="강타를 표시합니다."}
 obj["glancing"]					= { label="비껴맞음", tooltip="비껴맞음을 표시합니다."}
@@ -106,22 +88,16 @@ obj["enableTrigger"]			= { tooltip="트리거를 활성화합니다."}
 obj["allPowerGains"]			= { label="모든 마력 (마나/분노 등) 획득", tooltip="전투 로그로 나타나지 않는 것을 포함한 모든 마력 (마나, 분노, 기력, 룬 마력) 획득을 표시합니다..\n\n주의: 이 옵션은 마력 표시 기준 및 출력시간 설정을 무시하므로 원치 않는 메시지를 많이 표시할수 있습니다.\n\n[비 추천]"}
 obj["abbreviateSkills"]			= { label="짧은 기술 이름", tooltip="기술 이름을 짧게 표시해줍니다(영문).\n\n이 설정은 %sl 이벤트 코드를 사용한 이벤트에서 무시되어집니다."}
 obj["mergeSwings"]				= { label="타격 병합", tooltip="짧은 시간 내에 가한 일반 근접딜러 타격을 병합합니다."}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="기술 이름 숨김", tooltip="받은, 대상이 받은 이벤트에서 기술 이름을 표시하지 않습니다.\n\n이 옵션을 사용하면 %s 이벤트 코드를 무시하므로 이벤트에 대한 사용자 설정이 무시되어질 것입니다."}
 obj["hideNames"]				= { label="유닛 이름 숨김", tooltip="받은, 대상이 받은 이벤트에서 유닛 이름을 표시하지 않는다.\n\n이 옵션을 사용하면 %n 이벤트 코드를 무시하므로 이벤트에 대한 사용자 설정이 무시되어질 것입니다."}
 obj["hideFullOverheals"]		= { label="최대 초과치유 숨김", tooltip="0의 치유량 효과를 가진 치유는 표시하지 않습니다."}
 obj["hideFullHoTOverheals"]		= { label="최대 순간 초과치유 숨김", tooltip="0의 치유량 효과를 가진 시간이 지난 치유는 표시하지 않습니다."}
 obj["hideMergeTrailer"]			= { label="요약 병합 숨김", tooltip="적중 및 치명타로 병합된 이벤트 마지막에 특정한 숫자 요약을 표시하지 않습니다."}
 obj["allClasses"]				= { label="모든 클래스"}
-obj["enablePlayerCooldowns"]	= { label="플레이어 재사용 대기시간", tooltip="재사용 대기시간이 종료되면 알림 메세지를 표시합니다."}
-obj["enablePetCooldowns"]		= { label="소환수 재사용 대기시간", tooltip="소환수의 재사용 대기시간이 종료되면 알림 메세지를 표시합니다."}
---obj["enableItemCooldowns"]		= { label="Item Cooldowns", tooltip="Display notifications when item cooldowns complete."}
 obj["lootedItems"]				= { label="획득한 아이템", tooltip="아이템을 획득했을때 알림 메세지를 표시합니다."}
 obj["moneyGains"]				= { label="금전 획득", tooltip="당신의 금전 획득 사용."}
 obj["alwaysShowQuestItems"]		= { label="퀘스트 아이템 항상 표시", tooltip="선택된 품질에 관계없이 퀘스트 아이템을 항상 표시합니다."}
 obj["enableIcons"]				= { label="기술 아이콘 사용", tooltip="이벤트에 사용 가능한 기술 아이콘이 있을때 아이콘을 표시합니다."}
-obj["exclusiveSkills"]			= { label="아이콘이 없을때 기술 이름만 사용", tooltip="사용 가능한 아이콘이 없을때 기술 이름만 표시합니다."}
 
 
 ------------------------------
@@ -135,7 +111,6 @@ obj["critFont"]				= { label="치명타 글꼴:", tooltip="치명타에 사용�
 obj["normalOutline"]		= { label="보통 외곽선:", tooltip="치명타가 아닐때 사용할 글꼴의 외곽선을 설정합니다"}
 obj["critOutline"]			= { label="치명타 외곽선:", tooltip="치명타에 사용할 글꼴의 외곽선을 설정합니다."}
 obj["scrollArea"]			= { label="스크롤 영역:", tooltip="설정할 스크롤 영역을 선택합니다."}
-obj["sound"]				= { label="효과음:", tooltip="이벤트 발생 시 재생할 효과음을 선택하세요."}
 obj["animationStyle"]		= { label="애니메이션 유형:", tooltip="스크롤 영역에 고정되지 않는 애니매이션 유형."}
 obj["stickyAnimationStyle"]	= { label="고정 형태:", tooltip="스크롤 영역에 고정된 애니매이션 유형."}
 obj["direction"]			= { label="방향:", tooltip="애니메이션의 방향."}
@@ -155,12 +130,6 @@ obj["triggerParameter"]		= { label="매개변수 (parameter):"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="글꼴 추가", tooltip="사용할 수 있는 글꼴의 목록에 사용자 글꼴을 추가합니다.\n\n주의: 와우가 시작됨 *이전에* 글꼴 파일이 대상의 위치에 존재해야합니다.\n\n문제가 발생되지 않도록 하려면 글꼴은 MikScrollingBattleText\\Fonts 폴더에 넣어두는 것이 좋습니다."}
-obj["addCustomSound"]			= { label="소리 추가", tooltip="사용할 수 있는 소리의 목록에 사용자 소리을 추가합니다.\n\n주의: 와우가 시작됨 *이전에* 소리 파일이 대상의 위치에 존재해야합니다.\n\n문제가 발생되지 않도록 하려면 글꼴은 MikScrollingBattleText\\Sounds 폴더에 넣어두는 것이 좋습니다."}
-obj["editCustomFont"]			= { tooltip="클릭하여 사용자 글꼴을 편집합니다."}
-obj["deleteCustomFont"]			= { tooltip="클릭하여 MSBT로부터 사용자 글꼴을 제거합니다."}
-obj["editCustomSound"]			= { tooltip="클릭하여 사용자 소리를 편집합니다."}
-obj["deleteCustomSound"]		= { tooltip="클릭하여 MSBT로부터 사용자 소리를 제거합니다."}
 obj["copyProfile"]				= { label="프로필 복사", tooltip="명시된 이름의 새 프로필로 프로필을 복사합니다."}
 obj["resetProfile"]				= { label="프로필 초기화", tooltip="기본 설정으로 프로필을 초기화합니다."}
 obj["deleteProfile"]			= { label="프로필 삭제", tooltip="프로필을 삭제합니다."}
@@ -182,8 +151,6 @@ obj["toggleAll"]				= { label="모두 바꾸기", tooltip="선택한 분류의 �
 obj["moveAll"]					= { label="모두 이동", tooltip="선택한 분류의 모든 이벤트를 지정한 스크롤 영역으로 이동시킵니다."}
 obj["eventFontSettings"]		= { tooltip="이벤트에 대한 글꼴 설정을 수정하려면 클릭하세요."}
 obj["eventSettings"]			= { tooltip="스크롤 영역, 출력 메시지, 효과음 등과 같은 이벤트 설정을 수정하려면 클릭하세요."}
-obj["customSound"]				= { tooltip="사용자 지정 효과음 파일을 입력하려면 클릭하세요." }
-obj["playSound"]				= { label="재생", tooltip="선택된 효과음을 재생하려면 클릭하세요."}
 obj["addTrigger"]				= { label="새로운 트리거 추가", tooltip="새로운 트리거를 추가합니다."}
 obj["triggerSettings"]			= { tooltip="트리거를 설정하려면 클릭하세요."}
 obj["deleteTrigger"]			= { tooltip="트리거를 삭제하려면 클릭하세요."}
@@ -201,7 +168,6 @@ obj["skillSuppressions"]		= { label="제외시킬 기술", tooltip="제외시킬
 obj["skillSubstitutions"]		= { label="기술 이름 대체", tooltip="기술의 이름을 사용자가 입력한 글자로 대체합니다."}
 obj["addSkill"]					= { label="기술 추가", tooltip="목록에 새로운 기술을 추가합니다."}
 obj["deleteSkill"]				= { tooltip="기술을 삭제하려면 클릭하세요."}
-obj["cooldownExclusions"]		= { label="재사용 대기시간 제외", tooltip="재사용 대기시간 감시에서 제외되는 기술을 명시합니다."}
 obj["itemsAllowed"]				= { label="허용된 아이템", tooltip="아이템 품질에 관계없이 특정한 아이템을 항상 표시합니다."}
 obj["itemExclusions"]			= { label="제외 아이템", tooltip="특정한 아이템이 계속 표시되는 것으로부터 방지합니다."}
 obj["addItem"]					= { label="아이템 추가", tooltip="목록에 새로운 아이템을 추가합니다."}
@@ -213,17 +179,12 @@ obj["deleteItem"]				= { tooltip="클릭하여 아이템을 삭제합니다."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="글꼴 이름:", tooltip="이름은 글꼴을 식별하는데 사용합니다.\n\n사용예: 나의 최강 글꼴"}
-obj["customFontPath"]	= { label="글꼴 경로:", tooltip="글꼴 파일이 있는 경로.\n\n노트: 만약 파일이 권장하는 MikScrollingBattleText\\Fonts 폴더 위치에 있으면, 여기엔 오로지 전체 경로 대신 파일 이름을 입력해야 됩니다.\n\n사용예: myFont.ttf "}
-obj["customSoundName"]	= { label="소리 이름:", tooltip="이름은 소리를 식별하는데 사용합니다.\n\n사용예: 나의 소리"}
-obj["customSoundPath"]	= { label="소리 경로:", tooltip="소리 파일이 있는 경로.\n\n노트: 만약 파일이 권장하는 MikScrollingBattleText\\Sounds 폴더 위치에 있으면, 여기엔 오로지 전체 경로 대신 파일 이름을 입력해야 됩니다.\n\n사용예: mySound.ogg "}
 obj["copyProfile"]		= { label="새 프로필 이름 입력:", tooltip="선택된 프로필로부터 복사될 새로운 프로필의 이름."}
 obj["partialEffect"]	= { tooltip="부분 효과 발생 시 추가될 메세지."}
 obj["scrollAreaName"]	= { label="새 스크롤 영역 이름 입력:", tooltip="새로운 스크롤 영역의 이름."}
 obj["xOffset"]			= { label="X 좌표:", tooltip="선택된 스크롤 영역의 X 좌표."}
 obj["yOffset"]			= { label="Y 좌표:", tooltip="선택된 스크롤 영역의 Y 좌표."}
 obj["eventMessage"]		= { label="출력 메세지 입력:", tooltip="이벤트 발생시 출력되는 메세지."}
-obj["soundFile"]		= { label="효과음 파일명:", tooltip="이벤트 발생시 재생할 효과음 파일."}
 obj["iconSkill"]		= { label="기술 아이콘:", tooltip="이벤트 발생 시 아이콘을 표시할 기술의 이름입니다."}
 obj["skillName"]		= { label="기술 이름 입력:", tooltip="추가되는 기술의 이름."}
 obj["substitutionText"]	= { label="대체 텍스트:", tooltip="기술 이름을 대체할 텍스트."}
@@ -250,7 +211,6 @@ obj["dotThrottleTime"]		= { label="지속적인 피해량 (DoT) 출력시간", t
 obj["hotThrottleTime"]		= { label="지속적인 치유량 (HoT) 출력시간", tooltip="지속적인 치유량 (HoT)을 출력하는 단위시간 (초)."}
 obj["powerThrottleTime"]	= { label="마력 변화 출력시간", tooltip="마력 (마나, 분노, 기력, 룬 마력) 변화를 출력하는 단위시간 (초)"}
 obj["skillThrottleTime"]	= { label="출력시간 (초)", tooltip="기술을 출력하는 단위시간 (초)."}
-obj["cooldownThreshold"]	= { label="재사용 대기시간 기준", tooltip="기술이 표시되기 위해 초과되어야 하는 재사용 대기시간의 기준 시간."}
 
 
 ------------------------------
@@ -276,11 +236,9 @@ obj["HEALING_DONE"]			= "%a - 치유량.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - 피해 흡수량.\n"
 obj["AURA_AMOUNT"]			= "%a - 오라에 대한 중첩량.\n"
 obj["ENERGY_AMOUNT"]		= "%a - 기력.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - 연계 점수.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - 보유한 신성한 힘.\n"
 obj["ESSENCE_AMOUNT"]		= "%a - 보유한 정수.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - 명예 점수.\n"
 obj["REP_AMOUNT"]			= "%a - 평판 수치.\n"
 obj["ITEM_AMOUNT"]			= "%a - 획득한 아이템 수량.\n"
@@ -306,8 +264,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - 피해량 원인 (낙하, 호흡, 용암 등
 obj["FACTION_NAME"]			= "%e - 평판 이름.\n"
 obj["EMOTE_TEXT"]			= "%e - 감정 표현 텍스트.\n"
 obj["MONEY_TEXT"]			= "%e - 획득한 금전의 텍스트.\n"
-obj["COOLDOWN_NAME"]		= "%e - 준비된 기술의 이름.\n"
---obj["ITEM_COOLDOWN_NAME"]	= "%e - The name of item that is ready.\n"
 obj["ITEM_NAME"]			= "%e - 획득한 아이템의 이름.\n"
 obj["POWER_TYPE"]			= "%p - 마력의 유형 (마나, 분노, 기력, 룬마력).\n"
 obj["TOTAL_ITEMS"]			= "%t - 소지품 속 획득한 아이템의 합계."
@@ -467,8 +423,6 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="전투 시작", tooltip="전투 상
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="전투 종료", tooltip="전투 상태 종료를 알려줍니다."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="마력 (마나/분노 등) 획득", tooltip="추가적인 마나, 분노, 기력, 룬 마력 획득을 알려줍니다."}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="마력 (마나/분노 등) 손실", tooltip="유출에 의한 마나, 분노, 기력, 룬 마력 손실을 알려줍니다."}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
 obj["NOTIFICATION_CHI_CHANGE"]			= { label="기 변경", tooltip="기가 변경될 때 알려줍니다."}
 obj["NOTIFICATION_CHI_FULL"]			= { label="기 최대", tooltip="최대 기에 도달하면 알려줍니다."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="연계 점수 획득", tooltip="연계 점수 획득을 알려줍니다."}
@@ -533,14 +487,10 @@ obj["SPELL_CAST_FAILED"]		= "시전 실패"
 obj["SPELL_SUMMON"]				= "소환"
 obj["SPELL_CREATE"]				= "창조"
 obj["PARTY_KILL"]				= "결정타"
---obj["UNIT_DIED"]				= "유닛 죽음"
 obj["UNIT_DESTROYED"]			= "유닛 사라짐"
 obj["SPELL_EXTRA_ATTACKS"]		= "추가 공격"
 obj["UNIT_HEALTH"]				= "생명력 변화"
 obj["UNIT_POWER"]				= "마력 변화"
-obj["SKILL_COOLDOWN"]			= "플레이어 재사용 대기시간 종료"
-obj["PET_COOLDOWN"]				= "소환수 재사용 대기시간 종료"
---obj["ITEM_COOLDOWN"]			= "Item Cooldown Complete"
 
 -- Main event conditions.
 obj["sourceName"]				= "이벤트를 제공한 유닛의 이름"
@@ -576,8 +526,6 @@ obj["auraType"]					= "오라 종류"
 obj["threshold"]				= "기준 (양/시간)"
 obj["unitID"]					= "유닛 ID"
 obj["unitReaction"]				= "유닛 반응"
---obj["itemID"]					= "Item ID"
---obj["itemName"]					= "Item Name"
 
 -- Exception conditions.
 obj["activeTalents"]			= "활성된 특성"
@@ -650,9 +598,6 @@ obj = L.OUTLINES
 obj[1] = "없음"
 obj[2] = "얇게"
 obj[3] = "굵게"
---obj[4] = "Monochrome"
---obj[5] = "Monochrome + Thin"
---obj[6] = "Monochrome + Thick"
 
 -- Text aligns.
 obj = L.TEXT_ALIGNS
@@ -665,10 +610,6 @@ obj[3] = "오른쪽"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT: 마나 낮음"
-obj["MSBT Low Health"]	= "MSBT: 생명력 낮음"
-obj["MSBT Cooldown"]	= "MSBT: 재사용 대기시간"
 
 
 ------------------------------

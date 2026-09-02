@@ -18,16 +18,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "Carattere Personalizzato"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "Nome invalido per il carattere."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "Nome esistente per il Carattere."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "Il percorso del Carattere deve puntare ad un file .ttf."
-L.MSG_UNABLE_TO_SET_FONT			= "Impossibile impostare il Carattere specificato."
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "Suono Personalizzato"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Nome invalido per il suono."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Nome esistente per il Suono."
 L.MSG_NEW_PROFILE					= "Nuovo Profilo"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Nome esistente per il profilo."
 L.MSG_INVALID_PROFILE_NAME			= "Nome invalido per il profilo."
@@ -36,7 +26,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Nome esistente per l'area di scorrimento."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Nome invalido per l'area di scorrimento."
 L.MSG_ACKNOWLEDGE_TEXT				= "Sei sicuro di voler eseguire questa operazione?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normale"
-L.MSG_INVALID_SOUND_FILE			= "Il suono deve essere un file .ogg."
 L.MSG_NEW_TRIGGER					= "Nuovo Innesco"
 L.MSG_TRIGGER_CLASSES				= "Innesco Classi"
 L.MSG_MAIN_EVENTS					= "Evento Principale"
@@ -61,15 +50,10 @@ L.MSG_INVALID_ITEM_NAME				= "Nome invalido per l'oggetto."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="Supporti Personalizzati", tooltip="Mostra le opzioni per gestire i supporti personalizzati."}
 obj["general"]		= { label="Generale", tooltip="Mostra le opzioni generali."}
 obj["scrollAreas"]	= { label="Aree di scorrimento", tooltip="Mostra le opzioni per creare, cancellare e configurare le aree di scorrimento.\n\nPorta il m sopra un cottone per maggiori informazioni."}
 obj["events"]		= { label="Eventi", tooltip="Mostra le opzioni per 'in arrivo', 'in uscita' e la notifica di eventi.\n\nPorta il m sopra un cottone per maggiori informazioni."}
-obj["triggers"]		= { label="Innceschi", tooltip="Mostra le opzioni per il sistema di inneschi.\n\nPorta il m sopra un cottone per maggiori informazioni."}
-obj["spamControl"]	= { label="Controllo Spam", tooltip="Mostra le opzioni per controllare lo spam."}
-obj["cooldowns"]	= { label="Cooldowns", tooltip="Mostra le opzioni per le notifiche dei cooldown."}
 obj["lootAlerts"]	= { label="Avvisi bottino", tooltip="Mostra le opzioni per le notifiche inerenti al bottino."}
-obj["skillIcons"]	= { label="Icone Abilita'", tooltip="Mostra le opzioni per le icone delle abilita'."}
 
 
 ------------------------------
@@ -82,8 +66,6 @@ obj["disableMSBTInGroup"]		= { label="Disabilita MSBT in gruppo", tooltip="Disab
 obj["enableBlizzardV2CombatText"]= { label="Abilita testo combattimento Blizzard", tooltip="Abilita il testo di combattimento Blizzard (v2) per giocatore e famiglio." }
 obj["enableBlizzardV2InGroup"]	= { label="Testo Blizzard in gruppo", tooltip="Abilita il testo di combattimento Blizzard solo in gruppo o incursione." }
 obj["stickyCrits"]				= { label="Critici Sticky", tooltip="Mostra i critici usando lo stile sticky."}
-obj["enableSounds"]				= { label="Attiva Suoni", tooltip="Esegue suoni che sono assegnati agli eventi e inneschi."}
-obj["textShadowing"]			= { label="Ombreggiatura Testo", tooltip="Applica un effetto ombreggiatura al testo per migliorarlo."}
 obj["colorPartialEffects"]		= { label="Colore Effetti Parziali", tooltip="Applica i colori specificati agli effetti parziali."}
 obj["crushing"]					= { label="Colpi Devastanti", tooltip="Mostra la coda per i Colpi Devastanti."}
 obj["glancing"]					= { label="Colpi Schivati", tooltip="Mostra la coda per i colpi schivati."}
@@ -105,22 +87,16 @@ obj["enableTrigger"]			= { tooltip="Abilita gli inneschi."}
 obj["allPowerGains"]			= { label="TUTTI i guadagni di potere", tooltip="Mostra tutti i guadagni di potere inclusi quelli non supportati dal registro di combattimento.\n\nATTENZIONE: NON RACCOMANDATA."}
 obj["abbreviateSkills"]			= { label="Abbrevia Abilita'", tooltip="Abbrevia il nome delle abilita' (Solo Inglese).\n\nQueste abbreviazioni possono essere sovrascritte da ogni evento con il codice %sl."}
 obj["mergeSwings"]				= { label="Unifica Sferzate", tooltip="Unifica sferzate regolaari che colpiscono in un breve periodo."}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="Nascondi Abilita'", tooltip="Non mostrare i nomi delle abilita' per 'in attivo' e 'in uscita'.\n\nNon usera' alcune personalizzationi a livello di compatibilita' se scegli questa opzione perche' causa l'evento %s di venir ignorato."}
 obj["hideNames"]				= { label="Nascondi Nomi", tooltip="Non mostrare i nomi per 'in attivo' e 'in uscita'.\n\nNon usera' alcune personalizzationi a livello di compatibilita' se scegli questa opzione perche' causa l'evento %s di venir ignorato."}
 obj["hideFullOverheals"]		= { label="Nascondi Intere Sovracure", tooltip="Non mostrare le cure non periodiche che hanno come effettiva cura un ammontare pari a zero."}
 obj["hideFullHoTOverheals"]		= { label="Nascondi Intere CaT Sovracuranti", tooltip="Non mostrare le cure a tempo che hanno come cura effettiva un ammontare pari a zero."}
 obj["hideMergeTrailer"]			= { label="Nascondi Unione Code", tooltip="Non mostrare le code che specificano il numeo di colpi e critici alla fine di un evento unificato."}
 obj["allClasses"]				= { label="Tutte le Classi"}
-obj["enablePlayerCooldowns"]	= { label="Cooldowns dei Giocatori", tooltip="Mostra le notifiche quando un tuo cooldowns e' completo."}
-obj["enablePetCooldowns"]		= { label="Cooldowns dei Famigli", tooltip="Mostra le notifiche quando un cooldowns del tuo famiglio e' completo."}
-obj["enableItemCooldowns"]		= { label="Cooldowns degli Oggetti", tooltip="Mostra le notifiche quando il cooldowns di un tuo oggetto e' completo."}
 obj["lootedItems"]				= { label="Oggetti Raccolti", tooltip="Mostra le notifiche quando un oggetto e' raccolto."}
 obj["moneyGains"]				= { label="Guadagno Monete", tooltip="Attiva la raccolta soldi."}
 obj["alwaysShowQuestItems"]		= { label="Mostra sempre oggetti missione", tooltip="Mostra sempre gli oggetti di missione senza badare alla qualita'."}
 obj["enableIcons"]				= { label="Abilita Icone Abilita'", tooltip="Mostra le icone per gli eventi che hanno una icona quando possibile."}
-obj["exclusiveSkills"]			= { label="Nomi Abilita' Esclusive", tooltip="Mostra solo i nomi dell'abilita' quando una icona non e' disponibile."}
 
 
 ------------------------------
@@ -134,7 +110,6 @@ obj["critFont"]				= { label="Carattere Critici:", tooltip="Imposta il carattere
 obj["normalOutline"]		= { label="Traccia Normale:", tooltip="Imposta lo stile di traccia per i non critici."}
 obj["critOutline"]			= { label="Traccia Critici:", tooltip="Imposta lo stile di traccia per i critici."}
 obj["scrollArea"]			= { label="Area di Scorrimento:", tooltip="Seleziona l'area di scorrimento da configurare."}
-obj["sound"]				= { label="Souni:", tooltip="Seleziona il suono da eseguire quando avviene un evento."}
 obj["animationStyle"]		= { label="Stile Animazione:", tooltip="Lo stile d'animazione per i non-sticky nell'area di scorrimento."}
 obj["stickyAnimationStyle"]	= { label="Stile Sticky:", tooltip="Lo stile d'animazione per l'animazione sticky nell'area di scorrimento."}
 obj["direction"]			= { label="Direzione:", tooltip="La direzione dell'animazione."}
@@ -154,12 +129,6 @@ obj["triggerParameter"]		= { label="Parametro:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="Aggiungi Carattere", tooltip="Aggiunge un carattere personalizzato alla lista di quelli disponibili.\n\nATTENZIONE: Il carattere deve esistere *PRIMA* che WoW venga eseguito.\n\nE' ampiamente raccomandato di posizionare tale file in MikScrollingBattleText\\Fonts per evitare qualsiasi problema."}
-obj["addCustomSound"]			= { label="Aggiungi Suono", tooltip="Aggiunge un suono personalizzato alla lista di quelli disponibili.\n\nATTENZIONE: Il suono deve esistere *PRIMA* che WoW venga eseguito.\n\nE' ampiamente raccomandato di posizionare tale file in MikScrollingBattleText\\Sounds per evitare qualsiasi problema."}
-obj["editCustomFont"]			= { tooltip="Premere per modificare il carattere personalizzato."}
-obj["deleteCustomFont"]			= { tooltip="Premere per rimuovere il carattere personalizato da MSBT."}
-obj["editCustomSound"]			= { tooltip="Premere per modificare il suono personalizzato."}
-obj["deleteCustomSound"]		= { tooltip="Premere per rimuovere il suono personalizzato da MSBT."}
 obj["copyProfile"]				= { label="Copia Profilo", tooltip="Copia il profilo su un nuovo profilo con il nome specificato."}
 obj["resetProfile"]				= { label="Reimposta Profilo", tooltip="Reimposta il profilo alle impostazioni di base."}
 obj["deleteProfile"]			= { label="Cancella Profilo", tooltip="Cancella il profilo."}
@@ -181,8 +150,6 @@ obj["toggleAll"]				= { label="Abilita Tutto", tooltip="Abilita lo stato attivo 
 obj["moveAll"]					= { label="Sposta Tutto", tooltip="Muovi tutti gli eventi nella categoria selezionata dell'area specificata."}
 obj["eventFontSettings"]		= { tooltip="Premere per modificare le impostazioni dei caratteri per l'evento."}
 obj["eventSettings"]			= { tooltip="Premere per editare le impostazioni come l'area 'in uscita', suoni, etc."}
-obj["customSound"]				= { tooltip="Premere per inserire un file sonoro personalizzato." }
-obj["playSound"]				= { label="Esegui", tooltip="Premere per eseguire il file selezionato."}
 obj["addTrigger"]				= { label="Aggiungi Nuovo Innesco", tooltip="Aggiungi un nuovo innesco."}
 obj["triggerSettings"]			= { tooltip="Premere per configurare le condizioni dell'innesco."}
 obj["deleteTrigger"]			= { tooltip="Premere per cancellare l'innesco."}
@@ -200,7 +167,6 @@ obj["skillSuppressions"]		= { label="Soppressione Abilita'", tooltip="Sopprime l
 obj["skillSubstitutions"]		= { label="Sostituzione Abilita'", tooltip="Sostituisce i nomi delle abilita' con un valore personalizzato."}
 obj["addSkill"]					= { label="Aggiungi Abilita'", tooltip="Aggiunge una nuova abilita'."}
 obj["deleteSkill"]				= { tooltip="Premere per cancellare l'abilita'."}
-obj["cooldownExclusions"]		= { label="Esclusione Cooldown", tooltip="Specifica le abilita' di cui verra' ignorato il tracciamento del cooldown."}
 obj["itemsAllowed"]				= { label="Oggetti Permessi", tooltip="Mostra sempre gli oggetti specificati senza badare alla qualita'."}
 obj["itemExclusions"]			= { label="Esclusione Oggetti", tooltip="Previene che gli oggetti specificati vengano mostrati."}
 obj["addItem"]					= { label="Aggiungi Oggetto", tooltip="Aggiungi un nuovo oggetto alla lista."}
@@ -212,17 +178,12 @@ obj["deleteItem"]				= { tooltip="Premere per cancellare l'oggetto."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="Nome Carattere:", tooltip="Il nome usato epr identificare il carattere"}
-obj["customFontPath"]	= { label="Percorso Carattere:", tooltip="Il percorso al file del carattere.\n\nNOTA: se il file e' nella cartella raccomandara MikScrollingBattleText\\Fonts, solo il nome del file necessita di essere inserito invece che l'intero percorso.\n\nEsempio: myFont.ttf "}
-obj["customSoundName"]	= { label="Nome Suono:", tooltip="Il nome usato per identificare il suono"}
-obj["customSoundPath"]	= { label="Percorso Suono:", tooltip="Il percorso al file del suono.\n\nNOTA: se il file e' nella cartella raccomandara MikScrollingBattleText\\Sounds, solo il nome del file necessita di essere inserito invece che l'intero percorso.\n\nEsempio: mySound.ogg"}
 obj["copyProfile"]		= { label="Nome Nuovo Profilo:", tooltip="Nome del nuovo profilo in cui copiare l'attuale."}
 obj["partialEffect"]	= { tooltip="La coda da aggiunger dopo che l'effetto parziale e' avvenuto."}
 obj["scrollAreaName"]	= { label="Nome nuova area di scorrimento:", tooltip="Il nuovo nome per l'area di scorrimento."}
 obj["xOffset"]			= { label="X Spostamento:", tooltip="Lo spotamento di X per l'area selezionata."}
 obj["yOffset"]			= { label="Y Spostamento:", tooltip="Lo spotamento di Y per l'area selezionata."}
 obj["eventMessage"]		= { label="Messaggio in Uscita:", tooltip="Il messaggio che comparira' quando avviene l'evento."}
-obj["soundFile"]		= { label="Nome del file sonoro:", tooltip="Il nome del file sonoro da eseguire quando avviene l'evento."}
 obj["iconSkill"]		= { label="Icona Abilita':", tooltip="Il nome o l'ID dell'abilita' di cui l'icona verra' mostrata quando avviene l'evento.\nMSBT cerchera' automaticamente di figurare l'appropriata icona se una non e' specificata.\nNOTA: Un ID deve essere usato al posto di un nome se l'abilita' non e' nel libro degli incantesimi per la classe che si sta giocando quando l'evento avviene. Molti database online come WoWHead si possono usare per scoprire l'ID."}
 obj["skillName"]		= { label="Nome Abilita':", tooltip="Il nome dell'abilita' da aggiungere."}
 obj["substitutionText"]	= { label="Testo sostitutivo:", tooltip="Il testo da sostituire al nome dell'abilita'."}
@@ -249,7 +210,6 @@ obj["dotThrottleTime"]		= { label="Tempo Aggregazione DaT", tooltip="Il numero d
 obj["hotThrottleTime"]		= { label="Tempo Aggregazione CaT", tooltip="Il numero di secondi prima di aggregare le CaT."}
 obj["powerThrottleTime"]	= { label="Tempo Aggregazione Potre", tooltip="Il numero di secondi prima di aggregare i cambi di potere."}
 obj["skillThrottleTime"]	= { label="Tempo Aggregazione", tooltip="Il numero di secondi per aggregare le abilita'."}
-obj["cooldownThreshold"]	= { label="Limite Ripresa", tooltip="Abilita' che hanno una ripresa inferiore al numero di secondi specificato non saranno mostrate."}
 
 
 ------------------------------
@@ -275,10 +235,8 @@ obj["HEALING_DONE"]			= "%a - Ammontare di Cure imposte.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Ammontare di danni assorbiti.\n"
 obj["AURA_AMOUNT"]			= "%a - Ammontare di quantita' per l'aura.\n"
 obj["ENERGY_AMOUNT"]		= "%a - Ammontare di Energia.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - Ammontare di Punti Combinazione che hai.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Ammontare di Potere Divino che hai.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Ammontare di onore.\n"
 obj["REP_AMOUNT"]			= "%a - Ammontare di reputazione.\n"
 obj["ITEM_AMOUNT"]			= "%a - Ammontare di oggetti predati.\n"
@@ -304,8 +262,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - Nome della sorgente dei danni (caduta, affog
 obj["FACTION_NAME"]			= "%e - Nome della fazione.\n"
 obj["EMOTE_TEXT"]			= "%e - Il testo dell'emote.\n"
 obj["MONEY_TEXT"]			= "%e - Testo delle monete guadagnate.\n"
-obj["COOLDOWN_NAME"]		= "%e - Il nome dell'abilita' che e' pronta.\n"
-obj["ITEM_COOLDOWN_NAME"]	= "%e - Il nome dell'oggetto che e' pronto.\n"
 obj["ITEM_NAME"]			= "%e - Il nome dell'oggetto predato.\n"
 obj["POWER_TYPE"]			= "%p - Il tipo di potere (energia, rabbia, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Il numero totale degli oggetti predati nell'inventario."
@@ -465,10 +421,6 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Entri in Combattimento", tooltip="A
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Lasci il Combattimento", tooltip="Abilita il messaggio di quando lasci un combattimento."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="Guadagno Potere", tooltip="Abilita la visione di quando guadagni mana, rabbia o energia."}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="Perdita Potere", tooltip="Abilita la visione di quando perdi potere mana, rabbia, or energia per un prosciugamento."}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
---obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
---obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="Guadagno Punti Combinazione", tooltip="Abilita quando guadagni PC."}
 obj["NOTIFICATION_CP_FULL"]				= { label="Punti Combinazione Pieni", tooltip="Abilita quando ottieni pieni PC."}
 obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Carica Potere Divino", tooltip="Abilita quando cambia il tuo potere divino."}
@@ -529,14 +481,10 @@ obj["SPELL_CAST_FAILED"]		= "Fallimento di Lancio"
 obj["SPELL_SUMMON"]				= "Evoca"
 obj["SPELL_CREATE"]				= "Crea"
 obj["PARTY_KILL"]				= "Colpo Mortale"
---obj["UNIT_DIED"]				= "Unita' Morta"
 obj["UNIT_DESTROYED"]			= "Unita' Distrutta"
 obj["SPELL_EXTRA_ATTACKS"]		= "Attacco Extra"
 obj["UNIT_HEALTH"]				= "Cambio Vita"
 obj["UNIT_POWER"]				= "Cambio Potere"
-obj["SKILL_COOLDOWN"]			= "Cooldown Giocatore Completo"
-obj["PET_COOLDOWN"]				= "Cooldown Famiglio Completo"
-obj["ITEM_COOLDOWN"]			= "Cooldown Oggetto Completo"
 
 -- Main event conditions.
 obj["sourceName"]				= "Nome Unita' Sorgente"
@@ -661,10 +609,6 @@ obj[3] = "Destra"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT Mana Basso"
-obj["MSBT Low Health"]	= "MSBT Vita bassa"
-obj["MSBT Cooldown"]	= "MSBT Cooldown"
 
 
 ------------------------------

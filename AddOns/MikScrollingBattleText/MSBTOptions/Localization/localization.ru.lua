@@ -18,16 +18,6 @@ local L = MikSBT.translations
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "Пользовательский шрифт"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "Неверное название шрифта."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "Название шрифта уже существует."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "Путь к шрифту должен быть указан на файл .ttf."
---L.MSG_UNABLE_TO_SET_FONT			= "Unable to set specified font."
---L.MSG_TESTING_FONT			= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "Пользовательские звуки"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Неверное название звукового файла."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Название звукового файла уже существует."
 L.MSG_NEW_PROFILE					= "Новый профиль"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Профиль уже существует."
 L.MSG_INVALID_PROFILE_NAME			= "Неверное название профиля."
@@ -36,7 +26,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Название области прокру
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Неверное название области прокрутки."
 L.MSG_ACKNOWLEDGE_TEXT				= "Вы уверены что хотите выполнить данное действие?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Нормальный"
-L.MSG_INVALID_SOUND_FILE			= "Звуки должны быть в .ogg формате."
 L.MSG_NEW_TRIGGER					= "Новый триггер"
 L.MSG_TRIGGER_CLASSES				= "Триггер классы"
 L.MSG_MAIN_EVENTS					= "Главные события"
@@ -61,15 +50,10 @@ L.MSG_INVALID_ITEM_NAME				= "Неверное название предмета
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="Аудио", tooltip="Настройки управления пользовательскими аудиофайлами."}
 obj["general"]		= { label="Основной", tooltip="Основные настройки."}
 obj["scrollAreas"]	= { label="Область прокрутки", tooltip="Настройки областей прокрутки, создание, удаление и т.д.\n\nНаведите мышь на иконки кнопок для большей информации."}
 obj["events"]		= { label="События", tooltip="Настройки входящих, исходящих, и извещающих событиях.\n\nНаведите мышь на иконки кнопок для большей информации."}
-obj["triggers"]		= { label="Триггеры", tooltip="Настройки системы триггеров.\n\nНаведите мышь на иконки кнопок для большей информации."}
-obj["spamControl"]	= { label="Контроль спама", tooltip="Настройки спам контроля."}
-obj["cooldowns"]	= { label="Срок действия", tooltip="Настройки отображения в извещениях срока действий заклинаний."}
 obj["lootAlerts"]	= { label="Оповещения добычи", tooltip="Настройки отображения оповещений о добыче."}
-obj["skillIcons"]	= { label="Иконки навыков", tooltip="Настройки иконок навыков."}
 
 
 ------------------------------
@@ -82,8 +66,6 @@ obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatic
 obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
 obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="Закреплённый крит", tooltip="Отображение критов используя стиль закрепления."}
-obj["enableSounds"]				= { label="Вкл/Выкл звуки", tooltip="Проигрывать звуки заданные в событиях и триггерах."}
-obj["textShadowing"]			= { label="Тень текста", tooltip="Применить эффект тени к тексту для улучшения четкости шрифта."}
 obj["colorPartialEffects"]		= { label="Цвет частичных эффектов", tooltip="Применяет установленные цвета для частичных эффектов."}
 obj["crushing"]					= { label="Сокрушительные удары", tooltip="Отображение трейлера сокрушительных ударов."}
 obj["glancing"]					= { label="Скользящие удары", tooltip="Отображение трейлера скользящих ударов."}
@@ -105,22 +87,16 @@ obj["enableTrigger"]			= { tooltip="Вкл/Выкл триггер."}
 obj["allPowerGains"]			= { label="Получ. ВСЕХ энергий", tooltip="Отображение всех получении энергии включая даже те что не отображаются в списке боя.\n\nПРЕДУПРЕЖДЕНИЕ: Эта опция очень спамит и игнорирует все пороги энергии и механику регуляторов.\n\nНЕ РЕКОМЕНДУЕТСЯ."}
 obj["abbreviateSkills"]			= { label="Cокращать навыки", tooltip="Cокращать названия навыков (Только английские).\n\nThis can be overriden by each event with the %sl event code."}
 obj["mergeSwings"]				= { label="Объединить удары", tooltip="Объединить регулярные удары в ближнем бою, которые ударяют в течение короткого промежутка времени."}
---obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
---obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="Скрыть навыки", tooltip="Не отображать названия навыков в входящих и исходящих событиях.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %s event code to be ignored."}
 obj["hideNames"]				= { label="Скрыть имена", tooltip="Не отображать названия юнитов в входящих и исходящих событиях.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %n event code to be ignored."}
 obj["hideFullOverheals"]		= { label="Скрыть избыточное исц.", tooltip="Не показывать исцеление которого эффективное значение лечения равно нулю."}
 obj["hideFullHoTOverheals"]		= { label="Скрыть полное избыточное ИзВ", tooltip="Не показывать исцеление за время которого эффективное значение лечения равно нулю."}
 obj["hideMergeTrailer"]			= { label="Скрыть трейлер объединенных", tooltip="Не показывать трейлер, который определяет количество попаданий и критов в конце объединенных событий."}
 obj["allClasses"]				= { label="Все классы"}
-obj["enablePlayerCooldowns"]	= { label="Восстановления игрока", tooltip="Отображать оповещение когда ваши восстановления завершины."}
-obj["enablePetCooldowns"]		= { label="Восстановления питомца", tooltip="Отображать оповещение когда восстановления вашего питомца завершины."}
---obj["enableItemCooldowns"]		= { label="Item Cooldowns", tooltip="Display notifications when item cooldowns complete."}
 obj["lootedItems"]				= { label="Добыча предметов", tooltip="Выводит оповещение когда вы подбераете предметы."}
 obj["moneyGains"]				= { label="Получ. денег", tooltip="Вкл/Выкл оповещение когда вы получаете деньги."}
 obj["alwaysShowQuestItems"]		= { label="Предметы заданий", tooltip="Всегда показывать предметы заданий не обращающий внимания на выбор качества."}
 obj["enableIcons"]				= { label="Вкл/Выкл иконки навыков", tooltip="Отображение иконок для событий если это возможно и они существуют."}
-obj["exclusiveSkills"]			= { label="Особенные названия навыков", tooltip="Показывает только названия навыков когда иконки не доступны."}
 
 
 ------------------------------
@@ -134,7 +110,6 @@ obj["critFont"]				= { label="Шрифт - Крита:", tooltip="Установ
 obj["normalOutline"]		= { label="Контур - Обычный:", tooltip="Установить какой будет использоваться стиль контура для обычных ударов."}
 obj["critOutline"]			= { label="Контур - Крита:", tooltip="Установить какой будет использоваться стиль контура для критов."}
 obj["scrollArea"]			= { label="Область прокрутки:", tooltip="Для настройки выберите желаемую облость прокрутки."}
-obj["sound"]				= { label="Звук:", tooltip="Выберите какой проигрывать звук при выполнении события."}
 obj["animationStyle"]		= { label="Стиль анимации:", tooltip="Стиль анимации для не-закрепленной анимации в области прокрутки."}
 obj["stickyAnimationStyle"]	= { label="Стиль закрепления:", tooltip="Стиль анимации для закрепления в области прокрутки."}
 obj["direction"]			= { label="Направление:", tooltip="Направление анимации."}
@@ -154,12 +129,6 @@ obj["triggerParameter"]		= { label="Параметр:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="Добавить шрифт", tooltip="Добовляет пользовательский шрифт к списку доступных шрифтов.\n\nWARNING: Файл шрифта должен находиться в целевой деректории *ДО* запуска WoW.\n\nНастоятельно рекомендуется поместить файл в директорию шрифтов MikScrollingBattleText\\чтобы избежать проблем."}
-obj["addCustomSound"]			= { label="Добавить звук", tooltip="Добовляет пользовательский звук к списку доступных звуков.\n\nWARNING: Файл звука должен находиться в целевой деректории *ДО* запуска WoW.\n\nНастоятельно рекомендуется поместить файл в директорию звуков MikScrollingBattleText\\чтобы избежать проблем."}
-obj["editCustomFont"]			= { tooltip="Нажмите чтобы редактировать пользовательский шрифт."}
-obj["deleteCustomFont"]			= { tooltip="Нажмите чтобы удалить пользовательский шрифт из MSBT."}
-obj["editCustomSound"]			= { tooltip="Нажмите чтобы редактировать пользовательский звук."}
-obj["deleteCustomSound"]		= { tooltip="Нажмите чтобы удалить пользовательский звук из MSBT."}
 obj["copyProfile"]				= { label="Скопировать", tooltip="Скопировать профиль в новый профиль с вами установленным названием."}
 obj["resetProfile"]				= { label="Сброс", tooltip="Сброс профиля на стандартные установки."}
 obj["deleteProfile"]			= { label="Удалить", tooltip="Удалить профиль."}
@@ -181,8 +150,6 @@ obj["toggleAll"]				= { label="Переключить ВСЕ", tooltip="Вкл/�
 obj["moveAll"]					= { label="Переместить ВСЕ", tooltip="Переместить ВСЕ события в выбранной категории в указанную область прокрутки."}
 obj["eventFontSettings"]		= { tooltip="Кликните для редактирования настройки шрифта для события."}
 obj["eventSettings"]			= { tooltip="Кликните для редактирования настроек события, области вывода, исходящие сообщения, звуки, и т.д."}
-obj["customSound"]				= { tooltip="Кликните для вставки пользовательского звукового файла." }
-obj["playSound"]				= { label="Воспр.", tooltip="Нажмите для воспроизведения выбранного звука."}
 obj["addTrigger"]				= { label="Добавить триггер", tooltip="Добавить новый триггер."}
 obj["triggerSettings"]			= { tooltip="Кликните для настройки условий триггера."}
 obj["deleteTrigger"]			= { tooltip="Кликните для удаления триггера."}
@@ -200,7 +167,6 @@ obj["skillSuppressions"]		= { label="Блокир-ка навыков", tooltip=
 obj["skillSubstitutions"]		= { label="Замена навыков", tooltip="Заменить название навыка на пользовательское значение."}
 obj["addSkill"]					= { label="Добавить навык", tooltip="Добавить новый навык в список."}
 obj["deleteSkill"]				= { tooltip="Кликните для удаления навыка."}
-obj["cooldownExclusions"]		= { label="Исключение перезарядки", tooltip="Запись навыков у которых не будут отслеживаться время перезарядки."}
 obj["itemsAllowed"]				= { label="Дозволенные предметы", tooltip="Всегда показывать указанные предметы, независимо от качества предмета."}
 obj["itemExclusions"]			= { label="Исключение предметов", tooltip="Запрет на отображение, указанных предметов."}
 obj["addItem"]					= { label="Добавить предмет", tooltip="Добавить новый предмет в список."}
@@ -212,17 +178,12 @@ obj["deleteItem"]				= { tooltip="Нажмите чтобы удалить пр�
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="Шрифт:", tooltip="Название, используемое для определения шрифта.\n\nПример: Мой Супер Шрифт"}
-obj["customFontPath"]	= { label="Путь к шрифту:", tooltip="Путь к файлу шрифта.\n\nNOTE: Если файл находится в рекомендованном директории шрифтов\\MikScrollingBattleText, тогда впишите только названия файла, вместо полного пути.\n\nПример: мойШрифт.ttf "}
-obj["customSoundName"]	= { label="Звук:", tooltip="Название, используемое для определения звука.\n\nПример: Мой Звук"}
-obj["customSoundPath"]	= { label="Путь к звуку:", tooltip="Путь к файлу звука.\n\nNOTE: Если файл находится в рекомендованном директории звуков\\MikScrollingBattleText, тогда впишите только названия файла, вместо полного пути.\n\nExample: мойЗвук.ogg "}
 obj["copyProfile"]		= { label="Новое название профиля:", tooltip="Название нового профиля в который будет скопирован выбранный профиль."}
 obj["partialEffect"]	= { tooltip="Трейлер который будут добавляться при возникновении частичного эффекта."}
 obj["scrollAreaName"]	= { label="Новое названия области прокрутки:", tooltip="Новое название для области прокрутки."}
 obj["xOffset"]			= { label="X смещение:", tooltip="Смещение по X в выбранной области прокрутки."}
 obj["yOffset"]			= { label="Y смещение:", tooltip="Смещение по Y в выбранной области прокрутки."}
 obj["eventMessage"]		= { label="Сообщение вывода:", tooltip="Сообщение которое будет отображаться при свершении события."}
-obj["soundFile"]		= { label="Звуковой файл:", tooltip="Название звукового файла который будет проигрываться при свершении события."}
 obj["iconSkill"]		= { label="Иконка навыка:", tooltip="Название или идентификатор заклинания чья иконка должна отображаться при свершении события.\n\nMSBT будет автоматически пробовать найти подходящую иконку если нет назначенной.\n\nПРИМЕЧАНИЕ: Если навык не может быть найден в книге заклинаний играющего класса в момент свершения событий то идентификатор заклинания должен использоваться вместо названия. Может быть использовано для поиска большинство онлайновых баз данных таких как wowhead."}
 obj["skillName"]		= { label="Название навыка:", tooltip="Название навыка который будет добавлен."}
 obj["substitutionText"]	= { label="Текст замещения:", tooltip="Текст который будет заменять название навыка."}
@@ -249,7 +210,6 @@ obj["dotThrottleTime"]		= { label="Регулятор УзВ", tooltip="Числ
 obj["hotThrottleTime"]		= { label="Регулятор ИзВ", tooltip="Число секунд, чтобы замедлить отображение Исцеления за Время."}
 obj["powerThrottleTime"]	= { label="Регулятор времени энергии", tooltip="Число секунд, чтобы замедлить отображение изменения энергии."}
 obj["skillThrottleTime"]	= { label="Регулятор время", tooltip="Число секунд, чтобы замедлить отображение навыков."}
-obj["cooldownThreshold"]	= { label="Порог. вел. перезарядки", tooltip="Навыки с перезарядкой меньший чем установленное число секунд не будут отображаться."}
 
 
 ------------------------------
@@ -275,10 +235,8 @@ obj["HEALING_DONE"]			= "%a - Значение нанесённого лечен
 obj["ABSORBED_AMOUNT"]		= "%a - Значение поглот. урона.\n"
 obj["AURA_AMOUNT"]			= "%a - Значение стеков ауры.\n"
 obj["ENERGY_AMOUNT"]		= "%a - Значение энергии.\n"
---obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
 obj["CP_AMOUNT"]			= "%a - Значение сколько приёмов в серии.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Значение вашей энергии Света.\n"
---obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Значение чести.\n"
 obj["REP_AMOUNT"]			= "%a - Значение репутации.\n"
 obj["ITEM_AMOUNT"]			= "%a - Значение добытого предмета.\n"
@@ -304,8 +262,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - Название источника урон
 obj["FACTION_NAME"]			= "%e - Название фракции.\n"
 obj["EMOTE_TEXT"]			= "%e - Текст эмоций.\n"
 obj["MONEY_TEXT"]			= "%e - Текст получения денег.\n"
-obj["COOLDOWN_NAME"]		= "%e - Название готового навыка.\n"
---obj["ITEM_COOLDOWN_NAME"]	= "%e - The name of item that is ready.\n"
 obj["ITEM_NAME"]			= "%e - Название добытого предмета.\n"
 obj["POWER_TYPE"]			= "%p - Тип энергии (энергия, ярость, мана).\n"
 obj["TOTAL_ITEMS"]			= "%t - Общее количество добытых предметов в инвентаре."
@@ -465,10 +421,6 @@ obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Начало боя", tooltip="Вк
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Выход из боя", tooltip="Вкл/Выкл оповещение о том когда вы выходите из бой."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="Получ. энергии", tooltip="Вкл/Выкл оповещение когда вы получаете дополнительную ману, ярость, или энергию."}
 obj["NOTIFICATION_POWER_LOSS"]			= { label="Потеря энергии", tooltip="Вкл/Выкл оповещение когда теряете ману, ярость, или энергию от похищения."}
---obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
---obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
---obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
---obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
 obj["NOTIFICATION_CP_GAIN"]				= { label="Получ. Приёма в Серии", tooltip="Вкл/Выкл оповещение когда вы получаете приём в серии."}
 obj["NOTIFICATION_CP_FULL"]				= { label="Макс. Приёмов в Серии", tooltip="Вкл/Выкл оповещение когда вы достигаете максимального количества приемов в серии."}
 obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Изменение энергии Света", tooltip="Вкл/Выкл оповещение изменения вашей энергии Света."}
@@ -529,14 +481,10 @@ obj["SPELL_CAST_FAILED"]		= "Неудачное Чтение"
 obj["SPELL_SUMMON"]				= "Призывание"
 obj["SPELL_CREATE"]				= "Создавание"
 obj["PARTY_KILL"]				= "Победный Удар"
---obj["UNIT_DIED"]				= "Смерть объекта"
 obj["UNIT_DESTROYED"]			= "Ликвидация объекта"
 obj["SPELL_EXTRA_ATTACKS"]		= "Экстра атаки"
 obj["UNIT_HEALTH"]				= "Изменение здоровья"
 obj["UNIT_POWER"]				= "Изменение энергии"
-obj["SKILL_COOLDOWN"]			= "Завершение восстановления игрока"
-obj["PET_COOLDOWN"]				= "Завершение восстановления питомца"
---obj["ITEM_COOLDOWN"]			= "Item Cooldown Complete"
 
 -- Main event conditions.
 obj["sourceName"]				= "Название источника"
@@ -572,8 +520,6 @@ obj["auraType"]					= "Тип ауры"
 obj["threshold"]				= "Порог"
 obj["unitID"]					= "ID объекта"
 obj["unitReaction"]				= "Реакция объекта"
---obj["itemID"]					= "Item ID"
---obj["itemName"]					= "Item Name"
 
 -- Exception conditions.
 obj["activeTalents"]			= "Активный талант"
@@ -646,9 +592,6 @@ obj = L.OUTLINES
 obj[1] = "Нету"
 obj[2] = "Тонкий"
 obj[3] = "Жирный"
---obj[4] = "Monochrome"
---obj[5] = "Monochrome + Thin"
---obj[6] = "Monochrome + Thick"
 
 -- Text aligns.
 obj = L.TEXT_ALIGNS
@@ -661,10 +604,6 @@ obj[3] = "Вправо"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "Малый запас маны"
-obj["MSBT Low Health"]	= "Малый запас здоровья"
-obj["MSBT Cooldown"]	= "Перезарядка"
 
 
 ------------------------------

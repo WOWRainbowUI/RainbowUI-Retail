@@ -20,10 +20,6 @@ local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 local DEFAULT_PROFILE_NAME = "Default"
 
-local SAVED_VARS_NAME			= "MSBTProfiles_SavedVars"
-local SAVED_VARS_PER_CHAR_NAME	= "MSBTProfiles_SavedVarsPerChar"
-local SAVED_MEDIA_NAME			= "MSBT_SavedMedia"
-
 local PET_SPACE = PET .. " "
 
 local FLAG_YOU					= 0xF0000000
@@ -86,7 +82,7 @@ local savedVariablesPerChar
 local savedMedia
 
 local currentProfile
-local runtimeDisabledState
+local runtimeController
 
 local pathTable = {}
 
@@ -1085,38 +1081,6 @@ if IsClassic then
 				message		= "+%e",
 				scrollArea	= "Static",
 			},
-			NOTIFICATION_COOLDOWN = {
-				message		= "%e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0,
-				skillColorB	= 0,
-			},
-			NOTIFICATION_PET_COOLDOWN = {
-				colorR		= 0.57,
-				colorG		= 0.58,
-				message		= PET .. " %e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0.41,
-				skillColorB	= 0.41,
-			},
-			NOTIFICATION_ITEM_COOLDOWN = {
-				colorR		= 0.784,
-				colorG		= 0.784,
-				colorB		= 0,
-				message		= " %e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0.588,
-				skillColorB	= 0.588,
-			},
 			NOTIFICATION_LOOT = {
 				colorB		= 0,
 				message		= "+%a %e (%t)",
@@ -1163,23 +1127,23 @@ if IsClassic then
 			},
 
 			MSBT_TRIGGER_LOW_HEALTH = {
+				disabled		= true,
 				colorG			= 0.5,
 				colorB			= 0.5,
 				message			= L.MSG_TRIGGER_LOW_HEALTH .. "! (%a)",
 				alwaysSticky	= true,
 				fontSize		= 26,
-				soundFile		= "MSBT Low Health",
 				mainEvents		= "UNIT_HEALTH{unitID;;eq;;player;;threshold;;lt;;35}",
 				exceptions		= "recentlyFired;;lt;;5",
 				iconSkill		= SPELLID_FIRST_AID,
 			},
 			MSBT_TRIGGER_LOW_MANA = {
+				disabled		= true,
 				colorR			= 0.5,
 				colorG			= 0.5,
 				message			= L.MSG_TRIGGER_LOW_MANA .. "! (%a)",
 				alwaysSticky	= true,
 				fontSize		= 26,
-				soundFile		= "MSBT Low Mana",
 				classes			= "DRUID,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK",
 				mainEvents		= "UNIT_POWER_UPDATE{powerType;;eq;;0;;unitID;;eq;;player;;threshold;;lt;;35}",
 				exceptions		= "recentlyFired;;lt;;5",
@@ -1302,10 +1266,6 @@ if IsClassic then
 		enableBlizzardV2CombatTextInGroup = false,
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
-
-		cooldownExclusions				= {},
-		ignoreCooldownThreshold			= {},
-		cooldownThreshold				= 5,
 
 		qualityExclusions				= {
 			[LE_ITEM_QUALITY_POOR or Enum.ItemQuality.Poor] = true,
@@ -2299,38 +2259,6 @@ else
 				message		= "+%e",
 				scrollArea	= "Static",
 			},
-			NOTIFICATION_COOLDOWN = {
-				message		= "%e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0,
-				skillColorB	= 0,
-			},
-			NOTIFICATION_PET_COOLDOWN = {
-				colorR		= 0.57,
-				colorG		= 0.58,
-				message		= PET .. " %e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0.41,
-				skillColorB	= 0.41,
-			},
-			NOTIFICATION_ITEM_COOLDOWN = {
-				colorR		= 0.784,
-				colorG		= 0.784,
-				colorB		= 0,
-				message		= " %e " .. L.MSG_READY_NOW .. "!",
-				scrollArea	= "Static",
-				fontSize	= 22,
-				soundFile	= "MSBT Cooldown",
-				skillColorR	= 1,
-				skillColorG	= 0.588,
-				skillColorB	= 0.588,
-			},
 			NOTIFICATION_LOOT = {
 				colorB		= 0,
 				message		= "+%a %e (%t)",
@@ -2415,23 +2343,23 @@ else
 			},
 
 			MSBT_TRIGGER_LOW_HEALTH = {
+				disabled		= true,
 				colorG			= 0.5,
 				colorB			= 0.5,
 				message			= L.MSG_TRIGGER_LOW_HEALTH .. "! (%a)",
 				alwaysSticky	= true,
 				fontSize		= 26,
-				soundFile		= "MSBT Low Health",
 				mainEvents		= "UNIT_HEALTH{unitID;;eq;;player;;threshold;;lt;;35}",
 				exceptions		= "recentlyFired;;lt;;5",
 				iconSkill		= SPELLID_FIRST_AID,
 			},
 			MSBT_TRIGGER_LOW_MANA = {
+				disabled		= true,
 				colorR			= 0.5,
 				colorG			= 0.5,
 				message			= L.MSG_TRIGGER_LOW_MANA .. "! (%a)",
 				alwaysSticky	= true,
 				fontSize		= 26,
-				soundFile		= "MSBT Low Mana",
 				classes			= "DRUID,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK",
 				mainEvents		= "UNIT_POWER_UPDATE{powerType;;eq;;0;;unitID;;eq;;player;;threshold;;lt;;35}",
 				exceptions		= "recentlyFired;;lt;;5",
@@ -2625,10 +2553,6 @@ else
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
 
-		cooldownExclusions				= {},
-		ignoreCooldownThreshold			= {},
-		cooldownThreshold				= 5,
-
 		qualityExclusions				= {
 			[LE_ITEM_QUALITY_POOR or Enum.ItemQuality.Poor] = true,
 		},
@@ -2790,24 +2714,40 @@ local function IsInGroupContext()
 	return IsInGroup() or IsInRaid()
 end
 
-local function ApplyBlizzardCombatTextOptions()
-	local disableBlizzardWhileSolo = currentProfile and currentProfile.enableBlizzardV2CombatText
-	local enableOnlyInGroup = currentProfile and currentProfile.enableBlizzardV2CombatTextInGroup
-	if IsInGroupContext() then
-		if enableOnlyInGroup then
-			SetBlizzardCombatTextV2Enabled(true)
-		else
-			DisableBlizzardCombatText()
-		end
-		return
+local function SetAddonEnabled(isEnabled)
+	if isEnabled then
+		MikSBT.Main.Enable()
+		MikSBT.Parser.Enable()
+		MikSBT.Triggers.Enable()
+	else
+		MikSBT.Triggers.Disable()
+		MikSBT.Parser.Disable()
+		MikSBT.Main.Disable()
+	end
+end
+
+local function GetRuntimeController()
+	if runtimeController then
+		return runtimeController
 	end
 
-	-- "Disable Blizzard CT While Solo" only applies outside group/raid.
-	if disableBlizzardWhileSolo then
-		DisableBlizzardCombatText()
-	else
-		SetBlizzardCombatTextV2Enabled(true)
-	end
+	runtimeController = MikSBT.Configuration.RuntimeController:New({
+		isInGroup = IsInGroupContext,
+		isAddonDisabled = function()
+			return savedVariables and savedVariables.userDisabled
+		end,
+		getProfile = function()
+			return currentProfile
+		end,
+		setAddonEnabled = SetAddonEnabled,
+		setBlizzardEnabled = SetBlizzardCombatTextV2Enabled,
+	})
+
+	return runtimeController
+end
+
+local function ApplyBlizzardCombatTextOptions()
+	GetRuntimeController():ApplyBlizzardState()
 end
 
 local function ResetOfficialBlizzardCombatText()
@@ -2837,25 +2777,7 @@ local function ResetOfficialBlizzardCombatText()
 end
 
 local function ApplyContextOptions()
-	local shouldDisable = savedVariables and savedVariables.userDisabled
-
-	shouldDisable = not not shouldDisable
-	if runtimeDisabledState ~= shouldDisable then
-		runtimeDisabledState = shouldDisable
-		if shouldDisable then
-			MikSBT.Cooldowns.Disable()
-			MikSBT.Triggers.Disable()
-			MikSBT.Parser.Disable()
-			MikSBT.Main.Disable()
-		else
-			MikSBT.Main.Enable()
-			MikSBT.Parser.Enable()
-			MikSBT.Triggers.Enable()
-			MikSBT.Cooldowns.Enable()
-		end
-	end
-
-	ApplyBlizzardCombatTextOptions()
+	GetRuntimeController():Apply()
 end
 
 local function SetOptionUserDisabled(isDisabled)
@@ -2907,9 +2829,9 @@ local function LoadUsedFonts()
 		for fontName in pairs(usedFonts) do MikSBT.Animations.LoadFont(fontName) end
 end
 
-local function UpdateProfiles()
+local function UpdateProfiles(profiles)
 
-	for profileName, profile in pairs(savedVariables.profiles) do
+	for profileName, profile in pairs(profiles) do
 
 		local creationVersion = tonumber(select(3, string_find(tostring(profile.creationVersion), "(%d+%.%d+)")))
 
@@ -2991,53 +2913,22 @@ local function ResetProfile(profileName, showOutput)
 end
 
 local function InitSavedVariables()
+	local store = MikSBT.Configuration.ProfileStore:New({
+		globals = _G,
+		version = MikSBT.VERSION .. "." .. MikSBT.SVN_REVISION,
+		defaultProfileName = DEFAULT_PROFILE_NAME,
+		migrateProfiles = function(profiles)
+			UpdateProfiles(profiles)
+		end,
+	})
+	local state = store:Initialize()
 
-	savedVariablesPerChar = _G[SAVED_VARS_PER_CHAR_NAME]
+	savedVariables = state.savedVariables
+	savedVariablesPerChar = state.savedVariablesPerChar
+	savedMedia = state.savedMedia
+	isFirstLoad = state.isFirstLoad
 
-	if (not savedVariablesPerChar) then
-
-		savedVariablesPerChar = {}
-		_G[SAVED_VARS_PER_CHAR_NAME] = savedVariablesPerChar
-
-		savedVariablesPerChar.currentProfileName = DEFAULT_PROFILE_NAME
-	end
-
-	savedVariables = _G[SAVED_VARS_NAME]
-
-	if (not savedVariables) then
-
-		savedVariables = {}
-		_G[SAVED_VARS_NAME] = savedVariables
-
-		savedVariablesPerChar.currentProfileName = DEFAULT_PROFILE_NAME
-		savedVariables.profiles = {}
-		savedVariables.profiles[DEFAULT_PROFILE_NAME] = {}
-
-		savedVariables.profiles[DEFAULT_PROFILE_NAME].creationVersion = MikSBT.VERSION .. "." .. MikSBT.SVN_REVISION
-
-		isFirstLoad = true
-
-	else
-
-		UpdateProfiles()
-	end
-
-	if (savedVariables.profiles[savedVariablesPerChar.currentProfileName]) then
-		SelectProfile(savedVariablesPerChar.currentProfileName)
-	else
-		SelectProfile(DEFAULT_PROFILE_NAME)
-	end
-
-	savedMedia = _G[SAVED_MEDIA_NAME]
-
-	if (not savedMedia) then
-
-		savedMedia = {}
-		_G[SAVED_MEDIA_NAME] = savedMedia
-
-		savedMedia.fonts = {}
-		savedMedia.sounds = {}
-	end
+	SelectProfile(state.currentProfileName)
 
 	module.savedVariables = savedVariables
 	module.savedMedia = savedMedia

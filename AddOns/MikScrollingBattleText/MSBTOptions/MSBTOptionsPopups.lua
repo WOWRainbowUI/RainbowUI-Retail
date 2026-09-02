@@ -30,7 +30,6 @@ local ConvertType = MSBTTriggers.ConvertType
 
 -- Local references to various variables for faster access.
 local fonts = MSBTMedia.fonts
-local sounds = MSBTMedia.sounds
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
@@ -49,7 +48,6 @@ local DEFAULT_SCROLL_WIDTH = 40
 local DEFAULT_ANIMATION_STYLE = "Straight"
 local DEFAULT_STICKY_ANIMATION_STYLE = "Pow"
 local DEFAULT_ICON_ALIGN = "Left"
-local DEFAULT_SOUND_PATH = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\"
 local PREVIEW_ICON_PATH = "Interface\\Icons\\INV_Misc_AhnQirajTrinket_03"
 
 local FLAG_YOU = 0xF0000000
@@ -127,7 +125,6 @@ local function CreatePopup()
 	frame:SetMovable(true)
 	frame:RegisterForDrag("LeftButton")
 	frame:SetFrameStrata("DIALOG")
-	--frame:SetToplevel(true)
 	frame:SetClampedToScreen(true)
 	frame:SetBackdrop(popupBackdrop)
 	frame:SetScript("OnHide", OnHidePopup)
@@ -141,11 +138,6 @@ local function CreatePopup()
 	frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 	end)
-
-	-- Title region.
-	--local titleRegion = frame:CreateTitleRegion()
-	--titleRegion:SetAllPoints(frame)
-
 	-- Register the frame with the main module.
 	MSBTOptions.Main.RegisterPopupFrame(frame)
 	return frame
@@ -1500,7 +1492,6 @@ local function CreateScrollAreaMoverFrame(scrollArea)
 		frame:SetMovable(true)
 		frame:EnableMouse(true)
 		frame:SetFrameStrata("HIGH")
-		--frame:SetToplevel(true)
 		frame:SetClampedToScreen(true)
 		frame:SetBackdrop(moverBackdrop)
 		frame:SetScript("OnMouseDown", MoverFrameOnMouseDown)
@@ -1976,55 +1967,12 @@ end
 -------------------------------------------------------------------------------
 
 -- ****************************************************************************
--- Populates the available sounds for the event along with the passed custom
--- sound file.
--- ****************************************************************************
-local function PopulateEventSounds(selectedSound)
-	local controls = popupFrames.eventFrame.controls
-
-	local isCustomSound = selectedSound and true
-	controls.soundDropdown:Clear()
-	for soundName in pairs(sounds) do
-		if (soundName ~= NONE) then controls.soundDropdown:AddItem(L.SOUNDS[soundName] or soundName, soundName) end
-		if (soundName == selectedSound) then isCustomSound = nil end
-	end
-	controls.soundDropdown:AddItem(NONE, "")
-	controls.soundDropdown:Sort()
-	if (isCustomSound) then controls.soundDropdown:AddItem(selectedSound, selectedSound) end
-	controls.soundDropdown:SetSelectedID(selectedSound or "")
-end
-
-
--- ****************************************************************************
 -- Enables the controls on the event popup.
 -- ****************************************************************************
 local function EnableEventControls()
 	for name, frame in pairs(popupFrames.eventFrame.controls) do
 		if (frame.Enable) then frame:Enable() end
 	end
-end
-
-
--- ****************************************************************************
--- Validates if the passed sound file path is valid.
--- ****************************************************************************
-local function ValidateSoundFileName(soundPath)
-	if (not soundPath) then return L.MSG_INVALID_SOUND_FILE end
-	-- Ensure that the custom file path is either a number (FileDataID)
-	if (type(soundPath) ~= "string") then return end
-	local soundPathLower = string.lower(soundPath)
-	-- Or a string that begins with "Interface" and ends with either ".mp3" or ".ogg"
-	if (soundPath == "" or (string.find(soundPathLower, "interface") or 0) ~= 1 or (not string.find(soundPathLower, ".mp3") and not string.find(soundPathLower, ".ogg"))) then
-		return L.MSG_INVALID_SOUND_FILE
-	end
-end
-
-
--- ****************************************************************************
--- Adds a custom sound file to for the event.
--- ****************************************************************************
-local function AddCustomSoundFile(settings)
-	PopulateEventSounds(settings.inputText)
 end
 
 
@@ -2057,69 +2005,11 @@ local function CreateEvent()
 	editbox:SetPoint("TOPLEFT", controls.scrollAreaDropdown, "BOTTOMLEFT", 0, -20)
 	controls.messageEditbox = editbox
 
-	-- Sound dropdown.
-	local dropdown = MSBTControls.CreateDropdown(frame)
-	objLocale = L.DROPDOWNS["sound"]
-	dropdown:Configure(150, objLocale.label, objLocale.tooltip)
-	dropdown:SetPoint("TOPLEFT", controls.messageEditbox, "BOTTOMLEFT", 0, -20)
-	controls.soundDropdown = dropdown
-
-	-- Custom sound file button.
-	local button = MSBTControls.CreateIconButton(frame, "Configure")
-	local objLocale = L.BUTTONS["customSound"]
-	button:SetTooltip(objLocale.tooltip)
-	button:SetPoint("LEFT", controls.soundDropdown, "RIGHT", 10, -5)
-	button:SetClickHandler(function(this)
-		local objLocale = L.EDITBOXES["soundFile"]
-		EraseTable(tempConfig)
-		tempConfig.editboxLabel = objLocale.label
-		tempConfig.editboxTooltip = objLocale.tooltip
-		tempConfig.parentFrame = frame
-		tempConfig.anchorFrame = this
-		tempConfig.anchorPoint = "BOTTOMRIGHT"
-		tempConfig.relativePoint = "TOPRIGHT"
-		tempConfig.validateHandler = ValidateSoundFileName
-		tempConfig.saveHandler = AddCustomSoundFile
-		tempConfig.hideHandler = EnableEventControls
-		DisableControls(controls)
-		ShowInput(tempConfig)
-	end)
-	controls[#controls + 1] = button
-
-	-- Play sound button.
-	local button = MSBTControls.CreateOptionButton(frame)
-	local objLocale = L.BUTTONS["playSound"]
-	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("LEFT", controls[#controls], "RIGHT", 10, 0)
-	button:SetClickHandler(function(this)
-		local soundFile = controls.soundDropdown:GetSelectedID()
-		for soundName, soundPath in MikSBT.IterateSounds() do
-			if (soundName == soundFile) then soundFile = soundPath end
-		end
-		--print(soundFile)
-		if (type(soundFile) == "string") then
-			if (soundFile ~= "") then
-				local soundFileLower = string.lower(soundFile)
-				-- If the sound file doesn't contain any slashes, assume it is in MSBT's sound folder
-				if (soundFile ~= "" and not string.find(soundFile, "\\", nil, 1) and not string.find(soundFile, "/", nil, 1)) then
-					soundFile = DEFAULT_SOUND_PATH .. soundFile
-				-- If the sound file doesn't begin with "Interface", don't bother trying
-				elseif ((string.find(soundFileLower, "interface", nil, 1) or 0) ~= 1) then
-					return
-				end
-				PlaySoundFile(soundFile, "Master")
-			end
-		else
-			PlaySoundFile(soundFile, "Master")
-		end
-	end)
-	controls[#controls + 1] = button
-
 	-- Always sticky checkbox.
 	local checkbox = MSBTControls.CreateCheckbox(frame)
 	objLocale = L.CHECKBOXES["stickyEvent"]
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("TOPLEFT", controls.soundDropdown, "BOTTOMLEFT", 0, -20)
+	checkbox:SetPoint("TOPLEFT", controls.messageEditbox, "BOTTOMLEFT", 0, -20)
 	controls.stickyCheckbox = checkbox
 
 
@@ -2141,7 +2031,6 @@ local function CreateEvent()
 		EraseTable(returnSettings)
 		returnSettings.scrollArea = controls.scrollAreaDropdown:GetSelectedID()
 		returnSettings.message = controls.messageEditbox:GetText()
-		returnSettings.soundFile = controls.soundDropdown:GetSelectedID()
 		returnSettings.alwaysSticky = controls.stickyCheckbox:GetChecked()
 		returnSettings.iconSkill = controls.iconSkillEditbox:GetText()
 		frame:Hide()
@@ -2193,7 +2082,6 @@ local function ShowEvent(configTable)
 	local objLocale = L.EDITBOXES["eventMessage"]
 	controls.messageEditbox:SetText(configTable.message)
 	controls.messageEditbox:SetTooltip(objLocale.tooltip .. "\n\n" .. (configTable.codes or ""))
-	PopulateEventSounds(configTable.soundFile)
 	controls.stickyCheckbox:SetChecked(configTable.alwaysSticky)
 	controls.iconSkillEditbox:SetText(configTable.iconSkill)
 
@@ -3510,8 +3398,6 @@ local function CreateTriggerPopup()
 		UNIT_POWER = {availableConditions = commonHealthPowerFields .. " powerType", defaultConditions="powerType;;eq;;0;;unitID;;eq;;player;;threshold;;lt;;20"},
 
 		-- Cooldowns.
-		SKILL_COOLDOWN = {availableConditions = "skillID skillName", defaultConditions="skillName;;eq;;" .. UNKNOWN},
-		ITEM_COOLDOWN = {availableConditions = "itemID itemName", defaultConditions="itemName;;eq;;" .. UNKNOWN},
 	}
 	eventConditionData["RANGE_DAMAGE"] = eventConditionData["SPELL_DAMAGE"]
 	eventConditionData["GENERIC_DAMAGE"] = eventConditionData["SPELL_DAMAGE"]
@@ -3535,7 +3421,6 @@ local function CreateTriggerPopup()
 	eventConditionData["SPELL_CREATE"] = eventConditionData["SPELL_CAST_START"]
 	--eventConditionData["UNIT_DIED"] = eventConditionData["PARTY_KILL"]
 	eventConditionData["UNIT_DESTROYED"] = eventConditionData["PARTY_KILL"]
-	eventConditionData["PET_COOLDOWN"] = eventConditionData["SKILL_COOLDOWN"]
 
 	frame.eventConditionData = eventConditionData
 
