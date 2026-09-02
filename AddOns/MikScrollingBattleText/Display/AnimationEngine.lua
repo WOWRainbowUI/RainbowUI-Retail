@@ -6,16 +6,15 @@ MikSBT[moduleName] = module
 local MSBTMedia = MikSBT.Media
 local MSBTProfiles = MikSBT.Profiles
 local L = MikSBT.translations
+local ScrollAreas = MikSBT.Display.ScrollAreas
+local DisplayService = MikSBT.Display.Service
 
 local table_remove = table.remove
 local string_find = string.find
-local string_lower = string.lower
 
 local IsModDisabled = MSBTProfiles.IsModDisabled
-local EraseTable = MikSBT.EraseTable
 
 local fonts = MSBTMedia.fonts
-local sounds = MSBTMedia.sounds
 
 local MAX_ANIMATIONS_PER_AREA = 15
 local DEFAULT_SCROLL_TIME = 3
@@ -52,48 +51,22 @@ local animationData = {normal = {}, sticky = {}}
 
 local animationStyles = {}
 local stickyAnimationStyles = {}
-local scrollAreas = {}
-
-local externalScrollAreas = {}
+local scrollAreas = ScrollAreas.areas
 
 local fontLoaderFrame
 local loadedFontStrings = {}
 
-local function IsScrollAreaActive(scrollArea)
-	local saSettings = scrollAreas[scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	if not saSettings or saSettings.disabled then
-		return false
-	end
-
-	return true
-end
-
-local function IsScrollAreaIconShown(scrollArea)
-	local saSettings = scrollAreas[scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	return saSettings and not saSettings.skillIconsDisabled or false
-end
-
-local function UpdateScrollAreas()
-
-	EraseTable(scrollAreas)
-	EraseTable(externalScrollAreas)
-
-	if rawget(MSBTProfiles.currentProfile, "scrollAreas") then
-		for saKey, saSettings in pairs(MSBTProfiles.currentProfile.scrollAreas) do
-			scrollAreas[saKey] = saSettings
-			externalScrollAreas[saKey] = saSettings.name
-		end
-	end
-
-	for saKey, saSettings in pairs(MSBTProfiles.masterProfile.scrollAreas) do
-		if not scrollAreas[saKey] then
-			scrollAreas[saKey] = saSettings
-			externalScrollAreas[saKey] = saSettings.name
-		end
-	end
-end
+ScrollAreas:Configure({
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	getMasterProfile = function()
+		return MSBTProfiles.masterProfile
+	end,
+	isInGroup = IsInGroup,
+	isInRaid = IsInRaid,
+	defaultArea = DEFAULT_SCROLL_AREA,
+})
 
 local function RegisterAnimationStyle(styleID, initHandler, availableDirections, availableBehaviors, localizationTable)
 
@@ -121,10 +94,6 @@ local function RegisterStickyAnimationStyle(styleID, initHandler, availableDirec
 
 		stickyAnimationStyles[styleID] = animStyleSettings
 	end
-end
-
-local function IterateScrollAreas()
-	return pairs(externalScrollAreas)
 end
 
 local function LoadFont(fontName)
@@ -261,155 +230,17 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	end
 end
 
-local function IsScrollAreaSuppressedInGroup(scrollAreaKey)
-	if not (IsInGroup() or IsInRaid()) then
-		return false
-	end
-
-	local currentProfile = MSBTProfiles.currentProfile
-	if not currentProfile then
-		return false
-	end
-
-	if scrollAreaKey == "Outgoing" then
-		return not not currentProfile.disableOutgoingInGroup
-	elseif scrollAreaKey == "Incoming" then
-		return not not currentProfile.disableIncomingInGroup
-	elseif scrollAreaKey == "Notification" then
-		return not not currentProfile.disableNotificationInGroup
-	elseif scrollAreaKey == "Static" then
-		return not not currentProfile.disableStaticInGroup
-	end
-	return false
-end
-
-local function DisplayEvent(eventSettings, message, texturePath)
-
-	local currentProfile = MSBTProfiles.currentProfile
-
-	local saSettings = scrollAreas[eventSettings.scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	if not saSettings or saSettings.disabled then
-		return
-	end
-
-	if IsScrollAreaSuppressedInGroup(eventSettings.scrollArea or DEFAULT_SCROLL_AREA) then
-		return
-	end
-
-	local fontSize, fontName, outlineIndex, fontAlpha, isSticky
-	if eventSettings.isCrit then
-		fontSize = eventSettings.fontSize or saSettings.critFontSize or currentProfile.critFontSize
-		fontName = eventSettings.fontName or saSettings.critFontName or currentProfile.critFontName
-		outlineIndex = eventSettings.outlineIndex or saSettings.critOutlineIndex or currentProfile.critOutlineIndex
-		fontAlpha = eventSettings.fontAlpha or saSettings.critFontAlpha or currentProfile.critFontAlpha
-
-		if not currentProfile.stickyCritsDisabled then
-			isSticky = true
-		end
-	else
-		fontSize = eventSettings.fontSize or saSettings.normalFontSize or currentProfile.normalFontSize
-		fontName = eventSettings.fontName or saSettings.normalFontName or currentProfile.normalFontName
-		outlineIndex = eventSettings.outlineIndex or saSettings.normalOutlineIndex or currentProfile.normalOutlineIndex
-		fontAlpha = eventSettings.fontAlpha or saSettings.normalFontAlpha or currentProfile.normalFontAlpha
-	end
-
-	isSticky = isSticky or eventSettings.alwaysSticky
-
-	local soundFile = eventSettings.soundFile
-	if soundFile and not currentProfile.soundsDisabled then
-		for soundName, soundPath in MikSBT.IterateSounds() do
-			if soundName == soundFile then
-				soundFile = soundPath
-			end
-		end
-
-		if type(soundFile) == "string" then
-			if soundFile ~= "" then
-				local soundFileLower = string.lower(soundFile)
-
-				if soundFile ~= "" and not string.find(soundFile, "\\", nil, 1) and not string.find(soundFile, "/", nil, 1) then
-					soundFile = DEFAULT_SOUND_PATH .. soundFile
-
-				elseif (string.find(soundFileLower, "interface", nil, 1) or 0) ~= 1 then
-					return
-				end
-				PlaySoundFile(soundFile, "Master")
-			end
-		else
-			PlaySoundFile(soundFile, "Master")
-		end
-	end
-
-	Display(message, saSettings, isSticky, eventSettings.colorR or 1, eventSettings.colorG or 1, eventSettings.colorB or 1, fontSize, fonts[fontName], outlineIndex, fontAlpha, texturePath)
-end
-
-local function DisplayMessage(message, scrollArea, isSticky, colorR, colorG, colorB, fontSize, fontName, outlineIndex, texturePath)
-
-	if not message or IsModDisabled() then
-		return
-	end
-
-	local saSettings = scrollAreas[scrollArea]
-	if not saSettings then
-
-		for _, settings in pairs(scrollAreas) do
-			if scrollArea == settings.name then
-				saSettings = settings
-			end
-		end
-	end
-
-	saSettings = saSettings or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	if not saSettings or saSettings.disabled then
-		return
-	end
-
-	local resolvedScrollArea = scrollArea
-	if not scrollAreas[resolvedScrollArea] then
-		resolvedScrollArea = nil
-		for saKey, settings in pairs(scrollAreas) do
-			if settings == saSettings then
-				resolvedScrollArea = saKey
-				break
-			end
-		end
-		if not resolvedScrollArea then
-			resolvedScrollArea = DEFAULT_SCROLL_AREA
-		end
-	end
-	if IsScrollAreaSuppressedInGroup(resolvedScrollArea) then
-		return
-	end
-
-	if colorR == nil or colorR < 0 or colorR > 255 then
-		colorR = 255
-	end
-	if colorG == nil or colorG < 0 or colorG > 255 then
-		colorG = 255
-	end
-	if colorB == nil or colorB < 0 or colorB > 255 then
-		colorB = 255
-	end
-
-	local currentProfile = MSBTProfiles.currentProfile
-
-	if fontSize == nil or fontSize < 4 or fontSize > 38 then
-		fontSize = saSettings.normalFontSize or currentProfile.normalFontSize
-	end
-
-	local fontPath = fonts[fontName] or fonts[saSettings.normalFontName or currentProfile.normalFontName]
-
-	if not OUTLINE_MAP[outlineIndex] then
-		outlineIndex = saSettings.normalOutlineIndex or currentProfile.normalOutlineIndex
-	end
-
-	local fontAlpha = saSettings.normalFontAlpha or currentProfile.normalFontAlpha
-
-	Display(message, saSettings, isSticky, colorR / 255, colorG / 255, colorB / 255, fontSize, fontPath, outlineIndex, fontAlpha, texturePath)
-end
-
+DisplayService:Configure({
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	scrollAreas = ScrollAreas,
+	fonts = fonts,
+	isModDisabled = IsModDisabled,
+	display = Display,
+	outlineMap = OUTLINE_MAP,
+	defaultArea = DEFAULT_SCROLL_AREA,
+})
 local function AnimateEvent(displayEvent)
 	local fontString = displayEvent.fontString
 	local texture = displayEvent.texture
@@ -505,13 +336,25 @@ module.scrollAreas					= scrollAreas
 module.animationStyles				= animationStyles
 module.stickyAnimationStyles		= stickyAnimationStyles
 
-module.IsScrollAreaActive			= IsScrollAreaActive
-module.IsScrollAreaIconShown		= IsScrollAreaIconShown
-module.UpdateScrollAreas			= UpdateScrollAreas
+module.IsScrollAreaActive			= function(scrollArea)
+	return ScrollAreas:IsActive(scrollArea)
+end
+module.IsScrollAreaIconShown		= function(scrollArea)
+	return ScrollAreas:IsIconShown(scrollArea)
+end
+module.UpdateScrollAreas			= function()
+	ScrollAreas:Update()
+end
 module.RegisterAnimationStyle		= RegisterAnimationStyle
 module.RegisterStickyAnimationStyle = RegisterStickyAnimationStyle
-module.IterateScrollAreas			= IterateScrollAreas
+module.IterateScrollAreas			= function()
+	return ScrollAreas:Iterate()
+end
 module.LoadFont						= LoadFont
-module.DisplayMessage				= DisplayMessage
-module.DisplayEvent					= DisplayEvent
+module.DisplayMessage				= function(...)
+	return DisplayService:DisplayMessage(...)
+end
+module.DisplayEvent					= function(...)
+	return DisplayService:DisplayEvent(...)
+end
 

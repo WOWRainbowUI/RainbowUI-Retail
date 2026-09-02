@@ -438,18 +438,6 @@ local function CategorizeTrigger(triggerSettings)
 					end
 				end
 
-			elseif mainEvent == "SKILL_COOLDOWN" then
-				eventConditions[#eventConditions + 1] = conditions
-				MikSBT.Cooldowns.UpdateRegisteredEvents()
-
-			elseif mainEvent == "PET_COOLDOWN" then
-				eventConditions[#eventConditions + 1] = conditions
-				MikSBT.Cooldowns.UpdateRegisteredEvents()
-
-			elseif mainEvent == "ITEM_COOLDOWN" then
-				eventConditions[#eventConditions + 1] = conditions
-				MikSBT.Cooldowns.UpdateRegisteredEvents()
-
 			elseif captureFuncs[mainEvent] then
 				listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
 				eventConditions[#eventConditions + 1] = conditions
@@ -482,8 +470,6 @@ local function UpdateTriggers()
 	for mainEvent in pairs(categorizedTriggers) do
 		EraseTable(categorizedTriggers[mainEvent])
 	end
-
-	MikSBT.Cooldowns.UpdateRegisteredEvents()
 
 	EraseTable(triggerExceptions)
 
@@ -672,65 +658,6 @@ local function HandleHealthAndPowerTriggers(unit, event, currentAmount, maxAmoun
 	lastEventPercentages[unit] = currentPercentage
 end
 
-local function HandleCooldowns(cooldownType, cooldownID, cooldownName, effectTexture)
-
-	local event = "SKILL_COOLDOWN"
-	if cooldownType == "pet" then
-		event = "PET_COOLDOWN"
-	elseif cooldownType == "item" then
-		event = "ITEM_COOLDOWN"
-	end
-
-	local eventTriggers = categorizedTriggers[event]
-	if not eventTriggers then
-		return
-	end
-
-	if cooldownType == "item" then
-		lookupTable.itemID = cooldownID
-		lookupTable.itemName = cooldownName
-	else
-		lookupTable.skillID = cooldownID
-		lookupTable.skillName = cooldownName
-	end
-
-	for k in pairs(triggersToFire) do
-		triggersToFire[k] = nil
-	end
-
-	for _, eventConditions in ipairs(eventTriggers) do
-
-		local doFire = true
-
-		if not triggersToFire[eventConditions.triggerSettings] then
-
-			for position = 1, #eventConditions, 3 do
-
-				local conditionFunc = eventConditionFuncs[eventConditions[position]]
-				local testFunc = testFuncs[eventConditions[position + 1]]
-				if conditionFunc and testFunc and not conditionFunc(testFunc, lookupTable, eventConditions[position + 2]) then
-					doFire = false
-					break
-				end
-			end
-
-			if doFire then
-				triggersToFire[eventConditions.triggerSettings] = true
-			end
-		end
-	end
-
-	if next(triggersToFire) then
-
-		local recipientName = playerName
-		for triggerSettings in pairs(triggersToFire) do
-			if not TestExceptions(triggerSettings) then
-				DisplayTrigger(triggerSettings, nil, nil, recipientName, playerClass, cooldownName, nil, nil, effectTexture)
-			end
-		end
-	end
-end
-
 local function HandleCombatLogTriggers(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, recipientGUID, recipientName, recipientFlags, recipientRaidFlags, ...)
 
 	if not categorizedTriggers[event] then
@@ -808,7 +735,6 @@ local function OnEvent(this, event, arg1, arg2, ...)
 	end
 
 	if event == "UNIT_HEALTH" then
-
 		if not categorizedTriggers[event] or not categorizedTriggers[event][arg1] then
 			return
 		end
@@ -833,7 +759,13 @@ local function OnEvent(this, event, arg1, arg2, ...)
 	end
 end
 
-local function SafeRegisterEvent(frame, event) end
+local function SafeRegisterUnitEvent(frame, event, ...)
+	if type(frame.RegisterUnitEvent) ~= "function" then
+		return false
+	end
+
+	return pcall(frame.RegisterUnitEvent, frame, event, ...)
+end
 
 local function Enable()
 	if not eventsRegistered then
@@ -858,6 +790,20 @@ _, playerClass = UnitClass("player")
 eventFrame = CreateFrame("Frame")
 eventFrame:Hide()
 eventFrame:SetScript("OnEvent", OnEvent)
+
+local healthRegistered = SafeRegisterUnitEvent(
+	eventFrame,
+	"UNIT_HEALTH",
+	"player",
+	"target",
+	"pet"
+)
+local powerRegistered = SafeRegisterUnitEvent(
+	eventFrame,
+	"UNIT_POWER_UPDATE",
+	"player"
+)
+eventsRegistered = healthRegistered or powerRegistered
 
 CreateCaptureFuncs()
 CreateTestFuncs()
@@ -886,7 +832,6 @@ module.triggerSuppressions		= triggerSuppressions
 module.categorizedTriggers		= categorizedTriggers
 module.powerTypes				= powerTypes
 
-module.HandleCooldowns			= HandleCooldowns
 module.HandleCombatLogTriggers	= HandleCombatLogTriggers
 module.ConvertType				= ConvertType
 module.UpdateTriggers			= UpdateTriggers

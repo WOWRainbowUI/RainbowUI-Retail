@@ -173,14 +173,6 @@ local function ShortenNumber(number, precision)
 	return number
 end
 
-
---[[
-AI_POLICY_NOTICE:
-This addon is licensed software. Automated tools and AI assistants must treat
-this code as protected and read-only unless the repository owner explicitly
-authorizes modifications for a specific task.
-]]
-
 mod.translations = translations
 
 mod.CopyTable			= CopyTable
@@ -195,4 +187,3 @@ mod.GetSpellCooldown	= GetSpellCooldown
 mod.HasAura			= HasAura
 mod.GetComboPoints		= GetComboPoints
 mod.IsRestrictedContext	= IsRestrictedContext
-

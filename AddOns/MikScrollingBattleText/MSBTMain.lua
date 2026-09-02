@@ -9,13 +9,23 @@ local MSBTParser = MikSBT.Parser
 local MSBTTriggers = MikSBT.Triggers
 local MSBTProfiles = MikSBT.Profiles
 local L = MikSBT.translations
+local Formatter = MikSBT.Services.Formatter
+local Batcher = MikSBT.Services.Batcher
+local Throttler = MikSBT.Services.Throttler
+local EventRouter = MikSBT.Services.EventRouter
+local EventPipeline = MikSBT.Services.EventPipeline
+local SelfHealTracker = MikSBT.Components.SelfHealTracker
+local IncomingCombat = MikSBT.Components.IncomingCombat
+local OutgoingBatcher = MikSBT.Components.OutgoingBatcher
+local DamageMeterSource = MikSBT.Components.DamageMeterSource
+local OutgoingCombat = MikSBT.Components.OutgoingCombat
+local ParserNotifications = MikSBT.Components.ParserNotifications
+local UtilityNotifications = MikSBT.Components.UtilityNotifications
 
 local table_remove = table.remove
 local string_find = string.find
 local string_gsub = string.gsub
 local string_format = string.format
-local string_upper = string.upper
-local math_abs = math.abs
 local math_floor = math.floor
 local bit_bor = bit.bor
 local FormatLargeNumber = FormatLargeNumber
@@ -95,31 +105,29 @@ local throttleFrame = CreateFrame("Frame")
 
 local playerClass
 
-local combatEventCache = {}
-
-local eventHandlers = {}
+local eventRouter = EventRouter:New()
 local damageTypeMap = {}
 local damageColorProfileEntries = {}
 local powerTokens = {}
 local uniquePowerTypes = {}
 
-local throttledAbilities = {}
-
-local unmergedEvents = {}
-local mergedEvents = {}
-
-local lastMergeUpdate = 0
 local lastThrottleUpdate = 0
 
+local eventPipeline = EventPipeline:New({
+	delay = MERGE_DELAY_TIME,
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	batcher = Batcher,
+	formatter = Formatter,
+	display = DisplayEvent,
+	erase = EraseTable,
+})
+
 local isEnglish
-local lastPowerAmounts = {}
-local finisherShown
-local recentEmotes = {}
 local recentEnemyBuffs = {}
 local ignoreAuras = {}
 local playerGUID
-local lastPlayerSpellID
-local lastPlayerSpellTime = 0
 local AUTOSHOT_SPELL_ID = 6603
 local OUTGOING_GROUP_DELAY = 0.2
 local INCOMING_GROUP_DELAY = 0.12
@@ -132,19 +140,10 @@ local SELF_HEAL_MATCH_TOLERANCE = 1
 local DAMAGE_METER_FALLBACK_STALE_TIME = 0.35
 local USE_DAMAGE_METER_OUTGOING = true
 local DOT_FALLBACK_DURATION = 18
-local outgoingBatches = {}
-local incomingDamageBatches = {}
-local incomingHealBatches = {}
-local recentOutgoingSelfHeals = {}
-local damageMeterTicker
-local damageMeterLastSpellTotals = {}
-local lastDamageMeterPoll = 0
-local lastDamageMeterDeltaTime = 0
-local lastAutoAttackFallbackTime = 0
-local lastDotFallbackSpellID
-local lastDotFallbackExpire = 0
-local lastDotFallbackAuraIDs
-local lastDotFallbackRequireAura = true
+local incomingCombat
+local outgoingCombat
+local parserNotifications
+local utilityNotifications
 local IsOutgoingCombatGatedEvent
 local DOT_FALLBACK_SPELLS = {
 	[8921] = {8921}, -- Moonfire
@@ -230,215 +229,6 @@ local function CreateDamageMaps()
 	damageColorProfileEntries[DAMAGETYPE_CHAOS] = "chaos"
 end
 
-local function AbbreviateSkillName(skillName)
-	if (string_find(skillName, "[%s%-]")) then
-		skillName = string_gsub(skillName, "(%a)[%l%p]*[%s%-]*", "%1")
-	end
-
-	return skillName
-end
-
-local function FormatPartialEffects(absorbAmount, blockAmount, resistAmount, isGlancing, isCrushing)
-
-	local currentProfile = MSBTProfiles.currentProfile
-
-	local effectSettings, amount
-	local partialEffectText = ""
-
-	if absorbAmount then
-		effectSettings = currentProfile.absorb
-		amount = absorbAmount
-
-	elseif blockAmount then
-		effectSettings = currentProfile.block
-		amount = blockAmount
-
-	elseif resistAmount then
-		effectSettings = currentProfile.resist
-		amount = resistAmount
-	end
-
-	local trailer = effectSettings and effectSettings.trailer
-	if trailer and not effectSettings.disabled then
-
-		local formattedAmount = amount
-		if currentProfile.shortenNumbers then
-			formattedAmount = ShortenNumber(formattedAmount, currentProfile.shortenNumberPrecision)
-		elseif currentProfile.groupNumbers then
-			formattedAmount = FormatLargeNumber(formattedAmount)
-		end
-
-		trailer = string_gsub(trailer, "%%a", formattedAmount)
-
-		if not currentProfile.partialColoringDisabled then
-			partialEffectText = string_format("|cFF%02x%02x%02x%s|r", effectSettings.colorR * 255, effectSettings.colorG * 255, effectSettings.colorB * 255, trailer)
-		else
-			partialEffectText = trailer
-		end
-	end
-
-	effectSettings = nil
-	trailer = nil
-
-	if isGlancing then
-		effectSettings = currentProfile.glancing
-
-	elseif isCrushing then
-		effectSettings = currentProfile.crushing
-	end
-
-	trailer = effectSettings and effectSettings.trailer
-	if trailer and not effectSettings.disabled then
-
-		if not currentProfile.partialColoringDisabled then
-			partialEffectText = partialEffectText .. string_format("|cFF%02x%02x%02x%s|r", effectSettings.colorR * 255, effectSettings.colorG * 255, effectSettings.colorB * 255, trailer)
-		else
-			partialEffectText = partialEffectText .. trailer
-		end
-	end
-
-	return partialEffectText
-end
-
-local function FormatDisplayAmount(amount, currentProfile)
-	if currentProfile.shortenNumbers then
-		return ShortenNumber(amount, currentProfile.shortenNumberPrecision)
-	end
-
-	return FormatLargeNumber(amount)
-end
-
-local function FormatEvent(message, amount, damageType, overhealAmount, overkillAmount, powerType, name, class, effectName, partialEffects, mergeTrailer, ignoreDamageColoring, hideSkills, hideNames, forceEventColoring)
-
-	local currentProfile = MSBTProfiles.currentProfile
-	local checkParens
-
-	if amount and string_find(message, "%a", 1, true) then
-
-		local partialAmount = ""
-		if overhealAmount and overhealAmount > 0 and not currentProfile.overheal.disabled then
-
-			amount = amount - overhealAmount
-
-			partialAmount = overhealAmount
-			partialAmount = FormatDisplayAmount(partialAmount, currentProfile)
-
-			local overhealSettings = currentProfile.overheal
-			partialAmount = string_gsub(overhealSettings.trailer, "%%a", partialAmount)
-			if not currentProfile.partialColoringDisabled then
-				partialAmount = string_format("|cFF%02x%02x%02x%s|r", overhealSettings.colorR * 255, overhealSettings.colorG * 255, overhealSettings.colorB * 255, partialAmount)
-			end
-
-		elseif overkillAmount and overkillAmount > 0 and not currentProfile.overkill.disabled then
-
-			amount = amount - overkillAmount
-
-			partialAmount = overkillAmount
-			partialAmount = FormatDisplayAmount(partialAmount, currentProfile)
-
-			local overkillSettings = currentProfile.overkill
-			partialAmount = string_gsub(overkillSettings.trailer, "%%a", partialAmount)
-			if not currentProfile.partialColoringDisabled then
-				partialAmount = string_format("|cFF%02x%02x%02x%s|r", overkillSettings.colorR * 255, overkillSettings.colorG * 255, overkillSettings.colorB * 255, partialAmount)
-			end
-		end
-
-		local formattedAmount = FormatDisplayAmount(amount, currentProfile)
-
-		if damageType and not ignoreDamageColoring and not currentProfile.damageColoringDisabled and not forceEventColoring then
-
-			local damageSettings = currentProfile[damageColorProfileEntries[damageType]]
-			if damageSettings and not damageSettings.disabled then
-				formattedAmount = string_format("|cFF%02x%02x%02x%s|r", damageSettings.colorR * 255, damageSettings.colorG * 255, damageSettings.colorB * 255, formattedAmount)
-			end
-		end
-
-		message = string_gsub(message, "%%a", formattedAmount .. partialAmount)
-	end
-
-	if powerType and string_find(message, "%p", 1, true) then
-		local powerString = _G[powerTokens[powerType] or "UNKNOWN"]
-
-		message = string_gsub(message, "%%p", powerString or UNKNOWN)
-	end
-
-	if name and string_find(message, "%n", 1, true) then
-		if hideNames then
-			message = string_gsub(message, "%s?%-?%s?%%n", "")
-			checkParens = true
-		else
-
-			if string_find(name, "-", 1, true) then
-				name = string_gsub(name, "(.-)%-.*", "%1")
-			end
-
-			if class and not currentProfile.classColoringDisabled then
-				local classSettings = currentProfile[class]
-				if classSettings and not classSettings.disabled then
-					name = string_format("|cFF%02x%02x%02x%s|r", classSettings.colorR * 255, classSettings.colorG * 255, classSettings.colorB * 255, name)
-				end
-			end
-
-			message = string_gsub(message, "%%n", name)
-		end
-	else
-		message = string_gsub(message, "%%n", "")
-		checkParens = true
-	end
-
-	if effectName and string_find(message, "%e", 1, true) then
-		message = string_gsub(message, "%%e", effectName)
-	end
-
-	if effectName then
-		if string_find(message, "%s", 1, true) then
-
-			if (hideSkills) then
-				message = string_gsub(message, "%s?%-?%s?%%sl?%s?%-?%s?", "")
-				checkParens = true
-			else
-
-				local isChanged
-				if (currentProfile.abilitySubstitutions[effectName]) then
-					effectName = currentProfile.abilitySubstitutions[effectName]
-					isChanged = true
-				end
-
-				if string_find(message, "%sl", 1, true) then
-					message = string_gsub(message, "%%sl", effectName)
-				end
-
-				if isEnglish and not isChanged and currentProfile.abbreviateAbilities then
-					effectName = AbbreviateSkillName(effectName)
-				end
-
-				message = string_gsub(message, "%%s", effectName)
-			end
-		end
-	end
-
-	if checkParens then
-		message = string_gsub(message, "%(%)", "")
-		message = string_gsub(message, "%[%]", "")
-		message = string_gsub(message, "%{%}", "")
-		message = string_gsub(message, "%<%>", "")
-	end
-
-	if damageType and string_find(message, "%t", 1, true) then
-		message = string_gsub(message, "%%t", damageTypeMap[damageType] or STRING_SCHOOL_UNKNOWN)
-	end
-
-	if partialEffects then
-		message = message .. partialEffects
-	end
-
-	if mergeTrailer then
-		message = message .. mergeTrailer
-	end
-
-	return message
-end
-
 local function GetInOutEventData(parserEvent)
 	local eventTypeString, affectedUnitName, affectedUnitClass
 
@@ -461,240 +251,6 @@ local function GetInOutEventData(parserEvent)
 	end
 
 	return eventTypeString, affectedUnitName, affectedUnitClass
-end
-
-local function DetectPowerGain(powerAmount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_POWER_GAIN
-
-	if eventSettings.disabled or not powerType then
-		return
-	end
-
-	local lastPowerAmount = lastPowerAmounts[powerType] or 65535
-	if powerAmount > lastPowerAmount then
-		DisplayEvent(eventSettings, FormatEvent(eventSettings.message, powerAmount - lastPowerAmount, nil, nil, nil, powerType, nil, nil, UNKNOWN))
-	end
-end
-
-local function HandleComboPoints(amount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_CP_GAIN
-	local maxAmount = UnitPowerMax("player", powerType)
-	if amount == maxAmount then
-		eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_CP_FULL
-	end
-
-	if eventSettings.disabled then
-		return
-	end
-
-	if amount == 0 then
-		return
-	end
-
-	if amount <= 0 then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, amount))
-end
-
-local function HandleChi(amount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_CHI_CHANGE
-	local maxAmount = UnitPowerMax("player", powerType)
-	if amount == maxAmount then
-		eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_CHI_FULL
-	end
-
-	if eventSettings.disabled then
-		return
-	end
-
-	if amount <= 0 then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, amount))
-end
-
-local function HandleArcanePower(amount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_AC_CHANGE
-	local maxAmount = UnitPowerMax("player", powerType)
-	if amount == maxAmount then
-		eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_AC_FULL
-	end
-
-	if eventSettings.disabled then
-		return
-	end
-
-	if amount <= 0 then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, amount))
-end
-
-local function HandleHolyPower(amount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_HOLY_POWER_CHANGE
-	local maxAmount = UnitPowerMax("player", powerType)
-	if amount == maxAmount then
-		eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_HOLY_POWER_FULL
-	end
-
-	if eventSettings.disabled then
-		return
-	end
-
-	if amount == 0 then
-		return
-	end
-
-	if amount <= 0 then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, amount))
-end
-
-local function HandleEssence(amount, powerType)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_ESSENCE_CHANGE
-	local maxAmount = UnitPowerMax("player", powerType)
-	if (amount == maxAmount) then eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_ESSENCE_FULL end
-
-	if (eventSettings.disabled) then return end
-
-	if (amount == 0) then return end
-
-	if amount <= 0 then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, amount))
-end
-
-local function HandleMonsterEmotes(emoteString)
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_MONSTER_EMOTE
-
-	if eventSettings.disabled then
-		return
-	end
-
-	local now = GetTime()
-	for emote, cleanupTime in pairs(recentEmotes) do
-		if now >= cleanupTime then
-			recentEmotes[emote] = nil
-		end
-	end
-
-	if recentEmotes[emoteString] then
-		return
-	end
-
-	DisplayEvent(eventSettings, FormatEvent(eventSettings.message, nil, nil, nil, nil, nil, nil, nil, emoteString))
-	recentEmotes[emoteString] = now + EMOTE_HOLD_TIME
-end
-
-local function MergeEvents(numEvents, currentProfile)
-
-	local unmergedEvent
-	local doMerge = false
-
-	for i = 1, numEvents do
-
-		unmergedEvent = unmergedEvents[i]
-
-		for _, mergedEvent in ipairs(mergedEvents) do
-
-			if unmergedEvent.eventType == mergedEvent.eventType then
-
-				if not unmergedEvent.effectName then
-
-					if unmergedEvent.name == mergedEvent.name and unmergedEvent.name then
-						doMerge = true
-					end
-
-				elseif unmergedEvent.effectName == mergedEvent.effectName then
-
-					if unmergedEvent.name ~= mergedEvent.name then
-						mergedEvent.name = L.MSG_MULTIPLE_TARGETS
-					end
-
-					if unmergedEvent.class ~= mergedEvent.class then
-						mergedEvent.class = nil
-					end
-
-					doMerge = true
-				end
-			end
-
-			if doMerge then
-
-				mergedEvent.partialEffects = nil
-
-				unmergedEvent.eventMerged = true
-
-				if unmergedEvent.amount then
-					mergedEvent.amount = (mergedEvent.amount or 0) + unmergedEvent.amount
-				end
-
-				if unmergedEvent.overhealAmount then
-					mergedEvent.overhealAmount = (mergedEvent.overhealAmount or 0) + unmergedEvent.overhealAmount
-				end
-
-				mergedEvent.numMerged = mergedEvent.numMerged + 1
-
-				if unmergedEvent.isCrit then
-					mergedEvent.numCrits = mergedEvent.numCrits + 1 else mergedEvent.isCrit = false
-				end
-
-				break
-			end
-		end
-
-		if not doMerge then
-			unmergedEvent.numMerged = 0
-
-			if unmergedEvent.isCrit then
-				unmergedEvent.numCrits = 1 else unmergedEvent.numCrits = 0
-			end
-
-			mergedEvents[#mergedEvents+1] = unmergedEvent
-		end
-
-		doMerge = false
-	end
-
-	if not currentProfile.hideMergeTrailer then
-		for _, mergedEvent in ipairs(mergedEvents) do
-
-			if mergedEvent.numMerged > 0 then
-
-				local critTrailer = ""
-				if mergedEvent.numCrits > 0 then
-					critTrailer = string_format(", %d %s", mergedEvent.numCrits, mergedEvent.numCrits == 1 and L.MSG_CRIT or L.MSG_CRITS)
-				end
-
-				mergedEvent.mergeTrailer = string_format(" [%d %s%s]", mergedEvent.numMerged + 1, L.MSG_HITS, critTrailer)
-			end
-		end
-	end
-
-	for i = 1, numEvents do
-
-		if unmergedEvents[1].eventMerged then
-			EraseTable(unmergedEvents[1])
-			combatEventCache[#combatEventCache + 1] = unmergedEvents[1]
-		end
-
-		table_remove(unmergedEvents, 1)
-	end
 end
 
 local function DamageHandler(parserEvent, currentProfile)
@@ -899,114 +455,6 @@ local function DispelHandler(parserEvent, currentProfile)
 	return eventTypeString, parserEvent.extraSkillName, parserEvent.recipientName, classMap[parserEvent.recipientGUID]
 end
 
-local function PowerHandler(parserEvent, currentProfile)
-
-	if uniquePowerTypes[parserEvent.powerType] ~= nil then
-		return
-	end
-
-	if currentProfile.showAllPowerGains then
-		return
-	end
-
-	local amount
-	if parserEvent.isLeech then
-		if parserEvent.sourceUnit ~= "player" then
-			return
-		end
-		amount = parserEvent.extraAmount
-	else
-		if parserEvent.recipientUnit ~= "player" then
-			return
-		end
-		amount = parserEvent.amount
-	end
-
-	if amount == 0 then
-		return
-	end
-
-	if amount and math_abs(amount) < currentProfile.powerThreshold then
-		return
-	end
-
-	local eventTypePrefix = "NOTIFICATION_POWER_"
-	if parserEvent.powerType == powerTypes["ALTERNATE_POWER"] then
-		eventTypePrefix = "NOTIFICATION_ALT_POWER_"
-	end
-
-	local eventTypeString = eventTypePrefix .. (parserEvent.isDrain and "LOSS" or "GAIN")
-
-	return eventTypeString, parserEvent.skillName, nil, nil, true
-end
-
-local function KillHandler(parserEvent, currentProfile)
-
-	if parserEvent.sourceUnit ~= "player" then
-		return
-	end
-
-	if TestFlagsAll(parserEvent.recipientFlags, bit_bor(MSBTParser.UNITTYPE_GUARDIAN, MSBTParser.CONTROL_HUMAN)) then
-		return
-	end
-
-	if parserEvent.recipientUnit == "pet" then
-		return
-	end
-
-	local eventTypeString = "NOTIFICATION_"
-	eventTypeString = eventTypeString .. (TestFlagsAll(parserEvent.recipientFlags, MSBTParser.CONTROL_SERVER) and "NPC" or "PC")
-	eventTypeString = eventTypeString .. "_KILLING_BLOW"
-
-	return eventTypeString, nil, parserEvent.recipientName, classMap[parserEvent.recipientGUID]
-end
-
-local function HonorHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	return "NOTIFICATION_HONOR_GAIN"
-end
-
-local function ReputationHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	local eventTypeString = "NOTIFICATION_REP_" .. (parserEvent.isLoss and "LOSS" or "GAIN")
-	return eventTypeString, parserEvent.factionName
-end
-
-local function ProficiencyHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	return "NOTIFICATION_SKILL_GAIN", parserEvent.skillName
-end
-
-local function ExperienceHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	return "NOTIFICATION_EXPERIENCE_GAIN"
-end
-
-local function ExtraAttacksHandler(parserEvent, currentProfile)
-
-	if parserEvent.sourceUnit ~= "player" then
-		return
-	end
-
-	return "NOTIFICATION_EXTRA_ATTACK", parserEvent.skillName
-end
-
 local function ParserEventsHandler(parserEvent)
 
 	local currentProfile = MSBTProfiles.currentProfile
@@ -1015,17 +463,18 @@ local function ParserEventsHandler(parserEvent)
 
 	local eventType = parserEvent.eventType
 
-	local handler = eventHandlers[eventType]
-	if handler then
-		eventTypeString, effectName, affectedUnitName, affectedUnitClass, mergeEligible = handler(parserEvent, currentProfile)
-	end
+	eventTypeString, effectName, affectedUnitName, affectedUnitClass,
+		mergeEligible = eventRouter:Resolve(parserEvent, currentProfile)
 
 	if not eventTypeString then
 		return
 	end
 
+	local hideIncomingNames = (eventType == "damage" or eventType == "heal")
+		and string_find(eventTypeString, "INCOMING", 1, true) ~= nil
+
 	if eventType == "heal" and (eventTypeString == "SELF_HEAL" or eventTypeString == "SELF_HOT") then
-		RecordOutgoingSelfHealAmount(parserEvent.amount)
+		incomingCombat:RecordOutgoingSelfHeal(parserEvent.amount)
 	end
 
 	-- Keep outgoing-only output combat-gated while allowing incoming and
@@ -1065,7 +514,7 @@ local function ParserEventsHandler(parserEvent)
 
 	local partialEffects
 	if eventType == "damage" or eventType == "environmental" then
-		partialEffects = FormatPartialEffects(parserEvent.absorbAmount, parserEvent.blockAmount, parserEvent.resistAmount, parserEvent.isGlancing, parserEvent.isCrushing)
+		partialEffects = Formatter:FormatPartialEffects(parserEvent.absorbAmount, parserEvent.blockAmount, parserEvent.resistAmount, parserEvent.isGlancing, parserEvent.isCrushing)
 	end
 
 	local effectTexture
@@ -1083,18 +532,18 @@ local function ParserEventsHandler(parserEvent)
 	end
 
 	if not mergeEligible then
-		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, nil, nil, nil, affectedUnitName, affectedUnitClass, effectName, nil, nil, nil, nil, nil, true)
+		local outputMessage = Formatter:FormatLegacyEvent(eventSettings.message, parserEvent.amount, damageType, nil, nil, nil, affectedUnitName, affectedUnitClass, effectName, nil, nil, nil, nil, hideIncomingNames, true)
 		DisplayEvent(eventSettings, outputMessage, effectTexture)
 
 	elseif currentProfile.mergeExclusions[effectName] or (not effectName and currentProfile.mergeSwingsDisabled) then
 
 		local hideSkills = effectTexture and not currentProfile.exclusiveSkillsDisabled or currentProfile.hideSkills
-		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, parserEvent.overhealAmount, parserEvent.overkillAmount, parserEvent.powerType, affectedUnitName, affectedUnitClass, effectName, partialEffects, nil, ignoreDamageColoring, hideSkills, currentProfile.hideNames, true)
+		local outputMessage = Formatter:FormatLegacyEvent(eventSettings.message, parserEvent.amount, damageType, parserEvent.overhealAmount, parserEvent.overkillAmount, parserEvent.powerType, affectedUnitName, affectedUnitClass, effectName, partialEffects, nil, ignoreDamageColoring, hideSkills, currentProfile.hideNames or hideIncomingNames, true)
 		DisplayEvent(eventSettings, outputMessage, effectTexture)
 
 	else
 
-		local combatEvent = table_remove(combatEventCache) or {}
+		local combatEvent = eventPipeline:Acquire()
 
 		if effectName and offHandTrailer and string_find(effectName, offHandTrailer, 1, true) then
 			effectName = string_gsub(effectName, offHandPattern, "")
@@ -1109,6 +558,7 @@ local function ParserEventsHandler(parserEvent)
 		combatEvent.class = affectedUnitClass
 		combatEvent.damageType = damageType
 		combatEvent.ignoreDamageColoring = ignoreDamageColoring
+		combatEvent.hideNames = hideIncomingNames
 		combatEvent.partialEffects = partialEffects
 		combatEvent.overhealAmount = parserEvent.overhealAmount
 		combatEvent.overkillAmount = parserEvent.overkillAmount
@@ -1132,39 +582,22 @@ local function ParserEventsHandler(parserEvent)
 			end
 
 			if throttleDuration and throttleDuration > 0 then
-
-				local throttledAbility = throttledAbilities[effectName]
-				if not throttledAbility then
-					throttledAbility = {}
-					throttledAbility.throttleWindow = 0
-					throttledAbility.lastEventTime = 0
-					throttledAbilities[effectName] = throttledAbility
+				local wasThrottled, windowStarted = Throttler:Queue(
+					effectName,
+					combatEvent,
+					throttleDuration,
+					GetTime()
+				)
+				if windowStarted and not throttleFrame:IsVisible() then
+					throttleFrame:Show()
 				end
-
-				local now = GetTime()
-				if throttledAbility.throttleWindow > 0 then
-						throttledAbility.lastEventTime = now
-						throttledAbility[#throttledAbility + 1] = combatEvent
-						return
-
-				else
-
-					throttledAbility.throttleWindow = throttleDuration
-
-					if not throttleFrame:IsVisible() then
-						throttleFrame:Show()
-					end
-
-					if now - throttledAbility.lastEventTime < throttleDuration then
-						throttledAbility.lastEventTime = now
-						throttledAbility[#throttledAbility + 1] = combatEvent
-						return
-					end
+				if wasThrottled then
+					return
 				end
 			end
 		end
 
-		unmergedEvents[#unmergedEvents + 1] = combatEvent
+		eventPipeline:Queue(combatEvent)
 
 		if not eventFrame:IsVisible() then
 			eventFrame:Show()
@@ -1173,33 +606,8 @@ local function ParserEventsHandler(parserEvent)
 end
 
 local function OnUpdateEventFrame(this, elapsed)
-
-	lastMergeUpdate = lastMergeUpdate + elapsed
-
-	if lastMergeUpdate >= MERGE_DELAY_TIME then
-
-		local currentProfile = MSBTProfiles.currentProfile
-		local hideNames = currentProfile.hideNames
-		local exclusiveSkillsDisabled = currentProfile.exclusiveSkillsDisabled
-
-		MergeEvents(#unmergedEvents, currentProfile)
-
-		local eventSettings, hideSkills, outputMessage
-		for i, combatEvent in ipairs(mergedEvents) do
-			eventSettings = currentProfile.events[combatEvent.isCrit and combatEvent.eventType .. "_CRIT" or combatEvent.eventType]
-			hideSkills = combatEvent.effectTexture and not exclusiveSkillsDisabled or currentProfile.hideSkills
-			outputMessage = FormatEvent(eventSettings.message, combatEvent.amount, combatEvent.damageType, combatEvent.overhealAmount, combatEvent.overkillAmount, combatEvent.powerType, combatEvent.name, combatEvent.class, combatEvent.effectName, combatEvent.partialEffects, combatEvent.mergeTrailer, combatEvent.ignoreDamageColoring, hideSkills, hideNames, true)
-			DisplayEvent(eventSettings, outputMessage, combatEvent.effectTexture)
-			mergedEvents[i] = nil
-			EraseTable(combatEvent)
-			combatEventCache[#combatEventCache + 1] = combatEvent
-		end
-
-		if #unmergedEvents == 0 then
-			this:Hide()
-		end
-
-		lastMergeUpdate = 0
+	if not eventPipeline:Tick(elapsed) then
+		this:Hide()
 	end
 end
 
@@ -1208,35 +616,8 @@ local function OnUpdateThrottleFrame(this, elapsed)
 	lastThrottleUpdate = lastThrottleUpdate + elapsed
 
 	if lastThrottleUpdate >= THROTTLE_UPDATE_TIME then
-
-		local eventsThrottled
-
-		for _, throttledAbility in pairs(throttledAbilities) do
-
-			if throttledAbility.throttleWindow > 0 then
-
-				throttledAbility.throttleWindow = throttledAbility.throttleWindow - lastThrottleUpdate
-
-				if throttledAbility.throttleWindow <= 0 then
-
-					if #throttledAbility > 0 then
-						for i = 1, #throttledAbility do
-							unmergedEvents[#unmergedEvents + 1] = throttledAbility[i]
-							throttledAbility[i] = nil
-						end
-
-						if not eventFrame:IsVisible() then
-							eventFrame:Show()
-						end
-					end
-
-				else
-					eventsThrottled = true
-				end
-			end
-		end
-
-		if not eventsThrottled then
+		local hasActiveWindow = Throttler:Tick(lastThrottleUpdate)
+		if not hasActiveWindow then
 			this:Hide()
 		end
 
@@ -1245,114 +626,22 @@ local function OnUpdateThrottleFrame(this, elapsed)
 end
 
 function eventFrame:UNIT_POWER_UPDATE(unitID, powerToken)
-
-	if unitID ~= "player" then
-		return
-	end
-
-	local powerType = powerTypes[powerToken]
-	if not powerType then
-		return
-	end
-
-	local powerAmount = UnitPower("player", powerType)
-
-	local doFullDetect = true
-	local lastPowerAmount = lastPowerAmounts[powerType]
-
-	if powerToken == "CHI" and playerClass == "MONK" then
-		if powerAmount ~= lastPowerAmount then
-			HandleChi(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	elseif powerToken == "HOLY_POWER" and playerClass == "PALADIN" then
-		if powerAmount ~= lastPowerAmount then
-			HandleHolyPower(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	elseif powerToken == "COMBO_POINTS" and playerClass == "ROGUE" then
-		if powerAmount ~= lastPowerAmount then
-			HandleComboPoints(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	elseif powerToken == "COMBO_POINTS" and playerClass == "DRUID" then
-		if powerAmount ~= lastPowerAmount then
-			HandleComboPoints(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	elseif powerToken == "ARCANE_CHARGES" and playerClass == "MAGE" then
-		if powerAmount ~= lastPowerAmount then
-			HandleArcanePower(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	elseif powerToken == "ESSENCE" and playerClass == "EVOKER" then
-		if powerAmount ~= lastPowerAmount then
-			HandleEssence(powerAmount, powerType)
-		end
-		doFullDetect = false
-
-	end
-
-	if doFullDetect and MSBTProfiles.currentProfile.showAllPowerGains then
-		DetectPowerGain(powerAmount, powerType)
-	end
-	lastPowerAmounts[powerType] = powerAmount
+	utilityNotifications:HandlePowerUpdate(unitID, powerToken)
 end
 
 function eventFrame:PLAYER_REGEN_ENABLED()
-	EraseTable(incomingDamageBatches)
-	EraseTable(incomingHealBatches)
-	EraseTable(recentOutgoingSelfHeals)
-	EraseTable(damageMeterLastSpellTotals)
-	lastDamageMeterPoll = 0
-	lastDamageMeterDeltaTime = 0
-	lastAutoAttackFallbackTime = 0
-	lastDotFallbackSpellID = nil
-	lastDotFallbackAuraIDs = nil
-	lastDotFallbackRequireAura = true
-	lastDotFallbackExpire = 0
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_COMBAT_LEAVE
-	if not eventSettings.disabled then
-		DisplayEvent(eventSettings, eventSettings.message)
-	end
+	incomingCombat:Reset()
+	outgoingCombat:ResetCombatState()
+	utilityNotifications:HandleCombatLeave()
 end
-
 function eventFrame:PLAYER_REGEN_DISABLED()
-	EraseTable(incomingDamageBatches)
-	EraseTable(incomingHealBatches)
-	EraseTable(recentOutgoingSelfHeals)
-	EraseTable(damageMeterLastSpellTotals)
-	lastDamageMeterPoll = 0
-	lastDamageMeterDeltaTime = 0
-	lastAutoAttackFallbackTime = 0
-	lastDotFallbackSpellID = nil
-	lastDotFallbackAuraIDs = nil
-	lastDotFallbackRequireAura = true
-	lastDotFallbackExpire = 0
-
-	local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_COMBAT_ENTER
-	if not eventSettings.disabled then
-		DisplayEvent(eventSettings, eventSettings.message)
-	end
+	incomingCombat:Reset()
+	outgoingCombat:ResetCombatState()
+	utilityNotifications:HandleCombatEnter()
 end
-
 function eventFrame:CHAT_MSG_MONSTER_EMOTE(message, sourceName)
-	local targetName = UnitName("target")
-	local okCompare, isMatch = pcall(function()
-		return sourceName == targetName
-	end)
-	if not okCompare or not isMatch then
-		return
-	end
-	HandleMonsterEmotes(string_gsub(message, "%%s", sourceName))
+	utilityNotifications:HandleMonsterEmote(message, sourceName)
 end
-
 local function NormalizeNumber(value)
 	local ok, result = pcall(function()
 		return value + 0
@@ -1422,7 +711,7 @@ local function IsAutoAttackSpellID(spellID)
 	return spellID == AUTOSHOT_SPELL_ID
 end
 
-local function CanUseAutoAttackFallback(now)
+local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
 	local autoActive = false
 
 	-- API compatibility across client variants.
@@ -1460,7 +749,7 @@ local function CanUseAutoAttackFallback(now)
 
 	-- Prevent rapid false attribution from multiple UNIT_COMBAT target events.
 	local minGap = math.max(0.25, swingSpeed * 0.45)
-	return (now - lastAutoAttackFallbackTime) >= minGap
+	return (now - (lastAutoAttackTime or 0)) >= minGap
 end
 
 local function IsOutgoingTargetContextValid()
@@ -1473,18 +762,6 @@ local function IsOutgoingTargetContextValid()
 		return false
 	end
 	return true
-end
-
-local function IsDamageMeterOutgoingActive()
-	return USE_DAMAGE_METER_OUTGOING and IsRetail and C_DamageMeter and Enum and Enum.DamageMeterType
-end
-
-local function IsDamageMeterDeltaFresh(now)
-	if lastDamageMeterDeltaTime <= 0 then
-		return false
-	end
-	now = now or GetTime()
-	return (now - lastDamageMeterDeltaTime) <= DAMAGE_METER_FALLBACK_STALE_TIME
 end
 
 local function HasPlayerDebuffOnTarget(spellID)
@@ -1551,49 +828,6 @@ local function HasPlayerAnyDebuffOnTarget(spellIDs)
 	return false
 end
 
-local function HasRecentOutgoingSignal(now, schoolMask)
-	-- Accept if we have a recent successful cast from the player.
-	if lastPlayerSpellID and (now - lastPlayerSpellTime) <= OUTGOING_SIGNAL_CONFIDENCE_WINDOW then
-		return true
-	end
-
-	-- Accept active DoT fallback windows only when the tracked aura/timed state is valid.
-	if lastDotFallbackSpellID and now <= lastDotFallbackExpire then
-		if (not lastDotFallbackRequireAura) or HasPlayerAnyDebuffOnTarget(lastDotFallbackAuraIDs) then
-			return true
-		end
-	end
-
-	-- Accept likely physical swings only when auto-attack fallback timing is valid.
-	if not IsLikelySpellSchool(schoolMask) and CanUseAutoAttackFallback(now) then
-		return true
-	end
-
-	return false
-end
-
-local function BuildOutgoingHitsMessage(totalAmount, hitCount, critCount, isSpell)
-	local currentProfile = MSBTProfiles.currentProfile
-	local formattedAmount = FormatDisplayAmount(totalAmount, currentProfile)
-
-	if not currentProfile.stackSimilarHits then
-		return formattedAmount
-	end
-
-	local hitsWord = (hitCount == 1) and "hit" or "hits"
-	if critCount and critCount > 0 then
-		if hitCount == 1 then
-			return formattedAmount
-		end
-		local critWord = (critCount == 1) and "Crit" or "Crits"
-		return string_format("%s (%d %s, %d %s)", formattedAmount, hitCount, hitsWord, critCount, critWord)
-	end
-	if hitCount == 1 then
-		return formattedAmount
-	end
-	return string_format("%s (%d %s)", formattedAmount, hitCount, hitsWord)
-end
-
 IsOutgoingCombatGatedEvent = function(eventTypeString)
 	if not eventTypeString then
 		return false
@@ -1615,317 +849,23 @@ IsOutgoingCombatGatedEvent = function(eventTypeString)
 		or string_find(eventTypeString, "PET_OUTGOING", 1, true) == 1
 end
 
-local function StripRealm(name)
-	if not name then
-		return UNKNOWN
-	end
-	if string_find(name, "-", 1, true) then
-		return string_gsub(name, "(.-)%-.*", "%1")
-	end
-	return name
+local function ShouldSplitCritBatch(eventSettings, critSettings, critCount)
+	local normalScrollArea = eventSettings and eventSettings.scrollArea
+	local critScrollArea = critSettings and critSettings.scrollArea
+
+	return critCount and critCount > 0
+		and critSettings and not critSettings.disabled
+		and normalScrollArea and critScrollArea
+		and normalScrollArea ~= critScrollArea
 end
 
-local function ResolveOutgoingDamageEventSettings(isSpell)
-	local currentProfile = MSBTProfiles.currentProfile
-	local primaryKey = isSpell and "OUTGOING_SPELL_DAMAGE" or "OUTGOING_DAMAGE"
-	local secondaryKey = isSpell and "OUTGOING_DAMAGE" or "OUTGOING_SPELL_DAMAGE"
-
-	local eventSettings = currentProfile.events[primaryKey]
-	if eventSettings and not eventSettings.disabled then
-		return primaryKey, eventSettings
+local function ResolveBatchDisplaySettings(eventSettings, critSettings, hitCount, critCount)
+	if hitCount and hitCount > 0 and hitCount == critCount
+		and critSettings and not critSettings.disabled then
+		return critSettings
 	end
 
-	eventSettings = currentProfile.events[secondaryKey]
-	if eventSettings and not eventSettings.disabled then
-		return secondaryKey, eventSettings
-	end
-end
-
-local function FlushOutgoingBatch(batchKey)
-	local batch = outgoingBatches[batchKey]
-	if not batch then
-		return
-	end
-	outgoingBatches[batchKey] = nil
-
-	local normalEventKey, eventSettings = ResolveOutgoingDamageEventSettings(batch.isSpell)
-	if not eventSettings then
-		return
-	end
-
-	local currentProfile = MSBTProfiles.currentProfile
-	local critSettings = currentProfile.events[normalEventKey .. "_CRIT"]
-	local routeCritSeparately = false
-	if batch.critCount and batch.critCount > 0 and critSettings and not critSettings.disabled then
-		local normalScrollArea = eventSettings.scrollArea
-		local critScrollArea = critSettings.scrollArea
-		routeCritSeparately = normalScrollArea and critScrollArea and (normalScrollArea ~= critScrollArea)
-	end
-
-	if routeCritSeparately then
-		local critAmount = batch.critAmount or 0
-		if critAmount > batch.totalAmount then
-			critAmount = batch.totalAmount
-		end
-
-		local nonCritCount = batch.hitCount - batch.critCount
-		local nonCritAmount = batch.totalAmount - critAmount
-		if nonCritCount > 0 and nonCritAmount > 0 then
-			local nonCritMessage = BuildOutgoingHitsMessage(nonCritAmount, nonCritCount, 0, batch.isSpell)
-			DisplayEvent(eventSettings, nonCritMessage, batch.effectTexture)
-		end
-
-		if batch.critCount > 0 and critAmount > 0 then
-			local critMessage = BuildOutgoingHitsMessage(critAmount, batch.critCount, batch.critCount, batch.isSpell)
-			DisplayEvent(critSettings, critMessage, batch.effectTexture)
-		end
-		return
-	end
-
-	local message = BuildOutgoingHitsMessage(batch.totalAmount, batch.hitCount, batch.critCount, batch.isSpell)
-	local displaySettings = eventSettings
-	if batch.critCount and batch.critCount > 0 then
-		local colorSourceSettings = eventSettings
-		if critSettings and not critSettings.disabled then
-			colorSourceSettings = critSettings
-		end
-
-		displaySettings = {}
-		for k, v in pairs(colorSourceSettings) do
-			displaySettings[k] = v
-		end
-		-- Keep routing on the same resolved scroll area for merged output.
-		displaySettings.scrollArea = eventSettings.scrollArea
-		displaySettings.isCrit = true
-	end
-	DisplayEvent(displaySettings, message, batch.effectTexture)
-end
-
-local function QueueOutgoingBatch(spellIDUsed, normalizedAmount, isCrit, effectTexture, forceIsSpell)
-	if not normalizedAmount or normalizedAmount <= 0 then
-		return
-	end
-
-	if not effectTexture then
-		_, _, effectTexture = GetSpellInfo(spellIDUsed or AUTOSHOT_SPELL_ID)
-	end
-	if not effectTexture then
-		spellIDUsed = AUTOSHOT_SPELL_ID
-		_, _, effectTexture = GetSpellInfo(AUTOSHOT_SPELL_ID)
-	end
-
-	local batchKey = tostring(spellIDUsed or 0)
-	local batch = outgoingBatches[batchKey]
-	if not batch then
-		batch = {
-			hitCount = 0,
-			critCount = 0,
-			critAmount = 0,
-			totalAmount = 0,
-			isSpell = (forceIsSpell ~= nil) and forceIsSpell or (not IsAutoAttackSpellID(spellIDUsed)),
-			effectTexture = effectTexture,
-		}
-		outgoingBatches[batchKey] = batch
-		C_Timer.After(OUTGOING_GROUP_DELAY, function()
-			FlushOutgoingBatch(batchKey)
-		end)
-	end
-	if forceIsSpell then
-		batch.isSpell = true
-	end
-
-	batch.hitCount = batch.hitCount + 1
-	batch.totalAmount = batch.totalAmount + normalizedAmount
-	if effectTexture and not batch.effectTexture then
-		batch.effectTexture = effectTexture
-	end
-	if isCrit then
-		batch.critCount = batch.critCount + 1
-		batch.critAmount = batch.critAmount + normalizedAmount
-	end
-end
-
-local function ProcessDamageMeterOutgoing()
-	if not IsDamageMeterOutgoingActive() then
-		return
-	end
-	if not InCombatLockdown() then
-		return
-	end
-
-	lastDamageMeterPoll = GetTime()
-
-	local playerUnitGUID = UnitGUID("player") or playerGUID
-	if not playerUnitGUID then
-		return
-	end
-
-	local sourceGUIDs = { playerUnitGUID, UnitGUID("pet"), UnitGUID("vehicle") }
-	local processedGUIDs = {}
-
-	for sourceIndex, sourceGUID in ipairs(sourceGUIDs) do
-		local skipSource = false
-		if sourceGUID then
-			for i = 1, #processedGUIDs do
-				local okSame, isSame = pcall(function()
-					return processedGUIDs[i] == sourceGUID
-				end)
-				if okSame and isSame then
-					skipSource = true
-					break
-				end
-			end
-		end
-
-		if sourceGUID and not skipSource then
-			processedGUIDs[#processedGUIDs + 1] = sourceGUID
-			local ok, sessionSource = pcall(C_DamageMeter.GetCombatSessionSourceFromType, 0, Enum.DamageMeterType.DamageDone, sourceGUID)
-			if ok and sessionSource and type(sessionSource.combatSpells) == "table" then
-				for _, damageSpell in ipairs(sessionSource.combatSpells) do
-					-- C_DamageMeter can expose restricted "secret" values. Keep every
-					-- operation in one protected block and skip on any access error.
-					pcall(function()
-						local spellID = NormalizeNumber(damageSpell.spellID)
-						local totalAmount = damageSpell.totalAmount
-						if not spellID or totalAmount == nil then
-							return
-						end
-
-						local key = tostring(sourceIndex) .. ":" .. tostring(spellID)
-						local lastAmount = damageMeterLastSpellTotals[key] or 0
-						local totalNum = tonumber(totalAmount)
-						if not totalNum or totalNum <= 0 then
-							return
-						end
-
-						local deltaAmount = totalNum - lastAmount
-						if deltaAmount < 0 then
-							deltaAmount = totalNum
-						end
-
-						if deltaAmount > 0 then
-							QueueOutgoingBatch(spellID, deltaAmount, false)
-							lastDamageMeterDeltaTime = lastDamageMeterPoll
-						end
-						damageMeterLastSpellTotals[key] = totalNum
-					end)
-				end
-			end
-		end
-	end
-end
-
-local function StartDamageMeterTicker()
-	if damageMeterTicker then
-		return
-	end
-	damageMeterTicker = C_Timer.NewTicker(0.1, ProcessDamageMeterOutgoing)
-end
-
-local function StopDamageMeterTicker()
-	if not damageMeterTicker then
-		return
-	end
-	damageMeterTicker:Cancel()
-	damageMeterTicker = nil
-end
-
-local incomingDamageSourceMap = {
-	FALLING = "falling",
-	DROWNING = "drowning",
-	FIRE = "fire",
-	LAVA = "lava",
-	SLIME = "slime",
-	EXHAUSTION = "fatigue",
-}
-
-local incomingDamageFlagIgnore = {
-	CRITICAL = true,
-	CRUSHING = true,
-	GLANCING = true,
-	BLOCK = true,
-	ABSORB = true,
-	RESIST = true,
-}
-
-local function GetIncomingDamageSourceLabel(flagText, schoolMask)
-	if flagText and incomingDamageSourceMap[flagText] then
-		return incomingDamageSourceMap[flagText]
-	end
-	if flagText and not incomingDamageFlagIgnore[flagText] then
-		return string.lower(flagText)
-	end
-	if type(schoolMask) == "string" and schoolMask ~= "" then
-		return string.lower(schoolMask)
-	end
-	return nil
-end
-
-local function GetLikelyIncomingHealSourceName()
-	if UnitCastingInfo("player") or UnitChannelInfo("player") then
-		return UnitName("player") or UNKNOWN
-	end
-
-	-- Heuristic requested for fallback mode: with no target selected,
-	-- assume self-cast attribution.
-	if not SafeUnitBoolean(UnitExists, "target") then
-		return UnitName("player") or UNKNOWN
-	end
-
-	if SafeUnitBoolean(UnitExists, "target")
-		and SafeUnitBoolean(UnitCanAssist, "player", "target")
-		and SafeUnitBoolean(UnitExists, "targettarget")
-		and SafeUnitBoolean(UnitIsUnit, "targettarget", "player") then
-		return UnitName("target") or UNKNOWN
-	end
-	if SafeUnitBoolean(UnitExists, "focus")
-		and SafeUnitBoolean(UnitCanAssist, "player", "focus")
-		and SafeUnitBoolean(UnitExists, "focustarget")
-		and SafeUnitBoolean(UnitIsUnit, "focustarget", "player") then
-		return UnitName("focus") or UNKNOWN
-	end
-
-	return UNKNOWN
-end
-
-local function CleanupRecentOutgoingSelfHeals(now)
-	local cutoff = now - SELF_HEAL_MATCH_WINDOW
-	local writeIndex = 1
-	for readIndex = 1, #recentOutgoingSelfHeals do
-		local entry = recentOutgoingSelfHeals[readIndex]
-		if entry and entry.time >= cutoff then
-			recentOutgoingSelfHeals[writeIndex] = entry
-			writeIndex = writeIndex + 1
-		end
-	end
-	for i = writeIndex, #recentOutgoingSelfHeals do
-		recentOutgoingSelfHeals[i] = nil
-	end
-end
-
-local function RecordOutgoingSelfHealAmount(amount)
-	if not amount or amount <= 0 then
-		return
-	end
-	local now = GetTime()
-	CleanupRecentOutgoingSelfHeals(now)
-	recentOutgoingSelfHeals[#recentOutgoingSelfHeals + 1] = { amount = amount, time = now }
-end
-
-local function ConsumeMatchingOutgoingSelfHeal(amount)
-	if not amount or amount <= 0 then
-		return false
-	end
-	local now = GetTime()
-	CleanupRecentOutgoingSelfHeals(now)
-	for i = #recentOutgoingSelfHeals, 1, -1 do
-		local entry = recentOutgoingSelfHeals[i]
-		if entry and math_abs(entry.amount - amount) <= SELF_HEAL_MATCH_TOLERANCE then
-			table_remove(recentOutgoingSelfHeals, i)
-			return true
-		end
-	end
-	return false
+	return eventSettings
 end
 
 local function BuildActionMessage(eventSettings, amount)
@@ -1956,7 +896,7 @@ local function BuildActionMessage(eventSettings, amount)
 	end
 	local message = eventSettings.message
 	if amount and amount > 0 then
-		message = FormatEvent(message, amount)
+		message = Formatter:FormatLegacyEvent(message, amount)
 		-- Incoming UNIT_COMBAT paths often lack reliable effect name data.
 		-- Remove unresolved skill placeholders to avoid showing raw %s/%sl/%e.
 		message = string_gsub(message, "<%%sl>%s*", "")
@@ -1979,487 +919,147 @@ local function BuildActionMessage(eventSettings, amount)
 	return CleanupActionMessage(message)
 end
 
-local function BuildHitSummary(hitCount, critCount, singleCritLabel)
-	if not hitCount or hitCount <= 0 then
-		return nil
-	end
-	if critCount and critCount > 0 then
-		if hitCount == 1 and critCount == 1 and singleCritLabel then
-			return " (Crit)"
-		end
-		local hitsWord = (hitCount == 1) and "hit" or "hits"
-		local critWord = (critCount == 1) and "Crit" or "Crits"
-		return string_format(" (%d %s, %d %s)", hitCount, hitsWord, critCount, critWord)
-	end
-	if hitCount > 1 then
-		local hitsWord = (hitCount == 1) and "hit" or "hits"
-		return string_format(" (%d %s)", hitCount, hitsWord)
-	end
-	return nil
-end
+local outgoingBatcher = OutgoingBatcher:New({
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	formatAmount = function(amount, profile)
+		return Formatter:FormatDisplayAmount(amount, profile)
+	end,
+	display = DisplayEvent,
+	after = C_Timer.After,
+	getSpellTexture = function(spellID)
+		local _, _, texture = GetSpellInfo(spellID)
+		return texture
+	end,
+	isAutoAttack = IsAutoAttackSpellID,
+	autoAttackSpellID = AUTOSHOT_SPELL_ID,
+	delay = OUTGOING_GROUP_DELAY,
+	shouldSplitCritBatch = ShouldSplitCritBatch,
+	resolveBatchDisplaySettings = ResolveBatchDisplaySettings,
+})
 
-local function GetIncomingHealSourceLabel(flagText, schoolMask)
-	local flag = flagText and string_upper(tostring(flagText)) or ""
-	local school = schoolMask and string_upper(tostring(schoolMask)) or ""
-	if string_find(flag, "LEECH", 1, true) or string_find(school, "LEECH", 1, true) then
-		return "Leech"
-	end
-	return nil
-end
+local damageMeterSource = DamageMeterSource:New({
+	isAvailable = function()
+		return USE_DAMAGE_METER_OUTGOING and IsRetail and C_DamageMeter
+			and Enum and Enum.DamageMeterType
+	end,
+	inCombat = InCombatLockdown,
+	getTime = GetTime,
+	unitGUID = UnitGUID,
+	getPlayerGUID = function()
+		return playerGUID
+	end,
+	getSessionSource = function(sourceGUID, damageType)
+		return C_DamageMeter.GetCombatSessionSourceFromType(
+			0,
+			damageType,
+			sourceGUID
+		)
+	end,
+	normalizeNumber = NormalizeNumber,
+	queue = function(...)
+		outgoingBatcher:Queue(...)
+	end,
+	newTicker = C_Timer.NewTicker,
+	damageType = Enum and Enum.DamageMeterType
+		and Enum.DamageMeterType.DamageDone,
+	pollInterval = 0.1,
+	freshDuration = DAMAGE_METER_FALLBACK_STALE_TIME,
+})
 
-local function QueueIncomingDamageBatch(normalizedAmount, isCrit, damageSource)
-	if not normalizedAmount or normalizedAmount <= 0 then
-		return
-	end
+outgoingCombat = OutgoingCombat:New({
+	batcher = outgoingBatcher,
+	damageMeter = damageMeterSource,
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	normalizeNumber = NormalizeNumber,
+	buildActionMessage = BuildActionMessage,
+	display = DisplayEvent,
+	getTime = GetTime,
+	inCombat = InCombatLockdown,
+	isTargetValid = IsOutgoingTargetContextValid,
+	getSpellTexture = function(spellID)
+		local _, _, texture = GetSpellInfo(spellID)
+		return texture
+	end,
+	isAutoAttack = IsAutoAttackSpellID,
+	canUseAutoAttackFallback = CanUseAutoAttackFallback,
+	hasPlayerDebuff = HasPlayerAnyDebuffOnTarget,
+	isLikelySpellSchool = IsLikelySpellSchool,
+	autoAttackSpellID = AUTOSHOT_SPELL_ID,
+	fallbackAttributionWindow = OUTGOING_FALLBACK_ATTRIBUTION_WINDOW,
+	delayedAttributionWindow = OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW,
+	signalWindow = OUTGOING_SIGNAL_CONFIDENCE_WINDOW,
+	dotDuration = DOT_FALLBACK_DURATION,
+	dotSpells = DOT_FALLBACK_SPELLS,
+	timedDotSpells = DOT_FALLBACK_TIMED_SPELLS,
+})
+local selfHealTracker = SelfHealTracker:New({
+	getTime = GetTime,
+	matchWindow = SELF_HEAL_MATCH_WINDOW,
+	tolerance = SELF_HEAL_MATCH_TOLERANCE,
+})
 
-	local batchKey = "incoming_damage"
-	local batch = incomingDamageBatches[batchKey]
-	if not batch then
-		batch = {
-			hitCount = 0,
-			critCount = 0,
-			critAmount = 0,
-			totalAmount = 0,
-			damageSource = damageSource,
-		}
-		incomingDamageBatches[batchKey] = batch
-		C_Timer.After(INCOMING_GROUP_DELAY, function()
-			local queued = incomingDamageBatches[batchKey]
-			if not queued then
-				return
-			end
-			incomingDamageBatches[batchKey] = nil
-
-			local currentProfile = MSBTProfiles.currentProfile
-			local eventSettings = currentProfile.events.INCOMING_DAMAGE
-			if not eventSettings or eventSettings.disabled then
-				return
-			end
-			local critSettings = currentProfile.events.INCOMING_DAMAGE_CRIT
-
-			local messageTemplateSettings = eventSettings or critSettings
-			local message = BuildActionMessage(messageTemplateSettings, queued.totalAmount)
-			if not message or message == "" then
-				return
-			end
-
-			local routeCritSeparately = false
-			if queued.critCount and queued.critCount > 0 and critSettings and not critSettings.disabled then
-				local normalScrollArea = eventSettings.scrollArea
-				local critScrollArea = critSettings.scrollArea
-				routeCritSeparately = normalScrollArea and critScrollArea and (normalScrollArea ~= critScrollArea)
-			end
-
-			if routeCritSeparately then
-				local critAmount = queued.critAmount or 0
-				if critAmount > queued.totalAmount then
-					critAmount = queued.totalAmount
-				end
-
-				local nonCritCount = queued.hitCount - queued.critCount
-				local nonCritAmount = queued.totalAmount - critAmount
-				if nonCritCount > 0 and nonCritAmount > 0 then
-					local nonCritMessage = BuildActionMessage(eventSettings, nonCritAmount)
-					if nonCritMessage and nonCritMessage ~= "" then
-						local nonCritSummary = BuildHitSummary(nonCritCount, 0, true)
-						if nonCritSummary then
-							nonCritMessage = nonCritMessage .. nonCritSummary
-						end
-						if queued.damageSource and queued.damageSource ~= "" then
-							nonCritMessage = string_format("%s - %s", nonCritMessage, queued.damageSource)
-						end
-						DisplayEvent(eventSettings, nonCritMessage)
-					end
-				end
-
-				if queued.critCount > 0 and critAmount > 0 then
-					local critMessage = BuildActionMessage(critSettings, critAmount)
-					if critMessage and critMessage ~= "" then
-						local critSummary = BuildHitSummary(queued.critCount, queued.critCount, true)
-						if critSummary then
-							critMessage = critMessage .. critSummary
-						end
-						if queued.damageSource and queued.damageSource ~= "" then
-							critMessage = string_format("%s - %s", critMessage, queued.damageSource)
-						end
-						DisplayEvent(critSettings, critMessage)
-					end
-				end
-				return
-			end
-
-			local summary = BuildHitSummary(queued.hitCount, queued.critCount, true)
-			if summary then
-				message = message .. summary
-			end
-			if queued.damageSource and queued.damageSource ~= "" then
-				message = string_format("%s - %s", message, queued.damageSource)
-			end
-
-			local displaySettings = eventSettings
-			if queued.critCount and queued.critCount > 0 then
-				displaySettings = {}
-				for k, v in pairs(eventSettings) do
-					displaySettings[k] = v
-				end
-				displaySettings.isCrit = true
-			end
-			DisplayEvent(displaySettings, message)
-		end)
-	end
-
-	batch.hitCount = batch.hitCount + 1
-	batch.totalAmount = batch.totalAmount + normalizedAmount
-	if isCrit then
-		batch.critCount = batch.critCount + 1
-		batch.critAmount = batch.critAmount + normalizedAmount
-	end
-	if damageSource and damageSource ~= "" then
-		if batch.damageSource and batch.damageSource ~= damageSource then
-			batch.damageSource = "mixed"
-		elseif not batch.damageSource then
-			batch.damageSource = damageSource
-		end
-	end
-end
-
-local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, sourceName, healSourceLabel, baseEventKey, critEventKey)
-	if not normalizedAmount or normalizedAmount <= 0 then
-		return
-	end
-
-	local resolvedBaseEventKey = baseEventKey or "INCOMING_HEAL"
-	local resolvedCritEventKey = critEventKey or (resolvedBaseEventKey .. "_CRIT")
-	local batchKey = "incoming_heal:" .. resolvedBaseEventKey
-	local batch = incomingHealBatches[batchKey]
-	if not batch then
-		batch = {
-			hitCount = 0,
-			critCount = 0,
-			critAmount = 0,
-			totalAmount = 0,
-			effectTexture = effectTexture,
-			sourceName = sourceName,
-			healSourceLabel = healSourceLabel,
-		}
-		incomingHealBatches[batchKey] = batch
-		C_Timer.After(INCOMING_GROUP_DELAY, function()
-			local queued = incomingHealBatches[batchKey]
-			if not queued then
-				return
-			end
-			incomingHealBatches[batchKey] = nil
-
-			local currentProfile = MSBTProfiles.currentProfile
-			local eventSettings = currentProfile.events[queued.baseEventKey]
-			local critSettings = currentProfile.events[queued.critEventKey]
-			local normalEnabled = eventSettings and not eventSettings.disabled
-			local critEnabled = critSettings and not critSettings.disabled
-			if not normalEnabled and not critEnabled then
-				return
-			end
-
-			local routeCritSeparately = false
-			if queued.critCount and queued.critCount > 0 and normalEnabled and critEnabled then
-				local normalScrollArea = eventSettings.scrollArea
-				local critScrollArea = critSettings.scrollArea
-				routeCritSeparately = normalScrollArea and critScrollArea and (normalScrollArea ~= critScrollArea)
-			end
-
-			if not normalEnabled then
-				local critAmountOnly = queued.critAmount or 0
-				if critEnabled and queued.critCount and queued.critCount > 0 and critAmountOnly > 0 then
-					local critMessageOnly = BuildActionMessage(critSettings, critAmountOnly)
-					if critMessageOnly and critMessageOnly ~= "" then
-						local critSummaryOnly = BuildHitSummary(queued.critCount, queued.critCount, true)
-						if critSummaryOnly then
-							critMessageOnly = critMessageOnly .. critSummaryOnly
-						end
-						if queued.sourceName and queued.sourceName ~= "" and queued.sourceName ~= UNKNOWN then
-							critMessageOnly = string_format("%s - %s", critMessageOnly, queued.sourceName)
-						end
-						if queued.healSourceLabel and queued.healSourceLabel ~= "" then
-							critMessageOnly = string_format("%s [%s]", critMessageOnly, queued.healSourceLabel)
-						end
-						DisplayEvent(critSettings, critMessageOnly, queued.effectTexture)
-					end
-				end
-				return
-			end
-
-			local messageTemplateSettings = eventSettings or critSettings
-			local message = BuildActionMessage(messageTemplateSettings, queued.totalAmount)
-			if not message or message == "" then
-				return
-			end
-
-			if routeCritSeparately then
-				local critAmount = queued.critAmount or 0
-				if critAmount > queued.totalAmount then
-					critAmount = queued.totalAmount
-				end
-
-				local nonCritCount = queued.hitCount - queued.critCount
-				local nonCritAmount = queued.totalAmount - critAmount
-				if nonCritCount > 0 and nonCritAmount > 0 then
-					local nonCritMessage = BuildActionMessage(eventSettings, nonCritAmount)
-					if nonCritMessage and nonCritMessage ~= "" then
-						local nonCritSummary = BuildHitSummary(nonCritCount, 0, true)
-						if nonCritSummary then
-							nonCritMessage = nonCritMessage .. nonCritSummary
-						end
-						if queued.sourceName and queued.sourceName ~= "" and queued.sourceName ~= UNKNOWN then
-							nonCritMessage = string_format("%s - %s", nonCritMessage, queued.sourceName)
-						end
-						if queued.healSourceLabel and queued.healSourceLabel ~= "" then
-							nonCritMessage = string_format("%s [%s]", nonCritMessage, queued.healSourceLabel)
-						end
-						DisplayEvent(eventSettings, nonCritMessage, queued.effectTexture)
-					end
-				end
-
-				if critEnabled and queued.critCount > 0 and critAmount > 0 then
-					local critMessage = BuildActionMessage(critSettings, critAmount)
-					if critMessage and critMessage ~= "" then
-						local critSummary = BuildHitSummary(queued.critCount, queued.critCount, true)
-						if critSummary then
-							critMessage = critMessage .. critSummary
-						end
-						if queued.sourceName and queued.sourceName ~= "" and queued.sourceName ~= UNKNOWN then
-							critMessage = string_format("%s - %s", critMessage, queued.sourceName)
-						end
-						if queued.healSourceLabel and queued.healSourceLabel ~= "" then
-							critMessage = string_format("%s [%s]", critMessage, queued.healSourceLabel)
-						end
-						DisplayEvent(critSettings, critMessage, queued.effectTexture)
-					end
-				end
-				return
-			end
-
-			local summary = BuildHitSummary(queued.hitCount, queued.critCount, true)
-			if summary then
-				message = message .. summary
-			end
-			if queued.sourceName and queued.sourceName ~= "" and queued.sourceName ~= UNKNOWN then
-				message = string_format("%s - %s", message, queued.sourceName)
-			end
-			if queued.healSourceLabel and queued.healSourceLabel ~= "" then
-				message = string_format("%s [%s]", message, queued.healSourceLabel)
-			end
-
-			local displaySettings = eventSettings
-			if queued.critCount and queued.critCount > 0 and critEnabled then
-				displaySettings = {}
-				for k, v in pairs(critSettings) do
-					displaySettings[k] = v
-				end
-				-- Keep merged routing on the base scroll area.
-				displaySettings.scrollArea = eventSettings.scrollArea
-				displaySettings.isCrit = true
-			end
-			DisplayEvent(displaySettings, message, queued.effectTexture)
-		end)
-	end
-
-	batch.baseEventKey = resolvedBaseEventKey
-	batch.critEventKey = resolvedCritEventKey
-	batch.hitCount = batch.hitCount + 1
-	batch.totalAmount = batch.totalAmount + normalizedAmount
-	if isCrit then
-		batch.critCount = batch.critCount + 1
-		batch.critAmount = batch.critAmount + normalizedAmount
-	end
-	if effectTexture and not batch.effectTexture then
-		batch.effectTexture = effectTexture
-	end
-	if sourceName and sourceName ~= "" and sourceName ~= UNKNOWN then
-		if batch.sourceName and batch.sourceName ~= sourceName then
-			batch.sourceName = "multiple"
-		elseif not batch.sourceName then
-			batch.sourceName = sourceName
-		end
-	end
-	if healSourceLabel and healSourceLabel ~= "" then
-		batch.healSourceLabel = healSourceLabel
-	end
-end
+incomingCombat = IncomingCombat:New({
+	selfHealTracker = selfHealTracker,
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	normalizeNumber = NormalizeNumber,
+	buildActionMessage = BuildActionMessage,
+	shouldSplitCritBatch = ShouldSplitCritBatch,
+	resolveBatchDisplaySettings = ResolveBatchDisplaySettings,
+	display = DisplayEvent,
+	after = C_Timer.After,
+	getTime = GetTime,
+	unitName = UnitName,
+	unitCastingInfo = UnitCastingInfo,
+	unitChannelInfo = UnitChannelInfo,
+	safeUnitBoolean = SafeUnitBoolean,
+	getSpellInfo = GetSpellInfo,
+	isAutoAttackSpellID = IsAutoAttackSpellID,
+	unknown = UNKNOWN,
+	groupDelay = INCOMING_GROUP_DELAY,
+	selfHealIconWindow = INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW,
+	getLastPlayerSpell = function()
+		return outgoingCombat:GetLastSpell()
+	end,
+})
 
 function eventFrame:UNIT_SPELLCAST_SUCCEEDED(unitID, lineID, spellID)
-	if unitID == "player" and spellID then
-		lastPlayerSpellID = spellID
-		lastPlayerSpellTime = GetTime()
-		local timedDuration = DOT_FALLBACK_TIMED_SPELLS[spellID]
-		if timedDuration then
-			lastDotFallbackSpellID = spellID
-			lastDotFallbackAuraIDs = nil
-			lastDotFallbackRequireAura = false
-			lastDotFallbackExpire = lastPlayerSpellTime + timedDuration
-			return
-		end
-		local dotAuraIDs = DOT_FALLBACK_SPELLS[spellID]
-		if dotAuraIDs then
-			lastDotFallbackSpellID = spellID
-			lastDotFallbackAuraIDs = dotAuraIDs
-			lastDotFallbackRequireAura = true
-			lastDotFallbackExpire = lastPlayerSpellTime + DOT_FALLBACK_DURATION
-		end
-	end
+	outgoingCombat:HandleSpellcastSucceeded(unitID, spellID)
 end
 
 function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask)
-	local normalizedAmount = NormalizeNumber(amount)
-	local isDamageEvent = action == "WOUND"
-	local isHealEvent = action == "HEAL"
-	local isCritEvent = (flagText == "CRITICAL")
-
-	local currentProfile = MSBTProfiles.currentProfile
-
-	if unitTarget == "player" then
-		if isDamageEvent then
-			if not normalizedAmount or normalizedAmount <= 0 then
-				return
-			end
-			local eventSettings = currentProfile.events.INCOMING_DAMAGE
-			if not eventSettings or eventSettings.disabled then
-				return
-			end
-
-			local damageSource = GetIncomingDamageSourceLabel(flagText, schoolMask)
-			QueueIncomingDamageBatch(normalizedAmount, isCritEvent, damageSource)
-		elseif isHealEvent then
-			if not normalizedAmount or normalizedAmount <= 0 then
-				return
-			end
-
-			local now = GetTime()
-			local sourceName = StripRealm(GetLikelyIncomingHealSourceName())
-			local playerName = StripRealm(UnitName("player"))
-			local isLikelySelfHeal = sourceName and playerName and sourceName == playerName
-			local baseEventKey = isLikelySelfHeal and "SELF_HEAL" or "INCOMING_HEAL"
-			local critEventKey = isLikelySelfHeal and "SELF_HEAL_CRIT" or "INCOMING_HEAL_CRIT"
-
-			if ConsumeMatchingOutgoingSelfHeal(normalizedAmount) then
-				return
-			end
-
-			local baseEventSettings = currentProfile.events[baseEventKey]
-			local critEventSettings = currentProfile.events[critEventKey]
-			local baseEnabled = baseEventSettings and not baseEventSettings.disabled
-			local critEnabled = critEventSettings and not critEventSettings.disabled
-			if (not baseEnabled) and (not (isCritEvent and critEnabled)) then
-				return
-			end
-
-			local attributionWindow = 1.5
-			if isLikelySelfHeal then
-				attributionWindow = INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW
-			end
-
-			local healEffectTexture
-			if lastPlayerSpellID and not IsAutoAttackSpellID(lastPlayerSpellID) and (now - lastPlayerSpellTime) <= attributionWindow then
-				_, _, healEffectTexture = GetSpellInfo(lastPlayerSpellID)
-			end
-
-			local healSourceLabel = GetIncomingHealSourceLabel(flagText, schoolMask)
-			QueueIncomingHealBatch(normalizedAmount, isCritEvent, healEffectTexture, sourceName, healSourceLabel, baseEventKey, critEventKey)
-		else
-			local eventSettings = currentProfile.events["INCOMING_" .. tostring(action or "")]
-			if eventSettings and not eventSettings.disabled then
-				local message = BuildActionMessage(eventSettings, normalizedAmount)
-				if message and message ~= "" then
-					DisplayEvent(eventSettings, message)
-				end
-			end
-		end
+	if incomingCombat:HandleUnitCombat(
+		unitTarget,
+		action,
+		flagText,
+		amount,
+		schoolMask
+	) then
 		return
 	end
 
-	if unitTarget == "target" then
-		if not InCombatLockdown() then
-			return
-		end
-		if not IsOutgoingTargetContextValid() then
-			return
-		end
-
-		local effectTexture
-		local spellIDUsed
-		local now = GetTime()
-		if isDamageEvent and not HasRecentOutgoingSignal(now, schoolMask) then
-			return
-		end
-		if lastPlayerSpellID and (now - lastPlayerSpellTime) <= OUTGOING_FALLBACK_ATTRIBUTION_WINDOW then
-			spellIDUsed = lastPlayerSpellID
-			_, _, effectTexture = GetSpellInfo(lastPlayerSpellID)
-		end
-		if not effectTexture and isDamageEvent and lastPlayerSpellID and not IsAutoAttackSpellID(lastPlayerSpellID) and (now - lastPlayerSpellTime) <= OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW then
-			-- Allow delayed spell effects (for example Ignite ticks) to keep spell attribution.
-			spellIDUsed = lastPlayerSpellID
-			_, _, effectTexture = GetSpellInfo(lastPlayerSpellID)
-		end
-		if not effectTexture then
-			local dotFallbackActive = isDamageEvent and lastDotFallbackSpellID and now <= lastDotFallbackExpire
-			if dotFallbackActive and ((not lastDotFallbackRequireAura) or HasPlayerAnyDebuffOnTarget(lastDotFallbackAuraIDs)) then
-				spellIDUsed = lastDotFallbackSpellID
-				_, _, effectTexture = GetSpellInfo(lastDotFallbackSpellID)
-			end
-		end
-		if not effectTexture then
-			-- Fall back to auto-attack attribution only with a valid swing signal.
-			if (not isDamageEvent) or (not CanUseAutoAttackFallback(now)) then
-				return
-			end
-			spellIDUsed = AUTOSHOT_SPELL_ID
-			_, _, effectTexture = GetSpellInfo(AUTOSHOT_SPELL_ID)
-		end
-
-		if isDamageEvent then
-			if not normalizedAmount or normalizedAmount <= 0 then
-				return
-			end
-
-			-- In DamageMeter hybrid mode, only use fallback when meter deltas are stale.
-			if IsDamageMeterOutgoingActive() then
-				if IsDamageMeterDeltaFresh(now) and spellIDUsed ~= lastDotFallbackSpellID then
-					return
-				end
-				if spellIDUsed == AUTOSHOT_SPELL_ID then
-					lastAutoAttackFallbackTime = now
-				end
-				local forceIsSpell = (spellIDUsed == AUTOSHOT_SPELL_ID) and IsLikelySpellSchool(schoolMask) or nil
-				QueueOutgoingBatch(spellIDUsed, normalizedAmount, isCritEvent, effectTexture, forceIsSpell)
-				return
-			end
-
-			if spellIDUsed == AUTOSHOT_SPELL_ID then
-				lastAutoAttackFallbackTime = now
-			end
-			local forceIsSpell = (spellIDUsed == AUTOSHOT_SPELL_ID) and IsLikelySpellSchool(schoolMask) or nil
-			QueueOutgoingBatch(spellIDUsed, normalizedAmount, isCritEvent, effectTexture, forceIsSpell)
-		else
-			local eventSettings = currentProfile.events["OUTGOING_" .. tostring(action or "")]
-			if eventSettings and not eventSettings.disabled then
-				local message = BuildActionMessage(eventSettings, normalizedAmount)
-				if message and message ~= "" then
-					DisplayEvent(eventSettings, message, effectTexture)
-				end
-			end
-		end
-	end
+	outgoingCombat:HandleUnitCombat(
+		unitTarget,
+		action,
+		flagText,
+		amount,
+		schoolMask
+	)
 end
 
 local function Enable()
-	local currentProfile = MSBTProfiles.currentProfile
 	eventFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	eventFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 	eventFrame:RegisterEvent("UNIT_COMBAT")
 	eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	if IsDamageMeterOutgoingActive() then
-		StartDamageMeterTicker()
-	end
+	outgoingCombat:Start()
 
 	MSBTParser.RegisterHandler(ParserEventsHandler)
 end
@@ -2467,19 +1067,9 @@ end
 local function Disable()
 	eventFrame:Hide()
 	eventFrame:UnregisterAllEvents()
-	EraseTable(outgoingBatches)
-	EraseTable(incomingDamageBatches)
-	EraseTable(incomingHealBatches)
-	EraseTable(recentOutgoingSelfHeals)
-	EraseTable(damageMeterLastSpellTotals)
-	lastDamageMeterPoll = 0
-	lastDamageMeterDeltaTime = 0
-	lastAutoAttackFallbackTime = 0
-	lastDotFallbackSpellID = nil
-	lastDotFallbackAuraIDs = nil
-	lastDotFallbackRequireAura = true
-	lastDotFallbackExpire = 0
-	StopDamageMeterTicker()
+	incomingCombat:Reset()
+	outgoingCombat:Reset()
+	outgoingCombat:Stop()
 
 	MSBTParser.UnregisterHandler(ParserEventsHandler)
 end
@@ -2498,21 +1088,67 @@ throttleFrame:SetScript("OnUpdate", OnUpdateThrottleFrame)
 _, playerClass = UnitClass("player")
 playerGUID = UnitGUID("player")
 
-eventHandlers["damage"] = DamageHandler
-eventHandlers["miss"] = MissHandler
-eventHandlers["heal"] = HealHandler
-eventHandlers["interrupt"] = InterruptHandler
-eventHandlers["environmental"] = EnvironmentalHandler
-eventHandlers["aura"] = AuraHandler
-eventHandlers["enchant"] = EnchantHandler
-eventHandlers["dispel"] = DispelHandler
-eventHandlers["power"] = PowerHandler
-eventHandlers["kill"] = KillHandler
-eventHandlers["honor"] = HonorHandler
-eventHandlers["reputation"] = ReputationHandler
-eventHandlers["proficiency"] = ProficiencyHandler
-eventHandlers["experience"] = ExperienceHandler
-eventHandlers["extraattacks"] = ExtraAttacksHandler
+parserNotifications = ParserNotifications:New({
+	uniquePowerTypes = uniquePowerTypes,
+	alternatePowerType = powerTypes["ALTERNATE_POWER"],
+	testFlagsAll = TestFlagsAll,
+	guardianHumanMask = bit_bor(
+		MSBTParser.UNITTYPE_GUARDIAN,
+		MSBTParser.CONTROL_HUMAN
+	),
+	serverControlMask = MSBTParser.CONTROL_SERVER,
+	classMap = classMap,
+})
+
+utilityNotifications = UtilityNotifications:New({
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	display = DisplayEvent,
+	format = function(...)
+		return Formatter:FormatLegacyEvent(...)
+	end,
+	powerTypes = powerTypes,
+	unitPower = UnitPower,
+	unitPowerMax = UnitPowerMax,
+	getPlayerClass = function()
+		return playerClass
+	end,
+	unitName = UnitName,
+	getTime = GetTime,
+	unknown = UNKNOWN,
+	emoteHoldTime = EMOTE_HOLD_TIME,
+})
+
+eventRouter:Register("damage", DamageHandler)
+eventRouter:Register("miss", MissHandler)
+eventRouter:Register("heal", HealHandler)
+eventRouter:Register("interrupt", InterruptHandler)
+eventRouter:Register("environmental", EnvironmentalHandler)
+eventRouter:Register("aura", AuraHandler)
+eventRouter:Register("enchant", EnchantHandler)
+eventRouter:Register("dispel", DispelHandler)
+eventRouter:Register("power", function(...)
+	return parserNotifications:HandlePower(...)
+end)
+eventRouter:Register("kill", function(...)
+	return parserNotifications:HandleKill(...)
+end)
+eventRouter:Register("honor", function(...)
+	return parserNotifications:HandleHonor(...)
+end)
+eventRouter:Register("reputation", function(...)
+	return parserNotifications:HandleReputation(...)
+end)
+eventRouter:Register("proficiency", function(...)
+	return parserNotifications:HandleProficiency(...)
+end)
+eventRouter:Register("experience", function(...)
+	return parserNotifications:HandleExperience(...)
+end)
+eventRouter:Register("extraattacks", function(...)
+	return parserNotifications:HandleExtraAttacks(...)
+end)
 
 for powerToken, powerType in pairs(powerTypes) do
 	powerTokens[powerType] = powerToken
@@ -2528,6 +1164,40 @@ CreateDamageMaps()
 if string_find(GetLocale(), "en..") then
 	isEnglish = true
 end
+
+Formatter:Configure({
+	getProfile = function()
+		return MSBTProfiles.currentProfile
+	end,
+	shortenNumber = ShortenNumber,
+	formatLargeNumber = FormatLargeNumber,
+	damageColorEntries = damageColorProfileEntries,
+	damageTypes = damageTypeMap,
+	powerTokens = powerTokens,
+	isEnglish = not not isEnglish,
+	unknown = UNKNOWN,
+	unknownSchool = STRING_SCHOOL_UNKNOWN,
+})
+
+Batcher:Configure({
+	multipleTargets = L.MSG_MULTIPLE_TARGETS,
+	hits = L.MSG_HITS,
+	crit = L.MSG_CRIT,
+	crits = L.MSG_CRITS,
+	erase = EraseTable,
+	recycle = function(event)
+		eventPipeline:Recycle(event)
+	end,
+})
+
+Throttler:Configure({
+	release = function(event)
+		eventPipeline:Queue(event)
+		if not eventFrame:IsVisible() then
+			eventFrame:Show()
+		end
+	end,
+})
 
 ignoreAuras[SPELL_BLINK] = true
 
@@ -2551,10 +1221,12 @@ MikSBT.DISPLAYTYPE_STATIC			= "Static"
 MikSBT.RegisterFont					= MSBTMedia.RegisterFont
 MikSBT.RegisterAnimationStyle		= MSBTAnimations.RegisterAnimationStyle
 MikSBT.RegisterStickyAnimationStyle	= MSBTAnimations.RegisterStickyAnimationStyle
-MikSBT.RegisterSound				= MSBTMedia.RegisterSound
 MikSBT.IterateFonts					= MSBTMedia.IterateFonts
 MikSBT.IterateScrollAreas			= MSBTAnimations.IterateScrollAreas
-MikSBT.IterateSounds				= MSBTMedia.IterateSounds
 MikSBT.DisplayMessage				= MSBTAnimations.DisplayMessage
 MikSBT.IsModDisabled				= MSBTProfiles.IsModDisabled
+
+
+
+
 

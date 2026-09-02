@@ -31,7 +31,6 @@ L.NOTIFICATION_EVENTS = {}
 L.TRIGGER_DATA = {}
 L.OUTLINES = {}
 L.TEXT_ALIGNS = {}
-L.SOUNDS = {}
 L.ANIMATION_STYLE_DATA = {}
 
 
@@ -43,16 +42,6 @@ L.ANIMATION_STYLE_DATA = {}
 ------------------------------
 -- Interface messages
 ------------------------------
-
-L.MSG_CUSTOM_FONTS					= "Custom Fonts"
-L.MSG_INVALID_CUSTOM_FONT_NAME		= "Invalid font name."
-L.MSG_FONT_NAME_ALREADY_EXISTS		= "Font name already exists."
-L.MSG_INVALID_CUSTOM_FONT_PATH		= "Font path must point to a .ttf file."
-L.MSG_UNABLE_TO_SET_FONT			= "Unable to set specified font."
-L.MSG_TESTING_FONT					= "Testing the specified font for validity..."
-L.MSG_CUSTOM_SOUNDS					= "Custom Sounds"
-L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Invalid sound name."
-L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Sound name already exists."
 L.MSG_NEW_PROFILE					= "New Profile"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Profile already exists."
 L.MSG_INVALID_PROFILE_NAME			= "Invalid profile name."
@@ -61,7 +50,6 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Scroll area name already exists."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Invalid scroll area name."
 L.MSG_ACKNOWLEDGE_TEXT				= "Are you sure you wish to perform this action?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
-L.MSG_INVALID_SOUND_FILE			= "Sound must be an .mp3 or .ogg file."
 L.MSG_NEW_TRIGGER					= "New Trigger"
 L.MSG_TRIGGER_CLASSES				= "Trigger Classes"
 L.MSG_MAIN_EVENTS					= "Main Events"
@@ -86,16 +74,11 @@ L.MSG_INVALID_ITEM_NAME				= "Invalid item name."
 ------------------------------
 
 obj = L.TABS
-obj["customMedia"]	= { label="Custom Media", tooltip="Display options for managing custom media."}
 obj["profile"]		= { label="Profile", tooltip="Display options for profile management and profile switching."}
 obj["general"]		= { label="General", tooltip="Display general options."}
 obj["scrollAreas"]	= { label="Scroll Areas", tooltip="Display options for creating, deleting, and configuring scroll areas.\n\nMouse over the icon buttons for more information."}
 obj["events"]		= { label="Events", tooltip="Display options for incoming, outgoing, and notification events.\n\nMouse over the icon buttons for more information."}
-obj["triggers"]		= { label="Triggers", tooltip="Display options for the trigger system.\n\nMouse over the icon buttons for more information."}
-obj["spamControl"]	= { label="Spam Control", tooltip="Display options for controlling spam."}
-obj["cooldowns"]	= { label="Cooldowns", tooltip="Display options for cooldown notifications."}
 obj["lootAlerts"]	= { label="Loot Alerts", tooltip="Display options for loot related notifications."}
-obj["skillIcons"]	= { label="Skill Icons", tooltip="Display options for skill icons."}
 obj["language"]		= { label="Language", tooltip="Shows the current game locale and how language selection works for MSBT."}
 obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text CVars and clear MSBT Blizzard CT overrides."}
 
@@ -112,11 +95,7 @@ obj["disableNotificationInGroup"]= { label="Disable Notification In Group", tool
 obj["disableStaticInGroup"]		= { label="Disable Static In Group", tooltip="While in a party or raid, hide events assigned to the Static scroll area."}
 obj["enableBlizzardV2CombatText"]= { label="Disable Blizzard CT While Solo", tooltip="When checked, disables Blizzard floating combat text damage/healing while solo." }
 obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard CT In Group", tooltip="Enable Blizzard Combat Text only while in a party or raid. This overrides Disable Blizzard CT While Solo while grouped." }
-obj["enableBlizzardDamage"]		= { label="Enable Blizzard Damage", tooltip="Enable Blzzard's floating text damage."}
-obj["enableBlizzardHealing"]	= { label="Enable Blizzard Healing", tooltip="Enable Blzzard's floating text healing."}
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}
-obj["enableSounds"]				= { label="Enable Sounds", tooltip="Play sounds that are assigned to events and triggers."}
-obj["textShadowing"]			= { label="Text Shadowing", tooltip="Apply a shadow effect to text to improve font crispness."}
 obj["colorPartialEffects"]		= { label="Color Partial Effects", tooltip="Apply specified colors to partial effects."}
 obj["crushing"]					= { label="Crushing Blows", tooltip="Display the crushing blows trailer."}
 obj["glancing"]					= { label="Glancing Hits", tooltip="Display the glancing hits trailer."}
@@ -147,15 +126,11 @@ obj["hideFullOverheals"]		= { label="Hide Full Overheals", tooltip="Don't displa
 obj["hideFullHoTOverheals"]		= { label="Hide Full HoT Overheals", tooltip="Don't display heals over time that have an effective heal amount of zero."}
 obj["hideMergeTrailer"]			= { label="Hide Merge Trailer", tooltip="Don't display the trailer that specifies the number of hits and crits at the end of merged events."}
 obj["allClasses"]				= { label="All Classes"}
-obj["enablePlayerCooldowns"]	= { label="Player Cooldowns", tooltip="Display notifications when your cooldowns complete."}
-obj["enablePetCooldowns"]		= { label="Pet Cooldowns", tooltip="Display notifications when your pet's cooldowns complete."}
-obj["enableItemCooldowns"]		= { label="Item Cooldowns", tooltip="Display notifications when item cooldowns complete."}
 obj["lootedItems"]				= { label="Looted Items", tooltip="Display notifications when items are looted."}
 obj["moneyGains"]				= { label="Money Gains", tooltip="Enable money you gain."}
 obj["currencyGains"]			= { label="Currency Gains", tooltip="Display notifications for gained currency."}
 obj["alwaysShowQuestItems"]		= { label="Always show quest items", tooltip="Always show quest items regardless of quality selections."}
 obj["enableIcons"]				= { label="Enable Skill Icons", tooltip="Displays icons for events that have a skill when possible."}
-obj["exclusiveSkills"]			= { label="Exclusive Skill Names", tooltip="Only show skill names when an icon is not available."}
 
 
 ------------------------------
@@ -169,7 +144,6 @@ obj["critFont"]				= { label="Crit Font:", tooltip="Sets the font that will be u
 obj["normalOutline"]		= { label="Normal Outline:", tooltip="Sets the outline style that will be used for non-crits."}
 obj["critOutline"]			= { label="Crit Outline:", tooltip="Sets the outline style that will be used for crits."}
 obj["scrollArea"]			= { label="Scroll Area:", tooltip="Selects the scroll area to configure."}
-obj["sound"]				= { label="Sound:", tooltip="Selects the sound to play when the event occurs."}
 obj["animationStyle"]		= { label="Animation Style:", tooltip="The animation style for non-sticky animations in the scroll area."}
 obj["stickyAnimationStyle"]	= { label="Sticky Style:", tooltip="The animation style for sticky animations in the scroll area."}
 obj["direction"]			= { label="Direction:", tooltip="The direction of the animation."}
@@ -189,12 +163,6 @@ obj["triggerParameter"]		= { label="Parameter:"}
 ------------------------------
 
 obj = L.BUTTONS
-obj["addCustomFont"]			= { label="Add Font", tooltip="Adds a custom font to the list of available fonts.\n\nWARNING: The font file must exist in the target location *BEFORE* WoW was started.\n\nIt is highly recommended to place the file in the MikScrollingBattleText\\Fonts directory to avoid issues."}
-obj["addCustomSound"]			= { label="Add Sound", tooltip="Adds a custom sound to the list of available sounds.\n\nWARNING: The sound file must exist in the target location *BEFORE* WoW was started.\n\nIt is highly recommended to place the file in the MikScrollingBattleText\\Sounds directory to avoid issues."}
-obj["editCustomFont"]			= { tooltip="Click to edit the custom font."}
-obj["deleteCustomFont"]			= { tooltip="Click to remove the custom font from MSBT."}
-obj["editCustomSound"]			= { tooltip="Click to edit the custom sound."}
-obj["deleteCustomSound"]		= { tooltip="Click to remove the custom sound from MSBT."}
 obj["copyProfile"]				= { label="Copy Profile", tooltip="Copies the profile to a new profile with the name you specify."}
 obj["resetProfile"]				= { label="Reset Profile", tooltip="Resets the profile to the default settings."}
 obj["deleteProfile"]			= { label="Delete Profile", tooltip="Deletes the profile."}
@@ -217,8 +185,6 @@ obj["toggleAll"]				= { label="Toggle All", tooltip="Toggle the enable state of 
 obj["moveAll"]					= { label="Move All", tooltip="Moves all of the events in the selected category to the specified scroll area."}
 obj["eventFontSettings"]		= { tooltip="Click to edit the font settings for the event."}
 obj["eventSettings"]			= { tooltip="Click to edit the event settings such as the output scroll area, output message, sound, etc."}
-obj["customSound"]				= { tooltip="Click to enter a custom sound file." }
-obj["playSound"]				= { label="Play", tooltip="Click to play the selected sound."}
 obj["addTrigger"]				= { label="Add New Trigger", tooltip="Add a new trigger."}
 obj["triggerSettings"]			= { tooltip="Click to configure the trigger conditions."}
 obj["deleteTrigger"]			= { tooltip="Click to delete the trigger."}
@@ -236,8 +202,6 @@ obj["skillSuppressions"]		= { label="Skill Suppressions", tooltip="Suppress skil
 obj["skillSubstitutions"]		= { label="Skill Substitutions", tooltip="Substitute skill names with customized values."}
 obj["addSkill"]					= { label="Add Skill", tooltip="Add a new skill to the list."}
 obj["deleteSkill"]				= { tooltip="Click to delete the skill."}
-obj["cooldownExclusions"]		= { label="Cooldown Exclusions", tooltip="Specify skills that will ignore cooldown tracking."}
-obj["ignoreCooldownThreshold"]	= { label="Ignore Cooldown Threshold", tooltip="Specify skills that will ignore the Cooldown Threshold setting."}
 obj["itemsAllowed"]				= { label="Items Allowed", tooltip="Always show specified items regardless of item quality."}
 obj["itemExclusions"]			= { label="Item Exclusions", tooltip="Prevent specified items from being displayed."}
 obj["addItem"]					= { label="Add Item", tooltip="Add a new item to the list."}
@@ -249,17 +213,12 @@ obj["deleteItem"]				= { tooltip="Click to delete the item."}
 ------------------------------
 
 obj = L.EDITBOXES
-obj["customFontName"]	= { label="Font name:", tooltip="The name used to identify the font.\n\nExample: My Super Font"}
-obj["customFontPath"]	= { label="Font path:", tooltip="The path to the font's file.\n\nNOTE: If the file is located in the recommended MikScrollingBattleText\\Fonts directory, only the filename needs to be entered here instead of th full path.\n\nExample: myFont.ttf "}
-obj["customSoundName"]	= { label="Sound name:", tooltip="The name used to identify the sound.\n\nExample: My Sound"}
-obj["customSoundPath"]	= { label="Sound path:", tooltip="The path to the sounds's file.\n\nNOTE: If the file is located in the recommended MikScrollingBattleText\\Sounds directory, only the filename needs to be entered here instead of th full path.\n\nExample: mySound.ogg "}
 obj["copyProfile"]		= { label="New profile name:", tooltip="Name of the new profile to copy the currently selected one to."}
 obj["partialEffect"]	= { tooltip="The trailer that will be appended when the partial effect occurs."}
 obj["scrollAreaName"]	= { label="New scroll area name:", tooltip="New name for the scroll area."}
 obj["xOffset"]			= { label="X Offset:", tooltip="The X offset of the selected scroll area."}
 obj["yOffset"]			= { label="Y Offset:", tooltip="The Y offset of the selected scroll area."}
 obj["eventMessage"]		= { label="Output message:", tooltip="The message that will be displayed when the event occurs."}
-obj["soundFile"]		= { label="Sound filename:", tooltip="The name of the sound file to play when the event occurs."}
 obj["iconSkill"]		= { label="Icon Skill:", tooltip="The name or spell ID of a skill whose icon will be displayed when the event occurs.\n\nMSBT will automatically try to figure out an appropriate icon if one is not specified.\n\nNOTE: A spell ID must be used in place of a name if the skill is not in the spellbook for the class that is playing when the event occurs. Most online databases such as wowhead can be used to discover it."}
 obj["skillName"]		= { label="Skill name:", tooltip="The name of the skill to add."}
 obj["substitutionText"]	= { label="Substition text:", tooltip="The text to be substituted for the skill name."}
@@ -286,7 +245,6 @@ obj["dotThrottleTime"]		= { label="DoT Throttle Time", tooltip="The number of se
 obj["hotThrottleTime"]		= { label="HoT Throttle Time", tooltip="The number of seconds to throttle HoTs."}
 obj["powerThrottleTime"]	= { label="Power Throttle Time", tooltip="The number of seconds to throttle power changes."}
 obj["skillThrottleTime"]	= { label="Throttle Time", tooltip="The number of seconds to throttle the skill."}
-obj["cooldownThreshold"]	= { label="Cooldown Threshold", tooltip="Skills with a cooldown less than the specified number of seconds will not be displayed."}
 
 
 ------------------------------
@@ -343,8 +301,6 @@ obj["ENVIRONMENTAL_DAMAGE"]	= "%e - Name of the source of the damage (falling, d
 obj["FACTION_NAME"]			= "%e - Name of the faction.\n"
 obj["EMOTE_TEXT"]			= "%e - The text of the emote.\n"
 obj["MONEY_TEXT"]			= "%e - The money gained text.\n"
-obj["COOLDOWN_NAME"]		= "%e - The name of skill that is ready.\n"
-obj["ITEM_COOLDOWN_NAME"]	= "%e - The name of item that is ready.\n"
 obj["ITEM_NAME"]			= "%e - The name of the looted item.\n"
 obj["POWER_TYPE"]			= "%p - Type of power (energy, rage, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Total number of the looted item in inventory."
@@ -576,14 +532,10 @@ obj["SPELL_CAST_FAILED"]		= "Cast Failure"
 obj["SPELL_SUMMON"]				= "Summon"
 obj["SPELL_CREATE"]				= "Create"
 obj["PARTY_KILL"]				= "Killing Blow"
---obj["UNIT_DIED"]				= "Unit Death"
 obj["UNIT_DESTROYED"]			= "Unit Destroy"
 obj["SPELL_EXTRA_ATTACKS"]		= "Extra Attacks"
 obj["UNIT_HEALTH"]				= "Health Change"
 obj["UNIT_POWER"]				= "Power Change"
-obj["SKILL_COOLDOWN"]			= "Player Cooldown Complete"
-obj["PET_COOLDOWN"]				= "Pet Cooldown Complete"
-obj["ITEM_COOLDOWN"]			= "Item Cooldown Complete"
 
 -- Main event conditions.
 obj["sourceName"]				= "Source Unit Name"
@@ -708,10 +660,6 @@ obj[3] = "Right"
 -- Sound info
 ------------------------------
 
-obj = L.SOUNDS
-obj["MSBT Low Mana"]	= "MSBT Low Mana"
-obj["MSBT Low Health"]	= "MSBT Low Health"
-obj["MSBT Cooldown"]	= "MSBT Cooldown"
 
 
 ------------------------------
