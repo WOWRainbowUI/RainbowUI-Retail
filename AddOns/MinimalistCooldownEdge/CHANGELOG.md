@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.6.4 - Action Bar Cooldown Lua Error Fix
+- Fixed repeated Action Bar Lua errors when cooldown values are protected.
+
 ## 4.6.3 - Player Aura Lua Error Fix
 - Fixed repeated Lua errors when Blizzard player aura data is protected.
 
