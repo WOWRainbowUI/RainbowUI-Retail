@@ -787,6 +787,7 @@ L["undoDrawing"] = "Undo Drawing"
 L["update available"] = "update available"
 L["zoomIn"] = "In"
 L["zoomOut"] = "Out"
+L["Clone forces override (blank = default)"] = "Clone forces override (blank = default)"
 
 -- 自行加入
 L["Mythic Dungeon Tools"] = "Mythic Dungeon Tools"
