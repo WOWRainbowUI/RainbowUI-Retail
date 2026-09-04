@@ -410,6 +410,21 @@ local durationNameBarTexts = {
   }
 }
 
+local applicationsBarTexts = {
+  label = addonTable.Locales.TEXTS,
+  entries = {
+    {
+      label = "",
+      kind = "barTexts",
+      setter = function() end,
+      getter = function(details) return details end,
+      texts = {
+        applications = { default = "3", title = addonTable.Locales.APPLICATIONS },
+      }
+    },
+  }
+}
+
 local cooldownOptions = {
   label = addonTable.Locales.COOLDOWN,
   entries = {
@@ -914,6 +929,12 @@ addonTable.Designer.WidgetConfiguration = {
         fullBarTextures,
         --valueBarTexts,
       }
+    },
+    ["auraStacks"] = {
+      ["*"] = {
+        fullBarTextures,
+        applicationsBarTexts,
+      },
     },
     ["auraStackPip"] = {
       ["*"] = {
@@ -1772,5 +1793,51 @@ addonTable.Designer.BarTextsConfig = {
         return details.usePercentage
       end,
     },
-  }
+  },
+  ["applications"] = {
+    {
+      label = addonTable.Locales.VISIBLE,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.visible = value
+      end,
+      getter = function(details)
+        return details.visible
+      end,
+    },
+    {
+      label = addonTable.Locales.SCALE,
+      kind = "slider",
+      min = 25, max = 300,
+      valuePattern = "%d%%",
+      setter = function(details, value)
+        details.scale = value / 100
+      end,
+      getter = function(details)
+        return details.scale * 100
+      end,
+    },
+    {
+      label = addonTable.Locales.WIDTH_RESTRICTION,
+      kind = "slider",
+      min = 10, max = 300,
+      valuePattern = "%d%%",
+      setter = function(details, value)
+        details.widthLimit = value / 100
+      end,
+      getter = function(details)
+        return details.widthLimit * 100
+      end,
+    },
+    {
+      label = addonTable.Locales.COLOR,
+      kind = "colorPicker",
+      setter = function(details, value)
+        details.color = value
+      end,
+      getter = function(details)
+        return details.color
+      end,
+    },
+  },
 }

@@ -1,7 +1,11 @@
 # Coolinator
 
-## [137](https://github.com/TheMouseNest/Coolinator/tree/137) (2026-08-29)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/136...137) 
+## [139](https://github.com/TheMouseNest/Coolinator/tree/139) (2026-09-03)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/138...139) 
 
-- Masque: Working again  
-- Add new widget to show an aura's icon if its \_not\_ active (ie missing)  
+- Fix layouts generated from CDMs with trinkets/potions in display  
+- Show spell ID in options dialog for auraStacks bar  
+- Correct stacks for Warrior (Fury) Whirlwind  
+- Animate stacks status bar  
+- Fix spell ID  
+- Fix max freezing/arcane salvo stacks evaluating to 0  
