@@ -108,6 +108,18 @@ local spellBarTexts = {
   }
 }
 
+local auraStacksTexts = {
+  applications = {
+    anchor = {"CENTER", 0, 0},
+    scale = Round(10/12 * 100) / 100,
+    color = GetColor("cfcfcf"),
+    visible = true,
+    showFractions = false,
+    widthLimit = 0.4,
+    display = {"remaining"}, -- elapsed/remaining and total, with total being optional
+  }
+}
+
 local Group = {
   kind = "group",
   layout = "horizontal",
@@ -373,6 +385,29 @@ addonTable.Designer.Defaults = {
   },
   AbilityCharges = GetChargeGroup(GetColor("00ff77"), GetColor("deffb3", 0.3)),
   AuraStackPips = GetAuraStackGroup(GetColor("00ff77"), GetColor("deffb3", 0.3)),
+  AuraStacksBar = {
+    kind = "bar",
+    resource = {kind = "auraStacks", spellID = 0},
+    width = 1,
+    height = 1,
+    scale = 1.5,
+    layout = "horizontal",
+    direction = "right",
+    alpha = 1,
+    foreground = {
+      asset = "Cooli: Fade Bottom",
+      color = {r = 0, g = 1, b = 0},
+    },
+    background = {
+      asset = "Cooli: Solid White",
+      color = GetColor("94ff21", 0.3),
+    },
+    border = {
+      asset = "Cooli: Blizzard Midnight",
+      color = {r = 1, g = 1, b = 1},
+    },
+    texts = auraStacksTexts,
+  },
   ClassResource = {
     ["icicles"] = {
       kind = "bar",

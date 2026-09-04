@@ -5,7 +5,8 @@ local prelaidKeys = {
   "auraIcon",
   "auraMissing",
   "auraBar",
-  "auraStackPip"
+  "auraStackPip",
+  "auraStacksBar",
 }
 
 addonTable.Display.LayoutManagerNextMixin = CreateFromMixins(addonTable.Display.LayoutManagerSharedMixin)
@@ -16,6 +17,7 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
     auraIcon = addonTable.Display.GeneratePool(addonTable.Display.AuraIconNextMixin),
     auraBar = addonTable.Display.GeneratePool(addonTable.Display.AuraStatusBarNextMixin),
     auraStackPip = addonTable.Display.GeneratePool(addonTable.Display.AuraStacksPipMixin),
+    auraStacksBar = addonTable.Display.GeneratePool(addonTable.Display.AuraStacksBarMixin),
     auraMissing = addonTable.Display.GeneratePool(addonTable.Display.AuraInvertedIconMixin),
   }
   self.prelaidWidgets = {}
@@ -99,6 +101,9 @@ function addonTable.Display.LayoutManagerNextMixin:GetBar(details)
 
   elseif details.resource.kind == "auraStackPip" then
     return self:GetPrelaid("auraStackPip", details)
+
+  elseif details.resource.kind == "auraStacks" then
+    return self:GetPrelaid("auraStacksBar", details)
 
   else
     return addonTable.Display.LayoutManagerSharedMixin.GetBar(self, details)

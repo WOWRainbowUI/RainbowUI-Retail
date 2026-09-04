@@ -238,37 +238,40 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
   for _, id in ipairs(utilitySaved) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
     if info then
-      local spellID = C_Spell.GetBaseSpell(addonTable.Core.GetSpellFromCDMInfo(info))
-      if not seen[spellID] then
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      spellID = spellID and C_Spell.GetBaseSpell(spellID)
+      if spellID and not seen[spellID] then
         local entry = CopyTable(addonTable.Designer.Defaults.AbilityIcon)
         entry.preset = "UTILITY"
         entry.resource.spellID = spellID
         table.insert(result.entries[1].entries, entry)
+        seen[spellID] = true
       end
-      seen[spellID] = true
     end
   end
 
   for _, id in ipairs(essentialSaved) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
     if info then
-      local spellID = C_Spell.GetBaseSpell(addonTable.Core.GetSpellFromCDMInfo(info))
-      if not seen[spellID] then
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      spellID = spellID and C_Spell.GetBaseSpell(spellID)
+      if spellID and not seen[spellID] then
         local entry = CopyTable(addonTable.Designer.Defaults.AbilityIcon)
         entry.preset = "ESSENTIAL"
         entry.resource.spellID = spellID
         table.insert(result.entries[2].entries, entry)
+        seen[spellID] = true
       end
-      seen[spellID] = true
     end
   end
 
   for _, id in ipairs(aurasSaved) do
     local entry = CopyTable(addonTable.Designer.Defaults.AuraIcon)
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
-    if info then
+    local spellID = info and addonTable.Core.GetSpellFromCDMInfo(info)
+    if spellID then
       entry.preset = "AURA"
-      entry.resource.spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      entry.resource.spellID = spellID
       table.insert(result.entries[3].entries, entry)
     end
   end
@@ -286,10 +289,11 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
   }
   for _, id in ipairs(barsSaved) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
-    if info then
+    local spellID = info and addonTable.Core.GetSpellFromCDMInfo(info)
+    if spellID then
       local entry = CopyTable(addonTable.Designer.Defaults.AuraBar)
       entry.preset = "DEFAULT"
-      entry.resource.spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      entry.resource.spellID = spellID
       table.insert(barGroups.entries, entry)
     end
   end

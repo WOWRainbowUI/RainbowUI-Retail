@@ -3,9 +3,9 @@ local addonTable = select(2, ...)
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
-addonTable.Display.AuraStacksPipMixin = {}
+addonTable.Display.AuraStacksBaseMixin = {}
 
-function addonTable.Display.AuraStacksPipMixin:OnLoad()
+function addonTable.Display.AuraStacksBaseMixin:OnLoad()
   self:SetScript("OnShow", self.OnShow)
   self:SetScript("OnHide", self.OnHide)
   self:SetScript("OnEvent", self.OnEvent)
@@ -56,20 +56,15 @@ function addonTable.Display.AuraStacksPipMixin:OnLoad()
     assert(borderSliceDetails)
     local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
 
-    auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.details.index})
+    auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit})
 
     auraButton.foreground:SetTexture(foregroundAsset)
     auraButton.foreground:SetVertexColor(details.foreground.color.r, details.foreground.color.g, details.foreground.color.b)
     auraButton.foreground:SetScale(borderSliceDetails.scaleModifier * details.scale)
   end
-
-  self.SizeButton = function(auraButton, width, height)
-    PixelUtil.SetSize(auraButton.statusBar, (self.statusWidth * self.details.scale + 5) * self.details.index, self.statusHeight * self.details.scale)
-    PixelUtil.SetSize(auraButton.foreground, self.statusWidth * self.lowerScale, self.statusWidth * self.lowerScale)
-  end
 end
 
-function addonTable.Display.AuraStacksPipMixin:Setup(details)
+function addonTable.Display.AuraStacksBaseMixin:Setup(details)
   self.details = details
 
   self.sizingWidth, self.sizingHeight = nil, nil
@@ -134,19 +129,17 @@ function addonTable.Display.AuraStacksPipMixin:Setup(details)
   self.border:SetScale(borderSliceDetails.scaleModifier * details.scale)
 
   self.borderWrapper:SetFrameLevel(self:GetFrameLevel() + 5)
-  
-  self:SetShown(C_Spell.GetSpellMaxCumulativeAuraApplications(self.details.resource.spellID) >= self.details.index)
 end
 
-function addonTable.Display.AuraStacksPipMixin:Enable()
+function addonTable.Display.AuraStacksBaseMixin:Enable()
   self:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 
-function addonTable.Display.AuraStacksPipMixin:Disable()
+function addonTable.Display.AuraStacksBaseMixin:Disable()
   self:UnregisterAllEvents()
 end
 
-function addonTable.Display.AuraStacksPipMixin:ApplyPadding(horizontal, vertical)
+function addonTable.Display.AuraStacksBaseMixin:ApplyPadding(horizontal, vertical)
   if addonTable.Utilities.IsAurasRestricted() then
     return
   end
@@ -188,11 +181,11 @@ function addonTable.Display.AuraStacksPipMixin:ApplyPadding(horizontal, vertical
   PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
 end
 
-function addonTable.Display.AuraStacksPipMixin:GetDefaultSize()
+function addonTable.Display.AuraStacksBaseMixin:GetDefaultSize()
   return self.rawWidth * self.details.scale, self.rawHeight * self.details.scale
 end
 
-function addonTable.Display.AuraStacksPipMixin:ApplySize(width, height)
+function addonTable.Display.AuraStacksBaseMixin:ApplySize(width, height)
   self.parentWidth, self.parentHeight = width, height
 
   if addonTable.Utilities.IsAurasRestricted() then
@@ -227,22 +220,157 @@ function addonTable.Display.AuraStacksPipMixin:ApplySize(width, height)
   end
 end
 
-function addonTable.Display.AuraStacksPipMixin:OnShow()
+function addonTable.Display.AuraStacksBaseMixin:OnShow()
   if self.index then
     addonTable.Display.SetAuraSlotsEnabled(self.index, true)
   end
 end
 
-function addonTable.Display.AuraStacksPipMixin:OnHide()
+function addonTable.Display.AuraStacksBaseMixin:OnHide()
   if self.index then
     addonTable.Display.SetAuraSlotsEnabled(self.index, false)
   end
 end
 
-function addonTable.Display.AuraStacksPipMixin:OnEvent(_, restrictionType, state)
+function addonTable.Display.AuraStacksBaseMixin:OnEvent(_, restrictionType, state)
   if addonTable.Utilities.WillRestrictionApplySoon(restrictionType, state) then
     self.helpfulButton:SetAlpha(1)
     self.helpfulPetButton:SetAlpha(1)
     self.harmfulButton:SetAlpha(1)
   end
+end
+
+addonTable.Display.AuraStacksPipMixin = CreateFromMixins(addonTable.Display.AuraStacksBaseMixin)
+function addonTable.Display.AuraStacksPipMixin:OnLoad()
+  addonTable.Display.AuraStacksBaseMixin.OnLoad(self)
+
+  self.ButtonInit = function(auraButton)
+    auraButton:SetMouseMotionEnabled(false)
+    auraButton:SetIgnoringChildrenForBounds(true)
+    auraButton.statusBar = CreateFrame("StatusBar", nil, auraButton)
+    auraButton.statusBar:SetPoint("CENTER")
+    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+
+    auraButton.mask = auraButton:CreateMaskTexture()
+    auraButton.mask:SetAllPoints(auraButton.statusBar:GetStatusBarTexture())
+    auraButton.mask:SetBlockingLoadsRequested(true)
+    auraButton.mask:SetTexture(LSM:Fetch("statusbar", "Cooli: Solid White"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+
+    auraButton.foreground = auraButton:CreateTexture(nil, "ARTWORK")
+    auraButton.foreground:SetPoint("CENTER")
+
+    auraButton.foreground:AddMaskTexture(self.borderMask)
+
+    auraButton.foreground:AddMaskTexture(auraButton.mask)
+    auraButton.statusBar:SetPoint("RIGHT", auraButton.foreground)
+
+    auraButton:SetPoint("CENTER", self)
+  end
+
+  self.StyleButton = function(auraButton, details)
+    auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
+    auraButton.details = details
+
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+    assert(borderDetails)
+    local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
+    assert(borderSliceDetails)
+    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+
+    auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit})
+
+    auraButton.foreground:SetTexture(foregroundAsset)
+    auraButton.foreground:SetVertexColor(details.foreground.color.r, details.foreground.color.g, details.foreground.color.b)
+    auraButton.foreground:SetScale(borderSliceDetails.scaleModifier * details.scale)
+  end
+
+  self.SizeButton = function(auraButton, width, height)
+    PixelUtil.SetSize(auraButton.statusBar, (self.statusWidth * self.details.scale + 5) * self.applicationLimit, self.statusHeight * self.details.scale)
+    PixelUtil.SetSize(auraButton.foreground, self.statusWidth * self.lowerScale, self.statusWidth * self.lowerScale)
+  end
+end
+
+function addonTable.Display.AuraStacksPipMixin:Enable()
+  addonTable.Display.AuraStacksBaseMixin.Enable(self)
+  self:SetShown(self.cumulativeApplications >= self.details.index)
+end
+
+function addonTable.Display.AuraStacksPipMixin:Setup(details)
+  self.applicationLimit = details.index
+  self.cumulativeApplications = addonTable.Constants.AuraStackOverrides[details.resource.spellID] or C_Spell.GetSpellMaxCumulativeAuraApplications(details.resource.spellID)
+
+  addonTable.Display.AuraStacksBaseMixin.Setup(self, details)
+end
+
+local textsByKey = {
+  Applications = "applications",
+}
+
+local formatter = C_StringUtil.CreateNumericRuleFormatter()
+formatter:AddBreakpoint({
+  threshold = 0,
+  format = "",
+})
+formatter:AddBreakpoint({
+  threshold = 1,
+  format = "%d",
+})
+
+addonTable.Display.AuraStacksBarMixin = CreateFromMixins(addonTable.Display.AuraStacksBaseMixin)
+function addonTable.Display.AuraStacksBarMixin:OnLoad()
+  addonTable.Display.AuraStacksBaseMixin.OnLoad(self)
+
+  self.ButtonInit = function(auraButton)
+    auraButton:SetMouseMotionEnabled(false)
+    auraButton:SetIgnoringChildrenForBounds(true)
+    auraButton.statusBar = CreateFrame("StatusBar", nil, auraButton)
+    auraButton.statusBar:SetPoint("CENTER")
+    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+    auraButton.statusBar:GetStatusBarTexture():AddMaskTexture(self.borderMask)
+
+    auraButton.statusBar:SetPoint("CENTER")
+
+    auraButton.TextsContainer = CreateFrame("Frame", nil, auraButton)
+    auraButton.TextsContainer:SetAllPoints(auraButton.statusBar)
+    auraButton.TextsContainer.Applications = auraButton.TextsContainer:CreateFontString(nil, nil, "NumberFontNormal")
+    auraButton:SetApplicationCount(auraButton.TextsContainer.Applications, {formatter = formatter})
+
+    auraButton:SetPoint("CENTER", self)
+  end
+
+  self.StyleButton = function(auraButton, details)
+    auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
+    auraButton.details = details
+
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+    assert(borderDetails)
+    local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
+    assert(borderSliceDetails)
+    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+
+    auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit, interpolation = Enum.StatusBarInterpolation.ExponentialEaseOut})
+
+    auraButton.statusBar:SetStatusBarTexture(foregroundAsset)
+    auraButton.statusBar:GetStatusBarTexture():SetVertexColor(details.foreground.color.r, details.foreground.color.g, details.foreground.color.b)
+    auraButton.statusBar:SetScale(borderSliceDetails.scaleModifier * details.scale)
+
+    auraButton.TextsContainer:SetFrameLevel(auraButton.statusBar:GetFrameLevel() + 4)
+    addonTable.Display.ApplyTexts(auraButton, details, textsByKey, details.scale)
+  end
+
+  self.SizeButton = function(auraButton, width, height)
+    PixelUtil.SetSize(auraButton.statusBar, self.statusWidth * self.lowerScale, self.statusHeight * self.lowerScale)
+
+    auraButton.sizingWidth, auraButton.sizingHeight = self.sizingWidth, self.sizingHeight
+    auraButton.TextsContainer.Applications:ClearAllPoints()
+    addonTable.Display.SizeTextsForBar(auraButton, self.details, textsByKey, self.details.scale)
+  end
+end
+
+function addonTable.Display.AuraStacksBarMixin:Setup(details)
+  self.applicationLimit = addonTable.Constants.AuraStackOverrides[details.resource.spellID] or C_Spell.GetSpellMaxCumulativeAuraApplications(details.resource.spellID)
+
+  self:Show()
+
+  addonTable.Display.AuraStacksBaseMixin.Setup(self, details)
 end

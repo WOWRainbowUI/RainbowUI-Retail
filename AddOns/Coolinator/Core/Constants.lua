@@ -142,6 +142,7 @@ addonTable.Constants.BarResourceLabelMap = {
   ["class"] = addonTable.Locales.CLASS,
   ["aura"] = addonTable.Locales.AURA,
   ["auraStackPip"] = addonTable.Locales.AURA_STACK_PIP,
+  ["auraStacks"] = addonTable.Locales.AURA_STACKS,
   ["ability"] = addonTable.Locales.ABILITY,
   ["abilityCharge"] = addonTable.Locales.ABILITY_CHARGE,
   ["cast"] = addonTable.Locales.CAST,
@@ -309,4 +310,13 @@ addonTable.Constants.GlowsMap = {
   ["glow-marching-ants"] = "Cooli: Marching Ants",
   ["glow-flash"] = "Cooli: Flash",
   ["glow-static"] = "Cooli: Static Glow",
+}
+
+addonTable.Constants.AuraStackOverrides = {
+  [190456] = 100, -- Warrior: Ignore Pain
+  [182104] = 3, -- Paladin (Prot): Shining Light
+  [1246769] = 20, -- Mage (Frost): Shatter
+  [1242974] = 20, -- Mage (Arcane): Arcane Salvo
+  [384452] = 20, -- Mage (Arcane): Arcane Salvo
+  [12950] = 4, -- Warrior (Fury): Whirlwind
 }

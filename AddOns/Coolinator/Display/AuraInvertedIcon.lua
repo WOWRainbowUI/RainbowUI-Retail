@@ -15,6 +15,7 @@ function addonTable.Display.AuraInvertedIconMixin:OnLoad()
 
   self.ButtonInit = function(auraButton)
     auraButton:SetCollapsesLayout(true)
+    auraButton:SetMouseMotionEnabled(false)
   end
 
   self.SizeButton = function(auraButton, details)

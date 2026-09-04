@@ -101,6 +101,8 @@ L["ABILITY_CHARGES"] = "Ability Charges"
 L["ABILITY_BAR"] = "Ability Bar"
 L["CHARGES"] = "Charges"
 L["STACKS_PIPS"] = "Stacks (Pips)"
+L["STACKS_BAR"] = "Stacks (Bar)"
+L["APPLICATIONS"] = "Applications"
 L["CAST"] = "Cast"
 L["CAST_BAR"] = "Cast Bar"
 L["COOLDOWN"] = "Cooldown"
@@ -319,9 +321,13 @@ L["ACTIVE"] = "Active"
 --[[Translation missing --]]
 L["ADD"] = "Add"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 --[[Translation missing --]]
 L["ALIGNMENT"] = "Alignment"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -332,6 +338,12 @@ L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aura Bar"
 --[[Translation missing --]]
 L["AURA_BARS"] = "Auras Bars"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 --[[Translation missing --]]
 L["AURAS"] = "Auras"
 --[[Translation missing --]]
@@ -363,6 +375,8 @@ L["BOTTOM_RIGHT"] = "Bottom Right"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -376,6 +390,12 @@ L["CENTER_HORIZONTAL"] = "Center Horizontal"
 L["CENTER_VERTICAL"] = "Center Vertical"
 --[[Translation missing --]]
 L["CHANNELING"] = "Channeling"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 --[[Translation missing --]]
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Choose a new design name"
 --[[Translation missing --]]
@@ -543,6 +563,8 @@ L["ICON"] = "Icon"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
 --[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -580,6 +602,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -643,6 +667,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -652,6 +678,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -685,6 +713,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -694,6 +724,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -711,13 +745,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]
@@ -805,8 +847,12 @@ L["ACTION"] = "Aktion"
 L["ACTIVE"] = "Aktiv"
 L["ADD"] = "hinzufügen"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 L["ALIGNMENT"] = "Ausrichtung"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -814,6 +860,12 @@ L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "Are you sure you want to clear your saved anc
 L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aurenleiste"
 L["AURA_BARS"] = "Aurenleisten"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 L["AURAS"] = "Auren"
 L["AUTO_SIZE"] = "Autoskalierung"
 L["BACKGROUND"] = "Hintergrund"
@@ -831,6 +883,8 @@ L["BOTTOM_LEFT"] = "Unten Lins"
 L["BOTTOM_RIGHT"] = "Unten Rechts"
 L["BY_PLUSMOUSE"] = "von PLUSMOUSE"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -840,6 +894,12 @@ L["CENTER"] = "Mittig"
 L["CENTER_HORIZONTAL"] = "horizontal ausrichten"
 L["CENTER_VERTICAL"] = "vertikal ausrichten"
 L["CHANNELING"] = "kanalisieren"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Wähle einen neuen Designnamen aus"
 L["CHOOSE_ABILITY"] = "Wähle Fähigkeit"
 --[[Translation missing --]]
@@ -956,6 +1016,8 @@ L["ICICLES"] = "Icicles"
 L["ICON"] = "Symbol"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
+--[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
 L["IMPORT"] = "importieren"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -986,6 +1048,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -1049,6 +1113,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -1058,6 +1124,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -1091,6 +1159,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -1100,6 +1170,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -1117,13 +1191,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]
@@ -1208,13 +1290,23 @@ L["ABILITY_CHARGES"] = "Перезарядка способностей"
 L["ACTION"] = "Действие"
 L["ACTIVE"] = "Активный"
 L["ADD"] = "Добавить"
+--[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
 L["ALIGN_X"] = "Выравнивание %s"
 L["ALIGNMENT"] = "Выравнивание"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 L["ARCANE_FLURRY"] = "Тайный шквал"
 L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "Вы уверены, что хотите удалить сохраненные привязки?"
 L["AURA"] = "Аура"
 L["AURA_BAR"] = "Полоса аур"
 L["AURA_BARS"] = "Полосы аур"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 L["AURAS"] = "Ауры"
 L["AUTO_SIZE"] = "Автоматический размер"
 L["BACKGROUND"] = "Фон"
@@ -1230,6 +1322,8 @@ L["BOTTOM"] = "Вниз"
 L["BOTTOM_LEFT"] = "Внизу слева"
 L["BOTTOM_RIGHT"] = "Внизу справа"
 L["BY_PLUSMOUSE"] = "от plusmouse"
+--[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
 L["CAST"] = "Применение заклинания"
 L["CAST_BAR"] = "Панель применение заклинания"
 L["CASTING"] = "Применять заклинание"
@@ -1237,6 +1331,12 @@ L["CENTER"] = "Центр"
 L["CENTER_HORIZONTAL"] = "Центрировать по горизонтали"
 L["CENTER_VERTICAL"] = "Центрировать по вертикали"
 L["CHANNELING"] = "Направление"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Выберите новое название дизайна"
 L["CHOOSE_ABILITY"] = "Выберите Способность"
 L["CHOOSE_AN_ANCHOR_NAME"] = "Выберите имя привязки:"
@@ -1320,6 +1420,8 @@ L["HORIZONTAL"] = "Горизонтальное"
 L["ICICLES"] = "Сосулька"
 L["ICON"] = "Иконка"
 L["ICON_POSITION"] = "Положение иконки"
+--[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
 L["IMPORT"] = "Импорт"
 L["IMPORTED_X"] = "Импортированный \"%s\""
 L["IN_COMBAT"] = "В бою"
@@ -1339,6 +1441,8 @@ L["LOCATION"] = "Местоположение"
 L["MAELSTROM_WEAPON"] = "Оружие водоворота"
 L["MAKE_NEW"] = "Создать новый"
 L["MARCHING_ANTS_GLOW"] = "Свечение \"марширующих муравьёв\""
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 L["MOUNT"] = "Транспорт"
 L["MOUSE_BUTTON_X"] = "M%s"
 L["NAME"] = "Название"
@@ -1370,11 +1474,15 @@ L["PROFILE"] = "Профиль"
 L["PROFILES"] = "Профили"
 L["PVP"] = "PvP"
 L["RAID"] = "Рейд"
+--[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
 L["READY_BORDER_COLOR"] = "Цвет рамки при готовности"
 L["READY_FOREGROUND_COLOR"] = "Цвет готовности переднего плана"
 L["REMAINING"] = "Оставшийся "
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Удалить интервалы между скрытыми значками"
 L["RESET_SAVED_ANCHORS"] = "Сбросить сохраненные привязки"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 L["REVERSE"] = "Реверс"
 L["REVERSE_GLOW"] = "Обратное свечение"
 L["RIGHT"] = "Справа"
@@ -1391,11 +1499,17 @@ L["SHOW_GCD_SWIPE"] = "Показывать взмах GCD"
 L["SHOW_ICON"] = "Показать иконку"
 L["SHOW_KEYBINDINGS"] = "Показывать привязки клавиш"
 L["SHOW_OUTLINE"] = "Показать контур"
+--[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
 L["SHOW_SHADOW"] = "Показать тень"
 L["SHOW_SWIPE"] = "Показать взмах"
 L["SHOW_TOOLTIPS"] = "Показывать всплывающие подсказки"
 L["SITUATION"] = "Ситуация"
 L["SKYRIDING_ZONE"] = "Зона скайрайдинга"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 L["SLASH_DESIGN"] = "Стиль"
 L["SLASH_DESIGN_HELP"] = "Вход в режим Coolinator Designer / выход из него"
 L["SLASH_HELP"] = "Открыть настройки Coolinator"
@@ -1404,10 +1518,18 @@ L["SLASH_REGEN_HELP"] = "Начните заново работу над тек�
 L["SLASH_RESET"] = "Сброс"
 L["SLASH_RESET_HELP"] = "Сбросьте все настройки Coolinator и перезагрузите"
 L["SLASH_UNKNOWN_COMMAND"] = "Неизвестная команда '%s'"
+--[[Translation missing --]]
+L["SPACER"] = "Spacer"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Несоответствие данных о специализации в Blizzard CDM"
 L["SQUARE"] = "Квадратный"
 L["STACK"] = "Стопка"
+--[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
 L["START"] = "Запустить"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 L["STYLE"] = "Стиль"
 L["SWIPE_COLOR"] = "Цвет взмаха"
 L["TARGET"] = "Цель"
@@ -1464,9 +1586,13 @@ L["ACTIVE"] = "Active"
 --[[Translation missing --]]
 L["ADD"] = "Add"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 --[[Translation missing --]]
 L["ALIGNMENT"] = "Alignment"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -1477,6 +1603,12 @@ L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aura Bar"
 --[[Translation missing --]]
 L["AURA_BARS"] = "Auras Bars"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 --[[Translation missing --]]
 L["AURAS"] = "Auras"
 --[[Translation missing --]]
@@ -1508,6 +1640,8 @@ L["BOTTOM_RIGHT"] = "Bottom Right"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -1521,6 +1655,12 @@ L["CENTER_HORIZONTAL"] = "Center Horizontal"
 L["CENTER_VERTICAL"] = "Center Vertical"
 --[[Translation missing --]]
 L["CHANNELING"] = "Channeling"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 --[[Translation missing --]]
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Choose a new design name"
 --[[Translation missing --]]
@@ -1688,6 +1828,8 @@ L["ICON"] = "Icon"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
 --[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -1725,6 +1867,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -1788,6 +1932,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -1797,6 +1943,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -1830,6 +1978,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -1839,6 +1989,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -1856,13 +2010,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]
@@ -1957,9 +2119,13 @@ L["ACTIVE"] = "Active"
 --[[Translation missing --]]
 L["ADD"] = "Add"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 --[[Translation missing --]]
 L["ALIGNMENT"] = "Alignment"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -1970,6 +2136,12 @@ L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aura Bar"
 --[[Translation missing --]]
 L["AURA_BARS"] = "Auras Bars"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 --[[Translation missing --]]
 L["AURAS"] = "Auras"
 --[[Translation missing --]]
@@ -2001,6 +2173,8 @@ L["BOTTOM_RIGHT"] = "Bottom Right"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -2014,6 +2188,12 @@ L["CENTER_HORIZONTAL"] = "Center Horizontal"
 L["CENTER_VERTICAL"] = "Center Vertical"
 --[[Translation missing --]]
 L["CHANNELING"] = "Channeling"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 --[[Translation missing --]]
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Choose a new design name"
 --[[Translation missing --]]
@@ -2181,6 +2361,8 @@ L["ICON"] = "Icon"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
 --[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -2218,6 +2400,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -2281,6 +2465,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -2290,6 +2476,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -2323,6 +2511,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -2332,6 +2522,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -2349,13 +2543,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]
@@ -2450,9 +2652,13 @@ L["ACTIVE"] = "Active"
 --[[Translation missing --]]
 L["ADD"] = "Add"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 --[[Translation missing --]]
 L["ALIGNMENT"] = "Alignment"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -2463,6 +2669,12 @@ L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aura Bar"
 --[[Translation missing --]]
 L["AURA_BARS"] = "Auras Bars"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 --[[Translation missing --]]
 L["AURAS"] = "Auras"
 --[[Translation missing --]]
@@ -2494,6 +2706,8 @@ L["BOTTOM_RIGHT"] = "Bottom Right"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -2507,6 +2721,12 @@ L["CENTER_HORIZONTAL"] = "Center Horizontal"
 L["CENTER_VERTICAL"] = "Center Vertical"
 --[[Translation missing --]]
 L["CHANNELING"] = "Channeling"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 --[[Translation missing --]]
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Choose a new design name"
 --[[Translation missing --]]
@@ -2674,6 +2894,8 @@ L["ICON"] = "Icon"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
 --[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -2711,6 +2933,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -2774,6 +2998,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -2783,6 +3009,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -2816,6 +3044,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -2825,6 +3055,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -2842,13 +3076,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]
@@ -2936,13 +3178,23 @@ L["ACTION"] = "動作"
 --[[Translation missing --]]
 L["ACTIVE"] = "Active"
 L["ADD"] = "新增"
+--[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
 L["ALIGN_X"] = "對齊%s"
 L["ALIGNMENT"] = "對齊方式"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 L["ARCANE_FLURRY"] = "秘法亂舞"
 L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "確認要清除定位點嗎？"
 L["AURA"] = "光環"
 L["AURA_BAR"] = "光環量條"
 L["AURA_BARS"] = "光環量條"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 L["AURAS"] = "光環"
 L["AUTO_SIZE"] = "自動縮放"
 L["BACKGROUND"] = "背景"
@@ -2958,6 +3210,8 @@ L["BOTTOM"] = "下方"
 L["BOTTOM_LEFT"] = "左下"
 L["BOTTOM_RIGHT"] = "右下"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
+--[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
 L["CAST"] = "施法"
 L["CAST_BAR"] = "施法條"
 L["CASTING"] = "施放中"
@@ -2965,6 +3219,12 @@ L["CENTER"] = "置中"
 L["CENTER_HORIZONTAL"] = "水平置中"
 L["CENTER_VERTICAL"] = "垂直置中"
 L["CHANNELING"] = "引導中"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "輸入新設計名稱"
 L["CHOOSE_ABILITY"] = "選擇技能"
 L["CHOOSE_AN_ANCHOR_NAME"] = "選擇定位點名稱："
@@ -3053,6 +3313,8 @@ L["HORIZONTAL"] = "水平"
 L["ICICLES"] = "冰柱"
 L["ICON"] = "圖示"
 L["ICON_POSITION"] = "圖示位置"
+--[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
 L["IMPORT"] = "匯入"
 L["IMPORTED_X"] = "已匯入\"%s\""
 L["IN_COMBAT"] = "戰鬥中"
@@ -3073,6 +3335,8 @@ L["MAELSTROM_WEAPON"] = "漩渦武器"
 L["MAKE_NEW"] = "新建"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 L["MOUNT"] = "坐騎"
 L["MOUSE_BUTTON_X"] = "M%s"
 L["NAME"] = "名稱"
@@ -3108,11 +3372,15 @@ L["PROFILE"] = "設定檔"
 L["PROFILES"] = "設定檔"
 L["PVP"] = "PvP"
 L["RAID"] = "團隊副本"
+--[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
 L["READY_BORDER_COLOR"] = "準備就緒的邊框顏色"
 L["READY_FOREGROUND_COLOR"] = "準備就緒的前景顏色"
 L["REMAINING"] = "剩餘"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "圖示隱藏時不佔位"
 L["RESET_SAVED_ANCHORS"] = "重置已儲存的定位點"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 L["REVERSE"] = "反轉"
 --[[Translation missing --]]
 L["REVERSE_GLOW"] = "Reverse glow"
@@ -3130,11 +3398,17 @@ L["SHOW_GCD_SWIPE"] = "顯示公共冷卻動畫"
 L["SHOW_ICON"] = "顯示圖示"
 L["SHOW_KEYBINDINGS"] = "顯示快捷鍵"
 L["SHOW_OUTLINE"] = "顯示邊框"
+--[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
 L["SHOW_SHADOW"] = "顯示陰影"
 L["SHOW_SWIPE"] = "顯示過渡動畫"
 L["SHOW_TOOLTIPS"] = "顯示提示訊息"
 L["SITUATION"] = "狀態"
 L["SKYRIDING_ZONE"] = "天空騎術區域"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 L["SLASH_DESIGN"] = "設計"
 L["SLASH_DESIGN_HELP"] = "進入/退出 Coolinator 設計模式"
 L["SLASH_HELP"] = "打開 Coolinator 設定。"
@@ -3143,10 +3417,18 @@ L["SLASH_REGEN_HELP"] = "在目前角色上套用你的設計重新開始"
 L["SLASH_RESET"] = "重置"
 L["SLASH_RESET_HELP"] = "重置所有 Coolinator 的設定檔，然後重新載入。"
 L["SLASH_UNKNOWN_COMMAND"] = "未知指令 '%s'"
+--[[Translation missing --]]
+L["SPACER"] = "Spacer"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "暴雪冷卻管理器中的專精資料不符"
 L["SQUARE"] = "方形"
 L["STACK"] = "疊層 "
+--[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
 L["START"] = "起始"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 L["STYLE"] = "樣式"
 L["SWIPE_COLOR"] = "過渡動畫顏色"
 L["TARGET"] = "目標"
@@ -3200,13 +3482,18 @@ L["ABILITY_CHARGES"] = "技能充能层数"
 L["ACTION"] = "动作"
 L["ACTIVE"] = "激活"
 L["ADD"] = "添加"
+L["ADD_ID"] = "添加ID"
 L["ALIGN_X"] = "对齐 %s"
 L["ALIGNMENT"] = "对齐方式"
+L["APPLICATIONS"] = "应用"
 L["ARCANE_FLURRY"] = "奥术飓风"
 L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "确定要清除已保存的锚点吗？"
 L["AURA"] = "光环"
 L["AURA_BAR"] = "光环栏"
 L["AURA_BARS"] = "光环栏"
+L["AURA_MISSING"] = "光环（缺失）"
+L["AURA_STACK_PIP"] = "光环层数点"
+L["AURA_STACKS"] = "光环层数"
 L["AURAS"] = "光环"
 L["AUTO_SIZE"] = "自动大小"
 L["BACKGROUND"] = "背景"
@@ -3222,6 +3509,7 @@ L["BOTTOM"] = "底部"
 L["BOTTOM_LEFT"] = "左下"
 L["BOTTOM_RIGHT"] = "右下"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "由于限制无法更改样式"
 L["CAST"] = "施法"
 L["CAST_BAR"] = "施法条"
 L["CASTING"] = "正在施放"
@@ -3229,6 +3517,9 @@ L["CENTER"] = "居中"
 L["CENTER_HORIZONTAL"] = "水平居中"
 L["CENTER_VERTICAL"] = "垂直居中"
 L["CHANNELING"] = "正在引导"
+L["CHARGED_BORDER_COLOR"] = "充能边框颜色"
+L["CHARGED_FOREGROUND_COLOR"] = "充能前景颜色"
+L["CHARGES"] = "充能"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "输入新方案名称"
 L["CHOOSE_ABILITY"] = "选择技能"
 L["CHOOSE_AN_ANCHOR_NAME"] = "选择锚点名称："
@@ -3312,6 +3603,7 @@ L["HORIZONTAL"] = "水平"
 L["ICICLES"] = "冰刺"
 L["ICON"] = "图标"
 L["ICON_POSITION"] = "图标位置"
+L["ICON_WHEN_MISSING"] = "图标（缺失时）"
 L["IMPORT"] = "导入"
 L["IMPORTED_X"] = "已导入“%s”"
 L["IN_COMBAT"] = "战斗中"
@@ -3331,6 +3623,7 @@ L["LOCATION"] = "位置"
 L["MAELSTROM_WEAPON"] = "漩涡武器"
 L["MAKE_NEW"] = "新建"
 L["MARCHING_ANTS_GLOW"] = "行军蚁发光"
+L["MISSING_DESIGN_X"] = "缺少设计“%s”"
 L["MOUNT"] = "坐骑"
 L["MOUSE_BUTTON_X"] = "M%s"
 L["NAME"] = "名称"
@@ -3362,11 +3655,13 @@ L["PROFILE"] = "配置"
 L["PROFILES"] = "配置"
 L["PVP"] = "PvP"
 L["RAID"] = "团队"
+L["RANGE_CHECKING"] = "距离检测"
 L["READY_BORDER_COLOR"] = "就绪边框颜色"
 L["READY_FOREGROUND_COLOR"] = "就绪前景色"
 L["REMAINING"] = "剩余"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "移除隐藏图标的间距"
 L["RESET_SAVED_ANCHORS"] = "重置已保存的锚点"
+L["RESTED"] = "休息状态"
 L["REVERSE"] = "反向"
 L["REVERSE_GLOW"] = "反向发光"
 L["RIGHT"] = "右"
@@ -3383,11 +3678,14 @@ L["SHOW_GCD_SWIPE"] = "显示公共冷却动画"
 L["SHOW_ICON"] = "显示图标"
 L["SHOW_KEYBINDINGS"] = "显示快捷键"
 L["SHOW_OUTLINE"] = "显示轮廓"
+L["SHOW_PANDEMIC"] = "显示叠加效果"
 L["SHOW_SHADOW"] = "显示阴影"
 L["SHOW_SWIPE"] = "显示动画"
 L["SHOW_TOOLTIPS"] = "显示提示信息"
 L["SITUATION"] = "状态"
 L["SKYRIDING_ZONE"] = "驭空术区域"
+L["SLASH_CHANGE_DESIGN"] = "设计变更"
+L["SLASH_CHANGE_DESIGN_HELP"] = "将当前使用的设计更改为指定名称"
 L["SLASH_DESIGN"] = "设计"
 L["SLASH_DESIGN_HELP"] = "进入/退出 Coolinator 设计模式"
 L["SLASH_HELP"] = "打开 Coolinator 设置。"
@@ -3396,10 +3694,14 @@ L["SLASH_REGEN_HELP"] = "在当前角色上使用你的方案重新开始"
 L["SLASH_RESET"] = "重置"
 L["SLASH_RESET_HELP"] = "重置所有 Coolinator 设置，然后重载。"
 L["SLASH_UNKNOWN_COMMAND"] = "未知命令 “%s”"
+L["SPACER"] = "间隔"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "暴雪冷却管理器中专精数据不匹配"
 L["SQUARE"] = "方形"
 L["STACK"] = "堆叠"
+L["STACKS_BAR"] = "层数（条）"
+L["STACKS_PIPS"] = "层数（光点）"
 L["START"] = "开始"
+L["STATIC_GLOW"] = "静态发光"
 L["STYLE"] = "样式"
 L["SWIPE_COLOR"] = "滑动颜色"
 L["TARGET"] = "目标"
@@ -3448,13 +3750,23 @@ L["ABILITY_CHARGES"] = "기술 충전 횟수"
 L["ACTION"] = "행동"
 L["ACTIVE"] = "활성화"
 L["ADD"] = "추가"
+--[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
 L["ALIGN_X"] = "정렬 %s"
 L["ALIGNMENT"] = "정렬"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 L["ARCANE_FLURRY"] = "비전 질풍"
 L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "저장된 고정점을 모두 지우시겠습니까?"
 L["AURA"] = "오라"
 L["AURA_BAR"] = "오라 바"
 L["AURA_BARS"] = "오라 바"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 L["AURAS"] = "오라"
 L["AUTO_SIZE"] = "자동 크기 조절"
 L["BACKGROUND"] = "배경"
@@ -3470,6 +3782,8 @@ L["BOTTOM"] = "아래"
 L["BOTTOM_LEFT"] = "왼쪽 아래"
 L["BOTTOM_RIGHT"] = "오른쪽 아래"
 L["BY_PLUSMOUSE"] = "제작: plusmouse"
+--[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
 L["CAST"] = "시전"
 L["CAST_BAR"] = "시전 바"
 L["CASTING"] = "시전중"
@@ -3477,6 +3791,12 @@ L["CENTER"] = "가운데"
 L["CENTER_HORIZONTAL"] = "수평 가운데"
 L["CENTER_VERTICAL"] = "수직 가운데"
 L["CHANNELING"] = "정신집중"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "새 디자인 이름 선택"
 L["CHOOSE_ABILITY"] = "능력 선택"
 L["CHOOSE_AN_ANCHOR_NAME"] = "선택된 고정점 이름"
@@ -3560,6 +3880,8 @@ L["HORIZONTAL"] = "가로"
 L["ICICLES"] = "고드름"
 L["ICON"] = "아이콘"
 L["ICON_POSITION"] = "아이콘 위치"
+--[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
 L["IMPORT"] = "가져오기"
 L["IMPORTED_X"] = "\"%s\"를 가져옴"
 L["IN_COMBAT"] = "전투중"
@@ -3579,6 +3901,8 @@ L["LOCATION"] = "위치"
 L["MAELSTROM_WEAPON"] = "소용돌이 치는 무기"
 L["MAKE_NEW"] = "새로 만들기"
 L["MARCHING_ANTS_GLOW"] = "움직이는 점선 강조"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 L["MOUNT"] = "탑승"
 L["MOUSE_BUTTON_X"] = "M%s"
 L["NAME"] = "이름"
@@ -3610,11 +3934,15 @@ L["PROFILE"] = "프로필"
 L["PROFILES"] = "프로필"
 L["PVP"] = "PvP"
 L["RAID"] = "레이드"
+--[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
 L["READY_BORDER_COLOR"] = "준비상태 테두리 색상"
 L["READY_FOREGROUND_COLOR"] = "대기상태 전경 색상"
 L["REMAINING"] = "남은시간"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "숨겨진 아이콘을 위한 여백 제거"
 L["RESET_SAVED_ANCHORS"] = "저장된 고정점 재설정"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 L["REVERSE"] = "반전"
 L["REVERSE_GLOW"] = "강조 반전"
 L["RIGHT"] = "오른쪽"
@@ -3631,11 +3959,17 @@ L["SHOW_GCD_SWIPE"] = "전역 재사용 대기시간 효과 표시"
 L["SHOW_ICON"] = "아이콘 표시"
 L["SHOW_KEYBINDINGS"] = "단축키 표시"
 L["SHOW_OUTLINE"] = "아웃라인 표시"
+--[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
 L["SHOW_SHADOW"] = "그림자 표시"
 L["SHOW_SWIPE"] = "효과 표시"
 L["SHOW_TOOLTIPS"] = "툴팁 표시"
 L["SITUATION"] = "상황"
 L["SKYRIDING_ZONE"] = "하늘비행 지역"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 L["SLASH_DESIGN"] = "design"
 L["SLASH_DESIGN_HELP"] = "Coolinator 디자이너 모드 진입/종료"
 L["SLASH_HELP"] = "Coolinator 설정을 엽니다."
@@ -3644,10 +3978,18 @@ L["SLASH_REGEN_HELP"] = "현재 캐릭터에서 디자인을 새로 시작합니
 L["SLASH_RESET"] = "reset"
 L["SLASH_RESET_HELP"] = "모든 Coolinator 설정을 초기화한 뒤 다시 불러옵니다."
 L["SLASH_UNKNOWN_COMMAND"] = "알 수 없는 명령어 '%s'"
+--[[Translation missing --]]
+L["SPACER"] = "Spacer"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "블리자드 CDM의 전문화 데이터 불일치"
 L["SQUARE"] = "사각형"
 L["STACK"] = "중첩"
+--[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
 L["START"] = "시작"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 L["STYLE"] = "스타일"
 L["SWIPE_COLOR"] = "효과 색상"
 L["TARGET"] = "대상"
@@ -3704,9 +4046,13 @@ L["ACTIVE"] = "Active"
 --[[Translation missing --]]
 L["ADD"] = "Add"
 --[[Translation missing --]]
+L["ADD_ID"] = "Add ID"
+--[[Translation missing --]]
 L["ALIGN_X"] = "Align %s"
 --[[Translation missing --]]
 L["ALIGNMENT"] = "Alignment"
+--[[Translation missing --]]
+L["APPLICATIONS"] = "Applications"
 --[[Translation missing --]]
 L["ARCANE_FLURRY"] = "Arcane Flurry"
 --[[Translation missing --]]
@@ -3717,6 +4063,12 @@ L["AURA"] = "Aura"
 L["AURA_BAR"] = "Aura Bar"
 --[[Translation missing --]]
 L["AURA_BARS"] = "Auras Bars"
+--[[Translation missing --]]
+L["AURA_MISSING"] = "Aura (missing)"
+--[[Translation missing --]]
+L["AURA_STACK_PIP"] = "Aura Stack Pip"
+--[[Translation missing --]]
+L["AURA_STACKS"] = "Aura Stacks"
 --[[Translation missing --]]
 L["AURAS"] = "Auras"
 --[[Translation missing --]]
@@ -3748,6 +4100,8 @@ L["BOTTOM_RIGHT"] = "Bottom Right"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+--[[Translation missing --]]
 L["CAST"] = "Cast"
 --[[Translation missing --]]
 L["CAST_BAR"] = "Cast Bar"
@@ -3761,6 +4115,12 @@ L["CENTER_HORIZONTAL"] = "Center Horizontal"
 L["CENTER_VERTICAL"] = "Center Vertical"
 --[[Translation missing --]]
 L["CHANNELING"] = "Channeling"
+--[[Translation missing --]]
+L["CHARGED_BORDER_COLOR"] = "Charged border color"
+--[[Translation missing --]]
+L["CHARGED_FOREGROUND_COLOR"] = "Charged foreground color"
+--[[Translation missing --]]
+L["CHARGES"] = "Charges"
 --[[Translation missing --]]
 L["CHOOSE_A_NEW_DESIGN_NAME"] = "Choose a new design name"
 --[[Translation missing --]]
@@ -3928,6 +4288,8 @@ L["ICON"] = "Icon"
 --[[Translation missing --]]
 L["ICON_POSITION"] = "Icon position"
 --[[Translation missing --]]
+L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["IMPORTED_X"] = "Imported \"%s\""
@@ -3965,6 +4327,8 @@ L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
 L["MOUNT"] = "Mount"
 --[[Translation missing --]]
@@ -4028,6 +4392,8 @@ L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["RAID"] = "Raid"
 --[[Translation missing --]]
+L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -4037,6 +4403,8 @@ L["REMAINING"] = "Remaining"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "Remove spacing for hidden icons"
 --[[Translation missing --]]
 L["RESET_SAVED_ANCHORS"] = "Reset saved anchors"
+--[[Translation missing --]]
+L["RESTED"] = "Rested"
 --[[Translation missing --]]
 L["REVERSE"] = "Reverse"
 --[[Translation missing --]]
@@ -4070,6 +4438,8 @@ L["SHOW_KEYBINDINGS"] = "Show keybindings"
 --[[Translation missing --]]
 L["SHOW_OUTLINE"] = "Show outline"
 --[[Translation missing --]]
+L["SHOW_PANDEMIC"] = "Show pandemic"
+--[[Translation missing --]]
 L["SHOW_SHADOW"] = "Show shadow"
 --[[Translation missing --]]
 L["SHOW_SWIPE"] = "Show swipe"
@@ -4079,6 +4449,10 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SITUATION"] = "Situation"
 --[[Translation missing --]]
 L["SKYRIDING_ZONE"] = "Skyriding Zone"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN"] = "changedesign"
+--[[Translation missing --]]
+L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
 --[[Translation missing --]]
 L["SLASH_DESIGN"] = "design"
 --[[Translation missing --]]
@@ -4096,13 +4470,21 @@ L["SLASH_RESET_HELP"] = "Reset all Coolinator settings, then reload."
 --[[Translation missing --]]
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
+L["SPACER"] = "Spacer"
+--[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
 --[[Translation missing --]]
+L["STACKS_BAR"] = "Stacks (Bar)"
+--[[Translation missing --]]
+L["STACKS_PIPS"] = "Stacks (Pips)"
+--[[Translation missing --]]
 L["START"] = "Start"
+--[[Translation missing --]]
+L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
 --[[Translation missing --]]

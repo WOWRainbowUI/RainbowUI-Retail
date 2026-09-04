@@ -848,6 +848,16 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
       inserter(new)
     end, true)
   end)
+  aura:CreateButton(addonTable.Locales.STACKS_BAR, function()
+    self.auraFrame:Update(function(data)
+      local new = CopyTable(addonTable.Designer.Defaults.AuraStacksBar)
+      new.resource.spellID = data
+      if origin.kind == "bar" and origin.resource.kind == "auraStacks" then
+        ImportStyle(new, origin)
+      end
+      inserter(new)
+    end, true)
+  end)
   aura:CreateButton(addonTable.Locales.POTION_EFFECT, function()
     self.potionFrame:Update(function(data)
       local new = CopyTable(addonTable.Designer.Defaults.AuraIcon)
@@ -921,7 +931,8 @@ function addonTable.Designer.LayoutManagerMixin:MarkSelected(details)
       (current.resource.kind == "auraMissing" and details.resource.kind == current.resource.kind) or
       (current.resource.kind == "ability" and details.resource.kind == current.resource.kind) or
       (current.resource.kind == "abilityCharge" and details.resource.kind == current.resource.kind) or
-      (current.resource.kind == "auraStackPip" and details.resource.kind == current.resource.kind and details.resource.spellID == current.resource.spellID)
+      (current.resource.kind == "auraStackPip" and details.resource.kind == current.resource.kind and details.resource.spellID == current.resource.spellID) or
+      (current.resource.kind == "auraStacks" and details.resource.kind == current.resource.kind)
     ) then
       table.insert(self.selection, details)
       addonTable.CallbackRegistry:TriggerEvent("Designer.Options", self.selection)

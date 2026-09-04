@@ -75,7 +75,8 @@ function addonTable.Core.GenerateDefaultCDMLayout()
   local seen = {}
   for _, id in ipairs(spellUtility) do
     local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    if not seen[spellID] then
+    spellID = spellID and C_Spell.GetBaseSpell(spellID)
+    if spellID and not seen[spellID] then
       local entry = CopyTable(addonTable.Designer.Defaults.AbilityIcon)
       entry.preset = "UTILITY"
       entry.resource.spellID = spellID
@@ -86,7 +87,8 @@ function addonTable.Core.GenerateDefaultCDMLayout()
 
   for _, id in ipairs(spellEssential) do
     local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    if not seen[spellID] then
+    spellID = spellID and C_Spell.GetBaseSpell(spellID)
+    if spellID and not seen[spellID] then
       local entry = CopyTable(addonTable.Designer.Defaults.AbilityIcon)
       entry.preset = "ESSENTIAL"
       entry.resource.spellID = spellID
@@ -98,8 +100,11 @@ function addonTable.Core.GenerateDefaultCDMLayout()
   for _, id in ipairs(auraTracked) do
     local entry = CopyTable(addonTable.Designer.Defaults.AuraIcon)
     entry.preset = "AURA"
-    entry.resource.spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    table.insert(result.entries[3].entries, entry)
+    local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
+    if spellID then
+      entry.resource.spellID = spellID
+      table.insert(result.entries[3].entries, entry)
+    end
   end
 
   local barGroups = {
@@ -116,8 +121,11 @@ function addonTable.Core.GenerateDefaultCDMLayout()
   for _, id in ipairs(auraBars) do
     local entry = CopyTable(addonTable.Designer.Defaults.AuraBar)
     entry.preset = "DEFAULT"
-    entry.resource.spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    table.insert(barGroups.entries, entry)
+    local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
+    if spellID then
+      entry.resource.spellID = spellID
+      table.insert(barGroups.entries, entry)
+    end
   end
 
   table.insert(result.entries, barGroups)
