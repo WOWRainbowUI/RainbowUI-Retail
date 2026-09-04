@@ -29,9 +29,9 @@ GTFO = {
 		IgnoreTimeAmount = .2;
 		AFKAlertMode = nil;
 	};
-	Version = "6.9.1"; -- Version number (text format)
+	Version = "6.9.2"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 60901; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 60902; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Wrath classic)

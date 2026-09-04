@@ -98,6 +98,34 @@ GTFO.SpellID["1307124"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1277835"] = {
+  --desc = "Devour (Predaxas)";
+  map = 2405; -- Voidstorm
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1276220"] = {
+  --desc = "Regurgitation (Predaxas)";
+  map = 2405; -- Voidstorm
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["257949"] = {
+  --desc = "Slippery";
+  map = 2642; -- Tomb of the Lost Priest
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1307170"] = {
+  --desc = "Venom Torrent (Teposutl)";
+  map = 2512; -- The Coiled Isle
+  applicationOnly = true;
+  sound = 3;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -174,14 +202,21 @@ GTFO.SpellID["1288126"] = {
 
 GTFO.SpellID["1260207"] = {
   --desc = "Void Crash (Domanar Enforcer)";
-  instances = { 2933, 2953 }; -- Collegiate Calamity, Parhelion Plaza
+  instances = { 2933, 2952, 2953, 2961, 2962, 2963, 2964, 2965, 2966, 2979, 3003, 3038, 3077, 3079 }; -- Midnight delves
   applicationOnly = true;
   sound = 3;
 };
 
 GTFO.SpellID["1296957"] = {
   --desc = "Corrosive Breath (Wind Serpent)";
-  instance = 2933; -- Collegiate Calamity
+  instances = { 2933, 2952, 2953, 2961, 2962, 2963, 2964, 2965, 2966, 2979, 3003, 3038, 3077, 3079 }; -- Midnight delves
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1297615"] = {
+  --desc = "Poison Tide (Venom-Crazed Murloc)";
+  instances = { 2933, 2952, 2953, 2961, 2962, 2963, 2964, 2965, 2966, 2979, 3003, 3038, 3077, 3079 }; -- Midnight delves
   applicationOnly = true;
   sound = 3;
 };
@@ -200,6 +235,34 @@ GTFO.SpellID["1264991"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1268873"] = {
+  --desc = "Shade Cleave (Blademaster Darza)";
+  instance = 2961; -- Twilight Crypts
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1265320"] = {
+  --desc = "Blinding Burst (Brighthorn)";
+  instance = 2963; -- The Grudge Pit
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1262564"] = {
+  --desc = "Arcano Barrier";
+  instance = 2979; -- Shadowguard Point
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1265779"] = {
+  --desc = "Searing Light (Lumenia)";
+  instance = 2964; -- The Gulf of Memory
+  encounter = 3416;
+  applicationOnly = true;
+  sound = 3;
+};
 
 --- ************************
 --- * The Voidspire (2912) *
@@ -645,7 +708,6 @@ GTFO.SpellID["1285017"] = {
   instance = 3004;
   encounter = 3429;
   sound = 1;
-  test = true; -- Verify the aura remains active only while contacting a moving axe
 };
 
 GTFO.SpellID["1302982"] = {
