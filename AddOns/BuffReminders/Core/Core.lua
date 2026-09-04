@@ -69,7 +69,11 @@ BR.RefreshableComponents = {}
 BR.TEXCOORD_INSET = 0.08
 BR.DEFAULT_BORDER_SIZE = 2
 BR.DEFAULT_ICON_ZOOM = 0 -- percentage; base crop (TEXCOORD_INSET) is always applied separately
-BR.OPTIONS_BASE_SCALE = 1.2
+
+-- Screen pixels per authored unit at 100% zoom: the options panel renders
+-- larger than the numbers its constants use.
+BR.PANEL_DENSITY = 1.2
+BR.PANEL_ZOOM = { MIN = 80, MAX = 150, STEP = 10, DEFAULT = 100 }
 
 BR.Colors = {
     Border = { 0.27, 0.27, 0.32, 1 },
@@ -395,6 +399,7 @@ local DefaultSettingKeys = {
     rightClickSnooze = "DisplayRefresh", -- Re-wires the consumable buttons' type2 attribute
     showBuffTooltips = "VisualsRefresh", -- Toggles raid/presence hover capture vs click-through
     hideLegacyConsumables = "DisplayRefresh",
+    preferReusableRunes = "DisplayRefresh",
     -- Pet display mode
     petDisplayMode = "DisplayRefresh",
     petLabels = "DisplayRefresh",
@@ -461,8 +466,7 @@ local function ValidatePath(segments)
     local root = segments[1]
 
     -- Check root-level settings (false = valid but no refresh event)
-    local isRootSetting = RootSettings[root] ~= nil
-    if isRootSetting then
+    if RootSettings[root] ~= nil then
         if #segments == 1 then
             return true, RootSettings[root]
         end
@@ -487,6 +491,10 @@ local function ValidatePath(segments)
         end
         -- defaults.textPositions.<item>.<field> (zone | offsetX | offsetY)
         if segments[2] == "textPositions" and #segments == 4 then
+            return true, "VisualsRefresh"
+        end
+        -- defaults.textSizes.<item>; nil clears the override
+        if segments[2] == "textSizes" and #segments == 3 then
             return true, "VisualsRefresh"
         end
         return false, nil
@@ -801,6 +809,78 @@ function BR.Config.HasCustomGlow(category)
 end
 
 -- ============================================================================
+-- PANEL SCALE
+-- ============================================================================
+-- Dialogs parent to UIParent, so they do not inherit the options panel scale.
+-- They mirror it instead.
+
+local floor, min, max = math.floor, math.min, math.max
+-- Weak keys: a dialog that rebuilds its panel per open drops out of the set
+-- with the panel it replaced.
+local scaledDialogs = setmetatable({}, { __mode = "k" })
+local SCREEN_MARGIN = 40
+local MIN_DIALOG_SCALE = 0.5
+
+---Zoom the user picked, in percent.
+---@return number
+function BR.GetPanelZoom()
+    return (BR.profile and BR.profile.optionsPanelZoom) or BR.PANEL_ZOOM.DEFAULT
+end
+
+---Frame scale for one member of the options panel family.
+---@param density? number Screen pixels per authored unit at 100% zoom
+---@return number
+function BR.PanelScale(density)
+    return (density or BR.PANEL_DENSITY) * BR.GetPanelZoom() / 100
+end
+
+---Zoom percent of a raw frame scale, the form older SavedVariables hold. The
+---result snaps to a step, because the stepper cannot leave a value it cannot
+---reach.
+---@param scale number
+---@return number
+function BR.ZoomFromLegacyScale(scale)
+    local zoom = BR.PANEL_ZOOM
+    local percent = floor(scale / BR.PANEL_DENSITY * 100 / zoom.STEP + 0.5) * zoom.STEP
+    return min(zoom.MAX, max(zoom.MIN, percent))
+end
+
+---Match one dialog to the options panel scale. Safe to call on every open.
+---@param frame table
+function BR.ApplyDialogScale(frame)
+    local scale = BR.PanelScale(scaledDialogs[frame])
+    local w, h = frame:GetWidth(), frame:GetHeight()
+    if h and h > 0 then
+        scale = min(scale, (UIParent:GetHeight() - SCREEN_MARGIN) / h)
+    end
+    if w and w > 0 then
+        scale = min(scale, (UIParent:GetWidth() - SCREEN_MARGIN) / w)
+    end
+    frame:SetScale(max(scale, MIN_DIALOG_SCALE))
+end
+
+---Register a frame that must follow the options panel scale.
+---@param frame table
+---@param density? number Screen pixels per authored unit at 100% zoom
+function BR.RegisterScaledDialog(frame, density)
+    scaledDialogs[frame] = density or BR.PANEL_DENSITY
+    frame:HookScript("OnShow", BR.ApplyDialogScale)
+    -- CreateFrame returns a shown frame, so the first Show() is a no-op and
+    -- fires no OnShow. Scale it here instead.
+    BR.ApplyDialogScale(frame)
+end
+
+---Re-apply the scale to every open dialog. The scale stepper stays clickable
+---while a dialog is open.
+function BR.RefreshDialogScales()
+    for frame in pairs(scaledDialogs) do
+        if frame:IsShown() then
+            BR.ApplyDialogScale(frame)
+        end
+    end
+end
+
+-- ============================================================================
 -- SHARED UI FACTORIES
 -- ============================================================================
 
@@ -884,6 +964,8 @@ function BR.CreatePanel(name, width, height, options)
         panel:HookScript("OnShow", function(self)
             UIFrameFadeIn(self, 0.12, 0, 1)
         end)
+
+        BR.RegisterScaledDialog(panel)
     elseif options.escClose and name then
         tinsert(UISpecialFrames, name)
     end

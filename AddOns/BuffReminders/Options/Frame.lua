@@ -8,15 +8,13 @@ local _, BR = ...
 --
 -- Each page is registered as BR.Options.Pages.<id> = { title, Build = fn(content), showMasqueBanner = bool }.
 
-local floor, max, min = math.floor, math.max, math.min
-local tinsert = table.insert
+local max, min = math.max, math.min
 
 local L = BR.L
 local Components = BR.Components
-local CreateButton = BR.CreateButton
 local CreatePanel = BR.CreatePanel
 
-local OPTIONS_BASE_SCALE = BR.OPTIONS_BASE_SCALE
+local PANEL_ZOOM = BR.PANEL_ZOOM
 
 local ToggleTestMode = BR.Display.ToggleTestMode
 
@@ -374,18 +372,9 @@ local function CreateOptionsPanel()
     -- ====================================================================
     -- TOP BAR: scale stepper + close button
     -- ====================================================================
-    local BASE_SCALE = OPTIONS_BASE_SCALE
-    local MIN_PCT, MAX_PCT = 80, 150
+    local MIN_PCT, MAX_PCT = PANEL_ZOOM.MIN, PANEL_ZOOM.MAX
 
-    local function GetScalePct()
-        return floor((BR.profile.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
-    end
-
-    local closeBtn = CreateButton(panel, "x", function()
-        panel:Hide()
-    end)
-    closeBtn:SetSize(22, 22)
-    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+    local closeBtn = BR.Options.Helpers.AddCloseButton(panel)
 
     local scaleHolder = CreateFrame("Frame", nil, panel)
     scaleHolder:SetPoint("RIGHT", closeBtn, "LEFT", -8, 0)
@@ -397,34 +386,33 @@ local function CreateOptionsPanel()
 
     local scaleValue = scaleHolder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     scaleValue:SetPoint("LEFT", scaleDown, "RIGHT", 4, 0)
-    scaleValue:SetText(GetScalePct() .. "%")
+    scaleValue:SetText(BR.GetPanelZoom() .. "%")
 
     local scaleUp = scaleHolder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     scaleUp:SetPoint("LEFT", scaleValue, "RIGHT", 4, 0)
     scaleUp:SetText(">")
 
     local function UpdateScaleText()
-        local pct = GetScalePct()
+        local pct = BR.GetPanelZoom()
         scaleValue:SetText(pct .. "%")
         scaleDown:SetTextColor(pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4)
         scaleUp:SetTextColor(pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4)
     end
 
     local function UpdateScale(delta)
-        local newPct = max(MIN_PCT, min(MAX_PCT, GetScalePct() + delta))
-        local newScale = newPct / 100 * BASE_SCALE
-        BR.profile.optionsPanelScale = newScale
-        panel:SetScale(newScale)
+        BR.profile.optionsPanelZoom = max(MIN_PCT, min(MAX_PCT, BR.GetPanelZoom() + delta))
+        panel:SetScale(BR.PanelScale())
+        BR.RefreshDialogScales()
         UpdateScaleText()
     end
 
     local downBtn = CreateFrame("Button", nil, scaleHolder)
     downBtn:SetAllPoints(scaleDown)
     downBtn:SetScript("OnClick", function()
-        UpdateScale(-10)
+        UpdateScale(-PANEL_ZOOM.STEP)
     end)
     downBtn:SetScript("OnEnter", function()
-        if GetScalePct() > MIN_PCT then
+        if BR.GetPanelZoom() > MIN_PCT then
             scaleDown:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
         end
     end)
@@ -435,10 +423,10 @@ local function CreateOptionsPanel()
     local upBtn = CreateFrame("Button", nil, scaleHolder)
     upBtn:SetAllPoints(scaleUp)
     upBtn:SetScript("OnClick", function()
-        UpdateScale(10)
+        UpdateScale(PANEL_ZOOM.STEP)
     end)
     upBtn:SetScript("OnEnter", function()
-        if GetScalePct() < MAX_PCT then
+        if BR.GetPanelZoom() < MAX_PCT then
             scaleUp:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
         end
     end)
@@ -448,9 +436,7 @@ local function CreateOptionsPanel()
 
     UpdateScaleText()
 
-    if BR.profile.optionsPanelScale then
-        panel:SetScale(BR.profile.optionsPanelScale)
-    end
+    panel:SetScale(BR.PanelScale())
 
     -- The header divider is the top layout primitive: the sidebar and the
     -- content area hang from it and run to the panel's bottom margin.
@@ -670,7 +656,7 @@ local function CreateOptionsPanel()
         self:SetActive(on)
     end
     testToggle:Refresh()
-    tinsert(BR.RefreshableComponents, testToggle)
+    table.insert(BR.RefreshableComponents, testToggle)
     panel.testToggle = testToggle
 
     local lockToggle = CreateFooterToggle(sidebar, {
@@ -689,7 +675,7 @@ local function CreateOptionsPanel()
         self:SetActive(not locked)
     end
     lockToggle:Refresh()
-    tinsert(BR.RefreshableComponents, lockToggle)
+    table.insert(BR.RefreshableComponents, lockToggle)
 
     local footerSep = sidebar:CreateTexture(nil, "ARTWORK")
     footerSep:SetHeight(1)

@@ -330,7 +330,6 @@ english["Sidebar.Display"] = "Display"
 english["Sidebar.Alerts"] = "Alerts"
 -- Externals (present-based display)
 english["Externals.Title"] = "External Buffs"
-english["Externals.PageNote"] = "The game draws these icons, so they stay visible in combat. Only buffs on you can be shown."
 english["Externals.NoneTracked"] = "Track at least one buff on the Buffs > External Buffs page first."
 english["Externals.Sound"] = "Sound alert"
 english["Externals.Sound.Tooltip"] =
@@ -350,25 +349,23 @@ english["Externals.SelectAll"] = "All"
 english["Externals.SelectAll.Tooltip"] = "Track every buff in this group."
 english["Externals.SelectNone"] = "None"
 english["Externals.SelectNone.Tooltip"] = "Stop tracking every buff in this group."
-english["Externals.Defensives"] = "External Defensives"
-english["Externals.GroupBuffs"] = "Group Buffs"
+english["Externals.PersonalDefensives"] = "Defensives on You"
+english["Externals.GroupDefensives"] = "Group Defensives"
+english["Externals.MinorGroupDefensives"] = "Minor Group Defensives"
+english["Externals.Boosts"] = "Damage & Mana"
 english["Externals.Movement"] = "Movement"
 english["Externals.Aggro"] = "Threat Redirects"
 english["Externals.Augmentation"] = "Augmentation"
-english["Externals.Bloodlust"] = "Bloodlust"
-english["Externals.MassBarrier"] = "Mass Barrier"
-english["Externals.BlessingOfSeasons"] = "Blessing of the Seasons"
 english["Externals.DurationSize"] = "Countdown size"
 english["Externals.Appearance"] = "Appearance"
 english["Externals.AppearanceNote"] =
-    "While these buffs are secret the game forbids restyling their icons, so changes made in combat apply as soon as you leave it. Unlock the frames to drag the row."
+    "Changes made in combat apply as soon as you leave it. Unlock the frames to drag the row."
 english["Externals.ShowSwipe"] = "Show duration swipe"
 english["Externals.ShowSwipe.Desc"] =
     "Draw a dark sweep over the icon. The sweep uncovers the icon as the buff runs out."
 english["Externals.ShowTooltips"] = "Show tooltips"
 english["Externals.ShowTooltips.Desc"] =
     "Show the game's buff tooltip when the mouse is on an icon. The icons never take clicks, only mouse movement."
-english["Externals.MasqueNote"] = "Masque cannot skin these icons: their size reads back as a secret value."
 english["Externals.Sound.Claimed"] = "%s already plays a sound for this spell ID."
 -- Externals: the player's own entries
 english["Externals.Custom"] = "Your Buffs"
@@ -544,12 +541,15 @@ english["Options.TextPositions"] = "Text"
 english["Options.TextPositions.Zone"] = "Position"
 english["Options.TextPositions.OffsetX.Short"] = "X"
 english["Options.TextPositions.OffsetY.Short"] = "Y"
+english["Options.TextPositions.Size"] = "Size"
 english["Options.TextPositions.MainText"] = "Main text"
 english["Options.TextPositions.MainText.Note"] =
     "Position of the big text on the icon - group counts like 17/20, countdowns, and labels like NO FLASK."
 english["Options.TextPositions.StackCount"] = "Stack count"
 english["Options.TextPositions.StatLabel"] = "Stat label"
 english["Options.TextPositions.Badge"] = "Badge (H / F)"
+english["Options.TextSizes.Note"] =
+    "Auto keeps the text at the base size. Set a value to size that text on its own, as a percentage of the icon."
 english["Options.TextPositions.Vertical.Above"] = "Above"
 english["Options.TextPositions.Vertical.InsideTop"] = "Top"
 english["Options.TextPositions.Vertical.InsideMiddle"] = "Center"
@@ -634,10 +634,10 @@ english["Options.PetLabels.SizePct"] = "Size %"
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
 -- ============================================================================
-english["Options.ConsumableTextScale"] = "Text scale"
-english["Options.ConsumableTextScale.Title"] = "Consumable text scale"
+english["Options.ConsumableTextScale"] = "Base size"
+english["Options.ConsumableTextScale.Title"] = "Base text size"
 english["Options.ConsumableTextScale.Desc"] =
-    "Font size for item counts and quality (R1/R2/R3) labels as a percentage of icon size."
+    "Font size for stack counts, stat labels and badges, as a percentage of icon size. Each of the three can override it below."
 english["Options.ConsumableBadgeOnSubIcons"] = "Show quality badge on sub-icons"
 english["Options.ConsumableBadgeOnSubIcons.Title"] = "Quality badge on sub-icons"
 english["Options.ConsumableBadgeOnSubIcons.Desc"] =
@@ -676,6 +676,10 @@ english["Options.HideLegacyConsumables"] = "Hide legacy consumables"
 english["Options.HideLegacyConsumables.Title"] = "Hide legacy consumables"
 english["Options.HideLegacyConsumables.Desc"] =
     "When enabled, food, flasks, and runes from previous expansions are filtered out of the action buttons. Disable if you still use older consumables for Timewalking, old-raid farming, or undergeared alts."
+english["Options.PreferReusableRunes"] = "Prefer reusable augment runes"
+english["Options.PreferReusableRunes.Title"] = "Prefer reusable augment runes"
+english["Options.PreferReusableRunes.Desc"] =
+    "If you have a reusable augment rune, show only that one. If you have none, show the other runes."
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -916,22 +920,34 @@ english["CustomBuff.AddButton"] = "+ Add Custom Buff"
 english["CustomBuff.Empty"] = "No custom buffs yet. Add one below."
 english["CustomBuff.RestrictedNote"] =
     "Hidden in combat, boss encounters and Mythic+ - WoW blocks aura reads there. Bar glow detection works in combat."
-english["CustomBuff.SpellIDs"] = "Spell IDs:"
-english["CustomBuff.Lookup"] = "Lookup"
+english["CustomBuff.SpellIDs"] = "Spell IDs"
 english["CustomBuff.AddSpellID"] = "+ Add Spell ID"
-english["CustomBuff.Name"] = "Name:"
-english["CustomBuff.Text"] = "Text:"
-english["CustomBuff.LineBreakHint"] = "(use \\n for line break)"
-english["CustomBuff.Appearance"] = "APPEARANCE"
-english["CustomBuff.BuffTracking"] = "BUFF TRACKING"
-english["CustomBuff.Requirements"] = "REQUIREMENTS"
-english["CustomBuff.ShowIn"] = "SHOW IN"
-english["CustomBuff.ClickAction"] = "CLICK ACTION"
+english["CustomBuff.Text"] = "Overlay text"
+english["CustomBuff.LineBreakHint"] = "Type \\n for a line break."
+
+-- Custom buff dialog tabs
+english["CustomBuff.Tab.Buff"] = "Buff"
+english["CustomBuff.Tab.Rules"] = "Rules"
+english["CustomBuff.Tab.Click"] = "Click"
+
+-- Custom buff dialog section headers
+english["CustomBuff.Section.Track"] = "Spells"
+english["CustomBuff.Section.ShowIcon"] = "Display"
+english["CustomBuff.Section.Who"] = "Character"
+english["CustomBuff.Section.Item"] = "Required item"
+english["CustomBuff.Section.Where"] = "Where it shows"
+english["CustomBuff.Section.OnClick"] = "Click action"
+
+-- Custom buff dialog header
+english["CustomBuff.NamePlaceholder"] = "Name this reminder"
+english["CustomBuff.NoSpellYet"] = "No spell yet - add an ID below"
 
 -- Custom buff mode toggles
 english["CustomBuff.WhenActive"] = "When active"
 english["CustomBuff.WhenMissing"] = "When missing"
 english["CustomBuff.OnlyIfSpellKnown"] = "Only if spell known"
+english["CustomBuff.ShowWhen"] = "Show"
+english["CustomBuff.Expiration.Disabled"] = "The expiration warning applies only to a buff you show when missing."
 
 -- Custom buff class dropdown
 english["Class.Any"] = "Any"
@@ -950,51 +966,56 @@ english["Class.Warlock"] = "Warlock"
 english["Class.Warrior"] = "Warrior"
 
 -- Custom buff fields
-english["CustomBuff.Spec"] = "Spec:"
-english["CustomBuff.Class"] = "Class:"
-english["CustomBuff.RequireItem"] = "Require item:"
+english["CustomBuff.Spec"] = "Spec"
+english["CustomBuff.Class"] = "Class"
+english["CustomBuff.RequireItem"] = "Item ID"
 english["CustomBuff.RequireItem.EquippedBags"] = "Equipped/Bags"
 english["CustomBuff.RequireItem.Equipped"] = "Equipped"
 english["CustomBuff.RequireItem.InBags"] = "In bags"
-english["CustomBuff.RequireItem.Hint"] = "item ID - hide if not found"
-english["CustomBuff.ItemCooldown"] = "Cooldown:"
+english["CustomBuff.ItemCooldown"] = "Cooldown"
 english["CustomBuff.ItemCooldown.Any"] = "Any"
 english["CustomBuff.ItemCooldown.OffCooldown"] = "Off cooldown"
 english["CustomBuff.ItemCooldown.OnCooldown"] = "On cooldown"
+english["CustomBuff.RequireItem.Mode"] = "Location"
+english["CustomBuff.RequireItem.Disabled"] = "Set an item ID first."
 
 -- Bar glow options
 english["CustomBuff.BarGlow.WhenGlowing"] = "Detect when glowing"
 english["CustomBuff.BarGlow.WhenNotGlowing"] = "Detect when not glowing"
 english["CustomBuff.BarGlow.Disabled"] = "Disabled"
-english["CustomBuff.BarGlow"] = "Bar glow:"
+english["CustomBuff.BarGlow"] = "Bar glow"
 english["CustomBuff.BarGlow.Title"] = "Action bar glow fallback"
 english["CustomBuff.BarGlow.Desc"] =
     "Fallback detection using action bar spell glows during M+/PvP/combat when buff API is restricted. Disable if you only want buff presence tracking."
 
 -- Ready check / level
 english["CustomBuff.ReadyCheckOnly"] = "Only on ready check"
-english["CustomBuff.Level"] = "Level:"
+english["CustomBuff.Level"] = "Level"
 english["CustomBuff.Level.Any"] = "Any level"
 english["CustomBuff.Level.Max"] = "Max level only"
 english["CustomBuff.Level.BelowMax"] = "Below max level"
+english["CustomBuff.Content"] = "Content"
 
 -- Click action
 english["CustomBuff.Action.None"] = "None"
 english["CustomBuff.Action.Spell"] = "Spell"
 english["CustomBuff.Action.Item"] = "Item"
 english["CustomBuff.Action.Macro"] = "Macro"
-english["CustomBuff.Action.OnClick"] = "On click:"
+english["CustomBuff.Action.OnClick"] = "Runs"
 english["CustomBuff.Action.Title"] = "Click action"
 english["CustomBuff.Action.Desc"] =
     "What happens when you click this buff icon. Spell casts a spell, Item uses an item, Macro runs a macro command."
 english["CustomBuff.Action.MacroHint"] = "e.g. /use item:12345\\n/use 13"
+english["CustomBuff.Action.SpellID"] = "Spell ID"
+english["CustomBuff.Action.ItemID"] = "Item ID"
+english["CustomBuff.Action.MacroText"] = "Macro"
+english["CustomBuff.Action.SpellHint"] = "This can differ from the tracked spell. Track the buff, cast the ability."
 
 -- Save/Cancel/Delete
 english["CustomBuff.Save"] = "Save"
-english["CustomBuff.ValidateError"] = "Please validate at least one spell ID"
+english["CustomBuff.ValidateError"] = "Add one valid spell ID to save."
 
 -- Custom buff status
-english["CustomBuff.InvalidID"] = "Invalid ID"
 english["CustomBuff.NotFound"] = "Not found"
 english["CustomBuff.NotFoundRetry"] = "Not found (try again)"
 english["CustomBuff.Error"] = "Error:"
@@ -1028,6 +1049,7 @@ english["Options.ResetToDefaults"] = "Reset to Defaults"
 -- OPTIONS: MISC
 -- ============================================================================
 english["Options.Off"] = "Off"
+english["Options.Auto"] = "Auto"
 english["Options.Always"] = "Always"
 english["Options.ReadyCheck"] = "Ready check"
 english["Options.Min"] = "min"
@@ -1103,6 +1125,7 @@ english["DisabledReason.ExpiringInCombat"] =
 english["DisabledReason.HealthstoneThreshold"] = 'Enable "Warn when low" first.'
 english["DisabledReason.ClickToCast"] = 'Turn on "Click to cast" first.'
 english["DisabledReason.UseDefaultThreshold"] = 'Uncheck "Use default threshold" to set a category-specific value.'
+english["DisabledReason.StatLabelsHidden"] = 'Uncheck "Hide stat labels" first.'
 
 -- Direction labels
 english["Direction.Left"] = "Left"

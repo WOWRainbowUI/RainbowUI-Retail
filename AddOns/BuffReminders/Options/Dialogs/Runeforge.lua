@@ -181,4 +181,8 @@ local function BuildInline(parent, opts)
     return y - finalY
 end
 
-BR.Options.Dialogs.Runeforge = { BuildInline = BuildInline }
+BR.Options.Dialogs.Runeforge = {
+    BuildInline = BuildInline,
+    Name = L["BuffRow.Option.Runeforge"],
+    Width = 504,
+}

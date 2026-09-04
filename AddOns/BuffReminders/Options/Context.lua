@@ -6,6 +6,8 @@ BR.Options = BR.Options or {}
 BR.Options.Dialogs = BR.Options.Dialogs or {}
 BR.Options.Pages = BR.Options.Pages or {}
 BR.Options.Helpers = BR.Options.Helpers or {}
+BR.Options.BuffSections = {}
+BR.Options.BuffRow = {}
 
 -- ============================================================================
 -- SHARED CONSTANTS
@@ -48,6 +50,33 @@ BR.Options.Constants = {
     DIALOG_MIN_HEIGHT = 80, -- floor for dialogs with very few controls
     DIALOG_LEVEL = 200, -- frame level used by all dialogs
 }
+
+-- ============================================================================
+-- LOADOUT SCOPES
+-- ============================================================================
+
+-- Where a loadout rule applies, in the order the scope dropdown lists them.
+-- These are player-facing content tiers. A key insert or a match start locks
+-- gear and talents, so per-difficulty granularity adds nothing. Arena and
+-- Battleground are separate tiers because their setups differ. Dungeon covers
+-- every difficulty, including M+. Open World and Delve allow free swaps, so a
+-- reminder to restore the everyday build stays usable there.
+---@type { value: string, labelKey: string }[]
+BR.Options.LoadoutScopes = {
+    { value = "openWorld", labelKey = "Loadout.Scope.OpenWorld" },
+    { value = "dungeon", labelKey = "Loadout.Scope.Dungeon" },
+    { value = "delve", labelKey = "Loadout.Scope.Delve" },
+    { value = "raid", labelKey = "Loadout.Scope.Raid" },
+    { value = "arena", labelKey = "Loadout.Scope.Arena" },
+    { value = "battleground", labelKey = "Loadout.Scope.Battleground" },
+}
+
+-- Scope to locale key, for a summary line that names one scope.
+---@type table<string, string>
+BR.Options.LoadoutScopeLabel = {}
+for _, scope in ipairs(BR.Options.LoadoutScopes) do
+    BR.Options.LoadoutScopeLabel[scope.value] = scope.labelKey
+end
 
 -- ============================================================================
 -- SIDEBAR GROUPS / PAGE ORDER
@@ -100,8 +129,6 @@ BR.Options.StaticCategories = BR.STATIC_CATEGORIES
 -- ============================================================================
 
 local ceil = math.ceil
-local abs = math.abs
-local tinsert = table.insert
 local L = BR.L
 local Components = BR.Components
 local Helpers = BR.Options.Helpers
@@ -263,7 +290,7 @@ function Helpers.AddOverrideRow(parent, layout, opts)
         end
     end
     refreshState()
-    tinsert(BR.RefreshableComponents, { Refresh = refreshState })
+    table.insert(BR.RefreshableComponents, { Refresh = refreshState })
 
     layout:Add(holder, nil, COMPONENT_GAP)
     return holder
@@ -394,7 +421,7 @@ function Helpers.ListEditor(content, scrollFrame, config)
     emptyText:Hide()
 
     local function UpdateContentHeight()
-        content:SetHeight(abs(listTopY) + listContainer:GetHeight() + 30)
+        content:SetHeight(math.abs(listTopY) + listContainer:GetHeight() + 30)
     end
 
     local function AcquireRow(index)
@@ -448,7 +475,7 @@ function Helpers.ListEditor(content, scrollFrame, config)
     function refreshHook:Refresh()
         Render()
     end
-    tinsert(BR.RefreshableComponents, refreshHook)
+    table.insert(BR.RefreshableComponents, refreshHook)
 
     return Render
 end
@@ -588,6 +615,21 @@ function Helpers.MakeDefaultsSetter(key)
     end
 end
 
+-- AddCloseButton draws the flat close-x every panel and dialog shares. Blizzard's
+-- UIPanelCloseButton does not match the addon chrome, so no frame uses it.
+---@param parent table
+---@param onClick? function defaults to parent:Hide()
+---@return table button
+function Helpers.AddCloseButton(parent, onClick)
+    local C = BR.Options.Constants
+    local btn = BR.CreateButton(parent, "x", onClick or function()
+        parent:Hide()
+    end)
+    btn:SetSize(C.DIALOG_CLOSE_SIZE, C.DIALOG_CLOSE_SIZE)
+    btn:SetPoint("TOPRIGHT", C.DIALOG_CLOSE_INSET, C.DIALOG_CLOSE_INSET)
+    return btn
+end
+
 -- ============================================================================
 -- DIALOG SHELL HELPERS
 -- ============================================================================
@@ -612,7 +654,6 @@ function Helpers.CreateDialogShell(name, titleKey, opts)
     opts = opts or {}
     local C = BR.Options.Constants
     local CreatePanel = BR.CreatePanel
-    local CreateButton = BR.CreateButton
 
     local dialog = CreatePanel(name, opts.width or C.DIALOG_WIDTH_NARROW, 1, {
         level = opts.level or C.DIALOG_LEVEL,
@@ -641,11 +682,7 @@ function Helpers.CreateDialogShell(name, titleKey, opts)
         title:SetPoint("TOP", 0, C.DIALOG_TITLE_TOP)
     end
 
-    local closeBtn = CreateButton(dialog, "x", function()
-        dialog:Hide()
-    end)
-    closeBtn:SetSize(C.DIALOG_CLOSE_SIZE, C.DIALOG_CLOSE_SIZE)
-    closeBtn:SetPoint("TOPRIGHT", C.DIALOG_CLOSE_INSET, C.DIALOG_CLOSE_INSET)
+    local closeBtn = Helpers.AddCloseButton(dialog)
 
     local layoutTop = opts.layoutY or C.DIALOG_LAYOUT_TOP
     local layout = BR.Components.VerticalLayout(dialog, {
@@ -664,6 +701,7 @@ function Helpers.CreateDialogShell(name, titleKey, opts)
         local contentBottom = layout:GetY()
         local height = math.max(-contentBottom + pad, C.DIALOG_MIN_HEIGHT)
         dialog:SetHeight(height)
+        BR.ApplyDialogScale(dialog)
 
         -- Center the content in the body region: from the title separator down
         -- to the bottom edge. A single short control then sits in the middle of

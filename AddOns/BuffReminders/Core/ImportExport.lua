@@ -164,6 +164,12 @@ local function ImportSettings(prefixedStr)
     p.hideOthersInCombat = nil
     p.myBuffsOnlyWhileLeveling = nil
 
+    -- Pre-v52 strings carry the panel zoom as a raw frame scale (migration [52]).
+    if type(p.optionsPanelScale) == "number" then
+        p.optionsPanelZoom = BR.ZoomFromLegacyScale(p.optionsPanelScale)
+    end
+    p.optionsPanelScale = nil
+
     -- Ensure defaults sub-table exists and has the metatable (DeepCopy produces
     -- a plain table, and old export strings can omit the defaults key).
     if not BR.profile.defaults then

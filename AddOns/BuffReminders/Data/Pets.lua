@@ -151,11 +151,17 @@ local function BuildWarlockActions()
     return actions
 end
 
--- Single-action pet spell ID -> short pet name (fallback: full spell name)
-local SINGLE_PET_NAMES = {
-    [46584] = "Ghoul", -- Raise Dead (DK)
-    [31687] = "Water Elemental", -- Summon Water Elemental (Mage)
+-- These classes summon one pet with one spell. The name is the short name a
+-- player uses. The full spell name is the fallback.
+local SINGLE_PET = {
+    DEATHKNIGHT = { spellID = 46584, name = "Ghoul" }, -- Raise Dead
+    MAGE = { spellID = 31687, name = "Water Elemental" }, -- Summon Water Elemental
 }
+
+local SINGLE_PET_NAMES = {}
+for _, pet in pairs(SINGLE_PET) do
+    SINGLE_PET_NAMES[pet.spellID] = pet.name
+end
 
 ---Build a single-action list for a given spell
 ---@param spellID number
@@ -209,13 +215,12 @@ local cacheValid = false
 local CLASS_PET_BUILDERS = {
     HUNTER = BuildHunterActions,
     WARLOCK = BuildWarlockActions,
-    DEATHKNIGHT = function()
-        return BuildSingleAction(46584)
-    end, -- Raise Dead
-    MAGE = function()
-        return BuildSingleAction(31687)
-    end, -- Summon Water Elemental
 }
+for class, pet in pairs(SINGLE_PET) do
+    CLASS_PET_BUILDERS[class] = function()
+        return BuildSingleAction(pet.spellID)
+    end
+end
 
 ---Build and cache the list of pet summon actions for the given class.
 ---Returns cached result on subsequent calls until invalidated.

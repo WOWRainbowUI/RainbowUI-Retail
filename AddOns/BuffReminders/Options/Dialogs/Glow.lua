@@ -100,11 +100,12 @@ local GLOW_COMMON_OFFSETS = {
     { kind = "slider", labelKey = "YOffset", key = "YOffset", min = -10, max = 10, step = 1, default = 0 },
 }
 
-local PANEL_W = 440
+local PANEL_W = 396
 local PANEL_H = 460
+local BOTTOM_PAD = 18
 local PREVIEW_SIZE = 64
 local PREVIEW_PAD = 12
-local MARGIN = 20
+local MARGIN = 18
 local SLIDER_SPACING = 24
 local PREVIEW_KEY = "BR_adv_preview"
 
@@ -350,7 +351,7 @@ local function BuildTypeContainer(typeIdx)
     resetBtn:SetSize(140, 24)
     layout:Add(resetBtn, 24)
 
-    local entry = { frame = container, height = math.abs(layout:GetY()) + 46 }
+    local entry = { frame = container, height = math.abs(layout:GetY()) + BOTTOM_PAD }
     typeContainers[typeIdx] = entry
     return entry
 end
@@ -363,6 +364,7 @@ local function ShowTypeContent(typeIdx)
     entry.frame:Show()
     activeContainer = entry
     panel:SetHeight(entry.height)
+    BR.ApplyDialogScale(panel)
     Components.RefreshAll()
     RefreshPreview()
 end
@@ -380,11 +382,7 @@ local function BuildPanel()
     titleFS = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     titleFS:SetPoint("TOP", 0, -10)
 
-    local closeBtn = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-    closeBtn:SetPoint("TOPRIGHT", -2, -2)
-    closeBtn:SetScript("OnClick", function()
-        panel:Hide()
-    end)
+    BR.Options.Helpers.AddCloseButton(panel)
 
     expiringTab = Components.Tab(panel, { label = L["Options.GlowKind.Expiring"] })
     expiringTab:SetPoint("TOPLEFT", MARGIN, -42)

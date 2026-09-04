@@ -1,32 +1,20 @@
 # BuffReminders
 
-## [v6.7.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.7.0) (2026-08-24)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.6.0...v6.7.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
-
-### New Features ✨
-
-- **Externals:** add your own buffs by spell ID
-- **Externals:** add an option to show buff tooltips on hover
-- **Externals:** show a duration swipe on the tracked buff icons
-- **Externals:** add up and down growth for the tracked buff icons
+## [v6.8.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.8.0) (2026-09-04)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.7.3...v6.8.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### Bug Fixes 🐛
 
-- **Externals:** show each row's sound alert and name what it plays
-- **Externals:** clear a row's hover highlight when the pointer leaves it
-- **Healthstone:** clear the low-stock warning after refilling a stone
-
-### Localization 🌐
-
-- Updated translations: zhTW
+- **Consumables:** show the expiring flask instead of the one in your bags
+- **Loadouts:** detect the active Talent Loadout Ex build
 
 ### Other Changes 🔧
 
-- **Buffs:** drop the unused per-buff row caption text
-- **Display:** inline single-use aliases to free local slots
-- **I18n:** remove locale keys that no code reads
-- **Libs:** update embedded libs (LibSharedMedia-3.0)
-- **Locales:** keep only the comments translators need
-- **State:** split the refresh cycle into per-category functions
-- Trim code comments to the facts the code cannot show
+- Adopt the C_Secrets API for restriction detection
+- Gate cooldown reads on cooldown secrecy instead of pcall
+- Read the cached consumable bag items through one helper
+- Pair the consumable item memo with its invalidator
+- Drop single-use locals that only restate their expression
+- Call the stdlib directly in options-panel code
+- Declare the options sub-namespaces in one place
 

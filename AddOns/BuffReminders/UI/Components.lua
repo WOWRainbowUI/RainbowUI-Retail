@@ -43,10 +43,7 @@ local ACCENT_R, ACCENT_G, ACCENT_B = unpack(BR.Colors.Accent)
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, ceil, max, min = math.floor, math.ceil, math.max, math.min
-local format = string.format
-local rad = math.rad
 local tinsert = table.insert
-local tremove = table.remove
 
 local L = BR.L
 local Components = BR.Components
@@ -1428,7 +1425,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
     arrow:SetSize(12, 12)
     arrow:SetPoint("RIGHT", -6, 0)
     arrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-    arrow:SetRotation(rad(-90)) -- points down
+    arrow:SetRotation(math.rad(-90)) -- points down
 
     -- ==================== MENU ====================
     -- Parent to the dropdown parent so the menu scrolls with the container.
@@ -1827,6 +1824,7 @@ end
 ---@field alignWidth? number Width of the Align dropdown (default 85)
 ---@field get fun(): string Returns current zone name
 ---@field enabled? fun(): boolean
+---@field disabledReason? string|fun(): string Hover text while `enabled` returns false
 ---@field onChange fun(zone: string)
 
 -- Each Dropdown holder reserves an extra 10px past its `width` for the
@@ -1939,6 +1937,10 @@ function Components.ZonePicker(parent, config)
 
     if config.get or config.enabled then
         tinsert(RefreshableComponents, holder)
+    end
+
+    if config.disabledReason and config.enabled then
+        Components.AttachDisabledReason(holder, config.enabled, config.disabledReason)
     end
 
     holder:Refresh()
@@ -2420,7 +2422,12 @@ function Components.VisibilityToggles(parent, config)
             showDiffBar(mapping.contentKey)
         end)
         local toggle = CONTENT_TOGGLE_DEFS[mapping.btnIndex]
-        SetupTooltip(btn, toggle.tooltip.title, format(L["Content.ClickToFilter"], toggle.tooltip.title), "ANCHOR_TOP")
+        SetupTooltip(
+            btn,
+            toggle.tooltip.title,
+            string.format(L["Content.ClickToFilter"], toggle.tooltip.title),
+            "ANCHOR_TOP"
+        )
     end
 
     refreshAll = function()
@@ -2753,7 +2760,7 @@ end
 
 ---Create a compact numeric stepper with [-] value [+] buttons
 ---@param parent table Parent frame
----@param config table Configuration: label, min, max, step?, labelWidth?, get?, enabled?, onChange?
+---@param config table Configuration: label, min, max, step?, labelWidth?, get?, enabled?, onChange?, formatValue?
 ---@return table holder Frame with .SetValue(n), .GetValue(), .SetEnabled(bool), .Refresh()
 function Components.NumericStepper(parent, config)
     local step = config.step or 1
@@ -2768,10 +2775,12 @@ function Components.NumericStepper(parent, config)
         labelWidth = 70
     end
 
+    local displayText = config.formatValue or tostring
+
     -- Auto-grow value box: at the default font 4-digit numbers fit in 26px, at
     -- bigger fonts they do not. Measure the actual extents of min and max.
-    local minTxt = tostring(config.min or 0)
-    local maxTxt = tostring(config.max or 100)
+    local minTxt = displayText(config.min or 0)
+    local maxTxt = displayText(config.max or 100)
     local VALUE_WIDTH = max(
         26,
         max(MeasureTextWidth(minTxt, "GameFontHighlightSmall"), MeasureTextWidth(maxTxt, "GameFontHighlightSmall")) + 8
@@ -2806,7 +2815,7 @@ function Components.NumericStepper(parent, config)
     local UpdateButtonStates
 
     local function UpdateValueText()
-        valueText:SetText(tostring(currentValue))
+        valueText:SetText(displayText(currentValue))
         if UpdateButtonStates then
             UpdateButtonStates()
         end
@@ -3679,7 +3688,7 @@ function Components.RefreshAll()
     for i = #RefreshableComponents, 1, -1 do
         local component = RefreshableComponents[i]
         if component.GetParent and component:GetParent() == nil then
-            tremove(RefreshableComponents, i)
+            table.remove(RefreshableComponents, i)
         elseif component.Refresh then
             component:Refresh()
         end
@@ -3703,7 +3712,7 @@ function Components.Unregister(holder)
     end
     for i = #RefreshableComponents, 1, -1 do
         if RefreshableComponents[i] == holder then
-            tremove(RefreshableComponents, i)
+            table.remove(RefreshableComponents, i)
             return
         end
     end
@@ -3994,7 +4003,7 @@ function Components.CollapsibleSection(parent, config)
             contentBg:Hide()
             holder:SetHeight(HEADER_HEIGHT)
         else
-            indicator:SetRotation(rad(-90)) -- points down
+            indicator:SetRotation(math.rad(-90)) -- points down
             contentBg:Show()
             holder:SetHeight(HEADER_HEIGHT + contentHeight + CONTENT_PADDING * 2)
         end
