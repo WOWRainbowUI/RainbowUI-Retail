@@ -8,7 +8,7 @@ local Keystone = KeystoneLoot.Keystone;
 local CopyPopup = KeystoneLoot.CopyPopup;
 local L = KeystoneLoot.L;
 
-local WEBSITE_URL = "www.keystoneloot.io";
+local WEBSITE_URL = "keystoneloot.io";
 
 local isResponsePaused = false;
 
@@ -30,7 +30,7 @@ function KeystoneLootFrameMixin:OnLoad()
     self.FooterText:SetText("Made with LOVE in Germany - " .. website);
 
     self.FooterButton:SetScript("OnClick", function()
-        CopyPopup:Show(WEBSITE_URL);
+        CopyPopup:Show("https://" .. WEBSITE_URL);
     end);
 
     table.insert(UISpecialFrames, self:GetName());

@@ -6,6 +6,8 @@ local Character = KeystoneLoot.Character;
 local L = KeystoneLoot.L;
 local Voidcore = KeystoneLoot.Voidcore;
 
+local NORMAL_R, NORMAL_G, NORMAL_B = NORMAL_FONT_COLOR:GetRGB();
+
 local HIGHLIGHTS = {
     { key = "settings.highlighting.crit",        label = ITEM_MOD_CRIT_RATING_SHORT },
     { key = "settings.highlighting.haste",       label = ITEM_MOD_HASTE_RATING_SHORT },
@@ -197,6 +199,11 @@ function KeystoneLootSettingsDropdownMixin:Init()
             function() DB:Set("settings.favoriteIcon", not DB:Get("settings.favoriteIcon")); end
         );
         rootDescription:CreateCheckbox(
+            L["Slot name on item icons"],
+            function() return DB:Get("settings.slotName"); end,
+            function() DB:Set("settings.slotName", not DB:Get("settings.slotName")); end
+        );
+        rootDescription:CreateCheckbox(
             L['Hide "Other" in All Slots'],
             function() return DB:Get("settings.hideOtherItems"); end,
             function() DB:Set("settings.hideOtherItems", not DB:Get("settings.hideOtherItems")); end
@@ -219,7 +226,7 @@ function KeystoneLootSettingsDropdownMixin:Init()
 
         local responseButton = rootDescription:CreateButton(L["Auto Keystone response"]);
         responseButton:SetTooltip(function(Tooltip)
-            GameTooltip_AddNormalLine(Tooltip, L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."], true);
+            Tooltip:AddLine(L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."], NORMAL_R, NORMAL_G, NORMAL_B, true);
         end);
 
         responseButton:CreateCheckbox(
@@ -268,8 +275,8 @@ function KeystoneLootSettingsDropdownMixin:Init()
 
             if (isLoggedInChar) then
                 deleteButton:SetEnabled(false);
-                deleteButton:SetTooltip(function(Tooltip, elementDescription)
-                    Tooltip:SetText(L["Cannot delete the currently logged in character."]);
+                deleteButton:SetTooltip(function(Tooltip)
+                    Tooltip:AddLine(L["Cannot delete the currently logged in character."], NORMAL_R, NORMAL_G, NORMAL_B, true);
                 end);
             end
         end
@@ -281,17 +288,26 @@ function KeystoneLootSettingsDropdownMixin:Init()
             function() return DB:Get("settings.lootReminder.dungeons"); end,
             function() DB:Set("settings.lootReminder.dungeons", not DB:Get("settings.lootReminder.dungeons")); end
         );
-        lootReminderCheckbox:SetTooltip(function(Tooltip, elementDescription)
-            GameTooltip_AddNormalLine(Tooltip, L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, or if switching it could increase your chances of getting them."], true);
+        lootReminderCheckbox:SetTooltip(function(Tooltip)
+            Tooltip:AddLine(L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, or if switching it could increase your chances of getting them."], NORMAL_R, NORMAL_G, NORMAL_B, true);
+        end);
+
+        local mythicPlusNotificationCheckbox = rootDescription:CreateCheckbox(
+            L["Mythic+ notification (dungeons)"],
+            function() return DB:Get("settings.mythicPlusNotification"); end,
+            function() DB:Set("settings.mythicPlusNotification", not DB:Get("settings.mythicPlusNotification")); end
+        );
+        mythicPlusNotificationCheckbox:SetTooltip(function(Tooltip)
+            Tooltip:AddLine(L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."], NORMAL_R, NORMAL_G, NORMAL_B, true);
         end);
 
         local dropAlertCheckbox = rootDescription:CreateCheckbox(
-            L["Drop alert (favorites)"],
+            L["Drop notification (favorites)"],
             function() return DB:Get("settings.lootReminder.dropAlert"); end,
             function() DB:Set("settings.lootReminder.dropAlert", not DB:Get("settings.lootReminder.dropAlert")); end
         );
-        dropAlertCheckbox:SetTooltip(function(Tooltip, elementDescription)
-            GameTooltip_AddNormalLine(Tooltip, L["Shows a notification when another player loots an item you have marked as a favorite."], true);
+        dropAlertCheckbox:SetTooltip(function(Tooltip)
+            Tooltip:AddLine(L["Shows a notification when another player loots an item you have marked as a favorite."], NORMAL_R, NORMAL_G, NORMAL_B, true);
         end);
 
         rootDescription:CreateButton(L["Whisper message..."], function()

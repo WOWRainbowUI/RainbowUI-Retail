@@ -6,7 +6,7 @@ local DB = KeystoneLoot.DB;
 
 local CURRENT_SEASON = KeystoneLoot.Config.season;
 
-local DB_VERSION = 10;
+local DB_VERSION = 12;
 local CHAR_DB_VERSION = 3;
 
 local observers = {};
@@ -122,6 +122,14 @@ function DB:MigrateGlobalDB(fromVersion)
 
     if (fromVersion == 9) then
         KeystoneLootDB.settings.favoriteIcon = true;
+    end
+
+    if (fromVersion == 10) then
+        KeystoneLootDB.settings.slotName = true;
+    end
+
+    if (fromVersion == 11) then
+        KeystoneLootDB.settings.mythicPlusNotification = true;
     end
 end
 
