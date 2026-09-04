@@ -1,4 +1,3 @@
-if BBF.isMidnight then return end
 local darkModeUi
 local darkModeUiAura
 local darkModeColor = 1
@@ -9,7 +8,7 @@ local hookedTotemBar
 local hookedAuras
 
 local function applySettings(frame, desaturate, colorValue, hook, hookShow)
-    if frame then
+    if frame and not issecretvalue(frame) and not frame:IsForbidden() then
         if desaturate ~= nil and frame.SetDesaturated then
             frame:SetDesaturated(desaturate)
         end
@@ -21,9 +20,12 @@ local function applySettings(frame, desaturate, colorValue, hook, hookShow)
                     frame.bbfHooked = true
 
                     hooksecurefunc(frame, "SetVertexColor", function(self)
-                        if self.changing or self:IsProtected() then return end
+                        if not self then return end
+                        if self.changing or self:IsForbidden() or issecretvalue(self) then return end
                         self.changing = true
-                        self:SetDesaturated(desaturate)
+                        if self.SetDesaturated then
+                            self:SetDesaturated(desaturate)
+                        end
                         self:SetVertexColor(colorValue, colorValue, colorValue)
                         self.changing = false
                     end)
@@ -33,67 +35,182 @@ local function applySettings(frame, desaturate, colorValue, hook, hookShow)
     end
 end
 
+function BBF.DarkModeNameplateResources()
+    if BetterBlizzPlatesDB and BetterBlizzPlatesDB.darkModeNameplateResource then return end
+
+    local prdClassFrame = PersonalResourceDisplayFrame and PersonalResourceDisplayFrame.classFrame
+    if not prdClassFrame or prdClassFrame:IsForbidden() then return end
+
+    local on = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeNameplateResource) and true or false
+    local desaturate = on
+    local base = on and BetterBlizzFramesDB.darkModeColor or 1
+    local druid = on and (base + 0.2) or 1
+    local druidActive = on and (base + 0.1) or 1
+    local mage = on and (base + 0.15) or 1
+    local monk = on and (base + 0.1) or 1
+    local rogue = on and (base + 0.45) or 1
+    local rogueActive = on and (base + 0.3) or 1
+
+    local playerClass = UnitClassBase("player")
+
+    if playerClass == "DEATHKNIGHT" then
+        for i = 1, 6 do
+            local rune = prdClassFrame["Rune" .. i]
+            if rune then
+                applySettings(rune.BG_Active, desaturate, base)
+                applySettings(rune.BG_Inactive, desaturate, base)
+            end
+        end
+    elseif playerClass == "WARLOCK" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            applySettings(v.Background, desaturate, base)
+        end
+    elseif playerClass == "DRUID" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            applySettings(v.BG_Inactive, desaturate, druid)
+            applySettings(v.BG_Active, desaturate, druidActive)
+            if BetterBlizzFramesDB.druidOverstacks then
+                applySettings(v.ChargedFrameActive, desaturate, druidActive)
+            end
+        end
+    elseif playerClass == "MAGE" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            applySettings(v.ArcaneBG, desaturate, mage)
+        end
+    elseif playerClass == "MONK" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            applySettings(v.Chi_BG, desaturate, monk)
+            applySettings(v.Chi_BG_Active, desaturate, monk)
+        end
+    elseif playerClass == "ROGUE" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            applySettings(v.BGInactive, desaturate, rogue)
+            applySettings(v.BGActive, desaturate, rogueActive)
+        end
+    elseif playerClass == "PALADIN" then
+        applySettings(prdClassFrame.Background, desaturate, base)
+        applySettings(prdClassFrame.ActiveTexture, desaturate, base)
+    elseif playerClass == "EVOKER" then
+        for _, v in pairs({prdClassFrame:GetChildren()}) do
+            if v.EssenceFillDone then
+                applySettings(v.EssenceFillDone.CircBG, desaturate, monk)
+                applySettings(v.EssenceFillDone.CircBGActive, desaturate, base)
+                applySettings(v.EssenceFillDone.RimGlow, desaturate, monk)
+            end
+            if v.EssenceFilling then
+                applySettings(v.EssenceFilling.EssenceBG, desaturate, base)
+            end
+            if v.EssenceEmpty then
+                applySettings(v.EssenceEmpty.EssenceBG, desaturate, base)
+            end
+            if v.EssenceDepleting then
+                applySettings(v.EssenceDepleting.EssenceBG, desaturate, base)
+                applySettings(v.EssenceDepleting.CircBGActive, desaturate, base)
+                applySettings(v.EssenceDepleting.RimGlow, desaturate, monk)
+            end
+        end
+    end
+end
+
+local pixelBorderAuras
+local removeDebuffColorBorder
 function BBF.UpdateUserDarkModeSettings()
     darkModeUi = BetterBlizzFramesDB.darkModeUi
     darkModeUiAura = BetterBlizzFramesDB.darkModeUiAura
     hookedTotemBar = BetterBlizzFramesDB.hookedTotemBar
     darkModeColor = BetterBlizzFramesDB.darkModeColor
+    pixelBorderAuras = (BetterBlizzFramesDB.noPortraitModes and BetterBlizzFramesDB.noPortraitPixelBorder) or BetterBlizzFramesDB.pixelBorderAuras
+
     auraFilteringOn = BetterBlizzFramesDB.playerAuraFiltering
+    removeDebuffColorBorder = BetterBlizzFramesDB.removeDebuffColorBorder
 end
 
 local hooked = {}
 
-function BBF.DarkModeUnitframeBorders()
-    if BetterBlizzFramesDB.darkModeUiAura and BetterBlizzFramesDB.darkModeUi then
-        if not hookedAuras then
-            local function styleAuras(self)
-                for frame, _ in self.auraPools:EnumerateActive() do
-                    if not hooked[frame] then
-                        local icon = frame.Icon
-                        hooked[frame] = true
+local function ApplyBorder(auraFrame, r, g, b)
+    if not auraFrame.bbfBorder then
+        local border = auraFrame:CreateTexture(nil, "OVERLAY", nil, -1)
+        local icon = auraFrame.Icon or auraFrame.icon
+        if pixelBorderAuras then
+            border:SetAtlas("communities-create-avatar-border-hover")
+            border:SetDesaturated(true)
+            border:SetPoint("TOPLEFT", icon, "TOPLEFT", -0.5, 0.5)
+            border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 0.5, -0.5)
+        else
+            border:SetAtlas("Adventures-Spell-Border")
+            border:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
+            border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+        end
+        border:SetVertexColor(r, g, b)
+        auraFrame.bbfBorder = border
+    else
+        auraFrame.bbfBorder:SetVertexColor(r, g, b)
+    end
+end
 
-                        if not frame.border then
-                            local border = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-                            border:SetBackdrop({
-                                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                                tileEdge = true,
-                                edgeSize = 8.5,
-                            })
+local function StylePartyBuffs(frame, colorValue)
+    if BetterBlizzFramesDB.enableMasque and C_AddOns.IsAddOnLoaded("Masque") then return end
+    if (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeUiAura) then
+        if not BBF.auraBorders[frame] then
+            local icon = frame.icon or frame.Icon
+            if not icon then return end
+            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-                            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-                            border:SetPoint("TOPLEFT", icon, "TOPLEFT", -1.5, 1.5)
-                            border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1.5, -2)
-                            frame.border = border
-
-                            border:SetBackdropBorderColor(darkModeColor, darkModeColor, darkModeColor)
-                        end
-
-                        if frame.Border then
-                            frame.border:Hide()
-                        else
-                            if frame.Stealable and not frame.Stealable:IsShown() then
-                                frame.border:Show()
-                            end
-                        end
-                    else
-                        if frame.Border then
-                            frame.border:Hide()
-                        else
-                            --if frame.Stealable and not frame.Stealable:IsShown() then
-                                frame.border:Show()
-                            --end
-                        end
-                    end
-                end
+            local border = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+            if pixelBorderAuras then
+                border:SetAtlas("communities-create-avatar-border-hover")
+                border:SetDesaturated(true)
+                border:SetPoint("TOPLEFT", icon, "TOPLEFT", -0.5, 0.5)
+                border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 0.5, -0.5)
+            else
+                border:SetAtlas("Adventures-Spell-Border")
+                border:SetPoint("TOPLEFT", icon, "TOPLEFT", -1.5, 1.5)
+                border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1.5, -1.5)
             end
+            border:SetVertexColor(colorValue, colorValue, colorValue)
 
-            hooksecurefunc(TargetFrame, "UpdateAuras", styleAuras)
-            hooksecurefunc(FocusFrame, "UpdateAuras", styleAuras)
+            BBF.auraBorders[frame] = border
+        else
+            local border = BBF.auraBorders[frame]
+            if border then
+                border:SetVertexColor(colorValue, colorValue, colorValue)
+            end
+        end
+    else
+        if BBF.auraBorders[frame] then
+            BBF.auraBorders[frame]:Hide()
+            BBF.auraBorders[frame] = nil
 
-            hookedAuras = true
+            local icon = frame.icon or frame.Icon
+            if icon then
+                icon:SetTexCoord(0, 1, 0, 1)
+            end
         end
     end
 end
+
+
+function BBF.DarkModeUnitframeBorders()
+    if not (BetterBlizzFramesDB.darkModeUiAura and BetterBlizzFramesDB.darkModeUi) and not (BetterBlizzFramesDB.noPortraitModes and BetterBlizzFramesDB.noPortraitPixelBorder) and not BetterBlizzFramesDB.pixelBorderAuras then return end
+
+    local color = (BetterBlizzFramesDB.noPortraitModes and BetterBlizzFramesDB.noPortraitPixelBorder and 0) or darkModeColor
+
+    for i = 1, 5 do
+        for j = 1, 6 do
+            local auraFrame = _G["CompactPartyFrameMember" .. i .. "Buff" .. j]
+            if auraFrame then
+                StylePartyBuffs(auraFrame, color)
+            end
+        end
+    end
+
+    if BBF.RestyleAuraButtons then
+        BBF.RestyleAuraButtons(true)
+    end
+end
+
+
+
 
 local function UpdateUnitFrameDarkModeBorderColors(color)
     if not BetterBlizzFramesDB.darkModeColor then return end
@@ -104,52 +221,40 @@ local function UpdateUnitFrameDarkModeBorderColors(color)
     end
 end
 
-local buffIconScale = BuffFrame.AuraContainer.iconScale
-local borderSize = buffIconScale < 1 and 10 or buffIconScale < 1.1 and 9 or 8
-
 BBF.auraBorders = {}  -- BuffFrame aura borders for darkmode
 local function createOrUpdateBorders(frame, colorValue, textureName, bypass)
     --if not twwrdy then return end
     if BetterBlizzFramesDB.enableMasque and C_AddOns.IsAddOnLoaded("Masque") then return end
     if (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeUiAura) or bypass then
         if not BBF.auraBorders[frame] then
-            buffIconScale = BuffFrame.AuraContainer.iconScale
-            borderSize = buffIconScale < 1 and 10 or buffIconScale < 1.1 and 9 or 8
-            -- Create borders
-            local border = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-            if not bypass then
-                border:SetBackdrop({
-                    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                    tileEdge = true,
-                    edgeSize = borderSize,
-                })
-            else
-                border:SetBackdrop({
-                    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                    tileEdge = true,
-                    edgeSize = 10,
-                })
-            end
-
             local icon = frame.Icon or frame.icon
             if textureName then
                 icon = frame[textureName]
             end
             if not icon then return end
-            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) -- Adjust the icon
+            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-            if not bypass then
-                border:SetPoint("TOPLEFT", icon, "TOPLEFT", -1.5, 2)
-                border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1.5, -1.5)
+            local border = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+            if pixelBorderAuras then
+                border:SetAtlas("communities-create-avatar-border-hover")
+                border:SetDesaturated(true)
+                border:SetPoint("TOPLEFT", icon, "TOPLEFT", -0.5, 0.5)
+                border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 0.5, -0.5)
             else
-                border:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
-                border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+                border:SetAtlas("Adventures-Spell-Border")
+                if bypass then
+                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
+                    border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+                else
+                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -3.5, 3.5)
+                    border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 3.5, -3.5)
+                end
             end
-            border:SetBackdropBorderColor(colorValue, colorValue, colorValue)
+            border:SetVertexColor(colorValue, colorValue, colorValue)
 
             BBF.auraBorders[frame] = border -- Store the border
             if frame.ImportantGlow then
-                frame.ImportantGlow:SetParent(border)
+                frame.ImportantGlow:SetParent(frame)
                 frame.ImportantGlow:SetPoint("TOPLEFT", frame, "TOPLEFT", -15, 16)
                 frame.ImportantGlow:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 15, -6)
             end
@@ -157,21 +262,22 @@ local function createOrUpdateBorders(frame, colorValue, textureName, bypass)
             -- Update border colors
             local border = BBF.auraBorders[frame]
             if border then
-                border:SetBackdropBorderColor(colorValue, colorValue, colorValue)
+                border:SetVertexColor(colorValue, colorValue, colorValue)
             end
         end
     else
         -- Remove custom borders if they exist and revert the icon
         if BBF.auraBorders[frame] then
             BBF.auraBorders[frame]:Hide()
-            BBF.auraBorders[frame]:SetParent(nil) -- Unparent the border
             BBF.auraBorders[frame] = nil -- Remove the reference
 
             local icon = frame.Icon
             if textureName then
                 icon = frame[textureName]
             end
-            icon:SetTexCoord(0, 1, 0, 1) -- Revert the icon to the original state
+            if icon then
+                icon:SetTexCoord(0, 1, 0, 1)
+            end
         end
     end
 end
@@ -220,14 +326,10 @@ function BBF.DarkmodeFrames(bypass)
     local objectiveColor = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeObjectiveFrame) and BetterBlizzFramesDB.darkModeColor or 1
     local objectiveSat  = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeObjectiveFrame) and true or false
 
-    local darkModeNpBBP = BetterBlizzPlatesDB and BetterBlizzPlatesDB.darkModeNameplateResource
-    local darkModeNp = BetterBlizzFramesDB.darkModeNameplateResource and not darkModeNpBBP
-    local darkModeNpSatVal = darkModeNp and desaturationValue or false
-
     if BetterBlizzFramesDB.darkModeColor == 0 then
         if BetterBlizzFramesDB.darkModeActionBars then
             actionBarColor = 0
-            birdColor = 0.07
+            birdColor = 0.2
         end
         rogueCombo = 0.25
         rogueComboActive = 0.15
@@ -255,52 +357,95 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    if BetterBlizzFramesDB.darkModeUi then
-            local function DarkModeBuffBarCDM(c)
-            if not c.Bar then
-                return
-            end
-
-            local bar = c.Bar
-
-            for _, r in ipairs({ bar:GetRegions() }) do
-                if r.GetAtlas and r:GetAtlas() == "UI-HUD-CoolDownManager-Bar-BG" then
-                    r:SetDesaturated(true)
-                    r:SetVertexColor(vertexColor, vertexColor, vertexColor)
-                end
-            end
-        end
-
-        for _, child in ipairs({ BuffBarCooldownViewer:GetChildren() }) do
-            DarkModeBuffBarCDM(child)
-        end
-    end
-
     UpdateUnitFrameDarkModeBorderColors(vertexColor)
 
-    for key, region in pairs(GameTooltip.NineSlice) do
-        if key ~= "Center" and type(region) == "table" and (region.SetDesaturated or region.SetVertexColor) then
-            applySettings(region, tooltipSat, tooltipColor)
-        end
-    end
-    if BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeGameTooltip and not BBF.hookedTip then
-        GameTooltip:HookScript("OnShow", function()
-            for key, region in pairs(GameTooltip.NineSlice) do
-                if key == "Center" then
-                    applySettings(region, tooltipSat, 0)
+    if BetterBlizzFramesDB.darkModeUi then
+        local function DarkModeCDMBuffBars()
+            if not BuffBarCooldownViewer then return end
+
+            if not BBF.DarkModeCDMBuffBar then
+                local function ColorBuffBars()
+                    for itemFrame in BuffBarCooldownViewer.itemFramePool:EnumerateActive() do
+                        itemFrame.Bar.BarBG:SetDesaturated(true)
+                        itemFrame.Bar.BarBG:SetVertexColor(vertexColor, vertexColor, vertexColor)
+                    end
                 end
+                hooksecurefunc(BuffBarCooldownViewer, "OnAcquireItemFrame", function(self, itemFrame)
+                    if itemFrame.darkModeBar then return end
+                    itemFrame.Bar.BarBG:SetDesaturated(true)
+                    itemFrame.Bar.BarBG:SetVertexColor(vertexColor, vertexColor, vertexColor)
+                    itemFrame.darkModeBar = true
+                end)
+                ColorBuffBars()
+                BBF.DarkModeCDMBuffBar = true
             end
-        end)
-        BBF.hookedTip = true
+        end
+        DarkModeCDMBuffBars()
     end
 
-    local aceTooltip = AceConfigDialogTooltip
-    if aceTooltip then
-        for key, region in pairs(aceTooltip.NineSlice) do
-            if key ~= "Center" and type(region) == "table" and (region.SetDesaturated or region.SetVertexColor) then
-                applySettings(region, tooltipSat, tooltipColor)
+    if (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeGameTooltip) or BBF.darkModeTooltips then
+        local tooltipsToSkin = {
+            GameTooltip,
+            ShoppingTooltip1,
+            ShoppingTooltip2,
+            ItemRefTooltip,
+            ItemRefShoppingTooltip1,
+            ItemRefShoppingTooltip2,
+            EmbeddedItemTooltip,
+        }
+        for _, tip in pairs(tooltipsToSkin) do
+            if tip and tip.NineSlice then
+                for key, region in pairs(tip.NineSlice) do
+                    if key ~= "Center" and type(region) == "table" and (region.SetDesaturated or region.SetVertexColor) then
+                        applySettings(region, tooltipSat, tooltipColor)
+                    end
+                end
             end
         end
+
+        for _, tip in ipairs({ ShoppingTooltip1, ShoppingTooltip2, ItemRefShoppingTooltip1, ItemRefShoppingTooltip2 }) do
+            if tip and tip.CompareHeader then
+                local regions = { tip.CompareHeader:GetRegions() }
+                for _, region in ipairs(regions) do
+                    if region:GetObjectType() ~= "FontString" and (region.SetDesaturated or region.SetVertexColor) then
+                        applySettings(region, tooltipSat, tooltipColor)
+                    end
+                end
+            end
+        end
+
+        if not BBF.hookedTip then
+            for _, tip in pairs(tooltipsToSkin) do
+                if tip and tip.NineSlice then
+                    tip:HookScript("OnShow", function()
+                        for key, region in pairs(tip.NineSlice) do
+                            if key == "Center" and region then
+                                if region:IsForbidden() then return end
+                                applySettings(region, tooltipSat, 0)
+                                region:SetDrawLayer("BACKGROUND", -8)
+                            end
+                        end
+                    end)
+                end
+            end
+            hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self)
+                if self and not self:IsForbidden() and self.NineSlice and self.NineSlice.SetCenterColor then
+                    self.NineSlice:SetCenterColor(0, 0, 0, 1)
+                end
+            end)
+            BBF.hookedTip = true
+        end
+
+        local aceTooltip = AceConfigDialogTooltip
+        if aceTooltip then
+            for key, region in pairs(aceTooltip.NineSlice) do
+                if key ~= "Center" and type(region) == "table" and (region.SetDesaturated or region.SetVertexColor) then
+                    applySettings(region, tooltipSat, tooltipColor)
+                end
+            end
+        end
+
+        BBF.darkModeTooltips = true
     end
 
     local function RecolorVigor()
@@ -355,14 +500,35 @@ function BBF.DarkmodeFrames(bypass)
     if BuffFrame then
         for _, frame in pairs({_G.BuffFrame.AuraContainer:GetChildren()}) do
             createOrUpdateBorders(frame, vertexColor)
+            if frame.Duration and frame.Icon then
+                frame.Duration:ClearAllPoints()
+                if BuffFrame.AuraContainer.addIconsToTop then
+                    frame.Duration:SetPoint("BOTTOM", frame.Icon, "TOP", 0, 3)
+                else
+                    frame.Duration:SetPoint("TOP", frame.Icon, "BOTTOM", 0, -3)
+                end
+                if not frame.Duration.bbfSetPointHook then
+                    frame.Duration.bbfSetPointHook = true
+                    hooksecurefunc(frame.Duration, "SetPoint", function(self)
+                        if self.changingPoint then return end
+                        self.changingPoint = true
+                        self:ClearAllPoints()
+                        if BuffFrame.AuraContainer.addIconsToTop then
+                            self:SetPoint("BOTTOM", frame.Icon, "TOP", 0, 3)
+                        else
+                            self:SetPoint("TOP", frame.Icon, "BOTTOM", 0, -3)
+                        end
+                        self.changingPoint = false
+                    end)
+                end
+            end
         end
     end
 
 
 
-    if ToggleHiddenAurasButton then
-        createOrUpdateBorders(ToggleHiddenAurasButton, vertexColor)
-    end
+    BBF.StyleToggleAuraIcon()
+    BBF.DarkModeBuffCollapseButton()
 
     BBF.DarkModeUnitframeBorders()
 
@@ -417,6 +583,12 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
+    for i = 1, 3 do
+        local frame = _G["DamageMeterSessionWindow"..i]
+        if frame then
+            applySettings(frame.Header, desaturationValue, vertexColor)
+        end
+    end
 
     applySettings(ObjectiveTrackerFrame.Header.Background, objectiveSat, objectiveColor)
     applySettings(CampaignQuestObjectiveTracker.Header.Background, objectiveSat, objectiveColor)
@@ -607,27 +779,12 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local nameplateRunes = _G.DeathKnightResourceOverlayFrame
-    if nameplateRunes and not nameplateRunes:IsForbidden() and not darkModeNpBBP then
-        local dkNpRunes = darkModeNp and vertexColor or 1
-        for i = 1, 6 do
-            applySettings(nameplateRunes["Rune" .. i].BG_Active, darkModeNpSatVal, dkNpRunes)
-            applySettings(nameplateRunes["Rune" .. i].BG_Inactive, darkModeNpSatVal, dkNpRunes)
-        end
-    end
+    BBF.DarkModeNameplateResources()
 
     local soulShards = _G.WarlockPowerFrame
     if soulShards then
         for _, v in pairs({soulShards:GetChildren()}) do
             applySettings(v.Background, desaturationValue, druidComboPointActive)
-        end
-    end
-
-    local soulShardsNameplate = _G.ClassNameplateBarWarlockFrame
-    if soulShardsNameplate and not soulShardsNameplate:IsForbidden() and not darkModeNpBBP then
-        local soulShardNp = darkModeNp and vertexColor or 1
-        for _, v in pairs({soulShardsNameplate:GetChildren()}) do
-            applySettings(v.Background, darkModeNpSatVal, soulShardNp)
         end
     end
 
@@ -672,29 +829,10 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local druidComboPointsNameplate = _G.ClassNameplateBarFeralDruidFrame
-    if druidComboPointsNameplate and not druidComboPointsNameplate:IsForbidden() and not darkModeNpBBP then
-        local druidComboPointNp = darkModeNp and druidComboPoint or 1
-        local druidComboPointActiveNp = darkModeNp and druidComboPointActive or 1
-        for _, v in pairs({druidComboPointsNameplate:GetChildren()}) do
-            applySettings(v.BG_Inactive, darkModeNpSatVal, druidComboPointNp)
-            applySettings(v.BG_Active, darkModeNpSatVal, druidComboPointActiveNp)
-        end
-    end
-
     local mageArcaneCharges = _G.MageArcaneChargesFrame
     if mageArcaneCharges then
         for _, v in pairs({mageArcaneCharges:GetChildren()}) do
             applySettings(v.ArcaneBG, desaturationValue, comboColor)
-            --applySettings(v.BG_Active, desaturationValue, druidComboPointActive)
-        end
-    end
-
-    local mageArcaneChargesNameplate = _G.ClassNameplateBarMageFrame
-    if mageArcaneChargesNameplate and not mageArcaneChargesNameplate:IsForbidden() and not darkModeNpBBP then
-        local mageChargeNp = darkModeNp and comboColor or 1
-        for _, v in pairs({mageArcaneChargesNameplate:GetChildren()}) do
-            applySettings(v.ArcaneBG, darkModeNpSatVal, mageChargeNp)
             --applySettings(v.BG_Active, desaturationValue, druidComboPointActive)
         end
     end
@@ -707,16 +845,6 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local monkChiPointsNameplate = _G.ClassNameplateBarWindwalkerMonkFrame
-    if monkChiPointsNameplate and not monkChiPointsNameplate:IsForbidden() and not darkModeNpBBP then
-        local monkChiNp = darkModeNp and monkChi or 1
-        local monkChiNpActive = darkModeNp and monkChiActive or 1
-        for _, v in pairs({monkChiPointsNameplate:GetChildren()}) do
-            applySettings(v.Chi_BG, darkModeNpSatVal, monkChiNp)
-            applySettings(v.Chi_BG_Active, darkModeNpSatVal, monkChiNpActive)
-        end
-    end
-
     local rogueComboPoints = _G.RogueComboPointBarFrame
     if rogueComboPoints then
         for _, v in pairs({rogueComboPoints:GetChildren()}) do
@@ -725,27 +853,8 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local rogueComboPointsNameplate = _G.ClassNameplateBarRogueFrame
-    if rogueComboPointsNameplate and not rogueComboPointsNameplate:IsForbidden() and not darkModeNpBBP then
-        local rogueComboNp = darkModeNp and rogueCombo or 1
-        local rogueComboActiveNp = darkModeNp and rogueComboActive or 1
-        for _, v in pairs({rogueComboPointsNameplate:GetChildren()}) do
-            applySettings(v.BGInactive, darkModeNpSatVal, rogueComboNp)
-            applySettings(v.BGActive, darkModeNpSatVal, rogueComboActiveNp)
-        end
-    end
-
-
     -- PaladinPowerBarFrame.Background,
     -- PaladinPowerBarFrame.ActiveTexture,
-
-
-    local paladinHolyPowerNameplate = _G.ClassNameplateBarPaladinFrame
-    if paladinHolyPowerNameplate and not paladinHolyPowerNameplate:IsForbidden() and not darkModeNpBBP then
-        local palaPowerNp = darkModeNp and vertexColor or 1
-        applySettings(ClassNameplateBarPaladinFrame.Background, darkModeNpSatVal, palaPowerNp)
-        applySettings(ClassNameplateBarPaladinFrame.ActiveTexture, darkModeNpSatVal, palaPowerNp)
-    end
 
     local evokerEssencePoints = _G.EssencePlayerFrame
     if evokerEssencePoints then
@@ -777,41 +886,10 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local evokerEssencePointsNameplate = _G.ClassNameplateBarDracthyrFrame
-    if evokerEssencePointsNameplate and not evokerEssencePointsNameplate:IsForbidden() and not darkModeNpBBP then
-        local evokerColorOne = darkModeNp and monkChi or 1
-        local evokerColorTwo = darkModeNp and vertexColor or 1
-        for _, v in pairs({evokerEssencePointsNameplate:GetChildren()}) do
-            if v.EssenceFillDone and v.EssenceFillDone.CircBG then
-                applySettings(v.EssenceFillDone.CircBG, darkModeNpSatVal, evokerColorOne)
-            end
-            if v.EssenceFilling and v.EssenceFilling.EssenceBG then
-                applySettings(v.EssenceFilling.EssenceBG, darkModeNpSatVal, evokerColorTwo)
-            end
-            if v.EssenceEmpty and v.EssenceEmpty.EssenceBG then
-                applySettings(v.EssenceEmpty.EssenceBG, darkModeNpSatVal, evokerColorTwo)
-            end
-            if v.EssenceFillDone and v.EssenceFillDone.CircBGActive then
-                applySettings(v.EssenceFillDone.CircBGActive, darkModeNpSatVal, evokerColorTwo)
-            end
-            if v.EssenceDepleting and v.EssenceDepleting.EssenceBG then
-                applySettings(v.EssenceDepleting.EssenceBG, darkModeNpSatVal, evokerColorTwo)
-            end
-            if v.EssenceDepleting and v.EssenceDepleting.CircBGActive then
-                applySettings(v.EssenceDepleting.CircBGActive, darkModeNpSatVal, evokerColorTwo)
-            end
-            if v.EssenceFillDone and v.EssenceFillDone.RimGlow then
-                applySettings(v.EssenceFillDone.RimGlow, darkModeNpSatVal, evokerColorOne)
-            end
-            if v.EssenceDepleting and v.EssenceDepleting.RimGlow then
-                applySettings(v.EssenceDepleting.RimGlow, darkModeNpSatVal, evokerColorOne)
-            end
-        end
-    end
-
     -- Actionbars
     if BetterBlizzFramesDB.darkModeActionBars or BBF.actionBarColorEnabled then
-        local actionbarsplits = _G.MainActionBar
+        local mainActionBar = _G.MainMenuBar or _G.MainActionBar
+        local actionbarsplits = mainActionBar
         if actionbarsplits then
             for _, v in pairs({actionbarsplits:GetChildren()}) do
                 applySettings(v.TopEdge, desaturationValue, actionBarColor)
@@ -836,7 +914,6 @@ function BBF.DarkmodeFrames(bypass)
         applySettings(StatusTrackingBarManager.SecondaryStatusTrackingBarContainer.BarFrameTexture, desaturationValue, actionBarColor)
 
         for _, v in pairs({
-            MainActionBar.BorderArt,
             ActionButton1.RightDivider,
             ActionButton2.RightDivider,
             ActionButton3.RightDivider,
@@ -852,11 +929,17 @@ function BBF.DarkmodeFrames(bypass)
             applySettings(v, desaturationValue, actionBarColor, true)
         end
 
-        for _, v in pairs({
-            MainActionBar.EndCaps.LeftEndCap,
-            MainActionBar.EndCaps.RightEndCap,
-        }) do
-            applySettings(v, desaturationValue, birdColor, true)
+        if mainActionBar then
+            applySettings(mainActionBar.BorderArt, desaturationValue, actionBarColor, true)
+        end
+
+        if mainActionBar and mainActionBar.EndCaps then
+            for _, v in pairs({
+                mainActionBar.EndCaps.LeftEndCap,
+                mainActionBar.EndCaps.RightEndCap,
+            }) do
+                applySettings(v, desaturationValue, birdColor, true)
+            end
         end
 
         local BARTENDER4_NUM_MAX_BUTTONS = 180
@@ -953,12 +1036,18 @@ end
 
 
 function BBF.UpdateFilteredBuffsIcon()
-    if BetterBlizzFramesDB.enableMasque then return end
-    if BetterBlizzFramesDB.darkModeUi then
-        local vertexColor = BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeColor or 1
-        if ToggleHiddenAurasButton then
-            createOrUpdateBorders(ToggleHiddenAurasButton, vertexColor)
-        end
+    BBF.StyleToggleAuraIcon()
+    BBF.DarkModeBuffCollapseButton()
+end
+
+function BBF.DarkModeBuffCollapseButton()
+    local button = BBF.buffCollapseButton
+    if not button or BetterBlizzFramesDB.enableMasque then return end
+
+    local darkMode = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeUiAura) and true or false
+    local vertexColor = darkMode and BetterBlizzFramesDB.darkModeColor or 1
+    for _, arrow in ipairs(button.bbfArrows or {}) do
+        applySettings(arrow, darkMode, vertexColor)
     end
 end
 
@@ -973,6 +1062,10 @@ specChangeListener:SetScript("OnEvent", function(self, event, ...)
                 local playerClass = select(2, UnitClass("player"))
                 local vertexColor = BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeColor or 1
                 local desaturationValue = BetterBlizzFramesDB.darkModeUi
+
+                if BetterBlizzFramesDB.darkModeNameplateResource then
+                    BBF.DarkModeNameplateResources()
+                end
 
                 if playerClass == "ROGUE" then
                     local rogueCombo = vertexColor + 0.45
@@ -1006,32 +1099,7 @@ specChangeListener:SetScript("OnEvent", function(self, event, ...)
 end)
 
 function BBF.CheckForAuraBorders()
-    if BetterBlizzFramesDB.enableMasque then return end
-    if not (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeUiAura) then
-        local frames = {_G.BuffFrame.AuraContainer:GetChildren()}
-
-        for _, frame in ipairs(frames) do
-            local iconTexture
-            for i = 1, frame:GetNumChildren() do
-                local child = select(i, frame:GetChildren())
-
-                local bottomEdgeTexture = child.BottomEdge
-                if bottomEdgeTexture and bottomEdgeTexture:IsObjectType("Texture") then
-                    local r, g, b, a = bottomEdgeTexture:GetVertexColor()
-                    local borderColorValue = r
-
-                    iconTexture = frame.Icon
-                    if iconTexture and borderColorValue then
-                        if ToggleHiddenAurasButton then
-                            ToggleHiddenAurasButton.Icon:SetTexCoord(iconTexture:GetTexCoord())
-                            createOrUpdateBorders(ToggleHiddenAurasButton, borderColorValue, nil, true)
-                            return
-                        end
-                    end
-                end
-            end
-        end
-    end
+    BBF.StyleToggleAuraIcon()
 end
 
 function BBF.DarkModeCastbars()

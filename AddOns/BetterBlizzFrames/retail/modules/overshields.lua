@@ -1,157 +1,196 @@
-if BBF.isMidnight then return end
-----------------------------------------------------
----- Overshields is a fork by Casper Storm of the abandoned DerangementShieldMeters addon by Derangement
----- with a tweak from me, Bodify, to get rid of a minor bug
-----------------------------------------------------
-local ABSORB_GLOW_ALPHA = 0.6;
-local ABSORB_GLOW_OFFSET = -5;
+local ABSORB_GLOW_ALPHA  = 0.6
+local ABSORB_GLOW_OFFSET = -5
+
 local UNITFRAME_OVERSHIELD_HOOKED = false
 local COMPACT_UNITFRAME_OVERSHIELD_HOOKED = false
+local PRD_OVERSHIELD_HOOKED = false
 
-local function getAbsorbOverlay(frame)
-    if frame == PlayerFrame then
-        return frame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar.TotalAbsorbBar.TiledFillOverlay
-    elseif frame == TargetFrame or frame == FocusFrame then
-        return frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar.TotalAbsorbBar.TiledFillOverlay
+local function AnchorOvershieldBar(overshieldBar, healthBar, classicOffset)
+    local box = BetterBlizzFramesDB and BetterBlizzFramesDB.noPortraitPixelBorder
+        and healthBar.BBFPositionFrame or nil
+    local bigPlayerBar = BetterBlizzFramesDB and BetterBlizzFramesDB.bigPlayerHealthbar
+        and healthBar == PlayerFrame.healthbar
+
+    overshieldBar:ClearAllPoints()
+    if box then
+        overshieldBar:SetAllPoints(box)
+    elseif classicOffset and not bigPlayerBar then
+        overshieldBar:SetPoint("TOPLEFT", healthBar, "TOPLEFT", 0, -10)
+        overshieldBar:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0)
+    else
+        overshieldBar:SetAllPoints(healthBar)
     end
+
+    overshieldBar.bbfAnchoredToBox = box and true or false
+end
+
+function BBF.UpdatePlayerOvershieldAnchor()
+    local overshieldBar = PlayerFrame.bbfOvershieldBar
+    if not overshieldBar then return end
+    AnchorOvershieldBar(overshieldBar, PlayerFrame.healthbar, overshieldBar.bbfClassicOffset)
+end
+
+local function CreateOvershieldBar(healthBar, classicOffset, higherLayer)
+    local overshieldBar = CreateFrame("StatusBar", nil, healthBar)
+    overshieldBar.bbfClassicOffset = classicOffset
+    AnchorOvershieldBar(overshieldBar, healthBar, classicOffset)
+    overshieldBar:SetReverseFill(true)
+    overshieldBar:SetStatusBarTexture("Interface\\RaidFrame\\Shield-Overlay")
+    overshieldBar:SetFrameLevel(healthBar:GetFrameLevel())
+    overshieldBar:SetStatusBarColor(1, 1, 1, 0.8)
+
+    local barTex = overshieldBar:GetStatusBarTexture()
+    barTex:SetTexture("Interface\\RaidFrame\\Shield-Overlay", "REPEAT", "REPEAT")
+    barTex:SetHorizTile(true)
+    barTex:SetVertTile(true)
+    if higherLayer then
+        barTex:SetDrawLayer("ARTWORK", 1)
+    else
+        barTex:SetDrawLayer("ARTWORK", -3)
+    end
+
+    return overshieldBar
+end
+
+local function AdjustAbsorbGlow(absorbGlow, anchorBar, clamped)
+    local barTex = anchorBar:GetStatusBarTexture()
+    absorbGlow:ClearAllPoints()
+    absorbGlow:SetPoint("TOPLEFT", barTex, "TOPLEFT", ABSORB_GLOW_OFFSET, 1)
+    absorbGlow:SetPoint("BOTTOMLEFT", barTex, "BOTTOMLEFT", ABSORB_GLOW_OFFSET, -1)
+    absorbGlow:SetAlphaFromBoolean(clamped, ABSORB_GLOW_ALPHA, 0)
+    absorbGlow:SetWidth(13)
 end
 
 local function BBF_UnitFrameHealPredictionBars_Update(frame, classicOffset)
-    local absorbOverlay = frame.totalAbsorbBar and frame.totalAbsorbBar.TiledFillOverlay or frame.totalAbsorbBarOverlay
-    if not absorbOverlay or absorbOverlay:IsForbidden() then
-        return
+    local healthBar = frame.healthbar
+    if not healthBar or healthBar:IsForbidden() then return end
+
+    local absorbGlow = frame.overAbsorbGlow
+    if not absorbGlow or absorbGlow:IsForbidden() then return end
+
+    if not frame.bbfOvershieldBar then
+        frame.bbfOvershieldBar = CreateOvershieldBar(healthBar, classicOffset, true)
+        frame.healPredictionCalc = CreateUnitHealPredictionCalculator()
+        frame.healPredictionCalc:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth)
     end
 
-    local absorbBar = frame.totalAbsorbBar;
-    if not absorbBar or absorbBar:IsForbidden() then
-        return
+    local overshieldBar = frame.bbfOvershieldBar
+    local unit = frame.unit
+
+    if not overshieldBar.bbfAnchoredToBox and healthBar.BBFPositionFrame then
+        AnchorOvershieldBar(overshieldBar, healthBar, overshieldBar.bbfClassicOffset)
     end
 
-    local healthBar = frame.healthbar;
-    if not healthBar or healthBar:IsForbidden() then
-        return
-    end
+    UnitGetDetailedHealPrediction(unit, nil, frame.healPredictionCalc)
+    local _, clamped = frame.healPredictionCalc:GetDamageAbsorbs()
+    local totalAbsorbs = UnitGetTotalAbsorbs(unit) or 0
+    local _, maxVal = healthBar:GetMinMaxValues()
+    local blizzAbsorbOverlay = frame.totalAbsorbBar.TiledFillOverlay
 
-    absorbOverlay:SetParent(healthBar);
-    absorbOverlay:ClearAllPoints(); -- we'll be attaching the overlay on heal prediction update.
-
-    -- Handle absorbGlow if it exists and is not forbidden
-    local absorbGlow = frame.overAbsorbGlow;
-    if absorbGlow and not absorbGlow:IsForbidden() then
-        absorbGlow:ClearAllPoints();
-        absorbGlow:SetPoint("TOPLEFT", absorbOverlay, "TOPLEFT", ABSORB_GLOW_OFFSET, 0);
-        absorbGlow:SetPoint("BOTTOMLEFT", absorbOverlay, "BOTTOMLEFT", ABSORB_GLOW_OFFSET, 0);
-        absorbGlow:SetAlpha(ABSORB_GLOW_ALPHA);
-    end
-
-    -- Update absorb overlay and handle heal prediction bars
-    local _, maxHealth = healthBar:GetMinMaxValues();
-    if maxHealth <= 0 then
-        return
-    end
-
-    local totalAbsorb = UnitGetTotalAbsorbs(frame.unit) or 0;
-    if totalAbsorb > maxHealth then
-        totalAbsorb = maxHealth;
-    end
-
-    if totalAbsorb > 0 then
-        -- Attach absorb overlay to absorb bar if shown, otherwise attach to health bar
-        if absorbBar:IsShown() then
-            --local offset = (frame == TargetFrame or frame == FocusFrame) and 0 or 0
-            absorbOverlay:SetPoint("TOPRIGHT", absorbBar.FillMask or absorbBar, "TOPRIGHT", 0, 0);
-            absorbOverlay:SetPoint("BOTTOMRIGHT", absorbBar.FillMask or absorbBar, "BOTTOMRIGHT", 0, 0);
-        else
-            local offset = (frame == TargetFrame or frame == FocusFrame) and classicOffset or 0
-            absorbOverlay:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", offset, 0);
-            absorbOverlay:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0);
-        end
-
-        local totalWidth = healthBar:GetWidth();
-        local barSize = totalAbsorb / maxHealth * totalWidth;
-
-        absorbOverlay:SetWidth(barSize);
-        absorbOverlay:Show();
-    else
-        absorbOverlay:Hide();
-    end
+    overshieldBar:SetMinMaxValues(0, maxVal)
+    overshieldBar:SetValue(totalAbsorbs)
+    overshieldBar:SetAlphaFromBoolean(clamped, 1, 0)
+    blizzAbsorbOverlay:SetAlphaFromBoolean(clamped, 0, 1)
+    AdjustAbsorbGlow(absorbGlow, overshieldBar, clamped)
 end
 
 local function BBF_CompactUnitFrame_UpdateHealPrediction(frame)
     if not frame.unit then return end
-    if frame.unit:find("nameplate") then return end
-    -- if not frame:GetName():find("CompactPartyFrameMember") then
-    --     return
-    -- end
-    local absorbBar = frame.totalAbsorb
-    if not absorbBar or absorbBar:IsForbidden() then
-        return
-    end
-
-    local absorbOverlay = frame.totalAbsorbOverlay
-    if not absorbOverlay or absorbOverlay:IsForbidden() then
-        return
-    end
+    local unit = frame.displayedUnit or frame.unit
+    if unit:find("nameplate") then return end
+    if frame:IsForbidden() then return end
 
     local absorbGlow = frame.overAbsorbGlow
-    if not absorbGlow or absorbGlow:IsForbidden() then
-        return
-    end
+    if not absorbGlow or absorbGlow:IsForbidden() then return end
 
     local healthBar = frame.healthBar
-    if not healthBar or healthBar:IsForbidden() then
-        return
+    if not healthBar or healthBar:IsForbidden() then return end
+
+    if not frame.bbfOvershieldBar then
+        frame.bbfOvershieldBar = CreateOvershieldBar(healthBar)
+        frame.healPredictionCalc = CreateUnitHealPredictionCalculator()
+        frame.healPredictionCalc:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth)
+        absorbGlow:SetDrawLayer("ARTWORK", -2)
     end
 
-    local _, maxHealth = healthBar:GetMinMaxValues()
-    if maxHealth <= 0 then
-        return
-    end
+    local overshieldBar = frame.bbfOvershieldBar
 
-    local totalAbsorb = UnitGetTotalAbsorbs(frame.displayedUnit) or 0
-    if totalAbsorb > maxHealth then
-        totalAbsorb = maxHealth
-    end
+    UnitGetDetailedHealPrediction(unit, nil, frame.healPredictionCalc)
+    local _, clamped = frame.healPredictionCalc:GetDamageAbsorbs()
+    local totalAbsorbs = UnitGetTotalAbsorbs(unit) or 0
+    local _, maxVal = healthBar:GetMinMaxValues()
 
-    if totalAbsorb > 0 then -- show overlay when there's a positive absorb amount
-        absorbOverlay:SetParent(healthBar)
-        absorbOverlay:ClearAllPoints() -- we'll be attaching the overlay on heal prediction update.
-
-        if absorbBar:IsShown() then -- If absorb bar is shown, attach absorb overlay to it; otherwise, attach to health bar.
-            absorbOverlay:SetPoint("TOPRIGHT", absorbBar, "TOPRIGHT", 0, 0)
-            absorbOverlay:SetPoint("BOTTOMRIGHT", absorbBar, "BOTTOMRIGHT", 0, 0)
-        else
-            absorbOverlay:SetPoint("TOPRIGHT", healthBar, "TOPRIGHT", 0, 0)
-            absorbOverlay:SetPoint("BOTTOMRIGHT", healthBar, "BOTTOMRIGHT", 0, 0)
-        end
-
-        local totalWidth, totalHeight = healthBar:GetSize()
-        local barSize = totalAbsorb / maxHealth * totalWidth
-
-        absorbOverlay:SetWidth(barSize)
-        absorbOverlay:SetTexCoord(0, barSize / absorbOverlay.tileSize, 0, totalHeight / absorbOverlay.tileSize)
-        absorbOverlay:Show()
-
-        absorbGlow:ClearAllPoints()
-        absorbGlow:SetPoint("TOPLEFT", absorbOverlay, "TOPLEFT", ABSORB_GLOW_OFFSET, 0)
-        absorbGlow:SetPoint("BOTTOMLEFT", absorbOverlay, "BOTTOMLEFT", ABSORB_GLOW_OFFSET, 0)
-        absorbGlow:SetAlpha(ABSORB_GLOW_ALPHA)
-
-    -- frame.overAbsorbGlow:Show();	--uncomment this if you want to ALWAYS show the glow to the left of the shield overlay
-    end
+    overshieldBar:SetMinMaxValues(0, maxVal)
+    overshieldBar:SetValue(totalAbsorbs)
+    overshieldBar:SetAlphaFromBoolean(clamped, 1, 0)
+    AdjustAbsorbGlow(absorbGlow, overshieldBar, clamped)
 end
 
-local function OnTargetChanged(self, event)
-    BBF_UnitFrameHealPredictionBars_Update(TargetFrame)
-    --BBF_UnitFrameHealPredictionBars_Update(FocusFrame)
-    self:UnregisterEvent(event)
+local function BBF_UpdatePersonalResourceFrame()
+    local frame = PersonalResourceDisplayFrame
+    local healthBar = frame.HealthBarsContainer.healthBar
+    local absorbGlow = healthBar.overAbsorbGlow
+    if not absorbGlow or absorbGlow:IsForbidden() then return end
+    if not healthBar or healthBar:IsForbidden() then return end
+
+    local overshieldBar = frame.bbfOvershieldBar
+    UnitGetDetailedHealPrediction("player", nil, frame.healPredictionCalc)
+    local _, clamped = frame.healPredictionCalc:GetDamageAbsorbs()
+    local totalAbsorbs = UnitGetTotalAbsorbs("player") or 0
+    local _, maxVal = healthBar:GetMinMaxValues()
+    local totalAbsorbOverlay = healthBar.totalAbsorbOverlay
+
+    overshieldBar:SetMinMaxValues(0, maxVal)
+    overshieldBar:SetValue(totalAbsorbs)
+    overshieldBar:SetAlphaFromBoolean(clamped, 1, 0)
+    totalAbsorbOverlay:SetAlphaFromBoolean(clamped, 0, 1)
+    AdjustAbsorbGlow(absorbGlow, overshieldBar, clamped)
 end
 
 function BBF.HookOverShields()
     if BetterBlizzFramesDB.overShields then
         BBF.HookOverShieldCompactUnitFrames()
         BBF.HookOverShieldUnitFrames()
+        BBF.HookOverShieldPersonalResourceDisplay()
     end
+end
+
+function BBF.HookOverShieldPersonalResourceDisplay()
+    if PRD_OVERSHIELD_HOOKED or not C_CVar.GetCVarBool("nameplateShowSelf") then return end
+    if not BetterBlizzFramesDB.overShieldsCompactUnitFrames
+       and not BetterBlizzFramesDB.overShieldsUnitFrames then
+        return
+    end
+
+    local frame = PersonalResourceDisplayFrame
+    local healthBar = frame.HealthBarsContainer.healthBar
+    local totalAbsorbOverlay = healthBar.totalAbsorbOverlay
+    local absorbGlow = healthBar.overAbsorbGlow
+
+    if frame.bbOvershields then return end
+
+    local prdEvents = CreateFrame("Frame")
+    prdEvents:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player")
+    prdEvents:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", "player")
+    prdEvents:RegisterUnitEvent("UNIT_HEALTH", "player")
+    prdEvents:RegisterUnitEvent("UNIT_MAXHEALTH", "player")
+    prdEvents:RegisterEvent("PLAYER_REGEN_DISABLED")
+
+    totalAbsorbOverlay:SetTexture("Interface\\RaidFrame\\Shield-Overlay", "REPEAT", "REPEAT")
+    totalAbsorbOverlay:SetHorizTile(true)
+    totalAbsorbOverlay:SetVertTile(true)
+    totalAbsorbOverlay:SetVertexColor(1, 1, 1, 0.7)
+    absorbGlow:SetDrawLayer("ARTWORK", 2)
+
+    frame.bbfOvershieldBar = CreateOvershieldBar(healthBar, nil, true)
+    frame.healPredictionCalc = CreateUnitHealPredictionCalculator()
+    frame.healPredictionCalc:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth)
+
+    prdEvents:SetScript("OnEvent", BBF_UpdatePersonalResourceFrame)
+    BBF_UpdatePersonalResourceFrame()
+
+    frame.bbOvershields = true
+    PRD_OVERSHIELD_HOOKED = true
 end
 
 function BBF.HookOverShieldCompactUnitFrames()
@@ -172,35 +211,16 @@ function BBF.HookOverShieldUnitFrames()
     local classicFramesEnabled = C_AddOns.IsAddOnLoaded("ClassicFrames")
 
     if not classicFramesEnabled then
-        local classicOffset = BetterBlizzFramesDB.classicFrames and -4 or 0
+        local classicOffset = BetterBlizzFramesDB.classicFrames
         hooksecurefunc("UnitFrameHealPredictionBars_Update", function(frame)
             BBF_UnitFrameHealPredictionBars_Update(frame, classicOffset)
         end)
 
         C_Timer.After(3, function()
-            BBF_UnitFrameHealPredictionBars_Update(PlayerFrame)
+            BBF_UnitFrameHealPredictionBars_Update(PlayerFrame, classicOffset)
             BBF_UnitFrameHealPredictionBars_Update(TargetFrame, classicOffset)
             BBF_UnitFrameHealPredictionBars_Update(FocusFrame, classicOffset)
         end)
-
-
-
-        -- local frames = {
-        --     PlayerFrame,
-        --     TargetFrame,
-        --     FocusFrame
-        -- }
-        -- for _, frame in ipairs(frames) do
-        --     if frame.totalAbsorbOverlay then
-        --         frame.totalAbsorbOverlay:SetDrawLayer("OVERLAY")
-        --     end
-        --     if frame.overAbsorbGlow then
-        --         frame.overAbsorbGlow:SetDrawLayer("OVERLAY")
-        --     end
-        -- end
-        -- PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar.TotalAbsorbBar.TiledFillOverlay:SetDrawLayer("OVERLAY")
-
-
     else
         local classicFrames = {
             [PlayerFrame] = CfPlayerFrame,
@@ -225,7 +245,16 @@ function BBF.HookOverShieldUnitFrames()
 
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-    eventFrame:SetScript("OnEvent", OnTargetChanged)
+    eventFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
+    eventFrame:SetScript("OnEvent", function(self, event)
+        if event == "PLAYER_TARGET_CHANGED" then
+            BBF_UnitFrameHealPredictionBars_Update(TargetFrame)
+            self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+        elseif event == "PLAYER_FOCUS_CHANGED" then
+            BBF_UnitFrameHealPredictionBars_Update(FocusFrame)
+            self:UnregisterEvent("PLAYER_FOCUS_CHANGED")
+        end
+    end)
 
     UNITFRAME_OVERSHIELD_HOOKED = true
 end
