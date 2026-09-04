@@ -2,7 +2,7 @@
 ## Title: Better|cff00c0ffBlizz|rFrames
 ## Notes: More options for Blizzard frames. Aura filtering, Party castbars, Combat indicator, Dark Mode etc.
 ## Author: Bodify
-## Version: v2.0.6e
+## Version: v2.0.7b
 ## SavedVariables: BetterBlizzFramesDB
 ## IconAtlas: gmchat-icon-blizz
 ## X-Curse-Project-ID: 940950
@@ -17,52 +17,35 @@ init.lua
 locales\locales.xml
 libs\LibIndent\LibIndent.lua
 
-temp_shared\ImportExport.lua
-temp_shared\functions.lua
-temp_shared\functions_classics.lua
-
-retail\temp_tww.lua
+shared\ImportExport.lua
+shared\functions.lua
+shared\functions_classics.lua
 
 retail\modules\darkmode.lua
-midnight\modules\darkmode.lua
 retail\modules\classicFrames.lua
-midnight\modules\classicFrames.lua
 retail\modules\nameFix.lua
-midnight\modules\nameFix.lua
 retail\modules\hideFrames.lua
-midnight\modules\hideFrames.lua
 retail\modules\auras.lua
-midnight\modules\auras.lua
 retail\modules\absorb.lua
-midnight\modules\absorb.lua
 retail\modules\combat.lua
 retail\modules\castbar.lua
-midnight\modules\castbar.lua
 retail\modules\healthbarColor.lua
-midnight\modules\healthbarColor.lua
 retail\modules\statusBarTextFormat.lua
-midnight\modules\statusBarTextFormat.lua
 retail\modules\arenaframes.lua
 retail\modules\profiles.lua
 retail\modules\chatFrame.lua
-retail\modules\overShields.lua
-midnight\modules\overShields.lua
-temp_shared\stealthIndicator.lua
+retail\modules\overshields.lua
+shared\stealthIndicator.lua
 retail\modules\interruptIcon.lua
-midnight\modules\interruptIcon.lua
-midnight\modules\bigDebuffs.lua
+retail\modules\bigDebuffs.lua
 retail\modules\queueTimer.lua
 retail\modules\druid\overcharges.lua
-midnight\modules\druid\overcharges.lua
 retail\modules\cdManager.lua
-midnight\modules\cdManager.lua
-midnight\modules\partyHighlight.lua
+retail\modules\partyHighlight.lua
 retail\modules\healer.lua
 retail\modules\noPortrait.lua
-midnight\modules\bigPlayerHealthbar.lua
-midnight\modules\prd.lua
+retail\modules\bigPlayerHealthbar.lua
+retail\modules\prd.lua
 
 retail\gui.lua
-midnight\gui.lua
 retail\BetterBlizzFrames.lua
-midnight\BetterBlizzFrames.lua

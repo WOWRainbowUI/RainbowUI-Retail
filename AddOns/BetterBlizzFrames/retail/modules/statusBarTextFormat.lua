@@ -1,36 +1,10 @@
-if BBF.isMidnight then return end
 local function FormatText(value)
-    if value >= 1e9 then
-        return string.format("%.2f B", value / 1e9)
-    elseif value >= 1e6 then
-        return string.format("%.1f M", value / 1e6)
-    elseif value >= 1e3 then
-        return string.format("%d K", value / 1e3)
-    else
-        return tostring(value)
-    end
+    return tostring(AbbreviateNumbers(value))
 end
 
 local function UpdateFormatFunction()
-    local fmtB, fmtM
-    if BetterBlizzFramesDB.formatStatusBarTextExtraDecimals then
-        fmtB = "%.2f B"
-        fmtM = "%.2f M"
-    else
-        fmtB = "%.2f B"
-        fmtM = "%.1f M"
-    end
-
     FormatText = function(value)
-        if value >= 1e9 then
-            return string.format(fmtB, value / 1e9)
-        elseif value >= 1e6 then
-            return string.format(fmtM, value / 1e6)
-        elseif value >= 1e3 then
-            return string.format("%d K", value / 1e3)
-        else
-            return tostring(value)
-        end
+        return (AbbreviateNumbers(value))
     end
 end
 
@@ -40,21 +14,15 @@ local function UpdateNumericText(bar, centerText)
     local _, maxValue = bar:GetMinMaxValues()
     local formattedValue = FormatText(value)
     local formattedMaxValue = FormatText(maxValue)
-    if formattedValue == "0" then
-        centerText:SetText("")
-        return
-    end
     centerText:SetText(string.format("%s / %s", formattedValue, formattedMaxValue))
+    centerText:SetAlpha(value)
 end
 
 local function UpdateSingleText(bar, fontObj)
     if not fontObj then return end
     local value = bar:GetValue()
-    if value == 0 then
-        fontObj:SetText("")
-        return
-    end
     fontObj:SetText(FormatText(value))
+    fontObj:SetAlpha(value)
 end
 
 function BBF.HookStatusBarText()
@@ -92,13 +60,15 @@ function BBF.HookStatusBarText()
            AlternatePowerBar.TextString,
            AlternatePowerBar.RightText)
 
-    AddBar(PetFrame.healthbar,
-           PetFrame.healthbar.TextString,
-           PetFrame.healthbar.RightText)
+    if not BetterBlizzFramesDB.hidePetText then
+        AddBar(PetFrame.healthbar,
+            PetFrame.healthbar.TextString,
+            PetFrame.healthbar.RightText)
 
-    AddBar(PetFrame.manabar,
-           PetFrame.manabar.TextString,
-           PetFrame.manabar.RightText)
+        AddBar(PetFrame.manabar,
+            PetFrame.manabar.TextString,
+            PetFrame.manabar.RightText)
+    end
 
     -- Target and focus frames
     AddBar(tMain.HealthBarsContainer.HealthBar,

@@ -1,4 +1,3 @@
-if BBF.isMidnight then return end
 local L = BBF.L
 local UnitIsFriend = UnitIsFriend
 local UnitIsEnemy = UnitIsEnemy
@@ -55,6 +54,7 @@ end
 
 local function GetRPNameColor(unit)
     if not TRP3_API or not TRP3_API.globals or not TRP3_API.globals.player_realm_id then return end
+    if issecretvalue(UnitGUID(unit)) or issecretvalue(UnitName(unit)) then return end
     local player = AddOn_TotalRP3 and AddOn_TotalRP3.Player and AddOn_TotalRP3.Player.CreateFromUnit(unit)
     if player then
         local color = player:GetCustomColorForDisplay()
@@ -65,49 +65,53 @@ local function GetRPNameColor(unit)
     end
 end
 
-local npcColorCache = {}
 local function GetBBPNameplateColor(unit)
-    if BBF.isMidnight then return end
-    local guid = UnitGUID(unit)
-    if not guid then return end
+    if not BetterBlizzPlatesDB or not BBP then return end
+    if not UnitIsEnemy(unit, "player") then return end
 
-    local npcID = select(6, strsplit("-", guid))
-    local npcName = UnitName(unit)
-    local lowerCaseNpcName = npcName and strlower(npcName)
-
-    -- First check cache by npcID
-    if npcID and npcColorCache[npcID] ~= nil then
-        return npcColorCache[npcID]
+    local db = BetterBlizzPlatesDB
+    if not db.colorNPCEverywhere and not BBP.isInPvE then
+        return
     end
 
-    -- Fallback to cache by name
-    if lowerCaseNpcName and npcColorCache[lowerCaseNpcName] ~= nil then
-        return npcColorCache[lowerCaseNpcName]
-    end
+    local lvl = UnitEffectiveLevel(unit)
+    local instanceLvl = BBP.npcInstanceLevel or UnitEffectiveLevel("player")
+    local classification = UnitClassification(unit)
+    local caster = UnitHasPowerType(unit, Enum.PowerType.Mana)
+    local npcColor
 
-    local colorNpcList = BetterBlizzPlatesDB.colorNpcList
-    local npcHealthbarColor = nil
-
-    for _, npc in ipairs(colorNpcList) do
-        if npc.id == tonumber(npcID) or (npc.name and strlower(npc.name) == lowerCaseNpcName) then
-            if npc.entryColors then
-                npcHealthbarColor = npc.entryColors.text
-            else
-                npc.entryColors = {}
-            end
-            break
+    if classification == "elite" then
+        if lvl == instanceLvl + 1 or UnitIsLieutenant(unit) then
+            BBP.npcLieutenantLevel = lvl
+            npcColor = db.npcColorMiniboss
+        elseif lvl == -1 or lvl == instanceLvl + 2 or (BBP.npcLieutenantLevel and lvl == BBP.npcLieutenantLevel + 1) or UnitIsBossMob(unit) or UnitIsQuestBoss(unit) then
+            npcColor = db.npcColorBoss
+        elseif caster then
+            npcColor = db.npcColorCaster
+        else
+            npcColor = db.npcColorMelee
         end
+    elseif classification == "trivial" then
+        npcColor = caster and db.npcColorCaster or db.npcColorTrivial
+    elseif classification == "minus" then
+        npcColor = caster and db.npcColorCaster or db.npcColorMinus
+    elseif classification == "normal" then
+        npcColor = caster and db.npcColorCaster or db.npcColorMelee
+    elseif classification == "rareelite" or classification == "rare" then
+        npcColor = db.npcColorRareElite
+    elseif classification == "worldboss" then
+        npcColor = db.npcColorBoss
+    else
+        return
     end
 
-    -- Cache both ID and name for future use
-    if npcID then
-        npcColorCache[npcID] = npcHealthbarColor
-    end
-    if lowerCaseNpcName then
-        npcColorCache[lowerCaseNpcName] = npcHealthbarColor
-    end
+    if not npcColor then return end
+    return {r = npcColor[1], g = npcColor[2], b = npcColor[3], a = npcColor[4]}
+end
 
-    return npcHealthbarColor
+local function GetSingleClassColor()
+    local customColor = singleClassColor or {1, 1, 1, 1}
+    return {r = customColor[1], g = customColor[2], b = customColor[3], a = customColor[4] or 1}
 end
 
 local function getUnitColor(unit, useCustomColors, txt)
@@ -117,25 +121,15 @@ local function getUnitColor(unit, useCustomColors, txt)
         if TRP3_API and rpNames then
             local r,g,b = GetRPNameColor(unit)
             if r then
-                return {r = r, g = g, b = b, a = 1}, false
+                return {r = r, g = g, b = b}, false
             else
-                local _, className = UnitClass(unit)
                 local color
 
                 if useCustomColors and customHealthbarColors and overrideClassColors then
-                    if useOneClassColor then
-                        local customColor = singleClassColor or {1, 1, 1, 1}
-                        color = {r = customColor[1], g = customColor[2], b = customColor[3], a = customColor[4] or 1}
-                    else
-                        local customColor = BetterBlizzFramesDB["classColor"..className]
-                        if customColor then
-                            color = {r = customColor[1], g = customColor[2], b = customColor[3], a = customColor[4] or 1}
-                        else
-                            color = RAID_CLASS_COLORS[className]
-                        end
-                    end
+                    color = GetSingleClassColor()
                 else
-                    color = RAID_CLASS_COLORS[className]
+                    local _, className = UnitClass(unit)
+                    color = className and C_ClassColor.GetClassColor(className)
                 end
 
                 if color then
@@ -143,23 +137,15 @@ local function getUnitColor(unit, useCustomColors, txt)
                 end
             end
         else
-            local _, className = UnitClass(unit)
             local color
 
             if useCustomColors and customHealthbarColors and overrideClassColors then
-                if useOneClassColor then
-                    local customColor = singleClassColor or {1, 1, 1, 1}
-                    color = {r = customColor[1], g = customColor[2], b = customColor[3], a = customColor[4] or 1}
-                else
-                    local customColor = BetterBlizzFramesDB["classColor"..className]
-                    if customColor then
-                        color = {r = customColor[1], g = customColor[2], b = customColor[3], a = customColor[4] or 1}
-                    else
-                        color = RAID_CLASS_COLORS[className]
-                    end
-                end
+                color = GetSingleClassColor()
             else
-                color = RAID_CLASS_COLORS[className]
+                local _, className = UnitClass(unit)
+                if className ~= nil then
+                    color = C_ClassColor.GetClassColor(className)
+                end
             end
 
             if color then
@@ -174,7 +160,7 @@ local function getUnitColor(unit, useCustomColors, txt)
     elseif colorPetAfterOwner and unit == "pet" then
         -- Check if the unit is the player's pet and the setting is enabled
         local _, playerClass = UnitClass("player")
-        local color = RAID_CLASS_COLORS[playerClass]
+        local color = C_ClassColor.GetClassColor(playerClass)
         if color then
             return {r = color.r, g = color.g, b = color.b, a = 1}, false
         end
@@ -182,7 +168,7 @@ local function getUnitColor(unit, useCustomColors, txt)
         if BetterBlizzPlatesDB and BetterBlizzPlatesDB.colorNPC then
             local npcHealthbarColor = GetBBPNameplateColor(unit)
             if npcHealthbarColor then
-                return {r = npcHealthbarColor.r, g = npcHealthbarColor.g, b = npcHealthbarColor.b, a = 1}, false
+                return {r = npcHealthbarColor.r, g = npcHealthbarColor.g, b = npcHealthbarColor.b, a = npcHealthbarColor.a or 1}, false
             else
                 local reaction = getUnitReaction(unit)
                 if reaction == "HOSTILE" then
@@ -392,43 +378,43 @@ local function GetCustomPowerColor(powerToken)
 
     if powerColorCache.unified then
         local c = powerColorCache.unified
-        return c.r, c.g, c.b, c.a
+        return c.r, c.g, c.b, c.a or 1
     end
 
     local color = powerColorCache[powerToken]
     if color then
-        return color.r, color.g, color.b, color.a
+        return color.r, color.g, color.b, color.a or 1
     end
     return nil
 end
 BBF.GetCustomPowerColor = GetCustomPowerColor
 
 local function GetDefaultPowerColor(powerToken, bar)
-    if not powerToken then return 0, 0, 1, 1 end
+    if not powerToken then return 0, 0, 1 end
 
     local powerBarColor = PowerBarColor[powerToken]
-    if not powerBarColor then return 0, 0, 1, 1 end
+    if not powerBarColor then return 0, 0, 1 end
 
     if powerToken == "STAGGER" then
         if bar and bar.statusBarColorIndex then
             if bar.statusBarColorIndex == 1 then
-                return powerBarColor.green.r, powerBarColor.green.g, powerBarColor.green.b, 1
+                return powerBarColor.green.r, powerBarColor.green.g, powerBarColor.green.b
             elseif bar.statusBarColorIndex == 2 then
-                return powerBarColor.yellow.r, powerBarColor.yellow.g, powerBarColor.yellow.b, 1
+                return powerBarColor.yellow.r, powerBarColor.yellow.g, powerBarColor.yellow.b
             elseif bar.statusBarColorIndex == 3 then
-                return powerBarColor.red.r, powerBarColor.red.g, powerBarColor.red.b, 1
+                return powerBarColor.red.r, powerBarColor.red.g, powerBarColor.red.b
             end
         end
-        return powerBarColor.green.r, powerBarColor.green.g, powerBarColor.green.b, 1
+        return powerBarColor.green.r, powerBarColor.green.g, powerBarColor.green.b
     elseif powerToken == "SOUL_FRAGMENTS" then
         if bar and bar.inVoidMetamorphosis then
-            return powerBarColor.collapsingStarProgess.r, powerBarColor.collapsingStarProgess.g, powerBarColor.collapsingStarProgess.b, 1
+            return powerBarColor.collapsingStarProgess.r, powerBarColor.collapsingStarProgess.g, powerBarColor.collapsingStarProgess.b
         else
-            return powerBarColor.voidMetamorphosisProgess.r, powerBarColor.voidMetamorphosisProgess.g, powerBarColor.voidMetamorphosisProgess.b, 1
+            return powerBarColor.voidMetamorphosisProgess.r, powerBarColor.voidMetamorphosisProgess.g, powerBarColor.voidMetamorphosisProgess.b
         end
     end
 
-    return powerBarColor.r, powerBarColor.g, powerBarColor.b, 1
+    return powerBarColor.r, powerBarColor.g, powerBarColor.b
 end
 BBF.GetDefaultPowerColor = GetDefaultPowerColor
 
@@ -458,7 +444,7 @@ local function SetupAlternateBarHook(bar, defaultColor)
                         end
 
                         self:SetStatusBarDesaturated(true)
-                        self:SetStatusBarColor(r, g, b, a)
+                        self:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             else
@@ -472,7 +458,7 @@ local function SetupAlternateBarHook(bar, defaultColor)
 
                         self:SetStatusBarTexture(manaTexture)
                         self:SetStatusBarDesaturated(true)
-                        self:SetStatusBarColor(r, g, b, a)
+                        self:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -486,7 +472,7 @@ local function SetupAlternateBarHook(bar, defaultColor)
                     end
 
                     self:SetStatusBarDesaturated(true)
-                    self:SetStatusBarColor(r, g, b, a)
+                    self:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end
@@ -498,23 +484,23 @@ local function SetupAlternateBarHook(bar, defaultColor)
                     if not powerToken or not fancyManas[powerToken] then
                         self:SetStatusBarTexture(manaTexture)
                     end
-                    local r, g, b, a = GetDefaultPowerColor(powerToken, self)
+                    local r, g, b = GetDefaultPowerColor(powerToken, self)
                     self:SetStatusBarDesaturated(true)
-                    self:SetStatusBarColor(r, g, b, a)
+                    self:SetStatusBarColor(r, g, b, 1)
                 end
             else
                 hookFunc = function(self)
                     self:SetStatusBarTexture(manaTexture)
-                    local r, g, b, a = GetDefaultPowerColor(self.powerToken or self.powerName, self)
+                    local r, g, b = GetDefaultPowerColor(self.powerToken or self.powerName, self)
                     self:SetStatusBarDesaturated(true)
-                    self:SetStatusBarColor(r, g, b, a)
+                    self:SetStatusBarColor(r, g, b, 1)
                 end
             end
         else
             hookFunc = function(self)
-                local r, g, b, a = GetDefaultPowerColor(self.powerToken or self.powerName, self)
+                local r, g, b = GetDefaultPowerColor(self.powerToken or self.powerName, self)
                 self:SetStatusBarDesaturated(true)
-                self:SetStatusBarColor(r, g, b, a)
+                self:SetStatusBarColor(r, g, b, 1)
             end
         end
     end
@@ -535,7 +521,7 @@ local function HookPowerBarColors()
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
                     manabar:SetStatusBarDesaturated(true)
-                    manabar:SetStatusBarColor(r, g, b, a)
+                    manabar:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end)
@@ -544,13 +530,15 @@ local function HookPowerBarColors()
 
     if customColorsRaidFrames and not BBF.powerColorsRaidFramesHooked then
         hooksecurefunc("CompactUnitFrame_UpdatePowerColor", function(frame)
+            if issecretvalue(frame) then return end
             if not frame or not frame.unit or frame.unit:find("nameplate") or frame:IsForbidden() then return end
+            if not frame.powerBar then return end
 
             local _, powerToken = UnitPowerType(frame.unit)
             if powerToken then
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
-                    frame.powerBar:SetStatusBarColor(r, g, b, a)
+                    frame.powerBar:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end)
@@ -596,11 +584,12 @@ function BBF.UpdateFrames()
     rpNames = BetterBlizzFramesDB.rpNamesHealthbarColor
     rpNamesHealthbarColor = BetterBlizzFramesDB.rpNamesHealthbarColor
     customHealthbarColors = BetterBlizzFramesDB.customHealthbarColors
-    overrideClassColors = BetterBlizzFramesDB.overrideClassColors
     customColorsUnitFrames = BetterBlizzFramesDB.customColorsUnitFrames
     customColorsRaidFrames = BetterBlizzFramesDB.customColorsRaidFrames
     useOneClassColor = BetterBlizzFramesDB.useOneClassColor
     singleClassColor = BetterBlizzFramesDB.singleClassColor
+    --UnitClass is secret :/
+    overrideClassColors = BetterBlizzFramesDB.overrideClassColors and useOneClassColor
     useOnePowerColor = BetterBlizzFramesDB.useOnePowerColor
     singlePowerColor = BetterBlizzFramesDB.singlePowerColor
     customPowerColors = BetterBlizzFramesDB.customPowerColors
@@ -615,7 +604,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar:SetStatusBarDesaturated(true)
-                        PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar:SetStatusBarColor(r, g, b, a)
+                        PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -626,7 +615,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarDesaturated(true)
-                        TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarColor(r, g, b, a)
+                        TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -637,7 +626,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarDesaturated(true)
-                        FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarColor(r, g, b, a)
+                        FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -648,7 +637,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         PetFrame.manabar:SetStatusBarDesaturated(true)
-                        PetFrame.manabar:SetStatusBarColor(r, g, b, a)
+                        PetFrame.manabar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -659,7 +648,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         TargetFrame.totFrame.ManaBar:SetStatusBarDesaturated(true)
-                        TargetFrame.totFrame.ManaBar:SetStatusBarColor(r, g, b, a)
+                        TargetFrame.totFrame.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -670,7 +659,7 @@ function BBF.UpdateFrames()
                     local r, g, b, a = GetCustomPowerColor(powerToken)
                     if r then
                         FocusFrame.totFrame.ManaBar:SetStatusBarDesaturated(true)
-                        FocusFrame.totFrame.ManaBar:SetStatusBarColor(r, g, b, a)
+                        FocusFrame.totFrame.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                     end
                 end
             end
@@ -686,7 +675,7 @@ function BBF.UpdateFrames()
                                 local r, g, b, a = GetCustomPowerColor(powerToken)
                                 if r then
                                     frame.ManaBar:SetStatusBarDesaturated(true)
-                                    frame.ManaBar:SetStatusBarColor(r, g, b, a)
+                                    frame.ManaBar:SetStatusBarColor(r, g, b, a or 1)
                                 end
                             end
                         end
@@ -743,10 +732,11 @@ function BBF.UpdateFrames()
                     if powerToken then
                         local r, g, b, a = GetCustomPowerColor(powerToken)
                         if not r then
-                            r, g, b, a = GetDefaultPowerColor(powerToken, frame.powerBar)
+                            r, g, b = GetDefaultPowerColor(powerToken, frame.powerBar)
+                            a = 1
                         end
                         if r then
-                            frame.powerBar:SetStatusBarColor(r, g, b, a)
+                            frame.powerBar:SetStatusBarColor(r, g, b, a or 1)
                         end
                     end
                 end
@@ -767,10 +757,11 @@ function BBF.UpdateFrames()
                         if powerToken then
                             local r, g, b, a = GetCustomPowerColor(powerToken)
                             if not r then
-                                r, g, b, a = GetDefaultPowerColor(powerToken, frame.powerBar)
+                                r, g, b = GetDefaultPowerColor(powerToken, frame.powerBar)
+                                a = 1
                             end
                             if r then
-                                frame.powerBar:SetStatusBarColor(r, g, b, a)
+                                frame.powerBar:SetStatusBarColor(r, g, b, a or 1)
                             end
                         end
                     end
@@ -785,7 +776,7 @@ function BBF.UpdateFrames()
             if powerToken then
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
-                    AlternatePowerBar:SetStatusBarColor(r, g, b, a)
+                    AlternatePowerBar:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end
@@ -796,7 +787,7 @@ function BBF.UpdateFrames()
             if powerToken then
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
-                    MonkStaggerBar:SetStatusBarColor(r, g, b, a)
+                    MonkStaggerBar:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end
@@ -806,7 +797,7 @@ function BBF.UpdateFrames()
             if powerToken then
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
-                    EvokerEbonMightBar:SetStatusBarColor(r, g, b, a)
+                    EvokerEbonMightBar:SetStatusBarColor(r, g, b, a or 1)
                 end
             end
         end
@@ -816,7 +807,7 @@ function BBF.UpdateFrames()
             if powerToken then
                 local r, g, b, a = GetCustomPowerColor(powerToken)
                 if r then
-                    DemonHunterSoulFragmentsBar:SetStatusBarColor(r, g, b, a)
+                    DemonHunterSoulFragmentsBar:SetStatusBarColor(r, g, b, a or 1)
                     DemonHunterSoulFragmentsBar:SetStatusBarDesaturated(true)
 
                     if DemonHunterSoulFragmentsBar.Spark then
@@ -914,6 +905,7 @@ end
 function BBF.HookHealthbarColors()
     local shouldHook = classColorsOn or (customHealthbarColors and customColorsUnitFrames)
     if not healthbarsHooked and shouldHook then
+        BBF.CheckSweepyBoopClassColorConflict()
 
         local function HookCfSetStatusBarColor(frame, unit)
             if not frame.SetStatusBarColorHooked then
@@ -967,6 +959,7 @@ function BBF.HookHealthbarColors()
 
         if (rpNamesHealthbarColor and TRP3_API) or customHealthbarColors then
             local function UpdateHealthColorUnified(frame)
+                if issecretvalue(frame) then return end
                 if not frame or not frame.unit or frame.unit:find("nameplate") or frame:IsForbidden() then return end
 
                 if TRP3_API and rpNamesHealthbarColor then
@@ -989,7 +982,8 @@ function BBF.HookHealthbarColors()
 
                 if frame.recolored then
                     if UnitIsPlayer(frame.unit) then
-                        local classColor = RAID_CLASS_COLORS[select(2, UnitClass(frame.unit))]
+                        local class = UnitClassBase(frame.unit)
+                        local classColor = class and C_ClassColor.GetClassColor(class)
                         if classColor then
                             frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
                         end
@@ -1039,7 +1033,8 @@ function BBF.HookHealthbarColors()
 
             if frame.recolored then
                 if UnitIsPlayer(frame.unit) then
-                    local classColor = RAID_CLASS_COLORS[select(2, UnitClass(frame.unit))]
+                    local class = UnitClassBase(frame.unit)
+                    local classColor = class and C_ClassColor.GetClassColor(class)
                     if classColor then
                         frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
                     end
@@ -1064,7 +1059,7 @@ function BBF.HookHealthbarColors()
         local function getRPUnitColor(unit)
             local r,g,b = GetRPNameColor(unit)
             if r then
-                return {r = r, g = g, b = b, a = 1}
+                return {r = r, g = g, b = b}
             end
         end
 
@@ -1074,7 +1069,7 @@ function BBF.HookHealthbarColors()
                 local color = getRPUnitColor(unit)
                 if color then
                     frame:SetStatusBarDesaturated(true)
-                    frame:SetStatusBarColor(color.r, color.g, color.b, color.a or 1)
+                    frame:SetStatusBarColor(color.r, color.g, color.b, 1)
                 else
                     if retexturedBars then
                         frame:SetStatusBarDesaturated(true)
@@ -1121,7 +1116,8 @@ end
 
 function BBF.PlayerReputationColor()
     local frame = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
-    if BetterBlizzFramesDB.playerReputationColor and not BetterBlizzFramesDB.noPortraitModes then
+    local bigHealthbar = BetterBlizzFramesDB.bigPlayerHealthbar and BetterBlizzFramesDB.classicFrames
+    if BetterBlizzFramesDB.playerReputationColor and not BBF.HasNoPortrait("player") and not bigHealthbar then
         if not frame.ReputationColor then
             frame.ReputationColor = frame:CreateTexture(nil, "OVERLAY")
             if BetterBlizzFramesDB.classicFrames then
@@ -1206,7 +1202,7 @@ function BBF.HookFrameTextureColor()
 
             if not colored and classColorFrameTexture then
                 local _, class = UnitClass(unit)
-                local color = RAID_CLASS_COLORS[class]
+                local color = class and C_ClassColor.GetClassColor(class)
                 if color then
                     r, g, b = color.r, color.g, color.b
                     desaturate = true
@@ -1219,6 +1215,17 @@ function BBF.HookFrameTextureColor()
         texture.changing = true
         texture:SetVertexColor(r, g, b)
         texture.changing = false
+
+        if TargetFrameCompactRing and unit == "target" then
+            TargetFrameCompactRing:SetDesaturated(desaturate)
+            TargetFrameCompactRing:SetVertexColor(r, g, b)
+        elseif FocusFrameCompactRing and unit == "focus" then
+            FocusFrameCompactRing:SetDesaturated(desaturate)
+            FocusFrameCompactRing:SetVertexColor(r, g, b)
+        elseif PlayerFrameCompactRing and unit == "player" then
+            PlayerFrameCompactRing:SetDesaturated(desaturate)
+            PlayerFrameCompactRing:SetVertexColor(r, g, b)
+        end
     end
 
 
@@ -1364,6 +1371,35 @@ function BBF.SetCompactUnitFramesBackground()
         end
     end
 
+    for i = 1, 8 do
+        for j = 1, 5 do
+            local frame = _G["CompactRaidGroup"..i.."Member"..j]
+            if frame and frame.background then
+                frame.background:SetDrawLayer("BACKGROUND", -1)
+
+                if not frame.bbfHealthBackground then
+                    local tex = frame:CreateTexture(nil, "BACKGROUND", nil, 0)
+                    frame.bbfHealthBackground = tex
+                    tex:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
+                    tex:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", 0, 0)
+                end
+                frame.bbfHealthBackground:SetTexture(bgTexture)
+                frame.bbfHealthBackground:SetVertexColor(healthR, healthG, healthB, healthA)
+
+                if frame.powerBar then
+                    if not frame.bbfManaBackground then
+                        local tex = frame:CreateTexture(nil, "BACKGROUND", nil, 0)
+                        frame.bbfManaBackground = tex
+                        tex:SetPoint("TOPLEFT", frame.powerBar, "TOPLEFT", 0, 0)
+                        tex:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMRIGHT", 0, 0)
+                    end
+                    frame.bbfManaBackground:SetTexture(bgTexture)
+                    frame.bbfManaBackground:SetVertexColor(manaR, manaG, manaB, manaA)
+                end
+            end
+        end
+    end
+
     if not BBF.PetFrameBgHook then
         hooksecurefunc("DefaultCompactMiniFrameSetup", function(frame)
             if not frame or frame.bbfHealthBackground then return end
@@ -1380,4 +1416,36 @@ function BBF.SetCompactUnitFramesBackground()
         BBF.PetFrameBgHook = true
     end
 
+    if not BBF.RaidFrameBgHook then
+        hooksecurefunc("DefaultCompactUnitFrameSetup", function(frame)
+            if not frame or not frame.healthBar or frame.bbfHealthBackground then return end
+
+            local healthColor = BetterBlizzFramesDB.partyRaidFrameBackgroundHealthColor or {0, 0, 0, 1}
+            local healthR, healthG, healthB, healthA = healthColor[1], healthColor[2], healthColor[3], healthColor[4]
+            local manaColor = BetterBlizzFramesDB.partyRaidFrameBackgroundManaColor or {0, 0, 0, 1}
+            local manaR, manaG, manaB, manaA = manaColor[1], manaColor[2], manaColor[3], manaColor[4]
+            local bgTexture = BBF.LSM:Fetch(BBF.LSM.MediaType.STATUSBAR, BetterBlizzFramesDB.raidFrameBgTexture)
+
+            if frame.background then
+                frame.background:SetDrawLayer("BACKGROUND", -1)
+            end
+
+            local tex = frame:CreateTexture(nil, "BACKGROUND", nil, 0)
+            frame.bbfHealthBackground = tex
+            tex:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
+            tex:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", 0, 0)
+            tex:SetTexture(bgTexture)
+            tex:SetVertexColor(healthR, healthG, healthB, healthA)
+
+            if frame.powerBar then
+                local manaTex = frame:CreateTexture(nil, "BACKGROUND", nil, 0)
+                frame.bbfManaBackground = manaTex
+                manaTex:SetPoint("TOPLEFT", frame.powerBar, "TOPLEFT", 0, 0)
+                manaTex:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMRIGHT", 0, 0)
+                manaTex:SetTexture(bgTexture)
+                manaTex:SetVertexColor(manaR, manaG, manaB, manaA)
+            end
+        end)
+        BBF.RaidFrameBgHook = true
+    end
 end
