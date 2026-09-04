@@ -66,6 +66,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.audioChannel == nil then db.audioChannel = "Master" end
             if db.coTankX == nil then db.coTankX = -400 end
             if db.coTankY == nil then db.coTankY = 350 end
+            if db.focusCastBarEnabled == nil then db.focusCastBarEnabled = false end -- 焦点施法条（默认关）
+            if db.focusCastBarX == nil then db.focusCastBarX = 0 end
+            if db.focusCastBarY == nil then db.focusCastBarY = 140 end
+            if db.nameplateTotemTextEnabled == nil then db.nameplateTotemTextEnabled = true end -- 姓名板显示"图腾"文字（默认开）
 
             self:UnregisterEvent("ADDON_LOADED")
         end
@@ -107,6 +111,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineCenterCountdownCheck:SetChecked(DiGuaTimelineAudioHelper.centerCountdownEnabled) -- 同步屏幕中央倒计时
             DiGuaTimelineInterruptFocusCheck:SetChecked(DiGuaTimelineAudioHelper.interruptIgnoreFocus) -- 同步有焦点也提醒打断
             DiGuaTimelinePlayerDebuffCheck:SetChecked(DiGuaTimelineAudioHelper.playerDebuffEnabled) -- 同步玩家减益图标
+            DiGuaTimelineFocusCastBarCheck:SetChecked(DiGuaTimelineAudioHelper.focusCastBarEnabled) -- 同步焦点施法条
+            DiGuaTimelineTotemTextCheck:SetChecked(DiGuaTimelineAudioHelper.nameplateTotemTextEnabled) -- 同步姓名板"图腾"文字
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -122,7 +128,7 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(220, 340) -- 高度调大到 330px，容纳更多选项
+f:SetSize(470, 400) -- 加宽为左右两栏布局：左听觉 / 右视觉
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -135,10 +141,30 @@ f.title = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 f.title:SetPoint("TOP", f.TitleBg, "TOP", 0, -3)
 f.title:SetText("DiGua 控制台")
 
--- 复选框快速生成构建器
-local function CreateCheckButton(name, labelText, yOffsetY, onClickFunc)
+-- 左右两栏标题
+local function CreateColumnTitle(text, xOffset, yOffset)
+    local label = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    label:SetPoint("TOPLEFT", xOffset, yOffset)
+    label:SetText(text)
+    label:SetTextColor(1, 0.82, 0)
+    return label
+end
+
+-- 中间竖向分隔线（改用 Frame + WHITE8x8 背景，避免 SetTexture 颜色渲染异常变绿）
+local divider = CreateFrame("Frame", nil, f, "BackdropTemplate")
+divider:SetPoint("TOP", f, "TOP", 0, -28)
+divider:SetPoint("BOTTOM", f, "BOTTOM", 0, 12)
+divider:SetWidth(1)
+divider:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
+divider:SetBackdropColor(1, 1, 1, 0.5)
+
+CreateColumnTitle("声音", 110, -30)
+CreateColumnTitle("图形", 340, -30)
+
+-- 复选框快速生成构建器（xOffset 用于区分左右两栏）
+local function CreateCheckButton(name, labelText, xOffset, yOffsetY, onClickFunc)
     local cb = CreateFrame("CheckButton", name, f, "ChatConfigCheckButtonTemplate")
-    cb:SetPoint("TOPLEFT", 20, yOffsetY)
+    cb:SetPoint("TOPLEFT", xOffset, yOffsetY)
     local cbText = _G[name .. "Text"]
     cbText:SetText(labelText)
     cbText:SetTextColor(1, 0.82, 0)
@@ -146,37 +172,29 @@ local function CreateCheckButton(name, labelText, yOffsetY, onClickFunc)
     return cb
 end
 
-local cb = CreateCheckButton("DiGuaTimelineEnableCheck", "启用语音", -35, function(self)
+-- ===== 左栏：听觉 =====
+local cb = CreateCheckButton("DiGuaTimelineEnableCheck", "启用语音", 20, -55, function(self)
     DiGuaTimelineAudioHelper.enabled = self:GetChecked()
     RefreshMediaPath()
     print("|cffffd100[DiGua]|r 整体音效状态: " .. (DiGuaTimelineAudioHelper.enabled and "|cff00ff00已开启|r" or "|cffff0000已禁用|r"))
 end)
 
-local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", -60, function(self)
-    DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
-    print("|cffffd100[DiGua]|r 倒计时圆环图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
-end)
-
-local cbChannel = CreateCheckButton("DiGuaTimelineChannelCheck", "使用环境音频道", -85, function(self)
+local cbChannel = CreateCheckButton("DiGuaTimelineChannelCheck", "整体音效使用环境音频道", 20, -80, function(self)
     local isAmbience = self:GetChecked()
     DiGuaTimelineAudioHelper.audioChannel = isAmbience and "Ambience" or "Master"
-    print("|cffffd100[DiGua]|r 播放声道已切换至: " .. (isAmbience and "|cff00ff00环境音 (Ambience)|r" or "|cffffd100主音量 (Master)|r"))
+    -- 声道切换后，重新登记“登记式”声音（首领语音 SetEventSound / 光环声音 AddAuraSound），
+    -- 否则登录后改勾选不会生效，会继续沿用旧声道（表现为未勾选却走环境音）。
+    if addonTable.ReloadTimelineSounds then addonTable.ReloadTimelineSounds() end
+    if addonTable.ReloadNormalAuras then addonTable.ReloadNormalAuras() end
+    print("|cffffd100[DiGua]|r 整体音效声道已切换至: " .. (isAmbience and "|cff00ff00环境音 (Ambience)|r" or "|cffffd100主音量 (Master)|r"))
 end)
 
-local cbTenSec = CreateCheckButton("DiGuaTimelineTenSecCheck", "开启 10 秒倒数", -110, function(self)
+local cbTenSec = CreateCheckButton("DiGuaTimelineTenSecCheck", "开怪 10 秒语音倒数", 20, -105, function(self)
     DiGuaTimelineAudioHelper.tenSecCountDown = self:GetChecked()
-    print("|cffffd100[DiGua]|r 团队倒计时模式: " .. (DiGuaTimelineAudioHelper.tenSecCountDown and "|cff00ff00已开启 (10秒)|r" or "|cffff0000未开启 (默认5秒)|r"))
+    print("|cffffd100[DiGua]|r 开怪 10 秒语音倒数: " .. (DiGuaTimelineAudioHelper.tenSecCountDown and "|cff00ff00已开启 (10秒)|r" or "|cffff0000未开启 (默认5秒)|r"))
 end)
 
-local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦私有光环监控(暂时无法使用)", -135, function(self)
-    DiGuaTimelineAudioHelper.coTankAuraEnabled = self:GetChecked()
-    print("|cffffd100[DiGua]|r 副坦私有光环监控(暂时无法使用): " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
-    
-    if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(f:IsShown()) end
-    if addonTable.UpdateRaidTankAuras then addonTable.UpdateRaidTankAuras() end
-end)
-
-local cbBossVoice = CreateCheckButton("DiGuaTimelineBossVoiceCheck", "开启首领语音警报", -160, function(self)
+local cbBossVoice = CreateCheckButton("DiGuaTimelineBossVoiceCheck", "开启首领语音警报", 20, -130, function(self)
     local isEnabled = self:GetChecked()
     DiGuaTimelineAudioHelper.bossVoiceEnabled = isEnabled
     
@@ -188,7 +206,36 @@ local cbBossVoice = CreateCheckButton("DiGuaTimelineBossVoiceCheck", "开启首�
     print("|cffffd100[DiGua]|r 首领语音警报功能: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbForceWarnings = CreateCheckButton("DiGuaTimelineForceWarningsCheck", "自动开启暴雪文字预警", -185, function(self)
+local cbBloodlustSound = CreateCheckButton("DiGuaTimelineBloodlustSoundCheck", "嗜血开启提示语音", 20, -155, function(self)
+    DiGuaTimelineAudioHelper.bloodlustOpenSound = self:GetChecked()
+    print("|cffffd100[DiGua]|r 嗜血开启提示语音: " .. (DiGuaTimelineAudioHelper.bloodlustOpenSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+local cbLfgProposal = CreateCheckButton("DiGuaTimelineLfgProposalCheck", "副本组队就绪提示语音", 20, -180, function(self)
+    DiGuaTimelineAudioHelper.lfgProposalSound = self:GetChecked()
+    print("|cffffd100[DiGua]|r 副本组队就绪提示语音: " .. (DiGuaTimelineAudioHelper.lfgProposalSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+local cbInterruptFocus = CreateCheckButton("DiGuaTimelineInterruptFocusCheck", "有焦点也播报周围怪物打断", 20, -205, function(self)
+    DiGuaTimelineAudioHelper.interruptIgnoreFocus = self:GetChecked()
+    print("|cffffd100[DiGua]|r 有焦点也播报周围怪物打断: " .. (DiGuaTimelineAudioHelper.interruptIgnoreFocus and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+-- ===== 右栏：视觉 =====
+local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", 250, -55, function(self)
+    DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
+    print("|cffffd100[DiGua]|r 倒计时圆环图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
+end)
+
+local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦私有光环监控(暂时无法使用)", 250, -80, function(self)
+    DiGuaTimelineAudioHelper.coTankAuraEnabled = self:GetChecked()
+    print("|cffffd100[DiGua]|r 副坦私有光环监控(暂时无法使用): " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    
+    if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(f:IsShown()) end
+    if addonTable.UpdateRaidTankAuras then addonTable.UpdateRaidTankAuras() end
+end)
+
+local cbForceWarnings = CreateCheckButton("DiGuaTimelineForceWarningsCheck", "自动开启暴雪文字预警", 250, -105, function(self)
     local isEnabled = self:GetChecked()
     DiGuaTimelineAudioHelper.forceEncounterWarnings = isEnabled
     if isEnabled then
@@ -197,17 +244,7 @@ local cbForceWarnings = CreateCheckButton("DiGuaTimelineForceWarningsCheck", "�
     print("|cffffd100[DiGua]|r 自动开启暴雪文字预警: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbBloodlustSound = CreateCheckButton("DiGuaTimelineBloodlustSoundCheck", "嗜血开启提示语音", -210, function(self)
-    DiGuaTimelineAudioHelper.bloodlustOpenSound = self:GetChecked()
-    print("|cffffd100[DiGua]|r 嗜血开启提示语音: " .. (DiGuaTimelineAudioHelper.bloodlustOpenSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
-end)
-
-local cbLfgProposal = CreateCheckButton("DiGuaTimelineLfgProposalCheck", "副本组队就绪提示语音", -235, function(self)
-    DiGuaTimelineAudioHelper.lfgProposalSound = self:GetChecked()
-    print("|cffffd100[DiGua]|r 副本组队就绪提示语音: " .. (DiGuaTimelineAudioHelper.lfgProposalSound and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
-end)
-
-local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck", "技能剩余5秒中央倒计时", -260, function(self)
+local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck", "技能剩余5秒中央倒计时", 250, -130, function(self)
     local isEnabled = self:GetChecked()
     DiGuaTimelineAudioHelper.centerCountdownEnabled = isEnabled
     if addonTable.SetCenterCountdownEnabled then addonTable.SetCenterCountdownEnabled(isEnabled) end
@@ -216,23 +253,74 @@ local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck",
     print("|cffffd100[DiGua]|r 技能剩余5秒中央倒计时: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbInterruptFocus = CreateCheckButton("DiGuaTimelineInterruptFocusCheck", "有焦点也提醒打断", -285, function(self)
-    DiGuaTimelineAudioHelper.interruptIgnoreFocus = self:GetChecked()
-    print("|cffffd100[DiGua]|r 有焦点也提醒打断: " .. (DiGuaTimelineAudioHelper.interruptIgnoreFocus and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
-end)
-
-local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", -310, function(self)
+local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", 250, -155, function(self)
     DiGuaTimelineAudioHelper.playerDebuffEnabled = self:GetChecked()
     print("|cffffd100[DiGua]|r 玩家减益图标: " .. (DiGuaTimelineAudioHelper.playerDebuffEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     if addonTable.SetPlayerDebuffEnabled then addonTable.SetPlayerDebuffEnabled(self:GetChecked()) end
 end)
 
+local cbFocusCastBar = CreateCheckButton("DiGuaTimelineFocusCastBarCheck", "焦点特定技能施法条(测试版)", 250, -180, function(self)
+    DiGuaTimelineAudioHelper.focusCastBarEnabled = self:GetChecked()
+    print("|cffffd100[DiGua]|r 焦点特定技能施法条(测试版): " .. (DiGuaTimelineAudioHelper.focusCastBarEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(f:IsShown()) end
+end)
+
+local cbTotemText = CreateCheckButton("DiGuaTimelineTotemTextCheck", "姓名板显示\"图腾\"文字", 250, -205, function(self)
+    DiGuaTimelineAudioHelper.nameplateTotemTextEnabled = self:GetChecked()
+    if addonTable.SetNameplateTotemTextEnabled then addonTable.SetNameplateTotemTextEnabled(self:GetChecked()) end
+    print("|cffffd100[DiGua]|r 姓名板显示\"图腾\"文字: " .. (DiGuaTimelineAudioHelper.nameplateTotemTextEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+-- 主音量滑块（映射魔兽系统主音量 Sound_MasterVolume，范围 0-1，显示 0%-100%）
+-- 归入左栏“听觉”分组底部
+local masterVolumeSlider = CreateFrame("Slider", "DiGuaTimelineMasterVolumeSlider", f, "OptionsSliderTemplate")
+masterVolumeSlider:SetPoint("TOPLEFT", 20, -245)
+masterVolumeSlider:SetMinMaxValues(0, 1)
+masterVolumeSlider:SetValueStep(0.05)
+masterVolumeSlider:SetObeyStepOnDrag(true)
+masterVolumeSlider:SetWidth(150)
+local masterVolumeText = _G["DiGuaTimelineMasterVolumeSliderText"]
+if masterVolumeText then
+    masterVolumeText:SetText("主音量")
+    masterVolumeText:SetTextColor(1, 0.82, 0)
+end
+local masterVolumeValue = _G["DiGuaTimelineMasterVolumeSliderValue"]
+local masterVolumeLow = _G["DiGuaTimelineMasterVolumeSliderLow"]
+local masterVolumeHigh = _G["DiGuaTimelineMasterVolumeSliderHigh"]
+if masterVolumeLow then masterVolumeLow:SetText("0%") end
+if masterVolumeHigh then masterVolumeHigh:SetText("100%") end
+local masterVolumeUpdating = false
+local function UpdateMasterVolumeLabel(value)
+    if masterVolumeValue then
+        masterVolumeValue:SetText(format("%d%%", math.floor((value or 0) * 100 + 0.5)))
+    end
+end
+masterVolumeSlider:SetScript("OnValueChanged", function(self, value)
+    if masterVolumeUpdating then return end
+    SetCVar("Sound_MasterVolume", value)
+    UpdateMasterVolumeLabel(value)
+end)
+-- 初始同步系统当前主音量
+masterVolumeUpdating = true
+masterVolumeSlider:SetValue(tonumber(GetCVar("Sound_MasterVolume")) or 1)
+masterVolumeUpdating = false
+UpdateMasterVolumeLabel(masterVolumeSlider:GetValue())
+
 f:SetScript("OnShow", function()
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end
+    if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(true) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(true) end
+    -- 打开控制台时同步系统主音量（防止在系统设置里改过）
+    if masterVolumeSlider then
+        masterVolumeUpdating = true
+        masterVolumeSlider:SetValue(tonumber(GetCVar("Sound_MasterVolume")) or 1)
+        masterVolumeUpdating = false
+        UpdateMasterVolumeLabel(masterVolumeSlider:GetValue())
+    end
 end)
 f:SetScript("OnHide", function()
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end
+    if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(false) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(false) end
 end)
 

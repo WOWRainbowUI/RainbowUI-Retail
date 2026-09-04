@@ -96,8 +96,8 @@ end
 local function IsHidden(id)
     local track = Safe(C_EncounterTimeline.GetEventTrack, id)
     if not track then return false end
+    if issecretvalue and issecretvalue(track) then return false end -- secret 判断必须在比较之前
     if INDETERMINATE and track == INDETERMINATE then return true end
-    if issecretvalue and issecretvalue(track) then return false end
     local trackType = Safe(C_EncounterTimeline.GetTrackType, track)
     return HIDDEN and trackType and trackType == HIDDEN
 end
@@ -114,7 +114,7 @@ end
 ------------------------------------------------------------
 -- 创建屏幕中央的核心锚点容器框架
 local Base = CreateFrame("Frame", "DiGuaCenterCountdownBase", UIParent)
-Base:SetSize(260, 80)
+Base:SetSize(240, 80)
 Base:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
 Base:SetFrameStrata("HIGH")
 Base:SetClampedToScreen(true)
@@ -157,6 +157,7 @@ Base:SetScript("OnMouseUp", function(self)
     local _, _, _, x, y = self:GetPoint()
     DiGuaTimelineAudioHelper = DiGuaTimelineAudioHelper or {}
     DiGuaTimelineAudioHelper.centerCountdownX, DiGuaTimelineAudioHelper.centerCountdownY = x, y
+    print(string.format("|cff00ff00[DiGua]|r 剩余5秒倒计时新位置已保存 (X: %d, Y: %d)", x, y))
 end)
 
 ------------------------------------------------------------
@@ -286,10 +287,17 @@ monitor:SetScript("OnUpdate", function(_, delta)
     end
 
     --------------------------------------------------------
-    -- 3. 排序 (按剩余时间升序排列，即最急迫的排在最前)
+    -- 3. 排序 (按剩余时间升序排列：剩余越短越靠前/越靠下)
+    --    ⚠️ 旧写法 a.time ~= b.time and a.time < b.time or a.id < b.id 有坑：
+    --    当 a 剩余时间更长但 a.id 更小时，"(a.time<b.time) or (a.id<b.id)"
+    --    会错误返回 true，把时间长的排到前面，导致剩余时间少的被挤上去。
+    --    必须"时间相等才用 id 做次级比较"。
     --------------------------------------------------------
     table.sort(active, function(a, b)
-        return a.time ~= b.time and a.time < b.time or a.id < b.id
+        if a.time == b.time then
+            return a.id < b.id
+        end
+        return a.time < b.time
     end)
 
     --------------------------------------------------------

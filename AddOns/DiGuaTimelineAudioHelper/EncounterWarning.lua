@@ -62,10 +62,11 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
     end
 
     if not encounterWarningInfo then return end
-    if not DiGuaTimelineAudioHelper.bossVoiceEnabled and currentEncounterID ~= 0 then return end
 
     -- 实时从小函数里捞取主文件内部最新的隐身 local 变量
     local currentEncounterID = addonTable.GetEncounterID()
+    -- 首领语音开关：仅当关闭且正处首领战(encounterID≠0)时拦截；encounterID==0 的小怪机制(如强风)不受影响
+    if not DiGuaTimelineAudioHelper.bossVoiceEnabled and currentEncounterID ~= 0 then return end
     local startTime = addonTable.GetStartTime()
     local MEDIA_PATH = addonTable.GetMediaPath() or addonTable.GetDefaultMediaPath()
     local currentMap = C_Map.GetBestMapForUnit("player")
@@ -77,6 +78,13 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
     local severity = encounterWarningInfo.severity or 0
     local duration = encounterWarningInfo.duration or 0
     local targetName = encounterWarningInfo.targetName
+
+
+    -- 技能：闪现新星 -- 巨力重击
+    if currentEncounterID == 3497 and severity == 1 and duration == 3 and targetName then 
+            addonTable.StartCircleTimerBySeconds(6.9)
+        return
+    end
 
 
     -- 技能：狂怒侧风

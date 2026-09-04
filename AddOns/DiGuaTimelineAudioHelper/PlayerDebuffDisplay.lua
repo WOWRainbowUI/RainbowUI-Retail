@@ -10,7 +10,7 @@ local container
 -- 可移动宿主框（控制台打开且开关开启时可拖动，否则点击穿透）
 local HostFrame = CreateFrame("Frame", nil, UIParent)
 HostFrame:SetSize(55, 55)
-HostFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 140)
+HostFrame:SetPoint("CENTER", UIParent, "CENTER", 150, 60)
 HostFrame:EnableMouse(false)
 HostFrame:SetMovable(false)
 HostFrame:SetClampedToScreen(true)

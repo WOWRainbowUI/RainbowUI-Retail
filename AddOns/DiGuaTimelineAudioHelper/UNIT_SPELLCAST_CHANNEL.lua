@@ -131,7 +131,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             C_Timer.After(10, function() addonTable.SpellChannelCounter[unitTarget] = nil end) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 寒冰壁垒
-            and not UnitExists("focus")
+            and addonTable.ShouldWarnInterruptWithFocus(unitTarget)
             and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
             and (C_Map.GetBestMapForUnit("player") or 0) == 2095 -- 地图ID
             and IsIndoors() == true -- 在室内
@@ -507,7 +507,19 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     PlaySoundFile(addonTable.GetMediaPath() .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 end
             end
-
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 狩猎跃击
+            and select(8, GetInstanceInfo()) == 2859 -- 副本ID (夺目谷)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2500 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == UnitLevel("player")
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitIsLieutenant(unitTarget) == false -- 是否为中尉
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            then PlaySoundFile(addonTable.GetMediaPath() .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
 
         -- ============================
