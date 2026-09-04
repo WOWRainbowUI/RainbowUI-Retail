@@ -156,76 +156,80 @@ function BR.Glow.PulsingBorderStop(frame, key)
 end
 
 -- ============================================================================
--- GLOW TYPES (Pixel, AutoCast, Border)
+-- GLOW TYPES (Pixel, AutoCast, Border, Proc)
 -- ============================================================================
+-- One record per type, keyed by the BR.Glow.Type value the profile stores.
+--
+-- Start and Stop both look LCG up at call time. A direct reference binds at
+-- file-load time. If another addon loads a higher-minor LCG copy, LibStub
+-- mutates the shared lib table in place. Then LCG.PixelGlow_Start (call-time
+-- lookup) uses the new pool, but a load-time LCG.PixelGlow_Stop still holds the
+-- old pool's upvalue. The glow comes from one pool and goes back to another
+-- ("doesn't belong to this pool" error). A call-time lookup keeps Start and
+-- Stop on the same lib.
+--
+-- lcgFrameKey is where LCG stores the acquired pool frame on the parent, as
+-- this prefix plus the caller's key. Border draws its own frames and has none.
 
 local L = BR.L
-
-BR.Glow.Types = {
-    { name = L["Glow.Pixel"] },
-    { name = L["Glow.AutoCast"] },
-    { name = L["Glow.Border"] },
-    { name = L["Glow.Proc"] },
-}
 
 -- Shared read-only fallback so a nil params does not allocate a throwaway table
 local EMPTY_PARAMS = {}
 
-local GLOW_START = {
-    function(f, color, key, size, xOff, yOff, params)
-        local p = params or EMPTY_PARAMS
-        LCG.PixelGlow_Start(f, color, p.lines, p.frequency, p.length or 10, size, xOff, yOff, false, key)
-    end,
-    function(f, color, key, size, xOff, yOff, params)
-        local p = params or EMPTY_PARAMS
-        LCG.AutoCastGlow_Start(f, color, p.particles, p.frequency, p.scale or (size / 2), xOff, yOff, key)
-    end,
-    function(f, color, key, size, xOff, yOff, params)
-        local p = params or EMPTY_PARAMS
-        BR.Glow.PulsingBorderStart(f, key, color, size, xOff, yOff, p.frequency)
-    end,
-    function(f, color, key, _, xOff, yOff, params)
-        local p = params or EMPTY_PARAMS
-        LCG.ProcGlow_Start(f, {
-            color = color,
-            key = key,
-            duration = p.duration or 1,
-            startAnim = p.startAnim or false,
-            xOffset = xOff,
-            yOffset = yOff,
-        })
-    end,
+local Types = {
+    [GlowType.Pixel] = {
+        name = L["Glow.Pixel"],
+        lcgFrameKey = "_PixelGlow",
+        Start = function(f, color, key, size, xOff, yOff, params)
+            local p = params or EMPTY_PARAMS
+            LCG.PixelGlow_Start(f, color, p.lines, p.frequency, p.length or 10, size, xOff, yOff, false, key)
+        end,
+        Stop = function(f, key)
+            LCG.PixelGlow_Stop(f, key)
+        end,
+    },
+    [GlowType.AutoCast] = {
+        name = L["Glow.AutoCast"],
+        lcgFrameKey = "_AutoCastGlow",
+        Start = function(f, color, key, size, xOff, yOff, params)
+            local p = params or EMPTY_PARAMS
+            LCG.AutoCastGlow_Start(f, color, p.particles, p.frequency, p.scale or (size / 2), xOff, yOff, key)
+        end,
+        Stop = function(f, key)
+            LCG.AutoCastGlow_Stop(f, key)
+        end,
+    },
+    [GlowType.Border] = {
+        name = L["Glow.Border"],
+        Start = function(f, color, key, size, xOff, yOff, params)
+            local p = params or EMPTY_PARAMS
+            BR.Glow.PulsingBorderStart(f, key, color, size, xOff, yOff, p.frequency)
+        end,
+        Stop = function(f, key)
+            BR.Glow.PulsingBorderStop(f, key)
+        end,
+    },
+    [GlowType.Proc] = {
+        name = L["Glow.Proc"],
+        lcgFrameKey = "_ProcGlow",
+        Start = function(f, color, key, _, xOff, yOff, params)
+            local p = params or EMPTY_PARAMS
+            LCG.ProcGlow_Start(f, {
+                color = color,
+                key = key,
+                duration = p.duration or 1,
+                startAnim = p.startAnim or false,
+                xOffset = xOff,
+                yOffset = yOff,
+            })
+        end,
+        Stop = function(f, key)
+            LCG.ProcGlow_Stop(f, key)
+        end,
+    },
 }
 
--- Resolve LCG stop functions at call time (matches GLOW_START's closure pattern).
--- A direct reference binds at file-load time. If another addon loads a
--- higher-minor LCG copy, LibStub mutates the shared lib table in place. Then
--- LCG.PixelGlow_Start (call-time lookup) uses the new pool, but a load-time
--- LCG.PixelGlow_Stop still holds the old pool's upvalue. The glow comes from one
--- pool and goes back to another ("doesn't belong to this pool" error). A
--- call-time lookup keeps Start and Stop on the same lib.
-local GLOW_STOP = {
-    function(f, key)
-        LCG.PixelGlow_Stop(f, key)
-    end,
-    function(f, key)
-        LCG.AutoCastGlow_Stop(f, key)
-    end,
-    BR.Glow.PulsingBorderStop,
-    function(f, key)
-        LCG.ProcGlow_Stop(f, key)
-    end,
-}
-
--- LCG stores the acquired pool frame on its parent at this key prefix plus the
--- caller's key. A Stop call can fail: a cross-version pool mismatch survives the
--- pcall, or an external caller reclaims the frame. Then clear the stored
--- reference. The next Start finds an empty slot and acquires from the live pool.
-local LCG_FRAME_KEYS = {
-    [GlowType.Pixel] = "_PixelGlow",
-    [GlowType.AutoCast] = "_AutoCastGlow",
-    [GlowType.Proc] = "_ProcGlow",
-}
+BR.Glow.Types = Types
 
 -- Deferred-dispatch retry: if Glow.Start runs before the host's rect resolves
 -- (the frame is shown, but PositionMainContainer did not anchor it yet), LCG
@@ -241,9 +245,9 @@ local function FlushPending(host)
         return
     end
     for key, req in pairs(pending) do
-        local fn = GLOW_START[req.typeIndex]
-        if fn then
-            fn(host, req.color, key, req.size, req.xOff, req.yOff, req.params)
+        local def = Types[req.typeIndex]
+        if def then
+            def.Start(host, req.color, key, req.size, req.xOff, req.yOff, req.params)
             -- Sync caller state for the high-level expiration glow. SetExpiration
             -- gates on state.started. Without this flip it dispatches again on
             -- the next render.
@@ -281,8 +285,8 @@ function BR.Glow.Start(frame, typeIndex, color, key, size, xOffset, yOffset, par
     size = size or 2
     xOffset = xOffset or 0
     yOffset = yOffset or 0
-    local fn = GLOW_START[typeIndex]
-    if not fn then
+    local def = Types[typeIndex]
+    if not def then
         return false
     end
     local host = GetHost(frame)
@@ -310,7 +314,7 @@ function BR.Glow.Start(frame, typeIndex, color, key, size, xOffset, yOffset, par
     if host._brGlowPending then
         host._brGlowPending[key] = nil
     end
-    fn(host, color, key, size, xOffset, yOffset, params)
+    def.Start(host, color, key, size, xOffset, yOffset, params)
     return true
 end
 
@@ -326,13 +330,13 @@ function BR.Glow.Stop(frame, typeIndex, key)
     if host._brGlowPending then
         host._brGlowPending[key] = nil
     end
-    local fn = GLOW_STOP[typeIndex]
-    if fn then
+    local def = Types[typeIndex]
+    if def then
         -- pcall: a stale pool reference (cross-version LCG load) or an externally
         -- reclaimed frame raises "doesn't belong to this pool" from Blizzard's
         -- ObjectPoolMixin:Release. Swallow that error.
-        pcall(fn, host, key)
-        local lcgKey = LCG_FRAME_KEYS[typeIndex]
+        pcall(def.Stop, host, key)
+        local lcgKey = def.lcgFrameKey
         if lcgKey then
             host[lcgKey .. (key or "")] = nil
         end
@@ -343,7 +347,7 @@ end
 ---@param frame table
 ---@param key string Must match the key used in Start
 function BR.Glow.StopAll(frame, key)
-    for typeIndex = 1, 4 do
+    for typeIndex in pairs(Types) do
         BR.Glow.Stop(frame, typeIndex, key)
     end
 end
