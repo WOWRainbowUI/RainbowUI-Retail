@@ -26,6 +26,7 @@ L["Minimap button"] = "Включить кнопку на миникарте";
 L["Item level in keystone tooltip"] = "Показать уровень предметов во всплывающей подсказке ключа";
 L["Favorite in item tooltip"] = "Избранное в подсказке предмета";
 L["Favorite on item icons"] = "Избранное на значках предметов";
+L["Slot name on item icons"] = "Название слота на значках предметов";
 L['Hide "Other" in All Slots'] = "Скрывать \"Прочее\" при показе всех слотов";
 L["Loot reminder (dungeons)"] = "Включить напоминание о добыче";
 L["Highlighting"] = "Подсветка";
@@ -50,9 +51,11 @@ L["Delete all data for %s?"] = "Удалить все данные для %s?";
 L["Cannot delete the currently logged in character."] = "Невозможно удалить персонажа, под которым выполнен вход.";
 L["This character is hidden."] = "Этот персонаж скрыт.";
 L["Wide mode"] = "Широкий режим";
-L["Drop alert (favorites)"] = "Уведомление о дропе (избранное)";
+L["Drop notification (favorites)"] = "Уведомление о дропе (избранное)";
 L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, or if switching it could increase your chances of getting them."] = "Напоминает при входе в подземелье, если Ваша специализация добычи не соответствует избранному или смена специализации может повысить шанс получить нужные предметы.";
 L["Shows a notification when another player loots an item you have marked as a favorite."] = "Показывает уведомление, когда другой игрок получает предмет, отмеченный Вами как избранный.";
+L["Mythic+ notification (dungeons)"] = "Уведомление М+ (подземелья)";
+L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."] = "Показывает подземелье и вашу роль с кнопкой телепортации, когда вы вступаете в группу М+ или группа заполняется.";
 L["Whisper message..."] = "Сообщение в шёпот...";
 L["Whisper message\n{item} will be replaced with the item link."] = "Сообщение в шёпот\n{item} будет заменено ссылкой на предмет.";
 L["Multiple slot filtering"] = "Фильтрация нескольких слотов";
@@ -63,7 +66,7 @@ L["Automatically responds with your current Mythic+ keystone when someone types 
 
 -- custom_item_icon.lua
 L["Custom Items"] = "Пользовательские предметы";
-L["Import items from external sources like www.keystoneloot.io"] = "Предметы, импортированные из внешних источников, например www.keystoneloot.io";
+L["Import items from external sources like keystoneloot.io"] = "Предметы, импортированные из внешних источников, например keystoneloot.io";
 
 -- favorites.lua
 L["No favorites found"] = "Избранное не найдено";
@@ -82,6 +85,26 @@ L["Voidcore used"] = "Использован сердечник Бездны";
 L["+Secondary stats of the base item"] = "+Вторичные характеристики базового предмета";
 L["Tier token"] = "Жетон сета";
 
+-- icon_button.lua
+L["Head"] = "Голова";
+L["Neck"] = "Шея";
+L["Shoulder"] = "Плечи";
+L["Back"] = "Спина";
+L["Chest"] = "Грудь";
+L["Wrist"] = "Запяст.";
+L["Hands"] = "Кисти";
+L["Waist"] = "Пояс";
+L["Legs"] = "Ноги";
+L["Feet"] = "Ступни";
+L["1H"] = "1Р";
+L["2H"] = "2Р";
+L["Main"] = "Прав.";
+L["Off"] = "Лев.";
+L["Shield"] = "Щит";
+L["Ranged"] = "Дальн.";
+L["Ring"] = "Кольцо";
+L["Trinket"] = "Аксесс.";
+
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "Нажмите CTRL+C, чтобы скопировать";
 
@@ -96,6 +119,10 @@ L["Left click: Open overview"] = "ЛКМ: Открыть окно KeystoneLoot";
 
 -- drop_notification_frame.lua
 L["Favorite dropped!"] = "Избранный предмет выпал!";
+
+-- mythicplus_notification_frame.lua
+L["Mythic+ group joined!"] = "Вы вступили в группу М+!";
+L["Group is full!"] = "Группа заполнена!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "Текст можно изменить в настройках.";

@@ -26,6 +26,7 @@ L["Minimap button"] = "小地图按钮";
 L["Item level in keystone tooltip"] = "在史诗钥匙显示对应等级";
 L["Favorite in item tooltip"] = "在物品提示中显示收藏";
 L["Favorite on item icons"] = "在物品图标上显示收藏";
+L["Slot name on item icons"] = "在物品图标上显示部位";
 L['Hide "Other" in All Slots'] = "在「全部栏位」中隐藏「其他」物品";
 L["Loot reminder (dungeons)"] = "拾取专精提醒（地下城）";
 L["Highlighting"] = "高亮显示";
@@ -50,9 +51,11 @@ L["Delete all data for %s?"] = "删除 %s 的所有数据？";
 L["Cannot delete the currently logged in character."] = "无法删除当前登录的角色。";
 L["This character is hidden."] = "该角色已被隐藏。";
 L["Wide mode"] = "宽屏模式";
-L["Drop alert (favorites)"] = "掉落提醒（收藏）";
+L["Drop notification (favorites)"] = "掉落提醒（收藏）";
 L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, or if switching it could increase your chances of getting them."] = "进入地下城时，若拾取专精与收藏夹不符或切换专精可提高获得概率，则发出提醒。";
 L["Shows a notification when another player loots an item you have marked as a favorite."] = "当其他玩家拾取你标记为收藏的物品时显示通知。";
+L["Mythic+ notification (dungeons)"] = "史诗+通知（地下城）";
+L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."] = "当你加入史诗+队伍或队伍满员时，显示地下城和你的职责，并提供传送按钮。";
 L["Whisper message..."] = "悄悄话消息...";
 L["Whisper message\n{item} will be replaced with the item link."] = "悄悄话消息\n{item} 将被替换为物品链接。";
 L["Multiple slot filtering"] = "多栏位筛选";
@@ -63,7 +66,7 @@ L["Automatically responds with your current Mythic+ keystone when someone types 
 
 -- custom_item_icon.lua
 L["Custom Items"] = "自定义物品";
-L["Import items from external sources like www.keystoneloot.io"] = "从 www.keystoneloot.io 等外部来源导入的物品";
+L["Import items from external sources like keystoneloot.io"] = "从 keystoneloot.io 等外部来源导入的物品";
 
 -- favorites.lua
 L["No favorites found"] = "未找到收藏";
@@ -81,6 +84,26 @@ L["Catalyst"] = "化生台";
 L["+Secondary stats of the base item"] = "+基础物品的副属性";
 L["Tier token"] = "套装标记";
 
+-- icon_button.lua
+L["Head"] = "头";
+L["Neck"] = "项链";
+L["Shoulder"] = "肩";
+L["Back"] = "披风";
+L["Chest"] = "胸";
+L["Wrist"] = "腕";
+L["Hands"] = "手";
+L["Waist"] = "腰";
+L["Legs"] = "腿";
+L["Feet"] = "脚";
+L["1H"] = "单手";
+L["2H"] = "双手";
+L["Main"] = "主手";
+L["Off"] = "副手";
+L["Shield"] = "盾牌";
+L["Ranged"] = "远程";
+L["Ring"] = "戒指";
+L["Trinket"] = "饰品";
+
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "按 CTRL+C 复制";
 
@@ -95,6 +118,10 @@ L["Left click: Open overview"] = "左键点击：打开概览";
 
 -- drop_notification_frame.lua
 L["Favorite dropped!"] = "收藏物品已掉落！";
+
+-- mythicplus_notification_frame.lua
+L["Mythic+ group joined!"] = "已加入史诗+队伍！";
+L["Group is full!"] = "队伍已满员！";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "可在设置中修改文本。";

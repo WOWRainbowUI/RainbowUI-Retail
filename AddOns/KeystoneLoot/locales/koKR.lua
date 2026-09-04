@@ -26,6 +26,7 @@ L["Minimap button"] = "미니맵 버튼";
 L["Item level in keystone tooltip"] = "쐐기돌 툴팁에 장비 수준 표시";
 L["Favorite in item tooltip"] = "아이템 툴팁에 즐겨찾기 표시";
 L["Favorite on item icons"] = "아이템 아이콘에 즐겨찾기 표시";
+L["Slot name on item icons"] = "아이템 아이콘에 착용 부위 표시";
 L['Hide "Other" in All Slots'] = "전체 슬롯에서 \"기타\" 숨기기";
 L["Loot reminder (dungeons)"] = "전리품 리마인더 (던전)";
 L["Highlighting"] = "강조";
@@ -50,9 +51,11 @@ L["Delete all data for %s?"] = "%s의 모든 데이터를 삭제하시겠습니�
 L["Cannot delete the currently logged in character."] = "현재 로그인한 캐릭터는 삭제할 수 없습니다.";
 L["This character is hidden."] = "이 캐릭터는 숨겨져 있습니다.";
 L["Wide mode"] = "넓은 모드";
-L["Drop alert (favorites)"] = "드롭 알림 (즐겨찾기)";
+L["Drop notification (favorites)"] = "드롭 알림 (즐겨찾기)";
 L["Reminds you on dungeon entry if your loot spec doesn't match your favorites, or if switching it could increase your chances of getting them."] = "던전 입장 시 전리품 전문화가 즐겨찾기와 맞지 않거나 변경 시 획득 확률이 높아질 경우 알려줍니다.";
 L["Shows a notification when another player loots an item you have marked as a favorite."] = "다른 플레이어가 즐겨찾기로 표시한 아이템을 획득하면 알림을 표시합니다.";
+L["Mythic+ notification (dungeons)"] = "신화+ 알림 (던전)";
+L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."] = "신화+ 파티에 참여하거나 파티가 가득 차면 던전과 역할을 순간이동 버튼과 함께 표시합니다.";
 L["Whisper message..."] = "귓속말 메시지...";
 L["Whisper message\n{item} will be replaced with the item link."] = "귓속말 메시지\n{item}은(는) 아이템 링크로 대체됩니다.";
 L["Multiple slot filtering"] = "다중 슬롯 필터링";
@@ -63,7 +66,7 @@ L["Automatically responds with your current Mythic+ keystone when someone types 
 
 -- custom_item_icon.lua
 L["Custom Items"] = "커스텀 아이템";
-L["Import items from external sources like www.keystoneloot.io"] = "www.keystoneloot.io 같은 외부 사이트에서 가져온 아이템";
+L["Import items from external sources like keystoneloot.io"] = "keystoneloot.io 같은 외부 사이트에서 가져온 아이템";
 
 -- favorites.lua
 L["No favorites found"] = "즐겨찾기 없음";
@@ -81,6 +84,26 @@ L["Catalyst"] = "촉매";
 L["+Secondary stats of the base item"] = "+기본 아이템의 2차 능력치";
 L["Tier token"] = "티어 토큰";
 
+-- icon_button.lua
+L["Head"] = "머리";
+L["Neck"] = "목";
+L["Shoulder"] = "어깨";
+L["Back"] = "등";
+L["Chest"] = "가슴";
+L["Wrist"] = "손목";
+L["Hands"] = "손";
+L["Waist"] = "허리";
+L["Legs"] = "다리";
+L["Feet"] = "발";
+L["1H"] = "한손";
+L["2H"] = "양손";
+L["Main"] = "주장비";
+L["Off"] = "보조";
+L["Shield"] = "방패";
+L["Ranged"] = "원거리";
+L["Ring"] = "반지";
+L["Trinket"] = "장신구";
+
 -- copy_popup.lua
 L["Press CTRL+C to copy"] = "CTRL+C를 눌러 복사";
 
@@ -95,6 +118,10 @@ L["Left click: Open overview"] = "왼쪽 클릭: 개요 열기";
 
 -- drop_notification_frame.lua
 L["Favorite dropped!"] = "즐겨찾기 아이템 드롭!";
+
+-- mythicplus_notification_frame.lua
+L["Mythic+ group joined!"] = "신화+ 파티 참여!";
+L["Group is full!"] = "파티가 가득 찼습니다!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "텍스트는 설정에서 수정할 수 있습니다.";

@@ -27,6 +27,7 @@ function KeystoneLootReminderFrameMixin:OnLoad()
     self.Bg:SetPoint("BOTTOMRIGHT", -4, 3);
     self.HeadlineBg:SetVertexColor(0.1, 0.1, 0.1, 1);
     self.Title:SetText(L["Correct loot specialization set?"]);
+    self.AddonLabel:SetText(AddonName);
 
     self.specPool = CreateFramePool("Frame", self.Container, "KeystoneLootReminderSpecTemplate");
 

@@ -105,6 +105,7 @@ local function Apply()
     end
 
     hooksecurefunc(KeystoneLootReminderFrame, "Open", SkinWidgets);
+    SkinWidgets(KeystoneLootMythicPlusNotificationFrame);
 
     hooksecurefunc(KSLMenuStyle1Mixin, "Generate", function(Menu)
         RunNextFrame(function()
@@ -114,6 +115,7 @@ local function Apply()
 
     SkinPopupFrame(KeystoneLootReminderFrame);
     SkinPopupFrame(KeystoneLootDropNotificationFrame);
+    SkinPopupFrame(KeystoneLootMythicPlusNotificationFrame);
 end
 
 EllesmereUI.RegisterSkin(AddonName, function(S)

@@ -28,13 +28,13 @@ local ITEM_LEVEL_BONUS_IDS = {
 };
 
 local BLACKLIST_ITEMS = {
-    [268280] = true
+    --[268280] = true
 };
 
 function Upgrade:IsUpgradeable(itemId)
-    local _, _, _, _, _, classId, subClassId = C_Item.GetItemInfoInstant(itemId);
+    local _, _, _, _, _, classId = C_Item.GetItemInfoInstant(itemId);
 
-    if (not classId or BLACKLIST_ITEMS[itemId] or (classId == Enum.ItemClass.Armor and subClassId == Enum.ItemArmorSubclass.Cosmetic)) then
+    if (not classId or BLACKLIST_ITEMS[itemId] or C_Item.IsCosmeticItem(itemId)) then
         return false;
     end
 
