@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -1286,6 +1286,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.8.3-19-gef0d480";
+T._LoadedFiles["Dcr_Events.lua"] = "2.8.3-25-g9cacdb5";
 
 -- The Great Below

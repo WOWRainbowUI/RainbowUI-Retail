@@ -1,8 +1,15 @@
 # Decursive  -Ace3-
 
-## [2.8.3-19-gef0d480](https://github.com/2072/Decursive/tree/ef0d48090b4b39210f413bbe7beac93397bf6784) (2026-08-30)
-[Full Changelog](https://github.com/2072/Decursive/compare/2.8.3...ef0d48090b4b39210f413bbe7beac93397bf6784) [Previous Releases](https://github.com/2072/Decursive/releases)
+## [2.8.3-25-g9cacdb5](https://github.com/2072/Decursive/tree/9cacdb5de21db22fddf625c6d792215679f0edaa) (2026-09-02)
+[Full Changelog](https://github.com/2072/Decursive/compare/2.8.3...9cacdb5de21db22fddf625c6d792215679f0edaa) [Previous Releases](https://github.com/2072/Decursive/releases)
 
+- Add installation corruption guard/alert to Dcr\_12\_1\_Sounds.lua  
+    #retailOnly  
+- Restore protected affliction sounds on WoW 12.1  
+- Move the 12.1 dispel cooldown onto the MUF grid  
+- Show dispel cooldowns on 12.1 unit frames  
+- Suppress false empty-dispel message on 12.x  
+- Restore 12.1 dispel priority workflow  
 - 12.1: Fix Decursive macro creation failure because Blizzard removed the global MAX\_ACCOUNT\_MACROS  
     Just use a pcall around CreateMacro...  
     #retailOnly  

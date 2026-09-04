@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-28T14:57:47Z
+    This file was last updated on 2026-08-31T01:57:24Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1966,7 +1966,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.8.3-19-gef0d480", "John Wellesz", ("2026-08-30T19:25:36Z"):sub(1,10),
+                                    "2.8.3-25-g9cacdb5", "John Wellesz", ("2026-09-02T10:28:21Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2206,31 +2206,84 @@ function D:CheckCureOrder ()
 end
 
 local TRANSPARENT_CM = D:NumToColorMixin({1,1,1,0})
+local AURA_DISPEL_TYPES = {
+    DC.MAGIC,
+    DC.CURSE,
+    DC.DISEASE,
+    DC.POISON,
+    DC.BLEED,
+}
+local MAX_CURE_PRIORITIES = 7
+
+function D:GetAuraCandidateFiltersByPrio(unit)
+    local defaultFilters = D.Status.auraCandidateFiltersByPrio
+    local dispelTypesByPrio = D.Status.auraDispelTypesByPrio
+
+    if not unit or not dispelTypesByPrio then
+        return defaultFilters
+    end
+
+    local filtersByPrio = {}
+    for prio = 1, MAX_CURE_PRIORITIES do
+        local includeDispelTypes = {}
+        filtersByPrio[prio] = { includeDispelTypes = includeDispelTypes }
+
+        for afflictionType, typeName in pairs(dispelTypesByPrio[prio]) do
+            if not D.UnitFilteringTest(unit, D.Status.UnitFilteringTypes[afflictionType]) then
+                includeDispelTypes[typeName] = true
+            end
+        end
+    end
+
+    return filtersByPrio
+end
+
 function D:SetColorCurve()
 
     if DC.MN then
-        -- we need to set the color of the new MN curve thingy:
-        -- one color per spell, so we need to create a table type -> color
         local mfc = D.profile.MF_colors
         local dsc = D.Status.dsCurve
         local dtToBT = DC.DTtoBT
+        local curingSpells = D.Status.CuringSpells
+        local curingSpellsPrio = D.Status.CuringSpellsPrio
 
         local typeToColor = {}
-        for Spell, Prio in pairs(D.Status.CuringSpellsPrio) do -- for each configured spell
-            for typeprio, afflictionType in ipairs(D.Status.ReversedCureOrder) do -- use ipairs' behaviour to our advantage
-                if D.Status.CuringSpells[afflictionType] == Spell then -- handling an affliction type
-                    typeToColor[afflictionType] = D:NumToColorMixin(mfc[Prio]) -- register the type to color mapping
-                end
-            end
+        local enabledTypes = {}
+        local candidateFiltersByPrio = {}
+        local dispelTypesByPrio = {}
+
+        for prio = 1, MAX_CURE_PRIORITIES do
+            candidateFiltersByPrio[prio] = { includeDispelTypes = {} }
+            dispelTypesByPrio[prio] = {}
         end
 
-        -- use transparent color for unset types
-        for typeprio, afflictionType in pairs(D.Status.ReversedCureOrder) do
-            if D.Status.CuringSpells[afflictionType] == false then
-                D:Debug("Will use transparent color for type", afflictionType)
+        -- ReversedCureOrder contains only enabled types that the player can
+        -- currently cure. Build an explicit set because CuringSpells still
+        -- contains spells for types disabled by the user.
+        for _, afflictionType in ipairs(D.Status.ReversedCureOrder) do
+            enabledTypes[afflictionType] = true
+        end
+
+        -- In 12.1 aura data cannot be inspected by addon Lua. Give Blizzard a
+        -- separate candidate set for every Decursive click priority instead.
+        -- This preserves the configured spell/button mapping without reading
+        -- or branching on secret aura values.
+        for _, afflictionType in ipairs(AURA_DISPEL_TYPES) do
+            local spell = curingSpells[afflictionType]
+            local prio = enabledTypes[afflictionType] and spell and curingSpellsPrio[spell]
+            local typeName = DC.TypeNames[afflictionType]
+
+            if prio and candidateFiltersByPrio[prio] then
+                typeToColor[afflictionType] = D:NumToColorMixin(mfc[prio])
+                candidateFiltersByPrio[prio].includeDispelTypes[typeName] = true
+                dispelTypesByPrio[prio][afflictionType] = typeName
+            else
                 typeToColor[afflictionType] = TRANSPARENT_CM
             end
         end
+
+        D.Status.auraCandidateFiltersByPrio = candidateFiltersByPrio
+        D.Status.auraDispelTypesByPrio = dispelTypesByPrio
 
         --[==[@debug@
         --D:Debug("SetCureOrder(): typeToColor table:", D:tAsString(typeToColor));
@@ -3844,6 +3897,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-19-gef0d480";
+T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-25-g9cacdb5";
 
 -- Closer

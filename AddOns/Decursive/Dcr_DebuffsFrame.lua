@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-08-28T15:57:06Z
+    This file was last updated on 2026-09-01T21:43:05Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -993,7 +993,18 @@ function MicroUnitF.OnPreClick(frame, Button) -- {{{
     RequestedPrio = D:tGiveValueIndex(D.db.global.MouseButtons, modifier and (modifier .. ButtonsString:sub(-3)) or ButtonsString);
 
     D:Debug("RequestedPrio:", RequestedPrio);
-    if frame.Object.UnitStatus == NORMAL and D:tcheckforval(D.Status.CuringSpellsPrio, RequestedPrio) then
+    if DC.TWELVE_ONE and RequestedPrio and D:tcheckforval(D.Status.CuringSpellsPrio, RequestedPrio) then
+        -- The active aura slot cannot be inspected in 12.1, but the click's
+        -- configured cleansing priority is known. Remember it so every MUF can
+        -- display that action's cooldown before the player clicks another unit.
+        D.Status.LastCureSpellPrio = RequestedPrio
+    end
+
+    -- In Midnight, secret auras can leave the legacy MUF status at NORMAL
+    -- while Blizzard's AuraButton still handles a valid dispel click. The
+    -- addon cannot inspect that aura to distinguish a successful native cast
+    -- from an empty click, so the old message would be a false positive.
+    if not DC.MN and frame.Object.UnitStatus == NORMAL and D:tcheckforval(D.Status.CuringSpellsPrio, RequestedPrio) then
 
         D:Println(L["HLP_NOTHINGTOCURE"]);
 
@@ -1100,12 +1111,20 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
     -- create the frame
     self.Frame  = CreateFrame ("Button", nil, self.Parent, "DcrMicroUnitTemplateSecure");
     self.CooldownFrame = CreateFrame ("Cooldown", nil, self.Frame, "DcrMicroUnitCDTemplate");
-    self.CooldownFrame:SetHideCountdownNumbers(true)
+    self.CooldownFrame:SetHideCountdownNumbers(not DC.TWELVE_ONE)
+
+    if DC.TWELVE_ONE then
+        self.CooldownFrame:SetFrameLevel(self.Frame:GetFrameLevel() + 20)
+        self.CooldownFrame:SetDrawEdge(false)
+        self.CooldownFrame:SetSwipeColor(0, 0, 0, 0.75)
+        self.CooldownFrame:Show()
+    end
 
 
     if DC.TWELVE_ONE then
         self.auraContainer = CreateFrame("AuraContainer", nil, self.Frame, "CustomAuraContainerTemplate")
-        self.auraContainer:SetAllPoints(self.Frame) -- todo: check if required
+        self.auraContainer:SetAllPoints(self.Frame)
+        self.auraSlotKeys = {}
     end
 
     if petminus ~= 0 then
@@ -1146,34 +1165,59 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
     if self.auraContainer then
         local c = self.auraContainer
 
-        local setButton = function(ab)
-            self.auraButton = ab
+        local setButton = function(ab, prio)
             ab:EnableMouse(false)
 
             ab:ClearAllPoints()
             ab:SetPoint("CENTER", self.Frame, "CENTER", 0, 0)
-            ab:SetSize(16 - petminus, 16 - petminus) -- todo check if useful
+            ab:SetSize(16 - petminus, 16 - petminus)
+            -- Lower numeric values are higher Decursive priorities. Put those
+            -- AuraButtons above lower-priority matches when several dispel
+            -- types are present on the same unit.
+            ab:SetFrameLevel(self.Frame:GetFrameLevel() + (8 - prio))
 
             local border = ab:CreateTexture(nil, "OVERLAY")
             border:ClearAllPoints()
             border:SetAllPoints(ab)
-            border:SetColorTexture(1, 1, 1, 1) -- necessary for te curve to work...
+            border:SetColorTexture(1, 1, 1, 1)
             border:Show()
 
-            self.auraBorder = border
+            -- AuraButtons become inaccessible to addon code while auras are
+            -- secret. Configure the display completely inside Blizzard's
+            -- initializeFrame callback and update only the container later.
+            ab:SetAuraBorder(border, {
+                showIcon = false,
+                showWhenHarmful = true,
+                showWhenHelpful = false,
+                showWithoutDispelType = false,
+                style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+                customDispelColorCurve = D.Status.dsCurve,
+            })
+
         end
 
-        local b = c:AddAuraSlot(
-            "DCR_DISPELLABLE",
-            "HARMFUL|RAID",
-            {
-                sortMethod = 0,
-                sortDirection = 0,
-                initializeFrame = function(auraButton)
-                    setButton(auraButton)
-                end,
-            }
-        )
+        -- Create one native slot per possible cleansing-spell priority. Empty
+        -- candidate maps hide unused priorities. Slots are created in reverse
+        -- order as a second, deterministic draw-order safeguard.
+        local filters = D:GetAuraCandidateFiltersByPrio(Unit)
+        for prio = 7, 1, -1 do
+            local slotPrio = prio
+            local slotKey = "DCR_DISPELLABLE_" .. slotPrio
+            self.auraSlotKeys[slotPrio] = slotKey
+
+            c:AddAuraSlot(
+                slotKey,
+                "HARMFUL|RAID",
+                {
+                    sortMethod = 0,
+                    sortDirection = 0,
+                    candidateFilters = filters and filters[slotPrio] or { includeDispelTypes = {} },
+                    initializeFrame = function(auraButton)
+                        setButton(auraButton, slotPrio)
+                    end,
+                }
+            )
+        end
 
         c:SetUnit(Unit)
         c:SetShown(true)
@@ -1344,23 +1388,18 @@ do
             ReturnValue = self;
         end
 
-
-        if self.auraButton then
-            local ab = self.auraButton
-            ab:SetAuraBorder(self.auraBorder, {
-                showIcon = false,
-                showWhenHarmful = true,
-                showWhenHelpful = false,
-                showWithoutDispelType = true,
-                style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
-                customDispelColorCurve = D.Status.dsCurve
-            })
-
-            D:Debug("auraBorderSet for ", Unit)
-        end
-
         if (D.Status.SpellsChanged == self.LastAttribUpdate) then
             return ReturnValue; -- nothing changed
+        end
+
+        if self.auraContainer and self.auraSlotKeys then
+            local filters = D:GetAuraCandidateFiltersByPrio(Unit)
+            for prio, slotKey in ipairs(self.auraSlotKeys) do
+                self.auraContainer:SetAuraSlotCandidateFilters(
+                    slotKey,
+                    filters and filters[prio] or { includeDispelTypes = {} }
+                )
+            end
         end
 
         -- D:Debug("UpdateAttributes() executed");
@@ -1487,10 +1526,37 @@ do
     local band              = _G.bit.band;
     local SpellID;
 
+    local function UpdateMidnightCooldown(MF)
+        if MF.NativeCooldownUpdate == Status.UpdateCooldown then
+            return
+        end
+
+        local spell = Status.LastCureSpellPrio and D:tGiveValueIndex(Status.CuringSpellsPrio, Status.LastCureSpellPrio)
+        local spellData = spell and Status.FoundSpells[spell]
+        local spellID = spellData and spellData[2]
+
+        if spellID and spellID > 0 then
+            -- Ignore the global cooldown: the grid should only be shaded when
+            -- the last cleansing action itself cannot be used yet.
+            MF.CooldownFrame:SetCooldownFromDurationObject(C_Spell.GetSpellCooldownDuration(spellID, true), true)
+        elseif spellID and spellID < 0 then
+            CooldownFrame_Set(MF.CooldownFrame, GetItemCooldown(-spellID))
+        else
+            MF.CooldownFrame:Clear()
+        end
+
+        MF.CooldownFrame:Show()
+        MF.NativeCooldownUpdate = Status.UpdateCooldown
+    end
+
     function MicroUnitF.prototype:SetColor() -- {{{
 
         profile = D.profile;
         Status  = D.Status;
+
+        if DC.TWELVE_ONE then
+            UpdateMidnightCooldown(self)
+        end
 
         -- register default alpha of the border
         BorderAlpha =  profile.DebuffsFrameElemBorderAlpha;
@@ -1644,12 +1710,21 @@ do
                 end
 
                 local index = GetRaidTargetIndex(Unit)
-                self.RaidTargetIcon = index
-
-                if not canaccessvalue(index) or self.PrevRaidTargetIndex ~= self.RaidTargetIcon then
-                    local icon = index and string.format("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:11:11|t ", index) or ""
+                if canaccessvalue(index) then
+                    if self.PrevRaidTargetIndex ~= index then
+                        local icon = index and string.format("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:11:11|t ", index) or ""
+                        self.RaidIconTexture:SetText(icon)
+                        self.RaidTargetIcon = index
+                        self.PrevRaidTargetIndex = index
+                    end
+                else
+                    -- string.format and FontString:SetText can forward the
+                    -- secret texture index to Blizzard without inspecting it.
+                    -- Do not retain the secret value for a later comparison.
+                    local icon = string.format("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:11:11|t ", index)
                     self.RaidIconTexture:SetText(icon);
-                    self.PrevRaidTargetIndex = index;
+                    self.RaidTargetIcon = false
+                    self.PrevRaidTargetIndex = false
                 end
 
 
@@ -1991,6 +2066,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-19-gef0d480";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-25-g9cacdb5";
 
 -- Heresy

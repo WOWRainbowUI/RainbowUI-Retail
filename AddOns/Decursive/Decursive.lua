@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-19-gef0d480) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-28T14:57:47Z
+    This file was last updated on 2026-08-31T01:57:24Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -766,7 +766,7 @@ do
 
             if self.Status.Combat or nameAccessible and self.profile.DebuffAlwaysSkipList[Debuff.Name] then
                 local _, EnUClass = UnitClass(Unit);
-                if self.profile.skipByClass[EnUClass] then
+                if canaccessvalue(EnUClass) and self.profile.skipByClass[EnUClass] then
                     if  nameAccessible and self.profile.skipByClass[EnUClass][Debuff.Name] then
                         -- these are just ones you don't care about by class while in combat
 
@@ -1020,6 +1020,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.8.3-19-gef0d480";
+T._LoadedFiles["Decursive.lua"] = "2.8.3-25-g9cacdb5";
 
 -- Sin
