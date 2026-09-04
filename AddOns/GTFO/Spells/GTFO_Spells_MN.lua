@@ -114,6 +114,54 @@ GTFO.SpellID["1301104"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1305067"] = {
+  --desc = "Lobbed Poison (Congealed Malice)";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1277045"] = {
+  --desc = "Bilepool (Ingested Consumptor)";
+  map = 2405; -- Voidstorm
+  sound = 1;
+};
+
+GTFO.SpellID["1239319"] = {
+  --desc = "Blood of Aspore";
+  map = 2405; -- Voidstorm
+  sound = 1;
+};
+
+GTFO.SpellID["1292867"] = {
+  --desc = "Ecto-slowed";
+  map = 2642; -- Tomb of the Lost Priest
+  sound = 2;
+  stackSound = 2;
+};
+
+GTFO.SpellID["1307364"] = {
+  --desc = "Lobbed Poison";
+  map = 2512; -- The Coiled Isle
+  sound = 1;
+};
+
+GTFO.SpellID["1252856"] = {
+  --desc = "Domineering Energy (Domanaar Ritualist)";
+  map = 2599; -- Val
+  sound = 1;
+};
+
+GTFO.SpellID["1286084"] = {
+  --desc = "Toxic Puddle (Toxic Voidscythe)";
+  map = 2599; -- Val
+  sound = 1;
+};
+
+GTFO.SpellID["1285630"] = {
+  --desc = "Gravity Well (Imperator Pertinax)";
+  map = 2599; -- Val
+  sound = 1;
+};
 
 --- *******************
 --- * Midnight (Prey) *
@@ -145,10 +193,15 @@ GTFO.SpellID["1286720"] = {
 
 GTFO.SpellID["1287232"] = {
   --desc = "Corrosive Venom (Kursak the Coiled)";
-  map = 2512; -- The Coiled Isle
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
   sound = 1;
 };
 
+GTFO.SpellID["1262431"] = {
+  --desc = "Astalor's Disdain";
+  sound = 1;
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
+};
 
 --- *********************
 --- * Midnight (Delves) *
@@ -176,7 +229,32 @@ GTFO.SpellID["1280182"] = {
 
 GTFO.SpellID["1260224"] = {
   --desc = "Domineering Energy (Wrathbound Voidwraith)";
-  instances = { 2933, 2953 }; -- Collegiate Calamity, Parhelion Plaza
+  instances = { 2933, 2952, 2953, 2961, 2962, 2963, 2964, 2965, 2966, 2979, 3003, 3038, 3077, 3079 }; -- Midnight delves
+  sound = 1;
+};
+
+GTFO.SpellID["1268956"] = {
+  --desc = "Twilight's Embrace (Blademaster Darza)";
+  instance = 2961; -- Twilight Crypts
+  sound = 1;
+};
+
+GTFO.SpellID["1265302"] = {
+  --desc = "Overbloom (Brighthorn)";
+  instance = 2963; -- The Grudge Pit
+  sound = 1;
+};
+
+GTFO.SpellID["1263680"] = {
+  --desc = "Light Spores (Lightbloom Sporasaur)";
+  instance = 2964; -- The Gulf of Memory
+  sound = 1;
+};
+
+GTFO.SpellID["1265775"] = {
+  --desc = "Searing Light (Lumenia)";
+  instance = 2964; -- The Gulf of Memory
+  encounter = 3416;
   sound = 1;
 };
 
@@ -653,6 +731,12 @@ GTFO.SpellID["1306858"] = {
   --desc = "Warden's Protection (Doomscale Warden)";
   instance = 3004;
   encounter = 3492;
+  sound = 1;
+};
+
+GTFO.SpellID["1304016"] = {
+  --desc = "Toxic Regurgitation";
+  instance = 3004;
   sound = 1;
 };
 

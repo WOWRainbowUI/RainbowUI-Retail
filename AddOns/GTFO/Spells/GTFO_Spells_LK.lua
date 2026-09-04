@@ -1290,8 +1290,10 @@ GTFO.SpellID["412964"] = {
 
 GTFO.SpellID["459168"] = {
   --desc = "Mojo Puddle (Drakkari Golem - Gundrak)";
+  instance = 604; -- Gundrak
   sound = 1;
   ignoreApplication = true;
+  trivialLevel = 40;
 };
 
 

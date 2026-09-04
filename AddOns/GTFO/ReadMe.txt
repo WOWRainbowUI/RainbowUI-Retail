@@ -2468,3 +2468,10 @@ Change Log:
 * Fixed Midnight spells for Voidscar Arena
 * Added Midnight spells (delves)
 * Added Midnight spells (prey)
+
+6.9.2
+* Added Midnight spells (world)
+* Added Midnight spells (prey)
+* Added Midnight spells (delves)
+* Added Midnight spells for The Venomous Abyss
+
