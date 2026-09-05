@@ -552,6 +552,10 @@ GTFO.SpellID["1313448"] = {
   applicationOnly = true;
   instance = 2987;
   sound = 3;
+  soundHeroic = 2;
+  soundMythic = 2;
+  stackSoundHeroic = 2;
+  stackSoundMythic = 2;
 };
 
 
@@ -728,6 +732,14 @@ GTFO.SpellID["1310738"] = {
   --desc = "Toxic Womb (Ula'tek)";
   instance = 3004;
   encounter = 3492;
+  sound = 3;
+};
+
+GTFO.SpellID["1296301"] = {
+  --desc = "Mephitic Thrash (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
+  applicationOnly = true;
   sound = 3;
 };
 

@@ -1132,21 +1132,26 @@ function GTFO.ToggleCheckboxOption(self)
 end
 
 function GTFO_ActivateMod()
-	if (GTFO.CurrentEncounterId) then
-		GTFO.UnregisterEncounter();
-		if (GTFO.Settings.Active) then
-			GTFO.RegisterEncounter(GTFO.CurrentEncounterId);
-		end	
-	end
-	
-	GTFO.UnregisterInstance();
-	if (GTFO.Settings.Active) then
-		GTFO.RegisterInstance()
-	end	
+	if (GTFO.IsAuraSoundRegistrationRestricted()) then
+		-- Addon restrictions are currently active
+		GTFO.PendingSoundRefresh = true;
+	else
+		if (GTFO.CurrentEncounterId) then
+			GTFO.UnregisterEncounter();
+			if (GTFO.Settings.Active) then
+				GTFO.RegisterEncounter(GTFO.CurrentEncounterId);
+			end	
+		end
 
-	GTFO.UnregisterMap();
-	if (GTFO.Settings.Active) then
-		GTFO.RegisterMap();
+		GTFO.UnregisterInstance();
+		if (GTFO.Settings.Active) then
+			GTFO.RegisterInstance()
+		end	
+
+		GTFO.UnregisterMap();
+		if (GTFO.Settings.Active) then
+			GTFO.RegisterMap();
+		end
 	end
 
 	if (GTFO.Settings.Active and GTFO.Settings.AFKAlertMode) then
