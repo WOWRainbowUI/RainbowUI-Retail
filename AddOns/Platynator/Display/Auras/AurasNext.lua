@@ -108,7 +108,7 @@ local function GetAurasInitializerModern(container)
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})
     frame:SetIcon(frame.Icon)
     frame:SetDurationCooldown(frame.Cooldown)
-    frame:SetAuraBorder(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+    frame:AddDispelTypeTexture(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
 
     if container.details then
       StyleAura(frame, container.details, container)
@@ -181,6 +181,8 @@ local function ProcessSpells(kind)
   return include, exclude
 end
 
+local _, class = UnitClass("player")
+
 function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   local output = table.create(6)
   local include, exclude = ProcessSpells(kind)
@@ -192,11 +194,21 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   elseif kind == "crowdControl" then
     includeFilter = settings.filters.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
   end
-  local start, tail = 0, 0
+  local start, tail, deduplicate = 0, 0, 0
   for i = 1, 2 do
     if include[i] then
       start = start + 1
       table.insert(output, {includeFilter, {includeSpellIDs = include[i]}})
+    end
+  end
+
+  if kind == "debuffs" and addonTable.Constants.DeduplicateDebuffs[class] then
+    for _, spellID in ipairs(addonTable.Constants.DeduplicateDebuffs[class]) do
+      if not exclude[spellID] then
+        deduplicate = deduplicate + 1
+        exclude[spellID] = true
+        table.insert(output, {includeFilter, {includeSpellIDs = {[spellID] = true}}})
+      end
     end
   end
 
@@ -266,7 +278,7 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
     tail = tail + 1
   end
 
-  return output, start, tail
+  return output, start, tail, deduplicate
 end
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails, doNotSize)
@@ -293,11 +305,12 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   self.crowdControl:SetEnabled(false)
 
   for kind, details in pairs(auraDetails) do
-    local groups, start, tail = self:GetFilters(kind, details)
+    local groups, start, tail, deduplicate = self:GetFilters(kind, details)
 
     self[kind].groupLiveCount = #groups
     self[kind].manualStart = start
     self[kind].manualTail = tail
+    self[kind].manualDeduplicate = deduplicate
 
     self[kind]:SetScale(details.scale)
     self[kind]:SetPoint(directionMap[details.direction])
@@ -317,7 +330,6 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self[kind]:SetAuraGroupFilterString(key, group[1])
       self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
       self[kind]:SetAuraGroupCandidateFilters(key, group[2])
-      self[kind]:SetAuraGroupMaxFrameCount(key, details.limit)
     end
 
     if self[kind].groupsCount > #groups then
@@ -353,6 +365,11 @@ local function ApplyStartTailCount(auras, count)
   if auras.manualTail > 0 then
     for i = auras.groupLiveCount, auras.groupLiveCount - auras.manualTail do
       auras:SetAuraGroupMaxFrameCount(tostring(i), count)
+    end
+  end
+  if auras.manualDeduplicate > 0 then
+    for i = auras.manualStart + 1, auras.manualStart + auras.manualDeduplicate do
+      auras:SetAuraGroupMaxFrameCount(tostring(i), count > 0 and 1 or 0)
     end
   end
 end

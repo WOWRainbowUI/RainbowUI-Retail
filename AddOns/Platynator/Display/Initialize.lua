@@ -444,6 +444,7 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
   end
 
   local relevantInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true})
+  local isDelve = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
 
   if state == "name_only" and C_CVar.GetCVarInfo("nameplateShowOnlyNameForFriendlyPlayerUnits") then
     C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", relevantInstance and "1" or "0")
@@ -453,6 +454,8 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
   local values = GetCVarsForNameplates()
   local currentShow = addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES)
 
+  C_CVar.SetCVar("nameplateShowAll", (not relevantInstance and addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES_ONLY_NEEDED)) and "0" or "1")
+
   if relevantInstance then
     if not self.toggledFriendly and
       (state == "name_only" and not currentShow.friendlyPlayer
@@ -461,7 +464,7 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
       or state == "always" and (not currentShow.friendlyPlayer or not currentShow.friendlyNPC) then
       C_CVar.SetCVar(values.friendlyPlayer, state == "never" and "0" or "1")
       if currentShow.friendlyNPC then
-        C_CVar.SetCVar(values.friendlyNPC, state ~= "always" and "0" or "1")
+        C_CVar.SetCVar(values.friendlyNPC, state ~= "always" and (not isDelve or state == "never") and "0" or "1")
       end
       self.toggledFriendly = true
     end
