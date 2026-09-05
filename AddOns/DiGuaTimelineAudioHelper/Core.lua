@@ -70,6 +70,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.focusCastBarX == nil then db.focusCastBarX = 0 end
             if db.focusCastBarY == nil then db.focusCastBarY = 140 end
             if db.nameplateTotemTextEnabled == nil then db.nameplateTotemTextEnabled = true end -- 姓名板显示"图腾"文字（默认开）
+            if db.normalAuraSoundEnabled == nil then db.normalAuraSoundEnabled = true end -- 光环音效总开关（默认开：光环有声）
 
             self:UnregisterEvent("ADDON_LOADED")
         end
@@ -113,6 +114,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelinePlayerDebuffCheck:SetChecked(DiGuaTimelineAudioHelper.playerDebuffEnabled) -- 同步玩家减益图标
             DiGuaTimelineFocusCastBarCheck:SetChecked(DiGuaTimelineAudioHelper.focusCastBarEnabled) -- 同步焦点施法条
             DiGuaTimelineTotemTextCheck:SetChecked(DiGuaTimelineAudioHelper.nameplateTotemTextEnabled) -- 同步姓名板"图腾"文字
+            DiGuaTimelineAuraSoundCheck:SetChecked(not DiGuaTimelineAudioHelper.normalAuraSoundEnabled) -- 同步“关闭光环音效”（勾选=关）
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -221,6 +223,18 @@ local cbInterruptFocus = CreateCheckButton("DiGuaTimelineInterruptFocusCheck", "
     print("|cffffd100[DiGua]|r 有焦点也播报周围怪物打断: " .. (DiGuaTimelineAudioHelper.interruptIgnoreFocus and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
+-- 关闭光环音效（勾选=关闭：注销 NormalAuraSound.lua 注册的所有光环音；默认不勾选=光环有声）
+local cbAuraSound = CreateCheckButton("DiGuaTimelineAuraSoundCheck", "关闭光环音效", 20, -230, function(self)
+    local disabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.normalAuraSoundEnabled = not disabled
+    if disabled then
+        if addonTable.UnregisterNormalAuras then addonTable.UnregisterNormalAuras() end
+    else
+        if addonTable.ReloadNormalAuras then addonTable.ReloadNormalAuras() end
+    end
+    print("|cffffd100[DiGua]|r 关闭光环音效: " .. (disabled and "|cffff0000已关闭（光环静音）|r" or "|cff00ff00已开启（光环有声）|r"))
+end)
+
 -- ===== 右栏：视觉 =====
 local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", 250, -55, function(self)
     DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
@@ -274,7 +288,7 @@ end)
 -- 主音量滑块（映射魔兽系统主音量 Sound_MasterVolume，范围 0-1，显示 0%-100%）
 -- 归入左栏“听觉”分组底部
 local masterVolumeSlider = CreateFrame("Slider", "DiGuaTimelineMasterVolumeSlider", f, "OptionsSliderTemplate")
-masterVolumeSlider:SetPoint("TOPLEFT", 20, -245)
+masterVolumeSlider:SetPoint("TOPLEFT", 20, -270) -- 往下移 25，给上方“关闭光环音效”行腾位置
 masterVolumeSlider:SetMinMaxValues(0, 1)
 masterVolumeSlider:SetValueStep(0.05)
 masterVolumeSlider:SetObeyStepOnDrag(true)

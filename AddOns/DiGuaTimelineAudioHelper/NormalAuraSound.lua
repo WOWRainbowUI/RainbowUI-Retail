@@ -13,6 +13,10 @@ local function DoRegisterNormalAuras()
     if isNormalAuraRegistered then return true end
     if not (C_UnitAuras and C_UnitAuras.AddAuraSound) then return true end
     if not addonTable.NormalAura then return true end
+    -- 光环音效总开关：DiGua 控制台勾选"关闭光环音效"后，任何入口（登录/切专精/Boss战后补注册）都跳过注册
+    if DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.normalAuraSoundEnabled == false then
+        return true
+    end
 
     -- 战斗锁定防御：进入本函数后可能刚进战斗，真正注册前再确认一次
     if InCombatLockdown() then return false end
@@ -239,7 +243,7 @@ addonTable.NormalAura = {
         [1298933] = "KuaiKaiJianShang", -- 野蛮猛击
         [1299133] = "alarmbeep", -- 凶猛飞跃
         [1299210] = "JingBao", -- 余震        
-        -- [1299905] = "BaMaFenSan", -- 虚无喷发
+        [1299905] = "YiMiaoMuBiaoShiNi", -- 虚无喷发
         [1299913] = "KuaiKaiJianShang", -- 虚无喷发        
         -- [1300138] = "KuaiKaiJianShang", -- 虚空光束
         [1300243] = "KuaiKaiJianShang", -- 残杀

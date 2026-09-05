@@ -62,22 +62,29 @@ local function BuildContainer()
             icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
             button:SetIcon(icon)
 
+            -- 剩余时间转盘
+            local cd = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+            cd:SetAllPoints(button)
+            cd:SetDrawEdge(false)
+            button:SetDurationCooldown(cd)
+            cd:SetReverse(true)
+
             -- 驱散类型边框（魔法/诅咒/疾病/中毒自动上色 + 小图标）
-            -- 紧贴图标边框：直接覆盖整个按钮区域
-            local border = button:CreateTexture(nil, "OVERLAY")
-            border:SetAllPoints(button)
+            -- 边框放进独立子帧 borderHost 并抬高 frameLevel，否则会被作为子帧的转盘(Cooldown)盖住
+            local borderHost = CreateFrame("Frame", nil, button)
+            borderHost:SetAllPoints(button)
+            borderHost:SetFrameLevel(cd:GetFrameLevel() + 2)
+            local border = borderHost:CreateTexture(nil, "OVERLAY")
+            -- 替换 SetAllPoints：向四周各扩展 8 像素（即边框比图标宽/高各多 8 像素）
+            border:SetPoint("TOPLEFT", borderHost, "TOPLEFT", -8, 8)
+            border:SetPoint("BOTTOMRIGHT", borderHost, "BOTTOMRIGHT", 8, -8)
+
             local style = Enum.CustomAuraButtonDispelTypeTextureStyle
             pcall(button.AddDispelTypeTexture, button, border, {
                 style = style and style.BorderWithIcon or nil,
                 showWhenHarmful = true,
                 showWhenHelpful = false,
             })
-
-            -- 剩余时间转盘
-            local cd = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
-            cd:SetAllPoints(button)
-            cd:SetDrawEdge(false)
-            button:SetDurationCooldown(cd)
 
             -- 层数
             local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
@@ -89,7 +96,7 @@ local function BuildContainer()
             -- 法术名（GameFontNormalSmall 12px 基础上减 1 = 11px）
             local name = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
             name:SetFont(STANDARD_TEXT_FONT, 11)
-            name:SetPoint("TOP", button, "BOTTOM", 0, -1)
+            name:SetPoint("TOP", button, "BOTTOM", 0, -3)
             name:SetWidth(ICON_SIZE + 24)
             name:SetWordWrap(false)
             name:SetTextColor(1, 1, 1) -- 白色

@@ -9,6 +9,7 @@ addonTable.SpellCastStartTime = addonTable.SpellCastStartTime or {}
 addonTable.SpellCastAudioTriggered = nil
 addonTable.DuoKaiTouQianLock = nil -- 躲开头前防抖锁
 addonTable.SpellCastDuration = addonTable.SpellCastDuration or {}
+addonTable.HasCastFearRoar = addonTable.HasCastFearRoar or {} -- 记录已施放过"恐惧咆哮"的单位（作为"残杀"播报资格）
 
 -- ShouldWarnInterruptWithFocus() 已移至 Utils.lua（addonTable 全局函数），START/CHANNEL 共用
 
@@ -93,6 +94,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         -- end
 
         -- addonTable.CustomEncounterBar(132274, 10, "准备诱捕")
+
         -- ============================
         -- ==        毒牙祭坛        ==
         -- ============================
@@ -284,6 +286,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     PlaySoundFile(MEDIA_PATH .. "ErDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 elseif addonTable.JuDuWeiSuoCounter == 3 then
                     PlaySoundFile(MEDIA_PATH .. "SanDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                    addonTable.JuDuWeiSuo = false
                 end
                 return
             end
@@ -776,7 +779,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and UnitGroupRolesAssigned("player") ~= "HEALER"
-            and C_ChallengeMode.GetActiveKeystoneInfo() 
+            and addonTable.XuChuFaShi == false
+            and C_ChallengeMode.GetActiveKeystoneInfo()
             and C_ChallengeMode.GetActiveKeystoneInfo() >= 2
             then PlaySoundFile(MEDIA_PATH .. "AnYingJianYu.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
@@ -997,19 +1001,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitGroupRolesAssigned("player") ~= "DAMAGER"
             then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
-        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 腐蚀精华??? -- 残暴猛击 (工具)???
-            and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
-            and (C_Map.GetBestMapForUnit("player") or 0) == 2572 or (C_Map.GetBestMapForUnit("player") or 0) == 2573
-            and IsIndoors() == false
-            and UnitLevel(unitTarget) == UnitLevel("player") + 1
-            and UnitPowerType(unitTarget) == 1
-            and UnitClassification(unitTarget) == "elite" -- 精英怪
-            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
-            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
-            and not UnitSpellTargetName(unitTarget) -- 法术无目标
-            then
-                addonTable.SpellChannelStart[unitTarget] = nil
-            end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 恐惧咆哮
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
@@ -1024,6 +1015,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             then
+                -- 该单位已开始施放"恐惧咆哮" -> 立即标记；只有被标记的单位，后续"残杀"播报才有资格触发
+                addonTable.HasCastFearRoar[unitTarget] = true
                 C_Timer.After(0.5, function()
                     if not UnitExists(unitTarget .. "target") then
                         addonTable.CustomEncounterBar(136185, 30.3, "准备击退", unitTarget)
@@ -1074,6 +1067,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and UnitSpellTargetName(unitTarget) -- 法术有目标
             and UnitGroupRolesAssigned("player") ~= "DAMAGER"
+            and addonTable.HasCastFearRoar[unitTarget] == true -- 仅"施放过恐惧咆哮"的单位才播（防同特征怪误报）
             then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
         -- ============================
@@ -1431,8 +1425,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
             then PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel) end end
 
 
-
-
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 炽阳吐息 -- 子弹种子
             and UnitCanAttack("player", unitTarget)
             and select(8, GetInstanceInfo()) == 2859 -- 副本ID (夺目谷)
@@ -1504,7 +1496,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 end
             end)
             end
-
 
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 光颚射线 (工具) -- 喷射孢子 (工具)
@@ -1594,7 +1585,35 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not addonTable.SpellCastStartTime[unitTarget]
             then addonTable.CustomEncounterBar(136016, 26.7, "准备AOE", unitTarget)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
-        
+
+        if unitTarget == "boss2" and UnitCanAttack("player", unitTarget) -- 光芒箭 (3199 Boss2)
+            and addonTable.GetEncounterID() == 3199
+            and UnitExists("focus") -- 有焦点才执行（UnitIsUnit 对 Boss 令牌在战斗中不可靠，改为判断“已设置焦点”）
+            and select(8, GetInstanceInfo()) == 2859 -- 副本ID (夺目谷)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2500 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitIsLieutenant(unitTarget) == false -- 是否为中尉
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned("player") ~= "HEALER" -- 非治疗才播
+            then
+                -- 该 Boss 每次读条计一次数：奇数次播一断(YiDaDuan)，偶数次播二断(ErDaDuan)，循环往复
+                local encID = addonTable.GetEncounterID()
+                if addonTable.GuangMangJianEnc ~= encID then
+                    -- 换 Boss / 重新开怪时清零，保证每场第一次读条都从"一断"开始
+                    addonTable.GuangMangJianEnc = encID
+                    addonTable.GuangMangJianCounter = 0
+                end
+                addonTable.GuangMangJianCounter = (addonTable.GuangMangJianCounter or 0) + 1
+                if addonTable.GuangMangJianCounter % 2 == 1 then
+                    PlaySoundFile(MEDIA_PATH .. "YiDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                else
+                    PlaySoundFile(MEDIA_PATH .. "ErDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                end
+                return
+            end
+
         -- ============================
         -- ==        密谋小径        ==
         -- ============================

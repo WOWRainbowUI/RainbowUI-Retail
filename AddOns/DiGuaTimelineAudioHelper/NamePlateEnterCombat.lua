@@ -111,6 +111,7 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
             addonTable.UnitTargetTriggered[unitTarget] = true -- 标记已触发，防止重复
             addonTable.JiDingGaoSi = true
             addonTable.CustomEncounterBar(840194, 17.1, "险恶光环", unitTarget)
+            return
         end
         -- 布鲁托克（粉碎冲锋 / 头槌重击）—— 首次施放 26.8 / 47.4s（该姓名板有进战斗记录 = 第二只）
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 布鲁托克
@@ -128,6 +129,7 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
             addonTable.JiDingGaoSi = nil
             addonTable.CustomEncounterBar(1127958, 26.8, "粉碎冲锋", unitTarget)
             addonTable.CustomEncounterBar(1127958, 47.4, "头槌重击", unitTarget)
+            return
         end
 
         -- ============================
