@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -188,4 +188,4 @@ function D:HideMiniMapIcon()
     icon:Hide();
 end
 
-T._LoadedFiles["Dcr_LDB.lua"] = "2.8.3-25-g9cacdb5";
+T._LoadedFiles["Dcr_LDB.lua"] = "2.8.3-27-g92158fd";

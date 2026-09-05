@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-31T01:57:24Z
+    This file was last updated on 2026-09-04T16:20:26Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1236,6 +1236,11 @@ local function GetStaticOptions ()
                                 desc = L["OPT_SHOW_STEALTH_STATUS_DESC"],
                                 order = 1370,
                                 disabled = false,
+                                set = function(info,v)
+                                    D.SetHandler(info,v);
+                                    -- force all MUFs to update their attributes
+                                    D.Status.SpellsChanged = GetTime();
+                                end
                             },
                             AfflictionTooltips = {
                                 type = "toggle",
@@ -1966,7 +1971,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.8.3-25-g9cacdb5", "John Wellesz", ("2026-09-02T10:28:21Z"):sub(1,10),
+                                    "2.8.3-27-g92158fd", "John Wellesz", ("2026-09-04T16:20:26Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2304,6 +2309,10 @@ function D:SetColorCurve()
         --D:Debug("SetCureOrder(): dsCurve points:", dsc:GetPoints());
         --@end-debug@]==]
 
+        -- update the static stealth color curve
+        local sdsc = D.Status.stealthCurve
+        sdsc:ClearPoints()
+        sdsc:AddPoint(0, D:NumToColorMixin(mfc[DC.STEALTHED]))
     end
 
 end
@@ -3897,6 +3906,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-25-g9cacdb5";
+T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-27-g92158fd";
 
 -- Closer
