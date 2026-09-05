@@ -319,4 +319,6 @@ addonTable.Constants.AuraStackOverrides = {
   [1242974] = 20, -- Mage (Arcane): Arcane Salvo
   [384452] = 20, -- Mage (Arcane): Arcane Salvo
   [12950] = 4, -- Warrior (Fury): Whirlwind
+  [81340] = 2, -- Death Knight (Unholy): Sudden Doom
+  [49530] = 2, -- Death Knight (Unholy): Sudden Doom
 }

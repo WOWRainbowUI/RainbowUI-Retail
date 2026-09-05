@@ -40,7 +40,7 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
     auraButton.TypeBorder.texture = auraButton.TypeBorder:CreateTexture()
     auraButton.TypeBorder:SetAllPoints(auraButton.Icon)
     auraButton.TypeBorder.texture:SetAllPoints()
-    auraButton:SetAuraBorder(
+    auraButton:AddDispelTypeTexture(
       auraButton.TypeBorder.texture,
       { style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset, showIcon = false }
     )

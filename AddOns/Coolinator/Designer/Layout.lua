@@ -799,15 +799,17 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
       inserter(new)
     end)
   end)
-  ability:CreateButton(addonTable.Locales.CHARGES, function()
-    self.abilityChargesFrame:Update(function(data)
-      local new = CopyTable(addonTable.Designer.Defaults.AbilityCharges)
-      for _, entry in ipairs(new.entries) do
-        entry.resource.spellID = data
-      end
-      inserter(new)
+  if not noGroups then
+    ability:CreateButton(addonTable.Locales.CHARGES, function()
+      self.abilityChargesFrame:Update(function(data)
+        local new = CopyTable(addonTable.Designer.Defaults.AbilityCharges)
+        for _, entry in ipairs(new.entries) do
+          entry.resource.spellID = data
+        end
+        inserter(new)
+      end)
     end)
-  end)
+  end
   local aura = rootDescription:CreateButton(addonTable.Locales.AURA)
   aura:CreateButton(addonTable.Locales.ICON, function()
     self.auraFrame:Update(function(data)
@@ -839,15 +841,17 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
       inserter(new)
     end)
   end)
-  aura:CreateButton(addonTable.Locales.STACKS_PIPS, function()
-    self.auraFrame:Update(function(data)
-      local new = CopyTable(addonTable.Designer.Defaults.AuraStackPips)
-      for _, entry in ipairs(new.entries) do
-        entry.resource.spellID = data
-      end
-      inserter(new)
-    end, true)
-  end)
+  if not noGroups then
+    aura:CreateButton(addonTable.Locales.STACKS_PIPS, function()
+      self.auraFrame:Update(function(data)
+        local new = CopyTable(addonTable.Designer.Defaults.AuraStackPips)
+        for _, entry in ipairs(new.entries) do
+          entry.resource.spellID = data
+        end
+        inserter(new)
+      end, true)
+    end)
+  end
   aura:CreateButton(addonTable.Locales.STACKS_BAR, function()
     self.auraFrame:Update(function(data)
       local new = CopyTable(addonTable.Designer.Defaults.AuraStacksBar)
@@ -894,10 +898,12 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
     addonTable.Core.ApplyPresetToDetails(new)
     inserter(new)
   end)
-  rootDescription:CreateButton(addonTable.Locales.SPACER, function()
-    local new = CopyTable(addonTable.Designer.Defaults.Spacer)
-    inserter(new)
-  end)
+  if not noGroups then
+    rootDescription:CreateButton(addonTable.Locales.SPACER, function()
+      local new = CopyTable(addonTable.Designer.Defaults.Spacer)
+      inserter(new)
+    end)
+  end
   if not noGroups then
     local resources = addonTable.Designer.GetAvailableClassResources()
     if #resources > 0 then
