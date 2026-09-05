@@ -31,7 +31,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --]]
 
-local MAJOR, MINOR = "LibDualSpec-1.0", 30
+local MAJOR, MINOR = "LibDualSpec-1.0", 31
 assert(LibStub, MAJOR.." requires LibStub")
 local lib, minor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
@@ -415,6 +415,10 @@ function lib:EnhanceOptions(optionTable, target)
 	options.new.desc = optionTable.args.new.desc
 	options.choose.name = optionTable.args.choose.name
 	options.choose.desc = optionTable.args.choose.desc
+
+	-- copy validation
+	options.new.validate = optionTable.args.new.validate
+	options.new.usage = optionTable.args.new.usage
 
 	-- add our new options
 	if not optionTable.plugins then

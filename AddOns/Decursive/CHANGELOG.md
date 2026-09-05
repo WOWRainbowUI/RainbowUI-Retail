@@ -1,8 +1,12 @@
 # Decursive  -Ace3-
 
-## [2.8.3-25-g9cacdb5](https://github.com/2072/Decursive/tree/9cacdb5de21db22fddf625c6d792215679f0edaa) (2026-09-02)
-[Full Changelog](https://github.com/2072/Decursive/compare/2.8.3...9cacdb5de21db22fddf625c6d792215679f0edaa) [Previous Releases](https://github.com/2072/Decursive/releases)
+## [2.8.3-27-g92158fd](https://github.com/2072/Decursive/tree/92158fd6aac616b27d3cbd97c22c0e4d0e9bd99f) (2026-09-04)
+[Full Changelog](https://github.com/2072/Decursive/compare/2.8.3...92158fd6aac616b27d3cbd97c22c0e4d0e9bd99f) [Previous Releases](https://github.com/2072/Decursive/releases)
 
+- 12.1: honor Show\_Stealthed\_Status setting  
+    #retailOnly  
+- 12.1: restore stealth indicator  
+    #retailOnly  
 - Add installation corruption guard/alert to Dcr\_12\_1\_Sounds.lua  
     #retailOnly  
 - Restore protected affliction sounds on WoW 12.1  

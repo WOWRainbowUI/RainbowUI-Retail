@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-25-g9cacdb5) add-on for World of Warcraft UI
+    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-09-01T21:43:05Z
+    This file was last updated on 2026-09-04T16:20:26Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1165,16 +1165,14 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
     if self.auraContainer then
         local c = self.auraContainer
 
-        local setButton = function(ab, prio)
+        local setAuraButtonCommonSettings = function(ab, prio, options)
             ab:EnableMouse(false)
 
             ab:ClearAllPoints()
             ab:SetPoint("CENTER", self.Frame, "CENTER", 0, 0)
             ab:SetSize(16 - petminus, 16 - petminus)
-            -- Lower numeric values are higher Decursive priorities. Put those
-            -- AuraButtons above lower-priority matches when several dispel
-            -- types are present on the same unit.
-            ab:SetFrameLevel(self.Frame:GetFrameLevel() + (8 - prio))
+
+            ab:SetFrameLevel(self.Frame:GetFrameLevel() + prio)
 
             local border = ab:CreateTexture(nil, "OVERLAY")
             border:ClearAllPoints()
@@ -1185,7 +1183,16 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
             -- AuraButtons become inaccessible to addon code while auras are
             -- secret. Configure the display completely inside Blizzard's
             -- initializeFrame callback and update only the container later.
-            ab:SetAuraBorder(border, {
+           ab:SetAuraBorder(border, options)
+        end
+
+        local setButton = function(ab, prio)
+            setAuraButtonCommonSettings(ab,
+            -- Lower numeric values are higher Decursive priorities. Put those
+            -- AuraButtons above lower-priority matches when several dispel
+            -- types are present on the same unit.
+            9 - prio,
+            {
                 showIcon = false,
                 showWhenHarmful = true,
                 showWhenHelpful = false,
@@ -1193,8 +1200,29 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
                 style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
                 customDispelColorCurve = D.Status.dsCurve,
             })
-
         end
+
+        -- Add aura slot to restore stealth indicator
+        c:AddAuraSlot(
+        "DCR_STEALTH_INDICATOR",
+        "HELPFUL",
+        {
+            sortMethod = 0,
+            sortDirection = 0,
+            candidateFilters = {includeSpellIDs = DC.MN_STEALTH_BUFFS},
+            initializeFrame = function(ab)
+                setAuraButtonCommonSettings(ab, 1, {
+                    showIcon = false,
+                    showWhenHarmful = false,
+                    showWhenHelpful = true,
+                    showWithoutDispelType = true,
+                    style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+                    customDispelColorCurve = D.Status.stealthCurve,
+                })
+            end,
+        }
+        )
+
 
         -- Create one native slot per possible cleansing-spell priority. Empty
         -- candidate maps hide unused priorities. Slots are created in reverse
@@ -1392,14 +1420,25 @@ do
             return ReturnValue; -- nothing changed
         end
 
-        if self.auraContainer and self.auraSlotKeys then
-            local filters = D:GetAuraCandidateFiltersByPrio(Unit)
-            for prio, slotKey in ipairs(self.auraSlotKeys) do
-                self.auraContainer:SetAuraSlotCandidateFilters(
+        if self.auraContainer then
+            -- update debuff indicator
+            if self.auraSlotKeys then
+                local filters = D:GetAuraCandidateFiltersByPrio(Unit)
+                for prio, slotKey in ipairs(self.auraSlotKeys) do
+                    self.auraContainer:SetAuraSlotCandidateFilters(
                     slotKey,
                     filters and filters[prio] or { includeDispelTypes = {} }
-                )
+                    )
+                end
             end
+
+            -- update stealth indicator
+            self.auraContainer:SetAuraSlotCandidateFilters(
+            "DCR_STEALTH_INDICATOR",
+            {
+                includeSpellIDs = D.profile.Show_Stealthed_Status and DC.MN_STEALTH_BUFFS or {}
+            }
+)
         end
 
         -- D:Debug("UpdateAttributes() executed");
@@ -2066,6 +2105,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-25-g9cacdb5";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-27-g92158fd";
 
 -- Heresy

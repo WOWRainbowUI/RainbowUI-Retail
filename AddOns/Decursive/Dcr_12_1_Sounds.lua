@@ -41,7 +41,7 @@ if not T._LoadedFiles or not T._LoadedFiles["Dcr_DebuffsFrame.xml"] or not T._Lo
     DecursiveInstallCorrupted = true;
     return;
 end
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.MN and "2.8.3-25-g9cacdb5";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.MN and "2.8.3-27-g92158fd";
 
 
 if not DC.TWELVE_ONE or not C_UnitAuras or type(C_UnitAuras.AddAuraSound) ~= "function" then
@@ -204,4 +204,4 @@ eventFrame:SetScript("OnEvent", function(_, event)
     scheduleRefresh(event == "PLAYER_ENTERING_WORLD" and 1 or 0)
 end)
 
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.8.3-25-g9cacdb5";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.8.3-27-g92158fd";
