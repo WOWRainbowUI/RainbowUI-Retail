@@ -217,6 +217,13 @@ do  -- General Icons -----------------------------------------------------------
 	local select, GetRaidRosterInfo = select, GetRaidRosterInfo
 	local function GetLootMethod() return (C_Loot and C_Loot.GetLootMethod and C_Loot.GetLootMethod()) or "freeforall", nil end
 	local UnitIsGroupLeader, UnitIsUnit = UnitIsGroupLeader, UnitIsUnit
+    local issecretvalue = issecretvalue
+    local function IconVisibility(value)
+        if issecretvalue(value) then
+            return "Hide"
+        end
+        return value and "Show" or "Hide"
+    end
 	local function updateuniticon(uf, icon, show)
 		local f = uf and not uf.hidden and uf[icon]
 		if f and not f.db.hide then
@@ -235,7 +242,7 @@ do  -- General Icons -----------------------------------------------------------
 			updateuniticon(su.player, "looticon", "Hide")
 			updateuniticon(su.player, "leadericon", "Hide")
 			updateuniticon(tar, "looticon", "Hide")
-			updateuniticon(tar, "leadericon", UnitIsGroupLeader("target") and "Show" or "Hide")
+            updateuniticon(tar, "leadericon", IconVisibility(UnitIsGroupLeader("target")))
 			return
 		end
 		partyiconhidden = nil
@@ -255,8 +262,12 @@ do  -- General Icons -----------------------------------------------------------
 		end
 		for u, uf in pairs(su) do  -- now update each applicable frame
 			if uf.looticon or uf.leadericon then
-				updateuniticon(uf, "looticon", looter and UnitIsUnit(looter, u) and "Show" or "Hide")
-				updateuniticon(uf, "leadericon", UnitIsGroupLeader(u) and "Show" or "Hide")
+                local lootVisibility = "Hide"
+                if looter then
+                    lootVisibility = IconVisibility(UnitIsUnit(looter, u))
+                end
+                updateuniticon(uf, "looticon", lootVisibility)
+                updateuniticon(uf, "leadericon", IconVisibility(UnitIsGroupLeader(u)))
 			end
 		end
 	end
