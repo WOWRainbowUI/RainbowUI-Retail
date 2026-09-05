@@ -176,3 +176,8 @@ addonTable.Constants.RangeModifier = {
   [428377] = 46, -- Rogue - Outlaw, Precision Shot
   [1271948] = 35, -- Warrior, Javelineer
 }
+addonTable.Constants.DeduplicateDebuffs = {
+  ["DEATHKNIGHT"] = {
+    55078, -- Blood, Blood Plague
+  }
+}

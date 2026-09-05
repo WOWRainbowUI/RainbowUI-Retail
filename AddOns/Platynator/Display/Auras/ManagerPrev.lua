@@ -98,42 +98,6 @@ function addonTable.Display.AurasManagerMixin:Reset()
   self.auraData = {}
 end
 
-function addonTable.Display.AurasManagerMixin:DoesDebuffFilterIn(auraInstanceID)
-  if not self.debuffsDetails.filters.important then
-    return not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.debuffFilter)
-  else
-    return self.knownImportant[auraInstanceID] and not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.debuffFilter)
-  end
-end
-
-function addonTable.Display.AurasManagerMixin:DoesBuffFilterIn(auraInstanceID, dispelName)
-  if C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter) then
-    return false
-  end
-
-  if not self.isFriendly and self.isPlayer and self.buffsDetails.filters.defensive and (
-      C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT") and
-      C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|BIG_DEFENSIVE") and
-      C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|EXTERNAL_DEFENSIVE")
-    ) then
-    return false
-  end
-
-  if self.buffsDetails.filters.important and not self.knownImportant[auraInstanceID] then
-    return false
-  end
-
-  if self.buffsDetails.filters.dispellable and dispelName == nil then
-    return false
-  end
-
-  if self.isFriendly and C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT|PLAYER") then
-    return false
-  end
-
-  return true
-end
-
 function addonTable.Display.AurasManagerMixin:SetUnit(unit)
   self.unit = unit
   if unit then
@@ -268,24 +232,28 @@ function addonTable.Display.AurasManagerMixin:AddAuras(addedAuras)
   local changes = {}
   for _, aura in ipairs(addedAuras) do
     local keep = false
-    if (((not self.isPlayer or not self.isFriendly and aura.isStealable) and self.buffsDetails and aura.isHelpful and
+
+    if not keep and (((not self.isPlayer or not self.isFriendly and aura.isStealable) and self.buffsDetails and aura.isHelpful and
         not legacy.blacklistedBuffs[aura.spellId] and ((not self.buffsDetails.dispellable and not self.buffsDetails.important) or aura.dispelName ~= nil)
     ) or self.canAssist and self.buffsInclude[aura.spellId]) and (not self.canAssist or not self.buffsExclude[aura.spellId])
     then
       keep = true
       table.insert(self.buffs, aura.auraInstanceID)
       aura.kind = "buffs"
-    elseif (legacy.crowdControlSpells[aura.spellId] or (not self.canAssist and self.crowdControlInclude[aura.spellId])) and (self.canAssist or not self.crowdControlExclude[aura.spellId]) then
-      if self.crowdControlDetails then  -- Prevents CC placing in the debuffs if CC is disabled
-        keep = true
-        table.insert(self.crowdControl, aura.auraInstanceID)
-        aura.kind = "crowdControl"
-      end
-    elseif self.debuffsDetails and aura.isHarmful and (not self.debuffsDetails.filters.fromYou or aura.sourceUnit == "player") and (self.canAssist or not self.debuffsExclude[aura.spellId]) then
+    end
+
+    if not keep and self.crowdControlDetails and aura.isHarmful and (legacy.crowdControlSpells[aura.spellId] or (not self.canAssist and self.crowdControlInclude[aura.spellId])) and (self.canAssist or not self.crowdControlExclude[aura.spellId]) then
+      keep = true
+      table.insert(self.crowdControl, aura.auraInstanceID)
+      aura.kind = "crowdControl"
+    end
+
+    if not keep and self.debuffsDetails and aura.isHarmful and (not legacy.crowdControlSpells[aura.spellId] or self.debuffsInclude[aura.spellId]) and (not self.debuffsDetails.filters.fromYou or aura.sourceUnit == "player") and (self.canAssist or not self.debuffsExclude[aura.spellId]) then
       keep = true
       table.insert(self.debuffs, aura.auraInstanceID)
       aura.kind = "debuffs"
     end
+
     if keep then
       aura.applicationsString = aura.applications > 1 and tostring(aura.applications) or ""
       self.auraData[aura.auraInstanceID] = aura
