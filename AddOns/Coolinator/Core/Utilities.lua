@@ -97,17 +97,17 @@ function addonTable.Utilities.IsAbilitySpellKnown(spellID)
   if C_Spell.IsSpellPassive(newSpellID) then
     return
   end
-  if C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Pet) then
+  if C_SpellBook.IsSpellKnownOrInSpellBook(spellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnownOrInSpellBook(spellID, Enum.SpellBookSpellBank.Pet) then
     return newSpellID or spellID
   end
   if newSpellID and newSpellID ~= spellID then
-    if C_SpellBook.IsSpellKnown(newSpellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnown(newSpellID, Enum.SpellBookSpellBank.Pet) then
+    if C_SpellBook.IsSpellKnownOrInSpellBook(newSpellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnownOrInSpellBook(newSpellID, Enum.SpellBookSpellBank.Pet) then
       return newSpellID
     end
   end
   newSpellID = addonTable.SpellEquivalence[spellID]
   if newSpellID and newSpellID ~= spellID then
-    if C_SpellBook.IsSpellKnown(newSpellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnown(newSpellID, Enum.SpellBookSpellBank.Pet) then
+    if C_SpellBook.IsSpellKnownOrInSpellBook(newSpellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnownOrInSpellBook(newSpellID, Enum.SpellBookSpellBank.Pet) then
       return newSpellID
     end
   end

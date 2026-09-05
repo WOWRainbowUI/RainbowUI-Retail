@@ -100,6 +100,10 @@ function addonTable.Display.LayoutManagerSharedMixin:GetIcon(details)
     if not C_Item.DoesItemExist(location) then
       return
     end
+    local usable, noMana = C_Item.IsUsableItem(C_Item.GetItemID(location))
+    if not usable and not noMana then
+      return
+    end
     local frame = self.pools.cooldown:Acquire()
     frame:Show()
     frame:Enable()
