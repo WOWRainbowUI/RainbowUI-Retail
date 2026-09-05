@@ -2475,3 +2475,7 @@ Change Log:
 * Added Midnight spells (delves)
 * Added Midnight spells for The Venomous Abyss
 
+6.10
+* Fixed an error when loading or reloading while addon restrictions are active
+* Fixed Midnight spells for Tidebound Grotto
+* Added Midnight spells for The Venomous Abyss
