@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-04T16:20:26Z
+    This file was last updated on 2026-09-06T17:24:10Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -208,9 +208,9 @@ function D:GetDefaultsSettings()
 
             MFScanEverybodyTimer = 1,
             MFScanEverybodyReport = false,
-            --@alpha@
+            --[=[@alpha@
             -- MFScanEverybodyReport = true, -- UNdebuff is triggered very often, not sure when. No more need for reporting though.
-            --@end-alpha@
+            --@end-alpha@]=]
 
             delayedDebuffOccurences = 0,
             delayedUnDebuffOccurences = 0,
@@ -774,6 +774,10 @@ local function GetStaticOptions ()
                         disabled = function() return D.profile.HideLiveList and not D.profile.ShowDebuffsFrame and D.profile.AutoHideMUFs == 1 or not D:IsEnabled(); end,
                         name = L["PLAY_SOUND"],
                         desc = L["OPT_PLAYSOUND_DESC"],
+                        set = function(info,v)
+                            D.SetHandler(info,v)
+                            D:Schedule_MN_SoundsRegistration()
+                        end,
 
                         order = 10,
                     },
@@ -1971,7 +1975,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.8.3-27-g92158fd", "John Wellesz", ("2026-09-04T16:20:26Z"):sub(1,10),
+                                    "2.9.0-RC2", "John Wellesz", ("2026-09-07T07:43:30Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2220,7 +2224,52 @@ local AURA_DISPEL_TYPES = {
 }
 local MAX_CURE_PRIORITIES = 7
 
-function D:GetAuraCandidateFiltersByPrio(unit)
+local EMPTY_FILTER = {}
+
+function D:resetExcludedSpellIDsCache(class)
+    if class then
+        D.Status.excludedSpellIDsByClass[class] = {}
+        D:Debug("resetExcludedSpellIDsCache", class)
+    else
+        D.Status.excludedSpellIDsByClass = {}
+        D:Debug("resetExcludedSpellIDsCache all")
+    end
+end
+
+-- mostly useless as it only works for NeverSecret spellIds... I discovered it
+-- after finishing the implementation. I want to thank Blizzard for wasting 6
+-- hours of my life due to poor documentation and badly named variable. Wasting
+-- another human's time should be a crime punishable by law... How difficult
+-- would it have been to name this stupid filter neverSecretExcludeSpellIDs
+-- instead of excludeSpellIDs?
+function D:getClassExcludedSpellIDs(class)
+
+    if not class then
+        return EMPTY_FILTER
+    end
+
+    local excludedSpellIDsByClass = D.Status.excludedSpellIDsByClass
+    if not excludedSpellIDsByClass[class] then
+        local skipByClass = D.profile.skipByClass[class]
+        local skipList = D.profile.DebuffsSkipList
+
+        local excludedSpellIDs = {}
+
+        for k, v in pairs(skipByClass) do
+            if v and C_Secrets.GetSpellAuraSecrecy(skipList[k]) == Enum.SecrecyLevel.NeverSecret then
+                excludedSpellIDs[skipList[k]] = true
+            end
+        end
+
+        excludedSpellIDsByClass[class] = excludedSpellIDs
+
+    end
+
+    --D:Debug("Spell ids excluded for class", class, D:tAsString(excludedSpellIDsByClass[class]))
+    return excludedSpellIDsByClass[class]
+end
+
+function D:GetAuraCandidateFiltersByPrio(unit, unitClass)
     local defaultFilters = D.Status.auraCandidateFiltersByPrio
     local dispelTypesByPrio = D.Status.auraDispelTypesByPrio
 
@@ -2231,7 +2280,10 @@ function D:GetAuraCandidateFiltersByPrio(unit)
     local filtersByPrio = {}
     for prio = 1, MAX_CURE_PRIORITIES do
         local includeDispelTypes = {}
-        filtersByPrio[prio] = { includeDispelTypes = includeDispelTypes }
+        filtersByPrio[prio] = {
+            includeDispelTypes = includeDispelTypes,
+            excludeSpellIDs = D:getClassExcludedSpellIDs(unitClass)
+        }
 
         for afflictionType, typeName in pairs(dispelTypesByPrio[prio]) do
             if not D.UnitFilteringTest(unit, D.Status.UnitFilteringTypes[afflictionType]) then
@@ -2258,7 +2310,10 @@ function D:SetColorCurve()
         local dispelTypesByPrio = {}
 
         for prio = 1, MAX_CURE_PRIORITIES do
-            candidateFiltersByPrio[prio] = { includeDispelTypes = {} }
+            candidateFiltersByPrio[prio] = {
+                includeDispelTypes = {},
+                excludeSpellIDs = {}
+            }
             dispelTypesByPrio[prio] = {}
         end
 
@@ -2414,7 +2469,7 @@ function D:SetCureOrder (ToChange)
     local DebuffType;
     -- set the priority for each spell, Micro frames will use this to determine which button to map
     local affected = 1;
-    for i=1,7 do
+    for i=1, MAX_CURE_PRIORITIES do
         DebuffType = ReversedCureOrder[i]; -- there is no gap between indexes
         if (DebuffType and not CuringSpellsPrio[ CuringSpells[DebuffType] ] ) then
             CuringSpellsPrio[ CuringSpells[DebuffType] ] = affected;
@@ -2453,6 +2508,7 @@ function D:SetCureOrder (ToChange)
 
     self:SetMacrosPerPrioTable("mouseover");
 
+    D:Schedule_MN_SoundsRegistration()
 end
 
 function D:ShowHideDebuffsFrame ()
@@ -2541,6 +2597,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
 
         D.profile.DebuffAlwaysSkipList[handler["Debuff"]] = nil; -- remove it from the table
 
+        D:resetExcludedSpellIDsCache()
         D:Debug("%s removed!", handler["Debuff"]);
 
     end
@@ -2562,6 +2619,8 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
                 skipByClass[Classe][DebuffName] = nil; -- Removes it
             end
         end
+
+        D:resetExcludedSpellIDsCache()
     end
 
     local function ClassValues(DebuffName)
@@ -2634,6 +2693,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
                 end,
                 ["set"] = function  (handler, info, Classnum, state)
                     skipByClass[DC.ClassNumToUName[Classnum]][string.trim(handler["Debuff"])] = state;
+                    D:resetExcludedSpellIDsCache(DC.ClassNumToUName[Classnum])
                 end
             };
 
@@ -2656,8 +2716,8 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
             },
             get = "get",
             set = "set",
-            order = 100 + num;
-
+            hidden = DC.MN,
+            order = 100 + num
         };
 
         num = num + 1;
@@ -2731,8 +2791,12 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
     local AddFunc = function (spellID)
         local newDebuff = GetSpellName(spellID);
         if newDebuff then
-            DebuffsSkipList[newDebuff] = spellID;
-            D:Debug("'%s' added to debuff skip list", newDebuff, spellID);
+            if DC.MN and C_Secrets.GetSpellAuraSecrecy(spellID) ~= Enum.SecrecyLevel.NeverSecret then
+                error("Can't add debuff, not a 'Never secret' spellID:", spellID);
+            else
+                DebuffsSkipList[newDebuff] = spellID;
+                D:Debug("'%s' added to debuff skip list", newDebuff, spellID);
+            end
         elseif not newDebuff then
             error("Can't add debuff, invalid spellID:", spellID);
         end
@@ -3906,6 +3970,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.8.3-27-g92158fd";
+T._LoadedFiles["Dcr_opt.lua"] = "2.9.0-RC2";
 
 -- Closer

@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-09-04T16:20:26Z
+    This file was last updated on 2026-09-05T17:49:09Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1227,7 +1227,7 @@ function MicroUnitF.prototype:init(Container, Unit, FrameNum, ID) -- {{{
         -- Create one native slot per possible cleansing-spell priority. Empty
         -- candidate maps hide unused priorities. Slots are created in reverse
         -- order as a second, deterministic draw-order safeguard.
-        local filters = D:GetAuraCandidateFiltersByPrio(Unit)
+        local filters = D:GetAuraCandidateFiltersByPrio(Unit, self.UnitClass)
         for prio = 7, 1, -1 do
             local slotPrio = prio
             local slotKey = "DCR_DISPELLABLE_" .. slotPrio
@@ -1423,7 +1423,7 @@ do
         if self.auraContainer then
             -- update debuff indicator
             if self.auraSlotKeys then
-                local filters = D:GetAuraCandidateFiltersByPrio(Unit)
+                local filters = D:GetAuraCandidateFiltersByPrio(Unit, self.UnitClass)
                 for prio, slotKey in ipairs(self.auraSlotKeys) do
                     self.auraContainer:SetAuraSlotCandidateFilters(
                     slotKey,
@@ -1934,6 +1934,8 @@ do
                 -- set this to true because we just did something expensive...
                 ReturnValue = true;
 
+                -- TODO: reset class filters here iff Blizzard losens restrictions on excluded spellIDs but it won't happen so jsut do nothing
+
                 --D:Debug("Class '%s' set for '%s'", Class, self.CurrUnit);
             elseif not Class and self.UnitClass then
                 -- if the class is not available, set it to false so this test will be done again and again until a class is found
@@ -2105,6 +2107,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.3-27-g92158fd";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.9.0-RC2";
 
 -- Heresy
