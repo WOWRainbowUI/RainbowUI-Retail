@@ -452,10 +452,20 @@ local settingsMenuItems = {
     },
     {
         text = L["SET_INGAME_ONLY"],
+        tooltip = { L["SET_INGAME_ONLY_TT"] },
         keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.ingame_only end,
         func = function()
             FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only
+            -- The filter now removes every offline contact (nobody offline is in a game),
+            -- which would leave the four offline-tracker headers drawn over nothing --
+            -- hide_empty_groups is off by default, so empty groups still render. Clearing
+            -- the tracker is the same concession Hide All Offline already makes above, and
+            -- it is one-way for the same reason: unchecking this must not silently switch
+            -- a display mode back on that the user may have turned off themselves.
+            if FriendGroups_SavedVars.ingame_only then
+                FriendGroups_SavedVars.offline_tracker = false
+            end
             FriendGroups_FriendsListUpdate()
         end
     },
@@ -2070,6 +2080,70 @@ function FriendGroups_GetStatusString(playerData)
 	return status
 end
 
+
+-- ============================================================================
+-- [[ BATTLE.NET CLIENT CLASSIFICATION ]]
+-- One question, asked in three places: is this friend sitting in a GAME, or merely
+-- signed in to Battle.net? The presence sort (tier 1 below), the "only friends in a
+-- game" filter and the roster's presence flags all have to answer it identically, or
+-- the list sorts by one rule and filters by another.
+--
+-- [[ WHY A DENYLIST AND NOT A LIST OF GAMES ]]
+-- clientProgram is a short opaque code per title -- "Pro" is Overwatch, "Fen" is
+-- Diablo IV, "ANBS" is Diablo Immortal, "GRY" is Arclight Rumble -- and Blizzard adds
+-- one with every new title. An allowlist of the twenty-odd codes shipping today would
+-- silently classify the next game as "not a game" and hide those friends, with nothing
+-- to say why. There are only ever TWO non-game clients: "App" (the Battle.net desktop
+-- client) and "BSAp" (the mobile app), and both have been stable for years. So the
+-- honest test is "not one of the two app clients", which needs no maintenance.
+--
+-- [[ WHY THE VALUE IS UNWRAPPED FIRST ]]
+-- A 12.0 secret value compares unequal to every string, so reading clientProgram raw
+-- would classify a protected friend as "not in a game" -- which, now that the filter
+-- honours this answer, HIDES them rather than merely mis-sorting them. FG_PlainClient
+-- reduces both a secret and an absent value to nil so the caller sees one "unknown"
+-- case instead of two, and unknown is never claimed to be a game.
+--
+-- BNET_CLIENT_WOW is read through a fallback for the same reason Compat.IsSameProject
+-- does it: the global is not guaranteed to be defined on every flavor, and a nil there
+-- would make `client ~= BNET_CLIENT_WOW` true for the entire roster -- an empty list
+-- with the filter on.
+-- ============================================================================
+local FG_BNET_APP_CLIENTS = { App = true, BSAp = true }
+
+local function FG_PlainClient(client)
+	if client == nil then return nil end
+	if issecretvalue and issecretvalue(client) then return nil end
+	if type(client) ~= "string" or client == "" then return nil end
+	return client
+end
+
+-- The WoW client code, resolved defensively (see above).
+local function FG_WowClient()
+	return BNET_CLIENT_WOW or "WoW"
+end
+
+-- True when the friend is in World of Warcraft itself.
+function FriendGroups_IsWowClient(client)
+	return FG_PlainClient(client) == FG_WowClient()
+end
+
+-- True when the friend is in ANY Blizzard game, WoW included. False for the Battle.net
+-- desktop and mobile apps, and for a client we could not read.
+function FriendGroups_IsGameClient(client)
+	local plain = FG_PlainClient(client)
+	if not plain then return false end
+	return not FG_BNET_APP_CLIENTS[plain]
+end
+
+-- True when the friend is in a Blizzard game that is NOT WoW. This is the tier the
+-- presence sort inserts between "in WoW" and "signed in to the app".
+function FriendGroups_IsOtherGameClient(client)
+	local plain = FG_PlainClient(client)
+	if not plain then return false end
+	if plain == FG_WowClient() then return false end
+	return not FG_BNET_APP_CLIENTS[plain]
+end
 function FriendGroups_SortTableByStatus(playerA, playerB)
 	if not playerA then
 		playerA = {}
@@ -2079,9 +2153,31 @@ function FriendGroups_SortTableByStatus(playerA, playerB)
 		playerB = {}
 	end
 
-	-- 1. Presence tier: actively in WoW first, then otherwise-online, then offline.
-	local rankA = playerA.isInGame and 1 or (playerA.isOnline and 2 or 3)
-	local rankB = playerB.isInGame and 1 or (playerB.isOnline and 2 or 3)
+	-- 1. Presence tier, in descending order of "can I actually do something with this
+	--    person right now": in WoW, in another Blizzard game, signed in to the app or
+	--    mobile only, offline.
+	--
+	--    Tiers 2 and 3 used to be one bucket. That bucket answered the question "are they
+	--    online", which sounds like the right question and is not: somebody playing
+	--    Overwatch is a person you can talk to about the game they are in, and somebody
+	--    idling in the Battle.net client is a name with a green dot. Merging them sorted
+	--    the two together ALPHABETICALLY, so a friend who had just switched to another
+	--    game landed wherever their name happened to fall among the idle -- reported as
+	--    "I have to scroll all the way down to find them", which is exactly what a name
+	--    sort looks like when you were expecting a presence sort.
+	--
+	--    The split is by CLIENT, not by status text: statusText carries the "InGame"
+	--    suffix only for WoW (see FriendGroups_GetStatus), so it cannot tell Overwatch
+	--    from the desktop app. FriendGroups_IsOtherGameClient is the same predicate the
+	--    in-a-game filter uses, so what sorts to the top is what that filter keeps.
+	local rankA = playerA.isInGame and 1
+		or (playerA.isInOtherGame and 2)
+		or (playerA.isOnline and 3)
+		or 4
+	local rankB = playerB.isInGame and 1
+		or (playerB.isInOtherGame and 2)
+		or (playerB.isOnline and 3)
+		or 4
 	if rankA ~= rankB then
 		return rankA < rankB
 	end
@@ -2166,6 +2262,21 @@ end
 
 function FriendGroups_IsOfflineGroup(groupName)
 	return FriendGroups_OfflineGroupRankMap[groupName] ~= nil
+end
+
+-- The label a group is DRAWN with, which is not always the key it is stored under. The
+-- automatic guild group lives under the bare L["GROUP_GUILDMATES"] key so that one group
+-- follows the player between guilds, and the guild's own name is appended at draw time
+-- only. Manual guild groups already carry "<Guild>" inside their key and pass through.
+--
+-- Every place that shows a group name to the user goes through this, or the same group
+-- reads as two different things depending on which list it turned up in.
+local function FriendGroups_GroupDisplayName(groupName)
+	if groupName == L["GROUP_GUILDMATES"]
+		and FriendGroups_PlayerGuildName and FriendGroups_PlayerGuildName ~= "" then
+		return string.format(L["FORMAT_GUILD_TAG"], groupName, FriendGroups_PlayerGuildName)
+	end
+	return groupName
 end
 
 -- ============================================================================
@@ -2416,10 +2527,35 @@ local function FriendGroups_PassesOnlineFilters(statusText, client, isSameProjec
     if FriendGroups_SavedVars.hide_afk and (statusText == "AFK" or statusText == "AFKMobile") then
         return false
     end
-    if FriendGroups_SavedVars.ingame_only and client ~= BNET_CLIENT_WOW then
+    -- [[ "ONLY FRIENDS IN A GAME" ]]
+    -- This tested `client ~= BNET_CLIENT_WOW`, i.e. it meant "only friends in WoW". The
+    -- label has never said that in any locale -- enUS reads "In-Game", deDE "im Spiel",
+    -- ruRU "в игре", zhCN "游戏内" -- and a friend who was in Overwatch simply vanished
+    -- from the list, which is how it was reported. The filter now honours the label:
+    -- anyone in a Blizzard game stays, the desktop and mobile apps are what it removes.
+    --
+    -- Narrowing to one WoW VERSION is a separate filter (show_retail, "Show Only
+    -- Same-Game Friends") which is unaffected by this and still composes with it.
+    if FriendGroups_SavedVars.ingame_only and not FriendGroups_IsGameClient(client) then
         return false
     end
-    if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW and not isSameProject then
+    -- [[ "ONLY SAME-GAME FRIENDS" ]]
+    -- Reads as: keep the friends who are in the game THIS client is running, and nobody
+    -- else. Compat.IsSameProject answers that for every client, not just for WoW -- it
+    -- exits at ResolveFriendFlavor's "not-wow" guard and reports false -- so the whole
+    -- rule is that one call.
+    --
+    -- It used to be guarded on `client == BNET_CLIENT_WOW`, which meant it could only ever
+    -- reject a friend on a different WoW VERSION. A friend in a different GAME sailed
+    -- straight past the one filter named after games: reported as Call of Duty showing up
+    -- with the box ticked. That was invisible for as long as ingame_only meant "WoW only",
+    -- because ingame_only rejected every non-WoW client before this line was reached -- it
+    -- was doing this filter's job, and widening it to "in any game" took the cover away.
+    -- The data was never wrong; the guard was suppressing it.
+    --
+    -- Consequently this now also removes the Battle.net desktop and mobile apps, which are
+    -- not the game either. That is the same answer for the same reason, not a second rule.
+    if FriendGroups_SavedVars.show_retail and not isSameProject then
         return false
     end
     return true
@@ -2535,7 +2671,11 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
                     if gameAccountInfo.isGameBusy then statusText = "DND"
                     elseif gameAccountInfo.isGameAFK then statusText = "AFK" end
                     if client == "BSAp" then statusText = statusText .. "Mobile" end
-                    if client == BNET_CLIENT_WOW then statusText = statusText .. "InGame" end
+                    -- Through the shared predicate so the status text and the presence
+                    -- flags below it can never disagree about the same friend: a row
+                    -- labelled "in game" that the sort ranks as app-only would be a
+                    -- contradiction visible on screen.
+                    if FriendGroups_IsWowClient(client) then statusText = statusText .. "InGame" end
                 end
             end
             
@@ -2564,7 +2704,25 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
         if info then
             noteText = info.notes or ""
             isOnline = info.connected
-            client = BNET_CLIENT_WOW
+            -- A C_FriendList friend is a WoW character by definition, so the client is
+            -- synthesised rather than read. Through FG_WowClient rather than the bare
+            -- global because this is the dominant friend tier on Classic, where the global
+            -- is not guaranteed: a nil here would make every character friend fail
+            -- FriendGroups_IsWowClient and be dropped by the in-a-game filter.
+            client = FG_WowClient()
+            -- Same reasoning, one step further: a C_FriendList friend is a character on
+            -- YOUR realm, so they are on your project by construction and there is nothing
+            -- to resolve. Compat.IsSameProject is not consulted because it takes a
+            -- gameAccountInfo, which this tier does not have.
+            --
+            -- This was never assigned here, so it kept the `false` initialiser from the top
+            -- of the function and the same-game filter hid every character friend -- the
+            -- tier that most obviously belongs to your own game. A live bug, not a latent
+            -- one: the old WoW-client guard was satisfied by the synthesised client just
+            -- above, so the rule reached `not isSameProject` and rejected. It reproduced on
+            -- every flavor, because the roster walks C_FriendList alongside the Battle.net
+            -- list on retail too.
+            isSameProject = true
             charName = (type(info.name) == "string") and info.name or ""
             playerGuid = (type(info.guid) == "string") and info.guid or nil
 
@@ -2901,7 +3059,15 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
         if isOnline then
             addToTable = onlineVisible
         else
-            if not FriendGroups_SavedVars.hide_offline and ((FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only) then
+            -- [[ OFFLINE UNDER THE IN-A-GAME FILTER ]]
+            -- Nobody offline is in a game, so the filter removes all of them, full stop.
+            --
+            -- This branch used to read `ingame_only and client == BNET_CLIENT_WOW`, which
+            -- KEPT an offline contact whose last session was in WoW: clientProgram on an
+            -- offline friend still names the game account they were last seen on. So the
+            -- filter drew people who were not there while hiding a friend who was actively
+            -- playing Overwatch -- wrong in both directions at once, from one comparison.
+            if not FriendGroups_SavedVars.hide_offline and not FriendGroups_SavedVars.ingame_only then
                 addToTable = true
             end
         end
@@ -2922,11 +3088,19 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             playerData.statusText = statusText
 
             -- [[ PRESENCE FLAGS (drive the primary sort tier) ]]
-            -- isInGame: online AND active client is WoW (actively playing) -> top tier.
-            -- isOnline: online in any client (WoW, app, mobile, other game) -> middle tier.
-            -- Offline (neither flag) -> bottom tier.
+            -- isInGame:      online AND in WoW                       -> tier 1.
+            -- isInOtherGame: online AND in another Blizzard game      -> tier 2.
+            -- isOnline:      online in any client at all              -> tier 3 once the
+            --                two flags above have claimed their tiers (app/mobile only).
+            -- No flag:       offline                                  -> tier 4.
+            --
+            -- Deliberately NOT mutually exclusive: each is the plain answer to its own
+            -- question, and FriendGroups_SortTableByStatus reads them in order, so the
+            -- narrower flag always wins. Writing them as an exclusive 1-of-3 would put the
+            -- tier order in two places at once.
             playerData.isOnline = isOnline
-            playerData.isInGame = isOnline and (client == BNET_CLIENT_WOW)
+            playerData.isInGame = isOnline and FriendGroups_IsWowClient(client)
+            playerData.isInOtherGame = isOnline and FriendGroups_IsOtherGameClient(client)
             -- The account/character tier, resolved here because buttonType no longer carries
             -- it on 12.1. Consumed by tier 3 of FriendGroups_SortTableByStatus.
             playerData.isTitleFriend = isTitleFriend
@@ -3614,6 +3788,66 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                         FriendGroups_MoveGroup(groupName, 1)
                     end)
                     if not moveIdx or moveIdx >= moveCount then moveDownBtn:SetEnabled(false) end
+
+                    -- [[ ABSOLUTE DESTINATIONS ]]
+                    -- Move Up / Move Down close the menu on every click, so crossing ten
+                    -- positions means opening the menu ten times -- and each click is a full
+                    -- list rebuild. This submenu names the destination instead of a
+                    -- direction, so any position is one menu open away and one rebuild.
+                    --
+                    -- Every entry routes through FriendGroups_MoveGroupToIndex, which takes
+                    -- an INSERTION SLOT in the movable order as it looks right now ("put this
+                    -- group before whatever currently sits at this slot"), so #order + 1 is
+                    -- the end of the list. It owns the remove-then-insert off-by-one and the
+                    -- fixed-anchor refusal, which is why nothing is recomputed here.
+                    --
+                    -- Hidden entirely when there is only one movable group: Top, Bottom and
+                    -- an empty destination list would all be no-ops.
+                    if moveIdx and moveCount > 1 then
+                        local moveTo = rootDescription:CreateButton(L["MENU_MOVE_TO"])
+
+                        local moveTopBtn = moveTo:CreateButton(L["MENU_MOVE_TOP"], function()
+                            FriendGroups_MoveGroupToIndex(groupName, 1)
+                        end)
+                        if moveIdx <= 1 then moveTopBtn:SetEnabled(false) end
+
+                        local moveBottomBtn = moveTo:CreateButton(L["MENU_MOVE_BOTTOM"], function()
+                            FriendGroups_MoveGroupToIndex(groupName, moveCount + 1)
+                        end)
+                        if moveIdx >= moveCount then moveBottomBtn:SetEnabled(false) end
+
+                        -- One entry per REACHABLE destination. Two slots are skipped rather
+                        -- than shown disabled: the group's own slot, and the slot directly
+                        -- after it -- "before the group below me" is where it already is, so
+                        -- both are silent no-ops inside MoveGroupToIndex and listing them
+                        -- would only pad the menu with rows that do nothing.
+                        local addedDivider = false
+                        for slot = 1, moveCount do
+                            if slot ~= moveIdx and slot ~= moveIdx + 1 then
+                                if not addedDivider then
+                                    moveTo:CreateDivider()
+                                    addedDivider = true
+                                end
+                                local targetGroup = FriendGroups_MovableOrder[slot]
+                                moveTo:CreateButton(
+                                    string.format(L["MENU_MOVE_BEFORE"], FriendGroups_GroupDisplayName(targetGroup)),
+                                    function()
+                                        FriendGroups_MoveGroupToIndex(groupName, slot)
+                                    end)
+                            end
+                        end
+
+                        -- A roster with thirty groups produces a submenu taller than the
+                        -- screen. SetScrollMode caps it at a pixel extent and scrolls the
+                        -- rest; it is called through a type guard because the UIDropDownMenu
+                        -- polyfill in Platform_Menu.lua has no counterpart, and a client
+                        -- without it simply gets an unscrolled submenu rather than an error.
+                        if type(moveTo.SetScrollMode) == "function" then
+                            local FG_MENU_ROW_HEIGHT = 20
+                            local FG_MENU_MAX_ROWS = 20
+                            moveTo:SetScrollMode(FG_MENU_ROW_HEIGHT * FG_MENU_MAX_ROWS)
+                        end
+                    end
 
                     if FriendGroups_SavedVars.group_order and FriendGroups_SavedVars.group_order[groupName] ~= nil then
                         rootDescription:CreateButton(L["MENU_RESET_POSITION"], function()
@@ -5861,6 +6095,11 @@ end
 -- mode). Clears every recycled divider region so no stale group header shows through.
 function FriendGroups_FriendsListUpdateInertTemplate(frame, elementData)
     frame.rawGroupName = nil
+    -- Draggable-header contract, see Platform_Drag.lua. This frame comes out of the SAME
+    -- pool the group headers use, so leaving the flag or the drag registration behind would
+    -- make a blank row answer to a drag it can no longer resolve a group for.
+    frame.fgIsHeader = nil
+    Compat.DetachHeaderDrag(frame)
     if frame.name then frame.name:Hide() end
     if frame.info then frame.info:Hide() end
     if frame.collapseButton then frame.collapseButton:Hide() end
@@ -5872,9 +6111,18 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
     -- Denominator = raw group size (all members, unfiltered), not the filtered count.
     local groupTotal = groupsCount[groupName] and (groupsCount[groupName]["Raw"] or groupsCount[groupName]["Total"]) or 0
 
+    -- Draggable-header contract, see Platform_Drag.lua. Re-stated on every pass rather than
+    -- left behind: this frame is a header only for as long as it is drawing one, and the
+    -- inert template above hands the same pooled frame back with no group at all.
+    -- AttachHeaderDrag resolves the registration from the group it is given, so a nil group
+    -- or a fixed anchor leaves the frame unregistered and its click unsuppressed.
+    frame.fgIsHeader = nil
+    Compat.AttachHeaderDrag(frame, groupName)
+
     if groupName and frame.name then
         frame.rawGroupName = groupName -- Store raw name for click handlers
-        
+        frame.fgIsHeader = true
+
         -- Cleanup any old search/settings items if they exist on this recycled frame
         if _G["FriendGroupsSearch"] and _G["FriendGroupsSearch"]:GetParent() == frame then
              _G["FriendGroupsSearch"]:Hide()
@@ -5887,11 +6135,7 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
         -- Standard Header Setup
         frame.name:Show()
         
-        local displayGroupName = groupName
-        if groupName == L["GROUP_GUILDMATES"] and FriendGroups_PlayerGuildName and FriendGroups_PlayerGuildName ~= "" then
-            displayGroupName = string.format(L["FORMAT_GUILD_TAG"], groupName, FriendGroups_PlayerGuildName)
-        end
-        frame.name:SetText(displayGroupName)
+        frame.name:SetText(FriendGroups_GroupDisplayName(groupName))
 
         -- [[ HEADER LABEL COLOUR, INCLUDING THE WAY BACK ]]
         -- An explicit override wins; a banner colour implies white, because the default is
@@ -6192,10 +6436,7 @@ function FriendGroups_UpdateContactCap()
                     for _ in pairs(groupSet) do count = count + 1 end
                 end
                 if count > 0 then
-                    local displayGroupName = groupName
-                    if groupName == L["GROUP_GUILDMATES"] and FriendGroups_PlayerGuildName and FriendGroups_PlayerGuildName ~= "" then
-                        displayGroupName = string.format(L["FORMAT_GUILD_TAG"], groupName, FriendGroups_PlayerGuildName)
-                    end
+                    local displayGroupName = FriendGroups_GroupDisplayName(groupName)
                     -- Gold name and count on a tinted strip, exactly like the list's
                     -- headers: the custom colour drives the background only.
                     local r, g, b, hasBanner = FriendGroups_GetGroupBannerRGB(groupName)

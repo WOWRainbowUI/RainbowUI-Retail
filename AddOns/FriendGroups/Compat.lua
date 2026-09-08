@@ -183,6 +183,95 @@ function Compat.ForEachContactListFrame(callback)
 	scrollBox:ForEachFrame(callback)
 end
 
+-- Walk every row frame the contact list is currently rendering, on EVERY flavor.
+--
+-- ForEachContactListFrame above covers the two ScrollBox platforms only, which is all the
+-- banner colour preview that calls it has ever needed. Header drag and drop needs the
+-- Classic list as well, and there the rows are a fixed HybridScrollFrame button pool
+-- rather than a ScrollBox: the frames have to be read off scrollFrame.buttons and filtered
+-- down to the ones actually on screen, because that pool keeps its off-list buttons around
+-- hidden rather than releasing them.
+--
+-- Kept separate from ForEachContactListFrame rather than folded into it: that function's
+-- callers assume the retail-only reach they were written against, and widening it would
+-- start running their work on a platform that has never seen it.
+--
+-- The callback is handed frames in no defined order and must not assume a row type.
+function Compat.ForEachListRowFrame(callback)
+	if type(callback) ~= "function" then return end
+
+	local view = Compat.GetSocialUIFriendsView()
+	local scrollBox = view and view.ScrollBox
+	if not scrollBox then
+		scrollBox = FriendsListFrame and FriendsListFrame.ScrollBox
+	end
+	if scrollBox and type(scrollBox.ForEachFrame) == "function" then
+		scrollBox:ForEachFrame(callback)
+		return
+	end
+
+	local scrollFrame = FriendsFrameFriendsScrollFrame
+	local buttons = scrollFrame and scrollFrame.buttons
+	if type(buttons) ~= "table" then return end
+	for i = 1, #buttons do
+		local button = buttons[i]
+		if button and button:IsShown() then
+			callback(button)
+		end
+	end
+end
+
+-- The frame the contact list SCROLLS INSIDE -- the viewport the rows move within, not the
+-- outer window GetContactListAnchor returns. Drag and drop measures the pointer against
+-- its top and bottom edges and parents its drop indicator to it.
+--
+-- Nil on a client where neither list exists, which every caller has to tolerate: on 12.1
+-- the answer changes when the player is moved between the Social UI and the legacy panel
+-- mid-session, so it is resolved on each call and never cached.
+function Compat.GetListScrollContainer()
+	local view = Compat.GetSocialUIFriendsView()
+	if view and view.ScrollBox then return view.ScrollBox end
+	if FriendsListFrame and FriendsListFrame.ScrollBox then return FriendsListFrame.ScrollBox end
+	return FriendsFrameFriendsScrollFrame
+end
+
+-- Scroll the contact list by a signed FRACTION of its total scrollable range; negative
+-- moves toward the top of the list.
+--
+-- A fraction rather than a pixel or row count, deliberately. It makes a full traversal
+-- take the same wall time on a four-group list and a forty-group one, which is the
+-- property an edge-scroll wants: the user is holding the pointer against an edge and
+-- waiting, and how long that wait is should not depend on how many friends they have.
+--
+-- ScrollBox carries its position as a 0..1 percentage (GetScrollPercentage /
+-- SetScrollPercentage -- the same pair FG_ForceScrollRedraw in FriendGroups.lua uses).
+-- HybridScrollFrame has no equivalent: its position lives on the companion slider that
+-- HybridScrollBarTemplate creates as <scrollFrameName>ScrollBar, is read and written in
+-- that slider's own units, and only redraws because the template's OnValueChanged runs
+-- HybridScrollFrame_SetOffset and then the frame's update callback.
+function Compat.ScrollListByFraction(fraction)
+	if type(fraction) ~= "number" or fraction == 0 then return end
+
+	local view = Compat.GetSocialUIFriendsView()
+	local scrollBox = (view and view.ScrollBox) or (FriendsListFrame and FriendsListFrame.ScrollBox)
+	if scrollBox and type(scrollBox.GetScrollPercentage) == "function"
+		and type(scrollBox.SetScrollPercentage) == "function" then
+		local noInterp = ScrollBoxConstants and ScrollBoxConstants.NoScrollInterpolation
+		local percent = (scrollBox:GetScrollPercentage() or 0) + fraction
+		if percent < 0 then percent = 0 elseif percent > 1 then percent = 1 end
+		scrollBox:SetScrollPercentage(percent, noInterp)
+		return
+	end
+
+	local scrollBar = _G.FriendsFrameFriendsScrollFrameScrollBar
+	if not scrollBar or type(scrollBar.GetMinMaxValues) ~= "function" then return end
+	local minValue, maxValue = scrollBar:GetMinMaxValues()
+	if not minValue or not maxValue or maxValue <= minValue then return end
+	local value = (scrollBar:GetValue() or minValue) + fraction * (maxValue - minValue)
+	if value < minValue then value = minValue elseif value > maxValue then value = maxValue end
+	scrollBar:SetValue(value)
+end
+
 -- The PANEL that hosts the contact list -- the outer window, not the list subframe.
 --
 -- Two things key off this. The alt-tooltip parks itself against the panel's right edge, and
