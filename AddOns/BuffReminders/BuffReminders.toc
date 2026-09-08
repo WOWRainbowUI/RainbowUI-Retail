@@ -3,7 +3,7 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.8.0
+## Version: v6.8.1
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
@@ -68,6 +68,7 @@ Options\Context.lua
 Options\WhatsNew.lua
 Options\Dialogs\Glow.lua
 Options\Dialogs\CustomBuff.lua
+Options\Dialogs\CustomBuffShare.lua
 Options\Dialogs\LoadoutReminder.lua
 Options\Dialogs\RoguePoison.lua
 Options\Dialogs\Runeforge.lua
