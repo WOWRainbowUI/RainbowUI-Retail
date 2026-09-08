@@ -97,8 +97,6 @@ local FG_RefreshPortrait
 -- a global lookup, resolves to nil, and the mode silently does nothing on the panel that is
 -- actually on screen.
 local FG_RefreshOwnBattleTagLegacy
-local FG_HeaderOnDragStart
-local FG_HeaderOnDragStop
 -- Defined with the row-density constants far below, but retried from Compat.RenderSocialUIList
 -- above them. Declared here for the same reason as everything else in this block, and it is
 -- worth recording that it was NOT: the call compiled to a global lookup, resolved to nil, and
@@ -341,7 +339,7 @@ end
 --
 -- Watching SetScript itself is the one place that reliably sees their assignment land. The
 -- guard flag stops our own re-assignment from re-entering the hook.
-local function FG_InstallHeaderClickTakeover(header)
+local function FG_InstallHeaderClickTakeover(header, groupName)
 	if not header.fgHeaderScriptHooked then
 		header.fgHeaderScriptHooked = true
 		hooksecurefunc(header, "SetScript", function(self, scriptType)
@@ -357,161 +355,14 @@ local function FG_InstallHeaderClickTakeover(header)
 		header:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	end
 
-	-- Drag scripts are safe to set once: Blizzard's factory only ever re-sets OnClick.
-	-- Registered for every header, movable or not; OnDragStart itself refuses fixed anchors,
-	-- which keeps the decision in one place.
-	if type(header.RegisterForDrag) == "function" then
-		header:RegisterForDrag("LeftButton")
-	end
-	header:SetScript("OnDragStart", FG_HeaderOnDragStart)
-	header:SetScript("OnDragStop", FG_HeaderOnDragStop)
+	-- Reordering by drag lives in Platform_Drag.lua and is shared with the other two
+	-- renderers. It used to be implemented here, which meant it could only run on a client
+	-- with the 12.1 Social UI switched on -- and that switch is server-driven, so on a live
+	-- realm serving the 12.0.7 contact list the feature was unreachable. Blizzard's factory
+	-- only ever re-sets OnClick, so the drag scripts survive a rebind untouched.
+	Compat.AttachHeaderDrag(header, groupName)
 
 	FG_ApplyHeaderClickScript(header)
-end
-
--- ============================================================================
--- [[ GROUP DRAG AND DROP ]]
--- Free drag on the header itself. RegisterForDrag gives the click/drag split for nothing:
--- OnDragStart only fires once the pointer has moved a few pixels while held, and the click
--- is suppressed when it does -- so collapse-on-click survives without a manual threshold.
---
--- Blizzard's factory only ever re-sets OnClick, so the drag scripts are safe from the
--- clobbering that defeated the right-click menu.
---
--- Only movable groups take part. Favorites, [No Group] and the offline trackers are fixed
--- anchors: they cannot be dragged, and the drop slot is computed across movable headers
--- alone so nothing can be dropped above them either.
--- ============================================================================
-local FG_DragGroupName = nil
-local FG_DragIndicator = nil
-local FG_DragStarts = 0
-
-local function FG_IsGroupMovable(groupName)
-	State = State or addonTable.State
-	if not State or type(State.IsFixedAnchor) ~= "function" then return false end
-	return not State.IsFixedAnchor(groupName)
-end
-
--- Cursor Y in the ScrollBox's own coordinate space. GetCursorPosition reports in raw screen
--- units, so it has to be divided by the effective scale before it can be compared against
--- frame edges.
-local function FG_CursorY(referenceFrame)
-	local _, y = GetCursorPosition()
-	local scale = referenceFrame:GetEffectiveScale()
-	if not scale or scale <= 0 then return nil end
-	return y / scale
-end
-
--- Returns the insertion slot under the pointer, plus the header frame that slot sits above
--- (nil when the slot is past the last movable header, i.e. dropping at the end).
---
--- Screen Y increases UPWARDS, and headers are laid out top to bottom, so walking them in
--- display order and counting the ones the cursor has fallen below yields the slot directly.
-local function FG_ComputeDropSlot()
-	local view = Compat.GetSocialUIFriendsView()
-	local scrollBox = view and view.ScrollBox
-	if not scrollBox or type(scrollBox.ForEachFrame) ~= "function" then return nil, nil end
-
-	State = State or addonTable.State
-	if not State or type(State.GetMovableIndex) ~= "function" then return nil, nil end
-
-	local cursorY = FG_CursorY(scrollBox)
-	if not cursorY then return nil, nil end
-
-	local byIndex = {}
-	scrollBox:ForEachFrame(function(frame)
-		if frame.ButtonText and not frame.FriendName and frame.rawGroupName then
-			local index = State.GetMovableIndex(frame.rawGroupName)
-			if index then byIndex[index] = frame end
-		end
-	end)
-
-	local count = (type(State.GetMovableCount) == "function" and State.GetMovableCount()) or 0
-	local slot = 1
-	for index = 1, count do
-		local frame = byIndex[index]
-		if frame and frame:GetBottom() and cursorY < frame:GetBottom() then
-			slot = index + 1
-		end
-	end
-
-	return slot, byIndex[slot]
-end
-
-local function FG_HideDropIndicator()
-	if FG_DragIndicator then FG_DragIndicator:Hide() end
-end
-
-local function FG_UpdateDropIndicator()
-	local view = Compat.GetSocialUIFriendsView()
-	local scrollBox = view and view.ScrollBox
-	if not scrollBox then return end
-
-	if not FG_DragIndicator then
-		FG_DragIndicator = scrollBox:CreateTexture(nil, "OVERLAY")
-		FG_DragIndicator:SetHeight(2)
-		FG_DragIndicator:SetColorTexture(1, 0.82, 0, 0.9)
-	end
-
-	local slot, frameAtSlot = FG_ComputeDropSlot()
-	if not slot then
-		FG_HideDropIndicator()
-		return
-	end
-
-	FG_DragIndicator:ClearAllPoints()
-	if frameAtSlot then
-		-- Land the line on the top edge of the header we would displace.
-		FG_DragIndicator:SetPoint("TOPLEFT", frameAtSlot, "TOPLEFT", 0, 1)
-		FG_DragIndicator:SetPoint("TOPRIGHT", frameAtSlot, "TOPRIGHT", 0, 1)
-	else
-		-- Past the last movable header: sit at the bottom of the list.
-		FG_DragIndicator:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMLEFT", 0, 0)
-		FG_DragIndicator:SetPoint("BOTTOMRIGHT", scrollBox, "BOTTOMRIGHT", 0, 0)
-	end
-	FG_DragIndicator:Show()
-end
-
-FG_HeaderOnDragStart = function(self)
-	local groupName = self.rawGroupName
-	if not groupName or not FG_IsGroupMovable(groupName) then return end
-
-	FG_DragStarts = FG_DragStarts + 1
-	FG_DragGroupName = groupName
-	self:SetAlpha(0.5)
-	self:SetScript("OnUpdate", FG_UpdateDropIndicator)
-	FG_UpdateDropIndicator()
-
-	-- Colour resolved once per drag rather than at texture creation: the EllesmereUI
-	-- theme can arrive after the indicator was first built, and the user can recolour
-	-- their accent live. Done here and not in FG_UpdateDropIndicator because that one
-	-- runs from OnUpdate -- every frame of the drag.
-	-- FriendGroups_AccentRGB is the addon-wide resolver: EllesmereUI's live accent when
-	-- themed, gold otherwise. Read here rather than from the cached theme table, which
-	-- deliberately no longer carries an accent -- it is the one value the user edits at
-	-- runtime.
-	if FG_DragIndicator then
-		local aR, aG, aB = FriendGroups_AccentRGB()
-		FG_DragIndicator:SetColorTexture(aR, aG, aB, 0.9)
-	end
-end
-
-FG_HeaderOnDragStop = function(self)
-	self:SetAlpha(1)
-	self:SetScript("OnUpdate", nil)
-	FG_HideDropIndicator()
-
-	local groupName = FG_DragGroupName
-	FG_DragGroupName = nil
-	if not groupName then return end
-
-	local slot = FG_ComputeDropSlot()
-	if not slot then return end
-
-	State = State or addonTable.State
-	if State and type(State.MoveGroupToIndex) == "function" then
-		State.MoveGroupToIndex(groupName, slot)
-	end
 end
 
 -- [[ COLLAPSE INDICATOR ]]
@@ -625,6 +476,11 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 	FG_TintHeaderToggle(header)
 
 	header.rawGroupName = groupName
+	-- Draggable-header contract, see Platform_Drag.lua. The Social UI draws headers from
+	-- their own template, so unlike the other two renderers this frame can never come back
+	-- as something else -- but the flag is what the shared code tests, so it is stated here
+	-- rather than inferred from the template it happens to have been built with.
+	header.fgIsHeader = true
 	-- The retail handler reads frame.name:GetText() as its fallback label.
 	header.name = header.name or header.ButtonText
 
@@ -710,7 +566,7 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 	-- After the label colour and banner are settled, so the count can inherit both.
 	FG_ApplyHeaderCount(header, countText)
 
-	FG_InstallHeaderClickTakeover(header)
+	FG_InstallHeaderClickTakeover(header, groupName)
 end
 
 local function FG_ApplyToVisibleCards(view)
@@ -2661,7 +2517,9 @@ end
 --   6 cardHookInstalled the row-content post-hook is attached to the card mixin
 --   7 rowApplyCalls     times the row hook has fired (0 = it is never reached)
 --   8 rowApplyApplied   times it got past its guards to real work
---   9 dragStarts        times a header drag actually began (0 = ScrollBox is eating it)
+--   9 dragStarts        times a header drag actually began (0 = ScrollBox is eating it).
+--                       Counted in Platform_Drag.lua and shared with the other renderers,
+--                       so this is drags on ANY list, not only the Social UI's.
 --
 -- Appended after the panel dimensions: cardHeightInstalled, and the height a row actually
 -- has right now. FALSE with a row height around 70 is the login race described in
@@ -2677,7 +2535,7 @@ function FriendGroups_GetSocialUIState()
 	end
 	return Compat.IsSocialUIActive(), view ~= nil, hooksInstalled, FG_SocialProvider ~= nil, installed,
 		cardHookInstalled, FG_RowApplyCalls, FG_RowApplyApplied, FG_AltTooltipCalls,
-		FG_DragStarts,
+		Compat.GetHeaderDragStarts(),
 		SocialUIFrame and math.floor(SocialUIFrame:GetWidth() or 0) or 0,
 		SocialUIFrame and math.floor(SocialUIFrame:GetHeight() or 0) or 0,
 		SocialUIFrame and math.floor(SocialUIFrame.baseUIPanelWidth or 0) or 0,

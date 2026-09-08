@@ -727,6 +727,15 @@ RenderHeader = function(button, elementData)
 	button.id = 0
 	button.buttonType = FRIENDS_BUTTON_TYPE_DIVIDER
 
+	-- Draggable-header contract, see Platform_Drag.lua. rawGroupName is what retail's
+	-- handlers already read; on Classic they had been falling through to button.name's
+	-- text, which happens to agree because this renderer draws the bare group name. Drag
+	-- and drop cannot rely on that coincidence, so the raw key is stamped explicitly, and
+	-- RenderClassicList clears both again when this pooled button comes back as a friend.
+	button.rawGroupName = groupName
+	button.fgIsHeader = true
+	Compat.AttachHeaderDrag(button, groupName)
+
 	button:SetScript("OnMouseDown", nil)
 	button:SetScript("OnClick", FriendGroups_FrameFriendDividerTemplateHeaderClick)
 
@@ -836,6 +845,15 @@ function Compat.RenderClassicList(layout)
 				-- 1. Restore standard IDs
 				button.id = elementData.id
 				button.buttonType = elementData.buttonType
+
+				-- This pool is shared with the group headers, so the drag registration has
+				-- to come off here. A button left registered for drag swallows the click
+				-- that selects a friend as soon as the pointer moves a couple of pixels --
+				-- which is the whole point of the registration on a header, and a silent
+				-- regression on a friend row.
+				button.rawGroupName = nil
+				button.fgIsHeader = nil
+				Compat.DetachHeaderDrag(button)
 
 				-- Reset recycled buttons to native click handlers
 				button:SetScript("OnClick", FriendsFrameFriendButton_OnClick)
