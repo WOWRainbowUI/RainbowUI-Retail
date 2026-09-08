@@ -3209,6 +3209,17 @@ GTFO.SpellID["427581"] = {
   sound = 3;
 };
 
+--- ***************************
+--- * Darkmaul Citadel (2236) *
+--- ***************************
+
+GTFO.SpellID["306458"] = {
+  --desc = "Dark Ritual (Darkmaul Channeler)";
+  instance = 2236; -- Darkmaul Citadel
+  applicationOnly = true;
+  sound = 3;
+};
+
 
 end
 

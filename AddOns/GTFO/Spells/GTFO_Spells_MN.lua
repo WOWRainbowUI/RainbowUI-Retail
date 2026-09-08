@@ -169,19 +169,19 @@ GTFO.SpellID["1285630"] = {
 
 GTFO.SpellID["1253237"] = {
   --desc = "Null-Magic Missiles (L-N-0R the Recycler)";
-  map = 2395; -- Eversong Woods
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
   sound = 1;
 };
 
 GTFO.SpellID["1256357"] = {
   --desc = "Undead Eruption (Knight-Errant Bloodshatter)";
-  map = 2437; -- Zul'Aman
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
   sound = 1;
 };
 
 GTFO.SpellID["1288086"] = {
   --desc = "Poison Tide (Batani the Scaled)";
-  map = 2437; -- Zul'Aman
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
   sound = 1;
 };
 
@@ -256,6 +256,18 @@ GTFO.SpellID["1265775"] = {
   instance = 2964; -- The Gulf of Memory
   encounter = 3416;
   sound = 1;
+};
+
+GTFO.SpellID["1306124"] = {
+	--desc = "Ruptured Ground (Gnok)";
+	instance = 3077; -- The Ring of Glory
+	sound = 1;
+};
+
+GTFO.SpellID["1306135"] = {
+	--desc = "Necrotic Ground (Gnok)";
+	instance = 3077; -- The Ring of Glory
+	sound = 1;
 };
 
 --- *****************************
@@ -737,6 +749,13 @@ GTFO.SpellID["1306858"] = {
 GTFO.SpellID["1304016"] = {
   --desc = "Toxic Regurgitation";
   instance = 3004;
+  sound = 1;
+};
+
+GTFO.SpellID["1295995"] = {
+  --desc = "Toxin Cloud (Ula'tek)";
+  instance = 3004;
+  encounter = 3492;
   sound = 1;
 };
 

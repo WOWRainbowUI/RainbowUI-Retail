@@ -842,6 +842,7 @@ GTFO.SpellID["474230"] = {
 
 GTFO.SpellID["474155"] = {
   --desc = "Slime Trail (Coagulated Mass)";
+  instances = { 2681, 2685, 2815, 2964 }; -- Kriegval's Rest, Skittering Breach, Excavation Site 9, The Gulf of Memory
   ignoreApplication = true;
   sound = 1;
 };

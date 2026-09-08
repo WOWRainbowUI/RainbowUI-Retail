@@ -679,12 +679,12 @@ GTFO.SpellID["372820"] = {
   sound = 1;
 };
 
-GTFO.SpellID["372820"] = {
+GTFO.SpellID["1307372"] = {
   --desc = "Fiery Demise (Kokia Blazehoof)";
   instance = 2521;
-  encounter = 2606;
   sound = 1;
 };
+
 
 --- ************************
 --- * The Nokhud Offensive *
