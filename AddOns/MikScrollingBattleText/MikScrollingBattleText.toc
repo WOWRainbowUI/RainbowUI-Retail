@@ -1,5 +1,5 @@
 ## Interface: 120100, 120007
-## Version: 12.025
+## Version: 12.026
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
@@ -22,6 +22,7 @@ Configuration\ProfileStore.lua
 Configuration\MediaRegistry.lua
 Configuration\RuntimeController.lua
 API\RestrictedValue.lua
+API\Sounds.lua
 API\Spells.lua
 API\Units.lua
 API\Combat.lua
@@ -56,4 +57,5 @@ MSBTOptions\Localization\localization.xml
 MSBTOptions\MSBTOptionsControls.lua
 MSBTOptions\MSBTOptionsPopups.lua
 MSBTOptions\MSBTOptionsMain.lua
+MSBTOptions\MSBTOptionsSounds.lua
 MSBTOptions\MSBTOptionsTabs.lua

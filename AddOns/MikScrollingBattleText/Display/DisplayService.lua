@@ -6,7 +6,8 @@ function DisplayService:Configure(config)
 	self.config = config
 end
 
-function DisplayService:DisplayEvent(eventSettings, message, texturePath)
+function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound)
+	if eventSettings.disabled or self.config.isModDisabled() then return end
 	local profile = self.config.getProfile()
 	local scrollAreas = self.config.scrollAreas
 	local areaKey = eventSettings.scrollArea or self.config.defaultArea
@@ -55,6 +56,10 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath)
 		fontAlpha,
 		texturePath
 	)
+	if not muteSound and not profile.soundsDisabled and eventSettings.soundFile
+		and eventSettings.soundFile ~= "" and self.config.playSound then
+		self.config.playSound(eventSettings.soundFile)
+	end
 end
 
 local function NormalizeColor(value)

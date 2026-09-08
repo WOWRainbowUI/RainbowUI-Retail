@@ -13,6 +13,16 @@ local function OnVariablesInitialized()
 end
 
 module.fonts = registry.fonts
+module.sounds = registry.sounds
+module.RegisterSound = function(name, file)
+	return registry:RegisterSound(name, file)
+end
+module.IterateSounds = function()
+	return registry:IterateSounds()
+end
+module.PlaySound = function(reference)
+	return registry:PlaySound(reference)
+end
 module.RegisterFont = function(name, path)
 	return registry:RegisterFont(name, path)
 end

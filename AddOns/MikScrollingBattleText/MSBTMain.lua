@@ -1219,6 +1219,8 @@ MikSBT.DISPLAYTYPE_NOTIFICATION		= "Notification"
 MikSBT.DISPLAYTYPE_STATIC			= "Static"
 
 MikSBT.RegisterFont					= MSBTMedia.RegisterFont
+MikSBT.RegisterSound = MSBTMedia.RegisterSound
+MikSBT.IterateSounds = MSBTMedia.IterateSounds
 MikSBT.RegisterAnimationStyle		= MSBTAnimations.RegisterAnimationStyle
 MikSBT.RegisterStickyAnimationStyle	= MSBTAnimations.RegisterStickyAnimationStyle
 MikSBT.IterateFonts					= MSBTMedia.IterateFonts

@@ -211,6 +211,7 @@ GeneralTab_Populate = function()
 	controls.stickyCritsCheckbox:SetChecked(not currentProfile.stickyCritsDisabled)
 	controls.shortenNumbersCheckbox:SetChecked(currentProfile.shortenNumbers)
 	controls.stackSimilarHitsCheckbox:SetChecked(currentProfile.stackSimilarHits)
+	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
 	controls.enableIconsCheckbox:SetChecked(not currentProfile.skillIconsDisabled)
 	if controls.blizzardCombatTextV2Checkbox then
 		controls.blizzardCombatTextV2Checkbox:SetChecked(not not currentProfile.enableBlizzardV2CombatText)
@@ -411,11 +412,21 @@ local function GeneralTab_Create()
 	)
 	controls.blizzardCombatTextV2InGroupCheckbox = checkbox
 
+	-- Enable custom event sounds.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableSounds"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
+	checkbox:SetClickHandler(function(this, isChecked)
+		MSBTProfiles.SetOption(nil, "soundsDisabled", not isChecked)
+	end)
+	controls.enableSoundsCheckbox = checkbox
+
 	-- Shorten numbers checkbox.
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
 	objLocale = L.CHECKBOXES["shortenNumbers"]
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
+	checkbox:SetPoint("BOTTOMLEFT", controls.enableSoundsCheckbox, "TOPLEFT", 0, 0)
 	checkbox:SetClickHandler(
 		function (this, isChecked)
 			MSBTProfiles.SetOption(nil, "shortenNumbers", isChecked)
@@ -567,6 +578,16 @@ local function GeneralTab_Create()
 		end
 	)
 	controls.masterFontButton = button
+
+	button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["addCustomSound"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("BOTTOMLEFT", controls.masterFontButton, "TOPLEFT", 0, 10)
+	button:SetClickHandler(function(this)
+		DisableControls(controls)
+		MSBTOptions.Sounds.ShowAddSound(tabFrame, this, GeneralTab_EnableControls)
+	end)
+	controls.addCustomSoundButton = button
 
 	-- Font path validation font string used by custom font validation.
 	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1309,6 +1330,7 @@ end
 -- Saves the additional event settings selected by the user.
 -- ****************************************************************************
 local function EventsTab_SaveEventSettings(settings, eventType)
+	MSBTProfiles.SetOption("events." .. eventType, "soundFile", settings.soundFile)
 	MSBTProfiles.SetOption("events." .. eventType, "scrollArea", settings.scrollArea, DEFAULT_SCROLL_AREA)
 	MSBTProfiles.SetOption("events." .. eventType, "message", settings.message)
 	MSBTProfiles.SetOption("events." .. eventType, "alwaysSticky", settings.alwaysSticky)
@@ -1328,6 +1350,7 @@ local function EventsTab_SettingsButtonOnClick(this)
 	EraseTable(configTable)
 	configTable.title = categoryText .. " - " .. this:GetParent().enableCheckbox.fontString:GetText()
 	configTable.message = eventSettings.message
+	configTable.soundFile = eventSettings.soundFile
 	configTable.codes = this:GetParent().codes
 	configTable.scrollArea = eventSettings.scrollArea or DEFAULT_SCROLL_AREA
 	configTable.alwaysSticky = eventSettings.alwaysSticky
@@ -1608,6 +1631,7 @@ end
 -- Saves the event settings selected by the user.
 -- ****************************************************************************
 local function LootAlertsTab_SaveEventSettings(settings, eventType)
+	MSBTProfiles.SetOption("events." .. eventType, "soundFile", settings.soundFile)
 	MSBTProfiles.SetOption("events." .. eventType, "scrollArea", settings.scrollArea, DEFAULT_SCROLL_AREA)
 	MSBTProfiles.SetOption("events." .. eventType, "message", settings.message)
 	MSBTProfiles.SetOption("events." .. eventType, "alwaysSticky", settings.alwaysSticky)
@@ -1677,6 +1701,7 @@ local function LootAlertsTab_Create()
 			EraseTable(configTable)
 			configTable.title = L.CHECKBOXES.lootedItems.label
 			configTable.message = eventSettings.message
+			configTable.soundFile = eventSettings.soundFile
 			configTable.codes = L.EVENT_CODES["ITEM_AMOUNT"] .. L.EVENT_CODES["ITEM_NAME"] .. L.EVENT_CODES["TOTAL_ITEMS"]
 			configTable.scrollArea = eventSettings.scrollArea or DEFAULT_SCROLL_AREA
 			configTable.alwaysSticky = eventSettings.alwaysSticky
@@ -1785,6 +1810,7 @@ local function LootAlertsTab_Create()
 			EraseTable(configTable)
 			configTable.title = L.CHECKBOXES.moneyGains.label
 			configTable.message = eventSettings.message
+			configTable.soundFile = eventSettings.soundFile
 			configTable.codes = L.EVENT_CODES["MONEY_TEXT"]
 			configTable.scrollArea = eventSettings.scrollArea or DEFAULT_SCROLL_AREA
 			configTable.alwaysSticky = eventSettings.alwaysSticky
@@ -1893,6 +1919,7 @@ local function LootAlertsTab_Create()
 			EraseTable(configTable)
 			configTable.title = L.CHECKBOXES.currencyGains.label
 			configTable.message = eventSettings.message
+			configTable.soundFile = eventSettings.soundFile
 			configTable.codes = L.EVENT_CODES["ITEM_AMOUNT"] .. L.EVENT_CODES["ITEM_NAME"] .. L.EVENT_CODES["TOTAL_ITEMS"]
 			configTable.scrollArea = eventSettings.scrollArea or DEFAULT_SCROLL_AREA
 			configTable.alwaysSticky = eventSettings.alwaysSticky
