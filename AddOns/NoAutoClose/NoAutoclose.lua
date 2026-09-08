@@ -17,7 +17,7 @@ ns.ignore = {
 local uiSpecialFrameBlacklist = {
     PlayerSpellsFrame = true, -- cannot be safely closed with UISpecialFrames
 };
-NoAutoClose = ns;
+_G.NoAutoClose = ns;
 
 local UpdateScaleForFit = UpdateScaleForFit or UIPanelUpdateScaleForFit or FrameUtil.UpdateScaleForFit;
 
