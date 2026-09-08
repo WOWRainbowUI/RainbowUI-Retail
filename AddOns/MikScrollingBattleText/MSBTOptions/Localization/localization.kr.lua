@@ -641,3 +641,16 @@ obj["CurvedLeft"]		= "좌로 휘어짐"
 obj["CurvedRight"]		= "우로 휘어짐"
 obj["Jiggle"]			= "흔들림"
 obj["Normal"]			= "효과 없음"
+
+-- Custom event sounds.
+L.MSG_INVALID_CUSTOM_SOUND_NAME		= "잘못된 소리 이름."
+L.MSG_SOUND_NAME_ALREADY_EXISTS		= "소리 이름이 이미 존재합니다."
+L.MSG_INVALID_SOUND_FILE			= "효과음은 .ogg 파일이어야 합니다."
+L.CHECKBOXES["enableSounds"]				= { label="효과음 사용", tooltip="이벤트와 트리거에 지정된 효과음을 재생합니다."}
+L.DROPDOWNS["sound"]				= { label="효과음:", tooltip="이벤트 발생 시 재생할 효과음을 선택하세요."}
+L.BUTTONS["addCustomSound"]			= { label="소리 추가", tooltip="사용할 수 있는 소리의 목록에 사용자 소리을 추가합니다.\n\n주의: 와우가 시작됨 *이전에* 소리 파일이 대상의 위치에 존재해야합니다.\n\n문제가 발생되지 않도록 하려면 글꼴은 MikScrollingBattleText\\Sounds 폴더에 넣어두는 것이 좋습니다."}
+L.BUTTONS["customSound"]				= { tooltip="사용자 지정 효과음 파일을 입력하려면 클릭하세요." }
+L.BUTTONS["playSound"]				= { label="재생", tooltip="선택된 효과음을 재생하려면 클릭하세요."}
+L.EDITBOXES["customSoundName"]	= { label="소리 이름:", tooltip="이름은 소리를 식별하는데 사용합니다.\n\n사용예: 나의 소리"}
+L.EDITBOXES["customSoundPath"]	= { label="소리 경로:", tooltip="소리 파일이 있는 경로.\n\n노트: 만약 파일이 권장하는 MikScrollingBattleText\\Sounds 폴더 위치에 있으면, 여기엔 오로지 전체 경로 대신 파일 이름을 입력해야 됩니다.\n\n사용예: mySound.ogg "}
+L.EDITBOXES["soundFile"]		= { label="효과음 파일명:", tooltip="이벤트 발생시 재생할 효과음 파일."}

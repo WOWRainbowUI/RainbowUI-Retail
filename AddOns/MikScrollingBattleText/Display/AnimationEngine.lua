@@ -238,6 +238,7 @@ DisplayService:Configure({
 	fonts = fonts,
 	isModDisabled = IsModDisabled,
 	display = Display,
+	playSound = MikSBT.Media.PlaySound,
 	outlineMap = OUTLINE_MAP,
 	defaultArea = DEFAULT_SCROLL_AREA,
 })

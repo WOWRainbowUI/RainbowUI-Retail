@@ -11,4 +11,5 @@ Localization\localization.xml
 MSBTOptionsControls.lua
 MSBTOptionsPopups.lua
 MSBTOptionsMain.lua
+MSBTOptionsSounds.lua
 MSBTOptionsTabs.lua

@@ -613,3 +613,16 @@ obj["CurvedLeft"]	= "Incurvé à Gauche"
 obj["CurvedRight"]	= "Incurvé à Droite"
 obj["Jiggle"]		= "Secoué"
 obj["Normal"]		= "Normal"
+
+-- Custom event sounds.
+L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Nom du Son incorrect."
+L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Le nom du son existe déjà."
+L.MSG_INVALID_SOUND_FILE			= "Le fichier son doit être au format .ogg."
+L.CHECKBOXES["enableSounds"]			= { label="Activer les sons", tooltip="Jouer les sons associés aux évènements et déclencheurs."}
+L.DROPDOWNS["sound"]				= { label="Son:", tooltip="Sélectionne le son à jouer quand un évènement intervient."}
+L.BUTTONS["addCustomSound"]			= { label="Ajouter un Son", tooltip="Ajoute un son personnalisé à la liste des sons disponibles.\n\nATTENTION: Le fichier son doit exister *AVANT* que WoW n'est démarré.\n\nIl est fortement recommandé de placer ce fichier dans le répertoire MikScrollingBattleText\\Sounds pour éviter tout problème."}
+L.BUTTONS["customSound"]				= { tooltip="Cliquer pour saisir un fichier son personnalisé." }
+L.BUTTONS["playSound"]				= { label="Jouer", tooltip="Cliquer pour jouer le son."}
+L.EDITBOXES["customSoundName"]	= { label="Nom du Son:", tooltip="Le nom utilisé pour identifier le son.\n\nExemple: Mon Son"}
+L.EDITBOXES["customSoundPath"]	= { label="Chemin du Son:", tooltip="Le chemin qui pointe vers le fichier du son.\n\nNOTE: Si le fichier est situé dans le répertoire rcommandé MikScrollingBattleText\\Sounds, seul le nom de fichier doit être entré ici, au lieu du chemin complet.\n\nExemple: monSon.ogg"}
+L.EDITBOXES["soundFile"]		= { label="Nom du fichier son:", tooltip="le nom du fichier son à joueur quand l'évènement intervient."}

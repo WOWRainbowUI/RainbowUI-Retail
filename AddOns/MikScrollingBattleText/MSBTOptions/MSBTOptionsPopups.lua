@@ -2005,11 +2005,13 @@ local function CreateEvent()
 	editbox:SetPoint("TOPLEFT", controls.scrollAreaDropdown, "BOTTOMLEFT", 0, -20)
 	controls.messageEditbox = editbox
 
+	MSBTOptions.Sounds.CreateEventControls(frame, EnableEventControls)
+
 	-- Always sticky checkbox.
 	local checkbox = MSBTControls.CreateCheckbox(frame)
 	objLocale = L.CHECKBOXES["stickyEvent"]
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("TOPLEFT", controls.messageEditbox, "BOTTOMLEFT", 0, -20)
+	checkbox:SetPoint("TOPLEFT", controls.soundDropdown, "BOTTOMLEFT", 0, -20)
 	controls.stickyCheckbox = checkbox
 
 
@@ -2031,6 +2033,7 @@ local function CreateEvent()
 		EraseTable(returnSettings)
 		returnSettings.scrollArea = controls.scrollAreaDropdown:GetSelectedID()
 		returnSettings.message = controls.messageEditbox:GetText()
+		returnSettings.soundFile = controls.soundDropdown:GetSelectedID()
 		returnSettings.alwaysSticky = controls.stickyCheckbox:GetChecked()
 		returnSettings.iconSkill = controls.iconSkillEditbox:GetText()
 		frame:Hide()
@@ -2082,6 +2085,7 @@ local function ShowEvent(configTable)
 	local objLocale = L.EDITBOXES["eventMessage"]
 	controls.messageEditbox:SetText(configTable.message)
 	controls.messageEditbox:SetTooltip(objLocale.tooltip .. "\n\n" .. (configTable.codes or ""))
+	MSBTOptions.Sounds.PopulateEventSound(frame, configTable.soundFile)
 	controls.stickyCheckbox:SetChecked(configTable.alwaysSticky)
 	controls.iconSkillEditbox:SetText(configTable.iconSkill)
 
@@ -2091,11 +2095,11 @@ local function ShowEvent(configTable)
 
 	-- Show / hide icon skill editbox.
 	if (configTable.showIconSkillEditbox) then
-		frame:SetHeight(370)
+		frame:SetHeight(400)
 		controls.iconSkillEditbox:Show()
 	else
 		controls.iconSkillEditbox:Hide()
-		frame:SetHeight(310)
+		frame:SetHeight(340)
 	end
 
 	-- Configure the frame.

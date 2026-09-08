@@ -640,3 +640,16 @@ obj["CurvedLeft"]		= "Curvato a Sinistra"
 obj["CurvedRight"]		= "Curvato a Destra"
 obj["Jiggle"]			= "Oscillante"
 obj["Normal"]			= "Normale"
+
+-- Custom event sounds.
+L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Nome invalido per il suono."
+L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Nome esistente per il Suono."
+L.MSG_INVALID_SOUND_FILE			= "Il suono deve essere un file .ogg."
+L.CHECKBOXES["enableSounds"]				= { label="Attiva Suoni", tooltip="Esegue suoni che sono assegnati agli eventi e inneschi."}
+L.DROPDOWNS["sound"]				= { label="Souni:", tooltip="Seleziona il suono da eseguire quando avviene un evento."}
+L.BUTTONS["addCustomSound"]			= { label="Aggiungi Suono", tooltip="Aggiunge un suono personalizzato alla lista di quelli disponibili.\n\nATTENZIONE: Il suono deve esistere *PRIMA* che WoW venga eseguito.\n\nE' ampiamente raccomandato di posizionare tale file in MikScrollingBattleText\\Sounds per evitare qualsiasi problema."}
+L.BUTTONS["customSound"]				= { tooltip="Premere per inserire un file sonoro personalizzato." }
+L.BUTTONS["playSound"]				= { label="Esegui", tooltip="Premere per eseguire il file selezionato."}
+L.EDITBOXES["customSoundName"]	= { label="Nome Suono:", tooltip="Il nome usato per identificare il suono"}
+L.EDITBOXES["customSoundPath"]	= { label="Percorso Suono:", tooltip="Il percorso al file del suono.\n\nNOTA: se il file e' nella cartella raccomandara MikScrollingBattleText\\Sounds, solo il nome del file necessita di essere inserito invece che l'intero percorso.\n\nEsempio: mySound.ogg"}
+L.EDITBOXES["soundFile"]		= { label="Nome del file sonoro:", tooltip="Il nome del file sonoro da eseguire quando avviene l'evento."}

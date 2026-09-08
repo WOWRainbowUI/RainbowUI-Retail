@@ -643,3 +643,16 @@ obj["CurvedLeft"]		= "向左抛出"
 obj["CurvedRight"]		= "向右抛出"
 obj["Jiggle"]			= "摇动"
 obj["Normal"]			= "普通"
+
+-- Custom event sounds.
+L.MSG_INVALID_CUSTOM_SOUND_NAME		= "无效声音名"
+L.MSG_SOUND_NAME_ALREADY_EXISTS		= "声音名已经存在"
+L.MSG_INVALID_SOUND_FILE			= "声音必须为OGG文件"
+L.CHECKBOXES["enableSounds"]				= { label="启用声音", tooltip="当指定事件和触发器发生时播放声音"}
+L.DROPDOWNS["sound"]				= { label="声音：", tooltip="选择事件发生时播放的声音"}
+L.BUTTONS["addCustomSound"]			= { label="添加声音", tooltip="想声音列表添加自定义声音.\n\n警告: 声音文件必须 *在WOW运行之前* 就放置在目标文件夹内.\n\n推荐将其放置在 MikScrollingBattleText\\Sounds 文件夹."}
+L.BUTTONS["customSound"]				= { tooltip="点击选择自定义声音文件" }
+L.BUTTONS["playSound"]				= { label="播放", tooltip="播放选定的声音."}
+L.EDITBOXES["customSoundName"]	= { label="音效名:", tooltip="用来确定音效的名字.\n\nExample: 我的音效"}
+L.EDITBOXES["customSoundPath"]	= { label="音效路径:", tooltip="音效文件的路径.\n\n注意: 如果文件在 MikScrollingBattleText\\Sounds 中的话, 只需要输入文件名就可以.\n\n例如: mySound.ogg "}
+L.EDITBOXES["soundFile"]		= { label="声音文件：", tooltip="事件发生时播放的声音"}

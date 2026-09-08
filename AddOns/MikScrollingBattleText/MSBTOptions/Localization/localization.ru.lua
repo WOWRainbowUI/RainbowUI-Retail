@@ -635,3 +635,16 @@ obj["CurvedLeft"]		= "Изогнутый влево"
 obj["CurvedRight"]		= "Изогнутый вправо"
 obj["Jiggle"]			= "Тряска"
 obj["Normal"]			= "Нормальный"
+
+-- Custom event sounds.
+L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Неверное название звукового файла."
+L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Название звукового файла уже существует."
+L.MSG_INVALID_SOUND_FILE			= "Звуки должны быть в .ogg формате."
+L.CHECKBOXES["enableSounds"]				= { label="Вкл/Выкл звуки", tooltip="Проигрывать звуки заданные в событиях и триггерах."}
+L.DROPDOWNS["sound"]				= { label="Звук:", tooltip="Выберите какой проигрывать звук при выполнении события."}
+L.BUTTONS["addCustomSound"]			= { label="Добавить звук", tooltip="Добовляет пользовательский звук к списку доступных звуков.\n\nWARNING: Файл звука должен находиться в целевой деректории *ДО* запуска WoW.\n\nНастоятельно рекомендуется поместить файл в директорию звуков MikScrollingBattleText\\чтобы избежать проблем."}
+L.BUTTONS["customSound"]				= { tooltip="Кликните для вставки пользовательского звукового файла." }
+L.BUTTONS["playSound"]				= { label="Воспр.", tooltip="Нажмите для воспроизведения выбранного звука."}
+L.EDITBOXES["customSoundName"]	= { label="Звук:", tooltip="Название, используемое для определения звука.\n\nПример: Мой Звук"}
+L.EDITBOXES["customSoundPath"]	= { label="Путь к звуку:", tooltip="Путь к файлу звука.\n\nNOTE: Если файл находится в рекомендованном директории звуков\\MikScrollingBattleText, тогда впишите только названия файла, вместо полного пути.\n\nExample: мойЗвук.ogg "}
+L.EDITBOXES["soundFile"]		= { label="Звуковой файл:", tooltip="Название звукового файла который будет проигрываться при свершении события."}

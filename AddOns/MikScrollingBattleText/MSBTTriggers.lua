@@ -558,7 +558,7 @@ local function DisplayTrigger(triggerSettings, sourceName, sourceClass, recipien
 		_, _, effectTexture = GetSpellInfo(iconSkill)
 	end
 
-	DisplayEvent(triggerSettings, message, effectTexture)
+	DisplayEvent(triggerSettings, message, effectTexture, true)
 end
 
 local function TestExceptions(triggerSettings)
