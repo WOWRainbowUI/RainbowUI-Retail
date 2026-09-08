@@ -271,7 +271,11 @@ addonTable.Constants.Totems = {
   [188592] = 114050, -- Fire Elemental (Ascendance)
   [191717] = 191634, -- Storm Elemental (Stormkeeper)
   -- Warlock
+  [1251781] = 0, -- Vilefiend (sequenced)
   [104316] = 0, -- Dreadstalkers
+  [265187] = 0, -- Demonic Tyrant
+  [205180] = 0, -- Darkglare
+  [1122] = 0, -- Infernal
   -- Priest
   [34433] = 0, -- Shadowfiend
   -- Paladin
@@ -289,6 +293,10 @@ addonTable.Constants.TotemTalentOverrides = {
     talent = 117013,
     duration = 24,
   }
+}
+
+addonTable.Constants.TotemSequenceOverrides = {
+  [104316] = 1251781,
 }
 
 addonTable.Constants.TotemSpells = {}
