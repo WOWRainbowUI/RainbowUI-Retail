@@ -18,7 +18,11 @@ local variables             = {
         x = 410,
     },
     timelineTextureColor = CreateColor(1, 1, 1, 1),
+    timelineBorder = "None",
+    timelineBorderColor = CreateColor(1, 1, 1, 1),
+    timelineBorderSize = 2,
     IconMargin = 5,
+    thresholdTime = 10,
 }
 private.TIMELINE_DIRECTIONS = {
     VERTICAL = "VERTICAL",
@@ -48,7 +52,7 @@ local function HandleTickVisibility(layoutName)
     for _, tick in ipairs(private.TIMELINE_FRAME.frame.Ticks) do
         if private.db.global.timeline_frame[layoutName].ticks_enabled then
             tick:SetTick(private.TIMELINE_FRAME.frame, tick.tick, private.TIMELINE_FRAME:GetMoveSize(),
-                private.AT_THRESHHOLD_TIME,
+                private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].threshold_time,
                 private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].travel_direction ==
                 private.TIMELINE_DIRECTIONS.HORIZONTAL)
             tick.frame:Show()
@@ -99,8 +103,24 @@ private.ModernizeTimelineFrame = function(layoutName)
         private.db.global.timeline_frame[layoutName].timeline_texture_color = variables.timelineTextureColor
     end
 
+    if not private.db.global.timeline_frame[layoutName].timeline_border then
+        private.db.global.timeline_frame[layoutName].timeline_border = variables.timelineBorder
+    end
+
+    if not private.db.global.timeline_frame[layoutName].timeline_border_color then
+        private.db.global.timeline_frame[layoutName].timeline_border_color = variables.timelineBorderColor
+    end
+
+    if not private.db.global.timeline_frame[layoutName].timeline_border_size then
+        private.db.global.timeline_frame[layoutName].timeline_border_size = variables.timelineBorderSize
+    end
+
     if not private.db.global.timeline_frame[layoutName].iconMargin then
         private.db.global.timeline_frame[layoutName].iconMargin = variables.IconMargin
+    end
+
+    if not private.db.global.timeline_frame[layoutName].threshold_time then
+        private.db.global.timeline_frame[layoutName].threshold_time = variables.thresholdTime
     end
 end
 
@@ -138,7 +158,8 @@ local function HandleTicks(self)
     for i, tick in ipairs(private.TIMELINE_TICKS) do
         local widget = AceGUI:Create("AtTimelineTicks")
         self.frame.Ticks[i] = widget
-        widget:SetTick(self.frame, tick, self:GetMoveSize(), private.AT_THRESHHOLD_TIME,
+        widget:SetTick(self.frame, tick, self:GetMoveSize(),
+            private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].threshold_time,
             private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].travel_direction ==
             private.TIMELINE_DIRECTIONS.HORIZONTAL)
         widget.frame:Show()
@@ -161,14 +182,20 @@ local function SetBackDrop(frame)
     local texture = SharedMedia:Fetch("background",
         private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].timeline_texture)
     local color = private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].timeline_texture_color
+    local border = SharedMedia:Fetch("border",
+        private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].timeline_border)
+    local borderColor = private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].timeline_border_color
+    local borderSize = private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].timeline_border_size
     frame:SetBackdrop({
         bgFile = texture,
+        edgeFile = border,
         tile = true,
         tileSize = 32,
-        edgeSize = 32,
+        edgeSize = borderSize,
         insets = { left = 0, right = 0, top = 0, bottom = 0 }
     })
     frame:SetBackdropColor(color.r, color.g, color.b, color.a)
+    frame:SetBackdropBorderColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a)
 end
 
 
@@ -248,6 +275,26 @@ local function SetupEditModeSettings(frame)
             end,
         },
         {
+            name = private.getLocalisation("TimelineWindow"),
+            desc = private.getLocalisation("TimelineWindowDescription"),
+            kind = LibEditMode.SettingType.Slider,
+            default = variables.thresholdTime,
+            get = function(layoutName)
+                return private.db.global.timeline_frame[layoutName].threshold_time
+            end,
+            set = function(layoutName, value)
+                private.db.global.timeline_frame[layoutName].threshold_time = value
+                HandleTicks(private.TIMELINE_FRAME)
+                HandleTickVisibility(layoutName)
+            end,
+            minValue = 5,
+            maxValue = 60,
+            valueStep = 1,
+            hidden = function()
+                return not areTravelSettingsExpanded
+            end,
+        },
+        {
             name = private.getLocalisation("ExpandVisualSettings"),
             expandedLabel = private.getLocalisation("CollapseVisualSettings"),
             collapsedLabel = private.getLocalisation("ExpandVisualSettings"),
@@ -322,6 +369,74 @@ local function SetupEditModeSettings(frame)
                 SetBackDrop(private.TIMELINE_FRAME.frame)
             end,
             default = variables.timelineTextureColor,
+            hidden = function()
+                return not areVisualSettingsExpanded
+            end,
+        },
+        {
+            name = private.getLocalisation("TimelineBorder"),
+            desc = private.getLocalisation("TimelineBorderDescription"),
+            kind = LibEditMode.SettingType.Dropdown,
+
+            get = function(layoutName)
+                return private.db.global.timeline_frame[layoutName].timeline_border
+            end,
+            set = function(layoutName, value)
+                private.db.global.timeline_frame[layoutName].timeline_border = value
+                SetBackDrop(private.TIMELINE_FRAME.frame)
+            end,
+            default = variables.timelineBorder,
+            height = 300,
+            values = function()
+                local Borders = {}
+                for _, borderName in ipairs(SharedMedia:List("border")) do
+                    local borderPath = SharedMedia:Fetch("border", borderName) or ""
+                    local display = borderPath ~= "" and ("|T%s:16:128|t %s"):format(tostring(borderPath), borderName) or borderName
+                    table.insert(Borders, {
+                        text = display,
+                        value = borderName,
+                        isRadio = false,
+                    })
+                end
+                return Borders
+            end,
+            hidden = function()
+                return not areVisualSettingsExpanded
+            end,
+        },
+        {
+            name = private.getLocalisation("TimelineBorderColor"),
+            desc = private.getLocalisation("TimelineBorderColorDescription"),
+            kind = LibEditMode.SettingType.ColorPicker,
+            hasOpacity = true,
+            get = function(layoutName)
+                local color = private.db.global.timeline_frame[layoutName].timeline_border_color
+                return CreateColor(color.r, color.g, color.b, color.a)
+            end,
+            set = function(layoutName, value)
+                private.db.global.timeline_frame[layoutName].timeline_border_color = value
+                SetBackDrop(private.TIMELINE_FRAME.frame)
+            end,
+            default = variables.timelineBorderColor,
+            hidden = function()
+                return not areVisualSettingsExpanded
+            end,
+        },
+        {
+            name = private.getLocalisation("TimelineBorderSize"),
+            desc = private.getLocalisation("TimelineBorderSizeDescription"),
+            kind = LibEditMode.SettingType.Slider,
+            default = variables.timelineBorderSize,
+            get = function(layoutName)
+                return private.db.global.timeline_frame[layoutName].timeline_border_size
+            end,
+            set = function(layoutName, value)
+                private.db.global.timeline_frame[layoutName].timeline_border_size = value
+                SetBackDrop(private.TIMELINE_FRAME.frame)
+            end,
+            minValue = 1,
+            maxValue = 32,
+            valueStep = 1,
             hidden = function()
                 return not areVisualSettingsExpanded
             end,

@@ -1,6 +1,29 @@
 local appName, app = ...
 ---@class AbilityTimeline
 local private = app
+
+--Only reminders that carry a saved name are included
+local function getNamedReminderValues()
+  local out = {}
+  if private.db and private.db.profile and private.db.profile.reminders then
+    for id, stored in pairs(private.db.profile.reminders) do
+      local first = stored and stored[1]
+      if first and (first.instanceName or first.encounterName) then
+        if first.instanceName and first.encounterName then
+          out[tostring(id)] = string.format("%s — %s", first.instanceName, first.encounterName)
+        else
+          out[tostring(id)] = first.encounterName or first.instanceName
+        end
+      end
+    end
+  end
+  return out
+end
+
+local function hasNamedReminders()
+  return next(getNamedReminderValues()) ~= nil
+end
+
 ---@type AceConfigOptionsTable
 private.options = {
   name = private.getLocalisation("addonOptions"),
@@ -12,26 +35,20 @@ private.options = {
       type = "group",
       order = 10,
       args = {
+        no_reminders_hint = {
+          name = private.getLocalisation("NoRemindersHint"),
+          type = "description",
+          order = 20,
+          fontSize = "medium",
+          hidden = function() return hasNamedReminders() end,
+        },
         recent_encounters = {
           name = private.getLocalisation("CreatedReminders"),
           desc = private.getLocalisation("CreatedRemindersDescription"),
           type = "select",
           order = 21,
-          values = function()
-            local out = {}
-            if private.db and private.db.profile and private.db.profile.reminders then
-              for id, stored in pairs(private.db.profile.reminders) do
-                local first = stored[1]
-                if first then
-                  local encName = EJ_GetEncounterInfo(first.journalEncounterID)
-                  local instName = EJ_GetInstanceInfo(first.journalInstanceID)
-                  local display = string.format("%s — %s", instName, encName)
-                  out[tostring(id)] = display
-                end
-              end
-            end
-            return out
-          end,
+          disabled = function() return not hasNamedReminders() end,
+          values = getNamedReminderValues,
           set = function(info, val) private._recentSelected = tonumber(val) end,
           get = function(info) return tostring(private._recentSelected or "") end,
           width = "full",
@@ -47,13 +64,12 @@ private.options = {
             -- Open the selected saved encounter (keyed by dungeonEncounterID)
             private.RegisterEncounter(sel, nil, false)
             local stored = private.db.profile.reminders[sel]
-            local first = stored[1]
+            local first = stored and stored[1]
             if first then
               local params = {
                 journalEncounterID = first.journalEncounterID,
                 journalInstanceID = first.journalInstanceID,
-                dungeonEncounterID =
-                    tonumber(sel)
+                dungeonEncounterID = tonumber(sel)
               }
               private.openTimingsEditor(params)
             end
@@ -82,6 +98,17 @@ private.options = {
       set = function(info, val) private.db.profile.disableLoginMessage = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile.disableLoginMessage                             --Sets value of toggles depending on SavedVariables
+      end,
+    },
+    disableAllBlizzTimers = {
+      name = private.getLocalisation("disableAllBlizzTimers"),
+      desc = private.getLocalisation("disableAllBlizzTimersDescription"),
+      order = 32,
+      width = "full",
+      type = "toggle",
+      set = function(info, val) private.db.profile.disableAllBlizzTimers = val end, --Sets value of SavedVariables depending on toggles
+      get = function(info)
+        return private.db.profile.disableAllBlizzTimers                             --Sets value of toggles depending on SavedVariables
       end,
     },
     disableReadyCheck = {
@@ -191,6 +218,7 @@ private.buildInstanceOptions = function()
   for dungeonId, dungeonValue in pairs(private.Instances) do
     EJ_SelectInstance(dungeonId)
     local Instancename, Instancedescription, _, InstanceImage, _, _, _, _, _ = EJ_GetInstanceInfo()
+    assert(Instancename, "BetterTimeline: EncounterJournal returned nil for instance name for dungeonId " .. dungeonId .. " please alert the Author.")
     private.options.args.encounterOptions.args["dungeon" .. dungeonId] = {
       name = Instancename,
       -- description = Instancedescription,
@@ -202,6 +230,7 @@ private.buildInstanceOptions = function()
     for encounterNumber, encounterID in pairs(dungeonValue.encounters) do
       local EncounterName, Encounterdescription, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID =
           EJ_GetEncounterInfoByIndex(encounterNumber, dungeonId)
+      assert(EncounterName, "BetterTimeline: EncounterJournal returned nil for encounter name for encounterNumber " .. encounterNumber .. " in dungeonId " .. dungeonId .. " please alert the Author.")
       private.options.args.encounterOptions.args["dungeon" .. dungeonId].args["encounter" .. encounterNumber] = {
         name = EncounterName,
         -- description = Encounterdescription,

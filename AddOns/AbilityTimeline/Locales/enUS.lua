@@ -7,7 +7,7 @@ local L = AceLocale:NewLocale(appName, "enUS", true)
 
 if L then
     L["AccessOptionsMessage"] = "Access the options via /at"
-    L["TimelineNotEnabledMessage"] = "The timeline feature is not enabled."
+    L["TimelineNotEnabledMessage"] = "The timeline feature is not enabled. Enable it by going to options -> gameplay enhancements -> enable boss abilities"
     L["TimelineNotSupportedMessage"] = "The timeline feature is not supported on this version."
     L["ReadyCheckBy"] = "Ready Check by"
     L["ReadyCheck"] = "Ready Check"
@@ -15,7 +15,7 @@ if L then
     L["PullTimerBy"] = "Pull Timer by"
     L["RerollKey"] = "Reroll Mythic + Key"
     L["CurrentlyDoingMplusKeyFallback"] = "[BetterTimeline] Currently busy doing a Mythic+ dungeon!"
-    L["CurrentlyDoingMplusKey"] = "[BetterTimeline] Currently busy doing Mythic +%i %s timer expires around %i!"
+    L["CurrentlyDoingMplusKey"] = "[BetterTimeline] Currently busy doing Mythic +%i %s timer expires around %s!"
     L["CurrentlyBusyInEncounter"] = "[BetterTimeline] Currently busy fighting %s <%s>!"
 
     --options
@@ -38,6 +38,7 @@ if L then
     L['reminderBrowserDescription'] = "Browse and manage your created encounter reminders."
     L["CreatedReminders"] = "Created Reminders"
     L["CreatedRemindersDescription"] = "Select an encounter to edit its reminders."
+    L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
     L["disableAllOnEncounterEnd"] = "Remove active Reminders"
     L["disableAllOnEncounterEndDescription"] = "Disables all active reminder events when an encounter ends."
     L["IconDangerIconDescription"] = "Displays a danger icon |TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:135:153:7:25|t on the timeline for effects which are classified as Deadly by Blizzard."
@@ -52,6 +53,8 @@ if L then
     L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
     L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
     L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
+    L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
+    L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
 
     -- reminders
     L["ReminderEditTitle"] = "Edit Reminder"
@@ -194,6 +197,8 @@ if L then
     L["TimelineTravelSizeDescription"] = "Sets the travel Size of the timeline. (Height on Horizontal, Width on Vertical)"
     L["InverseTravelDirection"] = "Inverse Travel Direction"
     L["InverseTravelDirectionDescription"] = "Inverts the travel direction of the timeline."
+    L["TimelineWindow"] = "Timeline Window (seconds)"
+    L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
     L["TextAnchor"] = "Text Anchor"
     L["TextAnchorDescription"] = "Sets the anchor position of the text relative to the icons."
     L["TextAnchorLeft"] = "Left"
@@ -210,6 +215,12 @@ if L then
     L['TextHighlightMarginDescription'] = "Sets the space between text highlights."
     L["TimelineTextureColorDescription"] = "Sets the color of the timeline background. Note: Not all textures support coloring and might only use the alpha. For Example the default Blizzard-Dialog-Background does NOT use the color."
     L["TimelineTextureColor"] = "Timeline Texture Color"
+    L["TimelineBorder"] = "Timeline Border Texture"
+    L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+    L["TimelineBorderColor"] = "Timeline Border Color"
+    L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+    L["TimelineBorderSize"] = "Timeline Border Size"
+    L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
     L["IconMarginDescription"] = "Sets the space between spell icons."
     L["IconMargin"] = "Icon Margin"
     L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."

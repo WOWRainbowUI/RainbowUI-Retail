@@ -40,6 +40,8 @@ L["DeadlyEffect"] = "滅團技 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::
 L["debugMode"] = "偵錯模式"
 L["debugModeDescription"] = "啟用偵錯模式，將於聊天視窗發出額外訊息。"
 L["DefaultCooldownColor"] = "冷卻顏色"
+L["disableAllBlizzTimers"] = "停用全部暴雪計時器"
+L["disableAllBlizzTimersDescription"] = "停用全部暴雪計時器，包括準備確認、開怪計時器和戰鬥計時器。如果你想使用完全自訂的計時器，例如來自 Viserio，這很有用。"
 L["disableAllOnEncounterEnd"] = "移除現有的提醒"
 L["disableAllOnEncounterEndDescription"] = "在首領戰結束時，停用全部現有的提醒事件。"
 L["disableBossModsBars"] = "停用首領提醒計時條"
@@ -125,6 +127,8 @@ L["InvalidTextPosition"] = "文字定位點位置無效，請通知作者。"
 L["InverseTravelDirection"] = "反轉時間線方向"
 L["InverseTravelDirectionDescription"] = "反轉時間線的行進方向。"
 L["MagicEffect"] = "魔法 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
+--[[Translation missing --]]
+L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
 L["OpenIconEditor"] = "編輯圖示"
 L["OpenSelectedReminderEditor"] = "開啟提醒編輯器"
 L["OpenSelectedReminderEditorDescription"] = "為所選首領戰開啟提醒編輯器。"
@@ -206,6 +210,18 @@ L["TextOffsetXDescription"] = "設定文字相對於圖示的X軸位置。"
 L["TextOffsetY"] = "文字Y偏移"
 L["TextOffsetYDescription"] = "設定文字相對於圖示的Y軸位置。"
 L["TextSettings"] = "文字設定"
+--[[Translation missing --]]
+L["TimelineBorder"] = "Timeline Border Texture"
+--[[Translation missing --]]
+L["TimelineBorderColor"] = "Timeline Border Color"
+--[[Translation missing --]]
+L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+--[[Translation missing --]]
+L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+--[[Translation missing --]]
+L["TimelineBorderSize"] = "Timeline Border Size"
+--[[Translation missing --]]
+L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
 L["TimelineNotEnabledMessage"] = "時間線功能尚未啟用。"
 L["TimelineNotSupportedMessage"] = "此版本不支援時間線功能。"
 L["TimelineOtherSize"] = "時間線次要尺寸"
@@ -216,6 +232,8 @@ L["TimelineTextureColorDescription"] = "設定時間線背景的顏色。注意�
 L["TimelineTextureDescription"] = "設定時間線背景的材質。"
 L["TimelineTravelSize"] = "時間線行進尺寸"
 L["TimelineTravelSizeDescription"] = "設置時間線的行進尺寸。（水平方向時為高度，垂直方向時為寬度）"
+L["TimelineWindow"] = "時間線視窗 (秒)"
+L["TimelineWindowDescription"] = "時間軸顯示提前多少秒。比這更遠的技能會在最遠的邊緣等待，直到進入視窗。"
 L["TimingsEditorAddEntryButton"] = "新增提醒"
 L["TimingsEditorTitle"] = "計時編輯器："
 L["TravelDirection"] = "行進方向"
