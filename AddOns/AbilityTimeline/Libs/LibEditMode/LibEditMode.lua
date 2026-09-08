@@ -425,6 +425,11 @@ function lib:AddFrame(frame, callback, default, name)
 			onEditModeChanged(nil, C_EditMode.GetLayouts()) -- introduces a little latency
 		end
 	end
+
+	if lib.isEditing then
+		-- refresh the selection if we're already in edit mode
+		selection:ShowHighlighted()
+	end
 end
 
 --[[ LibEditMode:AddFrameSettings(_frame, settings_) ![](https://img.shields.io/badge/function-blue)

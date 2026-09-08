@@ -61,7 +61,7 @@ L["CreatedRemindersDescription"] = "Select an encounter to edit its reminders."
 --[[Translation missing --]]
 L["CurrentlyBusyInEncounter"] = "[BetterTimeline] Currently busy fighting %s <%s>!"
 --[[Translation missing --]]
-L["CurrentlyDoingMplusKey"] = "[BetterTimeline] Currently busy doing Mythic +%i %s timer expires around %i!"
+L["CurrentlyDoingMplusKey"] = "[BetterTimeline] Currently busy doing Mythic +%i %s timer expires around %s!"
 --[[Translation missing --]]
 L["CurrentlyDoingMplusKeyFallback"] = "[BetterTimeline] Currently busy doing a Mythic+ dungeon!"
 --[[Translation missing --]]
@@ -74,6 +74,10 @@ L["debugMode"] = "Debug Mode"
 L["debugModeDescription"] = "Enables debug mode, which outputs additional information to the chat window."
 --[[Translation missing --]]
 L["DefaultCooldownColor"] = "Cooldown Color"
+--[[Translation missing --]]
+L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
+--[[Translation missing --]]
+L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
 --[[Translation missing --]]
 L["disableAllOnEncounterEnd"] = "Remove active Reminders"
 --[[Translation missing --]]
@@ -245,6 +249,8 @@ L["InverseTravelDirectionDescription"] = "Inverts the travel direction of the ti
 --[[Translation missing --]]
 L["MagicEffect"] = "Magic |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
 --[[Translation missing --]]
+L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
+--[[Translation missing --]]
 L["OpenIconEditor"] = "Edit Icons"
 --[[Translation missing --]]
 L["OpenSelectedReminderEditor"] = "Open Reminder Editor"
@@ -407,7 +413,19 @@ L["TextOffsetYDescription"] = "Sets the Y offset of the text relative to the ico
 --[[Translation missing --]]
 L["TextSettings"] = "Text Settings"
 --[[Translation missing --]]
-L["TimelineNotEnabledMessage"] = "The timeline feature is not enabled."
+L["TimelineBorder"] = "Timeline Border Texture"
+--[[Translation missing --]]
+L["TimelineBorderColor"] = "Timeline Border Color"
+--[[Translation missing --]]
+L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+--[[Translation missing --]]
+L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+--[[Translation missing --]]
+L["TimelineBorderSize"] = "Timeline Border Size"
+--[[Translation missing --]]
+L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
+--[[Translation missing --]]
+L["TimelineNotEnabledMessage"] = "The timeline feature is not enabled. Enable it by going to options -> gameplay enhancements -> enable boss abilities"
 --[[Translation missing --]]
 L["TimelineNotSupportedMessage"] = "The timeline feature is not supported on this version."
 --[[Translation missing --]]
@@ -426,6 +444,10 @@ L["TimelineTextureDescription"] = "Sets the texture of the timeline background."
 L["TimelineTravelSize"] = "Timeline Travel Size"
 --[[Translation missing --]]
 L["TimelineTravelSizeDescription"] = "Sets the travel Size of the timeline. (Height on Horizontal, Width on Vertical)"
+--[[Translation missing --]]
+L["TimelineWindow"] = "Timeline Window (seconds)"
+--[[Translation missing --]]
+L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
 --[[Translation missing --]]
 L["TimingsEditorAddEntryButton"] = "Add Reminder"
 --[[Translation missing --]]

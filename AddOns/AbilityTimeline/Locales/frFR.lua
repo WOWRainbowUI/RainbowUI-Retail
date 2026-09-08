@@ -40,6 +40,10 @@ L["DeadlyEffect"] = "Mortel |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::2
 L["debugMode"] = "Mode débogage"
 L["debugModeDescription"] = "Active le mode débogage, affichant des informations supplémentaires dans la fenêtre de discussion"
 L["DefaultCooldownColor"] = "Couleur par défaut du temps de recharge"
+--[[Translation missing --]]
+L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
+--[[Translation missing --]]
+L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
 L["disableAllOnEncounterEnd"] = "Désactiver tous les rappels actifs"
 L["disableAllOnEncounterEndDescription"] = "Désactive tous les événements de rappel actifs à la fin d’une rencontre"
 --[[Translation missing --]]
@@ -133,6 +137,8 @@ L["InvalidTextPosition"] = "Position d’ancrage du texte invalide, veuillez inf
 L["InverseTravelDirection"] = "Inverser la direction de défilement"
 L["InverseTravelDirectionDescription"] = "Inverse la direction de défilement de la ligne temporalle."
 L["MagicEffect"] = "Magie |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
+--[[Translation missing --]]
+L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
 L["OpenIconEditor"] = "Modifier les icônes"
 L["OpenSelectedReminderEditor"] = "Ouvrir l’éditeur de rappels"
 L["OpenSelectedReminderEditorDescription"] = "Ouvre l’éditeur de rappels pour la rencontre sélectionnée."
@@ -220,6 +226,18 @@ L["TextOffsetXDescription"] = "Définit le décalage X du texte par rapport à l
 L["TextOffsetY"] = "Décalage Y du texte"
 L["TextOffsetYDescription"] = "Définit le décalage Y du texte par rapport à l’icône."
 L["TextSettings"] = "Paramètres de texte"
+--[[Translation missing --]]
+L["TimelineBorder"] = "Timeline Border Texture"
+--[[Translation missing --]]
+L["TimelineBorderColor"] = "Timeline Border Color"
+--[[Translation missing --]]
+L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+--[[Translation missing --]]
+L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+--[[Translation missing --]]
+L["TimelineBorderSize"] = "Timeline Border Size"
+--[[Translation missing --]]
+L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
 L["TimelineNotEnabledMessage"] = "La fonctionnalité de ligne temporalle n’est pas activée."
 L["TimelineNotSupportedMessage"] = "La fonctionnalité de ligne temporalle n’est pas compatible avec cette version."
 L["TimelineOtherSize"] = "Autre taille de la ligne temporalle"
@@ -230,6 +248,10 @@ L["TimelineTextureColorDescription"] = "Définit la couleur du fond de la ligne 
 L["TimelineTextureDescription"] = "Définit la texture du fond de la ligne temporalle."
 L["TimelineTravelSize"] = "Taille de défilement de la ligne temporalle"
 L["TimelineTravelSizeDescription"] = "Définit la taille de défilement de la ligne temporalle. (Hauteur en horizontal, Largeur en vertical)"
+--[[Translation missing --]]
+L["TimelineWindow"] = "Timeline Window (seconds)"
+--[[Translation missing --]]
+L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
 L["TimingsEditorAddEntryButton"] = "Ajouter un rappel"
 L["TimingsEditorTitle"] = "Éditeur des temps pour : "
 L["TravelDirection"] = "Direction de défilement"

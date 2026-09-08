@@ -40,6 +40,10 @@ L["DeadlyEffect"] = "Letal |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::25
 L["debugMode"] = "Modo depuración"
 L["debugModeDescription"] = "Activa el modo de depuración, que muestra información adicional en la ventana de chat."
 L["DefaultCooldownColor"] = "Color del tiempo de reutilización"
+--[[Translation missing --]]
+L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
+--[[Translation missing --]]
+L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
 L["disableAllOnEncounterEnd"] = "Eliminar recordatorios activos"
 L["disableAllOnEncounterEndDescription"] = "Desactiva todos los eventos de recordatorio activos cuando termina un encuentro."
 --[[Translation missing --]]
@@ -133,6 +137,8 @@ L["InvalidTextPosition"] = "Posición de anclaje de texto no válida, por favor 
 L["InverseTravelDirection"] = "Invertir dirección de desplazamiento"
 L["InverseTravelDirectionDescription"] = "Invierte la dirección de desplazamiento de la línea temporal."
 L["MagicEffect"] = "Magia |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
+--[[Translation missing --]]
+L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
 L["OpenIconEditor"] = "Editar iconos"
 L["OpenSelectedReminderEditor"] = "Abrir editor de recordatorios"
 L["OpenSelectedReminderEditorDescription"] = "Abre el editor de recordatorios para el encuentro seleccionado."
@@ -220,6 +226,18 @@ L["TextOffsetXDescription"] = "Establece el desplazamiento X del texto en relaci
 L["TextOffsetY"] = "Desplazamiento Y del texto"
 L["TextOffsetYDescription"] = "Establece el desplazamiento Y del texto en relación con el icono."
 L["TextSettings"] = "Ajustes de texto"
+--[[Translation missing --]]
+L["TimelineBorder"] = "Timeline Border Texture"
+--[[Translation missing --]]
+L["TimelineBorderColor"] = "Timeline Border Color"
+--[[Translation missing --]]
+L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+--[[Translation missing --]]
+L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+--[[Translation missing --]]
+L["TimelineBorderSize"] = "Timeline Border Size"
+--[[Translation missing --]]
+L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
 L["TimelineNotEnabledMessage"] = "La función de línea temporal no está activada."
 L["TimelineNotSupportedMessage"] = "La función de línea temporal no es compatible con esta versión."
 L["TimelineOtherSize"] = "Otro tamaño de la línea temporal"
@@ -230,6 +248,10 @@ L["TimelineTextureColorDescription"] = "Establece el color del fondo de la líne
 L["TimelineTextureDescription"] = "Establece la textura del fondo de la línea temporal."
 L["TimelineTravelSize"] = "Tamaño de desplazamiento de la línea temporal"
 L["TimelineTravelSizeDescription"] = "Establece el tamaño de desplazamiento de la línea temporal. (Alto en horizontal, Ancho en vertical)"
+--[[Translation missing --]]
+L["TimelineWindow"] = "Timeline Window (seconds)"
+--[[Translation missing --]]
+L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
 L["TimingsEditorAddEntryButton"] = "Añadir recordatorio"
 L["TimingsEditorTitle"] = "Editor de tiempos para: "
 L["TravelDirection"] = "Dirección de desplazamiento"

@@ -40,6 +40,10 @@ L["DeadlyEffect"] = "灭团技 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::
 L["debugMode"] = "调试模式"
 L["debugModeDescription"] = "启用调试模式，将在聊天窗口输出额外信息。"
 L["DefaultCooldownColor"] = "冷却颜色"
+--[[Translation missing --]]
+L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
+--[[Translation missing --]]
+L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
 L["disableAllOnEncounterEnd"] = "禁用所有提醒信息"
 L["disableAllOnEncounterEndDescription"] = "在首领战结束时，禁用所有的事件提醒信息。"
 --[[Translation missing --]]
@@ -133,6 +137,8 @@ L["InvalidTextPosition"] = "文本锚点位置无效，请通知作者。"
 L["InverseTravelDirection"] = "反转时间轴行进方向"
 L["InverseTravelDirectionDescription"] = "反转时间轴的行进方向。"
 L["MagicEffect"] = "法术效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
+--[[Translation missing --]]
+L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
 L["OpenIconEditor"] = "编辑图标"
 L["OpenSelectedReminderEditor"] = "打开提醒编辑器"
 L["OpenSelectedReminderEditorDescription"] = "为所选首领战打开提醒编辑器。"
@@ -222,6 +228,18 @@ L["TextOffsetXDescription"] = "设置文本相对于图标的X轴位置。"
 L["TextOffsetY"] = "文本Y轴"
 L["TextOffsetYDescription"] = "设置文本相对于图标的Y轴位置。"
 L["TextSettings"] = "文本设置"
+--[[Translation missing --]]
+L["TimelineBorder"] = "Timeline Border Texture"
+--[[Translation missing --]]
+L["TimelineBorderColor"] = "Timeline Border Color"
+--[[Translation missing --]]
+L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
+--[[Translation missing --]]
+L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
+--[[Translation missing --]]
+L["TimelineBorderSize"] = "Timeline Border Size"
+--[[Translation missing --]]
+L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
 L["TimelineNotEnabledMessage"] = "时间轴功能未启用。"
 L["TimelineNotSupportedMessage"] = "此版本不支持时间轴功能。"
 L["TimelineOtherSize"] = "时间轴次要尺寸"
@@ -232,6 +250,10 @@ L["TimelineTextureColorDescription"] = "设置时间轴背景颜色。注意：�
 L["TimelineTextureDescription"] = "设置时间轴背景的材质。"
 L["TimelineTravelSize"] = "时间轴行进尺寸"
 L["TimelineTravelSizeDescription"] = "设置时间轴的行进尺寸。（水平方向时为高度，垂直方向时为宽度）"
+--[[Translation missing --]]
+L["TimelineWindow"] = "Timeline Window (seconds)"
+--[[Translation missing --]]
+L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
 L["TimingsEditorAddEntryButton"] = "添加提醒信息"
 L["TimingsEditorTitle"] = "计时编辑器："
 L["TravelDirection"] = "行进方向"

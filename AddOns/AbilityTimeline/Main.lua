@@ -160,7 +160,14 @@ function AbilityTimeline:ENCOUNTER_TIMELINE_EVENT_TRACK_CHANGED(event, eventID)
 end
 
 function AbilityTimeline:PLAYER_ENTERING_WORLD()
-    private.buildInstanceOptions()
+    if not C_AddOns.IsAddOnLoaded("Blizzard_EncounterJournal") then
+        C_AddOns.LoadAddOn("Blizzard_EncounterJournal")
+        C_Timer.After(5, function()
+            private.buildInstanceOptions()
+        end)
+    else
+        private.buildInstanceOptions()
+    end
 end
 
 function AbilityTimeline:ENCOUNTER_START(event, encounterID, encounterName, difficultyID, groupSize, playerDifficultyID)
@@ -331,10 +338,9 @@ function AbilityTimeline:CHALLENGE_MODE_START()
         if challengeMapID then
             local name, id, timeLimit, texture, backgroundTexture, mapID = C_ChallengeMode.GetMapUIInfo(challengeMapID)
             if name and timeLimit then
-                local serverTime = C_DateAndTime.GetServerTimeLocal()
-                local finishTime = serverTime + (timeLimit or 0)
-                local calenderTime = C_DateAndTime.GetCalendarTimeFromEpoch(finishTime * 1000)
-                local timeToDisplay = calenderTime.hour .. ":" .. (calenderTime.minute)
+                local calenderTime = C_DateAndTime.GetCurrentCalendarTime()
+                local adjustedTime = C_DateAndTime.AdjustTimeByMinutes(calenderTime, timeLimit / 60)
+                local timeToDisplay = adjustedTime.hour .. ":" .. (adjustedTime.minute)
                 message = private.getLocalisation("CurrentlyDoingMplusKey"):format(activeKeystoneLevel, name,
                     timeToDisplay)
             end
@@ -376,7 +382,7 @@ function AbilityTimeline:ZONE_CHANGED_NEW_AREA()
         C_EncounterTimeline.CancelScriptEvent(private.RerollKeyEventId)
         private.RerollKeyEventId = nil
     end
-    if private.db.profile.enableDNDMessage and private.db.global.active then
+    if private.db.profile.enableDNDMessage and private.db.global.active and not C_ChatInfo.InChatMessagingLockdown() then
         C_ChatInfo.SendChatMessage("", "DND")
         private.db.global.active = false
     end

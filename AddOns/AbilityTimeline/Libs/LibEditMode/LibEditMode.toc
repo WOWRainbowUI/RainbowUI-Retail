@@ -1,6 +1,6 @@
-## Interface: 120001, 20505
+## Interface: 120007, 120100, 20506
 ## Author: p3lim
-## Version: aadb7e9
+## Version: 38c9200
 ## Title: Lib: EditMode
 ## Notes: Library that allows easy frame integration with Edit Mode
 ## OptionalDeps: LibStub
