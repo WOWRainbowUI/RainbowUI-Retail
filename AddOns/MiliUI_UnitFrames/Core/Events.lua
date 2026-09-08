@@ -55,15 +55,30 @@ local UNIT_EVENT_BUCKET = {
 -- 只列帶值的：absorb 家族（UNIT_ABSORB_AMOUNT_CHANGED 等）**刻意不列** ——
 -- 護盾會持續產生事件，過期一幀下一幀就自我修復，而它們正是同幀重複派送的大宗，
 -- 去重省下來的就是它們。
+--
+-- 身分事件同理（EUI 的引擎把這組叫 IDENTITY_EVENTS，一樣繞過戳記）：名字／等級／
+-- 分類都是終點狀態，換人之後 UNIT_NAME_UPDATE 只會來一次，同幀被 info 戳記擋掉
+-- 就永遠停在舊名字。這三個事件一場戰鬥來不了幾次，多畫一次的成本可以忽略。
 local FORCE_EVENT = {
     UNIT_HEALTH = true,
     UNIT_MAXHEALTH = true,
+    UNIT_NAME_UPDATE = true,
+    UNIT_LEVEL = true,
+    UNIT_CLASSIFICATION_CHANGED = true,
 }
 
-local function RefreshUnit(unitToken, bucket, force)
+local function RefreshUnit(unitToken, bucket, force, src)
     local uf = ns.frames[unitToken]
-    if uf and uf:IsVisible() then
-        ns.Refresh(uf, bucket, force)
+    if not uf then return end
+    if uf:IsVisible() then
+        ns.Refresh(uf, bucket, force, src)
+    elseif bucket == "unitchanged" then
+        -- 這裡是「換目標之後停在舊單位」三個可能的漏點之一：事件延到下一幀才處理，
+        -- 處理時框剛好不可見（unit watch 的顯示最多慢 0.2 秒）就整次略過，
+        -- 之後全靠 OnShow 補畫。記下來，時間線上就看得到有沒有補到。
+        uf.ucSkipHidden = (uf.ucSkipHidden or 0) + 1
+        ns.LogRefresh("UC-skip(不可見) %s src=%s shown=%s gate=%s", unitToken, src or "?",
+            tostring(uf:IsShown()), tostring(uf.visGate and uf.visGate:IsShown()))
     end
 end
 
@@ -179,15 +194,19 @@ local SCOPED        -- 前置宣告：UnitReg 的處理器要查它，實體定�
 --
 -- 同一個 token 的所有事件共用一顆 frame。處理器同時服務兩種來源：
 -- SCOPED 的內部邏輯（有定義才跑）與外部訂閱者的 callback。
+local function DispatchScoped(ev, unit, ...)
+    local def = SCOPED[ev]
+    if def then def.fn(unit) end
+    ns.Fire(FIRE_KEY[ev], unit, ...)
+end
+
 local function UnitReg(event, token, token2)
     local f = unitFrames[token]
     if not f then
         f = CreateFrame("Frame")
-        f:SetScript("OnEvent", function(_, ev, unit, ...)
-            local def = SCOPED[ev]
-            if def then def.fn(unit) end
-            ns.Fire(FIRE_KEY[ev], unit, ...)
-        end)
+        -- 只記帳，工作延到下一幀（UNIT_TARGET 會在 TargetUnit 的 secure 流程裡
+        -- 同步派送）—— 見下面 ns.Defer 的說明
+        f:SetScript("OnEvent", function(_, ...) ns.Defer(DispatchScoped, ...) end)
         unitFrames[token] = f
     end
     ns.trace = "RegisterUnitEvent(" .. tostring(event) .. ")"
@@ -200,15 +219,20 @@ end
 -- 這些都是低頻事件，留在全域沒有成本問題。
 local SPECIAL = {
     PLAYER_TARGET_CHANGED = function()
-        RefreshUnit("target", "unitchanged")
-        RefreshUnit("targettarget", "unitchanged")
+        RefreshUnit("target", "unitchanged", nil, "ptc")
+        RefreshUnit("targettarget", "unitchanged", nil, "ptc")
     end,
     PLAYER_FOCUS_CHANGED = function()
-        RefreshUnit("focus", "unitchanged")
-        RefreshUnit("focustarget", "unitchanged")
+        RefreshUnit("focus", "unitchanged", nil, "pfc")
+        RefreshUnit("focustarget", "unitchanged", nil, "pfc")
     end,
+    -- 首領上場／換階段。首領的目標框也要推：bossNtarget 指到誰完全跟著 bossN 走，
+    -- 而它自己沒有任何事件。
     INSTANCE_ENCOUNTER_ENGAGE_UNIT = function()
-        for i = 1, 5 do RefreshUnit("boss" .. i, "unitchanged") end
+        for i = 1, 5 do
+            RefreshUnit("boss" .. i, "unitchanged", nil, "engage")
+            RefreshUnit("boss" .. i .. "target", "unitchanged", nil, "engage")
+        end
     end,
     -- 隊伍組成變了：影響的是隊長圖示與陣營色，不是「換人」。
     -- ⚠ 要刷**所有**框不是只刷玩家：隊長圖示畫在每個框上（目標、目標的目標、寵物都可能
@@ -222,7 +246,7 @@ local SPECIAL = {
         ns.RefreshAll("reaction")
     end,
     PLAYER_ENTERING_WORLD = function()
-        ns.RefreshAll("unitchanged")
+        ns.RefreshAll("unitchanged", "pew")
     end,
     -- 生死狀態。
     -- ⚠ 這三個是**全域**事件，不是 UNIT_ 事件，所以不會經過上面那張 unit 事件表。
@@ -245,9 +269,14 @@ local SPECIAL = {
     PLAYER_FLAGS_CHANGED = function(unit)
         RefreshUnit(unit, "reaction")
     end,
-    -- UNIT_PET：寵物換了（arg 是主人）
+    -- UNIT_PET：寵物換了（arg 是主人）。
+    -- 寵物的目標框也要跟著重畫：換了一隻寵物，"pettarget" 指向的當然是另一個單位，
+    -- 而 UNIT_TARGET 只在**寵物自己換目標**時才發。
     UNIT_PET = function(unit)
-        if unit == "player" then RefreshUnit("pet", "unitchanged") end
+        if unit == "player" then
+            RefreshUnit("pet", "unitchanged", nil, "unit_pet")
+            RefreshUnit("pettarget", "unitchanged", nil, "unit_pet")
+        end
     end,
 }
 
@@ -262,15 +291,21 @@ local SPECIAL = {
 -- 所以 ns.Events.Register("UNIT_TARGET", …) 不可以再把它掛上全域 —— 由下面
 -- unitScoped 的守衛擋掉。
 ------------------------------------------------------------
+-- ⚠ tokens 可以超過兩個：`RegisterUnitEvent` 一次最多吃兩個 token，所以 Start()
+-- 是**兩個一組**分批註冊的（見那裡）。每一組自成一顆 frame，不會重複派送。
+local TARGET_FRAME_OF = {
+    target = "targettarget", focus = "focustarget", pet = "pettarget",
+}
+for i = 1, 5 do TARGET_FRAME_OF["boss" .. i] = "boss" .. i .. "target" end
+
 SCOPED = {
     UNIT_TARGET = {
-        tokens = { "target", "focus" },
+        -- ⚠ 這裡的順序決定下面怎麼兩個一組分批註冊，但**分組本身沒有意義** ——
+        -- 純粹是 RegisterUnitEvent 一次只吃兩個 token 的產物，派送時只看 unit 參數。
+        tokens = { "target", "focus", "pet", "boss1", "boss2", "boss3", "boss4", "boss5" },
         fn = function(unit)
-            if unit == "target" then
-                RefreshUnit("targettarget", "unitchanged")
-            elseif unit == "focus" then
-                RefreshUnit("focustarget", "unitchanged")
-            end
+            local key = TARGET_FRAME_OF[unit]
+            if key then RefreshUnit(key, "unitchanged", nil, "unit_target") end
         end,
     },
 }
@@ -312,6 +347,15 @@ for event in pairs(SCOPED) do unitScoped[event] = true end
 local qA, qB = {}, {}
 local queue, queueN, queueQueued = qA, 0, false
 
+-- 這幾個是「換單位」的來源，進時間線（ns.LogRefresh）。收到與 flush 各記一行，
+-- 中間隔了幾幀、flush 當下目標框可不可見，全部看得到。其餘全域事件不記。
+local JOURNAL_EVENT = {
+    PLAYER_TARGET_CHANGED = "PTC",
+    PLAYER_FOCUS_CHANGED = "PFC",
+    INSTANCE_ENCOUNTER_ENGAGE_UNIT = "ENGAGE",
+    -- UNIT_PET 刻意不記：它是全域註冊，團隊裡任何人換寵物都會來，會把時間線洗掉
+}
+
 local function FlushGlobalEvents()
     queueQueued = false
     local run, n = queue, queueN
@@ -321,8 +365,17 @@ local function FlushGlobalEvents()
         local a = run[i]
         run[i] = nil
         local event = a.event
+        local tag = JOURNAL_EVENT[event]
+        if tag then
+            local tf = ns.frames.target
+            ns.LogRefresh("evt %s flush 延遲=%.3fs 批次=%d/%d 目標框可見=%s", tag,
+                GetTime() - a.t, i, n, tostring(tf and tf:IsVisible()))
+        end
         local special = SPECIAL[event]
-        if special then special(unpack(a, 1, a.n)) end
+        -- ⚠ 逐筆隔離（同 FlushDeferred）。這個迴圈以前是裸呼叫：同一批裡排前面的
+        -- 一筆拋錯，後面的整批就靜默丟掉 —— 而 C_Timer 裡的錯誤在 scriptErrors 關著
+        -- 時完全無聲。PLAYER_TARGET_CHANGED 被這樣吃掉一次，目標框就停在上一個單位。
+        if special then xpcall(special, ns.ReportError, unpack(a, 1, a.n)) end
         if externalEvents[event] then
             ns.Fire(FIRE_KEY[event], unpack(a, 1, a.n))
         end
@@ -334,6 +387,10 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     -- 這裡**只做記帳**，真正的工作在下一幀 —— 見上面那段的說明
     local a = { n = select("#", ...), ... }
     a.event = event
+    a.t = GetTime()
+    if JOURNAL_EVENT[event] then
+        ns.LogRefresh("evt %s 收到", JOURNAL_EVENT[event])
+    end
     queueN = queueN + 1
     queue[queueN] = a
     if not queueQueued then
@@ -342,14 +399,60 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     end
 end)
 
+------------------------------------------------------------
+-- 通用「丟到下一幀」
+--
+-- 給那些**不走全域 eventFrame**、但一樣可能在暴雪的 secure 流程裡被同步呼叫的入口用：
+--   * unit 範圍的事件 frame（UnitReg）：UNIT_TARGET 在 TargetUnit 流程裡同步派送
+--   * 施法條的事件 frame（Elements/Castbar.lua）：UNIT_SPELLCAST_FAILED 在 UseAction
+--     裡同步派送（技能按不出去的那一下）、UNIT_TARGET 在按 Tab 選目標時同步派送
+--   * OnAttributeChanged／OnShow／OnHide 掛在 secure 單位框上的 HookScript：
+--     RegisterUnitWatch 的 Show()／SetAttribute("statehidden") 從安全端呼叫
+-- 2026-09-05：8/30 只把全域 frame 延了，這幾個入口漏掉，戰鬥中快捷列按鈕的
+-- SetAttribute 照樣被封鎖、記在我們頭上。
+--
+-- 規矩同上面那段：不去重、參數整包留著、雙緩衝。每筆各自 xpcall 隔離，
+-- 一筆炸掉不能拖垮同一幀後面的。
+------------------------------------------------------------
+local dA, dB = {}, {}
+local dq, dqN, dqQueued = dA, 0, false
+
+local function FlushDeferred()
+    dqQueued = false
+    local run, n = dq, dqN
+    dq = (run == dA) and dB or dA
+    dqN = 0
+    for i = 1, n do
+        local a = run[i]
+        run[i] = nil
+        xpcall(a.fn, ns.ReportError, unpack(a, 1, a.n))
+    end
+end
+
+function ns.Defer(fn, ...)
+    local a = { n = select("#", ...), ... }
+    a.fn = fn
+    dqN = dqN + 1
+    dq[dqN] = a
+    if not dqQueued then
+        dqQueued = true
+        C_Timer.After(0, FlushDeferred)
+    end
+end
+
 function ns.Events.Start()
     -- UNIT_EVENT_BUCKET 的事件**不在這裡註冊**：它們走 ns.Events.AttachUnit 的
     -- per-token tracker。同時上全域會被送兩次。
     for event in pairs(SPECIAL) do Reg(event) end
 
-    -- unit 範圍的內部事件：C 端就把不相干的單位過濾掉
+    -- unit 範圍的內部事件：C 端就把不相干的單位過濾掉。
+    -- ⚠ RegisterUnitEvent 一次最多兩個 token，所以兩個一組分批註冊。UnitReg 的
+    --   frame 是拿**該組第一個** token 當鍵，各組一顆 frame、過濾範圍不重疊 ⇒
+    --   不會有同一個事件被送兩次的問題。
     for event, def in pairs(SCOPED) do
-        UnitReg(event, def.tokens[1], def.tokens[2])
+        for i = 1, #def.tokens, 2 do
+            UnitReg(event, def.tokens[i], def.tokens[i + 1])
+        end
         unitScoped[event] = true
         for _, token in ipairs(def.tokens) do
             unitRegistered[event .. "/" .. token] = true
@@ -463,8 +566,9 @@ function ns.Metro.Bind(uf, key, interval, fn)
         local function syncAll()
             for _, s in pairs(uf.metroBound) do s() end
         end
-        uf:HookScript("OnShow", syncAll)
-        uf:HookScript("OnHide", syncAll)
+        -- Show()/Hide() 是 RegisterUnitWatch 從安全端呼叫的，掛勾裡不做事，丟到下一幀
+        uf:HookScript("OnShow", function() ns.Defer(syncAll) end)
+        uf:HookScript("OnHide", function() ns.Defer(syncAll) end)
     end
     sync()
 end

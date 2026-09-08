@@ -7,38 +7,51 @@ local L = ns.L          -- Locales\Locale.lua 在 TOC 排在本檔之前
 
 ns.ADDON_NAME  = ADDON
 ns.VERSION     = C_AddOns.GetAddOnMetadata(ADDON, "Version") or "dev"
-ns.DB_VERSION  = 17          -- schemaVersion，遷移鏈用（DB.Migrate 加條目時一起 bump）
+ns.DB_VERSION  = 18          -- schemaVersion，遷移鏈用（DB.Migrate 加條目時一起 bump）
                              -- ⚠ 沒有 12：開發期間推到 12 又整包丟掉，本機 SV 的
                              -- schemaVersionSeen 記著 12，重用會讓那步遷移被靜默跳過
 
 -- 支援的單位（spawn 順序）
 ns.UNITS = {
-    "player", "target", "targettarget", "focus", "focustarget", "pet",
+    "player", "target", "targettarget", "focus", "focustarget", "pet", "pettarget",
     "boss1", "boss2", "boss3", "boss4", "boss5",
+    "boss1target", "boss2target", "boss3target", "boss4target", "boss5target",
 }
 
--- unit token → DB key（boss1-5 共用一份設定）
+-- unit token → DB key（boss1-5 共用一份設定，boss1-5target 也是）
 ns.UNIT_KEYS = {
     player = "player", target = "target", targettarget = "targettarget",
-    focus = "focus", focustarget = "focustarget", pet = "pet",
+    focus = "focus", focustarget = "focustarget",
+    pet = "pet", pettarget = "pettarget",
     boss1 = "boss", boss2 = "boss", boss3 = "boss", boss4 = "boss", boss5 = "boss",
+    boss1target = "bosstarget", boss2target = "bosstarget", boss3target = "bosstarget",
+    boss4target = "bosstarget", boss5target = "bosstarget",
 }
+
+-- 一份設定對應多個框的單位（框自己帶 bossIndex，第 2 格起依 growth/spacing 排）。
+-- 設定面板的「多個首領的排列」那一節、預覽的三顆孿生、SpawnUnitFrame 的 bossIndex
+-- 都問這張表 —— 以前是三處各寫一次 `unitKey == "boss"`，加第二個就得三處都記得改。
+ns.MULTI_UNIT_KEYS = { boss = true, bosstarget = true }
 
 -- 全域框架名（其他插件靠這些名字整合，例如 MiliUI Focuser）
 ns.GLOBAL_NAMES = {
     player = "MiliUIUF_Player", target = "MiliUIUF_Target",
     targettarget = "MiliUIUF_TargetTarget",
     focus = "MiliUIUF_Focus", focustarget = "MiliUIUF_FocusTarget",
-    pet = "MiliUIUF_Pet",
+    pet = "MiliUIUF_Pet", pettarget = "MiliUIUF_PetTarget",
     boss1 = "MiliUIUF_Boss1", boss2 = "MiliUIUF_Boss2", boss3 = "MiliUIUF_Boss3",
     boss4 = "MiliUIUF_Boss4", boss5 = "MiliUIUF_Boss5",
+    boss1target = "MiliUIUF_Boss1Target", boss2target = "MiliUIUF_Boss2Target",
+    boss3target = "MiliUIUF_Boss3Target", boss4target = "MiliUIUF_Boss4Target",
+    boss5target = "MiliUIUF_Boss5Target",
 }
 
 -- 單位顯示名（設定介面用）
 ns.UNIT_LABELS = {
     player = L["Player"], target = L["Target"], targettarget = L["Target of Target"],
-    focus = L["Focus"], focustarget = L["Focus Target"], pet = L["Pet"],
-    boss = L["Boss"], totem = L["Summons"],
+    focus = L["Focus"], focustarget = L["Focus Target"],
+    pet = L["Pet"], pettarget = L["Pet Target"],
+    boss = L["Boss"], bosstarget = L["Boss Target"], totem = L["Summons"],
 }
 
 ns.frames = {}          -- [unitToken] = uf
@@ -47,12 +60,42 @@ ns.playerClass = select(2, UnitClass("player"))   -- player token 不受 12.1 �
 -- 聊天前綴與暴雪設定頁標題共用，跟 TOC 的 [頭像] 標籤同色
 ns.PREFIX_COLOR = "|cff4DD2FF"
 
+-- 環狀 log：只留最近 max 筆，每筆帶 GetTime 戳記（%1000 讓數字短一點）。
+-- ⚠ 參數裡可能有秘密值：string.format 遇到秘密值會拋錯，所以包 pcall，
+--   炸了就退回印 fmt 本身，log 函式自己絕對不能拋錯。
+local function RingLog(list, max, fmt, ...)
+    local ok, line = pcall(string.format, fmt, ...)
+    tinsert(list, ("[%.2f] %s"):format(GetTime() % 1000, ok and line or fmt))
+    if #list > max then tremove(list, 1) end
+end
+
 -- 點擊／開窗流程 log（抓「點小地圖鈕沒開起來」用），/muf debug 印出
 ns.clickLog = {}
 function ns.LogClick(fmt, ...)
-    local ok, line = pcall(string.format, fmt, ...)
-    tinsert(ns.clickLog, ("[%.2f] %s"):format(GetTime() % 1000, ok and line or fmt))
-    if #ns.clickLog > 40 then tremove(ns.clickLog, 1) end
+    RingLog(ns.clickLog, 40, fmt, ...)
+end
+
+------------------------------------------------------------
+-- 重畫時間線
+--
+-- 抓「換目標之後名字／頭像停在上一個單位」這類問題用。那類症狀的本質是
+-- 「unitchanged 那次全量重畫沒有跑」，而它可能在三個地方被吃掉：
+-- RefreshUnit 的可見度閘、同幀戳記去重、延到下一幀的事件 flush。三處各自
+-- 記一行，加上「重畫當下看到的是誰」，事後就能對出是哪一道閘。
+--
+-- 只記 unitchanged 相關（換目標／顯示／閘框／輪詢／事件排程），數值桶不記——
+-- 那些每秒幾十次，記了只會把有用的行擠掉。
+------------------------------------------------------------
+ns.refreshLog = {}
+function ns.LogRefresh(fmt, ...)
+    RingLog(ns.refreshLog, 60, fmt, ...)
+end
+
+-- 秘密值印不出來，記 log 時一律先過這層：秘密 → "<secret>"，nil → "nil"
+function ns.LogStr(v)
+    if v == nil then return "nil" end
+    if ns.IsSecret(v) then return "<secret>" end
+    return tostring(v)
 end
 
 ------------------------------------------------------------
