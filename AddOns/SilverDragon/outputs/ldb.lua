@@ -40,7 +40,7 @@ function module:OnInitialize()
 
 	local config = core:GetModule("Config", true)
 	if config then
-		config.options.plugins.broker = {
+		config.options.args.general.plugins.broker = {
 			broker = {
 				type = "group",
 				name = "Icon",
@@ -195,6 +195,18 @@ function module:SetupDataObject()
 	end
 end
 
+-- Returns whether the menu opened, so the click can fall back to the config.
+function module:ShowWorldMapMenu(owner)
+	local overlay = core:GetModule("Overlay", true)
+	if not (overlay and overlay.ShowDisplayMenu) then return end
+	-- the hover tooltip is still up (the mouse hasn't left the button) and would
+	-- sit over the menu
+	if tooltip then
+		LibQTip:Release(tooltip)
+	end
+	return overlay:ShowDisplayMenu(owner)
+end
+
 function module:SetupWorldMap()
 	local button
 	if WorldMapFrame.AddOverlayFrame and WorldMapFrame.NavBar then
@@ -231,10 +243,13 @@ function module:SetupWorldMap()
 			if not button.options.config_path then
 				button.options.config_path = {'overlay'}
 				button.options.help = {
-					"Click to toggle map icons",
-					"Shift-click to toggle map icons for this zone only",
+					"Left-click to toggle map icons",
+					"Shift-left-click to toggle them for this zone only",
+					"Right-click for what to show",
 				}
-				tAppendAll(button.options.help, default_help)
+				if core.debuggable then
+					table.insert(button.options.help, "Shift-right-click to view debug information")
+				end
 			end
 		else
 			button.options.help = {
@@ -274,6 +289,9 @@ function module:SetupWorldMap()
 			end
 			overlay:UpdateWorldMapIcons()
 			self:Refresh()
+			return
+		end
+		if overlay and mButton == "RightButton" and not IsShiftKeyDown() and module:ShowWorldMapMenu(self) then
 			return
 		end
 		dataobject.OnClick(self, mButton)
@@ -515,20 +533,20 @@ do
 				end
 			end
 			if ns.mobdb[mobid].requires then
-			    local metRequirements = ns.conditions.check(ns.mobdb[mobid].requires)
-			    local r, g, b = (metRequirements and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
-			    GameTooltip:AddLine(
-			        core:RenderString(ns.conditions.summarize(ns.mobdb[mobid].requires), ns.mobdb[mobid]),
-			        r, g, b, true
-			    )
+			    local summary = ns.conditions.summarize(ns.mobdb[mobid].requires)
+			    if summary then
+			        local metRequirements = ns.conditions.check(ns.mobdb[mobid].requires)
+			        local r, g, b = (metRequirements and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
+			        GameTooltip:AddLine(core:RenderString(summary, ns.mobdb[mobid]), r, g, b, true)
+			    end
 			end
 			if ns.mobdb[mobid].active then
-			    local isActive = ns.conditions.check(ns.mobdb[mobid].active)
-			    local r, g, b = (isActive and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
-			    GameTooltip:AddLine(
-			        core:RenderString(ns.conditions.summarize(ns.mobdb[mobid].active), ns.mobdb[mobid]),
-			        r, g, b, true
-			    )
+			    local summary = ns.conditions.summarize(ns.mobdb[mobid].active)
+			    if summary then
+			        local isActive = ns.conditions.check(ns.mobdb[mobid].active)
+			        local r, g, b = (isActive and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
+			        GameTooltip:AddLine(core:RenderString(summary, ns.mobdb[mobid]), r, g, b, true)
+			    end
 			end
 		end
 		if not _G.C_TooltipInfo then

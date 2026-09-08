@@ -71,7 +71,7 @@ local itemBindOnEquip = function(item)
 		-- minute after a login is a worse trade than an extra mention.
 		return true
 	end
-	return bindType == Enum.ItemBind.OnEquip or bindType == Enum.ItemBind.OnUse
+	return bindType == Enum.ItemBind.OnEquip or bindType == Enum.ItemBind.OnUse or bindType == Enum.ItemBind.None
 end
 
 ns.Loot = {}
@@ -79,7 +79,7 @@ ns.Loot = {}
 
 function ns.Loot.GetLootTable(id, treasure, shared)
 	if not id then return end
-	local data = ns[treasure and "vignetteTreasureLookup" or "mobdb"][id]
+	local data = core:GetData(id, treasure)
 	if not data then return end
 	if shared then
 		return data.loot_shared
@@ -298,10 +298,11 @@ ns.Loot.Details = {}
 
 local showRestrictions = function(tooltip, item)
 	if not ns.IsA(item, ns.rewards.Reward) then return end
-	if item.requires then
+	local summary = item.requires and core.conditions.summarize(item.requires)
+	if summary then
 		local active = core.conditions.check(item.requires)
 		tooltip:AddLine(
-			core:RenderString(core.conditions.summarize(item.requires)),
+			core:RenderString(summary),
 			(active and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
 		)
 	end
@@ -467,6 +468,7 @@ do
 		if button.RestrictionIcon then
 			button.RestrictionIcon:Hide()
 			button.KnownIcon:Hide()
+			button.NotableOverlay:Hide()
 		end
 		button.lootdata = nil
 		button:SetScale(1)
@@ -486,10 +488,20 @@ do
 					self.item = item
 					self.itemID = itemID
 					SetItemButtonTexture(button, icon)
+					-- classic wouldn't actually do this part, but...
+					local quality = C_Item.GetItemQualityByID(item)
+					if quality then
+						local r, g, b = C_Item.GetItemQualityColor(quality)
+						button.IconBorder:Show()
+						button.IconBorder:SetVertexColor(r, g, b)
+					else
+						button.IconBorder:Hide()
+					end
 				else
 					self.item = nil
 					self.itemID = nil
 					SetItemButtonTexture(button, false)
+					button.IconBorder:Hide()
 				end
 			end
 			function button:GetItem()
@@ -691,12 +703,22 @@ do
 				button:SetScript("OnClick", button_onclick)
 				button:SetScript("OnEnter", button_onenter)
 				button:SetScript("OnLeave", button_onleave)
-				local sublevel = 4
-				if button.IconOverlay then
-					sublevel = select(2, button.IconOverlay:GetDrawLayer()) + 1
-				end
+				local sublevel = 1 + math.max(
+					2,
+					button.IconOverlay and select(2, button.IconOverlay:GetDrawLayer()) or -1,
+					button.IconOverlay2 and select(2, button.IconOverlay2:GetDrawLayer()) or -1
+				)
+				button.NotableOverlay = button:CreateTexture(nil, "OVERLAY", nil,
+					-- This should be under the cosmetic overlay if it's present
+					(button.IconOverlay and select(2, button.IconOverlay:GetDrawLayer()) or sublevel) - 1
+				)
+				-- arranged just outside the IconBorder:
+				button.NotableOverlay:SetPoint("TOPLEFT", -4, 4)
+				button.NotableOverlay:SetPoint("BOTTOMRIGHT", 4, -4)
+				-- Top right interior
 				button.RestrictionIcon = button:CreateTexture(nil, "OVERLAY", nil, sublevel)
 				button.RestrictionIcon:SetPoint("TOPRIGHT", 4, 4)
+				-- Bottom right interior
 				button.KnownIcon = button:CreateTexture(nil, "OVERLAY", nil, sublevel)
 				button.KnownIcon:SetPoint("BOTTOMRIGHT", 4, -4)
 				button.KnownIcon:SetSize(16, 16)
@@ -711,6 +733,11 @@ do
 				item:AddToItemButton(button)
 				button.lootdata = item
 
+				if item:Notable() then
+					button.NotableOverlay:SetAtlas("transmog-frame-pink")
+					button.NotableOverlay:SetVertexColor(item:NotableColor():GetRGB())
+					button.NotableOverlay:Show()
+				end
 				-- TODO: show icon for spec if GetItemSpecInfo says it doesn't drop for the current spec
 				if item.covenant and covenants[item.covenant] then
 					button.RestrictionIcon:SetAtlas(("covenantchoice-panel-sigil-%s"):format(covenants[item.covenant]))

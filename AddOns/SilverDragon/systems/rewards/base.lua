@@ -111,9 +111,15 @@ function Reward:TooltipNameColor()
 	return NORMAL_FONT_COLOR
 end
 function Reward:TooltipLabel() return UNKNOWN end
+-- What colour says "you want this". Split out from the tooltip label so that
+-- anything else marking a reward as wanted uses the same one, rather than the
+-- two drifting apart and reading as different things.
+function Reward:NotableColor()
+	return self.NOTABLE_COLOR
+end
 function Reward:TooltipLabelColor()
 	if ns.db.show_npcs_emphasizeNotable and self:Notable() then
-		return self.NOTABLE_COLOR
+		return self:NotableColor()
 	end
 	return NORMAL_FONT_COLOR
 end
@@ -280,4 +286,58 @@ end
 function ns.rewards.BattlePet:Cache()
 	self:super("Cache")
 	if C_PetJournal then C_PetJournal.GetPetInfoBySpeciesID(self.id) end
+end
+
+ns.rewards.GarrisonFollower = Reward:extends({classname="Follower"})
+function ns.rewards.GarrisonFollower:Name(color)
+	local follower = C_Garrison.GetFollowerInfo(self.id)
+	if follower then
+		local name = follower.name
+		if color then
+			local qualityColor = BAG_ITEM_QUALITY_COLORS[follower.quality]
+			name = qualityColor:WrapTextInColorCode(follower.name)
+		end
+		return name
+	end
+	return self:super("Name", color)
+end
+function ns.rewards.GarrisonFollower:Icon()
+	local follower = C_Garrison.GetFollowerInfo(self.id)
+	if follower then
+		return follower.portraitIconID
+	end
+	return self:super("Icon")
+end
+function ns.rewards.GarrisonFollower:TooltipLabel() return REWARD_FOLLOWER end
+function ns.rewards.GarrisonFollower:AddToTooltip(tooltip)
+	self:super("AddToTooltip", tooltip)
+	local follower = C_Garrison.GetFollowerInfo(self.id)
+	if follower then
+		tooltip:AddDoubleLine(
+			" ",
+			PARENS_TEMPLATE:format(
+				TEXT_MODE_A_STRING_VALUE_SCHOOL:format(
+					follower.className,
+					UNIT_LEVEL_TEMPLATE:format(follower.level)
+				)
+			)
+		)
+	end
+end
+--[[
+-- If SetHyperlink ever starts to accept garrfollower tooltips...
+function ns.rewards.GarrisonFollower:SetTooltip(tooltip)
+	tooltip:SetHyperlink("garrfollower:"..self.id)
+end
+--]]
+function ns.rewards.GarrisonFollower:Obtained(...)
+	if self:super("Obtained", ...) == false then return false end
+	local follower = C_Garrison.GetFollowerInfo(self.id)
+	if follower then
+		return follower.isCollected or false
+	end
+end
+function ns.rewards.GarrisonFollower:Cache()
+	self:super("Cache")
+	C_Garrison.GetFollowerInfo(self.id)
 end

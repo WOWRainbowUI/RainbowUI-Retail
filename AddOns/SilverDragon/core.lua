@@ -131,6 +131,89 @@ ns.vignetteMobLookup = vignetteMobLookup
 ns.vignetteTreasureLookup = {
 	-- [vignetteid] = { data },
 }
+ns.treasureByZone = {
+	-- [zoneid] = { [vignetteid] = {coord, ...}, ... }
+}
+
+-- Deliberately not an and/or chain: a treasure that isn't registered must come
+-- back nil, not fall through to whatever mob shares its number.
+function addon:GetData(id, isTreasure)
+	if isTreasure then
+		return ns.vignetteTreasureLookup[id]
+	end
+	return mobdb[id]
+end
+
+-- Most imported treasures carry no label: the HandyNotes plugin they come from
+-- reads the name off the live vignette, which a map pin never has. This follows
+-- the same fallbacks as work_out_label in that plugin's handler, so the two name
+-- a point the same way. Steps it has that we don't carry data for (follower,
+-- currency, npc) are left out; a currency arrives as loot and is named there.
+-- Unresolved ids degrade to "achievement:63359.115313" rather than UNKNOWN,
+-- which says what to go and look up.
+function addon:GetTreasureLabel(id)
+	local data = self:GetData(id, true)
+	if not data then
+		return UNKNOWN
+	end
+	if data.name then
+		-- parens: drop the substitution count gsub returns alongside the string
+		return (self:RenderString(data.name, data))
+	end
+	local fallback
+	if data.achievement and data.criteria and data.criteria ~= true then
+		-- one criteria is the same as a list of one, and naming them is
+		-- all-or-nothing: a partial list would read as a shorter point
+		local ids = type(data.criteria) == "table" and data.criteria or {data.criteria}
+		local named = {}
+		for _, criteriaid in ipairs(ids) do
+			local criteria = ns.GetCriteria(data.achievement, criteriaid)
+			if criteria then
+				table.insert(named, criteria)
+			end
+		end
+		if #named == #ids then
+			return string.join(', ', unpack(named))
+		end
+		fallback = 'achievement:'..data.achievement..'.'..string.join('+', unpack(ids))
+	end
+	if data.loot and #data.loot > 0 then
+		local name = data.loot[1]:Name(true)
+		if name then
+			return name
+		end
+		fallback = 'item:'..data.loot[1].id
+	end
+	if data.achievement and (not data.criteria or data.criteria == true) then
+		local _, achievement = GetAchievementInfo(data.achievement)
+		if achievement then
+			return achievement
+		end
+		fallback = 'achievement:'..data.achievement
+	end
+	return fallback or UNKNOWN
+end
+
+function addon:GetLabel(id, isTreasure)
+	if isTreasure then
+		return self:GetTreasureLabel(id)
+	end
+	return self:GetMobLabel(id)
+end
+
+-- Shared tail of every register path. Safe to re-run: upgradeloot skips entries
+-- that are already Reward objects, and RegisterMobAchievement no-ops on repeat.
+local function normalizeMobEntry(id, entry)
+	entry.loot = ns.upgradeloot(entry.loot)
+	entry.loot_shared = ns.upgradeloot(entry.loot_shared)
+	if entry.achievement and entry.criteria then
+		ns:RegisterMobAchievement(id, entry.achievement, entry.criteria)
+	end
+end
+local function normalizeTreasureEntry(entry)
+	entry.loot = ns.upgradeloot(entry.loot)
+	entry.loot_shared = ns.upgradeloot(entry.loot_shared)
+end
 function addon:RegisterMobData(source, data, updated)
 	if not updated then
 		if not self.HASWARNEDABOUTOLDDATA then
@@ -141,17 +224,8 @@ function addon:RegisterMobData(source, data, updated)
 	end
 	if not addon.datasources[source] then addon.datasources[source] = {} end
 	MergeTable(addon.datasources[source], data)
-	-- pick up achievements if needed
 	for mobid, mobdata in pairs(data) do
-		if mobdata.achievement and mobdata.criteria then
-			if not ns.achievements[mobdata.achievement] then
-				ns.achievements[mobdata.achievement] = {}
-			end
-			ns.achievements[mobdata.achievement][mobid] = mobdata.criteria
-			ns:RegisterMobAchievement(mobid, mobdata.achievement)
-		end
-		mobdata.loot = ns.upgradeloot(mobdata.loot)
-		mobdata.loot_shared = ns.upgradeloot(mobdata.loot_shared)
+		normalizeMobEntry(mobid, mobdata)
 	end
 end
 function addon:RegisterTreasureData(source, data, updated)
@@ -159,22 +233,29 @@ function addon:RegisterTreasureData(source, data, updated)
 	if not addon.treasuresources[source] then addon.treasuresources[source] = {} end
 	MergeTable(addon.treasuresources[source], data)
 	for vignetteid, vignettedata in pairs(data) do
-		vignettedata.loot = ns.upgradeloot(vignettedata.loot)
-		vignettedata.loot_shared = ns.upgradeloot(vignettedata.loot_shared)
+		normalizeTreasureEntry(vignettedata)
 	end
 end
 do
-	-- HandyNotes' point.faction means "faction required to see this". SilverDragon's
-	-- own data.faction means the opposite, "faction this belongs to", so flip it here.
-	local opposingFaction = {Horde="Alliance", Alliance="Horde"}
-
-	-- a treasure can have several vignettes, the same as a mob can
+	-- a treasure can have several vignettes, the same as a mob can. module.lua
+	-- loads before the zone files, so last-wins lets a zone entry -- which is
+	-- coord-keyed and has real locations -- replace a barer curated one.
 	local function addTreasureVignettes(treasures, data, ...)
 		for i=1, select("#", ...) do
 			local vignetteID = select(i, ...)
 			treasures[vignetteID] = data
 		end
 	end
+	-- Fold my HandyNotes plugin point format into datasources/treasuresources.
+	-- The field mapping is the `data` table below; the non-obvious parts: a point
+	-- with `npc` is a rare and most everything else we take is a treasure (see
+	-- the guard below), and a treasure is keyed by its vignette if it has one and
+	-- by zone+coord if it doesn't. ns.foldConditions turns the older visibility
+	-- keys (faction, level, requires_item, art, poi, ...) into conditions on
+	-- `requires`/`hide_before`, which combineRequires then merges into one gate.
+	--
+	-- `atlas`/`texture`/`scale` are only honoured for treasures. Rares draw from
+	-- MobState, which ranks what's left on them, and a fixed icon would hide that.
 	function addon:RegisterHandyNotesData(source, uiMapID, points, defaults)
 		-- convenience for me, really...
 		addon.datasources[source] = addon.datasources[source] or {}
@@ -182,25 +263,31 @@ do
 		if defaults then
 			local nodeType = ns.nodeMaker(defaults)
 			for coord, point in pairs(points) do
-			    points[coord] = nodeType(point)
+				points[coord] = nodeType(point)
 			end
 		end
 		for coord, point in pairs(points) do
-			if point.npc or point.vignette then
+			-- npc means a rare; a vignette, completion tracking, or plain loot
+			-- means a treasure -- the same split the plugins' own overlay makes,
+			-- vendors included. A questless loot-only point still drops off the
+			-- map once its knowable loot is collected. Points with none of these
+			-- are flightpaths, portals and map links, which aren't ours to show.
+			if point.npc or point.vignette or point.quest or point.criteria or point.achievement or point.loot then
+				ns.foldConditions(uiMapID, point)
 				local data = {
 					name=point.label,
 					locations={[uiMapID]={coord}},
-					loot=ns.upgradeloot(point.loot),
-					loot_shared=ns.upgradeloot(point.loot_shared),
+					loot=point.loot,
+					loot_shared=point.loot_shared,
 					notes=point.note,
 					active=point.active,
-					requires=point.requires or point.hide_before,
+					requires=ns.combineRequires(point.requires, point.hide_before),
 					vignette=point.vignette,
 					quest=point.quest,
 					hidden=point.hidden,
 					worldquest=point.worldquest,
 					achievement=point.achievement, criteria=point.criteria,
-					faction=point.faction and opposingFaction[point.faction],
+					atlas=point.atlas, texture=point.texture, scale=point.scale,
 				}
 				-- variations on "also register this elsewhere":
 				if point.translate or point.parent or point.levels then
@@ -256,32 +343,111 @@ do
 					data.routes = {[uiMapID] = point.routes}
 				end
 				if point.npc then
-					if not addon.datasources[source][point.npc] then
+					normalizeMobEntry(point.npc, data)
+					local existing = addon.datasources[source][point.npc]
+					if not existing then
 						addon.datasources[source][point.npc] = data
 					else
-						if not addon.datasources[source][point.npc].locations[uiMapID] then
-							addon.datasources[source][point.npc].locations[uiMapID] = data.locations[uiMapID]
-						else
-							for _, pcoord in ipairs(data.locations[uiMapID]) do
-								tInsertUnique(addon.datasources[source][point.npc].locations[uiMapID], pcoord)
+						-- Same mob, another point
+						if existing.requires ~= data.requires then
+							-- If conditions differ between points, record that for later display
+							existing.locationRequires = existing.locationRequires or {}
+							if existing.requires ~= nil then
+								for tzone, coords in pairs(existing.locations) do
+									local gated = existing.locationRequires[tzone] or {}
+									existing.locationRequires[tzone] = gated
+									for _, c in ipairs(coords) do
+										if gated[c] == nil then gated[c] = existing.requires end
+									end
+								end
+								existing.requires = nil
+							end
+							if data.requires ~= nil then
+								for tzone, coords in pairs(data.locations) do
+									local gated = existing.locationRequires[tzone] or {}
+									existing.locationRequires[tzone] = gated
+									for _, c in ipairs(coords) do
+										gated[c] = data.requires
+									end
+								end
 							end
 						end
-					end
-					if point.achievement and point.criteria then
-						if not ns.achievements[point.achievement] then
-							ns.achievements[point.achievement] = {}
+						if not existing.locations[uiMapID] then
+							-- e.g. Zandalari Warscout in Mists is in multiple zones
+							existing.locations[uiMapID] = data.locations[uiMapID]
+						else
+							for _, pcoord in ipairs(data.locations[uiMapID]) do
+								tInsertUnique(existing.locations[uiMapID], pcoord)
+							end
 						end
-						ns.achievements[point.achievement][point.npc] = point.criteria
-						ns:RegisterMobAchievement(point.npc, point.achievement)
+						if data.routes then
+							existing.routes = existing.routes or {}
+							existing.routes[uiMapID] = data.routes[uiMapID]
+						end
 					end
 				else
-					addTreasureVignettes(addon.treasuresources[source], data, ns.safe_unpack(point.vignette))
+					normalizeTreasureEntry(data)
+					if point.vignette then
+						addTreasureVignettes(addon.treasuresources[source], data, ns.safe_unpack(point.vignette))
+					else
+						-- No vignette, so no natural id: key it by zone and coord the
+						-- way the plugins key their own points. The result sits well
+						-- above the vignette-id range, so it can share the treasure
+						-- lookup without the scanner mistaking it for a real vignette.
+						addon.treasuresources[source][(uiMapID * 1e9) + coord] = data
+					end
+				end
+			end
+		end
+		-- The plugins use this for treasures they only ever want shown as a
+		-- vignette, never as a map pin: the entries carry no coordinates. Here
+		-- that's just another treasure source. Called from zone files, after
+		-- module.lua, so these replace any curated entry for the same vignette.
+		function addon:RegisterHandyNotesVignettes(source, uiMapID, vignettes, defaults)
+			addon.treasuresources[source] = addon.treasuresources[source] or {}
+			if defaults then
+				local nodeType = ns.nodeMaker(defaults)
+				for vignetteID, point in pairs(vignettes) do
+					vignettes[vignetteID] = nodeType(point)
+				end
+			end
+			for vignetteID, point in pairs(vignettes) do
+				if not point.hidden then
+					ns.foldConditions(uiMapID, point)
+					local data = {
+						name=point.label,
+						loot=point.loot,
+						loot_shared=point.loot_shared,
+						notes=point.note,
+						active=point.active,
+						requires=ns.combineRequires(point.requires, point.hide_before),
+						vignette=vignetteID,
+						quest=point.quest,
+						worldquest=point.worldquest,
+						achievement=point.achievement, criteria=point.criteria,
+					}
+					normalizeTreasureEntry(data)
+					addon.treasuresources[source][vignetteID] = data
 				end
 			end
 		end
 	end
 end
 do
+	local function mergeLocations(lookup, id, locations)
+		if not locations then return end
+		for uiMapID, coords in pairs(locations) do
+			if not lookup[uiMapID] then
+				lookup[uiMapID] = {}
+			end
+			if not lookup[uiMapID][id] then
+				lookup[uiMapID][id] = {}
+			end
+			for _, coord in ipairs(coords) do
+				lookup[uiMapID][id][coord] = true
+			end
+		end
+	end
 	local function addQuestMobLookup(lookup, mobid, quest)
 		if ns.xtype(quest) == "table" then
 			for _, questid in ipairs(quest) do
@@ -310,14 +476,7 @@ do
 		if mobdata.hidden then
 			return
 		end
-		if mobdata.locations then
-			for zoneid, coords in pairs(mobdata.locations) do
-				if not mobsByZone[zoneid] then
-					mobsByZone[zoneid] = {}
-				end
-				mobsByZone[zoneid][mobid] = coords
-			end
-		end
+		mergeLocations(mobsByZone, mobid, mobdata.locations)
 		-- In the olden days, we had one mob per quest and/or vignette. Alas...
 		if mobdata.quest then
 			addQuestMobLookup(questMobLookup, mobid, mobdata.quest)
@@ -329,6 +488,13 @@ do
 			addVignetteMobLookups(mobid, ns.safe_unpack(mobdata.vignette))
 		end
 	end
+	local function addTreasureToLookups(vignetteid, vignettedata)
+		ns.vignetteTreasureLookup[vignetteid] = vignettedata
+		if vignettedata.hidden then
+			return
+		end
+		mergeLocations(ns.treasureByZone, vignetteid, vignettedata.locations)
+	end
 	function addon:BuildLookupTables()
 		wipe(mobdb)
 		wipe(mobsByZone)
@@ -336,6 +502,7 @@ do
 		wipe(questMobLookup)
 		wipe(vignetteMobLookup)
 		wipe(worldQuestMobLookup)
+		wipe(ns.treasureByZone)
 		wipe(ns.vignetteTreasureLookup)
 		for source, data in pairs(addon.datasources) do
 			if addon.db.global.datasources[source] then
@@ -353,7 +520,7 @@ do
 					vignettedata.id = vignetteid
 					vignettedata.source = source
 
-					ns.vignetteTreasureLookup[vignetteid] = vignettedata
+					addTreasureToLookups(vignetteid, vignettedata)
 				end
 			end
 		end
@@ -490,7 +657,7 @@ do
 	local function mobsForZone(uiMapID, suppressAnyZone)
 		local mobs = ns.mobsByZone[uiMapID] or empty
 		for id, coords in pairs(mobs) do
-			coroutine.yield(id, #coords > 0, false)
+			coroutine.yield(id, next(coords) ~= nil, false)
 		end
 		if globaldb.custom[uiMapID] then
 			for id in pairs(globaldb.custom[uiMapID]) do
@@ -528,11 +695,11 @@ function addon:MobHasVignette(id)
 	return mobdb[id] and mobdb[id].vignette
 end
 function addon:IsMobInZone(id, uiMapID, suppressAnyZone)
-	-- returns isInZone, hasCoords
+	-- returns isInZone
 	if uiMapID and mobsByZone[uiMapID] and mobsByZone[uiMapID][id] then
-		return true, #mobsByZone[uiMapID][id] > 0
+		return true
 	end
-	return self:IsCustom(id, uiMapID, suppressAnyZone), false
+	return self:IsCustom(id, uiMapID, suppressAnyZone)
 end
 do
 	-- A mob's poi is a flat list of zone / poiID pairs, and each pair names its
@@ -545,28 +712,33 @@ do
 			end
 		end
 	end
-	function addon:IsMobInPhase(id, zone)
+	function addon:IsMobInPhase(id, zone, isTreasure)
 		local phased, poiPresent = true, true
-		if not mobdb[id] then return true end
-		if mobdb[id].art then
-			phased = mobdb[id].art == C_Map.GetMapArtID(zone)
+		local data = self:GetData(id, isTreasure)
+		if not data then return true end
+		if data.art then
+			phased = data.art == C_Map.GetMapArtID(zone)
 		end
-		if mobdb[id].poi then
-			poiPresent = checkPois(unpack(mobdb[id].poi))
+		if data.poi then
+			poiPresent = checkPois(unpack(data.poi))
 		end
 		return phased and poiPresent
 	end
 end
+-- A mob merged from several HandyNotes points can gate individual coordinates
+-- rather than the whole mob (see RegisterHandyNotesData).
+function addon:CoordGateMet(data, zone, coord)
+	local gated = data and data.locationRequires and data.locationRequires[zone]
+	gated = gated and gated[coord]
+	return not gated or ns.conditions.check(gated)
+end
+
 -- Returns id, addon:GetMobInfo(id)
 function addon:GetMobByCoord(zone, coord, include_ignored)
 	if not mobsByZone[zone] then return end
 	for id, locations in pairs(mobsByZone[zone]) do
-		if self:IsMobInPhase(id, zone) and (include_ignored or not self:ShouldIgnoreMob(id)) then
-			for _, mob_coord in ipairs(locations) do
-				if coord == mob_coord then
-					return id, self:GetMobInfo(id)
-				end
-			end
+		if locations[coord] and self:CoordGateMet(mobdb[id], zone, coord) and self:IsMobInPhase(id, zone) and (include_ignored or not self:ShouldIgnoreMob(id)) then
+			return id, self:GetMobInfo(id)
 		end
 	end
 end

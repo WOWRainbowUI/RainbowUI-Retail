@@ -228,6 +228,17 @@ local function render_replacer(variant, id, fallback)
 			return info.professionName
 		end
 	elseif variant == "zone" or variant == "map" then
+		if subvariant == "group" then
+			local groupID = C_Map.GetMapGroupID(id)
+			-- GetMapGroupMembersInfo can come back nil rather than an empty table
+			if groupID then
+				for _, groupInfo in ipairs(C_Map.GetMapGroupMembersInfo(groupID) or {}) do
+					if groupInfo.mapID == id then
+						return groupInfo.name
+					end
+				end
+			end
+		end
 		local info = C_Map.GetMapInfo(id)
 		if info and info.name then
 			return info.name
@@ -263,6 +274,7 @@ local function safe_render_replacer(...)
 end
 local function render_string(s, context)
 	if type(s) == "function" then s = s(context) end
+	if not s then return end
 	return s:gsub("{([^:}]+):([^:}]+):?([^}]*)}", safe_render_replacer)
 end
 local function cache_string(s, context)
