@@ -264,6 +264,13 @@ GTFO.SpellID["1265779"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1266814"] = {
+  --desc = "Crush (Fleshy Crusher)";
+  instance = 2964; -- The Gulf of Memory
+  applicationOnly = true;
+  sound = 3;
+};
+
 --- ************************
 --- * The Voidspire (2912) *
 --- ************************
@@ -732,14 +739,6 @@ GTFO.SpellID["1310738"] = {
   --desc = "Toxic Womb (Ula'tek)";
   instance = 3004;
   encounter = 3492;
-  sound = 3;
-};
-
-GTFO.SpellID["1296301"] = {
-  --desc = "Mephitic Thrash (Ula'tek)";
-  instance = 3004;
-  encounter = 3492;
-  applicationOnly = true;
   sound = 3;
 };
 

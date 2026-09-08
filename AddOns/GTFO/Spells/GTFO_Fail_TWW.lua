@@ -1912,6 +1912,7 @@ GTFO.SpellID["472850"] = {
 
 GTFO.SpellID["474314"] = {
   --desc = "Abyssal Grasp (Abyssal Tentacle)";
+  instances = { 2681, 2815, 2964 }; -- Kriegval's Rest, Excavation Site 9, The Gulf of Memory
   applicationOnly = true;
   sound = 3;
 };

@@ -2479,3 +2479,9 @@ Change Log:
 * Fixed an error when loading or reloading while addon restrictions are active
 * Fixed Midnight spells for Tidebound Grotto
 * Added Midnight spells for The Venomous Abyss
+
+6.10.1
+* Added Midnight spells (delves)
+* Fixed Midnight spells for The Venomous Abyss
+* Fixed Dragonflight spells for Ruby Life Pools
+* Added Dragonflight spells for Darkmaul Citadel
