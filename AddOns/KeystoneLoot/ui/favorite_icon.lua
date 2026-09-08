@@ -69,7 +69,7 @@ end
 
 local function UpdateContainer(Frame)
     for _, ItemButton in Frame:EnumerateValidItems() do
-        UpdateByContainerSlot(ItemButton, ItemButton:GetBagID(), ItemButton:GetID());
+        UpdateByContainerSlot(ItemButton, ItemButton:GetBagID(), ItemButton:GetID(), nil, "BOTTOMLEFT");
     end
 end
 
@@ -298,7 +298,7 @@ EventUtil.ContinueOnAddOnLoaded("Baganator", function()
 
             return Texture;
         end,
-        { corner = "top_left", priority = 1 }
+        { corner = "bottom_left", priority = 1 }
     );
 end);
 
