@@ -1,14 +1,13 @@
 ## New Features
-- Mythic+ group notification with teleport button
+- Loot reminder for group favorites #47
+- Show which favorited items you already own
 
 ## Bugfixes
-- Teleport button stayed disabled when it was set up during combat
-- Add additional excluded items to the voidcore table
-- Update item validation to include cosmetic items in upgrade checks
+- Venomcursed items now display the effect.
 
 ## Improvements
-- Show the favorite icon in Baud Bag
-
-## Other Changes
-- Add Addon label to popup frames
-- Update data
+- Keybinding to toggle the window
+- Rename the Mythic+ notification option to Teleport notification (Mythic+)
+- Option to disable sharing your favorites with the group
+- Friendlier default whisper message
+- Show owned items regardless of favorite status
