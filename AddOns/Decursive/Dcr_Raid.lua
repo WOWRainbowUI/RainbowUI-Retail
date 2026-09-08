@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.3-27-g92158fd) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-28T15:57:06Z
+    This file was last updated on 2026-09-06T17:24:10Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ do
 
         local guidAccessible = canaccessvalue(GUID)
 
-        --@alpha@
+        --[=[@alpha@
         --if not guidAccessible then
             -- fails on high restrictions (secretMapRestrictionsForced while dueling but not in real combat in a real dungeon during an encounter...)
             -- setting this debug report generation so we can test if this can really happen in normal game conditions
@@ -258,7 +258,7 @@ do
           -- ok it does happen in normal game conditions:
           --          4225.1120 (tr:'Dcr_Delayed_MFsDisplay_Update' ca:'false' icl:'false' rs:'Ma:1' h28_w29-43fps-Manaforge Oméga): could not access guid for unit:raid1
         --end
-        --@end-alpha@
+        --@end-alpha@]=]
 
 		-- this GUID cache was there to map CLEU to unit ids... so it's not really useful in Midnight (I need to check this though)
         self[unit] = guidAccessible and GUID or unit;
@@ -706,6 +706,8 @@ do
 
         self:Debug ("|cFFFF44FF-->|r Update complete!", Status.UnitNum);
 
+        D:Schedule_MN_SoundsRegistration()
+
         --[==[@debug@
         D:Debug("Current group:", CurrentGroup, D:tAsString(IPL));
         D:Debug("Source priority list:", #self.profile.PriorityList, D:tAsString(self.profile.PriorityList));
@@ -724,7 +726,7 @@ end
 
 
 -------------------------------------------------------------------------------
-T._LoadedFiles["Dcr_Raid.lua"] = "2.8.3-27-g92158fd";
+T._LoadedFiles["Dcr_Raid.lua"] = "2.9.0-RC2";
 
 -- "Your God is dead and no one cares"
 -- "If there is a Hell I'll see you there"
