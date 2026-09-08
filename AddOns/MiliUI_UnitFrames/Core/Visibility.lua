@@ -123,7 +123,7 @@ function V.CreateGate(uf)
     gate:HookScript("OnShow", function()
         -- 父層重新顯示時子物件的 OnShow 不會觸發（它一路都是 Shown）→ 這裡補一次，
         -- 否則會看到藏起來之前的舊資料
-        ns.Refresh(uf, "unitchanged")
+        ns.Refresh(uf, "unitchanged", nil, "gate")
         V.ApplyAlpha(uf)
     end)
     uf:SetParent(gate)
@@ -131,16 +131,49 @@ function V.CreateGate(uf)
     return gate
 end
 
--- ⚠ 這一行會在**戰鬥中**跑（進戰鬥、換目標、隊伍變動都會推它）。
--- 依據是「保護只管對受保護物件本身做 Show/Hide/移動/換父層」，藏一個我們自己建的
--- 普通父層不在那張清單裡 —— 這也是很多動作條插件放 secure 按鈕的做法。
--- 萬一這個判斷錯了，失敗方式是可見的：Core/Init.lua 的 ADDON_ACTION_FORBIDDEN
--- 攔截器會印出「封鎖動作」並指名函式，不會靜默壞掉。首次進副本值得留意一下。
+-- ⚠⚠ **原本以為「藏我們自己建的普通父層」在戰鬥中合法 —— 2026-09-06 實測是錯的。**
+-- taint.log：`An action was blocked in combat because of taint from MiliUI_UnitFrames
+-- - Frame:SetShown()`，11 筆，全部從這裡出去。**隱式保護會往上傳**：閘框底下掛著
+-- SecureUnitButton，藏父層等於藏那顆受保護的子物件，引擎照樣擋。
+-- （同一條規則在拖曳那邊也踩過，見 .claude/notes/wow-combat-drag-release.md。）
+--
+-- 所以這裡分兩段：
+--   1. **狀態沒變就一個 API 都不叫。** 那 11 筆全是 PLAYER_ENTERING_WORLD 打進
+--      V.Refresh() ⇒ 11 個框各重套一次「本來就已經是這樣」的狀態，一次載入畫面
+--      就是 11 行紅字。這一段本身就把絕大多數呼叫消掉。
+--   2. **戰鬥中真的要改，就記下來、脫戰再做**（V.FlushPending）。
+--
+-- ⚠ 代價要講清楚：戰鬥中條件不會生效。`inCombat` 這個模式因此形同「戰鬥結束才出現」。
+-- 要在戰鬥中換顯示狀態，唯一的路是把判斷交給安全端（巨集條件 ＋ RegisterStateDriver），
+-- 污染過的 Lua 沒有任何寫法做得到 —— 那正是保護機制要擋的事。
 function V.Apply(uf)
     local gate = uf and uf.visGate
     if not gate then return end
-    if uf.isPreview then gate:Show(); return end
-    gate:SetShown(V.Eval(uf))
+
+    local want = uf.isPreview and true or (V.Eval(uf) and true or false)
+
+    -- 沒變就不要碰。SetShown 對已經是那個狀態的框仍然算一次保護動作，照樣被擋。
+    if gate:IsShown() == want then
+        uf.visPending = nil
+        return
+    end
+
+    if InCombatLockdown() then
+        uf.visPending = true    -- 只記「有帳要還」，值等脫戰再算，那時候比較新
+        return
+    end
+
+    uf.visPending = nil
+    gate:SetShown(want)
+end
+
+-- 脫戰把戰鬥中擋下來的補做。自己帶鎖定閘，所以放在哪裡呼叫都安全
+-- （OnCombat 進戰／脫戰共用同一支）。
+function V.FlushPending()
+    if InCombatLockdown() then return end
+    for _, uf in pairs(ns.frames) do
+        if uf.visPending then V.Apply(uf) end
+    end
 end
 
 ------------------------------------------------------------
@@ -162,6 +195,14 @@ end
 local SCRIM_ALPHA_ELEMENTS = {
     inspect = 0.8,
 }
+
+-- ⚠ 走 alpha 的元件不可以直接 SetAlpha：元件自己也用 alpha 表達「顯示與否」
+-- （觀察按鈕是 secure 框，戰鬥中不能 Show/Hide，非玩家／戰鬥中都是 alpha 0）。
+-- 這裡直接寫 1 會在每一輪輪詢把它蓋回來 —— 2026-09-05 實測就是「戰鬥中隱藏失敗、
+-- alpha 永遠是 1」。所以交給元件的 SetOORAlpha 合成，元件沒提供才退回 SetAlpha。
+local function SetElementAlpha(ef, a)
+    if ef.SetOORAlpha then ef:SetOORAlpha(a) else ef:SetAlpha(a) end
+end
 
 -- **完全不處理**的元件（既不遮也不淡）。
 -- 3D 頭像是使用者定案要保持原樣：模型是這個框最有辨識度的東西，蓋暗或淡掉都會
@@ -267,7 +308,7 @@ local function ApplyScrim(uf)
         if list then for _, sc in pairs(list) do sc:Hide() end end
         for name in pairs(SCRIM_ALPHA_ELEMENTS) do
             local ef = uf.elements and uf.elements[name]
-            if ef and ef.SetAlpha then ef:SetAlpha(1) end
+            if ef and ef.SetAlpha then SetElementAlpha(ef, 1) end
         end
         return
     end
@@ -284,7 +325,7 @@ local function ApplyScrim(uf)
                and type(edb.level) == "number" and ef.SetPoint then
                 local fade = SCRIM_ALPHA_ELEMENTS[name]
                 if fade then
-                    ef:SetAlpha(fade)        -- 不規則圖示：走 alpha，不蓋方塊
+                    SetElementAlpha(ef, fade)   -- 不規則圖示：走 alpha，不蓋方塊
                 else
                     seen[name] = true
                     local sc = ScrimFor(uf, name, ef,
@@ -367,6 +408,7 @@ end
 -- 只有 ZONE_CHANGED_NEW_AREA 與 PLAYER_MOUNT_DISPLAY_CHANGED 是新的，兩個都很罕見。
 ------------------------------------------------------------
 local function OnCombat()
+    V.FlushPending()         -- 脫戰補做戰鬥中擋下來的；進戰時自己的鎖定閘會擋掉
     ApplyAllIfNeeded()
     ApplyAllAlpha()          -- 脫戰淡出吃的就是這個
 end

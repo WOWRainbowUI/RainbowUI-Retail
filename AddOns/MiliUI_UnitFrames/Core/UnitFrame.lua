@@ -77,8 +77,31 @@ local function Gen()
     return paintGen
 end
 
+-- 給 /muf debug 的時間線用：同一個 gen 就是同一幀
+function ns.PaintGen() return paintGen end
+
+-- unitchanged 的重畫日誌：記「畫的當下看到的是誰」。事後畫面上的字跟現在的目標
+-- 對不起來時，拿這筆跟現在的 GUID 比，就分得出「畫的時候就是舊單位」與
+-- 「換人之後根本沒畫」。只在 unitchanged 才跑，成本可忽略。
+local function JournalUnitChanged(uf, src, gen)
+    local unit = uf.unit
+    local guid, name
+    if uf.isPreview then
+        guid, name = "preview", "preview"
+    else
+        guid = ns.LogStr(UnitGUID(unit))
+        name = ns.LogStr(UnitName(unit))
+    end
+    local j = uf.lastUC
+    if not j then j = {}; uf.lastUC = j end
+    j.t, j.gen, j.src, j.guid, j.name = GetTime(), gen, src, guid, name
+    j.n = (j.n or 0) + 1
+    ns.LogRefresh("UC %s src=%s gen=%d name=%s guid=%s", uf.baseUnit or unit, src, gen, name, guid)
+end
+
 -- force = 跳過去重（設定套用要保證畫下去，不能被同幀稍早的刷新吃掉）
-function ns.Refresh(uf, bucket, force)
+-- src   = 這次重畫是誰觸發的（只給 unitchanged 的時間線用，見 ns.LogRefresh）
+function ns.Refresh(uf, bucket, force, src)
     do
         local stamps = uf.paintStamps
         if not stamps then stamps = {}; uf.paintStamps = stamps end
@@ -87,9 +110,18 @@ function ns.Refresh(uf, bucket, force)
         -- 以前整段包在 `if not force` 裡，於是強制重畫既不清戳記也不留戳記：
         -- 同幀稍早畫過的 health／info 戳記還在 ⇒ 換人之後那幾個桶當幀都被擋掉，
         -- 血條與文字停在**上一個單位**的值。
-        if not force and stamps[bucket] == gen then return end
+        if not force and stamps[bucket] == gen then
+            if bucket == "unitchanged" then
+                uf.ucSkipStamp = (uf.ucSkipStamp or 0) + 1
+                ns.LogRefresh("UC-skip(同幀去重) %s src=%s gen=%d", uf.baseUnit or uf.unit, src or "?", gen)
+            end
+            return
+        end
         -- 換人是全量重畫，不能被同幀稍早的數值重畫蓋掉 → 先清掉所有戳記
-        if bucket == "unitchanged" then wipe(stamps) end
+        if bucket == "unitchanged" then
+            wipe(stamps)
+            JournalUnitChanged(uf, src or "?", gen)
+        end
         stamps[bucket] = gen
     end
 
@@ -164,13 +196,13 @@ function ns.EvalActiveUnit(uf)
     -- ⇒ uf.unit 已經是 "vehicle"，cache 卻還是上一個單位的（載具期間玩家框顯示
     -- 自己的名字／職業色，而頭像已經換成載具 —— 那個「有時候好有時候壞」就是這裡）。
     -- 換單位是新資訊，同幀稍早的任何一次重畫都不可能已經涵蓋它。
-    ns.Refresh(uf, "unitchanged", true)
+    ns.Refresh(uf, "unitchanged", true, "vehicle")
 end
 
-function ns.RefreshAll(bucket)
+function ns.RefreshAll(bucket, src)
     for _, uf in pairs(ns.frames) do
         if uf:IsVisible() then
-            ns.Refresh(uf, bucket or "unitchanged")
+            ns.Refresh(uf, bucket or "unitchanged", nil, src or "all")
         end
     end
 end
@@ -216,11 +248,19 @@ local function FlushShowRefresh()
         showWork[i] = nil
         -- 這一幀之內可能又被藏回去（快速切目標、或顯示閘關起來）：藏了就不用畫，
         -- 閘框重新顯示時它自己的 OnShow 會補一次全量重畫
-        if uf:IsVisible() then ns.Refresh(uf, "unitchanged") end
+        if uf:IsVisible() then
+            ns.Refresh(uf, "unitchanged", nil, "show")
+        else
+            uf.ucSkipHidden = (uf.ucSkipHidden or 0) + 1
+            ns.LogRefresh("UC-skip(show 時已不可見) %s", uf.baseUnit or uf.unit)
+        end
     end
 end
 
 local function QueueShowRefresh(uf)
+    -- 時間線：OnShow 是暴雪從安全端叫的，跟 PLAYER_TARGET_CHANGED 的 flush 可能差一幀。
+    -- 換目標後名字停在舊單位時，看這一行跟 evt 那幾行的先後就知道是哪條路漏了。
+    ns.LogRefresh("show-queued %s", uf.baseUnit or uf.unit)
     showDirty[uf] = true
     if not showFlushQueued then
         showFlushQueued = true
@@ -440,7 +480,7 @@ end
 --
 -- ⚠⚠ **不要自己開整份選單，已試過兩次都失敗。**
 -- 自己算出選單類型再呼叫 UnitPopup_OpenMenu 會開出正確的選單，但整份選單帶著
--- 我們的 taint ⇒ 保護項目（設為焦點 FocusUnit…）按下去跳「嘗試進行 Blizzard UI
+-- 我們的 taint ⇒ 保護項目（設為專注目標 FocusUnit…）按下去跳「嘗試進行 Blizzard UI
 -- 專屬動作，遭到封鎖」的強制彈窗，還會建議玩家關掉插件；包 securecallfunction
 -- 也救不回來（2026-08-26 實測）。安全開啟是保護項目能動的唯一路。
 --
@@ -463,6 +503,9 @@ local PET_MENUS = { PET = true, OTHERPET = true, OTHERBATTLEPET = true }
 -- （focus 其實早退出、不會誤判，留著是防其他分類路徑。）
 local MENU_FIX_TOKENS = {
     target = true, targettarget = true, focus = true, focustarget = true,
+    -- pettarget 跟 targettarget 同一類：指向不固定，字串分類比不中就會掉進
+    -- UnitIsUnit 鏈被誤判。（"pet" 本身不在這裡——它開寵物選單是對的。）
+    pettarget = true,
 }
 
 -- 該重開哪一種選單。raidN / partyN 直接從 token 推；target 這類指向不固定的
@@ -487,13 +530,13 @@ end
 
 ------------------------------------------------------------
 -- 重開的那份選單帶著 taint，有幾個項目**一定**壞，開著只會炸或污染：
---   設為焦點／跟隨   保護函式，點了跳 FORBIDDEN（前一版實測）
---   標記目標圖示     子選單每顆勾選都比較 GetRaidTargetIndex —— 12.1 是秘密數字，
---                    tainted 執行一比就炸（LUA_WARNING UnitPopupSharedButtonMixins
---                    2489 ＋ fontString nil 連鎖，整片子選單壞掉、警告刷屏）；
---                    就算畫得出來，SetRaidTarget 也是保護函式
---   檢視房屋         tainted 跑 HouseListFrame:InitWithContextData 會把房屋清單
---                    污染到底：之後連安全選單開的「拜訪房屋」都被擋，直到重登
+--   設為專注目標／跟隨   保護函式，點了跳 FORBIDDEN（前一版實測）
+--   標記目標圖示         子選單每顆勾選都比較 GetRaidTargetIndex —— 12.1 是秘密數字，
+--                        tainted 執行一比就炸（LUA_WARNING UnitPopupSharedButtonMixins
+--                        2489 ＋ fontString nil 連鎖，整片子選單壞掉、警告刷屏）；
+--                        就算畫得出來，SetRaidTarget 也是保護函式
+--   檢視房屋             tainted 跑 HouseListFrame:InitWithContextData 會把房屋清單
+--                        污染到底：之後連安全選單開的「拜訪房屋」都被擋，直到重登
 -- 全部灰掉。reopenUnit 閘保證只動我們重開的那一份，正常的安全選單一個不碰。
 -- （ModifyMenu 的回呼是在 UnitPopup_OpenMenu **裡面**同步跑的，旗標包住呼叫就夠。）
 ------------------------------------------------------------
@@ -599,7 +642,10 @@ local function InstallMenuClassifierFix()
         --   ns.UNIT_KEYS），這兩條是為了別人的團隊框（沒有 Cell 的安裝、或暴雪原生框）。
         --   raidN 在 SECURE_ACTIONS.togglemenu 沒有早退出分支，跟 target 一樣會走完整條
         --   UnitIsUnit 鏈而被誤判成寵物。
-        if not (MENU_FIX_TOKENS[lu] or lu:match("^raid%d+$") or lu:match("^party%d+$")) then
+        -- bossNtarget 跟 targettarget 同一類（指向不固定）。bossN **本身**不在裡面：
+        -- 它在字串分類那段就早退出了，而且首領也不會是玩家。
+        if not (MENU_FIX_TOKENS[lu] or lu:match("^raid%d+$") or lu:match("^party%d+$")
+                or lu:match("^boss%dtarget$")) then
             return
         end
         local guid = UnitGUID(unit)
@@ -637,7 +683,8 @@ function ns.SpawnUnitFrame(unit)
     uf.db = udb
     uf.cache = { unit = unit }
     uf.elements = {}
-    if unitKey == "boss" then
+    if ns.MULTI_UNIT_KEYS[unitKey] then
+        -- "boss3" 與 "boss3target" 都取得到 3
         uf.bossIndex = tonumber(unit:match("boss(%d)"))
     end
 
@@ -680,9 +727,11 @@ function ns.SpawnUnitFrame(unit)
     -- 所以戰鬥中也有效）。顯示面由 ns.EvalActiveUnit 跟上，見那裡的說明。
     uf:SetAttribute("toggleForVehicle", true)
     -- secure 端搬動 unit 屬性時同步顯示面
+    -- ⚠ 這個掛勾也會被 RegisterUnitWatch 的 SetAttribute("statehidden") 從安全端
+    --   叫到，工作一律丟到下一幀（同 OnShow 的 QueueShowRefresh）
     uf:HookScript("OnAttributeChanged", function(self, attr)
         if attr == "unit" or attr == "toggleForVehicle" then
-            ns.EvalActiveUnit(self)
+            ns.Defer(ns.EvalActiveUnit, self)
         end
     end)
 
@@ -732,7 +781,7 @@ function ns.SpawnUnitFrame(unit)
 
     if unit == "player" then
         uf:Show()
-        ns.Refresh(uf, "unitchanged")
+        ns.Refresh(uf, "unitchanged", nil, "spawn")
     else
         uf:Hide()
         RegisterUnitWatch(uf, false)
@@ -825,7 +874,7 @@ function ns.ApplySettings(unitKey)
                     -- 一律重畫（不再只在可見時）：顏色、文字內容這些是在 update 才套用的，
                     -- 只 build 不 refresh 會出現「改了下拉選單沒反應、動別的設定才一起生效」
                     -- force：設定套用必須畫下去，不能被同幀稍早的刷新去重掉
-                    ns.Refresh(uf, "unitchanged", true)
+                    ns.Refresh(uf, "unitchanged", true, "settings")
                 end
             elseif uf then
                 UnregisterUnitWatch(uf)

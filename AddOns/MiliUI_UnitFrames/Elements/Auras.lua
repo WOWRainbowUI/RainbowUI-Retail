@@ -648,7 +648,7 @@ local function CreateContainer(uf, elementName, edb, filter, cand, style)
     end
     if not holder.__kickHooked then
         holder.__kickHooked = true
-        holder:HookScript("OnShow", function()
+        local function OnHolderShow()
             -- 容器建立時框架若還沒可見，SetEnabled 註冊不到光環事件，
             -- 之後就永遠空白 → 真的顯示出來時補踢一次。
             -- ⚠ 一定要走 Bounce 不能直接 Kick：這個 OnShow 是 RegisterUnitWatch 從
@@ -668,7 +668,9 @@ local function CreateContainer(uf, elementName, edb, filter, cand, style)
                     end
                 end
             end
-        end)
+        end
+        -- 掛勾裡只記帳：OnShow 是從安全端來的，工作丟到下一幀（ns.Defer）
+        holder:HookScript("OnShow", function() ns.Defer(OnHolderShow) end)
     end
     return container
 end
@@ -765,11 +767,22 @@ local function MakeElement(elementName, baseFilter)
     ns.Events.Register("UNIT_TARGET", "auras_" .. elementName .. "_ut", function(unit)
         if unit == "target" and ns.frames.targettarget then Repoke(ns.frames.targettarget) end
         if unit == "focus" and ns.frames.focustarget then Repoke(ns.frames.focustarget) end
+        if unit == "pet" and ns.frames.pettarget then Repoke(ns.frames.pettarget) end
+        if unit and unit:match("^boss%d$") then
+            local bt = ns.frames[unit .. "target"]
+            if bt then Repoke(bt) end
+        end
+    end)
+    -- 換寵物＝ "pettarget" 換人，但 UNIT_TARGET 不會發（那隻寵物沒換目標）
+    ns.Events.Register("UNIT_PET", "auras_" .. elementName .. "_up", function(unit)
+        if unit == "player" and ns.frames.pettarget then Repoke(ns.frames.pettarget) end
     end)
     ns.Events.Register("INSTANCE_ENCOUNTER_ENGAGE_UNIT", "auras_" .. elementName .. "_b", function()
         for i = 1, 5 do
             local uf = ns.frames["boss" .. i]
             if uf then Repoke(uf) end
+            local bt = ns.frames["boss" .. i .. "target"]
+            if bt then Repoke(bt) end
         end
     end)
 

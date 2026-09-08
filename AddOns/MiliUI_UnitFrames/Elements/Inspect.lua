@@ -57,30 +57,44 @@ local function ApplyIcon(tex, style)
 end
 
 ------------------------------------------------------------
--- 動作
+-- 動作：交給暴雪的安全巨集 `/inspect`
 --
--- InspectUnit 是 FrameXML 的全域函式，改版換過家好幾次 → 存在才呼叫，
--- 不在就自己把官方流程走一遍（載入 LoD 面板 → 通知伺服器 → 開窗）。
--- 這條路會被 taint 影響（MiliUI/Fix/InspectTaintFix.lua 專門吞那上面的
--- secret 錯誤），所以這裡自己再包一層錯誤隔離，點一下不要炸掉整個腳本。
+-- 以前是自己的 OnClick 呼叫 InspectUnit(unit)。那條流程不安全，InspectFrame.unit
+-- 從此帶著我們的 taint，天賦頁把單位交給 PlayerSpellsFrame 之後「複製」按
+-- CopyToClipboard（保護函式）就被封鎖，帳算到 MiliUI_UnitFrames 頭上。
+--
+-- 改法：按鈕本身用 SecureActionButtonTemplate，type="macro"、macrotext="/inspect"，
+-- 點下去由暴雪的巨集執行器跑，InspectFrame.unit 由安全流程寫入，後面天賦／複製
+-- 全部乾淨。跟右鍵選單走 /click 代理鈕 → togglemenu 是同一套機制。
+--
+-- ⚠ `/inspect` 寫死觀察 target（SlashCommands.lua：InspectUnit("target")），沒有
+--   單位參數。這顆按鈕目前只掛在目標框（DB.lua 的 target 區塊），所以剛好夠用；
+--   將來要在專注目標框加觀察鈕的話，那顆沒有 secure 入口，只能走舊路。
+--
+-- ⚠ 變成 secure 框之後，戰鬥中 Show/Hide/EnableMouse/SetPoint/SetAttribute 全部
+--   被擋（EnableMouse 也在保護清單裡）。所以：
+--   • 屬性與版面只在 Build 寫（Build 不會在戰鬥中跑，跟單位框本身一樣）
+--   • 「不是玩家就不畫」改用 alpha 表達（SetAlpha 不受保護），另外用一片普通的
+--     遮擋框蓋在上面吃掉滑鼠——遮擋框不是 secure、也不是 secure 框的父層，
+--     戰鬥中 Show/Hide 合法。遮擋框把點擊往父層傳，對 NPC 目標時那個角落
+--     就跟框的其他地方一樣是選取目標。
 ------------------------------------------------------------
-local function DoInspect(unit)
-    if type(InspectUnit) == "function" then
-        InspectUnit(unit)
-        return
-    end
-    if C_AddOns and C_AddOns.LoadAddOn then C_AddOns.LoadAddOn("Blizzard_InspectUI") end
-    if NotifyInspect then NotifyInspect(unit) end
-    if InspectFrame_Show then InspectFrame_Show(unit) end
-end
+-- 戰鬥中不觀察：巨集第一行就用內建條件式擋掉。觀察視窗開起來要走 ShowUIPanel，
+-- 戰鬥中那條路有機會被判成插件動作而封鎖（「介面功能因插件而失效」），乾脆不做。
+-- 條件式由 secure 巨集引擎判定，不經過我們的 Lua。
+local INSPECT_MACRO = "/stopmacro [combat]\n/inspect"
 
--- 左右鍵同一件事：右鍵也接住是為了不要讓它穿過去變成單位框的右鍵選單
-local function OnClick(self)
-    local uf = self:GetParent()
-    if not uf or uf.isPreview then return end     -- 預覽孿生只是排版用，不真的動作
-    local unit = uf.unit
-    if not unit then return end
-    xpcall(DoInspect, ns.ReportError, unit)
+local function ArmSecure(btn)
+    if btn.secureArmed or InCombatLockdown() then return end
+    btn.secureArmed = true
+    btn:RegisterForClicks("AnyUp")
+    -- secure 解析是按「按鈕後綴」查 type（RightButton→type2），裸 type 不保證備援，
+    -- 每個後綴都設；左右鍵同一件事（右鍵也接住是為了不要穿過去變成單位框的右鍵選單）
+    btn:SetAttribute("type", "macro")
+    for i = 1, 5 do btn:SetAttribute("type" .. i, "macro") end
+    btn:SetAttribute("macrotext", INSPECT_MACRO)
+    -- 不管「按鍵按下時施放」CVar 設哪邊都在放開那一下執行
+    btn:SetAttribute("useOnKeyDown", false)
 end
 
 local function OnEnter(self)
@@ -112,21 +126,54 @@ local function SetHighlight(btn, kind, texture)
     return hl
 end
 
+-- alpha 的單一出口：顯示與否 × 超出距離淡出係數。
+-- 兩個來源各自 SetAlpha 會互相蓋掉（Core/Visibility.lua 的 ApplyScrim 每輪都會寫），
+-- 所以 Visibility 只透過 SetOORAlpha 交係數進來，最後一律由這裡合成。
+local function ApplyAlpha(btn)
+    local a = btn.visible and (btn.baseAlpha or 1) * (btn.oorAlpha or 1) or 0
+    btn:SetAlpha(a)
+end
+
+local function SetOORAlpha(btn, a)
+    btn.oorAlpha = a
+    ApplyAlpha(btn)
+end
+
 local function Build(uf, edb)
     local btn = uf.elements.inspect
     if not btn then
-        btn = ns.CreateElementBase(uf, "inspect", "Button")
+        btn = ns.CreateElementBase(uf, "inspect", "Button", "SecureActionButtonTemplate, BackdropTemplate")
+        btn.SetOORAlpha = SetOORAlpha
+        btn.visible = true
         btn.bg = btn:CreateTexture(nil, "BACKGROUND")
         btn.bg:SetTexture(Media.WHITE8X8)
         btn.icon = btn:CreateTexture(nil, "ARTWORK")
-        btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-        btn:SetScript("OnClick", OnClick)
+        -- ⚠ 不要 SetScript("OnClick")：那會蓋掉模板的 SecureActionButton_OnClick
         btn:SetScript("OnEnter", OnEnter)
         btn:SetScript("OnLeave", OnLeave)
+        -- 戰鬥中點下去：巨集已經被 [combat] 擋掉了，這裡只負責告訴玩家為什麼沒反應。
+        -- PostClick 在 secure 的 OnClick 跑完之後才執行，不會污染前面那段。
+        btn:HookScript("PostClick", function()
+            if InCombatLockdown() then
+                UIErrorsFrame:AddMessage(L["Can't inspect during combat."], 1, 0.1, 0.1)
+            end
+        end)
+        -- 遮擋框：普通 Frame，掛在單位框下（不是按鈕的父層），吃掉非玩家時的滑鼠
+        local shield = CreateFrame("Frame", nil, uf)
+        shield:EnableMouse(true)
+        shield:SetPropagateMouseClicks(true)
+        shield:Hide()
+        btn.shield = shield
     end
     ns.ApplyElementBase(uf, btn, edb)
+    btn.baseAlpha = edb.alpha or 1
+    ArmSecure(btn)
     -- 預覽孿生上的按鈕只是排版用：關掉滑鼠，免得它把編輯模式的拖曳吃掉
     btn:EnableMouse(not uf.isPreview)
+    local shield = btn.shield
+    shield:ClearAllPoints()
+    shield:SetAllPoints(btn)
+    shield:SetFrameLevel(btn:GetFrameLevel() + 1)
 
     -- 邊框有畫就要內縮，內縮量一律問 BorderInset（直接寫 1 會在 Retina 露縫）
     local bordered = edb.border ~= false
@@ -163,17 +210,35 @@ local function Build(uf, edb)
     hl:SetPoint("TOPLEFT", edge, -edge)
     hl:SetPoint("BOTTOMRIGHT", -edge, edge)
 
-    btn:Hide()      -- 顯示與否由 Update 決定
+    -- 顯示與否由 Update 決定；secure 框戰鬥中不能 Show/Hide，所以這裡一律 Show、
+    -- 之後只動 alpha 與遮擋框（Build 不在戰鬥中跑，保險起見還是閘一下）
+    if not InCombatLockdown() then btn:Show() end
 end
 
 local function Update(uf, edb)
     local btn = uf.elements.inspect
     if not btn then return end
     -- 預覽一律畫出來：對著空氣調位置很痛苦
-    if uf.isPreview then btn:Show(); return end
     -- 只有玩家觀察得了 → 其他單位一律不畫，不然就是一顆按不動的按鈕
-    btn:SetShown(uf.cache.isPlayer and true or false)
+    -- 戰鬥中不顯示（可選）：走的是同一套 alpha ＋ 遮擋框，secure 框戰鬥中照樣能藏
+    local shown = uf.isPreview or (uf.cache.isPlayer and true or false)
+    if shown and not uf.isPreview and edb.hideInCombat and InCombatLockdown() then
+        shown = false
+    end
+    btn.visible = shown
+    ApplyAlpha(btn)
+    btn.shield:SetShown(not shown)
 end
+
+-- 進出戰鬥時重算一次（只有這裡會讀 InCombatLockdown，事件本身低頻）
+local function UpdateAllForCombat()
+    for _, uf in pairs(ns.frames) do
+        local edb = uf.elements.inspect and uf.db and uf.db.elements and uf.db.elements.inspect
+        if edb then Update(uf, edb) end
+    end
+end
+ns.Events.Register("PLAYER_REGEN_DISABLED", "inspect_combat", UpdateAllForCombat)
+ns.Events.Register("PLAYER_REGEN_ENABLED", "inspect_combat2", UpdateAllForCombat)
 
 ns.RegisterElement{
     name = "inspect",

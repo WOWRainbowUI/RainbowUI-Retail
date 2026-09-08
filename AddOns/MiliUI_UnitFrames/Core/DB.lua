@@ -214,7 +214,7 @@ function DB.BuildDefaults()
                     -- （背景若跟 mp 框同層，mp 的黑框會浮上來透過半透明前景露出）
                     portrait = { enabled = true, x = 0, y = 0, w = 200, h = 50, mode = "3d",
                                  bg = { r = 0.165, g = 0.165, b = 0.165, a = 0 }, level = 3,
-                                 zoom = 1, rotation = 0,       -- 正面朝鏡頭（度）
+                                 modelAlpha = 1, zoom = 1, rotation = 0,       -- 正面朝鏡頭（度）
                                  modelOffsetX = 0, modelOffsetY = 0,      -- 設定面板顯示 ×100
                                  fallback2D = false },
                     hpbar = { enabled = true, x = 0, y = 0, w = 200, h = 50, level = 4, bgLevel = 2, lossAlpha = 0.9,
@@ -301,7 +301,7 @@ function DB.BuildDefaults()
                     -- （背景若跟 mp 框同層，mp 的黑框會浮上來透過半透明前景露出）
                     portrait = { enabled = true, x = 0, y = 0, w = 200, h = 50, mode = "3d",
                                  bg = { r = 0.165, g = 0.165, b = 0.165, a = 0 }, level = 3,
-                                 zoom = 1, rotation = 0,       -- 正面朝鏡頭（度）
+                                 modelAlpha = 1, zoom = 1, rotation = 0,       -- 正面朝鏡頭（度）
                                  modelOffsetX = 0, modelOffsetY = 0,      -- 設定面板顯示 ×100
                                  fallback2D = false },   -- 副本小怪 3D 取不到時是否退 2D
                     hpbar = { enabled = true, x = 0, y = 0, w = 200, h = 50, level = 4, bgLevel = 2, lossAlpha = 0.9,
@@ -368,9 +368,14 @@ function DB.BuildDefaults()
                     -- （框右上角外側，往上凸出 5）。
                     -- 預設是「圖示直接浮在框上」——不畫邊框也不畫底色（使用者定案）；
                     -- 圖本身帶描邊與投影，亮背景上也撐得住
-                    inspect = { enabled = true, x = 180, y = 5, w = 25, h = 25, level = 8, alpha = 1,
+                    -- ⚠ 層級要在施法條**之上**：施法條本體 12，內部子框（條／圖示／文字／盾）
+                    -- 疊到 12+4=16，按鈕壓不過去的話唱法時就點不到。17 剛好在它上面、
+                    -- 又在小圖示（ICON_LEVEL 21）下面。
+                    inspect = { enabled = true, x = 180, y = 5, w = 25, h = 25, level = 17, alpha = 1,
                                 style = "glass", border = false, bgColor = black(0),
-                                iconPadding = 0 },
+                                iconPadding = 0,
+                                -- 戰鬥中不顯示（使用者定案）：打架時那顆按鈕沒用，還會擋到框的角落
+                                hideInCombat = true },
                 },
             },
 
@@ -532,7 +537,7 @@ function DB.BuildDefaults()
                     -- 頭像夾在血條裡，寬度跟著條走。
                     portrait = { enabled = true, x = 0, y = 0, w = 119, h = 40, mode = "3d",
                                  bg = { r = 0.165, g = 0.165, b = 0.165, a = 0 }, level = 3,
-                                 zoom = 1, rotation = 0,
+                                 modelAlpha = 1, zoom = 1, rotation = 0,
                                  modelOffsetX = 0, modelOffsetY = 0,
                                  fallback2D = false },
                     hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 40, level = 4, bgLevel = 2, lossAlpha = 0.9,
@@ -600,6 +605,76 @@ function DB.BuildDefaults()
             },
 
             ------------------------------------------------------------
+            -- 寵物的目標（pettarget）
+            --
+            -- 「我的寵物在打誰／在扛誰」。跟 targettarget／focustarget 同一種角色，
+            -- 但**樣式跟著寵物框走**（使用者指定）：同樣 120 寬、條寬 119、同一組
+            -- 底色與 alpha，擺在寵物框正上方時看起來就是同一組東西的上下兩截。
+            --
+            -- 幾個跟寵物框不一樣的地方，都是「這個單位不是我們的」造成的：
+            --   * 魔力條走 power 不走 class：寵物框的 class 上色是「主人的職業色」，
+            --     套到一隻隨便的怪身上沒有意義（見 Core/Cache.lua 的 pet 分支）。
+            --   * 沒有 3D 頭像與施法條：跟另外兩個 <unit>target 框對齊，那兩個也沒有。
+            --   * 高度 30（血條 20 ＋ 魔力條 10），不是寵物框的 50。
+            --
+            -- 預設位置：寵物框正上方。寵物框中心 y = -225、高 50 ⇒ 上緣在 -200，
+            -- 而**寵物自己的減益列從上緣往上長**（elements.debuffs y = 1，19 高）
+            -- ⇒ 那一排佔到 -180。所以這個框的下緣放 -178（留 2px），
+            -- 中心 = -178 + 15 = -163。x 跟寵物框同一欄。
+            --
+            -- 預設不啟用（使用者指定）：需要的人自己去「單位 → 寵物的目標」打開。
+            pettarget = {
+                enabled = false,
+                frame = frameDef{ x = -470, y = -163, w = 120, h = 30, fadeOutOfRange = false },
+                elements = {
+                    -- 條寬 119 不是 120：跟寵物框同一個理由——底下那排光環
+                    -- 6 顆 × 19 ＋ 5 個 1px 間距 = 119，條跟光環整排等寬
+                    hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 20, level = 4, lossAlpha = 0.9,
+                              colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 0.5, bgAlpha = 1, border = true,
+                              showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
+                              -- 護盾：全部單位一致（疊加層只對 cache.assist 的單位畫，
+                              -- 敵人身上本來就不會出現，開著不會多花什麼）
+                              showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
+                              absorbReverseFill = true,
+                              showOvershield = true, overshieldGlowReverse = false,
+                              absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
+                              absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
+                              overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                    mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
+                              colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 1, bgAlpha = 1, border = true },
+                    texts = {
+                        textDef{ pattern = "[name]", x = 3, y = 0, w = 90, h = 20, size = 11,
+                                 justifyH = "LEFT", justifyV = "MIDDLE" },
+                        textDef{ pattern = "[perchp]%", x = 0, y = 0, w = 116, h = 20, size = 11,
+                                 justifyH = "RIGHT", justifyV = "MIDDLE" },
+                    },
+                    -- 光環預設關（列表在這裡是為了讓設定面板長出那兩個切換鈕）。
+                    -- ⚠ 增益列往下長（y = -31），開起來會跟**寵物框自己的減益列**
+                    --   疊在一起——兩排都在這兩個框中間那段空白。要開的話把其中一邊
+                    --   的 y 挪開，或把這個框往上搬。
+                    buffs  = { enabled = false, x = 0, y = -31, w = 19, h = 19,
+                               maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
+                               showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
+                               durationText = false, durationThreshold = 60, filterMode = "all" },
+                    debuffs = { enabled = false, x = 0, y = 1, w = 19, h = 19,
+                                maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
+                                onlyMine = false, filterMode = "all",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60 },
+                    icons = { enabled = true,
+                              raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
+                },
+            },
+
+            ------------------------------------------------------------
             boss = {   -- boss1-5 共用；boss1 在 frame.x/y，其餘依 growth/spacing 排
                 -- 使用者實地調好的版面（2026-08-16 從 SavedVariables 原樣收進來，含位置）。
                 -- 我們自己畫首領框、暴雪的已隱藏，所以位置與暴雪首領框無關。
@@ -609,7 +684,7 @@ function DB.BuildDefaults()
                 elements = {
                     portrait = { enabled = true, x = 37, y = 50, w = 66, h = 66, mode = "3d",
                                  bg = { r = 0, g = 0, b = 0, a = 0 },
-                                 zoom = 1, rotation = 0, level = 0, fallback2D = false },
+                                 modelAlpha = 1, zoom = 1, rotation = 0, level = 0, fallback2D = false },
                     hpbar = { enabled = true, x = 36, y = 0, w = 184, h = 14, level = 4,
                               colorMethod = "classreaction", bgColorMethod = "solid",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -682,6 +757,89 @@ function DB.BuildDefaults()
                     },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 14, y = 10, w = 24, h = 24, level = 10 } },
+                },
+            },
+
+            ------------------------------------------------------------
+            -- 首領的目標（boss1-5target 共用一份設定，同 boss）
+            --
+            -- 「這隻首領正在打誰」——實戰上就是「坦有沒有接住」。跟 boss 一樣一份設定
+            -- 帶五個框，第 2 格起依 growth/spacing 排（見 ns.MULTI_UNIT_KEYS）。
+            --
+            -- **樣式參考首領框，但沒有 3D 頭像**（使用者指定）。另一個跟著來的差別：
+            -- 首領框的版面是「左邊 36 讓給頭像、名字擺在血條**上方**的表頭」，那整套
+            -- 排法存在的理由就是那顆頭像；頭像拿掉之後照抄只會留下一片空白，所以這裡
+            -- 改用其他 <unit>target 框那種「名字與血量都壓在條上」的緊湊版。
+            -- 留下來的是首領框的**數值**：血條 14 高、能量條 10 高、同一組顏色與 alpha。
+            --
+            -- 位置：首領框右手邊（使用者指定）。首領框中心 x = 499、寬 220 ⇒ 右緣 609，
+            -- 留 2px ⇒ 這個框左緣 611、中心 x = 671。垂直對齊上緣：首領框中心 y = 319、
+            -- 高 32 ⇒ 上緣 335，本框高 24 ⇒ 中心 y = 323。spacing 跟首領框同樣是 80，
+            -- 兩排才會一列對一列。
+            -- ⚠ 首領框那組座標本來就是照 16:9 ＋ 較低 UI 縮放的畫面調的（右緣 609 已經
+            --   很靠邊），再往右擺 120 寬在「UI 縮放 1.0 的 16:9」上會出畫面。預設關著，
+            --   而且設定頁與編輯模式都拖得動，需要的人自己挪。
+            --
+            -- 預設不啟用（使用者指定）。
+            bosstarget = {
+                enabled = false,
+                frame = frameDef{ x = 671, y = 323, w = 120, h = 24, growth = "DOWN", spacing = 80,
+                                  fadeOutOfRange = true },
+                elements = {
+                    -- 條寬 119 不是 120：底下那排光環 6 顆 × 19 ＋ 5 個 1px 間距 = 119
+                    hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 14, level = 4,
+                              colorMethod = "classreaction", bgColorMethod = "solid",
+                              bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 0.4, bgAlpha = 1, border = true,
+                              showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
+                              -- 護盾：全部單位一致（疊加層只對 cache.assist 的單位畫）。
+                              -- 首領的目標多半是自己人，這條特別有用。
+                              showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
+                              absorbReverseFill = true,
+                              showOvershield = true, overshieldGlowReverse = false,
+                              absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
+                              absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
+                              overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                    mpbar = { enabled = true, x = 0, y = -14, w = 119, h = 10, level = 0,
+                              colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 1, bgAlpha = 1, border = true },
+                    texts = {
+                        textDef{ pattern = "[name]", x = 3, y = 0, w = 80, h = 14, size = 11,
+                                 justifyH = "LEFT", justifyV = "MIDDLE" },
+                        textDef{ pattern = "[perchp]%", x = 0, y = 0, w = 116, h = 14, size = 11,
+                                 justifyH = "RIGHT", justifyV = "MIDDLE" },
+                        textDef{ pattern = "[percmp]%", x = 0, y = -14, w = 116, h = 10, size = 9,
+                                 justifyH = "RIGHT", justifyV = "MIDDLE" },
+                        -- 狀態（超出距離／已標記／離線／死亡／靈魂）。跟首領框同一條 key，
+                        -- 九個語系早就有翻譯了
+                        textDef{ pattern = L["[gray_if_oor:Out of Range ][gray_if_tapped:Tapped ][gray_if_offline:Offline ][gray_if_dead:Dead ][gray_if_ghost:Ghost ]"],
+                                 x = 0, y = 0, w = 119, h = 14, size = 10,
+                                 justifyH = "CENTER", justifyV = "MIDDLE", level = 11 },
+                    },
+                    -- 光環：上下各一排，**預設都關**（使用者指定）。
+                    -- 打開之後預設只顯示「副本裡重大的那些」，不是全部（使用者指定）：
+                    --   增益 bigdef  ＝ BIG_DEFENSIVE，坦身上的大型防禦技能
+                    --   減益 bossrole＝ isBossOrRoleAura，首領技能與職責相關的減益
+                    -- 12.1 的過濾一律交給引擎，插件讀不到光環內容（見 Elements/Auras.lua）。
+                    -- ⚠ 這兩排連同框體一共占 24 ＋ 19 ＋ 19 ＝ 62 高，比 spacing 80 小，
+                    --   所以五格排下來不會互相壓到。改 spacing 時要一起看。
+                    buffs  = { enabled = false, x = 0, y = -25, w = 19, h = 19,
+                               maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
+                               showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
+                               durationText = false, durationThreshold = 60, filterMode = "bigdef" },
+                    debuffs = { enabled = false, x = 0, y = 1, w = 19, h = 19,
+                                maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
+                                onlyMine = false, filterMode = "bossrole",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60 },
+                    icons = { enabled = true,
+                              raidtarget = { enabled = true, x = 54, y = 8, w = 16, h = 16, level = ICON_LEVEL } },
                 },
             },
 
@@ -765,7 +923,7 @@ local PROFILE_MIGRATIONS = {
     -- v13：滑鼠移過的高亮邊框（frame level 20）壓在團隊標記等小圖示上頭 —— 那些圖示
     -- 故意突出框體上緣，邊框的頂線就從圖示中間劃過去。小圖示是浮在框上的徽章，本來
     -- 就該蓋過邊框，所以一律提到 ICON_LEVEL（21）。
-    -- 首領框不在這步：使用者點名的是玩家／目標／目標的目標／焦點／焦點的目標。
+    -- 首領框不在這步：使用者點名的是玩家／目標／目標的目標／專注目標／專注目標的目標。
     --
     -- ⚠ 版本號**跳過 12**，不是打錯。開發期間有一版把 DB_VERSION 推到 12 之後整包
     -- 丟掉，本機 SV 的 schemaVersionSeen 已經記著 12。DB.Migrate 的起點取
@@ -777,7 +935,7 @@ local PROFILE_MIGRATIONS = {
     [13] = function(profile)
         local units = profile.units
         if type(units) ~= "table" then return end
-        -- 舊預設：團標 5（焦點兩隻是 6）、其餘 10
+        -- 舊預設：團標 5（專注目標兩隻是 6）、其餘 10
         local OLD = {
             raidtarget = { [5] = true, [6] = true },
             status     = { [10] = true },
@@ -1118,6 +1276,24 @@ local PROFILE_MIGRATIONS = {
                     local move = type(t) == "table" and MOVES[t.pattern]
                     if move and t.y == move.old then t.y = move.new end
                 end
+            end
+        end
+    end,
+
+    -- v18：觀察按鈕的層級提到施法條之上。舊預設 8 在施法條（12，子框到 16）底下，
+    -- 唱法時整顆被蓋住點不到。
+    -- 條件閘用「壓不壓得過那個單位的施法條」判斷，不是只比舊預設：自己調過但仍在
+    -- 施法條底下的一樣是點不到，一起抬；已經在上面的不碰。
+    [18] = function(profile)
+        local units = profile.units
+        if type(units) ~= "table" then return end
+        for _, udb in pairs(units) do
+            local els = type(udb) == "table" and udb.elements
+            local e = type(els) == "table" and els.inspect
+            if type(e) == "table" then
+                local cb = type(els.castbar) == "table" and els.castbar.level
+                local top = (tonumber(cb) or 12) + 4
+                if type(e.level) ~= "number" or e.level <= top then e.level = top + 1 end
             end
         end
     end,

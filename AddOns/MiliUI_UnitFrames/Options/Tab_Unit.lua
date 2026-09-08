@@ -24,7 +24,9 @@ local UNIT_LIST = {
     { key = "focus",        label = L["Focus"] },
     { key = "focustarget",  label = L["Focus Target"] },
     { key = "pet",          label = L["Pet"] },
+    { key = "pettarget",    label = L["Pet Target"] },
     { key = "boss",         label = L["Boss"] },
+    { key = "bosstarget",   label = L["Boss Target"] },
 }
 
 -- 元件切換列（依 DB 有沒有該元件決定要不要出現）
@@ -63,7 +65,7 @@ local function FrameSpecs(unitKey)
         { type = "slider", root = "frame", key = "scale", label = L["Scale (%)"], min = 50, max = 200, step = 1 },
         { type = "text", label = L["100 is the original size, multiplied by the global scale on the General tab. Everything on the frame scales with it, including the resource and mana bars anchored below; the frame grows around its center, so the position stays put."] },
     }
-    if unitKey == "boss" then
+    if ns.MULTI_UNIT_KEYS[unitKey] then
         tinsert(list, { type = "header", label = L["Multiple boss layout"] })
         tinsert(list, { type = "dropdown", root = "frame", key = "growth", label = L["Grow direction"],
                         items = { { text = L["Downward"], value = "DOWN" }, { text = L["Upward"], value = "UP" } } })
@@ -286,6 +288,7 @@ local function BarSpecs(name, isHP, unitKey)
         { type = "dropdown", sub = name, key = "colorMethod", label = L["Foreground"], items = Specs.COLOR_METHOD_ITEMS },
         { type = "custom", label = "", build = ColorSwatchRow(unitKey, name, "colorMethod", "barColor") },
         { type = "slider", sub = name, key = "barAlpha", label = L["Foreground opacity"], min = 0, max = 1, step = 0.05 },
+        { type = "text", label = L["The fill is blended over whatever sits below it — the background, and the 3D portrait when it is sandwiched in between — so anything under 1 darkens the color. This is the slider to raise if the bar looks dull; to keep seeing the model, fade it under Portrait > Model opacity rather than paying for it here."] },
         { type = "dropdown", sub = name, key = "bgColorMethod", label = L["Background"], items = Specs.COLOR_METHOD_ITEMS },
         { type = "custom", label = "", build = ColorSwatchRow(unitKey, name, "bgColorMethod", "bgColor") },
         { type = "slider", sub = name, key = "bgAlpha", label = L["Background opacity"], min = 0, max = 1, step = 0.05 },
@@ -362,6 +365,8 @@ local function PortraitSpecs()
         { type = "text", label = L["Enemies inside 12.1 instances have restricted identity and their 3D model can't be fetched (in practice it doesn't error, it just returns nothing). By default nothing is drawn in that case; turn this on to draw the 2D portrait instead. The client resolves 2D portraits itself, so even trash works. It's the same one Blizzard's own frames use."] },
         { type = "color", sub = "portrait", key = "bg", label = L["Backdrop color"] },
         { type = "text", label = L["Drop the background opacity to 0 for no backdrop, leaving the 3D model floating on screen. That's the boss frame default."] },
+        { type = "slider", sub = "portrait", key = "modelAlpha", label = L["Model opacity"], min = 0, max = 1, step = 0.05 },
+        { type = "text", label = L["Fades the 3D model itself, and it is what lets the health bar be bright. Without it the only ways to keep the model from shouting are a translucent bar fill and heavy missing-health darkening — both of which cost you bar color. Turn this down instead, then raise the fill opacity and lower the darkening."] },
         { type = "slider", sub = "portrait", key = "zoom", label = L["3D zoom"], min = 0, max = 1, step = 0.05 },
         { type = "text", label = L["1 = close-up on the face, 0 = full body; around 0.6 shows down to the shoulders."] },
         { type = "slider", sub = "portrait", key = "rotation", label = L["3D rotation (degrees)"], min = -180, max = 180, step = 5 },
@@ -417,6 +422,7 @@ local function CastbarSpecs()
         PosSize("castbar"),
         { type = "header", label = L["Appearance"] },
         { type = "color", sub = "castbar", key = "bg", label = L["Background color"] },
+        { type = "text", label = L["Only the background is per unit. The fill color is shared by every cast bar and lives under General > Cast bar colors, where casting, channeling and empowered each get their own — that is the one to change if the fill and the background read too much alike."] },
         { type = "slider", sub = "castbar", key = "barAlpha", label = L["Fill opacity"], min = 0.1, max = 1, step = 0.05 },
         { type = "text", label = L["Only the colored fill; the icon and text stay fully readable, and the background has its own opacity in the color above. Turn it down and the 3D portrait shows through while casting — on the player and target the cast bar sits exactly on top of the portrait."] },
         { type = "toggle", sub = "castbar", key = "border", label = L["Show border"] },
@@ -481,7 +487,7 @@ end
 -- 黑名單只擺在引擎真的會過濾的地方。
 -- 增益一律可以；減益只有敵方單位算數 —— 遊戲對「友方單位的減益」禁止 ID 過濾
 -- （反自動化），擺在玩家／寵物的減益頁只會是一個按了沒反應的按鈕。
--- 目標／焦點這些**執行期**才知道是敵是友，所以放著並在下面註明。
+-- 目標／專注目標這些**執行期**才知道是敵是友，所以放著並在下面註明。
 local FRIENDLY_ONLY_UNITS = { player = true, pet = true }
 
 local BLACKLIST_MARKER = {}     -- 佔位，下面依單位決定要不要換成真的那一列
@@ -561,6 +567,7 @@ local function InspectSpecs()
     return {
         { type = "toggle", sub = "inspect", key = "enabled", label = L["Show"] },
         { type = "text", label = L["A small button on the frame that opens the inspect window. Only players can be inspected, so it only shows up on them."] },
+        { type = "toggle", sub = "inspect", key = "hideInCombat", label = L["Hide during combat"] },
         { type = "header", label = L["Position and size"] },
         PosSize("inspect"),
         { type = "header", label = L["Appearance"] },
@@ -570,8 +577,8 @@ local function InspectSpecs()
         { type = "slider", sub = "inspect", key = "alpha", label = L["Opacity"], min = 0.1, max = 1, step = 0.05 },
         { type = "slider", sub = "inspect", key = "iconPadding", label = L["Icon padding"], min = 0, max = 6, step = 1 },
         { type = "header", label = L["Layer"] },
-        { type = "slider", sub = "inspect", key = "level", label = L["Layer"], min = 0, max = 15, step = 1 },
-        { type = "text", label = L["It has to sit above the health bar to stay clickable; 8 is the default."] },
+        { type = "slider", sub = "inspect", key = "level", label = L["Layer"], min = 0, max = 20, step = 1 },
+        { type = "text", label = L["It has to sit above the health bar and the cast bar to stay clickable; 17 is the default."] },
     }
 end
 
