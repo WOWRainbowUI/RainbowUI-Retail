@@ -597,11 +597,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if UnitExists(unitTarget) and UnitExists(unitTarget .. "target") then 
                         PlaySoundFile(MEDIA_PATH .. "ZhaoHuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)   
                     end
-                    C_Timer.After(2, function() 
-                        if UnitExists(unitTarget) and UnitGroupRolesAssigned("player") == "HEALER" then
-                            PlaySoundFile(MEDIA_PATH .. "ZhunBeiLiuXue.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                        end
-                    end)
                 end)
             end
 
@@ -1674,8 +1669,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
-            and addonTable.PoHuaiMoChengFaZhe == 2
-            and UnitIsLieutenant(unitTarget)
+            and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
             then C_Timer.After(0.4, function() if UnitExists(unitTarget) and UnitExists(unitTarget .. "target")
             then addonTable.CustomEncounterBar(1305149, 22.7, "准备AOE", unitTarget)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end end) end
@@ -1690,11 +1684,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitClassification(unitTarget) == "elite" -- 分类
             and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and UnitIsLieutenant(unitTarget) == false -- 是否为中尉
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
-            and addonTable.PoHuaiMoChengFaZhe <= 1
             then C_Timer.After(0.4, function() if UnitExists(unitTarget) and UnitExists(unitTarget .. "target")
             then PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
 
@@ -1707,6 +1701,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitClassification(unitTarget) == "elite" -- 分类
             and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and UnitIsLieutenant(unitTarget) == false -- 是否为中尉
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == true -- Boss3
@@ -1723,6 +1718,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitClassification(unitTarget) == "elite" -- 分类
             and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and UnitIsLieutenant(unitTarget) == false -- 是否为中尉
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
@@ -1760,7 +1756,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                         if UnitGroupRolesAssigned("player") ~= "TANK" and addonTable.PlayerSpellStatus.spells[58984] == true then
                             PlaySoundFile(MEDIA_PATH .. "YingDun.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         else
-                            PlaySoundFile(MEDIA_PATH .. "MuBiaoShiNi.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            -- PlaySoundFile(MEDIA_PATH .. "MuBiaoShiNi.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         end
                     end
                 end)
@@ -1778,8 +1774,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
             and UnitSpellTargetName(unitTarget) -- 法术有目标
-            and UnitIsLieutenant(unitTarget)
             then PlaySoundFile(MEDIA_PATH .. "ZhuYiSheXian.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
         -- ============================

@@ -392,7 +392,7 @@ addonTable.NormalAura = {
         [266923]  = "alarmbeep", -- 镀流
         [267027]  = "ZhongDu", -- 毒素喷吐
         [272655]  = "alarmbeep", -- 黄沙冲刷
-        [273274]  = "JingBao", -- 极化力场
+        -- [273274]  = "JingBao", -- 极化力场
         [1225638] = "HunMi", -- 不羁的火花
         [1263342] = "ChenMo", -- 虚空的代价
         [1288457] = "alarmbeep", -- 阵风
@@ -411,12 +411,12 @@ addonTable.NormalAura = {
         [1293133] = "JingBao", -- 萦绕风暴
         [1293307] = "MiHuo", -- 扰乱心智
         [1295635] = "alarmbeep", -- 蜿蜒打击
-        [1296052] = "KuaiKaiJianShang", -- 灌能传导
+        [1296052] = "QuSanMoFa:party:HEALER|QuSanMoFa:player:HEALER|alarmbeep:player:DAMAGER", -- 灌能传导
         [1297034] = "JingBao", -- 电击大地
         [1300227] = "DuoKaiDaQuan", -- 钻地之震
         [1300666] = "BaMaFenSan", -- 潜藏妖术
         [1300684] = "JingBao", -- 妖术淤泥
-        [1300704] = "alarmbeep", -- 锁定
+        -- [1300704] = "alarmbeep", -- 锁定
         [1300714] = "NiBeiJianLiao", -- 暗影鞭笞
         [1300877] = "KuaiKaiJianShang", -- 腐化
         [1302153] = "BaMaFenSan", -- 潜藏妖术
@@ -650,7 +650,7 @@ addonTable.NormalAura = {
     -- ============================
     -- ==       乌拉特克         ==
     -- ============================
-
+        [1311609] = "alarmbeep", -- 凋萎静脉
         [1311600] = "alarmbeep", -- 凋萎静脉
         [1300312] = "alarmbeep", -- 厄鳞外壳
         -- [1306858] = "", -- 守卫的保护
@@ -668,7 +668,7 @@ addonTable.NormalAura = {
         [1296301] = "alarmbeep", -- 恶臭痛击
         [1295995] = "JingBao", -- 毒素云
         [1305709] = "alarmbeep", -- 绝望鞭笞
-
+        
     -- ============================
     -- ==       潮缚石窟         ==
     -- ============================
@@ -711,6 +711,7 @@ addonTable.NormalAura = {
     -- 1: 光环刷新/叠层时 (可选)
     refreshedList = {
         -- [1238053] = "JiNuDieJia:nameplate:TANK", -- 母熊之怒
+        [1311609] = "alarmbeep", -- 凋萎静脉
         [1311730] = "alarmbeep", -- 瓦解宝珠
         [1282892] = "alarmbeep", -- 致病撕咬
         [1238801] = "alarmbeep", -- 饥肠辘辘
@@ -722,6 +723,7 @@ addonTable.NormalAura = {
 
     -- 2: 移除/消退光环时
     removedList = {
+        [1311609] = "AnQuan", -- 凋萎静脉
         [1310309] = "AnQuan", -- 钉锤风暴
         [270927]  = "AnQuan", -- 剑刃风暴
         [1286837] = "AnQuan", -- 墓缚

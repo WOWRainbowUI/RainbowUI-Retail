@@ -180,6 +180,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and addonTable.SpellChannelCounter[unitTarget] == nil
             then addonTable.SpellChannelCounter[unitTarget] = true
+            addonTable.CustomEncounterBar(460952, 26.6, "控断小怪", unitTarget)
             PlaySoundFile(addonTable.GetMediaPath() .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) 
             C_Timer.After(26, function() addonTable.SpellChannelCounter[unitTarget] = nil end) end
 

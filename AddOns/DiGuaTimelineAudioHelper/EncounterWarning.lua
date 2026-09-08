@@ -393,6 +393,8 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
 
     -- 技能：光明灌注
     if currentEncounterID == 3101 and severity == 1 then
+        -- 联动：光明灌注命中起 5 秒内，中央首领血量百分比暂停显示
+        if addonTable.SuppressBossHealthDisplay then addonTable.SuppressBossHealthDisplay(5) end
         -- 核心防御局部函数：只有当前依然在3101号Boss战斗中，才允许播放指定音频
         local function SafePlay(soundFile)
             if addonTable.GetEncounterID() == 3101 then

@@ -339,8 +339,8 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == true -- Boss3
         then
             addonTable.UnitTargetTriggered[unitTarget] = true
-            addonTable.CustomEncounterBar(132287, 9.1, "坦克尖刺", unitTarget)
-            addonTable.CustomEncounterBar(5764923, 16.8, "准备AOE", unitTarget)
+            addonTable.CustomEncounterBar(132287, 3.1, "坦克尖刺", unitTarget)
+            addonTable.CustomEncounterBar(5764923, 11.8, "准备AOE", unitTarget)
         end
         -- 砂誓骑兵（黄沙冲刷）—— 首次施放 7.1s
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 砂誓骑兵
@@ -484,6 +484,31 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
             addonTable.UnitTargetTriggered[unitTarget] = true
             addonTable.CustomEncounterBar(7301939, 14.6, "召唤小怪", unitTarget)
         end
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 邪能主宰鲁科西
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2434 -- 地图ID
+            and IsIndoors() == false -- 是否在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 分类
+            and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
+            and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
+            and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
+        then
+            addonTable.UnitTargetTriggered[unitTarget] = true
+            addonTable.CustomEncounterBar(1305149, 6, "准备AOE", unitTarget)
+            addonTable.CustomEncounterBar(1305156, 11, "注意射线", unitTarget)
+        end
+
+
+
+
+
         -- 腐化的术士（吸取生命 / 厄运诅咒）—— 首次施放 7.1 / 13.4s
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 吸取生命 -- 厄运诅咒（工具）
             and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)

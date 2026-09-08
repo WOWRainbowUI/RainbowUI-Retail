@@ -50,20 +50,29 @@ addonTable.AudioTimeline = {
         }
     },
 
-
-    
-    [3200] = { -- 圣光猎手伊库兹
-        interval = 65, 
+    [3105] = { -- 利希尔·烬怒
+        interval = 999, 
         startOffset = 0, 
         alerts = {
-            -- [7]  = "DaoShu3.ogg",
-            -- [8]  = "DaoShu2.ogg",
-            -- [9]  = "DaoShu1.ogg",
-            -- [9]  = "JiHeFangQuan.ogg",
-            [24]  = "ZhuYiDuoQuan.ogg",
-            [25]  = "KuaiKaiJianShang.ogg",
+            [34]  = "DianMen.ogg",
+            [91]  = "DianMen.ogg",
+            [147]  = "DianMen.ogg",
+            [205]  = "DianMen.ogg",
         }
     },
+    
+    -- [3200] = { -- 圣光猎手伊库兹
+    --     interval = 65, 
+    --     startOffset = 0, 
+    --     alerts = {
+    --         -- [7]  = "DaoShu3.ogg",
+    --         -- [8]  = "DaoShu2.ogg",
+    --         -- [9]  = "DaoShu1.ogg",
+    --         -- [9]  = "JiHeFangQuan.ogg",
+    --         -- [24]  = "ZhuYiDuoQuan.ogg",
+    --         -- [25]  = "KuaiKaiJianShang.ogg",
+    --     }
+    -- },
 
     [3209] = { -- 纳洛拉克
         interval = 65, 

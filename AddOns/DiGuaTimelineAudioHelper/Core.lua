@@ -54,6 +54,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             local db = DiGuaTimelineAudioHelper
             if db.enabled == nil then db.enabled = true end
             if db.ringEnabled == nil then db.ringEnabled = true end
+            if db.ringX == nil then db.ringX = 0 end -- 倒计时圆环定位框 X（默认居中，拖动后保存）
+            if db.ringY == nil then db.ringY = 0 end -- 倒计时圆环定位框 Y
             if db.tenSecCountDown == nil then db.tenSecCountDown = false end
             if db.coTankAuraEnabled == nil then db.coTankAuraEnabled = false end
             if db.playerDebuffEnabled == nil then db.playerDebuffEnabled = false end -- 玩家减益图标（默认关）
@@ -62,6 +64,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.bloodlustOpenSound == nil then db.bloodlustOpenSound = false end
             if db.lfgProposalSound == nil then db.lfgProposalSound = false end
             if db.centerCountdownEnabled == nil then db.centerCountdownEnabled = false end -- 屏幕中央倒计时（默认关）
+            if db.centerCountdownSize == nil then db.centerCountdownSize = 0 end -- 中央倒计时大小档位（0~9，默认 0=最小）
+            if db.bossHealthCenterEnabled == nil then db.bossHealthCenterEnabled = false end -- 首领转阶段血量百分比（默认关）
             if db.interruptIgnoreFocus == nil then db.interruptIgnoreFocus = false end -- 有焦点也提醒打断（默认关）
             if db.audioChannel == nil then db.audioChannel = "Master" end
             if db.coTankX == nil then db.coTankX = -400 end
@@ -115,6 +119,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineFocusCastBarCheck:SetChecked(DiGuaTimelineAudioHelper.focusCastBarEnabled) -- 同步焦点施法条
             DiGuaTimelineTotemTextCheck:SetChecked(DiGuaTimelineAudioHelper.nameplateTotemTextEnabled) -- 同步姓名板"图腾"文字
             DiGuaTimelineAuraSoundCheck:SetChecked(not DiGuaTimelineAudioHelper.normalAuraSoundEnabled) -- 同步“关闭光环音效”（勾选=关）
+            DiGuaTimelineBossHealthPctCheck:SetChecked(DiGuaTimelineAudioHelper.bossHealthCenterEnabled) -- 同步首领转阶段血量百分比
         end
 
         elseif event == "PLAYER_ENTERING_WORLD" then
@@ -239,6 +244,8 @@ end)
 local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", 250, -55, function(self)
     DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
     print("|cffffd100[DiGua]|r 倒计时圆环图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
+    -- 同步半透明拖动定位框（勾选且控制台打开时显示，供拖动调整圆环位置）
+    if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(f:IsShown()) end
 end)
 
 local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦私有光环监控(暂时无法使用)", 250, -80, function(self)
@@ -267,22 +274,30 @@ local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck",
     print("|cffffd100[DiGua]|r 技能剩余5秒中央倒计时: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", 250, -155, function(self)
+local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", 250, -215, function(self)
     DiGuaTimelineAudioHelper.playerDebuffEnabled = self:GetChecked()
     print("|cffffd100[DiGua]|r 玩家减益图标: " .. (DiGuaTimelineAudioHelper.playerDebuffEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     if addonTable.SetPlayerDebuffEnabled then addonTable.SetPlayerDebuffEnabled(self:GetChecked()) end
 end)
 
-local cbFocusCastBar = CreateCheckButton("DiGuaTimelineFocusCastBarCheck", "焦点特定技能施法条(测试版)", 250, -180, function(self)
+local cbFocusCastBar = CreateCheckButton("DiGuaTimelineFocusCastBarCheck", "焦点特定技能施法条(测试版)", 250, -240, function(self)
     DiGuaTimelineAudioHelper.focusCastBarEnabled = self:GetChecked()
     print("|cffffd100[DiGua]|r 焦点特定技能施法条(测试版): " .. (DiGuaTimelineAudioHelper.focusCastBarEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(f:IsShown()) end
 end)
 
-local cbTotemText = CreateCheckButton("DiGuaTimelineTotemTextCheck", "姓名板显示\"图腾\"文字", 250, -205, function(self)
+local cbTotemText = CreateCheckButton("DiGuaTimelineTotemTextCheck", "姓名板显示\"图腾\"文字", 250, -265, function(self)
     DiGuaTimelineAudioHelper.nameplateTotemTextEnabled = self:GetChecked()
     if addonTable.SetNameplateTotemTextEnabled then addonTable.SetNameplateTotemTextEnabled(self:GetChecked()) end
     print("|cffffd100[DiGua]|r 姓名板显示\"图腾\"文字: " .. (DiGuaTimelineAudioHelper.nameplateTotemTextEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+-- 首领转阶段血量百分比（默认关闭）
+local cbBossHealthPct = CreateCheckButton("DiGuaTimelineBossHealthPctCheck", "首领转阶段血量百分比", 250, -290, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.bossHealthCenterEnabled = isEnabled
+    if addonTable.SetBossHealthEnabled then addonTable.SetBossHealthEnabled(isEnabled) end
+    print("|cffffd100[DiGua]|r 首领转阶段血量百分比: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
 -- 主音量滑块（映射魔兽系统主音量 Sound_MasterVolume，范围 0-1，显示 0%-100%）
@@ -320,10 +335,50 @@ masterVolumeSlider:SetValue(tonumber(GetCVar("Sound_MasterVolume")) or 1)
 masterVolumeUpdating = false
 UpdateMasterVolumeLabel(masterVolumeSlider:GetValue())
 
+-- 中央倒计时大小滑块（0~9 档，0 = 代码默认最小；每档图标与文字各放大 2px）
+-- 放在右栏“技能剩余5秒中央倒计时”勾选项正下方，便于一起调节
+local centerSizeSlider = CreateFrame("Slider", "DiGuaTimelineCenterSizeSlider", f, "OptionsSliderTemplate")
+centerSizeSlider:SetPoint("TOPLEFT", 250, -178)
+centerSizeSlider:SetMinMaxValues(0, 9)
+centerSizeSlider:SetValueStep(1)
+centerSizeSlider:SetObeyStepOnDrag(true)
+centerSizeSlider:SetWidth(170)
+local centerSizeText = _G["DiGuaTimelineCenterSizeSliderText"]
+if centerSizeText then
+    centerSizeText:SetText("中央倒计时整体大小")
+    centerSizeText:SetTextColor(1, 0.82, 0)
+end
+local centerSizeValue = _G["DiGuaTimelineCenterSizeSliderValue"]
+local centerSizeLow = _G["DiGuaTimelineCenterSizeSliderLow"]
+local centerSizeHigh = _G["DiGuaTimelineCenterSizeSliderHigh"]
+if centerSizeLow then centerSizeLow:SetText("小") end
+if centerSizeHigh then centerSizeHigh:SetText("大") end
+local centerSizeUpdating = false
+local function UpdateCenterSizeLabel(value)
+    if centerSizeValue then
+        -- 档位 0~9 对应显示为 1~10 档，直观对应“共10个档位”
+        centerSizeValue:SetText(format("%d档", math.floor((value or 0) + 0.5) + 1))
+    end
+end
+centerSizeSlider:SetScript("OnValueChanged", function(self, value)
+    if centerSizeUpdating then return end
+    value = math.floor(value + 0.5)
+    DiGuaTimelineAudioHelper.centerCountdownSize = value
+    if addonTable.SetCenterCountdownSize then addonTable.SetCenterCountdownSize(value) end
+    UpdateCenterSizeLabel(value)
+end)
+-- 初始同步当前已保存档位（ADDON_LOADED 前 db 可能为 nil，需安全读取）
+centerSizeUpdating = true
+centerSizeSlider:SetValue(tonumber((DiGuaTimelineAudioHelper or {}).centerCountdownSize) or 0)
+centerSizeUpdating = false
+UpdateCenterSizeLabel(centerSizeSlider:GetValue())
+
 f:SetScript("OnShow", function()
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(true) end
     if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(true) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(true) end
+    if addonTable.RefreshBossHealthPctAnchor then addonTable.RefreshBossHealthPctAnchor(true) end
+    if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(true) end
     -- 打开控制台时同步系统主音量（防止在系统设置里改过）
     if masterVolumeSlider then
         masterVolumeUpdating = true
@@ -331,11 +386,20 @@ f:SetScript("OnShow", function()
         masterVolumeUpdating = false
         UpdateMasterVolumeLabel(masterVolumeSlider:GetValue())
     end
+    -- 同步中央倒计时大小档位滑块
+    if centerSizeSlider then
+        centerSizeUpdating = true
+        centerSizeSlider:SetValue(tonumber((DiGuaTimelineAudioHelper or {}).centerCountdownSize) or 0)
+        centerSizeUpdating = false
+        UpdateCenterSizeLabel(centerSizeSlider:GetValue())
+    end
 end)
 f:SetScript("OnHide", function()
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end
     if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(false) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(false) end
+    if addonTable.RefreshBossHealthPctAnchor then addonTable.RefreshBossHealthPctAnchor(false) end
+    if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(false) end
 end)
 
 SLASH_DIGUA1 = "/digua"
