@@ -35,40 +35,54 @@ function ns.HasSellableLoot(id, isTreasure, shared)
 	return false
 end
 
+-- An alt's credit only settles it if you've said it counts.
+local function criteriaWanted(criteria_complete, by_alt)
+	return not criteria_complete and not (by_alt and ns.db.alts_achievements_count)
+end
+
 -- Three-valued: true wanted, false knowably not wanted, nil nothing to go on.
 -- nil must stay distinct from false, because plenty of mobs have nothing to judge
 -- and item data is often still loading when one is spotted. Callers suppress on
 -- false alone, so an unknown costs a spurious alert rather than eating a real one.
 function ns.MobIsNotable(id, isTreasure, fromVignette)
-	-- not an and/or chain: a missing treasure must not fall through to the mob db
-	local data
-	if isTreasure then
-		data = ns.vignetteTreasureLookup[id]
-	else
-		data = ns.mobdb[id]
-	end
+	local data = core:GetData(id, isTreasure)
 	if not data then return end
 
 	-- the rewards system memoises within a run, and this is a fresh one
 	ns.ClearRunCaches()
 
-	-- Gate: a finished quest means there's nothing left to hand over. A vignette
-	-- overrules it, since the game only shows one while something remains, and
-	-- treasures always arrive by vignette. Not quest_notable, which is about loot.
-	if data.quest and not (isTreasure or fromVignette) and ns.allQuestsComplete(data.quest) then
+	-- Gate: a finished quest means there's nothing left to hand over, unless a
+	-- live vignette says otherwise. Treasures are gated the same way -- a
+	-- repeatable treasure has no quest, so one that has a quest is a single
+	-- pickup that the map keeps drawing from static data after its vignette is
+	-- gone. Not quest_notable, which is about loot.
+	if data.quest and not fromVignette and ns.allQuestsComplete(data.quest) then
 		Debug("MobIsNotable", id, false, "quest complete")
 		return false
 	end
 
 	local knowable = false
 
-	-- AchievementMobStatus, not data.achievement: a mob can count towards several
-	if ns.db.achievement_notable and not isTreasure then
-		for _, _, _, criteria_complete, by_alt in ns:AchievementMobStatus(id) do
-			knowable = true
-			if not criteria_complete and not (by_alt and ns.db.alts_achievements_count) then
-				Debug("MobIsNotable", id, true, "achievement incomplete")
-				return true
+	if ns.db.achievement_notable then
+		if isTreasure then
+			-- one achievement, read from the treasure's own criteria: the mob lookup
+			-- is keyed by npc id, whose numbers overlap with vignette ids
+			local _, criteria_complete, by_alt = ns:CompletionStatus(id, true)
+			if criteria_complete ~= nil then
+				knowable = true
+				if criteriaWanted(criteria_complete, by_alt) then
+					Debug("MobIsNotable", id, true, "achievement incomplete")
+					return true
+				end
+			end
+		else
+			-- AchievementMobStatus, not data.achievement: a mob can count towards several
+			for _, _, _, criteria_complete, by_alt in ns:AchievementMobStatus(id) do
+				knowable = true
+				if criteriaWanted(criteria_complete, by_alt) then
+					Debug("MobIsNotable", id, true, "achievement incomplete")
+					return true
+				end
 			end
 		end
 	end
@@ -124,10 +138,12 @@ end
 -- (without the vignette argument, so it answers as if you'd walked up to it)
 core.MobIsNotable = ns.MobIsNotable
 
--- One word for the places that show a mob's standing rather than decide whether to
--- mention it, so the map, the browser and the broker can't disagree.
-function ns.MobState(id)
-	local quest, achievement, by_alt = ns:CompletionStatus(id)
+-- One word for the places that show a thing's standing rather than decide whether
+-- to mention it, so the map, the browser and the broker can't disagree. Pass
+-- isTreasure and it ranks a treasure on the same six states: a single-pickup one
+-- like a rare, a repeatable one (no quest) on its loot.
+function ns.MobState(id, isTreasure)
+	local quest, achievement, by_alt = ns:CompletionStatus(id, isTreasure)
 	-- Quest first, as in MobIsNotable: the only state meaning "finished".
 	if quest then
 		return "done"
@@ -136,13 +152,13 @@ function ns.MobState(id)
 		achievement = true
 	end
 	-- A mount outranks an unfinished achievement, which outranks ordinary loot.
-	if ns.HasNotableMounts(id) then
+	if ns.HasNotableMounts(id, isTreasure) then
 		return "mount"
 	end
 	if achievement == false and ns.db.achievement_notable then
 		return "achievement"
 	end
-	local notable = ns.MobIsNotable(id)
+	local notable = ns.MobIsNotable(id, isTreasure)
 	if notable == false then
 		return "nothing"
 	end
@@ -209,7 +225,7 @@ do
 		},
 		stars = {
 			achievement = tex("VignetteKill", 1, 0.33, 1, 1.6), -- magenta star
-			something = tex("VignetteLootElite", 0.5, 1, 1, 1.6), -- cyan shiny star
+			something = tex("VignetteEventElite", 0.5, 1, 1, 1.6), -- cyan shiny star
 			nothing = tex("VignetteKill", 0.7, 0.7, 0.7, 1.3), -- grey star
 			unknown = tex("VignetteKill", 1, 1, 1, 1.6), -- plain white star
 			-- was 0,1,1 and labelled green, but that's a cyan too close to the

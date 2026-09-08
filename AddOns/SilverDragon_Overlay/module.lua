@@ -14,6 +14,11 @@ module.const = {
     EDGE_NEVER = 0,
     EDGE_FOCUS = 1,
     EDGE_ALWAYS = 2,
+    -- flags, so LOOT_BOTH is just the two places at once
+    LOOT_NONE = 0,
+    LOOT_TOOLTIP = 1,
+    LOOT_WINDOW = 2,
+    LOOT_BOTH = 3,
 }
 
 function module:OnInitialize()
@@ -22,9 +27,7 @@ function module:OnInitialize()
             worldmap = {
                 enabled = true,
                 tooltip_help = true,
-                tooltip_completion = true,
-                tooltip_regularloot = true,
-                tooltip_lootwindow = true,
+                loot = module.const.LOOT_BOTH,
                 icon_scale = 1,
                 icon_alpha = 1,
                 routes = true,
@@ -33,9 +36,7 @@ function module:OnInitialize()
             minimap = {
                 enabled = true,
                 tooltip_help = false,
-                tooltip_completion = true,
-                tooltip_regularloot = true,
-                tooltip_lootwindow = false,
+                loot = module.const.LOOT_TOOLTIP,
                 icon_scale = 1,
                 icon_alpha = 1,
                 routes = true,
@@ -43,14 +44,43 @@ function module:OnInitialize()
             },
             icon_theme = 'skulls', -- circles / skulls
             icon_color = 'completion', -- completion / distinct
-            achieved = true,
-            questcomplete = false,
+            emphasize = false,
+            -- What to display, per kind, from ns.MobState. "notable" leaves off
+            -- the ones with nothing left; the "also" toggles add a state back.
+            -- Unsure ones show by default, as with announcements.
+            showMobs = true,
+            filter = 'notable', -- notable / everything
+            showUnknown = true, -- no data about loot/completion
+            showNothing = false, -- nothing notable remaining
+            showDone = true, -- quest-complete (achivement is in showNothing)
             achievementless = true,
             hidden = {},
+            showTreasures = true,
+            filterTreasure = 'notable',
+            showUnknownTreasure = true,
+            showNothingTreasure = false,
+            showDoneTreasure = false,
+            achievementlessTreasure = true,
+            hiddenTreasure = {},
         },
     })
 
-    -- migration
+    -- Profiles switch long after OnInitialize (and can be copied or reset at
+    -- any point), so every migration below has to be able to run again on
+    -- whichever profile is now current, not just the one active at login.
+    self:MigrateOptions()
+    self.db.RegisterCallback(self, "OnProfileChanged", "MigrateOptions")
+    self.db.RegisterCallback(self, "OnProfileCopied", "MigrateOptions")
+    self.db.RegisterCallback(self, "OnProfileReset", "MigrateOptions")
+
+    self.tooltip = ns.Tooltip.Get("OverlayPin")
+
+    GameTooltip:HookScript("OnShow", function(tooltip) self:CleanupTooltip() end)
+
+    self:RegisterConfig()
+end
+
+function module:MigrateOptions()
     local db = self.db.profile
     if type(db.enabled) == "boolean" or db.icon_scale or db.icon_scale_minimap or db.icon_alpha or db.icon_alpha_minimap then
         local function ifnotnil(t, key, val)
@@ -62,7 +92,6 @@ function module:OnInitialize()
         ifnotnil(db.worldmap, "enabled", enabled)
         ifnotnil(db.worldmap, "tooltip_help", db.tooltip_help)
         ifnotnil(db.worldmap, "tooltip_completion", db.tooltip_completion)
-        ifnotnil(db.worldmap, "tooltip_regularloot", db.tooltip_regularloot)
         ifnotnil(db.worldmap, "icon_scale", db.icon_scale)
         ifnotnil(db.worldmap, "icon_alpha", db.icon_alpha)
 
@@ -71,7 +100,6 @@ function module:OnInitialize()
         ifnotnil(db.minimap, "enabled", enabled)
         ifnotnil(db.minimap, "tooltip_help", db.tooltip_help)
         ifnotnil(db.minimap, "tooltip_completion", db.tooltip_completion)
-        ifnotnil(db.minimap, "tooltip_regularloot", db.tooltip_regularloot)
         ifnotnil(db.minimap, "icon_scale", db.icon_scale_minimap)
         ifnotnil(db.minimap, "icon_alpha", db.icon_alpha_minimap)
         ifnotnil(db.minimap, "edge", db.minimap_edge)
@@ -87,11 +115,59 @@ function module:OnInitialize()
         db.icon_alpha_minimap = nil
     end
 
-    self.tooltip = ns.Tooltip.Get("OverlayPin")
+    -- "completion" and "popout loot window" became one choice of where loot goes,
+    -- and regular-loot moved to the Tooltip module. Either of the old pair being
+    -- saved means the profile predates this; whichever isn't saved was still at
+    -- the default it had back then.
+    local wasDefault = {
+        worldmap = {completion = true, window = true},
+        minimap = {completion = true, window = false},
+    }
+    for section, old in pairs(wasDefault) do
+        local cfg = db[section]
+        if cfg.tooltip_completion ~= nil or cfg.tooltip_lootwindow ~= nil then
+            local inTooltip = cfg.tooltip_completion
+            if inTooltip == nil then inTooltip = old.completion end
+            local inWindow = cfg.tooltip_lootwindow
+            if inWindow == nil then inWindow = old.window end
+            cfg.loot = (inTooltip and inWindow and module.const.LOOT_BOTH)
+                or (inTooltip and module.const.LOOT_TOOLTIP)
+                or (inWindow and module.const.LOOT_WINDOW)
+                or module.const.LOOT_NONE
+            cfg.tooltip_completion = nil
+            cfg.tooltip_lootwindow = nil
+        end
+        cfg.tooltip_regularloot = nil
+    end
 
-    GameTooltip:HookScript("OnShow", function(tooltip) self:CleanupTooltip() end)
-
-    self:RegisterConfig()
+    -- "Show achieved" / "Show quest-complete" became a notability filter plus
+    -- "also show" toggles (see ns.MobState). An explicitly-set legacy key is a
+    -- choice to carry over; an absent one was the old default, so it gives way
+    -- to the new default.
+    do
+        local function migrate(oldAchieved, oldQuest, filterKey, nothingKey, doneKey)
+            if db[oldAchieved] == nil and db[oldQuest] == nil then
+                return
+            end
+            -- "achieved" on, or untouched, meant finished things stayed on the map
+            local achieved = db[oldAchieved]
+            if achieved == nil then achieved = true end
+            if achieved then
+                db[nothingKey] = true
+                db[doneKey] = true
+            else
+                db[filterKey] = 'notable'
+            end
+            -- "quest-complete" only ever added the quest-done pile back
+            if db[oldQuest] then
+                db[doneKey] = true
+            end
+            db[oldAchieved] = nil
+            db[oldQuest] = nil
+        end
+        migrate("achieved", "questcomplete", "filter", "showNothing", "showDone")
+        migrate("achievedTreasure", "questcompleteTreasure", "filterTreasure", "showNothingTreasure", "showDoneTreasure")
+    end
 end
 
 function module:OnEnable()
@@ -122,13 +198,13 @@ function module:OnWorldMapHide()
 end
 
 function module:BrokerMobClick(_, mobid)
-    self:FocusMob(mobid)
+    self:FocusPoint(mobid)
 end
 function module:BrokerMobEnter(_, mobid)
-    self:HighlightMob(mobid)
+    self:HighlightPoint(mobid)
 end
 function module:BrokerMobLeave(_, mobid)
-    self:UnhighlightMob(mobid)
+    self:UnhighlightPoint(mobid)
 end
 
 function module:Seen(_, id, zone, x, y, dead, source, unit)
@@ -139,31 +215,40 @@ function module:Seen(_, id, zone, x, y, dead, source, unit)
     end
 end
 
-function module:HighlightMob(mobid)
-    if mobid == self.focus_mob then return end
-    if not WorldMapFrame:IsShown() then return end
-    self.WorldMapProvider:Emphasize(mobid, true)
-    self.WorldMapRouteProvider:Emphasize(mobid, true)
+-- Only one point is focused at a time, but a vignette id can be the same number
+-- as an npc id, so the kind has to be part of every comparison.
+function module:IsFocused(id, isTreasure)
+    if id == nil or id ~= self.focus_id then return false end
+    return (isTreasure or false) == (self.focus_treasure or false)
 end
 
-function module:UnhighlightMob(mobid)
-    if mobid == self.focus_mob then return end
+function module:HighlightPoint(id, isTreasure)
+    if self:IsFocused(id, isTreasure) then return end
     if not WorldMapFrame:IsShown() then return end
-    self.WorldMapProvider:Emphasize(mobid, false)
-    self.WorldMapRouteProvider:Emphasize(mobid, false)
+    self.WorldMapProvider:Emphasize(id, isTreasure, true)
+    self.WorldMapRouteProvider:Emphasize(id, isTreasure, true)
 end
 
-function module:FocusMob(mobid)
-    if self.focus_mob == mobid then
-        self.focus_mob = nil
-        self.focus_mob_ping = nil
+function module:UnhighlightPoint(id, isTreasure)
+    if self:IsFocused(id, isTreasure) then return end
+    if not WorldMapFrame:IsShown() then return end
+    self.WorldMapProvider:Emphasize(id, isTreasure, false)
+    self.WorldMapRouteProvider:Emphasize(id, isTreasure, false)
+end
+
+function module:FocusPoint(id, isTreasure)
+    if self:IsFocused(id, isTreasure) then
+        self.focus_id = nil
+        self.focus_treasure = nil
+        self.focus_ping = nil
     else
-        self.focus_mob = mobid
+        self.focus_id = id
+        self.focus_treasure = isTreasure or nil
     end
     if WorldMapFrame:IsShown() then
         self.WorldMapProvider:ApplyFocusState()
     else
-        self.focus_mob_ping = true
+        self.focus_ping = true
     end
     self:UpdateMinimapIcons()
 end
@@ -177,6 +262,23 @@ end
 
 local isKnowable = function(item) return item:Obtained() ~= nil end
 
+-- Whether to leave the plain items out. One answer for every tooltip we draw,
+-- and it's the Tooltip module's to give.
+local function onlyKnowableLoot()
+    local tooltips = core:GetModule("Tooltip", true)
+    return (tooltips and tooltips:OnlyKnowableLoot()) or false
+end
+local function lootGoesIn(config, where)
+    return bit.band(config.loot, where) ~= 0
+end
+
+-- The world map pin hooks borrow Blizzard's tooltip and have no popout window,
+-- so any loot the user wants shown at all has to go inline there.
+local function pinLootGoesInTooltip()
+    local config = module.db.profile.worldmap
+    return lootGoesIn(config, module.const.LOOT_TOOLTIP) or lootGoesIn(config, module.const.LOOT_WINDOW)
+end
+
 function module:ShowTooltip(pin)
     local tooltip = self.tooltip
     if tooltip:IsShown() and tooltip.pin == pin then
@@ -189,23 +291,28 @@ function module:ShowTooltip(pin)
     else
         tooltip:SetOwner(pin, "ANCHOR_RIGHT")
     end
-    local id = pin.mobid
-    if id and ns.mobdb[id] then
-        tooltip:AddLine(core:GetMobLabel(id))
-        tooltip:AddDoubleLine("最近看到", core:FormatLastSeen(core.db.global.mob_seen[id]))
-        if pin:Config().tooltip_completion then
-            ns:UpdateTooltipWithCompletion(tooltip, id)
-            ns.Loot.Summary.UpdateTooltip(tooltip, id, not pin:Config().tooltip_regularloot)
+    local id = pin.id
+    local isTreasure = pin.isTreasure
+    local data = id and core:GetData(id, isTreasure)
+    if data then
+        tooltip:AddLine(core:GetLabel(id, isTreasure))
+        if not isTreasure then
+            -- nothing tracks when a treasure was last seen
+            tooltip:AddDoubleLine("Last seen", core:FormatLastSeen(core.db.global.mob_seen[id]))
         end
-        if ns.mobdb[id].notes then
-            tooltip:AddLine(core:RenderString(ns.mobdb[id].notes), 1, 1, 1, true)
+        ns:UpdateTooltipWithCompletion(tooltip, id, isTreasure)
+        if lootGoesIn(pin:Config(), module.const.LOOT_TOOLTIP) then
+            ns.Loot.Summary.UpdateTooltip(tooltip, id, onlyKnowableLoot(), isTreasure)
         end
-        if pin:Config().tooltip_lootwindow then
+        if data.notes then
+            tooltip:AddLine(core:RenderString(data.notes), 1, 1, 1, true)
+        end
+        if lootGoesIn(pin:Config(), module.const.LOOT_WINDOW) then
             local filter
-            if not pin:Config().tooltip_regularloot then
+            if onlyKnowableLoot() then
                 filter = isKnowable
             end
-            self.lootwindow = ns.Loot.Window.ShowForMob(id, false, false, filter)
+            self.lootwindow = ns.Loot.Window.ShowForMob(id, false, isTreasure, filter)
             if self.lootwindow then
                 self.lootwindow:SetParent(tooltip)
                 if pin:GetCenter() > UIParent:GetCenter() then
@@ -219,21 +326,23 @@ function module:ShowTooltip(pin)
                 end)
             end
         end
-        if ns.mobdb[id].requires then
-            local metRequirements = ns.conditions.check(ns.mobdb[id].requires)
-            local r, g, b = (metRequirements and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
-            tooltip:AddLine(
-                core:RenderString(ns.conditions.summarize(ns.mobdb[id].requires), ns.mobdb[id]),
-                r, g, b, true
-            )
+        if data.requires then
+            -- summarize is nil when every condition is SILENT (e.g. a lone
+            -- MapArt from a folded `art` key); nothing to say, so no line
+            local summary = ns.conditions.summarize(data.requires)
+            if summary then
+                local metRequirements = ns.conditions.check(data.requires)
+                local r, g, b = (metRequirements and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
+                tooltip:AddLine(core:RenderString(summary, data), r, g, b, true)
+            end
         end
-        if ns.mobdb[id].active then
-            local isActive = ns.conditions.check(ns.mobdb[id].active)
-            local r, g, b = (isActive and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
-            tooltip:AddLine(
-                core:RenderString(ns.conditions.summarize(ns.mobdb[id].active), ns.mobdb[id]),
-                r, g, b, true
-            )
+        if data.active then
+            local summary = ns.conditions.summarize(data.active)
+            if summary then
+                local isActive = ns.conditions.check(data.active)
+                local r, g, b = (isActive and GREEN_FONT_COLOR or RED_FONT_COLOR):GetRGB()
+                tooltip:AddLine(core:RenderString(summary, data), r, g, b, true)
+            end
         end
     else
         tooltip:AddLine(UNKNOWN)
@@ -269,9 +378,9 @@ local function AddMobToTooltip(tooltip, mobid, name)
     if name then
         tooltip:AddLine(core:GetMobLabel(mobid))
     end
-    if module.db.profile.worldmap.tooltip_completion then
-        ns:UpdateTooltipWithCompletion(tooltip, mobid)
-        ns.Loot.Summary.UpdateTooltip(tooltip, mobid, not module.db.profile.worldmap.tooltip_regularloot)
+    ns:UpdateTooltipWithCompletion(tooltip, mobid)
+    if pinLootGoesInTooltip() then
+        ns.Loot.Summary.UpdateTooltip(tooltip, mobid, onlyKnowableLoot())
     end
     if ns.mobdb[mobid].notes then
         tooltip:AddLine(core:RenderString(ns.mobdb[mobid].notes), 1, 1, 1, true)
@@ -281,9 +390,9 @@ end
 
 local function AddTreasureToTooltip(tooltip, vignetteID)
     if not (vignetteID and ns.vignetteTreasureLookup[vignetteID]) then return end
-    if module.db.profile.worldmap.tooltip_completion then
-        -- ns:UpdateTooltipWithCompletion(tooltip, mobid)
-        ns.Loot.Summary.UpdateTooltip(tooltip, vignetteID, not module.db.profile.worldmap.tooltip_regularloot, true)
+    ns:UpdateTooltipWithCompletion(tooltip, vignetteID, true)
+    if pinLootGoesInTooltip() then
+        ns.Loot.Summary.UpdateTooltip(tooltip, vignetteID, onlyKnowableLoot(), true)
     end
     if ns.vignetteTreasureLookup[vignetteID].notes then
         tooltip:AddLine(core:RenderString(ns.vignetteTreasureLookup[vignetteID].notes), 1, 1, 1, true)
@@ -299,25 +408,73 @@ do
     gateFrame:SetScript("OnHide", function() already = false end)
     gateFrame:SetScript("OnUpdate", function(self) self:Hide() end)
 
+    local function getSubordinateTooltip()
+        local subordinate = _G[myname.."SubordinateTooltip"]
+        if not subordinate then
+            subordinate = CreateFrame("GameTooltip", myname.."SubordinateTooltip", UIParent, "GameTooltipTemplate")
+            if _G.GameTooltipDataMixin then Mixin(subordinate, _G.GameTooltipDataMixin) end
+            subordinate:SetFrameStrata("TOOLTIP")
+            subordinate:SetClampedToScreen(true)
+        end
+        return subordinate
+    end
+
+    -- My HandyNotes plugins name their own copy of this workaround the same
+    -- way, and our data is synced from theirs, so the same vignette often has
+    -- both of us reaching for the identical spot below GameTooltip. Stack under
+    -- whichever of theirs is already showing instead of covering it.
+    local function findSiblingSubordinateTooltip()
+        local lowest, lowestBottom
+        for i = 1, C_AddOns.GetNumAddOns() do
+            local name = C_AddOns.GetAddOnInfo(i)
+            if name and name ~= myname then
+                local sibling = _G[name.."SubordinateTooltip"]
+                if type(sibling) == "table" and sibling.IsShown and sibling:IsShown() then
+                    local bottom = sibling:GetBottom() -- lower on screen = smaller Y
+                    if bottom and (not lowestBottom or bottom < lowestBottom) then
+                        lowest, lowestBottom = sibling, bottom
+                    end
+                end
+            end
+        end
+        return lowest
+    end
+
     local handleWorldMapPin = function(pin)
         if not pin then return end
         if already then return end
         gateFrame:Show()
+
+        -- Appending to a tooltip Blizzard has already inserted widgets into
+        -- taints the widget's cached data, which later blocks arithmetic on
+        -- its now-secret layout fields. Hang our lines off a separate tooltip
+        -- below instead, like the item-comparison one does off the side.
+        -- (2026-08, 12.1; mirrors HandyNotes handler commit e12d76a.)
+        local tooltip = GameTooltip
+        if GameTooltip.insertedFrames and #GameTooltip.insertedFrames > 0 then
+            tooltip = getSubordinateTooltip()
+            tooltip:SetOwner(GameTooltip, "ANCHOR_NONE")
+            tooltip:ClearAllPoints()
+            tooltip:SetPoint("TOPLEFT", findSiblingSubordinateTooltip() or GameTooltip, "BOTTOMLEFT", 0, -10)
+        elseif _G[myname.."SubordinateTooltip"] then
+            _G[myname.."SubordinateTooltip"]:Hide()
+        end
+
         local point
         if pin.vignetteID then
             if ns.vignetteTreasureLookup[pin.vignetteID] then
-                AddTreasureToTooltip(GameTooltip, pin.vignetteID)
+                AddTreasureToTooltip(tooltip, pin.vignetteID)
             elseif ns.vignetteMobLookup[pin.vignetteID] then
                 for mobid in pairs(ns.vignetteMobLookup[pin.vignetteID]) do
-                    AddMobToTooltip(GameTooltip, mobid)
+                    AddMobToTooltip(tooltip, mobid)
                 end
             elseif pin.vignetteInfo and pin.vignetteInfo.name then
-                AddMobToTooltip(GameTooltip, core:IdForMob(pin.vignetteInfo.name))
+                AddMobToTooltip(tooltip, core:IdForMob(pin.vignetteInfo.name))
             end
         elseif pin.worldQuest and pin.questID then
             if not ns.worldQuestMobLookup[pin.questID] then return end
             for mobid in pairs(ns.worldQuestMobLookup[pin.questID]) do
-                AddMobToTooltip(GameTooltip, mobid, true)
+                AddMobToTooltip(tooltip, mobid, true)
             end
         elseif pin.poiInfo and pin.poiInfo.areaPoiID then
             -- point = ns.POIsToPoints[pin.poiInfo.areaPoiID]
@@ -326,6 +483,7 @@ do
     local hideComparison = function()
         -- 10.0.2 doesn't hide this by default any more
         if _G[myname.."ComparisonTooltip"] then _G[myname.."ComparisonTooltip"]:Hide() end
+        if _G[myname.."SubordinateTooltip"] then _G[myname.."SubordinateTooltip"]:Hide() end
         gateFrame:Hide()
     end
 

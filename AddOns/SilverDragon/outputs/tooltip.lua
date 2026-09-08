@@ -11,6 +11,7 @@ function module:OnInitialize()
 			drop = true,
 			id = false,
 			combatdrop = false,
+			regularloot = true,
 		},
 	})
 
@@ -19,16 +20,18 @@ function module:OnInitialize()
 		config.options.args.general.plugins.tooltip = {
 			tooltip = {
 				type = "group",
-				name = "浮動提示資訊",
+				name = "Tooltips",
+				inline = true,
 				order = 93,
 				get = function(info) return self.db.profile[info[#info]] end,
 				set = function(info, v) self.db.profile[info[#info]] = v end,
 				args = {
-					about = config.desc("稀有怪獸與牠們的產地能夠在怪物的浮動提示資訊說明中增加一些資訊。對於稀有怪來說，會顯示是否真的需要擊殺牠才能達成成就。", 0),
-					achievement = config.toggle("成就", "顯示達成成就是否需要這個稀有怪", 1),
-					drop = config.toggle("掉落", "顯示你是否需要這個稀有怪掉落的物品", 2),
-					combatdrop = config.toggle("...戰鬥中", "戰鬥中要顯示掉落物品", 3),
-					id = config.toggle("單位 ID", "在浮動提示資訊中顯示稀有怪的 ID", 4),
+					about = config.desc("SilverDragon can put some information about mobs into their tooltips. For rares, that can include whether you actually need to kill them for an achievement.", 0),
+					achievement = config.toggle("Achievements", "Show if you need a rare mob for an achievement", 1),
+					drop = config.toggle("Drops", "Show if you need a drop from a mob", 2),
+					combatdrop = config.toggle("...in combat", "Show the drops while you're in combat", 3),
+					regularloot = config.toggle("...including regular loot", "List plain items too, not just the ones we can tell whether you have, like mounts and toys. The map overlay asks this as well", 4),
+					id = config.toggle("Unit IDs", "Show mob ids in tooltips", 5),
 				},
 			},
 		}
@@ -52,6 +55,13 @@ function module:OnEnable()
 	end
 end
 
+-- Whether to leave out the plain items and list only the things we can tell
+-- whether you already have. The map overlay's tooltips ask this too, so the
+-- answer lives here rather than being set up again per-map.
+function module:OnlyKnowableLoot()
+	return not self.db.profile.regularloot
+end
+
 -- This is split out entirely so I can test this without having to actually hunt down a rare:
 -- /script SilverDragon:GetModule('Tooltip'):UpdateTooltip(51059)
 -- /script SilverDragon:GetModule('Tooltip'):UpdateTooltip(32491)
@@ -65,7 +75,7 @@ function module:UpdateTooltip(id, force_achievement, force_drop, force_id)
 	end
 
 	if force_drop or ((self.db.profile.drop and (self.db.profile.combatdrop or not InCombatLockdown())) and force_drop ~= false) then
-		ns.Loot.Summary.UpdateTooltip(GameTooltip, id)
+		ns.Loot.Summary.UpdateTooltip(GameTooltip, id, self:OnlyKnowableLoot())
 	end
 
 	if ns.mobdb[id] and ns.mobdb[id].notes then

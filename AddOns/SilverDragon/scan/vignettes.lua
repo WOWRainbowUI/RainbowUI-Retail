@@ -73,6 +73,7 @@ function module:OnInitialize()
 					ignore = {
 						type="group",
 						name=IGNORE,
+						inline = true,
 						args={
 							desc = config.desc("這裡列出曾經通知過的小地圖圖示，勾選的小地圖圖示將不會再發出通知。", 0),
 							type = {

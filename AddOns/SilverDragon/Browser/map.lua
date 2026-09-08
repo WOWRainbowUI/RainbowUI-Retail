@@ -237,8 +237,10 @@ function MapMixin:RefreshPins()
 		local show, dim = self:PinState(id)
 		if show then
 			local icon = theme[module:MobStateFor(id)] or theme.unknown
-			for _, coord in ipairs(coords) do
-				table.insert(placed, {id = id, coord = coord, icon = icon, dim = dim})
+			for coord in pairs(coords) do
+				if core:CoordGateMet(ns.mobdb[id], self.uiMapID, coord) then
+					table.insert(placed, {id = id, coord = coord, icon = icon, dim = dim})
+				end
 			end
 		end
 	end

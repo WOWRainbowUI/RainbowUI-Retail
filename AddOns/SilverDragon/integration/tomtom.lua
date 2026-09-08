@@ -23,7 +23,7 @@ function module:OnInitialize()
 
 	local config = core:GetModule("Config", true)
 	if config then
-		config.options.plugins.tomtom = {
+		config.options.args.announcements.plugins.tomtom = {
 			tomtom = {
 				type = "group",
 				name = "導航",
@@ -42,12 +42,20 @@ function module:OnInitialize()
 							loot = config.toggle("拾取物品", "為拾取物品建立導航", 27),
 						},
 					},
-					whiledead = config.toggle("死亡時", "...即便你已經死亡", 30),
-					blizzard = config.toggle("使用內建的", "使用遊戲內建的地圖導航", 40),
-					mappinenhanced = config.toggle("使用 MapPinEnhanced", "如果有安裝 MapPinEnhanced 插件則使用它", 50, nil, function() return not MapPinEnhanced end),
-					tomtom = config.toggle("使用 TomTom", "如果有安裝 TomTom 插件則使用它", 60, nil, function() return not TomTom end),
-					dbm = config.toggle("使用 DBM", "如果有安裝 DeadlyBossMods 插件則使用它", 70, nil, function() return not DBM end),
-					replace = config.toggle("取代導航", "用新的導航取代原有的導航", 80),
+					outputs = {
+						type = "group",
+						inline = true,
+						name = "Where to make them...",
+						order = 27,
+						args = {
+							blizzard = config.toggle("Use built-in", "Use the built-in Blizzard waypoints", 40),
+							mappinenhanced = config.toggle("Use MapPinEnhanced", "If MapPinEnhanced is installed, use it", 50, nil, function() return not MapPinEnhanced end),
+							tomtom = config.toggle("Use TomTom", "If TomTom is installed, use it", 60, nil, function() return not TomTom end),
+							dbm = config.toggle("Use DeadlyBossMods", "If DeadlyBossMods is installed, use it", 70, nil, function() return not DBM end),
+						},
+					},
+					whiledead = config.toggle("While dead", "...even when you're dead", 30),
+					replace = config.toggle("Replace waypoints", "Replace an existing waypoint if one is set", 80),
 					duration = {
 						type = "range",
 						name = "持續時間",

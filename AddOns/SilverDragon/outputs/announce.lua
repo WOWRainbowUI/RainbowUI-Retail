@@ -153,7 +153,7 @@ function module:OnInitialize()
 		-- Singling a mount out asks the same question the filter does, so say so
 		-- wherever that happens -- it's not obvious from here that a checkbox in
 		-- another section can switch these off.
-		local mountNote = "\n\nWhich mounts count comes from the Mount option under \"What's notable?\": one you already know only counts if it's BoE, and with that unticked this stops happening at all."
+		local mountNote = "\n\nWhich mounts count comes from the Mount option under Notability: one you already know only counts if it's BoE, and with that unticked this stops happening at all."
 
 		local sink_config = self:GetSinkAce3OptionsDataTable()
 		local sink_args = {}
@@ -255,51 +255,23 @@ function module:OnInitialize()
 		local filter_sorting = {"none", "notable", "everything"}
 
 		local options = {
-			general = {
-				type = "group", name = "通報", inline = true,
-				order = 10,
+			filter = {
+				type = "group", name = "Filters", inline = true,
+				order = 5,
 				get = get, set = set,
 				args = {
 					filter = {
 						type = "select", name = "Which rares?",
-						desc = "\"Notable ones\" leaves out a rare once it has nothing left for you. What counts as worth having is up to you, below.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Rares we know nothing about are always announced.",
+						desc = "\"Notable ones\" leaves out a rare once it has nothing left for you. What counts as worth having is set under Notability.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Rares we know nothing about are always announced.",
 						values = filter_values, sorting = filter_sorting,
 						order = 0, width = "double",
 					},
 					filter_loot = {
 						type = "select", name = "Which treasures?",
-						desc = "\"Notable ones\" leaves out a treasure once it has nothing left for you. What counts as worth having is up to you, below.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Treasures we know nothing about are always announced.",
+						desc = "\"Notable ones\" leaves out a treasure once it has nothing left for you. What counts as worth having is set under Notability.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Treasures we know nothing about are always announced.",
 						values = filter_values, sorting = filter_sorting,
 						order = 1, width = "double",
 					},
-				},
-			},
-			notable = {
-				type = "group", name = "What's notable?", inline = true,
-				desc = "Define exactly what counts as being \"notable\"",
-				order = 12,
-				-- these live on the core profile, because the shared rewards
-				-- system reads them and other parts of SilverDragon can use them
-				get = function(info) return core.db.profile[info[#info]] end,
-				set = function(info, v)
-					core.db.profile[info[#info]] = v
-					core.events:Fire("OptionsChanged", info[#info], v)
-				end,
-				-- Deliberately not disabled when neither filter is "notable": Mount
-				-- still decides which sightings earn the mount sound and flash, and
-				-- greying out something that's still doing work is worse than
-				-- leaving it alone.
-				args = {
-					-- these globals don't all exist in the classic clients, hence
-					-- the fallbacks
-					achievement_notable = toggle(_G.TRANSMOG_SOURCE_5 or ACHIEVEMENTS or "Achievement", "Count unearned achievement-progress as notable", 10),
-					mount_notable = toggle(PERKS_VENDOR_CATEGORY_MOUNT or MOUNTS or "Mount", "Count unlearned mounts as notable loot. This also picks which sightings get the mount sound and flash, whatever the filters above say", 20),
-					toy_notable = toggle(TOY or "Toy", "Count unlearned toys as notable loot", 30),
-					pet_notable = toggle(TOOLTIP_BATTLE_PET or "Battle Pet", "Count uncaught pets as notable loot", 40),
-					transmog_notable = toggle("Transmog", "Count unlearned transmogrification appearances as notable loot.\n\nWhether an appearance you know from some other item counts as known here is up to \"Transmog exact items\", over in General's Loot options", 50),
-					decor_notable = toggle(_G.BINDING_TAG_DECOR or "Decor", "Count unfound decor as notable loot", 60, nil, not _G.BINDING_TAG_DECOR),
-					quest_notable = toggle("Quest-attached", "Count items with attached uncompleted quests as notable loot (this includes a lot of \"learnable\" items, weekly reputation drops, etc)", 70),
-					alts_achievements_count = toggle("An alt counts", "Treat an achievement one of your other characters has completed as done, rather than as something still to earn", 80),
 				},
 			},
 			message = {
@@ -465,7 +437,7 @@ function module:OnInitialize()
 				type = "group", name = "搖桿",
 				get = get, set = set,
 				disabled = function(info) return info[#info] ~= "controller" and not C_GamePad.IsEnabled() end,
-				order = 15,
+				order = 150,
 				args = {
 					about = config.desc("發現稀有怪時震動已連接的搖桿，只有已經啟用搖桿支援性時才有效果。在聊天視窗輸入 `/console GamePadEnable 1` 可以啟用搖桿。", 0),
 				},
@@ -510,18 +482,12 @@ function module:OnInitialize()
 		order = vibrate_section(options.controller.args, "boss", order, "Vibrate for bosses")
 		order = vibrate_section(options.controller.args, "loot", order, "Vibrate for loot")
 
-		config.options.args.general.plugins.announce = options
+		config.options.args.announcements.plugins.announce = options
 	end
 end
 
--- Move a profile's old announcement options onto the two filters.
---
--- Each group keys off whether its old options are stored at all, because AceDB
--- doesn't store a value matching its default: someone who only changed
--- already_transmog has no stored `already`, and someone who left the Treasures
--- toggle alone has no stored `loot`. Hence `== false` for the ones that used to
--- default to true. Clearing the old keys is what stops this running twice, as
--- none of them have defaults any more.
+-- Move a profile's old announcement options onto their replacements, mostly the
+-- two filters.
 --
 -- This runs on profile change as well as at load: profiles are switched long
 -- after OnInitialize, and an old one would otherwise keep its old keys and
@@ -531,18 +497,15 @@ function module:MigrateFilterOptions()
 	if p.already ~= nil or p.already_drop ~= nil or p.already_transmog ~= nil or p.already_alt ~= nil then
 		-- `already` meant "don't filter on completion at all", so it's the only one
 		-- that maps to anything other than the default. already_drop asked for loot
-		-- you own to silence a rare, which is what the notable filter does anyway,
-		-- so it needs nothing beyond being cleared away here.
+		-- you own to silence a rare; the notable filter already does that, so it
+		-- just needs clearing.
 		p.filter = p.already and "everything" or "notable"
-		-- already_transmog deliberately doesn't carry over. It read as "count
-		-- appearances when working out whether you already have everything", so
-		-- off meant a transmog-only rare could never be called finished and kept
-		-- announcing. transmog_notable off does the reverse: appearances stop
-		-- being a reason, but hasKnowableLoot still sees them, so the rare reads
-		-- as knowably-not-wanted and goes quiet. Mapping one to the other turns
-		-- the old default upside down, so leave everyone on the new one.
+		-- already_transmog doesn't carry over. Its nearest match, transmog_notable,
+		-- is its inverse, so mapping across would flip the old default. Everyone
+		-- stays on the new one.
 
-		-- already_alt was "tell me anyway", the inverse of counting an alt's as done
+		-- already_alt was "tell me anyway", the inverse of counting an alt's
+		-- achievement as done
 		core.db.profile.alts_achievements_count = p.already_alt == false
 
 		p.already, p.already_drop, p.already_transmog, p.already_alt = nil, nil, nil, nil
@@ -557,31 +520,22 @@ function module:MigrateFilterOptions()
 		p.loot = nil
 	end
 
-	-- known_mounts is gone; the Mount notability option covers it. Turning it off
-	-- used to mean "a mount I already know still counts", which has no equivalent
-	-- and nothing to migrate to, so it just goes.
-	p.known_mounts = nil
-
-	-- There were two switches for instances, this one and core's "Scan in
-	-- instances", both off to start with and in different panels -- so turning
-	-- that one on by itself changed nothing you could hear. Core's covers both
-	-- now. It defaulted off, so a stored value here only ever means it was on.
-	if p.instances ~= nil then
-		if p.instances then
-			core.db.profile.instances = true
-		end
-		p.instances = nil
-	end
-
-	-- Same story for dead rares: this and the Targets scanner each had a switch
-	-- called "Dead rares". Core's covers both. It defaulted on, so a stored value
-	-- here only ever means it was turned off.
+	-- Dead rares had two switches as well: this one and the Targets scanner's.
+	-- Core's covers both now. It defaulted on, so a stored value here only ever
+	-- means it was turned off.
 	if p.dead ~= nil then
 		if not p.dead then
 			core.db.profile.dead = false
 		end
 		p.dead = nil
 	end
+
+	-- These are just gone and being cleaned up:
+
+	-- Now covered by core's mount notability
+	p.known_mounts = nil
+	-- Now covered by core's instance toggle, for scanning and announcing
+	p.instances = nil
 end
 
 function module:Seen(callback, id, zone, x, y, is_dead, source, ...)
@@ -611,8 +565,11 @@ function module:SeenLoot(callback, name, id, zone, x, y, instanceid)
 		return
 	end
 	-- computed once and passed on, rather than making every AnnounceLoot
-	-- subscriber (the sound handler, notably) work it out again for itself
-	local notable = ns.MobIsNotable(id, true)
+	-- subscriber (the sound handler, notably) work it out again for itself.
+	-- This only fires off a live treasure vignette, so pass fromVignette: the
+	-- game wouldn't show one if there were nothing left, whatever our quest data
+	-- thinks.
+	local notable = ns.MobIsNotable(id, true, true)
 	-- as in ShouldAnnounce, only a definite "nothing here is wanted" silences it
 	if filter == "notable" and notable == false then
 		Debug("Announce:SeenLoot", false, "not notable")
@@ -872,7 +829,7 @@ do
 			flashframe:SetScript("OnShow", function(self)
 				local background = module.db.profile.flash_texture
 				local color = module.db.profile.flash_color
-				local data = self.id and (self.isloot and ns.vignetteTreasureLookup or ns.mobdb)[self.id]
+				local data = self.id and core:GetData(self.id, self.isloot)
 				if data then
 					if module.db.profile.flash_mount and ns.HasNotableMounts(self.id, self.isloot) then
 						background = module.db.profile.flash_texture_mount

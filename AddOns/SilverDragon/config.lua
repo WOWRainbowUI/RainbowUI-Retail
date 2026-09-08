@@ -38,18 +38,19 @@ local options = {
 			type = "group",
 			name = "關於",
 			args = {
-				about = desc("稀有怪獸與牠們的產地 - SilverDragon 會隨時為你注意稀有生物。\n\n"..
-						"要更改監控的方式請到 \"掃描\" 設定。"..
-						"可以啟用或停用幾種不同的用法，"..
-						"以及調整一些選項。\n\n"..
-						"要調整彈出的目標面板請到 \"目標框架\" "..
-						"設定。\n\n"..
-						"要更改發現稀有怪時的通知，請到 \"輸出\" "..
-						"設定。\n\n"..
-						"要新增自訂稀有怪來掃描，請看看 \"稀有怪\" 裡面的 \"自訂\" "..
-						"設定。\n\n"..
-						"如果你希望稀有怪和牠們的產地不要 不要 千萬不要再通知某些稀有怪，"..
-						"請看看 \"稀有怪\" 裡面的 \"忽略\" 標籤頁面。"),
+				about = desc("SilverDragon keeps an eye out for rare mobs for you.\n\n"..
+						"If you want to change how it does that, go to the \"Scanning\" section "..
+						"of the config. You can enable or disable the different methods used, and "..
+						"adjust how some of them behave.\n\n"..
+						"If you want to adjust the way the targeting popup appears, go to the \"ClickTarget\" "..
+						"section.\n\n"..
+						"If you want to change how you're told about seeing a rare, check out the "..
+						"\"Announcements\" section.\n\n"..
+						"If you want to add a custom mob to scan for, look at \"Custom\" in the \"Mobs\" "..
+						"section.\n\n"..
+						"If you want SilverDragon to please, please stop telling you about a certain "..
+						"mob, look at \"Ignore\" in the \"Mobs\" section.\n\n"..
+						"The same but about a treasure is in \"Scanning\" > \"Vignettes\"."),
 			},
 			order = 0,
 		},
@@ -58,14 +59,11 @@ local options = {
 			name = "一般",
 			order = 10,
 			args = {
-				about = desc("稀有怪獸與牠們的產地會通知你一些訊息，查看這裡和子類別來調整通知的方式。", 0),
 				loot = {
 					type = "group",
 					name = "戰利品",
 					inline = true,
-					-- last: both of these are fine-tuning, and everything the
-					-- modules add to this section matters more than they do
-					order = 110,
+					order = 10,
 					args = {
 						about = desc("Some options for how SilverDragon will treat loot drops from mobs", 0),
 						charloot = toggle("Current character only", "Only count loot that should drop for your current character towards a rare being worth announcing. The loot window still shows everything, with what won't drop for you moved to its own section.", 10),
@@ -75,6 +73,32 @@ local options = {
 						transmog_specific = toggle("Transmog exact items", "For transmog appearances, only count them as known if you know them from that exact item, rather than from another sharing the same appearance", 25),
 					}
 				},
+			},
+			plugins = {},
+		},
+		notable = {
+			type = "group",
+			name = "Notability",
+			order = 13,
+			args = {
+				about = desc("These decide what SilverDragon treats as worth your attention. The announcement filter, the map overlay and the click-target macro all ask the same question.", 0),
+				achievement_notable = toggle(_G.TRANSMOG_SOURCE_5 or ACHIEVEMENTS or "Achievement", "Count unearned achievement-progress as notable", 10),
+				mount_notable = toggle(PERKS_VENDOR_CATEGORY_MOUNT or MOUNTS or "Mount", "Count unlearned mounts as notable loot. This also picks which sightings get the mount sound and flash, whatever the filters say", 20),
+				toy_notable = toggle(TOY or "Toy", "Count unlearned toys as notable loot", 30),
+				pet_notable = toggle(TOOLTIP_BATTLE_PET or "Battle Pet", "Count uncaught pets as notable loot", 40),
+				transmog_notable = toggle("Transmog", "Count unlearned transmogrification appearances as notable loot.\n\nWhether an appearance you know from some other item counts as known here is up to \"Transmog exact items\", over in General's Loot options", 50),
+				decor_notable = toggle(_G.BINDING_TAG_DECOR or "Decor", "Count unfound decor as notable loot", 60, nil, not _G.BINDING_TAG_DECOR),
+				quest_notable = toggle("Quest-attached", "Count items with attached uncompleted quests as notable loot (this includes a lot of \"learnable\" items, weekly reputation drops, etc)", 70),
+				alts_achievements_count = toggle("An alt counts", "Treat an achievement one of your other characters has completed as done, rather than as something still to earn", 80),
+			},
+			plugins = {},
+		},
+		announcements = {
+			type = "group",
+			name = "Announcements",
+			order = 17,
+			args = {
+				about = desc("SilverDragon wants to tell you when it sees a rare. These options set how it does that.", 0),
 			},
 			plugins = {},
 		},

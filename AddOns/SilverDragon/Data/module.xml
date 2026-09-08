@@ -1,16 +1,19 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-  <Script file="Events/module.lua"/>
-  <Script file="Vanilla/module.lua"/>
-  <Script file="BurningCrusade/module.lua"/>
-  <Script file="Wrath/module.lua"/>
-  <Script file="Cataclysm/module.lua"/>
-  <Script file="Mists/module.lua"/>
-  <Script file="Warlords/module.lua"/>
-  <Script file="Legion/module.lua"/>
-  <Script file="BattleForAzeroth/module.lua"/>
-  <Script file="Shadowlands/module.lua"/>
-  <Script file="Dragonflight/module.lua"/>
-  <Script file="WarWithin/module.lua"/>
-  <Script file="Midnight/module.lua"/>
+  <Script file="Events/module.lua [AllowLoadGameType mainline]"/>
+  <Script file="Vanilla/module.lua [AllowLoadGameType mainline, mists]"/>
+  <Script file="BurningCrusade/module.lua [AllowLoadGameType mainline, mists, cata, wrath, tbc]"/>
+  <Script file="Wrath/module.lua [AllowLoadGameType mainline, mists, cata, wrath]"/>
+  <Script file="Cataclysm/module.lua [AllowLoadGameType mainline, mists, cata]"/>
+
+  <!-- Expansions synced from the HandyNotes plugins have more than one file;
+       each keeps its own load list. -->
+  <Include file="Mists/module.xml [AllowLoadGameType mainline, mists]"/>
+  <Include file="Warlords/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="Legion/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="BattleForAzeroth/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="Dragonflight/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="WarWithin/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="Midnight/module.xml [AllowLoadGameType mainline]"/>
+  <Include file="Shadowlands/module.xml [AllowLoadGameType mainline]"/>
 </Ui>
