@@ -96,6 +96,8 @@ function addonTable.Core.Initialize()
   addonTable.CustomiseDialog.Initialize()
 
   addonTable.Display.Initialize()
+
+  addonTable.Skins.Initialize()
 end
 
 local frame = CreateFrame("Frame")

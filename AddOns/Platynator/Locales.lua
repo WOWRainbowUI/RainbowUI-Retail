@@ -164,6 +164,8 @@ L["ID_IN_TOOLTIPS"] = "IDs in tooltips"
 L["BUFFS_FRIENDLY"] = "Buffs (Friendly)"
 L["DEBUFFS_ENEMY"] = "Debuffs (Enemy)"
 L["CROWD_CONTROL_ENEMY"] = "Crowd Control (Enemy)"
+L["UNIQUE_DEBUFFS"] = "Unique Debuffs"
+L["DEDUPLICATE"] = "Deduplicate"
 
 L["FOREGROUND"] = "Foreground"
 L["VISUAL"] = "Visual"

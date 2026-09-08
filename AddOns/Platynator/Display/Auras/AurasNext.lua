@@ -202,8 +202,9 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
     end
   end
 
-  if kind == "debuffs" and addonTable.Constants.DeduplicateDebuffs[class] then
-    for _, spellID in ipairs(addonTable.Constants.DeduplicateDebuffs[class]) do
+  local deduplicateAllClasses = addonTable.Config.Get(addonTable.Config.Options.AURA_DEDUPLICATE)
+  if kind == "debuffs" and deduplicateAllClasses[class] then
+    for _, spellID in ipairs(deduplicateAllClasses[class]) do
       if not exclude[spellID] then
         deduplicate = deduplicate + 1
         exclude[spellID] = true
@@ -330,6 +331,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self[kind]:SetAuraGroupFilterString(key, group[1])
       self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
       self[kind]:SetAuraGroupCandidateFilters(key, group[2])
+      self[kind]:SetAuraGroupMaxFrameCount(key, details.limit)
     end
 
     if self[kind].groupsCount > #groups then
@@ -413,11 +415,11 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
     end
   end
 
-  self.buffs:SetEnabled(self.buffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
-  self.debuffs:SetEnabled(self.debuffs.details ~= nil)
-  self.crowdControl:SetEnabled(self.crowdControl.details ~= nil)
-
   self.buffs:SetUnit(unit)
   self.debuffs:SetUnit(unit)
   self.crowdControl:SetUnit(unit)
+
+  self.buffs:SetEnabled(self.buffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
+  self.debuffs:SetEnabled(self.debuffs.details ~= nil)
+  self.crowdControl:SetEnabled(self.crowdControl.details ~= nil)
 end

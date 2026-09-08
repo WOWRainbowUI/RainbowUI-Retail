@@ -454,8 +454,6 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
   local values = GetCVarsForNameplates()
   local currentShow = addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES)
 
-  C_CVar.SetCVar("nameplateShowAll", (not relevantInstance and addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES_ONLY_NEEDED)) and "0" or "1")
-
   if relevantInstance then
     if not self.toggledFriendly and
       (state == "name_only" and not currentShow.friendlyPlayer
@@ -503,7 +501,7 @@ function addonTable.Display.ManagerMixin:UpdateStackingRegion(unit)
     stackRegion:GetParent(),
     "CENTER",
     stackRegion.rect.left,
-    stackRegion.rect.bottom - self:GetBaseOffset(unit)
+    stackRegion.rect.bottom + self:GetBaseOffset(unit)
   )
   stackRegion:SetSize(stackRegion.rect.width, stackRegion.rect.height)
 

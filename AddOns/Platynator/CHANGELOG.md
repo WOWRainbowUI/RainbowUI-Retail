@@ -1,9 +1,9 @@
 # Platynator
 
-## [482](https://github.com/TheMouseNest/Platynator/tree/482) (2026-09-03)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/481...482) 
+## [484](https://github.com/TheMouseNest/Platynator/tree/484) (2026-09-06)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/483...484) 
 
-- Deduplicate Death Knight (Blood): Blood Plague debuff  
-- Cleanup  
-- PTR: Fixes  
-- Better nameplate visibility state toggling based on settings  
+- Add ElvUI skin for customise dialog  
+- Move deduplicating debuffs into explicit options  
+- Fix auras limit on CC  
+- Revert behaviour change with nameplateShowAll cvar  
