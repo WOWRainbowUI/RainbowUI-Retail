@@ -285,6 +285,7 @@ do
 
   local class = UnitClassBase("player")
   local queued
+  local indexes = {}
 
   totemMonitor:SetScript("OnEvent", function(_, eventName, ...)
     if eventName == "UNIT_SPELLCAST_SUCCEEDED" then
@@ -301,20 +302,32 @@ do
         queued = spellID
       end
     elseif eventName == "PLAYER_TOTEM_UPDATE" then
-      local index = ...
-      if GetTotemDuration(index) == nil then
-        for spellID, otherIndex in pairs(spellIDToIndex) do
-          if index == otherIndex then
-            spellIDToIndex[spellID] = nil
-            break
-          end
-        end
-      elseif queued then
-        spellIDToIndex[queued] = index
-      elseif addonTable.Constants.ProcTotems[class] then
-        spellIDToIndex[addonTable.Constants.ProcTotems[class]] = index
+      local newIndex = ...
+      if tIndexOf(indexes, newIndex) == nil then
+        table.insert(indexes, newIndex)
       end
-      addonTable.CallbackRegistry:TriggerEvent("Update.Totems")
+      totemMonitor:SetScript("OnUpdate", function()
+        totemMonitor:SetScript("OnUpdate", nil)
+        table.sort(indexes)
+        for _, index in ipairs(indexes) do
+          for spellID, otherIndex in pairs(spellIDToIndex) do
+            if index == otherIndex then
+              spellIDToIndex[spellID] = nil
+              break
+            end
+          end
+          if GetTotemDuration(index) ~= nil then
+            if queued then
+              spellIDToIndex[queued] = index
+              queued = addonTable.Constants.TotemSequenceOverrides[queued]
+            elseif addonTable.Constants.ProcTotems[class] then
+              spellIDToIndex[addonTable.Constants.ProcTotems[class]] = index
+            end
+          end
+          addonTable.CallbackRegistry:TriggerEvent("Update.Totems")
+        end
+        indexes = {}
+      end)
     elseif eventName == "PLAYER_ENTERING_WORLD" then
       local tmp = {}
       for i = 1, 4 do

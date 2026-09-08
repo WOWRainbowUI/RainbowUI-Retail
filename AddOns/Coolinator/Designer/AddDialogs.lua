@@ -19,7 +19,7 @@ local function GetSpellIconDialog(allGetter, activeGetter, kind)
   local container = CreateFrame("Frame", nil, frame)
   container:SetPoint("TOPLEFT", addonTable.Constants.ButtonFrameOffset, -25)
   container:SetPoint("BOTTOMRIGHT")
-  local seen = {}
+  local inLayout = {}
 
   local offsetY = 0
 
@@ -63,21 +63,18 @@ local function GetSpellIconDialog(allGetter, activeGetter, kind)
       elseif kind == Kind.Item then
         icon:SetTexture(number and C_Item.GetItemIconByID(number))
       end
-      addIDButton:SetEnabled(number and not seen[number])
+      addIDButton:SetEnabled(number ~= nil)
     end)
     addIDButton:SetScript("OnClick", function()
       local number = Evaluate()
-      if number and not seen[number] then
+      if number then
         frame.callback(number)
       end
     end)
     local function ShowTooltip(self)
       local number = Evaluate()
       GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-      if seen[number] then
-        GameTooltip:SetText(RED_FONT_COLOR:WrapTextInColorCode(addonTable.Locales.ALREADY_ADDED))
-        GameTooltip:Show()
-      elseif number then
+      if number then
         if kind == Kind.Spell then
           GameTooltip:SetSpellByID(C_Spell.GetOverrideSpell(number))
         elseif kind == Kind.Aura then
@@ -120,21 +117,20 @@ local function GetSpellIconDialog(allGetter, activeGetter, kind)
     button.Highlight:Hide()
     if kind == Kind.Spell then
       local override = C_Spell.GetOverrideSpell(data)
-      button.Icon:SetDesaturated(not addonTable.Utilities.IsAbilitySpellKnown(override))
       button.Icon:SetTexture(C_Spell.GetSpellTexture(override))
     elseif kind == Kind.Aura then
-      button.Icon:SetDesaturated(not addonTable.Utilities.IsAuraSpellKnown(data))
       button.Icon:SetTexture(C_Spell.GetSpellTexture(data))
     elseif kind == Kind.Item then
-      button.Icon:SetDesaturated(C_Item.GetItemCount(data) == 0)
       button.Icon:SetTexture(C_Item.GetItemIconByID(data))
     elseif kind == Kind.Equipment then
       local location = ItemLocation:CreateFromEquipmentSlot(data)
-      button.Icon:SetDesaturated(not C_Item.DoesItemExist(location))
       button.Icon:SetTexture(C_Item.DoesItemExist(location) and C_Item.GetItemIcon(location) or C_Item.GetItemIconByID(0))
     else
       assert(false)
     end
+
+    button.Icon:SetDesaturated(inLayout[data] ~= nil)
+
     button:SetScript("OnClick", function()
       frame.callback(data)
       frame:Hide()
@@ -165,16 +161,20 @@ local function GetSpellIconDialog(allGetter, activeGetter, kind)
   end)
   ScrollUtil.InitScrollBoxListWithScrollBar(frame.scrollBox, frame.scrollBar, frame.view)
 
-  function frame:Update(callback, includeActive)
+  function frame:Update(callback, fadeActive)
     frame.callback = callback
     local all = allGetter()
-    table.sort(all)
-    if not includeActive then
-      seen = activeGetter()
-      all = tFilter(all, function(data)
-        return not seen[data]
-      end, true)
+    if not fadeActive then
+      inLayout = activeGetter()
+    else
+      inLayout = {}
     end
+    table.sort(all, function(a, b)
+      if inLayout[a] ~= inLayout[b] then
+        return inLayout[b] ~= nil
+      end
+      return a < b
+    end)
     frame.view:SetDataProvider(CreateDataProvider(all))
     frame:Show()
   end
@@ -202,7 +202,7 @@ end
 
 function addonTable.Designer.GetAbilityChargesDialog()
   local dialog = GetSpellIconDialog(function()
-    return tFilter(addonTable.Core.GetAllClassAbilities(), function(a)
+    return tFilter(addonTable.Core.GetAllAbilities(), function(a)
       local chargeInfo = C_Spell.GetSpellCharges(a)
       return chargeInfo ~= nil and chargeInfo.maxCharges > 1
     end, true)

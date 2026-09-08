@@ -58,6 +58,7 @@ end
 function addonTable.Display.AbilityChargesPipMixin:Import()
   local chargesInfo = C_Spell.GetSpellCharges(self.details.resource.spellID)
   if chargesInfo.maxCharges < self.index then
+    self:UnregisterEvent("SPELL_UPDATE_CHARGES")
     self:Hide()
     return
   end

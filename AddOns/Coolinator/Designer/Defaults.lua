@@ -213,7 +213,7 @@ local function GetChargeGroup(fill, empty)
   }
   local group = CopyTable(Group)
   group.locked = true
-  for i = 1, 3 do
+  for i = 1, 6 do
     table.insert(group.entries, CopyTable(pip))
     group.entries[#group.entries].index = #group.entries
   end
