@@ -76,16 +76,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260901210504")
+DBM.Revision = parseCurseDate("20260908055539")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 416, "1888a1e"--416.0
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.8"--Core version
+DBM.DisplayVersion = "12.1.9"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 9, 1) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 9, 7) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -233,6 +233,9 @@ local deprecatedMods = { -- a list of "banned" (meaning they are replaced by ano
 
 	"DBM-Affixes",--Retired in midnight
 }
+if private.isRetail then
+	deprecatedMods[#deprecatedMods + 1] = "DBM-TimelessIsle"--Retail version is deprecated; retain support for MoP Classic
+end
 
 -----------------
 --  Libraries  --
@@ -837,7 +840,7 @@ do
 	bossModPrototype.GetRenameDefault = DBM.GetRenameDefault
 
 	function DBM:RefreshSpellRenames()
-		refreshSpellRenameCache(false)
+		refreshSpellRenameCache(true)
 	end
 	bossModPrototype.RefreshSpellRenames = DBM.RefreshSpellRenames
 
@@ -1725,6 +1728,10 @@ do
 			if not self.Options.HasShownMidnightPopup then
 				DBM.MidnightPopup:ShowMidnightPopup()
 			end
+			--GetSpecialization can be unavailable during the initial reload-time aura update, leaving a fallback spec cached.
+			--Refresh it here and rebuild anchors so Auto co-tank auras use the now-available tank role.
+			self:SetCurrentSpecInfo()
+			self:UpdateZoneAuraAnchors(2)
 		end
 		difficulties:RefreshCache()
 	end
@@ -1836,13 +1843,12 @@ do
 				if self.Options.HideBossEmoteFrame2 then
 					C_EncounterWarnings.SetWarningsShown(false)
 				end
-			else
-				--Only mess with sound channels if NOT midnight, since it's not like we need the sound channels anymore
-				local soundChannels = tonumber(GetCVar("Sound_NumChannels")) or 24--if set to 24, may return nil, Defaults usually do
-				--If this messes with your fps, stop raiding with a toaster. It's only fix for addon sound ducking.
-				if soundChannels < 64 then
-					SetCVar("Sound_NumChannels", 64)
-				end
+			end
+			--Continue working around regression introduced in legion https://www.patreon.com/deadlybossmods/posts/addon-sound-work-16575915
+			local soundChannels = tonumber(GetCVar("Sound_NumChannels")) or 24--if set to 24, may return nil, Defaults usually do
+			--It's only fix for addon sound ducking.
+			if soundChannels < 128 then
+				SetCVar("Sound_NumChannels", 128)
 			end
 			self.Voices = {{text = "None", value = "None"}}--Create voice table, with default "None" value
 			self.VoiceVersions = {}
@@ -5251,7 +5257,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260901210300" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260908055539" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

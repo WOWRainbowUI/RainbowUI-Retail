@@ -3,7 +3,7 @@ local mod	= DBM:NewMod(2894, "DBM-Raids-Midnight", 1, 1320)
 
 local UnitIsFriend = UnitIsFriend
 
-mod:SetRevision("20260828034548")
+mod:SetRevision("20260904045415")
 mod:SetCreatureID(261835, 261843, 261848)--261584 is Mor'zahi
 mod:SetEncounterID(3497)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -49,6 +49,7 @@ local timerMushroomTossCD				= mod:NewCDCountTimer(20.5, 1292104, nil, nil, nil,
 local timerShreddingShardsCD			= mod:NewCDCountTimer(20.5, 1295854, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerFrostfireVolleyCD			= mod:NewCDCountTimer(20.5, 1295935, nil, nil, nil, 3)
 local timerExplosiveSurpriseCD			= mod:NewCDCountTimer(20.5, 1296249, nil, nil, nil, 3)
+local timerFinalAscensionCD				= mod:NewCDCountTimer(20.5, 1292779, nil, nil, nil, 2)
 --local timerBerserkCD					= mod:NewBerserkTimer(600)--Unending Tides
 
 --evidence Log https://www.warcraftlogs.com/reports/MyHmVwLj8ncbpxvW?fight=15&type=auras&spells=debuffs
@@ -85,6 +86,7 @@ mod.vb.MushroomTossCount = 0
 mod.vb.ShreddingShardsCount = 0
 mod.vb.FrostfireVolleyCount = 0
 mod.vb.ExplosiveSurpriseCount = 0
+mod.vb.finalAscensionCount = 0
 
 ---@param self DBMMod
 ---@param dontSetAlerts boolean? Called when user has disabled DBM bars and is only using timeline, therefore we must still enable SetTimeline calls even in hardcodes
@@ -114,11 +116,11 @@ local function setFallback(self, dontSetAlerts)
 	timerShreddingShardsCD:SetTimeline(768, onlyColor)
 	timerFrostfireVolleyCD:SetTimeline({776, 777}, onlyColor)
 	timerExplosiveSurpriseCD:SetTimeline(781, onlyColor)
+	timerFinalAscensionCD:SetTimeline(783, onlyColor)
 end
 
 function mod:OnLimitedCombatStart()
 --	self:EnableAlertOptions(1291390, 721, "stilldanger", 2)
---	self:EnableAlertOptions(1292779, 783, "stilldanger", 4)
 	badStateDetected = false
 	self:TLCountReset()
 	self:TLActiveEventReset()
@@ -136,9 +138,10 @@ function mod:OnLimitedCombatStart()
 	self.vb.MushroomTossCount = 1
 	self.vb.ShreddingShardsCount = 1
 	self.vb.FrostfireVolleyCount = 1
+	self.vb.finalAscensionCount = 1
 	self.vb.ExplosiveSurpriseCount = 1
-	--Normal and Heroic use the same verified four-stage timeline schedule. Mythic uses Blizzard fallback until an equivalent log is available.
-	if DBM.Options.HardcodedTimer and (self:IsNormal() or self:IsHeroic()) and not badStateDetected then
+	--Normal, Heroic, and Mythic use the verified four-stage timeline schedule.
+	if DBM.Options.HardcodedTimer and (self:IsNormal() or self:IsHeroic() or self:IsMythic()) and not badStateDetected then
 		normalHardcodeActive = true
 		self:SetStage(1)
 		self:IgnoreBlizzardAPI()
@@ -217,12 +220,14 @@ do
 
 		--The outgoing stage briefly re-publishes cancellable bars before the incoming schedule.
 		--Wait for a duration unique to the incoming stage so those rows retain their old-stage routing.
-		if pendingNormalStage == 4 and timer == 21 then
+		--Normal can send the unique 16-second Shell Spin before stage 4's Blink Nova.
+		if pendingNormalStage == 4 and (timer == 21 or timer == 16) then
 			self:SetStage(4)
 			pendingNormalStage = nil
 			normalStage4Special27Count = 0
 			stage = 4
-		elseif pendingNormalStage == 2 and timer == 30 then
+		--Stage 2's unique 7-second Shell Spin can follow outgoing stage-1 rows in any order.
+		elseif pendingNormalStage == 2 and timer == 7 then
 			self:SetStage(2)
 			pendingNormalStage = nil
 			normalStage2Special32Count = 0
@@ -231,8 +236,8 @@ do
 			self:SetStage(3)
 			pendingNormalStage = nil
 			stage = 3
-		--The stage 1 Blink Nova opener can arrive before Final Ascension's later reset marker when returning from stages 2, 3, or 4.
-		elseif (stage == 4 and (timer == 10 or timer == 18 or timer == 20 or timer == 60)) or (stage == 2 and (timer == 10 or timer == 20 or timer == 60)) or (stage == 3 and (timer == 10 or timer == 60)) then
+		--Stage 1's 18-second Shell Spin can arrive before Final Ascension when returning from stage 3.
+		elseif (stage == 4 and (timer == 10 or timer == 18 or timer == 20 or timer == 60)) or (stage == 2 and (timer == 10 or timer == 20 or timer == 60 or (self:IsMythic() and timer == 18))) or (stage == 3 and (timer == 10 or timer == 18 or timer == 60)) then
 			self:SetStage(1)
 			pendingNormalStage = nil
 			normalNext31IsIce = true
@@ -251,6 +256,7 @@ do
 				queueStart(self, timerShellSpinCD, timerExact, eventID, "shell", "ShellSpinCount")
 			elseif timer == 60 then
 				handled = true
+				queueStart(self, timerFinalAscensionCD, timerExact, eventID, "finalascension", "finalAscensionCount")
 			elseif timer == 20 or timer == 4 or timer == 23 then
 				handled = true
 				queueStart(self, timerThrowJunkCD, timerExact, eventID, "throwjunk", "ThrowJunkCount")
@@ -289,17 +295,24 @@ do
 				queueStart(self, timerIceboundFlamesCD, timerExact, eventID, "icebound", "IceboundFlamesCount")
 			elseif timer == 32 then
 				handled = true
-				normalStage2Special32Count = normalStage2Special32Count + 1
-				if normalStage2Special32Count == 1 then
-					queueStart(self, timerMushroomTossCD, timerExact, eventID, "mushroom", "MushroomTossCount")
-				elseif normalStage2Special32Count == 2 then
-					queueStart(self, timerShellSpinCD, timerExact, eventID, "shell", "ShellSpinCount")
-				elseif normalStage2Special32Count == 3 then
+				--Mythic's Explosive Surprise is the distinct 31.96-second entry; the remaining exact-32 entries retain their verified order.
+				if self:IsMythic() and self:IsRoundedTimer(timerExact, 31.96, 0.02) then
 					queueStart(self, timerExplosiveSurpriseCD, timerExact, eventID, "explosive", "ExplosiveSurpriseCount")
-				elseif normalStage2Special32Count == 4 then
-					queueStart(self, timerIceboundFlamesCD, timerExact, eventID, "icebound", "IceboundFlamesCount")
 				else
-					handled = false
+					normalStage2Special32Count = normalStage2Special32Count + 1
+					if normalStage2Special32Count == 1 then
+						queueStart(self, timerMushroomTossCD, timerExact, eventID, "mushroom", "MushroomTossCount")
+					elseif normalStage2Special32Count == 2 then
+						queueStart(self, timerShellSpinCD, timerExact, eventID, "shell", "ShellSpinCount")
+					elseif normalStage2Special32Count == 3 and self:IsMythic() then
+						queueStart(self, timerIceboundFlamesCD, timerExact, eventID, "icebound", "IceboundFlamesCount")
+					elseif normalStage2Special32Count == 3 then
+						queueStart(self, timerExplosiveSurpriseCD, timerExact, eventID, "explosive", "ExplosiveSurpriseCount")
+					elseif normalStage2Special32Count == 4 then
+						queueStart(self, timerIceboundFlamesCD, timerExact, eventID, "icebound", "IceboundFlamesCount")
+					else
+						handled = false
+					end
 				end
 			end
 		elseif stage == 3 then
@@ -354,7 +367,7 @@ do
 		end
 
 		if not handled then
-			fallbackToBlizzard(self, "|cffff0000Failed to match Normal or Heroic encounter timeline events to expected timers, falling back to Blizzard API|r")
+			fallbackToBlizzard(self, "|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r")
 		end
 	end
 
@@ -372,7 +385,7 @@ do
 	--Note, bar state changing and canceling is handled by core
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
-		if eventInfo.source ~= 0 or not (self:IsNormal() or self:IsHeroic()) or badStateDetected then return end
+		if eventInfo.source ~= 0 or not (self:IsNormal() or self:IsHeroic() or self:IsMythic()) or badStateDetected then return end
 		local eventID = eventInfo.id
 		if C_EncounterTimeline.GetEventState(eventID) ~= 0 or not self:TLTrackActiveEvent(eventID) then return end
 		local timerExact = eventInfo.duration

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2882, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260828031305")
+mod:SetRevision("20260904061356")
 mod:SetCreatureID(259181)
 mod:SetEncounterID(3455)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -167,7 +167,7 @@ do
 		end
 	end
 
-	local function timersHeroic(self, timer, timerExact, eventID)
+	local function timersHard(self, timer, timerExact, eventID)
 		--Confirmed same on heroic and mythic so far
 		local handled
 		if timer == 8 or timer == 11 or timer == 22 or timer == 27 or timer == 28 then
@@ -216,7 +216,7 @@ do
 			if self:IsNormal() then
 				timersNormal(self, timer, timerExact, eventID)
 			else
-				timersHeroic(self, timer, timerExact, eventID)
+				timersHard(self, timer, timerExact, eventID)
 			end
 		end
 	end

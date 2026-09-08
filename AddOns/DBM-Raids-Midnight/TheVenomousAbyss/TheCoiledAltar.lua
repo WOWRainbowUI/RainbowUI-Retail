@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2883, "DBM-Raids-Midnight", 1, 1320)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260828030104")
+mod:SetRevision("20260904045415")
 mod:SetCreatureID(259854, 257911)--Malacrass, Zul'jan
 mod:SetEncounterID(3429)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -553,7 +553,7 @@ do
 				specWarnEternalNightfall:Show(eventCount)
 				specWarnEternalNightfall:Play("attackshield")
 			elseif eventType == "gloombomb" then
-				specWarnGloombomb:Show(eventCount, "bombyou")
+				specWarnGloombomb:Show(eventCount, "bombyou", 3)
 			elseif eventType == "deathmarch" then
 				specWarnDeathmarch:Show(eventCount)
 				specWarnDeathmarch:Play("findmc")
