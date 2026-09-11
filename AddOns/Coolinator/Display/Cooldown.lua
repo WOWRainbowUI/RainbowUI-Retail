@@ -271,7 +271,7 @@ function addonTable.Display.CooldownMixin:UpdateSpellCooldowns()
     local chargeDuration = C_Spell.GetSpellChargeDuration(self.spellID)
     self.ChargesCooldown:SetCooldownFromDurationObject(chargeDuration)
     self.ChargesCooldown:SetAlphaFromBoolean(C_Spell.GetSpellCharges(self.spellID))
-    self.ChargesCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or cooldownInfo.isActive and cooldownInfo.isOnGCD == false)
+    self.ChargesCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or cooldownInfo.isActive and not cooldownInfo.isOnGCD)
   else
     self.ChargesCooldown:Clear()
   end

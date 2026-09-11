@@ -56,6 +56,8 @@ function addonTable.Core.Initialize()
   CreateFrame("Frame", "CoolinatorPrimaryGroupAnchor")
 
   addonTable.State.UsingMasque = C_AddOns.IsAddOnLoaded("Masque") and addonTable.Config.Get(addonTable.Config.Options.USE_MASQUE)
+
+  addonTable.Skins.Initialize()
 end
 
 local function GetCDMActiveLayout()

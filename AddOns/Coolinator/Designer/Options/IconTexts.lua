@@ -9,6 +9,7 @@ function addonTable.Designer.Options.GetIconTextPositioning(rootParent, iconID)
   local previewInset = CreateFrame("Frame", nil, container, "InsetFrameTemplate")
   previewInset:SetSize(160, 120)
   previewInset:SetPoint("TOP")
+  addonTable.Skins.AddFrame("InsetFrame", previewInset)
 
   local preview = CreateFrame("Frame", nil, previewInset)
 

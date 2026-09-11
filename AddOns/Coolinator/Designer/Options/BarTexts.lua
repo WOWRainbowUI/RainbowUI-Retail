@@ -10,6 +10,7 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
   local previewInset = CreateFrame("Frame", nil, container, "InsetFrameTemplate")
   previewInset:SetSize(430, 180)
   previewInset:SetPoint("TOP")
+  addonTable.Skins.AddFrame("InsetFrame", previewInset)
 
   local preview = CreateFrame("Frame", nil, previewInset)
 

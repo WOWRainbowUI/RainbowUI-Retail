@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007
 ## Title: Coolinator
-## Version: 141
+## Version: 142
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
@@ -98,5 +98,10 @@ Designer/Options/Main.lua
 
 Designer/Main.lua
 Designer/Initialize.lua
+
+Skins/Utilities.lua
+Skins/Initialize.lua
+Skins/Blizzard.lua
+Skins/ElvUI.lua
 
 API/Main.lua

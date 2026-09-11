@@ -57,7 +57,7 @@ function addonTable.Display.BaseLayoutManagerMixin:GetStack(details)
         icon:SetPoint("CENTER", wrapper)
         width = math.max(width, entry.scale * offsetSize)
         height = math.max(height, entry.scale * offsetSize)
-        icon:SetFrameLevel(self:GetFrameLevel() + 5 * (index - 1) + 1)
+        icon:SetFrameLevel(self:GetFrameLevel() + 10 * (index - 1) + 1)
         table.insert(wrapper.children, icon)
       end
     elseif entry.kind == "bar" then
@@ -66,7 +66,7 @@ function addonTable.Display.BaseLayoutManagerMixin:GetStack(details)
         bar:SetParent(wrapper)
         bar:SetAlpha(entry.alpha)
         bar:SetPoint("BOTTOM", wrapper)
-        bar:SetFrameLevel(self:GetFrameLevel() + 5 * (index - 1) + 1)
+        bar:SetFrameLevel(self:GetFrameLevel() + 10 * (index - 1) + 1)
         table.insert(wrapper.children, bar)
       end
     end
