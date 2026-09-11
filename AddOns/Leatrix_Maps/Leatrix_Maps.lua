@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.03 (2nd September 2026)
+	-- 	Leatrix Maps 12.1.04 (9th September 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.03"
+	LeaMapsLC["AddonVer"] = "12.1.04"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120100 then -- 12.1.0
+		if gametocversion and gametocversion >= 120105 then -- 12.1.5
 			LeaMapsLC.NewPatch = true
 		end
 	end
@@ -75,14 +75,8 @@
 		-- Enter /ltm map 150 during combat and click a boss button.
 
 		-- Load Battlefield addon
-		if LeaMapsLC.NewPatch then
-			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
-				LoadAddOnWithErrorHandling("Blizzard_BattlefieldMap")
-			end
-		else
-			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
-				UIParentLoadAddOn("Blizzard_BattlefieldMap")
-			end
+		if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
+			LoadAddOnWithErrorHandling("Blizzard_BattlefieldMap")
 		end
 
 		-- Get player faction
@@ -504,11 +498,9 @@
 
 		if LeaMapsLC["ShowCoords"] == "On" then
 
-			if LeaMapsLC.NewPatch then
-				-- Disable built-in coordinates
-				SetCVar("worldMapShowPlayerCoords", "0")
-				SetCVar("worldMapShowCursorCoords", "0")
-			end
+			-- Disable built-in coordinates
+			SetCVar("worldMapShowPlayerCoords", "0")
+			SetCVar("worldMapShowCursorCoords", "0")
 
 			-- Create background frame
 			local cFrame = CreateFrame("FRAME", nil, WorldMapFrame.ScrollContainer)
@@ -552,20 +544,11 @@
 			cPlayer:SetScript("OnUpdate", function(self, elapsed)
 				if cPlayerTime > 0.1 or cPlayerTime == -1 then
 					-- Cursor coordinates
-					if LeaMapsLC.NewPatch then
-						local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-						if x and y then
-							x, y = floor(x * 1000 + 0.5) / 10, floor(y * 1000 + 0.5) / 10
-							if x > 0 and y > 0 and x < 100 and y < 100 then
-								cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], x, y)
-							else
-								cCursor.x:SetFormattedText("%s:", L["Cursor"])
-							end
-						end
-					else
-						local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-						if x and y and x > 0 and y > 0 and MouseIsOver(WorldMapFrame.ScrollContainer) then
-							cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], ((floor(x * 1000 + 0.5)) / 10), ((floor(y * 1000 + 0.5)) / 10))
+					local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
+					if x and y then
+						x, y = floor(x * 1000 + 0.5) / 10, floor(y * 1000 + 0.5) / 10
+						if x > 0 and y > 0 and x < 100 and y < 100 then
+							cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], x, y)
 						else
 							cCursor.x:SetFormattedText("%s:", L["Cursor"])
 						end
@@ -664,15 +647,6 @@
 			----------------------------------------------------------------------
 			-- Allow map frame movement
 			----------------------------------------------------------------------
-
-			-- Remove frame management
-			if not LeaMapsLC.NewPatch then
-				C_Timer.After(0.1, function() -- Needed to apply settings properly (else game menu wont open with escape and opening map alongside character frame resets map position)
-					WorldMapFrame:SetAttribute("UIPanelLayout-area", nil)
-					WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
-					WorldMapFrame:SetAttribute("UIPanelLayout-allowOtherPanels", true)
-				end)
-			end
 
 			-- Enable movement
 			WorldMapFrame:SetMovable(true)
