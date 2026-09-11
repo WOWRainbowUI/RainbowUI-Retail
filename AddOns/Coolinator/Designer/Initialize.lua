@@ -26,13 +26,14 @@ local function GenerateDialog()
   dialog.text:SetJustifyH("CENTER")
   dialog.text:SetText(addonTable.Locales.EDIT_THE_ICONS_AND_BARS_ONSCREEN)
 
-  --addonTable.Skins.AddFrame("Dialog", dialog)
+  addonTable.Skins.AddFrame("Dialog", dialog)
   dialog.exitButton = CreateFrame("Button", nil, dialog, "UIPanelDynamicResizeButtonTemplate")
   dialog.exitButton:SetText(addonTable.Locales.CLOSE_DESIGNER)
   DynamicResizeButton_Resize(dialog.exitButton)
   dialog.exitButton:SetScript("OnClick", function()
     addonTable.CallbackRegistry:TriggerEvent("Designer.Close")
   end)
+  addonTable.Skins.AddFrame("Button", dialog.exitButton)
 
   dialog.exitButton:SetPoint("BOTTOM", dialog, "BOTTOM", 0, 15)
 

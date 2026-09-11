@@ -129,6 +129,7 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
         self.StyleButton(auraButton, self.details)
         auraButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
         auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
+        auraButton:SetFrameLevel(self:GetFrameLevel() + 1)
       end, candidateFilters = self.include},
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)

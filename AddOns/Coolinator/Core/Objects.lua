@@ -12,6 +12,7 @@ addonTable.Designer = {
 }
 addonTable.CustomiseDialog = {}
 addonTable.State = {}
+addonTable.Skins = {}
 
 Coolinator = {
   API = {}

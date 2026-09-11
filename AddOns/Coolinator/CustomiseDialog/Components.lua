@@ -18,7 +18,7 @@ function addonTable.CustomiseDialog.Components.GetCheckbox(parent, label, spacin
   checkBox:GetFontString():SetPoint("LEFT", holder)
   checkBox:GetFontString():SetJustifyH("RIGHT")
 
-  --addonTable.Skins.AddFrame("CheckBox", checkBox)
+  addonTable.Skins.AddFrame("CheckBox", checkBox)
 
   function holder:SetValue(value)
     checkBox:SetChecked(value)
@@ -72,7 +72,7 @@ function addonTable.CustomiseDialog.Components.GetTab(parent, text)
   end
   tab:SetText(text)
   tab:GetScript("OnShow")(tab)
-  --addonTable.Skins.AddFrame("TopTabButton", tab)
+  addonTable.Skins.AddFrame("TopTabButton", tab)
   return tab
 end
 
@@ -108,7 +108,7 @@ function addonTable.CustomiseDialog.Components.GetBasicDropdown(parent, labelTex
   frame.Label = label
   frame.DropDown = dropdown
   frame:SetHeight(40)
-  --addonTable.Skins.AddFrame("Dropdown", frame.DropDown)
+  addonTable.Skins.AddFrame("Dropdown", frame.DropDown)
 
   return frame
 end
@@ -157,7 +157,7 @@ function addonTable.CustomiseDialog.Components.GetSlider(parent, label, min, max
     return holder.Slider:SetValue(value)
   end
 
-  --addonTable.Skins.AddFrame("Slider", holder.Slider)
+  addonTable.Skins.AddFrame("Slider", holder.Slider)
 
   holder:SetScript("OnMouseWheel", function(_, delta)
     if holder.Slider.Slider:IsEnabled() then
@@ -323,6 +323,8 @@ function addonTable.CustomiseDialog.Components.GetContentFrame(name, width, heig
   frame:SetScript("OnMouseWheel", function() end)
 
   frame:SetTitle(addonTable.Locales.CUSTOMISE_COOLINATOR)
+
+  addonTable.Skins.AddFrame("ButtonFrame", frame)
 
   return frame
 end
