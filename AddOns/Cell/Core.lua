@@ -296,6 +296,26 @@ function eventFrame:ADDON_LOADED(arg1)
             end
         end
 
+        -- fix from MiliUI: party targets, topped up per key for the same reason as above.
+        -- The VALUES live with the tool (Utilities/PartyTargets.lua).
+        do
+            if type(CellDB["tools"]["partyTargets"]) ~= "table" then
+                CellDB["tools"]["partyTargets"] = {}
+            end
+            local t = CellDB["tools"]["partyTargets"]
+            local d = Cell.defaults.partyTargets
+            for key, value in pairs(d) do
+                if type(value) ~= "table" and type(t[key]) ~= type(value) then t[key] = value end
+            end
+
+            -- colours are a nested table: top up PER COLOUR, so a palette added after the
+            -- tool shipped still reaches a database that already has the others
+            if type(t["colors"]) ~= "table" then t["colors"] = {} end
+            for key, value in pairs(d["colors"]) do
+                if type(t["colors"][key]) ~= "table" then t["colors"][key] = F.Copy(value) end
+            end
+        end
+
         -- spellRequest ---------------------------------------------------------------------------
         if type(CellDB["spellRequest"]) ~= "table" then
             local POWER_INFUSION, POWER_INFUSION_ICON = F.GetSpellInfo(10060)
@@ -431,7 +451,8 @@ function eventFrame:ADDON_LOADED(arg1)
 
         if type(CellDB["clickCastings"][Cell.vars.playerClass]) ~= "table" then
             CellDB["clickCastings"][Cell.vars.playerClass] = {
-                ["useCommon"] = true,
+                -- fix from MiliUI: default to a profile per spec, not a shared one
+                ["useCommon"] = false,
                 ["smartResurrection"] = "disabled",
                 ["alwaysTargeting"] = {
                     ["common"] = "disabled",
@@ -671,9 +692,11 @@ function eventFrame:GROUP_ROSTER_UPDATE(skipFallbackUpdate)
         -- update Cell.unitButtons.party.units
         Cell.unitButtons.party.units["player"] = nil
         Cell.unitButtons.party.units["pet"] = nil
+        Cell.unitButtons.party.units["target"] = nil -- fix from MiliUI: party targets
         for i = 1, 4 do
             Cell.unitButtons.party.units["party"..i] = nil
             Cell.unitButtons.party.units["partypet"..i] = nil
+            Cell.unitButtons.party.units["party"..i.."target"] = nil -- fix from MiliUI
         end
 
     elseif IsInGroup() then
@@ -693,6 +716,7 @@ function eventFrame:GROUP_ROSTER_UPDATE(skipFallbackUpdate)
         for i = GetNumGroupMembers(), 4 do
             Cell.unitButtons.party.units["party"..i] = nil
             Cell.unitButtons.party.units["partypet"..i] = nil
+            Cell.unitButtons.party.units["party"..i.."target"] = nil -- fix from MiliUI
         end
 
     else
@@ -711,9 +735,11 @@ function eventFrame:GROUP_ROSTER_UPDATE(skipFallbackUpdate)
         -- update Cell.unitButtons.party.units
         Cell.unitButtons.party.units["player"] = nil
         Cell.unitButtons.party.units["pet"] = nil
+        Cell.unitButtons.party.units["target"] = nil -- fix from MiliUI: party targets
         for i = 1, 4 do
             Cell.unitButtons.party.units["party"..i] = nil
             Cell.unitButtons.party.units["partypet"..i] = nil
+            Cell.unitButtons.party.units["party"..i.."target"] = nil -- fix from MiliUI
         end
     end
 
