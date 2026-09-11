@@ -1,4 +1,8 @@
-﻿12.1.03 - 2nd September 2026
+﻿12.1.04 - 9th September 2026
+- The 'Hide alerts' option ('Frames') now applies to decor item toasts too.
+- PTR (12.1.5): Updated for game patch 12.1.5.
+
+12.1.03 - 2nd September 2026
 - Added a new option called 'Simple addon listing' ('Settings').  If checked, the addon listing will be shown in alphabetical order without categories.
 - For 'Set edit mode layout' ('Settings'), letter case will now be ignored when matching your chosen edit mode layout name.
 - The 'Disable bag automation' option ('System'), will no longer function if you login during the new player experience.
