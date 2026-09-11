@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.03 (2nd September 2026)
+-- 	Leatrix Plus 12.1.04 (9th September 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.03"
+	LeaPlusLC["AddonVer"] = "12.1.04"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -982,22 +982,12 @@
 			local function DeclineReqs()
 				if LeaPlusLC["NoFriendRequests"] == "On" then
 					for i = BNGetNumFriendInvites(), 1, -1 do
-						if LeaPlusLC.NewPatch then
-							local inviteInfo = C_BattleNet.GetFriendInviteInfo(i)
-							if inviteInfo.inviteID and inviteInfo.accountName then
-								BNDeclineFriendInvite(inviteInfo.inviteID)
-								C_Timer.After(0.1, function()
-									LeaPlusLC:Print(L["A friend request from"] .. " " .. inviteInfo.accountName .. " " .. L["was automatically declined."])
-								end)
-							end
-						else
-							local id, player = BNGetFriendInviteInfo(i)
-							if id and player then
-								BNDeclineFriendInvite(id)
-								C_Timer.After(0.1, function()
-									LeaPlusLC:Print(L["A friend request from"] .. " " .. player .. " " .. L["was automatically declined."])
-								end)
-							end
+						local inviteInfo = C_BattleNet.GetFriendInviteInfo(i)
+						if inviteInfo.inviteID and inviteInfo.accountName then
+							BNDeclineFriendInvite(inviteInfo.inviteID)
+							C_Timer.After(0.1, function()
+								LeaPlusLC:Print(L["A friend request from"] .. " " .. inviteInfo.accountName .. " " .. L["was automatically declined."])
+							end)
 						end
 					end
 				end
@@ -2127,17 +2117,10 @@
 					-- Slot button tooltip
 					slotBtn:SetScript("OnClick", function(self, btn)
 						if btn == "LeftButton" then
-							if LeaPlusLC.NewPatch then
-								local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
-								local slotID = C_PaperDollInfo.GetInventorySlotInfo(self.slot)
-								playerActor:UndressSlot(slotID)
-								playerActor:SetSheathed(true)
-							else
-								local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
-								local slotID = GetInventorySlotInfo(self.slot)
-								playerActor:UndressSlot(slotID)
-								playerActor:SetSheathed(true)
-							end
+							local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
+							local slotID = C_PaperDollInfo.GetInventorySlotInfo(self.slot)
+							playerActor:UndressSlot(slotID)
+							playerActor:SetSheathed(true)
 						end
 					end)
 
@@ -2185,46 +2168,23 @@
 					local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
 					if playerActor then
 						for slot, slotButtons in pairs(buttons) do
-							if LeaPlusLC.NewPatch then
-								if slotTable[slot] and C_PaperDollInfo.GetInventorySlotInfo(slotTable[slot]) then
-									local slotID, slotTexture = C_PaperDollInfo.GetInventorySlotInfo(slotTable[slot])
-									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
-									if itemTransmogInfo == nil then
-										buttons[slot].item = nil
-										buttons[slot].text = nil
-										buttons[slot].t:SetTexture(slotTexture)
+							if slotTable[slot] and C_PaperDollInfo.GetInventorySlotInfo(slotTable[slot]) then
+								local slotID, slotTexture = C_PaperDollInfo.GetInventorySlotInfo(slotTable[slot])
+								local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
+								if itemTransmogInfo == nil then
+									buttons[slot].item = nil
+									buttons[slot].text = nil
+									buttons[slot].t:SetTexture(slotTexture)
+								else
+									local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
+									buttons[slot].item = appearanceSourceInfo.itemLink
+									buttons[slot].text = UNKNOWN
+									if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
+										-- Hidden item
+										buttons[slot].t:SetAtlas("transmog-icon-hidden")
 									else
-										local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
-										buttons[slot].item = appearanceSourceInfo.itemLink
-										buttons[slot].text = UNKNOWN
-										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
-											-- Hidden item
-											buttons[slot].t:SetAtlas("transmog-icon-hidden")
-										else
-											-- Visible item
-											buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-										end
-									end
-								end
-							else
-								if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
-									local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
-									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
-									if itemTransmogInfo == nil then
-										buttons[slot].item = nil
-										buttons[slot].text = nil
-										buttons[slot].t:SetTexture(slotTexture)
-									else
-										local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
-										buttons[slot].item = appearanceSourceInfo.itemLink
-										buttons[slot].text = UNKNOWN
-										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
-											-- Hidden item
-											buttons[slot].t:SetAtlas("transmog-icon-hidden")
-										else
-											-- Visible item
-											buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-										end
+										-- Visible item
+										buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 									end
 								end
 							end
@@ -3825,14 +3785,8 @@
 				if eb.Text.tiptext == L["Exclusions"] .. "|n" then eb.Text.tiptext = "-" end
 
 				if GameTooltip:IsShown() then
-					if LeaPlusLC.NewPatch then
-						if eb:IsMouseOver() or eb.Text:IsMouseOver() then
-							GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
-						end
-					else
-						if MouseIsOver(eb) or MouseIsOver(eb.Text) then
-							GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
-						end
+					if eb:IsMouseOver() or eb.Text:IsMouseOver() then
+						GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
 					end
 				end
 
@@ -4432,49 +4386,25 @@
 
 				-- Traverse equipment slots
 				for k, slotName in ipairs(Slots) do
-					if LeaPlusLC.NewPatch then
-						if C_PaperDollInfo.GetInventorySlotInfo(slotName) then
-							id = C_PaperDollInfo.GetInventorySlotInfo(slotName)
-							duraval, duramax = GetInventoryItemDurability(id)
-							if duraval ~= nil then
+					if C_PaperDollInfo.GetInventorySlotInfo(slotName) then
+						id = C_PaperDollInfo.GetInventorySlotInfo(slotName)
+						duraval, duramax = GetInventoryItemDurability(id)
+						if duraval ~= nil then
 
-								-- At least one item has durability stat
-								validItems = true
+							-- At least one item has durability stat
+							validItems = true
 
-								-- Add to tooltip
-								if where == "tip" then
-									durapercent = tonumber(format("%.0f", duraval / duramax * 100))
-									valcol = (durapercent >= 80 and "|cff00FF00") or (durapercent >= 60 and "|cff99FF00") or (durapercent >= 40 and "|cffFFFF00") or (durapercent >= 20 and "|cffFF9900") or (durapercent >= 0 and "|cffFF2000") or ("|cffFFFFFF")
-									_G["GameTooltipTextLeft1"]:SetText(L["Durability"])
-									_G["GameTooltipTextLeft2"]:SetText(_G["GameTooltipTextLeft2"]:GetText() .. SlotsFriendly[k] .. "|n")
-									_G["GameTooltipTextRight2"]:SetText(_G["GameTooltipTextRight2"]:GetText() ..  valcol .. durapercent .. "%" .. "|r|n")
-								end
-
-								duravaltotal = duravaltotal + duraval
-								duramaxtotal = duramaxtotal + duramax
+							-- Add to tooltip
+							if where == "tip" then
+								durapercent = tonumber(format("%.0f", duraval / duramax * 100))
+								valcol = (durapercent >= 80 and "|cff00FF00") or (durapercent >= 60 and "|cff99FF00") or (durapercent >= 40 and "|cffFFFF00") or (durapercent >= 20 and "|cffFF9900") or (durapercent >= 0 and "|cffFF2000") or ("|cffFFFFFF")
+								_G["GameTooltipTextLeft1"]:SetText(L["Durability"])
+								_G["GameTooltipTextLeft2"]:SetText(_G["GameTooltipTextLeft2"]:GetText() .. SlotsFriendly[k] .. "|n")
+								_G["GameTooltipTextRight2"]:SetText(_G["GameTooltipTextRight2"]:GetText() ..  valcol .. durapercent .. "%" .. "|r|n")
 							end
-						end
-					else
-						if GetInventorySlotInfo(slotName) then
-							id = GetInventorySlotInfo(slotName)
-							duraval, duramax = GetInventoryItemDurability(id)
-							if duraval ~= nil then
 
-								-- At least one item has durability stat
-								validItems = true
-
-								-- Add to tooltip
-								if where == "tip" then
-									durapercent = tonumber(format("%.0f", duraval / duramax * 100))
-									valcol = (durapercent >= 80 and "|cff00FF00") or (durapercent >= 60 and "|cff99FF00") or (durapercent >= 40 and "|cffFFFF00") or (durapercent >= 20 and "|cffFF9900") or (durapercent >= 0 and "|cffFF2000") or ("|cffFFFFFF")
-									_G["GameTooltipTextLeft1"]:SetText(L["Durability"])
-									_G["GameTooltipTextLeft2"]:SetText(_G["GameTooltipTextLeft2"]:GetText() .. SlotsFriendly[k] .. "|n")
-									_G["GameTooltipTextRight2"]:SetText(_G["GameTooltipTextRight2"]:GetText() ..  valcol .. durapercent .. "%" .. "|r|n")
-								end
-
-								duravaltotal = duravaltotal + duraval
-								duramaxtotal = duramaxtotal + duramax
-							end
+							duravaltotal = duravaltotal + duraval
+							duramaxtotal = duramaxtotal + duramax
 						end
 					end
 				end
@@ -8172,14 +8102,8 @@
 
 			-- Manage focus
 			editBox:HookScript("OnEditFocusLost", function()
-				if LeaPlusLC.NewPatch then
-					if titleFrame:IsMouseOver() and IsMouseButtonDown("LeftButton") then
-						editBox:SetFocus()
-					end
-				else
-					if MouseIsOver(titleFrame) and IsMouseButtonDown("LeftButton") then
-						editBox:SetFocus()
-					end
+				if titleFrame:IsMouseOver() and IsMouseButtonDown("LeftButton") then
+					editBox:SetFocus()
 				end
 			end)
 
@@ -8313,6 +8237,7 @@
 				AlertFrame:UnregisterEvent(event)
 			end)
 			AlertFrame:UnregisterAllEvents()
+			EventRegistry:UnregisterFrameEvent("NEW_HOUSING_ITEM_ACQUIRED")
 		end
 
 		----------------------------------------------------------------------
@@ -9701,13 +9626,8 @@
 					willPlay, musicHandle = PlaySoundFile(soundID, "Master", false, true)
 				else
 					-- Sound kit without track time
-					if LeaPlusLC.NewPatch then
-						file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
-						willPlay, musicHandle = C_Sound.PlaySound(soundID, "Master", false, true)
-					else
-						file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
-						willPlay, musicHandle = PlaySound(soundID, "Master", false, true)
-					end
+					file, soundID = playlist[tracknumber]:match("([^,]+)%#([^,]+)")
+					willPlay, musicHandle = C_Sound.PlaySound(soundID, "Master", false, true)
 				end
 				-- Cancel existing music timer for a sound file
 				if LeaPlusLC.TrackTimer then LeaPlusLC.TrackTimer:Cancel() end
@@ -11902,11 +11822,7 @@
 					GameTooltip:HookScript("OnUpdate", function()
 						local a = _G["GameTooltipTextLeft1"]:GetText() or ""
 						if a == "Dark Soil" or a == "Jelly Deposit" or a == "Gersahl Shrub" then
-							if LeaPlusLC.NewPatch then
-								C_Sound.PlaySound(8959, "Master")
-							else
-								PlaySound(8959, "Master")
-							end
+							C_Sound.PlaySound(8959, "Master")
 						end
 					end)
 					-- Add Friendly Alpaca spawn locations to Uldum map
@@ -11998,18 +11914,12 @@
 				-- Enumerate frames
 				local frame = EnumerateFrames()
 				while frame do
-					if LeaPlusLC.NewPatch then
-						if not frame:IsAnchoringSecret() then
-							if (frame:IsVisible() and frame:IsMouseOver()) then
-								LeaPlusLC:Print(frame:GetName() or string.format("[Unnamed Frame: %s]", tostring(frame)))
-							end
-						else
-							LeaPlusLC:Print(L["[Secret frame: SECRET FRAME]"])
-						end
-					else
-						if (frame:IsVisible() and MouseIsOver(frame)) then
+					if not frame:IsAnchoringSecret() then
+						if (frame:IsVisible() and frame:IsMouseOver()) then
 							LeaPlusLC:Print(frame:GetName() or string.format("[Unnamed Frame: %s]", tostring(frame)))
 						end
+					else
+						LeaPlusLC:Print(L["[Secret frame: SECRET FRAME]"])
 					end
 					frame = EnumerateFrames(frame)
 				end
@@ -12073,11 +11983,7 @@
 							StopSound(LeaPlusLC.SNDcanitHandle)
 						end
 						-- Play sound ID
-						if LeaPlusLC.NewPatch then
-							LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = C_Sound.PlaySound(arg1, "Master", false, false)
-						else
-							LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = PlaySound(arg1, "Master", false, false)
-						end
+						LeaPlusLC.SNDcanitPlay, LeaPlusLC.SNDcanitHandle = C_Sound.PlaySound(arg1, "Master", false, false)
 						if not LeaPlusLC.SNDcanitPlay then LeaPlusLC:Print(L["Invalid sound ID"] .. ": |cffffffff" .. arg1) end
 					else
 						LeaPlusLC:Print(L["Invalid sound ID"] .. ": |cffffffff" .. arg1)
@@ -12206,11 +12112,7 @@
 				return
 			elseif str == "skit" then
 				-- Play a test sound kit
-				if LeaPlusLC.NewPatch then
-					C_Sound.PlaySound("1020", "Master", false, true)
-				else
-					PlaySound("1020", "Master", false, true)
-				end
+				C_Sound.PlaySound("1020", "Master", false, true)
 				return
 			elseif str == "dup" then
 				-- Print music track duplicates
@@ -12226,26 +12128,14 @@
 										if not v:match("([^,]+)%#([^,]+)%#([^,]+)") then
 											local temFile, temSoundID = v:match("([^,]+)%#([^,]+)")
 											if temSoundID then
-												if LeaPlusLC.NewPatch then
-													local temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
-													if temHandle then StopSound(temHandle) end
-													temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
-													if not temPlay and not temHandle then
-														print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
-														badidfound = true
-													else
-														if temHandle then StopSound(temHandle) end
-													end
+												local temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
+												if temHandle then StopSound(temHandle) end
+												temPlay, temHandle = C_Sound.PlaySound(temSoundID, "Master", false, true)
+												if not temPlay and not temHandle then
+													print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
+													badidfound = true
 												else
-													local temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
 													if temHandle then StopSound(temHandle) end
-													temPlay, temHandle = PlaySound(temSoundID, "Master", false, true)
-													if not temPlay and not temHandle then
-														print("|cffff5400" .. L["Bad ID"] .. ": |r" .. e, v)
-														badidfound = true
-													else
-														if temHandle then StopSound(temHandle) end
-													end
 												end
 											end
 										end
@@ -12383,11 +12273,7 @@
 								-- Select current button
 								bt[eBtn].line:Show()
 								selectedBtn = b
-								if LeaPlusLC.NewPatch then
-									C_Sound.PlaySound(115, "Master", false, true)
-								else
-									PlaySound(115, "Master", false, true)
-								end
+								C_Sound.PlaySound(115, "Master", false, true)
 								-- Print button data
 								eFrame.f:SetText(L["Enigma"] .. " " .. eBtn .. ": |cffffffff" .. eData[eBtn][#eData[eBtn]])
 							end
@@ -12722,11 +12608,7 @@
 				end
 				LeaPlusLC.BlanchyFrame:SetScript("OnEvent", function(self, event, void, pname)
 					if pname == L["Dead Blanchy"] then
-						if LeaPlusLC.NewPatch then
-							C_Timer.NewTicker(1, function()	C_Sound.PlaySound(8959, "Master") end, 20)
-						else
-							C_Timer.NewTicker(1, function()	PlaySound(8959, "Master") end, 20)
-						end
+						C_Timer.NewTicker(1, function()	C_Sound.PlaySound(8959, "Master") end, 20)
 					end
 				end)
 				return
