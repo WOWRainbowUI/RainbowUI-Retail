@@ -63,6 +63,41 @@ end
 
 MDT.transmissionCache = {}
 
+local function diagnosticValue(value)
+  if issecretvalue(value) then return "<secret>" end
+  return tostring(value)
+end
+
+local receiptHistory = {}
+local function reportImportError(link, text, sender, displayName)
+  local details = {
+    "Time: "..GetTime(),
+    "Link: "..diagnosticValue(link):gsub("|", "||"),
+    "Text: "..diagnosticValue(text):gsub("|", "||"),
+    "Sender: "..diagnosticValue(sender),
+    "Display name: "..diagnosticValue(displayName),
+    "Group size: "..GetNumGroupMembers(),
+    "In group: "..diagnosticValue(IsInGroup()),
+    "In raid: "..diagnosticValue(IsInRaid()),
+    "Lockdowns at click: "..MDT:GetLockdownState(),
+    "Cache keys (no route contents):",
+  }
+  for cachedSender, presets in pairs(MDT.transmissionCache) do
+    for cachedName, preset in pairs(presets) do
+      details[#details + 1] = diagnosticValue(cachedSender).." / "..diagnosticValue(cachedName).." / "..type(preset)
+    end
+  end
+  details[#details + 1] = "Recent completed preset receipts (oldest first; empty means none processed since UI load):"
+  for _, receipt in ipairs(receiptHistory) do
+    local fields = {}
+    for key, value in pairs(receipt) do fields[#fields + 1] = key.."="..diagnosticValue(value) end
+    table.sort(fields)
+    details[#details + 1] = table.concat(fields, "; ")
+  end
+  MDT:OnError("Missing or invalid cached route for "..diagnosticValue(sender).." / "..diagnosticValue(displayName),
+    table.concat(details, "\n").."\n"..debugstack(), "MDT failed to import preset from chat link", true)
+end
+
 local function showMapSectionIfNeeded()
   if MDT.IsMapSectionActive and MDT.SetCurrentSection and not MDT:IsMapSectionActive() then
     MDT:SetCurrentSection("maps")
@@ -94,15 +129,11 @@ function MDT:HandleChatLink(link, text)
     local sender = link:sub(17, string.len(link))
     local name, realm = string.match(sender, "(.*)+(.*)")
     if (not name) or (not realm) then
-      local msg = "\nsender: "..sender
-      local escapedText = text:gsub("|", "||")
-      msg = msg.."\nfull text: "..escapedText
-      local cache = MDT.U.TableToString(MDT.transmissionCache)
-      MDT:OnError(msg, cache, "MDT failed to import preset from chat link")
+      reportImportError(link, text, sender)
       return
     end
     -- to get the displayName (name of the preset) we need to get everything between the starting and closing brackets
-    local displayName = text:match("%[(.-)%]")
+    local displayName = text and text:match("%[(.-)%]")
     sender = name.."-"..realm
     local preset = MDT.transmissionCache[sender] and MDT.transmissionCache[sender][displayName]
     if preset and type(preset) == "table" then
@@ -115,18 +146,28 @@ function MDT:HandleChatLink(link, text)
       local msg = L["WARNING_OLD_DUNGEON_IMPORT"]
       print("|cFFFF0000MDT:|r "..msg)
     else
-      local msg = "\nparsed displayName: "..displayName
-      msg = msg.."\nsender: "..sender
-      local escapedText = text:gsub("|", "||")
-      msg = msg.."\nfull text: "..escapedText
-      local cache = MDT.U.TableToString(MDT.transmissionCache)
-      MDT:OnError(msg, cache, "MDT failed to import preset from chat link")
+      reportImportError(link, text, sender, displayName)
     end
     return
   end
 end
 
 function MDTcommsObject:OnCommReceived(prefix, message, distribution, sender)
+  local receipt
+  if prefix == presetCommPrefix then
+    receipt = {
+      time = GetTime(),
+      sender = diagnosticValue(sender),
+      distribution = diagnosticValue(distribution),
+      bytes = #message,
+      status = "Resolving sender",
+      lockdowns = MDT:GetLockdownState(),
+      groupSize = GetNumGroupMembers(),
+    }
+    -- Keep metadata for only the latest 20 completed messages, never their route payloads.
+    if #receiptHistory == 20 then tremove(receiptHistory, 1) end
+    receiptHistory[#receiptHistory + 1] = receipt
+  end
   --[[
         Sender has no realm name attached when sender is from the same realm as the player
         UnitFullName("Nnoggie") returns no realm while UnitFullName("player") does
@@ -134,12 +175,20 @@ function MDTcommsObject:OnCommReceived(prefix, message, distribution, sender)
         We append our realm if there is no realm
     ]]
   local name, realm = UnitFullName(sender)
-  if not name then return end
+  if receipt then
+    receipt.name = diagnosticValue(name)
+    receipt.realm = diagnosticValue(realm)
+  end
+  if not name then
+    if receipt then receipt.status = "Dropped: sender lookup returned nil" end
+    return
+  end
   if not realm or string.len(realm) < 3 then
     local _, r = UnitFullName("player")
     realm = r
   end
   local fullName = name.."-"..realm
+  if receipt then receipt.cacheSender = fullName end
 
   if prefix == MDT.versionCheckPrefix then
     if MDT.VersionCheck_OnCommReceived then
@@ -152,23 +201,49 @@ function MDTcommsObject:OnCommReceived(prefix, message, distribution, sender)
   --we cache the preset here already
   --the user still decides if he wants to click the chat link and add the preset to his db
   if prefix == presetCommPrefix then
+    receipt.status = "Decoding route"
     local preset = MDT:StringToTable(message, false)
-    if not MDT:ValidateImportPreset(preset, true) then return end
+    receipt.decodedType = type(preset)
+    if type(preset) == "string" then receipt.decodeError = preset end
+    if type(preset) == "table" then
+      receipt.textType = type(preset.text)
+      receipt.valueType = type(preset.value)
+      if type(preset.value) == "table" then
+        receipt.dungeonIndex = diagnosticValue(preset.value.currentDungeonIdx)
+        receipt.currentPull = diagnosticValue(preset.value.currentPull)
+        receipt.currentSublevel = diagnosticValue(preset.value.currentSublevel)
+        receipt.pullsType = type(preset.value.pulls)
+      end
+    end
+    receipt.status = "Validating route"
+    if not MDT:ValidateImportPreset(preset, true) then
+      receipt.status = "Dropped: route validation failed"
+      return
+    end
+    receipt.status = "Resolving dungeon"
+    receipt.dungeonIndex = preset.value.currentDungeonIdx
+    receipt.presetName = preset.text
+    receipt.uid = preset.uid
     local presetName = preset.text
     local dungeon = MDT:GetDungeonName(preset.value.currentDungeonIdx, true)
     if not dungeon then
+      receipt.status = "Dropped: unknown dungeon"
       -- check if it's dungeon that has been in MDT before but is not in the current version
       local knownDungeon = MDT.knownDungeons[preset.value.currentDungeonIdx]
       if knownDungeon then
         local displayName = knownDungeon..": "..presetName
         MDT.transmissionCache[fullName] = MDT.transmissionCache[fullName] or {}
         MDT.transmissionCache[fullName][displayName] = 0 --special marker for old dungeon preset
+        receipt.status = "Cached old-dungeon marker"
+        receipt.displayName = displayName
       end
       return
     end
     local displayName = dungeon..": "..presetName
     MDT.transmissionCache[fullName] = MDT.transmissionCache[fullName] or {}
     MDT.transmissionCache[fullName][displayName] = preset
+    receipt.status = "Cached"
+    receipt.displayName = displayName
     --live session preset
     if MDT.liveSessionActive and MDT.liveSessionAcceptingPreset and preset.uid == MDT.livePresetUID then
       MDT:ImportPreset(preset, true)
@@ -407,8 +482,47 @@ function MDT:MakeSendingStatusBar(f)
   end)
 end
 
+local function reportShareError(context, message)
+  local details = {}
+  for key, value in pairs(context) do
+    details[#details + 1] = key..": "..diagnosticValue(value)
+  end
+  table.sort(details)
+  local function probe(label, func, ...)
+    local function record(...)
+      local values = {}
+      for i = 1, select("#", ...) do values[i] = diagnosticValue(select(i, ...)) end
+      details[#details + 1] = label..": "..table.concat(values, ", ")
+    end
+    record(pcall(func, ...))
+  end
+  -- Probe failures are included in the report; they must not hide the original error.
+  probe("Player name (ok, name, realm)", UnitFullName, "player")
+  probe("Time at failure", GetTime)
+  probe("Player exists", UnitExists, "player")
+  probe("Player connected", UnitIsConnected, "player")
+  probe("Realm", GetRealmName)
+  probe("Normalized realm", GetNormalizedRealmName)
+  probe("Player GUID", UnitGUID, "player")
+  probe("Home group", IsInGroup, LE_PARTY_CATEGORY_HOME)
+  probe("Instance group", IsInGroup, LE_PARTY_CATEGORY_INSTANCE)
+  probe("Raid", IsInRaid)
+  probe("Group size", GetNumGroupMembers)
+  probe("Instance", GetInstanceInfo)
+  probe("Combat", InCombatLockdown)
+  probe("Encounter", IsEncounterInProgress)
+  probe("Chat lockdown", C_ChatInfo.InChatMessagingLockdown)
+  probe("Lockdowns at failure", MDT.GetLockdownState, MDT)
+  probe("Live session", function() return MDT.liveSessionActive end)
+  if context.playerName and context.playerRealm then
+    probe("Qualified name", UnitFullName, context.playerName.."-"..context.playerRealm)
+    probe("Bare name exists", UnitExists, context.playerName)
+  end
+  MDT:OnError(diagnosticValue(message), table.concat(details, "\n").."\n"..debugstack(), "Share preset", true)
+end
+
 --callback for SendCommMessage
-local function displaySendingProgress(userArgs, bytesSent, bytesToSend, didSend)
+local function updateSendingProgress(userArgs, bytesSent, bytesToSend, didSend, context)
   MDT.main_frame.SendingStatusBar:Show()
   MDT.main_frame.SendingStatusBar:SetValue(bytesSent / bytesToSend)
   MDT.main_frame.SendingStatusBar.value:SetText(string.format(L["Sending: %.1f"], bytesSent / bytesToSend * 100).."%")
@@ -435,6 +549,10 @@ local function displaySendingProgress(userArgs, bytesSent, bytesToSend, didSend)
       local dungeon = MDT:GetDungeonName(preset.value.currentDungeonIdx, true)
       local presetName = preset.text
       local name, realm = UnitFullName("player")
+      context.playerName = diagnosticValue(name)
+      context.playerRealm = diagnosticValue(realm)
+      context.dungeon = diagnosticValue(dungeon)
+      context.presetName = diagnosticValue(presetName)
 
       --UnitFullName("player") will always return a players name with a capitalised first letter, regardless of whether
       --or not that is actually the case, while UnitFullName("Nnoggie") will return the player name with case respected.
@@ -445,14 +563,36 @@ local function displaySendingProgress(userArgs, bytesSent, bytesToSend, didSend)
       --GetUnitName(name) on the name, in order to get the correct case.
 
       ---@diagnostic disable-next-line: param-type-mismatch
-      name = UnitFullName(name)
+      local resolvedName, resolvedRealm = UnitFullName(name)
+      context.resolvedName = diagnosticValue(resolvedName)
+      context.resolvedRealm = diagnosticValue(resolvedRealm)
+      name = resolvedName or name
+      if not resolvedName then
+        reportShareError(context, "UnitFullName(name) returned nil; using the original player name")
+      end
 
       local fullName = name.."+"..realm
       local message = prefix..fullName.." - "..dungeon..": "..presetName.."]"
       -- ponytail: delivery gap; add receiver acknowledgements if cross-client ordering still races.
-      C_Timer.After(0.5, function() C_ChatInfo.SendChatMessage(message, distribution) end)
+      C_Timer.After(0.5, function()
+        context.stage = "SendChatMessage"
+        xpcall(function() C_ChatInfo.SendChatMessage(message, distribution) end,
+          function(err) reportShareError(context, err) end)
+      end)
     end
   end
+end
+
+local function displaySendingProgress(userArgs, bytesSent, bytesToSend, didSend)
+  local context = userArgs[4] or {}
+  context.stage = "Sending progress"
+  context.distribution = diagnosticValue(userArgs[1])
+  context.silent = diagnosticValue(userArgs[3])
+  context.bytesSent = diagnosticValue(bytesSent)
+  context.bytesToSend = diagnosticValue(bytesToSend)
+  context.didSend = diagnosticValue(didSend)
+  xpcall(function() updateSendingProgress(userArgs, bytesSent, bytesToSend, didSend, context) end,
+    function(err) reportShareError(context, err) end)
 end
 
 MDT.displaySendingProgress = displaySendingProgress
@@ -492,14 +632,26 @@ end
 ---SendToGroup
 ---Send current preset to group/raid
 function MDT:SendToGroup(distribution, silent, preset)
-  preset = preset or MDT:GetCurrentPreset()
-  --set unique id
-  MDT:SetUniqueID(preset)
-  MDT:EnsurePresetCreatedBy(preset)
-  --gotta encode difficulty into preset
-  local db = MDT:GetDB()
-  preset.difficulty = db.currentDifficulty
-  local export = MDT:TableToString(preset)
-  MDTcommsObject:SendCommMessage("MDTPreset", export, distribution, nil, "BULK", displaySendingProgress,
-    { distribution, preset, silent })
+  local context = { stage = "SendToGroup", distribution = diagnosticValue(distribution), silent = diagnosticValue(silent) }
+  xpcall(function()
+    context.startedAt = GetTime()
+    context.startLockdowns = MDT:GetLockdownState()
+    context.startGroupSize = GetNumGroupMembers()
+    local playerName, playerRealm = UnitFullName("player")
+    context.startPlayerName = diagnosticValue(playerName)
+    context.startPlayerRealm = diagnosticValue(playerRealm)
+    preset = preset or MDT:GetCurrentPreset()
+    context.presetName = diagnosticValue(preset.text)
+    context.dungeonIndex = diagnosticValue(preset.value.currentDungeonIdx)
+    --set unique id
+    MDT:SetUniqueID(preset)
+    MDT:EnsurePresetCreatedBy(preset)
+    context.presetUID = diagnosticValue(preset.uid)
+    --gotta encode difficulty into preset
+    local db = MDT:GetDB()
+    preset.difficulty = db.currentDifficulty
+    local export = MDT:TableToString(preset)
+    MDTcommsObject:SendCommMessage("MDTPreset", export, distribution, nil, "BULK", displaySendingProgress,
+      { distribution, preset, silent, context })
+  end, function(err) reportShareError(context, err) end)
 end
