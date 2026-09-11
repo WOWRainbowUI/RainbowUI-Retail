@@ -1,3 +1,4 @@
-## 6.2.13 (2026-09-04)
+## 6.2.16 (2026-09-08)
 
-- Corrected pull groupings for Lightfeather Petalwings and a Sporeblight Belcher, and removed an extra Radiant Spellsower in The Blinding Vale.
+- Added a missing Lightgorged Lasher and corrected a Lasher's position in The Blinding Vale.
+- Added missing translations for The Blinding Vale enemies and Thundering Totem in King's Rest.

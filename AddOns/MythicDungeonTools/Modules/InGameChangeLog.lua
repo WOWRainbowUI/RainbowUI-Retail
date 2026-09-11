@@ -2,25 +2,26 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.2.13",
-    date = "2026-09-04",
+    tag = "6.2.16",
+    date = "2026-09-08",
     notes = {
-      "Corrected pull groupings for Lightfeather Petalwings and a Sporeblight Belcher, and removed an extra Radiant Spellsower in The Blinding Vale.",
+      "Added a missing Lightgorged Lasher and corrected a Lasher's position in The Blinding Vale.",
+      "Added missing translations for The Blinding Vale enemies and Thundering Totem in King's Rest.",
     },
   },
   {
-    tag = "6.2.12",
-    date = "2026-09-03",
+    tag = "6.2.15",
+    date = "2026-09-05",
     notes = {
-      "Fixed an error when creating the MDT Focus Marker macro.",
+      "Added two missing Twinfang Harrowers in Altar of Fangs.",
     },
   },
   {
-    tag = "6.2.11",
-    date = "2026-09-02",
+    tag = "6.2.14-alpha1",
+    date = "2026-09-05",
     notes = {
-      "Corrected enemy placements and pull groupings in King's Rest, Ruby Life Pools, Temple of Sethraliss, and The Blinding Vale.",
-      "Restored developer-mode macros for adding enemies and patrol waypoints.",
+      "Experimental alpha version intended to help debug route sharing issues.",
+      "Added detailed error reports for route sharing problems. If an MDT error window appears while sharing a route, please report it using the links in the window.",
     },
   },
 }
