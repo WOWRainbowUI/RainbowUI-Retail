@@ -15,7 +15,7 @@ local defaults = {
             holyPower = false,
             totem = false,
             soulShards = false,
-            achievementAlert = false, -- alertFrame, using the name acheivement for backward compatibility
+            achievementAlert = false, -- alertFrame, using the name acheievement for backward compatibility
             targetOfTarget = false,
             focusTargetOfTarget = false,
             compactRaidFrameContainer = false,
@@ -69,6 +69,7 @@ local defaults = {
             anchorToEnabled = false,
             reparentEnabled = false,
             targetCast = true,
+            focusCast = true,
         },
         QueueStatusButton = {},
         TotemFrame = {},
@@ -78,7 +79,6 @@ local defaults = {
         ToT = {},
         TargetSpellBar = {},
         FocusToT = {},
-        FocusSpellBar = {},
         UIWidgetTopCenterContainerFrame = {},
         UIWidgetBelowMinimapContainerFrame = {},
         ArenaEnemyFramesContainer = {},
@@ -131,6 +131,8 @@ local defaults = {
         GeneralDockManager = {},
         BattlefieldMapFrame = {},
         TargetBuffs = {},
+        FocusSpellBar = {},
+        FocusBuffs = {},
     }
 }
 
@@ -224,6 +226,16 @@ local options = {
                 targetFrameResize = {
                     name = L["Resize Target Frame"],
                     desc = L["RESIZE_TARGET_FRAME_DESCRIPTION"],
+                    type = "toggle",
+                },
+                focusCast = {
+                    name = L["Focus Cast Bar"],
+                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], L["Focus Cast Bar"]),
+                    type = "toggle",
+                },
+                focusFrameBuffs = {
+                    name = BINDING_NAME_FOCUSTARGET.." "..BUFFOPTIONS_LABEL,
+                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], BINDING_NAME_FOCUSTARGET.." "..BUFFOPTIONS_LABEL),
                     type = "toggle",
                 },
             },
@@ -443,6 +455,11 @@ local options = {
         battlefieldMap = {
             name = BATTLEFIELD_MINIMAP,
             desc = string.format(L["TOGGLE_SUPPORT_STRING"], BATTLEFIELD_MINIMAP),
+            type = "toggle",
+        },
+        objectiveTrackerFrame = {
+            name = HUD_EDIT_MODE_OBJECTIVE_TRACKER_LABEL,
+            desc = string.format(L["TOGGLE_SUPPORT_STRING"], HUD_EDIT_MODE_OBJECTIVE_TRACKER_LABEL),
             type = "toggle",
         },
     },
