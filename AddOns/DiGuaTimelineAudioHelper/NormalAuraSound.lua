@@ -29,10 +29,32 @@ local function DoRegisterNormalAuras()
 
     -- 明确 枚举 -> 配置表 的映射关系
     -- 0: Applied (获得) | 1: Refreshed (刷新) | 2: Removed (移除)
+    local appliedEnum   = (Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Applied) or 0
+    local refreshedEnum = (Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Refreshed) or 1
+    local removedEnum   = (Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Removed) or 2
+
+    -- 团本首领光环受控制台“禁用团本语音”开关控制：勾选时整体不注册团本列表
+    local raidVoiceMuted = DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.raidVoiceDisabled
+
+    -- 合并多个配置表；raidList 仅在未禁用团本语音时并入
+    local function BuildAuraList(parts, raidList)
+        local merged = {}
+        for _, part in ipairs(parts) do
+            if part then
+                for k, v in pairs(part) do merged[k] = v end
+            end
+        end
+        if not raidVoiceMuted and raidList then
+            for k, v in pairs(raidList) do merged[k] = v end
+        end
+        return merged
+    end
+
+    local normalAura = addonTable.NormalAura
     local triggers = {
-        [(Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Applied) or 0]   = addonTable.NormalAura.appliedList,
-        [(Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Refreshed) or 1] = addonTable.NormalAura.refreshedList,
-        [(Enum.AuraSoundTrigger and Enum.AuraSoundTrigger.Removed) or 2]   = addonTable.NormalAura.removedList,
+        [appliedEnum]   = BuildAuraList({ normalAura.appliedList, normalAura.appliedListCommon }, normalAura.raidAppliedList),
+        [refreshedEnum] = BuildAuraList({ normalAura.refreshedList }, normalAura.raidRefreshedList),
+        [removedEnum]   = BuildAuraList({ normalAura.removedList }, normalAura.raidRemovedList),
     }
 
     -- 集合令牌 -> 展开为具体单位列表
@@ -182,7 +204,7 @@ addonTable.NormalAura = {
         [1294934] = "JingBao", -- 剧毒喷雾
         [1294958] = "JingBao", -- 剧毒喷雾
         [1296069] = "YouBu", -- 反刍
-        [1297422] = "JingBao", -- 致命剧毒
+        -- [1297422] = "JingBao", -- 致命剧毒
         [1297876] = "WuMaFenSan", -- 三重喷吐
         -- [1299080] = "LaDuanLianXian", -- 濒死喘息
         [1299189] = "alarmbeep", -- 同步毒液
@@ -212,7 +234,7 @@ addonTable.NormalAura = {
 
         [458835]  = "JingBao", -- 毒性淤泥
         [1222103] = "KuaiKaiJianShang", -- 空灵冲刺
-        [1222484] = "JingBao", -- 毒池
+        -- [1222484] = "JingBao", -- 毒池
         [1222642] = "alarmbeep", -- 巨型爪击
         [1222692] = "KuaiKaiJianShang", -- 剧毒光环
         [1226031] = "JingBao", -- 毒液喷溅
@@ -238,20 +260,22 @@ addonTable.NormalAura = {
         [1298899] = "ShangHaiJiangDi", -- 挫志怒吼
         [1298902] = "JingTongTiGao", -- 精通之证
         [1298903] = "QuanNengTiGao", -- 坚韧之证
-        [1298917] = "ZhuanHuoXiaoGuai", -- 勇士之矛
-        [1298922] = "MuBiaoShiNi", -- 野蛮猛击
-        [1298933] = "KuaiKaiJianShang", -- 野蛮猛击
+        -- [1298917] = "ZhuanHuoXiaoGuai", -- 勇士之矛
+        -- [1298922] = "WuMaFenSan", -- 野蛮猛击
+        [1298933] = "alarmbeep", -- 野蛮猛击
         [1299133] = "alarmbeep", -- 凶猛飞跃
         [1299210] = "JingBao", -- 余震        
         [1299905] = "YiMiaoMuBiaoShiNi", -- 虚无喷发
-        [1299913] = "KuaiKaiJianShang", -- 虚无喷发        
+        [1299913] = "alarmbeep", -- 虚无喷发        
         -- [1300138] = "KuaiKaiJianShang", -- 虚空光束
         [1300243] = "KuaiKaiJianShang", -- 残杀
         [1300372] = "alarmbeep", -- 星辰坠击
         [1310026] = "JingBao", -- 灰飞烟灭
-        [1310309] = "DaGuaiZhuiNi", -- 钉锤风暴
+        [1310309] = "YiMiaoMuBiaoShiNi", -- 钉锤风暴
+        [1228127] = "JianRenFengBao:nameplate", -- 钉锤风暴
         [1311730] = "JiSuJiangDi", -- 瓦解宝珠
         [1311778] = "KuaiKaiJianShang", -- Rip and Slice
+        [1300248] = "ZhuanHuoXiaoGuai:nameplate:DAMAGER,TANK", -- 吞噬
         
     -- ============================
     -- ==        密谋小径        ==
@@ -262,7 +286,8 @@ addonTable.NormalAura = {
         [474515]  = "ZhongDu", -- 断心药膏
         [474545]  = "KuaiZhaoYanTi", -- 绝命凶径
         [474740]  = "KuaiKaiJianShang", -- 绝命凶径
-        [1201554] = "NiBeiMeiHuo", -- 诱惑
+        -- 诱惑：自己中 → 你被魅惑（全职责）；治疗额外：小队里有人中 → 驱散魔法
+        [1201554] = "NiBeiMeiHuo:player:HEALER,DAMAGER,TANK|QuSanMoFa:party:HEALER", -- 诱惑
         [1214352] = "QuanZhuLvTong", -- 火焰炸弹
         [1214637] = "MuBiaoShiNi", -- 利斧投掷
         -- [1214650] = "alarmbeep", -- 魔能闪电
@@ -303,6 +328,8 @@ addonTable.NormalAura = {
         [1297682] = "KuaiKaiJianShang", -- 吸取生命
         [1302010] = "AOE", -- 刃舞
         [1311136] = "LiuXue", -- Sharp Nail
+        [1294824] = "ZhuYiDuoQuan:nameplate", -- 亵渎猛击
+
 
     -- ============================
     -- ==         夺目谷         ==
@@ -399,7 +426,7 @@ addonTable.NormalAura = {
         [1288885] = "ChenMo", -- 暴风
         [1289109] = "YiMiaoMuBiaoShiNi", -- 雷霆喷吐
         -- [1289229] = "", -- 风暴祝福（BOSS）
-        [1289588] = "KuaiKaiJianShang", -- 雷霆喷吐
+        [1289588] = "ZhuYiJiaoXia", -- 雷霆喷吐
         [1289589] = "JingBao", -- 萦绕风暴
         [1289754] = "TieBianFangShui|[2]321.ogg", -- 暴风
         -- [1290030] = "JiHeFangXiaoGuai", -- 缠绕蛇群
@@ -516,8 +543,14 @@ addonTable.NormalAura = {
         [1307205] = "GeRenJianShang:player:DAMAGER,HEALER|alarmbeep:player:TANK", -- 地缚印记
         [1307372] = "JingBao", -- 炽烈灭亡
         [1310361] = "alarmbeep", -- 暴风骤雨之盾
-        [1310599] = "KuaiKaiJianShang", -- 电荷释能
+        [1310599] = "alarmbeep", -- 电荷释能
+        [392569]  = "HuanJingAOE:nameplate:HEALER", -- 熔火血脉
+    },
 
+    -- ==================================================================
+    -- 团本首领光环（受控制台“禁用团本语音”开关控制：勾选时整体不注册）
+    -- ==================================================================
+    raidAppliedList = {
     -- ============================
     -- ==      盘魂者内克扎莉    ==
     -- ============================
@@ -582,7 +615,7 @@ addonTable.NormalAura = {
         [1295173] = "YiMiaoKuaiKaiJianShang", -- 爆炸感染
         -- [1302489] = "", -- 冥河爆发
         -- [1283164] = "", -- 痛饮
-        [1291461] = "JingBao", -- 剧毒烟雾
+        -- [1291461] = "JingBao", -- 剧毒烟雾
         
     -- ============================
     -- ==       斯索拉克         ==
@@ -691,7 +724,10 @@ addonTable.NormalAura = {
         [1258677] = "JingBao", -- 激荡漩涡
         [1271458] = "ZhuYiXiaoShui", -- 水流喷射
         [1281341] = "JingBao", -- 野性撕咬
+    },
 
+    -- 接在团本块之后的普通条目（5人本 / 通用）
+    appliedListCommon = {
     -- ============================
     -- ==       毒瀑深渊         ==
     -- ============================
@@ -711,7 +747,6 @@ addonTable.NormalAura = {
     -- 1: 光环刷新/叠层时 (可选)
     refreshedList = {
         -- [1238053] = "JiNuDieJia:nameplate:TANK", -- 母熊之怒
-        [1311609] = "alarmbeep", -- 凋萎静脉
         [1311730] = "alarmbeep", -- 瓦解宝珠
         [1282892] = "alarmbeep", -- 致病撕咬
         [1238801] = "alarmbeep", -- 饥肠辘辘
@@ -721,21 +756,32 @@ addonTable.NormalAura = {
         -- [1294845] = "NiBeiYiShang_Refresh",
     },
 
+    -- 团本首领·光环刷新（受“禁用团本语音”开关控制：勾选时整体不注册）
+    raidRefreshedList = {
+        [1311609] = "alarmbeep", -- 凋萎静脉（乌拉特克）
+    },
+
+    -- 团本首领·光环移除（受“禁用团本语音”开关控制：勾选时整体不注册）
+    raidRemovedList = {
+        [1311609] = "AnQuan", -- 凋萎静脉（乌拉特克）
+        [1286837] = "AnQuan", -- 墓缚（盘卷祭坛）
+        [1281910] = "ZhuYiDuoBo", -- 瘟疫泡沫（万毒邪祟者瓦什尼克）
+        [1281913] = "ZhuYiDuoBo", -- 瘟疫泡沫（万毒邪祟者瓦什尼克）
+        [1295954] = "AnQuan", -- 穿刺冰霜（迷失的探险者）
+        [1295928] = "AnQuan", -- 燃烧烈焰（迷失的探险者）
+        [1218187] = "AnQuan", -- 邪能光束
+    },
+
     -- 2: 移除/消退光环时
     removedList = {
-        [1311609] = "AnQuan", -- 凋萎静脉
         [1310309] = "AnQuan", -- 钉锤风暴
         [270927]  = "AnQuan", -- 剑刃风暴
-        [1286837] = "AnQuan", -- 墓缚
         -- [1305225] = "yishangjieshu", -- 地壳震击
         -- [1294569] = "AnQuan", -- 麻痹射击
         -- 通用
-        [204018] = "PoZhouJieShu", -- 破咒祝福        
-        [1281910] = "ZhuYiDuoBo", -- 瘟疫泡沫
-        [1281913] = "ZhuYiDuoBo", -- 瘟疫泡沫
-        [1295954] = "AnQuan", -- 穿刺冰霜
-        [1295928] = "AnQuan", -- 燃烧烈焰
-    },    
+        [204018] = "PoZhouJieShu", -- 破咒祝福
+        -- 团本条目已移至 raidRemovedList（受“禁用团本语音”开关控制）
+    },
 
 }
 

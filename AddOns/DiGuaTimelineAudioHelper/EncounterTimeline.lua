@@ -3,6 +3,31 @@
 
 local addonName, addonTable = ...
 
+-- ===== 告警写法说明 =====
+-- 每个时间点（key = 触发秒数，相对战斗开始）的告警支持以下写法：
+--   1) 字符串：只播放语音
+--        [18] = "DaoShu3.ogg"
+--   2) 表：语音 + 可选职责限制
+--        [24] = { file = "Xxx.ogg", role = "HEALER" }
+--        [24] = { file = "Xxx.ogg", role = {"DAMAGER", "TANK"} }
+--   3) 表 + 扩展字段（file 可省略 = 不播语音）：
+--        circle = 3                                  -- 触发时显示 3 秒倒计时圆环
+--        circle = { seconds = 3, checkCast = true }  -- 圆环 + 施法敏感（施法会被打断时圆环变红）
+--        func = function() addonTable.StartCircleTimerBySeconds(3) end -- 触发时执行任意逻辑
+--   示例：
+--        [266] = { file = "GeRenJianShang.ogg", circle = 3 },           -- 语音 + 3 秒圆环
+--        [270] = { circle = 3 },                                        -- 只显示圆环
+--        [274] = { file = "Xxx.ogg", role = {"DAMAGER"}, func = function() addonTable.StartCircleTimerBySeconds(2) end },
+
+-- ===== 禁用团本语音 =====
+-- 受控制台“禁用团本语音”开关控制的团本首领（key = 首领ID）：
+-- 勾选开关后，这些首领的时间轴【整体跳过】（语音、圆环、自定义函数全部不触发）。
+local RAID_VOICE_ENCOUNTERS = {
+    [3470] = true, -- 盘魂者内克扎莉
+    [3455] = true, -- 万毒邪祟者瓦什尼克
+    [3492] = true, -- 乌拉特克
+}
+
 addonTable.AudioTimeline = {
 
     [2139] = { -- 黄金风蛇
@@ -54,8 +79,8 @@ addonTable.AudioTimeline = {
         interval = 999, 
         startOffset = 0, 
         alerts = {
-            [34]  = "DianMen.ogg",
-            [91]  = "DianMen.ogg",
+            [35]  = "DianMen.ogg",
+            [92]  = "DianMen.ogg",
             [147]  = "DianMen.ogg",
             [205]  = "DianMen.ogg",
         }
@@ -73,6 +98,7 @@ addonTable.AudioTimeline = {
     --         -- [25]  = "KuaiKaiJianShang.ogg",
     --     }
     -- },
+
 
     [3209] = { -- 纳洛拉克
         interval = 65, 
@@ -105,6 +131,20 @@ addonTable.AudioTimeline = {
             [51]  = "DuoQuan.ogg",
         }
     },
+
+
+
+
+    [3286] = { -- 阿特洛苏斯
+        interval = 50, 
+        startOffset = 0, 
+        alerts = {
+            [35]  = { circle = 3 },
+        }
+    },
+
+
+
 
     [3287] = { -- 煞戎努斯
         interval = 53, 
@@ -149,6 +189,22 @@ addonTable.AudioTimeline = {
     -- },
 
 
+    [3455] = { -- 万毒邪祟者瓦什尼克
+        -- 子表 key = 副本难度ID（数字）：5人英雄填2、史诗团本填16
+        [16] = { -- 史诗难度 (difficultyID=16)
+            interval = 999, 
+            startOffset = 0, 
+            alerts = {
+                [20]   = { circle = 4 }, -- 00分20秒 4秒圆环
+                [104]  = { circle = 4 }, -- 01分44秒 4秒圆环
+                [188]  = { circle = 4 }, -- 03分08秒 4秒圆环
+                [266]  = "GeRenJianShang.ogg", -- 4分26秒 个人减伤
+                [272]  = { circle = 4 }, -- 04分32秒 4秒圆环
+                [350]  = "GeRenJianShang.ogg", -- 5分50秒 个人减伤
+                [356]  = { circle = 4 }, -- 05分56秒 4秒圆环
+            }
+        },
+    },
 
     [3492] = { -- 乌拉特克：按难度区分（5人英雄 difficultyID=2 / 史诗团本 difficultyID=16）
         -- 子表 key = 副本难度ID（数字）：5人英雄填2、史诗团本填16
@@ -165,6 +221,7 @@ addonTable.AudioTimeline = {
                 [155] = "DaoShu1.ogg", -- 2分35秒 倒计时1
                 [156] = "YiShangJieShu.ogg", -- 2分36秒 倒数结束
                 [188] = "ZhunBeiLaXian.ogg", -- 3分08秒 准备拉线
+                [195] = "GeRenJianShang.ogg", 
                 [300] = "DaoShu5.ogg", -- 5分钟整 倒计时5
                 [301] = "DaoShu4.ogg", -- 5分01秒 倒计时4
                 [302] = "DaoShu3.ogg", -- 5分02秒 倒计时3
@@ -172,11 +229,29 @@ addonTable.AudioTimeline = {
                 [304] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [305] = "YiShangJieShu.ogg", -- 5分05秒 倒数结束
                 [412] = "ZhuYiDuoBo.ogg", -- 6:52.2 腐蚀浪潮
+                [426] = "DaoShu5.ogg", -- 5分钟整 倒计时5
+                [427] = "DaoShu4.ogg", -- 5分01秒 倒计时4
+                [428] = "DaoShu3.ogg", -- 5分02秒 倒计时3
+                [429] = "DaoShu2.ogg", -- 5分03秒 倒计时2
+                [430] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [451] = "ZhuanHuoDaGuai.ogg", -- 7分32秒 转火大怪
                 [467] = "ZhuYiDuoBo.ogg", -- 7:47.2 腐蚀浪潮
+                [472] = "GeRenJianShang.ogg", -- 7:47.2 腐蚀浪潮
+                [474] = "ChangDiQieHuan.ogg", -- 7:47.2 腐蚀浪潮
+                [476] = "DaoShu5.ogg", -- 5分钟整 倒计时5
+                [477] = "DaoShu4.ogg", -- 5分01秒 倒计时4
+                [478] = "DaoShu3.ogg", -- 5分02秒 倒计时3
+                [479] = "DaoShu2.ogg", -- 5分03秒 倒计时2
+                [480] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [511] = "ZhuanHuoDaGuai.ogg", -- 8分31秒 转火大怪
                 [517] = "ZhuYiDuoBo.ogg", -- 8:37.2 腐蚀浪潮
+                [537] = "DaoShu5.ogg", -- 5分钟整 倒计时5
+                [538] = "DaoShu4.ogg", -- 5分01秒 倒计时4
+                [539] = "DaoShu3.ogg", -- 5分02秒 倒计时3
+                [540] = "DaoShu2.ogg", -- 5分03秒 倒计时2
+                [541] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [561] = "ZhuYiDuoBo.ogg", -- 9:21.2 腐蚀浪潮
+                [568] = { file = "BaoFaYaoShui.ogg", role = {"DAMAGER", "TANK"} }, -- 9分28秒 爆发药水（仅DPS/坦克，药水CD中不播）
                 [589] = "DaoShu5.ogg", -- 9分49秒 倒计时5
                 [590] = "DaoShu4.ogg", -- 9分50秒 倒计时4
                 [591] = "DaoShu3.ogg", -- 9分51秒 倒计时3
@@ -236,6 +311,12 @@ local function OnUpdate(self, elapsed)
     bossData = ResolveDifficultyData(bossData)
     if not bossData then return end
 
+    -- “禁用团本语音”勾选时：受控团本首领整体跳过（不播语音、不显示圆环）
+    if DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.raidVoiceDisabled
+        and RAID_VOICE_ENCOUNTERS[currentEncounterID] then
+        return
+    end
+
     local relativeTime = now - startTime - bossData.startOffset
     if relativeTime >= 0 then
         local moduloTime = relativeTime % bossData.interval
@@ -245,12 +326,15 @@ local function OnUpdate(self, elapsed)
 
         for triggerTime, alert in pairs(bossData.alerts) do
             if moduloTime >= triggerTime and moduloTime < (triggerTime + 0.8) then
-                local soundFile = nil
-                local requiredRole = nil
+                -- 解析告警：字符串=仅音效；表=可同时带职责 / 圆环 / 自定义函数
+                local soundFile, requiredRole, circleCfg, circleCheckCast, extraFunc = nil, nil, nil, nil, nil
 
                 if type(alert) == "table" then
-                    soundFile = alert.file
-                    requiredRole = alert.role
+                    soundFile       = alert.file
+                    requiredRole    = alert.role
+                    circleCfg       = alert.circle        -- 秒数，或 { seconds = n, checkCast = true }
+                    circleCheckCast = alert.circleCheckCast
+                    extraFunc       = alert.func          -- 触发时执行的自定义函数（可选）
                 else
                     soundFile = alert
                 end
@@ -270,8 +354,35 @@ local function OnUpdate(self, elapsed)
                     end
                 end
 
-                if soundFile and roleMatched then
-                    PlaySoundFile(addonTable.GetMediaPath() .. soundFile, DiGuaTimelineAudioHelper.audioChannel)
+                if roleMatched then
+                    -- 1) 播放语音（爆发药水在 CD 中时跳过该语音）
+                    if soundFile then
+                        local potionOnCD = soundFile == "BaoFaYaoShui.ogg"
+                            and addonTable.IsBurstPotionOnCooldown
+                            and addonTable.IsBurstPotionOnCooldown()
+                        if not potionOnCD then
+                            PlaySoundFile(addonTable.GetMediaPath() .. soundFile, DiGuaTimelineAudioHelper.audioChannel)
+                        end
+                    end
+
+                    -- 2) 倒计时圆环：circle = 秒数（数字）或 { seconds = 秒数, checkCast = 布尔 }
+                    local circleSeconds, circleCheck = nil, nil
+                    if type(circleCfg) == "table" then
+                        circleSeconds, circleCheck = circleCfg.seconds, circleCfg.checkCast
+                    else
+                        circleSeconds, circleCheck = circleCfg, circleCheckCast
+                    end
+                    if circleSeconds and addonTable.StartCircleTimerBySeconds then
+                        addonTable.StartCircleTimerBySeconds(circleSeconds, circleCheck)
+                    end
+
+                    -- 3) 自定义函数：可写 addonTable.StartCircleTimerBySeconds(3) 等任意逻辑
+                    if type(extraFunc) == "function" then
+                        local ok, err = pcall(extraFunc)
+                        if not ok then
+                            print("|cffffd100[DiGua]|r 时间轴自定义函数出错: " .. tostring(err))
+                        end
+                    end
                 end
                 break 
             end

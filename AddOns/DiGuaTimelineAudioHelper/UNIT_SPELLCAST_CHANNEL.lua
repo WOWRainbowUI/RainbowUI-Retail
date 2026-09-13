@@ -206,6 +206,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if UnitGroupRolesAssigned("player") ~= "TANK" and addonTable.PlayerSpellStatus.spells[58984] == true then
                         PlaySoundFile(addonTable.GetMediaPath() .. "YingDun.ogg", DiGuaTimelineAudioHelper.audioChannel)
                     else
+                        -- if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(6.7) end
                         PlaySoundFile(addonTable.GetMediaPath() .. "KuaiKaiJianShang.ogg", DiGuaTimelineAudioHelper.audioChannel)
                     end 
                 end                   
@@ -228,13 +229,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitSpellTargetName(unitTarget)
             then 
                 C_Timer.After(0.3, function() 
-                    -- addonTable.StartCircleTimerBySeconds(4)
-
                     if addonTable.IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true
                     then
                         if UnitGroupRolesAssigned("player") ~= "TANK" and addonTable.PlayerSpellStatus.spells[58984] == true then
                             PlaySoundFile(addonTable.GetMediaPath() .. "YingDun.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         else
+                            -- if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(6.7) end
                             PlaySoundFile(addonTable.GetMediaPath() .. "KuaiKaiJianShang.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         end 
                     end  
@@ -268,12 +268,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 if UnitGroupRolesAssigned("player") ~= "TANK" and addonTable.PlayerSpellStatus.spells[58984] == true then
                     PlaySoundFile(addonTable.GetMediaPath() .. "YingDun.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 else
+                    if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(4) end
                     PlaySoundFile(addonTable.GetMediaPath() .. "KuaiKaiJianShang.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 end 
             end
-
-            -- print("🧹 [计数重置] 目标: " .. unitTarget .. " | 开启新引导，清空前计数: " .. previousCount .. " -> 当前已归零")
-            
             return end
 
 
@@ -546,7 +544,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
-            then PlaySoundFile(addonTable.GetMediaPath() .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+            then addonTable.CustomEncounterBar(133580, 25.5, "控断小怪", unitTarget)
+            PlaySoundFile(addonTable.GetMediaPath() .. "KongDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 净化瓦解

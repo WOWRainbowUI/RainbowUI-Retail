@@ -58,7 +58,7 @@ frame:SetScript("OnEvent", function(self, event, criteriaID)
         elseif criteriaID == 115501 then -- 鲁莽监督者
             addonTable.LuMangJianDuZhe = true
 
-        elseif criteriaID == 40370 or criteriaID == 116488 then -- 防腐液 / 毒液水蛭 (带防抖，仅12层以上)
+        elseif criteriaID == 40370 or criteriaID == 116488 or criteriaID == 115513 then -- 防腐液 / 毒液水蛭 / 爆爬虫 (带防抖，仅2层以上)
             if C_ChallengeMode.GetActiveKeystoneInfo() and C_ChallengeMode.GetActiveKeystoneInfo() >= 2 and not addonTable.isAudioDebounced then
                 addonTable.isAudioDebounced = true
                 PlaySoundFile(addonTable.GetMediaPath() .. "DuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)

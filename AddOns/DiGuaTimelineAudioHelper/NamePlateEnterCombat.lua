@@ -95,6 +95,7 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
         then
             addonTable.UnitTargetTriggered[unitTarget] = true
             addonTable.CustomEncounterBar(236171, 7.6, "注意点名", unitTarget)
+            addonTable.CustomEncounterBar(6035322, 22, "准备拉人", unitTarget)
         end
         -- 几丁高斯（险恶光环）—— 首次施放 17.1s（该姓名板无进战斗记录 = 第一只）
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 几丁高斯
@@ -302,7 +303,7 @@ frame:SetScript("OnEvent", function(self, event, unitTarget)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
         then
             addonTable.UnitTargetTriggered[unitTarget] = true
-            addonTable.CustomEncounterBar(460698, 10.4, "准备AOE", unitTarget)
+            addonTable.CustomEncounterBar(460698, 8.4, "准备AOE", unitTarget)
         end
 
         -- ============================

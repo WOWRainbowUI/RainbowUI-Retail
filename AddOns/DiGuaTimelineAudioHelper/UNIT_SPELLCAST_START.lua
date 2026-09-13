@@ -193,7 +193,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
             and not UnitSpellTargetName(unitTarget) 
-            then addonTable.CustomEncounterBar(6238561, 28, "准备AOE", unitTarget)
+            then
+            -- 仅非坦克（输出/治疗）展示倒数圆环
+            if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(3) end
+            addonTable.CustomEncounterBar(6238561, 28, "准备AOE", unitTarget)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
         
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 群体毒伤
@@ -235,6 +238,14 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
             if currentCount % 2 == 1 then
                 addonTable.CustomEncounterBar(132211, 36, "准备小怪", unitTarget)
+
+                -- 2 秒后若该单位仍存在，则展示 5 秒倒数圆环（仅非坦克）
+                C_Timer.After(2, function()
+                    if UnitExists(unitTarget) and UnitGroupRolesAssigned("player") ~= "TANK" then
+                        addonTable.StartCircleTimerBySeconds(5)
+                    end
+                end)
+
                 PlaySoundFile(MEDIA_PATH .. "ZhunBeiXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
             else
                 addonTable.CustomEncounterBar(5764921, 36.9, "注意躲圈", unitTarget)
@@ -322,6 +333,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 C_Timer.After(0.1, function() 
                     if UnitExists(unitTarget) and UnitExists(unitTarget .. "target") then
                         addonTable.CustomEncounterBar(136025, 28, "准备AOE", unitTarget)
+                        -- 仅非坦克（输出/治疗）展示倒数圆环
+                        if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(3.5) end
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         C_Timer.After(3.3, function() 
                             if UnitExists(unitTarget) then
@@ -410,9 +423,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 C_Timer.After(0.2, function()
                     if UnitExists(unitTarget) and UnitExists(unitTarget .. "target") then
                         addonTable.CustomEncounterBar(460698, 25.5, "准备AOE", unitTarget)
+                        -- 仅非坦克（输出/治疗）展示倒数圆环
+                        if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(3.5) end
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)                    
                         addonTable.SpellCastAudioTriggered = true
-                        C_Timer.After(25.5, function() addonTable.SpellCastAudioTriggered = nil end)
+                        C_Timer.After(25, function() addonTable.SpellCastAudioTriggered = nil end)
                     end
                 end)
             end
@@ -515,7 +530,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
-            then 
+            then
+                -- 仅非坦克（输出/治疗）展示倒数圆环
+                if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(4) end
                 addonTable.CustomEncounterBar(132358, 31.5, "小心击退", unitTarget)
                 PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel) 
                 C_Timer.After(1, function()
@@ -694,14 +711,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == true -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             then
+                -- 仅非坦克（输出/治疗）展示倒数圆环
+                if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(3.5) end
                 addonTable.CustomEncounterBar(5764923, 26.7, "准备AOE", unitTarget)
                 PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) 
                 C_Timer.After(0.5, function()
                     if UnitExists(unitTarget) then
-                        -- print("⏱️ [倒计时] 目标仍在 -> 播放 3")
-                        -- PlaySoundFile(MEDIA_PATH .. "DaoShu3.ogg", DiGuaTimelineAudioHelper.audioChannel) -- 替换为你的 3 声效路径
-                        
-                        -- 【再过1秒后检测 2】
                         C_Timer.After(1, function()
                             if UnitExists(unitTarget) then
                                 -- print("⏱️ [倒计时] 目标仍在 -> 播放 2")
@@ -819,6 +834,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     end
                 end)
             else
+                -- 仅非坦克（输出/治疗）展示倒数圆环
+                if UnitGroupRolesAssigned("player") ~= "TANK" then
+                    addonTable.StartCircleTimerBySeconds(3)
+                end
                 addonTable.CustomEncounterBar(237589, 32.1, "注意躲圈", unitTarget)
                 PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", audioChannel)
                 C_Timer.After(2.8, function() 
@@ -858,7 +877,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and addonTable.LuMangJianDuZhe == true
             then C_Timer.After(0.2, function() if UnitExists(unitTarget) and UnitExists(unitTarget .. "target") 
-            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiLaRen.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
+            then addonTable.CustomEncounterBar(6035322, 35.3, "准备拉人", unitTarget)
+            PlaySoundFile(MEDIA_PATH .. "ZhunBeiLaRen.ogg", DiGuaTimelineAudioHelper.audioChannel) end end) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 劈地者 -- 野蛮猛击
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
@@ -935,7 +955,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             PlaySoundFile(MEDIA_PATH .. "TanKeJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
 
-        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 疯狂尖啸
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 疯狂尖啸 -- 挫志怒吼
             and addonTable.ShouldWarnInterruptWithFocus(unitTarget)
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
             and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
@@ -948,7 +968,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and UnitGroupRolesAssigned("player") ~= "HEALER"
-            then PlaySoundFile(MEDIA_PATH .. "DaDuanKongJu.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
+            then PlaySoundFile(MEDIA_PATH .. "DaDuanXiaoGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 天空打击 -- 虚空光束
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
@@ -1013,15 +1033,13 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 -- 该单位已开始施放"恐惧咆哮" -> 立即标记；只有被标记的单位，后续"残杀"播报才有资格触发
                 addonTable.HasCastFearRoar[unitTarget] = true
                 C_Timer.After(0.5, function()
-                    if not UnitExists(unitTarget .. "target") then
-                        addonTable.CustomEncounterBar(136185, 30.3, "准备击退", unitTarget)
+                    if UnitExists(unitTarget) and not UnitExists(unitTarget .. "target") then
+                        addonTable.StartCircleTimerBySeconds(4)
+                        addonTable.CustomEncounterBar(136185, 30, "准备击退", unitTarget)
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         C_Timer.After(1, function()
                             if UnitExists(unitTarget) then
-                                -- print("⏱️ [倒计时] 目标仍在 -> 播放 3")
                                 PlaySoundFile(MEDIA_PATH .. "DaoShu3.ogg", DiGuaTimelineAudioHelper.audioChannel) -- 替换为你的 3 声效路径
-                                
-                                -- 【再过1秒后检测 2】
                                 C_Timer.After(1, function()
                                     if UnitExists(unitTarget) then
                                         -- print("⏱️ [倒计时] 目标仍在 -> 播放 2")
@@ -1104,6 +1122,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 PlaySoundFile(MEDIA_PATH .. "ZhuYiJiaoXia.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 C_Timer.After(1, function()
                     if UnitExists(unitTarget) then
+                        if UnitGroupRolesAssigned("player") ~= "TANK" then
+                            addonTable.StartCircleTimerBySeconds(3)
+                        end
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
                     end
                 end)            
@@ -1186,8 +1207,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and not UnitIsDeadOrGhost(unitTarget) -- 初始触发时必须存活
             then
+            if UnitGroupRolesAssigned("player") ~= "TANK" then
+                addonTable.StartCircleTimerBySeconds(2)
+            end
             addonTable.CustomEncounterBar(451169, 11, "准备AOE", unitTarget)
-            PlaySoundFile(MEDIA_PATH .. "zhunbeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
             
             C_Timer.After(8, function()
                 -- 检测：目标存在 且 没有死亡
@@ -1471,7 +1495,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
                         addonTable.CustomEncounterBar(7291441, 33.9, "小心击退", unitTarget)
                         PlaySoundFile(MEDIA_PATH .. "XiaoXinJiTui.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         C_Timer.After(0.5, function()
-                            if UnitExists(unitTarget) then
+                            if UnitExists(unitTarget) then  
+                                if UnitGroupRolesAssigned("player") ~= "TANK" then
+                                    addonTable.StartCircleTimerBySeconds(2)
+                                end
                                 PlaySoundFile(MEDIA_PATH .. "DaoShu2.ogg", DiGuaTimelineAudioHelper.audioChannel)
 
                                 C_Timer.After(1, function()
@@ -1578,7 +1605,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(4) and C_ScenarioInfo.GetCriteriaInfo(4).completed or false) == false -- Boss4
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             and not addonTable.SpellCastStartTime[unitTarget]
-            then addonTable.CustomEncounterBar(136016, 26.7, "准备AOE", unitTarget)
+            then 
+            if UnitGroupRolesAssigned("player") ~= "TANK" then
+                addonTable.StartCircleTimerBySeconds(2)
+            end
+            addonTable.CustomEncounterBar(136016, 26.7, "准备AOE", unitTarget)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
         if unitTarget == "boss2" and UnitCanAttack("player", unitTarget) -- 光芒箭 (3199 Boss2)
@@ -1653,7 +1684,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             then
             addonTable.DuanXinYaoGaoLock = true
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiZhongDu.ogg", DiGuaTimelineAudioHelper.audioChannel)
-            C_Timer.After(2, function() addonTable.DuanXinYaoGaoLock = nil end) end
+            C_Timer.After(3, function() addonTable.DuanXinYaoGaoLock = nil end) end
 
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 刃舞
@@ -1664,16 +1695,14 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitPowerType(unitTarget) == 1
             and UnitClassification(unitTarget) == "elite" -- 分类
             and UnitAffectingCombat(unitTarget) == true -- 是否在战斗中
-            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
-            then C_Timer.After(0.4, function() if UnitExists(unitTarget) and UnitExists(unitTarget .. "target")
-            then addonTable.CustomEncounterBar(1305149, 22.7, "准备AOE", unitTarget)
-            PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end end) end
-
+            then if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(2) end
+            addonTable.CustomEncounterBar(1305149, 22.7, "准备AOE", unitTarget)
+            PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 旋风斩（老三前）
             and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
@@ -1919,7 +1948,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
             and addonTable.SpellCastSuccessTriggered[unitTarget] == nil
-            then addonTable.CustomEncounterBar(463283, 23.1, "准备AOE", unitTarget)
+            then if UnitGroupRolesAssigned("player") ~= "TANK" then addonTable.StartCircleTimerBySeconds(3) end
+            addonTable.CustomEncounterBar(463283, 23.1, "准备AOE", unitTarget)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 毒矛乱射

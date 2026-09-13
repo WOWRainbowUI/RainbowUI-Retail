@@ -37,7 +37,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 end
             end
 
-
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 野性之怒
             and select(8, GetInstanceInfo()) == 2923 -- 副本ID (虚空之痕竞技场)
             and (C_Map.GetBestMapForUnit("player") or 0) == 2572 -- 地图ID
@@ -48,22 +47,13 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
-            -- 确保之前确实有开始时间的记录
             and addonTable.SpellCastStartTime[unitTarget] 
             then
-            -- 1. 计算出最终的施法总耗时并覆盖原变量
-            addonTable.SpellCastStartTime[unitTarget] = GetTime() - addonTable.SpellCastStartTime[unitTarget]
-            
+            addonTable.SpellCastStartTime[unitTarget] = GetTime() - addonTable.SpellCastStartTime[unitTarget]            
             local duration = addonTable.SpellCastStartTime[unitTarget]
-            -- print(string.format("⏱️ [施法成功] 实际施法时间为: %.2f 秒", duration))
-
-            -- 2. 核心判定：如果实际耗时小于 1.1 秒，则执行播放逻辑
             if duration < 1.1 then
-                -- print("🚨 施法耗时小于 1.1 秒 -> 播放激怒语音")
                 PlaySoundFile(MEDIA_PATH .. "JiNu.ogg", DiGuaTimelineAudioHelper.audioChannel)
             end
-
-            -- 3. 清理该目标的临时耗时数据，防止因其他非判定内的施法成功事件导致错误计算
             addonTable.SpellCastStartTime[unitTarget] = nil
             end
 

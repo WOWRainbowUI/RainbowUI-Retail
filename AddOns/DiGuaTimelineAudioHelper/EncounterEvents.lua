@@ -186,6 +186,46 @@ addonTable.EventSoundData = {
     [836] = { {"BaMaFenSan.ogg", 0} }, -- 震地之跃 (1303326)
     [837] = { {"TanKeLiuXue.ogg", 1, {TANK = true, HEALER = true}} }, -- 野蛮槌击 (1303481)
 
+    -- 小怪
+    [474] = { {"KongDuanXiaoGuai.ogg", 0} }, -- 翻捡 (1239352)
+    [476] = { {"ShouLingJiHuo.ogg", 0} }, -- 获得的供品达到上限 (1283004)
+    -- [493] = { {"KuaiZhaoYanTi.ogg", 0} }, -- 强风 (1283107)
+
+    -- -- 毒瀑深渊
+    -- [978] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1291555)
+    -- [979] = { {"ZhunBeiQuSan.ogg", 1 } }, -- 虚空毒素 (1293824)
+    -- [980] = { {"TanKeJianCi.ogg", 1} }, -- 毒蛇猛击 (1293825)
+    -- [981] = { {"DaDuanBoss.ogg", 1} }, -- 灵魂灭绝 (1294963)
+    -- [982] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
+    -- [983] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1294984)
+    -- [984] = { {"ZhunBeiQuSan.ogg", 1} }, -- 虚空毒素 (1294983)
+    -- [985] = { {"TanKeJianCi.ogg", 1} }, -- 毒蛇猛击 (1294982)
+    -- [986] = { {"DaDuanBoss.ogg", 1} }, -- 灵魂灭绝 (1294981)
+    -- [987] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
+
+    -- 通用
+    [937] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (26662)
+    -- [668] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (26662)
+    [633] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (64238)
+
+    -- 毒瀑深渊
+    [978] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1291555)
+    [979] = { {"QuSanMoFa.ogg", 1, {HEALER = true}} }, -- 虚空毒素 (1293824)
+    [980] = { {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 毒蛇猛击 (1293825)
+    [981] = { {"DaDuanBoss.ogg", 1, {TANK = true, DAMAGER = true}} }, -- 灵魂灭绝 (1294963)
+    [982] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
+    [983] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1294984)
+    [984] = { {"QuSanMoFa.ogg", 1, {HEALER = true}} }, -- 虚空毒素 (1294983)
+    [985] = { {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 毒蛇猛击 (1294982)
+    [986] = { {"DaDuanBoss.ogg", 1, {TANK = true, DAMAGER = true}} }, -- 灵魂灭绝 (1294981)
+    [987] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
+
+}
+
+-- ==================================================================
+-- 团本首领语音（受控制台“禁用团本语音”开关控制：勾选时整体不注册）
+-- ==================================================================
+addonTable.RaidEventSoundData = {
     -- 盘魂者内克扎莉
     [675] = { {"TieBianFangShui.ogg", 0} }, -- 精华撕裂 (1287426)
     [676] = { {"ZhuYiDuoQuan.ogg", 1} }, -- 盘魂点燃 (1285681)
@@ -230,7 +270,7 @@ addonTable.EventSoundData = {
     [755] = { {"ZhuYiDianMing.ogg", 1, {HEALER = true}} }, -- 适应性感染 (1282114)
     [756] = { {"ZhunBeiJieQuan.ogg", 1} }, -- 恶性催化剂 (1282509)
     [757] = { {"ZhuYiFenSan.ogg", 1, {HEALER = true, DAMAGER = true}} }, -- 瘟疫泡沫 (1281907)
-    [759] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 痛饮 (1283164)
+    [759] = { {"ZhunBeiAOE.ogg", 1} }, -- 痛饮 (1283164)
     -- [770] = { {".ogg", 1} }, -- 冥河感染 (1294994)
     -- [771] = { {".ogg", 1} }, -- 虹吸感染 (1295224)
     -- [772] = { {".ogg", 1} }, -- 爆炸感染 (1295173)
@@ -307,42 +347,8 @@ addonTable.EventSoundData = {
     [745] = { {"ShouLingKuangBao.ogg", 1} }, -- 无尽潮汐 (1294867)
     [976] = { {"ZhuYiDianMing.ogg", 1, {HEALER = true, DAMAGER = true}} }, -- 刺骨寒霜 (1313393)
     -- [977] = { {"ZhuanHuoXiaoGuai.ogg", 0} }, -- 诱人水泡 (1257717)
-
-    -- 小怪
-    [474] = { {"KongDuanXiaoGuai.ogg", 0} }, -- 翻捡 (1239352)
-    [476] = { {"ShouLingJiHuo.ogg", 0} }, -- 获得的供品达到上限 (1283004)
-    -- [493] = { {"KuaiZhaoYanTi.ogg", 0} }, -- 强风 (1283107)
-
-    -- -- 毒瀑深渊
-    -- [978] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1291555)
-    -- [979] = { {"ZhunBeiQuSan.ogg", 1 } }, -- 虚空毒素 (1293824)
-    -- [980] = { {"TanKeJianCi.ogg", 1} }, -- 毒蛇猛击 (1293825)
-    -- [981] = { {"DaDuanBoss.ogg", 1} }, -- 灵魂灭绝 (1294963)
-    -- [982] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
-    -- [983] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1294984)
-    -- [984] = { {"ZhunBeiQuSan.ogg", 1} }, -- 虚空毒素 (1294983)
-    -- [985] = { {"TanKeJianCi.ogg", 1} }, -- 毒蛇猛击 (1294982)
-    -- [986] = { {"DaDuanBoss.ogg", 1} }, -- 灵魂灭绝 (1294981)
-    -- [987] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
-
-    -- 通用
-    [937] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (26662)
-    -- [668] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (26662)
-    [633] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (64238)
-
-    -- 毒瀑深渊
-    [978] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1291555)
-    [979] = { {"QuSanMoFa.ogg", 1, {HEALER = true}} }, -- 虚空毒素 (1293824)
-    [980] = { {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 毒蛇猛击 (1293825)
-    [981] = { {"DaDuanBoss.ogg", 1, {TANK = true, DAMAGER = true}} }, -- 灵魂灭绝 (1294963)
-    [982] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
-    [983] = { {"DuoKaiTouQian.ogg", 1} }, -- 剧毒胆汁 (1294984)
-    [984] = { {"QuSanMoFa.ogg", 1, {HEALER = true}} }, -- 虚空毒素 (1294983)
-    [985] = { {"TanKeJianCi.ogg", 1, {TANK = true}} }, -- 毒蛇猛击 (1294982)
-    [986] = { {"DaDuanBoss.ogg", 1, {TANK = true, DAMAGER = true}} }, -- 灵魂灭绝 (1294981)
-    [987] = { {"ZhunBeiDuoBo.ogg", 1} }, -- 毒性风暴 (1309418)
-
 }
+
 local frame = CreateFrame("Frame")
 
 -- 清空声音的函数
@@ -398,6 +404,23 @@ function addonTable.registerTable(dataTable)
     end
 end
 
+-- 清空全部事件音效（非团本表 + 团本表）
+function addonTable.ClearAllTimelineSounds()
+    addonTable.ClearTimelineSounds(addonTable.EventSoundData)
+    addonTable.ClearTimelineSounds(addonTable.RaidEventSoundData)
+end
+
+-- 按开关注册全部事件音效：
+--   前提：首领语音警报已开启（bossVoiceEnabled）；
+--   非团本表始终注册；团本表仅当未勾选“禁用团本语音”时注册。
+function addonTable.RegisterAllTimelineSounds()
+    if not (DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.bossVoiceEnabled) then return end
+    addonTable.registerTable(addonTable.EventSoundData)
+    if not DiGuaTimelineAudioHelper.raidVoiceDisabled then
+        addonTable.registerTable(addonTable.RaidEventSoundData)
+    end
+end
+
 frame:RegisterEvent("PLAYER_LOGIN")
 
 -- 战斗安全的“重新登记”接口：频道切换等场景下调用，让已登记的
@@ -421,10 +444,8 @@ function addonTable.ReloadTimelineSounds()
         return
     end
     reloadPending = false
-    addonTable.ClearTimelineSounds(addonTable.EventSoundData)
-    if DiGuaTimelineAudioHelper.bossVoiceEnabled then
-        addonTable.registerTable(addonTable.EventSoundData)
-    end
+    addonTable.ClearAllTimelineSounds()
+    addonTable.RegisterAllTimelineSounds()
 end
 frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 
@@ -432,11 +453,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         -- 延迟 1 秒执行，确保专精与职责数据完全更新
         C_Timer.After(1, function()
-            addonTable.ClearTimelineSounds(addonTable.EventSoundData)
-            -- 受"首领语音警报"开关控制：关闭时不注册任何 EncounterEvents 声音
-            if DiGuaTimelineAudioHelper.bossVoiceEnabled then
-                addonTable.registerTable(addonTable.EventSoundData)
-            end
+            addonTable.ClearAllTimelineSounds()
+            -- 普通表始终注册；团本表受“禁用团本语音”开关控制（内部判断）
+            addonTable.RegisterAllTimelineSounds()
         end)
     end
 end)
