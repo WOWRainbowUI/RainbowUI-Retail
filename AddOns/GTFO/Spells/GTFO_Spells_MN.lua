@@ -203,6 +203,13 @@ GTFO.SpellID["1262431"] = {
   maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
 };
 
+GTFO.SpellID["1251426"] = {
+  --desc = "Flamestrike (Magister Sunbreaker)";
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
+  sound = 1;
+};
+
+
 --- *********************
 --- * Midnight (Delves) *
 --- *********************
@@ -246,8 +253,8 @@ GTFO.SpellID["1265302"] = {
 };
 
 GTFO.SpellID["1263680"] = {
-  --desc = "Light Spores (Lightbloom Sporasaur)";
-  instance = 2964; -- The Gulf of Memory
+  --desc = "Light Spores";
+  instances = { 2933, 2964 }; -- Collegiate Calamity, The Gulf of Memory
   sound = 1;
 };
 

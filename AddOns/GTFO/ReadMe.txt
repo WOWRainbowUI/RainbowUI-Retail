@@ -2485,3 +2485,8 @@ Change Log:
 * Fixed Midnight spells for The Venomous Abyss
 * Fixed Dragonflight spells for Ruby Life Pools
 * Added Dragonflight spells for Darkmaul Citadel
+
+6.10.2
+* Added Midnight spells (delves)
+* Added Dragonflight spells (world)
+* Fixed Midnight spells for The Venomous Abyss

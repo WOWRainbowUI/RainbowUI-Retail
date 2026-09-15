@@ -1190,6 +1190,7 @@ GTFO.SpellID["423491"] = {
 
 GTFO.SpellID["372980"] = {
   --desc = "Zapped";
+  maps = { 12, 13, 101, 113, 1978, 2274 }; -- Kalimdor, Eastern Kingdoms, Outland, Northrend, Dragon Isles, Khaz Algar
   applicationOnly = true;
   sound = 3;
 };
@@ -1213,6 +1214,7 @@ GTFO.SpellID["430218"] = {
 
 GTFO.SpellID["396887"] = {
   --desc = "Flames (Dragonriding Races)";
+  maps = { 12, 13, 101, 113, 1978, 2274 }; -- Kalimdor, Eastern Kingdoms, Outland, Northrend, Dragon Isles, Khaz Algar
   applicationOnly = true;
   sound = 3;
 };
@@ -1271,6 +1273,11 @@ GTFO.SpellID["423619"] = {
   sound = 3;
 };
 
+GTFO.SpellID["382142"] = {
+  --desc = "Fail (Skyriding Races)";
+  maps = { 12, 13, 101, 113, 1978, 2274 }; -- Kalimdor, Eastern Kingdoms, Outland, Northrend, Dragon Isles, Khaz Algar
+  sound = 3;
+};
 
 --- **************************
 --- * Ruby Life Pools (2521) *

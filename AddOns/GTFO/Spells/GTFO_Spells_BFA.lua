@@ -180,6 +180,7 @@ GTFO.SpellID["287543"] = {
 GTFO.SpellID["287538"] = {
   --desc = "Plagued Bog (Ivus the Decayed)";
   sound = 1;
+  maps = { 62, 1309, 122 }; -- Darkshore, Darkshore (8.1), Isle of Quel'Danas
 };
 
 GTFO.SpellID["288924"] = {
