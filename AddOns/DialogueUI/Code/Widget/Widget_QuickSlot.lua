@@ -11,6 +11,7 @@ local GetQuestLogSpecialItemInfo = GetQuestLogSpecialItemInfo;
 local COUNTDOWN_IDLE = 4;               --When the user doesn't do anything
 local COUNTDOWN_COMPLETE_AUTO = 2;      --When the item is auto equipped by game
 local COUNTDOWN_COMPLETE_MANUAL = 1;    --When the item is equipped by clicks
+local LOOT_EVENT_LISTEN_WINDOW = 3;
 
 local Def = {
     PopupOffsetX = 0,   --Popup's default Positon
@@ -78,7 +79,7 @@ QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
 
 function QuickSlotManager:OnUpdate_UnregisterEvents(elapsed)
     self.t = self.t + elapsed;
-    if self.t >= 1.0 then   --debug Change to infinite so we can test it off vendors
+    if self.t >= LOOT_EVENT_LISTEN_WINDOW then   --debug Change to infinite so we can test it off vendors
         self:ListenLootEvent(false);
     end
 end
@@ -306,7 +307,7 @@ do  --QuestRewardItemButtonMixin
         if self.hyperlink then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             local tooltip;
-            if UIParent:IsVisible() then
+            if UIParent:IsVisible() and UIParent:GetAlpha() > 0.9 then
                 tooltip = GameTooltip;
                 tooltip:SetOwner(self, "ANCHOR_NONE");
                 tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 2);
@@ -419,6 +420,14 @@ do  --QuestRewardItemButtonMixin
     function QuestRewardItemButtonMixin:SavePosition()
         self.useCenterAsOrigin = true;
         WidgetManager.WidgetBaseMixin.SavePosition(self);
+    end
+
+    function QuestRewardItemButtonMixin:OnDragStart()
+        -- Left empty to override original OnDragStart
+    end
+
+    function QuestRewardItemButtonMixin:OnDragStop()
+        -- Left empty to override original OnDragStop
     end
 
     function QuestRewardItemButtonMixin:OnItemEquipped()

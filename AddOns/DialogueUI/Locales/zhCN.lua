@@ -355,7 +355,7 @@ L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = "万";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "([,%d%.]+)点护甲";
 L["Match Stat Stamina"] = "([,%d%.]+) 耐力";
-L["Match Stat Strengh"] = "([,%d%.]+) 力量";
+L["Match Stat Strength"] = "([,%d%.]+) 力量";
 L["Match Stat Agility"] = "([,%d%.]+) 敏捷";
 L["Match Stat Intellect"] = "([,%d%.]+) 智力";
 L["Match Stat Spirit"] = "([,%d%.]+) 精神";

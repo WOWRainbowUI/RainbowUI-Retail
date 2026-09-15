@@ -207,15 +207,15 @@ do
         end
     end
 
-    function ScrollFrameMixin:SteadyScroll(strengh)
-        --For Joystick: strengh -1 ~ +1
+    function ScrollFrameMixin:SteadyScroll(strength)
+        --For Joystick: strength -1 ~ +1
 
-        if strengh > 0.8 then
-            self.scrollSpeed = 80 + 600 * (strengh - 0.8);
-        elseif strengh < -0.8 then
-            self.scrollSpeed = -80 + 600 * (strengh + 0.8);
+        if strength > 0.8 then
+            self.scrollSpeed = 80 + 600 * (strength - 0.8);
+        elseif strength < -0.8 then
+            self.scrollSpeed = -80 + 600 * (strength + 0.8);
         else
-            self.scrollSpeed = 100 * strengh
+            self.scrollSpeed = 100 * strength
         end
 
         if not self.isSteadyScrolling then

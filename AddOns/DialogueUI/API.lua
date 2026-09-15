@@ -848,7 +848,7 @@ do  -- NPC Interaction
         local name = UnitName("npc");
         local creatureID = GetCreatureIDFromGUID(UnitGUID("npc"));
         if creatureID then
-            name = name or "";
+            name = canaccessvalue(name) and name or "";
             return name, creatureID
         end
     end
@@ -1510,10 +1510,8 @@ do  -- Quest
     API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
 
     local function ShouldMuteQuestDetail(questID)
-        --Temp Blizzard bug fix for weekly quest appearing repeatedly issue
-        local class = GetQuestClassification and GetQuestClassification(questID);
-        if (class == 4 or class == 5 or class == nil) and IsOnQuest(questID) then
-            --Nil case is for Classic where QuestClassification doesn't exist
+        --Fix for WoW offering a quest that you're ready on
+        if IsOnQuest(questID) then
             return true
         else
             return false
@@ -2787,7 +2785,7 @@ do  -- Tooltip
             dps = STAT_DPS_SHORT or "DPS",      --ITEM_MOD_DAMAGE_PER_SECOND_SHORT
             armor = RESISTANCE0_NAME or "Armor",
             stamina = SPELL_STAT3_NAME or "Stamina",
-            strength = SPELL_STAT1_NAME or "Strengh",
+            strength = SPELL_STAT1_NAME or "Strength",
             agility = SPELL_STAT2_NAME or "Agility",
             intellect = SPELL_STAT4_NAME or "Intellect",
             spirit = SPELL_STAT5_NAME or "Spirit",
