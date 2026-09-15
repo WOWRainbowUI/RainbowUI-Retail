@@ -131,6 +131,7 @@ end
 
 BBF.interruptTrackingIcon = CreateFrame("Frame")
 BBF.interruptTrackingIcon.cooldown = CreateFrame("Cooldown", nil, BBF.interruptTrackingIcon, "CooldownFrameTemplate")
+BBF.interruptTrackingIcon.cooldown:SetMinimumCountdownDuration(0)
 BBF.interruptTrackingIcon.cooldown:HookScript("OnCooldownDone", function()
     BBF.interruptReady = true
     UpdateIconsAndColor()
@@ -180,7 +181,7 @@ cooldownFrame:SetScript("OnEvent", function(self, event, spellID)
 end)
 
 local interruptSpellUpdate = CreateFrame("Frame")
-if select(2, UnitClass("player")) == "WARLOCK" then
+if UnitClassBase("player") == "WARLOCK" then
     interruptSpellUpdate:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 end
 interruptSpellUpdate:RegisterEvent("TRAIT_CONFIG_UPDATED")
@@ -215,6 +216,7 @@ local function CreateInterruptIconFrame(parentFrame)
     end
 
     button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+    button.cooldown:SetMinimumCountdownDuration(0)
     button.cooldown:SetAllPoints()
     button.cooldown:HookScript("OnCooldownDone", function()
         if button.border then
