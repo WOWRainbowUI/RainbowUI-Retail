@@ -8,6 +8,7 @@ function MediaRegistry:New(options)
 
 	registry.sharedMedia = options.sharedMedia
 	registry.defaultFonts = options.defaultFonts or {}
+	registry.defaultSounds = options.defaultSounds or {}
 	registry.fonts = {}
 	registry.sounds = {}
 
@@ -75,6 +76,9 @@ end
 function MediaRegistry:Initialize()
 	for name, path in pairs(self.defaultFonts) do
 		self:RegisterFont(name, path)
+	end
+	for name, path in pairs(self.defaultSounds) do
+		self:RegisterSound(name, path)
 	end
 	for _, name in pairs(self.sharedMedia:List("font")) do
 		self:ImportSharedMedia("font", name)

@@ -1,5 +1,5 @@
 ## Interface: 120100, 11504, 40400, 110002
-## Version: 12.026
+## Version: 12.027
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
@@ -39,6 +39,7 @@ Components\DamageMeterSource.lua
 Components\OutgoingCombat.lua
 Components\ParserNotifications.lua
 Components\UtilityNotifications.lua
+Components\ItemCooldownTracker.lua
 Display\ScrollAreas.lua
 Display\DisplayService.lua
 Localization\localization.xml
@@ -47,6 +48,7 @@ MSBTParser.lua
 MSBTMedia.lua
 Display\AnimationEngine.lua
 MSBTTriggers.lua
+MSBTCooldowns.lua
 Components\LootNotifications.lua
 MSBTMain.lua
 Display\AnimationStyles.lua
