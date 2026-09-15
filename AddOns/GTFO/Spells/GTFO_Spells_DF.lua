@@ -587,6 +587,12 @@ GTFO.SpellID["389366"] = {
   sound = 1;
 };
 
+GTFO.SpellID["394884"] = {
+  --desc = "Countdown (Skyriding Races)";
+  maps = { 12, 13, 101, 113, 1978, 2274 }; -- Kalimdor, Eastern Kingdoms, Outland, Northrend, Dragon Isles, Khaz Algar
+  sound = 2;
+};
+
 --- **************************
 --- * Ruby Life Pools (2521) *
 --- **************************

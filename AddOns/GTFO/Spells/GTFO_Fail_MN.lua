@@ -126,6 +126,13 @@ GTFO.SpellID["1307170"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1231892"] = {
+  --desc = "Triggered Ward";
+  map = 2393; -- Silvermoon City
+  applicationOnly = true;
+  sound = 3;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -597,14 +604,6 @@ GTFO.SpellID["??????"] = {
   sound = 3;
 };
 ]]--
-
-GTFO.SpellID["1294933"] = {
-  --desc = "Slithering Flame (Echo of Jawae)";
-  instance = 3004;
-  encounter = 3470;
-  sound = 3;
-  applicationOnly = true;
-};
 
 GTFO.SpellID["1284947"] = {
   --desc = "Cultivated Burst";
