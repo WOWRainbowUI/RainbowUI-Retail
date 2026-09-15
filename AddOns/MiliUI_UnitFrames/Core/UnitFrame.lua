@@ -130,6 +130,11 @@ function ns.Refresh(uf, bucket, force, src)
         -- 受限單位的 Unit API（那些在某些情境會直接拋錯），一拋就等於這個框當次的
         -- **所有**元件都不更新 —— 比「某個欄位讀不到」嚴重得多。
         xpcall(ns.Cache.Update, ns.ReportError, uf, bucket)
+        -- 驅散類型高亮不是元件（開關在 frame 區塊，跟滑鼠高亮一樣），不走下面的派發：
+        -- 它只需要知道「現在是敵是友」，那是 cache 的 attackable，換人與陣營變動才會變
+        if (bucket == "unitchanged" or bucket == "reaction") and uf.dispelHL then
+            xpcall(ns.DispelHighlight.Update, ns.ReportError, uf)
+        end
     end
     if bucket == "unitchanged" then
         -- 只有這個桶跑所有元件：框現在看的是另一個單位，每個元件都要重接
@@ -190,6 +195,9 @@ function ns.EvalActiveUnit(uf)
         if def.setunit and uf.elements[def.name] then
             xpcall(def.setunit, ns.ReportError, uf, resolved)
         end
+    end
+    if uf.dispelHL then
+        xpcall(ns.DispelHighlight.SetUnit, ns.ReportError, uf, resolved)
     end
     -- ⚠ force：換單位一定要畫下去。同一幀稍早只要有人跑過 unitchanged（OnShow 的
     -- RegisterUnitWatch 重畫、顯示閘、輪詢的換人偵測都會），去重就會把這次整個吃掉
@@ -340,6 +348,8 @@ function ns.ApplyFramePosition(uf)
                 ns.P.Scale(pw / 2 + x - vw / 2) / s,
                 ns.P.Scale(ph / 2 + y - vh / 2) / s)
     uf:SetFrameStrata(ns.db.global.strata or "LOW")
+    -- 「隱藏時仍可點擊」的墊底按鈕照抄這裡算出來的位置（沒開過選項就沒有這顆）
+    if uf.visCatcher then ns.Visibility.PlaceCatcher(uf) end
 end
 
 ------------------------------------------------------------
@@ -380,8 +390,12 @@ end
 ------------------------------------------------------------
 -- 高過使用者能調的上限（各層級滑桿是 0-15），邊框才不會被框內元件遮掉。
 -- ⚠ 但小圖示要**再高一層**：團標之類的故意突出框體邊緣，邊框壓上去會從圖示中間
--- 劃過。它們的層級在 Core/DB.lua 的 ICON_LEVEL，改這個數字要連那邊一起看。
-local HIGHLIGHT_LEVEL = 20
+-- 劃過。它們的層級在 Core/DB.lua 的 ICON_LEVEL（21），改這個數字要連那邊一起看。
+-- ⚠ 驅散類型高亮（Elements/DispelHighlight.lua）要蓋過滑鼠高亮、又要在小圖示下面，
+-- 所以三層排成 滑鼠 19 < 驅散 20 < 小圖示 21，中間沒有空位。
+-- 19 仍然壓得過光環按鈕最高的文字層（holder 12 → 容器 13 → 按鈕 14 → 文字 17）。
+local HIGHLIGHT_LEVEL = 19
+ns.DISPEL_HIGHLIGHT_LEVEL = 20
 
 ------------------------------------------------------------
 -- 高亮貼的是「視覺框體」，不是框架矩形
@@ -424,6 +438,8 @@ local function BodyBounds(uf)
     if not l then return 0, 0, uf.db.frame.w or 0, -(uf.db.frame.h or 0) end
     return l, t, r, b
 end
+-- 驅散類型高亮貼同一個視覺框體（兩圈邊框要重合，驅散色才蓋得住滑鼠高亮）
+ns.BodyBounds = BodyBounds
 
 function ns.ApplyHighlight(uf)
     local on = uf.db.frame.highlight ~= false
@@ -503,9 +519,10 @@ local PET_MENUS = { PET = true, OTHERPET = true, OTHERBATTLEPET = true }
 -- （focus 其實早退出、不會誤判，留著是防其他分類路徑。）
 local MENU_FIX_TOKENS = {
     target = true, targettarget = true, focus = true, focustarget = true,
-    -- pettarget 跟 targettarget 同一類：指向不固定，字串分類比不中就會掉進
-    -- UnitIsUnit 鏈被誤判。（"pet" 本身不在這裡——它開寵物選單是對的。）
+    -- pettarget／targettargettarget 跟 targettarget 同一類：指向不固定，字串分類
+    -- 比不中就會掉進 UnitIsUnit 鏈被誤判。（"pet" 本身不在這裡——它開寵物選單是對的。）
     pettarget = true,
+    targettargettarget = true,
 }
 
 -- 該重開哪一種選單。raidN / partyN 直接從 token 推；target 這類指向不固定的
@@ -768,7 +785,8 @@ function ns.SpawnUnitFrame(unit)
         GameTooltip:Hide()
     end)
 
-    -- 顯示閘：單位框改當它的子物件（藏父層 = 藏單位框，戰鬥中合法且不跟 unit watch 搶）。
+    -- 顯示閘（兩層，見 Core/Visibility.lua）：單位框改當它的子物件
+    -- （藏父層 = 藏單位框，不跟 unit watch 搶）。
     -- ⚠ 一定要在 ApplyFramePosition 之前換好父層，位置才是換完之後才下的
     -- （SetParent 對錨點的影響不必去賭）。SetParent 對 secure 框在戰鬥中不合法，
     -- 而 spawn 只會發生在 PLAYER_LOGIN 與設定套用，兩邊都保證不在戰鬥。
@@ -777,6 +795,8 @@ function ns.SpawnUnitFrame(unit)
     ns.ApplyFramePosition(uf)
     ns.BuildElements(uf)
     ns.ApplyHighlight(uf)
+    -- 隔離：裡面建 AuraContainer，一炸不能拖垮整個 spawn（後面還有淡出與 unit watch）
+    xpcall(ns.DispelHighlight.Apply, ns.ReportError, uf)
     ns.ApplyFrameFade(uf)
 
     if unit == "player" then
@@ -862,6 +882,7 @@ function ns.ApplySettings(unitKey)
                     ns.ApplyFramePosition(uf)
                     ns.BuildElements(uf)
                     ns.ApplyHighlight(uf)
+                    xpcall(ns.DispelHighlight.Apply, ns.ReportError, uf)
                     ns.ApplyFrameFade(uf)
                     -- 預覽開啟時真實框由 Preview 管顯示，這裡不搶（關窗時 RestoreReal 還原）
                     if not previewOpen then

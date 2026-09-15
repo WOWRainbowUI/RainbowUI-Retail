@@ -28,7 +28,8 @@ local function black(a) return { r = 0, g = 0, b = 0, a = a or 1 } end
 local function white(a) return { r = 1, g = 1, b = 1, a = a or 1 } end
 
 -- 小圖示（團標／隊長／休息戰鬥／PvP）的框架層級。
--- 必須高於滑鼠移過的高亮邊框（Core/UnitFrame.lua 的 HIGHLIGHT_LEVEL = 20）：
+-- 必須高於滑鼠移過的高亮邊框（Core/UnitFrame.lua 的 HIGHLIGHT_LEVEL = 19）與
+-- 驅散類型高亮（ns.DISPEL_HIGHLIGHT_LEVEL = 20）：
 -- 這些圖示故意突出框體上緣，邊框壓在上面的話頂線會從圖示中間劃過去。它們是浮在
 -- 框上的徽章，本來就該蓋過邊框。改這個數字要連 UnitFrame.lua 那個常數一起看。
 local ICON_LEVEL = 21
@@ -40,11 +41,14 @@ local ICON_LEVEL = 21
 -- 不覆蓋（例如 target 的 fadeOutOfRange 是 true），這裡只補「維持現狀」的預設。
 --
 --   scale             整框縮放，百分比（100 = 原始大小）
---   visibility        主模式，見 Core/Visibility.lua 的 MODES
+--   visibility        主模式，見 Core/Visibility.lua 的 DRIVER_MODES
 --   vis*              附加條件，任一成立就藏
+--   clickWhenHidden   被顯示條件藏起來時仍可點擊選取（目前只有玩家框的設定頁有這個選項）
 --   fadeOutOfRange    超出距離淡出（輪詢）
 --   fadeOutOfCombat   脫戰淡出（吃事件）
 --   highlight         滑鼠移過時畫一圈高亮邊框
+--   dispelHighlight   身上有魔法／詛咒／疾病／中毒／流血減益（敵方：激怒）時，
+--                     框體畫一圈該類型顏色的邊框（Elements/DispelHighlight.lua）
 ------------------------------------------------------------
 local function frameDef(o)
     if o.scale == nil then o.scale = 100 end
@@ -53,9 +57,11 @@ local function frameDef(o)
     if o.visHideMounted == nil then o.visHideMounted = false end
     if o.visHideNoTarget == nil then o.visHideNoTarget = false end
     if o.visHideNoEnemy == nil then o.visHideNoEnemy = false end
+    if o.clickWhenHidden == nil then o.clickWhenHidden = false end
     if o.fadeOutOfRange == nil then o.fadeOutOfRange = false end
     if o.fadeOutOfCombat == nil then o.fadeOutOfCombat = false end
     if o.highlight == nil then o.highlight = true end
+    if o.dispelHighlight == nil then o.dispelHighlight = true end
     return o
 end
 
@@ -120,8 +126,12 @@ end
 ------------------------------------------------------------
 -- 預設值本體
 ------------------------------------------------------------
+-- 有「填充方向」選項的條（見 ns.FillReversed）。預設全部從左到右，由 BuildDefaults 最後
+-- 一次補上，不必在十個單位的字面表裡各寫一次
+local FILL_DIRECTION_ELEMENTS = { "hpbar", "mpbar", "castbar", "manabar", "classpower" }
+
 function DB.BuildDefaults()
-    return {
+    local defaults = {
         schemaVersion = ns.DB_VERSION,
 
         global = {
@@ -148,6 +158,22 @@ function DB.BuildDefaults()
             -- 滑鼠移過的高亮邊框（開關在每單位的 frame.highlight）
             highlightColor = white(0.7),
             highlightSize  = 1,
+            -- 驅散類型高亮（開關在每單位的 frame.dispelHighlight）。
+            -- 預設比滑鼠高亮粗一格：它是警示，1px 的深藍／紫壓在黑邊框上不容易看到。
+            dispelHighlightSize = 2,
+            -- 五種減益是團隊框常見的那組經典減益類型色（流血另補一個洋紅）；
+            -- 激怒跟名條沿用暴雪預設的那個紅：暴雪的 DEBUFF_DISPLAY_INFO 沒有 Enrage
+            -- 那一格，退到 None ＝ DEBUFF_TYPE_NONE_COLOR（#CC0000，wago.tools GlobalColor 查的）。
+            -- ⚠ key 就是引擎的 dispelName，Elements/DispelHighlight.lua 直接拿去當
+            --   includeDispelTypes，不要翻譯或改大小寫。
+            dispelColors = {
+                Magic   = { r = 0.2, g = 0.6, b = 1,   a = 1 },
+                Curse   = { r = 0.6, g = 0,   b = 1,   a = 1 },
+                Disease = { r = 0.6, g = 0.4, b = 0,   a = 1 },
+                Poison  = { r = 0,   g = 0.6, b = 0,   a = 1 },
+                Bleed   = { r = 1,   g = 0.2, b = 0.6, a = 1 },
+                Enrage  = { r = 0.8, g = 0,   b = 0,   a = 1 },
+            },
             -- 編輯模式拖曳時吸附到格線。預設關：沒開過設定的人不該看到框自己跳格
             snapToGrid  = false,
             strata      = "LOW",
@@ -168,6 +194,13 @@ function DB.BuildDefaults()
                 hpGreen = { r = 0, g = 0.5, b = 0, a = 1 },
                 hpRed   = { r = 0.5, g = 0, b = 0, a = 1 },
                 gray    = { r = 0.4, g = 0.4, b = 0.4, a = 0.8 },
+                -- 寵物專精色（methods.petspec）。暴雪沒有官方配色（獸欄介面只換背景圖），
+                -- 照職責挑：狂野＝輸出／嗜血紅、堅韌＝坦藍、狡詐＝機動紫。
+                -- ⚠ 刻意避開綠：獵人職業色是綠的，而「沒有專精」會退回主人職業色 ——
+                --   狡詐也用綠的話，「專精色生效」和「退回職業色」在獵人身上分不出來。
+                petFerocity = { r = 0.85, g = 0.25, b = 0.2 },
+                petTenacity = { r = 0.25, g = 0.5,  b = 0.9 },
+                petCunning  = { r = 0.65, g = 0.35, b = 0.9 },
                 bg      = black(0.4),
                 shadow  = black(0.9),
                 ------------------------------------------------------------
@@ -232,7 +265,14 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              -- 仇恨提醒（Elements/HealthThreat.lua）：怪在打你 → 血條變紅閃爍。
+                              -- 只有玩家框有這組鍵；新鍵由 MergeDefaults 補，不必遷移。
+                              -- 何時提醒是三個勾選、符合任一個就亮：預設副本中＋隊伍中，單人在野外不亮
+                              -- （被打是常態）；坦克專精也不亮（被打是本分）
+                              threatWarn = true, threatInInstance = true, threatInGroup = true, threatSolo = false,
+                              threatSkipTank = true,
+                              threatFlash = true, threatColor = { r = 1, g = 0.1, b = 0.1, a = 0.8 } },
                     mpbar = { enabled = true, x = 8, y = -8, w = 200, h = 50, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -288,7 +328,10 @@ function DB.BuildDefaults()
                               status     = { enabled = true,  x = -8,  y = 10, w = 14, h = 14, level = ICON_LEVEL,
                                              restAnimated = true, combatBlizzard = false },
                               leader     = { enabled = true,  x = 7,   y = 10, w = 12, h = 12, level = ICON_LEVEL },
-                              pvp        = { enabled = false, x = -15, y = -12, w = 28, h = 28, level = ICON_LEVEL } },
+                              pvp        = { enabled = false, x = -15, y = -12, w = 28, h = 28, level = ICON_LEVEL },
+                              -- 小隊編號（只在團隊裡顯示）：框右上角外側，右緣對齊框體 200。
+                              -- 新鍵由 MergeDefaults 補、預設關，不必遷移
+                              group      = { enabled = false, x = 156, y = 22, w = 44, h = 18, size = 11, level = ICON_LEVEL } },
                 },
             },
 
@@ -363,7 +406,11 @@ function DB.BuildDefaults()
                               raidtarget = { enabled = true,  x = 84, y = 10, w = 20, h = 20, level = ICON_LEVEL },
                               status     = { enabled = true,  x = -8, y = 10, w = 14, h = 14, level = ICON_LEVEL },
                               leader     = { enabled = true,  x = 7,  y = 10, w = 12, h = 12, level = ICON_LEVEL },
-                              pvp        = { enabled = false, x = 176, y = -12, w = 28, h = 28, level = ICON_LEVEL } },
+                              pvp        = { enabled = false, x = 176, y = -12, w = 28, h = 28, level = ICON_LEVEL },
+                              -- 小隊編號：目標是團員時顯示**他的**小隊。位置同玩家框；
+                              -- 下緣在 +4，跟觀察按鈕（上緣 +5）重疊 1 單位，小框層級較高會蓋在上面。
+                              -- 減益列超過 6 顆會被蓋住
+                              group      = { enabled = false, x = 156, y = 22, w = 44, h = 18, size = 11, level = ICON_LEVEL } },
                     -- 觀察按鈕：點下去開觀察視窗。座標是使用者在遊戲裡調定的
                     -- （框右上角外側，往上凸出 5）。
                     -- 預設是「圖示直接浮在框上」——不畫邊框也不畫底色（使用者定案）；
@@ -421,6 +468,68 @@ function DB.BuildDefaults()
                                durationText = false, durationThreshold = 60, filterMode = "all" },
                     -- 減益走 bossrole 而不是 all：目標的目標通常是坦或補的目標，這麼小的
                     -- 一排位置有限，只有首領技能和職責相關的減益值得占位，其餘都是雜訊。
+                    debuffs = { enabled = true, x = 0, y = 1, w = 19, h = 19,
+                                maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
+                                onlyMine = false, filterMode = "bossrole",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60 },
+                    icons = { enabled = true,
+                              raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
+                },
+            },
+
+            ------------------------------------------------------------
+            -- 目標的目標的目標（targettargettarget）
+            --
+            -- 「目標的目標在看誰」——打首領時通常是：目標＝首領、目標的目標＝坦、
+            -- 這一格＝坦在打的那隻（看得出坦有沒有被拉走）。
+            -- **元件整組照抄 targettarget**（使用者指定）：尺寸、顏色、文字、光環過濾都一樣，
+            -- 疊在它正上方看起來就是同一疊。只有 frame 的 y 跟 enabled 不同。
+            --
+            -- 預設位置：兩個框的光環方向相同（減益從上緣往上長、增益從下緣往下長），
+            -- 各最多 12 顆／每排 6 ⇒ 兩排 = 19 × 2 ＋ 1 間距 = 39 高。
+            --   目標的目標：中心 y = -214、高 28 ⇒ 上緣 -200
+            --     它的減益列：底 -199，兩排滿載時頂到 -160
+            --   這個框的增益列：底放 -158（跟上面那排留 2px）⇒ 頂 = -158 + 39 = -119
+            --   增益列在框頂往下 31 ⇒ 框頂 = -119 + 31 = -88，中心 = -88 - 14 = -102
+            --     它自己的減益列：底 -87，兩排滿載時頂到 -48
+            -- ⇒ 兩個框中間夾著「目標的目標的減益」與「這個框的增益」各兩排，滿載也不重疊。
+            -- ⚠ 改了這裡或 targettarget 的 maxCount／perRow／光環尺寸／框的 y，這個 y 要重算。
+            --
+            -- 預設不啟用（使用者指定）。
+            targettargettarget = {
+                enabled = false,
+                frame = frameDef{ x = 470, y = -102, w = 120, h = 28, fadeOutOfRange = true },
+                elements = {
+                    hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 20, level = 4,
+                              colorMethod = "classreaction", bgColorMethod = "solid", bgColor = { r = 0.12, g = 0.12, b = 0.12, a = 1 },
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 0.4, bgAlpha = 1, border = true,
+                              showHealPrediction = false,
+                              healPredictionAlpha = 0.35,   -- 沒有預設值時滑桿顯示 min(0.1)，實際卻是 0.35
+                              showAbsorb = true, absorbColor = { r = 1, g = 1, b = 1, a = 0.4 },
+                              absorbReverseFill = true,
+                              showOvershield = true, overshieldGlowReverse = false,
+                              absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
+                              absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
+                              overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                    mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
+                              colorMethod = "power", bgColorMethod = "powerdark",
+                              barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
+                              barAlpha = 0.4, bgAlpha = 0.6, border = true },
+                    texts = {
+                        textDef{ pattern = "[name]", x = 0, y = 1, w = 120, h = 20,
+                                 justifyH = "CENTER", justifyV = "MIDDLE" },
+                        textDef{ pattern = "[perchp]%", x = 122, y = -2, w = 60, h = 10,
+                                 justifyH = "LEFT", justifyV = "TOP" },
+                    },
+                    buffs  = { enabled = true, x = 0, y = -31, w = 19, h = 19,
+                               maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
+                               showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
+                               durationText = false, durationThreshold = 60, filterMode = "all" },
                     debuffs = { enabled = true, x = 0, y = 1, w = 19, h = 19,
                                 maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
                                 onlyMine = false, filterMode = "bossrole",
@@ -860,6 +969,24 @@ function DB.BuildDefaults()
         minimap = { hide = false, angle = 200 },
         optionsWindow = { x = 0, y = 0 },
     }
+    for _, udb in pairs(defaults.units) do
+        local els = type(udb) == "table" and udb.elements
+        if type(els) == "table" then
+            for _, name in ipairs(FILL_DIRECTION_ELEMENTS) do
+                local e = els[name]
+                if type(e) == "table" and e.fillDirection == nil then
+                    e.fillDirection = "ltr"
+                end
+            end
+        end
+    end
+    return defaults
+end
+
+-- 條要不要反向填充（fillDirection：ltr 從左到右／rtl 從右到左）。
+-- 缺鍵或不認得的值一律當從左到右 —— 那是加這個選項之前的樣子。
+function ns.FillReversed(edb)
+    return edb ~= nil and edb.fillDirection == "rtl"
 end
 
 ------------------------------------------------------------

@@ -15,12 +15,13 @@ local PosSize, Pos = Specs.PosSize, Specs.Pos
 -- ⚠ L 的 key 就是英文原文（Locales/Locale.lua 查不到就回傳 key），而且必須以**單一字面
 -- 字串**直接寫在 L[...] 裡：拆段串接或先存變數再查表，九個語系檔（和 locale_audit）都會
 -- 對不上而且不報錯（靜默退成英文）。
-local TAG_SYNTAX_HELP = L["Syntax: [name] [level] [curhp] [maxhp] [perchp] [curmp] [maxmp] [percmp] [shields] [healabsorbs] (blank when there is no shield), [shields_short] [healabsorbs_short] (abbreviated), [class] [race] [creaturetype] [classification]; conditional coloring [gray_if_dead:Dead], [class:name], [difficulty:level]."]
+local TAG_SYNTAX_HELP = L["Syntax: [name] [level] [curhp] [maxhp] [perchp] [curmp] [maxmp] [percmp] [shields] [healabsorbs] (blank when there is no shield), [shields_short] [healabsorbs_short] (abbreviated), [class] [race] [creaturetype] [classification], [group] [group_label] (raid group as a number / with the label, blank outside a raid); conditional coloring [gray_if_dead:Dead], [class:name], [difficulty:level]."]
 
 local UNIT_LIST = {
     { key = "player",       label = L["Player"] },
     { key = "target",       label = L["Target"] },
     { key = "targettarget", label = L["Target of Target"] },
+    { key = "targettargettarget", label = L["Target of Target of Target"] },
     { key = "focus",        label = L["Focus"] },
     { key = "focustarget",  label = L["Focus Target"] },
     { key = "pet",          label = L["Pet"] },
@@ -28,6 +29,8 @@ local UNIT_LIST = {
     { key = "boss",         label = L["Boss"] },
     { key = "bosstarget",   label = L["Boss Target"] },
 }
+
+local FILL_DIRECTION_ITEMS = Specs.FILL_DIRECTION_ITEMS
 
 -- 元件切換列（依 DB 有沒有該元件決定要不要出現）
 local ELEMENT_LIST = {
@@ -53,6 +56,21 @@ local panels = {}          -- [unitKey .. "/" .. elementKey] = { frame, refreshe
 ------------------------------------------------------------
 -- 各元件的表單 spec
 ------------------------------------------------------------
+-- 驅散類型高亮的「測試」鈕：真的去中減益才看得到太麻煩，而且設定面板開著時真實框
+-- 是藏著的 ⇒ 在預覽孿生上把六種顏色輪播一遍（Elements/DispelHighlight.lua 的 DH.Test）。
+-- ⚠ 要宣告在 FrameSpecs 之前：local 寫在後面的話，FrameSpecs 裡抓到的是同名全域 nil
+local DISPEL_TEST_SECONDS = 5
+local function DispelTestRow(unitKey)
+    return function(parent, x, y)
+        local btn = W.CreateButton(parent, L["Test for %d seconds"]:format(DISPEL_TEST_SECONDS), "normal", 200, 22)
+        btn:SetPoint("LEFT", parent, "TOPLEFT", x, y - 15)
+        btn:SetScript("OnClick", function()
+            ns.DispelHighlight.Test(unitKey, DISPEL_TEST_SECONDS)
+        end)
+        return 30
+    end
+end
+
 local function FrameSpecs(unitKey)
     local list = {
         { type = "toggle", root = "unit", key = "enabled", label = L["Enable this unit frame"],
@@ -95,7 +113,14 @@ local function FrameSpecs(unitKey)
                     label = L["Hide without a target"] })
     tinsert(list, { type = "toggle", root = "frame", key = "visHideNoEnemy",
                     label = L["Hide without a hostile target"] })
-    tinsert(list, { type = "text", label = L["These stack on top of the choice above: any one of them hides the frame. Inside restricted content whether a target is hostile can be a secret value; when it can't be determined the frame stays visible."] })
+    tinsert(list, { type = "text", label = L["These stack on top of the choice above: any one of them hides the frame."] })
+    -- 只開放玩家框：墊底按鈕的 unit 固定是框自己的 token，其他框（目標、首領…）藏著時
+    -- 點下去選的是「現在的目標」之類的東西，沒有意義；寵物框單位可能不存在。
+    if unitKey == "player" then
+        tinsert(list, { type = "toggle", root = "frame", key = "clickWhenHidden",
+                        label = L["Clickable while hidden"],
+                        hint = L["Clicking its usual spot still targets you."] })
+    end
 
     ------------------------------------------------------------
     -- 淡出與高亮
@@ -113,6 +138,14 @@ local function FrameSpecs(unitKey)
     tinsert(list, { type = "toggle", root = "frame", key = "highlight",
                     label = L["Highlight border"],
                     hint = L["Draws a border around the frame while the cursor is over it. Color and thickness are set globally under General."] })
+
+    -- 驅散類型高亮（Elements/DispelHighlight.lua）。跟滑鼠高亮是同一圈邊框、壓在它上面，
+    -- 所以緊接在它後面
+    tinsert(list, { type = "header", label = L["Debuff type highlight"] })
+    tinsert(list, { type = "toggle", root = "frame", key = "dispelHighlight",
+                    label = L["Color by type"],
+                    hint = L["While the unit has a Magic, Curse, Disease, Poison or Bleed debuff, the border turns that type's color, on top of the mouseover highlight. Hostile units show Enrage instead. Colors and thickness are set globally under General."] })
+    tinsert(list, { type = "custom", label = "", build = DispelTestRow(unitKey) })
 
     tinsert(list, { type = "header", label = L["Reset"] })
     tinsert(list, { type = "button", label = L["Restore defaults"], text = L["Restore everything for this unit"], color = "red",
@@ -144,6 +177,42 @@ local function ThresholdRow(unitKey)
         end)
         return 30, UpdateText
     end
+end
+
+-- 仇恨提醒的「測試」鈕：真的去拉怪才看得到效果太麻煩，而且設定面板開著時
+-- 真實框是藏著的 ⇒ 亮在預覽孿生上（Elements/HealthThreat.lua 的 HT.Test）
+local THREAT_TEST_SECONDS = 5
+local function ThreatTestRow(unitKey)
+    return function(parent, x, y)
+        local btn = W.CreateButton(parent, L["Test for %d seconds"]:format(THREAT_TEST_SECONDS), "normal", 200, 22)
+        btn:SetPoint("LEFT", parent, "TOPLEFT", x, y - 15)
+        btn:SetScript("OnClick", function()
+            ns.HealthThreat.Test(unitKey, THREAT_TEST_SECONDS)
+        end)
+        return 30
+    end
+end
+
+-- 仇恨提醒那一節。只給玩家框：UnitThreatSituation 對敵人一律回 nil，
+-- 對友方目標雖然有意義，但「目標框在閃」讀起來像是目標出事，不是自己
+local function ThreatSpecs(name, unitKey)
+    return {
+        { type = "header", label = L["Aggro warning"] },
+        { type = "toggle", sub = name, key = "threatWarn", label = L["Warn when a mob is attacking you"] },
+        { type = "text", label = L["The health bar turns the warning color and flashes while any mob is attacking you. Only the fill changes, so your health stays readable."] },
+        { type = "toggle", sub = name, key = "threatSkipTank", label = L["Not in a tank specialization"] },
+        { type = "toggle", sub = name, key = "threatFlash", label = L["Flash"] },
+        { type = "color", sub = name, key = "threatColor", label = L["Warning color"] },
+        { type = "text", label = L["The warning color has its own opacity: the player frame's fill is translucent to show the 3D portrait, and red at that opacity gets lost in the model."] },
+        { type = "custom", label = "", build = ThreatTestRow(unitKey) },
+        -- 三個勾選切滿所有情況（判斷在 Elements/HealthThreat.lua 的 ScopeOK），全勾＝任何時候
+        -- 子標題靠右對齊標籤欄：它是「仇恨提醒」底下的一組，不這樣讀起來像另一個獨立的小節
+        { type = "header", label = L["When to warn"], nested = true },
+        { type = "toggle", sub = name, key = "threatInInstance", label = L["In instances"] },
+        { type = "toggle", sub = name, key = "threatInGroup", label = L["In a group"] },
+        { type = "toggle", sub = name, key = "threatSolo", label = L["Solo in the open world"] },
+        { type = "text", label = L["Warns when you are in any of the ticked situations. Solo in the open world, being attacked is normal, so that one is off by default. Instances are dungeons, raids, scenarios, arenas and battlegrounds."] },
+    }
 end
 
 ------------------------------------------------------------
@@ -195,7 +264,10 @@ local function SwatchUnits()
               reaction = 2, assist = false, hostile = true, attackable = true }) },
         { label = L["Enemy NPC"], cache = cache({ isPlayer = false, pc = false, classFile = "WARRIOR",
               reaction = 2, assist = false, hostile = true, attackable = true }) },
+        -- petSpec 用玩家**真的**寵物專精：不是獵人（或沒叫寵物）就是 nil，
+        -- 色塊演的是退回主人職業色 —— 跟真實框會畫出來的一樣
         { label = L["Your pet"], cache = cache({ isPlayer = false, pc = true, ownerClass = cls,
+              petSpec = ns.Cache.PlayerPetSpec(),
               reaction = 5, assist = true, hostile = false, attackable = false }) },
     }
 end
@@ -283,13 +355,14 @@ local function BarSpecs(name, isHP, unitKey)
         { type = "toggle", sub = name, key = "enabled", label = L["Show"] },
         { type = "header", label = L["Position and size"] },
         PosSize(name),
+        { type = "dropdown", sub = name, key = "fillDirection", label = L["Fill direction"], items = FILL_DIRECTION_ITEMS },
         { type = "header", label = L["Color"] },
         { type = "text", label = L["The four class-color methods form a ladder: each step down, fewer units get class color and the rest fall back to reaction color. Mobs get a class from Blizzard's own creature data (melee = warrior, casters = mage), not a real one."] },
-        { type = "dropdown", sub = name, key = "colorMethod", label = L["Foreground"], items = Specs.COLOR_METHOD_ITEMS },
+        { type = "dropdown", sub = name, key = "colorMethod", label = L["Foreground"], items = Specs.ColorMethodItems(unitKey) },
         { type = "custom", label = "", build = ColorSwatchRow(unitKey, name, "colorMethod", "barColor") },
         { type = "slider", sub = name, key = "barAlpha", label = L["Foreground opacity"], min = 0, max = 1, step = 0.05 },
         { type = "text", label = L["The fill is blended over whatever sits below it — the background, and the 3D portrait when it is sandwiched in between — so anything under 1 darkens the color. This is the slider to raise if the bar looks dull; to keep seeing the model, fade it under Portrait > Model opacity rather than paying for it here."] },
-        { type = "dropdown", sub = name, key = "bgColorMethod", label = L["Background"], items = Specs.COLOR_METHOD_ITEMS },
+        { type = "dropdown", sub = name, key = "bgColorMethod", label = L["Background"], items = Specs.ColorMethodItems(unitKey) },
         { type = "custom", label = "", build = ColorSwatchRow(unitKey, name, "bgColorMethod", "bgColor") },
         { type = "slider", sub = name, key = "bgAlpha", label = L["Background opacity"], min = 0, max = 1, step = 0.05 },
         { type = "color", sub = name, key = "barColor", label = L["Custom foreground color"], hasAlpha = false },
@@ -304,6 +377,13 @@ local function BarSpecs(name, isHP, unitKey)
         { type = "toggle", sub = name, key = "border", label = L["Show border"] },
     }
     if isHP then
+        -- 說明緊接在填充方向下拉後面（PosSize 之後那一格，見上面的清單）
+        for i, spec in ipairs(list) do
+            if spec.key == "fillDirection" then
+                tinsert(list, i + 1, { type = "text", label = L["Missing-health darkening, heal prediction, absorb shield, heal absorb and the overshield glow all flip to the other side with it."] })
+                break
+            end
+        end
         tinsert(list, { type = "header", label = L["Missing health"] })
         tinsert(list, { type = "slider", sub = name, key = "lossAlpha", label = L["Missing health darkening"], min = 0, max = 1, step = 0.05 })
         tinsert(list, { type = "text", label = L["Lays translucent black over the missing-health area. Without it, frames with a 3D portrait give no visible health edge. 0 = no darkening."] })
@@ -312,15 +392,15 @@ local function BarSpecs(name, isHP, unitKey)
         tinsert(list, { type = "color", sub = name, key = "healPredictionColor", label = L["Prediction color"] })
         tinsert(list, { type = "toggle", sub = name, key = "healPredictionFollowBar", label = L["Prediction follows bar color"] })
         tinsert(list, { type = "slider", sub = name, key = "healPredictionAlpha", label = L["Opacity when following"], min = 0.1, max = 1, step = 0.05 })
-        tinsert(list, { type = "text", label = L["Grows rightward from the leading edge of the health."] })
+        tinsert(list, { type = "text", label = L["Grows from the leading edge of the health into the missing part."] })
         tinsert(list, { type = "toggle", sub = name, key = "showAbsorb", label = L["Absorb shield"] })
         tinsert(list, { type = "color", sub = name, key = "absorbColor", label = L["Absorb shield color"] })
         tinsert(list, { type = "toggle", sub = name, key = "absorbReverseFill", label = L["Absorb shield reverse fill"] })
-        tinsert(list, { type = "text", label = L["Reverse means it grows **from the right end leftward**, reading like extra health (the default). Turn it off and it overlays the health from the left instead."] })
+        tinsert(list, { type = "text", label = L["On: grows back from the empty end, reading like extra health (default). Off: overlays the health from the start of the bar."] })
         tinsert(list, { type = "toggle", sub = name, key = "showOvershield", label = L["Overshield glow"] })
         tinsert(list, { type = "color", sub = name, key = "overshieldColor", label = L["Overshield glow color"] })
-        tinsert(list, { type = "toggle", sub = name, key = "overshieldGlowReverse", label = L["Put the overshield glow on the left"] })
-        tinsert(list, { type = "text", label = L["When the absorb exceeds full health the edge of the bar lights up. This side is an independent toggle, unrelated to the fill direction above."] })
+        tinsert(list, { type = "toggle", sub = name, key = "overshieldGlowReverse", label = L["Glow on other end"] })
+        tinsert(list, { type = "text", label = L["When the absorb exceeds full health, the bar edge lights up, by default at the full-health end. Tick to move it to the other end."] })
         tinsert(list, { type = "header", label = L["Standalone absorb bar"] })
         tinsert(list, { type = "dropdown", sub = name, key = "absorbBarPosition", label = L["Position"], items = {
             { text = L["Off"], value = "none" },
@@ -345,6 +425,12 @@ local function BarSpecs(name, isHP, unitKey)
                                        label = L["Recolor below a threshold"] })
                 tinsert(list, i + 2, { type = "text", label = L["Overrides whichever coloring method you picked above: once health drops below a threshold, the bar switches to that threshold's color. The game decides which side of the line the unit is on, so it also works on units whose health the addon can't read (dungeons, Mythic+, raids)."] })
                 tinsert(list, i + 3, { type = "custom", label = "", build = ThresholdRow(unitKey) })
+                -- 仇恨提醒緊接在閾值上色後面：兩個都是「狀態蓋過原本的上色」
+                if unitKey == "player" then
+                    for k, spec in ipairs(ThreatSpecs(name, unitKey)) do
+                        tinsert(list, i + 3 + k, spec)
+                    end
+                end
             else
                 tremove(list, i)
             end
@@ -386,6 +472,7 @@ local function ManaBarSpecs()
         { type = "text", label = L["A small mana bar that only appears when mana isn't the main resource (cat, bear, elemental, shadow priest)."] },
         { type = "header", label = L["Position and size"] },
         PosSize("manabar"),
+        { type = "dropdown", sub = "manabar", key = "fillDirection", label = L["Fill direction"], items = FILL_DIRECTION_ITEMS },
         { type = "text", label = L["Same coordinate meaning as the resource bars: Y starts at the bottom edge of the frame, negative goes down."] ..
                                  L["By default it sits just above the resource bars (frame bottom > 6 > mana bar > 2 > resource bars) so the two never overlap."] },
         { type = "header", label = L["Color and appearance"] },
@@ -420,6 +507,7 @@ local function CastbarSpecs()
           hint = L["Blizzard's own frame does not come back on its own after disabling; /reload is needed"] },
         { type = "header", label = L["Position and size"] },
         PosSize("castbar"),
+        { type = "dropdown", sub = "castbar", key = "fillDirection", label = L["Fill direction"], items = FILL_DIRECTION_ITEMS },
         { type = "header", label = L["Appearance"] },
         { type = "color", sub = "castbar", key = "bg", label = L["Background color"] },
         { type = "text", label = L["Only the background is per unit. The fill color is shared by every cast bar and lives under General > Cast bar colors, where casting, channeling and empowered each get their own — that is the one to change if the fill and the background read too much alike."] },
@@ -545,11 +633,16 @@ local function IconSpecs(els)
         { key = "status",     label = L["Status (combat / resting)"] },
         { key = "leader",     label = L["Leader"] },
         { key = "pvp",        label = "PvP" },
+        -- 只有玩家／目標的預設值有 group 鍵，其他單位不會出現這一節
+        { key = "group",      label = L["Group number"] },
     }
     for _, d in ipairs(defs) do
         if els.icons[d.key] then
             tinsert(list, { type = "header", label = d.label })
             tinsert(list, { type = "toggle", sub = "icons", sub2 = d.key, key = "enabled", label = L["Show"] })
+            if d.key == "group" then
+                tinsert(list, { type = "text", label = L["Shows the raid group number. Hidden outside a raid, or when the unit isn't in your raid."] })
+            end
             -- 只有玩家框的 status 有這兩個鍵，其他單位不會冒出無效選項
             if els.icons[d.key].restAnimated ~= nil then
                 tinsert(list, { type = "toggle", sub = "icons", sub2 = d.key, key = "restAnimated",
@@ -558,6 +651,10 @@ local function IconSpecs(els)
                                 label = L["Blizzard combat icon (native 16x16, ignores the size below)"] })
             end
             tinsert(list, PosSize("icons", nil, d.key))
+            if d.key == "group" then
+                tinsert(list, { type = "slider", sub = "icons", sub2 = d.key, key = "size",
+                                label = L["Font size"], min = 6, max = 24, step = 1 })
+            end
         end
     end
     return list

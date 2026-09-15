@@ -66,11 +66,30 @@ local CONTROLS = {
     { type = "slider", key = "highlightSize", label = L["Highlight thickness"], min = 1, max = 4, step = 1 },
     { type = "text",   label = L["The border drawn while the cursor is over a frame. Which frames get it is set per unit, under Units > Frame."] },
 
+    -- 驅散類型高亮（Elements/DispelHighlight.lua）。key 是引擎的 dispelName，不要改
+    { type = "header", label = L["Debuff type highlight"] },
+    -- 標籤不沿用上面的「高亮粗細」：那個 key 在法文等語系譯成「滑鼠移過的粗細」
+    { type = "slider", key = "dispelHighlightSize", label = L["Border thickness"], min = 1, max = 4, step = 1 },
+    { type = "color", sub = "dispelColors", key = "Magic",   label = L["Magic"] },
+    { type = "color", sub = "dispelColors", key = "Curse",   label = L["Curse"] },
+    { type = "color", sub = "dispelColors", key = "Disease", label = L["Disease"] },
+    { type = "color", sub = "dispelColors", key = "Poison",  label = L["Poison"] },
+    { type = "color", sub = "dispelColors", key = "Bleed",   label = L["Bleed"] },
+    { type = "color", sub = "dispelColors", key = "Enrage",  label = L["Enrage"] },
+    { type = "text",   label = L["Friendly units show their debuff types; hostile units show Enrage instead, so your own poisons and bleeds on a target don't keep it lit. With several types at once only one color shows. Which frames get it is set per unit, under Units > Frame; color changes take effect once the settings window closes."] },
+
     { type = "header", label = L["Health colors"] },
     { type = "text",   label = L["The \"Green\" and \"Red\" coloring methods use these two; gray is used for dead / offline / out-of-range text."] },
     { type = "color", sub = "colors", key = "hpGreen", label = L["Healthy"] },
     { type = "color", sub = "colors", key = "hpRed",   label = L["Critical"] },
     { type = "color", sub = "colors", key = "gray",    label = L["Gray"] },
+
+    -- 標籤用暴雪的專精名（官方譯名），不進語系表
+    { type = "header", label = L["Pet specialization colors"] },
+    { type = "text",   label = L["Used by the \"Pet specialization color\" coloring method, which only the pet frame's bars offer. Only hunter pets have a specialization; any other pet gets your class color instead."] },
+    { type = "color", sub = "colors", key = "petFerocity", label = Specs.PetSpecName(74, "Ferocity"), hasAlpha = false },
+    { type = "color", sub = "colors", key = "petTenacity", label = Specs.PetSpecName(81, "Tenacity"), hasAlpha = false },
+    { type = "color", sub = "colors", key = "petCunning",  label = Specs.PetSpecName(79, "Cunning"),  hasAlpha = false },
 
 
     { type = "header", label = L["Cast bar colors"] },

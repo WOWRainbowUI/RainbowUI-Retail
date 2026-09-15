@@ -7,8 +7,10 @@ local _, ns = ...
 -- ⚠ 常數表放檔案層級：這個回呼一秒跑兩次，寫成 ipairs({...}) 等於每次現配一張表
 -- ⚠ 迴圈只在「這些框至少有一個顯示中」時才掛上（SyncWatch），所以首領的目標框
 --   預設關著時這五筆完全不花錢。
+-- ⚠ targettargettarget 在這裡**不只是保險**：「目標的目標換目標」沒有任何事件，
+--   這個輪詢是那一半唯一的換人偵測（最多慢 0.5 秒）。
 local INDIRECT_UNITS = {
-    "targettarget", "focustarget", "pettarget",
+    "targettarget", "targettargettarget", "focustarget", "pettarget",
     "boss1target", "boss2target", "boss3target", "boss4target", "boss5target",
 }
 local INDIRECT_KEY = "watch_indirect"
@@ -171,7 +173,7 @@ loader:SetScript("OnEvent", function()
     -- 圖騰那一段永遠不執行，也會讓 spawn 失敗的單位被藏掉暴雪框而空一格。
     ns.HideBlizzardFrames()
 
-    -- tot / focustarget / pettarget 的輪詢保險：掛在這幾個框的顯示狀態上
+    -- 各種 <unit>target 的輪詢保險：掛在這幾個框的顯示狀態上
     HookIndirectWatch()
 end)
 
@@ -198,9 +200,33 @@ local function RepositionAll()
     for _, uf in pairs(ns.frames) do
         ns.ApplyFramePosition(uf)
     end
+    -- 預覽孿生是同一套算法：面板開著時 UIParent 變了，孿生跟真實框一樣會錯開
+    if ns.Preview and ns.Preview.EachTwin then
+        ns.Preview.EachTwin(ns.ApplyFramePosition)
+    end
 end
 ns.Events.Register("UI_SCALE_CHANGED", "reposition_scale", RepositionAll)
 ns.Events.Register("DISPLAY_SIZE_CHANGED", "reposition_display", RepositionAll)
+
+-- ⚠⚠ 上面兩個事件漏了第三種來源：**有人改了 UIParent 的錨點**，兩個事件都不發。
+-- 資訊列停靠在上／下緣時會把 UIParent 內縮一條（見 notes 的 wow-uiparent-inset-dock），
+-- 暴雪的 UpdateUIParentPosition（Mac 瀏海、除錯列）也會。ApplyFramePosition 把
+-- 「當下的 UIParent 寬高 / 2」烘進左下角錨點，內縮之前定位的框就停在舊的中心上：
+-- 上緣縮 26 ⇒ 中心下移 13，那些框卻沒動，比預覽孿生與其他錨在中央的框高 13。
+-- 登入時單位框跟資訊列誰先跑不保證，實際症狀是「開 /muf 預覽整排往下偏，
+-- 關掉之後只有改過設定的那一格（重跑過定位）停在預覽的位置」。
+-- 延到下一幀：改錨點時引擎同步派送 OnSizeChanged，那條流程是資訊列的 secure snippet，
+-- 不能在裡面動我們的 secure 單位框（notes 入口 6）。一次內縮會連發好幾次，併成一次。
+local sizeQueued = false
+local function FlushSizeChanged()
+    sizeQueued = false
+    RepositionAll()
+end
+UIParent:HookScript("OnSizeChanged", function()
+    if sizeQueued then return end
+    sizeQueued = true
+    C_Timer.After(0, FlushSizeChanged)
+end)
 ns.Events.Register("PLAYER_REGEN_ENABLED", "reposition_regen", function()
     if ns.needReposition then
         ns.needReposition = nil

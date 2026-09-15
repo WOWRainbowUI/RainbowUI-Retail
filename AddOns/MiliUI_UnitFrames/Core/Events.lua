@@ -44,6 +44,10 @@ local UNIT_EVENT_BUCKET = {
     --            這個事件在戰鬥中會反覆來，每次重載就是肉眼可見的閃爍
     UNIT_MODEL_CHANGED = "model",
     UNIT_PORTRAIT_UPDATE = "portrait",
+    -- 仇恨狀態（UnitThreatSituation 的 0-3/nil）變了 → 只有血條的仇恨提醒。
+    -- 帶的是自己這個 token（暴雪的 PlayerFrame 也是比對 unit == "player"），
+    -- 不是怪的 token —— 那是 UNIT_THREAT_LIST_UPDATE，這裡用不到。
+    UNIT_THREAT_SITUATION_UPDATE = "threat",
 }
 
 -- ⚠⚠ 這幾個事件**不吃同幀去重**（戳記照寫，只是不吃它跳過）。
@@ -59,12 +63,16 @@ local UNIT_EVENT_BUCKET = {
 -- 身分事件同理（EUI 的引擎把這組叫 IDENTITY_EVENTS，一樣繞過戳記）：名字／等級／
 -- 分類都是終點狀態，換人之後 UNIT_NAME_UPDATE 只會來一次，同幀被 info 戳記擋掉
 -- 就永遠停在舊名字。這三個事件一場戰鬥來不了幾次，多畫一次的成本可以忽略。
+--
+-- 仇恨也是：怪死掉那一幀常常連續來「3 → nil」兩波，第二波被擋掉就停在「亮」，
+-- 閃到下一個仇恨事件或脫戰才熄。一場戰鬥來沒幾次，同樣不值得去重。
 local FORCE_EVENT = {
     UNIT_HEALTH = true,
     UNIT_MAXHEALTH = true,
     UNIT_NAME_UPDATE = true,
     UNIT_LEVEL = true,
     UNIT_CLASSIFICATION_CHANGED = true,
+    UNIT_THREAT_SITUATION_UPDATE = true,
 }
 
 local function RefreshUnit(unitToken, bucket, force, src)
@@ -77,8 +85,9 @@ local function RefreshUnit(unitToken, bucket, force, src)
         -- 處理時框剛好不可見（unit watch 的顯示最多慢 0.2 秒）就整次略過，
         -- 之後全靠 OnShow 補畫。記下來，時間線上就看得到有沒有補到。
         uf.ucSkipHidden = (uf.ucSkipHidden or 0) + 1
-        ns.LogRefresh("UC-skip(不可見) %s src=%s shown=%s gate=%s", unitToken, src or "?",
-            tostring(uf:IsShown()), tostring(uf.visGate and uf.visGate:IsShown()))
+        ns.LogRefresh("UC-skip(不可見) %s src=%s shown=%s gate=%s/%s", unitToken, src or "?",
+            tostring(uf:IsShown()), tostring(uf.visDriver and uf.visDriver:IsShown()),
+            tostring(uf.visGate and uf.visGate:IsShown()))
     end
 end
 
@@ -221,6 +230,7 @@ local SPECIAL = {
     PLAYER_TARGET_CHANGED = function()
         RefreshUnit("target", "unitchanged", nil, "ptc")
         RefreshUnit("targettarget", "unitchanged", nil, "ptc")
+        RefreshUnit("targettargettarget", "unitchanged", nil, "ptc")
     end,
     PLAYER_FOCUS_CHANGED = function()
         RefreshUnit("focus", "unitchanged", nil, "pfc")
@@ -278,6 +288,13 @@ local SPECIAL = {
             RefreshUnit("pettarget", "unitchanged", nil, "unit_pet")
         end
     end,
+    -- 寵物專精（寵物專精色）。叫出寵物時專精資料不保證比 UNIT_PET 早到，這個是補救點。
+    -- 只換顏色 ⇒ reaction 桶（專精在 Cache 的 flag 組重讀，血條與能量條都訂閱它），
+    -- 不走 unitchanged：那會重載 3D 頭像，叫寵物時連閃兩次。
+    -- force：同一次 flush 裡稍早若有別的事件推過 reaction，那次讀的是舊專精。
+    PET_SPECIALIZATION_CHANGED = function()
+        RefreshUnit("pet", "reaction", true, "petspec")
+    end,
 }
 
 ------------------------------------------------------------
@@ -306,6 +323,12 @@ SCOPED = {
         fn = function(unit)
             local key = TARGET_FRAME_OF[unit]
             if key then RefreshUnit(key, "unitchanged", nil, "unit_target") end
+            -- 目標換目標＝目標的目標換人，它的目標（也就是這一格）當然跟著換。
+            -- ⚠ 反過來「目標的目標換目標」**沒有事件**（targettarget 不是引擎派送的
+            --   token），那一半全靠 Units.lua 的 INDIRECT_UNITS 輪詢。
+            if unit == "target" then
+                RefreshUnit("targettargettarget", "unitchanged", nil, "unit_target")
+            end
         end,
     },
 }

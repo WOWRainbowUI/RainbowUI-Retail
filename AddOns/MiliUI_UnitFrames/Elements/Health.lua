@@ -63,6 +63,16 @@ end
 --
 -- 各自的坑（順序、多回傳值、clamp）寫在呼叫點上方，動之前先讀那段。
 ------------------------------------------------------------
+-- 溢盾光暈：開關的語意是「換到另一端」。預設在滿血那端（從左到右＝右緣），
+-- 條反向時兩邊一起對調，兩張貼圖本來就是左右各一張、方向已經畫好。
+-- isClamped 是秘密布林（真實框）或明文 true（預覽示範）
+local function ApplyGlow(f, edb, isClamped)
+    local glowOn = edb.showOvershield ~= false
+    local gR = (edb.overshieldGlowReverse and true or false) ~= ns.FillReversed(edb)
+    ns.SetOvershieldGlow(f.overShieldGlow,  glowOn and not gR, isClamped)
+    ns.SetOvershieldGlow(f.overShieldGlowR, glowOn and gR,     isClamped)
+end
+
 local function ApplyAbsorb(f, edb, calc, unit, maxHP)
     local _, isClamped = calc:GetDamageAbsorbs()
     local total = UnitGetTotalAbsorbs(unit)
@@ -73,11 +83,7 @@ local function ApplyAbsorb(f, edb, calc, unit, maxHP)
     shown:SetMinMaxValues(0, maxHP)
     shown:SetValue(total)
     shown:Show()
-    -- 溢盾光暈：方向自己一個開關，跟條的填充方向無關
-    local glowOn = edb.showOvershield ~= false
-    local gR = edb.overshieldGlowReverse
-    ns.SetOvershieldGlow(f.overShieldGlow,  glowOn and not gR, isClamped)
-    ns.SetOvershieldGlow(f.overShieldGlowR, glowOn and gR,     isClamped)
+    ApplyGlow(f, edb, isClamped)
 end
 
 -- 吸收盾獨立細條（C6）：跟上面那條疊加層互不相干，貼在血條上／下緣外側。
@@ -125,13 +131,18 @@ local function ApplyHealPrediction(f, hcalc, unit)
     f.incbar:Show()
 end
 
--- 疊加層一律「錨在血量前緣、往右延伸」，超出的部分由 clip 容器裁掉。
+-- 疊加層一律「錨在血量前緣、往扣血那側延伸」，超出的部分由 clip 容器裁掉。
+-- 從左到右時前緣是填充貼圖的右緣、往右長；反向時是左緣、往左長。
 -- ⚠ 只收斂這一行，不要把整段版面收進來：兩個呼叫點的**第二個錨點**本來就不一樣
--- （lossbar 撐到容器右下角、治療預估對齊條高之後給固定寬），硬塞進同一支
+-- （lossbar 撐到容器另一端的下角、治療預估對齊條高之後給固定寬），硬塞進同一支
 -- helper 會改掉它們的行為。這裡統一的是「錨在哪」這個共通決定。
-local function AnchorToFillEdge(obj, hpTex)
+local function AnchorToFillEdge(obj, hpTex, reversed)
     obj:ClearAllPoints()
-    obj:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+    if reversed then
+        obj:SetPoint("TOPRIGHT", hpTex, "TOPLEFT", 0, 0)
+    else
+        obj:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+    end
 end
 
 local function Build(uf, edb)
@@ -188,6 +199,13 @@ local function Build(uf, edb)
     end
     f.bar:SetStatusBarTexture(texture)
     f.bar:SetFrameLevel(edb.level or 4)
+    -- 填充方向。⚠ 下面所有「貼著血量前緣」或「從條的某一端長」的疊加層都要跟著翻，
+    -- 漏一個就會長在錯的那端：扣血暗化、治療預估、兩條吸收盾、治療吸收、
+    -- 溢盾光暈（在 ApplyAbsorb）、吸收盾獨立細條
+    local reversed = ns.FillReversed(edb)
+    f.bar:SetReverseFill(reversed)
+    -- 仇恨提醒的閃爍動畫掛在 f.bar 上（Elements/HealthThreat.lua）
+    ns.HealthThreat.Build(uf, f, edb)
 
     EnsureCalc(uf)
 
@@ -196,7 +214,7 @@ local function Build(uf, edb)
     local innerH = ns.P.Scale(edb.h or 10) - inset * 2
     local hpTex = f.bar:GetStatusBarTexture()
 
-    -- 扣血暗化層：從填充右緣鋪到條右緣的半透明黑（貼在 clip 框上，位於頭像之上、
+    -- 扣血暗化層：從填充前緣鋪到條的另一端的半透明黑（貼在 clip 框上，位於頭像之上、
     -- overlay 條之下）。三明治版面裡 3D 模型太搶眼，沒這層「模型」和「模型＋40% 職業色」
     -- 幾乎看不出差別；蓋暗扣血區之後分界才明顯
     if not f.loss then
@@ -205,8 +223,12 @@ local function Build(uf, edb)
     end
     local lossA = edb.lossAlpha or 0
     if lossA > 0 then
-        AnchorToFillEdge(f.loss, hpTex)
-        f.loss:SetPoint("BOTTOMRIGHT", f.clip, "BOTTOMRIGHT", 0, 0)
+        AnchorToFillEdge(f.loss, hpTex, reversed)
+        if reversed then
+            f.loss:SetPoint("BOTTOMLEFT", f.clip, "BOTTOMLEFT", 0, 0)
+        else
+            f.loss:SetPoint("BOTTOMRIGHT", f.clip, "BOTTOMRIGHT", 0, 0)
+        end
         local lc = edb.lossColor or { r = 0, g = 0, b = 0 }
         f.loss:SetVertexColor(lc.r or 0, lc.g or 0, lc.b or 0, lossA)
         f.loss:Show()
@@ -218,8 +240,9 @@ local function Build(uf, edb)
     -- 三條疊加層（治療預估／吸收盾／治療吸收）的結構、材質與方向
     --
     -- 吸收盾有兩條，一次只顯示一條：
-    --   shieldbar   正向填充，從血條左端往右蓋在血量上
-    --   shieldbarR  反向填充，從**右端**往左長 —— 讀起來像「額外的血」，預設用這條
+    --   shieldbar   跟血量同向，從條的起點蓋在血量上
+    --   shieldbarR  跟血量反向，從條的**空的那一端**長回來 —— 讀起來像「額外的血」，預設用這條
+    -- （從左到右時就是「左端往右」與「右端往左」；條反向時兩者的實際方向一起對調）
     -- 兩條都 SetAllPoints 整條血條（不是錨在血量前緣），值直接餵未裁切的總吸收量。
     -- 溢盾光暈是獨立貼圖，貼在條的左右邊緣，靠 isClamped 秘密布林驅動。
     ------------------------------------------------------------
@@ -231,7 +254,7 @@ local function Build(uf, edb)
             sb:ClearAllPoints()
             sb:SetAllPoints(f.clip)
             sb:SetStatusBarTexture(Media.SHIELD_TEXTURE)
-            sb:SetReverseFill(key == "shieldbarR")
+            sb:SetReverseFill((key == "shieldbarR") ~= reversed)
             sb:SetStatusBarColor(shieldC.r, shieldC.g, shieldC.b, shieldC.a or 0.4)
             sb:Hide()
         end
@@ -269,13 +292,13 @@ local function Build(uf, edb)
     f.overShieldGlow:Hide()
     f.overShieldGlowR:Hide()
 
-    -- 治療吸收：反向填充、蓋在最上層（預設紅 1/0.1/0.1）
+    -- 治療吸收：跟血量反向填充、蓋在最上層（預設紅 1/0.1/0.1）
     if edb.showHealAbsorb then
         local hab = EnsureOverlayBar(f.clip, "healAbsorbBar", (edb.level or 4) + 3)
         f.healAbsorbBar = hab
         hab:ClearAllPoints()
         hab:SetAllPoints(f.clip)
-        hab:SetReverseFill(true)
+        hab:SetReverseFill(not reversed)
         hab:SetStatusBarTexture(Media.SHIELD_TEXTURE)
         local c = edb.healAbsorbColor or { r = 1, g = 0.1, b = 0.1, a = 1 }
         hab:SetStatusBarColor(c.r, c.g, c.b, c.a or 1)
@@ -283,13 +306,19 @@ local function Build(uf, edb)
         f.healAbsorbBar:Hide()
     end
 
-    -- 治療預估：錨在血量前緣往右長（用血條材質不用條紋）
+    -- 治療預估：錨在血量前緣往扣血那側長（用血條材質不用條紋）。
+    -- 反向時它自己也要反向填充，值才會從貼著前緣的那一端長出去
     if edb.showHealPrediction then
         local ib = EnsureOverlayBar(f.clip, "incbar", (edb.level or 4) + 2)
         f.incbar = ib
-        AnchorToFillEdge(ib, hpTex)
-        ib:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+        AnchorToFillEdge(ib, hpTex, reversed)
+        if reversed then
+            ib:SetPoint("BOTTOMRIGHT", hpTex, "BOTTOMLEFT", 0, 0)
+        else
+            ib:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+        end
         ib:SetWidth(innerW)
+        ib:SetReverseFill(reversed)
         ib:SetStatusBarTexture(texture)
     elseif f.incbar then
         f.incbar:Hide()
@@ -312,6 +341,7 @@ local function Build(uf, edb)
         local sb = f.absorbStrip
         sb:SetFrameLevel((edb.level or 4) + 1)
         sb:SetStatusBarTexture(texture)
+        sb:SetReverseFill(reversed)          -- 跟血條同向，上下兩條讀起來才是同一把尺
         sb:SetHeight(ns.P.Scale(edb.absorbBarHeight or 4))
         local gap = ns.P.Scale(edb.absorbBarGap or 1)
         sb:ClearAllPoints()
@@ -345,9 +375,61 @@ local function Build(uf, edb)
     f:Show()
 end
 
+local function ApplyColors(uf, f, edb)
+    -- 上色：cache.frachp 是明文，colormethod 全明文運算
+    local frac = uf.cache.frachp
+    local r, g, b, a = Colors.Get(edb.colorMethod, uf, edb, frac, "barColor", "barAlpha")
+    -- 閾值上色蓋在最後：不管上面選的是哪一種，血量低於門檻就換成門檻色。
+    -- 只套在血條前景 —— 背景／能量條／施法條跟著變只會讓畫面更吵。
+    r, g, b, a = Colors.Threshold(uf, edb, r, g, b, a)
+    -- 用貼圖的 SetVertexColor 而不是 SetStatusBarColor：職業色可能是秘密分量
+    -- （C_ClassColor 管道），貼圖 API 吃秘密值
+    local tex = f.bar:GetStatusBarTexture()
+    if f.threatActive then
+        -- 仇恨提醒比血量門檻更急，蓋在它上面。透明度用警示色自己的 ——
+        -- 玩家框的填充預設只有 0.5（要透出 3D 頭像），沿用的話紅色會被模型吃掉一半
+        local tc = edb.threatColor or { r = 1, g = 0.1, b = 0.1, a = 0.8 }
+        tex:SetVertexColor(tc.r, tc.g, tc.b, tc.a or 0.8)
+    else
+        tex:SetVertexColor(r, g, b, a)
+    end
+    -- 治療預估：預設白色 25% 的「幽靈層」——壓在暗化層上呈淡亮灰，跟真實血量（職業色）
+    -- 一眼可分；跟血條同色的話會像血條淡淡延伸，扣血區就看不出是扣的（實測被嫌）。
+    -- healPredictionFollowBar = true 可切回跟隨血條色（跟的是原本的色，不跟仇恨紅）
+    if edb.showHealPrediction and f.incbar then
+        if edb.healPredictionFollowBar == true then
+            f.incbar:GetStatusBarTexture():SetVertexColor(r, g, b, edb.healPredictionAlpha or 0.35)
+        else
+            local c = edb.healPredictionColor or { r = 1, g = 1, b = 1, a = 0.25 }
+            f.incbar:GetStatusBarTexture():SetVertexColor(c.r, c.g, c.b, c.a or 0.25)
+        end
+    end
+    r, g, b, a = Colors.Get(edb.bgColorMethod, uf, edb, frac, "bgColor", "bgAlpha")
+    f.bg:SetVertexColor(r, g, b, a)
+end
+
 local function Update(uf, edb, bucket)
     local f = uf.elements.hpbar
     if not f then return end
+
+    -- 仇恨事件只換顏色與閃爍，血量不必重讀（計算器那段是整支最貴的部分）
+    -- 狀態沒變就連顏色都不用重套：脫戰／換專精的保險會把**每個**框都推一次，
+    -- 而除了玩家框，其他框根本沒開這個功能
+    if bucket == "threat" then
+        -- 計數給 /muf debug：戰鬥中這個數字不動 ＝ 仇恨事件根本沒進來
+        f.threatBucketN = (f.threatBucketN or 0) + 1
+        local was = f.threatActive
+        if ns.HealthThreat.Update(uf, f, edb) ~= was then
+            ApplyColors(uf, f, edb)
+        end
+        return
+    end
+    -- health／info 桶沿用上次的仇恨狀態：它們一秒來很多次，而仇恨不會因為掉血改變。
+    -- 其餘（換人、陣營／隊伍、生死）都可能改變「該不該亮」，順手重算
+    if bucket ~= "health" and bucket ~= "info" then
+        ns.HealthThreat.Update(uf, f, edb)
+    end
+
     local unit = uf.unit
 
     -- 吸收盾細條的開關是「位置」不是布林（none / above / below）。
@@ -367,6 +449,13 @@ local function Update(uf, edb, bucket)
             local hidden = reverse and f.shieldbar or f.shieldbarR
             if hidden then hidden:Hide() end
             shown:SetMinMaxValues(0, 100); shown:SetValue(12); shown:Show()
+            -- 溢盾光暈：假資料（血 75%＋盾 12%）永遠不會溢出，照真實條件的話預覽裡
+            -- 一次都不亮，玩家切「光暈換到另一端」看不到任何變化（實際被這樣回報過）。
+            -- 預覽一律點亮，示範的是「亮在哪一端」，跟上面的盾、底下的治療吸收一樣是展示用。
+            ApplyGlow(f, edb, true)
+        elseif f.overShieldGlow then
+            f.overShieldGlow:Hide()
+            f.overShieldGlowR:Hide()
         end
         if edb.showHealAbsorb and f.healAbsorbBar then
             f.healAbsorbBar:SetMinMaxValues(0, 100); f.healAbsorbBar:SetValue(8); f.healAbsorbBar:Show()
@@ -477,28 +566,7 @@ local function Update(uf, edb, bucket)
         end
     end
 
-    -- 上色：cache.frachp 是明文，colormethod 全明文運算
-    local frac = uf.cache.frachp
-    local r, g, b, a = Colors.Get(edb.colorMethod, uf, edb, frac, "barColor", "barAlpha")
-    -- 閾值上色蓋在最後：不管上面選的是哪一種，血量低於門檻就換成門檻色。
-    -- 只套在血條前景 —— 背景／能量條／施法條跟著變只會讓畫面更吵。
-    r, g, b, a = Colors.Threshold(uf, edb, r, g, b, a)
-    -- 用貼圖的 SetVertexColor 而不是 SetStatusBarColor：職業色可能是秘密分量
-    -- （C_ClassColor 管道），貼圖 API 吃秘密值
-    f.bar:GetStatusBarTexture():SetVertexColor(r, g, b, a)
-    -- 治療預估：預設白色 25% 的「幽靈層」——壓在暗化層上呈淡亮灰，跟真實血量（職業色）
-    -- 一眼可分；跟血條同色的話會像血條淡淡延伸，扣血區就看不出是扣的（實測被嫌）。
-    -- healPredictionFollowBar = true 可切回跟隨血條色
-    if edb.showHealPrediction and f.incbar then
-        if edb.healPredictionFollowBar == true then
-            f.incbar:GetStatusBarTexture():SetVertexColor(r, g, b, edb.healPredictionAlpha or 0.35)
-        else
-            local c = edb.healPredictionColor or { r = 1, g = 1, b = 1, a = 0.25 }
-            f.incbar:GetStatusBarTexture():SetVertexColor(c.r, c.g, c.b, c.a or 0.25)
-        end
-    end
-    r, g, b, a = Colors.Get(edb.bgColorMethod, uf, edb, frac, "bgColor", "bgAlpha")
-    f.bg:SetVertexColor(r, g, b, a)
+    ApplyColors(uf, f, edb)
 end
 
 ns.RegisterElement{
@@ -507,7 +575,8 @@ ns.RegisterElement{
     -- reaction：陣營／旗標會改上色法的結果（classreaction 讀 cache.reaction）
     -- info：難度色（methods.difficulty）讀的是 cache.level，只在 info 桶重讀 ——
     --       少了它，選「難度色」的人升級或目標變等級時顏色不會更新
-    buckets = { "health", "death", "reaction", "info" },
+    -- threat：仇恨提醒（Elements/HealthThreat.lua），只換色不重讀血量
+    buckets = { "health", "death", "reaction", "info", "threat" },
     build = Build,
     update = Update,
 }

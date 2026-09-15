@@ -525,13 +525,13 @@ local function Debug()
     --   lastUC 的 guid ＝ 現在的 guid  ⇒ 重畫跑了但畫錯，問題在元件本身
     ------------------------------------------------------------
     p("  換單位的帳（unitchanged）：")
-    for _, key in ipairs({ "target", "focus", "targettarget", "focustarget", "pettarget" }) do
+    for _, key in ipairs({ "target", "focus", "targettarget", "targettargettarget", "focustarget", "pettarget" }) do
         local xf = ns.frames[key]
         if xf then
             local j = xf.lastUC
             local nowGuid = UnitExists(key) and ns.LogStr(UnitGUID(key)) or "nil"
             local mark = (j and j.guid ~= nowGuid) and " |cffff5555← 跟現在的 guid 對不上|r" or ""
-            p(("   %-13s 現在 guid=%s 名字=%s"):format(key, nowGuid,
+            p(("   %-18s 現在 guid=%s 名字=%s"):format(key, nowGuid,
                 UnitExists(key) and ns.LogStr(UnitName(key)) or "nil"))
             if j then
                 p(("     最後 UC t=%.2f gen=%s src=%s name=%s guid=%s 次數=%d%s"):format(
@@ -622,12 +622,50 @@ local function Debug()
     end
 
     -- 顯示閘：「框不見了」要分得出是條件擋掉、unit watch 判定不存在，還是元件沒建起來。
-    -- 格式 單位=模式/閘門(附加條件) alpha
+    -- 格式 單位=模式/外層內層(附加條件)待補 alpha；外層是巨集條件驅動、內層是 Lua 判斷
     if ns.Visibility then
-        local rows = ns.Visibility.Debug()
-        p(("  顯示條件（有條件的框=%s，脫戰淡出=%s）：")
-            :format(tostring(ns.Visibility.anyConditions), tostring(ns.Visibility.anyOocFade)))
+        local rows, specs = ns.Visibility.Debug()
+        p(("  顯示條件（內層條件=%s，騎乘藏=%s，脫戰淡出=%s）：")
+            :format(tostring(ns.Visibility.anyConditions), tostring(ns.Visibility.anyMountedHide),
+                    tostring(ns.Visibility.anyOocFade)))
         p("   " .. (#rows > 0 and table.concat(rows, "  ") or "（沒有框）"))
+        for _, line in ipairs(specs) do p("   外層 " .. line) end
+    end
+
+    -- 仇恨提醒（Elements/HealthThreat.lua）：「被打了卻沒亮／怪死了還在閃」先看這行。
+    -- 秘密命中 > 0 ＝ 玩家自己的仇恨在某個情境回了秘密值，那時一律不亮（fail closed）；
+    -- 目前的判斷是「實務上讀得到」，這個數字就是驗證它的地方。
+    do
+        local puf = ns.frames.player
+        local hp = puf and puf.elements and puf.elements.hpbar
+        local edb = puf and puf.db.elements and puf.db.elements.hpbar
+        local status = UnitThreatSituation(puf and puf.unit or "player")
+        local statusStr = ns.IsSecret(status) and "<secret>" or tostring(status)
+        -- 判定＝上一次重算停在哪一關（Elements/HealthThreat.lua 的 IsActive）
+        local WHY = {
+            aggro = "|cff44ff44怪在打你 → 亮|r", test = "測試中",
+            off = "|cffff8800功能關著|r", preview = "預覽孿生不亮",
+            scope = "|cffff8800擋在「何時提醒」|r", tank = "|cffff8800擋在「坦克專精不提醒」|r",
+            nothreat = "不在任何仇恨表上", low = "在仇恨表上但沒被打（0/1）",
+            secret = "|cffff5555仇恨是秘密值 → 不亮|r",
+        }
+        -- 何時提醒的三個勾選：副本／隊伍／單人野外，符合任一個就亮
+        local function tick(v, def)
+            if v == nil then v = def end
+            return v and "|cff44ff44✓|r" or "✗"
+        end
+        p(("  仇恨提醒：開=%s 何時=副本%s隊伍%s單人野外%s 坦克不亮=%s ｜ 現在 status=%s 秘密命中=%d"):format(
+            tostring(edb and edb.threatWarn),
+            tick(edb and edb.threatInInstance, true), tick(edb and edb.threatInGroup, true),
+            tick(edb and edb.threatSolo, false),
+            tostring(edb and edb.threatSkipTank), statusStr, ns.threatSecretHits or 0))
+        local inGroup, inInst, isTank = ns.HealthThreat.Gates()
+        p(("   上次判定=%s 亮=%s 閃爍中=%s ｜ 重算%s次（仇恨事件%s次）｜ 現在 隊伍中=%s 副本中=%s 坦克專精=%s"):format(
+            WHY[hp and hp.threatWhy] or tostring(hp and hp.threatWhy),
+            tostring(hp and hp.threatActive),
+            tostring(hp and hp.threatAnim and hp.threatAnim:IsPlaying()),
+            tostring(hp and hp.threatEvals or 0), tostring(hp and hp.threatBucketN or 0),
+            tostring(inGroup), tostring(inInst), tostring(isTank)))
     end
 
     -- 血條上色：「顏色不對」要分得出是沒有職業（classFile nil）、主人解不出來
@@ -641,10 +679,13 @@ local function Debug()
         if c then
             local hp = cuf.db and cuf.db.elements and cuf.db.elements.hpbar
             local r, g, b = ns.Colors.Get(hp and hp.colorMethod, cuf, hp, c.frachp, "barColor", "barAlpha")
-            p(("  %s框上色（現在讀=%s）：classFile=%s ownerClass=%s reaction=%s pc=%s isPlayer=%s"):format(
+            -- petSpec：寵物專精色沒生效時，分得出是 cache 沒填（框不是自己的寵物／載具中）
+            -- 還是 API 本身就回不出來（「現問」那格也是 nil ＝ 不是獵人寵物或資料沒到）
+            p(("  %s框上色（現在讀=%s）：classFile=%s ownerClass=%s reaction=%s pc=%s isPlayer=%s petSpec=%s（現問=%s）"):format(
                 ckey, SafeStr(cuf.unit),
                 SafeStr(c.classFile), SafeStr(c.ownerClass), SafeStr(c.reaction),
-                tostring(c.pc), tostring(c.isPlayer)))
+                tostring(c.pc), tostring(c.isPlayer),
+                SafeStr(c.petSpec), SafeStr(ns.Cache.PlayerPetSpec())))
             p(("   法=%s → rgb=%s,%s,%s%s"):format(
                 SafeStr(hp and hp.colorMethod),
                 SafeStr(r and math.floor(r * 255)), SafeStr(g and math.floor(g * 255)),
@@ -808,6 +849,33 @@ local function Debug()
             end
             table.sort(bad)
             p("   |cffff5555客戶端拒絕的 filter：|r" .. table.concat(bad, "  "))
+        end
+    end
+
+    -- 驅散類型高亮（Elements/DispelHighlight.lua）。沒亮的時候要分得出是：開關關著、
+    -- 還沒建（設定面板開著／戰鬥中會延後）、被敵我分流擋掉（敵方只看激怒），
+    -- 還是容器根本不可見（沒收到光環事件）
+    do
+        local any = false
+        for _, unitKey in ipairs(ns.UNITS or {}) do
+            local uf = ns.frames[unitKey]
+            local st = uf and uf.dispelHL
+            if st then
+                if not any then p("  驅散類型高亮："); any = true end
+                local function cstate(e)
+                    if not e then return "未建" end
+                    return ("visible=%s 重掃=%s"):format(tostring(e.container:IsVisible()),
+                        (ns.auraPokeLog and ns.auraPokeLog[e.tag]) or "—")
+                end
+                p(("   %-10s 開=%s 建過%d次 待建=%s 分流=%s ｜ 減益 %s ｜ 激怒 %s"):format(
+                    unitKey, tostring(uf.db.frame.dispelHighlight ~= false), st.builds or 0,
+                    tostring(st.dirty),
+                    st.hostile == nil and "—" or (st.hostile and "敵方→只看激怒" or "友方→只看減益"),
+                    cstate(st.entries.debuff), cstate(st.entries.enrage)))
+            end
+        end
+        if ns.DispelHighlight and ns.DispelHighlight.lastError then
+            p("   |cffff5555建立失敗：|r" .. ns.DispelHighlight.lastError)
         end
     end
 
