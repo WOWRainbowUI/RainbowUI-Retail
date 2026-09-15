@@ -1,6 +1,6 @@
 # Auctionator
 
-## [335](https://github.com/TheMouseNest/Auctionator/tree/335) (2026-08-14)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/334...335) 
+## [336](https://github.com/TheMouseNest/Auctionator/tree/336) (2026-08-26)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/335...336) 
 
-- Retail: Introduce a delay to the auto-scan starting to mitigate favourites query  
+- Prevent showing auction prices on WuE gear  
