@@ -1081,6 +1081,13 @@ if IsClassic then
 				message		= "+%e",
 				scrollArea	= "Static",
 			},
+			NOTIFICATION_ITEM_COOLDOWN = {
+				colorR = 0.784, colorG = 0.784, colorB = 0,
+				message = " %e " .. L.MSG_READY_NOW .. "!",
+				scrollArea = "Static", fontSize = 22,
+				soundFile = "MSBT Cooldown",
+				skillColorR = 1, skillColorG = 0.588, skillColorB = 0.588,
+			},
 			NOTIFICATION_LOOT = {
 				colorB		= 0,
 				message		= "+%a %e (%t)",
@@ -1267,6 +1274,9 @@ if IsClassic then
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
 
+		cooldownExclusions = {},
+		ignoreCooldownThreshold = {},
+		cooldownThreshold = 5,
 		qualityExclusions				= {
 			[LE_ITEM_QUALITY_POOR or Enum.ItemQuality.Poor] = true,
 		},
@@ -2259,6 +2269,13 @@ else
 				message		= "+%e",
 				scrollArea	= "Static",
 			},
+			NOTIFICATION_ITEM_COOLDOWN = {
+				colorR = 0.784, colorG = 0.784, colorB = 0,
+				message = " %e " .. L.MSG_READY_NOW .. "!",
+				scrollArea = "Static", fontSize = 22,
+				soundFile = "MSBT Cooldown",
+				skillColorR = 1, skillColorG = 0.588, skillColorB = 0.588,
+			},
 			NOTIFICATION_LOOT = {
 				colorB		= 0,
 				message		= "+%a %e (%t)",
@@ -2553,6 +2570,9 @@ else
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
 
+		cooldownExclusions = {},
+		ignoreCooldownThreshold = {},
+		cooldownThreshold = 5,
 		qualityExclusions				= {
 			[LE_ITEM_QUALITY_POOR or Enum.ItemQuality.Poor] = true,
 		},
@@ -2719,7 +2739,9 @@ local function SetAddonEnabled(isEnabled)
 		MikSBT.Main.Enable()
 		MikSBT.Parser.Enable()
 		MikSBT.Triggers.Enable()
+		MikSBT.Cooldowns.Enable()
 	else
+		MikSBT.Cooldowns.Disable()
 		MikSBT.Triggers.Disable()
 		MikSBT.Parser.Disable()
 		MikSBT.Main.Disable()

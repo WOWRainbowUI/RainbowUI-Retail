@@ -2,9 +2,14 @@ local module = {}
 local moduleName = "Media"
 MikSBT[moduleName] = module
 
+local DEFAULT_SOUND_FILES = {
+	["MSBT Cooldown"] = "Interface\\Addons\\MikScrollingBattleText\\Sounds\\Cooldown.ogg",
+}
+
 local registry = MikSBT.Configuration.MediaRegistry:New({
 	sharedMedia = LibStub("LibSharedMedia-3.0"),
 	defaultFonts = MikSBT.translations.FONT_FILES,
+	defaultSounds = DEFAULT_SOUND_FILES,
 })
 registry:Initialize()
 

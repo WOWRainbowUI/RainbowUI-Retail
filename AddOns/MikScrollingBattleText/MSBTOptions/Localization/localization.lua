@@ -293,6 +293,7 @@ obj["SPELL_NAME"]			= "%s - Name of the spell.\n"
 obj["DEBUFF_NAME"]			= "%s - Name of the debuff.\n"
 obj["BUFF_NAME"]			= "%s - Name of the buff.\n"
 obj["ITEM_BUFF_NAME"]		= "%s - Name of the item buff.\n"
+obj["ITEM_COOLDOWN_NAME"] = "%e - Name of the item whose cooldown is ready.\n"
 obj["EXTRA_ATTACKS"]		= "%s - Name of skill granting the extra attacks.\n"
 obj["SKILL_LONG"]			= "%sl - Long form of %s. Used to override abbreviation for the event.\n"
 obj["DAMAGE_TYPE_TAKEN"]	= "%t - Type of damage taken.\n"
@@ -460,6 +461,7 @@ obj["NOTIFICATION_ITEM_BUFF"]			= { label="Item Buffs", tooltip="Enable buffs yo
 obj["NOTIFICATION_DEBUFF_FADE"]			= { label="Debuff Fades", tooltip="Enable debuffs that have faded from you."}
 obj["NOTIFICATION_BUFF_FADE"]			= { label="Buff Fades", tooltip="Enable buffs that have faded from you."}
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Item Buff Fades", tooltip="Enable item buffs that have faded from you."}
+obj["NOTIFICATION_ITEM_COOLDOWN"] = { label="Item Ready", tooltip="Notify when a used trinket or potion cooldown finishes."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Enter Combat", tooltip="Enable when you have entered combat."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Leave Combat", tooltip="Enable when you have left combat."}
 obj["NOTIFICATION_POWER_GAIN"]			= { label="Power Gains", tooltip="Enable when you gain extra mana, rage, or energy."}
