@@ -1,6 +1,6 @@
 # Syndicator
 
-## [277](https://github.com/TheMouseNest/Syndicator/tree/277) (2026-08-12)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/276...277) 
+## [279](https://github.com/TheMouseNest/Syndicator/tree/279) (2026-09-12)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/278...279) 
 
-- Remove bonus ids from last season in `active season` check  
+- Fix active season check (didn't get it quite right)  
