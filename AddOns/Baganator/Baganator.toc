@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 822
+## Version: 823
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -135,7 +135,6 @@ CategoryViews\Initialize.lua
 ViewManagement\Initialize.lua
 
 CustomiseDialog\Components.lua
-CustomiseDialog\Components.xml
 CustomiseDialog\Corners.lua
 CustomiseDialog\Categories\Order.lua
 CustomiseDialog\Categories\Editor.lua
