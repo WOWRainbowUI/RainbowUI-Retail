@@ -14,6 +14,13 @@ local L = ns.WidgetsEnv.L
 ns.Specs = {}
 local Specs = ns.Specs
 
+-- 填充方向下拉（血條／能量條／施法條／魔力小條／資源條共用，值見 ns.FillReversed）。
+-- 刻意用下拉而不是「反轉」勾選：勾選要先知道「正常」是哪個方向，下拉直接寫出方向
+Specs.FILL_DIRECTION_ITEMS = {
+    { text = L["Left to right"], value = "ltr" },
+    { text = L["Right to left"], value = "rtl" },
+}
+
 -- 超出距離的表現方式（見 Core/Visibility.lua）
 Specs.OOR_STYLE_ITEMS = {
     { text = L["Dim"],  value = "dim" },
@@ -51,6 +58,39 @@ Specs.COLOR_METHOD_ITEMS = {
     { text = L["Custom color"],        value = "solid" },
     { text = L["Hidden"],          value = "hide" },
 }
+
+-- 寵物專精色**只給寵物框**：專精 API 問的是玩家自己的寵物欄，放進目標／首領的選單
+-- 只會多兩個（除了選到自己寵物的那一刻）永遠等於「職業色（僅友方玩家）」的選項。
+-- 插在職業色階梯（到敵我關係色為止）之後，不打斷上面那條階梯。
+local PET_SPEC_ITEMS = {
+    { text = L["Pet specialization color"],        value = "petspec" },
+    { text = L["Pet specialization color (dark)"], value = "petspecdark" },
+}
+local petColorItems
+
+function Specs.ColorMethodItems(unitKey)
+    if unitKey ~= "pet" then return Specs.COLOR_METHOD_ITEMS end
+    if not petColorItems then
+        petColorItems = {}
+        for _, item in ipairs(Specs.COLOR_METHOD_ITEMS) do
+            tinsert(petColorItems, item)
+            if item.value == "reactiondark" then
+                for _, p in ipairs(PET_SPEC_ITEMS) do tinsert(petColorItems, p) end
+            end
+        end
+    end
+    return petColorItems
+end
+
+-- 寵物專精的名字用暴雪自己的（十二個語系都是官方譯名），查不到才退英文
+function Specs.PetSpecName(specID, fallback)
+    local get = GetSpecializationInfoByID
+    if get then
+        local ok, _, name = pcall(get, specID)
+        if ok and type(name) == "string" and name ~= "" then return name end
+    end
+    return fallback
+end
 
 Specs.GROWTH_ITEMS = {
     { text = L["Left to right, downward"], value = "LRTB" },

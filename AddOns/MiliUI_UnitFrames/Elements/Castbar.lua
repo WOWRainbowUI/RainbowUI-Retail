@@ -343,14 +343,14 @@ end
 -- 施法目標：「這個單位正在對誰施法」
 --
 -- `UnitCastingInfo` 沒有目標欄位，只能問「這個施法者的目標是誰」——
--- 也就是 <unit>target token（targettarget / focustarget / bossNtarget / pettarget）。
+-- 也就是 <unit>target token（targettarget / targettargettarget / focustarget / bossNtarget / pettarget）。
 --
 -- ⚠ 受限身分的單位 `UnitName` 回**秘密字串**。照 Tags 的規則：秘密字串可以直接
 -- 餵 SetText，就是不能拿去比較。所以這裡對名字本身什麼都不判斷，拿到就設進去；
 -- 「有沒有目標」改問 UnitExists（明文布林），沒有就清空。
 local TARGET_OF = {
     player = "target", pet = "pettarget",
-    target = "targettarget", focus = "focustarget",
+    target = "targettarget", targettarget = "targettargettarget", focus = "focustarget",
     boss1 = "boss1target", boss2 = "boss2target", boss3 = "boss3target",
     boss4 = "boss4target", boss5 = "boss5target",
 }
@@ -824,6 +824,11 @@ local function Build(uf, edb)
     local bg = edb.bg or { r = 0, g = 0, b = 0, a = 0.8 }
     f.bgTex:SetVertexColor(bg.r, bg.g, bg.b, bg.a or 0.8)
     f.bar:SetStatusBarTexture(Media.BarTexture(ns.db.global.barTexture))
+    -- 填充方向。施法往起點的反方向長、引導從滿格往起點退，兩者的相對關係不變。
+    -- SetTimerDuration 驅動的條一樣吃 ReverseFill（方向是條的屬性，不是計時器的）。
+    -- ⚠ 火花錨的那一邊要跟著換，見下面
+    local reversed = ns.FillReversed(edb)
+    f.bar:SetReverseFill(reversed)
     -- 明確分層：條 L+1 → 圖示 L+2 → 文字 L+3。子 frame 預設層級是父+1，
     -- 若圖示也設 L+1 會跟條同層、繪製順序不保證 → 圖示被填充蓋掉（實測踩到）
     f.bar:SetFrameLevel(lvl + 1)
@@ -884,7 +889,8 @@ local function Build(uf, edb)
         local h = edb.h or 20
         f.spark:SetSize(10, h * 2.2)
         f.spark:ClearAllPoints()
-        f.spark:SetPoint("CENTER", f.bar:GetStatusBarTexture(), "RIGHT", 0, 0)
+        -- 前緣：從左到右是填充貼圖的右緣，反向時是左緣
+        f.spark:SetPoint("CENTER", f.bar:GetStatusBarTexture(), reversed and "LEFT" or "RIGHT", 0, 0)
         f.spark:Show()
     else
         f.spark:Hide()

@@ -26,6 +26,10 @@ local FAKE_BASE = {
     target       = { name = L["Training Dummy"], pc = false, reaction = 2, level = 82,
                      creaturetype = L["Mechanical"], classificationKey = "elite" },
     targettarget = { name = L["Mili"],     pc = true,  reaction = 5, level = 80 },
+    -- 目標的目標的目標：打怪時是「目標 → 坦 → 坦在打的那隻」，所以套回敵對那組，
+    -- 疊在目標的目標（玩家那組）上方剛好一眼分得出是兩格
+    targettargettarget = { name = L["Training Dummy"], pc = false, reaction = 2, level = 82,
+                           creaturetype = L["Mechanical"] },
     focus        = { name = L["Training Dummy"], pc = false, reaction = 2, level = 81 },
     focustarget  = { name = L["Mili"],     pc = true,  reaction = 5, level = 80 },
     -- ⚠ 寵物是「玩家控制但**不是**玩家」：isPlayer 要明寫 false。
@@ -58,9 +62,14 @@ local function BuildFakeCache(unitKey)
         isPlayer = isPlayer,
         -- 玩家控制但不是玩家 → 吃主人的職業色，跟真實框同一條路（見 Core/Cache.lua）
         ownerClass = (not isPlayer) and base.pc and ns.playerClass or nil,
+        -- 寵物專精色：用玩家真的寵物專精（非獵人是 nil → 退主人職業色，同真實框）
+        petSpec = (unitKey == "pet") and ns.Cache.PlayerPetSpec() or nil,
         reaction = base.reaction,
         level = base.level,
         classification = base.classificationKey and cls[base.classificationKey] or "",
+        -- [group] 走字串 tag 的預覽路徑（cache[tag] 直取）。不給值的話預覽一片空白，
+        -- 玩家沒辦法對位置 —— 真實框只有在團隊裡才畫得出來
+        group = "3", group_label = (GROUP or "Group") .. " 3",
         powertype = 0,
         dead = false, ghost = false, offline = false,
         afk = false, dnd = false, tapped = false,
