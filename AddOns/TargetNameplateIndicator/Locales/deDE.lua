@@ -156,6 +156,16 @@ L["Group.mouseover.self.Desc"] = "These options are used when mousing over yours
 --[[Translation missing --]]
 L["Group.self.Name"] = "Self"
 --[[Translation missing --]]
+L["Group.softenemy.hostile.Desc"] = "These options are used for hostile soft targets"
+--[[Translation missing --]]
+L["Group.softenemy.Name"] = "Soft Target (Hostile)"
+--[[Translation missing --]]
+L["Group.softfriend.friendly.Desc"] = "These options are used for friendly soft targets"
+--[[Translation missing --]]
+L["Group.softfriend.Name"] = "Soft Target (Friendly)"
+--[[Translation missing --]]
+L["Group.softfriend.self.Desc"] = "These options are used when soft-targeting yourself"
+--[[Translation missing --]]
 L["Group.target.friendly.Desc"] = "These options are used for friendly targets"
 --[[Translation missing --]]
 L["Group.target.hostile.Desc"] = "These options are used for hostile targets"

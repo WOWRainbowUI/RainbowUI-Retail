@@ -127,6 +127,16 @@ L["Group.mouseover.hostile.Desc"] = "이 옵션은 적대적인 마우스오버 
 L["Group.mouseover.Name"] = "마우스오버"
 L["Group.mouseover.self.Desc"] = "이 옵션은 자신 위에 마우스를 올릴 때 사용됩니다."
 L["Group.self.Name"] = "자신"
+--[[Translation missing --]]
+L["Group.softenemy.hostile.Desc"] = "These options are used for hostile soft targets"
+--[[Translation missing --]]
+L["Group.softenemy.Name"] = "Soft Target (Hostile)"
+--[[Translation missing --]]
+L["Group.softfriend.friendly.Desc"] = "These options are used for friendly soft targets"
+--[[Translation missing --]]
+L["Group.softfriend.Name"] = "Soft Target (Friendly)"
+--[[Translation missing --]]
+L["Group.softfriend.self.Desc"] = "These options are used when soft-targeting yourself"
 L["Group.target.friendly.Desc"] = "이 옵션은 우호적인 대상에 사용됩니다."
 L["Group.target.hostile.Desc"] = "이 옵션은 적대적인 대상에 사용됩니다."
 L["Group.target.Name"] = "대상"
