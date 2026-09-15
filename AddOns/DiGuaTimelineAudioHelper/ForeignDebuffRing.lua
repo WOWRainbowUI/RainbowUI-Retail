@@ -57,12 +57,12 @@ local SHOW_RULES = {
         maxDuration = 9,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
     },
 
-    {
-        name = "密谋",
-        instanceIDs = { [2813] = true },
-        roles = { HEALER = true, DAMAGER = true },  -- 只有治疗 / DPS 显示（坦克不显示）
-        maxDuration = 7.5,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
-    },
+    -- {
+    --     name = "密谋",
+    --     instanceIDs = { [2813] = true },
+    --     roles = { HEALER = true, DAMAGER = true },  -- 只有治疗 / DPS 显示（坦克不显示）
+    --     maxDuration = 7.5,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
+    -- },
 
     {
         name = "洞穴",
@@ -515,10 +515,25 @@ local function ShouldShowHere()
     return false, "没有任何显示规则命中", nil
 end
 
+-- ===== 总开关：与控制台「显示倒计时圆环」共用（同一个 db.ringEnabled）=====
+-- 勾选 = 显示；取消勾选 = 所有圆环（含本文件的）一律不显示，不看区域规则。
+local function IsRingEnabled()
+    local db = DiGuaTimelineAudioHelper
+    if type(db) ~= "table" then return true end -- 存档还没建好时按默认（显示）处理
+    return db.ringEnabled ~= false
+end
+
 -- 按当前所在地 / 战斗进度开关整个容器（暴雪那套过滤只管光环，不管你在哪、打到哪）
 local function ApplyShowGate()
     local c = container
     if not c then return end
+
+    -- ★ 总开关优先：取消勾选「显示倒计时圆环」→ 无条件隐藏，不再走下面的区域规则
+    if not IsRingEnabled() then
+        pcall(c.SetEnabled, c, false)
+        c:Hide()
+        return
+    end
 
     local show, _, rule = ShouldShowHere()
     if show then
@@ -536,6 +551,17 @@ local function Enable()
     if not BuildContainer() then return end
     ApplyShowGate()
 end
+
+-- 供控制台勾选框调用：总开关一变就立刻重判（不用等下一次区域 / 光环事件）
+-- 取消勾选时容器可能还没建 / 已建，两种情况都要能立刻生效
+addonTable.RefreshForeignDebuffRing = function()
+    if not IsRingEnabled() then
+        if container then pcall(container.SetEnabled, container, false) ; container:Hide() end
+        return
+    end
+    Enable() -- 内部会 BuildContainer（已建则复用）+ ApplyShowGate
+end
+addonTable.IsForeignDebuffRingEnabled = IsRingEnabled
 
 -- ===== 事件 =====
 -- 登录 / 过图后确保容器已建好；之后光环的增删**不用我们管**（AuraContainer 自己会跟随），
@@ -564,7 +590,8 @@ f:SetScript("OnEvent", function(_, event, arg1)
         CurrentEncounterID = 0
         ApplyShowGate()
     elseif event == "UNIT_AURA" then
-        if container then pcall(container.UpdateAllAuras, container) end
+        -- 总开关关着时直接跳过刷新（容器已隐藏，不必再算）
+        if container and IsRingEnabled() then pcall(container.UpdateAllAuras, container) end
     else
         ApplyShowGate() -- ZONE_CHANGED*：换地方了，重新按规则表判一次
     end

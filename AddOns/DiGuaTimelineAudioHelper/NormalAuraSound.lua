@@ -7,6 +7,30 @@ local addonName, addonTable = ...
 local isNormalAuraRegistered = false
 local registeredNormalAuraIDs = {} -- 存储绑定的唯一流水号 ID
 
+-- ===== 现在能不能动“光环音效注册表” =====
+-- C_UnitAuras.AddAuraSound / RemoveAuraSound 是保护接口，下面两种状态下调用会被拦成
+--   [ADDON_ACTION_BLOCKED] 插件 'DiGuaTimelineAudioHelper' 尝试调用保护功能 'UNKNOWN()'
+-- 注意：pcall 挡不住它（这是暴雪发的事件，不是 Lua 错误），唯一办法是别在受限状态调用。
+--   1) 战斗锁定中（InCombatLockdown）
+--   2) 11.2+/12.x 的 secret 光环状态：副本 / 大秘境 / PvP 等场合光环数据被标记为 secret，
+--      此时 C_Secrets.ShouldAurasBeSecret() 为 true，连“注册/注销”都不允许
+-- 参考实现：EnhanceQoL.SoundLifecycle.CanChangeRegistrations / Leatrix_Plus
+local function AreAurasSecret()
+    local fn = C_Secrets and C_Secrets.ShouldAurasBeSecret
+    if type(fn) ~= "function" then return false end
+    local ok, res = pcall(fn)
+    if not ok then return false end
+    -- 万一日后改成返回 secret 值：当作“受保护”处理，宁可不注册也不要刷报错
+    if issecretvalue and issecretvalue(res) then return true end
+    return res == true
+end
+
+local function CanChangeAuraSoundRegistrations()
+    if InCombatLockdown() then return false end
+    if AreAurasSecret() then return false end
+    return true
+end
+
 -- ==================== 1. 注册普通光环音效 (12.1+ 新API) ====================
 -- 注意：这是真正的注册逻辑（调用保护接口），调用方需保证已脱战（见第 3 节安全入口）
 local function DoRegisterNormalAuras()
@@ -18,8 +42,8 @@ local function DoRegisterNormalAuras()
         return true
     end
 
-    -- 战斗锁定防御：进入本函数后可能刚进战斗，真正注册前再确认一次
-    if InCombatLockdown() then return false end
+    -- 保护状态防御：进入本函数后可能刚进战斗 / 刚进副本（光环转 secret），真正注册前再确认一次
+    if not CanChangeAuraSoundRegistrations() then return false end
 
     -- 上次注册若被中途进战斗打断会残留部分流水号；先清掉避免重复注册
     for i = #registeredNormalAuraIDs, 1, -1 do
@@ -121,10 +145,10 @@ local function DoRegisterNormalAuras()
                 -- 展开集合令牌（nameplate/party/raid/boss/arena），其余单令牌直接透传
                 for _, token in ipairs(GetUnitTokenList(unitToken)) do
                     soundInfo.unitToken = token
-                    -- 战斗锁定防御：注册可能耗时较长，战斗随时可能开始；
-                    -- 锁定中调 AddAuraSound 会触发 ADDON_ACTION_BLOCKED（pcall 挡不住这种 taint），
-                    -- 检测到立即中断本函数，交由外层在脱战后补注册
-                    if InCombatLockdown() then return true end
+                    -- 保护状态防御：注册条目很多、耗时较长，中途可能进战斗 / 进副本导致光环变 secret；
+                    -- 这两种状态下调 AddAuraSound 会触发 ADDON_ACTION_BLOCKED（pcall 挡不住，
+                    -- 因为它是事件不是 Lua 错误），检测到立即中断本函数，交由外层在状态解除后补注册
+                    if not CanChangeAuraSoundRegistrations() then return true end
                     -- 容错：单个单位无效（不在队伍/没有首领等）不影响其余注册
                     local ok, auraSoundID = pcall(C_UnitAuras.AddAuraSound, triggerEnum, soundInfo)
                     if ok and auraSoundID then
@@ -789,12 +813,14 @@ addonTable.NormalAura = {
 local function DoUnregisterNormalAuras()
     if not isNormalAuraRegistered then return true end
     if not (C_UnitAuras and C_UnitAuras.RemoveAuraSound) then return true end
+    -- 与注册同理：战斗锁定 / secret 光环状态下 RemoveAuraSound 一样会被拦成保护功能
+    if not CanChangeAuraSoundRegistrations() then return false end
 
     -- 倒序解绑所有已注册的流水号
     for i = #registeredNormalAuraIDs, 1, -1 do
         local auraSoundID = registeredNormalAuraIDs[i]
-        -- 战斗锁定防御：锁定中 RemoveAuraSound 同样被拦截；中断留待脱战续清
-        if InCombatLockdown() then return false end
+        -- 保护状态防御：受限时中断，留待状态解除后续清
+        if not CanChangeAuraSoundRegistrations() then return false end
         pcall(C_UnitAuras.RemoveAuraSound, auraSoundID)
         table.remove(registeredNormalAuraIDs, i)
     end
@@ -803,55 +829,78 @@ local function DoUnregisterNormalAuras()
     return true
 end
 
--- ==================== 3. 战斗锁定防御 + 安全入口 ====================
--- 保护接口（AddAuraSound / RemoveAuraSound）在战斗锁定期间调用会触发
--- ADDON_ACTION_BLOCKED（典型场景：快速进出首领战刷坐骑，战斗中延迟回调去注册）。
--- 统一入口：若处于战斗锁定，先挂 PLAYER_REGEN_ENABLED，脱战后补执行。
+-- ==================== 3. 保护状态防御 + 安全入口 ====================
+-- 保护接口（AddAuraSound / RemoveAuraSound）在下面两种状态下调用会触发
+-- [ADDON_ACTION_BLOCKED] 保护功能 'UNKNOWN()'（pcall 拦不住，它是暴雪发的事件）：
+--   ① 战斗锁定中 —— 典型场景：快速进出首领战刷坐骑，战斗中延迟回调去注册；
+--   ② 光环处于 secret 状态 —— 副本 / 大秘境 / PvP 场合 C_Secrets.ShouldAurasBeSecret() == true。
+-- 统一入口：受限时先把动作挂起，等 PLAYER_REGEN_ENABLED / ENCOUNTER_END / 过图 等时机再补执行。
 
 local pendingNormalAuraAction = nil   -- nil | "register" | "unregister" | "reload"
 
--- 前向声明（RegenFrame 与 ExecuteNormalAuraAction 相互引用）
+-- 前向声明（RegenFrame / ScheduleRetry / ExecuteNormalAuraAction 相互引用）
 local RegenFrame
 local ExecuteNormalAuraAction
+local ScheduleRetry
+
+-- 这些事件之后“受限状态”可能解除，届时补做挂起的动作。
+-- ⚠️ 只挂 PLAYER_REGEN_ENABLED 不够：在副本里处于 secret 光环状态时，脱战了也依然不能注册，
+--    必须等 ENCOUNTER_END / 过图等时机，否则挂起的动作会永远卡着（且不会报错，只是静默失效）。
+local RETRY_EVENTS = {
+    "PLAYER_REGEN_ENABLED",   -- 脱战
+    "ENCOUNTER_END",          -- 首领战结束（副本内 secret 状态常随之解除）
+    "PLAYER_ENTERING_WORLD",  -- 进出副本 / 过图 / reload
+    "ZONE_CHANGED_NEW_AREA",  -- 换区域
+}
 
 RegenFrame = CreateFrame("Frame")
-RegenFrame:SetScript("OnEvent", function(self, event)
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+RegenFrame:SetScript("OnEvent", function(self)
+    if not pendingNormalAuraAction then
+        -- 没有挂起的动作 → 彻底安静下来，不再监听
+        for _, e in ipairs(RETRY_EVENTS) do self:UnregisterEvent(e) end
+        return
+    end
     local action = pendingNormalAuraAction
     pendingNormalAuraAction = nil
-    if action then
-        ExecuteNormalAuraAction(action)
+    ExecuteNormalAuraAction(action)
+    -- 仍被拦（还在战斗中 / 光环仍是 secret）→ 保持监听，等下一个时机再试
+    if not pendingNormalAuraAction then
+        for _, e in ipairs(RETRY_EVENTS) do self:UnregisterEvent(e) end
     end
 end)
 
--- 统一执行动作：若中途进战斗被打断（返回 false），自动挂 PLAYER_REGEN_ENABLED 脱战后重试
+ScheduleRetry = function()
+    for _, e in ipairs(RETRY_EVENTS) do RegenFrame:RegisterEvent(e) end
+end
+
+-- 统一执行动作：若中途被拦（返回 false），自动挂起等下一个可执行时机
 ExecuteNormalAuraAction = function(action)
     if action == "register" then
         if not DoRegisterNormalAuras() then
             pendingNormalAuraAction = "register"
-            RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+            ScheduleRetry()
         end
     elseif action == "unregister" then
         if not DoUnregisterNormalAuras() then
             pendingNormalAuraAction = "unregister"
-            RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+            ScheduleRetry()
         end
     elseif action == "reload" then
         if not DoUnregisterNormalAuras() then
             pendingNormalAuraAction = "reload"
-            RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+            ScheduleRetry()
         elseif not DoRegisterNormalAuras() then
             pendingNormalAuraAction = "register"
-            RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+            ScheduleRetry()
         end
     end
 end
 
--- 尝试立即执行；若在战斗锁定中则等脱战再执行
+-- 尝试立即执行；若处于受限状态（战斗锁定 / secret 光环）则等状态解除再执行
 local function RunNormalAuraAction(action)
-    if InCombatLockdown() then
+    if not CanChangeAuraSoundRegistrations() then
         pendingNormalAuraAction = action
-        RegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        ScheduleRetry()
         return
     end
     ExecuteNormalAuraAction(action)

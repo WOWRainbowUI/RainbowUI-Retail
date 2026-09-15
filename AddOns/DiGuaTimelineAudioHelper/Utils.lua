@@ -188,13 +188,34 @@ local FIXED_DEFAULT_PATH_SOUNDS = {
     ["bubu.ogg"]      = true,
 }
 
---- 获取音频完整路径（带固定默认路径覆盖）
+-- 豁免语音包：这些语音包内已自带上面几个音效的对应音源，
+-- 因此对它们解除"强制本体路径"限制 —— alarmbeep / JingBao / BuBu 照常跟随语音包 Media 目录播放。
+-- 匹配规则：当前联动语音包名中包含下列关键字（大小写不敏感）即视为豁免。
+local FIXED_OVERRIDE_EXEMPT_PACK_KEYWORDS = {
+    "TTNX", -- 如 "DiGua-TTNX"
+}
+
+-- 当前联动的语音包是否属于豁免名单
+local function IsFixedOverrideExempt()
+    local packName = addonTable.GetVoicePackName and addonTable.GetVoicePackName()
+    if not packName then return false end
+    local upperName = string.upper(packName)
+    for _, keyword in ipairs(FIXED_OVERRIDE_EXEMPT_PACK_KEYWORDS) do
+        if string.find(upperName, keyword, 1, true) then return true end
+    end
+    return false
+end
+
+--- 获取音频完整路径（带固定默认路径覆盖，豁免语音包除外）
 --- 传入 "xxx.ogg" 文件名，返回完整路径。
---- 若文件名命中固定列表，则强制使用内置默认路径；否则使用当前语音包/内置路径。
+--- 若文件名命中固定列表：
+---   · 语音包属于豁免名单（如 DiGua-TTNX）→ 不做覆盖，跟随当前语音包 Media 目录
+---   · 其余情况                          → 强制使用内置默认 Media 目录（不被语音包替换）
+--- 未命中固定列表时使用当前语音包/内置路径。
 --- 注意：本函数在运行时才调用，因此即使依赖 Core.lua 中定义的
---- GetMediaPath / GetDefaultMediaPath（加载顺序靠后）也不受影响。
+--- GetMediaPath / GetDefaultMediaPath / GetVoicePackName（加载顺序靠后）也不受影响。
 function addonTable.GetSoundFullPath(fileName)
-    if FIXED_DEFAULT_PATH_SOUNDS[fileName:lower()] then
+    if FIXED_DEFAULT_PATH_SOUNDS[fileName:lower()] and not IsFixedOverrideExempt() then
         local defaultPath = addonTable.GetDefaultMediaPath and addonTable.GetDefaultMediaPath()
         if defaultPath then
             return defaultPath .. fileName
@@ -397,6 +418,10 @@ local function ForceHideRingFrame()
     if activeCircleTimer then activeCircleTimer:Cancel(); activeCircleTimer = nil end
     if backupHideTimer then backupHideTimer:Cancel(); backupHideTimer = nil end
 end
+
+-- 供控制台「显示倒计时圆环」取消勾选时调用：立刻清掉正在显示的圆环
+-- （否则要等本次计时器走完才会消失）
+addonTable.ForceHideRingFrame = ForceHideRingFrame
 
 -- 启动光圈倒计时 (增加 checkCast 参数)
 function addonTable.StartCircleTimerBySeconds(seconds, checkCast, PlayerIsSpellTarget)

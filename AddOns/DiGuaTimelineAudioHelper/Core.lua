@@ -149,6 +149,23 @@ f.title = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 f.title:SetPoint("TOP", f.TitleBg, "TOP", 0, -3)
 f.title:SetText("DiGua 控制台")
 
+-- 标题右侧：当前版本号（直接读 .toc 的 ## Version，以后改版本号不用动代码）
+local function GetAddonVersion()
+    local fn = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+    if type(fn) ~= "function" then return nil end
+    local ok, ver = pcall(fn, addonName, "Version")
+    if not ok or ver == nil then return nil end
+    if issecretvalue and issecretvalue(ver) then return nil end
+    return tostring(ver)
+end
+
+local versionText = GetAddonVersion()
+f.version = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+-- 靠标题栏右端；留出 26px 避开右上角关闭按钮，别压到它
+f.version:SetPoint("RIGHT", f.TitleBg, "RIGHT", -26, 0)
+f.version:SetText(versionText and ("v" .. versionText) or "v?")
+f.version:SetTextColor(0.6, 0.8, 1)
+
 -- 左右两栏标题
 local function CreateColumnTitle(text, xOffset, yOffset)
     local label = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -264,6 +281,12 @@ end)
 -- ===== 右栏：视觉 =====
 local cbRing = CreateCheckButton("DiGuaTimelineRingCheck", "显示倒计时圆环", 250, -55, function(self)
     DiGuaTimelineAudioHelper.ringEnabled = self:GetChecked()
+    -- 取消勾选时立刻清掉正在显示的圆环（否则要等本次计时器走完才消失）
+    if not DiGuaTimelineAudioHelper.ringEnabled and addonTable.ForceHideRingFrame then
+        addonTable.ForceHideRingFrame()
+    end
+    -- 外部减益圆环（ForeignDebuffRing.lua）共用同一总开关：立刻重判显示
+    if addonTable.RefreshForeignDebuffRing then addonTable.RefreshForeignDebuffRing() end
     print("|cffffd100[DiGua]|r 倒计时圆环图标状态: " .. (DiGuaTimelineAudioHelper.ringEnabled and "|cff00ff00已显示|r" or "|cffff0000已隐藏|r"))
     -- 同步半透明拖动定位框（勾选且控制台打开时显示，供拖动调整圆环位置）
     if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(f:IsShown()) end
@@ -477,3 +500,5 @@ end
 addonTable.GetMediaPath = function() return MEDIA_PATH end
 addonTable.GetDefaultMediaPath = function() return DEFAULT_MEDIA_PATH end
 addonTable.GetAudioChannel = function() return DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.audioChannel or "Master" end
+-- 当前联动的语音包名（nil = 未联动第三方语音包 / 已静音，供 Utils 判断特殊语音包例外）
+addonTable.GetVoicePackName = function() return currentVoicePackName end
