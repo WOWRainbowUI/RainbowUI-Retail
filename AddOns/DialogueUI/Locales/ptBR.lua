@@ -348,7 +348,7 @@ L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "([,%d%.]+) de Armadura";
 L["Match Stat Stamina"] = "([,%d%.]+) Vigor";
-L["Match Stat Strengh"] = "([,%d%.]+) Força";
+L["Match Stat Strength"] = "([,%d%.]+) Força";
 L["Match Stat Agility"] = "([,%d%.]+) Agilidade";
 L["Match Stat Intellect"] = "([,%d%.]+) Intelecto";
 L["Match Stat Spirit"] = "([,%d%.]+) Espírito";

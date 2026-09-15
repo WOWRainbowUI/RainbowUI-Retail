@@ -23,6 +23,13 @@ local WidgetManager = CreateFrame("Frame");
 addon.WidgetManager = WidgetManager;
 
 
+local function ConvertFrameAnchorToCenter(frame)
+    local x, y = frame:GetCenter();
+    frame:ClearAllPoints();
+    frame:SetPoint("CENTER", nil, "BOTTOMLEFT", x, y);
+end
+
+
 local DragFrame = CreateFrame("Frame");
 do  --Emulate Drag gesture
     function DragFrame:StopWatching()
@@ -51,6 +58,10 @@ do  --Emulate Drag gesture
 
                 if self.owner.OnDragStop then
                     self.owner:OnDragStop();
+                end
+
+                if self.owner.useCenterAsOrigin then
+                    ConvertFrameAnchorToCenter(self.owner);
                 end
             end
             self.owner.isMoving = nil;

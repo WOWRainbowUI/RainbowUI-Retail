@@ -1749,7 +1749,13 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
             amountText = FORMAT_COUNT_OWNED_REQUIRED:format(AbbreviateNumbers(ownedAmount), amountText);
         end
     end
-    self.Count:SetText(amountText);
+
+    if amount > 0 then
+        self.Count:SetText(amountText);
+    else
+        -- Usually the amount is bigger than 0 but Bonus Experience [CurrencyID:1877] is the exception
+        self.Count:SetText(nil);
+    end
 
     self:SetItemOverlay(nil);
     self:SetQuestRewardContextFlags(info.questRewardContextFlags);

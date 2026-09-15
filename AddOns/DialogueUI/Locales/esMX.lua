@@ -201,7 +201,7 @@ L["Instruction Open Settings Console"] = "Para abrir Ajustes, presiona [KEY:PC:F
 --DO NOT TRANSLATE
 L["Match Stat Armor"] = "([,%d%.]+) p. de armadura";
 L["Match Stat Stamina"] = "([,%d%.]+) Aguante";
-L["Match Stat Strengh"] = "([,%d%.]+) Fuerza";
+L["Match Stat Strength"] = "([,%d%.]+) Fuerza";
 L["Match Stat Agility"] = "([,%d%.]+) Agilidad";
 L["Match Stat Intellect"] = "([,%d%.]+) Intelecto";
 L["Match Stat Spirit"] = "([,%d%.]+) Espíritu";

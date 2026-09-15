@@ -48,6 +48,9 @@ function DataSource:OnInteractWithNPC(creatureName)
         end
         self:SetScript("OnEvent", self.OnEvent);
         self:RegisterUnitEvent("UNIT_AURA", "player");
+        if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
+            self:UnregisterEvent("ADDON_RESTRICTION_STATE_CHANGED");
+        end
         self:ResetQueryCounter();
         self:UpdateRaceTimesFromAura();
         self.active = true;
@@ -78,6 +81,14 @@ function DataSource:OnEvent(event, ...)
         local dataInstanceID = ...
         if dataInstanceID == self.dataInstanceID then
             self:UpdateRaceTimesFromAura();
+        end
+    elseif event == "ADDON_RESTRICTION_STATE_CHANGED" then
+        if not self.pauseUpdate then
+            self.pauseUpdate = true;
+            C_Timer.After(0.2, function()
+                self.pauseUpdate = nil;
+                self:UpdateRaceTimesFromAura();
+            end);
         end
     end
 end
@@ -319,6 +330,9 @@ function DataSource:PostDataFullyRetrieved()
     self.auraInstanceID = nil;
     self:UnregisterEvent("UNIT_AURA");
     self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+    if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
+        self:UnregisterEvent("ADDON_RESTRICTION_STATE_CHANGED");
+    end
     self:SetScript("OnUpdate", nil);
     self:SetScript("OnEvent", nil);
 end
@@ -334,6 +348,10 @@ local function ProcessFunc(auraInfo)
 end
 
 function DataSource:UpdateRaceTimesFromAura()
+    if C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret() then
+        return;
+    end
+
     local unit = "player";
     local filter = "HELPFUL";
     local usePackedAura = true;

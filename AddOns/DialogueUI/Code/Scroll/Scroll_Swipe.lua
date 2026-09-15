@@ -12,7 +12,7 @@ local EMULATE_SWIPE = true;
 local SWIPE_SPEED_SAMPLE_T = 2/60;
 local SWIPE_START_THRESHOLD = 25;   --Distance Square
 local RUBBERBAND_MAX_OFFSET = 64;
-local RUBBERBAND_STRENGH = 0.5;
+local RUBBERBAND_STRENGTH = 0.5;
 
 local function CalculateOffset(offset, range)
     if offset > 0 and offset < range then
@@ -20,9 +20,9 @@ local function CalculateOffset(offset, range)
     end
 
     if offset < 0 then
-        return  0 -((1 - (1 / (((0 - offset) * RUBBERBAND_STRENGH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
+        return  0 -((1 - (1 / (((0 - offset) * RUBBERBAND_STRENGTH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
     elseif offset > range then
-        return  range + ((1 - (1 / (((offset - range) * RUBBERBAND_STRENGH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
+        return  range + ((1 - (1 / (((offset - range) * RUBBERBAND_STRENGTH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
     end
 end
 

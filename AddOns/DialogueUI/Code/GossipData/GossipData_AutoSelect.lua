@@ -11,6 +11,7 @@ local AutoSelectGossip = {
 	[138824] = 1,			--Ritual Site Reports
     [136045] = 1,           --(Quest) Let's spar! Armies of Darkness
     [135188] = 1,           --(Quest) Vyrin wants you to join him at Saltheril's Haven. Silvermoon "Trader"
+    [141839] = 1,           --<Recite from the Corrosive Codex.>
 
     --Den of Nalorakk
     [135009] = 1,           --Ethereal Pyre, teleport from entrance to the start of the first area
@@ -35,6 +36,10 @@ local AutoSelectGossip = {
     [134669] = 1,           --(Quest) I'll take the devices into the portal and shut them down!
     [135239] = 1,           --(Quest) Alright... pardon! I'll just step around you...
     [138009] = 1,           --(Quest) I will re-align the conduits and restore the energy.
+    [138690] = 1,           --(Delve) Disrupt the summon? I've got ideas...
+    [139635] = 1,           --They'll never know what hit them. Artolla
+    [141485] = 1,           --(Quest) Clear the pylons and destroy the eggs before they hatch. Got it.
+    [140366] = 1,           --(Quest) Snakes and Toxic Clouds? Must be Ula'tek...
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra

@@ -483,12 +483,12 @@ local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
 
     local pitch = Esaing_OutSine(self.t, 88,  15, CAMERA_MOVEMENT_DURATION);
-    local targetStrengh = Esaing_OutSine(self.t, 0.0, FOCUS_STRENGTH_PITCH, CAMERA_MOVEMENT_DURATION);
+    local targetStrength = Esaing_OutSine(self.t, 0.0, FOCUS_STRENGTH_PITCH, CAMERA_MOVEMENT_DURATION);
 
     if self.t >= CAMERA_MOVEMENT_DURATION then
         ConsoleExec("pitchlimit "..15);
         pitch = 88;
-        targetStrengh = FOCUS_STRENGTH_PITCH;
+        targetStrength = FOCUS_STRENGTH_PITCH;
         self:SetScript("OnUpdate", nil);
     end
 
@@ -496,7 +496,7 @@ local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
         ZoomIn_Fov_OnUpdate(self, elapsed);
     end
 
-    SetCVar("test_cameraTargetFocusInteractStrengthPitch", targetStrengh);
+    SetCVar("test_cameraTargetFocusInteractStrengthPitch", targetStrength);
     ConsoleExec("pitchlimit "..pitch);
 end
 

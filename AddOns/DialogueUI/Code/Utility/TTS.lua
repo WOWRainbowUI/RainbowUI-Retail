@@ -174,7 +174,10 @@ function TTSUtil:GetVoiceIDForNPC()
     local voiceID;
     --added questnpc for remote quests
     if UnitExists("questnpc") or UnitExists("npc") then
-        local unitSex = UnitSex("questnpc") or UnitSex("npc")
+        local unitSex = UnitSex("questnpc") or UnitSex("npc");
+        if not addon.API.canaccessvalue(unitSex) then
+            unitSex = 2;
+        end
         if unitSex == 2 then
             voiceID = self:GetDefaultVoiceA();
         elseif unitSex == 3 then

@@ -13,7 +13,7 @@ L["Renown Level Label"] = "Fama ";
 --[[
 L["Match Stat Armor"] = "([,%d%.]+) Armor";
 L["Match Stat Stamina"] = "([,%d%.]+) Stamina";
-L["Match Stat Strengh"] = "([,%d%.]+) Strengh";
+L["Match Stat Strength"] = "([,%d%.]+) Strength";
 L["Match Stat Agility"] = "([,%d%.]+) Agility";
 L["Match Stat Intellect"] = "([,%d%.]+) Intellect";
 L["Match Stat Spirit"] = "([,%d%.]+) Spirit";

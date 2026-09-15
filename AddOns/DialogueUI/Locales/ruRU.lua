@@ -347,7 +347,7 @@ L["Abbrev Breakpoint 1000"] = "Т";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = "Т";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "Броня: ([,%d%.]+)";
 L["Match Stat Stamina"] = "([,%d%.]+) к выносливости";
-L["Match Stat Strengh"] = "([,%d%.]+) к силе";
+L["Match Stat Strength"] = "([,%d%.]+) к силе";
 L["Match Stat Agility"] = "([,%d%.]+) к ловкости";
 L["Match Stat Intellect"] = "([,%d%.]+) к интеллекту";
 L["Match Stat Spirit"] = "([,%d%.]+) к духу";
