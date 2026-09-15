@@ -1728,6 +1728,16 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
+            label = addonTable.Locales.APPLY_MAIN_COLOR_TO_BACKGROUND,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.background.applyColor = value
+            end,
+            getter = function(details)
+              return details.background.applyColor
+            end,
+          },
+          {
             label = addonTable.Locales.ABSORB_COLOR,
             kind = "colorPicker",
             setter = function(details, value)
@@ -1737,7 +1747,27 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.absorb.color
             end,
           },
+          {
+            label = addonTable.Locales.APPLY_ABSORB_COLOR,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.absorb.applyColor = value
+            end,
+            getter = function(details)
+              return details.absorb.applyColor
+            end,
+          },
           { kind = "spacer" },
+          {
+            label = addonTable.Locales.SHOW_WHEN_WOW_DOES,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showWhenWowDoes = value
+            end,
+            getter = function(details)
+              return details.showWhenWowDoes
+            end,
+          },
           {
             label = addonTable.Locales.ANIMATE_X,
             kind = "checkbox",
