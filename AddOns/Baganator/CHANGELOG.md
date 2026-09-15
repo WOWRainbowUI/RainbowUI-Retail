@@ -1,6 +1,7 @@
 # Baganator
 
-## [822](https://github.com/TheMouseNest/Baganator/tree/822) (2026-08-18)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/821...822) 
+## [823](https://github.com/TheMouseNest/Baganator/tree/823) (2026-09-06)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/822...823) 
 
-- Retail: Add to addon compartment  
+- ElvUI skin improvements  
+- Update upgrade track detection  
