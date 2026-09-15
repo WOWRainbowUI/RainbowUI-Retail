@@ -15,16 +15,21 @@ GNU General Public License for more details.
 This file is part of StaleCheck.
 ]]--
 
-local Lib = LibStub:NewLibrary('StaleCheck-1.0', 4)
+local Lib = LibStub:NewLibrary('StaleCheck-1.0', 5)
 if not Lib then
 	return
-elseif not Lib.registry then
-	C_ChatInfo.RegisterAddonMessagePrefix('Stale-1.0')
-	EventRegistry:RegisterFrameEventAndCallback('CHAT_MSG_ADDON', function(...) Lib:OnMessage(...) end)
-	EventRegistry:RegisterFrameEventAndCallback('GUILD_ROSTER_UPDATE', function() Lib:OnGuild() end)
-	EventRegistry:RegisterFrameEventAndCallback('GROUP_ROSTER_UPDATE', function() Lib:OnGroup() end)
-	C_Timer.NewTicker(60, function() Lib:Broadcast() end)
-	Lib.registry = {}
+elseif not Lib.frame then
+	Lib.frame = CreateFrame('Frame')
+	Lib.frame:SetScript('OnEvent', function(_, event, ...) Lib[event](Lib, ...) end)
+	Lib.frame:RegisterEvent('GROUP_ROSTER_UPDATE')
+	Lib.frame:RegisterEvent('GUILD_ROSTER_UPDATE')
+	Lib.frame:RegisterEvent('CHAT_MSG_ADDON')
+
+	if not Lib.registry then
+		C_ChatInfo.RegisterAddonMessagePrefix('Stale-1.0')
+		C_Timer.NewTicker(60, function() Lib:Broadcast() end)
+		Lib.registry = {}
+	end
 end
 
 local function int(version)
@@ -81,7 +86,7 @@ elseif locale == 'itIT' then
     invalidBuild = 'La tua copia di |cffffd200%s|r è corrotta o illegale.|nPer favore scarica una versione ufficiale gratuitamente.'
 elseif locale == 'ptBR' or locale == 'ptPT' then
     outOfDate = 'A sua versão do |cffffd200%s|r pode estar desatualizada!|n%s relatou estar a usar|n|cff82c5ff%s|r, por favor, atualize se for verdade.'
-    invalidBuild = 'Sua cópia de |cffffd200%s|r está corrompida ou é ilegal.|Faça download de uma versão oficial gratuitamente.'
+    invalidBuild = 'Sua cópia de |cffffd200%s|r está corrompida ou é ilegal.|nFaça download de uma versão oficial gratuitamente.'
 end
 
 
@@ -114,7 +119,7 @@ end
 
 --[[ Events ]]--
 
-function Lib:OnMessage(_, prefix, message, channel, sender)
+function Lib:CHAT_MSG_ADDON(prefix, message, channel, sender)
 	if prefix == 'Stale-1.0' then
 		local addon, version = strsplit('|', message)
 		local handler = Lib.registry[addon]
@@ -131,7 +136,7 @@ function Lib:OnMessage(_, prefix, message, channel, sender)
 	end
 end
 
-function Lib:OnGuild()
+function Lib:GUILD_ROSTER_UPDATE()
     if IsInGuild() then
 		for _, handler in pairs(Lib.registry) do
 			handler.queue.GUILD = true
@@ -139,7 +144,7 @@ function Lib:OnGuild()
     end
 end
 
-function Lib:OnGroup()
+function Lib:GROUP_ROSTER_UPDATE()
 	local channel = 
 		IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or
 		IsInGroup(LE_PARTY_CATEGORY_HOME) and 'PARTY' or
