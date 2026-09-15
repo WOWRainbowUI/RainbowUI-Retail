@@ -58,12 +58,14 @@ addonTable.CustomiseDialog.DesignWidgets = {
       scale = 1,
       layer = 1,
       animate = false,
+      showWhenWowDoes = false,
       background = {
         color = GetColor("4F4F4F"),
         applyColor = false,
       },
       absorb = {
-        color = GetColor("21c4ff")
+        color = GetColor("21c4ff"),
+        applyColor = true,
       },
       autoColors = {
         CopyTable(addonTable.CustomiseDialog.ColorsConfig["classColors"].default),
