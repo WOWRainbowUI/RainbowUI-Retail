@@ -103,6 +103,16 @@ L["Group.mouseover.hostile.Desc"] = "鼠标指向敌方时的选项"
 L["Group.mouseover.Name"] = "鼠标指向"
 L["Group.mouseover.self.Desc"] = "鼠标指向自己时的选项"
 L["Group.self.Name"] = "自己"
+--[[Translation missing --]]
+L["Group.softenemy.hostile.Desc"] = "These options are used for hostile soft targets"
+--[[Translation missing --]]
+L["Group.softenemy.Name"] = "Soft Target (Hostile)"
+--[[Translation missing --]]
+L["Group.softfriend.friendly.Desc"] = "These options are used for friendly soft targets"
+--[[Translation missing --]]
+L["Group.softfriend.Name"] = "Soft Target (Friendly)"
+--[[Translation missing --]]
+L["Group.softfriend.self.Desc"] = "These options are used when soft-targeting yourself"
 L["Group.target.friendly.Desc"] = "选取友方目标时的选项"
 L["Group.target.hostile.Desc"] = "选取敌方目标时的选项"
 L["Group.target.Name"] = "选取目标"

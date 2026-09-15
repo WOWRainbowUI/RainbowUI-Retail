@@ -19,6 +19,12 @@ local function debugprint(...)
 end
 
 _G.TNI = TNI
+
+local changeThrottleUnits = {
+	mouseover = true,
+	softenemy = true,
+	softfriend = true,
+}
 --@end-alpha@]=]
 
 
@@ -56,8 +62,8 @@ do
 		return {
 			enable = true,
 			texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\Reticule",
-			height = 70,
-			width = 70,
+			height = 50,
+			width = 50,
 			frameStrata = "BACKGROUND",
 			opacity = 1,
 			texturePoint = "BOTTOM",
@@ -67,162 +73,70 @@ do
 		}
 	end
 
-	local function CreateUnitDefaults()
+	---
+	---@param includeSelf? boolean
+	---@param includeFriendly? boolean
+	---@param includeHostile? boolean
+	---@return table
+	local function CreateUnitDefaults(includeSelf, includeFriendly, includeHostile)
 		return {
 			enable = true,
-			self = CreateUnitReactionTypeDefaults(),
-			friendly = CreateUnitReactionTypeDefaults(),
-			hostile = CreateUnitReactionTypeDefaults(),
+			self = includeSelf ~= false and CreateUnitReactionTypeDefaults() or nil,
+			friendly = includeFriendly ~= false and CreateUnitReactionTypeDefaults() or nil,
+			hostile = includeHostile ~= false and CreateUnitReactionTypeDefaults() or nil,
 		}
 	end
 
 	defaults = {
 		profile = {
-			target = {
-				enable = true,
-				self = {
-					enable = false,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\NeonWhiteArrow",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -5,
-				},
-				friendly = {
-					enable = false,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\NeonGreenArrow",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -5,
-				},
-				hostile = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\NeonRedArrow",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = 30,
-				}
-			},
-			mouseover = {
-				enable = true,
-				self = {
-					enable = false,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\whitearrow1",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -10,
-				},
-				friendly = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\greenarrow1",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -10,
-				},
-				hostile = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\redarrow1",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = 5,
-				}
-			},
-			focus = {
-				enable = true,
-				self = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\Q_WhiteTarget",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -10,
-				},
-				friendly = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\Q_GreenTarget",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -12,
-				},
-				hostile = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\Q_RedTarget",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = 16,
-				}
-			},
-			targettarget = {
-				enable = true,
-				self = {
-					enable = false,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\whitearrow1",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -10,
-				},
-				friendly = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\bluearrow1",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = -10,
-				},
-				hostile = {
-					enable = true,
-					texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\PurpleArrow",
-					height = 70,
-					width = 70,
-					opacity = 1,
-					texturePoint = "BOTTOM",
-					anchorPoint = "TOP",
-					xOffset = 0,
-					yOffset = 5,
-				}
-			}
+			target = CreateUnitDefaults(),
+			softenemy = CreateUnitDefaults(false, false, true),
+			softfriend = CreateUnitDefaults(true, true, false),
+			mouseover = CreateUnitDefaults(),
+			focus = CreateUnitDefaults(),
+			targettarget = CreateUnitDefaults(),
 		}
+	}
+
+	-- Preserve the original custom defaults for the four existing indicators.
+	local function ReactionDefaults(enabled, texture, yOffset)
+		return {
+			enable = enabled,
+			texture = "Interface\\AddOns\\TargetNameplateIndicator\\Textures\\" .. texture,
+			height = 70,
+			width = 70,
+			frameStrata = "BACKGROUND",
+			opacity = 1,
+			texturePoint = "BOTTOM",
+			anchorPoint = "TOP",
+			xOffset = 0,
+			yOffset = yOffset,
+		}
+	end
+
+	defaults.profile.target = {
+		enable = true,
+		self = ReactionDefaults(false, "NeonWhiteArrow", -5),
+		friendly = ReactionDefaults(false, "NeonGreenArrow", -5),
+		hostile = ReactionDefaults(true, "NeonRedArrow", 30),
+	}
+	defaults.profile.mouseover = {
+		enable = true,
+		self = ReactionDefaults(false, "whitearrow1", -10),
+		friendly = ReactionDefaults(true, "greenarrow1", -10),
+		hostile = ReactionDefaults(true, "redarrow1", 5),
+	}
+	defaults.profile.focus = {
+		enable = true,
+		self = ReactionDefaults(true, "Q_WhiteTarget", -10),
+		friendly = ReactionDefaults(true, "Q_GreenTarget", -12),
+		hostile = ReactionDefaults(true, "Q_RedTarget", 16),
+	}
+	defaults.profile.targettarget = {
+		enable = true,
+		self = ReactionDefaults(false, "whitearrow1", -10),
+		friendly = ReactionDefaults(true, "bluearrow1", -10),
+		hostile = ReactionDefaults(true, "PurpleArrow", 5),
 	}
 end
 
@@ -303,7 +217,7 @@ function Indicator:Update(nameplate, skipConfigCheck)
 			texture = config.textureCustom
 		end
 
-		self:SetFrameStrata(config.frameStrata or "BACKGROUND") -- 暫時修正
+		self:SetFrameStrata(config.frameStrata)
 		self.Texture:Show()
 		self.Texture:SetTexture(texture)
 		self.Texture:SetSize(config.width, config.height)
@@ -334,19 +248,19 @@ end
 -- - If a lower priority indicator is displaying, it is hidden and this returns true.
 -- - If an equal or higher priority indicator is displaying, this returns false.
 function Indicator:CheckAndHideLowerPriorityIndicators()
+	local shouldDisplay = true
+
 	for unit, indicator in pairs(TNI.Indicators) do
 		if indicator.enabled and self.unit ~= indicator.unit and UnitIsUnit(self.unit, unit) then -- If the indicator is for a different unit token but it's the same unit,
-			if self.priority > indicator.priority then                                      -- If this indicator is a higher priority, hide the other indicator and return true
+			if self.priority > indicator.priority then                                      -- If this indicator is a higher priority, hide the other indicator
 				indicator:Update()
-				return true
-			else -- If this indicator is a lower or equal priority, return false
-				return false
+			else                                                                            -- If this indicator is a lower or equal priority, hide it
+				shouldDisplay = false
 			end
 		end
 	end
 
-	-- No other indicator is displaying, return true
-	return true
+	return shouldDisplay
 end
 
 local GetNamePlateUnit
@@ -450,7 +364,17 @@ function NonTargetIndicator:OnUpdate()
 	local shouldDisplay = self:CheckAndHideLowerPriorityIndicators()
 
 	--[=[@alpha@
-	if self.unit ~= "mouseover" then
+	local shouldPrint = true
+	if changeThrottleUnits[self.unit] then
+		local currentTime = GetTime()
+		if not self.lastChangeTime or (currentTime - self.lastChangeTime) > 30 then
+			self.lastChangeTime = currentTime
+		else
+			shouldPrint = false
+		end
+	end
+
+	if shouldPrint then
 		debugprint(self.unit, "changed", nameplate, "shouldDisplay?", shouldDisplay)
 	end
 	--@end-alpha@]=]
@@ -543,6 +467,17 @@ TargetIndicator:LNR_RegisterCallback("LNR_ON_TARGET_PLATE_ON_SCREEN", "OnTargetP
 
 ---@diagnostic disable-next-line: unused-local
 local MouseoverIndicator = CreateNonTargetIndicator("mouseover", 10)
+
+
+------
+-- Soft Target Indicators
+------
+
+---@diagnostic disable-next-line: unused-local
+local SoftEnemyIndicator = CreateNonTargetIndicator("softenemy", 70)
+
+---@diagnostic disable-next-line: unused-local
+local SoftFriendIndicator = CreateNonTargetIndicator("softfriend", 80)
 
 
 ------
