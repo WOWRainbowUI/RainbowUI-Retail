@@ -146,7 +146,7 @@ elseif locale == "zhTW" then
     LOCALE_MASK = lib.LOCALE_BIT_zhTW
 --
 	SML_MT_font["提示訊息"]	= [[Interface\Addons\SharedMedia_Rainbow\fonts\GenRyuMin\GenRyuMin-B-Hoefler.ttf]] -- [[Fonts\bHEI00M.ttf]]
-	SML_MT_font["聊天"]		= [[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]] -- [[Fonts\bHEI01B.ttf]]
+	SML_MT_font["聊天"]		= [[Interface\Addons\SharedMedia_BNS\font\vivoSansTC+昭源黑體.ttf]] -- [[Fonts\bHEI01B.ttf]]
 	SML_MT_font["傷害數字"]	= [[Interface\Addons\SharedMedia_Rainbow\fonts\Rawhide_Raw\Rawhide_Raw.ttf]] -- [[Fonts\bKAI00M.ttf]]
 	SML_MT_font["預設"]		= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\bLEI00D.ttf]]
 --
