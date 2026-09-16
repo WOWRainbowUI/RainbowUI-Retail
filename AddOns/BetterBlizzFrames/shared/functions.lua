@@ -1,3 +1,21 @@
+BBF.popups = {}
+BBF.popupBuilders = {}
+
+function BBF.GetPopup(name)
+	local popup = BBF.popups[name]
+	if not popup then
+		popup = BBF.popupBuilders[name]()
+		BBF.popups[name] = popup
+		StaticPopupDialogs[name] = popup
+	end
+	return popup
+end
+
+function BBF.ShowPopup(name, ...)
+	BBF.GetPopup(name)
+	return StaticPopup_Show(name, ...)
+end
+
 -- Taint/combat lockdown concerns, use own to avoid Show call especially
 local FrameFadeManager = CreateFrame("Frame");
 local fadeFrames = {};
@@ -309,9 +327,11 @@ LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzF
 LSM:Register("statusbar", "Blizzard Retail Bar Crop", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop]])
 LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop2]])
 LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\smooth]])
-LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\Minimalist]])
+LSM:Register("statusbar", "Minimalist", [[Interface\Addons\BetterBlizzFrames\media\Minimalist]])
 LSM:Register("sound", "Lossa Countered", [[Interface\AddOns\BetterBlizzFrames\media\LossaCountered.ogg]])
 LSM:Register("font", "PT Sans Narrow Bold", "Interface\\AddOns\\BetterBlizzFrames\\media\\PTSansNarrow-Bold.ttf", BBF.allLocales)
+LSM:Register("font", "Arial Narrow (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\arialn.ttf", BBF.allLocales)
+LSM:Register("font", "Expressway (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\Expressway_Free.ttf", BBF.allLocales)
 
 function BBF.AddFont(name)
 	if type(name) ~= "string" then
@@ -369,15 +389,17 @@ function BBF.RunAfterCombat(func)
 		end)
 	end
 end
-StaticPopupDialogs["BBF_SWEEPYBOOP_CLASSCOLOR_CONFLICT"] = {
-    text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames:\n\nThe \"SweepyBoop\" addon has started enabling a bunch of settings by default causing a bunch of bug reports my way.\n\n|cffffd100Class Color Unit Frames|r setting is one of them and it conflicts with BetterBlizzFrames' healthbar color and texture settings.\n\nIt has been turned off. Reload to fix.",
-    button1 = "Reload",
-    OnAccept = function()
-        ReloadUI()
-    end,
-    timeout = 0,
-    whileDead = true,
-}
+BBF.popupBuilders["BBF_SWEEPYBOOP_CLASSCOLOR_CONFLICT"] = function()
+    return {
+        text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames:\n\nThe \"SweepyBoop\" addon has started enabling a bunch of settings by default causing a bunch of bug reports my way.\n\n|cffffd100Class Color Unit Frames|r setting is one of them and it conflicts with BetterBlizzFrames' healthbar color and texture settings.\n\nIt has been turned off. Reload to fix.",
+        button1 = "Reload",
+        OnAccept = function()
+            ReloadUI()
+        end,
+        timeout = 0,
+        whileDead = true,
+    }
+end
 
 local function CheckSweepyBoopClassColor()
     BBF.sweepyBoopCheckScheduled = false
@@ -387,7 +409,7 @@ local function CheckSweepyBoopClassColor()
 
     misc.classColorUnitFrames = false
     BBF.sweepyBoopConflictHandled = true
-    StaticPopup_Show("BBF_SWEEPYBOOP_CLASSCOLOR_CONFLICT")
+    BBF.ShowPopup("BBF_SWEEPYBOOP_CLASSCOLOR_CONFLICT")
 end
 
 function BBF.CheckSweepyBoopClassColorConflict()
