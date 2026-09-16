@@ -8,6 +8,15 @@ end
 
 --- Generates default CDM layout for current spec
 function addonTable.Core.GenerateDefaultCDMLayout()
+  if not C_CooldownViewer then
+    return {
+      kind = "group",
+      version = addonTable.Constants.CurrentLayoutVersion,
+      layout = "standalone",
+      entries = {},
+    }
+  end
+
   local spellEssential = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Essential, true)
   local spellUtility = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Utility, true)
 

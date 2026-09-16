@@ -329,4 +329,5 @@ addonTable.Constants.AuraStackOverrides = {
   [12950] = 4, -- Warrior (Fury): Whirlwind
   [81340] = 2, -- Death Knight (Unholy): Sudden Doom
   [49530] = 2, -- Death Knight (Unholy): Sudden Doom
+  [51128] = 2, -- Death Knight (Frost): Killing Machine
 }

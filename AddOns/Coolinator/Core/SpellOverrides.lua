@@ -2,6 +2,12 @@
 local addonTable = select(2, ...)
 
 function addonTable.Core.GenerateSpellOverrides()
+  local equivalence = {}
+
+  if not C_CooldownViewer then
+    return equivalence
+  end
+
   local spellEssential = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Essential, true)
   local spellUtility = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Utility, true)
 
@@ -12,8 +18,6 @@ function addonTable.Core.GenerateSpellOverrides()
   tAppendAll(all, spellUtility)
   tAppendAll(all, auraTracked)
   tAppendAll(all, auraBars)
-
-  local equivalence = {}
 
   for _, id in ipairs(all) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)

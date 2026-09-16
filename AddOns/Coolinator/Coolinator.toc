@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007
 ## Title: Coolinator
-## Version: 142
+## Version: 143
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
@@ -52,13 +52,12 @@ Display/Utilities.lua
 Display/Glows.lua
 Display/BaseDurationStatusBar.lua
 Display/Cooldown.lua
-Display/AuraStatusBarNext.lua [AllowLoadGameType mainline]
+Display/AuraStatusBarNext.lua
 Display/AbilityStatusBar.lua
 Display/ClassResourceStatusBar.lua
 Display/CastBar.lua
-Display/AuraIconNext.lua [AllowLoadGameType mainline]
-Display/AuraInvertedIcon.lua [AllowLoadGameType mainline]
-Display/AuraIconClassic.lua [AllowLoadGameType classic]
+Display/AuraIconNext.lua
+Display/AuraInvertedIcon.lua
 Display/AuraDebuffBorder.lua
 Display/AuraStackStatusBar.lua
 Display/TotemIcon.lua
@@ -69,8 +68,7 @@ Display/AbilityChargesStatusBar.lua
 Display/Spacer.lua
 Display/BaseLayout.lua
 Display/LayoutShared.lua
-Display/LayoutNext.lua [AllowLoadGameType mainline]
-#Display/LayoutClassic.lua [AllowLoadGameType classic]
+Display/LayoutNext.lua
 
 Assets.lua
 
