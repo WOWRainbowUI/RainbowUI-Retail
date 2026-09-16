@@ -247,7 +247,7 @@ addonTable.RaidEventSoundData = {
     [643] = { {"HeBingXingZuo.ogg", 0}, {"QuanTuanFenSan.ogg", 2} }, -- 强酸静滞 (1284588)
     [668] = { {"ShouLingKuangBao.ogg", 1} }, -- 狂暴 (26662)
     [673] = { {"FenTanShangHai.ogg", 1} }, -- 不稳定的瘴气 (1288232)
-    [788] = { {"QuanTuanFenSan.ogg", 1} }, -- 变幻的原型毒液 (1296878)
+    [788] = { {"ZhuYiFenSan.ogg", 1} }, -- 变幻的原型毒液 (1296878)
 
     -- 迷失的探险者
     [721] = { {"ZhunBeiAOE.ogg", 0} }, -- 灾变祈求 (1291390)
@@ -341,11 +341,11 @@ addonTable.RaidEventSoundData = {
     -- 潮缚石窟
     [366] = { {"ZhuYiXiaoShui.ogg", 1, {TANK = true}} }, -- 水流喷射 (1268562)
     [367] = { {"ZhuanHuoXiaoGuai.ogg", 0} }, -- 诱人水泡 (1257717)
-    -- [368] = { {"TieBianFangShui.ogg", 0} }, -- 冰霜弹幕 (1257608)
+    -- [368] = { {"WuMiaoHouDianMing.ogg", 2} }, -- 冰霜弹幕 (1257608)
     [369] = { {"KuaiZhaoQueKou.ogg", 1} }, -- 激荡漩涡 (1258668)
     [370] = { {"ZhunBeiAOE.ogg", 1} }, -- 深渊之雨 (1260837)
     [745] = { {"ShouLingKuangBao.ogg", 1} }, -- 无尽潮汐 (1294867)
-    [976] = { {"ZhuYiDianMing.ogg", 1, {HEALER = true, DAMAGER = true}} }, -- 刺骨寒霜 (1313393)
+    [976] = { {"ZhuYiDianMing.ogg", 1}, {"WuMiaoHouDianMing.ogg", 2} }, -- 刺骨寒霜 (1313393)
     -- [977] = { {"ZhuanHuoXiaoGuai.ogg", 0} }, -- 诱人水泡 (1257717)
 }
 
@@ -395,7 +395,8 @@ function addonTable.registerTable(dataTable)
             -- 执行注册
             if isMatch and fileName and triggerType then
                 C_EncounterEvents.SetEventSound(eventID, triggerType, {
-                    file = addonTable.GetMediaPath() .. fileName,
+                    -- 路径统一走 GetSoundFullPath：语音包缺这只语音时自动改用本体同名语音
+                    file = addonTable.GetSoundFullPath(fileName),
                     channel = DiGuaTimelineAudioHelper.audioChannel,
                     volume = 1
                 })

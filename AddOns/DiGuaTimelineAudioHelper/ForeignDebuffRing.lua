@@ -50,6 +50,16 @@ local RING_TRACK_COLOR = { 0, 0, 0, 0.3 }   -- 底圈颜色（Utils.lua 里 bg �
 --   priorityOnly          = true                   -- 只要暴雪标记的“高优先级减益”（AuraUtil.IsPriorityDebuff）
 local SHOW_RULES = {
 
+
+    {
+        name = "M9",
+        encounterIDs = { [3379] = true }, 
+        difficultyIDs = { [16] = true },  -- 只在史诗团本难度生效（16=史诗团本；14=普通 / 15=英雄 / 17=随机）
+        roles = { HEALER = true, DAMAGER = true },  -- 只有治疗 / DPS 显示（坦克不显示）
+        maxDuration = 4.5,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
+    },
+
+
     {
         name = "M2",
         encounterIDs = { [3445] = true }, 

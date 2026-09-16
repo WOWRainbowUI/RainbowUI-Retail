@@ -198,9 +198,9 @@ addonTable.AudioTimeline = {
                 [20]   = { circle = 4 }, -- 00分20秒 4秒圆环
                 [104]  = { circle = 4 }, -- 01分44秒 4秒圆环
                 [188]  = { circle = 4 }, -- 03分08秒 4秒圆环
-                [266]  = "GeRenJianShang.ogg", -- 4分26秒 个人减伤
+                [266]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 4分26秒 个人减伤（仅治疗/DPS，坦克不播）
                 [272]  = { circle = 4 }, -- 04分32秒 4秒圆环
-                [350]  = "GeRenJianShang.ogg", -- 5分50秒 个人减伤
+                [350]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 5分50秒 个人减伤（仅治疗/DPS，坦克不播）
                 [356]  = { circle = 4 }, -- 05分56秒 4秒圆环
             }
         },
@@ -213,6 +213,8 @@ addonTable.AudioTimeline = {
             startOffset = 0, 
             alerts = {
                 [27]  = "FenTanShangHai.ogg", -- 27秒 分担伤害
+                [35]  = "DuoKaiDaQuan.ogg", -- 27秒 分担伤害
+                [87]  = "DuoKaiDaQuan.ogg", -- 27秒 分担伤害
                 [122] = "FenTanShangHai.ogg", -- 2分02秒 分担伤害
                 [151] = "DaoShu5.ogg", -- 2分31秒 倒计时5
                 [152] = "DaoShu4.ogg", -- 2分32秒 倒计时4
@@ -221,13 +223,14 @@ addonTable.AudioTimeline = {
                 [155] = "DaoShu1.ogg", -- 2分35秒 倒计时1
                 [156] = "YiShangJieShu.ogg", -- 2分36秒 倒数结束
                 [188] = "ZhunBeiLaXian.ogg", -- 3分08秒 准备拉线
-                [195] = "GeRenJianShang.ogg", 
+                [195] = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 个人减伤（仅治疗/DPS，坦克不播）
                 [300] = "DaoShu5.ogg", -- 5分钟整 倒计时5
                 [301] = "DaoShu4.ogg", -- 5分01秒 倒计时4
                 [302] = "DaoShu3.ogg", -- 5分02秒 倒计时3
                 [303] = "DaoShu2.ogg", -- 5分03秒 倒计时2
                 [304] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [305] = "YiShangJieShu.ogg", -- 5分05秒 倒数结束
+                [330] = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 个人减伤（仅治疗/DPS，坦克不播）
                 [412] = "ZhuYiDuoBo.ogg", -- 6:52.2 腐蚀浪潮
                 [426] = "DaoShu5.ogg", -- 5分钟整 倒计时5
                 [427] = "DaoShu4.ogg", -- 5分01秒 倒计时4
@@ -236,7 +239,7 @@ addonTable.AudioTimeline = {
                 [430] = "DaoShu1.ogg", -- 5分04秒 倒计时1
                 [451] = "ZhuanHuoDaGuai.ogg", -- 7分32秒 转火大怪
                 [467] = "ZhuYiDuoBo.ogg", -- 7:47.2 腐蚀浪潮
-                [472] = "GeRenJianShang.ogg", -- 7:47.2 腐蚀浪潮
+                [472] = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 7:47.2 个人减伤（仅治疗/DPS，坦克不播）
                 [474] = "ChangDiQieHuan.ogg", -- 7:47.2 腐蚀浪潮
                 [476] = "DaoShu5.ogg", -- 5分钟整 倒计时5
                 [477] = "DaoShu4.ogg", -- 5分01秒 倒计时4
@@ -268,6 +271,52 @@ addonTable.AudioTimeline = {
         --     }
         -- },
     },
+
+
+
+
+    [3379] = { -- M9
+            [16] = { -- 史诗团本难度 (difficultyID=16)
+                interval = 999, 
+                startOffset = 0, 
+                alerts = {
+                    [33]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [34]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [35]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [79]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [80]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [81]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [93]   = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 个人减伤（仅治疗/DPS，坦克不播）
+
+                    [143]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [144]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [145]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [187]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [188]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [189]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [253]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [254]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [255]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [363]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [364]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [365]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+
+                    [370]   = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 个人减伤（仅治疗/DPS，坦克不播） 
+
+                    [407]   = "DaoShu3.ogg", -- 4分26秒 个人减伤
+                    [408]   = "DaoShu2.ogg", -- 4分26秒 个人减伤
+                    [409]   = "DaoShu1.ogg", -- 4分26秒 个人减伤
+                }
+            },
+        },
+
+
+
 
 }
 

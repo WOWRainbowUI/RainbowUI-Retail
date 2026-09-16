@@ -112,10 +112,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
             local currentCount = addonTable.SpellCastCounter[unitTarget]
 
             if currentCount % 2 == 1 then
-                if UnitGroupRolesAssigned("player") ~= "TANK" then
+                -- 非坦克播报；坦克中仅防骑(66)/酒仙(268) 豁免、照常播报
+                if addonTable.IsNonTankOrExemptTank() then
                     addonTable.CustomEncounterBar(132274, 24, "准备诱捕", unitTarget)
                     PlaySoundFile(MEDIA_PATH .. "ZhunBeiYouBu.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                end               
+                end
                 -- 1.5秒后，如果是治疗则播放驱散魔法
                 C_Timer.After(4.2, function()
                     if UnitGroupRolesAssigned("player") == "HEALER" and UnitExists(unitTarget) then                        
@@ -652,11 +653,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and select(8, GetInstanceInfo()) == 1877 -- 副本ID (塞塔里斯神庙)
             and (C_Map.GetBestMapForUnit("player") or 0) == 1038 -- 地图ID
             and IsIndoors() == false -- 在室外
-            and UnitLevel(unitTarget) == UnitLevel("player") + 1
-            and UnitPowerType(unitTarget) == 1
+            and UnitLevel(unitTarget) == 61
+            and UnitPowerType(unitTarget) == 0
             and UnitClassification(unitTarget) == "elite" -- 精英怪
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
@@ -669,11 +671,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and select(8, GetInstanceInfo()) == 1877 -- 副本ID (塞塔里斯神庙)
             and (C_Map.GetBestMapForUnit("player") or 0) == 1038 -- 地图ID
             and IsIndoors() == false -- 在室外
-            and UnitLevel(unitTarget) == UnitLevel("player") + 1
-            and UnitPowerType(unitTarget) == 1
+            and UnitLevel(unitTarget) == 61
+            and UnitPowerType(unitTarget) == 0
             and UnitClassification(unitTarget) == "elite" -- 精英怪
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and UnitIsLieutenant(unitTarget) == true -- 是否为中尉
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
