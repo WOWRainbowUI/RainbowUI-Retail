@@ -73,6 +73,7 @@ modules/upgrade.lua
 modules/keystone.lua
 modules/voidcore.lua
 modules/owned.lua
+modules/role_check.lua
 modules/api.lua
 
 # UI
