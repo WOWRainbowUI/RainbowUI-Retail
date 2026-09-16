@@ -10,6 +10,10 @@ hidden:Hide()
 addonTable.hiddenFrame = hidden
 
 local function ImportExisting()
+  if not C_CooldownViewer then
+    return
+  end
+
   local spec = addonTable.Utilities.GetSpecID()
   local existing = addonTable.Core.GetExistingLayoutName()
   local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
@@ -58,21 +62,6 @@ function addonTable.Core.Initialize()
   addonTable.State.UsingMasque = C_AddOns.IsAddOnLoaded("Masque") and addonTable.Config.Get(addonTable.Config.Options.USE_MASQUE)
 
   addonTable.Skins.Initialize()
-end
-
-local function GetCDMActiveLayout()
-  local id = CooldownViewerSettings.layoutManager.activeLayoutID
-  local layout = CooldownViewerSettings.layoutManager.layouts[id]
-  return layout and layout.layoutName
-end
-
-local function ValidateCDM()
-  if GetCDMActiveLayout() ~= "Coolinator (" .. CooldownViewerUtil.GetCurrentClassAndSpecTag() .. ")" then
-    addonTable.State.CDM = nil
-    addonTable.Dialogs.ShowConfirm(addonTable.Locales.SPEC_MISMATCH_IN_BLIZZARD_CDM, RELOADUI, CANCEL, ReloadUI)
-    return false
-  end
-  return true
 end
 
 local function TriggerUpdate()

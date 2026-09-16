@@ -21,9 +21,6 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
     auraMissing = addonTable.Display.GeneratePool(addonTable.Display.AuraInvertedIconMixin),
   }
   self.prelaidWidgets = {}
-  for _, k in ipairs(prelaidKeys) do
-    self.prelaidWidgets[k] = {}
-  end
   for key, mixin in pairs(addonTable.Display.ClassResourceStatusBar) do
     self.pools["class-" .. key] = addonTable.Display.GeneratePool(mixin)
   end
@@ -33,9 +30,7 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
       for _, pool in pairs(self.specialistPools) do
         pool:ReleaseAll()
       end
-      for _, k in ipairs(prelaidKeys) do
-        self.prelaidWidgets[k] = {}
-      end
+      self.prelaidWidgets = {}
     end
 
     self:Layout()
@@ -45,17 +40,11 @@ function addonTable.Display.LayoutManagerNextMixin:OnLoad()
 end
 
 function addonTable.Display.LayoutManagerNextMixin:GetPrelaid(key, details)
-  local stack = self.prelaidWidgets[key][details.resource.spellID]
-  local counter = self.prelaidWidgets[key .. "Counters"][details.resource.spellID]
-  local frame = stack and stack[counter or 1]
+  local frame = self.prelaidWidgets[details]
   if not frame then
     if not addonTable.Utilities.IsAurasRestricted() then
       frame = self.specialistPools[key]:Acquire()
-      if not stack then
-        stack = {}
-        self.prelaidWidgets[key][details.resource.spellID] = stack
-      end
-      table.insert(stack, frame)
+      self.prelaidWidgets[details] = frame
       frame:Setup(details)
     else
       return
@@ -63,7 +52,6 @@ function addonTable.Display.LayoutManagerNextMixin:GetPrelaid(key, details)
   else
     frame:ClearAllPoints()
   end
-  self.prelaidWidgets[key .. "Counters"][details.resource.spellID] = (counter or 1) + 1
   frame:Show()
   frame:Enable()
   return frame
@@ -111,15 +99,10 @@ function addonTable.Display.LayoutManagerNextMixin:GetBar(details)
 end
 
 function addonTable.Display.LayoutManagerNextMixin:Layout()
-  for _, k in ipairs(prelaidKeys) do
-    self.prelaidWidgets[k .. "Counters"] = {}
-    for _, list in pairs(self.prelaidWidgets[k]) do
-      for _, w in ipairs(list) do
-        w:Disable()
-        w:ClearAllPoints()
-        w:Hide()
-      end
-    end
+  for _, w in pairs(self.prelaidWidgets) do
+    w:Disable()
+    w:ClearAllPoints()
+    w:Hide()
   end
 
   addonTable.Display.LayoutManagerSharedMixin.Layout(self)

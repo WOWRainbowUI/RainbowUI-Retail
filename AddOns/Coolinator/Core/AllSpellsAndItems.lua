@@ -6,16 +6,18 @@ function addonTable.Core.GetSpellFromCDMInfo(info)
 end
 
 function addonTable.Core.GetAllAuras()
-  local auraTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true)
-  local auraBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true)
-
   local result = {}
 
-  for _, aura in ipairs(auraTracked) do
-    table.insert(result, addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura)))
-  end
-  for _, aura in ipairs(auraBars) do
-    table.insert(result, addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura)))
+  if C_CooldownViewer then
+    local auraTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true)
+    local auraBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true)
+
+    for _, aura in ipairs(auraTracked) do
+      table.insert(result, addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura)))
+    end
+    for _, aura in ipairs(auraBars) do
+      table.insert(result, addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura)))
+    end
   end
 
   return result
@@ -44,9 +46,6 @@ if racialText == nil then
 end
 
 function addonTable.Core.GetAllClassAbilities()
-  local abilityTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Essential, true)
-  local abilityBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Utility, true)
-
   local result = {}
   local seen = {}
 
@@ -57,31 +56,37 @@ function addonTable.Core.GetAllClassAbilities()
     end
   end
 
-  local function RecordSeen(info)
-    seen[info.overrideSpellID] = true
-    AutoIncludeBase(info.overrideSpellID)
-    if info.overrideTooltipSpellID then
-      seen[info.overrideTooltipSpellID] = true
-      AutoIncludeBase(info.overrideTooltipSpellID)
+  if C_CooldownViewer then
+    local function RecordSeen(info)
+      seen[info.overrideSpellID] = true
+      AutoIncludeBase(info.overrideSpellID)
+      if info.overrideTooltipSpellID then
+        seen[info.overrideTooltipSpellID] = true
+        AutoIncludeBase(info.overrideTooltipSpellID)
+      end
+      seen[info.spellID] = true
+      AutoIncludeBase(info.spellID)
     end
-    seen[info.spellID] = true
-    AutoIncludeBase(info.spellID)
-  end
-  for _, ability in ipairs(abilityTracked) do
-    local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(ability)
-    local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
-    if not seen[spellID] then
-      table.insert(result, spellID)
+
+    local abilityTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Essential, true)
+    local abilityBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Utility, true)
+
+    for _, ability in ipairs(abilityTracked) do
+      local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(ability)
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      if not seen[spellID] then
+        table.insert(result, spellID)
+      end
+      RecordSeen(info)
     end
-    RecordSeen(info)
-  end
-  for _, ability in ipairs(abilityBars) do
-    local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(ability)
-    local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
-    if not seen[spellID] then
-      table.insert(result, spellID)
+    for _, ability in ipairs(abilityBars) do
+      local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(ability)
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(info)
+      if not seen[spellID] then
+        table.insert(result, spellID)
+      end
+      RecordSeen(info)
     end
-    RecordSeen(info)
   end
 
   table.insert(result, addonTable.Constants.GCD) -- Global Cooldown
@@ -163,8 +168,15 @@ function addonTable.Core.GetAllItems()
   return {
     5512, 224464, -- Healthstone, Demonic Healthstone (Warlock)
     -- Potions:
-    245897, 245898, 241309, 241308, 241305, 241304, 241307, 241306, 241287, 241286, 241303, 241302, 241301, 241300, 241295, 241294, 241289, 241288, 245900, 245901, 241297, 241296, 241299, 241298, 263974, 241293, 241292, 241339, 241338, 258138
-  }
+    245897, 245898, 241309, 241308, 241305, 241304, 241307, 241306, 241287, 241286, 241303, 241302, 241301, 241300, 241295, 241294, 241289, 241288, 245900, 245901, 241297, 241296, 241299, 241298, 263974, 241293, 241292, 241339, 241338, 258138,
+    -- Food
+    275259, --Hearty Venom-Spiced Cutlets
+    275262, --Hearty Puffer Plate
+    275263, --Hearty Sweet-And-Sour Skewers
+    275267, --Hearty Amani Cornucopia
+    275268, --Hearty Loa's Gathering
+    275269, --Hearty Feast of Knowledge
+}
 end
 
 function addonTable.Core.GetAllEquipment()

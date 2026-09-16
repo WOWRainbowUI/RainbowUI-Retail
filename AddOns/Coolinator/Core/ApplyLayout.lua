@@ -40,6 +40,10 @@ end
 function addonTable.Core.GetCDMMappingAuras(activeOnly)
   local allAuras = {}
 
+  if not C_CooldownViewer then
+    return allAuras
+  end
+
   tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, not activeOnly))
   tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, not activeOnly))
   local auraMapping = {}

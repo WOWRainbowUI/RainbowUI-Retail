@@ -1,9 +1,12 @@
 # Coolinator
 
-## [142](https://github.com/TheMouseNest/Coolinator/tree/142) (2026-09-08)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/141...142) 
+## [143](https://github.com/TheMouseNest/Coolinator/tree/143) (2026-09-16)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/142...143) 
 
-- Fix Zenith Stomps (Monk, Windwalker) showing 2 timers sometimes  
-- Fix aura layering in stacks  
-- Fix aura layering  
-- Add ElvUI skin  
+- Update stacks limit for "Killing Machine" aura  
+- Fix typo  
+- Fix pet auras getting out of sync after multiple layout refreshes  
+- Simplify aura caching code again, to avoid clashes  
+- Fix some auras swapping positions  
+- Cleanup  
+- Add gates on C\_CooldownViewer (so that it will probably work on Forever)  

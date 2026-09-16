@@ -397,11 +397,13 @@ do
 
   function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings)
     helpful:SetAuraSlotCandidateFilters(key, selfSettings)
+    helpfulPet:SetAuraSlotCandidateFilters(key, selfSettings)
     harmful:SetAuraSlotCandidateFilters(key, targetSettings)
   end
 
   function addonTable.Display.SetAuraSlotsEnabled(key, enabled)
-    helpful:SetAuraSlotFilterString(key, enabled and "HELPFUL" or "")
+    helpful:SetAuraSlotFilterString(key, enabled and "HELPFUL|PLAYER" or "")
+    helpfulPet:SetAuraSlotFilterString(key, enabled and "HELPFUL" or "")
     harmful:SetAuraSlotFilterString(key, enabled and "HARMFUL|PLAYER" or "")
   end
 end
