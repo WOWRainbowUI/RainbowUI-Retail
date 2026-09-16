@@ -1,12 +1,3 @@
-# 1.67
-- Add missing localisation entries on CurseForge
-
-# 1.66
-- Add Soft Target indicators (partial contribution by @Pevtrick)
-
-# 1.65
-- Bump TOC Interface version for Retail, Classic, TBC Classic and MoP Classic
-
 # 1.64
 - Disable Target of Target indicator in Retail due to new restrictions on `C_NamePlate.GetNamePlateForUnit`
 - Fix incorrect concatenation in `TNI:RefreshIndicator`
