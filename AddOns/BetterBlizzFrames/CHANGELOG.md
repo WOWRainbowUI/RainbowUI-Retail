@@ -1,3 +1,18 @@
+# BetterBlizzFrames 2.0.8c
+## Midnight
+### Tweak
+- Rename the recently added Expressway font to Expressway (BBF) to avoid potential conflicts with other fonts.
+- Fix some issues with Big Player Healthbar setting and textures used with various settings and especially the alt frame texture for spriests etc. Glow, FrameTexture tweaks etc.
+
+# BetterBlizzFrames 2.0.8b
+## All versions
+- New settings in Misc section for BBF's GUI to Force English Language and change Font and Font Size for the GUI.
+- Existing translations for other languages have been updated and new translations for all other languages have been added.
+- Known issue with translations: Some languages will need some tweaks and especially tweaks to lenght of strings and overlapping. If theres a lot of issues probably use the new "Force English" setting in Misc for now.
+## Midnight
+### Bugfix
+- Fix attempt for class colors sometimes being stale on Target/Focus/ToT frames after changes from last patch 2.0.8
+
 # BetterBlizzFrames 2.0.8
 ## Highlights (Retail)
 - Hunter & Shaman combo points for Tip the spear and Mealstrom buff.
@@ -7,8 +22,8 @@
 ![bbfHideToTManas](https://github.com/user-attachments/assets/abbbcdee-9ab4-4a52-aba4-c3c095f41f10)
 ## Midnight
 ### New
-- Shaman: Maelstrom Weapon Combo Points. Enhancement now gets a proper combo point bar for Maelstrom Weapon stacks, both under the PlayerFrame and on the Personal Resource Display (which can also be moved onto the target nameplate). It uses the Rogue combo point look; stacks 1-5 fill in light blue and stacks 6-10 turn deep blue one at a time. Works with all the existing Move Resource / Move to TargetFrame / Free Move / Class Resource Scale / Legacy Combo Point settings, and with Dark Mode. Plays nice with BetterBlizzPlates: if BBP shows it on the target nameplate you get both, if both would show on the Personal Resource Display only one is created.
-- Hunter: Tip of the Spear Combo Points. Survival gets the same treatment as Shaman above, with 3 green combo points tracking Tip of the Spear stacks.
+- Misc: "Shaman: Mealstrom Weapon Combo Points". Enhancement now gets a Rogue-style combo point bar for Maelstrom Weapon stacks on PlayerFrame and PRD/Target Nameplate.
+- Misc: "Hunter: Tip of the Spear Combo Points". Survival now gets a Rogue-style combo point bar for Tip of the Spear stacks on PlayerFrame and PRD/Target Nameplate.
 - New Hide PetFrame Mana setting that also makes the healthbar bigger (Misc).
 - New Hide ToT Frame Mana setting that also makes the healthbar bigger (Misc).
 ### Tweak
