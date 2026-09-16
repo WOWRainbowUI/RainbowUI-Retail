@@ -71,6 +71,7 @@ local FriendGroups_FriendsListUpdateFriendButton
 local FriendGroups_FriendsListButtonTemplateClick
 local SetupGroupedView
 local FriendGroups_SaveToAltCache
+local FG_InstallSendMessageOverride
 
 local ADDON_CHAT_PREFIX = "|cffFFE400[|r|cff3AFF00" .. "FriendGroups" .. "|r|cffFFE400]|r"
 local function Print(...)
@@ -638,6 +639,26 @@ local settingsMenuItems = {
     -- [[ Everything below moves into the "Advanced" submenu (back-end config). ]]
     { isAdvancedStart = true },
 
+    -- SECTION: CHAT
+    -- Retail only: Classic has no secret values, so whispering from the list cannot cause
+    -- the chat errors this prevents. See WHISPER WITHOUT TAINTING CHAT. Off by default, so
+    -- Whisper opens chat in one click unless a player opts in.
+    { text = L["SETTINGS_CHAT"], notCheckable = true, isTitle = true,
+      condition = function() return Compat.IS_MAINLINE end },
+    {
+        text = L["SET_SAFE_WHISPER"],
+        tooltip = { L["SET_SAFE_WHISPER_TT_1"], L["SET_SAFE_WHISPER_TT_2"] },
+        condition = function() return Compat.IS_MAINLINE end,
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.safe_whisper end,
+        func = function()
+            FriendGroups_SavedVars.safe_whisper = not FriendGroups_SavedVars.safe_whisper
+            if FriendGroups_SavedVars.safe_whisper then
+                FG_InstallSendMessageOverride()
+            end
+        end
+    },
+
 	-- SECTION 4: AUTOMATION
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
@@ -802,6 +823,7 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.auto_accept_sync = true
             FriendGroups_SavedVars.offline_tracker = true
             FriendGroups_SavedVars.streamer_mode = false
+            FriendGroups_SavedVars.safe_whisper = false
             FriendGroups_SavedVars.show_known_alts = true
             -- The three size axes at their defaults: Medium height, Wide panel, Small text.
             -- Written EXPLICITLY, never left nil, so the reset state is byte-identical to a
@@ -3456,6 +3478,183 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
     return false
 end
 
+-- ============================================================================
+-- [[ WHISPER WITHOUT TAINTING CHAT (RETAIL) ]]
+-- A whisper started from this list used to open the chat box inside FriendGroups'
+-- execution: Blizzard's row click reads the button.id this addon writes, so the Whisper
+-- item and the Send Message button both ran ChatFrameUtil.SendBNetTell/SendTell tainted.
+-- That wrote ACTIVE_CHAT_EDIT_BOX and LAST_ACTIVE_CHAT_EDIT_BOX under FriendGroups'
+-- taint, and Blizzard only ever rewrites them after reading them, so the taint lasted
+-- the whole session. In restricted content a whisper target is a secret value, and
+-- ChatFrameEditBoxMixin:UpdateHeader then did arithmetic on secret header geometry on
+-- every Enter press -- "attempt to perform arithmetic on a secret number value
+-- (execution tainted by 'FriendGroups')", reported from arena.
+--
+-- The fix is to never open chat from here. These two entry points only set the chat
+-- box's chatType and tellTarget attributes, exactly as ChatFrameUtil.SendBNetTell and
+-- ChatFrameUtil.ReplyTell set them, and the player's own Enter opens it. That Enter is
+-- Blizzard's OPENCHAT binding -- ChatFrameUtil.OpenChat -> ChooseBoxForSend, the same
+-- box chosen below -- and it runs secure. Frame attributes do not carry taint to the
+-- secure code that reads them back; verified in game on 12.1 with issecurevariable on
+-- both globals, before and after the Enter that opened the whisper.
+--
+-- The sticky type is deliberately left alone. ResetChatType (run from the box's OnShow)
+-- only rewrites PARTY/RAID/GUILD/OFFICER/INSTANCE_CHAT, so a primed WHISPER or BN_WHISPER
+-- survives the box opening. Sending makes the whisper sticky (both types are sticky = 1
+-- in ChatTypeInfo), and Escape returns to the previous sticky type -- the same as a
+-- whisper opened by Blizzard.
+--
+-- Retail only. Classic clients have no secret values, so the taint is harmless there
+-- and they keep Blizzard's one-click Whisper.
+--
+-- OPT-IN since 13.0.51 (Advanced > Chat > Arena-Safe Whispers, saved as safe_whisper).
+-- 13.0.5 shipped it always on, and making everyone press Enter to fix an arena-only
+-- error was the wrong trade. Off, the Whisper item is left exactly as Blizzard built it
+-- and Send Message is never touched, which is the pre-13.0.5 behaviour.
+--
+-- Never call UpdateHeader, OpenChat, ActivateChat, SetFocus, Show or Hide on a chat box
+-- from here: each one either runs Blizzard's chat code tainted or writes those globals.
+-- ============================================================================
+local function FG_CanPrimeWhisper()
+    return Compat.IS_MAINLINE
+        and type(ChatFrameUtil) == "table"
+        and type(ChatFrameUtil.ChooseBoxForSend) == "function"
+        and type(ChatFrameUtil.GetActiveWindow) == "function"
+        and type(ChatFrameUtil.GetChatFocusOverride) == "function"
+end
+
+-- The capability above plus the player's opt-in. Read live, so the checkbox takes effect
+-- on the next menu or click without a reload.
+local function FG_IsSafeWhisperOn()
+    return FG_CanPrimeWhisper()
+        and type(FriendGroups_SavedVars) == "table"
+        and FriendGroups_SavedVars.safe_whisper == true
+end
+
+-- chatType is "WHISPER" or "BN_WHISPER" -- chat type identifiers, not display text.
+-- accountInfo is optional and only feeds the streamer-mode mask.
+local function FG_PrimeWhisper(chatType, target, accountInfo)
+    -- SetAttribute refuses a secret argument from tainted code (SecretArguments =
+    -- "AllowedWhenUntainted"), so a withheld name cannot be primed at all. Tested first:
+    -- anything else done to a secret here would raise as well.
+    if issecretvalue and issecretvalue(target) then
+        print(L["MSG_WHISPER_UNAVAILABLE"])
+        return
+    end
+    if type(target) ~= "string" or target == "" then return end
+
+    -- A chat box that is already open takes the next Enter itself, and changing its type
+    -- under the header it is showing would send the half-typed line to this friend. With
+    -- a focus override set, Enter focuses that box instead (ChatFrameUtil.OpenChat), so a
+    -- primed box would not be the one that opens.
+    if ChatFrameUtil.GetActiveWindow() ~= nil or ChatFrameUtil.GetChatFocusOverride() ~= nil then
+        print(L["MSG_WHISPER_CLOSE_CHAT"])
+        return
+    end
+
+    local editBox = ChatFrameUtil.ChooseBoxForSend()
+    if not editBox then return end
+    editBox:SetChatType(chatType)
+    editBox:SetTellTarget(target)
+
+    local shownName = target
+    if FriendGroups_IsStreamerMode() then
+        shownName = FriendGroups_StreamerName(target, accountInfo)
+    end
+    print(string.format(L["MSG_WHISPER_PRESS_ENTER"], shownName))
+end
+
+-- Mirrors UnitPopupWhisperButtonMixin:OnClick: the same Battle.net test, the same
+-- human-unit gate and the same target, primed instead of sent.
+local function FG_PrimeWhisperFromContext(contextData)
+    local unit = contextData.unit
+    if unit and not UnitIsHumanPlayer(unit) then return end
+
+    local bnetIDAccount = contextData.bnetIDAccount
+    local isBNetAccount = bnetIDAccount
+    if not isBNetAccount and contextData.playerLocation then
+        isBNetAccount = contextData.playerLocation:IsBattleNetGUID()
+    end
+
+    if isBNetAccount then
+        local accountInfo
+        if FriendGroups_IsStreamerMode() and type(bnetIDAccount) == "number"
+           and not (issecretvalue and issecretvalue(bnetIDAccount)) then
+            accountInfo = C_BattleNet.GetAccountInfoByID(bnetIDAccount)
+        end
+        FG_PrimeWhisper("BN_WHISPER", contextData.name, accountInfo)
+    else
+        local target = contextData.name
+        if type(UnitPopupSharedUtil) == "table" and type(UnitPopupSharedUtil.GetFullPlayerName) == "function" then
+            target = UnitPopupSharedUtil.GetFullPlayerName(contextData)
+        end
+        FG_PrimeWhisper("WHISPER", target, nil)
+    end
+end
+
+-- Replaces the responder on Blizzard's own Whisper item in a menu opened from this list.
+-- Found by its label, Blizzard's WHISPER string (UnitPopupWhisperButtonMixin:GetText);
+-- if it is not there the menu is left exactly as Blizzard built it.
+local function FG_ClaimWhisperButton(rootDescription, contextData)
+    if not FG_IsSafeWhisperOn() then return end
+    if type(WHISPER) ~= "string" then return end
+    if type(MenuUtil) ~= "table" or type(MenuUtil.GetElementText) ~= "function" then return end
+    if type(rootDescription.EnumerateElementDescriptions) ~= "function" then return end
+
+    for _, elementDescription in rootDescription:EnumerateElementDescriptions() do
+        local text = MenuUtil.GetElementText(elementDescription)
+        if not (issecretvalue and issecretvalue(text)) and text == WHISPER then
+            elementDescription:SetResponder(function()
+                FG_PrimeWhisperFromContext(contextData)
+            end)
+            return
+        end
+    end
+end
+
+-- Replacement OnClick for FriendsFrameSendMessageButton. Same selection reads as
+-- Blizzard's FriendsFrameSendMessageButton_OnClick, and the same sound on the same branch.
+-- Installed only once the setting is first turned on; after that, turning it off hands
+-- every click straight back to Blizzard's own handler, captured at install.
+local FG_BlizzardSendMessageOnClick
+
+local function FG_SendMessageButton_OnClick(self, ...)
+    if not FG_IsSafeWhisperOn() then
+        if FG_BlizzardSendMessageOnClick then
+            FG_BlizzardSendMessageOnClick(self, ...)
+        end
+        return
+    end
+
+    local friendType = FriendsFrame.selectedFriendType
+    local friendIndex = FriendsFrame.selectedFriend
+    if type(friendIndex) ~= "number" then return end
+
+    if friendType == FRIENDS_BUTTON_TYPE_WOW then
+        local info = C_FriendList.GetFriendInfoByIndex(friendIndex)
+        if info and info.name then
+            FG_PrimeWhisper("WHISPER", info.name, nil)
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+        end
+    elseif friendType == FRIENDS_BUTTON_TYPE_BNET then
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(friendIndex)
+        if accountInfo then
+            FG_PrimeWhisper("BN_WHISPER", accountInfo.accountName, accountInfo)
+        end
+    end
+end
+
+-- Send Message reads FriendsFrame.selectedFriend, which a click on one of our rows stores
+-- under FriendGroups' taint, so Blizzard's handler opens chat tainted. Swapped for the
+-- priming path the first time the setting is on (at load, or when the box is ticked), and
+-- never before, so a player who never opts in keeps Blizzard's button untouched. Once.
+FG_InstallSendMessageOverride = function()
+    if FG_BlizzardSendMessageOnClick then return end
+    if not FG_CanPrimeWhisper() or not FriendsFrameSendMessageButton then return end
+    FG_BlizzardSendMessageOnClick = FriendsFrameSendMessageButton:GetScript("OnClick")
+    FriendsFrameSendMessageButton:SetScript("OnClick", FG_SendMessageButton_OnClick)
+end
+
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not contextData then return end
     -- Scope the injection to the contact list: these MENU_UNIT_*_FRIEND tags also fire from
@@ -3467,6 +3666,10 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not Compat.IsContactListMouseOver() then
         return
     end
+
+    -- Before any early return below, so Whisper is claimed even when the rest of the
+    -- FriendGroups section cannot be built.
+    FG_ClaimWhisperButton(rootDescription, contextData)
 
     local bnetfriend = false
     local accountInfo = nil
@@ -4596,6 +4799,8 @@ EnableFriendGroups = function()
             -- Off on a fresh install: a privacy mode that hides data by default would read as
             -- the addon being broken to everyone who is not streaming.
             streamer_mode = false,
+            -- Off on a fresh install: Whisper opens chat in one click, as it always has.
+            safe_whisper = false,
             -- [[ FRESH-INSTALL SIZE DEFAULTS ]]
             -- Medium height, Wide panel, Small text.
             --
@@ -4663,6 +4868,11 @@ EnableFriendGroups = function()
     end
     if FriendGroups_SavedVars.streamer_mode == nil then
         FriendGroups_SavedVars.streamer_mode = false
+    end
+    -- New in 13.0.51. Upgrades from 13.0.5 land here too, where priming was always on: they
+    -- are returned to one-click Whisper like everyone else and can opt back in.
+    if FriendGroups_SavedVars.safe_whisper == nil then
+        FriendGroups_SavedVars.safe_whisper = false
     end
     if FriendGroups_SavedVars.group_order == nil then
         FriendGroups_SavedVars.group_order = {}
@@ -4905,6 +5115,12 @@ end)
         Menu.ModifyMenu("MENU_UNIT_BN_FRIEND_OFFLINE", FriendGroups_AddDropDownNew)
     end
 
+    -- Arena-Safe Whispers: Send Message takes the priming path only for a player who has
+    -- opted in. See WHISPER WITHOUT TAINTING CHAT.
+    if FriendGroups_SavedVars.safe_whisper then
+        FG_InstallSendMessageOverride()
+    end
+
     -- 4. Setup Scroll View
     SetupGroupedView()
     
@@ -5005,8 +5221,9 @@ SetupGroupedView = function()
         elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE then
             factory("FriendsFrameFriendInviteTemplate", FriendGroups_FriendsFrameUpdateFriendInviteButton);
         elseif buttonType == FRIENDS_BUTTON_TYPE_BNET or buttonType == FRIENDS_BUTTON_TYPE_WOW then
-            -- 12.0 FIX: Switched from custom XML button to Blizzard's Native Secure Template
-            -- This completely bypasses the Chat/Secret ID taint vector when clicking friends.
+            -- Blizzard's own template. Its OnClick is Blizzard's, but it reads the button.id
+            -- our initializer writes, so everything a click on this row starts runs under
+            -- FriendGroups' taint. Chat is kept out of that by WHISPER WITHOUT TAINTING CHAT.
             factory("FriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
         else
             -- 12.2.2: Blizzard's native FriendsList_Update runs again (post-hook mode) and its
@@ -6741,6 +6958,7 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
                 auto_accept_sync = false,
                 offline_tracker = true,
                 streamer_mode = false,
+                safe_whisper = false,
                 show_guildmates = true
             }
         end
