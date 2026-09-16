@@ -1,7 +1,7 @@
 # Baganator
 
-## [823](https://github.com/TheMouseNest/Baganator/tree/823) (2026-09-06)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/822...823) 
+## [824](https://github.com/TheMouseNest/Baganator/tree/824) (2026-09-15)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/823...824) 
 
-- ElvUI skin improvements  
-- Update upgrade track detection  
+- EllesmereUI Skin: Fix searches not fading not matching items  
+- Experimental EllesmereUI skin  

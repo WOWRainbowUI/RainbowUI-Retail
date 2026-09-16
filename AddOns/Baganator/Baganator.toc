@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 823
+## Version: 824
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -44,6 +44,7 @@ Skins\Dark.lua
 Skins\ElvUI.lua
 Skins\GW2.lua
 Skins\NDui.lua
+Skins\EllesmereUI.lua
 
 Sorting\BagUsageChecks.lua
 Sorting\ItemFields.lua
