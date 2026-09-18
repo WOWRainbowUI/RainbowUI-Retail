@@ -13,6 +13,8 @@ Stuf:AddOnInit(function(_, idbg, CLS)
 	dbgaura.Curse   = dbgaura.Curse   or { r=0.6,  g=0.0,  b=1.0  }
 	dbgaura.Poison  = dbgaura.Poison  or { r=0.0,  g=0.6,  b=0.0  }
 	dbgaura.Disease = dbgaura.Disease or { r=0.6,  g=0.4,  b=0.0  }
+	dbgaura.Buff    = dbgaura.Buff    or { r=0.0,  g=0.0,  b=0.0  }
+	dbgaura.MyBuff  = dbgaura.MyBuff  or { r=0.5,  g=0.5,  b=0.6  }
 end)
 
 local floor, ceil = floor, ceil
@@ -22,6 +24,7 @@ local strmatch = strmatch
 local GetTime = GetTime
 local CreateFrame = CreateFrame
 local GameTooltip = GameTooltip
+local issecretvalue = issecretvalue
 local stamin, stahr = 1/60, 1/3600
 
 local backdrop = { bgFile="Interface\\AddOns\\Stuf\\media\\aura1.tga", }
@@ -51,9 +54,10 @@ do  -- Timer Bars handlers -----------------------------------------------------
 	-- the comparison in pcall.  On failure treat as equal (false), which keeps
 	-- sort stable and avoids an infinite loop in table.sort.
 	local function lsort(a, b)
-		local result = false
-		pcall(function() result = a.endtime < b.endtime end)
-		return result
+		if issecretvalue(a.endtime) or issecretvalue(b.endtime) then
+			return false
+		end
+		return a.endtime < b.endtime
 	end
 	local function ClearAndSetPoint(f, lrp, lrt, lp, lx, ly, rrp, rrt, rp, rx, ry)
 		f:ClearAllPoints()
@@ -113,10 +117,12 @@ do  -- Timer Bars handlers -----------------------------------------------------
 		if this.nextupdate > 0 then return end
 		this.nextupdate = this.throt
 
-		-- expirationTime is tainted; wrap arithmetic in pcall.
-		local remain
-		pcall(function() remain = this.endtime - GetTime() end)
-		if not remain then return end
+		-- Never do Lua arithmetic on a secret expiration time.
+		if issecretvalue(this.endtime) then
+			this:Hide()
+			return
+		end
+		local remain = this.endtime - GetTime()
 		this.bar:SetValue(remain * this.duration, this.bvalue)
 		if remain < 60 then
 			if remain > 10 then
@@ -239,24 +245,28 @@ do  -- Timer Bars handlers -----------------------------------------------------
 		return timer
 	end
 	function StartTimer(name, duration, endtime, icon, color, count, p, spellname)
+		if issecretvalue(duration) or issecretvalue(endtime) then
+			return false
+		end
 		local f = GetTimer(name, p, p.db)
 		f.name = name
 		f:SetParent(p)
 		f.endtime = endtime
-		-- duration is a tainted secret number in 12.0.1; wrap all arithmetic
-		-- and comparisons in pcall.  Fall back to safe defaults on failure.
-		pcall(function() f.duration = 1 / duration end)
-		if not f.duration then f.duration = 1 end
-		local throt = 0.1
-		pcall(function() throt = (duration < 300 and 0.1) or (duration < 600 and 0.25) or 0.5 end)
-		f.throt = throt
+		f.duration = (duration and duration > 0) and (1 / duration) or 1
+		f.throt = (duration and duration < 300 and 0.1) or
+			(duration and duration < 600 and 0.25) or 0.5
 		f.nextupdate = 0
-		-- count is nil or plain int from GetAuraCount; pass with or "" to be safe
-		f.ctext:SetFormattedText("%s%s", count or "", p.db.showspellname and spellname or "")
+		-- Never boolean-test or Lua-format a secret aura name.
+		if p.db.showspellname and not issecretvalue(spellname) then
+			f.ctext:SetFormattedText("%s%s", count or "", spellname or "")
+		else
+			f.ctext:SetFormattedText("%s", count or "")
+		end
 		f.icon:SetTexture(icon)
 		f.bar:SetVertexColor(color.r, color.g, color.b, color.a or 0.9)
 		f:SetAlpha(1)
 		f:Show()
+		return true
 	end
 	function StopTimer(name, parent)
 		for k, v in ipairs(parent.timers) do
@@ -274,16 +284,13 @@ local function AuraTimeTextOnUpdate(this, a1)
 	this.nextupdate = (this.nextupdate or 0) - a1
 	if this.nextupdate > 0 then return end
 
-	-- expirationTime (stored in this.endtime) is a tainted secret number in
-	-- 12.0.1.  Arithmetic on it in Lua crashes.  Wrap in pcall; on failure
-	-- stop the timer gracefully rather than spamming errors every frame.
-	local remain
-	pcall(function() remain = this.endtime - GetTime() end)
-	if not remain then
+	-- Never do Lua arithmetic on a secret expiration time.
+	if issecretvalue(this.endtime) then
 		this.ttext:SetText("")
 		this:SetScript("OnUpdate", nil)
 		return
 	end
+	local remain = this.endtime - GetTime()
 	if remain < 60 then
 		if remain > 10 then
 			this.ttext:SetFormattedText("%d", remain)
@@ -307,10 +314,9 @@ local function AuraTimeTextOnUpdate(this, a1)
 	end
 end
 local function StartIconTimer(this, duration, endtime, mine)
-	-- endtime/duration may be secret tainted numbers in 12.0.1; wrap all comparisons
-	-- and arithmetic in pcall so they can be passed to C functions safely.
-	local endtime_ok = false
-	pcall(function() if endtime and endtime > 0 then endtime_ok = true end end)
+	-- Secret duration/expiration values cannot be inspected by Lua.
+	local endtime_ok = not issecretvalue(endtime) and
+		not issecretvalue(duration) and endtime ~= nil and endtime > 0
 	if this.ttext then
 		if (mine or not this.ttextonlymine) and endtime_ok then
 			this.endtime = endtime
@@ -440,8 +446,10 @@ do 	-- Aura handlers -----------------------------------------------------------
 	local function IsPlayerAura(unit, aid, isHelpful)
 		if not _isFiltered or not aid then return false end
 		local filter = isHelpful and "HELPFUL|PLAYER" or "HARMFUL|PLAYER"
+		local ok, filtered = pcall(_isFiltered, unit, aid, filter)
+		if not ok or issecretvalue(filtered) then return false end
 		-- "filtered out" = false means aura PASSES the player filter = is ours
-		return (_isFiltered(unit, aid, filter) == false)
+		return filtered == false
 	end
 
 	-- GetAuraCount: returns a plain integer stack count (>= 2), or NIL when
@@ -454,11 +462,9 @@ do 	-- Aura handlers -----------------------------------------------------------
 	-- comparison inside this function.
 	local function GetAuraCount(unit, aid)
 		if not _getStackCount or not aid then return nil end
-		local n = _getStackCount(unit, aid, 2, 99)
-		if type(n) ~= "number" then return nil end
-		local val = nil
-		pcall(function() if n >= 2 then val = n end end)
-		return val  -- nil (hide count text) or plain integer >= 2
+		local ok, n = pcall(_getStackCount, unit, aid, 2, 99)
+		if not ok or issecretvalue(n) or type(n) ~= "number" then return nil end
+		return n >= 2 and n or nil
 	end
 
 	-- BuildDispelCurve: creates a C_CurveUtil color curve mapping dispel type
@@ -487,22 +493,24 @@ do 	-- Aura handlers -----------------------------------------------------------
 		if not _getDispelColor or not aid then return nil end
 		if not _dispelCurve then _dispelCurve = BuildDispelCurve() end
 		if not _dispelCurve then return nil end
-		return _getDispelColor(unit, aid, _dispelCurve)
+		local ok, color = pcall(_getDispelColor, unit, aid, _dispelCurve)
+		if not ok or issecretvalue(color) then return nil end
+		return color
 	end
 
 	-- IsMagicType: plain bool — true if dispel type is Magic (index 1).
 	-- d.dispelType is numeric but still tainted in 12.0.1, so one pcall needed.
 	local function IsMagicType(d)
-		local result = false
-		pcall(function() if d.dispelType == 1 then result = true end end)
-		return result
+		local dispelType = d.dispelType
+		if issecretvalue(dispelType) then return false end
+		return dispelType == 1
 	end
 
-	-- GetIsStealable: plain bool.  isStealable has no dedicated API; pcall-decode.
+	-- GetIsStealable: only return a plain Lua boolean.
 	local function GetIsStealable(d)
-		local v = false
-		pcall(function() if d.isStealable then v = true end end)
-		return v
+		local v = d.isStealable
+		if issecretvalue(v) then return false end
+		return v and true or false
 	end
 
 	-- UnitBuff / UnitDebuff: drop-in replacements for the removed global
@@ -516,14 +524,15 @@ do 	-- Aura handlers -----------------------------------------------------------
 		if not _apisReady then BindAuraAPIs() end
 		local ok, d = pcall(C_UnitAuras.GetBuffDataByIndex, unit, index, filter)
 		if not ok or not d then return nil end
-		local aid = d.auraInstanceID  -- plain number
+		local aid = d.auraInstanceID  -- NeverSecret in the current API
 		return d.name, d.icon,
-		       GetAuraCount(unit, aid),        -- nil or plain int >= 2
-		       GetDispelColor(unit, aid),      -- ColorMixin or nil (no pcall)
-		       IsMagicType(d),                 -- plain bool
-		       d.duration, d.expirationTime,   -- tainted, C-only
-		       IsPlayerAura(unit, aid, true),  -- plain bool
-		       GetIsStealable(d)               -- plain bool
+		       GetAuraCount(unit, aid),
+		       GetDispelColor(unit, aid),
+		       IsMagicType(d),
+		       d.duration, d.expirationTime,
+		       IsPlayerAura(unit, aid, true),
+		       GetIsStealable(d),
+		       aid ~= nil
 	end
 	local function UnitDebuff(unit, index, filter)
 		if not _apisReady then BindAuraAPIs() end
@@ -536,7 +545,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 		       IsMagicType(d),
 		       d.duration, d.expirationTime,
 		       IsPlayerAura(unit, aid, false),
-		       GetIsStealable(d)
+		       GetIsStealable(d),
+		       aid ~= nil
 	end
 	function UpdateAura(unit, uf, _, _, _, config)  -- updates all elements dealing with buffs/debuffs
 		-----------------------------------------------
@@ -550,10 +560,14 @@ do 	-- Aura handlers -----------------------------------------------------------
 		if not uf or uf.hidden then return end
 		
 		local allow, clr, bfilter, dfilter, onlymineb, onlymined = true, nil, nil, nil, nil, nil
-		local name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable
+		local name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable, exists
 		local cache = uf.cache
 		
 		local dispellicon, buffgroup, debuffgroup, auratimers = uf.dispellicon, uf.buffgroup, uf.debuffgroup, uf.auratimers
+		-- 12.1 AuraContainer groups are self-managed by Blizzard. Never feed them
+		-- through the legacy index scanner below.
+		if buffgroup and buffgroup.stufManagedAura then buffgroup = nil end
+		if debuffgroup and debuffgroup.stufManagedAura then debuffgroup = nil end
 		if not dispellicon or dispellicon.hidden then
 			dispellicon = nil
 		end
@@ -641,18 +655,16 @@ do 	-- Aura handlers -----------------------------------------------------------
 				if iswarlock then
 					if UnitCreatureFamily("pet") == "Felhunter" then
 						for i = 1, 40, 1 do
-						name, icon, count, acolor, ismagic = UnitDebuff(unit, i)
-						if not name or ismagic then
+						name, icon, count, acolor, ismagic, _, _, _, _, exists = UnitDebuff(unit, i)
+						if not exists or ismagic then
 							break
-						else
-							name = nil
 						end
 					end
 					end
 				else
-					name, icon, count, acolor, ismagic = UnitDebuff(unit, 1, "RAID")
+					name, icon, count, acolor, ismagic, _, _, _, _, exists = UnitDebuff(unit, 1, "RAID")
 				end
-				if name then
+				if exists then
 					local dc = acolor or dbgaura.Buff
 					dispellicon.texture:SetTexture(icon)
 					dispellicon.ctext:SetText(count or "")  -- count is nil or plain int
@@ -668,8 +680,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 
 		for i = 1, 32, 1 do  -- update buffgroup
 			if allow then  -- prevents calling UnitBuff when it's useless
-				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable = UnitBuff(unit, i, bfilter)
-				allow = name and (not onlymineb or ismine)
+				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable, exists = UnitBuff(unit, i, bfilter)
+				allow = exists and (not onlymineb or ismine)
 			end
 			
 			local b = buffgroup and buffgroup[i]
@@ -694,17 +706,18 @@ do 	-- Aura handlers -----------------------------------------------------------
 				break
 			end
 			if auratimers and ismine then
-				StartTimer("b"..i, duration, endtime, icon, dbgaura.MyBuff, count, auratimers, name)
-				temp["b"..i] = nil
+				if StartTimer("b"..i, duration, endtime, icon, dbgaura.MyBuff, count, auratimers, name) then
+					temp["b"..i] = nil
+				end
 			end
 		end
 		
 		allow = true
 		for i = 1, 40, 1 do  -- update debuffgroup
 			if allow then  -- prevents calling UnitDebuff when it's useless
-				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
-				clr = acolor or dbgaura.Buff  -- acolor is ColorMixin-or-nil from GetDispelColor
-				allow = name and (not onlymined or ismine)
+				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable, exists = UnitDebuff(unit, i, dfilter)
+				clr = acolor or dbgaura.Buff
+				allow = exists and (not onlymined or ismine)
 			end
 			
 			local b = debuffgroup and debuffgroup[i]
@@ -722,8 +735,9 @@ do 	-- Aura handlers -----------------------------------------------------------
 				break
 			end
 			if auratimers and ismine then
-				StartTimer("d"..i, duration, endtime, icon, clr, count, auratimers, name)
-				temp["d"..i] = nil
+				if StartTimer("d"..i, duration, endtime, icon, clr, count, auratimers, name) then
+					temp["d"..i] = nil
+				end
 			end
 		end
 		if auratimers then  -- stop timers that shouldn't exist anymore
@@ -743,7 +757,8 @@ do  -- Aura Icons --------------------------------------------------------------
 	local GetWeaponEnchantInfo = GetWeaponEnchantInfo
 	local function BuffOnEnter(this) -- buff tooltip
 		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT", 8, -16)
-		GameTooltip:SetUnitBuff(this:GetParent().unit, this.id, this:GetParent().filter)
+		local ok = pcall(GameTooltip.SetUnitBuff, GameTooltip, this:GetParent().unit, this.id, this:GetParent().filter)
+		if not ok then GameTooltip:Hide() end
 	end
 	local function BuffOnClick(this, button) -- right-click to dismount
 		if button == "RightButton" and IsMounted() then
@@ -752,7 +767,8 @@ do  -- Aura Icons --------------------------------------------------------------
 	end
 	local function DebuffOnEnter(this) -- debuff tooltip
 		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT", 8, -16)
-		GameTooltip:SetUnitDebuff(this:GetParent().unit, this.id, this:GetParent().filter)
+		local ok = pcall(GameTooltip.SetUnitDebuff, GameTooltip, this:GetParent().unit, this.id, this:GetParent().filter)
+		if not ok then GameTooltip:Hide() end
 	end
 	local function TempOnEnter(this)
 		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT", 8, -16)
@@ -797,9 +813,682 @@ do  -- Aura Icons --------------------------------------------------------------
 			i2:Hide()
 		end
 	end
+
+	-- 12.1+ managed AuraContainer path.
+	-- Blizzard owns aura discovery, filtering and combat updates; Stuf only
+	-- supplies presentation regions during initializeFrame.
+	local hasManagedAuraContainer = C_AuraContainerUtil ~= nil and AnchorUtil ~= nil
+
+	local function SetDefaultBuffFrameSuppressed(suppress)
+		if not BuffFrame then return end
+		Stuf._suppressDefaultBuffFrame = suppress and true or nil
+
+		-- Do not unregister UNIT_AURA anymore. Blizzard owns its update path,
+		-- and in 12.1 the frame may be shown again by the UI mode system.
+		if suppress then
+			pcall(BuffFrame.SetAlpha, BuffFrame, 0)
+			pcall(BuffFrame.Hide, BuffFrame)
+		else
+			pcall(BuffFrame.SetAlpha, BuffFrame, 1)
+			pcall(BuffFrame.Show, BuffFrame)
+		end
+
+		if not Stuf._defaultBuffFrameShowHook and hooksecurefunc then
+			Stuf._defaultBuffFrameShowHook = true
+			hooksecurefunc(BuffFrame, "Show", function(self)
+				if Stuf._suppressDefaultBuffFrame then
+					pcall(self.SetAlpha, self, 0)
+				end
+			end)
+		end
+	end
+
+	local function ManagedAuraBaseFilter(isbuff, db)
+		local filter = isbuff and "HELPFUL" or "HARMFUL"
+		if db.curable then
+			filter = filter .. "|RAID"
+		end
+		return filter
+	end
+
+	local function ManagedAuraFilter(isbuff, db)
+		local filter = ManagedAuraBaseFilter(isbuff, db)
+		if db.onlymine then
+			filter = filter .. "|PLAYER"
+		end
+		return filter
+	end
+
+	local function ManagedBuffGroupFilters(db)
+		local base = ManagedAuraBaseFilter(true, db)
+		local mine = base .. "|PLAYER"
+		local other = db.onlymine
+			and (base .. "|PLAYER|!PLAYER") -- intentionally impossible
+			or (base .. "|!PLAYER")
+		return mine, other
+	end
+
+	local function ConfigureManagedAuraFlow(f, db)
+		local d1, d2, d3, d4 = GrowthBreakdown(db.growth)
+		local hfirst = (d1 == "LEFT" or d1 == "RIGHT")
+		local spacing, vspacing = db.spacing or 0, db.vspacing or 0
+		local w, h = db.w or 20, db.h or 20
+		local cols = db.cols or (hfirst and 2) or 1
+		local rows = db.rows or (hfirst and 1) or 2
+
+		local anchor = hfirst and (d3 .. d1) or (d1 .. d3)
+		if f.SetFlowLayoutAnchorPoint then
+			pcall(f.SetFlowLayoutAnchorPoint, f, anchor)
+		end
+
+		local axes = AnchorUtil and AnchorUtil.FlowLayoutAxis
+		if axes and f.SetFlowLayoutAxis then
+			pcall(f.SetFlowLayoutAxis, f, hfirst and axes.Horizontal or axes.Vertical)
+		end
+
+		local fd = AnchorUtil and AnchorUtil.FlowDirection
+		if fd and f.SetFlowLayoutGrowthDirection then
+			local primary, secondary
+			if hfirst then
+				primary = (d1 == "LEFT") and fd.Right or fd.Left
+				secondary = (d3 == "TOP") and fd.Down or fd.Up
+			else
+				primary = (d1 == "TOP") and fd.Down or fd.Up
+				secondary = (d3 == "LEFT") and fd.Right or fd.Left
+			end
+			if primary and secondary then
+				pcall(f.SetFlowLayoutGrowthDirection, f, primary, secondary)
+			end
+		end
+
+		-- This API uses the maximum physical size of one flow line.
+		if f.SetFlowLayoutMaximumLineSize then
+			local lineSize
+			if hfirst then
+				lineSize = cols * w + math.max(0, cols - 1) * spacing
+			else
+				lineSize = rows * h + math.max(0, rows - 1) * vspacing
+			end
+			pcall(f.SetFlowLayoutMaximumLineSize, f, lineSize)
+		end
+
+		return hfirst, spacing, vspacing, w, h, cols, rows
+	end
+
+	-- 12.1 duration formatter: adapted from MiliUI_UnitFrames 1.3.0,
+	-- whose AuraContainer implementation is documented as field-tested.
+	local managedDurationFormatter
+	do
+		local R = Enum and Enum.NumericRuleFormatRounding
+		local down, up = R and R.Down or nil, R and R.Up or nil
+
+		local function Build(tenths)
+			if not (C_StringUtil and C_StringUtil.CreateNumericRuleFormatter) then
+				return nil
+			end
+			local f = C_StringUtil.CreateNumericRuleFormatter()
+			if tenths then
+				f:AddBreakpoint({
+					threshold = 0, step = 0.1, rounding = down, format = "%.1f",
+				})
+			end
+			f:AddBreakpoint({
+				threshold = tenths and 1 or 0,
+				step = 1, rounding = down, min = 1, format = "%d",
+			})
+			f:AddBreakpoint({
+				threshold = 91,
+				step = 1, rounding = down, min = 1, format = "%dm",
+				components = { { div = 60, rounding = up } },
+			})
+			f:AddBreakpoint({
+				threshold = 5401,
+				step = 1, rounding = down, min = 1, format = "%dh",
+				components = { { div = 3600, rounding = up } },
+			})
+			return f
+		end
+
+		if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
+			local ok, formatter = pcall(Build, true)
+			if not ok or not formatter then
+				ok, formatter = pcall(Build, false)
+			end
+			if ok and formatter then
+				managedDurationFormatter = formatter
+			end
+		end
+	end
+
+	local function SetManagedDurationTextSafe(button, fontString)
+		local formatter = managedDurationFormatter
+		local options = formatter and { textFormatter = formatter } or {}
+		-- Match the field-tested MiliUI fallback order exactly:
+		-- formatted options first, then the one-argument binding.
+		if pcall(button.SetDurationText, button, fontString,
+			next(options) and options or nil) then
+			return true
+		end
+		return pcall(button.SetDurationText, button, fontString)
+	end
+
+	local function AuraRGB(c, fallback)
+		c = c or fallback or Stuf.whitecolor
+		return { r = c.r or 1, g = c.g or 1, b = c.b or 1 }
+	end
+
+	local function ManagedDispelColorMap()
+		local base = dbgaura.Buff or Stuf.hidecolor or { r=0, g=0, b=0 }
+		return {
+			None    = AuraRGB(base),
+			Magic   = AuraRGB(dbgaura.Magic, base),
+			Curse   = AuraRGB(dbgaura.Curse, base),
+			Disease = AuraRGB(dbgaura.Disease, base),
+			Poison  = AuraRGB(dbgaura.Poison, base),
+		}
+	end
+
+	local function RegisterManagedDispelBorder(button)
+		local tex = button.stufDispelBorder
+		if not tex then return false end
+
+		local style = Enum and Enum.CustomAuraButtonDispelTypeTextureStyle
+			and Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset
+		if style == nil then return false end
+
+		local opts = {
+			style = style,
+			showWhenHarmful = true,
+			showWhenHelpful = false,
+			showWithoutDispelType = false,
+			customDispelColorMap = ManagedDispelColorMap(),
+		}
+
+		-- Modern 12.1 path. The engine owns show/hide and dispel-type color.
+		if button.AddDispelTypeTexture then
+			return pcall(button.AddDispelTypeTexture, button, tex, opts)
+		end
+		-- Compatibility fallback for earlier 12.1 builds.
+		if button.SetAuraBorder then
+			return pcall(button.SetAuraBorder, button, tex, opts)
+		end
+		return false
+	end
+
+	local function ManagedBaseAuraColor(button, f)
+		if f and f.stufIsBuff and button and button.stufIsMyBuff then
+			return dbgaura.MyBuff or { r=0.5, g=0.5, b=0.6 }
+		end
+		return dbgaura.Buff or Stuf.hidecolor or { r=0, g=0, b=0 }
+	end
+
+	local function RefreshManagedAuraBorder(button, f)
+		local isbuff = f and f.stufIsBuff
+		local base = ManagedBaseAuraColor(button, f)
+		local bg = button.stufBG
+		if bg then
+			pcall(bg.SetColorTexture, bg, base.r or 0, base.g or 0, base.b or 0, base.a or 1)
+		end
+
+		if isbuff then
+			return
+		end
+
+		-- Re-register the engine-driven dispel overlay so global Aura Type Color
+		-- changes can take effect without recreating AuraButtons.
+		if button.ClearDispelTypeTextures and button.stufDispelBorder then
+			local cleared = pcall(button.ClearDispelTypeTextures, button)
+			if cleared then
+				pcall(button.stufDispelBorder.SetColorTexture,
+					button.stufDispelBorder, 1, 1, 1, 1)
+				RegisterManagedDispelBorder(button)
+			end
+		end
+	end
+
+	local function ApplyManagedAuraInteraction(button, f, db)
+		-- Stuf's legacy "Noninteractive" / nomouse option means the aura icon
+		-- should not react to the mouse at all: no tooltip and no right-click
+		-- cancellation. AuraButton separates hover and click input in 12.1.
+		if db.nomouse then
+			if button.SetMouseMotionEnabled then
+				if pcall(button.SetMouseMotionEnabled, button, false) then
+					button.stufMouseMotionDisabled = true
+				end
+			end
+			if button.SetMouseClickEnabled then
+				pcall(button.SetMouseClickEnabled, button, false)
+			end
+			return
+		end
+
+		-- Preserve Blizzard's native tooltip defaults on first creation. Only
+		-- explicitly re-enable mouse motion if Stuf previously disabled it.
+		if button.stufMouseMotionDisabled and button.SetMouseMotionEnabled then
+			if pcall(button.SetMouseMotionEnabled, button, true) then
+				button.stufMouseMotionDisabled = nil
+			end
+		end
+
+		-- Only player Buffs are cancellable. Other aura buttons keep click input
+		-- disabled while retaining hover/tooltips.
+		local canCancel = f and f.stufIsBuff and f.unit == "player"
+		if button.SetMouseClickEnabled then
+			pcall(button.SetMouseClickEnabled, button, canCancel and true or false)
+		end
+		if canCancel and button.SetCancelAuraButtons then
+			-- AuraButton expects a full click token, not just "RightButton".
+			pcall(button.SetCancelAuraButtons, button, "RightButtonUp")
+		end
+	end
+
+	local function RefreshManagedAuraButtonLook(f, uf, db, w, h)
+		if not f.stufButtons then return end
+
+		local cfontsize = db.counttfontsize or db.fontsize or
+			(w < 2 and 1) or floor(w * 0.6 + 0.5)
+		local cfont = Stuf:GetMedia("font", db.counttfont)
+		local cfontflags = db.counttfontflags ~= "None" and db.counttfontflags
+		local cc = db.counttfontcolor or Stuf.whitecolor
+
+		local hasTimeText = not uf.ismetro
+		local tfc = hasTimeText and (db.timefontcolor or Stuf.whitecolor) or nil
+		local timeTextEnabled = hasTimeText and
+			(db.timefontcolor == nil or (db.timefontcolor.a or 1) > 0.1)
+		local tfont = tfc and Stuf:GetMedia("font", db.timefont) or nil
+		local tfontsize = tfc and (db.timefontsize or cfontsize) or nil
+		local tfontflags = tfc and db.timefontflags ~= "None" and db.timefontflags or nil
+
+		local offset1, offset2
+		if dbg.aurastyle == 2 then
+			offset1 = w * 0.05 + 0.5
+			offset1 = (offset1 > 3 and 3) or (offset1 < 1 and 1) or floor(offset1)
+			offset2 = offset1
+		else
+			offset1 = (w < 6 and 1) or floor(w * 0.1 + 0.5)
+			offset2 = floor(w * 0.05)
+		end
+
+		for _, button in ipairs(f.stufButtons) do
+			-- Settings may be changed by tainted option-controller code.
+			-- Never CreateFrame/AddAuraGroup here; mutate only existing objects.
+			pcall(button.SetSize, button, w, h)
+			RefreshManagedAuraBorder(button, f)
+			ApplyManagedAuraInteraction(button, f, db)
+
+			local icon = button.stufIcon
+			if icon then
+				pcall(icon.ClearAllPoints, icon)
+				pcall(icon.SetPoint, icon, "TOPRIGHT", button, "TOPRIGHT", -offset1, -offset1)
+				pcall(icon.SetPoint, icon, "BOTTOMLEFT", button, "BOTTOMLEFT", offset2, offset2)
+			end
+
+			local cooldown = button.stufCooldown
+			if cooldown and cooldown.SetDrawSwipe then
+				pcall(cooldown.SetDrawSwipe, cooldown, db.showpie and true or false)
+			end
+
+			local carrier = button.stufTextCarrier
+			if carrier and cooldown then
+				pcall(carrier.SetFrameLevel, carrier, cooldown:GetFrameLevel() + 4)
+			end
+
+			local ctext = button.stufCountText
+			if ctext then
+				pcall(ctext.ClearAllPoints, ctext)
+				pcall(ctext.SetPoint, ctext, "BOTTOMRIGHT", button, "BOTTOMRIGHT",
+					db.counttx or (-offset2 + 1), db.countty or offset2)
+				Stuf:UpdateTextLook(ctext, nil, cfont, cfontsize, cfontflags,
+					db.counttjustifyH or "RIGHT", db.counttjustifyV or "BOTTOM",
+					cc, db.counttshadowx or -1, db.counttshadowy or 1)
+			end
+
+			local ttext = button.stufDurationText
+			if ttext and tfc then
+				pcall(ttext.ClearAllPoints, ttext)
+				pcall(ttext.SetWidth, ttext, db.timew or (w + 4))
+				pcall(ttext.SetHeight, ttext, db.timeh or cfontsize)
+				pcall(ttext.SetPoint, ttext, "TOPLEFT", button, "TOPLEFT",
+					db.timex or -2, db.timey or -(h - cfontsize))
+				Stuf:UpdateTextLook(ttext, nil, tfont, tfontsize, tfontflags,
+					db.timejustifyH, db.timejustifyV, tfc,
+					db.timeshadowx, db.timeshadowy)
+				if timeTextEnabled then
+					pcall(ttext.Show, ttext)
+				else
+					pcall(ttext.Hide, ttext)
+				end
+			end
+		end
+	end
+
+	local function CreateManagedAuraGroup(unit, uf, name, db, config)
+		local isplayer = unit == "player"
+		local isbuff = name == "buffgroup"
+		local f = uf[name]
+
+		if db.hide then
+			if f and f.stufManagedAura then
+				f.hidden = true
+				if f.SetEnabled then pcall(f.SetEnabled, f, false) end
+				pcall(f.Hide, f)
+			end
+			if isplayer and isbuff then
+				SetDefaultBuffFrameSuppressed(false)
+			end
+			return
+		end
+
+		local hfirst, spacing, vspacing, w, h, cols, rows
+
+		if not f or not f.stufManagedAura then
+			if f then pcall(f.Hide, f) end
+
+			f = CreateFrame("AuraContainer", nil, uf, "CustomAuraContainerTemplate")
+			f.stufManagedAura = true
+			f.stufIsBuff = isbuff
+			f.unit = unit
+			f.db = db
+			f.firstcol, f.firstrow = { }, { }
+			f.stufButtons = { }
+			f:SetSize(1, 1)
+			f:SetPoint("TOPLEFT", uf, "TOPLEFT", db.x or 0, db.y or 0)
+
+			uf[name] = f
+			uf.refreshfuncs["auras"] = UpdateAura
+
+			-- 12.1 AuraContainer: bind the dynamic unit token before declaring
+			-- AuraGroups. This is the construction order used by the field-tested
+			-- MiliUI implementation and avoids an initially detached aura source.
+			f:SetUnit(unit)
+			hfirst, spacing, vspacing, w, h, cols, rows = ConfigureManagedAuraFlow(f, db)
+
+			local cfontsize = db.counttfontsize or db.fontsize or (w < 2 and 1) or floor(w * 0.6 + 0.5)
+			local cfont = Stuf:GetMedia("font", db.counttfont)
+			local cfontflags = db.counttfontflags ~= "None" and db.counttfontflags
+			local cc = db.counttfontcolor or Stuf.whitecolor
+			local hasTimeText = not uf.ismetro
+			local tfc = hasTimeText and (db.timefontcolor or Stuf.whitecolor) or nil
+			local timeTextEnabled = hasTimeText and
+				(db.timefontcolor == nil or (db.timefontcolor.a or 1) > 0.1)
+			local tfont = tfc and Stuf:GetMedia("font", db.timefont) or nil
+			local tfontsize = tfc and (db.timefontsize or cfontsize) or nil
+			local tfontflags = tfc and db.timefontflags ~= "None" and db.timefontflags or nil
+
+			local offset1, offset2
+			if dbg.aurastyle == 2 then
+				offset1 = w * 0.05 + 0.5
+				offset1 = (offset1 > 3 and 3) or (offset1 < 1 and 1) or floor(offset1)
+				offset2 = offset1
+			else
+				offset1 = (w < 6 and 1) or floor(w * 0.1 + 0.5)
+				offset2 = floor(w * 0.05)
+			end
+
+			local function InitializeAuraButton(button, isMyBuff)
+				-- AuraGroup membership is the secure 12.1 source of caster identity.
+				-- PLAYER => player/pet/vehicle; !PLAYER => everyone else.
+				button.stufIsMyBuff = isMyBuff and true or nil
+
+				-- All child regions must be created/configured here. AuraButtons become
+				-- restricted after initialization while auras are secret.
+				button:SetSize(w, h)
+
+				local base = ManagedBaseAuraColor(button, f)
+				local bg = button:CreateTexture(nil, "BACKGROUND")
+				bg:SetAllPoints(button)
+				bg:SetColorTexture(base.r or 0, base.g or 0, base.b or 0, base.a or 1)
+				button.stufBG = bg
+
+				-- Debuff overlay: Blizzard decides the aura's dispel type and tints
+				-- this white texture with Stuf's Magic/Curse/Disease/Poison palette.
+				if not isbuff then
+					local dispel = button:CreateTexture(nil, "BACKGROUND", nil, 1)
+					dispel:SetAllPoints(button)
+					dispel:SetColorTexture(1, 1, 1, 1)
+					button.stufDispelBorder = dispel
+					RegisterManagedDispelBorder(button)
+				end
+
+				local icon = button:CreateTexture(nil, "ARTWORK")
+				icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+				icon:SetPoint("TOPRIGHT", button, "TOPRIGHT", -offset1, -offset1)
+				icon:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", offset2, offset2)
+				button:SetIcon(icon)
+				button.stufIcon = icon
+
+				-- A registered cooldown is the Blizzard-managed duration source.
+				local cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+				cooldown:SetAllPoints(button)
+				cooldown:SetReverse(true)
+				cooldown:SetDrawEdge(false)
+				cooldown:SetHideCountdownNumbers(true)
+				if cooldown.SetDrawSwipe then
+					cooldown:SetDrawSwipe(db.showpie and true or false)
+				end
+				pcall(button.SetDurationCooldown, button, cooldown)
+				button.stufCooldown = cooldown
+
+				-- Child frames render above parent regions regardless of the parent's
+				-- draw layer. Put all aura text on a dedicated carrier ABOVE cooldown.
+				-- This restores the layering behavior of old Stuf's icon.overlay frame.
+				local textCarrier = CreateFrame("Frame", nil, button)
+				textCarrier:SetAllPoints(button)
+				textCarrier:SetFrameLevel(cooldown:GetFrameLevel() + 4)
+				textCarrier:EnableMouse(false)
+				button.stufTextCarrier = textCarrier
+
+				local ctext = textCarrier:CreateFontString(nil, "OVERLAY")
+				ctext:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT",
+					db.counttx or (-offset2 + 1), db.countty or offset2)
+				Stuf:UpdateTextLook(ctext, nil, cfont, cfontsize, cfontflags,
+					db.counttjustifyH or "RIGHT", db.counttjustifyV or "BOTTOM",
+					cc, db.counttshadowx or -1, db.counttshadowy or 1)
+				pcall(button.SetApplicationCount, button, ctext, {})
+				button.stufCountText = ctext
+
+				if hasTimeText then
+					local ttext = textCarrier:CreateFontString(nil, "OVERLAY")
+					ttext:SetWidth(db.timew or (w + 4))
+					ttext:SetHeight(db.timeh or cfontsize)
+					ttext:SetPoint("TOPLEFT", button, "TOPLEFT",
+						db.timex or -2, db.timey or -(h - cfontsize))
+					Stuf:UpdateTextLook(ttext, nil, tfont, tfontsize, tfontflags,
+						db.timejustifyH, db.timejustifyV, tfc,
+						db.timeshadowx, db.timeshadowy)
+
+					-- Use the same engine-side formatter pattern proven by current
+					-- 12.1 AuraContainer implementations. Never let a failed duration
+					-- registration abort the AuraButton creation batch.
+					SetManagedDurationTextSafe(button, ttext)
+					button.stufDurationText = ttext
+					if timeTextEnabled then
+						ttext:Show()
+					else
+						ttext:Hide()
+					end
+				end
+
+				f.stufButtons[#f.stufButtons + 1] = button
+
+				-- Leave AuraButton tooltip behavior at Blizzard's 12.1 defaults.
+				-- Aura tooltips are enabled natively; do not toggle mouse-motion,
+				-- anchor, or combat-tooltip state here because those calls can
+				-- interfere with button initialization in some client/UI stacks.
+
+				-- Apply Stuf's "Noninteractive" setting and player-buff cancel path.
+				ApplyManagedAuraInteraction(button, f, db)
+			end
+
+			local function AuraGroupOptions(init, layoutIndex)
+				return {
+					maxFrameCount = db.count or 2,
+					candidateFilters = {},
+					initializeFrame = init,
+					layout = {
+						elementWidth = w,
+						elementHeight = h,
+						elementSpacing = spacing,
+						lineSpacing = vspacing,
+						layoutIndex = layoutIndex,
+					},
+				}
+			end
+
+			if isbuff then
+				local mineFilter, otherFilter = ManagedBuffGroupFilters(db)
+				f:AddAuraGroup("stuf_my", mineFilter,
+					AuraGroupOptions(function(button)
+						InitializeAuraButton(button, true)
+					end, 1))
+				f:AddAuraGroup("stuf_other", otherFilter,
+					AuraGroupOptions(function(button)
+						InitializeAuraButton(button, false)
+					end, 2))
+			else
+				f:AddAuraGroup("stuf", ManagedAuraFilter(false, db),
+					AuraGroupOptions(function(button)
+						InitializeAuraButton(button, false)
+					end, 1))
+			end
+
+			-- Enable only after the unit and AuraGroup both exist, matching the
+			-- working 12.1 AuraContainer lifecycle.
+			if f.SetEnabled then
+				pcall(f.SetEnabled, f, true)
+			end
+			f:Show()
+		else
+			f.hidden = nil
+			f.db = db
+			f:ClearAllPoints()
+			f:SetPoint("TOPLEFT", uf, "TOPLEFT", db.x or 0, db.y or 0)
+			pcall(f.SetUnit, f, unit)
+			hfirst, spacing, vspacing, w, h, cols, rows = ConfigureManagedAuraFlow(f, db)
+
+			if isbuff then
+				local mineFilter, otherFilter = ManagedBuffGroupFilters(db)
+				if f.SetAuraGroupFilterString then
+					pcall(f.SetAuraGroupFilterString, f, "stuf_my", mineFilter)
+					pcall(f.SetAuraGroupFilterString, f, "stuf_other", otherFilter)
+				end
+				if f.SetAuraGroupMaxFrameCount then
+					pcall(f.SetAuraGroupMaxFrameCount, f, "stuf_my", db.count or 2)
+					pcall(f.SetAuraGroupMaxFrameCount, f, "stuf_other", db.count or 2)
+				end
+				if f.SetAuraGroupLayout then
+					pcall(f.SetAuraGroupLayout, f, "stuf_my", {
+						elementWidth = w, elementHeight = h,
+						elementSpacing = spacing, lineSpacing = vspacing,
+						layoutIndex = 1,
+					})
+					pcall(f.SetAuraGroupLayout, f, "stuf_other", {
+						elementWidth = w, elementHeight = h,
+						elementSpacing = spacing, lineSpacing = vspacing,
+						layoutIndex = 2,
+					})
+				end
+			else
+				if f.SetAuraGroupFilterString then
+					pcall(f.SetAuraGroupFilterString, f, "stuf", ManagedAuraFilter(false, db))
+				end
+				if f.SetAuraGroupMaxFrameCount then
+					pcall(f.SetAuraGroupMaxFrameCount, f, "stuf", db.count or 2)
+				end
+				if f.SetAuraGroupLayout then
+					pcall(f.SetAuraGroupLayout, f, "stuf", {
+						elementWidth = w,
+						elementHeight = h,
+						elementSpacing = spacing,
+						lineSpacing = vspacing,
+						layoutIndex = 1,
+					})
+				end
+			end
+			RefreshManagedAuraButtonLook(f, uf, db, w, h)
+			if f.SetEnabled then pcall(f.SetEnabled, f, true) end
+			f:Show()
+		end
+
+		if db.framelevel then
+			pcall(f.SetFrameLevel, f, db.framelevel)
+		end
+		if f.SetEditModePreviewEnabled then
+			pcall(f.SetEditModePreviewEnabled, f, config and true or false)
+		end
+		if f.UpdateAllAuras then
+			pcall(f.UpdateAllAuras, f)
+		end
+
+		if isplayer and isbuff then
+			SetDefaultBuffFrameSuppressed(true)
+		end
+	end
+
+	-- Dynamic unit tokens (especially "target") do not reliably force a
+	-- managed AuraContainer to rescan merely because the token now resolves to
+	-- another unit. A safe Hide/Show outside combat re-enters Blizzard's secure
+	-- OnShow path and forces a fresh assignment. During combat defer the bounce.
+	local managedAuraPendingBounce = {}
+
+	local function BounceManagedAuraContainer(f)
+		if not f or not f.stufManagedAura or f.hidden then return end
+		if InCombatLockdown and InCombatLockdown() then
+			managedAuraPendingBounce[f] = true
+			if f.UpdateAllAuras then pcall(f.UpdateAllAuras, f) end
+			return
+		end
+
+		managedAuraPendingBounce[f] = nil
+		pcall(f.Hide, f)
+		pcall(f.Show, f)
+		if f.SetEnabled then pcall(f.SetEnabled, f, true) end
+
+		-- Target may now resolve to the player, so refresh the neutral/MyBuff
+		-- border immediately without recreating any AuraButton.
+		if f.stufButtons then
+			for _, button in ipairs(f.stufButtons) do
+				RefreshManagedAuraBorder(button, f)
+			end
+		end
+	end
+
+	local function RepokeManagedUnit(unit)
+		local uf = su and su[unit]
+		if not uf then return end
+		BounceManagedAuraContainer(uf.buffgroup)
+		BounceManagedAuraContainer(uf.debuffgroup)
+	end
+
+	if hasManagedAuraContainer and not Stuf._managedAuraRepokeFrame then
+		local ef = CreateFrame("Frame")
+		Stuf._managedAuraRepokeFrame = ef
+		ef:RegisterEvent("PLAYER_TARGET_CHANGED")
+		ef:RegisterEvent("PLAYER_FOCUS_CHANGED")
+		ef:RegisterEvent("PLAYER_REGEN_ENABLED")
+		ef:SetScript("OnEvent", function(_, event)
+			if event == "PLAYER_TARGET_CHANGED" then
+				RepokeManagedUnit("target")
+			elseif event == "PLAYER_FOCUS_CHANGED" then
+				RepokeManagedUnit("focus")
+			elseif event == "PLAYER_REGEN_ENABLED" then
+				for f in pairs(managedAuraPendingBounce) do
+					managedAuraPendingBounce[f] = nil
+					BounceManagedAuraContainer(f)
+				end
+			end
+		end)
+	end
+
 	local function CreateAuraGroup(unit, uf, name, db, _, config)
 		local f = uf[name]
 		local isplayer, isbuff, isdebuff, istemp = (unit == "player"), (name == "buffgroup"), (name == "debuffgroup"), (name == "tempenchant")
+
+		-- Mainline 12.1+: buff/debuff icons must use AuraContainer. The legacy
+		-- index scanner remains only as a fallback for older clients and temp enchants.
+		if hasManagedAuraContainer and not istemp then
+			return CreateManagedAuraGroup(unit, uf, name, db, config)
+		end
 		if db.hide then
 			if f then
 				f.hidden = true
@@ -808,8 +1497,7 @@ do  -- Aura Icons --------------------------------------------------------------
 					if istemp then
 						if TemporaryEnchantFrame then TemporaryEnchantFrame:Show() end
 					elseif isbuff then
-						if BuffFrame then BuffFrame:Show() end
-						if BuffFrame then BuffFrame:RegisterEvent("UNIT_AURA") end
+						SetDefaultBuffFrameSuppressed(false)
 					end
 				end
 				UpdateAura(unit, uf, nil, nil, nil, config)
@@ -886,10 +1574,8 @@ do  -- Aura Icons --------------------------------------------------------------
 		if istemp then
 			if TemporaryEnchantFrame then TemporaryEnchantFrame:Hide() end
 		elseif isplayer and isbuff then
-			-- Still hide Blizzard's default buff frame since we're drawing our own.
-			-- f.secure is disabled in 12.0.1 (see comment above).
-			BuffFrame:Hide()
-			BuffFrame:UnregisterEvent("UNIT_AURA")
+			-- Do not unregister Blizzard's UNIT_AURA handler; suppress visually instead.
+			SetDefaultBuffFrameSuppressed(true)
 		end
 		f:Show()
 

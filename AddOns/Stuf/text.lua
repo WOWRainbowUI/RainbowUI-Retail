@@ -32,8 +32,16 @@ local conditions = {
 	pc = function(ca, unit) return ca.pc end,
 	npc = function(ca, unit) return not ca.pc end,
 	pvp = function(ca, unit) return ca.pvp end,
-	male = function(ca, unit) return UnitSex(unit) == 2 end,
-	female = function(ca, unit) return UnitSex(unit) == 3 end,
+	male = function(ca, unit)
+		local sex = UnitSex(unit)
+		if issecretvalue(sex) then return false end
+		return sex == 2
+	end,
+	female = function(ca, unit)
+		local sex = UnitSex(unit)
+		if issecretvalue(sex) then return false end
+		return sex == 3
+	end,
 	helpful = function(ca, unit) return ca.assist end,
 	hostile = function(ca, unit) return ca.hostile end,
 	attackable = function(ca, unit) return ca.attackable end,
@@ -42,8 +50,16 @@ local conditions = {
 	dead = function(ca, unit) return ca.dead and UnitIsDead(unit) end,
 	ghost = function(ca, unit) return ca.dead and UnitIsGhost(unit) end,
 	offline = function(ca, unit) return not UnitIsConnected(unit) end,
-	afk = function(ca, unit) return UnitIsAFK(unit) end,
-	dnd = function(ca, unit) return UnitIsDND(unit) end,
+	afk = function(ca, unit)
+		local value = UnitIsAFK(unit)
+		if issecretvalue(value) then return false end
+		return value and true or false
+	end,
+	dnd = function(ca, unit)
+		local value = UnitIsDND(unit)
+		if issecretvalue(value) then return false end
+		return value and true or false
+	end,
 	ingroup = function(ca, unit) return ca.ingroup end,
 	oor = function(ca, unit) -- 12.0.1 fix
 		if ( unit == "player" or not ca.assist or ca.dead or not UnitIsConnected(unit) ) then
@@ -118,6 +134,10 @@ do  -- custom text handlers ----------------------------------------------------
 	end
 	local function SetText2(fs, text, f)  -- handles option to hide text frame if empty
 		fs:SetText(text)
+		if IsSecret(text) then
+			f:Show()
+			return
+		end
 		if not text or text == "" or text == " " then
 			f:Hide()
 		else
@@ -128,7 +148,9 @@ do  -- custom text handlers ----------------------------------------------------
 	-- Never pass these through gsub — use SetFormattedText instead.
 	-- Plain percent tags are safe because UnitHealthPercent/UnitPowerPercent return plain numbers.
 	local DIRECT_TAGS = {
-		curhp  = function(u) return UnitHealth(u) end,
+		-- Ghost form can report a small non-zero health value on some clients.
+		-- Present it as empty health while leaving power/mana untouched.
+		curhp  = function(u) return UnitIsGhost(u) and 0 or UnitHealth(u) end,
 		maxhp  = function(u) return UnitHealthMax(u) end,
 		curmp  = function(u) return UnitPower(u) end,
 		maxmp  = function(u) return UnitPowerMax(u) end,
@@ -162,7 +184,7 @@ do  -- custom text handlers ----------------------------------------------------
 				-- CurveConstants.ScaleTo100 scales the result to 0-100.
 			-- Fallback: passing 'true' achieves the same effect (MSUF pattern).
 			local _scale = (CurveConstants and CurveConstants.ScaleTo100) or true
-			collectTag("%[perchp%]", function(u) return UnitHealthPercent(u, false, _scale) end)
+			collectTag("%[perchp%]", function(u) return UnitIsGhost(u) and 0 or UnitHealthPercent(u, false, _scale) end)
 			collectTag("%[percmp%]", function(u)
 				local pt = UnitPowerType(u)
 				return UnitPowerPercent(u, pt, false, _scale)
@@ -178,12 +200,19 @@ do  -- custom text handlers ----------------------------------------------------
 				local pat1, pat2 = strmatch(pat, "(.+):(.+)")
 				if pat1 and pat2 then  -- [something:infotag]
 					local replace
-					itag = cache[pat2] or specialchars[pat2] or pat2
-					if not IsSecret(itag) then
-						if itag == true then itag = pat2 end
-						if itag == "" then itag = nil end
+					local cached = cache[pat2]
+					local itag
+					if IsSecret(cached) then
+						-- Secret strings cannot safely pass through Lua gsub/format logic.
+						itag = nil
+					elseif cached then
+						itag = cached
+					else
+						itag = specialchars[pat2] or pat2
 					end
-					if itag and not IsSecret(itag) then
+					if itag == true then itag = pat2 end
+					if itag == "" then itag = nil end
+					if itag then
 						local ct = colortags[pat1]
 						if ct then
 							replace = ((pat1 == "custom" or pat1 == "solid") and TextFormat(itag)) or TextFormat(itag, ct(uf, dbt, nil, "fontcolor"))
@@ -207,14 +236,18 @@ do  -- custom text handlers ----------------------------------------------------
 					if IsSecret(rep) then rep = "" end
 					text = gsub(text, "%[(.-)%]", rep, 1)
 				else  -- [infotag]
-					local val = cache[pat] or specialchars[pat] or pat
-					local rep2
-					if IsSecret(val) then
-						rep2 = ""
+					local cached = cache[pat]
+					local val
+					if IsSecret(cached) then
+						-- Secret strings cannot safely pass through Lua gsub/format logic.
+						val = nil
+					elseif cached then
+						val = cached
 					else
-						rep2 = TextFormat(val) or ""
-						if IsSecret(rep2) then rep2 = "" end
+						val = specialchars[pat] or pat
 					end
+					local rep2 = val ~= nil and TextFormat(val) or ""
+					if IsSecret(rep2) then rep2 = "" end
 					text = gsub(text, "%[(.-)%]", rep2, 1)
 				end
 			end
@@ -237,8 +270,14 @@ do  -- custom text handlers ----------------------------------------------------
 					result = result .. text:sub(pos, ms - 1)
 					-- single digit index after \001
 					local idx = tonumber(text:sub(ms + 1, ms + 1))
-					if idx and rawArgs[idx] then
-						local abbrevd = _abbrev and _abbrev(rawArgs[idx]) or rawArgs[idx]
+					local raw = idx and rawArgs[idx]
+					if idx and (IsSecret(raw) or raw ~= nil) then
+						local abbrevd
+						if _abbrev then
+							abbrevd = _abbrev(raw)
+						else
+							abbrevd = raw
+						end
 						-- strip space before K/M/B/T suffixes e.g. "45.0 K" -> "45.0K"
 						-- only safe on plain strings; secret strings can't be gsub'd
 						if not IsSecret(abbrevd) then

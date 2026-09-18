@@ -54,9 +54,13 @@ local function UpdateStatusBar(unit, uf, f, reset, frac)
 			local ishp = (f.ename == "hpbar")
 			local cur = ishp and cache.curhp or cache.curmp
 			local max = ishp and cache.maxhp or cache.maxmp
-			if max then
+			local maxIsSecret = issecretvalue and issecretvalue(max)
+			if maxIsSecret then
 				nb:SetMinMaxValues(0, max)  -- C handles secret values natively
 				nb:SetValue(cur)            -- C handles secret values natively
+			elseif max then
+				nb:SetMinMaxValues(0, max)
+				nb:SetValue(cur)
 			end
 		end
 		-- refresh coloring using frac from cache (safe normal number)
@@ -549,6 +553,7 @@ end
 
 do  -- Cast Bar -------------------------------------------------------------------------------------------------------
 	local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
+	local issecretvalue = issecretvalue
 	local castunits, lagtime = { }, 0
 	local setftext = BankFrameTitleText.SetFormattedText
 	local timeformat = {
@@ -592,6 +597,11 @@ do  -- Cast Bar ----------------------------------------------------------------
 		local f = castunits[unit]
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime, istrade, castid, notInterruptible = UnitCastingInfo(unit)
+		if issecretvalue(spell) or issecretvalue(startTime) or issecretvalue(endTime)
+			or issecretvalue(castid) or issecretvalue(notInterruptible) then
+			f:Hide()
+			return
+		end
 		if not spell then return end
 		local endS, durS
 		pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
@@ -622,6 +632,11 @@ do  -- Cast Bar ----------------------------------------------------------------
 		local f = castunits[unit]
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unit)
+		if issecretvalue(spell) or issecretvalue(startTime) or issecretvalue(endTime)
+			or issecretvalue(notInterruptible) then
+			f:Hide()
+			return
+		end
 		if not spell then return end
 		local endS, durS
 		pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
@@ -670,6 +685,10 @@ do  -- Cast Bar ----------------------------------------------------------------
 		local f = castunits[unit]
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
+		if issecretvalue(spell) or issecretvalue(startTime) or issecretvalue(endTime) then
+			f:Hide()
+			return
+		end
 		if not startTime then
 			f:Hide()
 		else
@@ -687,6 +706,10 @@ do  -- Cast Bar ----------------------------------------------------------------
 		local f = castunits[unit]
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
+		if issecretvalue(spell) or issecretvalue(startTime) or issecretvalue(endTime) then
+			f:Hide()
+			return
+		end
 		if not startTime then
 			f:Hide()
 		else
@@ -923,20 +946,20 @@ do  -- Threat Bar --------------------------------------------------------------
 					isTanking, status, threatpct = UnitDetailedThreatSituation("player", unit)
 				end
 
-				-- 12.0.1: threatpct and status are secret values.
-				-- pcall does NOT catch taint errors in 12.0.1 — use issecretvalue instead.
+				-- 12.x: threatpct/status may be secret values.
+				-- Check secrecy BEFORE any boolean test, comparison, or arithmetic.
 				local showThreat, frac, isHighThreat = false, 0.01, false
-				if threatpct then
-					local _issecret = _G.issecretvalue
-					if not (_issecret and (_issecret(threatpct) or _issecret(status))) then
-						if threatpct >= 1 then
-							showThreat = true
-							frac = threatpct * 0.01
-							isHighThreat = (status > 0)
-						end
+				local _issecret = _G.issecretvalue
+				local threatIsSecret = _issecret and
+					(_issecret(threatpct) or _issecret(status))
+				if not threatIsSecret and threatpct then
+					if threatpct >= 1 then
+						showThreat = true
+						frac = threatpct * 0.01
+						isHighThreat = (status and status > 0) or false
 					end
-					-- If values are secret (in combat), leave showThreat=false → bar hides silently
 				end
+				-- If values are secret (for example in restricted combat), the bar hides safely.
 				if not showThreat then
 					f:Hide()
 				else
@@ -994,6 +1017,7 @@ if CLS == "SHAMAN" or CLS == "DRUID" or CLS == "DEATHKNIGHT" or CLS == "PALADIN"
 			uf[name] = f
 
 			local GetTotemInfo = GetTotemInfo
+			local issecretvalue = issecretvalue
 			local totcolors = { 
 				{ r=0.8, g=0.6, b=0.4, a=0.8, },  -- earth
 				{ r=1.0, g=0.4, b=0.0, a=0.8, },  -- fire
@@ -1048,9 +1072,6 @@ if CLS == "SHAMAN" or CLS == "DRUID" or CLS == "DEATHKNIGHT" or CLS == "PALADIN"
 				if not f or f.db.hide then return end
 
 				for i = 1, 4, 1 do
-					-- 12.0.1: GetTotemInfo returns secret values for all returns.
-					-- haveTotem (1st return) is a secret boolean — cannot test with 'if'.
-					-- Use icon (a plain string: nil when empty, texture path when active) as proxy.
 					local _, totemName, startTime, duration, icon = GetTotemInfo(i)
 					if config then
 						startTime = GetTime()
@@ -1058,16 +1079,18 @@ if CLS == "SHAMAN" or CLS == "DRUID" or CLS == "DEATHKNIGHT" or CLS == "PALADIN"
 						icon = "Interface\\Icons\\Spell_ChargePositive"
 					end
 					local reorder = (i == 1 and 2) or (i == 2 and 1) or i  -- switch earth and fire
-					if icon and icon ~= "" then  -- safe string check; nil/empty = no totem
+
+					-- 12.x: GetTotemInfo values may become secret when the totem slot is restricted.
+					-- Never boolean-test the icon or do time arithmetic until all used values are plain.
+					if issecretvalue(icon) or issecretvalue(startTime) or issecretvalue(duration) then
+						f[reorder]:Hide()
+					elseif icon and icon ~= "" then
 						local b = f[reorder]
 						local c = totcolors[reorder]
-						-- startTime and duration are secret values; pcall-extract a safe remain
-						-- so that TotemOnUpdate can use safe GetTime() arithmetic thereafter.
-						local safeRemain = i * 20  -- fallback (config mode or pcall failure)
-						pcall(function() safeRemain = startTime + duration - GetTime() end)
+						local safeRemain = startTime + duration - GetTime()
 						if safeRemain < 0.1 then safeRemain = 0.1 end
-						b.endtime = GetTime() + safeRemain  -- safe non-secret value
-						b.duration = 1 / safeRemain          -- safe non-secret value
+						b.endtime = GetTime() + safeRemain
+						b.duration = 1 / safeRemain
 						b.throt = 0.1
 						b.elapsed = 1
 						b.icon:SetTexture(icon)

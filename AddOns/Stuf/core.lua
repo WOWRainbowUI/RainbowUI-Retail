@@ -42,6 +42,22 @@ local function SafeKey(v, default)
 end
 Stuf.SafeKey = SafeKey
 
+-- Convert a possibly-secret boolean-like value to a plain Lua true/nil.
+-- Secret values cannot safely participate in Lua boolean tests.
+local function SafeBool(v)
+	if issecretvalue and issecretvalue(v) then return nil end
+	if v then return true end
+	return nil
+end
+
+-- Preserve secret strings for display-only fields, but avoid testing them in Lua.
+-- For ordinary nil/empty strings, use the supplied fallback.
+local function SafeDisplayString(v, fallback)
+	if issecretvalue and issecretvalue(v) then return v end
+	if v == nil or v == "" then return fallback end
+	return v
+end
+
 Stuf.units = { } -- [unit] = frame
 Stuf.unitcopy = {  -- determines which unit copies which
 	party1="party1", party2="party1", party3="party1", party4="party1",
@@ -87,19 +103,17 @@ local function IsInGroup()
 end
 local function GetUnitName(unit)
 	local name, server = UnitName(unit)
-        local hasServer = false
-        if server then
-		pcall(function()
-			if type(server) == "string" and server ~= "" then
-				hasServer = true
-			end
-		end)
-	end
-	if hasServer then
-		return name..FOREIGN_SERVER_LABEL
-	else
+
+	-- UnitName may return secret strings when unit identity is restricted.
+	-- Never boolean-test, compare, or concatenate a secret name/realm in Lua.
+	if issecretvalue and (issecretvalue(name) or issecretvalue(server)) then
 		return name
 	end
+
+	if server and server ~= "" then
+		return name..FOREIGN_SERVER_LABEL
+	end
+	return name
 end
 local function Disable(f)
 	if not f then return end
@@ -380,9 +394,12 @@ end)
 				cprocess = 2
 				for unit, uf in pairs(metrounits) do
 					if uf:IsShown() then
-						-- 12.0.1: cache.name may be a secret string; pcall-guard the comparison
-						local nameMatch = false
-						pcall(function() nameMatch = (uf.cache.name == GetUnitName(unit)) end)
+						-- cache.name/currentName may be secret strings; do not compare them in Lua.
+						local currentName = GetUnitName(unit)
+						local cachedName = uf.cache.name
+						local namesAreSecret = issecretvalue and
+							(issecretvalue(cachedName) or issecretvalue(currentName))
+						local nameMatch = (not namesAreSecret) and (cachedName == currentName)
 						if not nameMatch then
 							RefreshUnit(config and "player" or unit, uf)
 						else
@@ -832,7 +849,7 @@ do  -- general data updating
 	local UnitInParty, UnitInRaid = UnitInParty, UnitInRaid
 	local UnitRace, UnitCreatureType, UnitReaction = UnitRace, UnitCreatureType, UnitReaction
 	local UnitPVPName, UnitIsPVP, UnitIsPVPSanctuary, UnitIsPVPFreeForAll = UnitPVPName, UnitIsPVP, UnitIsPVPSanctuary, UnitIsPVPFreeForAll
-	local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+	local UnitIsDeadOrGhost, UnitIsGhost = UnitIsDeadOrGhost, UnitIsGhost
 	local StufTT
 	local function UpdateGuild(unit, uf, gt)
 		if uf.cache.pc then
@@ -883,12 +900,15 @@ do  -- general data updating
 		
 		if UnitIsPlayer(unit) then
 			cache.pc = true
-			cache.race = UnitRace(unit) or UnitCreatureType(unit) or L["Humanoid"] or ""
-			cache.titlename = UnitPVPName(unit) or cache.name
-			cache.ingroup = uf.skipgroup or (UnitInParty(unit) or UnitInRaid(unit))
+			cache.race = SafeDisplayString(
+				UnitRace(unit),
+				SafeDisplayString(UnitCreatureType(unit), L["Humanoid"] or "")
+			)
+			cache.titlename = SafeDisplayString(UnitPVPName(unit), cache.name)
+			cache.ingroup = uf.skipgroup or SafeBool(UnitInParty(unit)) or SafeBool(UnitInRaid(unit))
 		else
 			cache.pc = nil
-			cache.race = UnitCreatureType(unit) or _G.UNKNOWN or ""
+			cache.race = SafeDisplayString(UnitCreatureType(unit), _G.UNKNOWN or "")
 			cache.titlename = cache.name
 			cache.ingroup = uf.skipgroup
 		end
@@ -941,11 +961,16 @@ do  -- general data updating
 		-- pcall-wrap each one to safely convert to plain Lua true/nil.
 		-- On pcall failure the cache key retains its previous value (safe stale fallback).
 		
-		-- Creature type: secret string — pcall-guard the "Not specified" string comparison
-		pcall(function()
-			local ct = UnitCreatureType(unit) or _G.UNKNOWN
-			cache.creaturetype = (ct == "Not specified" and _G.UNKNOWN) or ct
-		end)
+		-- Creature type may be a secret string. Preserve it for display, but only
+		-- compare ordinary strings to the legacy "Not specified" value.
+		local ct = SafeDisplayString(UnitCreatureType(unit), _G.UNKNOWN)
+		if issecretvalue and issecretvalue(ct) then
+			cache.creaturetype = ct
+		elseif ct == "Not specified" then
+			cache.creaturetype = _G.UNKNOWN
+		else
+			cache.creaturetype = ct
+		end
 		
 		-- Convert secret boolean to plain true/nil.
 		-- CANNOT use pcall for boolean tests in 12.0.1 -- taint errors escape pcall.
@@ -958,7 +983,8 @@ do  -- general data updating
 		end
 		
 		cache.pvp = toBool(UnitIsPVP(unit))
-		cache.faction = (cache.pvp and UnitFactionGroup(unit)) or ""
+		cache.faction = cache.pvp and SafeDisplayString(UnitFactionGroup(unit), "") or ""
+		if issecretvalue and issecretvalue(cache.faction) then cache.faction = "" end
 		cache.incombat = toBool(UnitAffectingCombat(unit))
 		
 		-- cache.ingroup is always a plain bool; short-circuit avoids calling UnitCanAssist on a secret result
@@ -1032,12 +1058,17 @@ do  -- general data updating
 		uf = uf or su[unit]
 		if not uf or uf.hidden then return end
 		local cache = uf.cache
-		-- Store raw secret values - NO arithmetic or comparisons on them
-		local current, total = UnitHealth(unit), UnitHealthMax(unit)
+		-- Store raw secret values - NO arithmetic or comparisons on them.
+		-- In ghost form some clients report a small non-zero HP value/percent.
+		-- Stuf historically treats dead/ghost health as empty, so normalize only
+		-- the ghost state here; ordinary death already reports 0 correctly.
+		local isGhost = UnitIsGhost(unit)
+		local total = UnitHealthMax(unit)
+		local current = isGhost and 0 or UnitHealth(unit)
 		cache.curhp = current
 		cache.maxhp = total
 		local _scale = (CurveConstants and CurveConstants.ScaleTo100) or true
-		local rawpct = UnitHealthPercent(unit, false, _scale)
+		local rawpct = isGhost and 0 or UnitHealthPercent(unit, false, _scale)
 		local pok, pfrac = pcall(function() return rawpct * 0.01 end)
 		cache.frachp = pok and pfrac or (cache.frachp or 1)
 		cache.perchp = cache.frachp * 100

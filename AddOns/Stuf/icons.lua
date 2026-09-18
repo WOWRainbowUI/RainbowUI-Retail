@@ -286,6 +286,10 @@ do  -- General Icons -----------------------------------------------------------
 		[8] = {0.75, 1,    0.5, 1},    -- Skull
 	}
 	local function SetRaidTargetIcon(icon, index)
+		if issecretvalue(index) then
+			icon:Hide()
+			return
+		end
                 if type(index) ~= "number" then return end
 		
 		local c = nil
@@ -313,7 +317,9 @@ do  -- General Icons -----------------------------------------------------------
 			local icon = uf.raidtargeticon
 			if icon and not icon.db.hide then
 				local iconindex = GetRaidTargetIndex(unit)
-				if iconindex then
+				if issecretvalue(iconindex) then
+					icon:Hide()
+				elseif iconindex then
 					SetRaidTargetIcon(icon, iconindex)
 				else
 					icon:Hide()
@@ -324,7 +330,9 @@ do  -- General Icons -----------------------------------------------------------
 				local icon = uf.raidtargeticon
 				if icon and not icon.db.hide then
 					local iconindex = GetRaidTargetIndex(unit)
-					if iconindex then
+					if issecretvalue(iconindex) then
+						icon:Hide()
+					elseif iconindex then
 						SetRaidTargetIcon(icon, iconindex)
 					else
 						icon:Hide()
@@ -438,10 +446,13 @@ do  -- General Icons -----------------------------------------------------------
 						if Stuf.ingroup then
 							role = UnitGroupRolesAssigned(u)
 						end
-						if not config and (not role or role == "NONE") then
+						if issecretvalue(role) then
+							f:Hide()
+						elseif not config and (not role or role == "NONE") then
 							f:Hide()
 						else
-							local c = roleCoords[role ~= "NONE" and role or "TANK"] or roleCoords["TANK"]
+							local roleKey = (role and role ~= "NONE") and role or "TANK"
+							local c = roleCoords[roleKey] or roleCoords["TANK"]
 							local l, r, t, b = c[1], c[2], c[3], c[4]
 							if not f.db.circular then
 								local offset1, offset2 = (r - l) * .2, (b - t) * .2
@@ -592,13 +603,22 @@ end
 
 
 do  -- Combo Points ---------------------------------------------------------------------------------------------------
-	local GetComboPoints = GetComboPoints
+	local UnitPower = UnitPower
+	local issecretvalue = issecretvalue
+	local COMBO_POINTS = (Enum and Enum.PowerType and Enum.PowerType.ComboPoints) or 4
 	local function UpdateFrameCombo(unit, uf, config)
 		if not config and not UnitExists(unit) then return end
 		uf = uf or su[unit]
 		local f = uf and not uf.hidden and uf.comboframe
 		if not f or f.db.hide then return end
-		local points = (config and 6) or GetComboPoints(Stuf.vunit, unit)
+		local points = (config and 6) or UnitPower(Stuf.vunit, COMBO_POINTS)
+		-- WoW 12.x: UnitPower may still return a secret number on a tainted/restricted path.
+		-- Secret numbers cannot be compared or used in arithmetic, so hide this custom
+		-- combo-point frame until the value becomes accessible again.
+		if issecretvalue(points) then
+			f:Hide()
+			return
+		end
 		if points > 0 then
 			if f.individual then
 				for i = 1, 6, 1 do
