@@ -1,5 +1,5 @@
-## Interface: 11508, 11509, 20505, 20506, 30405, 38001, 40402, 50503, 50504, 120100, 120005, 120007
-## Version: v12.0.13
+## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 120100, 120105, 120007
+## Version: v12.1.1
 ## Title: BugSack
 ## Notes: Toss those bugs inna sack.
 ## Notes-deDE: Werft den Fehler in einen Sack.
@@ -40,7 +40,8 @@
 
 embeds.xml
 
-retail.lua [AllowLoadGameType mainline]
+retail.lua [AllowLoadGameType standard]
+forever.lua [ExcludeLoadGameType standard, classic][AllowLoadGameType camelot]
 locales.lua
 core.lua
 sack.lua
