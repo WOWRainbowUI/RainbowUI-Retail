@@ -1,8 +1,11 @@
 ---@class addonTableCoolinator
 local addonTable = select(2, ...)
 
+local build = select(4, GetBuildInfo())
+
 addonTable.Constants = {
-  IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
+  IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and build >= 120000,
+  IsForever = build >= 16000 and build < 20000,
   IsMists = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC,
   --IsCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC,
   IsWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC,
@@ -21,6 +24,7 @@ addonTable.Constants = {
 
   GCD = 61304,
 }
+addonTable.Constants.IsClassic = addonTable.Constants.IsClassic and not addonTable.Constants.IsForever
 addonTable.Constants.Events = {
   "SettingChanged",
   "RefreshStateChange",
@@ -330,4 +334,6 @@ addonTable.Constants.AuraStackOverrides = {
   [81340] = 2, -- Death Knight (Unholy): Sudden Doom
   [49530] = 2, -- Death Knight (Unholy): Sudden Doom
   [51128] = 2, -- Death Knight (Frost): Killing Machine
+  [203981] = 6, -- Demon Hunter (Vengeance): Soul Shards
+  [1227619] = 12, -- Demon Hunter (Devourer): Soul Shards
 }

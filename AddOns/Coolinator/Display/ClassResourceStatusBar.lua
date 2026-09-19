@@ -365,6 +365,66 @@ local function GenerateComboPipResource(secondaryResource, label)
   end
 end
 
+local function GenerateComboPipResourceClassic(secondaryResource, label)
+  addonTable.Display.ClassResourceStatusBar[label] = {}
+  local mixin = addonTable.Display.ClassResourceStatusBar[label]
+
+  function mixin:OnLoad()
+    self:SetIgnoringChildrenForBounds(true)
+    addonTable.Display.GenerateStatusBar(self)
+  end
+
+  function mixin:OnEvent(eventName, ...)
+    self:Import()
+  end
+
+  function mixin:Setup(details)
+    self:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+    self:RegisterUnitEvent("UNIT_MAXPOWER", "player")
+    self:RegisterEvent("PLAYER_TARGET_CHANGED")
+
+    self.rawWidth, self.rawHeight, self.borderWidth, self.borderHeight, self.lowerScale = addonTable.Display.ApplyStatusBar(details, self.statusBar, self.border, self.borderMask, self.background)
+    self.details = details
+    self.index = details.index
+    self.statusBar:SetMinMaxValues(self.index - 1, self.index)
+    self.statusBar:GetStatusBarTexture():SetVertexColor(self.details.foreground.color.r, self.details.foreground.color.g, self.details.foreground.color.b)
+
+    self.border:SetVertexColor(self.details.border.color.r, self.details.border.color.g, self.details.border.color.b)
+    self.borderWrapper:SetFrameLevel(self.statusBar:GetFrameLevel() + 2)
+
+    self:Import()
+  end
+
+  function mixin:Disable()
+    self:UnregisterAllEvents()
+  end
+
+  function mixin:Import()
+    local max = UnitPowerMax("player", secondaryResource)
+    local current = GetComboPoints("player", "target")
+
+    if max < self.index then
+      self:Hide()
+      return
+    end
+    self:Show()
+
+    if not self.details.showEmpty then
+      self.statusBar:SetAlpha(current)
+    end
+    self.statusBar:SetValue(current)
+  end
+
+  mixin.ApplySize = SizeStatusBar
+  mixin.ApplyPadding = PadStatusBar
+  mixin.GetDefaultSize = GetDefaultSize
+  mixin.GetApplicableSize = GetApplicableSize
+
+  function mixin:ShouldCollapse()
+    return true
+  end
+end
+
 local function GenerateEssenceResource(label)
   local secondaryResource = Enum.PowerType.Essence
   local divisor = 1
@@ -584,7 +644,11 @@ GenerateBarForResource(Enum.PowerType.LunarPower, "astral-power")
 GenerateBarForResource(Enum.PowerType.Maelstrom, "maelstrom")
 GeneratePipResource(Enum.PowerType.SoulShards, "soul-shards", 10)
 GeneratePipResource(Enum.PowerType.HolyPower, "holy-power")
-GenerateComboPipResource(Enum.PowerType.ComboPoints, "combo-points")
+if addonTable.Constants.IsForever then
+  GenerateComboPipResourceClassic(Enum.PowerType.ComboPoints, "combo-points")
+else
+  GenerateComboPipResource(Enum.PowerType.ComboPoints, "combo-points")
+end
 GeneratePipResource(Enum.PowerType.Chi, "chi")
 GeneratePipResource(Enum.PowerType.ArcaneCharges, "arcane-charges")
 GenerateEssenceResource("essence")

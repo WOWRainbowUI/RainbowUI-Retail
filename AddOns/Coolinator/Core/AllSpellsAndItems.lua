@@ -116,7 +116,7 @@ function addonTable.Core.GetAllSpellBookAbilities(seen)
   local className = UnitClass("player")
   for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
     local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
-    if skillLineInfo.name == className or skillLineInfo.specID == specID then
+    if skillLineInfo.name == className or skillLineInfo.specID == specID or addonTable.Constants.IsForever then
       local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
       for j = offset+1, offset+numSlots do
         local info = C_SpellBook.GetSpellBookItemInfo(j, Enum.SpellBookSpellBank.Player)
@@ -149,15 +149,17 @@ end
 function addonTable.Core.GetAllAbilities()
   local result = addonTable.Core.GetAllClassAbilities()
 
-  local seen = {}
+  if addonTable.Constants.IsRetail then
+    local seen = {}
 
-  local skyridingFlyoutID = 229
-  local _, _, skyridingSpellCount = GetFlyoutInfo(skyridingFlyoutID)
-  for i = 1, skyridingSpellCount do
-    local spellID, _, isKnown = GetFlyoutSlotInfo(skyridingFlyoutID, i)
-    if spellID and isKnown and not C_Spell.IsSpellPassive(spellID) and not seen[spellID] then
-      table.insert(result, spellID)
-      seen[spellID] = true
+    local skyridingFlyoutID = 229
+    local _, _, skyridingSpellCount = GetFlyoutInfo(skyridingFlyoutID)
+    for i = 1, skyridingSpellCount do
+      local spellID, _, isKnown = GetFlyoutSlotInfo(skyridingFlyoutID, i)
+      if spellID and isKnown and not C_Spell.IsSpellPassive(spellID) and not seen[spellID] then
+        table.insert(result, spellID)
+        seen[spellID] = true
+      end
     end
   end
 
