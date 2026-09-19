@@ -681,11 +681,13 @@ function BBF.HideFrames()
             TargetFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetParent(hiddenFrame)
             PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PVPIcon:SetParent(hiddenFrame)
             FocusFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetParent(hiddenFrame)
+            BBF.SetPvpBadgeShown(false)
         elseif changes.hidePvpIcon then
             changes.hidePvpIcon = nil
             TargetFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetParent(TargetFrame.TargetFrameContent.TargetFrameContentContextual)
             PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PVPIcon:SetParent(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual)
             FocusFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetParent(FocusFrame.TargetFrameContent.TargetFrameContentContextual)
+            BBF.SetPvpBadgeShown(true)
         end
 
         -- Hide role icons
@@ -924,16 +926,15 @@ function BBF.HideFrames()
         end
 
         if db.hideExpAndHonorBar then
-            MainStatusTrackingBarContainer:SetParent(hiddenFrame)
-            SecondaryStatusTrackingBarContainer:SetParent(hiddenFrame)
+            StatusTrackingBarManager:SetAlpha(0)
             if not BBF.hideExpAndHonorBar then
                 CharacterFrame:HookScript("OnShow", function()
-                    MainStatusTrackingBarContainer:SetParent(StatusTrackingBarManager)
-                    SecondaryStatusTrackingBarContainer:SetParent(StatusTrackingBarManager)
+                    StatusTrackingBarManager:SetAlpha(1)
                 end)
                 CharacterFrame:HookScript("OnHide", function()
-                    MainStatusTrackingBarContainer:SetParent(hiddenFrame)
-                    SecondaryStatusTrackingBarContainer:SetParent(hiddenFrame)
+                    if BetterBlizzFramesDB.hideExpAndHonorBar then
+                        StatusTrackingBarManager:SetAlpha(0)
+                    end
                 end)
                 BBF.hideExpAndHonorBar = true
             end
