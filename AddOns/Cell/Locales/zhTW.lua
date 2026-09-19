@@ -162,7 +162,7 @@ L["Color"] = "顏色"
 L["Color By"] = "著色"
 L["Color by Remaining Time"] = "按照持續時間上色"
 L["Color Duration Text"] = "著色持續時間文字"
-L["Color Thresholds"] = "顏色閥值"
+L["Color Thresholds"] = "顏色閾值"
 L["Columns"] = "列數"
 L["Combat Icon"] = "戰鬥圖示"
 L["Combine Groups"] = "合併隊伍"
@@ -640,6 +640,8 @@ L["Cooldown Animation"] = "冷卻動畫"
 L["Border Countdown"] = "外框倒數"
 L["Clock Sweep"] = "時鐘掃描"
 L["Falling Shadow"] = "陰影下落"
+-- fix from MiliUI: per-indicator icon ring colour
+L["By Aura Type"] = "依光環類型"
 L["showBackground"] = "顯示背景"
 L["showDuration"] = "顯示持續時間文字"
 L["showGroupNumber"] = "顯示隊伍編號"
@@ -781,6 +783,9 @@ L["You can config debuffs in %s"] = "你可以在 %s 中設定減益法術"
 L["You can move it in Preview mode"] = "可以在 \"預覽\" 模式中移動它"
 L["You can't do that while in combat."] = "你不可以在戰鬥中這麼做。"
 L["You don't have permission to do this"] = "你沒有權限這樣做"
+
+-- fix from MiliUI: 分享按鈕不再自己開聊天輸入框
+L["Open the chat edit box first (press Enter), then click Share."] = "請先按 Enter 打開聊天輸入框，再按分享。"
 
 -- 自行加入
 L["Hide in Combat"] = "戰鬥中隱藏"
