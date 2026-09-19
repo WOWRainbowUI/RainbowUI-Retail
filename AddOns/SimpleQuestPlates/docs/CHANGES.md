@@ -1,4 +1,11 @@
-﻿# v2.1.4 - 2026-08-08
+﻿# v2.1.5 - 2026-09-17
+
+## Changes
+- Added WoW Forever Beta `1.60.1.69893` compatibility at Interface `120007`.
+- Added the `C_TaskQuest.GetQuestsOnMap` fallback used by Forever's Retail-style task API.
+- Synced the runtime version with the TOC metadata.
+
+# v2.1.4 - 2026-08-08
 
 ## Changes
 - **RGX-Framework DB migration**: `SQPSettings` → `RGX:NewDatabase("SQPSettings", ...)` with `profileIsGlobal = true`

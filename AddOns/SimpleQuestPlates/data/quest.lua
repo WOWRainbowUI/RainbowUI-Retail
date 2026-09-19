@@ -742,14 +742,15 @@ end
 
 -- Load world quests for current zone
 function SQP:LoadWorldQuests()
-    -- World quests don't exist in MoP Classic
-    if not C_TaskQuest or not C_TaskQuest.GetQuestsForPlayerByMapID then
+    -- Classic beta builds can expose the Retail task API under this name.
+    local getMapTasks = C_TaskQuest and (C_TaskQuest.GetQuestsForPlayerByMapID or C_TaskQuest.GetQuestsOnMap)
+    if not getMapTasks then
         return
     end
     
     local uiMapID = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit('player')
     if uiMapID then
-        for _, task in pairs(C_TaskQuest.GetQuestsForPlayerByMapID(uiMapID) or {}) do
+        for _, task in pairs(getMapTasks(uiMapID) or {}) do
             if task.inProgress then
                 local questID = task.questID or task.questId  -- Handle both cases
                 if questID then
