@@ -139,6 +139,7 @@ local skinners = {
 
 local function SetConstants()
   addonTable.Constants.ButtonFrameOffset = 0
+  addonTable.Constants.ButtonFrameOffsetTop = 0
 end
 
 local function SkinFrame(details)
