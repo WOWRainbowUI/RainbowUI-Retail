@@ -424,10 +424,8 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "当启用时，滚动计量条使用�
 L["STRING_OPTIONS_APPEARANCE"] = "外观"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "标题文本设置"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "这些选项控制窗口的标题文本。"
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter or leave a raid or dungeon."
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "自动开始战斗日志"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "当你进入或离开团队副本或地下城时，自动开始和停止向 combatlog.txt 文件记录战斗日志。"
 L["STRING_OPTIONS_AUTO_SWITCH"] = "所有角色 |cFFFFAA00(战斗中)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(战斗中)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "使用伤害输出专精时，窗口将自动显示此属性或插件。"
@@ -856,16 +854,11 @@ L["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "这些选项是负责分析和�
 L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "性能配置："
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "插件图标方向"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "改变这些插件图标显示在工具栏上的方向。"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
---[[Translation missing --]]
-L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
+L["STRING_OPTIONS_PLAYERNAME"] = "玩家名称"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "自动对齐"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "仅当你遇到玩家名称对齐问题时才禁用此功能。"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "长度自动"
+L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "长度"
 L["STRING_OPTIONS_PLUGINS"] = "插件"
 L["STRING_OPTIONS_PLUGINS_AUTHOR"] = "作者"
 L["STRING_OPTIONS_PLUGINS_NAME"] = "名字"
@@ -1024,8 +1017,7 @@ L["STRING_OPTIONS_SCROLLBAR_DESC"] = [=[启用或禁用滚动条。
  |cFFFFFF00拉伸处理|r 超出了窗口键/菜单（关闭按钮左边）。]=]
 L["STRING_OPTIONS_SEGMENTSSAVE"] = "存储片段"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "这些选项控制你想要在游戏登录会话之间保存多少个片段。较高的值可能会增加角色注销时所需的时间。"
---[[Translation missing --]]
-L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "选择模版"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "反馈"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "显示边框"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "显示或隐藏窗口边框。"
@@ -1111,10 +1103,8 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "文本轮廓"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "右文本："
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "启用或禁用右边文字的下划线。"
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "图标："
---[[Translation missing --]]
-L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
---[[Translation missing --]]
-L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "阴影颜色"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "阴影偏移 %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "括号"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "选择哪个字符是用来打开和关闭每秒和百分比块。"
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "显示百分比"
@@ -1185,10 +1175,8 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "选择背景上使用的颜
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "更改边框颜色"
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "更改边框大小"
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "修改边框纹理文件"
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "禁用鼠标提示"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "禁用选定窗口的鼠标提示。"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "文字颜色"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "更改提示文本上使用的颜色"
 L["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "文字字体"
@@ -1329,8 +1317,7 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "提示"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "壁纸"
 L["STRING_OPTIONSMENU_WINDOW"] = "窗口设置"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "视窗设定"
---[[Translation missing --]]
-L["STRING_OR"] = "Or"
+L["STRING_OR"] = "或"
 L["STRING_OVERALL"] = "总体"
 L["STRING_OVERHEAL"] = "过量治疗"
 L["STRING_OVERHEALED"] = "过量治疗的"
