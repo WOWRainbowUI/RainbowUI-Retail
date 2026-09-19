@@ -1,4 +1,7 @@
-﻿12.1.04 - 9th September 2026
+﻿12.1.05 - 16th September 2026
+- The 'Travelers' setting for 'Mute mount sounds' ('System') now applies to the Hearthkeeper's Wandering Caravan mount too.
+
+12.1.04 - 9th September 2026
 - The 'Hide alerts' option ('Frames') now applies to decor item toasts too.
 - PTR (12.1.5): Updated for game patch 12.1.5.
 
