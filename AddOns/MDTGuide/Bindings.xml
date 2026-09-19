@@ -12,7 +12,7 @@
         MDTG.ChangeCurrentPullBy(-1)
     </Binding>
     <Binding name="MDTGuide_CurrPull_Permanent" Category="BINDING_HEADER_MDTGuide">
-        MDTG.SetCurrentPull(MDT:GetCurrentPreset().value.currentPull, true)
+        MDTG.SetCurrentPull(MDTG.GetSelectedPull(), true)
     </Binding>
     <Binding name="MDTGuide_NextPull_Permanent" Category="BINDING_HEADER_MDTGuide">
         MDTG.ChangeCurrentPullBy(1, true)

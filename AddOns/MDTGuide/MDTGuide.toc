@@ -1,12 +1,13 @@
-## Interface: 120005
+## Interface: 120100
 ## Title: MDTGuide
 ## Notes: Guide mode for Mythic Dungeon Tools.
 ## Notes-deDE: Guide-Modus für Mythic Dungeon Tools.
-## Version: 2.07
+## Version: 2.08
 ## Dependencies: MythicDungeonTools
 ## SavedVariables: MDTGuideDB, MDTGuideActive, MDTGuideOptions
 
 Bindings.lua
+Bridge.lua
 Data.lua
 Util.lua
 Main.lua

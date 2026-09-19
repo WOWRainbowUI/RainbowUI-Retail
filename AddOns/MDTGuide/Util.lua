@@ -1,6 +1,18 @@
 ---@class Addon
 local Addon = select(2, ...)
 
+-- Filled in by Bridge.lua once MythicDungeonTools_UI has loaded.
+---@type table
+local MDT
+
+Addon.OnMDTReady(function (mdt) MDT = mdt end)
+
+---MDT's currently selected pull, or nil if MDT is not available yet.
+---@return number?
+function Addon.GetSelectedPull()
+    return MDT and MDT:GetCurrentPreset().value.currentPull
+end
+
 function Addon.IsNPC(guid)
     return guid and guid:sub(1, 8) == "Creature"
 end
