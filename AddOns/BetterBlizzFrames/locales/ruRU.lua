@@ -612,6 +612,7 @@ L["Profile_Confirmation_Text"] = "Это действие удалит все н
 L["Profile_Confirmation_Text_Intro"] = "Вы уверены, что хотите использовать %s?\n\n%sНажмите «Да», чтобы применить его и перезагрузить интерфейс."
 L["Profile_Label"] = "Профиль «%s»"
 L["Profile_Mythic_Desc"] = "Отличный сбалансированный профиль от |cffc79c6eJovelo|r, улучшающий стандартные рамки юнитов Blizzard.\n\nПодходит для любого контента."
+L["Profile_Forever_Desc"] = "Очень простой профиль в стиле Classic для быстрого старта в WoW Forever!"
 L["Profile_Starter_Desc"] = "Базовый стартовый профиль, который включает только самое необходимое.\n\nЗадуман как очень минимальный быстрый старт, который можно дорабатывать."
 L["Profile_Streamer_Desc"] = "Включает все настройки профиля %s."
 L["Tooltip_Exit_No_Profile"] = "Выйти и настроить все самостоятельно."
@@ -1390,7 +1391,7 @@ L["Tooltip_Change_Party_Font_Color_Desc"] = "Изменяет цвет шриф�
 L["Tooltip_Change_ActionBar_Font_Color_Desc"] = "Изменяет цвет шрифта на панелях команд.\n\nПравый клик, чтобы изменить цвет."
 L["Tooltip_Charges_Font_Desc"] = "Также изменить шрифт зарядов."
 L["Tooltip_Change_UnitFrame_Healthbar_Texture_RightClick_Desc"] = "Изменяет текстуру полосы здоровья на игроке, цели, фокусе и т. п.\n\n|cff32f795Правый клик, чтобы также изменить текстуру за именем.|r"
-L["Tooltip_Hide_UI_Error_Frame_Desc"] = "Скрывает окно ошибок интерфейса (красный текст вроде \"Недостаточно маны\" и т. п.)"
+L["Tooltip_Hide_UI_Error_Frame_Desc"] = "Скрывает окно ошибок интерфейса (красный текст вроде \"Недостаточно маны\" и т. п.\n\nПРИМЕЧАНИЕ: Также отключаются голосовые звуки ошибок.)"
 L["Tooltip_Hide_Threat_Meter_Desc"] = "Скрывает индикатор угрозы на рамках цели и фокуса."
 L["Tooltip_Recolor_Castbars_Desc"] = "Изменяет цвет полосы заклинания на игроке, цели, фокусе и т. п."
 L["Tooltip_Change_UnitFrame_Font_Etc_Desc"] = "Изменяет шрифт на игроке, цели, фокусе и т. п."
@@ -1599,3 +1600,17 @@ L["Highlight_Style_Glow_Mark"] = "Метка свечения"
 L["Highlight_Style_Cursor"] = "Курсор"
 L["Highlight_Style_Zoom"] = "Увеличение"
 L["Module_Name_Support"] = "Поддержка"
+
+---------------------------------------
+-- WoW: Forever
+---------------------------------------
+
+L["Forever_Tweaks"] = "Доработки Forever"
+L["Bronze_Tint_Classic_Frames"] = "Бронзовый оттенок классических рамок"
+L["Tooltip_Bronze_Tint_Classic_Frames_Desc"] = "Придаёт границам классических рамок юнитов бронзовый оттенок WoW: Forever.\n\nТребуются классические рамки. Темный режим имеет приоритет, если включен."
+L["Remove_ActionBar_Bronze_Tint"] = "Убрать бронзовый оттенок с панелей команд"
+L["Tooltip_Remove_ActionBar_Bronze_Tint_Desc"] = "Обесцвечивает оформление панелей команд, убирая бронзовый оттенок WoW: Forever.\n\nТемный режим для панелей команд имеет приоритет, если включен."
+L["Forever_In_Development"] = "В разработке..."
+L["Forever_In_Development_Desc"] = "Версия BetterBlizzFrames для WoW: Forever активно разрабатывается. Ожидайте ошибок и, пожалуйста, сообщайте о них, чтобы мне было проще их исправить! Спасибо!\n\n- Bodify"
+L["Forever_Blizzard_Bug"] = "Ошибка Blizzard:"
+L["Forever_Blizzard_Bug_Desc"] = "В бете Forever есть ошибка Blizzard, из-за которой настройки неправильно сохраняются/загружаются. Некоторые сообщают об (временном?) успехе после выхода из игры, удаления файлов SavedVariables и повторной попытки. Придётся подождать, пока Blizzard это исправит.\n\nПрисоединяйтесь к Discord, чтобы узнавать новости и подробности о ситуации:"
