@@ -3,6 +3,11 @@ local Name = ...
 ---@class Addon
 local Addon = select(2, ...)
 
+-- MDT no longer publishes a global, so this is filled in by Bridge.lua once
+-- MythicDungeonTools_UI has loaded. Until then it is nil and guide mode is off.
+---@type table
+local MDT
+
 MDTG = Addon
 MDTGuideDB = {
     active = false,
@@ -83,7 +88,13 @@ function Addon.EnableGuideMode(noZoom)
     f:SetHeight(16)
 
     -- Adjust bottom panel
-    main.bottomPanel:SetHeight(20)
+    -- MDT extends it to the left to sit under the navigation sidebar, which
+    -- guide mode hides, so pull it back to the window edge.
+    f = main.bottomPanel
+    f:ClearAllPoints()
+    f:SetPoint("TOPLEFT", main, "BOTTOMLEFT")
+    f:SetPoint("TOPRIGHT", main, "BOTTOMRIGHT")
+    f:SetHeight(20)
 
     -- Adjust side panel
     f = main.sidePanel
@@ -150,7 +161,11 @@ function Addon.DisableGuideMode()
     w:SetHeight(24)
 
     -- Reset bottom panel
-    main.bottomPanel:SetHeight(30)
+    w = main.bottomPanel
+    w:ClearAllPoints()
+    w:SetPoint("TOPLEFT", main, "BOTTOMLEFT", -MDT:GetNavigationSidebarWidth(), 0)
+    w:SetPoint("TOPRIGHT", main, "BOTTOMRIGHT")
+    w:SetHeight(30)
 
     -- Reset side panel
     w = main.sidePanel
@@ -205,6 +220,8 @@ function Addon.DisableGuideMode()
 end
 
 function Addon.ToggleGuideMode()
+    if not Addon.RequireMDT() then return end
+
     if MDTGuideDB.active then
         Addon.DisableGuideMode()
     else
@@ -258,10 +275,9 @@ function Addon.ToggleHideFrames()
         main.sidePanel.ProgressBar,
         main.toolbar.toggleButton,
         main.maximizeButton,
-        main.HelpButton,
-        main.DungeonSelectionGroup,
         main.seasonSelectionGroup,
-        main.externalButtonGroup
+        main.externalButtonGroup,
+        main.navigationSidebar
     }
 
     for _, f in pairs(hideFrames) do
@@ -658,9 +674,11 @@ end
 -- ---------------------------------------
 
 function Addon.SetCurrentPull(n, permanent)
+    if not Addon.RequireMDT() then return end
+
     local pulls = Addon.GetCurrentPulls()
 
-    if n < 1 or n > #pulls then return end
+    if not n or n < 1 or n > #pulls then return end
 
     if permanent then
         local trash, bosses = 0, 0
@@ -686,6 +704,8 @@ function Addon.SetCurrentPull(n, permanent)
 end
 
 function Addon.ChangeCurrentPullBy(by, permanent)
+    if not Addon.RequireMDT() then return end
+
     local n = MDT:GetCurrentPreset().value.currentPull or #Addon.GetCurrentPulls()
     Addon.SetCurrentPull(n + by, permanent)
 end
@@ -734,12 +754,311 @@ end
 -- ---------------------------------------
 
 function Addon.IsActive()
-    local main = MDT.main_frame
+    local main = MDT and MDT.main_frame
     return MDTGuideDB.active and main and main:IsShown()
 end
 
 function Addon.IsInRun()
     return Addon.IsActive() and Addon.IsCurrentInstance() and Addon.GetEnemyForces() > 0 and true
+end
+
+-- ---------------------------------------
+--               MDT hooks
+-- ---------------------------------------
+
+---Install every hook guide mode needs into MDT.
+---Called once from the Addon.OnMDTReady callback at the bottom of this file:
+---MDT's UI addon is load-on-demand, so its table does not exist yet when
+---MDTGuide loads and none of these methods can be hooked at that point.
+function Addon.InstallHooks()
+    
+
+    -- Hook showing interface
+    local initialized = false
+
+    hooksecurefunc(MDT, "UpdateBottomText", function()
+        if initialized then return end
+        initialized = true
+
+        local main = MDT.main_frame
+
+        -- Insert toggle button
+        if not toggleBtn then
+            ---@type MaximizeMinimizeButtonFrame
+            local f = CreateFrame("Button", nil, MDT.main_frame, "MaximizeMinimizeButtonFrameTemplate")
+            f[MDTGuideDB.active and "Minimize" or "Maximize"](f)
+            f:SetOnMaximizedCallback(function() Addon.DisableGuideMode() end)
+            f:SetOnMinimizedCallback(function() Addon.EnableGuideMode() end)
+            f:Show()
+
+            f:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
+            main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
+
+            main.sidePanel.WidgetGroup.PresetDropDown.frame:SetWidth(145)
+
+            toggleBtn = f
+        end
+
+        if not announceBtn then
+            ---@type SquareIconButton
+            local f = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
+            f:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Up")
+            f:SetDisabledTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Disabled")
+            f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+            f:SetFrameLevel(4)
+            f:SetHeight(13)
+            f:SetWidth(13)
+            f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+            f:SetScript("OnClick", function(_, btn)
+                if btn == "RightButton" then
+                    Addon.AnnounceNextPulls()
+                else
+                    Addon.AnnounceSelectedPulls()
+                end
+            end)
+            f:SetScript("OnLeave", GameTooltip_Hide)
+            f:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                GameTooltip:AddLine("Announce selected pulls")
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("|cffeda55fRight-click:|r Also announce following pulls", 0.2, 1, 0.2)
+                if not IsInGroup() then
+                    GameTooltip:AddLine("(Shows preview while not in a group)", 0.7, 0.7, 0.7, true)
+                end
+                GameTooltip:Show()
+            end)
+
+            f:SetPoint("RIGHT", toggleBtn, "LEFT", -5, 0)
+            f:Hide()
+
+            announceBtn = f
+        end
+
+        -- Insert current pull button
+        if not currBtn then
+            ---@type SquareIconButton
+            local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+            -- f:SetNormalTexture("Interface\\Buttons\\LockButton-Unlocked-Up")
+            -- f:SetPushedTexture("Interface\\Buttons\\LockButton-Unlocked-Down")
+            f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
+            f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
+            f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
+            f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+            f:SetFrameLevel(4)
+            f:SetHeight(21)
+            f:SetWidth(21)
+            f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+            f:SetScript("OnClick", function(_, btn)
+                if btn == "RightButton" then
+                    Addon.SetCurrentPull(MDT:GetCurrentPreset().value.currentPull, true)
+                else
+                    if IsShiftKeyDown() then Addon.SetEnemyForcesOffsets() end
+                    Addon.ZoomToCurrentPull()
+                end
+            end)
+            f:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                GameTooltip:AddLine("Go to current pull")
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to selected pull", 0.2, 1, 0.2)
+                GameTooltip:AddLine("|cffeda55fShift-click:|r Reset current pull to raw dungeon progress", 0.2, 1, 0.2)
+                GameTooltip:Show()
+            end)
+            f:SetScript("OnLeave", GameTooltip_Hide)
+
+            f:SetPoint("LEFT", MDT.main_frame.bottomPanel, "RIGHT", 90, 0)
+            f:Hide()
+
+            currBtn = f
+        end
+
+        if not prevBtn then
+            ---@type SquareIconButton
+            local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+            f:SetNormalTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Up")
+            f:SetPushedTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Down")
+            f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Disabled")
+            f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+            f:RotateTextures(math.rad(90))
+            f:SetFrameLevel(4)
+            f:SetHeight(21)
+            f:SetWidth(21)
+            f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+            f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(-1, btn == "RightButton") end)
+            f:SetScript("OnLeave", GameTooltip_Hide)
+            f:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                GameTooltip:AddLine("Go to previous pull")
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to previous pull", 0.2, 1, 0.2)
+                GameTooltip:Show()
+            end)
+
+            f:SetPoint("RIGHT", currBtn, "LEFT", -1, 0)
+            f:Hide()
+
+            prevBtn = f
+        end
+
+        if not nextBtn then
+            ---@type SquareIconButton
+            local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+            f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
+            f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
+            f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
+            f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+            f:RotateTextures(math.rad(90))
+            f:SetFrameLevel(4)
+            f:SetHeight(21)
+            f:SetWidth(21)
+            f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+            f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(1, btn == "RightButton") end)
+            f:SetScript("OnLeave", GameTooltip_Hide)
+            f:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                GameTooltip:AddLine("Go to next pull")
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to next pull", 0.2, 1, 0.2)
+                GameTooltip:Show()
+            end)
+
+            f:SetPoint("LEFT", currBtn, "RIGHT", 1, 0)
+            f:Hide()
+
+            nextBtn = f
+        end
+
+        hooksecurefunc(main, "Show", function ()
+            if not MDTGuideDB.active then return end
+            Addon.ToggleHideFrames()
+        end)
+
+        if MDTGuideDB.active then
+            MDTGuideDB.active = false
+            Addon.EnableGuideMode(true)
+        end
+    end)
+
+    -- Hook maximize/minimize
+    hooksecurefunc(MDT, "Maximize", function()
+        local main = MDT.main_frame
+
+        Addon.DisableGuideMode()
+
+        if toggleBtn then
+            toggleBtn:Hide()
+            main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT")
+        end
+    end)
+    hooksecurefunc(MDT, "Minimize", function()
+        local main = MDT.main_frame
+
+        Addon.DisableGuideMode()
+
+        if toggleBtn then
+            toggleBtn:Show()
+            main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
+        end
+    end)
+
+    hooksecurefunc(MDT, "UpdateSectionVisibility", function ()
+        if not Addon.IsActive() then return end
+        Addon.ToggleHideFrames()
+    end)
+
+    -- Hook dungeon selection visibility
+    hooksecurefunc(MDT, "UpdateDungeonSelectVisibility", function ()
+        if not Addon.IsActive() then return end
+        Addon.ToggleHideFrames()
+        Addon.HideDungeonButtons()
+    end)
+
+    -- Hook pull selection
+    hooksecurefunc(MDT, "SetSelectionToPull", function(_, pull)
+        if Addon.IsActive() and tonumber(pull) and Addon.GetLastSubLevel(pull) == MDT:GetCurrentSubLevel() then
+            Addon.ZoomToPull(pull)
+        end
+    end)
+
+    -- Hook pull tooltip
+    hooksecurefunc(MDT, "ActivatePullTooltip", function()
+        if not Addon.IsActive() then return end
+
+        local tooltip = MDT.pullTooltip
+        local y2, _, frame, pos, _, y1 = select(5, tooltip:GetPoint(2)), tooltip:GetPoint(1)
+        local w = frame:GetWidth() + tooltip:GetWidth()
+
+        tooltip:SetPoint("TOPRIGHT", frame, pos, w, y1)
+        tooltip:SetPoint("BOTTOMRIGHT", frame, pos, 250 + w, y2)
+    end)
+
+    -- Hook enemy blips
+    hooksecurefunc(MDT, "DungeonEnemies_UpdateSelected", Addon.ColorEnemies)
+
+    -- Hook enemy info frame
+    hooksecurefunc(MDT, "ShowEnemyInfoFrame", Addon.AdjustEnemyInfo)
+
+    -- Hook menu creation
+    hooksecurefunc(MDT, "CreateMenu", function()
+        local main = MDT.main_frame
+
+        -- Hook size change
+        main.resizer:HookScript("OnMouseUp", function()
+            if not MDTGuideDB.active then return end
+            MDTGuideDB.options.height = main:GetHeight()
+        end)
+    end)
+
+    -- Hook hull drawing
+    local DrawHull = MDT.DrawHull
+    MDT.DrawHull = function(...)
+        if not MDTGuideDB.active then return DrawHull(...) end
+
+        local scale = MDT:GetScale() or 1
+        local zoomScale = Addon.GetZoomScale()
+
+        if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
+
+        local dungeonId = Addon.GetCurrentDungeonId()
+        local multipliers = MDT.scaleMultiplier
+
+        local origScale = multipliers[dungeonId]
+        multipliers[dungeonId] = (origScale or 1) * scale
+
+        DrawHull(...)
+
+        multipliers[dungeonId] = origScale
+    end
+
+    -- Hook hull number drawing
+    hooksecurefunc(MDT, "DrawHullFontString", function (_, _, pullIdx)
+        local name = "MDTFontStringContainerFrame"
+        local scale = MDTGuideDB.active and MDT:GetScale() or 1
+
+        local zoomScale = Addon.GetZoomScale()
+        if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
+
+        local i, frame = -1, _G[name .. (pullIdx - 1)]
+        repeat
+            if frame and frame.pullIdx == pullIdx then
+                local point, relativeTo, relativePoint, x, y = frame:GetPoint(1)
+                frame:SetScale(scale)
+                frame:ClearAllPoints()
+                frame:SetPoint(point, relativeTo, relativePoint, x / scale, y / scale)
+                break
+            end
+            i = i + 1
+            frame = _G[name .. i]
+        until not frame
+    end)
+
+    -- MDT can already be on screen by now: loading its UI addon and showing the
+    -- window happen in one go, so the UpdateBottomText hook above may have
+    -- missed its first call, and it only fires again on the next show. Nudge it
+    -- so the guide mode buttons show up straight away. MDT builds the window in
+    -- a coroutine that yields between steps, so main_frame is set long before
+    -- the buttons we anchor to exist. Wait for MDT to call the window done.
+    MDT:RunAfterFramesInitialized(function() MDT:UpdateBottomText() end)
 end
 
 -- ---------------------------------------
@@ -750,290 +1069,18 @@ local Frame = CreateFrame("Frame")
 
 -- Event listeners
 local OnEvent = function(_, ev, ...)
-    if not MDT or MDT:GetDB().devMode then return end
-
     if ev == "ADDON_LOADED" then
         if ... == Name then
             Frame:UnregisterEvent("ADDON_LOADED")
 
             Addon.Options:OnLoaded()
-
-            
-
-            -- Hook showing interface
-            local initialized = false
-
-            hooksecurefunc(MDT, "UpdateBottomText", function()
-                if initialized then return end
-                initialized = true
-
-                local main = MDT.main_frame
-
-                -- Insert toggle button
-                if not toggleBtn then
-                    ---@type MaximizeMinimizeButtonFrame
-                    local f = CreateFrame("Button", nil, MDT.main_frame, "MaximizeMinimizeButtonFrameTemplate")
-                    f[MDTGuideDB.active and "Minimize" or "Maximize"](f)
-                    f:SetOnMaximizedCallback(function() Addon.DisableGuideMode() end)
-                    f:SetOnMinimizedCallback(function() Addon.EnableGuideMode() end)
-                    f:Show()
-
-                    f:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
-                    main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
-
-                    main.sidePanel.WidgetGroup.PresetDropDown.frame:SetWidth(145)
-
-                    toggleBtn = f
-                end
-
-                if not announceBtn then
-                    ---@type SquareIconButton
-                    local f = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
-                    f:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Up")
-                    f:SetDisabledTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Disabled")
-                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    f:SetFrameLevel(4)
-                    f:SetHeight(13)
-                    f:SetWidth(13)
-                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                    f:SetScript("OnClick", function(_, btn)
-                        if btn == "RightButton" then
-                            Addon.AnnounceNextPulls()
-                        else
-                            Addon.AnnounceSelectedPulls()
-                        end
-                    end)
-                    f:SetScript("OnLeave", GameTooltip_Hide)
-                    f:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
-                        GameTooltip:AddLine("通報所選的拉怪")
-                        GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine("|cffeda55f右鍵:|r 也要通報下一波拉怪", 0.2, 1, 0.2)
-                        if not IsInGroup() then
-                            GameTooltip:AddLine("(沒有隊伍時會顯示預覽)", 0.7, 0.7, 0.7, true)
-                        end
-                        GameTooltip:Show()
-                    end)
-
-                    f:SetPoint("RIGHT", toggleBtn, "LEFT", -5, 0)
-                    f:Hide()
-
-                    announceBtn = f
-                end
-
-                -- Insert current pull button
-                if not currBtn then
-                    ---@type SquareIconButton
-                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
-                    -- f:SetNormalTexture("Interface\\Buttons\\LockButton-Unlocked-Up")
-                    -- f:SetPushedTexture("Interface\\Buttons\\LockButton-Unlocked-Down")
-                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
-                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
-                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
-                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    f:SetFrameLevel(4)
-                    f:SetHeight(21)
-                    f:SetWidth(21)
-                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                    f:SetScript("OnClick", function(_, btn)
-                        if btn == "RightButton" then
-                            Addon.SetCurrentPull(MDT:GetCurrentPreset().value.currentPull, true)
-                        else
-                            if IsShiftKeyDown() then Addon.SetEnemyForcesOffsets() end
-                            Addon.ZoomToCurrentPull()
-                        end
-                    end)
-                    f:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
-                        GameTooltip:AddLine("Go to current pull")
-                        GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to selected pull", 0.2, 1, 0.2)
-                        GameTooltip:AddLine("|cffeda55fShift-click:|r Reset current pull to raw dungeon progress", 0.2, 1, 0.2)
-                        GameTooltip:Show()
-                    end)
-                    f:SetScript("OnLeave", GameTooltip_Hide)
-
-                    f:SetPoint("LEFT", MDT.main_frame.bottomPanel, "RIGHT", 90, 0)
-                    f:Hide()
-
-                    currBtn = f
-                end
-
-                if not prevBtn then
-                    ---@type SquareIconButton
-                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
-                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Up")
-                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Down")
-                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Disabled")
-                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    f:RotateTextures(math.rad(90))
-                    f:SetFrameLevel(4)
-                    f:SetHeight(21)
-                    f:SetWidth(21)
-                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                    f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(-1, btn == "RightButton") end)
-                    f:SetScript("OnLeave", GameTooltip_Hide)
-                    f:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
-                        GameTooltip:AddLine("Go to previous pull")
-                        GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to previous pull", 0.2, 1, 0.2)
-                        GameTooltip:Show()
-                    end)
-
-                    f:SetPoint("RIGHT", currBtn, "LEFT", -1, 0)
-                    f:Hide()
-
-                    prevBtn = f
-                end
-
-                if not nextBtn then
-                    ---@type SquareIconButton
-                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
-                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
-                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
-                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
-                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    f:RotateTextures(math.rad(90))
-                    f:SetFrameLevel(4)
-                    f:SetHeight(21)
-                    f:SetWidth(21)
-                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                    f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(1, btn == "RightButton") end)
-                    f:SetScript("OnLeave", GameTooltip_Hide)
-                    f:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
-                        GameTooltip:AddLine("Go to next pull")
-                        GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to next pull", 0.2, 1, 0.2)
-                        GameTooltip:Show()
-                    end)
-
-                    f:SetPoint("LEFT", currBtn, "RIGHT", 1, 0)
-                    f:Hide()
-
-                    nextBtn = f
-                end
-
-                hooksecurefunc(main, "Show", function ()
-                    if not MDTGuideDB.active then return end
-                    Addon.ToggleHideFrames()
-                end)
-
-                if MDTGuideDB.active then
-                    MDTGuideDB.active = false
-                    Addon.EnableGuideMode(true)
-                end
-            end)
-
-            -- Hook maximize/minimize
-            hooksecurefunc(MDT, "Maximize", function()
-                local main = MDT.main_frame
-
-                Addon.DisableGuideMode()
-
-                if toggleBtn then
-                    toggleBtn:Hide()
-                    main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT")
-                end
-            end)
-            hooksecurefunc(MDT, "Minimize", function()
-                local main = MDT.main_frame
-
-                Addon.DisableGuideMode()
-
-                if toggleBtn then
-                    toggleBtn:Show()
-                    main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
-                end
-            end)
-
-            -- Hook dungeon button update
-            hooksecurefunc(MDT, "UpdateDungeonDropDown", function ()
-                if not Addon.IsActive() then return end
-                Addon.HideDungeonButtons()
-            end)
-
-            -- Hook pull selection
-            hooksecurefunc(MDT, "SetSelectionToPull", function(_, pull)
-                if Addon.IsActive() and tonumber(pull) and Addon.GetLastSubLevel(pull) == MDT:GetCurrentSubLevel() then
-                    Addon.ZoomToPull(pull)
-                end
-            end)
-
-            -- Hook pull tooltip
-            hooksecurefunc(MDT, "ActivatePullTooltip", function()
-                if not Addon.IsActive() then return end
-
-                local tooltip = MDT.pullTooltip
-                local y2, _, frame, pos, _, y1 = select(5, tooltip:GetPoint(2)), tooltip:GetPoint(1)
-                local w = frame:GetWidth() + tooltip:GetWidth()
-
-                tooltip:SetPoint("TOPRIGHT", frame, pos, w, y1)
-                tooltip:SetPoint("BOTTOMRIGHT", frame, pos, 250 + w, y2)
-            end)
-
-            -- Hook enemy blips
-            hooksecurefunc(MDT, "DungeonEnemies_UpdateSelected", Addon.ColorEnemies)
-
-            -- Hook enemy info frame
-            hooksecurefunc(MDT, "ShowEnemyInfoFrame", Addon.AdjustEnemyInfo)
-
-            -- Hook menu creation
-            hooksecurefunc(MDT, "CreateMenu", function()
-                local main = MDT.main_frame
-
-                -- Hook size change
-                main.resizer:HookScript("OnMouseUp", function()
-                    if not MDTGuideDB.active then return end
-                    MDTGuideDB.options.height = main:GetHeight()
-                end)
-            end)
-
-            -- Hook hull drawing
-            local DrawHull = MDT.DrawHull
-            MDT.DrawHull = function(...)
-                if not MDTGuideDB.active then return DrawHull(...) end
-
-                local scale = MDT:GetScale() or 1
-                local zoomScale = Addon.GetZoomScale()
-
-                if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
-
-                local dungeonId = Addon.GetCurrentDungeonId()
-                local multipliers = MDT.scaleMultiplier
-
-                local origScale = multipliers[dungeonId]
-                multipliers[dungeonId] = (origScale or 1) * scale
-
-                DrawHull(...)
-
-                multipliers[dungeonId] = origScale
-            end
-
-            -- Hook hull number drawing
-            hooksecurefunc(MDT, "DrawHullFontString", function (_, _, pullIdx)
-                local name = "MDTFontStringContainerFrame"
-                local scale = MDTGuideDB.active and MDT:GetScale() or 1
-
-                local zoomScale = Addon.GetZoomScale()
-                if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
-
-                local i, frame = -1, _G[name .. (pullIdx - 1)]
-                repeat
-                    if frame and frame.pullIdx == pullIdx then
-                        local point, relativeTo, relativePoint, x, y = frame:GetPoint(1)
-                        frame:SetScale(scale)
-                        frame:ClearAllPoints()
-                        frame:SetPoint(point, relativeTo, relativePoint, x / scale, y / scale)
-                        break
-                    end
-                    i = i + 1
-                    frame = _G[name .. i]
-                until not frame
-            end)
         end
-    elseif ev == "PLAYER_ENTERING_WORLD" or ev == "ZONE_CHANGED_NEW_AREA" or ev == "WORLD_STATE_TIMER_START" then
+        return
+    end
+
+    if not MDT or MDT:GetDB().devMode then return end
+
+    if ev == "PLAYER_ENTERING_WORLD" or ev == "ZONE_CHANGED_NEW_AREA" or ev == "WORLD_STATE_TIMER_START" then
         local isParty = select(2, IsInInstance()) == "party"
         if not isParty then return end
 
@@ -1086,3 +1133,12 @@ Frame:RegisterEvent("SCENARIO_COMPLETED")
 Frame:RegisterEvent("CHAT_MSG_SYSTEM")
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+
+Addon.OnMDTReady(function (mdt)
+    MDT = mdt
+    Addon.InstallHooks()
+
+    -- MDT's UI addon loads on demand, so we were inert for the zone events that
+    -- brought us into the dungeon. Work out where we are now.
+    OnEvent(nil, "PLAYER_ENTERING_WORLD")
+end)

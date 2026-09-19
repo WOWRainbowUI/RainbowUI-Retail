@@ -1,3 +1,7 @@
+Version 2.07
+
+- Fix boss kill tracking in Seat of the Triumvirate
+
 Version 2.06
 
 - Update ToC version for patch 12.0.5
