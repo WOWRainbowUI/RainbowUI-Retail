@@ -1256,6 +1256,16 @@
 			-- "mon_yak_mountspecial_03.ogg#613147",
 			-- "mon_yak_mountspecial_04.ogg#613149",
 
+			-- Hearthkeeper's Wandering Caravan
+			-- Trygsdottir: Greetings (sound/creature/npcvrykulfemalewarrior/npcvrykulfemalewarriorvendor)
+			"01.ogg#557545", "03.ogg#557554", "04.ogg#557535", "05.ogg#557532", "06.ogg#557531",
+			-- Trygsdottir: Farewells (sound/creature/npcvrykulfemalewarrior/npcvrykulfemalewarriorfarewell)
+			"01.ogg#557552", "03.ogg#557536", "04.ogg#557550", "05.ogg#557537", "06.ogg#557553", "07.ogg#557541",
+			-- Peerson: Greetings (NPCVrykulMaleMagicUserVendor)
+			"01.ogg#557562", "02.ogg#557568", "05.ogg#557563", "06.ogg#557556",
+			-- Peerson: Farewells (NPCVrykulMaleMagicUserFarewell)
+			"01.ogg#557567", "02.ogg#557572", "03.ogg#557573", "04.ogg#557564", "06.ogg#557560", "07.ogg#557570",
+
 		},
 
 		-- Unicorns (sound/creature/hornedhorse/)
