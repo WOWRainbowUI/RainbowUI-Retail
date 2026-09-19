@@ -1,7 +1,10 @@
 ------------------------------------------------------------
 -- 表單引擎（Platynator 式的版面配置）
 --
--- 每個控制項一列、全寬、固定高度；標籤靠右對齊在左欄、控件從中線起算。
+-- 每個控制項一列、全寬；標籤靠右對齊在左欄、控件從列的中線起算。
+-- 列高是「至少 ROW_H／ROW_H_TALL，標籤換行的話跟著長高」——歐語譯文平均比英文長
+-- 三到五成，固定一行的話有一半的標籤會被截成「…」。單行標籤的列高與原本完全相同，
+-- 所以中韓的緊湊版面不受影響。
 -- 統一的垂直節奏是「精緻感」的來源——不要再用左右兩欄塞不同高度的東西。
 --
 -- spec.type：
@@ -46,6 +49,8 @@ local ROW_H_TALL = 30      -- slider / dropdown / input / numbers
 local HEADER_H   = 24
 local HEADER_GAP = 10      -- 小節上方留白
 local CONTROL_W  = 230     -- 滑桿 / 下拉 標準寬
+local BTN_H      = 22      -- button 型別的按鈕高
+local ROW_PAD_R  = 10      -- 控件欄右邊留白（控件最寬到 width - cx - ROW_PAD_R）
 
 ------------------------------------------------------------
 -- 連續型控件的 apply 合併
@@ -99,19 +104,28 @@ function Controls.MakeCtx(rootFor, applyFn)
     }
 end
 
-local function MakeLabel(parent, text, x, y, h)
+-- 畫一條標籤，回傳這一列該有的高度（呼叫端拿它排版）。
+-- minH 是這個型別的基本列高；標籤換行時列高跟著長，單行時一定等於 minH。
+local function MakeLabel(parent, text, x, y, minH)
     local fs = parent:CreateFontString(nil, "OVERLAY")
     fs:SetFontObject(W.fontNormal)
     fs:SetPoint("TOPRIGHT", parent, "TOPLEFT", x + LABEL_W, y)
-    -- 左緣也要夾住：只錨右緣的話，比 LABEL_W 長的標籤會往左溢出、
-    -- 被捲軸邊緣裁掉開頭（字的前面被吃掉）。夾住之後太長改成換行。
-    fs:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
-    fs:SetHeight(h)
+    -- 寬度用 SetWidth 定死，不是拿左右兩個錨點夾出來：錨點夾出來的寬度要等版面
+    -- 解析完才成立，當場 GetStringHeight() 量到的是還沒換行的高度。定寬一樣擋得住
+    -- 原本那個問題——只錨右緣的話，比 LABEL_W 長的標籤會往左溢出、被捲軸邊緣
+    -- 裁掉開頭（字的前面被吃掉）。
+    fs:SetWidth(LABEL_W)
     fs:SetJustifyH("RIGHT")
     fs:SetJustifyV("MIDDLE")
     fs:SetWordWrap(true)
-    fs:SetText(text or "")
-    return fs
+    -- 沒有空白可斷的超長單字（德文複合字那種）寧可斷在字中間，也不要被截成「…」
+    fs:SetNonSpaceWrap(true)
+
+    -- 換行多出來的高度由共用層量（同一套做法勾選框的提示文字也要用，
+    -- 兩份各量各的遲早會漂移）。順便把文字填進去。
+    local rowH = minH + W.TextExtraHeight(fs, text)
+    fs:SetHeight(rowH)
+    return rowH
 end
 
 -- 建一整組；回傳 (總高度, refreshers, rows)
@@ -149,28 +163,34 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             local fs = parent:CreateFontString(nil, "OVERLAY")
             fs:SetFontObject(W.fontSmall)
             fs:SetPoint("TOPLEFT", parent, "TOPLEFT", cx, y - 4)
-            fs:SetWidth(width - cx - 10)
+            fs:SetWidth(width - cx - ROW_PAD_R)
             fs:SetJustifyH("LEFT")
             fs:SetText(spec.label)
             y = y - math.max(ROW_H, fs:GetStringHeight() + 10)
 
         elseif spec.type == "toggle" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H)
+            -- 勾選框先建：右側 hint 的換行高度要先算出來，才決定得了這一列多高
+            -- （MakeLabel 會把標籤的高度設成整列的高度，之後再改列高就對不齊了）
             local cb = W.CreateCheckButton(parent, spec.hint, function(checked)
                 ctx.set(spec, checked)
                 ctx.apply()
             end)
-            cb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H / 2)
+            -- hint 原本不換行也不截，長譯文一路衝出視窗右緣，連點擊熱區一起延伸出去。
+            -- 夾在這一列剩下的寬度裡（扣掉勾選框本身與它到文字的間距）換行。
+            local hintExtra = cb:SetLabelMaxWidth(
+                width - cx - ROW_PAD_R - (cb.width or 18) - (cb.labelGap or 6))
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H + hintExtra)
+            cb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 cb:SetChecked(ctx.get(spec) and true or false)
             end)
-            y = y - ROW_H
+            y = y - rowH
 
         elseif spec.type == "slider" then
             -- spec.scale：顯示值 = 實際值 × scale（例如模型偏移實際是 0~1，
             -- 顯示成 0~100 才好調）。min/max/step 都用「顯示單位」寫
             local scale = spec.scale or 1
-            MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
             local s = W.CreateSlider(parent, spec.min or 0, spec.max or 100, CONTROL_W,
                 spec.step or 1,
                 nil,
@@ -178,27 +198,27 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                     ctx.set(spec, scale == 1 and v or (v / scale))
                     ApplySoon(ctx)
                 end)
-            s:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H_TALL / 2)
+            s:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 local raw = tonumber(ctx.get(spec))
                 s:SetValue(raw and (raw * scale) or spec.min or 0)
             end)
-            y = y - ROW_H_TALL
+            y = y - rowH
 
         elseif spec.type == "number" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H)
             local nb = W.CreateNumberBox(parent, 52, spec.step or 1, function(v)
                 ctx.set(spec, v)
                 ApplySoon(ctx)
             end)
-            nb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H / 2)
+            nb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 nb:SetValue(tonumber(ctx.get(spec)) or 0)
             end)
-            y = y - ROW_H
+            y = y - rowH
 
         elseif spec.type == "numbers" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
             local px = cx
             for _, field in ipairs(spec.fields) do
                 -- ⚠ root 一定要一起帶過去：ctx 靠它決定寫進 udb / udb.frame / udb.elements。
@@ -209,23 +229,23 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 local tag = parent:CreateFontString(nil, "OVERLAY")
                 tag:SetFontObject(W.fontSmall)
                 tag:SetTextColor(0.6, 0.6, 0.6)
-                tag:SetPoint("LEFT", parent, "TOPLEFT", px, y - ROW_H_TALL / 2)
+                tag:SetPoint("LEFT", parent, "TOPLEFT", px, y - rowH / 2)
                 tag:SetText(field.label)
                 px = px + tag:GetStringWidth() + 4
                 local nb = W.CreateNumberBox(parent, 46, field.step or 1, function(v)
                     ctx.set(sub, v)
                     ApplySoon(ctx)
                 end)
-                nb:SetPoint("LEFT", parent, "TOPLEFT", px, y - ROW_H_TALL / 2)
+                nb:SetPoint("LEFT", parent, "TOPLEFT", px, y - rowH / 2)
                 px = px + 46 + 10
                 tinsert(refreshers, function()
                     nb:SetValue(tonumber(ctx.get(sub)) or 0)
                 end)
             end
-            y = y - ROW_H_TALL
+            y = y - rowH
 
         elseif spec.type == "color" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H)
             local cp = W.CreateColorPicker(parent, nil, spec.hasAlpha ~= false,
                 function(r, g, b, a)
                     local c = ctx.get(spec)
@@ -236,14 +256,14 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                     c.r, c.g, c.b, c.a = r, g, b, a
                     ctx.apply()
                 end)
-            cp:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H / 2)
+            cp:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 cp:SetColor(ctx.get(spec))
             end)
-            y = y - ROW_H
+            y = y - rowH
 
         elseif spec.type == "dropdown" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
             -- items 可以是函式：清單要到開分頁那一刻才算得準的（材質／字型要等
             -- LibSharedMedia 與其他插件註冊完）就傳函式，別在檔案層先算好
             local items = spec.items
@@ -252,17 +272,25 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 ctx.set(spec, value)
                 ctx.apply()
             end)
-            dd:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H_TALL / 2)
+            -- 選中的文字超過下拉寬度就被截成「…」（材質名、字型名、角色名都很長）。
+            -- 表單是一列一個控件、右邊沒有別的東西，讓它在剩下的空間裡自己撐寬。
+            -- 還是放不下的話 CreateDropdown 的滑鼠提示會補上全文。
+            dd:SetMaxWidth(width - cx - ROW_PAD_R)
+            dd:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 dd:SetSelectedValue(ctx.get(spec))
             end)
-            y = y - ROW_H_TALL
+            y = y - rowH
 
         elseif spec.type == "button" then
             -- { label(左欄), text(按鈕字), color, confirm(有就先問), onClick }
-            MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
-            local b = W.CreateButton(parent, spec.text or L["Apply"], spec.color or "normal", spec.width or 140, 22)
-            b:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H_TALL / 2)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
+            local btnW = spec.width or 140
+            local b = W.CreateButton(parent, spec.text or L["Apply"], spec.color or "normal", btnW, BTN_H)
+            -- 按鈕字不換行也不截，太長就直接溢出邊框（歐語譯文常常這樣）⇒ 撐開它。
+            -- 短字維持原本的固定寬，一排按鈕的寬度才不會各長各的。
+            W.FitButton(b, btnW, BTN_H)
+            b:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             b:SetScript("OnClick", function()
                 if spec.confirm then
                     if not b.popup then
@@ -277,12 +305,12 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                     for _, fn in ipairs(refreshers) do fn() end
                 end
             end)
-            y = y - ROW_H_TALL
+            y = y - rowH
 
         elseif spec.type == "input" then
-            MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
-            local eb = W.CreateEditBox(parent, width - cx - 10, 20)
-            eb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - ROW_H_TALL / 2)
+            local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
+            local eb = W.CreateEditBox(parent, width - cx - ROW_PAD_R, 20)
+            eb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             eb:SetScript("OnEnterPressed", function(self)
                 ctx.set(spec, self:GetText())
                 ctx.apply()
@@ -304,7 +332,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 eb:SetText(tostring(ctx.get(spec) or ""))
                 eb:SetCursorPosition(0)
             end)
-            y = y - ROW_H_TALL
+            y = y - rowH
 
         elseif spec.type == "custom" then
             -- 宿主自畫的一列。共用層做不出來、又只有一個插件會用的控件
@@ -312,10 +340,19 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             --   build(parent, x, y, width, ctx) → 高度, refresh(選用)
             -- x / y 是控件欄的左上角（跟其他型別同一套座標），width 是可用寬度；
             -- 回傳的 refresh 會併進 refreshers，跟其他列一起被叫。
-            if spec.label then MakeLabel(parent, spec.label, x0, y, spec.h or ROW_H_TALL) end
-            local h, refresh = spec.build(parent, cx, y, width - cx - 10, ctx)
+            -- 列高原則上是宿主說了算；只有標籤**真的換了行**才拿標籤高度來墊，
+            -- 免得它被下一列蓋住。
+            -- ⚠ 單行標籤不可以介入：宿主回報的高度可以矮於 ROW_H_TALL（一排 24px 的色票、
+            -- label = "" 只是借來對齊的空標籤…），拿 max 去比會讓那些列憑空長高。
+            local labelH = 0
+            if spec.label then
+                local minH = spec.h or ROW_H_TALL
+                local h = MakeLabel(parent, spec.label, x0, y, minH)
+                if h > minH then labelH = h end
+            end
+            local h, refresh = spec.build(parent, cx, y, width - cx - ROW_PAD_R, ctx)
             if refresh then tinsert(refreshers, refresh) end
-            y = y - (h or spec.h or ROW_H_TALL)
+            y = y - math.max(h or spec.h or ROW_H_TALL, labelH)
         end
         -- space 沒有東西可以標示；header 留著（搜尋也讓人跳到小節）
         if spec.type ~= "space" then
