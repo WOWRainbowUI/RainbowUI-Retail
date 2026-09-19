@@ -8,7 +8,18 @@
 local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 local LibEditMode = LibStub and LibStub("LibEditMode", true)
 
-if not LibEditMode or not LSM then return end
+local function Debug(msg)
+    print("|cff33ff99[PRD EditMode]|r " .. tostring(msg))
+end
+
+if not LibEditMode then
+    Debug("LibEditMode library is not available on this client - the in-Edit-Mode settings box can't be built. All the same settings are still available from /prr.")
+    return
+end
+if not LSM then
+    Debug("LibSharedMedia-3.0 is not available - can't build the texture dropdowns for the settings box.")
+    return
+end
 
 local anchor
 local registered = false
@@ -44,13 +55,12 @@ end
 
 local function RegisterPRDEditMode()
     if registered then return end
-    registered = true
 
     local profile = GetProfile()
-    if not profile then return end
+    if not profile then return end -- profile not ready yet; try again later
 
     local prd = _G.PersonalResourceDisplayFrame
-    if not prd then return end
+    if not prd then return end -- PRD frame doesn't exist yet on this client (created lazily); try again later
 
     -- Create anchor frame that sits directly below the PRD edit mode box
     anchor = CreateFrame("Frame", "PRDReskinSettingsAnchor", UIParent)
@@ -72,23 +82,6 @@ local function RegisterPRDEditMode()
         -- no-op: always anchored to PRD
     end
 
-    LibEditMode:AddFrame(anchor, SavePos, DEFAULT_POS, "PRD Settings")
-
-    -- Re-anchor after Edit Mode layout changes or PRD moves
-    LibEditMode:RegisterCallback("layout", function()
-        if anchor and prd then
-            anchor:ClearAllPoints()
-            anchor:SetPoint("TOP", prd, "BOTTOM", 0, -4)
-        end
-    end)
-    LibEditMode:RegisterCallback("enter", function()
-        if anchor and prd then
-            anchor:ClearAllPoints()
-            anchor:SetPoint("TOP", prd, "BOTTOM", 0, -4)
-            anchor:SetWidth(prd:GetWidth() or 220)
-        end
-    end)
-
     -- Helper: refresh bars after a setting change
     local function Refresh()
         if PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.callbacks then
@@ -96,7 +89,29 @@ local function RegisterPRDEditMode()
         end
     end
 
-    LibEditMode:AddFrameSettings(anchor, {
+    -- Everything below calls into LibEditMode / Blizzard's Edit Mode API, which
+    -- is brand new on this client build and may not behave identically to
+    -- Retail. Wrap it so an incompatibility here reports itself in chat
+    -- instead of silently leaving the box missing with no explanation.
+    local ok, err = pcall(function()
+        LibEditMode:AddFrame(anchor, SavePos, DEFAULT_POS, "PRD Settings")
+
+        -- Re-anchor after Edit Mode layout changes or PRD moves
+        LibEditMode:RegisterCallback("layout", function()
+            if anchor and prd then
+                anchor:ClearAllPoints()
+                anchor:SetPoint("TOP", prd, "BOTTOM", 0, -4)
+            end
+        end)
+        LibEditMode:RegisterCallback("enter", function()
+            if anchor and prd then
+                anchor:ClearAllPoints()
+                anchor:SetPoint("TOP", prd, "BOTTOM", 0, -4)
+                anchor:SetWidth(prd:GetWidth() or 220)
+            end
+        end)
+
+        LibEditMode:AddFrameSettings(anchor, {
         -- =====================
         -- TEXTURES
         -- =====================
@@ -555,13 +570,42 @@ local function RegisterPRDEditMode()
                 if p then p.hideOnMount = v end
             end,
         },
-    })
+        })
+    end)
+
+    if not ok then
+        Debug("Couldn't build the PRD settings box (" .. tostring(err) .. "). All the same settings are still available from /prr.")
+        if anchor and anchor.Hide then anchor:Hide() end
+        anchor = nil
+        return -- leave `registered` false so a later retry can try again
+    end
+
+    registered = true
+    Debug("PRD settings box registered next to the Personal Resource Display.")
 end
 
--- Defer registration until after PersonalResourceReskin:OnInitialize has run
+-- Defer registration until after PersonalResourceReskin:OnInitialize has run.
+-- The PRD frame (and, on this client, possibly the profile) may not exist
+-- yet at PLAYER_ENTERING_WORLD - it can be created lazily on first use - so
+-- keep retrying instead of giving up after a single early attempt.
 local initFrame = CreateFrame("Frame")
 initFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-initFrame:SetScript("OnEvent", function(self)
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+initFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+initFrame:SetScript("OnEvent", function()
     C_Timer.After(0.3, RegisterPRDEditMode)
 end)
+
+do
+    local triesLeft = 60 -- ~1 minute of polling, covers "created on first swing/target" style lazy init
+    local ticker
+    ticker = C_Timer.NewTicker(1, function()
+        RegisterPRDEditMode()
+        triesLeft = triesLeft - 1
+        if registered or triesLeft <= 0 then
+            if not registered then
+                Debug("Gave up waiting for the PRD frame after 60s - it may not have been shown yet. Settings remain available from /prr; the box will still appear next time this addon successfully hooks it after a reload.")
+            end
+            if ticker then ticker:Cancel() end
+        end
+    end)
+end

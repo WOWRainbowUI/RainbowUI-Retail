@@ -1,0 +1,12 @@
+tag 09adc1046eaae60182a7b0213e729988d477e0ef v1.32.0
+Author:	Kyle Buller <bullerk@gmail.com>
+Date:	Fri Sep 4 22:54:56 2026 -0500
+
+Tagging as v1.32.0
+
+commit 86985fe0d5a235b600c896194ad0bb1265937878
+Author: Kyle Buller <bullerk@gmail.com>
+Date:   Fri Sep 4 22:51:31 2026 -0500
+
+    Update for AceDBOptions-3.0.17, the embiggening
+

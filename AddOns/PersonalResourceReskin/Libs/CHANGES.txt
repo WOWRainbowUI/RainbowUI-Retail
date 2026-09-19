@@ -1,57 +1,72 @@
 ------------------------------------------------------------------------
-r1399 | funkehdude | 2026-07-10 21:40:53 +0000 (Fri, 10 Jul 2026) | 1 line
-Changed paths:
-   M /trunk/Ace3.toc
-
-Bump toc
-------------------------------------------------------------------------
-r1398 | funkehdude | 2026-06-26 15:09:40 +0000 (Fri, 26 Jun 2026) | 1 line
-Changed paths:
-   M /trunk/Ace3.toc
-
-Bump toc
-------------------------------------------------------------------------
-r1397 | funkehdude | 2026-06-20 00:35:53 +0000 (Sat, 20 Jun 2026) | 1 line
-Changed paths:
-   M /trunk/Ace3.toc
-
-Bump toc
-------------------------------------------------------------------------
-r1396 | funkehdude | 2026-06-20 00:33:25 +0000 (Sat, 20 Jun 2026) | 1 line
+r1414 | funkehdude | 2026-09-18 01:23:16 +0000 (Fri, 18 Sep 2026) | 1 line
 Changed paths:
    M /trunk/.luacheckrc
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
 
-AceGUI-3.0/widgets/AceGUIWidget-CheckBox: Fix setting desaturation on WoW 12.1
+AceDB-3.0: Compatibility with WoW Forever
 ------------------------------------------------------------------------
-r1395 | funkehdude | 2026-05-17 23:36:19 +0000 (Sun, 17 May 2026) | 1 line
+r1413 | funkehdude | 2026-09-17 22:54:34 +0000 (Thu, 17 Sep 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
 Bump toc
 ------------------------------------------------------------------------
-r1394 | funkehdude | 2026-04-22 07:51:15 +0000 (Wed, 22 Apr 2026) | 1 line
+r1412 | funkehdude | 2026-09-08 01:02:22 +0000 (Tue, 08 Sep 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
 Bump toc
 ------------------------------------------------------------------------
-r1393 | funkehdude | 2026-04-10 01:52:49 +0000 (Fri, 10 Apr 2026) | 1 line
+r1411 | funkehdude | 2026-09-06 22:47:39 +0000 (Sun, 06 Sep 2026) | 1 line
 Changed paths:
-   M /trunk/Ace3.toc
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
 
-Bump toc
+AceGUI-3.0: Forgot to bump versions.
 ------------------------------------------------------------------------
-r1392 | funkehdude | 2026-03-16 00:15:39 +0000 (Mon, 16 Mar 2026) | 1 line
+r1410 | funkehdude | 2026-09-06 22:45:42 +0000 (Sun, 06 Sep 2026) | 1 line
 Changed paths:
-   M /trunk/Ace3.toc
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
 
-Bump toc
+AceGUI-3.0: Add `:SetImageByAtlas` API to the `AceGUIWidget-Icon` and `AceGUIWidget-Label` widgets.
 ------------------------------------------------------------------------
-r1391 | funkehdude | 2026-03-06 14:48:32 +0000 (Fri, 06 Mar 2026) | 1 line
+r1409 | funkehdude | 2026-09-03 22:41:24 +0000 (Thu, 03 Sep 2026) | 1 line
 Changed paths:
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
 
-AceGUI-3.0/widgets/AceGUIWidget-Slider: Workaround font loading issue sometimes making freshly created editboxes blank until the text is changed.
+AceConfig-3.0/AceConfigDialog-3.0: Slightly bigger popup size.
+------------------------------------------------------------------------
+r1408 | funkehdude | 2026-09-03 15:37:56 +0000 (Thu, 03 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/AceDBOptions-3.0/AceDBOptions-3.0.lua
+
+AceDBOptions-3.0: Increase the character limit to 50, increase the width of the dropdown so that a 50 character profile should always show.
+------------------------------------------------------------------------
+r1407 | funkehdude | 2026-09-03 15:26:34 +0000 (Thu, 03 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Bump limit to 50 characters
+------------------------------------------------------------------------
+r1406 | funkehdude | 2026-09-03 04:12:17 +0000 (Thu, 03 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Restrict profile names to between 1 and 30 characters. Existing profiles remain and can be copied to a new name.
+------------------------------------------------------------------------
+r1405 | funkehdude | 2026-09-03 02:03:09 +0000 (Thu, 03 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/.luacheckrc
+   M /trunk/AceDBOptions-3.0/AceDBOptions-3.0.lua
+
+AceDBOptions-3.0: Validate new profile names (Restrict to 30 characters, must contain some text)
+------------------------------------------------------------------------
+r1404 | funkehdude | 2026-08-26 22:31:26 +0000 (Wed, 26 Aug 2026) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua
+
+AceGUI-3.0/widgets/AceGUIWidget-Heading: Support secret text
 ------------------------------------------------------------------------
 

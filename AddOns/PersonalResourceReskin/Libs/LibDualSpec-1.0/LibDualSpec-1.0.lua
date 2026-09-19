@@ -31,10 +31,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --]]
 
--- Only load in Classic Era on Season of Discovery and Anniversary realms
-if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and C_Seasons.GetActiveSeason() ~= 2 and C_Seasons.GetActiveSeason() ~= 11 and C_Seasons.GetActiveSeason() ~= 12 then return end
-
-local MAJOR, MINOR = "LibDualSpec-1.0", 25
+local MAJOR, MINOR = "LibDualSpec-1.0", 32
 assert(LibStub, MAJOR.." requires LibStub")
 local lib, minor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
@@ -72,21 +69,25 @@ local AceDB3 = LibStub('AceDB-3.0', true)
 local AceDBOptions3 = LibStub('AceDBOptions-3.0', true)
 local AceConfigRegistry3 = LibStub('AceConfigRegistry-3.0', true)
 
-local isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local numSpecs = 2
-local specNames = {TALENT_SPEC_PRIMARY, TALENT_SPEC_SECONDARY}
-if isRetail then
+local isSpecBased = ClassicExpansionAtLeast(LE_EXPANSION_MISTS_OF_PANDARIA)
+local numSpecs
+local specNames = {}
+if isSpecBased then
 	-- class id specialization functions don't require player data to be loaded
 	local _, classId = UnitClassBase("player")
-	numSpecs = GetNumSpecializationsForClassID(classId)
+	numSpecs = C_SpecializationInfo.GetNumSpecializationsForClassID(classId)
 	for i = 1, numSpecs do
 		local _, name = GetSpecializationInfoForClassID(classId, i)
 		specNames[i] = name
 	end
+else -- Primary/secondary system
+	numSpecs = 2
+	specNames[1] = TALENT_SPEC_PRIMARY
+	specNames[2] = TALENT_SPEC_SECONDARY
 end
 
-local GetSpecialization = isRetail and GetSpecialization or GetActiveTalentGroup
-local CanPlayerUseTalentSpecUI = isRetail and C_SpecializationInfo.CanPlayerUseTalentSpecUI or function()
+local GetSpecialization = isSpecBased and GetSpecialization or C_SpecializationInfo.GetActiveSpecGroup
+local CanPlayerUseTalentSpecUI = C_SpecializationInfo.CanPlayerUseTalentSpecUI or function()
 	return true, HELPFRAME_CHARACTER_BULLET5
 end
 
@@ -287,7 +288,6 @@ end
 options.new = {
 	name = "New",
 	type = "input",
-	order = 30,
 	get = false,
 	set = function(info, value)
 		local db = info.handler.db
@@ -297,19 +297,20 @@ options.new = {
 			db:SetProfile(value)
 		end
 	end,
+	order = 30,
 }
 
 options.choose = {
 	name = "Existing Profiles",
 	type = "select",
-	order = 40,
 	get = "GetCurrentProfile",
 	set = "SetProfile",
 	values = "ListProfiles",
 	arg = "common",
 	disabled = function(info)
 		return info.handler.db:IsDualSpecEnabled()
-	end
+	end,
+	order = 40,
 }
 
 options.enabled = {
@@ -319,19 +320,19 @@ options.enabled = {
 		local desc = L_ENABLED_DESC
 		if lib.currentSpec == 0 then
 			local _, reason = CanPlayerUseTalentSpecUI()
-			if not reason or reason == "" then
-				reason = TALENT_MICRO_BUTTON_NO_SPEC
+			if not reason or reason == "" or reason == "LEVEL_TOO_LOW" then
+				reason = isSpecBased and _G["TALENT_MICRO_BUTTON_NO_SPEC"] or _G["INSTANCE_UNAVAILABLE_SELF_LEVEL_TOO_LOW"]
 			end
 			desc = desc .. "\n\n" .. RED_FONT_COLOR:WrapTextInColorCode(reason)
 		end
 		return desc
 	end,
 	descStyle = "inline",
-	order = 41,
-	width = "full",
 	get = function(info) return info.handler.db:IsDualSpecEnabled() end,
 	set = function(info, value) info.handler.db:SetDualSpecEnabled(value) end,
 	disabled = function() return lib.currentSpec == 0 end,
+	order = 41,
+	width = "full",
 }
 
 local points = {}
@@ -342,27 +343,39 @@ for i = 1, numSpecs do
 			local specIndex = tonumber(info[#info]:sub(-1))
 			return lib.currentSpec == specIndex and L_CURRENT:format(specNames[specIndex]) or specNames[specIndex]
 		end,
-		desc = not isRetail and function(info)
-			local specIndex = tonumber(info[#info]:sub(-1))
-			local highPointsSpentIndex = nil
-			for treeIndex = 1, 3 do
-				local _, name, _, _, pointsSpent, _, previewPointsSpent = GetTalentTabInfo(treeIndex, nil, nil, specIndex)
-				if name then
-					local displayPointsSpent = pointsSpent + previewPointsSpent
-					points[treeIndex] = displayPointsSpent
-					if displayPointsSpent > 0 and (not highPointsSpentIndex or displayPointsSpent > points[highPointsSpentIndex]) then
-						highPointsSpentIndex = treeIndex
+		desc = ClassicExpansionAtMost(LE_EXPANSION_SHADOWLANDS) and function(info)
+			if lib.currentSpec == 0 then
+				return nil
+			end
+			if ClassicExpansionAtMost(LE_EXPANSION_CATACLYSM) then -- Pre-5.0
+				local specIndex = tonumber(info[#info]:sub(-1))
+				local highPointsSpentIndex = nil
+				for treeIndex = 1, 3 do
+					local _, name, _, _, pointsSpent, _, previewPointsSpent = GetTalentTabInfo(treeIndex, nil, nil, specIndex)
+					if name then
+						local displayPointsSpent = pointsSpent + previewPointsSpent
+						points[treeIndex] = displayPointsSpent
+						if displayPointsSpent > 0 and (not highPointsSpentIndex or displayPointsSpent > points[highPointsSpentIndex]) then
+							highPointsSpentIndex = treeIndex
+						end
+					else
+						points[treeIndex] = 0
 					end
-				else
-					points[treeIndex] = 0
+				end
+				if highPointsSpentIndex then
+					points[highPointsSpentIndex] = GREEN_FONT_COLOR:WrapTextInColorCode(points[highPointsSpentIndex])
+				end
+				return ("|cffffffff%s / %s / %s|r"):format(unpack(points))
+			elseif C_SpecializationInfo.GetSpecialization then -- 5.0 - 9.x
+				local specGroup = tonumber(info[#info]:sub(-1))
+				local specIndex = C_SpecializationInfo.GetSpecialization(nil, nil, specGroup)
+				if specIndex then
+					local sex = UnitSex("player")
+					local _, specName = C_SpecializationInfo.GetSpecializationInfo(specIndex, nil, nil, sex)
+					return ("|cffffffff%s|r"):format(specName)
 				end
 			end
-			if highPointsSpentIndex then
-				points[highPointsSpentIndex] = GREEN_FONT_COLOR:WrapTextInColorCode(points[highPointsSpentIndex])
-			end
-			return ("|cffffffff%s / %s / %s|r"):format(unpack(points))
 		end or nil,
-		order = 42 + i,
 		get = function(info)
 			local specIndex = tonumber(info[#info]:sub(-1))
 			return info.handler.db:GetDualSpecProfile(specIndex)
@@ -374,6 +387,8 @@ for i = 1, numSpecs do
 		values = "ListProfiles",
 		arg = "common",
 		disabled = function(info) return not info.handler.db:IsDualSpecEnabled() end,
+		order = 42 + i,
+		width = 1.5,
 	}
 end
 
@@ -401,6 +416,12 @@ function lib:EnhanceOptions(optionTable, target)
 	options.new.desc = optionTable.args.new.desc
 	options.choose.name = optionTable.args.choose.name
 	options.choose.desc = optionTable.args.choose.desc
+
+	-- copy properties
+	options.new.validate = optionTable.args.new.validate
+	options.new.usage = optionTable.args.new.usage
+	options.new.width = optionTable.args.new.width
+	options.choose.width = optionTable.args.choose.width
 
 	-- add our new options
 	if not optionTable.plugins then
@@ -461,7 +482,7 @@ local function eventHandler(self, event)
 	if event == "PLAYER_LOGIN" then
 		self:UnregisterEvent(event)
 		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		if isRetail then
+		if isSpecBased then
 			self:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 			self:RegisterEvent("PLAYER_LEVEL_CHANGED")
 		else
