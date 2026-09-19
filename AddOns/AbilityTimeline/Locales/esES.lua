@@ -8,6 +8,8 @@ if L then
 -- LocalisationData[""] =
 L["AccessOptionsMessage"] = "Accede a las opciones mediante /at"
 L["AddCooldownColorChangeTooltip"] = "Añade un nuevo cambio de color del tiempo de reutilización."
+--[[Translation missing --]]
+L["AdditionalSettings"] = "Additional Information"
 L["addonOptions"] = "Opciones de Ability Timeline"
 L["BigIconMargin"] = "Margen"
 L["BigIconMarginDescription"] = "Establece el espacio entre los iconos grandes."
@@ -60,6 +62,22 @@ L["disableReadyCheck"] = "Desactivar verificación de listo"
 L["disableReadyCheckDescription"] = "Desactiva mostrar la verificación de listo en la línea temporal."
 L["DiscordDescription"] = "Únete a mi Discord para soporte y actualizaciones"
 L["DiseaseEffect"] = "Enfermedad |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
+--[[Translation missing --]]
+L["DispellIconAnchor"] = "Dispell Icon Anchor"
+--[[Translation missing --]]
+L["DispellIconAnchorDescription"] = "Sets the anchor point of the dispell type icon relative to the spell icon."
+--[[Translation missing --]]
+L["DispellIconOffsetX"] = "Dispell Icon Offset X"
+--[[Translation missing --]]
+L["DispellIconOffsetXDescription"] = "Sets the X offset of the dispell type icon relative to its anchor point."
+--[[Translation missing --]]
+L["DispellIconOffsetY"] = "Dispell Icon Offset Y"
+--[[Translation missing --]]
+L["DispellIconOffsetYDescription"] = "Sets the Y offset of the dispell type icon relative to its anchor point."
+--[[Translation missing --]]
+L["DispellIconSize"] = "Dispell Icon Size"
+--[[Translation missing --]]
+L["DispellIconSizeDescription"] = "Sets the size of the dispell type icon on the spell icon."
 L["DispellTextColor"] = "Color del texto de disipación"
 L["DispellTextColorDescription"] = "Activa el coloreado del texto del nombre del hechizo según el tipo de disipación."
 L["DpsRole"] = "DPS |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
@@ -99,6 +117,10 @@ L["HealerRole"] = "Sanador |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::25
 L["IconBorder"] = "Icon Border"
 --[[Translation missing --]]
 L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBorderWidth"] = "Border Width"
+--[[Translation missing --]]
+L["IconBorderWidthDescription"] = "Sets the thickness (in pixels) of the icon border."
 --[[Translation missing --]]
 L["IconBossModsBorder"] = "Boss Mods Border"
 L["IconDangerIcon"] = "Activar icono de peligro"
@@ -176,6 +198,22 @@ L["ReminderSeverityLabel"] = "Severidad"
 L["ReminderSpellIdLabel"] = "ID de hechizo"
 L["RemoveCooldownColorChangeTooltip"] = "Elimina este cambio de color del tiempo de reutilización."
 L["RerollKey"] = "Cambiar piedra Mítica+"
+--[[Translation missing --]]
+L["RoleIconAnchor"] = "Role Icon Anchor"
+--[[Translation missing --]]
+L["RoleIconAnchorDescription"] = "Sets the anchor point of the role icons relative to the spell icon."
+--[[Translation missing --]]
+L["RoleIconOffsetX"] = "Role Icon Offset X"
+--[[Translation missing --]]
+L["RoleIconOffsetXDescription"] = "Sets the X offset of the role icons relative to their anchor point."
+--[[Translation missing --]]
+L["RoleIconOffsetY"] = "Role Icon Offset Y"
+--[[Translation missing --]]
+L["RoleIconOffsetYDescription"] = "Sets the Y offset of the role icons relative to their anchor point."
+--[[Translation missing --]]
+L["RoleIconSize"] = "Role Icon Size"
+--[[Translation missing --]]
+L["RoleIconSizeDescription"] = "Sets the size of the role icons on the spell icon."
 L["SpellIconSettings"] = "Ajustes del icono de hechizo"
 L["SpellnameBackground"] = "Activar fondo del texto"
 L["SpellnameBackgroundDescription"] = "Activa un fondo detrás del texto del nombre del hechizo."

@@ -8,6 +8,8 @@ if L then
 -- LocalisationData[""] =
 L["AccessOptionsMessage"] = "输入 /at 命令打开选项"
 L["AddCooldownColorChangeTooltip"] = "添加一个新的冷却颜色变化。"
+--[[Translation missing --]]
+L["AdditionalSettings"] = "Additional Information"
 L["addonOptions"] = "Ability Timeline选项"
 L["BigIconMargin"] = "间距"
 L["BigIconMarginDescription"] = "设置大图标的间隔距离。"
@@ -60,6 +62,22 @@ L["disableReadyCheck"] = "禁用就位确认"
 L["disableReadyCheckDescription"] = "禁用在时间轴中显示就位确认。"
 L["DiscordDescription"] = "加入我的Discord服务器获取支持和更新信息"
 L["DiseaseEffect"] = "疾病效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
+--[[Translation missing --]]
+L["DispellIconAnchor"] = "Dispell Icon Anchor"
+--[[Translation missing --]]
+L["DispellIconAnchorDescription"] = "Sets the anchor point of the dispell type icon relative to the spell icon."
+--[[Translation missing --]]
+L["DispellIconOffsetX"] = "Dispell Icon Offset X"
+--[[Translation missing --]]
+L["DispellIconOffsetXDescription"] = "Sets the X offset of the dispell type icon relative to its anchor point."
+--[[Translation missing --]]
+L["DispellIconOffsetY"] = "Dispell Icon Offset Y"
+--[[Translation missing --]]
+L["DispellIconOffsetYDescription"] = "Sets the Y offset of the dispell type icon relative to its anchor point."
+--[[Translation missing --]]
+L["DispellIconSize"] = "Dispell Icon Size"
+--[[Translation missing --]]
+L["DispellIconSizeDescription"] = "Sets the size of the dispell type icon on the spell icon."
 L["DispellTextColor"] = "驱散文字颜色"
 L["DispellTextColorDescription"] = "启用根据驱散类型对法术名称文字进行着色。"
 L["DpsRole"] = "伤害输出 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
@@ -99,6 +117,10 @@ L["HealerRole"] = "治疗 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256
 L["IconBorder"] = "Icon Border"
 --[[Translation missing --]]
 L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBorderWidth"] = "Border Width"
+--[[Translation missing --]]
+L["IconBorderWidthDescription"] = "Sets the thickness (in pixels) of the icon border."
 --[[Translation missing --]]
 L["IconBossModsBorder"] = "Boss Mods Border"
 L["IconDangerIcon"] = "启用“危险”图标"
@@ -176,6 +198,22 @@ L["ReminderSeverityLabel"] = "严重程度"
 L["ReminderSpellIdLabel"] = "法术ID"
 L["RemoveCooldownColorChangeTooltip"] = "移除此冷却颜色变化。"
 L["RerollKey"] = "重掷史诗钥石"
+--[[Translation missing --]]
+L["RoleIconAnchor"] = "Role Icon Anchor"
+--[[Translation missing --]]
+L["RoleIconAnchorDescription"] = "Sets the anchor point of the role icons relative to the spell icon."
+--[[Translation missing --]]
+L["RoleIconOffsetX"] = "Role Icon Offset X"
+--[[Translation missing --]]
+L["RoleIconOffsetXDescription"] = "Sets the X offset of the role icons relative to their anchor point."
+--[[Translation missing --]]
+L["RoleIconOffsetY"] = "Role Icon Offset Y"
+--[[Translation missing --]]
+L["RoleIconOffsetYDescription"] = "Sets the Y offset of the role icons relative to their anchor point."
+--[[Translation missing --]]
+L["RoleIconSize"] = "Role Icon Size"
+--[[Translation missing --]]
+L["RoleIconSizeDescription"] = "Sets the size of the role icons on the spell icon."
 L["SpellIconSettings"] = "法术图标设置"
 L["SpellnameBackground"] = "启用文本背景"
 L["SpellnameBackgroundDescription"] = "启用法术名称的背景。"
