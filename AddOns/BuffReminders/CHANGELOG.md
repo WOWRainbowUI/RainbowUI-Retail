@@ -1,10 +1,13 @@
 # BuffReminders
 
-## [v6.8.3](https://github.com/zerbiniandrea/BuffReminders/tree/v6.8.3) (2026-09-12)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.8.1...v6.8.3) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.8.4](https://github.com/zerbiniandrea/BuffReminders/tree/v6.8.4) (2026-09-17)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.8.3...v6.8.4) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### Bug Fixes 🐛
 
-- **Repair:** keep the repair reminder visible after a zone change
-- **Repair:** use the repair item where the vendor mount is blocked
+- **Consumables:** drink the flask the expiring icon shows
+
+### Localization 🌐
+
+- Updated translations: zhTW, koKR
 
