@@ -36,6 +36,8 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
     self.hasCharacter = true
   end)
 
+  self.CustomiseButton:SetPoint("TOP", self, 0, -1 + addonTable.Constants.ButtonFrameOffsetTop)
+
   self:UpdateTransferButton()
 
   addonTable.Skins.AddFrame("ButtonFrame", self, {"bank"})

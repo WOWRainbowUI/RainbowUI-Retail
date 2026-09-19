@@ -437,7 +437,7 @@ local function HideDefaultBackpack()
     _G["ContainerFrame" .. i]:SetParent(hidden)
   end
 
-  if addonTable.Constants.IsRetail then
+  if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
     ContainerFrameCombinedBags:SetParent(hidden)
 
     local frame = CreateFrame("Frame")
