@@ -47,6 +47,29 @@ local ELEMENT_LIST = {
     { key = "texts",      label = L["Text"] },
 }
 
+------------------------------------------------------------
+-- 左欄與 chip 列的尺寸
+--
+-- 兩排的字都是會被翻譯的，而兩邊都沒有多的橫向空間可以拿：左欄右邊 x=128 就是分隔線，
+-- 再過去那 520 的表單寬是照最擠的一列量到的極限（見 Libs/MiliUIWidgets/Env.lua）。
+-- 所以兩排都改成「橫的放不下就往下長」：單位鈕字換行、按鈕長高，chip 整顆換到下一排。
+------------------------------------------------------------
+local UNIT_BTN_W, UNIT_BTN_H, UNIT_BTN_GAP = 106, 24, 4
+local UNIT_BTN_X, UNIT_BTN_TOP = 12, -14
+
+local CHIP_H         = 20
+local CHIP_MIN_W     = 40      -- 兩個中文字的下限
+local CHIP_TEXT_PAD  = 16      -- chip 的字左右各留一半
+local CHIP_GAP_X     = 3
+local CHIP_GAP_Y     = 3
+local CHIP_ROW_PAD   = 2       -- chipRow 比 chip 本身高出來的那一點（單排＝20+2＝22）
+local CHIP_ROW_X     = 140     -- chipRow 左緣離分頁左緣
+local CHIP_ROW_R     = 12      -- chipRow 右緣離分頁右緣
+-- 換排的門檻比 chipRow 本身寬一點：最後一顆可以伸進右邊留白的這幾 px 再換排。
+-- 繁中全展開 544 / 548 是剛好卡邊的，字寬的估算只要差 4px 就會變成兩排 —— 而改成
+-- 換排之前，多那幾 px 只是伸進 12px 的留白、肉眼看不出來。留 4px 不碰視窗邊框。
+local CHIP_ROW_SLACK = 8
+
 local tab, scroll
 local currentUnit, currentElement = "player", "frame"
 local elementChips = {}
@@ -71,6 +94,31 @@ local function DispelTestRow(unitKey)
     end
 end
 
+------------------------------------------------------------
+-- 「顯示時機」開放給哪些單位
+--
+-- 這三個時機問的是「你手上有沒有那個東西」，所以只對**單位一直存在**的框有意義：
+-- 玩家框與寵物框不會因為沒目標而消失，需要一個條件來決定要不要出現。
+-- 目標／目標的目標這一串框則是「存在＝你已經有目標」（unit watch 管的），
+-- 再加一條「有目標才顯示」是純空轉的驅動 —— 但「有敵對目標」對它們仍然有意義
+-- （分得出友方目標與敵方目標），所以那條照開。
+--
+-- ⚠ 沒開放的單位若**現值是 true**（v19 遷移從舊設定帶過來的）照樣要列出來，
+-- 不然那個狀態就沒有介面關得掉。表單清單是開分頁時建一次、之後快取重用，
+-- 所以關掉之後那一列要換分頁才會消失 —— 可接受，不為它加重建邏輯。
+local SHOW_WHEN_UNITS = {
+    visShowTarget = { player = true, pet = true },
+    visShowEnemy  = { player = true, pet = true, target = true,
+                      targettarget = true, targettargettarget = true },
+    visShowFocus  = { player = true, pet = true },
+}
+
+local function ShowWhenToggle(list, unitKey, fdb, key, label)
+    if SHOW_WHEN_UNITS[key][unitKey] or (fdb and fdb[key]) then
+        tinsert(list, { type = "toggle", root = "frame", key = key, label = label })
+    end
+end
+
 local function FrameSpecs(unitKey)
     local list = {
         { type = "toggle", root = "unit", key = "enabled", label = L["Enable this unit frame"],
@@ -91,29 +139,37 @@ local function FrameSpecs(unitKey)
     end
     ------------------------------------------------------------
     -- 顯示條件
+    --
+    -- 一句話規則：任一「限制條件」不符 ⇒ 藏；否則任一「顯示時機」成立 ⇒ 顯示；
+    -- 顯示時機全不勾 ⇒ 一直顯示。（產生巨集字串的地方在 Core/Visibility.lua）
     ------------------------------------------------------------
+    local fdb = ns.GetUnitDB(unitKey).frame
     tinsert(list, { type = "header", label = L["When to show"] })
-    tinsert(list, { type = "dropdown", root = "frame", key = "visibility", label = L["Show"], items = {
-        { text = L["Always"],           value = "always" },
-        { text = L["In combat only"],   value = "inCombat" },
-        { text = L["Out of combat only"], value = "outOfCombat" },
-        { text = L["In a group"],       value = "inGroup" },
-        { text = L["In a party only"],  value = "inParty" },
-        { text = L["In a raid only"],   value = "inRaid" },
-        { text = L["Solo only"],        value = "solo" },
-    } })
-    tinsert(list, { type = "text", label = L["Hidden frames stop updating entirely, so conditions cost nothing while they hide the frame."] })
-    tinsert(list, { type = "toggle", root = "frame", key = "visOnlyInstances",
-                    label = L["Only in instances"],
-                    hint = L["Dungeons, raids, scenarios, arenas and battlegrounds."] })
+    tinsert(list, { type = "text", label = L["Any one of these is enough to show the frame; with none checked it always shows."] })
+    tinsert(list, { type = "toggle", root = "frame", key = "visShowCombat",
+                    label = L["In combat"] })
+    ShowWhenToggle(list, unitKey, fdb, "visShowTarget", L["With a target"])
+    ShowWhenToggle(list, unitKey, fdb, "visShowEnemy", L["With a hostile target"])
+    ShowWhenToggle(list, unitKey, fdb, "visShowFocus", L["With a focus target"])
+
+    tinsert(list, { type = "header", label = L["Restrictions"] })
+    tinsert(list, { type = "text", label = L["These take priority: if any one of them does not match, the frame is hidden."] })
     tinsert(list, { type = "toggle", root = "frame", key = "visHideMounted",
                     label = L["Hide while mounted"],
                     hint = L["Druid travel, aquatic and flight forms count as mounted."] })
-    tinsert(list, { type = "toggle", root = "frame", key = "visHideNoTarget",
-                    label = L["Hide without a target"] })
-    tinsert(list, { type = "toggle", root = "frame", key = "visHideNoEnemy",
-                    label = L["Hide without a hostile target"] })
-    tinsert(list, { type = "text", label = L["These stack on top of the choice above: any one of them hides the frame."] })
+    tinsert(list, { type = "toggle", root = "frame", key = "visHideCombat",
+                    label = L["Hide in combat"] })
+    tinsert(list, { type = "toggle", root = "frame", key = "visOnlyInstances",
+                    label = L["Only in instances"],
+                    hint = L["Dungeons, raids, scenarios, arenas and battlegrounds."] })
+    tinsert(list, { type = "dropdown", root = "frame", key = "visGroup", label = L["Group"], items = {
+        { text = L["Any"],              value = "any" },
+        { text = L["Solo only"],        value = "solo" },
+        { text = L["In a group"],       value = "group" },
+        { text = L["In a party only"],  value = "party" },
+        { text = L["In a raid only"],   value = "raid" },
+    } })
+    tinsert(list, { type = "text", label = L["Hidden frames stop updating entirely, so conditions cost nothing while they hide the frame."] })
     -- 只開放玩家框：墊底按鈕的 unit 固定是框自己的 token，其他框（目標、首領…）藏著時
     -- 點下去選的是「現在的目標」之類的東西，沒有意義；寵物框單位可能不存在。
     if unitKey == "player" then
@@ -648,7 +704,8 @@ local function IconSpecs(els)
                 tinsert(list, { type = "toggle", sub = "icons", sub2 = d.key, key = "restAnimated",
                                 label = L["Animated zzZ while resting"] })
                 tinsert(list, { type = "toggle", sub = "icons", sub2 = d.key, key = "combatBlizzard",
-                                label = L["Blizzard combat icon (native 16x16, ignores the size below)"] })
+                                label = L["Blizzard combat icon"] })
+                tinsert(list, { type = "text", label = L["Uses the game's own 16x16 icon; the size below has no effect."] })
             end
             tinsert(list, PosSize("icons", nil, d.key))
             if d.key == "group" then
@@ -783,28 +840,30 @@ local function ShowPanel(unitKey, elementKey)
     scroll:SetVerticalScroll(0)
 end
 
+-- chip 列換排的門檻寬度（含 CHIP_ROW_SLACK）。chipRow 是左右兩個錨點夾出來的 ⇒ 版面還沒解析時 GetWidth()
+-- 可能回 0，退回由視窗寬算出來的同一個值（就是那兩個錨點的算式）
+local function ChipRowWidth()
+    local w = tab.chipRow:GetWidth()
+    if type(w) ~= "number" or w < 1 then
+        w = (ns.Options.PANEL_W or 700) - CHIP_ROW_X - CHIP_ROW_R
+    end
+    return w + CHIP_ROW_SLACK
+end
+
 -- 元件切換列：依單位有的元件重排 chip
 local function RefreshChips(unitKey)
     local els = ns.GetUnitDB(unitKey).elements
-    local prev
-    local firstVisible
     for _, chip in ipairs(elementChips) do
         -- DB 有這欄 且 這個職業真的有註冊該元件（職業資源條只對六個職業註冊，
         -- 薩滿看到卻調了沒反應會很困惑）
         local visible = chip.id == "frame"
             or (els[chip.id] ~= nil and ns.Elements[chip.id] ~= nil)
         chip:SetShown(visible)
-        if visible then
-            chip:ClearAllPoints()
-            if prev then
-                chip:SetPoint("LEFT", prev, "RIGHT", 3, 0)
-            else
-                chip:SetPoint("TOPLEFT", tab.chipRow, "TOPLEFT", 0, 0)
-            end
-            prev = chip
-            firstVisible = firstVisible or chip
-        end
     end
+    -- 一排放不下就換到下一排。⚠ chipRow 的**高度不在這裡動** —— 它在 Init 就照
+    -- 「全部 chip 都出現」需要的排數留好了。不同單位的 chip 數不一樣，高度跟著算
+    -- 的話每換一個單位底下整張表單就上下彈一次。
+    W.FlowLayout(tab.chipRow, elementChips, ChipRowWidth(), CHIP_GAP_X, CHIP_GAP_Y, CHIP_H)
     -- 目前選的元件這個單位沒有 → 退回框架
     local ok = false
     for _, chip in ipairs(elementChips) do
@@ -859,6 +918,27 @@ function ns.Options.FocusUnitElement(unitKey, elementKey)
 end
 
 ------------------------------------------------------------
+-- 左欄單位鈕的縱向排版
+--
+-- ⚠ y 是**累加**的，不是 -14 - (i-1)*28：名字放不下的語系會換行、按鈕跟著長高
+-- （義大利文的「目標的目標的目標」要 233px、三行），後面那幾顆得往下讓位。
+-- 字放得下的語系（中韓最長 104px）WrapButton 回 24，位置與高度跟原本逐位元相同。
+--
+-- 跑兩次：Init 建完一次，分頁真的顯示出來之後再一次。第一次是在**還沒顯示**的框上量的，
+-- 而量高度（GetStringHeight）在版面解析前可能回 0 —— 那種情況 WrapButton 會整個收手
+-- 退回不換行（寧可字溢出，也不要換了行卻沒長高、第二行畫到下一顆身上），所以要有第二次。
+-- WrapButton 可以重複呼叫，結果不會累加；順便讓「換了介面字型」之後的寬度也重新算過。
+------------------------------------------------------------
+local function LayoutUnitButtons()
+    local y = UNIT_BTN_TOP
+    for _, b in ipairs(tab._unitButtons) do
+        b:ClearAllPoints()
+        b:SetPoint("TOPLEFT", UNIT_BTN_X, y)
+        y = y - (W.WrapButton(b, UNIT_BTN_W, UNIT_BTN_H) + UNIT_BTN_GAP)
+    end
+end
+
+------------------------------------------------------------
 -- 分頁本體
 ------------------------------------------------------------
 local function Init()
@@ -868,13 +948,13 @@ local function Init()
     -- 左欄單位清單
     local unitButtons = {}
     for i, info in ipairs(UNIT_LIST) do
-        local b = W.CreateButton(tab, info.label, "accent-hover", 106, 24)
+        local b = W.CreateButton(tab, info.label, "accent-hover", UNIT_BTN_W, UNIT_BTN_H)
         b.id = info.key
-        b:SetPoint("TOPLEFT", 12, -14 - (i - 1) * 28)
         unitButtons[i] = b
     end
     tab._unitHighlight = W.CreateButtonGroup(unitButtons, SelectUnit)
     tab._unitButtons = unitButtons
+    LayoutUnitButtons()
 
     -- 分隔線
     local sep = tab:CreateTexture(nil, "ARTWORK")
@@ -886,18 +966,24 @@ local function Init()
 
     -- 右上：元件切換列
     local chipRow = CreateFrame("Frame", nil, tab)
-    chipRow:SetPoint("TOPLEFT", 140, -14)
-    chipRow:SetPoint("RIGHT", -12, 0)
-    chipRow:SetHeight(22)
+    chipRow:SetPoint("TOPLEFT", CHIP_ROW_X, -14)
+    chipRow:SetPoint("RIGHT", -CHIP_ROW_R, 0)
+    chipRow:SetHeight(CHIP_H + CHIP_ROW_PAD)
     tab.chipRow = chipRow
     for _, info in ipairs(ELEMENT_LIST) do
-        local chip = W.CreateButton(chipRow, info.label, "accent-hover", 46, 20)
+        local chip = W.CreateButton(chipRow, info.label, "accent-hover", 46, CHIP_H)
         chip.id = info.key
         -- 寬度依文字自適應（中文 2-4 字）
-        chip:SetWidth(math.max(40, chip:GetFontString():GetStringWidth() + 16))
+        chip:SetWidth(math.max(CHIP_MIN_W, chip:GetFontString():GetStringWidth() + CHIP_TEXT_PAD))
         tinsert(elementChips, chip)
     end
     chipHighlight = W.CreateButtonGroup(elementChips, SelectElement)
+
+    -- chipRow 的高度只算這一次，照「11 顆全部出現」需要的排數留。
+    -- 高度改跟著目前單位算的話，切單位時 chipLine 與底下整張表單會上下彈；
+    -- chip 少的單位底下空一排，穩定比緊湊重要。單排時 20+2＝22，與原本相同。
+    local chipRows = W.FlowRows(elementChips, ChipRowWidth(), CHIP_GAP_X)
+    chipRow:SetHeight(chipRows * CHIP_H + (chipRows - 1) * CHIP_GAP_Y + CHIP_ROW_PAD)
 
     -- 切換列下方一條淡線
     local chipLine = tab:CreateTexture(nil, "ARTWORK")
@@ -958,6 +1044,8 @@ ns.RegisterCallback("ShowOptionsTab", "unitTab", function(id)
     end
     Init()
     tab:Show()
+    -- 顯示出來之後再排一次左欄：Init 那一次是在還沒顯示的框上量的（見 LayoutUnitButtons）
+    LayoutUnitButtons()
     for _, b in ipairs(tab._unitButtons) do
         if b.id == currentUnit then tab._unitHighlight(b) end
     end

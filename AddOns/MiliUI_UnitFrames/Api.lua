@@ -888,6 +888,25 @@ local function Debug()
             local info = ns.ResourceInfo and ns.ResourceInfo(key)
             p(("   %-16s %s  %s"):format(key, (info and info.name) or "?", why))
         end
+        -- 顏色從哪來 ＋ 現在哪幾格是充能格：玩家回報「顏色不對」「看不出充能」時
+        -- 這兩行就能分辨是設定問題、Ayije 的值、還是根本沒讀到充能索引
+        if ns.ResourceFollowsAyije then
+            local follow, avail = ns.ResourceFollowsAyije()
+            p(("   顏色來源：%s（Ayije_CDM %s）"):format(
+                follow and "Ayije_CDM" or "自己", avail and "已載入" or "未載入"))
+        end
+        if ns.ResourceChargedDebug then
+            p("   充能格：" .. (ns.ResourceChargedDebug() or "（無）"))
+        end
+        -- 條件規則：有幾條、從哪來、現在命中第幾條。
+        -- 「規則沒成立」跟「根本沒讀到規則」在畫面上長得一模一樣，這一行是唯一分得出來的地方
+        if ns.ResourceConditionDebug then
+            for _, key in ipairs(list) do
+                local n, src, hit = ns.ResourceConditionDebug(key)
+                p(("   %-16s 條件 %d 條（來源：%s），目前命中%s"):format(
+                    key, n, src, hit and ("第 " .. hit .. " 條") or "無"))
+            end
+        end
         if GetShapeshiftFormID then
             p("   目前型態 formID=" .. tostring(GetShapeshiftFormID()))
         end

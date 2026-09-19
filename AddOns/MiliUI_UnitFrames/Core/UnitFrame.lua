@@ -27,7 +27,83 @@ function ns.ApplyElementBase(uf, f, edb)
     f:ClearAllPoints()
     f:SetPoint("TOPLEFT", uf, "TOPLEFT", Scale(edb.x or 0), Scale(edb.y or 0))
     f:SetFrameLevel(edb.level or 3)
+    if f.pingReceiver then f.pingReceiver:SetFrameLevel(f:GetFrameLevel() + 1) end   -- 跟著元件層級走
     f:SetAlpha(edb.alpha or 1)
+end
+
+-- 游標是否在 FontString 實際畫出來的字形範圍內（不是文字框的矩形——預設版面的名字框是
+-- 200×50 整片蓋住框體）。字形範圍用 GetStringWidth/GetStringHeight 依 justify 推回去，
+-- 上下左右各放 4 個版面單位當容錯。只給玩家框用，玩家框的錨定鏈沒有秘密值。
+local function CursorOverGlyphs(fs)
+    local l, b, w, h = fs:GetRect()
+    if not l then return false end
+    local sw, sh = fs:GetStringWidth(), fs:GetStringHeight()
+    if not sw or sw <= 0 then return false end
+    local jh, jv = fs:GetJustifyH(), fs:GetJustifyV()
+    local gl = (jh == "RIGHT" and (l + w - sw)) or (jh == "CENTER" and (l + (w - sw) / 2)) or l
+    local gb = (jv == "TOP" and (b + h - sh)) or (jv == "MIDDLE" and (b + (h - sh) / 2)) or b
+    local x, y = GetCursorPosition()
+    local s = fs:GetEffectiveScale()
+    x, y = x / s, y / s
+    local pad = 4
+    return x >= gl - pad and x <= gl + sw + pad and y >= gb - pad and y <= gb + sh + pad
+end
+
+-- Ping 接收器：一顆從 PingableUnitFrameTemplate 建出來的子框，蓋滿 host。
+--
+-- 為什麼是子框、為什麼不能 Mixin：暴雪 PingManager 用 securecallfunction 叫接收器的
+-- GetIsPingable / GetAllowRadialWheel / GetTargetInfo 再 securecopy 結果。那次執行只要讀到
+-- 插件寫的欄位（Mixin() 塞進去的方法、mixin 內部讀的 self.unit），就變成污染執行，UnitGUID
+-- 回的秘密 GUID 成了污染的秘密值，securecopy 當場硬錯、ping 監聽器卡死 —— 症狀是副本裡
+-- ping 敵對目標框直接報錯（友方與野外怪的 GUID 是明文，平常測不到）。EUI 實測三輪才定下來的
+-- 規矩：mixin 與 ping-receiver 屬性都要由 XML 模板在建框時裝上，框上不能有 unit 欄位（mixin
+-- 讀 self.unit or self:GetAttribute("unit")，欄位缺席就退到屬性，屬性是 C 端儲存不帶 taint），
+-- 三個方法不能覆寫。uf.unit 全插件都在用不能拿掉，所以接收器另開一顆乾淨的子框。
+--
+-- 為什麼每個元件各一顆：魔力條、職業資源條會露出 uf 矩形之外（見 notes「視覺框體不等於框架」），
+-- 游標在露出的那截時 frame stack 裡沒有 uf，只有元件。
+--
+-- 滑鼠：只開移動、不開點擊 —— 點擊照舊穿到底下的 uf；移動事件用 SetPropagateMouseMotion 往下傳，
+-- 疊在 uf 上的那部分 uf 照樣收到 OnEnter/OnLeave，高亮與提示不變。
+--
+-- role：
+--   "unit"            模板原樣，一個方法都不碰（所有非玩家框）
+--   "player-resource" 玩家框的血條／魔力條／頭像／資源列／框底：資源 ping（播報血量，治療者
+--                     連法力），不開輪盤。不照暴雪拿頭像當一般 ping 區：我們的頭像是 3D、
+--                     常常整片蓋住框體，那樣資源 ping 會很難點到。
+--   "player-name"     玩家框的名字文字框：游標在**字形範圍**內＝一般 ping、可開輪盤，GUID 固定
+--                     玩家本人；字形範圍外（文字框其餘那片，預設 200×50）＝資源 ping。這顆在
+--                     最上層，所以框內大部分 ping 其實都是它在答。
+-- ⚠ 後兩種會覆寫方法（污染執行），只因為玩家 GUID 永遠明文才安全。其他框絕對不能照抄。
+function ns.ArmPingReceiver(uf, host, role)
+    if host.pingReceiver then return host.pingReceiver end
+    if uf.isPreview then return end
+    local ok, r = pcall(CreateFrame, "Frame", nil, host, "PingableUnitFrameTemplate")
+    if not ok or not r then return end
+    r:SetAllPoints(host)
+    r:SetFrameLevel(host:GetFrameLevel() + (host == uf and 0 or 1))
+    r:SetMouseClickEnabled(false)
+    r:SetMouseMotionEnabled(true)
+    r:SetPropagateMouseMotion(true)
+    r:SetAttribute("unit", uf.unit)
+    if role == "player-resource" then
+        function r:GetAllowRadialWheel() return false end
+        function r:GetTargetInfo() return { guid = UnitGUID("player"), isPlayerResource = true } end
+    elseif role == "player-name" then
+        local fs = host.fontstring
+        local function overName()
+            local ok, over = pcall(CursorOverGlyphs, fs)   -- 算錯不能把暴雪的 securecall 炸掉
+            return ok and over or false
+        end
+        function r:GetAllowRadialWheel() return overName() end
+        function r:GetTargetInfo()
+            return { guid = UnitGUID("player"), isPlayerResource = not overName() }
+        end
+    end
+    host.pingReceiver = r
+    uf.pingReceivers = uf.pingReceivers or {}
+    uf.pingReceivers[#uf.pingReceivers + 1] = r
+    return r
 end
 
 ------------------------------------------------------------
@@ -190,6 +266,11 @@ function ns.EvalActiveUnit(uf)
 
     uf.unit = resolved
     uf.cache.unit = resolved
+    -- 接收器只認 unit 屬性（不能有欄位，見 ArmPingReceiver），載具切換要跟著改。
+    -- 子框不是 secure 框，戰鬥中 SetAttribute 不受保護。
+    if uf.pingReceivers then
+        for i = 1, #uf.pingReceivers do uf.pingReceivers[i]:SetAttribute("unit", resolved) end
+    end
     -- 有自己存一份 unit 的元件要跟著換（castbar、光環容器）
     for _, def in ipairs(ns.ElementOrder) do
         if def.setunit and uf.elements[def.name] then
@@ -554,6 +635,9 @@ end
 --                        就算畫得出來，SetRaidTarget 也是保護函式
 --   檢視房屋             tainted 跑 HouseListFrame:InitWithContextData 會把房屋清單
 --                        污染到底：之後連安全選單開的「拜訪房屋」都被擋，直到重登
+--   悄悄話             tainted 的 ChatFrameUtil.SendTell → ActivateChat 會在我們的堆疊上寫
+--                        LAST_ACTIVE_CHAT_EDIT_BOX，之後按 R 回覆秘密名字就炸、一路髒到
+--                        /reload（wow-121-chat-reply-secret-taint）；安全選單裡的那顆沒事
 -- 全部灰掉。reopenUnit 閘保證只動我們重開的那一份，正常的安全選單一個不碰。
 -- （ModifyMenu 的回呼是在 UnitPopup_OpenMenu **裡面**同步跑的，旗標包住呼叫就夠。）
 ------------------------------------------------------------
@@ -598,7 +682,7 @@ local function GreyBrokenItems(desc)
             local ok, text = pcall(MenuUtil.GetElementText, d)
             if ok and text and (text == SET_FOCUS or text == FOLLOW
                     or text == RAID_TARGET_ICON or text == UNIT_VIEW_HOUSES
-                    or text == COPY_CHARACTER_NAME) then
+                    or text == COPY_CHARACTER_NAME or text == WHISPER) then
                 d:SetEnabled(false)
             end
         end
@@ -740,6 +824,8 @@ function ns.SpawnUnitFrame(unit)
     uf:SetAttribute("*macrotext2", "/click " .. proxyName)
     InstallMenuClassifierFix()                 -- 只裝一次，第一個框生成時順便
     uf:SetAttribute("unit", unit)
+    -- Ping：uf 本體不掛 mixin 也不設 ping-receiver，接收器全是模板原樣的子框，見 ns.ArmPingReceiver
+    ns.ArmPingReceiver(uf, uf, unitKey == "player" and "player-resource" or "unit")
     -- 載具：讓 secure 端在點擊時自己把 player ↔ pet 對調（讀取時計算，不寫屬性，
     -- 所以戰鬥中也有效）。顯示面由 ns.EvalActiveUnit 跟上，見那裡的說明。
     uf:SetAttribute("toggleForVehicle", true)
