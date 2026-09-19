@@ -23,7 +23,7 @@ function addonTable.Display.Utilities.IsTappedUnit(unit)
   return not UnitPlayerControlled(unit) and UnitIsTapDenied(unit)
 end
 
-if addonTable.Constants.IsRetail then
+if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
   function addonTable.Display.Utilities.GetUnitDifficulty(unit)
     local rawDifficulty = C_PlayerInfo.GetContentDifficultyCreatureForPlayer(unit)
     if rawDifficulty == Enum.RelativeContentDifficulty.Trivial then
@@ -251,7 +251,7 @@ function addonTable.Display.Utilities.GetSootheAvailable()
   return isSootheAvailable
 end
 
-if addonTable.Constants.IsRetail then
+if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
   local questData = {}
   do
     local frame = CreateFrame("Frame")
