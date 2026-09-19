@@ -209,6 +209,7 @@ CallbackRegistry:GenerateCallbackEvents({
     "BuffStateChanged", -- Fired when buff state entries are recomputed
     "ExternalsRefresh", -- Fired when the externals display needs reconfiguring
     "CustomAnchorsChanged", -- Fired when the user's anchor-target list gains or loses a name
+    "ActiveConsumableChanged", -- Fired when the running consumable aura changes: (category, spellID)
 })
 BR.CallbackRegistry = CallbackRegistry
 

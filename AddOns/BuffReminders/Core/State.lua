@@ -1850,6 +1850,19 @@ local function IsInCompetitivePvP()
     return result
 end
 
+-- Aura spell of the consumable the player runs now, per consumable category. The
+-- bag sort puts the matching item first, so a refresh drinks the same consumable.
+---@type table<string, number>
+local activeConsumableSpells = {}
+
+local function SetActiveConsumableSpell(category, spellID)
+    if activeConsumableSpells[category] == spellID then
+        return
+    end
+    activeConsumableSpells[category] = spellID
+    BR.CallbackRegistry:TriggerEvent("ActiveConsumableChanged", category, spellID)
+end
+
 ---Check if player is missing a consumable buff, weapon enchant, or inventory item (returns true if missing)
 ---@param buff table Consumable buff definition
 ---@return boolean shouldShow
@@ -1858,15 +1871,22 @@ end
 ---@return number? itemCount total count of items in inventory (for item-based consumables)
 local function ShouldShowConsumableBuff(buff)
     if buff.spellID then
+        local category = buff.consumableCategory
         for _, id in ipairs(AsSpellList(buff.spellID)) do
             local hasBuff, remaining = UnitHasBuff("player", id)
             if hasBuff then
                 local CM = BR.ConsumableMemory
-                if CM and buff.consumableCategory and not CM.IsFleetingSpell(id) then
-                    CM.Remember(GetPlayerSpecId(), buff.consumableCategory, id, true)
+                if CM and category and not CM.IsFleetingSpell(id) then
+                    CM.Remember(GetPlayerSpecId(), category, id, true)
+                end
+                if category then
+                    SetActiveConsumableSpell(category, id)
                 end
                 return false, remaining, id -- Has at least one of the consumable buffs
             end
+        end
+        if category then
+            SetActiveConsumableSpell(category, nil)
         end
     end
 
@@ -3242,6 +3262,13 @@ end
 ---PLAYER_ENTERING_WORLD)
 function BuffState.InvalidateRepairSourceCache()
     cachedRepairSources = nil
+end
+
+---Aura spell of the consumable the player runs now, or nil when none is up.
+---@param category string Consumable category
+---@return number? spellID
+function BuffState.GetActiveConsumableSpell(category)
+    return activeConsumableSpells[category]
 end
 
 ---Invalidate loadout state cache (call on PLAYER_SPECIALIZATION_CHANGED,

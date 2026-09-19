@@ -2190,21 +2190,18 @@ local function RenderVisibleEntry(frame, entry)
         -- Show consumable stat label for expiring consumables (resolve from cached items)
         if entry.displayType == "expiring" and BUFF_KEY_TO_CATEGORY[frame.key] then
             local items = GetCachedItems(frame)
-            -- entry.dynamicIcon holds the texture of the aura that expires now. It stays
-            -- on the icon, with the labels this render already cleared: they name a bag
-            -- item, and that belongs to the missing state where every option fans out.
-            -- The bag item still supplies the cooldown swipe of a reusable consumable.
+            -- The icon must show the item the click uses. The bag sort puts the item
+            -- behind the running aura first, so the icon and the aura agree when the
+            -- player carries it. With no bag item, entry.dynamicIcon shows the aura.
             local item = items and items[1] or nil
             ApplyItemCooldown(frame, item)
-            if not entry.dynamicIcon then
-                if item then
-                    if item.icon then
-                        frame.icon:SetTexture(item.icon)
-                    end
-                    ApplyConsumableOverlays(frame, item)
-                else
-                    RestoreFallbackIcon(frame)
+            if item then
+                if item.icon then
+                    frame.icon:SetTexture(item.icon)
                 end
+                ApplyConsumableOverlays(frame, item)
+            elseif not entry.dynamicIcon then
+                RestoreFallbackIcon(frame)
             end
         end
     else -- "text"

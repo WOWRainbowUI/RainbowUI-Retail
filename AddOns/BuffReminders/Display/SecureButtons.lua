@@ -724,6 +724,12 @@ BR.CallbackRegistry:RegisterCallback("SettingChanged", function(_, path)
     end
 end)
 
+-- The sort reads the running aura, and a world-entry resolve can build the arrays
+-- before the first state refresh reports it.
+BR.CallbackRegistry:RegisterCallback("ActiveConsumableChanged", function()
+    consumableCacheDirty = true
+end)
+
 ---Stack count text for a bag item. A permanent item shows none.
 ---@param item table?
 ---@return string
@@ -848,7 +854,30 @@ local function RefreshConsumableCache()
         end
         if #items > 0 then
             local rememberedSpell = BR.ConsumableMemory.GetRemembered(specId, category)
+            -- A drink fires BAG_UPDATE_DELAYED after its aura lands, so a scan-time read is current.
+            local activeSpell = BR.BuffState.GetActiveConsumableSpell(category)
+            -- The stat label spans the regular and fleeting forms of one consumable. An
+            -- unlabeled category, such as runes, keeps its priority order: every rune
+            -- grants the same effect, so no item is "the same" one to refresh.
+            local activeLabel
+            if activeSpell then
+                for _, item in ipairs(items) do
+                    if item.useSpellID == activeSpell then
+                        activeLabel = item.statLabel
+                        break
+                    end
+                end
+            end
             tsort(items, function(a, b)
+                -- The stat of the running aura sorts first, so a refresh keeps the stat
+                -- and the main icon shows the aura it extends.
+                if activeLabel then
+                    local aAct = a.statLabel == activeLabel
+                    local bAct = b.statLabel == activeLabel
+                    if aAct ~= bAct then
+                        return aAct
+                    end
+                end
                 -- A lower priority value sorts first.
                 local aPri = allowedSet and allowedSet[a.itemID]
                 local bPri = allowedSet and allowedSet[b.itemID]
