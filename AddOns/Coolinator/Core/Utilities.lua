@@ -59,12 +59,23 @@ function addonTable.Utilities.WillRestrictionApplySoon(restrictionType, state)
   return state == Enum.AddOnRestrictionState.Activating and auraTypes[restrictionType] and not addonTable.Utilities.IsAurasRestricted()
 end
 
-local prevSpec = 1
-function addonTable.Utilities.GetSpecID()
-  local specIndex = C_SpecializationInfo.GetSpecialization() or prevSpec
-  local spec = C_SpecializationInfo.GetSpecializationInfo(specIndex)
-  prevSpec = specIndex
-  return spec
+if not addonTable.Constants.IsForever then
+  local prevSpec = 1
+  function addonTable.Utilities.GetSpecID()
+    local specIndex = C_SpecializationInfo.GetSpecialization() or prevSpec
+    local spec = C_SpecializationInfo.GetSpecializationInfo(specIndex)
+    prevSpec = specIndex
+    return spec
+  end
+else
+  local prevSpec = 1
+  local _, class = UnitClass("player")
+  function addonTable.Utilities.GetSpecID()
+    local specIndex = C_SpecializationInfo.GetActiveSpecGroup() or prevSpec
+    local spec = class .. specIndex
+    prevSpec = specIndex
+    return spec
+  end
 end
 
 function addonTable.Utilities.PurgeKey(t, k)

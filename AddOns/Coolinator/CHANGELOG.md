@@ -1,12 +1,6 @@
 # Coolinator
 
-## [143](https://github.com/TheMouseNest/Coolinator/tree/143) (2026-09-16)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/142...143) 
+## [147](https://github.com/TheMouseNest/Coolinator/tree/147) (2026-09-18)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/146...147) 
 
-- Update stacks limit for "Killing Machine" aura  
-- Fix typo  
-- Fix pet auras getting out of sync after multiple layout refreshes  
-- Simplify aura caching code again, to avoid clashes  
-- Fix some auras swapping positions  
-- Cleanup  
-- Add gates on C\_CooldownViewer (so that it will probably work on Forever)  
+- Forever: Basic combo points bar (fixed for secrecy)  

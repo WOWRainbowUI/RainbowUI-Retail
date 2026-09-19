@@ -103,10 +103,13 @@ frame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 frame:RegisterEvent("LOADING_SCREEN_ENABLED")
 frame:RegisterEvent("PVP_MATCH_STATE_CHANGED") -- Cooldowns sometimes reset on this event (PvP Shuffle rounds)
 frame:RegisterUnitEvent("UNIT_PET", "player")
+if C_EventUtils.IsEventValid("ACTIVE_TALENT_GROUP_CHANGED") then
+  frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+end
 frame:SetScript("OnEvent", function(_, eventName, data1, data2)
   if eventName == "ADDON_LOADED" and data1 == "Coolinator" then
     addonTable.Core.Initialize()
-  elseif eventName == "TRAIT_CONFIG_UPDATED" or eventName == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" or eventName == "GROUP_FORMED" then
+  elseif eventName == "TRAIT_CONFIG_UPDATED" or eventName == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" or eventName == "GROUP_FORMED" or eventName == "ACTIVE_TALENT_GROUP_CHANGED" then
     TriggerUpdate()
   elseif eventName == "SPELL_UPDATE_ICON" then
     addonTable.CallbackRegistry:TriggerEvent("Update.SpellIcons", data1)

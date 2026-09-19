@@ -104,8 +104,15 @@ function addonTable.Designer.GetActiveEquipment(design)
   return result
 end
 
-function addonTable.Designer.GetAvailableClassResources()
-  return addonTable.Constants.ClassResources[addonTable.Utilities.GetSpecID()]
+if addonTable.Constants.IsRetail then
+  function addonTable.Designer.GetAvailableClassResources()
+    return addonTable.Constants.ClassResources[addonTable.Utilities.GetSpecID()]
+  end
+else
+  local _, class = UnitClass("player")
+  function addonTable.Designer.GetAvailableClassResources()
+    return addonTable.Constants.ClassResources[class]
+  end
 end
 
 function addonTable.Designer.Initialize()
