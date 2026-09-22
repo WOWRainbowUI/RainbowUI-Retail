@@ -677,20 +677,87 @@ end
 
 --contains zoneIds to auto swap to corresponding dungeon when opening the AddOn
 --ids are added in each dungeon file
---https://wowpedia.fandom.com/wiki/UiMapID
+--https://warcraft.wiki.gg/wiki/UiMapID
 MDT.zoneIdToDungeonIdx = {}
+---@class DungeonLocation
+---@field dungeonIdx number
+---@field subzoneAreaIDs? number[]
+---@type table<number, DungeonLocation[]>
+local dungeonLocationsByZone = {}
+local autoSelectedZoneId
 
-local lastUpdatedDungeonIdx
+local zoneChangeFrame = CreateFrame("Frame")
+zoneChangeFrame:RegisterEvent("ZONE_CHANGED")
+zoneChangeFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
+zoneChangeFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+zoneChangeFrame:SetScript("OnEvent", function()
+  local zoneId = C_Map.GetBestMapForUnit("player")
+  if zoneId and zoneId ~= autoSelectedZoneId then autoSelectedZoneId = nil end
+end)
+
+local function getDungeonPriority(dungeonIdx)
+  for listIdx, dungeonList in ipairs(MDT.dungeonSelectionToIndex or {}) do
+    for dungeonOrder, listedDungeonIdx in ipairs(dungeonList) do
+      if listedDungeonIdx == dungeonIdx then return listIdx, dungeonOrder end
+    end
+  end
+  return math.huge, math.huge
+end
+
+local function hasHigherPriority(candidateIdx, currentIdx)
+  local candidateList, candidateOrder = getDungeonPriority(candidateIdx)
+  local currentList, currentOrder = getDungeonPriority(currentIdx)
+  return candidateList < currentList or (candidateList == currentList and candidateOrder < currentOrder)
+end
+
+---@param dungeonIdx number
+---@param location {zoneIds: number[], subzoneAreaIDs?: number[]}
+function MDT:RegisterDungeonLocation(dungeonIdx, location)
+  local registeredLocation = {
+    dungeonIdx = dungeonIdx,
+    subzoneAreaIDs = location.subzoneAreaIDs,
+  }
+  for _, zoneId in ipairs(location.zoneIds) do
+    dungeonLocationsByZone[zoneId] = dungeonLocationsByZone[zoneId] or {}
+    tinsert(dungeonLocationsByZone[zoneId], registeredLocation)
+    local currentIdx = MDT.zoneIdToDungeonIdx[zoneId]
+    if not currentIdx or hasHigherPriority(dungeonIdx, currentIdx) then
+      MDT.zoneIdToDungeonIdx[zoneId] = dungeonIdx
+    end
+  end
+end
+
+---@param zoneId number
+---@param subzoneText? string
+---@return number?
+function MDT:GetDungeonIdxForZone(zoneId, subzoneText)
+  local locations = dungeonLocationsByZone[zoneId]
+  if locations and subzoneText and subzoneText ~= "" then
+    for _, location in ipairs(locations) do
+      for _, areaID in ipairs(location.subzoneAreaIDs or {}) do
+        if subzoneText == C_Map.GetAreaInfo(areaID) then return location.dungeonIdx end
+      end
+    end
+  end
+  return MDT.zoneIdToDungeonIdx[zoneId]
+end
+
+---@return number? dungeonIdx
+---@return number? zoneId
+function MDT:GetDungeonIdxForCurrentLocation()
+  local zoneId = C_Map.GetBestMapForUnit("player")
+  if not zoneId then return end
+  return MDT:GetDungeonIdxForZone(zoneId, GetSubZoneText()), zoneId
+end
+
 function MDT:CheckCurrentZone(init)
   initializeDB()
   if C_ChallengeMode.IsChallengeModeActive() then return end
-  local zoneId = C_Map.GetBestMapForUnit("player")
-  local dungeonIdx = MDT.zoneIdToDungeonIdx[zoneId]
-  if dungeonIdx and (not lastUpdatedDungeonIdx or dungeonIdx ~= lastUpdatedDungeonIdx) then
-    lastUpdatedDungeonIdx = dungeonIdx
-    MDT:UpdateToDungeon(dungeonIdx, nil, init)
-    MDT:SetDungeonList(nil, dungeonIdx)
-  end
+  local dungeonIdx, zoneId = MDT:GetDungeonIdxForCurrentLocation()
+  if not dungeonIdx or zoneId == autoSelectedZoneId then return end
+  autoSelectedZoneId = zoneId
+  MDT:UpdateToDungeon(dungeonIdx, nil, init)
+  MDT:SetDungeonList(nil, dungeonIdx)
 end
 
 function MDT:SetMapSublevel(pull)
