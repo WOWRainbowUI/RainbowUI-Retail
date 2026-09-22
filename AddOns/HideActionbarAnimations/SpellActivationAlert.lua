@@ -72,6 +72,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 		overlay.throttle = 0.02 -- match the previous 0.01 look, higher = slower, lower = faster
 		overlay:SetScript("OnUpdate", function(button, elapsed)
 
+			--local AnimateTexCoords = TextureUtil and TextureUtil.AnimateTexCoords or AnimateTexCoords
 			--AnimateTexCoords(button.Ants, 256, 256, 48, 48, 22, elapsed, 0.01) -- (texture, textureWidth, textureHeight, frameWidth, frameHeight, numFrames, elapsed, throttle)
 
 			button.throttle = button.throttle - elapsed
@@ -209,6 +210,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 			ShowSpellActivationAlert(button)
 		end)
 	end
+
 	if ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
 		hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button)
 			if issecretvalue(button) then return end
