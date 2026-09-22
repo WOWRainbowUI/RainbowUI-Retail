@@ -29,9 +29,10 @@ GTFO = {
 		IgnoreTimeAmount = .2;
 		AFKAlertMode = nil;
 	};
-	Version = "6.10.2"; -- Version number (text format)
+	Version = "6.11"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 61002; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 61100; -- Numeric version number for checking out-of-date clients (retail)
+	ForeverVersionNumber = 61100; -- Numeric version number for checking out-of-date clients (WoW: Forever)
 	ClassicVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -82,10 +83,12 @@ GTFO = {
 	DragonflightMode = nil; -- WoW Dragonflight UI client detection
 	RetailMode = nil; -- WoW Retail client detection
 	ClassicMode = nil; -- WoW Classic client detection
+	ForeverMode = nil; -- WoW Forever client detection
 	BurningCrusadeMode = nil; -- WoW TBC client detection
 	WrathMode = nil; -- WoW Wrath client detection
 	CataclysmMode = nil; -- WoW Cataclysm client detection
 	MistsMode = nil; -- WoW Mists client detection
+	RestrictedMode = nil; -- WoW "Restricted" client detection (Retail, Forever)
 	SoundChannels = { 
 		{ Code = "Master", Name = _G.MASTER_VOLUME },
 		{ Code = "SFX", Name = _G.SOUND_VOLUME, CVar = "Sound_EnableSFX" },
@@ -116,7 +119,10 @@ if (buildNumber >= 100000) then
 	GTFO.DragonflightMode = true;
 	GTFO.SoundChannels[2].Name = _G.FX_VOLUME;
 end
-if (buildNumber <= 20000) then
+if (buildNumber < 20000 and buildNumber > 16000) then
+	GTFO.ForeverMode = true;
+	GTFO.VersionNumber = GTFO.ForeverVersionNumber;
+elseif (buildNumber <= 20000) then
 	GTFO.ClassicMode = true;
 	GTFO.VersionNumber = GTFO.ClassicVersionNumber;
 elseif (buildNumber <= 30000) then
@@ -137,6 +143,8 @@ else
 	local currentDate = date("*t");
 	GTFO.AprilFoolsDay = (currentDate.month == 4 and currentDate.day == 1);
 end
+
+GTFO.RestrictedMode = GTFO.RetailMode or GTFO.ForeverMode;
 
 StaticPopupDialogs["GTFO_POPUP_MESSAGE"] = {
 	preferredIndex = 3,
@@ -204,7 +212,7 @@ function GTFO_ScanGroupGUID()
 	if (raidMembers > 0) then
 		for i = 1, raidMembers, 1 do
 			local isPlayer;
-			if (GTFO.RetailMode) then
+			if (GTFO.RestrictedMode) then
 				isPlayer = GTFO.SafeUnitIsUnit("raid"..i, "player");
 			else
 				isPlayer = UnitIsUnit("raid"..i, "player");
@@ -218,7 +226,7 @@ function GTFO_ScanGroupGUID()
 	if (partyMembers > 0) then
 		for i = 1, partyMembers, 1 do
 			local isPlayer;
-			if (GTFO.RetailMode) then
+			if (GTFO.RestrictedMode) then
 				isPlayer = GTFO.SafeUnitIsUnit("party"..i, "player");
 			else
 				isPlayer = UnitIsUnit("party"..i, "player");
@@ -297,7 +305,7 @@ function GTFO_Command(arg1)
 	elseif (Command == "IGNORE") then
 		GTFO_Command_IgnoreSpell(Description);
 	elseif (Command == "REPORT") then
-		if (GTFO.RetailMode) then
+		if (GTFO.RestrictedMode) then
 			GTFO_Command_Report();
 		else
 			GTFO_Command_Help();
@@ -468,7 +476,7 @@ function GTFO_Command_TestMode()
 end
 
 function GTFO_Command_Standby()
-	if (GTFO.RetailMode and GTFO.IsAuraSoundRegistrationRestricted and GTFO.IsAuraSoundRegistrationRestricted()) then
+	if (GTFO.RestrictedMode and GTFO.IsAuraSoundRegistrationRestricted and GTFO.IsAuraSoundRegistrationRestricted()) then
 		GTFO_ErrorPrint(GTFOLocal.Help_SettingsDuringRestrictions);
 		return;
 	end

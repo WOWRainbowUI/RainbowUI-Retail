@@ -27,9 +27,9 @@ function GTFO_OnEvent(self, event, ...)
 	if (event == "VARIABLES_LOADED") then
 		C_ChatInfo.RegisterAddonMessagePrefix("GTFO");
 		if (GTFOData.DataCode ~= GTFO.DataCode) then
-			GTFO_SetDefaults();
 			GTFO_ChatPrint(string.format(GTFOLocal.Loading_NewDatabase, GTFO.Version));
-			GTFO_DisplayConfigPopupMessage();
+			GTFO_SetDefaults();
+			C_Timer.After(1, GTFO_DisplayConfigPopupMessage);
 		end
 		GTFO.Settings = {
 			Active = GTFOData.Active;

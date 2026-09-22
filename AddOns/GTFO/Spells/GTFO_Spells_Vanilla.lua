@@ -5,7 +5,7 @@
 GTFO Spell List - Vanilla
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 GTFO.SpellID["21070"] = {
   --desc = "Noxious Cloud (Noxious Slime - Maraudon)";

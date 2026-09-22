@@ -564,12 +564,14 @@ GTFO.SpellID["394476"] = {
 GTFO.SpellID["387243"] = {
   --desc = "MMRGL GRRGL! (Captivated Shellwarden)";
   applicationOnly = true;
+  maps = { 2023, 2437 }; -- Ohn'ahran Plains, Zul'Aman
   sound = 3;
 };
 
 GTFO.SpellID["388182"] = {
   --desc = "Boulder Toss (Mahg the Trampler)";
   applicationOnly = true;
+  maps = { 2024, 2437 }; -- The Azure Span, Zul'Aman
   sound = 3;
 };
 

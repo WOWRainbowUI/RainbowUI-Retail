@@ -133,6 +133,28 @@ GTFO.SpellID["1231892"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1261909"] = {
+  --desc = "Electrified Haze";
+  map = 2405; -- Voidstorm
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1259618"] = {
+  --desc = "Cosmic Sickness (Kal'gorg the Unshackled)";
+  map = 2405; -- Voidstorm
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1279158"] = {
+  --desc = "Crushing Leap (Tiny Vermin)";
+  map = 2437; -- Zul'Aman
+  applicationOnly = true;
+  sound = 3;
+};
+
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************

@@ -1,4 +1,4 @@
-## Interface: 30405, 38001, 38002
+## Interface: 16001
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
@@ -21,24 +21,10 @@ Localization\zhTW.lua
 Localization\koKR.lua
 Localization\ptBR.lua
 Localization\Boss.lua
-Classic\GTFO_PowerAuras.lua
-Classic\GTFO_WeakAuras.lua
-Classic\GTFO_Recount.lua
-Classic\GTFO_Skada.lua
 GTFO.lua
 Spells\GTFO_Ignore.lua
-Spells\GTFO_Spells_GenericRetail.lua
-Spells\GTFO_Spells_Vanilla.lua
-Spells\GTFO_Spells_BC.lua
-Spells\GTFO_Spells_LK.lua
-Spells\GTFO_Spells_Special.lua
-Spells\GTFO_Fail_GenericRetail.lua
-Spells\GTFO_Fail_Vanilla.lua
-Spells\GTFO_Fail_BC.lua
-Spells\GTFO_Fail_LK.lua
-Spells\GTFO_FF_BC.lua
-Spells\GTFO_FF_LK.lua
-Classic\GTFO_Mobs.lua
-Classic\GTFO_Classic.lua
-Classic\GTFO_Ignore_Classic.lua
-Classic\GTFO_Classic.xml
+Spells\GTFO_Spells_Forever.lua
+Spells\GTFO_Fail_Forever.lua
+Retail\GTFO_Retail.lua
+Retail\GTFO_Ignore_Retail.lua
+Retail\GTFO_Retail.xml

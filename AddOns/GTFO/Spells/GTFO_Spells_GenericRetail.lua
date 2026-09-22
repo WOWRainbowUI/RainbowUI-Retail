@@ -71,7 +71,7 @@ Sample:
 		
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 GTFO.SpellID["46264"] = {
 	--desc = "Void Zone Effect (Generic - Unknown)";

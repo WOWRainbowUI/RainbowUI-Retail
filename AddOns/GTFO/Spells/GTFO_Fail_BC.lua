@@ -5,7 +5,7 @@
 GTFO Fail List - Burning Crusade
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 -- *****************
 -- * Blood Furnace *

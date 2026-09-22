@@ -2,7 +2,7 @@
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 6.10.2
+## Version: 6.11
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 ## Category: Combat
@@ -24,9 +24,7 @@ Localization\Boss.lua
 GTFO.lua
 Spells\GTFO_Ignore.lua
 Spells\GTFO_Spells_GenericRetail.lua
-Spells\GTFO_Spells_GenericClassic.lua
 Spells\GTFO_Spells_Vanilla.lua
-Spells\GTFO_Spells_Classic.lua
 Spells\GTFO_Spells_BC.lua
 Spells\GTFO_Spells_LK.lua
 Spells\GTFO_Spells_CAT.lua
@@ -39,9 +37,7 @@ Spells\GTFO_Spells_TWW.lua
 Spells\GTFO_Spells_MN.lua
 Spells\GTFO_Spells_Special.lua
 Spells\GTFO_Fail_GenericRetail.lua
-Spells\GTFO_Fail_GenericClassic.lua
 Spells\GTFO_Fail_Vanilla.lua
-Spells\GTFO_Fail_Classic.lua
 Spells\GTFO_Fail_BC.lua
 Spells\GTFO_Fail_LK.lua
 Spells\GTFO_Fail_CAT.lua

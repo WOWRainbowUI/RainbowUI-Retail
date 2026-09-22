@@ -2490,3 +2490,9 @@ Change Log:
 * Added Midnight spells (delves)
 * Added Dragonflight spells (world)
 * Fixed Midnight spells for The Venomous Abyss
+
+6.11
+* Added support for WoW: Forever
+* Fixed potential Blizzard taint issue when running GTFO for the first time
+* Added Midnight spells (world)
+* Added The War Within spells (world)
