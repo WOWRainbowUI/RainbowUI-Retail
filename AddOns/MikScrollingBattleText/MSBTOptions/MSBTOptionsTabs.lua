@@ -30,7 +30,7 @@ local DisableControls = MSBTPopups.DisableControls
 -- Local references to various variables for faster access.
 local fonts = MSBTMedia.fonts
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsClassic = MikSBT.Compatibility.Client.isClassicContent
 
 
 -------------------------------------------------------------------------------

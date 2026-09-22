@@ -7,7 +7,8 @@ local module = {}
 local moduleName = "Main"
 MSBTOptions[moduleName] = module
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local Client = MikSBT.Compatibility.Client
+local HasModernAPI = Client.hasModernAPI
 
 
 -------------------------------------------------------------------------------
@@ -331,7 +332,7 @@ local function CreateMainFrame()
 
 	-- Close Button.
 	local frame = CreateFrame("Button", nil, mainFrame, "UIPanelCloseButton")
-	if IsClassic then
+	if not HasModernAPI then
 		frame:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -3, -8)
 	else
 		frame:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -7, -12)

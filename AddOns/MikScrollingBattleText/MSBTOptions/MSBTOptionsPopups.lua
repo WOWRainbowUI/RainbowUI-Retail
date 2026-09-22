@@ -31,9 +31,10 @@ local ConvertType = MSBTTriggers.ConvertType
 -- Local references to various variables for faster access.
 local fonts = MSBTMedia.fonts
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local Client = MikSBT.Compatibility.Client
+local IsClassic = Client.isClassicContent
+local IsCataClassic = Client.isCataClassic
+local IsVanillaClassic = Client.isVanillaContent
 
 
 
@@ -3959,7 +3960,7 @@ end
 -- Initialization.
 -------------------------------------------------------------------------------
 
-if IsClassic then
+if type(FillLocalizedClassList) == "function" then
 	FillLocalizedClassList(CLASS_NAMES)
 else
 	CLASS_NAMES = LocalizedClassList()

@@ -8,7 +8,8 @@ local module = {}
 local moduleName = "Controls"
 MSBTOptions[moduleName] = module
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local Client = MikSBT.Compatibility.Client
+local HasModernAPI = Client.hasModernAPI
 
 
 -------------------------------------------------------------------------------
@@ -1800,7 +1801,7 @@ local function Colorswatch_OnClick(this)
 	local tempB = this.b or 1
 
 	ColorPickerFrame.associatedColorSwatch = this
-	if IsClassic then
+	if not HasModernAPI then
 		ColorPickerFrame.hasOpacity = false
 		ColorPickerFrame.opacity = 1
 		ColorPickerFrame.previousValues = {r = tempR, g = tempG, b = tempB}
