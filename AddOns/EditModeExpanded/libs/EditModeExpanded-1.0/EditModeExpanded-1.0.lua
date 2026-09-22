@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 119
+local MAJOR, MINOR = "EditModeExpanded-1.0", 120
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -205,12 +205,12 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     
     -- frame is an existing Edit Mode frame by Blizzard, handle it differently
     if systemID then
-        local name = frame:GetName()
-        if not name then
-            name = frame.systemNameString
+        local internalName = frame:GetName()
+        if not internalName then
+            internalName = frame.systemNameString
         end
-        if existingFrames[name] then return end
-        existingFrames[name] = frame
+        if existingFrames[internalName] then return end
+        existingFrames[internalName] = frame
         
         systemID = nextSystemIDIndex
         nextSystemIDIndex = nextSystemIDIndex + 1
@@ -421,49 +421,37 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     EditModeManagerExpandedFrame.AccountSettings.nextLayoutIndex = EditModeManagerExpandedFrame.AccountSettings.nextLayoutIndex + 1
     checkButtonFrame.fixedWidth = 225
     checkButtonFrame.fixedHeight = 32
+    checkButtonFrame.Button:RegisterForClicks("AnyUp")
     
-    local resetButton = CreateFrame("Button", nil, checkButtonFrame, "UIPanelButtonTemplate")
-    frame.EMEResetButton = resetButton
-    resetButton.ignoreInLayout = true
-    resetButton:SetText(RESET)
-    resetButton:SetPoint("TOPLEFT", checkButtonFrame.Label, "TOPRIGHT", 5, 2)
-    resetButton:SetScript("OnClick", function()
-        local profiledb = framesDB[frame.system]
-        frame:ClearAllPoints()
-        frame:SetClampedToScreen(true)
-
-        if not profiledb.defaultX then profiledb.defaultX = 0 end
-        if not profiledb.defaultY then profiledb.defaultY = 0 end
-        local x, y = getOffsetXY(frame, profiledb.defaultX, profiledb.defaultY)
-        if not pcall( function() frame:SetPoint(frame.EMEanchorPoint, frame.EMEanchorTo, frame.EMEanchorPoint, x, y) end ) then
-            -- need a better solution here
-            frame:SetPoint("BOTTOMLEFT", nil, "BOTTOMLEFT", x, y)
-        end
-        
-        profiledb.clamped = true
-        profiledb.x = profiledb.defaultX
-        profiledb.y = profiledb.defaultY
-        frame:SetScaleOverride(profiledb.defaultScale)
-        profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] = profiledb.defaultScale * 100
-        EditModeExpandedSystemSettingsDialog:Hide()
-        frame:HighlightSystem()
-        
-        profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] = 0
-    end)
-    
-    EditModeManagerExpandedFrame:HookScript("OnHide", function()
-        resetButton:Hide()
-    end)
-    
-    EditModeManagerExpandedFrame:HookScript("OnShow", function()
-        if resetButton.hiddenByGrouping then return end
-        resetButton:Show()
-    end)
-    
-    checkButtonFrame.Button:SetScript("OnClick", function(self)
+    checkButtonFrame.Button:SetScript("OnClick", function(self, buttonType)
         local isChecked = self:GetChecked()
-        framesDB[frame.system].enabled = isChecked
-        frame:SetShown(isChecked)
+        if buttonType == "LeftButton" then
+            framesDB[frame.system].enabled = isChecked
+            frame:SetShown(isChecked)
+        elseif buttonType == "RightButton" then
+            self:SetChecked(not isChecked)
+            local profiledb = framesDB[frame.system]
+            frame:ClearAllPoints()
+            frame:SetClampedToScreen(true)
+
+            if not profiledb.defaultX then profiledb.defaultX = 0 end
+            if not profiledb.defaultY then profiledb.defaultY = 0 end
+            local x, y = getOffsetXY(frame, profiledb.defaultX, profiledb.defaultY)
+            if not pcall( function() frame:SetPoint(frame.EMEanchorPoint, frame.EMEanchorTo, frame.EMEanchorPoint, x, y) end ) then
+                -- need a better solution here
+                frame:SetPoint("BOTTOMLEFT", nil, "BOTTOMLEFT", x, y)
+            end
+            
+            profiledb.clamped = true
+            profiledb.x = profiledb.defaultX
+            profiledb.y = profiledb.defaultY
+            frame:SetScaleOverride(profiledb.defaultScale)
+            profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] = profiledb.defaultScale * 100
+            EditModeExpandedSystemSettingsDialog:Hide()
+            frame:HighlightSystem()
+            
+            profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] = 0
+        end
     end)
     
     checkButtonFrame.Label:SetText(name)
@@ -522,12 +510,6 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
         frame:SetShown(framesDB[frame.system].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= 1)
     end
-    
-    hooksecurefunc(frame, "AddExtraButtons", function(self)
-        self.resetToDefaultPositionButton:SetOnClickHandler(function()
-            resetButton:Click()
-        end)
-    end)
 end
 
 -- use this if a frame by default doesn't have a size set yet
@@ -1019,19 +1001,6 @@ hooksecurefunc(f, "OnLoad", function()
     
     if not EditModeManagerExpandedFrame then
         CreateFrame("Frame", "EditModeManagerExpandedFrame", UIParent, "VerticalLayoutFrame")
-    elseif not EditModeManagerExpandedFrame.Layout then
-        -- workaround for bug prior to v108
-        -- remove this in a future update when older versions of this library no longer work
-        for _, frame in pairs(frames) do
-            if frame.EMEResetButton and (frame.EMEResetButton:GetParent() == EditModeManagerFrame) then
-                frame.EMEResetButton:SetParent(UIParent)
-                frame.EMEResetButton:ClearAllPoints()
-                frame.EMEResetButton:Hide()
-            end
-        end
-        
-        -- backward compatibility: expanded frame was created by an older version of the library before vertical layout template was added
-        Mixin(EditModeManagerExpandedFrame, LayoutMixin, VerticalLayoutMixin)
     end
     EditModeManagerExpandedFrame:Hide();
     
@@ -1069,6 +1038,14 @@ hooksecurefunc(f, "OnLoad", function()
     EditModeManagerExpandedFrame.Title.align = "center"
     EditModeManagerExpandedFrame.Title.topPadding = 15
     EditModeManagerExpandedFrame.Title.bottomPadding = 8
+    EditModeManagerExpandedFrame.Title:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self)
+        GameTooltip:AddLine("Right click an option to reset that frame")
+        GameTooltip:Show()
+    end)
+    EditModeManagerExpandedFrame.Title:SetScript("OnLeave", function()
+        GameTooltip:Hide()
+    end)
     
     EditModeManagerExpandedFrame.Border = EditModeManagerExpandedFrame.Border or CreateFrame("Frame", nil, EditModeManagerExpandedFrame, "DialogBorderTranslucentTemplate")
     EditModeManagerExpandedFrame.Border.ignoreInLayout = true
@@ -1151,7 +1128,7 @@ hooksecurefunc(f, "OnLoad", function()
             end
         end
         
-        for frameName, frame in pairs(existingFrames) do
+        for _, frame in pairs(existingFrames) do
             local systemID = getSystemID(frame)
             if framesDB[systemID] and framesDB[systemID].settings and (framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
                 if (framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1) then
@@ -1193,7 +1170,7 @@ hooksecurefunc(f, "OnLoad", function()
             end
         end
         
-        for frameName, frame in pairs(existingFrames) do
+        for _, frame in pairs(existingFrames) do
             local systemID = getSystemID(frame)
             if framesDB[systemID] and framesDB[systemID].settings and (framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
                 if (framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1) then
@@ -1246,7 +1223,7 @@ hooksecurefunc(f, "OnLoad", function()
         if oldProfileName == newProfileName then return end
 
         for _, allFrames in pairs({frames, existingFrames}) do
-            for name, frame in pairs(allFrames) do
+            for _, frame in pairs(allFrames) do
                 local systemID = frame.EMESystemID or frame.system
                 local db = baseFramesDB[systemID]
                 
@@ -1736,7 +1713,7 @@ function refreshCurrentProfile()
     end
     
     for _, allFrames in pairs({frames, existingFrames}) do
-        for name, frame in pairs(allFrames) do
+        for _, frame in pairs(allFrames) do
             EditModeExpandedSystemSettingsDialog:Hide()
             local systemID = frame.EMESystemID or frame.system
             local db = baseFramesDB[systemID]
@@ -2136,7 +2113,7 @@ do
             enteringCombat = true
             -- entering combat
             for _, allFrames in pairs({frames, existingFrames}) do
-                for name, frame in pairs(allFrames) do
+                for _, frame in pairs(allFrames) do
                     local systemID = getSystemID(frame)
                     local db = framesDB[systemID]
                     if db then
@@ -2168,7 +2145,7 @@ do
             enteringCombat = false
             -- exiting combat
             for _, allFrames in pairs({frames, existingFrames}) do
-                for name, frame in pairs(allFrames) do
+                for _, frame in pairs(allFrames) do
                     local systemID = getSystemID(frame)
                     local db = framesDB[systemID]
                     if db then
@@ -2203,15 +2180,6 @@ function lib:GroupOptions(frameGroup, name)
     
     local defaultFrame = frameGroup[1]
     local checkButtonFrame = defaultFrame.EMECheckButtonFrame
-    local resetButton = defaultFrame.EMEResetButton
-
-    resetButton:HookScript("OnClick", function()
-        for i, frame in ipairs(frameGroup) do
-            if i > 1 then
-                frame.EMEResetButton:Click()
-            end
-        end
-    end)
     
     checkButtonFrame:HookScript("OnClick", function(self)
         for i, frame in ipairs(frameGroup) do
@@ -2227,8 +2195,6 @@ function lib:GroupOptions(frameGroup, name)
         if i > 1 then
             frame.EMECheckButtonFrame.hiddenByGrouping = true
             frame.EMECheckButtonFrame:GetParent():Hide()
-            frame.EMEResetButton.hiddenByGrouping = true
-            frame.EMEResetButton:Hide()
         end
     end
 end

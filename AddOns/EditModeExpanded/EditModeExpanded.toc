@@ -1,6 +1,6 @@
-## Interface: 120100, 120007, 50504, 20506
+## Interface: 120100, 120007, 50504, 20506, 16001
 ## Title: Edit Mode Expanded
-## Version: 12.1-010
+## Version: 12.1-013
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
