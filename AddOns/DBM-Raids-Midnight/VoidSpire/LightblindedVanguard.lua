@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2737, "DBM-Raids-Midnight", 4, 1307)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260710194554")
+mod:SetRevision("20260911031131")
 mod:SetCreatureID(250589)--War Chaplain Senn main boss, 250588 Commander Venel Lightblood, 250587 general Amias Bellamy
 mod:SetEncounterID(3180)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -238,7 +238,7 @@ function mod:OnCombatEnd()
 	self:TLCountReset()
 	-- If badState was only tripped in the last few seconds of a wipe, treat it as
 	-- transient timeline noise (bulk timer artifact) and recover for the next pull.
-	if badStateDetected and badStateDetectedAt and (GetTime() - badStateDetectedAt) <= 5 then
+	if badStateDetected and self:TLShouldRecoverBadState(badStateDetectedAt) then
 		badStateDetected = false
 	end
 	badStateDetectedAt = nil

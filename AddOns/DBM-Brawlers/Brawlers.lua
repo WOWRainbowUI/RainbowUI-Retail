@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("BrawlersGeneral", "DBM-Brawlers")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021809")
+mod:SetRevision("20260919193437")
 --mod:SetCreatureID(60491)
 --mod:SetModelID(41448)
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
@@ -246,7 +246,7 @@ function mod:OnSync(msg)
 		if currentZoneID ~= 369 and currentZoneID ~= 1043 then return end
 		self:Stop()--Sometimes NPC doesn't yell when a match ends too early, if a new match begins we stop on begin before starting new stuff
 		berserkTimer:Start()
-		if DBM:IsPostMidnight() then return end
+		if DBM:IsRestricted() then return end
 		if not eventsRegistered then
 			eventsRegistered = true
 			self:RegisterShortTermEvents(
@@ -263,7 +263,7 @@ function mod:OnSync(msg)
 		if currentZoneID ~= 369 and currentZoneID ~= 1043 then return end
 		currentFighter = nil
 		self:Stop()
-		if DBM:IsPostMidnight() then return end
+		if DBM:IsRestricted() then return end
 		--Boss from any rank can be fought by any rank now, so we just need to always cancel them all
 		for _, v in ipairs(endCallbacks) do
 			v()

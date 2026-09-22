@@ -76,16 +76,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260908055539")
+DBM.Revision = parseCurseDate("20260919230059")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
-private.fakeBWVersion, private.fakeBWHash = 416, "1888a1e"--416.0
+private.fakeBWVersion, private.fakeBWHash = 424, "754bdce"--424.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.9"--Core version
+DBM.DisplayVersion = "12.1.10"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 9, 7) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 9, 19) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -377,47 +377,95 @@ function DBM:IsSeasonal(season)
 end
 
 
---Catch alls to basically allow encounter mods to use pre retail changes within mods
+---Catch alls to basically allow encounter mods to use pre retail changes within mods
+---Includes Vanilla, The Burning Crusade, Wrath of the Lich King, Cataclysm, Mists of Pandaria
 ---@param self DBMModOrDBM
 function DBM:IsClassic()
 	return not private.isRetail
 end
 bossModPrototype.IsClassic = DBM.IsClassic
 
+---Includes just the standard retail version of game
 ---@param self DBMModOrDBM
 function DBM:IsRetail()
 	return private.isRetail
 end
 bossModPrototype.IsRetail = DBM.IsRetail
 
+---Check if the game version is Vanilla Based
+---True for both Vanilla and Vanilla Forever
+---@param self DBMModOrDBM
+function DBM:IsVanilla()
+	return private.isClassic or private.isForever
+end
+bossModPrototype.IsVanilla = DBM.IsVanilla
+
+---Check if the game version is Vanilla Era
+---True only for the original Vanilla (Classic) version
+---@param self DBMModOrDBM
+function DBM:IsVanillaEra()
+	return private.isClassic
+end
+bossModPrototype.IsVanillaEra = DBM.IsVanillaEra
+
+---Check if the game version is Vanilla Forever
+---True only for the Vanilla Forever version
+---@param self DBMModOrDBM
+function DBM:IsForever()
+	return private.isForever
+end
+bossModPrototype.IsForever = DBM.IsForever
+
+---Check if the game version is The Burning Crusade (TBC)
+---@param self DBMModOrDBM
+function DBM:IsTBC()
+	return private.isBCC
+end
+bossModPrototype.IsTBC = DBM.IsTBC
+
+---Check if the game version is Wrath of the Lich King (WotLK)
+---@param self DBMModOrDBM
+function DBM:IsWrath()
+	return private.isWrath
+end
+bossModPrototype.IsWrath = DBM.IsWrath
+
+---Check if the game version is Cataclysm (Cata)
 ---@param self DBMModOrDBM
 function DBM:IsCata()
 	return private.isCata
 end
 bossModPrototype.IsCata = DBM.IsCata
 
+---Check if the game version is Mists of Pandaria (MoP)
 ---@param self DBMModOrDBM
 function DBM:IsMop()
 	return private.isMop
 end
 bossModPrototype.IsMop = DBM.IsMop
 
+---Check if the game version is Cataclysm (Cata) or later
 ---@param self DBMModOrDBM
 function DBM:IsPostCata()
 	return private.isCata or private.isMop or private.isRetail
 end
 bossModPrototype.IsPostCata = DBM.IsPostCata
 
+---Check if the game version is post-MoP (Mists of Pandaria) or later
+---@param self DBMModOrDBM
 function DBM:IsPostMoP()
 	return private.isRetail or private.isMop
 end
+bossModPrototype.IsPostMoP = DBM.IsPostMoP
 
----Currently same as isRetail check, but if restrictions ever come to classic we'll still have one function for checking addongeddon api
+---Check if the game version one of mainline clients that use restrictions
+---Includes standard retail and Vanilla Forever)
 ---@param self DBMModOrDBM
-function DBM:IsPostMidnight()
-	return private.isRetail
+function DBM:IsRestricted()
+	return private.isRetail or private.isForever
 end
-bossModPrototype.IsPostMidnight = DBM.IsPostMidnight
+bossModPrototype.IsRestricted = DBM.IsRestricted
+DBM.IsPostMidnight = DBM.IsRestricted--Temp compat wrapper. Deprecated
 
 ---@param self DBMModOrDBM
 ---@param includeAuras boolean?
@@ -425,7 +473,7 @@ bossModPrototype.IsPostMidnight = DBM.IsPostMidnight
 ---@param includeChat boolean?
 function DBM:MidRestrictionsActive(includeAuras, includeEncounters, includeChat)
 	--Not Midnight (or later), rest of checks don't apply
-	if not private.isRetail then
+	if not private.isRetail and not private.isForever then
 		return false
 	end
 	--includeAura's defaults to off, other two default to true if omited
@@ -436,7 +484,7 @@ function DBM:MidRestrictionsActive(includeAuras, includeEncounters, includeChat)
 		return true
 	end
 	--In active encounter or active M+
-	if includeEncounters and (private.IsEncounterInProgress() or C_ChallengeMode.IsChallengeModeActive()) then
+	if includeEncounters and (private.IsEncounterInProgress() or C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and C_ChallengeMode.IsChallengeModeActive()) then
 		return true
 	end
 	--Comms and chat messages blocked. might be redundant to above but for good measure
@@ -1260,11 +1308,11 @@ do
 		test:Trace(self, "RegisterEvents", "Regular", ...)
 		for i = 1, select('#', ...) do
 			local event = select(i, ...)
-			if not self:IsPostMidnight() or self:IsPostMidnight() and not (restrictedEvents[event] or event:sub(0, 5) == "UNIT_") then
+			if not self:IsRestricted() or self:IsRestricted() and not (restrictedEvents[event] or event:sub(0, 5) == "UNIT_") then
 				-- spell events with special care.
 				if event:sub(0, 6) == "SPELL_" and event ~= "SPELL_NAME_UPDATE" or event:sub(0, 6) == "RANGE_" or event:sub(0, 6) == "SWING_" or event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" or event:sub(0, 13) == "DAMAGE_SHIELD" or event:sub(0, 20) == "DAMAGE_SHIELD_MISSED" then
 					--CLEU is completely gone in Midnight+
-					if not self:IsPostMidnight() then
+					if not self:IsRestricted() then
 						registerCLEUEvent(self, event)
 					end
 				else
@@ -1828,7 +1876,7 @@ do
 				end
 			end
 			--Force show timeline or else we can't start timers because it won't fire events
-			if self:IsPostMidnight() then
+			if self:IsRetail() then
 				C_CVar.SetCVar("encounterTimelineShowSequenceCount", "1")--Enable count on timers
 				C_EncounterWarnings.SetPlayCustomSoundsWhenHidden(true)--Allows DBM sounds to play even when blizzard frames aren't shown
 				if not self.Options.DontSetTimelineColors then
@@ -2090,22 +2138,24 @@ do
 				"START_PLAYER_COUNTDOWN",
 				"CANCEL_PLAYER_COUNTDOWN"
 			)
-			if not DBM:IsPostMidnight() then
+			if not DBM:IsRestricted() then
 				self:RegisterEvents(
 					"COMBAT_LOG_EVENT_UNFILTERED",
 					"UNIT_DIED",
 					"UNIT_DESTROYED"
 				)
 			else
-				self:RegisterEvents(
-					"ENCOUNTER_TIMELINE_EVENT_ADDED",
-					--"ENCOUNTER_TIMELINE_EVENT_REMOVED",
-					"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
-					"ENCOUNTER_TIMELINE_EVENT_COLOR_CHANGED",
-					"ENCOUNTER_WARNING"
-				)
+				if private.isRetail then
+					self:RegisterEvents(
+						"ENCOUNTER_TIMELINE_EVENT_ADDED",
+						--"ENCOUNTER_TIMELINE_EVENT_REMOVED",
+						"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
+						"ENCOUNTER_TIMELINE_EVENT_COLOR_CHANGED",
+						"ENCOUNTER_WARNING"
+					)
+				end
 			end
-			if not private.isClassic then -- Retail, WoTLKC, and BCC
+			if not private.isClassic and not private.isForever then -- Retail, WoTLKC, and BCC
 				self:RegisterEvents(
 					"LFG_PROPOSAL_FAILED",
 					"LFG_PROPOSAL_SHOW",
@@ -2128,11 +2178,7 @@ do
 					"CHARACTER_POINTS_CHANGED",
 					"PLAYER_SPECIALIZATION_CHANGED"
 				)
-			elseif private.isClassic then
-				self:RegisterEvents(
-					"CHARACTER_POINTS_CHANGED"
-				)
-			elseif private.isBCC then
+			elseif private.isClassic or private.isForever or private.isBCC then
 				self:RegisterEvents(
 					"CHARACTER_POINTS_CHANGED"
 				)
@@ -2152,7 +2198,6 @@ do
 			self:ZONE_CHANGED_NEW_AREA()
 			playerName = UnitName("player")--In case it's unknown at login, we check it again
 			private:GetModule("CombatDetection"):SetPlayerName(playerName)
-			private.isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)--Can also fail to intialize on login on midnight alpha
 			self.Options.IgnoreBlizzAPI = false--In event it didn't get restored on combat end due to crash or reload
 			self.Options.fixBlizzApi = false
 			self.Options.DisableSWSound = false--In event it didn't get restored on combat end due to crash or reload
@@ -2512,7 +2557,7 @@ do
 					end
 				end
 			end
-			if not self:IsPostMidnight() then
+			if not self:IsRestricted() then
 				--There is no icon setting in midnight so no reason to even elect an icon setter
 				if #iconSeter > 0 then
 					tsort(iconSeter, function(a, b) return a > b end)
@@ -2763,7 +2808,7 @@ do
 	function DBM:GetRaidClass(name)
 		if raid[name] then
 			local icon = 0
-			if not self:IsPostMidnight() then
+			if not self:IsRestricted() then
 				icon = raid[name].id and GetRaidTargetIndex(raid[name].id) or 0
 			end
 			return raid[name].class or "UNKNOWN", icon
@@ -2908,7 +2953,7 @@ do
 	---@param name string
 	---@param bossOnly boolean? --Used when you only need to check "boss" unitids.
 	function DBM:GetBossUnitId(name, bossOnly)
-		if self:IsPostMidnight() and IsInInstance() then return end
+		if self:IsRestricted() and IsInInstance() then return end
 		local returnUnitID
 		if not private.isClassic and not private.isBCC then
 			for i = 1, 10 do
@@ -3426,6 +3471,22 @@ do
 				currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
 			end
 			DBM:Debug("Current specID set to: "..currentSpecID, 2)
+		elseif private.isForever then
+			local highestPointsSpent = 0
+			for i = 1, 3 do
+				local _, _, _, _, _, _, pointsSpent = GetSpecializationInfo(i)
+				if pointsSpent then
+					if pointsSpent > highestPointsSpent then
+						highestPointsSpent = pointsSpent
+						currentSpecGroup = i
+						currentSpecID = playerClass .. tostring(i)--Associate specID with class name and tabnumber (class is used because spec name is shared in some spots like "holy")
+						currentSpecName = currentSpecID
+					end
+				end
+			end
+			--If 0 talents are spent, then just set them to first spec to prevent nil errors
+			--This should only happen for a level 1 player or someone who's in middle of respecing
+			if not currentSpecID then currentSpecID = playerClass .. tostring(1) end
 		elseif private.isCata then
 			currentSpecGroup = GetPrimaryTalentTree()
 			if currentSpecGroup and GetTalentTabInfo(currentSpecGroup) then
@@ -3438,6 +3499,7 @@ do
 		else
 			local numTabs = GetNumTalentTabs()
 			local highestPointsSpent = 0
+			--FIX ME later on era client
 			if MAX_TALENT_TABS then
 				for i = 1, MAX_TALENT_TABS do
 					if i <= numTabs then
@@ -4374,7 +4436,7 @@ do
 	local testTimer1, testTimer2, testTimer3, testTimer4, testTimer5, testTimer6, testTimer7, testTimer8
 	local testSpecialWarning1, testSpecialWarning2, testSpecialWarning3
 	function DBM:DemoMode(forceOld)
-		if self:IsPostMidnight() and not forceOld then
+		if self:IsRetail() and not forceOld then
 			demoDuration = 26
 			--Run the encounter timeline demo mode instead of DBM test Bars
 			C_EncounterTimeline.AddEditModeEvents()
@@ -4458,7 +4520,7 @@ end)
 --copied from big wigs with permission from funkydude. Modified by MysticalOS
 function DBM:RoleCheck(ignoreLoot)
 	local role
-	if private.isRetail then
+	if private.isRetail or private.isMop then
 		local spec = GetSpecialization()
 		if not spec then return end
 		role = GetSpecializationRole(spec)
@@ -5257,7 +5319,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260908055539" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260919225942" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

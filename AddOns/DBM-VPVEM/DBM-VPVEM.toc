@@ -1,4 +1,5 @@
-## Interface: 11509
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100
+## AllowLoadGameType: classic, mainline
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff308530Voicepack VEM|r
@@ -9,7 +10,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: Iceoven
-## Version: 4e4322b
+## Version: 643378e
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: VEM English Female
@@ -18,3 +19,4 @@
 ## X-DBM-Voice-ShortName: VEM
 ## X-DBM-Voice-Version: 20
 ## X-DBM-Voice-HasCount: 1
+## X-DBM-Voice-MaxCount: 11 [AllowLoadGameType mainline]

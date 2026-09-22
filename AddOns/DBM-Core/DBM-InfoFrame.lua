@@ -11,8 +11,8 @@ DBM.InfoFrame = infoFrame
 -------------------
 -- Local Globals --
 -------------------
-local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
-local isWrath = WOW_PROJECT_ID == (WOW_PROJECT_WRATH_CLASSIC or 11)
+local isRetail = DBM:IsRetail()
+local isWrath = DBM:IsWrath()
 
 local DDM, UIDropDownMenu_AddButton, UIDropDownMenu_Initialize, ToggleDropDownMenu
 if isWrath then
@@ -1188,7 +1188,7 @@ function infoFrame:Show(modMaxLines, event, ...)
 	if DBM.Options.DontShowInfoFrame and not (event or ""):find("test") then
 		return
 	end
-	if midnightRestrictedEvents[event] and DBM:IsPostMidnight() then
+	if midnightRestrictedEvents[event] and DBM:IsRestricted() then
 		return
 	end
 	prevLines = 0
