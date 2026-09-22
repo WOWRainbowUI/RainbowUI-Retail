@@ -677,3 +677,7 @@ VUHDO_I18N_AURA_GROUP_ALL_PURGEABLE_BUFFS = "All Purgeable Buffs";
 VUHDO_I18N_AURA_GROUP_BOSS_DEBUFFS = "Boss & Role Debuffs";
 VUHDO_I18N_AURA_GROUP_PRIORITY_DEBUFFS = "Priority Debuffs";
 VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS = "Relevant Buffs";
+VUHDO_I18N_AURA_GROUP_RELEVANT_DEBUFFS = "Relevant Debuffs";
+VUHDO_I18N_AURA_GROUP_TIMED_DEBUFFS = "Timed Debuffs";
+
+VUHDO_I18N_PT_NAME_AMBIGUOUS = "Private tank name ambiguous: %s. Use a realm-qualified full name.";

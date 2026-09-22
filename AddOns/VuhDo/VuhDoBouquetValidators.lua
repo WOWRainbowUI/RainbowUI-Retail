@@ -1972,6 +1972,10 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 		["buildTextCurves"] = VUHDO_buildDispelTextBrightnessCurves,
 		["getTextCurve"] = VUHDO_getDispelTextBrightnessCurve,
+		["secretBoolOverlay"] = {
+			["special"] = "DEBUFF_CHARMED",
+			["barColorKey"] = "CHARMED",
+		},
 	},
 
 	["DEAD"] = {

@@ -169,7 +169,7 @@
 			</Anchor>
 		</Anchors>
 		<Frames>
-			<Frame name="$parentDedicatedComboBox" inherits="VuhDoComboBoxTemplate" id="1">
+			<Button name="$parentDedicatedComboBox" inherits="VuhDoComboBoxTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -182,7 +182,7 @@
 						self:SetAttribute("custom_function", VUHDO_buffWatchSetupDedicatedChanged);
 					</OnLoad>
 				</Scripts>
-			</Frame>
+			</Button>
 		</Frames>
 	</Frame>
 
@@ -210,7 +210,7 @@
 				</Layers>
 			</Frame>
 
-			<Frame name="$parentTargetModeComboBox" inherits="VuhDoComboBoxTemplate" id="1">
+			<Button name="$parentTargetModeComboBox" inherits="VuhDoComboBoxTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -223,7 +223,7 @@
 						self:SetAttribute("custom_function", VUHDO_buffWatchSetupTargetModeChanged);
 					</OnLoad>
 				</Scripts>
-			</Frame>
+			</Button>
 
 			<EditBox name="$parentPlayerNameEditBox" inherits="VuhDoEditBoxTemplate">
 				<Size>
@@ -278,7 +278,7 @@
 			</Anchor>
 		</Anchors>
 		<Frames>
-			<Frame name="$parentComboBox" inherits="VuhDoComboBoxTemplate" id="1">
+			<Button name="$parentComboBox" inherits="VuhDoComboBoxTemplate" id="1">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -291,7 +291,7 @@
 						self:SetAttribute("custom_function", VUHDO_buffWatchSetupFilterChanged);
 					</OnLoad>
 				</Scripts>
-			</Frame>
+			</Button>
 		</Frames>
 	</Frame>
 

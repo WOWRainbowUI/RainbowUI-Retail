@@ -25,6 +25,7 @@ local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_LIST_ENTRY_SPELL;
 
 local VUHDO_getAuraGroup;
+local VUHDO_getAuraGroupForUnit;
 local VUHDO_getAllAuraGroups;
 local VUHDO_isAuraMatchingGroupFilters;
 local VUHDO_auraSourceMatchesFilter;
@@ -57,6 +58,7 @@ function VUHDO_auraSoundsInitLocalOverrides()
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
 
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
+	VUHDO_getAuraGroupForUnit = _G["VUHDO_getAuraGroupForUnit"];
 	VUHDO_getAllAuraGroups = _G["VUHDO_getAllAuraGroups"];
 	VUHDO_isAuraMatchingGroupFilters = _G["VUHDO_isAuraMatchingGroupFilters"];
 	VUHDO_auraSourceMatchesFilter = _G["VUHDO_auraSourceMatchesFilter"];
@@ -302,7 +304,7 @@ function VUHDO_syncNativeAuraSoundsForUnit(aUnit)
 
 	if tAllGroups then
 		for tGroupId, tGroup in pairs(tAllGroups) do
-			if VUHDO_getAuraGroup(tGroupId) then
+			if VUHDO_getAuraGroupForUnit(tGroupId, aUnit) then
 				tSound = tGroup["sound"];
 
 				if (tSound or "") ~= "" then
@@ -511,7 +513,7 @@ function VUHDO_checkAuraGroupSounds(aUnit, anAuraData)
 
 	for tCnt = 1, #sSoundEnabledAuraGroups do
 		tGroupId = sSoundEnabledAuraGroups[tCnt];
-		tGroup = VUHDO_getAuraGroup(tGroupId);
+		tGroup = VUHDO_getAuraGroupForUnit(tGroupId, aUnit);
 
 		if tGroup then
 			tSound = tGroup["sound"];

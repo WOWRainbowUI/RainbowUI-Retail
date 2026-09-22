@@ -104,38 +104,19 @@ VUHDO_ID_ALL = 999;
 
 VUHDO_I18N_AURA_GROUP_NAMES = {
 	["MY_HOTS"] = VUHDO_I18N_AURA_GROUP_MY_HOTS,
-	["OTHERS_HOTS"] = VUHDO_I18N_AURA_GROUP_OTHERS_HOTS,
 	["ALL_HOTS"] = VUHDO_I18N_AURA_GROUP_ALL_HOTS,
 	["DISPELLABLE"] = VUHDO_I18N_AURA_GROUP_DISPELLABLE,
 	["ALL_DISPELLABLE"] = VUHDO_I18N_AURA_GROUP_ALL_DISPELLABLE,
+	["PURGEABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_PURGEABLE_BUFFS,
+	["ALL_PURGEABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_PURGEABLE_BUFFS,
 	["CC_EFFECTS"] = VUHDO_I18N_AURA_GROUP_CC,
 	["BIG_DEFENSIVES"] = VUHDO_I18N_AURA_GROUP_BIG_DEF,
 	["EXTERNAL_DEFENSIVES"] = VUHDO_I18N_AURA_GROUP_EXTERNAL_DEF,
 	["ALL_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_DEBUFFS,
 	["ALL_BUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_BUFFS,
-	["MY_BUFFS"] = VUHDO_I18N_AURA_GROUP_MY_BUFFS,
-	["OTHERS_BUFFS"] = VUHDO_I18N_AURA_GROUP_OTHERS_BUFFS,
-	["ALL_RAID_BUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_RAID_BUFFS,
-	["RAID_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_RAID_DEBUFFS,
-	["IMPORTANT_BUFFS"] = VUHDO_I18N_AURA_GROUP_IMPORTANT_BUFFS,
-	["IMPORTANT_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_IMPORTANT_DEBUFFS,
-	["BOSS_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_BOSS_DEBUFFS,
-	["PRIORITY_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_PRIORITY_DEBUFFS,
+	["RELEVANT_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_RELEVANT_DEBUFFS,
 	["RELEVANT_BUFFS"] = VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS,
-	["CANCELABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_CANCELABLE,
-	["NOT_CANCELABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_NOT_CANCELABLE,
-	["TORGHAST_ANIMA"] = VUHDO_I18N_AURA_GROUP_TORGHAST_ANIMA,
-	-- ["INFERRED_RIPTIDE"] = VUHDO_I18N_AURA_GROUP_INFERRED_RIPTIDE,
-	-- ["INFERRED_ECHO"] = VUHDO_I18N_AURA_GROUP_INFERRED_ECHO,
-	-- ["INFERRED_ATONEMENT"] = VUHDO_I18N_AURA_GROUP_INFERRED_ATONEMENT,
-	["MY_NAMEPLATE_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_MY_NAMEPLATE,
-	["OTHERS_NAMEPLATE_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_OTHERS_NAMEPLATE,
-	["ALL_NAMEPLATE_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_NAMEPLATE,
-	["PURGEABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_PURGEABLE_BUFFS,
-	["ALL_PURGEABLE_BUFFS"] = VUHDO_I18N_AURA_GROUP_ALL_PURGEABLE_BUFFS,
 	["MY_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_MY_DEBUFFS,
-	["MY_EXTERNAL_DEFENSIVES"] = VUHDO_I18N_AURA_GROUP_MY_EXTERNAL_DEF,
-	["MY_RAID_DEBUFFS"] = VUHDO_I18N_AURA_GROUP_MY_RAID_DEBUFFS,
 	["PRESERVATION_EVOKER_HOTS"] = VUHDO_I18N_AURA_GROUP_PRESERVATION_EVOKER_HOTS,
 	["AUGMENTATION_EVOKER_BUFFS"] = VUHDO_I18N_AURA_GROUP_AUGMENTATION_EVOKER_BUFFS,
 	["RESTORATION_DRUID_HOTS"] = VUHDO_I18N_AURA_GROUP_RESTORATION_DRUID_HOTS,
@@ -528,15 +509,14 @@ VUHDO_EXCLUSIVE_HOTS = {
 
 
 --
-VUHDO_BUFF_REMOVAL_SPELLS = {
-	[VUHDO_SPELL_ID.SPELLSTEAL] = true,
-	[VUHDO_SPELL_ID.PURGE] = true,
-	[VUHDO_SPELL_ID.DISPEL_MAGIC] = true,
+VUHDO_BUFF_REMOVAL_CHARM_SPELLS = {
 	[VUHDO_SPELL_ID.CLEANSE_SPIRIT] = true,
 	[VUHDO_SPELL_ID.CYCLONE] = true,
 	[VUHDO_SPELL_ID.NATURES_CURE] = true,
 	[VUHDO_SPELL_ID.WIND_SHEAR] = true,
 };
+
+VUHDO_BUFF_REMOVAL_SPELLS = { };
 
 
 
@@ -806,12 +786,17 @@ VUHDO_AURA_ANCHOR_PLAYER_ICONS = 999;
 VUHDO_AURA_GROUP_TYPE_FILTER = 1;
 VUHDO_AURA_GROUP_TYPE_LIST = 2;
 
+VUHDO_AURA_MAX_MATCH_ANY = 5;
+
 VUHDO_AURA_IDENTITY_GATE_HELPFUL = 1;
 VUHDO_AURA_IDENTITY_GATE_HARMFUL = 2;
 
 VUHDO_AURA_LIST_ENTRY_SPELL = 1;
 VUHDO_AURA_LIST_ENTRY_BOUQUET = 2;
 VUHDO_AURA_LIST_ENTRY_EMPTY = 3;
+
+VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN = 1;
+VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN = 2;
 
 VUHDO_BOUQUET_RESTRICTED_NON_AURA = 1;
 VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER = 2;
@@ -826,3 +811,216 @@ VUHDO_STATUSBAR_LEFT_TO_RIGHT = 1;
 VUHDO_STATUSBAR_RIGHT_TO_LEFT = 2;
 VUHDO_STATUSBAR_BOTTOM_TO_TOP = 3;
 VUHDO_STATUSBAR_TOP_TO_BOTTOM = 4;
+
+VUHDO_AURA_CONDITION_BOOLEAN_KEYS = {
+	"isBossOrRoleAura",
+	"isBossAura",
+	"isRoleAura",
+	"isPriorityAura",
+	"isStealable",
+	"isFromPlayerOrPlayerPet",
+	"canApplyAura",
+	"nameplateShowAll",
+	"nameplateShowPersonal",
+};
+
+VUHDO_AURA_CONDITION_FILTER_TOKEN_KEYS = {
+	"PLAYER",
+	"RAID",
+	"RAID_IN_COMBAT",
+	"CANCELABLE",
+	"INCLUDE_NAME_PLATE_ONLY",
+	"MAW",
+	"EXTERNAL_DEFENSIVE",
+	"CROWD_CONTROL",
+	"RAID_PLAYER_DISPELLABLE",
+	"BIG_DEFENSIVE",
+	"IMPORTANT",
+	"DISPELLABLE",
+};
+
+VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS = {
+	"isBossOrRoleAura",
+	"isBossAura",
+	"isRoleAura",
+	"isPriorityAura",
+	"isStealable",
+};
+
+VUHDO_AURA_MATCH_ANY_FILTER_TOKENS = {
+	["DISPELLABLE"] = true,
+	["RAID_PLAYER_DISPELLABLE"] = true,
+	["IMPORTANT"] = true,
+	["RAID"] = true,
+	["CROWD_CONTROL"] = true,
+	["CANCELABLE"] = true,
+	["PLAYER"] = true,
+	["RAID_IN_COMBAT"] = true,
+	["EXTERNAL_DEFENSIVE"] = true,
+	["BIG_DEFENSIVE"] = true,
+};
+
+VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER = {
+	"DISPELLABLE",
+	"RAID_PLAYER_DISPELLABLE",
+	"IMPORTANT",
+	"RAID",
+	"CROWD_CONTROL",
+	"CANCELABLE",
+	"PLAYER",
+	"RAID_IN_COMBAT",
+	"EXTERNAL_DEFENSIVE",
+	"BIG_DEFENSIVE",
+};
+
+VUHDO_AURA_CONDITION_BUCKET_MATCH_ALL = "matchAll";
+VUHDO_AURA_CONDITION_BUCKET_MATCH_ANY = "matchAny";
+VUHDO_AURA_CONDITION_BUCKET_NEVER_SHOW = "neverShow";
+
+VUHDO_AURA_CONDITION_STORAGE_BOOLEAN = "boolean";
+VUHDO_AURA_CONDITION_STORAGE_FILTER_TOKEN = "filterToken";
+
+VUHDO_AURA_GROUP_CONDITIONS_VERSION = 1;
+
+VUHDO_AURA_CONDITION_CAPABILITIES = {
+	["isBossOrRoleAura"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["isBossAura"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["isRoleAura"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["isPriorityAura"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["isStealable"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["isFromPlayerOrPlayerPet"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["canApplyAura"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["nameplateShowAll"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["nameplateShowPersonal"] = {
+		["storage"] = "boolean",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["PLAYER"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["RAID"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["RAID_IN_COMBAT"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["CANCELABLE"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["INCLUDE_NAME_PLATE_ONLY"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+	},
+	["MAW"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+	},
+	["EXTERNAL_DEFENSIVE"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["CROWD_CONTROL"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["RAID_PLAYER_DISPELLABLE"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["BIG_DEFENSIVE"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["IMPORTANT"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+	["DISPELLABLE"] = {
+		["storage"] = "filterToken",
+		["matchAll"] = true,
+		["matchAny"] = true,
+		["neverShow"] = true,
+	},
+};
+
+VUHDO_AURA_DURATION_COMBO_NONE = -1;
+VUHDO_AURA_DURATION_COMBO_HAS = 0;
+VUHDO_AURA_DURATION_COMBO_VALUES = {
+	VUHDO_AURA_DURATION_COMBO_NONE,
+	VUHDO_AURA_DURATION_COMBO_HAS,
+	5,
+	10,
+	15,
+	20,
+	30,
+	60,
+	120,
+	300,
+	600,
+	1800,
+	3600,
+};

@@ -331,9 +331,15 @@
 				end
 				VUHDO_commsSetReceiveModeEnabled(true);
 
+				VUHDO_showOptionsSkinPrompt();
+
 				collectgarbage("collect");
 			</OnShow>
 			<OnHide>
+				if (VuhDoYesNoFrame:IsShown()) then
+					VuhDoYesNoFrame:Hide();
+				end
+
 				VuhDoNewOptionsScaleSlider:Hide();
 				VUHDO_IS_CONFIG = false;
 				VUHDO_IS_PANEL_CONFIG = false;

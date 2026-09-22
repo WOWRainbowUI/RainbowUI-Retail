@@ -600,7 +600,7 @@ function VUHDO_reloadRaidDemoUsers()
 	twipe(VUHDO_PLAYER_TARGETS);
 
 	for tCnt = 1, VUHDO_TEST_USERS_LEFT[VUHDO_ID_PRIVATE_TANKS] do
-		VUHDO_PLAYER_TARGETS[VUHDO_RAID["raid" .. (VUHDO_CONFIG_TEST_USERS - tCnt)]["name"] ] = true;
+		VUHDO_PLAYER_TARGETS[VUHDO_RAID["raid" .. (VUHDO_CONFIG_TEST_USERS - tCnt)]["fullName"] ] = true;
 	end
 
 	return;

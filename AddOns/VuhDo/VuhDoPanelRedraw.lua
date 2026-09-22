@@ -1532,6 +1532,7 @@ do
 	local tPredOffsetTexture;
 	local tPredOvershieldClipFrame;
 	local tUseIncExtension;
+	local tPredHealthLevel;
 	function VUHDO_updateOvershieldMaskAnchors(aButton, aPanelNum)
 
 		if not sSecretsEnabled then
@@ -1593,10 +1594,10 @@ do
 		VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldBar, tPredHealthBar:GetFrameLevel() + 1);
 
 		if tPredIsInverted then
-			tPredHlLevel = tPredHealthBar:GetFrameLevel();
+			tPredHealthLevel = tPredHealthBar:GetFrameLevel();
 
-			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldClipFrame, tPredHlLevel + 2);
-			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldBar, tPredHlLevel + 3);
+			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldClipFrame, tPredHealthLevel + 2);
+			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldBar, tPredHealthLevel + 3);
 		end
 
 		if not tShouldMirror then

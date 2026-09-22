@@ -2,6 +2,8 @@ local _;
 
 local GetTime = GetTime;
 local UnitName = UnitName;
+local UnitGUID = UnitGUID;
+local UnitIsUnit = UnitIsUnit;
 local UnitIsEnemy = UnitIsEnemy;
 local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
 local HasFullControl = HasFullControl;
@@ -170,7 +172,7 @@ do
 		tArgs = { };
 
 		for tCnt = 1, select("#", ...) do
-			tinsert(tArgs, tostring(select(tCnt, ...)));
+			tinsert(tArgs, VUHDO_argToString(select(tCnt, ...)));
 
 			-- don't capture more than 5 arguments
 			if tCnt >= 5 then
@@ -186,7 +188,7 @@ do
 				tArgs = { };
 
 				for _, tArg in ipairs(tExistingSnapshot["args"] or { }) do
-					tinsert(tArgs, tostring(tArg));
+					tinsert(tArgs, VUHDO_argToString(tArg));
 				end
 
 				tExistingSnapshot["compositionKey"] = tExistingSnapshot["eventName"] .. ":" .. table.concat(tArgs, ",");
@@ -1625,6 +1627,70 @@ end
 
 
 --
+local tTokens;
+local tName;
+local tUnit;
+local tKey;
+local tAmbiguousNames;
+local tAmbiguousMsg;
+local function VUHDO_slashCmdPrivateTanks(aArgument)
+
+	if aArgument then
+		tTokens = VUHDO_splitString(aArgument, ",");
+
+		if "clear" == tTokens[1] then
+			twipe(VUHDO_PLAYER_TARGETS);
+
+			VUHDO_quickRaidReload();
+
+			return;
+		end
+
+		for _, tToken in ipairs(tTokens) do
+			tName = strtrim(tToken);
+
+			if not InCombatLockdown() then
+				tUnit, tAmbiguousNames = VUHDO_getUnitByPrivateTankName(tName);
+
+				if tAmbiguousNames then
+					tAmbiguousMsg = format(VUHDO_I18N_PT_NAME_AMBIGUOUS, table.concat(tAmbiguousNames, ", "));
+
+					VUHDO_Msg(tAmbiguousMsg, 1, 0.4, 0.4);
+				elseif tUnit then
+					tKey = VUHDO_getPrivateTankKey(tUnit);
+
+					if tKey then
+						VUHDO_PLAYER_TARGETS[tKey] = true;
+					end
+				end
+			end
+		end
+
+		VUHDO_quickRaidReload();
+
+		return;
+	end
+
+	tUnit = VUHDO_getPrivateTankUnitFromTarget();
+	tKey = tUnit and VUHDO_getPrivateTankKey(tUnit);
+
+	if not InCombatLockdown() and tKey then
+		if VUHDO_PLAYER_TARGETS[tKey] then
+			VUHDO_PLAYER_TARGETS[tKey] = nil;
+		else
+			VUHDO_PLAYER_TARGETS[tKey] = true;
+		end
+
+		VUHDO_quickRaidReload();
+	end
+
+	return;
+
+end
+
+
+
+--
 do
 	--
 	local tParsedTexts;
@@ -1660,38 +1726,7 @@ do
 			end
 
 		elseif tCommandWord == "pt" then
-			if tParsedTexts[2] then
-				tTokens = VUHDO_splitString(tParsedTexts[2], ",");
-
-				if "clear" == tTokens[1] then
-					table.wipe(VUHDO_PLAYER_TARGETS);
-
-					VUHDO_quickRaidReload();
-				else
-					for _, tName in ipairs(tTokens) do
-						tName = strtrim(tName);
-
-						if VUHDO_RAID_NAMES[tName] ~= nil and not InCombatLockdown() then
-							VUHDO_PLAYER_TARGETS[tName] = true;
-						end
-					end
-
-					VUHDO_quickRaidReload();
-				end
-			else
-				tUnit = VUHDO_RAID_NAMES[UnitName("target")];
-				tName = (VUHDO_RAID[tUnit] or {})["name"];
-
-				if not InCombatLockdown() and tName then
-					if VUHDO_PLAYER_TARGETS[tName] then
-						VUHDO_PLAYER_TARGETS[tName] = nil;
-					else
-						VUHDO_PLAYER_TARGETS[tName] = true;
-					end
-
-					VUHDO_quickRaidReload();
-				end
-			end
+			VUHDO_slashCmdPrivateTanks(tParsedTexts[2]);
 
 		elseif tCommandWord == "load" and tParsedTexts[2] then
 			tTokens = VUHDO_splitString(tParsedTexts[2] .. (tParsedTexts[3] or ""), ",");

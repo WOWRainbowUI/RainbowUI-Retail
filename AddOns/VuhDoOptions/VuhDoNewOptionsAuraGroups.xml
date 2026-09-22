@@ -352,12 +352,12 @@
 
 					<Frame name="$parentNameLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
-							<AbsDimension x="44" y="18" />
+							<AbsDimension x="34" y="18" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentEnabledCheckButton" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="0" y="-2" />
+									<AbsDimension x="-2" y="-2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -371,7 +371,7 @@
 
 					<EditBox name="$parentNameEditBox" inherits="VuhDoEditBoxTemplate" autoFocus="false">
 						<Size>
-							<AbsDimension x="218" y="22" />
+							<AbsDimension x="154" y="22" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentNameLabel" relativePoint="TOPRIGHT">
@@ -404,7 +404,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentNameEditBox" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="2" />
+									<AbsDimension x="6" y="2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -418,12 +418,12 @@
 
 					<Button name="$parentTypeCombo" inherits="VuhDoComboBoxTemplate">
 						<Size>
-							<AbsDimension x="120" y="24" />
+							<AbsDimension x="72" y="24" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentTypeLabel" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="4" y="0" />
+									<AbsDimension x="0" y="0" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -435,6 +435,52 @@
 							</OnLoad>
 							<OnShow>
 								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Frame name="$parentShowOnLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="44" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTypeCombo" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_SHOW_ON" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentShowOnCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="82" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowOnLabel" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="0" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_SHOW_ON", VUHDO_AURA_GROUPS_SHOW_ON_OPTIONS, VUHDO_I18N_AURA_SHOW_ON);
+
+								self:SetAttribute("custom_function", VUHDO_auraGroupsShowOnChanged);
+
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K896);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+
 								VUHDO_lnfComboBoxInitFromModel(self);
 							</OnShow>
 						</Scripts>
@@ -607,9 +653,9 @@
 						</Frames>
 					</Frame>
 
-					<Frame name="$parentFilterLabel" inherits="VuhDoLabelFrameTemplate">
+					<Frame name="$parentAurasLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
-							<AbsDimension x="120" y="18" />
+							<AbsDimension x="130" y="18" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentEnabledCheckButton" relativePoint="BOTTOMLEFT">
@@ -620,34 +666,37 @@
 						</Anchors>
 						<Layers>
 							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_FILTER" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_AURAS" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
 								</FontString>
 							</Layer>
 						</Layers>
 					</Frame>
 
-					<Frame name="$parentExcludeFilterLabel" inherits="VuhDoLabelFrameTemplate">
+					<Frame name="$parentPresetLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
-							<AbsDimension x="120" y="18" />
+							<AbsDimension x="130" y="18" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentFilterLabel" relativePoint="TOPRIGHT">
+							<Anchor point="TOPLEFT" relativeTo="$parentAurasLabel" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="42" y="0" />
+									<AbsDimension x="10" y="0" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Layers>
 							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_EXCLUDE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_PRESET" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
 								</FontString>
 							</Layer>
 						</Layers>
 					</Frame>
 
-					<Button name="$parentFilterCombo" inherits="VuhDoComboBoxTemplate">
+					<Button name="$parentAurasCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="130" y="24" />
+						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentFilterLabel" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parentAurasLabel" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="-4" />
 								</Offset>
@@ -655,9 +704,9 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_FILTER_SELECTED", VUHDO_AURA_FILTER_OPTIONS, VUHDO_I18N_AURA_FILTER);
-								self:SetAttribute("custom_function", VUHDO_auraGroupsFilterChanged);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K612);
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_AURAS_SELECTED", VUHDO_AURA_AURAS_OPTIONS, VUHDO_I18N_AURA_AURAS);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsAurasChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K863);
 							</OnLoad>
 							<OnShow>
 								VUHDO_lnfPatchFont(self, "Text");
@@ -666,9 +715,12 @@
 						</Scripts>
 					</Button>
 
-					<Button name="$parentExcludeFilterCombo" inherits="VuhDoComboBoxTemplate">
+					<Button name="$parentPresetCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="130" y="24" />
+						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentExcludeFilterLabel" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parentPresetLabel" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="-4" />
 								</Offset>
@@ -676,9 +728,9 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_EXCLUDE_SELECTED", VUHDO_AURA_EXCLUDE_FILTER_OPTIONS, VUHDO_I18N_AURA_FILTER_NONE);
-								self:SetAttribute("custom_function", VUHDO_auraGroupsExcludeFilterChanged);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K613);
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_PRESET_SELECTED", VUHDO_AURA_PRESET_OPTIONS, VUHDO_I18N_AURA_PRESET);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsPresetChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K864);
 							</OnLoad>
 							<OnShow>
 								VUHDO_lnfPatchFont(self, "Text");
@@ -689,10 +741,10 @@
 
 					<Frame name="$parentConditionsPanel" hidden="true">
 						<Size>
-							<AbsDimension x="420" y="110" />
+							<AbsDimension x="420" y="122" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentFilterCombo" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parentAurasCombo" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="-4" />
 								</Offset>
@@ -700,31 +752,34 @@
 						</Anchors>
 						<Frames>
 
-							<Frame name="$parentConditionsLabel" inherits="VuhDoLabelFrameTemplate" enableMouse="true">
+							<Frame name="$parentConditionsAnyLabel" inherits="VuhDoLabelFrameTemplate" enableMouse="true">
 								<Size>
-									<AbsDimension x="120" y="18" />
+									<AbsDimension x="130" y="18" />
 								</Size>
 								<Anchors>
 									<Anchor point="TOPLEFT" />
 								</Anchors>
 								<Layers>
 									<Layer>
-										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_CONDITIONS" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_CONDITIONS_ANY" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
 										</FontString>
 									</Layer>
 								</Layers>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K855);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K860);
 									</OnLoad>
 									<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
 									<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
 								</Scripts>
 							</Frame>
 
-							<CheckButton name="$parentConditionsRow1IsStealableTriState" text="VUHDO_I18N_AURA_CONDITION_STEALABLE" inherits="VuhDoTriStateCheckButtonTemplate">
+							<Button name="$parentConditionsMatchAnyCombo" inherits="VuhDoComboBoxTemplate">
+								<Size>
+									<AbsDimension x="130" y="24" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsLabel" relativePoint="BOTTOMLEFT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsAnyLabel" relativePoint="BOTTOMLEFT">
 										<Offset>
 											<AbsDimension x="0" y="-4" />
 										</Offset>
@@ -732,67 +787,50 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isStealable", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K845);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+										VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.matchAny", VUHDO_AURA_CONDITION_COMBO_MODEL, VUHDO_I18N_AURA_CONDITIONS_ANY);
+										self:SetAttribute("custom_function", VUHDO_auraGroupsConditionsChanged);
+										self:SetAttribute("disabled_function", VUHDO_auraGroupsIsConditionEntryDisabled);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K860);
 									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
 								</Scripts>
-							</CheckButton>
+							</Button>
 
-							<CheckButton name="$parentConditionsRow1FromMeTriState" text="VUHDO_I18N_AURA_CONDITION_FROM_ME" inherits="VuhDoTriStateCheckButtonTemplate">
+							<Frame name="$parentConditionsAllLabel" inherits="VuhDoLabelFrameTemplate" enableMouse="true">
+								<Size>
+									<AbsDimension x="130" y="18" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1IsStealableTriState" relativePoint="TOPRIGHT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsAnyLabel" relativePoint="TOPRIGHT">
 										<Offset>
-											<AbsDimension x="5" y="0" />
+											<AbsDimension x="10" y="0" />
 										</Offset>
 									</Anchor>
 								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_CONDITIONS_ALL" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isFromPlayerOrPlayerPet", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K846);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K861);
 									</OnLoad>
+									<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
+									<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
 								</Scripts>
-							</CheckButton>
+							</Frame>
 
-							<CheckButton name="$parentConditionsRow1RoleAuraTriState" text="VUHDO_I18N_AURA_CONDITION_ROLE_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
+							<Button name="$parentConditionsMatchAllCombo" inherits="VuhDoComboBoxTemplate">
+								<Size>
+									<AbsDimension x="130" y="24" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1FromMeTriState" relativePoint="TOPRIGHT">
-										<Offset>
-											<AbsDimension x="5" y="0" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isRoleAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K847);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
-							<CheckButton name="$parentConditionsRow1PriorityAuraTriState" text="VUHDO_I18N_AURA_CONDITION_PRIORITY_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1RoleAuraTriState" relativePoint="TOPRIGHT">
-										<Offset>
-											<AbsDimension x="5" y="0" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isPriorityAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K848);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
-							<CheckButton name="$parentConditionsRow2BossAuraTriState" text="VUHDO_I18N_AURA_CONDITION_BOSS_AURA" inherits="VuhDoTriStateCheckButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow1IsStealableTriState" relativePoint="BOTTOMLEFT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsAllLabel" relativePoint="BOTTOMLEFT">
 										<Offset>
 											<AbsDimension x="0" y="-4" />
 										</Offset>
@@ -800,67 +838,50 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isBossAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K849);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+										VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.matchAll", VUHDO_AURA_CONDITION_COMBO_MODEL, VUHDO_I18N_AURA_CONDITIONS_ALL);
+										self:SetAttribute("custom_function", VUHDO_auraGroupsConditionsChanged);
+										self:SetAttribute("disabled_function", VUHDO_auraGroupsIsConditionEntryDisabled);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K861);
 									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
 								</Scripts>
-							</CheckButton>
+							</Button>
 
-							<CheckButton name="$parentConditionsRow2BossOrRoleTriState" text="VUHDO_I18N_AURA_CONDITION_BOSS_OR_ROLE" inherits="VuhDoTriStateCheckButtonTemplate">
+							<Frame name="$parentConditionsNeverLabel" inherits="VuhDoLabelFrameTemplate" enableMouse="true">
+								<Size>
+									<AbsDimension x="130" y="18" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossAuraTriState" relativePoint="TOPRIGHT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsAllLabel" relativePoint="TOPRIGHT">
 										<Offset>
-											<AbsDimension x="5" y="0" />
+											<AbsDimension x="10" y="0" />
 										</Offset>
 									</Anchor>
 								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_NEVER_SHOW" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.isBossOrRoleAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K850);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K865);
 									</OnLoad>
+									<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
+									<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
 								</Scripts>
-							</CheckButton>
+							</Frame>
 
-							<CheckButton name="$parentConditionsRow2CanApplyTriState" text="VUHDO_I18N_AURA_CONDITION_CAN_APPLY" inherits="VuhDoTriStateCheckButtonTemplate">
+							<Button name="$parentConditionsNeverShowCombo" inherits="VuhDoComboBoxTemplate">
+								<Size>
+									<AbsDimension x="130" y="24" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossOrRoleTriState" relativePoint="TOPRIGHT">
-										<Offset>
-											<AbsDimension x="5" y="0" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.canApplyAura", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K851);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
-							<CheckButton name="$parentConditionsRow2NameplateAllTriState" text="VUHDO_I18N_AURA_CONDITION_NAMEPLATE_ALL" inherits="VuhDoTriStateCheckButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2CanApplyTriState" relativePoint="TOPRIGHT">
-										<Offset>
-											<AbsDimension x="5" y="0" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.nameplateShowAll", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K852);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
-							<CheckButton name="$parentConditionsRow3NameplatePersonalTriState" text="VUHDO_I18N_AURA_CONDITION_NAMEPLATE_PERSONAL" inherits="VuhDoTriStateCheckButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow2BossAuraTriState" relativePoint="BOTTOMLEFT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsNeverLabel" relativePoint="BOTTOMLEFT">
 										<Offset>
 											<AbsDimension x="0" y="-4" />
 										</Offset>
@@ -868,30 +889,122 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetRadioModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.nameplateShowPersonal", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K853);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsCandidateBoolChanged);
+										VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.neverShow", VUHDO_AURA_CONDITION_COMBO_MODEL, VUHDO_I18N_AURA_NEVER_SHOW);
+										self:SetAttribute("custom_function", VUHDO_auraGroupsConditionsChanged);
+										self:SetAttribute("disabled_function", VUHDO_auraGroupsIsConditionEntryDisabled);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K865);
 									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
 								</Scripts>
-							</CheckButton>
+							</Button>
 
-							<CheckButton name="$parentHasDurationCheck" text="VUHDO_I18N_AURA_HAS_DURATION" inherits="VuhDoCheckButtonTemplate">
+							<Frame name="$parentConditionsBranchHintLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="400" y="18" />
+								</Size>
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parentConditionsRow3NameplatePersonalTriState" relativePoint="TOPRIGHT">
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsMatchAnyCombo" relativePoint="BOTTOMLEFT">
 										<Offset>
-											<AbsDimension x="5" y="0" />
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Frame name="$parentDurationLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="130" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentConditionsBranchHintLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_DURATION" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Button name="$parentDurationCombo" inherits="VuhDoComboBoxTemplate">
+								<Size>
+									<AbsDimension x="130" y="24" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentDurationLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
 										</Offset>
 									</Anchor>
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_HAS_DURATION");
-										VUHDO_lnfCheckButtonOnLoad(self);
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K854);
-										self:SetAttribute("custom_function_post", VUHDO_auraGroupsHasDurationChanged);
+										VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_DURATION_SELECTED", VUHDO_AURA_DURATION_OPTIONS, VUHDO_I18N_AURA_DURATION);
+										self:SetAttribute("custom_function", VUHDO_auraGroupsDurationChanged);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K866);
 									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
 								</Scripts>
-							</CheckButton>
+							</Button>
+
+							<Frame name="$parentExcludeDispelLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="150" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentDurationLabel" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="10" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_AURA_EXCLUDE_DISPEL" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Button name="$parentExcludeDispelCombo" inherits="VuhDoComboBoxTemplate">
+								<Size>
+									<AbsDimension x="150" y="24" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentExcludeDispelLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_CONDITIONS.excludeDispel", VUHDO_AURA_EXCLUDE_DISPEL_OPTIONS, VUHDO_I18N_AURA_EXCLUDE_DISPEL);
+										self:SetAttribute("custom_function", VUHDO_auraGroupsConditionsChanged);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K867);
+									</OnLoad>
+									<OnShow>
+										VUHDO_lnfPatchFont(self, "Text");
+										VUHDO_lnfComboBoxInitFromModel(self);
+									</OnShow>
+								</Scripts>
+							</Button>
 
 						</Frames>
 					</Frame>
@@ -901,7 +1014,7 @@
 							<AbsDimension x="120" y="18" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentConditionsPanelConditionsRow3NameplatePersonalTriState" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parentConditionsPanel" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="-4" />
 								</Offset>
@@ -1125,7 +1238,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K699);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K868);
 							</OnLoad>
 							<OnClick>
 								VUHDO_auraGroupsIgnoreListShow();

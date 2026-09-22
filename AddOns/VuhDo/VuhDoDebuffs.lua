@@ -19,7 +19,6 @@ local VUHDO_IGNORE_DEBUFFS_BY_CLASS = { };
 local VUHDO_IGNORE_DEBUFF_NAMES = { };
 
 local sDebuffDispelSignature;
-local sDebuffConfigSignature;
 
 VUHDO_DEBUFF_TYPES = {
 	["Magic"] = VUHDO_DEBUFF_TYPE_MAGIC,
@@ -43,6 +42,10 @@ local VUHDO_CONFIG;
 local VUHDO_RAID;
 local VUHDO_PANEL_SETUP;
 local VUHDO_DEBUFF_COLORS = { };
+local VUHDO_BUFF_REMOVAL_SPELLS;
+local VUHDO_BUFF_REMOVAL_CHARM_SPELLS;
+local VUHDO_INIT_PURGE_ABILITIES;
+local VUHDO_SPEC_TO_DEBUFF_ABIL;
 
 local VUHDO_UNIT_AURA_SOURCE_BOTH;
 
@@ -86,6 +89,10 @@ function VUHDO_debuffsInitLocalOverrides()
 	VUHDO_DEBUFF_BLACKLIST = _G["VUHDO_DEBUFF_BLACKLIST"];
 
 	VUHDO_UNIT_AURA_SOURCE_BOTH = _G["VUHDO_UNIT_AURA_SOURCE_BOTH"];
+	VUHDO_BUFF_REMOVAL_SPELLS = _G["VUHDO_BUFF_REMOVAL_SPELLS"];
+	VUHDO_BUFF_REMOVAL_CHARM_SPELLS = _G["VUHDO_BUFF_REMOVAL_CHARM_SPELLS"];
+	VUHDO_INIT_PURGE_ABILITIES = _G["VUHDO_INIT_PURGE_ABILITIES"];
+	VUHDO_SPEC_TO_DEBUFF_ABIL = _G["VUHDO_SPEC_TO_DEBUFF_ABIL"];
 
 	sIsNotRemovableOnly = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY"];
 	sIsNotRemovableOnlyIcons = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY_ICONS"];
@@ -1699,6 +1706,41 @@ end
 
 
 
+--
+local tPurgeSpellId;
+local tMappedSpellName;
+function VUHDO_rebuildBuffRemovalSpells()
+
+	twipe(VUHDO_BUFF_REMOVAL_SPELLS);
+
+	for tCharmSpellId in pairs(VUHDO_BUFF_REMOVAL_CHARM_SPELLS) do
+		VUHDO_BUFF_REMOVAL_SPELLS[tCharmSpellId] = true;
+	end
+
+	for tPurgeClass, tPurgeTypes in pairs(VUHDO_INIT_PURGE_ABILITIES) do
+		for _, tPurgeAbilities in pairs(tPurgeTypes) do
+			for tCnt = 1, #tPurgeAbilities do
+				tPurgeSpellId = tPurgeAbilities[tCnt];
+
+				if type(tPurgeSpellId) == "number" and tPurgeSpellId ~= "*" then
+					VUHDO_BUFF_REMOVAL_SPELLS[tPurgeSpellId] = true;
+
+					tMappedSpellName = VUHDO_SPEC_TO_DEBUFF_ABIL[tPurgeSpellId];
+
+					if tMappedSpellName then
+						VUHDO_BUFF_REMOVAL_SPELLS[tMappedSpellName] = true;
+					end
+				end
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
 -- Remove debuffing abilities individually not known to the player
 --
 local tAbility;
@@ -1749,6 +1791,8 @@ function VUHDO_updatePlayerDispelAbilities()
 	VUHDO_PLAYER_HAS_DISPEL = next(VUHDO_PLAYER_DISPEL_ABILITIES) ~= nil;
 	VUHDO_PLAYER_HAS_PURGE = next(VUHDO_PLAYER_PURGE_ABILITIES) ~= nil;
 
+	VUHDO_rebuildBuffRemovalSpells();
+
 	return;
 
 end
@@ -1758,7 +1802,6 @@ end
 --
 local tSignatureParts;
 local tPartCnt;
-local tDebuffType;
 function VUHDO_buildDebuffDispelSignature()
 
 	tSignatureParts = { };
@@ -1784,36 +1827,13 @@ end
 
 --
 local tNewDispelSignature;
-local tNewConfigSignature;
-local tDispelChanged;
-local tConfigChanged;
-function VUHDO_buildDebuffConfigSignature()
-
-	if not VUHDO_CONFIG then
-		return "";
-	end
-
-	return tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_NO_HARM"])
-		.. "|" .. tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_MOVEMENT"])
-		.. "|" .. tostring(VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_DURATION"])
-		.. "|" .. tostring(VUHDO_CONFIG["CUSTOM_DEBUFF"] and #VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"] or 0);
-
-end
-
-
-
---
 function VUHDO_initDebuffsIfNeeded()
 
 	VUHDO_updatePlayerDispelAbilities();
 
 	tNewDispelSignature = VUHDO_buildDebuffDispelSignature();
-	tNewConfigSignature = VUHDO_buildDebuffConfigSignature();
 
-	tDispelChanged = tNewDispelSignature ~= sDebuffDispelSignature;
-	tConfigChanged = tNewConfigSignature ~= sDebuffConfigSignature and tNewConfigSignature ~= "";
-
-	if not tDispelChanged and not tConfigChanged then
+	if tNewDispelSignature == sDebuffDispelSignature then
 		return;
 	end
 
@@ -1825,8 +1845,8 @@ end
 
 
 
+--
 local tInitDispelSignature;
-local tInitConfigSignature;
 function VUHDO_initDebuffs()
 
 	VUHDO_updatePlayerDispelAbilities();
@@ -1834,73 +1854,19 @@ function VUHDO_initDebuffs()
 	VUHDO_rebuildDispelTypeNameMaps();
 
 	tInitDispelSignature = VUHDO_buildDebuffDispelSignature();
-	tInitConfigSignature = VUHDO_buildDebuffConfigSignature();
 
-	if tInitDispelSignature ~= sDebuffDispelSignature
-		or (tInitConfigSignature ~= sDebuffConfigSignature and tInitConfigSignature ~= "") then
+	if tInitDispelSignature ~= sDebuffDispelSignature then
 		VUHDO_invalidateAllOverlayPlans();
-	end
+		VUHDO_invalidateAuraContainerTemplateCache();
 
-	if not VUHDO_CONFIG then
-		VUHDO_CONFIG = _G["VUHDO_CONFIG"];
-	end
-
-	twipe(VUHDO_CUSTOM_DEBUFF_CONFIG);
-
-	for _, tDebuffName in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"]) do
-		if not VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName] then
-			VUHDO_Msg("Skipping custom debuff (missing settings): " .. tostring(tDebuffName));
-		else
-			if not VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName] then
-				VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName] = { };
-			end
-
-			VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName][1] = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isColor"];
-			VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName][2] = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isIcon"];
-
-			if VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isMine"] == nil then
-				VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isMine"] = true;
-			end
-
-			VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName][3] = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isMine"];
-
-			if VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isOthers"] == nil then
-				VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isOthers"] = true;
-			end
-
-			VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName][4] = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName]["isOthers"];
-		end
-	end
-
-	for tDebuffName, _ in pairs(VUHDO_CUSTOM_DEBUFF_CONFIG) do
-		if not VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tDebuffName] then
-			VUHDO_CUSTOM_DEBUFF_CONFIG[tDebuffName] = nil;
-		end
-	end
-
-	twipe(VUHDO_IGNORE_DEBUFF_NAMES);
-
-	if VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_NO_HARM"] then
-		VUHDO_IGNORE_DEBUFFS_BY_CLASS = VUHDO_INIT_IGNORE_DEBUFFS_BY_CLASS;
-		VUHDO_tableAddAllKeys(VUHDO_IGNORE_DEBUFF_NAMES, VUHDO_INIT_IGNORE_DEBUFFS_NO_HARM);
-	else
-		VUHDO_IGNORE_DEBUFFS_BY_CLASS = sEmpty;
-	end
-
-	if VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_MOVEMENT"] then
-		VUHDO_tableAddAllKeys(VUHDO_IGNORE_DEBUFF_NAMES, VUHDO_INIT_IGNORE_DEBUFFS_MOVEMENT);
-	end
-
-	if VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_DURATION"] then
-		VUHDO_tableAddAllKeys(VUHDO_IGNORE_DEBUFF_NAMES, VUHDO_INIT_IGNORE_DEBUFFS_DURATION);
+		VUHDO_timeReloadUI(1);
 	end
 
 	VUHDO_rebuildCanColorBarGroupsCache();
 
 	VUHDO_buildSingleDispelTypeCurves();
 
-	sDebuffDispelSignature = VUHDO_buildDebuffDispelSignature();
-	sDebuffConfigSignature = VUHDO_buildDebuffConfigSignature();
+	sDebuffDispelSignature = tInitDispelSignature;
 
 	return;
 

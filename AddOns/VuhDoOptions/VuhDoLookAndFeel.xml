@@ -1638,6 +1638,26 @@
 			</Layers>
 		</Frame>
 
+		<Frame name="$parentCheckBox" hidden="true">
+			<Size>
+				<AbsDimension x="16" y="16" />
+			</Size>
+			<Anchors>
+				<Anchor point="TOPLEFT">
+					<Offset>
+						<AbsDimension x="3" y="0" />
+					</Offset>
+				</Anchor>
+			</Anchors>
+			<Layers>
+				<Layer level="BORDER">
+					<Texture name="$parentTexture" setAllPoints="true">
+						<TexCoords left="0" right="1" top="0" bottom="1" />
+					</Texture>
+				</Layer>
+			</Layers>
+		</Frame>
+
 		<Frame name="$parentCheckTexture" hidden="true">
 			<Size>
 				<AbsDimension x="16" y="16" />
@@ -1664,12 +1684,14 @@
 			VUHDO_lnfPatchFont(self, "LabelLabel");
 		</OnShow>
 		<OnMouseDown>
-			VUHDO_lnfComboSetSelectedValue(self.parentCombo, self:GetAttribute("value"));
-			VUHDO_lnfSetLastComboItem(self);
+			if not VUHDO_lnfComboIsEntryDisabled(self.parentCombo, self:GetAttribute("value")) then
+				VUHDO_lnfComboSetSelectedValue(self.parentCombo, self:GetAttribute("value"));
+				VUHDO_lnfSetLastComboItem(self);
+			end
 		</OnMouseDown>
 		<OnMouseUp>
 			if (self.parentCombo.isScrollable) then
-				if (VUHDO_lnfIsLastComboIten())	then
+				if (not self.parentCombo.isMulti and VUHDO_lnfIsLastComboIten()) then
 					self.dropwdownBox:Hide();
 				end
 			elseif (not self.parentCombo.isMulti) then
@@ -2969,6 +2991,30 @@
 			local tFontPath, _, tFontFlags = VuhDoYesNoFrameText:GetFont();
 			VuhDoYesNoFrameText:SetFont(tFontPath, 14, tFontFlags or "");
 		</OnShow>
+		<OnHide>
+			VuhDoYesNoFrameRootPaneTitleLabelLabel:SetText("");
+
+			VuhDoYesNoFrameYesButton:SetText(VUHDO_I18N_YES);
+			VuhDoYesNoFrameNoButton:SetText(VUHDO_I18N_NO);
+
+			VUHDO_PixelUtil.SetSize(VuhDoYesNoFrameYesButton, 100, 32);
+			VUHDO_PixelUtil.SetSize(VuhDoYesNoFrameNoButton, 100, 32);
+
+			local tText = VuhDoYesNoFrameYesButton:GetFontString();
+			tText:ClearAllPoints();
+			tText:SetJustifyH("LEFT");
+			tText:SetJustifyV("MIDDLE");
+			VUHDO_PixelUtil.SetPoint(tText, "LEFT", VuhDoYesNoFrameYesButton, "LEFT", 12, 0);
+
+			tText = VuhDoYesNoFrameNoButton:GetFontString();
+			tText:ClearAllPoints();
+			tText:SetJustifyH("LEFT");
+			tText:SetJustifyV("MIDDLE");
+			VUHDO_PixelUtil.SetPoint(tText, "LEFT", VuhDoYesNoFrameNoButton, "LEFT", 12, 0);
+
+			VuhDoYesNoFrameYesButtonIcon:Show();
+			VuhDoYesNoFrameNoButtonIcon:Show();
+		</OnHide>
 	</Scripts>
 </Frame>
 

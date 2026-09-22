@@ -185,7 +185,7 @@ local sAuraSymbolOptions = {
 local sDispelOverlayIconOptions = {
 	["style"] = Enum.CustomAuraButtonDispelTypeTextureStyle.Icon,
 	["showWhenHarmful"] = true,
-	["showWhenHelpful"] = false,
+	["showWhenHelpful"] = true,
 };
 
 local sAuraOpaqueBorderOptions = {
@@ -645,7 +645,7 @@ do
 				VUHDO_setStatusBarOrientation(tVolatileShadowBar, anButtonSetup["barOrientation"]);
 			end
 
-			if anButtonSetup["barTexture"] then
+			if anButtonSetup["barTexture"] and not tVolatileShadowBar["isDuration"] then
 				VUHDO_setLlcStatusBarTexture(tVolatileShadowBar, anButtonSetup["barTexture"]);
 			end
 
@@ -769,7 +769,7 @@ do
 		if anButtonSetup["targetFrameLevel"] then
 			if anButtonSetup["shadowValueMode"] == "duration" then
 				VUHDO_PixelUtil.SetFrameLevel(aAuraButton, anButtonSetup["targetFrameLevel"] + 1);
-				VUHDO_PixelUtil.SetFrameLevel(tVolatileShadowBar, anButtonSetup["targetFrameLevel"]);
+				VUHDO_PixelUtil.SetFrameLevel(tVolatileShadowBar, anButtonSetup["targetFrameLevel"] + 1);
 			else
 				VUHDO_PixelUtil.SetFrameLevel(aAuraButton, anButtonSetup["targetFrameLevel"]);
 			end
@@ -1181,12 +1181,16 @@ do
 					sAuraDurationBarOptions["direction"] = Enum.StatusBarTimerDirection.RemainingTime;
 				end
 
+				VUHDO_layoutOverlayDurationShadowBar(aAuraButton);
+
 				aAuraButton:SetDurationBar(tShadowBar, sAuraDurationBarOptions);
 
 				tShadowBar["isDuration"] = true;
 
 				tShadowBar:Show();
 			else
+				tShadowBar["isDuration"] = nil;
+
 				tShadowBar:Hide();
 
 				tFillTexture = aAuraButton["FillTexture"];
@@ -1536,6 +1540,7 @@ do
 	local tSlotAnchor;
 	local tSlotRelPoint;
 	local tSlotAnchorFrame;
+	local tShadowBar;
 	function VUHDO_buildAuraSlotButtonInitializer(aTemplateRef, aContainer, anAnchorPoint)
 
 		return function(aAuraButton)
@@ -1574,9 +1579,56 @@ do
 				VUHDO_PixelUtil.SetFrameLevel(aAuraButton, tSlotContainerLevel + tSlotFrameLevelOffset);
 			end
 
+			if tSlotButtonSetup["shadowBar"] and tSlotButtonSetup["shadowValueMode"] == "duration" then
+				VUHDO_reapplyOverlayDurationSlotSetup(aAuraButton, tSlotButtonSetup);
+			end
+
 			return;
 
 		end;
+
+	end
+
+
+
+	--
+	function VUHDO_reapplyOverlayDurationSlotSetup(aAuraButton, anButtonSetup)
+
+		if not aAuraButton or not anButtonSetup then
+			return;
+		end
+
+		if anButtonSetup["shadowValueMode"] ~= "duration" or not anButtonSetup["shadowBar"] then
+			return;
+		end
+
+		if not aAuraButton:CanBeAccessedInContext() then
+			return;
+		end
+
+		tShadowBar = aAuraButton["ShadowBar"];
+
+		if not tShadowBar then
+			return;
+		end
+
+		VUHDO_layoutOverlayDurationShadowBar(aAuraButton);
+
+		VUHDO_applyAuraButtonVolatileSetup(anButtonSetup, aAuraButton);
+
+		if anButtonSetup["barInverted"] then
+			sAuraDurationBarOptions["direction"] = Enum.StatusBarTimerDirection.ElapsedTime;
+		else
+			sAuraDurationBarOptions["direction"] = Enum.StatusBarTimerDirection.RemainingTime;
+		end
+
+		aAuraButton:SetDurationBar(tShadowBar, sAuraDurationBarOptions);
+
+		tShadowBar["isDuration"] = true;
+
+		tShadowBar:Show();
+
+		return;
 
 	end
 end
@@ -1593,6 +1645,31 @@ do
 		VUHDO_PixelUtil.SetPoint(aFrame, "TOPRIGHT", aTargetFrame, "TOPRIGHT", 0, 0);
 		VUHDO_PixelUtil.SetPoint(aFrame, "BOTTOMLEFT", aTargetFrame, "BOTTOMLEFT", 0, 0);
 		VUHDO_PixelUtil.SetPoint(aFrame, "BOTTOMRIGHT", aTargetFrame, "BOTTOMRIGHT", 0, 0);
+
+		return;
+
+	end
+
+
+
+	--
+	local tLayoutShadowBar;
+	function VUHDO_layoutOverlayDurationShadowBar(aAuraButton)
+
+		tLayoutShadowBar = aAuraButton["ShadowBar"];
+
+		if not tLayoutShadowBar then
+			return;
+		end
+
+		VUHDO_PixelUtil.ClearAllPoints(tLayoutShadowBar);
+
+		VUHDO_PixelUtil.SetPoint(tLayoutShadowBar, "TOPLEFT", aAuraButton, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tLayoutShadowBar, "TOPRIGHT", aAuraButton, "TOPRIGHT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tLayoutShadowBar, "BOTTOMLEFT", aAuraButton, "BOTTOMLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tLayoutShadowBar, "BOTTOMRIGHT", aAuraButton, "BOTTOMRIGHT", 0, 0);
+
+		tLayoutShadowBar:Show();
 
 		return;
 
@@ -1656,6 +1733,49 @@ do
 			tLevelBase = anAnchor["levelBase"] or aParent;
 
 			aContainer:SetFrameLevel(tLevelBase:GetFrameLevel() + anAnchor["frameLevelOffset"]);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_getAuraRangeFadeParent(aButton, anIsRangeFade)
+
+		if anIsRangeFade then
+			return VUHDO_getHealthBar(aButton, 3) or aButton;
+		end
+
+		return aButton;
+
+	end
+
+
+
+	--
+	local tFadeParent;
+	function VUHDO_applyAuraContainerFadeParent(aContainer, aButton, aContainerTemplate)
+
+		if not aContainer or not aButton or not aContainerTemplate then
+			return;
+		end
+
+		if aContainerTemplate["isOverlay"] then
+			return;
+		end
+
+		if InCombatLockdown() then
+			return;
+		end
+
+		tFadeParent = VUHDO_getAuraRangeFadeParent(aButton, aContainerTemplate["rangeFade"]);
+
+		if aContainer:GetParent() ~= tFadeParent then
+			aContainer:SetParent(tFadeParent);
+
+			VUHDO_applyAuraContainerAnchor(aContainer, aContainerTemplate["anchor"], aButton);
 		end
 
 		return;
@@ -3497,6 +3617,8 @@ function VUHDO_initAuraContainersForButton(aButton, aPanelNum)
 
 					VUHDO_applyAuraContainerAnchor(tContainerData["container"], tContainerTemplate["anchor"], aButton);
 
+					VUHDO_applyAuraContainerFadeParent(tContainerData["container"], aButton, tContainerTemplate);
+
 					tFilterSignature = VUHDO_getAuraContainerFilterSignature(tContainerTemplate);
 					tFilterContainer = tContainerData["container"];
 
@@ -3516,6 +3638,8 @@ function VUHDO_initAuraContainersForButton(aButton, aPanelNum)
 
 					if tContainerData then
 						VUHDO_AURA_CONTAINERS[tButtonName][tAnchorIndex] = tContainerData;
+
+						VUHDO_applyAuraContainerFadeParent(tContainerData["container"], aButton, tContainerTemplate);
 					end
 				end
 			end
@@ -3866,6 +3990,14 @@ do
 
 					tGroupShouldShow = not VUHDO_isAuraDisplaySuppressed(tTemplateRef, sGateState);
 
+					if tGroup["friendlyOnly"] and sGateState["canAttack"] then
+						tGroupShouldShow = false;
+					end
+
+					if tGroup["hostileOnly"] and not sGateState["canAttack"] then
+						tGroupShouldShow = false;
+					end
+
 					tShouldSuppress = not tGroupShouldShow;
 
 					if not tLastGroupSuppress or tLastGroupSuppress[tGroupKey] ~= tShouldSuppress then
@@ -3904,6 +4036,10 @@ do
 					tSlotShouldShow = not VUHDO_isAuraDisplaySuppressed(tTemplateRef, sGateState);
 
 					if tSlot["friendlyOnly"] and sGateState["canAttack"] then
+						tSlotShouldShow = false;
+					end
+
+					if tSlot["hostileOnly"] and not sGateState["canAttack"] then
 						tSlotShouldShow = false;
 					end
 

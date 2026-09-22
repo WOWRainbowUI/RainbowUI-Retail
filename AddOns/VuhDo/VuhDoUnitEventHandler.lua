@@ -25,9 +25,11 @@ local VUHDO_resetNameTextCache;
 local VUHDO_updateHealthBarsFor;
 local VUHDO_quickRaidReload;
 local VUHDO_normalRaidReload;
+local VUHDO_initDebuffsIfNeeded;
 local VUHDO_isAnyoneInterestedIn;
 local VUHDO_updateHandlerOnEventMetrics;
 local VUHDO_onUnitInRangeUpdate;
+local VUHDO_updateUnitVisibilityCharmRange;
 local VUHDO_needsUnitAuraEvent;
 local VUHDO_syncNativeAuraSoundsForUnit;
 local VUHDO_isAuraModeContainers;
@@ -116,9 +118,11 @@ function VUHDO_unitEventHandlerInitLocalOverrides()
 	VUHDO_updateHealthBarsFor = _G["VUHDO_updateHealthBarsFor"];
 	VUHDO_quickRaidReload = _G["VUHDO_quickRaidReload"];
 	VUHDO_normalRaidReload = _G["VUHDO_normalRaidReload"];
+	VUHDO_initDebuffsIfNeeded = _G["VUHDO_initDebuffsIfNeeded"];
 	VUHDO_isAnyoneInterestedIn = _G["VUHDO_isAnyoneInterestedIn"];
 	VUHDO_updateHandlerOnEventMetrics = _G["VUHDO_updateHandlerOnEventMetrics"];
 	VUHDO_onUnitInRangeUpdate = _G["VUHDO_onUnitInRangeUpdate"];
+	VUHDO_updateUnitVisibilityCharmRange = _G["VUHDO_updateUnitVisibilityCharmRange"];
 	VUHDO_needsUnitAuraEvent = _G["VUHDO_needsUnitAuraEvent"];
 	VUHDO_syncNativeAuraSoundsForUnit = _G["VUHDO_syncNativeAuraSoundsForUnit"];
 	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
@@ -283,6 +287,10 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 	elseif "UNIT_PET" == anEvent then
+		if "player" == anArg1 and VUHDO_PLAYER_CLASS == "WARLOCK" then
+			VUHDO_initDebuffsIfNeeded();
+		end
+
 		if VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_PETS] or not InCombatLockdown() then
 			VUHDO_REMOVE_HOTS = false;
 
@@ -355,6 +363,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 		if VUHDO_RAID[anArg1] then
+			VUHDO_updateUnitVisibilityCharmRange(anArg1);
+
 			VUHDO_updateBouquetsForEvent(anArg1, 34);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);
@@ -367,6 +377,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 		if VUHDO_RAID[anArg1] ~= nil then
+			VUHDO_updateUnitVisibilityCharmRange(anArg1);
+
 			VUHDO_syncAuraContainersForUnit(anArg1);
 			VUHDO_syncOverlaysForUnit(anArg1);
 		end

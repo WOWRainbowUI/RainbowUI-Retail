@@ -1329,6 +1329,22 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentRangeFadeTriState" text="VUHDO_I18N_RANGE_FADE" inherits="VuhDoTriStateCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="105" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_panelAurasAnchorControlSetModel(self, "rangeFade");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K859);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parentFixedSlotsCheck" text="VUHDO_I18N_FIXED_SLOTS" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">

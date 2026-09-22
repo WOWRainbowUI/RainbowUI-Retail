@@ -25,9 +25,12 @@ local sClassicSkin = {
 	["tabStyle"] = "pill",
 	["textures"] = {
 		["combo_glow_icon_base"] = sImagesPath .. "blue_dk_square_16_16",
+		["icon_check_tri"] = sImagesPath .. "icon_check",
 	},
 	["textureTints"] = {
 		["icon_tree_expand"] = { 0.30, 0.47, 0.80, 1 },
+		["combo_check_disabled"] = { 1, 1, 1, 0.4 },
+		["combo_check_mark"] = { 1, 1, 1, 1 },
 	},
 	["comboGlowPreviewColorBoost"] = 1.3,
 	["comboGlowPreviewBlend"] = "BLEND",
@@ -61,6 +64,8 @@ local sDarkSkin = {
 		["icon_red"] = { 0.85, 0.25, 0.25, 1 },
 		["status_dot"] = { 0.55, 0.58, 0.63, 1 },
 		["combo_select_dot"] = { 0.55, 0.58, 0.63, 1 },
+		["combo_check_disabled"] = { 0.4, 0.4, 0.4, 1 },
+		["combo_check_mark"] = { 1, 1, 1, 1 },
 		["icon_white_square"] = { 0.75, 0.78, 0.82, 1 },
 		["icon_check_2"] = { 0.75, 0.78, 0.82, 1 },
 		["bar_example"] = { 0.25, 0.27, 0.31, 1 },
@@ -217,29 +222,16 @@ local sOriginalBackdropFiles = { };
 local sEmpty = { };
 
 local sIsCjkLocale = GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "koKR";
-local sCjkFontPath;
+local sCjkFont = {
+	["size"] = 12,
+};
 
 local sCjkButtonFontNames = {
-	{
-		["name"] = "VuDoButtonFont",
-		["height"] = 8,
-	},
-	{
-		["name"] = "VuDoButtonFontLight",
-		["height"] = 8,
-	},
-	{
-		["name"] = "VuDoButtonFontDark",
-		["height"] = 8,
-	},
-	{
-		["name"] = "VuDoButtonFontBig",
-		["height"] = 12,
-	},
-	{
-		["name"] = "VuDoButtonFontBigLight",
-		["height"] = 12,
-	},
+	"VuDoButtonFont",
+	"VuDoButtonFontLight",
+	"VuDoButtonFontDark",
+	"VuDoButtonFontBig",
+	"VuDoButtonFontBigLight",
 };
 
 local sNativeTextures = { };
@@ -269,6 +261,7 @@ local sKnownSkinKeys = {
 	["displayName"] = true,
 	["imagesPath"] = true,
 	["indicatorPlate"] = true,
+	["indicatorLabelPlate"] = true,
 	["textures"] = true,
 	["textureTints"] = true,
 	["backdropColors"] = true,
@@ -307,6 +300,9 @@ local sValidFontColorKeys = {
 	["active"] = true,
 	["value"] = true,
 };
+
+local sIndicatorSchemaTexLeft = 18 / 128;
+local sIndicatorSchemaTexRight = 108 / 128;
 
 local tDarkTextureNames = {
 	"blue_dk_square_16_16",
@@ -421,15 +417,50 @@ end
 
 
 
---
-function VUHDO_lnfSkinGetIndicatorPlateColor()
+do
+	--
+	local tPlate;
+	local tAlpha;
+	function VUHDO_lnfSkinGetIndicatorPlateColor()
 
-	if VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"] then
-		return VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"][1], VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"][2], VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"][3], VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"][4] or 1;
+		tPlate = VUHDO_lnfSkinGetActiveEntry()["indicatorPlate"];
+
+		if tPlate then
+			tAlpha = tPlate[4];
+
+			if tAlpha == nil then
+				tAlpha = 1;
+			end
+
+			return tPlate[1], tPlate[2], tPlate[3], tAlpha;
+		end
+
+		return;
+
 	end
 
-	return;
 
+
+	--
+	local tPlate;
+	local tAlpha;
+	function VUHDO_lnfSkinGetIndicatorLabelPlateColor()
+
+		tPlate = VUHDO_lnfSkinGetActiveEntry()["indicatorLabelPlate"];
+
+		if tPlate then
+			tAlpha = tPlate[4];
+
+			if tAlpha == nil then
+				tAlpha = 1;
+			end
+
+			return tPlate[1], tPlate[2], tPlate[3], tAlpha;
+		end
+
+		return;
+
+	end
 end
 
 
@@ -545,7 +576,6 @@ end
 
 
 do
-
 	--
 	local tTints;
 	function VUHDO_lnfSkinResolveTint(aKey)
@@ -559,7 +589,6 @@ do
 		return nil;
 
 	end
-
 end
 
 
@@ -596,6 +625,73 @@ local function VUHDO_lnfSkinSnapshotTexture(aTexture)
 
 	return tEntry;
 
+end
+
+
+
+do
+	--
+	local tSlotName;
+	local tSchemaPlate;
+	local tLabelPlate;
+	local tSchemaTexture;
+	local tSchemaPlateR;
+	local tSchemaPlateG;
+	local tSchemaPlateB;
+	local tSchemaPlateA;
+	local tLabelPlateR;
+	local tLabelPlateG;
+	local tLabelPlateB;
+	local tLabelPlateA;
+	function VUHDO_lnfSkinStyleIndicatorBouquetSlot(aPanel)
+
+		if not aPanel then
+			return;
+		end
+
+		tSlotName = aPanel:GetName();
+
+		if not tSlotName then
+			return;
+		end
+
+		tSchemaPlate = _G[tSlotName .. "SchemaPlate"];
+		tLabelPlate = _G[tSlotName .. "SelectLabelTexture"];
+
+		if not tSchemaPlate or not tLabelPlate then
+			return;
+		end
+
+		tSchemaPlateR, tSchemaPlateG, tSchemaPlateB, tSchemaPlateA = VUHDO_lnfSkinGetIndicatorPlateColor();
+
+		if tSchemaPlateR then
+			tSchemaPlate:SetVertexColor(tSchemaPlateR, tSchemaPlateG, tSchemaPlateB, tSchemaPlateA);
+		else
+			tSchemaPlate:SetVertexColor(1, 1, 1, 0);
+		end
+
+		tLabelPlateR, tLabelPlateG, tLabelPlateB, tLabelPlateA = VUHDO_lnfSkinGetIndicatorLabelPlateColor();
+
+		if tLabelPlateR then
+			tLabelPlate:SetVertexColor(tLabelPlateR, tLabelPlateG, tLabelPlateB, tLabelPlateA);
+			tLabelPlate:SetAlpha(tLabelPlateA);
+		elseif tSchemaPlateR then
+			tLabelPlate:SetAlpha(0);
+		else
+			tLabelPlate:SetVertexColor(1, 1, 1, 0.9);
+			tLabelPlate:SetAlpha(0.9);
+		end
+
+		tSchemaTexture = _G[tSlotName .. "SchemaTexture"];
+
+		if tSchemaTexture and aPanel["indicatorIcon"] then
+			tSchemaTexture:SetTexture(VUHDO_lnfSkinResolveOptionsImage(aPanel["indicatorIcon"]));
+			tSchemaTexture:SetTexCoord(sIndicatorSchemaTexLeft, sIndicatorSchemaTexRight, 0, 1);
+		end
+
+		return;
+
+	end
 end
 
 
@@ -872,13 +968,17 @@ local function VUHDO_lnfSkinStyleFontFace(aRegion)
 
 	tEntry = VUHDO_lnfSkinSnapshotFontString(aRegion);
 
-	if not tEntry or type(tEntry["fontSize"]) ~= "number" or tEntry["fontSize"] <= 0 then
+	if not tEntry then
 		return;
 	end
 
 	if sIsCjkLocale then
-		aRegion:SetFont(sCjkFontPath, tEntry["fontSize"], tEntry["fontFlags"] or "");
+		aRegion:SetFont(sCjkFont["path"], sCjkFont["size"], tEntry["fontFlags"] or "");
 
+		return;
+	end
+
+	if type(tEntry["fontSize"]) ~= "number" or tEntry["fontSize"] <= 0 then
 		return;
 	end
 
@@ -1849,20 +1949,34 @@ function VUHDO_lnfSkinStyleComboItemCheck(aComboItem)
 		return;
 	end
 
-	if (aComboItem["parentCombo"] or sEmpty)["isMulti"] then
-		return;
-	end
-
 	tName = aComboItem:GetName();
 
 	if not tName then
 		return;
 	end
 
-	tRegion = _G[tName .. "CheckTextureTexture"];
+	if (aComboItem["parentCombo"] or sEmpty)["isMulti"] then
+		tPath = VUHDO_lnfSkinResolveTexture("icon_blue_square");
+		tRegion = _G[tName .. "CheckBoxTexture"];
 
-	if tRegion then
-		VUHDO_lnfSkinStyleTextureKeyed(tRegion, "combo_select_dot");
+		if tRegion and tRegion:GetTexture() ~= tPath then
+			tRegion:SetTexture(tPath);
+		end
+
+		tPath = VUHDO_lnfSkinResolveTexture("icon_check_tri");
+		tRegion = _G[tName .. "CheckTextureTexture"];
+
+		if tRegion and tRegion:GetTexture() ~= tPath then
+			tRegion:SetTexture(tPath);
+		end
+
+		VUHDO_lnfComboItemApplyCheckVertexColor(aComboItem, aComboItem["isDisabledEntry"]);
+	else
+		tRegion = _G[tName .. "CheckTextureTexture"];
+
+		if tRegion then
+			VUHDO_lnfSkinStyleTextureKeyed(tRegion, "combo_select_dot");
+		end
 	end
 
 	return;
@@ -2174,6 +2288,10 @@ local function VUHDO_lnfSkinOnComboButtonClicked(aButton)
 
 	if tSelectPanel and tSelectPanel:IsShown() then
 		VUHDO_lnfSkinApplyToFrameTree(tSelectPanel);
+
+		if tComboBox["isMulti"] and tComboBox["itemsBuilt"] then
+			VUHDO_lnfComboRefreshItemStates(tComboBox);
+		end
 	end
 
 	return;
@@ -3437,6 +3555,12 @@ function VUHDO_lnfSkinApplyToComponent(aComponent, aLabelName)
 		end
 	elseif tObjectType == "ScrollFrame" then
 		VUHDO_lnfSkinApplyFrameBackdrop(aComponent);
+
+		tName = aComponent:GetName();
+
+		if tName and _G[tName .. "SchemaPlate"] and _G[tName .. "SelectLabelTexture"] then
+			VUHDO_lnfSkinStyleIndicatorBouquetSlot(aComponent);
+		end
 	elseif tObjectType == "ColorSelect" then
 		VUHDO_lnfSkinApplyFrameBackdrop(aComponent);
 	end
@@ -3711,6 +3835,12 @@ local function VUHDO_lnfSkinValidate(aName, aSkinData)
 
 	if aSkinData["indicatorPlate"] then
 		if not VUHDO_lnfSkinValidateColorArray(aSkinData["indicatorPlate"], format("\"%s\".indicatorPlate", aName)) then
+			return false;
+		end
+	end
+
+	if aSkinData["indicatorLabelPlate"] then
+		if not VUHDO_lnfSkinValidateColorArray(aSkinData["indicatorLabelPlate"], format("\"%s\".indicatorLabelPlate", aName)) then
 			return false;
 		end
 	end
@@ -4111,14 +4241,14 @@ function VUHDO_lnfSkinInit()
 	end
 
 	if sIsCjkLocale then
-		sCjkFontPath = VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME);
+		sCjkFont["path"] = VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME);
 
 		for tCnt = 1, #sCjkButtonFontNames do
-			tName = sCjkButtonFontNames[tCnt]["name"];
+			tName = sCjkButtonFontNames[tCnt];
 
 			_, _, tFontFlags = _G[tName]:GetFont();
 
-			_G[tName]:SetFont(sCjkFontPath, sCjkButtonFontNames[tCnt]["height"], tFontFlags or "");
+			_G[tName]:SetFont(sCjkFont["path"], sCjkFont["size"], tFontFlags or "");
 		end
 	end
 

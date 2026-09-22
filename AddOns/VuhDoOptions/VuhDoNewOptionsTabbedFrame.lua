@@ -289,3 +289,73 @@ function VUHDO_initOptionsSettings()
 
 end
 
+
+
+--
+function VUHDO_yesNoSkinPromptCallback(aDecision)
+
+	if (VUHDO_YES == aDecision) then
+		VUHDO_lnfSkinSetActive("Classic");
+	else
+		VUHDO_lnfSkinSetActive("Dark");
+	end
+
+	VUHDO_OPTIONS_SETTINGS["SKIN_PROMPT_DONE"] = true;
+
+	return;
+
+end
+
+
+
+--
+local tSkin;
+local tText;
+function VUHDO_showOptionsSkinPrompt()
+
+	if not VUHDO_OPTIONS_SETTINGS then
+		return;
+	end
+
+	if (VUHDO_OPTIONS_SETTINGS["SKIN_PROMPT_DONE"]) then
+		return;
+	end
+
+	tSkin = VUHDO_OPTIONS_SETTINGS["SKIN"];
+
+	if (tSkin and tSkin ~= "Classic") then
+		VUHDO_OPTIONS_SETTINGS["SKIN_PROMPT_DONE"] = true;
+
+		return;
+	end
+
+	VuhDoYesNoFrameRootPaneTitleLabelLabel:SetText(VUHDO_I18N_SKIN);
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_SKIN_PROMPT);
+	VuhDoYesNoFrameYesButton:SetText(VUHDO_I18N_SKIN_CLASSIC);
+	VuhDoYesNoFrameNoButton:SetText(VUHDO_I18N_SKIN_DARK);
+
+	VuhDoYesNoFrameYesButtonIcon:Hide();
+	VuhDoYesNoFrameNoButtonIcon:Hide();
+
+	VuhDoYesNoFrame:SetAttribute("callback", VUHDO_yesNoSkinPromptCallback);
+
+	VuhDoYesNoFrame:Show();
+
+	VUHDO_PixelUtil.SetSize(VuhDoYesNoFrameYesButton, 100, 32);
+	VUHDO_PixelUtil.SetSize(VuhDoYesNoFrameNoButton, 100, 32);
+
+	tText = VuhDoYesNoFrameYesButton:GetFontString();
+	tText:ClearAllPoints();
+	tText:SetAllPoints(VuhDoYesNoFrameYesButton);
+	tText:SetJustifyH("CENTER");
+	tText:SetJustifyV("MIDDLE");
+
+	tText = VuhDoYesNoFrameNoButton:GetFontString();
+	tText:ClearAllPoints();
+	tText:SetAllPoints(VuhDoYesNoFrameNoButton);
+	tText:SetJustifyH("CENTER");
+	tText:SetJustifyV("MIDDLE");
+
+	return;
+
+end
