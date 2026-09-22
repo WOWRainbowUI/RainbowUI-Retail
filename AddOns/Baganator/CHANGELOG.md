@@ -1,6 +1,6 @@
 # Baganator
 
-## [826](https://github.com/TheMouseNest/Baganator/tree/826) (2026-09-18)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/825...826) 
+## [828](https://github.com/TheMouseNest/Baganator/tree/828) (2026-09-19)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/827...828) 
 
-- Forever: Skin fixes  
+- Forever: Fix equipment set scanning  
