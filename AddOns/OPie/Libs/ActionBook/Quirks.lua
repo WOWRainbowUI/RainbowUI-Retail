@@ -284,7 +284,7 @@ securecall(function() -- /ping's option parsing is silly
 	local f = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 	local tk, env = nil, WR.GetRestrictedEnvironment(f)
 	env.PING_COMMAND, tk = SLASH_PING1 .. " ", WR.newtable(env, "TOKENS")
-	tk.assist, tk.attack, tk.onmyway, tk.warning = PING_TYPE_ASSIST, PING_TYPE_ATTACK, PING_TYPE_ON_MY_WAY, PING_TYPE_WARNING
+	tk.attack, tk.warning, tk.onmyway, tk.assist, tk.nothreat, tk.threat = 1,2,3,4,5,6
 	f:SetAttribute("RunSlashCmd", [[-- AB_PingQuirk_Run 
 		local cmd, v, target, s = ...
 		if v then

@@ -1480,26 +1480,33 @@ securecall(function() -- /ping
 		return
 	end
 	local TOKENS, INFO = {}, {
-		{PING, "Ping_Marker_Icon_NonThreat"},
-		{PING, "Ping_Marker_Icon_Threat"},
-		assist={PING_TYPE_ASSIST, "Ping_Wheel_Icon_Assist"},
-		attack={PING_TYPE_ATTACK, "Ping_Wheel_Icon_Attack"},
-		onmyway={PING_TYPE_ON_MY_WAY, "Ping_Marker_Icon_OnMyWay"},
-		warning={PING_TYPE_WARNING, "Ping_Wheel_Icon_Warning"},
+		nothreat={PING_TYPE_NOT_THREAT, "Ping_Marker_Icon_NonThreat", alt="5"},
+		threat={PING_TYPE_THREAT, "Ping_Marker_Icon_Threat", alt="6"},
+		assist={PING_TYPE_ASSIST, "Ping_Wheel_Icon_Assist", alt="4"},
+		attack={PING_TYPE_ATTACK, "Ping_Wheel_Icon_Attack", alt="1"},
+		onmyway={PING_TYPE_ON_MY_WAY, "Ping_Marker_Icon_OnMyWay", alt="3"},
+		warning={PING_TYPE_WARNING, "Ping_Wheel_Icon_Warning", alt="2"},
 	}
 	for k,v in pairs(INFO) do
-		if type(k) == "string" then
-			TOKENS[v[1]:lower()] = k
-		end
+		TOKENS[v[1]:lower()] = k
+		TOKENS[v.alt] = k
 	end
 	RW:SetCommandHint(SLASH_PING1, 40, function(_, _, clause, target)
 		if clause then
 			clause = lowered[clause]
 			local ci = INFO[TOKENS[clause] or clause]
 			if not ci then
+				local c2 = clause:gsub("%s+", "")
+				c2 = TOKENS[c2] or c2
+				ci = INFO[c2]
+				if ci then
+					TOKENS[clause] = c2
+				end
+			end
+			if not ci then
 				local unit = target ~= "cursor" and target or "mouseover"
-				local pingType = (UnitCanAttack("player", unit) and UnitIsEnemy("player", unit) and 4 or 5)
-				ci = INFO[pingType == 4 and 2 or 1]
+				local pingType = (UnitCanAttack("player", unit) and UnitIsEnemy("player", unit) and "threat" or "nothreat")
+				ci = INFO[pingType]
 			end
 			local perm = (not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or not C_PartyInfo.GetRestrictPings())
 			local cdInfo, nowMs = C_Ping.GetCooldownInfo(), GetTime()*1000

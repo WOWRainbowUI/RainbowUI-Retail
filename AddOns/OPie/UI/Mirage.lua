@@ -272,6 +272,7 @@ local CreateCooldown, CallCooldownUpdate do
 		cdSetVeilShown(d, false)
 		d.self:Hide()
 		d.spark:Hide()
+		d.sparkAG:Stop()
 		if -0.1 < toExpire and toExpire < 0.25 then
 			d.flashAG:Play()
 		end
@@ -280,6 +281,7 @@ local CreateCooldown, CallCooldownUpdate do
 		local d = getWidgetData(self, CooldownData)
 		cdSetVeilShown(d, true)
 		d.pos = nil -- Forces quad texture update
+		d.sparkAG:Play()
 		return cdOnUpdate(self, 0)
 	end
 	function CallCooldownUpdate(d)
@@ -335,11 +337,9 @@ local CreateCooldown, CallCooldownUpdate do
 		w:SetSize(24,24)
 		w, d.spark = w:CreateAnimationGroup(), w
 		w:SetLooping("REPEAT")
-		b = w:CreateAnimation("Rotation")
-		b:SetDegrees(90)
-		b:SetDuration(1/3)
-		w:Play()
-
+		b, d.sparkAG = w:CreateAnimation("Rotation"), w
+		b:SetDegrees(270)
+		b:SetDuration(1)
 		w = parent:CreateTexture(nil, "OVERLAY")
 		w:SetSize(size*60/64, size*60/64)
 		w:SetPoint("CENTER")

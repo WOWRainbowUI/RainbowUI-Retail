@@ -1159,9 +1159,13 @@ securecall(function() -- Housing Return
 	if not MODERN then
 		return
 	end
+	local ov
 	local function syncReturn()
 		local v = not not C_HousingNeighborhood.CanReturnAfterVisitingHouse()
-		KR:SetStateConditionalValue("housereturn", v)
+		if v ~= ov then
+			ov = v
+			KR:SetStateConditionalValue("housereturn", v)
+		end
 	end
 	EV.PLAYER_ENTERING_WORLD = syncReturn
 	EV.UPDATE_UI_WIDGET = syncReturn
