@@ -12,9 +12,6 @@ local VUHDO_ANCHOR_CONSTRAINTS = 5;
 
 local sAnchorPoints = { "Top", "TopLeft", "TopRight", "Bottom", "BottomLeft", "BottomRight", "Left", "Right" };
 
-local sIndicatorTexLeft = 18 / 128;
-local sIndicatorTexRight = 108 / 128;
-
 --
 local sIndicatorMetaModel = {
 	{ -- Outer Border
@@ -468,28 +465,13 @@ end
 
 --
 local tCombo;
-local tLabelPlate;
-local tSchemaPlate;
-local tSchemaTexture;
-local tPR;
-local tPG;
-local tPB;
-local tPO;
 local function VUHDO_setBouquetSelectorModel(aPanel, aText, aModel, aTexture)
 
 	_G[aPanel:GetName() .. "SelectLabelLabel"]:SetText(aText);
 
-	tSchemaTexture = _G[aPanel:GetName() .. "SchemaTexture"];
-	tSchemaTexture:SetTexture(VUHDO_lnfSkinResolveOptionsImage(aTexture));
-	tSchemaTexture:SetTexCoord(sIndicatorTexLeft, sIndicatorTexRight, 0, 1);
+	aPanel["indicatorIcon"] = aTexture;
 
-	tPR, tPG, tPB, tPO = VUHDO_lnfSkinGetIndicatorPlateColor();
-
-	tSchemaPlate = _G[aPanel:GetName() .. "SchemaPlate"];
-	tSchemaPlate:SetVertexColor(tPR or 1, tPG or 1, tPB or 1, tPR and tPO or 0);
-
-	tLabelPlate = _G[aPanel:GetName() .. "SelectLabelTexture"];
-	tLabelPlate:SetAlpha(tPR and 0 or 0.9);
+	VUHDO_lnfSkinStyleIndicatorBouquetSlot(aPanel);
 
 	tCombo = _G[aPanel:GetName() .. "SelectComboBox"];
 

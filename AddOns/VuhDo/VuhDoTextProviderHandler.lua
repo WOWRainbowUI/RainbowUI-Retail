@@ -35,7 +35,16 @@ local VUHDO_INDICATOR_TEXT_PROVIDERS = { };
 local sFormatModelCache = { };
 local sResolvedProviders = { };
 setmetatable(sResolvedProviders, VUHDO_META_NEW_ARRAY);
+local sProviderInterestCache = { };
+setmetatable(sProviderInterestCache, VUHDO_META_NEW_ARRAY);
 local sEmpty = { };
+
+for tEventType = 1, 50 do
+	sProviderInterestCache[tEventType] = {
+		["entries"] = { },
+		["clearEntries"] = { },
+	};
+end
 
 
 
@@ -144,6 +153,44 @@ end
 
 
 --
+local tResolved;
+local tIndicatorName;
+local tFunction;
+local tCacheEntry;
+function VUHDO_buildProviderInterestCache()
+
+	for tEventType = 1, 50 do
+		twipe(sProviderInterestCache[tEventType]["entries"]);
+		twipe(sProviderInterestCache[tEventType]["clearEntries"]);
+	end
+
+	for tResolved, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
+		for tEventType = 1, 50 do
+			if VUHDO_isTextProviderInterestedInEvent(tResolved, tEventType) then
+				for tIndicatorName, tFunction in pairs(tAllIndicators) do
+					tCacheEntry = {
+						["resolved"] = tResolved,
+						["indicatorName"] = tIndicatorName,
+						["func"] = tFunction,
+					};
+
+					tinsert(sProviderInterestCache[tEventType]["clearEntries"], tCacheEntry);
+
+					if not VUHDO_isAnyIndicatorBouquetInterestedIn(tIndicatorName, tEventType) then
+						tinsert(sProviderInterestCache[tEventType]["entries"], tCacheEntry);
+					end
+				end
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
 local tInfo;
 local tIndicators;
 local tValue;
@@ -163,11 +210,11 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 						for tResolved, tFunction in pairs(VUHDO_INDICATOR_TEXT_PROVIDERS[tIndicatorName]) do
 							if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
 								if not anIsActive then
-									tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
+									tFunction(aUnit, tResolved, "", tIndicatorName, aBouquetName, "%s", "");
 								else
 									tValue, tMaxValue = tResolved["source"]["calculator"](tInfo);
 
-									tFunction(aUnit, tResolved, tValue, tIndicatorName,
+									tFunction(aUnit, tResolved, tValue, tIndicatorName, aBouquetName,
 										tResolved["format"]["validator"](tInfo, tValue, tMaxValue));
 								end
 							end
@@ -176,30 +223,26 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 				end
 			end
 		else
-			for tResolved, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
-				if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
-					for tIndicatorName, tFunction in pairs(tAllIndicators) do
-						if not VUHDO_isAnyIndicatorBouquetInterestedIn(tIndicatorName, anEventType) then
-							if VUHDO_isIndicatorBouquetInactive(aUnit, tIndicatorName) then
-								tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
-							else
-								tValue, tMaxValue = tResolved["source"]["calculator"](tInfo);
+			for tCnt = 1, #sProviderInterestCache[anEventType]["entries"] do
+				tCacheEntry = sProviderInterestCache[anEventType]["entries"][tCnt];
+				tResolved = tCacheEntry["resolved"];
+				tIndicatorName = tCacheEntry["indicatorName"];
+				tFunction = tCacheEntry["func"];
 
-								tFunction(aUnit, tResolved, tValue, tIndicatorName,
-									tResolved["format"]["validator"](tInfo, tValue, tMaxValue));
-							end
-						end
-					end
+				if VUHDO_isIndicatorBouquetInactive(aUnit, tIndicatorName) then
+					tFunction(aUnit, tResolved, "", tIndicatorName, nil, "%s", "");
+				else
+					tValue, tMaxValue = tResolved["source"]["calculator"](tInfo);
+
+					tFunction(aUnit, tResolved, tValue, tIndicatorName, nil, tResolved["format"]["validator"](tInfo, tValue, tMaxValue));
 				end
 			end
 		end
 	elseif aUnit then
-		for tResolved, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
-			if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
-				for tIndicatorName, tFunction in pairs(tAllIndicators) do
-					tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
-				end
-			end
+		for tCnt = 1, #sProviderInterestCache[anEventType]["clearEntries"] do
+			tCacheEntry = sProviderInterestCache[anEventType]["clearEntries"][tCnt];
+
+			tCacheEntry["func"](aUnit, tCacheEntry["resolved"], "", tCacheEntry["indicatorName"], nil, "%s", "");
 		end
 	end
 
@@ -384,6 +427,8 @@ function VUHDO_registerAllTextIndicators()
 	end
 
 	VUHDO_initTextProviderSourceComboModel();
+
+	VUHDO_buildProviderInterestCache();
 
 	return;
 

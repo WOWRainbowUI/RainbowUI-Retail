@@ -18,6 +18,8 @@ local VUHDO_PixelUtil;
 local VUHDO_getUnitButtonsPanel;
 local VUHDO_displayAuraInSlot;
 local VUHDO_hideAuraSlot;
+local VUHDO_getAuraGroup;
+local VUHDO_isAuraGroupInScopeForUnit;
 local VUHDO_copyColorTo;
 local VUHDO_evaluateBouquetItemForStaticSlot;
 local VUHDO_applyAuraContainerVisibility;
@@ -26,6 +28,7 @@ local VUHDO_isUnitAuraFilterRestricted;
 local VUHDO_getAuraAnchorHost;
 local VUHDO_acquireAuraIconFrame;
 local VUHDO_acquireAuraBarFrame;
+local VUHDO_getAuraRangeFadeParent;
 
 local sOwnedStaticSlotColor = { };
 
@@ -58,6 +61,9 @@ function VUHDO_auraContainerStaticInitLocalOverrides()
 	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_acquireAuraIconFrame = _G["VUHDO_acquireAuraIconFrame"];
 	VUHDO_acquireAuraBarFrame = _G["VUHDO_acquireAuraBarFrame"];
+	VUHDO_getAuraRangeFadeParent = _G["VUHDO_getAuraRangeFadeParent"];
+	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
+	VUHDO_isAuraGroupInScopeForUnit = _G["VUHDO_isAuraGroupInScopeForUnit"];
 
 	return;
 
@@ -133,6 +139,7 @@ do
 	local tChild;
 	local tTexture;
 	local tButtonFrameLevel;
+	local tFadeParent;
 	local function VUHDO_applyStaticBouquetSlotGeometry(aFrame, aButton, aContainerTemplate, aStaticSlot)
 
 		if not aFrame or not aButton or not aContainerTemplate or not aStaticSlot then
@@ -140,6 +147,8 @@ do
 		end
 
 		aFrame["isStaticSlotFrame"] = true;
+
+		tFadeParent = VUHDO_getAuraRangeFadeParent(aButton, aContainerTemplate["rangeFade"]);
 
 		tAnchorPoint, tRelFrame, tRelPoint, tXOff, tYOff = VUHDO_resolveStaticSlotAnchor(aButton, aContainerTemplate, aStaticSlot);
 		tFrameLevelOffset = ((aContainerTemplate["anchor"] and aContainerTemplate["anchor"]["frameLevelOffset"]) or aFrame["addLevel"] or 10) + (aStaticSlot["frameLevelOffset"] or 0);
@@ -154,13 +163,13 @@ do
 			and aFrame["staticSlotWidth"] == (aStaticSlot["width"] or 0)
 			and aFrame["staticSlotHeight"] == (aStaticSlot["height"] or 0)
 			and aFrame["staticSlotFrameLevelOffset"] == (tFrameLevelOffset or 0)
-			and aFrame:GetParent() == aButton then
+			and aFrame:GetParent() == tFadeParent then
 			return;
 		end
 
 		if not InCombatLockdown() then
-			if aFrame:GetParent() ~= aButton then
-				aFrame:SetParent(aButton);
+			if aFrame:GetParent() ~= tFadeParent then
+				aFrame:SetParent(tFadeParent);
 			end
 
 			aFrame:ClearAllPoints();
@@ -369,10 +378,9 @@ do
 	local tItemIndex;
 	local tPriorityCutoff;
 	local tContainer;
-	local tCanAttack;
 	local tIsAuraFilterRestricted;
 	local tEvalCacheEntry;
-	local tSlotEntryIndex;
+	local tGroup;
 	function VUHDO_updateStaticBouquetSlotsForButton(aButton, aUnit, aContainerData, aCanAttack, anIsSlotFiltersApplied)
 
 		if not aButton or not aUnit or not aContainerData then
@@ -398,8 +406,21 @@ do
 			return;
 		end
 
-		tContainerTemplate = aContainerData["containerTemplate"];
+		tGroup = VUHDO_getAuraGroup(tAnchorConfig["groupId"]);
+
 		tIsBar = tAnchorConfig["style"] == "bars";
+
+		if not tGroup or not VUHDO_isAuraGroupInScopeForUnit(tGroup, aUnit) then
+			for tSlotEntryIndex, tStaticSlot in pairs(tStaticSlots) do
+				tSlotIndex = tStaticSlot["slotIndex"] or tSlotEntryIndex;
+
+				VUHDO_hideAuraSlot(aButton, tAnchorIndex, tSlotIndex, tIsBar);
+			end
+
+			return;
+		end
+
+		tContainerTemplate = aContainerData["containerTemplate"];
 		tListSlots = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][tPanelNum] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][tPanelNum][tAnchorIndex];
 		tButtonName = aButton:GetName();
 		tIsAuraFilterRestricted = VUHDO_isUnitAuraFilterRestricted(aUnit);

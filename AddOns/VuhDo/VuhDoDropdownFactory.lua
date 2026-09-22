@@ -71,16 +71,22 @@ end
 
 
 --
+local tKey;
+local tIsChecked;
 local function VUHDO_privateTanksItemSelected(_, aUnit)
-	local tName = VUHDO_RAID[aUnit]["name"];
-	if VUHDO_PLAYER_TARGETS[tName] then
-		VUHDO_PLAYER_TARGETS[tName] = nil;
+
+	tKey = VUHDO_getPrivateTankKey(aUnit);
+
+	if VUHDO_PLAYER_TARGETS[tKey] then
+		VUHDO_PLAYER_TARGETS[tKey] = nil;
 	else
-		VUHDO_PLAYER_TARGETS[tName] = true;
+		VUHDO_PLAYER_TARGETS[tKey] = true;
 	end
 
-	-- Reload private tanks group
 	VUHDO_quickRaidReload();
+
+	return;
+
 end
 
 
@@ -179,9 +185,12 @@ function VUHDO_playerTargetDropDown_Initialize(aFrame, aLevel)
 	-- Private Tanks
 	VUHDO_playerTargetAddTitle();
 
-	local tIsChecked = false;
+	tIsChecked = false;
+
 	if VUHDO_MENU_UNIT and VUHDO_RAID[VUHDO_MENU_UNIT] ~= nil then
-		tIsChecked = VUHDO_PLAYER_TARGETS[tName] ~= nil;
+		tKey = VUHDO_getPrivateTankKey(VUHDO_MENU_UNIT);
+
+		tIsChecked = VUHDO_PLAYER_TARGETS[tKey] ~= nil;
 	end
 
 	VUHDO_playerTargetAddSetting(VUHDO_I18N_PRIVATE_TANK, tIsChecked, VUHDO_MENU_UNIT, nil,

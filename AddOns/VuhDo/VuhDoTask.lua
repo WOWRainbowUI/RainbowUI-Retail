@@ -260,6 +260,8 @@ local VUHDO_TASK_QUEUE_MAP = { };
 local VUHDO_processPendingAuraContainerBuilds;
 local VUHDO_processPendingNativeAuraSounds;
 
+local VUHDO_argToString = VUHDO_argToString;
+
 
 
 do
@@ -1582,7 +1584,7 @@ do
 						tArgsSummary = tArgsSummary .. ",";
 					end
 
-					tArgsSummary = tArgsSummary .. tostring(tTask["args"][tCnt] or "nil");
+					tArgsSummary = tArgsSummary .. VUHDO_argToString(tTask["args"][tCnt]);
 				end
 			else
 				tArgsSummary = "none";
@@ -1698,7 +1700,7 @@ do
 										tArgsSummary = tArgsSummary .. ",";
 									end
 
-									tArgsSummary = tArgsSummary .. tostring(tTask["args"][tCnt] or "nil");
+									tArgsSummary = tArgsSummary .. VUHDO_argToString(tTask["args"][tCnt]);
 								end
 							else
 								tArgsSummary = "none";

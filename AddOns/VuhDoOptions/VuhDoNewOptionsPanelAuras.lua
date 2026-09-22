@@ -85,6 +85,7 @@ local sDefaultAnchorEntry = {
 	["fadeOnLow"] = 2,
 	["flashOnLow"] = 2,
 	["dispelBorder"] = 2,
+	["rangeFade"] = 2,
 	["colorMode"] = "default",
 	["iconType"] = 1,
 	["stackType"] = 1,
@@ -1216,6 +1217,7 @@ function VUHDO_panelAurasRebindContentPanel()
 		{ "TriStateRow3FadeOnLowTriState", "fadeOnLow" },
 		{ "TriStateRow3FlashOnLowTriState", "flashOnLow" },
 		{ "TriStateRow4ShowTooltipTriState", "showTooltip" },
+		{ "TriStateRow4RangeFadeTriState", "rangeFade" },
 	};
 
 	for _, tEntry in ipairs(tTriStateNames) do

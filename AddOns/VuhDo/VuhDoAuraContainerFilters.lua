@@ -68,8 +68,12 @@ local VUHDO_DEBUFF_TYPES;
 local VUHDO_PLAYER_DISPEL_ABILITIES;
 local VUHDO_PLAYER_PURGE_ABILITIES;
 local VUHDO_DEFAULT_AURA_GLOW_STYLE;
+local VUHDO_AURA_MAX_MATCH_ANY;
+local VUHDO_AURA_CONDITION_BOOLEAN_KEYS;
+local VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER;
 
 local VUHDO_getAuraGroup;
+local VUHDO_applyAuraGroupScopeFlags;
 local VUHDO_classifyBouquetRestrictedMode;
 local VUHDO_buildListEntryContainerGroupTemplate;
 local VUHDO_buildMixedBouquetListSlotTemplates;
@@ -77,6 +81,7 @@ local VUHDO_applyBarButtonSetupFields;
 local VUHDO_getAuraTimerFormatter;
 local VUHDO_getAuraTimerColorCurve;
 local VUHDO_getTriStateBool;
+local VUHDO_resolveAuraTriState;
 local VUHDO_buildAnchorButtonSetup;
 local VUHDO_getHealthBarWidth;
 local VUHDO_getHealthBarHeight;
@@ -100,23 +105,6 @@ local sPlayerDispelGlowTypeNames = { };
 local sPlayerPurgeGlowTypeNames = { };
 local sGroupResolvedFilterCache = { };
 local sGlobalIgnoreSpellIds;
-
-local sNonNegatableFilterTokens = {
-	["INCLUDE_NAME_PLATE_ONLY"] = true,
-	["MAW"] = true,
-};
-
-local sCandidateBooleanKeys = {
-	"isStealable",
-	"isFromPlayerOrPlayerPet",
-	"isRoleAura",
-	"isPriorityAura",
-	"isBossAura",
-	"isBossOrRoleAura",
-	"canApplyAura",
-	"nameplateShowAll",
-	"nameplateShowPersonal",
-};
 
 local sAuraBarFallbackColor = {
 	["R"] = 0.2,
@@ -232,8 +220,12 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_PLAYER_DISPEL_ABILITIES = _G["VUHDO_PLAYER_DISPEL_ABILITIES"];
 	VUHDO_PLAYER_PURGE_ABILITIES = _G["VUHDO_PLAYER_PURGE_ABILITIES"];
 	VUHDO_DEFAULT_AURA_GLOW_STYLE = _G["VUHDO_DEFAULT_AURA_GLOW_STYLE"];
+	VUHDO_AURA_MAX_MATCH_ANY = _G["VUHDO_AURA_MAX_MATCH_ANY"];
+	VUHDO_AURA_CONDITION_BOOLEAN_KEYS = _G["VUHDO_AURA_CONDITION_BOOLEAN_KEYS"];
+	VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER = _G["VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER"];
 
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
+	VUHDO_applyAuraGroupScopeFlags = _G["VUHDO_applyAuraGroupScopeFlags"];
 	VUHDO_classifyBouquetRestrictedMode = _G["VUHDO_classifyBouquetRestrictedMode"];
 	VUHDO_buildListEntryContainerGroupTemplate = _G["VUHDO_buildListEntryContainerGroupTemplate"];
 	VUHDO_buildMixedBouquetListSlotTemplates = _G["VUHDO_buildMixedBouquetListSlotTemplates"];
@@ -241,6 +233,7 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_getAuraTimerFormatter = _G["VUHDO_getAuraTimerFormatter"];
 	VUHDO_getAuraTimerColorCurve = _G["VUHDO_getAuraTimerColorCurve"];
 	VUHDO_getTriStateBool = _G["VUHDO_getTriStateBool"];
+	VUHDO_resolveAuraTriState = _G["VUHDO_resolveAuraTriState"];
 	VUHDO_buildAnchorButtonSetup = _G["VUHDO_buildAnchorButtonSetup"];
 	VUHDO_getHealthBarWidth = _G["VUHDO_getHealthBarWidth"];
 	VUHDO_getHealthBarHeight = _G["VUHDO_getHealthBarHeight"];
@@ -306,6 +299,11 @@ end
 
 do
 	--
+	local sNonNegatableFilterTokens = {
+		["INCLUDE_NAME_PLATE_ONLY"] = true,
+		["MAW"] = true,
+	};
+
 	local tType;
 	local tFilter;
 	local tExcludeFilter;
@@ -372,7 +370,7 @@ do
 			return aGroup["isHarmful"] and "HARMFUL" or "HELPFUL";
 		end
 
-		tHasRaidPlayerDispellable = strfind(tFilter, "RAID_PLAYER_DISPELLABLE", 1, true) ~= nil;
+		tHasRaidPlayerDispellable = aGroup["filter"] and strfind(aGroup["filter"], "RAID_PLAYER_DISPELLABLE", 1, true) ~= nil;
 
 		twipe(tSeen);
 		tTokens = { strsplit("|", tFilter) };
@@ -388,6 +386,8 @@ do
 				tEmit = "!CANCELABLE";
 			elseif tHasRaidPlayerDispellable and tBase == "PLAYER" then
 				tEmit = nil;
+			elseif tBase == "RAID_PLAYER_DISPELLABLE" and aGroup["isHarmful"] then
+				tEmit = "DISPELLABLE";
 			elseif VUHDO_AURA_NATIVE_FILTER_TOKENS[tBase] then
 				if tIsNegated and sNonNegatableFilterTokens[tBase] then
 					tEmit = tBase;
@@ -448,172 +448,395 @@ do
 		return tNative;
 
 	end
-end
 
 
 
---
-local tType;
-local tBouquetClass;
-function VUHDO_isAuraGroupContainerExpressible(aGroup)
+	--
+	local tBranchEntry;
+	local tBranchFilterString;
+	local tBranchSeen = { };
+	local tBranchTokens;
+	local tBranchUpper;
+	local tBranchBase;
+	local tBranchIsNegated;
+	local tBranchEmit;
+	function VUHDO_buildAuraGroupBranchFilterString(aBaseFilterString, aMatchAnyShows, aBranchIndex)
 
-	if not aGroup or aGroup["enabled"] == false or aGroup["isInferred"] then
-		return false;
-	end
+		if not aBaseFilterString or not aMatchAnyShows or not aBranchIndex then
+			return aBaseFilterString;
+		end
 
-	tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+		tBranchEntry = aMatchAnyShows[aBranchIndex];
 
-	if tType == VUHDO_AURA_GROUP_TYPE_FILTER then
-		return (aGroup["resolvedFilter"] or aGroup["filter"]) ~= nil;
-	end
+		if not tBranchEntry or tBranchEntry["entryType"] ~= VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN then
+			tBranchFilterString = aBaseFilterString;
 
-	if aGroup["isHarmful"] then
-		return false;
-	end
+			for tNegCnt = 1, aBranchIndex - 1 do
+				if aMatchAnyShows[tNegCnt]["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN then
+					tBranchBase = aMatchAnyShows[tNegCnt]["value"];
 
-	for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
-		if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
-			if type(tEntry["value"]) == "number" then
-				return true;
+					if tBranchBase ~= "RAID_PLAYER_DISPELLABLE" and not sNonNegatableFilterTokens[tBranchBase] then
+						tBranchFilterString = tBranchFilterString .. "|!" .. tBranchBase;
+					end
+				end
 			end
 
-			tSpellId = VUHDO_resolveAuraContainerSpellId(tEntry["value"]);
+			return tBranchFilterString;
+		end
 
-			if tSpellId then
-				return true;
-			end
-		elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
-			tBouquetClass = VUHDO_classifyBouquetRestrictedMode(tEntry["value"]);
+		twipe(tBranchSeen);
+		tBranchTokens = { strsplit("|", aBaseFilterString) };
+		tBranchFilterString = "";
+		tBranchHasCategory = false;
 
-			if tBouquetClass == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER or tBouquetClass == VUHDO_BOUQUET_RESTRICTED_NON_AURA
-				or tBouquetClass == VUHDO_BOUQUET_RESTRICTED_MIXED then
-				return true;
+		for _, tToken in ipairs(tBranchTokens) do
+			tBranchUpper = strupper(tToken);
+			tBranchIsNegated = strfind(tBranchUpper, "!", 1, true) == 1;
+			tBranchBase = tBranchIsNegated and strsub(tBranchUpper, 2) or tBranchUpper;
+
+			if VUHDO_AURA_NATIVE_FILTER_TOKENS[tBranchBase] or tBranchBase == "HELPFUL" or tBranchBase == "HARMFUL" then
+				tBranchEmit = tBranchIsNegated and ("!" .. tBranchBase) or tBranchBase;
+
+				if not tBranchSeen[tBranchEmit] then
+					tBranchSeen[tBranchEmit] = true;
+
+					tBranchFilterString = tBranchFilterString == "" and tBranchEmit or (tBranchFilterString .. "|" .. tBranchEmit);
+
+					if tBranchBase == "HELPFUL" or tBranchBase == "HARMFUL" then
+						tBranchHasCategory = true;
+					end
+				end
 			end
 		end
+
+		for tNegCnt = 1, aBranchIndex - 1 do
+			if aMatchAnyShows[tNegCnt]["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN then
+				tBranchBase = aMatchAnyShows[tNegCnt]["value"];
+
+				if tBranchBase ~= "RAID_PLAYER_DISPELLABLE" and not sNonNegatableFilterTokens[tBranchBase] and not tBranchSeen["!" .. tBranchBase] then
+					tBranchSeen["!" .. tBranchBase] = true;
+
+					tBranchFilterString = tBranchFilterString .. "|!" .. tBranchBase;
+				end
+			end
+		end
+
+		tBranchBase = tBranchEntry["value"];
+
+		if tBranchBase ~= "RAID_PLAYER_DISPELLABLE" and not tBranchSeen[tBranchBase] then
+			tBranchSeen[tBranchBase] = true;
+
+			tBranchFilterString = tBranchFilterString .. "|" .. tBranchBase;
+		end
+
+		return tBranchFilterString;
+
 	end
-
-	return false;
-
 end
 
 
 
---
-local tCached;
-local tFilterString;
-local tCandidateFilters;
-local tExpressible;
-local tType;
-local tSpellIds;
-function VUHDO_getAuraGroupResolvedFilters(aGroup)
+do
+	--
+	local tType;
+	local tBouquetClass;
+	local tSpellId;
+	local tCached;
+	local tFilterString;
+	local tCandidateFilters;
+	local tCandidateBranches;
+	local tDroppedBranchKeys;
+	local tBranchFilterStrings;
+	local tDroppedBranchTokens;
+	local tExpressible;
+	local tSpellIds;
+	local tDispelTypes;
+	local tDispelSnapshot;
+	function VUHDO_isAuraGroupContainerExpressible(aGroup)
 
-	if not aGroup then
-		return nil;
-	end
+		if not aGroup or aGroup["enabled"] == false or aGroup["isInferred"] then
+			return false;
+		end
 
-	tCached = sGroupResolvedFilterCache[aGroup];
+		tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
 
-	if tCached then
-		return tCached;
-	end
+		if tType == VUHDO_AURA_GROUP_TYPE_FILTER then
+			return (aGroup["resolvedFilter"] or aGroup["filter"]) ~= nil;
+		end
 
-	tFilterString = VUHDO_buildAuraGroupNativeFilterString(aGroup);
-	tCandidateFilters = VUHDO_resolveAuraGroupCandidateFilters(aGroup);
-	tExpressible = VUHDO_isAuraGroupContainerExpressible(aGroup);
-
-	tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
-
-	if tType == VUHDO_AURA_GROUP_TYPE_LIST and (not tCandidateFilters or not tCandidateFilters["includeSpellIDs"]) then
-		tSpellIds = nil;
+		if aGroup["isHarmful"] then
+			return false;
+		end
 
 		for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
 			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
-				tSpellIds = tSpellIds or { };
+				if type(tEntry["value"]) == "number" then
+					return true;
+				end
 
-				VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tEntry["value"]);
+				tSpellId = VUHDO_resolveAuraContainerSpellId(tEntry["value"]);
+
+				if tSpellId then
+					return true;
+				end
+			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
+				tBouquetClass = VUHDO_classifyBouquetRestrictedMode(tEntry["value"]);
+
+				if tBouquetClass == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER or tBouquetClass == VUHDO_BOUQUET_RESTRICTED_NON_AURA
+					or tBouquetClass == VUHDO_BOUQUET_RESTRICTED_MIXED then
+					return true;
+				end
 			end
 		end
 
-		if tSpellIds and not next(tSpellIds) then
+		return false;
+
+	end
+
+
+
+	--
+	function VUHDO_getAuraGroupResolvedFilters(aGroup)
+
+		if not aGroup then
+			return nil;
+		end
+
+		tCached = sGroupResolvedFilterCache[aGroup];
+
+		if tCached then
+			return tCached;
+		end
+
+		tFilterString = VUHDO_buildAuraGroupNativeFilterString(aGroup);
+		tCandidateBranches, tDroppedBranchKeys, tBranchFilterStrings, tDroppedBranchTokens = VUHDO_buildAuraGroupCandidateBranches(aGroup, nil);
+		tCandidateFilters = tCandidateBranches and tCandidateBranches[1];
+		tExpressible = VUHDO_isAuraGroupContainerExpressible(aGroup);
+
+		tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+
+		if tType == VUHDO_AURA_GROUP_TYPE_LIST and (not tCandidateFilters or not tCandidateFilters["includeSpellIDs"]) then
 			tSpellIds = nil;
+
+			for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
+					tSpellIds = tSpellIds or { };
+
+					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tEntry["value"]);
+				end
+			end
+
+			if tSpellIds and not next(tSpellIds) then
+				tSpellIds = nil;
+			end
+
+			if tSpellIds then
+				for tBranchCnt = 1, #(tCandidateBranches or sEmpty) do
+					tCandidateBranches[tBranchCnt] = tCandidateBranches[tBranchCnt] or { };
+
+					tCandidateBranches[tBranchCnt]["includeSpellIDs"] = tSpellIds;
+				end
+
+				tCandidateFilters = tCandidateBranches[1];
+			end
 		end
 
-		if tSpellIds then
-			tCandidateFilters = tCandidateFilters or { };
-
-			tCandidateFilters["includeSpellIDs"] = tSpellIds;
-		end
-	end
-
-	tCached = {
-		["filterString"] = tFilterString,
-		["candidateFilters"] = tCandidateFilters,
-		["expressible"] = tExpressible,
-	};
-
-	sGroupResolvedFilterCache[aGroup] = tCached;
-
-	return tCached;
-
-end
-
-
-
---
-function VUHDO_invalidateAuraGroupFilterCache()
-
-	twipe(sGroupResolvedFilterCache);
-
-	sGlobalIgnoreSpellIds = nil;
-
-	return;
-
-end
-
-
-
---
-local tCandidate;
-local tFilter;
-local tDispelTypes;
-function VUHDO_resolveAuraGroupCandidateFilters(aGroup)
-
-	if not aGroup then
-		return nil;
-	end
-
-	tCandidate = VUHDO_resolveGroupCandidateFilters(aGroup, nil);
-
-	if aGroup["allDispel"] then
-		tCandidate = tCandidate or { };
-
-		tCandidate["includeDispelTypes"] = {
-			["Magic"] = true,
-			["Curse"] = true,
-			["Disease"] = true,
-			["Poison"] = true,
-			["Bleed"] = true,
+		tCached = {
+			["filterString"] = tFilterString,
+			["candidateFilters"] = tCandidateFilters,
+			["candidateBranches"] = tCandidateBranches,
+			["candidateBranchFilterStrings"] = tBranchFilterStrings,
+			["candidateBranchDroppedKeys"] = tDroppedBranchKeys,
+			["candidateBranchDroppedTokens"] = tDroppedBranchTokens,
+			["expressible"] = tExpressible,
 		};
+
+		sGroupResolvedFilterCache[aGroup] = tCached;
+
+		return tCached;
+
 	end
 
-	tFilter = aGroup["resolvedFilter"] or aGroup["filter"];
 
-	if tFilter and strfind(tFilter, "RAID_PLAYER_DISPELLABLE", 1, true) then
-		tCandidate = tCandidate or { };
+
+	--
+	function VUHDO_invalidateAuraGroupFilterCache()
+
+		twipe(sGroupResolvedFilterCache);
+
+		sGlobalIgnoreSpellIds = nil;
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_intersectCandidateIncludeDispelTypes(aCandidate, aSnapshot)
+
+		if not aSnapshot then
+			return;
+		end
+
+		if aCandidate["includeDispelTypes"] then
+			for tDispelName, _ in pairs(aCandidate["includeDispelTypes"]) do
+				if not aSnapshot[tDispelName] then
+					aCandidate["includeDispelTypes"][tDispelName] = nil;
+				end
+			end
+		else
+			aCandidate["includeDispelTypes"] = { };
+
+			for tDispelName, _ in pairs(aSnapshot) do
+				aCandidate["includeDispelTypes"][tDispelName] = true;
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_unionCandidateExcludeDispelTypes(aCandidate, aSnapshot)
+
+		if not aSnapshot then
+			return;
+		end
+
+		aCandidate["excludeDispelTypes"] = aCandidate["excludeDispelTypes"] or { };
+
+		for tDispelName, _ in pairs(aSnapshot) do
+			aCandidate["excludeDispelTypes"][tDispelName] = true;
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_buildPlayerDispelCandidateSnapshot(aGroup)
 
 		if aGroup["isHarmful"] then
 			tDispelTypes = VUHDO_getPlayerDispelTypeNames();
-		else
-			tDispelTypes = VUHDO_getPlayerPurgeDispelTypeNames();
+			tDispelSnapshot = { };
+
+			for tDispelName, tIsIncluded in pairs(tDispelTypes) do
+				if tIsIncluded then
+					tDispelSnapshot[tDispelName] = true;
+				end
+			end
+
+			return tDispelSnapshot;
 		end
 
-		if next(tDispelTypes) ~= nil then
-			tCandidate["includeDispelTypes"] = tDispelTypes;
+		tDispelTypes = VUHDO_getPlayerPurgeDispelTypeNames();
+
+		if next(tDispelTypes) == nil then
+			return nil;
 		end
+
+		tDispelSnapshot = { };
+
+		for tDispelName, tIsIncluded in pairs(tDispelTypes) do
+			if tIsIncluded then
+				tDispelSnapshot[tDispelName] = true;
+			end
+		end
+
+		return tDispelSnapshot;
+
 	end
 
-	return tCandidate;
 
+
+	--
+	local tMatchAnyShowEntry;
+	function VUHDO_applyMatchAnyBranchCandidateDispelTypes(aGroup, aBranch, aMatchAnyShows, aBranchIndex)
+
+		if not aMatchAnyShows or not aBranchIndex then
+			return aBranch;
+		end
+
+		tMatchAnyShowEntry = aMatchAnyShows[aBranchIndex];
+
+		if tMatchAnyShowEntry and tMatchAnyShowEntry["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN
+			and tMatchAnyShowEntry["value"] == "RAID_PLAYER_DISPELLABLE" then
+			aBranch = aBranch or { };
+
+			tDispelSnapshot = VUHDO_buildPlayerDispelCandidateSnapshot(aGroup);
+
+			VUHDO_intersectCandidateIncludeDispelTypes(aBranch, tDispelSnapshot);
+		end
+
+		for tNegCnt = 1, aBranchIndex - 1 do
+			tMatchAnyShowEntry = aMatchAnyShows[tNegCnt];
+
+			if tMatchAnyShowEntry and tMatchAnyShowEntry["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN
+				and tMatchAnyShowEntry["value"] == "RAID_PLAYER_DISPELLABLE" then
+				aBranch = aBranch or { };
+
+				tDispelSnapshot = VUHDO_buildPlayerDispelCandidateSnapshot(aGroup);
+
+				VUHDO_unionCandidateExcludeDispelTypes(aBranch, tDispelSnapshot);
+			end
+		end
+
+		return aBranch;
+
+	end
+
+
+
+	--
+	function VUHDO_applyGroupCandidateDispelTypes(aGroup, aCandidate)
+
+		if not aGroup then
+			return aCandidate;
+		end
+
+		if aGroup["allDispel"] then
+			aCandidate = aCandidate or { };
+
+			VUHDO_intersectCandidateIncludeDispelTypes(aCandidate, VUHDO_getAllDispelTypeNames());
+		end
+
+		if aGroup["dispellableOnly"] == "harmful" then
+			aCandidate = aCandidate or { };
+
+			tDispelSnapshot = VUHDO_buildPlayerDispelCandidateSnapshot(aGroup);
+
+			VUHDO_intersectCandidateIncludeDispelTypes(aCandidate, tDispelSnapshot);
+		elseif aGroup["dispellableOnly"] == "helpful" then
+			tDispelSnapshot = VUHDO_buildPlayerDispelCandidateSnapshot(aGroup);
+
+			if tDispelSnapshot then
+				aCandidate = aCandidate or { };
+
+				VUHDO_intersectCandidateIncludeDispelTypes(aCandidate, tDispelSnapshot);
+			end
+		end
+
+		return aCandidate;
+
+	end
+
+
+
+	--
+	function VUHDO_resolveAuraGroupCandidateFilters(aGroup)
+
+		if not aGroup then
+			return nil;
+		end
+
+		return VUHDO_applyGroupCandidateDispelTypes(aGroup, VUHDO_resolveGroupCandidateFilters(aGroup, nil));
+
+	end
 end
 
 
@@ -646,6 +869,8 @@ function VUHDO_rebuildDispelTypeNameMaps()
 	end
 
 	VUHDO_rebuildDerivedDispelTypeNameMaps();
+
+	VUHDO_invalidateAuraGroupFilterCache();
 
 	return;
 
@@ -1384,6 +1609,8 @@ do
 						["buttonSetup"] = tSlotButtonSetup,
 					};
 
+					VUHDO_applyAuraGroupScopeFlags(tGroupTemplate, aGroup);
+
 					tinsert(tGroups, tGroupTemplate);
 				end
 			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER then
@@ -1416,6 +1643,8 @@ do
 						["layout"] = tGroupLayout,
 						["buttonSetup"] = tBouquetSlotTemplate["buttonSetup"],
 					};
+
+					VUHDO_applyAuraGroupScopeFlags(tGroupTemplate, aGroup);
 
 					tinsert(tGroups, tGroupTemplate);
 				end
@@ -1496,12 +1725,14 @@ do
 							tSlotTemplate["relPoint"] = tFixedSlotRelPoint;
 						end
 
+						VUHDO_applyAuraGroupScopeFlags(tSlotTemplate, aGroup);
+
 						VUHDO_applyListSlotLayoutFlags(tSlotTemplate, tEntryIndex);
 
 						tinsert(tSlots, tSlotTemplate);
 					end
 				elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_MIXED then
-					tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, tSlotX, tSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup);
+					tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, tSlotX, tSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup);
 
 					if anIsFixedLayout and tFixedSlotAnchor then
 						for tMixedSlotCnt = 1, #tMixedSlotTemplates do
@@ -1559,6 +1790,8 @@ do
 							tSlotTemplate["anchor"] = tFixedSlotAnchor;
 							tSlotTemplate["relPoint"] = tFixedSlotRelPoint;
 						end
+
+						VUHDO_applyAuraGroupScopeFlags(tSlotTemplate, aGroup);
 
 						VUHDO_applyListSlotLayoutFlags(tSlotTemplate, tEntryIndex);
 
@@ -1626,243 +1859,265 @@ end
 
 
 
---
-local tGroup;
-local tType;
-local tFilterString;
-local tCandidateFilters;
-local tSortMethod;
-local tSortDir;
-local tContainerLayout;
-local tGroupLayout;
-local tAnchorPoint;
-local tGroupTemplate;
-local tGroups;
-local tSlots;
-local tMaxFrameCount;
-local tPanelNum;
-local tHealthBarWidthPx;
-local tHealthBarHeightPx;
-local tOffsetX;
-local tOffsetY;
-local tCachedEntry;
-local tCachedTemplate;
-local tAnchorButtonSetup;
-local tRelativePoint;
-local tStaticOffsetX;
-local tStaticOffsetY;
-local tSpacing;
-local tMaxCols;
-local tGrowthDir;
-local tWrapDir;
-local tColorMode;
-local tBarColors;
-local tPixelWidth;
-local tPixelHeight;
-local tBarWidth;
-local tBarHeight;
-local tIsBar;
-local tTemplateName;
-local tIsFixedLayout;
-local tFixedRadioValue;
-local tUseFixedSlots;
-function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConfig)
+do
+	local tGroup;
+	local tType;
+	local tFilterString;
+	local tSortMethod;
+	local tSortDir;
+	local tContainerLayout;
+	local tGroupLayout;
+	local tAnchorPoint;
+	local tGroupTemplate;
+	local tGroups;
+	local tSlots;
+	local tMaxFrameCount;
+	local tPanelNum;
+	local tHealthBarWidthPx;
+	local tHealthBarHeightPx;
+	local tOffsetX;
+	local tOffsetY;
+	local tCachedEntry;
+	local tCachedTemplate;
+	local tAnchorButtonSetup;
+	local tRelativePoint;
+	local tStaticOffsetX;
+	local tStaticOffsetY;
+	local tSpacing;
+	local tMaxCols;
+	local tGrowthDir;
+	local tWrapDir;
+	local tColorMode;
+	local tBarColors;
+	local tPixelWidth;
+	local tPixelHeight;
+	local tBarWidth;
+	local tBarHeight;
+	local tIsBar;
+	local tTemplateName;
+	local tIsFixedLayout;
+	local tFixedRadioValue;
+	local tUseFixedSlots;
+	local tResolvedFilters;
+	local tCandidateBranches;
+	local tBranchFilterStrings;
+	local tBranchCandidate;
+	local tGroupKey;
+	function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConfig)
 
-	tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
+		tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
 
-	if not tGroup then
-		return nil;
-	end
+		if not tGroup then
+			return nil;
+		end
 
-	tPanelNum = VUHDO_BUTTON_CACHE[aButton];
+		tPanelNum = VUHDO_BUTTON_CACHE[aButton];
 
-	if tPanelNum then
-		tCachedEntry = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] and VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex];
+		if tPanelNum then
+			tCachedEntry = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] and VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex];
 
-		if tCachedEntry and tCachedEntry["version"] == VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION then
-			tCachedTemplate = tCachedEntry["template"];
+			if tCachedEntry and tCachedEntry["version"] == VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION then
+				tCachedTemplate = tCachedEntry["template"];
 
-			if not tCachedEntry["instanceTemplate"] then
-				tCachedEntry["instanceTemplate"] = {
+				if not tCachedEntry["instanceTemplate"] then
+					tCachedEntry["instanceTemplate"] = {
+						["parent"] = aButton,
+						["anchor"] = tCachedTemplate["anchor"],
+						["containerLayout"] = tCachedTemplate["containerLayout"],
+						["groups"] = tCachedTemplate["groups"],
+						["slots"] = tCachedTemplate["slots"],
+						["buildSignature"] = tCachedTemplate["buildSignature"],
+						["staticSlots"] = tCachedTemplate["staticSlots"],
+						["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
+						["rangeFade"] = tCachedTemplate["rangeFade"],
+						["panelNum"] = tPanelNum,
+						["anchorIndex"] = anAnchorIndex,
+					};
+				end
+
+				tCachedEntry["instanceTemplate"]["parent"] = aButton;
+				tCachedEntry["instanceTemplate"]["rangeFade"] = tCachedTemplate["rangeFade"];
+
+				return tCachedEntry["instanceTemplate"];
+			end
+		end
+
+		tFilterString = VUHDO_resolveAuraContainerFilter(anAnchorConfig);
+		tResolvedFilters = VUHDO_getAuraGroupResolvedFilters(tGroup);
+		tCandidateBranches = tResolvedFilters and tResolvedFilters["candidateBranches"];
+		tBranchFilterStrings = tResolvedFilters and tResolvedFilters["candidateBranchFilterStrings"];
+
+		tType = tGroup and tGroup["type"];
+
+		tPixelWidth, tPixelHeight, tBarWidth, tBarHeight, tIsBar, tTemplateName = VUHDO_resolveAnchorAuraPixelDimensions(aButton, anAnchorConfig);
+
+		tSortMethod, tSortDir = VUHDO_resolveAnchorSort(anAnchorConfig);
+		tContainerLayout, tGroupLayout = VUHDO_resolveAnchorLayout(anAnchorConfig);
+
+		tContainerLayout = tContainerLayout or { };
+		tContainerLayout["elementWidth"] = tPixelWidth;
+		tContainerLayout["elementHeight"] = tPixelHeight;
+
+		tIsFixedLayout = tContainerLayout["isFixedLayout"];
+		tFixedRadioValue = tContainerLayout["fixedRadioValue"];
+		tUseFixedSlots = anAnchorConfig["fixedSlots"] == true;
+
+		tContainerLayout["useFixedSlots"] = tUseFixedSlots;
+
+		tMaxFrameCount = anAnchorConfig["maxDisplay"] or 5;
+
+		tHealthBarWidthPx = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
+		tHealthBarHeightPx = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
+
+		tOffsetX = (anAnchorConfig["offsetX"] or 0) * tHealthBarWidthPx * 0.01;
+		tOffsetY = -(anAnchorConfig["offsetY"] or 0) * tHealthBarHeightPx * 0.01;
+
+		if tIsFixedLayout then
+			tOffsetX = 0;
+			tOffsetY = 0;
+		end
+
+		tAnchorPoint = tContainerLayout["anchorPoint"] or "TOPLEFT";
+		tRelativePoint = tContainerLayout["relativePoint"] or tAnchorPoint;
+		tStaticOffsetX = tContainerLayout["staticOffsetX"] or 0;
+		tStaticOffsetY = tContainerLayout["staticOffsetY"] or 0;
+
+		tAnchorButtonSetup = VUHDO_buildAnchorButtonSetup(anAnchorConfig, tPixelWidth, tPixelHeight, tIsBar, tGroup, tBarWidth, tBarHeight);
+
+		if tIsBar and tPanelNum and ((VUHDO_PANEL_SETUP[tPanelNum] or sEmpty)["PANEL_COLOR"] or sEmpty)["barTexture"] then
+			tAnchorButtonSetup["barTexture"] = VUHDO_PANEL_SETUP[tPanelNum]["PANEL_COLOR"]["barTexture"];
+		end
+
+		if tIsBar then
+			tColorMode = anAnchorConfig["colorMode"] or "default";
+			tAnchorButtonSetup["barColorMode"] = tColorMode;
+
+			if "default" == tColorMode then
+				tBarColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
+
+				tAnchorButtonSetup["barColor"] = (tBarColors and tBarColors["AURA_BAR_DEFAULT"]) or sAuraBarFallbackColor;
+			else
+				tAnchorButtonSetup["barColor"] = sAuraBarFallbackColor;
+			end
+		end
+
+		tGroups = { };
+		tSlots = { };
+		tSpacing = (tGroupLayout or sEmpty)["spacing"] or 2;
+		tMaxCols = tContainerLayout["maxColumns"] or 5;
+		tGrowthDir = VUHDO_AURA_GROWTH_OFFSETS[anAnchorConfig["growthDir"]] or VUHDO_AURA_GROWTH_OFFSETS["RIGHT"];
+		tWrapDir = VUHDO_AURA_GROWTH_OFFSETS[anAnchorConfig["wrapDir"]] or VUHDO_AURA_GROWTH_OFFSETS["DOWN"];
+
+		if tType ~= VUHDO_AURA_GROUP_TYPE_LIST then
+			if tGroup["resolvedFilter"] or tGroup["filter"] then
+				if tCandidateBranches then
+					for tBranchIdx = 1, #tCandidateBranches do
+						tBranchCandidate = tCandidateBranches[tBranchIdx];
+						tGroupKey = tBranchIdx == 1 and "aura" or ("aura" .. tBranchIdx);
+
+						tGroupTemplate = {
+							["key"] = tGroupKey,
+							["filterString"] = (tBranchFilterStrings and tBranchFilterStrings[tBranchIdx]) or tFilterString,
+							["candidateFilters"] = tBranchCandidate,
+							["isHarmful"] = tGroup["isHarmful"] == true,
+							["maxFrameCount"] = tMaxFrameCount,
+							["sortMethod"] = tSortMethod,
+							["sortDir"] = tSortDir,
+							["templateName"] = tTemplateName,
+							["layout"] = {
+								["elementWidth"] = tPixelWidth,
+								["elementHeight"] = tPixelHeight,
+								["elementSpacing"] = tSpacing,
+								["lineSpacing"] = tSpacing,
+								["layoutIndex"] = tBranchIdx,
+							},
+							["buttonSetup"] = tAnchorButtonSetup,
+						};
+
+						VUHDO_applyAuraGroupScopeFlags(tGroupTemplate, tGroup);
+
+						tinsert(tGroups, tGroupTemplate);
+					end
+				end
+			end
+		elseif tGroup then
+			if VUHDO_isListCollapseEligible(tGroup, tUseFixedSlots, tIsFixedLayout) then
+				tGroups = VUHDO_buildListAnchorEntryGroups(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar);
+			else
+				tSlots = VUHDO_buildListAnchorSlots(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxCols, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar, tGrowthDir, tWrapDir, tIsFixedLayout, tFixedRadioValue, tHealthBarWidthPx, tHealthBarHeightPx);
+			end
+		end
+
+		if #tGroups == 0 and #tSlots == 0 then
+			return nil;
+		end
+
+		tCachedTemplate = {
+			["anchor"] = tIsFixedLayout and {
+				["mode"] = "healthBarCover",
+				["frameLevelOffset"] = 10,
+				["offsetX"] = tStaticOffsetX + tOffsetX,
+				["offsetY"] = tStaticOffsetY + tOffsetY,
+			} or {
+				["mode"] = "anchorpos",
+				["frameLevelOffset"] = 10,
+				["points"] = {
+					{
+						["point"] = tAnchorPoint,
+						["relativePoint"] = tRelativePoint,
+						["relFrame"] = tContainerLayout["relFrame"],
+						["x"] = tStaticOffsetX + tOffsetX,
+						["y"] = tStaticOffsetY + tOffsetY,
+					},
+				},
+			},
+			["containerLayout"] = tContainerLayout,
+			["groups"] = tGroups,
+			["slots"] = tSlots,
+			["rangeFade"] = VUHDO_resolveAuraTriState(anAnchorConfig["rangeFade"], "rangeFade"),
+		};
+
+		VUHDO_finalizeCachedAuraContainerTemplate(tCachedTemplate);
+
+		if tPanelNum then
+			if not VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] then
+				VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] = { };
+			end
+
+			VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex] = {
+				["version"] = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION,
+				["template"] = tCachedTemplate,
+				["instanceTemplate"] = {
 					["parent"] = aButton,
 					["anchor"] = tCachedTemplate["anchor"],
-					["containerLayout"] = tCachedTemplate["containerLayout"],
-					["groups"] = tCachedTemplate["groups"],
-					["slots"] = tCachedTemplate["slots"],
+					["containerLayout"] = tContainerLayout,
+					["groups"] = tGroups,
+					["slots"] = tSlots,
 					["buildSignature"] = tCachedTemplate["buildSignature"],
 					["staticSlots"] = tCachedTemplate["staticSlots"],
 					["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
+					["rangeFade"] = tCachedTemplate["rangeFade"],
 					["panelNum"] = tPanelNum,
 					["anchorIndex"] = anAnchorIndex,
-				};
-			end
-
-			tCachedEntry["instanceTemplate"]["parent"] = aButton;
-
-			return tCachedEntry["instanceTemplate"];
-		end
-	end
-
-	tFilterString = VUHDO_resolveAuraContainerFilter(anAnchorConfig);
-	tCandidateFilters = VUHDO_resolveGroupCandidateFilters(tGroup, anAnchorConfig);
-
-	tType = tGroup and tGroup["type"];
-
-	tPixelWidth, tPixelHeight, tBarWidth, tBarHeight, tIsBar, tTemplateName = VUHDO_resolveAnchorAuraPixelDimensions(aButton, anAnchorConfig);
-
-	tSortMethod, tSortDir = VUHDO_resolveAnchorSort(anAnchorConfig);
-	tContainerLayout, tGroupLayout = VUHDO_resolveAnchorLayout(anAnchorConfig);
-
-	tContainerLayout = tContainerLayout or { };
-	tContainerLayout["elementWidth"] = tPixelWidth;
-	tContainerLayout["elementHeight"] = tPixelHeight;
-
-	tIsFixedLayout = tContainerLayout["isFixedLayout"];
-	tFixedRadioValue = tContainerLayout["fixedRadioValue"];
-	tUseFixedSlots = anAnchorConfig["fixedSlots"] == true;
-
-	tContainerLayout["useFixedSlots"] = tUseFixedSlots;
-
-	tMaxFrameCount = anAnchorConfig["maxDisplay"] or 5;
-
-	tHealthBarWidthPx = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
-	tHealthBarHeightPx = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
-
-	tOffsetX = (anAnchorConfig["offsetX"] or 0) * tHealthBarWidthPx * 0.01;
-	tOffsetY = -(anAnchorConfig["offsetY"] or 0) * tHealthBarHeightPx * 0.01;
-
-	if tIsFixedLayout then
-		tOffsetX = 0;
-		tOffsetY = 0;
-	end
-
-	tAnchorPoint = tContainerLayout["anchorPoint"] or "TOPLEFT";
-	tRelativePoint = tContainerLayout["relativePoint"] or tAnchorPoint;
-	tStaticOffsetX = tContainerLayout["staticOffsetX"] or 0;
-	tStaticOffsetY = tContainerLayout["staticOffsetY"] or 0;
-
-	tAnchorButtonSetup = VUHDO_buildAnchorButtonSetup(anAnchorConfig, tPixelWidth, tPixelHeight, tIsBar, tGroup, tBarWidth, tBarHeight);
-
-	if tIsBar and tPanelNum and ((VUHDO_PANEL_SETUP[tPanelNum] or sEmpty)["PANEL_COLOR"] or sEmpty)["barTexture"] then
-		tAnchorButtonSetup["barTexture"] = VUHDO_PANEL_SETUP[tPanelNum]["PANEL_COLOR"]["barTexture"];
-	end
-
-	if tIsBar then
-		tColorMode = anAnchorConfig["colorMode"] or "default";
-		tAnchorButtonSetup["barColorMode"] = tColorMode;
-
-		if "default" == tColorMode then
-			tBarColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
-
-			tAnchorButtonSetup["barColor"] = (tBarColors and tBarColors["AURA_BAR_DEFAULT"]) or sAuraBarFallbackColor;
-		else
-			tAnchorButtonSetup["barColor"] = sAuraBarFallbackColor;
-		end
-	end
-
-	tGroups = { };
-	tSlots = { };
-	tSpacing = (tGroupLayout or sEmpty)["spacing"] or 2;
-	tMaxCols = tContainerLayout["maxColumns"] or 5;
-	tGrowthDir = VUHDO_AURA_GROWTH_OFFSETS[anAnchorConfig["growthDir"]] or VUHDO_AURA_GROWTH_OFFSETS["RIGHT"];
-	tWrapDir = VUHDO_AURA_GROWTH_OFFSETS[anAnchorConfig["wrapDir"]] or VUHDO_AURA_GROWTH_OFFSETS["DOWN"];
-
-	if tType ~= VUHDO_AURA_GROUP_TYPE_LIST then
-		if tGroup["resolvedFilter"] or tGroup["filter"] then
-			tGroupTemplate = {
-				["key"] = "aura",
-				["filterString"] = tFilterString,
-				["candidateFilters"] = tCandidateFilters,
-				["isHarmful"] = tGroup["isHarmful"] == true,
-				["maxFrameCount"] = tMaxFrameCount,
-				["sortMethod"] = tSortMethod,
-				["sortDir"] = tSortDir,
-				["templateName"] = tTemplateName,
-				["layout"] = {
-					["elementWidth"] = tPixelWidth,
-					["elementHeight"] = tPixelHeight,
-					["elementSpacing"] = tSpacing,
-					["lineSpacing"] = tSpacing,
 				},
-				["buttonSetup"] = tAnchorButtonSetup,
 			};
-
-			tinsert(tGroups, tGroupTemplate);
-		end
-	elseif tGroup then
-		if VUHDO_isListCollapseEligible(tGroup, tUseFixedSlots, tIsFixedLayout) then
-			tGroups = VUHDO_buildListAnchorEntryGroups(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar);
-		else
-			tSlots = VUHDO_buildListAnchorSlots(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxCols, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar, tGrowthDir, tWrapDir, tIsFixedLayout, tFixedRadioValue, tHealthBarWidthPx, tHealthBarHeightPx);
-		end
-	end
-
-	if #tGroups == 0 and #tSlots == 0 then
-		return nil;
-	end
-
-	tCachedTemplate = {
-		["anchor"] = tIsFixedLayout and {
-			["mode"] = "healthBarCover",
-			["frameLevelOffset"] = 10,
-			["offsetX"] = tStaticOffsetX + tOffsetX,
-			["offsetY"] = tStaticOffsetY + tOffsetY,
-		} or {
-			["mode"] = "anchorpos",
-			["frameLevelOffset"] = 10,
-			["points"] = {
-				{
-					["point"] = tAnchorPoint,
-					["relativePoint"] = tRelativePoint,
-					["relFrame"] = tContainerLayout["relFrame"],
-					["x"] = tStaticOffsetX + tOffsetX,
-					["y"] = tStaticOffsetY + tOffsetY,
-				},
-			},
-		},
-		["containerLayout"] = tContainerLayout,
-		["groups"] = tGroups,
-		["slots"] = tSlots,
-	};
-
-	VUHDO_finalizeCachedAuraContainerTemplate(tCachedTemplate);
-
-	if tPanelNum then
-		if not VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] then
-			VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum] = { };
 		end
 
-		VUHDO_AURA_CONTAINER_TEMPLATE_CACHE[tPanelNum][anAnchorIndex] = {
-			["version"] = VUHDO_AURA_CONTAINER_TEMPLATE_CACHE_VERSION,
-			["template"] = tCachedTemplate,
-			["instanceTemplate"] = {
-				["parent"] = aButton,
-				["anchor"] = tCachedTemplate["anchor"],
-				["containerLayout"] = tContainerLayout,
-				["groups"] = tGroups,
-				["slots"] = tSlots,
-				["buildSignature"] = tCachedTemplate["buildSignature"],
-				["staticSlots"] = tCachedTemplate["staticSlots"],
-				["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
-				["panelNum"] = tPanelNum,
-				["anchorIndex"] = anAnchorIndex,
-			},
+		return {
+			["parent"] = aButton,
+			["anchor"] = tCachedTemplate["anchor"],
+			["containerLayout"] = tContainerLayout,
+			["groups"] = tGroups,
+			["slots"] = tSlots,
+			["buildSignature"] = tCachedTemplate["buildSignature"],
+			["staticSlots"] = tCachedTemplate["staticSlots"],
+			["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
+			["rangeFade"] = tCachedTemplate["rangeFade"],
+			["panelNum"] = tPanelNum,
+			["anchorIndex"] = anAnchorIndex,
 		};
+
 	end
-
-	return {
-		["parent"] = aButton,
-		["anchor"] = tCachedTemplate["anchor"],
-		["containerLayout"] = tContainerLayout,
-		["groups"] = tGroups,
-		["slots"] = tSlots,
-		["buildSignature"] = tCachedTemplate["buildSignature"],
-		["staticSlots"] = tCachedTemplate["staticSlots"],
-		["usesDispelTextures"] = tCachedTemplate["usesDispelTextures"],
-		["panelNum"] = tPanelNum,
-		["anchorIndex"] = anAnchorIndex,
-	};
-
 end
 
 
@@ -1889,16 +2144,37 @@ end
 
 do
 	--
+	local tCopy;
+	local function VUHDO_copyCandidateFilterTable(aSource)
+
+		if not aSource then
+			return nil;
+		end
+
+		tCopy = { };
+
+		for tKey, tValue in pairs(aSource) do
+			tCopy[tKey] = tValue;
+		end
+
+		return tCopy;
+
+	end
+
+
+
+	--
 	local tType;
 	local tCandidate;
 	local tSpellIds;
 	local tExcludeIds;
 	local tValue;
 	local tCandidateBooleans;
-	local tTriState;
 	local tBoolKey;
 	local tResolvedBool;
-	function VUHDO_resolveGroupCandidateFilters(aGroup, anAnchorConfig)
+	local tMaxDuration;
+	local tExcludeDispel;
+	local function VUHDO_buildGroupCandidateFilterBase(aGroup, anAnchorConfig)
 
 		if not aGroup then
 			return nil;
@@ -1938,10 +2214,9 @@ do
 		tCandidateBooleans = aGroup["candidateBooleans"];
 
 		if tCandidateBooleans then
-			for tCnt = 1, #sCandidateBooleanKeys do
-				tBoolKey = sCandidateBooleanKeys[tCnt];
-				tTriState = tCandidateBooleans[tBoolKey];
-				tResolvedBool = VUHDO_getTriStateBool({ [tBoolKey] = tTriState }, tBoolKey, nil);
+			for tCnt = 1, #VUHDO_AURA_CONDITION_BOOLEAN_KEYS do
+				tBoolKey = VUHDO_AURA_CONDITION_BOOLEAN_KEYS[tCnt];
+				tResolvedBool = VUHDO_getTriStateBool(tCandidateBooleans, tBoolKey, nil);
 
 				if tResolvedBool ~= nil then
 					tCandidate = tCandidate or { };
@@ -1961,13 +2236,178 @@ do
 			end
 		end
 
-		if aGroup["hasDuration"] then
+		tMaxDuration = aGroup["maxDurationSeconds"];
+
+		if tMaxDuration ~= nil then
+			tCandidate = tCandidate or { };
+
+			if tMaxDuration <= 0 then
+				tCandidate["maxDuration"] = math.huge;
+			else
+				tCandidate["maxDuration"] = tMaxDuration;
+			end
+		elseif aGroup["hasDuration"] then
 			tCandidate = tCandidate or { };
 
 			tCandidate["maxDuration"] = math.huge;
 		end
 
+		tExcludeDispel = aGroup["excludeDispelTypes"];
+
+		if tExcludeDispel and next(tExcludeDispel) then
+			tCandidate = tCandidate or { };
+
+			tCandidate["excludeDispelTypes"] = tExcludeDispel;
+		end
+
 		return tCandidate;
+
+	end
+
+
+
+	--
+	local tMatchAnyShows;
+	local tDroppedKeys;
+	local tDroppedTokens;
+	local tBranchFilterStrings;
+	local tCandidate;
+	local tMatchAnyBooleans;
+	local tMatchAnyFilters;
+	local tBoolKey;
+	local tTriState;
+	local tBranches;
+	local tBranch;
+	local tMaxBranches;
+	local tBaseFilterString;
+	local tShowEntry;
+	local tTokenKey;
+	function VUHDO_buildAuraGroupCandidateBranches(aGroup, anAnchorConfig)
+
+		tMatchAnyShows = { };
+		tDroppedKeys = { };
+		tDroppedTokens = { };
+		tBranchFilterStrings = { };
+
+		tCandidate = VUHDO_buildGroupCandidateFilterBase(aGroup, anAnchorConfig);
+		tBaseFilterString = VUHDO_buildAuraGroupNativeFilterString(aGroup);
+
+		tMatchAnyBooleans = aGroup and aGroup["matchAnyBooleans"];
+		tMatchAnyFilters = aGroup and aGroup["matchAnyFilters"];
+
+		if tMatchAnyBooleans then
+			for tCnt = 1, #VUHDO_AURA_CONDITION_BOOLEAN_KEYS do
+				tBoolKey = VUHDO_AURA_CONDITION_BOOLEAN_KEYS[tCnt];
+
+				if tMatchAnyBooleans[tBoolKey] == 1 then
+					tShowEntry = {
+						["entryType"] = VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN,
+						["value"] = tBoolKey,
+					};
+
+					tinsert(tMatchAnyShows, tShowEntry);
+				end
+			end
+		end
+
+		if tMatchAnyFilters then
+			for tFilterTokenCnt = 1, #VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER do
+				tTokenKey = VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER[tFilterTokenCnt];
+
+				if tMatchAnyFilters[tTokenKey] == 1 then
+					tShowEntry = {
+						["entryType"] = VUHDO_AURA_MATCH_ANY_ENTRY_FILTER_TOKEN,
+						["value"] = tTokenKey,
+					};
+
+					tinsert(tMatchAnyShows, tShowEntry);
+				end
+			end
+		end
+
+		tBranches = { };
+
+		if #tMatchAnyShows <= 1 then
+			tBranch = VUHDO_copyCandidateFilterTable(tCandidate);
+
+			if tMatchAnyShows[1] then
+				tShowEntry = tMatchAnyShows[1];
+
+				if tShowEntry["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN then
+					tBranch = tBranch or { };
+
+					tBranch[tShowEntry["value"]] = true;
+				end
+			end
+
+			tBranch = VUHDO_applyMatchAnyBranchCandidateDispelTypes(aGroup, tBranch, tMatchAnyShows, 1);
+			tBranch = VUHDO_applyGroupCandidateDispelTypes(aGroup, tBranch);
+
+			tinsert(tBranches, tBranch or { });
+			tinsert(tBranchFilterStrings, VUHDO_buildAuraGroupBranchFilterString(tBaseFilterString, tMatchAnyShows, 1));
+
+			return tBranches, tDroppedKeys, tBranchFilterStrings, tDroppedTokens;
+		end
+
+		tMaxBranches = VUHDO_AURA_MAX_MATCH_ANY;
+
+		for tBranchCnt = tMaxBranches + 1, #tMatchAnyShows do
+			tShowEntry = tMatchAnyShows[tBranchCnt];
+
+			if tShowEntry["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN then
+				tinsert(tDroppedKeys, tShowEntry["value"]);
+			else
+				tinsert(tDroppedTokens, tShowEntry["value"]);
+			end
+		end
+
+		for tBranchCnt = 1, tMaxBranches do
+			if tBranchCnt > #tMatchAnyShows then
+				break;
+			end
+
+			tShowEntry = tMatchAnyShows[tBranchCnt];
+			tBranch = VUHDO_copyCandidateFilterTable(tCandidate) or { };
+
+			if tShowEntry["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN then
+				tBranch[tShowEntry["value"]] = true;
+
+				for tNegCnt = 1, tBranchCnt - 1 do
+					if tMatchAnyShows[tNegCnt]["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN then
+						tBranch[tMatchAnyShows[tNegCnt]["value"]] = false;
+					end
+				end
+			else
+				for tNegCnt = 1, tBranchCnt - 1 do
+					if tMatchAnyShows[tNegCnt]["entryType"] == VUHDO_AURA_MATCH_ANY_ENTRY_BOOLEAN then
+						tBranch[tMatchAnyShows[tNegCnt]["value"]] = false;
+					end
+				end
+			end
+
+			tBranch = VUHDO_applyMatchAnyBranchCandidateDispelTypes(aGroup, tBranch, tMatchAnyShows, tBranchCnt);
+
+			tinsert(tBranches, VUHDO_applyGroupCandidateDispelTypes(aGroup, tBranch));
+			tinsert(tBranchFilterStrings, VUHDO_buildAuraGroupBranchFilterString(tBaseFilterString, tMatchAnyShows, tBranchCnt));
+		end
+
+		return tBranches, tDroppedKeys, tBranchFilterStrings, tDroppedTokens;
+
+	end
+
+
+
+	--
+	local tBranches;
+	function VUHDO_resolveGroupCandidateFilters(aGroup, anAnchorConfig)
+
+		tBranches = VUHDO_buildAuraGroupCandidateBranches(aGroup, anAnchorConfig);
+
+		if not tBranches or #tBranches == 0 then
+			return nil;
+		end
+
+		return tBranches[1];
 
 	end
 end

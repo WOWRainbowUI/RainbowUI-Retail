@@ -255,6 +255,9 @@
 						</FontString>
 					</Layer>
 				</Layers>
+				<Scripts>
+					<OnLoad>self:SetFrameLevel(self:GetParent():GetFrameLevel() + 2);</OnLoad>
+				</Scripts>
 			</Frame>
 
 			<Button name="$parentSelectComboBox" hidden="false" inherits="VuhDoScrollComboBoxTemplate">
@@ -365,6 +368,9 @@
 						</Texture>
 					</Layer>
 				</Layers>
+				<Scripts>
+					<OnLoad>self:SetFrameLevel(self:GetParent():GetFrameLevel() + 1);</OnLoad>
+				</Scripts>
 			</Frame>
 
 		</Frames>

@@ -32,6 +32,8 @@ local VUHDO_generateRemoveClicksCode;
 local VUHDO_getBindingAttributeRequirements;
 local VUHDO_isBossUnit;
 local VUHDO_syncAuraContainersForButton;
+local VUHDO_getDispelAbilities;
+local VUHDO_getPurgeAbilities;
 
 local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
@@ -81,6 +83,8 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_getBindingAttributeRequirements = _G["VUHDO_getBindingAttributeRequirements"];
 	VUHDO_isBossUnit = _G["VUHDO_isBossUnit"];
 	VUHDO_syncAuraContainersForButton = _G["VUHDO_syncAuraContainersForButton"];
+	VUHDO_getDispelAbilities = _G["VUHDO_getDispelAbilities"];
+	VUHDO_getPurgeAbilities = _G["VUHDO_getPurgeAbilities"];
 
 	sIsCliqueCompat = VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"];
 
@@ -920,7 +924,12 @@ function VUHDO_setupSmartCast(aButton)
 	-- Cleanse?
 	if VUHDO_CONFIG["SMARTCAST_CLEANSE"] and not tInfo["dead"] then
 		if tInfo["debuff"] and VUHDO_DEBUFF_TYPE_NONE ~= tInfo["debuff"] then
-			tAbilities = VUHDO_getDispelAbilities();
+			if tInfo["canAttack"] then
+				tAbilities = VUHDO_getPurgeAbilities();
+			else
+				tAbilities = VUHDO_getDispelAbilities();
+			end
+
 			tAbility = tAbilities[tInfo["debuff"]];
 
 			-- never smart cast cleanse a tank with BoP to avoid aggro loss

@@ -1384,6 +1384,7 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["interests"] = { },
 		["secretType"] = VUHDO_SECRET_TYPE_NONE,
 		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_FULL,
 		["isActiveOnly"] = true,
 		["isGlobal"] = false,
 	},

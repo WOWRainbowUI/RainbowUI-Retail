@@ -63,6 +63,7 @@ local VUHDO_backColor;
 local VUHDO_safeColorFromTable;
 local VUHDO_resolveAuraTriState;
 local VUHDO_getAuraGroup;
+local VUHDO_getAuraGroupForUnit;
 local VUHDO_getAnchorTriStateBool;
 local VUHDO_getAllAuraGroups;
 local VUHDO_setAnchorSlotAuraId;
@@ -89,6 +90,7 @@ local sAnchorSettingsCache = {
 	["showTimer"] = { },
 	["showStacks"] = { },
 	["flashOnLow"] = { },
+	["rangeFade"] = { },
 };
 
 local sEntrySettingsCache = {
@@ -503,6 +505,7 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_setAnchorSlotAuraId = _G["VUHDO_setAnchorSlotAuraId"];
 	VUHDO_resolveAuraTriState = _G["VUHDO_resolveAuraTriState"];
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
+	VUHDO_getAuraGroupForUnit = _G["VUHDO_getAuraGroupForUnit"];
 	VUHDO_isPanelPopulated = _G["VUHDO_isPanelPopulated"];
 	VUHDO_getAnchorTriStateBool = _G["VUHDO_getAnchorTriStateBool"];
 	VUHDO_getAllAuraGroups = _G["VUHDO_getAllAuraGroups"];
@@ -531,6 +534,7 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 		sAnchorSettingsCache["showTimer"][tPanelNum] = { };
 		sAnchorSettingsCache["showStacks"][tPanelNum] = { };
 		sAnchorSettingsCache["flashOnLow"][tPanelNum] = { };
+		sAnchorSettingsCache["rangeFade"][tPanelNum] = { };
 
 		tPanelAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
 
@@ -543,6 +547,7 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 				sAnchorSettingsCache["showTimer"][tPanelNum][tAnchorIndex] = VUHDO_resolveAuraTriState(tAnchorConfig["showTimer"], "showTimer");
 				sAnchorSettingsCache["showStacks"][tPanelNum][tAnchorIndex] = VUHDO_resolveAuraTriState(tAnchorConfig["showStacks"], "showStacks");
 				sAnchorSettingsCache["flashOnLow"][tPanelNum][tAnchorIndex] = VUHDO_resolveAuraTriState(tAnchorConfig["flashOnLow"], "flashOnLow");
+				sAnchorSettingsCache["rangeFade"][tPanelNum][tAnchorIndex] = VUHDO_resolveAuraTriState(tAnchorConfig["rangeFade"], "rangeFade");
 			end
 		end
 	end
@@ -1642,6 +1647,24 @@ do
 
 
 	--
+	local tLegacyRangeFadePanelNum;
+	local function VUHDO_resolveLegacyAuraFrameParent(aButton, anAnchorIndex)
+
+		tLegacyRangeFadePanelNum = VUHDO_BUTTON_CACHE[aButton];
+
+		if tLegacyRangeFadePanelNum
+			and sAnchorSettingsCache["rangeFade"][tLegacyRangeFadePanelNum]
+			and sAnchorSettingsCache["rangeFade"][tLegacyRangeFadePanelNum][anAnchorIndex] then
+			return _G[aButton:GetName() .. "BgBar"] or aButton;
+		end
+
+		return aButton;
+
+	end
+
+
+
+	--
 	local tFrame;
 	local tFrameName;
 	local tParent;
@@ -1713,11 +1736,9 @@ do
 			end
 		end
 
-		tParent = _G[aButton:GetName() .. "BgBar"];
+		tParent = VUHDO_resolveLegacyAuraFrameParent(aButton, anAnchorIndex);
 
-		if tParent then
-			tFrame:SetParent(tParent);
-		end
+		tFrame:SetParent(tParent);
 
 		VUHDO_setupAuraFrameForTooltips(tFrame, aButton);
 
@@ -1810,11 +1831,9 @@ do
 			tFrame["childBar"]:SetFrameLevel(tFrame:GetFrameLevel() - 1);
 		end
 
-		tParent = _G[aButton:GetName() .. "BgBar"];
+		tParent = VUHDO_resolveLegacyAuraFrameParent(aButton, anAnchorIndex);
 
-		if tParent then
-			tFrame:SetParent(tParent);
-		end
+		tFrame:SetParent(tParent);
 
 		VUHDO_setupAuraFrameForTooltips(tFrame, aButton);
 
@@ -1827,8 +1846,13 @@ do
 
 
 	--
-	local tFrame;
-	local tFrameName;
+	local tIconFrame;
+	local tChild;
+	local tTexture;
+	local tAnchor;
+	local tRelPoint;
+	local tPosX;
+	local tPosY;
 	function VUHDO_displayPlayerIcon(aButton, aSlotIndex, aTexture, aTexCoords, aWidth, aHeight, aPositionIndex)
 
 		if not aButton or not aSlotIndex or not aTexture then
@@ -3070,6 +3094,23 @@ end
 
 
 --
+function VUHDO_rebuildAuraAnchorsForAllButtons()
+
+	if InCombatLockdown() then
+		return;
+	end
+
+	for tButton, tPanelNum in pairs(VUHDO_BUTTON_CACHE) do
+		VUHDO_initAuraAnchorsForButton(tButton, tPanelNum);
+	end
+
+	return;
+
+end
+
+
+
+--
 local tButtonName;
 local tButtonFrames;
 local tPanelAnchors;
@@ -3361,9 +3402,15 @@ function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, an
 		return;
 	end
 
-	tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
+	tGroup = VUHDO_getAuraGroupForUnit(anAnchorConfig["groupId"], aUnit);
 
-	if tGroup and (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
+	if not tGroup then
+		VUHDO_clearAurasForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig);
+
+		return;
+	end
+
+	if (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
 		tListSlots = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex];
 		tFixedSlots = anAnchorConfig["fixedSlots"];
 

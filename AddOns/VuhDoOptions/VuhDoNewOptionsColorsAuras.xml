@@ -142,6 +142,26 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentRangeFadeCheck" text="VUHDO_I18N_RANGE_FADE" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentDispelBorderCheck" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.rangeFade");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K859);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<Frame name="$parentAuraBarDefaultTexture" inherits="VuhDoColorSwatchTexture">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowTooltipCheck" relativePoint="BOTTOMLEFT">

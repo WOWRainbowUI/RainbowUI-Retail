@@ -13,6 +13,7 @@ local tinsert = table.insert;
 local twipe = table.wipe;
 local max = math.max;
 local min = math.min;
+local format = string.format;
 local CreateFrame = CreateFrame;
 local hooksecurefunc = hooksecurefunc;
 
@@ -602,6 +603,10 @@ function VUHDO_lnfComboButtonClicked(aButton)
 
 		tSelectPanel:SetFrameLevel(tComboBox:GetFrameLevel() + 5);
 		tSelectPanel:Show();
+
+		if tComboBox["isMulti"] and tComboBox["itemsBuilt"] then
+			VUHDO_lnfComboRefreshItemStates(tComboBox);
+		end
 	end
 end
 
@@ -1206,6 +1211,10 @@ local tHeight;
 local tSpellId;
 local tIconSource;
 local tIconTexture;
+local tBoxPath;
+local tMarkPath;
+local tBoxTexture;
+local tMarkTexture;
 function VUHDO_lnfComboInitItems(aComboBox)
 
 	tTable = aComboBox:GetAttribute("combo_table");
@@ -1238,9 +1247,7 @@ function VUHDO_lnfComboInitItems(aComboBox)
 		if not _G[tItemName] then
 			tItemPanel = CreateFrame("Frame", tItemName, tItemContainer, "VuhdoComboItemTemplate");
 
-			if aComboBox["isMulti"] then
-				_G[tItemName .. "CheckTextureTexture"]:SetTexture("Interface\\AddOns\\VuhDoOptions\\Images\\icon_check");
-			else
+			if not aComboBox["isMulti"] then
 				_G[tItemName .. "CheckTextureTexture"]:SetTexture("Interface\\AddOns\\VuhDo\\Images\\icon_red");
 			end
 
@@ -1248,6 +1255,23 @@ function VUHDO_lnfComboInitItems(aComboBox)
 			tItemPanel["dropwdownBox"] = tDropdownBox;
 		else
 			tItemPanel = _G[tItemName];
+		end
+
+		if aComboBox["isMulti"] then
+			tBoxPath = VUHDO_lnfSkinResolveTexture("icon_blue_square");
+			tMarkPath = VUHDO_lnfSkinResolveTexture("icon_check_tri");
+			tBoxTexture = _G[tItemName .. "CheckBoxTexture"];
+			tMarkTexture = _G[tItemName .. "CheckTextureTexture"];
+
+			if tBoxTexture and tBoxTexture:GetTexture() ~= tBoxPath then
+				tBoxTexture:SetTexture(tBoxPath);
+			end
+
+			if tMarkTexture and tMarkTexture:GetTexture() ~= tMarkPath then
+				tMarkTexture:SetTexture(tMarkPath);
+			end
+
+			VUHDO_lnfComboItemApplyCheckVertexColor(tItemPanel, tItemPanel["isDisabledEntry"]);
 		end
 
 		tItemPanel:ClearAllPoints();
@@ -1462,12 +1486,216 @@ end
 
 
 --
+local tDisabledFunction;
+function VUHDO_lnfComboIsEntryDisabled(aComboBox, aValue)
+
+	if not aComboBox:IsEnabled() then
+		return true;
+	end
+
+	tDisabledFunction = aComboBox:GetAttribute("disabled_function");
+
+	if tDisabledFunction then
+		return tDisabledFunction(aComboBox, aValue) and true or false;
+	end
+
+	return false;
+
+end
+
+
+
+--
+local tBoxFrame;
+local tMarkFrame;
+local tBoxTexture;
+local tMarkTexture;
+local tDisabledTint;
+local tMarkTint;
+local tVertexR;
+local tVertexG;
+local tVertexB;
+local tVertexA;
+local tMarkR;
+local tMarkG;
+local tMarkB;
+local tMarkA;
+function VUHDO_lnfComboItemApplyCheckVertexColor(aComboItem, anIsDisabled)
+
+	tBoxTexture = _G[aComboItem:GetName() .. "CheckBoxTexture"];
+	tMarkTexture = _G[aComboItem:GetName() .. "CheckTextureTexture"];
+
+	if anIsDisabled then
+		tDisabledTint = VUHDO_lnfSkinResolveTint("combo_check_disabled");
+
+		if tDisabledTint then
+			tVertexR = tDisabledTint[1];
+			tVertexG = tDisabledTint[2];
+			tVertexB = tDisabledTint[3];
+			tVertexA = tDisabledTint[4] or 1;
+		else
+			tVertexR = 0.4;
+			tVertexG = 0.4;
+			tVertexB = 0.4;
+			tVertexA = 1;
+		end
+	else
+		tVertexR = 1;
+		tVertexG = 1;
+		tVertexB = 1;
+		tVertexA = 1;
+	end
+
+	tMarkTint = VUHDO_lnfSkinResolveTint("combo_check_mark");
+
+	if tMarkTint then
+		tMarkR = tMarkTint[1];
+		tMarkG = tMarkTint[2];
+		tMarkB = tMarkTint[3];
+		tMarkA = tMarkTint[4] or 1;
+	else
+		tMarkR = 1;
+		tMarkG = 1;
+		tMarkB = 1;
+		tMarkA = 1;
+	end
+
+	if anIsDisabled then
+		tDisabledTint = VUHDO_lnfSkinResolveTint("combo_check_disabled");
+
+		if tDisabledTint then
+			tMarkR = tMarkR * tDisabledTint[1];
+			tMarkG = tMarkG * tDisabledTint[2];
+			tMarkB = tMarkB * tDisabledTint[3];
+			tMarkA = tMarkA * (tDisabledTint[4] or 1);
+		else
+			tMarkR = tMarkR * 0.4;
+			tMarkG = tMarkG * 0.4;
+			tMarkB = tMarkB * 0.4;
+		end
+	end
+
+	if tBoxTexture then
+		tBoxTexture:SetVertexColor(tVertexR, tVertexG, tVertexB, tVertexA);
+	end
+
+	if tMarkTexture then
+		tMarkTexture:SetVertexColor(tMarkR, tMarkG, tMarkB, tMarkA);
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfComboItemApplyCheckState(aComboItem, anIsMulti, anIsSelected, anIsDisabled)
+
+	tBoxFrame = _G[aComboItem:GetName() .. "CheckBox"];
+	tMarkFrame = _G[aComboItem:GetName() .. "CheckTexture"];
+	tBoxTexture = tBoxFrame and _G[aComboItem:GetName() .. "CheckBoxTexture"];
+	tMarkTexture = tMarkFrame and _G[aComboItem:GetName() .. "CheckTextureTexture"];
+
+	aComboItem["isDisabledEntry"] = anIsDisabled;
+
+	if anIsMulti then
+		if tBoxFrame then
+			tBoxFrame:Show();
+		end
+
+		VUHDO_lnfComboItemApplyCheckVertexColor(aComboItem, anIsDisabled);
+
+		if anIsSelected then
+			if tMarkFrame then
+				tMarkFrame:Show();
+			end
+		else
+			if tMarkFrame then
+				tMarkFrame:Hide();
+			end
+		end
+	else
+		if tBoxFrame then
+			tBoxFrame:Hide();
+		end
+
+		if anIsSelected then
+			if tMarkFrame then
+				tMarkFrame:Show();
+			end
+		else
+			if tMarkFrame then
+				tMarkFrame:Hide();
+			end
+		end
+
+		if tMarkTexture then
+			tMarkTexture:SetVertexColor(1, 1, 1, 1);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
 do
-	local tTexture;
+	local tTable;
+	local tSetTable;
+	local tCount;
+	local tLabel;
+	function VUHDO_lnfComboFormatMultiSummary(aComboBox, aSetTable)
+
+		tTable = aComboBox:GetAttribute("combo_table");
+
+		if not tTable then
+			return aComboBox:GetAttribute("title") or VUHDO_I18N_SELECT;
+		end
+
+		tSetTable = aSetTable or VUHDO_lnfGetValueFromModel(aComboBox);
+
+		if not tSetTable then
+			return aComboBox:GetAttribute("title") or VUHDO_I18N_SELECT;
+		end
+
+		tCount = 0;
+		tLabel = nil;
+
+		for _, tInfo in ipairs(tTable) do
+			if tSetTable[tInfo[1]] then
+				tCount = tCount + 1;
+
+				if tCount == 1 then
+					tLabel = tInfo[2];
+				end
+			end
+		end
+
+		if tCount == 0 then
+			return format(VUHDO_I18N_N_SELECTED, tCount);
+		elseif tCount == 1 then
+			return tLabel;
+		else
+			return format(VUHDO_I18N_N_SELECTED, tCount);
+		end
+
+	end
+
+
+
+	--
+	local tItemPanel;
+	local tItemName;
+	local tIsSelected;
+	local tIsDisabled;
 	local tTable;
 	local tFunction;
 	local tArrayModel;
 	local tIsRebuilt;
+	local tSummaryText;
 	function VUHDO_lnfComboSetSelectedValue(aComboBox, aValue, anIsEditBox)
 
 		tIsRebuilt = false;
@@ -1503,8 +1731,12 @@ do
 			tArrayModel = VUHDO_lnfGetValueFromModel(aComboBox);
 
 			if aValue then
-				if tArrayModel[aValue] then tArrayModel[aValue] = nil;
-				else tArrayModel[aValue] = true; end
+				tIsDisabled = VUHDO_lnfComboIsEntryDisabled(aComboBox, aValue);
+
+				if not tIsDisabled or tArrayModel[aValue] then
+					if tArrayModel[aValue] then tArrayModel[aValue] = nil;
+					else tArrayModel[aValue] = true; end
+				end
 			end
 		else
 			tArrayModel = nil;
@@ -1515,49 +1747,53 @@ do
 		end
 
 		if not _G[aComboBox:GetName() .. "EditBox"] then
-			_G[aComboBox:GetName() .. "Text"]:SetText(VUHDO_I18N_SELECT);
+			if tArrayModel then
+				tSummaryText = VUHDO_lnfComboFormatMultiSummary(aComboBox, tArrayModel);
+
+				_G[aComboBox:GetName() .. "Text"]:SetText(tSummaryText);
+			else
+				_G[aComboBox:GetName() .. "Text"]:SetText(VUHDO_I18N_SELECT);
+			end
 		end
 
 		for tIndex, tInfo in ipairs(tTable) do
 			if (aComboBox.isScrollable) then
-				tTexture = _G[aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex .. "CheckTexture"];
+				tItemName = aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex;
 			elseif (tIndex > 500) then
 				break;
 			else
-				tTexture = _G[aComboBox:GetName() .. "SelectPanelItem" .. tIndex .. "CheckTexture"];
+				tItemName = aComboBox:GetName() .. "SelectPanelItem" .. tIndex;
 			end
 
-			if not tTexture and not tIsRebuilt then
+			tItemPanel = _G[tItemName];
+
+			if not tItemPanel and not tIsRebuilt then
 				tIsRebuilt = true;
 
 				VUHDO_lnfComboInitItems(aComboBox);
 
-				if (aComboBox.isScrollable) then
-					tTexture = _G[aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex .. "CheckTexture"];
-				elseif (tIndex > 500) then
-					break;
-				else
-					tTexture = _G[aComboBox:GetName() .. "SelectPanelItem" .. tIndex .. "CheckTexture"];
-				end
+				tItemPanel = _G[tItemName];
 			end
 
 			if tArrayModel then
-				if tArrayModel[tInfo[1]] then
-					if tTexture then tTexture:Show(); end
-				else
-					if tTexture then tTexture:Hide(); end
-				end
+				tIsSelected = tArrayModel[tInfo[1]] and true or false;
 			else
+				tIsSelected = aValue == tInfo[1];
+			end
+
+			tIsDisabled = VUHDO_lnfComboIsEntryDisabled(aComboBox, tInfo[1]);
+
+			if tItemPanel then
+				VUHDO_lnfComboItemApplyCheckState(tItemPanel, aComboBox["isMulti"], tIsSelected, tIsDisabled);
+			end
+
+			if not tArrayModel then
 				if aValue == tInfo[1] then
 					if _G[aComboBox:GetName() .. "EditBox"] then
 						_G[aComboBox:GetName() .. "EditBox"]:SetText(tInfo[2]);
 					else
 						_G[aComboBox:GetName() .. "Text"]:SetText(tInfo[2]);
 					end
-
-					if tTexture then tTexture:Show(); end
-				else
-					if tTexture then tTexture:Hide(); end
 				end
 			end
 		end
@@ -1583,6 +1819,64 @@ end
 
 --
 do
+	local tTable;
+	local tArrayModel;
+	local tScalarValue;
+	local tItemName;
+	local tItemPanel;
+	local tIsSelected;
+	local tIsDisabled;
+	function VUHDO_lnfComboRefreshItemStates(aComboBox)
+
+		tTable = aComboBox:GetAttribute("combo_table");
+
+		if not tTable then
+			return;
+		end
+
+		if aComboBox["isMulti"] then
+			tArrayModel = VUHDO_lnfGetValueFromModel(aComboBox);
+			tScalarValue = nil;
+		else
+			tArrayModel = nil;
+			tScalarValue = VUHDO_lnfGetValueFromModel(aComboBox);
+		end
+
+		for tIndex, tInfo in ipairs(tTable) do
+			if aComboBox["isScrollable"] then
+				tItemName = aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex;
+			elseif tIndex > 500 then
+				break;
+			else
+				tItemName = aComboBox:GetName() .. "SelectPanelItem" .. tIndex;
+			end
+
+			tItemPanel = _G[tItemName];
+
+			if not tItemPanel then
+				break;
+			end
+
+			if tArrayModel then
+				tIsSelected = tArrayModel[tInfo[1]] and true or false;
+			else
+				tIsSelected = tScalarValue == tInfo[1];
+			end
+
+			tIsDisabled = VUHDO_lnfComboIsEntryDisabled(aComboBox, tInfo[1]);
+
+			VUHDO_lnfComboItemApplyCheckState(tItemPanel, aComboBox["isMulti"], tIsSelected, tIsDisabled);
+		end
+
+		return;
+
+	end
+end
+
+
+
+--
+do
 	local tValue;
 	local tTitle;
 	function VUHDO_lnfComboBoxInitFromModel(aComboBox)
@@ -1594,10 +1888,14 @@ do
 		aComboBox["isMulti"] = "table" == type(tValue);
 
 		if aComboBox["lazyItems"] and not aComboBox["itemsBuilt"] then
-			tTitle = aComboBox:GetAttribute("title");
+			if aComboBox["isMulti"] then
+				_G[aComboBox:GetName() .. "Text"]:SetText(VUHDO_lnfComboFormatMultiSummary(aComboBox, tValue));
+			else
+				tTitle = aComboBox:GetAttribute("title");
 
-			if tTitle then
-				_G[aComboBox:GetName() .. "Text"]:SetText(tTitle);
+				if tTitle then
+					_G[aComboBox:GetName() .. "Text"]:SetText(tTitle);
+				end
 			end
 
 			if aComboBox["isMulti"] then
@@ -1611,8 +1909,15 @@ do
 
 		VUHDO_lnfComboInitItems(aComboBox);
 
-		tTitle = aComboBox:GetAttribute("title");
-		if tTitle then _G[aComboBox:GetName() .. "Text"]:SetText(tTitle); end
+		if aComboBox["isMulti"] then
+			_G[aComboBox:GetName() .. "Text"]:SetText(VUHDO_lnfComboFormatMultiSummary(aComboBox, tValue));
+		else
+			tTitle = aComboBox:GetAttribute("title");
+
+			if tTitle then
+				_G[aComboBox:GetName() .. "Text"]:SetText(tTitle);
+			end
+		end
 
 
 		if aComboBox["isMulti"] then

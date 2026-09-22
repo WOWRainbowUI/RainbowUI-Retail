@@ -994,10 +994,80 @@ local tIncHealAmount;
 local tSecretColor;
 local tOvershieldOffsetBar;
 local tInterpolation;
-local function VUHDO_updateIncHeal(aUnit, anInterpolation)
+local function VUHDO_updateIncHealForButton(aUnit, aButton, anInterpolation, aInfo, aIncHealAmount)
 
-	tInfo = VUHDO_RAID[aUnit];
-	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
+	tPanelNum = VUHDO_BUTTON_CACHE[aButton];
+	tInterpolation = anInterpolation or sHealthInterpolation[tPanelNum];
+	tIncBar = VUHDO_getHealthBar(aButton, 6);
+	tHealthBar = VUHDO_getHealthBar(aButton, 1);
+
+	if aIncHealAmount and aInfo["healthmax"] and (not sSecretsEnabled or issecretvalue(aIncHealAmount) or aIncHealAmount > 0) and (not sSecretsEnabled or aInfo["hasSecretHealthMax"] or aInfo["healthmax"] > 0) then
+		tIncBar:SetMinMaxValues(0, aInfo["healthmax"]);
+		tIncBar:SetValue(aIncHealAmount, tInterpolation);
+
+		if sSecretsEnabled then
+			tOvershieldOffsetBar = VUHDO_getHealthBar(aButton, 23);
+
+			tOvershieldOffsetBar:SetMinMaxValues(0, aInfo["healthmax"]);
+			tOvershieldOffsetBar:SetValue(aIncHealAmount, tInterpolation);
+		end
+
+		if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
+			sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
+
+			if sConfigIncColor then
+				tSecretColor = tHealthBar["secretCurveColor"];
+
+				if sConfigIncColor["useBackground"] then
+					tIncBar:GetStatusBarTexture():SetVertexColor(sConfigIncColor["R"], sConfigIncColor["G"], sConfigIncColor["B"], tSecretColor["O"]);
+				else
+					tIncBar:GetStatusBarTexture():SetVertexColor(tSecretColor["R"], tSecretColor["G"], tSecretColor["B"], tSecretColor["O"]);
+				end
+
+				if sConfigIncColor["useOpacity"] then
+					tIncBar:SetAlpha(sConfigIncColor["O"] or 1);
+				end
+			end
+		elseif not sSecretsEnabled then
+			tIncColor["R"], tIncColor["G"], tIncColor["B"], tOpacity = tHealthBar:GetStatusBarColor();
+			tIncColor = VUHDO_getDiffColor(tIncColor, VUHDO_getStatusBarColor("INCOMING", aUnit));
+
+			if tIncColor["O"] and tOpacity then
+				tIncColor["O"] = tIncColor["O"] * tOpacity * (tHealthBar:GetAlpha() or 1);
+			end
+
+			VUHDO_setStatusBarColor(tIncBar, tIncColor);
+		else
+			sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
+
+			if sConfigIncColor then
+				VUHDO_setStatusBarColor(tIncBar, sConfigIncColor);
+			end
+		end
+
+		tIncBar:Show();
+	else
+		tIncBar:SetValue(0, VUHDO_IMMEDIATE);
+		tIncBar:Hide();
+
+		if sSecretsEnabled then
+			tOvershieldOffsetBar = VUHDO_getHealthBar(aButton, 23);
+
+			tOvershieldOffsetBar:SetValue(0, VUHDO_IMMEDIATE);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_updateIncHeal(aUnit, anInterpolation, aInfo, aAllButtons)
+
+	tInfo = aInfo or VUHDO_RAID[aUnit];
+	tAllButtons = aAllButtons or VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
 
 	if not tInfo or not tAllButtons then
 		return;
@@ -1006,66 +1076,7 @@ local function VUHDO_updateIncHeal(aUnit, anInterpolation)
 	tIncHealAmount = VUHDO_getIncHealOnUnit(aUnit);
 
 	for _, tButton in pairs(tAllButtons) do
-		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
-		tInterpolation = anInterpolation or sHealthInterpolation[tPanelNum];
-		tIncBar = VUHDO_getHealthBar(tButton, 6);
-		tHealthBar = VUHDO_getHealthBar(tButton, 1);
-
-		if tIncHealAmount and tInfo["healthmax"] and (not sSecretsEnabled or issecretvalue(tIncHealAmount) or tIncHealAmount > 0) and (not sSecretsEnabled or tInfo["hasSecretHealthMax"] or tInfo["healthmax"] > 0) then
-			tIncBar:SetMinMaxValues(0, tInfo["healthmax"]);
-			tIncBar:SetValue(tIncHealAmount, tInterpolation);
-
-			if sSecretsEnabled then
-				tOvershieldOffsetBar = VUHDO_getHealthBar(tButton, 23);
-
-				tOvershieldOffsetBar:SetMinMaxValues(0, tInfo["healthmax"]);
-				tOvershieldOffsetBar:SetValue(tIncHealAmount, tInterpolation);
-			end
-
-			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
-				sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
-
-				if sConfigIncColor then
-					tSecretColor = tHealthBar["secretCurveColor"];
-
-					if sConfigIncColor["useBackground"] then
-						tIncBar:GetStatusBarTexture():SetVertexColor(sConfigIncColor["R"], sConfigIncColor["G"], sConfigIncColor["B"], tSecretColor["O"]);
-					else
-						tIncBar:GetStatusBarTexture():SetVertexColor(tSecretColor["R"], tSecretColor["G"], tSecretColor["B"], tSecretColor["O"]);
-					end
-
-					if sConfigIncColor["useOpacity"] then
-						tIncBar:SetAlpha(sConfigIncColor["O"] or 1);
-					end
-				end
-			elseif not sSecretsEnabled then
-				tIncColor["R"], tIncColor["G"], tIncColor["B"], tOpacity = tHealthBar:GetStatusBarColor();
-				tIncColor = VUHDO_getDiffColor(tIncColor, VUHDO_getStatusBarColor("INCOMING", aUnit));
-
-				if tIncColor["O"] and tOpacity then
-					tIncColor["O"] = tIncColor["O"] * tOpacity * (tHealthBar:GetAlpha() or 1);
-				end
-
-				VUHDO_setStatusBarColor(tIncBar, tIncColor);
-			else
-				sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
-
-				if sConfigIncColor then
-					VUHDO_setStatusBarColor(tIncBar, sConfigIncColor);
-				end
-			end
-
-			tIncBar:Show();
-		else
-			tIncBar:SetValue(0, VUHDO_IMMEDIATE);
-			tIncBar:Hide();
-
-			if sSecretsEnabled then
-				tOvershieldOffsetBar = VUHDO_getHealthBar(tButton, 23);
-
-				tOvershieldOffsetBar:SetValue(0, VUHDO_IMMEDIATE);
-			end
-		end
+		VUHDO_updateIncHealForButton(aUnit, tButton, anInterpolation, tInfo, tIncHealAmount);
 	end
 
 	VUHDO_updateShieldBar(aUnit, tIncHealAmount, anInterpolation);
@@ -1082,13 +1093,14 @@ local tRatio, tBar, tScale;
 local tPanelNum;
 local tIndicatorConfig;
 local tFontString;
-function VUHDO_overhealTextCallback(aUnit, aProviderName, aValue, anIndicatorName, ...)
+function VUHDO_overhealTextCallback(aUnit, aProviderName, aValue, anIndicatorName, aBouquetName, ...)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 		tIndicatorConfig = VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName];
 
-		if VUHDO_getResolvedTextProvider(tIndicatorConfig["TEXT_PROVIDER_SOURCE"], tIndicatorConfig["TEXT_PROVIDER_FORMAT"]) == aProviderName then
+		if (aBouquetName == nil or VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"][anIndicatorName] == aBouquetName)
+			and VUHDO_getResolvedTextProvider(tIndicatorConfig["TEXT_PROVIDER_SOURCE"], tIndicatorConfig["TEXT_PROVIDER_FORMAT"]) == aProviderName then
 			tBar = VUHDO_getHealthBar(tButton, 1);
 			tFontString = VUHDO_getOverhealText(tBar);
 
@@ -1493,15 +1505,15 @@ do
 	local tLossRegularHeight;
 	local tLossHealthHeight;
 	local tLossWidth;
-	function VUHDO_updateHealthLossBar(aUnit, anInterpolation)
+	function VUHDO_updateHealthLossBar(aUnit, anInterpolation, aInfo, aAllButtons)
 
-		tLossInfo = VUHDO_RAID[aUnit];
+		tLossInfo = aInfo or VUHDO_RAID[aUnit];
 
 		if not tLossInfo then
 			return;
 		end
 
-		tLossButtons = VUHDO_getUnitButtonsSafe(VUHDO_resolveVehicleUnit(aUnit));
+		tLossButtons = aAllButtons or VUHDO_getUnitButtonsSafe(VUHDO_resolveVehicleUnit(aUnit));
 
 		if not VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
 			for _, tButton in pairs(tLossButtons) do
@@ -1661,6 +1673,7 @@ end
 --
 local tInfo;
 local tAllButtons;
+local tIncHealAmount;
 function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 
 	-- as of patch 7.1 we are seeing empty units on health related events
@@ -1668,35 +1681,41 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 		return;
 	end
 
-	VUHDO_updateBouquetsForEvent(aUnit, anUpdateMode);
-
-	if 1 == anUpdateMode or 2 == anUpdateMode or 3 == anUpdateMode or VUHDO_UPDATE_HEALTH_LOSS == anUpdateMode then
-		VUHDO_updateHealthLossBar(aUnit, 1 == anUpdateMode and VUHDO_IMMEDIATE or nil);
-	end
-
+	tInfo = VUHDO_RAID[aUnit];
 	tAllButtons = VUHDO_getUnitButtons(aUnit);
 
 	if not tAllButtons then
 		return;
 	end
 
+	VUHDO_updateBouquetsForEvent(aUnit, anUpdateMode);
+
+	if 1 == anUpdateMode or 2 == anUpdateMode or 3 == anUpdateMode or VUHDO_UPDATE_HEALTH_LOSS == anUpdateMode then
+		VUHDO_updateHealthLossBar(aUnit, 1 == anUpdateMode and VUHDO_IMMEDIATE or nil, tInfo, tAllButtons);
+	end
+
 	if 2 == anUpdateMode then -- VUHDO_UPDATE_HEALTH
 		VUHDO_determineIncHeal(aUnit);
 
 		tInfo = VUHDO_RAID[aUnit];
+		tIncHealAmount = tInfo and VUHDO_getIncHealOnUnit(aUnit) or nil;
+
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 
-			if tInfo then 
+			if tInfo then
 				VUHDO_customizeDamageFlash(tButton, tInfo);
+
+				VUHDO_updateIncHealForButton(aUnit, tButton, nil, tInfo, tIncHealAmount);
 			end
 		end
 
 		if tInfo then
 			tInfo["lifeLossPerc"] = nil;
-		end
 
-		VUHDO_updateIncHeal(aUnit);
+			VUHDO_updateShieldBar(aUnit, tIncHealAmount);
+			VUHDO_updateHealAbsorbBar(aUnit);
+		end
 
 	elseif 9 == anUpdateMode then -- VUHDO_UPDATE_INC
 		VUHDO_determineIncHeal(aUnit);
@@ -1707,7 +1726,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 			end
 		end
 
-		VUHDO_updateIncHeal(aUnit);
+		VUHDO_updateIncHeal(aUnit, nil, tInfo, tAllButtons);
 
 	elseif 7 == anUpdateMode then -- VUHDO_UPDATE_AGGRO
 		if sIsAggroText then
@@ -1730,7 +1749,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 			end
 		end
 
-		VUHDO_updateIncHeal(aUnit);
+		VUHDO_updateIncHeal(aUnit, nil, tInfo, tAllButtons);
 
 	elseif 3 == anUpdateMode then -- VUHDO_UPDATE_HEALTH_MAX
 		VUHDO_determineIncHeal(aUnit);
@@ -1739,7 +1758,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 		end
 
-		VUHDO_updateIncHeal(aUnit);
+		VUHDO_updateIncHeal(aUnit, nil, nil, tAllButtons);
 
 	elseif 6 == anUpdateMode then -- VUHDO_UPDATE_AFK
 		for _, tButton in pairs(tAllButtons) do
@@ -1755,7 +1774,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 			VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
 		end
 
-		VUHDO_updateIncHeal(aUnit);
+		VUHDO_updateIncHeal(aUnit, nil, nil, tAllButtons);
 
 	elseif 25 == anUpdateMode then -- VUHDO_UPDATE_RESURRECTION
 		for _, tButton in pairs(tAllButtons) do
@@ -1776,7 +1795,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 			VUHDO_customizeHealButton(tButton);
 		end
 
-		VUHDO_updateIncHeal(aUnit, VUHDO_IMMEDIATE);
+		VUHDO_updateIncHeal(aUnit, VUHDO_IMMEDIATE, nil, tAllButtons);
 	end
 
 	return;

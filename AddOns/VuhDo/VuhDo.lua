@@ -38,6 +38,9 @@ end
 VUHDO_RAID_NAMES = { };
 local VUHDO_RAID_NAMES = VUHDO_RAID_NAMES;
 
+VUHDO_RAID_FULL_NAMES = { };
+local VUHDO_RAID_FULL_NAMES = VUHDO_RAID_FULL_NAMES;
+
 VUHDO_GROUPS = { };
 local VUHDO_GROUPS = VUHDO_GROUPS;
 
@@ -151,6 +154,7 @@ local InCombatLockdown = InCombatLockdown;
 local IsInRaid = IsInRaid;
 local table = table;
 local UnitGUID = UnitGUID;
+local UnitIsUnit = UnitIsUnit;
 local tinsert = tinsert;
 local tremove = tremove;
 local strfind = strfind;
@@ -165,6 +169,8 @@ local _;
 local sTrigger;
 local sCurrentMode;
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+local sPrivateTankKeyMigrations = { };
+local sPrivateTankNameMatches = { };
 
 
 function VUHDO_vuhdoInitLocalOverrides()
@@ -229,7 +235,9 @@ local VUHDO_UNIT_AFK_DC = { };
 
 --
 local function VUHDO_updateAllRaidNames()
+
 	twipe(VUHDO_RAID_NAMES);
+	twipe(VUHDO_RAID_FULL_NAMES);
 
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		if not VUHDO_isSpecialUnit(tUnit) and not tInfo["hasSecretName"] then
@@ -237,8 +245,15 @@ local function VUHDO_updateAllRaidNames()
 			if not VUHDO_RAID_NAMES[tInfo["name"]] or not tInfo["isPet"] then
 				VUHDO_RAID_NAMES[tInfo["name"]] = tUnit;
 			end
+
+			if tInfo["fullName"] and (not VUHDO_RAID_FULL_NAMES[tInfo["fullName"]] or not tInfo["isPet"]) then
+				VUHDO_RAID_FULL_NAMES[tInfo["fullName"]] = tUnit;
+			end
 		end
 	end
+
+	return;
+
 end
 
 
@@ -581,6 +596,10 @@ function VUHDO_setHealth(aUnit, aMode)
 				if not VUHDO_RAID_NAMES[tName] or not tIsPet then
 					VUHDO_RAID_NAMES[tName] = aUnit;
 				end
+
+				if tInfo["fullName"] and (not VUHDO_RAID_FULL_NAMES[tInfo["fullName"]] or not tIsPet) then
+					VUHDO_RAID_FULL_NAMES[tInfo["fullName"]] = aUnit;
+				end
 			end
 
 		elseif tInfo then
@@ -836,16 +855,146 @@ end
 
 
 --
+local tPrivateTankInfo;
+function VUHDO_getPrivateTankKey(aUnit)
+
+	tPrivateTankInfo = VUHDO_RAID[aUnit];
+
+	if not tPrivateTankInfo then
+		return nil;
+	end
+
+	if tPrivateTankInfo["fullName"] then
+		return tPrivateTankInfo["fullName"];
+	end
+
+	return tPrivateTankInfo["name"];
+
+end
+
+
+
+--
+function VUHDO_getUnitByPrivateTankKey(aKey)
+
+	if not aKey then
+		return nil;
+	end
+
+	if VUHDO_RAID_FULL_NAMES[aKey] then
+		return VUHDO_RAID_FULL_NAMES[aKey];
+	end
+
+	return VUHDO_RAID_NAMES[aKey];
+
+end
+
+
+
+--
+local tSlashResolvedUnit;
+local tSlashMatchCnt;
+function VUHDO_getUnitByPrivateTankName(aToken)
+
+	tSlashResolvedUnit = VUHDO_RAID_FULL_NAMES[aToken];
+
+	if tSlashResolvedUnit then
+		return tSlashResolvedUnit;
+	end
+
+	twipe(sPrivateTankNameMatches);
+
+	tSlashMatchCnt = 0;
+	tSlashResolvedUnit = nil;
+
+	for tSlashRaidUnit, tInfo in pairs(VUHDO_RAID) do
+		if not VUHDO_isSpecialUnit(tSlashRaidUnit) and not tInfo["isPet"] and not tInfo["hasSecretName"] then
+			if tInfo["name"] == aToken then
+				tSlashMatchCnt = tSlashMatchCnt + 1;
+
+				tinsert(sPrivateTankNameMatches, tInfo["fullName"] or tInfo["name"]);
+
+				tSlashResolvedUnit = tSlashRaidUnit;
+			end
+		end
+	end
+
+	if 1 == tSlashMatchCnt then
+		return tSlashResolvedUnit;
+	end
+
+	if tSlashMatchCnt > 1 then
+		return nil, sPrivateTankNameMatches;
+	end
+
+	return nil;
+
+end
+
+
+
+--
+local tGuid;
+local tResolvedTargetUnit;
+function VUHDO_getPrivateTankUnitFromTarget()
+
+	tGuid = UnitGUID("target");
+
+	if tGuid and not (sSecretsEnabled and issecretvalue(tGuid)) then
+		tResolvedTargetUnit = VUHDO_RAID_GUIDS[tGuid];
+
+		if tResolvedTargetUnit then
+			return tResolvedTargetUnit;
+		end
+	end
+
+	for tRaidUnit, tInfo in pairs(VUHDO_RAID) do
+		if not VUHDO_isSpecialUnit(tRaidUnit) and not tInfo["isPet"] and UnitIsUnit("target", tRaidUnit) then
+			return tRaidUnit;
+		end
+	end
+
+	return nil;
+
+end
+
+
+
+--
+local tPtUnit;
+local tPtFullName;
 local function VUHDO_addUnitToPrivateTanks()
 	if not VUHDO_CONFIG["OMIT_TARGET"] then tinsert(VUHDO_GROUPS[42], "target"); end -- VUHDO_ID_PRIVATE_TANKS
 	if not VUHDO_CONFIG["OMIT_FOCUS"] then tinsert(VUHDO_GROUPS[42], "focus"); end -- VUHDO_ID_PRIVATE_TANKS
 
-	local tUnit;
-	for tName, _ in pairs(VUHDO_PLAYER_TARGETS) do
-		tUnit = VUHDO_RAID_NAMES[tName];
-		if tUnit then VUHDO_tableUniqueAdd(VUHDO_GROUPS[42], tUnit); -- VUHDO_ID_PRIVATE_TANKS
-		else VUHDO_PLAYER_TARGETS[tName] = nil; end
+	twipe(sPrivateTankKeyMigrations);
+
+	for tPtKey, _ in pairs(VUHDO_PLAYER_TARGETS) do
+		tPtUnit = VUHDO_getUnitByPrivateTankKey(tPtKey);
+
+		if tPtUnit then
+			tPtFullName = VUHDO_getPrivateTankKey(tPtUnit);
+
+			if tPtFullName and tPtFullName ~= tPtKey then
+				sPrivateTankKeyMigrations[tPtKey] = tPtFullName;
+			end
+
+			VUHDO_tableUniqueAdd(VUHDO_GROUPS[42], tPtUnit); -- VUHDO_ID_PRIVATE_TANKS
+		else
+			sPrivateTankKeyMigrations[tPtKey] = false;
+		end
 	end
+
+	for tPtKey, tPtMigration in pairs(sPrivateTankKeyMigrations) do
+		VUHDO_PLAYER_TARGETS[tPtKey] = nil;
+
+		if tPtMigration then
+			VUHDO_PLAYER_TARGETS[tPtMigration] = true;
+		end
+	end
+
+	return;
+
 end
 
 
@@ -1095,6 +1244,7 @@ function VUHDO_reloadRaidMembers()
 
 		twipe(VUHDO_RAID);
 		twipe(VUHDO_RAID_NAMES);
+		twipe(VUHDO_RAID_FULL_NAMES);
 
 		VUHDO_unregisterAllUnitEventFrames();
 
