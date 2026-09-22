@@ -7,8 +7,8 @@ local DB = KeystoneLoot.DB;
 local CURRENT_SEASON = KeystoneLoot.Config.season;
 local DEFAULT_WHISPER_MESSAGE = KeystoneLoot.Config.whisperMessage;
 
-local DB_VERSION = 16;
-local CHAR_DB_VERSION = 3;
+local DB_VERSION = 18;
+local CHAR_DB_VERSION = 4;
 
 local observers = {};
 
@@ -152,6 +152,14 @@ function DB:MigrateGlobalDB(fromVersion)
     if (fromVersion == 15) then
         KeystoneLootDB.settings.roleCheck = KeystoneLoot.RoleCheck.MODE_MYTHIC_PLUS;
     end
+
+    if (fromVersion == 16) then
+        KeystoneLootDB.settings.windowScale = 100;
+    end
+
+    if (fromVersion == 17) then
+        KeystoneLootDB.settings.ownedCheck = "hero";
+    end
 end
 
 function DB:MigrateCharDB(fromVersion)
@@ -186,6 +194,10 @@ function DB:MigrateCharDB(fromVersion)
 
     if (fromVersion == 2) then
         KeystoneLootCharDB.voidcoreChecked = false;
+    end
+
+    if (fromVersion == 3) then
+        KeystoneLootCharDB.bankTracks = {};
     end
 end
 
