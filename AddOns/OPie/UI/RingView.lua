@@ -103,29 +103,25 @@ local centerPointer = mainFrame:CreateTexture(nil, "ARTWORK")
 	centerPointer:SetSize(192,192)
 	centerPointer:SetPoint("CENTER")
 	centerPointer:SetTexture(gfxBase .. "pointer")
-local ringQuad, setRingRotationPeriod, centerCircle, centerGlow = {} do
-	local quadPoints, animations = {"BOTTOMRIGHT", "BOTTOMLEFT", "TOPLEFT", "TOPRIGHT"}, {}
+local ringQuad, setRingRotationPeriod, centerCircle, centerGlow, centerAnimGroup = {} do
+	local quadPoints = {"BOTTOMRIGHT", "BOTTOMLEFT", "TOPLEFT", "TOPRIGHT"}
+	centerAnimGroup = mainFrame:CreateAnimationGroup()
+	centerAnimGroup:SetLooping("REPEAT")
 	for i=1,4 do
 		local qf = CreateFrame("Frame", nil, mainFrame)
 		qf:SetSize(32,32)
 		qf:SetPoint(quadPoints[i], mainFrame, "CENTER")
+		local a = centerAnimGroup:CreateAnimation("Rotation")
+		a:SetOrigin(quadPoints[i], 0, 0)
+		a:SetDuration(4)
+		a:SetDegrees(-360)
+		a:SetTarget(qf)
 		ringQuad[i] = qf
 	end
 	centerCircle = CreateQuadTexture("ARTWORK", 64, gfxBase .. "circle", nil, ringQuad)
 	centerGlow = CreateQuadTexture("BACKGROUND", 128, gfxBase .. "glow", nil, ringQuad)
-	for i=1,4 do
-		local g, a = ringQuad[i]:CreateAnimationGroup()
-		g:SetLooping("REPEAT")
-		a = g:CreateAnimation("Rotation")
-		a:SetOrigin(quadPoints[i], 0, 0)
-		a:SetDuration(4)
-		a:SetDegrees(-360)
-		animations[i] = a
-		g:Play()
-	end
 	function setRingRotationPeriod(p)
-		local p = max(0.1, p)
-		for i=1,4 do animations[i]:SetDuration(p) end
+		centerAnimGroup:SetAnimationSpeedMultiplier(4/max(0.125, p))
 	end
 end
 local function setIndicationPosition(rel, ox, oy)
@@ -144,6 +140,7 @@ end
 local function setIndicationShown(shown)
 	mainFrame:SetShown(shown)
 	proxyFrame:SetShown(shown)
+	centerAnimGroup[shown and "Play" or "Stop"](centerAnimGroup)
 end
 if MODERN then
 	local s = CreateFrame("StatusBar", nil, mainFrame)
@@ -842,7 +839,7 @@ function iapi:Hide()
 	if mainFrame:IsVisible() then
 		setupTransitionAnimation("out", OnUpdate_ZoomOut)
 	else
-		mainFrame:Hide()
+		setIndicationShown(false)
 	end
 	GhostIndication:Deactivate()
 	if GameTooltip:IsOwned(proxyFrame) then
