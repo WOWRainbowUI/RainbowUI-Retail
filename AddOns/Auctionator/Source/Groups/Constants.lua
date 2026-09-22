@@ -27,10 +27,10 @@ Auctionator.Groups.Constants.Events = {
 if Auctionator.Groups.Constants.IsVanilla or Auctionator.Groups.Constants.IsBC then
   -- Note that -2 is the keyring bag, which only exists in classic era
   Auctionator.Groups.Constants.BagIDs = {-2, 0, 1, 2, 3, 4}
-elseif not Auctionator.Groups.Constants.IsRetail then
-  Auctionator.Groups.Constants.BagIDs = {0, 1, 2, 3, 4}
-elseif Auctionator.Groups.Constants.IsRetail then
+elseif Auctionator.Groups.Constants.IsRetail or Auctionator.Groups.Constants.IsForever then
   Auctionator.Groups.Constants.BagIDs = {0, 1, 2, 3, 4, 5}
+else
+  Auctionator.Groups.Constants.BagIDs = {0, 1, 2, 3, 4}
 end
 
 if Auctionator.Groups.Constants.IsRetail then
