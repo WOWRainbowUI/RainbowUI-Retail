@@ -7,6 +7,12 @@
 
 local addonName, RGX = ...
 
+local interfaceVersion = 0
+if type(GetBuildInfo) == "function" then
+    interfaceVersion = tonumber(select(4, GetBuildInfo())) or 0
+end
+RGX.interfaceVersion = interfaceVersion
+
 -- Version detection
 local function GetWoWVersion()
     local projectID = WOW_PROJECT_ID
@@ -27,6 +33,10 @@ RGX.isTBC = (RGX.wowVersion == "tbc")
 RGX.isWrath = (RGX.wowVersion == "wrath")
 RGX.isCata = (RGX.wowVersion == "cata")
 RGX.isMists = (RGX.wowVersion == "mists")
+-- WoW Forever is a Classic beta product (branch 1.60.x) that reports the
+-- Retail-era API surface at Interface 16001. Treat this as an API capability,
+-- never as a fixed client build.
+RGX.isForever = RGX.interfaceVersion >= 16000 and RGX.interfaceVersion < 17000
 
 local function HasFunction(namespace, name)
     return type(namespace) == "table" and type(namespace[name]) == "function"
@@ -67,12 +77,11 @@ RGX.Capabilities = {
     housing = HasEvent("CURRENT_HOUSE_INFO_RECIEVED") and (type(C_Housing) == "table" or type(C_HousingDecor) == "table"),
     tradingPost = HasFunction(C_PerksProgram, "GetCurrencyAmount") and HasEvent("PERKS_PROGRAM_CURRENCY_REFRESH"),
     prey = HasFunction(C_QuestLog, "GetActivePreyQuest") and HasEvent("UPDATE_UI_WIDGET"),
-    -- COMBAT_LOG_EVENT_UNFILTERED: Retail 12.x clients reject addon-side
-    -- registration (protection layer; documented HasRestrictions). Classic
-    -- flavors accept it as the standard combat-log path. This is an explicit
-    -- flavor gate: it deliberately does NOT rely on HasEvent/IsEventValid,
-    -- which describe documentation validity, not registerability.
-    combatLogEvent = RGX.isClassicEra or RGX.isTBC or RGX.isWrath or RGX.isCata or RGX.isMists,
+    -- Interface 12 clients reject addon-side CLEU registration even when the
+    -- product flavor reports Classic. Event documentation does not describe
+    -- registration safety, so retain the explicit interface capability gate.
+    combatLogEvent = RGX.interfaceVersion < 120000
+        and (RGX.isClassicEra or RGX.isTBC or RGX.isWrath or RGX.isCata or RGX.isMists),
     settings = HasFunction(Settings, "RegisterCanvasLayoutCategory") and HasFunction(Settings, "RegisterAddOnCategory") and HasFunction(Settings, "OpenToCategory"),
     menuUtil = HasFunction(MenuUtil, "CreateContextMenu"),
 }
@@ -532,7 +541,7 @@ function RGX:TryLoadModule(moduleName)
     return false
 end
 
--- RGX:Debug("Compat layer loaded: " .. RGX.wowVersion)
+RGX:Debug("Compat layer loaded: " .. RGX.wowVersion)
 
 -- Secret value/table access helpers for addons
 function RGX.API.CanAccessValue(value)

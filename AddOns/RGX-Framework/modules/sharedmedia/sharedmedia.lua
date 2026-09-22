@@ -629,6 +629,12 @@ end
 
 function SM:OnPlayerLogin()
     if not self._didGenericScan then
+        if RGX.isForever then
+            -- The generic global crawl causes a visible startup hitch on the
+            -- Forever beta client. Known media providers still scan on load.
+            self._didGenericScan = true
+            return
+        end
         self:QueueScan(2.0, true)
     end
 end

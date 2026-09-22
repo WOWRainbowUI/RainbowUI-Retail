@@ -99,12 +99,40 @@ end
 local Button = {}
 Button.__index = Button
 
+-- Durable per-button position store inside the framework's own
+-- SavedVariables. An addon's own SavedVariables can be lost during client
+-- crashes or storage wipes; the framework database survives those, so
+-- minimap button positions recorded here are restored instead of resetting
+-- to the default angle.
+local function GetDurablePositions()
+    local db = _G.RGXFrameworkDB
+    if type(db) ~= "table" then return nil end
+    if type(db.RGXMinimapPositions) ~= "table" then
+        db.RGXMinimapPositions = {}
+    end
+    return db.RGXMinimapPositions
+end
+
 function Button:GetAngle()
     if type(self._getAngle) == "function" then
         return self._getAngle() or self._defaultAngle
     end
     if self._storage and self._angleKey then
-        return tonumber(self._storage[self._angleKey]) or self._defaultAngle
+        local angle = tonumber(self._storage[self._angleKey])
+        if angle then
+            return angle
+        end
+        if self._name then
+            local durable = GetDurablePositions()
+            if durable then
+                local saved = tonumber(durable[self._name])
+                if saved then
+                    self._storage[self._angleKey] = saved
+                    return saved
+                end
+            end
+        end
+        return self._defaultAngle
     end
     return self._defaultAngle
 end
@@ -115,6 +143,12 @@ function Button:SetAngle(deg)
         self._setAngle(deg)
     elseif self._storage and self._angleKey then
         self._storage[self._angleKey] = deg
+    end
+    if self._name then
+        local durable = GetDurablePositions()
+        if durable then
+            durable[self._name] = deg
+        end
     end
 end
 
@@ -307,6 +341,7 @@ function Minimap:Create(opts)
     -- Build the wrapper object
     local btn = setmetatable({}, Button)
     btn.frame          = frame
+    btn._name         = opts.name
     btn._defaultAngle  = defaultAngle
     btn._storage       = opts.storage
     btn._angleKey      = opts.angleKey   or "minimapAngle"
