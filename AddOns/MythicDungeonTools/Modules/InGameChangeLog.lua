@@ -2,26 +2,26 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.2.16",
-    date = "2026-09-08",
+    tag = "6.2.19",
+    date = "2026-09-22",
     notes = {
-      "Added a missing Lightgorged Lasher and corrected a Lasher's position in The Blinding Vale.",
-      "Added missing translations for The Blinding Vale enemies and Thundering Totem in King's Rest.",
+      "Fixed overlapping enemy blips visuals",
+      "Corrected G34 Living Venom positions and added two missing Living Venoms in Altar of Fangs.",
     },
   },
   {
-    tag = "6.2.15",
-    date = "2026-09-05",
+    tag = "6.2.18",
+    date = "2026-09-21",
     notes = {
-      "Added two missing Twinfang Harrowers in Altar of Fangs.",
+      "Corrected positions of G62 and a Devouring Brutalizer in Voidscar Arena.",
     },
   },
   {
-    tag = "6.2.14-alpha1",
-    date = "2026-09-05",
+    tag = "6.2.17",
+    date = "2026-09-21",
     notes = {
-      "Experimental alpha version intended to help debug route sharing issues.",
-      "Added detailed error reports for route sharing problems. If an MDT error window appears while sharing a route, please report it using the links in the window.",
+      "Fix automatic dungeon selection in shared zones.",
+      "Improve Korean translations throughout MDT.",
     },
   },
 }
