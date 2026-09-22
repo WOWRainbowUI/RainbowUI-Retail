@@ -14,9 +14,10 @@ local EraseTable = MikSBT.EraseTable
 local GetSkillName = MikSBT.GetSkillName
 local Print = MikSBT.Print
 local SplitString = MikSBT.SplitString
+local Client = MikSBT.Compatibility.Client
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsClassic = Client.isClassicContent
+local IsCataClassic = Client.isCataClassic
 
 local DEFAULT_PROFILE_NAME = "Default"
 

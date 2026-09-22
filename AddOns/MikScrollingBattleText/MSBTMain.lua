@@ -21,6 +21,7 @@ local DamageMeterSource = MikSBT.Components.DamageMeterSource
 local OutgoingCombat = MikSBT.Components.OutgoingCombat
 local ParserNotifications = MikSBT.Components.ParserNotifications
 local UtilityNotifications = MikSBT.Components.UtilityNotifications
+local Client = MikSBT.Compatibility.Client
 
 local table_remove = table.remove
 local string_find = string.find
@@ -44,7 +45,7 @@ local triggerSuppressions = MSBTTriggers.triggerSuppressions
 local powerTypes = MSBTTriggers.powerTypes
 local classMap = MSBTParser.classMap
 
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local HasModernAPI = Client.hasModernAPI
 
 local MERGE_DELAY_TIME = 0.3
 
@@ -94,7 +95,7 @@ local SPELLID_AUTOSHOT = 75
 
 local SPELL_BLINK					= GetSkillName(1953)
 
-local SPELL_BLOOD_STRIKE			= WOW_PROJECT_ID < WOW_PROJECT_CLASSIC and GetSkillName(60945)
+local SPELL_BLOOD_STRIKE			= not Client.isClassicContent and GetSkillName(60945)
 
 local SPELL_RAIN_OF_FIRE			= GetSkillName(5740)
 
@@ -941,7 +942,7 @@ local outgoingBatcher = OutgoingBatcher:New({
 
 local damageMeterSource = DamageMeterSource:New({
 	isAvailable = function()
-		return USE_DAMAGE_METER_OUTGOING and IsRetail and C_DamageMeter
+		return USE_DAMAGE_METER_OUTGOING and HasModernAPI and C_DamageMeter
 			and Enum and Enum.DamageMeterType
 	end,
 	inCombat = InCombatLockdown,

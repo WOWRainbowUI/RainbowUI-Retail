@@ -17,13 +17,14 @@ local UnitName = UnitName
 local EraseTable = MikSBT.EraseTable
 local GetSpellInfo = MikSBT.GetSpellInfo
 local Print = MikSBT.Print
+local Client = MikSBT.Compatibility.Client
 
 local Obliterate = GetSpellInfo(49020)
 local FrostStrike = GetSpellInfo(49143)
 local Stormstrike = GetSpellInfo(17364)
 
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsRetail = Client.isMainline
+local IsCataClassic = Client.isCataClassic
 
 local AFFILIATION_MINE		= 0x00000001
 local AFFILIATION_PARTY		= 0x00000002
