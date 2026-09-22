@@ -2,14 +2,14 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 40
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 42
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
 
 
 local math, next, ipairs, rawget, type, wipe = math, next, ipairs, rawget, type, wipe
-local CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci = CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci
+local CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, GetScreenHeight, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci = CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, GetScreenHeight, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci
 local SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, GetAtlasInfo = SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, C_Texture.GetAtlasInfo
 local GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight = GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight
 
@@ -365,6 +365,7 @@ local function Menu_Reset(menu)
 	menu.width = 0
 	menu.height = 0
 	menu.numButtons = 0
+	menu.cursorOffset = nil
 	menu.lastFrame = nil
 	menu:ClearAllPoints()
 	wipe(menu.searchFrames)
@@ -1710,13 +1711,45 @@ function DropDownButtonMixin:ddSetMinMenuWidth(width)
 end
 
 
+-- Forces the menu to open upwards if anchorFrame ~= "cursor"
 function DropDownButtonMixin:ddSetOpenMenuUp(enabled)
-	self.ddOpenMenuUp = enabled
+	self.ddOpenMenuUp = enabled and true or nil
 end
 
 
 function DropDownButtonMixin:ddIsOpenMenuUp()
 	return self.ddOpenMenuUp and true or false
+end
+
+
+-- Allows the menu to automatically open in the opposite direction if there is not enough space and AnchorFrame ~= "cursor"
+function DropDownButtonMixin:ddSetAutoMenuDirection(enabled)
+	self.ddAutoMenuDirection = enabled and true or nil
+end
+
+
+function DropDownButtonMixin:ddGetAutoMenuDirection(yOffset)
+	local isUp = self:ddIsOpenMenuUp()
+
+	if self.ddAutoMenuDirection then
+		local menu = dropDownMenusList[1]
+		local topSpace = GetScreenHeight() - menu.anchorFrame:GetTop() - yOffset
+		local bottomSpace = menu.anchorFrame:GetBottom() + yOffset
+		local fitsDown = bottomSpace >= menu.height
+		local fitsUp = topSpace >= menu.height
+
+		if isUp then
+			if not fitsUp and fitsDown then
+				return false, true
+			end
+		else
+			if not fitsDown and fitsUp then
+				return true, true
+			end
+		end
+	end
+
+	return isUp, false
 end
 
 
@@ -1767,7 +1800,7 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 	menu.scrollChild:SetWidth(menu.width)
 	menu.width = menu.width + 30
 	menu.height = menu.height + 30
-	local maxHeight = self.ddMaxHeight or UIParent:GetHeight()
+	local maxHeight = self.ddMaxHeight or GetScreenHeight()
 	if menu.height > maxHeight then
 		menu.height = maxHeight
 		menu.width = menu.width + 20
@@ -1790,21 +1823,39 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 		rPoint = point
 	end
 
-	if anchorFrame == "cursor" then
+	xOffset = xOffset or 0
+	yOffset = yOffset or 0
+
+	local isCursor = anchorFrame == "cursor"
+	if isCursor then
 		anchorFrame = UIParent
+		point = "TOPLEFT"
+		rPoint = "BOTTOMLEFT"
 		local x, y = GetCursorPosition()
 		local scale = UIParent:GetScale()
-		xOffset = (xOffset or 0) + x / scale
-		yOffset = (yOffset or 0) + y / scale
-		if self:ddIsOpenMenuUp() then yOffset = yOffset - UIParent:GetHeight() end
+		local cy = y / scale
+		local cx = x / scale
+		if cx + menu.width + xOffset > GetScreenWidth() then
+			xOffset = cx - menu.width - xOffset
+		else
+			xOffset = cx + xOffset
+		end
+		if cy + yOffset < menu.height then
+			yOffset = cy + menu.height - yOffset
+		else
+			yOffset = cy + yOffset
+		end
 	end
 
 	if level == 1 then
 		if not point then
 			point, rPoint = "TOPLEFT", "BOTTOMLEFT"
-			if self:ddIsOpenMenuUp() then point, rPoint = rPoint, point end
+			-- DropDownButtonMixin for older versions
+			local isUp, isChanged = DropDownButtonMixin.ddGetAutoMenuDirection(self, yOffset)
+			if isUp then point, rPoint = rPoint, point end
+			if isChanged then yOffset = yOffset and -yOffset end
 		end
-		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset or 0, yOffset or 0)
+		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset, yOffset)
 	else
 		if not point then
 			if anchorFrame.hasArrowUp then
@@ -1816,7 +1867,7 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 		if GetScreenWidth() - anchorFrame:GetRight() - 2 < menu.width then
 			point, rPoint = rPoint, point
 		end
-		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset or 0, yOffset or anchorFrame.hasArrowUp and -15 or 15)
+		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset, yOffset or anchorFrame.hasArrowUp and -15 or 15)
 	end
 
 	-- fix scroll thumb disappear
@@ -1840,6 +1891,7 @@ end
 
 
 function DropDownButtonMixin:ddRefresh(level, anchorFrame)
+	if self ~= v.DROPDOWNBUTTON then return end
 	if not level then level = 1 end
 	if not anchorFrame then anchorFrame = self end
 	local menu = dropDownMenusList[level]
@@ -2353,6 +2405,7 @@ do
 
 		self:SetMixin(btn)
 		btn:ddSetAutoSetText(true)
+		btn:ddSetAutoMenuDirection(true)
 		btn:ddHideWhenButtonHidden()
 		btn.SetEnabled = SetEnabled
 		btn.Enable = Enable
@@ -2499,6 +2552,7 @@ do
 
 		self:SetMixin(btn)
 		btn:ddSetAutoSetText(true)
+		btn:ddSetAutoMenuDirection(true)
 		btn:ddSetDisplayMode("menu")
 		btn:ddHideWhenButtonHidden()
 		btn:ddSetNoGlobalMouseEvent(true)
