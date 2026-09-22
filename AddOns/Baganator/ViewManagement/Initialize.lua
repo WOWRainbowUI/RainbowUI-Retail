@@ -468,6 +468,10 @@ local function HideDefaultBank()
   BankFrame:SetScript("OnHide", nil)
   BankFrame:SetScript("OnEvent", nil)
   BankFrame:SetScript("OnShow", nil)
+
+  if BankFrame.BankPanel and BankFrame.BankPanel.MoneyDisplay then
+    BankFrame.BankPanel.MoneyDisplay:UnregisterAllEvents()
+  end
 end
 
 local function SetupCharacterSelect(frameGroup)

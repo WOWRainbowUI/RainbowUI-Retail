@@ -434,7 +434,7 @@ do
   end
 end
 
-if addonTable.Constants.IsRetail or IsUsingLegacyAuctionClient and not IsUsingLegacyAuctionClient() then
+if addonTable.Constants.IsRetail or addonTable.Constants.IsForever or IsUsingLegacyAuctionClient and not IsUsingLegacyAuctionClient() then
   function addonTable.Utilities.IsAuctionable(details)
     if not C_Item.IsItemDataCachedByID(details.itemID) then
       C_Item.RequestLoadItemDataByID(details.itemID)
