@@ -396,12 +396,6 @@ do
     Tank = 3,
   }
 
-  local roleMap = {
-    ["DAMAGER"] = roleType.Damage,
-    ["TANK"] = roleType.Tank,
-    ["HEALER"] = roleType.Healer,
-  }
-
   local role = roleType.Damage
   local isTank = false
   local rangeLimit = 0
@@ -415,8 +409,9 @@ do
 
   local isDiscovery = C_Seasons and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery or false
 
-  local function GetPlayerRole()
-    if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath then
+  local GetPlayerRole
+  if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath then
+    GetPlayerRole = function()
       -- we're in classic
       local form = GetShapeshiftForm()
       if (playerClass == "WARRIOR" and form == 2) or (playerClass == "DRUID" and form == 1) then
@@ -433,12 +428,44 @@ do
       elseif isDiscovery and playerClass == "ROGUE" and C_UnitAuras.GetUnitAuraBySpellID("player", 400014) then
         return roleType.Tank
       end
+      return roleType.Damage
+    end
+
+  elseif addonTable.Constants.IsForever then
+    if playerClass == "WARRIOR" then
+      GetPlayerRole = function()
+        if GetShapeshiftForm() == 2 then
+          return roleType.Tank
+        end
+        return roleType.Damage
+      end
+    elseif playerClass == "DRUID" then
+      GetPlayerRole = function()
+        if GetShapeshiftForm() == 1 then
+          return roleType.Tank
+        end
+        return roleType.Damage
+      end
     else
+      GetPlayerRole = function()
+        if UnitHasEffectivelyTankAura("player") then
+          return roleType.Tank
+        end
+        return roleType.Damage
+      end
+    end
+
+  else
+    local roleMap = {
+      ["DAMAGER"] = roleType.Damage,
+      ["TANK"] = roleType.Tank,
+      ["HEALER"] = roleType.Healer,
+    }
+    GetPlayerRole = function()
       local _, _, _, _, role = C_SpecializationInfo.GetSpecializationInfo(lastSpecializationIndex)
 
       return roleMap[role]
     end
-    return roleType.Damage
   end
 
   local function AssignRange()
@@ -481,15 +508,24 @@ do
       elseif playerClass == "PALADIN" or isDiscovery and (playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "ROGUE") then
         specializationMonitor:RegisterUnitEvent("UNIT_AURA", "player")
       end
+
+    elseif addonTable.Constants.IsForever then
+      if playerClass == "WARRIOR" or playerClass == "DRUID" then
+        specializationMonitor:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
+      elseif playerClass == "PALADIN" then
+        specializationMonitor:RegisterUnitEvent("UNIT_AURA", "player")
+      end
+
     elseif C_EventUtils.IsEventValid("PLAYER_SPECIALIZATION_CHANGED") then
       specializationMonitor:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     end
+
     specializationMonitor:RegisterEvent("PLAYER_ENTERING_WORLD")
     specializationMonitor:RegisterEvent("SPELLS_CHANGED")
 
     specializationMonitor:SetScript("OnEvent", function(_, e)
       local triggerEvent = false
-      if not (addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath) then
+      if not (addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath or addonTable.Constants.IsForever) then
         local specIndex = C_SpecializationInfo.GetSpecialization() or lastSpecializationIndex
         triggerEvent = specIndex ~= lastSpecializationIndex
         lastSpecializationIndex = specIndex

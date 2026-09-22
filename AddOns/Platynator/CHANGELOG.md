@@ -1,6 +1,7 @@
 # Platynator
 
-## [488](https://github.com/TheMouseNest/Platynator/tree/488) (2026-09-18)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/487...488) 
+## [489](https://github.com/TheMouseNest/Platynator/tree/489) (2026-09-19)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/488...489) 
 
-- Forever: Fix power bar for combo points  
+- Avoid using C\_TooltipInfo on clients that don't support modern tooltips  
+- Forever: Update "Is Tank" detection and related code cleanup  
