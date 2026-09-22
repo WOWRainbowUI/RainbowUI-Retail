@@ -27,7 +27,8 @@ GTFO.SpellID["456309"] = {
 };
 
 GTFO.SpellID["456057"] = {
-  --desc = "Black Blood";
+  --desc = "Black Blood / Vile Putrescence";
+  maps = { 2274, 2405 }; -- Khaz Algar, Voidstorm
   sound = 1;
 };
 

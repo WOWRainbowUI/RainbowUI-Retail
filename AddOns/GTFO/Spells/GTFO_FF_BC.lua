@@ -6,7 +6,7 @@ GTFO Friendly Fire List - Burning Crusade
 Author: Zensunim of Malygos
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 GTFO.FFSpellID["30697"] = {
 	--desc = "Treacherous Aura (Omor the Unscarred - Hellfire Ramparts)";

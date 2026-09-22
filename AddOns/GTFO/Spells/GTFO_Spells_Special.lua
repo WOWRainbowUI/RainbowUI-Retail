@@ -5,7 +5,7 @@
 GTFO Spell List - Special Events
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 GTFO.SpellID["68947"] = {
 	--desc = "Irresistible Cologne (Love is in the Air)";

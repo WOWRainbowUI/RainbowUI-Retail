@@ -5,7 +5,7 @@
 GTFO Fail List - Vanilla
 ]]--
 
-if (not GTFO.ClassicMode) then
+if (not GTFO.ClassicMode and not GTFO.ForeverMode) then
 
 GTFO.SpellID["82691"] = {
 	--desc = "Ring of Frost (PvP)";

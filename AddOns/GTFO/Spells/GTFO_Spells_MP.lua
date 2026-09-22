@@ -5,7 +5,7 @@
 GTFO Spell List - Mists of Pandaria
 ]]--
 
-if (not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode)) then
+if (not (GTFO.ClassicMode or GTFO.ForeverMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode)) then
 
 -- ***************
 -- * Scholomance *

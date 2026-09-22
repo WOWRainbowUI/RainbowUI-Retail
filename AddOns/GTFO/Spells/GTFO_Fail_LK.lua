@@ -5,7 +5,7 @@
 GTFO Fail List - Wrath of the Lich King
 ]]--
 
-if (not (GTFO.ClassicMode or GTFO.BurningCrusadeMode)) then
+if (not (GTFO.ClassicMode or GTFO.ForeverMode or GTFO.BurningCrusadeMode)) then
 
 GTFO.SpellID["63987"] = {
   --desc = "Trespasser!";

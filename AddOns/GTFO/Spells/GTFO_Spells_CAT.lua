@@ -5,7 +5,7 @@
 GTFO Spell List - Cataclysm (New areas)
 ]]--
 
-if (not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode)) then
+if (not (GTFO.ClassicMode or GTFO.ForeverMode or GTFO.BurningCrusadeMode or GTFO.WrathMode)) then
 
 GTFO.SpellID["76628"] = {
 	--desc = "Lava Drool (Blackrock Caverns)";
