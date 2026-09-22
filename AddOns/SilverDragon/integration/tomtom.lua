@@ -101,11 +101,17 @@ function module:AnnounceLoot(_, name, id, zone, x, y, vignetteGUID)
 	self:PointTo(name, zone, x, y, self.db.profile.duration)
 end
 
+-- MapPinEnhanced shims in a fake TomTom which only has AddWaypoint, so look for
+-- something we need which the shim doesn't have
+local function hasTomTom()
+	return TomTom and TomTom.IsCrazyArrowEmpty
+end
+
 function module:CanPointTo(zone)
 	if not zone then return false end
 	local db = self.db.profile
 	if MapPinEnhanced and db.mappinenhanced then return true end
-	if TomTom and db.tomtom then return true end
+	if hasTomTom() and db.tomtom then return true end
 	if DBM and db.dbm then return true end
 	if db.blizzard and C_Map.CanSetUserWaypointOnMap and C_Map.CanSetUserWaypointOnMap(zone) then return true end
 	return false
@@ -114,20 +120,40 @@ end
 do
 	local waypoints = {tomtom={}}
 	local previous
+	local timers = {}
+	-- C_Map hands back a copy every time, so identity has to be by position
+	local function isOurWaypoint(waypoint)
+		return waypoints.blizzard and waypoint
+			and waypoints.blizzard.uiMapID == waypoint.uiMapID
+			and Vector2DMixin.IsEqualTo(waypoints.blizzard.position, waypoint.position)
+	end
 	function module:PointTo(id, zone, x, y, duration, force)
 		Debug("Waypoint.PointTo", id, zone, x, y, duration, force)
 		local db = self.db.profile
 		local title = type(id) == "number" and core:GetMobLabel(id) or id or UNKNOWN
-		if TomTom and db.tomtom then
+		if hasTomTom() and db.tomtom then
 			-- Tomtom has multiple waypoints, so we'll interpret the "don't replace" as "don't push onto the crazy arrow"
-			waypoints.tomtom[id] = TomTom:AddWaypoint(zone, x, y, {
+			local existing = waypoints.tomtom[id]
+			local arrowFree = TomTom:IsCrazyArrowEmpty()
+			-- AddWaypoint applies none of our options to a waypoint which already
+			-- exists at this spot, so leave the arrow out of it and do that below
+			local waypoint = TomTom:AddWaypoint(zone, x, y, {
 				title = title,
 				persistent = false,
 				minimap = false,
 				world = false,
-				crazy = force or db.replace or TomTom:IsCrazyArrowEmpty(),
+				crazy = false,
 				cleardistance = 25
 			})
+			waypoints.tomtom[id] = waypoint
+			local moved = existing and existing ~= waypoint and TomTom:IsValidWaypoint(existing)
+			if moved then
+				-- we keep one waypoint per thing, so drop the one for where it was
+				TomTom:RemoveWaypoint(existing)
+			end
+			if waypoint and (force or db.replace or arrowFree or moved) then
+				TomTom:SetCrazyArrow(waypoint, waypoint.arrivaldistance or 15, title)
+			end
 		end
 		if DBM and db.dbm and (db.replace or not DBM.Arrow:IsShown()) then
 			waypoints.dbm = {mobid = id}
@@ -152,20 +178,27 @@ do
 			}
 		elseif db.blizzard and C_Map.CanSetUserWaypointOnMap and C_Map.CanSetUserWaypointOnMap(zone) and x > 0 and y > 0 then
 			-- MapPinEnhanced takes over from blizzard waypoints, so don't try to set them both
-			previous = C_Map.GetUserWaypoint()
-			if previous then
-				previous.wasTracked = C_SuperTrack.IsSuperTrackingUserWaypoint()
-			end
-			local uiMapPoint = UiMapPoint.CreateFromCoordinates(zone, x, y)
-			if (not previous) or db.replace or force then
-				C_Map.SetUserWaypoint(uiMapPoint)
+			local current = C_Map.GetUserWaypoint()
+			if (not current) or db.replace or force then
+				if current and not isOurWaypoint(current) then
+					-- only remember a waypoint somebody else set, or we'd restore our
+					-- own the moment it expires
+					previous = current
+					previous.wasTracked = C_SuperTrack.IsSuperTrackingUserWaypoint()
+				end
+				C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(zone, x, y))
 				C_SuperTrack.SetSuperTrackedUserWaypoint(true)
 				waypoints.blizzard = C_Map.GetUserWaypoint()
+				waypoints.blizzard.mobid = id
 			end
 		end
 
+		-- pointing at something again supersedes any hide already scheduled for it
+		timers[id] = (timers[id] or 0) + 1
 		if duration and duration > 0 then
+			local timer = timers[id]
 			C_Timer.After(duration, function()
+				if timers[id] ~= timer then return end
 				Debug("Waypoint.AutoHide", id)
 				self:Hide(id)
 			end)
@@ -174,11 +207,9 @@ do
 	function module:Hide(id)
 		Debug("Waypoint.Hide", id)
 		local db = self.db.profile
-		if waypoints.blizzard then
+		if waypoints.blizzard and waypoints.blizzard.mobid == id then
 			Debug("Hiding C_Map")
-			local waypoint = waypoints.blizzard
-			local stillCurrent = C_Map.GetUserWaypoint()
-			if stillCurrent and waypoint.uiMapID == stillCurrent.uiMapID and Vector2DMixin.IsEqualTo(waypoint.position, stillCurrent.position) then
+			if isOurWaypoint(C_Map.GetUserWaypoint()) then
 				C_Map.ClearUserWaypoint()
 				if previous then
 					-- restore the one we replaced
@@ -186,10 +217,10 @@ do
 					C_SuperTrack.SetSuperTrackedUserWaypoint(previous.wasTracked)
 					previous = nil
 				end
-				waypoints.blizzard = nil
 			end
+			waypoints.blizzard = nil
 		end
-		if TomTom and db.tomtom then
+		if hasTomTom() and db.tomtom then
 			for wid, waypoint in pairs(waypoints.tomtom) do
 				if wid == id then
 					Debug("Hiding TomTom")
@@ -211,6 +242,7 @@ do
 				waypoints.dbm = nil
 			end
 		end
+		timers[id] = nil
 	end
 
 	function module:PopupHide(_, data, automatic)

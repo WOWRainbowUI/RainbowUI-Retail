@@ -756,7 +756,7 @@ PopupMixin.scripts = {
 			-- We *can* directly set the interior model alpha, though
 			parent.model:SetModelAlpha(0)
 		end
-		parent:HideWhenPossible()
+		parent:HideWhenPossible(true)
 	end,
 }
 function PopupMixin:COMBAT_LOG_EVENT_UNFILTERED()
@@ -778,6 +778,8 @@ function PopupMixin:UNIT_DIED(_, unitGUID)
 	module:RefreshMobData(self)
 
 	if module.db.profile.closeDead then
+		-- deliberately not an automatic close: the mob is dead, so anything
+		-- hanging off the popup should go away with it
 		self:HideWhenPossible()
 	end
 end
