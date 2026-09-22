@@ -1,3 +1,5 @@
+local build = select(4, GetBuildInfo())
+
 Auctionator.Constants = {
   History = {
     NUMBER_OF_LINES = 20
@@ -52,6 +54,7 @@ Auctionator.Constants = {
   AfterAHCut = 0.95,
   IsLegacyAH = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or IsUsingLegacyAuctionClient ~= nil and IsUsingLegacyAuctionClient(),
   IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
+  IsForever = build >= 16000 and build < 20000,
   IsVanilla = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
 
 
