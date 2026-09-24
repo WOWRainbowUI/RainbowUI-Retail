@@ -115,7 +115,7 @@ DBM.DefaultOptions = {
 					(locale == "zhCN" and "Ruichen") or
 					(locale == "zhTW" and "Meicn"),
 	CountdownVoiceNamesMigrated = false,
-	ChosenVoicePack2 = (locale == "enUS" or locale == "enGB") and "VEM" or "Saha",
+	ChosenVoicePack2 = (locale == "enUS" or locale == "enGB") and "VEM" or "SahaJh",
 	VPReplacesAnnounce = true,
 	VPReplacesSADefault = true,
 	EventSoundVictory2 = "Interface\\AddOns\\DBM-Core\\sounds\\Victory\\SmoothMcGroove_Fanfare.ogg",
