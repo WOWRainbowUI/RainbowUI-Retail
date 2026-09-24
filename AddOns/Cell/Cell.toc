@@ -1,6 +1,6 @@
 ## Interface: 120100, 120007
 ## Title: Cell
-## Version: r303_MiliUI
+## Version: r304_MiliUI
 ## Author: enderneko
 ## X-Flavor: Mainline
 ## SavedVariables: CellDB, CellDBBackup
@@ -41,6 +41,7 @@ Indicators\Supporter.lua
 RaidFrames\MainFrame.lua
 RaidFrames\AuraContainerCore.lua
 RaidFrames\AuraDisplay.lua
+RaidFrames\AuraSpellInspector.lua
 
 Modules\LoadModules.xml
 Utilities\LoadUtilities.xml
