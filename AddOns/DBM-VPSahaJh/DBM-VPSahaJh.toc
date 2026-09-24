@@ -1,0 +1,17 @@
+﻿## Interface: 11509, 20206, 30405, 38002, 40402, 50504, 120100, 120007
+## Category: DBM
+
+## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Voicepack Saha Jh|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0家豪語音包|r
+## Notes-zhTW: 你好，我是家豪，搭配主程式DBM使用，我就能提醒你副本該注意的地方，啾咪。
+## DefaultState: enabled
+## RequiredDeps: DBM-Core
+## Author: 安格斯
+## Version: 26-0924
+## IconTexture: Interface\AddOns\DBM-VPSahaJh\z_ags
+## X-DBM-Voice: 1
+## X-DBM-Voice-Name: 家豪 (中文男音)
+## X-DBM-Voice-ShortName: SahaJh
+## X-DBM-Voice-Version: 20
+## X-DBM-Voice-HasCount: 1
+## X-DBM-Voice-MaxCount: 11
