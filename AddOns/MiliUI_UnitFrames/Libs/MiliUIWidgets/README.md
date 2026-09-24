@@ -1,7 +1,8 @@
 # MiliUIWidgets
 
-MiliUI 各插件共用的元件與基礎設施。自寫、零外部依賴、零資產檔（材質只用暴雪內建的
-`WHITE8X8`，字型走暴雪內建路徑），複製過去就會動。
+MiliUI 各插件共用的元件與基礎設施。自寫、零外部依賴，資產檔只有一張勾選框的勾
+（`Media/check-outline.tga`；其餘材質只用暴雪內建的 `WHITE8X8`，字型走暴雪內建路徑），
+整個資料夾複製過去就會動。
 
 **這是 vendor 包，不是 LibStub 函式庫。** 每個插件各帶一份、各跑各的，彼此不共享執行期
 狀態 —— 所以單獨發佈某支插件時，玩家只會下載到**一個**資料夾，不必另外裝共用層。
@@ -30,6 +31,7 @@ python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前�
 | `ContextMenu.lua` | 逐字複製 | 右鍵／情境選單（長在遊戲畫面上的那種，不是設定表單裡的下拉） |
 | `Controls.lua` | 逐字複製 | 表單引擎：吃一張 spec 清單，吐出對齊好的一整頁控制項 |
 | `PixelPerfect.lua` | 可略 | 像素對齊。插件已經有自己的一份就別帶，把 `Env.P` 指過去即可 |
+| `Media/check-outline.tga` | 逐字複製 | 勾選框的勾：64×64「白勾＋1px 黑框」，`SetVertexColor` 染職業色（乘法 ⇒ 黑框不變）。跟 MiliUI_Skin 的勾同一張。`Widgets.lua` 照 `<插件>\Libs\MiliUIWidgets\Media\` 取用 —— **這包一定要放在 `Libs/MiliUIWidgets/`**，換地方勾會靜默變空白。同步腳本會自動補齊（貼圖不用排 TOC） |
 
 ## 怎麼搬到新插件
 
@@ -58,7 +60,7 @@ python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前�
 
 已用掉的前綴：`MiliUIPack`（本體）、`MiliUIUF`、`MiliUITip`、`MiliUIFocus`、
 `MiliUIChatBar`、`MiliUIBurst`、`MiliUIBLM`、`MiliUIDM`、`MiliUIAura`、`MiliUINote`、
-`MiliUIInfo`、`MiliUIShop`。
+`MiliUIInfo`、`MiliUIShop`、`MiliUIMerchant`、`MiliUIMPlus`、`MiliUIAGSC`。
 
 ### L 只需要四個 key
 
@@ -107,8 +109,10 @@ W.Menu.IsOpenFor(btn)        -- 同一顆再按一次＝關閉；宿主用它避
 W.SetMenuFont(token, size)   -- 選用，讓選單跟著宿主自己的字型設定走
 ```
 
-`items` 每一筆：`{ text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen }`。
+`items` 每一筆：`{ text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen, tooltip }`。
 `value` 是右側的「目前值」讀數，`isActive` 會在左槽打勾。
+`tooltip` 選用，`function(tt)`：滑過時在該列右邊開 GameTooltip，宿主只管 `tt:AddLine`。
+`keepAnchor` 重畫時子選單若開著會照同一列重開 —— 子選單裡的 keepOpen 單選／開關按下去看得到打勾換位置。
 
 ⚠ **「有哪些項目」是宿主自己的事，不要寫回這支。** 這包會進共用層正是因為
 ChatBar 與 DamageMeters 各帶一份幾乎一樣的引擎，結果同一個「ESC 關不掉」的 bug
@@ -116,6 +120,24 @@ ChatBar 與 DamageMeters 各帶一份幾乎一樣的引擎，結果同一個「E
 
 版面與互動的設計規則（打勾欄、標題階層、子選單寬限期）寫在
 [`miliui-menu-design`](../../../../.claude/skills/miliui-menu-design/SKILL.md) 技能。
+
+### 按鈕配色（`W.CreateButton` 的 colorKey）
+
+```lua
+W.CreateButton(parent, text, "primary", w, h)  -- 「確認／執行」那一顆
+W.CreateButton(parent, text, "normal",  w, h)  -- 其餘（取消、返回、一整排平行選項）
+W.PaintButton(b, hover)                        -- 自己接 OnEnter/OnLeave 時用它重畫
+```
+
+**用哪一種是全套組的規則**，寫在 `.claude/notes/project-miliui-button-variants.md`：
+一個區塊最多一顆 `primary`，其餘 `normal`；`red` 留給破壞性動作與關閉鈕。
+`primary` 跟 MiliUI_Skin 的主按鈕是同一條公式（平時壓暗的職業色底 ＋ 中亮的職業色邊、
+滑過整顆換成職業色、停用退回中性），兩邊的數字要一起改。
+`accent`（半透明底）與 `green` 是舊配色，新程式碼不要再用。
+
+⚠ **自己 `SetScript("OnEnter"/"OnLeave")` 的呼叫端**（掛工具提示、列高亮）要叫
+`W.PaintButton(self, true/false)`，不要自己 `unpack(self._colors[2])`：那只換得到底，
+`primary` 的邊會卡在上一個狀態。啟停（`SetEnabled`／`Enable`／`Disable`）已經內建重畫。
 
 ### 放不下的字（幾支 opt-in 的工具）
 
