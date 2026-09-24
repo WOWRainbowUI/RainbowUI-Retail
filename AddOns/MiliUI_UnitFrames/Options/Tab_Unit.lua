@@ -471,6 +471,10 @@ local function BarSpecs(name, isHP, unitKey)
         tinsert(list, { type = "toggle", sub = name, key = "showHealAbsorb", label = L["Heal absorb"] })
         tinsert(list, { type = "color", sub = name, key = "healAbsorbColor", label = L["Heal absorb color"] })
         tinsert(list, { type = "text", label = L["Debuffs that eat healing, such as Necrotic. Reverse-filled and drawn on top."] })
+        tinsert(list, { type = "header", label = L["Max health reduction"] })
+        tinsert(list, { type = "toggle", sub = name, key = "showMaxHealthLoss", label = L["Max health reduction"] })
+        tinsert(list, { type = "color", sub = name, key = "maxHealthLossColor", label = L["Max health reduction color"] })
+        tinsert(list, { type = "text", label = L["Debuffs that lower maximum health, such as some dungeon trash. The health bar shortens by the same share and the lost part is drawn in this color, so a full bar no longer hides it."] })
     end
 
     for i = #list, 1, -1 do
@@ -628,13 +632,13 @@ local function BlacklistRow(unitKey, name)
     end
 end
 
--- 黑名單只擺在引擎真的會過濾的地方。
--- 增益一律可以；減益只有敵方單位算數 —— 遊戲對「友方單位的減益」禁止 ID 過濾
--- （反自動化），擺在玩家／寵物的減益頁只會是一個按了沒反應的按鈕。
--- 目標／專注目標這些**執行期**才知道是敵是友，所以放著並在下面註明。
+-- 友方單位的減益，引擎只准用 ID 過濾標記 NeverSecret 的法術（疲勞、自律這類）。
+-- 玩家／寵物永遠是友方 ⇒ 挑選視窗直接把過濾不了的灰掉（Options/AuraBlacklist.lua）；
+-- 目標／專注目標這些**執行期**才知道是敵是友，所以全部放行，只在說明裡註明。
 local FRIENDLY_ONLY_UNITS = { player = true, pet = true }
+ns.AURA_FRIENDLY_ONLY_UNITS = FRIENDLY_ONLY_UNITS
 
-local BLACKLIST_MARKER = {}     -- 佔位，下面依單位決定要不要換成真的那一列
+local BLACKLIST_MARKER = {}     -- 佔位，下面換成黑名單那一列（減益另加說明）
 
 local function AuraSpecs(name, unitKey)
     local list = {
@@ -665,18 +669,16 @@ local function AuraSpecs(name, unitKey)
         { type = "text", label = L["The countdown is drawn by the game (12.1 addons can't read the remaining seconds); changing this rebuilds the icons."] },
     }
 
-    local allowed = (name == "buffs") or not FRIENDLY_ONLY_UNITS[unitKey]
     for i = #list, 1, -1 do
         if list[i] == BLACKLIST_MARKER then
-            if allowed then
-                list[i] = { type = "custom", label = "", build = BlacklistRow(unitKey, name) }
-                if name == "debuffs" then
-                    tinsert(list, i + 1, { type = "text",
-                        label = L["The game only allows spell-ID filtering for debuffs on enemies, so this list does nothing while the unit is friendly."] })
-                end
-            else
-                tremove(list, i)
+            local rows = { { type = "custom", label = "", build = BlacklistRow(unitKey, name) } }
+            if name == "debuffs" then
+                rows[#rows + 1] = { type = "text", label = FRIENDLY_ONLY_UNITS[unitKey]
+                    and L["On friendly units the game only lets you hide debuffs that are never kept secret, like Bloodlust exhaustion. The rest are greyed out in the list."]
+                    or L["On friendly units the game only lets you hide debuffs that are never kept secret, like Bloodlust exhaustion. On enemies any debuff can be hidden."] }
             end
+            tremove(list, i)
+            for j = #rows, 1, -1 do tinsert(list, i, rows[j]) end
         end
     end
     return list

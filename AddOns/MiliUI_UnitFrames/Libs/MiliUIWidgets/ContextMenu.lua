@@ -15,10 +15,12 @@
 --   W.SetMenuFont(token, size)     -- 選用；不叫就用 Env 的預設字型與 12
 --
 -- items 是一個陣列，每一筆：
---   { text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen }
+--   { text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen, tooltip }
 --   value    右側的「目前值」讀數（灰色）—— 不用展開子選單就知道現在選什麼
 --   isActive 左槽打勾 ＋ 強調色
 --   keepOpen 點下去不關閉（開關型項目用；配 keepAnchor 原地重畫）
+--   tooltip  選用，function(tt)：滑過這一列時在它右邊開 GameTooltip，宿主往 tt 裡
+--            AddLine（不必 SetOwner／Show，這裡包辦）。用來預覽「點下去會發生什麼」
 --
 -- 版面與互動的設計規則寫在 .claude/skills/miliui-menu-design。
 -- 最多兩層（主選單 ＋ 一層子選單）：三層以上在遊戲裡沒人點得動。
@@ -65,6 +67,7 @@ local SUB_CLOSE_DELAY = 0.4
 local _subGen = 0
 
 local _main, _sub, _catcher
+local _subParent      -- 子選單目前掛在主選單的哪一列（keepAnchor 重畫後照同一列再開）
 local _anchorBtn      -- 哪顆按鈕開的（同一顆再按一次＝關閉）
 local _anchorPoints   -- 上次解出來的錨點，供 keepAnchor 重畫時原地重貼
 
@@ -169,9 +172,11 @@ local function EnsureRow(panel, idx)
     ------------------------------------------------------------
     -- 打勾
     --
-    -- 跟設定面板的勾選框同一個素材（暴雪的 checkmark-minimal 圖集），
+    -- 暴雪的 checkmark-minimal 圖集（跟設定面板勾選框的勾同一個形狀），
     -- 但**不畫方框** —— 選單列本來就整列可點，框只是多餘的噪音。
-    -- 做法跟 Widgets.lua 的勾一樣：純白貼圖染強調色，勾形用圖集的 alpha 當遮罩摳。
+    -- 純白貼圖染強調色，勾形用圖集的 alpha 當遮罩摳。
+    -- （勾選框 2026-09-22 起改用自帶的 64×64 黑框貼圖：圖集只有 30×29，24 的勾在高解析度
+    --  螢幕上被放大兩倍以上就糊了。這裡只有 11，放大倍率小，所以沒跟著換。）
     -- 直接把圖集當貼圖染色會偏暗（染色是乘法、素材不是純白），所以要走遮罩。
     --
     -- 圖集有可能被暴雪拿掉，而且是**靜默**的（見 miliui-inspect-icons 技能踩過的坑），
@@ -211,8 +216,26 @@ local function EnsureRow(panel, idx)
         elseif _sub and _sub:IsShown() then
             Menu.ScheduleSubClose()
         end
+        -- 提示貼在這一列的右邊、頂端對齊，而不是 ANCHOR_RIGHT：那個是從列的右上角
+        -- **往上**長，列在選單下半部時提示會離開它說明的那一列
+        if self.tooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_NONE")
+            GameTooltip:ClearAllPoints()
+            GameTooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 6, 0)
+            self.tooltip(GameTooltip)
+            GameTooltip:Show()
+        end
     end)
-    row:SetScript("OnLeave", function(self) self.hl:Hide() end)
+    local function HideOwnTooltip(self)
+        if GameTooltip:IsOwned(self) then GameTooltip:Hide() end
+    end
+    row:SetScript("OnLeave", function(self)
+        self.hl:Hide()
+        HideOwnTooltip(self)
+    end)
+    -- 點下去就關選單的項目：游標底下的框被藏起來時不保證有 OnLeave，
+    -- 提示要跟著這一列一起收（祖先被 Hide 時子框也會收到 OnHide）
+    row:SetScript("OnHide", HideOwnTooltip)
 
     panel.rows[idx] = row
     return row
@@ -243,6 +266,8 @@ local function Layout(panel, items, onDismiss)
         row:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -1, y)
         row.submenu = item.submenu
         row.enabled = not (item.isTitle or item.isSeparator)
+        -- 列是池化的：沒給就要清掉，不然會沿用上一次畫在這一格的提示
+        row.tooltip = row.enabled and item.tooltip or nil
 
         row.check:Hide()
         row.rule:Hide()
@@ -362,6 +387,7 @@ function Menu.ShowSub(items, parentRow)
     end
     Layout(_sub, items, Menu.Hide)
     _sub:Show()
+    _subParent = parentRow
 
     -- x 偏移 0 而不是 1：留一格空隙的話，游標橫著移過去會先掉進「兩個選單之間」
     -- 那一列縫裡。子選單直接壓在主選單的邊框上，路徑才是連續的。
@@ -384,6 +410,7 @@ end
 -- keepAnchor：選單裡的開關項目按下去之後要**原地重畫**（更新勾選狀態）。
 -- 沒有這個參數的話那條路會撞上上面的「同一顆再按一次＝關閉」而直接關掉選單，
 -- 而且用游標錨定（沒有 anchorBtn）的選單會跳到新的游標位置。
+-- 子選單開著的話會照同一列重開（宿主整份 items 重給就好，子選單內容跟著更新）。
 function Menu.Show(items, anchorBtn, keepAnchor)
     if not keepAnchor and anchorBtn and Menu.IsOpenFor(anchorBtn) then
         Menu.Hide()
@@ -395,6 +422,16 @@ function Menu.Show(items, anchorBtn, keepAnchor)
         SetupEscape(_main)
     end
     EnsureCatcher():Show()
+
+    -- 重畫若是從**子選單裡**點出來的（keepOpen 的單選／開關），子選單要跟著留在原地：
+    -- 收掉的話玩家看不到自己剛勾的那一格，體感是「按了沒反應」。
+    -- 記下它掛在主選單第幾列，重畫完照同一列、用新的項目再開一次
+    local reopen
+    if keepAnchor and _sub and _sub:IsShown() and _subParent and _main then
+        for i, r in ipairs(_main.rows) do
+            if r == _subParent then reopen = i; break end
+        end
+    end
     if _sub then _sub:Hide() end
 
     Layout(_main, items, Menu.Hide)
@@ -404,6 +441,8 @@ function Menu.Show(items, anchorBtn, keepAnchor)
         _main:SetPoint(unpack(_anchorPoints))
         _main:Show()
         _anchorBtn = anchorBtn
+        local item = reopen and items[reopen]
+        if item and item.submenu then Menu.ShowSub(item.submenu, _main.rows[reopen]) end
         return
     end
 

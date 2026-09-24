@@ -27,6 +27,28 @@ local DB = ns.DB
 local function black(a) return { r = 0, g = 0, b = 0, a = a or 1 } end
 local function white(a) return { r = 1, g = 1, b = 1, a = a or 1 } end
 
+-- 減益黑名單的預設內容：嗜血／英勇類的疲勞（首領框除外，它永遠是敵方）。
+-- 直接放進名單而不是另做一個勾選：玩家打開黑名單就看得到為什麼它不見了，
+-- 想看回來就移除那一條。移除記成 false 不是 nil（見 AuraBlacklist.lua 的
+-- RemoveFromBlacklist），否則 MergeDefaults 下次載入又會補回來。
+-- 新的嗜血類技能出來時補在這裡，舊設定檔會自動補到；但要先確認
+-- C_Secrets.GetSpellAuraSecrecy(id) 是 0，不然在友方身上無效。
+-- （下面七個 2026-09-23 實測全是 0）
+local SATED_DEBUFFS = {
+    57723,    -- Exhaustion（英勇）
+    57724,    -- Sated（嗜血）
+    80354,    -- Temporal Displacement（時間扭曲）
+    95809,    -- Insanity（寵物：Ancient Hysteria）
+    160455,   -- Fatigued（寵物：Netherwinds）
+    264689,   -- Fatigued（寵物：Primal Rage）
+    390435,   -- Exhaustion（喚能師：Fury of the Aspects）
+}
+local function satedBlacklist()
+    local t = {}
+    for _, id in ipairs(SATED_DEBUFFS) do t[id] = true end
+    return t
+end
+
 -- 小圖示（團標／隊長／休息戰鬥／PvP）的框架層級。
 -- 必須高於滑鼠移過的高亮邊框（Core/UnitFrame.lua 的 HIGHLIGHT_LEVEL = 19）與
 -- 驅散類型高亮（ns.DISPEL_HIGHLIGHT_LEVEL = 20）：
@@ -327,6 +349,9 @@ function DB.BuildDefaults()
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
                               showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              -- 最大生命值被 debuff 壓低的那一截（Elements/Health.lua）：血條內容縮短、
+                              -- 空出來那段畫這個色。新鍵由 MergeDefaults 補，不必遷移。
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 },
                               -- 仇恨提醒（Elements/HealthThreat.lua）：怪在打你 → 血條變紅閃爍。
                               -- 只有玩家框有這組鍵；新鍵由 MergeDefaults 補，不必遷移。
                               -- 何時提醒是三個勾選、符合任一個就亮：預設副本中＋隊伍中，單人在野外不亮
@@ -393,7 +418,8 @@ function DB.BuildDefaults()
                                 maxCount = 16, perRow = 8, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = true, durationThreshold = 60, filterMode = "all" },
+                                durationText = true, durationThreshold = 60, filterMode = "all",
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true,  x = 84,  y = 10, w = 20, h = 20, level = ICON_LEVEL },
                               -- 只有玩家框吃得到這兩個：
@@ -436,7 +462,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = -8, y = -8, w = 200, h = 50, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -475,7 +502,8 @@ function DB.BuildDefaults()
                                 maxCount = 16, perRow = 8, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = true, durationThreshold = 60, filterMode = "all" },
+                                durationText = true, durationThreshold = 60, filterMode = "all",
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true,  x = 84, y = 10, w = 20, h = 20, level = ICON_LEVEL },
                               status     = { enabled = true,  x = -8, y = 10, w = 14, h = 14, level = ICON_LEVEL },
@@ -523,7 +551,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -547,7 +576,8 @@ function DB.BuildDefaults()
                                 onlyMine = false, filterMode = "bossrole",
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = false, durationThreshold = 60 },
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
                 },
@@ -588,7 +618,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -609,7 +640,8 @@ function DB.BuildDefaults()
                                 onlyMine = false, filterMode = "bossrole",
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = false, durationThreshold = 60 },
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
                 },
@@ -636,7 +668,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 120, h = 10, level = 5,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -663,6 +696,21 @@ function DB.BuildDefaults()
                                   justifyH = "RIGHT", justifyV = "TOP", color = white(1) },
                         icon  = { x = 0, y = 0, w = 10, h = 10 },
                     },
+                    -- 光環預設關。框體上方是施法條（y 10~20）與團隊標記，所以兩排都放下面：
+                    -- 減益緊貼框底（底緣 = 血條 20 ＋ 魔力條 10 = -30），增益接在它下面。
+                    -- 減益限一排（6 顆 × 20 = 框寬），換行就會壓到增益那排。
+                    debuffs = { enabled = false, x = 0, y = -31, w = 19, h = 19,
+                                maxCount = 6, perRow = 6, growth = "LRTB", spacing = 1,
+                                onlyMine = false, filterMode = "all",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
+                    buffs  = { enabled = false, x = 0, y = -51, w = 19, h = 19,
+                               maxCount = 12, perRow = 6, growth = "LRTB", spacing = 1,
+                               showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
+                               durationText = false, durationThreshold = 60, filterMode = "all" },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 52, y = 12, w = 16, h = 16, level = ICON_LEVEL } },
                 },
@@ -689,7 +737,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 70, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -702,6 +751,21 @@ function DB.BuildDefaults()
                         textDef{ pattern = "[curmp]/[maxmp]", x = 0, y = -21, w = 70, h = 10,
                                  size = 8, justifyH = "CENTER", justifyV = "MIDDLE", level = 10 },
                     },
+                    -- 光環預設關。排法跟旁邊的專注目標一樣（兩排都在框下方），兩個框的光環才會對齊；
+                    -- 框寬 70 ⇒ 一排 3 顆，減益限一排免得壓到增益。
+                    -- 減益走 bossrole：理由同目標的目標（這個位置通常是坦或補的目標）。
+                    debuffs = { enabled = false, x = 0, y = -31, w = 19, h = 19,
+                                maxCount = 3, perRow = 3, growth = "LRTB", spacing = 1,
+                                onlyMine = false, filterMode = "bossrole",
+                                showStack = true, stackSize = 10,
+                                stackAnchor = "TOP", stackX = 0, stackY = 4,
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
+                    buffs  = { enabled = false, x = 0, y = -51, w = 19, h = 19,
+                               maxCount = 6, perRow = 3, growth = "LRTB", spacing = 1,
+                               showStack = true, stackSize = 10,
+                               stackAnchor = "TOP", stackX = 0, stackY = 4,
+                               durationText = false, durationThreshold = 60, filterMode = "all" },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 27, y = 10, w = 16, h = 16, level = ICON_LEVEL } },
                 },
@@ -739,7 +803,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -40, w = 119, h = 10, level = 0,
                               colorMethod = "class", bgColorMethod = "classreactiondark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -783,7 +848,8 @@ function DB.BuildDefaults()
                                 maxCount = 12, perRow = 6, growth = "LRBT", spacing = 1,
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = false, durationThreshold = 60, filterMode = "all" },
+                                durationText = false, durationThreshold = 60, filterMode = "all",
+                                blacklist = satedBlacklist() },
                 },
             },
 
@@ -826,7 +892,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -20, w = 119, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -851,7 +918,8 @@ function DB.BuildDefaults()
                                 onlyMine = false, filterMode = "all",
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = false, durationThreshold = 60 },
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 54, y = 10, w = 15, h = 15, level = ICON_LEVEL } },
                 },
@@ -883,7 +951,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     -- 自己掛在首領身上的減益（DoT／減速／破甲…）。
                     --
                     -- 版面：右緣對齊框架（x = 220 就是三條 bar 的右緣），往左長。
@@ -985,7 +1054,8 @@ function DB.BuildDefaults()
                               absorbBarPosition = "none", absorbBarHeight = 4, absorbBarGap = 1,
                               absorbBarColor = { r = 0.6, g = 0.85, b = 1, a = 1 },
                               overshieldColor = { r = 1, g = 1, b = 1, a = 1 },
-                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 } },
+                              showHealAbsorb = true, healAbsorbColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
+                              showMaxHealthLoss = true, maxHealthLossColor = { r = 0.4, g = 0.05, b = 0.05, a = 1 } },
                     mpbar = { enabled = true, x = 0, y = -14, w = 119, h = 10, level = 0,
                               colorMethod = "power", bgColorMethod = "powerdark",
                               barColor = { r = 0.8, g = 0.8, b = 0.8, a = 1 },
@@ -1020,7 +1090,8 @@ function DB.BuildDefaults()
                                 onlyMine = false, filterMode = "bossrole",
                                 showStack = true, stackSize = 10,
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
-                                durationText = false, durationThreshold = 60 },
+                                durationText = false, durationThreshold = 60,
+                                blacklist = satedBlacklist() },
                     icons = { enabled = true,
                               raidtarget = { enabled = true, x = 54, y = 8, w = 16, h = 16, level = ICON_LEVEL } },
                 },
