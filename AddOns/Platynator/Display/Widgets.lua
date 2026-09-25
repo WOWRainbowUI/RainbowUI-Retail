@@ -816,6 +816,8 @@ function addonTable.Display.GetText(frame, parent)
       Mixin(frame, addonTable.Display.MythicPlusForcesTextMixin)
     elseif details.kind == "energy" then
       Mixin(frame, addonTable.Display.EnergyTextMixin)
+    elseif details.kind == "threat" then
+      Mixin(frame, addonTable.Display.ThreatTextMixin)
     else
       assert(false)
     end

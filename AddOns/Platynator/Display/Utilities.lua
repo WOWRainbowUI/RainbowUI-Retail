@@ -273,6 +273,7 @@ if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
     [Enum.TooltipDataLineType.QuestPlayer] = true,
   }
   local playerName = UnitName("player")
+  local playerGUID = UnitGUID("player")
 
   function addonTable.Display.Utilities.GetQuestInfo(unit)
     if questData[unit] then
@@ -303,7 +304,7 @@ if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
         elseif l.type == Enum.TooltipDataLineType.QuestTitle then
           ignoreUntilTitle = false
         elseif l.type == Enum.TooltipDataLineType.QuestPlayer then
-          if l.leftText == playerName then
+          if l.leftText == playerName or l.guid == playerGUID then
             ignoreUntilTitle = false
           else
             ignoreUntilTitle = true

@@ -504,6 +504,25 @@ addonTable.CustomiseDialog.DesignWidgets = {
     },
   },
   {
+    name = addonTable.Locales.THREAT_PERCENTAGE,
+    kind = "texts",
+    default = {
+      kind = "threat",
+      scale = 1,
+      layer = 2,
+      anchor = {"TOPLEFT", -140, 50},
+      color = GetColor("FFFFFF"),
+      maxWidth = 0,
+      align = "CENTER",
+      shorten = "NONE",
+      showPercentSymbol = true,
+      autoColors = {
+        CopyTable(addonTable.CustomiseDialog.ColorsConfig["threat"].default),
+      },
+      showWhenGrouped = true,
+    },
+  },
+  {
     name = addonTable.Locales.CAST_NAME,
     kind = "texts",
     default = {
