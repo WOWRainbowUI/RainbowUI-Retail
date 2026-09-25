@@ -1,6 +1,7 @@
 # Baganator
 
-## [828](https://github.com/TheMouseNest/Baganator/tree/828) (2026-09-19)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/827...828) 
+## [829](https://github.com/TheMouseNest/Baganator/tree/829) (2026-09-21)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/828...829) 
 
-- Forever: Fix equipment set scanning  
+- Forever: Fix reagent bags not being separated  
+- Forever: Fix sorting into reagent bags  
