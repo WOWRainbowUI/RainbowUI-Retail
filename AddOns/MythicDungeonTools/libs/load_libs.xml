@@ -1,5 +1,4 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file='LibCompress\LibCompress.lua'/>
 	<Script file='LibDataBroker-1.1\LibDataBroker-1.1.lua'/>
 	<Include file='LibAsync\LibAsync.xml'/>
 </Ui>
