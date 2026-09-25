@@ -20,6 +20,14 @@ local HIGHLIGHTS = {
 
 local WINDOW_SCALES = { 80, 90, 100, 110, 120, 130, 140, 150, 160 };
 
+local FAVORITE_ICON_POSITIONS = {
+    { point = false,         label = L["Disabled"] },
+    { point = "TOPLEFT",     label = L["Top left"] },
+    { point = "TOPRIGHT",    label = L["Top right"] },
+    { point = "BOTTOMLEFT",  label = L["Bottom left"] },
+    { point = "BOTTOMRIGHT", label = L["Bottom right"] },
+};
+
 local ROLE_CHECK_MODES = {
     {
         mode    = RoleCheck.MODE_MYTHIC_PLUS,
@@ -237,7 +245,19 @@ function KeystoneLootSettingsDropdownMixin:Init()
         generalMenu:CreateDivider();
         CreateSettingCheckbox(generalMenu, L["Item level in keystone tooltip"], "settings.keystoneTooltip");
         CreateSettingCheckbox(generalMenu, L["Favorite in item tooltip"], "settings.favoriteTooltip");
-        CreateSettingCheckbox(generalMenu, L["Favorite on item icons"], "settings.favoriteIcon");
+        local favoriteIconMenu = generalMenu:CreateButton(L["Favorite on item icons"]);
+        if (C_AddOns.IsAddOnLoaded("Baganator")) then
+            SetTooltip(favoriteIconMenu, L["Baganator: The position in the bags is set in the Baganator settings under Icons."]);
+        end
+
+        for _, entry in ipairs(FAVORITE_ICON_POSITIONS) do
+            favoriteIconMenu:CreateRadio(
+                entry.label,
+                function(point) return DB:Get("settings.favoriteIcon") == point; end,
+                function(point) DB:Set("settings.favoriteIcon", point); end,
+                entry.point
+            );
+        end
         CreateSettingCheckbox(generalMenu, L["Slot name on item icons"], "settings.slotName");
 
         local ownedTooltipCheckbox = generalMenu:CreateCheckbox(
@@ -307,8 +327,11 @@ function KeystoneLootSettingsDropdownMixin:Init()
         local shareFavoritesCheckbox = CreateSettingCheckbox(lootReminderMenu, L["Share favorites with group"], "settings.lootReminder.share");
         SetTooltip(shareFavoritesCheckbox, L["Shares your favorites with your group members so they can choose their loot spec in a way that lets your favorites drop for them."]);
 
-        local mythicPlusNotificationCheckbox = CreateSettingCheckbox(notificationMenu, L["Teleport notification (Mythic+)"], "settings.mythicPlusNotification");
-        SetTooltip(mythicPlusNotificationCheckbox, L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."]);
+        local mythicPlusNotificationMenu = notificationMenu:CreateButton(L["Teleport notification (Mythic+)"]);
+        SetTooltip(mythicPlusNotificationMenu, L["Shows the dungeon and your role with a teleport button when you join a Mythic+ group or the group becomes full."]);
+
+        CreateSettingCheckbox(mythicPlusNotificationMenu, L["When joining a group"], "settings.mythicPlusNotification.joined");
+        CreateSettingCheckbox(mythicPlusNotificationMenu, L["When the group is full"], "settings.mythicPlusNotification.full");
 
         local dropAlertCheckbox = CreateSettingCheckbox(notificationMenu, L["Drop notification (favorites)"], "settings.lootReminder.dropAlert");
         SetTooltip(dropAlertCheckbox, L["Shows a notification when another player loots an item you have marked as a favorite."]);
