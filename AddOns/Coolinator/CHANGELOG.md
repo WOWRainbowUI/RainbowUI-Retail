@@ -1,6 +1,6 @@
 # Coolinator
 
-## [147](https://github.com/TheMouseNest/Coolinator/tree/147) (2026-09-18)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/146...147) 
+## [149](https://github.com/TheMouseNest/Coolinator/tree/149) (2026-09-22)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/148...149) 
 
-- Forever: Basic combo points bar (fixed for secrecy)  
+- Forever: Update spell data  

@@ -89,21 +89,7 @@ function addonTable.Utilities.PurgeKey(t, k)
   until issecurevariable(t, k)
 end
 
-function addonTable.Utilities.IsAuraSpellKnown(spellID)
-  if addonTable.Constants.AurasFromItems[spellID] then
-    return spellID
-  end
-  local mapped = addonTable.State.CDM.auraMap[spellID]
-  if mapped then
-    local isKnown = C_CooldownViewer.GetCooldownViewerCooldownInfo(mapped).isKnown
-    if isKnown then
-      return spellID
-    end
-  end
-  return C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Pet)
-end
-
-function addonTable.Utilities.IsAbilitySpellKnown(spellID)
+local function BasicIsAbilitySpellKnown(spellID)
   local newSpellID = C_Spell.GetOverrideSpell(spellID)
   if C_Spell.IsSpellPassive(newSpellID) then
     return
@@ -127,4 +113,42 @@ function addonTable.Utilities.IsAbilitySpellKnown(spellID)
   end
 
   return nil
+end
+
+if addonTable.Constants.IsRetail then
+  addonTable.Utilities.IsAbilitySpellKnown = BasicIsAbilitySpellKnown
+  function addonTable.Utilities.GetAltAuras(spellID)
+    if addonTable.State.CDM.auraMap[spellID] then
+      local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[spellID])
+      return cooldownInfo.linkedSpellIDs
+    end
+  end
+else
+  local rankData = addonTable.Data.Spells[UnitClassBase("player")]
+  local rankMap = {}
+  for index, entry in ipairs(rankData) do
+    for _, spellID in ipairs(entry.spells) do
+      rankMap[spellID] = index
+    end
+  end
+  function addonTable.Utilities.IsAbilitySpellKnown(spellID)
+    if rankMap[spellID] then
+      local index = rankMap[spellID]
+      local spells = rankData[index].spells
+      for j = #spells, 1, -1 do
+        local newSpellID = BasicIsAbilitySpellKnown(spells[j])
+        if newSpellID then
+          return newSpellID
+        end
+      end
+    else
+      return BasicIsAbilitySpellKnown(spellID)
+    end
+  end
+
+  function addonTable.Utilities.GetAltAuras(spellID)
+    if rankMap[spellID] then
+      return rankData[rankMap[spellID]].spells
+    end
+  end
 end

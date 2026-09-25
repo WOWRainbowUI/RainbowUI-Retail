@@ -25,6 +25,13 @@ addonTable.Constants = {
   GCD = 61304,
 }
 addonTable.Constants.IsClassic = addonTable.Constants.IsClassic and not addonTable.Constants.IsForever
+
+if addonTable.Constants.IsRetail then
+  addonTable.Constants.GCD = 61304
+else
+  addonTable.Constants.GCD = 29515
+end
+
 addonTable.Constants.Events = {
   "SettingChanged",
   "RefreshStateChange",
@@ -336,4 +343,5 @@ addonTable.Constants.AuraStackOverrides = {
   [51128] = 2, -- Death Knight (Frost): Killing Machine
   [203981] = 6, -- Demon Hunter (Vengeance): Soul Shards
   [1227619] = 12, -- Demon Hunter (Devourer): Soul Shards
+  [192081] = 20,
 }

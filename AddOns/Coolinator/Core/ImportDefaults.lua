@@ -82,6 +82,19 @@ function addonTable.Core.GenerateDefaultCDMLayout()
   }
 
   local seen = {}
+
+  if addonTable.Constants.IsForever then
+    local rankData = addonTable.Data.Spells[UnitClassBase("player")]
+    for _, entry in ipairs(rankData) do
+      for index, spellID in ipairs(entry.spells) do
+        if index ~= 1 then
+          seen[spellID] = true
+        end
+      end
+    end
+  end
+  local auraSeen = CopyTable(seen)
+
   for _, id in ipairs(spellUtility) do
     local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
     spellID = spellID and C_Spell.GetBaseSpell(spellID)
@@ -110,7 +123,7 @@ function addonTable.Core.GenerateDefaultCDMLayout()
     local entry = CopyTable(addonTable.Designer.Defaults.AuraIcon)
     entry.preset = "AURA"
     local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    if spellID then
+    if spellID and not auraSeen[spellID] then
       entry.resource.spellID = spellID
       table.insert(result.entries[3].entries, entry)
     end
