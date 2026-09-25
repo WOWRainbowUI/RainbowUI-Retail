@@ -1536,6 +1536,7 @@ if addonTable.Constants.IsForever then
   stats["SPELL_DAMAGE_DONE"] = "spell damage"
   stats["SPELL_HEALING_DONE"] = "spell healing"
   stats["SPELL_PENETRATION"] = "spell piercing"
+  stats["MANA_REGENERATION"] = "mana regeneration per 5 sec"
 end
 
 for s, english in pairs(stats) do
