@@ -7,7 +7,7 @@ local DB = KeystoneLoot.DB;
 local CURRENT_SEASON = KeystoneLoot.Config.season;
 local DEFAULT_WHISPER_MESSAGE = KeystoneLoot.Config.whisperMessage;
 
-local DB_VERSION = 18;
+local DB_VERSION = 20;
 local CHAR_DB_VERSION = 4;
 
 local observers = {};
@@ -159,6 +159,18 @@ function DB:MigrateGlobalDB(fromVersion)
 
     if (fromVersion == 17) then
         KeystoneLootDB.settings.ownedCheck = "hero";
+    end
+
+    if (fromVersion == 18) then
+        local enabled = KeystoneLootDB.settings.mythicPlusNotification;
+        KeystoneLootDB.settings.mythicPlusNotification = {
+            joined = enabled,
+            full = enabled
+        };
+    end
+
+    if (fromVersion == 19) then
+        KeystoneLootDB.settings.favoriteIcon = KeystoneLootDB.settings.favoriteIcon and "BOTTOMLEFT";
     end
 end
 

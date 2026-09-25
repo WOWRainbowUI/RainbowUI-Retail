@@ -1,10 +1,6 @@
-## New Features
-- Window scale option under accessibility
-- Re-added owned items checkmark, now with a track threshold
-
 ## Bugfixes
-- Teleport notification when the group signs up again
-- Automatic role check confirmation for Mythic+
+- Catalyst items now get the special bonus ID of their marked base item
 
-## Other Changes
-- Update data
+## Improvements
+- Teleport notification can be set separately for joining and full group
+- Favorite icon on item icons can be placed in any corner #71
