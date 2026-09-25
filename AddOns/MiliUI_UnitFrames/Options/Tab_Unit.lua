@@ -121,8 +121,8 @@ end
 
 local function FrameSpecs(unitKey)
     local list = {
-        { type = "toggle", root = "unit", key = "enabled", label = L["Enable this unit frame"],
-          hint = L["Blizzard's own frame does not come back on its own after disabling; /reload is needed"] },
+        { type = "toggle", root = "unit", key = "enabled", label = L["Enable this unit frame"] },
+        { type = "text", label = L["Blizzard's own frame does not come back on its own after disabling; /reload is needed"] },
         { type = "header", label = L["Position and size"] },
         { type = "text", label = L["Coordinates are the frame center relative to the screen center. You can also drag it in Edit Mode."] ..
                                  L["Click into a number box and use the mouse wheel to nudge it (Shift for ×10)."] },
@@ -155,13 +155,13 @@ local function FrameSpecs(unitKey)
     tinsert(list, { type = "header", label = L["Restrictions"] })
     tinsert(list, { type = "text", label = L["These take priority: if any one of them does not match, the frame is hidden."] })
     tinsert(list, { type = "toggle", root = "frame", key = "visHideMounted",
-                    label = L["Hide while mounted"],
-                    hint = L["Druid travel, aquatic and flight forms count as mounted."] })
+                    label = L["Hide while mounted"] })
+    tinsert(list, { type = "text", label = L["Druid travel, aquatic and flight forms count as mounted."] })
     tinsert(list, { type = "toggle", root = "frame", key = "visHideCombat",
                     label = L["Hide in combat"] })
     tinsert(list, { type = "toggle", root = "frame", key = "visOnlyInstances",
-                    label = L["Only in instances"],
-                    hint = L["Dungeons, raids, scenarios, arenas and battlegrounds."] })
+                    label = L["Only in instances"] })
+    tinsert(list, { type = "text", label = L["Dungeons, raids, scenarios, arenas and battlegrounds."] })
     tinsert(list, { type = "dropdown", root = "frame", key = "visGroup", label = L["Group"], items = {
         { text = L["Any"],              value = "any" },
         { text = L["Solo only"],        value = "solo" },
@@ -174,8 +174,8 @@ local function FrameSpecs(unitKey)
     -- 點下去選的是「現在的目標」之類的東西，沒有意義；寵物框單位可能不存在。
     if unitKey == "player" then
         tinsert(list, { type = "toggle", root = "frame", key = "clickWhenHidden",
-                        label = L["Clickable while hidden"],
-                        hint = L["Clicking its usual spot still targets you."] })
+                        label = L["Clickable while hidden"] })
+        tinsert(list, { type = "text", label = L["Clicking its usual spot still targets you."] })
     end
 
     ------------------------------------------------------------
@@ -183,24 +183,24 @@ local function FrameSpecs(unitKey)
     ------------------------------------------------------------
     tinsert(list, { type = "header", label = L["Fade"] })
     tinsert(list, { type = "toggle", root = "frame", key = "fadeOutOfRange",
-                    label = L["Fade when out of range"],
-                    hint = L["Fades the whole frame when the unit is beyond your reach. Transparency is set globally under General."] })
+                    label = L["Fade when out of range"] })
+    tinsert(list, { type = "text", label = L["Fades the whole frame when the unit is beyond your reach. Transparency is set globally under General."] })
     tinsert(list, { type = "toggle", root = "frame", key = "fadeOutOfCombat",
-                    label = L["Fade out of combat"],
-                    hint = L["Fades the whole frame while you are not in combat. Transparency is set globally under General."] })
+                    label = L["Fade out of combat"] })
+    tinsert(list, { type = "text", label = L["Fades the whole frame while you are not in combat. Transparency is set globally under General."] })
     tinsert(list, { type = "text", label = L["With both on, whichever is more transparent wins."] })
 
     tinsert(list, { type = "header", label = L["Mouseover"] })
     tinsert(list, { type = "toggle", root = "frame", key = "highlight",
-                    label = L["Highlight border"],
-                    hint = L["Draws a border around the frame while the cursor is over it. Color and thickness are set globally under General."] })
+                    label = L["Highlight border"] })
+    tinsert(list, { type = "text", label = L["Draws a border around the frame while the cursor is over it. Color and thickness are set globally under General."] })
 
     -- 驅散類型高亮（Elements/DispelHighlight.lua）。跟滑鼠高亮是同一圈邊框、壓在它上面，
     -- 所以緊接在它後面
     tinsert(list, { type = "header", label = L["Debuff type highlight"] })
     tinsert(list, { type = "toggle", root = "frame", key = "dispelHighlight",
-                    label = L["Color by type"],
-                    hint = L["While the unit has a Magic, Curse, Disease, Poison or Bleed debuff, the border turns that type's color, on top of the mouseover highlight. Hostile units show Enrage instead. Colors and thickness are set globally under General."] })
+                    label = L["Color by type"] })
+    tinsert(list, { type = "text", label = L["While the unit has a Magic, Curse, Disease, Poison or Bleed debuff, the border turns that type's color, on top of the mouseover highlight. Hostile units show Enrage instead. Colors and thickness are set globally under General."] })
     tinsert(list, { type = "custom", label = "", build = DispelTestRow(unitKey) })
 
     tinsert(list, { type = "header", label = L["Reset"] })
@@ -470,7 +470,7 @@ local function BarSpecs(name, isHP, unitKey)
         tinsert(list, { type = "header", label = L["Heal absorb"] })
         tinsert(list, { type = "toggle", sub = name, key = "showHealAbsorb", label = L["Heal absorb"] })
         tinsert(list, { type = "color", sub = name, key = "healAbsorbColor", label = L["Heal absorb color"] })
-        tinsert(list, { type = "text", label = L["Debuffs that eat healing, such as Necrotic. Reverse-filled and drawn on top."] })
+        tinsert(list, { type = "text", label = L["Some debuffs eat the healing you receive: that much healing has to land before any of it restores health. The amount is drawn in this color from the empty end of the bar, on top of everything else."] })
         tinsert(list, { type = "header", label = L["Max health reduction"] })
         tinsert(list, { type = "toggle", sub = name, key = "showMaxHealthLoss", label = L["Max health reduction"] })
         tinsert(list, { type = "color", sub = name, key = "maxHealthLossColor", label = L["Max health reduction color"] })
@@ -563,8 +563,8 @@ local function CastbarSpecs()
     local list = {
         -- 關掉之後暴雪原生的施法條會在下次 /reload 回來（Core/HideBlizzard.lua 的閘看
         -- 「我們的施法條實際建出來沒有」）。沿用單位框那顆開關同一句提示，不多開語系 key
-        { type = "toggle", sub = "castbar", key = "enabled", label = L["Show"],
-          hint = L["Blizzard's own frame does not come back on its own after disabling; /reload is needed"] },
+        { type = "toggle", sub = "castbar", key = "enabled", label = L["Show"] },
+        { type = "text", label = L["Blizzard's own frame does not come back on its own after disabling; /reload is needed"] },
         { type = "header", label = L["Position and size"] },
         PosSize("castbar"),
         { type = "dropdown", sub = "castbar", key = "fillDirection", label = L["Fill direction"], items = FILL_DIRECTION_ITEMS },
@@ -639,6 +639,8 @@ local FRIENDLY_ONLY_UNITS = { player = true, pet = true }
 ns.AURA_FRIENDLY_ONLY_UNITS = FRIENDLY_ONLY_UNITS
 
 local BLACKLIST_MARKER = {}     -- 佔位，下面換成黑名單那一列（減益另加說明）
+local CANCEL_MARKER = {}        -- 佔位，玩家／目標框的增益換成右鍵取消，其餘單位拿掉
+local CANCEL_UNITS = { player = true, target = true }
 
 local function AuraSpecs(name, unitKey)
     local list = {
@@ -657,6 +659,7 @@ local function AuraSpecs(name, unitKey)
         { type = "toggle", sub = name, key = "onlyMine", label = L["Only show my own"] },
         { type = "text", label = L["Filtering is done by the game, not by a spell list — 12.1 addons can't read aura contents. The two settings stack: \"dispellable by me\" plus \"only my own\" shows only what you applied and can remove. Changing either rebuilds the icons."] },
         BLACKLIST_MARKER,
+        CANCEL_MARKER,
         { type = "header", label = L["Text"] },
         { type = "toggle", sub = name, key = "showStack", label = L["Show stacks"] },
         { type = "slider", sub = name, key = "stackSize", label = L["Stack font size"], min = 6, max = 20 },
@@ -679,6 +682,16 @@ local function AuraSpecs(name, unitKey)
             end
             tremove(list, i)
             for j = #rows, 1, -1 do tinsert(list, i, rows[j]) end
+        elseif list[i] == CANCEL_MARKER then
+            tremove(list, i)
+            -- 別人身上的增益取消不了，只有玩家框與目標框有這個鍵（Core/DB.lua）
+            if name == "buffs" and CANCEL_UNITS[unitKey] then
+                tinsert(list, i, { type = "text", label = L["Some buffs can't be cancelled; the \"Cancelable by right-click\" filter shows only the ones that can. Changing this rebuilds the icons."] })
+                if unitKey == "target" then
+                    tinsert(list, i, { type = "text", label = L["Only works when you are targeting yourself."] })
+                end
+                tinsert(list, i, { type = "toggle", sub = name, key = "rightClickCancel", label = L["Right-click to cancel"] })
+            end
         end
     end
     return list
