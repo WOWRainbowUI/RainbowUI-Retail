@@ -254,3 +254,14 @@ Change Log:
 * Updated TOC for TBC 2.5.6
 * Updated TOC for Wrath 3.80.1
 * Updated TOC for Mists 5.5.4
+
+1.31.2
+* Updated TOC to 12.1
+* Updated TOC for Wrath 3.80.2
+
+1.32
+* WoW: Forever support
+
+1.33
+* Fixed quest log compatibility across Classic clients
+

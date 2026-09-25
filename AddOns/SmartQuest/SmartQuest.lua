@@ -18,7 +18,7 @@ SmartQuest = {
 	DefaultSetting = {
 		Sound = true;
 		MySound = true;
-		PartySound = false;
+		PartySound = true;
 		Monitor = true;
 		SelfMonitor = false;
 		SoundIgnore = 1.0;
@@ -37,16 +37,13 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.31.1";
+	Version = "1.33";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
 	Setting = { };
 	UIRendered = nil;
 	DebugMode = nil;
-	BetaMode = nil; -- WoW Beta client detection
-	DragonflightMode = nil; -- Dragonflight UI client detection
-	ClassicMode = nil; -- WoW Classic client detection
 
 	Data = {
 		Me = UnitName("player");
@@ -70,22 +67,12 @@ SmartQuest = {
 
 SmartQuestOptions = { };
 
-if (select(4, GetBuildInfo()) > 120001) then
-	SmartQuest.BetaMode = true;
-end
-if (select(4, GetBuildInfo()) >= 100000) then
-	SmartQuest.DragonflightMode = true;
-end
-if (select(4, GetBuildInfo()) < 80000) then
-	SmartQuest.ClassicMode = true;
-end
-
-function SmartQuest_ResetDefaults()
+function SmartQuest.ResetDefaults()
 	SmartQuest.Setting.MySound = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.PartySound = SmartQuest.DefaultSetting.PartySound;
 
 	SmartQuest.Setting.MySoundObjective = SmartQuest.DefaultSetting.MySound;
-	SmartQuest.Setting.MySoundItem = false -- SmartQuest.DefaultSetting.MySound; -- 更改預設值
+	SmartQuest.Setting.MySoundItem = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.MySoundDone = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.MySoundFailed = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.PartySoundObjective = SmartQuest.DefaultSetting.PartySound;
@@ -106,13 +93,13 @@ function SmartQuest_ResetDefaults()
 	end
 end
 
-SmartQuest_ResetDefaults();
+SmartQuest.ResetDefaults();
 
-function SmartQuest_OnEvent(self, event, ...)
+function SmartQuest.OnEvent(self, event, ...)
 	if (event == "VARIABLES_LOADED") then
-		SmartQuest_QuestScan(false);
+		SmartQuest.QuestScan(false);
 		C_ChatInfo.RegisterAddonMessagePrefix(SmartQuest.ModCode);
-		SmartQuest_DebugPrint("智能任務通報變數已載入。");
+		SmartQuest.DebugPrint("SmartQuest 變數已載入。");
 		SmartQuestTooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		SmartQuestFrame:RegisterEvent("CHAT_MSG_ADDON");
 		SmartQuestFrame:RegisterEvent("UI_INFO_MESSAGE");
@@ -124,7 +111,7 @@ function SmartQuest_OnEvent(self, event, ...)
 		
 		if (SmartQuestOptions.Setting and SmartQuestOptions.Setting[SmartQuest.Data.Me]) then
 			-- Migrate and delete old settings
-			SmartQuest_ErrorPrint("Migrating old profile settings to new system.");
+			SmartQuest.ErrorPrint("正在將舊版設定檔移轉至新系統。");
 			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = SmartQuestOptions.Setting[SmartQuest.Data.Me];
 			SmartQuestOptions.Setting[SmartQuest.Data.Me] = nil;
 		end
@@ -134,7 +121,7 @@ function SmartQuest_OnEvent(self, event, ...)
 			SmartQuestOptions.DataCode = SmartQuest.DataCode;
 			SmartQuestOptions.Setting = { };
 			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = { };
-			SmartQuest_ErrorPrint("偵測到新的資料庫，清除已有的設定。");
+			SmartQuest.ErrorPrint("偵測到新的資料庫，正在清除設定。");
 		elseif (SmartQuestOptions.Setting[SmartQuest.Data.MeFull]) then
 			if (SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound) then
 				SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound;
@@ -177,21 +164,21 @@ function SmartQuest_OnEvent(self, event, ...)
 			end
 			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
 		else
-			SmartQuest_ErrorPrint("偵測到新的玩家，重設為預設值。");
+			SmartQuest.ErrorPrint("偵測到新角色，正在套用預設設定。");
 			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = { };
 		end
 
-		SmartQuest_RenderOptions();
-		SmartQuest_SaveSettings();
+		SmartQuest.RenderOptions();
+		SmartQuest.SaveSettings();
 		return;
 	end
 	if (event == "UI_INFO_MESSAGE") then
 		local messageId, message;
 		messageId, message = ...;
-		SmartQuest_DebugPrint(tostring(messageId)..": "..tostring(message));
+		SmartQuest.DebugPrint(tostring(messageId)..": "..tostring(message));
 		if (messageId == LE_GAME_ERR_QUEST_UNKNOWN_COMPLETE) then
 			-- Bonus quest complete
-			SmartQuest_PlayMySound("quest_done");
+			SmartQuest.PlayMySound("quest_done");
 			return;
 		end
 		if (messageId ~= LE_GAME_ERR_QUEST_ADD_KILL_SII and messageId ~= LE_GAME_ERR_QUEST_ADD_FOUND_SII and messageId ~= LE_GAME_ERR_QUEST_ADD_ITEM_SII and messageId ~= LE_GAME_ERR_QUEST_ADD_PLAYER_KILL_SII) then
@@ -203,11 +190,11 @@ function SmartQuest_OnEvent(self, event, ...)
 			local stillneeded = iNumNeeded - iNumItems;
 
 			if (stillneeded > 0) then
-				SmartQuest_PlayMySound("item")
-				SmartQuest_SendComm("I///"..message);
+				SmartQuest.PlayMySound("item")
+				SmartQuest.SendComm("I///"..message);
 			else
-				SmartQuest_PlayMySound("objective")
-				SmartQuest_SendComm("O///"..message);
+				SmartQuest.PlayMySound("objective")
+				SmartQuest.SendComm("O///"..message);
 			end
 		end
 		return;
@@ -216,13 +203,13 @@ function SmartQuest_OnEvent(self, event, ...)
 		-- Get current quest data
 	end
 	if (event == "QUEST_LOG_UPDATE") then
-		SmartQuest_DebugPrint("Quest Log Update");
-		SmartQuest_QuestScan(true);
+		SmartQuest.DebugPrint("任務日誌更新");
+		SmartQuest.QuestScan(true);
 		return;
 		-- Quest Log
 	end
 	if (event == "PLAYER_ENTERING_WORLD") then
-		SmartQuest_QuestScan(false);
+		SmartQuest.QuestScan(false);
 		SmartQuestFrame:RegisterEvent("QUEST_LOG_UPDATE");
 		return;
 	end
@@ -232,7 +219,8 @@ function SmartQuest_OnEvent(self, event, ...)
 	end
 	if (event == "QUEST_TURNED_IN") then
 		local message = "";
-		if (SmartQuest.ClassicMode) then
+		local useModernTurnIn = C_QuestLog and C_QuestLog.GetQuestDifficultyLevel and C_QuestLog.GetTitleForQuestID;
+		if (not useModernTurnIn) then
 			local questText = GetTitleText();
 			if (SmartQuest.Quest[questText] and SmartQuest.Quest[questText].link) then
 				if (SmartQuest.Quest[questText].level and tonumber(SmartQuest.Quest[questText].level) > 0) then
@@ -256,23 +244,24 @@ function SmartQuest_OnEvent(self, event, ...)
 			end
 			message = message..link;
 		end
-		SmartQuest_SendComm("T///"..message);
+		SmartQuest.SendComm("T///"..message);
 		return;
 	end
 	if (event == "CHAT_MSG_ADDON") then
 		local msgPrefix, msgMessage, msgType, msgSender = ...;
 		if ( msgSender ~= SmartQuest.Data.MeFull ) then
 			if ( msgPrefix == SmartQuest.ModCode) then
-				SmartQuest_ReceiveComm(msgMessage, msgSender);
+				SmartQuest.ReceiveComm(msgMessage, msgSender);
 			end
 		end
 		return;
 	end
 end
 
-function SmartQuest_QuestScan(sendAlerts)
+function SmartQuest.QuestScan(sendAlerts)
+	local useModernQuestLog = C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo and C_QuestLog.IsComplete and C_QuestLog.IsFailed;
 	local iNumEntries, iNumQuests;
-	if (SmartQuest.ClassicMode) then
+	if (not useModernQuestLog) then
 		iNumEntries, iNumQuests = GetNumQuestLogEntries();
 	else
 		iNumEntries, iNumQuests = C_QuestLog.GetNumQuestLogEntries();
@@ -280,7 +269,7 @@ function SmartQuest_QuestScan(sendAlerts)
 		
 	for i = 1, iNumEntries, 1 do
 		local strQuestLogTitleText, strQuestLevel, strSuggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId;
-		if (SmartQuest.ClassicMode) then
+		if (not useModernQuestLog) then
 			strQuestLogTitleText, strQuestLevel, strSuggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId = GetQuestLogTitle(i);
 			isHeader = (isHeader == 1);
 		else
@@ -303,47 +292,47 @@ function SmartQuest_QuestScan(sendAlerts)
 
 		if (strQuestLevel and strQuestLevel > 0 and not isHeader) then
 			if (SmartQuest.Quest[questId]) then
-				SmartQuest_DebugPrint("更新 "..questId);
+				SmartQuest.DebugPrint("正在更新："..questId);
 				SmartQuest.ScanQuestProgress(questId, sendAlerts);
 				if (SmartQuest.Quest[questId].complete ~= isComplete) and (isComplete) then
 					SmartQuest.Quest[questId].complete = isComplete;
-					--SmartQuest_SendComm("U///"..questId.."///"..isComplete);
+					--SmartQuest.SendComm("U///"..questId.."///"..isComplete);
 					if (isComplete == -1) then
 						if (sendAlerts) then
-							SmartQuest_PlayMySound("quest_failed");
-							SmartQuest_SendComm("F///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
+							SmartQuest.PlayMySound("quest_failed");
+							SmartQuest.SendComm("F///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
 						end
 					elseif (UnitExists("party1")) then
 						if (sendAlerts) then
-							SmartQuest_PlayMySound("quest_done");
-							SmartQuest_SendComm("C///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
+							SmartQuest.PlayMySound("quest_done");
+							SmartQuest.SendComm("C///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
 						end
 					else
 						if (sendAlerts) then
-							SmartQuest_PlayMySound("quest_done");
+							SmartQuest.PlayMySound("quest_done");
 						end
 					end
-					SmartQuest_DebugPrint("已經完成!"..isComplete);
+					SmartQuest.DebugPrint("任務已完成！狀態："..isComplete);
 				elseif (SmartQuest.Quest[questId].complete ~= isComplete) and not (isComplete) then
-					SmartQuest_DebugPrint("曾經完成，但現在沒有完成!");
+					SmartQuest.DebugPrint("任務原本已完成，目前已變更為未完成！");
 					SmartQuest.Quest[questId].complete = isComplete;
-					--SmartQuest_SendComm("U///"..questId.."///0");
+					--SmartQuest.SendComm("U///"..questId.."///0");
 				else
 					SmartQuest.Quest[questId].complete = isComplete;
 					if (isComplete) then
-						SmartQuest_DebugPrint("早已完成!");
+						SmartQuest.DebugPrint("任務已經完成！");
 					else
-						SmartQuest_DebugPrint("尚未完成!");
+						SmartQuest.DebugPrint("任務尚未完成！");
 					end
 				end
 			else
-				SmartQuest_DebugPrint("加入 "..questId);
+				SmartQuest.DebugPrint("正在新增："..questId);
 				SmartQuest.Quest[questId] = {
 					level = strQuestLevel;
 					complete = isComplete;
-					code = SmartQuest_Code(i);
+					code = SmartQuest.Code(i);
 				};
-				if (SmartQuest.ClassicMode) then
+				if (not useModernQuestLog) then
 					SelectQuestLogEntry(i);
 					SmartQuest.Quest[questId].link = strQuestLogTitleText;
 				else
@@ -359,9 +348,9 @@ function SmartQuest_QuestScan(sendAlerts)
 				end				
 				if (sendAlerts) then
 					if (SmartQuest.Quest[questId].link) then
-						SmartQuest_SendComm("A///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
+						SmartQuest.SendComm("A///["..strQuestLevel.."] "..SmartQuest.Quest[questId].link);
 					else
-						SmartQuest_SendComm("A///["..strQuestLevel.."] "..strQuestLogTitleText);
+						SmartQuest.SendComm("A///["..strQuestLevel.."] "..strQuestLogTitleText);
 					end
 				end
 			end
@@ -369,8 +358,9 @@ function SmartQuest_QuestScan(sendAlerts)
 	end
 end
 
-function SmartQuest_Code(iQuest)
-	if (SmartQuest.ClassicMode) then
+function SmartQuest.Code(iQuest)
+	local useModernSelection = C_QuestLog and C_QuestLog.SetSelectedQuest and C_QuestLog.GetQuestIDForLogIndex;
+	if (not useModernSelection) then
 		SelectQuestLogEntry(iQuest);
 	else
 		C_QuestLog.SetSelectedQuest(C_QuestLog.GetQuestIDForLogIndex(iQuest))
@@ -391,7 +381,7 @@ function SmartQuest_Code(iQuest)
 end
 
 function SmartQuest.GetQuestProgress(questId)
-	if (not SmartQuest.ClassicMode) then
+	if (C_QuestLog and C_QuestLog.GetQuestObjectives) then
 		local objectives = C_QuestLog.GetQuestObjectives(questId);
 		if (objectives) then
 			for i, objective in pairs(objectives) do
@@ -405,25 +395,23 @@ function SmartQuest.GetQuestProgress(questId)
 end
 
 function SmartQuest.ScanQuestProgress(questId, sendAlerts)
-	if (not SmartQuest.ClassicMode) then
-		local progress = SmartQuest.GetQuestProgress(questId);
-		if (progress and progress ~= SmartQuest.Quest[questId].currentProgress) then
-			SmartQuest.Quest[questId].currentProgress = progress;
-			if (sendAlerts) then
-				if (string.find(progress, "(100%%)")) then
-					SmartQuest_PlayMySound("objective")
-					SmartQuest_SendComm("O///"..progress);
-				else
-					SmartQuest_PlayMySound("item")
-					SmartQuest_SendComm("I///"..progress);
-				end
+	local progress = SmartQuest.GetQuestProgress(questId);
+	if (progress and progress ~= SmartQuest.Quest[questId].currentProgress) then
+		SmartQuest.Quest[questId].currentProgress = progress;
+		if (sendAlerts) then
+			if (string.find(progress, "(100%%)")) then
+				SmartQuest.PlayMySound("objective")
+				SmartQuest.SendComm("O///"..progress);
+			else
+				SmartQuest.PlayMySound("item")
+				SmartQuest.SendComm("I///"..progress);
 			end
 		end
 	end
 end
 
-function SmartQuest_Test()
-	SmartQuest_ChatPrint("任務測試:");
+function SmartQuest.Test()
+	SmartQuest.ChatPrint("任務測試：");
 	local iNumEntries, iNumQuests = GetNumQuestLogEntries();
 	for i = 1, iNumEntries, 1 do
 		SelectQuestLogEntry(i);
@@ -437,83 +425,83 @@ function SmartQuest_Test()
 			if (string.len(code2) > 25) then
 				code2 = string.sub(code2, 1, 25);
 			end
-			SmartQuest_ChatPrint(code..code2);
+			SmartQuest.ChatPrint(code..code2);
 		end
 	end
 end
 
-function SmartQuest_OnLoad()
+function SmartQuest.OnLoad()
 	SmartQuestFrame:RegisterEvent("CHAT_MSG_ADDON");
 	SmartQuestFrame:RegisterEvent("VARIABLES_LOADED");
-	-- SmartQuest_ChatPrint("SmartQuest v"..SmartQuest.Version.."已經載入。");
+	SmartQuest.ChatPrint("SmartQuest v"..SmartQuest.Version.." 已載入。");
 
-	SlashCmdList["SQ"] = SmartQuest_Command;
+	SlashCmdList["SQ"] = SmartQuest.Command;
 	SLASH_SQ1 = "/SQ";
 
-	SlashCmdList["SMARTQUEST"] = SmartQuest_Command;
+	SlashCmdList["SMARTQUEST"] = SmartQuest.Command;
 	SLASH_SMARTQUEST1 = "/SMARTQUEST";
 end
 
-function SmartQuest_ChatPrint(str)
+function SmartQuest.ChatPrint(str)
 	if (str and _G["ChatFrame"..SmartQuest.Setting.ChatFrameId]) then
-		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage("[智能任務通報] "..tostring(str), 0.25, 1.0, 0.25);
+		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage("[SmartQuest] "..tostring(str), 0.25, 1.0, 0.25);
 	end
 end
 
-function SmartQuest_ErrorPrint(str)
+function SmartQuest.ErrorPrint(str)
 	if (str and _G["ChatFrame"..SmartQuest.Setting.ChatFrameId]) then
-		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage("[智能任務通報] "..tostring(str), 1.0, 0.5, 0.5);
+		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage("[SmartQuest] "..tostring(str), 1.0, 0.5, 0.5);
 	end
 end
 
-function SmartQuest_DebugPrint(str)
+function SmartQuest.DebugPrint(str)
 	if (SmartQuest.DebugMode and str and _G["ChatFrame"..SmartQuest.Setting.ChatFrameId]) then
 		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage("[SQ] "..tostring(str), 0.75, 1.0, 0.25);
 	end
 end
 
-function SmartQuest_CommPrint(str, override)
+function SmartQuest.CommPrint(str, override)
 	if (str) and (SmartQuest.Setting.Monitor or override) and (_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]) then
 		_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]:AddMessage(str, SmartQuest.Setting.TextColor.R, SmartQuest.Setting.TextColor.G, SmartQuest.Setting.TextColor.B);
 	end
 end
 
-function SmartQuest_Command_Monitor()
+function SmartQuest.CommandMonitor()
 	if (SmartQuest.Setting.Monitor) then
 		SmartQuest.Setting.Monitor = nil;
-		SmartQuest_ChatPrint("停止任務監控。");
+		SmartQuest.ChatPrint("已關閉隊伍任務監控。");
 	else
 		SmartQuest.Setting.Monitor = true;
-		SmartQuest_ChatPrint("開啟任務監控。");
+		SmartQuest.ChatPrint("已開啟隊伍任務監控。");
 	end
-	SmartQuest_SaveSettings();
+	SmartQuest.SaveSettings();
 end
 
-function SmartQuest_Command_SelfMonitor()
+function SmartQuest.CommandSelfMonitor()
 	if (SmartQuest.Setting.SelfMonitor) then
 		SmartQuest.Setting.SelfMonitor = nil;
-		SmartQuest_ChatPrint("Quest self monitoring is off.");
+		SmartQuest.ChatPrint("已關閉自身任務監控。");
 	else
 		SmartQuest.Setting.SelfMonitor = true;
-		SmartQuest_ChatPrint("Quest self monitoring is on.");
+		SmartQuest.ChatPrint("已開啟自身任務監控。");
 	end
-	SmartQuest_SaveSettings();
+	SmartQuest.SaveSettings();
 end
 
-function SmartQuest_Command_Sound()
+function SmartQuest.CommandSound()
 	if (SmartQuest.Setting.MySound) then
 		SmartQuest.Setting.MySound = nil;
 		SmartQuest.Setting.PartySound = nil;
-		SmartQuest_ChatPrint("關閉音效。");
+		SmartQuest.ChatPrint("已關閉音效。");
 	else
 		SmartQuest.Setting.MySound = true
 		SmartQuest.Setting.PartySound = true;
-		SmartQuest_ChatPrint("開啟音效。");
+		SmartQuest.ChatPrint("已開啟音效。");
 	end
-	SmartQuest_SaveSettings();
+	SmartQuest.SaveSettings();
 end
 
-function SmartQuest_PlayMySound(sSound)
+function SmartQuest.PlayMySound(sSound)
 	if (SmartQuest.Setting.MySound) then
 		local playSound = nil;
 		
@@ -540,7 +528,7 @@ function SmartQuest_PlayMySound(sSound)
 	end
 end
 
-function SmartQuest_PlayPartySound(sSound)
+function SmartQuest.PlayPartySound(sSound)
 	if (SmartQuest.Setting.PartySound) then
 		local playSound = nil;
 	
@@ -567,7 +555,7 @@ function SmartQuest_PlayPartySound(sSound)
 	end
 end
 
-function SmartQuest_SendComm(sNewMessage)
+function SmartQuest.SendComm(sNewMessage)
 	if (SmartQuest.Data.TimerQuestIgnore < GetTime()) then
 		local raidmembers = GetNumGroupMembers();
 		local partymembers = GetNumSubgroupMembers();
@@ -587,16 +575,16 @@ function SmartQuest_SendComm(sNewMessage)
 		end
 	end
 	if (SmartQuest.Setting.SelfMonitor) then
-		SmartQuest_CommPrint("[SQ] ["..SmartQuest_NameDecode(UnitName("player")).."]: "..SmartQuest_CommDecode(sNewMessage, false), true);
+		SmartQuest.CommPrint("[SQ] ["..SmartQuest.NameDecode(UnitName("player")).."]: "..SmartQuest.CommDecode(sNewMessage, false), true);
 	end
 	return;
 end
 
-function SmartQuest_ReceiveComm(sMessage, sSender)
-	SmartQuest_CommPrint("[SQ] ["..SmartQuest_NameDecode(sSender).."]: "..SmartQuest_CommDecode(sMessage, true));
+function SmartQuest.ReceiveComm(sMessage, sSender)
+	SmartQuest.CommPrint("[SQ] ["..SmartQuest.NameDecode(sSender).."]: "..SmartQuest.CommDecode(sMessage, true));
 end
 
-function SmartQuest_NameDecode(sText)
+function SmartQuest.NameDecode(sText)
 	local dash = string.find(sText,"-",1);
 	if (dash) then
 		local name = string.sub(sText,1,dash - 1);
@@ -608,7 +596,7 @@ function SmartQuest_NameDecode(sText)
 	return sText;
 end
 
-function SmartQuest_CommDecode(sText, bSound)
+function SmartQuest.CommDecode(sText, bSound)
 	if (sText == "") or not (sText) then
 		return "";
 	end
@@ -642,29 +630,29 @@ function SmartQuest_CommDecode(sText, bSound)
 	end
 	
 	if (Order == "A") then
-		DecodedMessage = "接取任務: "..QuestName;
+		DecodedMessage = "已接受任務："..QuestName;
 	elseif (Order == "C") then
-		DecodedMessage = "完成任務: "..QuestName;
+		DecodedMessage = "已完成任務："..QuestName;
 		if (bSound) then
-			SmartQuest_PlayPartySound("quest_done_group");
+			SmartQuest.PlayPartySound("quest_done_group");
 		end
 	elseif (Order == "F") then
-		DecodedMessage = "任務失敗: "..QuestName;
+		DecodedMessage = "任務失敗："..QuestName;
 		if (bSound) then
-			SmartQuest_PlayPartySound("quest_failed_group");
+			SmartQuest.PlayPartySound("quest_failed_group");
 		end
 	elseif (Order == "O") then
-		DecodedMessage = "完成目標: "..QuestName;
+		DecodedMessage = "已完成任務目標："..QuestName;
 		if (bSound) then
-			SmartQuest_PlayPartySound("objective_group");
+			SmartQuest.PlayPartySound("objective_group");
 		end
 	elseif (Order == "I") then
-		DecodedMessage = "進度: "..QuestName;
+		DecodedMessage = "進度："..QuestName;
 		if (bSound) then
-			SmartQuest_PlayPartySound("item_group");
+			SmartQuest.PlayPartySound("item_group");
 		end
 	elseif (Order == "T") then
-		DecodedMessage = "交回任務: "..QuestName;
+		DecodedMessage = "已交回任務："..QuestName;
 	else
 		DecodedMessage = sText;
 	end
@@ -672,15 +660,15 @@ function SmartQuest_CommDecode(sText, bSound)
 	return DecodedMessage;
 end
 
-function SmartQuest_Command_Status()
-	SmartQuest_ChatPrint("智能任務通報插件狀態報告:");
-	SmartQuest_ChatPrint("- 監控: "..SmartQuest_Logic(SmartQuest.Setting.Monitor));
-	SmartQuest_ChatPrint("- 自己: "..SmartQuest_Logic(SmartQuest.Setting.SelfMonitor));
-	SmartQuest_ChatPrint("- 我的音效: "..SmartQuest_Logic(SmartQuest.Setting.MySound));
-	SmartQuest_ChatPrint("- 隊友音效: "..SmartQuest_Logic(SmartQuest.Setting.PartySound));
+function SmartQuest.CommandStatus()
+	SmartQuest.ChatPrint("SmartQuest 狀態報告：");
+	SmartQuest.ChatPrint("- 隊伍任務監控："..SmartQuest.Logic(SmartQuest.Setting.Monitor));
+	SmartQuest.ChatPrint("- 自身任務監控："..SmartQuest.Logic(SmartQuest.Setting.SelfMonitor));
+	SmartQuest.ChatPrint("- 自身任務音效："..SmartQuest.Logic(SmartQuest.Setting.MySound));
+	SmartQuest.ChatPrint("- 隊伍任務音效："..SmartQuest.Logic(SmartQuest.Setting.PartySound));
 end
 
-function SmartQuest_Command(arg1)
+function SmartQuest.Command(arg1)
 	local Command = string.upper(arg1);
 	local DescriptionOffset = string.find(arg1,"%s",1);
 	local Description = nil;
@@ -690,43 +678,44 @@ function SmartQuest_Command(arg1)
 		Description = string.sub(arg1, DescriptionOffset + 1).."";
 	end
 	
-	SmartQuest_DebugPrint("執行指令: "..Command);
+	SmartQuest.DebugPrint("已執行指令："..Command);
 	
 	if (Command == "STATUS") then
-		SmartQuest_Command_Status();
+		SmartQuest.CommandStatus();
 	elseif (Command == "OPTION" or Command == "OPTIONS") then
-		SmartQuest_Command_Options();
+		SmartQuest.CommandOptions();
 	elseif (Command == "REPORT" or Command == "MONITOR") then
-		SmartQuest_Command_Monitor();
+		SmartQuest.CommandMonitor();
 	elseif (Command == "REPORT" or Command == "SELF") then
-		SmartQuest_Command_SelfMonitor();
+		SmartQuest.CommandSelfMonitor();
 	elseif (Command == "SOUND") then
-		SmartQuest_Command_Sound();
+		SmartQuest.CommandSound();
 	elseif (Command == "HELP") then
-		SmartQuest_Command_Help();
+		SmartQuest.CommandHelp();
 	else
-		SmartQuest_Command_Help();
+		SmartQuest.CommandHelp();
 	end
 end
 
-function SmartQuest_Command_Options()
+function SmartQuest.CommandOptions()
 	if (not InterfaceOptions_AddCategory) then
+		Settings.OpenToCategory(SmartQuest.SettingsCategoryId);
 		Settings.OpenToCategory(SmartQuest.SettingsCategoryId);
 	else
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest");
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest"); -- Do it twice because first time you load up, it doesn't work
 	end
-	SmartQuest_Option_SetChatFrameIdText(SmartQuest.Setting.ChatFrameId); -- Refresh title in case it changed or first logging in
+	SmartQuest.OptionSetChatFrameIdText(SmartQuest.Setting.ChatFrameId); -- Refresh title in case it changed or first logging in
 end
 
-function SmartQuest_Command_Help()
-	DEFAULT_CHAT_FRAME:AddMessage("[SQ] "..SmartQuest.Version.." (|cFFFFFFFF指令清單|r)", 0.25, 1.0, 0.25);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00目前聊天視窗:|r -- "..SmartQuest_Option_GetChatFrameTitle(SmartQuest.Setting.ChatFrameId), 0.25, 1.0, 0.75);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq options|r -- 設定選項", 0.25, 1.0, 0.75);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq status|r -- 狀態", 0.25, 1.0, 0.75);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq monitor|r -- 開始/停止監控隊友的任務", 0.25, 1.0, 0.75);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq self|r -- 開始/停止監控自己的任務", 0.25, 1.0, 0.75);
-	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq sound|r -- 開啟/關閉音效", 0.25, 1.0, 0.75);
+function SmartQuest.CommandHelp()
+	DEFAULT_CHAT_FRAME:AddMessage("[SQ] "..SmartQuest.Version.."（|cFFFFFFFF指令列表|r）", 0.25, 1.0, 0.25);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00目前聊天視窗：|r -- "..SmartQuest.OptionGetChatFrameTitle(SmartQuest.Setting.ChatFrameId), 0.25, 1.0, 0.75);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq options|r -- 開啟設定", 0.25, 1.0, 0.75);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq status|r -- 顯示狀態", 0.25, 1.0, 0.75);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq monitor|r -- 開啟／關閉隊伍任務監控", 0.25, 1.0, 0.75);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq self|r -- 開啟／關閉自身任務監控", 0.25, 1.0, 0.75);
+	DEFAULT_CHAT_FRAME:AddMessage("|cFFEEEE00/sq sound|r -- 開啟／關閉音效", 0.25, 1.0, 0.75);
 end
 
 function SmartQuest.ToggleCheckboxOption(self)
@@ -758,10 +747,10 @@ function SmartQuest.ToggleCheckboxOption(self)
 	elseif (optionKey == "PartySoundFailed") then
 		SmartQuest.Setting.PartySoundFailed = checked;
 	end
-	SmartQuest_SaveSettings();
+	SmartQuest.SaveSettings();
 end
 
-function SmartQuest_RenderOptions()
+function SmartQuest.RenderOptions()
 	SmartQuest.UIRendered = true;
 	local category, layout;
 	
@@ -788,33 +777,33 @@ function SmartQuest_RenderOptions()
 
 	local MySoundItemButton = CreateFrame("CheckButton", "SmartQuest_MySoundItemButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	MySoundItemButton:SetPoint("TOPLEFT", 30, -65)
-	MySoundItemButton.tooltip = "每次收集到任務物品時聽到音效。"
-	getglobal(MySoundItemButton:GetName().."Text"):SetText(" 拿到物品");
+	MySoundItemButton.tooltip = "每次收集到任務物品時播放音效。"
+	getglobal(MySoundItemButton:GetName().."Text"):SetText(" 收集任務物品");
 	MySoundItemButton.optionKey = "MySoundItem";
 	MySoundItemButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 
 	local MySoundItemTestButton = CreateFrame("Button", "SmartQuest_MySoundItemTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	MySoundItemTestButton:SetPoint("TOPLEFT", 300, -65);
 	MySoundItemTestButton.tooltip = "測試";
-	MySoundItemTestButton:SetScript("OnClick",SmartQuest_Option_MySoundItemTest);
+	MySoundItemTestButton:SetScript("OnClick",SmartQuest.OptionMySoundItemTest);
 	getglobal(MySoundItemTestButton:GetName().."Text"):SetText("測試");	
 
 	local MySoundObjectiveButton = CreateFrame("CheckButton", "SmartQuest_MySoundObjectiveButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	MySoundObjectiveButton:SetPoint("TOPLEFT", 30, -95)
-	MySoundObjectiveButton.tooltip = "每次達成任務目標時聽到音效。"
-	getglobal(MySoundObjectiveButton:GetName().."Text"):SetText(" 目標達成");
+	MySoundObjectiveButton.tooltip = "每次完成一項任務目標時播放音效。"
+	getglobal(MySoundObjectiveButton:GetName().."Text"):SetText(" 完成任務目標");
 	MySoundObjectiveButton.optionKey = "MySoundObjective";
 	MySoundObjectiveButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 
 	local MySoundObjectiveTestButton = CreateFrame("Button", "SmartQuest_MySoundObjectiveTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	MySoundObjectiveTestButton:SetPoint("TOPLEFT", 300, -95);
 	MySoundObjectiveTestButton.tooltip = "測試";
-	MySoundObjectiveTestButton:SetScript("OnClick",SmartQuest_Option_MySoundObjectiveTest);
+	MySoundObjectiveTestButton:SetScript("OnClick",SmartQuest.OptionMySoundObjectiveTest);
 	getglobal(MySoundObjectiveTestButton:GetName().."Text"):SetText("測試");
 
 	local MySoundDoneButton = CreateFrame("CheckButton", "SmartQuest_MySoundDoneButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	MySoundDoneButton:SetPoint("TOPLEFT", 30, -125)
-	MySoundDoneButton.tooltip = "全部的任務目標都完成時聽到音效。"
+	MySoundDoneButton.tooltip = "完成所有任務目標時播放音效。"
 	getglobal(MySoundDoneButton:GetName().."Text"):SetText(" 任務完成");
 	MySoundDoneButton.optionKey = "MySoundDone";
 	MySoundDoneButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
@@ -822,12 +811,12 @@ function SmartQuest_RenderOptions()
 	local MySoundDoneTestButton = CreateFrame("Button", "SmartQuest_MySoundDoneTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	MySoundDoneTestButton:SetPoint("TOPLEFT", 300, -125);
 	MySoundDoneTestButton.tooltip = "測試";
-	MySoundDoneTestButton:SetScript("OnClick",SmartQuest_Option_MySoundDoneTest);
+	MySoundDoneTestButton:SetScript("OnClick",SmartQuest.OptionMySoundDoneTest);
 	getglobal(MySoundDoneTestButton:GetName().."Text"):SetText("測試");
 
 	local MySoundFailedButton = CreateFrame("CheckButton", "SmartQuest_MySoundFailedButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	MySoundFailedButton:SetPoint("TOPLEFT", 30, -155)
-	MySoundFailedButton.tooltip = "任務失敗時聽到音效。"
+	MySoundFailedButton.tooltip = "任務失敗時播放音效。"
 	getglobal(MySoundFailedButton:GetName().."Text"):SetText(" 任務失敗");
 	MySoundFailedButton.optionKey = "MySoundFailed";
 	MySoundFailedButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
@@ -835,7 +824,7 @@ function SmartQuest_RenderOptions()
 	local MySoundFailedTestButton = CreateFrame("Button", "SmartQuest_MySoundFailedTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	MySoundFailedTestButton:SetPoint("TOPLEFT", 300, -155);
 	MySoundFailedTestButton.tooltip = "測試";
-	MySoundFailedTestButton:SetScript("OnClick",SmartQuest_Option_MySoundFailedTest);
+	MySoundFailedTestButton:SetScript("OnClick",SmartQuest.OptionMySoundFailedTest);
 	getglobal(MySoundFailedTestButton:GetName().."Text"):SetText("測試");
 
 	local PartySoundButton = CreateFrame("CheckButton", "SmartQuest_PartySoundButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
@@ -847,33 +836,33 @@ function SmartQuest_RenderOptions()
 
 	local PartySoundItemButton = CreateFrame("CheckButton", "SmartQuest_PartySoundItemButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	PartySoundItemButton:SetPoint("TOPLEFT", 30, -215)
-	PartySoundItemButton.tooltip = "隊友每次收集到任務物品時聽到音效。"
-	getglobal(PartySoundItemButton:GetName().."Text"):SetText(" 拿到物品");
+	PartySoundItemButton.tooltip = "隊伍成員每次收集到任務物品時播放音效。"
+	getglobal(PartySoundItemButton:GetName().."Text"):SetText(" 收集任務物品");
 	PartySoundItemButton.optionKey = "PartySoundItem";
 	PartySoundItemButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 	
 	local PartySoundItemTestButton = CreateFrame("Button", "SmartQuest_PartySoundItemTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	PartySoundItemTestButton:SetPoint("TOPLEFT", 300, -215);
 	PartySoundItemTestButton.tooltip = "測試";
-	PartySoundItemTestButton:SetScript("OnClick",SmartQuest_Option_PartySoundItemTest);
+	PartySoundItemTestButton:SetScript("OnClick",SmartQuest.OptionPartySoundItemTest);
 	getglobal(PartySoundItemTestButton:GetName().."Text"):SetText("測試");
 
 	local PartySoundObjectiveButton = CreateFrame("CheckButton", "SmartQuest_PartySoundObjectiveButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	PartySoundObjectiveButton:SetPoint("TOPLEFT", 30, -245)
-	PartySoundObjectiveButton.tooltip = "隊友每次達成任務目標時聽到音效。"
-	getglobal(PartySoundObjectiveButton:GetName().."Text"):SetText(" 目標達成");
+	PartySoundObjectiveButton.tooltip = "隊伍成員每次完成一項任務目標時播放音效。"
+	getglobal(PartySoundObjectiveButton:GetName().."Text"):SetText(" 完成任務目標");
 	PartySoundObjectiveButton.optionKey = "PartySoundObjective";
 	PartySoundObjectiveButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 
 	local PartySoundObjectiveTestButton = CreateFrame("Button", "SmartQuest_PartySoundObjectiveTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	PartySoundObjectiveTestButton:SetPoint("TOPLEFT", 300, -245);
 	PartySoundObjectiveTestButton.tooltip = "測試";
-	PartySoundObjectiveTestButton:SetScript("OnClick",SmartQuest_Option_PartySoundObjectiveTest);
+	PartySoundObjectiveTestButton:SetScript("OnClick",SmartQuest.OptionPartySoundObjectiveTest);
 	getglobal(PartySoundObjectiveTestButton:GetName().."Text"):SetText("測試");
 
 	local PartySoundDoneButton = CreateFrame("CheckButton", "SmartQuest_PartySoundDoneButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	PartySoundDoneButton:SetPoint("TOPLEFT", 30, -275)
-	PartySoundDoneButton.tooltip = "隊友完成全部的任務目標時聽到音效。"
+	PartySoundDoneButton.tooltip = "隊伍成員完成所有任務目標時播放音效。"
 	getglobal(PartySoundDoneButton:GetName().."Text"):SetText(" 任務完成");
 	PartySoundDoneButton.optionKey = "PartySoundDone";
 	PartySoundDoneButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
@@ -881,12 +870,12 @@ function SmartQuest_RenderOptions()
 	local PartySoundDoneTestButton = CreateFrame("Button", "SmartQuest_PartySoundDoneTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	PartySoundDoneTestButton:SetPoint("TOPLEFT", 300, -275);
 	PartySoundDoneTestButton.tooltip = "測試";
-	PartySoundDoneTestButton:SetScript("OnClick",SmartQuest_Option_PartySoundDoneTest);
+	PartySoundDoneTestButton:SetScript("OnClick",SmartQuest.OptionPartySoundDoneTest);
 	getglobal(PartySoundDoneTestButton:GetName().."Text"):SetText("測試");
 
 	local PartySoundFailedButton = CreateFrame("CheckButton", "SmartQuest_PartySoundFailedButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	PartySoundFailedButton:SetPoint("TOPLEFT", 30, -305)
-	PartySoundFailedButton.tooltip = "隊友任務失敗時聽到音效。"
+	PartySoundFailedButton.tooltip = "隊伍成員的任務失敗時播放音效。"
 	getglobal(PartySoundFailedButton:GetName().."Text"):SetText(" 任務失敗");
 	PartySoundFailedButton.optionKey = "PartySoundFailed";
 	PartySoundFailedButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
@@ -894,26 +883,26 @@ function SmartQuest_RenderOptions()
 	local PartySoundFailedTestButton = CreateFrame("Button", "SmartQuest_PartySoundFailedTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	PartySoundFailedTestButton:SetPoint("TOPLEFT", 300, -305);
 	PartySoundFailedTestButton.tooltip = "測試";
-	PartySoundFailedTestButton:SetScript("OnClick",SmartQuest_Option_PartySoundFailedTest);
+	PartySoundFailedTestButton:SetScript("OnClick",SmartQuest.OptionPartySoundFailedTest);
 	getglobal(PartySoundFailedTestButton:GetName().."Text"):SetText("測試");
 
 	local MonitorButton = CreateFrame("CheckButton", "SmartQuest_MonitorButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	MonitorButton:SetPoint("TOPLEFT", 10, -335)
-	MonitorButton.tooltip = "啟用在聊天視窗通報隊友的任務。"
-	getglobal(MonitorButton:GetName().."Text"):SetText(" 隊友任務監控訊息");
+	MonitorButton.tooltip = "在聊天視窗中顯示隊伍任務監控訊息。"
+	getglobal(MonitorButton:GetName().."Text"):SetText(" 隊伍任務監控");
 	MonitorButton.optionKey = "Monitor";
 	MonitorButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 	
 	local SelfMonitorButton = CreateFrame("CheckButton", "SmartQuest_SelfMonitorButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 	SelfMonitorButton:SetPoint("TOPLEFT", 39, -365)
-	SelfMonitorButton.tooltip = "啟用在聊天視窗通報我自己的任務。"
-	getglobal(SelfMonitorButton:GetName().."Text"):SetText(" 我的任務監控訊息");
+	SelfMonitorButton.tooltip = "在聊天視窗中顯示自身任務監控訊息。"
+	getglobal(SelfMonitorButton:GetName().."Text"):SetText(" 自身任務監控");
 	SelfMonitorButton.optionKey = "SelfMonitor";
 	SelfMonitorButton:SetScript("OnClick", SmartQuest.ToggleCheckboxOption);
 
 	local TextColorButton = CreateFrame("Button", "SmartQuest_TextColorButton", ConfigurationPanel, "SmartQuestColorTemplate");
 	TextColorButton:SetPoint("TOPLEFT", 39, -395)
-	TextColorButton.tooltip = "更改通報訊息文字顏色。"
+	TextColorButton.tooltip = "變更任務監控訊息的文字顏色。"
 
 	local TextColorMessageHeader = ConfigurationPanel:CreateFontString(nil, "ARTWORK","GameFontNormal");
 	TextColorMessageHeader:SetPoint("TOPLEFT", 60, -398);
@@ -923,7 +912,7 @@ function SmartQuest_RenderOptions()
 	local MonitorTextTestButton = CreateFrame("Button", "SmartQuest_MonitorTextTestButton", ConfigurationPanel, "UIPanelButtonTemplate");
 	MonitorTextTestButton:SetPoint("TOPLEFT", 300, -335);
 	MonitorTextTestButton.tooltip = "測試";
-	MonitorTextTestButton:SetScript("OnClick",SmartQuest_Option_MonitorTextTest);
+	MonitorTextTestButton:SetScript("OnClick",SmartQuest.OptionMonitorTextTest);
 	getglobal(MonitorTextTestButton:GetName().."Text"):SetText("測試");
 	
 	local ChatFrameText = ConfigurationPanel:CreateFontString("SmartQuest_ChatFrameIdText","ARTWORK","GameFontNormal");
@@ -932,15 +921,15 @@ function SmartQuest_RenderOptions()
 
 	local ChatFrameIdSlider = CreateFrame("Slider", "SmartQuest_ChatFrameIdSlider", ConfigurationPanel, "OptionsSliderTemplate");
 	ChatFrameIdSlider:SetPoint("TOPLEFT", 39, -435);
-	ChatFrameIdSlider.tooltip = "輸出到聊天視窗";
-	ChatFrameIdSlider:SetScript("OnValueChanged",SmartQuest_Option_SetChatFrameId);
-	getglobal(ChatFrameIdSlider:GetName().."Text"):SetText("輸出到聊天視窗");
+	ChatFrameIdSlider.tooltip = "訊息顯示視窗";
+	ChatFrameIdSlider:SetScript("OnValueChanged",SmartQuest.OptionSetChatFrameId);
+	getglobal(ChatFrameIdSlider:GetName().."Text"):SetText("訊息顯示視窗");
 	getglobal(ChatFrameIdSlider:GetName().."High"):SetText(" ");
 	getglobal(ChatFrameIdSlider:GetName().."Low"):SetText(" ");
 	ChatFrameIdSlider:SetMinMaxValues(1,10);
 	ChatFrameIdSlider:SetValueStep(1);
 	ChatFrameIdSlider:SetValue(SmartQuest.Setting.ChatFrameId);
-	SmartQuest_Option_SetChatFrameIdText(SmartQuest.Setting.ChatFrameId);
+	SmartQuest.OptionSetChatFrameIdText(SmartQuest.Setting.ChatFrameId);
 
 	ConfigurationPanel.okay =
 		function (self)
@@ -963,7 +952,7 @@ function SmartQuest_RenderOptions()
 				B = TextColorButton.b;
 			};
 			SmartQuest.Setting.ChatFrameId = ChatFrameIdSlider:GetValue();
-			SmartQuest_SaveSettings();
+			SmartQuest.SaveSettings();
 		end
 	ConfigurationPanel.cancel = 
 		function (self)
@@ -986,33 +975,33 @@ function SmartQuest_RenderOptions()
 				B = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.B;
 			};
 			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
-			SmartQuest_SaveSettings();
+			SmartQuest.SaveSettings();
 		end
 	ConfigurationPanel.default = 
 		function (self)
-			SmartQuest_ResetDefaults();
-			SmartQuest_SaveSettings();
+			SmartQuest.ResetDefaults();
+			SmartQuest.SaveSettings();
 		end
 end
 
-function SmartQuest_Option_SetChatFrameId()
+function SmartQuest.OptionSetChatFrameId()
 	if (not SmartQuest.UIRendered) then
 		return;
 	end
 	SmartQuest.Setting.ChatFrameId = getglobal("SmartQuest_ChatFrameIdSlider"):GetValue();
 	getglobal("SmartQuest_ChatFrameIdSlider"):SetValue(SmartQuest.Setting.ChatFrameId);
-	SmartQuest_Option_SetChatFrameIdText(SmartQuest.Setting.ChatFrameId)
-	SmartQuest_SaveSettings();
+	SmartQuest.OptionSetChatFrameIdText(SmartQuest.Setting.ChatFrameId)
+	SmartQuest.SaveSettings();
 end
 
-function SmartQuest_Option_SetChatFrameIdText(iChatFrameId)
+function SmartQuest.OptionSetChatFrameIdText(iChatFrameId)
 	if (not SmartQuest.UIRendered) then
 		return;
 	end
-	getglobal("SmartQuest_ChatFrameIdText"):SetText(SmartQuest_Option_GetChatFrameTitle(iChatFrameId));
+	getglobal("SmartQuest_ChatFrameIdText"):SetText(SmartQuest.OptionGetChatFrameTitle(iChatFrameId));
 end
 
-function SmartQuest_Option_GetChatFrameTitle(iChatFrameId)
+function SmartQuest.OptionGetChatFrameTitle(iChatFrameId)
 	local result = "";
 	if (iChatFrameId >= 1 and iChatFrameId <= 10) then
 		result = GetChatWindowInfo(iChatFrameId);
@@ -1023,7 +1012,7 @@ function SmartQuest_Option_GetChatFrameTitle(iChatFrameId)
 	return result;
 end
 
-function SmartQuest_Option_SetColor(button, r, g, b)
+function SmartQuest.OptionSetColor(button, r, g, b)
 	button.r = r;
 	button.g = g;
 	button.b = b;
@@ -1042,7 +1031,7 @@ function SmartQuest_Option_SetColor(button, r, g, b)
 	};
 end
 
-function SmartQuest_OpenColorPicker(button)
+function SmartQuest.OpenColorPicker(button)
 	CloseMenus()
 	if (not button) then
 	  button = self;
@@ -1051,7 +1040,7 @@ function SmartQuest_OpenColorPicker(button)
 	if (ColorPickerFrame) and (ColorPickerFrame.SetupColorPickerAndShow) then
 		button.swatchFunc = function()
 			local r, g, b = ColorPickerFrame:GetColorRGB();
-			SmartQuest_Option_SetColor(button, r, g, b);
+			SmartQuest.OptionSetColor(button, r, g, b);
 		end
 		ColorPickerFrame:SetupColorPickerAndShow(button);
 		return;
@@ -1060,19 +1049,19 @@ function SmartQuest_OpenColorPicker(button)
 	OpenColorPicker(button);
 end
 
-function SmartQuest_Logic(bValue)
+function SmartQuest.Logic(bValue)
 	if (bValue) then
 		if (bValue == false) then
-			return "Off";
+			return "關閉";
 		else
-			return "On";
+			return "開啟";
 		end
 	else
-		return "Off";
+		return "關閉";
 	end
 end
 
-function SmartQuest_SaveSettings()
+function SmartQuest.SaveSettings()
 	getglobal("SmartQuest_MySoundButton"):SetChecked(SmartQuest.Setting.MySound);
 	getglobal("SmartQuest_PartySoundButton"):SetChecked(SmartQuest.Setting.PartySound);
 	getglobal("SmartQuest_MonitorButton"):SetChecked(SmartQuest.Setting.Monitor);
@@ -1085,7 +1074,7 @@ function SmartQuest_SaveSettings()
 	getglobal("SmartQuest_PartySoundItemButton"):SetChecked(SmartQuest.Setting.PartySoundItem);
 	getglobal("SmartQuest_PartySoundDoneButton"):SetChecked(SmartQuest.Setting.PartySoundDone);
 	getglobal("SmartQuest_PartySoundFailedButton"):SetChecked(SmartQuest.Setting.PartySoundFailed);
-	SmartQuest_Option_SetColor(getglobal("SmartQuest_TextColorButton"), SmartQuest.Setting.TextColor.R, SmartQuest.Setting.TextColor.G, SmartQuest.Setting.TextColor.B);	
+	SmartQuest.OptionSetColor(getglobal("SmartQuest_TextColorButton"), SmartQuest.Setting.TextColor.R, SmartQuest.Setting.TextColor.G, SmartQuest.Setting.TextColor.B);	
 	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound = SmartQuest.Setting.MySound;
 	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound = SmartQuest.Setting.PartySound;
 	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Monitor = SmartQuest.Setting.Monitor;
@@ -1111,7 +1100,7 @@ function SmartQuest_SaveSettings()
 	end
 end
 
-function SmartQuest_Option_MonitorTextTest()
+function SmartQuest.OptionMonitorTextTest()
 	local button = getglobal("SmartQuest_TextColorButton");
 	local message = "測試訊息 #"..GetTime();
 	if (_G["ChatFrame"..SmartQuest.Setting.ChatFrameId]) then
@@ -1119,42 +1108,42 @@ function SmartQuest_Option_MonitorTextTest()
 	end
 end
 
-function SmartQuest_Option_MySoundItemTest()
+function SmartQuest.OptionMySoundItemTest()
 	PlaySoundFile(SmartQuest.Sound["item"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 我已拿到任務物品");
+	SmartQuest.CommPrint("[SQ] 已播放音效：自身收集任務物品");
 end
 
-function SmartQuest_Option_MySoundObjectiveTest()
+function SmartQuest.OptionMySoundObjectiveTest()
 	PlaySoundFile(SmartQuest.Sound["objective"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 我已達成任務目標");
+	SmartQuest.CommPrint("[SQ] 已播放音效：自身完成任務目標");
 end
 
-function SmartQuest_Option_MySoundDoneTest()
+function SmartQuest.OptionMySoundDoneTest()
 	PlaySoundFile(SmartQuest.Sound["quest_done"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 我已完成任務");
+	SmartQuest.CommPrint("[SQ] 已播放音效：自身任務完成");
 end
 
-function SmartQuest_Option_MySoundFailedTest()
+function SmartQuest.OptionMySoundFailedTest()
 	PlaySoundFile(SmartQuest.Sound["quest_failed"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 我的任務失敗");
+	SmartQuest.CommPrint("[SQ] 已播放音效：自身任務失敗");
 end
 
-function SmartQuest_Option_PartySoundItemTest()
+function SmartQuest.OptionPartySoundItemTest()
 	PlaySoundFile(SmartQuest.Sound["item_group"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 隊友已拿到任務物品");
+	SmartQuest.CommPrint("[SQ] 已播放音效：隊伍成員收集任務物品");
 end
 
-function SmartQuest_Option_PartySoundObjectiveTest()
+function SmartQuest.OptionPartySoundObjectiveTest()
 	PlaySoundFile(SmartQuest.Sound["objective_group"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 隊友已達成任務目標");
+	SmartQuest.CommPrint("[SQ] 已播放音效：隊伍成員完成任務目標");
 end
 
-function SmartQuest_Option_PartySoundDoneTest()
+function SmartQuest.OptionPartySoundDoneTest()
 	PlaySoundFile(SmartQuest.Sound["quest_done_group"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 隊友已完成任務");
+	SmartQuest.CommPrint("[SQ] 已播放音效：隊伍成員任務完成");
 end
 
-function SmartQuest_Option_PartySoundFailedTest()
+function SmartQuest.OptionPartySoundFailedTest()
 	PlaySoundFile(SmartQuest.Sound["quest_failed_group"], "Master");
-	SmartQuest_CommPrint("[SQ] 播放音效: 隊友的任務失敗");
+	SmartQuest.CommPrint("[SQ] 已播放音效：隊伍成員任務失敗");
 end
