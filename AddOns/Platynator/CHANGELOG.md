@@ -1,7 +1,8 @@
 # Platynator
 
-## [489](https://github.com/TheMouseNest/Platynator/tree/489) (2026-09-19)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/488...489) 
+## [490](https://github.com/TheMouseNest/Platynator/tree/490) (2026-09-22)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/489...490) 
 
-- Avoid using C\_TooltipInfo on clients that don't support modern tooltips  
-- Forever: Update "Is Tank" detection and related code cleanup  
+- Forever: Fix quest marker/colours not applying when grouped  
+- Add "Threat Percentage" widget  
+- Designer: Highlight widgets currently selected in selection context menu  
