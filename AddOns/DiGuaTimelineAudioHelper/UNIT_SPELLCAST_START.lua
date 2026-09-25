@@ -93,7 +93,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         --     addonTable.GenerateAllSpecsCodeBlock(unitTarget)
         -- end
 
-        -- addonTable.CustomEncounterBar(132274, 10, "准备诱捕")
+        -- addonTable.CustomEncounterBar(613397, 20.3, "雷鸣风暴", nil, "ff3333")
 
         -- ============================
         -- ==        毒牙祭坛        ==

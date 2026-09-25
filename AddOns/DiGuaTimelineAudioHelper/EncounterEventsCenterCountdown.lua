@@ -69,7 +69,9 @@ end
 -- 自定义倒计时管理
 ------------------------------------------------------------
 -- 创建一个自定义倒计时计时条
-function addonTable.CustomEncounterBar(iconID, duration, name, unitKey)
+--   第 5 个参数 color（可选）：6 位十六进制颜色码（如 "ff5555"），只改显示文字的颜色；不传 = 默认色
+function addonTable.CustomEncounterBar(iconID, duration, name, unitKey, color)
+    if color then name = "|cff" .. color .. (name or "未命名提示") .. "|r" end
     local id = C_EncounterTimeline.AddScriptEvent({
         spellID = 0, 
         iconFileID = iconID or 132117, 

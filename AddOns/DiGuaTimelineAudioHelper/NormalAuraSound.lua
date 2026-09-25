@@ -633,7 +633,7 @@ addonTable.NormalAura = {
     -- ==       迷失的探险者      ==
     -- ============================
         
-        [1296025] = "YuanLiRenQun|[4]321", -- 闪现新星
+        [1296025] = "YuanLiRenQun:player|[2]54321:raid", -- 闪现新星
         -- [1291929] = "", -- 稳固打击
         [1291918] = "alarmbeep", -- 旋壳
         [1286922] = "KuaiKaiJianShang", -- 冰封烈焰

@@ -82,6 +82,11 @@ function addonTable.GetPlayerSpecID()
     return select(1, GetSpecializationInfo(specIndex))
 end
 
+-- 获取玩家职业代码（如 "WARRIOR" / "PALADIN" / "DRUID"；拿不到时返回 nil）
+function addonTable.GetPlayerClass()
+    return UnitClassBase("player")
+end
+
 -- 坦克专精播报豁免名单：这些专精虽然是坦克，但仍按“非坦克”处理（照常播报）
 -- 66  = 圣骑士-防护（防骑）
 -- 268 = 武僧-酒仙
@@ -210,6 +215,7 @@ local FIXED_DEFAULT_PATH_SOUNDS = {
 -- 匹配规则：当前联动语音包名中包含下列关键字（大小写不敏感）即视为豁免。
 local FIXED_OVERRIDE_EXEMPT_PACK_KEYWORDS = {
     "TTNX", -- 如 "DiGua-TTNX"
+    "YAGI", -- 如 "DiGua-TTNX"
 }
 
 -- 当前联动的语音包是否属于豁免名单
