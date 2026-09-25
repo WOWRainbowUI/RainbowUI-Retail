@@ -33,11 +33,29 @@ function module:RegisterConfig()
 				end,
 				order = 10,
 			},
-			combat = config.toggle("戰鬥中要顯示", "戰鬥開始時是否要隱藏", 15),
-			empty = config.toggle("顯示空的清單", "還沒遇過任何稀有怪前是否要顯示視窗", 20),
-			grow = config.toggle("自動調整高度", "是否要讓視窗隨著內容調整高度，除非已經達到最大高度。", 25),
-			relative = config.toggle("使用相對時間", "視窗中要顯示相對的或絕對的時間", 30),
-			loot = config.toggle("包含掉落物品", "是否要包含寶藏圖示", 35),
+			combat = config.toggle("Show in combat", "Whether to hide away when combat starts", 15),
+			empty = config.toggle("Show when empty", "Whether to show the window before you've seen anything", 20),
+			grow = config.toggle("Grow to max height", "Whether to fit the window to its contents until you reach the maximum height", 25),
+			relative = config.toggle("Use relative time", "Whether to show time in the window as relative or absolute", 30),
+			loot = config.toggle("Include loot", "Whether to include treasure vignettes", 35),
+			style = {
+				type = "select",
+				name = "Style",
+				desc = "How the window looks",
+				values = function(info)
+					local values = {}
+					for key in pairs(self.Looks) do
+						values[key] = key
+					end
+					-- replace ourself with the built values table
+					info.option.values = values
+					return values
+				end,
+				set = function(info, v)
+					self:SetLook(v)
+				end,
+				order = 5,
+			},
 			othershard = {
 				type = "select", name = "來自其他鏡像的稀有怪",
 				desc = "如何處理不是當前鏡像的稀有怪，現在可能無法看到牠。",

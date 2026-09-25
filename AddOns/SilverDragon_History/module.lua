@@ -16,6 +16,31 @@ local LineMixin
 local RedButtonMixin
 local CreateRedButton
 
+--[[
+Looks skin the one window CreateWindow builds; a look never creates anything,
+only positions and styles what's there, and must set every point it cares
+about itself rather than relying on a previous look's reset.
+
+	window.icon          top-left icon; window.portraitMask/window.portraitRing fake a portrait frame around it
+	window.title         "N seen"
+	window.collapseButton, window.clearButton  top-right buttons
+	window.resize         bottom-right resize grip
+	window.container      the scrolling list
+	window.headerHeight   height of the titlebar/header row; also used for the collapsed window's height
+	window.minHeight      floor for "grow to max height", so a border has room to render without overlapping itself
+	window.nineSlice      Traditional's border chrome; hidden for looks that don't want it
+	window.collapseMask   a plain rectangle Traditional clips its top corners to when collapsed
+	window.closeDefault   {x, y} offset from TOPRIGHT the client gives its own close buttons
+
+A look can also add itself to LookCollapse, called whenever the collapsed
+state changes (and after CreateWindow/ApplyLook, so it starts out correct).
+Only Traditional needs this, to keep its border from overlapping itself once
+the window's shrunk down to just its titlebar.
+]]
+module.Looks = {}
+module.LookReset = {}
+module.LookCollapse = {}
+
 function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("History", {
 		profile = {
@@ -27,6 +52,7 @@ function module:OnInitialize()
 			empty = false, -- 更改預設值
 			combat = false,
 			othershard = "dim", -- show / dim / hide
+			style = "Modern",
 			sources = {
 				target = false,
 				grouptarget = true,
@@ -71,9 +97,27 @@ function module:RefreshConfig()
 		-- already loaded
 		LibWindow.RegisterConfig(self.window, db.position)
 		LibWindow.RestorePosition(self.window)
+		self:SetLook(db.style)
 		self:Refresh()
 		self[db.enabled and "Enable" or "Disable"](self)
 	end
+end
+
+function module:ApplyLook(window, look)
+	look = self.Looks[look] and look or "Modern"
+	self.Looks[look](self, window)
+	window.look = look
+end
+
+function module:SetLook(look)
+	db.style = look
+	local window = self.window
+	if not window then return end
+	if window.look and self.LookReset[window.look] then
+		self.LookReset[window.look](self, window)
+	end
+	self:ApplyLook(window, look)
+	window:RefreshForContents()
 end
 
 local currentShardSources = {
@@ -246,16 +290,55 @@ function module:ShouldAddToDataProvider(data)
 end
 
 local MAXHEIGHT = 250
-local HEADERHEIGHT = 28
+local HEADERHEIGHT = 28 -- only a placeholder until the first ApplyLook sets frame.headerHeight for real
 local LINEHEIGHT = 26
 function module:CreateWindow()
 	local frame = CreateFrame("Frame", "SilverDragonHistoryFrame", UIParent, "BackdropTemplate")
 	frame:SetSize(db.position.width, db.position.height)
-	frame:SetBackdrop({
-		edgeFile = [[Interface\Buttons\WHITE8X8]],
-		bgFile = [[Interface\Buttons\WHITE8X8]],
-		edgeSize = 1,
-	})
+
+	-- How tall the titlebar/header row is; a look's to set, since Traditional's
+	-- chrome doesn't need as much room as Modern's plain one. This default
+	-- matters only until the first ApplyLook, a few lines down, replaces it.
+	frame.headerHeight = HEADERHEIGHT
+	frame.minHeight = HEADERHEIGHT
+
+	-- Traditional's chrome. A frame can only inherit a nine-slice layout at
+	-- creation, and this window changes look at runtime, so it's applied in
+	-- code instead, same as the Browser window. Built here so it exists
+	-- regardless of which look is active; Modern just leaves it hidden.
+	local nineSliceOK, nineSlice = pcall(CreateFrame, "Frame", nil, frame, "NineSliceCodeTemplate")
+	if nineSliceOK and nineSlice then
+		frame.nineSlice = nineSlice
+		nineSlice:SetAllPoints()
+		nineSlice:SetFrameLevel(frame:GetFrameLevel())
+		nineSlice:Hide()
+	end
+
+	-- Same trick the Browser window uses for its close button: where this
+	-- client puts a built-in frame's own close button varies (Forever moves
+	-- it), and the nine-slice corner in Traditional is drawn expecting
+	-- something to sit there. There's no close button here to read it off
+	-- directly, so a throwaway one is made just to ask.
+	local closeOK, closeProbe = pcall(CreateFrame, "Button", nil, frame, "UIPanelCloseButtonDefaultAnchors")
+	if closeOK and closeProbe then
+		frame.closeDefault = {select(4, closeProbe:GetPoint())}
+		closeProbe:Hide()
+	end
+
+	-- Traditional fakes a portrait frame: the icon is masked round, and this
+	-- ring sits over it as decoration. Both stay hidden until a look wants them.
+	frame.portraitMask = frame:CreateMaskTexture()
+	frame.portraitMask:SetTexture([[Interface\CharacterFrame\TempPortraitAlphaMask]],
+		"CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+
+	frame.portraitRing = frame:CreateTexture(nil, "OVERLAY", nil, 2)
+	frame.portraitRing:Hide()
+
+	-- A plain rectangle, used to clip pieces of Traditional's border that would
+	-- otherwise stick out past the bottom of a collapsed window. A solid-colour
+	-- texture works as a mask: anything outside its bounds is treated as hidden.
+	frame.collapseMask = frame:CreateMaskTexture()
+	frame.collapseMask:SetTexture([[Interface\Buttons\WHITE8X8]], "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 
 	frame.dataProvider = self.dataProvider
 
@@ -299,18 +382,23 @@ function module:CreateWindow()
 		if db.collapsed then
 			self.container:Hide()
 			self.resize:Hide()
-			self:SetHeight(HEADERHEIGHT)
+			self:SetHeight(self.headerHeight)
 		else
 			self.container:Show()
 			self.resize:Show()
 			if db.grow then
 				-- self.container.scrollBox:GetExtent() doesn't play well here, sadly
 				local scrollHeight = size * LINEHEIGHT
-				self:SetHeight(min(scrollHeight + HEADERHEIGHT, db.position.height))
+				local height = max(scrollHeight + self.headerHeight, self.minHeight)
+				self:SetHeight(min(height, db.position.height))
 			else
 				self:SetHeight(db.position.height)
 			end
 		end
+		if self.look and module.LookCollapse[self.look] then
+			module.LookCollapse[self.look](module, self, db.collapsed)
+		end
+
 		self.clearButton:SetEnabled(size > 0)
 		self.collapseButton:SetEnabled(size > 0)
 		self.collapseButton:SetButtonMode(db.collapsed and "Plus" or "Minus")
@@ -326,22 +414,15 @@ function module:CreateWindow()
 		end
 	end
 
-	frame:SetBackdropColor(0, 0, 0, .5)
-	frame:SetBackdropBorderColor(0, 0, 0, .5)
-
+	-- Position and size are the active look's to set; see Looks below.
 	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 	frame.title = title
-	title:SetJustifyH("CENTER")
 	title:SetJustifyV("MIDDLE")
-	title:SetPoint("TOPLEFT", 0, -8)
-	title:SetPoint("TOPRIGHT", 0, -8)
 	title:SetText("None seen")
 
-	local icon = frame:CreateTexture()
-	icon:SetSize(24, 24)
-	icon:SetPoint("TOPLEFT", 2, -2)
+	local icon = frame:CreateTexture(nil, "ARTWORK")
+	frame.icon = icon
 	icon:SetTexture("Interface\\Icons\\INV_Misc_Head_Dragon_01")
-	icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 
 	local collapse = CreateRedButton(nil, frame)
 	collapse:SetSize(24, 24)
@@ -393,7 +474,7 @@ function module:CreateWindow()
 	-- scrollframe with dataprovider:
 
 	local container = CreateFrame("Frame", nil, frame)
-	container:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -HEADERHEIGHT)
+	container:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -frame.headerHeight)
 	container:SetPoint("BOTTOMRIGHT")
 
 	local scrollBox = CreateFrame("Frame", nil, container, "WowScrollBoxList")
@@ -437,6 +518,7 @@ function module:CreateWindow()
 
 	frame.container = container
 
+	self:ApplyLook(frame, db.style)
 	frame:RefreshForContents()
 
 	return frame
@@ -475,8 +557,17 @@ function module:ShowConfigMenu(frame)
 	end
 	MenuUtil.CreateContextMenu(frame, function(owner, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_HISTORY_CONTEXT")
-		rootDescription:CreateTitle("稀有怪獸與牠們的產地: 歷史記錄")
-		rootDescription:CreateCheckbox("啟用", isChecked, function()
+		rootDescription:CreateTitle(myfullname .. " " .. HISTORY)
+		local styles = rootDescription:CreateButton("Style")
+		for look in pairs(module.Looks) do
+			styles:CreateRadio(look, function(value)
+				return db.style == value
+			end, function(value)
+				module:SetLook(value)
+				return MenuResponse.Close
+			end, look)
+		end
+		rootDescription:CreateCheckbox("Enabled", isChecked, function()
 			db.enabled = false
 			module:Disable()
 			return MenuResponse.CloseAll

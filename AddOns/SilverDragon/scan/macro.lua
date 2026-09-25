@@ -216,7 +216,8 @@ function module:CreateMacro()
 	local macroIndex = GetMacroIndexByName("SilverDragon")
 	if macroIndex == 0 then
 		local numglobal,numperchar = GetNumMacros()
-		if numglobal < MAX_ACCOUNT_MACROS then
+		local maxmacros = MAX_ACCOUNT_MACROS or Constants.MacroConsts.MAX_ACCOUNT_MACROS
+		if numglobal < maxmacros then
 			CreateMacro("SilverDragon", self:GetMacroArguments())
 			self:Print("SilverDragon 巨集已經建立。輸入 /巨集 開啟巨集介面，然後將它拖曳到快捷列上來使用。")
 		else
