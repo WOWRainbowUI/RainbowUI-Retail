@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.05 (16th September 2026)
+-- 	Leatrix Plus 12.1.06 (23rd September 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.05"
+	LeaPlusLC["AddonVer"] = "12.1.06"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,7 +34,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120100 then -- 12.1.0
+		if gametocversion and gametocversion >= 120105 then -- 12.1.5
 			LeaPlusLC.NewPatch = true
 		end
 	end
@@ -5976,12 +5976,24 @@
 							local btn = temp[i]
 							local name = btn:GetName()
 							local btype = btn:GetObjectType()
-							if name and btype == "Button" and not CustomAddonTable[name] and (btn:GetNumRegions() >= 3 or tContains(LowRegionCountButtons, name)) and not issecurevariable(name) and btn:IsShown() then
-								if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), strlower("##" .. name)) then
-									if not string.find(name, "LibDBIcon") and not tContains(BypassButtonTable, name) or tContains(customButtonTable, name) then
-										CreateBadButton(name)
-										btn:Hide()
-										btn:SetScript("OnShow", function() btn:Hide() end)
+							if LeaPlusLC.NewPatch then
+								if name and btype == "Button" and not CustomAddonTable[name] and (btn:GetNumRegions() >= 3 or table.contains(LowRegionCountButtons, name)) and not issecurevariable(name) and btn:IsShown() then
+									if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), strlower("##" .. name)) then
+										if not string.find(name, "LibDBIcon") and not table.contains(BypassButtonTable, name) or table.contains(customButtonTable, name) then
+											CreateBadButton(name)
+											btn:Hide()
+											btn:SetScript("OnShow", function() btn:Hide() end)
+										end
+									end
+								end
+							else
+								if name and btype == "Button" and not CustomAddonTable[name] and (btn:GetNumRegions() >= 3 or tContains(LowRegionCountButtons, name)) and not issecurevariable(name) and btn:IsShown() then
+									if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), strlower("##" .. name)) then
+										if not string.find(name, "LibDBIcon") and not tContains(BypassButtonTable, name) or tContains(customButtonTable, name) then
+											CreateBadButton(name)
+											btn:Hide()
+											btn:SetScript("OnShow", function() btn:Hide() end)
+										end
 									end
 								end
 							end
@@ -9816,9 +9828,17 @@
 					-- Get random track within zone
 					local rTrack = ZoneList[rCategory][rZone].tracks[random(1, #ZoneList[rCategory][rZone].tracks)]
 					-- Insert track into ListData if it's not a duplicate or on the banned list
-					if rTrack and rTrack ~= "" and strfind(rTrack, "#") and not tContains(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack) then
-						if not tContains(randomBannedList, L[ZoneList[rCategory][rZone].zone]) and not tContains(randomBannedList, rTrack) then
-							tinsert(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack)
+					if LeaPlusLC.NewPatch then
+						if rTrack and rTrack ~= "" and strfind(rTrack, "#") and not table.contains(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack) then
+							if not table.contains(randomBannedList, L[ZoneList[rCategory][rZone].zone]) and not table.contains(randomBannedList, rTrack) then
+								tinsert(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack)
+							end
+						end
+					else
+						if rTrack and rTrack ~= "" and strfind(rTrack, "#") and not tContains(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack) then
+							if not tContains(randomBannedList, L[ZoneList[rCategory][rZone].zone]) and not tContains(randomBannedList, rTrack) then
+								tinsert(ListData, "|Cffffffaa" .. ZoneList[rCategory][rZone].zone .. " |r" .. rTrack)
+							end
 						end
 					end
 				end
@@ -12137,10 +12157,18 @@
 											end
 										end
 										-- Check for duplicate IDs
-										if tContains(same, v) and mask == false then
-											mask = true
-											found = true
-											print("|cffec51ff" .. L["Dup ID"] .. ": |r" .. e, v)
+										if LeaPlusLC.NewPatch then
+											if table.contains(same, v) and mask == false then
+												mask = true
+												found = true
+												print("|cffec51ff" .. L["Dup ID"] .. ": |r" .. e, v)
+											end
+										else
+											if tContains(same, v) and mask == false then
+												mask = true
+												found = true
+												print("|cffec51ff" .. L["Dup ID"] .. ": |r" .. e, v)
+											end
 										end
 										tinsert(same, v)
 										mask = false
