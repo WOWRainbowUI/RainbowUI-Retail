@@ -4,10 +4,10 @@
 	<Frame name="SmartQuestFrame" parent="UIParent" hidden="false">
 		<Scripts>
 			<OnEvent>
-				SmartQuest_OnEvent(self, event, ...);
+				SmartQuest.OnEvent(self, event, ...);
 			</OnEvent>
 			<OnLoad>
-				SmartQuest_OnLoad(); 
+				SmartQuest.OnLoad(); 
 			</OnLoad>
 		</Scripts>
 	</Frame>
@@ -59,7 +59,7 @@
 		</Layers>
 		<Scripts>
 			<OnClick>
-				SmartQuest_OpenColorPicker(self);
+				SmartQuest.OpenColorPicker(self);
 			</OnClick>
 			<OnEnter>
 				_G[self:GetName().."_SwatchBg"]:SetVertexColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);

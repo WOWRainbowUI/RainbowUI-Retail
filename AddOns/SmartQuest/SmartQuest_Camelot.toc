@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 16001
 ## Title: SmartQuest
 ## Version: 1.33
 ## Notes: Group Quest Tracking
