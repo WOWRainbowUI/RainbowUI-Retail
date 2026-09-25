@@ -1,5 +1,4 @@
 ## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100
-## AllowLoadGameType: mainline, classic
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Main Core|r
 ## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0核心|r
@@ -19,7 +18,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.10
+## Version: 12.1.11
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -123,5 +122,6 @@ modules\objects\Announce.lua
 modules\objects\SpecialWarning.lua
 modules\objects\Yell.lua
 modules\objects\Sorting.lua
+DBM-TextTimers.lua
 modules\AuraTracking.lua [AllowLoadGameType mainline]
 modules\EncounterEvents.lua [AllowLoadGameType mainline]

@@ -269,27 +269,27 @@ L.INFOFRAME_ALT				= "Secundario:"	--Alternate Power
 L.LFG_INVITE				= "Invitación del buscador"
 
 --Common slash commands
-L.SLASHCMD_HELP							= {--AI translated (check me)
+L.SLASHCMD_HELP							= {
 	"Comandos de barra disponibles:",
 	"-----------------",
 	"/dbm unlock: Muestra un temporizador de barra de estado movible (alias: move).",
 	"/dbm pull <sec>: Envía un temporizador de inicio por <sec> segundos a la banda (requiere ser promovido. alias: pull).",
 	"/dbm break <min>: Envía un temporizador de descanso por <min> minutos a la banda (requiere ser promovido. alias: break).",
 	"/dbm timer: Inicia un temporizador personalizado de " .. L.DBM .. ", consulta '/dbm timer' para más detalles.",
-	"/dbm key: Realiza comprobaciones de piedra angular y calificación de M+ en el grupo/gremio y accesos directos a teletransportes de mazmorras. (alias: key, keys, keystone)",
+	"/dbm key: Realiza comprobaciones de piedra angular y índice de M+ en el grupo/la hermandad y accesos directos a teletransportes de mazmorras. (alias: key, keys, keystone)",
 	"/dbm lag: Realiza una comprobación de latencia en toda la banda.",
 	"/dbm durability: Realiza una comprobación de durabilidad en toda la banda.",
-	"/dbm brez: Muestra el marco del temporizador de resurrección de combate para su posicionamiento.",--AI translated (check me)
+	"/dbm brez: Muestra el marco del temporizador de resurrección de combate para tu posicionamiento.",
 	"/dbm help2: Muestra comandos de barra adicionales"
 }
 --Comandos de barra menos utilizados
-L.SLASHCMD_HELP2						= {--AI translated (check me)
+L.SLASHCMD_HELP2						= {
 	"Comandos de barra disponibles:",
 	"-----------------",
 	"/dbm version: Realiza una comprobación de versión del mod de jefe (alias: ver).",
 	"/dbm version2: Realiza una comprobación de versión del mod de jefe que también susurra a los usuarios desactualizados (alias: ver2).",
-	"/range <número> o /distance <número>: Muestra el marco de rango. /rrange o /rdistance para invertir colores.",
-	"/hudar <número>: Muestra un buscador de rango basado en HUD.",
+	"/range <número> o /distance <número>: Muestra el marco de distancia. /rrange o /rdistance para invertir colores.",
+	"/hudar <número>: Muestra un buscador de distancia basado en HUD.",
 	"/dbm arrow: Muestra la flecha de " .. L.DBM .. ", consulta '/dbm arrow help' para más detalles.",
 	"/dbm hud: Muestra el HUD de " .. L.DBM .. ", consulta '/dbm hud' para más detalles.",
 	"/dbm dbtdebug: Muestra diagnósticos de barras de tiempo depurados para informes de errores."
@@ -758,3 +758,4 @@ L.MN_DBM_TIMELINE      = "Barras de DBM"
 L.MN_WARNIGS_HEADER   = "¿Quieres usar los avisos de encuentro de Blizzard o los avisos de encuentro de DBM?"
 L.MN_BLIZZARD_WARNINGS= "Avisos de Blizzard"
 L.MN_DBM_WARNINGS     = "Avisos de DBM"
+L.MN_TEXT_TIMERS_HEADER = "¿Quieres usar temporizadores de texto?\n(Usa datos de las barras de DBM, aunque no se muestren)"
