@@ -110,7 +110,7 @@ function addonTable.Core.GeneratePresetsFromDesign(design, overwrite)
     if entry.preset then
       addonTable.Core.SavePreset(entry.preset, entry, overwrite)
     end
-    if entry.kind == "group" then
+    if entry.kind == "group" or entry.kind == "stack" then
       addonTable.Core.GeneratePresetsFromDesign(entry, overwrite)
     end
   end

@@ -169,3 +169,21 @@ function addonTable.Designer.GetLabel(details)
 
   return label
 end
+
+function addonTable.Designer.IsAuraSpellKnown(spellID)
+  if addonTable.Constants.AurasFromItems[spellID] then
+    return spellID
+  end
+  local mapped = addonTable.State.CDM.auraMap[spellID]
+  if mapped then
+    local isKnown = C_CooldownViewer.GetCooldownViewerCooldownInfo(mapped).isKnown
+    if isKnown then
+      return spellID
+    end
+  end
+  if addonTable.Constants.IsForever then
+    return addonTable.Utilities.IsAbilitySpellKnown(spellID)
+  else
+    return (C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Player) or C_SpellBook.IsSpellKnown(spellID, Enum.SpellBookSpellBank.Pet)) and spellID or nil
+  end
+end

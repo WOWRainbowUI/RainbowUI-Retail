@@ -80,9 +80,9 @@ function addonTable.Display.AuraStacksBaseMixin:Setup(details)
     isFromPlayerOrPlayerPet = true,
   }
 
-  if addonTable.State.CDM.auraMap[self.details.resource.spellID] then
-    local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[self.details.resource.spellID])
-    for _, spellID in ipairs(cooldownInfo.linkedSpellIDs) do
+  local linked = addonTable.Utilities.GetAltAuras(details.resource.spellID)
+  if linked then
+    for _, spellID in ipairs(linked) do
       self.include.includeSpellIDs[spellID] = true
     end
   end

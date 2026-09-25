@@ -69,12 +69,12 @@ function addonTable.Designer.IconMixin:Setup(details)
   if details.resource.spellID then
     texture = C_Spell.GetSpellTexture(details.resource.spellID)
     if details.resource.kind == "aura" or details.resource.kind == "auraMissing" then
-      self.Icon:SetDesaturated(not addonTable.Utilities.IsAuraSpellKnown(details.resource.spellID) or false)
+      self.Icon:SetDesaturated(not addonTable.Designer.IsAuraSpellKnown(details.resource.spellID))
       self.DebuffBorder:Show()
       self.DebuffBorder:Setup(details)
       self.DebuffBorder:SetFrameLevel(self:GetFrameLevel() + 4)
     elseif details.resource.kind == "ability" then
-      self.Icon:SetDesaturated(not addonTable.Utilities.IsAbilitySpellKnown(details.resource.spellID) or false)
+      self.Icon:SetDesaturated(not addonTable.Utilities.IsAbilitySpellKnown(details.resource.spellID))
     end
   elseif details.resource.itemID then
     texture = C_Item.GetItemIconByID(details.resource.itemID)
