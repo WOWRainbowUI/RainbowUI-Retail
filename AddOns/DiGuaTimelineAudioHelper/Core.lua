@@ -77,6 +77,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.focusCastBarY == nil then db.focusCastBarY = 140 end
             if db.nameplateTotemTextEnabled == nil then db.nameplateTotemTextEnabled = true end -- 姓名板显示"图腾"文字（默认开）
             if db.normalAuraSoundEnabled == nil then db.normalAuraSoundEnabled = true end -- 光环音效总开关（默认开：光环有声）
+            if db.jingBaoSoundEnabled == nil then db.jingBaoSoundEnabled = true end -- 踩地板警报音（默认开：JingBao 警报音正常注册）
 
             self:UnregisterEvent("ADDON_LOADED")
         end
@@ -91,7 +92,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
         if addonTable.ClearAllTimelineSounds then addonTable.ClearAllTimelineSounds() end
         if addonTable.RegisterAllTimelineSounds then addonTable.RegisterAllTimelineSounds() end
 
-        if not C_AddOns.IsAddOnLoaded("BigWigs") then
+        -- 自动开启暴雪文字预警：仅在控制台勾选“自动开启暴雪文字预警”时才强制打开
+        -- （勾选状态保存在 db.forceEncounterWarnings，默认 true）
+        if DiGuaTimelineAudioHelper.forceEncounterWarnings and not C_AddOns.IsAddOnLoaded("BigWigs") then
             C_Timer.After(2, function() SetCVar("encounterWarningsEnabled", 1) end)
         end
 
@@ -99,7 +102,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
         -- 打印欢迎信息
         C_Timer.After(2, function()
-            print("感谢使用|cFF00FF00[神秘地瓜副本语音插件]|r如果觉得好用，请在|cFFFFA6D5“爱发电”|r平台搜索|cFFFFFF00“神秘地瓜”|r支持我的插件，您的支持就是我最大的动力。/digua 可开启控制台")
+            print("感谢使用|cFF00FF00[神秘地瓜副本语音插件]|r/digua 可开启控制台")
         end)
 
         -- 同步 UI 控件勾选状态
@@ -120,6 +123,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineFocusCastBarCheck:SetChecked(DiGuaTimelineAudioHelper.focusCastBarEnabled) -- 同步焦点施法条
             DiGuaTimelineTotemTextCheck:SetChecked(DiGuaTimelineAudioHelper.nameplateTotemTextEnabled) -- 同步姓名板"图腾"文字
             DiGuaTimelineAuraSoundCheck:SetChecked(not DiGuaTimelineAudioHelper.normalAuraSoundEnabled) -- 同步“关闭光环音效”（勾选=关）
+            DiGuaTimelineJingBaoSoundCheck:SetChecked(not DiGuaTimelineAudioHelper.jingBaoSoundEnabled) -- 同步“关闭踩地板警报音”（勾选=关）
             DiGuaTimelineBossHealthPctCheck:SetChecked(DiGuaTimelineAudioHelper.bossHealthCenterEnabled) -- 同步首领转阶段血量百分比
         end
 
@@ -223,9 +227,8 @@ local cbBossVoice = CreateCheckButton("DiGuaTimelineBossVoiceCheck", "开启首�
     local isEnabled = self:GetChecked()
     DiGuaTimelineAudioHelper.bossVoiceEnabled = isEnabled
     
-    -- 清空后按开关注册（普通表 + 团本表，团本表受“禁用团本语音”控制）
-    if addonTable.ClearAllTimelineSounds then addonTable.ClearAllTimelineSounds() end
-    if addonTable.RegisterAllTimelineSounds then addonTable.RegisterAllTimelineSounds() end
+    -- 改开关后重新登记（常驻表 + 场次表；内部按条件清理/登记，战斗锁定中会延后到脱战）
+    if addonTable.ReloadTimelineSounds then addonTable.ReloadTimelineSounds() end
     
     print("|cffffd100[DiGua]|r 首领语音警报功能: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
@@ -257,13 +260,23 @@ local cbAuraSound = CreateCheckButton("DiGuaTimelineAuraSoundCheck", "关闭光�
     print("|cffffd100[DiGua]|r 关闭光环音效: " .. (disabled and "|cffff0000已关闭（光环静音）|r" or "|cff00ff00已开启（光环有声）|r"))
 end)
 
+-- 关闭踩地板警报音（勾选=注销 NormalAuraSound.lua 里所有注册了 JingBao 警报音的光环；默认不勾选=有警报音）
+-- 实现：NormalAuraSound.lua 注册时跳过值为 "JingBao" 的条目，其余光环音效不受影响
+local cbJingBaoSound = CreateCheckButton("DiGuaTimelineJingBaoSoundCheck", "关闭踩地板警报音", 20, -255, function(self)
+    local disabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.jingBaoSoundEnabled = not disabled
+    -- 先整体注销、再按开关重新注册（战斗锁定 / 副本 secret 状态会自动延后补做）
+    if addonTable.ReloadNormalAuras then addonTable.ReloadNormalAuras() end
+    print("|cffffd100[DiGua]|r 踩地板警报音: " .. (disabled and "|cffff0000已关闭（JingBao 警报音静音）|r" or "|cff00ff00已开启|r"))
+end)
+
 -- 禁用团本语音（勾选=不播放/不注册指定团本首领的语音；默认不勾选=正常播放）
 -- 受控范围：
 --   EncounterTimeline.lua：盘魂者内克扎莉 / 万毒邪祟者瓦什尼克 / 乌拉特克（时间轴整体跳过）
 --   EncounterEvents.lua  ：RaidEventSoundData 表（盘魂者内克扎莉 / 陵寝哨兵 / 迷失的探险者 /
 --                          万毒邪祟者瓦什尼克 / 斯索拉克 / 双子毒牙 / 盘卷祭坛 / 乌拉特克 / 潮缚石窟）
 --   NormalAuraSound.lua  ：raidAppliedList / raidRefreshedList / raidRemovedList
-local cbRaidVoice = CreateCheckButton("DiGuaTimelineRaidVoiceCheck", "禁用团本语音", 20, -320, function(self)
+local cbRaidVoice = CreateCheckButton("DiGuaTimelineRaidVoiceCheck", "禁用团本语音", 20, -345, function(self)
     local disabled = self:GetChecked()
     DiGuaTimelineAudioHelper.raidVoiceDisabled = disabled
 
@@ -385,7 +398,7 @@ end)
 -- 主音量滑块（映射魔兽系统主音量 Sound_MasterVolume，范围 0-1，显示 0%-100%）
 -- 归入左栏“听觉”分组底部
 local masterVolumeSlider = CreateFrame("Slider", "DiGuaTimelineMasterVolumeSlider", f, "OptionsSliderTemplate")
-masterVolumeSlider:SetPoint("TOPLEFT", 20, -270) -- 往下移 25，给上方“关闭光环音效”行腾位置
+masterVolumeSlider:SetPoint("TOPLEFT", 20, -300) -- 往下移，给上方“关闭光环音效”“关闭踩地板警报音”两行腾位置
 masterVolumeSlider:SetMinMaxValues(0, 1)
 masterVolumeSlider:SetValueStep(0.05)
 masterVolumeSlider:SetObeyStepOnDrag(true)

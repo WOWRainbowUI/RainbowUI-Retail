@@ -31,6 +31,21 @@ local function CanChangeAuraSoundRegistrations()
     return true
 end
 
+-- ===== 踩地板警报音开关（控制台“关闭踩地板警报音”） =====
+-- JingBao.ogg 是踩地板类技能的警报音；控制台勾选后，注册时直接跳过所有 JingBao 条目，
+-- 效果等价于“注销所有注册了 JingBao 警报音的光环”，其余光环音效不受影响。
+-- 控制台那边用 ReloadNormalAuras 触发：先整体注销，再按本开关重新注册
+-- （内部已做战斗锁定 / 副本 secret 状态的延迟补做处理，见第 3 节）。
+local JINGBAO_SOUND_FILE = "jingbao"
+local function IsJingBaoSoundEntry(soundFile)
+    return type(soundFile) == "string" and soundFile:lower() == JINGBAO_SOUND_FILE
+end
+
+local function IsJingBaoSoundDisabled()
+    -- 开关未初始化（nil）时视为“开启警报音”，保证旧存档与首次登录行为不变
+    return DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.jingBaoSoundEnabled == false
+end
+
 -- ==================== 1. 注册普通光环音效 (12.1+ 新API) ====================
 -- 注意：这是真正的注册逻辑（调用保护接口），调用方需保证已脱战（见第 3 节安全入口）
 local function DoRegisterNormalAuras()
@@ -133,7 +148,11 @@ local function DoRegisterNormalAuras()
                 end
             end
 
-            if isRoleMatch then
+            -- 踩地板警报音开关：控制台勾选“关闭踩地板警报音”时跳过本条 JingBao 条目；
+            -- 用 "|" 拼接的混合配置只跳过 JingBao 那段，其余声音照常注册
+            local skipJingBao = IsJingBaoSoundDisabled() and IsJingBaoSoundEntry(soundFile)
+
+            if isRoleMatch and not skipJingBao then
                 local soundInfo = {
                     unitToken = unitToken,
                     spellID = tonumber(spellID),
@@ -215,6 +234,9 @@ end
 --                               注意：Lua 表里同 ID 重复键会覆盖，必须用 "|" 写在同一行！
 --                               例：[1305368] = "ZhongDu:player:DAMAGER|QuSan:player:HEALER"
 --                               每个子配置独立做职责过滤，不匹配的不会注册
+-- 控制台开关：
+--   "关闭踩地板警报音"（DiGuaTimelineAudioHelper.jingBaoSoundEnabled，默认 true）
+--     勾选后所有值里声音文件等于 "JingBao" 的条目都不会注册（= 注销这些警报音）
 addonTable.NormalAura = {
     -- 获得光环时播放 (Trigger = Applied)
     appliedList = {
@@ -386,6 +408,7 @@ addonTable.NormalAura = {
         -- [1261276] = "ShiMaFenSan", -- 荆棘之刃
         [1276586] = "KuaiKaiJianShang", -- 基岩涌动
         [1303039] = "alarmbeep", -- 狩猎跃击 (诸王共用)
+        [1237073] = "ShouLingQiangHua:boss", -- 光狂疯乱
 
     -- ============================
     -- ==     纳洛拉克的洞穴     ==
@@ -458,7 +481,7 @@ addonTable.NormalAura = {
         [1291468] = "NiBeiYiShang", -- 破甲猛击
         [1291815] = "JingBao", -- 诱导力场
         -- [1292035] = "", -- 狂乱（BOSS）
-        [1293048] = "KuaiKaiJianShang", -- 毒蛇风暴
+        [1293048] = "alarmbeep", -- 毒蛇风暴
         [1293133] = "JingBao", -- 萦绕风暴
         [1293307] = "MiHuo", -- 扰乱心智
         [1295635] = "alarmbeep", -- 蜿蜒打击
@@ -600,7 +623,7 @@ addonTable.NormalAura = {
         -- [1284590] = "", -- 螺旋毒素
         [1284947] = "KuaiKaiJianShang", -- 培育爆裂
         [1284491] = "alarmbeep", -- 鲜血毒液注射
-        [1288260] = "YiMiaoMuBiaoShiNi", -- 不稳定的瘴气
+        [1288260] = "YiMiaoMuBiaoShiNi:player|[3]54321:raid", -- 不稳定的瘴气（自己中→一秒目标是你，同时也会播 [3]54321；团队里其他人中→[3]54321）
         [1288297] = "TieBianFangShui|[3]321", -- 附着幽暗
         [1284471] = "alarmbeep", -- 凋零之血
         [1284210] = "JingBao", -- 鲜血毒液
@@ -718,7 +741,7 @@ addonTable.NormalAura = {
         [1311611] = "LianXianDianNi", -- 攫取毒牙
         [1312967] = "WuMaFenSan", -- 易爆清除
         -- [1300938] = "", -- 步履维艰
-        [1288879] = "YiMiaoMuBiaoShiNi", -- 毒蛇之咬
+        [1293046] = "YiMiaoMuBiaoShiNi", -- 毒蛇之咬
         [1292403] = "JingBao", -- 腐蚀浪潮
         [1297338] = "JingBao", -- 致命剧毒
         [1298367] = "alarmbeep", -- 蛇母之怒
@@ -796,6 +819,7 @@ addonTable.NormalAura = {
         [1295928] = "AnQuan", -- 燃烧烈焰（迷失的探险者）
         [1218187] = "AnQuan", -- 邪能光束
         [1313393] = "AnQuan", -- 刺骨寒霜
+        -- [1308853] = "AnQuan", -- 木刺炸裂
     },
 
     -- 2: 移除/消退光环时

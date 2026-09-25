@@ -212,15 +212,15 @@ addonTable.AudioTimeline = {
             interval = 999, 
             startOffset = 0, 
             alerts = {
-                [27]  = "FenTanShangHai.ogg", -- 27秒 分担伤害
+                [24]  = "FenTanShangHai.ogg", -- 27秒 分担伤害
                 [35]  = "DuoKaiDaQuan.ogg", -- 27秒 分担伤害
                 [87]  = "DuoKaiDaQuan.ogg", -- 27秒 分担伤害
-                [122] = "FenTanShangHai.ogg", -- 2分02秒 分担伤害
-                [151] = "DaoShu5.ogg", -- 2分31秒 倒计时5
-                [152] = "DaoShu4.ogg", -- 2分32秒 倒计时4
-                [153] = "DaoShu3.ogg", -- 2分33秒 倒计时3
-                [154] = "DaoShu2.ogg", -- 2分34秒 倒计时2
-                [155] = "DaoShu1.ogg", -- 2分35秒 倒计时1
+                [118] = "FenTanShangHai.ogg", -- 2分02秒 分担伤害
+                [150] = "DaoShu5.ogg", -- 2分31秒 倒计时5
+                [151] = "DaoShu4.ogg", -- 2分32秒 倒计时4
+                [152] = "DaoShu3.ogg", -- 2分33秒 倒计时3
+                [153] = "DaoShu2.ogg", -- 2分34秒 倒计时2
+                [154] = "DaoShu1.ogg", -- 2分35秒 倒计时1
                 [156] = "YiShangJieShu.ogg", -- 2分36秒 倒数结束
                 [188] = "ZhunBeiLaXian.ogg", -- 3分08秒 准备拉线
                 [195] = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 个人减伤（仅治疗/DPS，坦克不播）
@@ -237,7 +237,7 @@ addonTable.AudioTimeline = {
                 [428] = "DaoShu3.ogg", -- 5分02秒 倒计时3
                 [429] = "DaoShu2.ogg", -- 5分03秒 倒计时2
                 [430] = "DaoShu1.ogg", -- 5分04秒 倒计时1
-                [451] = "ZhuanHuoDaGuai.ogg", -- 7分32秒 转火大怪
+                [451] = { file = "ZhuanHuoDaGuai.ogg", role = {"DAMAGER", "TANK"} }, -- 7分32秒 转火大怪（仅DPS/坦克，治疗不播）
                 [467] = "ZhuYiDuoBo.ogg", -- 7:47.2 腐蚀浪潮
                 [472] = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 7:47.2 个人减伤（仅治疗/DPS，坦克不播）
                 [474] = "ChangDiQieHuan.ogg", -- 7:47.2 腐蚀浪潮
@@ -246,7 +246,7 @@ addonTable.AudioTimeline = {
                 [478] = "DaoShu3.ogg", -- 5分02秒 倒计时3
                 [479] = "DaoShu2.ogg", -- 5分03秒 倒计时2
                 [480] = "DaoShu1.ogg", -- 5分04秒 倒计时1
-                [511] = "ZhuanHuoDaGuai.ogg", -- 8分31秒 转火大怪
+                [511] = { file = "ZhuanHuoDaGuai.ogg", role = {"DAMAGER", "TANK"} }, -- 8分31秒 转火大怪（仅DPS/坦克，治疗不播）
                 [517] = "ZhuYiDuoBo.ogg", -- 8:37.2 腐蚀浪潮
                 [537] = "DaoShu5.ogg", -- 5分钟整 倒计时5
                 [538] = "DaoShu4.ogg", -- 5分01秒 倒计时4

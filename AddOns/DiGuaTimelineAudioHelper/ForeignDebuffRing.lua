@@ -36,7 +36,7 @@ local RING_TRACK_COLOR = { 0, 0, 0, 0.3 }   -- 底圈颜色（Utils.lua 里 bg �
 --                                                     三种写法都认：{ TANK = true } / { "TANK", "DAMAGER" } / role = "TANK"
 --   mapIDs        = { [2572] = true }              -- C_Map.GetBestMapForUnit 地图ID（副本地图/区域）
 --   subZones      = { ["虚空之痕"] = true }         -- 子区域名（本地化文本，对 GetSubZoneText / GetMinimapZoneText）
---   difficultyIDs = { [8] = true }                 -- 难度ID（8=大秘境，14/15/16=团本普通/英雄/史诗）
+--   difficultyIDs = { [8] = true }                 -- 难度ID（8=大秘境，14/15/16=团本普通/英雄/史诗，17=团队查找器（随机））
 --   keystoneMin   = 2                              -- 大秘境钥石层数 ≥ N（不写=不限）
 --   bossProgress  = { [1] = false, [2] = true }    -- 第 N 个 criteria 的 completed 必须等于该值
 --                                                     false = 该 Boss 还没打（进度还没到）
@@ -54,9 +54,10 @@ local SHOW_RULES = {
     {
         name = "M9",
         encounterIDs = { [3379] = true }, 
-        difficultyIDs = { [16] = true },  -- 只在史诗团本难度生效（16=史诗团本；14=普通 / 15=英雄 / 17=随机）
+        -- 16=史诗团本 / 17=团队查找器（随机）都要生效（14=普通 / 15=英雄 不生效）
+        difficultyIDs = { [16] = true, [17] = true },
         roles = { HEALER = true, DAMAGER = true },  -- 只有治疗 / DPS 显示（坦克不显示）
-        maxDuration = 4.5,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
+        maxDuration = 6,                -- 这条规则只关心“总时长 ≤7 秒”的短 debuff
     },
 
 

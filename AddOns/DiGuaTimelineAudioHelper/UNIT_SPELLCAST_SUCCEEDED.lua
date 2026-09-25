@@ -201,7 +201,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and select(8, GetInstanceInfo()) == 1877 -- 副本ID (塞塔里斯神庙)
             and (C_Map.GetBestMapForUnit("player") or 0) == 1038 -- 地图ID
             and IsIndoors() == false -- 在室外
-            and UnitLevel(unitTarget) == 61
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
             and UnitPowerType(unitTarget) == 0
             and UnitClassification(unitTarget) == "elite" -- 精英怪
             and UnitAffectingCombat(unitTarget) == true -- 在战斗中
