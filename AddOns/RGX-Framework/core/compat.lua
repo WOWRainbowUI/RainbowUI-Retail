@@ -9,7 +9,8 @@ local addonName, RGX = ...
 
 local interfaceVersion = 0
 if type(GetBuildInfo) == "function" then
-    interfaceVersion = tonumber(select(4, GetBuildInfo())) or 0
+    local _, _, _, tocVersion = GetBuildInfo()
+    interfaceVersion = tonumber(tocVersion) or 0
 end
 RGX.interfaceVersion = interfaceVersion
 

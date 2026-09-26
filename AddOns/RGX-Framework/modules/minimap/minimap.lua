@@ -114,25 +114,28 @@ local function GetDurablePositions()
 end
 
 function Button:GetAngle()
+    -- The durable framework store is the authoritative source for every
+    -- consumer type. An addon's own SavedVariables (flat storage or
+    -- profile-proxy callbacks) are the first thing a client crash or storage
+    -- wipe loses; positions mirrored here survive. Read durable before any
+    -- consumer-owned source so wins always come from the stickier store.
+    if self._name then
+        local durable = GetDurablePositions()
+        if durable then
+            local saved = tonumber(durable[self._name])
+            if saved then
+                if self._storage and self._angleKey then
+                    self._storage[self._angleKey] = saved
+                end
+                return saved
+            end
+        end
+    end
     if type(self._getAngle) == "function" then
         return self._getAngle() or self._defaultAngle
     end
     if self._storage and self._angleKey then
-        local angle = tonumber(self._storage[self._angleKey])
-        if angle then
-            return angle
-        end
-        if self._name then
-            local durable = GetDurablePositions()
-            if durable then
-                local saved = tonumber(durable[self._name])
-                if saved then
-                    self._storage[self._angleKey] = saved
-                    return saved
-                end
-            end
-        end
-        return self._defaultAngle
+        return tonumber(self._storage[self._angleKey]) or self._defaultAngle
     end
     return self._defaultAngle
 end

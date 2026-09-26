@@ -10,6 +10,7 @@
 <Script file="core/systems/runtime.lua" />
 <Script file="core/systems/utils.lua" />
 <Script file="core/compat.lua" />
+<Script file="core/compat_api.lua" />
 
 <!-- Modules -->
 <Script file="modules/dropdowns/dropdowns.lua" />

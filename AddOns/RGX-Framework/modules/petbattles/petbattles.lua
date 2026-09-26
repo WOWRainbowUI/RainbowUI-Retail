@@ -4,7 +4,7 @@
     Provides pet battle event tracking, pet journal utilities, and a callback
     system for level-up / capture / battle-start / battle-end events.
 
-    Consumers (PB2, BLU, etc.) register callbacks instead of wiring raw events:
+    Consumers register register callbacks instead of wiring raw events:
 
         local PetBattles = RGX:GetModule("petbattles")
 

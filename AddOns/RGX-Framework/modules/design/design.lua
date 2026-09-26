@@ -6,10 +6,13 @@
 --   primary - highlight color used on labels, borders, fills, slider fills
 --   accent  - secondary highlight color
 --
+-- Default look: sleek dark navy panels with rounded corners and a cyan
+-- developer accent, in the spirit of modern dev-tool addon UIs.
+--
 -- Usage:
 --   local Design = RGX:GetDesign()
 --   Design:SetTheme({
---       primary = {0.02, 0.87, 0.98}, -- BLU cyan, for example
+--       primary = {0.02, 0.87, 0.98},
 --       accent  = {1.00, 0.84, 0.00},
 --   })
 --
@@ -18,13 +21,13 @@
 --   Design:SetHighlightColor(color, accent)       -- shorthand for primary/accent
 --   Design:GetColor(key)                          -- {r,g,b}
 --   Design:Unpack(key)                            -- r, g, b for direct use
---   Design:CreateFrame(parent, opts)              -- styled backdrop frame
+--   Design:RGBToHex(r, g, b)
+--   Design:ApplyBackdrop(frame, variant, bgAlpha) -- legacy square backdrop
+--   Design:CreateFrame(parent, opts)              -- rounded panel (opts.square for legacy)
 --   Design:CreateButton(parent, text, w, h)       -- styled action button
 --   Design:CreateSectionHeader(parent, text, icon)
 --   Design:CreateDivider(parent)
 --   Design:CreateSection(parent, title, icon)
---   Design:ApplyBackdrop(frame, variant, bgAlpha) -- "dark"|"panel"|"solid"|"border"
---   Design:RGBToHex(r, g, b)
 --=====================================================================================
 
 local addonName, RGX = ...
@@ -33,24 +36,74 @@ local Design = {}
 
 -- Theme tokens. Addons should override these before building UI.
 Design.Theme = {
-    primary = {0.345, 0.745, 0.506}, -- #58be81 RGX default green
-    accent  = {0.737, 0.435, 0.659}, -- #bc6fa8 RGX default purple
+    primary = {0.000, 0.902, 1.000}, -- #00e6ff cyan
+    accent  = {0.941, 0.706, 0.161}, -- #f0b429 gold
 }
 
--- Structural palette. These are the BLU/RGX dark UI foundation colors.
+-- Structural palette: dark navy foundation with cyan-friendly neutrals.
 Design.Colors = {
-    surface    = {0.050, 0.070, 0.100},
-    background = {0.030, 0.040, 0.060},
-    text       = {1.000, 1.000, 1.000},
-    subtext    = {0.700, 0.700, 0.700},
+    surface    = {0.086, 0.086, 0.110}, -- panel
+    background = {0.055, 0.055, 0.071},
+    panelAlt   = {0.102, 0.102, 0.129},
+    text       = {0.910, 0.910, 0.933},
+    subtext    = {0.545, 0.545, 0.596},
+    label      = {0.357, 0.357, 0.400},
     success    = {0.200, 0.800, 0.400},
-    warning    = {1.000, 0.650, 0.000},
-    error      = {1.000, 0.200, 0.200},
-    border     = {0.140, 0.200, 0.280},
-    hover      = {0.110, 0.180, 0.240},
-    track      = {0.140, 0.200, 0.280},
+    warning    = {0.941, 0.706, 0.161},
+    error      = {0.878, 0.333, 0.333},
+    border     = {0.137, 0.137, 0.173},
+    hover      = {0.102, 0.102, 0.129},
+    track      = {0.137, 0.137, 0.173},
 }
 
+-- Rounded panel rendering -----------------------------------------------------
+
+Design.Radius = 12
+Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\media\\panel_rounded.tga"
+
+-- 128px texture with 32px corners: corner slice covers a quarter of the UVs.
+local PANEL_TC = 0.25
+
+local function ApplyLabelFont(fs, size)
+    -- Inter for latin clients; the client's own font covers CJK/cyrillic
+    -- scripts that Inter does not provide glyphs for.
+    local font = "Interface\\AddOns\\RGX-Framework\\media\\fonts\\Inter-Regular.otf"
+    local locale = _G.GetLocale and _G.GetLocale()
+    if locale == "koKR" or locale == "zhCN" or locale == "zhTW" or locale == "ruRU" then
+        font = _G.STANDARD_TEXT_FONT or font
+    end
+    local ok = fs:SetFont(font, size or 12, "")
+    if not ok then
+        fs:SetFont(_G.STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF", size or 12, "")
+    end
+    fs:SetShadowColor(0, 0, 0, 0.6)
+    fs:SetShadowOffset(1, -1)
+    return fs
+end
+
+local function BuildNineSlice(frame, layer, slice, inset, color, alpha)
+    local function t()
+        local tx = frame:CreateTexture(nil, layer)
+        tx:SetTexture(Design.PANEL_TEX)
+        tx:SetVertexColor(color[1], color[2], color[3], alpha or 1)
+        return tx
+    end
+    local i = inset
+    local tl, tr, bl, br = t(), t(), t(), t()
+    local tm, bm, ml, mr, c = t(), t(), t(), t(), t()
+    tl:SetSize(slice, slice); tl:SetPoint("TOPLEFT", i, -i); tl:SetTexCoord(0, PANEL_TC, 0, PANEL_TC)
+    tr:SetSize(slice, slice); tr:SetPoint("TOPRIGHT", -i, -i); tr:SetTexCoord(1 - PANEL_TC, 1, 0, PANEL_TC)
+    bl:SetSize(slice, slice); bl:SetPoint("BOTTOMLEFT", i, i); bl:SetTexCoord(0, PANEL_TC, 1 - PANEL_TC, 1)
+    br:SetSize(slice, slice); br:SetPoint("BOTTOMRIGHT", -i, i); br:SetTexCoord(1 - PANEL_TC, 1, 1 - PANEL_TC, 1)
+    tm:SetPoint("TOPLEFT", tl, "TOPRIGHT"); tm:SetPoint("BOTTOMRIGHT", tr, "BOTTOMLEFT"); tm:SetTexCoord(PANEL_TC, 1 - PANEL_TC, 0, PANEL_TC)
+    bm:SetPoint("TOPLEFT", bl, "TOPRIGHT"); bm:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT"); bm:SetTexCoord(PANEL_TC, 1 - PANEL_TC, 1 - PANEL_TC, 1)
+    ml:SetPoint("TOPLEFT", tl, "BOTTOMLEFT"); ml:SetPoint("BOTTOMRIGHT", bl, "TOPRIGHT"); ml:SetTexCoord(0, PANEL_TC, PANEL_TC, 1 - PANEL_TC)
+    mr:SetPoint("TOPLEFT", tr, "BOTTOMLEFT"); mr:SetPoint("BOTTOMRIGHT", br, "TOPRIGHT"); mr:SetTexCoord(1 - PANEL_TC, 1, PANEL_TC, 1 - PANEL_TC)
+    c:SetPoint("TOPLEFT", tl, "BOTTOMRIGHT"); c:SetPoint("BOTTOMRIGHT", br, "TOPLEFT"); c:SetTexCoord(PANEL_TC, 1 - PANEL_TC, PANEL_TC, 1 - PANEL_TC)
+    return { tl, tr, bl, br, tm, bm, ml, mr, c }
+end
+
+-- Legacy square backdrops (opts.square = true on CreateFrame, or ApplyBackdrop).
 local BACKDROPS = {
     dark = {
         bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -111,6 +164,20 @@ function Design:SetHighlightColor(color, accent)
     self:SetTheme({ primary = color, accent = accent })
 end
 
+-- Scoped theme override for one addon's UI construction without mutating the
+-- shared defaults: applies the theme for fn's duration, then restores.
+--   Design:WithTheme({ primary = SQP_GREEN }, function() ... build panel ... end)
+function Design:WithTheme(theme, fn)
+    if type(fn) ~= "function" then return end
+    local prevPrimary = self.Theme.primary
+    local prevAccent = self.Theme.accent
+    self:SetTheme(theme)
+    local ok, err = pcall(fn)
+    self.Theme.primary = prevPrimary
+    self.Theme.accent = prevAccent
+    if not ok then error(err, 0) end
+end
+
 Design.SetColors = Design.SetTheme
 Design.UseTheme = Design.SetTheme
 
@@ -141,12 +208,48 @@ function Design:ApplyBackdrop(frame, variant, bgAlpha)
     frame:SetBackdropBorderColor(self:Unpack("border"))
 end
 
+-- Rounded panel with a 1px border ring: border layer at inset 0, fill layer
+-- at inset 1, both nine-sliced from the rounded texture.
+function Design:ApplyPanel(frame, opts)
+    opts = opts or {}
+    local slice = opts.radius or self.Radius
+    local fill = self:GetColor(opts.color or "surface")
+    local borderColor = self:GetColor(opts.borderColor or "border")
+    local fillAlpha = opts.bgAlpha
+
+    frame._panelBorder = BuildNineSlice(frame, "BACKGROUND", slice, 0, borderColor, 1)
+    frame._panelFill   = BuildNineSlice(frame, "BORDER", slice, 1, fill, fillAlpha)
+
+    function frame:SetPanelColor(fillColor, borderColor, alpha)
+        if borderColor then
+            for _, tx in ipairs(self._panelBorder) do
+                tx:SetVertexColor(borderColor[1], borderColor[2], borderColor[3], 1)
+            end
+        end
+        if fillColor then
+            for _, tx in ipairs(self._panelFill) do
+                tx:SetVertexColor(fillColor[1], fillColor[2], fillColor[3], alpha or 1)
+            end
+        end
+    end
+
+    return frame
+end
+
 function Design:CreateFrame(parent, opts)
     opts = opts or {}
-    local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    if opts.square then
+        local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        if opts.width  then frame:SetWidth(opts.width)   end
+        if opts.height then frame:SetHeight(opts.height) end
+        self:ApplyBackdrop(frame, opts.variant or "dark", opts.bgAlpha)
+        return frame
+    end
+
+    local frame = CreateFrame("Frame", nil, parent)
     if opts.width  then frame:SetWidth(opts.width)   end
     if opts.height then frame:SetHeight(opts.height) end
-    self:ApplyBackdrop(frame, opts.variant or "dark", opts.bgAlpha)
+    self:ApplyPanel(frame, opts)
     return frame
 end
 
@@ -168,7 +271,8 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     label:SetPoint("CENTER", 0, 0)
     label:SetText(text or "")
-    label:SetTextColor(self:Unpack("subtext"))
+    label:SetTextColor(self:Unpack("text"))
+    ApplyLabelFont(label, 12)
     btn.label = label
 
     btn:SetScript("OnEnter", function(self)
@@ -189,7 +293,7 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     btn:SetScript("OnLeave", function(self)
         self.bg:SetColorTexture(Design:Unpack("surface"))
         self.border:SetBackdropBorderColor(Design:Unpack("border"))
-        self.label:SetTextColor(Design:Unpack("subtext"))
+        self.label:SetTextColor(Design:Unpack("text"))
         GameTooltip:Hide()
     end)
 
@@ -224,6 +328,7 @@ function Design:CreateSectionHeader(parent, text, icon)
     label:SetPoint("LEFT", leftInset, 0)
     label:SetText(text)
     label:SetTextColor(self:Unpack("primary"))
+    ApplyLabelFont(label, 13)
     header.label = label
 
     return header
@@ -239,8 +344,7 @@ function Design:CreateDivider(parent)
 end
 
 function Design:CreateSection(parent, title, icon)
-    local section = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    self:ApplyBackdrop(section, "panel", 0.6)
+    local section = self:CreateFrame(parent, { color = "panelAlt" })
 
     if title then
         local header = self:CreateSectionHeader(section, title, icon)
