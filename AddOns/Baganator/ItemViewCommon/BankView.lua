@@ -18,7 +18,10 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
 
   self.Tabs = {}
 
-  if self.characterTabsTemplate and Syndicator.Constants.CharacterBankTabsActive then
+  if Syndicator.Constants.BankTabsAsBags then
+    self.Character = CreateFrame("Frame", nil, self, self.characterTabsAsBagsTemplate)
+    self.Character:SetPoint("TOPLEFT")
+  elseif Syndicator.Constants.CharacterBankTabsActive then
     self.Character = CreateFrame("Frame", nil, self, self.characterTabsTemplate)
     self.Character:SetPoint("TOPLEFT")
   else
