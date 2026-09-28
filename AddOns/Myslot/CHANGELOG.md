@@ -1,36 +1,24 @@
 # Myslot
 
-## [v6.0.0](https://github.com/tg123/myslot/tree/v6.0.0) (2026-06-26)
-[Full Changelog](https://github.com/tg123/myslot/commits/v6.0.0) 
+## [v6.1.1](https://github.com/tg123/myslot/tree/v6.1.1) (2026-09-26)
+[Full Changelog](https://github.com/tg123/myslot/commits/v6.1.1) 
 
-- Hide unsupported export options cross-version (#119)  
-    * Hide unsupported export options cross-version  
-    Hide export/import/clear options for features the running client can't use,  
-    instead of showing entries that fail or no-op on the wrong client:  
-    - Cooldown Manager: gate on C\_AddOns.IsAddOnLoaded("Blizzard\_CooldownViewer").  
-      The C\_CooldownViewer namespace (incl. GetLayoutData/SetLayoutData and  
-      IsCooldownViewerAvailable) is present on Classic Era, so a namespace check  
-      leaks; the Blizzard\_CooldownViewer addon only loads on retail.  
-    - Click Cast Bindings: gate on the C\_ClickBindings namespace, which is  
-      genuinely absent on Classic.  
-    - Pet Action Bar: gate on the player's class (HUNTER/WARLOCK/DEATHKNIGHT/MAGE).  
-    Routes the GUI export/ignore menu, clear menu, and options.lua "Remove all"  
-    buttons through MySlot:Is*Supported(), and gates the functional export/recover/  
-    clear paths. options.lua reflows the clear buttons so hidden entries leave no gap.  
-    Also make the in-game macro test use the authoritative macro index from the  
-    live list rather than CreateMacro's return (not the macro index on Classic Era),  
-    and fix the in-game cooldown test skip-guard to use IsCooldownManagerSupported().  
-    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>  
-    * Address PR review: fix clear-button spacing and mage pet gating  
-    - options.lua: anchor the "allow clear on import" checkbox at rowy (not  
-      rowy - 30); rowy already points to the next free row after the last visible  
-      clear button, so subtracting another 30px left a blank row / pushed the  
-      checkbox down on retail.  
-    - Myslot.lua: mages only get a controllable Water Elemental pet bar on WotLK+  
-      (interface >= 30000), so gate MAGE pet support on GetBuildInfo instead of  
-      treating it as pet-capable on every client (it never is on Vanilla/TBC).  
-    - ci/wow\_stubs.lua: make GetBuildInfo's interface version stub-overridable.  
-    - tests: cover the mage build gate (retail supported, 1.x not).  
-    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>  
+- Fix export crash on WoW Forever and add 16001 to the TOC (#132)  
+    * Fix export crash on WoW Forever without the legacy talent grid  
+    WoW Forever (1.60.x, toc 16001) runs the 12.1 engine with vanilla  
+    content. It has C\_SpellBook.GetNumSpellBookSkillLines, so  
+    CreateSpellOverrideMap takes the retail branch, but MAX\_TALENT\_TIERS is  
+    nil there and Export failed with "Myslot.lua:210: 'for' limit must be a  
+    number".  
+    Only scan the tier/column talents when GetNumSpecGroups, GetTalentInfo,  
+    MAX\_TALENT\_TIERS and NUM\_TALENT\_COLUMNS all exist, and guard the PvP  
+    talent scan on C\_SpecializationInfo.GetPvpTalentSlotInfo and  
+    GetPvpTalentInfoByID the same way.  
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>  
+    * Add WoW Forever (16001) to the TOC interface list  
+    None of the packager's Interface-* directives cover WoW Forever, so  
+    without 16001 on the main Interface line Myslot loaded there only as  
+    out of date. BugSack, RXPGuides and EllesmereUI list it the same way.  
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>  
     ---------  
-    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>  
+    Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>  
