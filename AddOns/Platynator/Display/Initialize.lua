@@ -328,26 +328,9 @@ function addonTable.Display.ManagerMixin:UpdateStacking()
   if self:CombatChangesCheck() then
     return
   end
-  if addonTable.Constants.IsHitTestPointsAvailable then
-    local state = addonTable.Config.Get(addonTable.Config.Options.STACKING_NAMEPLATES)
-    C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Enemy, state.enemy)
-    C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Friendly, state.friend)
-  else
-    local enemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
-    local click, stack = enemyDesign.regions.click, enemyDesign.regions.stack
-    C_CVar.SetCVar("nameplateOverlapH", stack.width / click.width * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_X) / addonTable.Config.Get(addonTable.Config.Options.CLICK_REGION_SCALE_X))
-    C_CVar.SetCVar("nameplateOverlapV", stack.height / click.height * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_Y) / addonTable.Config.Get(addonTable.Config.Options.CLICK_REGION_SCALE_Y))
-    if addonTable.Config.Get(addonTable.Config.Options.CLOSER_TO_SCREEN_EDGES) then
-      C_CVar.SetCVar("nameplateOtherTopInset", "0.05")
-      C_CVar.SetCVar("nameplateLargeTopInset", "0.07")
-    elseif C_CVar.GetCVar("nameplateOtherTopInset") == "0.05" and C_CVar.GetCVar("nameplateLargeTopInset") == "0.07" then
-      C_CVar.SetCVar("nameplateOtherTopInset", "0.08")
-      C_CVar.SetCVar("nameplateLargeTopInset", "0.1")
-    end
-
-    local state = addonTable.Config.Get(addonTable.Config.Options.STACKING_NAMEPLATES)
-    C_CVar.SetCVar("nameplateMotion", (state.enemy or state.friend) and "1" or "0")
-  end
+  local state = addonTable.Config.Get(addonTable.Config.Options.STACKING_NAMEPLATES)
+  C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Enemy, state.enemy)
+  C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Friendly, state.friend)
 end
 
 function addonTable.Display.ManagerMixin:UpdateTargetScale()
@@ -510,7 +493,7 @@ end
 
 function addonTable.Display.ManagerMixin:UpdateClickRegion(unit)
   local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-  if nameplate and addonTable.Constants.IsHitTestPointsAvailable and nameplate:CanChangeHitTestPoints() then
+  if nameplate and nameplate:CanChangeHitTestPoints() then
     local clickRegion = self.nameplateClickRegions[nameplate:GetName()]
     if not clickRegion.parented then
       clickRegion.parented = true
@@ -648,9 +631,6 @@ function addonTable.Display.ManagerMixin:UpdateNamePlateSize()
 
   local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
   local verticalOffset = addonTable.Config.Get(addonTable.Config.Options.VERTICAL_OFFSET) * addonTable.Assets.BarBordersSize.height
-  if not addonTable.Constants.IsHitTestPointsAvailable then
-    verticalOffset = 0
-  end
 
   local width = math.max(math.abs(right), math.abs(left)) * 2 * globalScale
   local height = (top - bottom) * globalScale

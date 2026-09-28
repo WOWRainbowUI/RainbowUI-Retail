@@ -1,8 +1,9 @@
 # Platynator
 
-## [490](https://github.com/TheMouseNest/Platynator/tree/490) (2026-09-22)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/489...490) 
+## [492](https://github.com/TheMouseNest/Platynator/tree/492) (2026-09-26)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/491...492) 
 
-- Forever: Fix quest marker/colours not applying when grouped  
-- Add "Threat Percentage" widget  
-- Designer: Highlight widgets currently selected in selection context menu  
+- Revert "Fix issue with "Bar: Health Fill Text" breaking when font alphabet changes"  
+- Fix issue with "Bar: Health Fill Text" breaking when font alphabet changes  
+- Cleanup old compatibility code  
+- Designer: Fix missing "Regions" button  

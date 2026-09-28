@@ -780,15 +780,9 @@ function addonTable.Display.GetText(frame, parent)
     frame.text:SetJustifyH(details.align)
     local scale = details.scale * 0.85
     local width = details.maxWidth * addonTable.Assets.BarBordersSize.width
-    if frame.text.SetSmoothScaling then
-      frame.text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-      frame.text:SetScale(scale)
-      frame.text:SetWidth(width / scale)
-    else
-      frame.text:SetTextScale(scale)
-      frame.text:SetScale(1)
-      frame.text:SetWidth(width)
-    end
+    frame.text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+    frame.text:SetScale(scale)
+    frame.text:SetWidth(width / scale)
 
     if details.kind == "health" then
       Mixin(frame, addonTable.Display.HealthTextMixin)
@@ -896,12 +890,8 @@ function addonTable.Display.GetHealthFillText(frame, parent)
       t:SetJustifyV("BOTTOM")
 
       local scale = details.scale * 0.85
-      if t.SetSmoothScaling then
-        t:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-        t:SetScale(scale)
-      else
-        t:SetTextScale(scale)
-      end
+      t:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+      t:SetScale(scale)
     end
 
     frame.background:SetTextColor(details.background.color.r, details.background.color.g, details.background.color.b)
