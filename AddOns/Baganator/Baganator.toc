@@ -1,6 +1,6 @@
 ## Interface: 120100, 16001, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 829
+## Version: 831
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -64,6 +64,7 @@ ItemViewCommon\ItemButton.lua
 ItemViewCommon\ItemButton.xml
 ItemViewCommon\Pools.lua
 ItemViewCommon\ContainerSlots.lua
+ItemViewCommon\BankContainerTabSlots.lua
 ItemViewCommon\ContainerSlots.xml
 ItemViewCommon\Components.xml
 ItemViewCommon\Layouts.lua
@@ -85,6 +86,8 @@ ItemViewCommon\BankViewCharacterView.lua
 ItemViewCommon\BankViewCharacterView.xml
 ItemViewCommon\BankViewCharacterTabsView.lua
 ItemViewCommon\BankViewCharacterTabsView.xml
+ItemViewCommon\BankViewCharacterTabsAsBagsView.lua
+ItemViewCommon\BankViewCharacterTabsAsBagsView.xml
 ItemViewCommon\BankViewWarbandView.lua
 ItemViewCommon\BankViewWarbandView.xml
 ItemViewCommon\BankView.lua
@@ -101,6 +104,8 @@ SingleViews\BankViewCharacterView.lua
 SingleViews\BankViewCharacterView.xml
 SingleViews\BankViewCharacterTabsView.lua
 SingleViews\BankViewCharacterTabsView.xml
+SingleViews/BankViewCharacterTabsAsBagsView.lua
+SingleViews/BankViewCharacterTabsAsBagsView.xml
 SingleViews\BankViewWarbandView.lua
 SingleViews\BankViewWarbandView.xml
 SingleViews\BankView.xml
@@ -126,6 +131,8 @@ CategoryViews\BankViewCharacterView.lua
 CategoryViews\BankViewCharacterView.xml
 CategoryViews\BankViewCharacterTabsView.lua
 CategoryViews\BankViewCharacterTabsView.xml
+CategoryViews\BankViewCharacterTabsAsBagsView.lua
+CategoryViews\BankViewCharacterTabsAsBagsView.xml
 CategoryViews\BankViewWarbandView.lua
 CategoryViews\BankViewWarbandView.xml
 CategoryViews\BankView.xml
