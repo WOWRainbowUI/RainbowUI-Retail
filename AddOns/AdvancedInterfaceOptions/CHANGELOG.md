@@ -1,8 +1,10 @@
 # Advanced Interface Options
 
-## [2.1.13](https://github.com/Stanzilla/AdvancedInterfaceOptions/tree/2.1.13) (2026-08-25)
-[Full Changelog](https://github.com/Stanzilla/AdvancedInterfaceOptions/compare/2.1.12...2.1.13) [Previous Releases](https://github.com/Stanzilla/AdvancedInterfaceOptions/releases)
+## [2.1.14](https://github.com/Stanzilla/AdvancedInterfaceOptions/tree/2.1.14) (2026-09-27)
+[Full Changelog](https://github.com/Stanzilla/AdvancedInterfaceOptions/compare/2.1.13...2.1.14) [Previous Releases](https://github.com/Stanzilla/AdvancedInterfaceOptions/releases)
 
-- Add `canaccessvalue` to luacheck  
-- Fix `debugstack` throwing an error if trace contains secret values  
+- chode(toc): add forever version  
+- chore: update interface updater to v1.2.0  
+- chore: use standard WoW interface targets  
 - chore: update WoW interface versions  
+- Added all missing api functions to luacheck globals list  
