@@ -1,7 +1,5 @@
-### Changes in 120100.147-Release:
+### Changes in 120100.149-Release:
 
-- Changed: Update Interface version for retail
-- Changed: Update retail data
-- Changed: Update wrath data
-- Changed: Update classic data
+- Addded: Tooltips help text to all clients
+- Fixed: Errors on Anniversary/Era
 
