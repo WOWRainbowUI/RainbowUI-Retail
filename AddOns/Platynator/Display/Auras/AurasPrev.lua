@@ -170,10 +170,8 @@ local function StyleAura(auraFrame, details)
     end
   end
 
-  if auraFrame.CountFrame.Count.SetSmoothScaling then
-    auraFrame.CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-    auraFrame.Cooldown.Text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-  end
+  auraFrame.CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+  auraFrame.Cooldown.Text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
 
   auraFrame.Cooldown:SetDrawEdge(details.showSwipe)
   auraFrame.Cooldown:SetDrawSwipe(details.showSwipe)

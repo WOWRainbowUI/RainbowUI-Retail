@@ -46,10 +46,8 @@ local function StyleAura(auraFrame, details, container)
     end
   end
 
-  if auraFrame.TextsContainer.Applications.SetSmoothScaling then
-    auraFrame.TextsContainer.Applications:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-    auraFrame.TextsContainer.Countdown:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-  end
+  auraFrame.TextsContainer.Applications:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+  auraFrame.TextsContainer.Countdown:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
 
   auraFrame.Cooldown:SetDrawEdge(details.showSwipe)
   auraFrame.Cooldown:SetDrawSwipe(details.showSwipe)

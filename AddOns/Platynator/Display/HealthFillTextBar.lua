@@ -22,7 +22,7 @@ function addonTable.Display.HealthFillTextBarMixin:SetUnit(unit)
     self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", self.unit)
     self:RegisterUnitEvent("UNIT_NAME_UPDATE", self.unit)
 
-    self.defaultText = UnitName(self.unit)
+    self:SaveName()
     self:SetText(self.defaultText)
 
     -- Disable animation for initial setup
@@ -105,11 +105,20 @@ function addonTable.Display.HealthFillTextBarMixin:OnEvent(eventName)
   elseif eventName == "UNIT_ABSORB_AMOUNT_CHANGED" then
     self:UpdateHealth()
   elseif eventName == "UNIT_NAME_UPDATE" then
-    self.defaultText = UnitName(self.unit)
+    self:SaveName()
     self:SetText(self.defaultText)
   end
 
   self:ColorEventHandler(eventName)
+end
+
+function addonTable.Display.HealthFillTextBarMixin:SaveName()
+  if UnitIsPlayer(self.unit) and RegionalUniqueNamesEnabled and RegionalUniqueNamesEnabled() then
+    local part1, part2 = UnitName(self.unit)
+    self.defaultText = part1 and part2 and part1 .. Constants.CharacterNameSeparatorConsts.CHARACTERNAME_SURNAME_SEPARATOR .. part2 or part1
+  else
+    self.defaultText = UnitName(self.unit)
+  end
 end
 
 function addonTable.Display.HealthFillTextBarMixin:ApplyTextOverride()

@@ -288,7 +288,7 @@ function addonTable.Display.NameplateMixin:OnEvent()
 end
 
 function addonTable.Display.NameplateMixin:UpdateVisual()
-  local scaleMod = (addonTable.Constants.IsHitTestPointsAvailable and not addonTable.Constants.IsMists) and 1 or UIParent:GetEffectiveScale()
+  local scaleMod = not addonTable.Constants.IsMists and 1 or UIParent:GetEffectiveScale()
   if not self.unit then
     self:SetAlpha(1)
     self:SetScale(self.scale * addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE) * scaleMod)

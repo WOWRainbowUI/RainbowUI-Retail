@@ -518,9 +518,7 @@ local function GetAurasTextPositioning(rootParent, iconID)
       local text = preview.widgets[key].text
       text:ClearAllPoints()
       text:SetFontObject(addonTable.CurrentFont)
-      if text.SetSmoothScaling then
-        text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-      end
+      text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
       if addonTable.CurrentFontUsesSmoothing then
         text:SetTextScale(1)
         text:SetScale(textDetails.scale)
@@ -1047,9 +1045,6 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
     end
   end)
   addonTable.Skins.AddFrame("Button", showRegionsButton)
-  if not addonTable.Constants.IsHitTestPointsAvailable then
-    showRegionsButton:Hide()
-  end
 
   UpdateHiding = function()
     for index, w in ipairs(widgets) do
@@ -1446,9 +1441,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         cdText:SetScale(1)
       end
       cdText:SetTextColor(details.texts.countdown.color.r, details.texts.countdown.color.g, details.texts.countdown.color.b)
-      if cdText.SetSmoothScaling then
-        cdText:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-      end
+      cdText:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
       container.auras[1].Cooldown:SetCooldown(GetTime() - 2.1, 5)
       container.auras[1].Cooldown:Pause()
       if container.auras[1].Cooldown.SetCountdownFormatter then
@@ -1461,9 +1454,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
       container.auras[1].CountFrame.Count:SetText(2)
       container.auras[1].CountFrame.Count:SetFontObject(addonTable.CurrentFont)
       container.auras[1].CountFrame.Count:SetShown(details.texts.stacks.visible)
-      if container.auras[1].CountFrame.Count.SetSmoothScaling then
-        container.auras[1].CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-      end
+      container.auras[1].CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
       if addonTable.CurrentFontUsesSmoothing then
         container.auras[1].CountFrame.Count:SetTextScale(1)
         container.auras[1].CountFrame.Count:SetScale(details.texts.stacks.scale)
