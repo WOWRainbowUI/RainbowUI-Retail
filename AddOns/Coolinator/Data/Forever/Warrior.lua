@@ -218,6 +218,7 @@ addonTable.Data.Spells.WARRIOR = {
   },
   [24] = {
     ['spells'] = {
+      [1] = 7386,
       [2] = 7405,
       [3] = 8380,
       [4] = 11596,
@@ -282,6 +283,7 @@ addonTable.Data.Spells.WARRIOR = {
   },
   [32] = {
     ['spells'] = {
+      [1] = 20252,
       [2] = 20616,
       [3] = 20617
     },

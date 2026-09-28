@@ -239,6 +239,19 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
   }
 
   local seen = {}
+
+  if addonTable.Constants.IsForever then
+    local rankData = addonTable.Data.Spells[UnitClassBase("player")]
+    for _, entry in ipairs(rankData) do
+      for index, spellID in ipairs(entry.spells) do
+        if index ~= 1 then
+          seen[spellID] = true
+        end
+      end
+    end
+  end
+  local auraSeen = CopyTable(seen)
+
   for _, id in ipairs(utilitySaved) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
     if info then
@@ -273,7 +286,7 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
     local entry = CopyTable(addonTable.Designer.Defaults.AuraIcon)
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
     local spellID = info and addonTable.Core.GetSpellFromCDMInfo(info)
-    if spellID then
+    if spellID and not auraSeen[spellID] then
       entry.preset = "AURA"
       entry.resource.spellID = spellID
       table.insert(result.entries[3].entries, entry)
@@ -294,7 +307,7 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
   for _, id in ipairs(barsSaved) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(id)
     local spellID = info and addonTable.Core.GetSpellFromCDMInfo(info)
-    if spellID then
+    if spellID and not auraSeen[spellID] then
       local entry = CopyTable(addonTable.Designer.Defaults.AuraBar)
       entry.preset = "DEFAULT"
       entry.resource.spellID = spellID

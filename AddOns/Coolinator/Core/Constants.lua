@@ -87,13 +87,13 @@ addonTable.Constants.ClassResources = {
   [1473] = {"essence", "mana"}, -- Augmentation
   [1465] = {},
   -- Hunter
-  ["HUNTER"] = {"focus"},
+  ["HUNTER"] = {"mana"},
   [253] = {"focus"}, -- Beast Mastery
   [254] = {"focus"}, -- Marksmanship
   [255] = {"focus", "tip-of-the-spear"}, -- Survival
   [1448] = {"focus"},
   -- Mage
-  ["MAGE"] = {"mana", "arcane-charges"},
+  ["MAGE"] = {"mana"},
   [62] = {"arcane-charges", "mana"}, -- Arcane
   [63] = {"mana"}, -- Fire
   [64] = {"mana", "icicles"}, -- Frost
@@ -105,13 +105,13 @@ addonTable.Constants.ClassResources = {
   [269] = {"chi", "energy"}, -- Windwalker
   [1450] = 30,
   -- Paladin
-  ["PALADIN"] = {"holy-power", "mana"},
+  ["PALADIN"] = {"mana"},
   [65] = {"holy-power","mana"}, -- Holy
   [66] = {"holy-power","mana"}, -- Protection
   [70] = {"holy-power", "mana"}, -- Retribution
   [1451] = {"mana"},
   -- Priest
-  ["PRIEST"] = {"mana", "insanity"},
+  ["PRIEST"] = {"mana"},
   [256] = {"mana"}, -- Discipline
   [257] = {"mana"}, -- Holy
   [258] = {"mana", "insanity"}, -- Shadow
@@ -123,7 +123,7 @@ addonTable.Constants.ClassResources = {
   [261] = {"energy", "combo-points"}, -- Subtlety
   [1453] = {"energy", "combo-points"},
   -- Shaman
-  ["SHAMAN"] = {"maelstrom-weapon", "mana"},
+  ["SHAMAN"] = {"mana"},
   [262] = {"maelstrom", "mana"}, -- Elemental
   [263] = {"maelstrom-weapon", "mana"}, -- Enhancement
   [264] = {"mana"}, -- Restoration

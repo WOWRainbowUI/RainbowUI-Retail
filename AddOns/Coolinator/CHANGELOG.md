@@ -1,6 +1,7 @@
 # Coolinator
 
-## [149](https://github.com/TheMouseNest/Coolinator/tree/149) (2026-09-22)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/148...149) 
+## [151](https://github.com/TheMouseNest/Coolinator/tree/151) (2026-09-27)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/150...151) 
 
-- Forever: Update spell data  
+- Forever: Fix Warrior spell list  
+- Update resources allowed for Forever classes  
