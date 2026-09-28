@@ -144,7 +144,7 @@ function addonTable.Core.GenerateDefaultCDMLayout()
     local entry = CopyTable(addonTable.Designer.Defaults.AuraBar)
     entry.preset = "DEFAULT"
     local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(id))
-    if spellID then
+    if spellID and not auraSeen[spellID] then
       entry.resource.spellID = spellID
       table.insert(barGroups.entries, entry)
     end
