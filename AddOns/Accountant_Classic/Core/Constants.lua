@@ -8,28 +8,43 @@ local GetBuildInfo = _G.GetBuildInfo
 
 -- Libraries
 
--- Determine WoW TOC Version
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWCATAC, WoWRetail
-local wowversion  = select(4, GetBuildInfo())
-if wowversion < 20000 then
-	WoWClassicEra = true
-elseif wowversion < 30000 then 
-	WoWClassicTBC = true
-elseif wowversion < 40000 then 
-	WoWWOTLKC = true
-elseif wowversion < 50000 then
-	WoWCATAC = true
-elseif wowversion > 90000 then
+-- Determine WoW client family
+local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWClassicCata, WoWClassicMists, WoWRetail
+local projectID = _G.WOW_PROJECT_ID
+if projectID == _G.WOW_PROJECT_MAINLINE then
 	WoWRetail = true
+elseif projectID == _G.WOW_PROJECT_CLASSIC then
+	WoWClassicEra = true
+elseif projectID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+	WoWClassicTBC = true
+elseif projectID == _G.WOW_PROJECT_WRATH_CLASSIC then
+	WoWWOTLKC = true
+elseif projectID == _G.WOW_PROJECT_CATACLYSM_CLASSIC then
+	WoWClassicCata = true
+elseif projectID == _G.WOW_PROJECT_MISTS_CLASSIC then
+	WoWClassicMists = true
 else
-	-- n/a
+	local wowversion = select(4, GetBuildInfo())
+	if wowversion < 20000 then
+		WoWClassicEra = true
+	elseif wowversion < 30000 then
+		WoWClassicTBC = true
+	elseif wowversion < 40000 then
+		WoWWOTLKC = true
+	elseif wowversion < 90000 then
+		WoWClassicCata = true
+	elseif wowversion > 90000 then
+		WoWRetail = true
+	end
 end
+
+local WoWClassicFamily = WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWClassicCata or WoWClassicMists
 
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
 local FOLDER_NAME, private = ...
-private.addon_name = FOLDER_NAME
+private.addon_name = "Accountant_Classic"
 
 local LibStub = _G.LibStub
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
@@ -48,7 +63,7 @@ constants.defaults = {
 			minimapPos = 153,
 		},
 		showbutton = true, 
-		showmoneyinfo = false, 
+		showmoneyinfo = true, 
 		showintrotip = true,
 		showmoneyonbutton = true,
 		showsessiononbutton = true,
@@ -57,7 +72,7 @@ constants.defaults = {
 		trackzone = true,
 		tracksubzone = true,
 		breakupnumbers = true,
-		weekstart = 5,
+		weekstart = 1,
 		ldbDisplayType = 2,
 		dateformat = 1,
 		scale = 1,
@@ -75,7 +90,7 @@ constants.defaults = {
 
 constants.logmodes = {"Session", "Day", "PrvDay", "Week", "PrvWeek", "Month", "PrvMonth", "Year", "PrvYear", "Total" }
 
-if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
+if (WoWClassicFamily) then 
 	constants.events = {
 		-- Talent
 		"CONFIRM_TALENT_WIPE",
@@ -125,18 +140,6 @@ if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		["LOOT"] = 	{ Title = LOOT};
 		["OTHER"] = 	{ Title = L["Unknown"]};
 	}
-	if WoWCATAC then
-		-- Transmog
-		constants.events[#constants.events + 1] = "TRANSMOGRIFY_OPEN";
-    constants.events[#constants.events + 1] = "TRANSMOGRIFY_CLOSE";
-    constants.logtypes[#constants.logtypes + 1] = "TRANSMO";
-    constants.onlineData["TRANSMO"] =	{ Title = TRANSMOGRIFY};
-    -- Reforging
-    constants.events[#constants.events + 1] = "FORGE_MASTER_OPENED";
-    constants.events[#constants.events + 1] = "FORGE_MASTER_CLOSED";
-    constants.logtypes[#constants.logtypes + 1] = "REFORGE";
-    constants.onlineData["REFORGE"] = { Title = REFORGE };
-	end
 else
 	constants.events = {
 		-- Garrison

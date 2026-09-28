@@ -1,30 +1,42 @@
 --[[
-$Id: Core.lua 399 2022-11-06 13:25:42Z arithmandar $
+$Id: Core.lua 421 2026-09-19 08:18:59Z arithmandar $
 ]]
 --[[
- Accountant
-    v2.1 - 2.3:
-    By Sabaki (sabaki@gmail.com)
-        Updated by: Shadow
-        new codes by Shadow and Rophy
+Accountant
+v2.1 - 2.3:
+	By Sabaki (sabaki@gmail.com)
+		Updated by: Shadow
+		new codes by Shadow and Rophy
 
 	Tracks you incoming / outgoing cash
 
-        Thanks To:
+	Thanks To:
 	2006/6/18 Rophy: v2.2 Added gold shared by party
 
 	Thanks To:
 	Losimagic, Shrill, Fillet for testing
 	Atlas by Razark for the minimap icon code I lifted
 	Everyone who commented and voted for the mod on curse-gaming.com
-  Thiou for the French loc, Snj & JokerGermany for the German loc
-  ---------------------------------------------------------------------
-  v2.4 - v2.12:
-     Updated by: Arith
-     Tntdruid for adding Garrison, Barber shop, Void, and Transform logging in v2.5.22
-  v2.13 - v2.14:
-	 Updated by: kamusis
-	 Bug fixes and improvements: Add sort function in All Chars tab
+	Thiou for the French loc, Snj & JokerGermany for the German loc
+---------------------------------------------------------------------
+	v2.4 - v2.12:
+		Updated by: Arith
+		Tntdruid for adding Garrison, Barber shop, Void, and Transform logging in v2.5.22
+---------------------------------------------------------------------
+	v2.13 - v2.14:
+		Updated by: kamusis
+		Bug fixes and improvements: Add sort function in All Chars tab
+	v2.20:
+		Updated by: kamusis
+		Priming Approach: one-time baseline initialization to avoid first-session skew;
+		guarded CHAT_MSG_MONEY priming; one-time colored chat alert; minor lints
+		hardening (LDB.text fallback, capture gsub return); removed duplicate
+		hide_on_escape in reset dialog; added comprehensive inline comments.
+ ---------------------------------------------------------------------
+	v2.21:
+		Updated by: Arith
+		Since kamusis has released his revision and use the version number v2.13 ~ v2.20, I will start with v2.21 from now on.
+		Although my revision still continued with my previouse work in v2.12.30, applying the compatibility fixes, and then adopted kamusis' improvements.
 ]]
 -----------------------------------------------------------------------
 -- Upvalued Lua API.
@@ -39,57 +51,68 @@ local format, gsub, strfind, strsub = string.format, string.gsub, string.find, s
 local math = _G.math
 local floor, fmod = math.floor, math.fmod
 -- WoW
+local C_AddOns = _G.C_AddOns
+local GetAddOnInfo, GetAddOnMetadata = C_AddOns.GetAddOnInfo, C_AddOns.GetAddOnMetadata
 local PanelTemplates_TabResize, PanelTemplates_SetNumTabs, PanelTemplates_SetTab, PanelTemplates_UpdateTabs = PanelTemplates_TabResize, PanelTemplates_SetNumTabs, PanelTemplates_SetTab, PanelTemplates_UpdateTabs
-local GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo = GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo
-local GetAddOnInfo = function(...)
-	if _G.GetAddOnInfo then
-		return _G.GetAddOnInfo(...)
-	elseif C_AddOns and C_AddOns.GetAddOnInfo then
-		return C_AddOns.GetAddOnInfo(...)
-	end
-end
-local GetAddOnMetadata = function(...)
-	if _G.GetAddOnMetadata then
-		return _G.GetAddOnMetadata(...)
-	elseif C_AddOns and C_AddOns.GetAddOnMetadata then
-		return C_AddOns.GetAddOnMetadata(...)
-	end
-end
-local GetBackpackCurrencyInfo = GetBackpackCurrencyInfo or nil
-local GetCurrencyInfo = GetCurrencyInfo or nil
+local GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo = _G.GetRealmName, _G.UnitName, _G.UnitFactionGroup, _G.UnitClass, _G.GetBuildInfo
+local GetBackpackCurrencyInfo, GetCurrencyInfo
 
--- Determine WoW TOC Version
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWCATAC, WoWRetail
-local wowversion  = select(4, GetBuildInfo())
-if wowversion < 20000 then
-	WoWClassicEra = true
-elseif wowversion < 30000 then 
-	WoWClassicTBC = true
-elseif wowversion < 40000 then 
-	WoWWOTLKC = true
-elseif wowversion < 50000 then
-	WoWCATAC = true
-	GetCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo
-elseif wowversion > 90000 then
+-- Determine WoW client family
+local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWClassicCata, WoWClassicMists, WoWRetail
+local projectID = _G.WOW_PROJECT_ID
+if projectID == _G.WOW_PROJECT_MAINLINE then
 	WoWRetail = true
+elseif projectID == _G.WOW_PROJECT_CLASSIC then
+	WoWClassicEra = true
+elseif projectID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+	WoWClassicTBC = true
+elseif projectID == _G.WOW_PROJECT_WRATH_CLASSIC then
+	WoWWOTLKC = true
+elseif projectID == _G.WOW_PROJECT_CATACLYSM_CLASSIC then
+	WoWClassicCata = true
+elseif projectID == _G.WOW_PROJECT_MISTS_CLASSIC then
+	WoWClassicMists = true
+else
+	local wowversion = select(4, GetBuildInfo())
+	if wowversion < 20000 then
+		WoWClassicEra = true
+	elseif wowversion < 30000 then
+		WoWClassicTBC = true
+	elseif wowversion < 40000 then
+		WoWWOTLKC = true
+	elseif wowversion < 90000 then
+		WoWClassicCata = true
+	elseif wowversion > 90000 then
+		WoWRetail = true
+	end
+end
 
+local WoWClassicFamily = WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWClassicCata or WoWClassicMists
+local _, private = ...
+private.WoWClassicFamily = WoWClassicFamily
+
+if WoWClassicFamily then
+	GetBackpackCurrencyInfo = _G.GetBackpackCurrencyInfo
+	GetCurrencyInfo = _G.GetCurrencyInfo
+else
 	GetBackpackCurrencyInfo = C_CurrencyInfo.GetBackpackCurrencyInfo
 	GetCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo
-else
-	-- n/a
 end
 
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local FOLDER_NAME, private = ...
+local FOLDER_NAME = ...
 local LibStub = _G.LibStub
+if not LibStub then error(FOLDER_NAME .. " requires LibStub.") end
 
 local addon = LibStub("AceAddon-3.0"):NewAddon(private.addon_name, "AceConsole-3.0", "AceHook-3.0")
+
 addon.constants = private.constants
 addon.constants.addon_name = private.addon_name
 addon.Name = FOLDER_NAME
--- addon.LocName = select(2, GetAddOnInfo(addon.Name))
+
+addon.LocName = select(2, GetAddOnInfo(addon.Name))
 addon.Notes = select(3, GetAddOnInfo(addon.Name))
 _G.Accountant_Classic = addon
 
@@ -98,7 +121,6 @@ local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 local MoneyFrame
 
-local LibDialog = LibStub("LibDialog-1.0");
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name);
 addon.LocName = L["Accountant Classic"]
 local ACbutton = LibStub("LibDBIcon-1.0")
@@ -129,6 +151,8 @@ local AC_CHAR_LINES = private.constants.maxCharLines -- Maximum lines for charac
 local AC_SELECTED_CHAR_NUM
 local AC_SELECTED_SERVER
 local AC_SELECTED_FACTION
+local AC_SORT_BY = "money"
+local AC_SORT_ASC = false
 local AccountantClassic_Verbose = nil;
 --local AccountantClassic_GotName = false;
 
@@ -146,6 +170,53 @@ local cyear = date("%Y")
 
 local profile
 local AC_FIRSTLOADED = false
+
+-- Updated by: kamusis
+-- Priming flag for one-time baseline initialization
+--
+-- Rationale:
+-- Historically, the addon used AC_FIRSTLOADED to block logging for the entire first
+-- session of a character to avoid counting the current balance as a fake "income".
+-- That prevented skew but also dropped all money changes during the first session.
+--
+-- The Priming Approach replaces that blanket suppression with a one-time baseline
+-- initialization. We set AC_LASTMONEY to the current balance exactly once ("prime")
+-- and then allow normal logging for the rest of the session. This avoids the initial
+-- fake income without losing subsequent changes.
+--
+-- AC_LOG_PRIMED = false means baseline not initialized yet; the first safe path
+-- (PLAYER_MONEY or CHAT_MSG_MONEY) will initialize it. After priming, logging runs
+-- normally. We will also clear AC_FIRSTLOADED at that time to preserve intent.
+local AC_LOG_PRIMED = false
+
+--
+-- One-time UI alert for baseline priming
+--
+-- We want to notify the player once per session when the addon performs the
+-- baseline priming. Using a separate guard ensures we don't spam the UI when
+-- multiple code paths (PLAYER_MONEY / CHAT_MSG_MONEY / updateLog) converge to
+-- the same priming operation.
+local AC_PRIMING_ALERTED = false
+local function AccountantClassic_ShowPrimingAlert()
+	if AC_PRIMING_ALERTED then return end
+	AC_PRIMING_ALERTED = true
+	-- One-time, noticeable chat message (yellow/orange) without using UIErrorsFrame.
+	-- Rationale: keep it visible yet unobtrusive, and consistent across UIs where
+	-- UIErrorsFrame may be hidden or styled away by other addons.
+	local msg = format("|cffffd200[%s]: %s|r", L["Accountant Classic"], L["Initial balance captured. Tracking for subsequent money changes has started."])
+	ACC_Print(msg)
+end
+
+local function AccountantClassic_PrimeBaseline()
+	if AC_LOG_PRIMED then return end
+	AC_LASTMONEY = GetMoney()
+	if AccountantClassic_Profile and AccountantClassic_Profile["options"] then
+		AccountantClassic_Profile["options"].totalcash = AC_LASTMONEY
+	end
+	AC_LOG_PRIMED = true
+	AC_FIRSTLOADED = false
+	AccountantClassic_ShowPrimingAlert()
+end
 
 local AccountantClassicDefaultOptions = {
 	version = AccountantClassic_Version, 
@@ -186,20 +257,6 @@ local function orderedpairs(t, f)
 	end
 	tsort(keys, f)
 	return orderednext, keys
-end
-
--- Code by Grayhoof (SCT)
-local function AccountantClassic_CloneTable(tablein)	-- Return a copy of the table tablein
-	local new_table = {};			-- Create a new table
-	local ka, va = next(tablein, nil);	-- The ka is an index of tablein; va = tablein[ka]
-	while ka do
-		if type(va) == "table" then 
-			va = AccountantClassic_CloneTable(va);
-		end 
-		new_table[ka] = va;
-		ka, va = next(tablein, ka);	-- Get next index
-	end
-	return new_table;
 end
 
 -- function to check if user has all the options parameter, 
@@ -275,15 +332,30 @@ local function initOptions()
 	AccountantClassic_Profile = Accountant_ClassicSaveData[AC_SERVER][AC_PLAYER];
 
 	AccountantClassic_UpdateOptions(AccountantClassic_Profile["options"]);
-
 	AccountantClassic_InitZoneDB();
+
+	-- Seed the baseline immediately for a brand-new profile/session so the first
+	-- real money change is not lost before the first PLAYER_MONEY event arrives.
+	-- This must happen after ZoneDB initialization, because AC_FIRSTLOADED is set
+	-- there for a truly fresh character/session.
+	if AC_FIRSTLOADED
+		or AccountantClassic_Profile["options"].totalcash == nil
+		or (AccountantClassic_Profile["options"].totalcash == 0 and not next(AccountantClassic_Profile["data"])) then
+		AccountantClassic_PrimeBaseline()
+	elseif not AC_LOG_PRIMED then
+		-- An existing profile already has a saved baseline from a previous session.
+		-- Restore it without showing the one-time priming message again.
+		AC_LASTMONEY = AccountantClassic_Profile["options"].totalcash or GetMoney()
+		AC_LOG_PRIMED = true
+		AC_FIRSTLOADED = false
+	end
 end
 
 local function copyOptions()
 	local oprofile = Accountant_ClassicSaveData[AC_SERVER][AC_PLAYER]["options"]
 	local db = addon.db.profile
 	
-	if (db.oprofileCopied) then return end
+	if (db and db.oprofileCopied) then return end
 	db.showbutton = oprofile.showbutton
 	db.showmoneyinfo = oprofile.showmoneyinfo
 	db.showintrotip = oprofile.showintrotip
@@ -315,15 +387,74 @@ local function arrangeAccountantClassicFrame()
 end
 
 function AccountantClassic_RegisterEvents(self)
-        for key, value in pairs( private.constants.events ) do
-            self:RegisterEvent( value );
-        end
+		for key, value in pairs( private.constants.events ) do
+			self:RegisterEvent( value );
+		end
 	--self:RegisterForDrag("LeftButton");
 end
 
 local function createACFrames()
 	local parentName = "AccountantClassicFrame"
 	local f = _G[parentName]
+	if not f._accountantInitialized then
+		f:GetScript("OnLoad")(f)
+		f._accountantInitialized = true
+	end
+	for index = 1, 18 do
+		local row = _G[parentName.."Row"..index]
+		if row and not row.Title then
+			AccountantClassic_InitializeRow(row)
+		end
+	end
+	if not _G[parentName.."Tab1"] then
+		AccountantClassic_CreateTabs(f)
+	end
+
+	if not f.HeaderSource then
+		local function makeHeaderButton(name, x, width)
+			local button = CreateFrame("Button", name, f)
+			button:SetSize(width, 19)
+			button:SetPoint("TOPLEFT", f, "TOPLEFT", x, -91)
+			button:SetFrameStrata("HIGH")
+			button:SetScript("OnEnter", function(self)
+				if self.highlightTexture then
+					self.highlightTexture:Show()
+				else
+					self.highlightTexture = self:CreateTexture(nil, "BACKGROUND")
+					self.highlightTexture:SetAllPoints(self)
+					self.highlightTexture:SetColorTexture(1, 1, 1, 0.2)
+					self.highlightTexture:Show()
+				end
+			end)
+			button:SetScript("OnLeave", function(self)
+				if self.highlightTexture then
+					self.highlightTexture:Hide()
+				end
+			end)
+			return button
+		end
+
+		local function toggleSort(sortKey)
+			if AC_SORT_BY == sortKey then
+				AC_SORT_ASC = not AC_SORT_ASC
+			else
+				AC_SORT_BY = sortKey
+				AC_SORT_ASC = true
+			end
+			if AccountantClassicFrame and AccountantClassicFrame:IsVisible() then
+				AccountantClassic_OnShow()
+			end
+		end
+
+		f.HeaderSource = makeHeaderButton(parentName.."HeaderSource", 21, 280)
+		f.HeaderSource:SetScript("OnClick", function() toggleSort("name") end)
+
+		f.HeaderIn = makeHeaderButton(parentName.."HeaderIn", 294, 160)
+		f.HeaderIn:SetScript("OnClick", function() toggleSort("money") end)
+
+		f.HeaderOut = makeHeaderButton(parentName.."HeaderOut", 455, 160)
+		f.HeaderOut:SetScript("OnClick", function() toggleSort("date") end)
+	end
 	
 	f.ServerDropDown = _G[parentName.."ServerDropDown"] 
 	if not f.ServerDropDown then 
@@ -376,70 +507,6 @@ local function createACFrames()
 		end
 		f[name] = sf
 	end]]
-
-    -- Add header click areas
-    f.HeaderSource = CreateFrame("Button", parentName.."HeaderSource", f)
-    f.HeaderSource:SetPoint("TOPLEFT", f.Source, "TOPLEFT", 0, 0)
-    f.HeaderSource:SetPoint("BOTTOMRIGHT", f.Source, "BOTTOMRIGHT", 0, 0)
-    f.HeaderSource:SetScript("OnClick", function() 
-        if AC_SORT_BY == "name" then
-            AC_SORT_ASC = not AC_SORT_ASC
-        else
-            AC_SORT_BY = "name"
-            AC_SORT_ASC = true
-        end
-        AccountantClassic_OnShow()
-    end)
-
-    f.HeaderIn = CreateFrame("Button", parentName.."HeaderIn", f)
-    f.HeaderIn:SetPoint("TOPLEFT", f.In, "TOPLEFT", 0, 0) 
-    f.HeaderIn:SetPoint("BOTTOMRIGHT", f.In, "BOTTOMRIGHT", 0, 0)
-    f.HeaderIn:SetScript("OnClick", function()
-        if AC_SORT_BY == "money" then
-            AC_SORT_ASC = not AC_SORT_ASC
-        else
-            AC_SORT_BY = "money"
-            AC_SORT_ASC = true
-        end
-        AccountantClassic_OnShow()
-    end)
-
-    f.HeaderOut = CreateFrame("Button", parentName.."HeaderOut", f)
-    f.HeaderOut:SetPoint("TOPLEFT", f.Out, "TOPLEFT", 0, 0)
-    f.HeaderOut:SetPoint("BOTTOMRIGHT", f.Out, "BOTTOMRIGHT", 0, 0)
-    f.HeaderOut:SetScript("OnClick", function()
-        if AC_SORT_BY == "date" then
-            AC_SORT_ASC = not AC_SORT_ASC
-        else
-            AC_SORT_BY = "date"
-            AC_SORT_ASC = true
-        end
-        AccountantClassic_OnShow()
-    end)
-
-    -- Add header mouse hover effects
-    local function OnEnter(self)
-        -- Create or get highlight background
-        if not self.highlightTexture then
-            self.highlightTexture = self:CreateTexture(nil, "BACKGROUND")
-            self.highlightTexture:SetAllPoints()
-            self.highlightTexture:SetColorTexture(1, 1, 1, 0.2) -- White semi-transparent background
-        end
-        self.highlightTexture:Show()
-    end
-    
-    local function OnLeave(self)
-        if self.highlightTexture then
-            self.highlightTexture:Hide()
-        end
-    end
-
-    f.HeaderSource:SetScript("OnEnter", OnEnter)
-    f.HeaderSource:SetScript("OnLeave", OnLeave)
-    f.HeaderIn:SetScript("OnEnter", OnEnter)
-    f.HeaderIn:SetScript("OnLeave", OnLeave)
-    f.HeaderOut:SetScript("OnEnter", OnEnter)
-    f.HeaderOut:SetScript("OnLeave", OnLeave)
 end
 
 local function setLabels()
@@ -448,13 +515,10 @@ local function setLabels()
 	if (AC_CURRTAB == AC_TABS) then
 		AccountantClassicFrameResetButton:Hide()
 
-		-- Basic text settings
 		f.Source:SetText(L["Character"])
 		f.In:SetText(L["Money"])
 		f.Out:SetText(L["Updated"])
-		
-		-- Add sort indicators
-		local arrow = AC_SORT_ASC and " ▲" or " ▼"
+		local arrow = AC_SORT_ASC and L[" ^"] or L[" v"]
 		if AC_SORT_BY == "name" then
 			f.Source:SetText(L["Character"]..arrow)
 		elseif AC_SORT_BY == "money" then
@@ -462,7 +526,6 @@ local function setLabels()
 		elseif AC_SORT_BY == "date" then
 			f.Out:SetText(L["Updated"]..arrow)
 		end
-
 		f.TotalIn:SetText(L["Total Incomings"]..":")
 		f.TotalOut:SetText(L["Total Outgoings"]..":")
 		f.TotalFlow:SetText(L["Sum Total"]..":")
@@ -504,79 +567,107 @@ local function setLabels()
 		if ( header ) then
 			header:SetText(L["Accountant Classic"])
 		end
-
-        -- If on All Chars tab, add sort indicators
-        if AC_CURRTAB == AC_TABS then
-            local arrow = AC_SORT_ASC and "▲" or "▼"
-            f.Source:SetText(L["Character"].." "..arrow)
-            f.In:SetText(L["Money"].." "..arrow)
-            f.Out:SetText(L["Updated"].." "..arrow)
-        end
 	end
 end
 
 local function settleTabText()
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
+	if (WoWClassicFamily) then
 		local TabText = private.constants.tabText
 		for i = 1, AC_TABS do
 			local tab = _G["AccountantClassicFrameTab"..i]
-			tab:SetText(TabText[i]);
-			PanelTemplates_TabResize(tab, 25);
+			tab:SetText(TabText[i])
+			PanelTemplates_TabResize(tab, 0, nil, 36, 88)
 		end
 	end
 
 	if (WoWRetail) then
 		AccountantClassicFrame.numTabs = AC_TABS
 	else
-		PanelTemplates_SetNumTabs(AccountantClassicFrame, AC_TABS);
+		PanelTemplates_SetNumTabs(AccountantClassicFrame, AC_TABS)
 	end
-		
-	PanelTemplates_SetTab(AccountantClassicFrame, AccountantClassicFrameTab1);
-	PanelTemplates_UpdateTabs(AccountantClassicFrame);
+
+	PanelTemplates_SetTab(AccountantClassicFrame, AccountantClassicFrameTab1)
+	PanelTemplates_UpdateTabs(AccountantClassicFrame)
 end
 
 function addon:PopulateCharacterList(server, faction)
-    local i = 1
-    local serverkey, servervalue, charkey, charvalue
+	local i = 1
+	local serverkey, servervalue, charkey, charvalue
 
-    -- Clean up AC_CHARSCROLL_LIST
-    if (#AC_CHARSCROLL_LIST > 0) then
-        AC_CHARSCROLL_LIST = {}
-    end
-    if (not server or server == "All") then
-        for serverkey, servervalue in orderedpairs(Accountant_ClassicSaveData) do
-            for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
-                if (not faction or faction == "All") then
-                    AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-                    i = i + 1
-                else
-                    if (charvalue.options.faction == faction) then
-                        AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-                        i = i + 1
-                    end
-                end
-            end
-        end
-    else
-        serverkey = server or AC_SERVER
-        for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
-            if (not faction or faction == "All") then
-                AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-                i = i + 1
-            else
-                if (charvalue.options.faction == faction) then
-                    AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-                    i = i + 1
-                end
-            end
-        end
-    end
-    AC_CURR_LINES = i - 1
-    
+	-- Clean up AC_CHARSCROLL_LIST
+	if (#AC_CHARSCROLL_LIST > 0) then
+		AC_CHARSCROLL_LIST = {}
+	end
+	if (not server or server == "All") then
+		for serverkey, servervalue in orderedpairs(Accountant_ClassicSaveData) do
+			for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
+				if (not faction or faction == "All") then
+					AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+					i = i + 1
+				else
+					if (charvalue.options.faction == faction) then
+						AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+						i = i + 1
+					end
+				end
+			end
+		end
+	else
+		serverkey = server or AC_SERVER
+		for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
+			if (not faction or faction == "All") then
+				AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+				i = i + 1
+			else
+				if (charvalue.options.faction == faction) then
+					AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+					i = i + 1
+				end
+			end
+		end
+	end
+
+	if AC_CURRTAB == AC_TABS and AC_SORT_BY then
+		table.sort(AC_CHARSCROLL_LIST, function(a, b)
+			local aServer, aChar = a[1], a[2]
+			local bServer, bChar = b[1], b[2]
+			local aData = Accountant_ClassicSaveData[aServer][aChar]
+			local bData = Accountant_ClassicSaveData[bServer][bChar]
+			if AC_SORT_BY == "name" then
+				local aName = aServer.."-"..aChar
+				local bName = bServer.."-"..bChar
+				if AC_SORT_ASC then
+					return aName < bName
+				end
+				return aName > bName
+			elseif AC_SORT_BY == "money" then
+				local aMoney = aData.options.totalcash or 0
+				local bMoney = bData.options.totalcash or 0
+				if AC_SORT_ASC then
+					return aMoney < bMoney
+				end
+				return aMoney > bMoney
+			elseif AC_SORT_BY == "date" then
+				local aDate = aData.options.lastsessiondate or ""
+				local bDate = bData.options.lastsessiondate or ""
+				if AC_SORT_ASC then
+					return aDate < bDate
+				end
+				return aDate > bDate
+			end
+			return false
+		end)
+	end
+
+	AC_CURR_LINES = i - 1
+	if AC_CURRTAB == AC_TABS then
+		AC_CURR_LINES = #AC_CHARSCROLL_LIST
+	end
+
 	-- Create and align any new entry buttons that we need
 	for i = 1, AC_CURR_LINES do
 		if (not _G["AccountantClassicCharacterEntry"..i]) then
-			local f = CreateFrame("Frame", "AccountantClassicCharacterEntry"..i, AccountantClassicFrame, "AccountantClassicRowTemplate")
+			local f = AccountantClassic_CreateRow(AccountantClassicFrame, "AccountantClassicCharacterEntry"..i)
 			if i == 1 then
 				f:SetPoint("TOPLEFT", "AccountantClassicScrollBar", "TOPLEFT", 0, 0)
 			else
@@ -584,46 +675,6 @@ function addon:PopulateCharacterList(server, faction)
 			end
 		end
 	end
-
-    -- 如果在All Chars标签页并且需要排序
-    if AC_CURRTAB == AC_TABS and AC_SORT_BY then
-        table.sort(AC_CHARSCROLL_LIST, function(a, b)
-            local aServer, aChar = a[1], a[2]
-            local bServer, bChar = b[1], b[2]
-            
-            -- 获取角色数据
-            local aData = Accountant_ClassicSaveData[aServer][aChar]
-            local bData = Accountant_ClassicSaveData[bServer][bChar]
-            
-            if AC_SORT_BY == "name" then
-                local aName = aServer.."-"..aChar
-                local bName = bServer.."-"..bChar
-                if AC_SORT_ASC then
-                    return aName < bName
-                else
-                    return aName > bName
-                end
-            elseif AC_SORT_BY == "money" then
-                local aMoney = aData.options.totalcash or 0
-                local bMoney = bData.options.totalcash or 0
-                if AC_SORT_ASC then
-                    return aMoney < bMoney
-                else
-                    return aMoney > bMoney
-                end
-            elseif AC_SORT_BY == "date" then
-                local aDate = aData.options.lastsessiondate or ""
-                local bDate = bData.options.lastsessiondate or ""
-                if AC_SORT_ASC then
-                    return aDate < bDate
-                else
-                    return aDate > bDate
-                end
-            end
-        end)
-    end
-
-    AC_CURR_LINES = #AC_CHARSCROLL_LIST
 end
 
 
@@ -959,7 +1010,7 @@ local function loadData()
 		end
 	end
 
-	order = 1;
+	local order = 1;
 	for key, value in pairs(AC_DATA) do
 		if (AccountantClassic_Profile["data"][key] == nil) then
 			AccountantClassic_Profile["data"][key] = { };
@@ -979,27 +1030,7 @@ local function loadData()
 			AC_DATA[key][mode].In  = AccountantClassic_Profile["data"][key][mode].In;
 			AC_DATA[key][mode].Out = AccountantClassic_Profile["data"][key][mode].Out;
 		end
-		-- Here we reset session data
-		-- AC_DATA[key]["Session"].In = 0;
-		-- AC_DATA[key]["Session"].Out = 0;
 
---[[
-		-- Old Version Conversion
-		if (AccountantClassic_Profile["data"][key].TotalIn ~= nil) then
-			AccountantClassic_Profile["data"][key]["Total"].In = AccountantClassic_Profile["data"][key].TotalIn;
-			AC_DATA[key]["Total"].In = AccountantClassic_Profile["data"][key].TotalIn;
-			AccountantClassic_Profile["data"][key].TotalIn = nil;
-		end
-		if (AccountantClassic_Profile["data"][key].TotalOut ~= nil) then
-			AccountantClassic_Profile["data"][key]["Total"].Out = AccountantClassic_Profile["data"][key].TotalOut;
-			AC_DATA[key]["Total"].Out = AccountantClassic_Profile["data"][key].TotalOut;
-			AccountantClassic_Profile["data"][key].TotalOut = nil;
-		end
-		if (Accountant_SaveData[key] ~= nil) then
-			Accountant_SaveData[key] = nil;
-		end
-		-- End OVC
-]]
 		AC_DATA[key].order = order;
 		order = order + 1;
 	end
@@ -1022,13 +1053,20 @@ local function loadData()
 end
 
 local function updateLog()
-	-- if it's first time loaded this addon, then we don't need to update logs.
-	-- @kamusis. Need to consider optimizing this behavior later. Currently, when a character loads the addon for the first time (when there is no character data in WTF), the current total money will be calculated as one income value, which will result in overall income statistics that do not match the actual situation. Therefore, the log is not updated on first load.
-	-- @kamusis. However, when any character loads this addon for the first time, even if money changes occur during this period, they will not be recorded. This needs optimization.
-	if AC_FIRSTLOADED then
-		-- ACC_Print("Accountant_Classic: First loaded for this character.")
-		-- AC_FIRSTLOADED = false
-		return		
+	-- Updated by: kamusis
+	-- One-time baseline priming for first-load sessions
+	--
+	-- Explanation:
+	-- Instead of suppressing the entire first session (which would miss all money
+	-- changes), we perform a single baseline initialization. When AC_FIRSTLOADED is
+	-- true and we have not primed yet (AC_LOG_PRIMED is false), we set
+	-- AC_LASTMONEY to the current balance and store it in options.totalcash. Then we
+	-- mark AC_LOG_PRIMED = true and clear AC_FIRSTLOADED so subsequent calls proceed
+	-- with normal diff-based logging. We return immediately here to avoid treating
+	-- the initial balance as an income/outgoing delta.
+	if AC_FIRSTLOADED and not AC_LOG_PRIMED then
+		AccountantClassic_PrimeBaseline()
+		return
 	end
 
 	local cdate = date("%d/%m/%y");
@@ -1047,7 +1085,7 @@ local function updateLog()
 	-- calculating diff money
 	AC_CURRMONEY = GetMoney()
 	AccountantClassic_Profile["options"].totalcash = AC_CURRMONEY
-	diff = AC_CURRMONEY - AC_LASTMONEY
+	local diff = AC_CURRMONEY - AC_LASTMONEY
 	AC_LASTMONEY = AC_CURRMONEY
 	if (diff == 0 or diff == nil) then
 		return
@@ -1118,7 +1156,9 @@ function Accountant_Slash(msg)
 	end
 	local args = {n=0}
 	local function helper(word) tinsert(args, word) end
-	gsub(msg, "[_%w]+", helper)
+	-- Updated by: kamusis
+	-- Silence linter about discarding return values; we only need the callback side-effect.
+	local _ = gsub(msg, "[_%w]+", helper)
 	if args[1] == 'log'  then
 		ShowUIPanel(AccountantClassicFrame)
 	elseif args[1] == 'verbose' then
@@ -1139,9 +1179,9 @@ end
 -- codes by Tntdruid
 local function AccountantClassic_DetectAhMail()
 	local numItems, totalItems = GetInboxNumItems();
-	for x = 1, totalItems do    
+	for x = 1, totalItems do	
 		-- invoiceType, itemName, playerName, bid, buyout, deposit, consignment = GetInboxInvoiceInfo(index);
-		--    invoiceType : String - type of invoice ("buyer", "seller", or "seller_temp_invoice").
+		--	invoiceType : String - type of invoice ("buyer", "seller", or "seller_temp_invoice").
 		local invoiceType = GetInboxInvoiceInfo(x);
 		if (invoiceType == "seller") then
 			return true;
@@ -1178,18 +1218,33 @@ local function AccountantClassic_OnShareMoney(arg1)
 	end
 
 	money = copper + silver * 100 + gold * 10000
+	-- Updated by: kamusis
+	-- Baseline priming guard for first-load sessions
+	--
+	-- If the very first event we observe is CHAT_MSG_MONEY (shared loot message), we
+	-- must ensure we have a proper baseline before attempting to force-update logs.
+	-- Otherwise, we would manipulate AC_LASTMONEY and then have updateLog() perform
+	-- the one-time priming, which could lead to inconsistent AC_LASTMONEY values.
+	--
+	-- Therefore, when AC_FIRSTLOADED and not AC_LOG_PRIMED, we prime baseline here
+	-- and return without recording this message. Subsequent money changes will be
+	-- tracked normally. This mirrors the priming path used for PLAYER_MONEY.
+	if AC_FIRSTLOADED and not AC_LOG_PRIMED then
+		AccountantClassic_PrimeBaseline()
+		return
+	end
 
 	if (not AC_LASTMONEY) then
 		AC_LASTMONEY = 0;
 	end
 
--- This will force a money update with calculated amount.
+	-- This will force a money update with calculated amount.
 	AC_LASTMONEY = AC_LASTMONEY - money;
 	AC_LOGTYPE = "LOOT";
 	updateLog();
 	AC_LOGTYPE = oldType;
 
--- This will suppress the incoming PLAYER_MONEY event.
+	-- This will suppress the incoming PLAYER_MONEY event.
 	AC_LASTMONEY = AC_LASTMONEY + money;
 
 end
@@ -1209,18 +1264,14 @@ local function AccountantClassic_NiceCash(amount)
 	amount = amount - (gold * agold);
 	if amount >= asilver then
 		silver = floor(amount / asilver);
-		if silver < 10 then
-			silver = " "..silver;
-		end
-		outstr = outstr .. "|cFFDDDDDD" .. silver .. L["s "];
+		local silverDisplay = silver < 10 and " " .. silver or tostring(silver);
+		outstr = outstr .. "|cFFDDDDDD" .. silverDisplay .. L["s "];
 	end
 	amount = amount - (silver * asilver);
 	if amount > 0 then
 		cent = amount;
-		if cent < 10 then
-			cent = " "..cent;
-		end
-		outstr = outstr .. "|cFFFF6600" .. cent .. L["c"];
+		local centDisplay = cent < 10 and " " .. cent or tostring(cent);
+		outstr = outstr .. "|cFFFF6600" .. centDisplay .. L["c"];
 	end
 	outstr = outstr.."|r";
 	return outstr;
@@ -1249,7 +1300,7 @@ end
 
 local function AccountantClassic_GetFormattedCurrency(currencyID)
 	local name, amount, icon
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
+	if (WoWClassicFamily) then
 		name, amount, icon = GetCurrencyInfo(currencyID)
 	else
 		local info = GetCurrencyInfo(currencyID)
@@ -1257,14 +1308,16 @@ local function AccountantClassic_GetFormattedCurrency(currencyID)
 		amount = info.quantity
 		icon = info.iconFileID
 	end
-	
-	if (amount >0) then
-		local CURRENCY_TEXTURE = "%s|T"..icon..":%d:%d:2:0|t";
-		amount = profile.breakupnumbers and BreakUpLargeNumbers(amount) or amount;
-		return format(CURRENCY_TEXTURE.." ", amount, 0, 0);
-	else
-		return "";
+
+	if amount > 0 then
+		local amountText = profile.breakupnumbers and BreakUpLargeNumbers(amount) or tostring(amount)
+		if tonumber(amount) < 10 then
+			amountText = " " .. amountText
+		end
+		return format("%s|T%s:%d:%d:2:0|t ", amountText, icon, 0, 0)
 	end
+
+	return ""
 end
 
 function addon:WeekStart()
@@ -1284,6 +1337,9 @@ end
 
 local function parseDateStrings(s, typ)
 	local mm, dd, yy;
+	if not s then
+		return ""
+	end
 	local sdate = s;
 	
 	if (typ == 1) then -- mm/dd/yy, currently used in dateweek (WeekStart)
@@ -1366,7 +1422,6 @@ function AccountantClassic_OnEvent(self, event, ...)
 	event == "BARBER_SHOP_APPEARANCE_APPLIED" or
 	event == "BARBER_SHOP_CLOSE" or
 	event == "TRANSMOGRIFY_CLOSE" or
-	event == "FORGE_MASTER_CLOSED" or
 	event == "VOID_STORAGE_CLOSE" or
 	event == "MERCHANT_CLOSED" or
 	event == "TRADE_CLOSED" or
@@ -1394,8 +1449,6 @@ function AccountantClassic_OnEvent(self, event, ...)
 		AC_LOGTYPE = "BARBER";
 	elseif event == "TRANSMOGRIFY_OPEN" then
 		AC_LOGTYPE = "TRANSMO";
-	elseif event == "FORGE_MASTER_OPENED" then
-		AC_LOGTYPE = "REFORGE";
 	elseif event == "VOID_STORAGE_OPEN" then
 		AC_LOGTYPE = "VOID";
 	elseif event == "MERCHANT_SHOW" then
@@ -1405,7 +1458,7 @@ function AccountantClassic_OnEvent(self, event, ...)
 			AC_LOGTYPE = "REPAIRS";
 		end
 	elseif event == "TAXIMAP_OPENED" then
-			AC_LOGTYPE = "TAXI";
+		AC_LOGTYPE = "TAXI";
 	elseif event == "TAXIMAP_CLOSED" then
 		-- Commented out due to taximap closing before money transaction
 		-- AC_LOGTYPE = "";
@@ -1439,6 +1492,14 @@ function AccountantClassic_OnEvent(self, event, ...)
 	elseif event == "CHAT_MSG_MONEY" then
 		AccountantClassic_OnShareMoney(arg1);
 	elseif event == "PLAYER_MONEY" then
+		-- Updated by: kamusis
+		-- If baseline has not been initialized yet, use the first PLAYER_MONEY
+		-- event as a safe priming point. This sets AC_LASTMONEY to the current
+		-- balance and prevents the initial balance from being counted as income.
+		if not AC_LOG_PRIMED then
+			AccountantClassic_PrimeBaseline()
+			return
+		end
 		if AccountantClassic_Verbose then	
 			ACC_Print("Player money changed, starting to update money log ...")
 		end
@@ -1448,7 +1509,7 @@ function AccountantClassic_OnEvent(self, event, ...)
 	if AccountantClassic_Verbose and AC_LOGTYPE ~= oldType then ACC_Print("Accountant mode changed to '"..AC_LOGTYPE.."'"); end
 	
 	if (Accountant_ClassicSaveData) then
-		LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType])
+		LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType]) or ""
 	end
 end
 
@@ -1469,7 +1530,7 @@ function AccountantClassic_OnShow(self)
 		AccountantClassicFrameServerDropDown:Hide()
 		AccountantClassicFrameFactionDropDown:Hide()
 		AccountantClassicScrollBar:Hide()
-    for i = 1, AC_CURR_LINES do
+		for i = 1, AC_CURR_LINES do
 			if (_G["AccountantClassicCharacterEntry"..i]) then
 				_G["AccountantClassicCharacterEntry"..i]:Hide()
 			end
@@ -1537,8 +1598,8 @@ function AccountantClassic_OnShow(self)
 							end
 						end
 					end
-    end
-end
+				end
+			end
 
 			TotalIn = TotalIn + mIn
 			TotalOut = TotalOut + mOut
@@ -1569,7 +1630,7 @@ end
 		-- Extra info
 		if (AC_CURRTAB == TableIndex(private.constants.logmodes, "Week")) then
 			fs:SetText(L["Week Start"]..":")
-			fsv:SetText(parseDateStrings(AccountantClassic_Profile["options"]["dateweek"], 1))
+			fsv:SetText(parseDateStrings(AccountantClassic_Profile["options"]["dateweek"] or addon:WeekStart(), 1))
 		elseif (AC_CURRTAB == TableIndex(private.constants.logmodes, "PrvWeek")) then
 			if (prvdateweek) then
 				fs:SetText(L["Week Start"]..":")
@@ -1772,28 +1833,20 @@ function AccountantClassic_ResetData()
 
 	end
 
-	-- Confirm box
-	LibDialog:Register("ACCOUNTANT_RESET", {
+	-- Using native StaticPopupDialogs to show the confirm box.
+	StaticPopupDialogs["ACCOUNTANT_CLASSIC_RESET"] = {
 		text = format(L["Are you sure you want to reset the \"%s\" data?"], logmode),
-		buttons = {
-			{
-				text = OKAY,
-				on_click = function() AccountantClassic_ResetConfirmed(); end,
-			},
-			{
-				text = CANCEL,
-				on_click = function(self, mouseButton, down) LibDialog:Dismiss("ACCOUNTANT_RESET"); end,
-			},
-		},
-		show_while_dead = true,
-		hide_on_escape = true,
-		is_exclusive = true,
-		hide_on_escape = true,
-		show_during_cinematic = false,
-		
-	});
-	LibDialog:Spawn("ACCOUNTANT_RESET");
-	
+		button1 = OKAY,
+		button2 = CANCEL,
+		OnAccept = function()
+			AccountantClassic_ResetConfirmed();
+		end,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+	}
+	StaticPopup_Show("ACCOUNTANT_CLASSIC_RESET")
 end
 
 function addon:CharacterRemovalProceed(server, character)
@@ -1843,23 +1896,17 @@ function addon:CursorHasItem()
 end
 
 function addon:BackpackTokenFrame_Update()
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
+	if (WoWClassicFamily) then
 		-- do nothing
 	else
-		local name, count, icon, currencyID
 		local tokenstr = ""
-		for i=1, MAX_WATCHED_TOKENS do
-			local info
-			info = GetBackpackCurrencyInfo(i)
-			-- Update watched tokens
-			if ( info ) then
-				name =  info.name
-				count =  info.quantity
-				icon = info.iconFileID
-				currencyID = info.currencyTypesID
-
-				tokenstr = tokenstr..AccountantClassic_GetFormattedCurrency(currencyID).." "
+		for i = 1, 50 do
+			local info = GetBackpackCurrencyInfo(i)
+			if not info then
+				break
 			end
+
+			tokenstr = tokenstr .. AccountantClassic_GetFormattedCurrency(info.currencyTypesID) .. " "
 		end
 		return tokenstr
 	end
@@ -1905,6 +1952,7 @@ function addon:ShowSessionToolTip()
 
 	local TotalIn = 0;
 	local TotalOut = 0;
+	local diff = 0;
 	for key,value in pairs(AC_DATA) do
 		TotalIn = TotalIn + AC_DATA[key]["Session"].In;
 		TotalOut = TotalOut + AC_DATA[key]["Session"].Out;
@@ -2044,14 +2092,14 @@ function addon:OnInitialize()
 	LDB.OnTooltipShow = (function(tooltip)
 		if not tooltip or not tooltip.AddLine then return end
 		local title = "|cffffffff"..L["Accountant Classic"];
-		if (profile.showmoneyonbutton) then
+		if (profile and profile.showmoneyonbutton) then
 			title = title.." - "..addon:GetFormattedValue(GetMoney());
 		end
 		tooltip:AddLine(title);
-		if (profile.showsessiononbutton == true) then
+		if (profile and profile.showsessiononbutton == true) then
 			tooltip:AddLine(addon:ShowSessionToolTip());
 		end
-		if (profile.showintrotip == true) then
+		if (profile and profile.showintrotip == true) then
 			tooltip:AddLine(L["Left-Click to open Accountant Classic.\nRight-Click for Accountant Classic options.\nLeft-click and drag to move this button."]);
 		end
 	end);
@@ -2102,7 +2150,7 @@ function addon:OnEnable()
 	addon:PopulateCharacterList()
 	
 	self:Refresh()
-	LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType])
+	LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType]) or ""
 end
 
 function addon:Toggle()
@@ -2117,7 +2165,7 @@ end
 function addon:Refresh()
 	profile = self.db.profile
 
-	if (profile.showmoneyinfo) then
+	if (profile and profile.showmoneyinfo) then
 		AccountantClassicMoneyInfoFrame:Show()
 		MoneyFrame:ArrangeMoneyInfoFrame()
 	else
@@ -2126,7 +2174,7 @@ function addon:Refresh()
 	AccountantClassic_OnShow()
 	arrangeAccountantClassicFrame()
 	
-	LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType])
+	LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType]) or ""
 end
 
 function AccountantClassic_ButtonToggle()
@@ -2149,19 +2197,25 @@ function AccountantClassicTabButtonMixin:OnLoad()
 	
 	self:SetFrameLevel(self:GetFrameLevel() + 4);
 	self:RegisterEvent("DISPLAY_SIZE_CHANGED");
-	if (WoWRetail) then 
-		self.Text:SetText(TabText[i]);
-	end
+	self.Text:SetText(TabText[i]);
 end
 
 function AccountantClassicTabButtonMixin:OnEvent(event, ...)
 	if self:IsVisible() then
-		PanelTemplates_TabResize(self, self:GetParent().tabPadding, nil, self:GetParent().minTabWidth, self:GetParent().maxTabWidth);
+		if (WoWClassicFamily) then
+			PanelTemplates_TabResize(self, 0, nil, 36, 88);
+		else
+			PanelTemplates_TabResize(self, self:GetParent().tabPadding, nil, self:GetParent().minTabWidth, self:GetParent().maxTabWidth);
+		end
 	end
 end
 
 function AccountantClassicTabButtonMixin:OnShow()
-	PanelTemplates_TabResize(self, self:GetParent().tabPadding, nil, self:GetParent().minTabWidth, self:GetParent().maxTabWidth);
+	if (WoWClassicFamily) then
+		PanelTemplates_TabResize(self, 0, nil, 36, 88);
+	else
+		PanelTemplates_TabResize(self, self:GetParent().tabPadding, nil, self:GetParent().minTabWidth, self:GetParent().maxTabWidth);
+	end
 end
 
 function AccountantClassicTabButtonMixin:OnEnter()
@@ -2184,7 +2238,3 @@ function AccountantClassicTabButtonMixin:OnClick()
 	PlaySound(841)
 	AccountantClassic_OnShow()
 end
-
--- 在文件开头的局部变量区域添加排序状态变量
-local AC_SORT_BY = "money" -- 默认按金钱排序
-local AC_SORT_ASC = false  -- 默认降序(从大到小)
