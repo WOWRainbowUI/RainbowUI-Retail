@@ -1,4 +1,4 @@
--- $Id: localization.en.lua 396 2022-11-04 15:23:19Z arithmandar $ 
+-- $Id: localization.en.lua 420 2026-09-19 08:16:47Z arithmandar $ 
 
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
 local L = AceLocale:NewLocale("Accountant_Classic", "enUS", true, true);
@@ -135,6 +135,9 @@ L["Detected the conflicted addon - \"|cFFFF0000Accountant|r\" exists and loaded.
 L["You have manually called the function \n|cFF00FF00AccountantClassic_CleanUpAccountantDB()|r \nto clean up conflicted data existed in \"Accountant\". \nNow click Okay button to reload the game."] = "You have manually called the function \n|cFF00FF00AccountantClassic_CleanUpAccountantDB()|r \nto clean up conflicted data existed in \"Accountant\". \nNow click Okay button to reload the game."
 L["Show All Characters"] = "Show All Characters"
 L["Show all characters' incoming and outgoing data."] = "Show all characters' incoming and outgoing data."
+L["Initial balance captured. Tracking for subsequent money changes has started."] = "Initial balance captured. Tracking for subsequent money changes has started."
+L[" ^"] = " ^"
+L[" v"] = " v"
 
 -- Amount string for CHAT_MESSAGE_MONEY search
 L["(%d+) Gold"] = "(%d+) Gold"

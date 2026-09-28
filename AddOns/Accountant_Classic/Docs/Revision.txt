@@ -1,10 +1,20 @@
-﻿$Id: Revision.txt 415 2024-01-30 13:08:54Z arithmandar $
+﻿$Id: Revision.txt 420 2026-09-19 08:16:47Z arithmandar $
 Known Issue(s):
 ===============
 - Some incomes were categorized into Unknown instead of corresponding group.
 
 Revision History:
 =================
+
+* v2.21.00 (Sep. 19, 2026)
+==========================
+- Improved compatibility with modern WoW APIs for option panel opening and settings categories.
+- Replaced LibDialog-based confirmation popups with Blizzard's native StaticPopup flow for reset and character-removal actions.
+- Fixed issues caused by removed/changed Blizzard APIs such as StaticPopup_DisplayedFrames and MAX_WATCHED_TOKENS.
+- Enhanced first-run session tracking to capture the initial balance without losing the first properly identifiable money event. (thanks to kamusis)
+- Improved money and currency display formatting for single-digit silver/copper and watched-currency output.
+- Added sorting for the All Characters list by Character, Money, and Updated date. (thanks to kamusis)
+- Added clickable sort headers to the Lua-created main UI with client-compatible sort indicators.
 
 * v2.12.30 (Jan. 30, 2024)
 ==========================

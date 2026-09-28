@@ -8,20 +8,37 @@ local GetBuildInfo = _G.GetBuildInfo
 
 -- Libraries
 
--- Determine WoW TOC Version
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWRetail
-local wowversion  = select(4, GetBuildInfo())
-if wowversion < 20000 then
-	WoWClassicEra = true
-elseif wowversion < 30000 then 
-	WoWClassicTBC = true
-elseif wowversion < 40000 then 
-	WoWWOTLKC = true
-elseif wowversion > 90000 then
+-- Determine WoW client family
+local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWClassicCata, WoWClassicMists, WoWRetail
+local projectID = _G.WOW_PROJECT_ID
+if projectID == _G.WOW_PROJECT_MAINLINE then
 	WoWRetail = true
+elseif projectID == _G.WOW_PROJECT_CLASSIC then
+	WoWClassicEra = true
+elseif projectID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+	WoWClassicTBC = true
+elseif projectID == _G.WOW_PROJECT_WRATH_CLASSIC then
+	WoWWOTLKC = true
+elseif projectID == _G.WOW_PROJECT_CATACLYSM_CLASSIC then
+	WoWClassicCata = true
+elseif projectID == _G.WOW_PROJECT_MISTS_CLASSIC then
+	WoWClassicMists = true
 else
-	-- n/a
+	local wowversion = select(4, GetBuildInfo())
+	if wowversion < 20000 then
+		WoWClassicEra = true
+	elseif wowversion < 30000 then
+		WoWClassicTBC = true
+	elseif wowversion < 40000 then
+		WoWWOTLKC = true
+	elseif wowversion < 90000 then
+		WoWClassicCata = true
+	elseif wowversion > 90000 then
+		WoWRetail = true
+	end
 end
+
+local WoWClassicFamily = WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWClassicCata or WoWClassicMists
 
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
@@ -73,7 +90,7 @@ constants.defaults = {
 
 constants.logmodes = {"Session", "Day", "PrvDay", "Week", "PrvWeek", "Month", "PrvMonth", "Year", "PrvYear", "Total" }
 
-if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC) then 
+if (WoWClassicFamily) then 
 	constants.events = {
 		-- Talent
 		"CONFIRM_TALENT_WIPE",
