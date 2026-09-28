@@ -1,6 +1,6 @@
-## Interface: 120100, 50504, 38002, 20506, 11509
+## Interface: 120100, 120105, 16001, 50504, 38002, 20506, 11509
 ## Author: p3lim
-## Version: 120100.147-Release
+## Version: 120100.149-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## IconTexture: Interface\Icons\ability_miling
@@ -18,6 +18,7 @@ utils.lua
 addon.lua
 settings.lua
 
+data\[Game]\comprehensible.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard, classic]
 data\[Game]\crushable.lua [AllowLoadGameType standard]
 data\[Game]\disenchantable.lua [AllowLoadGameType standard]
 data\[Game]\keys.lua
@@ -30,5 +31,5 @@ data\[Game]\shatterable.lua [AllowLoadGameType standard]
 data\[Game]\transmutable.lua [AllowLoadGameType standard]
 
 api\items.lua
-api\skill.lua [AllowLoadGameType mists, wrath, tbc, vanilla]
+api\skill.lua [AllowLoadGameType mists, wrath, tbc, vanilla, camelot]
 api\colors.lua
