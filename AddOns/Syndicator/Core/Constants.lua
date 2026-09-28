@@ -45,8 +45,9 @@ addonTable.Constants.IsClassic = addonTable.Constants.IsClassic and not addonTab
 addonTable.Constants.IsBrokenTooltipScanning = false
 
 if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
-  addonTable.Constants.WarbandBankActive = true
+  addonTable.Constants.WarbandBankActive = addonTable.Constants.IsRetail
   addonTable.Constants.CharacterBankTabsActive = true
+  addonTable.Constants.BankTabsAsBags = C_Bank.ShouldUsePlayerBagsInBank and C_Bank.ShouldUsePlayerBagsInBank() or false
   table.insert(addonTable.Constants.AllBagIndexes, Enum.BagIndex.ReagentBag)
   addonTable.Constants.BagSlotsCount = 5
   addonTable.Constants.MaxBagSize = 42
