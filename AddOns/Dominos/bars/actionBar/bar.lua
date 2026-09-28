@@ -190,7 +190,7 @@ function ActionBar:GetDefaults()
 		defaults.hidden = true
 	end
 	
-	if not Addon:IsBuild("retail") then
+	if not Addon:IsGameType("standard") then
 		if self.id == 1 then
 			defaults.y = 100
 		elseif self.id == 2 then
