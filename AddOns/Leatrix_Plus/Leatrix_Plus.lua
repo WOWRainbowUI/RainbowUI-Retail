@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.06 (23rd September 2026)
+-- 	Leatrix Plus 12.1.07 (30th September 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.06"
+	LeaPlusLC["AddonVer"] = "12.1.07"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -9124,10 +9124,11 @@
 					-- If it's not you, but it's a player, show target in class color
 					elseif UnitIsPlayer(LT["Unit"] .. "target") then
 						LT["TargetBase"] = UnitClassBase(LT["Unit"] .. "target")
-						LT["TargetCol"] = LeaPlusLC["RaidColors"][LT["TargetBase"]]
-						LT["TargetCol"] = "|cff" .. string.format('%02x%02x%02x', LT["TargetCol"].r * 255, LT["TargetCol"].g * 255, LT["TargetCol"].b * 255)
-						LT["Target"] = (LT["TargetCol"] .. LT["Target"])
-
+						if canaccessvalue(LT["TargetBase"]) and LeaPlusLC["RaidColors"][LT["TargetBase"]] then
+							LT["TargetCol"] = LeaPlusLC["RaidColors"][LT["TargetBase"]]
+							LT["TargetCol"] = "|cff" .. string.format('%02x%02x%02x', LT["TargetCol"].r * 255, LT["TargetCol"].g * 255, LT["TargetCol"].b * 255)
+							LT["Target"] = (LT["TargetCol"] .. LT["Target"])
+						end
 					end
 
 					-- Add target line
@@ -9983,13 +9984,26 @@
 							return
 						elseif strfind(item, "|r") then
 							-- A movie was clicked
+							if not LeaPlusLC.MovieFinishedIsHooked then
+								-- Workaround for movie frame hiding media player
+								MovieFrame:HookScript("OnMovieFinished", function(self)
+									if LeaPlusLC.MoviePlaying then
+										LeaPlusLC.MoviePlaying = false
+										if not LeaPlusLC["PageF"]:IsShown() then
+											LeaPlusLC:HideFrames()
+											LeaPlusLC["PageF"]:Show()
+											LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
+										end
+									end
+								end)
+								LeaPlusLC.MovieFinishedIsHooked = true
+							end
 							local movieName, movieID = item:match("([^,]+)%|r([^,]+)")
 							movieID = strtrim(movieID, "()")
 							if IsMoviePlayable(movieID) then
 								stopBtn:Click()
 								LeaPlusLC.MoviePlaying = true
 								MovieFrame_PlayMovie(MovieFrame, movieID)
-								LeaPlusLC.MoviePlaying = false
 							else
 								LeaPlusLC:Print("Movie not playable.")
 							end
