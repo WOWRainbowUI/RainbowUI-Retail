@@ -7,13 +7,17 @@ ham.defaults = {
     witheringDreamsPotion = false,
     cavedwellerDelight = true,
     heartseekingInjector = false,
+    includeBuffFood = false,
+    -- ham.bitterImmunity is deliberately left out - it was removed outright in patch
+    -- 12.0.0 with no replacement, and was never offered on any Classic flavor either, so
+    -- there's no longer a checkbox anywhere for this default to correspond to.
     activatedSpells = { ham.recuperate.getId(), ham.crimsonVialSpell.getId(), ham.renewal.getId(),
-        ham.exhilaration.getId(), ham.lastStand.getId(), ham.bitterImmunity.getId(),
+        ham.exhilaration.getId(), ham.lastStand.getId(),
         ham.desperatePrayer.getId(), ham.healingElixir.getId(), ham.darkPact.getId(), ham.giftOfTheNaaruDK.getId(),
         ham.giftOfTheNaaruHunter.getId(), ham.giftOfTheNaaruMage.getId(), ham.giftOfTheNaaruMageWarlock.getId(),
         ham.giftOfTheNaaruMonk.getId(), ham.giftOfTheNaaruPaladin.getId(), ham.giftOfTheNaaruPriest.getId(),
         ham.giftOfTheNaaruRogue.getId(), ham.giftOfTheNaaruShaman.getId(), ham.giftOfTheNaaruWarrior.getId(),
-        ham.bagOfTricks.getId() }
+        ham.bagOfTricks.getId(), ham.quietContemplation.getId() }
 }
 
 function ham.dbContains(id)

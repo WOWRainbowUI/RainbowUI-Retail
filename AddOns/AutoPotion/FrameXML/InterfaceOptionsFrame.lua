@@ -1,10 +1,6 @@
 ---@diagnostic disable: undefined-global
 local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 
 ---@class Frame
 ham.settingsFrame = CreateFrame("Frame")
@@ -19,15 +15,24 @@ local prioFramesCounter = 0
 local firstIcon = nil
 local positionx = 0
 local currentPrioTitle = nil
-local myClassTitle = nil
 local lastStaticElement = nil
 
--- Bandage priority UI state
-local bandageFrames = {}
-local bandageTextures = {}
-local bandageFirstIcon = nil
-local bandagePositionX = 0
-local bandagePrioTitle = nil
+-- The "Current Priority" title + icon row and the Reset button live in a fixed-height
+-- footer anchored to the panel itself (not the scrollable content), so they stay visible
+-- no matter how far the settings above have been scrolled.
+local FOOTER_TOP_PADDING = 12
+local FOOTER_TITLE_HEIGHT = 24
+local FOOTER_ICON_GAP = PADDING -- gap between the title and the icon row below it
+local FOOTER_BUTTON_GAP = 16
+local FOOTER_BUTTON_HEIGHT = 22
+local FOOTER_BOTTOM_PADDING = 16
+local FOOTER_HEIGHT = FOOTER_TOP_PADDING + FOOTER_TITLE_HEIGHT + FOOTER_ICON_GAP + ICON_SIZE +
+	FOOTER_BUTTON_GAP + FOOTER_BUTTON_HEIGHT + FOOTER_BOTTOM_PADDING
+
+local CLASS_ORDER = {
+	"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT",
+	"SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "EVOKER",
+}
 
 function ham.settingsFrame:updateConfig(option, value)
 	if ham.options[option] ~= nil then
@@ -41,7 +46,11 @@ function ham.settingsFrame:updateConfig(option, value)
 	ham.updateHeals()
 	ham.updateMacro()
 	self:updatePrio()
-	self:updateBandagePrio()
+	ham.bandageSettingsFrame:updateBandagePrio()
+	ham.updateFoodMacro()
+	ham.foodSettingsFrame:updateFoodPrio()
+	ham.updateDrinkMacro()
+	ham.drinkSettingsFrame:updateDrinkPrio()
 end
 
 function ham.settingsFrame:OnEvent(event, addOnName)
@@ -53,14 +62,21 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 				HAMDB = CopyTable(ham.defaults)
 			end
 			self:InitializeOptions()
+			ham.bandageSettingsFrame:InitializeOptions()
+			ham.foodSettingsFrame:InitializeOptions()
+			ham.drinkSettingsFrame:InitializeOptions()
 		end
 	end
 	if event == "PLAYER_LOGIN" then
-		self:InitializeClassSpells(myClassTitle)
+		self:InitializeClassSpells(lastStaticElement)
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
-		self:updateBandagePrio()
+		ham.bandageSettingsFrame:updateBandagePrio()
+		ham.updateFoodMacro()
+		ham.foodSettingsFrame:updateFoodPrio()
+		ham.updateDrinkMacro()
+		ham.drinkSettingsFrame:updateDrinkPrio()
 	end
 end
 
@@ -68,8 +84,32 @@ ham.settingsFrame:RegisterEvent("PLAYER_LOGIN")
 ham.settingsFrame:RegisterEvent("ADDON_LOADED")
 ham.settingsFrame:SetScript("OnEvent", ham.settingsFrame.OnEvent)
 
+-- Resize the scrollable content to fit whatever was last laid out inside it (class
+-- spell groups and the priority icon row can all change the content's extent).
+function ham.settingsFrame:recalculateContentHeight()
+	if self.content == nil then return end
+	local contentTop = self.content:GetTop()
+	if contentTop == nil then return end
+
+	local lowest = nil
+	local function considerBottom(frame)
+		if frame and frame:IsShown() then
+			local bottom = frame:GetBottom()
+			if bottom and (lowest == nil or bottom < lowest) then
+				lowest = bottom
+			end
+		end
+	end
+
+	for _, button in pairs(classButtons) do considerBottom(button) end
+
+	if lowest ~= nil then
+		self.content:SetHeight((contentTop - lowest) + PADDING)
+	end
+end
+
 function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, isTinker)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
+	local icon = CreateFrame("Frame", nil, self.priorityFooter, UIParent)
 	icon:SetFrameStrata("MEDIUM")
 	icon:SetWidth(ICON_SIZE)
 	icon:SetHeight(ICON_SIZE)
@@ -106,38 +146,6 @@ function ham.settingsFrame:createPrioFrame(id, iconTexture, positionx, isSpell, 
 	return icon
 end
 
--- Create a bandage priority icon frame
-function ham.settingsFrame:createBandagePrioFrame(id, iconTexture, positionx)
-	local icon = CreateFrame("Frame", nil, self.content, UIParent)
-	icon:SetFrameStrata("MEDIUM")
-	icon:SetWidth(ICON_SIZE)
-	icon:SetHeight(ICON_SIZE)
-	icon:HookScript("OnEnter", function(_, btn, down)
-		GameTooltip:SetOwner(icon, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetItemByID(id)
-		GameTooltip:Show()
-	end)
-	icon:HookScript("OnLeave", function(_, btn, down)
-		GameTooltip:Hide()
-	end)
-	local texture = icon:CreateTexture(nil, "BACKGROUND")
-	texture:SetTexture(iconTexture)
-	texture:SetAllPoints(icon)
-	---@diagnostic disable-next-line: inject-field
-	icon.texture = texture
-
-	if bandageFirstIcon == nil then
-		icon:SetPoint("TOPLEFT", bandagePrioTitle, 0, -PADDING)
-		bandageFirstIcon = icon
-	else
-		icon:SetPoint("TOPLEFT", bandageFirstIcon, positionx, 0)
-	end
-	icon:Show()
-	table.insert(bandageFrames, icon)
-	table.insert(bandageTextures, texture)
-	return icon
-end
-
 function ham.settingsFrame:updatePrio()
 	local spellCounter = 0
 	local itemCounter = 0
@@ -153,7 +161,10 @@ function ham.settingsFrame:updatePrio()
 				-- Recuperate not shown in instanced PvP
 			else
 				local iconTexture, originalIconTexture
-				if isRetail == true then
+				-- Feature-detect C_Spell rather than branching on ham.isRetail: Forever runs the
+				-- Mainline client engine (C_Spell.*, no GetSpellTexture global) despite ham.isRetail
+				-- being false for it. See Core/Spell.lua for the same pattern.
+				if C_Spell and C_Spell.GetSpellTexture then
 					iconTexture, originalIconTexture = C_Spell.GetSpellTexture(spell.getId())
 				else
 					iconTexture = GetSpellTexture(spell.getId())
@@ -235,51 +246,6 @@ function ham.settingsFrame:updatePrio()
 	end
 end
 
--- Update the Bandage Priority section
-function ham.settingsFrame:updateBandagePrio()
-	-- hide existing
-	for _, frame in pairs(bandageFrames) do
-		frame:Hide()
-	end
-
-	bandagePositionX = 0
-
-	-- Build the prioritized bandage list for the current context
-	if ham.getBandages then
-		local bandages = ham.getBandages()
-		local shown = 0
-		for _, item in ipairs(bandages) do
-			if item.getCount and item.getCount() > 0 then
-				local id = item.getId()
-				local _, _, _, _, _, _, _, _, _, iconTexture = C_Item.GetItemInfo(id)
-				local idx = shown + 1
-				local currentFrame = bandageFrames[idx]
-				local currentTexture = bandageTextures[idx]
-				if currentFrame ~= nil then
-					currentFrame:SetScript("OnEnter", nil)
-					currentFrame:SetScript("OnLeave", nil)
-					currentFrame:HookScript("OnEnter", function(_, btn, down)
-						GameTooltip:SetOwner(currentFrame, "ANCHOR_TOPRIGHT")
-						GameTooltip:SetItemByID(id)
-						GameTooltip:Show()
-					end)
-					currentFrame:HookScript("OnLeave", function(_, btn, down)
-						GameTooltip:Hide()
-					end)
-					currentTexture:SetTexture(iconTexture)
-					currentTexture:SetAllPoints(currentFrame)
-					currentFrame.texture = currentTexture
-					currentFrame:Show()
-				else
-					self:createBandagePrioFrame(id, iconTexture, bandagePositionX)
-					bandagePositionX = bandagePositionX + (ICON_SIZE + (ICON_SIZE / 2))
-				end
-				shown = shown + 1
-			end
-		end
-	end
-end
-
 function ham.settingsFrame:InitializeOptions()
 	-- Create the main panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
@@ -292,6 +258,7 @@ function ham.settingsFrame:InitializeOptions()
 		local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
 		Settings.RegisterAddOnCategory(category)
 		self.panel.categoryID = category:GetID() -- for OpenToCategory use
+		self.category = category -- exposed so subcategory panels (e.g. AutoBandage) can attach
 	end
 
 	-- Refresh priority preview when panel is shown (e.g. when opening settings in BG/Arena)
@@ -300,13 +267,48 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		ham.settingsFrame:updatePrio()
-		ham.settingsFrame:updateBandagePrio()
+		ham.settingsFrame:recalculateContentHeight()
 	end)
 
-	-- inset frame to provide some padding
-	self.content = CreateFrame("Frame", nil, self.panel)
-	self.content:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 16, -16)
-	self.content:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -16, 16)
+	-------------  FIXED FOOTER (Current Priority + Reset button)  -------------
+	-- Anchored to the panel itself (not the scrollable content) so both stay visible
+	-- no matter how far the settings above have been scrolled.
+	self.priorityFooter = CreateFrame("Frame", nil, self.panel)
+	self.priorityFooter:SetPoint("BOTTOMLEFT", self.panel, "BOTTOMLEFT", 0, 0)
+	self.priorityFooter:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", 0, 0)
+	self.priorityFooter:SetHeight(FOOTER_HEIGHT)
+
+	currentPrioTitle = self.priorityFooter:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+	currentPrioTitle:SetPoint("TOPLEFT", self.priorityFooter, "TOPLEFT", 16, -FOOTER_TOP_PADDING)
+	currentPrioTitle:SetText(L["Current Priority"])
+
+	local btn = CreateFrame("Button", nil, self.priorityFooter, "UIPanelButtonTemplate")
+	btn:SetPoint("BOTTOMLEFT", self.priorityFooter, "BOTTOMLEFT", 17, FOOTER_BOTTOM_PADDING)
+	btn:SetText(L["Reset to Default"])
+	-- Size to the localized text instead of a fixed width, so longer translations
+	-- (e.g. German "Auf Standard zurücksetzen") don't clip past the button's edges.
+	local BUTTON_TEXT_PADDING = 20
+	local MIN_BUTTON_WIDTH = 120
+	btn:SetWidth(math.max(MIN_BUTTON_WIDTH, btn:GetFontString():GetStringWidth() + BUTTON_TEXT_PADDING))
+
+	-- scrollable area so the panel stays usable once it has more rows than fit on screen
+	self.scrollFrame = CreateFrame("ScrollFrame", addonName .. "ScrollFrame", self.panel, "UIPanelScrollFrameTemplate")
+	self.scrollFrame:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 16, -16)
+	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.panel, "BOTTOMRIGHT", -28, FOOTER_HEIGHT)
+	self.scrollFrame:EnableMouseWheel(true)
+	self.scrollFrame:SetScript("OnMouseWheel", function(sf, delta)
+		local newScroll = sf:GetVerticalScroll() - delta * 40
+		local maxScroll = sf:GetVerticalScrollRange()
+		newScroll = math.max(0, math.min(newScroll, maxScroll))
+		sf:SetVerticalScroll(newScroll)
+	end)
+
+	self.content = CreateFrame("Frame", nil, self.scrollFrame)
+	self.content:SetSize(1, 1)
+	self.scrollFrame:SetScrollChild(self.content)
+	self.scrollFrame:HookScript("OnSizeChanged", function(_, width)
+		self.content:SetWidth(width)
+	end)
 
 	-- title
 	local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
@@ -381,7 +383,7 @@ function ham.settingsFrame:InitializeOptions()
 	local witheringDreamsPotionButton = nil
 	local cavedwellerDelightButton = nil
 	local heartseekingButton = nil
-	if isRetail then
+	if ham.isRetail then
 		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
 		itemsTitle:SetText(L["Items"])
@@ -468,27 +470,11 @@ function ham.settingsFrame:InitializeOptions()
 		lastStaticElement = heartseekingButton
 	end
 
-	-------------  CLASS / RACIALS  -------------
-	myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	myClassTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
-	myClassTitle:SetText(L["Class/Racial Spells"])
-
-	-------------  CURRENT PRIORITY  -------------
-	currentPrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	currentPrioTitle:SetPoint("TOPLEFT", myClassTitle, 0, -PADDING_CATERGORY - PADDING)
-	currentPrioTitle:SetText(L["Current Priority"])
-
-	-------------  BANDAGE PRIORITY  -------------
-	bandagePrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
-	bandagePrioTitle:SetPoint("TOPLEFT", currentPrioTitle, 0, -PADDING_CATERGORY - ICON_SIZE)
-	bandagePrioTitle:SetText(L["Bandage Priority"])
-
+	-- Class/racial spell groups are created dynamically in InitializeClassSpells, since
+	-- class headers depend on which classes actually have spells and that section's
+	-- height varies with how many show up.
 
 	-------------  RESET BUTTON  -------------
-	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
-	btn:SetPoint("BOTTOMLEFT", 1, 0)
-	btn:SetText(L["Reset to Default"])
-	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
 
@@ -501,7 +487,7 @@ function ham.settingsFrame:InitializeOptions()
 		end
 		cdResetButton:SetChecked(HAMDB.cdReset)
 		raidStoneButton:SetChecked(HAMDB.raidStone)
-		if isRetail then
+		if ham.isRetail then
 			---@diagnostic disable-next-line: need-check-nil
 			witheringPotionButton:SetChecked(HAMDB.witheringPotion)
 			---@diagnostic disable-next-line: need-check-nil
@@ -512,58 +498,112 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
-		self:updateBandagePrio()
+		ham.bandageSettingsFrame:updateBandagePrio()
 		print(L["Reset successful!"])
 	end)
 end
 
-function ham.settingsFrame:InitializeClassSpells(relativeTo)
-	local lastbutton = nil
-	local posy = -PADDING
-	if next(ham.supportedSpells) ~= nil then
-		local count = 0
-		for i, spell in ipairs(ham.supportedSpells) do
-			if spell.isKnown() then
-				local button = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
-
-				if count == 3 then
-					lastbutton = nil
-					count = 0
-					posy = posy - PADDING
-				end
-				if lastbutton ~= nil then
-					button:SetPoint("TOPLEFT", lastbutton, PADDING_HORIZONTAL, 0)
-				else
-					button:SetPoint("TOPLEFT", relativeTo, 0, posy)
-				end
-				---@diagnostic disable-next-line: undefined-field
-				button.Text:SetText(spell.getName())
-				button:HookScript("OnClick", function(_, btn, down)
-					if button:GetChecked() then
-						ham.insertIntoDB(spell.getId())
-					else
-						ham.removeFromDB(spell.getId())
-					end
-					ham.updateHeals()
-					ham.updateMacro()
-					self:updatePrio()
-				end)
-				button:HookScript("OnEnter", function(_, btn, down)
-					---@diagnostic disable-next-line: param-type-mismatch
-					GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
-					GameTooltip:SetSpellByID(spell.getId());
-					GameTooltip:Show()
-				end)
-				button:HookScript("OnLeave", function(_, btn, down)
-					GameTooltip:Hide()
-				end)
-				button:SetChecked(ham.dbContains(spell.getId()))
-				table.insert(classButtons, spell.getId(), button)
-				lastbutton = button
-				count = count + 1
+-- Create one class/racial-spell checkbox, anchored (offsetX, offsetY) from `relativeTo`.
+-- `spell` is either a plain ham.Spell (single db entry) or a ham.SpellGroup (toggles
+-- every member together as one unit - see Core/SpellGroup.lua).
+local function createSpellButton(parent, relativeTo, offsetX, offsetY, spell)
+	local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+	button:SetPoint("TOPLEFT", relativeTo, offsetX, offsetY)
+	---@diagnostic disable-next-line: undefined-field
+	button.Text:SetText(spell.getName())
+	button:HookScript("OnClick", function(_, btn, down)
+		if spell.isGroup then
+			if button:GetChecked() then
+				spell.activate()
+			else
+				spell.deactivate()
+			end
+		else
+			if button:GetChecked() then
+				ham.insertIntoDB(spell.getId())
+			else
+				ham.removeFromDB(spell.getId())
 			end
 		end
+		ham.updateHeals()
+		ham.updateMacro()
+		ham.settingsFrame:updatePrio()
+	end)
+	button:HookScript("OnEnter", function(_, btn, down)
+		---@diagnostic disable-next-line: param-type-mismatch
+		GameTooltip:SetOwner(button, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetSpellByID(spell.getId())
+		GameTooltip:Show()
+	end)
+	button:HookScript("OnLeave", function(_, btn, down)
+		GameTooltip:Hide()
+	end)
+	if spell.isGroup then
+		button:SetChecked(spell.isActive())
+	else
+		button:SetChecked(ham.dbContains(spell.getId()))
 	end
+	classButtons[spell.getId()] = button
+	return button
+end
+
+-- Shows every spell available for the current flavor (not just ones the character
+-- currently knows), grouped under a header per class. A class with no spells in
+-- ham.supportedSpells gets no header at all; spells not tied to a class (racials
+-- shared across classes, non-class effects) are grouped under "Other / Racial".
+function ham.settingsFrame:InitializeClassSpells(relativeTo)
+	local buckets = {}
+	local otherBucket = {}
+	for _, spell in ipairs(ham.supportedSpells) do
+		local class = spell.getClass()
+		if class then
+			buckets[class] = buckets[class] or {}
+			table.insert(buckets[class], spell)
+		else
+			table.insert(otherBucket, spell)
+		end
+	end
+
+	local lastAnchor = relativeTo
+
+	local function layoutGroup(headerText, spells)
+		if #spells == 0 then return end
+
+		local header = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+		header:SetPoint("TOPLEFT", lastAnchor, 0, -PADDING_CATERGORY)
+		header:SetText(headerText)
+
+		local rowStart = nil
+		local lastButton = nil
+		local posy = -PADDING
+		local count = 0
+		for _, spell in ipairs(spells) do
+			if count == 3 then
+				lastButton = nil
+				count = 0
+				posy = posy - PADDING
+			end
+			local button
+			if lastButton ~= nil then
+				button = createSpellButton(self.content, lastButton, PADDING_HORIZONTAL, 0, spell)
+			else
+				button = createSpellButton(self.content, header, 0, posy, spell)
+				rowStart = button
+			end
+			lastButton = button
+			count = count + 1
+		end
+
+		lastAnchor = rowStart
+	end
+
+	for _, classToken in ipairs(CLASS_ORDER) do
+		local className = LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[classToken] or classToken
+		layoutGroup(className, buckets[classToken] or {})
+	end
+	layoutGroup(L["Other / Racial"], otherBucket)
+
+	self:recalculateContentHeight()
 end
 
 SLASH_HAM1 = "/ham"
