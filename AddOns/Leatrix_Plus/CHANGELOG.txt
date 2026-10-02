@@ -1,4 +1,8 @@
-﻿12.1.06 - 23rd September 2026
+﻿12.1.07 - 30th September 2026
+- For 'Enhance tooltip' ('Interface'), fixed a secrets issue.
+- Fixed an issue with the media player which caused the media player panel to remain hidden after a movie stopped playing.
+
+12.1.06 - 23rd September 2026
 - PTR (12.1.5): Updated deprecated functions.
 
 12.1.05 - 16th September 2026
