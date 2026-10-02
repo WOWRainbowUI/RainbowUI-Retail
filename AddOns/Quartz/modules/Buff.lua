@@ -171,12 +171,11 @@ local function initButton(button, unit, isBuff, gen)
 	entry.pandemic = bar:CreateTexture(nil, "OVERLAY")
 	entry.pandemic:SetAllPoints(bar)
 	entry.pandemic:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-	local pulseGroup = entry.pandemic:CreateAnimationGroup()
-	pulseGroup:SetLooping("BOUNCE")
-	entry.pulse = pulseGroup:CreateAnimation("Alpha")
+	entry.pulseGroup = entry.pandemic:CreateAnimationGroup()
+	entry.pulseGroup:SetLooping("BOUNCE")
+	entry.pulse = entry.pulseGroup:CreateAnimation("Alpha")
 	entry.pulse:SetFromAlpha(0)
 	entry.pulse:SetDuration(0.5)
-	pulseGroup:Play()
 
 	button:SetDurationBar(bar, { interpolation = Enum.StatusBarInterpolation.Immediate, direction = Enum.StatusBarTimerDirection.ElapsedTime })
 	button:SetApplicationCount(entry.stacks, {})
@@ -261,11 +260,23 @@ function styleButton(entry)
 
 	local pr, pg, pb, pa = unpack(db.pandemiccolor)
 	entry.pandemic:SetVertexColor(pr, pg, pb)
+	entry.pandemic:SetAlpha(pa or 0.5)
 	entry.pulse:SetToAlpha(pa or 0.5)
 	button:ClearPandemicRegions()
+	if button.ClearPandemicActiveAnimations then
+		button:ClearPandemicActiveAnimations()
+	end
 	if db.pandemic then
 		button:AddPandemicRegion(entry.pandemic)
+		-- 12.1.5 plays the pulse only inside the pandemic window, 12.1.0 has to loop it permanently.
+		local native = button.AddPandemicActiveAnimation and pcall(button.AddPandemicActiveAnimation, button, entry.pulseGroup)
+		if native then
+			entry.pulseNative = true
+		elseif not entry.pulseNative and not entry.pulseGroup:IsPlaying() then
+			entry.pulseGroup:Play()
+		end
 	else
+		entry.pulseGroup:Stop()
 		entry.pandemic:Hide()
 	end
 
@@ -597,9 +608,9 @@ local function unitReaction(unit)
 	return isEnemy and "attack" or "none"
 end
 
--- The identity gate ignores spell-ID filters for helpful auras on non-assistable units and harmful ones on assistable units, custom sections are muted there.
-local function sectionMuted(section, state)
-	if not section.custom then return false end
+-- Where the identity gate blocks spell-ID filters (helpful on non-assistable, harmful on assistable), 12.1.0 lets every aura through so custom sections are muted; 12.1.5 rejects them natively, SetAuraGroupEnabled marks that API level.
+local function sectionMuted(container, section, state)
+	if not section.custom or container.SetAuraGroupEnabled then return false end
 	if section.isHelpful then
 		return state ~= "assist"
 	end
@@ -695,7 +706,7 @@ local function configureContainer(unit)
 		local key = "section" .. i
 		pcall(container.SetAuraGroupFilterString, container, key, section.filterString)
 		pcall(container.SetAuraGroupSortMethod, container, key, sortMethod, AuraContainerSortDirection.Normal)
-		pcall(container.SetAuraGroupMaxFrameCount, container, key, sectionMuted(section, state) and 0 or MAX_AURAS)
+		pcall(container.SetAuraGroupMaxFrameCount, container, key, sectionMuted(container, section, state) and 0 or MAX_AURAS)
 		pcall(container.SetAuraGroupLayout, container, key, { elementSpacing = spacing, groupSpacing = section.glued and 0 or spacing })
 		local token = revision .. "#" .. section.key .. "#" .. tostring(section.glued)
 		if applied[key] ~= token then
@@ -1537,7 +1548,7 @@ local function refreshUnit(unit)
 		reaction[unit] = state
 		if container.sections then
 			for i, section in ipairs(container.sections) do
-				pcall(container.SetAuraGroupMaxFrameCount, container, "section" .. i, sectionMuted(section, state) and 0 or MAX_AURAS)
+				pcall(container.SetAuraGroupMaxFrameCount, container, "section" .. i, sectionMuted(container, section, state) and 0 or MAX_AURAS)
 			end
 		end
 	end

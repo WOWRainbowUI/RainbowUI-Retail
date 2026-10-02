@@ -27,15 +27,38 @@ local Player = Quartz3:GetModule("Player")
 -- Upvalues
 local CreateFrame, UIParent = CreateFrame, UIParent
 local UnitExists, UnitCanAssist, UnitCanAttack = UnitExists, UnitCanAssist, UnitCanAttack
-local UnitInRange, UnitName = UnitInRange, UnitName
+local UnitInRange, UnitName, UnitCastingInfo = UnitInRange, UnitName, UnitCastingInfo
 local unpack, select, ipairs = unpack, select, ipairs
 
 local IsSpellInRange = C_Spell.IsSpellInRange
 local IsSpellUsable = C_Spell.IsSpellUsable
+local GetSpellName = C_Spell.GetSpellName
+local InCombatLockdown = InCombatLockdown
 
 ----------------------------
 -- Class spell table (spell IDs, locale-independent)
-local classSpells = {
+local classSpells = Quartz3.IsForever and {
+	friendly = {
+		["PRIEST"]      = { 17, 527 },               -- PW:Shield, Dispel Magic
+		["DRUID"]       = { 8936 },                  -- Regrowth
+		["PALADIN"]     = { 19750 },                 -- Flash of Light
+		["SHAMAN"]      = { 331 },                   -- Healing Wave
+		["WARLOCK"]     = { 5697 },                  -- Unending Breath
+		["MAGE"]        = { 130 },                   -- Slow Fall
+		-- WARRIOR / HUNTER / ROGUE: no friendly range spell, falls back to UnitInRange
+	},
+	hostile = {
+		["DRUID"]       = { 8921, 5176 },            -- Moonfire, Wrath
+		["HUNTER"]      = { 3044, 1978, 75 },        -- Arcane Shot, Serpent Sting, Auto Shot
+		["MAGE"]        = { 116, 133 },              -- Frostbolt, Fireball
+		["PALADIN"]     = { 20271 },                 -- Judgement
+		["PRIEST"]      = { 585 },                   -- Smite
+		["ROGUE"]       = { 2764, 2480, 7918, 7919 },-- Throw, Shoot (bow, gun, crossbow)
+		["SHAMAN"]      = { 403 },                   -- Lightning Bolt
+		["WARLOCK"]     = { 686 },                   -- Shadow Bolt
+		["WARRIOR"]     = { 355, 100 },              -- Taunt, Charge
+	},
+} or {
 	friendly = {
 		["PRIEST"]      = { 17, 527 },              -- PW:Shield, Purify
 		["DRUID"]       = { 8936 },                  -- Regrowth
@@ -73,6 +96,7 @@ local rangeSpells = { friendly = nil, hostile = nil }
 local f, OnUpdate, db, getOptions, castBar
 local rangeOverlay, rangeCheckedFrame
 local selfCast = false
+local cacheTimer, cachePending
 
 local defaults = {
 	profile = {
@@ -90,8 +114,10 @@ local function updateSpellCache()
 		local spellList = classSpells[category][playerClass]
 		if spellList then
 			for _, spellID in ipairs(spellList) do
-				if IsSpellUsable(spellID) then
-					rangeSpells[category] = spellID
+				-- Forever keeps spell ranks: the name resolves to the highest known rank, the ID would test rank 1 only.
+				local spell = Quartz3.IsForever and GetSpellName(spellID) or spellID
+				if spell and IsSpellUsable(spell) then
+					rangeSpells[category] = spell
 					break
 				end
 			end
@@ -185,11 +211,21 @@ function Range:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_START")
 	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "UpdateSpellCache")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "ScheduleSpellCache")
+	if Quartz3.IsForever then
+		self:RegisterEvent("SPELLS_CHANGED", "ScheduleSpellCache")
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	end
 	updateSpellCache()
 end
 
 function Range:OnDisable()
 	f:SetScript("OnUpdate", nil)
+	if cacheTimer then
+		cacheTimer:Cancel()
+		cacheTimer = nil
+	end
+	cachePending = nil
 	if rangeOverlay then
 		rangeOverlay:SetAlpha(0)
 		rangeCheckedFrame:SetAlpha(1)
@@ -207,11 +243,43 @@ function Range:UpdateSpellCache()
 	updateSpellCache()
 end
 
+local function rebuildSpellCache()
+	cacheTimer = nil
+	if not Range:IsEnabled() then return end
+	if InCombatLockdown() then
+		cachePending = true
+		return
+	end
+	cachePending = nil
+	updateSpellCache()
+	if f:GetScript("OnUpdate") then
+		OnUpdate(f, 1)
+	end
+end
+
+function Range:ScheduleSpellCache()
+	if InCombatLockdown() then
+		cachePending = true
+	elseif not cacheTimer then
+		cacheTimer = C_Timer.NewTimer(0.25, rebuildSpellCache)
+	end
+end
+
+function Range:PLAYER_REGEN_ENABLED()
+	if cachePending then
+		self:ScheduleSpellCache()
+	end
+end
+
+-- Forever returns the full player name from UnitName("player") but a short target name in the cast payload.
+local function shortName(name)
+	return Quartz3.IsForever and name:match("^[^-]+") or name
+end
+
 -- UnitName("player") is never secret
 function Range:UNIT_SPELLCAST_SENT(event, unit, destName)
 	if unit ~= "player" then return end
-	local playerName = UnitName("player")
-	selfCast = (destName and not issecretvalue(destName) and destName == playerName)
+	selfCast = not issecretvalue(destName) and type(destName) == "string" and shortName(destName) == shortName(UnitName("player"))
 end
 
 function Range:UNIT_SPELLCAST_START(event, unit)
@@ -223,7 +291,8 @@ function Range:UNIT_SPELLCAST_START(event, unit)
 	end
 	if castBar then
 		setupOverlay()
-		if selfCast or not UnitExists("target") then
+		local isTradeSkill = select(6, UnitCastingInfo("player"))
+		if selfCast or isTradeSkill or not UnitExists("target") then
 			rangeOverlay:SetAlpha(0)
 			rangeCheckedFrame:SetAlpha(1)
 			f:SetScript("OnUpdate", nil)

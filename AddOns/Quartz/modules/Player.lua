@@ -31,8 +31,14 @@ local WoWBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 local WoWWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
 local WoWCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 local WoWMists = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
+local WoWForever = Quartz3.IsForever
 
 local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+
+-- Forever may lack some Classic spell IDs: an unknown ID keys the entry by number instead of erroring.
+local function spellKey(spellID)
+	return GetSpellName(spellID) or spellID
+end
 
 ----------------------------
 -- Upvalues
@@ -185,7 +191,7 @@ end
 
 
 function Player:OnEnable()
-	if WoWRetail then
+	if WoWRetail and not WoWForever then
 		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "UpdateChannelingTicks")
 		self:RegisterEvent("TRAIT_CONFIG_UPDATED", "UpdateChannelingTicks")
 	end
@@ -430,26 +436,26 @@ local channelingTicks = WoWWrath and {
 	[GetSpellName(689)] = 5, -- drain life
 	[GetSpellName(1120)] = 5, -- drain soul
 	[GetSpellName(755)] = 10, -- health funnel
-} or WoWClassicEra and {
+} or (WoWClassicEra or WoWForever) and {
 	-- druid
-	[GetSpellName(740)] = 5, -- tranquility
-	[GetSpellName(16914)] = 10, -- hurricane
+	[spellKey(740)] = 5, -- tranquility
+	[spellKey(16914)] = 10, -- hurricane
 	-- hunter
-	[GetSpellName(136)] = 5, -- mend pet
-	[GetSpellName(1510)] = 6, -- volley
+	[spellKey(136)] = 5, -- mend pet
+	[spellKey(1510)] = 6, -- volley
 	-- mage
-	[GetSpellName(10)] = 8, -- blizzard
-	[GetSpellName(5143)] = 3, -- arcane missiles
+	[spellKey(10)] = 8, -- blizzard
+	[spellKey(5143)] = 3, -- arcane missiles
 	-- priest
-	[GetSpellName(15407)] = 3, -- mind flay
-	[GetSpellName(10797)] = 6, -- star shards
+	[spellKey(15407)] = 3, -- mind flay
+	[spellKey(10797)] = 6, -- star shards
 	-- warlock
-	[GetSpellName(1949)] = 15, -- hellfire
-	[GetSpellName(5740)] = 4, -- rain of fire
-	[GetSpellName(5138)] = 5, -- drain mana
-	[GetSpellName(689)] = 5, -- drain life
-	[GetSpellName(1120)] = 5, -- drain soul
-	[GetSpellName(755)] = 10, -- health funnel
+	[spellKey(1949)] = 15, -- hellfire
+	[spellKey(5740)] = 4, -- rain of fire
+	[spellKey(5138)] = 5, -- drain mana
+	[spellKey(689)] = 5, -- drain life
+	[spellKey(1120)] = 5, -- drain soul
+	[spellKey(755)] = 10, -- health funnel
 } or WoWRetail and {
 	--- Retail
 	-- warlock
@@ -511,7 +517,7 @@ end
 
 function Player:UpdateChannelingTicks()
 	local playerClass = select(2, UnitClass("player"))
-	if WoWRetail then
+	if WoWRetail and not WoWForever then
 		if playerClass == "PRIEST" then
 			-- Castigation talent adds a tick to penance
 			channelingTicks[GetSpellName(47540)] = IsPlayerSpell(193134) and 4 or 3

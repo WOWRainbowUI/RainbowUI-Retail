@@ -21,10 +21,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
 local media = LibStub("LibSharedMedia-3.0")
 local db
 
-local WoW10 = select(4, GetBuildInfo()) >= 100000
-if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then -- 暫時修正
-	WoW10 = true
-end
+-- Forever (game type "camelot") is classed as mainline but reports a 1.60.x interface number.
+local tocVersion = select(4, GetBuildInfo())
+Quartz3.IsForever = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and tocVersion > 16000 and tocVersion < 20000
 
 ----------------------------
 -- Upvalues
@@ -72,7 +71,7 @@ media:Register("statusbar", "Blizzard Spark", "Interface\\CastingBar\\UI-Casting
 media:Register("border", "Tooltip enlarged", "Interface\\AddOns\\Quartz\\textures\\Tooltip-BigBorder")
 
 -- Bump on every profile migration added to CheckUpgrade.
-Quartz3.dbRevision = 1
+Quartz3.dbRevision = 2
 
 function Quartz3:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("Quartz3DB", defaults, true)
@@ -109,6 +108,14 @@ function Quartz3:CheckUpgrade()
 		if mirror then
 			if mirror.profile.mirrorposition == "bottomright" then mirror.profile.mirrorposition = "topleft" end
 			if mirror.profile.mirrorgap == 15 then mirror.profile.mirrorgap = 1 end
+		end
+	end
+
+	if revision <= 1 then
+		local swing = self.db:GetNamespace("Swing", true)
+		if swing then
+			if type(swing.profile.x) == "number" then swing.profile.x = swing.profile.x - UIParent:GetWidth() / 2 end
+			if type(swing.profile.y) == "number" then swing.profile.y = swing.profile.y - UIParent:GetHeight() / 2 end
 		end
 	end
 
