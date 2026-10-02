@@ -40,6 +40,8 @@ local settings = {
   NOT_IN_PULL_ALPHA = {key = "not_in_combat_alpha", default = 1, refresh = {addonTable.Constants.RefreshReason.Design}},
 
   STACKING_NAMEPLATES = {key = "stacking_nameplates", default = {friend = false, enemy = true}, refresh = {addonTable.Constants.RefreshReason.StackingBehaviour}},
+  STACK_POSITION_INSETS = {key = "stack_position_insets", default = {top = 0.08, bottom = 0.1}, refresh = {addonTable.Constants.RefreshReason.Movement}},
+  STACK_MOTION_SPEED = {key = "stack_motion_speed", default = 0.3, refresh = {addonTable.Constants.RefreshReason.Movement}},
   CLICK_REGION_SCALE_X = {key = "click_region_scale_x", default = 1},
   CLICK_REGION_SCALE_Y = {key = "click_region_scale_y", default = 1},
   CLICKABLE_NAMEPLATES = {key = "clickable_nameplates", default = {friend = false, enemy = true}, refresh = {addonTable.Constants.RefreshReason.Clickable}},

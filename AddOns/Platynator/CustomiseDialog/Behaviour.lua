@@ -296,25 +296,16 @@ local function GetSizingOptions(parent)
 
   local allFrames = {}
 
-  local simplifiedScaleSlider
-  if addonTable.Constants.IsSimplifiedAvailable then
-    if C_CVar.GetCVarInfo("nameplateSimplifiedScale") then
-      simplifiedScaleSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.SIMPLIFIED_SCALE, 1, 100, function(value) return ("%d%%"):format(value) end, function(value)
-        addonTable.Config.Set(addonTable.Config.Options.SIMPLIFIED_SCALE, value / 100)
-      end)
-      simplifiedScaleSlider:SetPoint("TOP")
-      table.insert(allFrames, simplifiedScaleSlider)
-    end
-  end
+  local simplifiedScaleSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.SIMPLIFIED_SCALE, 1, 100, function(value) return ("%d%%"):format(value) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.SIMPLIFIED_SCALE, value / 100)
+  end)
+  simplifiedScaleSlider:SetPoint("TOP")
+  table.insert(allFrames, simplifiedScaleSlider)
 
   local targetScaleSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.ON_TARGET_SCALE, 1, 500, function(value) return ("%d%%"):format(value) end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.TARGET_SCALE, value / 100)
   end)
-  if #allFrames > 0 then
-    targetScaleSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
-  else
-    targetScaleSlider:SetPoint("TOP")
-  end
+  targetScaleSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
   table.insert(allFrames, targetScaleSlider)
 
   local castScaleSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.ON_CAST_SCALE, 1, 500, function(value) return ("%d%%"):format(value) end, function(value)
@@ -355,9 +346,7 @@ local function GetSizingOptions(parent)
 
   container:SetScript("OnShow", function()
     targetScaleSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.TARGET_SCALE) * 100)
-    if simplifiedScaleSlider then
-      simplifiedScaleSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_SCALE) * 100)
-    end
+    simplifiedScaleSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_SCALE) * 100)
 
     castScaleSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.CAST_SCALE) * 100)
     verticalOffset:SetValue(addonTable.Config.Get(addonTable.Config.Options.VERTICAL_OFFSET) * 100)
@@ -367,6 +356,41 @@ local function GetSizingOptions(parent)
         f:SetValue(addonTable.Config.Get(f.option))
       end
     end
+  end)
+
+  return container
+end
+
+local function GetMovementOptions(parent)
+  local container = CreateFrame("Frame", nil, parent)
+
+  local allFrames = {}
+
+  local topInsetSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.SCREEN_TOP_INSET, 0, 40, function(value) return ("%d%%"):format(value) end, function(value)
+    addonTable.Config.Get(addonTable.Config.Options.STACK_POSITION_INSETS).top = value / 100
+    addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Movement] = true})
+  end)
+  topInsetSlider:SetPoint("TOP")
+  table.insert(allFrames, topInsetSlider)
+
+  local bottomInsetSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.SCREEN_BOTTOM_INSET, 0, 40, function(value) return ("%d%%"):format(value) end, function(value)
+    addonTable.Config.Get(addonTable.Config.Options.STACK_POSITION_INSETS).bottom = value / 100
+    addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Movement] = true})
+  end)
+  bottomInsetSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+  table.insert(allFrames, bottomInsetSlider)
+
+  local motionSpeedSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MOTION_SPEED, 0, 10, function(value) return ("%d%%"):format(value * 10) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.STACK_MOTION_SPEED, value / 10)
+    addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Movement] = true})
+  end)
+  motionSpeedSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+  table.insert(allFrames, motionSpeedSlider)
+
+  container:SetScript("OnShow", function()
+    topInsetSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.STACK_POSITION_INSETS).top * 100)
+    bottomInsetSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.STACK_POSITION_INSETS).bottom * 100)
+    motionSpeedSlider:SetValue(addonTable.Config.Get(addonTable.Config.Options.STACK_MOTION_SPEED) * 10)
   end)
 
   return container
@@ -384,6 +408,11 @@ function addonTable.CustomiseDialog.GetBehaviour(parent)
     {name = addonTable.Locales.FADING, container = fadingContainer},
     {name = addonTable.Locales.SIZING, container = sizingContainer},
   }
+
+  if addonTable.Constants.IsCVarsBack then
+    local movementContainer = GetMovementOptions(container)
+    table.insert(tabContainers, {name = addonTable.Locales.MOVEMENT, container = movementContainer})
+  end
 
   local Tabs = {}
   local lastTab

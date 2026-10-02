@@ -5,6 +5,68 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local auraFormatter, auraPlainFormatter = addonTable.Display.Utilities.GetAuraNumericFormatter()
 
+function addonTable.Display.GeneratePandemicAnimation(frame)
+  frame.Pandemic = CreateFrame("Frame", nil, frame)
+  frame.Pandemic:SetAllPoints()
+  frame.Pandemic.Animation = frame.Pandemic:CreateAnimationGroup()
+  frame.Pandemic:SetFrameLevel(frame.Cooldown:GetFrameLevel() + 5)
+  do
+    frame.Pandemic.Top = frame.Pandemic:CreateTexture()
+    frame.Pandemic.Top:SetPoint("TOPLEFT")
+    frame.Pandemic.Top:SetPoint("TOPRIGHT")
+    frame.Pandemic.Top:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
+    frame.Pandemic.Bottom = frame.Pandemic:CreateTexture()
+    frame.Pandemic.Bottom:SetPoint("BOTTOMLEFT")
+    frame.Pandemic.Bottom:SetPoint("BOTTOMRIGHT")
+    frame.Pandemic.Bottom:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
+    frame.Pandemic.Bottom:SetRotation(math.pi)
+    frame.Pandemic.Left = frame.Pandemic:CreateTexture()
+    frame.Pandemic.Left:SetPoint("TOPLEFT")
+    frame.Pandemic.Left:SetPoint("BOTTOMLEFT")
+    frame.Pandemic.Left:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
+    frame.Pandemic.Right = frame.Pandemic:CreateTexture()
+    frame.Pandemic.Right:SetPoint("TOPRIGHT")
+    frame.Pandemic.Right:SetPoint("BOTTOMRIGHT")
+    frame.Pandemic.Right:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
+    frame.Pandemic.Right:SetRotation(math.pi)
+
+    local pandemicDim = 1
+    frame.Pandemic.Top:SetHeight(pandemicDim)
+    frame.Pandemic.Bottom:SetHeight(pandemicDim)
+    frame.Pandemic.Left:SetWidth(pandemicDim)
+    frame.Pandemic.Right:SetWidth(pandemicDim)
+
+    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetFlipBookColumns(1)
+    fb:SetFlipBookRows(11)
+    fb:SetDuration(0.5)
+    fb:SetTarget(frame.Pandemic.Top)
+    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetFlipBookColumns(1)
+    fb:SetFlipBookRows(11)
+    fb:SetDuration(0.5)
+    fb:SetTarget(frame.Pandemic.Bottom)
+    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetFlipBookColumns(11)
+    fb:SetFlipBookRows(1)
+    fb:SetDuration(0.5)
+    fb:SetTarget(frame.Pandemic.Left)
+    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetFlipBookColumns(11)
+    fb:SetFlipBookRows(1)
+    fb:SetDuration(0.5)
+    fb:SetTarget(frame.Pandemic.Right)
+    frame.Pandemic.Animation:SetLooping("REPEAT")
+    frame.Pandemic.Animation:Stop()
+    function frame.Pandemic:SetVertexColor(...)
+      frame.Pandemic.Top:SetVertexColor(...)
+      frame.Pandemic.Bottom:SetVertexColor(...)
+      frame.Pandemic.Left:SetVertexColor(...)
+      frame.Pandemic.Right:SetVertexColor(...)
+    end
+  end
+end
+
 local function StyleAura(auraFrame, details, container)
   auraFrame.kind = details.kind
 
@@ -60,6 +122,19 @@ local function StyleAura(auraFrame, details, container)
   local texBase = 0.95 * (1 - details.height) / 2
   auraFrame.Icon:SetTexCoord(0.05, 0.95, 0.05 + texBase, 0.95 - texBase)
 
+  if addonTable.Constants.IsMidnightNext or addonTable.Constants.IsForever then
+    auraFrame:ClearPandemicActiveAnimations()
+    auraFrame:ClearPandemicRegions()
+    auraFrame.Pandemic:SetShown(details.showPandemic)
+    if details.showPandemic then
+      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Top)
+      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Left)
+      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Right)
+      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Bottom)
+      auraFrame:AddPandemicActiveAnimation(auraFrame.Pandemic.Animation)
+    end
+  end
+
   auraFrame.Dispel:SetShown(details.showType)
 end
 
@@ -101,6 +176,11 @@ local function GetAurasInitializerModern(container)
       dispelTexture:SetTextureSliceMargins(dispelAsset.margins.left, dispelAsset.margins.top, dispelAsset.margins.right, dispelAsset.margins.bottom)
       dispelTexture:SetVertexColor(1, 0, 0)
       frame.Dispel.Border = dispelTexture
+    end
+
+    if addonTable.Constants.IsMidnightNext or addonTable.Constants.IsForever then
+      addonTable.Display.GeneratePandemicAnimation(frame)
+      PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame.Pandemic, true)
     end
 
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})

@@ -1,9 +1,15 @@
 # Platynator
 
-## [492](https://github.com/TheMouseNest/Platynator/tree/492) (2026-09-26)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/491...492) 
+## [493](https://github.com/TheMouseNest/Platynator/tree/493) (2026-09-30)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/492...493) 
 
-- Revert "Fix issue with "Bar: Health Fill Text" breaking when font alphabet changes"  
-- Fix issue with "Bar: Health Fill Text" breaking when font alphabet changes  
-- Cleanup old compatibility code  
-- Designer: Fix missing "Regions" button  
+- Forever: Fix range for hunter  
+- Add "Blizzard: Forever" style  
+- Fix FPS drop caused by restoring Pandemic animations and leaving them playing  
+- Remove debug print  
+- Update LibRangeCheck-3.0  
+- Midnight PTR/Forever: Add Pandemic animations on auras back  
+- Forever: Fix range checks  
+- Midnight PTR/Forever: Add options for newly restored CVars  
+    - Nameplate motion speed  
+    - Nameplate top/bottom screen insets  
