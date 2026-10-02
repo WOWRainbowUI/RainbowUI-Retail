@@ -1,8 +1,6 @@
 # Baganator
 
-## [831](https://github.com/TheMouseNest/Baganator/tree/831) (2026-09-26)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/830...831) 
+## [833](https://github.com/TheMouseNest/Baganator/tree/833) (2026-09-30)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/832...833) 
 
-- Forever: Update locale strings shown to reflect usage  
-- Retail: Fix buttons being offset from the top slightly  
-- Forever: Fix transferring from bags to bank (via button)  
+- Forever: Fix right-click moving items from bags to bank not working past 1st tab  

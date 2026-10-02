@@ -20,7 +20,7 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
   self.Container.BankUnifiedLive:SetShown(self.isLive)
   self.Container.BankUnifiedCached:SetShown(not self.isLive)
 
-  local bankWidth = addonTable.Config.Get(addonTable.Config.Options.CHARACTER_BANK_VIEW_WIDTH)
+  local bankWidth = addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_WIDTH)
 
   local refresh = self.refreshState[addonTable.Constants.RefreshReason.ItemData] or self.refreshState[addonTable.Constants.RefreshReason.ItemWidgets] or self.refreshState[addonTable.Constants.RefreshReason.ItemTextures] or self.refreshState[addonTable.Constants.RefreshReason.Flow] or self.refreshState[addonTable.Constants.RefreshReason.Layout]
 
