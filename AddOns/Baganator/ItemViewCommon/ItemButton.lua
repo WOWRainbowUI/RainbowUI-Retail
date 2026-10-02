@@ -587,7 +587,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
 end
 
 function BaganatorRetailLiveContainerItemButtonMixin:PreClickHook(mouseButton)
-  if mouseButton == "RightButton" and not IsModifiedClick() and addonTable.ViewManagement.GetBankFrame():IsShown() and tIndexOf(Syndicator.Constants.AllBagIndexes, self:GetParent():GetID()) ~= nil and
+  if addonTable.Constants.IsRetail and mouseButton == "RightButton" and not IsModifiedClick() and addonTable.ViewManagement.GetBankFrame():IsShown() and tIndexOf(Syndicator.Constants.AllBagIndexes, self:GetParent():GetID()) ~= nil and
       self.BGR.itemLocation and C_Item.DoesItemExist(self.BGR.itemLocation) and C_Bank.IsItemAllowedInBankType(addonTable.ViewManagement.GetBankFrame():GetBankType(), self.BGR.itemLocation) then
     addonTable.BankTransferManager:Queue(self:GetParent():GetID(), self:GetID())
   elseif self.BGR and self.BGR.itemID and not IsModifierKeyDown() then
