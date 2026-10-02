@@ -149,6 +149,8 @@ local PURGEABLE_BUFF_DISPEL_TYPES = {
 local S = {}
 BBF.auraSettings = S
 
+local H = {}
+
 local function SortFor(host)
     return host.isPlayer and S.playerSort or S.sort
 end
@@ -266,6 +268,14 @@ function BBF.UpdateUserAuraSettings()
     S.removeDebuffBorder = db.removeDebuffColorBorder
     S.pixelBorder = ((db.noPortraitModes and db.noPortraitPixelBorder) or db.pixelBorderAuras) and true or false
     S.darkBorder = (db.darkModeUi and db.darkModeUiAura) and true or false
+    if S.masqueLib == nil then
+        S.masqueLib = db.enableMasque and LibStub("Masque", true) or false
+        S.masqueGroups = {}
+        if not S.masqueLib and db.enableMasque and not C_AddOns.IsAddOnLoaded("Masque") then
+            S.masqueLib = nil
+        end
+    end
+    S.masque = S.masqueLib or nil
     S.legacyBorder = db.auraLegacyBorder and true or false
     if S.pixelBorder then
         S.darkColor = 0
@@ -399,12 +409,16 @@ function BBF.UpdateUserAuraSettings()
         purgeGlow = db.showPurgeTextureOnSelf,
     }
 
-    S.buffsCollapsed = db.playerBuffsCollapsed
+    S.buffsCollapsed = db.playerBuffsCollapsed and not db.hideAuraCollapseButton
 
     S.playerSpacingX = (db.playerAuraSpacingX or 0) -5
     S.playerSpacingY = db.playerAuraSpacingY or 0
-    S.playerAurasOn = db.playerAuraFiltering and db.enablePlayerBuffFiltering
-    S.showFilteredIcon = db.showHiddenAurasIcon and S.playerAurasOn
+    local playerFiltering = db.playerAuraFiltering and db.enablePlayerBuffFiltering and true or false
+    if not playerFiltering and S.masque then
+        S.player = { buffs = true, debuffs = true }
+    end
+    S.playerAurasOn = (playerFiltering or S.masque) and true or false
+    S.showFilteredIcon = db.showHiddenAurasIcon and playerFiltering
         and db.PlayerAuraFrameBuffEnable and true or false
     S.filteredDirection = db.hiddenIconDirection or "BOTTOM"
     S.clickthroughPlayerAuras = db.clickthroughPlayerAuras
@@ -422,6 +436,7 @@ function BBF.UpdateUserAuraSettings()
     targetToTAdjustmentOffsetY = db.targetToTAdjustmentOffsetY or 0
     focusToTAdjustmentOffsetY = db.focusToTAdjustmentOffsetY or 0
     buffsOnTopReverseCastbarMovement = db.buffsOnTopReverseCastbarMovement
+    S.generation = (S.generation or 0) + 1
 end
 
 local neverSecretCache = {}
@@ -565,6 +580,7 @@ local function RefreshSpellLists()
     local signature = SpellListsSignature()
     if listCache.signature == signature then return end
     listCache.signature = signature
+    listCache.generation = (listCache.generation or 0) + 1
 
     wipe(mergeCache)
 
@@ -742,7 +758,7 @@ end
 
 local function ApplyDispelRegistrations(button, style)
     local borderStyle = (button.bbfDispel and not style.removeDebuffBorder and not style.glow)
-        and GetDispelBorderStyle(style) or nil
+        and (button.bbfMasqueBorder and Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset or GetDispelBorderStyle(style)) or nil
     local ownBorderOn = (button.bbfBorder and style.drawBorder) and true or false
     local ownBorderHarmful = (ownBorderOn and style.removeDebuffBorder) and true or false
     local purgeMode = button.bbfPurgeGlow and GetPurgeMode(style) or nil
@@ -884,13 +900,36 @@ do
     end
 end
 
+function H.EnsureButtonRegions(button, style)
+    local overlay = button.bbfOverlay
+    if not overlay then return end
+    if style.drawBorder and not button.bbfBorder then
+        local ownBorder = overlay:CreateTexture(nil, "OVERLAY", nil, 5)
+        ApplyBorderArt(ownBorder, style.pixelBorder)
+        ownBorder:Hide()
+        button.bbfBorder = ownBorder
+    end
+    if button.bbfHarmful and not style.removeDebuffBorder and not button.bbfDispel then
+        local dispel = overlay:CreateTexture(nil, "OVERLAY", nil, 6)
+        ApplyDispelBorderArt(dispel, style)
+        dispel:Hide()
+        button.bbfDispel = dispel
+    end
+end
+
 local function ApplyMutableStyle(button, style)
     local size = style.size
     local iconAnchor = button.bbfIcon or button
+    H.EnsureButtonRegions(button, style)
 
     if style.isPlayer then
         button:SetSize(style.buttonWidth, style.buttonHeight)
-        if button.bbfIcon then
+        if button.bbfSkin then
+            button.bbfSkin:ClearAllPoints()
+            button.bbfSkin:SetSize(PLAYER_AURA_ICON, PLAYER_AURA_ICON)
+            button.bbfSkin:SetPoint(style.iconPoint, button, style.iconPoint)
+            button.bbfSkin.bbfSize = PLAYER_AURA_ICON
+        elseif button.bbfIcon then
             button.bbfIcon:ClearAllPoints()
             button.bbfIcon:SetSize(PLAYER_AURA_ICON, PLAYER_AURA_ICON)
             button.bbfIcon:SetPoint(style.iconPoint, button, style.iconPoint)
@@ -917,6 +956,10 @@ local function ApplyMutableStyle(button, style)
         end
     else
         button:SetSize(size, size)
+        if button.bbfSkin then
+            button.bbfSkin:SetSize(size, size)
+            button.bbfSkin.bbfSize = size
+        end
     end
 
     if not style.isPlayer then
@@ -957,11 +1000,17 @@ local function ApplyMutableStyle(button, style)
         ApplyBorderGeometry(button.bbfBorder, iconAnchor, style.pixelBorder, style.borderInset)
     end
     if button.bbfDispel then
-        ApplyDispelBorderGeometry(button.bbfDispel, iconAnchor, style)
+        local hadMasqueBorder = button.bbfMasqueBorder
+        if not (button.bbfMasqueGroup and BBF.ApplyMasqueAuraBorder(button)) then
+            if hadMasqueBorder then
+                ApplyDispelBorderArt(button.bbfDispel, style)
+            end
+            ApplyDispelBorderGeometry(button.bbfDispel, iconAnchor, style)
+        end
     end
     ApplyDispelRegistrations(button, style)
 
-    if button.bbfIcon then
+    if button.bbfIcon and not button.bbfSkin then
         if style.cropIcon then
             button.bbfIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
         else
@@ -980,11 +1029,92 @@ local function ApplyMutableStyle(button, style)
     if not InCombatLockdown() then
         button:SetMouseMotionEnabled(not style.hideTooltips)
     end
+
+    if button.bbfMasqueGroup and not pcall(button.bbfMasqueGroup.ReSkin, button.bbfMasqueGroup, button.bbfSkin) then
+        button.bbfMasqueGroup = nil
+    end
 end
 
-local function InitAuraButton(button, style)
+function BBF.GetAuraMasqueGroup(groupName)
+    if not S.masque then return nil end
+    local group = S.masqueGroups[groupName]
+    if not group then
+        group = S.masque:Group("Better|cff00c0ffBlizz|rFrames", groupName)
+        S.masqueGroups[groupName] = group
+        if group.RegisterCallback then
+            group:RegisterCallback(function()
+                BBF.RestyleAuraButtons(true)
+                BBF.StyleToggleAuraIcon()
+            end)
+        end
+    end
+    return group
+end
+
+function BBF.ApplyMasqueAuraBorder(button)
+    local dispel, frame, group = button.bbfDispel, button.bbfSkin, button.bbfMasqueGroup
+    button.bbfMasqueBorder = nil
+    if not dispel or not frame or not group or not S.masque or not S.masque.GetSkin then return false end
+    local db = group.db
+    if not db or db.Disabled then return false end
+    local skin = S.masque:GetSkin(db.SkinID)
+    if type(skin) ~= "table" then return false end
+
+    local spec
+    for _, layer in ipairs({ skin.DebuffBorder, type(skin.Border) == "table" and skin.Border.Debuff or skin.Border, skin.Normal }) do
+        local typed = type(layer) == "table" and (layer.Debuff or layer.Aura or layer) or nil
+        if type(typed) == "table" and not typed.Hide and (typed.Texture or typed.Atlas) then
+            spec = typed
+            break
+        end
+    end
+    if not spec then return false end
+
+    local scale = (frame.bbfSize or 36) / 36
+    if spec.Atlas then
+        dispel:SetAtlas(spec.Atlas)
+    else
+        dispel:SetTexture(spec.Texture)
+    end
+    local coords = spec.TexCoords
+    if type(coords) == "table" then
+        dispel:SetTexCoord(coords[1] or 0, coords[2] or 1, coords[3] or 0, coords[4] or 1)
+    else
+        dispel:SetTexCoord(0, 1, 0, 1)
+    end
+    dispel:SetBlendMode(spec.BlendMode or "BLEND")
+    dispel:SetDesaturated(true)
+    dispel:ClearAllPoints()
+    if spec.SetAllPoints then
+        dispel:SetAllPoints(frame)
+    else
+        dispel:SetSize((spec.Width or 36) * scale, (spec.Height or 36) * scale)
+        local point = spec.Point or "CENTER"
+        dispel:SetPoint(point, frame, spec.RelPoint or point, (spec.OffsetX or 0) * scale, (spec.OffsetY or 0) * scale)
+    end
+    button.bbfMasqueBorder = true
+    return true
+end
+
+local function InitAuraButton(button, style, host, harmful, masqueType)
+    local masqueGroup = host and BBF.GetAuraMasqueGroup(host.isPlayer and (harmful and "Player Debuffs" or "Player Buffs")
+        or (host.unit == "focus" and "Focus" or "Target") .. (harmful and " Debuffs" or " Buffs"))
+
     local icon = button:CreateTexture(nil, "BACKGROUND")
-    if style.isPlayer then
+    if masqueGroup then
+        local skin = CreateFrame("Frame", nil, button)
+        skin.bbfSize = style.isPlayer and PLAYER_AURA_ICON or style.size
+        skin:SetSize(skin.bbfSize, skin.bbfSize)
+        if not style.isPlayer then
+            skin:SetPoint("CENTER", button, "CENTER")
+        end
+        function skin:GetSize()
+            return self.bbfSize, self.bbfSize
+        end
+        icon:SetAllPoints(skin)
+        button.bbfSkin = skin
+        button.bbfMasqueGroup = masqueGroup
+    elseif style.isPlayer then
         icon:SetSize(PLAYER_AURA_ICON, PLAYER_AURA_ICON)
     else
         icon:SetAllPoints(button)
@@ -1007,7 +1137,8 @@ local function InitAuraButton(button, style)
 
     local overlay = CreateFrame("Frame", nil, button)
     overlay:SetAllPoints(button)
-    overlay:SetFrameLevel((button.bbfCooldown and button.bbfCooldown:GetFrameLevel() or button:GetFrameLevel()) + 1)
+    overlay:SetFrameLevel(math.max(button.bbfCooldown and button.bbfCooldown:GetFrameLevel() or button:GetFrameLevel(),
+        button.bbfSkin and button.bbfSkin:GetFrameLevel() or 0) + 1)
     button.bbfOverlay = overlay
 
     local count = overlay:CreateFontString(nil, "OVERLAY",
@@ -1019,22 +1150,13 @@ local function InitAuraButton(button, style)
     button.bbfCount = count
     button:SetApplicationCount(count)
 
-    local ownBorder = overlay:CreateTexture(nil, "OVERLAY", nil, 5)
-    ApplyBorderArt(ownBorder, style.pixelBorder)
-    ownBorder:Hide()
-    button.bbfBorder = ownBorder
+    button.bbfHarmful = harmful and true or false
 
-    if not style.removeDebuffBorder then
-        local dispel = overlay:CreateTexture(nil, "OVERLAY", nil, 6)
-        ApplyDispelBorderArt(dispel, style)
-        ApplyDispelBorderGeometry(dispel, icon, style)
-        dispel:Hide()
-        button.bbfDispel = dispel
+    if not harmful then
+        local purge = overlay:CreateTexture(nil, "OVERLAY", nil, 6)
+        purge:Hide()
+        button.bbfPurgeGlow = purge
     end
-
-    local purge = overlay:CreateTexture(nil, "OVERLAY", nil, 6)
-    purge:Hide()
-    button.bbfPurgeGlow = purge
 
     if PANDEMIC_TIERS[style.tier] and not GLOW_TIERS[style.tier] and not style.isPlayer then
         local pandemic = overlay:CreateTexture(nil, "OVERLAY", nil, 7)
@@ -1063,7 +1185,10 @@ local function InitAuraButton(button, style)
     end
 
     if style.isPlayer then
-        local timer = overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        button.bbfTextLayer = CreateFrame("Frame", nil, button)
+        button.bbfTextLayer:SetAllPoints(button)
+        button.bbfTextLayer:SetFrameLevel(overlay:GetFrameLevel() + 1)
+        local timer = button.bbfTextLayer:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         button.bbfTimer = timer
         timer.bbfBaseFont = { timer:GetFont() }
     elseif style.showTimerText then
@@ -1073,6 +1198,22 @@ local function InitAuraButton(button, style)
     button:SetTooltipAnchorPoint("ANCHOR_BOTTOMLEFT", 0, 0)
 
     ApplyMutableStyle(button, style)
+
+    if masqueGroup then
+        icon.SetParent = function() end
+        local ok, err = pcall(masqueGroup.AddButton, masqueGroup, button.bbfSkin, {
+            Icon = icon,
+            Count = button.bbfCount,
+            Cooldown = button.bbfCooldown,
+        }, masqueType, true)
+        if not ok then
+            button.bbfMasqueGroup = nil
+            if not S.masqueWarned then
+                S.masqueWarned = true
+                BBF.Print(string.format(L["Print_Masque_Skin_Failed"], tostring(err)))
+            end
+        end
+    end
 end
 
 local F = AuraUtil.AuraFilters
@@ -1335,11 +1476,7 @@ local function GetDurationYOffset(isPlayer, cfg, durationUnderIcon)
         offset = -1
     end
 
-    if cfg.harmful then
-        offset = offset - 1
-    end
-
-    return offset
+    return offset - 1
 end
 
 local function BuildStyle(tier, sizes, isPlayer, cfg, into)
@@ -1398,8 +1535,9 @@ local function BuildStyle(tier, sizes, isPlayer, cfg, into)
         and PLAYER_BUFF_BORDER_INSET or BORDER_INSET
     t.legacyBorder = legacyBorder
     t.showDispelType = cfg.showDispelType
-    t.drawBorder = (S.pixelBorder or S.darkBorder) and true or false
-    t.cropIcon = (S.pixelBorder or S.darkBorder) and true or false
+    t.drawBorder = (S.pixelBorder or S.darkBorder) and not S.masque and true or false
+    t.cropIcon = (S.pixelBorder or (S.darkBorder and (not cfg.harmful or S.removeDebuffBorder)))
+        and not S.masque and true or false
     t.darkColor = S.darkColor
     t.purgeGlow = cfg.purgeGlow
     t.purgeHidden = cfg.purgeHidden
@@ -1526,6 +1664,21 @@ end
 
 BBF.auraHosts = {}
 
+local function GetAppliedRecord(container, key)
+    local applied = container.bbfApplied
+    if not applied then
+        applied = {}
+        container.bbfApplied = applied
+    end
+
+    local record = applied[key]
+    if not record then
+        record = {}
+        applied[key] = record
+    end
+    return record
+end
+
 local function SeedContainerStyles(host, container)
     local sizes = GetHostSizes(host)
     local cfg = GetFrameConfig(host, container.bbfHarmful)
@@ -1549,9 +1702,11 @@ local function AddContainerGroup(host, container, def, cfg, sort, key)
         sortDirection = sort[2],
         layout = { elementSpacing = S.hGap, lineSpacing = S.vGap },
         initializeFrame = function(button)
-            InitAuraButton(button, container.bbfStyles[key])
+            InitAuraButton(button, container.bbfStyles[key], host, container.bbfHarmful,
+                container.bbfHarmful and "Debuff" or "Buff")
         end,
     })
+    GetAppliedRecord(container, key).live = true
 end
 
 local function CreateTypeContainer(host, harmful, parent)
@@ -1580,35 +1735,41 @@ local function NeedsMineSplit(cfg)
     return false
 end
 
-local function GetAppliedRecord(container, key)
-    local applied = container.bbfApplied
-    if not applied then
-        applied = {}
-        container.bbfApplied = applied
-    end
-
-    local record = applied[key]
-    if not record then
-        record = {}
-        applied[key] = record
-    end
-    return record
-end
-
-local function CandidateFilterSignature(filters)
-    return string.format("%s/%s/%s/%s/%s/%s",
-        tostring(filters.includeSpellIDs), tostring(filters.excludeSpellIDs),
-        tostring(filters.maxDuration),
-        tostring(filters.includeDispelTypes), tostring(filters.excludeDispelTypes),
-        tostring(filters.isStealable))
-end
+H.EMPTY_SPELL_SET = {}
 
 local function ApplyGroupCandidateFilters(container, key, filters)
     local record = GetAppliedRecord(container, key)
-    local signature = CandidateFilterSignature(filters)
-    if record.filters == signature then return end
-    record.filters = signature
+    if record.filtersSet
+        and record.include == filters.includeSpellIDs and record.exclude == filters.excludeSpellIDs
+        and record.maxDuration == filters.maxDuration
+        and record.includeDispel == filters.includeDispelTypes
+        and record.excludeDispel == filters.excludeDispelTypes
+        and record.isStealable == filters.isStealable then
+        return
+    end
+    record.filtersSet = true
+    record.include, record.exclude = filters.includeSpellIDs, filters.excludeSpellIDs
+    record.maxDuration = filters.maxDuration
+    record.includeDispel, record.excludeDispel = filters.includeDispelTypes, filters.excludeDispelTypes
+    record.isStealable = filters.isStealable
     container:SetAuraGroupCandidateFilters(key, filters)
+end
+
+function H.SetGroupLive(container, key, live)
+    local record = GetAppliedRecord(container, key)
+    if record.live == live then return end
+    record.live = live
+    if container.SetAuraGroupEnabled then
+        container:SetAuraGroupEnabled(key, live)
+    elseif not live then
+        record.filtersSet = true
+        record.include, record.exclude = H.EMPTY_SPELL_SET, nil
+        record.maxDuration, record.includeDispel, record.excludeDispel, record.isStealable = nil, nil, nil, nil
+        container:SetAuraGroupCandidateFilters(key, { includeSpellIDs = H.EMPTY_SPELL_SET })
+    elseif record.include == H.EMPTY_SPELL_SET then
+        record.include = nil
+        container:SetAuraGroupCandidateFilters(key, {})
+    end
 end
 
 local function ApplyGroupFrameCount(container, key, count)
@@ -1631,12 +1792,15 @@ local layoutScratch = {}
 local function ApplyGroupLayout(container, key,
         elementSpacing, lineSpacing, elementWidth, elementHeight, layoutIndex, groupLineSpacing)
     local record = GetAppliedRecord(container, key)
-    local signature = string.format("%s/%s/%s/%s/%s/%s",
-        tostring(elementSpacing), tostring(lineSpacing),
-        tostring(elementWidth), tostring(elementHeight),
-        tostring(layoutIndex), tostring(groupLineSpacing))
-    if record.layout == signature then return end
-    record.layout = signature
+    if record.layoutSet and record.elementSpacing == elementSpacing and record.lineSpacing == lineSpacing
+        and record.elementWidth == elementWidth and record.elementHeight == elementHeight
+        and record.layoutIndex == layoutIndex and record.groupLineSpacing == groupLineSpacing then
+        return
+    end
+    record.layoutSet = true
+    record.elementSpacing, record.lineSpacing = elementSpacing, lineSpacing
+    record.elementWidth, record.elementHeight = elementWidth, elementHeight
+    record.layoutIndex, record.groupLineSpacing = layoutIndex, groupLineSpacing
 
     layoutScratch.elementSpacing = elementSpacing
     layoutScratch.lineSpacing = lineSpacing
@@ -1679,11 +1843,12 @@ local function AddSpacerGroup(container, key, filterString)
             end
         end,
     })
+    GetAppliedRecord(container, key).live = true
 end
 
 local function ConfigureSpacer(host, harmful)
     local spacer = host.spacer
-    if not spacer then return end
+    if not spacer then return false end
 
     spacer.bbfHarmful = harmful
 
@@ -1704,6 +1869,22 @@ local function ConfigureSpacer(host, harmful)
         end
     end
 
+    local priming = S.primeReaction ~= nil
+    if priming then
+        for _, def in ipairs(AURA_GROUPS) do
+            local key = cfg.friendlyKeys and def.friendlyKey or def.key
+            local entry = mirror and plan[key] or nil
+            if entry and entry.live and not spacer:HasAuraGroup(key) then
+                AddSpacerGroup(spacer, key, entry.filterString)
+            end
+        end
+        return false
+    end
+
+    local signature = tostring(host.blockTop and host.blockTop.bbfConfigSig) .. "|" .. tostring(mirror)
+    if spacer.bbfConfigSig == signature then return false end
+    spacer.bbfConfigSig = signature
+
     local record = GetAppliedRecord(spacer, SPACER_KEY)
 
     local filter = SpacerFilterString(harmful)
@@ -1718,6 +1899,7 @@ local function ConfigureSpacer(host, harmful)
         record.count = count
         spacer:SetAuraGroupMaxFrameCount(SPACER_KEY, count)
     end
+    H.SetGroupLive(spacer, SPACER_KEY, count > 0)
 
     ApplyGroupLayout(spacer, SPACER_KEY, nil, nil, 1, extent, nil, nil)
 
@@ -1743,35 +1925,66 @@ local function ConfigureSpacer(host, harmful)
             end
 
             ApplyGroupFrameCount(spacer, key, entry and 1 or 0)
+            H.SetGroupLive(spacer, key, entry ~= nil)
             ApplyGroupLayout(spacer, key, nil, nil, 1, extent, nil, nil)
         end
 
         local idle = cfg.friendlyKeys and def.key or def.friendlyKey
         if spacer:HasAuraGroup(idle) then
+            H.SetGroupLive(spacer, idle, false)
             ApplyGroupFrameCount(spacer, idle, 0)
             ApplyGroupLayout(spacer, idle, nil, nil, 1, extent, nil, nil)
         end
     end
 
     spacer:SetScale(host.scale or S.scale)
+    return true
+end
+
+function H.ConfigSignature(host, harmful, reaction, canFilterIDs, tokensOk)
+    local bucket = reaction and (reaction <= 4 and "h" or "f") or "n"
+    return table.concat({
+        S.generation or 0, listCache.generation or 0, bucket, harmful and 1 or 0,
+        canFilterIDs and 1 or 0, tokensOk and 1 or 0,
+        BBF.forceOnlyMyDebuffsInPvE and 1 or 0, PreviewIsActive(host) and 1 or 0,
+        host.scale or 0, host.hGap or 0, host.vGap or 0, host.perRow or 0,
+        tostring(host.isHorizontal), tostring(host.addIconsToRight),
+        tostring(host.addIconsToTop), tostring(host.showDispelType),
+    }, "|")
+end
+
+function H.CasterPinned(tier, cfg)
+    if HIGHLIGHT_TIERS[tier] then return cfg.blacklistMineSplit and true or false end
+    if WHITELIST_TIERS[tier] or tier == "mine" then return true end
+    if tier == "others" then return (not cfg.mergeNormal) or (cfg.onlyMine and true or false) end
+    if tier == "purge" or tier == "purgeenrage" then return cfg.onlyMine and true or false end
+    return false
 end
 
 local function ConfigureContainer(host, container, harmful)
     container.bbfHarmful = harmful
 
+    if not S.primeReaction and not UnitExists(host.unit) then return false end
+
+    local priming = S.primeReaction ~= nil
+    local reaction = S.primeReaction or UnitReaction("player", host.unit)
+    local canFilterIDs = BBF.CanFilterBySpellID(host.unit, not harmful)
+    local tokensOk = BBF.AuraTokensReliable(host.unit)
+    if not priming then
+        local signature = H.ConfigSignature(host, harmful, reaction, canFilterIDs, tokensOk)
+        if container.bbfConfigSig == signature then return false end
+        container.bbfConfigSig = signature
+    end
+
     local plan = (container == host.blockTop) and host.spacerPlan or nil
     if plan then plan.mirror = false end
-
-    if not S.primeReaction and not UnitExists(host.unit) then return end
 
     local defs = AURA_GROUPS
     local cfg = GetFrameConfig(host, harmful)
     cfg.mergeNormal = not NeedsMineSplit(cfg)
 
-    local canFilterIDs = BBF.CanFilterBySpellID(host.unit, not harmful)
     local sort = SortFor(host)
-
-    local tokensOk = BBF.AuraTokensReliable(host.unit)
+    local pinCaster = sort == SORT_METHODS.default
 
     local degradedFilters, degradedBlocked
     if not tokensOk then
@@ -1861,7 +2074,7 @@ local function ConfigureContainer(host, container, harmful)
             exists = true
         end
 
-        if exists then
+        if exists and count > 0 then
             local filterString
             if not tokensOk and def.tier == "others" then
                 filterString = harmful
@@ -1870,24 +2083,40 @@ local function ConfigureContainer(host, container, harmful)
             else
                 filterString = BuildFilterString(harmful, def.tier, cfg, def.mine)
             end
-            container:SetAuraGroupFilterString(key, filterString)
-            ApplyGroupCandidateFilters(container, key, filters)
-            ApplyGroupSortMethod(container, key, sort[1], sort[2])
-            ApplyGroupFrameCount(container, key, count)
+            if not priming then
+                local record = GetAppliedRecord(container, key)
+                if record.filterString ~= filterString then
+                    record.filterString = filterString
+                    container:SetAuraGroupFilterString(key, filterString)
+                end
+                ApplyGroupCandidateFilters(container, key, filters)
+                local groupSort = (pinCaster and H.CasterPinned(def.tier, cfg)) and SORT_METHODS.stable or sort
+                ApplyGroupSortMethod(container, key, groupSort[1], groupSort[2])
+                ApplyGroupFrameCount(container, key, count)
+                H.SetGroupLive(container, key, true)
+            end
 
-            if entry and count > 0 then
+            if entry then
                 entry.live = true
                 entry.filterString = filterString
                 entry.filters = filters
             end
+        elseif exists and not priming then
+            H.SetGroupLive(container, key, false)
+            ApplyGroupFrameCount(container, key, 0)
         end
 
         local idle = cfg.friendlyKeys and def.key or def.friendlyKey
         if container:HasAuraGroup(idle) then
-            ApplyGroupFrameCount(container, idle, 0)
+            if not priming then
+                H.SetGroupLive(container, idle, false)
+                ApplyGroupFrameCount(container, idle, 0)
+            end
             if plan and plan[idle] then plan[idle].live = false end
         end
     end
+
+    if priming then return false end
 
     local sizes = GetHostSizes(host)
     local hGap, vGap = host.hGap or S.hGap, host.vGap or S.vGap
@@ -1932,6 +2161,7 @@ local function ConfigureContainer(host, container, harmful)
     if S.increaseStrata then
         container:SetFrameLevel(9999)
     end
+    return true
 end
 
 local function IsTopBlockHarmful(host)
@@ -1971,6 +2201,16 @@ local function ReplaceStyleInPlace(style, fresh)
     return true
 end
 
+function H.MarkStyleChanged(container, key)
+    container.bbfStylesChanged = true
+    local keys = container.bbfChangedKeys
+    if not keys then
+        keys = {}
+        container.bbfChangedKeys = keys
+    end
+    keys[key] = true
+end
+
 local function RefreshEnchantStyle(host, container)
     local style = host.enchantStyle or {}
     local fresh = {}
@@ -1978,39 +2218,48 @@ local function RefreshEnchantStyle(host, container)
     fresh.removeDebuffBorder = true
 
     if ReplaceStyleInPlace(style, fresh) then
-        container.bbfStylesChanged = true
+        H.MarkStyleChanged(container, "$enchant")
     end
     return style
 end
 
 function BBF.ApplyAuraGroupConfig(host)
-    if not host.blockTop then return end
+    if not host.blockTop then return false end
 
     local topHarmful = IsTopBlockHarmful(host)
     local sizes = GetHostSizes(host)
+    local changed = false
 
     local function Configure(container, harmful)
-        local cfg = GetFrameConfig(host, harmful)
-        for _, def in ipairs(AURA_GROUPS) do
-            local style = container.bbfStyles[cfg.friendlyKeys and def.friendlyKey or def.key]
-            if style then
-                local fresh = BuildStyle(def.tier, sizes, host.isPlayer, cfg, styleScratch)
-                if ReplaceStyleInPlace(style, fresh) then
-                    container.bbfStylesChanged = true
+        local reaction = S.primeReaction
+            or (UnitExists(host.unit) and UnitReaction("player", host.unit))
+        local styleSig = H.ConfigSignature(host, harmful, reaction, false, false)
+        if not S.primeReaction and container.bbfStyleSig ~= styleSig then
+            container.bbfStyleSig = styleSig
+            local cfg = GetFrameConfig(host, harmful)
+            for _, def in ipairs(AURA_GROUPS) do
+                local key = cfg.friendlyKeys and def.friendlyKey or def.key
+                local style = container.bbfStyles[key]
+                if style then
+                    local fresh = BuildStyle(def.tier, sizes, host.isPlayer, cfg, styleScratch)
+                    if ReplaceStyleInPlace(style, fresh) then
+                        H.MarkStyleChanged(container, key)
+                    end
                 end
             end
+            if host.enchantStyle then
+                RefreshEnchantStyle(host, container)
+            end
         end
-        if host.enchantStyle then
-            RefreshEnchantStyle(host, container)
-        end
-        ConfigureContainer(host, container, harmful)
+        if ConfigureContainer(host, container, harmful) then changed = true end
     end
 
     Configure(host.blockTop, topHarmful)
     if host.blockBottom ~= host.blockTop then
         Configure(host.blockBottom, not topHarmful)
     end
-    ConfigureSpacer(host, topHarmful)
+    if ConfigureSpacer(host, topHarmful) then changed = true end
+    return changed
 end
 
 BBF.AURA_ANCHOR_TEMPLATE = "DisableUntrustedLayoutScriptsTemplate"
@@ -2038,6 +2287,15 @@ function BBF.AnchorAuraContainer(host)
     local buffsOnTop = frame.buffsOnTop == true
     local frameContainer = frame.TargetFrameContainer
     local anchorTo = (frameContainer and frameContainer.FrameTexture) or frame
+    local scale = ContainerScale(host)
+    local lift = SpacerExtent()
+    if host.anchoredTop == buffsOnTop and host.anchoredTo == anchorTo and host.anchoredScale == scale
+        and host.anchoredX == S.offsetX and host.anchoredY == S.offsetY
+        and host.anchoredLift == lift and host.anchoredGap == S.typeGap then
+        return
+    end
+    host.anchoredTop, host.anchoredTo, host.anchoredScale = buffsOnTop, anchorTo, scale
+    host.anchoredX, host.anchoredY, host.anchoredLift, host.anchoredGap = S.offsetX, S.offsetY, lift, S.typeGap
 
     local point, relPoint, startY, growth
     if buffsOnTop then
@@ -2054,11 +2312,9 @@ function BBF.AnchorAuraContainer(host)
     ApplyFlowAnchor(host.blockTop, point, growth)
     ApplyFlowAnchor(host.blockBottom, point, growth)
 
-    local scale = ContainerScale(host)
     local startX = (AURA_START_X + S.offsetX) / scale
     startY = startY / scale
 
-    local lift = SpacerExtent()
     host.spacer:ClearAllPoints()
     host.spacer:SetPoint(point, anchorTo, relPoint,
         startX, startY + (buffsOnTop and -lift or lift))
@@ -2096,23 +2352,27 @@ function BBF.RestyleAuraButtons(force)
         ForEachContainer(host, function(container)
             if not force and not container.bbfStylesChanged then return end
             container.bbfStylesChanged = false
+            local keys = container.bbfChangedKeys
 
             for key, style in pairs(container.bbfStyles) do
-                for i = 1, container:HasAuraGroup(key) and container:GetAuraGroupFrameCount(key) or 0 do
-                    local button = container:GetAuraGroupFrame(key, i)
-                    if button and button.bbfIcon then
-                        ApplyMutableStyle(button, style)
+                if force or (keys and keys[key]) then
+                    for i = 1, container:HasAuraGroup(key) and container:GetAuraGroupFrameCount(key) or 0 do
+                        local button = container:GetAuraGroupFrame(key, i)
+                        if button and button.bbfIcon then
+                            ApplyMutableStyle(button, style)
+                        end
                     end
                 end
             end
 
-            if container == host.blockTop then
+            if container == host.blockTop and (force or (keys and keys["$enchant"])) then
                 for _, button in ipairs(host.enchantButtons or {}) do
                     if button.bbfIcon then
                         ApplyMutableStyle(button, host.enchantStyle)
                     end
                 end
             end
+            if keys then wipe(keys) end
         end)
     end
 end
@@ -2144,6 +2404,7 @@ local CB = {
     hooked = false,
     keys = { "target", "focus" },
     owned = {},
+    placed = {},
     layoutAspect = Enum.ForbiddenAspect and Enum.ForbiddenAspect.UntrustedLayoutScriptExecution,
 
     totGap = 7,
@@ -2217,11 +2478,22 @@ end
 
 function CB.SetOwnPoint(key, spellbar, point, relTo, relPoint, x, y)
     CB.owned[key] = true
+    local last = CB.placed[key]
+    if last and last[1] == point and last[2] == relTo and last[3] == relPoint
+        and last[4] == x and last[5] == y then
+        return true
+    end
+    if not last then
+        last = {}
+        CB.placed[key] = last
+    end
+    last[1], last[2], last[3], last[4], last[5] = point, relTo, relPoint, x, y
     CB.TryPoint(key, spellbar, point, relTo, relPoint, x, y)
     return true
 end
 
 function CB.Release(key, frame, spellbar)
+    CB.placed[key] = nil
     if not CB.owned[key] then return end
     CB.owned[key] = nil
 
@@ -2413,8 +2685,15 @@ function BBF.HookCastbarAnchoring()
         local frame, spellbar = CB.GetFrames(key)
         hooksecurefunc(spellbar, "SetPoint", function()
             if CB.anchoring[key] then return end
+            CB.placed[key] = nil
             CB.Anchor(key)
         end)
+        if spellbar.SetPointsOffset then
+            hooksecurefunc(spellbar, "SetPointsOffset", function()
+                if CB.anchoring[key] then return end
+                CB.placed[key] = nil
+            end)
+        end
         spellbar:HookScript("OnShow", function()
             CB.Anchor(key)
         end)
@@ -2493,14 +2772,15 @@ end
 local function RefreshHost(host)
     if host.isPlayer then
         BBF.AnchorPlayerAuraContainer(host)
-        BBF.ApplyAuraGroupConfig(host)
+        local changed = BBF.ApplyAuraGroupConfig(host)
         BBF.RefreshFilteredAuras(host)
-        return
+        return changed
     end
 
-    BBF.ApplyAuraGroupConfig(host)
+    local changed = BBF.ApplyAuraGroupConfig(host)
     BBF.AnchorAuraContainer(host)
     AnchorSpellbar(host)
+    return changed
 end
 
 local function DoRefreshAllAuraFrames()
@@ -2556,7 +2836,7 @@ end
 
 local function GetPlayerContainerOffset(host, layout)
     local button = host.frame.CollapseAndExpandButton
-    if not button then return 0, 0 end
+    if not button or BetterBlizzFramesDB.hideAuraCollapseButton then return 0, 0 end
 
     if layout.isHorizontal then
         local width = button:GetWidth() or COLLAPSE_BUTTON_EXTENT
@@ -2616,7 +2896,7 @@ local ROTATION_RIGHT, ROTATION_LEFT = 0, math.pi
 local ROTATION_UP, ROTATION_DOWN = math.pi / 2, 3 * math.pi / 2
 
 local function BuffsAreCollapsed()
-    return BetterBlizzFramesDB.playerBuffsCollapsed and true or false
+    return BetterBlizzFramesDB.playerBuffsCollapsed and not BetterBlizzFramesDB.hideAuraCollapseButton and true or false
 end
 
 local function GetCollapseRotation(layout, expanded)
@@ -2680,7 +2960,7 @@ function BBF.RefreshBuffCollapseButton(layout)
     local button = BBF.buffCollapseButton
     if not button then return end
 
-    button:SetShown(S.player.buffs and true or false)
+    button:SetShown(S.player.buffs and not BetterBlizzFramesDB.hideAuraCollapseButton and true or false)
 
     local point = GetPlayerAnchorPoint(layout)
     button:ClearAllPoints()
@@ -2821,7 +3101,8 @@ function BBF.StyleToggleAuraIcon()
     if not button then return end
 
     local texture = button.Icon
-    local drawBorder = (S.pixelBorder or S.darkBorder) and true or false
+    local masqueGroup = BBF.GetAuraMasqueGroup("Player Buffs")
+    local drawBorder = (S.pixelBorder or S.darkBorder) and not masqueGroup and true or false
 
     local border = button.bbfBorder
     if not border then
@@ -2835,7 +3116,14 @@ function BBF.StyleToggleAuraIcon()
     border:SetVertexColor(c, c, c)
     border:SetShown(drawBorder)
 
-    if drawBorder then
+    if masqueGroup then
+        if not button.bbfMasqued then
+            button.bbfMasqued = true
+            pcall(masqueGroup.AddButton, masqueGroup, button, { Icon = texture }, "Buff", true)
+        else
+            pcall(masqueGroup.ReSkin, masqueGroup, button)
+        end
+    elseif drawBorder then
         texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     else
         texture:SetTexCoord(0, 1, 0, 1)
@@ -2951,7 +3239,7 @@ local function CreateFilteredAuras(host)
             sortMethod = sort[1],
             sortDirection = sort[2],
             initializeFrame = function(button)
-                InitAuraButton(button, host.filteredStyle)
+                InitAuraButton(button, host.filteredStyle, host, false, "Buff")
             end,
         })
     end
@@ -3201,7 +3489,10 @@ local function CreateTestButton(parent)
 
     button.bbfCount = overlay:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
     button.bbfCount:SetJustifyH("RIGHT")
-    button.bbfTimer = overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    local textLayer = CreateFrame("Frame", nil, button)
+    textLayer:SetAllPoints(button)
+    textLayer:SetFrameLevel(overlay:GetFrameLevel() + 1)
+    button.bbfTimer = textLayer:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     button.bbfTimer.bbfBaseFont = { button.bbfTimer:GetFont() }
     button.bbfBorder = overlay:CreateTexture(nil, "OVERLAY", nil, 5)
     button.bbfDispel = overlay:CreateTexture(nil, "OVERLAY", nil, 6)
@@ -3729,7 +4020,7 @@ local function CreatePlayerHost(key, hostFrame, harmful)
             local button = host.buffs:AddItemEnchantment(slot, {
                 hidePermanent = true,
                 initializeFrame = function(button)
-                    InitAuraButton(button, host.enchantStyle)
+                    InitAuraButton(button, host.enchantStyle, host, false, "Enchant")
                 end,
             })
             host.enchantButtons[#host.enchantButtons + 1] = button
@@ -3827,19 +4118,21 @@ function BBF.HookPlayerAndTargetAuras()
                 return
             end
 
-            local host
+            local host, reparse
             if event == "PLAYER_TARGET_CHANGED" then
-                host = BBF.auraHosts.target
+                host, reparse = BBF.auraHosts.target, true
             elseif event == "PLAYER_FOCUS_CHANGED" then
-                host = BBF.auraHosts.focus
+                host, reparse = BBF.auraHosts.focus, true
             else
-                host = BBF.auraHosts[unit]
+                host, reparse = BBF.auraHosts[unit], event == "UNIT_FACTION"
             end
 
             if host then
-                RefreshHost(host)
+                local changed = RefreshHost(host)
                 BBF.RestyleAuraButtons()
-                ForEachContainer(host, UpdateAllAurasIn)
+                if reparse or changed then
+                    ForEachContainer(host, UpdateAllAurasIn)
+                end
                 if PreviewIsActive() then BBF.RefreshAuraTestMode() end
             end
         end)
@@ -3858,6 +4151,10 @@ function BBF.HookPlayerAndTargetAuras()
 
     if S.playerAurasOn and not playerBuffsHooked then
         playerBuffsHooked = true
+
+        if not hooked then
+            RefreshSpellLists()
+        end
 
         CreatePlayerHost("playerBuffs", BuffFrame, false)
         CreatePlayerHost("playerDebuffs", DebuffFrame, true)

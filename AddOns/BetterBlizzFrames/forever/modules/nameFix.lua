@@ -88,6 +88,7 @@ local showLastNameNpc
 local classColorPartyNames
 local customColorTargetNames
 local customColorPartyNames
+local forceFitNames
 
 local function GetRPNameColor(unit)
     if not UnitExists(unit) then return end
@@ -134,6 +135,7 @@ function BBF.UpdateUserTargetSettings()
     classColorTargetNames = BetterBlizzFramesDB.classColorTargetNames
     customColorTargetNames = BetterBlizzFramesDB.customHealthbarColors and BetterBlizzFramesDB.customColorsUnitFramesNames and BetterBlizzFramesDB.customColorsUnitFrames
     customColorPartyNames = BetterBlizzFramesDB.customHealthbarColors and BetterBlizzFramesDB.customColorsRaidFramesNames and BetterBlizzFramesDB.customColorsUnitFrames
+    forceFitNames = BetterBlizzFramesDB.forceFitNames
     showSpecName = BetterBlizzFramesDB.showSpecName
     shortArenaSpecName = BetterBlizzFramesDB.shortArenaSpecName
     showArenaID = BetterBlizzFramesDB.showArenaID
@@ -179,6 +181,26 @@ local function NameCentered(unit)
     return BetterBlizzFramesDB.centerNames or NameCenterForced(unit)
 end
 
+local function GetNameWidth(frame)
+    if frame == PlayerFrame then
+        return 122
+    end
+    if (frame == TargetFrame or frame == FocusFrame) and BetterBlizzFramesDB.centerNames and not NameCenterForced(NameUnitForFrame(frame)) then
+        return 122
+    end
+    return frame.bbfNameBaseWidth
+end
+
+local function ApplyNameWidth(frame)
+    local fontString = frame and frame.bbfName
+    if not fontString or not frame.bbfNameBaseWidth then return end
+    local width = GetNameWidth(frame)
+    fontString:SetWidth(width)
+    if fontString.bbfFitWidth then
+        fontString.bbfFitWidth = width
+    end
+end
+
 local function CenterPlayerName()
     local healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer
     local name = PlayerFrame.bbfName
@@ -190,7 +212,7 @@ local function CenterPlayerName()
     if playerFrameOCD and not forceCenter then
         name:SetPoint("TOP", healthBar, "TOP", 0, 14.5)
     else
-        local xPos = forceCenter and 1.5 or noPortrait and 0 or true and -2 or 0
+        local xPos = forceCenter and 1.5 or 0
         local yPos = noPortrait and 14 or forceCenter and 7.5 or BetterBlizzFramesDB.symmetricPlayerFrame and 15 or 14.5
         if BetterBlizzFramesDB.classicFrames and BetterBlizzFramesDB.bigPlayerHealthbar then
             yPos = yPos - 10
@@ -206,7 +228,7 @@ local function CenterXName(fontObject, healthBar, ToT, pet, unit)
     if not (forceCenter and ToT) then
         fontObject:SetJustifyH("CENTER")
     end
-    local xPos = (pet and noPortrait and 16) or (ToT and noPortrait and 0) or (ToT and (forceCenter and 8 or -2)) or (forceCenter and 0) or noPortrait and -1 or 2
+    local xPos = (pet and noPortrait and 16) or (ToT and noPortrait and 0) or (ToT and (forceCenter and 8 or -2)) or (forceCenter and 0) or noPortrait and -1 or -0.5
     local yPos = (noPortrait and ((pet and 2) or 13)) or ((pet and forceCenter) and 2 or pet and 2) or ToT and (forceCenter and -18 or 12) or (forceCenter and 6.3 or 14)
     if ToT and noPortrait then
         fontObject:SetJustifyH("CENTER")
@@ -236,6 +258,10 @@ function BBF.SetCenteredNamesCaller()
         return
     end
     BBF.UpdateUserTargetSettings()
+    ApplyNameWidth(PlayerFrame)
+    ApplyNameWidth(TargetFrame)
+    ApplyNameWidth(FocusFrame)
+    BBF.UpdateNameFit()
     if not centerNames then
         if not forceCenterNameSetting then
             PlayerFrame.bbfName:SetJustifyH("LEFT")
@@ -265,122 +291,36 @@ end
 
 local function GetLocalizedSpecs()
     local specs = {}
+    local classFirst = GetLocale() == "esMX"
+    local specInfo = C_SpecializationInfo
+    local GetNumSpecs = specInfo and specInfo.GetNumSpecializationsForClassID or GetNumSpecializationsForClassID
 
-    local getNumSpecs = GetNumSpecializationsForClassID or (C_SpecializationInfo and C_SpecializationInfo.GetNumSpecializationsForClassID)
-    local getSpecInfo = GetSpecializationInfoForClassID or (C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfoForClassID)
-    local numClasses = (GetNumClasses and GetNumClasses()) or 13
-
-    if getNumSpecs and getSpecInfo and numClasses then
-        for classID = 1, numClasses do
-            local _, class = GetClassInfo(classID)
-            local classMale = class and LOCALIZED_CLASS_NAMES_MALE[class]
-            local classFemale = class and LOCALIZED_CLASS_NAMES_FEMALE[class]
-
-            for specIndex = 1, getNumSpecs(classID) or 0 do
-                local specID, specName = getSpecInfo(classID, specIndex)
-
-                if specName then
-                    if classMale then
-                        specs[string.format("%s %s", specName, classMale)] = specID
-                    end
-                    if classFemale and classFemale ~= classMale then
-                        specs[string.format("%s %s", specName, classFemale)] = specID
-                    end
-                end
-            end
+    local classIDs = specInfo and specInfo.GetAllClassIDs and specInfo.GetAllClassIDs()
+    if not classIDs then
+        classIDs = {}
+        for classID = 1, GetNumClasses() do
+            classIDs[classID] = classID
         end
     end
 
-    -- Blizzard API poopoo. Not possible to get gendered specNames AFAIK.
-    -- And some classes were even missing from LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_FEMALE
-    -- Thanks to Dardo7 @ Discord for helping get all the correct Spanish data.
-    if GetLocale() == "esES" then
-        local esES_overrides = {
-            ["Armas Guerrero"] = 71,
-            ["Armas Guerrera"] = 71,
-            ["Furia Guerrero"] = 72,
-            ["Furia Guerrera"] = 72,
-            ["Protección Guerrero"] = 73,
-            ["Protección Guerrera"] = 73,
+    for _, classID in ipairs(classIDs) do
+        local _, class = GetClassInfo(classID)
+        local classMale = class and LOCALIZED_CLASS_NAMES_MALE[class]
+        local classFemale = class and LOCALIZED_CLASS_NAMES_FEMALE[class]
 
-            ["Sagrado Paladín"] = 65,
-            ["Sagrada Paladín"] = 65,
-            ["Protección Paladín"] = 66,
-            ["Reprensión Paladín"] = 70,
+        for specIndex = 1, GetNumSpecs(classID) do
+            local specID, specMale = GetSpecializationInfoForClassID(classID, specIndex)
+            local _, specFemale = GetSpecializationInfoForClassID(classID, specIndex, 3)
 
-            ["Bestias Cazador"] = 253,
-            ["Bestias Cazadora"] = 253,
-            ["Puntería Cazador"] = 254,
-            ["Puntería Cazadora"] = 254,
-            ["Supervivencia Cazador"] = 255,
-            ["Supervivencia Cazadora"] = 255,
-
-            ["Asesinato Pícaro"] = 259,
-            ["Asesinato Pícara"] = 259,
-            ["Forajido Pícaro"] = 260,
-            ["Forajida Pícara"] = 260,
-            ["Sutileza Pícaro"] = 261,
-            ["Sutileza Pícara"] = 261,
-
-            ["Disciplina Sacerdote"] = 256,
-            ["Disciplina Sacerdotisa"] = 256,
-            ["Sagrado Sacerdote"] = 257,
-            ["Sagrada Sacerdotisa"] = 257,
-            ["Sombra Sacerdote"] = 258,
-            ["Sombra Sacerdotisa"] = 258,
-
-            ["Sangre Caballero de la Muerte"] = 250,
-            ["Sangre Caballera de la Muerte"] = 250,
-            ["Escarcha Caballero de la Muerte"] = 251,
-            ["Escarcha Caballera de la Muerte"] = 251,
-            ["Profano Caballero de la Muerte"] = 252,
-            ["Profana Caballera de la Muerte"] = 252,
-
-            ["Elemental Chamán"] = 262,
-            ["Mejora Chamán"] = 263,
-            ["Restauración Chamán"] = 264,
-
-            ["Arcano Mago"] = 62,
-            ["Arcana Maga"] = 62,
-            ["Fuego Mago"] = 63,
-            ["Fuego Maga"] = 63,
-            ["Escarcha Mago"] = 64,
-            ["Escarcha Maga"] = 64,
-
-            ["Aflicción Brujo"] = 265,
-            ["Aflicción Bruja"] = 265,
-            ["Demonología Brujo"] = 266,
-            ["Demonología Bruja"] = 266,
-            ["Destrucción Brujo"] = 267,
-            ["Destrucción Bruja"] = 267,
-
-            ["Maestro cervecero Monje"] = 268,
-            ["Maestra cervecera Monje"] = 268,
-            ["Tejedor de niebla Monje"] = 270,
-            ["Tejedora de niebla Monje"] = 270,
-            ["Viajero del viento Monje"] = 269,
-            ["Viajera del viento Monje"] = 269,
-
-            ["Equilibrio Druida"] = 102,
-            ["Feral Druida"] = 103,
-            ["Guardián Druida"] = 104,
-            ["Guardiana Druida"] = 104,
-            ["Restauración Druida"] = 105,
-
-            ["Devastación Cazador de demonios"] = 577,
-            ["Devastación Cazadora de demonios"] = 577,
-            ["Venganza Cazador de demonios"] = 581,
-            ["Venganza Cazadora de demonios"] = 581,
-
-            ["Devastación Evocador"] = 1467,
-            ["Devastación Evocadora"] = 1467,
-            ["Preservación Evocador"] = 1468,
-            ["Preservación Evocadora"] = 1468,
-            ["Aumento Evocador"] = 1473,
-            ["Aumento Evocadora"] = 1473,
-        }
-        for k, v in pairs(esES_overrides) do
-            specs[k] = v
+            for _, specName in pairs({ specMale, specFemale }) do
+                for _, className in pairs({ classMale, classFemale }) do
+                    if classFirst then
+                        specs[className .. " " .. specName] = specID
+                    else
+                        specs[specName .. " " .. className] = specID
+                    end
+                end
+            end
         end
     end
 
@@ -393,7 +333,7 @@ local ALL_SPECS = GetLocalizedSpecs()
 -- Caching Tables
 BBA.SpecCache = {}
 local SpecCache = BBA.SpecCache  -- Stores GUID -> specID
-local GetUnitTooltip = C_TooltipInfo and C_TooltipInfo.GetUnit or function() return nil end
+local GetUnitTooltip = C_TooltipInfo.GetUnit or function() return nil end
 
 local safeUnits = {
     ["player"] = true,
@@ -796,11 +736,11 @@ local function InitializeFontString(frame)
     frame.bbfName:SetTextColor(name:GetTextColor())
     frame.bbfName:SetShadowColor(name:GetShadowColor())
     frame.bbfName:SetShadowOffset(name:GetShadowOffset())
-    frame.bbfName:SetWidth(name:GetWidth())
-    frame.bbfName:SetHeight(name:GetHeight())
-    frame.bbfName:SetWordWrap(false)
-    local nameWidth = name:GetWidth()
+    frame.bbfNameBaseWidth = name:GetWidth()
     local nameHeight = name:GetHeight()
+    frame.bbfName:SetWidth(GetNameWidth(frame))
+    frame.bbfName:SetHeight(nameHeight)
+    frame.bbfName:SetWordWrap(false)
 
     -- Copy position
     local point, relativeTo, relativePoint, xOffset, yOffset = name:GetPoint()
@@ -815,7 +755,7 @@ local function InitializeFontString(frame)
         if NameCentered(NameUnitForFrame(frame)) and not BetterBlizzFramesDB.classicFrames then
             frame.bbfName:SetJustifyH("CENTER")
         end
-        frame.bbfName:SetWidth(nameWidth)
+        frame.bbfName:SetWidth(GetNameWidth(frame))
         frame.bbfName:SetHeight(nameHeight)
     end)
 
@@ -862,6 +802,103 @@ end
 
 -- Run the function to initialize font strings on all specified frames
 InitializeFontStringsForFrames()
+
+local MIN_NAME_FONT_SIZE = 8
+local fitNameFrames = { PlayerFrame, TargetFrame, FocusFrame }
+
+local function GetNameFitBaseline(fontString)
+    local font, size, flags = fontString:GetFont()
+    if not font or not size then return nil end
+    local og = fontString.bbfOgNameFont
+    if not og or not fontString.bbfFitSize or size ~= fontString.bbfFitSize or font ~= og[1] then
+        og = { font, size, flags }
+        fontString.bbfOgNameFont = og
+    end
+    return og
+end
+
+local function RestoreNameFont(fontString)
+    local og = fontString.bbfOgNameFont
+    if not og then return end
+    if fontString.bbfFitSize then
+        fontString:SetFont(og[1], og[2], og[3])
+        fontString.bbfFitSize = nil
+    end
+    if fontString.bbfFitWidth then
+        fontString:SetWidth(fontString.bbfFitWidth)
+    end
+end
+
+local function FitNameToWidth(fontString)
+    if not fontString then return end
+
+    local og = GetNameFitBaseline(fontString)
+    if not og then return end
+
+    local maxWidth = fontString.bbfFitWidth
+    if not maxWidth then
+        maxWidth = fontString:GetWidth()
+        if not maxWidth or issecretvalue(maxWidth) or maxWidth <= 0 then return end
+        fontString.bbfFitWidth = maxWidth
+    end
+
+    if fontString.bbfFitSize then
+        fontString:SetFont(og[1], og[2], og[3])
+        fontString.bbfFitSize = nil
+    end
+
+    fontString:SetWidth(0)
+    local textWidth = fontString:GetStringWidth()
+
+    if not textWidth or issecretvalue(textWidth) then
+        fontString:SetWidth(maxWidth)
+        return
+    end
+
+    if textWidth <= maxWidth then
+        fontString:SetWidth(maxWidth)
+        return
+    end
+
+    local newSize = og[2]
+    while textWidth > maxWidth and newSize > MIN_NAME_FONT_SIZE do
+        newSize = newSize - 1
+        fontString:SetFont(og[1], newSize, og[3])
+        textWidth = fontString:GetStringWidth()
+        if not textWidth or issecretvalue(textWidth) then break end
+    end
+
+    fontString:SetWidth(maxWidth)
+    if newSize ~= og[2] then
+        fontString.bbfFitSize = newSize
+    end
+end
+
+function BBF.UpdateNameFit()
+    forceFitNames = BetterBlizzFramesDB.forceFitNames
+    for _, frame in ipairs(fitNameFrames) do
+        local fontString = frame and frame.bbfName
+        if fontString then
+            if forceFitNames then
+                FitNameToWidth(fontString)
+            else
+                RestoreNameFont(fontString)
+            end
+        end
+    end
+end
+
+for _, frame in ipairs(fitNameFrames) do
+    local fontString = frame and frame.bbfName
+    if fontString then
+        hooksecurefunc(fontString, "SetText", function(self)
+            if not forceFitNames or self.bbfFitting then return end
+            self.bbfFitting = true
+            FitNameToWidth(self)
+            self.bbfFitting = nil
+        end)
+    end
+end
 
 local function UpdateFontStringPosition(frame)
     local name = frame.name or frame.Name
@@ -1559,6 +1596,8 @@ local function PlayerFrameNameChanges(frame)
                 frame.bbfName.recolored = nil
             end
         end
+    elseif removeRealmNames then
+        frame.bbfName:SetText(GetNameWithoutRealm(frame))
     else
         frame.bbfName:SetText(frame.name:GetText())
     end
@@ -1826,6 +1865,44 @@ hooksecurefunc(FocusFrame.totFrame.Name, "SetText", function()
     FocusFrameToTNameChanges(FocusFrameToT)
 end)
 
+local selfNameFrames = { PlayerFrame, TargetFrame, FocusFrame, TargetFrameToT, FocusFrameToT }
+local nameSetByBlizzard = {}
+
+for _, frame in ipairs(selfNameFrames) do
+    if frame.name then
+        nameSetByBlizzard[frame] = false
+        hooksecurefunc(frame.name, "SetText", function()
+            nameSetByBlizzard[frame] = true
+        end)
+    end
+end
+
+hooksecurefunc("UnitFrame_Update", function(frame)
+    local wasSet = nameSetByBlizzard[frame]
+    if wasSet == nil then return end
+    nameSetByBlizzard[frame] = false
+    if not wasSet and frame.unit then
+        frame.name:SetText(UnitName(frame.unit))
+        nameSetByBlizzard[frame] = false
+    end
+end)
+
+local function SelfNameText(unit)
+    if RegionalUniqueNamesEnabled() and not C_PlayerInfo.ShouldDisplaySurname() then
+        return UnitName(unit)
+    end
+    return GetUnitName(unit)
+end
+
+local function RefreshSelfNames()
+    for _, frame in ipairs(selfNameFrames) do
+        if frame.name and frame.unit and UnitIsUnit(frame.unit, "player") then
+            frame.name:SetText(SelfNameText(frame.unit))
+            nameSetByBlizzard[frame] = false
+        end
+    end
+    BBF.AllNameChanges()
+end
 
 local function ResetTextColors()
     -- Table of frames to process
