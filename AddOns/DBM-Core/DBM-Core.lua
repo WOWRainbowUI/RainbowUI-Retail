@@ -76,16 +76,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260925001429")
+DBM.Revision = parseCurseDate("20260929225800")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 424, "754bdce"--424.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.11"--Core version
+DBM.DisplayVersion = "12.1.12"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 9, 24) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 9, 29) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -134,7 +134,8 @@ private.statusGuildDisabled, private.statusWhisperDisabled, private.raidIconsDis
 ---@class DBMMod
 local bossModPrototype = private:GetPrototype("DBMMod")
 local mainFrame = CreateFrame("Frame", "DBMMainFrame")
-local playerName = private.isForever and GetUnitName("player") or UnitName("player")--Forever needs first and last name to be pulled
+local playerName = private.playerName
+private:RegisterPlayerNameCallback(function(_, name) playerName = name end)
 local playerGUID = UnitGUID("player")
 private.playerLevel = UnitLevel("player")
 private.LastInstanceType = nil
@@ -1821,6 +1822,11 @@ do
 				xpcall(v, geterrorhandler())
 			end
 			onLoadCallbacks = nil
+			local updatedPlayerName = private:ReadPlayerName()
+			if updatedPlayerName and updatedPlayerName ~= private.playerName then
+				private:UpdatePlayerName(updatedPlayerName)
+			end
+			private:ClearPlayerNameCallbacks()
 			self:LoadOptions()
 			DBM_ModsToLoadWithFullTestSupport = DBM_ModsToLoadWithFullTestSupport or {} -- Separate saved var because tests mess with the usual saved vars temporarily
 			DBM_ModsToLoadWithFullTestSupport.bossModsWithTests = DBM_ModsToLoadWithFullTestSupport.bossModsWithTests or {}
@@ -2207,8 +2213,6 @@ do
 			private:GetModule("CombatDetection"):StartInitializationTimers()
 			self:Schedule(10, runDelayedFunctions, self)
 			self:ZONE_CHANGED_NEW_AREA()
-			playerName = private.isForever and GetUnitName("player") or UnitName("player")--Forever needs first and last name to be pulled
-			private:GetModule("CombatDetection"):SetPlayerName(playerName)
 			self.Options.IgnoreBlizzAPI = false--In event it didn't get restored on combat end due to crash or reload
 			self.Options.fixBlizzApi = false
 			self.Options.DisableSWSound = false--In event it didn't get restored on combat end due to crash or reload
@@ -2273,6 +2277,7 @@ do
 	--- |"BossMod_DisableFriendlyNameplates"
 	--- |"BossMod_DisableHostileNameplates"
 	--- |"DBM_Debug"
+	--- |"DBM_PlayerNameChanged"
 	--- |"DBM_SetStage"
 	--- |"DBM_AffixEvent"
 	--- |"DBM_EnemyEngaged"
@@ -2359,6 +2364,7 @@ do
 		end
 	end
 end
+private:ActivatePlayerNameCallbacks()
 
 --------------------------
 --  OnUpdate/Scheduler  --
@@ -5331,7 +5337,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260924233613" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260929225709" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
