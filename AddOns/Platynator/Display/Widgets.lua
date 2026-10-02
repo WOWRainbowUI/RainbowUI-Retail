@@ -688,6 +688,85 @@ function addonTable.Display.GetAnimatedBorderHighlight(frame, parent)
   return frame
 end
 
+function addonTable.Display.GetBorderedHighlight(frame, parent)
+  frame = frame or CreateFrame("Frame", nil, parent or UIParent)
+
+  frame.border = frame:CreateTexture()
+  frame.border:SetDrawLayer("OVERLAY")
+  frame.border:SetPoint("CENTER")
+
+  frame.mask = frame:CreateMaskTexture()
+  frame.mask:SetAllPoints(frame)
+
+  frame.background = frame:CreateTexture()
+  frame.background:SetPoint("CENTER")
+  frame.background:SetDrawLayer("BACKGROUND")
+
+  function frame:Init(details)
+    if frame.Strip then
+      frame:Strip()
+    end
+
+    frame.details = details
+
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Platy: 4px")
+    assert(borderDetails)
+    local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
+    assert(borderSliceDetails)
+
+    frame.lowerScale = 1/borderSliceDetails.scaleModifier
+    frame.rawWidth, frame.rawHeight = details.border.width * addonTable.Assets.BarBordersSize.width, details.border.height * addonTable.Assets.BarBordersSize.height
+    frame.borderWidth = frame.rawWidth + (borderSliceDetails.padding.left + borderSliceDetails.padding.right) / 2
+    frame.borderHeight = frame.rawHeight + (borderSliceDetails.padding.top + borderSliceDetails.padding.bottom) / 2
+
+    local background = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "Platy: Solid Grey")
+    frame.background:SetTexture(background)
+    frame.background:SetAllPoints()
+    frame.background:SetScale(borderSliceDetails.scaleModifier * details.scale)
+    frame.background:SetVertexColor(details.background.color.r, details.background.color.g, details.background.color.b, details.background.color.a)
+
+    frame.border:SetTexture(borderSliceDetails.file)
+    frame.border:SetScale(borderSliceDetails.scaleModifier * details.scale)
+    frame.border:SetVertexColor(details.border.color.r, details.border.color.g, details.border.color.b, details.border.color.a)
+    frame.border:SetTextureSliceMargins(borderSliceDetails.margins.left, borderSliceDetails.margins.top, borderSliceDetails.margins.right, borderSliceDetails.margins.bottom)
+    frame.border:SetShown(details.border.show)
+
+    local maskDetails = borderDetails.mask
+    frame.mask:SetBlockingLoadsRequested(true)
+    frame.mask:SetTexture(maskDetails.file, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    frame.mask:SetTextureSliceMargins(maskDetails.margins.left, maskDetails.margins.top, maskDetails.margins.right, maskDetails.margins.bottom)
+    frame.mask:SetScale(details.scale)
+
+    frame.background:AddMaskTexture(frame.mask)
+
+    if details.kind == "fixedBordered" then
+      Mixin(frame, addonTable.Display.FixedHighlightMixin)
+    else
+      assert(false)
+    end
+
+    frame:SetScript("OnEvent", frame.OnEvent)
+
+    if frame.PostInit then
+      frame:PostInit()
+    end
+  end
+
+  function frame:ApplyAnchor()
+    ApplyAnchor(frame, frame.details.anchor)
+  end
+
+  function frame:ApplySize()
+    local details = frame.details
+    PixelUtil.SetSize(frame, frame.rawWidth * details.scale, frame.rawHeight * details.scale)
+
+    PixelUtil.SetSize(frame.background, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    PixelUtil.SetSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
+  end
+
+  return frame
+end
+
 function addonTable.Display.GetMarker(frame, parent)
   frame = frame or CreateFrame("Frame", nil, parent or UIParent)
 
@@ -933,6 +1012,7 @@ local livePools = {
   powerSpecialBars = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetPower),
   highlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetHighlight),
   animatedBorderHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetAnimatedBorderHighlight),
+  fixedBorderedHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetBorderedHighlight),
   markers = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetMarker),
 }
 
@@ -945,6 +1025,7 @@ local editorPools = {
   powerSpecialBars = CreateFramePool("Frame", UIParent, "PlatynatorPropagateMouseTemplate", nil, false, addonTable.Display.GetPower),
   highlights = CreateFramePool("Frame", UIParent, "PlatynatorPropagateMouseTemplate", nil, false, addonTable.Display.GetHighlight),
   animatedBorderHighlights = CreateFramePool("Frame", UIParent, "PlatynatorPropagateMouseTemplate", nil, false, addonTable.Display.GetAnimatedBorderHighlight),
+  fixedBorderedHighlights = CreateFramePool("Frame", UIParent, "PlatynatorPropagateMouseTemplate", nil, false, addonTable.Display.GetBorderedHighlight),
   markers = CreateFramePool("Frame", UIParent, "PlatynatorPropagateMouseTemplate", nil, false, addonTable.Display.GetMarker),
 }
 

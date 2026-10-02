@@ -140,6 +140,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
         self:Install(unit)
       end
     end
+    if state[addonTable.Constants.RefreshReason.Movement] then
+      self:UpdateMovement()
+    end
     if state[addonTable.Constants.RefreshReason.ShowBehaviour] then
       self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
@@ -341,6 +344,19 @@ function addonTable.Display.ManagerMixin:UpdateStacking()
   local state = addonTable.Config.Get(addonTable.Config.Options.STACKING_NAMEPLATES)
   C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Enemy, state.enemy)
   C_CVar.SetCVarBitfield("nameplateStackingTypes", Enum.NamePlateStackType.Friendly, state.friend)
+end
+
+function addonTable.Display.ManagerMixin:UpdateMovement()
+  if self:CombatChangesCheck() then
+    return
+  end
+  if addonTable.Constants.IsCVarsBack then
+    local insets = addonTable.Config.Get(addonTable.Config.Options.STACK_POSITION_INSETS)
+    C_CVar.SetCVar("nameplateTopInset", insets.top)
+    C_CVar.SetCVar("nameplateBottomInset", insets.bottom)
+    local speed = addonTable.Config.Get(addonTable.Config.Options.STACK_MOTION_SPEED)
+    C_CVar.SetCVar("nameplateMotionSpeed", speed * 0.1) -- Scaled down due to larger values giving wonky results
+  end
 end
 
 function addonTable.Display.ManagerMixin:UpdateTargetScale()
@@ -958,6 +974,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     self:UpdateInstanceShowState()
     self:UpdateFriendlyFont()
     self:UpdateStacking()
+    self:UpdateMovement()
     self:UpdateShowState()
     self:UpdateTargetScale()
     self:UpdateBaseNamePlateInfo()

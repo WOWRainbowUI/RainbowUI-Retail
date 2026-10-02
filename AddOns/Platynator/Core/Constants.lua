@@ -14,6 +14,7 @@ addonTable.Constants = {
   IsClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE,
 
   IsMidnightNext = select(4, GetBuildInfo()) >= 120105,
+  IsCVarsBack = C_CVar.GetCVarInfo("nameplateMotionSpeed") ~= nil,
   IsSimplifiedAvailable = C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified ~= nil,
   IsModernPlates = C_NamePlate and C_NamePlate.SetNamePlateSize ~= nil,
   -- Restricted to secrets clients due to MoP bug where the duration objects don't work properly
@@ -71,6 +72,7 @@ addonTable.Constants.RefreshReason = {
   Clickable = 8,
   BlizzardWidgetScale = 9,
   DesignSelection = 10,
+  Movement = 11,
 }
 
 addonTable.Constants.OldFontMapping = {
@@ -117,7 +119,7 @@ addonTable.Constants.DefaultRange = {
   [1473] = 25, -- Augmentation
   [1465] = 25,
   -- Hunter
-  ["HUNTER"] = 40,
+  ["HUNTER"] = addonTable.Constants.IsForever and 35 or 40,
   [253] = 40, -- Beast Mastery
   [254] = 40, -- Marksmanship
   [255] = 40, -- Survival

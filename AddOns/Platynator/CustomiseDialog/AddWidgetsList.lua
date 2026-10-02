@@ -262,6 +262,29 @@ addonTable.CustomiseDialog.DesignWidgets = {
     },
   },
   {
+    name = addonTable.Locales.FIXED_BORDERED,
+    kind = "highlights",
+    default = {
+      anchor = {"TOPLEFT", -140, 50},
+      kind = "fixedBordered",
+      background = {
+        asset = "Platy: Fade Bottom",
+        color = GetColor("FFFFFF", 1),
+        applyColor = false,
+      },
+      border = {
+        asset = "Platy: 7px",
+        color = GetColor("000000", 1),
+        width = 1,
+        height = 1,
+        show = true,
+      },
+      sliced = true,
+      scale = 1,
+      layer = 0,
+    },
+  },
+  {
     name = addonTable.Locales.ANIMATED_BORDER,
     kind = "highlights",
     default = {

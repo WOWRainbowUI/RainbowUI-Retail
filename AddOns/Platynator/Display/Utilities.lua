@@ -470,7 +470,7 @@ do
   end
 
   local function AssignRange()
-    if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath then
+    if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath or addonTable.Constants.IsForever then
       rangeLimit = addonTable.Constants.DefaultRange[playerClass]
     else
       rangeLimit = addonTable.Constants.DefaultRange[specializationID]
