@@ -2,15 +2,11 @@ local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
 local macroName = L["AutoPotion"]
 local bandageMacroName = L["AutoBandage"] or "AutoBandage"
-local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
-local isTBC = (WOW_PROJECT_ID == 5) -- TBC Anniversary / BCC
-local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
-local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
+local foodMacroName = L["AutoFood"] or "AutoFood"
+local drinkMacroName = L["AutoDrink"] or "AutoDrink"
 
 local function isInInstancedPvP()
-  if not isRetail then return false end
+  if not ham.isRetail then return false end
   local inInstance, instanceType = IsInInstance()
   return inInstance and (instanceType == "pvp" or instanceType == "arena")
 end
@@ -30,6 +26,7 @@ setmetatable(ham, {
         witheringDreamsPotion = HAMDB.witheringDreamsPotion or false,
         cavedwellerDelight = HAMDB.cavedwellerDelight or true,
         heartseekingInjector = HAMDB.heartseekingInjector or false,
+        includeBuffFood = HAMDB.includeBuffFood or false,
       }
       return t.options
     end
@@ -74,7 +71,7 @@ local function log(message)
 end
 
 local function addPlayerHealingItemIfAvailable()
-  if isRetail and ham.options.heartseekingInjector and ham.tinkerSlot then
+  if ham.isRetail and ham.options.heartseekingInjector and ham.tinkerSlot then
     table.insert(ham.itemIdList, "slot:" .. ham.tinkerSlot)
   end
   for i, value in ipairs(ham.myPlayer.getHealingItems()) do
@@ -86,7 +83,7 @@ local function addPlayerHealingItemIfAvailable()
 end
 
 local function addHealthstoneIfAvailable()
-  if isClassic == true or isTBC == true or isWrath == true or isCata == true or isMop == true then
+  if ham.isClassic == true or ham.isTBC == true or ham.isWrath == true or ham.isCata == true or ham.isMop == true or ham.isForever == true then
     for i, value in ipairs(ham.getHealthstonesClassic()) do
       if value.getCount() > 0 then
         table.insert(ham.itemIdList, value.getId())
@@ -179,10 +176,35 @@ local function createBandageMacroIfMissing()
   end
 end
 
+local function createFoodMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(foodMacroName)
+  if name == nil then
+    CreateMacro(foodMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
+local function createDrinkMacroIfMissing()
+  -- dont create macro if MegaMacro is installed and loaded
+  if megaMacro.installed and megaMacro.loaded then
+    return
+  end
+  local name = GetMacroInfo(drinkMacroName)
+  if name == nil then
+    CreateMacro(drinkMacroName, "INV_Misc_QuestionMark")
+  end
+end
+
 local function setShortestSpellCD(newSpell)
   if ham.options.cdReset then
-    local cd
-    cd = GetSpellBaseCooldown(newSpell) / 1000
+    -- GetSpellBaseCooldown exists on every flavor (confirmed in-game on Forever), but can
+    -- return nil for a spell id absent from the client's spell data
+    local baseCd = GetSpellBaseCooldown(newSpell)
+    if not baseCd then return end
+    local cd = baseCd / 1000
     if shortestCD == nil then
       shortestCD = cd
     end
@@ -200,6 +222,25 @@ local function setResetType()
   end
 end
 
+-- Spells that are only usable out of combat (Recuperate, the Earthen racial Quiet
+-- Contemplation). They can't go in the castsequence, so they get their own [nocombat] line.
+local function isOutOfCombatSpell(id)
+  return id == ham.recuperate.getId() or id == ham.quietContemplation.getId()
+end
+
+-- The out-of-combat spell to put on the [nocombat] line, if any. Quiet Contemplation is
+-- preferred since it also restores mana. Recuperate isn't allowed in instanced PvP.
+local function getOutOfCombatSpell()
+  if not ham.isRetail then return nil end
+  if ham.dbContains(ham.quietContemplation.getId()) and ham.quietContemplation.isKnown() then
+    return ham.quietContemplation
+  end
+  if not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    return ham.recuperate
+  end
+  return nil
+end
+
 local function buildSpellMacroString()
   spellsMacroString = ''
 
@@ -207,8 +248,8 @@ local function buildSpellMacroString()
     local spellCounter = 1
     for i, spell in ipairs(ham.mySpells) do
       local name = ''
-      if spell.getId() == ham.recuperate.getId() then
-        --we don't want to add recuperate because even thought its a spell its only usable out of combat
+      if isOutOfCombatSpell(spell.getId()) then
+        --we don't want to add these because even though they are spells they are only usable out of combat
       else
         name = spell.getName();
         setShortestSpellCD(spell.getId())
@@ -275,7 +316,7 @@ end
 
 local function checkMegaMacroAddon()
   -- MegaMacro is only available for retail
-  if not isRetail then
+  if not ham.isRetail then
     megaMacro.checked = true
     return
   end
@@ -323,9 +364,43 @@ local function buildBandageMacroString()
   return "#showtooltip\n/use [@player] " .. sequence[1]
 end
 
+-- Build food macro string (highest available food first)
+local function buildFoodMacroString()
+  local sequence = {}
+  local food = ham.getFood()
+  for _, item in ipairs(food) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use [@player] " .. sequence[1]
+end
+
+-- Build drink macro string (highest available drink first)
+local function buildDrinkMacroString()
+  local sequence = {}
+  local drink = ham.getDrink()
+  for _, item in ipairs(drink) do
+    if item.getCount() > 0 then
+      table.insert(sequence, "item:" .. tostring(item.getId()))
+      break
+    end
+  end
+
+  if #sequence == 0 then
+    return "#showtooltip"
+  end
+  return "#showtooltip\n/use [@player] " .. sequence[1]
+end
+
 -- check if player has the engineering tinker: Heartseeking Health Injector
 function ham.checkTinker()
-  if not isRetail then return end
+  if not ham.isRetail then return end
   ham.tinkerSlot = nil -- always reset
   for _, slot in ipairs(tinkerSlots) do
     local itemID = GetInventoryItemID("player", slot)
@@ -366,12 +441,13 @@ function ham.updateMacro()
     if ham.options.stopCast then
       macroStr = macroStr .. "/stopcasting \n"
     end
-    -- Recuperate: not in instanced PvP (not allowed) and out-of-combat only
-    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after recuperate
+    -- Recuperate / Quiet Contemplation: out-of-combat only
+    -- this condition is needed because if not used the castsequence will use off gcd heals direclty after them
     local combatCondition = ''
-    if isRetail and not isInInstancedPvP() and ham.dbContains(ham.recuperate.getId()) and ham.recuperate.isKnown() then
+    local outOfCombatSpell = getOutOfCombatSpell()
+    if outOfCombatSpell then
       combatCondition = ',combat'
-      macroStr = macroStr .. "/cast [nocombat] " .. ham.recuperate.getName() .. "\n"
+      macroStr = macroStr .. "/cast [nocombat] " .. outOfCombatSpell.getName() .. "\n"
     end
 
     macroStr = macroStr .. "/castsequence [@player" .. combatCondition .. "] reset=" .. resetType .. " "
@@ -424,6 +500,36 @@ function ham.updateBandageMacro()
   end
 end
 
+function ham.updateFoodMacro()
+  local foodMacroStr = buildFoodMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(foodMacroName, foodMacroStr)
+  else
+    createFoodMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(foodMacroName, foodMacroName, nil, foodMacroStr)
+    end)
+    if success then
+      log('Food macro updated.')
+    end
+  end
+end
+
+function ham.updateDrinkMacro()
+  local drinkMacroStr = buildDrinkMacroString()
+  if megaMacro.installed and megaMacro.loaded then
+    UpdateMegaMacroByName(drinkMacroName, drinkMacroStr)
+  else
+    createDrinkMacroIfMissing()
+    local success, err = pcall(function()
+      EditMacro(drinkMacroName, drinkMacroName, nil, drinkMacroStr)
+    end)
+    if success then
+      log('Drink macro updated.')
+    end
+  end
+end
+
 local function MakeMacro()
   -- dont attempt to create macro until MegaMacro addon is checked
   if not megaMacro.checked then
@@ -450,9 +556,13 @@ local function MakeMacro()
   ham.updateHeals()
   ham.updateMacro()
   ham.updateBandageMacro()
+  ham.updateFoodMacro()
+  ham.updateDrinkMacro()
 
   ham.settingsFrame:updatePrio()
-  ham.settingsFrame:updateBandagePrio()
+  ham.bandageSettingsFrame:updateBandagePrio()
+  ham.foodSettingsFrame:updateFoodPrio()
+  ham.drinkSettingsFrame:updateDrinkPrio()
 end
 
 -- debounce handler for BAG_UPDATE events which can fire very rapidly
@@ -473,7 +583,7 @@ updateFrame:RegisterEvent("ADDON_LOADED")
 updateFrame:RegisterEvent("BAG_UPDATE")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-if isClassic == false then
+if ham.isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -508,7 +618,7 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
     -- as the UI may still be cleaning up a protected state.
     C_Timer.After(0.5, MakeMacro)
     -- when talents change and classic is false
-  elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
+  elseif ham.isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
     -- when player changes equipment
