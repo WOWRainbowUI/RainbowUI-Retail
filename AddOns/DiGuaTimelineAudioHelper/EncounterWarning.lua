@@ -168,17 +168,12 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
 
 
 
-    -- 技能：烈焰喷吐（点名）：出圈提醒 + 授权方向箭头显示 6 秒
+    -- 技能：烈焰喷吐（点名）：出圈提醒
     if currentEncounterID == 2623 and severity == 1 and targetName then
         -- 出圈仅 战士/盗贼/死骑/猎人 才生效
         local class = UnitClassBase("player")
         if class == "WARRIOR" or class == "ROGUE" or class == "DEATHKNIGHT" or class == "HUNTER" or class == "PALADIN" then
             addonTable.StartCircleTimerBySeconds(5.9)
-        end
-        -- 授权方向箭头，并立即按“当前该轮”方向(2623 时间表)显示 6 秒
-        addonTable.FacingArrowAllowed = true
-        if addonTable.TriggerFacingArrow then
-            addonTable.TriggerFacingArrow(6)
         end
         return
     end
@@ -311,20 +306,20 @@ WarningFrame:SetScript("OnEvent", function(self, event, ...)
             C_Timer.After(10.4, function()
                 SafePlay("AnQuan.ogg")
             end)
-            C_Timer.After(15.3, function()
+            C_Timer.After(14.3, function()
                 SafeCircle()
                 SafePlay("ZhunBeiChenMo.ogg")
             end)
-            C_Timer.After(16.4, function()
+            C_Timer.After(15.4, function()
                 SafePlay("DaoShu3.ogg")
             end)
-            C_Timer.After(17.4, function()
+            C_Timer.After(16.4, function()
                 SafePlay("DaoShu2.ogg")
             end)
-            C_Timer.After(18.4, function()
+            C_Timer.After(17.4, function()
                 SafePlay("DaoShu1.ogg")
             end)
-            C_Timer.After(19.4, function()
+            C_Timer.After(18.4, function()
                 SafePlay("AnQuan.ogg")
             end)
         end

@@ -10,7 +10,6 @@ addonTable.EventSoundData = {
     -- [176] = { {"ZhunBeiLiuXue.ogg", 0} }, -- 荆棘之刃 (1261276)
 
     -- 圣光猎手伊库兹
-    -- [178] = { {"HuDunKuaiDa.ogg", 1}, {"ZhunBeiPoDun.ogg", 2} }, -- 永恒夜幕 (1286918) 枚举1=护盾快打+1秒快开减伤（同响）
     [179] = { {"ZhunBeiAOE.ogg", 1} }, -- 唤棘者咆哮 (1236709)
     [180] = { {"MuBiaoShiNi.ogg", 0} }, -- 嗜血注视 (1237090)
     [178] = { {"XiaoXinJiTui.ogg", 1} }, -- 青翠践踏 (1236746)

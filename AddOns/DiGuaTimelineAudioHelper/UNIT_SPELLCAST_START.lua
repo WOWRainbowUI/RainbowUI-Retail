@@ -1195,6 +1195,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             then PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
 
+
+
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 净化打击
             and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
             and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
@@ -1682,6 +1684,42 @@ frame:SetScript("OnEvent", function(self, event, ...)
             PlaySoundFile(MEDIA_PATH .. "ZhunBeiZhongDu.ogg", DiGuaTimelineAudioHelper.audioChannel)
             C_Timer.After(3, function() addonTable.DuanXinYaoGaoLock = nil end) end
 
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 腐蚀唾液
+            and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2433 -- 地图ID
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 0
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then
+            PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            -- 【读条点名玩家 → 倒计时圆环】
+            -- 时长优先用真实剩余秒数（敌方读条时长可能是保密值，读不到就退回 1.8 秒）
+            local remain = 1.8
+            local ok, value = pcall(function()
+                local _, _, _, _, endTimeMS = UnitCastingInfo(unitTarget)
+                if endTimeMS == nil then
+                    _, _, _, _, endTimeMS = UnitChannelInfo(unitTarget)
+                end
+                if endTimeMS == nil then return nil end
+                local seconds = (endTimeMS / 1000) - GetTime()
+                if seconds > 0 then return seconds end
+                return nil
+            end)
+            if ok and value then remain = value end
+
+            -- PlayerIsSpellTarget 可能是保密值(secret)：保密值不能在 Lua 里 if 判断，
+            -- 所以先用 pcall 试普通判断；试不了就把原始值交给圆环第 3 个参数，由内部 SetAlphaFromBoolean 控制显隐。
+            local canCompare, isMine = pcall(function() return PlayerIsSpellTarget(unitTarget) == true end)
+            if not canCompare then
+                addonTable.StartCircleTimerBySeconds(remain, false, PlayerIsSpellTarget(unitTarget))
+            elseif isMine then
+                addonTable.StartCircleTimerBySeconds(remain, false)
+            end
+            end -- 腐蚀唾液
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 刃舞
             and select(8, GetInstanceInfo()) == 2813 -- 副本ID (密谋小径)

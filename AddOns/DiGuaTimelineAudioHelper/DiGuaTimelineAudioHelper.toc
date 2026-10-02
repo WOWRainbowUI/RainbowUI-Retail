@@ -2,7 +2,7 @@
 ## Title: [神秘地瓜] 副本语音助手
 ## Notes: 副本怪物技能语音播报插件，帮助新手快速熟悉副本机制。
 ## Author: 神秘地瓜
-## Version: 2.0.0
+## Version: 2.0.3
 ## SavedVariables: DiGuaTimelineAudioHelper
 
 ## Title-zhTW: |cffFF7F00[副本]|r 神秘地瓜副本語音助手
@@ -40,7 +40,6 @@ NAME_PLATE_UNIT_REMOVED.lua
 UNIT_ABSORB_AMOUNT_CHANGED.lua
 NamePlateEnterCombat.lua
 PlayerDebuffDisplay.lua
-FacingArrow.lua
 SkipCinematic.lua
 # AuraSpellInspector.lua —— 查询工具 /asq（仅开发用，发布不加载；要用就把行首 # 去掉）
 ForeignDebuffRing.lua
