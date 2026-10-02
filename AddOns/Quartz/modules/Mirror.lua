@@ -44,6 +44,7 @@ local pairs, unpack, next, wipe, error = pairs, unpack, next, wipe, error
 local table_sort = table.sort
 
 local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local WoWForever = Quartz3.IsForever
 
 local gametimebase, gametimetostart
 local lfgshowbase, readycheckshowbase, readycheckshowduration
@@ -113,9 +114,9 @@ local icons = {
 	BREATH = "Interface\\Icons\\Spell_Shadow_DemonBreath",
 	EXHAUSTION = "Interface\\Icons\\Ability_Suffocate",
 	FEIGNDEATH = "Interface\\Icons\\Ability_Rogue_FeignDeath",
-	CAMP = WoWClassic and "" or "Interface\\Icons\\INV_Misc_GroupLooking",
+	CAMP = (WoWClassic or WoWForever) and "" or "Interface\\Icons\\INV_Misc_GroupLooking",
 	DEATH = "Interface\\Icons\\Ability_Vanish",
-	QUIT = WoWClassic and "" or "Interface\\Icons\\INV_Misc_GroupLooking",
+	QUIT = (WoWClassic or WoWForever) and "" or "Interface\\Icons\\INV_Misc_GroupLooking",
 	DUEL_OUTOFBOUNDS = "Interface\\Icons\\Ability_Rogue_Sprint",
 	INSTANCE_BOOT = "Interface\\Icons\\INV_Misc_Rune_01",
 	CONFIRM_SUMMON = "Interface\\Icons\\Spell_Shadow_Twilight",

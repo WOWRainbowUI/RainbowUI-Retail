@@ -329,7 +329,7 @@ function CastBarTemplate:UNIT_SPELLCAST_SENT(event, unit, target, guid, spellID)
 	if unit ~= self.unit and not (self.unit == "player" and unit == "vehicle") then
 		return
 	end
-	if target then
+	if issecretvalue(target) or target then
 		self.targetName = target
 	else
 		-- auto selfcast? is this needed, even?
@@ -436,7 +436,11 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	self:Show()
 	self:SetAlpha(db.alpha)
 
-	self:SetNameText(displayName or spell)
+	-- Object interactions (chests, gathering) come with an empty display text on Forever.
+	if not issecretvalue(displayName) and (displayName == nil or displayName == "") then
+		displayName = spell
+	end
+	self:SetNameText(displayName)
 
 	if Quartz3.db.profile.sparkenabled then
 		self.Spark:Show()

@@ -30,7 +30,7 @@ local TimeFmt = Quartz3.Util.TimeFormat
 ----------------------------
 -- Upvalues
 local GetTime, UnitCastingInfo = GetTime, UnitCastingInfo
-local unpack, tonumber, format = unpack, tonumber, format
+local unpack, tonumber, format, ipairs = unpack, tonumber, format, ipairs
 
 local getOptions
 
@@ -44,6 +44,7 @@ local function tradeskillOnUpdate()
 	local currentTime = GetTime()
 	if casting then
 		local elapsed = duration * completedcasts + currentTime - starttime
+		if elapsed > totaltime then elapsed = totaltime end
 		castBar:SetValue(elapsed)
 
 		local perc = (currentTime - starttime) / duration
@@ -97,9 +98,14 @@ function Tradeskill:OnEnable()
 		else
 			self:RegisterEvent("ADDON_LOADED")
 		end
-	elseif C_TradeSkillUI and C_TradeSkillUI.CraftRecipe then
-		self:SecureHook(C_TradeSkillUI, "CraftRecipe", "DoTradeSkillClassic")
-	else
+	end
+	if C_TradeSkillUI and C_TradeSkillUI.CraftRecipe then
+		for _, method in ipairs({ "CraftRecipe", "CraftEnchant", "CraftSalvage" }) do
+			if C_TradeSkillUI[method] then
+				self:SecureHook(C_TradeSkillUI, method, "DoTradeSkillClassic")
+			end
+		end
+	elseif not WoWRetail then
 		self:SecureHook("DoTradeSkill", "DoTradeSkillClassic")
 	end
 end
@@ -115,9 +121,15 @@ function Tradeskill:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 		return self.hooks[object].UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	end
 	local spell, displayName, icon, startTime, endTime, isTradeskill = UnitCastingInfo(unit)
+	if not issecretvalue(displayName) and (displayName == nil or displayName == "") then
+		displayName = spell
+	end
 	if isTradeskill and not (issecretvalue(startTime) or issecretvalue(endTime)) then
 		Player.Bar:CancelTimerAnimation()
 		repeattimes = repeattimes or 1
+		if completedcasts >= repeattimes then
+			completedcasts = 0
+		end
 		duration = (endTime - startTime) / 1000
 		totaltime = duration * repeattimes
 		starttime = GetTime()

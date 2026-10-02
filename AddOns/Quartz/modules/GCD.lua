@@ -31,6 +31,7 @@ local unpack = unpack
 
 local gcdbar, gcdbar_width, gcdspark
 local starttime, duration
+local GCD_SPELL_ID = Quartz3.IsForever and 29515 or 61304
 
 local db, getOptions
 
@@ -232,21 +233,15 @@ end
 function GCD:CheckGCD(event, unit)
 	if not (event == "SPELL_UPDATE_COOLDOWN" or unit == "player") then return end
 
-	local cooldown = C_Spell and C_Spell.GetSpellCooldown and C_Spell.GetSpellCooldown(61304)
-	local start, dur
-	if cooldown then
-		start, dur = cooldown.startTime, cooldown.duration
-	end
-
-	local isSecretDur = dur and issecretvalue(dur)
-
-	if dur and (isSecretDur or dur > 0) then
+	local cooldown = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
+	if cooldown and cooldown.isActive then
+		local start, dur = cooldown.startTime, cooldown.duration
 		if db.displayMode == "bar" then
 			-- N'initialise une nouvelle animation que si la barre n'est pas déjà active
 			if not gcdbar:IsShown() then
 				-- GetTime() est toujours non-secret : pas d'arithmétique sur valeurs secrètes
 				starttime = GetTime()
-				duration  = isSecretDur and 1.5 or dur  -- fallback 1.5s max GCD si secret
+				duration  = issecretvalue(dur) and 1.5 or dur  -- fallback 1.5s max GCD si secret
 				gcdbar.bar:SetMinMaxValues(0, duration)
 				gcdbar.bar:SetValue(0)
 				gcdbar:SetScript("OnUpdate", OnUpdate)

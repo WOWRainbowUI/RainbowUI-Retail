@@ -61,18 +61,30 @@ function Interrupt:ApplySettings()
 	db = self.db.profile
 end
 
+-- C_Intl.ToUpper (12.1.5) accepts secret strings from tainted code and handles non-ASCII letters, string.upper does neither.
+local function UpperName(name)
+	if C_Intl and C_Intl.ToUpper then
+		local upper = C_Intl.ToUpper(name)
+		if type(upper) == "string" then
+			return upper
+		end
+	end
+	if issecretvalue(name) then
+		return name
+	end
+	return name:upper()
+end
+
 function Interrupt:UNIT_SPELLCAST_INTERRUPTED(event, unit, castGUID, spellID, interruptedBy)
 	local mod = unitToModule[unit]
-if not mod or not mod:IsEnabled() or not mod.Bar then return end
+	if not mod or not mod:IsEnabled() or not mod.Bar then return end
+	-- The payload can be secret, type() is the only nil test allowed on it.
 	local sourceName
-	if interruptedBy then
+	if type(interruptedBy) == "string" then
 		sourceName = UnitNameFromGUID(interruptedBy)
 	end
-	if sourceName and not issecretvalue(sourceName) then
-		mod.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], sourceName:upper())
-	elseif sourceName then
-		-- secret value: can concatenate but not call :upper() or #
-		mod.Bar.Text:SetText(L["INTERRUPTED (%s)"]:format(sourceName))
+	if type(sourceName) == "string" then
+		mod.Bar.Text:SetText(L["INTERRUPTED (%s)"]:format(UpperName(sourceName)))
 	else
 		mod.Bar.Text:SetText(INTERRUPTED)
 	end

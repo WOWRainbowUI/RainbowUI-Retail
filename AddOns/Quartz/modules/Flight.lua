@@ -163,7 +163,7 @@ function Flight:BeginFlight(duration, destination)
 	if Quartz3.db.profile.sparkenabled then
 		Player.Bar.Spark:Show()
 	end
-	if WoWClassic then
+	if WoWClassic or Quartz3.IsForever then
 		Player.Bar.Icon:SetTexture("Interface\\Icons\\ability_eyeoftheowl")
 	else
 		Player.Bar.Icon:SetTexture("Interface\\Icons\\ability_druid_flightform")

@@ -61,6 +61,8 @@ local defaults = {
 
 		nametext = true,
 		timetext = true,
+		targetname = true,
+		targetnamestyle = "default",
 
 		texture = "Minimalist",
 		width = 150,
@@ -339,7 +341,15 @@ local function positionMover()
 		row.name:SetPoint("LEFT", row, "LEFT", 2, 0)
 		row.name:SetJustifyH("LEFT")
 		local topIndex = growUp and rows or 1
-		row.name:SetText(i == topIndex and L["Enemy CastBars"] or ("nameplate" .. i))
+		local name = i == topIndex and L["Enemy CastBars"] or ("nameplate" .. i)
+		if db.targetname and i ~= topIndex then
+			if db.targetnamestyle == "on" then
+				name = L["%s on %s"]:format(name, L["Target"])
+			else
+				name = ("%s -> %s"):format(name, L["Target"])
+			end
+		end
+		row.name:SetText(name)
 		row.name:SetShown(db.nametext)
 		row.time:ClearAllPoints()
 		row.time:SetPoint("RIGHT", row, "RIGHT", -2, 0)
@@ -528,7 +538,16 @@ do
 					barIndex = barIndex + 1
 					local bar = castbars[barIndex]
 					
-					bar.Text:SetText(spellName)
+					local targetName = db.targetname and UnitName(unit .. "target") or nil
+					if targetName and (issecretvalue(targetName) or targetName ~= "") then
+						if db.targetnamestyle == "on" then
+							bar.Text:SetFormattedText(L["%s on %s"], spellName, targetName)
+						else
+							bar.Text:SetFormattedText("%s -> %s", spellName, targetName)
+						end
+					else
+						bar.Text:SetText(spellName)
+					end
 					bar.Icon:SetTexture(texture)
 					bar:SetMinMaxValues(0, 1)
 					bar:SetTimerDuration(durationObj)
@@ -968,6 +987,21 @@ do
 								name = L["Remaining Time"],
 								desc = L["Display the time remaining on the bars"],
 								order = 121,
+							},
+							targetname = {
+								type = "toggle",
+								name = L["Show Target Name"],
+								desc = L["Display target name of spellcasts after spell name"],
+								disabled = function() return not db.nametext end,
+								order = 121.5,
+							},
+							targetnamestyle = {
+								type = "select",
+								name = L["Target Name Style"],
+								desc = L["How to display target name of spellcasts after spell name"],
+								values = {["default"] = L["Spell -> Target"], ["on"] = L["Spell on Target"]},
+								disabled = function() return not db.targetname or not db.nametext end,
+								order = 121.6,
 							},
 							font = {
 								type = "select",
