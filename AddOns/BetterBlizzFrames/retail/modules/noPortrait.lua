@@ -5,6 +5,17 @@ local noPortraitSkipKeys = {
     pet = "noPortraitSkipPet",
 }
 
+local noPortraitEliteAtlas = {
+    elite = "nameplates-icon-elite-gold",
+    worldboss = "nameplates-icon-elite-gold",
+    rareelite = "nameplates-icon-elite-silver",
+    rare = "nameplates-icon-elite-silver",
+}
+
+local function SetBossDragonAtlas(texture, classification)
+    texture:SetAtlas(noPortraitEliteAtlas[classification] or "nameplates-icon-elite-gold")
+end
+
 local function SetManaTextParent(text, parent)
     if BetterBlizzFramesDB.hideAllManabarText then
         text.bbfOriginalParent = parent
@@ -798,7 +809,7 @@ local function MakeNoPortraitMode(frame)
         frameContainer.PortraitMask:ClearAllPoints()
         frameContainer.PortraitMask:SetPoint("CENTER", frameContainer.Portrait, "CENTER", 0, 0)
         frameContainer.BossPortraitFrameTexture:SetParent(db.hideRareDragonTexture and BBF.hiddenFrame or frame.noPortraitMode)
-        frameContainer.BossPortraitFrameTexture:SetAtlas("nameplates-icon-elite-gold")
+        SetBossDragonAtlas(frameContainer.BossPortraitFrameTexture, frame.unit and UnitClassification(frame.unit))
         frameContainer.BossPortraitFrameTexture:SetSize(15, 15)
         frameContainer.BossPortraitFrameTexture:ClearAllPoints()
         frameContainer.BossPortraitFrameTexture:SetPoint("CENTER", hpContainer, "TOPRIGHT", -3.5, -1)
@@ -1080,7 +1091,7 @@ local function MakeNoPortraitMode(frame)
                 FrameAdjustments(frameContainer)
             end
 
-            frameContainer.BossPortraitFrameTexture:SetAtlas("nameplates-icon-elite-gold")
+            SetBossDragonAtlas(frameContainer.BossPortraitFrameTexture, classification)
             frameContainer.BossPortraitFrameTexture:SetSize(15, 15)
             frameContainer.BossPortraitFrameTexture:ClearAllPoints()
             frameContainer.BossPortraitFrameTexture:SetPoint("CENTER", hpContainer, "TOPRIGHT", -3.5, -1)
@@ -1429,7 +1440,7 @@ local function MakeNoPortraitMode(frame)
                     PlayerLevelText:ClearAllPoints()
                     PlayerLevelText:SetPoint("LEFT", 194, 17)
                 elseif hideLvl then
-                    if UnitLevel("player") == BBF.GetMaxPlayerLevel() then
+                    if UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
                         PlayerLevelText:SetParent(BBF.hiddenFrame)
                         PlayerLevelText:ClearAllPoints()
                         PlayerLevelText:SetPoint("LEFT", 194, 17)
@@ -1445,7 +1456,7 @@ local function MakeNoPortraitMode(frame)
                 if mode > 3 then
                     -- Always hide level text for mode > 3 (using UI-FocusFrame-Large texture)
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
-                elseif alwaysHideLvl or (hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel()) then
+                elseif alwaysHideLvl or (hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion()) then
                     -- Hide level text based on hideLvl settings for mode <= 3
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
                 else
@@ -1926,7 +1937,7 @@ local function MakeNoPortraitMode(frame)
                 contentMain.StatusTexture:SetTexture(playerFlashTex)
                 -- Handle level text for playerEliteFrame
                 local mode = BetterBlizzFramesDB.playerEliteFrameMode
-                if mode > 3 and (alwaysHideLvl or (hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel())) then
+                if mode > 3 and (alwaysHideLvl or (hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion())) then
                     -- Ensure level text is hidden when using UI-FocusFrame-Large
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
                 end
@@ -1934,7 +1945,7 @@ local function MakeNoPortraitMode(frame)
                 if alwaysHideLvl then
                     ToggleNoLevelFrame(true)
                 elseif hideLvl then
-                    if UnitLevel("player") == BBF.GetMaxPlayerLevel() then
+                    if UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
                         ToggleNoLevelFrame(true)
                     else
                         ToggleNoLevelFrame(false)

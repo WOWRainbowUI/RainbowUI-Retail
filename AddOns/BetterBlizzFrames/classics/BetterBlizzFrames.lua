@@ -20,6 +20,7 @@ local defaultSettings = {
     darkModeUi = false,
     darkModeActionBars = true,
     darkModeUiAura = true,
+    darkModeUnitFrames = true,
     darkModeCastbars = true,
     darkModeColor = 0.30,
     hideGroupIndicator = false,
@@ -68,6 +69,8 @@ local defaultSettings = {
     focusEnlargeAuraEnemy = true,
     focusEnlargeAuraFriendly = true,
     colorShamansBlue = true,
+    smoothHealthbars = true,
+    smoothManabars = true,
 
     -- Absorb Indicator
     absorbIndicatorScale = 1,
@@ -613,10 +616,9 @@ function BBF.PlayerElite(mode)
                 playerElite:SetTexCoord(1, .09375, 0, .78125)
             end
             BBF.eliteToggled = nil
-            return
-        else
-            return
         end
+        BBF.RefreshSelfEliteTargets()
+        return
     end
     playerElite:SetSize(232, 100)
     playerElite:SetPoint("CENTER", PlayerFrame, "CENTER", -17, -3.5)
@@ -674,6 +676,95 @@ function BBF.PlayerElite(mode)
         end
     end
     BBF.eliteToggled = true
+    BBF.RefreshSelfEliteTargets()
+end
+
+local selfEliteClassifications = { "rare", "elite", "rareelite" }
+local selfEliteTextures = {
+    rare = "Interface\\TargetingFrame\\UI-TargetingFrame-Rare",
+    elite = "Interface\\TargetingFrame\\UI-TargetingFrame-Elite",
+    rareelite = "Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite",
+}
+
+function BBF.GetSelfEliteClassification(unit)
+    if not BetterBlizzFramesDB.playerEliteFrame or not unit or not UnitIsUnit(unit, "player") then return end
+    return selfEliteClassifications[BetterBlizzFramesDB.playerEliteFrameMode or 1]
+end
+
+function BBF.GetUnitClassification(unit)
+    return BBF.GetSelfEliteClassification(unit) or UnitClassification(unit)
+end
+
+local function SelfEliteCheckClassification(self)
+    local texture = self and self.borderTexture
+    if not texture then return end
+    local classification = BBF.GetSelfEliteClassification(self.unit)
+    if classification then
+        texture:SetTexture(selfEliteTextures[classification])
+        texture:SetDesaturated(PlayerFrameTexture:IsDesaturated())
+        texture.bbfSelfElite = true
+    elseif texture.bbfSelfElite then
+        texture.bbfSelfElite = nil
+        texture:SetDesaturated(BBF.DarkModeUnitFramesOn())
+    end
+end
+
+local eliteOverlayClassifications = { elite = true, worldboss = true, rareelite = true }
+
+function BBF.UpdateClassicEliteOverlay(frame, forceNormalTexture)
+    if not frame or (frame ~= TargetFrame and frame ~= FocusFrame) then return end
+    local texture = frame.borderTexture
+    if not texture then return end
+    local classification = not forceNormalTexture and frame.unit and UnitExists(frame.unit) and UnitClassification(frame.unit)
+    local overlay = frame.bbfEliteOverlay
+    if not (BBF.DarkModeUnitFramesOn() and eliteOverlayClassifications[classification] and not BBF.GetSelfEliteClassification(frame.unit)) then
+        if overlay then overlay:Hide() end
+        return
+    end
+    if not overlay then
+        overlay = texture:GetParent():CreateTexture(nil, "OVERLAY")
+        overlay:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\eliteOverlayClassic")
+        overlay:SetAllPoints(texture)
+        frame.bbfEliteOverlay = overlay
+    end
+    local layer, subLevel = texture:GetDrawLayer()
+    overlay:SetDrawLayer(layer, math.min((subLevel or 0) + 1, 7))
+    overlay:SetTexCoord(texture:GetTexCoord())
+    if classification == "rareelite" then
+        overlay:SetDesaturated(true)
+        overlay:SetVertexColor(1, 1, 1, 1)
+    else
+        overlay:SetDesaturated(false)
+        overlay:SetVertexColor(1, 0.816, 0.251, 1)
+    end
+    overlay:Show()
+end
+
+local function EliteOverlayCheckClassification(self, forceNormalTexture)
+    SelfEliteCheckClassification(self)
+    BBF.UpdateClassicEliteOverlay(self, forceNormalTexture)
+end
+
+if TargetFrame_CheckClassification then
+    hooksecurefunc("TargetFrame_CheckClassification", EliteOverlayCheckClassification)
+else
+    hooksecurefunc(TargetFrame, "CheckClassification", EliteOverlayCheckClassification)
+    if FocusFrame then
+        hooksecurefunc(FocusFrame, "CheckClassification", EliteOverlayCheckClassification)
+    end
+end
+
+function BBF.RefreshSelfEliteTargets()
+    if InCombatLockdown() then return end
+    for _, frame in ipairs({ TargetFrame, FocusFrame }) do
+        if frame and frame.unit and UnitIsUnit(frame.unit, "player") then
+            if TargetFrame_CheckClassification then
+                TargetFrame_CheckClassification(frame)
+            else
+                frame:CheckClassification()
+            end
+        end
+    end
 end
 
 
@@ -1515,6 +1606,8 @@ function BBF.GenericLegacyComboSupport()
         local comboIndex = GetLegacyComboStartIndex()
         if not comboIndex then return end
 
+        local instantCombos = BetterBlizzFramesDB.instantComboPoints
+
         for i = 1, maxComboPoints do
             local point = frame.ComboPoints[comboIndex]
             if point then
@@ -1524,13 +1617,18 @@ function BBF.GenericLegacyComboSupport()
 
                 -- Only show highlight when active or animating
                 local isActive = i <= comboPoints
-                point:SetShown(showAlways or isActive)
+                point:SetShown(BBF.LegacyComboPointShown(i, comboPoints, maxComboPoints, showAlways, frame.extraComboPoints))
 
                 if point.Highlight then
                     point.Highlight:SetAlpha(isActive and 1 or 0)
                 end
 
-                if isActive and i > lastComboPoints then
+                if instantCombos then
+                    BBF.CancelAllFades(point.Highlight)
+                    BBF.CancelAllFades(point.Shine)
+                    if point.Highlight then point.Highlight:SetAlpha(isActive and 1 or 0) end
+                    if point.Shine then point.Shine:SetAlpha(0) end
+                elseif isActive and i > lastComboPoints then
                     local highlight = point.Highlight
                     local shine = point.Shine
 
@@ -1556,7 +1654,7 @@ function BBF.GenericLegacyComboSupport()
             frame:Show()
         end
 
-        BBF.UIFrameFadeRemoveFrame(frame)
+        BBF.CancelAllFades(frame)
 
         lastComboPoints = comboPoints
     end
@@ -1712,35 +1810,22 @@ function BBF.InstantComboPoints()
     local function UpdateRogueComboPoints(self)
         if not self or self:IsForbidden() then return end
         local comboPoints = UnitPower("player", self.powerType)
-        local chargedPowerPoints = GetUnitChargedPowerPoints("player") or {}
 
         for i, point in ipairs(self.classResourceButtonTable) do
             local isFull = i <= comboPoints
-            local isCharged = tContains(chargedPowerPoints, i)
 
             for _, transitionAnim in ipairs(point.transitionAnims) do
                 transitionAnim:Stop()
             end
 
-            point.IconUncharged:SetAlpha(isFull and not isCharged and 1 or 0)
-            point.IconCharged:SetAlpha(isFull and isCharged and 1 or 0)
+            point.IconUncharged:SetAlpha(isFull and 1 or 0)
+            point.IconCharged:SetAlpha(0)
             point.BGActive:SetAlpha(isFull and 1 or 0)
             point.BGInactive:SetAlpha(isFull and 0 or 1)
-            point.FXUncharged:SetAlpha(isFull and not isCharged and 1 or 0)
-            point.FXCharged:SetAlpha(isFull and isCharged and 1 or 0)
-
-            if isCharged then
-                if isFull then
-                    point.ChargedFrameActive:SetAlpha(1)
-                    point.ChargedFrameInactive:SetAlpha(0)
-                else
-                    point.ChargedFrameActive:SetAlpha(0)
-                    point.ChargedFrameInactive:SetAlpha(1)
-                end
-            else
-                point.ChargedFrameActive:SetAlpha(0)
-                point.ChargedFrameInactive:SetAlpha(0)
-            end
+            point.FXUncharged:SetAlpha(isFull and 1 or 0)
+            point.FXCharged:SetAlpha(0)
+            point.ChargedFrameActive:SetAlpha(0)
+            point.ChargedFrameInactive:SetAlpha(0)
         end
     end
 
@@ -1752,6 +1837,7 @@ function BBF.InstantComboPoints()
         local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
         local showAlways = BetterBlizzFramesDB.alwaysShowLegacyComboPoints or false
 
+        BBF.CancelAllFades(frame)
         frame:SetAlpha(1)
         frame:Show()
 
@@ -1760,18 +1846,15 @@ function BBF.InstantComboPoints()
         for i = 1, maxComboPoints do
             local point = frame.ComboPoints[comboIndex]
             if point then
-                BBF.UIFrameFadeRemoveFrame(point.Highlight)
-                BBF.UIFrameFadeRemoveFrame(point.Shine)
+                BBF.CancelAllFades(point.Highlight)
+                BBF.CancelAllFades(point.Shine)
+                BBF.CancelAllFades(point)
 
                 point:SetAlpha(1)
                 point.Highlight:SetAlpha(i <= comboPoints and 1 or 0)
                 point.Shine:SetAlpha(0)
 
-                if showAlways then
-                    point:Show()
-                else
-                    point:SetShown(i <= comboPoints)
-                end
+                point:SetShown(BBF.LegacyComboPointShown(i, comboPoints, maxComboPoints, showAlways, frame.extraComboPoints))
 
                 comboIndex = comboIndex + 1
             end
@@ -1781,7 +1864,7 @@ function BBF.InstantComboPoints()
             frame:Hide()
         end
 
-        BBF.UIFrameFadeRemoveFrame(frame)
+        BBF.CancelAllFades(frame)
     end
 
     local function UpdateDruidComboPoints(self)
@@ -1889,22 +1972,22 @@ function BBF.InstantComboPoints()
     local BBP = BetterBlizzPlatesDB
 
     if class == "MONK" then
-        hooksecurefunc(MonkHarmonyBarFrame, "UpdatePower", UpdateMonkChi)
-        if not BBP then hooksecurefunc(ClassNameplateBarWindwalkerMonkFrame, "UpdatePower", UpdateMonkChi) end
+        if MonkHarmonyBarFrame then hooksecurefunc(MonkHarmonyBarFrame, "UpdatePower", UpdateMonkChi) end
+        if not BBP and ClassNameplateBarWindwalkerMonkFrame then hooksecurefunc(ClassNameplateBarWindwalkerMonkFrame, "UpdatePower", UpdateMonkChi) end
     elseif class == "ROGUE" then
-        hooksecurefunc(RogueComboPointBarFrame, "UpdatePower", UpdateRogueComboPoints)
-        if not BBP then hooksecurefunc(ClassNameplateBarRogueFrame, "UpdatePower", UpdateRogueComboPoints) end
+        if RogueComboPointBarFrame then hooksecurefunc(RogueComboPointBarFrame, "UpdatePower", UpdateRogueComboPoints) end
+        if not BBP and ClassNameplateBarRogueFrame then hooksecurefunc(ClassNameplateBarRogueFrame, "UpdatePower", UpdateRogueComboPoints) end
         if C_CVar.GetCVar("comboPointLocation") == "1" and ComboFrame then hooksecurefunc("ComboFrame_Update", UpdateLegacyComboFrame) end
     elseif class == "DRUID" then
-        hooksecurefunc(DruidComboPointBarFrame, "UpdatePower", UpdateDruidComboPoints)
-        if not BBP then hooksecurefunc(ClassNameplateBarFeralDruidFrame, "UpdatePower", UpdateDruidComboPoints) end
+        if DruidComboPointBarFrame then hooksecurefunc(DruidComboPointBarFrame, "UpdatePower", UpdateDruidComboPoints) end
+        if not BBP and ClassNameplateBarFeralDruidFrame then hooksecurefunc(ClassNameplateBarFeralDruidFrame, "UpdatePower", UpdateDruidComboPoints) end
         if C_CVar.GetCVar("comboPointLocation") == "1" and ComboFrame then hooksecurefunc("ComboFrame_Update", UpdateLegacyComboFrame) end
     -- elseif class == "MAGE" then
     --     hooksecurefunc(MageArcaneChargesFrame, "UpdatePower", UpdateArcaneCharges)
     --     if not BBP then hooksecurefunc(ClassNameplateBarMageFrame, "UpdatePower", UpdateArcaneCharges) end
     elseif class == "PALADIN" then
-        hooksecurefunc(PaladinPowerBarFrame, "UpdatePower", UpdatePaladinHolyPower)
-        if not BBP then hooksecurefunc(ClassNameplateBarPaladinFrame, "UpdatePower", UpdatePaladinHolyPower) end
+        if PaladinPowerBarFrame then hooksecurefunc(PaladinPowerBarFrame, "UpdatePower", UpdatePaladinHolyPower) end
+        if not BBP and ClassNameplateBarPaladinFrame then hooksecurefunc(ClassNameplateBarPaladinFrame, "UpdatePower", UpdatePaladinHolyPower) end
     end
     BBF.InstantComboPointsActive = true
 end
@@ -2799,6 +2882,7 @@ local function TurnTestModesOff()
     BetterBlizzFramesDB.absorbIndicatorTestMode = false
     BetterBlizzFramesDB.partyCastBarTestMode = false
     BetterBlizzFramesDB.petCastBarTestMode = false
+    BetterBlizzFramesDB.questIndicatorTestMode = false
 end
 
 local function executeCustomCode()
@@ -2900,6 +2984,7 @@ Frame:SetScript("OnEvent", function(...)
     BBF.SetupLoCFrame()
     BBF.EnableQueueTimer()
     BBF.LegacyBlueCombos()
+    C_Timer.After(6, BBF.CheckLeatrixClassColorConflict)
 
     C_Timer.After(0.5, function()
         BBF.PlayerReputationColor()
@@ -2921,6 +3006,7 @@ Frame:SetScript("OnEvent", function(...)
             end
             BBF.HookCastbarsForEvoker()
             BBF.StealthIndicator()
+            BBF.SmoothBars()
             BBF.CastbarRecolorWidgets()
             BBF.CastBarTimerCaller()
             BBF.ShowPlayerCastBarIcon()
@@ -3173,11 +3259,13 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.RaiseTargetCastbarStratas()
             BBF.ReduceEditModeAlpha()
             BBF.RemoveAddonCategories()
+            BBF.CenterCurrentValueOnBars()
+            BBF.UpdateAuraCollapseButton()
 
             if not BetterBlizzFramesDB.disableHealAbsorbRecolor then
                 local function SkinUnitFrameHealAbsorbBar(bar)
                     bar.Fill:SetTexture(texture, true, true)
-                    bar.Fill:SetVertexColor(1, 1, 1, alpha)
+                    bar.Fill:SetVertexColor(1, 1, 1, 1)
                 end
 
                 SkinUnitFrameHealAbsorbBar(TargetFrame.HealthBar.HealAbsorbBar)

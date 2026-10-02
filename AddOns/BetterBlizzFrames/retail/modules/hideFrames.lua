@@ -83,6 +83,52 @@ local function HideElementFromActionBars(hide, element)
     end
 end
 
+local THREAT_TANK_EVENTS = { "PLAYER_ENTERING_WORLD", "PLAYER_SPECIALIZATION_CHANGED" }
+
+local function IsPlayerTank()
+    local spec = GetSpecialization()
+    return spec and GetSpecializationRole(spec) == "TANK" or false
+end
+
+local function GetThreatMeters()
+    local meters = {
+        TargetFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat,
+        FocusFrame and FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat,
+    }
+    for i = 1, 5 do
+        local frame = _G["Boss"..i.."TargetFrame"]
+        if frame then
+            tinsert(meters, frame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat)
+        end
+    end
+    return meters
+end
+
+local threatTankWatcher
+
+function BBF.UpdateThreatMeterVisibility()
+    local db = BetterBlizzFramesDB
+    if db.hideThreatOnFrame and db.hideThreatKeepTank and not threatTankWatcher then
+        threatTankWatcher = CreateFrame("Frame")
+        for _, event in ipairs(THREAT_TANK_EVENTS) do
+            threatTankWatcher:RegisterEvent(event)
+        end
+        threatTankWatcher:SetScript("OnEvent", BBF.UpdateThreatMeterVisibility)
+    end
+    local hide = db.hideThreatOnFrame and not (db.hideThreatKeepTank and IsPlayerTank())
+    if hide then
+        for _, meter in pairs(GetThreatMeters()) do
+            meter:SetAlpha(0)
+        end
+        BBF.threatHidden = true
+    elseif BBF.threatHidden then
+        for _, meter in pairs(GetThreatMeters()) do
+            meter:SetAlpha(1)
+        end
+        BBF.threatHidden = nil
+    end
+end
+
 function BBF.HideFrames()
     local db = BetterBlizzFramesDB
     if db.hasCheckedUi then
@@ -235,16 +281,7 @@ function BBF.HideFrames()
             FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:Show()
         end
 
-        if BetterBlizzFramesDB.hideThreatOnFrame then
-            TargetFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat:SetAlpha(0)
-            FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat:SetAlpha(0)
-            for i = 1, 5 do
-                local frame = _G["Boss"..i.."TargetFrame"]
-                if frame and frame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat then
-                    frame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat:SetAlpha(0)
-                end
-            end
-        end
+        BBF.UpdateThreatMeterVisibility()
 
         if BetterBlizzFramesDB.hideActionBar1 then
             if not MainActionBar.bbfHidden then
@@ -383,9 +420,21 @@ function BBF.HideFrames()
             if ClassNameplateManaBarFrame and ClassNameplateManaBarFrame.FeedbackFrame then
                 ClassNameplateManaBarFrame.FeedbackFrame:Hide()
             end
+            if PersonalResourceDisplayFrame and not changes.hideManaFeedbackPRD then
+                local prdFeedback = PersonalResourceDisplayFrame.PowerBar.FeedbackFrame
+                changes.hideManaFeedbackPRD = prdFeedback:GetParent()
+                prdFeedback:SetParent(hiddenFrame)
+            end
         elseif changes.hideManaFeedback then
             PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.FeedbackFrame:SetParent(changes.hideManaFeedback)
             changes.hideManaFeedback = nil
+            if changes.hideManaFeedbackPRD then
+                -- hidePersonalManaFX wants it hidden regardless, so only restore when that is off
+                if PersonalResourceDisplayFrame and not BetterBlizzFramesDB.hidePersonalManaFX then
+                    PersonalResourceDisplayFrame.PowerBar.FeedbackFrame:SetParent(changes.hideManaFeedbackPRD)
+                end
+                changes.hideManaFeedbackPRD = nil
+            end
         end
 
         if (BetterBlizzFramesDB.hideFullPower or BetterBlizzFramesDB.hideUnitFramePlayerMana or BetterBlizzFramesDB.bigPlayerHealthbar) and not changes.hideFullPower then
@@ -679,7 +728,7 @@ function BBF.HideFrames()
                 TargetFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture:SetAlpha(0)
                 FocusFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture:SetAlpha(0)
             else
-                if UnitLevel("player") == BBF.GetMaxPlayerLevel() then
+                if UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
                     PlayerLevelText:SetParent(hiddenFrame)
                     if classicFrames then
                         C_Timer.After(1, function()
@@ -687,11 +736,11 @@ function BBF.HideFrames()
                         end)
                     end
                 end
-                if UnitLevel("target") == BBF.GetMaxPlayerLevel() then
+                if UnitLevel("target") == GetMaxLevelForPlayerExpansion() then
                     --TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetParent(hiddenFrame)
                     TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetAlpha(0)
                 end
-                if UnitLevel("focus") == BBF.GetMaxPlayerLevel() then
+                if UnitLevel("focus") == GetMaxLevelForPlayerExpansion() then
                     --FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetParent(hiddenFrame)
                     FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText:SetAlpha(0)
                 end
@@ -1659,7 +1708,7 @@ local function UpdateLevelTextVisibility(unitFrame, unit)
             unitFrame.LevelText:SetAlpha(0)
             return
         end
-        if UnitLevel(unit) == BBF.GetMaxPlayerLevel() then
+        if UnitLevel(unit) == GetMaxLevelForPlayerExpansion() then
             unitFrame.LevelText:SetAlpha(0)
         else
             unitFrame.LevelText:SetAlpha(1)

@@ -1,3 +1,5 @@
+local L = BBF.L
+
 BBF.popups = {}
 BBF.popupBuilders = {}
 
@@ -14,6 +16,36 @@ end
 function BBF.ShowPopup(name, ...)
 	BBF.GetPopup(name)
 	return StaticPopup_Show(name, ...)
+end
+
+function BBF.DarkModeUnitFramesOn()
+	local db = BetterBlizzFramesDB
+	return db.darkModeUi and db.darkModeUnitFrames and not (BBF.ClassicBronzeTintActive and BBF.ClassicBronzeTintActive()) and true or false
+end
+
+function BBF.UpdateAuraCollapseButton()
+	local hide = BetterBlizzFramesDB.hideAuraCollapseButton and true or false
+	local button = BuffFrame and BuffFrame.CollapseAndExpandButton
+	if button then
+		button:SetAlpha(hide and 0 or 1)
+		button:EnableMouse(not hide)
+	end
+	if BBF.buffCollapseButton and BBF.RefreshAllAuraFrames then
+		BBF.RefreshAllAuraFrames()
+	end
+end
+
+function BBF.LegacyComboPointShown(index, count, maxPoints, showAlways, extraComboPoints)
+	if BetterBlizzFramesDB.legacyComboActiveOnly then
+		return count ~= nil and index <= count
+	end
+	if showAlways then return true end
+	if not count or count <= 0 then return false end
+	extraComboPoints = extraComboPoints or ((maxPoints == 6 or maxPoints == 9) and 7 or 6)
+	if index >= extraComboPoints then
+		return count >= index
+	end
+	return true
 end
 
 -- Taint/combat lockdown concerns, use own to avoid Show call especially
@@ -135,6 +167,12 @@ end
 
 function BBF.UIFrameIsFading(frame)
 	return frame and BBF.UIFrameFadeContains(frame) or false;
+end
+
+function BBF.CancelAllFades(frame)
+	if not frame then return end
+	BBF.UIFrameFadeRemoveFrame(frame)
+	UIFrameFadeRemoveFrame(frame)
 end
 
 local function GetDefaultPartyFrame(i)
@@ -418,11 +456,21 @@ function BBF.CheckSweepyBoopClassColorConflict()
     C_Timer.After(5, CheckSweepyBoopClassColor)
 end
 
+function BBF.CheckLeatrixClassColorConflict()
+    if not C_AddOns.IsAddOnLoaded("Leatrix_Plus") then return end
+    if type(LeaPlusDB) == "table" and LeaPlusDB["ClassColFrames"] == "On" then
+        BBF.Print(L["Print_Leatrix_Plus_Class_Color_Conflict"])
+    end
+end
+
 function BBF.UnclampMinimap()
+    local unclamp = BetterBlizzFramesDB.unclampMinimap
+    if not unclamp and not BBF.UnclampedMinimap then return end
     if MinimapCluster then
-        MinimapCluster:SetClampedToScreen(false)
+        MinimapCluster:SetClampedToScreen(not unclamp)
     end
     if Minimap then
-        Minimap:SetClampedToScreen(false)
+        Minimap:SetClampedToScreen(not unclamp)
     end
+    BBF.UnclampedMinimap = unclamp and true or nil
 end

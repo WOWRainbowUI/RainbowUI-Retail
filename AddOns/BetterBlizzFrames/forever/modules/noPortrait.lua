@@ -5,6 +5,17 @@ local noPortraitSkipKeys = {
     pet = "noPortraitSkipPet",
 }
 
+local noPortraitEliteAtlas = {
+    elite = "nameplates-icon-elite-gold",
+    worldboss = "nameplates-icon-elite-gold",
+    rareelite = "nameplates-icon-elite-silver",
+    rare = "nameplates-icon-elite-silver",
+}
+
+local function SetBossDragonAtlas(texture, classification)
+    texture:SetAtlas(noPortraitEliteAtlas[classification] or "nameplates-icon-elite-gold")
+end
+
 local function SetManaTextParent(text, parent)
     if BetterBlizzFramesDB.hideAllManabarText then
         text.bbfOriginalParent = parent
@@ -694,8 +705,8 @@ local function MakeNoPortraitMode(frame)
     local hideDragon = db.hideRareDragonTexture
 
     local ClassResourceFrames = {
-        ROGUE      = RogueComboPointBarFrame,
-        DRUID      = DruidComboPointBarFrame,
+        ROGUE      = RogueComboPointBarFrame or BBF.ComboPointBar,
+        DRUID      = DruidComboPointBarFrame or BBF.ComboPointBar,
         WARLOCK    = WarlockPowerFrame,
         MAGE       = MageArcaneChargesFrame,
         MONK       = MonkHarmonyBarFrame,
@@ -787,6 +798,12 @@ local function MakeNoPortraitMode(frame)
         contentMain.LevelText:SetParent(frame.noPortraitMode)
         contentMain.LevelText:ClearAllPoints()
         contentMain.LevelText:SetPoint("RIGHT", frame, "RIGHT", -196, 17)
+        do
+            local lvlFont, _, lvlFlags = contentMain.LevelText:GetFont()
+            if lvlFont then
+                contentMain.LevelText:SetFont(lvlFont, 10, lvlFlags)
+            end
+        end
         contentMain.ReputationColor:SetParent(BBF.hiddenFrame)
 
         frameContainer.Flash:SetDrawLayer("BACKGROUND")
@@ -798,7 +815,7 @@ local function MakeNoPortraitMode(frame)
         frameContainer.PortraitMask:ClearAllPoints()
         frameContainer.PortraitMask:SetPoint("CENTER", frameContainer.Portrait, "CENTER", 0, 0)
         frameContainer.BossPortraitFrameTexture:SetParent(db.hideRareDragonTexture and BBF.hiddenFrame or frame.noPortraitMode)
-        frameContainer.BossPortraitFrameTexture:SetAtlas("nameplates-icon-elite-gold")
+        SetBossDragonAtlas(frameContainer.BossPortraitFrameTexture, frame.unit and UnitClassification(frame.unit))
         frameContainer.BossPortraitFrameTexture:SetSize(15, 15)
         frameContainer.BossPortraitFrameTexture:ClearAllPoints()
         frameContainer.BossPortraitFrameTexture:SetPoint("CENTER", hpContainer, "TOPRIGHT", -3.5, -1)
@@ -1080,7 +1097,7 @@ local function MakeNoPortraitMode(frame)
                 FrameAdjustments(frameContainer)
             end
 
-            frameContainer.BossPortraitFrameTexture:SetAtlas("nameplates-icon-elite-gold")
+            SetBossDragonAtlas(frameContainer.BossPortraitFrameTexture, classification)
             frameContainer.BossPortraitFrameTexture:SetSize(15, 15)
             frameContainer.BossPortraitFrameTexture:ClearAllPoints()
             frameContainer.BossPortraitFrameTexture:SetPoint("CENTER", hpContainer, "TOPRIGHT", -3.5, -1)
@@ -1420,6 +1437,10 @@ local function MakeNoPortraitMode(frame)
             PlayerLevelText:Show()
             PlayerLevelText:ClearAllPoints()
             PlayerLevelText:SetPoint("LEFT", 194, 17)
+            local plvlFont, _, plvlFlags = PlayerLevelText:GetFont()
+            if plvlFont then
+                PlayerLevelText:SetFont(plvlFont, 10, plvlFlags)
+            end
         end
 
         local function UpdateLevel()
@@ -1429,7 +1450,7 @@ local function MakeNoPortraitMode(frame)
                     PlayerLevelText:ClearAllPoints()
                     PlayerLevelText:SetPoint("LEFT", 194, 17)
                 elseif hideLvl then
-                    if UnitLevel("player") == BBF.GetMaxPlayerLevel() then
+                    if UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
                         PlayerLevelText:SetParent(BBF.hiddenFrame)
                         PlayerLevelText:ClearAllPoints()
                         PlayerLevelText:SetPoint("LEFT", 194, 17)
@@ -1445,7 +1466,7 @@ local function MakeNoPortraitMode(frame)
                 if mode > 3 then
                     -- Always hide level text for mode > 3 (using UI-FocusFrame-Large texture)
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
-                elseif alwaysHideLvl or (hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel()) then
+                elseif alwaysHideLvl or (hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion()) then
                     -- Hide level text based on hideLvl settings for mode <= 3
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
                 else
@@ -1576,7 +1597,7 @@ local function MakeNoPortraitMode(frame)
 
                 if class == "DRUID" then
                     local function updateComboPointTextures()
-                        local druidComboPoints = _G.DruidComboPointBarFrame
+                        local druidComboPoints = _G.DruidComboPointBarFrame or BBF.ComboPointBar
                         if not druidComboPoints then return end
 
                         local r, g, b = frameContainer.FrameTexture:GetVertexColor()
@@ -1597,13 +1618,10 @@ local function MakeNoPortraitMode(frame)
                             if v.BG_Active then
                                 ColorDruidCP(v.BG_Active, 1.03)
                             end
-                            if BetterBlizzFramesDB.druidOverstacks and v.ChargedFrameActive then
-                                ColorDruidCP(v.ChargedFrameActive, 1.06)
-                            end
                         end
                     end
 
-                    if GetShapeshiftFormID() == 1 then
+                    if GetShapeshiftFormID() == 1 or BBF.ComboPointBar then
                         -- Already in Cat Form, run immediately
                         updateComboPointTextures()
                     else
@@ -1720,12 +1738,7 @@ local function MakeNoPortraitMode(frame)
             DRUID       = db.moveResourceToTargetDruid,
             WARLOCK     = db.moveResourceToTargetWarlock,
             MAGE        = db.moveResourceToTargetMage,
-            MONK        = db.moveResourceToTargetMonk,
-            EVOKER      = db.moveResourceToTargetEvoker,
             PALADIN     = db.moveResourceToTargetPaladin,
-            DEATHKNIGHT = db.moveResourceToTargetDK,
-            SHAMAN      = db.moveResourceToTargetShaman,
-            HUNTER      = db.moveResourceToTargetHunter,
         }
 
         local function ResourceMovedElsewhere()
@@ -1926,7 +1939,7 @@ local function MakeNoPortraitMode(frame)
                 contentMain.StatusTexture:SetTexture(playerFlashTex)
                 -- Handle level text for playerEliteFrame
                 local mode = BetterBlizzFramesDB.playerEliteFrameMode
-                if mode > 3 and (alwaysHideLvl or (hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel())) then
+                if mode > 3 and (alwaysHideLvl or (hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion())) then
                     -- Ensure level text is hidden when using UI-FocusFrame-Large
                     PlayerLevelText:SetParent(BBF.hiddenFrame)
                 end
@@ -1934,7 +1947,7 @@ local function MakeNoPortraitMode(frame)
                 if alwaysHideLvl then
                     ToggleNoLevelFrame(true)
                 elseif hideLvl then
-                    if UnitLevel("player") == BBF.GetMaxPlayerLevel() then
+                    if UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
                         ToggleNoLevelFrame(true)
                     else
                         ToggleNoLevelFrame(false)
@@ -1963,7 +1976,7 @@ local function MakeNoPortraitMode(frame)
             contentMain.StatusTexture:SetTexCoord(0, 1, 0, 1)
             contentMain.StatusTexture:ClearAllPoints()
             contentMain.StatusTexture:SetAllPoints(frame.noPortraitMode.Texture)
-            contentMain.StatusTexture:SetParent((db.hidePlayerRestGlow or db.noPortraitPixelBorder) and BBF.hiddenFrame or frame.noPortraitMode)
+            contentMain.StatusTexture:SetParent(db.noPortraitPixelBorder and BBF.hiddenFrame or frame.noPortraitMode)
             contentMain.StatusTexture:SetDrawLayer("BORDER", 4)
             contentMain.StatusTexture:SetBlendMode("ADD")
 

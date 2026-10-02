@@ -24,6 +24,7 @@ local defaultSettings = {
     darkModeUi = false,
     darkModeActionBars = true,
     darkModeUiAura = true,
+    darkModeUnitFrames = true,
     darkModeCastbars = true,
     darkModeColor = 0.20,
     darkModeVigor = true,
@@ -63,13 +64,17 @@ local defaultSettings = {
     shamanMaelstromCombos = true,
     hunterTipOfSpearCombos = false,
     prdResourceScale = 1,
+    smoothHealthbars = true,
+    smoothManabars = true,
     foreverMinimapScale = 1,
+    foreverMinimapTitleScale = 1,
+    foreverMinimapHideTitle = false,
+    hideThreatKeepTank = true,
     foreverMinimapXPos = 0,
     foreverMinimapYPos = 12,
     prdResourceXPos = 0,
     prdResourceYPos = 0,
     gladWinTracker = true,
-    opBarriersOn = true,
     classicCastbarsPlayerBorder = true,
     legacyBlueComboPoints = true,
     hidePvpTimerText = true,
@@ -2102,10 +2107,100 @@ end
 function BBF.GetPlayerEliteMode(mode)
     local db = BetterBlizzFramesDB
     mode = mode or db.playerEliteFrameMode or 1
-    if db.classicFrames and db.classicFramesHDElite and mode <= 3 then
+    if db.classicFrames and (db.classicFramesHDElite or db.classicFramesHDTextures) and mode <= 3 then
         return mode + 3
     end
     return mode
+end
+
+local selfElite = {
+    classic = { "rare", "rareelite", "elite", "rare", "rareelite", "worldboss", "elite" },
+    default = { "rare", "rareelite", "worldboss", "elite" },
+    atlases = {
+        rare = { "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver", -11, -8 },
+        rareelite = { "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged", 8, -8, true },
+        worldboss = { "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged", 8, -8 },
+        elite = { "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold", -11, -8 },
+    },
+}
+
+function BBF.GetSelfEliteClassification(unit)
+    local db = BetterBlizzFramesDB
+    if not db.playerEliteFrame or not unit or not UnitIsUnit(unit, "player") then return end
+    if db.classicFrames then
+        return selfElite.classic[BBF.GetPlayerEliteMode()]
+    end
+    return selfElite.default[db.playerEliteFrameMode or 1]
+end
+
+function BBF.GetUnitClassification(unit)
+    return BBF.GetSelfEliteClassification(unit) or UnitClassification(unit)
+end
+
+function BBF.UpdateSelfEliteBossTexture(frame)
+    if BetterBlizzFramesDB.classicFrames or not frame.unit then return end
+    if BBF.HasNoPortrait and BBF.HasNoPortrait(frame.unit) then return end
+    local container = frame.TargetFrameContainer
+    local texture = container and container.BossPortraitFrameTexture
+    if not texture then return end
+    local data = selfElite.atlases[BBF.GetSelfEliteClassification(frame.unit)]
+    if data then
+        if not texture.bbfSelfElite then
+            texture.bbfSelfEliteDesat = texture:IsDesaturated()
+            texture.bbfSelfElite = true
+        end
+        texture:SetAtlas(data[1], TextureKitConstants.UseAtlasSize)
+        texture:SetPoint("TOPRIGHT", container, "TOPRIGHT", data[2], data[3])
+        texture:SetDesaturated(data[4] or texture.bbfSelfEliteDesat)
+        texture:Show()
+    elseif texture.bbfSelfElite then
+        texture.bbfSelfElite = nil
+        texture:SetDesaturated(texture.bbfSelfEliteDesat)
+        if UnitIsUnit(frame.unit, "player") then
+            texture:Hide()
+        end
+    end
+end
+
+function BBF.SyncSelfEliteClassicArt(frame)
+    local texture = frame.ClassicFrame and frame.ClassicFrame.Texture
+    if not texture then return end
+    local playerTexture = PlayerFrame.ClassicFrame and PlayerFrame.ClassicFrame.Texture
+    if playerTexture and BBF.GetSelfEliteClassification(frame.unit) then
+        if not texture.bbfSelfElite then
+            texture.bbfSelfEliteDesat = texture:IsDesaturated()
+            texture.bbfSelfElite = true
+        end
+        if texture.bbfClassicHD then
+            BBF.ApplyClassicHDColor(texture)
+        else
+            texture:SetDesaturated(playerTexture:IsDesaturated())
+        end
+    elseif texture.bbfSelfElite then
+        texture.bbfSelfElite = nil
+        if texture.bbfClassicHD then
+            BBF.ApplyClassicHDColor(texture)
+        else
+            texture:SetDesaturated(texture.bbfSelfEliteDesat)
+        end
+    end
+end
+
+function BBF.RefreshSelfEliteTargets()
+    for _, frame in ipairs({ TargetFrame, FocusFrame }) do
+        if not frame.bbfSelfEliteHooked then
+            frame.bbfSelfEliteHooked = true
+            hooksecurefunc(frame, "CheckClassification", BBF.UpdateSelfEliteBossTexture)
+        end
+        if frame.unit and UnitIsUnit(frame.unit, "player") then
+            local classicHook = frame.ClassicFrame and frame.ClassicFrame.OnCheckClassification
+            if BetterBlizzFramesDB.classicFrames and classicHook then
+                classicHook(frame)
+            else
+                BBF.UpdateSelfEliteBossTexture(frame)
+            end
+        end
+    end
 end
 
 function BBF.PlayerElite(mode)
@@ -2153,7 +2248,7 @@ function BBF.PlayerElite(mode)
                 db.playerEliteFrameMode = 1
                 BBF.PlayerElite(1)
             end
-            if BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.playerEliteFrameDarkmode then
+            if BBF.DarkModeUnitFramesOn() and BetterBlizzFramesDB.playerEliteFrameDarkmode then
                 local v = (BetterBlizzFramesDB.darkModeColor + 0.25)
                 playerElite:SetVertexColor(v,v,v)
             end
@@ -2182,22 +2277,19 @@ function BBF.PlayerElite(mode)
                 end
                 playerElite = PlayerFrame.PlayerFrameContainer.PlayerElite
                 playerElite:SetParent(PlayerFrame.ClassicFrame)
+                playerElite:SetDrawLayer("OVERLAY", 4)
 
-                -- Always use UI-FocusFrame-Large for mode > 3 when elite frame is enabled
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-FocusFrame-Large")
-
-                -- Force hide player level text for mode > 3
-                if PlayerLevelText and BBF.hiddenFrame then
-                    PlayerLevelText:SetParent(BBF.hiddenFrame)
+                if BBF.UpdateClassicPlayerArt then
+                    BBF.UpdateClassicPlayerArt()
                 end
             else
                 -- For mode <= 3, check hideLvl conditions for texture choice
                 if alwaysHideLvl then
-                    frameTexture:SetTexture("Interface\\TargetingFrame\\UI-FocusFrame-Large")
-                elseif hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel() then
-                    frameTexture:SetTexture("Interface\\TargetingFrame\\UI-FocusFrame-Large")
+                    BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-FocusFrame-Large")
+                elseif hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
+                    BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-FocusFrame-Large")
                 else
-                    frameTexture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                    BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-TargetingFrame")
                 end
                 if playerElite then
                     playerElite:SetAlpha(0)
@@ -2209,13 +2301,13 @@ function BBF.PlayerElite(mode)
                 playerElite:SetDesaturated(false)
             end
             if mode == 1 then -- Rare (Silver)
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
                 frameTexture:SetDesaturated(true)
             elseif mode == 2 then -- Boss (Silver Winged)
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite")
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite")
                 frameTexture:SetDesaturated(true)
             elseif mode == 3 then -- Boss (Gold Winged)
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
                 frameTexture:SetDesaturated(false)
             elseif mode == 4 then -- Rare (Silver)
                 playerElite:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver")
@@ -2243,7 +2335,7 @@ function BBF.PlayerElite(mode)
                 playerElite:SetPoint("TOPLEFT", 12, -13)
                 playerElite:SetVertexColor(1, 1, 1, alpha)
             end
-            if BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.playerEliteFrameDarkmode and playerElite then
+            if BBF.DarkModeUnitFramesOn() and BetterBlizzFramesDB.playerEliteFrameDarkmode and playerElite then
                 local v = (BetterBlizzFramesDB.darkModeColor + 0.25)
                 playerElite:SetVertexColor(v,v,v)
             end
@@ -2256,17 +2348,17 @@ function BBF.PlayerElite(mode)
 
             frameTexture:SetDesaturated(false)
             if alwaysHideLvl then
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-FocusFrame-Large")
-            elseif hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel() then
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-FocusFrame-Large")
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-FocusFrame-Large")
+            elseif hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion() then
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-FocusFrame-Large")
             else
-                frameTexture:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                BBF.SetClassicTexture(frameTexture, "Interface\\TargetingFrame\\UI-TargetingFrame")
             end
             if playerElite then
                 playerElite:SetAlpha(0)
             end
 
-            if alwaysHideLvl or (hideLvl and UnitLevel("player") == BBF.GetMaxPlayerLevel()) then
+            if alwaysHideLvl or (hideLvl and UnitLevel("player") == GetMaxLevelForPlayerExpansion()) then
                 PlayerLevelText:SetParent(BBF.hiddenFrame)
             else
                 PlayerLevelText:SetParent(PlayerFrame.ClassicFrame)
@@ -2278,7 +2370,9 @@ function BBF.PlayerElite(mode)
 
             BBF.eliteToggled = nil
         end
+        BBF.UpdateClassicPlayerLevelRing()
     end
+    BBF.RefreshSelfEliteTargets()
 end
 
 
@@ -2460,7 +2554,7 @@ function BBF.MiniFrame(frame)
                 compactRing:SetPoint("CENTER", frame.TargetFrameContainer.Portrait, "CENTER", 1, -2)
                 frame.TargetFrameContainer.compactRing = compactRing
             end
-            if db.darkModeUi then
+            if BBF.DarkModeUnitFramesOn() then
                 compactRing:SetDesaturated(true)
                 local color = db.darkModeColor
                 compactRing:SetVertexColor(color, color, color)
@@ -2544,7 +2638,7 @@ function BBF.MiniFrame(frame)
                 compactRing:SetPoint("CENTER", frame.PlayerFrameContainer.PlayerPortrait, "CENTER", 0, -2)
                 frame.PlayerFrameContainer.compactRing = compactRing
             end
-            if db.darkModeUi then
+            if BBF.DarkModeUnitFramesOn() then
                 compactRing:SetDesaturated(true)
                 local color = db.darkModeColor
                 compactRing:SetVertexColor(color, color, color)
@@ -2757,6 +2851,8 @@ function BBF.GenericLegacyComboSupport()
         local comboIndex = GetLegacyComboStartIndex()
         if not comboIndex then return end
 
+        local instantCombos = BetterBlizzFramesDB.instantComboPoints
+
         for i = 1, maxComboPoints do
             local point = frame.ComboPoints[comboIndex]
             if point then
@@ -2766,13 +2862,18 @@ function BBF.GenericLegacyComboSupport()
 
                 -- Only show highlight when active or animating
                 local isActive = i <= comboPoints
-                point:SetShown(showAlways or isActive)
+                point:SetShown(BBF.LegacyComboPointShown(i, comboPoints, maxComboPoints, showAlways, frame.extraComboPoints))
 
                 if point.Highlight then
                     point.Highlight:SetAlpha(isActive and 1 or 0)
                 end
 
-                if isActive and i > lastComboPoints then
+                if instantCombos then
+                    BBF.CancelAllFades(point.Highlight)
+                    BBF.CancelAllFades(point.Shine)
+                    if point.Highlight then point.Highlight:SetAlpha(isActive and 1 or 0) end
+                    if point.Shine then point.Shine:SetAlpha(0) end
+                elseif isActive and i > lastComboPoints then
                     local highlight = point.Highlight
                     local shine = point.Shine
 
@@ -2798,7 +2899,7 @@ function BBF.GenericLegacyComboSupport()
             frame:Show()
         end
 
-        BBF.UIFrameFadeRemoveFrame(frame)
+        BBF.CancelAllFades(frame)
 
         lastComboPoints = comboPoints
     end
@@ -2852,10 +2953,11 @@ end
 function BBF.AlwaysShowLegacyComboPoints()
     if not BetterBlizzFramesDB.alwaysShowLegacyComboPoints then return end
     if BetterBlizzFramesDB.instantComboPoints then return end
-    if BBF.AlwaysShowLegacyComboPoints then return end
+    if BBF.alwaysShowLegacyComboHooked then return end
     local class = UnitClassBase("player")
     if class ~= "ROGUE" and class ~= "DRUID" then return end
     local function UpdateLegacyComboFrame()
+        if not BetterBlizzFramesDB.alwaysShowLegacyComboPoints then return end
         local frame = ComboFrame
         local comboPoints = GetComboPoints("player", "target")
         local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
@@ -2876,8 +2978,38 @@ function BBF.AlwaysShowLegacyComboPoints()
     if C_CVar.GetCVar("comboPointLocation") == "1" and ComboFrame then
         hooksecurefunc("ComboFrame_Update", UpdateLegacyComboFrame)
         UpdateLegacyComboFrame()
+        BBF.alwaysShowLegacyComboHooked = true
     end
-    BBF.AlwaysShowLegacyComboPoints = true
+end
+
+local function UpdateLegacyComboActiveOnly(frame)
+    if not frame or not frame.ComboPoints or not frame.maxComboPoints then return end
+    local db = BetterBlizzFramesDB
+    local comboPoints = GetComboPoints("player", "target")
+    local comboIndex = frame.startComboPointIndex or 2
+    for i = 1, frame.maxComboPoints do
+        local point = frame.ComboPoints[comboIndex]
+        if point then
+            point:SetShown(BBF.LegacyComboPointShown(i, comboPoints, frame.maxComboPoints, db.alwaysShowLegacyComboPoints, frame.extraComboPoints))
+        end
+        comboIndex = comboIndex + 1
+    end
+end
+
+function BBF.LegacyComboActiveOnly()
+    if not ComboFrame or C_CVar.GetCVar("comboPointLocation") ~= "1" then return end
+    local class = UnitClassBase("player")
+    if class ~= "ROGUE" and class ~= "DRUID" then return end
+    if not BBF.legacyComboActiveOnlyHooked then
+        if not BetterBlizzFramesDB.legacyComboActiveOnly then return end
+        BBF.legacyComboActiveOnlyHooked = true
+        hooksecurefunc("ComboFrame_Update", function(frame)
+            if BetterBlizzFramesDB.legacyComboActiveOnly then
+                UpdateLegacyComboActiveOnly(frame)
+            end
+        end)
+    end
+    UpdateLegacyComboActiveOnly(ComboFrame)
 end
 
 function BBF.ApplyLegacyBlueCombos(isEnabled)
@@ -3001,6 +3133,7 @@ function BBF.InstantComboPoints()
         local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
         local showAlways = BetterBlizzFramesDB.alwaysShowLegacyComboPoints or false
 
+        BBF.CancelAllFades(frame)
         frame:SetAlpha(1)
         frame:Show()
 
@@ -3009,18 +3142,15 @@ function BBF.InstantComboPoints()
         for i = 1, maxComboPoints do
             local point = frame.ComboPoints[comboIndex]
             if point then
-                BBF.UIFrameFadeRemoveFrame(point.Highlight)
-                BBF.UIFrameFadeRemoveFrame(point.Shine)
+                BBF.CancelAllFades(point.Highlight)
+                BBF.CancelAllFades(point.Shine)
+                BBF.CancelAllFades(point)
 
                 point:SetAlpha(1)
                 point.Highlight:SetAlpha(i <= comboPoints and 1 or 0)
                 point.Shine:SetAlpha(0)
 
-                if showAlways then
-                    point:Show()
-                else
-                    point:SetShown(i <= comboPoints)
-                end
+                point:SetShown(BBF.LegacyComboPointShown(i, comboPoints, maxComboPoints, showAlways, frame.extraComboPoints))
 
                 comboIndex = comboIndex + 1
             end
@@ -3030,7 +3160,7 @@ function BBF.InstantComboPoints()
             frame:Hide()
         end
 
-        BBF.UIFrameFadeRemoveFrame(frame)
+        BBF.CancelAllFades(frame)
     end
 
     local function UpdateDruidComboPoints(self)
@@ -3439,6 +3569,7 @@ function BBF.UpdateCustomTextures()
     raidManaTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.raidFrameManabarTexture)
     castbarTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.unitFrameCastbarTexture)
     nameBgTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.unitFrameNameBgTexture)
+    BBF.customTexturesReady = true
 
     BBF.HookTextures()
 end
@@ -3473,17 +3604,17 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
     local originalLayer, subLayer = originalTexture:GetDrawLayer()
     local keepFancyManas = BetterBlizzFramesDB.changeUnitFrameManaBarTextureKeepFancy and (type == "mana" and ((statusBar.powerToken and fancyManas[statusBar.powerToken]) or (statusBar.powerName and fancyManas[statusBar.powerName])))
     local classicFrames = BetterBlizzFramesDB.classicFrames
-    local classicTexture = (classicFrames and (parent == TargetFrame or parent == FocusFrame or statusBar == PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar) and
+    local playerHp = statusBar == PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
+    local bigPlayerHp = playerHp and classicFrames and BetterBlizzFramesDB.bigPlayerHealthbar
+    local classicTexture = (classicFrames and not bigPlayerHp and (parent == TargetFrame or parent == FocusFrame or playerHp) and
     (texture == "Interface\\TargetingFrame\\UI-TargetingFrame-BarFill") and "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-targetingframe-barfill") or
-    (texture == "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar-cf" and "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar")
+    (not bigPlayerHp and texture == "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar-cf" and "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar")
 
     if classicFrames and texture == "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar-cf" then
         if (parent and parent:GetName() == "PetFrame") or statusBar == TargetFrame.totFrame.HealthBar or statusBar == FocusFrame.totFrame.HealthBar then
             classicTexture = "Interface\\AddOns\\BetterBlizzFrames\\media\\ui-statusbar-cf"
         end
     end
-
-    local playerHp = statusBar == PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
 
     if not keepFancyManas then
         if (parent and parent:GetName() == "PetFrame") then -- causes weird issues if not delayed
@@ -3922,7 +4053,7 @@ function BBF.HookUnitFrameTextures()
                 originalTexture:SetDrawLayer("ARTWORK", 0)
 
                 local castTexture = statusBar:GetStatusBarTexture()
-                if not db.casbarPixelBorder then
+                if not db.castbarPixelBorder then
                     statusBar.MaskTexture = statusBar:CreateMaskTexture()
                     statusBar.MaskTexture:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\RetailCastMask.tga",
                         "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
@@ -3945,7 +4076,10 @@ function BBF.HookUnitFrameTextures()
                         self:SetStatusBarTexture(castbarTexture)
                         local notInterruptible
                         local sbTex = self:GetStatusBarTexture()
-                        if self.channeling then
+                        local unit = statusBar.unit
+                        if unit and ((self.casting and select(6, UnitCastingInfo(unit))) or (self.channeling and select(6, UnitChannelInfo(unit)))) then
+                            self:SetStatusBarColor(0.35, 0.65, 1)
+                        elseif self.channeling then
                             notInterruptible = statusBar.unit and select(7, UnitChannelInfo(statusBar.unit))
                             if notInterruptible ~= nil then
                                 sbTex:SetVertexColorFromBoolean(
@@ -3993,15 +4127,13 @@ function BBF.HookUnitFrameTextures()
                 statusBar.textureChangedNeedsColor = true
             end
 
+            BBF.CastbarColorHooks()
             if not db.classicCastbarsPlayer then
                 ApplyCastbarTexture(PlayerCastingBarFrame)
             end
             if not db.classicCastbars then
                 ApplyCastbarTexture(TargetFrameSpellBar)
                 ApplyCastbarTexture(FocusFrameSpellBar)
-            end
-            if db.classicCastbars or db.classicCastbarsPlayer then
-                BBF.CastbarColorHooks()
             end
 
             BBF.castbarTexturesHooked = true
@@ -4889,7 +5021,7 @@ function BBF.FixStupidBlizzPTRShit()
 
 
         -- Textures to fill some gaps
-        local v = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeColor == 0 and 0.2) or 0.35
+        local v = (BBF.DarkModeUnitFramesOn() and BetterBlizzFramesDB.darkModeColor == 0 and 0.2) or 0.35
         PlayerFrame.ocdLine1 = PlayerFrame:CreateTexture(nil, "BACKGROUND")
         PlayerFrame.ocdLine1:SetColorTexture(v, v, v, 1)
         PlayerFrame.ocdLine1:SetPoint("TOPLEFT", PlayerFrame.healthbar, "BOTTOMLEFT", 0, 0)
@@ -5080,6 +5212,7 @@ local function TurnTestModesOff()
     BetterBlizzFramesDB.partyCastBarTestMode = nil
     BetterBlizzFramesDB.petCastBarTestMode = nil
     BetterBlizzFramesDB.kickPopupTestMode = nil
+    BetterBlizzFramesDB.questIndicatorTestMode = nil
 end
 
 local function executeCustomCode()
@@ -5124,6 +5257,7 @@ Frame:SetScript("OnEvent", function(...)
     BBF.ResizeUIWidgetPowerBarFrame()
     BBF.LegacyBlueCombos()
     BBF.HideClassResourceTooltip()
+    C_Timer.After(6, BBF.CheckLeatrixClassColorConflict)
 
     local function LoginVariablesLoaded()
         if BBF.variablesLoaded then
@@ -5140,6 +5274,7 @@ Frame:SetScript("OnEvent", function(...)
             BBF.StealthIndicator()
             BBF.MoveQueueStatusEye()
             BBF.UpdateMinimapTweaks()
+            BBF.SmoothBars()
             BBF.CastbarRecolorWidgets()
             BBF.CastBarTimerCaller()
             BBF.ShowPlayerCastBarIcon()
@@ -5480,6 +5615,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.ChatFilterCaller()
         BBF.FixLegacyComboPointsLocation()
         BBF.AlwaysShowLegacyComboPoints()
+        BBF.LegacyComboActiveOnly()
         BBF.GenericLegacyComboSupport()
         BBF.RaiseTargetFrameLevel()
         BBF.RaiseTargetCastbarStratas()
@@ -5500,6 +5636,8 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.UpdateDefaultPetFrameMana()
         BBF.UpdateDefaultTotFrameMana()
         BBF.UpdateBigPlayerHealthbar()
+        BBF.CenterCurrentValueOnBars()
+        BBF.UpdateAuraCollapseButton()
         BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
         BBF.HidePlayerFrame()
         BBF.ReduceEditModeAlpha()
@@ -5547,6 +5685,8 @@ First:SetScript("OnEvent", function(_, event, addonName)
         C_Timer.After(0.95, function()
             BBF.HidePersonalManabarFX()
             BBF.TexturePRD()
+            BBF.FixFeedbackTextures()
+            BBF.FixHealPredictionTextures()
             BBF.LegacyPRDLook()
             BBF.FixPrdRogueComboCentering()
         end)
@@ -5575,6 +5715,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
                 BBF.SetupBorderOnFrame(TargetFrameSpellBar)
                 BBF.SetupBorderOnFrame(FocusFrameSpellBar)
             end
+            BBF.CastbarIconPixelBorders()
         end)
         --TurnOnEnabledFeaturesOnLogin()
 
@@ -5582,6 +5723,14 @@ First:SetScript("OnEvent", function(_, event, addonName)
             if BetterBlizzFramesDB.hideLossOfControlFrameBg then
                 BetterBlizzFramesDB.hideLossOfControlFrameLines = true
             end
+        end
+
+        if BetterBlizzFramesDB.hideCastbarTextBorder == nil then
+            BetterBlizzFramesDB.hideCastbarTextBorder = BetterBlizzFramesDB.castbarPixelBorder and true or false
+        end
+
+        if BetterBlizzFramesDB.castbarPixelBorderIcons == nil then
+            BetterBlizzFramesDB.castbarPixelBorderIcons = BetterBlizzFramesDB.castbarPixelBorder and true or false
         end
 
         if not BetterBlizzFramesDB.optimizedAuraLists then
