@@ -29,3 +29,16 @@ L["AutoPotion"] = "治療"
 
 -- 自行加入
 L["Auto Potion"] = "一鍵吃糖"
+L["Food Priority"] = "食物優先順序"
+L["Drink Priority"] = "飲品優先順序"
+L["Include Buff Food"] = "包含增益食物"
+L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] = "將提供「充分進食」或「放鬆」增益的食物與飲品（可依情況增加次要屬性）納入食物和飲品的優先順序清單。"
+L["Other / Racial"] = "其他/種族技能"
+L["Shows the bandage that will currently be used, based on what is in your bags."] = "依照背包中的物品，顯示目前會使用的繃帶。"
+L["Shows the food that will currently be used, based on what is in your bags."] = "依照背包中的物品，顯示目前會使用的食物。"
+L["Shows the drink that will currently be used, based on what is in your bags."] = "依照背包中的物品，顯示目前會使用的飲品。"
+
+-- 巨集識別名稱沿用作者設定，避免改變新功能的巨集名稱。
+L["AutoBandage"] = "AutoBandage"
+L["AutoFood"] = "AutoFood"
+L["AutoDrink"] = "AutoDrink"

@@ -1500,10 +1500,10 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             label = addonTable.Locales.DISPELLABLE,
             kind = "checkbox",
             setter = function(details, value)
-              details.filters.dispelable = value
+              details.filters.dispellable = value
             end,
             getter = function(details)
-              return details.filters.dispelable
+              return details.filters.dispellable
             end,
           },
           { kind = "spacer" },

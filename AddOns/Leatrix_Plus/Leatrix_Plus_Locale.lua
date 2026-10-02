@@ -1827,6 +1827,16 @@ L["Zul'Farrak"] = "祖尔法拉克"
 L["Zul'Gurub"] = "祖尔格拉布"
 L["Zulian, Razzashi, and Hakkari Coins"] = "祖利安、拉扎什和哈卡莱硬币"
 L["Zygor addon not found."] = "你尚未安装Zygor插件。"
+L["Forever"] = "Forever"
+L["If checked, airships will be muted."] = "勾选後，会将飞空艇的音效静音。"
+L["If checked, emote sounds will be disabled while your character is resting and enabled while your character is not resting."] = "勾选後，角色休息时会停用表情音效，离开休息状态後恢复。"
+L["If checked, the addon listing will be shown in alphabetical order without categories."] = "勾选後，插件清单会依字母顺序显示，不使用分类。"
+L["If checked, you can specify an edit mode layout that will always be applied when you login to any character."] = "勾选後，可指定登入任何角色时都会套用的编辑模式配置。"
+L["If checked, zeppelins will be muted."] = "勾选後，会将飞艇的音效静音。"
+L["If the edit mode layout name that you enter here exists, that layout will be applied when you login to any character on your account."] = "若输入的编辑模式配置名称存在，登入帐号中的任何角色时都会套用该配置。"
+L["Layout name"] = "配置名称"
+L["Set edit mode layout"] = "设定编辑模式配置"
+L["Simple addon listing"] = "简易插件清单"
 
 end
 
@@ -3647,4 +3657,15 @@ L["Cannot be used with Easy Frames"] = "此功能無法與 '暴雪頭像' 插件
 L["Manage vehicle"] = "管理坐騎座位"
 L["Keep audio synced"] = "使用系統音效裝置"
 L["Block requested invites"] = "封鎖請求加入隊伍"
+L["Forever"] = "Forever"
+L["If checked, airships will be muted."] = "勾選後，會將飛空艇的音效靜音。"
+L["If checked, emote sounds will be disabled while your character is resting and enabled while your character is not resting."] = "勾選後，角色休息時會停用表情音效，離開休息狀態後恢復。"
+L["If checked, the addon listing will be shown in alphabetical order without categories."] = "勾選後，插件清單會依字母順序顯示，不使用分類。"
+L["If checked, you can specify an edit mode layout that will always be applied when you login to any character."] = "勾選後，可指定登入任何角色時都會套用的編輯模式配置。"
+L["If checked, zeppelins will be muted."] = "勾選後，會將飛艇的音效靜音。"
+L["If the edit mode layout name that you enter here exists, that layout will be applied when you login to any character on your account."] = "若輸入的編輯模式配置名稱存在，登入帳號中的任何角色時都會套用該配置。"
+L["Layout name"] = "配置名稱"
+L["Set edit mode layout"] = "設定編輯模式配置"
+L["Simple addon listing"] = "簡易插件清單"
+
 end
