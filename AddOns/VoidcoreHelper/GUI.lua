@@ -220,10 +220,10 @@ local function InitMinimapButton()
 
             local uiScale = UIParent:GetEffectiveScale()
             frame.UG:SetPoint("CENTER", frame, "CENTER", -95, 0)
-            frame.UG:SetSize(45, 45)
+            frame.UG:SetSize(35 / uiScale, 35 / uiScale)
 
             frame.hunt:SetPoint("CENTER", frame, "CENTER", 95, 0)
-            frame.hunt:SetSize(45, 45)
+            frame.hunt:SetSize(35 / uiScale, 35 / uiScale)
 
             dropdown:SetPoint("TOP", frame.UG, "BOTTOM", 0, -20)
 
