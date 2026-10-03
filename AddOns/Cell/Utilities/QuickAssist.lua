@@ -663,7 +663,11 @@ function QuickAssist_StartTicking(self)
         qaTicker = C_Timer.NewTicker(0.25, function()
             for b in pairs(qaTicking) do
                 local ok, err = pcall(QuickAssist_OnTick, b)
-                if not ok then F.Debug("QuickAssist tick |cffff0000FAILED:|r", b:GetName(), err) end
+                -- fix from MiliUI: 每輪都會失敗的按鈕只記第一次，免得洗掉除錯主控台的緩衝
+                if not ok and not b._tickFailLogged then
+                    b._tickFailLogged = true
+                    F.Log("error", "QuickAssist tick |cffff0000FAILED:|r", b:GetName(), err)
+                end
             end
         end)
     end
@@ -708,10 +712,10 @@ function CellQuickAssist_OnLoad(button)
     -- ping system
     Mixin(button, PingableType_UnitFrameMixin)
     button:SetAttribute("ping-receiver", true)
-
-    function button:GetTargetPingGUID()
-        return button.__unitGuid
-    end
+    -- fix from MiliUI: no GetTargetPingGUID override. It is the 10.1 interface nobody calls
+    -- any more, and addon Lua anywhere in the ping path is what 12.1 punishes -- a secret
+    -- GUID handed through it becomes inaccessible to PingManager (hard error, stuck
+    -- listener). The mixin resolves the target from the "unit" attribute on its own.
 
     -- healthBar
     local healthBar = CreateFrame("StatusBar", nil, button)

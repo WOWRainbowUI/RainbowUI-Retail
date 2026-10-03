@@ -47,7 +47,10 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["animationStyle"] = "border",
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}},
+            -- 發光 section: "none" is what turns the glow off -- the type list has no "None"
+            -- -- so the type starts on a real one (same for every type below that glows)
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none",
             -- countdown colour-by-time: {enabled, base, {en,sec,col}, {en,sec,col}}
             ["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
         }
@@ -95,7 +98,8 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["maxValue"] = {false, 10, true},
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none",
         }
     elseif type == "bars" then
         t = {
@@ -119,7 +123,8 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["maxValue"] = {false, 10, true},
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none",
         }
     elseif type == "rect" then
         t = {
@@ -139,8 +144,19 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["showDuration"] = false,
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            -- "none" / "aura" (while present) / "pandemic" (engine's refresh window; buff
+            -- rects only -- the options page does not offer it on the manual path)
+            ["glowTiming"] = "none",
         }
+        -- buff rects run on the AuraContainer path, where the colour bands in `colors` cannot
+        -- fire (remaining time is secret). What they get instead: the countdown colour curve,
+        -- and the engine's Pandemic window ({enabled, {r,g,b,a}}). Debuff rects stay on the
+        -- manual path and keep the bands, so they carry neither key. Absent = off.
+        if auraType == "buff" then
+            t["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}}
+            t["pandemicColor"] = Cell.defaults.NewPandemicColor()
+        end
     elseif type == "icons" then
         t = {
             ["name"] = name,
@@ -153,7 +169,7 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["num"] = 5,
             ["numPerLine"] = 5,
             ["orientation"] = "right-to-left",
-            ["spacing"] = {2, 2},
+            ["spacing"] = {1, 1}, -- fix from MiliUI: was {2, 2}; the pack's rows sit 1px apart
             ["font"] = {
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
                 {"Cell " .. _G.DEFAULT, 11, "Outline", false, "BOTTOMRIGHT", 2, -1, {1, 1, 1}},
@@ -166,7 +182,8 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["animationStyle"] = "border",
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}},
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none",
             -- countdown colour-by-time: {enabled, base, {en,sec,col}, {en,sec,col}}
             ["durationColor"] = {false, {1, 1, 1, 1}, {true, 10, {1, 1, 0, 1}}, {true, 3, {1, 0, 0, 1}}},
         }
@@ -241,8 +258,16 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["showDuration"] = false,
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none", -- same as rect: "none" / "aura" / "pandemic" (buff only)
         }
+        -- buff blocks run on the AuraContainer path like buff rects, with the same three
+        -- engine-driven time layers: the two bands in `colors`, the countdown colour curve and
+        -- the Pandemic window ({enabled, {r,g,b,a}}, absent = off). Debuff blocks stay on the
+        -- manual path.
+        if auraType == "buff" then
+            t["pandemicColor"] = Cell.defaults.NewPandemicColor()
+        end
     elseif type == "blocks" then
         t = {
             ["name"] = name,
@@ -264,7 +289,8 @@ function I.GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["showDuration"] = false,
             ["auraType"] = auraType,
             ["auras"] = {},
-            ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
+            ["glowOptions"] = {"Normal", {0.95, 0.95, 0.32, 1}},
+            ["glowTiming"] = "none",
         }
     elseif type == "border" then
         t = {

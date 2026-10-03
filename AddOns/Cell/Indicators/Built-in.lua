@@ -433,12 +433,37 @@ local function AttachBuffContainer(parent, indicator, getSpellIDs, defaultNum, u
             onlyMine = (t.castBy == "me") or nil,
             orientation = t.orientation,
         }
+        -- glow (發光): the style goes over as-is minus the colour (structural -- fresh
+        -- textures need the initializeFrame window), the colour on its own (cosmetic -- a
+        -- colour drag repaints, no rebuild). Sent as false when off, never left out: an
+        -- absent key would keep the last glow (same lesson as durationColors below).
+        -- Glow timing (every indicator with a 發光 section; a layout the options page has not
+        -- normalised yet may have no key): "none" = no glow at all. A layout without the key reads the old "None" glow type as
+        -- "none" -- the same rule the options page normalises with and Base.lua's manual path.
+        local g = t.glowOptions
+        local timing = t.glowTiming
+        if timing ~= "aura" and timing ~= "pandemic" and timing ~= "none" then
+            timing = (type(g) == "table" and g[1] == "None") and "none" or "aura"
+        end
+        if timing ~= "none" and type(g) == "table" and type(g[1]) == "string" and g[1] ~= "None" then
+            opts.glowStyle = { g[1], g[3], g[4], g[5], g[6] }
+            opts.glowColor = g[2]
+        else
+            opts.glowStyle = false
+            opts.glowColor = false
+        end
+        -- when it glows: structural -- the two timings hand the engine different things
+        -- (AddAuraShownAnimation vs AddPandemicRegion), so a change is fresh buttons. Not in
+        -- COSMETIC_KEYS.
+        opts.glowTiming = timing
         -- icon rows only: an effect frame is positioned by AnchorEffectFrame / its own size,
         -- and handing it an anchor corner would move a single block by the size mismatch
         if not customStyle then GridOpts(opts, t) end
         -- EFFECT SLOTS (colour/border/rect/texture): the visual is built from the
-        -- indicator's own settings, and everything time-based is dropped -- the fade-out and
-        -- the percent/seconds colour bands all needed a countdown that is now secret.
+        -- indicator's own settings, and everything Lua-timed is dropped -- the fade-out and
+        -- colour's change-over-time all needed a countdown that is now secret. (rect is the
+        -- exception: its Pandemic fill and its two colour bands are timed by the ENGINE, see
+        -- below.)
         -- (Fonts fall through to the icon/block branch below: rect stores t.font in the same
         -- {stackFont, durationFont} shape.)
         if IsEffectStyle(customStyle) then
@@ -460,6 +485,36 @@ local function AttachBuffContainer(parent, indicator, getSpellIDs, defaultNum, u
                 -- a fill or a ring has nowhere to put a number
                 opts.showDuration = false
                 opts.showStack = false
+            else
+                -- Pandemic fill: the one time-based colour a rect can still have, because the
+                -- ENGINE decides when to show it (AddPandemicRegion). The switch is structural
+                -- (the region is handed over in the initializeFrame window, so turning it on
+                -- or off needs fresh buttons); the colour is cosmetic (a repaint of our own
+                -- texture). Absent = off.
+                local pc = t["pandemicColor"]
+                opts.pandemicOn = type(pc) == "table" and pc[1] == true
+                opts.pandemicColor = type(pc) == "table" and pc[2] or nil
+                -- The two colour bands, colors[2] = {en, fraction, col} ("remaining < N% of
+                -- the duration") and colors[3] = {en, seconds, col} ("remaining < N sec").
+                -- Each becomes a companion slot whose fill is a |T escape the ENGINE picks
+                -- against the secret remaining time (AuraDisplay's BuildBandSlot). A band that
+                -- is off is not sent at all.
+                -- ⚠ Structural, NOT a cosmetic key: the threshold and the colour are baked
+                -- into a formatter that is frozen once bound, so any change needs fresh
+                -- buttons -- the table's signature changing is exactly the rebuild wanted.
+                -- Both off = false, never nil (SetOptions only walks the keys it is given).
+                local c = t["colors"]
+                local bands = {}
+                if type(c) == "table" then
+                    local p, s = c[2], c[3]
+                    if type(p) == "table" and p[1] and type(p[3]) == "table" then
+                        bands.pct = { frac = tonumber(p[2]) or 0.5, color = p[3] }
+                    end
+                    if type(s) == "table" and s[1] and type(s[3]) == "table" then
+                        bands.sec = { secs = tonumber(s[2]) or 3, color = s[3] }
+                    end
+                end
+                opts.effectBands = (bands.pct or bands.sec) and bands or false
             end
         end
         -- a text-style indicator with no explicit duration toggle still shows its countdown
@@ -502,17 +557,40 @@ local function AttachBuffContainer(parent, indicator, getSpellIDs, defaultNum, u
                 RingOpts(opts, t, configColor)
             end
         end
-        -- block & text carry a NORMALISED {base, sec} colours spec for the countdown colour
-        -- curve. ⚠ Their raw colours tables have DIFFERENT layouts: text's CreateSetting_Colors
-        -- is [1]=base, [3]={en,secThr,col}; block's CreateSetting_BlockColors prepends a
-        -- "Color By" slot so it is [2]=base, [4]={en,secThr,col}. base doubles as the block fill
-        -- / the text number's colour. (The percent slot is a RemainingPercent band -- can't ride
-        -- a seconds curve -- so it is ignored on the container path.)
+        -- ⚠ block's raw colours table is NOT rect's layout: it prepends a "Color By" slot, so
+        -- it is [1]="duration"/"stack", [2]=fill, [3]={en,frac,col}, [4]={en,sec,col},
+        -- [5]=border (rect: [1]=fill, [2]/[3] bands, [4]=border).
         -- BLOCK fill = blockColors Normal (colors[2]); its countdown colour-by-time is the
         -- unified durationColor now (handled below), not the old colours-table thresholds.
         -- TEXT uses durationColor only -- with the option OFF the text stays plain white.
-        if customStyle == "block" and type(t.colors) == "table" and type(t.colors[2]) == "table" then
-            opts.borderColor = t.colors[2]
+        -- BLOCK also gets rect's other two engine-driven time layers (see the rect branch
+        -- above): the Pandemic fill and the two remaining-time colour bands, plus its border
+        -- (colors[5]). Same key rules as rect: pandemicOn / effectBands are structural,
+        -- pandemicColor / blockBorderColor cosmetic; a band that is off is not sent, both off
+        -- = false.
+        if customStyle == "block" and type(t.colors) == "table" then
+            local c = t.colors
+            opts.borderColor = type(c[2]) == "table" and c[2] or nil        -- the fill (old key name)
+            opts.blockBorderColor = type(c[5]) == "table" and c[5] or nil
+            local pc = t["pandemicColor"]
+            opts.pandemicOn = type(pc) == "table" and pc[1] == true
+            opts.pandemicColor = type(pc) == "table" and pc[2] or nil
+            -- Bands only in "colour by duration" mode: in "stack" mode [3]/[4] are STACK
+            -- thresholds, and reading them as a fraction / seconds would light the wrong band.
+            -- (Colour-by-stack cannot exist here at all: the stack count is secret and
+            -- SetApplicationCount takes no formatter -- see BindDurStack. The settings page
+            -- normalises a buff block saved in stack mode back to duration.)
+            local bands = {}
+            if c[1] == "duration" then
+                local p, sb = c[3], c[4]
+                if type(p) == "table" and p[1] and type(p[3]) == "table" then
+                    bands.pct = { frac = tonumber(p[2]) or 0.5, color = p[3] }
+                end
+                if type(sb) == "table" and sb[1] and type(sb[3]) == "table" then
+                    bands.sec = { secs = tonumber(sb[2]) or 3, color = sb[3] }
+                end
+            end
+            opts.effectBands = (bands.pct or bands.sec) and bands or false
         end
         -- unified durationColor { en, base, {en,sec,col}, {en,sec,col} }: takes precedence and is
         -- the countdown-colour source for icon / defensive types (no per-type colours table).
@@ -526,6 +604,11 @@ local function AttachBuffContainer(parent, indicator, getSpellIDs, defaultNum, u
                 end
             end
             opts.durationColors = { base = d[2], thresholds = thresholds }
+        else
+            -- ⚠ Sent as false, not left out: SetOptions only walks the keys it is given, so
+            -- an absent key kept the curve from when the option was on -- turning it off did
+            -- nothing until a /reload. false = "no curve" everywhere durationColors is read.
+            opts.durationColors = false
         end
         if t.size then opts.size = t.size[1]; opts.sizeH = t.size[2] end
         if t.num then opts.num = t.num end
@@ -576,6 +659,7 @@ function I.CreateDefensiveCooldowns(parent)
     defensiveCooldowns.ShowAnimation = I.Cooldowns_ShowAnimation
     defensiveCooldowns.SetBorderColor = I.Cooldowns_SetBorderColor
     defensiveCooldowns.SetupGlow = I.Glow_SetupForChildren
+    defensiveCooldowns.SetGlowTiming = I.Glow_SetTimingForChildren
     defensiveCooldowns.UpdatePixelPerfect = I.Cooldowns_UpdatePixelPerfect
 
     if IsPreviewButton(parent) then
@@ -606,6 +690,7 @@ function I.CreateExternalCooldowns(parent)
     externalCooldowns.ShowAnimation = I.Cooldowns_ShowAnimation
     externalCooldowns.SetBorderColor = I.Cooldowns_SetBorderColor
     externalCooldowns.SetupGlow = I.Glow_SetupForChildren
+    externalCooldowns.SetGlowTiming = I.Glow_SetTimingForChildren
     externalCooldowns.UpdatePixelPerfect = I.Cooldowns_UpdatePixelPerfect
 
     if IsPreviewButton(parent) then
@@ -636,6 +721,7 @@ function I.CreateAllCooldowns(parent)
     allCooldowns.ShowAnimation = I.Cooldowns_ShowAnimation
     allCooldowns.SetBorderColor = I.Cooldowns_SetBorderColor
     allCooldowns.SetupGlow = I.Glow_SetupForChildren
+    allCooldowns.SetGlowTiming = I.Glow_SetTimingForChildren
     allCooldowns.UpdatePixelPerfect = I.Cooldowns_UpdatePixelPerfect
 
     if IsPreviewButton(parent) then
@@ -666,6 +752,7 @@ function I.CreateOffensiveCooldowns(parent)
     offensiveCooldowns.ShowAnimation = I.Cooldowns_ShowAnimation
     offensiveCooldowns.SetBorderColor = I.Cooldowns_SetBorderColor
     offensiveCooldowns.SetupGlow = I.Glow_SetupForChildren
+    offensiveCooldowns.SetGlowTiming = I.Glow_SetTimingForChildren
     offensiveCooldowns.UpdatePixelPerfect = I.Cooldowns_UpdatePixelPerfect
 
     if IsPreviewButton(parent) then
@@ -1344,7 +1431,7 @@ local function UpdateDebuffsForCurrentZone(instanceName)
 
     if iName == instanceName or instanceName == nil then
         currentAreaDebuffs = F.GetDebuffList(iName)
-        F.Debug("|cffff77AARaidDebuffsChanged:|r", iName)
+        F.Log("aura", "|cffff77AARaidDebuffsChanged:|r", iName)
     end
 end
 Cell.RegisterCallback("RaidDebuffsChanged", "UpdateDebuffsForCurrentZone", UpdateDebuffsForCurrentZone)
@@ -2080,6 +2167,8 @@ local function StatusText_ShowTimer(self)
         if showGuid and not startTimeCache[showGuid] then startTimeCache[showGuid] = GetTime() end
     end
 
+    -- UpdateStatusText 每次重繪都會再叫一次；已有 ticker 就沿用，否則舊的蓋掉後永遠取消不到、越疊越多
+    if self.ticker then return end
     self.ticker = C_Timer.NewTicker(1, function()
         if not self.parent.states.guid and self.parent.states.unit then -- ElvUI AFK mode
             self.parent.states.guid = UnitGUID(self.parent.states.unit)
@@ -2096,8 +2185,11 @@ end
 local function StatusText_HideTimer(self, reset)
     self.timer:Hide()
     self.timer:SetText("")
+    if self.ticker then
+        self.ticker:Cancel()
+        self.ticker = nil
+    end
     if reset then
-        if self.ticker then self.ticker:Cancel() end
         -- Midnight 12.0.0+: guid may be secret for NPC/boss units
         local guid = self.parent.states.guid
         if guid and not (issecretvalue and issecretvalue(guid)) then
@@ -2268,41 +2360,108 @@ local function GetMidnightCurves()
     return _pct01to100, _pct01toNeg100
 end
 
+-- fix from MiliUI: "is this secret number zero?" without reading it. TruncateWhenZero turns a
+-- secret 0 into an empty string; written into a hidden FontString, GetText() then comes back
+-- nil exactly when the value was zero (EUI's field-tested probe). The answer is a secret-free
+-- truthiness test on a non-boolean, which is legal. Unknown (no API) = non-zero, the old output.
+local TruncateWhenZero = C_StringUtil and C_StringUtil.TruncateWhenZero
+local function NonZero(probe, value)
+    if not (TruncateWhenZero and probe) then return true end
+    probe:SetText(TruncateWhenZero(value))
+    return probe:GetText() and true or false
+end
+
+-- hideIfEmptyOrFull on the secret path: empty = current 0, full = missing 0.
+local function HideEmptyOrFull(hide, probe, calc)
+    return hide and not (NonZero(probe, calc:GetCurrentHealth()) and NonZero(probe, calc:GetMissingHealth()))
+end
+
 local midnightFormatter = {
     none = function() return "" end,
 
-    health = function(pattern, calc) return pattern:format(calc:GetCurrentHealth()) end,
-    health_short = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetCurrentHealth())) end,
+    health = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        return pattern:format(calc:GetCurrentHealth())
+    end,
+    health_short = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        return pattern:format(AbbreviateNumbers(calc:GetCurrentHealth()))
+    end,
     -- Percent formatters round via %.0f since F.Round would do arithmetic on a secret.
-    health_percent = function(pattern, calc)
+    health_percent = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
         local pos = GetMidnightCurves()
         return pattern:format(string.format("%.0f", calc:EvaluateCurrentHealthPercent(pos)))
     end,
 
-    -- Sign is embedded in the string (can't negate a secret).
-    deficit = function(pattern, calc) return pattern:format("-"..BreakUpLargeNumbers(calc:GetMissingHealth())) end,
-    deficit_short = function(pattern, calc) return pattern:format("-"..AbbreviateNumbers(calc:GetMissingHealth())) end,
-    deficit_percent = function(pattern, calc)
+    -- Sign is embedded in the string (can't negate a secret), so it is only added when the
+    -- deficit is non-zero -- a full unit used to read "-0".
+    deficit = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        local missing = calc:GetMissingHealth()
+        if not NonZero(probe, missing) then return pattern:format("0") end
+        return pattern:format("-"..BreakUpLargeNumbers(missing))
+    end,
+    deficit_short = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        local missing = calc:GetMissingHealth()
+        if not NonZero(probe, missing) then return pattern:format("0") end
+        return pattern:format("-"..AbbreviateNumbers(missing))
+    end,
+    deficit_percent = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
         local _, neg = GetMidnightCurves()
         return pattern:format(string.format("%.0f", calc:EvaluateMissingHealthPercent(neg)))
     end,
 
     -- effective_* degrades to health_* (no calc method for effective health).
-    effective = function(pattern, calc) return pattern:format(calc:GetCurrentHealth()) end,
-    effective_short = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetCurrentHealth())) end,
-    effective_percent = function(pattern, calc)
+    effective = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        return pattern:format(calc:GetCurrentHealth())
+    end,
+    effective_short = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
+        return pattern:format(AbbreviateNumbers(calc:GetCurrentHealth()))
+    end,
+    effective_percent = function(pattern, calc, hide, probe)
+        if HideEmptyOrFull(hide, probe, calc) then return "" end
         local pos = GetMidnightCurves()
         return pattern:format(string.format("%.0f", calc:EvaluateCurrentHealthPercent(pos)))
     end,
 
-    shields = function(pattern, calc) return pattern:format(calc:GetTotalDamageAbsorbs()) end,
-    shields_short = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetTotalDamageAbsorbs())) end,
+    -- Shields / heal absorbs: blank at zero like the plain path (every frame used to read "0").
+    shields = function(pattern, calc, _, probe)
+        local v = calc:GetTotalDamageAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(v)
+    end,
+    shields_short = function(pattern, calc, _, probe)
+        local v = calc:GetTotalDamageAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(AbbreviateNumbers(v))
+    end,
     -- *_percent variants degrade to short absolute (no calc method for absorbs percent).
-    shields_percent = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetTotalDamageAbsorbs())) end,
+    shields_percent = function(pattern, calc, _, probe)
+        local v = calc:GetTotalDamageAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(AbbreviateNumbers(v))
+    end,
 
-    healabsorbs = function(pattern, calc) return pattern:format(calc:GetTotalHealAbsorbs()) end,
-    healabsorbs_short = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetTotalHealAbsorbs())) end,
-    healabsorbs_percent = function(pattern, calc) return pattern:format(AbbreviateNumbers(calc:GetTotalHealAbsorbs())) end,
+    healabsorbs = function(pattern, calc, _, probe)
+        local v = calc:GetTotalHealAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(v)
+    end,
+    healabsorbs_short = function(pattern, calc, _, probe)
+        local v = calc:GetTotalHealAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(AbbreviateNumbers(v))
+    end,
+    healabsorbs_percent = function(pattern, calc, _, probe)
+        local v = calc:GetTotalHealAbsorbs()
+        if not NonZero(probe, v) then return "" end
+        return pattern:format(AbbreviateNumbers(v))
+    end,
 }
 
 local function HealthText_SetFormat(self, format)
@@ -2337,11 +2496,12 @@ local function HealthText_SetValue(self, health, maxHealth, shields, healAbsorbs
         local f2 = midnightFormatter[self._health2_format or "none"] or midnightFormatter.none
         local fs = midnightFormatter[self._shields_format or "none"] or midnightFormatter.none
         local fh = midnightFormatter[self._healAbsorbs_format or "none"] or midnightFormatter.none
+        local probe = self.zeroProbe
         self.text:SetFormattedText("%s%s%s%s",
-            f1(self.health1, calc),
-            f2(self.health2, calc),
-            fs(self.shields, calc),
-            fh(self.healAbsorbs, calc))
+            f1(self.health1, calc, self.health1_hideIfEmptyOrFull, probe),
+            f2(self.health2, calc, self.health2_hideIfEmptyOrFull, probe),
+            fs(self.shields, calc, nil, probe),
+            fh(self.healAbsorbs, calc, nil, probe))
         local _, fontSize = self.text:GetFont()
         self:SetWidth(SafeTextWidth(self.text, fontSize))
         return
@@ -2414,6 +2574,11 @@ function I.CreateHealthText(parent)
 
     local text = healthText:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
     healthText.text = text
+
+    -- fix from MiliUI: never shown, only read back -- see NonZero
+    local zeroProbe = healthText:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
+    zeroProbe:Hide()
+    healthText.zeroProbe = zeroProbe
 
     healthText.GetHealth1 = formatter.none
     healthText.GetHealth2 = formatter.none

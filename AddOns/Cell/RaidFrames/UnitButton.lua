@@ -1,13 +1,17 @@
 local _, Cell = ...
-local L = Cell.L
+-- fix from MiliUI: main-chunk local budget. This chunk sat at EXACTLY Lua's 200-local
+-- ceiling (one more and the whole file fails to compile -- no raid frames at all). Unused
+-- aliases (L, U, IsDelveInProgress, UnitPhaseReason, a second UnitIsPlayer) are gone, a
+-- load-time-only cache is read straight from the global, and self-contained sections are
+-- wrapped in `do ... end` so their private state stops occupying a slot. Those blocks are
+-- NOT re-indented, to keep the diff reviewable; each opens with a "local-budget block"
+-- comment. check-all reports the remaining headroom.
 ---@type CellFuncs
 local F = Cell.funcs
 ---@class CellUnitButtonFuncs
 local B = Cell.bFuncs
 ---@type CellIndicatorFuncs
 local I = Cell.iFuncs
----@type CellUtilityFuncs
-local U = Cell.uFuncs
 ---@type PixelPerfectFuncs
 local P = Cell.pixelPerfectFuncs
 ---@type CellAnimations
@@ -45,11 +49,9 @@ local UnitHasVehicleUI = UnitHasVehicleUI
 -- local UnitInVehicle = UnitInVehicle
 -- local UnitUsingVehicle = UnitUsingVehicle
 local UnitIsCharmed = UnitIsCharmed
-local UnitIsPlayer = UnitIsPlayer
 local UnitInPartyIsAI = UnitInPartyIsAI
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
-local GetSpecialization = GetSpecialization or (C_SpecializationInfo and C_SpecializationInfo.GetSpecialization)
-local GetSpecializationInfo = GetSpecializationInfo or (C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo)
+-- GetSpecialization / GetSpecializationInfo: moved into SpecRole's local-budget block
 local UnitThreatSituation = UnitThreatSituation
 local GetThreatStatusColor = GetThreatStatusColor
 local UnitExists = UnitExists
@@ -57,7 +59,6 @@ local UnitIsGroupLeader = UnitIsGroupLeader
 local UnitIsGroupAssistant = UnitIsGroupAssistant
 local InCombatLockdown = InCombatLockdown
 local UnitAffectingCombat = UnitAffectingCombat
-local UnitPhaseReason = UnitPhaseReason
 -- local UnitBuff = UnitBuff
 -- local UnitDebuff = UnitDebuff
 local IsInRaid = IsInRaid
@@ -66,9 +67,8 @@ local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID
 local GetAuraSlots = C_UnitAuras.GetAuraSlots
 local GetAuraDataBySlot = C_UnitAuras.GetAuraDataBySlot
 local IsAuraFilteredOutByInstanceID = C_UnitAuras.IsAuraFilteredOutByInstanceID
-local IsDelveInProgress = C_PartyInfo.IsDelveInProgress
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction  -- nil pre-12.0
-local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator  -- nil pre-12.0
+-- CreateUnitHealPredictionCalculator (nil pre-12.0) is read as a global: only button creation uses it
 
 --! for AI followers, UnitClassBase is buggy
 local UnitClassBase = function(unit)
@@ -78,11 +78,12 @@ end
 local barAnimationType, highlightEnabled, predictionEnabled
 local shieldEnabled, overshieldEnabled, overshieldReverseFillEnabled, overshieldGlowReverseEnabled
 local absorbEnabled, absorbInvertColor
--- fix from MiliUI: max health reduction (see B.MHL.Update). ⚠ NO new locals for it: this
--- file's main chunk is at EXACTLY Lua's 200-local ceiling. The nine locals it first used, and
--- then a single table local, each made the whole file fail to compile ("too many local
--- variables") -- i.e. no raid frames at all. So its state and functions hang off B instead.
--- The next person adding a file-level local here has to remove one first.
+-- fix from MiliUI: max health reduction (see B.MHL.Update). ⚠ NO new locals for it: when it
+-- was written this file's main chunk sat at EXACTLY Lua's 200-local ceiling. The nine locals
+-- it first used, and then a single table local, each made the whole file fail to compile
+-- ("too many local variables") -- i.e. no raid frames at all. So its state and functions
+-- hang off B instead. The chunk has since been slimmed (see the note at the top of the
+-- file); check-all prints the remaining headroom and fails below 20.
 --   api      GetUnitTotalModifiedMaxHealthPercent, nil on classic flavours
 --   enabled, color   appearance "maxHealthLoss", set by B.UpdateMaxHealthLoss
 B.MHL = {api = GetUnitTotalModifiedMaxHealthPercent}
@@ -181,7 +182,8 @@ local indicatorNums, indicatorBooleans, indicatorColors, indicatorCustoms = {}, 
 -- HandleBuff/HandleDebuff never file anything for these buttons, and the containers
 -- themselves are hidden by UpdateIndicatorParentVisibility below.
 --! HEALTH_TEXT_GAP: the gap between the name and the health % under it. NPC_GREEN is what Cell
---! paints a friendly NPC, used as the fallback when a palette key is missing.
+--! paints a friendly NPC, used as the fallback when a palette key is missing. layoutLoaded
+--! (set by ResetIndicators) holds the allowlist back until a layout exists -- see IsEnabled.
 --! (One table rather than two locals: this file's main chunk is near Lua's 200-local ceiling.)
 local PARTY_TARGET = {
     HEALTH_TEXT_GAP = 2,
@@ -204,9 +206,16 @@ local PARTY_TARGET_INDICATORS = {
 
 -- Per-button view of enabledIndicators. Everything that asks "is this indicator on" goes
 -- through here; the plain table is only written, never read directly.
+--! ⚠ The allowlist overrides the layout's CHOICE, not the layout's ABSENCE. Until
+--! ResetIndicators has read a layout, enabledIndicators is empty and every other button
+--! answers "off" -- which is what keeps the updaters away from indicatorColors /
+--! indicatorNums, empty too until then. A button shown before F.UpdateLayout (logging in
+--! while grouped: the header shows its children at PLAYER_LOGIN, OnShow runs UpdateAll)
+--! answering "on" from the constant list walked straight into indicatorColors["nameText"]
+--! == nil. So the party-target view waits for the same load, via PARTY_TARGET.layoutLoaded.
 local function IsEnabled(b, indicatorName)
     if b.isPartyTarget then
-        return PARTY_TARGET_INDICATORS[indicatorName]
+        return PARTY_TARGET.layoutLoaded and PARTY_TARGET_INDICATORS[indicatorName]
     end
     return enabledIndicators[indicatorName]
 end
@@ -239,6 +248,8 @@ end
 local function ResetIndicators()
     wipe(enabledIndicators)
     wipe(indicatorNums)
+    -- fix from MiliUI: the per-indicator tables are about to hold a layout -- see IsEnabled
+    PARTY_TARGET.layoutLoaded = true
 
     for _, t in next, Cell.vars.currentLayoutTable["indicators"] do
         -- update enabled
@@ -408,6 +419,11 @@ local function HandleIndicators(b)
         if t["colors"] then
             indicator:SetColors(t["colors"])
         end
+        -- update pandemicColor (rect). Only the manual fallback reads it here; the container
+        -- gets it through ConfigureContainer (AddPandemicRegion).
+        if indicator.SetPandemicColor then
+            indicator:SetPandemicColor(t["pandemicColor"])
+        end
         -- update durationColor (unified countdown colour widget). Only the text indicator
         -- consumes it off the container path; the rest read it via ConfigureContainer.
         if indicator.SetDurationColors then
@@ -501,6 +517,13 @@ local function HandleIndicators(b)
         -- update glow
         if t["glowOptions"] then
             indicator:SetupGlow(t["glowOptions"])
+        end
+        -- glow timing (every indicator with a 發光 section, built-in cooldown rows included):
+        -- the manual path and the preview; the container reads it through
+        -- ConfigureContainer (structural). No key (a layout never opened since) reads "aura",
+        -- which with the old "None" type is still no glow.
+        if indicator.SetGlowTiming then
+            indicator:SetGlowTiming(t["glowTiming"])
         end
         -- update smooth
         if type(t["smooth"]) == "boolean" then
@@ -615,6 +638,8 @@ end
 -------------------------------------------------
 local updater = CreateFrame("Frame")
 updater:Hide()
+local AddToInitQueue, AddToUpdateQueue
+do -- local-budget block: the queue itself is private; UpdateIndicators uses updater + the two Add*
 local queue = {}
 
 local WAITING_FOR_INIT = "WAITING_FOR_INIT"
@@ -665,19 +690,20 @@ local function FlushQueue()
     wipe(queue)
 end
 
-local function AddToInitQueue(b)
+function AddToInitQueue(b)
     b._indicatorsReady = nil
     b._status = WAITING_FOR_INIT
     b._config = Cell.vars.currentLayoutTable["indicators"]
     queue[b] = true
 end
 
-local function AddToUpdateQueue(b)
+function AddToUpdateQueue(b)
     if queue[b] then return end
     b._indicatorsReady = nil
     b._status = WAITING_FOR_UPDATE
     queue[b] = true
 end
+end -- local-budget block (update queue)
 
 -------------------------------------------------
 -- UpdateIndicators
@@ -725,7 +751,7 @@ local function PushContainerConfig(indicatorName)
 end
 
 local function UpdateIndicators(layout, indicatorName, setting, value, value2)
-    F.Debug("|cffff7777UpdateIndicators:|r ", layout, indicatorName, setting, value, value2)
+    F.Log("layout", "|cffff7777UpdateIndicators:|r ", layout, indicatorName, setting, value, value2)
 
     -- FlushQueue()
 
@@ -738,13 +764,13 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
         for groupType, groupLayout in next, activeLayouts do
             if groupLayout == layout then
                 activeLayouts[groupType] = nil -- update required
-                F.Debug("  -> UPDATE REQUIRED:", groupType)
+                F.Log("layout", "  -> UPDATE REQUIRED:", groupType)
             end
         end
 
         --! indicator changed, but not current layout
         if layout ~= currentLayout then
-            F.Debug("  -> NO UPDATE: not active layout")
+            F.Log("layout", "  -> NO UPDATE: not active layout")
             return
         end
 
@@ -753,7 +779,7 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
         if activeLayouts[INDEX] == currentLayout then
             I.ResetCustomIndicatorTables()
             ResetIndicators()
-            F.Debug("  -> NO FULL UPDATE: only reset custom indicator tables")
+            F.Log("layout", "  -> NO FULL UPDATE: only reset custom indicator tables")
             F.IterateAllUnitButtons(AddToUpdateQueue, true, nil, true)
             F.IterateSharedUnitButtons(AddToInitQueue)
             updater:Show()
@@ -762,7 +788,7 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
     end
 
     if Cell.vars.isHidden then
-        F.Debug("  -> NO UPDATE: Cell is hidden")
+        F.Log("layout", "  -> NO UPDATE: Cell is hidden")
         I.ResetCustomIndicatorTables()
         ResetIndicators()
         return
@@ -771,7 +797,7 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
     activeLayouts[INDEX] = currentLayout
 
     if not indicatorName then -- init
-        F.Debug("  -> FULL UPDATE", INDEX, currentLayout)
+        F.Log("layout", "  -> FULL UPDATE", INDEX, currentLayout)
         I.ResetCustomIndicatorTables()
         ResetIndicators()
         F.IterateAllUnitButtons(AddToInitQueue, true)
@@ -998,6 +1024,15 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                     UnitButton_UpdateAuras(b)
                 end
             end, true)
+        elseif setting == "pandemicColor" then
+            -- Like borderColor: only the manual rect (container fallback) needs this; the
+            -- container-backed rect picks it up in PushContainerConfig below.
+            F.IterateAllUnitButtons(function(b)
+                local ind = b.indicators[indicatorName]
+                if ind and ind.SetPandemicColor then
+                    ind:SetPandemicColor(value)
+                end
+            end, true)
         elseif setting == "vehicleNamePosition" then
             F.IterateAllUnitButtons(function(b)
                 local indicator = b.indicators[indicatorName]
@@ -1103,6 +1138,16 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             F.IterateAllUnitButtons(function(b)
                 b.indicators[indicatorName]:SetupGlow(value)
                 UnitButton_UpdateAuras(b)
+            end, true)
+        elseif setting == "glowTiming" then
+            -- like pandemicColor: only the manual path needs this (row types forward it to
+            -- their children); the container rebuilds from PushContainerConfig below
+            -- (structural key)
+            F.IterateAllUnitButtons(function(b)
+                local ind = b.indicators[indicatorName]
+                if ind and ind.SetGlowTiming then
+                    ind:SetGlowTiming(value)
+                end
             end, true)
         elseif setting == "iconStyle" then
             F.IterateAllUnitButtons(function(b)
@@ -1252,6 +1297,9 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 if indicator.SetDurationColors then
                     indicator:SetDurationColors(value["durationColor"])
                 end
+                if indicator.SetPandemicColor then
+                    indicator:SetPandemicColor(value["pandemicColor"])
+                end
                 -- update texture
                 if value["texture"] then
                     indicator:SetTexture(value["texture"])
@@ -1290,6 +1338,9 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 -- update glow
                 if value["glowOptions"] then
                     indicator:SetupGlow(value["glowOptions"])
+                end
+                if indicator.SetGlowTiming then
+                    indicator:SetGlowTiming(value["glowTiming"])
                 end
                 -- FirstRun: Healers
                 if value["auras"] and #value["auras"] ~= 0 then
@@ -1891,6 +1942,10 @@ UnitButton_UpdateAuras = function(self, updateInfo)
         end
     end
 
+    -- fix from MiliUI: a party-target button shows no aura indicator (PARTY_TARGET_INDICATORS),
+    -- and it runs UpdateAll on the 0.25s tick -- the scan below had no reader, 16x/s in a 5-man
+    if self.isPartyTarget then return end
+
     -- 12.1: when auras are secret the payload cannot be diffed (isFullUpdate is a secret boolean,
     -- addedAuras a secret table) AND the slot-based full rescan below errors as well, because
     -- GetAuraSlots/GetAuraDataBySlot Lua-error while auras are secret. Nothing can be updated, so
@@ -2407,6 +2462,10 @@ local function UnitButton_UpdateTarget(self)
 end
 
 
+do -- local-budget block: CheckVehicleRoot / SpecRole are private to UnitButton_UpdateRole
+local GetSpecialization = GetSpecialization or (C_SpecializationInfo and C_SpecializationInfo.GetSpecialization)
+local GetSpecializationInfo = GetSpecializationInfo or (C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo)
+
 local function CheckVehicleRoot(self, petUnit)
     if not petUnit then return end
 
@@ -2487,6 +2546,7 @@ UnitButton_UpdateRole = function(self)
         roleIcon:Hide()
     end
 end
+end -- local-budget block (UnitButton_UpdateRole)
 
 UnitButton_UpdateLeader = function(self, event)
     local unit = self.states.unit
@@ -2810,7 +2870,7 @@ local function UnitButton_UpdateHealth(self, diff, skipStateUpdates)
         -- fix from MiliUI: not on a party-target button -- see UnitButton_UpdateInRange
         if CELL_FADE_OUT_HEALTH_PERCENT and self.widgets.healthCalculator and not self.isPartyTarget then
             RebuildFadeOutHealthCurve()
-            if fadeOutHealthCurve and self.states.inRange then
+            if fadeOutHealthCurve and self.states.inRange and not self.states.secretRange then
                 -- EvaluateCurrentHealthPercent feeds secret health% into the curve
                 -- Curve output: 1.0 if below threshold (needs healing), outOfRangeAlpha if above
                 local targetAlpha = self.widgets.healthCalculator:EvaluateCurrentHealthPercent(fadeOutHealthCurve)
@@ -3204,7 +3264,7 @@ local function UnitButton_UpdateInRange(self, ir)
         return
     end
 
-    local inRange
+    local inRange, secretInRange
     -- ⚠ secret test FIRST, then the nil test. `ir ~= nil` is still a comparison, and the
     -- payload for an identity-restricted teammate can arrive secret; F.IsValueNonSecret(nil)
     -- answers true, so ordering it this way costs nothing and keeps the nil case working.
@@ -3216,8 +3276,27 @@ local function UnitButton_UpdateInRange(self, ir)
             inRange = ir and true or false
         end
     else
-        inRange = IsInRange(unit)
+        inRange, secretInRange = IsInRange(unit)
     end
+
+    -- fix from MiliUI: the only answer is a SECRET boolean (12.1 restricted content). It used
+    -- to come back as "in range", so classes with no friendly range spell (DK, DH, hunter,
+    -- rogue, warrior) never saw a frame fade in combat. Let the engine pick the alpha from it
+    -- without us reading it. No animated fade here -- it needs a readable start and end.
+    if secretInRange ~= nil and self.SetAlphaFromBoolean then
+        self.states.inRange = true -- readers of states.inRange keep the old "unknown = in range"
+        self.states.wasInRange = nil -- next readable answer always re-applies its alpha
+        if Cell.loaded then
+            A.FrameFadeStop(self)
+            self.states.secretRange = true
+            self:SetAlphaFromBoolean(secretInRange, 1, CellDB["appearance"]["outOfRangeAlpha"])
+        end
+        return
+    end
+    -- A readable answer again. wasInRange was cleared on the secret path, so this is always a
+    -- transition, and the secret-alpha check there takes care of the alpha.
+    self.states.secretRange = nil
+
     -- Nil-safety: if IsInRange errors (e.g. secret value issue), default to true
     -- so frames don't grey out incorrectly
     if inRange == nil then inRange = true end
@@ -3225,6 +3304,8 @@ local function UnitButton_UpdateInRange(self, ir)
     self.states.inRange = inRange
     if Cell.loaded then
         if self.states.inRange ~= self.states.wasInRange then
+            -- fix from MiliUI: GetAlpha() below can be secret (SetAlphaFromBoolean on the
+            -- secret-range path, the health-fade curve); the fades snap to their end value then.
             if inRange then
                 if CELL_FADE_OUT_HEALTH_PERCENT then
                     if Cell.isMidnight and self.widgets and self.widgets.healthCalculator then
@@ -3538,6 +3619,9 @@ end
 -- `SecretWhenUnitIdentityRestricted`, unlike UnitClassBase and UnitGroupRolesAssigned. So
 -- these are plain values even for a boss and the branches are real branches. UnitPowerMax
 -- DOES carry one, which is why "has mana" is asked by power TYPE.
+local InvalidateHealthColor
+do -- local-budget block: health colour helpers, private to UnitButton_UpdateHealthColor
+   -- (InvalidateHealthColor is the one B.SetTexture / B.UpdateColor call from outside)
 local partyTargetColors = {}
 
 Cell.RegisterCallback("UpdateTools", "UnitButton_PartyTargetColors", function(which)
@@ -3675,7 +3759,7 @@ end
 -- Forget what colour the widgets are wearing. Anything that replaces or repaints them from
 -- outside UnitButton_UpdateHealthColor must call this, or the stamp below will skip the
 -- repaint that puts the colour back.
-local function InvalidateHealthColor(b)
+function InvalidateHealthColor(b)
     b.__hcBarR, b.__hcBarG, b.__hcBarB, b.__hcBarA = nil, nil, nil, nil
     b.__hcLossR, b.__hcLossG, b.__hcLossB, b.__hcLossA = nil, nil, nil, nil
     b.__hcIhR, b.__hcIhG, b.__hcIhB, b.__hcIhA = nil, nil, nil, nil
@@ -3918,6 +4002,7 @@ UnitButton_UpdateHealthColor = function(self)
         end
     end
 end
+end -- local-budget block (health colour)
 
 -------------------------------------------------
 -- translit names
@@ -4053,7 +4138,7 @@ local function UnitButton_RegisterEvents(self)
     --! OnShowæ—¶ç«‹å³æ‰§è¡Œï¼Œä½†UpdateIndicatorså¯èƒ½å¹¶æœªæ‰§è¡Œå®Œæ¯•ï¼Œå¯¼è‡´åœ¨ResetCustomIndicatorsè¿‡ç¨‹ä¸­æŒ‡ç¤ºå™¨å‘ç”Ÿå˜åŒ–ï¼Œè¿›è€ŒæŠ¥é”™
     local success, result = pcall(UnitButton_UpdateAll, self)
     if not success then
-        F.Debug("UnitButton_UpdateAll |cffff0000FAILED:|r", self:GetName(), result)
+        F.Log("error", "UnitButton_UpdateAll |cffff0000FAILED:|r", self:GetName(), result)
     end
 end
 
@@ -4090,6 +4175,8 @@ end
 -- are a handful of getters and a SetValue. Tracking dirty KINDS would save that in the
 -- single-absorb-event-alone case and cost a mask on every mark.
 -------------------------------------------------
+local MarkOverlayDirty
+do -- local-budget block: flush state is private; UnitButton_OnEvent uses MarkOverlayDirty
 local overlayDirty = {}
 local overlayFlush = CreateFrame("Frame")
 local OVERLAY_FLUSH_BUDGET = 20
@@ -4118,10 +4205,11 @@ overlayFlush:SetScript("OnUpdate", function(self)
     if next(overlayDirty) == nil then self:Hide() end
 end)
 
-local function MarkOverlayDirty(b)
+function MarkOverlayDirty(b)
     overlayDirty[b] = true
     overlayFlush:Show()
 end
+end -- local-budget block (overlay flush)
 
 -- fix from MiliUI: max health reduction gets its OWN dirty set rather than riding the overlay
 -- flush -- that one runs on every UNIT_HEALTH, and this needs one read per actual change.
@@ -4256,6 +4344,11 @@ local function UnitButton_OnEvent(self, event, unit, arg)
 
         elseif event == "UNIT_AURA" then
             UnitButton_UpdateAuras(self, arg)
+            -- fix from MiliUI: a shield running out on its TIMER, on a unit nobody hits or
+            -- heals, fires no absorb/health event at all -- UNIT_AURA (the aura leaving) is the
+            -- only signal, and the payload cannot be read for "was it a removal" while secret.
+            -- Marking is a table write; the flush paints each button at most once a frame.
+            MarkOverlayDirty(self)
 
         elseif event == "UNIT_IN_RANGE_UPDATE" then
             UnitButton_UpdateInRange(self, arg)
@@ -4326,17 +4419,19 @@ local function UnitButton_OnEvent(self, event, unit, arg)
     end
 end
 
+do -- local-budget block: enter/leave instance refresh
 local timer
 local function EnterLeaveInstance()
     if timer then timer:Cancel() timer=nil end
     timer = C_Timer.NewTimer(1, function()
-        F.Debug("|cffff1111*** EnterLeaveInstance:|r UnitButton_UpdateAll")
+        F.Log("group", "|cffff1111*** EnterLeaveInstance:|r UnitButton_UpdateAll")
         F.IterateAllUnitButtons(UnitButton_UpdateAll, true)
         timer = nil
     end)
 end
 Cell.RegisterCallback("EnterInstance", "UnitButton_EnterInstance", EnterLeaveInstance)
 Cell.RegisterCallback("LeaveInstance", "UnitButton_LeaveInstance", EnterLeaveInstance)
+end -- local-budget block (enter/leave instance)
 
 local function UnitButton_OnAttributeChanged(self, name, value)
     if name == "unit" then
@@ -4465,6 +4560,7 @@ local function UnitButton_OnLeave(self)
     GameTooltip:Hide()
 end
 
+do -- local-budget block: OnTick and the shared tick driver; OnShow/OnHide use StartTicking/StopTicking
 local UNKNOWN = _G.UNKNOWN
 local UNKNOWNOBJECT = _G.UNKNOWNOBJECT
 local function UnitButton_OnTick(self)
@@ -4564,7 +4660,7 @@ end
 --
 -- ⚠ Each button is ticked under pcall. A per-button OnUpdate isolated failures for free;
 -- one shared loop does not, and an error on raid7 would silently cost raid8..40 their tick
--- for the rest of the fight. Same guard, and the same F.Debug report, as UnitButton_UpdateAll.
+-- for the rest of the fight. Same guard, and the same error-log report, as UnitButton_UpdateAll.
 -------------------------------------------------
 local tickingButtons = {}
 local tickDriver
@@ -4580,8 +4676,11 @@ function StartTicking(self)
         tickDriver = C_Timer.NewTicker(0.25, function()
             for b in pairs(tickingButtons) do
                 local ok, err = pcall(TickOne, b)
-                if not ok then
-                    F.Debug("UnitButton tick |cffff0000FAILED:|r", b:GetName(), err)
+                -- fix from MiliUI: 每 0.25 秒一輪，壞掉的按鈕會每輪都失敗；記錄只記每顆第一次，
+                -- 不然幾秒就把除錯主控台的緩衝洗光
+                if not ok and not b._tickFailLogged then
+                    b._tickFailLogged = true
+                    F.Log("error", "UnitButton tick |cffff0000FAILED:|r", b:GetName(), err)
                 end
             end
         end)
@@ -4596,6 +4695,7 @@ function StopTicking(self)
         tickDriver = nil
     end
 end
+end -- local-budget block (OnTick / tick driver)
 
 -------------------------------------------------
 -- button functions
@@ -4697,6 +4797,7 @@ function B.UpdateColor(button)
     button:SetBackdropColor(0, 0, 0, CellDB["appearance"]["bgAlpha"])
 end
 
+do -- local-budget block: the eight SetValue variants are private to B.SetOrientation
 local function IncomingHeal_SetValue_Horizontal(self, incomingPercent, healthPercent)
     local barWidth = self:GetParent():GetWidth()
     local incomingHealWidth = incomingPercent * barWidth
@@ -5104,6 +5205,7 @@ function B.SetOrientation(button, orientation, rotateTexture)
     -- update actions
     I.UpdateActionsOrientation(button, orientation)
 end
+end -- local-budget block (B.SetOrientation)
 
 function B.UpdateHighlightColor(button)
     button.widgets.targetHighlight:SetBackdropBorderColor(unpack(CellDB["appearance"]["targetColor"]))
@@ -5317,6 +5419,7 @@ B.UpdateName = UnitButton_UpdateName
 -------------------------------------------------
 -- unit button init
 -------------------------------------------------
+do -- local-budget block: startTimeCache / DumbFunc are private to CellUnitButton_OnLoad
 -- local startTimeCache, statusCache = {}, {}
 local startTimeCache = {}
 
@@ -5363,10 +5466,10 @@ function CellUnitButton_OnLoad(button)
     -- ping system
     Mixin(button, PingableType_UnitFrameMixin)
     button:SetAttribute("ping-receiver", true)
-
-    function button:GetTargetPingGUID()
-        return button.__unitGuid
-    end
+    -- fix from MiliUI: no GetTargetPingGUID override. It is the 10.1 interface nobody calls
+    -- any more, and addon Lua anywhere in the ping path is what 12.1 punishes -- a secret
+    -- GUID handed through it becomes inaccessible to PingManager (hard error, stuck
+    -- listener). The mixin resolves the target from the "unit" attribute on its own.
 
     -- background
     -- local background = button:CreateTexture(name.."Background", "BORDER")
@@ -5726,3 +5829,4 @@ function CellUnitButton_OnLoad(button)
     button:SetScript("OnEvent", UnitButton_OnEvent)
     button:RegisterForClicks("AnyDown")
 end
+end -- local-budget block (CellUnitButton_OnLoad)

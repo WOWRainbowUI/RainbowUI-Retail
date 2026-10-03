@@ -127,7 +127,12 @@ AD.stats = {builds = 0, discards = 0, repoints = 0, parks = 0, reuses = 0,
     settles = 0, settleBounced = 0, settleSkipped = 0,
     -- regen queue: who queued (reason -> count), and how long the queue was when the
     -- last / the longest drain started. The producer hunt behind the time-sliced flush.
-    deferWhy = {}, flushLast = 0, flushPeak = 0}
+    deferWhy = {}, flushLast = 0, flushPeak = 0,
+    -- lazy groups (see LAZY GROUPS below Build): shells whose groups were declared later,
+    -- how many of those declarations happened in combat and how many combat refused, and
+    -- the instance-entry prewarm (handles, total ms, sweeps that queued anything)
+    lazyAdds = 0, lazyCombatOK = 0, lazyCombatFail = 0,
+    prewarmHandles = 0, prewarmMs = 0, prewarmSweeps = 0}
 
 local function BuildRecordsRaw(opts)
     opts = opts or {}
@@ -255,7 +260,41 @@ local function BuildRecordsRaw(opts)
                 return recs
             end
         end
-        return { { key = "buff", filter = f, candidateFilters = { includeSpellIDs = ids } } }
+        local main = { key = "buff", filter = f, candidateFilters = { includeSpellIDs = ids } }
+        -- COLOUR BANDS ("remaining < N%" / "remaining < N sec", rect and block): one
+        -- companion slot per band, same filter and same spell list as the main slot. An
+        -- AuraButton has exactly ONE SetDurationText binding and the main slot's is the
+        -- countdown number, so each band needs a button of its own to carry its |T fill (see
+        -- BuildBandSlot). Groups are never de-duplicated against each other, so the same aura
+        -- lands in all of them -- which is the point: the slots stack into one box (both
+        -- styles are single-slot containers, see IsSlotMode).
+        -- ⚠ Threshold and colour are baked into the KEY: the park key is built from the
+        -- records, and a band's formatter is frozen once bound, so a parked container must
+        -- never come back to a config asking for a different threshold or colour.
+        local rb = opts.effectBands
+        if type(rb) == "table" and (opts.customStyle == "rect" or opts.customStyle == "block") then
+            local function csig(c)
+                return string.format("%.3f,%.3f,%.3f,%.3f", tonumber(c[1]) or 1, tonumber(c[2]) or 1,
+                    tonumber(c[3]) or 1, tonumber(c[4]) or 1)
+            end
+            local recs = { main }
+            if type(rb.pct) == "table" and type(rb.pct.color) == "table" then
+                recs[#recs + 1] = {
+                    key = "band_pct:" .. tostring(rb.pct.frac) .. ":" .. csig(rb.pct.color), filter = f,
+                    candidateFilters = { includeSpellIDs = ids },
+                    band = { kind = "pct", threshold = rb.pct.frac, color = rb.pct.color },
+                }
+            end
+            if type(rb.sec) == "table" and type(rb.sec.color) == "table" then
+                recs[#recs + 1] = {
+                    key = "band_sec:" .. tostring(rb.sec.secs) .. ":" .. csig(rb.sec.color), filter = f,
+                    candidateFilters = { includeSpellIDs = ids },
+                    band = { kind = "sec", threshold = rb.sec.secs, color = rb.sec.color },
+                }
+            end
+            return recs
+        end
+        return { main }
     end
 
     local function on(k) local v = opts[k]; return v == nil or v end -- default true
@@ -572,8 +611,30 @@ local SPENT_COLOR = { 0, 0, 0, 1 }
 --      at creation and leave it.
 --   3. No Lua-driven animation: OnUpdate / AnimationGroup attach inside the subtree but
 --      never tick (onUpdateMode is disabled and inherits). Effects are static. Anything
---      time-based must come from the engine (SetDurationCooldown / SetDurationBar) or not
---      at all -- "fade out as it expires" is gone with the remaining duration.
+--      time-based must come from the engine (SetDurationCooldown / SetDurationBar /
+--      AddPandemicRegion) or not at all -- "fade out as it expires" is gone with the
+--      remaining duration.
+--      ⚠ Disputed for the AnimationGroup half: DandersFrames v5.3.3 (AuraContainer.lua
+--      header, note 6, 2026-08-27) found that a DECLARATIVE group built and Play()ed inside
+--      the window keeps running C-side, secret or not -- only scripts are dead. The
+--      container glow (StyleGlow) now relies on exactly that; /cab probe anim (A1/A2)
+--      is the in-game check.
+--
+-- The engine-driven exceptions, on rect and on block (block is not an effect slot style --
+-- it keeps its own StyleButton branch with a swipe -- but it is single-slot too, see IsSlotMode):
+--   * Pandemic fill (12.1.5). We hand the engine a texture with AddPandemicRegion and it
+--     SetShown()s it while the aura sits in its Pandemic window (recasting would waste none
+--     of the remaining time). The region is stamped SecretAspect.Shown, so we never read
+--     whether it is showing and never Show/Hide it again; turning the option off is a
+--     rebuild (pandemicOn is structural), never a Hide.
+--   * The "remaining < N%" / "< N sec" colour bands. A texture has no colour curve, so each
+--     band is a FontString holding an inline |T fill, bound with SetDurationText to a
+--     breakpoint formatter that the engine evaluates against the secret remaining value
+--     (fill below the threshold, "" above it). Two things shape it: an AuraButton has only
+--     ONE SetDurationText binding (taken by the countdown), so every band rides its own
+--     companion slot; and an inline |T does not render at the size asked for (the factor
+--     varies by setup), so the escape is oversized and CLIPPED to the box by its holder.
+--     See COLOUR BANDS below.
 -- ============================================================
 local EFFECT_SLOT_STYLES = {
     color   = true,   -- health-bar / unit-button tint
@@ -586,9 +647,15 @@ AD.EFFECT_SLOT_STYLES = EFFECT_SLOT_STYLES
 -- Single-slot containers: one AddAuraSlot filling the handle frame, no flow layout.
 -- The dispel health-bar highlight (mode "overlay") was the first of these; the effect
 -- styles are the same shape with a different visual.
+-- block is one too, though it is not an effect style (it keeps its countdown, stack and
+-- swipe in its own StyleButton branch): it only ever shows ONE box (Custom.lua attaches it
+-- with num 1), and its colour-band companion slots must STACK on that box. In a flow
+-- layout every group is laid out after the previous one, so a band would land beside the
+-- block instead of on it.
 local function IsSlotMode(cfg)
     if not cfg then return false end
-    return cfg.mode == "overlay" or (cfg.customStyle ~= nil and EFFECT_SLOT_STYLES[cfg.customStyle] == true)
+    return cfg.mode == "overlay" or cfg.customStyle == "block"
+        or (cfg.customStyle ~= nil and EFFECT_SLOT_STYLES[cfg.customStyle] == true)
 end
 AD.IsSlotMode = IsSlotMode
 
@@ -800,6 +867,205 @@ local function BuildEffectBorder(handle, button, cfg)
     button.dfEffTex:SetVertexColor(r, g, b, a)
 end
 
+-- ============================================================
+-- COLOUR BANDS  ("remaining < N%" / "remaining < N sec", rect and block, on the container path)
+--
+-- A texture has no colour curve, but a FontString bound with SetDurationText has a
+-- formatter, and a NumericRuleFormatter picks a format string per breakpoint IN C, against
+-- the secret remaining value. So each band is a FontString whose only possible texts are an
+-- inline |T fill (below the threshold) or "" (at/above it) -- the engine chooses, we never
+-- read anything. (DandersFrames v5.3.3's expiry fill; see the aura-containers note.)
+--
+-- Why a companion SLOT per band instead of two more FontStrings on the main button: an
+-- AuraButton has exactly ONE SetDurationText binding (CustomAuraButtonSharedMixin keeps a
+-- single durationText), and the main slot's is the countdown number. The companion slots use
+-- the main slot's filter and spell list, so the same aura shows in all of them and they
+-- stack into one box (see BuildRecords).
+--
+-- Stacking inside a rect / block, bottom -> top, as offsets from the slot button's level:
+--   fill    rect: dfEffHolder (CreateFrame puts it at +1 on its own, border on the same frame)
+--           block: dfBlock, a BACKGROUND texture on the button itself (+0)
+--   border  block: dfBlockBorder (+1, edge only)
+--   pct band, Pandemic fill, sec band
+--   swipe   block only (dfMask, a VERTICAL shadow falling from the top via SetDurationBar):
+--           ABOVE the bands, so the elapsed part goes black and the part still to run shows
+--           whichever band colour is current -- the preview's look (CELL_COOLDOWN_STYLE)
+--   countdown text +6, stack +7 (BindDurStack)
+-- The order matches the preview's priority in Base.lua's Rect_OnUpdateColor and
+-- Block_OnUpdate_Duration (sec > Pandemic > pct > normal). Every layer above the border is
+-- inset by CELL_BORDER_SIZE, so nothing ever covers the edge.
+-- ============================================================
+local EFFECT_LAYER = { border = 1, pct = 2, pandemic = 3, sec = 4, swipe = 5 }
+
+local BuildBandSlot
+do  -- local-budget block: the band helpers are only reachable through BuildBandSlot
+    -- plain white (Cell/Media/white.tga is 128x128). The |T texWidth/texHeight and the uv
+    -- rect only say "the whole image", so any consistent size works for a solid fill.
+    local BAND_TEX = "Interface\\AddOns\\Cell\\Media\\white"
+    local BAND_TEX_SIZE = 128
+    -- How big to ask for the |T. An inline texture does NOT render at the size it is asked
+    -- for, and the factor is not even stable: DandersFrames measured ~0.75x in its setup,
+    -- a live rect here (2026-09-29, Cell's pixel-perfect sizing) came out at ~0.5x of the
+    -- inner box when asked for 0.75x. So no ratio is baked in at all: the escape asks for
+    -- several times the inner box and the holder CLIPS it (SetClipsChildren) to exactly
+    -- the box. Whatever the engine's factor is, the fill is edge to edge.
+    local BAND_OVERSCAN = 3
+
+    local floor, max, format = math.floor, math.max, string.format
+
+    local function C255(v)
+        v = tonumber(v) or 1
+        if v < 0 then v = 0 elseif v > 1 then v = 1 end
+        return floor(v * 255 + 0.5)
+    end
+
+    -- |Tpath:height:width:offX:offY:texW:texH:left:right:top:bottom:r:g:b|t -- r/g/b 0-255
+    -- vertex colour. No alpha slot: the band's alpha goes on the FontString instead.
+    local function BandEscape(w, h, color)
+        return format("|T%s:%d:%d:0:0:%d:%d:0:%d:0:%d:%d:%d:%d|t", BAND_TEX, h, w,
+            BAND_TEX_SIZE, BAND_TEX_SIZE, BAND_TEX_SIZE, BAND_TEX_SIZE,
+            C255(color[1]), C255(color[2]), C255(color[3]))
+    end
+
+    -- Own cache, NOT ACC's duration-formatter cache: a different key space. Shared across
+    -- buttons the same way ACC shares the countdown formatter.
+    local cache = {}
+    local function BandFormatter(band, thr, w, h)
+        local c = band.color
+        local key = format("%s:%s:%d:%d:%d,%d,%d", band.kind, tostring(thr), w, h,
+            C255(c[1]), C255(c[2]), C255(c[3]))
+        local cached = cache[key]
+        if cached ~= nil then return cached end
+        cache[key] = false
+        local ok, f = pcall(function()
+            local down = Enum.NumericRuleFormatRounding.Down
+            local fmt = C_StringUtil.CreateNumericRuleFormatter()
+            -- [0, thr) -> the fill; [thr, inf) -> nothing
+            fmt:AddBreakpoint({ threshold = 0, step = 1, rounding = down, min = 1, format = BandEscape(w, h, c) })
+            fmt:AddBreakpoint({ threshold = thr, step = 1, rounding = down, format = "" })
+            return fmt
+        end)
+        if ok and f then cache[key] = f end
+        return cache[key]
+    end
+
+    local function Err(handle, msg)
+        local e = handle._errors
+        if e and #e < 6 then e[#e + 1] = msg end -- cap, same as the style errors in AddGroups
+    end
+
+    -- A companion slot carries nothing but its band: no fill, no border, no countdown, no
+    -- stack. Everything is created in the initializeFrame window and bound ONCE; threshold,
+    -- colour and size all live in the record key / config, so a change is a fresh button.
+    function BuildBandSlot(handle, button, cfg, band)
+        if not button.dfBandHolder then
+            local holder = CreateFrame("Frame", nil, button)
+            -- inset by the border like the Pandemic fill: a band never covers the box's edge
+            holder:SetPoint("TOPLEFT", button, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+            holder:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+            -- the oversized |T below is cut to this box; this is what makes the size exact
+            holder:SetClipsChildren(true)
+            button.dfBandHolder = holder
+            local fs = holder:CreateFontString(nil, "OVERLAY", "CELL_FONT_STATUS")
+            -- no size given: a FontString does not clip, and the |T is centred on the box
+            fs:SetPoint("CENTER", holder, "CENTER", 0, 0)
+            fs:SetJustifyH("CENTER")
+            fs:SetWordWrap(false)
+            fs:SetShadowOffset(0, 0) -- CELL_FONT_STATUS carries a 1,-1 text shadow
+            button.dfBand = fs
+        end
+        button.dfBandHolder:SetFrameLevel(button:GetFrameLevel() + (EFFECT_LAYER[band.kind] or 2))
+
+        -- the |T is asked for at inner box x overscan and clipped by the holder; sizes come
+        -- from config, never from the button
+        local innerW = (cfg.size or 11) - 2 * CELL_BORDER_SIZE
+        local innerH = (cfg.sizeH or cfg.size or 4) - 2 * CELL_BORDER_SIZE
+        local w = max(4, floor(innerW * BAND_OVERSCAN + 0.5))
+        local h = max(4, floor(innerH * BAND_OVERSCAN + 0.5))
+        local fs = button.dfBand
+        -- A FIXED font, never the user's Cell font: the string only ever holds the |T, and
+        -- whatever part of the inline-texture factor might follow the font must not move
+        -- when the player picks another one. The size just sets the line box the |T sits in
+        -- (>= the asked height so nothing folds); it is clipped with the rest anyway.
+        if STANDARD_TEXT_FONT then fs:SetFont(STANDARD_TEXT_FONT, max(8, h), "") end
+        fs:SetAlpha(tonumber(band.color[4]) or 1) -- |T has no alpha field; region alpha instead
+
+        if button._boundBand or not button.SetDurationText then return end
+        local caps = ACC.GetCaps()
+        if not (caps and caps.numericFormatter) then return end
+        -- colors[2] stores a fraction (0.5); RemainingPercent is taken as 0-100 here, the scale
+        -- DandersFrames' 30% default uses. ⚠ UNVERIFIED: if the 50% band only lights at the
+        -- very end, the property is 0-1 and this multiplier must go.
+        local thr = tonumber(band.threshold) or 0
+        if band.kind == "pct" then thr = thr * 100 end
+        if thr <= 0 then return end   -- "< 0" can never fire; do not bind an empty band
+
+        local o
+        if band.kind == "pct" then
+            -- no RemainingPercent property = no percent band. Falling back to a plain
+            -- textFormatter would compare SECONDS against the percent threshold.
+            local P = Enum and Enum.DurationTextBindingProperty
+            if not (P and P.RemainingPercent) then
+                Err(handle, "band pct: no RemainingPercent property")
+                return
+            end
+            local fmt = BandFormatter(band, thr, w, h)
+            if not fmt then Err(handle, "band pct: formatter refused"); return end
+            o = { textFormat = { formatString = "{}", components = {
+                { property = P.RemainingPercent, formatter = fmt } } } }
+        else
+            local fmt = BandFormatter(band, thr, w, h)
+            if not fmt then Err(handle, "band sec: formatter refused"); return end
+            o = { textFormatter = fmt }
+        end
+        local ok, err = pcall(button.SetDurationText, button, fs, o)
+        if ok then
+            button._boundBand = true
+        else
+            Err(handle, "band " .. tostring(band.kind) .. " SetDurationText: " .. tostring(err))
+        end
+    end
+end
+
+-- Pandemic fill (12.1.5), shared by rect and block: a texture the ENGINE shows while the
+-- aura sits in its Pandemic window (AddPandemicRegion). parentFrame is what the fill covers
+-- -- rect's dfEffHolder, or the block button itself. The caller checks cfg.pandemicOn and
+-- button.AddPandemicRegion. See the EFFECT SLOTS note for the rules.
+local function BuildPandemicFill(handle, button, cfg, parentFrame)
+    if not button.dfPandemicTex then
+        -- Its own frame, at the Pandemic step of the stack (EFFECT_LAYER): the two colour
+        -- bands are sibling SLOT buttons (BuildBandSlot), and a texture drawn straight on the
+        -- fill's frame would sit under both of them whatever its sublevel.
+        -- The holder is ours and is never handed over -- only the texture is.
+        local ph = CreateFrame("Frame", nil, parentFrame)
+        ph:SetAllPoints(parentFrame)
+        button.dfPandemicHolder = ph
+        -- ⚠ A TEXTURE, not a frame: AddPandemicRegion validates RequireObjectType("Region")
+        -- and a Frame is not a Region in the current widget hierarchy -- the pcall would
+        -- swallow the refusal and the option would just never light up.
+        -- Inset by the border so it never covers the edge. Hidden before the hand-over: if
+        -- the engine refuses it, it must not sit there permanently lit (on success the
+        -- engine sets it right away).
+        local pt = ph:CreateTexture(nil, "ARTWORK")
+        pt:SetPoint("TOPLEFT", ph, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+        pt:SetPoint("BOTTOMRIGHT", ph, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+        pt:Hide()
+        button.dfPandemicTex = pt
+    end
+    -- re-applied every pass like every other level (the container re-levels its buttons)
+    button.dfPandemicHolder:SetFrameLevel(button:GetFrameLevel() + EFFECT_LAYER.pandemic)
+    -- the colour is ours to write at any time (cosmetic key -> Restyle lands here);
+    -- only its visibility belongs to the engine
+    local pr, pg, pb, pa = ColorOr(cfg.pandemicColor, unpack(Cell.defaults.pandemicColor))
+    button.dfPandemicTex:SetColorTexture(pr, pg, pb, pa)
+    if not button._boundPandemic then
+        button._boundPandemic = true
+        -- only legal inside the initializeFrame window; after the hand-over this texture
+        -- carries SecretAspect.Shown -- never read IsShown / never Show or Hide it
+        pcall(button.AddPandemicRegion, button, button.dfPandemicTex)
+    end
+end
+
 local function BuildEffectRect(handle, button, cfg)
     local holder = button.dfEffHolder
     if not holder then
@@ -815,6 +1081,10 @@ local function BuildEffectRect(handle, button, cfg)
     button.dfEffTex:SetColorTexture(fr, fg, fb, fa)
     local br, bg, bb, ba = ColorOr(colors and colors[4], 0, 0, 0, 1)
     holder:SetBackdropBorderColor(br, bg, bb, ba)
+
+    -- Pandemic fill (12.1.5): a second fill over the normal one that the ENGINE shows while
+    -- the aura is in its Pandemic window. See the EFFECT SLOTS note for the rules.
+    if cfg.pandemicOn and button.AddPandemicRegion then BuildPandemicFill(handle, button, cfg, holder) end
 end
 
 local function BuildEffectTexture(handle, button, cfg)
@@ -848,6 +1118,146 @@ local EFFECT_BUILDERS = {
     texture = BuildEffectTexture,
 }
 
+-- ============================================================
+-- GLOW  (the indicator's 發光 option, on the container path)
+--
+-- The manual path starts the glow on the indicator frame itself. Here that frame is hidden
+-- (AttachBuffContainer) and the visual lives on the engine's AuraButton, so the glow has to
+-- be built INTO the button's subtree -- that is the only way it appears and disappears with
+-- the aura, because presence is secret and nothing outside the subtree can ask.
+--
+-- The subtree's rules (see EFFECT SLOTS) rule out MiliUIGlow's Start API: pooled frames
+-- reparented in, sized by GetSize, moved by a Lua driver. Its Attach API is the answer: we
+-- make one clean child frame per button in the initializeFrame window, hand it over with the
+-- size we already know, and the lib builds fresh textures under it.
+--   pixel / shine / normal's ants  -> declarative AnimationGroups the lib builds AND Plays
+--                                     inside this window (Translation laps / FlipBook). Not
+--                                     scripts, so they keep running C-side while auras are
+--                                     secret (instances, boss fights) -- the old external
+--                                     driver's SetPoint/SetTexCoord was refused there and
+--                                     froze the glow on its last frame
+--   proc's loop                    -> the same: a REPEAT FlipBook the lib plays itself
+--                                     (handing it to the engine's shown-animation let a
+--                                     Stop leave alpha 1 + frame 0 = the whole sheet as
+--                                     a grid of dots)
+--   normal's entrance flash        -> one-shot AnimationGroup, handed to the ENGINE with
+--                                     AddAuraShownAnimation (it plays it; we never Play)
+-- glowStyle is structural (new textures need the window); glowColor is cosmetic, so a colour
+-- drag only restyles (the lib repaints the textures it already has, animations untouched).
+--
+-- glowTiming (every container-backed indicator with a 發光 section: custom buff icon /
+-- icons / rect / block and the built-in cooldown rows): "aura" = the above, lit while the
+-- aura is present.
+-- "pandemic" = lit only inside the engine's Pandemic window: the glow frame f ITSELF is
+-- handed over with AddPandemicRegion (a Frame passes its "Region" check -- DandersFrames'
+-- dfPandemicHolder is the same move), so the engine SetShown's f and everything the lib
+-- drew under it; the textures and their animations stay ours. ☠ From then on f's Shown is
+-- a secret aspect: never Show/Hide f again (button._glowHolderBound). Fallback if the
+-- frame is refused: every texture the lib drew is handed over one by one instead (the lib
+-- is told first via f._glowEngineShown so it never Show/Hides them). The AnimationGroups
+-- normal's entrance flash goes to AddPandemicEnterAnimation (once on entering); proc's
+-- loop plays on its own under f like every other declarative glow. It does NOT depend on
+-- the Pandemic colour option -- the window is the engine's either way.
+-- Structural: the two timings bind different things, so a change is fresh buttons and the
+-- bind-once flags start from zero. A client without AddPandemicRegion (12.1.0) falls back
+-- to "aura" and notes it in handle._errors.
+-- "none" never reaches here as a glow: Built-in sends glowStyle = false for it.
+-- ============================================================
+local GLOW_LEVEL = 8 -- the lib's own default offset: above the countdown (+6) and stack (+7)
+
+local function StyleGlow(handle, button, width, height)
+    local cfg = handle.config
+    local gs = cfg.glowStyle
+    local kind = type(gs) == "table" and type(gs[1]) == "string" and strlower(gs[1]) or "none"
+    local LCG = Cell.MiliUIGlow
+    if kind == "none" or not (LCG and LCG.PixelGlow_Attach) then
+        if button.dfGlow then
+            if LCG and LCG.Glow_Detach then LCG.Glow_Detach(button.dfGlow) end
+            -- a frame handed to AddPandemicRegion is the engine's to show/hide
+            if not button._glowHolderBound then button.dfGlow:Hide() end
+        end
+        return
+    end
+    local color = cfg.glowColor
+    if type(color) ~= "table" then color = nil end
+    local pandemicTiming = cfg.glowTiming == "pandemic" and button.AddPandemicRegion ~= nil
+    if cfg.glowTiming == "pandemic" and not pandemicTiming and not handle._glowTimingErr then
+        handle._glowTimingErr = true -- once per handle: this runs per button per restyle
+        local e = handle._errors
+        if e and #e < 6 then e[#e + 1] = "glow timing: no AddPandemicRegion" end
+    end
+
+    local f = button.dfGlow
+    if not f then
+        f = CreateFrame("Frame", nil, button)
+        button.dfGlow = f
+    end
+    -- before any Attach: the lib must not Show/Hide textures the engine will own
+    f._glowEngineShown = pandemicTiming or nil
+    f:SetFrameLevel(button:GetFrameLevel() + GLOW_LEVEL)
+    f:ClearAllPoints()
+    local gw, gh = width, height
+    if kind == "normal" or kind == "proc" then
+        -- the lib draws these two 1.4x the button (ButtonGlow_Start / ProcGlow_Start)
+        local dx, dy = width * 0.2, height * 0.2
+        f:SetPoint("TOPLEFT", button, "TOPLEFT", -dx, dy)
+        f:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", dx, -dy)
+        gw, gh = width * 1.4, height * 1.4
+    else
+        f:SetAllPoints(button)
+    end
+    -- anchors/level stay ours after the Pandemic hand-over (only Shown is stamped); Shown not
+    if not button._glowHolderBound then f:Show() end
+
+    local anim
+    if kind == "pixel" then
+        LCG.PixelGlow_Attach(f, color, gs[2], gs[3], gs[4], gs[5], gw, gh)
+    elseif kind == "shine" then
+        LCG.AutoCastGlow_Attach(f, color, gs[2], gs[3], gs[4], gw, gh)
+    elseif kind == "normal" then
+        anim = LCG.ButtonGlow_Attach(f, color, nil, gw, gh)
+    elseif kind == "proc" then
+        anim = LCG.ProcGlow_Attach(f, color, gs[2], gw, gh)
+    end
+    if pandemicTiming then
+        -- visibility: the engine owns it from here on (Shown is a secret aspect). Hidden
+        -- before the hand-over, like the Pandemic fill: if the engine refuses it, it stays
+        -- dark instead of permanently lit (on success the engine sets it right away).
+        -- First choice is f itself: the lib keeps Show/Hide of its own textures and the
+        -- animations under f keep running whether f is shown or not.
+        if not button._boundPandemicGlow then
+            f:Hide()
+            if pcall(button.AddPandemicRegion, button, f) then
+                button._glowHolderBound = true
+            elseif pcall(f.Show, f) then
+                -- fallback: hand every drawn texture over instead (f._glowEngineShown was
+                -- set before the Attach, so the lib already treats them as engine-owned)
+                for _, r in ipairs(LCG.Glow_Regions(f)) do
+                    r:Hide()
+                    pcall(button.AddPandemicRegion, button, r)
+                end
+            else
+                -- the refusal came after the stamp (Show is already the engine's): treat f
+                -- as handed over rather than write its Shown again
+                button._glowHolderBound = true
+            end
+            button._boundPandemicGlow = true
+        end
+        -- animations: normal's entrance flash plays once on entering the window (the only
+        -- glow animation still handed to the engine -- the loops play on their own under f)
+        if anim and not button._boundGlowAnim then
+            button._boundGlowAnim = true
+            if kind == "normal" and button.AddPandemicEnterAnimation then
+                pcall(button.AddPandemicEnterAnimation, button, anim)
+            end
+        end
+    -- bind-once, flagged only after the call returns (same rule as the other binds)
+    elseif anim and button.AddAuraShownAnimation and not button._boundGlowAnim then
+        button:AddAuraShownAnimation(anim)
+        button._boundGlowAnim = true
+    end
+end
+
 local function StyleButton(handle, button)
     local cfg = handle.config
     local size = cfg.size or 22
@@ -875,6 +1285,12 @@ local function StyleButton(handle, button)
             button:SetIcon(button.dfTestIcon)
         end
         return
+    end
+
+    -- PROBE A (/cab probe anim): animated markers created in THIS window, to test rule 3
+    -- (see EFFECT SLOTS) against EUI's claim. Off = one table read. See the PROBES section.
+    if AD._probe and AD._probe.anim and not cfg.mode then
+        AD._probe.MarkButton(handle, button, size)
     end
 
     -- OVERLAY MODE: a tint texture covering the button (positioned over the health bar),
@@ -928,8 +1344,18 @@ local function StyleButton(handle, button)
     -- block/text -- the container owns the button's visibility, so aura PRESENCE needs no
     -- read -- but these fill their whole anchor rather than sitting in a row, so the slot
     -- button IS the effect. See the EFFECT SLOTS note at the top of the file.
-    -- ⚠ No time-based behaviour of any kind: the old fade-out / colour-by-remaining and the
-    -- percent-and-seconds threshold bands all needed a countdown we can no longer read.
+    -- ⚠ No Lua-driven time-based behaviour: the old fade-out / colour-by-remaining needed a
+    -- countdown we can no longer read. What time-based remains is engine-driven, on rect
+    -- (and block, below): its countdown text (with its colour curve), its Pandemic fill
+    -- (AddPandemicRegion, see BuildPandemicFill) and its two colour bands (companion slots,
+    -- see BuildBandSlot).
+    -- rect / block colour-band companion slot: its band and nothing else (see COLOUR BANDS).
+    -- ⚠ Must stay ABOVE both the effect builders and the BLOCK / TEXT branch: a companion
+    -- slot of a block would otherwise get a second fill, border and countdown of its own.
+    if button._adBand then
+        BuildBandSlot(handle, button, cfg, button._adBand)
+        return
+    end
     local effBuild = cfg.customStyle and EFFECT_BUILDERS[cfg.customStyle]
     if effBuild then
         effBuild(handle, button, cfg)
@@ -946,6 +1372,7 @@ local function StyleButton(handle, button)
                 button.dfDur:SetTextColor(r, g, b, a)
             end
         end
+        StyleGlow(handle, button, size, sizeH)
         return
     end
 
@@ -953,7 +1380,10 @@ local function StyleButton(handle, button)
     -- path because they render aura PRESENCE, and presence is secret. Here the container owns
     -- the button's visibility, so presence needs no read: draw a fixed-colour rect (block) or
     -- nothing (text), and let Blizzard blind-render the countdown number + stack onto our
-    -- fontstrings. ⚠ No time-based recolour (剩X秒變紅/到期閃光): remaining duration is secret.
+    -- fontstrings. ⚠ No Lua-timed recolour (剩X秒變紅/到期閃光): remaining duration is secret.
+    -- block's time-based colours are all engine-driven, the same three layers as rect: the
+    -- two bands (companion slots, see COLOUR BANDS), the Pandemic fill, and the countdown
+    -- text's colour curve. Stacking: see EFFECT_LAYER.
     if cfg.customStyle == "block" or cfg.customStyle == "text" then
         local base = button:GetFrameLevel()
         local col = cfg.borderColor
@@ -969,28 +1399,46 @@ local function StyleButton(handle, button)
             local c = hasCol and col or BUFF_GREEN
             button.dfBlock:SetColorTexture(c[1], c[2] or 0, c[3] or 0, c[4] or 1)
 
-            -- draining swipe over the fill: a BLIND visual timer (Blizzard drives it from the
-            -- aura's duration; we never read the remaining time). We can't recolour the fill
-            -- by time (that value is secret), but the sweep restores the "how much is left"
-            -- read that the old time-based recolour gave.
+            -- the border (colors[5]): edge only, on a holder of our own -- same as rect's
+            -- dfEffHolder, which carries its fill on the same frame
+            if not button.dfBlockBorder then
+                local bh = CreateFrame("Frame", nil, button, "BackdropTemplate")
+                bh:SetAllPoints(button)
+                bh:SetBackdrop({ edgeFile = Cell.vars.whiteTexture, edgeSize = CELL_BORDER_SIZE })
+                button.dfBlockBorder = bh
+            end
+            button.dfBlockBorder:SetFrameLevel(base + EFFECT_LAYER.border)
+            local br, bg, bb, ba = ColorOr(cfg.blockBorderColor, 0, 0, 0, 1)
+            button.dfBlockBorder:SetBackdropBorderColor(br, bg, bb, ba)
+
+            -- Pandemic fill: the engine shows it while the aura is in its Pandemic window
+            if cfg.pandemicOn and button.AddPandemicRegion then BuildPandemicFill(handle, button, cfg, button) end
+
+            -- the drain over the fill and the bands: a BLIND visual timer (Blizzard drives it
+            -- from the aura's duration; we never read the remaining time). It sits above the
+            -- bands (EFFECT_LAYER.swipe), so the part still to run shows the current band colour.
+            -- Same look as the preview (Shared_CreateCooldown_Vertical_NoIcon: a black 0.8
+            -- shadow falling from the top, so the colour appears to shrink downward), and the
+            -- same recipe as the icon path's "vertical" style: VERTICAL + ReverseFill, handed
+            -- over with SetDurationBar. Was a clock sweep until 2026-09-29, which is why the
+            -- preview and the unit frames disagreed.
             if durationOn then
-                if not button.dfCD then
-                    button.dfCD = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
-                    button.dfCD:SetSwipeTexture(ACC.WHITE)
-                    button.dfCD:SetSwipeColor(SPENT_COLOR[1], SPENT_COLOR[2], SPENT_COLOR[3])
-                    button.dfCD:SetReverse(true)           -- swipe covers the ELAPSED arc
-                    button.dfCD:SetDrawSwipe(true)
-                    button.dfCD:SetHideCountdownNumbers(true)
-                    button.dfCD:SetDrawEdge(false)
-                    button.dfCD:SetDrawBling(false)
-                    button.dfCD.noCooldownCount = true     -- keep OmniCC off our numbers
+                if not button.dfMask then
+                    button.dfMask = CreateFrame("StatusBar", nil, button)
+                    button.dfMask:SetOrientation("VERTICAL")
+                    button.dfMask:SetReverseFill(true)     -- shadow grows from the top down
+                    button.dfMask:SetStatusBarTexture(ACC.WHITE)
+                    button.dfMask:GetStatusBarTexture():SetVertexColor(0, 0, 0, 0.8)
                 end
-                button.dfCD:ClearAllPoints()
-                button.dfCD:SetAllPoints(button)
-                button.dfCD:SetFrameLevel(base + 1)
-                if button.SetDurationCooldown and not button._boundCD then
-                    button:SetDurationCooldown(button.dfCD)
-                    button._boundCD = true
+                button.dfMask:ClearAllPoints()
+                -- inset like the manual block's cooldown: the shadow never covers the border
+                button.dfMask:SetPoint("TOPLEFT", button, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+                button.dfMask:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+                button.dfMask:SetFrameLevel(base + EFFECT_LAYER.swipe)
+                button.dfMask:Show()
+                if button.SetDurationBar and not button._boundMask then
+                    button:SetDurationBar(button.dfMask)
+                    button._boundMask = true
                 end
             end
         end
@@ -1018,6 +1466,7 @@ local function StyleButton(handle, button)
                 end
             end
         end
+        StyleGlow(handle, button, size, sizeH)
         return
     end
 
@@ -1198,8 +1647,11 @@ local function StyleButton(handle, button)
     -- Per aura, not per group: Blizzard shows it blind for the schools in the set (see
     -- ACC.BindDispelBadge). Same holder and layer as the "!", opposite corner. The set is
     -- config, so a spec change rebuilds -- the colour map is copied in at bind time.
+    -- _adNoDispelBadge is stamped in initializeFrame for a group whose filter already
+    -- excludes RAID_PLAYER_DISPELLABLE (the "short" record): no aura that group can hold is
+    -- one the player dispels, so its four textures and binds would never draw anything.
     local dispelTypes = cfg.dispelBadge
-    if type(dispelTypes) == "table" and next(dispelTypes) then
+    if type(dispelTypes) == "table" and next(dispelTypes) and not button._adNoDispelBadge then
         ACC.StyleDispelBadge(button.dfDurHolder, button.dfDurHolder, math.min(size, sizeH), handle.frame)
         if not button._boundDispelBadge
             and ACC.BindDispelBadge(button, button.dfDurHolder, dispelTypes) then
@@ -1265,6 +1717,7 @@ local function StyleButton(handle, button)
         ACC.BindDispelText(button, button.dfSymbol)
     end
 
+    StyleGlow(handle, button, size, sizeH)
 end
 
 -- ============================================================
@@ -1425,7 +1878,6 @@ AD.PARK_ENABLED = true
 local PARK_CAP = 240        -- parked hosts held at once; past this, teardown orphans as before
 local park, parkCount = {}, 0
 local parkHolder
-local NO_RECORDS = {}
 
 local function ParkHolder()
     if not parkHolder then
@@ -1453,6 +1905,16 @@ end
 local function ParkOrDiscard(handle)
     local host, c = handle.host, handle.container
     handle.host, handle.container = nil, nil
+
+    -- glow pause hook, paired with Glow_Resume in Build. Currently a no-op in the lib: the
+    -- Attach glows are declarative AnimationGroups with no driver to unsubscribe, and they
+    -- keep playing under a parked host at negligible cost. Kept as the lib's interface.
+    local LCG = Cell.MiliUIGlow
+    if LCG and LCG.Glow_Suspend then
+        for _, b in ipairs(handle.buttons or {}) do
+            if b.dfGlow then LCG.Glow_Suspend(b.dfGlow) end
+        end
+    end
 
     -- ⚠ Nothing beyond SetEnabled/Hide is ever called ON the container: it carries Forbidden
     -- Aspects, a refused SetParent would be swallowed by the pcall, and the container would
@@ -1515,6 +1977,99 @@ function AD.ParkStats()
 end
 
 -- ============================================================
+-- GROUP DECLARATION
+--
+-- Declares `records` on the handle's container. Split out of Build because a container can
+-- now receive its groups later than its creation (see LAZY GROUPS below Build) -- and that
+-- later call may land in combat.
+--
+-- strict: combat. Stop at the FIRST refused declaration with nothing added, and return
+-- false, so the caller can hand the whole set to the regen queue instead of leaving a
+-- half-declared container behind. Out of combat a refused group is recorded and skipped,
+-- exactly as it always was (a rejected filter must not take the other groups with it).
+-- ============================================================
+local function AddGroups(handle, host, c, records, slotMode, strict)
+    local groupLayout = GroupLayout(handle.config)
+    -- ⚠ maxFrameCount is PER GROUP, not per container. The important display declares five
+    -- category groups, so num=3 meant "up to 15 icons" and made Blizzard pre-allocate a
+    -- batch of 10 buttons PER GROUP (50 for three visible icons). The budget is handed out
+    -- per group by GroupBudget -- read the note above it before changing the shape.
+    local wanted = handle.config.num or 3
+    local first = true
+
+    for _, rec in ipairs(records) do
+        -- a group whose filter subtracts "dispellable by me" never holds an aura the "+"
+        -- could mark; stamped per button so StyleButton skips the badge there
+        local noDispelBadge = rec.filter:find("!" .. TOKEN_DISP, 1, true) and true or nil
+        local initFn = function(button)
+            -- ⚠ Resolve the owner through the HOST, never through the captured `handle`.
+            -- Blizzard keeps this closure inside the group for the container's whole life,
+            -- and a parked container comes back owned by a different handle -- a captured
+            -- one would append the button to a list nobody reads and style it from a config
+            -- nobody is showing.
+            local h = host._adOwner
+            if not h then return end
+            h._initCount = (h._initCount or 0) + 1
+            if slotMode then pcall(function() button:SetAllPoints(c) end) end
+            -- Per-spell effect slots: stamp the record's colour BEFORE StyleButton so the
+            -- builder can read it. Stamped once, at creation, and never re-read from the
+            -- engine -- the park key covers the record set, so a returning button always
+            -- carries the colour its record was built with.
+            if rec.effColor ~= nil then button._adEffColor = rec.effColor end
+            -- rect colour-band companion slot (see BuildRecords): same rule -- stamped at
+            -- creation, never re-read; threshold/colour live in rec.key, so a returning
+            -- button always carries the band it was bound with
+            if rec.band then button._adBand = rec.band end
+            -- Same for the boss badge. It never has to come off again: bossBadge is structural
+            -- (a toggle rebuilds) and part of the park key, so this button only ever serves
+            -- a config that asked for it.
+            if rec.badge then button._adBadge = true end
+            if noDispelBadge then button._adNoDispelBadge = true end
+            -- ⚠ Tracked HERE and nowhere else. This is the only place a genuinely new
+            -- button arrives; StyleButton must never append, because Restyle iterates this
+            -- very list and calls StyleButton on each entry -- appending from there grew
+            -- the list exactly as fast as the iterator advanced, so the loop never ended
+            -- and the client froze on every option change that triggers a restyle.
+            tinsert(h.buttons, button)
+            local okS, errS = pcall(StyleButton, h, button)
+            if not okS and h._errors and #h._errors < 6 then -- cap: 50 identical lines helps nobody
+                h._errors[#h._errors + 1] = "style: " .. tostring(errS)
+            end
+        end
+        local okG, errG
+        if slotMode then
+            -- single slot covering the frame (AddAuraGroup eagerly batches; AddAuraSlot
+            -- is the genuine single-icon/overlay primitive)
+            okG, errG = pcall(c.AddAuraSlot, c, rec.key, rec.filter, {
+                initializeFrame = initFn,
+                candidateFilters = rec.candidateFilters,
+            })
+        else
+            okG, errG = pcall(c.AddAuraGroup, c, rec.key, rec.filter, {
+                -- position among flexible groups added so far (+1 = this one, if flexible)
+                maxFrameCount = GroupBudget(rec.key, FlexCount(handle._groupKeys) + 1, #records, wanted),
+                initializeFrame = initFn,
+                layout = groupLayout,
+                candidateFilters = rec.candidateFilters,
+            })
+        end
+        if okG then
+            handle._groupsAdded = handle._groupsAdded + 1
+            -- remembered so SetNum can drive maxFrameCount live (slots are always 1)
+            if not slotMode then handle._groupKeys[#handle._groupKeys + 1] = rec.key end
+        else
+            if strict and first then
+                handle._errors[#handle._errors + 1] = "combat Add[" .. rec.key .. "]: " .. tostring(errG)
+                return false
+            end
+            handle._errors[#handle._errors + 1] = "Add[" .. rec.key .. "] (" .. rec.filter .. "): " .. tostring(errG)
+        end
+        first = false
+    end
+    return true
+end
+
+-- ============================================================
 -- BUILD  (create -> SetUnit -> AddAuraGroup* -> SetEnabled LAST)
 -- ============================================================
 
@@ -1530,7 +2085,11 @@ local function Build(handle, why)
         AD._pending[handle] = nil
         return
     end
-    if InCombatLockdown() then
+    -- PROBE B (/cab probe build | reloadbuild): _probeBypassCombat is set only around the
+    -- probe's own Build call. CombatBuild returns false unless the saved switch is on, in
+    -- which case it has just run this build itself (re-entering with the bypass set).
+    if InCombatLockdown() and not handle._probeBypassCombat then
+        if AD._probe and AD._probe.CombatBuild(handle, why) then return end
         handle._pendingBuild = true
         if AD._defer then AD._defer(handle, why or "build") end
         return
@@ -1550,6 +2109,8 @@ local function Build(handle, why)
     -- still its buttons, they keep their styling, and they come back together or not at all.
     handle.buttons = {}
     handle._groupKeys = nil
+    -- a shell's pending declaration belonged to the host that was just parked
+    handle._groupsDeferred, handle._pendingGroups = nil, nil
     -- Identity-gate state is re-derived from THIS build's records below. Clearing it here
     -- is what lets a handle rebuilt onto non-vulnerable filters drop a stale hidden flag
     -- instead of staying hidden forever; the assist verdict resets too, because a fresh
@@ -1594,6 +2155,12 @@ local function Build(handle, why)
         host:Show()
         -- its buttons come back with it, already initialised and styled for exactly this key
         handle.buttons = host._adButtons
+        local LCG = Cell.MiliUIGlow
+        if LCG and LCG.Glow_Resume then
+            for _, b in ipairs(handle.buttons) do
+                if b.dfGlow then LCG.Glow_Resume(b.dfGlow) end
+            end
+        end
         handle._groupKeys = host._adGroupKeys
         AD.stats.reuses = AD.stats.reuses + 1
     else
@@ -1642,13 +2209,6 @@ local function Build(handle, why)
     local okU, errU = pcall(function() c:SetUnit(handle.unit) end)
     if not okU then handle._errors[#handle._errors + 1] = "SetUnit: " .. tostring(errU) end
 
-    local groupLayout = GroupLayout(handle.config)
-    -- ⚠ maxFrameCount is PER GROUP, not per container. The important display declares five
-    -- category groups, so num=3 meant "up to 15 icons" and made Blizzard pre-allocate a
-    -- batch of 10 buttons PER GROUP (50 for three visible icons). The budget is handed out
-    -- per group by GroupBudget -- read the note above it before changing the shape.
-    local wanted = handle.config.num or 3
-
     -- diagnostics: what filters/cf this container actually built with
     handle._recordInfo = {}
     for _, rec in ipairs(records) do
@@ -1664,63 +2224,28 @@ local function Build(handle, why)
     handle._modeDbg = handle.config.mode or "important"
 
     -- ⚠ A REUSED container already carries exactly these groups -- they are part of the park
-    -- key -- with their buttons created, initialised and styled. AddAuraGroup here would
-    -- declare every one of them a second time, so the loop is fed nothing instead.
-    for _, rec in ipairs(reused and NO_RECORDS or records) do
-        local initFn = function(button)
-            -- ⚠ Resolve the owner through the HOST, never through the captured `handle`.
-            -- Blizzard keeps this closure inside the group for the container's whole life,
-            -- and a parked container comes back owned by a different handle -- a captured
-            -- one would append the button to a list nobody reads and style it from a config
-            -- nobody is showing.
-            local h = host._adOwner
-            if not h then return end
-            h._initCount = (h._initCount or 0) + 1
-            if slotMode then pcall(function() button:SetAllPoints(c) end) end
-            -- Per-spell effect slots: stamp the record's colour BEFORE StyleButton so the
-            -- builder can read it. Stamped once, at creation, and never re-read from the
-            -- engine -- the park key covers the record set, so a returning button always
-            -- carries the colour its record was built with.
-            if rec.effColor ~= nil then button._adEffColor = rec.effColor end
-            -- Same for the boss badge. It never has to come off again: bossBadge is structural
-            -- (a toggle rebuilds) and part of the park key, so this button only ever serves
-            -- a config that asked for it.
-            if rec.badge then button._adBadge = true end
-            -- ⚠ Tracked HERE and nowhere else. This is the only place a genuinely new
-            -- button arrives; StyleButton must never append, because Restyle iterates this
-            -- very list and calls StyleButton on each entry -- appending from there grew
-            -- the list exactly as fast as the iterator advanced, so the loop never ended
-            -- and the client froze on every option change that triggers a restyle.
-            tinsert(h.buttons, button)
-            local okS, errS = pcall(StyleButton, h, button)
-            if not okS and h._errors and #h._errors < 6 then -- cap: 50 identical lines helps nobody
-                h._errors[#h._errors + 1] = "style: " .. tostring(errS)
-            end
+    -- key -- with their buttons created, initialised and styled. Declaring them here would
+    -- add every one a second time, so only a fresh container (or a parked SHELL, which never
+    -- got its groups) declares anything.
+    local needGroups = not reused or host._adShell
+    if needGroups and AD.LAZY_GROUPS and not handle.frame:IsVisible() then
+        -- SHELL: host + container + unit, no groups => no AuraButtons yet. The groups are
+        -- declared the first time the button is actually on screen (see LAZY GROUPS below).
+        -- ⚠ No SetEnabled either: SetEnabled stays LAST, after the groups, as always.
+        host._adShell = true
+        handle._groupsDeferred = true
+        handle:_ApplyVisibility()
+        handle:ApplyIdentityGate()
+        -- a boss / raid slot inside an instance: declare now, sliced, rather than on the
+        -- ENCOUNTER_START frame that first shows it
+        if AD._PrewarmWanted(handle) and not InCombatLockdown() then
+            AD._QueueGroups(handle, true)
         end
-        local okG, errG
-        if slotMode then
-            -- single slot covering the frame (AddAuraGroup eagerly batches; AddAuraSlot
-            -- is the genuine single-icon/overlay primitive)
-            okG, errG = pcall(c.AddAuraSlot, c, rec.key, rec.filter, {
-                initializeFrame = initFn,
-                candidateFilters = rec.candidateFilters,
-            })
-        else
-            okG, errG = pcall(c.AddAuraGroup, c, rec.key, rec.filter, {
-                -- position among flexible groups added so far (+1 = this one, if flexible)
-                maxFrameCount = GroupBudget(rec.key, FlexCount(handle._groupKeys) + 1, #records, wanted),
-                initializeFrame = initFn,
-                layout = groupLayout,
-                candidateFilters = rec.candidateFilters,
-            })
-        end
-        if okG then
-            handle._groupsAdded = handle._groupsAdded + 1
-            -- remembered so SetNum can drive maxFrameCount live (slots are always 1)
-            if not slotMode then handle._groupKeys[#handle._groupKeys + 1] = rec.key end
-        else
-            handle._errors[#handle._errors + 1] = "Add[" .. rec.key .. "] (" .. rec.filter .. "): " .. tostring(errG)
-        end
+        return
+    end
+    if needGroups then
+        AddGroups(handle, host, c, records, slotMode, false)
+        host._adShell = nil
     end
 
     -- SetEnabled LAST (gates aura-event registration). Only "counts" if the frame is
@@ -1763,8 +2288,9 @@ do
     regen:RegisterEvent("PLAYER_REGEN_ENABLED")
     AD._pending = {}
     AD.FLUSH_BUDGET_MS = 8      -- per-frame build budget; /run Cell.AuraDisplay.FLUSH_BUDGET_MS = n
-    -- Chat line when a regen queue is at least this long. Persisted in CellDB and OFF by
+    -- Log line when a regen queue is at least this long. Persisted in CellDB and OFF by
     -- default: this is a producer-hunt diagnostic, players must never see it. /cab report <n>
+    -- fix from MiliUI: 只寫進除錯主控台（/cell debug 的光環分類），不再印聊天框
     local function ReportMin()
         local v = CellDB and tonumber(CellDB["auraQueueReportMin"])
         return v or 0
@@ -1781,6 +2307,13 @@ do
             AD._pending[h] = nil
             if h._pendingBuild then
                 Build(h)
+            elseif h._pendingGroups then
+                -- combat refused a shell's first-show declaration; declare it now. Its
+                -- own re-parse bounce makes any gate kick queued alongside redundant.
+                h._pendingGroups, h._pendingGateKick = nil, nil
+                if h._groupsDeferred and h.container and not h._destroyed then
+                    h:_AddDeferredGroups()
+                end
             elseif h._pendingGateKick then
                 -- an identity-gate recovery that landed mid-combat only got to mark the
                 -- container dirty; the bounce that actually re-parses is OOC-only
@@ -1837,7 +2370,8 @@ do
             for why, c in pairs(whys) do list[#list + 1] = {why, c} end
             table.sort(list, function(a, b) return a[2] > b[2] end)
             for i, e in ipairs(list) do list[i] = e[1] .. " " .. e[2] end
-            print(("|cff33ff99[Cell 光環]|r 脫戰時佇列 %d 筆：%s"):format(n, table.concat(list, "、")))
+            -- fix from MiliUI: 這是自動回報、不是玩家下的指令，只進除錯主控台，不洗聊天框
+            F.Log("aura", ("脫戰時佇列 %d 筆：%s"):format(n, table.concat(list, "、")))
         end
         restyleList = nil
         flushTicker = C_Timer.NewTicker(0, Tick)
@@ -1855,6 +2389,150 @@ do
         local w = AD.stats.deferWhy
         w[why] = (w[why] or 0) + 1
     end
+end
+
+-- ============================================================
+-- LAZY GROUPS
+--
+-- Every AddAuraGroup makes Blizzard pre-allocate a batch of AuraButtons (FrameCreationBatch
+-- Size = 10, the frame provider's anti-fingerprinting batch), each styled by StyleButton
+-- with its own Cooldown / holders / textures -- and WoW frames can never be freed. Declaring
+-- groups on every handle at login cost 140 groups -> 1400 AuraButtons for a SOLO layout
+-- (heap census 2026-09-27, standing in a city): boss1-8 and the spotlight slots own full
+-- containers although they are almost never on screen.
+--
+-- So a handle whose frame is not visible when it builds gets a SHELL: host + container +
+-- SetUnit, no groups (no buttons), not enabled. The groups are declared the first time the
+-- frame is actually visible -- hooked where visibility already re-asserts (ReassertEnable,
+-- GateRefresh, _ApplyVisibility). Once declared they stay: hiding the button again does not
+-- tear anything down (teardown cannot free frames; rebuilding on the next show would leak).
+--
+-- ⚠ FIRST SHOW IN COMBAT IS THE NORMAL CASE for boss frames (ENCOUNTER_START). The
+-- declaration then runs in combat, on an existing container. Declaring a group on a live
+-- container is EXPECTED to be combat-legal (the container is ours and nothing protected is
+-- touched), but that is not verified here yet -- so it is pcall'd, strict (first refusal =
+-- nothing added), and a refusal falls back to the regen queue ("lazy-combat"). /cab stats
+-- counts both outcomes; a non-zero failure count is the answer to that question.
+--
+-- ⚠ Never inline from the show hooks: the button's OnShow can be running inside a secure
+-- show (RegisterUnitWatch), and declaring a group creates and styles ten frames. The work
+-- goes through a queue drained NEXT frame with the same per-frame budget as the regen flush,
+-- which also keeps a boss pull or a raid join from declaring dozens of groups in one frame.
+--
+-- PREWARM: inside a party/raid/scenario instance, out of combat, the shells of boss1-5 and
+-- of the raid slots the group already fills are declared ahead of time (same queue, forced
+-- past the visibility test), so the pull does not pay for them. The in-combat declaration
+-- stays as the last line of defence.
+--
+-- Kill switches (this session, for every build from then on; shells that already exist
+-- still get their groups on first show):
+--   /run Cell.AuraDisplay.LAZY_GROUPS = false
+--   /run Cell.AuraDisplay.PREWARM_ENABLED = false
+-- ============================================================
+AD.LAZY_GROUPS = true
+AD.PREWARM_ENABLED = true
+do
+    local PREWARM_BOSSES = 5
+    -- explicit head/tail: the drained slots are nil'd, so #lazyQ would be meaningless
+    local lazyQ, lazyForce, head, tail = {}, {}, 1, 0
+    local lazyTicker
+
+    local function Tick(t)
+        local start = debugprofilestop()
+        while head <= tail do
+            local h = lazyQ[head]
+            lazyQ[head] = nil
+            head = head + 1
+            local force = lazyForce[h]
+            lazyForce[h] = nil
+            if h._groupsDeferred and h.container and not h._destroyed
+                and (force or h.frame:IsVisible()) then
+                local t0 = debugprofilestop()
+                h:_AddDeferredGroups()
+                if force then
+                    AD.stats.prewarmHandles = AD.stats.prewarmHandles + 1
+                    AD.stats.prewarmMs = AD.stats.prewarmMs + (debugprofilestop() - t0)
+                end
+            end
+            if debugprofilestop() - start >= AD.FLUSH_BUDGET_MS then return end
+        end
+        t:Cancel()
+        if lazyTicker == t then lazyTicker = nil end
+        lazyQ, head, tail = {}, 1, 0
+    end
+
+    -- force = prewarm: declare even while the frame is hidden. A plain entry re-checks
+    -- visibility when its turn comes (a button that flashed on and off again stays a shell).
+    function AD._QueueGroups(h, force)
+        if not h._groupsDeferred or h._destroyed then return end
+        if not force and not h.frame:IsVisible() then return end
+        local cur = lazyForce[h]
+        if cur ~= nil then
+            if force then lazyForce[h] = true end
+            return
+        end
+        lazyForce[h] = force and true or false
+        tail = tail + 1
+        lazyQ[tail] = h
+        if not lazyTicker then lazyTicker = C_Timer.NewTicker(0, Tick) end
+    end
+
+    function AD.LazyQueueLength()
+        return tail - head + 1
+    end
+
+    -- ---- prewarm ------------------------------------------------------------------------
+    local prewarmZone = false
+
+    function AD._PrewarmWanted(h)
+        if not prewarmZone or not AD.PREWARM_ENABLED then return false end
+        local u = h.unit
+        if type(u) ~= "string" then return false end
+        local b = tonumber(u:match("^boss(%d+)$"))
+        if b then return b <= PREWARM_BOSSES end
+        local r = tonumber(u:match("^raid(%d+)$"))
+        if r then return IsInRaid() and r <= GetNumGroupMembers() end
+        return false
+    end
+
+    local sweepQueued, sweepAfterRegen = false, false
+    local function Sweep()
+        sweepQueued = false
+        local okI, inInstance, kind = pcall(IsInInstance)
+        prewarmZone = okI and inInstance and (kind == "party" or kind == "raid" or kind == "scenario") or false
+        if not prewarmZone or not AD.PREWARM_ENABLED or not AD.LAZY_GROUPS then return end
+        -- a zone-in that landed mid-fight (or a pull right after the loading screen) waits
+        -- for regen; the in-combat declaration covers anything that shows before then
+        if InCombatLockdown() then
+            sweepAfterRegen = true
+            return
+        end
+        local n = 0
+        for h in pairs(AD._instances or {}) do
+            if h._groupsDeferred and not h._destroyed and AD._PrewarmWanted(h) then
+                n = n + 1
+                AD._QueueGroups(h, true)
+            end
+        end
+        if n > 0 then AD.stats.prewarmSweeps = AD.stats.prewarmSweeps + 1 end
+    end
+
+    local zone = CreateFrame("Frame")
+    zone:RegisterEvent("PLAYER_ENTERING_WORLD")
+    zone:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    zone:RegisterEvent("PLAYER_REGEN_ENABLED")
+    zone:SetScript("OnEvent", function(_, event)
+        if event == "PLAYER_REGEN_ENABLED" then
+            if not sweepAfterRegen then return end
+            sweepAfterRegen = false
+        end
+        -- after the loading screen's layout switch and its rebuilds have settled; a shell
+        -- rebuilt later still prewarms itself from Build while the zone flag stays up
+        if not sweepQueued then
+            sweepQueued = true
+            C_Timer.After(2, Sweep)
+        end
+    end)
 end
 
 -- ============================================================
@@ -1891,6 +2569,11 @@ end
 function Handle:SetNum(n)
     if self.config.num == n then return end
     self.config.num = n
+    -- a shell has no groups to resize; they are declared from the current config later
+    if self._groupsDeferred then
+        if not IsSlotMode(self.config) then ApplyLayout(self) end
+        return
+    end
 
     -- maxFrameCount is a LIVE setter, so the icon count never needs a rebuild -- and a
     -- rebuild is exactly what left the old icons stacked under the new ones. Layout depends
@@ -1924,6 +2607,15 @@ local COSMETIC_KEYS = {
     -- effect-slot visuals: pure styling, so a colour/thickness/texture tweak restyles the
     -- existing slot instead of tearing the container down and rebuilding it
     effectColors = true, effectThickness = true, effectTexture = true,
+    -- rect / block Pandemic fill colour: a repaint of our own texture. Its on/off switch
+    -- (pandemicOn) is NOT here -- the region is handed to the engine in the initializeFrame
+    -- window, so flipping it needs fresh buttons. Neither are the colour bands
+    -- (effectBands): their colours are baked into a formatter that is frozen once bound.
+    pandemicColor = true,
+    -- block's border (colors[5]): a repaint of our own backdrop edge
+    blockBorderColor = true,
+    -- glow colour: the lib repaints the textures it already has (see StyleGlow)
+    glowColor = true,
 }
 
 -- geometry keys: 12.1 has SetAuraGroupLayout as a LIVE setter and StyleButton already
@@ -1938,6 +2630,16 @@ local LAYOUT_KEYS = {
 function Handle:Restyle()
     -- ⚠ Combat used to `return` outright, with no flag -- the restyle was simply lost, and
     -- the option looked like it had never been applied. Flag it; the regen handler replays.
+    -- A shell has no buttons to restyle, and its groups will style from the current config
+    -- when declared; only the park key has to follow the config (see the re-key below).
+    if self._groupsDeferred then
+        self._restylePending = nil
+        if self._parkKey and self._parkRecords then
+            self._parkKey = ParkKey(self, self._parkRecords, IsSlotMode(self.config))
+        end
+        return
+    end
+
     if InCombatLockdown() then
         self._restylePending = true
         return
@@ -1982,6 +2684,11 @@ end
 function Handle:ApplyLiveLayout()
     local c = self.container
     if not c then return true end -- nothing built yet; Build will read the new config
+    if self._groupsDeferred then
+        -- shell: the groups will read the new config when they are declared
+        if not IsSlotMode(self.config) then ApplyLayout(self) end
+        return true
+    end
     if not c.SetAuraGroupLayout or not self._groupKeys or #self._groupKeys == 0 then
         return false -- overlay/slot mode has no groups to relayout
     end
@@ -2134,6 +2841,45 @@ function Handle:_ApplyVisibility()
     local want = (self.shown ~= false) and not self._gateHidden and not self._cineLatched
     self.frame:SetShown(want)
     if self.container then pcall(function() self.container:SetShown(want) end) end
+    -- a shell revealed by its own gate/latch/consumer: the button's OnShow never fires for that
+    if want and self._groupsDeferred then AD._QueueGroups(self) end
+end
+
+-- Declare a shell's groups (see LAZY GROUPS). Called from the lazy queue's tick -- never
+-- from a show hook directly -- and from the regen flush when combat refused it first time.
+function Handle:_AddDeferredGroups()
+    local host, c = self.host, self.container
+    if not (self._groupsDeferred and host and c) then return end
+    local records = self._parkRecords
+    if not records then return end
+    local slotMode = IsSlotMode(self.config)
+    local inCombat = InCombatLockdown()
+
+    if not AddGroups(self, host, c, records, slotMode, inCombat) then
+        -- refused before anything was added: the shell stays a shell, regen declares it
+        AD.stats.lazyCombatFail = AD.stats.lazyCombatFail + 1
+        self._pendingGroups = true
+        AD._defer(self, "lazy-combat")
+        return
+    end
+    if inCombat then AD.stats.lazyCombatOK = AD.stats.lazyCombatOK + 1 end
+    AD.stats.lazyAdds = AD.stats.lazyAdds + 1
+    self._groupsDeferred, self._pendingGroups = nil, nil
+    host._adShell = nil
+    -- the buttons were just styled from the CURRENT config; key the host by that
+    self._parkKey = ParkKey(self, records, slotMode)
+
+    -- SetEnabled LAST, as in Build. On a visible container it registers the aura events and
+    -- queues the first parse by itself; the bounce below is the belt-and-braces re-parse
+    -- (in combat ReassertEnable declines and GateRefresh marks it for regen instead).
+    local okE, errE = pcall(function() c:SetEnabled(true) end)
+    if not okE and self._errors then self._errors[#self._errors + 1] = "SetEnabled: " .. tostring(errE) end
+    self._enabledWhileVisible = false
+    if self.frame:IsVisible() then
+        self:ReassertEnable()
+        if not self._enabledWhileVisible then self:GateRefresh() end
+    end
+    -- hidden (prewarm): the button's OnShow runs ReassertEnable when it finally appears
 end
 
 function Handle:SetEnabled(enabled)
@@ -2180,6 +2926,12 @@ local function CombatGateOpen(self)
 end
 
 function Handle:ReassertEnable()
+    -- A shell has nothing to enable yet: this is its "first time on screen" signal instead.
+    -- Queued, not declared here -- this runs from the button's OnShow (see LAZY GROUPS).
+    if self._groupsDeferred then
+        AD._QueueGroups(self)
+        return
+    end
     if not CombatGateOpen(self) then return end
     local c = self.container
     if not c then return end
@@ -2210,6 +2962,12 @@ end
 function Handle:GateRefresh()
     local c = self.container
     if not c then return end
+    -- a shell has never parsed, so there is nothing stale to re-parse; it parses when its
+    -- groups are declared (and if it is on screen, that is now due)
+    if self._groupsDeferred then
+        AD._QueueGroups(self)
+        return
+    end
     if not CombatGateOpen(self) then
         self._pendingGateKick = true
         AD._defer(self, "gatekick")
@@ -2855,7 +3613,11 @@ end
 -- DIAGNOSTICS  ->  /cab
 -- ============================================================
 
-local function p(...) print("|cff33ff99[Cell 光環]|r", ...) end
+-- 玩家自己下的 /cab 指令：照舊印聊天框，同時進除錯主控台的光環分類
+local function p(...)
+    print("|cff33ff99[Cell 光環]|r", ...)
+    F.Log("aura", ...)
+end
 
 function AD.Debug()
     p("Cell.isMidnight =", tostring(Cell.isMidnight))
@@ -2909,9 +3671,10 @@ function AD.Debug()
             samples = samples + 1
             -- NOTE: AuraButton IsShown/geometry are SECRET (branching on them errors), so we
             -- CANNOT read whether a button is rendering -- only the user's eyes can confirm that.
-            p(("VISIBLE unit=%s mode=%s enabled=%s groupsAdded=%s initCount=%s ewv=%s buttons=%d")
+            p(("VISIBLE unit=%s mode=%s enabled=%s groupsAdded=%s initCount=%s ewv=%s buttons=%d%s")
                 :format(tostring(h.unit), tostring(h._modeDbg), tostring(h.enabled), tostring(h._groupsAdded),
-                    tostring(h._initCount), tostring(h._enabledWhileVisible), #h.buttons))
+                    tostring(h._initCount), tostring(h._enabledWhileVisible), #h.buttons,
+                    h._groupsDeferred and " SHELL(groups pending)" or ""))
             -- our own anchor frame: rect is readable (not secret). A 0x0/nil rect means
             -- children can't resolve -> container renders nothing despite being visible.
             local fw, fh = h.frame:GetSize()
@@ -3023,7 +3786,8 @@ function AD.Inspect(unitToken)
                 :format(n, tostring(cfg.mode or "important"),
                     cfg.customStyle and ("/" .. cfg.customStyle .. (IsSlotMode(cfg) and " slot" or "")) or "",
                     tostring(h.frame:IsShown()),
-                    tostring(h.container ~= nil), #h.buttons))
+                    tostring(h.container ~= nil) .. (h._groupsDeferred and "（空殼，群組等首次顯示）" or ""),
+                    #h.buttons))
             p(("    parent=%s size=%s num=%s onlyMine=%s")
                 :format(tostring(h.frame:GetParent() and h.frame:GetParent():GetName() or "?"),
                     tostring(cfg.size), tostring(cfg.num), tostring(cfg.onlyMine)))
@@ -3157,6 +3921,370 @@ function AD.BounceAll()
     return n
 end
 
+-- ============================================================
+-- PROBES  ->  /cab probe [anim | build | reloadbuild on|off]
+--
+-- EUI Raid Frames ships two things our rules say cannot work. These answer yes/no in game
+-- instead of by argument. All of it is inert until a /cab probe command turns it on.
+--
+--   A  "An AnimationGroup created in initializeFrame and Play()ed right there keeps
+--      animating in C, in combat and while auras are secret." Contradicts rule 3 of the
+--      EFFECT SLOTS note. /cab probe anim rebuilds the central containers as HARMFUL and
+--      puts three markers on every new button:
+--        A1  top-left, white   Translation, REPEAT, Play() inside the window (EUI's way)
+--        A2  top-right, yellow Alpha 1 -> 0.1, BOUNCE, Play() inside the window
+--        A3  bottom-left, red  same as A1, but Play() one frame LATER (C_Timer.After 0).
+--            Control: expected to be refused or to sit still.
+--      plus a plain UIParent frame at the top of the screen with A1's animation, which
+--      must always move -- if it stops, the test itself is broken, not the rule.
+--      The markers live on a child frame of the button in DIALOG strata, created in the
+--      same window: a texture on the button itself would be covered by dfIconFrame (child
+--      frames always draw over parent textures), and a strata needs no frame-level read
+--      and cannot sink when the container re-levels its buttons.
+--      Parking is off while A runs, both ways: a reused host would skip initializeFrame
+--      (no markers), and a marked host must never be parked and handed to a normal build.
+--
+--   B  "Since build 68914 AuraContainer creation is legal in combat." Build defers every
+--      build to regen. B1 (/cab probe build) rebuilds every central container once, 1 s
+--      into the next fight, with parking off so the constructor really runs, and counts
+--      ADDON_ACTION_BLOCKED/FORBIDDEN naming Cell for 3 s afterwards. B2
+--      (/cab probe reloadbuild on) removes the defer for the whole session (saved), i.e.
+--      what shipping without it would look like; its block counter covers every Cell block
+--      while the switch is on, not only the ones a build caused.
+-- ============================================================
+AD._probe = {
+    anim = false,
+    animMarks = setmetatable({}, { __mode = "k" }),  -- every marker region, for the hide pass
+    animButtons = 0,
+    animLateOk = 0,
+    animLateFail = 0,
+    b2 = { builds = 0, fresh = 0, failed = 0, errs = 0, ms = 0, maxMs = 0, blocked = 0, funcs = {} },
+}
+do
+    local P = AD._probe
+    local PREFIX = "|cff33ff99[Cell 光環]|r "
+    local function say(s) print(PREFIX .. s) end
+
+    local function NoteErr(handle, tag, err)
+        local e = handle and handle._errors
+        if e and #e < 6 then e[#e + 1] = "probe " .. tag .. ": " .. tostring(err) end
+    end
+
+    local function FuncList(set)
+        local t = {}
+        for fn in pairs(set) do t[#t + 1] = fn end
+        table.sort(t)
+        if #t > 5 then
+            for i = #t, 6, -1 do t[i] = nil end
+            t[6] = "…"
+        end
+        return #t > 0 and ("（" .. table.concat(t, "、") .. "）") or ""
+    end
+
+    -- ---- A: animated markers ------------------------------------------------------------
+    local function Marker(parent, point, r, g, b)
+        local t = parent:CreateTexture(nil, "OVERLAY", nil, 7)
+        t:SetSize(4, 4)
+        t:SetPoint(point, parent, point, 0, 0)
+        t:SetColorTexture(r, g, b, 1)
+        return t
+    end
+
+    local function SlideGroup(tex, dx)
+        local ag = tex:CreateAnimationGroup()
+        ag:SetLooping("REPEAT")
+        local a = ag:CreateAnimation("Translation")
+        a:SetOffset(dx, 0)
+        a:SetDuration(1)
+        return ag
+    end
+
+    -- Called from StyleButton, i.e. inside initializeFrame for a new button. Each marker is
+    -- its own pcall so one refusal cannot hide the answer of the other two.
+    function P.MarkButton(handle, button, size)
+        if button._adProbeMarked then return end
+        button._adProbeMarked = true -- first: a failed attempt must never retry outside the window
+        P.animButtons = P.animButtons + 1
+        local dx = (size or 22) / 2
+
+        local okF, pf = pcall(function()
+            local f = CreateFrame("Frame", nil, button)
+            f:SetAllPoints(button)
+            f:SetFrameStrata("DIALOG")
+            return f
+        end)
+        if okF and pf then
+            P.animMarks[pf] = true
+        else
+            NoteErr(handle, "frame", pf)
+            pf = button
+        end
+
+        local ok1, e1 = pcall(function()
+            local t = Marker(pf, "TOPLEFT", 1, 1, 1)
+            P.animMarks[t] = true
+            SlideGroup(t, dx):Play()
+        end)
+        if not ok1 then NoteErr(handle, "A1", e1) end
+
+        local ok2, e2 = pcall(function()
+            local t = Marker(pf, "TOPRIGHT", 1, 0.82, 0)
+            P.animMarks[t] = true
+            local ag = t:CreateAnimationGroup()
+            ag:SetLooping("BOUNCE")
+            local a = ag:CreateAnimation("Alpha")
+            a:SetFromAlpha(1)
+            a:SetToAlpha(0.1)
+            a:SetDuration(0.5)
+            ag:Play()
+        end)
+        if not ok2 then NoteErr(handle, "A2", e2) end
+
+        local ok3, e3 = pcall(function()
+            local t = Marker(pf, "BOTTOMLEFT", 1, 0, 0)
+            P.animMarks[t] = true
+            local ag = SlideGroup(t, dx)
+            C_Timer.After(0, function()
+                -- a closure, not pcall(ag.Play, ag): indexing a forbidden object throws too
+                local ok, err = pcall(function() ag:Play() end)
+                if ok then
+                    P.animLateOk = P.animLateOk + 1
+                else
+                    P.animLateFail = P.animLateFail + 1
+                    if not P.animLateErr then P.animLateErr = tostring(err) end
+                end
+            end)
+        end)
+        if not ok3 then NoteErr(handle, "A3", e3) end
+    end
+
+    local control
+    local function Control()
+        if control then return control end
+        local f = CreateFrame("Frame", nil, UIParent)
+        f:SetSize(24, 24)
+        f:SetPoint("TOP", UIParent, "TOP", 0, -120)
+        f:SetFrameStrata("DIALOG")
+        local bg = f:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints(f)
+        bg:SetColorTexture(0.05, 0.05, 0.05, 0.9)
+        f.ag = SlideGroup(Marker(f, "TOPLEFT", 1, 1, 1), 12)
+        f:Hide()
+        control = f
+        return f
+    end
+
+    local savedPark
+    function P.ToggleAnim()
+        if InCombatLockdown() then
+            say("探針 A：戰鬥中不能切換——容器要在脫戰時重建，標記只有按鈕建立的那一刻掛得上。")
+            return
+        end
+        if not P.anim then
+            P.anim = true
+            P.animButtons, P.animLateOk, P.animLateFail, P.animLateErr = 0, 0, 0, nil
+            savedPark = AD.PARK_ENABLED
+            AD.PARK_ENABLED = false
+            AD.Test("HARMFUL")
+            local c = Control()
+            c:Show()
+            c.ag:Play()
+            say("探針 A 開：中央容器改成顯示所有減益。每顆圖示上：")
+            say("  左上白點＝建立當下播放（左右滑）、右上黃點＝建立當下播放（閃爍）、左下紅點＝下一幀才播放（對照組，預期不動）。")
+            say("  螢幕頂端中央的深色方塊是一般框架的對照組，應該一直在動。野外／戰鬥中／首領戰／M+ 各看一次。再打一次 /cab probe anim 關閉。")
+            return
+        end
+        P.anim = false
+        AD.Test(nil)            -- still with parking off: the marked hosts are discarded, not parked
+        if savedPark ~= nil then AD.PARK_ENABLED = savedPark end
+        savedPark = nil
+        if control then
+            control.ag:Stop()
+            control:Hide()
+        end
+        local failed = 0
+        for region in pairs(P.animMarks) do
+            if not pcall(function() region:Hide() end) then failed = failed + 1 end
+        end
+        wipe(P.animMarks)
+        say("探針 A 關：已恢復正常 5 組 filter。")
+        if failed > 0 then
+            say(("  有 %d 個標記藏不掉（按鈕已被鎖住），/reload 會清掉。"):format(failed))
+        end
+    end
+
+    -- ---- B: blocked-action counting (B1 window + B2 session) ------------------------------
+    local function CombatBuildOn()
+        return CellDB ~= nil and CellDB["probeCombatBuild"] == true
+    end
+    P.CombatBuildOn = CombatBuildOn
+
+    local b1Window -- { blocked = n, funcs = {} } while B1 listens
+    local blockFrame = CreateFrame("Frame")
+    blockFrame:SetScript("OnEvent", function(_, _, addon, func)
+        if issecretvalue(addon) or addon ~= "Cell" then return end
+        func = issecretvalue(func) and "?" or tostring(func)
+        if b1Window then
+            b1Window.blocked = b1Window.blocked + 1
+            b1Window.funcs[func] = true
+        end
+        if CombatBuildOn() then
+            P.b2.blocked = P.b2.blocked + 1
+            P.b2.funcs[func] = true
+        end
+    end)
+    local function SyncBlockEvents()
+        local want = b1Window ~= nil or CombatBuildOn()
+        for _, e in ipairs({ "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN" }) do
+            if want then blockFrame:RegisterEvent(e) else blockFrame:UnregisterEvent(e) end
+        end
+    end
+
+    -- New entries a Build left in handle._errors: Build replaces the list once it gets past
+    -- its early returns, so a different table means every entry is new.
+    local function NewErrs(h, before, nBefore)
+        local e = h._errors
+        if not e then return 0, nil end
+        if e ~= before then return #e, e[1] end
+        return #e - nBefore, e[nBefore + 1]
+    end
+
+    -- ---- B1: one in-combat rebuild of every central container -----------------------------
+    local armFrame = CreateFrame("Frame")
+
+    local function RunB1()
+        if not P.buildArmed then return end
+        if not InCombatLockdown() then
+            say("探針 B1：1 秒後已經脫戰，這次不算，繼續待命。")
+            return
+        end
+        P.buildArmed = false
+        armFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        b1Window = { blocked = 0, funcs = {} }
+        SyncBlockEvents()
+
+        local built, empty, failed, errs = 0, 0, 0, 0
+        local firstErr
+        local fresh0 = AD.stats.builds
+        local park = AD.PARK_ENABLED
+        AD.PARK_ENABLED = false -- a reused host would skip the very constructor under test
+        local start = debugprofilestop()
+        for h in pairs(AD._instances or {}) do
+            if not h._destroyed and not h.config.mode then
+                local before = h._errors
+                local nBefore = before and #before or 0
+                h._probeBypassCombat = true
+                local ok, err = pcall(Build, h, "probe")
+                h._probeBypassCombat = nil
+                if not ok then
+                    failed = failed + 1
+                    firstErr = firstErr or tostring(err)
+                else
+                    if h.container then built = built + 1 else empty = empty + 1 end
+                    local n, e1 = NewErrs(h, before, nBefore)
+                    if n > 0 then
+                        errs = errs + n
+                        firstErr = firstErr or e1
+                    end
+                end
+            end
+        end
+        local ms = debugprofilestop() - start
+        AD.PARK_ENABLED = park
+        local fresh = AD.stats.builds - fresh0
+
+        -- blocks can be reported late; keep listening a little before closing the window
+        C_Timer.After(3, function()
+            local w = b1Window
+            b1Window = nil
+            SyncBlockEvents()
+            P.b1Last = ("建好 %d（新建 %d）／失敗 %d／沒東西可建 %d／步驟錯誤 %d／%.1f ms／封鎖 %d%s"):format(
+                built, fresh, failed, empty, errs, ms, w.blocked, FuncList(w.funcs))
+            P.b1FirstErr = firstErr
+            say("探針 B1 結果：" .. P.b1Last)
+            if firstErr then say("  第一個錯誤：" .. firstErr) end
+        end)
+    end
+
+    armFrame:SetScript("OnEvent", function()
+        if P.buildArmed then C_Timer.After(1, RunB1) end
+    end)
+
+    function P.ArmBuild()
+        P.buildArmed = true
+        armFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+        say("探針 B1 待命：下次進戰鬥 1 秒後，所有中央容器會在戰鬥中直接重建一次（不排脫戰佇列、不領寄存），約 4 秒後印結果。")
+    end
+
+    -- ---- B2: no combat defer at all (saved switch) ----------------------------------------
+    -- Called from Build's combat gate. false = switch off, defer as usual. true = this build
+    -- has just been run here, with the gate bypassed, and the caller must return.
+    local b2Announced
+    function P.CombatBuild(handle, why)
+        if not CombatBuildOn() then return false end
+        if not b2Announced then
+            b2Announced = true
+            say("[探針] 戰鬥中直接建容器")
+        end
+        local s = P.b2
+        local before = handle._errors
+        local nBefore = before and #before or 0
+        local fresh0 = AD.stats.builds
+        handle._probeBypassCombat = true
+        local t0 = debugprofilestop()
+        local ok, err = pcall(Build, handle, why)
+        local ms = debugprofilestop() - t0
+        handle._probeBypassCombat = nil
+        s.builds = s.builds + 1
+        s.ms = s.ms + ms
+        if ms > s.maxMs then s.maxMs = ms end
+        if AD.stats.builds > fresh0 then s.fresh = s.fresh + 1 end
+        if not ok then
+            s.failed = s.failed + 1
+            s.firstErr = s.firstErr or tostring(err)
+        else
+            local n, e1 = NewErrs(handle, before, nBefore)
+            if n > 0 then
+                s.errs = s.errs + n
+                s.firstErr = s.firstErr or e1
+            end
+        end
+        return true
+    end
+
+    function P.SetCombatBuild(on)
+        if not CellDB then
+            say("CellDB 還沒載入。")
+            return
+        end
+        CellDB["probeCombatBuild"] = on and true or nil
+        SyncBlockEvents()
+        say(on and "探針 B2 開（已存檔）：戰鬥中的容器建立不再延到脫戰。關閉：/cab probe reloadbuild off"
+            or "探針 B2 關（已存檔）：戰鬥中的容器建立照舊延到脫戰。")
+    end
+
+    Cell.RegisterCallback("AddonLoaded", "AuraDisplay_Probe", function()
+        if not CombatBuildOn() then return end
+        SyncBlockEvents()
+        say("|cffff5555提醒|r：探針 B2 開著——戰鬥中的容器建立不會延到脫戰。/cab probe reloadbuild off 關閉。")
+    end)
+
+    function P.Status()
+        say(("探針 A（動畫）：%s｜標記按鈕 %d 顆｜紅點下一幀播放 成功 %d／失敗 %d")
+            :format(P.anim and "開" or "關", P.animButtons, P.animLateOk, P.animLateFail))
+        if P.animLateErr then say("  紅點第一個錯誤：" .. P.animLateErr) end
+        say("探針 B1（戰鬥中重建一次）：" .. (P.buildArmed and "待命中" or "未待命")
+            .. "｜上次：" .. (P.b1Last or "無"))
+        if P.b1FirstErr then say("  第一個錯誤：" .. P.b1FirstErr) end
+        local s = P.b2
+        say(("探針 B2（不延到脫戰）：%s｜本次登入 %d 次（新建 %d）／失敗 %d／步驟錯誤 %d／共 %.1f ms、最長 %.1f ms／封鎖 %d%s")
+            :format(CombatBuildOn() and "開" or "關", s.builds, s.fresh, s.failed, s.errs,
+                s.ms, s.maxMs, s.blocked, FuncList(s.funcs)))
+        if s.firstErr then say("  第一個錯誤：" .. s.firstErr) end
+        say("用法：/cab probe anim｜build｜reloadbuild on|off")
+    end
+end
+
 SLASH_CELLAURACONTAINER1 = "/cab"
 SlashCmdList["CELLAURACONTAINER"] = function(msg)
     local cmd, arg = strsplit(" ", strtrim(msg or ""), 2)
@@ -3164,6 +4292,20 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
 
     if cmd == "test" then
         StepTest()
+    elseif cmd == "probe" then
+        -- /cab probe [anim | build | reloadbuild on|off]  -- see the PROBES section
+        local sub, val = strsplit(" ", strtrim(arg or ""), 2)
+        sub = (sub or ""):lower()
+        val = val and strtrim(val):lower() or ""
+        if sub == "anim" then
+            AD._probe.ToggleAnim()
+        elseif sub == "build" then
+            AD._probe.ArmBuild()
+        elseif sub == "reloadbuild" and (val == "on" or val == "off") then
+            AD._probe.SetCombatBuild(val == "on")
+        else
+            AD._probe.Status()
+        end
     elseif cmd == "ghosts" then
         AD.Ghosts()
     elseif cmd == "inspect" then
@@ -3217,16 +4359,16 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
             p(("戰鬥中直接彈跳：%s。用法：/cab bounce on|off"):format(AD.BounceInCombat() and "開" or "關"))
         end
     elseif cmd == "report" then
-        -- /cab report 40  -> print the queue breakdown after any fight that queued >= 40
+        -- /cab report 40  -> log the queue breakdown after any fight that queued >= 40 (/cell debug)
         -- /cab report 0   -> off (default). Saved in CellDB, so it survives /reload.
         local n = tonumber(arg and strtrim(arg))
         if not n then
             local cur = CellDB and tonumber(CellDB["auraQueueReportMin"]) or 0
-            p(("脫戰佇列自動回報：%s。用法：/cab report <筆數>，0 關閉"):format(cur > 0 and ("≥ " .. cur .. " 筆時印") or "關"))
+            p(("脫戰佇列自動回報：%s。用法：/cab report <筆數>，0 關閉"):format(cur > 0 and ("≥ " .. cur .. " 筆時記進 /cell debug") or "關"))
             return
         end
         if CellDB then CellDB["auraQueueReportMin"] = n > 0 and n or nil end
-        p(n > 0 and ("脫戰時佇列 ≥ %d 筆就印一行來源分佈（已存檔）"):format(n) or "脫戰佇列自動回報已關閉")
+        p(n > 0 and ("脫戰時佇列 ≥ %d 筆就在 /cell debug 記一行來源分佈（已存檔）"):format(n) or "脫戰佇列自動回報已關閉")
     elseif cmd == "stats" then
         -- The measurement behind the roster-stutter fix. Zero it, make people join/leave the
         -- group, read it again: `repoints` should climb and `builds`/`discards` should not.
@@ -3238,6 +4380,8 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
             AD.stats.settles, AD.stats.settleBounced, AD.stats.settleSkipped = 0, 0, 0
             AD.stats.deferWhy, AD.stats.flushLast, AD.stats.flushPeak = {}, 0, 0
             AD.stats.combatBounces = 0
+            AD.stats.lazyAdds, AD.stats.lazyCombatOK, AD.stats.lazyCombatFail = 0, 0, 0
+            AD.stats.prewarmHandles, AD.stats.prewarmMs, AD.stats.prewarmSweeps = 0, 0, 0
             p("計數歸零")
             return
         end
@@ -3264,6 +4408,29 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
         p(("戰鬥中排隊：目前 %d ／ 上次脫戰時 %d ／ 最長 %d ｜來源：%s")
             :format(pending, AD.stats.flushLast, AD.stats.flushPeak,
                 #parts > 0 and table.concat(parts, "、") or "無"))
+        -- lazy groups: what is actually allocated vs. what is still waiting for a first show
+        local groups, auraButtons, shells, shellsVisible = 0, 0, 0, 0
+        for h in pairs(AD._instances or {}) do
+            if h.container and not h._destroyed then
+                if h._groupsDeferred then
+                    shells = shells + 1
+                    if h.frame:IsVisible() then shellsVisible = shellsVisible + 1 end
+                else
+                    groups = groups + (h._groupsAdded or 0)
+                    auraButtons = auraButtons + #h.buttons
+                end
+            end
+        end
+        p(("光環群組：已登記 %d 個（%d 顆 AuraButton）／等待首次顯示 %d 個 handle%s／佇列中 %d%s")
+            :format(groups, auraButtons, shells,
+                shellsVisible > 0 and ("（其中 %d 個已在畫面上）"):format(shellsVisible) or "",
+                AD.LazyQueueLength(), AD.LAZY_GROUPS and "" or " ｜按需登記已關閉"))
+        p(("首次顯示時登記 %d 次：戰鬥中成功 %d ／戰鬥中失敗 %d（失敗的改在脫戰後登記）")
+            :format(AD.stats.lazyAdds, AD.stats.lazyCombatOK, AD.stats.lazyCombatFail))
+        p(("進副本預熱：%d 次／共 %d 個 handle ／ %.1f ms（平均 %.1f ms）%s")
+            :format(AD.stats.prewarmSweeps, AD.stats.prewarmHandles, AD.stats.prewarmMs,
+                AD.stats.prewarmHandles > 0 and AD.stats.prewarmMs / AD.stats.prewarmHandles or 0,
+                AD.PREWARM_ENABLED and "" or " ｜已關閉"))
         p(("戰鬥中直接彈跳：%s，已彈 %d 次")
             :format(AD.BounceInCombat() and "開" or "關（/cab bounce on）", AD.stats.combatBounces))
         p("進出隊伍時 repoints 該漲、builds/discards 不該漲。歸零：/cab stats reset")
@@ -3290,7 +4457,7 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
     else
         p("supported =", tostring(AD.IsSupported()), "|", tostring(ACC.Failure() or "OK"))
         AD.Debug()
-        p("其他：/cab list | stats | ghosts | report [n] | bounce on|off | inspect [unit] | overdraw [unit] | spell [id｜名稱｜連結]（旗標分析視窗） | gate | test")
+        p("其他：/cab list | stats | ghosts | report [n] | bounce on|off | inspect [unit] | overdraw [unit] | spell [id｜名稱｜連結]（旗標分析視窗） | gate | test | probe [anim｜build｜reloadbuild on|off]")
     end
 end
 

@@ -343,7 +343,7 @@ wrapFrame:SetAttribute("_onstate-combatstate", [[
             if newstate == "true" then
                 mouseoverbutton:SetAttribute(menuKey, nil)
             else
-                mouseoverbutton:SetAttribute(menuKey, "togglemenu")
+                mouseoverbutton:SetAttribute(menuKey, mouseoverbutton:GetAttribute("menuaction") or "togglemenu")
             end
         end
     end
@@ -381,7 +381,7 @@ if Cell.isRetail then
                 if PlayerInCombat() then
                     self:SetAttribute(menuKey, nil)
                 else
-                    self:SetAttribute(menuKey, "togglemenu")
+                    self:SetAttribute(menuKey, self:GetAttribute("menuaction") or "togglemenu")
                 end
             end
         ]])
@@ -459,7 +459,7 @@ else
                 if PlayerInCombat() then
                     self:SetAttribute(menuKey, nil)
                 else
-                    self:SetAttribute(menuKey, "togglemenu")
+                    self:SetAttribute(menuKey, self:GetAttribute("menuaction") or "togglemenu")
                 end
             end
         ]])
@@ -576,6 +576,7 @@ local function ClearClickCastings(b)
     ClearProxyRoutes(b)
     b:SetAttribute("cell", nil)
     b:SetAttribute("menu", nil)
+    b:SetAttribute("menuaction", nil)
     for _, t in pairs(previousClickCastings) do
         local bindKey = t[1]
         if strfind(bindKey, "SCROLL") then
@@ -660,23 +661,25 @@ local function ApplyClickCastings(b)
         if t[2] == "togglemenu_nocombat" then
             -- togglemenu_nocombat sets the "menu" attribute to the bindKey; the
             -- "not in combat" half comes from the secure snippets above, which write
-            -- that attribute at runtime as combat starts/ends. The proxy route cannot
-            -- carry it -- routing turns the option into a plain menu bind that also
-            -- works in combat. So this branch keeps the OLD button test on purpose:
-            -- only the keys that were already being routed stay routed, and plain
-            -- right-click keeps meaning what the option says (at the cost of still
-            -- sitting behind the click-binding gate described in IsGatedAction).
-            local ncModifier, ncButtonNum = ParseMouseBind(bindKey)
-            if ncModifier and (ncModifier ~= "" or (ncButtonNum and ncButtonNum ~= 2)) then
-                -- Route through proxy: set type attribute to "click" and clickbutton to proxy
-                local typeAttr = bindKey
+            -- that attribute at runtime as combat starts/ends: nil in combat, and
+            -- "menuaction" (or a raw togglemenu) out of it.
+            -- fix from MiliUI: every mouse bind now takes the proxy route, plain
+            -- right-click included. The snippets restore "click" (-> the proxy, which
+            -- has no click-binding gate) instead of a raw togglemenu, so the option
+            -- keeps its "not in combat" meaning AND survives a player whose Click
+            -- Bindings lost the stock "open menu" interaction (see IsGatedAction).
+            -- Modified binds used to be routed as a plain menu that also opened in
+            -- combat; they now share the same gate.
+            local proxy = ParseMouseBind(bindKey) and EnsureClickProxy(b)
+            if proxy then
                 local clickbuttonAttr = string.gsub(bindKey, "type", "clickbutton")
-                RouteProxyAction(b, typeAttr, clickbuttonAttr, "togglemenu")
-                -- Clear the menu attribute since we're handling it via proxy
-                b:SetAttribute("menu", nil)
+                RouteProxyAction(b, bindKey, clickbuttonAttr, "togglemenu")
+                b:SetAttribute("menuaction", "click")
             else
-                b:SetAttribute("menu", bindKey)
+                -- keyboard bind (never gated), or no proxy yet: the old direct action
+                b:SetAttribute("menuaction", nil)
             end
+            b:SetAttribute("menu", bindKey)
         ------------------------------------------------------------------
         --* 已修复：实际上载具（宠物按钮）无法选中的原因是没有 SetAttribute("toggleForVehicle", false)
         -- elseif Cell.isCata and t[2] == "target" then
@@ -805,7 +808,8 @@ function F.UpdateClickCastings(noReload, onlyqueued)
     end
 
     local snippet = F.GetBindingSnippet()
-    F.Debug(snippet)
+    -- fix from MiliUI: 整段 secure snippet 塞進除錯主控台只會被截斷、又把別的記錄擠掉，不記
+    -- F.Debug(snippet)
 
     -- REVIEW:
     -- local clickFrames = Cell.clickCastFrames
@@ -1227,7 +1231,7 @@ local function ShowActionsMenu(index, b)
                     changed[index] = changed[index] or {b}
                     if b.bindAction ~= "target" then
                         changed[index]["bindAction"] = "target"
-                        b.actionGrid:SetText(L["target"])
+                        b.actionGrid:SetText(L["Target"])
                     else
                         changed[index]["bindAction"] = nil
                         b.actionGrid:SetText(L[b.bindAction])
@@ -1242,7 +1246,7 @@ local function ShowActionsMenu(index, b)
                     changed[index] = changed[index] or {b}
                     if b.bindAction ~= "focus" then
                         changed[index]["bindAction"] = "focus"
-                        b.actionGrid:SetText(L["focus"])
+                        b.actionGrid:SetText(L["Focus"])
                     else
                         changed[index]["bindAction"] = nil
                         b.actionGrid:SetText(L[b.bindAction])

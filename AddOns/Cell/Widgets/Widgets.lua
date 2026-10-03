@@ -785,6 +785,9 @@ end
 -----------------------------------------
 -- check button
 -----------------------------------------
+-- tick texture size for a 14px box: (14 * 24 / 18) / 0.64 -- see the note inside the factory
+local CHECK_TICK_TEX_SIZE = (14 * 24 / 18) / 0.64
+
 function Cell.CreateCheckButton(parent, label, onClick, ...)
     -- InterfaceOptionsCheckButtonTemplate --> FrameXML\InterfaceOptionsPanels.xml line 19
     -- OptionsBaseCheckButtonTemplate -->  FrameXML\OptionsPanelTemplates.xml line 10
@@ -810,10 +813,19 @@ function Cell.CreateCheckButton(parent, label, onClick, ...)
     cb:SetBackdropColor(0.115, 0.115, 0.115, 0.9)
     cb:SetBackdropBorderColor(0, 0, 0, 1)
 
-    local checkedTexture = cb:CreateTexture(nil, "ARTWORK")
-    checkedTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.7)
-    checkedTexture:SetPoint("TOPLEFT", P.Scale(1), P.Scale(-1))
-    checkedTexture:SetPoint("BOTTOMRIGHT", P.Scale(-1), P.Scale(1))
+    -- fix from MiliUI: the checked state is the pack's tick, not Cell's filled square.
+    -- Same recipe as MiliUIWidgets' checkbox: a "white tick + black outline" 64x64 texture
+    -- (Media/check-outline.tga, a copy of the shared one -- change it there and re-copy),
+    -- tinted with the accent colour (multiplicative, so the outline stays black), and drawn
+    -- deliberately larger than the box so it spills over the edge -- the pack's visual
+    -- language, taken from Blizzard's native checkbox. The tick occupies ~0.64 of the
+    -- texture's height, so the texture is sized glyph / 0.64. The shared widget draws a
+    -- 24-high tick on an 18 box; Cell's box is 14, hence 14 * 24 / 18.
+    local checkedTexture = cb:CreateTexture(nil, "OVERLAY")
+    checkedTexture:SetTexture("Interface\\AddOns\\Cell\\Media\\check-outline")
+    checkedTexture:SetVertexColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+    P.Size(checkedTexture, CHECK_TICK_TEX_SIZE, CHECK_TICK_TEX_SIZE)
+    checkedTexture:SetPoint("CENTER", 0, 0)
 
     local highlightTexture = cb:CreateTexture(nil, "ARTWORK")
     highlightTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.1)
@@ -826,13 +838,13 @@ function Cell.CreateCheckButton(parent, label, onClick, ...)
 
     cb:SetScript("OnEnable", function()
         cb.label:SetTextColor(1, 1, 1)
-        checkedTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.7)
+        checkedTexture:SetVertexColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
         cb:SetBackdropBorderColor(0, 0, 0, 1)
     end)
 
     cb:SetScript("OnDisable", function()
         cb.label:SetTextColor(0.4, 0.4, 0.4)
-        checkedTexture:SetColorTexture(0.4, 0.4, 0.4)
+        checkedTexture:SetVertexColor(0.4, 0.4, 0.4, 1)
         cb:SetBackdropBorderColor(0, 0, 0, 0.4)
     end)
 
@@ -3638,7 +3650,7 @@ function Cell.CreateReceivingFrame(parent)
             if received["type"] == "Debuffs" then
                 local isCompatible = type(received["version"]) == "number" and received["version"] >= Cell.MIN_DEBUFFS_VERSION
 
-                F.Debug("|cffFFDAB9RECEIVED DEBUFFS:|r ", received["instanceId"], received["bossId"], received["data"])
+                F.Log("comm", "|cffFFDAB9RECEIVED DEBUFFS:|r ", received["instanceId"], received["bossId"], received["data"])
                 local builtIn, custom = F.CalcRaidDebuffs(received["instanceId"], received["bossId"], received["data"])
 
                 dataLabel:SetText(L["Debuffs"] .. ": ")
@@ -3668,7 +3680,7 @@ function Cell.CreateReceivingFrame(parent)
             elseif received["type"] == "Layout" then
                 local isCompatible = type(received["version"]) == "number" and received["version"] >= Cell.MIN_LAYOUTS_VERSION
 
-                F.Debug("|cffFFDAB9RECEIVED LAYOUT:|r ", received["name"], received["data"])
+                F.Log("comm", "|cffFFDAB9RECEIVED LAYOUT:|r ", received["name"], received["data"])
 
                 importBtn:SetScript("OnClick", function()
                     -- check layout name
