@@ -32,7 +32,7 @@ function addonTable.Display.TotemStatusBarMixin:Setup(details)
 end
 
 function addonTable.Display.TotemStatusBarMixin:Update()
-  self:Collapse()
+  self:Hide()
   if not self:UpdateTotem() then
     self:UpdatePet()
   end
@@ -45,7 +45,7 @@ function addonTable.Display.TotemStatusBarMixin:UpdateTotem()
   if not duration then
     return
   end
-  self:Expand()
+  self:Show()
   local _, name, _, _, icon = GetTotemInfo(index)
   self.TextsContainer.Name:SetText(name)
   self.Icon:SetTexture(icon)
@@ -64,7 +64,7 @@ function addonTable.Display.TotemStatusBarMixin:UpdatePet()
   if not info then
     return
   end
-  self:Expand()
+  self:Show()
 
   local duration = C_DurationUtil.CreateDuration()
   duration:SetTimeFromStart(info.start, info.duration)

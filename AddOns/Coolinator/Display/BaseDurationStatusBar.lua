@@ -37,6 +37,7 @@ function addonTable.Display.BaseDurationStatusBarMixin:OnLoad()
 end
 
 function addonTable.Display.BaseDurationStatusBarMixin:Setup(details)
+  self:SetCollapsesLayout(addonTable.Config.Get(addonTable.Config.Options.COMPRESS_LAYOUT))
   self.details = details
 
   self.rawWidth, self.rawHeight, self.borderWidth, self.borderHeight, self.lowerScale = addonTable.Display.ApplyStatusBar(details, self.statusBar, self.border, self.borderMask, self.background)
@@ -69,7 +70,11 @@ function addonTable.Display.BaseDurationStatusBarMixin:Setup(details)
   end
   self.DurationBinding:SetTextFormat(format, components)
 
-  self.Icon:SetShown(details.icon.show)
+  if details.icon then
+    self.Icon:SetShown(details.icon.show)
+  else
+    self.Icon:Hide()
+  end
 end
 
 function addonTable.Display.BaseDurationStatusBarMixin:GetDefaultSize()
@@ -81,7 +86,7 @@ function addonTable.Display.BaseDurationStatusBarMixin:ApplySize(width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
   PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
   PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
-  if sizing.iconSize > 0 then
+  if self.details.icon and sizing.iconSize > 0 then
     self.Icon:Show()
     PixelUtil.SetSize(self.Icon, sizing.iconSize, sizing.iconSize)
   else
@@ -91,35 +96,26 @@ function addonTable.Display.BaseDurationStatusBarMixin:ApplySize(width, height)
   self.Icon:ClearAllPoints()
   self.statusBar:ClearAllPoints()
   self.TextsContainer.Duration:ClearAllPoints()
-  if self.details.layout == "horizontal" then
-    self.Icon:SetPoint(self.details.icon.position == "left" and "LEFT" or "RIGHT")
-    self.statusBar:SetPoint(self.details.icon.position == "left" and "RIGHT" or "LEFT")
+  if self.details.icon then
+    if self.details.layout == "horizontal" then
+      self.Icon:SetPoint(self.details.icon.position == "left" and "LEFT" or "RIGHT")
+      self.statusBar:SetPoint(self.details.icon.position == "left" and "RIGHT" or "LEFT")
+    else
+      self.Icon:SetPoint(self.details.icon.position == "left" and "BOTTOM" or "TOP")
+      self.statusBar:SetPoint(self.details.icon.position == "left" and "TOP" or "BOTTOM")
+    end
   else
-    self.Icon:SetPoint(self.details.icon.position == "left" and "BOTTOM" or "TOP")
-    self.statusBar:SetPoint(self.details.icon.position == "left" and "TOP" or "BOTTOM")
+      self.statusBar:SetPoint("CENTER")
   end
   addonTable.Display.SizeTextsForBar(self, self.details, textsByKey, self.details.scale)
 end
 
 function addonTable.Display.BaseDurationStatusBarMixin:ApplyPadding(horizontal, vertical)
   self.paddingH, self.paddingV = horizontal, vertical
-  if not self.collapsed then
-    PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
-  end
-end
-
-function addonTable.Display.BaseDurationStatusBarMixin:Collapse()
-  if addonTable.Config.Get(addonTable.Config.Options.COMPRESS_LAYOUT) then
-    self.collapsed = true
-    self:SetSize(0.001, 0.001)
-  else
-    self.collapsed = false
-  end
-  self:Hide()
+  PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
 end
 
 function addonTable.Display.BaseDurationStatusBarMixin:Expand()
-  self.collapsed = false
   self:ApplyPadding(self.paddingH or 0, self.paddingV or 0)
   self:Show()
 end

@@ -131,11 +131,12 @@ else
       rankMap[spellID] = index
     end
   end
-  function addonTable.Utilities.IsAbilitySpellKnown(spellID)
+  function addonTable.Utilities.IsAbilitySpellKnown(spellID, rank)
     if rankMap[spellID] then
       local index = rankMap[spellID]
       local spells = rankData[index].spells
-      for j = #spells, 1, -1 do
+      local limit = rank and math.min(rank, #spells) or #spells
+      for j = limit, 1, -1 do
         local newSpellID = BasicIsAbilitySpellKnown(spells[j])
         if newSpellID then
           return newSpellID

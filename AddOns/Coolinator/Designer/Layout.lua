@@ -917,6 +917,25 @@ function addonTable.Designer.LayoutManagerMixin:AddEntryToInsert(rootDescription
       end
     end
   end
+
+  if C_EventUtils.IsEventValid("PLAYER_SWING") then
+    local swing = rootDescription:CreateButton(addonTable.Locales.SWING)
+    swing:CreateButton(addonTable.Locales.MAIN_HAND, function()
+      local new = CopyTable(addonTable.Designer.Defaults.SwingBar)
+      new.resource.weapon = "main-hand"
+      inserter(new)
+    end)
+    swing:CreateButton(addonTable.Locales.OFF_HAND, function()
+      local new = CopyTable(addonTable.Designer.Defaults.SwingBar)
+      new.resource.weapon = "off-hand"
+      inserter(new)
+    end)
+    swing:CreateButton(addonTable.Locales.RANGED, function()
+      local new = CopyTable(addonTable.Designer.Defaults.SwingBar)
+      new.resource.weapon = "ranged"
+      inserter(new)
+    end)
+  end
 end
 
 function addonTable.Designer.LayoutManagerMixin:MarkSelected(details)

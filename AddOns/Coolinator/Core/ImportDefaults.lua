@@ -103,8 +103,8 @@ function addonTable.Core.GenerateDefaultCDMLayout()
       entry.preset = "UTILITY"
       entry.resource.spellID = spellID
       table.insert(result.entries[1].entries, entry)
+      seen[spellID] = true
     end
-    seen[spellID] = true
   end
 
   for _, id in ipairs(spellEssential) do
@@ -115,8 +115,8 @@ function addonTable.Core.GenerateDefaultCDMLayout()
       entry.preset = "ESSENTIAL"
       entry.resource.spellID = spellID
       table.insert(result.entries[2].entries, entry)
+      seen[spellID] = true
     end
-    seen[spellID] = true
   end
 
   for _, id in ipairs(auraTracked) do

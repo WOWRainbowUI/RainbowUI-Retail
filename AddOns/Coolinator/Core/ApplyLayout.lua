@@ -50,9 +50,11 @@ function addonTable.Core.GetCDMMappingAuras(activeOnly)
   for _, cdmID in ipairs(allAuras) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(cdmID)
     auraMapping[info.spellID] = cdmID
-    auraMapping[info.overrideSpellID] = cdmID
     auraMapping[C_Spell.GetBaseSpell(info.spellID)] = cdmID
-    auraMapping[C_Spell.GetBaseSpell(info.overrideSpellID)] = cdmID
+    if info.overrideSpellID then
+      auraMapping[info.overrideSpellID] = cdmID
+      auraMapping[C_Spell.GetBaseSpell(info.overrideSpellID)] = cdmID
+    end
     if info.overrideTooltipSpellID then
       auraMapping[info.overrideTooltipSpellID] = cdmID
       auraMapping[C_Spell.GetBaseSpell(info.overrideTooltipSpellID)] = cdmID

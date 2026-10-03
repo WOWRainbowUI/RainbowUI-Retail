@@ -407,3 +407,41 @@ do
     harmful:SetAuraSlotFilterString(key, enabled and "HARMFUL|PLAYER" or "")
   end
 end
+
+do
+  local times
+  if Enum.PlayerSwingType then
+    times = {
+      [Enum.PlayerSwingType.OffHand] = C_DurationUtil.CreateDuration(),
+      [Enum.PlayerSwingType.Ranged] = C_DurationUtil.CreateDuration(),
+      [Enum.PlayerSwingType.MainHand] = C_DurationUtil.CreateDuration(),
+    }
+  end
+  local timers = {}
+
+  if C_EventUtils.IsEventValid("PLAYER_SWING") then
+    local monitor = CreateFrame("Frame")
+    monitor:SetScript("OnEvent", function(_, eventName, ...)
+      if eventName == "PLAYER_SWING" then
+        local duration, kind = ...
+        local start = GetTime()
+        times[kind]:SetTimeFromStart(start, duration)
+        addonTable.CallbackRegistry:TriggerEvent("Update.SwingTimer", kind)
+        if timers[kind] then
+          timers[kind]:Cancel()
+        end
+        timers[kind] = C_Timer.NewTimer(duration + 0.05, function()
+          if times[kind]:GetStartTime() == start then
+            times[kind]:SetTimeFromStart(0, 0)
+          end
+          addonTable.CallbackRegistry:TriggerEvent("Update.SwingTimer", kind)
+        end)
+      end
+    end)
+    monitor:RegisterEvent("PLAYER_SWING")
+  end
+
+  function addonTable.Display.GetSwingDuration(swingType)
+    return times[swingType]
+  end
+end

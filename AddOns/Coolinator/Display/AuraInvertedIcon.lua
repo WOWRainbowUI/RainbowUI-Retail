@@ -126,6 +126,7 @@ function addonTable.Display.AuraInvertedIconMixin:Setup(details)
   else
     self.Glow:Hide()
   end
+  self.Icon:SetDesaturated(details.whenInactive == "desaturate")
 end
 
 function addonTable.Display.AuraInvertedIconMixin:ApplySize()
