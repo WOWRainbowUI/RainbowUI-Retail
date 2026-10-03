@@ -1,0 +1,8 @@
+## Interface: 120001, 120005
+## Title: Details! Skin Midnight
+## Notes: Adds the Midnight skin to Details!
+## Author: Midnight
+## Version: 2.4
+## Dependencies: Details
+
+Details_Midnight.lua
