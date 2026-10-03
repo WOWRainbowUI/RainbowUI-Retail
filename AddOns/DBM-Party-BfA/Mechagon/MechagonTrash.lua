@@ -1,8 +1,8 @@
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("MechagonTrash", "DBM-Party-BfA", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260525233013")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod:SetZone(2097)
 mod:RegisterZoneCombat(2097)

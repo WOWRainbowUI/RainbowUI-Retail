@@ -1,30 +1,37 @@
 local mod	= DBM:NewMod(748, "DBM-Party-Vanilla", DBM:IsPostCata() and 13 or 18, 239)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7023)
 mod:SetEncounterID(1887)
+mod:SetModelID(5285)
 mod:SetZone(70)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEventsInCombat(
-	"SPELL_CAST_SUCCESS 10072",
-	"SPELL_AURA_APPLIED 9941"
-)
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+else
 
-local warningReflection				= mod:NewTargetNoFilterAnnounce(9941, 2)
-local warningSplinteredObsidian		= mod:NewSpellAnnounce(10072, 2)
+	mod:RegisterEventsInCombat(
+		"SPELL_CAST_SUCCESS 10072",
+		"SPELL_AURA_APPLIED 9941"
+	)
 
-function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpell(10072) and self:AntiSpam(3, 1) then
-		warningSplinteredObsidian:Show()
+	local warningReflection				= mod:NewTargetNoFilterAnnounce(9941, 2)
+	local warningSplinteredObsidian		= mod:NewSpellAnnounce(10072, 2)
+
+	function mod:SPELL_CAST_SUCCESS(args)
+		if args:IsSpell(10072) and self:AntiSpam(3, 1) then
+			warningSplinteredObsidian:Show()
+		end
 	end
-end
 
-function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpell(9941) and self:AntiSpam(3, args.destName) then
-		warningReflection:Show(args.destName)
+	function mod:SPELL_AURA_APPLIED(args)
+		if args:IsSpell(9941) and self:AntiSpam(3, args.destName) then
+			warningReflection:Show(args.destName)
+		end
 	end
 end

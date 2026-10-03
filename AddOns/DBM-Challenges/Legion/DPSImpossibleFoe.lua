@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,timewalker"
 
-mod:SetRevision("20260731053551")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(115638)
 mod:SetEncounterID(3612)
 mod.soloChallenge = true
@@ -11,13 +11,13 @@ mod.soloChallenge = true
 mod:RegisterCombat("combat")
 mod:SetReCombatTime(20, 5)--Basically killing of recombat restriction. mage tower lets you spam retry, we want the mod to let you
 
-if DBM:IsPostMidnight() then
-	--local specWarnImpServants = mod:NewSpecialWarningSwitch(235140, nil, nil, nil, 1, 2, nil, nil, "bigmob")
-	--local specWarnDarkFury = mod:NewSpecialWarningSwitch(243111, nil, nil, nil, 1, 7, nil, nil, "attackshield")
-	--local specWarnDarkFuryKick = mod:NewSpecialWarningInterrupt(243111, nil, nil, nil, 1, 2, nil, nil, "kickcast")
+if DBM:IsRestricted() then
+	--local specWarnImpServants			= mod:NewSpecialWarningSwitch(235140, nil, nil, nil, 1, 2, nil, nil, "bigmob")
+	--local specWarnDarkFury			= mod:NewSpecialWarningSwitch(243111, nil, nil, nil, 1, 7, nil, nil, "attackshield")
+	--local specWarnDarkFuryKick		= mod:NewSpecialWarningInterrupt(243111, nil, nil, nil, 1, 2, nil, nil, "kickcast")
 
-	--local timerImpServantsCD = mod:NewCDCountTimer(0, 235140, nil, nil, nil, 1)
-	--local timerDarkFuryCD = mod:NewCDCountTimer(0, 243111, nil, nil, nil, 5)
+	--local timerImpServantsCD			= mod:NewCDCountTimer(0, 235140, nil, nil, nil, 1)
+	--local timerDarkFuryCD				= mod:NewCDCountTimer(0, 243111, nil, nil, nil, 5)
 	local badStateDetected = false
 	local function setFallback(self, dontSetAlerts)
 		if not dontSetAlerts then

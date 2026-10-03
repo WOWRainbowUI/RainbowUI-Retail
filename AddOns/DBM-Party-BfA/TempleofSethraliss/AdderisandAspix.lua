@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260901052519")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(133379, 133944)
 mod:SetEncounterID(2124)
 mod:SetUsedIcons(8)
@@ -11,7 +11,7 @@ mod:SetZone(1877)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(1288049, DBM_COMMON_L.GROUPSOAK)--Thunder and Lightning --> Help Soak
 	DBM:RegisterAltSpellName(1311805, DBM_COMMON_L.POOLS)--Tempest Winds --> Pools
 	DBM:RegisterAltSpellName(1289059, DBM_COMMON_L.PUSHBACK)--Gale Force --> Pushback
@@ -52,6 +52,7 @@ if DBM:IsPostMidnight() then
 	local aspixDead = false
 	local boss2Seen = false
 	local bossDeathTime = 0
+	local bossDeathDetected = false
 	local attackingAdderis = true
 	local transitionPaused = false
 	local batchTimerValues = {
@@ -65,7 +66,16 @@ if DBM:IsPostMidnight() then
 		[29] = true,
 		[35] = true,
 		[39] = true,
+		[45] = true,
 	}
+
+	local function detectBossDeath()
+		--The death rebuild can arrive before INSTANCE_ENCOUNTER_ENGAGE_UNIT reports that boss2 disappeared.
+		if not bossDeathDetected and boss2Seen and not UnitExists("boss2") then
+			bossDeathDetected = true
+			bossDeathTime = GetTime()
+		end
+	end
 
 	---@param self DBMMod
 	---@param dontSetAlerts boolean? Called on engage when we only want to set timeline parameters and not touch encounter alerts
@@ -76,7 +86,7 @@ if DBM:IsPostMidnight() then
 			if self:IsTank() then
 				specWarnOverload:SetAlert(690, "defensive", 2, 2)
 			end
-			specWarnTempestWinds:SetAlert({691,713}, "watchstep", 2, 2, 0)
+			specWarnTempestWinds:SetAlert({691,713}, "poolyou", 18, 2, 0)
 			specWarnGaleForce:SetAlert({692,718}, "pushbackincoming", 2, 3, 0)
 		end
 		local onlyColor = not DBM.Options.HideDBMBars and not badStateDetected
@@ -100,6 +110,7 @@ if DBM:IsPostMidnight() then
 		aspixDead = false
 		boss2Seen = false
 		bossDeathTime = 0
+		bossDeathDetected = false
 		attackingAdderis = true
 		transitionPaused = false
 		if DBM.Options.HardcodedTimer and not badStateDetected then
@@ -137,23 +148,39 @@ if DBM:IsPostMidnight() then
 			self:TLBatchStart(timer, timerObject, timerExact, eventID, eventType, countKey, batchTimerValues)
 		end
 
+		local function getFortyFiveTimer()
+			local eventType = fortyFiveTimers[nextFortyFiveTimer]
+			nextFortyFiveTimer = nextFortyFiveTimer % #fortyFiveTimers + 1
+			if eventType == "galeForce" then
+				return timerGaleForceCD, eventType, "galeForceCount"
+			elseif eventType == "thunderAndLightning" then
+				return timerThunderandLightningCD, eventType, "thunderAndLightningCount"
+			elseif eventType == "tempestWinds" then
+				return timerTempestWindsCD, eventType, "tempestWindsCount"
+			end
+			return timerOverloadCD, eventType, "overloadCount"
+		end
+
+		local function getTwelveTimer()
+			--A surviving 12-second row identifies the Adderis-death survivor schedule.
+			adderisDead = true
+			return timerTempestWindsCD, "tempestWinds", "tempestWindsCount"
+		end
+
+		local function getFiveTimer(self)
+			if adderisDead or self.vb.galeForceCount == 1 then
+				return timerGaleForceCD, "galeForce", "galeForceCount"
+			end
+			return timerThunderandLightningCD, "thunderAndLightning", "thunderAndLightningCount"
+		end
+
 		local function timersAll(self, timer, timerExact, eventID, bossJustDied)
 			if bossJustDied and timer ~= 5 and timer ~= 12 and timer ~= 15 and timer ~= 22 then
 				--A boss death re-adds the survivor's active bars with arbitrary remaining times before canceling them.
 				return true
 			elseif timer == 45 then
-				--Every empowerment transition resumes this four-event batch in this fixed order.
-				local eventType = fortyFiveTimers[nextFortyFiveTimer]
-				nextFortyFiveTimer = nextFortyFiveTimer % #fortyFiveTimers + 1
-				if eventType == "galeForce" then
-					startTimer(self, timerGaleForceCD, timerExact, eventID, eventType, "galeForceCount")
-				elseif eventType == "thunderAndLightning" then
-					startTimer(self, timerThunderandLightningCD, timerExact, eventID, eventType, "thunderAndLightningCount")
-				elseif eventType == "tempestWinds" then
-					startTimer(self, timerTempestWindsCD, timerExact, eventID, eventType, "tempestWindsCount")
-				else
-					startTimer(self, timerOverloadCD, timerExact, eventID, eventType, "overloadCount")
-				end
+				--Defer this bucket: a death rebuild can cancel a partial 45-second sequence in the same dispatch.
+				self:TLBatchStart(timer, getFortyFiveTimer, timerExact, eventID, nil, nil, batchTimerValues)
 			elseif timer == 9 then
 				adderisDead = false
 				startBatchTimer(self, timer, timerThunderandLightningCD, timerExact, eventID, "thunderAndLightning", "thunderAndLightningCount")
@@ -167,17 +194,10 @@ if DBM:IsPostMidnight() then
 				aspixDead = false
 				startBatchTimer(self, timer, timerGaleForceCD, timerExact, eventID, "galeForce", "galeForceCount")
 			elseif timer == 5 then
-				if bossJustDied or self.vb.galeForceCount == 1 then
-					--Gale Force opener, and Gale Force after Adderis dies.
-					if bossJustDied then adderisDead = true end
-					startBatchTimer(self, timer, timerGaleForceCD, timerExact, eventID, "galeForce", "galeForceCount")
-				else
-					--The transition re-sync re-adds Thunder and Lightning at five seconds.
-					startBatchTimer(self, timer, timerThunderandLightningCD, timerExact, eventID, "thunderAndLightning", "thunderAndLightningCount")
-				end
+				--Resolve after a concurrent 12-second survivor marker, if any, has settled.
+				self:TLBatchStart(timer, getFiveTimer, timerExact, eventID, nil, nil, batchTimerValues)
 			elseif timer == 12 then
-				if bossJustDied then adderisDead = true end
-				startBatchTimer(self, timer, timerTempestWindsCD, timerExact, eventID, "tempestWinds", "tempestWindsCount")
+				self:TLBatchStart(timer, getTwelveTimer, timerExact, eventID, nil, nil, batchTimerValues)
 			elseif bossJustDied and timer == 15 then
 				aspixDead = true
 				startBatchTimer(self, timer, timerOverloadCD, timerExact, eventID, "overload", "overloadCount")
@@ -210,8 +230,8 @@ if DBM:IsPostMidnight() then
 		function mod:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
 			if UnitExists("boss2") then
 				boss2Seen = true
-			elseif boss2Seen then
-				bossDeathTime = GetTime()
+			else
+				detectBossDeath()
 			end
 		end
 
@@ -221,6 +241,7 @@ if DBM:IsPostMidnight() then
 			if C_EncounterTimeline.GetEventState(eventID) ~= 0 then return end
 			--Blizzard can resend an active event with its remaining duration during an empowerment transfer.
 			if not self:TLTrackActiveEvent(eventID) then return end
+			detectBossDeath()
 			local timerExact = eventInfo.duration
 			local bossJustDied = bossDeathTime > 0 and GetTime() - bossDeathTime <= 1
 			if not timersAll(self, math.floor(timerExact + 0.5), timerExact, eventID, bossJustDied) and not badStateDetected then

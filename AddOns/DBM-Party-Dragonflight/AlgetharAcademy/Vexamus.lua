@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2509, "DBM-Party-Dragonflight", 5, 1201)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(194181)
 mod:SetEncounterID(2562)
 mod:SetHotfixNoticeRev(20221015000000)
@@ -12,7 +12,7 @@ mod.sendMainBossGUID = true
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(385974, DBM_COMMON_L.ORBS)--Arcane Orbs -> Orbs
 	DBM:RegisterAltSpellName(386173, DBM_COMMON_L.POOLS)--Mana Bombs -> Pools
 	DBM:RegisterAltSpellName(388537, DBM_COMMON_L.AOEDAMAGE)--Arcane Fissure -> AOE Damage

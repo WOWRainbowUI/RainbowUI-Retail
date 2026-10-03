@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2512, "DBM-Party-Dragonflight", 5, 1201)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(186951)
 mod:SetEncounterID(2563)
 mod:SetHotfixNoticeRev(20230103000000)
@@ -34,7 +34,7 @@ do
 	end
 end
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(388796, DBM_COMMON_L.SWIRLS)--Germinate -> Swirls
 	DBM:RegisterAltSpellName(388923, DBM_COMMON_L.ADDS)--Burst Forth -> Adds
 	DBM:RegisterAltSpellName(388623, DBM_COMMON_L.BIG_ADD)--Branch Out -> Big Add

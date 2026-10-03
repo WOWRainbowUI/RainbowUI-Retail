@@ -1,4 +1,4 @@
-local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
+local isRetail = DBM:IsRetail()
 local mod	= DBM:NewMod(116, "DBM-Party-Cataclysm", 8, 68)
 local L		= mod:GetLocalizedStrings()
 
@@ -9,7 +9,7 @@ else
 	mod.statTypes = "normal,heroic"
 end
 
-mod:SetRevision("20260525233013")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(43875)
 mod:SetEncounterID(1042)

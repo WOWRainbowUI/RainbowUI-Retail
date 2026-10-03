@@ -1,29 +1,36 @@
 local mod	= DBM:NewMod("GhamooRa", "DBM-Party-Vanilla", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(4887)
 mod:SetEncounterID(2761)
+mod:SetModelID(5027)
 mod:SetZone(48)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEventsInCombat(
-	"SPELL_CAST_SUCCESS 5568"
-)
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+else
 
-local warningTrample			= mod:NewSpellAnnounce(5568, 2)
+	mod:RegisterEventsInCombat(
+		"SPELL_CAST_SUCCESS 5568"
+	)
 
-local timerTrampleCD			= mod:NewAITimer(180, 5568, nil, nil, nil, 3)
+	local warningTrample			= mod:NewSpellAnnounce(5568, 2)
 
-function mod:OnCombatStart(delay)
-	timerTrampleCD:Start(1-delay)
-end
+	local timerTrampleCD			= mod:NewAITimer(180, 5568, nil, nil, nil, 3)
 
-function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpell(5568) then
-		warningTrample:Show()
-		timerTrampleCD:Start()
+	function mod:OnCombatStart(delay)
+		timerTrampleCD:Start(1-delay)
+	end
+
+	function mod:SPELL_CAST_SUCCESS(args)
+		if args:IsSpell(5568) then
+			warningTrample:Show()
+			timerTrampleCD:Start()
+		end
 	end
 end

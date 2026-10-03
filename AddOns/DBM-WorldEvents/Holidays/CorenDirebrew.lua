@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d287", "DBM-WorldEvents", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(23872)
 mod:SetModelID(21824)
@@ -10,7 +10,7 @@ mod:SetReCombatTime(10)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 47310",

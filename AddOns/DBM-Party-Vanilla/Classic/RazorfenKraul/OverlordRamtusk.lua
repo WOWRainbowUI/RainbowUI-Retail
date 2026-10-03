@@ -1,22 +1,29 @@
 local mod	= DBM:NewMod("OverlordRamtusk", "DBM-Party-Vanilla", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(4420)
 --mod:SetEncounterID(1659)
+mod:SetModelID(4652)
 mod:SetZone(47)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEventsInCombat(
-	"SPELL_CAST_START 8259"
-)
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+else
 
-local warningWhirlingBarrage		= mod:NewCastAnnounce(8259, 2)
+	mod:RegisterEventsInCombat(
+		"SPELL_CAST_START 8259"
+	)
 
-function mod:SPELL_CAST_START(args)
-	if args:IsSpell(8259) and self:AntiSpam(3, 1) then
-		warningWhirlingBarrage:Show()
+	local warningWhirlingBarrage		= mod:NewCastAnnounce(8259, 2)
+
+	function mod:SPELL_CAST_START(args)
+		if args:IsSpell(8259) and self:AntiSpam(3, 1) then
+			warningWhirlingBarrage:Show()
+		end
 	end
 end

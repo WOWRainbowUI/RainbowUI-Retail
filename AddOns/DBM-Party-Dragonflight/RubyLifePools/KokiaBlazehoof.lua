@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2485, "DBM-Party-Dragonflight", 7, 1202)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260901065547")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(189232)
 mod:SetEncounterID(2606)
 mod:SetZone(2521)
@@ -15,7 +15,7 @@ mod:RegisterCombat("combat")
 DBM:RegisterAltSpellName(372864, DBM_COMMON_L.BIG_ADD)--Ritual of Blazebinding --> Big Add
 DBM:RegisterAltSpellName(372110, DBM_COMMON_L.FRONTAL)--Molten Boulder --> Frontal
 DBM:RegisterAltSpellName(372858, DBM_COMMON_L.TANKBUSTER)--Searing Blows --> Tank Buster
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	--local warnBaitBoulder							= mod:NewBaitAnnounce(372107, 3, nil, nil, nil, nil, 8)--Hardcode later
 	--local warnBaitAdd								= mod:NewBaitAnnounce(372863, 3, nil, false, 2, nil, 8)--Hardcode later
 

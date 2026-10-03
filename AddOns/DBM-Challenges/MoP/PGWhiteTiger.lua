@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("d640", "DBM-Challenges", 4, nil, function(t)
 end)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260525233013")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod.noStatistics = true
 
@@ -221,7 +221,7 @@ do
 				name = Ambiguate(name, "none")
 				local diffID, currWave = C_Scenario.GetProvingGroundsInfo()--, maxWave, duration
 				local message = L.ReplyWhisper:format(UnitName("player"), mode[diffID], currWave)
-				if self:IsPostMidnight() then
+				if self:IsRestricted() then
 					--Post midnight yell restrictions in instances
 					return
 				end

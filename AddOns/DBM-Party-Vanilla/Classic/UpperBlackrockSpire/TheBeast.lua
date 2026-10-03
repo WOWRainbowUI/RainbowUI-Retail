@@ -1,28 +1,35 @@
 local mod	= DBM:NewMod("TheBeast", "DBM-Party-Vanilla", DBM:IsCata() and 18 or 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260405092434")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(10430)
 mod:SetZone(229)
+mod:SetModelID(10193)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEventsInCombat(
-	"SPELL_CAST_SUCCESS 14100"
-)
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+else
 
-local warnRoar		= mod:NewSpellAnnounce(14100, 2)
+	mod:RegisterEventsInCombat(
+		"SPELL_CAST_SUCCESS 14100"
+	)
 
-local timerRoarCD		= mod:NewAITimer(180, 14100, nil, nil, nil, 2)
+	local warnRoar		= mod:NewSpellAnnounce(14100, 2)
 
-function mod:OnCombatStart(delay)
-	timerRoarCD:Start(1-delay)
-end
+	local timerRoarCD		= mod:NewAITimer(180, 14100, nil, nil, nil, 2)
 
-function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpell(14100) then
-		warnRoar:Show()
-		timerRoarCD:Start()
-    end
+	function mod:OnCombatStart(delay)
+		timerRoarCD:Start(1-delay)
+	end
+
+	function mod:SPELL_CAST_SUCCESS(args)
+		if args:IsSpell(14100) then
+			warnRoar:Show()
+			timerRoarCD:Start()
+	    end
+	end
 end

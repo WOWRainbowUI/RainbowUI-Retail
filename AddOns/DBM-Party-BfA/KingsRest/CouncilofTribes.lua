@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260901045738")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(135475, 135470, 135472)
 mod:SetEncounterID(2140)
 mod:SetUsedIcons(1, 2)
@@ -12,7 +12,7 @@ mod:SetZone(1762)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	mod:RegisterSafeEventsInCombat("CHAT_MSG_MONSTER_YELL")
 	--Overview:
 	--The battle will begin with Kula the Butcher. When a councilor is defeated, they will return to their urn and the next will join the encounter.

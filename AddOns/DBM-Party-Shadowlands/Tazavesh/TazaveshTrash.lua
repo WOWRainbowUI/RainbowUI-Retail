@@ -1,8 +1,8 @@
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("TazaveshTrash", "DBM-Party-Shadowlands", 9)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod:SetZone(2441)
 mod:RegisterZoneCombat(2441)

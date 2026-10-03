@@ -1,13 +1,13 @@
 local mod	= DBM:NewMod("RubyLifePoolsTrash", "DBM-Party-Dragonflight", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260810165039")
+mod:SetRevision("20260919193459")
 --mod:SetModelID(47785)
 mod:SetZone(2521)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	mod:AddAuraSoundOption(373693, true, 373693, 1, 1, "bombyou", 12, 0)--Living Bomb
 	mod:AddAuraSoundOption(1307372, true, 1307372, 1, 2, "watchfeet", 8, 0)--Fiery Demise
 	mod:AddAuraSoundOption(1306366, false, 1306366, 1, 1, "defensive", 8, 0)--Lightning Torrent

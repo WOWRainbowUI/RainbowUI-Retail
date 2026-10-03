@@ -1,10 +1,16 @@
 local mod	= DBM:NewMod("LorekeeperPolkelt", "DBM-Party-Vanilla", DBM:IsPostCata() and 16 or 13)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(10901)
 mod:SetEncounterID(mod:IsClassic() and 2808 or 459)
+mod:SetModelID(11492)
 mod:SetZone(289)
 
 mod:RegisterCombat("combat")
+
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+end

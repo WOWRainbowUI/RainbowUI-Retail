@@ -1,7 +1,7 @@
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("AuctTombsTrash", "DBM-Party-BC", 8, 250)
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 mod:SetZone(557)
 

@@ -1,14 +1,14 @@
 local mod	= DBM:NewMod(1980, "DBM-Party-Legion", 13, 945)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(124872)
 mod:SetEncounterID(2066)
 mod:SetZone(1753)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	local warnPhaseDash					= mod:NewCountAnnounce(1280064, 2)
 	local warnShadowPounce				= mod:NewCountAnnounce(245738, 2)
 

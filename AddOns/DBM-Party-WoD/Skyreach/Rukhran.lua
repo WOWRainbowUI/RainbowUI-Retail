@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(76143)
 mod:SetEncounterID(1700)
 mod:SetZone(1209)
@@ -11,7 +11,7 @@ mod:SetZone(1209)
 mod:RegisterCombat("combat")
 
 --TODO, some actual custom sounds and timer disables when apis added
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(1253510, DBM_COMMON_L.ADD)--Sunbreak -> Add
 
 	local specWarnSunbreak			= mod:NewSpecialWarningCount(1253510, nil, nil, nil, 1, 2, nil, nil, "mobsoon")

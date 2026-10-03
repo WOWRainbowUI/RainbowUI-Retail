@@ -3,14 +3,14 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260901045738")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(134993)
 mod:SetEncounterID(2142)
 mod:SetZone(1762)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(267618, DBM_COMMON_L.DEBUFFS)--Drain Fluids --> Debuffs
 	DBM:RegisterAltSpellName(267639, DBM_COMMON_L.POOLS)--Burn Corruption --> Pools
 	DBM:RegisterAltSpellName(1312146, DBM_COMMON_L.AOEDAMAGE)--Awakening Slam --> AoE

@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(76266)
 mod:SetEncounterID(1701)
 mod:SetUsedIcons(1)
@@ -12,7 +12,7 @@ mod:SetZone(1209)
 mod:RegisterCombat("combat")
 
 --NOTE: Solar Blast alternates between 12 and 27 second cd
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(1253998, DBM_COMMON_L.ADD)--Cast Down -> Add
 
 	local warnScorchingRay			= mod:NewCountAnnounce(1253538, 2)

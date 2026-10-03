@@ -1,6 +1,6 @@
 ## Interface: 120100
+## AllowLoadGameType: standard
 ## Category: DBM
-
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Midnight)|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0던전 (한밤)|r
 ## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM Мод|r|cffffe00a>|r |cffc030c0Подземелья (Полночь)|r
@@ -28,52 +28,43 @@
 ## X-DBM-Mod-MinExpansion: 11
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r261
+## Version: r264
 
 localization.en.lua
 localization.kr.lua
 localization.ru.lua
-
 WindrunnerSpire\Emberdawn.lua
 WindrunnerSpire\DerelictDuo.lua
 WindrunnerSpire\CommanderKroluk.lua
 WindrunnerSpire\TheRestlessHeart.lua
-
 MurderRow\KystiaManaheart.lua
 MurderRow\ZaenBladesorrow.lua
 MurderRow\XathuuxtheAnnihilator.lua
 MurderRow\LithielCinderfury.lua
 MurderRow\MurderRowTrash.lua
-
 MagistersTerrace\ArcanotronCustos.lua
 MagistersTerrace\SeranelSunlash.lua
 MagistersTerrace\Gemellus.lua
 MagistersTerrace\Degentrius.lua
-
 TheBlindingVale\LightblossomTrinity.lua
 TheBlindingVale\IkuzztheLightHunter.lua
 TheBlindingVale\LightwardenRuia.lua
 TheBlindingVale\Ziekket.lua
 TheBlindingVale\TheBlindingValeTrash.lua
-
 DenofNalorakk\TheHoardmonger.lua
 DenofNalorakk\SentinelofWinter.lua
 DenofNalorakk\Nalorakk.lua
 DenofNalorakk\DenofNalorakkTrash.lua
-
 VoidscarArena\TazRah.lua
 VoidscarArena\Atroxus.lua
 VoidscarArena\Charonus.lua
 VoidscarArena\VoidscarArenaTrash.lua
-
 MaisaraCaverns\MurojinandNekraxx.lua
 MaisaraCaverns\Vordaza.lua
 MaisaraCaverns\Raktul.lua
-
 NexusPointXenas\Lothraxion.lua
 NexusPointXenas\CorewardenNysarra.lua
 NexusPointXenas\ChiefCorewrightKasreth.lua
-
 AltarofFangs\Ravi.lua
 AltarofFangs\TheWrithingCoil.lua
 AltarofFangs\Zuljan.lua

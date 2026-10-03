@@ -1,6 +1,6 @@
 ## Interface: 120100
+## AllowLoadGameType: standard
 ## Category: DBM
-
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (WW)|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0던전 (내부 전쟁)|r
 ## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM Мод|r|cffffe00a>|r |cffc030c0Подземелья (Война Внутри)|r
@@ -27,64 +27,54 @@
 ## X-DBM-Mod-MinExpansion: 10
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r261
+## Version: r264
 
 localization.en.lua
 localization.kr.lua
 localization.ru.lua
 localization.cn.lua
 localization.tw.lua
-
 DarkflameCleft\OlWaxbeard.lua
 DarkflameCleft\Blazikon.lua
 DarkflameCleft\TheCandleKing.lua
 DarkflameCleft\TheDarkness.lua
 DarkflameCleft\DarkflameCleftTrash.lua
-
 PrioryoftheSacredFlame\CaptainDailcry.lua
 PrioryoftheSacredFlame\BaronBraunpyke.lua
 PrioryoftheSacredFlame\PrioressMurrpray.lua
 PrioryoftheSacredFlame\SacredFlameTrash.lua
-
 TheRookery\Kyrioss.lua
 TheRookery\StormguardGorren.lua
 TheRookery\VoidstoneMonstrosity.lua
 TheRookery\TheRookeryTrash.lua
-
 TheStonevault\EDNA.lua
 TheStonevault\Skarmorak.lua
 TheStonevault\ForgeSpeakers.lua
 TheStonevault\HighSpeakerEirich.lua
 TheStonevault\TheStonevaultTrash.lua
-
 TheDawnbreaker\SpeakerShadowcrown.lua
 TheDawnbreaker\Anubikkaj.lua
 TheDawnbreaker\Rashanan.lua
 TheDawnbreaker\TheDawnbreakerTrash.lua
-
 ArakaraCityofEchoes\Avanoxx.lua
 ArakaraCityofEchoes\Anubzekt.lua
 ArakaraCityofEchoes\KikataltheHarvester.lua
 ArakaraCityofEchoes\AraKaraTrash.lua
-
 CinderbrewMeadery\BrewMasterAldryr.lua
 CinderbrewMeadery\Ipa.lua
 CinderbrewMeadery\BenkBuzzbee.lua
 CinderbrewMeadery\GoldieBaronbottom.lua
 CinderbrewMeadery\CinderbrewMeaderyTrash.lua
-
 CityofThreads\OratorKrixvizk.lua
 CityofThreads\FangsoftheQueen.lua
 CityofThreads\TheCoaglamation.lua
 CityofThreads\IzotheGrandSplicer.lua
 CityofThreads\CityofThreadsTrash.lua
-
 OperationFloodgate\BigMomma.lua
 OperationFloodgate\DemolitionDuo.lua
 OperationFloodgate\Swampface.lua
 OperationFloodgate\GeezNuts.lua
 OperationFloodgate\OperationFloodgateTrash.lua
-
 EcoDomeAldani\Azhiccar.lua
 EcoDomeAldani\TaahbatandAwazj.lua
 EcoDomeAldani\SoulScribe.lua

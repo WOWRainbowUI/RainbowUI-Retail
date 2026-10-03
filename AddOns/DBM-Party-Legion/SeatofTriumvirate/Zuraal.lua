@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1979, "DBM-Party-Legion", 13, 945)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(124871)
 mod:SetEncounterID(2065)
 mod:SetUsedIcons(1)
@@ -9,7 +9,7 @@ mod:SetZone(1753)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(1268916, DBM_COMMON_L.FRONTAL)--Null Palm -> Frontal
 	DBM:RegisterAltSpellName(1263304, DBM_COMMON_L.AOEDAMAGE)--Crashing Void -> AOE Damage
 

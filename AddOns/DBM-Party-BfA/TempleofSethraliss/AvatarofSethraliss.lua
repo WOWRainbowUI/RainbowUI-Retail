@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260820172904")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(133392)
 mod:SetEncounterID(2127)
 mod.onlyHighest = true--Instructs DBM health tracking to literally only store highest value seen during fight, even if it drops below that
@@ -12,7 +12,7 @@ mod:SetZone(1877)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	--TODO: https://www.wowhead.com/ptr/spell=1301963/cleansed has an encounter event ID of 827, but it's not visible in my logs. Healer only message?
 	--TODO, add aura applied sound for https://www.wowhead.com/ptr/spell=1303446/tainted-strike ? depends on frequency of application
 	--NOTE: Most of this bosses abilities are ignored by blizzard timeline and warning API, so DBM has to also ignore the mechanics since they can't be disambiguated

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2495, "DBM-Party-Dragonflight", 5, 1201)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(191736)
 mod:SetEncounterID(2564)
 mod:SetHotfixNoticeRev(20221127000000)
@@ -12,7 +12,7 @@ mod.sendMainBossGUID = true
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(377004, DBM_COMMON_L.AOEDAMAGE)--Deafening Screech -> AOE Damage
 	DBM:RegisterAltSpellName(377034, DBM_COMMON_L.FRONTAL)--Overpowering Gust -> Frontal
 

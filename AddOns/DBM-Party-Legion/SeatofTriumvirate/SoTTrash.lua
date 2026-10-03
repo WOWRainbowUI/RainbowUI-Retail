@@ -1,8 +1,8 @@
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("SoTTrash", "DBM-Party-Legion", 13)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260619044643")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 mod:SetZone(1753)

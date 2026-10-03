@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2791, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260901065547")
+mod:SetRevision("20260911055800")
 mod:SetCreatureID(238887)
 mod:SetEncounterID(3285)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -127,7 +127,7 @@ do
 					end
 				elseif eventType == "blackHole" then
 					specWarnBlackHole:Show(eventCount)
-					specWarnBlackHole:Play("pullin")
+					specWarnBlackHole:Play("watchorb")
 				elseif eventType == "umbralRupture" then
 					specWarnUmbralRupture:Show(eventCount)
 					specWarnUmbralRupture:Play("watchstep")

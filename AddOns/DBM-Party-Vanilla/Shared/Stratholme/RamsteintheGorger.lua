@@ -1,35 +1,42 @@
 local mod	= DBM:NewMod(455, "DBM-Party-Vanilla", DBM:IsPostCata() and 10 or 16, 236)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260905035030")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(10439)
 mod:SetEncounterID(483)
+mod:SetModelID(12818)
 mod:SetZone(329)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEventsInCombat(
-	"SPELL_CAST_SUCCESS 17307 5568"
-)
+if DBM:IsRestricted() then
+	--do stuff
+	--mod:AddAuraSoundOption(372820, true, 372820, 1, 2, "watchfeet", 8, 0)
+else
 
-local warningKnockout			= mod:NewSpellAnnounce(17307, 2)
-local warningTrample			= mod:NewSpellAnnounce(5568, 2)
+	mod:RegisterEventsInCombat(
+		"SPELL_CAST_SUCCESS 17307 5568"
+	)
 
-local timerKnockoutCD			= mod:NewAITimer(180, 17307, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
-local timerTrampleCD			= mod:NewAITimer(180, 5568, nil, nil, nil, 2)
+	local warningKnockout			= mod:NewSpellAnnounce(17307, 2)
+	local warningTrample			= mod:NewSpellAnnounce(5568, 2)
 
-function mod:OnCombatStart(delay)
-	timerKnockoutCD:Start(1-delay)
-	timerTrampleCD:Start(1-delay)
-end
+	local timerKnockoutCD			= mod:NewAITimer(180, 17307, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
+	local timerTrampleCD			= mod:NewAITimer(180, 5568, nil, nil, nil, 2)
 
-function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpell(17307) then
-		warningKnockout:Show()
-		timerKnockoutCD:Start()
-	elseif args:IsSpell(5568) then
-		warningTrample:Show()
-		timerTrampleCD:Start()
+	function mod:OnCombatStart(delay)
+		timerKnockoutCD:Start(1-delay)
+		timerTrampleCD:Start(1-delay)
+	end
+
+	function mod:SPELL_CAST_SUCCESS(args)
+		if args:IsSpell(17307) then
+			warningKnockout:Show()
+			timerKnockoutCD:Start()
+		elseif args:IsSpell(5568) then
+			warningTrample:Show()
+			timerTrampleCD:Start()
+		end
 	end
 end

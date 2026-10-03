@@ -3,14 +3,14 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260901052519")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(133384)
 mod:SetEncounterID(2125)
 mod:SetZone(1877)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(1293048, 28405)--Serpent Storm --> Knockback
 	DBM:RegisterAltSpellName(1289109, DBM_COMMON_L.POOLS)--Thunderspit --> Pools
 	DBM:RegisterAltSpellName(1290797, DBM_COMMON_L.TANKBUSTER)--Lightning Bite --> Tank Buster

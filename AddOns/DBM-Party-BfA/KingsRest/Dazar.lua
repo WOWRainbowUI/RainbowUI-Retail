@@ -3,14 +3,14 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260901045738")
+mod:SetRevision("20260919193459")
 mod:SetCreatureID(136160)
 mod:SetEncounterID(2143)
 mod:SetZone(1762)
 
 mod:RegisterCombat("combat")
 
-if DBM:IsPostMidnight() then
+if DBM:IsRestricted() then
 	DBM:RegisterAltSpellName(269369, DBM_COMMON_L.INTERRUPT)--Deadly Roar --> Interrupt
 	DBM:RegisterAltSpellName(268586, DBM_COMMON_L.TANKBUSTER)--Blade Combo --> Tank Buster
 	DBM:RegisterAltSpellName(1303267, DBM_COMMON_L.AOEDAMAGE)--Gilded Destruction --> AoE Damage

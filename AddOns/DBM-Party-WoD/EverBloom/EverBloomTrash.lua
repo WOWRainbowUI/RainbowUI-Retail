@@ -1,9 +1,9 @@
-if DBM:IsPostMidnight() then return end
+if DBM:IsRestricted() then return end
 if (DBM:GetTOC() < 100200) then return end--DO NOT DELETE DO NOT DELETE DO NOT DELETE. We don't want this module loading in wod classic (if that happens heh)
 local mod	= DBM:NewMod("EverBloomTrash", "DBM-Party-WoD", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260919193459")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 mod:SetZone(1279)
