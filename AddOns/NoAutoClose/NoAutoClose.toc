@@ -1,8 +1,10 @@
-## Interface: 120100, 120100, 50504, 40402, 30403, 20506, 11509
+## Interface: 120100, 120100, 16001, 50504, 40402, 30403, 20506, 11509
 ## Title: NoAutoClose
-## Version: v1.3.44
+## Version: v1.3.46
 ## Notes: Stop frames from auto-closing when you open a new one
 ## Author: Numy
+## X-GameType: [Game]
+## X-GameFamily: [Family]
 ## IconTexture: Interface\Addons\NoAutoClose\media\icon
 ## SavedVariables: NoAutoCloseDB
 ## X-License: All Rights Reserved

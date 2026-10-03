@@ -1,6 +1,7 @@
 # NoAutoClose
 
-## [v1.3.44](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.44) (2026-09-06)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.43...v1.3.44) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.46](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.46) (2026-09-26)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.45...v1.3.46) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Reverted Professions Frame not autoclosing, since it causes issues under some circumstances  
+- Strip out the temporary disable RE code while it was dead in Forever  
+- Minor TOC metadata adjustment  
