@@ -897,144 +897,21 @@ function MenuModule:SocialHover(hoverFunc)
             headerRow:SetTextColor(r, g, b, 1)
             tooltip:AddRow(' ', ' ')
         end
-		
-		-- 名字顯示職業顏色用的對照表
-		local colorHex
-		local classLocTable = {
-			["死亡騎士"] = "DEATHKNIGHT",
-			["惡魔獵人"] = "DEMONHUNTER",
-			["德魯伊"] = "DRUID",
-			["喚能師"] = "EVOKER",
-			["獵人"] = "HUNTER",
-			["法師"] = "MAGE",
-			["武僧"] = "MONK",
-			["聖騎士"] = "PALADIN",
-			["牧師"] = "PRIEST",
-			["盜賊"] = "ROGUE",
-			["薩滿"] = "SHAMAN",
-			["術士"] = "WARLOCK",
-			["戰士"] = "WARRIOR",
-		}
-		
-		-- 我目前正在玩的魔獸版本
-		-- local myWowProjectID = WOW_PROJECT_MISTS_CLASSIC
-		-- local _, _, _, buildInfo = GetBuildInfo()
-		-- if (buildInfo < 20000) then
-		-- 	myWowProjectID = WOW_PROJECT_CLASSIC
-		-- end
 
         -- executes if there are any online bnet friends
         if totalBNOnlineFriends then
             -- iterate through every bnet friend - get their info and add the friend as an interactable line in the tooltip
             for i = 1, BNGetNumFriends() do
                 local friendAccInfo = C_BattleNet.GetFriendAccountInfo(i)
-                -- local gameAccount = friendAccInfo.gameAccountInfo
+                if friendAccInfo then
+                    local gameAccount = friendAccInfo.gameAccountInfo
 
-                -- executes if the friend is online
-                if friendAccInfo and friendAccInfo.gameAccountInfo.isOnline then
-					local gameAccount = friendAccInfo.gameAccountInfo
-                    -- if the friend has no battle tag, set it to 'No Tag'
-                    if not friendAccInfo.battleTag then
-                        friendAccInfo.battleTag = '[' .. L['No Tag'] .. ']'
-                    end
-
-                    local charName = gameAccount.characterName -- gets the friend's character name
-                    local gameClient = gameAccount.clientProgram -- the application that the friend is online with - can be any game or 'App'/'Mobile'
-                    local realmName = gameAccount.realmName -- gets the realm name the friend's char is on
-                    local faction = gameAccount.factionName -- gets the friend's currently logged in char's faction
-                    local zone = ""
-                    if (gameAccount.areaName) then
-                        zone = gameAccount.areaName -- zone name to be displayed when the friend is playing retail WoW
-                    end
-                    local richPresence = gameAccount.richPresence -- rich presence is used here to determine whether a friend logged into WoW is playing classic
-                    local isWoW = false -- tracks whether the friend is playing WoW or not, default being that the friend isn't
-                    local isClassic = false -- tracks whether the friend is logged into classic or not, default being that the friend isn't
-                    local statusIcon = FRIENDS_TEXTURE_ONLINE -- get icon for online friends, might later be changed to afk/dnd icons
-                    local socialIcon = BNet_GetClientEmbeddedAtlas(gameClient, 16) -- get icon for the friend's application
-                    local gameName = MenuModule.socialIcons[gameClient].text -- name of the application the friend is currently using - can be any game or 'App'/'Mobile'
-                    local note = friendAccInfo.note -- note of the friend, if there is no note it's an empty string
-                    local charNameFormat = '' -- format in which the friend's character is displayed - is '' if not playing WoW, 'Char - Realm' or 'FACTION - Char' if playing WoW
-
-                    -- 遊戲圖示
-					if faction and gameAccount.wowProjectID == WOW_PROJECT_ID then
-						socialIcon = "|TInterface\\FriendsFrame\\PlusManz-"..faction..":16|t"
-					else
-						if C_Texture.IsTitleIconTextureReady(gameAccount.clientProgram, Enum.TitleIconVersion.Small) then
-							C_Texture.GetTitleIconTexture(gameAccount.clientProgram, Enum.TitleIconVersion.Small, function(success, texture)
-								if success then
-									socialIcon = BNet_GetClientEmbeddedTexture(texture, 32, 32, 0).." ";
-								end
-							end);
-						end
-					end
-
-					-- if the friend is afk, set the icon left to the friend's name to afk
-                    if friendAccInfo.isAFK or gameAccount.isGameAFK then
-                        statusIcon = FRIENDS_TEXTURE_AFK
-                    end
-                    -- if the friend is set to 'do not disturb', set the icon left to the friend's name to dnd
-                    if friendAccInfo.isDND or gameAccount.isGameBusy then
-                        statusIcon = FRIENDS_TEXTURE_DND
-                    end
-                    -- if the friend has a note, color and display it
-                    if note ~= '' then
-                        note = "(|cffecd672" .. note .. "|r)"
-                    end
-
-                    -- if the friend is playing World of Warcraft - note that this is true for both retail and classic. yes, blizzard is retarded.
-                    if gameClient == BNET_CLIENT_WOW then
-                        --[[
-						isWoW = true
-                        isClassic = true
-                        -- checks if the friend is logged into classic or retail
-                        if not richPresence:find(L['Classic']) then
-                            isClassic = false
-                            -- friend is playing retail WoW and is of the same faction as the player, or faction is nil which for some reason happens sometimes
-                        elseif (not faction) or (faction == playerFaction) then
-                            charNameFormat = "(|cffecd672" .. (charName or L['No Info']) .. "-" ..
-                                                 (realmName or L['No Info']) .. "|r)"
-                            -- friend is playing retail WoW but is playing on the player's opposite faction
-                        else
-                            local factionColors = {
-                                ['Alliance'] = "ff008ee8",
-                                ['Horde'] = "ffc80000"
-                            }
-                            charNameFormat = "(|c" .. factionColors[faction] .. L[faction] .. "|r - |cffecd672" ..
-                                                 (charName or L['No Info']) .. "|r)"
+                    -- executes if the friend is online
+                    if gameAccount.isOnline then
+                        -- if the friend has no battle tag, set it to 'No Tag'
+                        if not friendAccInfo.battleTag then
+                            friendAccInfo.battleTag = '[' .. L["NO_TAG"] .. ']'
                         end
-						--]]
-						
-						-- 名字顯示職業顏色
-						local className = gameAccount.className
-						local characterLevel = gameAccount.characterLevel
-						
-						colorHex = "ffffffff"
-						if classLocTable[className] then
-							colorHex = RAID_CLASS_COLORS[classLocTable[className]].colorStr
-						end
-						if characterLevel == 0 then
-							characterLevel = UNKNOWN
-						end
-						
-						charNameFormat = characterLevel.." |c"..colorHex..charName
-						
-						if realmName then 
-							charNameFormat = charNameFormat.."-"..realmName.."|r"
-						end
-						if (zone and zone ~= '') then
-							zone = "@"..zone
-						else
-							zone = ''
-						end
-						
-						-- if gameAccount.wowProjectID == 2 then
-						--	zone = zone .. L["Classic"]
-							-- isClassic = true
-						-- end
-						
-						charNameFormat = charNameFormat.." |cff999999"..zone.."|r"
-						
-                    end
 
                         local clientIcon = ''
                         if C_Texture.GetTitleIconTexture then
@@ -1204,7 +1081,7 @@ function MenuModule:SocialHover(hoverFunc)
                             ChatFrame_SendTell(name)
                             -- player SHIFT/ALT/CTRL + left clicked on the friend, attempt to invite to group / raid
                         elseif button == "LeftButton" and modifierFunc() then
-                            InviteUnit(name) -- 暫時修正
+                            C_PartyInfo.InviteUnit(name)
                         end
                     end)
                 end -- isOnline
