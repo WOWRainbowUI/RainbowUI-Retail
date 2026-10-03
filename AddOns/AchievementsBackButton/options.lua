@@ -10,6 +10,8 @@ Addon.MODE_REPLACE_BLIZZARD = "replaceBlizzard"
 
 local CONFIG_DEFAULTS = {
   mode = Addon.MODE_HIDE_BLIZZARD,
+  -- So that the "standing out of Krowi's way" notice is only ever printed once.
+  krowiNoticeShown = false,
 }
 
 
