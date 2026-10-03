@@ -128,3 +128,7 @@ L["Looted through mining, after 5 Slabs of Slate"] = "採礦時掉落，需先�
 L["Looted through mining, after 5 Igneous Rock Specimen"] = "採礦時掉落，需先拾取5個火成岩樣本"
 L["Looted through skinning, after 5 pelts"] = "剝皮時掉落，需先拾取5個毛皮"
 L["Looted through skinning, after 5 hides"] = "剝皮時掉落，需先拾取5個皮革"
+
+L["Filled Tree"] = "專精樹已完成"
+
+L["Professions are complete!"] = "專業技能已完成！"

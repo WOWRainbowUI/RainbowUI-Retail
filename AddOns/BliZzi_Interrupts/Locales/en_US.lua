@@ -718,3 +718,5 @@ L["PRV_HINT"]                = "Tip: click a part of the bar above to jump to it
 L["SL_ICON_GAP"]             = "Icon Gap"
 L["SL_ICON_SIZE"]            = "Icon Size"
 L["SL_RECORD_DURATION"]      = "Interrupt history — entry duration"
+
+L["CS_CUSTOM_PREFIX"] = "Custom: "

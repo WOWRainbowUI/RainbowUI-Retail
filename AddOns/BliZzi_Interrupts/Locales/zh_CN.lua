@@ -700,3 +700,5 @@ L["REWORK_ACK"]              = "点击此处，此提示将不再显示"
 L["REWORK_CLOSE"]            = "关闭"
 L["SEARCH_GOTO"]             = "打开此页面"
 L["SEARCH_PLACEHOLDER"]      = "搜索设置..."
+
+L["CS_CUSTOM_PREFIX"] = "自定义："
