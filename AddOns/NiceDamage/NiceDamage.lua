@@ -5,18 +5,13 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceConsole-3.0")
 
 function addon:OnInitialize()
-    -- Determine if the client is Russian to set default font accordingly
-    local isRussian = (GetLocale() == "ruRU")
     local defaultFont = "Pepsi Modern"
-    if isRussian then
-        defaultFont = "Zero Cool"
-    end
 
     -- Initialize the Database
     -- Note: SavedVariables name must match the .toc file
     self.db = LibStub("AceDB-3.0"):New(addonName .. "DBv1", {
         global = { 
-            minimap = { hide = true } 
+            minimap = { hide = true },
         },
         profile = {
             enabled = true,

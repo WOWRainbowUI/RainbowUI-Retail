@@ -34,8 +34,8 @@ Access the settings panel using:
 
 **NiceDamage (Reloaded)** comes bundled with a curated selection of fonts:
 
-* **Pepsi Modern:** The classic look (Default for Western clients).
-* **Zero Cool:** A bold, high-energy font (Default for RU clients).
+* **Pepsi Modern:** The classic look (Default for all clients).
+* **Zero Cool:** A bold, high-energy font.
 * **Pepsi Cursive:** A stylized cursive variant.
 * **Technical/Pixel Fonts:** Pf Tempesta Seven, Prototype, Expressway.
 * **Thematic Fonts:** Die Die Die, LifeCraft, Big Noodle Titling.

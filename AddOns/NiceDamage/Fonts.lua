@@ -3,7 +3,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 -- Data structure: ["Font Name"] = { file = "filename.ttf", cyrillic = true/false }
 local myFonts = {
-    ["Pepsi Modern"]         = { file = "pepsi_modern.ttf",      cyrillic = false },
+    ["Pepsi Modern"]         = { file = "pepsi.otf",            cyrillic = true  },
     ["Pepsi Cursive"]        = { file = "pepsi_cursive.ttf",     cyrillic = false },
     ["Bangers"]              = { file = "Bangers.ttf",           cyrillic = false },
     ["Pf Tempesta Seven"]    = { file = "pf_tempesta_seven.ttf", cyrillic = false },
