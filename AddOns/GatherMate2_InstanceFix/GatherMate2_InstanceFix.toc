@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120005, 120007, 120100
 ## Title: GatherMate2_InstanceFix
 ## Notes: Resolves a Lua error in Delves, Instances by intercepting secret values before GatherMate2 processes them.
 ## Dependencies: GatherMate2
@@ -10,5 +10,4 @@
 ## Notes-zhTW: GatherMate2_InstanceFix |n|n修正在探究、副本內採集時發生的錯誤。
 ## X-Category-zhTW: 交易
 ## DefaultState: disabled
-
 core.lua
