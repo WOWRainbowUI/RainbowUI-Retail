@@ -115,7 +115,8 @@ end
 ---@return number
 function MKPT_Profession:GetCatchUpCurrencyLeft()
   local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(self.catchUpCurrencyId)
-  return currencyInfo.maxQuantity - currencyInfo.quantity
+  local quantity = currencyInfo.useTotalEarnedForMaxQty and currencyInfo.totalEarned or currencyInfo.quantity
+  return currencyInfo.maxQuantity - quantity
 end
 
 ---Verify if the player has trained this profession based on it's spellId
@@ -144,7 +145,9 @@ local function GetPointsMissingForTree(configID, nodeID)
   return missing
 end
 
-function MKPT_Profession:CalculateSpendableKps()
+---Calculates missingKp, unspent kp and if the kp tree is filled points for this profession
+---@return number missingPoints, number unspent, boolean isTreeFilled
+function MKPT_Profession:CalculateTreeKps()
   local configID = C_ProfSpecs.GetConfigIDForSkillLine(self.id)
   local traitTreeIDs = C_ProfSpecs.GetSpecTabIDsForSkillLine(self.id)
   local totalMissing = 0
@@ -155,12 +158,7 @@ function MKPT_Profession:CalculateSpendableKps()
     end
   end
   local currencyInfo = C_ProfSpecs.GetCurrencyInfoForSkillLine(self.id) or { numAvailable = 0 }
-  return max(totalMissing - currencyInfo.numAvailable, 0)
-end
-
-function MKPT_Profession:GetUnallocatedKps()
-  local currencyInfo = C_ProfSpecs.GetCurrencyInfoForSkillLine(self.id) or { numAvailable = 0 }
-  return currencyInfo.numAvailable
+  return max(totalMissing - currencyInfo.numAvailable, 0), currencyInfo.numAvailable, totalMissing == 0
 end
 
 function MKPT_Profession:ToggleTrack()
@@ -209,4 +207,9 @@ function MKPT_Profession:GetDescription()
   local waypoint = self.trainerLocation
   local mapInfo = C_Map.GetMapInfo(waypoint.map)
   return string.format("%s\n%s - x:%.2f y:%.2f", self.expansionTrainerName, mapInfo.name, waypoint.x * 100, waypoint.y * 100)
+end
+
+function MKPT_Profession:IsTreeFilled()
+  local _, _, isTreeFilled = self:CalculateTreeKps()
+  return self:IsLearned() and isTreeFilled
 end

@@ -266,12 +266,20 @@ local function AddProfessionButton(profession)
 
   local remaining = profession:CalculateRemainingKps()
   b.leftText:SetText(Utils.WeeklyTextColor(L["W:"] .. remaining.weekly) ..
-  Utils.CatchUpTextColor(" +" .. remaining.catchUp))
+    Utils.CatchUpTextColor(" " .. remaining.catchUp))
 
-  local missing = profession:CalculateSpendableKps()
-  local unallocated = profession:GetUnallocatedKps()
-  local rightText = unallocated > 0 and Utils.UnspentKpsTextColor(unallocated) or Utils.MissingTextColor(missing)
-  b.rightText:SetText(Utils.UniqueTextColor(L["U:"] .. remaining.unique) .. " " .. rightText)
+  local missing, unspent, isTreeFilled = profession:CalculateTreeKps()
+  local unique = Utils.UniqueTextColor(L["U:"] .. remaining.unique)
+  local rightText
+
+  if isTreeFilled then
+    rightText = Utils.FILLED_TREE_ICON
+  elseif unspent > 0 then
+    rightText = Utils.UnspentKpsTextColor(unspent)
+  else
+    rightText = Utils.MissingTextColor(missing)
+  end
+  b.rightText:SetText(unique .. " " .. rightText)
 
   local middleText = profession.name
   local skillLevel = profession:GetSkillLevel()
@@ -435,6 +443,8 @@ end
 
 --- Refreshs the entire UI
 function f:RenderTree()
+  local hideProfessionsWithFilledTree = MKPT_env.charDb.config.professionsHideFilledTree
+
   local paddingY = 1
   local contentHeight = paddingY
   local trackedItem = MKPT_env.MKPT_Item.GetTrackedItem()
@@ -446,9 +456,18 @@ function f:RenderTree()
   framePool:ReleaseAll()
 
   local professions = MKPT_env.GetProfessions()
-  local professionCount = 0
+  local professionsToShow = {}
+  local professionCount, professionsToShowCount = 0, 0
+
   for _, profession in pairs(professions) do
     professionCount = professionCount + 1
+    if not hideProfessionsWithFilledTree or not profession:IsTreeFilled() then
+      table.insert(professionsToShow, profession)
+    end
+  end
+
+  for _, profession in pairs(professionsToShow) do
+    professionsToShowCount = professionsToShowCount + 1
     local pb
     if profession:IsLearned() then
       pb = AddProfessionButton(profession)
@@ -467,6 +486,10 @@ function f:RenderTree()
   end
   if professionCount == 0 then
     f:UpdateDetail(L["No professions found"])
+  elseif professionsToShowCount == 0 then
+    f:UpdateDetail(Utils.FILLED_TREE_ICON .. " " .. L["Professions are complete!"])
+  elseif not trackedItem then
+    f:UpdateDetail()
   end
 
   local dundun = MKPT_env.MKPT_ShardOfDundun

@@ -139,6 +139,17 @@ local function InitializeRightClickMenu(self, level, menuList)
       end
       UIDropDownMenu_AddButton(showDundun)
     end
+
+    local hideFilledTree = UIDropDownMenu_CreateInfo()
+    hideFilledTree.text = Utils.FILLED_TREE_ICON .. " " .. Utils.GoldTextColor(L["Filled Tree"])
+    hideFilledTree.checked = MKPT_env.charDb.config.professionsHideFilledTree == false
+    hideFilledTree.isNotRadio = true
+    hideFilledTree.keepShownOnClick = true
+    hideFilledTree.func = function()
+      MKPT_env.charDb.config.professionsHideFilledTree  = not MKPT_env.charDb.config.professionsHideFilledTree
+      f:RenderTree()
+    end
+    UIDropDownMenu_AddButton(hideFilledTree)
   end
 
   UIDropDownMenu_AddSeparator()

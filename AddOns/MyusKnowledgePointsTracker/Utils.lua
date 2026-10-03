@@ -54,6 +54,7 @@ Utils.FIRST_GATHER_ICON = CreateAtlasMarkup("Professions_Tracking_Ore", 16, 16) 
     "/" .. CreateAtlasMarkup("Professions_Tracking_Herb", 16, 16)
 Utils.SETTINGS_ICON = CreateAtlasMarkup("mechagon-projects", 16, 16)
 Utils.DUNDUN_ICON = CreateTextureMarkup("Interface\\Icons\\INV_Ore_FelIron", 64, 64, 16, 16, 0.05, 0.95, 0.05, 0.95)
+Utils.FILLED_TREE_ICON = CreateAtlasMarkup("checkmark-minimal", 16, 16)
 
 function Utils.GetFirstSundayOfMonth(year, month)
     local timetable = date("*t", time { year = year, month = month, day = 1 })

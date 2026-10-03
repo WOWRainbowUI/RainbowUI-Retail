@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120007, 120100
 
 ## Title: Myu's Knowledge Points Tracker
 ## Title-zhCN: Myu的知识点追踪
@@ -6,11 +6,12 @@
 ## Notes: Tracks acquisition of knowledge points for professions
 ## Notes-ptBR: Rastreia os pontos de conhecimento das profissões
 ## Notes-zhCN: 追踪专业知识点获取详情
+## Notes-ruRU: Отслеживает получение очков знания для профессий
 
 ## Author: Myu
 ## Dependencies: Blizzard_Professions
 ## SavedVariables: MKPT_Config
-## Version: 0.8.6
+## Version: 0.8.12
 ## X-Curse-Project-ID: 1457220
 ## X-Wago-ID: nGv78DNx
 ## IconTexture: Interface\AddOns\MyusKnowledgePointsTracker\Textures\MKPT_Icon
