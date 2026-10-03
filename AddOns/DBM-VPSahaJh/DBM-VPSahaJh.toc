@@ -1,4 +1,4 @@
-﻿## Interface: 11509, 20206, 30405, 38002, 40402, 50504, 120100, 120007
+﻿## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120105, 120100
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Voicepack Saha Jh|r
@@ -7,7 +7,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 安格斯
-## Version: 26-0926
+## Version: 26-1001
 ## IconTexture: Interface\AddOns\DBM-VPSahaJh\z_ags
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: 家豪 (中文男音)
