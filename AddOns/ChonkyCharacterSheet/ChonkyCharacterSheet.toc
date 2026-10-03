@@ -1,7 +1,7 @@
-## Interface: 120007, 120100, 20505, 50503, 50504
+## Interface: 120100, 120105, 20506, 50503, 50504, 16001
 ## Title: |cCC33FFFFChonky Character Sheet|r
 ## Author: Cerdia @Area-52
-## Version: 2.3.09
+## Version: 2.4.02
 ## Notes: Chonky Character Sheet. Enhanced character sheet with options and profiles. Track stats, gear, and progress. Discord: https://discord.gg/bSyqqa7RC4
 ## SavedVariables: ChonkyCharacterSheetDB
 ## IconTexture: Interface\AddOns\ChonkyCharacterSheet\Media\Textures\chonky.tga
@@ -36,6 +36,8 @@ Retail\gearFinder.lua
 Modules\Classic.lua
 Modules\TBC.lua
 Modules\MOP.lua
+Modules\Forever.lua
+Modules\ForeverInspect.lua
 
 core\core.lua
 core\events.lua

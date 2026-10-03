@@ -114,7 +114,7 @@ function CCS.RenderSafeTooltip(tooltip, link, unit)
 
     -- Item info
     local itemID = link:match("item:(%d+)")
-    local itemName, _, _, _, _, itemType, itemSubType = GetItemInfo(itemID)
+    local itemName, _, _, _, _, itemType, itemSubType = C_Item.GetItemInfo(itemID)
     local itemQuality = itemID and C_Item.GetItemQualityByID(itemID)
     local r, g, b = GetItemQualityColor(itemQuality or 1)
 
@@ -360,49 +360,130 @@ function CCS.getSlotFrameName(slotIndex, framename)
         return framename..slotName.."Slot"
 end
 
+-- Version-aware tooltip reader
+local function GetTooltipItemLevel(unit, slot)
+    if C_TooltipInfo then
+        -- Retail path
+        local info = C_TooltipInfo.GetInventoryItem(unit, slot)
+        
+        if not info or not info.lines then return nil end
+
+        for _, line in ipairs(info.lines) do
+            local text = line.leftText
+            if text then
+                text = text:gsub("|A.-|a", ""):gsub("|T.-|t", "")
+                           :gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+                local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
+                if ilvl then return tonumber(ilvl) end
+            end
+        end
+    else
+        -- MoP Classic path: use hidden tooltip
+        CCS.ScanTooltip = CCS.ScanTooltip or CreateFrame("GameTooltip", "CCS_ScanTooltip", nil, "GameTooltipTemplate")
+        local tt = CCS.ScanTooltip
+        tt:SetOwner(UIParent, "ANCHOR_NONE")
+        tt:SetInventoryItem(unit, slot)
+
+        for i = 2, tt:NumLines() do
+            local left = _G["CCS_ScanTooltipTextLeft"..i]
+            if left then
+                local text = left:GetText()
+                if text then
+                    local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
+                    if ilvl then return tonumber(ilvl) end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+function CCS.GetUnitItemLevel(unit)
+    local total = 0
+
+    --------------------------------------------------------------------
+    -- Determine Blizzard’s denominator -- slot count
+    --------------------------------------------------------------------
+    local function GetBlizzardSlotCount()
+        local mainLink = GetInventoryItemLink(unit, 16)
+        local offLink  = GetInventoryItemLink(unit, 17)
+        local rangedLink = GetInventoryItemLink(unit, 18)
+
+        local _, _, _, _, _, _, _, _, mainLoc = C_Item.GetItemInfo(mainLink or "")
+        local _, _, _, _, _, _, _, _, offLoc  = C_Item.GetItemInfo(offLink or "")
+        local _, _, _, _, _, _, _, _, rangedLoc = C_Item.GetItemInfo(rangedLink or "")
+
+        -- Classic ranged slot always counts as a slot (empty = 0)
+        local hasRangedSlot = true
+
+        -- Retail logic: 2H weapon equipped AND offhand empty → 16 slots
+        -- Classic logic: same, but ranged slot adds +1
+        if mainLoc == "INVTYPE_2HWEAPON" and not offLink then
+            return hasRangedSlot and 17 or 16
+        end
+
+        -- Everything else:
+        -- Retail: 17 slots
+        -- Classic: 18 slots (because ranged exists)
+        return hasRangedSlot and 18 or 17
+    end
+
+    local S = GetBlizzardSlotCount()
+
+    --------------------------------------------------------------------
+    -- Sum of item levels for equipped gear
+    --------------------------------------------------------------------
+    local skip = {
+        [4]  = true, -- Shirt
+        [19] = true, -- Tabard
+    }
+
+    -- Weapon logic
+    local mainLink = GetInventoryItemLink(unit, 16)
+    local offLink  = GetInventoryItemLink(unit, 17)
+
+    local _, _, mainRarity, mainIlvl, _, _, _, _, mainLoc = C_Item.GetItemInfo(mainLink or "")
+    local _, _, offRarity,  offIlvl,  _, _, _, _, offLoc  = C_Item.GetItemInfo(offLink or "")
+
+    mainRarity = mainRarity or (mainLink and select(3, C_Item.GetItemInfoInstant(mainLink)))
+    offRarity  = offRarity  or (offLink  and select(3, C_Item.GetItemInfoInstant(offLink)))
+
+    -- Artifact pair (Retail only, but harmless in Classic)
+    if mainRarity == 6 and offRarity == 6 then
+        local maxIlvl = math.max(mainIlvl or 0, offIlvl or 0)
+        total = total + (maxIlvl * 2)
+        skip[16], skip[17] = true, true
+
+    -- True 2H weapon
+    elseif mainLoc == "INVTYPE_2HWEAPON" and mainIlvl then
+        total = total + (mainIlvl * 2)
+        skip[16], skip[17] = true, true
+    end
+
+    --------------------------------------------------------------------
+    -- Add remaining slots (empty slots count as 0)
+    --------------------------------------------------------------------
+    for slot = 1, 19 do
+        if not skip[slot] then
+            local link = GetInventoryItemLink(unit, slot)
+            if link then
+                local _, _, _, ilvl = C_Item.GetItemInfo(link)
+                total = total + (ilvl or 0)
+            else
+                total = total + 0 -- empty slot
+            end
+        end
+    end
+
+    return total / S
+end
+
 function CCS.GetInspectItemLevel(unit)
     local totalIlvl, itemCount = 0, 0
     local skipSlots = {
         [4] = true,  -- Shirt
         [19] = true, -- Tabard
     }
-
-    -- Version-aware tooltip reader
-    local function GetTooltipItemLevel(unit, slot)
-        if C_TooltipInfo then
-            -- Retail path
-            local info = C_TooltipInfo.GetInventoryItem(unit, slot)
-            if not info or not info.lines then return nil end
-
-            for _, line in ipairs(info.lines) do
-                local text = line.leftText
-                if text then
-                    text = text:gsub("|A.-|a", ""):gsub("|T.-|t", "")
-                               :gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
-                    local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
-                    if ilvl then return tonumber(ilvl) end
-                end
-            end
-        else
-            -- MoP Classic path: use hidden tooltip
-            CCS.ScanTooltip = CCS.ScanTooltip or CreateFrame("GameTooltip", "CCS_ScanTooltip", nil, "GameTooltipTemplate")
-            local tt = CCS.ScanTooltip
-            tt:SetOwner(UIParent, "ANCHOR_NONE")
-            tt:SetInventoryItem(unit, slot)
-
-            for i = 2, tt:NumLines() do
-                local left = _G["CCS_ScanTooltipTextLeft"..i]
-                if left then
-                    local text = left:GetText()
-                    if text then
-                        local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
-                        if ilvl then return tonumber(ilvl) end
-                    end
-                end
-            end
-        end
-        return nil
-    end
 
     -- Weapon logic
     local mainIlvl = GetTooltipItemLevel(unit, 16)
@@ -411,14 +492,14 @@ function CCS.GetInspectItemLevel(unit)
     local mainLink = GetInventoryItemLink(unit, 16)
     local offLink  = GetInventoryItemLink(unit, 17)
 
-    local _, _, mainRarity, _, _, _, _, _, mainEquipSlot = GetItemInfo(mainLink or "")
-    local _, _, offRarity, _, _, _, _, _, offEquipSlot   = GetItemInfo(offLink or "")
+    local _, _, mainRarity, mainiLvl, _, _, _, _, mainEquipSlot = C_Item.GetItemInfo(mainLink or "")
+    local _, _, offRarity, offiLvl, _, _, _, _, offEquipSlot   = C_Item.GetItemInfo(offLink or "")
 
     if not mainRarity and mainLink then
-        mainRarity = select(3, GetItemInfoInstant(mainLink))
+        mainRarity = select(3, C_Item.GetItemInfoInstant(mainLink))
     end
     if not offRarity and offLink then
-        offRarity = select(3, GetItemInfoInstant(offLink))
+        offRarity = select(3, C_Item.GetItemInfoInstant(offLink))
     end
 
     if mainIlvl and offIlvl and mainRarity == 6 and offRarity == 6 then
@@ -433,7 +514,7 @@ function CCS.GetInspectItemLevel(unit)
     end
 
     -- Remaining slots
-    for slot = 1, 17 do
+    for slot = 1, 19 do
         if not skipSlots[slot] then
             local ilvl = GetTooltipItemLevel(unit, slot)
             if ilvl then
@@ -1338,7 +1419,7 @@ function CCS:GetAverageEquippedRarityHex(unit)
 
             -- Treat Heirlooms as Rare
             if itemLink and itemLink:find("item:") then
-                local _, _, itemRarity = GetItemInfo(itemLink)
+                local _, _, itemRarity = C_Item.GetItemInfo(itemLink)
                 if itemRarity == 7 then
                     rarity = 3
                 end
@@ -1347,7 +1428,7 @@ function CCS:GetAverageEquippedRarityHex(unit)
             -- Check if it's a two-handed weapon
             local isTwoHander = false
             if slot == 16 and itemLink then
-                local _, _, _, _, _, _, _, _, equipSlot = GetItemInfo(itemLink)
+                local _, _, _, _, _, _, _, _, equipSlot = C_Item.GetItemInfo(itemLink)
                 if equipSlot == "INVTYPE_2HWEAPON" then
                     isTwoHander = true
                 end
@@ -1391,7 +1472,7 @@ function CCS.WaitForItemInfoReady(unit, callback)
             if slot ~= 4 and slot ~= 19 then
                 local itemLink = GetInventoryItemLink(unit, slot)
                 if itemLink then
-                    local name = GetItemInfo(itemLink)
+                    local name = C_Item.GetItemInfo(itemLink)
                     if not name then
                         retries = retries - 1
                         if retries > 0 then
@@ -1933,7 +2014,7 @@ function CCS.GetTrackColor(quality)
 end
 
 function CCS.updateLocationInfo(unit, slotIndex, framename)
-    if slotIndex == 18 then return end -- skip ranged slot
+    if slotIndex == 18 and CCS.CurrentVersion ~= CCS.FOREVER then return end -- skip ranged slot
 
     local isPlayer = (unit == "player")
     local isInspect = not isPlayer
@@ -1965,12 +2046,6 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     -- Get item link and info
     local link = GetInventoryItemLink(unit, slotIndex)
     local itemLoc = isPlayer and ItemLocation:CreateFromEquipmentSlot(slotIndex) or nil
-
-    -- Outfitter Fix
-    if C_AddOns.IsAddOnLoaded("Outfitter") and isPlayer then
-        local outfitterslot = CCS.getSlotFrameName(slotIndex, "OutfitterEnable") 
-        if _G[outfitterslot] then _G[outfitterslot]:SetFrameStrata("HIGH") end
-    end
 
     -- Quick fix for ElvUI
     if _G[slotFrameName].iLvlText then _G[slotFrameName].iLvlText:Hide() end
@@ -2156,8 +2231,18 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
         local chigh, ahigh
         local cilvl = itemiLevel
         local chighc = "|cffff0000"
+        if CCS.CurrentVersion == CCS.FOREVER then
+            chighc = ""
+        end
         if isPlayer then
             chigh, ahigh = C_ItemUpgrade.GetHighWatermarkForItem(GetInventoryItemLink("player",slotIndex))
+        end
+
+        -- WoW Forever doesn't use these at the moment, so we set them to not exist.
+        if CCS.CurrentVersion == CCS.FOREVER then
+            chighc = ""
+            chigh = ""
+            ahigh = ""
         end
 
         if isPlayer and option("showtempenchants") and (slotIndex == 16 or slotIndex == 17) then
@@ -2321,7 +2406,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 iDivider = ""
             end
             
-
+    if CCS.CurrentVersion ~= CCS.FOREVER then 
         -- Ascendant Voidforged override (likely will use this for other similar upgrades in the future)
         local ascIcon, ascTier = CCS.GetAscendantVoidforgedTag(link)
         if ascIcon then
@@ -2369,7 +2454,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
             chighc = ""
             chigh = ""
         end
-        
+    end
         if displaytoleft and itemiLevel ~= nil then
             ilvlTxt:SetText(ItemUpgradeLevel.." "..chighc.. itemiLevel.."|r"..chigh) 
         elseif itemiLevel ~= nil then
@@ -2806,11 +2891,15 @@ function CCS:LoadBlizzardAddOns()
         "Blizzard_ChallengesUI",
         "Blizzard_WeeklyRewards",
         "Blizzard_EncounterJournal",
-        "Blizzard_Transmog"
+        "Blizzard_Transmog",
     }
 
     for _, addon in ipairs(addons) do
-        safeLoad(addon)
+        if addon == "Blizzard_Transmog" and CCS.CurrentVersion ~= CCS.RETAIL then
+            -- Just skipping the Transmog for non-retail
+        else
+            safeLoad(addon)
+        end
     end
 
     -- Initialize WeeklyRewards UI if available

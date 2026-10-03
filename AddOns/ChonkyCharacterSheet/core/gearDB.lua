@@ -14,7 +14,7 @@ local _, _, _, tocversion = GetBuildInfo()
 local playerLevel = UnitLevel("player")
 CCS.SeasonRanges = {
     { season = 1, expansion = 11, toc = {120000, 120009}, ilvlCap = 289 },     -- Midnight Season 1
-    { season = 2, expansion = 11, toc = {120100, 120199}, ilvlCap = 328 },     -- Midnight Season 2
+    { season = 2, expansion = 11, toc = {120100, 120199}, ilvlCap = 334 },     -- Midnight Season 2
     -- Future seasons
     -- { season = 3, expansion = 11, toc = {120200, 120299} },
 }
@@ -1190,7 +1190,6 @@ CCS.Raid.TheVenomousAbyss = {
     },
 }
 
-
 CCS.Raid.TheTideboundGrotto = {
     ejID = 1317,
     bosses = {
@@ -1210,6 +1209,27 @@ CCS.Raid.TheTideboundGrotto = {
                 { itemID = 268247 }, -- Breakwater Boots
                 { itemID = 268266 }, -- Alluring Bubbleband
                 { itemID = 270167 }, -- Wavecaller's Seastone
+            },
+        },
+    },
+}
+
+CCS.Raid.TheUnbindingofKithix = {
+    ejID = 1324,
+    bosses = {
+        {
+            id = 2896, -- Kith'ix
+            loot = {
+                { itemID = 280799 }, -- Lu'selama, Light's Justice
+                { itemID = 281056 }, -- Sanctified Knight's Phoenixblade
+                { itemID = 281239 }, -- Corroded Hulk's Skullcap
+                { itemID = 281235 }, -- Voidweaver's Vestments
+                { itemID = 281238 }, -- Aberrant Commander's Gauntlets
+                { itemID = 281236 }, -- Leggings of Palpable Terror
+                { itemID = 281029 }, -- Band of the Swarmcaller
+                { itemID = 280617 }, -- Lightbearer's Shield Fragment
+                { itemID = 280835 }, -- Sigil of the Impending Eclipse
+                { itemID = 281215 }, -- Twisted Horror's Tendril
             },
         },
     },
@@ -1254,6 +1274,7 @@ CCS.Data[11][2].classSets = { -- Midnight Season 2
 ---------------------------------------------------
 -- UpgradeTracks per xpac and season
 ---------------------------------------------------
+-- https://www.raidbots.com/static/data/live/bonuses.json
 CCS.Data[11][1].upgradeTracks = { -- Midnight Season 1
     Champion = {
         id    = CCS.Champion,
@@ -1302,12 +1323,12 @@ CCS.Data[11][2].upgradeTracks = { -- Midnight Season 2
         id    = CCS.Champion,
         label = L["Champion"],
         bonusByIlvl = {
-        [285] = 12833,
-        [289] = 12834,
-        [292] = 12835,
-        [295] = 12836,
-        [298] = 12837,
-        [302] = 12838,
+        [292] = 12833,
+        [295] = 12834,
+        [298] = 12835,
+        [302] = 12836,
+        [305] = 12837,
+        [308] = 12838,
         },
     },
 
@@ -1315,12 +1336,12 @@ CCS.Data[11][2].upgradeTracks = { -- Midnight Season 2
         id    = CCS.Hero,
         label = L["Hero"],
         bonusByIlvl = {
-        [298] = 12841,
-        [302] = 12842,
-        [305] = 12843,
-        [308] = 12844,
-        [311] = 12845,
-        [315] = 12846,
+        [305] = 12841,
+        [308] = 12842,
+        [311] = 12843,
+        [315] = 12844,
+        [318] = 12845,
+        [321] = 12846,
         },
     },
 
@@ -1328,12 +1349,14 @@ CCS.Data[11][2].upgradeTracks = { -- Midnight Season 2
         id    = CCS.Myth,
         label = L["Myth"],
         bonusByIlvl = {
-        [311] = 12849,
-        [315] = 12850,
-        [318] = 12851,
-        [321] = 12852,
-        [324] = 12853,
-        [328] = 12854,
+        [318] = 12849,
+        [321] = 12850,
+        [324] = 12851,
+        [328] = 12852,
+        [331] = 12853,
+        [334] = 12854,
+        [334] = 12854,
+        [344] = 13848,
         },
     },
 }
@@ -1383,6 +1406,7 @@ CCS.Data[11][2].season = { -- Midnight Season 2
     raids = {
         [1320] = CCS.Raid.TheVenomousAbyss,
         [1317] = CCS.Raid.TheTideboundGrotto,
+        [1324] = CCS.Raid.TheUnbindingofKithix,
     },
 
     classSets = CCS.Data[11][2].classSets,
@@ -1419,7 +1443,8 @@ local function AddItemToMaster(itemID, container, boss, seasonName)
             C_Item.GetItemInfo(itemID)
 
         -- Numeric class/subclass IDs (REQUIRED for filtering)
-        local itemClassID, itemSubClassID = select(12, GetItemInfo(itemID))
+        
+        local itemClassID, itemSubClassID = select(12, C_Item.GetItemInfo(itemID))
         -- itemClassID: 2 = WEAPON, 4 = ARMOR, etc.
         -- itemSubClassID: numeric weapon/armor subtype
 

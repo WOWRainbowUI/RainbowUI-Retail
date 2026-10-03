@@ -60,6 +60,7 @@ local function RunProgression()
 end
 
 local function AddTopRunsToTooltip(t)
+	if t == nil or t.type ~= 1 then return end
 	GameTooltip_AddBlankLineToTooltip(GameTooltip);
 	GameTooltip_AddHighlightLine(GameTooltip, string.format(WEEKLY_REWARDS_MYTHIC_TOP_RUNS, t.info.threshold));
 	
@@ -98,28 +99,99 @@ local function AddTopRunsToTooltip(t)
 	end
 end
 
+-- Straight from Blizzard's code
+function AddWorldRunsToTooltip(t)
+	local desiredRuns = t.info.threshold;
+	if desiredRuns <= 0 then
+		return;
+	end
 
-local function ShowIncompleteMythicTooltip(t, tframe, mythictt, worldtt, raidtt)
+	GameTooltip_AddBlankLineToTooltip(GameTooltip);
+	GameTooltip_AddHighlightLine(GameTooltip, string.format(WEEKLY_REWARDS_WORLD_TOP_ACTIVITIES, t.info.threshold));
+
+	-- Comes sorted in descending difficulty
+	local combineSharedDifficulty = true;
+	local activityTierProgress = C_WeeklyRewards.GetSortedProgressForActivity(Enum.WeeklyRewardChestThresholdType.World, combineSharedDifficulty);
+
+	-- For Delves, difficulty is the tier and numPoints is the number of completions.
+	-- We loop on number of completions and print a line for each, until we hit the desiredRuns or have no remaining progress.
+	for _, tierProgress in ipairs(activityTierProgress) do
+		local numRuns = math.min(tierProgress.numPoints, desiredRuns);
+		if numRuns <= 0 then
+			return;
+		end
+		desiredRuns = desiredRuns - numRuns;
+
+		-- Difficulties above 1 are guaranteed to be Delves and get a Delve-specific string, otherwise they get a generic string.
+		-- This will need to change if the assumption of World activities capping at difficulty 1 does not hold.
+		if tierProgress.difficulty > 1 then
+			GameTooltip_AddHighlightLine(GameTooltip, string.format(WEEKLY_REWARDS_DELVE_TIER_INFO, tierProgress.difficulty, numRuns));
+		else
+			GameTooltip_AddHighlightLine(GameTooltip, string.format(WEEKLY_REWARDS_DELVE_TIER_AND_WORLD_INFO, tierProgress.difficulty, numRuns));
+		end
+	end
+end
+
+local function EncountersSort(left, right)
+	if left.instanceID ~= right.instanceID then
+		return left.instanceID < right.instanceID;
+	end
+	local leftCompleted = left.bestDifficulty > 0;
+	local rightCompleted = right.bestDifficulty > 0;
+	if leftCompleted ~= rightCompleted then
+		return leftCompleted;
+	end
+	return left.uiOrder < right.uiOrder;
+end
+
+function AddRaidCompletionInfoToGameTooltip(t)
+	if t == nil or t.type ~= 3 or C_WeeklyRewards == nil or  C_WeeklyRewards.GetActivityEncounterInfo == nil then return end
+	local encounters = C_WeeklyRewards.GetActivityEncounterInfo(t.info.type, t.info.index);
+	if encounters then
+		table.sort(encounters, EncountersSort);
+		local lastInstanceID = nil;
+		for index, encounter in ipairs(encounters) do
+			local name, description, encounterID, rootSectionID, link, instanceID = EJ_GetEncounterInfo(encounter.encounterID);
+			if instanceID ~= lastInstanceID then
+				local instanceName = EJ_GetInstanceInfo(instanceID);
+				GameTooltip_AddBlankLineToTooltip(GameTooltip);
+				GameTooltip_AddHighlightLine(GameTooltip, string.format(WEEKLY_REWARDS_ENCOUNTER_LIST, instanceName));
+				lastInstanceID = instanceID;
+			end
+			if name then
+				if encounter.bestDifficulty > 0 then
+					local completedDifficultyName = DifficultyUtil.GetDifficultyName(encounter.bestDifficulty);
+					GameTooltip_AddColoredLine(GameTooltip, string.format(WEEKLY_REWARDS_COMPLETED_ENCOUNTER, name, completedDifficultyName), GREEN_FONT_COLOR);
+				else
+					GameTooltip_AddColoredLine(GameTooltip, string.format(DASH_WITH_TEXT, name), DISABLED_FONT_COLOR);
+				end
+			end
+		end
+	end
+end
+
+local function ShowIncompleteMythicTooltip(t, tframe)
+	if t == nil or tframe == nil then return end
 	GameTooltip:SetOwner(tframe, "ANCHOR_RIGHT", -7, -11);
 	GameTooltip_SetTitle(GameTooltip, WEEKLY_REWARDS_UNLOCK_REWARD);
 	if t.info.index == 1 then    -- 1st box in this row
-		if mythictt then GameTooltip_AddNormalLine(GameTooltip, GREAT_VAULT_REWARDS_MYTHIC_INCOMPLETE)
-		elseif worldtt then GameTooltip_AddNormalLine(GameTooltip, format(GREAT_VAULT_REWARDS_WORLD_INCOMPLETE, 2))
-		elseif raidtt then GameTooltip_AddNormalLine(GameTooltip, format(t.info.raidString, 2))
+		if t.type == 1 then GameTooltip_AddNormalLine(GameTooltip, GREAT_VAULT_REWARDS_MYTHIC_INCOMPLETE)
+		elseif t.type == 6 then GameTooltip_AddNormalLine(GameTooltip, format(GREAT_VAULT_REWARDS_WORLD_INCOMPLETE, 2))
+		elseif t.type == 3 then GameTooltip_AddNormalLine(GameTooltip, format(t.info.raidString, 2))
 		end
 	else
 		local globalString="";
 		if t.info.index == 2 then    -- 2nd box in this row
 			
-			if mythictt then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_FIRST;
-			elseif worldtt then globalString = GREAT_VAULT_REWARDS_WORLD_COMPLETED_FIRST;
-			elseif raidtt then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_FIRST
+			if t.type == 1 then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_FIRST;
+			elseif t.type == 6 then globalString = GREAT_VAULT_REWARDS_WORLD_COMPLETED_FIRST;
+			elseif t.type == 3 then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_FIRST
 			end
 			
 		else    -- 3rd box
-			if mythictt then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_SECOND;
-			elseif worldtt then globalString = GREAT_VAULT_REWARDS_WORLD_COMPLETED_FIRST;
-			elseif raidtt then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_SECOND;
+			if t.type == 1 then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_SECOND;
+			elseif t.type == 6 then globalString = GREAT_VAULT_REWARDS_WORLD_COMPLETED_FIRST;
+			elseif t.type == 3 then globalString = GREAT_VAULT_REWARDS_MYTHIC_COMPLETED_SECOND;
 			end
 		end
 		GameTooltip_AddNormalLine(GameTooltip, globalString:format(t.info.threshold - t.info.progress));
@@ -133,7 +205,10 @@ local function ShowIncompleteMythicTooltip(t, tframe, mythictt, worldtt, raidtt)
 			end
 		end
 	end
-	if mythictt then AddTopRunsToTooltip(t); end
+	-- t.type 3 = raid, 1 = M+, 6 = world	
+	if t.type == 1 then AddTopRunsToTooltip(t); end
+	if t.type == 3 then AddRaidCompletionInfoToGameTooltip(t); end	
+	if t.type == 6 then AddWorldRunsToTooltip(t); end	
 	GameTooltip:Show();
 end
 
@@ -160,7 +235,8 @@ local function HandlePreviewMythicRewardTooltip(self, itemLevel, upgradeItemLeve
 	end
 end
 
-local function ShowPreviewItemTooltip(t, tframe, mythictt)
+local function ShowPreviewItemTooltip(t, tframe)
+	if t == nil or tframe == nil then return end
 	GameTooltip:SetOwner(tframe, "ANCHOR_RIGHT", -7, -11);
 	GameTooltip_SetTitle(GameTooltip, WEEKLY_REWARDS_CURRENT_REWARD);
 	local itemLink, upgradeItemLink = C_WeeklyRewards.GetExampleRewardItemHyperlinks(t.info.id);
@@ -171,7 +247,7 @@ local function ShowPreviewItemTooltip(t, tframe, mythictt)
 	if upgradeItemLink then
 		upgradeItemLevel = C_Item.GetDetailedItemLevelInfo(upgradeItemLink);
 	end
-	
+
 	if not itemLevel then
 		GameTooltip_AddErrorLine(GameTooltip, RETRIEVING_ITEM_INFO);
 		t.UpdateTooltip = t.ShowPreviewItemTooltip;
@@ -194,7 +270,10 @@ local function ShowPreviewItemTooltip(t, tframe, mythictt)
 			GameTooltip_AddColoredLine(GameTooltip, WEEKLY_REWARDS_MAXED_REWARD, GREEN_FONT_COLOR);
 		end
 	end
-	if mythictt then AddTopRunsToTooltip(t); end
+	-- t.type 3 = raid, 1 = M+, 6 = world
+	if t.type == 1 then AddTopRunsToTooltip(t); end
+	if t.type == 3 then AddRaidCompletionInfoToGameTooltip(t); end	
+	if t.type == 6 then AddWorldRunsToTooltip(t); end	
 	GameTooltip:Show();
 end
 
@@ -448,7 +527,9 @@ function CCS.updatemplussideframe(sortby, sortdirection)
 
 			if C_WeeklyRewards.HasGeneratedRewards() and t.ItemFrame and t.ItemFrame.displayedItemDBID then
 				local itemLink = C_WeeklyRewards.GetItemHyperlink(t.ItemFrame.displayedItemDBID)
-				itemName, _, _, itemLevel = C_Item.GetItemInfo(itemLink)
+				if itemLink ~= nil then
+					itemName, _, _, itemLevel = C_Item.GetItemInfo(itemLink)
+				end
 				iconTexture = t.ItemFrame.Icon:GetTexture() or "Interface\\Masks\\SquareMask.BLP"
 				tooltipFunc = function(self)
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -3, -6)
@@ -474,7 +555,9 @@ function CCS.updatemplussideframe(sortby, sortdirection)
 				completeText = format("%s/%s %s", progress, threshold, COMPLETE)
 				colorComplete = option("fontcolor_wc_prog_complete")
 				colorLabel = option("fontcolor_wc_obj_complete")
-				tooltipFunc = function(self) ShowPreviewItemTooltip(t, self, t.type == 1) end
+				
+				-- t.type 3 = raid, 1 = M+, 6 = world
+				tooltipFunc = function(self) ShowPreviewItemTooltip(t, self) end
 			else
 				showTex1, showTex2, showTex3, showTex4 = false, true, false, false
 				label = getLabel()
@@ -484,7 +567,7 @@ function CCS.updatemplussideframe(sortby, sortdirection)
 				colorLabel = option("fontcolor_wc_obj_incomplete")
 				
 				tooltipFunc = function(self)
-					ShowIncompleteMythicTooltip(t, self, t.type == 1, t.type == 6, t.type == 3)
+					ShowIncompleteMythicTooltip(t, self)
 				end
 			end
 
@@ -1835,6 +1918,8 @@ function module:Initialize(onlyStyle)
 			end
 
 			if not InCombatLockdown() then
+				--CCS.Clicky("LEFT")
+
 				if _G["ccsm_sf"]:IsShown() then 
 					_G["ccsm_sf"]:Hide()
 				else 
@@ -1909,6 +1994,8 @@ function module:Initialize(onlyStyle)
 		if _G["ccsgf_sf"] and _G["ccsgf_sf"]:IsShown() then _G["ccsgf_sf"]:Hide() end
 		
 		if not InCombatLockdown() then
+			--CCS.Clicky("LEFT")
+
 			if _G["ccsm_sf"]:IsShown() then
 				_G["ccsm_sf"]:Hide()
 			else
@@ -1929,6 +2016,12 @@ function module:Initialize(onlyStyle)
 
 	btn:SetShown(option("showmythicplusscore"))
 	btn2:SetShown(option("showm_sp_btn"))
+
+	if UnitLevel("player") < CCS.MaxLevel then
+        btn:Hide()
+        btn2:Hide()		
+    end
+	
 	CCS.updatemplussideframe()		
 end
 
@@ -1944,10 +2037,10 @@ function CCS.MythicPlusEventHandler(event, ...)
 		if _G["MPlusScoreBtn"] then _G["MPlusScoreBtn"]:Hide() end
 		return 
 	end
-	
+	MuteSoundFile(169062)
     if event == "PLAYER_LEVEL_UP" then
 	   C_Timer.After(.2, function() 
-			if UnitLevel("player") >= 80 then  
+			if UnitLevel("player") == CCS.MaxLevel then  
 				_G["MPlusScoreBtn"]:Show()
 				_G["MPlusScoreIconBtn"]:Show()
 			end 

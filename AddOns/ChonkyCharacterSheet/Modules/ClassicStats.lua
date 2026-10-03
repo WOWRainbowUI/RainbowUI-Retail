@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
-if CCS.CurrentVersion ~= CCS.MOP then
+if CCS.CurrentVersion ~= 9000 then -- CCS.MOP then
     return
 end
 
