@@ -506,6 +506,67 @@ local function ApplyScrim(uf)
     end
 end
 
+------------------------------------------------------------
+-- 脫戰淡出的「血不滿時不淡」例外
+--
+-- ⚠⚠ 不能在 Lua 裡比 UnitHealth < UnitHealthMax：12.1 脫戰也拿得到秘密值，
+-- 第一版就是這樣寫、讀到秘密值保底當「不滿」⇒ 永遠不淡出（實測）。
+-- 改成跟血量門檻上色同一招：Step 曲線交給 UnitHealthPercent，由 C 端算出 alpha，
+-- 結果（可能是秘密值）直接進 SetAlpha。插件端從頭到尾不讀血量。
+--   (0, 1)  (1 − ε, 脫戰透明度)   ε 吸收「滿血算出 0.9999999」的浮點誤差
+--
+-- 代價：秘密 alpha 不能跟超出距離淡出取最低 ⇒ 超出距離時改走一般路徑
+-- （距離淡出本來就更優先：人都跑遠了，血滿不滿不重要）。
+-- 觸發點不另收事件：血條元件本來就吃 UNIT_HEALTH／UNIT_MAXHEALTH，每次呼叫
+-- V.CheckHurt 重算一次曲線（一支 C 呼叫＋SetAlpha）。所以這個例外只對有開血條的框有效。
+------------------------------------------------------------
+local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve
+local hurtCurves = {}   -- ["滿血值|不滿值"] = curve；框體一條、3D 模型一條（乘了模型透明度）
+
+local function HurtCurve(full, hurt)
+    if not CreateCurve then return nil end
+    local key = full .. "|" .. hurt
+    local c = hurtCurves[key]
+    if not c then
+        c = CreateCurve()
+        local T = Enum.LuaCurveType
+        if T and T.Step then c:SetType(T.Step) end
+        c:AddPoint(0, hurt)
+        c:AddPoint(1 - 0.000001, full)
+        hurtCurves[key] = c
+    end
+    return c
+end
+
+-- 把「血滿＝full、不滿＝hurt」的 alpha 寫到 region 上。成功回 true；
+-- 失敗（沒有 API、單位不存在）回 false，呼叫端自己退回一般路徑
+function V.SetHurtAlpha(region, unit, full, hurt)
+    local curve = HurtCurve(full, hurt)
+    if not curve then return false end
+    local ok, a = pcall(UnitHealthPercent, unit, true, curve)
+    if not ok or a == nil then return false end
+    region:SetAlpha(a)
+    return true
+end
+
+-- 3D 模型要另外寫：框體 alpha 是秘密值時模型不跟著淡（實測：脫戰透明度 0.1，
+-- 條與文字淡了、模型照樣全亮）。模型的 alpha 只有 Portrait 的 ApplyOcclusion 一個
+-- 寫入點，它看 uf.hurtAlpha 決定要不要走曲線；這裡只負責叫它重算。
+local function ApplyHurtAlpha(uf)
+    if not V.SetHurtAlpha(uf, uf.unit, ns.db.global.oocAlpha or 0.5, 1) then return false end
+    if ns.ApplyPortraitAlpha then ns.ApplyPortraitAlpha(uf) end
+    return true
+end
+
+function V.CheckHurt(uf)
+    if uf.hurtAlpha and not InCombatLockdown() and not ApplyHurtAlpha(uf) then
+        uf.hurtAlpha = nil
+        if ns.ApplyPortraitAlpha then ns.ApplyPortraitAlpha(uf) end
+        V.ApplyAlpha(uf)
+    end
+end
+
+-- 第二個回傳 true ＝ 這次該走血量曲線（第一個回傳是走不通時的退路）
 function V.Alpha(uf)
     local fdb = uf.db and uf.db.frame
     if not fdb then return 1 end
@@ -516,9 +577,13 @@ function V.Alpha(uf)
         local oor = g.oorAlpha or 0.45
         if oor < a then a = oor end
     end
-    if fdb.fadeOutOfCombat and not InCombatLockdown() then
+    -- 有目標時不淡出：UnitExists 是明文，直接判；成立就連血量曲線都不必走
+    if fdb.fadeOutOfCombat and not InCombatLockdown()
+       and not (fdb.oocShowWithTarget and UnitExists("target")) then
         local ooc = g.oocAlpha or 0.5
+        local useCurve = fdb.oocShowWhenHurt and a == 1
         if ooc < a then a = ooc end
+        return a, useCurve
     end
     return a
 end
@@ -526,7 +591,18 @@ end
 function V.ApplyAlpha(uf)
     if not uf or uf.isPreview then return end   -- 預覽的 alpha 由 Preview.Highlight 管
     ApplyScrim(uf)
-    local a = V.Alpha(uf)
+    local a, useCurve = V.Alpha(uf)
+    if useCurve then
+        uf.hurtAlpha = true     -- 先立旗標：ApplyHurtAlpha 裡模型要看它
+        if ApplyHurtAlpha(uf) then
+            uf.appliedAlpha = nil   -- 秘密值不能記也不能比；下次走一般路徑時強迫重設
+            return
+        end
+    end
+    if uf.hurtAlpha then
+        uf.hurtAlpha = nil
+        if ns.ApplyPortraitAlpha then ns.ApplyPortraitAlpha(uf) end   -- 模型還回跟隨父框
+    end
     if a == uf.appliedAlpha then return end
     uf.appliedAlpha = a
     uf:SetAlpha(a)
@@ -592,6 +668,7 @@ end
 
 ns.Events.Register("PLAYER_REGEN_DISABLED", "visibility_combat_in", OnCombat)
 ns.Events.Register("PLAYER_REGEN_ENABLED", "visibility_combat_out", OnCombat)
+ns.Events.Register("PLAYER_TARGET_CHANGED", "visibility_ooc_target", ApplyAllAlpha)   -- 有目標時不淡出
 ns.Events.Register("ZONE_CHANGED_NEW_AREA", "visibility_zone", ApplyAllIfNeeded)
 ns.Events.Register("UPDATE_SHAPESHIFT_FORMS", "visibility_forms", ApplyAllDriversIfMounted)
 -- 進世界：副本判定可能變、登入當下姿態列可能還沒就緒，而且旗標本身要重算（設定檔可能剛換）
@@ -627,13 +704,13 @@ function V.Debug()
                          .. (uf.visCatcherPending and "!墊底待補" or "")
             -- 墊底：隱藏時仍可點擊的那顆按鈕（沒建過就不列）
             local catcher = uf.visCatcher and (" 墊底" .. (uf.visCatcher:IsShown() and "開" or "關")) or ""
-            rows[#rows + 1] = ("%s=%s/外%s內%s%s%s%s alpha=%.2f"):format(
+            rows[#rows + 1] = ("%s=%s/外%s內%s%s%s%s alpha=%s"):format(
                 unit, #when > 0 and table.concat(when, "|") or "一直顯示",
                 uf.visDriver:IsShown() and "開" or "關",
                 uf.visGate:IsShown() and "開" or "關",
                 #extra > 0 and ("(" .. table.concat(extra, ",") .. ")") or "",
                 pending, catcher,
-                uf.appliedAlpha or 1)
+                uf.hurtAlpha and "血量曲線" or ("%.2f"):format(uf.appliedAlpha or 1))
             if uf.visDriverSpec then
                 specs[#specs + 1] = ("%s：%s"):format(unit, uf.visDriverSpec)
             end

@@ -70,6 +70,8 @@ local ICON_LEVEL = 21
 --   clickWhenHidden   被顯示條件藏起來時仍可點擊選取（目前只有玩家框的設定頁有這個選項）
 --   fadeOutOfRange    超出距離淡出（輪詢）
 --   fadeOutOfCombat   脫戰淡出（吃事件）
+--   oocShowWhenHurt   脫戰淡出的例外：血不滿時不淡（借血條的血量事件判）
+--   oocShowWithTarget 脫戰淡出的例外：有目標時不淡
 --   highlight         滑鼠移過時畫一圈高亮邊框
 --   dispelHighlight   身上有魔法／詛咒／疾病／中毒／流血減益（敵方：激怒）時，
 --                     框體畫一圈該類型顏色的邊框（Elements/DispelHighlight.lua）
@@ -87,6 +89,8 @@ local function frameDef(o)
     if o.clickWhenHidden == nil then o.clickWhenHidden = false end
     if o.fadeOutOfRange == nil then o.fadeOutOfRange = false end
     if o.fadeOutOfCombat == nil then o.fadeOutOfCombat = false end
+    if o.oocShowWhenHurt == nil then o.oocShowWhenHurt = false end
+    if o.oocShowWithTarget == nil then o.oocShowWithTarget = false end
     if o.highlight == nil then o.highlight = true end
     if o.dispelHighlight == nil then o.dispelHighlight = true end
     return o
@@ -172,7 +176,7 @@ local FILL_DIRECTION_ELEMENTS = { "hpbar", "mpbar", "castbar", "manabar", "class
 -- ComboPoints 多兩個欄位：盜賊天賦「超級充能器」與野德的「滿溢之力」會讓某幾格
 -- 連擊點變成充能點，暴雪內建 UI 畫成藍色。值跟 Ayije_CDM 的
 -- chargedColor／chargedEmptyColor 一致（見 Ayije_CDM/Config/Defaults.lua），
--- 這樣「跟隨 Ayije」勾掉之後顏色不會整個跳掉。
+-- 這樣「跟隨冷卻管理器」勾掉之後顏色不會整個跳掉。
 ------------------------------------------------------------
 local RESOURCE_COLORS = {
     Rage            = { color = { r = 0.78,  g = 0.25,  b = 0.25  } },
@@ -376,8 +380,9 @@ function DB.BuildDefaults()
                                    -- 每一種資源自己的顏色（見上面的 RESOURCE_COLORS）。
                                    -- 每個 key 都寫進來，設定面板的色票才有一張**自己的**
                                    -- table 可以原地改；新鍵由 MergeDefaults 補給老玩家。
-                                   -- ⚠ followAyije（顏色跟 Ayije_CDM 走）**刻意沒有預設值**：
-                                   -- nil 是有意義的第三態「玩家還沒碰過 ⇒ Ayije 有載入就跟隨」，
+                                   -- ⚠ followAyije ＝「跟隨冷卻管理器（MiliUI_CooldownManager 或舊來源）」
+                                   -- 的顏色與條件。鍵名是存檔相容留下來的，**不要改名**。**刻意沒有預設值**：
+                                   -- nil 是有意義的第三態「玩家還沒碰過 ⇒ 冷卻管理器有載入就跟隨」，
                                    -- 給了 true/false 就等於替玩家做了決定。
                                    colors = ResourceColors() },
                     -- 小魔力條：設定完全獨立，但錨點語意與外觀比照資源條
