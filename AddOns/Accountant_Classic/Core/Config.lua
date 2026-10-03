@@ -38,14 +38,13 @@ do
 end
 
 local character_data_list = {}
-local function get_character_data_listMenu()
-	local serverkey, server_value, charkey, char_value
+local function getCharacterDataListMenu()
 	local list = {}
 	local factionstr, faction_icon, colorCode
 	local i = 1
 	
-	for serverkey, server_value in pairs(Accountant_ClassicSaveData) do
-		for charkey, char_value in pairs(Accountant_ClassicSaveData[serverkey]) do
+	for serverkey in pairs(Accountant_ClassicSaveData) do
+		for charkey in pairs(Accountant_ClassicSaveData[serverkey]) do
 			factionstr = Accountant_ClassicSaveData[serverkey][charkey]["options"].faction or nil
 			faction_icon = factionstr and "|TInterface\\PVPFrame\\PVP-Currency-"..factionstr..":0:0|t%s - %s" or "%s - %s"
 
@@ -61,7 +60,7 @@ local function get_character_data_listMenu()
 	return list
 end
 
-local function to_confirm_character_removal(value)
+local function confirmCharacterRemoval(value)
 	local selected_srv  = character_data_list[value][1]
 	local selected_char  = character_data_list[value][2]
 	local faction_icon, class_color
@@ -236,7 +235,7 @@ local function getOptions()
 									get = function()
 										return not addon.db.profile.minimap.hide
 									end,
-									set = AccountantClassic_ButtonToggle,
+									set = function() addon:Toggle() end,
 								},
 								showmoneyonbutton = {
 									order = 23,
@@ -348,11 +347,11 @@ local function getOptions()
 									desc = L["The selected character's Accountant Classic data will be removed."],
 									width = "double",
 									values = function()
-										local menu = get_character_data_listMenu()
+										local menu = getCharacterDataListMenu()
 										return menu
 									end,
 									set = function(info, value)
-										to_confirm_character_removal(value)
+										confirmCharacterRemoval(value)
 										InterfaceOptionsFrame:Hide()
 									end,
 								},

@@ -1,32 +1,50 @@
-## Interface: 11509, 16001, 20506, 30403, 40402, 50504, 120007, 120100
+## Interface: 11509, 16001, 20506, 50504, 120100
 ## Title: Accountant Classic
+## Notes: Tracks gold earned and spent across your characters
 ## Title-deDE: Accountant Classic
+## Notes-deDE: Verfolgt das verdiente und ausgegebene Gold deiner Charaktere
+## Title-esES: Accountant Classic
+## Notes-esES: Realiza un seguimiento del oro obtenido y gastado por tus personajes
+## Title-esMX: Accountant Classic
+## Notes-esMX: Realiza un seguimiento del oro obtenido y gastado por tus personajes
 ## Title-frFR: Accountant Classic
-## Title-koKR: |cFF00FF00[가계부]|rAccountant Classic 애드온
+## Notes-frFR: Suit l’or gagné et dépensé par vos personnages
+## Title-itIT: Accountant Classic
+## Notes-itIT: Tiene traccia dell’oro guadagnato e speso dai tuoi personaggi
+## Title-koKR: 회계사 클래식
+## Notes-koKR: 캐릭터별로 획득하고 사용한 골드를 추적합니다
 ## Title-ptBR: Accountant Classic
-## Title-zhCN: |cFF00FF00[信息]|rAccountant Classic
-## Title-zhTW: |cFF00FF00[資訊]|r個人會計
-## Notes: A basic tool to track your monetary incomings and outgoings within WoW.
-## Notes-deDE: Ein einfaches Hilfsprogramm, um deine Ein- und Ausgaben in WoW zu überwachen.
-## Notes-frFR: Un outil basique utilisé pour traquer vos revenus et dépense dans le jeu
-## Notes-koKR: |cff00CC33나만의 수입 지출을 쉽게 볼수있는 와우 가계부입니다.|r
-## Notes-ptBR: Uma ferramenta básica para acompanhar suas finanças no WoW.
-## Notes-zhCN: |cff00CC33追踪每个角色的所有收入与支出状况，并可显示当日小计、当周小计、以及自有记录起的总计。并可显示所有角色的总金额。|r
-## Notes-zhTW: |cff00CC33追蹤每個角色的所有收入與支出狀況，並可顯示當日小計、當週小計、以及自有記錄起的總計。並可顯示所有角色的總金額。|r
-#@end-debug@
+## Notes-ptBR: Acompanha o ouro ganho e gasto por seus personagens
+## Title-ruRU: Accountant Classic
+## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
+## Title-zhCN: 金币账本经典版
+## Notes-zhCN: 追踪各个角色获得和花费的金币
+## Title-zhTW: 個人會計經典版
+## Notes-zhTW: 記錄所有角色的金幣收支
 ## Author: arith
-## Version: v2.21.00
+## Version: v2.21.01
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
 ## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
-## X-Credits: Sabaki, Shadow, Rophy
-## X-Date: 2026-09-19T9:20:34Z
-## X-Donate: https://pledgie.com/campaigns/13746
+## X-Credits: Sabaki, Shadow, Rophy, kamusis
+## X-Date: 2026-09-28T10:20:55Z
+## X-Donate: https://www.patreon.com/ArithonWoW
 ## X-Website: http://mods.curse.com/addons/wow/accountant-classic
 ## X-License: GPLv2
 ## X-Category: Information
 ## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
+## Category: Other
+## Category-deDE: Anderes
+## Category-esES: Otros
+## Category-esMX: Otros
+## Category-frFR: Autre
+## Category-itIT: Altro
+## Category-koKR: 기타
+## Category-ptBR: Outro
+## Category-ruRU: Другое
+## Category-zhCN: 其它
+## Category-zhTW: 其他
 
 Libs\Libs.xml
 Locale\Locales.xml
