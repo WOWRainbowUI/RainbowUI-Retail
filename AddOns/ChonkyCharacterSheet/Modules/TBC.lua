@@ -49,25 +49,29 @@ local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk
 ---------------------------------
 function CCS.GetAverageItemLevel(unit)
     local total, count = 0, 0
-
+    local skipoh = false
+    
     for slot = 1, 18 do
         if slot ~= 4 then  -- skip shirt
             local link = GetInventoryItemLink(unit, slot)
             if link then
-                local _, _, _, ilvl, _, _, _, _, equipLoc = GetItemInfo(link)
+                local _, _, _, ilvl, _, _, _, _, equipLoc = C_Item.GetItemInfo(link)
 
                 if ilvl and ilvl > 0 then
                     -- 2H weapon counts as two slots
                     if slot == 16 and equipLoc == "INVTYPE_2HWEAPON" then
                         total = total + (ilvl * 2)
                         count = count + 2
+                        skipoh = true
                     else
                         total = total + ilvl
                         count = count + 1
                     end
                 end
             else
-                count = count + 1
+                if slot == 17 and not skipoh then
+                    count = count + 1
+                end
             end
         end
     end
@@ -253,7 +257,7 @@ local function TBCupdateLocationInfo(unit, slotIndex, framename)
 
     if slotIndex == 0 then
         local id = GetInventoryItemID("player", slotIndex)
-        local _, ammolink = GetItemInfo(id)
+        local _, ammolink = C_Item.GetItemInfo(id)
         link = ammolink
     end
 
@@ -918,7 +922,7 @@ local function TryLoopItems()
     local allReady = true
     for slot = 1, 19 do
         local link = GetInventoryItemLink("player", slot)
-        if link and not GetItemInfo(link) then
+        if link and not C_Item.GetItemInfo(link) then
             allReady = false
             break
         end
@@ -2142,7 +2146,7 @@ function CCS.TBCCharacterSheetEventHandler(event, ...)
         for slot = 1, 19 do
             local link = GetInventoryItemLink("player", slot)
             if link then
-                GetItemInfo(link) -- queues item for caching
+                C_Item.GetItemInfo(link) -- queues item for caching
                 local itemID = GetInventoryItemID("player", slot)
                 if itemID then
                     C_Item.RequestLoadItemDataByID(itemID) -- nudges client to fetch item data
@@ -2368,6 +2372,7 @@ function InitializeStats()
             local btnfontilvl = _G["CSPilvlfs1"] or btn:CreateFontString("CSPilvlfs1")
             local btntex = _G["CSPilvltex"] or btn:CreateTexture("CSPilvltex", "BACKGROUND", nil, 1)
             local avgItemLevelEquipped = CCS.GetAverageItemLevel("player")
+            --local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvP = GetAverageItemLevel();
             local Color = "a336ed"
             local tt_name = ""
             local tt_desc = ""

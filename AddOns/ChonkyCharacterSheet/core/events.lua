@@ -258,6 +258,7 @@ local eventHandlers = {
 
     ["INSPECT_READY"] = {
         { fn = WrapHandler("INSPECT_READY", CCS.InspectSheetEventHandler, "InspectSheetEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("INSPECT_READY", CCS.ForeverInspectSheetEventHandler, "ForeverInspectSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("INSPECT_READY", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("INSPECT_READY", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
     },
@@ -292,6 +293,8 @@ local eventHandlers = {
 
     ["PLAYER_AVG_ITEM_LEVEL_UPDATE"] = {
         { fn = WrapHandler("PLAYER_AVG_ITEM_LEVEL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_AVG_ITEM_LEVEL_UPDATE", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
+
     },
 
     ["PLAYER_ENTERING_WORLD"] = {
@@ -311,6 +314,7 @@ local eventHandlers = {
             end
             ), "Secrets Handler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
@@ -320,6 +324,7 @@ local eventHandlers = {
 
     ["PLAYER_EQUIPMENT_CHANGED"] = {
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
@@ -532,6 +537,7 @@ local eventHandlers = {
     },
     ["UNIT_NAME_UPDATE"] = {
         { fn = WrapHandler("UNIT_NAME_UPDATE", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_NAME_UPDATE", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
     },
     ["UNIT_RANGED_ATTACK_POWER"] = {
         { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
@@ -554,6 +560,7 @@ local eventHandlers = {
     },
     ["UPDATE_INVENTORY_DURABILITY"] = {
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },        
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
@@ -570,6 +577,7 @@ local eventHandlers = {
     ["CCS_EVENT_CSHOW"] = {
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
@@ -584,6 +592,8 @@ local eventHandlers = {
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
+        { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
+        { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.ForeverInspectSheetEventHandler, "ForeverInspectSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.InspectSheetEventHandler, "InspectSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.RaidProgressEventHandler, "RaidProgressEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },

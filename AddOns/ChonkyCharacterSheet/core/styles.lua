@@ -35,10 +35,10 @@ end
 
 -- Purpose is to normalize bright and dark colors to a target luminance.
 -- This is mostly future code in case I need it.
-local function NormalizeColor(color)
+function CCS.NormalizeColor(color)
     local r, g, b = color[1], color[2], color[3]
     local lum = GetLuminance(r, g, b)
-    local TARGET_LUMINANCE = 0.55
+    local TARGET_LUMINANCE = 0.75
     
     -- difference from target
     local diff = TARGET_LUMINANCE - lum
@@ -52,6 +52,17 @@ local function NormalizeColor(color)
         return CCS.DarkenColor(color, -adjust)
     end
 end
+
+CCS.headertexture = 
+{
+    [1] = { name = "Header 1", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {459, 50, 0.020876827, 0.979123173, 0.114047288, 0.183588317} },
+    [2] = { name = "Header 2", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {446, 64, 0.035490605, 0.966597077, 0.222531293, 0.311543811} },
+    [3] = { name = "Header 3", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {441, 55, 0.039665971, 0.960334029, 0.347705146, 0.424200278} },
+    [4] = { name = "Header 4", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {444, 56, 0.037578288, 0.964509395, 0.468706537, 0.546592490} },
+    [5] = { name = "Header 5", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {441, 68, 0.039665971, 0.960334029, 0.577190542, 0.671766342} },
+    [6] = { name = "Header 6", texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\headerbars.png", map = {449, 60, 0.031315240, 0.968684760, 0.716272601, 0.799721836} },
+}
+
 
 function CCS.RefreshStyleColors()
     local newNormal    = option("button_color")

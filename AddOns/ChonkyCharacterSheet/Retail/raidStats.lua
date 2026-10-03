@@ -454,6 +454,7 @@ function module:Initialize(onlyStyle)
 		end
 
 		if not InCombatLockdown() then
+			--CCS.Clicky("LEFT")
 			if _G["ccsm_sf"] and _G["ccsm_sf"]:IsShown() then _G["ccsm_sf"]:Hide() end
 			if _G["ccsgf_sf"] and _G["ccsgf_sf"]:IsShown() then _G["ccsgf_sf"]:Hide() end
 			
@@ -479,7 +480,6 @@ function module:Initialize(onlyStyle)
 
 	ccsrf_sf:SetPoint("TOPLEFT", ccsrf_af, "TOPRIGHT", 0, 0); 
 	ccsrf_sf:SetSize(660, 640)  
-    --ccsrf_sf:SetSize(900, 640)
 
 	ccsrf_sf:SetScale(option("raid_sp_scale"))
     ccsrf_sf:SetFrameStrata("TOOLTIP")
@@ -612,7 +612,6 @@ function CCS.RaidProgressEventHandler(event, ...)
 					if _G["ccsr_btn1"] then _G["ccsr_btn1"]:Show() end
 					if _G["ccsr_btn2"] then _G["ccsr_btn2"]:Show() end
 				end 
-				
 			end)
     end
 
@@ -622,5 +621,5 @@ function CCS.RaidProgressEventHandler(event, ...)
     end
 
 	updateRaidStatusFrame();
-    
+
 end

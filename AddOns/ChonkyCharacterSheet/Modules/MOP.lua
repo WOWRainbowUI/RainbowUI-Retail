@@ -937,7 +937,7 @@ local function TryLoopItems()
     local allReady = true
     for slot = 1, 19 do
         local link = GetInventoryItemLink("player", slot)
-        if link and not GetItemInfo(link) then
+        if link and not C_Item.GetItemInfo(link) then
             allReady = false
             break
         end
@@ -2102,7 +2102,7 @@ function CCS.MOPCharacterSheetEventHandler(event, ...)
         for slot = 1, 19 do
             local link = GetInventoryItemLink("player", slot)
             if link then
-                GetItemInfo(link) -- queues item for caching
+                C_Item.GetItemInfo(link) -- queues item for caching
                 local itemID = GetInventoryItemID("player", slot)
                 if itemID then
                     C_Item.RequestLoadItemDataByID(itemID) -- nudges client to fetch item data

@@ -256,7 +256,7 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
     
 
     if msg == "fstack" then
-        if not C_AddOns.IsAddOnLoaded("Blizzard_DebugTools") then UIParentLoadAddOn("Blizzard_DebugTools") end
+        if not C_AddOns.IsAddOnLoaded("Blizzard_DebugTools") and LoadAddOnWithErrorHandling then LoadAddOnWithErrorHandling("Blizzard_DebugTools") end
             TableAttributeDisplay:SetWidth(1400)
             TableAttributeDisplay.LinesScrollFrame:SetWidth(1330)
             TableAttributeDisplay.LinesScrollFrame.LinesContainer:SetWidth(1200)
@@ -360,8 +360,6 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         end
 
         return
-
-
 
     end
     -- Test

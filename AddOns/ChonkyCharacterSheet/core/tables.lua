@@ -33,13 +33,15 @@ CCS.TBC     = 4
 CCS.WRATH   = 8
 CCS.CATA    = 16
 CCS.MOP     = 32
+CCS.FOREVER = 64
 CCS.ALL = bit.bor(
     CCS.RETAIL,
     CCS.CLASSIC,
     CCS.TBC,
     CCS.WRATH,
     CCS.CATA,
-    CCS.MOP)
+    CCS.MOP,
+    CCS.FOREVER)
 
 CCS.GEM_NONE = 0
 CCS.GEM_META = 1
@@ -55,7 +57,7 @@ CCS.ModelAspect = 1.385
 
 CCS.Modules = CCS.Modules or {}
 CCS.MaxLevel = GetMaxPlayerLevel()
-
+CCS.HeroLevel = 71
 -- For throttling event handling, wow is pretty chatty.
 CCS.Throttles = {
     CharacterStats = 0,
@@ -108,7 +110,11 @@ CCS.fontname = CCS:GetDefaultFontForLocale()
 function CCS.GetCurrentVersion()
     local project = _G.WOW_PROJECT_ID
     if project == _G.WOW_PROJECT_MAINLINE then
-        return CCS.RETAIL
+        if CCS.expansionID == 0 then
+            return CCS.FOREVER
+        else
+            return CCS.RETAIL
+        end
     elseif project == _G.WOW_PROJECT_CLASSIC then
         return CCS.CLASSIC
     elseif project == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
@@ -119,10 +125,13 @@ function CCS.GetCurrentVersion()
         return CCS.CATA
     elseif project == _G.WOW_PROJECT_MISTS_CLASSIC then
         return CCS.MOP
+    elseif project == _G.WOW_PROJECT_CAMELOT then
+        return CCS.FOREVER
     else
         return CCS.ALL -- fallback
     end
 end
+
 
 CCS.CurrentVersion = CCS.GetCurrentVersion()
 
@@ -144,11 +153,11 @@ ns.optionDefs = {
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_onopen", label=L["SHOW_MYTHIC_SP_ONOPEN"], value=false, default=false, slots=2 },    
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="sheetscale", label=L["SHEET_SCALE"], value=1, default=1, min=0.5, max=1.25, step=0.05, slots=2 },
+    { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="sheetscale_inspect", label=L["SHEET_SCALE_INSPECT"], value=1, default=1, min=0.5, max=1.25, step=0.1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="vpad", label=L["V_PAD"], value=23, default=23, min=0, max=40, step=1, slots=2 },
+    { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="vpad_inspect", label=L["V_PAD_INSPECT"], value=23, default=23, min=0, max=40, step=1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="hpad", label=L["H_PAD"], value=279, default=279, min=0, max=500, step=1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="mplus_sp_scale", label=L["MPLUS_SP_SCALE"], value=1, default=1, min=0.5, max=1.5, step=0.1, slots=2 },
-    { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="sheetscale_inspect", label=L["SHEET_SCALE_INSPECT"], value=1, default=1, min=0.5, max=1.25, step=0.1, slots=2 },
-    { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="vpad_inspect", label=L["V_PAD_INSPECT"], value=23, default=23, min=0, max=40, step=1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="raid_sp_scale", label=L["RAID_SP_SCALE"], value=1, default=1, min=0.5, max=1.5, step=0.1, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="gear_gf_scale", label=L["CATEGORY_GEAR-FINDER"].." "..L["SCALE"], value=1, default=1, min=0.5, max=1.5, step=0.1, slots=2 },
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
@@ -187,17 +196,18 @@ ns.optionDefs = {
     { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="button_color", label=L["Button Foreground Color"], value={0.49, 0.196, 0.659, 1}, default={0.49, 0.196, 0.659, 1}, slots=1 },
     { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="highlight_color", label=L["Highlight Color"], value={0.8, .2, 1, 1}, default={0.8, .2, 1, 1}, slots=1 },
     { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="border_color", label=L["Border Color"], value={0.3, 0.1, 0.4, 1}, default={0.3, 0.1, 0.4, 1}, slots=1 },
-    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="style_class_color", label=L["Use Class Color"], value=false, default=false, slots=1 },
+    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="style_class_color", label=L["Use Class Color"], value=true, default=true, slots=1 },
     
     -- Character Sheet General Display Settings
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_GENERAL_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
-    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
-    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Class Crest", default="Class Crest", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showtitlesearch", label=L["TITLE_SEARCH"], value=true, default=true, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_ITEM_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
@@ -519,7 +529,7 @@ ns.optionDefs = {
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="color", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor_inspect", label=L["INSPECT_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=2 },
     { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Default", default="Default", values={"Default", "Class", "Class Crest", "Race", "Hide"}, slots=2 },
-    { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
 
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },    
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showilvlinspect", label=L["SHOW_ILVL_INSPECT"], value=true, default=true, slots=1 },
@@ -530,6 +540,8 @@ ns.optionDefs = {
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showmodel_inspect", label=L["SHOW_MODEL_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="showmythicplusscore_inspect", label=L["SHOW_MYTHIC_SCORE_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="showm_sp_btn_inspect", label=L["SHOW_MYTHIC_SP_BTN"], value=true, default=true, slots=1 },    
+    { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="showm_sp_onopen_inspect", label=L["SHOW_MYTHIC_SP_ONOPEN_INSPECT"], value=false, default=false, slots=3 },    
+
 
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },        
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showilvl_inspect", label=L["SHOW_ITEMILVL_INSPECT"], value=true, default=true, slots=1 },
@@ -1807,7 +1819,17 @@ CCS.Race_Bg = {
     [91] = { -- Haranir
         texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\CharacterCreateStartingZones5",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
-    },        
+    },    
+
+    [95] = { -- Skyborne
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\skyborne.png",
+        map     = {1919, 1079, 0, .6, .3, 1},
+    },    
+    [96] = { -- Skyborne
+        texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\skyborne.png",
+        map     = {1919, 1079, 0, .6, .3, 1},
+    },    
+    
     [998] = { -- Death Knight
         texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Race\\UI_Deathknight_LowRes",
         map     = {2048, 2048, 0, 1, 0, 1},
@@ -1976,7 +1998,8 @@ CCS.SRI = {
     [38] = { boss=2895, raid=1320, name=select(1,EJ_GetEncounterInfo(2895)), icon=select(5,EJ_GetCreatureInfo(1,2895)), normal=63567, heroic=63568, mythic=63569 }, -- Ula'tek
     -- The Tidebound Grotto select(1,EJ_GetInstanceInfo(1317))
     [39] = { boss=2849, raid=1317, name=select(1,EJ_GetEncounterInfo(2849)), icon=select(5,EJ_GetCreatureInfo(1,2849)), normal=63614, heroic=63615, mythic=63616 }, -- Nymrissa Wavecaller
-  
+    -- The Unbinding of Kith'ix select(1,EJ_GetInstanceInfo(1324))
+    [40] = { boss=2896, raid=1324, name=select(1,EJ_GetEncounterInfo(2896)), icon=select(5,EJ_GetCreatureInfo(1,2896)), normal=63840, heroic=63841, mythic=63842 }, -- Kith'ix
 
 }
 
@@ -2052,6 +2075,15 @@ CCS.RaidLayout = {
     title = select(1,EJ_GetInstanceInfo(1317)) or "",
     bosses = { 39 }
   },
+
+  {
+    raid = 1324, -- The Unbiding of Kith'ix
+    num_bosses = 1,
+    tocinfo = {120105, 120109},
+    shortname = "UK",
+    title = select(1,EJ_GetInstanceInfo(1324)) or "",
+    bosses = { 40 }
+  },  
 }
 
 end
@@ -2135,6 +2167,7 @@ CCS.slotNames = {
     [15] = "Back",
     [16] = "MainHand",
     [17] = "SecondaryHand",
+    [18] = "Ranged",    
 }
 
 CCS.SlotNameToID = {
@@ -2335,7 +2368,7 @@ CCS.ClassSpecStatPriority = {
             [34] = {1,1,1,1}, -- *** Fel-Scarred
             [35] = {1,1,1,1}, -- *** Aldrachi Reaver
             [124] = {2,3,1,4}, -- Annihilator
-            [126] = {1,3,2,4}, -- Void-scarred
+            [126] = {3,2,1,4}, -- Void-scarred
         },        
     },
     [11] = { -- Druid
@@ -2371,8 +2404,8 @@ CCS.ClassSpecStatPriority = {
     [13] = { -- Evoker
         -- Devastation {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [36] = {3,1,2,4}, -- Scalecommander
-            [37] = {3,1,2,4}, -- Flameshaper
+            [36] = {2,1,3,4}, -- Scalecommander
+            [37] = {2,1,3,4}, -- Flameshaper
             [38] = {1,1,1,1}, -- *** Chronowarden
         },
         -- Preservation
@@ -2383,17 +2416,17 @@ CCS.ClassSpecStatPriority = {
         },
         -- Augmentation
         [3] = {
-            [36] = {3,1,2,4}, -- Scalecommander
+            [36] = {1,2,3,4}, -- Scalecommander
             [37] = {1,1,1,1}, -- *** Flameshaper
-            [38] = {3,1,2,4}, -- Chronowarden
+            [38] = {1,2,3,4}, -- Chronowarden
         },
     },
     [3] = { -- Hunter
         -- Beast Mastery {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [42] = {1,1,1,1}, -- *** Sentinel
-            [43] = {1,3,2,4}, -- Pack Leader
-            [44] = {1,3,2,4}, -- Dark Ranger
+            [43] = {1,2,3,4}, -- Pack Leader
+            [44] = {2,1,3,4}, -- Dark Ranger
         },
         -- Marksmanship
         [2] = {
@@ -2411,8 +2444,8 @@ CCS.ClassSpecStatPriority = {
     [8] = { -- Mage
         -- Arcane {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [39] = {1,3,2,4}, -- Sunfury
-            [40] = {1,3,2,4}, -- Spellslinger
+            [39] = {4,3,1,2}, -- Sunfury
+            [40] = {2,3,1,4}, -- Spellslinger
             [41] = {1,1,1,1}, -- *** Frostfire
         },
         -- Fire
@@ -2432,8 +2465,8 @@ CCS.ClassSpecStatPriority = {
         -- Brewmaster {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [64] = {1,1,1,1}, -- *** Conduit of the Celestials
-            [65] = {1,1,2,1}, -- Shado-pan
-            [66] = {1,1,2,1}, -- Master of Harmony
+            [65] = {2,1,2,2}, -- Shado-pan
+            [66] = {2,1,3,2}, -- Master of Harmony
         },
         -- Mistweaver
         [2] = {
@@ -2457,23 +2490,23 @@ CCS.ClassSpecStatPriority = {
         },
         -- Protection
         [2] = {
-            [48] = {3,3,1,2}, -- Templar
-            [49] = {3,3,1,2}, -- Lightsmith
+            [48] = {2,2,1,3}, -- Templar
+            [49] = {2,2,1,3}, -- Lightsmith
             [50] = {1,1,1,1}, -- *** Herald of the Sun
         },
         -- Retribution
         [3] = {
-            [48] = {1,2,3,4}, -- Templar
+            [48] = {1,3,2,4}, -- Templar
             [49] = {1,1,1,1}, -- *** Lightsmith
-            [50] = {1,2,3,4}, -- Herald of the Sun
+            [50] = {1,3,2,4}, -- Herald of the Sun
         },
     },
     [5] = { -- Priest
         -- Discipline {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [18] = {3,2,1,4}, -- Voidweaver
+            [18] = {2,3,1,4}, -- Voidweaver
             [19] = {1,1,1,1}, -- *** Archon
-            [20] = {3,2,1,4}, -- Oracle
+            [20] = {2,3,1,4}, -- Oracle
         },
         -- Holy
         [2] = {
@@ -2517,22 +2550,22 @@ CCS.ClassSpecStatPriority = {
         },
         -- Enhancement
         [2] = {
-            [54] = {1,3,2,4}, -- Totemic
-            [55] = {2,2,1,3}, -- Stormbringer
+            [54] = {1,2,1,3}, -- Totemic
+            [55] = {1,2,1,3}, -- Stormbringer
             [56] = {1,1,1,1}, -- *** Farseer
         },
         -- Restoration
         [3] = {
-            [54] = {2,1,3,2}, -- Totemic
+            [54] = {4,1,2,3}, -- Totemic
             [55] = {2,1,3,2}, -- *** Stormbringer
-            [56] = {2,1,3,2}, -- Farseer
+            [56] = {4,1,2,3}, -- Farseer
         },
     },
     [9] = { -- Warlock
         -- Affliction {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [57] = {1,1,2,3}, -- Soul Harvester
-            [58] = {1,1,2,3}, -- Hellcaller
+            [57] = {4,2,1,3}, -- Soul Harvester
+            [58] = {4,2,1,3}, -- Hellcaller
             [59] = {1,1,1,1}, -- *** Diabolist
         },
         -- Demonology
