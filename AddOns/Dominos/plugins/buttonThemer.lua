@@ -76,7 +76,7 @@ if Masque then
         end
 
         self.shouldReskin = nil
-        for _, group in pairs(Masque:Group(AddonName).SubList) do
+        for _, group in pairs(Masque:Group(L.AddonName).SubList) do
             group:ReSkin()
         end
     end
