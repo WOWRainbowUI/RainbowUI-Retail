@@ -16,7 +16,7 @@
 ]]
 
 BIT = BIT or {}
-BIT.VERSION    = "4.2.1"
+BIT.VERSION    = "4.2.3"
 BIT.SyncCD      = BIT.SyncCD      or {}
 BIT.SyncCD.users = BIT.SyncCD.users or {}  -- name → {class, specID} — only HELLO senders, never touched by interrupt system
 BIT.syncCdState = BIT.syncCdState or {}
@@ -821,6 +821,52 @@ do
 
     -- back-compat alias used by UI.lua / Profile.lua
     BIT.partyAddonUsers = _data
+end
+
+------------------------------------------------------------
+-- Who in the group is running this addon
+--
+-- Every copy sends HELLOSYNC when it joins a group and answers one
+-- back, and the receiver sets `_hasAddon` on the sender. That makes it
+-- the widest presence signal available: it needs neither an interrupt
+-- spell (unlike HELLO) nor any particular module being switched on.
+--
+-- Wrapped in named helpers because upcoming features will ask the same
+-- question, and reaching into SyncCD.users from several places would
+-- freeze that table's layout in place.
+--
+-- Note the limits: addon messages are blocked for the whole of a
+-- Mythic+ run, so anyone met only inside a run stays unknown until the
+-- group re-forms outside. And no version travels in HELLOSYNC yet, so
+-- this answers "has it", not "has which build".
+------------------------------------------------------------
+function BIT:PlayerHasAddon(name)
+    if type(name) ~= "string" or name == "" then return false end
+    if issecretvalue and issecretvalue(name) then return false end
+    local short = name:match("^([^%-]+)") or name
+    if BIT.myName and short == BIT.myName then return true end
+    local u = BIT.SyncCD and BIT.SyncCD.users and BIT.SyncCD.users[short]
+    return (u and u._hasAddon) and true or false
+end
+
+-- Returns a name → true map of the current party plus how many of them
+-- were reached. The player always counts.
+function BIT:GetGroupAddonUsers()
+    local out, count = {}, 0
+    for _, unit in ipairs({ "player", "party1", "party2", "party3", "party4" }) do
+        if UnitExists(unit) then
+            local name = UnitName(unit)
+            if type(name) == "string" and name ~= ""
+               and not (issecretvalue and issecretvalue(name)) then
+                local short = name:match("^([^%-]+)") or name
+                if unit == "player" or self:PlayerHasAddon(short) then
+                    out[short] = true
+                    count = count + 1
+                end
+            end
+        end
+    end
+    return out, count
 end
 
 ------------------------------------------------------------
@@ -2864,7 +2910,16 @@ end)
 
 -- NOTE: In WoW 12.0.5, UNIT_SPELLCAST_SUCCEEDED no longer fires for party members,
 -- and COMBAT_LOG_EVENT_UNFILTERED is a protected event that cannot be registered
--- by this addon (triggers ADDON_ACTION_FORBIDDEN). Party-kick detection therefore
+-- by this addon (triggers ADDON_ACTION_FORBIDDEN).
+--
+-- The same wall stands in front of the 12.1 ping system: pinging an action
+-- can now report its cooldown state, but UNIT_PING_PIN_ADDED and
+-- UNIT_PING_PIN_REMOVED are protected in the same way — merely registering
+-- them raises ADDON_ACTION_FORBIDDEN (verified on the 12.1 PTR), so a
+-- teammate's ping cannot feed this tracker. Do not try again without new
+-- evidence; the attempt itself flags the addon.
+--
+-- Party-kick detection therefore
 -- relies on UNIT_SPELLCAST_INTERRUPTED on the mob (which still fires) combined
 -- with a roster-based heuristic: when a mob's cast is interrupted, we attribute
 -- the kick to the party member whose registered interrupt is off cooldown AND
@@ -3284,6 +3339,11 @@ function BIT:Initialize()
     if BIT.UI.mainFrame then
         BIT.UI.mainFrame:SetScale((self.db.frameScale or 100) / 100)
         if BIT.UI.RebuildBars then BIT.UI:RebuildBars() end
+        -- And the borders after that, for the same reason the rebuild is
+        -- repeated here: their thickness is one physical pixel translated
+        -- through the effective scale, so it is only correct once the final
+        -- scale is in place.
+        if BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
     end
     -- Hook slash commands to open the custom settings UI
     if BIT.SettingsUI and BIT.SettingsUI.HookSlash then
@@ -4241,3 +4301,4 @@ SlashCmdList["BITCHARGEDEBUG"] = function()
     end
     p("=== end ===")
 end
+

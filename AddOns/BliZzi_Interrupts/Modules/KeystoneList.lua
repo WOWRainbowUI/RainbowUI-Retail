@@ -388,24 +388,25 @@ end
 -- Returns one of: "ready" | "noport" | "cooldown" plus remaining seconds.
 -- "ready"     → teleport spell is known and not on cooldown
 -- "noport"    → spell is unknown to the player (haven't unlocked it yet)
--- "cooldown"  → spell is known but currently on cooldown — ONLY reported
---               when querying the local player's keystone. Cooldowns of
---               other players aren't visible to us, so a remote keystone
---               whose teleport spell happens to be on OUR client's cooldown
---               must NOT be reported as "Port CD" — the remote player may
---               not have used it at all. Pass isSelf=true to enable the
---               cooldown check; otherwise it's collapsed to "ready".
-local function getPortStatus(challengeMapID, isSelf)
+-- "cooldown"  → spell is known but currently on OUR cooldown
+--
+-- All three describe the LOCAL player throughout, whoever owns the key on
+-- the row: the row answers "can I press this right now", and pressing it
+-- always casts our own teleport. Whether the key's owner has used theirs
+-- is neither knowable nor relevant here.
+local function getPortStatus(challengeMapID)
     local portID = getDungeonPort(challengeMapID)
     if not portID then return "noport", 0, nil end
     if not knownSpell(portID) then return "noport", 0, portID end
-    if not isSelf then
-        -- For other players, we can only report "ready" or "noport".
-        -- The "ready" here means "WE have the teleport unlocked" — useful
-        -- to signal that we can also press it ourselves. "Port CD" is
-        -- self-only.
-        return "ready", 0, portID
-    end
+    -- The cooldown reported here is always the LOCAL player's: whichever
+    -- row is clicked, we are the one casting, so it applies to every row
+    -- whose teleport we know — not just to our own key. Earlier this was
+    -- gated to the own-key row on the reasoning that we cannot know
+    -- anything about another player's cooldowns, which is true but beside
+    -- the point: the row answers "can I port there right now", and the
+    -- dungeon teleports share one cooldown, so a single use greys out the
+    -- lot. Gating it meant the other rows kept claiming "ready" while the
+    -- click did nothing.
     -- C_Spell.GetSpellCooldown is the modern API; older clients have
     -- GetSpellCooldown as a global. Wrap both in pcall.
     local startTime, duration = 0, 0
@@ -446,12 +447,103 @@ local function classColorize(name, classFile)
     return name
 end
 
+------------------------------------------------------------
+-- Mythic+ rating shown behind the character name
+------------------------------------------------------------
+-- Two sources, tried in this order:
+--   1. RaiderIO, when the user has it installed. Its database also
+--      covers characters who aren't in the group right now, which is
+--      what makes a score appear on every row instead of only on the
+--      ones the game can be asked about.
+--   2. The game's own season rating. Needs no addon at all, but can
+--      only be read for a unit that is actually in the group.
+--
+-- The colour always comes from the game's rarity ramp, so a number
+-- reads the same here as it does in Blizzard's own Mythic+ interface.
+-- Both lookups are cheap and only run while a row is being drawn.
+local SCORE_UNITS = { "player", "party1", "party2", "party3", "party4" }
+
+local function unitForName(fullName)
+    local short = fullName:match("^([^%-]+)") or fullName
+    for _, unit in ipairs(SCORE_UNITS) do
+        if UnitExists(unit) then
+            local n = UnitName(unit)
+            -- 12.x hands out secret names inside instances; comparing
+            -- one would error, so such a unit is simply skipped.
+            if type(n) == "string" and n ~= ""
+               and not (issecretvalue and issecretvalue(n))
+               and n == short then
+                return unit
+            end
+        end
+    end
+    return nil
+end
+
+local function raiderIOScore(fullName)
+    local rio = _G.RaiderIO
+    if type(rio) ~= "table" or type(rio.GetProfile) ~= "function" then return nil end
+    local name, realm = fullName:match("^([^%-]+)%-(.+)$")
+    if not name then
+        name  = fullName
+        realm = GetNormalizedRealmName and GetNormalizedRealmName() or nil
+    end
+    if not realm or realm == "" then return nil end
+    local ok, profile = pcall(rio.GetProfile, name, realm)
+    if not ok or type(profile) ~= "table" then return nil end
+    local mk = profile.mythicKeystoneProfile
+    if type(mk) ~= "table" then return nil end
+    local score = mk.currentScore
+    if type(score) == "number" and score > 0 then return score end
+    return nil
+end
+
+local function blizzardScore(unit)
+    if not unit then return nil end
+    if unit == "player" then
+        local ok, s = pcall(C_ChallengeMode.GetOverallDungeonScore)
+        if ok and type(s) == "number" and s > 0 then return s end
+        return nil
+    end
+    local ok, summary = pcall(C_PlayerInfo.GetPlayerMythicPlusRatingSummary, unit)
+    if ok and type(summary) == "table" then
+        local s = summary.currentSeasonScore
+        if type(s) == "number" and s > 0 then return s end
+    end
+    return nil
+end
+
+-- Returns the coloured "(1234)" suffix, or "" when there is no rating
+-- to show or the user switched the column off.
+local function scoreSuffix(fullName)
+    if not BIT.db or BIT.db.keystoneListShowScore == false then return "" end
+    if type(fullName) ~= "string" or fullName == "" then return "" end
+
+    local score = raiderIOScore(fullName) or blizzardScore(unitForName(fullName))
+    if not score then return "" end
+
+    local r, g, b = 1, 1, 1
+    local ok, col = pcall(C_ChallengeMode.GetDungeonScoreRarityColor, score)
+    if ok and type(col) == "table" and col.r then r, g, b = col.r, col.g, col.b end
+
+    return string.format(" |cff%02x%02x%02x(%d)|r", r * 255, g * 255, b * 255, score)
+end
+
 -- Apply the addon's configured font + outline (from Size & Font) to a
 -- FontString, at the given pixel size. Falls back to STANDARD_TEXT_FONT
 -- if no fontPath is set yet (first run before user picks a font).
+-- SetFont can fail without raising: it returns false, or simply leaves
+-- the FontString with no font at all. GetFont() coming back nil is the
+-- reliable test, so it decides here whether an attempt counted.
+local function trySetFont(fs, path, size, flags)
+    if not path or path == "" then return false end
+    local ok, valid = pcall(fs.SetFont, fs, path, size, flags)
+    if not ok or valid == false then return false end
+    return fs:GetFont() ~= nil
+end
+
 local function applyConfiguredFont(fs, size)
     if not fs then return end
-    local path    = (BIT.db and BIT.db.fontPath) or _G.STANDARD_TEXT_FONT
     local outline = (BIT.db and BIT.db.fontOutline) or "OUTLINE"
     -- SLUG = the client's newer GPU text renderer (crisper outlines);
     -- mirrors the flag composition in Core/Media.lua (respects the
@@ -461,7 +553,16 @@ local function applyConfiguredFont(fs, size)
     else
         outline = outline .. (BIT.Media and BIT.Media.slugSuffix or ", SLUG")
     end
-    pcall(fs.SetFont, fs, path, size, outline)
+
+    if trySetFont(fs, BIT.db and BIT.db.fontPath, size, outline) then return end
+    if trySetFont(fs, _G.STANDARD_TEXT_FONT, size, outline) then return end
+    -- Last resort, mirroring Core/Media.lua: this face ships with every
+    -- client. Without it a FontString created without a template stays
+    -- fontless, and the next SetText on it errors with "Font not set" —
+    -- which is what a saved font path from an addon the user has since
+    -- removed used to cause.
+    if trySetFont(fs, "Fonts\\FRIZQT__.TTF", size, outline) then return end
+    trySetFont(fs, "Fonts\\FRIZQT__.TTF", size, "")
 end
 
 ------------------------------------------------------------
@@ -953,7 +1054,7 @@ local function ensureHoverButton()
             return
         end
         if not BIT.db or BIT.db.keystoneListPortCdAnnounce ~= true then return end
-        local status, remain, _portID = getPortStatus(mapID, true)
+        local status, remain, _portID = getPortStatus(mapID)
         if status ~= "cooldown" then return end
         sendPortCdAnnouncement(mapID, level, remain)
     end)
@@ -1329,7 +1430,11 @@ local function configureRow(row, keystone)
     if keystone.class then
         displayName = classColorize(displayName, keystone.class)
     end
-    row.nameText:SetText(displayName)
+    -- Mythic+ rating in brackets, in its own rating colour. Appended
+    -- after the class colouring so the two escape sequences don't nest.
+    -- The lookup key is the full "Name-Realm" form, not the display
+    -- name, which may have been substituted by a custom name.
+    row.nameText:SetText(displayName .. scoreSuffix(nameKey))
 
     -- Dungeon name (large, bottom of right side)
     local useAbbr = BIT.db and BIT.db.keystoneListUseAbbreviation == true
@@ -1422,8 +1527,7 @@ local function configureRow(row, keystone)
     --   cooldown → "Port CD" red (only for the LOCAL player — we can't
     --              know remote players' cooldowns)
     local showNoPort = BIT.db and BIT.db.keystoneListShowNoPort ~= false
-    local isSelfRow = (keystone.keystoneOwner == getPlayerFullName())
-    local status, _remain, portID = getPortStatus(keystone.challengeMapID, isSelfRow)
+    local status, _remain, portID = getPortStatus(keystone.challengeMapID)
     if showNoPort then
         if status == "noport" and portID then
             row.noPortText:SetText(L("KEY_NO_PORT", "no port"))
@@ -1462,20 +1566,36 @@ local function configureRow(row, keystone)
         if edgeFile and edgeFile ~= "" and edgeSize > 0 then
             bo:SetPoint("TOPLEFT",     row.iconBox, "TOPLEFT",     -outward,  outward)
             bo:SetPoint("BOTTOMRIGHT", row.iconBox, "BOTTOMRIGHT",  outward, -outward)
-            bo:SetBackdrop({
-                edgeFile = edgeFile,
-                edgeSize = edgeSize,
-                insets = { left = 0, right = 0, top = 0, bottom = 0 },
-            })
-            bo:SetBackdropBorderColor(
-                (BIT.db.borderColorR) or 0,
-                (BIT.db.borderColorG) or 0,
-                (BIT.db.borderColorB) or 0,
-                (BIT.db.borderColorA) or 1)
+            -- Routed through the shared dispatcher rather than SetBackdrop
+            -- directly: for the Solid texture that draws four exact edges
+            -- instead of a backdrop edgeFile, whose per-side rounding left
+            -- sides a pixel thin or missing at a fractional UI scale. For
+            -- decorative textures it still ends up in SetBackdrop, so their
+            -- look is unchanged.
+            if BIT.UI and BIT.UI.ApplyBorderTextureTo then
+                BIT.UI:ApplyBorderTextureTo(bo, edgeFile, edgeSize,
+                    BIT.db.borderColorR or 0, BIT.db.borderColorG or 0,
+                    BIT.db.borderColorB or 0, BIT.db.borderColorA or 1)
+            else
+                bo:SetBackdrop({
+                    edgeFile = edgeFile,
+                    edgeSize = edgeSize,
+                    insets = { left = 0, right = 0, top = 0, bottom = 0 },
+                })
+                bo:SetBackdropBorderColor(
+                    (BIT.db.borderColorR) or 0,
+                    (BIT.db.borderColorG) or 0,
+                    (BIT.db.borderColorB) or 0,
+                    (BIT.db.borderColorA) or 1)
+            end
             bo:Show()
         else
             bo:SetAllPoints(row.iconBox)
-            bo:SetBackdrop(nil)
+            if BIT.UI and BIT.UI.ApplyBorderTextureTo then
+                BIT.UI:ApplyBorderTextureTo(bo, nil, 0, 0, 0, 0, 0)
+            else
+                bo:SetBackdrop(nil)
+            end
         end
     end
 
@@ -2448,11 +2568,17 @@ local function _ensureJoinBanner()
     f.accent:SetPoint("TOPRIGHT", -1, -1)
     f.accent:SetHeight(2)
 
-    f.titleFS    = f:CreateFontString(nil, "OVERLAY")
-    f.dungeonFS  = f:CreateFontString(nil, "OVERLAY")
-    f.categoryFS = f:CreateFontString(nil, "OVERLAY")
-    f.leaderFS   = f:CreateFontString(nil, "OVERLAY")
-    f.commentFS  = f:CreateFontString(nil, "OVERLAY")
+    -- Created WITH a template on purpose. Every other FontString in this
+    -- module inherits one, and that is what kept them alive when the
+    -- configured font could not be applied. These five were template-less,
+    -- so a font that failed to load left them with no font at all and the
+    -- first SetText threw. The template is only the safety net; the size
+    -- and face still come from applyConfiguredFont in ShowJoinBanner.
+    f.titleFS    = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    f.dungeonFS  = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    f.categoryFS = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    f.leaderFS   = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    f.commentFS  = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     for _, fs in ipairs({ f.titleFS, f.dungeonFS, f.categoryFS, f.leaderFS, f.commentFS }) do
         fs:SetJustifyH("CENTER")
         -- Long listing titles / comments wrap onto additional lines; the
@@ -2660,8 +2786,7 @@ local function refreshPortStatusOnly()
     for _, row in ipairs(activeRows) do
         local k = dbGetKeystone(row.keystoneOwner)
         if k and k.challengeMapID then
-            local isSelfRow = (k.keystoneOwner == self_)
-            local status, _r, portID = getPortStatus(k.challengeMapID, isSelfRow)
+            local status, _r, portID = getPortStatus(k.challengeMapID)
             if showNoPort then
                 if status == "noport" and portID then
                     row.noPortText:SetText(L("KEY_NO_PORT", "no port"))

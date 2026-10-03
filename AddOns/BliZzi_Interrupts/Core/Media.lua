@@ -391,11 +391,125 @@ function BIT.Media:SetBarTexture(widget)
 end
 
 ------------------------------------------------------------
--- Build available sound list (LSM sounds + built-ins)
+-- User sound files (Media\Sounds)
+------------------------------------------------------------
+-- The user drops .ogg or .mp3 files into Media\Sounds and names one of
+-- them in the settings. WoW gives addons no way to list a directory, it
+-- can only be asked whether one exact file exists — so the short name
+-- the user types is what turns into a path here. Typing "sonar" finds
+-- custom_sonar.ogg as well as sonar.ogg, in either extension, so nobody
+-- has to remember which spelling the folder wanted.
+--
+-- Stored at the root of the saved variables, not inside a profile: the
+-- list describes files on this machine, so it should survive a profile
+-- switch and must never travel in an export.
+local USER_SOUND_DIR    = "Interface\\AddOns\\BliZzi_Interrupts\\Media\\Sounds\\"
+local USER_SOUND_EXTS   = { ".ogg", ".mp3" }
+local USER_SOUND_PREFIX = "custom_"
+
+-- Existence probe for sound files.
+--
+-- Nothing answers "does this sound file exist", so the file is simply
+-- started: PlaySoundFile returns nothing for a file that isn't there.
+--
+-- The probe is deliberately AUDIBLE. Muting it first would be tidier,
+-- but a muted file reports nothing either, which made every made-up
+-- name look valid. And audible is the right behaviour here anyway: this
+-- only ever runs when the user has just asked to add a sound, so
+-- hearing it is the confirmation that the right file was found.
+local function SoundFileExists(path)
+    local ok, willPlay = pcall(PlaySoundFile, path, "Master")
+    return ok and willPlay == true
+end
+
+-- Strip whitespace, a leading custom_ and a trailing extension, and
+-- refuse anything that tries to address something outside the folder.
+local function CleanSoundName(input)
+    if type(input) ~= "string" then return nil end
+    local name = input:gsub("^%s+", ""):gsub("%s+$", "")
+    if name == "" then return nil end
+    if name:find("[/\\:]") or name:find("%.%.", 1, true) then return nil end
+    name = name:gsub("%.[Oo][Gg][Gg]$", ""):gsub("%.[Mm][Pp]3$", "")
+    if name == "" then return nil end
+    local bare = name:gsub("^[Cc][Uu][Ss][Tt][Oo][Mm]_", "")
+    return (bare ~= "" and bare or name)
+end
+
+-- Returns path, status, name. On success path is set and status nil; on
+-- failure path is nil and status is "bad-name" or "not-found".
+function BIT.Media:ResolveUserSound(input)
+    local bare = CleanSoundName(input)
+    if not bare then return nil, "bad-name" end
+    for _, stem in ipairs({ USER_SOUND_PREFIX .. bare, bare }) do
+        for _, ext in ipairs(USER_SOUND_EXTS) do
+            local path = USER_SOUND_DIR .. stem .. ext
+            if SoundFileExists(path) then return path, nil, bare end
+        end
+    end
+    return nil, "not-found", bare
+end
+
+local NO_USER_SOUNDS = {}
+
+-- Writable store, only for adding and removing.
+local function SoundStore()
+    local sv = BliZziInterruptsSavedVars
+    if type(sv) ~= "table" then return nil end
+    if type(sv.customSounds) ~= "table" then sv.customSounds = {} end
+    return sv.customSounds
+end
+
+function BIT.Media:GetUserSounds()
+    local sv = BliZziInterruptsSavedVars
+    local t  = (type(sv) == "table") and sv.customSounds or nil
+    return (type(t) == "table") and t or NO_USER_SOUNDS
+end
+
+function BIT.Media:AddUserSound(input)
+    local store = SoundStore()
+    if not store then return nil, "no-db" end
+    local path, status, bare = self:ResolveUserSound(input)
+    if not path then return nil, status or "not-found" end
+    for _, e in ipairs(store) do
+        if e.name and e.name:lower() == bare:lower() then
+            return nil, "duplicate"
+        end
+    end
+    local entry = { name = bare, file = path }
+    store[#store + 1] = entry
+    table.sort(store, function(a, b)
+        return (a.name or ""):lower() < (b.name or ""):lower()
+    end)
+    return entry, status
+end
+
+function BIT.Media:RemoveUserSound(name)
+    local store = SoundStore()
+    if not store or type(name) ~= "string" then return false end
+    for i = #store, 1, -1 do
+        if store[i].name and store[i].name:lower() == name:lower() then
+            table.remove(store, i)
+            return true
+        end
+    end
+    return false
+end
+
+------------------------------------------------------------
+-- Build available sound list (user files + LSM sounds + built-ins)
 ------------------------------------------------------------
 function BIT.Media:GetAvailableSounds()
     local out  = {}
     local seen = {}
+    -- User files first. They are the entries the user deliberately put
+    -- there, so they shouldn't be buried under a few hundred names that
+    -- some other addon registered with LibSharedMedia.
+    for _, s in ipairs(self:GetUserSounds()) do
+        if s.name and s.file and not seen[s.name] then
+            seen[s.name] = true
+            out[#out + 1] = { name = s.name, file = s.file, user = true }
+        end
+    end
     local lsm  = GetLSM()
     if lsm then
         local list = lsm:List("sound")
@@ -424,6 +538,14 @@ end
 ------------------------------------------------------------
 function BIT.Media:PlayKickSound(soundName)
     if not soundName or soundName == "None" then return end
+    -- Same order as GetAvailableSounds: a user file wins, so a custom
+    -- sound can't be shadowed by another addon registering that name.
+    for _, s in ipairs(self:GetUserSounds()) do
+        if s.name == soundName and s.file then
+            PlaySoundFile(s.file, "Master")
+            return
+        end
+    end
     local lsm = GetLSM()
     if lsm then
         local path = lsm:Fetch("sound", soundName, true)
@@ -434,5 +556,61 @@ function BIT.Media:PlayKickSound(soundName)
             PlaySoundFile(s.file, "Master")
             return
         end
+    end
+end
+
+------------------------------------------------------------
+-- /bitsound — manage the user's own sound files from chat
+--
+-- Also the support tool: "add" says whether the addon can see the file
+-- at all, which separates a wrong file name from a wrong setting.
+-- English only, like the other diagnostic commands.
+------------------------------------------------------------
+SLASH_BITSOUND1 = "/bitsound"
+SlashCmdList["BITSOUND"] = function(msg)
+    local function C(hex, s) return "|cff" .. hex .. tostring(s) .. "|r" end
+    print(C("0091ed", "BliZzi") .. " " .. C("ffa300", "Party Tools")
+          .. " " .. C("aaaaaa", "[sound]") .. " ─────────────")
+
+    msg = (msg or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    local cmd, rest = msg:match("^(%S+)%s*(.*)$")
+    cmd = (cmd or ""):lower()
+
+    if cmd == "add" and rest ~= "" then
+        local entry, status = BIT.Media:AddUserSound(rest)
+        if entry then
+            print("  added " .. C("40d040", entry.name) .. "  " .. C("777777", entry.file))
+        elseif status == "duplicate" then
+            print("  " .. C("ff6060", "already in the list"))
+        elseif status == "bad-name" then
+            print("  " .. C("ff6060", "plain name only, no folders"))
+        else
+            print("  " .. C("ff6060", "no such file") .. "  (looked for "
+                  .. rest .. ".ogg / .mp3 and custom_" .. rest
+                  .. ".ogg / .mp3 — restart the game after adding a file)")
+        end
+
+    elseif (cmd == "remove" or cmd == "rem" or cmd == "del") and rest ~= "" then
+        if BIT.Media:RemoveUserSound(rest) then
+            print("  removed " .. C("40d040", rest) .. "  (the file itself is kept)")
+        else
+            print("  " .. C("ff6060", "not in the list: ") .. rest)
+        end
+
+    elseif cmd == "test" and rest ~= "" then
+        print("  playing " .. C("ffd100", rest))
+        BIT.Media:PlayKickSound(rest)
+
+    else
+        local list = BIT.Media:GetUserSounds()
+        if #list == 0 then
+            print("  " .. C("aaaaaa", "no sound files added yet"))
+        else
+            for _, s in ipairs(list) do
+                print("  " .. C("ffd100", s.name) .. "  " .. C("777777", s.file))
+            end
+        end
+        print("  " .. C("aaaaaa", "folder: ") .. USER_SOUND_DIR)
+        print("  " .. C("aaaaaa", "/bitsound add <name> | remove <name> | test <name>"))
     end
 end

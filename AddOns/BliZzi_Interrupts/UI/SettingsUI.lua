@@ -307,7 +307,14 @@ local function MediaOpts(getListFn, previewKind)
     -- source placed it (LSM lists it alphabetically, so it otherwise sits
     -- under "N"). Keeping it first makes clearing a selection — e.g.
     -- removing a sound — a one-click reach at the top of the list.
+    -- The user's own files from Media\Sounds follow right behind it,
+    -- marked out in green as "Custom: name". They are the handful of
+    -- entries that are actually theirs, and without the hoist they would
+    -- be lost among several hundred shared-media names. The VALUE stays
+    -- the bare name — only the visible label carries the prefix, so
+    -- saved settings and sound lookups are untouched.
     local noneOpt
+    local userOpts = {}
     if BIT.Media and getListFn then
         for _, e in ipairs(getListFn()) do
             local opt = { value = e.name, label = e.name }
@@ -326,11 +333,15 @@ local function MediaOpts(getListFn, previewKind)
             end
             if e.name == "None" then
                 noneOpt = opt
+            elseif e.user then
+                opt.label = "|cff4dff4d" .. LS("CS_CUSTOM_PREFIX", "Custom: ") .. e.name .. "|r"
+                userOpts[#userOpts+1] = opt
             else
                 opts[#opts+1] = opt
             end
         end
     end
+    for i = #userOpts, 1, -1 do table.insert(opts, 1, userOpts[i]) end
     if noneOpt then table.insert(opts, 1, noneOpt) end
     return opts
 end
@@ -358,6 +369,13 @@ local function Refresh()
     -- Apply frame scale
     if BIT.UI and BIT.UI.mainFrame and BIT.db then
         BIT.UI.mainFrame:SetScale((BIT.db.frameScale or 100) / 100)
+        -- Borders LAST: the solid border draws edges one physical pixel
+        -- thick, converted through the frame's effective scale. The rebuild
+        -- above sized them against the scale in force at that moment, and
+        -- the line right before this one just changed it — leaving a border
+        -- that is a fraction of a pixel and disappears on whichever sides
+        -- fall between two pixel rows. Recompute now that the scale is final.
+        if BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
     end
 end
 
@@ -3587,6 +3605,165 @@ local function BuildInterrupts()
         function() return BIT.db.soundKickFailed or "None" end,
         function(v) BIT.db.soundKickFailed = v end)
 
+    -- ── Own sound files ──────────────────────────────────────
+    -- Files the user drops into Media\Sounds. WoW can't list a
+    -- directory, so a file has to be named once here; from then on it
+    -- sits in every sound dropdown above like a built-in one.
+    w[#w+1] = CreateSectionHeader(p, LS("SEC_CUSTOM_SOUNDS", "Own Sound Files"), "sui_int_snd_own")
+    do
+        -- Adding or removing a sound changes how many rows this section
+        -- has, and page.layout only repositions the widgets that already
+        -- exist. So the page's widget list is dropped and rebuilt, which
+        -- is the only way a new row appears or a deleted one goes away.
+        local rebuild = function()
+            C_Timer.After(0, function()
+                local name = activePage
+                local page = name and pages[name]
+                if not page then return end
+                local scrollY = (contentScroll and contentScroll:GetVerticalScroll()) or 0
+                if page.widgets then
+                    for _, wd in ipairs(page.widgets) do wd:Hide() end
+                end
+                page.widgets = nil
+                -- layout and refresh have to go with them. Widgets built
+                -- during build() call page.layout defensively, and the
+                -- closure left over from the previous show would run
+                -- against the widget list we just dropped. ShowPage
+                -- installs fresh ones once the rebuild is done, which is
+                -- exactly how a page behaves the very first time.
+                page.layout  = nil
+                page.refresh = nil
+                BIT.SettingsUI:ShowPage(name)
+                -- ShowPage jumps to the top, which is right when the
+                -- page actually changes. Here it didn't: one row came or
+                -- went, so the view goes back where it was. The scroll
+                -- range is only recomputed after the layout pass, so the
+                -- value is applied again on the next frame, where it can
+                -- be clamped against the new range.
+                if contentScroll and scrollY > 0 then
+                    contentScroll._wheelGliding = false
+                    contentScroll:SetVerticalScroll(scrollY)
+                    C_Timer.After(0, function()
+                        local maxS = contentScroll:GetVerticalScrollRange() or 0
+                        contentScroll._wheelGliding = false
+                        contentScroll:SetVerticalScroll(math.min(scrollY, maxS))
+                    end)
+                end
+            end)
+        end
+        local Say = function(text)
+            DEFAULT_CHAT_FRAME:AddMessage("|cff0091ed[BliZzi Party Tools]|r " .. text)
+        end
+
+        -- Explanation. Wrapped to the page width, so its height has to
+        -- be measured after the text is set.
+        local info = CreateFrame("Frame", nil, p)
+        local infoFS = info:CreateFontString(nil, "OVERLAY")
+        ApplyFont(infoFS, 11)
+        infoFS:SetPoint("TOPLEFT", 2, -2)
+        infoFS:SetWidth(p:GetWidth() - CONTENT_PAD * 2 - 4)
+        infoFS:SetJustifyH("LEFT")
+        infoFS:SetSpacing(2)
+        infoFS:SetTextColor(RGB(TEXT_DIM))
+        infoFS:SetText(LS("CS_INFO",
+            "Put .ogg or .mp3 files into the addon's Media\\Sounds folder, then enter the name here: sonar finds custom_sonar.ogg as well as sonar.ogg. New files only count after a full game restart, a reload is not enough."))
+        info:SetSize(p:GetWidth() - CONTENT_PAD * 2,
+                     math.max(WIDGET_H, (infoFS:GetStringHeight() or 12) + 10))
+        w[#w+1] = info
+
+        w[#w+1] = CreateEditBox(p, LS("CS_ADD", "Add sound"),
+            function() return "" end,
+            function(v)
+                if not v or v:gsub("%s", "") == "" then return end
+                local added, status = BIT.Media:AddUserSound(v)
+                if added then
+                    Say(LS("CS_MSG_ADDED", "Sound added: %s"):format(added.name))
+                elseif status == "duplicate" then
+                    Say(LS("CS_MSG_DUPLICATE", "Already in the list: %s"):format(v))
+                else
+                    Say(LS("CS_MSG_FAILED",
+                        "No file for '%s' in Media\\Sounds. Only .ogg and .mp3 work, and the game has to be restarted after adding a file."):format(v))
+                end
+                rebuild()
+            end, 200)
+
+        local list = (BIT.Media and BIT.Media.GetUserSounds)
+                     and BIT.Media:GetUserSounds() or {}
+        if #list == 0 then
+            local empty = CreateFrame("Frame", nil, p)
+            empty:SetSize(p:GetWidth() - CONTENT_PAD * 2, 20)
+            local emptyFS = empty:CreateFontString(nil, "OVERLAY")
+            ApplyFont(emptyFS, 11)
+            emptyFS:SetPoint("LEFT", 4, 0)
+            emptyFS:SetTextColor(RGB(TEXT_DIM))
+            emptyFS:SetText(LS("CS_NONE", "No own sound files added yet"))
+            w[#w+1] = empty
+        else
+            for _, snd in ipairs(list) do
+                local soundName = snd.name
+                local row = CreateFrame("Frame", nil, p)
+                row:SetSize(p:GetWidth() - CONTENT_PAD * 2, 22)
+
+                local nameFS = row:CreateFontString(nil, "OVERLAY")
+                ApplyFont(nameFS, 11)
+                nameFS:SetPoint("LEFT", 4, 0)
+                nameFS:SetTextColor(RGB(TEXT))
+                nameFS:SetText(soundName)
+
+                local rm = CreateFrame("Button", nil, row, "BackdropTemplate")
+                rm:SetSize(22, 20)
+                rm:SetPoint("RIGHT", 0, 0)
+                MakeBg(rm, 0.15, 0.15, 0.18, 1)
+                local rmTxt = rm:CreateFontString(nil, "OVERLAY")
+                ApplyFont(rmTxt, 11)
+                rmTxt:SetPoint("CENTER")
+                rmTxt:SetTextColor(0.85, 0.35, 0.35, 1)
+                rmTxt:SetText("x")
+                rm:SetScript("OnEnter", function(self)
+                    self:SetBackdropBorderColor(0.85, 0.35, 0.35)
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    -- AddLine, not SetText: only AddLine takes the wrap
+                    -- flag, SetText stops at the colour arguments.
+                    GameTooltip:AddLine(LS("CS_REMOVE_TT",
+                        "Remove from the list. The file itself is kept."), 1, 1, 1, true)
+                    GameTooltip:Show()
+                end)
+                rm:SetScript("OnLeave", function(self)
+                    self:SetBackdropBorderColor(RGB(BORDER))
+                    GameTooltip:Hide()
+                end)
+                rm:SetScript("OnClick", function()
+                    BIT.Media:RemoveUserSound(soundName)
+                    -- Any setting still pointing at it would silently
+                    -- play nothing, so those fall back to "None".
+                    for _, key in ipairs({ "soundKickSuccess", "soundKickFailed", "externalSound" }) do
+                        if BIT.db[key] == soundName then BIT.db[key] = "None" end
+                    end
+                    rebuild()
+                end)
+
+                -- Click-to-play, same speaker icon the sound dropdowns use.
+                local pv = CreateFrame("Button", nil, row)
+                pv:SetSize(16, 16)
+                pv:SetPoint("RIGHT", rm, "LEFT", -8, 0)
+                local pvTex = pv:CreateTexture(nil, "ARTWORK")
+                pvTex:SetAllPoints()
+                local okT = pcall(function()
+                    pvTex:SetTexture("Interface\\COMMON\\VoiceChat-Speaker")
+                end)
+                if not okT or not pvTex:GetTexture() then
+                    pvTex:SetColorTexture(RGB(ACCENT))
+                end
+                pvTex:SetVertexColor(0.85, 0.85, 0.85, 1)
+                pv:SetScript("OnEnter", function() pvTex:SetVertexColor(1.00, 0.85, 0.30, 1) end)
+                pv:SetScript("OnLeave", function() pvTex:SetVertexColor(0.85, 0.85, 0.85, 1) end)
+                pv:SetScript("OnClick", function() BIT.Media:PlayKickSound(soundName) end)
+
+                w[#w+1] = row
+            end
+        end
+    end
+
     -- ── Size & Font + Colors (merged in from the former top-level pages) ──
     -- Append the widget list produced by the helpers below. Each helper
     -- creates its own section headers, so they slot into this page's flow
@@ -6340,6 +6517,16 @@ local function BuildKeystoneList()
                 BIT.KeystoneList:OnSettingsChanged()
             end
         end)
+    w[#w+1] = CreateToggle(p, LS("KEY_SHOW_SCORE", "Show Mythic+ rating behind the name"),
+        function() return BIT.db.keystoneListShowScore ~= false end,
+        function(v)
+            BIT.db.keystoneListShowScore = v
+            if BIT.KeystoneList and BIT.KeystoneList.OnSettingsChanged then
+                BIT.KeystoneList:OnSettingsChanged()
+            end
+        end, nil, nil, nil, nil,
+        LS("KEY_SHOW_SCORE_TT",
+           "Reads the rating from RaiderIO when you have it installed, otherwise from the game itself. The game only knows the rating of players currently in your group, so rows for other characters stay without a number."))
     w[#w+1] = CreateToggle(p, LS("KEY_FORCE_ENGLISH", "Always use English dungeon names"),
         function() return BIT.db.keystoneListForceEnglish == true end,
         function(v)
@@ -8961,36 +9148,51 @@ function BIT.SettingsUI:CreateMinimapButton()
             end
             statusLine("鑰石清單", keyState)
 
-            -- Group roster: who is broadcasting spec data (LibSpec).
-            -- Members without it fall back to role/cache inference for
-            -- spec-gated Party CDs, so seeing who sends is genuinely
-            -- useful. PARTY ONLY: raids are excluded (too many rows,
-            -- and the party-CD features are 5-man focused anyway).
+            -- Group roster, one row per member with what we can reach
+            -- them through: this addon (they answered our presence
+            -- broadcast, which is what upcoming group features will
+            -- build on) and LibSpec (members without it fall back to
+            -- role/cache inference for spec-gated Party CDs).
+            -- PARTY ONLY: raids are excluded (too many rows, and the
+            -- party-CD features are 5-man focused anyway).
             if IsInGroup and IsInGroup() and not (IsInRaid and IsInRaid()) then
                 tt:AddLine(" ")
-                tt:AddLine("隊伍成員 (LibSpec)", 0.9, 0.9, 0.9)
+                tt:AddLine("隊伍成員", 0.9, 0.9, 0.9)
                 for _, unit in ipairs({ "player", "party1", "party2", "party3", "party4" }) do
                     if UnitExists(unit) then
                         local name = UnitName(unit)
-                        if type(name) == "string" and name ~= "" then
+                        -- 12.x hands out secret names inside instances.
+                        -- They cannot be used as a table key, so such a
+                        -- member is skipped rather than crashing here.
+                        if type(name) == "string" and name ~= ""
+                           and not (issecretvalue and issecretvalue(name)) then
                             local short = name:match("^([^%-]+)") or name
                             local _, cls = UnitClass(unit)
                             local cc = cls and RAID_CLASS_COLORS and RAID_CLASS_COLORS[cls]
                             local colored = (cc and cc.colorStr)
                                 and ("|c" .. cc.colorStr .. short .. "|r") or short
-                            local has
+                            local hasAddon, hasSpec
                             if unit == "player" then
-                                has = true   -- we embed the library ourselves
+                                -- Ourselves: both by definition, we embed
+                                -- the library and we are the addon.
+                                hasAddon, hasSpec = true, true
                             else
                                 local u = BIT.SyncCD and BIT.SyncCD.users
                                           and BIT.SyncCD.users[short]
-                                has = (u and u._hasLibSpec) and true or false
+                                hasAddon = (u and u._hasAddon)    and true or false
+                                hasSpec  = (u and u._hasLibSpec)  and true or false
                             end
-                            if has then
-                                tt:AddDoubleLine(colored, "是", 1, 1, 1, 0.30, 1.00, 0.30)
+                            local mark, r, g, b
+                            if hasAddon and hasSpec then
+                                mark, r, g, b = "插件 + LibSpec", 0.30, 1.00, 0.30
+                            elseif hasAddon then
+                                mark, r, g, b = "插件", 0.30, 1.00, 0.30
+                            elseif hasSpec then
+                                mark, r, g, b = "LibSpec", 1.00, 0.82, 0.00
                             else
-                                tt:AddDoubleLine(colored, "否", 1, 1, 1, 1.00, 0.35, 0.35)
+                                mark, r, g, b = "-", 0.55, 0.55, 0.60
                             end
+                            tt:AddDoubleLine(colored, mark, 1, 1, 1, r, g, b)
                         end
                     end
                 end

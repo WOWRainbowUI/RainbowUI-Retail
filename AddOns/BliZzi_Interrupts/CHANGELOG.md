@@ -1,10 +1,34 @@
+# BliZzi Party Tools 4.2.3
+
+## Added
+
+* Keystone list shows each character's Mythic+ rating in brackets behind the name, in its own rating colour. On by default, switchable under Keystone List, Display Options. Read from RaiderIO when installed, otherwise from the game, which only knows the rating of players currently in your group
+
+## Fixed
+
+* Keystone list threw "Font not set" when the group-invite banner appeared, for anyone whose saved font came from an addon they had since removed. The font was applied with no fallback, and the banner was the one place whose text had no built-in font to fall back to. It now falls back the same way the rest of the addon does
+
+# BliZzi Party Tools 4.2.2
+
+## Added
+
+* Own sound files. Put .ogg or .mp3 files into the addon's Media\Sounds folder and name one under Interrupts, Sounds, Own Sound Files. Typing sonar finds custom_sonar.ogg as well as sonar.ogg, and the sound then appears in every sound list of the addon, including the external cooldown alerts. As many files as you like. New files only count after a full game restart, a reload is not enough
+* /bitsound does the same from chat and says straight away whether a file was found, which separates a wrong file name from a wrong setting
+* The minimap tooltip's group list now shows who in your party is running this addon, alongside the LibSpec marker that was already there
+* /bitborder measures the solid border and reports any edge that does not land on a whole pixel
+
+## Fixed
+
+* Solid border: sides went missing after a reload for anyone running a custom UI Scale. Each edge is drawn one screen pixel thick, but it was measured before the game had applied that scale, leaving the edges a fraction of a pixel so they spread across two rows and faded out. They are now remeasured whenever the scale changes and once more after the world loads
+* Keystone list borders had the same trouble, from a second cause: they were drawn straight through the game's backdrop, which rounds each side on its own and left sides thin or missing at a fractional UI scale. They now go through the same path as the tracker's borders and are remeasured on a scale change too
+* Keystone list showed "Port CD" only on your own key while the other rows still claimed the teleport was ready. Dungeon teleports share one cooldown, so it now shows on every row you could port from
+
 # BliZzi Party Tools 4.2.1
 
 ## Fixed
 
 * Keystone list showed "no port" for every Season 2 dungeon even with the teleport learned: the stored teleport spells were the ones from the test realm, which the live patch had reassigned
 * New: /bitports prints, for each dungeon of the running season, whether its teleport is wired up correctly, and reads the right spell out of your spellbook when it is not
-
 * UI pack tooling reported this addon as edited when nothing had been configured: the profile export carried runtime data along with the settings, above all cached group-member talent data and which settings sections were folded open. The latter changes on its own, since opening the settings after an update records the new changelog entry. None of it is exported anymore
 * Profile exports no longer carry the debug switch or one-time first-run prompts, which could be forced onto whoever imported the pack
 * Same report from a second angle: for packs shipping several profiles, merely switching specs counted as an edit, because which profile is currently active was part of the comparison. It is still exported and still applied on import, it just no longer counts as a difference

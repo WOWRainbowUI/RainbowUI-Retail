@@ -736,6 +736,10 @@ BIT.DEFAULTS = {
     keystoneListPosX            = 200,      -- position X (BOTTOMLEFT anchor)
     keystoneListPosY            = 400,      -- position Y (BOTTOMLEFT anchor)
     keystoneListUseAbbreviation = false,    -- show "AD" instead of "Atal'Dazar"
+    -- Mythic+ rating in brackets behind the character name, in its own
+    -- rating colour. On by default: it is the number people look up
+    -- anyway, and it costs nothing when no rating can be resolved.
+    keystoneListShowScore       = true,
     keystoneListForceEnglish    = false,    -- force English dungeon names regardless of client/addon language
     keystoneListShowNoPort      = true,     -- show "no port" text when teleport spell unknown
     keystoneListShowResilient   = true,     -- show resilient-keystone icon

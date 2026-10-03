@@ -258,7 +258,7 @@ _cat("KEYSTONE_LIST", {
     "keystoneListLocked",
     "keystoneListPosX",
     "keystoneListPosY",
-    "keystoneListUseAbbreviation",
+    "keystoneListUseAbbreviation", "keystoneListShowScore",
     "keystoneListForceEnglish",
     "keystoneListShowNoPort",
     "keystoneListShowResilient",
