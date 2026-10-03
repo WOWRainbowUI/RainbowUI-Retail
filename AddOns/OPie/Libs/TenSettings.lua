@@ -524,7 +524,7 @@ do -- TenSettingsFrame
 		if parent == nil then
 			ci = container_new(name, panel, opts)
 			panel:SetParent(ci.f)
-			local cat = Settings.RegisterCanvasLayoutCategory(ci.canvas, name)
+			local cat = Settings.RegisterCanvasLayoutCategory(ci.canvas, opts and opts.settingsCategoryName or name)
 			ci.brID = cat.ID
 			Settings.RegisterAddOnCategory(cat)
 		else
