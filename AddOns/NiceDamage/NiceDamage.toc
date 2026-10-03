@@ -1,4 +1,4 @@
-## Interface: 120100, 120007, 50504, 38001, 20505, 11508
+## Interface: 120100, 50504, 38001, 20506, 16001, 11508
 
 ## Title: NiceDamage (Reloaded)
 ## Notes: NiceDamage font for your combat text.
@@ -15,7 +15,7 @@
 ## Category-zhCN: 战斗
 ## Category-zhTW: 戰鬥
 
-## Version: 2.5.1
+## Version: 3.1.3
 
 ## IconTexture: Interface\ICONS\Inv_knife_1H_Rogue_C_01
 
@@ -29,7 +29,10 @@
 ## X-Wago-ID: jK8gXX6y
 ## X-WoWI-ID: 27010
 
+## Dependencies: Ace3
+## OptionalDeps: SharedMedia_Rainbow
 ## SavedVariables: NiceDamageDBv1
+
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 美化戰鬥文字
 ## Notes-zhTW: NiceDamage (Reloaded) |n|n輕量化的魔獸世界戰鬥文字字型插件，主要功能是美化並自訂暴雪原生的傷害與治療數字顯示。它不會影響遊戲效能，適合希望提升戰鬥文字美觀度的玩家。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰鬥-文字，進行設定。

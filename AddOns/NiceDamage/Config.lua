@@ -17,7 +17,10 @@ function addon:GetOptions()
                         name = "啟用插件",
                         desc = "切換是否替換戰鬥文字字型。",
                         get = function() return self.db.profile.enabled end,
-                        set = function(_, v) self.db.profile.enabled = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.enabled = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 1,
                     },
                     minimap = {
@@ -25,7 +28,10 @@ function addon:GetOptions()
                         name = "顯示小地圖圖示",
                         desc = "切換小地圖按鈕顯示。",
                         get = function() return not self.db.global.minimap.hide end,
-                        set = function(_, v) self.db.global.minimap.hide = not v self:UpdateMinimapIcon() end,
+                        set = function(_, v) 
+                            self.db.global.minimap.hide = not v
+                            self:UpdateMinimapIcon() 
+                        end,
                         order = 2,
                     },
                 }
@@ -41,7 +47,10 @@ function addon:GetOptions()
                         name = "傷害數字",
                         desc = "套用字型到敵人頭頂的傷害與治療數字。|cFFFF0000(需要登出)|r",
                         get = function() return self.db.profile.updateWorldText end,
-                        set = function(_, v) self.db.profile.updateWorldText = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.updateWorldText = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 1,
                     },
                     ui = {
@@ -49,7 +58,10 @@ function addon:GetOptions()
                         name = "浮動戰鬥文字",
                         desc = "套用字型到你受到的傷害與浮動戰鬥文字。",
                         get = function() return self.db.profile.updateUiText end,
-                        set = function(_, v) self.db.profile.updateUiText = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.updateUiText = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 2,
                     },
                 }
@@ -73,40 +85,46 @@ function addon:GetOptions()
                         dialogControl = 'LSM30_Font',
                         values = LSM:HashTable("font"),
                         get = function() return self.db.profile.fontName end,
-                        set = function(_, v) self.db.profile.fontName = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.fontName = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 2,
                     },
                     fontSize = {
                         type = "range",
                         name = "傷害數字縮放 (世界)",
                         desc = "調整頭頂數字的縮放。預設 1.0。",
-                        min = 0.5,
-                        max = 5,
-                        step = 0.1,
+                        min = 0.5, max = 5, step = 0.1,
                         get = function() return self.db.profile.fontSize end,
-                        set = function(_, v) self.db.profile.fontSize = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.fontSize = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 3,
                     },
                     fontGravity = {
                         type = "range",
                         name = "傷害數字重力",
                         desc = "控制傷害數字下落速度。預設 0.5。",
-                        min = -10,
-                        max = 10,
-                        step = 0.5,
+                        min = -10, max = 10, step = 0.5,
                         get = function() return self.db.profile.fontGravity end,
-                        set = function(_, v) self.db.profile.fontGravity = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.fontGravity = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 4,
                     },
                     fontRampDuration = {
                         type = "range",
                         name = "傷害數字顯示時間",
                         desc = "控制傷害數字停留時間。預設 1.0。",
-                        min = 0.1,
-                        max = 3.0,
-                        step = 0.01,
+                        min = 0.1, max = 3.0, step = 0.01,
                         get = function() return self.db.profile.fontRampDuration end,
-                        set = function(_, v) self.db.profile.fontRampDuration = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.fontRampDuration = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 5,
                     },
                 },
@@ -124,7 +142,10 @@ function addon:GetOptions()
                         dialogControl = 'LSM30_Font',
                         values = LSM:HashTable("font"),
                         get = function() return self.db.profile.uiFont end,
-                        set = function(_, v) self.db.profile.uiFont = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.uiFont = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 1,
                     },
                     fontOutline = {
@@ -137,7 +158,10 @@ function addon:GetOptions()
                             ["THICKOUTLINE"] = "粗外框",
                         },
                         get = function() return self.db.profile.uiOutline or "OUTLINE" end,
-                        set = function(_, v) self.db.profile.uiOutline = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.uiOutline = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 2,
                     },
                     uiMonochrome = {
@@ -145,18 +169,22 @@ function addon:GetOptions()
                         name = "單色 (無消除鋸齒)",
                         desc = "停用消除鋸齒 (移除字型平滑)。適合像素字型。",
                         get = function() return self.db.profile.uiMonochrome end,
-                        set = function(_, v) self.db.profile.uiMonochrome = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.uiMonochrome = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 3,
                     },
                     uiShadowOffset = {
                         type = "range",
                         name = "陰影偏移",
                         desc = "設定字型陰影距離。0 為關閉。",
-                        min = 0,
-                        max = 10,
-                        step = 1,
+                        min = 0, max = 10, step = 1,
                         get = function() return self.db.profile.uiShadowOffset end,
-                        set = function(_, v) self.db.profile.uiShadowOffset = v self:ApplySystemFonts() end,
+                        set = function(_, v) 
+                            self.db.profile.uiShadowOffset = v
+                            self:ApplySystemFonts() 
+                        end,
                         order = 4,
                     },
                 }

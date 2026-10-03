@@ -16,7 +16,7 @@ function addon:OnInitialize()
     -- Note: SavedVariables name must match the .toc file
     self.db = LibStub("AceDB-3.0"):New(addonName .. "DBv1", {
         global = { 
-            minimap = { hide = true } 
+            minimap = { hide = true },
         },
         profile = {
             enabled = true,
@@ -42,10 +42,10 @@ function addon:OnInitialize()
     self.ldb = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
         type = "launcher",
         icon = "Interface\\Icons\\INV_Scroll_03",
-        label = "NiceDamage (Reloaded)",
+        label = "美化戰鬥文字",
         OnTooltipShow = function(tooltip)
-            tooltip:AddLine("NiceDamage (Reloaded)")
-            tooltip:AddLine("|cff888888Click to open settings|r")
+            tooltip:AddLine("美化戰鬥文字")
+            tooltip:AddLine("|cff888888點擊開啟設定|r")
         end,
         OnClick = function() self:OpenConfig() end,
     })
@@ -60,7 +60,7 @@ function addon:OnInitialize()
     -- Add the options to the Blizzard Settings menu
     -- We use the full name here for the display label in the menu
     frame, categoryId = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, "戰鬥-文字", nil)
-	NiceDamageDBv1.categoryID = categoryId -- 自行修改
+    NiceDamageDBv1.categoryID = categoryId -- 彩虹 UI 插件控制台使用
 
     -- Register chat commands for easy access
     self:RegisterChatCommand("nd", "OpenConfig")
