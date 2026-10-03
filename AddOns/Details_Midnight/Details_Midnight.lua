@@ -182,7 +182,7 @@ local styleConfig = {
     headerTexCoordBottom = 56 / 60,
 
     -- Row controls.
-    barFontSize = 14,
+    barFontSize = 12,
     rowSpaceLeft = 5,
     rowSpaceRight = -5,
     defaultIconOffset = {-30, 0},
@@ -587,6 +587,7 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
                 font_face = "Friz Quadrata TT",
                 font_face_file = "Fonts\\FRIZQT__.TTF",
                 font_size = styleConfig.barFontSize,
+                texts = {[1] = {font = {size = 14}}},
                 text_yoffset = 0,
 
                 textL_show_number = true,
