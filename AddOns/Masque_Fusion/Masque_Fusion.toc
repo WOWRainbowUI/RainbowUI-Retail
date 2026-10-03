@@ -1,8 +1,7 @@
 ## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100, 120007
-
 ## Author: StormFX
 ## Title: Masque: Fusion
-## Version: 12.0.7
+## Version: 12.1.0
 
 ## Category: Masque
 ## Dependencies: Masque
@@ -31,7 +30,6 @@
 ## Notes-zhTW: Masque: Fusion|n|n較大的銀白色金屬按鈕外觀佈景主題。
 ## DefaultState: disabled
 ## Category-zhTW: 介面
-
 # Locales
 Locales.lua
 
