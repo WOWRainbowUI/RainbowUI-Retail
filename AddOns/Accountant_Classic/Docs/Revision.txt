@@ -1,10 +1,17 @@
-﻿$Id: Revision.txt 420 2026-09-19 08:16:47Z arithmandar $
+﻿$Id: Revision.txt 427 2026-09-28 10:20:55Z arithmandar $
 Known Issue(s):
 ===============
 - Some incomes were categorized into Unknown instead of corresponding group.
 
 Revision History:
 =================
+
+* v2.21.01 (Sep. 28, 2026)
+==========================
+- Revised and enhanced the WoW version'd detection
+- Handles the secondary name that brought in from Forever client, now we can tell the character's income properly
+- Function name style change
+- Prevents errors when viewing characters whose saved data lacks newer log-type or period entries
 
 * v2.21.00 (Sep. 19, 2026)
 ==========================

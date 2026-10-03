@@ -1,5 +1,5 @@
 --[[
-$Id: MoneyFrame.lua 417 2026-09-18 13:14:54Z arithmandar $
+$Id: MoneyFrame.lua 425 2026-09-28 05:30:43Z arithmandar $
 ]]-----------------------------------------------------------------------
 -- Upvalued Lua API.
 -----------------------------------------------------------------------
@@ -9,36 +9,27 @@ local unpack = _G.unpack
 local GetBuildInfo = _G.GetBuildInfo
 
 -- Determine WoW client family
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWClassicCata, WoWClassicMists, WoWRetail
-local projectID = _G.WOW_PROJECT_ID
-if projectID == _G.WOW_PROJECT_MAINLINE then
-	WoWRetail = true
-elseif projectID == _G.WOW_PROJECT_CLASSIC then
-	WoWClassicEra = true
-elseif projectID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
-	WoWClassicTBC = true
-elseif projectID == _G.WOW_PROJECT_WRATH_CLASSIC then
-	WoWWOTLKC = true
-elseif projectID == _G.WOW_PROJECT_CATACLYSM_CLASSIC then
-	WoWClassicCata = true
-elseif projectID == _G.WOW_PROJECT_MISTS_CLASSIC then
-	WoWClassicMists = true
-else
-	local wowversion = select(4, GetBuildInfo())
-	if wowversion < 20000 then
-		WoWClassicEra = true
-	elseif wowversion < 30000 then
-		WoWClassicTBC = true
-	elseif wowversion < 40000 then
-		WoWWOTLKC = true
-	elseif wowversion < 90000 then
-		WoWClassicCata = true
-	elseif wowversion > 90000 then
-		WoWRetail = true
-	end
-end
+local _, _, _, interfaceVersion = GetBuildInfo()
+local projectID = WOW_PROJECT_ID
 
-local WoWClassicFamily = WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWClassicCata or WoWClassicMists
+local PROJECT_MAINLINE = WOW_PROJECT_MAINLINE
+local PROJECT_CLASSIC = WOW_PROJECT_CLASSIC
+local PROJECT_TBC = WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+local PROJECT_CATA = WOW_PROJECT_CATACLYSM_CLASSIC
+local PROJECT_MISTS = WOW_PROJECT_MISTS_CLASSIC
+
+-- Beta-only fallback:
+-- Replace these bounds with values verified from the actual Forever client.
+local isForeverBeta = projectID == PROJECT_MAINLINE and interfaceVersion >= 10000 and interfaceVersion < 20000
+
+local isRetail = projectID == PROJECT_MAINLINE and not isForeverBeta
+local isClassicEra = projectID == PROJECT_CLASSIC
+local isAnniversaryTBC = PROJECT_TBC ~= nil and projectID == PROJECT_TBC
+local isCataclysmClassic = PROJECT_CATA ~= nil and projectID == PROJECT_CATA
+local isMistsClassic = PROJECT_MISTS ~= nil and projectID == PROJECT_MISTS
+local isProgressionClassic = isCataclysmClassic or isMistsClassic
+local isClassicForever = isForeverBeta
+local isAnyClassic = isClassicEra or isAnniversaryTBC or isProgressionClassic
 
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
@@ -90,7 +81,7 @@ local function frame_OnEnter(self)
 	end
 
 	local tooltip
-	if (WoWClassicFamily) then
+	if (isAnyClassic) then
 		tooltip = GameTooltip
 	else -- Retail
 		tooltip = GetAppropriateTooltip()
@@ -126,7 +117,7 @@ local function createMoneyFrame()
 	
 	f:SetWidth(160)
 	f:SetHeight(21)
-	local point, relativeTo, relativePoint, ofsx, ofsy = unpack(addon.db.profile.MnyFramePoint)
+	local point, _, relativePoint, ofsx, ofsy = unpack(addon.db.profile.MnyFramePoint)
 	f:SetPoint(point or "TOPLEFT", UIParent, relativePoint or "TOPLEFT", ofsx or 10, ofsy or -80)
 	f:SetClampedToScreen(true)
 	f:SetMovable(true)
@@ -170,7 +161,7 @@ end
 function MoneyFrame:ArrangeMoneyInfoFrame()
 	self.frame:SetScale(profile.infoscale or 1)
 	self.frame:SetAlpha(profile.infoalpha or 1)
-	local point, relativeTo, relativePoint, ofsx, ofsy = unpack(profile.MnyFramePoint)
+	local point, _, relativePoint, ofsx, ofsy = unpack(profile.MnyFramePoint)
 	self.frame:ClearAllPoints()
 	self.frame:SetParent(UIParent)
 	self.frame:SetPoint(point or "TOPLEFT", nil, relativePoint or "TOPLEFT", ofsx or 10, ofsy or -80)

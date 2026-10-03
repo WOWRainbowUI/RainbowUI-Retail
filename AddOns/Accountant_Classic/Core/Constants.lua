@@ -9,37 +9,27 @@ local GetBuildInfo = _G.GetBuildInfo
 -- Libraries
 
 -- Determine WoW client family
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWClassicCata, WoWClassicMists, WoWRetail
-local projectID = _G.WOW_PROJECT_ID
-if projectID == _G.WOW_PROJECT_MAINLINE then
-	WoWRetail = true
-elseif projectID == _G.WOW_PROJECT_CLASSIC then
-	WoWClassicEra = true
-elseif projectID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
-	WoWClassicTBC = true
-elseif projectID == _G.WOW_PROJECT_WRATH_CLASSIC then
-	WoWWOTLKC = true
-elseif projectID == _G.WOW_PROJECT_CATACLYSM_CLASSIC then
-	WoWClassicCata = true
-elseif projectID == _G.WOW_PROJECT_MISTS_CLASSIC then
-	WoWClassicMists = true
-else
-	local wowversion = select(4, GetBuildInfo())
-	if wowversion < 20000 then
-		WoWClassicEra = true
-	elseif wowversion < 30000 then
-		WoWClassicTBC = true
-	elseif wowversion < 40000 then
-		WoWWOTLKC = true
-	elseif wowversion < 90000 then
-		WoWClassicCata = true
-	elseif wowversion > 90000 then
-		WoWRetail = true
-	end
-end
+local _, _, _, interfaceVersion = GetBuildInfo()
+local projectID = WOW_PROJECT_ID
 
-local WoWClassicFamily = WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWClassicCata or WoWClassicMists
+local PROJECT_MAINLINE = WOW_PROJECT_MAINLINE
+local PROJECT_CLASSIC = WOW_PROJECT_CLASSIC
+local PROJECT_TBC = WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+local PROJECT_CATA = WOW_PROJECT_CATACLYSM_CLASSIC
+local PROJECT_MISTS = WOW_PROJECT_MISTS_CLASSIC
 
+-- Beta-only fallback:
+-- Replace these bounds with values verified from the actual Forever client.
+local isForeverBeta = projectID == PROJECT_MAINLINE and interfaceVersion >= 10000 and interfaceVersion < 20000
+
+local isRetail = projectID == PROJECT_MAINLINE and not isForeverBeta
+local isClassicEra = projectID == PROJECT_CLASSIC
+local isAnniversaryTBC = PROJECT_TBC ~= nil and projectID == PROJECT_TBC
+local isCataclysmClassic = PROJECT_CATA ~= nil and projectID == PROJECT_CATA
+local isMistsClassic = PROJECT_MISTS ~= nil and projectID == PROJECT_MISTS
+local isProgressionClassic = isCataclysmClassic or isMistsClassic
+local isClassicForever = isForeverBeta
+local isAnyClassic = isClassicEra or isAnniversaryTBC or isProgressionClassic
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
@@ -89,68 +79,39 @@ constants.defaults = {
 }
 
 constants.logmodes = {"Session", "Day", "PrvDay", "Week", "PrvWeek", "Month", "PrvMonth", "Year", "PrvYear", "Total" }
+constants.months = { MONTH_JANUARY, MONTH_FEBRUARY, MONTH_MARCH, MONTH_APRIL, MONTH_MAY, MONTH_JUNE, MONTH_JULY, MONTH_AUGUST, MONTH_SEPTEMBER, MONTH_OCTOBER, MONTH_NOVEMBER, MONTH_DECEMBER }
 
-if (WoWClassicFamily) then 
+constants.eventLogTypes = {
+	GUILDBANKFRAME_OPENED = "GUILD",
+	GUILDBANK_UPDATE_MONEY = "GUILD",
+	GUILDBANK_UPDATE_WITHDRAWMONEY = "GUILD",
+	GUILDBANKFRAME_CLOSED = "",
+	LFG_COMPLETION_REWARD = "LFG",
+	BARBER_SHOP_APPEARANCE_APPLIED = "",
+	BARBER_SHOP_OPEN = "BARBER",
+	BARBER_SHOP_CLOSE = "",
+	BARBER_SHOP_RESULT = "BARBER",
+	BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE = "BARBER",
+	BARBER_SHOP_COST_UPDATE = "BARBER",
+	TRANSMOGRIFY_OPEN = "TRANSMO",
+	TRANSMOGRIFY_CLOSE = "",
+	MERCHANT_SHOW = "MERCH",
+	MERCHANT_CLOSED = "",
+	TAXIMAP_OPENED = "TAXI",
+	LOOT_OPENED = "LOOT",
+	TRADE_SHOW = "TRADE",
+	TRADE_CLOSED = "",
+	QUEST_COMPLETE = "QUEST",
+	QUEST_TURNED_IN = "QUEST",
+	TRAINER_SHOW = "TRAIN",
+	TRAINER_CLOSED = "",
+	CONFIRM_TALENT_WIPE = "TRAIN",
+	AUCTION_HOUSE_SHOW = "AH",
+	AUCTION_HOUSE_CLOSED = "",
+}
+
+if (isAnyClassic) then 
 	constants.events = {
-		-- Talent
-		"CONFIRM_TALENT_WIPE",
-		-- Merchant
-		"MERCHANT_SHOW",
-		"MERCHANT_CLOSED",
-		"MERCHANT_UPDATE",
-		-- Quest
-		"QUEST_COMPLETE",
-		"QUEST_FINISHED",
-		"QUEST_TURNED_IN",
-		-- Loot
-		"LOOT_OPENED",
-		"LOOT_CLOSED",
-		-- Taxi
-		"TAXIMAP_OPENED",
-		"TAXIMAP_CLOSED",
-		-- Trade
-		"TRADE_SHOW",
-		"TRADE_CLOSED",
-		-- Mail
-		"MAIL_INBOX_UPDATE",
-		"MAIL_SHOW",
-		"MAIL_CLOSED",
-		-- Trainer
-		"TRAINER_SHOW",
-		"TRAINER_CLOSED",
-		-- AH
-		"AUCTION_HOUSE_SHOW",
-		"AUCTION_HOUSE_CLOSED",
-		-- Others
-		"CHAT_MSG_MONEY",
-		"PLAYER_MONEY",
-	}
-	constants.logtypes = {
-		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER" 
-	}
-	constants.onlineData = {
-		["TRAIN"] = 	{ Title = L["Training Costs"]};
-		["TAXI"] = 	{ Title = L["Taxi Fares"]};
-		["TRADE"] = 	{ Title = L["Trade Window"]};
-		["AH"] = 	{ Title = AUCTIONS};
-		["MERCH"] = 	{ Title = L["Merchants"]};
-		["REPAIRS"] = 	{ Title = L["Repair Costs"]};
-		["MAIL"] = 	{ Title = L["Mail"]};
-		["QUEST"] = 	{ Title = QUESTS_LABEL};
-		["LOOT"] = 	{ Title = LOOT};
-		["OTHER"] = 	{ Title = L["Unknown"]};
-	}
-else
-	constants.events = {
-		-- Garrison
-		"GARRISON_MISSION_FINISHED",
-		"GARRISON_ARCHITECT_OPENED",
-		"GARRISON_ARCHITECT_CLOSED",
-		"GARRISON_MISSION_NPC_OPENED",
-		"GARRISON_MISSION_NPC_CLOSED",
-		"GARRISON_SHIPYARD_NPC_OPENED",
-		"GARRISON_SHIPYARD_NPC_CLOSED",
-		"GARRISON_UPDATE",
 		-- Barber shop
 		"BARBER_SHOP_APPEARANCE_APPLIED",
 		"BARBER_SHOP_OPEN",
@@ -160,10 +121,7 @@ else
 		"BARBER_SHOP_COST_UPDATE",
 		-- LFG
 		"LFG_COMPLETION_REWARD",
-		-- VOID -- removed after 10.0.0
-		-- "VOID_STORAGE_OPEN",
-		-- "VOID_STORAGE_CLOSE",
-		-- Transform
+		-- Transmogrify
 		"TRANSMOGRIFY_OPEN",
 		"TRANSMOGRIFY_CLOSE",
 		-- Guild
@@ -192,8 +150,6 @@ else
 		"TRADE_CLOSED",
 		-- Mail
 		"MAIL_INBOX_UPDATE",
-		"MAIL_SHOW",
-		"MAIL_CLOSED",
 		-- Trainer
 		"TRAINER_SHOW",
 		"TRAINER_CLOSED",
@@ -205,27 +161,113 @@ else
 		"PLAYER_MONEY",
 	}
 	constants.logtypes = {
-	--	"VOID", 
 		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD",
 		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER" 
 	}
 	constants.onlineData = {
-	--	["VOID"] =  	{ Title = VOID_STORAGE};
 		["TRANSMO"] =	{ Title = TRANSMOGRIFY};
-		["GARRISON"] =	{ Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS };
-		["LFG"] =	{ Title = L["LFD, LFR and Scen."]};
+		["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
 		["BARBER"] =	{ Title = BARBERSHOP};
-		["GUILD"] =	{ Title = GUILD};
-
+		["GUILD"] =		{ Title = GUILD};
 		["TRAIN"] = 	{ Title = L["Training Costs"]};
-		["TAXI"] = 	{ Title = L["Taxi Fares"]};
+		["TAXI"] = 		{ Title = L["Taxi Fares"]};
 		["TRADE"] = 	{ Title = L["Trade Window"]};
-		["AH"] = 	{ Title = AUCTIONS};
+		["AH"] = 		{ Title = AUCTIONS};
 		["MERCH"] = 	{ Title = L["Merchants"]};
 		["REPAIRS"] = 	{ Title = L["Repair Costs"]};
-		["MAIL"] = 	{ Title = L["Mail"]};
+		["MAIL"] = 		{ Title = L["Mail"]};
 		["QUEST"] = 	{ Title = QUESTS_LABEL};
-		["LOOT"] = 	{ Title = LOOT};
+		["LOOT"] = 		{ Title = LOOT};
+		["OTHER"] = 	{ Title = L["Unknown"]};
+	}
+else
+	constants.events = {
+		-- Garrison
+		"GARRISON_MISSION_FINISHED",
+		"GARRISON_ARCHITECT_OPENED",
+		"GARRISON_ARCHITECT_CLOSED",
+		"GARRISON_MISSION_NPC_OPENED",
+		"GARRISON_MISSION_NPC_CLOSED",
+		"GARRISON_SHIPYARD_NPC_OPENED",
+		"GARRISON_SHIPYARD_NPC_CLOSED",
+		"GARRISON_UPDATE",
+		-- Barber shop
+		"BARBER_SHOP_APPEARANCE_APPLIED",
+		"BARBER_SHOP_OPEN",
+		"BARBER_SHOP_CLOSE",
+		"BARBER_SHOP_RESULT",
+		"BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE",
+		"BARBER_SHOP_COST_UPDATE",
+		-- LFG
+		"LFG_COMPLETION_REWARD",
+		-- Transmogrify
+		"TRANSMOGRIFY_OPEN",
+		"TRANSMOGRIFY_CLOSE",
+		-- Guild
+		"GUILDBANKFRAME_OPENED",
+		"GUILDBANKFRAME_CLOSED",
+		"GUILDBANK_UPDATE_MONEY",
+		"GUILDBANK_UPDATE_WITHDRAWMONEY",
+		-- Talent
+		"CONFIRM_TALENT_WIPE",
+		-- Merchant
+		"MERCHANT_SHOW",
+		"MERCHANT_CLOSED",
+		"MERCHANT_UPDATE",
+		-- Quest
+		"QUEST_COMPLETE",
+		"QUEST_FINISHED",
+		"QUEST_TURNED_IN",
+		-- Loot
+		"LOOT_OPENED",
+		"LOOT_CLOSED",
+		-- Taxi
+		"TAXIMAP_OPENED",
+		"TAXIMAP_CLOSED",
+		-- Trade
+		"TRADE_SHOW",
+		"TRADE_CLOSED",
+		-- Mail
+		"MAIL_INBOX_UPDATE",
+		-- Trainer
+		"TRAINER_SHOW",
+		"TRAINER_CLOSED",
+		-- AH
+		"AUCTION_HOUSE_SHOW",
+		"AUCTION_HOUSE_CLOSED",
+		-- Others
+		"CHAT_MSG_MONEY",
+		"PLAYER_MONEY",
+	}
+	constants.eventLogTypes.GARRISON_MISSION_FINISHED = "GARRISON"
+	constants.eventLogTypes.GARRISON_UPDATE = "GARRISON"
+	constants.eventLogTypes.GARRISON_ARCHITECT_OPENED = "GARRISON"
+	constants.eventLogTypes.GARRISON_MISSION_NPC_OPENED = "GARRISON"
+	constants.eventLogTypes.GARRISON_SHIPYARD_NPC_OPENED = "GARRISON"
+	constants.eventLogTypes.GARRISON_ARCHITECT_CLOSED = ""
+	constants.eventLogTypes.GARRISON_MISSION_NPC_CLOSED = ""
+	constants.eventLogTypes.GARRISON_SHIPYARD_NPC_CLOSED = ""
+
+	constants.logtypes = {
+		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD",
+		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER" 
+	}
+	constants.onlineData = {
+		["TRANSMO"] =	{ Title = TRANSMOGRIFY};
+		["GARRISON"] =	{ Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS };
+		["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
+		["BARBER"] =	{ Title = BARBERSHOP};
+		["GUILD"] =		{ Title = GUILD};
+
+		["TRAIN"] = 	{ Title = L["Training Costs"]};
+		["TAXI"] = 		{ Title = L["Taxi Fares"]};
+		["TRADE"] = 	{ Title = L["Trade Window"]};
+		["AH"] = 		{ Title = AUCTIONS};
+		["MERCH"] = 	{ Title = L["Merchants"]};
+		["REPAIRS"] = 	{ Title = L["Repair Costs"]};
+		["MAIL"] = 		{ Title = L["Mail"]};
+		["QUEST"] = 	{ Title = QUESTS_LABEL};
+		["LOOT"] = 		{ Title = LOOT};
 		["OTHER"] = 	{ Title = L["Unknown"]};
 	}
 end
@@ -263,8 +305,6 @@ constants.tabTooltipText = {
 	L["TT10"],
 	L["TT11"],
 }
-
-
 
 -- Maximum lines for characters to be displayed. 
 -- We have 18 lines of space but we are using the 18th line to present the total. 
