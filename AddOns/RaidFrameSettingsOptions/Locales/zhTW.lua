@@ -132,6 +132,19 @@ L["raid_profile"] = "團隊"
 L["arena_profile"] = "競技場"
 L["battleground_profile"] = "戰場"
 
+-- Import / Export
+L["export_profile"] = "匯出設定檔"
+L["import_profile"] = "匯入設定檔"
+L["label_export"] = "分享"
+L["label_import"] = "匯入"
+L["import_hint"] = "在下方貼上一個匯入字串並點擊匯入。"
+L["export_hint"] = "按下 Ctrl+A 來全選，然後 Ctrl+C 來複製。"
+L["import_empty_string_error"] = "匯入失敗: 輸入為空。"
+L["import_decoding_failed_error"] = "匯入失敗: 無法解析字串。"
+L["import_decompression_failed_error"] = "匯入失敗: 無法解壓縮數據。"
+L["import_deserialization_failed_error"] = "匯入失敗: 數據無效。"
+L["import_success"] = "設定檔已成功匯入。"
+
 -- Labels
 L["label_create"] = "建立"
 L["label_reset"] = "重置"
