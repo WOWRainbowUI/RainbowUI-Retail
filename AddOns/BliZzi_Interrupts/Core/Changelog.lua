@@ -21,6 +21,27 @@
 BIT = BIT or {}
 BIT.CHANGELOG = {
     {
+        version = "4.2.3",
+        date    = "2026-08-31",
+        bullets = {
+            "Added: the keystone list shows each character's Mythic+ rating in brackets behind the name, in its own rating colour. On by default, switchable under Keystone List, Display Options. Read from RaiderIO when installed, otherwise from the game, which only knows the rating of players currently in your group.",
+            "Fixed: the keystone list threw 'Font not set' when the group-invite banner appeared, for anyone whose saved font came from an addon they had since removed. The font was applied with no fallback, and the banner was the one place whose text had no built-in font to fall back to.",
+        },
+    },
+    {
+        version = "4.2.2",
+        date    = "2026-08-30",
+        bullets = {
+            "Added: own sound files. Put .ogg or .mp3 files into the addon's Media\\Sounds folder and name one under Interrupts, Sounds, Own Sound Files. Typing sonar finds custom_sonar.ogg as well as sonar.ogg, and the sound then shows up in every sound list of the addon. As many files as you like. New files only count after a full game restart, a reload is not enough.",
+            "Added: /bitsound does the same from chat and says straight away whether a file was found, which separates a wrong file name from a wrong setting.",
+            "Added: the minimap tooltip's group list now shows who in your party is running this addon, alongside the LibSpec marker that was already there.",
+            "Added: /bitborder measures the solid border and reports any edge that does not land on a whole pixel.",
+            "Fixed: solid border sides went missing after a reload for anyone running a custom UI Scale. Each edge is drawn one screen pixel thick, but it was measured before the game had applied that scale, leaving the edges a fraction of a pixel so they spread across two rows and faded out. They are now remeasured whenever the scale changes.",
+            "Fixed: keystone list borders had the same trouble, from a second cause. They were drawn straight through the game's backdrop, which rounds each side on its own and left sides thin or missing at a fractional UI scale. They now go through the same path as the tracker's borders.",
+            "Fixed: the keystone list showed 'Port CD' only on your own key while the other rows still claimed the teleport was ready. Dungeon teleports share one cooldown, so it now shows on every row you could port from.",
+        },
+    },
+    {
         version = "4.2.1",
         date    = "2026-08-11",
         bullets = {

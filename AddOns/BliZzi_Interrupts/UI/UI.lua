@@ -1255,6 +1255,16 @@ local function ApplyBorderTexture(overlay, path, size, r, g, b, a)
     end
 end
 
+-- Public entry to the dispatcher above, for modules that manage their own
+-- border overlay and their own size/offset settings but want the same
+-- rendering. Anything drawing a Solid border through SetBackdrop directly
+-- inherits the client's per-side rounding, which at a fractional UI scale
+-- leaves sides a pixel thin or missing entirely — the caller only has to
+-- position the overlay and hand it over.
+function BIT.UI:ApplyBorderTextureTo(overlay, path, size, r, g, b, a)
+    ApplyBorderTexture(overlay, path, size, r, g, b, a)
+end
+
 function BIT.UI:ApplyBorderToFrame(f)
     if not f then return end
     local db   = BIT.db
@@ -1426,13 +1436,53 @@ end
 -- changes: their per-side thickness is computed in physical pixels, so it must
 -- be recomputed when the scale that maps UI units to pixels moves. Decorative
 -- edgeFile borders are unaffected by the re-run (harmless no-op for them).
+--
+-- The scale that matters is UIParent's, not ours. A player running a custom
+-- UI Scale has it applied to UIParent AFTER this addon has already built its
+-- frames: at build time UIParent still reports the resolution's default, so
+-- the edges get sized for that and are never remeasured. On a 1080p screen
+-- with UI Scale 0.62 that leaves each edge at 0.87 physical pixels, spread
+-- across two pixel rows at partial opacity — the "some sides of the border
+-- are missing after a reload" report. UI_SCALE_CHANGED does not reliably
+-- cover it, since the change can land before this frame exists.
+--
+-- So three nets, cheapest first: the events below, a hook on UIParent's own
+-- SetScale that catches the moment exactly, and a deferred pass after the
+-- world loads for anything that settled before the hook was installed.
 do
+    local function reapply()
+        if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
+        -- The keystone list draws its own border overlay through the same
+        -- dispatcher, so its edges are measured in physical pixels too and
+        -- need the identical re-measure after a scale change.
+        if BIT.KeystoneList and BIT.KeystoneList.OnSettingsChanged then
+            pcall(BIT.KeystoneList.OnSettingsChanged, BIT.KeystoneList)
+        end
+    end
+
     local watcher = CreateFrame("Frame")
     watcher:RegisterEvent("UI_SCALE_CHANGED")
     watcher:RegisterEvent("DISPLAY_SIZE_CHANGED")
-    watcher:SetScript("OnEvent", function()
-        if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
+    watcher:RegisterEvent("PLAYER_ENTERING_WORLD")
+    watcher:SetScript("OnEvent", function(_, event)
+        if event == "PLAYER_ENTERING_WORLD" then
+            -- Deferred: Blizzard's own scale pass can still be pending on
+            -- this frame. Two staggered runs cover both the immediate case
+            -- and a late one without polling.
+            C_Timer.After(0, reapply)
+            C_Timer.After(1, reapply)
+            return
+        end
+        reapply()
     end)
+
+    -- Exact catch: fires the instant anything rescales UIParent, including
+    -- the game applying the saved UI Scale during load.
+    if hooksecurefunc and UIParent then
+        hooksecurefunc(UIParent, "SetScale", function()
+            reapply()
+        end)
+    end
 end
 
 ------------------------------------------------------------
@@ -3240,5 +3290,109 @@ function AI:_ApplyBorderToAll()
         if ctx.frame then
             BIT.UI:ApplyBorderToFrame(ctx.frame)
         end
+    end
+end
+
+------------------------------------------------------------
+-- /bitborder — pixel-perfect border measurement
+--
+-- The Solid border draws four explicit edge textures whose thickness is
+-- computed in PHYSICAL pixels: one screen pixel is (768 / screenHeight)
+-- UI units, divided by the frame's effective scale. Pixel-grid snapping is
+-- switched off for those textures, which is what makes an exact 1px edge
+-- possible — and what makes the result sensitive to where the frame sits.
+-- An edge whose thickness or position lands between two physical pixel
+-- rows can render at partial intensity or vanish entirely, which shows up
+-- as "some sides of the border are missing".
+--
+-- Reading the numbers: `edge` is the intended thickness in UI units and
+-- `edge*es*physH/768` converts it back to physical pixels — that value
+-- should land on a whole number. `y` is the texture's bottom edge in
+-- physical pixels; a fraction there means the edge straddles two rows.
+-- Run this right after a reload, then again after nudging Border Size,
+-- and compare: whatever differs is the cause.
+------------------------------------------------------------
+SLASH_BITBORDER1 = "/bitborder"
+SlashCmdList["BITBORDER"] = function()
+    local function C(hex, s) return "|cff" .. hex .. tostring(s) .. "|r" end
+    print(C("0091ed", "BliZzi") .. " " .. C("ffa300", "Party Tools")
+          .. " " .. C("aaaaaa", "[border]") .. " ─────────────")
+
+    local _, physH = GetPhysicalScreenSize()
+    print(("  physical screen height: %s   border texture: %s   size: %s   inward: %s")
+        :format(tostring(physH),
+                tostring(BIT.db and BIT.db.borderTextureName),
+                tostring(BIT.db and BIT.db.borderSize),
+                tostring(BIT.db and BIT.db.borderInward)))
+
+    -- The scale chain, broken out. An effective scale on its own cannot say
+    -- WHERE a wrong value came from: UIParent scaled by the game's UI Scale
+    -- setting and our own frame scale multiply into the same number. Which
+    -- of the two moved after the border was measured decides where the fix
+    -- belongs, so print each link separately.
+    local uiScale = UIParent:GetEffectiveScale()
+    local mf      = BIT.UI.mainFrame
+    local mfScale = mf and mf:GetScale() or 1
+    print(("  UIParent effScale=%.4f   mainFrame scale=%.4f   db.frameScale=%s%%   product=%.4f")
+        :format(uiScale, mfScale, tostring(BIT.db and BIT.db.frameScale or 100),
+                uiScale * mfScale))
+    print(("  pixel-perfect UIParent for this screen would be %.4f  (768/%d)")
+        :format(768 / (physH or 768), physH or 768))
+
+    local shown = 0
+    for i = 1, 7 do
+        local f = bars[i]
+        local ov = f and f.borderOverlay
+        local e  = ov and ov._ppEdges
+        if f and f:IsShown() and e then
+            shown = shown + 1
+            local es = ov:GetEffectiveScale() or 1
+            -- UI units -> physical pixels
+            local function toPx(v) return v * es * (physH or 768) / 768 end
+            -- What the border SHOULD be at the scale in force right now,
+            -- next to what is actually set. A gap means the border was
+            -- measured at some other scale and never recomputed.
+            local wantPx = (768 / (physH or 768)) / es
+            local haveUI = e.T:GetHeight() or 0
+            print(("  bar %d  effScale=%.4f  onePixel(now)=%.4f UI  set=%.4f UI  %s")
+                :format(i, es, wantPx, haveUI,
+                        math.abs(wantPx - haveUI) > 0.001
+                            and C("ff8888", "STALE — measured at a different scale")
+                            or  C("88ffaa", "current")))
+            for _, k in ipairs({ "T", "B", "L", "R" }) do
+                local t = e[k]
+                local thick = (k == "T" or k == "B") and t:GetHeight() or t:GetWidth()
+                local _, yUI = t:GetCenter()
+                local px = toPx(thick or 0)
+                -- Whole number = lands on the grid; a fraction is the problem.
+                local frac = math.abs(px - math.floor(px + 0.5))
+                print(("     %s thick=%.4f UI = %s px%s  shown=%s  alpha=%.2f"):format(
+                    k, thick or -1,
+                    C(frac > 0.05 and "ff8888" or "88ffaa", ("%.3f"):format(px)),
+                    frac > 0.05 and C("ff8888", "  <- NOT A WHOLE PIXEL") or "",
+                    tostring(t:IsShown()),
+                    t:GetAlpha() or -1))
+                -- Alignment is about where the texture's EDGE falls, not its
+                -- centre: a 1px line is aligned when its centre sits on a
+                -- half pixel, a 2px line when it sits on a whole one. Testing
+                -- the centre against whole numbers alone flags every odd
+                -- thickness as broken, which is exactly what it used to do.
+                -- Informational either way — a line off the grid renders
+                -- split across two rows, which at full opacity still reads
+                -- as a line, so this only matters when one looks washed out.
+                if yUI then
+                    local ypx   = toPx(yUI)
+                    local start = ypx - px / 2          -- leading edge in px
+                    local frac  = math.abs(start - math.floor(start + 0.5))
+                    if frac > 0.05 then
+                        print(("        edge at %.3f px %s"):format(
+                            start, C("888888", "(between two rows — only matters if it looks washed out)")))
+                    end
+                end
+            end
+        end
+    end
+    if shown == 0 then
+        print(C("ffcc44", "  No visible bar with solid edges. Show the tracker (test mode works) and set the border texture to Solid."))
     end
 end

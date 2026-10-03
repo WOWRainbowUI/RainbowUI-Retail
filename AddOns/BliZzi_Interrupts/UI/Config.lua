@@ -607,7 +607,11 @@ local function BuildPageInterruptTracker(cat)
         function(v) BIT.db.soundKickSuccess = v end,
         function()
             local c = Settings.CreateControlTextContainer()
-            for _, s in ipairs(BIT.Media:GetAvailableSounds()) do c:Add(s.name, s.name) end
+            -- Same green "Custom: name" marking as the main settings
+            -- window. Value stays the bare name.
+            for _, s in ipairs(BIT.Media:GetAvailableSounds()) do
+                c:Add(s.name, s.user and ("|cff4dff4dCustom: " .. s.name .. "|r") or s.name)
+            end
             return c:GetData()
         end))
     InSection(sndSect, MakeDropdown(cat, "BIT_soundFailed", L["DD_SOUND_FAILED"], "None",
@@ -615,7 +619,11 @@ local function BuildPageInterruptTracker(cat)
         function(v) BIT.db.soundKickFailed = v end,
         function()
             local c = Settings.CreateControlTextContainer()
-            for _, s in ipairs(BIT.Media:GetAvailableSounds()) do c:Add(s.name, s.name) end
+            -- Same green "Custom: name" marking as the main settings
+            -- window. Value stays the bare name.
+            for _, s in ipairs(BIT.Media:GetAvailableSounds()) do
+                c:Add(s.name, s.user and ("|cff4dff4dCustom: " .. s.name .. "|r") or s.name)
+            end
             return c:GetData()
         end))
 
@@ -1228,6 +1236,12 @@ local function BuildPageSizeFont(cat)
             if BIT.SyncCD and BIT.SyncCD.ScaleFrame then
                 BIT.SyncCD:ScaleFrame(v)
             end
+            -- The solid border's edges are one physical pixel thick,
+            -- translated through the effective scale — which this slider
+            -- just changed. Without recomputing they keep the previous
+            -- scale's thickness and turn into fractions of a pixel, which
+            -- makes individual sides disappear.
+            if BIT.UI and BIT.UI.ApplyBorderToAll then BIT.UI:ApplyBorderToAll() end
         end,
         LL("TT_FRAME_SCALE", "Scales the entire tracker window. 100% = original size.")))
 
