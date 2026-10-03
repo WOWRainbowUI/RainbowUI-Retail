@@ -8,6 +8,22 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.1.0.1
+Released 2026-08-11
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.1.0.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 12.1.0.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.4.5 for Classic Mists of Pandaria
+Version 2.5.6.4 for Classic Burning Crusade
+Version 1.15.9.4 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 12.0.7.4
 Released 2026-07-31
 
@@ -190,77 +206,6 @@ Version 11.2.7.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 5.5.2.2 for Classic Mists of Pandaria
 Version 1.15.8.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
-
-=======================================
-RELEASE 11.2.5.2
-Released 2025-10-31
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.2.5.2 for Retail WoW
-Version 5.5.2.1 for Classic Mists of Pandaria
-Version 1.15.8.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Increased the editbox width in the Save and Rename popup windows.
-- Updated for Classic MoP 5.5.2 and Classic WoW 1.15.8.
-
-=======================================
-RELEASE 11.2.5.1
-Released 2025-10-09
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.2.5.1 for Retail WoW
-Version 5.5.1.1 for Classic Mists of Pandaria
-Version 1.15.7.5 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.2.5 and Classic MoP 5.5.1.
-- Fixed error when saving/renaming profiles using the UI.  (UDProfiles.lua 4602)
-
-=======================================
-RELEASE 11.2.0.1
-Released 2025-08-05
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.2.0.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.2.0 (The War Within).
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.2.0.1 for Retail WoW
-Version 5.5.0.2 for Classic Mists of Pandaria
-Version 1.15.7.4 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Fixed bad use of an internal font (Game120Font) that may have been causing it to appear very faded in other parts of the game and/or other addons.
-
-=======================================
-RELEASE 11.1.7.2
-Released 2025-07-01
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 5.5.0.1 for Classic Mists of Pandaria
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic MoP 5.5.0.
-- Fixed offsets for many of the models.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.7.2 for Retail WoW
-Version 1.15.7.3 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
-
-=======================================
-RELEASE 11.1.7.1
-Released 2025-06-17
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.7.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.1.7 (The War Within).
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 4.4.2.6 for Classic Cataclysm
-Version 1.15.7.2 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - No changes.
 
