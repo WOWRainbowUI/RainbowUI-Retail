@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## 1.1.1 - French Localization Completed
+
+- Added missing French translations for the Professions Area map node.
+
+## 1.1.0 - WoW 12.0.7 and 12.1 Downloads
+
+- The CurseForge release is now listed for both WoW 12.0.7 and 12.1.
+
+## 1.0.9 - Update for 12.1
+
+- Update addon for 12.1
+
 ## [1.0.8] - Update for 12.0.7
 
 - Update addon for 12.0.7
