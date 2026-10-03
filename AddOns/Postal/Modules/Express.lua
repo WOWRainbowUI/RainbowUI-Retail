@@ -19,24 +19,31 @@ function Postal_Express:PLAYER_INTERACTION_MANAGER_FRAME_HIDE(eventName, ...)
 	if paneType ==  Enum.PlayerInteractionType.MailInfo then Postal_Express:MAIL_CLOSED() end
 end
 
+local retailHooksInstalled
+local function InstallRetailHooks()
+	if retailHooksInstalled then return end
+	retailHooksInstalled = true
+	if TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall then
+		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function (self, data)
+			if self.OnTooltipSetItem then
+				self:OnTooltipSetItem();
+			end
+		end)
+	end
+	if Postal.WOWRetail then
+		hooksecurefunc("HandleModifiedItemClick", Postal_Express.HandleModifiedItemClick)
+	end
+end
+
 function Postal_Express:MAIL_SHOW()
 	if Postal.db.profile.Express.EnableAltClick and not self:IsHooked(GameTooltip, "OnTooltipSetItem") then
 		if Postal.WOWClassic or Postal.WOWBCClassic or Postal.WOWWotLKClassic or Postal.WOWCataClassic or Postal.WOWMists then
 			self:HookScript(GameTooltip, "OnTooltipSetItem")
 		else
-			if TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall then
-				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function (self, data)
-					if self.OnTooltipSetItem then
-						self:OnTooltipSetItem();
-					end
-				end)
-			end
+			InstallRetailHooks()
 		end
 		if Postal.WOWClassic or Postal.WOWBCClassic or Postal.WOWWotLKClassic or Postal.WOWCataClassic or Postal.WOWMists then
 			self:RawHook("ContainerFrameItemButton_OnModifiedClick", true)
-		end
-		if Postal.WOWRetail then
-			hooksecurefunc("HandleModifiedItemClick", Postal_Express.HandleModifiedItemClick)
 		end
 	end
 	if Postal.WOWBCClassic then
@@ -305,9 +312,11 @@ function Postal_Express:ContainerFrameItemButton_OnModifiedClick(this, button, .
 end
 
 function Postal_Express.HandleModifiedItemClick(itemLink, itemLocation)
+	if not Postal.db.profile.Express.EnableAltClick then return end -- retail hooks cannot be removed
 	if itemLocation ~= nil then -- item location is only not nil for bag item clicks
 		local button = GetMouseButtonClicked()
 		local bag, slot = itemLocation.bagID, itemLocation.slotIndex
+		if not bag or not slot then return end -- equipped items have no bag slot
 		Postal_Express:ContainerFrameItemButtonOnModifiedClick(bag, slot, button)
 	end
 end
@@ -317,9 +326,13 @@ function Postal_Express.SetEnableAltClick(dropdownbutton, arg1, arg2, checked)
 	Postal.db.profile.Express.EnableAltClick = checked
 	if checked then
 		if MailFrame:IsVisible() and not self:IsHooked(GameTooltip, "OnTooltipSetItem") then
-			self:HookScript(GameTooltip, "OnTooltipSetItem")
-			if Postal.WOWClassic or Postal.WOWBCClassic or Postal.WOWWotLKClassic or Postal.WOWCataClassic or Postal.WOWMists then
-				self:RawHook("ContainerFrameItemButton_OnModifiedClick", true)
+			if Postal.WOWRetail then
+				InstallRetailHooks()
+			else
+				self:HookScript(GameTooltip, "OnTooltipSetItem")
+				if Postal.WOWClassic or Postal.WOWBCClassic or Postal.WOWWotLKClassic or Postal.WOWCataClassic or Postal.WOWMists then
+					self:RawHook("ContainerFrameItemButton_OnModifiedClick", true)
+				end
 			end
 		end
 	else

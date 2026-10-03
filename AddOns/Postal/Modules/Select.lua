@@ -220,10 +220,10 @@ function Postal_Select:GetUniqueID(index)
 	sender = sender or ""
 	subject = subject or ""
 	hasItem = hasItem or 0
-	wasReturned = wasReturned or 0
-	textCreated = textCreated or 0
-	canReply = canReply or 0
-	isGM = isGM or 0
+	wasReturned = (wasReturned and wasReturned ~= 0) and 1 or 0
+	textCreated = (textCreated and textCreated ~= 0) and 1 or 0
+	canReply = (canReply and canReply ~= 0) and 1 or 0
+	isGM = (isGM and isGM ~= 0) and 1 or 0
 	return format("%s%s%s%s%s%s%d%d%d%d%d", packageIcon, stationeryIcon, sender, subject, money, CODAmount, hasItem, wasReturned, textCreated, canReply, isGM)
 end
 

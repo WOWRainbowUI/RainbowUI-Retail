@@ -291,10 +291,12 @@ StaticPopupDialogs["POSTAL_NEW_PROFILE"] = {
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	hasEditBox = 1,
-	maxLetters = 128,
+	maxLetters = 50,
 	editBoxWidth = 350,  -- Needed in Cata
 	OnAccept = function(self)
-		Postal.db:SetProfile(strtrim(StaticPopup1EditBox:GetText()))
+		local name = strtrim(StaticPopup1EditBox:GetText())
+		if name == "" then return true end -- AceDB rejects empty names; keep the dialog open
+		Postal.db:SetProfile(name)
 	end,
 	OnShow = function(self)
 		StaticPopup1EditBox:SetText(Postal.db:GetCurrentProfile())
@@ -303,7 +305,9 @@ StaticPopupDialogs["POSTAL_NEW_PROFILE"] = {
 	OnHide = StaticPopupDialogs["SET_GUILDPLAYERNOTE"].OnHide,
 	EditBoxOnEnterPressed = function(self)
 		local parent = self:GetParent()
-		Postal.db:SetProfile(strtrim(StaticPopup1EditBox:GetText()))
+		local name = strtrim(StaticPopup1EditBox:GetText())
+		if name == "" then return end
+		Postal.db:SetProfile(name)
 		parent:Hide()
 	end,
 	EditBoxOnEscapePressed = StaticPopupDialogs["SET_GUILDPLAYERNOTE"].EditBoxOnEscapePressed,

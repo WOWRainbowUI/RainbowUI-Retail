@@ -5,13 +5,13 @@
 
 local AL3 = LibStub("AceLocale-3.0")
 local debug = false
---[===[@debug@
+--[==[@debug@
 debug = true
---@end-debug@]===]
+--@end-debug@]==]
 
 local L = AL3:NewLocale("Postal", "enUS", true, debug)
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = true
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = true
 L["|cffeda55fControl-Click|r to attach similar items."] = true
 L["|cffeda55fCtrl-Click|r to return it to sender."] = true
 L["|cffeda55fShift-Click|r to take the contents."] = true
@@ -153,7 +153,7 @@ end
 
 L = AL3:NewLocale("Postal", "deDE")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Klick|r, um diesen Gegenstand an %s zu senden."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Klick|r, um diesen Gegenstand an %s zu senden."
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fStrg-Klick|r, um ähnliche Gegenstände anzuhängen."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fStrg-Klick|r, um diesen Gegenstand zurückzusenden."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-Klick|r, um die Gegenstände zu entnehmen."
@@ -308,7 +308,7 @@ end
 
 L = AL3:NewLocale("Postal", "esES") or AL3:NewLocale("Postal", "esMX")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Clic|r para enviar este objeto a %s"
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Clic|r para enviar este objeto a %s"
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl-Clic|r para adjuntar objetos similares."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-Clic|r para devolver correo al que te lo envió."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-Clic|r para tomar el contenido."
@@ -461,7 +461,7 @@ end
 
 L = AL3:NewLocale("Postal", "frFR")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+clic gauche|r pour envoyer cet objet à %s."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+clic gauche|r pour envoyer cet objet à %s."
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl+clic|r pour joindre les objets similaires."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl+clic gauche|r pour renvoyer à l'expéditeur."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fMaj+clic gauche|r pour récupérer le contenu."
@@ -616,7 +616,7 @@ end
 
 L = AL3:NewLocale("Postal", "koKR")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-클릭|r으로 이 아이템을 %s님에게 보냅니다."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-클릭|r으로 이 아이템을 %s님에게 보냅니다."
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl-클릭|r으로 같은 종류의 아이템을 첨부합니다."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-클릭|r으로 반송합니다."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-클릭|r으로 내용물을 수취합니다."
@@ -771,7 +771,7 @@ end
 
 L = AL3:NewLocale("Postal", "ruRU")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+щелчок|r, чтобы выслать предмет в адрес %s."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+щелчок|r, чтобы выслать предмет в адрес %s."
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fControl+щелчок|r, чтобы прикрепить аналогичные предметы."
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl+щелчок|r, чтобы вернуть отправителю."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift+щелчок|r, чтобы взять содержимое."
@@ -926,7 +926,7 @@ end
 
 L = AL3:NewLocale("Postal", "zhCN")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+点击|r将该物品发送给%s。"
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt+点击|r将该物品发送给%s。"
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl+点击|r附加类似物品。"
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl+点击|r将信退给发件人。"
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift+点击|r获得该邮件的内容副本。"
@@ -1080,7 +1080,7 @@ end
 
 L = AL3:NewLocale("Postal", "zhTW")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-點擊: |r將物品寄給%s。"
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-點擊: |r將物品寄給%s。"
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl-點擊|r附加類似物品。"
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-點擊: |r返回信件。"
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-點擊: |r收取信件。"
@@ -1235,7 +1235,7 @@ end
 
 L = AL3:NewLocale("Postal", "ptBR")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Click|r para enviar este item para %s."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Click|r para enviar este item para %s."
 L["|cffeda55fControl-Click|r to attach similar items."] = "|cffeda55fCtrl-Clique|r para anexar itens semelhantes"
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-Click|r para retorná-lo ao remetente."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-Click|r para pegar o conteúdo."
@@ -1389,7 +1389,7 @@ end
 
 L = AL3:NewLocale("Postal", "itIT")
 if L then
-L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Click|r per spedire questo oggetto a %s."
+    L["|cffeda55fAlt-Click|r to send this item to %s."] = "|cffeda55fAlt-Click|r per spedire questo oggetto a %s."
 L["|cffeda55fControl-Click|r to attach similar items."] = "Control-Click per allegare oggetti simili"
 L["|cffeda55fCtrl-Click|r to return it to sender."] = "|cffeda55fCtrl-Click|r per rimandarla al mittente."
 L["|cffeda55fShift-Click|r to take the contents."] = "|cffeda55fShift-Click|r per prendere il contenuto."
