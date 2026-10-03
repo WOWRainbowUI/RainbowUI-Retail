@@ -48,6 +48,8 @@ function addonTable.Display.AbilityChargesPipMixin:Setup(details)
   self.chargingStatusBar:SetFrameLevel(self.statusBar:GetFrameLevel() + 3)
   self.borderWrapper:SetFrameLevel(self.statusBar:GetFrameLevel() + 5)
 
+  self.spellID = addonTable.Utilities.IsAbilitySpellKnown(self.details.resource.spellID, self.details.resource.rank) or self.details.resource.spellID
+
   self:Import()
 end
 
@@ -56,15 +58,14 @@ function addonTable.Display.AbilityChargesPipMixin:Disable()
 end
 
 function addonTable.Display.AbilityChargesPipMixin:Import()
-  local chargesInfo = C_Spell.GetSpellCharges(self.details.resource.spellID)
-  if chargesInfo.maxCharges < self.index then
-    self:UnregisterEvent("SPELL_UPDATE_CHARGES")
+  local chargesInfo = C_Spell.GetSpellCharges(self.spellID)
+  self.maxCharges = chargesInfo.maxCharges
+
+  if self.maxCharges < self.index then
     self:Hide()
     return
   end
   self:Show()
-
-  self.maxCharges = chargesInfo.maxCharges
 
   self.statusBar:SetValue(chargesInfo.currentCharges)
 
@@ -73,7 +74,7 @@ function addonTable.Display.AbilityChargesPipMixin:Import()
   if chargesInfo.isActive then
     self.offsetStatusBar:SetMinMaxValues(0, self.maxCharges)
     self.offsetStatusBar:SetValue(chargesInfo.currentCharges)
-    self.chargingStatusBar:SetTimerDuration(C_Spell.GetSpellChargeDuration(self.details.resource.spellID))
+    self.chargingStatusBar:SetTimerDuration(C_Spell.GetSpellChargeDuration(self.spellID))
   end
 end
 

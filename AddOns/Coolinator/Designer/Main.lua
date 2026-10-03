@@ -152,18 +152,21 @@ function addonTable.Designer.GetLabel(details)
     label = label .. " - " .. addonTable.Constants.BarResourceLabelMap[details.resource.kind]
     if details.resource.kind == "class" then
       label = label .. " - " .. addonTable.Constants.BarClassResourceLabelMap[details.resource.resource]
-    end
-    if details.resource.kind == "aura" or details.resource.kind == "ability" or details.resource.kind == "auraStackPip" or details.resource.kind == "auraStacks" then
-      label = label .. ": " .. details.resource.spellID
+    elseif details.resource.kind == "aura" or details.resource.kind == "ability" or details.resource.kind == "abilityCharge" or details.resource.kind == "auraStackPip" or details.resource.kind == "auraStacks" then
+      label = label .. ": " .. ((C_Spell.GetSpellName(details.resource.spellID) .. " (" .. details.resource.spellID .. ")") or details.resource.spellID)
     elseif details.resource.kind == "item" then
-      label = label .. ": " .. details.resource.itemID
+      label = label .. ": " .. ((C_Item.GetItemNameByID(details.resource.itemID) .. " (" .. details.resource.itemID .. ")") or details.resource.itemID)
+    elseif details.resource.kind == "swing" then
+      label = label .. ": " .. addonTable.Constants.BarSwingResourceMap[details.resource.weapon]
     end
   elseif details.kind == "icon" then
     label = label .. " - " .. addonTable.Constants.IconResourceLabelMap[details.resource.kind]
-    if details.resource.kind == "aura" or details.resource.kind == "ability" then
-      label = label .. ": " .. details.resource.spellID
+    if details.resource.kind == "aura" or details.resource.kind == "ability" or details.resource.kind == "auraMissing" then
+      label = label .. ": " .. ((C_Spell.GetSpellName(details.resource.spellID) .. " (" .. details.resource.spellID .. ")") or details.resource.spellID)
     elseif details.resource.kind == "item" then
-      label = label .. ": " .. details.resource.itemID
+      label = label .. ": " .. ((C_Item.GetItemNameByID(details.resource.itemID) .. " (" .. details.resource.itemID .. ")") or details.resource.itemID)
+    elseif details.resource.kind == "equipment" then
+      label = label .. ": " .. C_Item.GetItemInventorySlotInfo(details.resource.equipmentSlot)
     end
   end
 

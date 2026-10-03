@@ -31,6 +31,7 @@ function addonTable.Display.LayoutManagerSharedMixin:OnLoad()
     totemStatusBar = addonTable.Display.GeneratePool(addonTable.Display.TotemStatusBarMixin),
     totemIcon = addonTable.Display.GeneratePool(addonTable.Display.TotemIconMixin),
     castBar = addonTable.Display.GeneratePool(addonTable.Display.CastBarMixin),
+    swingBar = addonTable.Display.GeneratePool(addonTable.Display.SwingBarMixin),
   }
 end
 
@@ -144,6 +145,13 @@ function addonTable.Display.LayoutManagerSharedMixin:GetBar(details)
 
   elseif details.resource.kind == "cast" then
     local bar = self.pools.castBar:Acquire()
+    bar:Show()
+    bar:Enable()
+    bar:Setup(details)
+    return bar
+
+  elseif details.resource.kind == "swing" then
+    local bar = self.pools.swingBar:Acquire()
     bar:Show()
     bar:Enable()
     bar:Setup(details)

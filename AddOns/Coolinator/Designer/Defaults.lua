@@ -515,5 +515,28 @@ addonTable.Designer.Defaults = {
       empoweredStage3 = GetColor("9a5628"),
       empoweredStageHold = GetColor("cbc74d"),
     }
-  }
+  },
+  SwingBar = {
+    kind = "bar",
+    resource = {kind = "swing", weapon = "none"},
+    width = 1,
+    height = 1,
+    scale = 1.5,
+    layout = "horizontal",
+    direction = "right",
+    alpha = 1,
+    foreground = {
+      asset = "Cooli: Fade Bottom",
+      color = {r = 0, g = 1, b = 0},
+    },
+    background = {
+      asset = "Cooli: Solid White",
+      color = GetColor("94ff21", 0.3),
+    },
+    border = {
+      asset = "Cooli: Blizzard Midnight",
+      color = {r = 1, g = 1, b = 1},
+    },
+    texts = spellBarTexts,
+  },
 }

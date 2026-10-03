@@ -45,6 +45,7 @@ addonTable.Constants.Events = {
   "Update.KeyBindings",
   "Update.SpellsDisplay",
   "Update.Totems",
+  "Update.SwingTimer",
   "Update.WidgetShowHide",
 
   "Designer.Open",
@@ -157,6 +158,7 @@ addonTable.Constants.BarResourceLabelMap = {
   ["ability"] = addonTable.Locales.ABILITY,
   ["abilityCharge"] = addonTable.Locales.ABILITY_CHARGE,
   ["cast"] = addonTable.Locales.CAST,
+  ["swing"] = addonTable.Locales.SWING,
 }
 
 addonTable.Constants.BarClassResourceLabelMap = {
@@ -189,6 +191,12 @@ addonTable.Constants.IconResourceLabelMap = {
   ["ability"] = addonTable.Locales.ABILITY,
   ["item"] = addonTable.Locales.ITEM,
   ["equipment"] = addonTable.Locales.EQUIPMENT,
+}
+
+addonTable.Constants.BarSwingResourceMap = {
+  ["main-hand"] = addonTable.Locales.MAIN_HAND,
+  ["off-hand"] = addonTable.Locales.OFF_HAND,
+  ["ranged"] = addonTable.Locales.RANGED,
 }
 
 addonTable.Constants.AurasFromItems = {
@@ -331,17 +339,31 @@ addonTable.Constants.GlowsMap = {
   ["glow-static"] = "Cooli: Static Glow",
 }
 
-addonTable.Constants.AuraStackOverrides = {
-  [190456] = 100, -- Warrior: Ignore Pain
-  [182104] = 3, -- Paladin (Prot): Shining Light
-  [1246769] = 20, -- Mage (Frost): Shatter
-  [1242974] = 20, -- Mage (Arcane): Arcane Salvo
-  [384452] = 20, -- Mage (Arcane): Arcane Salvo
-  [12950] = 4, -- Warrior (Fury): Whirlwind
-  [81340] = 2, -- Death Knight (Unholy): Sudden Doom
-  [49530] = 2, -- Death Knight (Unholy): Sudden Doom
-  [51128] = 2, -- Death Knight (Frost): Killing Machine
-  [203981] = 6, -- Demon Hunter (Vengeance): Soul Shards
-  [1227619] = 12, -- Demon Hunter (Devourer): Soul Shards
-  [192081] = 20,
-}
+if addonTable.Constants.IsRetail then
+  addonTable.Constants.AuraStackOverrides = {
+    [190456] = 100, -- Warrior: Ignore Pain
+    [182104] = 3, -- Paladin (Prot): Shining Light
+    [1246769] = 20, -- Mage (Frost): Shatter
+    [1242974] = 20, -- Mage (Arcane): Arcane Salvo
+    [384452] = 20, -- Mage (Arcane): Arcane Salvo
+    [12950] = 4, -- Warrior (Fury): Whirlwind
+    [81340] = 2, -- Death Knight (Unholy): Sudden Doom
+    [49530] = 2, -- Death Knight (Unholy): Sudden Doom
+    [51128] = 2, -- Death Knight (Frost): Killing Machine
+    [203981] = 6, -- Demon Hunter (Vengeance): Soul Shards
+    [1227619] = 12, -- Demon Hunter (Devourer): Soul Shards
+    [192081] = 20, -- Druid (Guardian): Ironfur
+    [344179] = 10, -- Shaman (Enhancement): Maelstrom Weapon
+  }
+elseif addonTable.Constants.IsForever then
+  addonTable.Constants.AuraStackOverrides = {
+    [324] = 3, -- Rank 1 Shaman Lightning Shield
+    [325] = 3,
+    [905] = 3,
+    [945] = 3,
+    [8134] = 3,
+    [10431] = 3,
+    [10432] = 3, -- Rank 7 Shaman Lightning Shield
+
+  }
+end

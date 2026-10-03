@@ -1,6 +1,6 @@
 ## Interface: 120100, 16001
 ## Title: Coolinator
-## Version: 151
+## Version: 155
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
@@ -76,6 +76,7 @@ Display/TotemStatusBar.lua
 Display/Group.lua
 Display/Stack.lua
 Display/AbilityChargesStatusBar.lua
+Display/SwingBar.lua
 Display/Spacer.lua
 Display/BaseLayout.lua
 Display/LayoutShared.lua

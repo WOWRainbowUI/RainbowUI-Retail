@@ -47,7 +47,7 @@ function addonTable.Display.AbilityStatusBarMixin:Setup(details)
   addonTable.Display.BaseDurationStatusBarMixin.Setup(self, details)
 
   self.ignoreGCD = details.resource.spellID ~= addonTable.Constants.GCD and not addonTable.Config.Get(addonTable.Config.Options.SHOW_GCD_SWIPE)
-  self:UpdateSpellByID(addonTable.Utilities.IsAbilitySpellKnown(details.resource.spellID) or details.resource.spellID)
+  self:UpdateSpellByID(addonTable.Utilities.IsAbilitySpellKnown(details.resource.spellID, details.resource.rank) or details.resource.spellID)
 end
 
 function addonTable.Display.AbilityStatusBarMixin:UpdateSpellByID(spellID)
@@ -77,13 +77,13 @@ function addonTable.Display.AbilityStatusBarMixin:UpdateSpellByID(spellID)
   local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
   self:SetShown(cooldownInfo.isActive and (not self.ignoreGCD or not cooldownInfo.isOnGCD))
   if not self:IsShown() then
-    self:Collapse()
+    self:Hide()
     if self.ticker then
       self.ticker:Cancel()
       self.ticker = nil
     end
   else
-    self:Expand()
+    self:Show()
 
     self.ticker = C_Timer.NewTicker(0.1, function()
       cooldownInfo = C_Spell.GetSpellCooldown(spellID)

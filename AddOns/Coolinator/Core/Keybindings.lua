@@ -62,6 +62,8 @@ function addonTable.Core.StoreKeyBindings()
         local text
         if key1:match("^BUTTON") then
           text = addonTable.Locales.MOUSE_BUTTON_X:format(key1:match("^BUTTON(.*)"))
+        elseif key1:match("^NUMPAD") then
+          text = addonTable.Locales.NUMBER_PAD_X:format(key1:match("^NUMPAD(.*)"))
         else
           text = GetBindingText(key1, 1)
         end
