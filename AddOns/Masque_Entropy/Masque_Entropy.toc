@@ -1,0 +1,34 @@
+## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100
+
+## Author: StormFX
+## Title: Masque: Entropy
+## Version: 12.1.0
+
+## Category: Masque
+## Dependencies: Masque
+## IconTexture: Interface\AddOns\Masque_Entropy\Textures\Icon
+
+## Notes: Entropy skins for Masque.
+## Notes-deDE: Entropy-Skin für Masque.
+## Notes-esMX: Skins Entropy para Masque.
+## Notes-esES: Skins Entropy para Masque.
+## Notes-frFR: Skins de Entropy pour Masque.
+## Notes-itIT: Skins Entropy per Masque.
+## Notes-ptBR: Aparências Entropy para o Masque.
+## Notes-ruRU: Скин Entropy для Masque.
+## Notes-zhTW: Masque的Entropy外觀。
+
+## X-Category: Interface Enhancements
+## X-Credits: Zeal
+## X-Discord: https://discord.gg/7MTWRgDzz8
+## X-Website: https://github.com/SFX-WoW/Masque_Entropy
+
+## X-Curse-Project-ID: 13595
+## X-Wago-ID: 25NRZvN3
+## X-WoWI-ID: 8873
+
+# Locales
+Locales.lua
+
+# Skins
+Skins.lua
