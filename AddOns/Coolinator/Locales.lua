@@ -313,6 +313,14 @@ L["FADE"] = "Fade"
 L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "Thanks for using Coolinator. Consider donating to support development"
 
 local L = Locales.zhTW
+L["NUMBER_PAD_X"] = "數字鍵盤%s"
+L["SWING"] = "揮擊"
+L["MAIN_HAND"] = "主手"
+L["OFF_HAND"] = "副手"
+L["RANGED"] = "遠程"
+L["SPELL_RANK"] = "法術等級"
+L["MAX"] = "最大"
+
 L["ABILITY"] = "技能"
 L["ABILITY_BAR"] = "技能量條"
 L["ABILITY_CHARGE"] = "技能充能"
@@ -564,6 +572,14 @@ L["WIDTH_RESTRICTION"] = "寬度限制"
 L["WORLD"] = "世界"
 
 local L = Locales.zhCN
+L["NUMBER_PAD_X"] = "数字键盘%s"
+L["SWING"] = "挥击"
+L["MAIN_HAND"] = "主手"
+L["OFF_HAND"] = "副手"
+L["RANGED"] = "远程"
+L["SPELL_RANK"] = "法术等级"
+L["MAX"] = "最大"
+
 L["ABILITY"] = "技能"
 L["ABILITY_BAR"] = "技能栏"
 L["ABILITY_CHARGE"] = "技能充能"
