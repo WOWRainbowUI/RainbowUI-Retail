@@ -89,7 +89,7 @@ local function getInitialAddonInfo()
             vendor = C_AddOns.GetAddOnMetadata(i, "X-Vendor") == "NetEase",
             version = C_AddOns.GetAddOnMetadata(i, "Version"),
             xcategories = UI163_USE_X_CATEGORIES and C_AddOns.GetAddOnMetadata(i, "X-Category"),
-            originEnabled = C_AddOns.GetAddOnEnableState(i, U1PlayerName)>=2,
+            originEnabled = C_AddOns.GetAddOnEnableState(i, U1PlayerGUID)>=2,
         }
 
         --- transform multiple dependencies (which can't show in control panel) to optional dependencies
@@ -1016,7 +1016,7 @@ function U1LoadAddOnBackend(name)
         if type(deps) == "string" then deps = { deps }; end
         for _, dep in ipairs(deps) do
             if not C_AddOns.IsAddOnLoaded(dep) and not loadPath[dep] then
-                if C_AddOns.GetAddOnEnableState(dep, U1PlayerName) < 2 then EacEnableAddOn(dep) end
+                if C_AddOns.GetAddOnEnableState(dep, U1PlayerGUID) < 2 then EacEnableAddOn(dep) end
                 local loaded = U1LoadAddOnBackend(dep);
                 if (not loaded) then
                     U1OutputAddonState(format(L["%%s load failed, error loading dependency [%s]"], dep), ii.name, true);
@@ -1037,7 +1037,7 @@ function U1LoadAddOnBackend(name)
     end
 
     --- childrens are not loaded here, they are load in ToggleAddon
-    if C_AddOns.GetAddOnEnableState(name, U1PlayerName) < 2 then EacEnableAddOn(name) end
+    if C_AddOns.GetAddOnEnableState(name, U1PlayerGUID) < 2 then EacEnableAddOn(name) end
 
     -- print("before", name, GetTime())
     capturing = name

@@ -293,7 +293,7 @@ function UUI.SetAddonTooltip(addonName, tip)
     
     local name, title, notes, _, reason = C_AddOns.GetAddOnInfo(addonName);
 	local title = U1GetAddonTitle(addonName, false);
-    local enabled = C_AddOns.GetAddOnEnableState(addonName, U1PlayerName)>=2;
+    local enabled = C_AddOns.GetAddOnEnableState(addonName, U1PlayerGUID)>=2;
     local loaded = C_AddOns.IsAddOnLoaded(name);
 	local intro;
 
@@ -364,7 +364,7 @@ function UUI.SetAddonTooltip(addonName, tip)
             for i=1, depNum do
                 local depName = select(i, C_AddOns.GetAddOnDependencies(name));
                 local _, _, _, _, depReason = C_AddOns.GetAddOnInfo(depName)
-                local depEnabled = C_AddOns.GetAddOnEnableState(name, U1PlayerName)>=2
+                local depEnabled = C_AddOns.GetAddOnEnableState(depName, U1PlayerGUID)>=2
                 local status, reasonInfo = UUI.getAddonStatus(nil, C_AddOns.IsAddOnLoaded(depName), depEnabled, depReason, C_AddOns.IsAddOnLoadOnDemand(depName));
                 tip:AddLine(UUI.formatTip(L["Depends"], depName.." "..(reasonInfo or status)), 1, 1, 1)
             end

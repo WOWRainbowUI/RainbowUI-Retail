@@ -2,6 +2,8 @@ local _, U1 = ...
 --GetLocale = function() return "zhCN" end
 
 U1PlayerName = UnitName("player")
+-- Addon enable states must identify the character across realms, like Blizzard's AddonList.
+U1PlayerGUID = UnitGUID("player")
 U1PlayerClass = select(2, UnitClass("player"))
 
 local f = CreateFrame("Frame") --最先注册
